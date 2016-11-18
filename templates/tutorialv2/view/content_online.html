@@ -31,6 +31,12 @@
 {% endspaceless %}{% endblock %}
 
 
+{% block extra_link %}
+    {% if content.promotion_content.get_absolute_url_online %}
+        <link rel="canonical" href="{{ content.promotion_content.get_absolute_url_online }}" />
+    {% endif %}
+{% endblock %}
+
 
 {% block opengraph %}
     {% include "tutorialv2/includes/opengraph.part.html" %}
@@ -70,6 +76,22 @@
 
 
 {% block content %}
+
+    {% if content.is_opinion %}
+        {% if content.promotion_content %}
+            <div class="alert-box info">
+                {% if content.promotion_content.get_absolute_url_online %}
+                    {% blocktrans with url_article=content.promotion_content.get_absolute_url_online %}
+                        Ce billet a été promu en <a href="{{ url_article }}">article</a>.
+                    {% endblocktrans %}
+                {% elif is_staff %}
+                    {% blocktrans with url_article=content.promotion_content.get_absolute_url %}
+                        Ce billet a été promu en <a href="{{ url_article }}">article</a> qui est en cours de validation.
+                    {% endblocktrans %}
+                {% endif %}
+            </div>
+        {% endif %}
+    {% endif %}
 
     {% if content.has_extracts %}
         {{ content.get_content_online|safe }}
@@ -133,6 +155,17 @@
     </li>
     {% endif %}
     {% endif %}
+
+    {% for author in content.public_version.authors.all %}
+        <li>
+            <a href="{% url 'content:find-opinion' author.pk %}" class="ico-after offline blue">
+                {% blocktrans %}
+                    Voir la tribune de {{ author }}
+                {% endblocktrans %}
+            </a>
+        </li>
+    {% endfor %}
+
 {% endblock %}
 
 {% block sidebar_blocks %}
@@ -148,17 +181,44 @@
                     </a>
                 </li>
                 {% if is_staff %}
-                <li>
-                    <a href="{% url "validation:history" content.pk content.slug %}" class="ico-after history blue">
-                        {% trans "Historique validation" %}
-                    </a>
-                </li>
-                <li>
-                    <a href="#unpublish" class="ico-after open-modal cross blue">
-                        {% trans "Dépublier" %}
-                    </a>
-                    {% crispy formRevokeValidation %}
-                </li>
+                    {% if content.required_validation_before %}
+                        <li>
+                            <a href="{% url "validation:history" content.pk content.slug %}" class="ico-after history blue">
+                                {% trans "Historique validation" %}
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#unpublish" class="ico-after open-modal cross blue">
+                                {% trans "Dépublier" %}
+                            </a>
+                            {% crispy formRevokeValidation %}
+                        </li>
+                    {% else %}
+                        {% if is_staff %}
+                            {% if content.sha_public != content.sha_approved  %}
+                                <li>
+                                    <a href="#valid-opinion" class="ico-after open-modal tick green">
+                                        {% trans "Valider le billet" %}
+                                    </a>
+                                    {% crispy formValidOpinion %}
+                                </li>
+                            {% endif %}
+                            {% if not content.promotion_content %}
+                                <li>
+                                    <a href="#promote-opinion" class="ico-after open-modal tick green">
+                                        {% trans "Promouvoir en article" %}
+                                    </a>
+                                    {% crispy formPromotion %}
+                                </li>
+                            {% endif %}
+                        {% endif %}
+                        <li>
+                            <a href="#unpublish" class="ico-after open-modal cross blue">
+                                {% trans "Dépublier" %}
+                            </a>
+                            {% crispy formUnpublication %}
+                        </li>
+                    {% endif %}
                 {% endif %}
             </ul>
         </div>

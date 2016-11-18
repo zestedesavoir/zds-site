@@ -91,7 +91,7 @@ def top_categories_content(_type):
         else:
             cats[key] = [(csc['subcategory__title'], csc['subcategory__slug'])]
 
-    return {"tags": PublishedContent.objects.get_top_tags(["TUTORIAL", "ARTICLE"],
+    return {"tags": PublishedContent.objects.get_top_tags(['TUTORIAL', 'ARTICLE', 'OPINION'],
                                                           limit=settings.ZDS_APP['forum']['top_tag_max']),
             "categories": cats}
 

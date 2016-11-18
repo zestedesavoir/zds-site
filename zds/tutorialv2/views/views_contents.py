@@ -1,15 +1,20 @@
 # coding: utf-8
-import logging
+
+from datetime import datetime
 import json as json_reader
+import logging
 import os
+from PIL import Image as ImagePIL
 import re
 import shutil
 import tempfile
 import time
 import zipfile
-from datetime import datetime
 
-from PIL import Image as ImagePIL
+from easy_thumbnails.files import get_thumbnailer
+from git import BadName, BadObject, GitCommandError, objects
+from uuslug import slugify
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -24,19 +29,16 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import string_concat
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import FormView, DeleteView, RedirectView
-from easy_thumbnails.files import get_thumbnailer
-from git import BadName, BadObject, GitCommandError, objects
-from uuslug import slugify
 
-from zds.forum.models import Forum, mark_read
-from zds.forum.models import Topic
+from zds.forum.models import Forum, mark_read, Topic
 from zds.gallery.models import Gallery, UserGallery, Image, GALLERY_WRITE
 from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin, PermissionRequiredMixin
 from zds.member.models import Profile
 from zds.notification.models import TopicAnswerSubscription, NewPublicationSubscription
 from zds.tutorialv2.forms import ContentForm, JsFiddleActivationForm, AskValidationForm, AcceptValidationForm, \
     RejectValidationForm, RevokeValidationForm, WarnTypoForm, ImportContentForm, ImportNewContentForm, ContainerForm, \
-    ExtractForm, BetaForm, MoveElementForm, AuthorForm, RemoveAuthorForm, CancelValidationForm
+    ExtractForm, BetaForm, MoveElementForm, AuthorForm, RemoveAuthorForm, CancelValidationForm, PublicationForm, \
+    UnpublicationForm
 from zds.tutorialv2.mixins import SingleContentDetailViewMixin, SingleContentFormViewMixin, SingleContentViewMixin, \
     SingleContentDownloadViewMixin, SingleContentPostMixin
 from zds.tutorialv2.models import TYPE_CHOICES_DICT
@@ -46,8 +48,8 @@ from zds.tutorialv2.utils import search_container_or_404, get_target_tagged_tree
     try_adopt_new_child, TooDeepContainerError, BadManifestError, get_content_from_json, init_new_repo, \
     default_slug_pool, BadArchiveError, InvalidSlugError
 from zds.utils.forums import send_post, lock_topic, create_topic, unlock_topic
-from zds.utils.models import Licence
-from zds.utils.models import HelpWriting
+
+from zds.utils.models import Licence, HelpWriting
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView, make_pagination
 
@@ -116,7 +118,7 @@ class CreateContent(LoggedWithReadWriteHability, FormView):
 
         self.content.save()
 
-        # We need to save the tutorial before changing its author list since it's a many-to-many relationship
+        # We need to save the content before changing its author list since it's a many-to-many relationship
         self.content.authors.add(self.request.user)
 
         # Add subcategories on tutorial
@@ -172,12 +174,19 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
         if self.versioned_object.sha_public:
             context['formRevokeValidation'] = RevokeValidationForm(
                 self.versioned_object, initial={'version': self.versioned_object.sha_public})
+            context['formUnpublication'] = UnpublicationForm(
+                self.versioned_object, initial={'version': self.versioned_object.sha_public})
 
         if self.versioned_object.is_beta:
             context['formWarnTypo'] = WarnTypoForm(self.versioned_object, self.versioned_object, public=False)
 
         context["validation"] = validation
         context["formJs"] = form_js
+
+        if self.versioned_object.required_validation_before:
+            context['formPublication'] = PublicationForm(self.versioned_object, initial={'source': self.object.source})
+        else:
+            context['formPublication'] = None
 
     def get_context_data(self, **kwargs):
         context = super(DisplayContent, self).get_context_data(**kwargs)
@@ -310,9 +319,11 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         publishable.tags.clear()
         publishable.add_tags(form.cleaned_data['tags'].split(','))
 
-        publishable.helps.clear()
-        for help in form.cleaned_data["helps"]:
-            publishable.helps.add(help)
+        # help can only be obtained on contents requiring validation before publication
+        if versioned.required_validation_before():
+            publishable.helps.clear()
+            for help_ in form.cleaned_data["helps"]:
+                publishable.helps.add(help_)
 
         publishable.save()
 
@@ -1577,6 +1588,9 @@ class ActivateJSFiddleInContent(LoginRequiredMixin, PermissionRequiredMixin, For
     def form_valid(self, form):
         """Change the js fiddle support of content and redirect to the view page """
         content = get_object_or_404(PublishableContent, pk=form.cleaned_data["pk"])
+        # forbidden for content without a validation before publication
+        if not content.load_version().required_validation_before():
+            raise PermissionDenied
         content.js_support = form.cleaned_data["js_support"]
         content.save()
         return redirect(content.load_version().get_absolute_url())

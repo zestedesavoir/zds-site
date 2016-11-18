@@ -2,9 +2,10 @@
 
 from django.conf import settings
 from django.db import models
-from zds.utils.models import Tag
-from django.db.models import Count
+from django.db.models import Count, F
 from django.utils.translation import ugettext_lazy as _
+
+from zds.utils.models import Tag
 
 
 class PublishedContentManager(models.Manager):
@@ -38,6 +39,9 @@ class PublishedContentManager(models.Manager):
 
     def last_articles_of_a_member_loaded(self, author):
         return self.last_contents_of_a_member_loaded(author, _type='ARTICLE')
+
+    def last_opinions_of_a_member_loaded(self, author):
+        return self.last_contents_of_a_member_loaded(author, _type='OPINION')
 
     def get_contents_count(self):
         """
@@ -135,7 +139,8 @@ class PublishableContentManager(models.Manager):
                            .prefetch_related("authors__profile")\
                            .select_related("last_note")\
                            .select_related("public_version")\
-                           .prefetch_related("subcategory")\
+                           .prefetch_related("subcategory") \
+                           .prefetch_related("tags") \
                            .order_by('-public_version__publication_date')[:home_number]
         published = []
         for content in all_contents:
@@ -165,8 +170,32 @@ class PublishableContentManager(models.Manager):
                            .prefetch_related("authors__profile")\
                            .select_related("last_note")\
                            .select_related("public_version")\
-                           .prefetch_related("subcategory")\
+                           .prefetch_related("subcategory") \
+                           .prefetch_related("tags") \
                            .extra(select={"count_note": sub_query})\
+                           .order_by('-public_version__publication_date')[:home_number]
+        published = []
+        for content in all_contents:
+            content.public_version.content = content
+            published.append(content.public_version)
+        return published
+
+    def get_last_opinions(self):
+        """
+        This depends on settings.ZDS_APP['opinions']['home_number'] parameter.
+
+        :return: list of last opinions
+        :rtype: list
+        """
+        home_number = settings.ZDS_APP['opinions']['home_number']
+        all_contents = self.filter(type='OPINION') \
+                           .filter(public_version__isnull=False, sha_approved=F('sha_public')) \
+                           .prefetch_related('authors') \
+                           .prefetch_related('authors__profile') \
+                           .select_related('last_note') \
+                           .select_related('public_version') \
+                           .prefetch_related('subcategory') \
+                           .prefetch_related('tags') \
                            .order_by('-public_version__publication_date')[:home_number]
         published = []
         for content in all_contents:

@@ -21,7 +21,8 @@ from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin
 from zds.member.views import get_client_ip
 from zds.notification import signals
 from zds.notification.models import ContentReactionAnswerSubscription, NewPublicationSubscription
-from zds.tutorialv2.forms import RevokeValidationForm, WarnTypoForm, NoteForm, NoteEditForm
+from zds.tutorialv2.forms import RevokeValidationForm, WarnTypoForm, NoteForm, NoteEditForm, UnpublicationForm, \
+    OpinionValidationForm, PromoteOpinionToArticleForm
 from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin, SingleOnlineContentViewMixin, DownloadViewMixin, \
     ContentTypeMixin, SingleOnlineContentFormViewMixin, MustRedirect
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction
@@ -63,6 +64,8 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
         if context['is_staff']:
             context['formRevokeValidation'] = RevokeValidationForm(
                 self.versioned_object, initial={'version': self.versioned_object.sha_public})
+            context['formUnpublication'] = UnpublicationForm(
+                self.versioned_object, initial={'version': self.versioned_object.sha_public})
 
         context['formWarnTypo'] = WarnTypoForm(self.versioned_object, self.versioned_object)
 
@@ -100,6 +103,12 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
                     context['previous_article'] = all_articles[position - 1]
                 if position < articles_count - 1:
                     context['next_article'] = all_articles[position + 1]
+
+        if self.versioned_object.type == 'OPINION':
+            context['formValidOpinion'] = OpinionValidationForm(
+                self.versioned_object, initial={'version': self.versioned_object.sha_public})
+            context['formPromotion'] = PromoteOpinionToArticleForm(
+                self.versioned_object, initial={'version': self.versioned_object.sha_public})
 
         # pagination of comments
         make_pagination(context,
@@ -153,6 +162,14 @@ class DisplayOnlineTutorial(DisplayOnlineContent):
     current_content_type = "TUTORIAL"
     verbose_type_name = _(u'tutoriel')
     verbose_type_name_plural = _(u'tutoriels')
+
+
+class DisplayOnlineOpinion(DisplayOnlineContent):
+    """Displays the list of published articles"""
+
+    current_content_type = "OPINION"
+    verbose_type_name = _(u'billet')
+    verbose_type_name_plural = _(u'billets')
 
 
 class DownloadOnlineContent(SingleOnlineContentViewMixin, DownloadViewMixin):
@@ -224,6 +241,11 @@ class DownloadOnlineArticle(DownloadOnlineContent):
 class DownloadOnlineTutorial(DownloadOnlineContent):
 
     current_content_type = "TUTORIAL"
+
+
+class DownloadOnlineOpinion(DownloadOnlineContent):
+
+    current_content_type = "OPINION"
 
 
 class DisplayOnlineContainer(SingleOnlineContentDetailViewMixin):
@@ -344,6 +366,12 @@ class ListTutorials(ListOnlineContents):
     """Displays the list of published tutorials"""
 
     current_content_type = "TUTORIAL"
+
+
+class ListOpinions(ListOnlineContents):
+    """Displays the list of published opinions"""
+
+    current_content_type = "OPINION"
 
 
 class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewMixin):

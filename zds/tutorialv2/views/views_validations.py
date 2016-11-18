@@ -1,4 +1,5 @@
 # coding: utf-8
+
 import logging
 from datetime import datetime
 
@@ -7,7 +8,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
-from django.db.models import Q
+from django.db.models import F, Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
@@ -15,13 +16,15 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.generic import ListView, FormView
 
 from zds.member.decorator import LoginRequiredMixin, PermissionRequiredMixin, LoggedWithReadWriteHability
+from zds.gallery.models import UserGallery
 from zds.notification import signals
 from zds.tutorialv2.forms import AskValidationForm, RejectValidationForm, AcceptValidationForm, RevokeValidationForm, \
-    CancelValidationForm
-from zds.tutorialv2.mixins import SingleContentFormViewMixin, SingleContentDetailViewMixin, ModalFormView, \
-    SingleOnlineContentFormViewMixin
+    CancelValidationForm, PublicationForm, OpinionValidationForm, PromoteOpinionToArticleForm
+from zds.tutorialv2.mixins import SingleContentFormViewMixin, ModalFormView, \
+    SingleOnlineContentFormViewMixin, ValidationBeforeViewMixin, NoValidationBeforeFormViewMixin
 from zds.tutorialv2.models.models_database import Validation, PublishableContent
 from zds.tutorialv2.publication_utils import publish_content, FailureDuringPublication, unpublish_content
+from zds.tutorialv2.utils import clone_repo
 from zds.utils.forums import send_post, lock_topic
 from zds.utils.models import SubCategory
 from zds.utils.mps import send_mp
@@ -97,6 +100,18 @@ class ValidationListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
         return context
 
 
+class ValidationOpinionListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+    """List the validations, with possibilities of filters"""
+
+    permissions = ["tutorialv2.change_validation"]
+    template_name = "tutorialv2/validation/opinions.html"
+    context_object_name = 'contents'
+    subcategory = None
+    queryset = PublishableContent.objects\
+        .filter(type='OPINION', sha_public__isnull=False)\
+        .exclude(sha_approved=F('sha_public'))
+
+
 class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     """User ask validation for his tutorial. Staff member can also to that"""
 
@@ -108,6 +123,8 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
     modal_form = True
 
     def get_form_kwargs(self):
+        if not self.versioned_object.required_validation_before():
+            raise PermissionDenied
         kwargs = super(AskValidationForContent, self).get_form_kwargs()
         kwargs['content'] = self.versioned_object
         return kwargs
@@ -294,19 +311,20 @@ class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
             )
 
 
-class HistoryOfValidationDisplay(LoginRequiredMixin, PermissionRequiredMixin, SingleContentDetailViewMixin):
+class HistoryOfValidationDisplay(LoginRequiredMixin, PermissionRequiredMixin, ValidationBeforeViewMixin):
 
     model = PublishableContent
-    permissions = ["tutorialv2.change_validation"]
-    template_name = "tutorialv2/validation/history.html"
+    permissions = ['tutorialv2.change_validation']
+    template_name = 'tutorialv2/validation/history.html'
 
     def get_context_data(self, **kwargs):
         context = super(HistoryOfValidationDisplay, self).get_context_data()
 
-        context["validations"] = Validation.objects\
-            .prefetch_related("validator")\
+        context['validations'] = Validation.objects\
+            .prefetch_related('validator')\
             .filter(content__pk=self.object.pk)\
-            .order_by("date_proposition").all()
+            .order_by('date_proposition')\
+            .all()
 
         return context
 
@@ -520,3 +538,270 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleOnline
         self.success_url = self.versioned_object.get_absolute_url() + "?version=" + validation.version
 
         return super(RevokeValidation, self).form_valid(form)
+
+
+class Publish(LoggedWithReadWriteHability, NoValidationBeforeFormViewMixin):
+    """Publish the content (only content without preliminary validation)"""
+
+    form_class = PublicationForm
+
+    modal_form = True
+    prefetch_all = False
+    must_be_author = True
+    authorized_for_staff = True
+
+    def get(self, request, *args, **kwargs):
+        raise Http404(_(u"Publier un contenu n'est pas possible avec la méthode « GET »."))
+
+    def get_form_kwargs(self):
+        kwargs = super(Publish, self).get_form_kwargs()
+        kwargs['content'] = self.versioned_object
+        return kwargs
+
+    def form_valid(self, form):
+        # get database representation
+        db_object = self.object
+        versioned = self.versioned_object
+        self.success_url = versioned.get_absolute_url()
+        try:
+            published = publish_content(db_object, versioned, is_major_update=False)
+        except FailureDuringPublication as e:
+            messages.error(self.request, e.message)
+        else:
+            # save in database
+
+            db_object.source = form.cleaned_data['source']
+            db_object.sha_validation = None
+
+            db_object.public_version = published
+            db_object.save()
+
+            # Follow
+            signals.new_content.send(sender=db_object.__class__, instance=db_object, by_email=False)
+
+            messages.success(self.request, _(u'Le contenu a bien été publié.'))
+            self.success_url = published.get_absolute_url_online()
+
+        return super(Publish, self).form_valid(form)
+
+
+class Unpublish(LoginRequiredMixin, SingleOnlineContentFormViewMixin, NoValidationBeforeFormViewMixin):
+    """Unpublish a content"""
+
+    form_class = RevokeValidationForm
+    is_public = True
+
+    modal_form = True
+
+    def get_form_kwargs(self):
+        kwargs = super(Unpublish, self).get_form_kwargs()
+        kwargs['content'] = self.versioned_object
+        return kwargs
+
+    def form_valid(self, form):
+        versioned = self.versioned_object
+
+        user = self.request.user
+
+        if user not in versioned.authors.all() and not user.has_perm('tutorialv2.change_validation'):
+            raise PermissionDenied
+
+        unpublish_content(self.object)
+
+        self.object.sha_public = None
+        self.object.sha_approved = None
+        self.object.pubdate = None
+        self.object.save()
+
+        # send PM
+        msg = render_to_string(
+            'tutorialv2/messages/validation_revoke.md',
+            {
+                'content': versioned,
+                'url': versioned.get_absolute_url(),
+                'admin': user,
+                'message_reject': '\n'.join(['> ' + a for a in form.cleaned_data['text'].split('\n')])
+            })
+
+        bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+        send_mp(
+            bot,
+            versioned.authors.all(),
+            _(u"Dépublication"),
+            versioned.title,
+            msg,
+            True,
+            direct=False
+        )
+
+        messages.success(self.request, _(u"Le contenu a bien été dépublié."))
+        self.success_url = self.versioned_object.get_absolute_url()
+
+        return super(Unpublish, self).form_valid(form)
+
+
+class ValidPublication(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
+    """Publish the content"""
+
+    form_class = OpinionValidationForm
+
+    modal_form = True
+    prefetch_all = False
+    permissions = ["tutorialv2.change_validation"]
+
+    def get(self, request, *args, **kwargs):
+        raise Http404(_(u"Valider un contenu n'est pas possible avec la méthode « GET »."))
+
+    def get_form_kwargs(self):
+        kwargs = super(ValidPublication, self).get_form_kwargs()
+        kwargs['content'] = self.versioned_object
+        return kwargs
+
+    def form_valid(self, form):
+        # get database representation and validated version
+        db_object = self.object
+        versioned = self.versioned_object
+        self.success_url = versioned.get_absolute_url_online()
+
+        db_object.sha_approved = form.cleaned_data['version']
+        db_object.save()
+
+        msg = render_to_string(
+            'tutorialv2/messages/validation_opinion.md',
+            {
+                'title': versioned.title,
+                'url': versioned.get_absolute_url(),
+            })
+
+        bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+        send_mp(
+            bot,
+            versioned.authors.all(),
+            _(u'Billet approuvé'),
+            versioned.title,
+            msg,
+            True,
+            direct=False
+        )
+
+        messages.success(self.request, _(u'Le contenu a bien été validé.'))
+
+        return super(ValidPublication, self).form_valid(form)
+
+
+class PromoteOpinionToArticle(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
+    """Publish the content"""
+
+    form_class = PromoteOpinionToArticleForm
+
+    modal_form = True
+    prefetch_all = False
+    permissions = ['tutorialv2.change_validation']
+
+    def get(self, request, *args, **kwargs):
+        raise Http404(_(u"Promouvoir un billet en article n'est pas possible avec la méthode « GET »."))
+
+    def get_form_kwargs(self):
+        kwargs = super(PromoteOpinionToArticle, self).get_form_kwargs()
+        kwargs['content'] = self.versioned_object
+        return kwargs
+
+    def form_valid(self, form):
+        # get database representation and validated version
+        db_object = self.object
+        versioned = self.versioned_object
+
+        # get initial git path
+        old_git_path = db_object.get_repo_path()
+
+        # store data for later
+        authors = db_object.authors.all()
+        subcats = db_object.subcategory.all()
+        tags = db_object.tags.all()
+        gallery = db_object.gallery
+        opinion_url = db_object.get_absolute_url_online()
+        opinion = PublishableContent.objects.get(pk=db_object.pk)
+
+        # copy object and update article to opinion
+        # we set pk to None because next save will create a new object in database
+        db_object.pk = None
+        db_object.type = 'ARTICLE'
+        db_object.creation_date = datetime.now()
+        db_object.sha_public = None
+        db_object.public_version = None
+        db_object.save()
+
+        # add information of the promotion on the original opinion
+        opinion.promotion_content = db_object
+        opinion.save()
+
+        # add M2M objects
+        for author in authors:
+            db_object.authors.add(author)
+        for subcat in subcats:
+            db_object.subcategory.add(subcat)
+        for tag in tags:
+            db_object.tags.add(tag)
+
+        # clone the repo
+        clone_repo(old_git_path, db_object.get_repo_path())
+
+        # ask for validation
+        validation = Validation()
+        validation.content = db_object
+        validation.date_proposition = datetime.now()
+        validation.comment_authors = _(u'Promotion du billet « [{0}]({1}) » en article par [{2}]({3}).'.format(
+            opinion.title,
+            db_object.get_absolute_url_online(),
+            self.request.user.username,
+            self.request.user.profile.get_absolute_url()
+        ))
+        validation.version = db_object.sha_draft
+        validation.save()
+        db_object.sha_validation = validation.version
+
+        # creating the gallery
+        gal = gallery
+        gal.pk = None
+        gal.pubdate = datetime.now()
+        gal.save()
+
+        # creating relations between authors and gallery
+        for author in authors:
+            userg = UserGallery()
+            userg.gallery = gal
+            userg.mode = 'W'  # write mode
+            userg.user = author
+            userg.save()
+        db_object.gal = gal
+
+        # save updates
+        db_object.save()
+
+        # copy git repo
+
+
+        # send message to user
+        msg = render_to_string(
+            'tutorialv2/messages/opinion_promotion.md',
+            {
+                'content': versioned,
+                'url': opinion_url,
+            })
+
+        bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+        send_mp(
+            bot,
+            db_object.authors.all(),
+            _(u'Billet promu en article'),
+            versioned.title,
+            msg,
+            True,
+            direct=False
+        )
+
+        self.success_url = db_object.get_absolute_url()
+
+        messages.success(self.request, _(u'Le billet a bien été promu en article et est en attente de validation.'))
+
+        return super(PromoteOpinionToArticle, self).form_valid(form)

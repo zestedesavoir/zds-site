@@ -33,7 +33,7 @@ from zds.tutorialv2.utils import get_content_from_json, BadManifestError
 from zds.utils import get_current_user
 from zds.utils.models import SubCategory, Licence, HelpWriting, Comment, Tag
 from zds.utils.tutorials import get_blob
-from zds.tutorialv2.models import TYPE_CHOICES, STATUS_CHOICES
+from zds.tutorialv2.models import TYPE_CHOICES, STATUS_CHOICES, CONTENT_TYPES_VALIDATION_BEFORE
 from zds.tutorialv2.models.models_versioned import NotAPublicVersion
 from zds.tutorialv2.managers import PublishedContentManager, PublishableContentManager
 import logging
@@ -42,7 +42,7 @@ ALLOWED_TYPES = ['pdf', 'md', 'html', 'epub', 'zip']
 
 
 class PublishableContent(models.Model):
-    """A tutorial whatever its size or an article.
+    """A publishable content.
 
     A PublishableContent retains metadata about a content in database, such as
 
@@ -51,7 +51,7 @@ class PublishableContent(models.Model):
     - Creation, publication and update date ;
     - Public, beta, validation and draft sha, for versioning ;
     - Comment support ;
-    - Type, which is either "ARTICLE" or "TUTORIAL"
+    - Type, which is either "ARTICLE" "TUTORIAL" or "OPINION"
     """
     class Meta:
         verbose_name = 'Contenu'
@@ -93,11 +93,13 @@ class PublishableContent(models.Model):
                                       blank=True, null=True, max_length=80, db_index=True)
     sha_draft = models.CharField('Sha1 de la version de rédaction',
                                  blank=True, null=True, max_length=80, db_index=True)
+    sha_approved = models.CharField('Sha1 de la version approuvée (contenus avec publication sans validation)',
+                                    blank=True, null=True, max_length=80, db_index=True)
     beta_topic = models.ForeignKey(Topic, verbose_name='Sujet beta associé', default=None, blank=True, null=True)
     licence = models.ForeignKey(Licence,
                                 verbose_name='Licence',
                                 blank=True, null=True, db_index=True)
-    # as of ZEP 12 this field is no longer the size but the type of content (article/tutorial)
+    # as of ZEP 12 this field is no longer the size but the type of content (article/tutorial/opinion)
     type = models.CharField(max_length=10, choices=TYPE_CHOICES, db_index=True)
     # zep03 field
     helps = models.ManyToManyField(HelpWriting, verbose_name='Aides', blank=True, db_index=True)
@@ -119,6 +121,10 @@ class PublishableContent(models.Model):
     public_version = models.ForeignKey(
         'PublishedContent', verbose_name=u'Version publiée', blank=True, null=True, on_delete=models.SET_NULL)
 
+    # used for opinion to article promotion to keep an history and add canonical link
+    promotion_content = models.ForeignKey(
+        'self', verbose_name=u'Contenu promu', blank=True, null=True, on_delete=models.SET_NULL)
+
     objects = PublishableContentManager()
 
     def __unicode__(self):
@@ -131,9 +137,11 @@ class PublishableContent(models.Model):
         :rtype: str
         """
         if self.is_article():
-            return _(u"L'Article")
-        else:
-            return _(u"Le Tutoriel")
+            return _(u'L\'Article')
+        elif self.is_opinion():
+            return _(u'Le Billet')
+        elif self.is_tutorial():
+            return _(u'Le Tutoriel')
 
     def save(self, *args, **kwargs):
         """
@@ -278,6 +286,13 @@ class PublishableContent(models.Model):
         """
         return self.type == 'TUTORIAL'
 
+    def is_opinion(self):
+        """
+        :return: ``True`` if opinion, ``False`` otherwise
+        :rtype: bool
+        """
+        return self.type == 'OPINION'
+
     def load_version_or_404(self, sha=None, public=None):
         """Using git, load a specific version of the content. if `sha` is `None`, the draft/public version is used (if
         `public` is `True`).
@@ -364,12 +379,12 @@ class PublishableContent(models.Model):
 
         attrs = [
             'pk', 'authors', 'subcategory', 'image', 'creation_date', 'pubdate', 'update_date', 'source',
-            'sha_draft', 'sha_beta', 'sha_validation', 'sha_public'
+            'sha_draft', 'sha_beta', 'sha_validation', 'sha_public', 'sha_approved', 'promotion_content'
         ]
 
         fns = [
-            'in_beta', 'in_validation', 'in_public', 'is_article', 'is_tutorial', 'get_absolute_contact_url',
-            'get_note_count', 'antispam'
+            'in_beta', 'in_validation', 'in_public', 'is_article', 'is_tutorial', 'is_opinion',
+            'get_absolute_contact_url', 'get_note_count', 'antispam'
         ]
 
         # load functions and attributs in `versioned`
@@ -410,7 +425,6 @@ class PublishableContent(models.Model):
 
     def first_note(self):
         """
-
         :return: the first post of a topic, written by topic's author, if any.
         :rtype: ContentReaction
         """
@@ -423,7 +437,6 @@ class PublishableContent(models.Model):
 
     def last_read_note(self):
         """
-
         :return: the last post the user has read.
         :rtype: ContentReaction
         """
@@ -531,6 +544,16 @@ class PublishableContent(models.Model):
 
         self.save()
 
+    def required_validation_before(self):
+        """
+        Check if content required a validation before publication.
+        Used to check if JsFiddle is available too.
+
+        :return: Whether validation is required before publication.
+        :rtype: bool
+        """
+        return self.type in CONTENT_TYPES_VALIDATION_BEFORE
+
 
 @receiver(pre_delete, sender=PublishableContent)
 def delete_repo(sender, instance, **kwargs):
@@ -601,7 +624,6 @@ class PublishedContent(models.Model):
 
     def get_absolute_url_online(self):
         """
-
         :return: the URL of the published content
         :rtype: str
         """
@@ -628,7 +650,6 @@ class PublishedContent(models.Model):
 
     def is_article(self):
         """
-
         :return: ``True`` if it is an article, ``False`` otherwise.
         :rtype: bool
         """
@@ -636,11 +657,17 @@ class PublishedContent(models.Model):
 
     def is_tutorial(self):
         """
-
         :return: ``True`` if it is an article, ``False`` otherwise.
         :rtype: bool
         """
         return self.content_type == "TUTORIAL"
+
+    def is_opinion(self):
+        """
+        :return: ``True`` if it is an opinion, ``False`` otherwise.
+        :rtype: bool
+        """
+        return self.content_type == "OPINION"
 
     def get_extra_contents_directory(self):
         """

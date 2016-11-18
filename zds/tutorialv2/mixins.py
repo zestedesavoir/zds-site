@@ -278,6 +278,10 @@ class ContentTypeMixin(object):
             v_type_name = _(u'tutoriel')
             v_type_name_plural = _(u'tutoriels')
 
+        if self.current_content_type == 'OPINION':
+            v_type_name = _(u'billet')
+            v_type_name_plural = _(u'billets')
+
         context['current_content_type'] = self.current_content_type
         context['verbose_type_name'] = v_type_name
         context['verbose_type_name_plural'] = v_type_name_plural
@@ -523,3 +527,25 @@ class SingleContentDownloadViewMixin(SingleContentViewMixin, DownloadViewMixin):
         self.versioned_object = self.get_versioned_object()
 
         return super(SingleContentDownloadViewMixin, self).get(context, **response_kwargs)
+
+
+class ValidationBeforeViewMixin(SingleContentDetailViewMixin):
+    """
+    Ensure the content require validation before publication.
+    """
+
+    def get(self, request, *args, **kwargs):
+        if not self.get_object().required_validation_before():
+            raise PermissionDenied
+        return super(ValidationBeforeViewMixin, self).get(request, *args, **kwargs)
+
+
+class NoValidationBeforeFormViewMixin(SingleContentFormViewMixin):
+    """
+    Ensure the content do not require validation before publication.
+    """
+
+    def get_form_kwargs(self):
+        if self.versioned_object.required_validation_before():
+            raise PermissionDenied
+        return super(NoValidationBeforeFormViewMixin, self).get_form_kwargs()
