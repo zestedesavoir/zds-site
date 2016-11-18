@@ -2,6 +2,7 @@ from munin.helpers import muninview
 from zds.forum.models import Topic, Post
 from zds.mp.models import PrivateTopic, PrivatePost
 from zds.tutorialv2.models.models_database import PublishableContent, ContentReaction
+from django.db.models import Q
 
 
 @muninview(config="""graph_title Total Topics
@@ -46,3 +47,20 @@ def total_articles(request):
     return [('articles', articles.count()),
             ('offline', articles.filter(sha_public__isnull=True).count()),
             ('online', articles.filter(sha_public__isnull=False).count())]
+
+
+@muninview(config="""graph_title Total Tribunes
+graph_vlabel #tribunes
+not_promoted.label Not published yet
+not_promoted.draw LINE1
+not_promoted.label Not promoted
+not_promoted.draw STACK
+promoted.label Promoted as articles
+promoted.draw STACK""")
+def total_tribunes(request):
+    tribunes = PublishableContent.objects.filter(type='OPINION').all()
+    return [('not_published', tribunes.filter(sha_public__isnull=True)),
+            ('not_promoted', tribunes.filter(sha_public__isnull=False)
+                                     .filter(Q(promotion_content__isnull=True) |
+                                             Q(promotion_content__sha_public__isnull=True)).count()),
+            ('promoted', tribunes.filter(promotion_content__sha_public__isnull=False).count())]
