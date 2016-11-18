@@ -10,6 +10,8 @@
             {% trans "cet article" %}
         {% elif content.type == 'TUTORIAL' %}
             {% trans "ce tutoriel" %}
+        {% elif content.type == 'OPINION' %}
+            {% trans "ce billet" %}
         {% endif %}
     {% else %}
         {% trans "ce chapitre" %}
