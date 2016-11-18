@@ -767,6 +767,14 @@ def init_new_repo(db_object, introduction_text, conclusion_text, commit_message=
     return versioned_content
 
 
+def clone_repo(old_path, new_path):
+    if not os.path.isdir(new_path):
+        os.makedirs(new_path, mode=0o777)
+    old_repo = Repo(old_path)
+    new_repo = old_repo.clone(new_path)
+    return new_repo
+
+
 def get_commit_author():
     """get a dictionary that represent the commit author with ``author`` and ``comitter`` key. If there is no users,
     bot account pk is used.
