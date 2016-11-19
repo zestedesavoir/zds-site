@@ -1,7 +1,7 @@
 # coding: utf-8
 
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.core import mail
 from django.core.urlresolvers import reverse
 from oauth2_provider.models import Application, AccessToken
@@ -20,6 +20,8 @@ class MemberListAPITest(APITestCase):
     def setUp(self):
         self.client = APIClient()
         caches[extensions_api_settings.DEFAULT_USE_CACHE].clear()
+        self.bot = Group(name=settings.ZDS_APP['member']['bot_group'])
+        self.bot.save()
 
     def test_list_of_users_empty(self):
         """
@@ -1123,6 +1125,10 @@ class PermissionMemberAPITest(APITestCase):
 
 
 class CacheMemberAPITest(APITestCase):
+    def setUp(self):
+        self.bot = Group(name=settings.ZDS_APP['member']['bot_group'])
+        self.bot.save()
+
     def test_cache_of_user_authenticated_for_member_profile(self):
         """
         Cache must be invalidated when we specify a bearer token.
@@ -1141,9 +1147,9 @@ class CacheMemberAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(another_profile.user.username, response.data.get('username'))
 
-    def test_cache_invalided_when_new_member(self):
+    def test_cache_invalidated_when_new_member(self):
         """
-        When we create a new member, the api cache is invalided and returns the new member.
+        When we create a new member, the api cache is invalidated and returns the new member.
         """
         count = self.client.get(reverse('api:member:list')).data.get('count')
 
