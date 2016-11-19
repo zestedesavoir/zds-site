@@ -409,7 +409,7 @@ class DownloadContent(LoggedWithReadWriteHability, SingleContentDownloadViewMixi
         """
         for blob in git_tree.blobs:  # first, add files :
             zip_file.writestr(blob.path, blob.data_stream.read())
-        if len(git_tree.trees) is not 0:  # then, recursively add dirs :
+        if git_tree.trees:  # then, recursively add dirs :
             for subtree in git_tree.trees:
                 DownloadContent.insert_into_zip(zip_file, subtree)
 
@@ -708,7 +708,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
 
                 # ok, then, let's do the import. First, remove everything in the repository
                 while True:
-                    if len(versioned.children) != 0:
+                    if versioned.children:
                         versioned.children[0].repo_delete(do_commit=False)
                     else:
                         break  # this weird construction ensure that everything is removed
@@ -1468,14 +1468,10 @@ class WarnTypo(SingleContentFormViewMixin):
         return kwargs
 
     def form_valid(self, form):
-
         user = self.request.user
-
-        authors_reachable = Profile.objects.contactable_members()\
-            .filter(user__in=self.object.authors.all())
-        authors = []
-        for author in authors_reachable:
-            authors.append(author.user)
+        authors = list(Profile.objects.contactable_members()
+                       .filter(user__in=self.object.authors.all()))
+        authors = list(map(lambda author: author.user, authors))
 
         # check if the warn is done on a public or beta version :
         is_public = False
@@ -1485,7 +1481,7 @@ class WarnTypo(SingleContentFormViewMixin):
         elif not form.content.is_beta:
             raise Http404(u"Le contenu n'est ni public, ni en bêta.")
 
-        if len(authors) == 0:
+        if not authors:
             if self.object.authors.count() > 1:
                 messages.error(self.request, _(u"Les auteurs sont malheureusement injoignables."))
             else:

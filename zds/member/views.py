@@ -55,15 +55,7 @@ class MemberList(ZdSPagingListView):
     template_name = 'member/index.html'
 
     def get_queryset(self):
-        excluded_groups = [Group.objects.get(name=settings.ZDS_APP['member']['bot_group'])]
-        now = datetime.now()
-        # TODO When User will be no more used, you can make this request with
-        # Profile.objects.all_members_ordered_by_date_joined()
-        self.queryset = User.objects.filter(is_active=True)\
-            .exclude(groups__in=excluded_groups)\
-            .filter(Q(profile__can_read=True) | Q(profile__end_ban_read__lte=now))\
-            .order_by('-date_joined')\
-            .all().select_related("profile")
+        self.queryset = Profile.objects.contactable_members()
         return super(MemberList, self).get_queryset()
 
 
@@ -115,7 +107,7 @@ class UpdateMember(UpdateView):
             'avatar_url': profile.avatar_url,
             'show_email': profile.show_email,
             'show_sign': profile.show_sign,
-            'hover_or_click': profile.hover_or_click,
+            'is_hover_enabled': profile.is_hover_enabled,
             'allow_temp_visual_changes': profile.allow_temp_visual_changes,
             'email_for_answer': profile.email_for_answer,
             'sign': profile.sign,
@@ -146,7 +138,7 @@ class UpdateMember(UpdateView):
         profile.site = form.data['site']
         profile.show_email = 'show_email' in cleaned_data_options
         profile.show_sign = 'show_sign' in cleaned_data_options
-        profile.hover_or_click = 'hover_or_click' in cleaned_data_options
+        profile.is_hover_enabled = 'is_hover_enabled' in cleaned_data_options
         profile.allow_temp_visual_changes = 'allow_temp_visual_changes' in cleaned_data_options
         profile.email_for_answer = 'email_for_answer' in cleaned_data_options
         profile.avatar_url = form.data['avatar_url']

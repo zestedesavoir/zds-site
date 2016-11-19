@@ -232,7 +232,7 @@ class ProfileForm(MiniProfileForm):
         choices=(
             ('show_email', _(u'Afficher mon adresse courriel publiquement')),
             ('show_sign', _(u'Afficher les signatures')),
-            ('hover_or_click', _(u'Cochez pour dérouler les menus au survol')),
+            ('is_hover_enabled', _(u'Cochez pour dérouler les menus au survol')),
             ('allow_temp_visual_changes', _(u'Activer les changements visuels temporaires')),
             ('email_for_answer', _(u'Recevez un courriel lorsque vous recevez une réponse à un message privé')),
         ),
@@ -255,8 +255,8 @@ class ProfileForm(MiniProfileForm):
         if 'show_sign' in initial and initial['show_sign']:
             self.fields['options'].initial += 'show_sign'
 
-        if 'hover_or_click' in initial and initial['hover_or_click']:
-            self.fields['options'].initial += 'hover_or_click'
+        if 'is_hover_enabled' in initial and initial['is_hover_enabled']:
+            self.fields['options'].initial += 'is_hover_enabled'
 
         if 'allow_temp_visual_changes' in initial and initial['allow_temp_visual_changes']:
             self.fields['options'].initial += 'allow_temp_visual_changes'

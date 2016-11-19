@@ -32,8 +32,7 @@ class ProfileCreate(object):
         user.set_password(password)
         user.is_active = False
         user.backend = 'django.contrib.auth.backends.ModelBackend'
-        profile = Profile(user=user, show_email=False, show_sign=True, hover_or_click=True,
-                          allow_temp_visual_changes=True, email_for_answer=False)
+        profile = Profile(user=user)
         return profile
 
     def save_profile(self, profile):
