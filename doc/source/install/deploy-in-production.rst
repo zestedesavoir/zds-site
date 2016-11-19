@@ -63,12 +63,13 @@ Installation des outils
 Clone du repo et configuration de prod
 --------------------------------------
 
--  ``git clone https://github.com/zestedesavoir/zds-site.git``
--  ``cd zds-site``
--  ``mkdir tutoriels-private``
--  ``mkdir tutoriels-public``
--  ``mkdir articles-data``
--  ``vim zds/settings_prod.py``
+.. code:: bash
+    git clone https://github.com/zestedesavoir/zds-site.git
+    cd zds-site
+    mkdir tutoriels-private
+    mkdir tutoriels-public
+    mkdir articles-data
+    vim zds/settings_prod.py
 
 Dans ``settings_prod.py``, remplacez toutes les valeurs ``to-fill``:
 
@@ -87,7 +88,7 @@ Installation de l'application de base
 
 Suivre `l'installation complète sous Linux <backend-linux-install.html>`_ en tenant compte des subtilités suivantes :
 
--  Installer `les outils front <frontend-install.html>`__
+-  Installer `les outils front <frontend-install.html>`__ n'est pas nécessaire, le front étant packagé par Travis.
 -  Ne pas lancer le serveur à la fin de l'étape *"Lancer ZdS"*
 -  Installer toutes les dépendances requises à l'étape *"Aller plus loin"*
 -  Installer les dépendances de production avec ``pip install --upgrade -r requirements-prod.txt``
@@ -107,7 +108,7 @@ Nginx
 
 Installer nginx.
 
-Une version récente de nginx est nécessaire pour utiliser HTTP/2. Si la version installée est inférieure à la version 1.9.5 il faut la mettre à jour avec celle du dépot backports : ``sudo apt-get -t jessie-backports install nginx openssl``. Toutefois, HTTP/2 n'est pas nécessaire au bon fonctionnement de Zeste de Savoir, pensez juste à adapter ``sites-available/zestedesavoir``.
+Une version récente de nginx est nécessaire pour utiliser HTTP/2. Si la version installée est inférieure à la version 1.9.5 il faut la mettre à jour avec celle `des dépot nginx <https://nginx.org/en/linux_packages.html#stable>`__. Toutefois, HTTP/2 n'est pas nécessaire au bon fonctionnement de Zeste de Savoir, pensez juste à adapter ``sites-available/zestedesavoir``.
 
 La configuration nginx de Zeste de Savoir est séparée en plusieurs fichiers, en plus des quelques fichiers de configuration par défaut de nginx:
 
