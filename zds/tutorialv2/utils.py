@@ -315,7 +315,7 @@ def retrieve_image(url, directory):
 
     store_path = os.path.abspath(os.path.join(directory, new_url))  # destination
 
-    if img_basename == '' or os.path.exists(store_path) or os.path.exists(os.path.join(directory, new_url_as_png)):
+    if not img_basename or os.path.exists(store_path) or os.path.exists(os.path.join(directory, new_url_as_png)):
         # another image with the same name already exists (but assume the two are different)
         img_filename += "_" + str(datetime.now().microsecond)
         new_url = os.path.join('images', img_filename.replace(' ', '_') + '.' + img_extension)
@@ -344,7 +344,7 @@ def retrieve_image(url, directory):
             os.remove(store_path)
         else:
             img = ImagePIL.open(store_path)
-            if img_extension == "gif" or img_extension.strip() == '':
+            if img_extension == "gif" or not img_extension.strip():
                 # if no extension or gif, will transform it into PNG !
                 new_url = new_url_as_png
                 img.save(os.path.join(directory, new_url))
@@ -622,7 +622,7 @@ def check_slug(slug):
     if not VALID_SLUG.match(slug):
         return False
 
-    if slug.replace("-", "").replace("_", "") == "":
+    if not slug.replace('-', '').replace('_', ''):
         return False
 
     if len(slug) > settings.ZDS_APP['content']['maximum_slug_size']:
@@ -745,7 +745,7 @@ def init_new_repo(db_object, introduction_text, conclusion_text, commit_message=
     versioned_content.description = db_object.description
 
     # perform changes:
-    if commit_message == '':
+    if not commit_message:
         commit_message = u'Création du contenu'
 
     sha = versioned_content.repo_update(
@@ -787,7 +787,7 @@ def get_commit_author():
 
         aut_email = None
 
-    if aut_email is None or aut_email.strip() == "":
+    if aut_email is None or not aut_email.strip():
         aut_email = _(u"inconnu@{}").format(settings.ZDS_APP['site']['dns'])
 
     return {'author': Actor(aut_user, aut_email), 'committer': Actor(aut_user, aut_email)}

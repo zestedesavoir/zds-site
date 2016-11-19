@@ -1006,7 +1006,7 @@ def modify_karma(request):
     note = KarmaNote(
         user=profile.user,
         moderator=request.user,
-        note=request.POST.get('note', ''))
+        note=request.POST.get('note', '').strip())
 
     try:
         note.karma = int(request.POST['karma'])
@@ -1014,7 +1014,7 @@ def modify_karma(request):
         note.karma = 0
 
     try:
-        if note.note == '':
+        if not note.note:
             raise ValueError('note cannot be empty')
         elif note.karma > 100 or note.karma < -100:
             raise ValueError('Max karma amount has to be between -100 and 100, you entered {}'.format(note.karma))

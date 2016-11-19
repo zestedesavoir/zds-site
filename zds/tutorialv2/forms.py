@@ -34,7 +34,7 @@ class FormWithTitle(forms.Form):
 
         title = cleaned_data.get('title')
 
-        if title is not None and title.strip() == '':
+        if title is not None and not title.strip():
             self._errors['title'] = self.error_class(
                 [_(u'Le champ du titre ne peut être vide.')])
             if 'title' in cleaned_data:
@@ -44,7 +44,7 @@ class FormWithTitle(forms.Form):
             slugify_raise_on_invalid(title)
         except InvalidSlugError as e:
             self._errors['title'] = self.error_class(
-                [_(u'Ce titre n\'est pas autorisé, son slug est invalide {}!').format(e if e.message != '' else '')])
+                [_(u'Ce titre n\'est pas autorisé, son slug est invalide {}!').format(e if e.message else '')])
 
         return cleaned_data
 
@@ -517,7 +517,7 @@ class NoteForm(forms.Form):
 
         text = cleaned_data.get('text')
 
-        if text is None or text.strip() == '':
+        if text is None or not text.strip():
             self._errors['text'] = self.error_class(
                 [_(u'Vous devez écrire une réponse !')])
             if 'text' in cleaned_data:
@@ -610,7 +610,7 @@ class AskValidationForm(forms.Form):
 
         text = cleaned_data.get('text')
 
-        if text is None or text.strip() == '':
+        if text is None or not text.strip():
             self._errors['text'] = self.error_class(
                 [_(u'Vous devez fournir un commentaire aux validateurs.')])
             if 'text' in cleaned_data:
@@ -697,7 +697,7 @@ class AcceptValidationForm(forms.Form):
 
         text = cleaned_data.get('text')
 
-        if text is None or text.strip() == '':
+        if text is None or not text.strip():
             self._errors['text'] = self.error_class(
                 [_(u'Vous devez fournir un commentaire aux validateurs.')])
             if 'text' in cleaned_data:
@@ -756,7 +756,7 @@ class CancelValidationForm(forms.Form):
 
         text = cleaned_data.get('text')
 
-        if text is None or text.strip() == '':
+        if text is None or not text.strip():
             self._errors['text'] = self.error_class(
                 [_(u'Merci de fournir une raison à l\'annulation.')])
             if 'text' in cleaned_data:
@@ -822,7 +822,7 @@ class RejectValidationForm(forms.Form):
 
         text = cleaned_data.get('text')
 
-        if text is None or text.strip() == '':
+        if text is None or not text.strip():
             self._errors['text'] = self.error_class(
                 [_(u'Merci de fournir une raison au rejet.')])
             if 'text' in cleaned_data:
@@ -877,7 +877,7 @@ class RevokeValidationForm(forms.Form):
 
         text = cleaned_data.get('text')
 
-        if text is None or text.strip() == '':
+        if text is None or not text.strip():
             self._errors['text'] = self.error_class(
                 [_(u'Veuillez fournir la raison de votre dépublication.')])
             if 'text' in cleaned_data:
@@ -1023,7 +1023,7 @@ class WarnTypoForm(forms.Form):
 
         text = cleaned_data.get('text')
 
-        if text is None or text.strip() == '':
+        if text is None or not text.strip():
             self._errors['text'] = self.error_class(
                 [_(u'Vous devez indiquer la faute commise.')])
             if 'text' in cleaned_data:

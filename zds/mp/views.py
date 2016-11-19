@@ -104,7 +104,7 @@ class PrivateTopicNew(CreateView):
         participants = []
         for participant in form.data['participants'].split(","):
             current = participant.strip()
-            if current == '':
+            if not current:
                 continue
             participants.append(get_object_or_404(User, username=current))
 
