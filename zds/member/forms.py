@@ -540,18 +540,18 @@ class PromoteMemberForm(forms.Form):
 
 
 class KarmaForm(forms.Form):
-    warning = forms.CharField(
+    note = forms.CharField(
         label=_(u'Commentaire'),
-        max_length=KarmaNote._meta.get_field('comment').max_length,
+        max_length=KarmaNote._meta.get_field('note').max_length,
         widget=forms.TextInput(
             attrs={
-                'placeholder': u'Commentaire sur le comportement de ce membre',
+                'placeholder': _(u'Commentaire sur le comportement de ce membre'),
                 'required': u'required'
             }),
         required=True,
     )
 
-    points = forms.IntegerField(
+    karma = forms.IntegerField(
         max_value=100,
         min_value=-100,
         initial=0,
@@ -568,8 +568,8 @@ class KarmaForm(forms.Form):
 
         self.helper.layout = Layout(
             CommonLayoutModalText(),
-            Field('warning'),
-            Field('points'),
+            Field('note'),
+            Field('karma'),
             Hidden('profile_pk', '{{ profile.pk }}'),
             ButtonHolder(
                 StrictButton(u'Valider', type='submit'),

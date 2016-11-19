@@ -92,7 +92,7 @@
                 <ul>
                 {% if karmanotes.count > 0 %}
                     {% for note in karmanotes %}
-                        <li><strong>{{ note.value }}</strong> {{ note.create_at|format_date:True }} {% trans "par" %} {{ note.staff.username }} : {{ note.comment }}</li>
+                        <li><strong>{{ note.karma }}</strong> {{ note.pubdate|format_date:True }} {% trans "par" %} {{ note.moderator.username }} : {{ note.note }}</li>
                     {% endfor %}
                 {% else %}
                     <li>{% trans "Cet utilisateur n'a reçu aucune remarque" %}</li>

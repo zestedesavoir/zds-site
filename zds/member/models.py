@@ -49,57 +49,29 @@ class Profile(models.Model):
         null=True)
 
     site = models.CharField('Site internet', max_length=2000, blank=True)
-    show_email = models.BooleanField('Afficher adresse mail publiquement',
-                                     default=False)
-
-    avatar_url = models.CharField(
-        'URL de l\'avatar', max_length=2000, null=True, blank=True
-    )
-
+    show_email = models.BooleanField('Afficher adresse mail publiquement', default=False)
+    avatar_url = models.CharField('URL de l\'avatar', max_length=2000, null=True, blank=True)
     biography = models.TextField('Biographie', blank=True)
-
     karma = models.IntegerField('Karma', default=0)
-
     sign = models.TextField('Signature', max_length=500, blank=True)
-
     github_token = models.TextField('GitHub', blank=True)
-
     show_sign = models.BooleanField('Voir les signatures', default=True)
-
     # do UI components open by hovering them, or is clicking on them required?
-    is_hover_enabled = models.BooleanField('Déroulement au survol ?', default=False)
-
+    is_hover_enabled = models.BooleanField('Déroulement au survol ?', default=True)
     allow_temp_visual_changes = models.BooleanField('Activer les changements visuels temporaires', default=True)
-
     email_for_answer = models.BooleanField('Envoyer pour les réponse MP', default=False)
-
     # SdZ tutorial IDs separated by columns (:).
     # TODO: bad field name (singular --> should be plural), manually handled multi-valued field.
-    sdz_tutorial = models.TextField(
-        'Identifiant des tutos SdZ',
-        blank=True,
-        null=True)
-
+    sdz_tutorial = models.TextField('Identifiant des tutos SdZ', blank=True, null=True)
     can_read = models.BooleanField('Possibilité de lire', default=True)
-    end_ban_read = models.DateTimeField(
-        "Fin d'interdiction de lecture",
-        null=True,
-        blank=True)
-
+    end_ban_read = models.DateTimeField("Fin d'interdiction de lecture", null=True, blank=True)
     can_write = models.BooleanField("Possibilité d'écrire", default=True)
-    end_ban_write = models.DateTimeField(
-        "Fin d'interdiction d'écrire",
-        null=True,
-        blank=True)
-
-    last_visit = models.DateTimeField(
-        'Date de dernière visite',
-        null=True,
-        blank=True)
-
-    objects = ProfileManager()
+    end_ban_write = models.DateTimeField("Fin d'interdiction d'écrire", null=True, blank=True)
+    last_visit = models.DateTimeField('Date de dernière visite', null=True, blank=True)
     _permissions = {}
     _groups = None
+
+    objects = ProfileManager()
 
     def __unicode__(self):
         return self.user.username
@@ -479,43 +451,37 @@ class Ban(models.Model):
         verbose_name_plural = 'Sanctions'
 
     user = models.ForeignKey(User, verbose_name='Sanctionné', db_index=True)
-    moderator = models.ForeignKey(User, verbose_name='Moderateur',
-                                  related_name='bans', db_index=True)
+    moderator = models.ForeignKey(User, verbose_name='Moderateur', related_name='bans', db_index=True)
     type = models.CharField('Type', max_length=80, db_index=True)
-    text = models.TextField('Explication de la sanction')
-    pubdate = models.DateTimeField(
-        'Date de publication',
-        blank=True,
-        null=True, db_index=True)
+    note = models.TextField('Explication de la sanction')
+    pubdate = models.DateTimeField('Date de publication', blank=True, null=True, db_index=True)
 
     def __unicode__(self):
-        return u"{0} - ban : {1} ({2}) ".format(self.user.username, self.text, self.pubdate)
+        return u"{0} - ban : {1} ({2}) ".format(self.user.username, self.note, self.pubdate)
 
 
 class KarmaNote(models.Model):
     """
-    A karma note is a tool for staff to store data about a member.
-    Data are:
-    - A note (negative values are bad)
-    - A comment about the member
-    - A date
-    This helps the staff to react and stores history of stupidities of a member.
+    Karma notes are a way of annotating members profiles. They are only visible
+    to the staff.
+
+    Fields are:
+    - target user and the moderator leaving the note
+    - a textual note
+    - some amount of karma, negative values being… negative
     """
     class Meta:
         verbose_name = 'Note de karma'
         verbose_name_plural = 'Notes de karma'
 
     user = models.ForeignKey(User, related_name='karmanote_user', db_index=True)
-    # TODO: coherence, "staff" is called "moderator" in Ban model.
-    staff = models.ForeignKey(User, related_name='karmanote_staff', db_index=True)
-    # TODO: coherence, "comment" is called "text" in Ban model.
-    comment = models.CharField('Commentaire', max_length=150)
-    value = models.IntegerField('Valeur')
-    # TODO: coherence, "create_at" is called "pubdate" in Ban model.
-    create_at = models.DateTimeField('Date d\'ajout', auto_now_add=True)
+    moderator = models.ForeignKey(User, related_name='karmanote_staff', db_index=True)
+    note = models.CharField('Commentaire', max_length=150)
+    karma = models.IntegerField('Valeur')
+    pubdate = models.DateTimeField('Date d\'ajout', auto_now_add=True)
 
     def __unicode__(self):
-        return u"{0} - note : {1} ({2}) ".format(self.user.username, self.comment, self.create_at)
+        return u"{0} - note : {1} ({2}) ".format(self.user.username, self.comment, self.pubdate)
 
 
 def logout_user(username):
