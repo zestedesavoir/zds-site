@@ -269,4 +269,4 @@ ENABLE_HTTPS_DECORATOR = True
 
 # visual changes
 #ZDS_APP['visual_changes'] = ['snow', 'clem-christmas']
-ZDS_APP['visual_changes'] = ['clem-halloween']
+#ZDS_APP['visual_changes'] = ['clem-halloween']

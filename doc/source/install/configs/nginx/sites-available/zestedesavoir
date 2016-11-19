@@ -23,6 +23,7 @@ server {
 
 	ssl_certificate /etc/letsencrypt/live/zestedesavoir.com/fullchain.pem;
 	ssl_certificate_key /etc/letsencrypt/live/zestedesavoir.com/privkey.pem;
+	include snippets/ssl.conf;
 
 	# Logging
 	access_log /var/log/zds/nginx-access.log;
