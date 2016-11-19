@@ -20,6 +20,7 @@ class ProfileManager(models.Manager):
         qs = self.get_queryset() \
             .exclude(user__is_active=False) \
             .exclude(user__groups__in=excluded_groups) \
-            .filter(Q(can_read=True) | Q(end_ban_read__lte=now))
+            .filter(Q(can_read=True) | Q(end_ban_read__lte=now)) \
+            .select_related('user__username')
 
         return qs

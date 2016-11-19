@@ -1,24 +1,25 @@
 # coding: utf-8
 
 from datetime import datetime
-from django.conf import settings
-from django.db import models
 from hashlib import md5
-from django.http import HttpRequest
-from django.contrib.sessions.models import Session
-from django.contrib.auth import logout
+from importlib import import_module
 import os
-
-from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
-from django.dispatch import receiver
-
 import pygeoip
+
+from django.conf import settings
+from django.contrib.auth import logout
+from django.contrib.auth.models import User
+from django.contrib.sessions.models import Session
+from django.core.urlresolvers import reverse
+from django.db import models
+from django.dispatch import receiver
+from django.http import HttpRequest
+from django.utils.translation import ugettext_lazy as _
+
 from zds.forum.models import Post, Topic
 from zds.member.managers import ProfileManager
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent
 from zds.utils.models import Alert
-from importlib import import_module
 
 
 class Profile(models.Model):
@@ -30,8 +31,8 @@ class Profile(models.Model):
         verbose_name = 'Profil'
         verbose_name_plural = 'Profils'
         permissions = (
-            ("moderation", u"Modérer un membre"),
-            ("show_ip", u"Afficher les IP d'un membre"),
+            ('moderation', _(u'Modérer un membre')),
+            ('show_ip', _(u"Afficher les IP d'un membre")),
         )
 
     # Link with standard user is a simple one-to-one link, as recommended in official documentation.
@@ -39,7 +40,7 @@ class Profile(models.Model):
     user = models.OneToOneField(
         User,
         verbose_name='Utilisateur',
-        related_name="profile")
+        related_name='profile')
 
     last_ip_address = models.CharField(
         'Adresse IP',
@@ -65,8 +66,8 @@ class Profile(models.Model):
 
     show_sign = models.BooleanField('Voir les signatures', default=True)
 
-    # TODO: Change this name. This is a boolean: "true" is "hover" or "click" ?!
-    hover_or_click = models.BooleanField('Survol ou click ?', default=False)
+    # do UI components open by hovering them, or is clicking on them required?
+    is_hover_enabled = models.BooleanField('Déroulement au survol ?', default=False)
 
     allow_temp_visual_changes = models.BooleanField('Activer les changements visuels temporaires', default=True)
 
@@ -81,13 +82,13 @@ class Profile(models.Model):
 
     can_read = models.BooleanField('Possibilité de lire', default=True)
     end_ban_read = models.DateTimeField(
-        'Fin d\'interdiction de lecture',
+        "Fin d'interdiction de lecture",
         null=True,
         blank=True)
 
-    can_write = models.BooleanField('Possibilité d\'écrire', default=True)
+    can_write = models.BooleanField("Possibilité d'écrire", default=True)
     end_ban_write = models.DateTimeField(
-        'Fin d\'interdiction d\'ecrire',
+        "Fin d'interdiction d'écrire",
         null=True,
         blank=True)
 
@@ -104,7 +105,7 @@ class Profile(models.Model):
         return self.user.username
 
     def is_private(self):
-        """checks the user can display his stats"""
+        """can the user can display their stats"""
         user_groups = self.user.groups.all()
         user_group_names = [g.name for g in user_groups]
         return settings.ZDS_APP['member']['bot_group'] in user_group_names
@@ -464,7 +465,7 @@ def save_profile(backend, user, response, *args, **kwargs):
         profile = Profile(user=user,
                           show_email=False,
                           show_sign=True,
-                          hover_or_click=True,
+                          is_hover_enabled=True,
                           email_for_answer=False)
         profile.last_ip_address = "0.0.0.0"
         profile.save()

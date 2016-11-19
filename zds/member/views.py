@@ -108,7 +108,7 @@ class UpdateMember(UpdateView):
             'avatar_url': profile.avatar_url,
             'show_email': profile.show_email,
             'show_sign': profile.show_sign,
-            'hover_or_click': profile.hover_or_click,
+            'is_hover_enabled': profile.is_hover_enabled,
             'allow_temp_visual_changes': profile.allow_temp_visual_changes,
             'email_for_answer': profile.email_for_answer,
             'sign': profile.sign,
@@ -139,7 +139,7 @@ class UpdateMember(UpdateView):
         profile.site = form.data['site']
         profile.show_email = 'show_email' in cleaned_data_options
         profile.show_sign = 'show_sign' in cleaned_data_options
-        profile.hover_or_click = 'hover_or_click' in cleaned_data_options
+        profile.is_hover_enabled = 'is_hover_enabled' in cleaned_data_options
         profile.allow_temp_visual_changes = 'allow_temp_visual_changes' in cleaned_data_options
         profile.email_for_answer = 'email_for_answer' in cleaned_data_options
         profile.avatar_url = form.data['avatar_url']
