@@ -458,15 +458,11 @@ class TokenRegister(models.Model):
         return u"{0} - {1}".format(self.user.username, self.date_end)
 
 
-# TODO: Seems unused
+# Used by SOCIAL_AUTH_PIPELINE to create a profile on first login via social auth
 def save_profile(backend, user, response, *args, **kwargs):
     profile = Profile.objects.filter(user=user).first()
     if profile is None:
-        profile = Profile(user=user,
-                          show_email=False,
-                          show_sign=True,
-                          is_hover_enabled=True,
-                          email_for_answer=False)
+        profile = Profile(user=user)
         profile.last_ip_address = "0.0.0.0"
         profile.save()
 
