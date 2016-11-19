@@ -56,56 +56,59 @@
         </ul>
     </div>
 
-    <form id="form" name="form" method="post" action="{% url "gallery-image-delete" %}">
-        <input type="hidden" name="gallery" value="{{ gallery.pk }}">
-        {% csrf_token %}
-
-        {% if gallery.get_images %}
-            {% if gallery_mode.can_write %}
-                <button class="btn btn-cancel" name="delete_multi">{% trans "Supprimer la sélection" %}</button>
-            {% endif %}
-
-            <button class="toggle-gallery-view btn btn-grey" type="button" title="Alterner entre les modes de vue grille et liste">
-                {% trans "Vue grille" %}
-            </button>
-
-            <div class="gallery topic-list list-view clearfix navigable-list">
-                {% for img in images %}
-                    <div class="topic gallery-item navigable-elem">
-                        <div class="topic-infos">
-                            <input name="items" type="checkbox" value="{{ img.pk }}">
-                        </div>
-                        <div class="topic-description">
-                            <a href="{% url "gallery-image-edit" gallery.pk img.pk %}" class="topic-title-link navigable-link">
-                                <img src="{{ img.physical.gallery.url }}"
-                                     data-caption="{{ img.title }}"
-                                     alt="{{ img.title }}"
-                                     class="topic-image"
-                                >
-                                <span class="topic-title">{{ img.title }}</span>
-                                <span class="topic-subtitle">{{ img.legend|default:"" }}</span>
-                            </a>
-                        </div>
-                    </div>
-                {% endfor %}
-
-                <a href="{% url "gallery-image-new" gallery.pk %}" title="Ajouter une image" class="gallery-item add-image">+</a>
-            </div>
-        {% else %}
-            <p>
-                {% trans "Aucune image" %}. <br>
-                {% if gallery_mode.can_write %}
-                    {% url "gallery-image-new" gallery.pk as new_img_url %}
-                    {% url "gallery-image-import" gallery.pk as import_archive %}
-                    {% blocktrans %}
-                        Vous pouvez <a href="{{new_img_url}}">ajouter une image</a> à cette galerie dès à présent, ou <a href="{{ import_archive }}">importer une archive</a> !
-                    {% endblocktrans %}
-                {% endif %}
-            </p>
+    {% if gallery.get_images %}
+        {% if gallery_mode.can_write %}
+            <!-- Delete images -->
+            <a class="btn btn-cancel open-modal" href="#form-delete-images">{% trans "Supprimer la sélection" %}</a>
+            <!-- Confirmation modal -->
+            <form id="form-delete-images" name="form" method="post" action="{% url "gallery-image-delete" %}" class="modal modal-flex">
+                <input type="hidden" name="gallery" value="{{ gallery.pk }}">
+                {% csrf_token %}
+                <p>{% trans "Attention, vous vous appretez à supprimer toutes les images sélectionnées." %}</p>
+                <button type="submit" name="delete_multi" class="btn">{% trans "Confirmer" %}</button>
+            </form>
         {% endif %}
 
-        {% include "misc/paginator.html" with position="bottom" %}
-    </form>
+        <button class="toggle-gallery-view btn btn-grey" type="button" title="Alterner entre les modes de vue grille et liste">
+            {% trans "Vue grille" %}
+        </button>
+
+        <div class="gallery topic-list list-view clearfix navigable-list">
+            {% for img in images %}
+                <div class="topic gallery-item navigable-elem">
+                    <div class="topic-infos">
+                        <input name="items" type="checkbox" value="{{ img.pk }}" form="form-delete-images">
+                    </div>
+                    <div class="topic-description">
+                        <a href="{% url "gallery-image-edit" gallery.pk img.pk %}" class="topic-title-link navigable-link">
+                            <img src="{{ img.physical.gallery.url }}"
+                                 data-caption="{{ img.title }}"
+                                 alt="{{ img.title }}"
+                                 class="topic-image"
+                            >
+                            <span class="topic-title">{{ img.title }}</span>
+                            <span class="topic-subtitle">{{ img.legend|default:"" }}</span>
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+
+            <a href="{% url "gallery-image-new" gallery.pk %}" title="Ajouter une image" class="gallery-item add-image">+</a>
+        </div>
+    {% else %}
+        <p>
+            {% trans "Aucune image" %}. <br>
+            {% if gallery_mode.can_write %}
+                {% url "gallery-image-new" gallery.pk as new_img_url %}
+                {% url "gallery-image-import" gallery.pk as import_archive %}
+                {% blocktrans %}
+                    Vous pouvez <a href="{{new_img_url}}">ajouter une image</a> à cette galerie dès à présent, ou <a href="{{ import_archive }}">importer une archive</a> !
+                {% endblocktrans %}
+            {% endif %}
+        </p>
+    {% endif %}
+
+    {% include "misc/paginator.html" with position="bottom" %}
 {% endblock %}
 
 {% block new_btn %}
