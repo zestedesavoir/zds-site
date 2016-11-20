@@ -854,3 +854,15 @@ Maj de Raven + releases
 -----------------------
 Avant de faire le tag des différentes RC, s'assurer qu'un githook a été ajouté comme le propose sentry.
 Mettre à jour le `settings_prod.py` en suivant `doc/source/install/configs/settings_prod.py`.
+
+
+Tribunes
+--------
+
+Ajouter à la fin de `/etc/munin/plugin-conf.d/zds.conf`
+
+```
+    [zds_total_tribunes]
+    env.url http://www.zestedesavoir.com/munin/total_tribunes/
+    env.graph_category zds
+```
