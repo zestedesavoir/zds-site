@@ -104,7 +104,7 @@ class Subscription(models.Model):
             'email/notification/' + convert_camel_to_underscore(self._meta.object_name) + '.txt', context)
 
         msg = EmailMultiAlternatives(subject, message_txt, from_email, [receiver.email])
-        msg.attach_alternative(message_html, "text/html")
+        msg.attach_alternative(message_html, 'text/html')
         try:
             msg.send()
         except SMTPException:
