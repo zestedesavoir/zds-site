@@ -828,3 +828,14 @@ Ajouter `ZDS_APP['display_search_bar'] = False` à `settings_prod.py`
 -     'zds.middlewares.ForceHttpsMembersMiddleware.ForceHttpsMembersMiddleware',
   )
 ```
+
+Tribunes
+--------
+
+Ajouter à la fin de `/etc/munin/plugin-conf.d/zds.conf`
+
+```
+    [zds_total_tribunes]
+    env.url http://www.zestedesavoir.com/munin/total_tribunes/
+    env.graph_category zds
+```
