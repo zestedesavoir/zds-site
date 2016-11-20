@@ -253,10 +253,12 @@ def content_published_event(sender, **kwargs):
 def answer_comment_event(sender, **kwargs):
     comment = kwargs.get('instance')
     user = kwargs.get('user')
-    by_email = kwargs.get('by_email')
+
+    assert comment is not None
+    assert user is not None
 
     subscription = PingSubscription.objects.get_or_create_active(user, comment)
-    subscription.send_notification(content=comment, sender=comment.author, send_email=by_email)
+    subscription.send_notification(content=comment, sender=comment.author, send_email=False)
 
 
 @receiver(new_content, sender=PrivatePost)

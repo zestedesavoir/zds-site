@@ -320,7 +320,7 @@ class PingSubscription(AnswerSubscription, MultipleNotificationsMixin):
 
     def get_notification_title(self, answer):
         assert hasattr(answer, 'author')
-        assert hasattr(answer, "get_notification_title")
+        assert hasattr(answer, 'get_notification_title')
 
         return _(u'{0} vous a mentionné sur {1}.').format(answer.author, answer.get_notification_title())
 

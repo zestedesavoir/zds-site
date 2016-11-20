@@ -4940,8 +4940,8 @@ class PublishedContentTests(TestCase):
         article = PublishedContentFactory(author_list=[self.user_author], type="ARTICLE")
         new_user = ProfileFactory().user
         new_reaction = ContentReaction(related_content=article, position=1)
-        new_reaction.update_content("I will find you. And I will Kill you.")
         new_reaction.author = self.user_guest
+        new_reaction.update_content("I will find you. And I will Kill you.")
 
         new_reaction.save()
         self.assertEqual(
@@ -4969,8 +4969,8 @@ class PublishedContentTests(TestCase):
 
         # add note :
         reaction = ContentReaction(related_content=tuto, position=1)
-        reaction.update_content(text)
         reaction.author = self.user_guest
+        reaction.update_content(text)
         reaction.save()
 
         self.assertEqual(
