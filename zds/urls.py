@@ -42,6 +42,19 @@ class ArticleSitemap(Sitemap):
     def location(self, article):
         return article.get_absolute_url_online()
 
+class OpinionSitemap(Sitemap):
+    changefreq = 'weekly'
+    priority = 1
+
+    def items(self):
+        return PublishedContent.objects.filter(must_redirect=False, content_type="OPINION").prefetch_related('content')
+
+    def lastmod(self, opinion):
+        return opinion.update_date or opinion.publication_date
+
+    def location(self, opinion):
+        return opinion.get_absolute_url_online()
+
 
 class PageSitemap(Sitemap):
     changefreq = 'weekly'
@@ -57,6 +70,7 @@ class PageSitemap(Sitemap):
 sitemaps = {
     'tutos': TutoSitemap,
     'articles': ArticleSitemap,
+    'opinions': OpinionSitemap,
     'categories': GenericSitemap(
         {'queryset': Category.objects.all()},
         changefreq='yearly',
