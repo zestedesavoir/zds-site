@@ -300,19 +300,19 @@ class Profile(models.Model):
         """
         :return: the count of opinions with this user as author. Count all opinions, no only published one.
         """
-        return self.get_content_count(_type="OPINION")
+        return self.get_content_count(_type='OPINION')
 
     def get_opinions(self):
         """
         :return: All opinions with this user as author.
         """
-        return self.get_contents(_type="OPINION")
+        return self.get_contents(_type='OPINION')
 
     def get_public_opinions(self):
         """
         :return: All published opinions with this user as author.
         """
-        return self.get_public_contents(_type="OPINION")
+        return self.get_public_contents(_type='OPINION')
 
     def get_draft_opinions(self):
         """
@@ -320,7 +320,7 @@ class Profile(models.Model):
         A draft opinion is a opinion which is not published or in validation.
         :return: All draft opinion with this user as author.
         """
-        return self.get_draft_contents(_type="OPINION")
+        return self.get_draft_contents(_type='OPINION')
 
     def get_posts(self):
         return Post.objects.filter(author=self.user).all()

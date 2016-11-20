@@ -227,8 +227,8 @@ def modify_gallery(request):
 
         Gallery.objects.filter(pk__in=free_galleries).delete()
         return redirect(reverse('gallery-list'))
-    elif 'adduser' in request.POST:
 
+    elif 'adduser' in request.POST:
         # Gallery-specific actions
 
         try:
