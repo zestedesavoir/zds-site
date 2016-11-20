@@ -1,6 +1,7 @@
 {% extends "tutorialv2/base_online.html" %}
 {% load emarkdown %}
 {% load profile %}
+{% load date %}
 {% load captureas %}
 {% load set %}
 {% load thumbnail %}
@@ -132,8 +133,33 @@
 
     {% endif %}
 
-    {% include "tutorialv2/includes/article_pager.part.html" with content=content %}
+    {% if is_staff %}
+        {% for alert in alerts %}
+            <div class="alert-box{% if not alert.solved %} error{% endif %}">
+                {{ alert.pubdate|format_date|capfirst }} {% trans "par" %}
+                {% include "misc/member_item.part.html" with member=alert.author %} :
+                <em class="alert-box-text">{{ alert.text }}</em>
+                {% if alert.solved %}
+                    <span class="close-alert-box close-alert-box-text">
+                        {% trans "Résolu par" %}
+                        {% include "misc/member_item.part.html" with member=alert.moderator %}
+                    </span>
+                {% else %}
+                    <a href="#solve-content-{{ alert.pk }}" class="open-modal close-alert-box close-alert-box-text">{% trans "Résoudre" %}</a>
+                    <form id="solve-content-{{ alert.pk }}" method="post" action="{% url 'content:resolve-content' alert.pk %}" class="modal modal-flex">
+                        <textarea name="text" class="input" placeholder="{% trans "Message à envoyer au membre ayant lancé l'alerte" %}"></textarea>
+                        <input type="hidden" name="alert_pk" value="{{ alert.pk }}">
 
+                        {% csrf_token %}
+                        <button type="submit" name="delete-post" class="button expand alert tiny">{% trans "Résoudre l'alerte" %}</button>
+                    </form>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% include "tutorialv2/includes/article_pager.part.html" with content=content %}
+    {% include "tutorialv2/includes/alert.html" with content=content current_content_type=current_content_type %}
     {% include "tutorialv2/includes/warn_typo.part.html" with content=content %}
 
 {% endblock %}

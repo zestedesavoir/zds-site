@@ -52,10 +52,10 @@ class ZdSPagingListView(ListView):
         # If necessary, add the last item in the previous page.
         if self.page.number != 1:
             last_page = self.paginator.page(self.page.number - 1).object_list
-            last_item = (last_page)[len(last_page) - 1]
+            last_item = last_page[len(last_page) - 1]
             items_list.append(last_item)
         # Adds all items of the list paginated.
-        for item in original_list:
+        for item in original_list:  # TODO: refacto
             items_list.append(item)
         return items_list
 

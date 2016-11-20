@@ -33,15 +33,15 @@ from elasticsearch_dsl.field import Text, Keyword, Date
 
 from zds.forum.models import Topic
 from zds.gallery.models import Image, Gallery, UserGallery
+from zds.tutorialv2.managers import PublishedContentManager, PublishableContentManager
+from zds.tutorialv2.models import TYPE_CHOICES, STATUS_CHOICES, CONTENT_TYPES_VALIDATION_BEFORE
+from zds.tutorialv2.models.models_versioned import NotAPublicVersion
 from zds.tutorialv2.utils import get_content_from_json, BadManifestError
 from zds.utils import get_current_user
 from zds.utils.models import SubCategory, Licence, HelpWriting, Comment, Tag
 from zds.searchv2.models import AbstractESDjangoIndexable, AbstractESIndexable, delete_document_in_elasticsearch, \
     ESIndexManager
 from zds.utils.tutorials import get_blob
-from zds.tutorialv2.models import TYPE_CHOICES, STATUS_CHOICES, CONTENT_TYPES_VALIDATION_BEFORE
-from zds.tutorialv2.models.models_versioned import NotAPublicVersion
-from zds.tutorialv2.managers import PublishedContentManager, PublishableContentManager
 import logging
 
 ALLOWED_TYPES = ['pdf', 'md', 'html', 'epub', 'zip']
@@ -644,9 +644,8 @@ class PublishedContent(AbstractESDjangoIndexable):
         :return: the URL of the published content
         :rtype: str
         """
-        reversed_ = self.content_type.lower()
-
-        return reverse(reversed_ + ':view', kwargs={'pk': self.content_pk, 'slug': self.content_public_slug})
+        content_type = self.content_type.lower()
+        return reverse('{}:view'.format(content_type), kwargs={'pk': self.content_pk, 'slug': self.content_public_slug})
 
     def load_public_version_or_404(self):
         """
@@ -684,7 +683,7 @@ class PublishedContent(AbstractESDjangoIndexable):
         :return: ``True`` if it is an opinion, ``False`` otherwise.
         :rtype: bool
         """
-        return self.content_type == "OPINION"
+        return self.content_type == 'OPINION'
 
     def get_extra_contents_directory(self):
         """
@@ -819,10 +818,8 @@ class PublishedContent(AbstractESDjangoIndexable):
 
         if type_ in ALLOWED_TYPES:
             reversed_ = self.content_type.lower()
-
             return reverse(
                 reversed_ + ':download-' + type_, kwargs={'pk': self.content_pk, 'slug': self.content_public_slug})
-
         return ''
 
     def get_absolute_url_md(self):
@@ -1099,7 +1096,7 @@ class FakeChapter(AbstractESIndexable):
 @python_2_unicode_compatible
 class ContentReaction(Comment):
     """
-    A comment written by any user about a PublishableContent he just read.
+    A comment written by any user about a PublishableContent they just read.
     """
     class Meta:
         verbose_name = 'note sur un contenu'
@@ -1129,7 +1126,7 @@ class ContentRead(models.Model):
     """
     Small model which keeps track of the user viewing tutorials.
 
-    It remembers the PublishableContent he looked and what was the last Note at this time.
+    It remembers the PublishableContent they read and what was the last Note at that time.
     """
     class Meta:
         verbose_name = 'Contenu lu'
