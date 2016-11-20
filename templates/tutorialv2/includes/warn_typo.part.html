@@ -2,22 +2,21 @@
 {% load crispy_forms_tags %}
 
 {% if user.is_authenticated and user not in content.authors.all %}
-
-<a href="#warn-typo-modal" class="open-modal btn btn-grey ico-after edit blue">
-    {% trans "Signaler une faute dans" %}
-    {% if not container %}
-        {% if content.type == 'ARTICLE' %}
-            {% trans "cet article" %}
-        {% elif content.type == 'TUTORIAL' %}
-            {% trans "ce tutoriel" %}
-        {% elif content.type == 'OPINION' %}
-            {% trans "ce billet" %}
+    <a href="#warn-typo-modal" class="open-modal btn btn-grey ico-after edit blue">
+        {% trans "Signaler une faute dans" %}
+        {% if not container %}
+            {% if content.type == 'ARTICLE' %}
+                {% trans "cet article" %}
+            {% elif content.type == 'TUTORIAL' %}
+                {% trans "ce tutoriel" %}
+            {% elif content.type == 'OPINION' %}
+                {% trans "ce billet" %}
+            {% endif %}
+        {% else %}
+            {% trans "ce chapitre" %}
         {% endif %}
-    {% else %}
-        {% trans "ce chapitre" %}
-    {% endif %}
-</a>
+    </a>
 
-{% crispy formWarnTypo %}
+    {% crispy formWarnTypo %}
 
 {% endif %}

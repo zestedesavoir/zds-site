@@ -639,7 +639,7 @@ def solve_alert(request):
             'staff_message': resolve_reason,
         })
 
-    alert.solve(alert, request.user, resolve_reason, msg_title, msg_content)
+    alert.solve(request.user, resolve_reason, msg_title, msg_content)
     messages.success(request, _(u"L'alerte a bien été résolue."))
     return redirect(post.get_absolute_url())
 
