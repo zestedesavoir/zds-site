@@ -3149,7 +3149,7 @@ class ContentTests(TestCase):
             True)
 
         result = self.client.post(
-            reverse("content:add-reaction") + u'?pk={}'.format(publishable.pk),
+            reverse('content:add-reaction') + u'?pk={}'.format(publishable.pk),
             {
                 'text': u'message',
                 'last_note': '0'
@@ -3168,7 +3168,7 @@ class ContentTests(TestCase):
         publishable = PublishedContentFactory(author_list=[self.user_author])
         old_date = publishable.update_date
         self.client.post(
-            reverse("content:add-reaction") + u'?pk={}'.format(publishable.pk),
+            reverse('content:add-reaction') + u'?pk={}'.format(publishable.pk),
             {
                 'text': u'message',
                 'last_note': '0'
@@ -3177,7 +3177,7 @@ class ContentTests(TestCase):
         self.assertEqual(old_date, publishable.update_date, "Erreur, le commentaire a entraîné une MAJ de la date!")
         # test antispam
         result = self.client.post(
-            reverse("content:add-reaction") + u'?pk={}'.format(publishable.pk),
+            reverse('content:add-reaction') + u'?pk={}'.format(publishable.pk),
             {
                 'text': u'message',
                 'last_note': str(publishable.last_note.pk)
@@ -3185,14 +3185,14 @@ class ContentTests(TestCase):
         self.assertEqual(result.status_code, 403)
         # test bad param
         result = self.client.post(
-            reverse("content:add-reaction") + u'?pk={}'.format(publishable.pk),
+            reverse('content:add-reaction') + u'?pk={}'.format(publishable.pk),
             {
                 'text': u'message',
                 'last_note': str("I'm fine! I'm okay! This is all perfectly normal.")
             }, follow=False)
         self.assertEqual(result.status_code, 200)
         result = self.client.post(
-            reverse("content:add-reaction") + u'?pk={}'.format(publishable.pk),
+            reverse('content:add-reaction') + u'?pk={}'.format(publishable.pk),
             {
                 'text': u'message',
                 'last_note': str(-5)
@@ -4249,7 +4249,7 @@ class PublishedContentTests(TestCase):
             True)
 
         result = self.client.post(
-            reverse("content:add-reaction") + u'?pk={}'.format(self.published.content.pk),
+            reverse('content:add-reaction') + u'?pk={}'.format(self.published.content.pk),
             {
                 'text': message_to_post,
                 'last_note': 0
@@ -4268,7 +4268,7 @@ class PublishedContentTests(TestCase):
         self.assertEqual(
             self.client.get(reverse("tutorial:view", args=[self.tuto.pk, self.tuto.slug])).status_code, 200)
         result = self.client.post(
-            reverse("content:add-reaction") + u'?clementine={}'.format(self.published.content.pk),
+            reverse('content:add-reaction') + u'?clementine={}'.format(self.published.content.pk),
             {
                 'text': message_to_post,
                 'last_note': '0'
@@ -4300,7 +4300,7 @@ class PublishedContentTests(TestCase):
 
         # test preview (without JS)
         result = self.client.post(
-            reverse("content:add-reaction") + u'?pk={}'.format(self.published.content.pk),
+            reverse('content:add-reaction') + u'?pk={}'.format(self.published.content.pk),
             {
                 'text': message_to_post,
                 'last_note': reactions[0].pk,
@@ -4312,7 +4312,7 @@ class PublishedContentTests(TestCase):
 
         # test preview (with JS)
         result = self.client.post(
-            reverse("content:add-reaction") + u'?pk={}'.format(self.published.content.pk),
+            reverse('content:add-reaction') + u'?pk={}'.format(self.published.content.pk),
             {
                 'text': message_to_post,
                 'last_note': reactions[0].pk,
@@ -4325,7 +4325,7 @@ class PublishedContentTests(TestCase):
 
         # test quoting (without JS)
         result = self.client.get(
-            reverse("content:add-reaction") + u'?pk={}&cite={}'.format(self.published.content.pk, reactions[0].pk))
+            reverse('content:add-reaction') + u'?pk={}&cite={}'.format(self.published.content.pk, reactions[0].pk))
         self.assertEqual(result.status_code, 200)
 
         text_field_value = result.context['form'].initial['text']
@@ -4336,7 +4336,7 @@ class PublishedContentTests(TestCase):
 
         # test quoting (with JS)
         result = self.client.get(
-            reverse("content:add-reaction") + u'?pk={}&cite={}'.format(self.published.content.pk, reactions[0].pk),
+            reverse('content:add-reaction') + u'?pk={}&cite={}'.format(self.published.content.pk, reactions[0].pk),
             HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 
         self.assertEqual(result.status_code, 200)
@@ -4358,7 +4358,7 @@ class PublishedContentTests(TestCase):
         self.assertEqual(ContentReaction.objects.count(), 1)
 
         result = self.client.post(
-            reverse("content:add-reaction") + u'?pk={}'.format(self.published.content.pk),
+            reverse('content:add-reaction') + u'?pk={}'.format(self.published.content.pk),
             {
                 'text': message_to_post,
                 'last_note': -1  # wrong pk
@@ -4379,7 +4379,7 @@ class PublishedContentTests(TestCase):
             True)
 
         self.client.post(
-            reverse("content:add-reaction") + u'?pk={}'.format(self.tuto.pk),
+            reverse('content:add-reaction') + u'?pk={}'.format(self.tuto.pk),
             {
                 'text': u'message',
                 'last_note': '0'
@@ -4410,7 +4410,7 @@ class PublishedContentTests(TestCase):
             True)
 
         result = self.client.get(
-            reverse("content:add-reaction") + u'?pk={}&cite={}'.format(self.tuto.pk, reaction.pk), follow=False)
+            reverse('content:add-reaction') + u'?pk={}&cite={}'.format(self.tuto.pk, reaction.pk), follow=False)
         self.assertEqual(result.status_code, 403)  # unable to quote a reaction if hidden
 
         # then, unhide it !
@@ -4437,7 +4437,7 @@ class PublishedContentTests(TestCase):
             True)
 
         self.client.post(
-            reverse("content:add-reaction") + u'?pk={}'.format(self.tuto.pk),
+            reverse('content:add-reaction') + u'?pk={}'.format(self.tuto.pk),
             {
                 'text': u'message',
                 'last_note': '0'
@@ -4811,7 +4811,7 @@ class PublishedContentTests(TestCase):
 
         # post a reaction
         result = self.client.post(
-            reverse("content:add-reaction") + u'?pk={}'.format(self.tuto.pk),
+            reverse('content:add-reaction') + u'?pk={}'.format(self.tuto.pk),
             {
                 'text': u'message',
                 'last_note': '0'
@@ -4849,7 +4849,7 @@ class PublishedContentTests(TestCase):
 
         # post another reaction
         result = self.client.post(
-            reverse("content:add-reaction") + u'?pk={}'.format(self.tuto.pk),
+            reverse('content:add-reaction') + u'?pk={}'.format(self.tuto.pk),
             {
                 'text': u'message',
                 'last_note': reactions[0].pk
@@ -4926,7 +4926,7 @@ class PublishedContentTests(TestCase):
                 username=self.user_staff.username,
                 password='hostel77'),
             True)
-        url_template = reverse("content:update-reaction") + "?pk={}&message={}"
+        url_template = reverse('content:update-reaction') + "?pk={}&message={}"
         result = self.client.get(url_template.format(self.tuto.pk, 454545665895123))
         self.assertEqual(404, result.status_code)
         reaction = ContentReaction(related_content=self.tuto, author=self.user_guest, position=1)
@@ -4982,19 +4982,19 @@ class PublishedContentTests(TestCase):
 
         # cite note
         result = self.client.get(
-            reverse("content:add-reaction") + u'?pk={}&cite={}'.format(tuto.pk, reaction.pk), follow=True)
+            reverse('content:add-reaction') + u'?pk={}&cite={}'.format(tuto.pk, reaction.pk), follow=True)
         self.assertEqual(200, result.status_code)
 
         self.assertTrue(text in result.context['form'].initial['text'])  # ok, text quoted !
 
         # cite with a abnormal parameter raises 404
         result = self.client.get(
-            reverse("content:add-reaction") + u'?pk={}&cite={}'.format(tuto.pk, 'lililol'), follow=True)
+            reverse('content:add-reaction') + u'?pk={}&cite={}'.format(tuto.pk, 'lililol'), follow=True)
         self.assertEqual(404, result.status_code)
 
         # cite not existing note just gives the form empty
         result = self.client.get(
-            reverse("content:add-reaction") + u'?pk={}&cite={}'.format(tuto.pk, 99999999), follow=True)
+            reverse('content:add-reaction') + u'?pk={}&cite={}'.format(tuto.pk, 99999999), follow=True)
         self.assertEqual(200, result.status_code)
 
         self.assertTrue('text' not in result.context['form'])  # nothing quoted, so no text cited
@@ -5004,7 +5004,7 @@ class PublishedContentTests(TestCase):
         reaction.save()
 
         result = self.client.get(
-            reverse("content:add-reaction") + u'?pk={}&cite={}'.format(tuto.pk, reaction.pk), follow=True)
+            reverse('content:add-reaction') + u'?pk={}&cite={}'.format(tuto.pk, reaction.pk), follow=True)
         self.assertEqual(403, result.status_code)
 
     def test_cant_view_private_even_if_draft_is_equal_to_public(self):
@@ -5179,7 +5179,7 @@ class PublishedContentTests(TestCase):
                 username=self.user_staff.username,
                 password='hostel77'),
             True)
-        result = self.client.get(reverse("validation:list") + "?type=tuto")
+        result = self.client.get(reverse('validation:list') + "?type=tuto")
         self.assertIn(old_title, result.content)
         self.assertNotIn(new_title, result.content)
 
@@ -5275,7 +5275,7 @@ class PublishedContentTests(TestCase):
                 username=self.user_staff.username,
                 password='hostel77'),
             True)
-        result = self.client.get(reverse("validation:list") + "?type=tuto")
+        result = self.client.get(reverse('validation:list') + "?type=tuto")
         self.assertIn('class="update_content"', result.content)
 
     def test_validation_history_for_new_content(self):
@@ -5302,7 +5302,7 @@ class PublishedContentTests(TestCase):
                 username=self.user_staff.username,
                 password='hostel77'),
             True)
-        result = self.client.get(reverse("validation:list") + "?type=tuto")
+        result = self.client.get(reverse('validation:list') + "?type=tuto")
         self.assertNotIn('class="update_content"', result.content)
 
     def test_opinion_publication_author(self):

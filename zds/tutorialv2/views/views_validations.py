@@ -272,7 +272,7 @@ class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
             validation.status = "PENDING"
             validation.save()
             messages.info(request, _(u"Ce contenu n'est plus réservé."))
-            return redirect(reverse("validation:list"))
+            return redirect(reverse('validation:list'))
         else:
             validation.validator = request.user
             validation.date_reserve = datetime.now()

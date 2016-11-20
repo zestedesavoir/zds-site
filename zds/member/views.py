@@ -413,7 +413,7 @@ def unregister(request):
 
     logout(request)
     User.objects.filter(pk=current.pk).delete()
-    return redirect(reverse("homepage"))
+    return redirect(reverse('homepage'))
 
 
 @require_POST
@@ -640,7 +640,7 @@ def login_view(request):
                     try:
                         return redirect(next_page)
                     except:
-                        return redirect(reverse("homepage"))
+                        return redirect(reverse('homepage'))
                 else:
                     messages.error(request,
                                    _(u"Vous n'êtes pas autorisé à vous connecter "
@@ -676,7 +676,7 @@ def logout_view(request):
 
     logout(request)
     request.session.clear()
-    return redirect(reverse("homepage"))
+    return redirect(reverse('homepage'))
 
 
 def forgot_password(request):
@@ -721,7 +721,7 @@ def forgot_password(request):
             message_txt = render_to_string("email/member/confirm_forgot_password.txt", context)
 
             msg = EmailMultiAlternatives(subject, message_txt, from_email, [usr.email])
-            msg.attach_alternative(message_html, "text/html")
+            msg.attach_alternative(message_html, 'text/html')
             msg.send()
             return render(request, "member/forgot_password/success.html")
         else:
@@ -737,7 +737,7 @@ def new_password(request):
     try:
         token = request.GET["token"]
     except KeyError:
-        return redirect(reverse("homepage"))
+        return redirect(reverse('homepage'))
     token = get_object_or_404(TokenForgotPassword, token=token)
     if request.method == "POST":
         form = NewPasswordForm(token.user.username, request.POST)
@@ -763,7 +763,7 @@ def activate_account(request):
     try:
         token = request.GET["token"]
     except KeyError:
-        return redirect(reverse("homepage"))
+        return redirect(reverse('homepage'))
     token = get_object_or_404(TokenRegister, token=token)
     usr = token.user
 
@@ -784,10 +784,10 @@ def activate_account(request):
         'member/messages/account_activated.md',
         {
             'username': usr.username,
-            'tutorials_url': settings.ZDS_APP['site']['url'] + reverse("tutorial:list"),
-            'articles_url': settings.ZDS_APP['site']['url'] + reverse("article:list"),
+            'tutorials_url': settings.ZDS_APP['site']['url'] + reverse('tutorial:list'),
+            'articles_url': settings.ZDS_APP['site']['url'] + reverse('article:list'),
             'opinions_url': settings.ZDS_APP['site']['url'] + reverse('opinion:list'),
-            'members_url': settings.ZDS_APP['site']['url'] + reverse("member-list"),
+            'members_url': settings.ZDS_APP['site']['url'] + reverse('member-list'),
             'forums_url': settings.ZDS_APP['site']['url'] + reverse('cats-forums-list'),
             'site_name': settings.ZDS_APP['site']['litteral_name']
         }
@@ -812,7 +812,7 @@ def generate_token_account(request):
     try:
         token = request.GET["token"]
     except KeyError:
-        return redirect(reverse("homepage"))
+        return redirect(reverse('homepage'))
     token = get_object_or_404(TokenRegister, token=token)
 
     # push date
@@ -836,7 +836,7 @@ def generate_token_account(request):
     message_txt = render_to_string("email/member/confirm_registration.txt", context)
 
     msg = EmailMultiAlternatives(subject, message_txt, from_email, [token.user.email])
-    msg.attach_alternative(message_html, "text/html")
+    msg.attach_alternative(message_html, 'text/html')
     try:
         msg.send()
     except:

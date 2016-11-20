@@ -9,8 +9,8 @@ from django.db.models import Q
 graph_vlabel topics""")
 def total_topics(request):
     topics = Topic.objects.all()
-    return [("topics", topics.count()),
-            ("solved", topics.filter(is_solved=True).count())]
+    return [('topics', topics.count()),
+            ('solved', topics.filter(is_solved=True).count())]
 
 
 @muninview(config="""graph_title Total Posts
@@ -27,26 +27,26 @@ def total_posts(request):
 @muninview(config="""graph_title Total MPs
 graph_vlabel count""")
 def total_mps(request):
-    return [("mp", PrivateTopic.objects.all().count()),
-            ("replies", PrivatePost.objects.all().count())]
+    return [('mp', PrivateTopic.objects.all().count()),
+            ('replies', PrivatePost.objects.all().count())]
 
 
 @muninview(config="""graph_title Total Tutorials
 graph_vlabel tutorials""")
 def total_tutorials(request):
-    tutorials = PublishableContent.objects.filter(type="TUTORIAL").all()
-    return [("tutorials", tutorials.count()),
-            ("offline", tutorials.filter(sha_public__isnull=True).count()),
-            ("online", tutorials.filter(sha_public__isnull=False).count())]
+    tutorials = PublishableContent.objects.filter(type='TUTORIAL').all()
+    return [('tutorials', tutorials.count()),
+            ('offline', tutorials.filter(sha_public__isnull=True).count()),
+            ('online', tutorials.filter(sha_public__isnull=False).count())]
 
 
 @muninview(config="""graph_title Total articles
 graph_vlabel articles""")
 def total_articles(request):
-    articles = PublishableContent.objects.filter(type="ARTICLE").all()
-    return [("articles", articles.count()),
-            ("offline", articles.filter(sha_public__isnull=True).count()),
-            ("online", articles.filter(sha_public__isnull=False).count())]
+    articles = PublishableContent.objects.filter(type='ARTICLE').all()
+    return [('articles', articles.count()),
+            ('offline', articles.filter(sha_public__isnull=True).count()),
+            ('online', articles.filter(sha_public__isnull=False).count())]
 
 
 @muninview(config="""graph_title Total Tribunes
@@ -58,9 +58,9 @@ not_promoted.draw STACK
 promoted.label Promoted as articles
 promoted.draw STACK""")
 def total_tribunes(request):
-    tribunes = PublishableContent.objects.filter(type="OPINION").all()
-    return [("not_published", tribunes.filter(sha_public__isnull=True)),
-            ("not_promoted", tribunes.filter(sha_public__isnull=False)
+    tribunes = PublishableContent.objects.filter(type='OPINION').all()
+    return [('not_published', tribunes.filter(sha_public__isnull=True)),
+            ('not_promoted', tribunes.filter(sha_public__isnull=False)
                                      .filter(Q(promotion_content__isnull=True) |
                                              Q(promotion_content__sha_public__isnull=True)).count()),
-            ("promoted", tribunes.filter(promotion_content__sha_public__isnull=False).count())]
+            ('promoted', tribunes.filter(promotion_content__sha_public__isnull=False).count())]
