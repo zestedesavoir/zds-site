@@ -185,7 +185,7 @@ class Comment(models.Model):
         md_instance = get_markdown_instance(ping_url=ping_url)
         self.text_html = render_markdown(md_instance, self.text)
         self.save()
-        for username in list(md_instance.metadata.get("ping", []))[:settings.ZDS_APP['comment']['max_pings']]:
+        for username in list(md_instance.metadata.get('ping', []))[:settings.ZDS_APP['comment']['max_pings']]:
             signals.new_content.send(sender=self.__class__, instance=self, user=User.objects.get(username=username))
 
     def hide_comment_by_user(self, user, text_hidden):

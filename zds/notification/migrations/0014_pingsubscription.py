@@ -8,7 +8,7 @@ import zds.notification.models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('notification', '0012_auto_20160703_2255'),
+        ('notification', '0013_clean_notifications'),
     ]
 
     operations = [
