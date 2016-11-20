@@ -4239,7 +4239,7 @@ class PublishedContentTests(TestCase):
 
     def test_add_note(self):
 
-        message_to_post = u'la ZEP-12, c\'est énorme ! (CMB)'
+        message_to_post = u'la ZEP-12, c\'est énorme (CMB)'
 
         self.assertEqual(
             self.client.login(
