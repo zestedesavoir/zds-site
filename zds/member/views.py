@@ -40,7 +40,6 @@ from zds.mp.models import PrivatePost, PrivateTopic
 from zds.tutorialv2.models.models_database import PublishableContent
 from zds.notification.models import TopicAnswerSubscription, NewPublicationSubscription
 from zds.tutorialv2.models.models_database import PublishedContent
-from zds.utils.decorators import https_required
 from zds.utils.models import Comment, CommentVote
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView
@@ -56,15 +55,7 @@ class MemberList(ZdSPagingListView):
     template_name = 'member/index.html'
 
     def get_queryset(self):
-        excluded_groups = [Group.objects.get(name=settings.ZDS_APP['member']['bot_group'])]
-        now = datetime.now()
-        # TODO When User will be no more used, you can make this request with
-        # Profile.objects.all_members_ordered_by_date_joined()
-        self.queryset = User.objects.filter(is_active=True)\
-            .exclude(groups__in=excluded_groups)\
-            .filter(Q(profile__can_read=True) | Q(profile__end_ban_read__lte=now))\
-            .order_by('-date_joined')\
-            .all().select_related("profile")
+        self.queryset = Profile.objects.contactable_members()
         return super(MemberList, self).get_queryset()
 
 
@@ -88,7 +79,7 @@ class MemberDetail(DetailView):
         context['topics'] = list(Topic.objects.last_topics_of_a_member(usr, self.request.user))
         context['articles'] = PublishedContent.objects.last_articles_of_a_member_loaded(usr)
         context['tutorials'] = PublishedContent.objects.last_tutorials_of_a_member_loaded(usr)
-        context['karmanotes'] = KarmaNote.objects.filter(user=usr).order_by('-create_at')
+        context['karmanotes'] = KarmaNote.objects.filter(user=usr).order_by('-pubdate')
         context['karmaform'] = KarmaForm(profile)
         context['topic_read'] = TopicRead.objects.list_read_topic_pk(self.request.user, context['topics'])
         context['subscriber_count'] = NewPublicationSubscription.objects.get_subscriptions(self.object).count()
@@ -116,7 +107,7 @@ class UpdateMember(UpdateView):
             'avatar_url': profile.avatar_url,
             'show_email': profile.show_email,
             'show_sign': profile.show_sign,
-            'hover_or_click': profile.hover_or_click,
+            'is_hover_enabled': profile.is_hover_enabled,
             'allow_temp_visual_changes': profile.allow_temp_visual_changes,
             'email_for_answer': profile.email_for_answer,
             'sign': profile.sign,
@@ -147,7 +138,7 @@ class UpdateMember(UpdateView):
         profile.site = form.data['site']
         profile.show_email = 'show_email' in cleaned_data_options
         profile.show_sign = 'show_sign' in cleaned_data_options
-        profile.hover_or_click = 'hover_or_click' in cleaned_data_options
+        profile.is_hover_enabled = 'is_hover_enabled' in cleaned_data_options
         profile.allow_temp_visual_changes = 'allow_temp_visual_changes' in cleaned_data_options
         profile.email_for_answer = 'email_for_answer' in cleaned_data_options
         profile.avatar_url = form.data['avatar_url']
@@ -235,9 +226,9 @@ class UpdateUsernameEmailMember(UpdateMember):
             # Add a karma message for the staff
             bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
             KarmaNote(user=profile.user,
-                      staff=bot,
-                      comment=_(u"{} s'est renommé {}").format(profile.user.username, form.data['username']),
-                      value=0).save()
+                      moderator=bot,
+                      note=_(u"{} s'est renommé {}").format(profile.user.username, form.data['username']),
+                      karma=0).save()
             # Change the pseudo
             profile.user.username = form.data['username']
         if form.data['email']:
@@ -256,7 +247,6 @@ class RegisterView(CreateView, ProfileCreate, TokenGenerator):
     form_class = RegisterForm
     template_name = 'member/register/index.html'
 
-    @method_decorator(https_required)
     def dispatch(self, *args, **kwargs):
         return super(RegisterView, self).dispatch(*args, **kwargs)
 
@@ -465,7 +455,7 @@ def modify_profile(request, user_pk):
                      ban.moderator,
                      ban.type,
                      state.get_detail(),
-                     ban.text,
+                     ban.note,
                      settings.ZDS_APP['site']['litteral_name'])
 
     state.notify_member(ban, msg)
@@ -583,10 +573,10 @@ def settings_mini_profile(request, user_name):
         form = MiniProfileForm(request.POST)
         data = {"form": form, "profile": profile}
         if form.is_valid():
-            profile.biography = form.data["biography"]
-            profile.site = form.data["site"]
-            profile.avatar_url = form.data["avatar_url"]
-            profile.sign = form.data["sign"]
+            profile.biography = form.data['biography']
+            profile.site = form.data['site']
+            profile.avatar_url = form.data['avatar_url']
+            profile.sign = form.data['sign']
 
             # Save the profile and redirect the user to the configuration space
             # with message indicate the state of the operation
@@ -594,25 +584,24 @@ def settings_mini_profile(request, user_name):
             try:
                 profile.save()
             except:
-                messages.error(request, u"Une erreur est survenue.")
-                return redirect(reverse("member-settings-mini-profile"))
+                messages.error(request, _(u'Une erreur est survenue.'))
+                return redirect(reverse('member-settings-mini-profile'))
 
-            messages.success(request, _(u"Le profil a correctement été mis à jour."))
-            return redirect(reverse("member-detail", args=[profile.user.username]))
+            messages.success(request, _(u'Le profil a correctement été mis à jour.'))
+            return redirect(reverse('member-detail', args=[profile.user.username]))
         else:
-            return render(request, "member/settings/profile.html", data)
+            return render(request, 'member/settings/profile.html', data)
     else:
         form = MiniProfileForm(initial={
-            "biography": profile.biography,
-            "site": profile.site,
-            "avatar_url": profile.avatar_url,
-            "sign": profile.sign,
+            'biography': profile.biography,
+            'site': profile.site,
+            'avatar_url': profile.avatar_url,
+            'sign': profile.sign,
         })
-        data = {"form": form, "profile": profile}
-        return render(request, "member/settings/profile.html", data)
+        data = {'form': form, 'profile': profile}
+        return render(request, 'member/settings/profile.html', data)
 
 
-@https_required
 def login_view(request):
     """Log in user."""
 
@@ -685,7 +674,6 @@ def logout_view(request):
     return redirect(reverse("homepage"))
 
 
-@https_required
 def forgot_password(request):
     """If the user forgot his password, he can have a new one."""
 
@@ -738,7 +726,6 @@ def forgot_password(request):
     return render(request, "member/forgot_password/index.html", {"form": form})
 
 
-@https_required
 def new_password(request):
     """Create a new password for a user."""
 
@@ -766,7 +753,6 @@ def new_password(request):
     return render(request, "member/new_password/index.html", {"form": form})
 
 
-@https_required
 def active_account(request):
     """Active token for a user."""
 
@@ -818,7 +804,6 @@ def active_account(request):
     return render(request, "member/register/token_success.html", {"usr": usr, "form": form})
 
 
-@https_required
 def generate_token_account(request):
     """Generate token for account."""
 
@@ -991,13 +976,13 @@ def settings_promote(request, user_pk):
 def member_from_ip(request, ip_address):
     """ Get list of user connected from a particular ip """
 
-    if not request.user.has_perm("member.change_profile"):
+    if not request.user.has_perm('member.change_profile'):
         raise PermissionDenied
 
     members = Profile.objects.filter(last_ip_address=ip_address).order_by('-last_visit')
     return render(request, 'member/settings/memberip.html', {
-        "members": members,
-        "ip": ip_address
+        'members': members,
+        'ip': ip_address
     })
 
 
@@ -1006,11 +991,11 @@ def member_from_ip(request, ip_address):
 def modify_karma(request):
     """ Add a Karma note to the user profile """
 
-    if not request.user.has_perm("member.change_profile"):
+    if not request.user.has_perm('member.change_profile'):
         raise PermissionDenied
 
     try:
-        profile_pk = int(request.POST["profile_pk"])
+        profile_pk = int(request.POST['profile_pk'])
     except (KeyError, ValueError):
         raise Http404
 
@@ -1018,26 +1003,26 @@ def modify_karma(request):
     if profile.is_private():
         raise PermissionDenied
 
-    note = KarmaNote()
-    note.user = profile.user
-    note.staff = request.user
-    note.comment = request.POST.get("warning", "")
+    note = KarmaNote(
+        user=profile.user,
+        moderator=request.user,
+        note=request.POST.get('note', '').strip())
 
     try:
-        note.value = int(request.POST["points"])
+        note.karma = int(request.POST['karma'])
     except (KeyError, ValueError):
-        note.value = 0
+        note.karma = 0
 
     try:
-        if note.comment == "":
-            raise ValueError("note.comment must not be empty")
-        elif note.value > 100 or note.value < -100:
-            raise ValueError("note.value must be between -100 and 100 {} given".format(note.value))
+        if not note.note:
+            raise ValueError('note cannot be empty')
+        elif note.karma > 100 or note.karma < -100:
+            raise ValueError('Max karma amount has to be between -100 and 100, you entered {}'.format(note.karma))
         else:
             note.save()
-            profile.karma += note.value
+            profile.karma += note.karma
             profile.save()
     except ValueError as e:
-        logging.getLogger("zds.member").warn("ValueError: modifying karma failed because {}".format(e))
+        logging.getLogger("zds.member").warn('ValueError: modifying karma failed because {}'.format(e))
 
-    return redirect(reverse("member-detail", args=[profile.user.username]))
+    return redirect(reverse('member-detail', args=[profile.user.username]))

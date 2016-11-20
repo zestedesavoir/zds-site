@@ -1,7 +1,5 @@
 # coding: utf-8
 
-import re
-
 from django import forms
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -9,7 +7,7 @@ from django.core.urlresolvers import reverse
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Hidden
 from crispy_forms.bootstrap import StrictButton
-from zds.forum.models import Forum, Topic, sub_tag, Tag
+from zds.forum.models import Forum, Topic
 from zds.utils.forms import CommonLayoutEditor, TagValidator
 from django.utils.translation import ugettext_lazy as _
 
@@ -71,31 +69,15 @@ class TopicForm(forms.Form):
 
         title = cleaned_data.get('title')
         text = cleaned_data.get('text')
+        tags = cleaned_data.get('tags')
 
         if title is not None:
-            if title.strip() == '':
+            if not title.strip():
                 self._errors['title'] = self.error_class(
                     [_(u'Le champ titre ne peut être vide')])
                 if 'title' in cleaned_data:
                     del cleaned_data['title']
-            elif re.sub(ur"(?P<start>)(\[.*?\])(?P<end>)", sub_tag, title) \
-                    .strip() == '':
-                self._errors['title'] = self.error_class(
-                    [_(u'Le titre ne peux pas contenir uniquement des tags')])
-            else:
-                tags = re.findall(ur"((.*?)\[(.*?)\](.*?))", title)
-                for tag in tags:
-                    if tag[2].strip() == "":
-                        if 'title' in cleaned_data:
-                            self._errors['title'] = self.error_class(
-                                [_(u'Un tag ne peut être vide')])
-
-                    elif len(tag[2]) > Tag._meta.get_field('title').max_length:
-                        if 'title' in cleaned_data:
-                            self._errors['title'] = self.error_class(
-                                [_(u'Un tag doit faire moins de {0} caractères').
-                                    format(Tag._meta.get_field('title').max_length)])
-        if text is not None and text.strip() == '':
+        if text is not None and not text.strip():
             self._errors['text'] = self.error_class(
                 [_(u'Le champ text ne peut être vide')])
             if 'text' in cleaned_data:
@@ -107,8 +89,8 @@ class TopicForm(forms.Form):
                    u'caractères').format(settings.ZDS_APP['forum']['max_post_length'])])
 
         validator = TagValidator()
-        if not validator.validate_raw_string(cleaned_data.get("tags")):
-            self._errors['tags'] = self.error_class([_(u'Vous avez entré un tag trop long.')])
+        if not validator.validate_raw_string(tags):
+            self._errors['tags'] = self.error_class(validator.errors)
         return cleaned_data
 
 
@@ -153,7 +135,7 @@ class PostForm(forms.Form):
 
         text = cleaned_data.get('text')
 
-        if text is None or text.strip() == '':
+        if text is None or not text.strip():
             self._errors['text'] = self.error_class(
                 [_(u'Vous devez écrire une réponse !')])
 

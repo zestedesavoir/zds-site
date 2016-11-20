@@ -17,10 +17,10 @@ class InterventionsTest(TestCase):
     """
     This test uses quite complicated paths to check number of notifications:
     1. Create private topics and do stuff with them
-    2. Log the user
+    2. User signs in
     3. Render the home page
     4. Check the number of unread private messages on home page source code
-    This because a correct test of this function requires a complete context (or it behave strangely)
+    This because a correct test of this function requires a complete context (or it behaves strangely)
     """
 
     def setUp(self):
@@ -111,7 +111,7 @@ class InterventionsTest(TestCase):
 
 class AlertsTest(TestCase):
     """
-        This class intend to test the templatetag 'alerts_list'
+    This class intends to test the templatetag 'alerts_list'
     """
 
     def setUp(self):
@@ -127,7 +127,7 @@ class AlertsTest(TestCase):
         for i in range(20):
             alert = Alert(author=self.dummy_author.user,
                           comment=self.post,
-                          scope='F',
+                          scope='FORUM',
                           text=u'pouet-{}'.format(i),
                           pubdate=(datetime.now() + timedelta(minutes=i)))
             alert.save()

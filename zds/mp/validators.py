@@ -51,7 +51,7 @@ class ParticipantsStringValidator(Validator):
                     msg = _(u'Vous devez spécfier des participants valides.')
                 for participant in participants.split(','):
                     participant = participant.strip()
-                    if participant == '':
+                    if not participant:
                         continue
                     if participant.strip().lower() == username.lower():
                         msg = _(u'Vous ne pouvez pas vous écrire à vous-même !')
@@ -82,7 +82,7 @@ class TitleValidator(Validator):
         """
         msg = None
         if value:
-            if value.strip() == '':
+            if not value.strip():
                 msg = _(u'Le champ titre ne peut être vide.')
             if msg is not None:
                 self.throw_error('title', msg)
@@ -103,7 +103,7 @@ class TextValidator(Validator):
         """
         msg = None
         if value:
-            if value.strip() == '':
+            if not value.strip():
                 msg = _(u'Le champ text ne peut être vide.')
             if msg is not None:
                 self.throw_error('text', msg)

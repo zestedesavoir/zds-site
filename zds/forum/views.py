@@ -30,7 +30,6 @@ from zds.utils import slugify
 from zds.utils.forums import create_topic, send_post, CreatePostView
 from zds.utils.mixins import FilterMixin
 from zds.utils.models import Alert, Tag, CommentVote
-from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView
 
 
@@ -149,7 +148,6 @@ class TopicPostsListView(ZdSPagingListView, SingleObjectMixin):
         context = super(TopicPostsListView, self).get_context_data(**kwargs)
         form = PostForm(self.object, self.request.user)
         form.helper.form_action = reverse('post-new') + '?sujet=' + str(self.object.pk)
-
         context.update({
             'topic': self.object,
             'posts': self.build_list_with_previous_item(context['object_list']),
@@ -612,27 +610,23 @@ def solve_alert(request):
     alert = get_object_or_404(Alert, pk=request.POST["alert_pk"])
     post = Post.objects.get(pk=alert.comment.id)
 
-    if "text" in request.POST and request.POST["text"] != "":
-        bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
-        msg = render_to_string("forum/messages/solve_alert_pm.md", {
+    resolve_reason = ''
+    msg_title = ''
+    msg_content = ''
+    if 'text' in request.POST and request.POST['text']:
+        resolve_reason = request.POST['text']
+        msg_title = _(u"Résolution d'alerte : {0}").format(post.topic.title)
+        msg_content = render_to_string('forum/messages/solve_alert_pm.md', {
             'alert_author': alert.author.username,
             'post_author': post.author.username,
             'post_title': post.topic.title,
             'post_url': settings.ZDS_APP['site']['url'] + post.get_absolute_url(),
             'staff_name': request.user.username,
-            'staff_message': request.POST["text"]
+            'staff_message': resolve_reason,
         })
-        send_mp(
-            bot,
-            [alert.author],
-            u"Résolution d'alerte : {0}".format(post.topic.title),
-            "",
-            msg,
-            True,
-        )
 
-    alert.delete()
-    messages.success(request, u"L'alerte a bien été résolue.")
+    alert.solve(alert, request.user, resolve_reason, msg_title, msg_content)
+    messages.success(request, _(u"L'alerte a bien été résolue."))
     return redirect(post.get_absolute_url())
 
 

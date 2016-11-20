@@ -817,3 +817,14 @@ Actions à faire pour masquer la barre de recherche
 --------------------------------------------------
 
 Ajouter `ZDS_APP['display_search_bar'] = False` à `settings_prod.py`
+
+`settings_prod.py`
+------------------
+
+```diff
+      'zds.utils.ThreadLocals',
+      'zds.middlewares.SetLastVisitMiddleware.SetLastVisitMiddleware',
+      'zds.middlewares.profile.ProfileMiddleware',
+-     'zds.middlewares.ForceHttpsMembersMiddleware.ForceHttpsMembersMiddleware',
+  )
+```

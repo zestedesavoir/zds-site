@@ -441,7 +441,7 @@ class ImportImages(GalleryMixin, FormView):
 
             ph_temp = os.path.abspath(os.path.join(temp, os.path.basename(i)))
 
-            if filename.strip() == "":  # don't deal with directory
+            if not filename.strip():  # don't deal with directory
                 continue
 
             # create file for image

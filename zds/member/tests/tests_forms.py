@@ -572,24 +572,24 @@ class KarmaFormTest(TestCase):
 
     def test_valid_karma_form(self):
         data = {
-            'warning': "bad user is bad !",
-            'points': "-50"
+            'note': 'bad user is bad !',
+            'karma': '-50'
         }
         form = KarmaForm(data=data, profile=self.user)
         self.assertTrue(form.is_valid())
 
     def test_missing_warning_karma_form(self):
         data = {
-            'warning': "",
-            'points': "-50"
+            'note': '',
+            'karma': '-50'
         }
         form = KarmaForm(data=data, profile=self.user)
         self.assertFalse(form.is_valid())
 
     def test_missing_points_karma_form(self):
         data = {
-            'warning': "bad user is bad !",
-            'points': ""
+            'note': 'bad user is bad !',
+            'karma': ''
         }
         form = KarmaForm(data=data, profile=self.user)
         # should be fine as points is not required=True

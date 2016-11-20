@@ -191,6 +191,7 @@ update-configs:
 	scp zestedesavoir.com:/etc/systemd/system/zds.socket source/install/configs/
 	scp zestedesavoir.com:/etc/systemd/system/solr.service source/install/configs/
 	scp zestedesavoir.com:/etc/mysql/my.cnf source/install/configs/
+	scp -r zestedesavoir.com:/etc/mysql/conf.d source/install/configs/
 	# clean all secrets
 	ssh zestedesavoir.com 'cat /opt/zds/zds-site/zds/settings_prod.py' | \
 	gsed "s/'PASSWORD':\(.*\),/'PASSWORD':\ 'to-fill',/" | \
@@ -201,5 +202,5 @@ update-configs:
 	gsed "s/RECAPTCHA_[^U]\(.*\)=\(.*\)/RECAPTCHA_\1= 'to-fill'/" | \
 	gsed "s/ZDS_APP\['site'\]\['google\(.*\)=\(.*\)/ZDS_APP\['site'\]\['google\1= 'to-fill'/" \
 	> source/install/configs/settings_prod.py
-	echo "Vérifiez manuellement les fichiers avec `git add --all --patch`"
-	echo "pour vous assurer qu'aucun 'secret' ne sera commité!"
+	echo "Vérifiez manuellement les fichiers avec \`git add --all --patch\`"
+	echo "pour vous assurer qu'aucun 'secret' ne sera commité\!"

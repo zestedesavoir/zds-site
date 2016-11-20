@@ -21,7 +21,7 @@ class PrivateTopicForm(forms.Form, ParticipantsStringValidator, TitleValidator, 
                 'placeholder': _(u'Les participants doivent '
                                  u'être séparés par une virgule.'),
                 'required': 'required',
-                'data-autocomplete': '{ "type": "multiple", "url": "/api/membres/?contactable&search=%s" }'}))
+                'data-autocomplete': '{ "type": "multiple", "url": "/api/membres/?search=%s" }'}))
 
     title = forms.CharField(
         label=_('Titre'),
@@ -139,7 +139,7 @@ class PrivatePostForm(forms.Form):
 
         text = cleaned_data.get('text')
 
-        if text is not None and text.strip() == '':
+        if text is not None and not text.strip():
             self._errors['text'] = self.error_class(
                 [_(u'Le champ text ne peut être vide')])
 

@@ -67,12 +67,7 @@ class MemberListAPI(ListCreateAPIView, ProfileCreate, TokenGenerator):
     list_key_func = PagingSearchListKeyConstructor()
 
     def get_queryset(self):
-        contactable = self.request.query_params.get('contactable', None)
-        if contactable is not None:
-            queryset = Profile.objects.contactable_members()
-        else:
-            queryset = Profile.objects.all_members_ordered_by_date_joined()
-        return queryset
+        return Profile.objects.contactable_members()
 
     @etag(list_key_func)
     @cache_response(key_func=list_key_func)

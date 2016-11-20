@@ -63,12 +63,25 @@ Installation des outils
 Clone du repo et configuration de prod
 --------------------------------------
 
--  ``git clone https://github.com/zestedesavoir/zds-site.git``
--  ``cd zds-site``
--  ``mkdir tutoriels-private``
--  ``mkdir tutoriels-public``
--  ``mkdir articles-data``
--  ``vim zds/settings_prod.py``
+.. code:: bash
+
+    cd /opt/ && mkdir zds && chown zds:zds -R zds
+    su zds
+
+    cd /opt/zds
+    mkdir -p data/tutoriels-private data/tutoriels-private data/tutoriels-public data/articles-data
+    git clone https://github.com/zestedesavoir/zds-site.git
+
+    cd zds-site
+    make install-debian
+
+    cd /opt/zds
+    pip install --user virtualenv # Ajout du module virtualenv
+    virtualenv zdsenv --python=python2 # Création du répertoire "zdsenv"
+
+    cd zds-site
+    vim zds/settings_prod.py
+
 
 Dans ``settings_prod.py``, remplacez toutes les valeurs ``to-fill``:
 
@@ -85,11 +98,12 @@ dans le fichier ci-dessus.
 Installation de l'application de base
 -------------------------------------
 
-Suivre `l'installation complète sous Linux <backend-linux-install.html>`__ en tenant compte des subtilités suivantes :
+Suivre `l'installation complète sous Linux <backend-linux-install.html>`_ en tenant compte des subtilités suivantes :
 
--  Installer `les outils front <frontend-install.html>`__
+-  Installer `les outils front <frontend-install.html>`__ n'est pas nécessaire, le front étant packagé par Travis.
 -  Ne pas lancer le serveur à la fin de l'étape *"Lancer ZdS"*
 -  Installer toutes les dépendances requises à l'étape *"Aller plus loin"*
+-  Installer MySQL5.6 depuis backports: ``sudo apt -t jessie-backports install mysql-server mysql-client libmysqlclient-dev``
 -  Installer les dépendances de production avec ``pip install --upgrade -r requirements-prod.txt``
 
 Outils spécifiques à un serveur de run
@@ -107,7 +121,7 @@ Nginx
 
 Installer nginx.
 
-Une version récente de nginx est nécessaire pour utiliser HTTP/2. Si la version installée est inférieure à la version 1.9.5 il faut la mettre à jour avec celle du dépot backports : ``sudo apt-get -t jessie-backports install nginx openssl``. Toutefois, HTTP/2 n'est pas nécessaire au bon fonctionnement de Zeste de Savoir, pensez juste à adapter ``sites-available/zestedesavoir``.
+Une version récente de nginx est nécessaire pour utiliser HTTP/2. Si la version installée est inférieure à la version 1.9.5 il faut la mettre à jour avec celle `des dépot nginx <https://nginx.org/en/linux_packages.html#stable>`__. Toutefois, HTTP/2 n'est pas nécessaire au bon fonctionnement de Zeste de Savoir, pensez juste à adapter ``sites-available/zestedesavoir``.
 
 La configuration nginx de Zeste de Savoir est séparée en plusieurs fichiers, en plus des quelques fichiers de configuration par défaut de nginx:
 
@@ -180,16 +194,32 @@ Le site est servi en https avec un certificat Let's Encrypt install avec
 Solr
 ~~~~
 
-`Voir la documentation de Solr <install-solr.html>`.
+`Voir la documentation de Solr <install-solr.html>`_.
 
 MySQL
 ~~~~~
 
-Zeste de Savoir nécessite MySQL 5.5. Voici la configuration de production :
+Zeste de Savoir nécessite MySQL 5.6. Voici la configuration de production :
 
 .. literalinclude:: configs/my.cnf
-  :language: text
+  :language: mysql
   :caption: :download:`configs/my.cnf`
+
+.. literalinclude:: configs/conf.d/my.cnf
+  :language: mysql
+  :caption: :download:`configs/conf.d/my.cnf`
+
+.. literalinclude:: configs/conf.d/mysqldump.cnf
+  :language: mysql
+  :caption: :download:`configs/conf.d/mysqldump.cnf`
+
+.. literalinclude:: configs/conf.d/mysql.cnf
+  :language: mysql
+  :caption: :download:`configs/conf.d/mysql.cnf`
+
+.. literalinclude:: configs/conf.d/mysqld_safe_syslog.cnf
+  :language: mysql
+  :caption: :download:`configs/conf.d/mysqld_safe_syslog.cnf`
 
 
 
@@ -308,4 +338,4 @@ Ajouter les métriques suivantes au fichier ``/etc/munin/plugin-conf.d/munin-nod
 Mise à jour d'une instance existante
 ====================================
 
-`Allez jeter un coup d'oeil à notre script de déploiement <https://github.com/zestedesavoir/zds-site/blob/dev/scripts/update_and_deploy.sh>`__ ! ;) (lequel appelle `le véritable script de déploiement <https://github.com/zestedesavoir/zds-site/blob/dev/scripts/deploy.sh>`__).
+`Allez jeter un coup d'oeil à notre script de déploiement <https://github.com/zestedesavoir/zds-site/blob/dev/scripts/update_and_deploy.sh>`_ ! ;) (lequel appelle `le véritable script de déploiement <https://github.com/zestedesavoir/zds-site/blob/dev/scripts/deploy.sh>`_).
