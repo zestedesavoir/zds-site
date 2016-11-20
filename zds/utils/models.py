@@ -253,9 +253,10 @@ class Comment(models.Model):
 
 @python_2_unicode_compatible
 class Alert(models.Model):
-    """Alerts on all kinds of Comments."""
+    """Alerts on all kinds of Comments and PublishedContents."""
     SCOPE_CHOICES = (
         ('FORUM', _(u'Forum')),
+        ('CONTENT', _(u'Contenu')),
     ) + TYPE_CHOICES
 
     SCOPE_CHOICES_DICT = dict(SCOPE_CHOICES)
@@ -266,10 +267,19 @@ class Alert(models.Model):
                                db_index=True)
     comment = models.ForeignKey(Comment,
                                 verbose_name='Commentaire',
-                                related_name='alerts',
-                                db_index=True)
+                                related_name='alerts_on_this_comment',
+                                db_index=True,
+                                null=True,
+                                blank=True)
+    # weird FK to avoid circular imports
+    content = models.ForeignKey('tutorialv2.PublishableContent',
+                                verbose_name='Contenu',
+                                related_name='alerts_on_this_content',
+                                db_index=True,
+                                null=True,
+                                blank=True)
     scope = models.CharField(max_length=10, choices=SCOPE_CHOICES, db_index=True)
-    text = models.TextField('Texte d\'alerte')
+    text = models.TextField("Texte d'alerte")
     pubdate = models.DateTimeField('Date de création', db_index=True)
     solved = models.BooleanField('Est résolue', default=False)
     moderator = models.ForeignKey(User,
@@ -294,11 +304,9 @@ class Alert(models.Model):
                                        null=True,
                                        blank=True)
 
-    def solve(self, note, moderator, resolve_reason='', msg_title='', msg_content=''):
-        """Solve alert and send a PrivateTopic if a reason is given
+    def solve(self, moderator, resolve_reason='', msg_title='', msg_content=''):
+        """Solve alert and send a PrivateTopic to the alert author if a reason is given
 
-        :param note: the note on which the alert has been raised
-        :type note: ContentReaction
         :param resolve_reason: reason
         :type resolve_reason: str
         """

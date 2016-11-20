@@ -88,7 +88,6 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
         self.content.description = form.cleaned_data['description']
         self.content.type = form.cleaned_data['type']
         self.content.licence = form.cleaned_data['licence']
-
         self.content.creation_date = datetime.now()
 
         # Creating the gallery
@@ -1583,7 +1582,7 @@ class ContentsWithHelps(ZdSPagingListView):
 
 class ActivateJSFiddleInContent(LoginRequiredMixin, PermissionRequiredMixin, FormView):
     """Handles changes a validator or staff member can do on the js fiddle support of the provided content
-    Only those members can do it"""
+    Only these users can do it"""
 
     permissions = ['tutorialv2.change_publishablecontent']
     form_class = JsFiddleActivationForm
@@ -1591,6 +1590,7 @@ class ActivateJSFiddleInContent(LoginRequiredMixin, PermissionRequiredMixin, For
 
     def form_valid(self, form):
         """Change the js fiddle support of content and redirect to the view page"""
+
         content = get_object_or_404(PublishableContent, pk=form.cleaned_data['pk'])
         # forbidden for content without a validation before publication
         if not content.load_version().required_validation_before():

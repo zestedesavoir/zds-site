@@ -1,0 +1,21 @@
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% if user.is_authenticated and user not in content.authors.all %}
+    {% if current_content_type == 'OPINION' %}
+        <a href="#signal-content-{{ content.pk }}" class="open-modal btn btn-grey ico-after alert blue">
+            {% trans "Signaler le contenu" %}
+        </a>
+        <form action="{% url 'content:alert-content' content.pk %}" method="post" id="signal-content-{{ content.pk }}" class="modal modal-flex">
+            {% csrf_token %}
+            <label for="signal-content-{{ content.pk }}-field">
+                {% trans "Pour quelle raison signalez-vous ce contenu" %} ?
+            </label>
+            <textarea type="text" name="signal_text" id="signal-content-{{ content.pk }}-field" placeholder="Illégal, dangereux, injurieux, …" pattern=".{3,}" required title='{% trans "Minimum 3 caractères pour signaler" %}' rows="4"></textarea>
+
+            <button type="submit" name="signal_content">
+                {% trans "Signaler" %}
+            </button>
+        </form>
+    {% endif %}
+{% endif %}

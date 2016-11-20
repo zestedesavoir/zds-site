@@ -10,7 +10,7 @@ from zds.tutorialv2.views.views_contents import DisplayContent, CreateContent, E
 
 from zds.tutorialv2.views.views_published import SendNoteFormView, UpdateNoteView, \
     HideReaction, ShowReaction, SendNoteAlert, SolveNoteAlert, TagsListView, ListOnlineContents, \
-    FollowContentReaction, FollowNewContent
+    FollowContentReaction, FollowNewContent, SendContentAlert, SolveContentAlert
 
 from zds.tutorialv2.feeds import LastContentFeedRSS, LastContentFeedATOM
 
@@ -63,6 +63,10 @@ urlpatterns = [
     # follow:
     url(r'^suivre/(?P<pk>\d+)/reactions/$', FollowContentReaction.as_view(), name='follow-reactions'),
     url(r'^suivre/membres/(?P<pk>\d+)/$', FollowNewContent.as_view(), name='follow'),
+
+    # content alerts:
+    url(r'^alerter/(?P<pk>\d+)/$', SendContentAlert.as_view(), name='alert-content'),
+    url(r'^resoudre/(?P<pk>\d+)/$', SolveContentAlert.as_view(), name='resolve-content'),
 
     # typo:
     url(r'^reactions/typo/$', WarnTypo.as_view(), name='warn-typo'),
