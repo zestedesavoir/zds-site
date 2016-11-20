@@ -61,7 +61,7 @@ class RedirectOldBetaTuto(RedirectView):
     permanent = True
 
     def get_redirect_url(self, **kwargs):
-        tutorial = PublishableContent.objects.filter(type="TUTORIAL", old_pk=kwargs["pk"]).first()
+        tutorial = PublishableContent.objects.filter(type='TUTORIAL', old_pk=kwargs['pk']).first()
         if tutorial is None or tutorial.sha_beta is None or tutorial.sha_beta == "":
             raise Http404(u"Aucun contenu en bêta trouvé avec cet ancien identifiant.")
         return tutorial.get_absolute_url_beta()
@@ -72,11 +72,11 @@ class CreateContent(LoggedWithReadWriteHability, FormView):
     model = PublishableContent
     form_class = ContentForm
     content = None
-    created_content_type = "TUTORIAL"
+    created_content_type = 'TUTORIAL'
 
     def get_form(self, form_class=ContentForm):
         form = super(CreateContent, self).get_form(form_class)
-        form.initial["type"] = self.created_content_type
+        form.initial['type'] = self.created_content_type
         form.initial['licence'] = Licence.objects.get(pk=settings.ZDS_APP['content']['default_licence_pk'])
         return form
 
@@ -84,7 +84,7 @@ class CreateContent(LoggedWithReadWriteHability, FormView):
         # create the object:
         self.content = PublishableContent()
         self.content.title = form.cleaned_data['title']
-        self.content.description = form.cleaned_data["description"]
+        self.content.description = form.cleaned_data['description']
         self.content.type = form.cleaned_data["type"]
         self.content.licence = form.cleaned_data["licence"]
 
@@ -100,18 +100,18 @@ class CreateContent(LoggedWithReadWriteHability, FormView):
         # Attach user to gallery
         userg = UserGallery()
         userg.gallery = gal
-        userg.mode = "W"  # write mode
+        userg.mode = 'W'  # write mode
         userg.user = self.request.user
         userg.save()
         self.content.gallery = gal
 
         # create image:
-        if "image" in self.request.FILES:
+        if 'image' in self.request.FILES:
             img = Image()
-            img.physical = self.request.FILES["image"]
+            img.physical = self.request.FILES['image']
             img.gallery = gal
-            img.title = self.request.FILES["image"]
-            img.slug = slugify(self.request.FILES["image"].name)
+            img.title = self.request.FILES['image']
+            img.slug = slugify(self.request.FILES['image'].name)
             img.pubdate = datetime.now()
             img.save()
             self.content.image = img
@@ -122,7 +122,7 @@ class CreateContent(LoggedWithReadWriteHability, FormView):
         self.content.authors.add(self.request.user)
 
         # Add subcategories on tutorial
-        for subcat in form.cleaned_data["subcategory"]:
+        for subcat in form.cleaned_data['subcategory']:
             self.content.subcategory.add(subcat)
 
         # Add helps if needed
@@ -275,8 +275,8 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
 
         # first, update DB (in order to get a new slug if needed)
         publishable.title = form.cleaned_data['title']
-        publishable.description = form.cleaned_data["description"]
-        publishable.licence = form.cleaned_data["licence"]
+        publishable.description = form.cleaned_data['description']
+        publishable.licence = form.cleaned_data['licence']
 
         publishable.update_date = datetime.now()
 
@@ -286,12 +286,12 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         gal.update(slug=slugify(publishable.title))
         gal.update(update=datetime.now())
 
-        if "image" in self.request.FILES:
+        if 'image' in self.request.FILES:
             img = Image()
-            img.physical = self.request.FILES["image"]
+            img.physical = self.request.FILES['image']
             img.gallery = publishable.gallery
-            img.title = self.request.FILES["image"]
-            img.slug = slugify(self.request.FILES["image"].name)
+            img.title = self.request.FILES['image']
+            img.slug = slugify(self.request.FILES['image'].name)
             img.pubdate = datetime.now()
             img.save()
             publishable.image = img
@@ -312,7 +312,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         publishable.sha_draft = sha
 
         publishable.subcategory.clear()
-        for subcat in form.cleaned_data["subcategory"]:
+        for subcat in form.cleaned_data['subcategory']:
             publishable.subcategory.add(subcat)
 
         publishable.tags.clear()
@@ -689,7 +689,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
 
         if self.request.FILES['archive']:
             try:
-                zfile = zipfile.ZipFile(self.request.FILES['archive'], "r")
+                zfile = zipfile.ZipFile(self.request.FILES['archive'], 'r')
             except zipfile.BadZipfile:
                 messages.error(self.request, _(u'Cette archive n\'est pas au format ZIP.'))
                 return super(UpdateContentWithArchive, self).form_invalid(form)
@@ -762,7 +762,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                 # now, use the images from the archive if provided. To work, this HAVE TO happen after commiting files !
                 if "image_archive" in self.request.FILES:
                     try:
-                        zfile = zipfile.ZipFile(self.request.FILES["image_archive"], "r")
+                        zfile = zipfile.ZipFile(self.request.FILES["image_archive"], 'r')
                     except zipfile.BadZipfile:
                         messages.error(self.request, _(u'L\'archive contenant les images n\'est pas au format ZIP.'))
                         return self.form_invalid(form)
@@ -790,14 +790,14 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
     """Create a content using an archive"""
 
     form_class = ImportNewContentForm
-    template_name = "tutorialv2/import/content-new.html"
+    template_name = 'tutorialv2/import/content-new.html'
     object = None
 
     def form_valid(self, form):
 
         if self.request.FILES['archive']:
             try:
-                zfile = zipfile.ZipFile(self.request.FILES['archive'], "r")
+                zfile = zipfile.ZipFile(self.request.FILES['archive'], 'r')
             except zipfile.BadZipfile:
                 messages.error(self.request, _(u'Cette archive n\'est pas au format ZIP.'))
                 return self.form_invalid(form)
@@ -840,13 +840,13 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
                 # Attach user to gallery
                 userg = UserGallery()
                 userg.gallery = gal
-                userg.mode = "W"  # write mode
+                userg.mode = 'W'  # write mode
                 userg.user = self.request.user
                 userg.save()
                 self.object.gallery = gal
 
                 # Add subcategories on tutorial
-                for subcat in form.cleaned_data["subcategory"]:
+                for subcat in form.cleaned_data['subcategory']:
                     self.object.subcategory.add(subcat)
 
                 # We need to save the tutorial before changing its author list since it's a many-to-many relationship
@@ -885,7 +885,7 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
                 # This HAVE TO happen after commiting files (if not, content are None)
                 if "image_archive" in self.request.FILES:
                     try:
-                        zfile = zipfile.ZipFile(self.request.FILES["image_archive"], "r")
+                        zfile = zipfile.ZipFile(self.request.FILES["image_archive"], 'r')
                     except zipfile.BadZipfile:
                         messages.error(self.request, _(u'L\'archive contenant les images n\'est pas au format ZIP.'))
                         return self.form_invalid(form)
@@ -1581,7 +1581,7 @@ class ActivateJSFiddleInContent(LoginRequiredMixin, PermissionRequiredMixin, For
 
     def form_valid(self, form):
         """Change the js fiddle support of content and redirect to the view page """
-        content = get_object_or_404(PublishableContent, pk=form.cleaned_data["pk"])
+        content = get_object_or_404(PublishableContent, pk=form.cleaned_data['pk'])
         # forbidden for content without a validation before publication
         if not content.load_version().required_validation_before():
             raise PermissionDenied
@@ -1854,7 +1854,7 @@ class ContentOfAuthor(ZdSPagingListView):
     user = None
 
     def dispatch(self, request, *args, **kwargs):
-        self.user = get_object_or_404(User, pk=int(self.kwargs["pk"]))
+        self.user = get_object_or_404(User, pk=int(self.kwargs['pk']))
         if self.user != self.request.user and 'filter' in self.request.GET:
             filter_ = self.request.GET.get('filter').lower()
             if filter_ in self.authorized_filters:

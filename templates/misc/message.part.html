@@ -128,7 +128,7 @@
                         <label for="signal-message-{{ message.id }}-field">
                             {% trans "Pour quelle raison signalez-vous ce message" %} ?
                         </label>
-                        <textarea type="text" name="signal_text" id="signal-message-{{ message.id }}-field" placeholder="Flood, Troll, Hors sujet, ..." pattern=".{3,}" required title='{% trans "Minimum 3 caractères pour signaler" %}' rows="4"></textarea>
+                        <textarea type="text" name="signal_text" id="signal-message-{{ message.id }}-field" placeholder="Flood, Troll, Hors sujet, …" pattern=".{3,}" required title='{% trans "Minimum 3 caractères pour signaler" %}' rows="4"></textarea>
 
                         <button type="submit" name="signal_message">
                             {% trans "Signaler" %}
@@ -200,7 +200,7 @@
         </div>
 
         {% if perms_change %}
-            {% for alert in message.alerts.all %}
+            {% for alert in message.alerts_on_this_comment.all %}
                 <div class="alert-box{% if not alert.solved %} error{% endif %}">
                     {{ alert.pubdate|format_date|capfirst }} {% trans "par" %}
                     {% include "misc/member_item.part.html" with member=alert.author %} :
