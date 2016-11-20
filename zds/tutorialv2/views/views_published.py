@@ -25,9 +25,10 @@ from zds.tutorialv2.forms import RevokeValidationForm, WarnTypoForm, NoteForm, N
     OpinionValidationForm, PromoteOpinionToArticleForm
 from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin, SingleOnlineContentViewMixin, DownloadViewMixin, \
     ContentTypeMixin, SingleOnlineContentFormViewMixin, MustRedirect
+from zds.tutorialv2.models import TYPE_CHOICES_DICT
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction
 from zds.tutorialv2.utils import search_container_or_404, last_participation_is_old, mark_read
-from zds.utils.models import CommentVote, SubCategory, Alert, Tag
+from zds.utils.models import Alert, CommentVote, SubCategory, Tag
 from zds.utils.paginator import make_pagination, ZdSPagingListView
 from zds.utils.templatetags.topbar import top_categories_content
 
@@ -53,7 +54,7 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
     model = PublishedContent
     template_name = 'tutorialv2/view/content_online.html'
 
-    current_content_type = ""
+    current_content_type = ''
     verbose_type_name = _(u'contenu')
     verbose_type_name_plural = _(u'contenus')
 
@@ -62,6 +63,8 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
         context = super(DisplayOnlineContent, self).get_context_data(**kwargs)
 
         if context['is_staff']:
+            if self.current_content_type == 'OPINION':
+                context['alerts'] = self.object.alerts_on_this_content.all()
             context['formRevokeValidation'] = RevokeValidationForm(
                 self.versioned_object, initial={'version': self.versioned_object.sha_public})
             context['formUnpublication'] = UnpublicationForm(
@@ -70,13 +73,13 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
         context['formWarnTypo'] = WarnTypoForm(self.versioned_object, self.versioned_object)
 
         queryset_reactions = ContentReaction.objects\
-            .select_related('author')\
-            .select_related('author__profile')\
-            .select_related('editor')\
-            .prefetch_related('alerts')\
-            .prefetch_related('alerts__author')\
-            .filter(related_content__pk=self.object.pk)\
-            .order_by("pubdate")
+            .select_related('author') \
+            .select_related('author__profile') \
+            .select_related('editor') \
+            .prefetch_related('alerts_on_this_comment') \
+            .prefetch_related('alerts_on_this_comment__author') \
+            .filter(related_content__pk=self.object.pk) \
+            .order_by('pubdate')
 
         # pagination of articles
         context['paginate_articles'] = False
@@ -85,7 +88,7 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
             # fetch all articles in order to find the previous and the next one
             all_articles = \
                 [a for a in PublishedContent.objects
-                    .filter(content_type="ARTICLE", must_redirect=False)
+                    .filter(content_type='ARTICLE', must_redirect=False)
                     .order_by('publication_date')
                     .all()]
             articles_count = len(all_articles)
@@ -152,7 +155,7 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
 class DisplayOnlineArticle(DisplayOnlineContent):
     """Displays the list of published articles"""
 
-    current_content_type = "ARTICLE"
+    current_content_type = 'ARTICLE'
     verbose_type_name = _(u'article')
     verbose_type_name_plural = _(u'articles')
 
@@ -160,7 +163,7 @@ class DisplayOnlineArticle(DisplayOnlineContent):
 class DisplayOnlineTutorial(DisplayOnlineContent):
     """Displays the list of published tutorials"""
 
-    current_content_type = "TUTORIAL"
+    current_content_type = 'TUTORIAL'
     verbose_type_name = _(u'tutoriel')
     verbose_type_name_plural = _(u'tutoriels')
 
@@ -168,7 +171,7 @@ class DisplayOnlineTutorial(DisplayOnlineContent):
 class DisplayOnlineOpinion(DisplayOnlineContent):
     """Displays the list of published articles"""
 
-    current_content_type = "OPINION"
+    current_content_type = 'OPINION'
     verbose_type_name = _(u'billet')
     verbose_type_name_plural = _(u'billets')
 
@@ -236,24 +239,24 @@ class DownloadOnlineContent(SingleOnlineContentViewMixin, DownloadViewMixin):
 
 class DownloadOnlineArticle(DownloadOnlineContent):
 
-    current_content_type = "ARTICLE"
+    current_content_type = 'ARTICLE'
 
 
 class DownloadOnlineTutorial(DownloadOnlineContent):
 
-    current_content_type = "TUTORIAL"
+    current_content_type = 'TUTORIAL'
 
 
 class DownloadOnlineOpinion(DownloadOnlineContent):
 
-    current_content_type = "OPINION"
+    current_content_type = 'OPINION'
 
 
 class DisplayOnlineContainer(SingleOnlineContentDetailViewMixin):
     """Base class that can show any content in any state"""
 
     template_name = 'tutorialv2/view/container_online.html'
-    current_content_type = "TUTORIAL"  # obviously, an article cannot have container !
+    current_content_type = 'TUTORIAL'  # obviously, an article cannot have container !
 
     def get_context_data(self, **kwargs):
         context = super(DisplayOnlineContainer, self).get_context_data(**kwargs)
@@ -311,11 +314,10 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
         :return: list of contents with the good type
         :rtype: list of zds.tutorialv2.models.models_database.PublishedContent
         """
-        sub_query = "SELECT COUNT(*) FROM {} WHERE {}={}"
-        sub_query = sub_query.format(
-            "tutorialv2_contentreaction",
-            "tutorialv2_contentreaction.related_content_id",
-            r"`tutorialv2_publishablecontent`.`id`"
+        sub_query = 'SELECT COUNT(*) FROM {} WHERE {}={}'.format(
+            'tutorialv2_contentreaction',
+            'tutorialv2_contentreaction.related_content_id',
+            r'tutorialv2_publishablecontent.id'
         )
         queryset = PublishedContent.objects.filter(must_redirect=False)
         if self.current_content_type:
@@ -323,14 +325,14 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
 
         # prefetch:
         queryset = queryset\
-            .prefetch_related("content")\
-            .prefetch_related("content__subcategory")\
-            .prefetch_related("content__authors")\
-            .select_related('content__licence')\
-            .select_related('content__image')\
-            .select_related('content__last_note')\
-            .select_related('content__last_note__related_content')\
-            .select_related('content__last_note__related_content__public_version')\
+            .prefetch_related("content") \
+            .prefetch_related("content__subcategory") \
+            .prefetch_related("content__authors") \
+            .select_related('content__licence') \
+            .select_related('content__image') \
+            .select_related('content__last_note') \
+            .select_related('content__last_note__related_content') \
+            .select_related('content__last_note__related_content__public_version') \
             .filter(pk=F('content__public_version__pk'))
 
         if 'category' in self.request.GET:
@@ -360,19 +362,19 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
 class ListArticles(ListOnlineContents):
     """Displays the list of published articles"""
 
-    current_content_type = "ARTICLE"
+    current_content_type = 'ARTICLE'
 
 
 class ListTutorials(ListOnlineContents):
     """Displays the list of published tutorials"""
 
-    current_content_type = "TUTORIAL"
+    current_content_type = 'TUTORIAL'
 
 
 class ListOpinions(ListOnlineContents):
     """Displays the list of published opinions"""
 
-    current_content_type = "OPINION"
+    current_content_type = 'OPINION'
 
 
 class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewMixin):
@@ -421,12 +423,12 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
 
         # last few messages
         context['notes'] = ContentReaction.objects\
-            .select_related('author')\
-            .select_related('author__profile')\
-            .select_related('editor')\
-            .prefetch_related('alerts')\
-            .prefetch_related('alerts__author')\
-            .filter(related_content=self.object)\
+            .select_related('author') \
+            .select_related('author__profile') \
+            .select_related('editor') \
+            .prefetch_related('alerts_on_this_comment') \
+            .prefetch_related('alerts_on_this_comment__author') \
+            .filter(related_content=self.object) \
             .order_by("-pubdate")[:settings.ZDS_APP['content']['notes_per_page']]
 
         return context
@@ -494,7 +496,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
         if self.request.user != self.reaction.author and not is_new:
             alerts = Alert.objects.filter(comment__pk=self.reaction.pk, solved=False)
             for alert in alerts:
-                alert.solve(self.reaction, self.request.user, _(u'Résolu par édition.'))
+                alert.solve(self.request.user, _(u'Le message a été modéré.'))
 
         self.reaction.update_content(form.cleaned_data["text"])
         self.reaction.ip_address = get_client_ip(self.request)
@@ -517,8 +519,8 @@ class UpdateNoteView(SendNoteFormView):
         kwargs = super(UpdateNoteView, self).get_form_kwargs()
         if "message" in self.request.GET and self.request.GET["message"].isdigit():
             self.reaction = ContentReaction.objects\
-                .prefetch_related("author")\
-                .filter(pk=int(self.request.GET["message"]))\
+                .prefetch_related("author") \
+                .filter(pk=int(self.request.GET["message"])) \
                 .first()
             if not self.reaction:
                 raise Http404(u"Aucun commentaire : " + self.request.GET["message"])
@@ -543,7 +545,7 @@ class UpdateNoteView(SendNoteFormView):
             # show alert, if any
             alerts = Alert.objects.filter(comment__pk=self.reaction.pk, solved=False)
             if alerts.count():
-                msg_alert = _(u'Attention, en éditant ce message, vous résolvez également les alertes suivantes : {}')\
+                msg_alert = _(u'Attention, en éditant ce message, vous résolvez également les alertes suivantes : {}') \
                     .format(', '.join([u'« {} » (signalé par {})'.format(a.text, a.author.username) for a in alerts]))
                 messages.warning(self.request, msg_alert)
 
@@ -552,8 +554,8 @@ class UpdateNoteView(SendNoteFormView):
     def form_valid(self, form):
         if "message" in self.request.GET and self.request.GET["message"].isdigit():
             self.reaction = ContentReaction.objects\
-                .filter(pk=int(self.request.GET["message"]))\
-                .prefetch_related("author")\
+                .filter(pk=int(self.request.GET["message"])) \
+                .prefetch_related("author") \
                 .first()
             if self.reaction is None:
                 raise Http404(u"Il n'y a aucun commentaire.")
@@ -612,6 +614,74 @@ class ShowReaction(FormView, LoggedWithReadWriteHability, PermissionRequiredMixi
             raise Http404(u"Aucune réaction trouvée.")
 
 
+class SendContentAlert(FormView, LoginRequiredMixin):
+    http_method_names = ['post']
+
+    @method_decorator(transaction.atomic)
+    def dispatch(self, *args, **kwargs):
+        return super(SendContentAlert, self).dispatch(*args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        try:
+            content_pk = int(self.kwargs['pk'])
+        except (KeyError, ValueError):
+            raise Http404(u"Impossible de convertir l'identifiant en entier.")
+        content = get_object_or_404(PublishableContent, pk=content_pk)
+
+        alert = Alert(
+            author=request.user,
+            content=content,
+            scope='CONTENT',
+            text=request.POST['signal_text'],
+            pubdate=datetime.now())
+        alert.save()
+
+        human_content_type = TYPE_CHOICES_DICT[content.type].lower()
+        messages.success(
+            self.request,
+            _(u'Ce {} a bien été signalé aux modérateurs.').format(human_content_type))
+        return redirect(content.get_absolute_url_online())
+
+
+class SolveContentAlert(FormView, LoginRequiredMixin):
+
+    @method_decorator(transaction.atomic)
+    def dispatch(self, *args, **kwargs):
+        return super(SolveContentAlert, self).dispatch(*args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        if not request.user.has_perm('tutorialv2.change_contentreaction'):
+            raise PermissionDenied
+        try:
+            alert = get_object_or_404(Alert, pk=int(request.POST['alert_pk']))
+            content = PublishableContent.objects.get(pk=alert.content.id)
+        except (KeyError, ValueError):
+            raise Http404(u"L'alerte n'existe pas.")
+
+        resolve_reason = ''
+        msg_title = ''
+        msg_content = ''
+        if 'text' in request.POST and request.POST['text']:
+            resolve_reason = request.POST['text']
+            authors = alert.content.authors.values_list('username', flat=True)
+            authors = ', '.join(authors)
+            msg_title = _(u"Résolution d'alerte : {0}").format(content.title),
+            msg_content = render_to_string(
+                'tutorialv2/messages/resolve_alert.md', {
+                    'content': content,
+                    'url': content.get_absolute_url_online(),
+                    'name': alert.author.username,
+                    'target_name': authors,
+                    'modo_name': request.user.username,
+                    'message': '\n'.join(['> ' + line for line in resolve_reason.split('\n')]),
+                    'alert_text': '\n'.join(['> ' + line for line in alert.text.split('\n')])
+                })
+        alert.solve(request.user, resolve_reason, msg_title, msg_content)
+
+        messages.success(self.request, _(u"L'alerte a bien été résolue."))
+        return redirect(content.get_absolute_url())
+
+
 class SendNoteAlert(FormView, LoginRequiredMixin):
     http_method_names = ['post']
 
@@ -621,20 +691,21 @@ class SendNoteAlert(FormView, LoginRequiredMixin):
 
     def post(self, request, *args, **kwargs):
         try:
-            note_pk = int(self.kwargs['pk'])
+            reaction_pk = int(self.kwargs['pk'])
         except (KeyError, ValueError):
             raise Http404(u"Impossible de convertir l'identifiant en entier.")
-        note = get_object_or_404(ContentReaction, pk=note_pk)
-        alert = Alert()
-        alert.author = request.user
-        alert.comment = note
-        alert.scope = Alert.SCOPE_CHOICES_DICT[note.related_content.type]
-        alert.text = request.POST['signal_text']
-        alert.pubdate = datetime.now()
+        reaction = get_object_or_404(ContentReaction, pk=reaction_pk)
+
+        alert = Alert(
+            author=request.user,
+            comment=reaction,
+            scope=reaction.related_content.type,
+            text=request.POST['signal_text'],
+            pubdate=datetime.now())
         alert.save()
 
         messages.success(self.request, _(u'Ce commentaire a bien été signalé aux modérateurs.'))
-        return redirect(note.get_absolute_url())
+        return redirect(reaction.get_absolute_url())
 
 
 class SolveNoteAlert(FormView, LoginRequiredMixin):
@@ -668,7 +739,7 @@ class SolveNoteAlert(FormView, LoginRequiredMixin):
                     'message': '\n'.join(['> ' + line for line in resolve_reason.split('\n')]),
                     'alert_text': '\n'.join(['> ' + line for line in alert.text.split('\n')])
                 })
-        alert.solve(note, request.user, resolve_reason, msg_title, msg_content)
+        alert.solve(request.user, resolve_reason, msg_title, msg_content)
 
         messages.success(self.request, _(u"L'alerte a bien été résolue."))
         return redirect(note.get_absolute_url())

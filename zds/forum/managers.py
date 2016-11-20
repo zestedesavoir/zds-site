@@ -118,19 +118,19 @@ class PostManager(InheritanceManager):
 
     def get_messages_of_a_topic(self, topic_pk):
         return self.filter(topic__pk=topic_pk)\
-                   .select_related("author__profile")\
-                   .prefetch_related('alerts')\
-                   .prefetch_related('alerts__author')\
-                   .prefetch_related('alerts__author__profile')\
-                   .order_by("position").all()
+                   .select_related('author__profile')\
+                   .prefetch_related('alerts_on_this_comment')\
+                   .prefetch_related('alerts_on_this_comment__author')\
+                   .prefetch_related('alerts_on_this_comment__author__profile')\
+                   .order_by('position').all()
 
     def get_all_messages_of_a_user(self, current, target):
         queryset = self.filter(author=target)\
-                       .prefetch_related("author")
-        if not current.has_perm("forum.change_post"):
+                       .prefetch_related('author')
+        if not current.has_perm('forum.change_post'):
             queryset = queryset.filter(is_visible=True)
         queryset = queryset.filter(self.visibility_check_query(current))
-        return queryset.order_by("-pubdate").all()
+        return queryset.order_by('-pubdate').all()
 
 
 class TopicReadManager(models.Manager):
