@@ -226,13 +226,13 @@ class Profile(models.Model):
         """
         :return: the count of tutorials with this user as author. Count all tutorials, no only published one.
         """
-        return self.get_content_count(_type="TUTORIAL")
+        return self.get_content_count(_type='TUTORIAL')
 
     def get_tutos(self):
         """
         :return: All tutorials with this user as author.
         """
-        return self.get_contents(_type="TUTORIAL")
+        return self.get_contents(_type='TUTORIAL')
 
     def get_draft_tutos(self):
         """
@@ -240,49 +240,49 @@ class Profile(models.Model):
         A draft tutorial is a tutorial which is not published, in validation or in beta.
         :return: All draft tutorials with this user as author.
         """
-        return self.get_draft_contents(_type="TUTORIAL")
+        return self.get_draft_contents(_type='TUTORIAL')
 
     def get_public_tutos(self):
         """
         :return: All published tutorials with this user as author.
         """
-        return self.get_public_contents(_type="TUTORIAL")
+        return self.get_public_contents(_type='TUTORIAL')
 
     def get_validate_tutos(self):
         """
         :return: All tutorials in validation with this user as author.
         """
-        return self.get_validate_contents(_type="TUTORIAL")
+        return self.get_validate_contents(_type='TUTORIAL')
 
     def get_beta_tutos(self):
         """
         :return: All tutorials in beta with this user as author.
         """
-        return self.get_beta_contents(_type="TUTORIAL")
+        return self.get_beta_contents(_type='TUTORIAL')
 
     def get_article_count(self):
         """
         :return: the count of articles with this user as author. Count all articles, no only published one.
         """
-        return self.get_content_count(_type="ARTICLE")
+        return self.get_content_count(_type='ARTICLE')
 
     def get_articles(self):
         """
         :return: All articles with this user as author.
         """
-        return self.get_contents(_type="ARTICLE")
+        return self.get_contents(_type='ARTICLE')
 
     def get_public_articles(self):
         """
         :return: All published articles with this user as author.
         """
-        return self.get_public_contents(_type="ARTICLE")
+        return self.get_public_contents(_type='ARTICLE')
 
     def get_validate_articles(self):
         """
         :return: All articles in validation with this user as author.
         """
-        return self.get_validate_contents(_type="ARTICLE")
+        return self.get_validate_contents(_type='ARTICLE')
 
     def get_draft_articles(self):
         """
@@ -290,31 +290,31 @@ class Profile(models.Model):
         A draft article is a article which is not published or in validation.
         :return: All draft article with this user as author.
         """
-        return self.get_draft_contents(_type="ARTICLE")
+        return self.get_draft_contents(_type='ARTICLE')
 
     def get_beta_articles(self):
         """
         :return: All articles in beta with this user as author.
         """
-        return self.get_beta_contents(_type="ARTICLE")
+        return self.get_beta_contents(_type='ARTICLE')
 
     def get_opinion_count(self):
         """
         :return: the count of opinions with this user as author. Count all opinions, no only published one.
         """
-        return self.get_content_count(_type="OPINION")
+        return self.get_content_count(_type='OPINION')
 
     def get_opinions(self):
         """
         :return: All opinions with this user as author.
         """
-        return self.get_contents(_type="OPINION")
+        return self.get_contents(_type='OPINION')
 
     def get_public_opinions(self):
         """
         :return: All published opinions with this user as author.
         """
-        return self.get_public_contents(_type="OPINION")
+        return self.get_public_contents(_type='OPINION')
 
     def get_draft_opinions(self):
         """
@@ -322,7 +322,7 @@ class Profile(models.Model):
         A draft opinion is a opinion which is not published or in validation.
         :return: All draft opinion with this user as author.
         """
-        return self.get_draft_contents(_type="OPINION")
+        return self.get_draft_contents(_type='OPINION')
 
     def get_posts(self):
         return Post.objects.filter(author=self.user).all()
@@ -376,7 +376,7 @@ class Profile(models.Model):
         return True
 
     def has_object_write_permission(self, request):
-        return self.has_object_update_permission(request) or request.user.has_perm("member.change_profile")
+        return self.has_object_update_permission(request) or request.user.has_perm('member.change_profile')
 
     def has_object_update_permission(self, request):
         return request.user.is_authenticated() and request.user == self.user
@@ -386,7 +386,7 @@ class Profile(models.Model):
         return True
 
     def has_object_ban_permission(self, request):
-        return request.user and request.user.has_perm("member.change_profile")
+        return request.user and request.user.has_perm('member.change_profile')
 
     @property
     def group_pks(self):

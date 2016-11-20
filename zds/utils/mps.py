@@ -101,7 +101,7 @@ def send_message_mp(
             message_txt = render_to_string('email/direct.txt', {'msg': text})
 
             msg = EmailMultiAlternatives(subject, message_txt, from_email, [part.email])
-            msg.attach_alternative(message_html, "text/html")
+            msg.attach_alternative(message_html, 'text/html')
             try:
                 msg.send()
             except Exception:
