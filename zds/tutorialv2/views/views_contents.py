@@ -206,9 +206,8 @@ class DisplayBetaContent(DisplayContent):
         """rewritten to ensure that the version is set to beta, raise Http404 if there is no such version"""
         obj = super(DisplayBetaContent, self).get_object(queryset)
 
-        if not obj.sha_beta or obj.sha_beta == '':
+        if not obj.sha_beta:
             raise Http404(u"Aucune bêta n'existe pour ce contenu.")
-
         else:
             self.sha = obj.sha_beta
 
@@ -592,7 +591,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
 
             image_basename = os.path.basename(image_path)
 
-            if image_basename.strip() == "":  # don't deal with directory
+            if not image_basename.strip():  # don't deal with directory
                 continue
 
             temp_image_path = os.path.abspath(os.path.join(temp, image_basename))
@@ -744,7 +743,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                 # and end up by a commit !!
                 commit_message = form.cleaned_data['msg_commit']
 
-                if commit_message == '':
+                if not commit_message:
                     commit_message = _(u'Importation d\'une archive contenant « {} ».').format(new_version.title)
 
                 sha = versioned.commit_changes(commit_message)
@@ -867,7 +866,7 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
                 # and end up by a commit !!
                 commit_message = form.cleaned_data['msg_commit']
 
-                if commit_message == '':
+                if not commit_message:
                     commit_message = _(u'Importation d\'une archive contenant « {} »').format(new_content.title)
 
                 sha = versioned.commit_changes(commit_message)
@@ -1007,9 +1006,8 @@ class DisplayBetaContainer(DisplayContainer):
         """rewritten to ensure that the version is set to beta, raise Http404 if there is no such version"""
         obj = super(DisplayBetaContainer, self).get_object(queryset)
 
-        if not obj.sha_beta or obj.sha_beta == '':
+        if not obj.sha_beta:
             raise Http404(u"Aucune bêta n'existe pour ce contenu.")
-
         else:
             self.sha = obj.sha_beta
 
@@ -1593,10 +1591,10 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
         base_container_slug = form.data["container_slug"]
         child_slug = form.data['child_slug']
 
-        if base_container_slug == '':
+        if not base_container_slug:
             raise Http404(u"Le slug du container de base est vide.")
 
-        if child_slug == '':
+        if not child_slug:
             raise Http404(u"Le slug du container enfant est vide.")
 
         if base_container_slug == versioned.slug:
@@ -1604,7 +1602,7 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
         else:
             search_params = {}
 
-            if 'first_level_slug' in form.data and form.data['first_level_slug'] != '':
+            if 'first_level_slug' in form.data and form.data['first_level_slug']:
                 search_params['parent_container_slug'] = form.data['first_level_slug']
                 search_params['container_slug'] = base_container_slug
             else:

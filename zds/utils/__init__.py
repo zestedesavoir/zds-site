@@ -27,7 +27,7 @@ class ThreadLocals(object):
 
 
 def slugify(text):
-    if defaultfilters.slugify(text).strip('') == '':
+    if not defaultfilters.slugify(text).strip():
         return '--'
     else:
         return defaultfilters.slugify(text)

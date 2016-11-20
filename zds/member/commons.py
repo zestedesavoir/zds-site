@@ -163,7 +163,7 @@ class MemberSanctionState(object):
         ban.user = user
         ban.pubdate = datetime.now()
         ban.type = self.get_type()
-        ban.text = self.get_text()
+        ban.note = self.get_text()
         return ban
 
     def get_message_unsanction(self):
