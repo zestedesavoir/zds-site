@@ -431,7 +431,7 @@ class NotificationPublishableContentTest(TestCase):
         subscription = ContentReactionAnswerSubscription.objects.get_existing(user=self.user1, content_object=self.tuto)
         self.assertIsNone(subscription)
 
-        result = self.client.post(reverse("content:add-reaction") + u'?pk={}'.format(self.tuto.pk), {
+        result = self.client.post(reverse('content:add-reaction') + u'?pk={}'.format(self.tuto.pk), {
             'text': u'message',
             'last_note': '0'
         }, follow=True)
