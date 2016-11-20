@@ -12,8 +12,7 @@ from django.db import models
 from zds.forum.managers import TopicManager, ForumManager, PostManager, TopicReadManager
 from zds.notification import signals
 from zds.settings import ZDS_APP
-from zds.utils import get_current_user
-from zds.utils import slugify
+from zds.utils import get_current_user, slugify
 from zds.utils.models import Comment, Tag
 
 
