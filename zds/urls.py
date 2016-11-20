@@ -15,45 +15,34 @@ from . import settings
 
 
 # SiteMap data
-class TutoSitemap(Sitemap):
+class ContentSitemap(Sitemap):
     changefreq = 'weekly'
     priority = 1
 
     def items(self):
-        return PublishedContent.objects.filter(must_redirect=False, content_type="TUTORIAL").prefetch_related('content')
+        return (
+            PublishedContent.objects
+            .filter(must_redirect=False, content_type=self.content_type)
+            .prefetch_related('content')
+        )
 
-    def lastmod(self, tuto):
-        return tuto.update_date or tuto.publication_date
+    def lastmod(self, content):
+        return content.update_date or content.publication_date
 
-    def location(self, tuto):
-        return tuto.get_absolute_url_online()
+    def location(self, content):
+        return content.get_absolute_url_online()
 
 
-class ArticleSitemap(Sitemap):
-    changefreq = 'weekly'
-    priority = 1
+class TutoSitemap(ContentSitemap):
+    content_type = "TUTORIAL"
 
-    def items(self):
-        return PublishedContent.objects.filter(must_redirect=False, content_type="ARTICLE").prefetch_related('content')
 
-    def lastmod(self, article):
-        return article.update_date or article.publication_date
+class ArticleSitemap(ContentSitemap):
+    content_type = "ARTICLE"
 
-    def location(self, article):
-        return article.get_absolute_url_online()
 
-class OpinionSitemap(Sitemap):
-    changefreq = 'weekly'
-    priority = 1
-
-    def items(self):
-        return PublishedContent.objects.filter(must_redirect=False, content_type="OPINION").prefetch_related('content')
-
-    def lastmod(self, opinion):
-        return opinion.update_date or opinion.publication_date
-
-    def location(self, opinion):
-        return opinion.get_absolute_url_online()
+class OpinionSitemap(ContentSitemap):
+    content_type = "OPINION"
 
 
 class PageSitemap(Sitemap):
