@@ -5,7 +5,7 @@ from django.conf.urls import url
 from zds.tutorialv2.views.views_contents import DisplayContent, CreateContent, EditContent, \
     DeleteContent, CreateContainer, DisplayContainer, EditContainer, CreateExtract, EditExtract, \
     DeleteContainerOrExtract, ManageBetaContent, DisplayHistory, DisplayDiff, ActivateJSFiddleInContent, MoveChild, \
-    DownloadContent, UpdateContentWithArchive, CreateContentFromArchive, ContentsWithHelps, AddAuthorToContent, \
+    DownloadContent, UpdateContentWithArchive, CreateContentFromArchive, HelpContent, AddAuthorToContent, \
     RemoveAuthorFromContent, WarnTypo, DisplayBetaContent, DisplayBetaContainer, ContentOfAuthor
 
 from zds.tutorialv2.views.views_published import SendNoteFormView, UpdateNoteView, \
@@ -26,7 +26,7 @@ urlpatterns = [
         ContentOfAuthor.as_view(type='ARTICLE', context_object_name='articles'),
         name="find-article"),
 
-    url(r'^aides/$', ContentsWithHelps.as_view(), name='helps'),
+    url(r'^aides/$', HelpContent.as_view(), name='helps'),
     url(r'^(?P<pk>\d+)/(?P<slug>.+)/(?P<parent_container_slug>.+)/(?P<container_slug>.+)/$',
         DisplayContainer.as_view(public_is_prioritary=False),
         name='view-container'),

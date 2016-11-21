@@ -1,6 +1,9 @@
 # coding: utf-8
 
 import json as json_writer
+
+from django.db import models
+from easy_thumbnails.fields import ThumbnailerImageField
 from git import Repo
 import os
 import shutil
@@ -13,8 +16,11 @@ from django.utils.translation import ugettext_lazy as _
 from zds.settings import ZDS_APP
 from zds.tutorialv2.utils import default_slug_pool, export_content, get_commit_author, InvalidOperationError
 from uuslug import slugify
+
+from zds.utils import slugify
 from zds.utils.misc import compute_hash
 from zds.tutorialv2.utils import get_blob, InvalidSlugError, check_slug
+from zds.utils.models import image_path_help
 
 
 class Container:
@@ -1278,3 +1284,29 @@ class NotAPublicVersion(Exception):
 
     def __init__(self, *args, **kwargs):
         super(NotAPublicVersion, self).__init__(self, *args, **kwargs)
+
+
+class EditorialHelp(models.Model):
+
+    """Tutorial Help"""
+    class Meta:
+        verbose_name = u'Aide à la rédaction'
+        verbose_name_plural = u'Aides à la rédaction'
+
+    # A name for this help
+    title = models.CharField('Name', max_length=20, null=False)
+    slug = models.SlugField(max_length=20)
+
+    # tablelabel: Used for the accessibility "This tutoriel need help for writing"
+    table_label = models.CharField('TableLabel', max_length=150, null=False)
+
+    # The image to use to illustrate this role
+    image = ThumbnailerImageField(upload_to=image_path_help)
+
+    def __unicode__(self):
+        """Textual Help Form."""
+        return self.title
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.title)
+        super(EditorialHelp, self).save(*args, **kwargs)

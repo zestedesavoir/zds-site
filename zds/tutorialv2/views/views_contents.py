@@ -41,7 +41,7 @@ from zds.tutorialv2.mixins import SingleContentDetailViewMixin, SingleContentFor
     SingleContentDownloadViewMixin, SingleContentPostMixin
 from zds.tutorialv2.models import TYPE_CHOICES_DICT
 from zds.tutorialv2.models.models_database import PublishableContent, Validation
-from zds.tutorialv2.models.models_versioned import Container, Extract
+from zds.tutorialv2.models.models_versioned import Container, Extract, EditorialHelp
 from zds.tutorialv2.utils import search_container_or_404, get_target_tagged_tree, search_extract_or_404, \
     try_adopt_new_child, TooDeepContainerError, BadManifestError, get_content_from_json, init_new_repo, \
     default_slug_pool, BadArchiveError, InvalidSlugError
@@ -50,7 +50,7 @@ from zds.utils.models import Licence
 from zds.utils.models import EditorialHelp
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView, make_pagination
-
+from zds.tutorialv2.models import TYPE_CHOICES
 
 class RedirectOldBetaTuto(RedirectView):
     """
@@ -612,7 +612,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                 messages.error(
                     request, _(u'Votre image "{}" est beaucoup trop lourde, réduisez sa taille à moins de {:.0f}'
                                u'Kio avant de l\'envoyer.').format(
-                                   image_path, settings.ZDS_APP['gallery']['image_max_size'] / 1024))
+                        image_path, settings.ZDS_APP['gallery']['image_max_size'] / 1024))
                 continue
 
             # create picture in database:
@@ -1437,7 +1437,6 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
 
 
 class WarnTypo(SingleContentFormViewMixin):
-
     modal_form = True
     form_class = WarnTypoForm
     must_be_author = False
@@ -1514,9 +1513,8 @@ class WarnTypo(SingleContentFormViewMixin):
         return redirect(form.previous_page_url)
 
 
-class ContentsWithHelps(ZdSPagingListView):
-    """List all tutorial that needs help, i.e registered as needing at least one HelpWriting or is in beta
-    for more documentation, have a look to ZEP 03 specification (fr)"""
+class HelpContent(ZdSPagingListView):
+    """List all tutorial that needs help, i.e registered as needing at least one HelpWriting or is in beta"""
 
     context_object_name = 'contents'
     template_name = 'tutorialv2/view/help.html'
@@ -1538,16 +1536,16 @@ class ContentsWithHelps(ZdSPagingListView):
         if 'type' in self.request.GET:
             filter_type = None
             if self.request.GET['type'] == 'article':
-                filter_type = 'ARTICLE'
+                filter_type = TYPE_CHOICES[1][0]
             elif self.request.GET['type'] == 'tuto':
-                filter_type = 'TUTORIAL'
+                filter_type = TYPE_CHOICES[0][0]
             if filter_type:
                 query_set = query_set.filter(type=filter_type)
         return query_set
 
     def get_context_data(self, **kwargs):
         """Add all HelpWriting objects registered to the context so that the template can use it"""
-        context = super(ContentsWithHelps, self).get_context_data(**kwargs)
+        context = super(HelpContent, self).get_context_data(**kwargs)
         queryset = kwargs.pop('object_list', self.object_list)
 
         helps = EditorialHelp.objects
@@ -1558,6 +1556,9 @@ class ContentsWithHelps(ZdSPagingListView):
         context['helps'] = helps.all()
         context['total_contents_number'] = queryset.count()
         return context
+
+    class Meta:
+        verbose_name_plural = 'help-contents'
 
 
 class ActivateJSFiddleInContent(LoginRequiredMixin, PermissionRequiredMixin, FormView):
@@ -1577,7 +1578,6 @@ class ActivateJSFiddleInContent(LoginRequiredMixin, PermissionRequiredMixin, For
 
 
 class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
-
     model = PublishableContent
     form_class = MoveElementForm
     versioned = False
@@ -1741,7 +1741,6 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
 
 
 class RemoveAuthorFromContent(AddAuthorToContent):
-
     form_class = RemoveAuthorForm
 
     @staticmethod
@@ -1852,10 +1851,10 @@ class ContentOfAuthor(ZdSPagingListView):
             raise Http404(u"Ce type de contenu est inconnu dans le système.")
 
         # prefetch:
-        queryset = queryset\
-            .prefetch_related('authors')\
-            .prefetch_related('subcategory')\
-            .select_related('licence')\
+        queryset = queryset \
+            .prefetch_related('authors') \
+            .prefetch_related('subcategory') \
+            .select_related('licence') \
             .select_related('image')
 
         # Filter.

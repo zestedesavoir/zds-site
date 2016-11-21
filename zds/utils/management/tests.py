@@ -5,7 +5,8 @@ from django.contrib.auth.models import User, Permission
 from zds.member.models import Profile
 from zds.forum.models import Forum, Topic, Category as FCategory
 from zds.utils.models import Tag, Category as TCategory, CategorySubCategory, SubCategory, \
-    EditorialHelp, Licence
+    Licence
+from zds.tutorialv2.models.models_versioned import EditorialHelp
 from zds.member.factories import ProfileFactory
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction, \
     Validation as CValidation
