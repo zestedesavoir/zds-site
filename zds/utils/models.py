@@ -381,7 +381,7 @@ class EditorialHelp(models.Model):
     slug = models.SlugField(max_length=20)
 
     # tablelabel: Used for the accessibility "This tutoriel need help for writing"
-    tablelabel = models.CharField('TableLabel', max_length=150, null=False)
+    table_label = models.CharField('TableLabel', max_length=150, null=False)
 
     # The image to use to illustrate this role
     image = ThumbnailerImageField(upload_to=image_path_help)
