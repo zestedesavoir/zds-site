@@ -1,4 +1,4 @@
-coverage==4.0.3
+coverage==4.2
 PyYAML==3.11
 django-debug-toolbar==1.5
 flake8==2.5.4
@@ -7,3 +7,4 @@ sphinx==1.4.1
 sphinx_rtd_theme==0.1.9
 fake-factory==0.5.7
 mock==2.0.0
+yapf==0.13.2
