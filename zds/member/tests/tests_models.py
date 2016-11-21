@@ -243,13 +243,17 @@ class MemberModelsTest(TestCase):
         self.assertEqual(len(posts), 1)
         self.assertEqual(apost, posts[0])
 
-    def test_get_invisible_posts_count(self):
+    def test_get_hidden_by_staff_posts_count(self):
         # Start with 0
-        self.assertEqual(self.user1.get_invisible_posts_count(), 0)
-        # Post !
-        PostFactory(topic=self.forumtopic, author=self.user1.user, position=1, is_visible=False)
+        self.assertEqual(self.user1.get_hidden_by_staff_posts_count(), 0)
+        # Post and hide it by poster
+        PostFactory(topic=self.forumtopic, author=self.user1.user, position=1, is_visible=False, editor=self.user1.user)
+        # Should be 0
+        self.assertEqual(self.user1.get_hidden_by_staff_posts_count(), 0)
+        # Post and hide it by staff
+        PostFactory(topic=self.forumtopic, author=self.user1.user, position=1, is_visible=False, editor=self.staff.user)
         # Should be 1
-        self.assertEqual(self.user1.get_invisible_posts_count(), 1)
+        self.assertEqual(self.user1.get_hidden_by_staff_posts_count(), 1)
 
     def test_get_alerts_posts_count(self):
         # Start with 0
