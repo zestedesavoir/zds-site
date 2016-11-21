@@ -1,5 +1,5 @@
 # coding: utf-8
-from zds.utils.models import EditorialHelp
+from zds.tutorialv2.models.models_versioned import EditorialHelp
 from zds.utils import slugify
 from zds.settings import BASE_DIR, MEDIA_ROOT
 from shutil import copyfile

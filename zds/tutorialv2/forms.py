@@ -10,7 +10,7 @@ from django.core.urlresolvers import reverse
 from zds.utils.forms import CommonLayoutModalText, CommonLayoutEditor, CommonLayoutVersionEditor
 from zds.utils.models import SubCategory, Licence
 from zds.tutorialv2.models import TYPE_CHOICES
-from zds.utils.models import EditorialHelp
+from zds.tutorialv2.models.models_versioned import EditorialHelp
 from zds.tutorialv2.models.models_database import PublishableContent
 from django.utils.translation import ugettext_lazy as _
 from zds.member.models import Profile

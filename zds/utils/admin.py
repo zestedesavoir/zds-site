@@ -1,6 +1,7 @@
 from django.contrib import admin
 
-from zds.utils.models import Alert, Licence, Category, SubCategory, CategorySubCategory, Tag, EditorialHelp
+from zds.utils.models import Alert, Licence, Category, SubCategory, CategorySubCategory, Tag
+from zds.tutorialv2.models.models_versioned import EditorialHelp
 
 
 class SubCategoryAdmin(admin.ModelAdmin):

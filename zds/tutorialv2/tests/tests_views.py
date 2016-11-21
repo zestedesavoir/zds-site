@@ -27,7 +27,8 @@ from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory
 from zds.tutorialv2.models.models_database import PublishableContent, Validation, PublishedContent, ContentReaction, \
     ContentRead
 from zds.tutorialv2.publication_utils import publish_content, Publicator, PublicatorRegistery
-from zds.utils.models import EditorialHelp, Alert, Tag
+from zds.utils.models import Alert, Tag
+from zds.tutorialv2.models.models_versioned import EditorialHelp
 from zds.utils.factories import HelpWritingFactory
 from zds.utils.templatetags.interventions import interventions_topics
 
