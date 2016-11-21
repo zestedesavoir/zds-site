@@ -27,7 +27,7 @@ from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory
 from zds.tutorialv2.models.models_database import PublishableContent, Validation, PublishedContent, ContentReaction, \
     ContentRead
 from zds.tutorialv2.publication_utils import publish_content, Publicator, PublicatorRegistery
-from zds.utils.models import HelpWriting, Alert, Tag
+from zds.utils.models import EditorialHelp, Alert, Tag
 from zds.utils.factories import HelpWritingFactory
 from zds.utils.templatetags.interventions import interventions_topics
 
@@ -2425,7 +2425,7 @@ class ContentTests(TestCase):
             a = HelpWritingFactory()
             a.save()
 
-        helps = HelpWriting.objects.all()
+        helps = EditorialHelp.objects.all()
 
         # currently the tutorial is published with no beta, so back-end should return 0 tutorial
         response = self.client.get(
@@ -2528,7 +2528,7 @@ class ContentTests(TestCase):
         self.assertEqual(len(contents), 1)
 
         # add an help
-        an_help = HelpWriting.objects.first()
+        an_help = EditorialHelp.objects.first()
         article.helps.add(an_help)
         article.save()
 
@@ -2551,7 +2551,7 @@ class ContentTests(TestCase):
 
         response = self.client.get(
             reverse('content:helps') +
-            u'?need={}'.format(HelpWriting.objects.last().slug),
+            u'?need={}'.format(EditorialHelp.objects.last().slug),
             follow=False
         )
         self.assertEqual(200, response.status_code)
