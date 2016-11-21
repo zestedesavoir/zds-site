@@ -70,8 +70,8 @@
                 }
 
                 $followText.toggleText("content-on-click");
-                $count.text(data.count);
-                $plural.text(data.count > 1 ? "s" : "");
+                $count.text(data.subscriber_count);
+                $plural.text(data.subscriber_count > 1 ? "s" : "");
                 $act.toggleClass("blue yellow");
 
                 synchText();
