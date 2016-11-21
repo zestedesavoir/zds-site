@@ -16,7 +16,7 @@ from crispy_forms.layout import HTML, Layout, \
 from zds.member.models import Profile, KarmaNote
 from zds.member.validators import validate_not_empty, validate_zds_email, validate_zds_username, validate_passwords, \
     validate_zds_password
-from zds.utils.forms import CommonLayoutModalText
+from zds.utils.forms import CommonLayoutModalText, CommonLayoutEditor
 
 # Max password length for the user.
 # Unlike other fields, this is not the length of DB field
@@ -148,13 +148,13 @@ class MiniProfileForm(forms.Form):
     """
     Updates some profile data: biography, website, avatar URL, signature.
     """
-    biography = forms.CharField(
+    biography= forms.CharField(
         label=_('Biographie'),
         required=False,
         widget=forms.Textarea(
             attrs={
                 'placeholder': _(u'Votre biographie au format Markdown.'),
-                'class': 'md-editor'
+                'class': 'md-editor preview-source'
             }
         )
     )
@@ -265,7 +265,7 @@ class ProfileForm(MiniProfileForm):
             self.fields['options'].initial += 'email_for_answer'
 
         layout = Layout(
-            Field('biography'),
+            Field('biography',name='text'),
             Field('site'),
             Field('avatar_url'),
             HTML(_(u'''<p><a href="{% url 'gallery-list' %}">Choisir un avatar dans une galerie</a><br/>
@@ -273,7 +273,7 @@ class ProfileForm(MiniProfileForm):
             Créez une galerie et importez votre avatar si ce n'est pas déjà fait !</p>''')),
             Field('sign'),
             Field('options'),
-            ButtonHolder(StrictButton(_(u'Enregistrer'), type='submit'),)
+            CommonLayoutEditor()
         )
         if initial.get('is_dev'):
             layout.fields.insert(5, Field('github_token'))
