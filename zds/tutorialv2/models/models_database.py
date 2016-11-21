@@ -31,7 +31,7 @@ from zds.forum.models import Topic
 from zds.gallery.models import Image, Gallery, UserGallery
 from zds.tutorialv2.utils import get_content_from_json, BadManifestError
 from zds.utils import get_current_user
-from zds.utils.models import SubCategory, Licence, EditorialHelp, Comment, Tag
+from zds.utils.models import SubCategory, Licence, Comment, Tag
 from zds.utils.tutorials import get_blob
 from zds.tutorialv2.models import TYPE_CHOICES, STATUS_CHOICES
 from zds.tutorialv2.models.models_versioned import NotAPublicVersion, EditorialHelp
