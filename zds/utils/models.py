@@ -369,7 +369,7 @@ class Tag(models.Model):
         return True
 
 
-class HelpWriting(models.Model):
+class EditorialHelp(models.Model):
 
     """Tutorial Help"""
     class Meta:
@@ -392,4 +392,4 @@ class HelpWriting(models.Model):
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)
-        super(HelpWriting, self).save(*args, **kwargs)
+        super(EditorialHelp, self).save(*args, **kwargs)

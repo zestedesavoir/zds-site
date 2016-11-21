@@ -47,7 +47,7 @@ from zds.tutorialv2.utils import search_container_or_404, get_target_tagged_tree
     default_slug_pool, BadArchiveError, InvalidSlugError
 from zds.utils.forums import send_post, lock_topic, create_topic, unlock_topic
 from zds.utils.models import Licence
-from zds.utils.models import HelpWriting
+from zds.utils.models import EditorialHelp
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView, make_pagination
 
@@ -1550,7 +1550,7 @@ class ContentsWithHelps(ZdSPagingListView):
         context = super(ContentsWithHelps, self).get_context_data(**kwargs)
         queryset = kwargs.pop('object_list', self.object_list)
 
-        helps = HelpWriting.objects
+        helps = EditorialHelp.objects
 
         if self.specific_need:
             context['specific_need'] = helps.filter(slug=self.specific_need).first()

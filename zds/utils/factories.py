@@ -1,5 +1,5 @@
 # coding: utf-8
-from zds.utils.models import HelpWriting
+from zds.utils.models import EditorialHelp
 from zds.utils import slugify
 from zds.settings import BASE_DIR, MEDIA_ROOT
 from shutil import copyfile
@@ -10,7 +10,7 @@ import factory
 
 class HelpWritingFactory(factory.DjangoModelFactory):
     class Meta:
-        model = HelpWriting
+        model = EditorialHelp
 
     title = factory.Sequence(u"titre de l\'image {0}".format)
     slug = factory.LazyAttribute(lambda o: "{0}".format(slugify(o.title)))
