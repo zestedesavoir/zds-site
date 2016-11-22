@@ -32,14 +32,7 @@ def get_markdown_instance(inline=False, js_support=False, ping_url=None):
     # Generate parser
     markdown = Markdown(
         extensions=(zdsext,),
-        safe_mode='escape',       # Protect use of html by escape it
         inline=inline,            # Parse only inline content.
-        enable_attributes=False,  # Disable the conversion of attributes.
-                                  # This could potentially allow an untrusted user to inject JavaScript into documents.
-        tab_length=4,             # Length of tabs in the source (default value).
-        output_format='html5',    # HTML5 output (default value).
-        smart_emphasis=True,      # Enable smart emphasis for underscore syntax
-        lazy_ol=True,             # Enable smart ordered list start support
     )
 
     return markdown
