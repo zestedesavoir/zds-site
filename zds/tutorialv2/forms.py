@@ -210,9 +210,9 @@ class ContentForm(ContainerForm):
                 settings.ZDS_APP['site']['name']
             )
         ),
-        queryset=Licence.objects.all(),
+        queryset=Licence.objects.order_by('title').all(),
         required=True,
-        empty_label=None
+        empty_label=_('Choisir une licence')
     )
 
     helps = forms.ModelMultipleChoiceField(
