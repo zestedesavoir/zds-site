@@ -224,7 +224,7 @@
             
             
         var csrfmiddlewaretoken = $form.find("input[name=csrfmiddlewaretoken]").val(),
-            test,
+            text,
             lastPost = $form.find("input[name=last_post]").val();
 
         $.ajax({

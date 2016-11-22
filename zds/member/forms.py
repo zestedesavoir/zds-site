@@ -148,7 +148,7 @@ class MiniProfileForm(forms.Form):
     """
     Updates some profile data: biography, website, avatar URL, signature.
     """
-    biography= forms.CharField(
+    biography = forms.CharField(
         label=_('Biographie'),
         required=False,
         widget=forms.Textarea(
