@@ -149,6 +149,10 @@
                     {% trans "Ajouter une section" %}
                 </a>
             {%  endif %}
+        {% else %}
+            <a href="{{ content.get_absolute_url }}" class="ico-after arrow-right blue new-btn">
+                {% trans "Version brouillon" %}
+            </a>
         {% endif %}
     {% endif %}
 {% endblock %}
