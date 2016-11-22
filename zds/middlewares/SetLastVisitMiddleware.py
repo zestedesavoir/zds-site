@@ -4,6 +4,7 @@ from django.conf import settings
 
 from zds.member.views import get_client_ip
 
+
 class SetLastVisitMiddleware(object):
 
     def process_response(self, request, response):
