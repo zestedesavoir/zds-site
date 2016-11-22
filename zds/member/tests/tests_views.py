@@ -241,6 +241,19 @@ class MemberTests(TestCase):
             follow=False
         )
         self.assertEqual(result.status_code, 200)
+        
+    def test_success_preview_biography(self):
+
+        response = self.client.post(
+            reverse('update-member'),
+            {
+                'biography': 'It is my life',
+                'preview': '',
+            },
+            follow=True
+        )
+
+        self.assertEqual(200, response.status_code)
 
     def test_login(self):
         """
