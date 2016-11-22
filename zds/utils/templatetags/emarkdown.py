@@ -2,6 +2,7 @@
 
 import re
 
+from django.conf import settings
 from django import template
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
@@ -28,6 +29,8 @@ def get_markdown_instance(inline=False, js_support=False, ping_url=None):
     :param bool inline: If `True`, configure parser to parse only inline content.
     :return: A ZMarkdown parser.
     """
+    if not settings.ZDS_APP['comment']['enable_pings']:
+        ping_url = None
     zdsext = ZdsExtension(inline=inline, emoticons=smileys, js_support=js_support, ping_url=ping_url)
     # Generate parser
     markdown = Markdown(
