@@ -265,7 +265,7 @@ class ProfileForm(MiniProfileForm):
             self.fields['options'].initial += 'email_for_answer'
 
         layout = Layout(
-            Field('biography',name='text'),
+            Field('biography'),
             Field('site'),
             Field('avatar_url'),
             HTML(_(u'''<p><a href="{% url 'gallery-list' %}">Choisir un avatar dans une galerie</a><br/>
