@@ -160,8 +160,15 @@ class Forum(models.Model):
                     pk=self.pk).exists()
             else:
                 return False
+
     @property
     def has_group(self):
+        """
+        Checks if this forum belongs to at least one group
+
+        :return: ``True`` if it belongs to at least one group
+        :rtype: bool
+        """
         if self._nb_group is None:
             self._nb_group = self.groups.count()
         return self._nb_group > 0

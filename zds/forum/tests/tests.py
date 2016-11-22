@@ -1257,7 +1257,7 @@ class ManagerTests(TestCase):
             staff_group = Group.objects.filter(name='staff').first()
 
             self.forum3 = ForumFactory(category=self.cat1)
-            self.forum3.group = [staff_group]
+            self.forum3.groups = [staff_group]
             self.forum3.save()
 
             TopicFactory(forum=self.forum1, author=self.staff.user)
