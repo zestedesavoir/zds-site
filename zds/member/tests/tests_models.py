@@ -255,6 +255,14 @@ class MemberModelsTest(TestCase):
         # Should be 1
         self.assertEqual(self.user1.get_hidden_by_staff_posts_count(), 1)
 
+    def test_get_hidden_by_staff_posts_count_staff_poster(self):
+        # Start with 0
+        self.assertEqual(self.staff.get_hidden_by_staff_posts_count(), 0)
+        # Post and hide it by poster which is staff
+        PostFactory(topic=self.forumtopic, author=self.staff.user, position=1, is_visible=False, editor=self.staff.user)
+        # Should be 0 because even if poster is staff, he is the poster
+        self.assertEqual(self.staff.get_hidden_by_staff_posts_count(), 0)
+
     def test_get_alerts_posts_count(self):
         # Start with 0
         self.assertEqual(self.user1.get_alerts_posts_count(), 0)
