@@ -20,7 +20,7 @@ class ForumManager(models.Manager):
         category
         :type with_count: bool
         """
-        query_set = self.filter(category=category, group__isnull=True).select_related('category').distinct()
+        query_set = self.filter(category=category, groups__isnull=True).select_related('category').distinct()
         if with_count:
             # this request count the threads in each forum
             thread_sub_query = 'SELECT COUNT(*) FROM forum_topic WHERE forum_topic.forum_id=forum_forum.id'
@@ -32,7 +32,7 @@ class ForumManager(models.Manager):
         return query_set.all()
 
     def get_private_forums_of_category(self, category, user):
-        return self.filter(category=category, group__in=user.groups.all())\
+        return self.filter(category=category, groups__in=user.groups.all())\
             .order_by('position_in_category')\
             .select_related('category').distinct().all()
 
@@ -49,9 +49,9 @@ class TopicManager(models.Manager):
         :return:
         """
         if current_user.is_authenticated():
-            return Q(forum__group__isnull=True) | Q(forum__group__pk__in=current_user.profile.group_pks)
+            return Q(forum__groups__isnull=True) | Q(forum__groups__pk__in=current_user.profile.group_pks)
         else:
-            return Q(forum__group__isnull=True)
+            return Q(forum__groups__isnull=True)
 
     def last_topics_of_a_member(self, author, user):
         """
@@ -77,7 +77,7 @@ class TopicManager(models.Manager):
         :return:
         :rtype: django.models.Queryset
         """
-        return self.filter(is_locked=False, forum__group__isnull=True) \
+        return self.filter(is_locked=False, forum__groups__isnull=True) \
                    .select_related('forum', 'author', 'last_message') \
                    .prefetch_related('tags').order_by('-pubdate') \
                    .all()[:settings.ZDS_APP['topic']['home_number']]
@@ -113,8 +113,8 @@ class PostManager(InheritanceManager):
         :return:
         """
         if current_user.is_authenticated():
-            return Q(topic__forum__group__isnull=True) | Q(topic__forum__group__pk__in=current_user.profile.group_pks)
-        return Q(topic__forum__group__isnull=True)
+            return Q(topic__forum__groups__isnull=True) | Q(topic__forum__groups__pk__in=current_user.profile.group_pks)
+        return Q(topic__forum__groups__isnull=True)
 
     def get_messages_of_a_topic(self, topic_pk):
         return self.filter(topic__pk=topic_pk)\

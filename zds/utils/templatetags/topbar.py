@@ -16,11 +16,11 @@ register = template.Library()
 def top_categories(user):
     max_tags = settings.ZDS_APP['forum']['top_tag_max']
 
-    forums_pub = Forum.objects.filter(group__isnull=True).select_related('category').distinct().all()
+    forums_pub = Forum.objects.filter(groups__isnull=True).select_related('category').distinct().all()
     if user and user.is_authenticated():
         forums_private = Forum\
             .objects\
-            .filter(group__isnull=False, group__in=user.groups.all())\
+            .filter(groups__isnull=False, groups__in=user.groups.all())\
             .select_related('category').distinct().all()
         forums = list(forums_pub | forums_private)
     else:

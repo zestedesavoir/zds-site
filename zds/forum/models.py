@@ -89,7 +89,7 @@ class Forum(models.Model):
     subtitle = models.CharField('Sous-titre', max_length=200)
 
     # Groups authorized to read this forum. If no group is defined, the forum is public (and anyone can read it).
-    group = models.ManyToManyField(
+    groups = models.ManyToManyField(
         Group,
         verbose_name='Groupes autorisés (aucun = public)',
         blank=True)
@@ -99,6 +99,7 @@ class Forum(models.Model):
                                                null=True, blank=True, db_index=True)
 
     slug = models.SlugField(max_length=80, unique=True)
+    _nb_group = None
     objects = ForumManager()
 
     def __str__(self):
@@ -148,17 +149,22 @@ class Forum(models.Model):
         :return: `True` if the user can read this forum, `False` otherwise.
         """
 
-        if self.group.count() == 0:
+        if not self.has_group:
             return True
         else:
             # authentication is the best way to be sure groups are available in the user object
             if user is not None:
                 groups = list(user.groups.all()) if not isinstance(user, AnonymousUser) else []
                 return Forum.objects.filter(
-                    group__in=groups,
+                    groups__in=groups,
                     pk=self.pk).exists()
             else:
                 return False
+    @property
+    def has_group(self):
+        if self._nb_group is None:
+            self._nb_group = self.groups.count()
+        return self._nb_group > 0
 
 
 @python_2_unicode_compatible

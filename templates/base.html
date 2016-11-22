@@ -306,7 +306,7 @@
                                                                 {{ title }}
                                                             </li>
                                                             {% for forum in forums %}
-                                                                <li><a href="{{ forum.get_absolute_url }}">{{ forum.title }}</a></li>
+                                                                <li {% if forum.has_group %}class="staff-only"{% endif %}><a href="{{ forum.get_absolute_url }}">{{ forum.title }}</a></li>
                                                             {% endfor %}
                                                         </ul>
                                                     </li>
@@ -360,7 +360,7 @@
                                                 {% trans "Messagerie privée" %}
                                                 <a href="{% url "mp-new" %}" class="ico-after pm-new white" title="{% trans 'Envoyer un nouveau message privé' %}"></a>
                                            </span>
-                                            
+
                                             <ul class="dropdown-list">
                                                 {% for notification in notifications %}
                                                 <li>
@@ -429,7 +429,7 @@
                                 {# ALERTES MODERATION #}
                                 {% if perms.forum.change_post %}
                                     {% with alerts_list=user|alerts_list %}
-                                        <div>
+                                        <div class="staff-only">
                                             <a href="{% url "pages-alerts" %}" class="ico-link" title="{% trans 'Alertes de modération' %}">
                                                 <span class="notif-text ico ico-alerts">{% trans "Alertes de modération" %}</span>
                                                 {% if alerts_list.nb_alerts > 0 %}
@@ -509,16 +509,16 @@
                                         </li>
 
                                         {% if perms.tutorialv2.change_validation %}
-                                            <li>
+                                            <li class="staff-only">
                                                 <a href="{% url "validation:list" %}?type=tuto">{% trans "Validation des tutoriels" %}</a>
                                             </li>
-                                            <li>
+                                            <li class="staff-only">
                                                 <a href="{% url "validation:list" %}?type=article">{% trans "Validation des articles" %}</a>
                                             </li>
                                         {% endif %}
 
                                         {% if perms.featured.change_featuredresource %}
-                                            <li>
+                                            <li class="staff-only">
                                                 <a href="{% url 'featured-resource-list' %}">{% trans 'Gestion des mises en avant' %}</a>
                                             </li>
                                         {% endif %}
