@@ -299,8 +299,8 @@ class Profile(models.Model):
     def get_posts(self):
         return Post.objects.filter(author=self.user).all()
 
-    def get_invisible_posts_count(self):
-        return Post.objects.filter(is_visible=False, author=self.user).count()
+    def get_hidden_by_staff_posts_count(self):
+        return Post.objects.filter(is_visible=False, author=self.user).exclude(editor=self.user).count()
 
     # TODO: improve this method's name?
     def get_alerts_posts_count(self):
