@@ -651,8 +651,10 @@ class FollowContentReaction(LoggedWithReadWriteHability, SingleOnlineContentView
         response = {}
         self.public_content_object = self.get_public_object()
         if 'follow' in request.POST:
-            response['follow'] = ContentReactionAnswerSubscription.objects. \
-                toggle_follow(self.get_object(), self.request.user).is_active
+            response['follow'] = ContentReactionAnswerSubscription.objects\
+                .toggle_follow(self.get_object(), self.request.user).is_active
+            response['subscriberCount'] = ContentReactionAnswerSubscription\
+                .objects.get_subscriptions(self.get_object()).count()
         if self.request.is_ajax():
             return HttpResponse(json_writer.dumps(response), content_type='application/json')
         return redirect(self.get_object().get_absolute_url())

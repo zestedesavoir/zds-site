@@ -109,6 +109,7 @@
             &.inactive > span,
             &.inactive > em {
                 display: block;
+                cursor: pointer;
                 padding-left: 25px;
                 padding-right: 10px;
                 text-decoration: none;
@@ -123,6 +124,12 @@
                 border: 0;
                 text-align: left;
                 background: rgba(0, 0, 0, 0);
+
+                span {
+                    display: inline-block;
+                    height: 30px;
+                    line-height: 26px;
+                }
 
                 &[data-num] {
                     position: relative;
