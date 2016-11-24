@@ -496,7 +496,7 @@ mysql -u zds -p zdsdb << EOF
     # utils_helpwriting
     ALTER TABLE \`utils_helpwriting\` CHANGE title title VARCHAR(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL;
     ALTER TABLE \`utils_helpwriting\` CHANGE slug slug VARCHAR(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL;
-    ALTER TABLE \`utils_helpwriting\` CHANGE tablelabel tablelabel VARCHAR(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL;
+    ALTER TABLE \`utils_helpwriting\` CHANGE description description VARCHAR(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL;
     ALTER TABLE \`utils_helpwriting\` CHANGE image image VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL;
 
     # utils_licence

@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('title', models.CharField(max_length=20, verbose_name=b'Name')),
                 ('slug', models.SlugField(max_length=20)),
-                ('table_label', models.CharField(max_length=150, verbose_name=b'TableLabel')),
+                ('description', models.CharField(max_length=150, verbose_name=b'Description')),
                 ('image', easy_thumbnails.fields.ThumbnailerImageField(upload_to=zds.utils.models.image_path_help)),
             ],
             options={

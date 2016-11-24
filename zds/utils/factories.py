@@ -14,7 +14,7 @@ class HelpWritingFactory(factory.DjangoModelFactory):
 
     title = factory.Sequence(u"titre de l\'image {0}".format)
     slug = factory.LazyAttribute(lambda o: "{0}".format(slugify(o.title)))
-    tablelabel = factory.LazyAttribute(lambda n: u"Besoin de " + n.title)
+    description = factory.LazyAttribute(lambda n: u"Besoin de " + n.title)
 
     @classmethod
     def _prepare(cls, create, **kwargs):

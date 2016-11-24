@@ -1297,8 +1297,8 @@ class EditorialHelp(models.Model):
     title = models.CharField('Name', max_length=20, null=False)
     slug = models.SlugField(max_length=20)
 
-    # tablelabel: Used for the accessibility "This tutoriel need help for writing"
-    table_label = models.CharField('TableLabel', max_length=150, null=False)
+    # description: Used for the accessibility "This tutoriel need help for writing"
+    description = models.CharField('Description', max_length=150, null=False)
 
     # The image to use to illustrate this role
     image = ThumbnailerImageField(upload_to=image_path_help)
