@@ -13,7 +13,8 @@ from django.dispatch import receiver
 from zds.forum.models import Topic, Post
 from zds.mp.models import PrivateTopic, PrivatePost
 from zds.notification.models import TopicAnswerSubscription, ContentReactionAnswerSubscription, \
-    PrivateTopicAnswerSubscription, Subscription, Notification, NewTopicSubscription, NewPublicationSubscription
+    PrivateTopicAnswerSubscription, Subscription, Notification, NewTopicSubscription, NewPublicationSubscription, \
+    PingSubscription
 from zds.notification.signals import answer_unread, content_read, new_content, edit_content
 from zds.tutorialv2.models.models_database import PublishableContent, ContentReaction
 
@@ -120,6 +121,17 @@ def mark_pm_reactions_read(sender, **kwargs):
     subscription = PrivateTopicAnswerSubscription.objects.get_existing(user, private_topic, is_active=True)
     if subscription:
         subscription.mark_notification_read()
+
+
+@receiver(content_read, sender=ContentReaction)
+@receiver(content_read, sender=Post)
+def mark_comment_read(sender, **kwargs):
+    comment = kwargs.get('instance')
+    user = kwargs.get('user')
+
+    subscription = PingSubscription.objects.get_existing(user, comment, is_active=True)
+    if subscription:
+        subscription.mark_notification_read(comment)
 
 
 @receiver(edit_content, sender=Topic)
@@ -233,6 +245,20 @@ def content_published_event(sender, **kwargs):
         for subscription in NewPublicationSubscription.objects.get_subscriptions(user):
             by_email = subscription.by_email and subscription.user.profile.email_for_answer
             subscription.send_notification(content=content, sender=user, send_email=by_email)
+
+
+@receiver(new_content, sender=ContentReaction)
+@receiver(new_content, sender=Post)
+@disable_for_loaddata
+def answer_comment_event(sender, **kwargs):
+    comment = kwargs.get('instance')
+    user = kwargs.get('user')
+
+    assert comment is not None
+    assert user is not None
+
+    subscription = PingSubscription.objects.get_or_create_active(user, comment)
+    subscription.send_notification(content=comment, sender=comment.author, send_email=False)
 
 
 @receiver(new_content, sender=PrivatePost)

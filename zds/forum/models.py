@@ -405,6 +405,9 @@ class Post(Comment):
             page,
             self.pk)
 
+    def get_notification_title(self):
+        return self.topic.title
+
 
 class TopicRead(models.Model):
     """
