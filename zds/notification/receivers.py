@@ -228,7 +228,7 @@ def content_published_event(sender, **kwargs):
     for user in authors:
         ContentReactionAnswerSubscription.objects.toggle_follow(content, user, by_email=by_email)
         # no need for condition here, get_or_create_active has its own
-        subscription = NewPublicationSubscription.objects.get_or_create_active(user, user, by_email=False)
+        subscription = NewPublicationSubscription.objects.get_or_create_active(user, user)
         subscription.send_notification(content=content, sender=user, send_email=by_email)
         # this allows to fix the "auto subscribe issue" but can desactivate a manually triggered subscription
         subscription.deactivate()
