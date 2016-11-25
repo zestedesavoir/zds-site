@@ -429,8 +429,8 @@ class TopicRead(models.Model):
 
     def __str__(self):
         return '<Sujet "{0}" lu par {1}, #{2}>'.format(self.topic,
-                                                        self.user,
-                                                        self.post.pk)
+                                                       self.user,
+                                                       self.post.pk)
 
 
 def is_read(topic, user=None):
