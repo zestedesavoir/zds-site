@@ -213,7 +213,7 @@ class MultipleNotificationsMixin(object):
         notifications = list(Notification.objects.filter(subscription=self,
                                                          content_type__pk=content_notification_type.pk,
                                                          object_id=content.pk, is_read=False))
-        # for some reason, it appears that some notification can be subscribed twice.
+        # handles cases where a same subscription lead to several notifications
         if not notifications:
             logging.debug("nothing to mark as read")
             return
