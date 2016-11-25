@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-s
-import logging
 from __future__ import unicode_literals
+import logging
 from smtplib import SMTPException
 
 from django.utils.encoding import python_2_unicode_compatible
