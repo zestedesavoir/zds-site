@@ -13,7 +13,7 @@ from zds.api.pagination import REST_PAGE_SIZE, REST_MAX_PAGE_SIZE, REST_PAGE_SIZ
 from zds.member.factories import ProfileFactory, StaffProfileFactory, ProfileNotSyncFactory
 from zds.member.models import TokenRegister
 from rest_framework_extensions.settings import extensions_api_settings
-from django.core.cache import caches, get_cache
+from django.core.cache import caches
 
 
 class MemberListAPITest(APITestCase):
@@ -1001,7 +1001,7 @@ class PermissionMemberAPITest(APITestCase):
         self.profile = ProfileFactory()
         self.staff = StaffProfileFactory()
 
-        get_cache(extensions_api_settings.DEFAULT_USE_CACHE).clear()
+        caches[extensions_api_settings.DEFAULT_USE_CACHE].clear()
 
     def test_has_read_permission_for_anonymous_users(self):
         """

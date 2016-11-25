@@ -1697,6 +1697,11 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
     authorized_for_staff = True
     already_finished = False
 
+    def get(self):
+        content = self.get_object()
+        url = "content:find-{}".format("tutorial" if content.is_tutorial() else content.type.lower())
+        return redirect(url, self.request.user)
+
     def form_valid(self, form):
         _type = self.object.type.lower()
         if _type == "tutorial":

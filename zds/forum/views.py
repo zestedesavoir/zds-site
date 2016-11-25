@@ -81,6 +81,7 @@ class ForumTopicsListView(FilterMixin, ForumEditMixin, ZdSPagingListView, Update
         response = {}
         if 'follow' in request.POST:
             response['follow'] = self.perform_follow(self.object, request.user)
+            response['subscriberCount'] = NewTopicSubscription.objects.get_subscriptions(self.object).count()
         elif 'email' in request.POST:
             response['email'] = self.perform_follow_by_email(self.object, request.user)
 
@@ -98,6 +99,13 @@ class ForumTopicsListView(FilterMixin, ForumEditMixin, ZdSPagingListView, Update
                 context['filter']))
         # we need to load it in memory because later we will get the
         # "already read topic" set out of this list and MySQL does not support that type of subquery
+
+        # Add a topic.is_followed attribute
+        followed_query_set = TopicAnswerSubscription.objects.get_objects_followed_by(self.request.user.id)
+        followed_topics = list(set(followed_query_set) & set(context['topics'] + sticky))
+        for topic in set(context['topics'] + sticky):
+            topic.is_followed = topic in followed_topics
+
         context.update({
             'forum': self.object,
             'sticky_topics': sticky,
@@ -305,6 +313,7 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
         response = {}
         if 'follow' in request.POST:
             response['follow'] = self.perform_follow(self.object, request.user).is_active
+            response['subscriberCount'] = TopicAnswerSubscription.objects.get_subscriptions(self.object).count()
         elif 'email' in request.POST:
             response['email'] = self.perform_follow_by_email(self.object, request.user).is_active
         elif 'solved' in request.POST:
