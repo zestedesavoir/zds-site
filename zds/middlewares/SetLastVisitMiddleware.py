@@ -1,6 +1,6 @@
 import datetime
 
-from django.conf import settings
+from zds import settings
 
 from zds.member.views import get_client_ip
 
