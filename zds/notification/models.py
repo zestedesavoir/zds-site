@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-s
 from __future__ import unicode_literals
-import logging
+from django.utils.encoding import python_2_unicode_compatible
 from smtplib import SMTPException
 
-from django.utils.encoding import python_2_unicode_compatible
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -227,13 +226,14 @@ class MultipleNotificationsMixin(object):
         notification.save()
 
 
+@python_2_unicode_compatible
 class AnswerSubscription(Subscription):
     """
     Subscription to new answer, either in a topic, a article or a tutorial
     NOT used directly, use one of its subtype
     """
-    def __unicode__(self):
-        return _(u'<Abonnement du membre "{0}" aux réponses au {1} #{2}>')\
+    def __str__(self):
+        return _('<Abonnement du membre "{0}" aux réponses au {1} #{2}>')\
             .format(self.user.username, self.content_type, self.object_id)
 
     def get_notification_url(self, answer):
@@ -243,6 +243,7 @@ class AnswerSubscription(Subscription):
         return self.content_object.title
 
 
+@python_2_unicode_compatible
 class TopicAnswerSubscription(AnswerSubscription, SingleNotificationMixin):
     """
     Subscription to new answer in a topic
@@ -250,11 +251,12 @@ class TopicAnswerSubscription(AnswerSubscription, SingleNotificationMixin):
     module = _(u'Forum')
     objects = TopicAnswerSubscriptionManager()
 
-    def __unicode__(self):
-        return _(u'<Abonnement du membre "{0}" aux réponses au sujet #{1}>')\
+    def __str__(self):
+        return _('<Abonnement du membre "{0}" aux réponses au sujet #{1}>')\
             .format(self.user.username, self.object_id)
 
 
+@python_2_unicode_compatible
 class PrivateTopicAnswerSubscription(AnswerSubscription, SingleNotificationMixin):
     """
     Subscription to new answer in a private topic.
@@ -262,11 +264,12 @@ class PrivateTopicAnswerSubscription(AnswerSubscription, SingleNotificationMixin
     module = _(u'Message privé')
     objects = SubscriptionManager()
 
-    def __unicode__(self):
-        return _(u'<Abonnement du membre "{0}" aux réponses à la conversation privée #{1}>')\
+    def __str__(self):
+        return _('<Abonnement du membre "{0}" aux réponses à la conversation privée #{1}>')\
             .format(self.user.username, self.object_id)
 
 
+@python_2_unicode_compatible
 class ContentReactionAnswerSubscription(AnswerSubscription, SingleNotificationMixin):
     """
     Subscription to new answer in a publishable content.
@@ -274,11 +277,12 @@ class ContentReactionAnswerSubscription(AnswerSubscription, SingleNotificationMi
     module = _(u'Contenu')
     objects = SubscriptionManager()
 
-    def __unicode__(self):
-        return _(u'<Abonnement du membre "{0}" aux réponses du contenu #{1}>')\
+    def __str__(self):
+        return _('<Abonnement du membre "{0}" aux réponses du contenu #{1}>')\
             .format(self.user.username, self.object_id)
 
 
+@python_2_unicode_compatible
 class NewTopicSubscription(Subscription, MultipleNotificationsMixin):
     """
     Subscription to new topics in a forum or with a tag
@@ -286,8 +290,8 @@ class NewTopicSubscription(Subscription, MultipleNotificationsMixin):
     module = _(u'Forum')
     objects = SubscriptionManager()
 
-    def __unicode__(self):
-        return _(u'<Abonnement du membre "{0}" aux nouveaux sujets du {1} #{2}>')\
+    def __str__(self):
+        return _('<Abonnement du membre "{0}" aux nouveaux sujets du {1} #{2}>')\
             .format(self.user.username, self.content_type, self.object_id)
 
     def get_notification_url(self, topic):
@@ -297,6 +301,7 @@ class NewTopicSubscription(Subscription, MultipleNotificationsMixin):
         return topic.title
 
 
+@python_2_unicode_compatible
 class NewPublicationSubscription(Subscription, MultipleNotificationsMixin):
     """
     Subscription to new publications from a user.
@@ -304,8 +309,8 @@ class NewPublicationSubscription(Subscription, MultipleNotificationsMixin):
     module = _(u'Contenu')
     objects = SubscriptionManager()
 
-    def __unicode__(self):
-        return _(u'<Abonnement du membre "{0}" aux nouvelles publications de l\'utilisateur #{1}>') \
+    def __str__(self):
+        return _('<Abonnement du membre "{0}" aux nouvelles publications de l\'utilisateur #{1}>') \
             .format(self.user.username, self.object_id)
 
     def get_notification_url(self, content):
@@ -354,6 +359,7 @@ class Notification(models.Model):
         return Notification.has_read_permission(request) and self.subscription.user == request.user
 
 
+@python_2_unicode_compatible
 class TopicFollowed(models.Model):
     """
     This model tracks which user follows which topic.
@@ -370,9 +376,9 @@ class TopicFollowed(models.Model):
     email = models.BooleanField('Notification par courriel', default=False, db_index=True)
     objects = TopicFollowedManager()
 
-    def __unicode__(self):
-        return u'<Sujet "{0}" suivi par {1}>'.format(self.topic.title,
-                                                     self.user.username)
+    def __str__(self):
+        return '<Sujet "{0}" suivi par {1}>'.format(self.topic.title,
+                                                    self.user.username)
 
 # used to fix Django 1.9 Warning
 # https://github.com/zestedesavoir/zds-site/issues/3451
