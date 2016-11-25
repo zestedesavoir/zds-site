@@ -18,7 +18,7 @@ from zds.notification import signals
 from zds.notification.models import Notification, TopicAnswerSubscription, ContentReactionAnswerSubscription, \
     PrivateTopicAnswerSubscription, NewTopicSubscription, NewPublicationSubscription
 from zds.tutorialv2.factories import PublishableContentFactory, LicenceFactory, ContentReactionFactory, \
-    SubCategoryFactory
+    SubCategoryFactory, PublishedContentFactory
 from zds.tutorialv2.models.models_database import ContentReaction, PublishableContent
 from zds.tutorialv2.publication_utils import publish_content
 from zds.utils import slugify
@@ -758,3 +758,14 @@ class NotificationTest(TestCase):
         subscription = TopicAnswerSubscription(user=self.user1, content_object=topic)
         with self.assertRaises(IntegrityError):
             subscription.save()
+
+    def test_new_cowritten_content_without_doubly_notif(self):
+        author1 = ProfileFactory()
+        author2 = ProfileFactory()
+        NewPublicationSubscription.objects.toggle_follow(author2.user, author1.user)
+        content = PublishedContentFactory(author_list=[author1.user, author2.user])
+        signals.new_content.send(sender=content.__class__, instance=content, by_email=False)
+        auto_user_1_sub = NewPublicationSubscription.objects.get_existing(author1.user, author1.user, False)
+        self.assertIsNotNone(auto_user_1_sub)
+        notifs = list(Notification.objects.get_notifications_of(author1.user))
+        self.assertEqual(1, len(notifs))

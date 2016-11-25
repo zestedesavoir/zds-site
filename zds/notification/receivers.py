@@ -224,13 +224,21 @@ def content_published_event(sender, **kwargs):
     """
     content = kwargs.get('instance')
     by_email = kwargs.get('by_email')
-
-    for user in content.authors.all():
+    authors = list(content.authors.all())
+    for user in authors:
         ContentReactionAnswerSubscription.objects.toggle_follow(content, user, by_email=by_email)
-        if not NewPublicationSubscription.objects.does_exist(user, user, is_active=True):
-            NewPublicationSubscription.objects.toggle_follow(user, user, by_email=False)
+        # no need for condition here, toogle_follow has its own
+        subscription = NewPublicationSubscription.objects.toggle_follow(user, user, by_email=False)
+        subscription.send_notification(content=content, sender=user, send_email=by_email)
+        # this allows to fix the "auto subscribe issue" but can desactivate a manually triggered subscription
+        subscription.desactivate()
 
         for subscription in NewPublicationSubscription.objects.get_subscriptions(user):
+            # this condition is here to avoid exponential notification when a user follow one of the authors
+            # while he is himself an author. As the query encapsulated by get_subscription is complex the exclusion
+            # is not ported in sql.
+            if subscription.user in authors:
+                continue
             by_email = subscription.by_email and subscription.user.profile.email_for_answer
             subscription.send_notification(content=content, sender=user, send_email=by_email)
 

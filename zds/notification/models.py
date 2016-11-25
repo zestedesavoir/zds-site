@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-s
 import logging
+from __future__ import unicode_literals
 from smtplib import SMTPException
 
+from django.utils.encoding import python_2_unicode_compatible
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -17,6 +19,7 @@ from zds.notification.managers import NotificationManager, SubscriptionManager, 
 from zds.utils.misc import convert_camel_to_underscore
 
 
+@python_2_unicode_compatible
 class Subscription(models.Model):
     """
     Model used to register the subscription of a user to a set of notifications (regarding a tutorial, a forum, ...)
@@ -36,8 +39,8 @@ class Subscription(models.Model):
     content_object = GenericForeignKey('content_type', 'object_id')
     last_notification = models.ForeignKey(u'Notification', related_name="last_notification", null=True, default=None)
 
-    def __unicode__(self):
-        return _(u'<Abonnement du membre "{0}" aux notifications pour le {1}, #{2}>')\
+    def __str__(self):
+        return _('<Abonnement du membre "{0}" aux notifications pour le {1}, #{2}>')\
             .format(self.user.username, self.content_type, self.object_id)
 
     def activate(self):
@@ -312,6 +315,7 @@ class NewPublicationSubscription(Subscription, MultipleNotificationsMixin):
         return content.title
 
 
+@python_2_unicode_compatible
 class Notification(models.Model):
     """
     A notification
@@ -332,8 +336,8 @@ class Notification(models.Model):
     title = models.CharField('Titre', max_length=200)
     objects = NotificationManager()
 
-    def __unicode__(self):
-        return _(u'Notification du membre "{0}" à propos de : {1} #{2} ({3})')\
+    def __str__(self):
+        return _('Notification du membre "{0}" à propos de : {1} #{2} ({3})')\
             .format(self.subscription.user, self.content_type, self.content_object.pk, self.subscription)
 
     def __copy__(self):
