@@ -17,7 +17,23 @@
                 </a>
             </li>
         {% endif %}
-
+        
+        {% if container.parent %}
+            <li class="sommaire">
+                <a
+                    {% if online %}
+                        href="{{ container.parent.get_absolute_url_online }}"
+                    {% elif content.is_beta %}
+                        href="{{ container.parent.get_absolute_url_beta }}"
+                    {% else %}
+                        href="{{ container.parent.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}"
+                    {% endif %}
+                >
+                    {% trans "Sommaire" %}
+                </a>
+            </li>        
+        {% endif %}
+        
         {% if next %}
             <li class="next">
                 <a
