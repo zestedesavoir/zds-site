@@ -43,7 +43,8 @@
         }
 
         &.prev a,
-        &.next a {
+        &.next a
+        &.sommaire a {
             padding: 0 15px;
         }
 
@@ -84,7 +85,7 @@
         margin-left: 0;
 
         li {
-            max-width: 45%;
+            max-width: 43%;
         }
 
         a {
@@ -110,6 +111,16 @@
                 span {
                     display: none;
                 }
+            }
+        }
+    }
+}
+
+@media only screen and #{$media-mobile-tablet} {
+    .pagination {
+        li {
+            &.somm {
+                display: none;
             }
         }
     }
