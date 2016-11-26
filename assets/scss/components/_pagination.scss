@@ -119,7 +119,7 @@
 @media only screen and #{$media-mobile-tablet} {
     .pagination {
         li {
-            &.somm {
+            &.sommaire {
                 display: none;
             }
         }
