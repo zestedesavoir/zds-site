@@ -68,6 +68,10 @@
                 }
             }
         }
+        &.sommaire {
+            position: absolute;
+	        left: 47%;
+        }
     }
 
     &.pagination-top {
