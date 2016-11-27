@@ -236,12 +236,9 @@ def content_published_event(sender, **kwargs):
         # this allows to fix the "auto subscribe issue" but can deactivate a manually triggered subscription
         subscription.deactivate()
 
-        for subscription in NewPublicationSubscription.objects.get_subscriptions(user):
+        for subscription in NewPublicationSubscription.objects.get_subscriptions(user).exclude(user__in=authors):
             # this condition is here to avoid exponential notifications when a user already follows one of the authors
-            # while they are also among the authors. As the query encapsulated by get_subscription is complex the
-            # exclusion is not ported in sql.
-            if subscription.user in authors:
-                continue
+            # while they are also among the authors.
             by_email = subscription.by_email and subscription.user.profile.email_for_answer
             subscription.send_notification(content=content, sender=user, send_email=by_email)
 
