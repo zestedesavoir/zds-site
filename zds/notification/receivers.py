@@ -99,9 +99,12 @@ def mark_content_reactions_read(sender, **kwargs):
         if subscription:
             subscription.mark_notification_read()
     elif target == PublishableContent:
-        for author in content.authors.all():
-            subscription = NewPublicationSubscription.objects.get_existing(user, author, is_active=True)
-            if subscription:
+        authors = list(content.authors.all())
+        for author in authors:
+            subscription = NewPublicationSubscription.objects.get_existing(user, author)
+            # a subscription has to be handled only if it is active OR if it was triggered from the publication
+            # event that creates an "autosubscribe" which is immediately deactivated.
+            if subscription and (subscription.is_active or subscription.user in authors):
                 subscription.mark_notification_read(content=content)
 
 
@@ -220,17 +223,22 @@ def content_published_event(sender, **kwargs):
     :param kwargs:  contains
         - instance: the new content.
         - by_mail: Send or not an email.
-    All authors of the content follow their new content published.
+    All authors of the content follow their newly published content.
     """
     content = kwargs.get('instance')
     by_email = kwargs.get('by_email')
-
-    for user in content.authors.all():
+    authors = list(content.authors.all())
+    for user in authors:
         ContentReactionAnswerSubscription.objects.toggle_follow(content, user, by_email=by_email)
-        if not NewPublicationSubscription.objects.does_exist(user, user, is_active=True):
-            NewPublicationSubscription.objects.toggle_follow(user, user, by_email=False)
+        # no need for condition here, get_or_create_active has its own
+        subscription = NewPublicationSubscription.objects.get_or_create_active(user, user)
+        subscription.send_notification(content=content, sender=user, send_email=by_email)
+        # this allows to fix the "auto subscribe issue" but can deactivate a manually triggered subscription
+        subscription.deactivate()
 
-        for subscription in NewPublicationSubscription.objects.get_subscriptions(user):
+        for subscription in NewPublicationSubscription.objects.get_subscriptions(user).exclude(user__in=authors):
+            # this condition is here to avoid exponential notifications when a user already follows one of the authors
+            # while they are also among the authors.
             by_email = subscription.by_email and subscription.user.profile.email_for_answer
             subscription.send_notification(content=content, sender=user, send_email=by_email)
 
