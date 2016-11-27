@@ -99,10 +99,14 @@ def mark_content_reactions_read(sender, **kwargs):
         if subscription:
             subscription.mark_notification_read()
     elif target == PublishableContent:
-        for author in content.authors.all():
-            subscription = NewPublicationSubscription.objects.get_existing(user, author, is_active=True)
-            if subscription:
+        authors = list(content.authors.all())
+        for author in authors:
+            subscription = NewPublicationSubscription.objects.get_existing(user, author)
+            # a subscription has to be handled only if it is active OR if it was triggered from the publication
+            # event that creates an "autosubscribe" which is immediately deactivated.
+            if subscription.is_active or subscription.user in author:
                 subscription.mark_notification_read(content=content)
+
 
 
 @receiver(content_read, sender=PrivateTopic)
