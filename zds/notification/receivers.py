@@ -108,7 +108,6 @@ def mark_content_reactions_read(sender, **kwargs):
                 subscription.mark_notification_read(content=content)
 
 
-
 @receiver(content_read, sender=PrivateTopic)
 def mark_pm_reactions_read(sender, **kwargs):
     """
