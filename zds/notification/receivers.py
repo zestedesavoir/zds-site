@@ -104,7 +104,7 @@ def mark_content_reactions_read(sender, **kwargs):
             subscription = NewPublicationSubscription.objects.get_existing(user, author)
             # a subscription has to be handled only if it is active OR if it was triggered from the publication
             # event that creates an "autosubscribe" which is immediately deactivated.
-            if subscription and (subscription.is_active or subscription.user in author):
+            if subscription and (subscription.is_active or subscription.user in authors):
                 subscription.mark_notification_read(content=content)
 
 
