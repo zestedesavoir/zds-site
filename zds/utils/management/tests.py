@@ -5,7 +5,8 @@ from django.contrib.auth.models import User, Permission
 from zds.member.models import Profile
 from zds.forum.models import Forum, Topic, Category as FCategory
 from zds.utils.models import Tag, Category as TCategory, CategorySubCategory, SubCategory, \
-    HelpWriting, Licence
+    Licence
+from zds.tutorialv2.models.models_versioned import EditorialHelp
 from zds.member.factories import ProfileFactory
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction, \
     Validation as CValidation
@@ -42,7 +43,7 @@ class CommandsTestCase(TestCase):
         opts = {}
         call_command('load_factory_data', *args, **opts)
 
-        self.assertTrue(HelpWriting.objects.count() > 0)
+        self.assertTrue(EditorialHelp.objects.count() > 0)
 
     def test_profiler(self):
         result = self.client.get("/?prof", follow=True)

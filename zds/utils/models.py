@@ -1,26 +1,23 @@
 # coding: utf-8
-from datetime import datetime
 import os
 import string
 import uuid
-from django.conf import settings
+from datetime import datetime
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-from django.utils.encoding import smart_text
 from django.db import models
 from django.shortcuts import get_object_or_404
+from django.utils.encoding import smart_text
 from django.utils.translation import ugettext_lazy as _
-
-from easy_thumbnails.fields import ThumbnailerImageField
+from model_utils.managers import InheritanceManager
 
 from zds.mp.models import PrivateTopic
 from zds.tutorialv2.models import TYPE_CHOICES
-from zds.utils.mps import send_mp
 from zds.utils import slugify
+from zds.utils.mps import send_mp
 from zds.utils.templatetags.emarkdown import emarkdown
-
-from model_utils.managers import InheritanceManager
 
 
 def image_path_category(instance, filename):
@@ -369,27 +366,3 @@ class Tag(models.Model):
         return True
 
 
-class HelpWriting(models.Model):
-
-    """Tutorial Help"""
-    class Meta:
-        verbose_name = u'Aide à la rédaction'
-        verbose_name_plural = u'Aides à la rédaction'
-
-    # A name for this help
-    title = models.CharField('Name', max_length=20, null=False)
-    slug = models.SlugField(max_length=20)
-
-    # tablelabel: Used for the accessibility "This tutoriel need help for writing"
-    tablelabel = models.CharField('TableLabel', max_length=150, null=False)
-
-    # The image to use to illustrate this role
-    image = ThumbnailerImageField(upload_to=image_path_help)
-
-    def __unicode__(self):
-        """Textual Help Form."""
-        return self.title
-
-    def save(self, *args, **kwargs):
-        self.slug = slugify(self.title)
-        super(HelpWriting, self).save(*args, **kwargs)

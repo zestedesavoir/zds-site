@@ -31,10 +31,10 @@ from zds.forum.models import Topic
 from zds.gallery.models import Image, Gallery, UserGallery
 from zds.tutorialv2.utils import get_content_from_json, BadManifestError
 from zds.utils import get_current_user
-from zds.utils.models import SubCategory, Licence, HelpWriting, Comment, Tag
+from zds.utils.models import SubCategory, Licence, Comment, Tag
 from zds.utils.tutorials import get_blob
 from zds.tutorialv2.models import TYPE_CHOICES, STATUS_CHOICES
-from zds.tutorialv2.models.models_versioned import NotAPublicVersion
+from zds.tutorialv2.models.models_versioned import NotAPublicVersion, EditorialHelp
 from zds.tutorialv2.managers import PublishedContentManager, PublishableContentManager
 import logging
 
@@ -100,7 +100,7 @@ class PublishableContent(models.Model):
     # as of ZEP 12 this field is no longer the size but the type of content (article/tutorial)
     type = models.CharField(max_length=10, choices=TYPE_CHOICES, db_index=True)
     # zep03 field
-    helps = models.ManyToManyField(HelpWriting, verbose_name='Aides', blank=True, db_index=True)
+    helps = models.ManyToManyField(EditorialHelp, verbose_name='Aides', blank=True, db_index=True)
 
     relative_images_path = models.CharField(
         'chemin relatif images',
