@@ -2128,7 +2128,7 @@ class ContentTests(TestCase):
 
         subscription = NewPublicationSubscription.objects.get_existing(user=self.user_author,
                                                                        content_object=self.user_author)
-        # subscription must be desactivated.
+        # subscription must be deactivated.
         self.assertFalse(subscription.is_active)
         self.assertEqual(1, Notification.objects.filter(subscription=subscription, is_read=False).count())
 

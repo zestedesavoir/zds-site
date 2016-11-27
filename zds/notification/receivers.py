@@ -220,7 +220,7 @@ def content_published_event(sender, **kwargs):
     :param kwargs:  contains
         - instance: the new content.
         - by_mail: Send or not an email.
-    All authors of the content follow their new content published.
+    All authors of the content follow their newly published content.
     """
     content = kwargs.get('instance')
     by_email = kwargs.get('by_email')
@@ -230,13 +230,13 @@ def content_published_event(sender, **kwargs):
         # no need for condition here, get_or_create_active has its own
         subscription = NewPublicationSubscription.objects.get_or_create_active(user, user)
         subscription.send_notification(content=content, sender=user, send_email=by_email)
-        # this allows to fix the "auto subscribe issue" but can desactivate a manually triggered subscription
+        # this allows to fix the "auto subscribe issue" but can deactivate a manually triggered subscription
         subscription.deactivate()
 
         for subscription in NewPublicationSubscription.objects.get_subscriptions(user):
-            # this condition is here to avoid exponential notification when a user follow one of the authors
-            # while he is himself an author. As the query encapsulated by get_subscription is complex the exclusion
-            # is not ported in sql.
+            # this condition is here to avoid exponential notifications when a user already follows one of the authors
+            # while they are also among the authors. As the query encapsulated by get_subscription is complex the
+            # exclusion is not ported in sql.
             if subscription.user in authors:
                 continue
             by_email = subscription.by_email and subscription.user.profile.email_for_answer
