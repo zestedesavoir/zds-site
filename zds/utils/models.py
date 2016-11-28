@@ -1,4 +1,6 @@
 # coding: utf-8
+from __future__ import unicode_literals
+from django.utils.encoding import python_2_unicode_compatible
 from datetime import datetime
 import os
 import string
@@ -37,6 +39,7 @@ def image_path_help(instance, filename):
     return os.path.join('helps/normal', str(instance.pk), filename)
 
 
+@python_2_unicode_compatible
 class Category(models.Model):
 
     """Common category for several concepts of the application."""
@@ -50,11 +53,12 @@ class Category(models.Model):
 
     slug = models.SlugField(max_length=80, unique=True)
 
-    def __unicode__(self):
+    def __str__(self):
         """Textual Category Form."""
         return self.title
 
 
+@python_2_unicode_compatible
 class SubCategory(models.Model):
 
     """Common subcategory for several concepts of the application."""
@@ -72,18 +76,18 @@ class SubCategory(models.Model):
 
     slug = models.SlugField(max_length=80, unique=True)
 
-    def __unicode__(self):
+    def __str__(self):
         """Textual Category Form."""
         return self.title
 
     def get_absolute_url_tutorial(self):
         url = reverse('tutorial-index')
-        url = url + '?tag={}'.format(self.slug)
+        url += '?tag={}'.format(self.slug)
         return url
 
     def get_absolute_url_article(self):
         url = reverse('article-index')
-        url = url + '?tag={}'.format(self.slug)
+        url += '?tag={}'.format(self.slug)
         return url
 
     def get_parent_category(self):
@@ -99,6 +103,7 @@ class SubCategory(models.Model):
             return None
 
 
+@python_2_unicode_compatible
 class CategorySubCategory(models.Model):
 
     """ManyToMany between Category and SubCategory but save a boolean to know
@@ -111,18 +116,19 @@ class CategorySubCategory(models.Model):
     subcategory = models.ForeignKey(SubCategory, verbose_name='Sous-Catégorie', db_index=True)
     is_main = models.BooleanField('Est la catégorie principale', default=True, db_index=True)
 
-    def __unicode__(self):
+    def __str__(self):
         """Textual Link Form."""
         if self.is_main:
-            return u'[{0}][main]: {1}'.format(
+            return '[{0}][main]: {1}'.format(
                 self.category.title,
                 self.subcategory.title)
         else:
-            return u'[{0}]: {1}'.format(
+            return '[{0}]: {1}'.format(
                 self.category.title,
                 self.subcategory.title)
 
 
+@python_2_unicode_compatible
 class Licence(models.Model):
 
     """Publication licence."""
@@ -134,11 +140,12 @@ class Licence(models.Model):
     title = models.CharField('Titre', max_length=80)
     description = models.TextField('Description')
 
-    def __unicode__(self):
+    def __str__(self):
         """Textual Licence Form."""
         return self.title
 
 
+@python_2_unicode_compatible
 class Comment(models.Model):
 
     """Comment in forum, articles, tutorial, chapter, etc."""
@@ -232,10 +239,11 @@ class Comment(models.Model):
         """ Get the list of the users that disliked this Comment """
         return [vote.user for vote in self.get_votes() if not vote.positive]
 
-    def __unicode__(self):
-        return u'{0}'.format(self.text)
+    def __str__(self):
+        return self.text
 
 
+@python_2_unicode_compatible
 class Alert(models.Model):
     """Alerts on all kinds of Comments."""
     SCOPE_CHOICES = (
@@ -314,14 +322,15 @@ class Alert(models.Model):
         utils."""
         return Comment.objects.get_subclass(id=self.comment.id)
 
-    def __unicode__(self):
-        return u'{0}'.format(self.text)
+    def __str__(self):
+        return self.text
 
     class Meta:
         verbose_name = 'Alerte'
         verbose_name_plural = 'Alertes'
 
 
+@python_2_unicode_compatible
 class CommentVote(models.Model):
 
     """Set of comment votes."""
@@ -334,7 +343,11 @@ class CommentVote(models.Model):
     user = models.ForeignKey(User, db_index=True)
     positive = models.BooleanField("Est un vote positif", default=True)
 
+    def __str__(self):
+        return "Vote from {} about Comment#{} thumb_up={}".format(self.user.username, self.comment.pk, self.positive)
 
+
+@python_2_unicode_compatible
 class Tag(models.Model):
 
     """Set of tags."""
@@ -346,9 +359,9 @@ class Tag(models.Model):
     title = models.CharField('Titre', max_length=30, unique=True, db_index=True)
     slug = models.SlugField('Slug', max_length=30)
 
-    def __unicode__(self):
+    def __str__(self):
         """Textual Link Form."""
-        return u"{0}".format(self.title)
+        return self.title
 
     def get_absolute_url(self):
         return reverse('topic-tag-find', kwargs={'tag_pk': self.pk, 'tag_slug': self.slug})
@@ -369,6 +382,7 @@ class Tag(models.Model):
         return True
 
 
+@python_2_unicode_compatible
 class HelpWriting(models.Model):
 
     """Tutorial Help"""
@@ -386,7 +400,7 @@ class HelpWriting(models.Model):
     # The image to use to illustrate this role
     image = ThumbnailerImageField(upload_to=image_path_help)
 
-    def __unicode__(self):
+    def __str__(self):
         """Textual Help Form."""
         return self.title
 

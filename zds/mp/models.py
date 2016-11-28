@@ -1,5 +1,6 @@
 # coding: utf-8
-
+from __future__ import unicode_literals
+from django.utils.encoding import python_2_unicode_compatible
 from math import ceil
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -11,6 +12,7 @@ from zds.notification import signals
 from zds.utils import get_current_user, slugify
 
 
+@python_2_unicode_compatible
 class PrivateTopic(models.Model):
     """
     Topic private, containing private posts.
@@ -30,7 +32,7 @@ class PrivateTopic(models.Model):
     pubdate = models.DateTimeField(u'Date de création', auto_now_add=True, db_index=True)
     objects = PrivateTopicManager()
 
-    def __unicode__(self):
+    def __str__(self):
         """
         Human-readable representation of the PrivateTopic model.
 
@@ -206,6 +208,7 @@ class PrivateTopic(models.Model):
         return PrivateTopic.has_write_permission(request) and self.is_author(request.user)
 
 
+@python_2_unicode_compatible
 class PrivatePost(models.Model):
     """A private post written by an user."""
 
@@ -222,14 +225,14 @@ class PrivatePost(models.Model):
     position_in_topic = models.IntegerField(u'Position dans le sujet', db_index=True)
     objects = PrivatePostManager()
 
-    def __unicode__(self):
+    def __str__(self):
         """
         Human-readable representation of the PrivatePost model.
 
         :return: PrivatePost description
         :rtype: unicode
         """
-        return u'<Post pour « {0} », #{1}>'.format(self.privatetopic, self.pk)
+        return '<Post pour « {0} », #{1}>'.format(self.privatetopic, self.pk)
 
     def get_absolute_url(self):
         """
@@ -282,6 +285,7 @@ class PrivatePost(models.Model):
         return PrivateTopic.has_write_permission(request) and self.is_last_message() and self.is_author(request.user)
 
 
+@python_2_unicode_compatible
 class PrivateTopicRead(models.Model):
     """
     Small model which keeps track of the user viewing private topics.
@@ -297,14 +301,14 @@ class PrivateTopicRead(models.Model):
     privatepost = models.ForeignKey(PrivatePost, db_index=True)
     user = models.ForeignKey(User, related_name='privatetopics_read', db_index=True)
 
-    def __unicode__(self):
+    def __str__(self):
         """
         Human-readable representation of the PrivateTopicRead model.
 
         :return: PrivateTopicRead description
         :rtype: unicode
         """
-        return u'<Sujet « {0} » lu par {1}, #{2}>'.format(self.privatetopic, self.user, self.privatepost.pk)
+        return '<Sujet « {0} » lu par {1}, #{2}>'.format(self.privatetopic, self.user, self.privatepost.pk)
 
 
 def is_privatetopic_unread(privatetopic, user=None):
