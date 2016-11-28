@@ -75,7 +75,6 @@ class CreateContent(LoggedWithReadWriteHability, FormView):
     def get_form(self, form_class=ContentForm):
         form = super(CreateContent, self).get_form(form_class)
         form.initial["type"] = self.created_content_type
-        form.initial['licence'] = Licence.objects.get(pk=settings.ZDS_APP['content']['default_licence_pk'])
         return form
 
     def form_valid(self, form):
