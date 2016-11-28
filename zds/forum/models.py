@@ -151,6 +151,10 @@ class Forum(models.Model):
                     pk=self.pk).exists()
             else:
                 return False
+                
+    @staticmethod            
+    def has_write_permission(request):
+        return request.user.has_perm("member.change_forum")
 
 
 class Topic(models.Model):
@@ -378,6 +382,24 @@ class Topic(models.Model):
 
         return False
 
+    @staticmethod
+    def has_read_permission(request):
+        return True
+
+    def has_object_read_permission(self, request):
+        return Topic.has_read_permission(request) # TODO gerer fofo prives
+
+    @staticmethod
+    def has_write_permission(request):
+        return request.user.is_authenticated()
+
+    def has_object_write_permission(self, request):
+        return Topic.has_write_permission(request) # TODO gerer les fofo prives
+
+    def has_object_update_permission(self, request):
+        return Topic.has_write_permission(request) and (Topic.author == request.user)
+
+
 
 class Post(Comment):
     """
@@ -404,7 +426,19 @@ class Post(Comment):
             self.topic.get_absolute_url(),
             page,
             self.pk)
+            
+    @staticmethod
+    def has_write_permission(request):
+        return request.user.is_authenticated() and request.user.profile.can_write_now()
 
+    def has_object_write_permission(self, request):
+        return Topic.has_write_permission(request) 
+        # TODO verifier que ce n'est pas un forum prive
+        
+    def has_object_update_permission(self, request):
+        return self.is_author(request.user)
+        # TODO peut on editer quand un topic est ferme ?
+        # TODO a tester, l'auteur avait acces a ubn forum prive, mais ce n'est plus le cas, peut il editer ses messages
 
 class TopicRead(models.Model):
     """
@@ -425,8 +459,8 @@ class TopicRead(models.Model):
         return u'<Sujet "{0}" lu par {1}, #{2}>'.format(self.topic,
                                                         self.user,
                                                         self.post.pk)
-
-
+                                                        
+    
 def is_read(topic, user=None):
     """
     Checks if the user has read the **last post** of the topic.
