@@ -292,7 +292,12 @@ Si le token n'est plus valide ou que vous avez perdu l'``access_token`` de l'uti
 
 .. sourcecode:: bash
 
-    $ curl -X POST -d "client_id=YOUR_CLIENT_ID&client_secret=YOUR_CLIENT_SECRET&grant_type=refresh_token&refresh_token=YOUR_REFRESH_TOKEN" https://zestedesavoir.com/oauth2/token/
+    $ curl -X POST -H "Content-Type: application/json" -d '{
+            "grant_type": "refresh_token",
+            "client_id": "CLIENT_ID",
+            "client_secret": "CLIENT_SECRET",
+            "refresh_token": "YOUR_REFRESH_TOKEN"
+        }' https://zestedesavoir.com/oauth2/token/
 
 A la suite de cela, de nouveaux tokens seront renvoyés et devront être sauvegardés pour une prochaine utilisation si nécessaire.
 
