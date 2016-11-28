@@ -46,7 +46,6 @@ from zds.tutorialv2.utils import search_container_or_404, get_target_tagged_tree
     try_adopt_new_child, TooDeepContainerError, BadManifestError, get_content_from_json, init_new_repo, \
     default_slug_pool, BadArchiveError, InvalidSlugError
 from zds.utils.forums import send_post, lock_topic, create_topic, unlock_topic
-from zds.utils.models import Licence
 from zds.utils.models import HelpWriting
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView, make_pagination
@@ -75,7 +74,6 @@ class CreateContent(LoggedWithReadWriteHability, FormView):
     def get_form(self, form_class=ContentForm):
         form = super(CreateContent, self).get_form(form_class)
         form.initial["type"] = self.created_content_type
-        form.initial['licence'] = Licence.objects.get(pk=settings.ZDS_APP['content']['default_licence_pk'])
         return form
 
     def form_valid(self, form):
