@@ -24,7 +24,7 @@ from zds.utils.models import Comment, Tag
 def sub_tag(tag):
     start = tag.group('start')
     end = tag.group('end')
-    return u'{0}'.format(start + end)
+    return '{0}'.format(start + end)
 
 
 @python_2_unicode_compatible
@@ -158,6 +158,10 @@ class Forum(models.Model):
                     pk=self.pk).exists()
             else:
                 return False
+
+    @staticmethod
+    def has_write_permission(request):
+        return request.user.has_perm("member.change_forum")
 
     @property
     def has_group(self):
@@ -402,10 +406,26 @@ class Topic(AbstractESDjangoIndexable):
 
         return False
 
+    @staticmethod
+    def has_read_permission(request):
+        return True
+
+    def has_object_read_permission(self, request):
+        return Topic.has_read_permission(request) # TODO gerer fofo prives
+
+    @staticmethod
+    def has_write_permission(request):
+        return request.user.is_authenticated()
+
+    def has_object_write_permission(self, request):
+        return Topic.has_write_permission(request) # TODO gerer les fofo prives
+
+    def has_object_update_permission(self, request):
+        return Topic.has_write_permission(request) and (Topic.author == request.user)
+
     @classmethod
     def get_es_mapping(cls):
         es_mapping = super(Topic, cls).get_es_mapping()
-
         es_mapping.field('title', Text(boost=1.5))
         es_mapping.field('tags', Text(boost=2.0))
         es_mapping.field('subtitle', Text())
@@ -494,8 +514,21 @@ class Post(Comment, AbstractESDjangoIndexable):
             page,
             self.pk)
 
+    @staticmethod
+    def has_write_permission(request):
+        return request.user.is_authenticated() and request.user.profile.can_write_now()
+
     def get_notification_title(self):
         return self.topic.title
+
+    def has_object_write_permission(self, request):
+        return Topic.has_write_permission(request)
+        # TODO verifier que ce n'est pas un forum prive
+
+    def has_object_update_permission(self, request):
+        return self.is_author(request.user)
+        # TODO peut on editer quand un topic est ferme ?
+        # TODO a tester, l'auteur avait acces a ubn forum prive, mais ce n'est plus le cas, peut il editer ses messages
 
     @classmethod
     def get_es_mapping(cls):
