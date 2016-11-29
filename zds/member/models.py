@@ -6,13 +6,10 @@ import os
 import pygeoip
 
 from django.conf import settings
-from django.contrib.auth import logout
 from django.contrib.auth.models import User
-from django.contrib.sessions.models import Session
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.dispatch import receiver
-from django.http import HttpRequest
 from django.utils.translation import ugettext_lazy as _
 
 from zds.forum.models import Post, Topic
