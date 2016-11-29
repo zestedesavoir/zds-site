@@ -78,10 +78,8 @@ class TopicEditMixin(object):
             self.object.save()
 
             signals.edit_content.send(sender=self.object.__class__, instance=self.object, action='move')
-
-            messages.success(self.request,
-                             _(u"Le sujet « {0} » a bien été déplacé dans « {1} ».").format(self.object.title,
-                                                                                            forum.title))
+            message = _(u"Le sujet « {0} » a bien été déplacé dans « {1} ».").format(self.object.title, forum.title)
+            messages.success(self.request, message)
         else:
             raise PermissionDenied()
 
