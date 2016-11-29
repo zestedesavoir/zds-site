@@ -12,13 +12,13 @@ from rest_framework_extensions.etag.decorators import etag
 from rest_framework_extensions.key_constructor import bits
 from rest_framework_extensions.key_constructor.constructors import DefaultKeyConstructor
 
-from zds.api.bits import DJRF3xPaginationKeyBit, UpdatedAtKeyBit
+from zds.api.bits import UpdatedAtKeyBit
 from zds.notification.api.serializers import NotificationSerializer
 from zds.notification.models import Notification
 
 
 class PagingNotificationListKeyConstructor(DefaultKeyConstructor):
-    pagination = DJRF3xPaginationKeyBit()
+    pagination = bits.PaginationKeyBit()
     search = bits.QueryParamsKeyBit(['search', 'ordering', 'type'])
     list_sql_query = bits.ListSqlQueryKeyBit()
     unique_view_id = bits.UniqueViewIdKeyBit()

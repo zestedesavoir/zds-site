@@ -8,7 +8,7 @@ from rest_framework_extensions.key_constructor.constructors import DefaultKeyCon
 from rest_framework_extensions.cache.decorators import cache_response
 from rest_framework_extensions.etag.decorators import etag
 from rest_framework_extensions.key_constructor import bits
-from zds.api.bits import DJRF3xPaginationKeyBit, UpdatedAtKeyBit
+from zds.api.bits import UpdatedAtKeyBit
 from zds.utils.models import Comment, Tag
 from zds.utils.api.serializers import KarmaSerializer, TagSerializer
 
@@ -19,7 +19,7 @@ class KarmaView(RetrieveUpdateDestroyAPIView):
 
 
 class PagingSearchListKeyConstructor(DefaultKeyConstructor):
-    pagination = DJRF3xPaginationKeyBit()
+    pagination = bits.PaginationKeyBit()
     search = bits.QueryParamsKeyBit(['search'])
     list_sql_query = bits.ListSqlQueryKeyBit()
     unique_view_id = bits.UniqueViewIdKeyBit()
