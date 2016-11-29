@@ -158,6 +158,20 @@ class SubscriptionManager(models.Manager):
         return existing
 
 
+class NewTopicSubscriptionManager(SubscriptionManager):
+    def mark_read_everybody_at(self, topic):
+        """
+        Mark every unaccessible notifications as read.
+
+        :param topic:
+        :return:
+        """
+        subscriptions = self.get_subscriptions(topic)
+        for subscription in subscriptions:
+            if not topic.forum.can_read(subscription.user):
+                subscription.mark_notification_read()
+
+
 class TopicAnswerSubscriptionManager(SubscriptionManager):
     """
     Custom topic answer subscription manager.
