@@ -39,7 +39,7 @@ class ProfileListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ('id', 'username', 'html_url', 'is_active', 'date_joined', 'avatar_url', 'permissions')
+        fields = ('id', 'username', 'html_url', 'is_active', 'date_joined', 'last_visit', 'avatar_url', 'permissions')
 
 
 class ProfileCreateSerializer(serializers.ModelSerializer, ProfileCreate):
