@@ -3,7 +3,7 @@ from django.core.urlresolvers import reverse
 
 from zds.forum.factories import CategoryFactory, ForumFactory
 from zds.forum.models import Topic
-from zds.member.factories import StaffFactory, ProfileFactory
+from zds.member.factories import StaffProfileFactory, ProfileFactory
 from zds.notification.models import NewTopicSubscription
 
 
@@ -11,7 +11,7 @@ class ForumNotification(TestCase):
     def setUp(self):
         self.user1 = ProfileFactory().user
         self.user2 = ProfileFactory().user
-        self.staff = StaffFactory().user
+        self.staff = StaffProfileFactory().user
 
         self.category1 = CategoryFactory(position=1)
         self.forum11 = ForumFactory(category=self.category1, position_in_category=1)
