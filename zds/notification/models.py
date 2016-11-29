@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-s
+from __future__ import unicode_literals
+import logging
 from smtplib import SMTPException
 
+from django.utils.encoding import python_2_unicode_compatible
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMultiAlternatives
 from django.db import models
 from django.template.loader import render_to_string
@@ -11,11 +15,13 @@ from django.utils.translation import ugettext_lazy as _
 
 from zds import settings
 from zds.forum.models import Topic
+from zds.member.models import Profile
 from zds.notification.managers import NotificationManager, SubscriptionManager, TopicFollowedManager, \
     TopicAnswerSubscriptionManager
 from zds.utils.misc import convert_camel_to_underscore
 
 
+@python_2_unicode_compatible
 class Subscription(models.Model):
     """
     Model used to register the subscription of a user to a set of notifications (regarding a tutorial, a forum, ...)
@@ -35,8 +41,8 @@ class Subscription(models.Model):
     content_object = GenericForeignKey('content_type', 'object_id')
     last_notification = models.ForeignKey(u'Notification', related_name="last_notification", null=True, default=None)
 
-    def __unicode__(self):
-        return _(u'<Abonnement du membre "{0}" aux notifications pour le {1}, #{2}>')\
+    def __str__(self):
+        return _('<Abonnement du membre "{0}" aux notifications pour le {1}, #{2}>')\
             .format(self.user.username, self.content_type, self.object_id)
 
     def activate(self):
@@ -122,6 +128,7 @@ class SingleNotificationMixin(object):
     """
     Mixin for the subscription that can only have one active notification at a time
     """
+
     def send_notification(self, content=None, send_email=True, sender=None):
         """
         Sends the notification about the given content
@@ -171,7 +178,6 @@ class SingleNotificationMixin(object):
 
 
 class MultipleNotificationsMixin(object):
-
     def send_notification(self, content=None, send_email=True, sender=None):
         """
         Sends the notification about the given content
@@ -206,15 +212,21 @@ class MultipleNotificationsMixin(object):
             raise Exception('Object content of notification must be defined')
 
         content_notification_type = ContentType.objects.get_for_model(content)
-        try:
-            notification = Notification.objects.get(subscription=self,
-                                                    content_type__pk=content_notification_type.pk,
-                                                    object_id=content.pk, is_read=False)
-            if notification is not None:
-                notification.is_read = True
-                notification.save()
-        except Notification.DoesNotExist:
-            pass
+        notifications = list(Notification.objects.filter(subscription=self,
+                                                         content_type__pk=content_notification_type.pk,
+                                                         object_id=content.pk, is_read=False))
+        # handles cases where a same subscription lead to several notifications
+        if not notifications:
+            logging.debug("nothing to mark as read")
+            return
+        elif len(notifications) > 1:
+            logging.warning("%s notifications were find for %s/%s", len(notifications), content.type, content.title)
+            for notif in notifications[1:]:
+                notif.delete()
+
+        notification = notifications[0]
+        notification.is_read = True
+        notification.save()
 
 
 class AnswerSubscription(Subscription):
@@ -222,8 +234,9 @@ class AnswerSubscription(Subscription):
     Subscription to new answer, either in a topic, a article or a tutorial
     NOT used directly, use one of its subtype
     """
+
     def __unicode__(self):
-        return _(u'<Abonnement du membre "{0}" aux réponses au {1} #{2}>')\
+        return _(u'<Abonnement du membre "{0}" aux réponses au {1} #{2}>') \
             .format(self.user.username, self.content_type, self.object_id)
 
     def get_notification_url(self, answer):
@@ -241,7 +254,7 @@ class TopicAnswerSubscription(AnswerSubscription, SingleNotificationMixin):
     objects = TopicAnswerSubscriptionManager()
 
     def __unicode__(self):
-        return _(u'<Abonnement du membre "{0}" aux réponses au sujet #{1}>')\
+        return _(u'<Abonnement du membre "{0}" aux réponses au sujet #{1}>') \
             .format(self.user.username, self.object_id)
 
 
@@ -253,7 +266,7 @@ class PrivateTopicAnswerSubscription(AnswerSubscription, SingleNotificationMixin
     objects = SubscriptionManager()
 
     def __unicode__(self):
-        return _(u'<Abonnement du membre "{0}" aux réponses à la conversation privée #{1}>')\
+        return _(u'<Abonnement du membre "{0}" aux réponses à la conversation privée #{1}>') \
             .format(self.user.username, self.object_id)
 
 
@@ -265,7 +278,7 @@ class ContentReactionAnswerSubscription(AnswerSubscription, SingleNotificationMi
     objects = SubscriptionManager()
 
     def __unicode__(self):
-        return _(u'<Abonnement du membre "{0}" aux réponses du contenu #{1}>')\
+        return _(u'<Abonnement du membre "{0}" aux réponses du contenu #{1}>') \
             .format(self.user.username, self.object_id)
 
 
@@ -277,7 +290,7 @@ class NewTopicSubscription(Subscription, MultipleNotificationsMixin):
     objects = SubscriptionManager()
 
     def __unicode__(self):
-        return _(u'<Abonnement du membre "{0}" aux nouveaux sujets du {1} #{2}>')\
+        return _(u'<Abonnement du membre "{0}" aux nouveaux sujets du {1} #{2}>') \
             .format(self.user.username, self.content_type, self.object_id)
 
     def get_notification_url(self, topic):
@@ -305,10 +318,37 @@ class NewPublicationSubscription(Subscription, MultipleNotificationsMixin):
         return content.title
 
 
+@python_2_unicode_compatible
+class PingSubscription(AnswerSubscription, MultipleNotificationsMixin):
+    """
+    Subscription to ping of a user
+    """
+    module = _(u'Ping')
+    objects = SubscriptionManager()
+
+    def __str__(self):
+        return _(u'<Abonnement du membre "{0}" aux mentions>').format(self.profile, self.object_id)
+
+    def get_notification_title(self, answer):
+        assert hasattr(answer, 'author')
+        assert hasattr(answer, 'get_notification_title')
+
+        return _(u'{0} vous a mentionné sur {1}.').format(answer.author, answer.get_notification_title())
+
+
+def ping_url(user=None):
+    try:
+        return Profile.objects.get(user__username=user).get_absolute_url()
+    except ObjectDoesNotExist:
+        pass
+
+
+@python_2_unicode_compatible
 class Notification(models.Model):
     """
     A notification
     """
+
     class Meta:
         verbose_name = _(u'Notification')
         verbose_name_plural = _(u'Notifications')
@@ -325,9 +365,15 @@ class Notification(models.Model):
     title = models.CharField('Titre', max_length=200)
     objects = NotificationManager()
 
-    def __unicode__(self):
-        return _(u'Notification du membre "{0}" à propos de : {1} #{2} ({3})')\
+    def __str__(self):
+        return _('Notification du membre "{0}" à propos de : {1} #{2} ({3})')\
             .format(self.subscription.user, self.content_type, self.content_object.pk, self.subscription)
+
+    def __copy__(self):
+        return Notification(subscription=self.subscription, pubdate=self.pubdate, content_type=self.content_type,
+                            object_id=self.object_id, content_object=self.content_object,
+                            is_read=self.is_read, is_dead=self.is_dead,
+                            url=self.url, sender=self.sender, title=self.title)
 
     @staticmethod
     def has_read_permission(request):
@@ -356,6 +402,7 @@ class TopicFollowed(models.Model):
     def __unicode__(self):
         return u'<Sujet "{0}" suivi par {1}>'.format(self.topic.title,
                                                      self.user.username)
+
 
 # used to fix Django 1.9 Warning
 # https://github.com/zestedesavoir/zds-site/issues/3451

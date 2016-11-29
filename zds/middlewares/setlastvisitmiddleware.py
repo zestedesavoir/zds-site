@@ -1,23 +1,22 @@
 import datetime
 
-from zds import settings
+from django.contrib.auth import logout
 
+from zds import settings
 from zds.member.views import get_client_ip
 
 
 class SetLastVisitMiddleware(object):
-
     def process_response(self, request, response):
         # Update last visit time after request finished processing.
+        user = None
         try:
             if request.user.is_authenticated():
                 user = request.user
-            else:
-                user = None
         except:
-            user = None
+            pass
 
-        if user is not None:
+        if user:
             profile = request.user.profile
             if profile.last_visit is None:
                 profile.last_visit = datetime.datetime.now()
@@ -29,4 +28,6 @@ class SetLastVisitMiddleware(object):
                     profile.last_visit = datetime.datetime.now()
                     profile.last_ip_address = get_client_ip(request)
                     profile.save()
+            if not profile.can_read:
+                logout(request)
         return response

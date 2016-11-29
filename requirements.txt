@@ -4,7 +4,7 @@ pygments==2.1.3
 python-social-auth==0.2.19
 
 # Explicit dependencies (references in code)
-Django==1.8.15
+Django==1.8.16
 django-crispy-forms==1.6.0
 django-haystack==2.4.1
 django-model-utils==2.5
@@ -15,7 +15,7 @@ factory-boy==2.7.0
 pygeoip==0.3.2
 pillow==3.2.0
 gitpython==1.0.1
-https://github.com/zestedesavoir/Python-ZMarkdown/archive/2.6.0-zds.11.zip
+https://github.com/zestedesavoir/Python-ZMarkdown/archive/2.6.0-zds.16.zip
 easy-thumbnails==2.3
 CairoSVG==1.0.20
 beautifulsoup4==4.4.1

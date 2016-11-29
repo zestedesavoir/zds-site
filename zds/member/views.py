@@ -34,7 +34,7 @@ from zds.member.commons import ProfileCreate, TemporaryReadingOnlySanction, Read
 from zds.member.decorator import can_write_and_read_now
 from zds.member.forms import LoginForm, MiniProfileForm, ProfileForm, RegisterForm, \
     ChangePasswordForm, ChangeUserForm, NewPasswordForm, \
-    PromoteMemberForm, KarmaForm, UsernameAndEmailForm, ForgotPasswordForm
+    PromoteMemberForm, KarmaForm, UsernameAndEmailForm
 from zds.member.models import Profile, TokenForgotPassword, TokenRegister, KarmaNote
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.tutorialv2.models.models_database import PublishableContent
@@ -682,7 +682,7 @@ def forgot_password(request):
     """If the user forgot his password, he can have a new one."""
 
     if request.method == "POST":
-        form = ForgotPasswordForm(request.POST)
+        form = UsernameAndEmailForm(request.POST)
         if form.is_valid():
 
             # Get data from form
@@ -726,7 +726,7 @@ def forgot_password(request):
         else:
             return render(request, "member/forgot_password/index.html",
                           {"form": form})
-    form = ForgotPasswordForm()
+    form = UsernameAndEmailForm()
     return render(request, "member/forgot_password/index.html", {"form": form})
 
 
@@ -757,9 +757,8 @@ def new_password(request):
     return render(request, "member/new_password/index.html", {"form": form})
 
 
-def active_account(request):
+def activate_account(request):
     """Active token for a user."""
-
     try:
         token = request.GET["token"]
     except KeyError:
@@ -767,24 +766,21 @@ def active_account(request):
     token = get_object_or_404(TokenRegister, token=token)
     usr = token.user
 
-    # User can't confirm his request if he is already activated.
-
+    # User can't confirm their request if their account is already active
     if usr.is_active:
         return render(request, "member/register/token_already_used.html")
 
-    # User can't confirm his request if it is too late.
-
+    # User can't confirm their request if it is too late.
     if datetime.now() > token.date_end:
         return render(request, "member/register/token_failed.html",
                       {"token": token})
     usr.is_active = True
     usr.save()
 
-    # send register message
-
+    # send welcome message
     bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
     msg = render_to_string(
-        'member/messages/active_account.md',
+        'member/messages/account_activated.md',
         {
             'username': usr.username,
             'tutorials_url': settings.ZDS_APP['site']['url'] + reverse("tutorial:list"),
