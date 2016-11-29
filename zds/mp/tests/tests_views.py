@@ -564,7 +564,7 @@ class AnswerViewTest(TestCase):
 
         self.assertEqual(200, response.status_code)
         self.assertEqual(3, PrivatePost.objects.all().count())
-        self.assertContains(response, 'Luc !?')
+        self.assertContains(response, 'Luc&#x202F;!?')
 
     def test_fail_answer_with_no_right(self):
 
