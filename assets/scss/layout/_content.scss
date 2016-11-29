@@ -317,6 +317,18 @@
             padding: 0 5px;
         }
 
+        // @ping
+        .ping {
+            color: inherit;
+            font-weight: bold;
+            text-decoration: none;
+
+            &:hover,
+            &:focus {
+                text-decoration: underline;
+            }
+        }
+
         .mathjax-wrapper {
             max-width: 100%;
             overflow: auto;

@@ -853,6 +853,9 @@ class ContentReaction(Comment):
         page = int(ceil(float(self.position) / settings.ZDS_APP["content"]["notes_per_page"]))
         return '{0}?page={1}#p{2}'.format(self.related_content.get_absolute_url_online(), page, self.pk)
 
+    def get_notification_title(self):
+        return self.related_content.title
+
 
 class ContentRead(models.Model):
     """

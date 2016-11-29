@@ -515,6 +515,10 @@ ZDS_APP = {
     'topic': {
         'home_number': 6,
     },
+    'comment': {
+        'max_pings': 15,
+        'enable_pings': False,
+    },
     'featured_resource': {
         'featured_per_page': 100,
         'home_number': 5,
