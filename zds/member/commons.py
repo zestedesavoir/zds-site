@@ -11,7 +11,7 @@ from django.template.loader import render_to_string
 from django.template.defaultfilters import pluralize
 from django.utils.translation import ugettext_lazy as _
 
-from zds.member.models import Profile, TokenRegister, Ban, logout_user
+from zds.member.models import Profile, TokenRegister, Ban
 from zds.utils.mps import send_mp
 
 
@@ -307,7 +307,6 @@ class BanSanction(MemberSanctionState):
         profile.can_read = False
         profile.save()
         ban.save()
-        logout_user(profile.user.username)
 
 
 class TemporaryBanSanction(MemberSanctionState):
@@ -334,7 +333,6 @@ class TemporaryBanSanction(MemberSanctionState):
         profile.can_read = False
         profile.save()
         ban.save()
-        logout_user(profile.user.username)
 
 
 class DeleteBanSanction(MemberSanctionState):
