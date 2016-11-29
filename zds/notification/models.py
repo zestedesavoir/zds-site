@@ -15,7 +15,7 @@ from django.utils.translation import ugettext_lazy as _
 from zds import settings
 from zds.forum.models import Topic
 from zds.notification.managers import NotificationManager, SubscriptionManager, TopicFollowedManager, \
-    TopicAnswerSubscriptionManager
+    TopicAnswerSubscriptionManager, NewTopicSubscriptionManager
 from zds.utils.misc import convert_camel_to_underscore
 
 
@@ -289,7 +289,7 @@ class NewTopicSubscription(Subscription, MultipleNotificationsMixin):
     Subscription to new topics in a forum or with a tag
     """
     module = _(u'Forum')
-    objects = SubscriptionManager()
+    objects = NewTopicSubscriptionManager()
 
     def __str__(self):
         return _('<Abonnement du membre "{0}" aux nouveaux sujets du {1} #{2}>')\

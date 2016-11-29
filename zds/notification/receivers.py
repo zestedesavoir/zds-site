@@ -138,7 +138,7 @@ def edit_topic_event(sender, **kwargs):
         # If the topic is moved to a restricted forum, users who cannot read this topic any more unfollow it.
         # This avoids unreachable notifications.
         TopicAnswerSubscription.objects.unfollow_and_mark_read_everybody_at(topic)
-
+        NewTopicSubscription.objects.mark_read_everybody_at(topic)
         # If the topic is moved to a forum followed by the user, we update the subscription of the notification.
         # Otherwise, we update the notification as dead.
         content_type = ContentType.objects.get_for_model(topic)

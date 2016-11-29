@@ -65,25 +65,25 @@ class TopicEditMixin(object):
         else:
             raise PermissionDenied
 
-    @staticmethod
-    def perform_move(request, topic):
-        if request.user.has_perm("forum.change_topic"):
+    def perform_move(self):
+        if self.request.user.has_perm("forum.change_topic"):
             try:
-                forum_pk = int(request.POST.get('forum'))
-            except (KeyError, ValueError, TypeError):
-                raise Http404
+                forum_pk = int(self.request.POST.get('forum'))
+            except (KeyError, ValueError, TypeError) as e:
+                raise Http404("Forum not found", e)
             forum = get_object_or_404(Forum, pk=forum_pk)
-            topic.forum = forum
+            self.object.forum = forum
 
             # Save topic to update update_index_date
-            topic.save()
+            self.object.save()
 
-            signals.edit_content.send(sender=topic.__class__, instance=topic, action='move')
+            signals.edit_content.send(sender=self.object.__class__, instance=self.object, action='move')
 
-            messages.success(request,
-                             _(u"Le sujet « {0} » a bien été déplacé dans « {1} ».").format(topic.title, forum.title))
+            messages.success(self.request,
+                             _(u"Le sujet « {0} » a bien été déplacé dans « {1} ».").format(self.object.title,
+                                                                                            forum.title))
         else:
-            raise PermissionDenied
+            raise PermissionDenied()
 
     @staticmethod
     def perform_edit_info(topic, data, editor):
