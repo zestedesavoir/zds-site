@@ -15,7 +15,10 @@ class ForumNotification(TestCase):
 
         self.category1 = CategoryFactory(position=1)
         self.forum11 = ForumFactory(category=self.category1, position_in_category=1)
-        self.forum12 = ForumFactory(category=self.category1, position_in_category=2, groups=self.staff.groups.all())
+        self.forum12 = ForumFactory(category=self.category1, position_in_category=2)
+        for group in self.staff.groups.all():
+            self.forum12.group.add(group)
+        self.forum12.save()
 
     def test_no_dead_notif_on_moving(self):
         NewTopicSubscription.objects.get_or_create_active(self.user1, self.forum11)
