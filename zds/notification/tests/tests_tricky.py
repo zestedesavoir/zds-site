@@ -12,7 +12,7 @@ class ForumNotification(TestCase):
         self.user1 = ProfileFactory().user
         self.user2 = ProfileFactory().user
         self.staff = StaffProfileFactory().user
-
+        self.assertTrue(self.staff.has_perm("forum.change_topic"))
         self.category1 = CategoryFactory(position=1)
         self.forum11 = ForumFactory(category=self.category1, position_in_category=1)
         self.forum12 = ForumFactory(category=self.category1, position_in_category=2)
@@ -24,7 +24,7 @@ class ForumNotification(TestCase):
         NewTopicSubscription.objects.get_or_create_active(self.user1, self.forum11)
         self.assertTrue(self.client.login(username=self.user2.username, password='hostel77'))
         result = self.client.post(
-            reverse('topic-new') + '?forum={0}'.format(self.forum12.pk),
+            reverse('topic-new') + '?forum={0}'.format(self.forum11.pk),
             {
                 'title': u'Super sujet',
                 'subtitle': u'Pour tester les notifs',
@@ -39,6 +39,7 @@ class ForumNotification(TestCase):
         self.assertIsNotNone(subscription, "There must be an active subscription for now")
         self.assertIsNotNone(subscription.last_notification, "There must be a notification for now")
         self.assertFalse(subscription.last_notification.is_read)
+        self.client.logout()
         self.assertTrue(self.client.login(username=self.staff.username, password='hostel77'))
         data = {
             'move': '',
