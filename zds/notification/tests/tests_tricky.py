@@ -4,7 +4,7 @@ from django.core.urlresolvers import reverse
 from zds.forum.factories import CategoryFactory, ForumFactory
 from zds.forum.models import Topic
 from zds.member.factories import StaffProfileFactory, ProfileFactory
-from zds.notification.models import NewTopicSubscription
+from zds.notification.models import NewTopicSubscription, Notification
 
 
 class ForumNotification(TestCase):
@@ -52,4 +52,6 @@ class ForumNotification(TestCase):
         self.assertIsNotNone(subscription, "There must still be an active subscription")
         self.assertIsNotNone(subscription.last_notification,
                              "There must still be a notification as object is not removed.")
+        self.assertEqual(subscription.last_notification,
+                         Notification.objects.filter(content=topic, user=self.user1).first())
         self.assertTrue(subscription.last_notification.is_read, "As forum is not reachable, notification is read")
