@@ -166,10 +166,13 @@ class NewTopicSubscriptionManager(SubscriptionManager):
         :param topic:
         :return:
         """
-        subscriptions = self.get_subscriptions(topic)
-        for subscription in subscriptions:
-            if not topic.forum.can_read(subscription.user):
-                subscription.mark_notification_read()
+        from zds.notification.models import Notification
+        notifications = Notification.objects.filter(content_type__pk=ContentType.objects.get_for_model(topic).pk,
+                                                    object_id=topic.pk)
+        for notification in notifications:
+            if not topic.forum.can_read(notification.subscription.user):
+                notification.is_read = True
+                notification.save()
 
 
 class TopicAnswerSubscriptionManager(SubscriptionManager):

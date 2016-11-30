@@ -53,5 +53,5 @@ class ForumNotification(TestCase):
         self.assertIsNotNone(subscription.last_notification,
                              "There must still be a notification as object is not removed.")
         self.assertEqual(subscription.last_notification,
-                         Notification.objects.filter(content=topic, user=self.user1).first())
+                         Notification.objects.filter(sender=self.user2).first())
         self.assertTrue(subscription.last_notification.is_read, "As forum is not reachable, notification is read")
