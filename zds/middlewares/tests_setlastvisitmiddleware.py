@@ -6,6 +6,8 @@ from django.test import TestCase
 from django.core.urlresolvers import reverse
 from zds import settings
 from django.test.utils import override_settings
+from zds.member.models import Profile
+from django.shortcuts import get_object_or_404
 
 from zds.member.factories import ProfileFactory
 
@@ -20,8 +22,7 @@ class SetLastVisitMiddlewareTest(TestCase):
         self.user = ProfileFactory()
 
     def test_process_response(self):
-        # set last login
-        self.user.last_login = datetime.now() - timedelta(seconds=10)
+        profile_pk = self.user.pk
 
         # login
         self.assertEqual(
@@ -30,8 +31,24 @@ class SetLastVisitMiddlewareTest(TestCase):
                 password='hostel77'),
             True)
 
+        # set last login to a recent date
+        self.user.last_visit = datetime.now() - timedelta(seconds=10)
+        self.user.save()
+
         # load a page
         self.client.get(reverse('homepage'))
 
         # the date of last visit should not have been updated
-        self.assertTrue(datetime.now() - self.user.last_login > timedelta(seconds=5))
+        profile = get_object_or_404(Profile, pk=profile_pk)
+        self.assertTrue(datetime.now() - profile.last_visit > timedelta(seconds=5))
+
+        # set last login to an old date
+        self.user.last_visit = datetime.now() - timedelta(seconds=45)
+        self.user.save()
+
+        # load a page
+        self.client.get(reverse('homepage'))
+
+        # the date of last visit should have been updated
+        profile = get_object_or_404(Profile, pk=profile_pk)
+        self.assertTrue(datetime.now() - profile.last_visit < timedelta(seconds=5))
