@@ -38,16 +38,16 @@ def is_email_followed(topic):
     return TopicAnswerSubscription.objects.does_exist(user, topic, is_active=True, by_email=True)
 
 
-@register.filter('is_forum_followed')
-def is_forum_followed(forum):
+@register.filter('is_followed_for_new_topic')
+def is_followed_for_new_topic(forum_or_tag):
     user = get_current_user()
-    return NewTopicSubscription.objects.does_exist(user, forum, is_active=True)
+    return NewTopicSubscription.objects.does_exist(user, forum_or_tag, is_active=True)
 
 
-@register.filter('is_forum_email_followed')
-def is_forum_email_followed(forum):
+@register.filter('is_email_followed_for_new_topic')
+def is_email_followed_for_new_topic(forum_or_tag):
     user = get_current_user()
-    return NewTopicSubscription.objects.does_exist(user, forum, is_active=True, by_email=True)
+    return NewTopicSubscription.objects.does_exist(user, forum_or_tag, is_active=True, by_email=True)
 
 
 @register.filter('is_content_followed')

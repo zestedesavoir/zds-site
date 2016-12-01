@@ -104,7 +104,7 @@
 
 {% block sidebar_actions %}
     <li>
-    {% with forum_is_followed=forum|is_forum_followed %}
+    {% with forum_is_followed=forum|is_followed_for_new_topic %}
         {% url 'forum-topics-list' forum.category.slug forum.slug as link_follow %}
         {% if forum_is_followed %}
             {% trans "Suivre ce forum" as data_onclick %}
@@ -117,7 +117,7 @@
     {% endwith %}
     </li>
     <li>
-    {% with forum_is_email_followed=forum|is_forum_email_followed %}
+    {% with forum_is_email_followed=forum|is_email_followed_for_new_topic %}
         {% url 'forum-topics-list' forum.category.slug forum.slug as link_follow %}
         {% if forum_is_email_followed %}
             {% trans "Être notifié par courriel" as data_onclick %}

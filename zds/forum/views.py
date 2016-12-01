@@ -386,7 +386,7 @@ class FindTopic(ZdSPagingListView, SingleObjectMixin):
         return get_object_or_404(User, pk=self.kwargs.get(self.pk_url_kwarg))
 
 
-class FindTopicByTag(FilterMixin, ZdSPagingListView, SingleObjectMixin):
+class FindTopicByTag(FilterMixin, ForumEditMixin, ZdSPagingListView, SingleObjectMixin):
 
     context_object_name = 'topics'
     paginate_by = settings.ZDS_APP['forum']['topics_per_page']
@@ -399,6 +399,22 @@ class FindTopicByTag(FilterMixin, ZdSPagingListView, SingleObjectMixin):
         self.object = self.get_object()
         return super(FindTopicByTag, self).get(request, *args, **kwargs)
 
+    @method_decorator(login_required)
+    @method_decorator(can_write_and_read_now)
+    @method_decorator(transaction.atomic)
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        response = {}
+        if 'follow' in request.POST:
+            response['follow'] = self.perform_follow(self.object, request.user)
+        elif 'email' in request.POST:
+            response['email'] = self.perform_follow_by_email(self.object, request.user)
+
+        self.object.save()
+        if request.is_ajax():
+            return HttpResponse(json.dumps(response), content_type='application/json')
+        return redirect(u"{}?page={}".format(self.object.get_absolute_url(), self.page))
+
     def get_context_data(self, *args, **kwargs):
         context = super(FindTopicByTag, self).get_context_data(*args, **kwargs)
         context['topics'] = list(context['topics'].all())
@@ -406,6 +422,7 @@ class FindTopicByTag(FilterMixin, ZdSPagingListView, SingleObjectMixin):
         # "already read topic" set out of this list and MySQL does not support that type of subquery
         context.update({
             'tag': self.object,
+            'subscriber_count': NewTopicSubscription.objects.get_subscriptions(self.object).count(),
             'topic_read': TopicRead.objects.list_read_topic_pk(self.request.user, context['topics'])
         })
         return context

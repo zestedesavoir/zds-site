@@ -279,6 +279,7 @@ class Topic(AbstractESDjangoIndexable):
                 logging.getLogger('zds.forum').warn(e)
 
         self.save()
+        signals.edit_content.send(sender=self.__class__, instance=self, action='edit_tags_and_title')
 
     def last_read_post(self):
         """
