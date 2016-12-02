@@ -4,12 +4,12 @@ from datetime import datetime, timedelta
 
 from django.test import TestCase
 from django.core.urlresolvers import reverse
-from zds import settings
 from django.test.utils import override_settings
-from zds.member.models import Profile
 from django.shortcuts import get_object_or_404
 
 from zds.member.factories import ProfileFactory
+from zds.member.models import Profile
+from zds import settings
 
 
 overrided_zds_app = settings.ZDS_APP
