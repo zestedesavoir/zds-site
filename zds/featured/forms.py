@@ -13,7 +13,7 @@ class FeaturedResourceForm(forms.ModelForm):
     class Meta:
         model = FeaturedResource
 
-        fields = ['title', 'type', 'authors', 'image_url', 'url', 'pubdate']
+        fields = ['title', 'type', 'authors', 'image_url', 'url']
 
         widgets = {
             'title': forms.TextInput(
@@ -44,14 +44,15 @@ class FeaturedResourceForm(forms.ModelForm):
                 attrs={
                     'placeholder': _(u'Lien vers la ressource.')
                 }
-            ),
-
-            'pubdate': forms.DateTimeInput(
-                attrs={
-                    'placeholder': _(u'Exemple : 2016-12-25 00:00:00')
-                }
             )
         }
+
+    pubdate = forms.DateField(
+        label='Date de publication',
+        widget=forms.DateInput(attrs={
+            'class': 'date_picker_field'
+        }),
+    )
 
     major_update = forms.BooleanField(
         label=_(u'Mise à jour majeure (fera passer la Une en première position lors d\'un changement)'),
