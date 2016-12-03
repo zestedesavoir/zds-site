@@ -1,4 +1,7 @@
 # coding: utf-8
+
+from datetime import datetime
+
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, ButtonHolder
@@ -54,6 +57,12 @@ class FeaturedResourceForm(forms.ModelForm):
         }),
     )
 
+    pubtime = forms.TimeField(
+        label='Heure de publication',
+        widget=forms.TimeInput(format='%H:%M'),
+        initial='07:00'
+    )
+
     major_update = forms.BooleanField(
         label=_(u'Mise à jour majeure (fera passer la Une en première position lors d\'un changement)'),
         initial=False,
@@ -75,10 +84,32 @@ class FeaturedResourceForm(forms.ModelForm):
             Field('url'),
             Field('major_update'),
             Field('pubdate'),
+            Field('pubtime'),
             ButtonHolder(
                 StrictButton(_(u'Enregistrer'), type='submit'),
             ),
         )
+
+    def clean(self):
+        cleaned_data = super(FeaturedResourceForm, self).clean()
+
+        if 'pubdate' not in cleaned_data or not cleaned_data['pubdate']:
+            self._errors['pubdate'] = self.error_class([_(u'Vous devez fournir une date de publication !')])
+        elif 'pubtime' not in cleaned_data or not cleaned_data['pubtime']:
+            self._errors['pubtime'] = self.error_class([_(u'Vous devez fournir une heure de publication !')])
+        else:
+            date = cleaned_data['pubdate']
+            time = cleaned_data['pubtime']
+
+            publication_time = datetime(date.year, date.month, date.day, time.hour, time.minute)
+
+            if publication_time < datetime.now():
+                self.errors['pubdata'] = self.error_class([_(u'Vous ne pouvez pas publier dans le passé !')])
+                del cleaned_data['pubdate']
+            else:
+                cleaned_data['pubdate'] = publication_time
+
+            return cleaned_data
 
 
 class FeaturedMessageForm(forms.ModelForm):
