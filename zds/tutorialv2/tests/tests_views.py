@@ -8,6 +8,7 @@ import os
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import Group
+from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -4918,6 +4919,36 @@ class PublishedContentTests(TestCase):
 
         result = self.client.get(reverse('pages-index'))  # go to whatever page
         self.assertEqual(result.status_code, 200)
+
+    def test_reaction_follow_email(self):
+        settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+        self.assertEquals(0, len(mail.outbox))
+
+        profile = ProfileFactory()
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.post(reverse('content:follow-reactions', args=[self.tuto.pk]), {"email": "1"})
+        self.assertEquals(302, response.status_code)
+
+        self.assertIsNotNone(ContentReactionAnswerSubscription.objects.get_existing(
+            profile.user, self.tuto, is_active=True, by_email=True))
+
+        self.client.logout()
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # post another reaction
+        self.client.post(
+            reverse("content:add-reaction") + u'?pk={}'.format(self.tuto.pk),
+            {
+                'text': u'message',
+                'last_note': '0'
+            }, follow=True)
+
+        self.assertEquals(1, len(mail.outbox))
 
     def test_note_with_bad_param(self):
         self.assertEqual(
