@@ -328,7 +328,7 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
         elif 'sticky' in request.POST:
             self.perform_sticky(self.object, request)
         elif 'move' in request.POST:
-            self.perform_move(request, self.object)
+            self.perform_move()
 
         self.object.save()
         if request.is_ajax():

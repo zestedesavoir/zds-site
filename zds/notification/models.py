@@ -17,7 +17,7 @@ from zds import settings
 from zds.forum.models import Topic
 from zds.member.models import Profile
 from zds.notification.managers import NotificationManager, SubscriptionManager, TopicFollowedManager, \
-    TopicAnswerSubscriptionManager
+    TopicAnswerSubscriptionManager, NewTopicSubscriptionManager
 from zds.utils.misc import convert_camel_to_underscore
 
 
@@ -287,7 +287,7 @@ class NewTopicSubscription(Subscription, MultipleNotificationsMixin):
     Subscription to new topics in a forum or with a tag
     """
     module = _(u'Forum')
-    objects = SubscriptionManager()
+    objects = NewTopicSubscriptionManager()
 
     def __unicode__(self):
         return _(u'<Abonnement du membre "{0}" aux nouveaux sujets du {1} #{2}>') \
