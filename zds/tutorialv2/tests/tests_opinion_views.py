@@ -9,8 +9,7 @@ from django.test import TestCase
 from zds.gallery.factories import UserGalleryFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.settings import BASE_DIR
-from zds.tutorialv2.factories import PublishableContentFactory, ExtractFactory, LicenceFactory
-
+from zds.tutorialv2.factories import PublishableContentFactory, ExtractFactory, LicenceFactory, PublishedContentFactory
 
 overrided_zds_app = settings.ZDS_APP
 overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
@@ -58,6 +57,34 @@ class PublishedContentTests(TestCase):
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
+
+    def test_accessible_ui_for_author(self):
+        opinion = PublishedContentFactory(author_list=[self.user_author])
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+        resp = self.client.get(reverse("opinion:view", kwargs={"pk": opinion.pk, "slug": opinion.slug}))
+        self.assertInHTML("Version brouillon", resp, "Author must access its opinion directly")
+
+    def test_no_help_for_tribune(self):
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+        resp = self.client.get(reverse("content:create-opinion"))
+        self.assertContains(resp, 'class="field-notdisplayed"', "help field must not be displayed")
+
+    def test_help_for_article(self):
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+        resp = self.client.get(reverse("content:create-article"))
+        self.assertNotContains(resp, 'class="field-notdisplayed"', "help field must not be displayed")
 
     def test_opinion_publication_staff(self):
         """

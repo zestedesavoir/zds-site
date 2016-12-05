@@ -3,7 +3,9 @@
     max-width: 500px;
     margin: 20px auto;
 }
-
+input.field-notdisplayed{
+    display: none;
+}
 .main .content-container {
     .content-wrapper {
         &.article-content,
