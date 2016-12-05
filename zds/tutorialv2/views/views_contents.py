@@ -74,6 +74,11 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
     content = None
     created_content_type = 'TUTORIAL'
 
+    def get_form_kwargs(self):
+        kwargs = super(CreateContent, self).get_form_kwargs()
+        kwargs["for_tribune"] = self.created_content_type == "OPINION"
+        return kwargs
+
     def get_form(self, form_class=ContentForm):
         form = super(CreateContent, self).get_form(form_class)
         form.initial['type'] = self.created_content_type
