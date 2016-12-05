@@ -66,7 +66,7 @@ class PublishedContentTests(TestCase):
                 password='hostel77'),
             True)
         resp = self.client.get(reverse("opinion:view", kwargs={"pk": opinion.pk, "slug": opinion.slug}))
-        self.assertInHTML("Version brouillon", resp, "Author must access its opinion directly")
+        self.assertContains(resp, "Version brouillon", msg_prefix="Author must access its opinion directly")
 
     def test_no_help_for_tribune(self):
         self.assertEqual(
@@ -75,7 +75,7 @@ class PublishedContentTests(TestCase):
                 password='hostel77'),
             True)
         resp = self.client.get(reverse("content:create-opinion"))
-        self.assertContains(resp, 'class="field-notdisplayed"', "help field must not be displayed")
+        self.assertContains(resp, 'class="field-notdisplayed"', msg_prefix="help field must not be displayed")
 
     def test_help_for_article(self):
         self.assertEqual(
@@ -84,7 +84,7 @@ class PublishedContentTests(TestCase):
                 password='hostel77'),
             True)
         resp = self.client.get(reverse("content:create-article"))
-        self.assertNotContains(resp, 'class="field-notdisplayed"', "help field must not be displayed")
+        self.assertNotContains(resp, 'class="field-notdisplayed"', msg_prefix="help field must not be displayed")
 
     def test_opinion_publication_staff(self):
         """
