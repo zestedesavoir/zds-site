@@ -225,18 +225,14 @@ class ContentForm(ContainerForm):
     )
 
     helps = forms.ModelMultipleChoiceField(
-        label=_(u"Pour m'aider, je cherche un... (non disponible pour les billets)"),
+        label=_(u"Pour m'aider, je cherche un..."),
         queryset=HelpWriting.objects.all(),
         required=False,
         widget=forms.CheckboxSelectMultiple()
     )
 
-    def __init__(self, *args, **kwargs):
-        super(ContentForm, self).__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.form_class = 'content-wrapper'
-        self.helper.form_method = 'post'
-
+    def _create_layout(self, hide_help):
+        hide_class = "field-notdisplayed" if hide_help else ""
         self.helper.layout = Layout(
             Field('title'),
             Field('description'),
@@ -263,11 +259,20 @@ class ContentForm(ContainerForm):
                    u'"{% url "content:helps" %}" '
                    u'alt="aider les auteurs">la page d\'aide</a>.</p>')),
             Field('helps'),
-            Field('msg_commit'),
+            Field('msg_commit', css_class=hide_class),
             ButtonHolder(
                 StrictButton('Valider', type='submit'),
             ),
         )
+
+    def __init__(self, *args, **kwargs):
+        super(ContentForm, self).__init__(*args, **kwargs)
+        for_tribune = kwargs.get("for_tribune", False)
+
+        self.helper = FormHelper()
+        self.helper.form_class = 'content-wrapper'
+        self.helper.form_method = 'post'
+        self._create_layout(for_tribune)
 
         if 'type' in self.initial:
             self.helper['type'].wrap(
