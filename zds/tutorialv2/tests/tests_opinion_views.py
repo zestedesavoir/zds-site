@@ -15,6 +15,7 @@ overrided_zds_app = settings.ZDS_APP
 overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
 overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
 overrided_zds_app['content']['extra_content_generation_policy'] = "SYNC"
+overrided_zds_app['content']['default_licence_pk'] = 1
 
 
 class PublishedContentTests(TestCase):
@@ -84,7 +85,8 @@ class PublishedContentTests(TestCase):
                 password='hostel77'),
             True)
         resp = self.client.get(reverse("content:create-article"))
-        self.assertNotContains(resp, 'class="field-notdisplayed"', msg_prefix="help field must not be displayed")
+        self.assertEqual(200, resp.status_code, resp.body)
+        self.assertNotContains(resp, 'class="field-notdisplayed"', msg_prefix="help field must be displayed")
 
     def test_opinion_publication_staff(self):
         """
