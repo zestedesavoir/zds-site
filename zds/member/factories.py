@@ -68,6 +68,44 @@ class StaffFactory(factory.DjangoModelFactory):
         return user
 
 
+class AdminFactory(factory.DjangoModelFactory):
+    """
+    This factory creates admin User.
+    WARNING: Don't try to directly use `AdminFactory`, this didn't create associated Profile then don't work!
+    Use `AdminProfileFactory` instead.
+    """
+    class Meta:
+        model = User
+
+    username = factory.Sequence('admin{0}'.format)
+    email = factory.Sequence('firmstaff{0}@zestedesavoir.com'.format)
+    password = 'hostel77'
+    
+    is_superuser = True
+    is_staff = True
+    is_active = True
+    
+    @classmethod
+    def _prepare(cls, create, **kwargs):
+        password = kwargs.pop('password', None)
+        user = super(AdminFactory, cls)._prepare(create, **kwargs)
+        if password:
+            user.set_password(password)
+            if create:
+                user.save()
+        group_staff = Group.objects.filter(name="staff").first()
+        if group_staff is None:
+            group_staff = Group(name="staff")
+            group_staff.save()
+
+        perms = Permission.objects.all()
+        group_staff.permissions = perms
+        user.groups.add(group_staff)
+
+        user.save()
+        return user
+
+
 class ProfileFactory(factory.DjangoModelFactory):
     """
     Use this factory when you need a complete Profile for a standard user.
@@ -109,6 +147,25 @@ class StaffProfileFactory(factory.DjangoModelFactory):
     @factory.lazy_attribute
     def biography(self):
         return u'My name is {0} and I i\'m the guy who kill the bad guys '.format(self.user.username.lower())
+
+    sign = 'Please look my flavour'
+
+
+class AdminProfileFactory(factory.DjangoModelFactory):
+    """
+    Use this factory when you need a complete admin Profile for a user.
+    """
+    class Meta:
+        model = Profile
+
+    user = factory.SubFactory(AdminFactory)
+
+    last_ip_address = '192.168.2.1'
+    site = 'www.zestedesavoir.com'
+
+    @factory.lazy_attribute
+    def biography(self):
+        return u'My name is {0} and I i\'m the guy who control the guy that kill the bad guys '.format(self.user.username.lower())
 
     sign = 'Please look my flavour'
 

@@ -3,24 +3,29 @@
 from django.conf import settings
 from django.core.cache import caches
 from django.core.urlresolvers import reverse
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, User
 from rest_framework import status
 from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
 from oauth2_provider.models import Application, AccessToken
 from rest_framework_extensions.settings import extensions_api_settings
 from zds.api.pagination import REST_PAGE_SIZE, REST_MAX_PAGE_SIZE, REST_PAGE_SIZE_QUERY_PARAM
-from zds.member.factories import ProfileFactory, StaffProfileFactory, ProfileNotSyncFactory
-
+from zds.member.factories import ProfileFactory, StaffProfileFactory, AdminProfileFactory
 from zds.forum.factories import PostFactory
 from zds.forum.tests.tests_views import create_category, add_topic_in_a_forum
-from zds.member.factories import ProfileFactory
 from zds.utils.models import CommentVote
 
 
 class ForumPostKarmaAPITest(APITestCase):
     def setUp(self):
+        
         self.client = APIClient()
+        self.profile = ProfileFactory()
+
+        client_oauth2 = create_oauth2_client(self.profile.user)
+        self.client_authenticated = APIClient()
+        authenticate_client(self.client_authenticated, client_oauth2, self.profile.user.username, 'hostel77')
+
         caches[extensions_api_settings.DEFAULT_USE_CACHE].clear()
 
     def test_failure_post_karma_with_client_unauthenticated(self):
@@ -213,17 +218,37 @@ class ForumAPITest(APITestCase):
     def setUp(self):
         self.client = APIClient()
         
-        
         self.profile = ProfileFactory()
         client_oauth2 = create_oauth2_client(self.profile.user)
         client_authenticated = APIClient()
         authenticate_client(client_authenticated, client_oauth2, self.profile.user.username, 'hostel77')
+
+        self.client_admin = APIClient()
+        self.profile_admin = AdminProfileFactory()
+
+        print(self.profile_admin.user)
+        print(self.profile_admin.user.username)
+        
+        admin_user = User.objects.get(username=self.profile_admin.user.username)
+        
+        client_oauth2_admin = create_oauth2_client(self.profile_admin.user)
+        self.client_authenticated_admin = APIClient()
+        authenticate_client(self.client_authenticated_admin, client_oauth2_admin, admin_user.username, 'admin')
+
 
         caches[extensions_api_settings.DEFAULT_USE_CACHE].clear()
 
     def create_multiple_forums(self, number_of_forum=REST_PAGE_SIZE):
         for forum in xrange(0, number_of_forum):
             category, forum = create_category()
+
+    def create_multiple_forums_with_topics(self, number_of_forum=REST_PAGE_SIZE, number_of_topic=REST_PAGE_SIZE):
+        profile = ProfileFactory()
+        for forum in xrange(0, number_of_forum):
+            category, forum = create_category()
+            for topic in xrange(0, number_of_topic):
+                new_topic = add_topic_in_a_forum(forum, profile)
+
 
     def test_list_of_forums_empty(self):
         """
@@ -364,23 +389,22 @@ class ForumAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
-    def test_new_forum_with_staff(self):
+    def test_new_forum_with_admin(self):
         """
-        Tries to create a new forum with an staff user.
+        Tries to create a new forum with an admin user.
         """
         data = {
-            'titre': 'Flask',
+            'title': 'Flask',
             'subtitle': 'Flask is the best framework EVER !',
-            'categorie': '2'
+            'category': '2'
         }
 
         self.create_multiple_forums(5)
-        self.staff = StaffProfileFactory()
-        client_oauth2 = create_oauth2_client(self.staff.user)
-        self.client_authenticated_staff = APIClient()
-        authenticate_client(self.client_authenticated_staff, client_oauth2, self.staff.user.username, 'hostel77')
 
-        response = self.client_authenticated_staff.post(reverse('api:forum:list'), data)
+        authenticate_client(self.client_authenticated_admin, client_oauth2, self.admin.user.username, 'hostel77')
+                        
+        response = self.client_authenticated_admin.post(reverse('api:forum:list'), data)
+        print(response)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
 
@@ -389,11 +413,11 @@ class ForumAPITest(APITestCase):
         Tries to create two forums with the same title to see if the slug generated is different.
         """
         data = {
-            'titre': 'Flask',
+            'title': 'Flask',
             'subtitle': 'Flask is the best framework EVER !',
-            'categorie': '2'
+            'category': '2'
         }
-
+        
         self.create_multiple_forums(5)
         response = self.client_authenticated_staff.post(reverse('api:forum:list'), data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -408,7 +432,7 @@ class ForumAPITest(APITestCase):
         """
         data = {
             'subtitle': 'Flask is the best framework EVER !',
-            'categorie': '2'
+            'category': '2'
         }
         
         self.create_multiple_forums(5)
@@ -420,8 +444,8 @@ class ForumAPITest(APITestCase):
         Tries to create a new forum with an staff user, without a subtitle.
         """
         data = {
-            'titre': 'Flask',
-            'categorie': '2'
+            'title': 'Flask',
+            'category': '2'
         }
 
         self.create_multiple_forums(5)
@@ -433,15 +457,174 @@ class ForumAPITest(APITestCase):
         Tries to create a new forum with an staff user without a category.
         """
         data = {
-            'titre': 'Flask',
+            'title': 'Flask',
             'subtitle': 'Flask is the best framework EVER !',
         }
 
         self.create_multiple_forums(5)
         response = self.client_authenticated_staff.post(reverse('api:forum:list'), data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        
+
+    def test_details_forum(self):
+        """
+        Tries to get the details of a forum.
+        """
+
+        category, forum = create_category()
+        response = self.client.get(reverse('api:forum:detail', args=[forum.id]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
+    def test_details_unknown_forum(self):
+        """
+        Tries to get the details of a forum that does not exists.
+        """
+
+        self.create_multiple_forums(1)
+        response = self.client.get(reverse('api:forum:detail', args=[3]))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+# TODO Récupérer un forum prive unthaurized si anonyme ou membre, 200 sinon        
+
+#Récupérer la liste des sujets en filtrant sur l'auteur
+#Récupérer la liste des sujets en filtrant sur le tag
+#Récupérer la liste des sujets en filtrant sur le forum
+#Récupérer la liste des sujets en filtrant tag, forum, auteur
+#Idem avec un tag inexistant NE MARCHE PAS
+
+    def test_list_of_topics_empty(self):
+        """
+        Gets empty list of topics in the database.
+        """
+        response = self.client.get(reverse('api:forum:list-topic'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('count'), 0)
+        self.assertEqual(response.data.get('results'), [])
+        self.assertIsNone(response.data.get('next'))
+        self.assertIsNone(response.data.get('previous'))
+
+    def test_list_of_topics(self):
+        """
+        Gets list of topics not empty in the database.
+        """
+        self.create_multiple_forums_with_topics(1)
+        response = self.client.get(reverse('api:forum:list-topic'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('count'), REST_PAGE_SIZE)
+        self.assertEqual(len(response.data.get('results')), REST_PAGE_SIZE)
+        self.assertIsNone(response.data.get('next'))
+        self.assertIsNone(response.data.get('previous'))
+
+    def test_list_of_topics_with_several_pages(self):
+        """
+        Gets list of topics with several pages in the database.
+        """
+        self.create_multiple_forums_with_topics(1,REST_PAGE_SIZE + 1)
+
+        response = self.client.get(reverse('api:forum:list-topic'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('count'), REST_PAGE_SIZE + 1)
+        self.assertIsNotNone(response.data.get('next'))
+        self.assertIsNone(response.data.get('previous'))
+        self.assertEqual(len(response.data.get('results')), REST_PAGE_SIZE)
+
+        response = self.client.get(reverse('api:forum:list-topic') + '?page=2')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('count'), REST_PAGE_SIZE + 1)
+        self.assertIsNone(response.data.get('next'))
+        self.assertIsNotNone(response.data.get('previous'))
+        self.assertEqual(len(response.data.get('results')), 1)
+
+    def test_list_of_topics_for_a_page_given(self):
+        """
+        Gets list of topics with several pages and gets a page different that the first one.
+        """
+        self.create_multiple_forums_with_topics(1,REST_PAGE_SIZE + 1)
+
+        response = self.client.get(reverse('api:forum:list-topic') + '?page=2')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('count'), 11)
+        self.assertEqual(len(response.data.get('results')), 1)
+        self.assertIsNone(response.data.get('next'))
+        self.assertIsNotNone(response.data.get('previous'))
+
+    def test_list_of_topics_for_a_wrong_page_given(self):
+        """
+        Gets an error when the topics asks a wrong page.
+        """
+        response = self.client.get(reverse('api:forum:list-topic') + '?page=2')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_list_of_topics_with_a_custom_page_size(self):
+        """
+        Gets list of topics with a custom page size. DRF allows to specify a custom
+        size for the pagination.
+        """
+        self.create_multiple_forums_with_topics(1, REST_PAGE_SIZE * 2)
+
+        page_size = 'page_size'
+        response = self.client.get(reverse('api:forum:list-topic') + '?{}=20'.format(page_size))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('count'), 20)
+        self.assertEqual(len(response.data.get('results')), 20)
+        self.assertIsNone(response.data.get('next'))
+        self.assertIsNone(response.data.get('previous'))
+        self.assertEqual(REST_PAGE_SIZE_QUERY_PARAM, page_size)
+
+    def test_list_of_topics_with_a_wrong_custom_page_size(self):
+        """
+        Gets list of topics with a custom page size but not good according to the
+        value in settings.
+        """
+        page_size_value = REST_MAX_PAGE_SIZE + 1
+        self.create_multiple_forums_with_topics(1, page_size_value)
+
+        response = self.client.get(reverse('api:forum:list-topic') + '?page_size={}'.format(page_size_value))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('count'), page_size_value)
+        self.assertIsNotNone(response.data.get('next'))
+        self.assertIsNone(response.data.get('previous'))
+        self.assertEqual(REST_MAX_PAGE_SIZE, len(response.data.get('results')))
+        
+    def test_list_of_topics_with_forum_filter_empty(self):
+        """
+        Gets an empty list of topics in a forum.
+        """
+        self.create_multiple_forums_with_topics(1)
+        response = self.client.get(reverse('api:forum:list-topic') + '?forum=3')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('count'), 0)
+        self.assertEqual(response.data.get('results'), [])
+        self.assertIsNone(response.data.get('next'))
+        self.assertIsNone(response.data.get('previous'))
+
+    def test_list_of_topics_with_author_filter_empty(self):
+        """
+        Gets an empty list of topics created by an user.
+        """
+        self.create_multiple_forums_with_topics(1)
+        response = self.client.get(reverse('api:forum:list-topic') + '?author=6')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('count'), 0)
+        self.assertEqual(response.data.get('results'), [])
+        self.assertIsNone(response.data.get('next'))
+        self.assertIsNone(response.data.get('previous'))
+
+    # TODO ne marche pas
+    def test_list_of_topics_with_tag_filter_empty(self):
+        """
+        Gets an empty list of topics with a specific tag.
+        """
+        self.create_multiple_forums_with_topics(1)
+        response = self.client.get(reverse('api:forum:list-topic') + '?tag=ilovezozor')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('count'), 0)
+        self.assertEqual(response.data.get('results'), [])
+        self.assertIsNone(response.data.get('next'))
+        self.assertIsNone(response.data.get('previous'))
+        
 
 def create_oauth2_client(user):
     client = Application.objects.create(user=user,
