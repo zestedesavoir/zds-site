@@ -266,8 +266,9 @@ class ContentForm(ContainerForm):
         )
 
     def __init__(self, *args, **kwargs):
+        for_tribune = kwargs.pop("for_tribune", False)
         super(ContentForm, self).__init__(*args, **kwargs)
-        for_tribune = kwargs.get("for_tribune", False)
+
 
         self.helper = FormHelper()
         self.helper.form_class = 'content-wrapper'
