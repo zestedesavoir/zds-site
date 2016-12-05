@@ -269,7 +269,6 @@ class ContentForm(ContainerForm):
         for_tribune = kwargs.pop("for_tribune", False)
         super(ContentForm, self).__init__(*args, **kwargs)
 
-
         self.helper = FormHelper()
         self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
@@ -282,7 +281,7 @@ class ContentForm(ContainerForm):
 
     def clean(self):
         cleaned_data = super(ContentForm, self).clean()
-        image = cleaned_data.get('image')
+        image = cleaned_data.get('image', None)
 
         if image is not None and image.size > settings.ZDS_APP['gallery']['image_max_size']:
             self._errors['image'] = self.error_class(
