@@ -383,7 +383,7 @@ class SingleOnlineContentViewMixin(ContentTypeMixin):
             else:  # should only happen if the content is unpublished
                 raise Http404(u"La redirection est activée mais le contenu n'est pas public.")
 
-        self.is_author = self.request.user in obj.content.authors.all()
+        self.is_author = self.request.user in obj.authors.all()
         self.is_staff = self.request.user.has_perm('tutorialv2.change_publishablecontent')
 
         self.current_content_type = obj.content_type
