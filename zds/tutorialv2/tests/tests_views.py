@@ -2129,7 +2129,8 @@ class ContentTests(TestCase):
 
         subscription = NewPublicationSubscription.objects.get_existing(user=self.user_author,
                                                                        content_object=self.user_author)
-        self.assertTrue(subscription.is_active)
+        # subscription must be deactivated.
+        self.assertFalse(subscription.is_active)
         self.assertEqual(1, Notification.objects.filter(subscription=subscription, is_read=False).count())
 
         self.assertEqual(PublishedContent.objects.filter(content=tuto).count(), 1)
@@ -4240,7 +4241,7 @@ class PublishedContentTests(TestCase):
 
     def test_add_note(self):
 
-        message_to_post = u'la ZEP-12, c\'est énorme ! (CMB)'
+        message_to_post = u'la ZEP-12'
 
         self.assertEqual(
             self.client.login(
@@ -4971,8 +4972,8 @@ class PublishedContentTests(TestCase):
         article = PublishedContentFactory(author_list=[self.user_author], type="ARTICLE")
         new_user = ProfileFactory().user
         new_reaction = ContentReaction(related_content=article, position=1)
-        new_reaction.update_content("I will find you. And I will Kill you.")
         new_reaction.author = self.user_guest
+        new_reaction.update_content("I will find you. And I will Kill you.")
 
         new_reaction.save()
         self.assertEqual(
@@ -5000,8 +5001,8 @@ class PublishedContentTests(TestCase):
 
         # add note :
         reaction = ContentReaction(related_content=tuto, position=1)
-        reaction.update_content(text)
         reaction.author = self.user_guest
+        reaction.update_content(text)
         reaction.save()
 
         self.assertEqual(

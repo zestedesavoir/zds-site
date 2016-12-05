@@ -2,18 +2,14 @@
 
 from datetime import datetime
 from hashlib import md5
-from importlib import import_module
 import os
 import pygeoip
 
 from django.conf import settings
-from django.contrib.auth import logout
 from django.contrib.auth.models import User
-from django.contrib.sessions.models import Session
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.dispatch import receiver
-from django.http import HttpRequest
 from django.utils.translation import ugettext_lazy as _
 
 from zds.forum.models import Post, Topic
@@ -299,8 +295,8 @@ class Profile(models.Model):
     def get_posts(self):
         return Post.objects.filter(author=self.user).all()
 
-    def get_invisible_posts_count(self):
-        return Post.objects.filter(is_visible=False, author=self.user).count()
+    def get_hidden_by_staff_posts_count(self):
+        return Post.objects.filter(is_visible=False, author=self.user).exclude(editor=self.user).count()
 
     # TODO: improve this method's name?
     def get_alerts_posts_count(self):
@@ -481,24 +477,4 @@ class KarmaNote(models.Model):
     pubdate = models.DateTimeField('Date d\'ajout', auto_now_add=True)
 
     def __unicode__(self):
-        return u"{0} - note : {1} ({2}) ".format(self.user.username, self.comment, self.pubdate)
-
-
-def logout_user(username):
-    """
-    Logout the member.
-    :param username: the name of the user to logout.
-    """
-    now = datetime.now()
-    request = HttpRequest()
-
-    sessions = Session.objects.filter(expire_date__gt=now)
-    user = User.objects.get(username=username)
-
-    for session in sessions:
-        user_id = session.get_decoded().get('_auth_user_id')
-        if user.id == user_id:
-            engine = import_module(settings.SESSION_ENGINE)
-            request.session = engine.SessionStore(session.session_key)
-            logout(request)
-            break
+        return u"{0} - note : {1} ({2}) ".format(self.user.username, self.comment, self.create_at)

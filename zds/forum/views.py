@@ -25,6 +25,7 @@ from zds.forum.commons import TopicEditMixin, PostEditMixin, SinglePostObjectMix
 from zds.forum.forms import TopicForm, PostForm, MoveTopicForm
 from zds.forum.models import Category, Forum, Topic, Post, is_read, mark_read, TopicRead
 from zds.member.decorator import can_write_and_read_now
+from zds.notification import signals
 from zds.notification.models import NewTopicSubscription, TopicAnswerSubscription
 from zds.utils import slugify
 from zds.utils.forums import create_topic, send_post, CreatePostView
@@ -81,6 +82,7 @@ class ForumTopicsListView(FilterMixin, ForumEditMixin, ZdSPagingListView, Update
         response = {}
         if 'follow' in request.POST:
             response['follow'] = self.perform_follow(self.object, request.user)
+            response['subscriberCount'] = NewTopicSubscription.objects.get_subscriptions(self.object).count()
         elif 'email' in request.POST:
             response['email'] = self.perform_follow_by_email(self.object, request.user)
 
@@ -98,6 +100,13 @@ class ForumTopicsListView(FilterMixin, ForumEditMixin, ZdSPagingListView, Update
                 context['filter']))
         # we need to load it in memory because later we will get the
         # "already read topic" set out of this list and MySQL does not support that type of subquery
+
+        # Add a topic.is_followed attribute
+        followed_query_set = TopicAnswerSubscription.objects.get_objects_followed_by(self.request.user.id)
+        followed_topics = list(set(followed_query_set) & set(context['topics'] + sticky))
+        for topic in set(context['topics'] + sticky):
+            topic.is_followed = topic in followed_topics
+
         context.update({
             'forum': self.object,
             'sticky_topics': sticky,
@@ -148,9 +157,11 @@ class TopicPostsListView(ZdSPagingListView, SingleObjectMixin):
         context = super(TopicPostsListView, self).get_context_data(**kwargs)
         form = PostForm(self.object, self.request.user)
         form.helper.form_action = reverse('post-new') + '?sujet=' + str(self.object.pk)
+
+        posts = self.build_list_with_previous_item(context['object_list'])
         context.update({
             'topic': self.object,
-            'posts': self.build_list_with_previous_item(context['object_list']),
+            'posts': posts,
             'last_post_pk': self.object.last_message.pk,
             'form': form,
             'form_move': MoveTopicForm(topic=self.object),
@@ -173,6 +184,8 @@ class TopicPostsListView(ZdSPagingListView, SingleObjectMixin):
             context['user_can_modify'] = [post.pk for post in context['posts'] if post.author == self.request.user]
 
         if self.request.user.is_authenticated():
+            for post in posts:
+                signals.content_read.send(sender=post.__class__, instance=post, user=self.request.user)
             if not is_read(self.object):
                 mark_read(self.object)
         return context
@@ -305,6 +318,7 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
         response = {}
         if 'follow' in request.POST:
             response['follow'] = self.perform_follow(self.object, request.user).is_active
+            response['subscriberCount'] = TopicAnswerSubscription.objects.get_subscriptions(self.object).count()
         elif 'email' in request.POST:
             response['email'] = self.perform_follow_by_email(self.object, request.user).is_active
         elif 'solved' in request.POST:

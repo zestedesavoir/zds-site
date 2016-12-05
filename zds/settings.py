@@ -471,7 +471,7 @@ ZDS_APP = {
     'tutorial': {
         'repo_path': os.path.join(BASE_DIR, 'tutoriels-private'),
         'repo_public_path': os.path.join(BASE_DIR, 'tutoriels-public'),
-        'default_license_pk': 7,
+        'default_licence_pk': 7,
         'home_number': 4,
         'helps_per_page': 20,
         'content_per_page': 42,
@@ -514,6 +514,10 @@ ZDS_APP = {
     },
     'topic': {
         'home_number': 6,
+    },
+    'comment': {
+        'max_pings': 15,
+        'enable_pings': False,
     },
     'featured_resource': {
         'featured_per_page': 100,
