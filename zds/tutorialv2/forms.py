@@ -233,6 +233,14 @@ class ContentForm(ContainerForm):
 
     def _create_layout(self, hide_help):
         hide_class = "field-notdisplayed" if hide_help else ""
+        html_part = HTML(_(u"<p>Demander de l'aide à la communauté !<br>"
+                   u"Si vous avez besoin d'un coup de main, "
+                   u"sélectionnez une ou plusieurs catégories d'aide ci-dessous "
+                   u"et votre contenu apparaîtra alors sur <a href="
+                   u"\"{% url \"content:helps\" %}\" "
+                   u"alt=\"aider les auteurs\">la page d'aide</a>.</p>"))
+        if hide_help:
+            html_part = HTML("")
         self.helper.layout = Layout(
             Field('title'),
             Field('description'),
@@ -252,14 +260,9 @@ class ContentForm(ContainerForm):
             Field('last_hash'),
             Field('licence'),
             Field('subcategory', template='crispy/checkboxselectmultiple.html'),
-            HTML(_(u"<p>Demander de l'aide à la communauté !<br>"
-                   u"Si vous avez besoin d'un coup de main, "
-                   u"sélectionnez une ou plusieurs catégories d'aide ci-dessous "
-                   u'et votre contenu apparaîtra alors sur <a href='
-                   u'"{% url "content:helps" %}" '
-                   u'alt="aider les auteurs">la page d\'aide</a>.</p>')),
-            Field('helps'),
-            Field('msg_commit', css_class=hide_class),
+            html_part,
+            Field('helps', css_class=hide_class),
+            Field('msg_commit'),
             ButtonHolder(
                 StrictButton('Valider', type='submit'),
             ),

@@ -21,6 +21,7 @@ overrided_zds_app['content']['extra_content_generation_policy'] = "NONE"
 @override_settings(ZDS_APP=overrided_zds_app)
 class PublishedContentTests(TestCase):
     def setUp(self):
+        overrided_zds_app['member']['bot_account'] = ProfileFactory().user.username
         self.licence = LicenceFactory()
         overrided_zds_app['content']['default_licence_pk'] = LicenceFactory().pk
         self.user_author = ProfileFactory().user
@@ -78,7 +79,7 @@ class PublishedContentTests(TestCase):
                 password='hostel77'),
             True)
         resp = self.client.get(reverse("content:create-opinion"))
-        self.assertContains(resp, 'class="field-notdisplayed"', msg_prefix="help field must not be displayed")
+        self.assertContains(resp, 'field-notdisplayed', msg_prefix="help field must not be displayed")
 
     def test_help_for_article(self):
         self.assertEqual(
