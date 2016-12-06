@@ -1,5 +1,4 @@
 # coding: utf-8
-from datetime import datetime
 import logging
 import json as json_reader
 import os
