@@ -4,7 +4,6 @@ from django.utils.encoding import python_2_unicode_compatible
 import logging
 from smtplib import SMTPException
 
-from django.utils.encoding import python_2_unicode_compatible
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
