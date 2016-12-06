@@ -60,7 +60,7 @@ class PublishedContentTests(TestCase):
         self.assertEqual(result.status_code, 302)
 
     def test_accessible_ui_for_author(self):
-        opinion = PublishedContentFactory(author_list=[self.user_author])
+        opinion = PublishedContentFactory(author_list=[self.user_author], type="OPINION")
         self.assertEqual(
             self.client.login(
                 username=self.user_author.username,
@@ -85,7 +85,7 @@ class PublishedContentTests(TestCase):
                 password='hostel77'),
             True)
         resp = self.client.get(reverse("content:create-article"))
-        self.assertEqual(200, resp.status_code, resp.body)
+        self.assertEqual(200, resp.status_code)
         self.assertNotContains(resp, 'class="field-notdisplayed"', msg_prefix="help field must be displayed")
 
     def test_opinion_publication_staff(self):

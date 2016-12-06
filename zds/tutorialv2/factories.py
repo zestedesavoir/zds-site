@@ -176,6 +176,7 @@ class PublishedContentFactory(PublishableContentFactory):
         published = publish_content(content, content.load_version(), is_major_update)
         content.sha_public = content.sha_draft
         content.public_version = published
+
         content.save()
 
         return content
