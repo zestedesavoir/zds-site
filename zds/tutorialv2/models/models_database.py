@@ -391,7 +391,7 @@ class PublishableContent(models.Model):
 
         attrs = [
             'pk', 'authors', 'subcategory', 'image', 'creation_date', 'pubdate', 'update_date', 'source',
-            'sha_draft', 'sha_beta', 'sha_validation', 'sha_public', 'tags', 'sha_approved',
+            'sha_draft', 'sha_beta', 'sha_validation', 'sha_public', 'tags', 'sha_approved', 'type',
             'promotion_content'
         ]
 
