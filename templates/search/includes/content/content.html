@@ -1,5 +1,6 @@
 {% load highlight %}
 {% load date %}
+{% load i18n %}
 
 <article class="content-item expand-description tutorial-item">
     <a href="{{ result.object.url_to_redirect }}" title="{{ result.object.title }}">
@@ -24,9 +25,11 @@
             <div class="content-meta" title="Publié le {{ result.object.pubdate }}">
                 <p>
                     {% if result.type == 'tutorial' %}
-                        Tutoriel
-                    {% else %}
-                        Article
+                        {% trans 'Tutoriel' %}
+                    {% elif result.type|lower == 'article' %}
+                        {% trans 'Article' %}
+                    {% elif result.type|lower == 'opinion' %}
+                        {% trans 'Tribune libre' %}
                     {% endif %}
 
                 -
