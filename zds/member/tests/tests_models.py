@@ -193,7 +193,8 @@ class MemberModelsTest(TestCase):
         self.assertEqual(len(articles), 0)
         # Should be 1
         PublishedContentFactory(author_list=[self.user1.user], type='Article')
-        self.assertEqual(len(self.user1.get_public_tutos()), 1)
+        self.assertEqual(len(self.user1.get_public_articles()), 1)
+        self.assertEqual(len(self.user1.get_public_tutos()), 0)
 
     def test_get_validate_articles(self):
         # Start with 0
