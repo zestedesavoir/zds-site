@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User, Group
 from django.template.context_processors import csrf
 from django.core.exceptions import PermissionDenied
@@ -590,6 +590,7 @@ def articles(request):
 
 @can_write_and_read_now
 @login_required
+@permission_required('member.change_profile')
 def settings_mini_profile(request, user_name):
     """Minimal settings of users for staff."""
 
