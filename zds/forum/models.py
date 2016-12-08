@@ -1,5 +1,6 @@
 # coding: utf-8
-
+from __future__ import unicode_literals
+from django.utils.encoding import python_2_unicode_compatible
 import logging
 from datetime import datetime, timedelta
 from math import ceil
@@ -23,6 +24,7 @@ def sub_tag(tag):
     return u"{0}".format(start + end)
 
 
+@python_2_unicode_compatible
 class Category(models.Model):
     """
     A Category is a simple container for Forums.
@@ -44,7 +46,7 @@ class Category(models.Model):
                             "d'URL et sont donc interdits : notifications "
                             "resolution_alerte sujet sujets message messages")
 
-    def __unicode__(self):
+    def __str__(self):
         """Textual form of a category."""
         return self.title
 
@@ -68,6 +70,7 @@ class Category(models.Model):
         return forums_pub
 
 
+@python_2_unicode_compatible
 class Forum(models.Model):
     """
     A Forum, containing Topics. It can be public or restricted to some groups.
@@ -93,7 +96,7 @@ class Forum(models.Model):
     slug = models.SlugField(max_length=80, unique=True)
     objects = ForumManager()
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     def get_absolute_url(self):
@@ -153,6 +156,7 @@ class Forum(models.Model):
                 return False
 
 
+@python_2_unicode_compatible
 class Topic(models.Model):
     """
     A Topic is a thread of posts.
@@ -194,7 +198,7 @@ class Topic(models.Model):
 
     objects = TopicManager()
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     def get_absolute_url(self):
@@ -379,6 +383,7 @@ class Topic(models.Model):
         return False
 
 
+@python_2_unicode_compatible
 class Post(Comment):
     """
     A forum post written by an user.
@@ -391,8 +396,8 @@ class Post(Comment):
     is_useful = models.BooleanField('Est utile', default=False)
     objects = PostManager()
 
-    def __unicode__(self):
-        return u'<Post pour "{0}", #{1}>'.format(self.topic, self.pk)
+    def __str__(self):
+        return '<Post pour "{0}", #{1}>'.format(self.topic, self.pk)
 
     def get_absolute_url(self):
         """
@@ -409,6 +414,7 @@ class Post(Comment):
         return self.topic.title
 
 
+@python_2_unicode_compatible
 class TopicRead(models.Model):
     """
     This model tracks the last post read in a topic by a user.
@@ -424,10 +430,10 @@ class TopicRead(models.Model):
     user = models.ForeignKey(User, related_name='topics_read', db_index=True)
     objects = TopicReadManager()
 
-    def __unicode__(self):
-        return u'<Sujet "{0}" lu par {1}, #{2}>'.format(self.topic,
-                                                        self.user,
-                                                        self.post.pk)
+    def __str__(self):
+        return '<Sujet "{0}" lu par {1}, #{2}>'.format(self.topic,
+                                                       self.user,
+                                                       self.post.pk)
 
 
 def is_read(topic, user=None):

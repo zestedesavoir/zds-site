@@ -1,5 +1,6 @@
 # coding: utf-8
-
+from __future__ import unicode_literals
+from django.utils.encoding import python_2_unicode_compatible
 import os
 from string import lower
 from uuid import uuid4
@@ -39,6 +40,7 @@ def image_path(instance, filename):
     return os.path.join('galleries', str(instance.gallery.pk), filename)
 
 
+@python_2_unicode_compatible
 class UserGallery(models.Model):
     """A gallery of images created by a user."""
 
@@ -55,13 +57,13 @@ class UserGallery(models.Model):
     gallery = models.ForeignKey('Gallery', verbose_name=_(u'Galerie'), db_index=True)
     mode = models.CharField(max_length=1, choices=MODE_CHOICES, default=GALLERY_READ)
 
-    def __unicode__(self):
+    def __str__(self):
         """Human-readable representation of the UserGallery model.
 
         :return: UserGalley description
         :rtype: unicode
         """
-        return _(u'Galerie « {0} » de {1}').format(self.gallery, self.user)
+        return _('Galerie « {0} » de {1}').format(self.gallery, self.user)
 
     def can_write(self):
         """Check if user can write in the gallery.
@@ -88,6 +90,7 @@ class UserGallery(models.Model):
         return Image.objects.filter(gallery=self.gallery).order_by('update').all()
 
 
+@python_2_unicode_compatible
 class Image(models.Model):
     """Represent an image in database"""
 
@@ -99,14 +102,14 @@ class Image(models.Model):
     title = models.CharField(_(u'Titre'), max_length=80)
     slug = models.SlugField(max_length=80)
     physical = ThumbnailerImageField(upload_to=image_path, max_length=200)
-    legend = models.CharField(_(u'Légende'), max_length=80, null=True, blank=True)
+    legend = models.CharField(_('Légende'), max_length=80, null=True, blank=True)
     pubdate = models.DateTimeField(_(u'Date de création'), auto_now_add=True, db_index=True)
     update = models.DateTimeField(_(u'Date de modification'), null=True, blank=True)
 
     def __init__(self, *args, **kwargs):
         super(Image, self).__init__(*args, **kwargs)
 
-    def __unicode__(self):
+    def __str__(self):
         """Human-readable representation of the Image model.
 
         :return: Image slug
@@ -143,6 +146,7 @@ def auto_delete_file_on_delete(sender, instance, **kwargs):
         thumbmanager.delete(save=False)
 
 
+@python_2_unicode_compatible
 class Gallery(models.Model):
 
     class Meta:
@@ -155,7 +159,7 @@ class Gallery(models.Model):
     pubdate = models.DateTimeField(_(u'Date de création'), auto_now_add=True, db_index=True)
     update = models.DateTimeField(_(u'Date de modification'), null=True, blank=True)
 
-    def __unicode__(self):
+    def __str__(self):
         """Human-readable representation of the Gallery model.
 
         :return: Gallery title
