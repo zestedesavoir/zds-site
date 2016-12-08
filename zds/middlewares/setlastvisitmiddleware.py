@@ -2,6 +2,7 @@ import datetime
 
 from django.contrib.auth import logout
 
+from zds import settings
 from zds.member.views import get_client_ip
 
 
@@ -23,7 +24,7 @@ class SetLastVisitMiddleware(object):
                 profile.save()
             else:
                 duration = datetime.datetime.now() - profile.last_visit
-                if duration.seconds > 600:
+                if duration.seconds > settings.ZDS_APP['member']['update_last_visit_interval']:
                     profile.last_visit = datetime.datetime.now()
                     profile.last_ip_address = get_client_ip(request)
                     profile.save()
