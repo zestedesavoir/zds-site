@@ -1,0 +1,17 @@
+{% extends "email/base_from_staff.html" %}
+
+{% load i18n %}
+
+{% block content_from_staff %}
+    <p>
+        {% blocktrans %}
+        <strong>{{ author }}</strong> a réagi au contenu « {{ title }} » que vous suivez sur {{ site_name }}.
+        {% endblocktrans %}
+    </p>
+
+    <p>
+        {% blocktrans %}
+        Pour le lire, <a href="{{ url }}">cliquez ici</a>.
+        {% endblocktrans %}
+    </p>
+{% endblock %}
