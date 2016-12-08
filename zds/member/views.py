@@ -592,7 +592,7 @@ def articles(request):
 @login_required
 def settings_mini_profile(request, user_name):
     """Minimal settings of users for staff."""
-    
+
     if not request.user.has_perm('member.change_profile'):
         raise PermissionDenied
 
