@@ -223,8 +223,18 @@ class MemberTests(TestCase):
         self.assertEqual(result.status_code, 200)
 
     def test_modify_member(self):
+        user = ProfileFactory().user
 
-        # we need staff right for update other profile
+        # we need staff right for update other profile, so a member who is not staff can't access to the page
+        self.client.logout()
+        self.client.login(username=user.username, password="hostel77")
+
+        result = self.client.get(
+            reverse('member-settings-mini-profile', args=["xkcd"]),
+            follow=False
+        )
+        self.assertEqual(result.status_code, 403)
+
         self.client.logout()
         self.client.login(username=self.staff.username, password='hostel77')
 
