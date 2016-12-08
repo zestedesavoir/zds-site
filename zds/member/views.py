@@ -593,6 +593,9 @@ def articles(request):
 def settings_mini_profile(request, user_name):
     """Minimal settings of users for staff."""
 
+    if not request.user.has_perm('member.change_profile'):
+        raise PermissionDenied
+
     # extra information about the current user
     profile = get_object_or_404(Profile, user__username=user_name)
     if request.method == "POST":
