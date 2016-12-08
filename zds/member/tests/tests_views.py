@@ -50,7 +50,6 @@ class MemberTests(TestCase):
             category=self.category1,
             position_in_category=1)
         self.staff = StaffProfileFactory().user
-        self.user = ProfileFactory().user
 
         self.bot = Group(name=settings.ZDS_APP["member"]["bot_group"])
         self.bot.save()
@@ -220,9 +219,11 @@ class MemberTests(TestCase):
         self.assertEqual(result.status_code, 200)
 
     def test_modify_member(self):
+        user = ProfileFactory().user
+
         # we need staff right for update other profile, so a member who is not staff can't access to the page
         self.client.logout()
-        self.client.login(username=self.user.username, password="hostel77")
+        self.client.login(username=user.username, password="hostel77")
 
         result = self.client.get(
             reverse('member-settings-mini-profile', args=["xkcd"]),
