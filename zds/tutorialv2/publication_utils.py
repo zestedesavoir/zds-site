@@ -21,10 +21,12 @@ from zds.utils.templatetags.emarkdown import emarkdown
 
 
 def publish_content(db_object, versioned, is_major_update=True):
-    """Publish a given content.
+    """
+    Publish a given content.
 
-    Note: create a manifest.json without the introduction and conclusion if not needed. Also remove the "text" field
-    of extracts.
+    .. note::
+        create a manifest.json without the introduction and conclusion if not needed. Also remove the "text" field
+        of extracts.
 
     :param db_object: Database representation of the content
     :type db_object: PublishableContent
@@ -149,13 +151,14 @@ def publish_content(db_object, versioned, is_major_update=True):
 
 
 def generate_exernal_content(base_name, extra_contents_path, md_file_path, pandoc_debug_str, overload_settings=False):
-    """generate all static file that allow offline access to content
+    """
+    generate all static file that allow offline access to content
 
     :param base_name: base nae of file (without extension)
     :param extra_contents_path: internal directory where all files will be pushed
     :param md_file_path: bundled markdown file path
     :param pandoc_debug_str: *specific to pandoc publication : avoid subprocess to be errored*
-    :param overload_settings: this option force the function to generate all registered formats even when settings
+    :param overload_settings: this option force the function to generate all registered formats even when settings \
     ask for PDF not to be published
     :return:
     """
@@ -199,12 +202,9 @@ class PublicatorRegistery:
     @classmethod
     def unregister(cls, name):
         """
-        Remove Publicator registered at name if exists, run silently otherwise
-        Args:
-            name:
+        Remove Publicator registered at name if exists, run silently otherwise.
 
-        Returns:
-
+        :param name: publicator name.
         """
         if name in cls.registry:
             del cls.registry[name]
@@ -212,9 +212,11 @@ class PublicatorRegistery:
     @classmethod
     def get(cls, name):
         """
-        get publicator with required name
+        get publicator with required name.
+
         :param name:
-        :return:
+        :return: the wanted publicator
+        :rtype: Publicator
         :raise KeyError: if name is not registered
         """
         return cls.registry[name]
@@ -224,6 +226,7 @@ class Publicator:
     """
     Publicator base object, all methods must be overriden
     """
+
     def publish(self, md_file_path, base_name, **kwargs):
         """called function to generate a content export
 

@@ -611,10 +611,11 @@ class InvalidSlugError(ValueError):
 
 
 def check_slug(slug):
-    """If the title is incorrect (only special chars so slug is empty)
+    """
+    If the title is incorrect (only special chars so slug is empty).
 
     :param slug: slug to test
-    :type slug; str
+    :type slug: str
     :return: `True` if slug is valid, false otherwise
     :rtype: bool
     """
@@ -632,15 +633,16 @@ def check_slug(slug):
 
 
 def slugify_raise_on_invalid(title, use_old_slugify=False):
-    """use uuslug to generate a slug but if the title is incorrect (only special chars or slug is empty), an exception
+    """
+    use uuslug to generate a slug but if the title is incorrect (only special chars or slug is empty), an exception
     is raised.
 
     :param title: to be slugified title
     :type title: str
-    :param use_old_slugify: use the function `slugify()` defined in zds.utils instead of the one in uuslug. Usefull
+    :param use_old_slugify: use the function `slugify()` defined in zds.utils instead of the one in uuslug. Usefull \
     for retro-compatibility with the old article/tutorial module, SHOULD NOT be used for the new one !
     :type use_old_slugify: bool
-    :raise InvalidSlugError: on incorrect slug:
+    :raise InvalidSlugError: on incorrect slug
     :return: the slugified title
     :rtype: str
     """
