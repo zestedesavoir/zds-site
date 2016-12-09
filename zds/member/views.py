@@ -606,6 +606,7 @@ def settings_mini_profile(request, user_name):
             'sign': profile.sign,
         })
         data = {'form': form, 'profile': profile}
+        messages.warning(request, _(u'Le profil que vous éditez n\'est pas le vôtre. Soyez encore plus prudent lors de l\'édition de celui-ci !'))
         return render(request, 'member/settings/profile.html', data)
 
 
