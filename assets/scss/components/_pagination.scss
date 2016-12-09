@@ -44,7 +44,7 @@
 
         &.prev a,
         &.next a,
-        &.sommaire a {
+        &.summary-button a {
             padding: 0 15px;
         }
 
@@ -68,7 +68,7 @@
                 }
             }
         }
-        &.sommaire {
+        &.summary-button {
             position: absolute;
             left: 47%;
             display: none;
@@ -128,7 +128,7 @@
 @media only screen and #{$media-mobile-tablet} {
     .pagination {
         li {
-            &.sommaire {
+            &.summary-button {
                 display: none;
             }
         }
