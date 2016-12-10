@@ -2,6 +2,9 @@
 from __future__ import unicode_literals
 from django.utils.encoding import python_2_unicode_compatible
 from datetime import datetime
+
+from zds.tutorialv2.models.mixins import TemplatableContentModelMixin, OnlineLinkableContentMixin
+
 try:
     import ujson as json_reader
 except ImportError:
@@ -43,7 +46,7 @@ ALLOWED_TYPES = ['pdf', 'md', 'html', 'epub', 'zip']
 
 
 @python_2_unicode_compatible
-class PublishableContent(models.Model):
+class PublishableContent(models.Model, TemplatableContentModelMixin):
     """A publishable content.
 
     A PublishableContent retains metadata about a content in database, such as
@@ -59,6 +62,7 @@ class PublishableContent(models.Model):
         verbose_name = 'Contenu'
         verbose_name_plural = 'Contenus'
 
+    content_type_attribute = 'type'
     title = models.CharField('Titre', max_length=80)
     slug = models.CharField('Slug', max_length=80)
     description = models.CharField('Description', max_length=200)
@@ -155,15 +159,6 @@ class PublishableContent(models.Model):
         if update_date:
             self.update_date = datetime.now()
         super(PublishableContent, self).save(*args, **kwargs)
-
-    def get_absolute_url(self):
-        """NOTE: it's better to use the version contained in `VersionedContent`, if possible !
-
-        :return: absolute URL to the draf version the content
-        :rtype: str
-        """
-
-        return reverse('content:view', kwargs={'pk': self.pk, 'slug': self.slug})
 
     def get_absolute_url_beta(self):
         """NOTE: it's better to use the version contained in `VersionedContent`, if possible !
@@ -273,27 +268,6 @@ class PublishableContent(models.Model):
         :rtype: bool
         """
         return self.in_public() and sha == self.sha_public
-
-    def is_article(self):
-        """
-        :return: ``True`` if article, ``False`` otherwise
-        :rtype: bool
-        """
-        return self.type == 'ARTICLE'
-
-    def is_tutorial(self):
-        """
-        :return: ``True`` if tutorial, ``False`` otherwise
-        :rtype: bool
-        """
-        return self.type == 'TUTORIAL'
-
-    def is_opinion(self):
-        """
-        :return: ``True`` if opinion, ``False`` otherwise
-        :rtype: bool
-        """
-        return self.type == 'OPINION'
 
     def load_version_or_404(self, sha=None, public=None):
         """Using git, load a specific version of the content. if `sha` is `None`, the draft/public version is used (if
@@ -571,7 +545,7 @@ def delete_gallery(sender, instance, **kwargs):
 
 
 @python_2_unicode_compatible
-class PublishedContent(models.Model):
+class PublishedContent(models.Model, TemplatableContentModelMixin, OnlineLinkableContentMixin):
     """A class that contains information on the published version of a content.
 
     Used for quick url resolution, quick listing, and to know where the public version of the files are.
@@ -625,14 +599,6 @@ class PublishedContent(models.Model):
         else:
             return ''
 
-    def get_absolute_url_online(self):
-        """
-        :return: the URL of the published content
-        :rtype: str
-        """
-        content_type = self.content_type.lower()
-        return reverse('{}:view'.format(content_type), kwargs={'pk': self.content_pk, 'slug': self.content_public_slug})
-
     def load_public_version_or_404(self):
         """
         :return: the public content
@@ -649,27 +615,6 @@ class PublishedContent(models.Model):
         """
         self.versioned_model = self.content.load_version(sha=self.sha_public, public=self)
         return self.versioned_model
-
-    def is_article(self):
-        """
-        :return: ``True`` if it is an article, ``False`` otherwise.
-        :rtype: bool
-        """
-        return self.content_type == 'ARTICLE'
-
-    def is_tutorial(self):
-        """
-        :return: ``True`` if it is an article, ``False`` otherwise.
-        :rtype: bool
-        """
-        return self.content_type == 'TUTORIAL'
-
-    def is_opinion(self):
-        """
-        :return: ``True`` if it is an opinion, ``False`` otherwise.
-        :rtype: bool
-        """
-        return self.content_type == 'OPINION'
 
     def get_extra_contents_directory(self):
         """
