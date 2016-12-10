@@ -762,7 +762,7 @@ class Container:
         """
         return self.type in CONTENT_TYPES_BETA
 
-    def required_validation_before(self):
+    def requires_validation_before(self):
         """
         Check if content required a validation before publication.
         Used to check if JsFiddle is available too.

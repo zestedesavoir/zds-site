@@ -1587,7 +1587,7 @@ class ActivateJSFiddleInContent(LoginRequiredMixin, PermissionRequiredMixin, For
         """Change the js fiddle support of content and redirect to the view page """
         content = get_object_or_404(PublishableContent, pk=form.cleaned_data['pk'])
         # forbidden for content without a validation before publication
-        if not content.load_version().required_validation_before():
+        if not content.load_version().requires_validation_before():
             raise PermissionDenied
         content.js_support = form.cleaned_data["js_support"]
         content.save()
