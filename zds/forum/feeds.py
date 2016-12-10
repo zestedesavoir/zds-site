@@ -5,8 +5,6 @@ from django.contrib.syndication.views import Feed
 from django.utils.feedgenerator import Atom1Feed
 from django.conf import settings
 
-from zds.utils.templatetags.emarkdown import emarkdown
-
 from .models import Post, Topic
 
 
@@ -27,7 +25,7 @@ class LastPostsFeedRSS(Feed):
     def items(self, obj):
         try:
             posts = Post.objects.filter(topic__forum__group__isnull=True)
-            if 'forum' in obj and 'tag' in obj:
+            if 'forum' in obj:
                 posts = posts.filter(topic__forum__pk=int(obj['forum']))
             if 'tag' in obj:
                 posts = posts.filter(topic__tags__pk__in=[obj['tag']])
