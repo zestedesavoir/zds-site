@@ -690,6 +690,35 @@ class MemberTests(TestCase):
         self.assertEqual(ban.text, u'Texte de test pour BAN TEMP')
         self.assertEquals(len(mail.outbox), 6)
 
+    def test_sanctions_with_not_staff_user(self):
+        user = ProfileFactory().user
+
+        # we need staff right for update the sanction of an user, so a member who is not staff can't access to the page
+        self.client.logout()
+        self.client.login(username=user.username, password="hostel77")
+
+        # Test: LS
+        result = self.client.post(
+            reverse(
+                'member-modify-profile', kwargs={
+                    'user_pk': self.staff.id}), {
+                'ls': '', 'ls-text': 'Texte de test pour LS'}, follow=False)
+
+        self.assertEqual(result.status_code, 403)
+
+        # if the user is staff, he can update the sanction of an user
+        self.client.logout()
+        self.client.login(username=self.staff.username, password="hostel77")
+
+        # Test: LS
+        result = self.client.post(
+            reverse(
+                'member-modify-profile', kwargs={
+                    'user_pk': user.id}), {
+                'ls': '', 'ls-text': 'Texte de test pour LS'}, follow=False)
+
+        self.assertEqual(result.status_code, 302)
+
     def test_failed_bot_sanctions(self):
 
         staff = StaffProfileFactory()
