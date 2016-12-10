@@ -359,7 +359,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         ]
 
         fns = [
-            'in_beta', 'in_validation', 'in_public', 'is_article', 'is_tutorial', 'is_opinion',
+            'in_beta', 'in_validation', 'in_public',
             'get_absolute_contact_url', 'get_note_count', 'antispam'
         ]
 
