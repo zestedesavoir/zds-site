@@ -1091,6 +1091,9 @@ class VersionedContent(Container, TemplatableContentModelMixin):
     def __unicode__(self):
         return self.title
 
+    def get_absolute_url(self):
+        return TemplatableContentModelMixin.get_absolute_url(self)
+
     def textual_type(self):
         """Create a internationalized string with the human readable type of this content e.g The Article
 
