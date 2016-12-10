@@ -187,7 +187,7 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
         context["validation"] = validation
         context["formJs"] = form_js
 
-        if self.versioned_object.required_validation_before:
+        if self.versioned_object.requires_validation_before:
             context['formPublication'] = PublicationForm(self.versioned_object, initial={'source': self.object.source})
         else:
             context['formPublication'] = None
@@ -323,7 +323,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         publishable.add_tags(form.cleaned_data['tags'].split(','))
 
         # help can only be obtained on contents requiring validation before publication
-        if versioned.required_validation_before():
+        if versioned.requires_validation_before():
             publishable.helps.clear()
             for help_ in form.cleaned_data["helps"]:
                 publishable.helps.add(help_)
