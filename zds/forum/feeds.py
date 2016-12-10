@@ -15,7 +15,6 @@ class LastPostsFeedRSS(Feed):
     link = '/forums/'
     description = (u'Les derniers messages '
                    u'parus sur le forum de {}.'.format(settings.ZDS_APP['site']['litteral_name']))
-    queryset = Post.objects.filter(topic__forum__group__isnull=True)
 
     def get_object(self, request):
         obj = {}
@@ -27,7 +26,7 @@ class LastPostsFeedRSS(Feed):
 
     def items(self, obj):
         try:
-            posts = self.queryset
+            posts = Post.objects.filter(topic__forum__group__isnull=True)
             if 'forum' in obj and 'tag' in obj:
                 posts = posts.filter(topic__forum__pk=int(obj['forum']))
             if 'tag' in obj:
