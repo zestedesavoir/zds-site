@@ -5,11 +5,11 @@
     <a href="#warn-typo-modal" class="open-modal btn btn-grey ico-after edit blue">
         {% trans "Signaler une faute dans" %}
         {% if not container %}
-            {% if content.type == 'ARTICLE' %}
+            {% if content.is_article %}
                 {% trans "cet article" %}
-            {% elif content.type == 'TUTORIAL' %}
+            {% elif content.is_tutorial %}
                 {% trans "ce tutoriel" %}
-            {% elif content.type == 'OPINION' %}
+            {% elif content.is_opinion %}
                 {% trans "ce billet" %}
             {% endif %}
         {% else %}

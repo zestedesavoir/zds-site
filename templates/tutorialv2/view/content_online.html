@@ -230,7 +230,7 @@
                     </a>
                 </li>
                 {% if is_staff %}
-                    {% if content.required_validation_before %}
+                    {% if content.requires_validation_before %}
                         <li>
                             <a href="{% url "validation:history" content.pk content.slug %}" class="ico-after history blue">
                                 {% trans "Historique validation" %}

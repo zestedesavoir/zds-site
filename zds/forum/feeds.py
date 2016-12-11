@@ -5,8 +5,6 @@ from django.contrib.syndication.views import Feed
 from django.utils.feedgenerator import Atom1Feed
 from django.conf import settings
 
-from zds.utils.templatetags.emarkdown import emarkdown
-
 from .models import Post, Topic
 
 
@@ -53,8 +51,7 @@ class LastPostsFeedRSS(Feed):
         return item.pubdate
 
     def item_description(self, item):
-        # TODO: Use cached Markdown when implemented
-        return emarkdown(item.text)
+        return item.html_text
 
     def item_author_name(self, item):
         return item.author.username

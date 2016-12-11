@@ -768,6 +768,14 @@ def init_new_repo(db_object, introduction_text, conclusion_text, commit_message=
 
 
 def clone_repo(old_path, new_path):
+    """
+    Proxy to ``git clone command``. Ensure directory are properly created
+
+    :param old_path: path of the repo to be cloned
+    :param new_path: path of the target repo
+    :return: the target repository encapsulated in a ``GitPython`` object.
+    :rtype: Repo
+    """
     if not os.path.isdir(new_path):
         os.makedirs(new_path, mode=0o777)
     old_repo = Repo(old_path)
