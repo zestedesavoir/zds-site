@@ -136,19 +136,6 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
     def __str__(self):
         return self.title
 
-    def textual_type(self):
-        """Create a internationalized string with the human readable type of this content e.g The Article
-
-        :return: internationalized string
-        :rtype: str
-        """
-        if self.is_article():
-            return _(u'L\'Article')
-        elif self.is_opinion():
-            return _(u'Le Billet')
-        elif self.is_tutorial():
-            return _(u'Le Tutoriel')
-
     def save(self, *args, **kwargs):
         """
         Rewrite the `save()` function to handle slug uniqueness
