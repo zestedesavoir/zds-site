@@ -550,7 +550,7 @@ class ValidationBeforeViewMixin(SingleContentDetailViewMixin):
     """
 
     def get(self, request, *args, **kwargs):
-        if not self.get_object().required_validation_before():
+        if not self.get_object().requires_validation_before():
             raise PermissionDenied
         return super(ValidationBeforeViewMixin, self).get(request, *args, **kwargs)
 
@@ -561,6 +561,6 @@ class NoValidationBeforeFormViewMixin(SingleContentFormViewMixin):
     """
 
     def get_form_kwargs(self):
-        if self.versioned_object.required_validation_before():
+        if self.versioned_object.requires_validation_before():
             raise PermissionDenied
         return super(NoValidationBeforeFormViewMixin, self).get_form_kwargs()

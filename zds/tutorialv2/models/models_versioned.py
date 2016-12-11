@@ -13,6 +13,7 @@ from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from zds.settings import ZDS_APP
+from zds.tutorialv2.models.mixins import TemplatableContentModelMixin
 from zds.tutorialv2.utils import default_slug_pool, export_content, get_commit_author, InvalidOperationError
 from zds.utils.misc import compute_hash
 from zds.tutorialv2.models import SINGLE_CONTAINER, CONTENT_TYPES_BETA, CONTENT_TYPES_VALIDATION_BEFORE
@@ -762,7 +763,7 @@ class Container:
         """
         return self.type in CONTENT_TYPES_BETA
 
-    def required_validation_before(self):
+    def requires_validation_before(self):
         """
         Check if content required a validation before publication.
         Used to check if JsFiddle is available too.
@@ -1020,7 +1021,7 @@ class Extract:
         return depth
 
 
-class VersionedContent(Container):
+class VersionedContent(Container, TemplatableContentModelMixin):
     """
     This class is used to handle a specific version of a tutorial.tutorial
 
@@ -1054,10 +1055,6 @@ class VersionedContent(Container):
     in_validation = False
     in_public = False
 
-    is_article = False
-    is_tutorial = False
-    is_opinion = False
-
     authors = None
     subcategory = None
     image = None
@@ -1068,6 +1065,7 @@ class VersionedContent(Container):
     antispam = True
     tags = None
     promotion_content = None
+    content_type_attribute = "type"
 
     def __init__(self, current_version, _type, title, slug, slug_repository=''):
         """
@@ -1094,6 +1092,9 @@ class VersionedContent(Container):
     def __unicode__(self):
         return self.title
 
+    def get_absolute_url(self, version=None):
+        return TemplatableContentModelMixin.get_absolute_url(self, version)
+
     def textual_type(self):
         """Create a internationalized string with the human readable type of this content e.g The Article
 
@@ -1108,19 +1109,6 @@ class VersionedContent(Container):
             return _(u'Le Billet')
         else:
             return _(u'Le Contenu')
-
-    def get_absolute_url(self, version=None):
-        """
-
-        :return: the url to access the tutorial when offline
-        :rtype: str
-        """
-        url = reverse('content:view', args=[self.pk, self.slug])
-
-        if version and version != self.sha_draft:
-            url += '?version=' + version
-
-        return url
 
     def get_absolute_url_online(self):
         """
