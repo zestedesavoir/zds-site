@@ -813,6 +813,13 @@ Le déploiement doit être autonome. Ce qui implique que :
 Actions à faire pour l'upgrade v21
 ==================================
 
+**(pré-migration)** Supprimer les notifications persistantes
+------------------------------------------------------------
+
+1. Lancer la commande suivante :
+  * `python manage.py fix_persistent_notifications >> ~/mep_v21.log`
+1. Jeter un oeil aux logs pour s'assurer que tout s'est bien passé.
+
 Actions à faire pour masquer la barre de recherche
 --------------------------------------------------
 
