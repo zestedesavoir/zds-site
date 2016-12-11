@@ -45,8 +45,8 @@ gulp.task('js', () =>
     gulp.src([
         require.resolve('jquery'),
         require.resolve('cookies-eu-banner'),
-		require.resolve('moment'),
-		require.resolve('pikaday'),
+        require.resolve('moment'),
+        require.resolve('pikaday'),
 
         // Used by other scripts, must be first
         'assets/js/modal.js',
