@@ -225,11 +225,12 @@ class MultipleNotificationsMixin(object):
                 notif.delete()
 
         notification = notifications[0]
+        notification.subscription = self
         notification.is_read = True
         try:
             notification.save()
         except IntegrityError:
-            pass
+            logging.exception("Could not save %s", notification)
 
 
 class AnswerSubscription(Subscription):
