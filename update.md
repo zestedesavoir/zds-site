@@ -835,3 +835,8 @@ Ajouter `ZDS_APP['display_search_bar'] = False` à `settings_prod.py`
 -     'zds.middlewares.ForceHttpsMembersMiddleware.ForceHttpsMembersMiddleware',
   )
 ```
+
+A propos du logging:
+--------------------
+
+Mettre à jour le `settings_prod.py` en suivant `doc/source/install/configs/settings_prod.py`.
