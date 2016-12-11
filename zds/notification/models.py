@@ -9,7 +9,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMultiAlternatives
-from django.db import models
+from django.db import models, IntegrityError
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 
@@ -226,7 +226,10 @@ class MultipleNotificationsMixin(object):
 
         notification = notifications[0]
         notification.is_read = True
-        notification.save()
+        try:
+            notification.save()
+        except IntegrityError:
+            pass
 
 
 class AnswerSubscription(Subscription):
