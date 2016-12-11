@@ -15,6 +15,7 @@ class PublishedContentManager(models.Manager):
     def last_contents_of_a_member_loaded(self, author, _type=None):
         """
         Get contents published by author depends on settings.ZDS_APP['content']['user_page_number']
+
         :param author:
         :param _type: subtype to filter request
         :return:
@@ -47,6 +48,13 @@ class PublishedContentManager(models.Manager):
                    .count()
 
     def get_top_tags(self, displayed_types, limit=-1):
+        """
+        Retrieve all most rated tags.
+
+        :param displayed_types:
+        :param limit: if ``-1`` or ``0`` => no limit. Else just takes the provided number of elements.
+        :return:
+        """
         published = self.filter(
             must_redirect=False,
             content__type__in=displayed_types).values('content__tags').distinct()
@@ -125,6 +133,7 @@ class PublishableContentManager(models.Manager):
     def get_last_tutorials(self):
         """
         This depends on settings.ZDS_APP['tutorial']['home_number'] parameter
+
         :return: lit of last published content
         :rtype: list
         """
@@ -145,12 +154,13 @@ class PublishableContentManager(models.Manager):
 
     def get_last_articles(self):
         """
-        ..attention:
-            this one use a raw subquery for historical reasons. Il will hopefully be replaced one day by an
+
+        .. attention::
+            this one use a raw subquery for historical reasons. Il will hopefully be replaced one day by an \
             ORM primitive.
 
-        :return: list of last articles expended with "count_note" property that prefetch number of comments
-        :rtype:list
+        :return: list of last articles expended with ``count_note`` property that prefetch number of comments.
+        :rtype: list
         """
         sub_query = "SELECT COUNT(*) FROM {} WHERE {}={}"
         sub_query = sub_query.format(

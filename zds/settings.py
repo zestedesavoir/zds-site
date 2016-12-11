@@ -111,7 +111,7 @@ MIDDLEWARE_CLASSES = (
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'zds.utils.ThreadLocals',
-    'zds.middlewares.SetLastVisitMiddleware.SetLastVisitMiddleware',
+    'zds.middlewares.setlastvisitmiddleware.SetLastVisitMiddleware',
     'zds.middlewares.profile.ProfileMiddleware',
 )
 
@@ -458,6 +458,7 @@ ZDS_APP = {
         'bot_group': u'bot',
         'dev_group': u'devs',
         'members_per_page': 100,
+        'update_last_visit_interval': 600,  # seconds
     },
     'gallery': {
         'image_max_size': 1024 * 1024,
@@ -514,6 +515,10 @@ ZDS_APP = {
     },
     'topic': {
         'home_number': 6,
+    },
+    'comment': {
+        'max_pings': 15,
+        'enable_pings': False,
     },
     'featured_resource': {
         'featured_per_page': 100,

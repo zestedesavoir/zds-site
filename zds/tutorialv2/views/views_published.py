@@ -130,9 +130,10 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
         context['subscriber_count'] = ContentReactionAnswerSubscription.objects.get_subscriptions(self.object).count()
 
         if self.request.user.is_authenticated():
+            for reaction in context['reactions']:
+                signals.content_read.send(sender=reaction.__class__, instance=reaction, user=self.request.user)
             signals.content_read.send(
                 sender=self.object.__class__, instance=self.object, user=self.request.user, target=PublishableContent)
-        # handle reactions:
         if last_participation_is_old(self.object, self.request.user):
             mark_read(self.object, self.request.user)
 
@@ -655,6 +656,9 @@ class FollowContentReaction(LoggedWithReadWriteHability, SingleOnlineContentView
                 .toggle_follow(self.get_object(), self.request.user).is_active
             response['subscriberCount'] = ContentReactionAnswerSubscription\
                 .objects.get_subscriptions(self.get_object()).count()
+        elif 'email' in request.POST:
+            response['follow'] = ContentReactionAnswerSubscription.objects\
+                .toggle_follow(self.get_object(), self.request.user, True).is_active
         if self.request.is_ajax():
             return HttpResponse(json_writer.dumps(response), content_type='application/json')
         return redirect(self.get_object().get_absolute_url())
