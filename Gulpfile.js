@@ -45,6 +45,8 @@ gulp.task('js', () =>
     gulp.src([
         require.resolve('jquery'),
         require.resolve('cookies-eu-banner'),
+        require.resolve('moment'),
+        require.resolve('pikaday'),
 
         // Used by other scripts, must be first
         'assets/js/modal.js',
@@ -76,6 +78,7 @@ gulp.task('js', () =>
         'assets/js/submit-dbclick.js',
         'assets/js/tab-modalize.js',
         'assets/js/zen-mode.js',
+		'assets/js/date-forms.js'
     ], { base: '.' })
         .pipe(sourcemaps.init({ loadMaps: true }))
         .pipe(concat('script.js', { newline: ';\r\n' }))
@@ -86,7 +89,10 @@ gulp.task('js', () =>
 
 // Copy normalize.css into the vendors directory
 gulp.task('css:vendors', () =>
-    gulp.src(require.resolve('normalize.css'))
+    gulp.src([
+		require.resolve('normalize.css'),
+		require.resolve('pikaday/css/pikaday.css')
+	])
         .pipe(rename({ prefix: '_', extname: '.scss' }))
         .pipe(gulp.dest('assets/scss/vendors/')));
 

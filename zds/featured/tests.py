@@ -1,4 +1,8 @@
 # coding: utf-8
+
+import time
+from datetime import datetime, timedelta
+
 from django.core.urlresolvers import reverse
 
 from django.test import TestCase
@@ -54,6 +58,10 @@ class FeaturedResourceCreateViewTest(TestCase):
         )
         self.assertTrue(login_check)
 
+        pubdate = datetime.now().date()
+        pubdate = pubdate + timedelta(days=1)
+        pubtime = time.strftime('%H:%M')
+
         self.assertEqual(0, FeaturedResource.objects.all().count())
         response = self.client.post(
             reverse('featured-resource-create'),
@@ -63,7 +71,8 @@ class FeaturedResourceCreateViewTest(TestCase):
                 'image_url': 'image_url',
                 'url': 'url',
                 'authors': staff.user.username,
-                'pubdate': '2016-12-25 00:00:00'
+                'pubdate': pubdate,
+                'pubtime': pubtime,
             },
             follow=True
         )
