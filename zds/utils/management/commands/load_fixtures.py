@@ -501,9 +501,9 @@ def load_contents(cli, _type, size, fake):
         # then, validation if needed:
         if to_do > 0:
             if is_opinion:
-                if to_do > 1:
+                if to_do >= 1:
                     content.sha_public = content.sha_draft
-                    if to_do < 2:
+                    if to_do == 1:
                         content.sha_approved = content.sha_draft
                 published = publish_content(content, versioned)
                 content.public_version = published
