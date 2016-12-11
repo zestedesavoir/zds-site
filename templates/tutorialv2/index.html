@@ -36,13 +36,13 @@
 
 
 {% block breadcrumb_base %}
-    {% if tutorials != None %}
+    {% if tutorials %}
         <li><a href="{% url "tutorial:list" %}">{% trans "Tutoriels" %}</a></li>
         <li><a href="{% url "content:find-tutorial" usr.pk %}">{% trans "Tutoriels de" %} {{ usr.username }}</a></li>
-    {% elif articles != None %}
+    {% elif articles %}
         <li><a href="{% url "article:list" %}">{% trans "Articles" %}</a></li>
         <li><a href="{% url "content:find-article" usr.pk %}">{% trans "Articles de" %} {{ usr.username }}</a></li>
-    {% elif opinions != None %}
+    {% elif opinions %}
         <li><a href="{% url "opinion:list" %}">{% trans "Tribunes" %}</a></li>
         <li><a href="{% url "content:find-opinion" usr.pk %}">{% trans "Tribune de" %} {{ usr.username }}</a></li>
     {% endif %}
@@ -54,13 +54,13 @@
     <section class="full-content-wrapper">
         <h2 class="ico-after ico-tutorials">
             {% block headline %}
-                {% if contents != None %}
+                {% if contents %}
                     {% trans "Contenus de" %} {{ usr.username }}
-                {% elif tutorials != None %}
+                {% elif tutorials %}
                     {% trans "Tutoriels de" %} {{ usr.username }}
-                {% elif articles != None %}
+                {% elif articles %}
                     {% trans "Articles de" %} {{ usr.username }}
-                {% elif opinions != None %}
+                {% elif opinions %}
                     {% trans "Tribune de" %} {{ usr.username }}
                 {% endif %}
             {% endblock %}
@@ -68,7 +68,7 @@
 
         {% include "misc/paginator.html" with position="top" %}
 
-        {% if tutorials != None %}
+        {% if tutorials %}
             <div class="content-item-list clearfix">
                 {% for tutorial in tutorials %}
                     {% if filter == 'public' %}
@@ -82,7 +82,7 @@
                 <div class="fill"></div>
                 <div class="fill"></div>
             </div>
-        {% elif articles != None %}
+        {% elif articles %}
             <div class="content-item-list clearfix">
                 {% for article in articles %}
                     {% if filter == 'public' %}
@@ -96,7 +96,7 @@
                 <div class="fill"></div>
                 <div class="fill"></div>
             </div>
-        {% elif opinions != None %}
+        {% elif opinions %}
             <div class="content-item-list clearfix">
                 {% for opinion in opinions %}
                     {% if filter == 'public' %}
@@ -180,11 +180,11 @@
             <ul>
                 {% for current_filter in filters %}
 
-                        {% if tutorials != None %}
+                        {% if tutorials %}
                             <li><a href="{% url 'content:find-tutorial' usr.pk %}?filter={{ current_filter.key }}" class="ico-after {{ current_filter.icon }} {% if filter == current_filter.key %}selected{% endif %}">{{ current_filter.text }}</a> </li>
-                        {% elif articles != None %}
+                        {% elif articles %}
                             <li><a href="{% url 'content:find-article' usr.pk %}?filter={{ current_filter.key }}" class="ico-after {{ current_filter.icon }} {% if filter == current_filter.key %}selected{% endif %}">{{ current_filter.text }}</a> </li>
-                        {% elif opinions != None %}
+                        {% elif opinions %}
                             {% if current_filter.key != 'validation' and current_filter.key != 'beta' %}
                                 <li><a href="{% url 'content:find-opinion' usr.pk %}?filter={{ current_filter.key }}" class="ico-after {{ current_filter.icon }} {% if filter == current_filter.key %}selected{% endif %}">{{ current_filter.text }}</a> </li>
                             {% endif %}

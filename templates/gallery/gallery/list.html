@@ -60,11 +60,11 @@
                 {% if content %}
                     <p class="topic-last-answer">
                         {% trans "Liée" %}
-                        {% if content.type == "ARTICLE" %}
+                        {% if content.is_article %}
                             {% trans "à l'article" %}
-                        {% elif content.type == "TUTORIAL" %}
+                        {% elif content.is_tutorial %}
                             {% trans "au tutoriel" %}
-                        {% elif content.type == "OPINION" %}
+                        {% elif content.is_opinion %}
                             {% trans "au billet" %}
                         {% else %}
                             {% trans "au contenu" %}

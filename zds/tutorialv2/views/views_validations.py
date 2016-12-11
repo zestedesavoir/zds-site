@@ -123,7 +123,7 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
     modal_form = True
 
     def get_form_kwargs(self):
-        if not self.versioned_object.required_validation_before():
+        if not self.versioned_object.requires_validation_before():
             raise PermissionDenied
         kwargs = super(AskValidationForContent, self).get_form_kwargs()
         kwargs['content'] = self.versioned_object
