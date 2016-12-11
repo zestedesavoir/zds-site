@@ -21,6 +21,9 @@ from zds.notification.managers import NotificationManager, SubscriptionManager, 
 from zds.utils.misc import convert_camel_to_underscore
 
 
+LOG = logging.getLogger(__name__)
+
+
 @python_2_unicode_compatible
 class Subscription(models.Model):
     """
@@ -217,10 +220,10 @@ class MultipleNotificationsMixin(object):
                                                          object_id=content.pk, is_read=False))
         # handles cases where a same subscription lead to several notifications
         if not notifications:
-            logging.debug("nothing to mark as read")
+            LOG.debug("nothing to mark as read")
             return
         elif len(notifications) > 1:
-            logging.warning("%s notifications were find for %s/%s", len(notifications), content.type, content.title)
+            LOG.warning("%s notifications were find for %s/%s", len(notifications), content.type, content.title)
             for notif in notifications[1:]:
                 notif.delete()
 
@@ -230,7 +233,7 @@ class MultipleNotificationsMixin(object):
         try:
             notification.save()
         except IntegrityError:
-            logging.exception("Could not save %s", notification)
+            LOG.exception("Could not save %s", notification)
 
 
 class AnswerSubscription(Subscription):
