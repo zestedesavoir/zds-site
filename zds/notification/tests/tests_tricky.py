@@ -5,9 +5,7 @@ from zds.forum.factories import CategoryFactory, ForumFactory
 from zds.forum.models import Topic
 from zds.gallery.factories import UserGalleryFactory
 from zds.member.factories import StaffProfileFactory, ProfileFactory
-from zds.notification.models import NewTopicSubscription, Notification, ContentReactionAnswerSubscription, \
-    NewPublicationSubscription
-from zds.tutorialv2 import signals
+from zds.notification.models import NewTopicSubscription, Notification, NewPublicationSubscription
 from zds.notification import signals as notif_signals
 from zds.tutorialv2.factories import PublishableContentFactory, LicenceFactory, SubCategoryFactory, \
     PublishedContentFactory
