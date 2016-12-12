@@ -22,7 +22,7 @@ from zds.notification.models import TopicAnswerSubscription, ContentReactionAnsw
     PingSubscription
 from zds.notification.signals import answer_unread, content_read, new_content, edit_content
 from zds.tutorialv2.models.models_database import PublishableContent, ContentReaction
-
+import zds.tutorialv2.signals
 
 logger = logging.getLogger(__name__)
 
