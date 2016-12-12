@@ -37,7 +37,7 @@
     "gulp-uglify": "2.0.0",
     "gulp.spritesmith": "6.2.1",
     "jquery": "3.1.1",
-    "normalize.css": "5.0.0"
+    "normalize.css": "4.2.0"
   },
   "devDependencies": {
     "gulp-jshint": "2.0.4",
