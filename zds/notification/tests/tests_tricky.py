@@ -8,6 +8,7 @@ from zds.member.factories import StaffProfileFactory, ProfileFactory
 from zds.notification.models import NewTopicSubscription, Notification, ContentReactionAnswerSubscription, \
     NewPublicationSubscription
 from zds.tutorialv2 import signals
+from zds.notification import signals as notif_signals
 from zds.tutorialv2.factories import PublishableContentFactory, LicenceFactory, SubCategoryFactory, \
     PublishedContentFactory
 from zds.tutorialv2.publication_utils import publish_content
@@ -93,7 +94,7 @@ class ContentNotification(TestCase):
         NewPublicationSubscription.objects.get_or_create_active(self.user1, self.user2)
         content = PublishedContentFactory(author_list=[self.user2])
 
-        signals.new_content.send(sender=self.tuto.__class__, instance=content, by_email=False)
+        notif_signals.new_content.send(sender=self.tuto.__class__, instance=content, by_email=False)
         self.assertEqual(1, len(Notification.objects.get_notifications_of(self.user1)))
         unpublish_content(content)
         self.assertEqual(0, len(Notification.objects.get_notifications_of(self.user1)))
