@@ -3,8 +3,14 @@ from django.core.urlresolvers import reverse
 
 from zds.forum.factories import CategoryFactory, ForumFactory
 from zds.forum.models import Topic
+from zds.gallery.factories import UserGalleryFactory
 from zds.member.factories import StaffProfileFactory, ProfileFactory
-from zds.notification.models import NewTopicSubscription, Notification
+from zds.notification.models import NewTopicSubscription, Notification, ContentReactionAnswerSubscription, \
+    NewPublicationSubscription
+from zds.tutorialv2 import signals
+from zds.tutorialv2.factories import PublishableContentFactory, LicenceFactory, SubCategoryFactory, \
+    PublishedContentFactory
+from zds.tutorialv2.publication_utils import publish_content
 
 
 class ForumNotification(TestCase):
@@ -55,3 +61,39 @@ class ForumNotification(TestCase):
         self.assertEqual(subscription.last_notification,
                          Notification.objects.filter(sender=self.user2).first())
         self.assertTrue(subscription.last_notification.is_read, "As forum is not reachable, notification is read")
+
+
+class ContentNotification(TestCase):
+    def setUp(self):
+        self.user1 = ProfileFactory().user
+        self.user2 = ProfileFactory().user
+
+        # create a tutorial
+        self.tuto = PublishableContentFactory(type='TUTORIAL')
+        self.tuto.authors.add(self.user1)
+        UserGalleryFactory(gallery=self.tuto.gallery, user=self.user1, mode='W')
+        self.tuto.licence = LicenceFactory()
+        self.tuto.subcategory.add(SubCategoryFactory())
+        self.tuto.save()
+        tuto_draft = self.tuto.load_version()
+
+        # then, publish it !
+        version = tuto_draft.current_version
+        self.published = publish_content(self.tuto, tuto_draft, is_major_update=True)
+
+        self.tuto.sha_public = version
+        self.tuto.sha_draft = version
+        self.tuto.public_version = self.published
+        self.tuto.save()
+
+        self.assertTrue(self.client.login(username=self.user1.username, password='hostel77'))
+
+    def test_no_persistant_notif_on_revoke(self):
+        from zds.tutorialv2.publication_utils import unpublish_content
+        NewPublicationSubscription.objects.get_or_create_active(self.user1, self.user2)
+        content = PublishedContentFactory(author_list=[self.user2])
+
+        signals.new_content.send(sender=self.tuto.__class__, instance=content, by_email=False)
+        self.assertEqual(1, len(Notification.objects.get_notifications_of(self.user1)))
+        unpublish_content(content)
+        self.assertEqual(0, len(Notification.objects.get_notifications_of(self.user1)))
