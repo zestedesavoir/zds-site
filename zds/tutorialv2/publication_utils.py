@@ -15,7 +15,6 @@ from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
 from os.path import isdir, dirname
 from zds import settings
-from zds.notification import signals
 from zds.search.models import SearchIndexContent
 from zds.settings import ZDS_APP
 from zds.tutorialv2.signals import content_unpublished
@@ -440,7 +439,7 @@ def unpublish_content(db_object):
 
         db_object.public_version = None
         db_object.save()
-        content_unpublished.send(instance=db_object)
+        content_unpublished.send(sender=db_object.__class__, instance=db_object)
         return True
 
     except (ObjectDoesNotExist, IOError):
