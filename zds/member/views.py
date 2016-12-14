@@ -422,6 +422,9 @@ def unregister(request):
 def modify_profile(request, user_pk):
     """Modifies sanction of a user if there is a POST request."""
 
+    if not request.user.has_perm('member.change_profile'):
+        raise PermissionDenied
+
     profile = get_object_or_404(Profile, user__pk=user_pk)
     if profile.is_private():
         raise PermissionDenied
