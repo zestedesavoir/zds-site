@@ -9,7 +9,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMultiAlternatives
-from django.db import models
+from django.db import models, IntegrityError
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 
@@ -17,8 +17,11 @@ from zds import settings
 from zds.forum.models import Topic
 from zds.member.models import Profile
 from zds.notification.managers import NotificationManager, SubscriptionManager, TopicFollowedManager, \
-    TopicAnswerSubscriptionManager
+    TopicAnswerSubscriptionManager, NewTopicSubscriptionManager
 from zds.utils.misc import convert_camel_to_underscore
+
+
+LOG = logging.getLogger(__name__)
 
 
 @python_2_unicode_compatible
@@ -217,16 +220,20 @@ class MultipleNotificationsMixin(object):
                                                          object_id=content.pk, is_read=False))
         # handles cases where a same subscription lead to several notifications
         if not notifications:
-            logging.debug("nothing to mark as read")
+            LOG.debug("nothing to mark as read")
             return
         elif len(notifications) > 1:
-            logging.warning("%s notifications were find for %s/%s", len(notifications), content.type, content.title)
+            LOG.warning("%s notifications were find for %s/%s", len(notifications), content.type, content.title)
             for notif in notifications[1:]:
                 notif.delete()
 
         notification = notifications[0]
+        notification.subscription = self
         notification.is_read = True
-        notification.save()
+        try:
+            notification.save()
+        except IntegrityError:
+            LOG.exception("Could not save %s", notification)
 
 
 @python_2_unicode_compatible
@@ -291,7 +298,7 @@ class NewTopicSubscription(Subscription, MultipleNotificationsMixin):
     Subscription to new topics in a forum or with a tag
     """
     module = _(u'Forum')
-    objects = SubscriptionManager()
+    objects = NewTopicSubscriptionManager()
 
     def __str__(self):
         return _('<Abonnement du membre "{0}" aux nouveaux sujets du {1} #{2}>')\

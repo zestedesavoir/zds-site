@@ -690,6 +690,7 @@ class FollowNewContent(LoggedWithReadWriteHability, FormView):
 
         if 'follow' in request.POST:
             response['follow'] = self.perform_follow(user_to_follow, request.user)
+            response['subscriberCount'] = NewPublicationSubscription.objects.get_subscriptions(user_to_follow).count()
         elif 'email' in request.POST:
             response['email'] = self.perform_follow_by_email(user_to_follow, request.user)
 

@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
+import logging
+
+from django.db.backends.dummy.base import DatabaseError
+
+import zds
 
 try:
     from functools import wraps
@@ -17,6 +22,9 @@ from zds.notification.models import TopicAnswerSubscription, ContentReactionAnsw
     PingSubscription
 from zds.notification.signals import answer_unread, content_read, new_content, edit_content
 from zds.tutorialv2.models.models_database import PublishableContent, ContentReaction
+import zds.tutorialv2.signals
+
+logger = logging.getLogger(__name__)
 
 
 def disable_for_loaddata(signal_handler):
@@ -150,7 +158,7 @@ def edit_topic_event(sender, **kwargs):
         # If the topic is moved to a restricted forum, users who cannot read this topic any more unfollow it.
         # This avoids unreachable notifications.
         TopicAnswerSubscription.objects.unfollow_and_mark_read_everybody_at(topic)
-
+        NewTopicSubscription.objects.mark_read_everybody_at(topic)
         # If the topic is moved to a forum followed by the user, we update the subscription of the notification.
         # Otherwise, we update the notification as dead.
         content_type = ContentType.objects.get_for_model(topic)
@@ -360,3 +368,27 @@ def delete_notifications(sender, instance, **kwargs):
     """
     Subscription.objects.filter(user=instance).delete()
     Notification.objects.filter(sender=instance).delete()
+
+
+@receiver(zds.tutorialv2.signals.content_unpublished, sender=PublishableContent)
+def cleanup_notification_for_unpublished_content(sender, instance, **_):
+    """
+    Avoid persistant notification if a content is unpublished. A real talk has to be lead to avoid such cross module \
+    dependency.
+
+    :param sender: always PublishableContent
+    :param instance: the unpublished content
+    :param _: the useless kwargs
+    """
+    logger.debug("deal with %s(%s) notifications.", sender, instance)
+    try:
+        notifications = Notification.objects\
+            .filter(content_type=ContentType.objects.get_for_model(instance, True), object_id=instance.pk)
+        for notification in notifications:
+            if notification.subscription.last_notification.pk == notification.pk:
+                notification.subscription.last_notification = None
+                notification.subscription.save()
+            notification.delete()
+        logger.debug("Nothing went wrong.")
+    except DatabaseError:
+        logger.exception()
