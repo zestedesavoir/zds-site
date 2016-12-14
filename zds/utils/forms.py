@@ -98,7 +98,8 @@ class TagValidator(object):
         :return: ``True`` if length is valid
         """
         if len(tag) > Tag._meta.get_field("title").max_length:
-            self.errors.append(_(u"Le tag {} est trop long".format(tag)))
+            self.errors.append(_(u"Le tag {} est trop long (maximum {} caractères)".format(
+                tag, Tag._meta.get_field("title").max_length)))
             self.logger.debug("%s est trop long expected=%d got=%d", tag,
                               Tag._meta.get_field("title").max_length, len(tag))
             return False

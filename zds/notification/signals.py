@@ -6,7 +6,7 @@ from django.dispatch import Signal
 answer_unread = Signal(providing_args=['instance', 'user'])
 
 # is sent whenever a resource is created.
-new_content = Signal(providing_args=['instance', 'by_email'])
+new_content = Signal(providing_args=['instance', 'user', 'by_email'])
 
 # is sent whenever a content is edited.
 edit_content = Signal(providing_args=['instance', 'action'])

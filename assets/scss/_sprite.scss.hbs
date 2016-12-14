@@ -1,0 +1,26 @@
+{{#each sprites}}
+${{strings.name}}: {{px.offset_x}} {{px.offset_y}} {{px.width}} {{px.height}};
+{{/each}}
+
+@mixin sprite-width($sprite) {
+  width: nth($sprite, 3);
+}
+
+@mixin sprite-height($sprite) {
+  height: nth($sprite, 4);
+}
+
+@mixin sprite-position($sprite) {
+  $sprite-offset-x: nth($sprite, 1);
+  $sprite-offset-y: nth($sprite, 2);
+  background-position: $sprite-offset-x  $sprite-offset-y;
+}
+
+@mixin sprite() {
+  background-image: url('{{spritesheet.escaped_image}}');
+}
+
+@mixin sprite-2x() {
+  background-image: url('{{retina_spritesheet.escaped_image}}');
+  background-size: {{spritesheet.px.width}} {{spritesheet.px.height}};
+}

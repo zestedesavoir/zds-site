@@ -363,9 +363,9 @@ class PrivateTopicListAPITest(APITestCase):
         response = self.client.delete(reverse('api:mp:list'), data)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_cache_invalided_when_new_private_topic(self):
+    def test_cache_invalidated_when_new_private_topic(self):
         """
-        When we create a new topic, the api cache is invalided and returns the private topic.
+        When we create a new topic, the api cache is invalidated and returns the private topic.
         """
         count = self.client.get(reverse('api:mp:list')).data.get('count')
 

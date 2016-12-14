@@ -1,16 +1,17 @@
 # coding: utf-8
 
 from datetime import datetime
-from django.conf import settings
-from django.db import models
 from hashlib import md5
 import os
+import pygeoip
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.db import models
 from django.dispatch import receiver
+from django.utils.translation import ugettext_lazy as _
 
-import pygeoip
 from zds.forum.models import Post, Topic
 from zds.member.managers import ProfileManager
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent
@@ -26,8 +27,8 @@ class Profile(models.Model):
         verbose_name = 'Profil'
         verbose_name_plural = 'Profils'
         permissions = (
-            ("moderation", u"Modérer un membre"),
-            ("show_ip", u"Afficher les IP d'un membre"),
+            ('moderation', _(u'Modérer un membre')),
+            ('show_ip', _(u"Afficher les IP d'un membre")),
         )
 
     # Link with standard user is a simple one-to-one link, as recommended in official documentation.
@@ -35,7 +36,7 @@ class Profile(models.Model):
     user = models.OneToOneField(
         User,
         verbose_name='Utilisateur',
-        related_name="profile")
+        related_name='profile')
 
     last_ip_address = models.CharField(
         'Adresse IP',
@@ -44,62 +45,35 @@ class Profile(models.Model):
         null=True)
 
     site = models.CharField('Site internet', max_length=2000, blank=True)
-    show_email = models.BooleanField('Afficher adresse mail publiquement',
-                                     default=False)
-
-    avatar_url = models.CharField(
-        'URL de l\'avatar', max_length=2000, null=True, blank=True
-    )
-
+    show_email = models.BooleanField('Afficher adresse mail publiquement', default=False)
+    avatar_url = models.CharField('URL de l\'avatar', max_length=2000, null=True, blank=True)
     biography = models.TextField('Biographie', blank=True)
-
     karma = models.IntegerField('Karma', default=0)
-
     sign = models.TextField('Signature', max_length=500, blank=True)
-
     github_token = models.TextField('GitHub', blank=True)
-
     show_sign = models.BooleanField('Voir les signatures', default=True)
-
-    # TODO: Change this name. This is a boolean: "true" is "hover" or "click" ?!
-    hover_or_click = models.BooleanField('Survol ou click ?', default=False)
-
+    # do UI components open by hovering them, or is clicking on them required?
+    is_hover_enabled = models.BooleanField('Déroulement au survol ?', default=True)
     allow_temp_visual_changes = models.BooleanField('Activer les changements visuels temporaires', default=True)
-
     email_for_answer = models.BooleanField('Envoyer pour les réponse MP', default=False)
-
     # SdZ tutorial IDs separated by columns (:).
     # TODO: bad field name (singular --> should be plural), manually handled multi-valued field.
-    sdz_tutorial = models.TextField(
-        'Identifiant des tutos SdZ',
-        blank=True,
-        null=True)
-
+    sdz_tutorial = models.TextField('Identifiant des tutos SdZ', blank=True, null=True)
     can_read = models.BooleanField('Possibilité de lire', default=True)
-    end_ban_read = models.DateTimeField(
-        'Fin d\'interdiction de lecture',
-        null=True,
-        blank=True)
-
-    can_write = models.BooleanField('Possibilité d\'écrire', default=True)
-    end_ban_write = models.DateTimeField(
-        'Fin d\'interdiction d\'ecrire',
-        null=True,
-        blank=True)
-
-    last_visit = models.DateTimeField(
-        'Date de dernière visite',
-        null=True,
-        blank=True)
+    end_ban_read = models.DateTimeField("Fin d'interdiction de lecture", null=True, blank=True)
+    can_write = models.BooleanField("Possibilité d'écrire", default=True)
+    end_ban_write = models.DateTimeField("Fin d'interdiction d'écrire", null=True, blank=True)
+    last_visit = models.DateTimeField('Date de dernière visite', null=True, blank=True)
+    _permissions = {}
+    _groups = None
 
     objects = ProfileManager()
-    _permissions = {}
 
     def __unicode__(self):
         return self.user.username
 
     def is_private(self):
-        """checks the user can display his stats"""
+        """can the user can display their stats"""
         user_groups = self.user.groups.all()
         user_group_names = [g.name for g in user_groups]
         return settings.ZDS_APP['member']['bot_group'] in user_group_names
@@ -321,15 +295,15 @@ class Profile(models.Model):
     def get_posts(self):
         return Post.objects.filter(author=self.user).all()
 
-    def get_invisible_posts_count(self):
-        return Post.objects.filter(is_visible=False, author=self.user).count()
+    def get_hidden_by_staff_posts_count(self):
+        return Post.objects.filter(is_visible=False, author=self.user).exclude(editor=self.user).count()
 
     # TODO: improve this method's name?
     def get_alerts_posts_count(self):
         """
         :return: The number of currently active alerts created by this user.
         """
-        return Alert.objects.filter(author=self.user).count()
+        return Alert.objects.filter(author=self.user, solved=False).count()
 
     def can_read_now(self):
         if self.user.is_authenticated:
@@ -387,6 +361,12 @@ class Profile(models.Model):
 
     def has_object_ban_permission(self, request):
         return request.user and request.user.has_perm("member.change_profile")
+
+    @property
+    def group_pks(self):
+        if self._groups is None:
+            self._groups = list(self.user.groups.all())
+        return [g.pk for g in self._groups]
 
 
 @receiver(models.signals.post_delete, sender=User)
@@ -446,15 +426,11 @@ class TokenRegister(models.Model):
         return u"{0} - {1}".format(self.user.username, self.date_end)
 
 
-# TODO: Seems unused
+# Used by SOCIAL_AUTH_PIPELINE to create a profile on first login via social auth
 def save_profile(backend, user, response, *args, **kwargs):
     profile = Profile.objects.filter(user=user).first()
     if profile is None:
-        profile = Profile(user=user,
-                          show_email=False,
-                          show_sign=True,
-                          hover_or_click=True,
-                          email_for_answer=False)
+        profile = Profile(user=user)
         profile.last_ip_address = "0.0.0.0"
         profile.save()
 
@@ -471,40 +447,34 @@ class Ban(models.Model):
         verbose_name_plural = 'Sanctions'
 
     user = models.ForeignKey(User, verbose_name='Sanctionné', db_index=True)
-    moderator = models.ForeignKey(User, verbose_name='Moderateur',
-                                  related_name='bans', db_index=True)
+    moderator = models.ForeignKey(User, verbose_name='Moderateur', related_name='bans', db_index=True)
     type = models.CharField('Type', max_length=80, db_index=True)
-    text = models.TextField('Explication de la sanction')
-    pubdate = models.DateTimeField(
-        'Date de publication',
-        blank=True,
-        null=True, db_index=True)
+    note = models.TextField('Explication de la sanction')
+    pubdate = models.DateTimeField('Date de publication', blank=True, null=True, db_index=True)
 
     def __unicode__(self):
-        return u"{0} - ban : {1} ({2}) ".format(self.user.username, self.text, self.pubdate)
+        return u"{0} - ban : {1} ({2}) ".format(self.user.username, self.note, self.pubdate)
 
 
 class KarmaNote(models.Model):
     """
-    A karma note is a tool for staff to store data about a member.
-    Data are:
-    - A note (negative values are bad)
-    - A comment about the member
-    - A date
-    This helps the staff to react and stores history of stupidities of a member.
+    Karma notes are a way of annotating members profiles. They are only visible
+    to the staff.
+
+    Fields are:
+    - target user and the moderator leaving the note
+    - a textual note
+    - some amount of karma, negative values being… negative
     """
     class Meta:
         verbose_name = 'Note de karma'
         verbose_name_plural = 'Notes de karma'
 
     user = models.ForeignKey(User, related_name='karmanote_user', db_index=True)
-    # TODO: coherence, "staff" is called "moderator" in Ban model.
-    staff = models.ForeignKey(User, related_name='karmanote_staff', db_index=True)
-    # TODO: coherence, "comment" is called "text" in Ban model.
-    comment = models.CharField('Commentaire', max_length=150)
-    value = models.IntegerField('Valeur')
-    # TODO: coherence, "create_at" is called "pubdate" in Ban model.
-    create_at = models.DateTimeField('Date d\'ajout', auto_now_add=True)
+    moderator = models.ForeignKey(User, related_name='karmanote_staff', db_index=True)
+    note = models.CharField('Commentaire', max_length=150)
+    karma = models.IntegerField('Valeur')
+    pubdate = models.DateTimeField('Date d\'ajout', auto_now_add=True)
 
     def __unicode__(self):
         return u"{0} - note : {1} ({2}) ".format(self.user.username, self.comment, self.create_at)

@@ -13,7 +13,15 @@
         }
     }
 
+    .search-form {
+        display: flex;
+        align-items: stretch;
 
+        input {
+            margin-right: 10px;
+            height: initial;
+        }
+    }
 
     fieldset {
         border-top: 1px solid #DDD;
@@ -313,6 +321,9 @@
     // used in the "new content" page
     .checkbox-new-content {
         padding: 0;
+    }
+    #div_id_helps .checkbox {
+      padding: 0;
     }
 }
 

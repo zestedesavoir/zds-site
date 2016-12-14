@@ -293,7 +293,8 @@ class TopicNewTest(TestCase):
         data = {
             'title': 'Title of the topic',
             'subtitle': 'Subtitle of the topic',
-            'text': 'A new post!'
+            'text': 'A new post!',
+            'tags': ''
         }
         self.client.post(reverse('topic-new') + '?forum={}'.format(forum.pk), data, follow=False)
         self.client.logout()
@@ -301,7 +302,8 @@ class TopicNewTest(TestCase):
         data = {
             'title': 'Title of the topic',
             'subtitle': 'Subtitle of the topic',
-            'text': 'A new post!'
+            'text': 'A new post!',
+            'tags': ''
         }
         self.client.post(reverse('topic-new') + '?forum={}'.format(forum.pk), data, follow=False)
         self.client.logout()
@@ -360,7 +362,8 @@ class TopicNewTest(TestCase):
         data = {
             'title': 'Title of the topic',
             'subtitle': 'Subtitle of the topic',
-            'text': 'A new post!'
+            'text': 'A new post!',
+            'tags': ''
         }
         response = self.client.post(reverse('topic-new') + '?forum={}'.format(forum.pk), data, follow=False)
 
@@ -1341,7 +1344,7 @@ class PostUsefulTest(TestCase):
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
         response = self.client.post(reverse('post-useful') + '?message={}'.format(topic.last_message.pk))
 
-        self.assertEqual(403, response.status_code)
+        self.assertEqual(302, response.status_code)
 
     def test_failure_post_useful_when_not_author_of_topic(self):
         another_profile = ProfileFactory()

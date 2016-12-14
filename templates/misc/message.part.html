@@ -92,29 +92,31 @@
                             </a>
                         </li>
                     {% endif %}
-                {% elif perms_change %}
+                {% elif perms_change or message.author == user %}
                     <li>
                         <a href="#show-message-hidden-{{ message.id }}" class="ico-after view">
                             {% trans "Voir" %}
                         </a>
                     </li>
-                    <li>
-                        <a href="#show-message-{{ message.id }}" class="ico-after hide open-modal">
-                            {% trans "Démasquer" %}
-                        </a>
-                        <form action="{{ show_link|safe }}" method="post" id="show-message-{{ message.id }}" class="modal modal-flex">
-                            {% csrf_token %}
-                            <p>
-                                {% blocktrans with editor=message.editor %}
-                                Ce message a été masqué par <strong>{{ editor }}</strong>, êtes vous certains de vouloir le ré-afficher ?
-                                {% endblocktrans %}
-                            </p>
+                    {% if perms_change %}
+                        <li>
+                            <a href="#show-message-{{ message.id }}" class="ico-after hide open-modal">
+                                {% trans "Démasquer" %}
+                            </a>
+                            <form action="{{ show_link|safe }}" method="post" id="show-message-{{ message.id }}" class="modal modal-flex">
+                                {% csrf_token %}
+                                <p>
+                                    {% blocktrans with editor=message.editor %}
+                                    Ce message a été masqué par <strong>{{ editor }}</strong>, êtes vous certains de vouloir le ré-afficher ?
+                                    {% endblocktrans %}
+                                </p>
 
-                            <button type="submit" name="show_message">
-                                {% trans "Confirmer" %}
-                            </button>
-                        </form>
-                    </li>
+                                <button type="submit" name="show_message">
+                                    {% trans "Confirmer" %}
+                                </button>
+                            </form>
+                        </li>
+                    {% endif %}
                 {% endif %}
                 {% if not is_mp %}
                 <li>
@@ -171,7 +173,7 @@
                 <div itemprop="text">
                     {{ message.text_html|safe }}
                 </div>
-            {% elif perms_change %}
+            {% elif perms_change or message.author == user %}
                 <div class="message-hidden-content">
                     {{ message.text_html|safe }}
                 </div>
@@ -199,19 +201,25 @@
 
         {% if perms_change %}
             {% for alert in message.alerts.all %}
-                <div class="alert-box error">
+                <div class="alert-box{% if not alert.solved %} error{% endif %}">
                     {{ alert.pubdate|format_date|capfirst }} {% trans "par" %}
                     {% include "misc/member_item.part.html" with member=alert.author %} :
                     <em class="alert-box-text">{{ alert.text }}</em>
+                    {% if alert.solved %}
+                        <span class="close-alert-box close-alert-box-text">
+                            {% trans "Résolu par" %}
+                            {% include "misc/member_item.part.html" with member=alert.moderator %}
+                        </span>
+                    {% else %}
+                        <a href="#solve-alert-{{ alert.pk }}" class="open-modal close-alert-box close-alert-box-text">{% trans "Résoudre" %}</a>
+                        <form id="solve-alert-{{ alert.pk }}" method="post" action="{{ alert_solve_link }}" class="modal modal-flex">
+                            <textarea name="text" class="input" placeholder="{% trans "Message à envoyer au membre ayant lancé l'alerte" %}"></textarea>
+                            <input type="hidden" name="alert_pk" value="{{ alert.pk }}">
 
-                    <a href="#solve-alert-{{ alert.pk }}" class="open-modal close-alert-box close-alert-box-text">{% trans "Résoudre" %}</a>
-                    <form id="solve-alert-{{ alert.pk }}" method="post" action="{{ alert_solve_link }}" class="modal modal-flex">
-                        <textarea name="text" class="input" placeholder="Message à envoyer au membre ayant signalé l'alerte"></textarea>
-                        <input type="hidden" name="alert_pk" value="{{ alert.pk }}">
-
-                        {% csrf_token %}
-                        <button type="submit" name="delete-post" class="button expand alert tiny">{% trans "Résoudre l'alerte" %}</button>
-                    </form>
+                            {% csrf_token %}
+                            <button type="submit" name="delete-post" class="button expand alert tiny">{% trans "Résoudre l'alerte" %}</button>
+                        </form>
+                    {% endif %}
                 </div>
             {% endfor %}
         {% endif %}
@@ -238,30 +246,28 @@
 
                 {% if karma_link %}
                     <div class="message-karma{% if user.is_authenticated and user != message.author %} can-vote{% endif %}" data-karma-uri="{{ karma_link }}">
-                        {% if user.is_authenticated and helpful_link and not is_author %}
-                            {% if message.author != user or perms_change %}
-                                {% if topic.author == user or perms_change %}
-                                    <form action="{{ helpful_link }}" method="post">
-                                        {% csrf_token %}
-                                        <button
-                                            type="submit"
-                                            class="tick ico-after {% if message.is_useful %}green{% endif %}"
-                                            data-ajax-input="mark-message-as-useful"
-                                            data-content-on-click="
-                                                {% if message.is_useful %}
-                                                    {% trans "Cette réponse m'a aidé" %}
-                                                {% else %}
-                                                    {% trans "Cette réponse ne m'a pas aidé" %}
-                                                {% endif %}"
-                                        >
+                        {% if user.is_authenticated and helpful_link %}
+                            {% if topic.author == user or perms_change %}
+                                <form action="{{ helpful_link }}" method="post">
+                                  {% csrf_token %}
+                                    <button
+                                        type="submit"
+                                        class="tick ico-after {% if message.is_useful %}green{% endif %}"
+                                        data-ajax-input="mark-message-as-useful"
+                                        data-content-on-click="
                                             {% if message.is_useful %}
-                                                {% trans "Cette réponse ne m'a pas aidé" %}
-                                            {% else %}
                                                 {% trans "Cette réponse m'a aidé" %}
-                                            {% endif %}
-                                        </button>
-                                    </form>
-                                {% endif %}
+                                            {% else %}
+                                                {% trans "Cette réponse ne m'a pas aidé" %}
+                                            {% endif %}"
+                                    >
+                                        {% if message.is_useful %}
+                                            {% trans "Cette réponse ne m'a pas aidé" %}
+                                        {% else %}
+                                            {% trans "Cette réponse m'a aidé" %}
+                                        {% endif %}
+                                    </button>
+                                </form>
                             {% endif %}
                         {% endif %}
 

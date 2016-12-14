@@ -11,7 +11,6 @@ from django.views.generic.detail import SingleObjectMixin
 from zds.forum.models import Forum, Post, TopicRead
 from zds.notification import signals
 from zds.notification.models import TopicAnswerSubscription, Notification, NewTopicSubscription
-from zds.utils.forums import get_tag_by_title
 from zds.utils.models import Alert
 
 
@@ -66,30 +65,27 @@ class TopicEditMixin(object):
         else:
             raise PermissionDenied
 
-    @staticmethod
-    def perform_move(request, topic):
-        if request.user.has_perm("forum.change_topic"):
+    def perform_move(self):
+        if self.request.user.has_perm("forum.change_topic"):
             try:
-                forum_pk = int(request.POST.get('forum'))
-            except (KeyError, ValueError, TypeError):
-                raise Http404
+                forum_pk = int(self.request.POST.get('forum'))
+            except (KeyError, ValueError, TypeError) as e:
+                raise Http404("Forum not found", e)
             forum = get_object_or_404(Forum, pk=forum_pk)
-            topic.forum = forum
+            self.object.forum = forum
 
             # Save topic to update update_index_date
-            topic.save()
+            self.object.save()
 
-            signals.edit_content.send(sender=topic.__class__, instance=topic, action='move')
-
-            messages.success(request,
-                             _(u"Le sujet « {0} » a bien été déplacé dans « {1} ».").format(topic.title, forum.title))
+            signals.edit_content.send(sender=self.object.__class__, instance=self.object, action='move')
+            message = _(u"Le sujet « {0} » a bien été déplacé dans « {1} ».").format(self.object.title, forum.title)
+            messages.success(self.request, message)
         else:
-            raise PermissionDenied
+            raise PermissionDenied()
 
     @staticmethod
     def perform_edit_info(topic, data, editor):
-        (tags, title) = get_tag_by_title(data.get('title'))
-        topic.title = title
+        topic.title = data.get('title')
         topic.subtitle = data.get('subtitle')
         topic.save()
 
@@ -97,7 +93,8 @@ class TopicEditMixin(object):
 
         # add tags
         topic.tags.clear()
-        topic.add_tags(tags)
+        if data.get('tags'):
+            topic.add_tags(data.get('tags').split(','))
         return topic
 
 
@@ -106,7 +103,8 @@ class PostEditMixin(object):
     def perform_hide_message(request, post, user, data):
         is_staff = user.has_perm('forum.change_post')
         if post.author == user or is_staff:
-            post.alerts.all().delete()
+            for alert in post.alerts.all():
+                alert.solve(post, user, _(u'Résolu par masquage.'))
             post.is_visible = False
             post.editor = user
 
@@ -132,7 +130,7 @@ class PostEditMixin(object):
         alert = Alert()
         alert.author = user
         alert.comment = post
-        alert.scope = Alert.FORUM
+        alert.scope = 'FORUM'
         alert.text = alert_text
         alert.pubdate = datetime.now()
         alert.save()
@@ -151,6 +149,9 @@ class PostEditMixin(object):
         But, if there is only one post in the topic, we mark the topic unread but we don't create a notification.
         """
         topic_read = TopicRead.objects.filter(topic=post.topic, user=user).first()
+        # issue 3227 proves that you can have post.position==1 AND topic_read to None
+        # it can happen whether on double click (the event "mark as not read" is therefore sent twice)
+        # or if you have two tabs in your browser.
         if topic_read is None and post.position > 1:
             unread = Post.objects.filter(topic=post.topic, position=(post.position - 1)).first()
             topic_read = TopicRead(post=unread, topic=unread.topic, user=user)
@@ -160,7 +161,7 @@ class PostEditMixin(object):
                 unread = Post.objects.filter(topic=post.topic, position=(post.position - 1)).first()
                 topic_read.post = unread
                 topic_read.save()
-            else:
+            elif topic_read:
                 topic_read.delete()
 
         signals.answer_unread.send(sender=post.topic.__class__, instance=post, user=user)

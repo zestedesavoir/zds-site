@@ -71,26 +71,24 @@ def create_topic(
         title,
         subtitle,
         text,
-        key=None,
+        tags='',
         related_publishable_content=None):
     """create topic in forum"""
-
-    (tags, title_only) = get_tag_by_title(title[:Topic._meta.get_field('title').max_length])
 
     # Creating the thread
     n_topic = Topic()
     n_topic.forum = forum
-    n_topic.title = title_only
+    n_topic.title = title
     n_topic.subtitle = subtitle
     n_topic.pubdate = datetime.now()
     n_topic.author = author
-    n_topic.key = key
 
     n_topic.save()
     if related_publishable_content is not None:
         related_publishable_content.beta_topic = n_topic
         related_publishable_content.save()
-    n_topic.add_tags(tags)
+    if tags:
+        n_topic.add_tags(tags.split(','))
     n_topic.save()
 
     # Add the first message
@@ -103,12 +101,12 @@ def send_post(request, topic, author, text,):
     post = Post()
     post.topic = topic
     post.author = author
-    post.update_content(text)
     post.pubdate = datetime.now()
     if topic.last_message is not None:
         post.position = topic.last_message.position + 1
     else:
         post.position = 1
+    post.update_content(text)
     post.ip_address = get_client_ip(request)
     post.save()
 

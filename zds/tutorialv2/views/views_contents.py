@@ -46,7 +46,6 @@ from zds.tutorialv2.utils import search_container_or_404, get_target_tagged_tree
     try_adopt_new_child, TooDeepContainerError, BadManifestError, get_content_from_json, init_new_repo, \
     default_slug_pool, BadArchiveError, InvalidSlugError
 from zds.utils.forums import send_post, lock_topic, create_topic, unlock_topic
-from zds.utils.models import Licence
 from zds.utils.models import HelpWriting
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView, make_pagination
@@ -75,7 +74,6 @@ class CreateContent(LoggedWithReadWriteHability, FormView):
     def get_form(self, form_class=ContentForm):
         form = super(CreateContent, self).get_form(form_class)
         form.initial["type"] = self.created_content_type
-        form.initial['licence'] = Licence.objects.get(pk=settings.ZDS_APP['content']['default_licence_pk'])
         return form
 
     def form_valid(self, form):
@@ -206,9 +204,8 @@ class DisplayBetaContent(DisplayContent):
         """rewritten to ensure that the version is set to beta, raise Http404 if there is no such version"""
         obj = super(DisplayBetaContent, self).get_object(queryset)
 
-        if not obj.sha_beta or obj.sha_beta == '':
+        if not obj.sha_beta:
             raise Http404(u"Aucune bêta n'existe pour ce contenu.")
-
         else:
             self.sha = obj.sha_beta
 
@@ -409,7 +406,7 @@ class DownloadContent(LoggedWithReadWriteHability, SingleContentDownloadViewMixi
         """
         for blob in git_tree.blobs:  # first, add files :
             zip_file.writestr(blob.path, blob.data_stream.read())
-        if len(git_tree.trees) is not 0:  # then, recursively add dirs :
+        if git_tree.trees:  # then, recursively add dirs :
             for subtree in git_tree.trees:
                 DownloadContent.insert_into_zip(zip_file, subtree)
 
@@ -592,7 +589,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
 
             image_basename = os.path.basename(image_path)
 
-            if image_basename.strip() == "":  # don't deal with directory
+            if not image_basename.strip():  # don't deal with directory
                 continue
 
             temp_image_path = os.path.abspath(os.path.join(temp, image_basename))
@@ -708,7 +705,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
 
                 # ok, then, let's do the import. First, remove everything in the repository
                 while True:
-                    if len(versioned.children) != 0:
+                    if versioned.children:
                         versioned.children[0].repo_delete(do_commit=False)
                     else:
                         break  # this weird construction ensure that everything is removed
@@ -744,7 +741,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                 # and end up by a commit !!
                 commit_message = form.cleaned_data['msg_commit']
 
-                if commit_message == '':
+                if not commit_message:
                     commit_message = _(u'Importation d\'une archive contenant « {} ».').format(new_version.title)
 
                 sha = versioned.commit_changes(commit_message)
@@ -867,7 +864,7 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
                 # and end up by a commit !!
                 commit_message = form.cleaned_data['msg_commit']
 
-                if commit_message == '':
+                if not commit_message:
                     commit_message = _(u'Importation d\'une archive contenant « {} »').format(new_content.title)
 
                 sha = versioned.commit_changes(commit_message)
@@ -973,10 +970,20 @@ class DisplayContainer(LoginRequiredMixin, SingleContentDetailViewMixin):
                 context['has_pagination'] = True
                 context['previous'] = None
                 context['next'] = None
+                if position == 0:
+                    context['previous'] = container.parent
                 if position > 0:
-                    context['previous'] = chapters[position - 1]
+                    previous_chapter = chapters[position - 1]
+                    if previous_chapter.parent == container.parent:
+                        context['previous'] = previous_chapter
+                    else:
+                        context['previous'] = container.parent
                 if position < len(chapters) - 1:
-                    context['next'] = chapters[position + 1]
+                    next_chapter = chapters[position + 1]
+                    if next_chapter.parent == container.parent:
+                        context['next'] = next_chapter
+                    else:
+                        context['next'] = next_chapter.parent
 
         # check whether this tuto support js fiddle
         if self.object.js_support:
@@ -997,9 +1004,8 @@ class DisplayBetaContainer(DisplayContainer):
         """rewritten to ensure that the version is set to beta, raise Http404 if there is no such version"""
         obj = super(DisplayBetaContainer, self).get_object(queryset)
 
-        if not obj.sha_beta or obj.sha_beta == '':
+        if not obj.sha_beta:
             raise Http404(u"Aucune bêta n'existe pour ce contenu.")
-
         else:
             self.sha = obj.sha_beta
 
@@ -1458,14 +1464,10 @@ class WarnTypo(SingleContentFormViewMixin):
         return kwargs
 
     def form_valid(self, form):
-
         user = self.request.user
-
-        authors_reachable = Profile.objects.contactable_members()\
-            .filter(user__in=self.object.authors.all())
-        authors = []
-        for author in authors_reachable:
-            authors.append(author.user)
+        authors = list(Profile.objects.contactable_members()
+                       .filter(user__in=self.object.authors.all()))
+        authors = list(map(lambda author: author.user, authors))
 
         # check if the warn is done on a public or beta version :
         is_public = False
@@ -1475,7 +1477,7 @@ class WarnTypo(SingleContentFormViewMixin):
         elif not form.content.is_beta:
             raise Http404(u"Le contenu n'est ni public, ni en bêta.")
 
-        if len(authors) == 0:
+        if not authors:
             if self.object.authors.count() > 1:
                 messages.error(self.request, _(u"Les auteurs sont malheureusement injoignables."))
             else:
@@ -1525,6 +1527,7 @@ class ContentsWithHelps(ZdSPagingListView):
         query_set = PublishableContent.objects \
             .annotate(total=Count('helps'), shasize=Count('sha_beta')) \
             .filter((Q(sha_beta__isnull=False) & Q(shasize__gt=0)) | Q(total__gt=0)) \
+            .order_by('-update_date') \
             .all()
         if 'need' in self.request.GET:
             self.specific_need = self.request.GET.get('need')
@@ -1586,10 +1589,10 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
         base_container_slug = form.data["container_slug"]
         child_slug = form.data['child_slug']
 
-        if base_container_slug == '':
+        if not base_container_slug:
             raise Http404(u"Le slug du container de base est vide.")
 
-        if child_slug == '':
+        if not child_slug:
             raise Http404(u"Le slug du container enfant est vide.")
 
         if base_container_slug == versioned.slug:
@@ -1597,7 +1600,7 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
         else:
             search_params = {}
 
-            if 'first_level_slug' in form.data and form.data['first_level_slug'] != '':
+            if 'first_level_slug' in form.data and form.data['first_level_slug']:
                 search_params['parent_container_slug'] = form.data['first_level_slug']
                 search_params['container_slug'] = base_container_slug
             else:
@@ -1691,6 +1694,11 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
     form_class = AuthorForm
     authorized_for_staff = True
     already_finished = False
+
+    def get(self):
+        content = self.get_object()
+        url = "content:find-{}".format("tutorial" if content.is_tutorial() else content.type.lower())
+        return redirect(url, self.request.user)
 
     def form_valid(self, form):
         _type = self.object.type.lower()

@@ -1,70 +1,83 @@
-=================================
-Installation du backend sous OS X
-=================================
+==================================
+Installation du backend sous macOS
+==================================
 
-Pour installer une version locale de ZdS sur OS X, veuillez suivre les instructions suivantes.
+Pour installer une version locale de ZdS sur macOS, veuillez suivre les instructions suivantes.
 Si une commande ne passe pas, essayez de savoir pourquoi avant de continuer.
 
-Avant de vous lancez dans l'installation de l'environnement de zds, il faut quelques pré-requis :
+Pré-requis
+==========
 
-- Installer `XCode <http://itunes.apple.com/us/app/xcode/id497799835?ls=1&mt=12>`_ pour pouvoir exécuter des commandes (g)cc.
-- Installer `Homebrew <http://brew.sh/>`_ pour récupérer certains paquets utiles pour l'installation des dépendances de ce projet.
-- Installer python 2.7
-- Installer pip
-- Installer git
-- Installer `gettext <https://www.gnu.org/software/gettext/>`_
-- Installer GeoIP (``brew install geoip``)
+- Installer XCode :
+
+.. sourcecode:: bash
+
+  xcode-select --install
+
+- Installer `Homebrew <http://brew.sh/>`_.
+- Installer un nouveau Python par Homebrew :
+
+.. sourcecode:: bash
+
+  brew install python --framework
+  # Il se peut que votre système n'utilise pas la nouvelle version de Python. Si c'est le cas, lancez la commande suivante.
+  export PATH=/usr/local/bin:/usr/local/sbin:${PATH}
+
+- Si vous avez décidé de ne pas installer un nouveau python et que vous utilisez celui de base du système, installez pip :
+
+.. sourcecode:: bash
+
+  wget https://bootstrap.pypa.io/get-pip.py
+  python get-pip.py
+
+- Installer toutes les dépendances systèmes nécessaires :
+
+.. sourcecode:: bash
+
+  make install-osx
 
 Une fois les pré-requis terminés, vous pouvez vous lancer dans l'installaton de l'environnement de zds.
 
-Installation de virtualenv
-==========================
-
-.. sourcecode:: bash
-
-    make install-osx
-
-    mkdir ~/.virtualenvs
-    echo "export WORKON_HOME=$HOME/.virtualenvs" >> ~/.bash_profile && export WORKON_HOME=$HOME/.virtualenvs
-    echo "source /usr/local/bin/virtualenvwrapper.sh" >> ~/.bash_profile && source /usr/local/bin/virtualenvwrapper.sh
-
-
-Création de votre environnement
-===============================
-
-.. sourcecode:: bash
-
-    mkvirtualenv zdsenv
-
-
-Récupération de cairo (svg)
+Configuration de virtualenv
 ===========================
 
 .. sourcecode:: bash
 
-  brew install cairo --without-x11
-  brew install py2cairo # py3cairo quand ZdS sera en python 3
+  mkdir ~/.virtualenvs
+  echo "export WORKON_HOME=$HOME/.virtualenvs" >> ~/.bash_profile
+  echo "source /usr/local/bin/virtualenvwrapper.sh" >> ~/.bash_profile
+  source ~/.bash_profile
 
+Usage de virtualenv
+===================
 
-Installation des outils front-end
-=================================
-
-Il vous faut installer les outils du front-end. Pour cela, rendez-vous sur `la documentation dédiée <frontend-install.html>`_.
-
-Installation de toutes les dépendances
-======================================
+Création d'un virtualenv :
 
 .. sourcecode:: bash
 
-  make install-back
+  mkvirtualenv zdsenv
+
+Lancer un virtualenv :
+
+.. sourcecode:: bash
+
+  workon zdsenv
+
+Quitter un virtualenv :
+
+.. sourcecode:: bash
+
+  deactivate
+
+
+Installation des des dépendances front et back
+==============================================
+
+.. sourcecode:: bash
+
   make install-front
-
-
-Pour relancer votre environnement : ``source ~/.virtualenvs/zdsenv/bin/activate``.
-
-Si vous avez installé virtualenvwrapper, vous pouvez utiliser le raccourcis ``workon zdsenv``.
-
-Pour sortir de votre environnement : ``deactivate``.
+  make build-front
+  make install-back
 
 Lancer ZdS
 ==========

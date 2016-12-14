@@ -243,20 +243,32 @@ class MemberModelsTest(TestCase):
         self.assertEqual(len(posts), 1)
         self.assertEqual(apost, posts[0])
 
-    def test_get_invisible_posts_count(self):
+    def test_get_hidden_by_staff_posts_count(self):
         # Start with 0
-        self.assertEqual(self.user1.get_invisible_posts_count(), 0)
-        # Post !
-        PostFactory(topic=self.forumtopic, author=self.user1.user, position=1, is_visible=False)
+        self.assertEqual(self.user1.get_hidden_by_staff_posts_count(), 0)
+        # Post and hide it by poster
+        PostFactory(topic=self.forumtopic, author=self.user1.user, position=1, is_visible=False, editor=self.user1.user)
+        # Should be 0
+        self.assertEqual(self.user1.get_hidden_by_staff_posts_count(), 0)
+        # Post and hide it by staff
+        PostFactory(topic=self.forumtopic, author=self.user1.user, position=1, is_visible=False, editor=self.staff.user)
         # Should be 1
-        self.assertEqual(self.user1.get_invisible_posts_count(), 1)
+        self.assertEqual(self.user1.get_hidden_by_staff_posts_count(), 1)
+
+    def test_get_hidden_by_staff_posts_count_staff_poster(self):
+        # Start with 0
+        self.assertEqual(self.staff.get_hidden_by_staff_posts_count(), 0)
+        # Post and hide it by poster which is staff
+        PostFactory(topic=self.forumtopic, author=self.staff.user, position=1, is_visible=False, editor=self.staff.user)
+        # Should be 0 because even if poster is staff, he is the poster
+        self.assertEqual(self.staff.get_hidden_by_staff_posts_count(), 0)
 
     def test_get_alerts_posts_count(self):
         # Start with 0
         self.assertEqual(self.user1.get_alerts_posts_count(), 0)
         # Post and Alert it !
         post = PostFactory(topic=self.forumtopic, author=self.user1.user, position=1)
-        Alert.objects.create(author=self.user1.user, comment=post, scope=Alert.FORUM, pubdate=datetime.now())
+        Alert.objects.create(author=self.user1.user, comment=post, scope='FORUM', pubdate=datetime.now())
         # Should be 1
         self.assertEqual(self.user1.get_alerts_posts_count(), 1)
 

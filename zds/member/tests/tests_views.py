@@ -1,7 +1,11 @@
 # coding: utf-8
 
+from datetime import datetime
 import os
 import shutil
+
+from oauth2_provider.models import AccessToken, Application
+
 from django.conf import settings
 from django.contrib.auth.models import User, Group
 from django.core import mail
@@ -55,54 +59,54 @@ class MemberTests(TestCase):
         self.bot.save()
 
     def test_karma(self):
-        to_be_karmated = ProfileFactory()
-        rand_member = ProfileFactory()
+        user = ProfileFactory()
+        other_user = ProfileFactory()
         self.client.login(
-            username=rand_member.user.username,
-            password="hostel77"
+            username=other_user.user.username,
+            password='hostel77'
         )
-        r = self.client.post(reverse("member-modify-karma"), {
-            "profile_pk": to_be_karmated.pk,
-            "points": 42,
-            "warning": "warn"
+        r = self.client.post(reverse('member-modify-karma'), {
+            'profile_pk': user.pk,
+            'karma': 42,
+            'note': 'warn'
         })
         self.assertEqual(403, r.status_code)
         self.client.logout()
         self.client.login(
             username=self.staff.username,
-            password="hostel77"
+            password='hostel77'
         )
         # bad id
-        r = self.client.post(reverse("member-modify-karma"), {
-            "profile_pk": "poo",
-            "points": 42,
-            "warning": "warn"
+        r = self.client.post(reverse('member-modify-karma'), {
+            'profile_pk': 'blah',
+            'karma': 42,
+            'note': 'warn'
         }, follow=True)
         self.assertEqual(404, r.status_code)
         # good karma
-        r = self.client.post(reverse("member-modify-karma"), {
-            "profile_pk": to_be_karmated.pk,
-            "points": 42,
-            "warning": "warn"
+        r = self.client.post(reverse('member-modify-karma'), {
+            'profile_pk': user.pk,
+            'karma': 42,
+            'note': 'warn'
         }, follow=True)
         self.assertEqual(200, r.status_code)
-        self.assertIn("<strong>42</strong>", r.content.decode("utf-8"))
+        self.assertIn('<strong>42</strong>', r.content.decode('utf-8'))
         # more than 100 karma must unvalidate the karma
-        r = self.client.post(reverse("member-modify-karma"), {
-            "profile_pk": to_be_karmated.pk,
-            "points": 420,
-            "warning": "warn"
+        r = self.client.post(reverse('member-modify-karma'), {
+            'profile_pk': user.pk,
+            'karma': 420,
+            'note': 'warn'
         }, follow=True)
         self.assertEqual(200, r.status_code)
-        self.assertNotIn("<strong>420</strong>", r.content.decode("utf-8"))
+        self.assertNotIn("<strong>420</strong>", r.content.decode('utf-8'))
         # empty warning must unvalidate the karma
-        r = self.client.post(reverse("member-modify-karma"), {
-            "profile_pk": to_be_karmated.pk,
-            "points": 41,
-            "warning": ""
+        r = self.client.post(reverse('member-modify-karma'), {
+            'profile_pk': user.pk,
+            'karma': 41,
+            'note': ''
         }, follow=True)
         self.assertEqual(200, r.status_code)
-        self.assertNotIn("<strong>41</strong>", r.content.decode("utf-8"))
+        self.assertNotIn("<strong>41</strong>", r.content.decode('utf-8'))
 
     def test_list_members(self):
         """
@@ -222,7 +226,7 @@ class MemberTests(TestCase):
 
         # we need staff right for update other profile
         self.client.logout()
-        self.client.login(username=self.staff.username, password="hostel77")
+        self.client.login(username=self.staff.username, password='hostel77')
 
         # an inexistant member return 404
         result = self.client.get(
@@ -374,7 +378,7 @@ class MemberTests(TestCase):
         writing_tutorial_2.authors.add(user.user)
         writing_tutorial_2.authors.add(user2.user)
         writing_tutorial_2.save()
-        self.client.login(username=self.staff.username, password="hostel77")
+        self.client.login(username=self.staff.username, password='hostel77')
         # same thing for articles
         published_article_alone = PublishedContentFactory(type='ARTICLE')
         published_article_alone.authors.add(user.user)
@@ -411,6 +415,25 @@ class MemberTests(TestCase):
         private_topic.participants.add(user2.user)
         private_topic.save()
         PrivatePostFactory(author=user.user, privatetopic=private_topic, position_in_topic=1)
+
+        # add API key
+        self.assertEqual(Application.objects.count(), 0)
+        self.assertEqual(AccessToken.objects.count(), 0)
+        api_application = Application()
+        api_application.client_id = 'foobar'
+        api_application.user = user.user
+        api_application.client_type = 'confidential'
+        api_application.authorization_grant_type = 'password'
+        api_application.client_secret = '42'
+        api_application.save()
+        token = AccessToken()
+        token.user = user.user
+        token.token = 'r@d0m'
+        token.application = api_application
+        token.expires = datetime.now()
+        token.save()
+        self.assertEqual(Application.objects.count(), 1)
+        self.assertEqual(AccessToken.objects.count(), 1)
 
         # login and unregister:
         login_check = self.client.login(
@@ -511,6 +534,10 @@ class MemberTests(TestCase):
         self.assertTrue(Topic.objects.get(pk=beta_content.beta_topic.pk).is_locked)
         self.assertFalse(Topic.objects.get(pk=beta_content_2.beta_topic.pk).is_locked)
 
+        # check API
+        self.assertEqual(Application.objects.count(), 0)
+        self.assertEqual(AccessToken.objects.count(), 0)
+
     def test_forgot_password(self):
         """To test nominal scenario of a lost password."""
 
@@ -571,7 +598,7 @@ class MemberTests(TestCase):
         self.assertIsNone(user.end_ban_read)
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-pubdate')[0]
         self.assertEqual(ban.type, 'Lecture Seule')
-        self.assertEqual(ban.text, 'Texte de test pour LS')
+        self.assertEqual(ban.note, 'Texte de test pour LS')
         self.assertEquals(len(mail.outbox), 1)
 
         result = self.client.get(reverse('member-list'), follow=False)
@@ -593,7 +620,7 @@ class MemberTests(TestCase):
         self.assertIsNone(user.end_ban_read)
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-id')[0]
         self.assertEqual(ban.type, u'Autorisation d\'écrire')
-        self.assertEqual(ban.text, 'Texte de test pour un-LS')
+        self.assertEqual(ban.note, 'Texte de test pour un-LS')
         self.assertEquals(len(mail.outbox), 2)
 
         result = self.client.get(reverse('member-list'), follow=False)
@@ -617,7 +644,7 @@ class MemberTests(TestCase):
         self.assertIsNone(user.end_ban_read)
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-id')[0]
         self.assertEqual(ban.type, u'Lecture Seule Temporaire')
-        self.assertEqual(ban.text, u'Texte de test pour LS TEMP')
+        self.assertEqual(ban.note, u'Texte de test pour LS TEMP')
         self.assertEquals(len(mail.outbox), 3)
 
         # reset nb_users
@@ -640,7 +667,7 @@ class MemberTests(TestCase):
         self.assertIsNone(user.end_ban_read)
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-id')[0]
         self.assertEqual(ban.type, u'Ban définitif')
-        self.assertEqual(ban.text, u'Texte de test pour BAN')
+        self.assertEqual(ban.note, u'Texte de test pour BAN')
         self.assertEquals(len(mail.outbox), 4)
 
         result = self.client.get(reverse('member-list'), follow=False)
@@ -663,7 +690,7 @@ class MemberTests(TestCase):
         self.assertIsNone(user.end_ban_read)
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-id')[0]
         self.assertEqual(ban.type, u'Autorisation de se connecter')
-        self.assertEqual(ban.text, u'Texte de test pour BAN')
+        self.assertEqual(ban.note, u'Texte de test pour BAN')
         self.assertEquals(len(mail.outbox), 5)
 
         result = self.client.get(reverse('member-list'), follow=False)
@@ -687,7 +714,7 @@ class MemberTests(TestCase):
         self.assertIsNotNone(user.end_ban_read)
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-id')[0]
         self.assertEqual(ban.type, u'Ban Temporaire')
-        self.assertEqual(ban.text, u'Texte de test pour BAN TEMP')
+        self.assertEqual(ban.note, u'Texte de test pour BAN TEMP')
         self.assertEquals(len(mail.outbox), 6)
 
     def test_sanctions_with_not_staff_user(self):
@@ -955,8 +982,8 @@ class MemberTests(TestCase):
         result = self.client.post(
             reverse('member-modify-karma'),
             {'profile_pk': tester.pk,
-             'warning': 'Bad tester is bad !',
-             'points': '-50'},
+             'note': 'Bad tester is bad !',
+             'karma': '-50'},
             follow=False)
         self.assertEqual(result.status_code, 302)
         tester = Profile.objects.get(pk=tester.pk)
@@ -967,8 +994,8 @@ class MemberTests(TestCase):
         result = self.client.post(
             reverse('member-modify-karma'),
             {'profile_pk': tester.pk,
-             'warning': 'Good tester is good !',
-             'points': '10'},
+             'note': 'Good tester is good !',
+             'karma': '10'},
             follow=False)
         self.assertEqual(result.status_code, 302)
         tester = Profile.objects.get(pk=tester.pk)
@@ -979,8 +1006,8 @@ class MemberTests(TestCase):
         result = self.client.post(
             reverse('member-modify-karma'),
             {'profile_pk': 9999,
-             'warning': 'Good tester is good !',
-             'points': '10'},
+             'note': 'Good tester is good !',
+             'karma': '10'},
             follow=False)
         self.assertEqual(result.status_code, 404)
 
@@ -988,8 +1015,8 @@ class MemberTests(TestCase):
         result = self.client.post(
             reverse('member-modify-karma'),
             {'profile_pk': tester.pk,
-             'warning': 'Good tester is good !',
-             'points': ''},
+             'note': 'Good tester is good !',
+             'karma': ''},
             follow=False)
         self.assertEqual(result.status_code, 302)
         tester = Profile.objects.get(pk=tester.pk)
@@ -1000,7 +1027,7 @@ class MemberTests(TestCase):
         result = self.client.post(
             reverse('member-modify-karma'),
             {'profile_pk': tester.pk,
-             'warning': 'Good tester is good !'},
+             'note': 'Good tester is good !'},
             follow=False)
         self.assertEqual(result.status_code, 302)
         tester = Profile.objects.get(pk=tester.pk)
@@ -1017,7 +1044,7 @@ class MemberTests(TestCase):
         """
         tester = ProfileFactory()
         old_pseudo = tester.user.username
-        self.client.login(username=tester.user.username, password="hostel77")
+        self.client.login(username=tester.user.username, password='hostel77')
         data = {
             'username': 'dummy',
             'email': ''
@@ -1027,7 +1054,7 @@ class MemberTests(TestCase):
         self.assertEqual(result.status_code, 302)
         notes = KarmaNote.objects.filter(user=tester.user).all()
         self.assertEqual(len(notes), 1)
-        self.assertTrue(old_pseudo in notes[0].comment and 'dummy' in notes[0].comment)
+        self.assertTrue(old_pseudo in notes[0].note and 'dummy' in notes[0].note)
 
     def test_ban_member_is_not_contactable(self):
         """
@@ -1040,7 +1067,7 @@ class MemberTests(TestCase):
         user_1 = ProfileFactory()
         user_2 = ProfileFactory()
 
-        phrase = "Envoyer un message privé"
+        phrase = 'Envoyer un message privé'
 
         result = self.client.get(reverse('member-detail', args=[user_1.user.username]), follow=False)
         self.assertNotContains(result, phrase)

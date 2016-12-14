@@ -37,9 +37,9 @@ Prérequis
     - `Git <http://git-scm.com/download/win>`_ (Git pour Eclipse ne suffit pas ; associez les .sh).
     - `gettext <https://www.gnu.org/software/gettext/>`_.
 - `Téléchargez et installez Python 2.7 <https://www.python.org/download/releases/2.7/>`_.
-- Installez setuptools : Démarrez Powershell et lancez la commande suivante : ``(Invoke-WebRequest https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py).Content | python -``
+- Installez setuptools : Démarrez Powershell en mode administrateur et lancez la commande suivante : ``(Invoke-WebRequest https://bootstrap.pypa.io/ez_setup.py).Content | python -``
 - Décompressez l'archive ``setuptools-*XX.X.X*.zip``.
-- Avec la commande ``cd setuptools-XX.X.X``, ouvrer le répertoire possèdant *easy_install.py*.
+- Avec la commande ``cd setuptools-XX.X.X``, ouvrez le répertoire possèdant *easy_install.py*.
 - Installez pip et tox : ``python easy_install.py pip tox``.
 - Vous devriez avoir un nouveau répertoire ``C:\Python27\Scripts``, rajoutez le dans le *PATH, la variable d'environnement*.
 - Réinstallez easyinstall : ``python easy_install.py easyinstall``, ça vous permettra de l'utiliser partout, (supprimez l'ancien package).

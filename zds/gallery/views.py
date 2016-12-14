@@ -30,7 +30,7 @@ import shutil
 import os
 from django.utils.translation import ugettext_lazy as _
 
-from django.views.generic import DetailView, CreateView, UpdateView, DeleteView, FormView
+from django.views.generic import CreateView, UpdateView, DeleteView, FormView
 from django.utils.decorators import method_decorator
 from zds.tutorialv2.models.models_database import PublishableContent
 
@@ -125,25 +125,29 @@ def ensure_user_access(gallery, user, can_write=False):
     return user_gallery
 
 
-class GalleryDetails(DetailView):
+class GalleryDetails(ZdSPagingListView):
     """Gallery details"""
-
-    model = Gallery
+    object = UserGallery
     template_name = "gallery/gallery/details.html"
-    context_object_name = "gallery"
+    context_object_name = "images"
+    paginate_by = settings.ZDS_APP['gallery']['images_per_page']
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super(GalleryDetails, self).dispatch(*args, **kwargs)
 
+    def get_queryset(self):
+        self.pkey = self.kwargs.pop('pk', None)
+        self.slug = self.kwargs.pop('slug', None)
+        self.gallery = get_object_or_404(Gallery, pk=self.pkey, slug=self.slug)
+        self.user_access = ensure_user_access(self.gallery, self.request.user, can_write=True)
+        return self.gallery.get_images().order_by('title')
+
     def get_context_data(self, **kwargs):
         context = super(GalleryDetails, self).get_context_data(**kwargs)
-
-        context['gallery_mode'] = ensure_user_access(self.object, self.request.user)
-        context['images'] = self.object.get_images()
+        context['gallery_mode'] = self.user_access
         context['form'] = UserGalleryForm
-        context['content_linked'] = PublishableContent.objects.filter(gallery__pk=self.object.pk).first()
-
+        context['gallery'] = self.gallery
         return context
 
 
@@ -437,7 +441,7 @@ class ImportImages(GalleryMixin, FormView):
 
             ph_temp = os.path.abspath(os.path.join(temp, os.path.basename(i)))
 
-            if filename.strip() == "":  # don't deal with directory
+            if not filename.strip():  # don't deal with directory
                 continue
 
             # create file for image

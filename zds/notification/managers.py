@@ -158,6 +158,23 @@ class SubscriptionManager(models.Manager):
         return existing
 
 
+class NewTopicSubscriptionManager(SubscriptionManager):
+    def mark_read_everybody_at(self, topic):
+        """
+        Mark every unaccessible notifications as read.
+
+        :param topic:
+        :return:
+        """
+        from zds.notification.models import Notification
+        notifications = Notification.objects.filter(content_type__pk=ContentType.objects.get_for_model(topic).pk,
+                                                    object_id=topic.pk)
+        for notification in notifications:
+            if not topic.forum.can_read(notification.subscription.user):
+                notification.is_read = True
+                notification.save()
+
+
 class TopicAnswerSubscriptionManager(SubscriptionManager):
     """
     Custom topic answer subscription manager.

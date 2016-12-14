@@ -3,13 +3,10 @@
 {% load i18n %}
 {% load pluralize_fr %}
 
-
-
 <div class="topic navigable-elem
     {% if user.is_authenticated and topic.pk not in topic_read %}
         unread
     {% endif %}">
-
     <div class="topic-infos">
         {% if topic.is_sticky %}
             <span class="ico-after pin blue">[{% trans "Epinglé" %}]</span>
@@ -19,6 +16,9 @@
         {% endif %}
         {% if topic.is_locked %}
             <span class="ico-after lock blue">[{% trans "Fermé" %}]</span>
+        {% endif %}
+        {% if topic.is_followed %}
+            <span class="ico-after star blue">[{% trans "Suivi" %}]</span>
         {% endif %}
     </div>
     {% with profile=topic.author|profile %}
@@ -58,7 +58,7 @@
     {% with nb_post=topic.get_post_count %}
         <p class="topic-answers {% if nb_post <= 1 %}topic-no-answer{% endif %}">
             {% blocktrans with plural=nb_post|pluralize_fr %}
-                {{ nb_post }} réponse{{ plural }}
+                {{ nb_post }} message{{ plural }}
             {% endblocktrans %}
         </p>
     {% endwith %}

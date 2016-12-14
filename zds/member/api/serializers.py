@@ -85,7 +85,7 @@ class ProfileDetailSerializer(serializers.ModelSerializer):
         model = Profile
         fields = ('id', 'username', 'html_url', 'email', 'is_active', 'date_joined',
                   'site', 'avatar_url', 'biography', 'sign', 'show_email',
-                  'show_sign', 'hover_or_click', 'allow_temp_visual_changes',
+                  'show_sign', 'is_hover_enabled', 'allow_temp_visual_changes',
                   'email_for_answer', 'last_visit', 'permissions')
 
     def __init__(self, *args, **kwargs):
@@ -116,14 +116,14 @@ class ProfileValidatorSerializer(serializers.ModelSerializer):
     date_joined = serializers.DateTimeField(source='user.date_joined', required=False)
     permissions = DRYPermissionsField(additional_actions=['ban'])
     show_sign = serializers.NullBooleanField(required=False)
-    hover_or_click = serializers.NullBooleanField(required=False)
+    is_hover_enabled = serializers.NullBooleanField(required=False)
     email_for_answer = serializers.NullBooleanField(required=False)
 
     class Meta:
         model = Profile
         fields = ('id', 'username', 'email', 'is_active', 'date_joined',
                   'site', 'avatar_url', 'biography', 'sign', 'show_email',
-                  'show_sign', 'hover_or_click', 'email_for_answer', 'last_visit',
+                  'show_sign', 'is_hover_enabled', 'email_for_answer', 'last_visit',
                   'permissions')
         read_only_fields = ('is_active', 'date_joined', 'last_visit', 'permissions',)
 
@@ -143,8 +143,8 @@ class ProfileValidatorSerializer(serializers.ModelSerializer):
             instance.show_email = validated_data.get('show_email', instance.show_email)
         if validated_data.get('show_sign', instance.show_sign) != instance.show_sign:
             instance.show_sign = validated_data.get('show_sign', instance.show_sign)
-        if validated_data.get('hover_or_click', instance.hover_or_click) != instance.hover_or_click:
-            instance.hover_or_click = validated_data.get('hover_or_click', instance.hover_or_click)
+        if validated_data.get('is_hover_enabled', instance.is_hover_enabled) != instance.is_hover_enabled:
+            instance.is_hover_enabled = validated_data.get('is_hover_enabled', instance.is_hover_enabled)
         if validated_data.get('email_for_answer', instance.email_for_answer) != instance.email_for_answer:
             instance.email_for_answer = validated_data.get('email_for_answer', instance.email_for_answer)
         instance.user.save()

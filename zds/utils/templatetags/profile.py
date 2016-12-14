@@ -14,11 +14,16 @@ perms = {'forum.change_post': {}}
 
 @register.filter('profile')
 def profile(current_user):
+    # we currently expect to receive a User in most cases, but as we move
+    # toward using Profiles instead, we have to handle them as well.
     try:
-        current_profile = current_user.profile
+        return current_user.profile
+    except AttributeError:
+        if isinstance(current_user, Profile):
+            return current_user
     except Profile.DoesNotExist:
-        current_profile = None
-    return current_profile
+        pass
+    return None
 
 
 @register.filter('user')

@@ -521,7 +521,7 @@ class Container:
         self.top_container().dump_json()
         repo.index.add(['manifest.json'])
 
-        if commit_message == '':
+        if not commit_message:
             commit_message = _(u'Mise à jour de « {} »').format(self.title)
 
         if do_commit:
@@ -556,7 +556,7 @@ class Container:
         repo.index.add([rel_path])
 
         # make it
-        if commit_message == '':
+        if not commit_message:
             commit_message = _(u'Création du conteneur « {} »').format(title)
 
         return subcontainer.repo_update(
@@ -583,7 +583,7 @@ class Container:
             raise PermissionDenied
 
         # make it
-        if commit_message == '':
+        if not commit_message:
             commit_message = _(u'Création de l\'extrait « {} »').format(title)
 
         return extract.repo_update(title, text, commit_message=commit_message, do_commit=do_commit)
@@ -610,7 +610,7 @@ class Container:
         top.top_container().dump_json()
         repo.index.add(['manifest.json'])
 
-        if commit_message == '':
+        if not commit_message:
             commit_message = _(u'Suppression du conteneur « {} »').format(self.title)
 
         if do_commit:
@@ -942,7 +942,7 @@ class Extract:
         self.container.top_container().dump_json()
         repo.index.add(['manifest.json'])
 
-        if commit_message == '':
+        if not commit_message:
             commit_message = _(u'Modification de l\'extrait « {} », situé dans le conteneur « {} »')\
                 .format(self.title, self.container.title)
 
@@ -972,7 +972,7 @@ class Extract:
         top.top_container().dump_json()
         repo.index.add(['manifest.json'])
 
-        if commit_message == '':
+        if not commit_message:
             commit_message = _(u'Suppression de l\'extrait « {} »').format(self.title)
 
         if do_commit:

@@ -3,8 +3,8 @@
 from django.utils.translation import ugettext_lazy as _
 
 TYPE_CHOICES = (
-    ('TUTORIAL', 'Tutoriel'),
-    ('ARTICLE', 'Article'),
+    ('TUTORIAL', _(u'Tutoriel')),
+    ('ARTICLE', _(u'Article')),
 )
 
 TYPE_CHOICES_DICT = dict(TYPE_CHOICES)

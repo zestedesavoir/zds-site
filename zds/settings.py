@@ -113,7 +113,6 @@ MIDDLEWARE_CLASSES = (
     'zds.utils.ThreadLocals',
     'zds.middlewares.SetLastVisitMiddleware.SetLastVisitMiddleware',
     'zds.middlewares.profile.ProfileMiddleware',
-    'zds.middlewares.ForceHttpsMembersMiddleware.ForceHttpsMembersMiddleware',
 )
 
 ROOT_URLCONF = 'zds.urls'
@@ -322,12 +321,6 @@ CACHES = {
 
 SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
 
-# Change to True to force HTTPS for members
-FORCE_HTTPS_FOR_MEMBERS = False
-# Change to True to force HTTPS on views with `@https_required`
-ENABLE_HTTPS_DECORATOR = False
-
-
 LOGIN_URL = '/membres/connexion'
 
 ABSOLUTE_URL_OVERRIDES = {
@@ -469,6 +462,7 @@ ZDS_APP = {
     'gallery': {
         'image_max_size': 1024 * 1024,
         'gallery_per_page': 21,
+        'images_per_page': 21,
     },
     'article': {
         'home_number': 3,
@@ -477,7 +471,7 @@ ZDS_APP = {
     'tutorial': {
         'repo_path': os.path.join(BASE_DIR, 'tutoriels-private'),
         'repo_public_path': os.path.join(BASE_DIR, 'tutoriels-public'),
-        'default_license_pk': 7,
+        'default_licence_pk': 7,
         'home_number': 4,
         'helps_per_page': 20,
         'content_per_page': 42,
@@ -521,6 +515,10 @@ ZDS_APP = {
     'topic': {
         'home_number': 6,
     },
+    'comment': {
+        'max_pings': 15,
+        'enable_pings': False,
+    },
     'featured_resource': {
         'featured_per_page': 100,
         'home_number': 5,
@@ -531,7 +529,8 @@ ZDS_APP = {
     'paginator': {
         'folding_limit': 4
     },
-    'visual_changes': []
+    'visual_changes': [],
+    'display_search_bar': True
 }
 
 LOGIN_REDIRECT_URL = "/"

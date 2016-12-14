@@ -21,7 +21,9 @@ Voici un aperçu du dossier :
     ├── images/  # Images
     │   ├── sprite/  # Images qui seront dans le sprite
     │   │   ├── arrow-right.png
+    │   │   ├── arrow-right@2x.png # Version rétina de chaque élément du sprite
     │   │   ├── arrow-right-blue.png
+    │   │   ├── arrow-right-blue@2x.png
     │   │   ...
     │   │
     │   │ # Autres images
@@ -32,10 +34,6 @@ Voici un aperçu du dossier :
     │   ...
     │
     ├── js/  # Fichiers Javascript
-    │   ├── vendors/  # Toutes les bibliothèques (disponibles après l'installation des outils)
-    │   │   ├── jquery.js
-    │   │   ...
-    │   │
     │   ├── editor.js
     │   ├── markdown-help.js
     │   ├── modal.js
@@ -58,8 +56,7 @@ Voici un aperçu du dossier :
     │   ├── variables/  # Variables SCSS
     │   │
     │   ├── main.scss  # Fichier de configuation
-    │   ├── only-ie.scss  # Styles pour Internet Explorer 9
-    │   ├── sprite-template.mustache  # Fichier servant à la génération du sprite
+    │   ├── _sprite.scss.hbs  # Template Handlebars pour la création du sprite
     │   ...
     │
     └── smileys/  # Smileys
@@ -77,14 +74,14 @@ Voilà à peu près ce qui est généré lors du "build" :
 
     dist/
     ├── css/
-    │   ├── main.css  # Tout le CSS compilé...
-    │   └── main.min.css  # ...et minimisé
+    │   ├── main.css  # Tout le CSS compilé et minifié
+    │   └── main.min.map # SourceMap associé
     │
     ├── images/
     │   ├── sprite@2x.png  # Sprite haute résolution
     │   ├── sprite.png  # Sprite moyenne résolution
     │   │
-    │   │ # Images inchangées
+    │   │ # Images compressées
     │   ├── favicon.ico
     │   ├── favicon.png
     │   ├── logo@2x.png
@@ -92,18 +89,8 @@ Voilà à peu près ce qui est généré lors du "build" :
     │   ...
     │
     ├── js/
-    │   ├── vendors/  # Toutes les bibliothèques non-minimisées
-    │   │   ├── jquery.js
-    │   │   ...
-    │   │
-    │   ├── vendors.js  # Toutes les bibliothèques rassemblées...
-    │   ├── vendors.min.js  # ...et minimisées
-    │   │
-    │   ├── main.js  # Tout le JS customisé rassemblé...
-    │   ├── main.min.js  # ...et minimisé
-    │   │
-    │   ├── all.js  # Tout le JS rassemblé...
-    │   └── all.min.js  # ...et minimisé
+    │   ├── script.js  # Tout le JS concaténé et minifié
+    │   └── script.js.map  # SourceMap associé
     │
     └── smileys/
         ├── ange.png

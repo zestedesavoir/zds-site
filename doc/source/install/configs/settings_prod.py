@@ -5,7 +5,7 @@
 
 import os
 
-from settings import ZDS_APP, INSTALLED_APPS
+from settings import ZDS_APP, INSTALLED_APPS, BASE_DIR
 
 
 ##### Django settings #####
@@ -24,6 +24,7 @@ DATABASES = {
         'HOST': 'localhost',
         'PORT': '',
         'CONN_MAX_AGE': 600,
+        'OPTIONS': {'charset': 'utf8mb4'},
     }
 }
 
@@ -60,12 +61,53 @@ CACHES = {
 }
 
 SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 7 * 4
 
 MEDIA_ROOT = '/opt/zds/data/media'
 
 STATIC_ROOT = '/opt/zds/data/static'
 STATICFILES_STORAGE = "django.contrib.staticfiles.storage.CachedStaticFilesStorage"
 
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+            os.path.join(BASE_DIR, 'templates'),
+        ],
+        'OPTIONS': {
+            'loaders': [
+                ('django.template.loaders.cached.Loader', [
+                    'django.template.loaders.filesystem.Loader',
+                    'django.template.loaders.app_directories.Loader',
+                ]),
+            ],
+            'context_processors': [
+                # Default context processors
+                'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.debug',
+                'django.template.context_processors.i18n',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
+                'django.template.context_processors.request',
+                'django.template.context_processors.tz',
+                'django.contrib.messages.context_processors.messages',
+                'social.apps.django_app.context_processors.backends',
+                'social.apps.django_app.context_processors.login_redirect',
+                # ZDS context processors
+                'zds.utils.context_processor.app_settings',
+                'zds.utils.context_processor.git_version',
+            ],
+            'debug': DEBUG,
+        }
+    },
+]
+
+# Sentry (+ raven, the Python Client)
+# https://docs.getsentry.com/hosted/clients/python/integrations/django/
+RAVEN_CONFIG = {
+#    'dsn': 'to-fill'
+    'dsn': 'to-fill'
+}
 
 LOGGING = {
    'version': 1,
@@ -100,7 +142,12 @@ LOGGING = {
         'mail_admins': {
             'level': 'ERROR',
             'class': 'django.utils.log.AdminEmailHandler',
-        }
+        },
+       'sentry': {
+            'level': 'ERROR',  # For beta purpose it can be lowered to WARNING
+            'class': 'raven.handlers.logging.SentryHandler',
+            'dsn': RAVEN_CONFIG['dsn'],
+        },
    },
    'loggers': {
         'django': {
@@ -109,7 +156,7 @@ LOGGING = {
             'level': 'WARNING',
         },
         'zds': {
-            'handlers': ['django_log'],
+            'handlers': ['django_log', 'sentry'],
             'propagate': True,
             'level': 'WARNING',
         },
@@ -151,13 +198,6 @@ PANDOC_PDF_PARAM = ("--latex-engine=xelatex "
                     "-V mainfont=Merriweather -V monofont=\"SourceCodePro-Regular\" "
                     "-V fontsize=12pt -V geometry:margin=1in ".format('/opt/zds/zds-site/assets/tex/template.tex'))
 
-# Sentry (+ raven, the Python Client)
-# https://docs.getsentry.com/hosted/clients/python/integrations/django/
-RAVEN_CONFIG = {
-#    'dsn': 'to-fill'
-    'dsn': 'to-fill'
-}
-
 # python-social-auth
 # http://psa.matiasaguirre.net/docs/configuration/django.html
 SOCIAL_AUTH_PIPELINE = (
@@ -194,6 +234,8 @@ RECAPTCHA_RIVATE_KEY = 'to-fill'
 
 ##### ZdS settings #####
 
+# added in v20
+ZDS_APP['site']['secure_url'] = 'https://zestedesavoir.com'
 
 # forum
 ZDS_APP['forum']['beta_forum_id'] = 23
@@ -232,4 +274,4 @@ ENABLE_HTTPS_DECORATOR = True
 
 # visual changes
 #ZDS_APP['visual_changes'] = ['snow', 'clem-christmas']
-ZDS_APP['visual_changes'] = ['clem-halloween']
+#ZDS_APP['visual_changes'] = ['clem-halloween']

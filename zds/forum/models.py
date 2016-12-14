@@ -1,16 +1,13 @@
 # coding: utf-8
 
-import os
-import string
-import uuid
+import logging
 from datetime import datetime, timedelta
 from math import ceil
 
 from django.conf import settings
-from django.contrib.auth.models import Group, User
+from django.contrib.auth.models import Group, User, AnonymousUser
 from django.core.urlresolvers import reverse
 from django.db import models
-from django.utils.encoding import smart_text
 
 from zds.forum.managers import TopicManager, ForumManager, PostManager, TopicReadManager
 from zds.notification import signals
@@ -24,19 +21,6 @@ def sub_tag(tag):
     start = tag.group('start')
     end = tag.group('end')
     return u"{0}".format(start + end)
-
-
-def image_path_forum(instance, filename):
-    """
-    Return path to an image.
-    TODO: what is the usage of this function?
-    :param instance:
-    :param filename:
-    :return:
-    """
-    ext = filename.split('.')[-1]
-    filename = u'{}.{}'.format(str(uuid.uuid4()), string.lower(ext))
-    return os.path.join('forum/normal', str(instance.pk), filename)
 
 
 class Category(models.Model):
@@ -101,8 +85,6 @@ class Forum(models.Model):
         Group,
         verbose_name='Groupe autorisés (Aucun = public)',
         blank=True)
-    # TODO: A forum defines an image, but it doesn't seems to be used...
-    image = models.ImageField(upload_to=image_path_forum)
 
     category = models.ForeignKey(Category, db_index=True, verbose_name='Catégorie')
     position_in_category = models.IntegerField('Position dans la catégorie',
@@ -153,7 +135,7 @@ class Forum(models.Model):
         Checks if an user can read current forum.
         The forum can be read if:
         - The forum has no access restriction (= no group), or
-        - The user is authenticated and he has access to groups defined for this forum.
+        - the user is in our database and is part of the restricted group which is needed to access this forum
         :param user: the user to check the rights
         :return: `True` if the user can read this forum, `False` otherwise.
         """
@@ -161,8 +143,9 @@ class Forum(models.Model):
         if self.group.count() == 0:
             return True
         else:
-            if user is not None and user.is_authenticated():
-                groups = Group.objects.filter(user=user).all()
+            # authentication is the best way to be sure groups are available in the user object
+            if user is not None:
+                groups = list(user.groups.all()) if not isinstance(user, AnonymousUser) else []
                 return Forum.objects.filter(
                     group__in=groups,
                     pk=self.pk).exists()
@@ -183,7 +166,7 @@ class Topic(models.Model):
         verbose_name = 'Sujet'
         verbose_name_plural = 'Sujets'
 
-    title = models.CharField('Titre', max_length=80)
+    title = models.CharField('Titre', max_length=160)
     subtitle = models.CharField('Sous-titre', max_length=200, null=True,
                                 blank=True)
 
@@ -208,11 +191,6 @@ class Topic(models.Model):
         verbose_name='Tags du forum',
         blank=True,
         db_index=True)
-
-    # This attribute is the link between beta of tutorials and topic of these beta.
-    # In Tuto logic we can found something like this: `Topic.objet.get(key=tutorial.pk)`
-    # TODO: 1. Use a better name, 2. maybe there can be a cleaner way to do this
-    key = models.IntegerField('cle', null=True, blank=True)
 
     objects = TopicManager()
 
@@ -255,8 +233,8 @@ class Topic(models.Model):
         """
         :return: the first post of a topic, written by topic's author.
         """
-        # TODO: Force relation with author here is strange. Probably linked with the `get_last_answer` function that
-        # should compare PK and not objects
+        # we need the author prefetching as this method is widely used in templating directly or with
+        # all the mess arround last_answer and last_read message
         return Post.objects\
             .filter(topic=self)\
             .select_related("author")\
@@ -270,13 +248,12 @@ class Topic(models.Model):
         :param tag_collection: A collection of tags.
         """
         for tag in tag_collection:
-            tag_title = smart_text(tag.strip().lower())
-            current_tag = Tag.objects.filter(title=tag_title).first()
-            if current_tag is None:
-                current_tag = Tag(title=tag_title)
-                current_tag.save()
+            try:
+                current_tag, created = Tag.objects.get_or_create(title=tag.lower().strip())
+                self.tags.add(current_tag)
+            except ValueError as e:
+                logging.getLogger("zds.forum").warn(e)
 
-            self.tags.add(current_tag)
         self.save()
 
     def last_read_post(self):
@@ -304,7 +281,7 @@ class Topic(models.Model):
         """
         user = get_current_user()
         if user is None or not user.is_authenticated():
-            return self.resolve_first_post_url()
+            return self.first_unread_post().get_absolute_url()
         else:
             try:
                 pk, pos = self.resolve_last_post_pk_and_pos_read_by_user(user)
@@ -314,7 +291,7 @@ class Topic(models.Model):
                 return '{}?page={}#p{}'.format(
                     self.get_absolute_url(), page_nb, pk)
             except TopicRead.DoesNotExist:
-                return self.resolve_first_post_url()
+                return self.first_unread_post().get_absolute_url()
 
     def resolve_last_post_pk_and_pos_read_by_user(self, user):
         """get the primary key and position of the last post the user read
@@ -336,20 +313,6 @@ class Topic(models.Model):
             .order_by('position')\
             .values('pk', "position").first().values()
 
-    def resolve_first_post_url(self):
-        """resolve the url that leads to this topic first post
-
-        :return: the url
-        """
-        pk = Post.objects\
-            .filter(topic__pk=self.pk)\
-            .order_by('position')\
-            .values('pk').first()
-
-        return '{0}?page=1#p{1}'.format(
-            self.get_absolute_url(),
-            pk['pk'])
-
     def first_unread_post(self, user=None):
         """
         Returns the first post of this topics the current user has never read, or the first post if it has never read \
@@ -358,7 +321,6 @@ class Topic(models.Model):
 
         :return: The first unread post for this topic and this user.
         """
-        # TODO: Why 2 nearly-identical functions? What is the functional need of these 2 things?
         try:
             if user is None:
                 user = get_current_user()
@@ -443,6 +405,9 @@ class Post(Comment):
             page,
             self.pk)
 
+    def get_notification_title(self):
+        return self.topic.title
+
 
 class TopicRead(models.Model):
     """
@@ -452,8 +417,8 @@ class TopicRead(models.Model):
     class Meta:
         verbose_name = 'Sujet lu'
         verbose_name_plural = 'Sujets lus'
+        unique_together = ("topic", "user")
 
-    # TODO: ça a l'air d'être OK en base, mais ne devrait-il pas y avoir une contrainte unique sur (topic, user) ?
     topic = models.ForeignKey(Topic, db_index=True)
     post = models.ForeignKey(Post, db_index=True)
     user = models.ForeignKey(User, related_name='topics_read', db_index=True)
@@ -463,22 +428,6 @@ class TopicRead(models.Model):
         return u'<Sujet "{0}" lu par {1}, #{2}>'.format(self.topic,
                                                         self.user,
                                                         self.post.pk)
-
-
-def get_last_topics(user):
-    """Returns the 5 very last topics."""
-    # TODO semble inutilisé (et peu efficace dans la manière de faire)
-    topics = Topic.objects.all().order_by('-last_message__pubdate')
-
-    tops = []
-    cpt = 1
-    for topic in topics:
-        if topic.forum.can_read(user):
-            tops.append(topic)
-            cpt += 1
-        if cpt > 5:
-            break
-    return tops
 
 
 def is_read(topic, user=None):
@@ -506,7 +455,6 @@ def mark_read(topic, user=None):
         user = get_current_user()
 
     if user and user.is_authenticated():
-        # TODO: voilà entre autres pourquoi il devrait y avoir une contrainte unique sur (topic, user) sur TopicRead.
         current_topic_read = TopicRead.objects.filter(topic=topic, user=user).first()
         if current_topic_read is None:
             current_topic_read = TopicRead(post=topic.last_message, topic=topic, user=user)

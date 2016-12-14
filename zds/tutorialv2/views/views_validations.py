@@ -270,17 +270,21 @@ class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
                     'url': versioned.get_absolute_url() + '?version=' + validation.version,
                 })
 
-            send_mp(
-                validation.validator,
-                validation.content.authors.all(),
-                _(u"Contenu réservé - {0}").format(validation.content.title),
-                validation.content.title,
-                msg,
-                True,
-                leave=False,
-                direct=False,
-                mark_as_read=True
-            )
+            authors = list(validation.content.authors.all())
+            if validation.validator in authors:
+                authors.remove(validation.validator)
+            if authors.__len__ > 0:
+                send_mp(
+                    validation.validator,
+                    authors,
+                    _(u"Contenu réservé - {0}").format(validation.content.title),
+                    validation.content.title,
+                    msg,
+                    True,
+                    leave=False,
+                    direct=False,
+                    mark_as_read=True
+                )
 
             messages.info(request, _(u"Ce contenu a bien été réservé par {0}.").format(request.user.username))
 
@@ -426,7 +430,7 @@ class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
             if db_object.type == 'ARTICLE':
                 db_object.sha_beta = None
                 topic = db_object.beta_topic
-                if topic is not None:
+                if topic is not None and not topic.is_locked:
                     msg_post = render_to_string(
                         'tutorialv2/messages/beta_desactivate.md', {'content': versioned}
                     )

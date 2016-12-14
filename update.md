@@ -808,3 +808,35 @@ Le déploiement doit être autonome. Ce qui implique que :
 1. La mise à jour de dépendances est automatique et systématique,
 2. La personne qui déploie ne doit pas réfléchir (parce que c'est source d'erreur),
 3. La personne qui déploie ne doit pas avoir connaissance de ce qui est déployé (techniquement et fonctionnellement).
+
+
+Actions à faire pour l'upgrade v21
+==================================
+
+**(pré-migration)** Supprimer les notifications persistantes
+------------------------------------------------------------
+
+1. Lancer la commande suivante :
+  * `python manage.py fix_persistent_notifications >> ~/mep_v21.log`
+1. Jeter un oeil aux logs pour s'assurer que tout s'est bien passé.
+
+Actions à faire pour masquer la barre de recherche
+--------------------------------------------------
+
+Ajouter `ZDS_APP['display_search_bar'] = False` à `settings_prod.py`
+
+`settings_prod.py`
+------------------
+
+```diff
+      'zds.utils.ThreadLocals',
+      'zds.middlewares.SetLastVisitMiddleware.SetLastVisitMiddleware',
+      'zds.middlewares.profile.ProfileMiddleware',
+-     'zds.middlewares.ForceHttpsMembersMiddleware.ForceHttpsMembersMiddleware',
+  )
+```
+
+A propos du logging:
+--------------------
+
+Mettre à jour le `settings_prod.py` en suivant `doc/source/install/configs/settings_prod.py`.

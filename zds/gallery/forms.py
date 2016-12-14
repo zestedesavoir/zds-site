@@ -41,7 +41,7 @@ class GalleryForm(forms.ModelForm):
 
         title = cleaned_data.get('title')
 
-        if title and title.strip() == '':
+        if title and not title.strip():
             self._errors['title'] = self.error_class(
                 [_(u'Le champ titre ne peut être vide')])
             if 'title' in cleaned_data:

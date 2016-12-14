@@ -191,7 +191,7 @@
      */
     function buildModals($elems){
         $elems.each(function(){
-            var $link = $("[href=#"+$(this).attr("id")+"]:first");
+            var $link = $("[href='#"+$(this).attr("id")+"']:first");
 
             var linkIco = "";
             if($link.hasClass("ico-after")) {

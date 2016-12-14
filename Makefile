@@ -1,18 +1,24 @@
+.PHONY: fixtures
+
 all: help
 
 # install
 ## linux
 install-debian:
-	sudo apt-get install git python-dev python-setuptools libxml2-dev python-lxml libxslt-dev libz-dev python-sqlparse libjpeg62-turbo libjpeg62-turbo-dev libfreetype6 libfreetype6-dev libffi-dev python-pip python-tox
+	sudo apt-get install git python-dev python-setuptools libxml2-dev python-lxml libxslt-dev libz-dev python-sqlparse libjpeg62-turbo libjpeg62-turbo-dev libfreetype6 libfreetype6-dev libffi-dev python-pip python-tox build-essential
 
 install-ubuntu:
-	sudo apt-get install git python-dev python-setuptools libxml2-dev python-lxml libxslt1-dev libz-dev python-sqlparse libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev libffi-dev python-pip python-tox
+	sudo apt-get install git python-dev python-setuptools libxml2-dev python-lxml libxslt1-dev libz-dev python-sqlparse libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev libffi-dev python-pip python-tox build-essential
 
 install-fedora:
-	sudo dnf install git python-devel python-setuptools libxml2-devel python-lxml libxslt-devel zlib-devel python-sqlparse libjpeg-turbo-devel libjpeg-turbo-devel freetype freetype-devel libffi-devel python-pip python-tox
+	sudo dnf install git python-devel python-setuptools libxml2-devel python-lxml libxslt-devel zlib-devel python-sqlparse libjpeg-turbo-devel libjpeg-turbo-devel freetype freetype-devel libffi-devel python-pip python-tox gcc redhat-rpm-config
+
+install-archlinux:
+	sudo pacman -Sy git python2 python2-setuptools python2-pip libxml2 python2-lxml libxslt zlib python2-sqlparse libffi libjpeg-turbo freetype2 python2-tox base-devel
 
 install-osx:
-	brew install virtualenv_select py27-virtualenv py27-virtualenvwrapper py27-tox node
+	brew install gettext cairo --without-x11 py2cairo node && \ 
+	pip install virtualenv virtualenvwrapper 
 
 # dev back
 ## django
@@ -75,12 +81,13 @@ doc:
 	make html
 
 fixtures:
-	python manage.py loaddata fixtures/*.yaml.
+	python manage.py loaddata fixtures/*.yaml
 
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
 	@echo "  build-front       to build frontend code"
 	@echo "  doc               to generate the html documentation"
+	@echo "  fixtures          to load every fixtures"
 	@echo "  generate-pdf      to regenerate all PDFs"
 	@echo "  help              to get this help"
 	@echo "  install-back      to install backend dependencies"
@@ -88,6 +95,7 @@ help:
 	@echo "  install-debian    to install debian dependencies"
 	@echo "  install-ubuntu    to install ubuntu dependencies"
 	@echo "  install-fedora    to install fedora dependencies"
+	@echo "  install-archlinux to install archlinux dependencies"
 	@echo "  install-osx       to install os x dependencies"
 	@echo "  lint-back         to lint backend code (flake8)"
 	@echo "  lint-front        to lint frontend code (jshint)"

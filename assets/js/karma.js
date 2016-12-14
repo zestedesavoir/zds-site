@@ -217,7 +217,9 @@
                     $("<li>", { class: "muted", text: "Pas de votes " + (sign === "like" ? "positifs" : "négatifs")}).appendTo(this[sign].listElem);
                 } else {
                     this[sign].listElem.append(data[sign].users.map(function(user) {
+                        /* jshint -W069 */
                         return $("<li>").append($("<a>", { href: user["html_url"], text: user.username }).prepend($("<img />", { src: user["avatar_url"] })));
+                        /* jshint +W069 */
                     }));
 
                     var anonymous = data[sign].count - data[sign].users.length;

@@ -8,6 +8,7 @@ from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
+from zds.forum.commons import PostEditMixin
 from zds.forum.factories import CategoryFactory, ForumFactory, \
     TopicFactory, PostFactory, TagFactory
 from zds.forum.models import Forum, TopicRead, Post, Topic, is_read
@@ -97,13 +98,13 @@ class ForumMemberTests(TestCase):
     def test_create_topic(self):
         """To test all aspects of topic's creation by member."""
         result = self.client.post(
-            reverse('topic-new') + '?forum={0}'
-            .format(self.forum12.pk),
-            {'title': u'Un autre sujet',
-             'subtitle': u'Encore ces lombards en plein ete',
-             'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
-             },
-            follow=False)
+            reverse('topic-new') + '?forum={0}'.format(self.forum12.pk),
+            {
+                'title': u'Un autre sujet',
+                'subtitle': u'Encore ces lombards en plein ete',
+                'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter ',
+                'tags': ''
+            }, follow=False)
         self.assertEqual(result.status_code, 302)
 
         # check topics count
@@ -303,7 +304,8 @@ class ForumMemberTests(TestCase):
             {
                 'title': expected_title,
                 'subtitle': expected_subtitle,
-                'text': expected_text
+                'text': expected_text,
+                'tags': ''
             },
             follow=False)
 
@@ -334,7 +336,8 @@ class ForumMemberTests(TestCase):
             {
                 'title': '',
                 'subtitle': expected_subtitle,
-                'text': expected_text
+                'text': expected_text,
+                'tags': ''
             },
             follow=False)
         self.assertEqual(Topic.objects.get(pk=topic2.pk).title, topic2.title)
@@ -343,9 +346,10 @@ class ForumMemberTests(TestCase):
         result = self.client.post(
             reverse('topic-edit') + '?topic={0}'.format(topic2.pk),
             {
-                'title': u'[foo][bar]',
+                'title': '',
                 'subtitle': expected_subtitle,
-                'text': expected_text
+                'text': expected_text,
+                'tags': 'foo, bar'
             },
             follow=False)
         self.assertEqual(Topic.objects.get(pk=topic2.pk).title, topic2.title)
@@ -356,7 +360,8 @@ class ForumMemberTests(TestCase):
             {
                 'title': u'  ',
                 'subtitle': expected_subtitle,
-                'text': expected_text
+                'text': expected_text,
+                'tags': ''
             },
             follow=False)
         self.assertEqual(Topic.objects.get(pk=topic2.pk).title, topic2.title)
@@ -367,7 +372,8 @@ class ForumMemberTests(TestCase):
             {
                 'title': expected_title,
                 'subtitle': expected_subtitle,
-                'text': expected_text
+                'text': expected_text,
+                'tags': ''
             },
             follow=False)
         self.assertEqual(expected_title, Topic.objects.get(pk=topic2.pk).title)
@@ -464,10 +470,10 @@ class ForumMemberTests(TestCase):
         self.assertEqual(result.status_code, 404)
 
     def test_signal_post(self):
-        """To test when a member signal a post."""
+        """To test when a member signals a post."""
         user1 = ProfileFactory().user
         topic1 = TopicFactory(forum=self.forum11, author=self.user)
-        PostFactory(topic=topic1, author=self.user, position=1)
+        post1 = PostFactory(topic=topic1, author=self.user, position=1)
         post2 = PostFactory(topic=topic1, author=user1, position=2)
         PostFactory(topic=topic1, author=user1, position=3)
 
@@ -480,9 +486,22 @@ class ForumMemberTests(TestCase):
             follow=False)
 
         self.assertEqual(result.status_code, 302)
-        self.assertEqual(Alert.objects.all().count(), 1)
-        self.assertEqual(Alert.objects.filter(author=self.user).count(), 1)
-        self.assertEqual(Alert.objects.get(author=self.user).text, u'Troll')
+        self.assertEqual(Alert.objects.filter(solved=False).count(), 1)
+        self.assertEqual(Alert.objects.filter(author=self.user, solved=False).count(), 1)
+        self.assertEqual(Alert.objects.get(author=self.user, solved=False).text, u'Troll')
+
+        result = self.client.post(
+            reverse('post-edit') + '?message={0}'.format(post1.pk),
+            {
+                'signal_text': u'Bad title',
+                'signal_message': 'confirmer'
+            },
+            follow=False)
+
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Alert.objects.filter(solved=False).count(), 2)
+        self.assertEqual(Alert.objects.filter(author=self.user, solved=False).count(), 2)
+        self.assertEqual(list(Alert.objects.filter(author=self.user, solved=False))[1].text, u'Bad title')
 
         # and test that staff can solve but not user
         alert = Alert.objects.get(comment=post2.pk)
@@ -496,21 +515,34 @@ class ForumMemberTests(TestCase):
         self.assertEqual(result.status_code, 403)
         # login as staff
         staff1 = StaffProfileFactory().user
-        self.assertEqual(
-            self.client.login(
-                username=staff1.username,
-                password='hostel77'),
-            True)
+        self.assertTrue(self.client.login(username=staff1.username, password='hostel77'))
         # try again as staff
+        resolve_reason = u'Everything is OK kid'
         result = self.client.post(
             reverse('forum-solve-alert'),
             {
                 'alert_pk': alert.pk,
-                'text': u'Everything is Ok kid'
+                'text': resolve_reason
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
-        self.assertEqual(Alert.objects.all().count(), 0)
+        alert = Alert.objects.get(pk=alert.pk)
+        self.assertEqual(alert.resolve_reason, resolve_reason)
+        self.assertTrue(alert.solved)
+        self.assertEqual(Alert.objects.filter(author=self.user, solved=False).count(), 1)
+        self.assertEqual(Alert.objects.filter(author=self.user, solved=True).count(), 1)
+
+        # staff hides a message
+        data = {
+            'delete_message': '',
+            'text_hidden': u'Bad guy!',
+        }
+        response = self.client.post(
+            reverse('post-edit') + '?message={}'.format(post1.pk), data, follow=False)
+        self.assertEqual(302, response.status_code)
+        # alerts automatically solved
+        self.assertEqual(Alert.objects.filter(author=self.user, solved=False).count(), 0)
+        self.assertEqual(Alert.objects.filter(author=self.user, solved=True).count(), 2)
 
     def test_signal_and_solve_alert_empty_message(self):
         """To test when a member signal a post and staff solve it."""
@@ -544,7 +576,7 @@ class ForumMemberTests(TestCase):
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
-        self.assertEqual(Alert.objects.all().count(), 0)
+        self.assertEqual(Alert.objects.filter(solved=False).count(), 0)
 
     def test_useful_post(self):
         """To test when a member mark a post is usefull."""
@@ -564,9 +596,9 @@ class ForumMemberTests(TestCase):
 
         # useful the first post
         result = self.client.post(reverse('post-useful') + '?message={0}'.format(post1.pk), follow=False)
-        self.assertEqual(result.status_code, 403)
+        self.assertEqual(result.status_code, 302)
 
-        self.assertEqual(Post.objects.get(pk=post1.pk).is_useful, False)
+        self.assertEqual(Post.objects.get(pk=post1.pk).is_useful, True)
         self.assertEqual(Post.objects.get(pk=post2.pk).is_useful, True)
         self.assertEqual(Post.objects.get(pk=post3.pk).is_useful, False)
 
@@ -577,10 +609,10 @@ class ForumMemberTests(TestCase):
 
         result = self.client.post(reverse('post-useful') + '?message={0}'.format(post5.pk), follow=False)
 
-        self.assertEqual(result.status_code, 403)
+        self.assertEqual(result.status_code, 302)
 
         self.assertEqual(Post.objects.get(pk=post4.pk).is_useful, False)
-        self.assertEqual(Post.objects.get(pk=post5.pk).is_useful, False)
+        self.assertEqual(Post.objects.get(pk=post5.pk).is_useful, True)
 
         # useful if you are staff
         StaffProfileFactory().user
@@ -591,7 +623,7 @@ class ForumMemberTests(TestCase):
         result = self.client.post(reverse('post-useful') + '?message={0}'.format(post4.pk), follow=False)
         self.assertNotEqual(result.status_code, 403)
         self.assertEqual(Post.objects.get(pk=post4.pk).is_useful, True)
-        self.assertEqual(Post.objects.get(pk=post5.pk).is_useful, False)
+        self.assertEqual(Post.objects.get(pk=post5.pk).is_useful, True)
 
     def test_failing_useful_post(self):
         """To test some failing cases when a member mark a post is useful."""
@@ -730,13 +762,13 @@ class ForumMemberTests(TestCase):
         self.assertNotEqual(tag_c_sharp.title, tag_c.title)
         # post a topic with a tag
         result = self.client.post(
-            reverse('topic-new') + '?forum={0}'
-            .format(self.forum12.pk),
-            {'title': u'[C#]Un autre sujet',
-             'subtitle': u'Encore ces lombards en plein ete',
-             'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
-             },
-            follow=False)
+            reverse('topic-new') + '?forum={0}'.format(self.forum12.pk),
+            {
+                'title': u'Un autre sujet',
+                'subtitle': u'Encore ces lombards en plein ete',
+                'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter ',
+                'tags': u'C#'
+            }, follow=False)
         self.assertEqual(result.status_code, 302)
 
         # test the topic is added to the good tag
@@ -955,35 +987,6 @@ class ForumGuestTests(TestCase):
         # check posts count
         self.assertEqual(Post.objects.all().count(), 3)
 
-    def test_tag_parsing(self):
-        """test the tag parsing in nominal, limit and borns cases"""
-        (tags, title) = get_tag_by_title("[tag]title")
-        self.assertEqual(len(tags), 1)
-        self.assertEqual(title, "title")
-
-        (tags, title) = get_tag_by_title("[[tag1][tag2]]title")
-        self.assertEqual(len(tags), 1)
-        self.assertEqual(tags[0], "[tag1][tag2]")
-        self.assertEqual(title, "title")
-
-        (tags, title) = get_tag_by_title("[tag1][tag2]title")
-        self.assertEqual(len(tags), 2)
-        self.assertEqual(tags[0], "tag1")
-        self.assertEqual(title, "title")
-        (tags, title) = get_tag_by_title("[tag1] [tag2]title")
-        self.assertEqual(len(tags), 2)
-        self.assertEqual(tags[0], "tag1")
-        self.assertEqual(title, "title")
-
-        (tags, title) = get_tag_by_title("[tag1][tag2]title[tag3]")
-        self.assertEqual(len(tags), 2)
-        self.assertEqual(tags[0], "tag1")
-        self.assertEqual(title, "title[tag3]")
-
-        (tags, title) = get_tag_by_title("[tag1[][tag2]title")
-        self.assertEqual(len(tags), 0)
-        self.assertEqual(title, "[tag1[][tag2]title")
-
     def test_edit_main_post(self):
         """To test all aspects of the edition of main post by guest."""
         topic1 = TopicFactory(forum=self.forum11, author=self.user)
@@ -1068,8 +1071,8 @@ class ForumGuestTests(TestCase):
             follow=False)
 
         self.assertEqual(result.status_code, 302)
-        self.assertEqual(Alert.objects.all().count(), 0)
-        self.assertEqual(Alert.objects.filter(author=self.user).count(), 0)
+        self.assertEqual(Alert.objects.filter(solved=False).count(), 0)
+        self.assertEqual(Alert.objects.filter(author=self.user, solved=False).count(), 0)
 
     def test_useful_post(self):
         """To test when a guest mark a post is usefull."""
@@ -1290,3 +1293,15 @@ class ManagerTests(TestCase):
             self.assertFalse(is_read(topic, author.user))
             self.assertTrue(is_read(topic, self.staff.user))
             self.assertFalse(is_read(topic, reader.user))
+
+
+class TestMixins(TestCase):
+    def test_double_unread_is_handled(self):
+        author = ProfileFactory().user
+        viewer = ProfileFactory().user
+        topic = TopicFactory(author=author, forum=ForumFactory(category=CategoryFactory(), position_in_category=1))
+        post = PostFactory(topic=topic, author=author, position=1)
+        TopicRead(topic=topic, post=post, user=viewer).save()
+        PostEditMixin.perform_unread_message(post, viewer)
+        PostEditMixin.perform_unread_message(post, viewer)
+        self.assertEqual(0, TopicRead.objects.count())

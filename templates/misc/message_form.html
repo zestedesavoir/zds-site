@@ -19,7 +19,7 @@
         </p>
     </div>
 {% elif topic.antispam or isantispam %}
-    <div class="alert-box ico-after light">
+    <div class="alert-box ico-after ico-alert light">
         {% trans "Vous venez de poster. Merci de patienter au moins 15 minutes entre deux messages consécutifs afin de limiter le flood" %}.
     </div>
 {% elif topic.alone %}
@@ -38,7 +38,7 @@
     {% endif %}
 
     {% if page_obj.has_next %}
-        <div class="alert-box warning ico-after alert">
+        <div class="alert-box warning ico-after alert light">
             {% trans "<strong>Attention</strong>, vous n'êtes pas sur la dernière page de ce sujet, assurez-vous de l'avoir lu dans son intégralité avant d'y répondre." %}
         </div>
     {% endif %}

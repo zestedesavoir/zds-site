@@ -73,12 +73,20 @@
 
     {% for message in posts %}
         {% captureas edit_link %}
+            {% if message.pk == topic.first_post.pk %}
+                {% url 'topic-edit' %}?topic={{ topic.pk }}
+            {% else %}
+                {% url 'post-edit' %}?message={{ message.pk }}
+            {% endif %}
+        {% endcaptureas %}
+
+        {% captureas post_action_link %}
             {% url 'post-edit' %}?message={{ message.pk }}
         {% endcaptureas %}
 
-        {% captureas hide_link %}{{ edit_link }}{% endcaptureas %}
-        {% captureas show_link %}{{ edit_link }}{% endcaptureas %}
-        {% captureas alert_link %}{{ edit_link }}{% endcaptureas %}
+        {% captureas hide_link %}{{ post_action_link }}{% endcaptureas %}
+        {% captureas show_link %}{{ post_action_link }}{% endcaptureas %}
+        {% captureas alert_link %}{{ post_action_link }}{% endcaptureas %}
 
         {% captureas cite_link %}
             {% url 'post-new' %}?sujet={{ topic.pk }}&amp;cite={{ message.pk }}
@@ -129,7 +137,7 @@
 
 {% block return_btn %}
     <a href="{{ topic.forum.get_absolute_url }}" class="new-btn ico-after arrow-left blue">
-        {% trans "Retour à la liste des sujets" %}
+        {% trans "Retour" %} <span class="wide">{% trans "à la liste des sujets" %}</span>
     </a>
 {% endblock %}
 

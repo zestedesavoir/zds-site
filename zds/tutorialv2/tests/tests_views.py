@@ -1886,7 +1886,7 @@ class ContentTests(TestCase):
         self.assertEqual(validation.version, self.tuto_draft.current_version)
         self.assertEqual(validation.status, 'PENDING')
 
-        # ensure that author cannot publish himself
+        # ensure that author (not staff) cannot access to the validation.
         result = self.client.post(
             reverse('validation:reserve', kwargs={'pk': validation.pk}),
             {
@@ -2128,7 +2128,8 @@ class ContentTests(TestCase):
 
         subscription = NewPublicationSubscription.objects.get_existing(user=self.user_author,
                                                                        content_object=self.user_author)
-        self.assertTrue(subscription.is_active)
+        # subscription must be deactivated.
+        self.assertFalse(subscription.is_active)
         self.assertEqual(1, Notification.objects.filter(subscription=subscription, is_read=False).count())
 
         self.assertEqual(PublishedContent.objects.filter(content=tuto).count(), 1)
@@ -2235,6 +2236,45 @@ class ContentTests(TestCase):
 
         self.assertEqual(PrivateTopic.objects.filter(author=self.user_staff).count(), 6)
         self.assertEqual(PrivateTopic.objects.last().author, self.user_staff)  # admin has received another PM
+
+    def test_auto_validation(self):
+        """Test that a staff can validate himself"""
+
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+        tuto.authors.add(self.user_staff)
+        tuto.save()
+
+        self.assertEqual(self.client.login(username=self.user_staff.username, password='hostel77'), True)
+        self.assertEqual(Validation.objects.count(), 0)
+
+        result = self.client.post(
+            reverse('validation:ask', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
+            {
+                'text': u'Valide moi ce truc, s\'il te plait',
+                'version': self.tuto_draft.current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Validation.objects.count(), 1)
+
+        validation = Validation.objects.filter(content=tuto).last()
+        self.assertIsNotNone(validation)
+
+        self.assertTrue(self.user_staff in tuto.authors.all())
+        self.assertEqual(0, PrivateTopic.objects.filter(author=self.user_staff, participants=self.user_staff).count())
+        result = self.client.post(
+            reverse('validation:reserve', kwargs={'pk': validation.pk}),
+            {
+                'version': validation.version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertTrue(self.user_staff in tuto.authors.all())
+        self.assertEqual(0, PrivateTopic.objects.filter(author=self.user_staff, participants=self.user_staff).count())
+
+        validation = Validation.objects.filter(content=tuto).last()
+        self.assertEqual(validation.status, 'PENDING_V')
+        self.assertEqual(validation.validator, self.user_staff)
 
     def test_delete_while_validating(self):
         """this test ensure that the validator is warned if the content he is validing is removed"""
@@ -2553,6 +2593,47 @@ class ContentTests(TestCase):
             follow=False
         )
         self.assertEqual(404, response.status_code)
+
+    def test_help_tutorials_are_sorted_by_update_date(self):
+        """This test checks that on the help page, the tutorials are sorted by update date"""
+        a_help = HelpWritingFactory()
+        a_help.save()
+
+        temps_1 = datetime.datetime.now()
+        temps_2 = temps_1 + datetime.timedelta(0, 1)
+
+        tutoriel_1 = PublishableContentFactory(type="TUTORIAL")
+        tutoriel_1.update_date = temps_1
+        tutoriel_1.helps.add(a_help)
+        tutoriel_1.save(update_date=False)
+
+        tutoriel_2 = PublishableContentFactory(type="TUTORIAL")
+        tutoriel_2.update_date = temps_2
+        tutoriel_2.helps.add(a_help)
+        tutoriel_2.save(update_date=False)
+
+        response = self.client.get(
+            reverse('content:helps'),
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        contents = response.context['contents']
+        self.assertEqual(contents[0], tutoriel_2)
+        self.assertEqual(contents[1], tutoriel_1)
+
+        tutoriel_1.update_date = temps_2
+        tutoriel_2.update_date = temps_1
+        tutoriel_1.save(update_date=False)
+        tutoriel_2.save(update_date=False)
+
+        response = self.client.get(
+            reverse('content:helps'),
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        contents = response.context['contents']
+        self.assertEqual(contents[0], tutoriel_1)
+        self.assertEqual(contents[1], tutoriel_2)
 
     def test_add_author(self):
         self.assertEqual(
@@ -3085,6 +3166,7 @@ class ContentTests(TestCase):
         self.assertEqual(result.status_code, 403)  # get 403 since you're not author
 
         publishable = PublishedContentFactory(author_list=[self.user_author])
+        old_date = publishable.update_date
         self.client.post(
             reverse("content:add-reaction") + u'?pk={}'.format(publishable.pk),
             {
@@ -3092,6 +3174,7 @@ class ContentTests(TestCase):
                 'last_note': '0'
             }, follow=False)
         publishable = PublishableContent.objects.get(pk=publishable.pk)
+        self.assertEqual(old_date, publishable.update_date, "Erreur, le commentaire a entraîné une MAJ de la date!")
         # test antispam
         result = self.client.post(
             reverse("content:add-reaction") + u'?pk={}'.format(publishable.pk),
@@ -4157,7 +4240,7 @@ class PublishedContentTests(TestCase):
 
     def test_add_note(self):
 
-        message_to_post = u'la ZEP-12, c\'est énorme ! (CMB)'
+        message_to_post = u'la ZEP-12'
 
         self.assertEqual(
             self.client.login(
@@ -4394,7 +4477,8 @@ class PublishedContentTests(TestCase):
             }, follow=False
         )
         self.assertEqual(result.status_code, 302)
-        self.assertIsNone(Alert.objects.filter(author__pk=self.user_author.pk, comment__pk=reaction.pk).first())
+        self.assertIsNone(Alert.objects.filter(
+            author__pk=self.user_author.pk, comment__pk=reaction.pk, solved=False).first())
         reaction = ContentReaction.objects.filter(related_content__pk=self.tuto.pk).first()
 
         # test that edition of a comment with an alert by an admin also solve the alert
@@ -4410,7 +4494,8 @@ class PublishedContentTests(TestCase):
             }, follow=False
         )
         self.assertEqual(result.status_code, 302)
-        self.assertIsNotNone(Alert.objects.filter(author__pk=self.user_author.pk, comment__pk=reaction.pk).first())
+        self.assertIsNotNone(Alert.objects.filter(
+            author__pk=self.user_author.pk, comment__pk=reaction.pk, solved=False).first())
 
         self.assertEqual(
             self.client.login(
@@ -4424,7 +4509,8 @@ class PublishedContentTests(TestCase):
             }, follow=False
         )
         self.assertEqual(result.status_code, 302)
-        self.assertIsNone(Alert.objects.filter(author__pk=self.user_author.pk, comment__pk=reaction.pk).first())
+        self.assertIsNone(Alert.objects.filter(
+            author__pk=self.user_author.pk, comment__pk=reaction.pk, solved=False).first())
 
     def test_warn_typo_without_accessible_author(self):
 
@@ -4855,8 +4941,8 @@ class PublishedContentTests(TestCase):
         article = PublishedContentFactory(author_list=[self.user_author], type="ARTICLE")
         new_user = ProfileFactory().user
         new_reaction = ContentReaction(related_content=article, position=1)
-        new_reaction.update_content("I will find you. And I will Kill you.")
         new_reaction.author = self.user_guest
+        new_reaction.update_content("I will find you. And I will Kill you.")
 
         new_reaction.save()
         self.assertEqual(
@@ -4884,8 +4970,8 @@ class PublishedContentTests(TestCase):
 
         # add note :
         reaction = ContentReaction(related_content=tuto, position=1)
-        reaction.update_content(text)
         reaction.author = self.user_guest
+        reaction.update_content(text)
         reaction.save()
 
         self.assertEqual(
@@ -5305,3 +5391,55 @@ class PublishedContentTests(TestCase):
         beta_topic = PublishableContent.objects.get(pk=article.pk).beta_topic
         self.assertIsNotNone(beta_topic)
         self.assertTrue(beta_topic.is_locked)
+        last_message = beta_topic.last_message
+        self.assertIsNotNone(last_message)
+
+        # login with author to ensure that the beta is not closed if it was already closed (at a second validation).
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # ask validation
+        result = self.client.post(
+            reverse('validation:ask', kwargs={'pk': article.pk, 'slug': article.slug}),
+            {
+                'text': text_validation,
+                'source': '',
+                'version': article_draft.current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # login with staff
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+
+        # reserve the article
+        validation = Validation.objects.filter(content=article).last()
+        result = self.client.post(
+            reverse('validation:reserve', kwargs={'pk': validation.pk}),
+            {
+                'version': validation.version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # publish the article
+        result = self.client.post(
+            reverse('validation:accept', kwargs={'pk': validation.pk}),
+            {
+                'text': text_publication,
+                'is_major': True,
+                'source': u''
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        beta_topic = PublishableContent.objects.get(pk=article.pk).beta_topic
+        self.assertIsNotNone(beta_topic)
+        self.assertTrue(beta_topic.is_locked)
+        self.assertEqual(beta_topic.last_message, last_message)

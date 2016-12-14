@@ -177,7 +177,7 @@
                     <nav class="header-menu mobile-menu-bloc" id="menu" data-title="Menu"
                         {% if user.is_authenticated %}
                             {% with profile=user.profile %}
-                                data-is-hover="{{ profile.hover_or_click }}"
+                                data-is-hover="{{ profile.is_hover_enabled }}"
                             {% endwith %}
                         {% endif %}
                     >
@@ -651,7 +651,7 @@
 
 
     {# Javascript stuff start #}
-    <script src="{% static "js/all.js" %}"></script>
+    <script src="{% static "js/script.js" %}"></script>
 
     {% block extra_js %}
     {% endblock %}

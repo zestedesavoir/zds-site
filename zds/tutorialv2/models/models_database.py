@@ -28,7 +28,7 @@ import os
 from uuslug import uuslug
 
 from zds.forum.models import Topic
-from zds.gallery.models import Image, Gallery
+from zds.gallery.models import Image, Gallery, UserGallery
 from zds.tutorialv2.utils import get_content_from_json, BadManifestError
 from zds.utils import get_current_user
 from zds.utils.models import SubCategory, Licence, HelpWriting, Comment, Tag
@@ -853,6 +853,9 @@ class ContentReaction(Comment):
         page = int(ceil(float(self.position) / settings.ZDS_APP["content"]["notes_per_page"]))
         return '{0}?page={1}#p{2}'.format(self.related_content.get_absolute_url_online(), page, self.pk)
 
+    def get_notification_title(self):
+        return self.related_content.title
+
 
 class ContentRead(models.Model):
     """
@@ -952,3 +955,13 @@ class Validation(models.Model):
         :rtype: bool
         """
         return self.status == 'CANCEL'
+
+
+@receiver(models.signals.pre_delete, sender=User)
+def transfer_paternity_receiver(sender, instance, **kwargs):
+    """
+    transfer paternity to external user on user deletion
+    """
+    external = sender.objects.get(username=settings.ZDS_APP["member"]["external_account"])
+    PublishableContent.objects.transfer_paternity(instance, external, UserGallery)
+    PublishedContent.objects.transfer_paternity(instance, external)

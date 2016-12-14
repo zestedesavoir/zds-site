@@ -58,28 +58,24 @@
                 js:     { title: "Javascript" },
                 php:    { title: "PHP" },
                 jfx:    { title: "JavaFX" },
-                cf:     { title: "ColdFusion" },
-                as3:    { title: "Actionscript 3" },
                 pl:     { title: "Perl" },
                 sql:    { title: "SQL" },
                 xml:    { title: "XML" }
             },
             Prog: {
+                arduino:{ title: "Arduino" },
                 c:      { title: "C" },
                 cpp:    { title: "C++" },
                 csharp: { title: "C#" },
                 java:   { title: "Java" },
-                delphi: { title: "Delphi" },
+                hs:     { title: "Haskell" },
                 py:     { title: "Python" },
                 ruby:   { title: "Ruby" },
-                pascal: { title: "Pascal" },
-                vb:     { title: "Visual Basic" },
                 vbnet:  { title: "VB.NET" }
             },
             Autres: {
                 bash:   { title: "Bash" },
                 diff:   { title: "Diff" },
-                erl:    { title: "Erlang" },
                 scala:  { title: "Scala" },
                 groovy: { title: "Groovy" },
                 ps:     { title: "PowerShell" },
@@ -218,7 +214,7 @@
             this.modals.abbr = new window.Modal({
                 "title": this.titles.abbr,
                 "body": "<div>" +
-                            "<label for=zform-modal-abbr-abbr>Abbréviation :</label>" +
+                            "<label for=zform-modal-abbr-abbr>Abréviation :</label>" +
                             "<input type=text id=zform-modal-abbr-abbr />" +
                         "</div><div>" +
                             "<label for=zform-modal-abbr-text>Texte :</label>" +
@@ -622,8 +618,6 @@
                             document.getElementById("zform-modal-abbr-abbr").value = "";
                             document.getElementById("zform-modal-abbr-abbr").focus();
                         }
-
-                        return true;
                     }
                     break;
 

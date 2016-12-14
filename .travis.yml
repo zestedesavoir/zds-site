@@ -65,16 +65,16 @@ install:
   - ./scripts/install_texlive.sh
   - |
     # cache these no matter what
-    if ls $HOME/.nvm/versions/node/v0.12* 1> /dev/null 2>&1; then
+    if ls $HOME/.nvm/alias/lts/\* 1> /dev/null 2>&1; then
       echo "Using cached nvm"
     else
       touch $HOME/.cache_updated
-      nvm install 0.12
+      nvm install 'lts/*'
     fi
 
     # only for front tests
     if [[ "$TEST_APP" == *"front"* ]]; then
-      nvm use 0.12
+      nvm use 'lts/*'
       npm install -g npm
     fi
   - ./scripts/install_resources.sh

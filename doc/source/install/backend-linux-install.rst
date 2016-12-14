@@ -28,6 +28,9 @@ ZdS a besoin des dépendances suivantes, installables manuellement ou à l'aide 
 - python-sqlparse
 - libffi : ``apt-get install libffi-dev``
 - libjpeg62-turbo libjpeg62-turbo-dev libfreetype6 libfreetype6-dev : ``apt-get install libjpeg62-turbo libjpeg62-turbo-dev libfreetype6 libfreetype6-dev`` (peut être appelée libjpeg8 et libjpeg8-dev sur  certains OS comme Ubuntu)
+- gcc : ``apt-get install build-essential``
+
+**NB** : pour les utilisateurs d'Archlinux, les outils python doivent être ceux de python 2, généralement sous la forme ``python2-smth``
 
 Ou à l'aide du Makefile (``sudo`` sera appelé automatiquement, ne l'ajoutez jamais si on ne le précise pas) :
 
@@ -48,6 +51,12 @@ Pour Fedora.
 .. sourcecode:: bash
 
     make install-fedora
+
+Pour Archlinux.
+
+.. sourcecode:: bash
+                
+   make install-archlinux
 
 Installation et configuration de `virtualenv`
 =============================================

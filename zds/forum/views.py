@@ -25,12 +25,12 @@ from zds.forum.commons import TopicEditMixin, PostEditMixin, SinglePostObjectMix
 from zds.forum.forms import TopicForm, PostForm, MoveTopicForm
 from zds.forum.models import Category, Forum, Topic, Post, is_read, mark_read, TopicRead
 from zds.member.decorator import can_write_and_read_now
+from zds.notification import signals
 from zds.notification.models import NewTopicSubscription, TopicAnswerSubscription
 from zds.utils import slugify
 from zds.utils.forums import create_topic, send_post, CreatePostView
 from zds.utils.mixins import FilterMixin
 from zds.utils.models import Alert, Tag, CommentVote
-from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView
 
 
@@ -82,6 +82,7 @@ class ForumTopicsListView(FilterMixin, ForumEditMixin, ZdSPagingListView, Update
         response = {}
         if 'follow' in request.POST:
             response['follow'] = self.perform_follow(self.object, request.user)
+            response['subscriberCount'] = NewTopicSubscription.objects.get_subscriptions(self.object).count()
         elif 'email' in request.POST:
             response['email'] = self.perform_follow_by_email(self.object, request.user)
 
@@ -99,6 +100,13 @@ class ForumTopicsListView(FilterMixin, ForumEditMixin, ZdSPagingListView, Update
                 context['filter']))
         # we need to load it in memory because later we will get the
         # "already read topic" set out of this list and MySQL does not support that type of subquery
+
+        # Add a topic.is_followed attribute
+        followed_query_set = TopicAnswerSubscription.objects.get_objects_followed_by(self.request.user.id)
+        followed_topics = list(set(followed_query_set) & set(context['topics'] + sticky))
+        for topic in set(context['topics'] + sticky):
+            topic.is_followed = topic in followed_topics
+
         context.update({
             'forum': self.object,
             'sticky_topics': sticky,
@@ -150,9 +158,10 @@ class TopicPostsListView(ZdSPagingListView, SingleObjectMixin):
         form = PostForm(self.object, self.request.user)
         form.helper.form_action = reverse('post-new') + '?sujet=' + str(self.object.pk)
 
+        posts = self.build_list_with_previous_item(context['object_list'])
         context.update({
             'topic': self.object,
-            'posts': self.build_list_with_previous_item(context['object_list']),
+            'posts': posts,
             'last_post_pk': self.object.last_message.pk,
             'form': form,
             'form_move': MoveTopicForm(topic=self.object),
@@ -175,6 +184,8 @@ class TopicPostsListView(ZdSPagingListView, SingleObjectMixin):
             context['user_can_modify'] = [post.pk for post in context['posts'] if post.author == self.request.user]
 
         if self.request.user.is_authenticated():
+            for post in posts:
+                signals.content_read.send(sender=post.__class__, instance=post, user=self.request.user)
             if not is_read(self.object):
                 mark_read(self.object)
         return context
@@ -240,7 +251,7 @@ class TopicNew(CreateView, SingleObjectMixin):
             form.data['title'],
             form.data['subtitle'],
             form.data['text'],
-            None
+            tags=form.data['tags']
         )
         return redirect(topic.get_absolute_url())
 
@@ -277,18 +288,13 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
             messages.warning(request, _(
                 u'Vous éditez un topic en tant que modérateur (auteur : {}). Soyez encore plus '
                 u'prudent lors de l\'édition de celui-ci !').format(self.object.author.username))
-        prefix = ''
-        for tag in self.object.tags.all():
-            prefix += u'[{0}]'.format(tag.title)
-
         form = self.create_form(self.form_class, **{
-            'title': u'{0} {1}'.format(prefix, self.object.title).strip(),
+            'title': self.object.title,
             'subtitle': self.object.subtitle,
-            'text': self.object.first_post().text
+            'text': self.object.first_post().text,
+            'tags': ', '.join([tag['title'] for tag in self.object.tags.values('title')]) or ''
         })
-        return render(request,
-                      self.template_name,
-                      {'topic': self.object, 'form': form, 'is_staff': is_staff})
+        return render(request, self.template_name, {'topic': self.object, 'form': form, 'is_staff': is_staff})
 
     def post(self, request, *args, **kwargs):
         if 'text' in request.POST:
@@ -302,7 +308,8 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
                     form = self.create_form(self.form_class, **{
                         'title': request.POST.get('title'),
                         'subtitle': request.POST.get('subtitle'),
-                        'text': request.POST.get('text')
+                        'text': request.POST.get('text'),
+                        'tags': request.POST.get('tags')
                     })
             elif form.is_valid():
                 return self.form_valid(form)
@@ -311,6 +318,7 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
         response = {}
         if 'follow' in request.POST:
             response['follow'] = self.perform_follow(self.object, request.user).is_active
+            response['subscriberCount'] = TopicAnswerSubscription.objects.get_subscriptions(self.object).count()
         elif 'email' in request.POST:
             response['email'] = self.perform_follow_by_email(self.object, request.user).is_active
         elif 'solved' in request.POST:
@@ -320,7 +328,7 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
         elif 'sticky' in request.POST:
             self.perform_sticky(self.object, request)
         elif 'move' in request.POST:
-            self.perform_move(request, self.object)
+            self.perform_move()
 
         self.object.save()
         if request.is_ajax():
@@ -557,7 +565,7 @@ class PostUseful(UpdateView, SinglePostObjectMixin, PostEditMixin):
         self.object = self.get_object()
         if not self.object.topic.forum.can_read(request.user):
             raise PermissionDenied
-        if self.object.author == request.user or self.object.topic.author != request.user:
+        if self.object.topic.author != request.user:
             if not request.user.has_perm("forum.change_post"):
                 raise PermissionDenied
         return super(PostUseful, self).dispatch(request, *args, **kwargs)
@@ -616,27 +624,23 @@ def solve_alert(request):
     alert = get_object_or_404(Alert, pk=request.POST["alert_pk"])
     post = Post.objects.get(pk=alert.comment.id)
 
-    if "text" in request.POST and request.POST["text"] != "":
-        bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
-        msg = render_to_string("forum/messages/solve_alert_pm.md", {
+    resolve_reason = ''
+    msg_title = ''
+    msg_content = ''
+    if 'text' in request.POST and request.POST['text']:
+        resolve_reason = request.POST['text']
+        msg_title = _(u"Résolution d'alerte : {0}").format(post.topic.title)
+        msg_content = render_to_string('forum/messages/solve_alert_pm.md', {
             'alert_author': alert.author.username,
             'post_author': post.author.username,
             'post_title': post.topic.title,
             'post_url': settings.ZDS_APP['site']['url'] + post.get_absolute_url(),
             'staff_name': request.user.username,
-            'staff_message': request.POST["text"]
+            'staff_message': resolve_reason,
         })
-        send_mp(
-            bot,
-            [alert.author],
-            u"Résolution d'alerte : {0}".format(post.topic.title),
-            "",
-            msg,
-            True,
-        )
 
-    alert.delete()
-    messages.success(request, u"L'alerte a bien été résolue.")
+    alert.solve(alert, request.user, resolve_reason, msg_title, msg_content)
+    messages.success(request, _(u"L'alerte a bien été résolue."))
     return redirect(post.get_absolute_url())
 
 
@@ -645,22 +649,22 @@ def complete_topic(request):
     if not request.GET.get('q', None):
         return HttpResponse("{}", content_type='application/json')
 
-    # TODO: WTF "sqs" ?!
-    sqs = SearchQuerySet().filter(content=AutoQuery(request.GET.get('q'))).order_by('-pubdate').all()
+    similar_contents = SearchQuerySet().filter(content=AutoQuery(request.GET.get('q'))) \
+                                       .order_by('-pubdate').all()
 
     suggestions = {}
 
-    cpt = 0
-    for result in sqs:
-        if cpt > 5:
+    counter = 0
+    for result in similar_contents:
+        if counter > 5:
             break
         if 'Topic' in str(result.model) and result.object.is_solved:
             suggestions[str(result.object.pk)] = (result.title, result.author, result.object.get_absolute_url())
-            cpt += 1
+            counter += 1
 
-    the_data = json.dumps(suggestions)
+    data = json.dumps(suggestions)
 
-    return HttpResponse(the_data, content_type='application/json')
+    return HttpResponse(data, content_type='application/json')
 
 
 class CreateGitHubIssue(UpdateView):

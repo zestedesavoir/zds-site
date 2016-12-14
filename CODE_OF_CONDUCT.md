@@ -41,11 +41,11 @@ ainsi que dans les espaces publics quand un individu représente le projet
 ou sa communauté.
 
 Les instances de comportement abusif, harcelant ou autrement inacceptable
-peuvent être signalés en contactant un responsable de projet à
-zestedesavoir at gmail.com. Toutes les plaintes seront examinées et étudiées
+peuvent être signalées en contactant un responsable de projet à
+`zds-tech@googlegroups.com`. Toutes les plaintes seront examinées et étudiées
 et se traduiront par une réponse jugée nécessaire et appropriée aux
 circonstances. Les mainteneurs s'obligent à garder confidentielles les
 informations de la personne qui remonte un incident.
 
-Ce Code de Conduite est adaptée du [Contributor Covenant](http://contributor-covenant.org),
+Ce Code de Conduite est adapté du [Contributor Covenant](http://contributor-covenant.org),
 version 1.3.0, [disponible ici](http://contributor-covenant.org/version/1/3/0/fr).

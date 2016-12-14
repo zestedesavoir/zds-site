@@ -10,8 +10,8 @@ Chimie
 Cobol
 Django
 Droit
-Economie
-Electronique
+Économie
+Électronique
 Géologie
 Graphisme
 Haskell
@@ -32,6 +32,5 @@ Psychologie
 Python
 Ruby
 Symfony
-UDK
 Windows
 Word

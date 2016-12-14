@@ -42,6 +42,17 @@ class TopicManager(models.Manager):
     Custom topic manager.
     """
 
+    def visibility_check_query(self, current_user):
+        """
+        Build a subquery that checks if a topic is readable by current user
+        :param current_user:
+        :return:
+        """
+        if current_user.is_authenticated():
+            return Q(forum__group__isnull=True) | Q(forum__group__pk__in=current_user.profile.group_pks)
+        else:
+            return Q(forum__group__isnull=True)
+
     def last_topics_of_a_member(self, author, user):
         """
         Gets last topics of a member but exclude all topics not accessible
@@ -50,11 +61,11 @@ class TopicManager(models.Manager):
         :param user: Request user.
         :return: List of topics.
         """
-        return self.filter(author=author) \
-                   .exclude(Q(forum__group__isnull=False) & ~Q(forum__group__in=user.groups.all())) \
-                   .prefetch_related("author") \
-                   .order_by("-pubdate") \
-                   .all()[:settings.ZDS_APP['forum']['home_number']]
+        queryset = self.filter(author=author) \
+                       .prefetch_related("author")
+        queryset = queryset.filter(self.visibility_check_query(user))
+
+        return queryset.order_by("-pubdate").all()[:settings.ZDS_APP['forum']['home_number']]
 
     def get_beta_topic_of(self, tutorial):
         return self.filter(key=tutorial.pk, key__isnull=False).first()
@@ -66,30 +77,28 @@ class TopicManager(models.Manager):
         :return:
         :rtype: django.models.Queryset
         """
-        return self.order_by('-pubdate') \
-                   .exclude(Q(forum__group__isnull=False)) \
-                   .exclude(is_locked=True) \
+        return self.filter(is_locked=False, forum__group__isnull=True) \
                    .select_related('forum', 'author', 'last_message') \
-                   .prefetch_related('tags').all()[:settings.ZDS_APP['topic']['home_number']]
+                   .prefetch_related('tags').order_by('-pubdate') \
+                   .all()[:settings.ZDS_APP['topic']['home_number']]
 
     def get_all_topics_of_a_forum(self, forum_pk, is_sticky=False):
         return self.filter(forum__pk=forum_pk, is_sticky=is_sticky) \
-            .order_by('-last_message__pubdate')\
-            .select_related('author__profile')\
-            .prefetch_related('last_message', 'tags').all()
+                   .order_by('-last_message__pubdate')\
+                   .select_related('author__profile')\
+                   .prefetch_related('last_message', 'tags').all()
 
     def get_all_topics_of_a_user(self, current, target):
-        return self.filter(author=target)\
-            .exclude(Q(forum__group__isnull=False) & ~Q(forum__group__in=current.groups.all()))\
-            .prefetch_related("author")\
-            .order_by("-pubdate").all()
+        queryset = self.filter(author=target)\
+                       .prefetch_related("author")
+        queryset = queryset.filter(self.visibility_check_query(current))
+        return queryset.order_by("-pubdate").all()
 
     def get_all_topics_of_a_tag(self, tag, user):
-        return self.filter(tags__in=[tag])\
-            .order_by("-last_message__pubdate")\
-            .prefetch_related('author', 'last_message', 'tags')\
-            .exclude(Q(forum__group__isnull=False) & ~Q(forum__group__in=user.groups.all()))\
-            .all()
+        queryset = self.filter(tags__in=[tag])\
+                       .prefetch_related('author', 'last_message', 'tags')
+        queryset = queryset.filter(self.visibility_check_query(user))
+        return queryset.order_by("-last_message__pubdate")
 
 
 class PostManager(InheritanceManager):
@@ -97,25 +106,31 @@ class PostManager(InheritanceManager):
     Custom post manager.
     """
 
+    def visibility_check_query(self, current_user):
+        """
+        Build a subquery that checks if a post is readable by current user
+        :param current_user:
+        :return:
+        """
+        if current_user.is_authenticated():
+            return Q(topic__forum__group__isnull=True) | Q(topic__forum__group__pk__in=current_user.profile.group_pks)
+        return Q(topic__forum__group__isnull=True)
+
     def get_messages_of_a_topic(self, topic_pk):
         return self.filter(topic__pk=topic_pk)\
-            .select_related("author__profile")\
-            .prefetch_related('alerts')\
-            .prefetch_related('alerts__author')\
-            .prefetch_related('alerts__author__profile')\
-            .order_by("position").all()
+                   .select_related("author__profile")\
+                   .prefetch_related('alerts')\
+                   .prefetch_related('alerts__author')\
+                   .prefetch_related('alerts__author__profile')\
+                   .order_by("position").all()
 
     def get_all_messages_of_a_user(self, current, target):
-        if current.has_perm("forum.change_post"):
-            return self.filter(author=target)\
-                .exclude(Q(topic__forum__group__isnull=False) & ~Q(topic__forum__group__in=current.groups.all()))\
-                .prefetch_related("author")\
-                .order_by("-pubdate").all()
-        return self.filter(author=target)\
-            .filter(is_visible=True)\
-            .exclude(Q(topic__forum__group__isnull=False) & ~Q(topic__forum__group__in=current.groups.all()))\
-            .prefetch_related("author")\
-            .order_by("-pubdate").all()
+        queryset = self.filter(author=target)\
+                       .prefetch_related("author")
+        if not current.has_perm("forum.change_post"):
+            queryset = queryset.filter(is_visible=True)
+        queryset = queryset.filter(self.visibility_check_query(current))
+        return queryset.order_by("-pubdate").all()
 
 
 class TopicReadManager(models.Manager):
