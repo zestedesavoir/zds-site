@@ -125,10 +125,12 @@
                 text-align: left;
                 background: rgba(0, 0, 0, 0);
 
-                span {
-                    display: inline-block;
-                    height: 30px;
-                    line-height: 26px;
+                button {
+                    span {
+                        display: inline-block;
+                        height: 30px;
+                        line-height: 26px;
+                    }
                 }
 
                 &[data-num] {
