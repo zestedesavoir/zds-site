@@ -21,15 +21,10 @@
     function addDocMD($elem){
         $elem.each(function(){
             var $help = $("<div/>", {
-                "class": "markdown-help markdown-help-more",
+                "class": "markdown-help",
                 "html": "<strong>Conseil :</strong> " + tips[Math.floor(Math.random() * tips.length)] + " <a href=\"//zestedesavoir.com/tutoriels/221/rediger-sur-zds/\">En savoir plus.</a>"
             });
             $(this).after($help);
-            $(".open-markdown-help, .close-markdown-help", $help).click(function(e){
-                $(".markdown-help-more", $help).toggleClass("show-markdown-help");
-                e.preventDefault();
-                e.stopPropagation();
-            });
         });
     }
     
