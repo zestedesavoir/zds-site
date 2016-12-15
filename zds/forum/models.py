@@ -513,7 +513,14 @@ class Post(Comment, AbstractESDjangoIndexable):
             self.topic.get_absolute_url(),
             page,
             self.pk)
+            def is_author(self, user):
+        """
+        Check if the user given is the author of the message.
 
+        :param user: Potential author of the message.
+        :return: true if the user is the author.
+        """
+        return self.author == user
     @staticmethod
     def has_write_permission(request):
         return request.user.is_authenticated() and request.user.profile.can_write_now()
