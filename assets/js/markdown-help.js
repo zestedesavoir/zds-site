@@ -19,9 +19,7 @@
         ];    
     
     function addDocMD($elem){
-        console.log(tips);
         $elem.each(function(){
-            console.log(tips);
             var $help = $("<div/>", {
                 "class": "markdown-help markdown-help-more",
                 "html": "<strong>Conseil :</strong> " + tips[Math.floor(Math.random() * tips.length)] + " <a href=\"//zestedesavoir.com/tutoriels/221/rediger-sur-zds/\">En savoir plus.</a>"
