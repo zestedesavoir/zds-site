@@ -21,7 +21,7 @@ class ProfileManager(models.Manager):
             .exclude(user__is_active=False) \
             .exclude(user__groups__in=excluded_groups) \
             .filter(Q(can_read=True) | Q(end_ban_read__lte=now)) \
-            .select_related('user__username')\
-            .order_by('-user__date_joined')
+            .order_by('-user__date_joined') \
+            .select_related('user__username')
 
         return qs
