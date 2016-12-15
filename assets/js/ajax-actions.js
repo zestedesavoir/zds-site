@@ -215,13 +215,18 @@
     /**
      * Preview the message
      */
-    $(".message-bottom").on("click", "[data-ajax-input='preview-message']", function(e){
+    function preview(e){
+        var $btn = this;
         var $form = $(this).parents("form:first");
         if ( $form.find(".preview-source").length )
-            {var text = $form.find(".preview-source").val();}
+            {
+                var text_source = $form.find(".preview-source");
+                var text = text_source.val();
+            }
         else
-            {var text = $form.find("textarea[name=text]").val();}
-            
+            {
+                var text = $form.find("textarea[name=text]").val();
+            }
             
         var csrfmiddlewaretoken = $form.find("input[name=csrfmiddlewaretoken]").val(),
             text,
@@ -237,9 +242,14 @@
                 "preview": "preview"
             },
             success: function(data){
+                console.log('succes');
                 $(".previsualisation").remove();
 
-                $(data).insertAfter($form);
+                if (text_source == null)
+
+                    $(data).insertAfter($form);
+                else
+                    $(data).insertAfter($btn);
 
                 /* global MathJax */
                 if (data.indexOf("$") > 0)
@@ -248,7 +258,11 @@
         });
         e.stopPropagation();
         e.preventDefault();
-    });
+    }
+     
+    $(".message-bottom").on("click", "[data-ajax-input='preview-message']", preview);
+    $(".preview-btn").on("click", preview);
+     
 
     /*
      * Mark a message useful
