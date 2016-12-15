@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load date %}
+{% load captureas %}
 
 
 {% block title %}
@@ -49,4 +50,26 @@
     </div>
 
     {% include "misc/paginator.html" with position="bottom" %}
+{% endblock %}
+
+
+
+{% block sidebar %}
+    <aside class="sidebar mobile-menu-hide">
+        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">
+            <h3>{% trans "Actions" %}</h3>
+            <ul>
+                <li>
+                    <a href="#mark-notifications-as-read" class="open-modal ico-after tick green">{% trans 'Tout marquer comme lu' %}</a>
+                        <form action="{% url 'mark-notifications-as-read' %}" method="post" id="mark-notifications-as-read" class="modal modal-flex">
+                            {% csrf_token %}
+                            <p>
+                                {% trans 'Voulez-vous vraiment marquer toutes vos notifications comme lues ?' %}
+                            </p>
+                            <button type="submit">{% trans 'Confirmer' %}</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </aside>
 {% endblock %}
