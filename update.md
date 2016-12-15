@@ -840,3 +840,11 @@ A propos du logging:
 --------------------
 
 Mettre à jour le `settings_prod.py` en suivant `doc/source/install/configs/settings_prod.py`.
+
+Actions à faire pour l'upgrade v22
+==================================
+
+Maj de Raven + releases
+-----------------------
+Avant de faire le tag des différentes RC, s'assurer qu'un githook a été ajouté comme le propose sentry.
+Mettre à jour le `settings_prod.py` en suivant `doc/source/install/configs/settings_prod.py`.
