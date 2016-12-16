@@ -216,11 +216,11 @@
      * Preview the message
      */
     function preview(e){
-        var $btn = this;
+        var $btn = $(this);
         var $form = $(this).parents("form:first");
         if ( $form.find(".preview-source").length )
             {
-                var text_source = $form.find(".preview-source");
+                var text_source = $btn.parent().prev().find('.preview-source');
                 var text = text_source.val();
             }
         else
@@ -242,14 +242,16 @@
                 "preview": "preview"
             },
             success: function(data){
-                console.log('succes');
+                console.log('succes' + data);
                 $(".previsualisation").remove();
 
                 if (text_source == null)
-
                     $(data).insertAfter($form);
                 else
+                {
+                    console.log('on insere apers le bouton');
                     $(data).insertAfter($btn);
+                }
 
                 /* global MathJax */
                 if (data.indexOf("$") > 0)

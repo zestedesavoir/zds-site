@@ -122,7 +122,6 @@ class UpdateMember(UpdateView):
         
         if "preview" in request.POST:
             if request.is_ajax():
-                print(request.POST)
                 content = render_to_response('misc/previsualization.part.html', {'text': request.POST.get('text')})
                 return StreamingHttpResponse(content)
 

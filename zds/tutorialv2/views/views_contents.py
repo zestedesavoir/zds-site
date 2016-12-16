@@ -17,8 +17,8 @@ from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models import Count, Q
-from django.http import Http404
-from django.shortcuts import redirect, get_object_or_404
+from django.http import Http404, StreamingHttpResponse
+from django.shortcuts import redirect, get_object_or_404, render_to_response, render
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
 from django.utils.translation import string_concat
@@ -78,7 +78,22 @@ class CreateContent(LoggedWithReadWriteHability, FormView):
         form.initial['licence'] = Licence.objects.get(pk=settings.ZDS_APP['content']['default_licence_pk'])
         return form
 
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+
+        if "preview" in request.POST:
+            self.form_invalid(form)
+            if request.is_ajax():
+                content = render_to_response('misc/previsualization.part.html', {'text': request.POST.get('text')})
+                return StreamingHttpResponse(content)
+
+        if form.is_valid():
+            return self.form_valid(form)
+
+        return render(request, self.template_name, {'form': form})
+
     def form_valid(self, form):
+
         # create the object:
         self.content = PublishableContent()
         self.content.title = form.cleaned_data['title']
@@ -249,6 +264,20 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         context['gallery'] = self.object.gallery
 
         return context
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+
+        if "preview" in request.POST:
+            self.form_invalid(form)
+            if request.is_ajax():
+                content = render_to_response('misc/previsualization.part.html', {'text': request.POST.get('text')})
+                return StreamingHttpResponse(content)
+
+        if form.is_valid():
+            return self.form_valid(form)
+
+        return render(request, self.template_name, {'form': form})
 
     def form_valid(self, form):
         versioned = self.versioned_object
@@ -912,6 +941,20 @@ class CreateContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         context['gallery'] = self.object.gallery
         return context
 
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+
+        if "preview" in request.POST:
+            self.form_invalid(form)
+            if request.is_ajax():
+                content = render_to_response('misc/previsualization.part.html', {'text': request.POST.get('text')})
+                return StreamingHttpResponse(content)
+
+        if form.is_valid():
+            return self.form_valid(form)
+
+        return render(request, self.template_name, {'form': form})
+
     def render_to_response(self, context, **response_kwargs):
         parent = context['container']
         if not parent.can_add_container():
@@ -1047,6 +1090,20 @@ class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
 
         return initial
 
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+
+        if "preview" in request.POST:
+            self.form_invalid(form)
+            if request.is_ajax():
+                content = render_to_response('misc/previsualization.part.html', {'text': request.POST.get('text')})
+                return StreamingHttpResponse(content)
+
+        if form.is_valid():
+            return self.form_valid(form)
+
+        return render(request, self.template_name, {'form': form})
+
     def form_valid(self, form):
         container = search_container_or_404(self.versioned_object, self.kwargs)
 
@@ -1098,11 +1155,22 @@ class CreateExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin):
 
         return super(CreateExtract, self).render_to_response(context, **response_kwargs)
 
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+
+        if "preview" in request.POST:
+            self.form_invalid(form)
+            if request.is_ajax():
+                content = render_to_response('misc/previsualization.part.html', {'text': request.POST.get('text')})
+                return StreamingHttpResponse(content)
+
+        if form.is_valid():
+            return self.form_valid(form)
+
+        return render(request, self.template_name, {'form': form})
+
     def form_valid(self, form):
         parent = search_container_or_404(self.versioned_object, self.kwargs)
-
-        if 'preview' in self.request.POST:
-            return self.form_invalid(form)  # using the preview button
 
         sha = parent.repo_add_extract(form.cleaned_data['title'],
                                       form.cleaned_data['text'],
@@ -1126,8 +1194,10 @@ class EditExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     def get_context_data(self, **kwargs):
         context = super(EditExtract, self).get_context_data(**kwargs)
         form = kwargs.pop('form', self.get_form())
-        context['extract'] = form.initial['extract']
         context['gallery'] = self.object.gallery
+
+        if "preview" not in self.request.POST:
+            context['extract'] = form.initial['extract']
 
         return context
 
@@ -1144,6 +1214,20 @@ class EditExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin):
 
         return initial
 
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+
+        if "preview" in request.POST:
+            self.form_invalid(form)
+            if request.is_ajax():
+                content = render_to_response('misc/previsualization.part.html', {'text': request.POST.get('text')})
+                return StreamingHttpResponse(content)
+
+        if form.is_valid():
+            return self.form_valid(form)
+
+        return render(request, self.template_name, {'form': form})
+
     def form_valid(self, form):
         extract = search_extract_or_404(self.versioned_object, self.kwargs)
 
@@ -1156,9 +1240,6 @@ class EditExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin):
             form.data = data
             messages.error(self.request, _(u'Une nouvelle version a été postée avant que vous ne validiez.'))
             return self.form_invalid(form)
-
-        if 'preview' in self.request.POST:
-            return self.form_invalid(form)  # using the preview button
 
         sha = extract.repo_update(form.cleaned_data['title'],
                                   form.cleaned_data['text'],
