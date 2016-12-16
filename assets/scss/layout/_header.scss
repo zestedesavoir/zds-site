@@ -244,6 +244,17 @@
                 }
             }
         }
+        
+        .dropdown-pm {
+            text-align : left;
+            padding-left : 15px;
+            
+            .ico-after{
+                float: right;
+                padding-right: 45px;
+                top: 10px;
+            }
+        }
     }
 
     .my-account {

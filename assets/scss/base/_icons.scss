@@ -308,6 +308,12 @@
             @include sprite-position($pin-light);
         }
     }
+    
+    &.pm-new {
+        &.white:after {
+            @include sprite-position($pm-new-white);
+        }
+    }
 
     &.rss {
         &:after {
