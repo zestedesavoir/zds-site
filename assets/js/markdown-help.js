@@ -9,11 +9,11 @@
     "use strict";
 
     var tips = [
-        "Les simples retours à la ligne ne sont pas pris en compte. Pour créer un nouveau paragraphe, pensez à <em>sauter une ligne !",
+        "Les simples retours à la ligne ne sont pas pris en compte. Pour créer un nouveau paragraphe, pensez à <em>sauter une ligne !</em>",
         "Pour écrire en italique encadrez votre texte par une astérisque, deux pour le gras.",
         "Pour écrire un lien utilisez la syntaxe <code>[texte de lien](url du lien)</code>",
         "Les blocs de code sont délimités par trois accents graves <code>```</code>.",
-        "Pour les listes à puces, passez deux lignes et utilisez le moins <code>-</code>, le <code>+</code> ou l'astérisque <code>*</code>.",
+        "Pour les listes à puces, sautez une ligne et utilisez le moins <code>-</code>, le plus <code>+</code> ou l'astérisque <code>*</code>.",
         "Pour citer quelqu'un utilisez le symbole <code>></code>.",
         "Pour tracer une ligne utilisez <code>---</code>, ou <code>+++</code>, ou encore <code>***</code>."
         ];    
