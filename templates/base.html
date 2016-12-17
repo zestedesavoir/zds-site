@@ -348,7 +348,7 @@
                                     {% with topics=user|interventions_privatetopics %}
                                     {% with notifications=topics.notifications %}
                                     {% with total_notifications=topics.total %}
-                                        <a href="{% url "mp-list" %}" class="ico-link">
+                                        <a href="{% url "mp-list" %}" class="ico-link" title="{% trans 'Messagerie privée' %}">
                                             {% if total_notifications > 0 %}
                                                 <span class="notif-count">{{ total_notifications }}</span>
                                             {% endif %}
@@ -387,7 +387,7 @@
                                 {# NOTIFICATIONS #}
                                 <div>
                                     {% with unread_posts=user|interventions_topics %}
-                                        <a href="{% url 'notification-list' %}" class="ico-link">
+                                        <a href="{% url 'notification-list' %}" class="ico-link" title="{% trans 'Notifications' %}">
                                             {% if unread_posts|length > 0 %}
                                                 <span class="notif-count">{{ unread_posts|length }}</span>
                                             {% endif %}
