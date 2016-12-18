@@ -120,7 +120,7 @@ class UpdateMember(UpdateView):
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
         
-        if "preview" in request.POST:
+        if 'preview' in request.POST:
             if request.is_ajax():
                 content = render_to_response('misc/previsualization.part.html', {'text': request.POST.get('text')})
                 return StreamingHttpResponse(content)

@@ -255,6 +255,17 @@ class ContentTests(TestCase):
         description = u'une description'
         title = u'un titre'
         random = u'un truc à la rien à voir'
+        
+        response = self.client.post(
+            reverse('content:create-tutorial'),
+            {
+                'intro': 'une intro',
+                'preview': '',
+            },
+            follow=True
+        )
+
+        self.assertEqual(200, response.status_code)
 
         result = self.client.post(
             reverse('content:create-tutorial'),
@@ -288,6 +299,17 @@ class ContentTests(TestCase):
 
         # edit tutorial:
         new_licence = LicenceFactory()
+        
+        response = self.client.post(
+            reverse('content:edit', args=[pk, slug]),
+            {
+                'conclusion': 'une conclusion',
+                'preview': '',
+            },
+            follow=True
+        )
+        
+        self.assertEqual(200, response.status_code)
 
         result = self.client.post(
             reverse('content:edit', args=[pk, slug]),
@@ -356,6 +378,18 @@ class ContentTests(TestCase):
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
+        
+        result = self.client.post(
+            reverse('content:edit-container', kwargs={'pk': pk, 'slug': slug, 'container_slug': container.slug}),
+            {
+                'title': random,
+                'introduction': random,
+                'conclusion': random,
+                'last_hash': container.compute_hash(),
+                'preview': ''
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
 
         versioned = PublishableContent.objects.get(pk=pk).load_version()
         container = versioned.children[0]
@@ -410,6 +444,24 @@ class ContentTests(TestCase):
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
+        
+        result = self.client.post(
+            reverse('content:edit-container',
+                    kwargs={
+                        'pk': pk,
+                        'slug': slug,
+                        'parent_container_slug': container.slug,
+                        'container_slug': subcontainer.slug
+                    }),
+            {
+                'title': random,
+                'introduction': random,
+                'conclusion': random,
+                'last_hash': subcontainer.compute_hash(),
+                'preview': ''
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
 
         versioned = PublishableContent.objects.get(pk=pk).load_version()
         subcontainer = versioned.children[0].children[0]
@@ -432,6 +484,24 @@ class ContentTests(TestCase):
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
+
+        result = self.client.post(
+            reverse('content:create-extract',
+                    kwargs={
+                        'pk': pk,
+                        'slug': slug,
+                        'parent_container_slug': container.slug,
+                        'container_slug': subcontainer.slug
+                    }),
+            {
+                'title': title,
+                'text': description,
+                'preview': ''
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+        
+        self.assertEqual(200, response.status_code)
 
         versioned = PublishableContent.objects.get(pk=pk).load_version()
         self.assertEqual(len(versioned.children[0].children[0].children), 1)  # the extract is created
@@ -1221,7 +1291,17 @@ class ContentTests(TestCase):
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
-
+        
+        result = self.client.post(
+            reverse('content:create-container', args=[tuto_pk, tuto_slug]),
+            {
+                'title': given_title,
+                'introduction': some_text,
+                'preview': ''
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+        
         versioned = PublishableContent.objects.get(pk=tuto_pk).load_version()
         chapter = versioned.children[-1]
 
@@ -3070,6 +3150,23 @@ class ContentTests(TestCase):
                 'title': random,
                 'text': random,
                 'last_hash': ''
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+        
+        result = self.client.post(
+            reverse('content:edit-extract',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': tuto.slug,
+                        'container_slug': chapter_version.slug,
+                        'extract_slug': extract.slug
+                    }),
+            {
+                'title': random,
+                'text': random,
+                'last_hash': '',
+                'preview': ''
             },
             follow=True)
         self.assertEqual(result.status_code, 200)

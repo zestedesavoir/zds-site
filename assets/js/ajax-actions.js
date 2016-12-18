@@ -229,7 +229,6 @@
             }
             
         var csrfmiddlewaretoken = $form.find("input[name=csrfmiddlewaretoken]").val(),
-            text,
             lastPost = $form.find("input[name=last_post]").val();
 
         $.ajax({
@@ -242,16 +241,12 @@
                 "preview": "preview"
             },
             success: function(data){
-                console.log('succes' + data);
                 $(".previsualisation").remove();
 
                 if (text_source == null)
                     $(data).insertAfter($form);
                 else
-                {
-                    console.log('on insere apers le bouton');
                     $(data).insertAfter($btn);
-                }
 
                 /* global MathJax */
                 if (data.indexOf("$") > 0)

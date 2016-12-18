@@ -81,7 +81,7 @@ class CreateContent(LoggedWithReadWriteHability, FormView):
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
 
-        if "preview" in request.POST:
+        if 'preview' in request.POST:
             self.form_invalid(form)
             if request.is_ajax():
                 content = render_to_response('misc/previsualization.part.html', {'text': request.POST.get('text')})
@@ -268,7 +268,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
 
-        if "preview" in request.POST:
+        if 'preview' in request.POST:
             self.form_invalid(form)
             if request.is_ajax():
                 content = render_to_response('misc/previsualization.part.html', {'text': request.POST.get('text')})
@@ -944,7 +944,7 @@ class CreateContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
 
-        if "preview" in request.POST:
+        if 'preview' in request.POST:
             self.form_invalid(form)
             if request.is_ajax():
                 content = render_to_response('misc/previsualization.part.html', {'text': request.POST.get('text')})
@@ -1093,7 +1093,7 @@ class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
 
-        if "preview" in request.POST:
+        if 'preview' in request.POST:
             self.form_invalid(form)
             if request.is_ajax():
                 content = render_to_response('misc/previsualization.part.html', {'text': request.POST.get('text')})
@@ -1158,7 +1158,7 @@ class CreateExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
 
-        if "preview" in request.POST:
+        if 'preview' in request.POST:
             self.form_invalid(form)
             if request.is_ajax():
                 content = render_to_response('misc/previsualization.part.html', {'text': request.POST.get('text')})
@@ -1196,7 +1196,7 @@ class EditExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         form = kwargs.pop('form', self.get_form())
         context['gallery'] = self.object.gallery
 
-        if "preview" not in self.request.POST:
+        if 'preview' not in self.request.POST:
             context['extract'] = form.initial['extract']
 
         return context
@@ -1217,7 +1217,7 @@ class EditExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
 
-        if "preview" in request.POST:
+        if 'preview' in request.POST:
             self.form_invalid(form)
             if request.is_ajax():
                 content = render_to_response('misc/previsualization.part.html', {'text': request.POST.get('text')})
