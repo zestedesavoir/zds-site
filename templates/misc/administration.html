@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load date %}
+{% load emarkdown %}
+{% load highlight %}
+{% load topbar %}
+{% load i18n %}
+{% load staticfiles%}
+
+{% block title %}
+    {% trans "Administration" %}
+{% endblock %}
+
+
+
+{% block mobile_title %}
+    {% trans "Administration" %}
+{% endblock %}
+
+
+
+{% block headline %}
+    {% trans "Clem vous souhaite un joyeux premier avril !" %}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    {% trans "Administration" %}
+
+{% endblock %}
+
+
+
+
+{% block content %}
+
+    <img src="{% static 'images/clem.jpg' %}" alt="Clem" />
+
+{% endblock %}

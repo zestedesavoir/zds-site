@@ -72,3 +72,10 @@ def tooltip_date(value):
 def humane_time(timestamp):
     """Render time (number of second from epoch) to an human readable string"""
     return format_date(datetime.fromtimestamp(timestamp))
+
+
+@register.assignment_tag
+def if_first_april():
+    """Check if the current date is the first april"""
+    now = datetime.now()
+    return now.day == 1 and now.month == 4 and now.year == 2016
