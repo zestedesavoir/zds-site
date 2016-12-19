@@ -206,8 +206,6 @@ class ForumPostKarmaAPITest(APITestCase):
         self.assertEqual(1, response.data['like']['count'])
         self.assertEqual(1, response.data['dislike']['count'])
 
-# Liste les forums avec un staff (on boit les forums privé)
-
 
 class ForumAPITest(APITestCase):
     def setUp(self):
@@ -274,6 +272,24 @@ class ForumAPITest(APITestCase):
         self.assertEqual(len(response.data.get('results')), REST_PAGE_SIZE)
         self.assertIsNone(response.data.get('next'))
         self.assertIsNone(response.data.get('previous'))
+        
+    def test_list_of_forums_private(self):
+        """
+        Gets list of forums not empty in the database.
+        """
+        group = Group.objects.create(name="staff")
+        category, forum = create_category(group)
+
+        self.client = APIClient()
+        response = self.client.get(reverse('api:forum:list'))
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        
+        response = self.client_authentificated.get(reverse('api:forum:list'))
+        self.assertEqual(response.status_code, status.HTTP_UNAUTHORIZED)
+        
+        response = self.client_authentificated_staff.get(reverse('api:forum:list'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
 
     def test_list_of_forums_with_several_pages(self):
         """
@@ -361,6 +377,25 @@ class ForumAPITest(APITestCase):
         self.assertEqual(response.data.get('category'), forum.category)
         self.assertEqual(response.data.get('position_in_category'), forum.position_in_category)
         self.assertEqual(response.data.get('group'), forum.group)
+        
+
+    def test_details_forum_private(self):
+        """
+        Tries to get the details of a private forum with different users.
+        """
+        
+        group = Group.objects.create(name="staff")
+        category, forum = create_category(group)
+
+        self.client = APIClient()
+        response = self.client.get(reverse('api:forum:detail', args=[forum.id]))
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        
+        response = self.client_authentificated.get(reverse('api:forum:detail', args=[forum.id]))
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        response = self.client_authentificated_staff.get(reverse('api:forum:detail', args=[forum.id]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_details_unknown_forum(self):
         """
@@ -1296,12 +1331,6 @@ class ForumAPITest(APITestCase):
         response = self.client_authentificated_staff.get(reverse('api:forum:detail-post', args=[topic.id, post.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-
-# TODO
-# Lister les message d'un membre staff en étant staff
-# Lister les message d'un membre staff en étant anonyme
-# Lister les messages d'un membre staff en étant user
-
     def test_list_of_member_posts_empty(self):
         """
         Gets empty list of posts that that a specified member created.
@@ -1325,6 +1354,26 @@ class ForumAPITest(APITestCase):
         self.assertEqual(len(response.data.get('results')), 10)
         self.assertIsNone(response.data.get('next'))
         self.assertIsNone(response.data.get('previous'))
+        
+    def test_list_of_staff_posts(self):
+        """
+        Gets list of a staff posts.
+        """
+        group = Group.objects.create(name="staff")
+
+        profile = StaffProfileFactory()
+        category, forum = create_category(group)
+        topic = add_topic_in_a_forum(forum, profile)
+        
+        self.client = APIClient()
+        response = self.client_authenticated.get(reverse('api:forum:list-memberpost'), args=[profile.id])
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        
+        response = self.client_authenticated.get(reverse('api:forum:list-memberpost'), args=[profile.id])
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        
+        response = self.client_authenticated_staff.get(reverse('api:forum:list-memberpost'), args=[profile.id])
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_list_of_member_posts_with_several_pages(self):
         """
