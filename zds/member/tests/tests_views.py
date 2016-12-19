@@ -241,7 +241,7 @@ class MemberTests(TestCase):
             follow=False
         )
         self.assertEqual(result.status_code, 200)
-        
+
     def test_success_preview_biography(self):
 
         response = self.client.post(
