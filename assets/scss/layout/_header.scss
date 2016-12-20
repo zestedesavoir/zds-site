@@ -249,10 +249,18 @@
             text-align : left;
             padding-left : 15px;
             
-            .ico-after{
+            .ico-after {
                 float: right;
-                padding-right: 45px;
-                top: 10px;
+                padding-right: 50px;
+                top: 11px;
+            }
+
+            .pm-new {
+                &.white:after {
+                    @include sprite-position($pm-new-white);
+                    width: 22px;
+                    height: 22px;
+                }
             }
         }
     }
