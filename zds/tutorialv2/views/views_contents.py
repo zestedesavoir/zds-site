@@ -1072,7 +1072,7 @@ class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         context = super(EditContainer, self).get_context_data(**kwargs)
         form = kwargs.pop('form', self.get_form())
         context['gallery'] = self.object.gallery
-        
+
         if 'preview' not in self.request.POST:
             context['container'] = form.initial['container']
 
