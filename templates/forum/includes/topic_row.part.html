@@ -15,7 +15,7 @@
             <span class="ico-after tick green" title="{% blocktrans %} L'auteur a trouvé une solution à son problème {% endblocktrans %}">[{% trans "Résolu" %}]</span>
         {% endif %}
         {% if topic.is_locked %}
-            <span class="ico-after lock blue title="{% trans 'Sujet fermé' %}">[{% trans "Fermé" %}]</span>
+            <span class="ico-after lock blue" title="{% trans 'Sujet fermé' %}">[{% trans "Fermé" %}]</span>
         {% endif %}
         {% if topic.is_followed %}
             <span class="ico-after star blue" title="{% trans 'Sujet suivi' %}">[{% trans "Suivi" %}]</span>
