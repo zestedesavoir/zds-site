@@ -128,6 +128,9 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
         context['isantispam'] = self.object.antispam()
         context['pm_link'] = self.object.get_absolute_contact_url(_(u'À propos de'))
         context['subscriber_count'] = ContentReactionAnswerSubscription.objects.get_subscriptions(self.object).count()
+        # We need reading time expressed in seconds
+        print((self.object.public_version.nb_letter))
+        context['reading_time'] = self.object.public_version.nb_letter / settings.ZDS_APP['content']['sec_per_minute']
 
         if self.request.user.is_authenticated():
             for reaction in context['reactions']:

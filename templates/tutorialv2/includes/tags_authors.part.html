@@ -3,6 +3,7 @@
 {% load category_url %}
 {% load set %}
 {% load displayable_authors %}
+{% load sectodur %}
 
 {% if publishablecontent.tags.all|length > 0 %}
     <ul class="taglist" itemprop="keywords">
@@ -64,4 +65,10 @@
             {% if forloop.first %}{% elif forloop.last %} {% trans "et" %}{% else %},{% endif %} <a href="{% url 'content:list' %}?category={{ category.slug }}">{{ category.title }}</a>
         {% endfor %}
     </ul>
+    <br/>
+    <span>
+        {% if online %}
+            {% trans "Temps de lecture estimé : " %}{{ reading_time | sectodur:"long"}}
+        {% endif %}
+    </span>
 </div>

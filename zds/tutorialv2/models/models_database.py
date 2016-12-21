@@ -569,6 +569,7 @@ class PublishedContent(models.Model):
     publication_date = models.DateTimeField('Date de publication', db_index=True, blank=True, null=True)
     update_date = models.DateTimeField('Date de mise à jour', db_index=True, blank=True, null=True, default=None)
     sha_public = models.CharField('Sha1 de la version publiée', blank=True, null=True, max_length=80, db_index=True)
+    nb_letter = models.IntegerField(default=None, null=True, verbose_name=b'Nombre de lettres du contenu', blank=True)
 
     must_redirect = models.BooleanField(
         'Redirection vers  une version plus récente', blank=True, db_index=True, default=False)
@@ -831,6 +832,29 @@ class PublishedContent(models.Model):
 
     def get_last_action_date(self):
         return self.update_date or self.publication_date
+
+    """ Compute the number of letters for a given content``
+
+    :return:Number of letters in the md file
+    :rtype: int
+    """
+    # TOD pas besoin du chemin on peut utiliser get_absolute_url_to_extra_content('md')
+    def get_nb_letter(self, md_file_path):
+        try:
+            with open(md_file_path, "rb") as md_file:
+                content = md_file.read().decode("utf-8")
+            letters = len(content)
+            print(letters)
+            current_content = PublishedContent.objects.filter(content_pk=self.content_pk, must_redirect=False).first()
+            if current_content:
+
+                print ('enregistrment')
+                print (current_content.content_pk)
+
+                print(current_content.nb_letter)
+                return letters
+        except OSError as e:
+            logging.warning("could not get file %s to compute nb letters (error=%s)", md_file_path, e)
 
 
 @python_2_unicode_compatible
