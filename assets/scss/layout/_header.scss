@@ -251,15 +251,15 @@
             
             .ico-after {
                 float: right;
-                padding-right: 50px;
-                top: 11px;
+                padding-right: 47px;
+                top: 9px;
             }
 
             .pm-new {
                 &.white:after {
                     @include sprite-position($pm-new-white);
-                    width: 22px;
-                    height: 22px;
+                    width: 17px;
+                    height: 16px;
                 }
             }
         }
