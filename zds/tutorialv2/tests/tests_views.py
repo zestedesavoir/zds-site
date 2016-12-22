@@ -297,19 +297,22 @@ class ContentTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 200)
 
-        # edit tutorial:
-        new_licence = LicenceFactory()
-
+        # preview tutorial
         response = self.client.post(
             reverse('content:edit', args=[pk, slug]),
             {
-                'conclusion': 'une conclusion',
-                'preview': '',
+                'title': random,
+                'introduction': random,
+                'last_hash': versioned.compute_hash(),
+                'preview': ''
             },
-            follow=True
+            follow=False
         )
 
         self.assertEqual(200, response.status_code)
+        
+        # edit tutorial:
+        new_licence = LicenceFactory()
 
         result = self.client.post(
             reverse('content:edit', args=[pk, slug]),

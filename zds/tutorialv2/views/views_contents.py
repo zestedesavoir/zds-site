@@ -260,8 +260,8 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
 
     def get_context_data(self, **kwargs):
         context = super(EditContent, self).get_context_data(**kwargs)
-
-        context['gallery'] = self.object.gallery
+        if 'preview' not in self.request.POST:
+            context['gallery'] = self.object.gallery
 
         return context
 
@@ -1071,10 +1071,9 @@ class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     def get_context_data(self, **kwargs):
         context = super(EditContainer, self).get_context_data(**kwargs)
         form = kwargs.pop('form', self.get_form())
-        context['gallery'] = self.object.gallery
-
         if 'preview' not in self.request.POST:
             context['container'] = form.initial['container']
+        context['gallery'] = self.object.gallery
 
         return context
 
