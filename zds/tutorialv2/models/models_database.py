@@ -838,21 +838,13 @@ class PublishedContent(models.Model):
     :return:Number of letters in the md file
     :rtype: int
     """
-    # TOD pas besoin du chemin on peut utiliser get_absolute_url_to_extra_content('md')
     def get_nb_letter(self, md_file_path):
         try:
             with open(md_file_path, "rb") as md_file:
                 content = md_file.read().decode("utf-8")
-            letters = len(content)
-            print(letters)
             current_content = PublishedContent.objects.filter(content_pk=self.content_pk, must_redirect=False).first()
             if current_content:
-
-                print ('enregistrment')
-                print (current_content.content_pk)
-
-                print(current_content.nb_letter)
-                return letters
+                return len(content)
         except OSError as e:
             logging.warning("could not get file %s to compute nb letters (error=%s)", md_file_path, e)
 

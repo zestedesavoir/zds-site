@@ -3,7 +3,7 @@
 {% load category_url %}
 {% load set %}
 {% load displayable_authors %}
-{% load sectodur %}
+{% load minute_to_duration %}
 
 {% if publishablecontent.tags.all|length > 0 %}
     <ul class="taglist" itemprop="keywords">
@@ -67,8 +67,8 @@
     </ul>
     <br/>
     <span>
-        {% if online %}
-            {% trans "Temps de lecture estimé : " %}{{ reading_time | sectodur:"long"}}
+        {% if online and reading_time %}
+            {% trans "Temps de lecture estimé : " %}{{ reading_time | minute_to_duration:"long"}}
         {% endif %}
     </span>
 </div>

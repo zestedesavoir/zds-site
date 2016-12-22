@@ -5,19 +5,19 @@ from django import template
 register = template.Library()
 
 # Register filter
-@register.filter("sectodur")
-def sectodur(value, arg = ''):
+@register.filter("minute_to_duration")
+def minute_to_duration(value, arg = ''):
 	
 	"""
 	#######################################################
 	#                                                     #
-	#   Seconds-to-Duration Template Tag                  #
+	#   Minutes-to-Duration Template Tag                  #
 	#   Inspired by Dan Ward 2009 (http://d-w.me)         #
 	#   Modified by Anto59290 for Zeste de Savoir         #
 	#                                                     #
 	#######################################################
 	
-	Usage: {{ VALUE|sectodur[:"long"] }}
+	Usage: {{ VALUE|minute_to_duration[:"long"] }}
 	
 	NOTE: Please read up 'Custom template tags and filters'
 	      if you are unsure as to how the template tag is
