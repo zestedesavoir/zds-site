@@ -498,7 +498,7 @@ ZDS_APP = {
         'import_image_prefix': 'archive',
         'build_pdf_when_published': True,
         'maximum_slug_size': 150,
-        'sec_per_minute': 1500 
+        'sec_per_minute': 1500
     },
     'forum': {
         'posts_per_page': 21,
