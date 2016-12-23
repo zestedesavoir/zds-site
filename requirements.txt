@@ -2,6 +2,8 @@
 pysolr==3.4.0
 pygments==2.1.3
 python-social-auth==0.2.19
+elasticsearch>=2.0.0,<3.0.0
+elasticsearch-dsl>=2.0.0,<3.0.0
 
 # Explicit dependencies (references in code)
 Django==1.8.16
