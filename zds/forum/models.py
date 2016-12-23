@@ -10,9 +10,12 @@ from django.contrib.auth.models import Group, User, AnonymousUser
 from django.core.urlresolvers import reverse
 from django.db import models
 
+from elasticsearch_dsl import String
+
 from zds.forum.managers import TopicManager, ForumManager, PostManager, TopicReadManager
 from zds.notification import signals
 from zds.settings import ZDS_APP
+from zds.search2.models import ESDjangoIndexableMixin
 from zds.utils import get_current_user
 from zds.utils import slugify
 from zds.utils.models import Comment, Tag
@@ -384,7 +387,7 @@ class Topic(models.Model):
 
 
 @python_2_unicode_compatible
-class Post(Comment):
+class Post(Comment, ESDjangoIndexableMixin):
     """
     A forum post written by an user.
     A post can be marked as useful: topic's author (or admin) can declare any topic as "useful", and this post is
@@ -412,6 +415,22 @@ class Post(Comment):
 
     def get_notification_title(self):
         return self.topic.title
+
+    @classmethod
+    def get_es_mapping(cls):
+        m = super(Post, cls).get_es_mapping()
+
+        m.field('text', String())
+
+        return m
+
+    @classmethod
+    def get_es_django_indexable(cls, force_reindexing=False):
+        """Overridden to remove invisible post
+        """
+
+        q = super(Post, cls).get_es_django_indexable(force_reindexing)
+        return q.filter(is_visible=True)
 
 
 @python_2_unicode_compatible

@@ -184,6 +184,7 @@ INSTALLED_APPS = (
     'zds.member',
     'zds.featured',
     'zds.search',
+    'zds.search2',
     'zds.notification',
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
@@ -351,6 +352,14 @@ HAYSTACK_CONNECTIONS = {
     },
 }
 HAYSTACK_CUSTOM_HIGHLIGHTER = 'zds.utils.highlighter.SearchHighlighter'
+
+ES_CONNECTIONS = {
+    'default': {
+        'hosts': ['localhost:9200'],
+    }
+}
+
+ES_INDEX_NAME = 'zds_search'
 
 GEOIP_PATH = os.path.join(BASE_DIR, 'geodata')
 
