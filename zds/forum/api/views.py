@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from zds.member.api.permissions import CanReadTopic, CanReadAndWriteNowOrReadOnly, IsNotOwnerOrReadOnly, IsOwnerOrReadOnly, IsStaffUser
+from zds.member.api.permissions import CanReadTopic, CanReadPost, CanReadAndWriteNowOrReadOnly, IsNotOwnerOrReadOnly, IsOwnerOrReadOnly, IsStaffUser
 from zds.utils.api.views import KarmaView
 from zds.forum.models import Post, Forum, Topic
 import datetime
@@ -24,7 +24,7 @@ from zds.forum.api.permissions import IsStaffUser
 
 class PostKarmaView(KarmaView):
     queryset = Post.objects.all()
-    permission_classes = (IsAuthenticatedOrReadOnly, CanReadAndWriteNowOrReadOnly, IsNotOwnerOrReadOnly, CanReadTopic)
+    permission_classes = (IsAuthenticatedOrReadOnly, CanReadAndWriteNowOrReadOnly, IsNotOwnerOrReadOnly, CanReadPost)
 
 
 class PagingSearchListKeyConstructor(DefaultKeyConstructor):
@@ -241,7 +241,7 @@ class UserTopicListAPI(ListAPIView):
 
 class TopicDetailAPI(RetrieveUpdateAPIView):
     """
-    Profile resource to display details of a given topic
+    Profile resource to display and updates details of a given topic
     """
     queryset = Topic.objects.all()
     obj_key_func = DetailKeyConstructor()
@@ -375,7 +375,7 @@ class PostListAPI(ListCreateAPIView):
         return self.request.user.profile
 
     def get_permissions(self):
-        permission_classes = [AllowAny, ]
+        permission_classes = [AllowAny, CanReadPost]
         if self.request.method == 'POST':
             permission_classes.append(DRYPermissions)
             permission_classes.append(IsAuthenticated)

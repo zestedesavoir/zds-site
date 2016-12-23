@@ -14,7 +14,7 @@ from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.forum.models import Forum, Topic, Post
 from zds.forum.factories import PostFactory
 from zds.forum.tests.tests_views import create_category, add_topic_in_a_forum
-from zds.utils.models import CommentVote
+from zds.utils.models import CommentVote, Alert
 
 
 class ForumPostKarmaAPITest(APITestCase):
@@ -220,8 +220,13 @@ class ForumAPITest(APITestCase):
         client_oauth2 = create_oauth2_client(self.staff.user)
         self.client_authenticated_staff = APIClient()
         authenticate_client(self.client_authenticated_staff, client_oauth2, self.staff.user.username, 'hostel77')
+        
+        self.group_staff = Group.objects.create(name="staff")
 
         caches[extensions_api_settings.DEFAULT_USE_CACHE].clear()
+    
+    def tearDown(self):
+        self.group_staff.delete()
 
     def create_multiple_forums(self, number_of_forum=REST_PAGE_SIZE):
         for forum in xrange(0, number_of_forum):
@@ -243,11 +248,12 @@ class ForumAPITest(APITestCase):
 
         category, forum = create_category()
         new_topic = add_topic_in_a_forum(forum, profile)
+        posts=[]
 
         for post in xrange(0, number_of_post):
-            PostFactory(topic=new_topic.id, author=profile.user, position=2)
+            posts.append(PostFactory(topic=new_topic.id, author=profile.user, position=2))
 
-        return new_topic
+        return new_topic, posts
 
     def test_list_of_forums_empty(self):
         """
@@ -277,8 +283,7 @@ class ForumAPITest(APITestCase):
         """
         Gets list of forums not empty in the database.
         """
-        group = Group.objects.create(name="staff")
-        category, forum = create_category(group)
+        category, forum = create_category(self.group_staff)
 
         self.client = APIClient()
         response = self.client.get(reverse('api:forum:list'))
@@ -383,9 +388,7 @@ class ForumAPITest(APITestCase):
         """
         Tries to get the details of a private forum with different users.
         """
-        
-        group = Group.objects.create(name="staff")
-        category, forum = create_category(group)
+        category, forum = create_category(self.group_staff)
 
         self.client = APIClient()
         response = self.client.get(reverse('api:forum:detail', args=[forum.id]))
@@ -410,8 +413,7 @@ class ForumAPITest(APITestCase):
         """
         Tries to get the details of a private forum with a normal user, staff user and anonymous one.
         """
-        group = Group.objects.create(name="staff")
-        category, forum = create_category(group)
+        category, forum = create_category(self.group_staff)
 
         self.client = APIClient()
         response = self.client.get(reverse('api:forum:detail', args=[forum.id]))
@@ -604,12 +606,9 @@ class ForumAPITest(APITestCase):
         """
         Post a new topic in a private forum (staff only) with an anonymous user, normal user and staff user.
         """
-
-        group = Group.objects.create(name="staff")
-
         profile = ProfileFactory()
-        group.user_set.add(profile.user)
-        category, forum = create_category(group)
+        self.group_staff.user_set.add(profile.user)
+        category, forum = create_category(self.group_staff)
         data = {
             'title': 'Have you seen the guy flooding ?',
             'subtitle': 'He is asking to many question about flask.',
@@ -733,9 +732,7 @@ class ForumAPITest(APITestCase):
         """
         Tries to get details of a topic that is in a private forum.
         """
-
-        group = Group.objects.create(name="staff")
-        category, forum = create_category(group)
+        category, forum = create_category(self.group_staff)
         topic = add_topic_in_a_forum(forum, self.staff)
 
         # Anonymous
@@ -983,11 +980,9 @@ class ForumAPITest(APITestCase):
         """
         Tries to get a list of posts in a topic of a private forum with a normal user.
         """
-        group = Group.objects.create(name="staff")
-
         profile = ProfileFactory()
-        group.user_set.add(profile.user)
-        category, forum = create_category(group)
+        self.group_staff.user_set.add(profile.user)
+        category, forum = create_category(self.group_staff)
         topic = add_topic_in_a_forum(forum, profile)
 
         response = self.client_authenticated.get(reverse('api:forum:list-post', args=[topic.id]))
@@ -1252,10 +1247,8 @@ class ForumAPITest(APITestCase):
         """
         Tries to create a post in a private topic with a normal user.
         """
-        group = Group.objects.create(name="staff")
-
         profile = StaffProfileFactory()
-        category, forum = create_category(group)
+        category, forum = create_category(self.group_staff)
         topic = add_topic_in_a_forum(forum, profile)
         data = {
             'text': 'Welcome to this post!'
@@ -1267,8 +1260,8 @@ class ForumAPITest(APITestCase):
         """
         Post in a private topic with a user that has access right.
         """
-        group = Group.objects.create(name="staff")
-        category, forum = create_category(group)
+
+        category, forum = create_category(self.group_staff)
         topic = add_topic_in_a_forum(forum, profile)
         data = {
             'text': 'Welcome to this post!'
@@ -1313,8 +1306,7 @@ class ForumAPITest(APITestCase):
         """
         Tries to get all the data about a post in a private topic (and forum) with different users.
         """
-        group = Group.objects.create(name="staff")
-        category, forum = create_category(group)
+        category, forum = create_category(self.group_staff)
         topic = add_topic_in_a_forum(forum, self.profile)
         post = Post.objects.filter(topic=topic.id).first()
 
@@ -1359,10 +1351,9 @@ class ForumAPITest(APITestCase):
         """
         Gets list of a staff posts.
         """
-        group = Group.objects.create(name="staff")
 
         profile = StaffProfileFactory()
-        category, forum = create_category(group)
+        category, forum = create_category(self.group_staff)
         topic = add_topic_in_a_forum(forum, profile)
         
         self.client = APIClient()
@@ -1472,14 +1463,18 @@ class ForumAPITest(APITestCase):
 
         response = self.client_authenticated.post(reverse('api:forum:list-topic', args=[topic.id, post.id]), data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        # VERIFIER EN BDD TODO
+        
+        alerte = Alert.objects.latest('pubdate')
+        self.assertEqual(alerte.text, data.get('text'))
+        self.assertEqual(alerte.author, self.client_authenticated)
+        self.assertEqual(alerte.comment, post.id)
+
 
     def test_alert_post_in_private_forum(self):
         """
         Tries to alert a post in a public forum with different type of users
         """
         profile = StaffProfileFactory()
-        group = Group.objects.create(name="staff")
         category, forum = create_category()
         topic = add_topic_in_a_forum(forum, profile)
         post = PostFactory(topic=topic, author=profile.user, position=1)
@@ -1496,7 +1491,11 @@ class ForumAPITest(APITestCase):
 
         response = self.client_authenticated_staff.post(reverse('api:forum:list-topic', args=[topic.id, post.id]), data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        # VERIFIER EN BDD TODO
+
+        alerte = Alert.objects.latest('pubdate')
+        self.assertEqual(alerte.text, data.get('text'))
+        self.assertEqual(alerte.author, self.client_authenticated_staff)
+        self.assertEqual(alerte.comment, post.id)
 
     def test_alert_post_not_found(self):
         """
@@ -1515,6 +1514,93 @@ class ForumAPITest(APITestCase):
 
         response = self.client_authentificated.post(reverse('api:forum:list-topic', args=[topic.id, 666]), data)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        
+# Edite un message en anonymous DONE
+# Edite un message avec le bon user DONE
+# Edite un message avec un autre user DONE
+# Edite un message avec un staff DONE
+# Edite un message d'un sujet fermé user
+# Edite un message d'un sujet fermé staff
+# Edite un message dans un forum privé user
+# Edite un message dans un forum privé anonymous DONE
+# Edite un message dans un forum privé staff
+# Edite un message un message qui n'exite pas DONE
+# TODO
+
+    
+    def test_update_post_anonymous(self):
+        """
+        Tries to update a post with anonymous user.
+        """
+        data = {
+            'text': 'I made an error I want to edit.'
+        }
+        self.client = APIClient();
+        topic, posts = self.create_topic_with_post()
+        response = self.client.put(reverse('api:forum:detail-post', args=[topic.id, posts[0].id]), data)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+    
+    def test_update_post_other_user(self):
+        """
+        Tries to update a post with another user that the one who posted on the first time.
+        """
+        data = {
+            'text': 'I made an error I want to edit.'
+        }
+        topic, posts = self.create_topic_with_post(REST_PAGE_SIZE, self.profile)
+        response = self.client_authentificated.put(reverse('api:forum:detail-post', args=[topic.id, posts[0].id]), data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(data.get('text'), response.data.get('text'))
+        
+    def test_update_post(self):
+        """
+        Updates a post with user.
+        """
+        data = {
+            'text': 'I made an error I want to edit.'
+        }
+        topic, posts = self.create_topic_with_post(REST)
+        response = self.client_authentificated.put(reverse('api:forum:detail-post', args=[topic.id, posts[0].id]), data)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+    
+    def test_update_post_staff(self):
+        """
+        Update a post with a staff user.
+        """
+        data = {
+            'text': 'I am Vladimir Lupin, I do want I want.'
+        }
+        topic, posts = self.create_topic_with_post()
+        response = self.client_authentificated_staff.put(reverse('api:forum:detail-post', args=[topic.id, posts[0].id]), data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(reponse.data.get('text'), data.get('text'))
+    
+    def test_update_unknow_post(self):
+        """
+        Tries to update post that does not exist.
+        """
+        data = {
+            'text': 'I am Vladimir Lupin, I do want I want.'
+        }
+        response = self.client_authentificated_staff.put(reverse('api:forum:detail-post', args=[666, 42]), data)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_update_post_in_private_topic_anonymous(self):
+        """
+        Tries to update a post in a private forum (and topic) with anonymous user.
+        """
+        data = {
+            'text': 'I made an error I want to edit.'
+        }
+        self.client = APIClient();
+        category, forum = create_category(self.group_staff)
+        topic = add_topic_in_a_forum(forum, self.staff)
+        post = PostFactory(topic=topic, author=self.staff, position=1)
+
+        response = self.client.put(reverse('api:forum:detail-post', args=[topic.id, posts[0].id]), data)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        
+
 
 
 def create_oauth2_client(user):
@@ -1535,3 +1621,9 @@ def authenticate_client(client, client_auth, username, password):
     })
     access_token = AccessToken.objects.get(user__username=username)
     client.credentials(HTTP_AUTHORIZATION='Bearer {}'.format(access_token))
+
+# TODO 
+# Reorganiser le code de test en differentes classes
+# Renommer les serializer
+# Voir ou on a besoin de read only
+# Voir ou a besoin de validator
