@@ -426,8 +426,8 @@
                                 {% if perms.forum.change_post %}
                                     {% with alerts_list=user|alerts_list %}
                                         <div>
-                                            <a href="{% url "pages-alerts" %}" class="ico-link">
-                                                <span class="notif-text ico ico-alerts">{% trans "Alertes" %}</span>
+                                            <a href="{% url "pages-alerts" %}" class="ico-link" title="{% trans 'Alertes de modération' %}">
+                                                <span class="notif-text ico ico-alerts">{% trans "Alertes de modération" %}</span>
                                                 {% if alerts_list.nb_alerts > 0 %}
                                                     <span class="notif-count">{{ alerts_list.nb_alerts }}</span>
                                                 {% endif %}
