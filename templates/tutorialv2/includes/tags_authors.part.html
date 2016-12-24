@@ -68,7 +68,6 @@
     <br/>
     <span>
         {% if online and reading_time %}
-        {{ reading_time}}
             {% trans "Temps de lecture estimé : " %}{{ reading_time | minute_to_duration:"long"}}
         {% endif %}
     </span>
