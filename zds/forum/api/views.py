@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from zds.member.api.permissions import CanReadTopic, CanReadPost, CanReadAndWriteNowOrReadOnly, IsNotOwnerOrReadOnly, IsOwnerOrReadOnly, IsStaffUser
+from zds.member.api.permissions import CanReadTopic, CanReadPost, CanReadForum, CanReadAndWriteNowOrReadOnly, IsNotOwnerOrReadOnly, IsOwnerOrReadOnly, IsStaffUser
 from zds.utils.api.views import KarmaView
 from zds.forum.models import Post, Forum, Topic
 import datetime
@@ -110,6 +110,10 @@ class ForumDetailAPI(RetrieveAPIView):
 
     def get_serializer_class(self):
         return ForumSerializer
+    
+    def get_permissions(self):
+        permission_classes = [AllowAny, CanReadForum]
+        return [permission() for permission in permission_classes]
 
 
 class TopicListAPI(ListCreateAPIView):
@@ -193,8 +197,9 @@ class TopicListAPI(ListCreateAPIView):
     def get_permissions(self):
         permission_classes = [AllowAny, ]
         if self.request.method == 'POST':
-            permission_classes.append(DRYPermissions)
             permission_classes.append(IsAuthenticated)
+            permission_classes.append(CanReadAndWriteNowOrReadOnly)
+            permission_classes.append(CanReadTopic)
         return [permission() for permission in permission_classes]
 
 
@@ -237,6 +242,10 @@ class UserTopicListAPI(ListAPIView):
     def get_queryset(self):
         topics = Topic.objects.filter(author=self.request.user)
         return topics
+        
+    def get_permissions(self):
+        permission_classes = [AllowAny, IsAuthenticated]
+        return [permission() for permission in permission_classes]
 
 
 class TopicDetailAPI(RetrieveUpdateAPIView):
@@ -292,9 +301,8 @@ class TopicDetailAPI(RetrieveUpdateAPIView):
     def get_permissions(self):
         permission_classes = []
         if self.request.method == 'GET':
-            permission_classes.append(DRYPermissions)
+            permission_classes.append(CanReadTopic)
         elif self.request.method == 'PUT':
-            permission_classes.append(DRYPermissions)
             permission_classes.append(IsAuthenticatedOrReadOnly)
             permission_classes.append(IsOwnerOrReadOnly)
             permission_classes.append(CanReadTopic)
@@ -375,10 +383,11 @@ class PostListAPI(ListCreateAPIView):
         return self.request.user.profile
 
     def get_permissions(self):
-        permission_classes = [AllowAny, CanReadPost]
+        permission_classes = [AllowAny, CanReadPost, CanReadTopic]
         if self.request.method == 'POST':
             permission_classes.append(DRYPermissions)
             permission_classes.append(IsAuthenticated)
+            permission_classes.append(CanReadAndWriteNowOrReadOnly)
         return [permission() for permission in permission_classes]
 
 
@@ -505,6 +514,14 @@ class PostDetailAPI(RetrieveUpdateAPIView):
         elif self.request.method == 'PUT':
             return PostUpdateSerializer
 
+    def get_permissions(self):
+        permission_classes = [AllowAny, CanReadPost]
+        if self.request.method == 'PUT':
+            permission_classes.append(IsAuthenticated)
+            permission_classes.append(IsNotOwnerOrReadOnly)
+            permission_classes.append(CanReadAndWriteNowOrReadOnly)
+        return [permission() for permission in permission_classes]
+        
 
 class PostAlertAPI(CreateAPIView):
     """
@@ -534,8 +551,8 @@ class PostAlertAPI(CreateAPIView):
             - code: 401
               message: Not Authenticated
         """
-        author = request.user.id
-        post = self.kwargs.get('pk')
+        author = request.user
+        post = Post.objects.get(id = self.kwargs.get('pk'))
 
         serializer = self.get_serializer_class()(data=request.data, context={'request': self.request})
         serializer.is_valid(raise_exception=True)
@@ -544,11 +561,12 @@ class PostAlertAPI(CreateAPIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def get_permissions(self):
-        permission_classes = [AllowAny, ]
-        permission_classes.append(IsAuthenticated)
+        permission_classes = [AllowAny, IsAuthenticated]
+        return [permission() for permission in permission_classes]
 
 
 # TODO global identier quand masquer les messages
 # TODO gerer l'antispam
 # TODO alerter un post A tester
 # TODO editer un post A tester
+# TODO empecher les ls et les ban de faire des alertes ?

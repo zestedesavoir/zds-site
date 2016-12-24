@@ -221,12 +221,9 @@ class ForumAPITest(APITestCase):
         self.client_authenticated_staff = APIClient()
         authenticate_client(self.client_authenticated_staff, client_oauth2, self.staff.user.username, 'hostel77')
         
-        self.group_staff = Group.objects.create(name="staff")
+        self.group_staff = Group.objects.filter(name="staff").first()
 
         caches[extensions_api_settings.DEFAULT_USE_CACHE].clear()
-    
-    def tearDown(self):
-        self.group_staff.delete()
 
     def create_multiple_forums(self, number_of_forum=REST_PAGE_SIZE):
         for forum in xrange(0, number_of_forum):
@@ -251,7 +248,7 @@ class ForumAPITest(APITestCase):
         posts=[]
 
         for post in xrange(0, number_of_post):
-            posts.append(PostFactory(topic=new_topic.id, author=profile.user, position=2))
+            posts.append(PostFactory(topic=new_topic, author=profile.user, position=2))
 
         return new_topic, posts
 
@@ -289,10 +286,10 @@ class ForumAPITest(APITestCase):
         response = self.client.get(reverse('api:forum:list'))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         
-        response = self.client_authentificated.get(reverse('api:forum:list'))
+        response = self.client_authenticated.get(reverse('api:forum:list'))
         self.assertEqual(response.status_code, status.HTTP_UNAUTHORIZED)
         
-        response = self.client_authentificated_staff.get(reverse('api:forum:list'))
+        response = self.client_authenticated_staff.get(reverse('api:forum:list'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
@@ -379,7 +376,7 @@ class ForumAPITest(APITestCase):
         self.assertEqual(response.data.get('title'), forum.title)
         self.assertEqual(response.data.get('subtitle'), forum.subtitle)
         self.assertEqual(response.data.get('slug'), forum.slug)
-        self.assertEqual(response.data.get('category'), forum.category)
+        self.assertEqual(response.data.get('category'), forum.category.id)
         self.assertEqual(response.data.get('position_in_category'), forum.position_in_category)
         self.assertEqual(response.data.get('group'), forum.group)
         
@@ -394,10 +391,10 @@ class ForumAPITest(APITestCase):
         response = self.client.get(reverse('api:forum:detail', args=[forum.id]))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         
-        response = self.client_authentificated.get(reverse('api:forum:detail', args=[forum.id]))
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        response = self.client_authenticated.get(reverse('api:forum:detail', args=[forum.id]))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-        response = self.client_authentificated_staff.get(reverse('api:forum:detail', args=[forum.id]))
+        response = self.client_authenticated_staff.get(reverse('api:forum:detail', args=[forum.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_details_unknown_forum(self):
@@ -419,10 +416,10 @@ class ForumAPITest(APITestCase):
         response = self.client.get(reverse('api:forum:detail', args=[forum.id]))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
-        response = self.client_authentificated.get(reverse('api:forum:detail', args=[forum.id]))
+        response = self.client_authenticated.get(reverse('api:forum:detail', args=[forum.id]))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-        response = self.client_authentificated_staff.get(reverse('api:forum:detail', args=[forum.id]))
+        response = self.client_authenticated_staff.get(reverse('api:forum:detail', args=[forum.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 # TODO
@@ -622,11 +619,11 @@ class ForumAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         # User
-        response = self.client_authentificated.post(reverse('api:forum:list-topic'), data)
+        response = self.client_authenticated.post(reverse('api:forum:list-topic'), data)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         # Staff
-        response = self.client_authentificated_staff.post(reverse('api:forum:list-topic'), data)
+        response = self.client_authenticated_staff.post(reverse('api:forum:list-topic'), data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_new_topic_with_banned_user(self):
@@ -725,7 +722,7 @@ class ForumAPITest(APITestCase):
         """
 
         self.client = APIClient()
-        response = self.client.get(reverse('api:forum:detail-topic', args=(666)))
+        response = self.client.get(reverse('api:forum:detail-topic', args=[666]))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_details_topic_private(self):
@@ -737,15 +734,15 @@ class ForumAPITest(APITestCase):
 
         # Anonymous
         self.client = APIClient()
-        response = self.client.get(reverse('api:forum:detail-topic', args=(topic.id)))
+        response = self.client.get(reverse('api:forum:detail-topic', args=[topic.id]))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         # User
-        response = self.client_authenticated.get(reverse('api:forum:detail-topic', args=(topic.id)))
+        response = self.client_authenticated.get(reverse('api:forum:detail-topic', args=[topic.id]))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         # Staff
-        response = self.client_authenticated_staff.get(reverse('api:forum:detail-topic', args=(topic.id)))
+        response = self.client_authenticated_staff.get(reverse('api:forum:detail-topic', args=[topic.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_new_post_anonymous(self):
@@ -758,7 +755,7 @@ class ForumAPITest(APITestCase):
         }
 
         self.client = APIClient()
-        response = self.client.post(reverse('api:forum:list-post', args=(topic.id)), data)
+        response = self.client.post(reverse('api:forum:list-post', args=[topic.id]), data)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_new_post_user(self):
@@ -771,8 +768,8 @@ class ForumAPITest(APITestCase):
         }
 
         self.client = APIClient()
-        response = self.client_authenticated.post(reverse('api:forum:list-post', args=(topic.id)), data)
-        topic = Topic.objects.filter(id=topic.id)
+        response = self.client_authenticated.post(reverse('api:forum:list-post', args=[topic.id]), data)
+        topic = Topic.objects.filter(id=topic.id).first()
         print(topic)
         last_message = topic.get_last_post()
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -792,7 +789,7 @@ class ForumAPITest(APITestCase):
         }
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.post(reverse('api:forum:list-post', args=(topic.id,)), data)
+        response = self.client.post(reverse('api:forum:list-post', args=[topic.id,]), data)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         profile = ProfileFactory()
@@ -800,7 +797,7 @@ class ForumAPITest(APITestCase):
         profile.save()
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.post(reverse('api:forum:list-post', args=(topic.id,)), data)
+        response = self.client.post(reverse('api:forum:list-post', args=[topic.id,]), data)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_new_post_no_text(self):
@@ -809,7 +806,7 @@ class ForumAPITest(APITestCase):
         """
         topic = self.create_multiple_forums_with_topics(1, 1)
         data = {}
-        response = self.client_authenticated.post(reverse('api:forum:list-post', args=(topic.id,)), data)
+        response = self.client_authenticated.post(reverse('api:forum:list-post', args=[topic.id,]), data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_new_post_empty_text(self):
@@ -820,7 +817,7 @@ class ForumAPITest(APITestCase):
         data = {
             'text': ''
         }
-        response = self.client_authenticated.post(reverse('api:forum:list-post', args=(topic.id,)), data)
+        response = self.client_authenticated.post(reverse('api:forum:list-post', args=[topic.id,]), data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_new_post_unknown_topic(self):
@@ -830,7 +827,7 @@ class ForumAPITest(APITestCase):
         data = {
             'text': 'Where should I go now ?'
         }
-        response = self.client_authenticated.post(reverse('api:forum:list-post', args=(666,)), data)
+        response = self.client_authenticated.post(reverse('api:forum:list-post', args=[666,]), data)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 # Edite un sujet sans changement
@@ -898,7 +895,7 @@ class ForumAPITest(APITestCase):
         }
         profile = ProfileFactory()
         topic = self.create_multiple_forums_with_topics(1, 1, profile)
-        response = self.client.put(reverse('api:forum:detail-topic', args=[topic.id]), data)
+        response = self.client_authenticated.put(reverse('api:forum:detail-topic', args=[topic.id]), data)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_update_unknown_topic(self):
@@ -920,7 +917,7 @@ class ForumAPITest(APITestCase):
         }
         self.create_multiple_forums_with_topics(5, 1, self.profile)
         topic = Topic.objects.filter(forum=1).first()
-        response = self.client.put(reverse('api:forum:detail-topic', args=[topic.id]), data)
+        response = self.client_authenticated.put(reverse('api:forum:detail-topic', args=[topic.id]), data)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_update_topic_forum_staff(self):
@@ -933,7 +930,6 @@ class ForumAPITest(APITestCase):
         self.create_multiple_forums_with_topics(5, 1, self.profile)
         topic = Topic.objects.filter(forum=1).first()
         response = self.client_authenticated.put(reverse('api:forum:detail-topic', args=[topic.id]), data)
-        print(response)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('forum'), data.get('forum'))
 
@@ -948,7 +944,7 @@ class ForumAPITest(APITestCase):
         """
         Gets list of posts in a topic.
         """
-        topic = self.create_topic_with_post()
+        topic, posts = self.create_topic_with_post()
 
         response = self.client.get(reverse('api:forum:list-post', args=[topic.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -969,7 +965,7 @@ class ForumAPITest(APITestCase):
         topic = add_topic_in_a_forum(forum, profile)
         # def add_topic_in_a_forum(forum, profile, is_sticky=False, is_solved=False, is_locked=False):
 
-        response = profile.client.get(reverse('api:forum:list-post', args=[topic.id]))
+        response = self.client.get(reverse('api:forum:list-post', args=[topic.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('count'), 1)
         self.assertEqual(len(response.data.get('results')), 1)
@@ -996,7 +992,7 @@ class ForumAPITest(APITestCase):
         """
         Gets list of posts with several pages in the database.
         """
-        topic = self.create_topic_with_post(REST_PAGE_SIZE + 1)
+        topic, posts = self.create_topic_with_post(REST_PAGE_SIZE + 1)
 
         response = self.client.get(reverse('api:forum:list-post', args=[topic.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -1016,7 +1012,7 @@ class ForumAPITest(APITestCase):
         """
         Gets list of posts with several pages and gets a page different that the first one.
         """
-        topic = self.create_topic_with_post(REST_PAGE_SIZE + 1)
+        topic, posts = self.create_topic_with_post(REST_PAGE_SIZE + 1)
 
         response = self.client.get(reverse('api:forum:list-post', args=[topic.id]) + '?page=2')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -1029,7 +1025,7 @@ class ForumAPITest(APITestCase):
         """
         Gets an error when the posts asks a wrong page.
         """
-        topic = self.create_topic_with_post(1)
+        topic, posts = self.create_topic_with_post(1)
         response = self.client.get(reverse('api:forum:list-post', args=[topic.id]) + '?page=2')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
@@ -1038,11 +1034,11 @@ class ForumAPITest(APITestCase):
         Gets list of forums with a custom page size. DRF allows to specify a custom
         size for the pagination.
         """
-        topic = self.create_topic_with_post(REST_PAGE_SIZE * 2)
+        topic, posts = self.create_topic_with_post(REST_PAGE_SIZE * 2)
         print (topic)
 
         page_size = 'page_size'
-        response = self.client.get(reverse('api:forum:list-post') + '?{}=20'.format(page_size), args=[topic.id])
+        response = self.client.get(reverse('api:forum:list-post', args=[topic.id]) + '?{}=20'.format(page_size))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('count'), 20)
         self.assertEqual(len(response.data.get('results')), 20)
@@ -1056,11 +1052,13 @@ class ForumAPITest(APITestCase):
         value in settings.
         """
         page_size_value = REST_MAX_PAGE_SIZE + 1
-        topic = self.create_topic_with_post(page_size_value)
+        topic, posts = self.create_topic_with_post(page_size_value)
 
-        response = self.client.get(reverse('api:forum:list-post') + '?page_size={}'.format(page_size_value), args=[topic.id])
+        response = self.client.get(reverse('api:forum:list-post', args=[topic.id]) + '?page_size={}'.format(page_size_value))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data.get('count'), page_size_value)
+        
+        # We will have page_size_value + 1 because a post is added at topic creation.
+        self.assertEqual(response.data.get('count'), page_size_value + 1)
         self.assertIsNotNone(response.data.get('next'))
         self.assertIsNone(response.data.get('previous'))
         self.assertEqual(REST_MAX_PAGE_SIZE, len(response.data.get('results')))
@@ -1069,9 +1067,9 @@ class ForumAPITest(APITestCase):
         """
         Tries to list the posts of an non existing Topic.
         """
-        topic = self.create_topic_with_post()
+        topic, posts = self.create_topic_with_post()
 
-        response = self.client.get(reverse('api:forum:list-post'), args=[topic.id])
+        response = self.client.get(reverse('api:forum:list-post', args=[topic.id]))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_list_of_user_topics_empty(self):
@@ -1146,6 +1144,7 @@ class ForumAPITest(APITestCase):
         self.create_multiple_forums_with_topics(REST_PAGE_SIZE * 2, 1, self.profile)
 
         page_size = 'page_size'
+        self.client = APIClient()
         response = self.client.get(reverse('api:forum:list-usertopic') + '?{}=20'.format(page_size))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('count'), 20)
@@ -1173,7 +1172,7 @@ class ForumAPITest(APITestCase):
         """
         Tries to get a list of users topic with an anonymous user.
         """
-
+        self.client = APIClient()
         response = self.client.get(reverse('api:forum:list-usertopic'))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
@@ -1193,7 +1192,8 @@ class ForumAPITest(APITestCase):
         """
         Creates a post in a topic but not with according field.
         """
-        response = self.client.post(reverse('api:forum:list-post', args=[self.private_topic.id]), {})
+        topic = self.create_multiple_forums_with_topics(1, 1)
+        response = self.client_authenticated.post(reverse('api:forum:list-post', args=[topic.id]), {})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_post_with_empty_field(self):
@@ -1203,7 +1203,8 @@ class ForumAPITest(APITestCase):
         data = {
             'text': ''
         }
-        response = self.client.post(reverse('api:forum:list-post', args=[self.private_topic.id]), data)
+        topic = self.create_multiple_forums_with_topics(1, 1)
+        response = self.client_authenticated.post(reverse('api:forum:list-post', args=[topic.id]), data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_post_unauthenticated(self):
@@ -1231,7 +1232,7 @@ class ForumAPITest(APITestCase):
         data = {
             'text': 'Welcome to this post!'
         }
-        topic = create_multiple_forums_with_topics(1, 1)
+        topic = self.create_multiple_forums_with_topics(1, 1)
         response = self.client_authenticated.post(reverse('api:forum:list-post', args=[topic.id]), data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -1253,7 +1254,7 @@ class ForumAPITest(APITestCase):
         data = {
             'text': 'Welcome to this post!'
         }
-        response = self.client.post(reverse('api:forum:list-post', args=(topic.pk,)), data)
+        response = self.client.post(reverse('api:forum:list-post', args=[topic.pk,]), data)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_post_in_a_private_forum(self):
@@ -1262,11 +1263,11 @@ class ForumAPITest(APITestCase):
         """
 
         category, forum = create_category(self.group_staff)
-        topic = add_topic_in_a_forum(forum, profile)
+        topic = add_topic_in_a_forum(forum, self.profile)
         data = {
             'text': 'Welcome to this post!'
         }
-        response = self.client_authentificated.post(reverse('api:forum:list-post', args=(topic.pk,)), data)
+        response = self.client_authenticated.post(reverse('api:forum:list-post', args=[topic.pk,]), data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         post = Post.objects.filter(topic=topic.id)
@@ -1282,13 +1283,13 @@ class ForumAPITest(APITestCase):
         Gets all information about a post.
         """
 
-        topic = self.create_topic_with_post()
-        post = Post.objects.filter(topic=topic.id).first()
+        topic, posts = self.create_topic_with_post()
+        post = posts[0]
         response = self.client.get(reverse('api:forum:detail-post', args=[topic.id, post.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(post.id, response.data.get('id'))
         self.assertIsNotNone(response.data.get('text'))
-        self.assertIsNone(response.data.get('text_html'))
+        self.assertIsNotNone(response.data.get('text_html'))
         self.assertIsNotNone(response.data.get('pubdate'))
         self.assertIsNone(response.data.get('update'))
         self.assertEqual(post.position_in_topic, response.data.get('position_in_topic'))
@@ -1316,18 +1317,18 @@ class ForumAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         # User
-        response = self.client_authentificated.get(reverse('api:forum:detail-post', args=[topic.id, post.id]))
+        response = self.client_authenticated.get(reverse('api:forum:detail-post', args=[topic.id, post.id]))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         # Staff user
-        response = self.client_authentificated_staff.get(reverse('api:forum:detail-post', args=[topic.id, post.id]))
+        response = self.client_authenticated_staff.get(reverse('api:forum:detail-post', args=[topic.id, post.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_list_of_member_posts_empty(self):
         """
         Gets empty list of posts that that a specified member created.
         """
-        response = self.client_authenticated.get(reverse('api:forum:list-memberpost'), args=[self.profile.id])
+        response = self.client_authenticated.get(reverse('api:forum:list-memberpost', args=[self.profile.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('count'), 0)
         self.assertEqual(response.data.get('results'), [])
@@ -1340,7 +1341,7 @@ class ForumAPITest(APITestCase):
         """
         self.create_multiple_forums_with_topics(10, 1, self.profile)
 
-        response = self.client_authenticated.get(reverse('api:forum:list-memberpost'), args=[self.profile.id])
+        response = self.client_authenticated.get(reverse('api:forum:list-memberpost', args=[self.profile.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('count'), 10)
         self.assertEqual(len(response.data.get('results')), 10)
@@ -1357,13 +1358,13 @@ class ForumAPITest(APITestCase):
         topic = add_topic_in_a_forum(forum, profile)
         
         self.client = APIClient()
-        response = self.client_authenticated.get(reverse('api:forum:list-memberpost'), args=[profile.id])
+        response = self.client_authenticated.get(reverse('api:forum:list-memberpost', args=[profile.id]))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         
         response = self.client_authenticated.get(reverse('api:forum:list-memberpost'), args=[profile.id])
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         
-        response = self.client_authenticated_staff.get(reverse('api:forum:list-memberpost'), args=[profile.id])
+        response = self.client_authenticated_staff.get(reverse('api:forum:list-memberpost', args=[profile.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_list_of_member_posts_with_several_pages(self):
@@ -1372,14 +1373,14 @@ class ForumAPITest(APITestCase):
         """
         self.create_multiple_forums_with_topics(REST_PAGE_SIZE + 1, 1, self.profile)
 
-        response = self.client_authenticated.get(reverse('api:forum:list-memberpost'), args=[self.profile.id])
+        response = self.client_authenticated.get(reverse('api:forum:list-memberpost', args=[self.profile.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('count'), REST_PAGE_SIZE + 1)
         self.assertIsNotNone(response.data.get('next'))
         self.assertIsNone(response.data.get('previous'))
         self.assertEqual(len(response.data.get('results')), REST_PAGE_SIZE)
 
-        response = self.client_authenticated.get(reverse('api:forum:list-memberpost'), args=[self.profile.id])
+        response = self.client_authenticated.get(reverse('api:forum:list-memberpost', args=[self.profile.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('count'), REST_PAGE_SIZE + 1)
         self.assertIsNone(response.data.get('next'))
@@ -1392,7 +1393,7 @@ class ForumAPITest(APITestCase):
         """
 
         self.create_multiple_forums_with_topics(REST_PAGE_SIZE + 1, 1, self.profile)
-        response = self.client_authenticated.get(reverse('api:forum:list-memberpost')+ '?page=2', args=[self.profile.id])
+        response = self.client_authenticated.get(reverse('api:forum:list-memberpost', args=[self.profile.id])+ '?page=2')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('count'), 11)
         self.assertEqual(len(response.data.get('results')), 1)
@@ -1403,7 +1404,7 @@ class ForumAPITest(APITestCase):
         """
         Gets an error when the member posts asks a wrong page.
         """
-        response = self.client_authenticated.get(reverse('api:forum:list-memberpost') + '?page=2', args=[self.profile.id])
+        response = self.client_authenticated.get(reverse('api:forum:list-memberpost', args=[self.profile.id]) + '?page=2')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_list_of_member_posts_with_a_custom_page_size(self):
@@ -1430,7 +1431,7 @@ class ForumAPITest(APITestCase):
         page_size_value = REST_MAX_PAGE_SIZE + 1
         self.create_multiple_forums_with_topics(page_size_value, 1, self.profile)
 
-        response = self.client_authenticated.get(reverse('api:forum:list-memberpost') + '?page_size={}'.format(page_size_value), args=[self.profile.id])
+        response = self.client_authenticated.get(reverse('api:forum:list-memberpost', args=[self.profile.id]) + '?page_size={}'.format(page_size_value))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('count'), page_size_value)
         self.assertIsNotNone(response.data.get('next'))
@@ -1441,7 +1442,7 @@ class ForumAPITest(APITestCase):
         """
         Gets empty list of posts for a member that does not exists.
         """
-        response = self.client_authenticated.get(reverse('api:forum:list-memberpost'), args=[666])
+        response = self.client_authenticated.get(reverse('api:forum:list-memberpost', args=[666]))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_alert_post(self):
@@ -1458,10 +1459,10 @@ class ForumAPITest(APITestCase):
         }
 
         self.client = APIClient()
-        response = self.client.post(reverse('api:forum:list-topic', args=[topic.id, post.id]), data)
+        response = self.client.post(reverse('api:forum:alert-post', args=[topic.id, post.id]), data)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
-        response = self.client_authenticated.post(reverse('api:forum:list-topic', args=[topic.id, post.id]), data)
+        response = self.client_authenticated.post(reverse('api:forum:alert-post', args=[topic.id, post.id]), data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         
         alerte = Alert.objects.latest('pubdate')
@@ -1483,13 +1484,13 @@ class ForumAPITest(APITestCase):
         }
 
         self.client = APIClient()
-        response = self.client.post(reverse('api:forum:list-topic', args=[topic.id, post.id]), data)
+        response = self.client.post(reverse('api:forum:alert-post', args=[topic.id, post.id]), data)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
-        response = self.client_authenticated.post(reverse('api:forum:list-topic', args=[topic.id, post.id]), data)
+        response = self.client_authenticated.post(reverse('api:forum:alert-post', args=[topic.id, post.id]), data)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-        response = self.client_authenticated_staff.post(reverse('api:forum:list-topic', args=[topic.id, post.id]), data)
+        response = self.client_authenticated_staff.post(reverse('api:forum:alert-post', args=[topic.id, post.id]), data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         alerte = Alert.objects.latest('pubdate')
@@ -1509,10 +1510,10 @@ class ForumAPITest(APITestCase):
             'text': 'There is a guy flooding about Flask, con you do something about it ?',
         }
 
-        response = self.client_authentificated.post(reverse('api:forum:list-topic', args=[666, post.id]), data)
+        response = self.client_authenticated.post(reverse('api:forum:alert-post', args=[666, post.id]), data)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-        response = self.client_authentificated.post(reverse('api:forum:list-topic', args=[topic.id, 666]), data)
+        response = self.client_authenticated.post(reverse('api:forum:alert-post', args=[topic.id, 666]), data)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         
 # Edite un message en anonymous DONE
@@ -1548,7 +1549,7 @@ class ForumAPITest(APITestCase):
             'text': 'I made an error I want to edit.'
         }
         topic, posts = self.create_topic_with_post(REST_PAGE_SIZE, self.profile)
-        response = self.client_authentificated.put(reverse('api:forum:detail-post', args=[topic.id, posts[0].id]), data)
+        response = self.client_authenticated.put(reverse('api:forum:detail-post', args=[topic.id, posts[0].id]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(data.get('text'), response.data.get('text'))
         
@@ -1559,8 +1560,8 @@ class ForumAPITest(APITestCase):
         data = {
             'text': 'I made an error I want to edit.'
         }
-        topic, posts = self.create_topic_with_post(REST)
-        response = self.client_authentificated.put(reverse('api:forum:detail-post', args=[topic.id, posts[0].id]), data)
+        topic, posts = self.create_topic_with_post()
+        response = self.client_authenticated.put(reverse('api:forum:detail-post', args=[topic.id, posts[0].id]), data)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
     
     def test_update_post_staff(self):
@@ -1571,7 +1572,7 @@ class ForumAPITest(APITestCase):
             'text': 'I am Vladimir Lupin, I do want I want.'
         }
         topic, posts = self.create_topic_with_post()
-        response = self.client_authentificated_staff.put(reverse('api:forum:detail-post', args=[topic.id, posts[0].id]), data)
+        response = self.client_authenticated_staff.put(reverse('api:forum:detail-post', args=[topic.id, posts[0].id]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(reponse.data.get('text'), data.get('text'))
     
@@ -1582,7 +1583,7 @@ class ForumAPITest(APITestCase):
         data = {
             'text': 'I am Vladimir Lupin, I do want I want.'
         }
-        response = self.client_authentificated_staff.put(reverse('api:forum:detail-post', args=[666, 42]), data)
+        response = self.client_authenticated_staff.put(reverse('api:forum:detail-post', args=[666, 42]), data)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_update_post_in_private_topic_anonymous(self):
@@ -1595,7 +1596,7 @@ class ForumAPITest(APITestCase):
         self.client = APIClient();
         category, forum = create_category(self.group_staff)
         topic = add_topic_in_a_forum(forum, self.staff)
-        post = PostFactory(topic=topic, author=self.staff, position=1)
+        posts = PostFactory(topic=topic, author=self.staff.user, position=1)
 
         response = self.client.put(reverse('api:forum:detail-post', args=[topic.id, posts[0].id]), data)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)

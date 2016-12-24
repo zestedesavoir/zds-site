@@ -14,6 +14,7 @@ from django.db.models.signals import pre_delete
 
 from elasticsearch_dsl.field import Text, Keyword, Integer, Boolean, Float, Date
 
+from zds.member.api.permissions import CanReadTopic, CanReadPost, CanReadAndWriteNowOrReadOnly, IsNotOwnerOrReadOnly, IsOwnerOrReadOnly, IsStaffUser
 from zds.forum.managers import TopicManager, ForumManager, PostManager, TopicReadManager
 from zds.notification import signals
 from zds.searchv2.models import AbstractESDjangoIndexable, delete_document_in_elasticsearch, ESIndexManager
@@ -513,7 +514,8 @@ class Post(Comment, AbstractESDjangoIndexable):
             self.topic.get_absolute_url(),
             page,
             self.pk)
-            def is_author(self, user):
+
+    def is_author(self, user):
         """
         Check if the user given is the author of the message.
 
@@ -521,6 +523,14 @@ class Post(Comment, AbstractESDjangoIndexable):
         :return: true if the user is the author.
         """
         return self.author == user
+
+    @staticmethod
+    def has_read_permission(request):
+        return True
+
+    def has_object_read_permission(self, request):
+        return Post.has_read_permission(request)
+
     @staticmethod
     def has_write_permission(request):
         return request.user.is_authenticated() and request.user.profile.can_write_now()
