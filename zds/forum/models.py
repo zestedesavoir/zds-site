@@ -9,6 +9,7 @@ from django.contrib.auth.models import Group, User, AnonymousUser
 from django.core.urlresolvers import reverse
 from django.db import models
 
+from zds.member.api.permissions import CanReadTopic, CanReadPost, CanReadAndWriteNowOrReadOnly, IsNotOwnerOrReadOnly, IsOwnerOrReadOnly, IsStaffUser
 from zds.forum.managers import TopicManager, ForumManager, PostManager, TopicReadManager
 from zds.notification import signals
 from zds.settings import ZDS_APP
@@ -436,6 +437,14 @@ class Post(Comment):
         """
         return self.author == user
 
+
+    @staticmethod
+    def has_read_permission(request):
+        return True
+
+    def has_object_read_permission(self, request):
+        return Post.has_read_permission(request) 
+        
     @staticmethod
     def has_write_permission(request):
         return request.user.is_authenticated() and request.user.profile.can_write_now()

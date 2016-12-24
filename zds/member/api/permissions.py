@@ -87,7 +87,15 @@ class CanReadTopic(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
         return obj.forum.can_read(request.user)
-        
+
+
+class CanReadForum(permissions.BasePermission):
+    """
+    Checks if the user can read that forum
+    """
+
+    def has_object_permission(self, request, view, obj):
+        return obj.can_read(request.user)
 
 class CanReadPost(permissions.BasePermission):
     """
