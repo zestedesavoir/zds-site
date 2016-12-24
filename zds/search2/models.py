@@ -72,12 +72,14 @@ class ESIndexableMixin(object):
 
         return []
 
-    def get_es_document_source(self):
+    def get_es_document_source(self, exclude_field=None):
         """Create a document from the variable of the class, based on the mapping.
 
         .. attention::
             You may need to override this method if the data differ from the mapping for some reason.
 
+        :param exclude_field: exclude some field from the default method
+        :type exclude_field: list
         :return: document
         :rtype: dict
         """
@@ -88,6 +90,8 @@ class ESIndexableMixin(object):
         data = {}
 
         for field in fields:
+            if exclude_field and field in exclude_field:
+                continue
             v = getattr(self, field, None)
             if callable(v):
                 v = v()

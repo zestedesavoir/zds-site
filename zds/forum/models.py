@@ -10,7 +10,7 @@ from django.contrib.auth.models import Group, User, AnonymousUser
 from django.core.urlresolvers import reverse
 from django.db import models
 
-from elasticsearch_dsl import String
+from elasticsearch_dsl.field import Text, Keyword
 
 from zds.forum.managers import TopicManager, ForumManager, PostManager, TopicReadManager
 from zds.notification import signals
@@ -160,7 +160,7 @@ class Forum(models.Model):
 
 
 @python_2_unicode_compatible
-class Topic(models.Model):
+class Topic(ESDjangoIndexableMixin):
     """
     A Topic is a thread of posts.
     A topic has several states, witch are all independent:
@@ -385,6 +385,36 @@ class Topic(models.Model):
 
         return False
 
+    @classmethod
+    def get_es_mapping(cls):
+        m = super(Topic, cls).get_es_mapping()
+
+        m.field('title', Text())
+        m.field('subtitle', Text())
+        m.field('get_absolute_url', Text(index='not_analyzed'))
+        m.field('tags', Keyword())
+
+        return m
+
+    @classmethod
+    def get_es_django_indexable(cls, force_reindexing=False):
+        """Overridden to remove hidden forums
+        """
+
+        q = super(Topic, cls).get_es_django_indexable(force_reindexing)
+        return q.prefetch_related('tags').filter(forum__group__isnull=True)
+
+    def get_es_document_source(self, exclude_field=None):
+        """Overridden to handle the case of tags (M2M field)
+        """
+
+        exclude_field = exclude_field if exclude_field else []
+        exclude_field.extend(['tags'])
+
+        data = super(Topic, self).get_es_document_source(exclude_field=exclude_field)
+        data['tags'] = [tag.title for tag in self.tags.all()]
+        return data
+
 
 @python_2_unicode_compatible
 class Post(Comment, ESDjangoIndexableMixin):
@@ -420,7 +450,8 @@ class Post(Comment, ESDjangoIndexableMixin):
     def get_es_mapping(cls):
         m = super(Post, cls).get_es_mapping()
 
-        m.field('text', String())
+        m.field('text', Text())
+        m.field('get_absolute_url', Text(index='not_analyzed'))
 
         return m
 
