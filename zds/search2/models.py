@@ -180,6 +180,16 @@ class ESDjangoIndexableMixin(ESIndexableMixin, models.Model):
         return super(ESDjangoIndexableMixin, self).save(*args, **kwargs)
 
     def es_done_indexing(self, es_id):
+        """Overridden to actually save the values of ``es_flagged`` and ``es_already_indexed`` into BDD.
+
+        :param es_id: id given by ES
+        :type es_id: str
+        :raise ValueError: if id given by ES and pk does not match.
+        """
+
+        if es_id != self.es_id:
+            raise ValueError('mistmach between pk and id given by ES !!')
+
         super(ESDjangoIndexableMixin, self).es_done_indexing(es_id)
         self.save(es_flagged=False)
 
