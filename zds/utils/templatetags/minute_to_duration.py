@@ -1,5 +1,6 @@
-# Import template library
 from django import template
+from django.utils.translation import ugettext as _
+import math
 
 # Set register
 register = template.Library()
@@ -7,7 +8,7 @@ register = template.Library()
 
 # Register filter
 @register.filter("minute_to_duration")
-def minute_to_duration(value, arg=''):
+def minute_to_duration(value, duration_format=''):
 
     """
     #######################################################
@@ -31,17 +32,15 @@ def minute_to_duration(value, arg=''):
     # If seconds are greater than 0
     if secs > 0:
 
-        # Import math library
-        import math
-
         # Place durations of given units in to variables
         daySecs = 86400
         hourSecs = 3600
         minSecs = 60
+        # To how many minutes we round up the result when input string is more than an hour
         roundPrecision = 15
 
         # If short string is enabled
-        if arg != 'long':
+        if duration_format != 'long':
 
             # Set short names
             dayUnitName = ' jour'
@@ -103,9 +102,11 @@ def minute_to_duration(value, arg=''):
 
             # If there are unit after this
             else:
-
                 # Set hour splitter to next
-                hourSplitter = (len(durationString) > 0 and nextDurSplitter or '')
+                if (len(durationString) > 0 and nextDurSplitter):
+                    hourSplitter = nextDurSplitter
+                else:
+                    hourSplitter = ''
 
         # If number of hours is greater than 0
         if hours > 0:
@@ -133,4 +134,4 @@ def minute_to_duration(value, arg=''):
     else:
 
         # Provide 'No duration' message
-        return 'Inconnu'
+        return _(u'Inconnu')

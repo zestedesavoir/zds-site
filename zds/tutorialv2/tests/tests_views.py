@@ -2142,10 +2142,6 @@ class ContentTests(TestCase):
         self.assertEqual(published.content.source, different_source)
         self.assertEqual(published.content_public_slug, self.tuto_draft.slug)
         self.assertTrue(os.path.exists(published.get_prod_path()))
-
-        base_name = os.path.join(published.get_extra_contents_directory(), published.content_public_slug)
-        md_file_path = base_name + '.md'
-        self.assertEqual(published.get_nb_letter(md_file_path), 555)
         # ... another test cover the file creation and so all, lets skip this part
 
         # ensure that author cannot revoke his own publication

@@ -40,6 +40,7 @@ from zds.tutorialv2.managers import PublishedContentManager, PublishableContentM
 import logging
 
 ALLOWED_TYPES = ['pdf', 'md', 'html', 'epub', 'zip']
+logger = logging.getLogger('zds.tutorialv2')
 
 
 @python_2_unicode_compatible
@@ -529,7 +530,7 @@ class PublishableContent(models.Model):
                 current_tag, created = Tag.objects.get_or_create(title=tag.lower().strip())
                 self.tags.add(current_tag)
             except ValueError as e:
-                logging.getLogger("zds.tutorialv2").warn(e)
+                logger.warning(e)
 
         self.save()
 
@@ -846,7 +847,7 @@ class PublishedContent(models.Model):
             if current_content:
                 return len(content)
         except OSError as e:
-            logging.warning("could not get file %s to compute nb letters (error=%s)", md_file_path, e)
+            logger.warning("could not get file %s to compute nb letters (error=%s)", md_file_path, e)
 
 
 @python_2_unicode_compatible
