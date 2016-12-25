@@ -28,8 +28,8 @@ class Misc(TestCase):
         alert.author = alerter.user
         alert.content = opinion
         alert.pubdate = datetime.datetime.now()
-        alert.comment = "Something to say."
+        alert.text = "Something to say."
         alert.save()
         filter_result = alerts_list(staff.user)
         self.assertEqual(1, filter_result["nb_alert"])
-        self.assertEqual(alert.comment, filter_result["alerts"][0]["text"])
+        self.assertEqual(alert.text, filter_result["alerts"][0]["text"])
