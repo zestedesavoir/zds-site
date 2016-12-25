@@ -9,16 +9,16 @@
     {% endif %}">
     <div class="topic-infos">
         {% if topic.is_sticky %}
-            <span class="ico-after pin blue">[{% trans "Epinglé" %}]</span>
+            <span class="ico-after pin blue" title="{% trans 'Sujet épinglé' %}">[{% trans "Epinglé" %}]</span>
         {% endif %}
         {% if topic.is_solved %}
-            <span class="ico-after tick green">[{% trans "Résolu" %}]</span>
+            <span class="ico-after tick green" title="{% blocktrans %} L'auteur a trouvé une solution à son problème {% endblocktrans %}">[{% trans "Résolu" %}]</span>
         {% endif %}
         {% if topic.is_locked %}
-            <span class="ico-after lock blue">[{% trans "Fermé" %}]</span>
+            <span class="ico-after lock blue" title="{% trans 'Sujet fermé' %}">[{% trans "Fermé" %}]</span>
         {% endif %}
         {% if topic.is_followed %}
-            <span class="ico-after star blue">[{% trans "Suivi" %}]</span>
+            <span class="ico-after star blue" title="{% trans 'Sujet suivi' %}">[{% trans "Suivi" %}]</span>
         {% endif %}
     </div>
     {% with profile=topic.author|profile %}
