@@ -8,7 +8,7 @@ from elasticsearch_dsl import Mapping
 from elasticsearch_dsl.connections import connections
 
 
-class ESIndexableMixin(object):
+class AbstractESIndexable(object):
     """Mixin for indexable objects.
 
     Define a number of different functions that can be overridden to tune the behavior of indexing into elasticsearch.
@@ -32,7 +32,7 @@ class ESIndexableMixin(object):
 
         # fetch parents
         for base in cls.__bases__:
-            if issubclass(base, ESIndexableMixin) and base != ESDjangoIndexableMixin:
+            if issubclass(base, AbstractESIndexable) and base != AbstractESDjangoIndexable:
                 content_type = base.__name__.lower() + '_' + content_type
 
         return content_type
@@ -54,8 +54,8 @@ class ESIndexableMixin(object):
         :rtype: elasticsearch_dsl.Mapping
         """
 
-        m = Mapping(self.get_es_content_type())
-        return m
+        es_mapping = Mapping(self.get_es_content_type())
+        return es_mapping
 
     @classmethod
     def get_es_indexable(cls, force_reindexing=False):
@@ -72,14 +72,14 @@ class ESIndexableMixin(object):
 
         return []
 
-    def get_es_document_source(self, exclude_field=None):
+    def get_es_document_source(self, excluded_fields=None):
         """Create a document from the variable of the class, based on the mapping.
 
         .. attention::
             You may need to override this method if the data differ from the mapping for some reason.
 
-        :param exclude_field: exclude some field from the default method
-        :type exclude_field: list
+        :param excluded_fields: exclude some field from the default method
+        :type excluded_fields: list
         :return: document
         :rtype: dict
         """
@@ -90,7 +90,7 @@ class ESIndexableMixin(object):
         data = {}
 
         for field in fields:
-            if exclude_field and field in exclude_field:
+            if excluded_fields and field in excluded_fields:
                 continue
             v = getattr(self, field, None)
             if callable(v):
@@ -111,8 +111,8 @@ class ESIndexableMixin(object):
         self.es_already_indexed = True
 
 
-class ESDjangoIndexableMixin(ESIndexableMixin, models.Model):
-    """Version of ESIndexableMixin for a Django object, with some improvements :
+class AbstractESDjangoIndexable(AbstractESIndexable, models.Model):
+    """Version of AbstractESIndexable for a Django object, with some improvements :
 
     - Already include ``pk`` in mapping ;
     - Match ES ``_id`` field and ``pk`` ;
@@ -130,7 +130,7 @@ class ESDjangoIndexableMixin(ESIndexableMixin, models.Model):
 
     def __init__(self, *args, **kwargs):
         """Override to match ES ``_id`` field and ``pk``"""
-        super(ESDjangoIndexableMixin, self).__init__(*args, **kwargs)
+        super(AbstractESDjangoIndexable, self).__init__(*args, **kwargs)
         self.es_id = str(self.pk)
 
     @classmethod
@@ -141,9 +141,9 @@ class ESDjangoIndexableMixin(ESIndexableMixin, models.Model):
         :rtype: elasticsearch_dsl.Mapping
         """
 
-        m = super(ESDjangoIndexableMixin, cls).get_es_mapping()
-        m.field('pk', 'integer')
-        return m
+        es_mapping = super(AbstractESDjangoIndexable, cls).get_es_mapping()
+        es_mapping.field('pk', 'integer')
+        return es_mapping
 
     @classmethod
     def get_es_django_indexable(cls, force_reindexing=False):
@@ -155,21 +155,21 @@ class ESDjangoIndexableMixin(ESIndexableMixin, models.Model):
         :rtype: django.db.models.query.QuerySet
         """
 
-        q = cls.objects
+        query = cls.objects
 
         if not force_reindexing:
-            q = q.filter(es_flagged=True)
+            query = query.filter(es_flagged=True)
 
-        return q
+        return query
 
     @classmethod
     def get_es_indexable(cls, force_reindexing=False):
         """Override ``get_es_indexable()`` in order to use the Django querysets.
         """
 
-        q = cls.get_es_django_indexable(force_reindexing)
+        query = cls.get_es_django_indexable(force_reindexing)
 
-        return list(q.all())
+        return list(query.all())
 
     def save(self, *args, **kwargs):
         """Override the ``save()`` method to flag the object if saved
@@ -181,7 +181,7 @@ class ESDjangoIndexableMixin(ESIndexableMixin, models.Model):
 
         self.es_flagged = kwargs.pop('es_flagged', True)
 
-        return super(ESDjangoIndexableMixin, self).save(*args, **kwargs)
+        return super(AbstractESDjangoIndexable, self).save(*args, **kwargs)
 
     def es_done_indexing(self, es_id):
         """Overridden to actually save the values of ``es_flagged`` and ``es_already_indexed`` into BDD.
@@ -194,13 +194,13 @@ class ESDjangoIndexableMixin(ESIndexableMixin, models.Model):
         if es_id != self.es_id:
             raise ValueError('mistmach between pk and id given by ES !!')
 
-        super(ESDjangoIndexableMixin, self).es_done_indexing(es_id)
+        super(AbstractESDjangoIndexable, self).es_done_indexing(es_id)
         self.save(es_flagged=False)
 
 
 def get_django_indexable_objects():
     """Return all indexable objects registered in Django"""
-    return [model for model in apps.get_models() if issubclass(model, ESDjangoIndexableMixin)]
+    return [model for model in apps.get_models() if issubclass(model, AbstractESDjangoIndexable)]
 
 
 class ESIndexManager(object):
@@ -228,7 +228,7 @@ class ESIndexManager(object):
         See https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-bulk.html.
 
         :param obj: any object
-        :type obj: zds.search2.ESIndexableMixin
+        :type obj: zds.search2.AbstractESIndexable
         :param action: action, either "index", "update" or "delete"
         :type action: str
         :return: the document

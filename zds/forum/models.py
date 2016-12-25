@@ -15,7 +15,7 @@ from elasticsearch_dsl.field import Text, Keyword
 from zds.forum.managers import TopicManager, ForumManager, PostManager, TopicReadManager
 from zds.notification import signals
 from zds.settings import ZDS_APP
-from zds.search2.models import ESDjangoIndexableMixin
+from zds.search2.models import AbstractESDjangoIndexable
 from zds.utils import get_current_user
 from zds.utils import slugify
 from zds.utils.models import Comment, Tag
@@ -160,7 +160,7 @@ class Forum(models.Model):
 
 
 @python_2_unicode_compatible
-class Topic(ESDjangoIndexableMixin):
+class Topic(AbstractESDjangoIndexable):
     """
     A Topic is a thread of posts.
     A topic has several states, witch are all independent:
@@ -387,37 +387,37 @@ class Topic(ESDjangoIndexableMixin):
 
     @classmethod
     def get_es_mapping(cls):
-        m = super(Topic, cls).get_es_mapping()
+        es_mapping = super(Topic, cls).get_es_mapping()
 
-        m.field('title', Text())
-        m.field('subtitle', Text())
-        m.field('get_absolute_url', Text(index='not_analyzed'))
-        m.field('tags', Keyword())
+        es_mapping.field('title', Text())
+        es_mapping.field('subtitle', Text())
+        es_mapping.field('get_absolute_url', Text(index='not_analyzed'))
+        es_mapping.field('tags', Keyword())
 
-        return m
+        return es_mapping
 
     @classmethod
     def get_es_django_indexable(cls, force_reindexing=False):
         """Overridden to remove hidden forums
         """
 
-        q = super(Topic, cls).get_es_django_indexable(force_reindexing)
-        return q.prefetch_related('tags').filter(forum__group__isnull=True)
+        query = super(Topic, cls).get_es_django_indexable(force_reindexing)
+        return query.prefetch_related('tags').filter(forum__group__isnull=True)
 
-    def get_es_document_source(self, exclude_field=None):
+    def get_es_document_source(self, excluded_fields=None):
         """Overridden to handle the case of tags (M2M field)
         """
 
-        exclude_field = exclude_field if exclude_field else []
-        exclude_field.extend(['tags'])
+        excluded_fields = excluded_fields if excluded_fields else []
+        excluded_fields.extend(['tags'])
 
-        data = super(Topic, self).get_es_document_source(exclude_field=exclude_field)
+        data = super(Topic, self).get_es_document_source(excluded_fields=excluded_fields)
         data['tags'] = [tag.title for tag in self.tags.all()]
         return data
 
 
 @python_2_unicode_compatible
-class Post(Comment, ESDjangoIndexableMixin):
+class Post(Comment, AbstractESDjangoIndexable):
     """
     A forum post written by an user.
     A post can be marked as useful: topic's author (or admin) can declare any topic as "useful", and this post is
