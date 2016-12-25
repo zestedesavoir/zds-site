@@ -31,5 +31,5 @@ class Misc(TestCase):
         alert.text = "Something to say."
         alert.save()
         filter_result = alerts_list(staff.user)
-        self.assertEqual(1, filter_result["nb_alert"])
+        self.assertEqual(1, filter_result["nb_alerts"])
         self.assertEqual(alert.text, filter_result["alerts"][0]["text"])
