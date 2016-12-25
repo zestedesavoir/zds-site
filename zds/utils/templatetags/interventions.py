@@ -175,7 +175,7 @@ def alerts_list(user):
                           'text': alert.text})
         elif alert.scope == 'CONTENT':
             published = PublishableContent.objects.select_related('public_version').get(pk=alert.content.pk)
-            total.append({'title': published.content.title,
+            total.append({'title': published.public_version.title,
                           'url': published.get_absolute_url_online(),
                           'pubdate': alert.pubdate,
                           'author': alert.author,
