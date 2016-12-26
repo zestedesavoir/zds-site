@@ -12,7 +12,7 @@ from zds.mp.models import PrivateTopic
 from zds.tutorialv2.models.models_database import Validation
 from zds.notification.models import Notification, TopicAnswerSubscription, ContentReactionAnswerSubscription, \
     NewTopicSubscription, NewPublicationSubscription
-from zds.tutorialv2.models.models_database import ContentReaction, PublishedContent
+from zds.tutorialv2.models.models_database import ContentReaction, PublishableContent
 from zds.utils import get_current_user
 from zds.utils.models import Alert
 from zds import settings
@@ -188,8 +188,8 @@ def alerts_list(user):
                           'author': alert.author,
                           'text': alert.text})
         elif alert.scope == 'CONTENT':
-            published = PublishedContent.objects.select_related('content').get(pk=alert.content.pk)
-            total.append({'title': published.content.title,
+            published = PublishableContent.objects.select_related('public_version').get(pk=alert.content.pk)
+            total.append({'title': published.public_version.title,
                           'url': published.get_absolute_url_online(),
                           'pubdate': alert.pubdate,
                           'author': alert.author,
