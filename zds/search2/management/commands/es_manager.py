@@ -14,9 +14,12 @@ class Command(BaseCommand):
     models = get_django_indexable_objects()
 
     def __init__(self, *args, **kwargs):
-        super(Command, self).__init__(*args, **kwargs)
+        """Overridden because FakeChapter needs to be present for mapping.
+        Also, its mapping needs to be defined before the one of PublishedContent for parenting reasons (!!!).
+        """
 
-        self.models.insert(0, FakeChapter)  # FakeChapter needs to be first
+        super(Command, self).__init__(*args, **kwargs)
+        self.models.insert(0, FakeChapter)
 
     def add_arguments(self, parser):
         parser.add_argument('action', type=str)

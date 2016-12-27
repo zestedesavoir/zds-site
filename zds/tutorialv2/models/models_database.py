@@ -865,6 +865,36 @@ class PublishedContent(AbstractESDjangoIndexable):
             .prefetch_related('content__subcategory')\
             .filter(must_redirect=False)
 
+    @classmethod
+    def get_es_indexable(cls, force_reindexing=False):
+        """Overridden to include chapters as well
+        """
+
+        published_contents = super(PublishedContent, cls).get_es_indexable(force_reindexing)
+        indexable = []
+        chapters = []
+
+        for content in published_contents:
+            versioned = content.load_public_version()
+
+            if versioned.has_extracts():
+                chapters.append(
+                    FakeChapter('', '', versioned.get_content_online(), content.es_id, content.content_public_slug))
+
+            else:
+                for chapter in versioned.get_list_of_chapters():
+                    chapters.append(
+                        FakeChapter(
+                            chapter.title,
+                            chapter.slug,
+                            chapter.get_content_online(),
+                            content.es_id,
+                            content.content_public_slug))
+
+        indexable.extend(chapters)
+        indexable.extend(published_contents)
+        return indexable
+
     def get_es_document_source(self, excluded_fields=None):
         """Overridden to handle the fact that most information are versioned
         """
@@ -893,6 +923,8 @@ class FakeChapter(AbstractESIndexable):
     """A simple class that is used by ES to index chapters, constructed from the containers and the public HTML version
     of the texts.
 
+    In mapping, the class define PublishedContent as its parent. Also, indexing is done by the parent.
+
     Note that this class is only indexable, not updatable, since it does not maintains value of ``es_already_indexed``
     """
 
@@ -920,41 +952,16 @@ class FakeChapter(AbstractESIndexable):
 
     @classmethod
     def get_es_mapping(self):
-        mapping = Mapping(self.get_es_content_type())
+        """Define mapping and parenting
+        """
 
-        mapping.meta('parent', type='publishedcontent')  # add parenting
+        mapping = Mapping(self.get_es_content_type())
+        mapping.meta('parent', type='publishedcontent')
 
         mapping.field('title', Text())
         mapping.field('text', Text())
 
         return mapping
-
-    @classmethod
-    def get_es_indexable(cls, force_reindexing=False):
-        """Get the list of chapters to index from the PublishedContent(s) that need to be reindexed
-        """
-
-        published_contents = PublishedContent.get_es_indexable(force_reindexing=force_reindexing)
-        chapters = []
-
-        for content in published_contents:
-            versioned = content.load_public_version()
-
-            if versioned.has_extracts():
-                chapters.append(
-                    FakeChapter('', '', versioned.get_content_online(), content.es_id, content.content_public_slug))
-
-            else:
-                for chapter in versioned.get_list_of_chapters():
-                    chapters.append(
-                        FakeChapter(
-                            chapter.title,
-                            chapter.slug,
-                            chapter.get_content_online(),
-                            content.es_id,
-                            content.content_public_slug))
-
-        return chapters
 
     def get_es_document_as_bulk_action(self, index, action='index'):
         """Overridden to handle parenting between chapter and PublishedContent
