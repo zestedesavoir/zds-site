@@ -851,6 +851,7 @@ class PublishedContent(AbstractESDjangoIndexable):
         m.field('description', Text())
         m.field('tags', Keyword())
         m.field('categories', Keyword())
+        m.field('text', Text())  # for article and mini-tuto, text is directly included into the main object
 
         return m
 
@@ -877,19 +878,9 @@ class PublishedContent(AbstractESDjangoIndexable):
         for content in published_contents:
             versioned = content.load_public_version()
 
-            if versioned.has_extracts():
-                chapters.append(
-                    FakeChapter('', '', versioned.get_content_online(), content.es_id, content.content_public_slug))
-
-            else:
+            if versioned.has_sub_containers():  # chapters are only indexed for middle and big tuto
                 for chapter in versioned.get_list_of_chapters():
-                    chapters.append(
-                        FakeChapter(
-                            chapter.title,
-                            chapter.slug,
-                            chapter.get_content_online(),
-                            content.es_id,
-                            content.content_public_slug))
+                    chapters.append(FakeChapter(chapter, versioned))
 
         indexable.extend(chapters)
         indexable.extend(published_contents)
@@ -900,7 +891,7 @@ class PublishedContent(AbstractESDjangoIndexable):
         """
 
         excluded_fields = excluded_fields or []
-        excluded_fields.extend(['title', 'description', 'tags', 'categories'])
+        excluded_fields.extend(['title', 'description', 'tags', 'categories', 'text'])
 
         data = super(PublishedContent, self).get_es_document_source(excluded_fields=excluded_fields)
 
@@ -916,35 +907,32 @@ class PublishedContent(AbstractESDjangoIndexable):
             categories.extend([subcategory.title, subcategory.get_parent_category().title])
         data['categories'] = list(set(categories))  # remove duplicates
 
+        if versioned.has_extracts():
+            data['text'] = versioned.get_content_online()
+
         return data
 
 
 class FakeChapter(AbstractESIndexable):
-    """A simple class that is used by ES to index chapters, constructed from the containers and the public HTML version
-    of the texts.
+    """A simple class that is used by ES to index chapters, constructed from the containers.
 
     In mapping, the class define PublishedContent as its parent. Also, indexing is done by the parent.
 
-    Note that this class is only indexable, not updatable, since it does not maintains value of ``es_already_indexed``
+    Note that this class is only indexable, not updatable, since it does not maintain value of ``es_already_indexed``
     """
 
     text = ''
     title = ''
-    slug = ''
     parent_id = ''
-    parent_slug = ''
+    get_absolute_url_online = ''
 
-    def __init__(self, title, slug, text, parent_id, parent_slug):
-        self.title = title
-        self.slug = slug
-        self.text = text
-        self.parent_id = parent_id
-        self.parent_slug = parent_slug
+    def __init__(self, chapter, main_container):
+        self.title = chapter.title
+        self.text = chapter.get_content_online()
+        self.parent_id = main_container.slug
+        self.get_absolute_url_online = chapter.get_absolute_url_online()
 
-        self.es_id = parent_slug
-
-        if slug != '':
-            self.es_id += '__' + slug  # both slugs are unique by design, so id remains unique
+        self.es_id = main_container.slug + '__' + chapter.slug  # both slugs are unique by design, so id remains unique
 
     @classmethod
     def get_es_content_type(cls):
@@ -960,6 +948,9 @@ class FakeChapter(AbstractESIndexable):
 
         mapping.field('title', Text())
         mapping.field('text', Text())
+
+        # not analyzed:
+        mapping.field('get_absolute_url_online', Text(index='not_analyzed'))
 
         return mapping
 
