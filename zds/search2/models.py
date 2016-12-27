@@ -1,8 +1,7 @@
 # coding: utf-8
-from django.db import models
 from django.apps import apps
+from django.db import models
 from django.db.transaction import atomic
-
 from elasticsearch.helpers import streaming_bulk
 from elasticsearch_dsl import Mapping
 from elasticsearch_dsl.connections import connections
@@ -242,21 +241,115 @@ def get_django_indexable_objects():
 class ESIndexManager(object):
 
     def __init__(self, index, connection_alias='default'):
+        """Create a manager for a given index
+
+        :param index: the index
+        :type index: str
+        :param connection_alias: the alias for connection
+        :type connection_alias: str
+        """
+
         self.index = index
         self.es = connections.get_connection(alias=connection_alias)
 
-    def reset_es_index(self):
-        """Delete old index and create an new one (with the same name)"""
+    def clear_es_index(self):
+        """Clear index
+        """
 
         if self.es.indices.exists(self.index):
             self.es.indices.delete(self.index)
 
+    def reset_es_index(self):
+        """Delete old index and create an new one (with the same name)
+        """
+
+        self.clear_es_index()
         self.es.indices.create(self.index)
 
     def setup_es_mappings(self, models):
+        """set mapping for the different models
+
+        :param models: list of models
+        :type models: list
+        """
+
         for model in models:
             mapping = model.get_es_mapping()
             mapping.save(self.index)
+
+    def setup_custom_analyzer(self):
+        """Override the default analyzer.
+
+        See https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis.html.
+
+        Our custom analyzer is based on the "french" analyzer
+        (https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-lang-analyzer.html#french-analyzer)
+        but with some difference
+
+        - "whitespace" analyzer, to keep special character intact (such as "+" like in "c++")
+        - No keyword marker token filter (empty list does not works) to prevent stemming
+        """
+
+        self.es.indices.close(self.index)
+
+        document = {
+            "analysis": {
+                "filter": {
+                    "french_elision": {
+                        "type": "elision",
+                        "articles_case": True,
+                        "articles": [
+                            "l", "m", "t", "qu", "n", "s",
+                            "j", "d", "c", "jusqu", "quoiqu",
+                            "lorsqu", "puisqu"
+                        ]
+                    },
+                    "french_stop": {
+                        "type": "stop",
+                        "stopwords": "_french_"
+                    },
+                    "french_stemmer": {
+                        "type": "stemmer",
+                        "language": "light_french"
+                    }
+                },
+                "analyzer": {
+                    "default": {
+                        "tokenizer": "whitespace",
+                        "filter": [
+                            "lowercase",
+                            "french_elision",
+                            "french_stop",
+                            "french_stemmer"
+                        ],
+                        "char_filter": [
+                            "html_strip"
+                        ]
+                    }
+                }
+            }
+        }
+
+        self.es.indices.put_settings(index=self.index, body=document)
+        self.es.indices.open(self.index)
+
+    @atomic
+    def clear_indexing_of_model(self, model):
+        """Nullify the indexing of a given model by setting ``es_already_index=False`` to all objects.
+
+        Use full updating for ``AbstractESDjangoIndexable``, instead of saving all of them.
+
+        :param model: the model
+        :type model: class
+        """
+
+        if issubclass(model, AbstractESDjangoIndexable):  # use a global update with Django
+            objs = model.get_es_django_indexable(force_reindexing=True)
+            objs.update(es_flagged=True, es_already_indexed=False)
+        else:
+            objs = list(model.get_es_indexable(force_reindexing=True))
+            for obj in objs:
+                obj.es_already_indexed = False
 
     @atomic
     def es_bulk_indexing_of_model(self, model, force_reindexing=False):
@@ -285,3 +378,29 @@ class ESIndexManager(object):
             action = 'update' if obj.es_already_indexed and not force_reindexing else 'index'
             objs[index].es_done_indexing(es_id=hit[action]['_id'])
             print(hit)
+
+    def refresh_index(self):
+        """Refresh the index. The task is done periodically, but may be forced
+        """
+
+        self.es.indices.refresh(self.index)
+
+    def analyze_sentence(self, request):
+        """Use the anlyzer on a given sentence. Get back the list of tokens.
+
+        See http://www.elastic.co/guide/en/elasticsearch/reference/current/indices-analyze.html.
+
+        This is useful to perform "terms" queries instead of full-text queries.
+
+        :param request: a sentence from user input
+        :type request: str
+        :return: the tokens
+        :rtype: list
+        """
+
+        document = {'text': request}
+        tokens = []
+        for token in self.es.indices.analyze(index=self.index, body=document)['tokens']:
+            tokens.append(token['token'])
+
+        return tokens

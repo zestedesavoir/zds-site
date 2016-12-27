@@ -8,7 +8,7 @@ from zds.tutorialv2.models.models_database import FakeChapter
 
 
 class Command(BaseCommand):
-    help = 'Manage data from/to ES'
+    help = 'Index data in ES and manage them'
 
     indexer = None
     models = get_django_indexable_objects()
@@ -21,15 +21,19 @@ class Command(BaseCommand):
         super(Command, self).__init__(*args, **kwargs)
         self.models.insert(0, FakeChapter)
 
-    def add_arguments(self, parser):
-        parser.add_argument('action', type=str)
-
-    def handle(self, *args, **options):
         setup_es_connections()
         self.indexer = ESIndexManager(INDEX_NAME)
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            'action', type=str, help='action to perform, either "setup", "clear", "index-all" or "index-flagged"')
+
+    def handle(self, *args, **options):
+
         if options['action'] == 'setup':
             self.setup_es()
+        elif options['action'] == 'clear':
+            self.clear_es()
         elif options['action'] == 'index-all':
             self.index_documents(force_reindexing=True)
         elif options['action'] == 'index-flagged':
@@ -40,7 +44,14 @@ class Command(BaseCommand):
     def setup_es(self):
 
         self.indexer.reset_es_index()
+        self.indexer.setup_custom_analyzer()
         self.indexer.setup_es_mappings(self.models)
+
+    def clear_es(self):
+        self.indexer.clear_es_index()
+
+        for model in self.models:
+            self.indexer.clear_indexing_of_model(model)
 
     def index_documents(self, force_reindexing=False):
 
@@ -49,3 +60,5 @@ class Command(BaseCommand):
 
         for model in self.models:
             self.indexer.es_bulk_indexing_of_model(model, force_reindexing=force_reindexing)
+
+        self.indexer.refresh_index()

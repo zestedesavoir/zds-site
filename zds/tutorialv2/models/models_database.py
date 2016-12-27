@@ -880,7 +880,7 @@ class PublishedContent(AbstractESDjangoIndexable):
 
             if versioned.has_sub_containers():  # chapters are only indexed for middle and big tuto
                 for chapter in versioned.get_list_of_chapters():
-                    chapters.append(FakeChapter(chapter, versioned))
+                    chapters.append(FakeChapter(chapter, versioned, content.es_id))
 
         indexable.extend(chapters)
         indexable.extend(published_contents)
@@ -926,10 +926,10 @@ class FakeChapter(AbstractESIndexable):
     parent_id = ''
     get_absolute_url_online = ''
 
-    def __init__(self, chapter, main_container):
+    def __init__(self, chapter, main_container, parent_id):
         self.title = chapter.title
         self.text = chapter.get_content_online()
-        self.parent_id = main_container.slug
+        self.parent_id = parent_id
         self.get_absolute_url_online = chapter.get_absolute_url_online()
 
         self.es_id = main_container.slug + '__' + chapter.slug  # both slugs are unique by design, so id remains unique
