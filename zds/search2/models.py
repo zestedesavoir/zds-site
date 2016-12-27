@@ -91,7 +91,9 @@ class AbstractESIndexable(object):
 
         for field in fields:
             if excluded_fields and field in excluded_fields:
+                data[field] = None
                 continue
+
             v = getattr(self, field, None)
             if callable(v):
                 v = v()
@@ -99,6 +101,40 @@ class AbstractESIndexable(object):
             data[field] = v
 
         return data
+
+    def get_es_document_as_bulk_action(self, index, action='index'):
+        """Create a document as formatted in a ``_bulk`` operation. Formatting is done based on action.
+
+        See https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-bulk.html.
+
+        :param index: index in witch the document will be inserted
+        :type index: str
+        :param action: action, either "index", "update" or "delete"
+        :type action: str
+        :return: the document
+        :rtype: dict
+        """
+
+        if action not in ['index', 'update', 'delete']:
+            raise ValueError('action must be `index`, `update` or `delete`')
+
+        document = {
+            '_op_type': action,
+            '_index': index,
+            '_type': self.get_es_content_type()
+        }
+
+        if action == 'index':
+            if self.es_id != '':
+                document['_id'] = self.es_id
+            document['_source'] = self.get_es_document_source()
+        if action == 'update':
+            document['_id'] = self.es_id
+            document['doc'] = self.get_es_document_source()
+        if action == 'delete':
+            document['_id'] = self.es_id
+
+        return document
 
     def es_done_indexing(self, es_id):
         """Save index when indexed
@@ -222,42 +258,8 @@ class ESIndexManager(object):
             mapping = model.get_es_mapping()
             mapping.save(self.index)
 
-    def make_es_document(self, obj, action):
-        """Create a document as formatted in a ``_bulk`` operation. Formatting is done based on action.
-
-        See https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-bulk.html.
-
-        :param obj: any object
-        :type obj: zds.search2.AbstractESIndexable
-        :param action: action, either "index", "update" or "delete"
-        :type action: str
-        :return: the document
-        :rtype: dict
-        """
-
-        if action not in ['index', 'update', 'delete']:
-            raise ValueError('action must be `index`, `update` or `delete`')
-
-        document = {
-            '_op_type': action,
-            '_index': self.index,
-            '_type': obj.get_es_content_type()
-        }
-
-        if action == 'index':
-            if obj.es_id != '':
-                document['_id'] = obj.es_id
-            document['_source'] = obj.get_es_document_source()
-        if action == 'update':
-            document['_id'] = obj.es_id
-            document['doc'] = obj.get_es_document_source()
-        if action == 'delete':
-            document['_id'] = obj.es_id
-
-        return document
-
     @atomic
-    def es_bulk_action_on_model(self, model, force_reindexing=False):
+    def es_bulk_indexing_of_model(self, model, force_reindexing=False):
         """Perform a bulk action on documents of a given model.
 
         See http://elasticsearch-py.readthedocs.io/en/master/api.html#elasticsearch.Elasticsearch.bulk
@@ -273,8 +275,10 @@ class ESIndexManager(object):
         """
 
         objs = list(model.get_es_indexable(force_reindexing=force_reindexing))
-        documents = [self.make_es_document(
-            obj, 'update' if obj.es_already_indexed and not force_reindexing else 'index') for obj in objs]
+        documents = [
+            obj.get_es_document_as_bulk_action(
+                self.index, 'update' if obj.es_already_indexed and not force_reindexing else 'index')
+            for obj in objs]
 
         for index, (_, hit) in enumerate(streaming_bulk(self.es, documents)):
             obj = objs[index]

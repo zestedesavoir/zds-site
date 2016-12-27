@@ -398,7 +398,7 @@ class Topic(AbstractESDjangoIndexable):
 
     @classmethod
     def get_es_django_indexable(cls, force_reindexing=False):
-        """Overridden to remove hidden forums
+        """Overridden to remove hidden forums (and prefetch tags)
         """
 
         query = super(Topic, cls).get_es_django_indexable(force_reindexing)
@@ -408,7 +408,7 @@ class Topic(AbstractESDjangoIndexable):
         """Overridden to handle the case of tags (M2M field)
         """
 
-        excluded_fields = excluded_fields if excluded_fields else []
+        excluded_fields = excluded_fields or []
         excluded_fields.extend(['tags'])
 
         data = super(Topic, self).get_es_document_source(excluded_fields=excluded_fields)

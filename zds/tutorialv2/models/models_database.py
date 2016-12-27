@@ -28,11 +28,15 @@ from gitdb.exc import BadName
 import os
 from uuslug import uuslug
 
+from elasticsearch_dsl import Mapping
+from elasticsearch_dsl.field import Text, Keyword
+
 from zds.forum.models import Topic
 from zds.gallery.models import Image, Gallery, UserGallery
 from zds.tutorialv2.utils import get_content_from_json, BadManifestError
 from zds.utils import get_current_user
 from zds.utils.models import SubCategory, Licence, HelpWriting, Comment, Tag
+from zds.search2.models import AbstractESDjangoIndexable, AbstractESIndexable
 from zds.utils.tutorials import get_blob
 from zds.tutorialv2.models import TYPE_CHOICES, STATUS_CHOICES
 from zds.tutorialv2.models.models_versioned import NotAPublicVersion
@@ -366,7 +370,7 @@ class PublishableContent(models.Model):
 
         attrs = [
             'pk', 'authors', 'subcategory', 'image', 'creation_date', 'pubdate', 'update_date', 'source',
-            'sha_draft', 'sha_beta', 'sha_validation', 'sha_public'
+            'sha_draft', 'sha_beta', 'sha_validation', 'sha_public', 'tags'
         ]
 
         fns = [
@@ -548,7 +552,7 @@ def delete_gallery(sender, instance, **kwargs):
 
 
 @python_2_unicode_compatible
-class PublishedContent(models.Model):
+class PublishedContent(AbstractESDjangoIndexable):
     """A class that contains information on the published version of a content.
 
     Used for quick url resolution, quick listing, and to know where the public version of the files are.
@@ -831,6 +835,134 @@ class PublishedContent(models.Model):
 
     def get_last_action_date(self):
         return self.update_date or self.publication_date
+
+    @classmethod
+    def get_es_mapping(cls):
+        m = Mapping(cls.get_es_content_type())
+
+        m.field('content_pk', 'integer')
+
+        # not analyzed:
+        m.field('content_type', Text(index='not_analyzed'))
+        m.field('get_absolute_url_online', Text(index='not_analyzed'))
+
+        # not from PublishedContent directly:
+        m.field('title', Text())
+        m.field('description', Text())
+        m.field('tags', Keyword())
+        m.field('categories', Keyword())
+
+        return m
+
+    @classmethod
+    def get_es_django_indexable(cls, force_reindexing=False):
+        """Overridden to remove must_redirect=True (and prefetch stuffs).
+        """
+
+        q = super(PublishedContent, cls).get_es_django_indexable(force_reindexing)
+        return q.prefetch_related('content')\
+            .prefetch_related('content__tags')\
+            .prefetch_related('content__subcategory')\
+            .filter(must_redirect=False)
+
+    def get_es_document_source(self, excluded_fields=None):
+        """Overridden to handle the fact that most information are versioned
+        """
+
+        excluded_fields = excluded_fields or []
+        excluded_fields.extend(['title', 'description', 'tags', 'categories'])
+
+        data = super(PublishedContent, self).get_es_document_source(excluded_fields=excluded_fields)
+
+        # fetch versioned information
+        versioned = self.load_public_version()
+
+        data['title'] = versioned.title
+        data['description'] = versioned.description
+        data['tags'] = [tag.title for tag in versioned.tags.all()]
+
+        categories = []
+        for subcategory in versioned.subcategory.all():
+            categories.extend([subcategory.title, subcategory.get_parent_category().title])
+        data['categories'] = list(set(categories))  # remove duplicates
+
+        return data
+
+
+class FakeChapter(AbstractESIndexable):
+    """A simple class that is used by ES to index chapters, constructed from the containers and the public HTML version
+    of the texts.
+
+    Note that this class is only indexable, not updatable, since it does not maintains value of ``es_already_indexed``
+    """
+
+    text = ''
+    title = ''
+    slug = ''
+    parent_id = ''
+    parent_slug = ''
+
+    def __init__(self, title, slug, text, parent_id, parent_slug):
+        self.title = title
+        self.slug = slug
+        self.text = text
+        self.parent_id = parent_id
+        self.parent_slug = parent_slug
+
+        self.es_id = parent_slug
+
+        if slug != '':
+            self.es_id += '__' + slug  # both slugs are unique by design, so id remains unique
+
+    @classmethod
+    def get_es_content_type(cls):
+        return 'chapter'
+
+    @classmethod
+    def get_es_mapping(self):
+        mapping = Mapping(self.get_es_content_type())
+
+        mapping.meta('parent', type='publishedcontent')  # add parenting
+
+        mapping.field('title', Text())
+        mapping.field('text', Text())
+
+        return mapping
+
+    @classmethod
+    def get_es_indexable(cls, force_reindexing=False):
+        """Get the list of chapters to index from the PublishedContent(s) that need to be reindexed
+        """
+
+        published_contents = PublishedContent.get_es_indexable(force_reindexing=force_reindexing)
+        chapters = []
+
+        for content in published_contents:
+            versioned = content.load_public_version()
+
+            if versioned.has_extracts():
+                chapters.append(
+                    FakeChapter('', '', versioned.get_content_online(), content.es_id, content.content_public_slug))
+
+            else:
+                for chapter in versioned.get_list_of_chapters():
+                    chapters.append(
+                        FakeChapter(
+                            chapter.title,
+                            chapter.slug,
+                            chapter.get_content_online(),
+                            content.es_id,
+                            content.content_public_slug))
+
+        return chapters
+
+    def get_es_document_as_bulk_action(self, index, action='index'):
+        """Overridden to handle parenting between chapter and PublishedContent
+        """
+
+        document = super(FakeChapter, self).get_es_document_as_bulk_action(index, action)
+        document['_parent'] = self.parent_id
+        return document
 
 
 @python_2_unicode_compatible

@@ -4,6 +4,7 @@ from django.core.management.base import BaseCommand, CommandError
 
 from zds.search2 import INDEX_NAME, setup_es_connections
 from zds.search2.models import ESIndexManager, get_django_indexable_objects
+from zds.tutorialv2.models.models_database import FakeChapter
 
 
 class Command(BaseCommand):
@@ -11,6 +12,11 @@ class Command(BaseCommand):
 
     indexer = None
     models = get_django_indexable_objects()
+
+    def __init__(self, *args, **kwargs):
+        super(Command, self).__init__(*args, **kwargs)
+
+        self.models.insert(0, FakeChapter)  # FakeChapter needs to be first
 
     def add_arguments(self, parser):
         parser.add_argument('action', type=str)
@@ -29,6 +35,7 @@ class Command(BaseCommand):
             raise CommandError('unknown action {}'.format(options['action']))
 
     def setup_es(self):
+
         self.indexer.reset_es_index()
         self.indexer.setup_es_mappings(self.models)
 
@@ -38,4 +45,4 @@ class Command(BaseCommand):
             self.setup_es()  # remove all previous data
 
         for model in self.models:
-            self.indexer.es_bulk_action_on_model(model, force_reindexing=force_reindexing)
+            self.indexer.es_bulk_indexing_of_model(model, force_reindexing=force_reindexing)
