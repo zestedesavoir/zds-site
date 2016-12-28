@@ -327,7 +327,6 @@ class ESIndexManager(object):
                     "default": {
                         "tokenizer": "whitespace",
                         "filter": [
-                            "asciifolding",
                             "lowercase",
                             "protect_c_language",
                             "french_elision",
