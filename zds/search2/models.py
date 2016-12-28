@@ -286,8 +286,9 @@ class ESIndexManager(object):
         (https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-lang-analyzer.html#french-analyzer)
         but with some difference
 
-        - "whitespace" analyzer, to keep special character intact (such as "+" like in "c++")
-        - No keyword marker token filter (empty list does not works) to prevent stemming
+        - "whitespace" analyzer instead of the "default" one, to keep special character intact (such as "+" like "c++")
+        - "protect_c_language", a pattern replace filter to prevent "c" from being wiped out by the stopper
+        - "french_keywords", a keyword stopper prevent some programming language from being stemmed
         """
 
         self.es.indices.close(self.index)
@@ -304,9 +305,18 @@ class ESIndexManager(object):
                             "lorsqu", "puisqu"
                         ]
                     },
+                    "protect_c_language": {
+                        "type": "pattern_replace",
+                        "pattern": "^c$",
+                        "replacement": "langage_c"
+                    },
                     "french_stop": {
                         "type": "stop",
                         "stopwords": "_french_"
+                    },
+                    "french_keywords": {
+                        "type": "keyword_marker",
+                        "keywords": ['javafx', 'haskell', 'groovy', 'powershell']
                     },
                     "french_stemmer": {
                         "type": "stemmer",
@@ -317,13 +327,16 @@ class ESIndexManager(object):
                     "default": {
                         "tokenizer": "whitespace",
                         "filter": [
+                            "asciifolding",
                             "lowercase",
+                            "protect_c_language",
                             "french_elision",
                             "french_stop",
+                            "french_keywords",
                             "french_stemmer"
                         ],
                         "char_filter": [
-                            "html_strip"
+                            "html_strip",
                         ]
                     }
                 }
