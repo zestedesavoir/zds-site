@@ -26,7 +26,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            'action', type=str, help='action to perform, either "setup", "clear", "index-all" or "index-flagged"')
+            'action', type=str, help='action to perform', choices=['setup', 'clear', 'index-all', 'index-flagged'])
 
     def handle(self, *args, **options):
 
