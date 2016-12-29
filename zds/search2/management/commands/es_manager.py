@@ -43,9 +43,8 @@ class Command(BaseCommand):
 
     def setup_es(self):
 
-        self.indexer.reset_es_index()
+        self.indexer.reset_es_index(self.models)
         self.indexer.setup_custom_analyzer()
-        self.indexer.setup_es_mappings(self.models)
 
     def clear_es(self):
         self.indexer.clear_es_index()

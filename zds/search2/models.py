@@ -259,23 +259,33 @@ class ESIndexManager(object):
         if self.es.indices.exists(self.index):
             self.es.indices.delete(self.index)
 
-    def reset_es_index(self):
-        """Delete old index and create an new one (with the same name)
-        """
-
-        self.clear_es_index()
-        self.es.indices.create(self.index)
-
-    def setup_es_mappings(self, models):
-        """set mapping for the different models
+    def reset_es_index(self, models, nshards=5, nreplicas=1):
+        """Delete old index and create an new one (with the same name). Setup the number of shards and replicas.
+        Then, set mappings for the different models.
 
         :param models: list of models
         :type models: list
+        :param nshards: number of shards
+        :type nshards: int
+        :param nreplicas: number of replicas
+        :type nreplicas: int
         """
+
+        self.clear_es_index()
+
+        mappings_def = {}
 
         for model in models:
             mapping = model.get_es_mapping()
-            mapping.save(self.index)
+            mappings_def.update(mapping.to_dict())
+
+        self.es.indices.create(
+            self.index,
+            body={
+                'settings': {'number_of_shards': nshards, 'number_of_replicas': nreplicas},
+                'mappings': mappings_def
+            }
+        )
 
     def setup_custom_analyzer(self):
         """Override the default analyzer.
