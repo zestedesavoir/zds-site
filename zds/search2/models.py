@@ -127,10 +127,10 @@ class AbstractESIndexable(object):
             if self.es_id != '':
                 document['_id'] = self.es_id
             document['_source'] = self.get_es_document_source()
-        if action == 'update':
+        elif action == 'update':
             document['_id'] = self.es_id
             document['doc'] = self.get_es_document_source()
-        if action == 'delete':
+        elif action == 'delete':
             document['_id'] = self.es_id
 
         return document
