@@ -769,3 +769,21 @@ class NotificationTest(TestCase):
         self.assertIsNotNone(auto_user_1_sub)
         notifs = list(Notification.objects.get_notifications_of(author1.user))
         self.assertEqual(1, len(notifs))
+
+    def test_mark_notifications_as_read(self):
+        category = CategoryFactory(position=1)
+        forum = ForumFactory(category=category, position_in_category=1)
+        topic = TopicFactory(forum=forum, author=self.user1)
+        PostFactory(topic=topic, author=self.user1, position=1)
+        PostFactory(topic=topic, author=self.user2, position=2)
+
+        notifications = Notification.objects.get_unread_notifications_of(self.user1)
+        self.assertEqual(1, len(notifications))
+
+        result = self.client.post(
+            reverse('mark-notifications-as-read'),
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        notifications = Notification.objects.get_unread_notifications_of(self.user1)
+        self.assertEqual(0, len(notifications))
