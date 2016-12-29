@@ -2,7 +2,7 @@
 from django.test import TestCase
 from django.db import IntegrityError, transaction
 
-from zds.utils.forms import TagValidator
+from zds.utils.validators import TagValidator
 from zds.utils.models import Tag
 
 
