@@ -1023,3 +1023,10 @@ Tribunes
     ```
     python manage.py es_manager index_all
     ```
+
+A propos de social auth:
+------------------------
+
+Ne pas oublier de mettre le middleware `'zds.member.utils.ZDSCustomizeSocialAuthExceptionMiddleware'`.
+
+Forcer le paramètre `SOCIAL_AUTH_RAISE_EXCEPTIONS = False`.
