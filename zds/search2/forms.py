@@ -1,16 +1,17 @@
 # coding: utf-8
 from django import forms
+from django.conf import settings
+from django.utils.translation import ugettext_lazy as _
 
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, HTML
-from django.utils.translation import ugettext_lazy as _
 
 
 class SearchForm(forms.Form):
     q = forms.CharField(
         label='',
-        max_length=100,
+        max_length=150,
         widget=forms.TextInput(
             attrs={
                 'type': 'search',
@@ -20,11 +21,19 @@ class SearchForm(forms.Form):
         )
     )
 
+    models = forms.MultipleChoiceField(
+        label='',
+        widget=forms.CheckboxSelectMultiple,
+        required=False,
+        choices=settings.ZDS_APP['search']['indexables']
+    )
+
     def __init__(self, *args, **kwargs):
 
         search_query = kwargs.pop('search_query', '') or ''
 
         super(SearchForm, self).__init__(*args, **kwargs)
+
         self.helper = FormHelper()
         self.helper.form_id = 'search_form'
         self.helper.form_class = 'clearfix search-form'
@@ -32,7 +41,7 @@ class SearchForm(forms.Form):
 
         self.helper.layout = Layout(
             HTML(self.fields['q'].widget.render('q', search_query)),
-            StrictButton(_('Rechercher'), type='submit')
+            StrictButton(_(u'Rechercher'), type='submit')
         )
 
     def clean(self):

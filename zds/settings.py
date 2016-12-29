@@ -541,6 +541,18 @@ ZDS_APP = {
     },
     'search': {
         'results_per_page': 5,
+        'indexables': [
+            ('publishedcontent', _(u'Contenus publiés')),
+            ('topic', _(u'Sujets du forum')),
+            ('post', _(u'Messages du forums')),
+            ('chapter', _(u'Chapitres publiés'))
+        ],
+        'boosts': {
+            'publishedcontent': 4.0,
+            'topic': 3.0,
+            'chapter': 2.0,
+            'post': 1.0
+        }
     },
     'visual_changes': [],
     'display_search_bar': True
