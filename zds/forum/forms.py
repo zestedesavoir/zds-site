@@ -8,7 +8,8 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Hidden, HTML
 from crispy_forms.bootstrap import StrictButton
 from zds.forum.models import Forum, Topic
-from zds.utils.forms import CommonLayoutEditor, TagValidator
+from zds.utils.forms import CommonLayoutEditor
+from zds.utils.validators import TagValidator
 
 
 class TopicForm(forms.Form):

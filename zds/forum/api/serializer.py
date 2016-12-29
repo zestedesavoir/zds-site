@@ -5,6 +5,7 @@ from zds.utils.models import Alert
 from dry_rest_permissions.generics import DRYPermissionsField
 from dry_rest_permissions.generics import DRYPermissions
 from django.shortcuts import get_object_or_404
+from zds.utils.validators import TitleValidator, TextValidator
 
 
 class ForumSerializer(ModelSerializer):
@@ -21,7 +22,7 @@ class TopicSerializer(ModelSerializer):
 
 
 # Idem renommer TODO
-class TopicActionSerializer(ModelSerializer):
+class TopicActionSerializer(ModelSerializer, TitleValidator, TextValidator):
     """
     Serializer to create a new topic.
     """
@@ -32,7 +33,7 @@ class TopicActionSerializer(ModelSerializer):
         model = Topic
         fields = ('id', 'title', 'subtitle', 'text', 'forum',
                   'author', 'last_message', 'pubdate',
-                  'permissions', 'slug')
+                  'permissions', 'slug', 'position')
         read_only_fields = ('id', 'author', 'last_message', 'pubdate', 'permissions')
 # TODO je pense qu'avec cette config on peut deplacer un sujet en tant qu'user
 # TODO le text deconne    
@@ -58,7 +59,7 @@ class TopicActionSerializer(ModelSerializer):
                        False)
 """ 
 
-class TopicUpdateSerializer(ModelSerializer):
+class TopicUpdateSerializer(ModelSerializer, TitleValidator, TextValidator):
     """
     Serializer to update a topic.
     """
@@ -70,8 +71,8 @@ class TopicUpdateSerializer(ModelSerializer):
 
     class Meta:
         model = Topic
-        fields = ('id', 'title', 'subtitle', 'permissions',)
-        read_only_fields = ('id', 'permissions',)
+        fields = ('id', 'title', 'subtitle', 'permissions', 'forum')
+        read_only_fields = ('id', 'permissions', 'forum')
 
     def update(self, instance, validated_data):
         for attr, value in validated_data.items():
@@ -87,7 +88,7 @@ class PostSerializer(ModelSerializer):
         permissions_classes = DRYPermissions
 
 # TODO renommer
-class PostActionSerializer(ModelSerializer):
+class PostActionSerializer(ModelSerializer, TextValidator):
     """
     Serializer to send a post in a topic
     """
@@ -110,7 +111,7 @@ class PostActionSerializer(ModelSerializer):
     #def throw_error(self, key=None, message=None):
         #raise serializers.ValidationError(message)
 
-class PostUpdateSerializer(ModelSerializer):
+class PostUpdateSerializer(ModelSerializer, TextValidator):
     """
     Serializer to update a post.
     """

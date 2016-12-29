@@ -412,14 +412,14 @@ class Topic(AbstractESDjangoIndexable):
         return True
 
     def has_object_read_permission(self, request):
-        return Topic.has_read_permission(request) # TODO gerer fofo prives
+        return Topic.has_read_permission(request)
 
     @staticmethod
     def has_write_permission(request):
         return request.user.is_authenticated()
 
     def has_object_write_permission(self, request):
-        return Topic.has_write_permission(request) # TODO gerer les fofo prives
+        return Topic.has_write_permission(request)
 
     def has_object_update_permission(self, request):
         return Topic.has_write_permission(request) and (Topic.author == request.user)
@@ -539,9 +539,9 @@ class Post(Comment, AbstractESDjangoIndexable):
         return self.topic.title
 
     def has_object_write_permission(self, request):
-        return Topic.has_write_permission(request)
-        # TODO verifier que ce n'est pas un forum prive
+        return Topic.has_write_permission(request) 
 
+        
     def has_object_update_permission(self, request):
         return self.is_author(request.user)
         # TODO peut on editer quand un topic est ferme ?

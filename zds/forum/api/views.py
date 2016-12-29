@@ -82,6 +82,10 @@ class ForumListAPI(ListCreateAPIView):
               message: Not Found
         """
         return self.list(request, *args, **kwargs)
+        
+    def get_permissions(self):
+        permission_classes = [AllowAny, CanReadForum]
+        return [permission() for permission in permission_classes]
 
 
 class ForumDetailAPI(RetrieveAPIView):
@@ -200,6 +204,7 @@ class TopicListAPI(ListCreateAPIView):
             permission_classes.append(IsAuthenticated)
             permission_classes.append(CanReadAndWriteNowOrReadOnly)
             permission_classes.append(CanReadTopic)
+            permission_classes.append(CanReadForum)
         return [permission() for permission in permission_classes]
 
 
@@ -377,6 +382,8 @@ class PostListAPI(ListCreateAPIView):
     def get_queryset(self):
         if self.request.method == 'GET':
             posts = Post.objects.filter(topic=self.kwargs.get('pk'))
+            #if posts is None:
+           #     raise Http404("Topic with pk {} was not found".format(self.kwargs.get('pk')))
         return posts
 
     def get_current_user(self):
@@ -388,6 +395,7 @@ class PostListAPI(ListCreateAPIView):
             permission_classes.append(DRYPermissions)
             permission_classes.append(IsAuthenticated)
             permission_classes.append(CanReadAndWriteNowOrReadOnly)
+            permission_classes.append(CanReadPost)
         return [permission() for permission in permission_classes]
 
 
@@ -528,8 +536,6 @@ class PostAlertAPI(CreateAPIView):
     Alert a topic post to the staff.
     """
 
-    serializer_class = AlertSerializer
-
     def post(self, request, *args, **kwargs):
         """
         Alert a topic post to the staff.
@@ -556,13 +562,17 @@ class PostAlertAPI(CreateAPIView):
 
         serializer = self.get_serializer_class()(data=request.data, context={'request': self.request})
         serializer.is_valid(raise_exception=True)
-        serializer.save(position=0, author=author, comment=post)
+        serializer.save(comment=post)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def get_permissions(self):
         permission_classes = [AllowAny, IsAuthenticated]
         return [permission() for permission in permission_classes]
+    
+    def get_serializer_class(self):
+        return AlertSerializer
+
 
 
 # TODO global identier quand masquer les messages
