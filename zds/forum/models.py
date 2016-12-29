@@ -451,7 +451,10 @@ class Post(Comment, AbstractESDjangoIndexable):
         m = super(Post, cls).get_es_mapping()
 
         m.field('text', Text())
+
+        # not analyzed:
         m.field('get_absolute_url', Text(index='not_analyzed'))
+        m.field('topic_title', Text(index='not_analyzed'))
 
         return m
 
@@ -460,8 +463,19 @@ class Post(Comment, AbstractESDjangoIndexable):
         """Overridden to remove invisible post
         """
 
-        q = super(Post, cls).get_es_django_indexable(force_reindexing)
+        q = super(Post, cls).get_es_django_indexable(force_reindexing).select_related('topic')
         return q.filter(is_visible=True)
+
+    def get_es_document_source(self, excluded_fields=None):
+        """Overridden to handle the information of the topic
+        """
+
+        excluded_fields = excluded_fields or []
+        excluded_fields.extend(['topic_title'])
+
+        data = super(Post, self).get_es_document_source(excluded_fields=excluded_fields)
+        data['topic_title'] = self.topic.title
+        return data
 
 
 @python_2_unicode_compatible

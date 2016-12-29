@@ -1,0 +1,20 @@
+{% load emarkdown %}
+
+<a href="{{ search_result.get_absolute_url }}" title="{{ search_result.title }}">
+    <h3 class="content-title" itemprop="itemListElement">
+        {{ search_result.title }}
+    </h3>
+</a>
+
+<p class="content-description">
+    {% with text=search_result.subtitle|striptags|safe %}
+        {{ text }}
+    {% endwith %}
+</p>
+
+<div class="content-meta inline" title="">
+    <p>
+        Topic
+    </p>
+
+</div>

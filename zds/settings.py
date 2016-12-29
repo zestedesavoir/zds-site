@@ -539,6 +539,9 @@ ZDS_APP = {
     'paginator': {
         'folding_limit': 4
     },
+    'search': {
+        'results_per_page': 5,
+    },
     'visual_changes': [],
     'display_search_bar': True
 }

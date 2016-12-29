@@ -416,3 +416,14 @@ class ESIndexManager(object):
             tokens.append(token['token'])
 
         return tokens
+
+    def setup_search(self, request):
+        """Setup search to the good index
+
+        :param request: the search request
+        :type request: elasticsearch_dsl.Search
+        :return: formated search
+        :rtype: elasticsearch_dsl.Search
+        """
+
+        return request.index(self.index).using(self.es)

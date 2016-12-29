@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+
+{% block title %}
+    {% trans "Recherche" %}
+{% endblock %}
+
+
+
+{% block headline %}
+    {% if query %}
+        {% trans "Résultats de la recherche" %}
+    {% else %}
+        {% trans "Recherche" %}
+    {% endif %}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>{% trans "Recherche" %}</li>
+{% endblock %}
+
+
+{% block content %}
+    {% crispy form %}
+
+    {% if query %}
+        {% include "misc/paginator.html" with position="top" %}
+
+        {% if object_list %}
+            <div class="topic-list navigable-list">
+                {% for result in object_list %}
+                    <article class="content-item topic-item">
+                        <div class="content-info">
+                            {%  if result.meta.doc_type  == 'chapter' %}
+                                {% include "search2/includes/chapter.part.html" with search_result=result %}
+                            {% elif result.meta.doc_type == 'publishedcontent' %}
+                                {% include "search2/includes/publishedcontent.part.html" with search_result=result %}
+                            {% elif result.meta.doc_type == 'topic' %}
+                                {% include "search2/includes/topic.part.html" with search_result=result %}
+                            {% elif result.meta.doc_type == 'post' %}
+                                {% include "search2/includes/post.part.html" with search_result=result %}
+                            {% else %}
+                                {% trans "type d'objet inconnu" %} : {{ result.meta.doc_type }}
+                            {% endif %}
+                        </div>
+                    </article>
+                {%  empty %}
+                <p>
+                    {% trans "Aucun résultat trouvé" %}.
+                </p>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>
+                {% trans "Aucun résultat trouvé" %}.
+            </p>
+        {% endif %}
+
+
+        {% include "misc/paginator.html" with position="bottom" %}
+    {% endif %}
+{% endblock %}
