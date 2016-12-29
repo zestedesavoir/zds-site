@@ -63,11 +63,15 @@
 
 
 {% block content %}
-    <form method="get" action="." id="search_form" class="clearfix search-form">
-        {{ form.q }}
-        <button type="submit">{% trans "Rechercher" %}</button>
-    </form>
-
+    <section class="search-box">
+        <form method="get" action="." id="search_form" class="clearfix">
+            <label for="id_q">
+                {% trans "Recherche" %}
+            </label>
+            <input type="text" id="id_q" name="q" placeholder=' suggestions ' >
+            <button type="submit" class="ico-after ico-search" title='{% trans "Lancer la recherche" %}'></button>
+        </form>
+    </section>
 
     {% if query %}
         {% include "misc/pagination.part.html" with position="top" %}
