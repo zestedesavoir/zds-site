@@ -548,10 +548,18 @@ ZDS_APP = {
             ('chapter', _(u'Chapitres publiés'))
         ],
         'boosts': {
-            'publishedcontent': 4.0,
-            'topic': 3.0,
-            'chapter': 2.0,
-            'post': 1.0
+            'publishedcontent': {
+                'global': 2.5
+            },
+            'topic': {
+                'global': 2.0
+            },
+            'chapter': {
+                'global': 1.5
+            },
+            'post': {
+                'global': 1.0
+            }
         }
     },
     'visual_changes': [],

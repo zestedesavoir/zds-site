@@ -83,6 +83,13 @@ sera rendu :
 
 Si le contenu de ``date_epoch`` etait de ``42``.
 
+``from_elasticsearch_date``
+---------------------------
+
+Par défaut, Elasticsearch stocke ces dates au format ``yyyy-MM-dd'T'HH:mm:ss.SSSZ``
+(il s'agit du format ``strict_date_time``, voir à ce sujet `la documentation d'Elasticsearch <https://www.elastic.co/guide/en/elasticsearch/reference/5.1/mapping-date-format.html>`_).
+Ce filtre transforme cette date en une date que les autres filtres de ce module peuvent exploiter.
+
 Le module ``email_obfuscator``
 ==============================
 

@@ -1,5 +1,5 @@
 from elasticsearch_dsl import Search
-from elasticsearch_dsl.query import Match, MultiMatch, FunctionScore
+from elasticsearch_dsl.query import Match, MultiMatch, FunctionScore, Terms
 
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
@@ -7,6 +7,7 @@ from django.core.exceptions import PermissionDenied
 from zds.search2.forms import SearchForm
 from zds.search2.models import ESIndexManager
 from zds.utils.paginator import ZdSPagingListView
+from zds.forum.models import Forum
 
 
 class SearchView(ZdSPagingListView):
@@ -17,13 +18,21 @@ class SearchView(ZdSPagingListView):
     search_form = None
     search_query = None
 
+    authorized_forums = ''
+
     index_manager = None
 
     def __init__(self, **kwargs):
+        """Overridden because index manager must NOT be initialized elsewhere
+        """
+
         super(SearchView, self).__init__(**kwargs)
         self.index_manager = ESIndexManager(settings.ES_INDEX_NAME)
 
     def get(self, request, *args, **kwargs):
+        """Overridden to catch the request and fill the form.
+        """
+
         if 'q' in request.GET:
             self.search_query = ''.join(request.GET['q'])
 
@@ -36,9 +45,24 @@ class SearchView(ZdSPagingListView):
 
     def get_queryset(self):
         if self.search_query:
+
+            # find forums where the user is allowed to visit
+            user = self.request.user
+
+            forums_pub = Forum.objects.filter(group__isnull=True).all()
+            if user and user.is_authenticated():
+                forums_private = Forum \
+                    .objects \
+                    .filter(group__isnull=False, group__in=user.groups.all()).all()
+                list_forums = list(forums_pub | forums_private)
+            else:
+                list_forums = list(forums_pub)
+
+            self.authorized_forums = [f.pk for f in list_forums]
+
             search_queryset = Search()
 
-            # setting the different querysets (according to the selected models if any)
+            # setting the different querysets (according to the selected models, if any)
             part_querysets = []
             models = self.search_form.cleaned_data['models']
 
@@ -64,41 +88,58 @@ class SearchView(ZdSPagingListView):
                 queryset |= query
 
             # weighting:
-            weights = []
-            for _type, weight in settings.ZDS_APP['search']['boosts'].items():
-                weights.append({'filter': Match(_type=_type), 'weight': weight})
+            weight_functions = []
+            for _type, weights in settings.ZDS_APP['search']['boosts'].items():
+                weight_functions.append({'filter': Match(_type=_type), 'weight': weights['global']})
 
-            scored_queryset = FunctionScore(query=queryset, boost_mode='multiply', functions=weights)
-
-            # executing:
+            scored_queryset = FunctionScore(query=queryset, boost_mode='multiply', functions=weight_functions)
             search_queryset = search_queryset.query(scored_queryset)
 
+            # highlighting:
             # .highlight_options(
             # order='score', fragment_size=250, number_of_fragments=2, pre_tags=['[hl]'], post_tags=['[/hl]'])
             #  s = s.highlight('title').highlight('text')
 
+            # executing:
             return self.index_manager.setup_search(search_queryset)
 
         return []
 
     def get_queryset_publishedcontents(self):
-        query = Match(_type='publishedcontent') & \
-            MultiMatch(query=self.search_query, fields=['title', 'description', 'categories', 'tags', 'text'])
+        """Find in PublishedContents.
+        """
+
+        query = Match(_type='publishedcontent') \
+            & MultiMatch(query=self.search_query, fields=['title', 'description', 'categories', 'tags', 'text'])
 
         return query
 
     def get_queryset_chapters(self):
-        query = Match(_type='chapter') & MultiMatch(query=self.search_query, fields=['title', 'text'])
+        """Find in chapters.
+        """
+
+        query = Match(_type='chapter') \
+            & MultiMatch(query=self.search_query, fields=['title', 'text'])
 
         return query
 
     def get_queryset_topics(self):
-        query = Match(_type='topic') & MultiMatch(query=self.search_query, fields=['title', 'subtitle', 'tags'])
+        """Find in topics, and remove result if the forum is not allowed for the user.
+        """
+
+        query = Match(_type='topic') \
+            & Terms(forum_pk=self.authorized_forums) \
+            & MultiMatch(query=self.search_query, fields=['title', 'subtitle', 'tags'])
 
         return query
 
     def get_queryset_posts(self):
-        query = Match(_type='post') & MultiMatch(query=self.search_query, fields=['text'])
+        """Find in posts, and remove result if the forum is not allowed for the user.
+        """
+
+        query = Match(_type='post') \
+            & Terms(forum_pk=self.authorized_forums) \
+            & MultiMatch(query=self.search_query, fields=['text'])
 
         return query
 

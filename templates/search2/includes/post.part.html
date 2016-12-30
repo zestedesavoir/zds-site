@@ -1,4 +1,6 @@
 {% load emarkdown %}
+{% load i18n %}
+{% load date %}
 
 <a href="{{ search_result.get_absolute_url }}" title="{{ search_result.topic_title }}">
     <h3 class="content-title" itemprop="itemListElement">
@@ -12,9 +14,13 @@
     {% endwith %}
 </p>
 
-<div class="content-meta inline" title="">
+<div class="content-meta inline" title="Message du forum">
     <p>
-        Post
+        {% trans "Message du forum" %}
+        <a href="{{ search_result.forum_get_absolute_url }}">{{ search_result.forum_title }}</a> &bullet;
+        <time class="content-pubdate" pubdate="{{ search_result.pubdate|from_elasticsearch_date }}">
+            <span class="long">{{ search_result.pubdate|from_elasticsearch_date|format_date|capfirst }}</span>
+            <span class="short">{{ search_result.pubdate|from_elasticsearch_date|format_date:True|capfirst }}</span>
+        </time>
     </p>
-
 </div>

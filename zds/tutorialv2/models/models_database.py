@@ -29,7 +29,7 @@ import os
 from uuslug import uuslug
 
 from elasticsearch_dsl import Mapping
-from elasticsearch_dsl.field import Text, Keyword
+from elasticsearch_dsl.field import Text, Keyword, Date
 
 from zds.forum.models import Topic
 from zds.gallery.models import Image, Gallery, UserGallery
@@ -841,16 +841,17 @@ class PublishedContent(AbstractESDjangoIndexable):
         m = Mapping(cls.get_es_content_type())
 
         m.field('content_pk', 'integer')
+        m.field('publication_date', Date())
 
         # not analyzed:
         m.field('content_type', Text(index='not_analyzed'))
         m.field('get_absolute_url_online', Text(index='not_analyzed'))
 
         # not from PublishedContent directly:
-        m.field('title', Text())
-        m.field('description', Text())
-        m.field('tags', Keyword())
-        m.field('categories', Keyword())
+        m.field('title', Text(boost=1.5))
+        m.field('description', Text(boost=1.5))
+        m.field('tags', Keyword(boost=2.0))
+        m.field('categories', Keyword(boost=2.25))
         m.field('text', Text())  # for article and mini-tuto, text is directly included into the main object
 
         return m
@@ -925,6 +926,9 @@ class FakeChapter(AbstractESIndexable):
     title = ''
     parent_id = ''
     get_absolute_url_online = ''
+    parent_title = ''
+    parent_get_absolute_url_online = ''
+    parent_publication_date = ''
 
     def __init__(self, chapter, main_container, parent_id):
         self.title = chapter.title
@@ -933,6 +937,10 @@ class FakeChapter(AbstractESIndexable):
         self.get_absolute_url_online = chapter.get_absolute_url_online()
 
         self.es_id = main_container.slug + '__' + chapter.slug  # both slugs are unique by design, so id remains unique
+
+        self.parent_title = main_container.title
+        self.parent_get_absolute_url_online = main_container.get_absolute_url_online()
+        self.parent_publication_date = main_container.pubdate
 
     @classmethod
     def get_es_content_type(cls):
@@ -946,11 +954,14 @@ class FakeChapter(AbstractESIndexable):
         mapping = Mapping(self.get_es_content_type())
         mapping.meta('parent', type='publishedcontent')
 
-        mapping.field('title', Text())
+        mapping.field('title', Text(boost=1.5))
         mapping.field('text', Text())
 
         # not analyzed:
         mapping.field('get_absolute_url_online', Text(index='not_analyzed'))
+        mapping.field('parent_title', Text(index='not_analyzed'))
+        mapping.field('parent_get_absolute_url_online', Text(index='not_analyzed'))
+        mapping.field('parent_publication_date', Date(index='not_analyzed'))
 
         return mapping
 

@@ -10,7 +10,7 @@ from django.contrib.auth.models import Group, User, AnonymousUser
 from django.core.urlresolvers import reverse
 from django.db import models
 
-from elasticsearch_dsl.field import Text, Keyword
+from elasticsearch_dsl.field import Text, Keyword, Integer, Boolean, Float, Date
 
 from zds.forum.managers import TopicManager, ForumManager, PostManager, TopicReadManager
 from zds.notification import signals
@@ -389,30 +389,44 @@ class Topic(AbstractESDjangoIndexable):
     def get_es_mapping(cls):
         es_mapping = super(Topic, cls).get_es_mapping()
 
-        es_mapping.field('title', Text())
+        es_mapping.field('title', Text(boost=1.5))
+        es_mapping.field('tags', Keyword(boost=2.0))
         es_mapping.field('subtitle', Text())
+        es_mapping.field('is_solved', Boolean())
+        es_mapping.field('is_locked', Boolean())
+        es_mapping.field('is_sticky', Boolean())
+        es_mapping.field('pubdate', Date())
+
+        # not analyzed:
         es_mapping.field('get_absolute_url', Text(index='not_analyzed'))
-        es_mapping.field('tags', Keyword())
+
+        es_mapping.field('forum_pk', Integer(index='not_analyzed'))
+        es_mapping.field('forum_title', Text(index='not_analyzed'))
+        es_mapping.field('forum_get_absolute_url', Text(index='not_analyzed'))
 
         return es_mapping
 
     @classmethod
     def get_es_django_indexable(cls, force_reindexing=False):
-        """Overridden to remove hidden forums (and prefetch tags)
+        """Overridden to and prefetch tags and forum
         """
 
         query = super(Topic, cls).get_es_django_indexable(force_reindexing)
-        return query.prefetch_related('tags').filter(forum__group__isnull=True)
+        return query.prefetch_related('tags').select_related('forum')
 
     def get_es_document_source(self, excluded_fields=None):
         """Overridden to handle the case of tags (M2M field)
         """
 
         excluded_fields = excluded_fields or []
-        excluded_fields.extend(['tags'])
+        excluded_fields.extend(['tags', 'forum_pk', 'forum_title', 'forum_get_absolute_url'])
 
         data = super(Topic, self).get_es_document_source(excluded_fields=excluded_fields)
         data['tags'] = [tag.title for tag in self.tags.all()]
+        data['forum_pk'] = self.forum.pk
+        data['forum_title'] = self.forum.title
+        data['forum_get_absolute_url'] = self.forum.get_absolute_url()
+
         return data
 
 
@@ -448,22 +462,33 @@ class Post(Comment, AbstractESDjangoIndexable):
 
     @classmethod
     def get_es_mapping(cls):
-        m = super(Post, cls).get_es_mapping()
+        es_mapping = super(Post, cls).get_es_mapping()
 
-        m.field('text', Text())
+        es_mapping.field('text', Text())
+        es_mapping.field('is_useful', Boolean())
+        es_mapping.field('position', Integer())
+        es_mapping.field('like_dislike_ratio', Float())
+        es_mapping.field('pubdate', Date())
 
         # not analyzed:
-        m.field('get_absolute_url', Text(index='not_analyzed'))
-        m.field('topic_title', Text(index='not_analyzed'))
+        es_mapping.field('get_absolute_url', Text(index='not_analyzed'))
+        es_mapping.field('topic_title', Text(index='not_analyzed'))
 
-        return m
+        es_mapping.field('forum_pk', Integer(index='not_analyzed'))
+        es_mapping.field('forum_title', Text(index='not_analyzed'))
+        es_mapping.field('forum_get_absolute_url', Text(index='not_analyzed'))
+
+        return es_mapping
 
     @classmethod
     def get_es_django_indexable(cls, force_reindexing=False):
         """Overridden to remove invisible post
         """
 
-        q = super(Post, cls).get_es_django_indexable(force_reindexing).select_related('topic')
+        q = super(Post, cls).get_es_django_indexable(force_reindexing)\
+            .select_related('topic')\
+            .select_related('topic__forum')
+
         return q.filter(is_visible=True)
 
     def get_es_document_source(self, excluded_fields=None):
@@ -471,10 +496,17 @@ class Post(Comment, AbstractESDjangoIndexable):
         """
 
         excluded_fields = excluded_fields or []
-        excluded_fields.extend(['topic_title'])
+        excluded_fields.extend(
+            ['like_dislike_ratio', 'topic_title', 'forum_title', 'forum_pk', 'forum_get_absolute_url'])
 
         data = super(Post, self).get_es_document_source(excluded_fields=excluded_fields)
+        data['like_dislike_ratio'] = (self.like / self.dislike) if self.dislike != 0 else self.like
         data['topic_title'] = self.topic.title
+
+        data['forum_pk'] = self.topic.forum.pk
+        data['forum_title'] = self.topic.forum.title
+        data['forum_get_absolute_url'] = self.topic.forum.get_absolute_url()
+
         return data
 
 

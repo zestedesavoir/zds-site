@@ -1,4 +1,6 @@
 {% load emarkdown %}
+{% load i18n %}
+{% load date %}
 
 <a href="{{ search_result.get_absolute_url_online }}" title="{{ search_result.title }}">
     <h3 class="content-title" itemprop="itemListElement">
@@ -12,9 +14,13 @@
     {% endwith %}
 </p>
 
-<div class="content-meta inline" title="">
+<div class="content-meta inline" title="Contenu publié">
     <p>
-        Contenu publié
-    </p>
+        {% trans "Contenu publié" %} &bullet;
 
+        <time class="content-pubdate" pubdate="{{ search_result.publication_date|from_elasticsearch_date }}">
+            <span class="long">{{ search_result.publication_date|from_elasticsearch_date|format_date|capfirst }}</span>
+            <span class="short">{{ search_result.publication_date|from_elasticsearch_date|format_date:True|capfirst }}</span>
+        </time>
+    </p>
 </div>
