@@ -1,6 +1,7 @@
 {% load emarkdown %}
 {% load i18n %}
 {% load date %}
+{%  load elasticsearch %}
 
 <a href="{{ search_result.get_absolute_url_online }}" title="{{ search_result.title }}">
     <h3 class="content-title" itemprop="itemListElement">
@@ -10,7 +11,7 @@
 
 <p class="content-description">
     {% with text=search_result.text|striptags|safe %}
-        {{ text }}
+        {% highlight search_result "text" %}
     {% endwith %}
 </p>
 

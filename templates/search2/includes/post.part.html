@@ -1,6 +1,7 @@
 {% load emarkdown %}
 {% load i18n %}
 {% load date %}
+{% load elasticsearch %}
 
 <a href="{{ search_result.get_absolute_url }}" title="{{ search_result.topic_title }}">
     <h3 class="content-title" itemprop="itemListElement">
@@ -9,9 +10,7 @@
 </a>
 
 <p class="content-description">
-    {% with text=search_result.text_html|striptags|safe %}
-        {{ text }}
-    {% endwith %}
+    {% highlight search_result "text_html" %}
 </p>
 
 <div class="content-meta inline" title="Message du forum">

@@ -540,16 +540,16 @@ ZDS_APP = {
         'folding_limit': 4
     },
     'search': {
-        'results_per_page': 5,
+        'results_per_page': 20,
         'indexables': [
             ('publishedcontent', _(u'Contenus publiés')),
+            ('chapter', _(u'Chapitres publiés')),
             ('topic', _(u'Sujets du forum')),
-            ('post', _(u'Messages du forums')),
-            ('chapter', _(u'Chapitres publiés'))
+            ('post', _(u'Messages du forums'))
         ],
         'boosts': {
             'publishedcontent': {
-                'global': 2.5
+                'global': 3.0
             },
             'topic': {
                 'global': 2.0

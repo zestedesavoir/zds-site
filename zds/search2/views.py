@@ -85,9 +85,9 @@ class SearchView(ZdSPagingListView):
             search_queryset = search_queryset.query(scored_queryset)
 
             # highlighting:
-            # .highlight_options(
-            # order='score', fragment_size=250, number_of_fragments=2, pre_tags=['[hl]'], post_tags=['[/hl]'])
-            #  s = s.highlight('title').highlight('text')
+            search_queryset = search_queryset.highlight_options(
+                order='score', fragment_size=150, number_of_fragments=5, pre_tags=['[hl]'], post_tags=['[/hl]'])
+            search_queryset = search_queryset.highlight('text').highlight('text_html')
 
             # executing:
             return self.index_manager.setup_search(search_queryset)

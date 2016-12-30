@@ -1,6 +1,7 @@
 {% load emarkdown %}
 {% load i18n %}
 {% load date %}
+{% load elasticsearch %}
 
 <a href="{{ search_result.get_absolute_url_online }}" title="{{ search_result.title }}">
     <h3 class="content-title" itemprop="itemListElement">
@@ -9,14 +10,22 @@
 </a>
 
 <p class="content-description">
-    {% with text=search_result.description|striptags|safe %}
-        {{ text }}
-    {% endwith %}
+    {% if search_result.text %}
+        {% highlight search_result "text" %}
+    {% else %}
+        {{ search_result.description }}
+    {% endif %}
 </p>
 
 <div class="content-meta inline" title="Contenu publié">
     <p>
-        {% trans "Contenu publié" %} &bullet;
+        {% if search_result.content_type == 'ARTICLE' %}
+            {% trans "Article publié" %}
+        {% else %}
+            {% trans "Tutoriel publié" %}
+        {% endif %}
+
+        &bullet;
 
         <time class="content-pubdate" pubdate="{{ search_result.publication_date|from_elasticsearch_date }}">
             <span class="long">{{ search_result.publication_date|from_elasticsearch_date|format_date|capfirst }}</span>
