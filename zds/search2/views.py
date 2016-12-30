@@ -38,7 +38,7 @@ class SearchView(ZdSPagingListView):
 
         self.search_form = self.search_form_class(data=self.request.GET, search_query=self.search_query)
 
-        if not self.search_form.is_valid():
+        if self.search_query and not self.search_form.is_valid():
             raise PermissionDenied('research form is invalid')
 
         return super(SearchView, self).get(request, *args, **kwargs)
