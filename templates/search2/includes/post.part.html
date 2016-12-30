@@ -9,7 +9,7 @@
 </a>
 
 <p class="content-description">
-    {% with text=search_result.text|striptags|safe %}
+    {% with text=search_result.text_html|striptags|safe %}
         {{ text }}
     {% endwith %}
 </p>

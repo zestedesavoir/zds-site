@@ -464,7 +464,7 @@ class Post(Comment, AbstractESDjangoIndexable):
     def get_es_mapping(cls):
         es_mapping = super(Post, cls).get_es_mapping()
 
-        es_mapping.field('text', Text())
+        es_mapping.field('text_html', Text())
         es_mapping.field('is_useful', Boolean())
         es_mapping.field('position', Integer())
         es_mapping.field('like_dislike_ratio', Float())
@@ -500,6 +500,7 @@ class Post(Comment, AbstractESDjangoIndexable):
             ['like_dislike_ratio', 'topic_title', 'forum_title', 'forum_pk', 'forum_get_absolute_url'])
 
         data = super(Post, self).get_es_document_source(excluded_fields=excluded_fields)
+
         data['like_dislike_ratio'] = (self.like / self.dislike) if self.dislike != 0 else self.like
         data['topic_title'] = self.topic.title
 

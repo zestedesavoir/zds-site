@@ -128,7 +128,7 @@ class SearchView(ZdSPagingListView):
 
         query = Match(_type='post') \
             & Terms(forum_pk=self.authorized_forums) \
-            & MultiMatch(query=self.search_query, fields=['text'])
+            & MultiMatch(query=self.search_query, fields=['text_html'])
 
         return query
 
