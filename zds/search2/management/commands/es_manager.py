@@ -2,7 +2,7 @@
 
 from django.core.management.base import BaseCommand, CommandError
 
-from zds.search2 import INDEX_NAME, setup_es_connections
+from zds.search2 import INDEX_NAME
 from zds.search2.models import ESIndexManager, get_django_indexable_objects
 from zds.tutorialv2.models.models_database import FakeChapter
 
@@ -21,7 +21,6 @@ class Command(BaseCommand):
         super(Command, self).__init__(*args, **kwargs)
         self.models.insert(0, FakeChapter)
 
-        setup_es_connections()
         self.indexer = ESIndexManager(INDEX_NAME)
 
     def add_arguments(self, parser):

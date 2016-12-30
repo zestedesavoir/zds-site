@@ -5,7 +5,9 @@ from django.db.transaction import atomic
 from django.conf import settings
 
 from elasticsearch.helpers import streaming_bulk
+from elasticsearch import ConnectionError
 from elasticsearch_dsl import Mapping
+from elasticsearch_dsl.query import MatchAll
 from elasticsearch_dsl.connections import connections
 
 
@@ -241,9 +243,7 @@ def delete_document_in_elasticsearch(sender, instance, **kwargs):
     """
 
     index_manager = ESIndexManager(settings.ES_INDEX_NAME)
-    arguments = {'index': index_manager.index, 'doc_type': instance.get_es_document_type(), 'id': instance.es_id}
-    if index_manager.es.exists(**arguments):
-        index_manager.es.delete(**arguments)
+    index_manager.delete_document(instance)
 
 
 def get_django_indexable_objects():
@@ -264,10 +264,20 @@ class ESIndexManager(object):
 
         self.index = index
         self.es = connections.get_connection(alias=connection_alias)
+        self.connected_to_es = True
+
+        # test connection:
+        try:
+            self.es.info()
+        except ConnectionError:
+            self.connected_to_es = False
 
     def clear_es_index(self):
         """Clear index
         """
+
+        if not self.connected_to_es:
+            return
 
         if self.es.indices.exists(self.index):
             self.es.indices.delete(self.index)
@@ -283,6 +293,9 @@ class ESIndexManager(object):
         :param nreplicas: number of replicas
         :type nreplicas: int
         """
+
+        if not self.connected_to_es:
+            return
 
         self.clear_es_index()
 
@@ -313,6 +326,9 @@ class ESIndexManager(object):
         - "protect_c_language", a pattern replace filter to prevent "c" from being wiped out by the stopper
         - "french_keywords", a keyword stopper prevent some programming language from being stemmed
         """
+
+        if not self.connected_to_es:
+            return
 
         self.es.indices.close(self.index)
 
@@ -378,6 +394,9 @@ class ESIndexManager(object):
         :type model: class
         """
 
+        if not self.connected_to_es:
+            return
+
         if issubclass(model, AbstractESDjangoIndexable):  # use a global update with Django
             objs = model.get_es_django_indexable(force_reindexing=True)
             objs.update(es_flagged=True, es_already_indexed=False)
@@ -402,6 +421,9 @@ class ESIndexManager(object):
         :type force_reindexing: bool
         """
 
+        if not self.connected_to_es:
+            return
+
         objs = list(model.get_es_indexable(force_reindexing=force_reindexing))
         documents = [
             obj.get_es_document_as_bulk_action(
@@ -418,7 +440,50 @@ class ESIndexManager(object):
         """Refresh the index. The task is done periodically, but may be forced
         """
 
+        if not self.connected_to_es:
+            return
+
         self.es.indices.refresh(self.index)
+
+    def delete_document(self, document):
+        """Delete a given document, based on its ``es_id``
+
+        :param document: the document
+        :type document: AbstractESIndexable
+        """
+
+        if not self.connected_to_es:
+            return
+
+        arguments = {'index': self.index, 'doc_type': document.get_es_document_type(), 'id': document.es_id}
+        if self.es.exists(**arguments):
+            self.es.delete(**arguments)
+
+    def delete_by_query(self, doc_type='', query=MatchAll()):
+        """Perform a deletion trough the ``_delete_by_query`` API,
+        which is not available in elasticsearch python API, so it goes via the connection layer.
+
+        see https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-delete-by-query.html
+
+        .. attention ::
+            Call to this function must be done with great care!
+
+        :param doc_type: the document type
+        :type doc_type: str
+        :param query: the query to match all document to be deleted
+        :type query: elasticsearch_dsl.query.Query
+        """
+
+        if not self.connected_to_es:
+            return
+
+        self.es.transport.perform_request(
+            'POST',
+            '/' + self.index + '/' + doc_type + '/_delete_by_query',
+            body={
+                'query': query
+            }
+        )
 
     def analyze_sentence(self, request):
         """Use the anlyzer on a given sentence. Get back the list of tokens.
@@ -432,6 +497,9 @@ class ESIndexManager(object):
         :return: the tokens
         :rtype: list
         """
+
+        if not self.connected_to_es:
+            return
 
         document = {'text': request}
         tokens = []

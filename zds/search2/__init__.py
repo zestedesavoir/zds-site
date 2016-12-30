@@ -23,3 +23,5 @@ def setup_es_connections():
 
     for alias, params in CONNECTIONS.items():
         connections.create_connection(alias, **params)
+
+setup_es_connections()

@@ -28,7 +28,7 @@ from gitdb.exc import BadName
 import os
 from uuslug import uuslug
 
-from elasticsearch_dsl import Mapping
+from elasticsearch_dsl import Mapping, Q
 from elasticsearch_dsl.field import Text, Keyword, Date
 
 from zds.forum.models import Topic
@@ -927,15 +927,7 @@ def delete_published_content_in_elasticsearch(sender, instance, **kwargs):
     """
 
     index_manager = ESIndexManager(settings.ES_INDEX_NAME)
-
-    index_manager.es.transport.perform_request(
-        'POST',
-        '/' + index_manager.index + '/chapter/_delete_by_query',
-        body={
-            'query': {
-                'match': {'_routing': instance.es_id}}
-        }
-    )
+    index_manager.delete_by_query('chapter', Q('match', _routing=instance.es_id))
 
     return delete_document_in_elasticsearch(sender, instance, **kwargs)
 
