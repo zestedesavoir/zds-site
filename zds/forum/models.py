@@ -501,7 +501,8 @@ class Post(Comment, AbstractESDjangoIndexable):
 
         data = super(Post, self).get_es_document_source(excluded_fields=excluded_fields)
 
-        data['like_dislike_ratio'] = (self.like / self.dislike) if self.dislike != 0 else self.like
+        data['like_dislike_ratio'] = \
+            (self.like / self.dislike) if self.dislike != 0 else self.like if self.like != 0 else 1
         data['topic_title'] = self.topic.title
 
         data['forum_pk'] = self.topic.forum.pk

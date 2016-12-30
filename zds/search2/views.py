@@ -1,5 +1,5 @@
 from elasticsearch_dsl import Search
-from elasticsearch_dsl.query import Match, MultiMatch, FunctionScore, Terms
+from elasticsearch_dsl.query import Match, MultiMatch, FunctionScore, Terms, Range
 
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
@@ -79,10 +79,13 @@ class SearchView(ZdSPagingListView):
             # weighting:
             weight_functions = []
             for _type, weights in settings.ZDS_APP['search']['boosts'].items():
-                weight_functions.append({'filter': Match(_type=_type), 'weight': weights['global']})
+                if _type in models:
+                    weight_functions.append({'filter': Match(_type=_type), 'weight': weights['global']})
 
             scored_queryset = FunctionScore(query=queryset, boost_mode='multiply', functions=weight_functions)
             search_queryset = search_queryset.query(scored_queryset)
+
+            print(search_queryset.to_dict())
 
             # highlighting:
             search_queryset = search_queryset.highlight_options(
@@ -114,23 +117,59 @@ class SearchView(ZdSPagingListView):
 
     def get_queryset_topics(self):
         """Find in topics, and remove result if the forum is not allowed for the user.
+
+        Score is modified if :
+
+        + topic is solved ;
+        + Topic is sticky ;
+        + Topic is locked.
+
         """
 
         query = Match(_type='topic') \
             & Terms(forum_pk=self.authorized_forums) \
             & MultiMatch(query=self.search_query, fields=['title', 'subtitle', 'tags'])
 
-        return query
+        functions_score = [
+            {'filter': Match(is_solved=True), 'weight': settings.ZDS_APP['search']['boosts']['topic']['if_solved']},
+            {'filter': Match(is_sticky=True), 'weight': settings.ZDS_APP['search']['boosts']['topic']['if_sticky']},
+            {'filter': Match(is_locked=True), 'weight': settings.ZDS_APP['search']['boosts']['topic']['if_locked']}
+        ]
+
+        scored_query = FunctionScore(query=query, boost_mode='multiply', functions=functions_score)
+
+        return scored_query
 
     def get_queryset_posts(self):
         """Find in posts, and remove result if the forum is not allowed for the user.
+
+        Score is modified if :
+
+        + Post is the first one in a topic ;
+        + Post is marked as "useful" ;
+        + Post has a like/dislike ratio above (more like than dislike) or below (the other way around) 1.0.
         """
 
         query = Match(_type='post') \
             & Terms(forum_pk=self.authorized_forums) \
             & MultiMatch(query=self.search_query, fields=['text_html'])
 
-        return query
+        functions_score = [
+            {'filter': Match(position=1), 'weight': settings.ZDS_APP['search']['boosts']['post']['if_first']},
+            {'filter': Match(is_useful=True), 'weight': settings.ZDS_APP['search']['boosts']['post']['if_useful']},
+            {
+                'filter': Range(like_dislike_ratio={'gt': 1}),
+                'weight': settings.ZDS_APP['search']['boosts']['post']['ld_ratio_above_1']
+            },
+            {
+                'filter': Range(like_dislike_ratio={'lt': 1}),
+                'weight': settings.ZDS_APP['search']['boosts']['post']['ld_ratio_below_1']
+            }
+        ]
+
+        scored_query = FunctionScore(query=query, boost_mode='multiply', functions=functions_score)
+
+        return scored_query
 
     def get_context_data(self, **kwargs):
         context = super(SearchView, self).get_context_data(**kwargs)
