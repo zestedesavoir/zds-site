@@ -297,6 +297,7 @@ class ContentTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 200)
 
+        print('preview test')
         # preview tutorial
         result = self.client.post(
             reverse('content:edit', args=[pk, slug]),
@@ -304,8 +305,8 @@ class ContentTests(TestCase):
                 'introduction': random,
                 'last_hash': versioned.compute_hash(),
                 'preview': ''
-            },
-            follow=True)
+            }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+            
         self.assertEqual(result.status_code, 200)
         
         # edit tutorial:
@@ -379,16 +380,15 @@ class ContentTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 302)
 
+        # preview
+        print('test preview ligne 384')
         result = self.client.post(
             reverse('content:edit-container', kwargs={'pk': pk, 'slug': slug, 'container_slug': container.slug}),
             {
-                'title': random,
                 'introduction': random,
-                'conclusion': random,
-                'last_hash': container.compute_hash(),
                 'preview': ''
-            },
-            follow=True)
+            }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+            
         self.assertEqual(result.status_code, 200)
 
         versioned = PublishableContent.objects.get(pk=pk).load_version()
@@ -456,11 +456,8 @@ class ContentTests(TestCase):
             {
                 'title': random,
                 'introduction': random,
-                'conclusion': random,
-                'last_hash': subcontainer.compute_hash(),
                 'preview': ''
-            },
-            follow=True)
+            }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(result.status_code, 200)
 
         versioned = PublishableContent.objects.get(pk=pk).load_version()
@@ -486,19 +483,12 @@ class ContentTests(TestCase):
         self.assertEqual(result.status_code, 302)
 
         result = self.client.post(
-            reverse('content:create-extract',
-                    kwargs={
-                        'pk': pk,
-                        'slug': slug,
-                        'parent_container_slug': container.slug,
-                        'container_slug': subcontainer.slug
-                    }),
+            reverse('content:create-extract'),
             {
                 'title': title,
                 'text': description,
                 'preview': ''
-            },
-            follow=True)
+            }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(result.status_code, 200)
 
         self.assertEqual(200, response.status_code)
@@ -3091,6 +3081,7 @@ class ContentTests(TestCase):
         self.assertEqual(versioned.get_conclusion(), random)
 
         # edit container:
+        print('test qui deconne')
         result = self.client.post(
             reverse('content:edit-container',
                     kwargs={
