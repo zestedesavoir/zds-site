@@ -1,6 +1,7 @@
 # coding: utf-8
 from django.conf import settings
 from elasticsearch_dsl.connections import connections
+from urllib3.connection import NewConnectionError
 
 DEFAULT_ES_CONNECTIONS = {
     'default': {
@@ -21,7 +22,10 @@ def setup_es_connections():
 
     """
 
-    for alias, params in CONNECTIONS.items():
-        connections.create_connection(alias, **params)
+    try:
+        for alias, params in CONNECTIONS.items():
+            connections.create_connection(alias, **params)
+    except NewConnectionError:
+        pass
 
 setup_es_connections()
