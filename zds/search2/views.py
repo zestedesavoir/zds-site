@@ -67,21 +67,10 @@ class SearchView(ZdSPagingListView):
             models = self.search_form.cleaned_data['models']
 
             if len(models) == 0:
-                part_querysets = [
-                    self.get_queryset_chapters(),
-                    self.get_queryset_publishedcontents(),
-                    self.get_queryset_posts(),
-                    self.get_queryset_topics()]
-            else:
-                for model in models:
-                    if model == 'topic':
-                        part_querysets.append(self.get_queryset_topics())
-                    elif model == 'post':
-                        part_querysets.append(self.get_queryset_posts())
-                    elif model == 'chapter':
-                        part_querysets.append(self.get_queryset_chapters())
-                    elif model == 'publishedcontent':
-                        part_querysets.append(self.get_queryset_publishedcontents())
+                models = [p[0] for p in settings.ZDS_APP['search']['indexables']]
+
+            for model in models:
+                part_querysets.append(getattr(self, "get_queryset_{}s".format(model))())
 
             queryset = part_querysets[0]
             for query in part_querysets[1:]:
