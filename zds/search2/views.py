@@ -1,5 +1,5 @@
 from elasticsearch_dsl import Search
-from elasticsearch_dsl.query import Match, MultiMatch, FunctionScore, Terms, Range
+from elasticsearch_dsl.query import Match, MultiMatch, FunctionScore, Term, Terms, Range
 
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
@@ -139,7 +139,7 @@ class SearchView(ZdSPagingListView):
         return scored_query
 
     def get_queryset_posts(self):
-        """Find in posts, and remove result if the forum is not allowed for the user.
+        """Find in posts, and remove result if the forum is not allowed for the user or if the message is invisible.
 
         Score is modified if :
 
@@ -150,6 +150,7 @@ class SearchView(ZdSPagingListView):
 
         query = Match(_type='post') \
             & Terms(forum_pk=self.authorized_forums) \
+            & Term(is_visible=True) \
             & MultiMatch(query=self.search_query, fields=['text_html'])
 
         functions_score = [

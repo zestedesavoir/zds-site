@@ -474,6 +474,7 @@ class Post(Comment, AbstractESDjangoIndexable):
 
         es_mapping.field('text_html', Text())
         es_mapping.field('is_useful', Boolean())
+        es_mapping.field('is_visible', Boolean())
         es_mapping.field('position', Integer())
         es_mapping.field('like_dislike_ratio', Float())
         es_mapping.field('pubdate', Date())
@@ -490,14 +491,14 @@ class Post(Comment, AbstractESDjangoIndexable):
 
     @classmethod
     def get_es_django_indexable(cls, force_reindexing=False):
-        """Overridden to remove invisible post
+        """Overridden to prefetch stuffs
         """
 
         q = super(Post, cls).get_es_django_indexable(force_reindexing)\
             .select_related('topic')\
             .select_related('topic__forum')
 
-        return q.filter(is_visible=True)
+        return q
 
     def get_es_document_source(self, excluded_fields=None):
         """Overridden to handle the information of the topic
