@@ -76,4 +76,9 @@ def humane_time(timestamp):
 
 @register.filter
 def from_elasticsearch_date(value):
-    return datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%f")
+    try:
+        date = datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%f")
+    except ValueError:
+        date = datetime.strptime(value, "%Y-%m-%dT%H:%M:%S")
+
+    return date
