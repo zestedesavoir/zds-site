@@ -261,44 +261,44 @@ class MemberModelsTest(TestCase):
         self.assertEqual(self.user1.get_alerts_posts_count(), 1)
 
     def test_can_read_now(self):
-        
+
         profile = ProfileFactory()
         profile.is_active = True
         profile.can_read = True
         self.assertTrue(profile.can_read_now())
-        
+
         # Was banned in the past, ban no longer active
         profile = ProfileFactory()
         profile.end_ban_read = datetime.now() - timedelta(days=1)
         self.assertTrue(profile.can_read_now())
-        
+
         profile = ProfileFactory()
         profile.is_active = True
         profile.can_read = False
         self.assertFalse(profile.can_read_now())
-        
+
         # Ban is active
         profile = ProfileFactory()
         profile.is_active = True
         profile.can_read = False
         profile.end_ban_read = datetime.now() + timedelta(days=1)
         self.assertFalse(profile.can_read_now())
-        
+
         self.user1.user.is_active = False
         self.assertFalse(self.user1.can_read_now())
-        
+
     def test_can_write_now(self):
-        
+
         self.user1.user.is_active = True
         self.user1.user.can_write = True
         self.assertTrue(self.user1.can_write_now())
-        
+
         # Was banned in the past, ban no longer active
         profile = ProfileFactory()
         profile.can_write = True
         profile.end_ban_read = datetime.now() - timedelta(days=1)
         self.assertTrue(profile.can_write_now())
-        
+
         profile = ProfileFactory()
         profile.can_write = False
         profile.is_active = True
@@ -309,7 +309,7 @@ class MemberModelsTest(TestCase):
         profile.can_write = False
         profile.end_ban_write = datetime.now() + timedelta(days=1)
         self.assertFalse(profile.can_write_now())
-        
+
         self.user1.user.is_active = False
         self.user1.user.can_write = True
         self.assertFalse(self.user1.can_write_now())
