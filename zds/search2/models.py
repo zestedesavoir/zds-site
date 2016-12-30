@@ -2,6 +2,8 @@
 from django.apps import apps
 from django.db import models
 from django.db.transaction import atomic
+from django.conf import settings
+
 from elasticsearch.helpers import streaming_bulk
 from elasticsearch_dsl import Mapping
 from elasticsearch_dsl.connections import connections
@@ -25,7 +27,7 @@ class AbstractESIndexable(object):
     es_id = ''
 
     @classmethod
-    def get_es_content_type(cls):
+    def get_es_document_type(cls):
         """value of the ``_type`` field in the index"""
         content_type = cls.__name__.lower()
 
@@ -53,7 +55,7 @@ class AbstractESIndexable(object):
         :rtype: elasticsearch_dsl.Mapping
         """
 
-        es_mapping = Mapping(self.get_es_content_type())
+        es_mapping = Mapping(self.get_es_document_type())
         return es_mapping
 
     @classmethod
@@ -120,7 +122,7 @@ class AbstractESIndexable(object):
         document = {
             '_op_type': action,
             '_index': index,
-            '_type': self.get_es_content_type()
+            '_type': self.get_es_document_type()
         }
 
         if action == 'index':
@@ -231,6 +233,17 @@ class AbstractESDjangoIndexable(AbstractESIndexable, models.Model):
 
         super(AbstractESDjangoIndexable, self).es_done_indexing(es_id)
         self.save(es_flagged=False)
+
+
+def delete_document_in_elasticsearch(sender, instance, **kwargs):
+    """catch the pre_delete signal to ensure the deletion in ES.
+    Must be implemented by all classes that derive from AbstractESDjangoIndexable since it is not transmitted
+    """
+
+    index_manager = ESIndexManager(settings.ES_INDEX_NAME)
+    arguments = {'index': index_manager.index, 'doc_type': instance.get_es_document_type(), 'id': instance.es_id}
+    if index_manager.es.exists(**arguments):
+        index_manager.es.delete(**arguments)
 
 
 def get_django_indexable_objects():

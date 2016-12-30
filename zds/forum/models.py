@@ -9,13 +9,15 @@ from django.conf import settings
 from django.contrib.auth.models import Group, User, AnonymousUser
 from django.core.urlresolvers import reverse
 from django.db import models
+from django.dispatch import receiver
+from django.db.models.signals import pre_delete
 
 from elasticsearch_dsl.field import Text, Keyword, Integer, Boolean, Float, Date
 
 from zds.forum.managers import TopicManager, ForumManager, PostManager, TopicReadManager
 from zds.notification import signals
 from zds.settings import ZDS_APP
-from zds.search2.models import AbstractESDjangoIndexable
+from zds.search2.models import AbstractESDjangoIndexable, delete_document_in_elasticsearch
 from zds.utils import get_current_user
 from zds.utils import slugify
 from zds.utils.models import Comment, Tag
@@ -430,6 +432,12 @@ class Topic(AbstractESDjangoIndexable):
         return data
 
 
+@receiver(pre_delete, sender=Topic)
+def delete_topic_in_elasticsearch(sender, instance, **kwargs):
+    """catch the pre_delete signal to ensure the deletion in ES"""
+    return delete_document_in_elasticsearch(sender, instance, **kwargs)
+
+
 @python_2_unicode_compatible
 class Post(Comment, AbstractESDjangoIndexable):
     """
@@ -510,6 +518,12 @@ class Post(Comment, AbstractESDjangoIndexable):
         data['forum_get_absolute_url'] = self.topic.forum.get_absolute_url()
 
         return data
+
+
+@receiver(pre_delete, sender=Post)
+def delete_post_in_elasticsearch(sender, instance, **kwargs):
+    """catch the pre_delete signal to ensure the deletion in ES"""
+    return delete_document_in_elasticsearch(sender, instance, **kwargs)
 
 
 @python_2_unicode_compatible

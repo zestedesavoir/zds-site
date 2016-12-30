@@ -85,8 +85,6 @@ class SearchView(ZdSPagingListView):
             scored_queryset = FunctionScore(query=queryset, boost_mode='multiply', functions=weight_functions)
             search_queryset = search_queryset.query(scored_queryset)
 
-            print(search_queryset.to_dict())
-
             # highlighting:
             search_queryset = search_queryset.highlight_options(
                 fragment_size=150, number_of_fragments=5, pre_tags=['[hl]'], post_tags=['[/hl]'])

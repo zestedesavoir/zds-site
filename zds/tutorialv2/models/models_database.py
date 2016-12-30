@@ -20,7 +20,7 @@ from django.db import models
 from django.http import Http404
 from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
-from django.db.models.signals import pre_delete, post_delete
+from django.db.models.signals import pre_delete, post_delete, pre_save
 from django.dispatch import receiver
 
 from git import Repo, BadObject
@@ -36,7 +36,8 @@ from zds.gallery.models import Image, Gallery, UserGallery
 from zds.tutorialv2.utils import get_content_from_json, BadManifestError
 from zds.utils import get_current_user
 from zds.utils.models import SubCategory, Licence, HelpWriting, Comment, Tag
-from zds.search2.models import AbstractESDjangoIndexable, AbstractESIndexable
+from zds.search2.models import AbstractESDjangoIndexable, AbstractESIndexable, delete_document_in_elasticsearch, \
+    ESIndexManager
 from zds.utils.tutorials import get_blob
 from zds.tutorialv2.models import TYPE_CHOICES, STATUS_CHOICES
 from zds.tutorialv2.models.models_versioned import NotAPublicVersion
@@ -838,7 +839,7 @@ class PublishedContent(AbstractESDjangoIndexable):
 
     @classmethod
     def get_es_mapping(cls):
-        m = Mapping(cls.get_es_content_type())
+        m = Mapping(cls.get_es_document_type())
 
         m.field('content_pk', 'integer')
         m.field('publication_date', Date())
@@ -914,6 +915,46 @@ class PublishedContent(AbstractESDjangoIndexable):
         return data
 
 
+@receiver(pre_delete, sender=PublishedContent)
+def delete_published_content_in_elasticsearch(sender, instance, **kwargs):
+    """Catch the pre_delete signal to ensure the deletion in ES. Also, handle the deletion of the corresponding
+    chapters.
+
+    For that, it uses the ``_delete_by_query`` API,
+    (https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-delete-by-query.html)
+    which is not available in elasticsearch python API (thought the documentation says the opposite), so it passes
+    directly trough the connection layer.
+    """
+
+    index_manager = ESIndexManager(settings.ES_INDEX_NAME)
+
+    index_manager.es.transport.perform_request(
+        'POST',
+        '/' + index_manager.index + '/chapter/_delete_by_query',
+        body={
+            'query': {
+                'match': {'_routing': instance.es_id}}
+        }
+    )
+
+    return delete_document_in_elasticsearch(sender, instance, **kwargs)
+
+
+@receiver(pre_save, sender=PublishedContent)
+def delete_published_content_in_elasticsearch_if_set_to_redirect(sender, instance, **kwargs):
+    """If the slug of the content changes, the ``must_redirect`` field is set to ``True`` and a new
+    PublishedContnent is created. To avoid doubles, the previous ones must be removed from ES.
+    """
+
+    try:
+        obj = PublishedContent.objects.get(pk=instance.pk)
+    except sender.DoesNotExist:
+        pass  # nothing to worry about
+    else:
+        if not obj.must_redirect and instance.must_redirect:
+            delete_published_content_in_elasticsearch(sender, instance, **kwargs)
+
+
 class FakeChapter(AbstractESIndexable):
     """A simple class that is used by ES to index chapters, constructed from the containers.
 
@@ -943,7 +984,7 @@ class FakeChapter(AbstractESIndexable):
         self.parent_publication_date = main_container.pubdate
 
     @classmethod
-    def get_es_content_type(cls):
+    def get_es_document_type(cls):
         return 'chapter'
 
     @classmethod
@@ -951,7 +992,7 @@ class FakeChapter(AbstractESIndexable):
         """Define mapping and parenting
         """
 
-        mapping = Mapping(self.get_es_content_type())
+        mapping = Mapping(self.get_es_document_type())
         mapping.meta('parent', type='publishedcontent')
 
         mapping.field('title', Text(boost=1.5))
