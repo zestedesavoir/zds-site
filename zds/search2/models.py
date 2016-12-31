@@ -238,8 +238,8 @@ class AbstractESDjangoIndexable(AbstractESIndexable, models.Model):
 
 
 def delete_document_in_elasticsearch(sender, instance, **kwargs):
-    """catch the pre_delete signal to ensure the deletion in ES.
-    Must be implemented by all classes that derive from AbstractESDjangoIndexable since it is not transmitted
+    """Delete a ESDjangoIndexable from ES database.
+    Must be implemented by all classes that derive from AbstractESDjangoIndexable.
     """
 
     index_manager = ESIndexManager(settings.ES_INDEX_NAME)
@@ -282,16 +282,16 @@ class ESIndexManager(object):
         if self.es.indices.exists(self.index):
             self.es.indices.delete(self.index)
 
-    def reset_es_index(self, models, nshards=5, nreplicas=1):
+    def reset_es_index(self, models, number_shards=5, number_replicas=1):
         """Delete old index and create an new one (with the same name). Setup the number of shards and replicas.
         Then, set mappings for the different models.
 
         :param models: list of models
         :type models: list
-        :param nshards: number of shards
-        :type nshards: int
-        :param nreplicas: number of replicas
-        :type nreplicas: int
+        :param number_shards: number of shards
+        :type number_shards: int
+        :param number_replicas: number of replicas
+        :type number_replicas: int
         """
 
         if not self.connected_to_es:
@@ -308,7 +308,7 @@ class ESIndexManager(object):
         self.es.indices.create(
             self.index,
             body={
-                'settings': {'number_of_shards': nshards, 'number_of_replicas': nreplicas},
+                'settings': {'number_of_shards': number_shards, 'number_of_replicas': number_replicas},
                 'mappings': mappings_def
             }
         )
@@ -437,7 +437,7 @@ class ESIndexManager(object):
             print(hit)
 
     def refresh_index(self):
-        """Refresh the index. The task is done periodically, but may be forced
+        """Refresh the index. The task is done periodically, but may be forced with this method
         """
 
         if not self.connected_to_es:
@@ -516,5 +516,8 @@ class ESIndexManager(object):
         :return: formated search
         :rtype: elasticsearch_dsl.Search
         """
+
+        if not self.connected_to_es:
+            return
 
         return request.index(self.index).using(self.es)

@@ -1,8 +1,11 @@
+# coding: utf-8
 from elasticsearch_dsl import Search
 from elasticsearch_dsl.query import Match, MultiMatch, FunctionScore, Term, Terms, Range
 
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
+from django.contrib import messages
+from django.utils.translation import ugettext_lazy as _
 
 from zds.search2.forms import SearchForm
 from zds.search2.models import ESIndexManager
@@ -44,6 +47,10 @@ class SearchView(ZdSPagingListView):
         return super(SearchView, self).get(request, *args, **kwargs)
 
     def get_queryset(self):
+        if not self.index_manager.connected_to_es:
+            messages.warning(self.request, _(u'Impossible de ce connecter à Elasticsearch'))
+            return []
+
         if self.search_query:
 
             # find forums where the user is allowed to visit
