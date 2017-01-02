@@ -28,7 +28,7 @@
         <div class="mobile-menu-bloc mobile-all-links" data-title="Sujets suivis">
             <h3>{% trans "Filtrer les résultats" %}</h3>
 
-            <ul>
+            <ul class="search-filters">
                 {% for radio in form.models %}
                     <li>
                         <label for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
@@ -51,13 +51,15 @@
 
 
 {% block content %}
-    {% crispy form %}
+    <section class="search-box">
+        {% crispy form %}
+    </section>
 
     {% if query %}
         {% include "misc/paginator.html" with position="top" %}
 
         {% if object_list %}
-            <div class="topic-list navigable-list">
+            <div class="topic-list navigable-list search-results">
                 {% for result in object_list %}
                     <article class="content-item topic-item">
                         <div class="content-info">
