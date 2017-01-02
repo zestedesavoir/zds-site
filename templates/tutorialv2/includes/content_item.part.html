@@ -79,9 +79,14 @@
 
             {% if content.sha_public %}
                 <p class="content-authors">
-                    {% if content.pubdate %}
-                        <span class="long content-pubdate">{{ content.pubdate|format_date|capfirst }}</span>
-                        <span class="short content-pubdate">{{ content.pubdate|format_date:True|capfirst }}</span>
+                    {% if content.public_version %}
+                        {% set content.public_version.publication_date as pubdate %}
+                    {% else %}
+                        {% set content.pubdate as pubdate %}
+                    {% endif %}
+                    {% if pubdate %}
+                        <span class="long content-pubdate">{{ pubdate|format_date|capfirst }}</span>
+                        <span class="short content-pubdate">{{ pubdate|format_date:True|capfirst }}</span>
                     {% endif %}
                     {{ authors_text }}
                 </p>
