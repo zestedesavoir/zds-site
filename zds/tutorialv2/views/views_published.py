@@ -111,9 +111,9 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
                     context['next_article'] = all_articles[position + 1]
 
         if self.versioned_object.type == 'OPINION':
-            context['formValidOpinion'] = OpinionValidationForm(
+            context['formPickOpinion'] = OpinionValidationForm(
                 self.versioned_object, initial={'version': self.versioned_object.sha_public})
-            context['formPromotion'] = PromoteOpinionToArticleForm(
+            context['formConvertOpinion'] = PromoteOpinionToArticleForm(
                 self.versioned_object, initial={'version': self.versioned_object.sha_public})
 
         # pagination of comments
@@ -334,7 +334,7 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
         if self.current_content_type:
             queryset = queryset.filter(content_type=self.current_content_type)
         else:
-            queryset = queryset.filter(content__sha_approved=F('sha_public'))
+            queryset = queryset.filter(content__sha_picked=F('sha_public'))
 
         # prefetch:
         queryset = queryset\

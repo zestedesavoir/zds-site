@@ -109,7 +109,7 @@ class ValidationOpinionListView(LoginRequiredMixin, PermissionRequiredMixin, Lis
     subcategory = None
     queryset = PublishableContent.objects\
         .filter(type='OPINION', sha_public__isnull=False)\
-        .exclude(sha_approved=F('sha_public'))
+        .exclude(sha_picked=F('sha_public'))
 
 
 class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
@@ -610,7 +610,7 @@ class Unpublish(LoginRequiredMixin, SingleOnlineContentFormViewMixin, NoValidati
         unpublish_content(self.object)
 
         self.object.sha_public = None
-        self.object.sha_approved = None
+        self.object.sha_picked = None
         self.object.pubdate = None
         self.object.save()
 
@@ -664,7 +664,7 @@ class ValidPublication(PermissionRequiredMixin, NoValidationBeforeFormViewMixin)
         versioned = self.versioned_object
         self.success_url = versioned.get_absolute_url_online()
 
-        db_object.sha_approved = form.cleaned_data['version']
+        db_object.sha_picked = form.cleaned_data['version']
         db_object.save()
 
         msg = render_to_string(
@@ -753,8 +753,8 @@ class PromoteOpinionToArticle(PermissionRequiredMixin, NoValidationBeforeFormVie
         db_object.public_version = None
         db_object.save()
 
-        # add information of the promotion on the original opinion
-        opinion.promotion_content = db_object
+        # add information about the conversion to the original opinion
+        opinion.converted_to = db_object
         opinion.save()
 
         # add M2M objects

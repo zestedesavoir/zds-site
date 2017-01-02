@@ -197,7 +197,7 @@ class PublishableContentManager(models.Manager):
         """
         home_number = settings.ZDS_APP['opinions']['home_number']
         all_contents = self.filter(type='OPINION') \
-                           .filter(public_version__isnull=False, sha_approved=F('sha_public')) \
+                           .filter(public_version__isnull=False, sha_picked=F('sha_public')) \
                            .prefetch_related('authors') \
                            .prefetch_related('authors__profile') \
                            .select_related('last_note') \

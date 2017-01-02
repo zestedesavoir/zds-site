@@ -105,8 +105,8 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
                                       blank=True, null=True, max_length=80, db_index=True)
     sha_draft = models.CharField('Sha1 de la version de rédaction',
                                  blank=True, null=True, max_length=80, db_index=True)
-    sha_approved = models.CharField('Sha1 de la version approuvée (contenus avec publication sans validation)',
-                                    blank=True, null=True, max_length=80, db_index=True)
+    sha_picked = models.CharField('Sha1 de la version choisie (contenus publiés sans validation)',
+                                  blank=True, null=True, max_length=80, db_index=True)
     beta_topic = models.ForeignKey(Topic, verbose_name='Sujet beta associé', default=None, blank=True, null=True)
     licence = models.ForeignKey(Licence,
                                 verbose_name='Licence',
@@ -135,9 +135,15 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
     public_version = models.ForeignKey(
         'PublishedContent', verbose_name=u'Version publiée', blank=True, null=True, on_delete=models.SET_NULL)
 
-    # used for opinion to article promotion to keep an history and add canonical link
-    promotion_content = models.ForeignKey(
-        'self', verbose_name=u'Contenu promu', blank=True, null=True, on_delete=models.SET_NULL)
+    # FK to an opinion which has been converted to article. Useful to keep track of history and
+    # to add a canonical link
+    converted_to = models.ForeignKey(
+        'self',
+        verbose_name=u'Contenu promu',
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name='converted_from')
 
     objects = PublishableContentManager()
 
@@ -350,8 +356,8 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
 
         attrs = [
             'pk', 'authors', 'subcategory', 'image', 'creation_date', 'pubdate', 'update_date', 'source',
-            'sha_draft', 'sha_beta', 'sha_validation', 'sha_public', 'tags', 'sha_approved', 'type',
-            'promotion_content'
+            'sha_draft', 'sha_beta', 'sha_validation', 'sha_public', 'tags', 'sha_picked', 'converted_to',
+            'type'
         ]
 
         fns = [
