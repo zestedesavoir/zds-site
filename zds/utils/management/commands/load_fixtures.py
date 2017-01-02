@@ -504,7 +504,7 @@ def load_contents(cli, _type, size, fake):
                 if to_do >= 1:
                     content.sha_public = content.sha_draft
                     if to_do == 1:
-                        content.sha_approved = content.sha_draft
+                        content.sha_picked = content.sha_draft
                 published = publish_content(content, versioned)
                 content.public_version = published
                 content.save()

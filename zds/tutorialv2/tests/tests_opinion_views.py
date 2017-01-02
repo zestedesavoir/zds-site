@@ -335,9 +335,10 @@ class PublishedContentTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 302)
 
-    def test_opinion_promotion(self):
+    def test_opinion_conversion(self):
         """
-        Test the promotion of PublishableContent where type is OPINION.
+        Test the conversion of PublishableContent with type=OPINION
+        to PublishableContent with type=ARTICLE
         """
 
         text_publication = u'Aussi tôt dit, aussi tôt fait !'

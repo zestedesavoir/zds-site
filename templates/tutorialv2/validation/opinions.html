@@ -4,17 +4,17 @@
 {% load i18n %}
 
 {% block title_base %}
-    {% trans "Validation des billets" %}
+    {% trans "Choix des billets" %}
 {% endblock %}
 
 {% block title %}
-    {% trans "Validation des billets" %}
+    {% trans "Choix des billets" %}
 {% endblock %}
 
 
 
 {% block breadcrumb_base %}
-    <li>{% trans "Validation des billets" %}</li>
+    <li>{% trans "Choix des billets" %}</li>
 {% endblock %}
 
 
@@ -23,7 +23,7 @@
     <section class="full-content-wrapper">
         <h1>
             {% block headline %}
-                {% trans "Validation des billets" %}
+                {% trans "Choix des billets" %}
                 {%  if category %}
                     / {{ category.title }}
                 {% endif %}
@@ -46,7 +46,7 @@
                             <th>{% trans "Titre" %}</th>
                             <th>{% trans "Auteur(s)" %}</th>
                             <th>{% trans "Date dernière publication" %}</th>
-                            <th>{% trans "À déjà été approuvé" %}</th>
+                            <th>{% trans "A déjà été choisi" %}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -66,8 +66,8 @@
                                     <span>{{ content.update_date|format_date:True|capfirst }}</span>
                                 </td>
                                 <td>
-                                    {% if content.sha_approved %}
-                                        {% trans "Oui (mise à jour)" %} - <a href="{% url 'content:diff' content.pk content.slug %}?from={{ content.sha_approved }}&to={{ content.sha_public }}">diff</a>
+                                    {% if content.sha_picked %}
+                                        {% trans "Oui (mise à jour)" %} - <a href="{% url 'content:diff' content.pk content.slug %}?from={{ content.sha_picked }}&to={{ content.sha_public }}">diff</a>
                                     {% else %}
                                         {% trans "Non" %}
                                     {% endif %}
@@ -78,7 +78,7 @@
                 </table>
             {% else %}
                 <p>
-                    {% trans "Aucun billet en validation" %}
+                    {% trans "Aucun billet" %}
                 </p>
             {% endif %}
         {% endblock %}
