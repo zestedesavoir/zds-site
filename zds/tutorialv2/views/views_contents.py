@@ -1363,6 +1363,8 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
         _type = self.object.type.lower()
         if _type == 'tutorial':
             _type = _('tutoriel')
+        elif _type == 'opinion':
+            raise PermissionDenied
 
         # perform actions:
         if self.action == 'inactive':

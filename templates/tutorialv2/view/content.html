@@ -451,11 +451,13 @@
         <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Validation">
             <h3>{% trans "Validation" %}</h3>
             <ul>
-                <li>
-                    <a href="{% url "validation:history" content.pk content.slug %}" class="ico-after history blue">
-                        {% trans "Historique de validation" %}
-                    </a>
-                </li>
+                {% if not content.is_opinion %}
+                    <li>
+                        <a href="{% url "validation:history" content.pk content.slug %}" class="ico-after history blue">
+                            {% trans "Historique de validation" %}
+                        </a>
+                    </li>
+                {% endif %}
                 <li>
                     <a  href="{% url 'mp-new' %}?{% for username in content.authors.all %}&amp;username={{ username }}{% endfor %}"
                         class="ico-after cite blue"
