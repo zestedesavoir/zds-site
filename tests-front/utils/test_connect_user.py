@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from selenium import selenium
+
 
 def test_connect_user(sel):
     sel.open("/")

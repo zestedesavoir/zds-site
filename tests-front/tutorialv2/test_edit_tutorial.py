@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from selenium import selenium
+
 
 def test_edit_tutorial(sel):
     sel.click("//a[contains(text(),'Ajouter  une partie')]")

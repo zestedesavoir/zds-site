@@ -1,7 +1,10 @@
 import unittest
 from utils import test_connect_user
-from tutorialv2 import test_add_author, test_remove_author, test_create_tutorial, test_delete_tutorial, test_edit_tutorial, test_validate_tutorial
+from tutorialv2 import test_add_author, test_remove_author,
+test_create_tutorial, test_delete_tutorial, test_edit_tutorial,
+test_validate_tutorial
 from selenium import selenium
+
 
 class suite(unittest.TestCase):
     def setUp(self):

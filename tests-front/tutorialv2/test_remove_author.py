@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from selenium import selenium
+
 
 def test_remove_author(sel):
     sel.click(u"link=Gérer les auteurs")

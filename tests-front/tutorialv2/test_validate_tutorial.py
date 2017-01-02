@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from selenium import selenium
+
 
 def test_validate_tutorial(sel):
     sel.click("link=Demander la validation")

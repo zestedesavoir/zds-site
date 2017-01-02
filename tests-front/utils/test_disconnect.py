@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from selenium import selenium
+
 
 def test_disconnect(sel):
     sel.click("//a[@id='open-my-account']/span")

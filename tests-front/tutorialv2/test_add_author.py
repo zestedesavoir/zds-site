@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from selenium import selenium
+
 
 def test_add_author(sel):
     sel.click("link=Ajouter un auteur")
