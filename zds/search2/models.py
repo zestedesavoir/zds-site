@@ -332,9 +332,10 @@ class ESIndexManager(object):
         (https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-lang-analyzer.html#french-analyzer)
         but with some difference
 
-        - "whitespace" analyzer instead of the "default" one, to keep special character intact (such as "+" like "c++")
-        - "protect_c_language", a pattern replace filter to prevent "c" from being wiped out by the stopper
-        - "french_keywords", a keyword stopper prevent some programming language from being stemmed
+        - "custom_tokenizer", to deal with punctuation and all kind of (non-breaking) spaces, but keep dashes and
+          other stuffs intact (in order to keep "c++" or "c#", for example).
+        - "protect_c_language", a pattern replace filter to prevent "c" from being wiped out by the stopper.
+        - "french_keywords", a keyword stopper prevent some programming language from being stemmed.
         """
 
         if not self.connected_to_es:
@@ -372,9 +373,15 @@ class ESIndexManager(object):
                         "language": "light_french"
                     }
                 },
+                "tokenizer": {
+                    "custom_tokenizer": {
+                        "type": "pattern",
+                        "pattern": u"[ .,!?%\u2026\u00AB\u00A0\u00BB\u202F\uFEFF\u2013\u2014\n]"
+                    }
+                },
                 "analyzer": {
                     "default": {
-                        "tokenizer": "whitespace",
+                        "tokenizer": "custom_tokenizer",
                         "filter": [
                             "lowercase",
                             "protect_c_language",
