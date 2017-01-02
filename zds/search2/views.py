@@ -6,6 +6,8 @@ from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
+from django.shortcuts import render
+from django.core.urlresolvers import reverse
 
 from zds.search2.forms import SearchForm
 from zds.search2.models import ESIndexManager
@@ -183,3 +185,15 @@ class SearchView(ZdSPagingListView):
         context['query'] = self.search_query is not None
 
         return context
+
+
+def opensearch(request):
+    """Generate OpenSearch Description file"""
+
+    return render(request, 'search/opensearch.xml', {
+        'site_name': settings.ZDS_APP['site']['litteral_name'],
+        'site_url': settings.ZDS_APP['site']['url'],
+        'email_contact': settings.ZDS_APP['site']['email_contact'],
+        'language': settings.LANGUAGE_CODE,
+        'search_url': settings.ZDS_APP['site']['url'] + reverse('search:query')
+    }, content_type='application/opensearchdescription+xml')

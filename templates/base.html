@@ -111,7 +111,7 @@
     <link rel="alternate" type="application/rss+xml" title="Nouveaux articles (RSS)" href="{% url "article:feed-rss" %}">
     <link rel="alternate" type="application/atom+xml" title="Nouveaux articles (ATOM)" href="{% url "article:feed-atom" %}">
     {# OpenSearch plugin autodiscovery #}
-    <link rel="search" type="application/opensearchdescription+xml" title="{{ app.site.litteral_name }}" href="{% url "search-opensearch" %}">
+    <link rel="search" type="application/opensearchdescription+xml" title="{{ app.site.litteral_name }}" href="{% url "search:opensearch" %}">
 </head>
 
 {% if not user.is_authenticated or user.profile.allow_temp_visual_changes %}
@@ -554,11 +554,11 @@
                         </ol>
                     </div>
                     <div class="search header-right" id="search">
-                        <form action="{% url "haystack_search" %}">
+                        <form action="{% url "search:query" %}">
                             <input type="text" name="q" placeholder="{% trans "Rechercher" %}" title="{% trans "Contenu de la recherche" %}">
                             <button type="submit" class="ico-after search-submit" title="{% trans "Lancer la recherche" %}">{% trans "OK" %}</button>
                         </form>
-                        <a href="{% url "haystack_search" %}" title="{% trans "Recherche avancée" %}" class="search-more"></a>
+                        <a href="{% url "search:query" %}" title="{% trans "Recherche avancée" %}" class="search-more"></a>
                     </div>
                 </div>
             </div>

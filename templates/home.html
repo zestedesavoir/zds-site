@@ -81,7 +81,7 @@
             {% endif %}
             {% if app.display_search_bar %}
                  <section class="search-box">
-                    <form action='{% url "haystack_search" %}' id="search-home">
+                    <form action='{% url "search:query" %}' id="search-home">
                         <label for="search-home-input">
                             {% trans "Recherche" %}
                         </label>
