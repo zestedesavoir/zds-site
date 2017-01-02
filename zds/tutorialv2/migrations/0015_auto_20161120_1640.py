@@ -14,12 +14,12 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='publishablecontent',
-            name='promotion_content',
+            name='converted_to',
             field=models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, verbose_name='Contenu promu', blank=True, to='tutorialv2.PublishableContent', null=True),
         ),
         migrations.AddField(
             model_name='publishablecontent',
-            name='sha_approved',
+            name='sha_picked',
             field=models.CharField(db_index=True, max_length=80, null=True, verbose_name=b'Sha1 de la version approuv\xc3\xa9e (contenus avec publication sans validation)', blank=True),
         ),
         migrations.AlterField(
