@@ -1071,9 +1071,12 @@ class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     def get_context_data(self, **kwargs):
         context = super(EditContainer, self).get_context_data(**kwargs)
         form = kwargs.pop('form', self.get_form())
-        form.initial = initial = super(EditContainer, self).get_initial()
+        form.initial = get_initial()
         print(form)
-        print (form.initial)
+        print('-------')
+        print(get_initial())
+        print('-------')
+        print(form.initial)
         if 'preview' not in self.request.POST:
             context['container'] = form.initial['container']
             context['gallery'] = self.object.gallery
@@ -1091,7 +1094,8 @@ class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         initial['container'] = container
 
         initial['last_hash'] = container.compute_hash()
-
+        print('get initial')
+        print(initial)
         return initial
 
     def post(self, request, *args, **kwargs):
