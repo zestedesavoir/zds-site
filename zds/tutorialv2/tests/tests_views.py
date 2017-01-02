@@ -483,15 +483,19 @@ class ContentTests(TestCase):
         self.assertEqual(result.status_code, 302)
 
         result = self.client.post(
-            reverse('content:create-extract'),
+            reverse('content:create-extract',
+                    kwargs={
+                        'pk': pk,
+                        'slug': slug,
+                        'parent_container_slug': container.slug,
+                        'container_slug': subcontainer.slug
+                    }),
             {
                 'title': title,
                 'text': description,
                 'preview': ''
             }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(result.status_code, 200)
-
-        self.assertEqual(200, response.status_code)
 
         versioned = PublishableContent.objects.get(pk=pk).load_version()
         self.assertEqual(len(versioned.children[0].children[0].children), 1)  # the extract is created

@@ -1071,6 +1071,7 @@ class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     def get_context_data(self, **kwargs):
         context = super(EditContainer, self).get_context_data(**kwargs)
         form = kwargs.pop('form', self.get_form())
+        form.initial = initial = super(EditContainer, self).get_initial()
         print(form)
         print (form.initial)
         if 'preview' not in self.request.POST:
