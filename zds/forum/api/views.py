@@ -2,10 +2,11 @@
 
 from zds.member.api.permissions import CanReadTopic, CanReadPost, CanReadForum, CanReadAndWriteNowOrReadOnly, IsNotOwnerOrReadOnly, IsOwnerOrReadOnly, IsStaffUser
 from zds.utils.api.views import KarmaView
-from zds.forum.models import Post, Forum, Topic
+from zds.forum.models import Post, Forum, Topic, Category
 import datetime
 from django.core.cache import cache
 from django.db.models.signals import post_save, post_delete
+from django.http import Http404
 from rest_framework import filters
 from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveUpdateAPIView, RetrieveAPIView, CreateAPIView
 from rest_framework_extensions.key_constructor.constructors import DefaultKeyConstructor
@@ -18,9 +19,10 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny, IsAu
 from dry_rest_permissions.generics import DRYPermissions
 from zds.api.bits import DJRF3xPaginationKeyBit, UpdatedAtKeyBit
 from zds.utils import slugify
-from zds.forum.api.serializer import ForumSerializer, TopicSerializer, TopicActionSerializer, TopicUpdateSerializer, PostSerializer, PostActionSerializer, PostUpdateSerializer, AlertSerializer
+from zds.forum.api.serializer import ForumSerializer, TopicSerializer, TopicCreateSerializer, TopicUpdateSerializer, PostSerializer, PostCreateSerializer, PostUpdateSerializer, AlertSerializer
 from zds.forum.api.permissions import IsStaffUser
-
+from zds.member.models import User
+from itertools import chain
 
 class PostKarmaView(KarmaView):
     queryset = Post.objects.all()
@@ -54,10 +56,8 @@ post_delete.connect(receiver=change_api_forum_updated_at, sender=Forum)
 
 class ForumListAPI(ListCreateAPIView):
     """
-    Profile resource to list all forum
+    Profile resource to list all forum.
     """
-
-    queryset = Forum.objects.all()
     serializer_class = ForumSerializer
     list_key_func = PagingSearchListKeyConstructor()
 
@@ -82,9 +82,14 @@ class ForumListAPI(ListCreateAPIView):
               message: Not Found
         """
         return self.list(request, *args, **kwargs)
-        
+
+    def get_queryset(self):
+        public_forums = Forum.objects.filter(group__isnull=True).order_by('position_in_category')
+        private_forums =  Forum.objects.filter(group__in=self.request.user.groups.all()).order_by('position_in_category')
+        return public_forums | private_forums
+
     def get_permissions(self):
-        permission_classes = [AllowAny, CanReadForum]
+        permission_classes = [CanReadForum] # TODO style plus joli ?
         return [permission() for permission in permission_classes]
 
 
@@ -116,13 +121,13 @@ class ForumDetailAPI(RetrieveAPIView):
         return ForumSerializer
     
     def get_permissions(self):
-        permission_classes = [AllowAny, CanReadForum]
+        permission_classes = [CanReadForum] # TODO style plus joli ?
         return [permission() for permission in permission_classes]
 
 
 class TopicListAPI(ListCreateAPIView):
     """
-    Profile resource to list all topic
+    Profile resource to list all topics (GET) or to create a topic (POST)
     """
     queryset = Topic.objects.all()
     filter_backends = (filters.DjangoFilterBackend,)
@@ -145,6 +150,15 @@ class TopicListAPI(ListCreateAPIView):
               description: Sets the number of forum per page.
               required: false
               paramType: query
+            - name: forum
+              description: Filters by forum id.
+              required: false
+            - name: author
+              description: Filters by author id.
+              required: false
+            - name: tags__title
+              description: Filters by tag name.
+              required: false
         responseMessages:
             - code: 404
               message: Not Found
@@ -178,13 +192,19 @@ class TopicListAPI(ListCreateAPIView):
               description: Content of the first post in markdown.
               required: true
               paramType: form
+            - name: tags
+              description: To add a tag, specify its taf identifier. Specify this parameter
+                           several times to add several tags.
+              required: false
+              paramType: form TODO vérifier que les tags fonctionnent
         responseMessages:
             - code: 400
               message: Bad Request
             - code: 401
               message: Not Authenticated
+            - code: 403
+              message: Forbidden
         """
-
         author = request.user.id
         serializer = self.get_serializer_class()(data=request.data, context={'request': self.request})
         serializer.is_valid(raise_exception=True)
@@ -196,7 +216,7 @@ class TopicListAPI(ListCreateAPIView):
         if self.request.method == 'GET':
             return TopicSerializer
         elif self.request.method == 'POST':
-            return TopicActionSerializer
+            return TopicCreateSerializer
 
     def get_permissions(self):
         permission_classes = [AllowAny, ]
@@ -210,7 +230,7 @@ class TopicListAPI(ListCreateAPIView):
 
 class UserTopicListAPI(ListAPIView):
     """
-    Profile resource to list all topic from current user
+    Profile resource to list all topics from current user
     """
 
     serializer_class = TopicSerializer
@@ -239,6 +259,8 @@ class UserTopicListAPI(ListAPIView):
               required: false
               paramType: query
         responseMessages:
+            - code: 401
+              message: Not Authenticated
             - code: 404
               message: Not Found
         """
@@ -255,7 +277,7 @@ class UserTopicListAPI(ListAPIView):
 
 class TopicDetailAPI(RetrieveUpdateAPIView):
     """
-    Profile resource to display and updates details of a given topic
+    Profile resource to display and update details of a given topic
     """
     queryset = Topic.objects.all()
     obj_key_func = DetailKeyConstructor()
@@ -267,6 +289,10 @@ class TopicDetailAPI(RetrieveUpdateAPIView):
         Gets a topic given by its identifier.
         ---
         responseMessages:
+            - code: 401
+              message: Not Authenticated
+            - code: 403
+              message: Forbidden
             - code: 404
               message: Not Found
         """
@@ -284,7 +310,23 @@ class TopicDetailAPI(RetrieveUpdateAPIView):
               description: Bearer token to make an authenticated request.
               required: true
               paramType: header
-              # TODO doc manquante
+            - name: title
+              description: Title of the Topic.
+              required: false
+              paramType: form
+            - name: subtitle
+              description: Subtitle of the Topic.
+              required: false
+              paramType: form
+            - name: text
+              description: Content of the first post in markdown.
+              required: false
+              paramType: form
+            - name: tags
+              description: To add a tag, specify its taf identifier. Specify this parameter
+                           several times to add several tags.
+              required: false
+              paramType: form TODO vérifier que les tags fonctionnent
         responseMessages:
             - code: 400
               message: Bad Request if you specify a bad identifier
@@ -316,7 +358,7 @@ class TopicDetailAPI(RetrieveUpdateAPIView):
 
 class PostListAPI(ListCreateAPIView):
     """
-    Profile resource to list all message in a topic
+    Profile resource to list all messages in a topic
     """
     list_key_func = PagingSearchListKeyConstructor()
 
@@ -337,6 +379,10 @@ class PostListAPI(ListCreateAPIView):
               required: false
               paramType: query
         responseMessages:
+            - code: 401
+              message: Not Authenticated
+            - code: 403
+              message: Permission Denied
             - code: 404
               message: Not Found
         """
@@ -347,7 +393,6 @@ class PostListAPI(ListCreateAPIView):
         """
         Creates a new post in a topic.
         ---
-
         parameters:
             - name: Authorization
               description: Bearer token to make an authenticated request.
@@ -357,12 +402,18 @@ class PostListAPI(ListCreateAPIView):
               description: Content of the post in markdown.
               required: true
               paramType: form
-              # TODO doc manquante
+            - name: text
+              description: Content of the first post in markdown.
+              required: true
         responseMessages:
             - code: 400
               message: Bad Request
             - code: 401
               message: Not Authenticated
+            - code: 403
+              message: Permission Denied
+            - code: 404
+              message: Not Found
         """
         author = request.user.id
         topic = self.kwargs.get('pk')
@@ -377,25 +428,23 @@ class PostListAPI(ListCreateAPIView):
         if self.request.method == 'GET':
             return PostSerializer
         elif self.request.method == 'POST':
-            return PostActionSerializer
+            return PostCreateSerializer
 
     def get_queryset(self):
         if self.request.method == 'GET':
             posts = Post.objects.filter(topic=self.kwargs.get('pk'))
-            #if posts is None:
-           #     raise Http404("Topic with pk {} was not found".format(self.kwargs.get('pk')))
+            if posts.count() == 0:
+                raise Http404("Topic with pk {} was not found".format(self.kwargs.get('pk')))
         return posts
 
     def get_current_user(self):
         return self.request.user.profile
 
     def get_permissions(self):
-        permission_classes = [AllowAny, CanReadPost, CanReadTopic]
+        permission_classes = [AllowAny, CanReadPost, CanReadTopic, CanReadForum, CanReadPost]
         if self.request.method == 'POST':
-            permission_classes.append(DRYPermissions)
             permission_classes.append(IsAuthenticated)
             permission_classes.append(CanReadAndWriteNowOrReadOnly)
-            permission_classes.append(CanReadPost)
         return [permission() for permission in permission_classes]
 
 
@@ -431,7 +480,13 @@ class MemberPostListAPI(ListAPIView):
 
     def get_queryset(self):
         if self.request.method == 'GET':
-            posts = Post.objects.filter(author=self.kwargs.get('pk'))
+            try:
+                author = User.objects.get(pk = self.kwargs.get('pk'))
+            except User.DoesNotExist:
+                raise Http404("User with pk {} was not found".format(self.kwargs.get('pk')))
+                
+            # Gets every post of author visible by current user
+            posts = Post.objects.get_all_messages_of_a_user(self.request.user, author)   
         return posts
 
 
@@ -447,9 +502,8 @@ class UserPostListAPI(ListAPIView):
     @cache_response(key_func=list_key_func)
     def get(self, request, *args, **kwargs):
         """
-        Lists all posts from a member
+        Lists all posts from a current user.
         ---
-
         parameters:
             - name: page
               description: Restricts output to the given page number.
@@ -486,6 +540,10 @@ class PostDetailAPI(RetrieveUpdateAPIView):
         Gets a post given by its identifier.
         ---
         responseMessages:
+            - code: 401
+              message: Not Authenticated
+            - code: 403
+              message: Permission Denied
             - code: 404
               message: Not Found
         """
@@ -503,7 +561,10 @@ class PostDetailAPI(RetrieveUpdateAPIView):
               description: Bearer token to make an authenticated request.
               required: true
               paramType: header
-              # TODO doc manquante
+            - name: text
+              description: Content of the post in markdown.
+              required: true
+              paramType: form
         responseMessages:
             - code: 400
               message: Bad Request if you specify a bad identifier
@@ -547,27 +608,33 @@ class PostAlertAPI(CreateAPIView):
               required: true
               paramType: header
             - name: text
-              description: Content of the post in markdown.
+              description: Content of the alert in markdown.
               required: true
               paramType: form
-              # TODO doc manquante
         responseMessages:
             - code: 400
               message: Bad Request
             - code: 401
               message: Not Authenticated
+            - code: 403
+              message: Permission Denied
+            - code: 404
+              message: Not Found
         """
         author = request.user
-        post = Post.objects.get(id = self.kwargs.get('pk'))
+        try:
+            post = Post.objects.get(id = self.kwargs.get('pk'))
+        except Post.DoesNotExist:
+            raise Http404("Post with pk {} was not found".format(self.kwargs.get('pk')))
 
         serializer = self.get_serializer_class()(data=request.data, context={'request': self.request})
         serializer.is_valid(raise_exception=True)
-        serializer.save(comment=post)
+        serializer.save(comment=post, pubdate = datetime.datetime.now(), author = author)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def get_permissions(self):
-        permission_classes = [AllowAny, IsAuthenticated]
+        permission_classes = [AllowAny, IsAuthenticated, CanReadPost]
         return [permission() for permission in permission_classes]
     
     def get_serializer_class(self):
@@ -575,8 +642,6 @@ class PostAlertAPI(CreateAPIView):
 
 
 
-# TODO global identier quand masquer les messages
-# TODO gerer l'antispam
-# TODO alerter un post A tester
-# TODO editer un post A tester
-# TODO empecher les ls et les ban de faire des alertes ?
+# TODO global identier quand masquer les messages (message modéré ou masqué par son auteur)
+# TODO gérer l'antispam
+# TODO empecher les ls et les ban de faire des alertes
