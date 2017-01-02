@@ -33,8 +33,8 @@
 
 
 {% block extra_link %}
-    {% if content.promotion_content.get_absolute_url_online %}
-        <link rel="canonical" href="{{ content.promotion_content.get_absolute_url_online }}" />
+    {% if content.converted_to.get_absolute_url_online %}
+        <link rel="canonical" href="{{ content.converted_to.get_absolute_url_online }}" />
     {% endif %}
 {% endblock %}
 
@@ -89,14 +89,14 @@
 {% block content %}
 
     {% if content.is_opinion %}
-        {% if content.promotion_content %}
+        {% if content.converted_to %}
             <div class="alert-box info">
-                {% if content.promotion_content.get_absolute_url_online %}
-                    {% blocktrans with url_article=content.promotion_content.get_absolute_url_online %}
+                {% if content.converted_to.get_absolute_url_online %}
+                    {% blocktrans with url_article=content.converted_to.get_absolute_url_online %}
                         Ce billet a été promu en <a href="{{ url_article }}">article</a>.
                     {% endblocktrans %}
                 {% elif is_staff %}
-                    {% blocktrans with url_article=content.promotion_content.get_absolute_url %}
+                    {% blocktrans with url_article=content.converted_to.get_absolute_url %}
                         Ce billet a été promu en <a href="{{ url_article }}">article</a> qui est en cours de validation.
                     {% endblocktrans %}
                 {% endif %}
@@ -256,20 +256,20 @@
                         </li>
                     {% else %}
                         {% if is_staff %}
-                            {% if content.sha_public != content.sha_approved  %}
+                            {% if content.sha_public != content.sha_picked  %}
                                 <li>
-                                    <a href="#valid-opinion" class="ico-after open-modal tick green">
-                                        {% trans "Valider le billet" %}
+                                    <a href="#pick-opinion" class="ico-after open-modal tick green">
+                                        {% trans "Choisir le billet" %}
                                     </a>
-                                    {% crispy formValidOpinion %}
+                                    {% crispy formPickOpinion %}
                                 </li>
                             {% endif %}
-                            {% if not content.promotion_content %}
+                            {% if not content.converted_to %}
                                 <li>
-                                    <a href="#promote-opinion" class="ico-after open-modal tick green">
-                                        {% trans "Promouvoir en article" %}
+                                    <a href="#convert-opinion" class="ico-after open-modal tick green">
+                                        {% trans "Convertir en article" %}
                                     </a>
-                                    {% crispy formPromotion %}
+                                    {% crispy formConvertOpinion %}
                                 </li>
                             {% endif %}
                         {% endif %}

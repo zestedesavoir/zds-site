@@ -1047,7 +1047,7 @@ class VersionedContent(Container, TemplatableContentModelMixin):
     sha_beta = None
     sha_public = None
     sha_validation = None
-    sha_approved = None
+    sha_picked = None
     is_beta = False
     is_validation = False
     is_public = False
@@ -1064,7 +1064,7 @@ class VersionedContent(Container, TemplatableContentModelMixin):
     source = None
     antispam = True
     tags = None
-    promotion_content = None
+    converted_to = None
     content_type_attribute = "type"
 
     def __init__(self, current_version, _type, title, slug, slug_repository=''):

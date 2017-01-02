@@ -1145,7 +1145,7 @@ class OpinionValidationForm(forms.Form):
         self.helper.form_action = reverse('validation:valid', kwargs={'pk': content.pk, 'slug': content.slug})
         self.helper.form_method = 'post'
         self.helper.form_class = 'modal modal-flex'
-        self.helper.form_id = 'valid-opinion'
+        self.helper.form_id = 'pick-opinion'
 
         self.helper.layout = Layout(
             HTML("<p>Êtes-vous certain(e) de vouloir valider ce billet ? Il pourra maintenant être présent sur la page "
@@ -1172,7 +1172,7 @@ class PromoteOpinionToArticleForm(forms.Form):
         self.helper.form_action = reverse('validation:promote', kwargs={'pk': content.pk, 'slug': content.slug})
         self.helper.form_method = 'post'
         self.helper.form_class = 'modal modal-flex'
-        self.helper.form_id = 'promote-opinion'
+        self.helper.form_id = 'convert-opinion'
 
         self.helper.layout = Layout(
             HTML("<p>Êtes-vous certain(e) de vouloir promouvoir ce billet en article ?</p>"),
