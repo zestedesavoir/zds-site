@@ -10,7 +10,7 @@ DEFAULT_ES_CONNECTIONS = {
     }
 }
 
-INDEX_NAME = getattr(settings, 'ES_INDEX_NAME', 'elastic')
+SEARCH_INDEX = getattr(settings, 'ES_SEARCH_INDEX', {'name': 'elastic', 'shards': 5, 'replicas': 1})
 CONNECTIONS = getattr(settings, 'ES_CONNECTIONS', DEFAULT_ES_CONNECTIONS)
 
 

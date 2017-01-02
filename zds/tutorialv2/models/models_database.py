@@ -926,7 +926,7 @@ def delete_published_content_in_elasticsearch(sender, instance, **kwargs):
     directly trough the connection layer.
     """
 
-    index_manager = ESIndexManager(settings.ES_INDEX_NAME)
+    index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
     index_manager.delete_by_query('chapter', Q('match', _routing=instance.es_id))
 
     return delete_document_in_elasticsearch(sender, instance, **kwargs)

@@ -30,7 +30,7 @@ class SearchView(ZdSPagingListView):
         """
 
         super(SearchView, self).__init__(**kwargs)
-        self.index_manager = ESIndexManager(settings.ES_INDEX_NAME)
+        self.index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
 
     def get(self, request, *args, **kwargs):
         """Overridden to catch the request and fill the form.

@@ -242,7 +242,7 @@ def delete_document_in_elasticsearch(sender, instance, **kwargs):
     Must be implemented by all classes that derive from AbstractESDjangoIndexable.
     """
 
-    index_manager = ESIndexManager(settings.ES_INDEX_NAME)
+    index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
     index_manager.delete_document(instance)
 
 
@@ -253,18 +253,25 @@ def get_django_indexable_objects():
 
 class ESIndexManager(object):
 
-    def __init__(self, index, connection_alias='default'):
+    def __init__(self, name, shards=5, replicas=1, connection_alias='default'):
         """Create a manager for a given index
 
-        :param index: the index
-        :type index: str
+        :param name: the index name
+        :type name: str
         :param connection_alias: the alias for connection
         :type connection_alias: str
+        :param shards: number of shards
+        :type shards: int
+        :param replicas: number of replicas
+        :type replicas: int
         """
 
-        self.index = index
+        self.index = name
         self.es = connections.get_connection(alias=connection_alias)
         self.connected_to_es = True
+
+        self.number_of_shards = shards
+        self.number_of_replicas = replicas
 
         # test connection:
         try:
@@ -282,7 +289,7 @@ class ESIndexManager(object):
         if self.es.indices.exists(self.index):
             self.es.indices.delete(self.index)
 
-    def reset_es_index(self, models, number_shards=5, number_replicas=1):
+    def reset_es_index(self, models):
         """Delete old index and create an new one (with the same name). Setup the number of shards and replicas.
         Then, set mappings for the different models.
 
@@ -308,7 +315,10 @@ class ESIndexManager(object):
         self.es.indices.create(
             self.index,
             body={
-                'settings': {'number_of_shards': number_shards, 'number_of_replicas': number_replicas},
+                'settings': {
+                    'number_of_shards': self.number_of_shards,
+                    'number_of_replicas': self.number_of_replicas
+                },
                 'mappings': mappings_def
             }
         )
