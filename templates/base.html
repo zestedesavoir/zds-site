@@ -296,7 +296,7 @@
                                 {% cache 1800 menu_opinion user|groups %}
                                     <div class="dropdown header-menu-dropdown">
                                         <a href="{% url "opinion:list" %}" class="dropdown-link-all">
-                                            {% trans "Toutes les tribunes" %}
+                                            {% trans "Tous les billets" %}
                                         </a>
 
                                         <ul class="dropdown-list">
@@ -414,7 +414,7 @@
                                                 {% trans "Messagerie privée" %}
                                                 <a href="{% url "mp-new" %}" class="ico-after pm-new white" title="{% trans 'Envoyer un nouveau message privé' %}"></a>
                                            </span>
-                                            
+
                                             <ul class="dropdown-list">
                                                 {% for notification in notifications %}
                                                 <li>
