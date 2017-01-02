@@ -366,7 +366,7 @@ class ESIndexManager(object):
                     },
                     "french_keywords": {
                         "type": "keyword_marker",
-                        "keywords": ['javafx', 'haskell', 'groovy', 'powershell']
+                        "keywords": ['javafx', 'haskell', 'groovy', 'powershell', 'latex']
                     },
                     "french_stemmer": {
                         "type": "stemmer",
