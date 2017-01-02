@@ -1,4 +1,6 @@
 # coding: utf-8
+import logging
+
 from django.apps import apps
 from django.db import models
 from django.db.transaction import atomic
@@ -288,6 +290,7 @@ class ESIndexManager(object):
 
         if self.es.indices.exists(self.index):
             self.es.indices.delete(self.index)
+            logging.info('ESIndexManager:{}: index cleared'.format(self.index))
 
     def reset_es_index(self, models):
         """Delete old index and create an new one (with the same name). Setup the number of shards and replicas.
@@ -322,6 +325,8 @@ class ESIndexManager(object):
                 'mappings': mappings_def
             }
         )
+
+        logging.info('ESIndexManager:{}: index created'.format(self.index))
 
     def setup_custom_analyzer(self):
         """Override the default analyzer.
@@ -401,6 +406,8 @@ class ESIndexManager(object):
         self.es.indices.put_settings(index=self.index, body=document)
         self.es.indices.open(self.index)
 
+        logging.info('ESIndexManager:{}: setup analyzer'.format(self.index))
+
     @atomic
     def clear_indexing_of_model(self, model):
         """Nullify the indexing of a given model by setting ``es_already_index=False`` to all objects.
@@ -421,6 +428,8 @@ class ESIndexManager(object):
             objs = list(model.get_es_indexable(force_reindexing=True))
             for obj in objs:
                 obj.es_already_indexed = False
+
+        logging.info('ESIndexManager:{}: unindex {}'.format(self.index, model.get_es_document_type()))
 
     @atomic
     def es_bulk_indexing_of_model(self, model, force_reindexing=False):
@@ -451,7 +460,9 @@ class ESIndexManager(object):
             obj = objs[index]
             action = 'update' if obj.es_already_indexed and not force_reindexing else 'index'
             objs[index].es_done_indexing(es_id=hit[action]['_id'])
-            print(hit)
+
+            logging.info('ESIndexManager:{}: {} {} with id {}'.format(
+                self.index, action, hit[action]['_type'], hit[action]['_id']))
 
     def refresh_index(self):
         """Refresh the index. The task is done periodically, but may be forced with this method
@@ -475,6 +486,8 @@ class ESIndexManager(object):
         arguments = {'index': self.index, 'doc_type': document.get_es_document_type(), 'id': document.es_id}
         if self.es.exists(**arguments):
             self.es.delete(**arguments)
+            logging.info('ESIndexManager:{}: delete {} with id {}'.format(
+                self.index, document.get_es_document_type(), document.es_id))
 
     def delete_by_query(self, doc_type='', query=MatchAll()):
         """Perform a deletion trough the ``_delete_by_query`` API,
@@ -501,6 +514,8 @@ class ESIndexManager(object):
                 'query': query
             }
         )
+
+        logging.info('ESIndexManager:{}: delete_by_query {}'.format(self.index, doc_type))
 
     def analyze_sentence(self, request):
         """Use the anlyzer on a given sentence. Get back the list of tokens.
