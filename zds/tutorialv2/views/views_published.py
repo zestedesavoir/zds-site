@@ -317,31 +317,35 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
     current_content_type = None
 
     def get_queryset(self):
-        """Filter the contents to obtain the list of given type.
+        """Filter the contents to obtain the list of contents of given type.
         If category parameter is provided, only contents which have this category will be listed.
 
-        :return: list of contents with the good type
+        :return: list of contents with the right type
         :rtype: list of zds.tutorialv2.models.models_database.PublishedContent
         """
         sub_query = 'SELECT COUNT(*) FROM {} WHERE {}={}'.format(
             'tutorialv2_contentreaction',
             'tutorialv2_contentreaction.related_content_id',
-            r'tutorialv2_publishablecontent.id'
+            'tutorialv2_publishablecontent.id'
         )
-        queryset = PublishedContent.objects.filter(must_redirect=False)
+        queryset = PublishedContent.objects \
+            .filter(must_redirect=False) \
+
         if self.current_content_type:
             queryset = queryset.filter(content_type=self.current_content_type)
+        else:
+            queryset = queryset.filter(content__sha_approved=F('sha_public'))
 
         # prefetch:
         queryset = queryset\
-            .prefetch_related('content')\
-            .prefetch_related('content__subcategory')\
-            .prefetch_related('content__authors')\
-            .select_related('content__licence')\
-            .select_related('content__image')\
-            .select_related('content__last_note')\
-            .select_related('content__last_note__related_content')\
-            .select_related('content__last_note__related_content__public_version')\
+            .prefetch_related('content') \
+            .prefetch_related('content__subcategory') \
+            .prefetch_related('content__authors') \
+            .select_related('content__licence') \
+            .select_related('content__image') \
+            .select_related('content__last_note') \
+            .select_related('content__last_note__related_content') \
+            .select_related('content__last_note__related_content__public_version') \
             .filter(pk=F('content__public_version__pk'))
 
         if 'category' in self.request.GET:
