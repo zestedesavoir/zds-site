@@ -324,8 +324,6 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
 
         if self.current_content_type:
             queryset = queryset.filter(content_type=self.current_content_type)
-        else:
-            queryset = queryset.filter(content__sha_picked=F('sha_public'))
 
         # prefetch:
         queryset = queryset\
