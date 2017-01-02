@@ -748,6 +748,7 @@ class SolveNoteAlert(FormView, LoginRequiredMixin):
 
 
 class FollowContentReaction(LoggedWithReadWriteHability, SingleOnlineContentViewMixin, FormView):
+    redirection_is_needed = False
 
     def post(self, request, *args, **kwargs):
         response = {}
