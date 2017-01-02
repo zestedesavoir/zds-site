@@ -590,6 +590,7 @@ class UnpublishOpinion(LoginRequiredMixin, SingleOnlineContentFormViewMixin, NoV
     """Unpublish an opinion"""
 
     form_class = RevokeValidationForm
+    is_public = True
 
     modal_form = True
 
@@ -641,7 +642,7 @@ class UnpublishOpinion(LoginRequiredMixin, SingleOnlineContentFormViewMixin, NoV
 
 
 class PickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
-    """Add the opinion in the picked list """
+    """Approve and Add the opinion in the picked list """
 
     form_class = PickOpinionForm
 
@@ -769,7 +770,8 @@ class MarkObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
 
 
 class PromoteOpinionToArticle(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
-    """Promote an opinion to article"""
+    """Promote an opinion to article. this duplicates the opinion and declares
+    the clone as an article."""
 
     form_class = PromoteOpinionToArticleForm
 

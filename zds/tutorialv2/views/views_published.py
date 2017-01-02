@@ -10,7 +10,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.http import Http404, HttpResponsePermanentRedirect, StreamingHttpResponse, HttpResponse
-from django.db.models import F
+from django.db.models import F, Q
 from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template.loader import render_to_string
 from django.utils.datastructures import MultiValueDictKeyError
@@ -331,13 +331,18 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
             'tutorialv2_publishablecontent.id'
         )
         queryset = PublishedContent.objects \
-            .filter(must_redirect=False) \
-
+            .filter(must_redirect=False)
+        # this condition got more complexe with development of zep13
+        # if we do filter by content_type, then every published content can be
+        # displayed. Othewise, we have to be sure the content was expressly chosen by
+        # someone with staff authorization. Another way to say it "it has to be a 
+        # validated content (article, tutorial) or a "chosen" opinion.
         if self.current_content_type:
             queryset = queryset.filter(content_type=self.current_content_type)
         else:
-            queryset = queryset.filter(content__sha_picked=F('sha_public'))
-
+            validated_content_subqueryset = ~Q(content_type="OPINION") |\
+                Q(content__sha_picked=F('sha_public'))
+            queryset = queryset.filter(validated_content_subqueryset)
         # prefetch:
         queryset = queryset\
             .prefetch_related('content') \
@@ -761,6 +766,7 @@ class SolveNoteAlert(FormView, LoginRequiredMixin):
 
 
 class FollowContentReaction(LoggedWithReadWriteHability, SingleOnlineContentViewMixin, FormView):
+    redirection_is_needed = False
 
     def post(self, request, *args, **kwargs):
         response = {}
