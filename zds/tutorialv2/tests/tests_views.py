@@ -380,12 +380,17 @@ class ContentTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 302)
 
+        versioned = PublishableContent.objects.get(pk=pk).load_version()
+        container = versioned.children[0]
+        
         # preview
         print('test preview ligne 384')
         result = self.client.post(
             reverse('content:edit-container', kwargs={'pk': pk, 'slug': slug, 'container_slug': container.slug}),
             {
+                'title': random,
                 'introduction': random,
+                'last_hash': container.compute_hash(),
                 'preview': ''
             }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
             
@@ -445,6 +450,9 @@ class ContentTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 302)
 
+        versioned = PublishableContent.objects.get(pk=pk).load_version()
+        subcontainer = versioned.children[0].children[0]
+
         result = self.client.post(
             reverse('content:edit-container',
                     kwargs={
@@ -456,6 +464,7 @@ class ContentTests(TestCase):
             {
                 'title': random,
                 'introduction': random,
+                'last_hash': subcontainer.compute_hash(),
                 'preview': ''
             }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(result.status_code, 200)

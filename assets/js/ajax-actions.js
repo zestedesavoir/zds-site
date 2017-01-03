@@ -216,6 +216,8 @@
      * Preview the message
      */
     function preview(e){
+        e.stopPropagation();
+        e.preventDefault();
         var $btn = $(this);
         var $form = $(this).parents("form:first");
         if ( $form.find(".preview-source").length )
@@ -253,8 +255,6 @@
                     MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
             }
         });
-        e.stopPropagation();
-        e.preventDefault();
     }
      
     $(".message-bottom").on("click", "[data-ajax-input='preview-message']", preview);

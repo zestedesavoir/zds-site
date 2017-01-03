@@ -1071,14 +1071,15 @@ class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     def get_context_data(self, **kwargs):
         context = super(EditContainer, self).get_context_data(**kwargs)
         form = kwargs.pop('form', self.get_form())
-        form.initial = get_initial()
+        """form.initial = super(EditContainer, self).get_initial(**kwargs)
         print(form)
         print('-------')
-        print(get_initial())
+        print(super(EditContainer, self).get_initial(**kwargs))
         print('-------')
-        print(form.initial)
+        print(form.initial)"""
         if 'preview' not in self.request.POST:
-            context['container'] = form.initial['container']
+            container = search_container_or_404(self.versioned_object, self.kwargs)
+            context['container'] = container
             context['gallery'] = self.object.gallery
 
         return context
@@ -1099,7 +1100,7 @@ class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         return initial
 
     def post(self, request, *args, **kwargs):
-        form = self.form_class(request.POST)
+        form = self.get_form(self.form_class)
 
         print('edit container')
         if 'preview' in request.POST:
@@ -1110,8 +1111,8 @@ class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
                 content = render_to_response('misc/previsualization.part.html', {'text': request.POST.get('text')})
                 return StreamingHttpResponse(content)
         
-        print ('is form valid ?')
-        print(form.is_valid())
+        #print ('is form valid ?')
+        #print(form.is_valid())
         if form.is_valid():
             return self.form_valid(form)
 
@@ -1211,7 +1212,8 @@ class EditExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         context['gallery'] = self.object.gallery
 
         if 'preview' not in self.request.POST:
-            context['extract'] = form.initial['extract']
+            extract = search_extract_or_404(self.versioned_object, self.kwargs)
+            context['extract'] = extract
 
         return context
 
