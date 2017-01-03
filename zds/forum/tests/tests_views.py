@@ -330,6 +330,7 @@ class TopicNewTest(TestCase):
         self.assertEqual(forum, response.context['forum'])
         self.assertIsNotNone(response.context['form'])
 
+
     def test_last_read_topic_url(self):
         profile = ProfileFactory()
         profile2 = ProfileFactory()
@@ -843,6 +844,7 @@ class TopicEditTest(TestCase):
         post = Post.objects.get(topic__pk=topic.pk)
         self.assertEqual(data.get('title'), topic.title)
         self.assertEqual(data.get('subtitle'), topic.subtitle)
+        self.assertEqual(data.get('forum'), topic.forum.pk)
         self.assertEqual(data.get('text'), post.text)
 
 

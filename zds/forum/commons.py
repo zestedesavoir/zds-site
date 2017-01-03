@@ -87,7 +87,7 @@ class TopicEditMixin(object):
     def perform_edit_info(topic, data, editor):
         topic.title = data.get('title')
         topic.subtitle = data.get('subtitle')
-        topic.forum = get_object_or_404(Forum, pk=data.get('section'))
+        topic.forum = get_object_or_404(Forum, pk=data.get('forum'))
         topic.save()
 
         PostEditMixin.perform_edit_post(topic.first_post(), editor, data.get('text'))

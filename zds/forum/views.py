@@ -332,6 +332,7 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
                     })
             elif form.is_valid():
                 return self.form_valid(form)
+
             return render(request, self.template_name, {'topic': self.object, 'form': form})
 
         response = {}
