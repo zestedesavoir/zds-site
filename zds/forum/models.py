@@ -435,7 +435,7 @@ class Topic(AbstractESDjangoIndexable):
 @receiver(pre_delete, sender=Topic)
 def delete_topic_in_elasticsearch(sender, instance, **kwargs):
     """catch the pre_delete signal to ensure the deletion in ES"""
-    return delete_document_in_elasticsearch(sender, instance, **kwargs)
+    return delete_document_in_elasticsearch(instance)
 
 
 @python_2_unicode_compatible
@@ -524,7 +524,7 @@ class Post(Comment, AbstractESDjangoIndexable):
 @receiver(pre_delete, sender=Post)
 def delete_post_in_elasticsearch(sender, instance, **kwargs):
     """catch the pre_delete signal to ensure the deletion in ES"""
-    return delete_document_in_elasticsearch(sender, instance, **kwargs)
+    return delete_document_in_elasticsearch(instance)
 
 
 @python_2_unicode_compatible

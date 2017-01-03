@@ -929,7 +929,7 @@ def delete_published_content_in_elasticsearch(sender, instance, **kwargs):
     index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
     index_manager.delete_by_query('chapter', Q('match', _routing=instance.es_id))
 
-    return delete_document_in_elasticsearch(sender, instance, **kwargs)
+    return delete_document_in_elasticsearch(instance)
 
 
 @receiver(pre_save, sender=PublishedContent)

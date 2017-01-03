@@ -239,9 +239,12 @@ class AbstractESDjangoIndexable(AbstractESIndexable, models.Model):
         self.save(es_flagged=False)
 
 
-def delete_document_in_elasticsearch(sender, instance, **kwargs):
+def delete_document_in_elasticsearch(instance):
     """Delete a ESDjangoIndexable from ES database.
     Must be implemented by all classes that derive from AbstractESDjangoIndexable.
+
+    :param instance: the document to delete
+    :type instance: AbstractESIndexable
     """
 
     index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)

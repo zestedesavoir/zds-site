@@ -272,7 +272,7 @@ Cela s'effectue comme suis (par exemple pour la classe ``Post``):
 
       @receiver(pre_delete, sender=Post)
       def delete_post_in_elasticsearch(sender, instance, **kwargs):
-          return delete_document_in_elasticsearch(sender, instance, **kwargs)
+          return delete_document_in_elasticsearch(instance)
 
 Plus d'informations sur les méthodes qui peuvent être surchargées sont disponibles `dans la documentation technique <../back-end-code/search2.html>`_.
 
