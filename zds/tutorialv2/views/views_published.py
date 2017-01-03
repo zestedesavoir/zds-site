@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.http import Http404, HttpResponsePermanentRedirect, StreamingHttpResponse, HttpResponse
-from django.db.models import F
+from django.db.models import F, Q
 from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template.loader import render_to_string
 from django.utils.datastructures import MultiValueDictKeyError
@@ -324,7 +324,9 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
 
         if self.current_content_type:
             queryset = queryset.filter(content_type=self.current_content_type)
-
+        validated_content_subqueryset = ~Q(content_type="OPINION") |\
+                                        Q(content__sha_picked=F('sha_public'))
+        queryset = queryset.filter(validated_content_subqueryset)
         # prefetch:
         queryset = queryset\
             .prefetch_related('content') \
