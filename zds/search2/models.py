@@ -490,10 +490,9 @@ class ESIndexManager(object):
                 self.index, document.get_es_document_type(), document.es_id))
 
     def delete_by_query(self, doc_type='', query=MatchAll()):
-        """Perform a deletion trough the ``_delete_by_query`` API,
-        which is not available in elasticsearch python API, so it goes via the connection layer.
+        """Perform a deletion trough the ``_delete_by_query`` API.
 
-        see https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-delete-by-query.html
+        See https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-delete-by-query.html
 
         .. attention ::
             Call to this function must be done with great care!
@@ -507,15 +506,9 @@ class ESIndexManager(object):
         if not self.connected_to_es:
             return
 
-        self.es.transport.perform_request(
-            'POST',
-            '/' + self.index + '/' + doc_type + '/_delete_by_query',
-            body={
-                'query': query
-            }
-        )
+        self.es.delete_by_query(index=self.index, doc_type=doc_type, body={'query': query})
 
-        logging.info('ESIndexManager:{}: delete_by_query {}'.format(self.index, doc_type))
+        logging.info('ESIndexManager:{}: delete_by_query {}s'.format(self.index, doc_type))
 
     def analyze_sentence(self, request):
         """Use the anlyzer on a given sentence. Get back the list of tokens.
