@@ -10,7 +10,7 @@ from zds.tutorialv2.models.models_database import FakeChapter
 class Command(BaseCommand):
     help = 'Index data in ES and manage them'
 
-    indexer = None
+    index_manager = None
     models = get_django_indexable_objects()
 
     def __init__(self, *args, **kwargs):
@@ -21,7 +21,10 @@ class Command(BaseCommand):
         super(Command, self).__init__(*args, **kwargs)
         self.models.insert(0, FakeChapter)
 
-        self.indexer = ESIndexManager(**settings.ES_SEARCH_INDEX)
+        self.index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
+
+        if not self.index_manager.connected_to_es:
+            raise Exception('Unable to connect to Elasticsearch, aborting.')
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -42,14 +45,14 @@ class Command(BaseCommand):
 
     def setup_es(self):
 
-        self.indexer.reset_es_index(self.models)
-        self.indexer.setup_custom_analyzer()
+        self.index_manager.reset_es_index(self.models)
+        self.index_manager.setup_custom_analyzer()
 
     def clear_es(self):
-        self.indexer.clear_es_index()
+        self.index_manager.clear_es_index()
 
         for model in self.models:
-            self.indexer.clear_indexing_of_model(model)
+            self.index_manager.clear_indexing_of_model(model)
 
     def index_documents(self, force_reindexing=False):
 
@@ -57,6 +60,6 @@ class Command(BaseCommand):
             self.setup_es()  # remove all previous data
 
         for model in self.models:
-            self.indexer.es_bulk_indexing_of_model(model, force_reindexing=force_reindexing)
+            self.index_manager.es_bulk_indexing_of_model(model, force_reindexing=force_reindexing)
 
-        self.indexer.refresh_index()
+        self.index_manager.refresh_index()
