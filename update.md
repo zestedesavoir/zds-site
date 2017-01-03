@@ -1006,6 +1006,9 @@ Une fois que tout est indexé,
     DROP TABLE search_searchindexcontent;
     ```
 
+Actions à faire pour l'upgrade v23
+==================================
+
 
 Tribunes
 --------

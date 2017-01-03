@@ -15,10 +15,10 @@ class ZDSCustomizeSocialAuthExceptionMiddleware(SocialAuthExceptionMiddleware):
     def get_message(self, request, exception):
         # this message aims to be displayed in our "error" widget
         message = _('Un problème a eu lieu lors de la communication avec le réseau social.')
-        logging.info("Social error %s", exception)
+        logger.warn('Social error %s', exception)
         messages.error(request, message)
-        # this one is just for social auth compatibility (will be passed as get param
-        return "Bad communication"
+        # this one is just for social auth compatibility (will be passed as get param)
+        return 'Bad communication'
 
     def get_redirect_uri(self, **_):
-        return reverse("member-login")
+        return reverse('member-login')
