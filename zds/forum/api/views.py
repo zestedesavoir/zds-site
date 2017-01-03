@@ -19,8 +19,8 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny, IsAu
 from dry_rest_permissions.generics import DRYPermissions
 from zds.api.bits import DJRF3xPaginationKeyBit, UpdatedAtKeyBit
 from zds.utils import slugify
-from zds.forum.api.serializer import ForumSerializer, TopicSerializer, TopicCreateSerializer, TopicUpdateSerializer, PostSerializer, PostCreateSerializer, PostUpdateSerializer, AlertSerializer
-from zds.forum.api.permissions import IsStaffUser
+from zds.forum.api.serializer import ForumSerializer, TopicSerializer, TopicCreateSerializer, TopicUpdateSerializer, TopicUpdateStaffSerializer, PostSerializer, PostCreateSerializer, PostUpdateSerializer, AlertSerializer
+from zds.forum.api.permissions import IsStaffUser, IsOwnerOrIsStaff
 from zds.member.models import User
 from itertools import chain
 
@@ -343,15 +343,18 @@ class TopicDetailAPI(RetrieveUpdateAPIView):
         if self.request.method == 'GET':
             return TopicSerializer
         elif self.request.method == 'PUT':
-            return TopicUpdateSerializer
+            if self.request.user.has_perm("forum.change_topic"): # TODO vérifier la permission ?
+                return TopicUpdateStaffSerializer
+            else:
+                return TopicUpdateSerializer
 
     def get_permissions(self):
         permission_classes = []
         if self.request.method == 'GET':
             permission_classes.append(CanReadTopic)
         elif self.request.method == 'PUT':
-            permission_classes.append(IsAuthenticatedOrReadOnly)
-            permission_classes.append(IsOwnerOrReadOnly)
+            print(self.request.user)
+            permission_classes.append(IsOwnerOrIsStaff) # TODO a remplacer par IsOwnerOrIsStaff à écrire
             permission_classes.append(CanReadTopic)
         return [permission() for permission in permission_classes]
 
@@ -440,10 +443,11 @@ class PostListAPI(ListCreateAPIView):
     def get_current_user(self):
         return self.request.user.profile
 
+    # TODO rien pour le get ici ?
     def get_permissions(self):
-        permission_classes = [AllowAny, CanReadPost, CanReadTopic, CanReadForum, CanReadPost]
+        print('lllllll')
+        permission_classes = [CanReadPost]
         if self.request.method == 'POST':
-            permission_classes.append(IsAuthenticated)
             permission_classes.append(CanReadAndWriteNowOrReadOnly)
         return [permission() for permission in permission_classes]
 
@@ -586,8 +590,7 @@ class PostDetailAPI(RetrieveUpdateAPIView):
     def get_permissions(self):
         permission_classes = [AllowAny, CanReadPost]
         if self.request.method == 'PUT':
-            permission_classes.append(IsAuthenticated)
-            permission_classes.append(IsNotOwnerOrReadOnly)
+            permission_classes.append(IsOwnerOrIsStaff) 
             permission_classes.append(CanReadAndWriteNowOrReadOnly)
         return [permission() for permission in permission_classes]
         

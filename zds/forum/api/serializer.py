@@ -53,7 +53,7 @@ class TopicUpdateSerializer(serializers.ModelSerializer, TitleValidator, TextVal
     """
     Serializer to update a topic.
     """
-    title = serializers.CharField(required=False, allow_blank=True)
+    title = serializers.CharField(required=False, allow_blank=False)
     subtitle = serializers.CharField(required=False, allow_blank=True)
     permissions = DRYPermissionsField()
 
@@ -61,7 +61,30 @@ class TopicUpdateSerializer(serializers.ModelSerializer, TitleValidator, TextVal
         model = Topic
         fields = ('id', 'title', 'subtitle', 'permissions', 'forum', 'is_locked', 'is_solved', 'tags')
         read_only_fields = ('id', 'permissions', 'forum', 'is_locked')
-# Todo : lors de l'update on a le droit de mettre un titre vide ? 
+
+    def update(self, instance, validated_data):
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        return instance
+        
+    def throw_error(self, key=None, message=None):
+        raise serializers.ValidationError(message)
+
+class TopicUpdateStaffSerializer(serializers.ModelSerializer, TitleValidator, TextValidator):
+    """
+    Serializer to update a topic by a staff member (extra rights).
+    """
+    #title = serializers.CharField(required=True)
+    #subtitle = serializers.CharField(required=False, allow_blank=True)
+    permissions = DRYPermissions
+    
+    
+    class Meta:
+        model = Topic
+        fields = ('id', 'title', 'subtitle', 'permissions', 'forum', 'is_locked', 'is_solved', 'tags')
+        read_only_fields = ('id', 'permissions')
+
     def update(self, instance, validated_data):
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
