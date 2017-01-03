@@ -48,7 +48,8 @@ class FeaturedResourceForm(forms.ModelForm):
 
             'pubdate': forms.DateTimeInput(
                 attrs={
-                    'placeholder': _(u'Exemple : 2016-12-25 00:00:00')
+                    'placeholder': _(u'Exemple : 2016-12-25 00:00:00'),
+                    'type': 'date'
                 }
             )
         }
