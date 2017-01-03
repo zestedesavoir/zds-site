@@ -109,7 +109,6 @@ class UpdateMember(UpdateView):
             'biography': profile.biography,
             'site': profile.site,
             'avatar_url': profile.avatar_url,
-            'show_email': profile.show_email,
             'show_sign': profile.show_sign,
             'is_hover_enabled': profile.is_hover_enabled,
             'allow_temp_visual_changes': profile.allow_temp_visual_changes,
@@ -140,7 +139,6 @@ class UpdateMember(UpdateView):
         cleaned_data_options = form.cleaned_data.get('options')
         profile.biography = form.data['biography']
         profile.site = form.data['site']
-        profile.show_email = 'show_email' in cleaned_data_options
         profile.show_sign = 'show_sign' in cleaned_data_options
         profile.is_hover_enabled = 'is_hover_enabled' in cleaned_data_options
         profile.allow_temp_visual_changes = 'allow_temp_visual_changes' in cleaned_data_options
@@ -222,10 +220,19 @@ class UpdateUsernameEmailMember(UpdateMember):
     form_class = ChangeUserForm
     template_name = 'member/settings/user.html'
 
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.user, request.POST)
+
+        if form.is_valid():
+            return self.form_valid(form)
+
+        return render(request, self.template_name, {'form': form})
+
     def get_form(self, form_class=ChangeUserForm):
-        return form_class(self.request.POST)
+        return form_class(self.request.user)
 
     def update_profile(self, profile, form):
+        profile.show_email = 'show_email' in form.cleaned_data.get('options')
         if form.data['username']:
             # Add a karma message for the staff
             bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
@@ -235,7 +242,7 @@ class UpdateUsernameEmailMember(UpdateMember):
                       karma=0).save()
             # Change the pseudo
             profile.user.username = form.data['username']
-        if form.data['email']:
+        if form.data['email'] and profile.user.email != form.data["email"]:
             if form.data['email'].strip() != '':
                 profile.user.email = form.data['email']
 
