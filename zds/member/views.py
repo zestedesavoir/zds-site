@@ -233,18 +233,21 @@ class UpdateUsernameEmailMember(UpdateMember):
 
     def update_profile(self, profile, form):
         profile.show_email = 'show_email' in form.cleaned_data.get('options')
-        if form.data['username']:
+        new_username = form.cleaned_data.get('username')
+        previous_username = form.cleaned_data.get('previous_username')
+        new_email = form.cleaned_data.get('email')
+        previous_email = form.cleaned_data.get('previous_email')
+        if new_username and new_username != previous_username:
             # Add a karma message for the staff
             bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
             KarmaNote(user=profile.user,
                       moderator=bot,
-                      note=_(u"{} s'est renommé {}").format(profile.user.username, form.data['username']),
+                      note=_(u"{} s'est renommé {}").format(profile.user.username, new_username),
                       karma=0).save()
             # Change the pseudo
-            profile.user.username = form.data['username']
-        if form.data['email'] and profile.user.email != form.data["email"]:
-            if form.data['email'].strip() != '':
-                profile.user.email = form.data['email']
+            profile.user.username = new_username
+        if new_email and new_email != previous_email:
+            profile.user.email = new_email
 
     def get_success_url(self):
         profile = self.get_object()

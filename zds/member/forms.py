@@ -6,7 +6,6 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import User, Group
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
-from django.shortcuts import get_object_or_404
 
 from captcha.fields import ReCaptchaField
 from crispy_forms.bootstrap import StrictButton
@@ -318,11 +317,11 @@ class ChangeUserForm(forms.Form):
         self.helper = FormHelper()
         self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
-        self.previous_mail = user.email
+        self.previous_email = user.email
         self.previous_username = user.username
         self.fields['options'].initial = ''
 
-        if get_object_or_404(Profile, user__username=user.username).show_email:
+        if user.profile and user.profile.show_email:
             self.fields['options'].initial += 'show_email'
 
         self.helper.layout = Layout(
@@ -336,12 +335,14 @@ class ChangeUserForm(forms.Form):
 
     def clean(self):
         cleaned_data = super(ChangeUserForm, self).clean()
+        cleaned_data['previous_username'] = self.previous_username
+        cleaned_data['previous_email'] = self.previous_email
         username = cleaned_data.get('username')
         email = cleaned_data.get('email')
         if username != self.previous_username:
             validate_not_empty(username)
             validate_zds_username(username)
-        if email != self.previous_mail:
+        if email != self.previous_email:
             validate_not_empty(email)
             validate_zds_email(email)
         return cleaned_data
