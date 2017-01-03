@@ -454,10 +454,10 @@ class ESIndexManager(object):
             return
 
         objs = list(model.get_es_indexable(force_reindexing=force_reindexing))
-        documents = [
+        documents = (
             obj.get_es_document_as_bulk_action(
                 self.index, 'update' if obj.es_already_indexed and not force_reindexing else 'index')
-            for obj in objs]
+            for obj in objs)
 
         for index, (_, hit) in enumerate(streaming_bulk(self.es, documents)):
             obj = objs[index]
