@@ -546,7 +546,7 @@ class ForumAPITest(APITestCase):
         """
         self.create_multiple_forums_with_topics(1)
         forum = Forum.objects.all().first()
-        response = self.client.get(reverse('api:forum:list-topic') + '?forum=' + forum.id)
+        response = self.client.get(reverse('api:forum:list-topic') + '?forum=' + str(forum.id))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('count'), REST_PAGE_SIZE)
         self.assertEqual(len(response.data.get('results')), REST_PAGE_SIZE)
@@ -769,91 +769,7 @@ class ForumAPITest(APITestCase):
         response = self.client_authenticated_staff.get(reverse('api:forum:detail-topic', args=[topic.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_new_post_anonymous(self):
-        """
-        Try to post a new post with anonymous user.
-        """
-        topic = self.create_multiple_forums_with_topics(1, 1)
-        data = {
-            'text': 'I head that Flask is the best framework ever, is that true ?'
-        }
-
-        self.client = APIClient()
-        response = self.client.post(reverse('api:forum:list-post', args=[topic.id]), data)
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-
-    def test_new_post_user(self):
-        """
-        Try to post a new post with an user.
-        """
-        topic = self.create_multiple_forums_with_topics(1, 1)
-        data = {
-            'text': 'I head that Flask is the best framework ever, is that true ?'
-        }
-
-        self.client = APIClient()
-        response = self.client_authenticated.post(reverse('api:forum:list-post', args=[topic.id]), data)
-        topic = Topic.objects.filter(id=topic.id).first()
-        print(topic)
-        last_message = topic.get_last_post()
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data.get('text'), last_message.text)
-
-    def test_new_post_user_with_restrictions(self):
-        """
-        Try to post a new post with an user that has some restrictions .
-        """
-        profile = ProfileFactory()
-        profile.can_read = False
-        profile.can_write = False
-        profile.save()
-        topic = self.create_multiple_forums_with_topics(1, 1)
-        data = {
-            'text': 'I head that Flask is the best framework ever, is that true ?'
-        }
-
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.post(reverse('api:forum:list-post', args=[topic.id,]), data)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-        profile = ProfileFactory()
-        profile.can_write = False
-        profile.save()
-
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.post(reverse('api:forum:list-post', args=[topic.id,]), data)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    def test_new_post_no_text(self):
-        """
-        Try to post a new post without a text.
-        """
-        topic = self.create_multiple_forums_with_topics(1, 1)
-        data = {}
-        response = self.client_authenticated.post(reverse('api:forum:list-post', args=[topic.id,]), data)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_new_post_empty_text(self):
-        """
-        Try to post a new post with an empty text.
-        """
-        topic = self.create_multiple_forums_with_topics(1, 1)
-        data = {
-            'text': ''
-        }
-        response = self.client_authenticated.post(reverse('api:forum:list-post', args=[topic.id,]), data)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_new_post_unknown_topic(self):
-        """
-        Try to post a new post in a topic that does not exists.
-        """
-        data = {
-            'text': 'Where should I go now ?'
-        }
-        response = self.client_authenticated.post(reverse('api:forum:list-post', args=[666,]), data)
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-
+    
 # Édite un sujet qvec user en ls
 # Édite un sujet avec user banni
 # Editer dans un forum privé ? Verifier les auths
@@ -1266,12 +1182,12 @@ class ForumAPITest(APITestCase):
 # DONE Créer un message avec un contenu vide
 # DONECréer un message dans un sujet qui n'existe pas
 # DONE Créer un message en anonymous
-# Créer un message dans un sujet qui en contient deja
 # DONE Créer un message dans un forum privé en user
 # DONE Créer un message dans un forum privé en staff
 # Créer un message dans un sujet fermé en user
 # Créer un message dans un sujet fermé en staff
 # Créer un message pour tester l'antiflood
+
 
     def test_create_post_with_no_field(self):
         """
@@ -1296,8 +1212,12 @@ class ForumAPITest(APITestCase):
         """
         Creates a post in a topic with unauthenticated client.
         """
+        data = {
+            'text': 'Welcome to this post!'
+        }
+        topic = self.create_multiple_forums_with_topics(1, 1)
         self.client = APIClient()
-        response = self.client.post(reverse('api:forum:list-post', args=[0]), {})
+        response = self.client.post(reverse('api:forum:list-post', args=[topic.id]), data)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_create_post_with_bad_topic_id(self):
@@ -1337,6 +1257,7 @@ class ForumAPITest(APITestCase):
         """
         Tries to create a post in a private topic with a normal user.
         """
+        print('--------------------------- test rate--------------')
         profile = StaffProfileFactory()
         category, forum = create_category(self.group_staff)
         topic = add_topic_in_a_forum(forum, profile)
@@ -1366,6 +1287,36 @@ class ForumAPITest(APITestCase):
         self.assertEqual(response.data.get('author'), post.author)
         self.assertEqual(response.data.get('position'), post.position)
         self.assertEqual(response.data.get('pubdate'), post.pubdate)
+    
+    
+
+    def test_new_post_user_with_restrictions(self):
+        """
+        Try to post a new post with an user that has some restrictions .
+        """
+        
+        # Banned
+        profile = ProfileFactory()
+        profile.can_read = False
+        profile.can_write = False
+        profile.save()
+        topic = self.create_multiple_forums_with_topics(1, 1)
+        data = {
+            'text': 'I head that Flask is the best framework ever, is that true ?'
+        }
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.post(reverse('api:forum:list-post', args=[topic.id,]), data)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # Read only
+        profile = ProfileFactory()
+        profile.can_write = False
+        profile.save()
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.post(reverse('api:forum:list-post', args=[topic.id,]), data)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_detail_post(self):
         """
