@@ -110,6 +110,8 @@
     <link rel="alternate" type="application/atom+xml" title="Nouveaux tutoriels (ATOM)" href="{% url "tutorial:feed-atom" %}">
     <link rel="alternate" type="application/rss+xml" title="Nouveaux articles (RSS)" href="{% url "article:feed-rss" %}">
     <link rel="alternate" type="application/atom+xml" title="Nouveaux articles (ATOM)" href="{% url "article:feed-atom" %}">
+    <link rel="alternate" type="application/rss+xml" title="Nouveaux billets (RSS)" href="{% url "opinion:feed-rss" %}">
+    <link rel="alternate" type="application/atom+xml" title="Nouveaux billets (ATOM)" href="{% url "opinion:feed-atom" %}">
     {# OpenSearch plugin autodiscovery #}
     <link rel="search" type="application/opensearchdescription+xml" title="{{ app.site.litteral_name }}" href="{% url "search:opensearch" %}">
     {% block extra_link %}{% endblock %}
