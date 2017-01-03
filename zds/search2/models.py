@@ -46,7 +46,7 @@ class AbstractESIndexable(object):
     def get_es_mapping(self):
         """Setup mapping (data scheme).
 
-        .. information::
+        .. note::
             You will probably want to change the analyzer and boost value.
             Also consider the ``index='not_analyzed'`` option to improve performances.
 
@@ -216,7 +216,7 @@ class AbstractESDjangoIndexable(AbstractESIndexable, models.Model):
         """Override the ``save()`` method to flag the object if saved
         (which assume a modification of the object, so the need of reindex).
 
-        .. information::
+        .. note::
             Flagging can be prevented using ``save(es_flagged=False)``.
         """
 

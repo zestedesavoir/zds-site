@@ -16,6 +16,9 @@ from zds.forum.models import Forum
 
 
 class SearchView(ZdSPagingListView):
+    """Research view
+    """
+
     template_name = 'search2/search.html'
     paginate_by = settings.ZDS_APP['search']['results_per_page']
 
