@@ -325,7 +325,7 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
         if self.current_content_type:
             queryset = queryset.filter(content_type=self.current_content_type)
         validated_content_subqueryset = ~Q(content_type="OPINION") |\
-                                        Q(content__sha_picked=F('sha_public'))
+            Q(content__sha_picked=F('sha_public'))
         queryset = queryset.filter(validated_content_subqueryset)
         # prefetch:
         queryset = queryset\
