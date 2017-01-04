@@ -20,7 +20,7 @@ from dry_rest_permissions.generics import DRYPermissions
 from zds.api.bits import DJRF3xPaginationKeyBit, UpdatedAtKeyBit
 from zds.utils import slugify
 from zds.forum.api.serializer import ForumSerializer, TopicSerializer, TopicCreateSerializer, TopicUpdateSerializer, TopicUpdateStaffSerializer, PostSerializer, PostCreateSerializer, PostUpdateSerializer, AlertSerializer
-from zds.forum.api.permissions import IsStaffUser, IsOwnerOrIsStaff
+from zds.forum.api.permissions import IsStaffUser, IsOwnerOrIsStaff, CanWriteInForum
 from zds.member.models import User
 from itertools import chain
 
@@ -219,12 +219,15 @@ class TopicListAPI(ListCreateAPIView):
             return TopicCreateSerializer
 
     def get_permissions(self):
-        permission_classes = [AllowAny, ]
+        permission_classes = [CanReadForum]
         if self.request.method == 'POST':
-            permission_classes.append(IsAuthenticated)
+            print('requete post')
+            
+            #forum = Forum.objects.get(id=self.request.data.get('forum'))
+            #self.check_object_permissions(self.request, forum)
+            #permission_classes.append(CanReadAndWriteNowOrReadOnly)
+            permission_classes.append(CanWriteInForum)
             permission_classes.append(CanReadAndWriteNowOrReadOnly)
-            permission_classes.append(CanReadTopic)
-            permission_classes.append(CanReadForum)
         return [permission() for permission in permission_classes]
 
 
@@ -354,7 +357,7 @@ class TopicDetailAPI(RetrieveUpdateAPIView):
             permission_classes.append(CanReadTopic)
         elif self.request.method == 'PUT':
             print(self.request.user)
-            permission_classes.append(IsOwnerOrIsStaff) # TODO a remplacer par IsOwnerOrIsStaff à écrire
+            permission_classes.append(IsOwnerOrIsStaff)
             permission_classes.append(CanReadTopic)
         return [permission() for permission in permission_classes]
 
@@ -637,7 +640,7 @@ class PostAlertAPI(CreateAPIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def get_permissions(self):
-        permission_classes = [AllowAny, IsAuthenticated, CanReadPost]
+        permission_classes = [CanReadPost, IsAuthenticated]
         return [permission() for permission in permission_classes]
     
     def get_serializer_class(self):
