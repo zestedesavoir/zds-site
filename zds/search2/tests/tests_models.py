@@ -100,6 +100,9 @@ class ESIndexManagerTests(TestCase):
     def test_custom_analyzer(self):
         """Test our custom analyzer"""
 
+        if not self.manager.connected_to_es:
+            return
+
         test_sentences = [
             # stemming:
             ('programmation programmer programmateur programmes', ['program', 'program', 'program', 'program']),
@@ -120,6 +123,9 @@ class ESIndexManagerTests(TestCase):
 
     def test_indexation(self):
         """test the indexation and deletion of the different documents"""
+
+        if not self.manager.connected_to_es:
+            return
 
         # create a topic with a post
         topic = TopicFactory(forum=self.forum, author=self.user)
@@ -280,6 +286,9 @@ class ESIndexManagerTests(TestCase):
 
     def test_special_case_of_contents(self):
         """test that the old publishedcontent does not stay when a new one is created"""
+
+        if not self.manager.connected_to_es:
+            return
 
         # 1. Create a middle-tutorial, publish it, then index it
         tuto = PublishableContentFactory(type='TUTORIAL')
