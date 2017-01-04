@@ -1215,8 +1215,8 @@ class ForumAPITest(APITestCase):
         data = {
             'text': 'Welcome to this post!'
         }
-        topic = self.create_multiple_forums_with_topics(1, 1)
         self.client = APIClient()
+        topic = self.create_multiple_forums_with_topics(1, 1)
         response = self.client.post(reverse('api:forum:list-post', args=[topic.id]), data)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
@@ -1241,17 +1241,13 @@ class ForumAPITest(APITestCase):
         response = self.client_authenticated.post(reverse('api:forum:list-post', args=[topic.id]), data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        post = topic.get_last_answer()
-        print('test_create_post')
-        print(response)
-        print(response.data)
-        print('end test create post')
+        post = Post.objects.filter(topic=topic.id).last()
+
         self.assertEqual(response.data.get('text'), data.get('text'))
         self.assertEqual(response.data.get('text'), post.text)
-        self.assertEqual(response.data.get('is_userful'), post.is_userful)
-        self.assertEqual(response.data.get('author'), post.author)
+        self.assertEqual(response.data.get('is_useful'), post.is_useful)
+        self.assertEqual(response.data.get('author'), post.author.id)
         self.assertEqual(response.data.get('position'), post.position)
-        self.assertEqual(response.data.get('pubdate'), post.pubdate)
 
     def test_failure_post_in_a_forum_we_cannot_read(self):
         """
@@ -1280,16 +1276,13 @@ class ForumAPITest(APITestCase):
         response = self.client_authenticated.post(reverse('api:forum:list-post', args=[topic.pk,]), data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        post = topic.get_last_answer()
+        post = Post.objects.filter(topic=topic.id).last()
         self.assertEqual(response.data.get('text'), data.get('text'))
         self.assertEqual(response.data.get('text'), post.text)
-        self.assertEqual(response.data.get('is_userful'), post.is_userful)
-        self.assertEqual(response.data.get('author'), post.author)
+        self.assertEqual(response.data.get('is_useful'), post.is_useful)
+        self.assertEqual(response.data.get('author'), post.author.id)
         self.assertEqual(response.data.get('position'), post.position)
-        self.assertEqual(response.data.get('pubdate'), post.pubdate)
     
-    
-
     def test_new_post_user_with_restrictions(self):
         """
         Try to post a new post with an user that has some restrictions .
@@ -1588,6 +1581,7 @@ class ForumAPITest(APITestCase):
             'text': 'I made an error I want to edit.'
         }
         topic, posts = self.create_topic_with_post(REST_PAGE_SIZE, self.profile)
+        print('test_update_post_other_user')
         response = self.client_authenticated.put(reverse('api:forum:detail-post', args=[topic.id, posts[0].id]), data)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -1600,7 +1594,8 @@ class ForumAPITest(APITestCase):
         }
         topic, posts = self.create_topic_with_post(1, self.profile)
         response = self.client_authenticated.put(reverse('api:forum:detail-post', args=[topic.id, posts[0].id]), data)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('text'), data.get('text'))
     
     def test_update_post_staff(self):
         """
@@ -1670,8 +1665,7 @@ def authenticate_client(client, client_auth, username, password):
 
 # TODO 
 # Reorganiser le code de test en differentes classes, reordonner les tests
-# Voir où on a besoin de read only
-# Voir où a besoin de validator
 # Vérifier que l'on affiche pas le text hidden ou l'adresse ip
 # Créer un topic avec des tags (ajouter le test)
 # Tester le cas ou un gars veux vider le contenu de ses messages
+# Ajouter le cas ou le staff ou un user masque son message

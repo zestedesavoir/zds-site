@@ -75,9 +75,10 @@ class TopicUpdateStaffSerializer(serializers.ModelSerializer, TitleValidator, Te
     """
     Serializer to update a topic by a staff member (extra rights).
     """
-    #title = serializers.CharField(required=True)
+    title = serializers.CharField(required=False)
+    forum = serializers.PrimaryKeyRelatedField(queryset=Forum.objects.all(), required=False)
     #subtitle = serializers.CharField(required=False, allow_blank=True)
-    permissions = DRYPermissions
+    permissions = DRYPermissionsField()
     
     
     class Meta:
@@ -109,8 +110,8 @@ class PostCreateSerializer(serializers.ModelSerializer, TextValidator):
 
     class Meta:
         model = Post
-        fields = ('id', 'text', 'text_html', 'permissions')
-        read_only_fields = ('text_html', 'permissions')
+        fields = ('id', 'text', 'text_html', 'permissions', 'is_useful', 'author', 'position', 'pubdate')
+        read_only_fields = ('text_html', 'permissions', 'is_useful', 'author', 'position', 'pubdate')
     # TODO a voir quel champ en read only
 
     def create(self, validated_data):
