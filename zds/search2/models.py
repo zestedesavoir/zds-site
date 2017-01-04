@@ -249,6 +249,7 @@ def delete_document_in_elasticsearch(instance):
 
     index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
     index_manager.delete_document(instance)
+    index_manager.refresh_index()
 
 
 def get_django_indexable_objects():
@@ -257,6 +258,7 @@ def get_django_indexable_objects():
 
 
 class ESIndexManager(object):
+    """Manage a given index with different taylor-made functions"""
 
     def __init__(self, name, shards=5, replicas=1, connection_alias='default'):
         """Create a manager for a given index

@@ -49,6 +49,9 @@ class UtilsTests(TestCase):
         if not self.index_manager.connected_to_es:
             return
 
+        # in the beginning: the void
+        self.assertTrue(self.index_manager.index not in self.index_manager.es.cat.indices())
+
         text = u'Ceci est un texte de test'
 
         # create a topic with a post
