@@ -47,7 +47,7 @@ La procédure d'installation, si vous souhaitez utiliser Elasticsearch sans l'in
     unzip elasticsearch-5.1.1.zip
     cd elasticsearch-5.1.1/
 
-Pour démmarer Elasticsearch, utilisez
+Pour démarer Elasticsearch, utilisez
 
 .. sourcecode:: bash
 
@@ -67,8 +67,8 @@ Elasticsearch requiert **la version 8** de Java, que vous pouvez trouver `sur la
 
 Téléchargez ensuite Elasticsearch à l'adresse suivante : `https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.1.1.zip <https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.1.1.zip>`_, puis extrayez le dossier ``elasticsearch-5.1.1`` du zip à l'aide de votre outil préféré.
 
-Pour démmarer Elasticsearch, ouvrez un *shell* (ou un *powershell*) et rendez vous dans le dossier ``elasticsearch-5.1.1``.
-Executez ensuite la commande suivante:
+Pour démarer Elasticsearch, ouvrez un *shell* (ou un *powershell*) et rendez-vous dans le dossier ``elasticsearch-5.1.1``.
+Exécutez ensuite la commande suivante :
 
 .. sourcecode:: bash
 
@@ -80,7 +80,7 @@ Vous pouvez arrêter Elasticsearch grâce à CTRL+C, puis en répondant "o" lors
 Indexation et recherche
 =======================
 
-Pour tester que tout fonctionne, quand Elasticsearch est démarré, rendez vous sur la page `http://localhost:9200/ <http://localhost:9200/>`_.
+Pour tester que tout fonctionne, quand Elasticsearch est démarré, rendez-vous sur la page `http://localhost:9200/ <http://localhost:9200/>`_.
 Vous devriez observer une réponse du même genre que celle-ci:
 
 .. sourcecode:: none
@@ -101,7 +101,7 @@ Vous devriez observer une réponse du même genre que celle-ci:
 
 Si ce n'est pas le cas, vérifiez que vous avez démarré Elasticsearch.
 
-Si c'est le cas, vous pouvez indexer les données à l'aide de la commande ``es_manager``, comme suis :
+Si c'est le cas, vous pouvez indexer les données à l'aide de la commande ``es_manager``, comme suit :
 
 .. sourcecode:: bash
 
@@ -113,7 +113,7 @@ En particulier, vous ne devriez pas observer de message d'erreur:
 .. figure:: ../images/search/no-connection.png
     :align: center
 
-    Si Elasticsearch n'est pas démmaré, le message suivant apparait.
+    Si Elasticsearch n'est pas démarré, le message suivant apparait.
 
 Pour réindexer les nouvelles données, utilisez la commande suivante:
 
@@ -121,5 +121,5 @@ Pour réindexer les nouvelles données, utilisez la commande suivante:
 
     python manage.py es_manager index-flagged
 
-Plus d'informations sur la commande la commande ``es_manager`` sont disponibles sur la page `concernant la recherche sur ZdS <../back-end/search2.html#indexer-les-donnees-de-zds>`_.
+Plus d'informations sur la commande ``es_manager`` sont disponibles sur la page `concernant la recherche sur ZdS <../back-end/search2.html#indexer-les-donnees-de-zds>`_.
 

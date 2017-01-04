@@ -16,24 +16,24 @@ La recherche se découpe en deux parties distinctes :
 L'indexation des données
 ++++++++++++++++++++++++
 
-**L'indexation** des données consiste à **rassembler toutes les données** sur lesquelles l'utilisateur va **pouvoir rechercher**. Elle est faite au préalable.
-Celle-ci est faite de telle façon qu'on puisse rechercher sur les éléments suivants :
+**L'indexation** des données consiste à **rassembler toutes les données** dans lesquelles l'utilisateur va **pouvoir rechercher**. Elle est faite au préalable.
+Celle-ci est faite de telle façon qu'on puisse rechercher dans les éléments suivants :
 
- - Les contenus (article et tutoriels) ainsi que leur chapitres (s'il s'agit d'un moyen ou *big*-tuto);
+ - Les contenus (article et tutoriels) ainsi que leurs chapitres (s'il s'agit d'un moyen ou *big*-tuto);
  - Les sujets ;
- - Les réponses au sujets.
+ - Les réponses aux sujets.
 
-Cette indexation est réalisée à intervalle régulier (et de manière à n'indexer que les données qui ont changé).
+Cette indexation est réalisée à intervalle régulier (et de manière à n'indexer que les données qui ont changées).
 
 La recherche
 ++++++++++++
 
-L'utilisateur peut utiliser la recherche, en utilisant la recherche de `l'en-tête  <../front-end/structure-du-site.html#l-en-tete>`_, ou de la page d'acceil, si elle est disponible.
+L'utilisateur peut utiliser la recherche, en utilisant la recherche de `l'en-tête  <../front-end/structure-du-site.html#l-en-tete>`_, ou par la page d'accueil, si elle est disponible.
 
    .. figure:: ../images/design/en-tete.png
       :align: center
 
-Des critères de recherche, peuvent être ajoutés sur la page de recherche.
+Des critères de recherche peuvent être ajoutés sur la page de recherche.
 Le seul critère de recherche disponible actuellement est le type de résultat (contenu, chapitre, sujet du forum ou message du forum).
 
    .. figure:: ../images/search/search-filters.png
@@ -43,10 +43,10 @@ Quelques mots sur Elasticsearch
 -------------------------------
 
 `Elasticsearch <https://www.elastic.co/>`_ (ES) est un serveur utilisant `Lucene <https://lucene.apache.org/>`_ (bibliothèque d'indexation et de recherche de texte) et permet d'indexer et de rechercher des données.
-Il est possible de l'interoger à travers une interface de type REST à laquelle ont communique via des requêtes écrites en JSON.
-Ce projet propose également des API `bas <https://github.com/elastic/elasticsearch-py>`_ et `plus haut <https://github.com/elastic/elasticsearch-dsl-py>`_ niveau en python pour interagir avec le serveur, maintenue par l'équipe d'Elasticsearch.
+Il est possible de l'interroger à travers une interface de type REST à laquelle on communique via des requêtes écrites en JSON.
+Ce projet propose également des API `bas <https://github.com/elastic/elasticsearch-py>`_ et `plus haut <https://github.com/elastic/elasticsearch-dsl-py>`_ niveau en python pour interagir avec le serveur, maintenues par l'équipe d'Elasticsearch.
 
-Ancienement, ZdS utilisait `Haystack <https://django-haystack.readthedocs.io/>`_, pour communiquer avec `Solr <http://lucene.apache.org/solr/>`_ (équivalent à Elasticsearch), mais ces solutions ont été abandonnées, par manque d'activité sur le dépôt de Haystack.
+Ancienement, ZdS utilisait `Haystack <https://django-haystack.readthedocs.io/>`_ pour communiquer avec `Solr <http://lucene.apache.org/solr/>`_ (équivalent à Elasticsearch) mais ces solutions ont été abandonnées par manque d'activité sur le dépôt de Haystack.
 
 Phase d'indexation
 ++++++++++++++++++
@@ -66,14 +66,14 @@ On retrouve:
 + *tokenizer*: découpe le texte en différents *tokens*. `Énormément <https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-tokenizers.html>`_ de *tokenizer* sont disponibles.
 + *token filter*: altère la liste de *tokens* obtenue pour les "normaliser", en modifiant, supprimant ou rajoutant des *tokens*. Typiquement: enlever certains mots ("le", "la", "les" et autres en français), convertir le tout en minuscule, et ainsi de suite. Il en existe également `une pléthore <https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-tokenfilters.html>`_.
 
-Ces différents filtres permettent d'éliminer le superflu afin de ce concentrer sur l'essentiel (les *tokens* obtenus).
-Par la suite, ES réalise une table (un *index*) reliant ses *tokens* aux documents, qu'il utilise pour la recherche.
+Ces différents filtres permettent d'éliminer le superflu afin de se concentrer sur l'essentiel (les *tokens* obtenus).
+Par la suite, ES réalise une table (un *index inversé*) reliant ses *tokens* aux documents, qu'il utilise pour la recherche.
 
 Sans entrer dans les détails, l'*analyzer* utilisé par ES pour ZdS,
 
-+ Enlève les tags HTML (en pratique, l'indexation du texte ce fait systématiquement sur le contenu parsé en HTML et non sur le texte en *markdown*) ;
++ Enlève les tags HTML (en pratique, l'indexation du texte se fait systématiquement sur le contenu parsé en HTML et non sur le texte en *markdown*) ;
 + N'utilise par le *tokenizer* par défaut (découper en *token* après tout caractère non alpha-numérique, en gros) afin de conserver "c++" intact, par exemple ;
-+ Utilise une série de *token filter* orientés pour comprendre le français, parmis lequels un *stopper* (pour enlever les prépositions, déterminants, ...) et un *stemmer* (qui se charge, à partir d'un mot, d'en dégager la racine, par exemple "programmation", "programmer", "programmateur" ou "programmes" seront tout les trois compris et indexés de la même manière).
++ Utilise une série de *token filter* orientés pour comprendre le français, parmi lesquels un *stopper* (pour enlever les prépositions, déterminants, ...) et un *stemmer* (qui se charge, à partir d'un mot, d'en dégager la racine, par exemple "programmation", "programmer", "programmateur" ou "programmes" seront tout les quatres compris et indexés de la même manière).
 
 Les différents *tokens* qui ressortent de cette phase d'analyse sont alors indexés, et c'est de ces *tokens* dont ES se servira ensuite pour la recherche, plutôt que de réaliser des recherches *full-text*.
 
@@ -91,7 +91,7 @@ Il est possible de manipuler ce score afin d'obtenir des résultats les plus per
 + *Booster* le score (à postériori): si le document obtenu possède d'autres propriétés (par exemple, *booster* le score si le *post* trouvé à "aidé l'auteur du sujet").
 + *Booster* un type de document par rapport à un autre : cas particulier du précédent.
 
-Ces facteurs de *boosts* sont modifiables, soit directement dans le code de ZdS pour ce qui concernet les facteur de *boost* sur les champs (voir ci-dessous), soit dans le ``settings.py`` en ce qui concerne les *boosts* à postériori (voir ci-dessous).
+Ces facteurs de *boosts* sont modifiables, soit directement dans le code de ZdS pour ce qui concerne les facteurs de *boost* sur les champs (voir ci-dessous), soit dans le ``settings.py`` en ce qui concerne les *boosts* à postériori (voir ci-dessous).
 
 
 En pratique
@@ -100,9 +100,11 @@ En pratique
 Configuration
 -------------
 
-La configuration de la connection et de l'*index* se fait dans le ``settings.py``, à l'aide des deux variables suivantes:
+La configuration de la connexion et de l'*index* se fait dans le ``settings.py``, à l'aide des trois variables suivantes :
 
 .. sourcecode:: python
+
+      ES_ENABLED = True
 
       ES_CONNECTIONS = {
           'default': {
@@ -117,8 +119,9 @@ La configuration de la connection et de l'*index* se fait dans le ``settings.py`
       }
 
 
-La première permet de configurer la connection à Elasticsearch. ``default`` est l'*alias* de connection, au cas ou il serait nécessaire d'utiliser plusieurs *clusters*.
-La seconde est la configuration de l'*index*, avec son nom, son nombre de *shards* et de *replicas*.
+La première active Elasticsearch pour SdZ.
+La seconde permet de configurer la connexion à Elasticsearch. ``default`` est l'*alias* de la connexion, au cas où il serait nécessaire d'utiliser plusieurs *clusters*.
+La troisièmme est la configuration de l'*index*, avec son nom, son nombre de *shards* et de *replicas*.
 
 Pour modifier les différents paramètres d'une recherche, c'est cette fois dans la variable ``ZDS_APP`` que ça se passe:
 
@@ -155,10 +158,10 @@ Pour modifier les différents paramètres d'une recherche, c'est cette fois dans
         }
     }
 
-où ``'results_per_page'`` est le nombre de résultat affichés, ``'indexables'`` défini les différents types de documents indexés et ``'boosts'`` les différents facteurs de *boost* appliqués dans certaines situations.
+où ``'results_per_page'`` est le nombre de résultats affichés, ``'indexables'`` définit les différents types de documents indexés et ``'boosts'`` les différents facteurs de *boost* appliqués dans certaines situations.
 
 Dans ``'boosts'``, on peut ensuite modifier le comportement de la recherche en choisissant différents facteurs de *boost*.
-Chacune des valeurs multiplie le score (donc l'agrandit si elles sont supérieures à 1 et le diminue si elles sont inférieures à 1).
+Chacune des valeurs multiplie le score (donc l'agrandit si elle est supérieure à 1 et le diminue si elle est inférieure à 1).
 Un *boost global* (dans chacune des variables ``'global'``) est tout d'abord présent et permet de mettre en avant un type de document par rapport à un autre.
 Ensuite, différentes situations peuvent modifier le score.
 
@@ -177,7 +180,7 @@ Une fois Elasticsearch `installé <../install/install-es.html>`_, puis configur�
 
 où ``<action>`` peut être
 
-+ ``clear`` : supprimme l'*index* du *cluster* d'ES et marque toutes les données comme "à indexer" ;
++ ``clear`` : supprime l'*index* du *cluster* d'ES et marque toutes les données comme "à indexer" ;
 + ``setup`` : crée et configure l'*index* (y compris le *mapping* et l'*analyzer*) dans le *cluster* d'ES ;
 + ``index-flagged`` : indexe les données marquées comme "à indexer" ;
 + ``index-all`` : combine les 3 actions précédentes, donc recrée un *index* et y indexe toute les données (qu'elles soient marquées comme "à indexer" ou non).
@@ -187,7 +190,7 @@ La commande ``index-flagged`` peut donc être lancée de manière régulière (v
 
 .. note::
 
-      Le caractère "à indexer" est fonction des actions effectuées sur l'objet Django (typiquement, à chaque fois que la méthode ``save()`` est appellée, l'objet est indiqué comme "à indexer").
+      Le caractère "à indexer" est fonction des actions effectuées sur l'objet Django (par défaut, à chaque fois que la méthode ``save()`` du modèle est appelée, l'objet est indiqué comme "à indexer").
       Cette information est stockée dans la base de donnée MySQL.
 
 Aspects techniques
@@ -207,12 +210,12 @@ Afin d'être indexable, un modèle Django doit dériver de ``AbstractESDjangoInd
 
 .. note::
 
-    Le code est écrit de telle manière à ce que l'id utilisé par ES (champ ``_id``) corresponde au *pk* du modèle (via la variable ``es_id``).
+    Le code est écrit de telle manière à ce que l'id utilisé par ES (champ ``_id``) corresponde à la *pk* du modèle (via la variable ``es_id``).
     Il est donc facile de récupérer un objet dans ES si on en connait son *pk*, à l'aide de ``GET /<nom de l'index>/<type de document>/<pk>``.
 
-Différentes fonctions peuvent ou doivent ensuite être surchargées. Parmis ces dernières,
+Différentes fonctions peuvent ou doivent ensuite être surchargées. Parmi ces dernières,
 
-+ ``get_es_mapping()``, qui permet de définir le *mapping* de votre document, c'est à dire quel champs seront indexés, avec quels types. Par exemple,
++ ``get_es_mapping()``, qui permet de définir le *mapping* de votre document, c'est à dire quels champs seront indexés avec quels types. Par exemple,
 
       .. sourcecode:: python
 
@@ -230,7 +233,7 @@ Différentes fonctions peuvent ou doivent ensuite être surchargées. Parmis ces
       .. note::
 
             Elasticsearch requiert que deux champs portant le même nom dans le même *index* (même si il sont issus de type de document différents) aient le même *mapping*.
-            Ainsi, tout les champs ``title`` doivent être de type ``Text(boost=1.5)`` et ``tags`` de type ``Keyword(boost=2.0)``.
+            Ainsi, tous les champs ``title`` doivent être de type ``Text(boost=1.5)`` et ``tags`` de type ``Keyword(boost=2.0)``.
 
 + ``get_es_django_indexable()``, qui permet de définir quels objets doivent être récupérés et indexés. Cette fonction permet également d'utiliser ``prefetch_related()`` ou ``select_related()`` pour éviter les requêtes inutiles. Par exemple,
 
@@ -262,11 +265,11 @@ Différentes fonctions peuvent ou doivent ensuite être surchargées. Parmis ces
 
                           return data
 
-      Dans cet exemple (issus de la classe ``Post``), on voit que certains champs ne peuvent être directement indexés car ils appartientent au *topic* et au *forum* correspondant. Il sont donc exclus du mécanisme par défaut (via la variable ``excluded_fields``), puis on les remplis par après.
+      Dans cet exemple (issu de la classe ``Post``), on voit que certains champs ne peuvent être directement indexés car ils appartientent au *topic* et au *forum* correspondant. Il sont donc exclus du mécanisme par défaut (via la variable ``excluded_fields``), puis on les remplit par après.
 
 
 Finalement, il est important, **pour chaque type de document**, de relier le signal de suppression avec la fonction ``delete_document_in_elasticsearch()``, afin qu'un document supprimé par Django soit également supprimé de Elasticsearch.
-Cela s'effectue comme suis (par exemple pour la classe ``Post``):
+Cela s'effectue comme suit (par exemple pour la classe ``Post``):
 
 .. sourcecode:: python
 
@@ -296,7 +299,7 @@ Les avantages de cette situation sont multiples:
 
 
 Pour ce faire, l'indexation des chapitres (stocké à l'aide de la classe ``FakeChapter``, `voir ici <../back-end-code/tutorialv2.html#zds.tutorialv2.models.models_database.FakeChapter>`_) est effectuée en même temps que l'indexation des contenus publiés (``PublishedContent``).
-En particulier, c'est la méthode ``get_es_indexable()`` qui est modifiée, profitant du fait qe cette fonction peut retourner n'importe quel type de document à indexer.
+En particulier, c'est la méthode ``get_es_indexable()`` qui est modifiée, profitant du fait que cette fonction peut retourner n'importe quel type de document à indexer.
 
 .. sourcecode:: python
 
