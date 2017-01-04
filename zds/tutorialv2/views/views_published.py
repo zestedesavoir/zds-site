@@ -320,12 +320,17 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
             'tutorialv2_publishablecontent.id'
         )
         queryset = PublishedContent.objects \
-            .filter(must_redirect=False) \
-
+            .filter(must_redirect=False)
+        # this condition got more complexe with development of zep13
+        # if we do filter by content_type, then every published content can be
+        # displayed. Othewise, we have to be sure the content was expressly chosen by
+        # someone with staff authorization. Another way to say it "it has to be a 
+        # validated content (article, tutorial) or a "chosen" opinion.
         if self.current_content_type:
             queryset = queryset.filter(content_type=self.current_content_type)
-        validated_content_subqueryset = ~Q(content_type="OPINION") |\
-            Q(content__sha_picked=F('sha_public'))
+        else:
+            validated_content_subqueryset = ~Q(content_type="OPINION") |\
+                Q(content__sha_picked=F('sha_public'))
         queryset = queryset.filter(validated_content_subqueryset)
         # prefetch:
         queryset = queryset\
