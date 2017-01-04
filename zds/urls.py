@@ -20,7 +20,7 @@ class TutoSitemap(Sitemap):
     priority = 1
 
     def items(self):
-        return PublishedContent.objects.filter(must_redirect=False, content_type="TUTORIAL").prefetch_related('content')
+        return PublishedContent.objects.filter(must_redirect=False, content_type='TUTORIAL').prefetch_related('content')
 
     def lastmod(self, tuto):
         return tuto.update_date or tuto.publication_date
@@ -34,7 +34,7 @@ class ArticleSitemap(Sitemap):
     priority = 1
 
     def items(self):
-        return PublishedContent.objects.filter(must_redirect=False, content_type="ARTICLE").prefetch_related('content')
+        return PublishedContent.objects.filter(must_redirect=False, content_type='ARTICLE').prefetch_related('content')
 
     def lastmod(self, article):
         return article.update_date or article.publication_date
@@ -53,6 +53,7 @@ class PageSitemap(Sitemap):
 
     def location(self, item):
         return reverse(item)
+
 
 sitemaps = {
     'tutos': TutoSitemap,
@@ -123,4 +124,4 @@ if settings.SERVE:
     ]
 
 # custom view for 500 errors
-handler500 = "zds.pages.views.custom_error_500"
+handler500 = 'zds.pages.views.custom_error_500'
