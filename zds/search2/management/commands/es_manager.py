@@ -48,6 +48,8 @@ class Command(BaseCommand):
         self.index_manager.reset_es_index(self.models)
         self.index_manager.setup_custom_analyzer()
 
+        self.index_manager.refresh_index()
+
     def clear_es(self):
         self.index_manager.clear_es_index()
 
