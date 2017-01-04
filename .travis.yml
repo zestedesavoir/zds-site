@@ -8,6 +8,7 @@ addons:
     - mysql-client-5.6
     - language-pack-fr
     - unzip
+    - oracle-java8-set-default
 
 git:
   depth: 1
@@ -33,6 +34,7 @@ notifications:
 
 services:
  - memcached
+ - elasticsearch
 
 cache:
   apt: true
@@ -44,6 +46,10 @@ cache:
     - $HOME/.pandoc
     - $HOME/.texlive
     - $HOME/bin
+
+before_install:
+  # see https://docs.travis-ci.com/user/database-setup/#Installing-specific-versions-of-ElasticSearch
+  - curl -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.1.1.deb && sudo dpkg -i --force-confnew elasticsearch-5.1.1.deb && sudo service elasticsearch restart
 
 before_script:
   # MySQL config

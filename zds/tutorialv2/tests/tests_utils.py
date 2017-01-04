@@ -44,6 +44,7 @@ overrided_zds_app['article']['repo_path'] = os.path.join(BASE_DIR, 'article-data
 
 @override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
 @override_settings(ZDS_APP=overrided_zds_app)
+@override_settings(ES_ENABLED=False)
 class UtilsTests(TestCase):
 
     def setUp(self):

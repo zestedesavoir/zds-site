@@ -272,17 +272,22 @@ class ESIndexManager(object):
         """
 
         self.index = name
-        self.es = connections.get_connection(alias=connection_alias)
-        self.connected_to_es = True
 
         self.number_of_shards = shards
         self.number_of_replicas = replicas
 
-        # test connection:
-        try:
-            self.es.info()
-        except ConnectionError:
-            self.connected_to_es = False
+        self.es = None
+        self.connected_to_es = False
+
+        if settings.ES_ENABLED:
+            self.es = connections.get_connection(alias=connection_alias)
+            self.connected_to_es = True
+
+            # test connection:
+            try:
+                self.es.info()
+            except ConnectionError:
+                self.connected_to_es = False
 
     def clear_es_index(self):
         """Clear index

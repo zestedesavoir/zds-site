@@ -56,6 +56,7 @@ class FakePDFPublicator(Publicator):
 
 @override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
 @override_settings(ZDS_APP=overrided_zds_app)
+@override_settings(ES_ENABLED=False)
 class ContentTests(TestCase):
     def setUp(self):
 
@@ -3736,6 +3737,9 @@ class ContentTests(TestCase):
         settings.ZDS_APP['content']['build_pdf_when_published'] = True
 
 
+@override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
+@override_settings(ZDS_APP=overrided_zds_app)
+@override_settings(ES_ENABLED=False)
 class PublishedContentTests(TestCase):
     def setUp(self):
 

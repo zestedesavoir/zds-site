@@ -353,6 +353,8 @@ HAYSTACK_CONNECTIONS = {
 }
 HAYSTACK_CUSTOM_HIGHLIGHTER = 'zds.utils.highlighter.SearchHighlighter'
 
+ES_ENABLED = True
+
 ES_CONNECTIONS = {
     'default': {
         'hosts': ['localhost:9200'],
