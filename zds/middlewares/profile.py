@@ -15,9 +15,9 @@ from django.conf import settings
 words_re = re.compile(r'\s+')
 
 group_prefix_re = [
-    re.compile("^.*/django/[^/]+"),
-    re.compile("^(.*)/[^/]+$"),  # extract module path
-    re.compile(".*"),           # catch strange entries
+    re.compile('^.*/django/[^/]+'),
+    re.compile('^(.*)/[^/]+$'),  # extract module path
+    re.compile('.*'),           # catch strange entries
 ]
 
 
@@ -59,14 +59,14 @@ class ProfileMiddleware(object):
         list.sort(reverse=True)
         list = list[:40]
 
-        res = "      tottime\n"
+        res = '      tottime\n'
         for item in list:
-            res += "%4.1f%% %7.3f %s\n" % (100 * item[0] / sum if sum else 0, item[0], item[1])
+            res += '%4.1f%% %7.3f %s\n' % (100 * item[0] / sum if sum else 0, item[0], item[1])
 
         return res
 
     def summary_for_files(self, stats_str):
-        stats_str = stats_str.split("\n")[5:]
+        stats_str = stats_str.split('\n')[5:]
 
         mystats = {}
         mygroups = {}
@@ -78,7 +78,7 @@ class ProfileMiddleware(object):
             if len(fields) == 7:
                 time = float(fields[2])
                 sum += time
-                file = fields[6].split(":")[0]
+                file = fields[6].split(':')[0]
 
                 if file not in mystats:
                     mystats[file] = 0
@@ -89,10 +89,10 @@ class ProfileMiddleware(object):
                     mygroups[group] = 0
                 mygroups[group] += time
 
-        return "<pre>" + \
-               " ---- By file ----\n\n" + self.get_summary(mystats, sum) + "\n" + \
-               " ---- By group ---\n\n" + self.get_summary(mygroups, sum) + \
-               "</pre>"
+        return '<pre>' + \
+               ' ---- By file ----\n\n' + self.get_summary(mystats, sum) + '\n' + \
+               ' ---- By group ---\n\n' + self.get_summary(mygroups, sum) + \
+               '</pre>'
 
     def process_response(self, request, response):
         try:
@@ -111,9 +111,9 @@ class ProfileMiddleware(object):
                 stats_str = out.getvalue()
 
                 if response and response.content and stats_str:
-                    response.content = "<pre>" + stats_str + "</pre>"
+                    response.content = '<pre>' + stats_str + '</pre>'
 
-                response.content = "\n".join(response.content.split("\n")[:40])
+                response.content = '\n'.join(response.content.split('\n')[:40])
 
                 response.content += self.summary_for_files(stats_str)
 
