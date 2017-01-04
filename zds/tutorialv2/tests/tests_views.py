@@ -255,17 +255,21 @@ class ContentTests(TestCase):
         description = u'une description'
         title = u'un titre'
         random = u'un truc à la rien à voir'
+        random_with_md = u'un text contenant du **markdown** .'
 
         response = self.client.post(
             reverse('content:create-tutorial'),
             {
-                'intro': 'une intro',
+                'intro': random_with_md,
                 'preview': '',
-            },
-            follow=True
-        )
+            }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        
 
         self.assertEqual(200, response.status_code)
+        print('reponse')
+        print(response.streaming_content)
+        for r in response.streaming_content:
+            print(r)
 
         result = self.client.post(
             reverse('content:create-tutorial'),
@@ -297,7 +301,7 @@ class ContentTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 200)
 
-        print('preview test')
+
         # preview tutorial
         result = self.client.post(
             reverse('content:edit', args=[pk, slug]),
@@ -343,6 +347,16 @@ class ContentTests(TestCase):
 
         slug = tuto.slug  # make the title change also change the slug !!
 
+        # preview container
+        result = self.client.post(
+            reverse('content:create-container', args=[pk, slug]),
+            {
+                'title': title,
+                'introduction': intro,
+                'preview': ''
+            }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(result.status_code, 200)
+        
         # create container:
         result = self.client.post(
             reverse('content:create-container', args=[pk, slug]),
@@ -384,7 +398,6 @@ class ContentTests(TestCase):
         container = versioned.children[0]
         
         # preview
-        print('test preview ligne 384')
         result = self.client.post(
             reverse('content:edit-container', kwargs={'pk': pk, 'slug': slug, 'container_slug': container.slug}),
             {
@@ -1294,16 +1307,6 @@ class ContentTests(TestCase):
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
-
-        result = self.client.post(
-            reverse('content:create-container', args=[tuto_pk, tuto_slug]),
-            {
-                'title': given_title,
-                'introduction': some_text,
-                'preview': ''
-            },
-            follow=True)
-        self.assertEqual(result.status_code, 200)
 
         versioned = PublishableContent.objects.get(pk=tuto_pk).load_version()
         chapter = versioned.children[-1]
@@ -3094,7 +3097,6 @@ class ContentTests(TestCase):
         self.assertEqual(versioned.get_conclusion(), random)
 
         # edit container:
-        print('test qui deconne')
         result = self.client.post(
             reverse('content:edit-container',
                     kwargs={
@@ -4421,6 +4423,10 @@ class PublishedContentTests(TestCase):
         self.assertEqual(result.status_code, 200)
 
         result_string = ''.join(result.streaming_content)
+        print('ligne 4424')
+        print(message_to_post)
+        print('---')
+        print(result_string)
         self.assertTrue(message_to_post in result_string)
 
         # test quoting (without JS)

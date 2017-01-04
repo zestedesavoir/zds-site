@@ -1071,12 +1071,7 @@ class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     def get_context_data(self, **kwargs):
         context = super(EditContainer, self).get_context_data(**kwargs)
         form = kwargs.pop('form', self.get_form())
-        """form.initial = super(EditContainer, self).get_initial(**kwargs)
-        print(form)
-        print('-------')
-        print(super(EditContainer, self).get_initial(**kwargs))
-        print('-------')
-        print(form.initial)"""
+
         if 'preview' not in self.request.POST:
             container = search_container_or_404(self.versioned_object, self.kwargs)
             context['container'] = container
@@ -1095,28 +1090,20 @@ class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         initial['container'] = container
 
         initial['last_hash'] = container.compute_hash()
-        print('get initial')
-        print(initial)
+        
         return initial
 
     def post(self, request, *args, **kwargs):
         form = self.get_form(self.form_class)
 
-        print('edit container')
         if 'preview' in request.POST:
-            print('edit container post')
-            # self.form_invalid(form)
             if request.is_ajax():
-                print('edit container ajax')
                 content = render_to_response('misc/previsualization.part.html', {'text': request.POST.get('text')})
                 return StreamingHttpResponse(content)
         
-        #print ('is form valid ?')
-        #print(form.is_valid())
         if form.is_valid():
             return self.form_valid(form)
 
-        print('dans le return')
         return render(request, self.template_name, {'form': form})
 
     def form_valid(self, form, *args, **kwargs):
@@ -1145,7 +1132,7 @@ class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         self.object.save()
 
         self.success_url = container.get_absolute_url()
-        print('return numero 2')
+
         return super(EditContainer, self).form_valid(form)
 
 
