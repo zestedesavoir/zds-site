@@ -4,6 +4,7 @@ from django.conf import settings
 from django.core.cache import caches
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import Group
+from django.db import transaction
 from rest_framework import status
 from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
@@ -1215,9 +1216,11 @@ class ForumAPITest(APITestCase):
         data = {
             'text': 'Welcome to this post!'
         }
-        self.client = APIClient()
+
         topic = self.create_multiple_forums_with_topics(1, 1)
-        response = self.client.post(reverse('api:forum:list-post', args=[topic.id]), data)
+        self.client = APIClient()
+        with transaction.atomic():
+            response = self.client.post(reverse('api:forum:list-post', args=[topic.id]), data)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_create_post_with_bad_topic_id(self):
@@ -1269,11 +1272,11 @@ class ForumAPITest(APITestCase):
         """
 
         category, forum = create_category(self.group_staff)
-        topic = add_topic_in_a_forum(forum, self.profile)
+        topic = add_topic_in_a_forum(forum, self.staff)
         data = {
             'text': 'Welcome to this post!'
         }
-        response = self.client_authenticated.post(reverse('api:forum:list-post', args=[topic.pk,]), data)
+        response = self.client_authenticated_staff.post(reverse('api:forum:list-post', args=[topic.pk,]), data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         post = Post.objects.filter(topic=topic.id).last()
@@ -1411,8 +1414,7 @@ class ForumAPITest(APITestCase):
         """
         Gets list of a member topics with several pages in the database.
         """
-        # When we create a Topic a post is also added.
-        self.create_multiple_forums_with_topics(REST_PAGE_SIZE, 1, self.profile)
+        self.create_multiple_forums_with_topics(REST_PAGE_SIZE + 1, 1, self.profile)
 
         response = self.client_authenticated.get(reverse('api:forum:list-memberpost', args=[self.profile.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -1580,7 +1582,8 @@ class ForumAPITest(APITestCase):
         data = {
             'text': 'I made an error I want to edit.'
         }
-        topic, posts = self.create_topic_with_post(REST_PAGE_SIZE, self.profile)
+        another_profile = ProfileFactory()
+        topic, posts = self.create_topic_with_post(REST_PAGE_SIZE, another_profile)
         print('test_update_post_other_user')
         response = self.client_authenticated.put(reverse('api:forum:detail-post', args=[topic.id, posts[0].id]), data)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
@@ -1642,7 +1645,7 @@ class ForumAPITest(APITestCase):
         # With staff (member of private forum)
         response = self.client_authenticated_staff.put(reverse('api:forum:detail-post', args=[topic.id, post.id]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(data.get('text'), response.get('text'))
+        self.assertEqual(data.get('text'), response.data.get('text'))
 
 def create_oauth2_client(user):
     client = Application.objects.create(user=user,
@@ -1668,4 +1671,6 @@ def authenticate_client(client, client_auth, username, password):
 # Vérifier que l'on affiche pas le text hidden ou l'adresse ip
 # Créer un topic avec des tags (ajouter le test)
 # Tester le cas ou un gars veux vider le contenu de ses messages
-# Ajouter le cas ou le staff ou un user masque son message
+# Ajouter le cas ou le staff ou un user masque son message, mais un autre user ne peut pas le faire
+# Poste dans un sujet fermé (3 roles)
+# Gérer le champ update (date)
