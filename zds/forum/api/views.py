@@ -20,7 +20,7 @@ from dry_rest_permissions.generics import DRYPermissions
 from zds.api.bits import DJRF3xPaginationKeyBit, UpdatedAtKeyBit
 from zds.utils import slugify
 from zds.forum.api.serializer import ForumSerializer, TopicSerializer, TopicCreateSerializer, TopicUpdateSerializer, TopicUpdateStaffSerializer, PostSerializer, PostCreateSerializer, PostUpdateSerializer, AlertSerializer
-from zds.forum.api.permissions import IsStaffUser, IsOwnerOrIsStaff, CanWriteInForum
+from zds.forum.api.permissions import IsStaffUser, IsOwnerOrIsStaff, CanWriteInForum, CanWriteInTopic
 from zds.member.models import User
 from itertools import chain
 
@@ -346,7 +346,7 @@ class TopicDetailAPI(RetrieveUpdateAPIView):
         if self.request.method == 'GET':
             return TopicSerializer
         elif self.request.method == 'PUT':
-            if self.request.user.has_perm("forum.change_topic"): # TODO vérifier la permission ?
+            if self.request.user.has_perm("forum.change_topic"):
                 return TopicUpdateStaffSerializer
             else:
                 return TopicUpdateSerializer
@@ -446,12 +446,12 @@ class PostListAPI(ListCreateAPIView):
     def get_current_user(self):
         return self.request.user.profile
 
-    # TODO rien pour le get ici ?
     def get_permissions(self):
-        print('lllllll')
         permission_classes = [CanReadPost]
         if self.request.method == 'POST':
             permission_classes.append(CanReadAndWriteNowOrReadOnly)
+            permission_classes.append(CanWriteInTopic)
+            
         return [permission() for permission in permission_classes]
 
 
