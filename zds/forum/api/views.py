@@ -196,7 +196,7 @@ class TopicListAPI(ListCreateAPIView):
               description: To add a tag, specify its taf identifier. Specify this parameter
                            several times to add several tags.
               required: false
-              paramType: form TODO vérifier que les tags fonctionnent
+              paramType: form
         responseMessages:
             - code: 400
               message: Bad Request
@@ -329,7 +329,7 @@ class TopicDetailAPI(RetrieveUpdateAPIView):
               description: To add a tag, specify its taf identifier. Specify this parameter
                            several times to add several tags.
               required: false
-              paramType: form TODO vérifier que les tags fonctionnent
+              paramType: form
         responseMessages:
             - code: 400
               message: Bad Request if you specify a bad identifier
@@ -645,9 +645,3 @@ class PostAlertAPI(CreateAPIView):
     
     def get_serializer_class(self):
         return AlertSerializer
-
-
-
-# TODO global identier quand masquer les messages (message modéré ou masqué par son auteur)
-# TODO gérer l'antispam
-# TODO empecher les ls et les ban de faire des alertes

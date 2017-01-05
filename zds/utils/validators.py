@@ -1,16 +1,11 @@
 # -*- coding: utf-8 -*-
 import logging
 
-from django.http import Http404
-from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 from zds.api.validators import Validator
-from zds.member.models import Profile
-from crispy_forms.bootstrap import StrictButton
-from crispy_forms.layout import Layout, ButtonHolder, Field, Div, HTML
-from django.utils.translation import ugettext_lazy as _
 from zds.utils.models import Tag
 from zds.utils.misc import contains_utf8mb4
+
 
 class TitleValidator(Validator):
     """
@@ -31,8 +26,8 @@ class TitleValidator(Validator):
             if msg is not None:
                 self.throw_error('title', msg)
         return value
-        
-        
+
+
 class TextValidator(Validator):
     """
     Validates text field of a MP.
