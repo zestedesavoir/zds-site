@@ -10,8 +10,8 @@ DEFAULT_ES_CONNECTIONS = {
     }
 }
 
-SEARCH_INDEX = getattr(settings, 'ES_SEARCH_INDEX', {'name': 'elastic', 'shards': 5, 'replicas': 1})
 CONNECTIONS = getattr(settings, 'ES_CONNECTIONS', DEFAULT_ES_CONNECTIONS)
+ENABLED = getattr(settings, 'ES_ENABLED', False)
 
 
 def setup_es_connections():
@@ -29,4 +29,5 @@ def setup_es_connections():
     except TransportError:
         pass
 
-setup_es_connections()
+if ENABLED:
+    setup_es_connections()

@@ -137,7 +137,9 @@ Pour modifier les différents paramètres d'une recherche, c'est cette fois dans
         ],
         'boosts': {
             'publishedcontent': {
-                'global': 3.0
+                'global': 3.0,
+                'if_article': 1.0,
+                'if_tutorial': 1.0
             },
             'topic': {
                 'global': 2.0,

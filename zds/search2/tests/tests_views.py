@@ -13,10 +13,11 @@ from zds.settings import BASE_DIR
 from django.core.urlresolvers import reverse
 
 from zds.member.factories import ProfileFactory, StaffProfileFactory
-from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, publish_content
+from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, publish_content, \
+    PublishedContentFactory
 from zds.tutorialv2.models.models_database import PublishedContent, FakeChapter
 from zds.forum.factories import TopicFactory, PostFactory, Topic, Post
-from zds.forum.tests.tests_views import create_category
+from zds.forum.tests.tests_views import create_category, Group
 from zds.search2.models import ESIndexManager
 
 overrided_zds_app = settings.ZDS_APP
@@ -26,8 +27,9 @@ overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'conte
 
 @override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
 @override_settings(ZDS_APP=overrided_zds_app)
-@override_settings(ES_SEARCH_INDEX={'name': 'zds_search_test', 'shards': 5, 'replicas': 1})
-class ESIndexManagerTests(TestCase):
+@override_settings(ES_SEARCH_INDEX={'name': 'zds_search_test', 'shards': 1, 'replicas': 1})
+# 1 shard is not a recommended setting, but since document on different shard may have a different score, it is ok here
+class ViewsTests(TestCase):
     def setUp(self):
         # don't build PDF to speed up the tests
         settings.ZDS_APP['content']['build_pdf_when_published'] = False
@@ -120,6 +122,347 @@ class ESIndexManagerTests(TestCase):
             self.assertEqual(response.hits.total, 1)  # get 1 result of each ...
             self.assertEqual(response[0].meta.doc_type, doc_type)  # ... and only of the good type ...
             self.assertEqual(response[0].meta.id, ids[doc_type])  # .. with the good id !
+
+    def test_hidden_post_are_not_result(self):
+        """Hidden posts should not come out of the search"""
+
+        if not self.manager.connected_to_es:
+            return
+
+        # 1. Index and test search:
+        text = 'test'
+
+        topic_1 = TopicFactory(forum=self.forum, author=self.user, title=text)
+        post_1 = PostFactory(topic=topic_1, author=self.user, position=1)
+        post_1.text = post_1.text_html = text
+        post_1.save()
+
+        self.manager.es_bulk_indexing_of_model(Topic)
+        self.manager.es_bulk_indexing_of_model(Post)
+        self.manager.refresh_index()
+
+        self.assertEqual(len(self.manager.setup_search(Search().query(MatchAll())).execute()), 2)  # indexation ok
+
+        post_1 = Post.objects.get(pk=post_1.pk)
+
+        result = self.client.get(
+            reverse('search:query') + '?q=' + text + '&models=' + Post.get_es_document_type(), follow=False)
+
+        self.assertEqual(result.status_code, 200)
+
+        response = result.context['object_list'].execute()
+
+        self.assertEqual(response.hits.total, 1)
+        self.assertEqual(response[0].meta.id, post_1.es_id)
+
+        # 2. Hide, reindex and search again:
+        post_1.hide_comment_by_user(self.staff, u'Un abus de pouvoir comme un autre ;)')
+
+        self.manager.es_bulk_indexing_of_model(Post)
+        self.manager.refresh_index()
+
+        result = self.client.get(
+            reverse('search:query') + '?q=' + text + '&models=' + Post.get_es_document_type(), follow=False)
+
+        self.assertEqual(result.status_code, 200)
+        response = result.context['object_list'].execute()
+        self.assertEqual(response.hits.total, 0)  # nothing in the results
+
+    def test_hidden_forums_give_no_results_if_user_not_allowed(self):
+        """Long name, isn't ?"""
+
+        if not self.manager.connected_to_es:
+            return
+
+        # 1. Create an hidden forum belonging to an hidden group and add staff in it.
+        text = 'test'
+
+        group = Group.objects.create(name=u"Les illuminatis anonymes de ZdS")
+        _, hidden_forum = create_category(group)
+
+        self.staff.groups.add(group)
+        self.staff.save()
+
+        topic_1 = TopicFactory(forum=hidden_forum, author=self.staff, title=text)
+        post_1 = PostFactory(topic=topic_1, author=self.user, position=1)
+        post_1.text = post_1.text_html = text
+        post_1.save()
+
+        self.manager.es_bulk_indexing_of_model(Topic)
+        self.manager.es_bulk_indexing_of_model(Post)
+        self.manager.refresh_index()
+
+        self.assertEqual(len(self.manager.setup_search(Search().query(MatchAll())).execute()), 2)  # indexation ok
+
+        # 2. search without connection and get not result
+        result = self.client.get(reverse('search:query') + '?q=' + text, follow=False)
+
+        self.assertEqual(result.status_code, 200)
+        response = result.context['object_list'].execute()
+        self.assertEqual(response.hits.total, 0)
+
+        # 3. Connect with user (not a member of the group), search, and get not result
+        self.assertTrue(self.client.login(username=self.user.username, password='hostel77'))
+
+        result = self.client.get(reverse('search:query') + '?q=' + text, follow=False)
+
+        self.assertEqual(result.status_code, 200)
+        response = result.context['object_list'].execute()
+        self.assertEqual(response.hits.total, 0)
+
+        # 4. Connect with staff, search, and get the topic and the post
+        self.client.logout()
+        self.assertTrue(self.client.login(username=self.staff.username, password='hostel77'))
+
+        result = self.client.get(reverse('search:query') + '?q=' + text, follow=False)
+
+        self.assertEqual(result.status_code, 200)
+        response = result.context['object_list'].execute()
+        self.assertEqual(response.hits.total, 2)  # ok !
+
+    def test_boosts(self):
+        """Will check if boosts are doing their job"""
+
+        if not self.manager.connected_to_es:
+            return
+
+        # 1. Create topics (with identical title), posts (with identical text), an article and a tuto
+        text = 'test'
+
+        topic_1 = TopicFactory(forum=self.forum, author=self.user)
+        topic_1.title = text
+        topic_1.subtitle = ''
+        topic_1.is_solved = True
+        topic_1.is_sticky = True
+        topic_1.save()
+
+        post_1 = PostFactory(topic=topic_1, author=self.user, position=1)
+        post_1.text = post_1.text_html = text
+        post_1.save()
+
+        post_2 = PostFactory(topic=topic_1, author=self.user, position=2)
+        post_2.text = post_2.text_html = text
+        post_2.is_useful = True
+        post_2.like = 5
+        post_2.dislike = 2  # l/d ratio above 1
+        post_2.save()
+
+        topic_2 = TopicFactory(forum=self.forum, author=self.user, title=text)
+        topic_2.title = text
+        topic_2.subtitle = ''
+        topic_2.is_locked = True
+        topic_2.save()
+
+        post_3 = PostFactory(topic=topic_2, author=self.user, position=1)
+        post_3.text = post_3.text_html = text
+        post_3.like = 2
+        post_3.dislike = 5  # l/d ratio below 1
+        post_3.save()
+
+        tuto = PublishableContentFactory(type='TUTORIAL')
+        tuto_draft = tuto.load_version()
+
+        tuto.title = text
+        tuto.authors.add(self.user)
+        tuto.save()
+
+        tuto_draft.repo_update_top_container(text, tuto.slug, text, text)
+
+        chapter1 = ContainerFactory(parent=tuto_draft, db_object=tuto)
+        chapter1.repo_update(text, u'Who cares ?', u'Same here')
+        ExtractFactory(container=chapter1, db_object=tuto)
+
+        published_tuto = publish_content(tuto, tuto_draft, is_major_update=True)
+
+        tuto.sha_public = tuto_draft.current_version
+        tuto.sha_draft = tuto_draft.current_version
+        tuto.public_version = published_tuto
+        tuto.save()
+
+        published_article = PublishedContentFactory(type='ARTICLE', title=text)
+
+        for model in self.indexable:
+            self.manager.es_bulk_indexing_of_model(model)
+        self.manager.refresh_index()
+
+        self.assertEqual(len(self.manager.setup_search(Search().query(MatchAll())).execute()), 8)
+
+        # 2. Reset all boosts to 1
+        for doc_type in settings.ZDS_APP['search']['boosts']:
+            for key in settings.ZDS_APP['search']['boosts'][doc_type]:
+                settings.ZDS_APP['search']['boosts'][doc_type][key] = 1.0
+
+        # 3. Test posts
+        result = self.client.get(
+            reverse('search:query') + '?q=' + text + '&models=' + Post.get_es_document_type(), follow=False)
+
+        self.assertEqual(result.status_code, 200)
+        response = result.context['object_list'].execute()
+        self.assertEqual(response.hits.total, 3)
+
+        # score are equals without boost:
+        self.assertTrue(response[0].meta.score == response[1].meta.score == response[2].meta.score)
+
+        settings.ZDS_APP['search']['boosts']['post']['if_first'] = 2.0
+
+        result = self.client.get(
+            reverse('search:query') + '?q=' + text + '&models=' + Post.get_es_document_type(), follow=False)
+
+        self.assertEqual(result.status_code, 200)
+        response = result.context['object_list'].execute()
+        self.assertEqual(response.hits.total, 3)
+
+        self.assertTrue(response[0].meta.score == response[1].meta.score > response[2].meta.score)
+        self.assertEquals(response[2].meta.id, str(post_2.pk))  # post 2 is the only one not first
+
+        settings.ZDS_APP['search']['boosts']['post']['if_first'] = 1.0
+        settings.ZDS_APP['search']['boosts']['post']['if_useful'] = 2.0
+
+        result = self.client.get(
+            reverse('search:query') + '?q=' + text + '&models=' + Post.get_es_document_type(), follow=False)
+
+        self.assertEqual(result.status_code, 200)
+        response = result.context['object_list'].execute()
+        self.assertEqual(response.hits.total, 3)
+
+        self.assertTrue(response[0].meta.score > response[1].meta.score == response[2].meta.score)
+        self.assertEquals(response[0].meta.id, str(post_2.pk))  # post 2 is useful
+
+        settings.ZDS_APP['search']['boosts']['post']['if_useful'] = 1.0
+        settings.ZDS_APP['search']['boosts']['post']['ld_ratio_above_1'] = 2.0
+
+        result = self.client.get(
+            reverse('search:query') + '?q=' + text + '&models=' + Post.get_es_document_type(), follow=False)
+
+        self.assertEqual(result.status_code, 200)
+        response = result.context['object_list'].execute()
+        self.assertEqual(response.hits.total, 3)
+
+        self.assertTrue(response[0].meta.score > response[1].meta.score == response[2].meta.score)
+        self.assertEquals(response[0].meta.id, str(post_2.pk))  # post 2 have a l/d ratio of 5/2
+
+        settings.ZDS_APP['search']['boosts']['post']['ld_ratio_above_1'] = 1.0
+        settings.ZDS_APP['search']['boosts']['post']['ld_ratio_below_1'] = 2.0  # no one would do that in real life
+
+        result = self.client.get(
+            reverse('search:query') + '?q=' + text + '&models=' + Post.get_es_document_type(), follow=False)
+
+        self.assertEqual(result.status_code, 200)
+        response = result.context['object_list'].execute()
+        self.assertEqual(response.hits.total, 3)
+
+        self.assertTrue(response[0].meta.score > response[1].meta.score == response[2].meta.score)
+        self.assertEquals(response[0].meta.id, str(post_3.pk))  # post 2 have a l/d ratio of 2/5
+
+        settings.ZDS_APP['search']['boosts']['post']['ld_ratio_below_1'] = 1.0
+
+        # 4. Test topics
+        result = self.client.get(
+            reverse('search:query') + '?q=' + text + '&models=' + Topic.get_es_document_type(), follow=False)
+
+        self.assertEqual(result.status_code, 200)
+        response = result.context['object_list'].execute()
+        self.assertEqual(response.hits.total, 2)
+
+        # score are equals without boost:
+        self.assertTrue(response[0].meta.score == response[1].meta.score)
+
+        settings.ZDS_APP['search']['boosts']['topic']['if_sticky'] = 2.0
+
+        result = self.client.get(
+            reverse('search:query') + '?q=' + text + '&models=' + Topic.get_es_document_type(), follow=False)
+
+        self.assertEqual(result.status_code, 200)
+        response = result.context['object_list'].execute()
+        self.assertEqual(response.hits.total, 2)
+
+        self.assertTrue(response[0].meta.score > response[1].meta.score)
+        self.assertEqual(response[0].meta.id, str(topic_1.pk))  # topic 1 is sticky
+
+        settings.ZDS_APP['search']['boosts']['topic']['if_sticky'] = 1.0
+        settings.ZDS_APP['search']['boosts']['topic']['if_solved'] = 2.0
+
+        result = self.client.get(
+            reverse('search:query') + '?q=' + text + '&models=' + Topic.get_es_document_type(), follow=False)
+
+        self.assertEqual(result.status_code, 200)
+        response = result.context['object_list'].execute()
+        self.assertEqual(response.hits.total, 2)
+
+        self.assertTrue(response[0].meta.score > response[1].meta.score)
+        self.assertEquals(response[0].meta.id, str(topic_1.pk))  # topic 1 is solved
+
+        settings.ZDS_APP['search']['boosts']['topic']['if_solved'] = 1.0
+        settings.ZDS_APP['search']['boosts']['topic']['if_locked'] = 2.0  # no one would do that in real life
+
+        result = self.client.get(
+            reverse('search:query') + '?q=' + text + '&models=' + Topic.get_es_document_type(), follow=False)
+
+        self.assertEqual(result.status_code, 200)
+        response = result.context['object_list'].execute()
+        self.assertEqual(response.hits.total, 2)
+
+        self.assertTrue(response[0].meta.score > response[1].meta.score)
+        self.assertEquals(response[0].meta.id, str(topic_2.pk))  # topic 2 is locked
+
+        settings.ZDS_APP['search']['boosts']['topic']['if_locked'] = 1.0  # no one would do that in real life
+
+        # 5. Test published contents
+        result = self.client.get(
+            reverse('search:query') + '?q=' + text + '&models=' + PublishedContent.get_es_document_type(), follow=False)
+
+        self.assertEqual(result.status_code, 200)
+        response = result.context['object_list'].execute()
+        self.assertEquals(response.hits.total, 2)
+
+        # score are equals without boost:
+        self.assertTrue(response[0].meta.score == response[1].meta.score)
+
+        settings.ZDS_APP['search']['boosts']['publishedcontent']['if_article'] = 2.0
+
+        result = self.client.get(
+            reverse('search:query') + '?q=' + text + '&models=' + PublishedContent.get_es_document_type(), follow=False)
+
+        self.assertEqual(result.status_code, 200)
+        response = result.context['object_list'].execute()
+        self.assertEqual(response.hits.total, 2)
+
+        self.assertTrue(response[0].meta.score > response[1].meta.score)
+        self.assertEquals(response[0].meta.id, str(published_article.pk))  # obvious
+
+        settings.ZDS_APP['search']['boosts']['publishedcontent']['if_article'] = 1.0
+        settings.ZDS_APP['search']['boosts']['publishedcontent']['if_tutorial'] = 2.0
+
+        result = self.client.get(
+            reverse('search:query') + '?q=' + text + '&models=' + PublishedContent.get_es_document_type(), follow=False)
+
+        self.assertEqual(result.status_code, 200)
+        response = result.context['object_list'].execute()
+        self.assertEqual(response.hits.total, 2)
+
+        self.assertTrue(response[0].meta.score > response[1].meta.score)
+        self.assertEquals(response[0].meta.id, str(published_tuto.pk))  # obvious
+
+        settings.ZDS_APP['search']['boosts']['publishedcontent']['if_tutorial'] = 1.0
+
+        # 6. Test global boosts
+        # NOTE: score are NOT the same for all documents, no matter how hard it tries to, small differences exists
+
+        for model in self.indexable:
+
+            # set a huge number to overcome the small differences:
+            settings.ZDS_APP['search']['boosts'][model.get_es_document_type()]['global'] = 10.0
+
+            result = self.client.get(
+                reverse('search:query') + '?q=' + text, follow=False)
+
+            self.assertEqual(result.status_code, 200)
+            response = result.context['object_list'].execute()
+            self.assertEqual(response.hits.total, 8)
+
+            self.assertEqual(response[0].meta.doc_type, model.get_es_document_type())  # obvious
+
+            settings.ZDS_APP['search']['boosts'][model.get_es_document_type()]['global'] = 1.0
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):

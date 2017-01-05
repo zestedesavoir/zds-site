@@ -114,7 +114,20 @@ class SearchView(ZdSPagingListView):
         query = Match(_type='publishedcontent') \
             & MultiMatch(query=self.search_query, fields=['title', 'description', 'categories', 'tags', 'text'])
 
-        return query
+        functions_score = [
+            {
+                'filter': Match(content_type='TUTORIAL'),
+                'weight': settings.ZDS_APP['search']['boosts']['publishedcontent']['if_tutorial']
+            },
+            {
+                'filter': Match(content_type='ARTICLE'),
+                'weight': settings.ZDS_APP['search']['boosts']['publishedcontent']['if_article']
+            },
+        ]
+
+        scored_query = FunctionScore(query=query, boost_mode='multiply', functions=functions_score)
+
+        return scored_query
 
     def get_queryset_chapters(self):
         """Find in chapters.
