@@ -166,7 +166,7 @@ class NotificationForumTest(TestCase):
         self.assertIsNotNone(Notification.objects.get(subscription__user=self.user1, is_read=False))
 
         forum_not_read = ForumFactory(category=self.category1, position_in_category=2)
-        forum_not_read.group.add(Group.objects.create(name="DummyGroup_1"))
+        forum_not_read.group.add(Group.objects.create(name='DummyGroup_1'))
 
         self.assertTrue(self.client.login(username=StaffProfileFactory().user.username, password='hostel77'))
         data = {
@@ -431,7 +431,7 @@ class NotificationPublishableContentTest(TestCase):
         subscription = ContentReactionAnswerSubscription.objects.get_existing(user=self.user1, content_object=self.tuto)
         self.assertIsNone(subscription)
 
-        result = self.client.post(reverse("content:add-reaction") + u'?pk={}'.format(self.tuto.pk), {
+        result = self.client.post(reverse('content:add-reaction') + u'?pk={}'.format(self.tuto.pk), {
             'text': u'message',
             'last_note': '0'
         }, follow=True)
@@ -537,7 +537,7 @@ class NotificationPrivateTopicTest(TestCase):
         """
         When we create a topic, its author follows it.
         """
-        topic = send_mp(author=self.user1, users=[], title="Testing", subtitle="", text="", leave=False)
+        topic = send_mp(author=self.user1, users=[], title='Testing', subtitle='', text='', leave=False)
 
         subscriptions = PrivateTopicAnswerSubscription.objects.get_subscriptions(topic)
         self.assertEqual(1, len(subscriptions))
@@ -557,7 +557,7 @@ class NotificationPrivateTopicTest(TestCase):
 
         topic = send_mp(author=self.user1,
                         users=[self.user2, self.user3],
-                        title="Testing", subtitle="", text="", leave=False)
+                        title='Testing', subtitle='', text='', leave=False)
 
         subscriptions = PrivateTopicAnswerSubscription.objects.filter(user=self.user2)
         self.assertEqual(1, len(subscriptions))
@@ -581,7 +581,7 @@ class NotificationPrivateTopicTest(TestCase):
         """
         topic = send_mp(author=self.user1,
                         users=[self.user2, self.user3],
-                        title="Testing", subtitle="", text="", leave=False)
+                        title='Testing', subtitle='', text='', leave=False)
 
         notifications = Notification.objects.get_unread_notifications_of(self.user2)
         self.assertEqual(1, len(notifications))
@@ -599,7 +599,7 @@ class NotificationPrivateTopicTest(TestCase):
         """
         topic = send_mp(author=self.user1,
                         users=[self.user2, self.user3],
-                        title="Testing", subtitle="", text="", leave=False)
+                        title='Testing', subtitle='', text='', leave=False)
 
         notifications = Notification.objects.get_unread_notifications_of(self.user2)
         self.assertEqual(1, len(notifications))
@@ -611,7 +611,7 @@ class NotificationPrivateTopicTest(TestCase):
         notifications = Notification.objects.get_unread_notifications_of(self.user2)
         self.assertEqual(0, len(notifications))
 
-        send_message_mp(self.user3, topic, "")
+        send_message_mp(self.user3, topic, '')
 
         notifications = Notification.objects.get_unread_notifications_of(self.user2)
         self.assertEqual(1, len(notifications))
@@ -625,7 +625,7 @@ class NotificationPrivateTopicTest(TestCase):
         """
         topic = send_mp(author=self.user1,
                         users=[self.user2],
-                        title="Testing", subtitle="", text="", leave=False)
+                        title='Testing', subtitle='', text='', leave=False)
 
         subscriptions = PrivateTopicAnswerSubscription.objects.filter(user=self.user3)
         self.assertEqual(0, len(subscriptions))
@@ -648,7 +648,7 @@ class NotificationPrivateTopicTest(TestCase):
         """
         topic = send_mp(author=self.user1,
                         users=[self.user2],
-                        title="Testing", subtitle="", text="", leave=False)
+                        title='Testing', subtitle='', text='', leave=False)
 
         notifications = Notification.objects.get_unread_notifications_of(self.user2)
         self.assertEqual(1, len(notifications))
@@ -657,7 +657,7 @@ class NotificationPrivateTopicTest(TestCase):
 
         self.assertIsNotNone(PrivateTopicAnswerSubscription.objects.get_existing(self.user2, topic, is_active=True))
 
-        send_message_mp(self.user2, topic, "Test")
+        send_message_mp(self.user2, topic, 'Test')
         topic.participants.remove(self.user2)
         topic.save()
 
@@ -679,7 +679,7 @@ class NotificationPrivateTopicTest(TestCase):
         self.assertEquals(0, len(mail.outbox))
 
         topic = send_mp(author=self.user1, users=[self.user2],
-                        title="Testing", subtitle="", text="",
+                        title='Testing', subtitle='', text='',
                         send_by_mail=True, leave=False)
 
         self.assertEquals(1, len(mail.outbox))
@@ -687,14 +687,14 @@ class NotificationPrivateTopicTest(TestCase):
         self.user1.profile.email_for_answer = True
         self.user1.profile.save()
 
-        send_message_mp(self.user2, topic, "", send_by_mail=True)
+        send_message_mp(self.user2, topic, '', send_by_mail=True)
 
         self.assertEquals(2, len(mail.outbox))
 
         self.user1.profile.email_for_answer = False
         self.user1.profile.save()
 
-        send_message_mp(self.user2, topic, "", send_by_mail=True)
+        send_message_mp(self.user2, topic, '', send_by_mail=True)
 
         self.assertEquals(2, len(mail.outbox))
 
@@ -710,8 +710,8 @@ class NotificationTest(TestCase):
         """
         When there already is a read notification for a given content, we reuse it.
         """
-        topic = send_mp(author=self.user1, users=[self.user2], title="Testing", subtitle="", text="", leave=False)
-        send_message_mp(self.user2, topic, "", send_by_mail=True)
+        topic = send_mp(author=self.user1, users=[self.user2], title='Testing', subtitle='', text='', leave=False)
+        send_message_mp(self.user2, topic, '', send_by_mail=True)
 
         notifications = Notification.objects.get_unread_notifications_of(self.user1)
         self.assertEqual(1, len(notifications))
@@ -720,7 +720,7 @@ class NotificationTest(TestCase):
 
         mark_read(topic, self.user1)
 
-        send_message_mp(self.user2, topic, "", send_by_mail=True)
+        send_message_mp(self.user2, topic, '', send_by_mail=True)
 
         notifications = Notification.objects.filter(subscription__user=self.user1)
         self.assertEqual(1, len(notifications))
