@@ -281,7 +281,7 @@ class ViewsTests(TestCase):
 
         article = PublishedContentFactory(type='ARTICLE', title=text)
         published_article = PublishedContent.objects.get(content_pk=article.pk)
-        
+
         for model in self.indexable:
             self.manager.es_bulk_indexing_of_model(model)
         self.manager.refresh_index()
