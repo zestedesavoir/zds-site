@@ -279,7 +279,7 @@ Cela s'effectue comme suit (par exemple pour la classe ``Post``):
       def delete_post_in_elasticsearch(sender, instance, **kwargs):
           return delete_document_in_elasticsearch(instance)
 
-Plus d'informations sur les méthodes qui peuvent être surchargées sont disponibles `dans la documentation technique <../back-end-code/search2.html>`_.
+Plus d'informations sur les méthodes qui peuvent être surchargées sont disponibles `dans la documentation technique <../back-end-code/searchv2.html>`_.
 
 .. attention::
 

@@ -121,5 +121,5 @@ Pour réindexer les nouvelles données, utilisez la commande suivante:
 
     python manage.py es_manager index-flagged
 
-Plus d'informations sur la commande ``es_manager`` sont disponibles sur la page `concernant la recherche sur ZdS <../back-end/search2.html#indexer-les-donnees-de-zds>`_.
+Plus d'informations sur la commande ``es_manager`` sont disponibles sur la page `concernant la recherche sur ZdS <../back-end/searchv2.html#indexer-les-donnees-de-zds>`_.
 
