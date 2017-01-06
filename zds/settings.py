@@ -184,7 +184,7 @@ INSTALLED_APPS = (
     'zds.member',
     'zds.featured',
     'zds.search',
-    'zds.search2',
+    'zds.searchv2',
     'zds.notification',
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',

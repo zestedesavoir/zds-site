@@ -17,7 +17,7 @@ from elasticsearch_dsl.field import Text, Keyword, Integer, Boolean, Float, Date
 from zds.forum.managers import TopicManager, ForumManager, PostManager, TopicReadManager
 from zds.notification import signals
 from zds.settings import ZDS_APP
-from zds.search2.models import AbstractESDjangoIndexable, delete_document_in_elasticsearch
+from zds.searchv2.models import AbstractESDjangoIndexable, delete_document_in_elasticsearch
 from zds.utils import get_current_user
 from zds.utils import slugify
 from zds.utils.models import Comment, Tag

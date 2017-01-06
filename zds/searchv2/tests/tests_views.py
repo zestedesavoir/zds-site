@@ -18,7 +18,7 @@ from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory
 from zds.tutorialv2.models.models_database import PublishedContent, FakeChapter
 from zds.forum.factories import TopicFactory, PostFactory, Topic, Post
 from zds.forum.tests.tests_views import create_category, Group
-from zds.search2.models import ESIndexManager
+from zds.searchv2.models import ESIndexManager
 
 overrided_zds_app = settings.ZDS_APP
 overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
@@ -229,35 +229,35 @@ class ViewsTests(TestCase):
         # 1. Create topics (with identical title), posts (with identical text), an article and a tuto
         text = 'test'
 
-        topic_1 = TopicFactory(forum=self.forum, author=self.user)
-        topic_1.title = text
-        topic_1.subtitle = ''
-        topic_1.is_solved = True
-        topic_1.is_sticky = True
-        topic_1.save()
+        topic_1_solved_sticky = TopicFactory(forum=self.forum, author=self.user)
+        topic_1_solved_sticky.title = text
+        topic_1_solved_sticky.subtitle = ''
+        topic_1_solved_sticky.is_solved = True
+        topic_1_solved_sticky.is_sticky = True
+        topic_1_solved_sticky.save()
 
-        post_1 = PostFactory(topic=topic_1, author=self.user, position=1)
+        post_1 = PostFactory(topic=topic_1_solved_sticky, author=self.user, position=1)
         post_1.text = post_1.text_html = text
         post_1.save()
 
-        post_2 = PostFactory(topic=topic_1, author=self.user, position=2)
-        post_2.text = post_2.text_html = text
-        post_2.is_useful = True
-        post_2.like = 5
-        post_2.dislike = 2  # l/d ratio above 1
-        post_2.save()
+        post_2_useful = PostFactory(topic=topic_1_solved_sticky, author=self.user, position=2)
+        post_2_useful.text = post_2_useful.text_html = text
+        post_2_useful.is_useful = True
+        post_2_useful.like = 5
+        post_2_useful.dislike = 2  # l/d ratio above 1
+        post_2_useful.save()
 
-        topic_2 = TopicFactory(forum=self.forum, author=self.user, title=text)
-        topic_2.title = text
-        topic_2.subtitle = ''
-        topic_2.is_locked = True
-        topic_2.save()
+        topic_2_locked = TopicFactory(forum=self.forum, author=self.user, title=text)
+        topic_2_locked.title = text
+        topic_2_locked.subtitle = ''
+        topic_2_locked.is_locked = True
+        topic_2_locked.save()
 
-        post_3 = PostFactory(topic=topic_2, author=self.user, position=1)
-        post_3.text = post_3.text_html = text
-        post_3.like = 2
-        post_3.dislike = 5  # l/d ratio below 1
-        post_3.save()
+        post_3_ld_below_1 = PostFactory(topic=topic_2_locked, author=self.user, position=1)
+        post_3_ld_below_1.text = post_3_ld_below_1.text_html = text
+        post_3_ld_below_1.like = 2
+        post_3_ld_below_1.dislike = 5  # l/d ratio below 1
+        post_3_ld_below_1.save()
 
         tuto = PublishableContentFactory(type='TUTORIAL')
         tuto_draft = tuto.load_version()
@@ -314,7 +314,7 @@ class ViewsTests(TestCase):
         self.assertEqual(response.hits.total, 3)
 
         self.assertTrue(response[0].meta.score == response[1].meta.score > response[2].meta.score)
-        self.assertEquals(response[2].meta.id, str(post_2.pk))  # post 2 is the only one not first
+        self.assertEquals(response[2].meta.id, str(post_2_useful.pk))  # post 2 is the only one not first
 
         settings.ZDS_APP['search']['boosts']['post']['if_first'] = 1.0
         settings.ZDS_APP['search']['boosts']['post']['if_useful'] = 2.0
@@ -327,7 +327,7 @@ class ViewsTests(TestCase):
         self.assertEqual(response.hits.total, 3)
 
         self.assertTrue(response[0].meta.score > response[1].meta.score == response[2].meta.score)
-        self.assertEquals(response[0].meta.id, str(post_2.pk))  # post 2 is useful
+        self.assertEquals(response[0].meta.id, str(post_2_useful.pk))  # post 2 is useful
 
         settings.ZDS_APP['search']['boosts']['post']['if_useful'] = 1.0
         settings.ZDS_APP['search']['boosts']['post']['ld_ratio_above_1'] = 2.0
@@ -340,7 +340,7 @@ class ViewsTests(TestCase):
         self.assertEqual(response.hits.total, 3)
 
         self.assertTrue(response[0].meta.score > response[1].meta.score == response[2].meta.score)
-        self.assertEquals(response[0].meta.id, str(post_2.pk))  # post 2 have a l/d ratio of 5/2
+        self.assertEquals(response[0].meta.id, str(post_2_useful.pk))  # post 2 have a l/d ratio of 5/2
 
         settings.ZDS_APP['search']['boosts']['post']['ld_ratio_above_1'] = 1.0
         settings.ZDS_APP['search']['boosts']['post']['ld_ratio_below_1'] = 2.0  # no one would do that in real life
@@ -353,7 +353,7 @@ class ViewsTests(TestCase):
         self.assertEqual(response.hits.total, 3)
 
         self.assertTrue(response[0].meta.score > response[1].meta.score == response[2].meta.score)
-        self.assertEquals(response[0].meta.id, str(post_3.pk))  # post 2 have a l/d ratio of 2/5
+        self.assertEquals(response[0].meta.id, str(post_3_ld_below_1.pk))  # post 3 have a l/d ratio of 2/5
 
         settings.ZDS_APP['search']['boosts']['post']['ld_ratio_below_1'] = 1.0
 
@@ -378,7 +378,7 @@ class ViewsTests(TestCase):
         self.assertEqual(response.hits.total, 2)
 
         self.assertTrue(response[0].meta.score > response[1].meta.score)
-        self.assertEqual(response[0].meta.id, str(topic_1.pk))  # topic 1 is sticky
+        self.assertEqual(response[0].meta.id, str(topic_1_solved_sticky.pk))  # topic 1 is sticky
 
         settings.ZDS_APP['search']['boosts']['topic']['if_sticky'] = 1.0
         settings.ZDS_APP['search']['boosts']['topic']['if_solved'] = 2.0
@@ -391,7 +391,7 @@ class ViewsTests(TestCase):
         self.assertEqual(response.hits.total, 2)
 
         self.assertTrue(response[0].meta.score > response[1].meta.score)
-        self.assertEquals(response[0].meta.id, str(topic_1.pk))  # topic 1 is solved
+        self.assertEquals(response[0].meta.id, str(topic_1_solved_sticky.pk))  # topic 1 is solved
 
         settings.ZDS_APP['search']['boosts']['topic']['if_solved'] = 1.0
         settings.ZDS_APP['search']['boosts']['topic']['if_locked'] = 2.0  # no one would do that in real life
@@ -404,7 +404,7 @@ class ViewsTests(TestCase):
         self.assertEqual(response.hits.total, 2)
 
         self.assertTrue(response[0].meta.score > response[1].meta.score)
-        self.assertEquals(response[0].meta.id, str(topic_2.pk))  # topic 2 is locked
+        self.assertEquals(response[0].meta.id, str(topic_2_locked.pk))  # topic 2 is locked
 
         settings.ZDS_APP['search']['boosts']['topic']['if_locked'] = 1.0  # no one would do that in real life
 

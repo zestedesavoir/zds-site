@@ -9,8 +9,8 @@ from django.utils.translation import ugettext_lazy as _
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
 
-from zds.search2.forms import SearchForm
-from zds.search2.models import ESIndexManager
+from zds.searchv2.forms import SearchForm
+from zds.searchv2.models import ESIndexManager
 from zds.utils.paginator import ZdSPagingListView
 from zds.forum.models import Forum
 

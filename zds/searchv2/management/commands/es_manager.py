@@ -3,7 +3,7 @@
 from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 
-from zds.search2.models import ESIndexManager, get_django_indexable_objects
+from zds.searchv2.models import ESIndexManager, get_django_indexable_objects
 from zds.tutorialv2.models.models_database import FakeChapter
 
 
