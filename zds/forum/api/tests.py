@@ -1675,6 +1675,7 @@ def authenticate_client(client, client_auth, username, password):
 # Gestion de tags (post/edit/details)
 # Tests qui ne passent pas
 # Style / PEP8
+# Route listant les Tags ? 
 
 # TESTS MANQUANTS
 # Vérifier que l'on affiche pas le text hidden ou l'adresse ip
