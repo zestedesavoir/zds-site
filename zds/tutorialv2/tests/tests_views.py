@@ -260,16 +260,20 @@ class ContentTests(TestCase):
         response = self.client.post(
             reverse('content:create-tutorial'),
             {
-                'intro': random_with_md,
+                'text': random_with_md,
                 'preview': '',
             }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         
 
         self.assertEqual(200, response.status_code)
         print('reponse')
-        print(response.streaming_content)
         for r in response.streaming_content:
             print(r)
+        result_string = ''.join(response.streaming_content)
+        print('------')
+        print(result_string) # TODO chainte vide ?
+        #assertContains(response, text, count=None, status_code=200, msg_prefix='', html=False)
+        self.assertTrue('<strong>markdown</strong>' in result_string)
 
         result = self.client.post(
             reverse('content:create-tutorial'),
@@ -4423,10 +4427,6 @@ class PublishedContentTests(TestCase):
         self.assertEqual(result.status_code, 200)
 
         result_string = ''.join(result.streaming_content)
-        print('ligne 4424')
-        print(message_to_post)
-        print('---')
-        print(result_string)
         self.assertTrue(message_to_post in result_string)
 
         # test quoting (without JS)
