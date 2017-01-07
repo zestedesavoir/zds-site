@@ -210,12 +210,16 @@ class TopicNew(CreateView, SingleObjectMixin):
         if self.object is not None and not self.object.can_read(request.user):
             raise PermissionDenied
         return super(TopicNew, self).dispatch(request, *args, **kwargs)
+<<<<<<< fa2c70b2e08bf872f22b21b012e0f4e515db6158
 
     def get_form_kwargs(self, **kwargs):
         kwargs = super(TopicNew, self).get_form_kwargs(**kwargs)
         kwargs['user'] = self.request.user
         return kwargs
 
+=======
+    
+>>>>>>> Reparation/Modification des tests et des vues, Supression des lignes unitiles
     def get_object(self, queryset=None):
         try:
             forum_pk = self.request.GET.get('forum')
