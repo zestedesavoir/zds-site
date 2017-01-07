@@ -231,7 +231,7 @@ class NotificationManager(models.Manager):
         :rtype: an iterable list of notifications
         """
         return self.filter(subscription__user=user, is_read=False) \
-            .select_related("sender")
+            .select_related('sender')
 
     def filter_content_type_of(self, model):
         """
@@ -254,8 +254,8 @@ class NotificationManager(models.Manager):
         """
         content_type = ContentType.objects.get_for_model(content_object)
         notifications = self.filter(object_id=content_object.pk, content_type__pk=content_type.pk) \
-            .select_related("subscription") \
-            .select_related("subscription__user")
+            .select_related('subscription') \
+            .select_related('subscription__user')
         return [notification.subscription.user for notification in notifications]
 
 
@@ -264,7 +264,7 @@ class TopicFollowedManager(models.Manager):
         """
         :return: the set of users who follow this topic by email.
         """
-        return self.filter(topic=topic, email=True).select_related("user")
+        return self.filter(topic=topic, email=True).select_related('user')
 
     def is_followed(self, topic, user=None):
         """

@@ -380,7 +380,7 @@ def cleanup_notification_for_unpublished_content(sender, instance, **_):
     :param instance: the unpublished content
     :param _: the useless kwargs
     """
-    logger.debug("deal with %s(%s) notifications.", sender, instance)
+    logger.debug('deal with %s(%s) notifications.', sender, instance)
     try:
         notifications = Notification.objects\
             .filter(content_type=ContentType.objects.get_for_model(instance, True), object_id=instance.pk)
@@ -389,6 +389,6 @@ def cleanup_notification_for_unpublished_content(sender, instance, **_):
                 notification.subscription.last_notification = None
                 notification.subscription.save()
             notification.delete()
-        logger.debug("Nothing went wrong.")
+        logger.debug('Nothing went wrong.')
     except DatabaseError:
         logger.exception()
