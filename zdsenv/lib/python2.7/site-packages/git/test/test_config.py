@@ -1,0 +1,212 @@
+# test_config.py
+# Copyright (C) 2008, 2009 Michael Trier (mtrier@gmail.com) and contributors
+#
+# This module is part of GitPython and is released under
+# the BSD License: http://www.opensource.org/licenses/bsd-license.php
+
+from git.test.lib import (
+    TestCase,
+    fixture_path,
+    assert_equal,
+)
+from gitdb.test.lib import with_rw_directory
+from git import (
+    GitConfigParser
+)
+from git.compat import (
+    string_types,
+)
+import io
+import os
+from git.config import cp
+
+
+class TestBase(TestCase):
+
+    def _to_memcache(self, file_path):
+        fp = open(file_path, "rb")
+        sio = io.BytesIO(fp.read())
+        sio.name = file_path
+        return sio
+
+    def test_read_write(self):
+        # writer must create the exact same file as the one read before
+        for filename in ("git_config", "git_config_global"):
+            file_obj = self._to_memcache(fixture_path(filename))
+            w_config = GitConfigParser(file_obj, read_only=False)
+            w_config.read()                 # enforce reading
+            assert w_config._sections
+            w_config.write()                # enforce writing
+
+            # we stripped lines when reading, so the results differ
+            assert file_obj.getvalue()
+            self.assertEqual(file_obj.getvalue(), self._to_memcache(fixture_path(filename)).getvalue())
+
+            # creating an additional config writer must fail due to exclusive access
+            self.failUnlessRaises(IOError, GitConfigParser, file_obj, read_only=False)
+
+            # should still have a lock and be able to make changes
+            assert w_config._lock._has_lock()
+
+            # changes should be written right away
+            sname = "my_section"
+            oname = "mykey"
+            val = "myvalue"
+            w_config.add_section(sname)
+            assert w_config.has_section(sname)
+            w_config.set(sname, oname, val)
+            assert w_config.has_option(sname, oname)
+            assert w_config.get(sname, oname) == val
+
+            sname_new = "new_section"
+            oname_new = "new_key"
+            ival = 10
+            w_config.set_value(sname_new, oname_new, ival)
+            assert w_config.get_value(sname_new, oname_new) == ival
+
+            file_obj.seek(0)
+            r_config = GitConfigParser(file_obj, read_only=True)
+            assert r_config.has_section(sname)
+            assert r_config.has_option(sname, oname)
+            assert r_config.get(sname, oname) == val
+            w_config.release()
+        # END for each filename
+
+    def test_multi_line_config(self):
+        file_obj = self._to_memcache(fixture_path("git_config_with_comments"))
+        config = GitConfigParser(file_obj, read_only=False)
+        ev = "ruby -e '\n"
+        ev += "		system %(git), %(merge-file), %(--marker-size=%L), %(%A), %(%O), %(%B)\n"
+        ev += "		b = File.read(%(%A))\n"
+        ev += "		b.sub!(/^<+ .*\\nActiveRecord::Schema\\.define.:version => (\\d+). do\\n=+\\nActiveRecord::Schema\\."
+        ev += "define.:version => (\\d+). do\\n>+ .*/) do\n"
+        ev += "		  %(ActiveRecord::Schema.define(:version => #{[$1, $2].max}) do)\n"
+        ev += "		end\n"
+        ev += "		File.open(%(%A), %(w)) {|f| f.write(b)}\n"
+        ev += "		exit 1 if b.include?(%(<)*%L)'"
+        assert_equal(config.get('merge "railsschema"', 'driver'), ev)
+        assert_equal(config.get('alias', 'lg'),
+                     "log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%Creset'"
+                     " --abbrev-commit --date=relative")
+        assert len(config.sections()) == 23
+
+    def test_base(self):
+        path_repo = fixture_path("git_config")
+        path_global = fixture_path("git_config_global")
+        r_config = GitConfigParser([path_repo, path_global], read_only=True)
+        assert r_config.read_only
+        num_sections = 0
+        num_options = 0
+
+        # test reader methods
+        assert r_config._is_initialized is False
+        for section in r_config.sections():
+            num_sections += 1
+            for option in r_config.options(section):
+                num_options += 1
+                val = r_config.get(section, option)
+                val_typed = r_config.get_value(section, option)
+                assert isinstance(val_typed, (bool, int, float, ) + string_types)
+                assert val
+                assert "\n" not in option
+                assert "\n" not in val
+
+                # writing must fail
+                self.failUnlessRaises(IOError, r_config.set, section, option, None)
+                self.failUnlessRaises(IOError, r_config.remove_option, section, option)
+            # END for each option
+            self.failUnlessRaises(IOError, r_config.remove_section, section)
+        # END for each section
+        assert num_sections and num_options
+        assert r_config._is_initialized is True
+
+        # get value which doesnt exist, with default
+        default = "my default value"
+        assert r_config.get_value("doesnt", "exist", default) == default
+
+        # it raises if there is no default though
+        self.failUnlessRaises(cp.NoSectionError, r_config.get_value, "doesnt", "exist")
+
+    @with_rw_directory
+    def test_config_include(self, rw_dir):
+        def write_test_value(cw, value):
+            cw.set_value(value, 'value', value)
+        # end
+
+        def check_test_value(cr, value):
+            assert cr.get_value(value, 'value') == value
+        # end
+
+        # PREPARE CONFIG FILE A
+        fpa = os.path.join(rw_dir, 'a')
+        cw = GitConfigParser(fpa, read_only=False)
+        write_test_value(cw, 'a')
+
+        fpb = os.path.join(rw_dir, 'b')
+        fpc = os.path.join(rw_dir, 'c')
+        cw.set_value('include', 'relative_path_b', 'b')
+        cw.set_value('include', 'doesntexist', 'foobar')
+        cw.set_value('include', 'relative_cycle_a_a', 'a')
+        cw.set_value('include', 'absolute_cycle_a_a', fpa)
+        cw.release()
+        assert os.path.exists(fpa)
+
+        # PREPARE CONFIG FILE B
+        cw = GitConfigParser(fpb, read_only=False)
+        write_test_value(cw, 'b')
+        cw.set_value('include', 'relative_cycle_b_a', 'a')
+        cw.set_value('include', 'absolute_cycle_b_a', fpa)
+        cw.set_value('include', 'relative_path_c', 'c')
+        cw.set_value('include', 'absolute_path_c', fpc)
+        cw.release()
+
+        # PREPARE CONFIG FILE C
+        cw = GitConfigParser(fpc, read_only=False)
+        write_test_value(cw, 'c')
+        cw.release()
+
+        cr = GitConfigParser(fpa, read_only=True)
+        for tv in ('a', 'b', 'c'):
+            check_test_value(cr, tv)
+        # end for each test to verify
+        assert len(cr.items('include')) == 8, "Expected all include sections to be merged"
+        cr.release()
+
+        # test writable config writers - assure write-back doesn't involve includes
+        cw = GitConfigParser(fpa, read_only=False, merge_includes=True)
+        tv = 'x'
+        write_test_value(cw, tv)
+        cw.release()
+
+        cr = GitConfigParser(fpa, read_only=True)
+        self.failUnlessRaises(cp.NoSectionError, check_test_value, cr, tv)
+        cr.release()
+
+        # But can make it skip includes alltogether, and thus allow write-backs
+        cw = GitConfigParser(fpa, read_only=False, merge_includes=False)
+        write_test_value(cw, tv)
+        cw.release()
+
+        cr = GitConfigParser(fpa, read_only=True)
+        check_test_value(cr, tv)
+        cr.release()
+
+    def test_rename(self):
+        file_obj = self._to_memcache(fixture_path('git_config'))
+        cw = GitConfigParser(file_obj, read_only=False, merge_includes=False)
+
+        self.failUnlessRaises(ValueError, cw.rename_section, "doesntexist", "foo")
+        self.failUnlessRaises(ValueError, cw.rename_section, "core", "include")
+
+        nn = "bee"
+        assert cw.rename_section('core', nn) is cw
+        assert not cw.has_section('core')
+        assert len(cw.items(nn)) == 4
+        cw.release()
+
+    def test_complex_aliases(self):
+        file_obj = self._to_memcache(fixture_path('.gitconfig'))
+        w_config = GitConfigParser(file_obj, read_only=False)
+        self.assertEqual(w_config.get('alias', 'rbi'), '"!g() { git rebase -i origin/${1:-master} ; } ; g"')
+        w_config.release()
+        self.assertEqual(file_obj.getvalue(), self._to_memcache(fixture_path('.gitconfig')).getvalue())

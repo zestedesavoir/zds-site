@@ -1,0 +1,13 @@
+Metadata-Version: 2.0
+Name: django-munin
+Version: 0.2.1
+Summary: Munin adaptor for Django
+Home-page: http://github.com/ccnmtl/django-munin/
+Author: Anders Pearson
+Author-email: anders@columbia.edu
+License: BSD
+Platform: any
+
+Helper application for using munin to monitor your Django apps
+
+

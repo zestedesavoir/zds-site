@@ -1,0 +1,6 @@
+rest_framework_extensions
+rest_framework_extensions/bulk_operations
+rest_framework_extensions/cache
+rest_framework_extensions/etag
+rest_framework_extensions/key_constructor
+rest_framework_extensions/permissions
