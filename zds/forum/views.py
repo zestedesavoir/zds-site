@@ -196,7 +196,6 @@ class TopicPostsListView(ZdSPagingListView, SingleObjectMixin):
     def get_queryset(self):
         return Post.objects.get_messages_of_a_topic(self.object.pk)
 
-
 class TopicNew(CreateView, SingleObjectMixin):
 
     template_name = 'forum/topic/new.html'
@@ -271,7 +270,6 @@ class TopicNew(CreateView, SingleObjectMixin):
             tags=form.data['tags']
         )
         return redirect(topic.get_absolute_url())
-
 
 class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
 
