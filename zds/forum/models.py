@@ -14,7 +14,6 @@ from django.db.models.signals import pre_delete
 
 from elasticsearch_dsl.field import Text, Keyword, Integer, Boolean, Float, Date
 
-from zds.member.api.permissions import CanReadTopic, CanReadPost, CanReadAndWriteNowOrReadOnly, IsNotOwnerOrReadOnly, IsOwnerOrReadOnly, IsStaffUser
 from zds.forum.managers import TopicManager, ForumManager, PostManager, TopicReadManager
 from zds.notification import signals
 from zds.searchv2.models import AbstractESDjangoIndexable, delete_document_in_elasticsearch, ESIndexManager
@@ -436,7 +435,8 @@ class Topic(AbstractESDjangoIndexable):
         es_mapping.field('pubdate', Date())
         es_mapping.field('forum_pk', Integer())
 
-        # not indexed:
+
+# not indexed:
         es_mapping.field('get_absolute_url', Keyword(index=False))
         es_mapping.field('forum_title', Text(index=False))
         es_mapping.field('forum_get_absolute_url', Keyword(index=False))
@@ -487,8 +487,7 @@ def delete_topic_in_elasticsearch(sender, instance, **kwargs):
     return delete_document_in_elasticsearch(instance)
 
 
-@python_2_unicode_compatible
-class Post(Comment, AbstractESDjangoIndexable):
+@python_2_unicode_compatibleclass Post(Comment, AbstractESDjangoIndexable):
     """
     A forum post written by an user.
     A post can be marked as useful: topic's author (or admin) can declare any topic as "useful", and this post is
@@ -541,7 +540,6 @@ class Post(Comment, AbstractESDjangoIndexable):
     def has_object_write_permission(self, request):
         return Topic.has_write_permission(request) 
 
-        
     def has_object_update_permission(self, request):
         return self.is_author(request.user)
         # TODO peut on editer quand un topic est ferme ?
@@ -637,7 +635,6 @@ class TopicRead(models.Model):
         return "<Sujet '{0}' lu par {1}, #{2}>".format(self.topic,
                                                        self.user,
                                                        self.post.pk)
-
 
 def is_read(topic, user=None):
     """

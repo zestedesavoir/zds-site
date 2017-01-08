@@ -770,9 +770,6 @@ class ForumAPITest(APITestCase):
         response = self.client_authenticated_staff.get(reverse('api:forum:detail-topic', args=[topic.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-
-# Édite un sujet qvec user en ls
-# Édite un sujet avec user banni
 # Editer dans un forum privé ? Verifier les auths
 # TODO
 
@@ -824,6 +821,23 @@ class ForumAPITest(APITestCase):
         self.client = APIClient()
         response = self.client.put(reverse('api:forum:detail-topic', args=[topic.id]), data)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+    
+    def test_update_topic_banned_user(self):
+        """
+        Tries to update a Topic with a banned user.
+        """
+        data = {
+            'title': 'Mon nouveau titre'
+        }
+        profile = ProfileFactory()
+        profile.can_read = False
+        profile.can_write = False
+        profile.save()
+        topic = self.create_multiple_forums_with_topics(1, 1)
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.put(reverse('api:forum:detail-topic', args=[topic.id]), data)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_update_topic_staff(self):
         """
@@ -1599,6 +1613,17 @@ class ForumAPITest(APITestCase):
         response = self.client_authenticated.put(reverse('api:forum:detail-post', args=[topic.id, posts[0].id]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('text'), data.get('text'))
+        
+    def test_update_post_text_empty(self):
+        """
+        Tries to empty the text of a post.
+        """
+        data = {
+            'text': ''
+        }
+        topic, posts = self.create_topic_with_post(1, self.profile)
+        response = self.client_authenticated.put(reverse('api:forum:detail-post', args=[topic.id, posts[0].id]), data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_update_post_staff(self):
         """
@@ -1678,8 +1703,7 @@ def authenticate_client(client, client_auth, username, password):
 # Route listant les Tags ? 
 
 # TESTS MANQUANTS
-# Vérifier que l'on affiche pas le text hidden ou l'adresse ip
+# Vérifier que l'on affiche pas le text hidden ou l'adresse ip (post list et post detail)
 # Créer un topic avec des tags (ajouter le test), éditer les tags
-# Tester le cas ou un user veux vider le contenu de son message
 # Ajouter le cas ou le staff ou un user masque son message, mais un autre user ne peut pas le faire
 # Poste dans un sujet fermé (3 roles)
