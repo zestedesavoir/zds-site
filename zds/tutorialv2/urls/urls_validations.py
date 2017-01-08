@@ -4,7 +4,8 @@ from django.conf.urls import url
 
 from zds.tutorialv2.views.views_validations import AskValidationForContent, ReserveValidation, \
     HistoryOfValidationDisplay, AcceptValidation, RejectValidation, RevokeValidation, CancelValidation, \
-    ValidationListView, Publish, Unpublish, ValidPublication, PromoteOpinionToArticle, ValidationOpinionListView
+    ValidationListView, Publish, Unpublish, ValidOpinion, PromoteOpinionToArticle, ValidationOpinionListView, \
+    InvalidOpinion
 
 urlpatterns = [
     url(r'^historique/(?P<pk>\d+)/(?P<slug>.+)/$', HistoryOfValidationDisplay.as_view(), name="history"),
@@ -26,9 +27,9 @@ urlpatterns = [
 
     url(r'^publier/(?P<pk>\d+)/(?P<slug>.+)/$', Publish.as_view(), name="publish"),
     url(r'^depublier/(?P<pk>\d+)/(?P<slug>.+)/$', Unpublish.as_view(), name="unpublish"),
-    url(r'^valider/(?P<pk>\d+)/(?P<slug>.+)/$', ValidPublication.as_view(), name="valid"),
+    url(r'^valider/(?P<pk>\d+)/(?P<slug>.+)/$', ValidOpinion.as_view(), name="valid"),
+    url(r'^devalider/(?P<pk>\d+)/(?P<slug>.+)/$', InvalidOpinion.as_view(), name="invalid"),
     url(r'^promouvoir/(?P<pk>\d+)/(?P<slug>.+)/$', PromoteOpinionToArticle.as_view(), name="promote"),
-
     # VALIDATION VIEWS FOR STAFF
 
     url(r'^billets/$', ValidationOpinionListView.as_view(), name="list-opinion"),
