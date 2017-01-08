@@ -8,6 +8,7 @@
 {% load thumbnail %}
 {% load i18n %}
 {% load captureas %}
+{% load crispy_forms_tags %}
 
 
 {% block body_class %}home{% endblock %}
@@ -81,13 +82,7 @@
             {% endif %}
             {% if app.display_search_bar %}
                  <section class="search-box">
-                    <form action='{% url "search:query" %}' id="search-home">
-                        <label for="search-home-input">
-                            {% trans "Recherche" %}
-                        </label>
-                        <input type="text" id="search-home-input" name="q" placeholder='{{ suggestions }}' >
-                        <button type="submit" class="ico-after ico-search" title='{% trans "Lancer la recherche" %}'></button>
-                    </form>
+                    {% crispy search_form %}
                 </section>
             {% endif %}
         </div>

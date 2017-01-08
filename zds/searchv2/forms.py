@@ -10,6 +10,7 @@ from zds.settings import BASE_DIR
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field
+from django.core.urlresolvers import reverse
 
 
 class SearchForm(forms.Form):
@@ -40,6 +41,7 @@ class SearchForm(forms.Form):
         self.helper.form_id = 'search-form'
         self.helper.form_class = 'clearfix'
         self.helper.form_method = 'get'
+        self.helper.form_action = reverse('search:query')
 
         try:
             with open(os.path.join(BASE_DIR, 'suggestions.txt'), 'r') as suggestions_file:

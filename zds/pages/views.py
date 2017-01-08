@@ -21,6 +21,7 @@ from zds.member.decorator import can_write_and_read_now
 from zds.pages.forms import AssocSubscribeForm
 from zds.pages.models import GroupContact
 from zds.settings import BASE_DIR, ZDS_APP
+from zds.searchv2.forms import SearchForm
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent
 from zds.utils.forums import create_topic
 from zds.utils.models import Alert
@@ -38,12 +39,6 @@ def home(request):
     except IOError:
         quote = ZDS_APP['site']['slogan']
 
-    try:
-        with open(os.path.join(BASE_DIR, 'suggestions.txt'), 'r') as suggestions_file:
-            suggestions = ', '.join(random.sample(suggestions_file.readlines(), 5)) + '...'
-    except IOError:
-        suggestions = 'Mathématiques, Droit, UDK, Langues, Python...'
-
     return render(request, 'home.html', {
         'featured_message': FeaturedMessage.objects.get_last_message(),
         'last_tutorials': tutos,
@@ -52,7 +47,7 @@ def home(request):
         'last_topics': Topic.objects.get_last_topics(),
         'contents_count': PublishedContent.objects.get_contents_count(),
         'quote': quote.replace('\n', ''),
-        'suggestions': suggestions,
+        'search_form': SearchForm(initial={}),
     })
 
 
