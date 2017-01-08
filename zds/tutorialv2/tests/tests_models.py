@@ -534,10 +534,7 @@ class ContentTests(TestCase):
 
         article = PublishedContentFactory(type="ARTICLE", author_list=[author], title=u'Un titre')
         published = PublishedContent.objects.filter(content=article).first()
-        base_name = os.path.join(published.get_extra_contents_directory(), published.content_public_slug)
-        md_file_path = base_name + '.md'
-
-        self.assertEqual(published.get_nb_letter(md_file_path), 160 + len_date_now)
+        self.assertEqual(published.get_nb_letter(), 160 + len_date_now)
 
         tuto = PublishableContentFactory(type="TUTORIAL", author_list=[author], title=u'Un titre')
 
@@ -553,10 +550,7 @@ class ContentTests(TestCase):
         tuto.save()
 
         published = PublishedContent.objects.filter(content=tuto).first()
-        base_name = os.path.join(published.get_extra_contents_directory(), published.content_public_slug)
-        md_file_path = base_name + '.md'
-
-        self.assertEqual(published.get_nb_letter(md_file_path), 335 + len_date_now)
+        self.assertEqual(published.get_nb_letter(), 335 + len_date_now)
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
