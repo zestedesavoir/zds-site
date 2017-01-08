@@ -266,13 +266,8 @@ class ContentTests(TestCase):
         
 
         self.assertEqual(200, response.status_code)
-        print('reponse')
-        for r in response.streaming_content:
-            print(r)
+
         result_string = ''.join(response.streaming_content)
-        print('------')
-        print(result_string) # TODO chainte vide ?
-        #assertContains(response, text, count=None, status_code=200, msg_prefix='', html=False)
         self.assertTrue('<strong>markdown</strong>' in result_string)
 
         result = self.client.post(
@@ -310,12 +305,15 @@ class ContentTests(TestCase):
         result = self.client.post(
             reverse('content:edit', args=[pk, slug]),
             {
-                'introduction': random,
+                'text': random_with_md,
                 'last_hash': versioned.compute_hash(),
                 'preview': ''
             }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
             
         self.assertEqual(result.status_code, 200)
+        
+        result_string = ''.join(result.streaming_content)
+        self.assertTrue('<strong>markdown</strong>' in result_string)
         
         # edit tutorial:
         new_licence = LicenceFactory()
@@ -356,10 +354,13 @@ class ContentTests(TestCase):
             reverse('content:create-container', args=[pk, slug]),
             {
                 'title': title,
-                'introduction': intro,
+                'text': random_with_md,
                 'preview': ''
             }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(result.status_code, 200)
+        
+        result_string = ''.join(result.streaming_content)
+        self.assertTrue('<strong>markdown</strong>' in result_string)        
         
         # create container:
         result = self.client.post(
@@ -406,13 +407,16 @@ class ContentTests(TestCase):
             reverse('content:edit-container', kwargs={'pk': pk, 'slug': slug, 'container_slug': container.slug}),
             {
                 'title': random,
-                'introduction': random,
+                'text': random_with_md,
                 'last_hash': container.compute_hash(),
                 'preview': ''
             }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
             
         self.assertEqual(result.status_code, 200)
-
+        
+        result_string = ''.join(result.streaming_content)
+        self.assertTrue('<strong>markdown</strong>' in result_string)
+        
         versioned = PublishableContent.objects.get(pk=pk).load_version()
         container = versioned.children[0]
         self.assertEqual(container.title, random)
@@ -480,11 +484,14 @@ class ContentTests(TestCase):
                     }),
             {
                 'title': random,
-                'introduction': random,
+                'text': random_with_md,
                 'last_hash': subcontainer.compute_hash(),
                 'preview': ''
             }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(result.status_code, 200)
+        
+        result_string = ''.join(result.streaming_content)
+        self.assertTrue('<strong>markdown</strong>' in result_string)
 
         versioned = PublishableContent.objects.get(pk=pk).load_version()
         subcontainer = versioned.children[0].children[0]
@@ -518,10 +525,13 @@ class ContentTests(TestCase):
                     }),
             {
                 'title': title,
-                'text': description,
+                'text': random_with_md,
                 'preview': ''
             }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(result.status_code, 200)
+        
+        result_string = ''.join(result.streaming_content)
+        self.assertTrue('<strong>markdown</strong>' in result_string)
 
         versioned = PublishableContent.objects.get(pk=pk).load_version()
         self.assertEqual(len(versioned.children[0].children[0].children), 1)  # the extract is created
@@ -3046,6 +3056,7 @@ class ContentTests(TestCase):
         extract = ExtractFactory(container=chapter, db_object=tuto)
 
         random = u'Il est miniuit 30 et j\'écris un test ;)'
+        random_with_md = u'un text contenant du **markdown** .'
 
         self.assertEqual(
             self.client.login(
@@ -3147,6 +3158,26 @@ class ContentTests(TestCase):
         self.assertEqual(chapter_version.get_introduction(), random)
         self.assertEqual(chapter_version.get_conclusion(), random)
 
+        # preview
+        result = self.client.post(
+            reverse('content:edit-extract',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': tuto.slug,
+                        'container_slug': chapter_version.slug,
+                        'extract_slug': extract.slug
+                    }),
+            {
+                'title': random,
+                'text': random_with_md,
+                'last_hash': '',
+                'preview': ''
+            }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(result.status_code, 200)
+        
+        result_string = ''.join(result.streaming_content)
+        self.assertTrue('<strong>markdown</strong>' in result_string)
+        
         # edit extract
         result = self.client.post(
             reverse('content:edit-extract',
@@ -3160,23 +3191,6 @@ class ContentTests(TestCase):
                 'title': random,
                 'text': random,
                 'last_hash': ''
-            },
-            follow=True)
-        self.assertEqual(result.status_code, 200)
-
-        result = self.client.post(
-            reverse('content:edit-extract',
-                    kwargs={
-                        'pk': tuto.pk,
-                        'slug': tuto.slug,
-                        'container_slug': chapter_version.slug,
-                        'extract_slug': extract.slug
-                    }),
-            {
-                'title': random,
-                'text': random,
-                'last_hash': '',
-                'preview': ''
             },
             follow=True)
         self.assertEqual(result.status_code, 200)

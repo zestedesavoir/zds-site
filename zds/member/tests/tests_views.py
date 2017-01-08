@@ -247,13 +247,15 @@ class MemberTests(TestCase):
         response = self.client.post(
             reverse('update-member'),
             {
-                'biography': 'It is my life',
+                'biography': 'It is **my** life',
                 'preview': '',
-            },
-            follow=True
-        )
+            }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        
 
         self.assertEqual(200, response.status_code)
+
+        result_string = ''.join(response.streaming_content)
+        self.assertTrue('<strong>my</strong>' in result_string)
 
     def test_login(self):
         """
