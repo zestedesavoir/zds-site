@@ -522,7 +522,7 @@ class ContentTests(TestCase):
         Special care should be taken with this function, since:
 
         - The username of the author is, by default "Firmxxx" where "xxx" depends on the tests before ;
-        - The title also contains a number that also depends on the number of tests before ;
+        - The titles (!) also contains a number that also depends on the number of tests before ;
         - The date is ``datetime.now()`` and contains the months, which is never a fixed number of letters.
         """
 
@@ -543,8 +543,8 @@ class ContentTests(TestCase):
 
         # add a chapter, so it becomes a middle tutorial
         tuto_draft = tuto.load_version()
-        chapter1 = ContainerFactory(parent=tuto_draft, db_object=tuto)
-        ExtractFactory(container=chapter1, db_object=tuto)
+        chapter1 = ContainerFactory(parent=tuto_draft, db_object=tuto, title='Un chapitre')
+        ExtractFactory(container=chapter1, db_object=tuto, title='Un extrait')
         published = publish_content(tuto, tuto_draft, is_major_update=True)
 
         tuto.sha_public = tuto_draft.current_version
@@ -556,7 +556,7 @@ class ContentTests(TestCase):
         base_name = os.path.join(published.get_extra_contents_directory(), published.content_public_slug)
         md_file_path = base_name + '.md'
 
-        self.assertEqual(published.get_nb_letter(md_file_path), 348 + len_date_now)
+        self.assertEqual(published.get_nb_letter(md_file_path), 335 + len_date_now)
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
