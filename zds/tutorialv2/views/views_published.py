@@ -669,7 +669,7 @@ class SolveContentAlert(FormView, LoginRequiredMixin):
             resolve_reason = request.POST['text']
             authors = alert.content.authors.values_list('username', flat=True)
             authors = ', '.join(authors)
-            msg_title = _(u"Résolution d'alerte : {0}").format(content.title),
+            msg_title = _(u"Résolution d'alerte : {0}").format(content.title)
             msg_content = render_to_string(
                 'tutorialv2/messages/resolve_alert.md', {
                     'content': content,
@@ -732,7 +732,7 @@ class SolveNoteAlert(FormView, LoginRequiredMixin):
         msg_content = ''
         if 'text' in request.POST and request.POST['text']:
             resolve_reason = request.POST['text']
-            msg_title = _(u"Résolution d'alerte : {0}").format(note.related_content.title),
+            msg_title = _(u"Résolution d'alerte : {0}").format(note.related_content.title)
             msg_content = render_to_string(
                 'tutorialv2/messages/resolve_alert.md', {
                     'content': note.related_content,
