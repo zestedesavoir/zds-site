@@ -168,8 +168,10 @@ class PublishedContentFactory(PublishableContentFactory):
         """create a new PublishableContent and then publish it.
         """
 
+        is_major_update = kwargs.pop('is_major_update', True)
+
         content = super(PublishedContentFactory, cls)._prepare(create, **kwargs)
-        published = publish_content(content, content.load_version(), True)
+        published = publish_content(content, content.load_version(), is_major_update)
         content.sha_public = content.sha_draft
         content.public_version = published
         content.save()

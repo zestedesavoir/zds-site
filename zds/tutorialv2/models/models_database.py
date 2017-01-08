@@ -834,7 +834,7 @@ class PublishedContent(models.Model):
     def get_last_action_date(self):
         return self.update_date or self.publication_date
 
-    """ Compute the number of letters for a given content``
+    """ Compute the number of letters for a given content
 
     :return:Number of letters in the md file
     :rtype: int
