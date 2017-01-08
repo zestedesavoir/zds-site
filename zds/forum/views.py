@@ -89,7 +89,7 @@ class ForumTopicsListView(FilterMixin, ForumEditMixin, ZdSPagingListView, Update
         self.object.save()
         if request.is_ajax():
             return HttpResponse(json.dumps(response), content_type='application/json')
-        return redirect(u"{}?page={}".format(self.object.get_absolute_url(), self.page))
+        return redirect(u'{}?page={}'.format(self.object.get_absolute_url(), self.page))
 
     def get_context_data(self, **kwargs):
         context = super(ForumTopicsListView, self).get_context_data(**kwargs)
@@ -121,7 +121,7 @@ class ForumTopicsListView(FilterMixin, ForumEditMixin, ZdSPagingListView, Update
                      .filter(slug=self.kwargs.get('forum_slug'))\
                      .first()
         if forum is None:
-            raise Http404("Forum with slug {} was not found".format(self.kwargs.get('forum_slug')))
+            raise Http404('Forum with slug {} was not found'.format(self.kwargs.get('forum_slug')))
         return forum
 
     def get_queryset(self):
@@ -225,15 +225,15 @@ class TopicNew(CreateView, SingleObjectMixin):
     def post(self, request, *args, **kwargs):
         form = self.get_form(self.form_class)
 
-        if "preview" in request.POST:
+        if 'preview' in request.POST:
             if request.is_ajax():
                 content = render_to_response('misc/previsualization.part.html', {'text': request.POST['text']})
                 return StreamingHttpResponse(content)
             else:
                 initial = {
-                    "title": request.POST["title"],
-                    "subtitle": request.POST["subtitle"],
-                    "text": request.POST["text"]
+                    'title': request.POST['title'],
+                    'subtitle': request.POST['subtitle'],
+                    'text': request.POST['text']
                 }
                 form = self.form_class(initial=initial)
         elif form.is_valid():
@@ -283,7 +283,7 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
         return super(TopicEdit, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
-        is_staff = request.user.has_perm("forum.change_topic")
+        is_staff = request.user.has_perm('forum.change_topic')
         if self.object.author != request.user and is_staff:
             messages.warning(request, _(
                 u'Vous éditez un topic en tant que modérateur (auteur : {}). Soyez encore plus '
@@ -300,7 +300,7 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
         if 'text' in request.POST:
             form = self.get_form(self.form_class)
 
-            if "preview" in request.POST:
+            if 'preview' in request.POST:
                 if request.is_ajax():
                     content = render_to_response('misc/previsualization.part.html', {'text': request.POST['text']})
                     return StreamingHttpResponse(content)
@@ -333,7 +333,7 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
         self.object.save()
         if request.is_ajax():
             return HttpResponse(json.dumps(response), content_type='application/json')
-        return redirect(u"{}?page={}".format(self.object.get_absolute_url(), self.page))
+        return redirect(u'{}?page={}'.format(self.object.get_absolute_url(), self.page))
 
     def get_object(self, queryset=None):
         try:
@@ -450,17 +450,17 @@ class PostNew(CreatePostView):
             raise PermissionDenied
         self.posts = Post.objects.filter(topic=self.object) \
                          .prefetch_related() \
-                         .order_by("-position")[:settings.ZDS_APP['forum']['posts_per_page']]
+                         .order_by('-position')[:settings.ZDS_APP['forum']['posts_per_page']]
         return super(PostNew, self).dispatch(request, *args, **kwargs)
 
     def create_forum(self, form_class, **kwargs):
         form = form_class(self.object, self.request.user, initial=kwargs)
-        form.helper.form_action = reverse('post-new') + "?sujet=" + str(self.object.pk)
+        form.helper.form_action = reverse('post-new') + '?sujet=' + str(self.object.pk)
         return form
 
     def get_form(self, form_class=PostForm):
         form = self.form_class(self.object, self.request.user, self.request.POST)
-        form.helper.form_action = reverse('post-new') + "?sujet=" + str(self.object.pk)
+        form.helper.form_action = reverse('post-new') + '?sujet=' + str(self.object.pk)
         return form
 
     def form_valid(self, form):
@@ -566,7 +566,7 @@ class PostUseful(UpdateView, SinglePostObjectMixin, PostEditMixin):
         if not self.object.topic.forum.can_read(request.user):
             raise PermissionDenied
         if self.object.topic.author != request.user:
-            if not request.user.has_perm("forum.change_post"):
+            if not request.user.has_perm('forum.change_post'):
                 raise PermissionDenied
         return super(PostUseful, self).dispatch(request, *args, **kwargs)
 
@@ -593,7 +593,7 @@ class PostUnread(UpdateView, SinglePostObjectMixin, PostEditMixin):
     def get(self, request, *args, **kwargs):
         self.perform_unread_message(self.object, self.request.user)
 
-        return redirect(reverse("forum-topics-list", args=[
+        return redirect(reverse('forum-topics-list', args=[
             self.object.topic.forum.category.slug, self.object.topic.forum.slug]))
 
 
@@ -618,10 +618,10 @@ def solve_alert(request):
     This can only be done by staff.
     """
 
-    if not request.user.has_perm("forum.change_post"):
+    if not request.user.has_perm('forum.change_post'):
         raise PermissionDenied
 
-    alert = get_object_or_404(Alert, pk=request.POST["alert_pk"])
+    alert = get_object_or_404(Alert, pk=request.POST['alert_pk'])
     post = Post.objects.get(pk=alert.comment.id)
 
     resolve_reason = ''
@@ -647,7 +647,7 @@ def solve_alert(request):
 # TODO suggestions de recherche auto lors d'un nouveau topic, cf issues #99 et #580. Actuellement désactivées :(
 def complete_topic(request):
     if not request.GET.get('q', None):
-        return HttpResponse("{}", content_type='application/json')
+        return HttpResponse('{}', content_type='application/json')
 
     similar_contents = SearchQuerySet().filter(content=AutoQuery(request.GET.get('q'))) \
                                        .order_by('-pubdate').all()
@@ -681,8 +681,8 @@ class CreateGitHubIssue(UpdateView):
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
 
-        tags = [value.strip() for key, value in request.POST.items() if key.startswith("tag-")]
-        body = _("{}\n\nSujet: {}\n*Envoyé depuis {}*")\
+        tags = [value.strip() for key, value in request.POST.items() if key.startswith('tag-')]
+        body = _('{}\n\nSujet: {}\n*Envoyé depuis {}*')\
             .format(request.POST['body'],
                     settings.ZDS_APP['site']['url'] + self.object.get_absolute_url(),
                     settings.ZDS_APP['site']['litteral_name'])

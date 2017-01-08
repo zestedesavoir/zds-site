@@ -20,21 +20,21 @@ class ForumManager(models.Manager):
         category
         :type with_count: bool
         """
-        query_set = self.filter(category=category, group__isnull=True).select_related("category").distinct()
+        query_set = self.filter(category=category, group__isnull=True).select_related('category').distinct()
         if with_count:
             # this request count the threads in each forum
-            thread_sub_query = "SELECT COUNT(*) FROM forum_topic WHERE forum_topic.forum_id=forum_forum.id"
+            thread_sub_query = 'SELECT COUNT(*) FROM forum_topic WHERE forum_topic.forum_id=forum_forum.id'
             # this request count the posts in each forum
-            post_sub_query = "SELECT COUNT(*) FROM forum_post WHERE forum_post.topic_id " \
-                             "IN(SELECT id FROM forum_topic WHERE forum_topic.forum_id=forum_forum.id)"
+            post_sub_query = 'SELECT COUNT(*) FROM forum_post WHERE forum_post.topic_id ' \
+                             'IN(SELECT id FROM forum_topic WHERE forum_topic.forum_id=forum_forum.id)'
 
-            query_set = query_set.extra(select={"thread_count": thread_sub_query, "post_count": post_sub_query})
+            query_set = query_set.extra(select={'thread_count': thread_sub_query, 'post_count': post_sub_query})
         return query_set.all()
 
     def get_private_forums_of_category(self, category, user):
         return self.filter(category=category, group__in=user.groups.all())\
             .order_by('position_in_category')\
-            .select_related("category").distinct().all()
+            .select_related('category').distinct().all()
 
 
 class TopicManager(models.Manager):
@@ -62,10 +62,10 @@ class TopicManager(models.Manager):
         :return: List of topics.
         """
         queryset = self.filter(author=author) \
-                       .prefetch_related("author")
+                       .prefetch_related('author')
         queryset = queryset.filter(self.visibility_check_query(user))
 
-        return queryset.order_by("-pubdate").all()[:settings.ZDS_APP['forum']['home_number']]
+        return queryset.order_by('-pubdate').all()[:settings.ZDS_APP['forum']['home_number']]
 
     def get_beta_topic_of(self, tutorial):
         return self.filter(key=tutorial.pk, key__isnull=False).first()
@@ -90,15 +90,15 @@ class TopicManager(models.Manager):
 
     def get_all_topics_of_a_user(self, current, target):
         queryset = self.filter(author=target)\
-                       .prefetch_related("author")
+                       .prefetch_related('author')
         queryset = queryset.filter(self.visibility_check_query(current))
-        return queryset.order_by("-pubdate").all()
+        return queryset.order_by('-pubdate').all()
 
     def get_all_topics_of_a_tag(self, tag, user):
         queryset = self.filter(tags__in=[tag])\
                        .prefetch_related('author', 'last_message', 'tags')
         queryset = queryset.filter(self.visibility_check_query(user))
-        return queryset.order_by("-last_message__pubdate")
+        return queryset.order_by('-last_message__pubdate')
 
 
 class PostManager(InheritanceManager):
@@ -118,19 +118,19 @@ class PostManager(InheritanceManager):
 
     def get_messages_of_a_topic(self, topic_pk):
         return self.filter(topic__pk=topic_pk)\
-                   .select_related("author__profile")\
+                   .select_related('author__profile')\
                    .prefetch_related('alerts')\
                    .prefetch_related('alerts__author')\
                    .prefetch_related('alerts__author__profile')\
-                   .order_by("position").all()
+                   .order_by('position').all()
 
     def get_all_messages_of_a_user(self, current, target):
         queryset = self.filter(author=target)\
-                       .prefetch_related("author")
-        if not current.has_perm("forum.change_post"):
+                       .prefetch_related('author')
+        if not current.has_perm('forum.change_post'):
             queryset = queryset.filter(is_visible=True)
         queryset = queryset.filter(self.visibility_check_query(current))
-        return queryset.order_by("-pubdate").all()
+        return queryset.order_by('-pubdate').all()
 
 
 class TopicReadManager(models.Manager):
@@ -147,7 +147,7 @@ class TopicReadManager(models.Manager):
         base_query_set = self.filter(user__pk=user.pk)
         if topic_sub_list is not None:
             base_query_set = base_query_set.filter(topic__in=topic_sub_list)
-        base_query_set = base_query_set.filter(post=F("topic__last_message"))
+        base_query_set = base_query_set.filter(post=F('topic__last_message'))
 
         return base_query_set
 
