@@ -1158,6 +1158,42 @@ class OpinionValidationForm(forms.Form):
         )
 
 
+class OpinionInvalidationForm(forms.Form):
+
+    version = forms.CharField(widget=forms.HiddenInput())
+
+    text = forms.CharField(
+        label='',
+        required=True,
+        widget=forms.Textarea(
+            attrs={
+                'placeholder': _(u"Pourquoi retirer ce billet de la liste des billets choisis ?"),
+                'rows': '6'
+            }
+        )
+    )
+
+    def __init__(self, content, *args, **kwargs):
+        super(OpinionInvalidationForm, self).__init__(*args, **kwargs)
+
+        # modal form, send back to previous page:
+        self.previous_page_url = content.get_absolute_url_online()
+
+        self.helper = FormHelper()
+        self.helper.form_action = reverse('validation:invalid', kwargs={'pk': content.pk, 'slug': content.slug})
+        self.helper.form_method = 'post'
+        self.helper.form_class = 'modal modal-flex'
+        self.helper.form_id = 'unpick-opinion'
+
+        self.helper.layout = Layout(
+            Field('version'),
+            Field('text'),
+            StrictButton(
+                _(u'Enlever'),
+                type='submit')
+        )
+
+
 class PromoteOpinionToArticleForm(forms.Form):
 
     version = forms.CharField(widget=forms.HiddenInput())

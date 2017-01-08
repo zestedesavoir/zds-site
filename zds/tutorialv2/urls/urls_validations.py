@@ -4,8 +4,8 @@ from django.conf.urls import url
 
 from zds.tutorialv2.views.views_validations import AskValidationForContent, ReserveValidation, \
     HistoryOfValidationDisplay, AcceptValidation, RejectValidation, RevokeValidation, CancelValidation, \
-    ValidationListView, MarkObsolete, Publish, Unpublish, ValidPublication, PromoteOpinionToArticle, \
-    ValidationOpinionListView
+    ValidationListView, Publish, Unpublish, ValidOpinion, PromoteOpinionToArticle, ValidationOpinionListView, \
+    InvalidOpinion, MarkObsolete
 
 urlpatterns = [
     url(r'^historique/(?P<pk>\d+)/(?P<slug>.+)/$', HistoryOfValidationDisplay.as_view(), name='history'),
@@ -25,14 +25,15 @@ urlpatterns = [
 
     # NO VALIDATION BEFORE PUBLICATION
 
-    url(r'^publier/(?P<pk>\d+)/(?P<slug>.+)/$', Publish.as_view(), name='publish'),
-    url(r'^depublier/(?P<pk>\d+)/(?P<slug>.+)/$', Unpublish.as_view(), name='unpublish'),
-    url(r'^valider/(?P<pk>\d+)/(?P<slug>.+)/$', ValidPublication.as_view(), name='valid'),
-    url(r'^promouvoir/(?P<pk>\d+)/(?P<slug>.+)/$', PromoteOpinionToArticle.as_view(), name='promote'),
 
-    url(r'^$', ValidationListView.as_view(), name='list'),
+    url(r'^publier/(?P<pk>\d+)/(?P<slug>.+)/$', Publish.as_view(), name="publish"),
+    url(r'^depublier/(?P<pk>\d+)/(?P<slug>.+)/$', Unpublish.as_view(), name="unpublish"),
+    url(r'^valider/(?P<pk>\d+)/(?P<slug>.+)/$', ValidOpinion.as_view(), name="valid"),
+    url(r'^devalider/(?P<pk>\d+)/(?P<slug>.+)/$', InvalidOpinion.as_view(), name="invalid"),
+    url(r'^promouvoir/(?P<pk>\d+)/(?P<slug>.+)/$', PromoteOpinionToArticle.as_view(), name="promote"),
 
     url(r'^marquer-obsolete/(?P<pk>\d+)/$', MarkObsolete.as_view(), name='mark-obsolete'),
+
     # VALIDATION VIEWS FOR STAFF
 
     url(r'^billets/$', ValidationOpinionListView.as_view(), name='list-opinion'),

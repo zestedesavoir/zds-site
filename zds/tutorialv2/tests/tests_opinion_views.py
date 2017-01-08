@@ -11,6 +11,7 @@ from zds.gallery.factories import UserGalleryFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.settings import BASE_DIR
 from zds.tutorialv2.factories import PublishableContentFactory, ExtractFactory, LicenceFactory, PublishedContentFactory
+from zds.tutorialv2.models.models_database import PublishableContent
 
 overrided_zds_app = settings.ZDS_APP
 overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
@@ -310,14 +311,20 @@ class PublishedContentTests(TestCase):
         self.assertEqual(result.status_code, 302)
 
         # valid with author => 403
+        opinion = PublishableContent.objects.get(pk=opinion.pk)
+        opinion_draft = opinion.load_version()
+
         result = self.client.post(
             reverse('validation:valid', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
             {
                 'source': '',
-                'version': opinion.load_version().current_version
+                'version': opinion_draft.current_version
             },
             follow=False)
         self.assertEqual(result.status_code, 403)
+
+        opinion = PublishableContent.objects.get(pk=opinion.pk)
+        self.assertIsNone(opinion.sha_picked)
 
         self.assertEqual(
             self.client.login(
@@ -330,10 +337,61 @@ class PublishedContentTests(TestCase):
             reverse('validation:valid', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
             {
                 'source': '',
-                'version': opinion.load_version().current_version
+                'version': opinion_draft.current_version
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
+
+        opinion = PublishableContent.objects.get(pk=opinion.pk)
+        self.assertEqual(opinion.sha_picked, opinion_draft.current_version)
+
+        # invalid with author => 403
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.post(
+            reverse('validation:invalid', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            {
+                'text': u'Parce que je veux',
+                'version': opinion_draft.current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 403)
+
+        opinion = PublishableContent.objects.get(pk=opinion.pk)
+        self.assertEqual(opinion.sha_picked, opinion_draft.current_version)
+
+        # invalid with staff
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.post(
+            reverse('validation:invalid', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            {
+                'text': u'Parce que je peux !',
+                'version': opinion_draft.current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        opinion = PublishableContent.objects.get(pk=opinion.pk)
+        self.assertIsNone(opinion.sha_picked)
+
+        # double invalidation wont work
+        result = self.client.post(
+            reverse('validation:invalid', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            {
+                'text': u'Parce que je peux toujours ...',
+                'version': opinion_draft.current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 403)
 
     def test_opinion_conversion(self):
         """
