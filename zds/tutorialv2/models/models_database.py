@@ -839,19 +839,25 @@ class PublishedContent(AbstractESDjangoIndexable):
     def get_last_action_date(self):
         return self.update_date or self.publication_date
 
-    """ Compute the number of letters for a given content``
+    def get_nb_letters(self, md_file_path=None):
+        """ Compute the number of letters for a given content
 
-    :return:Number of letters in the md file
-    :rtype: int
-    """
-    def get_nb_letter(self, md_file_path):
+        :param md_file_path: use another file to compute the number of letter rather than the default one.
+        :type md_file_path: str
+        :return: Number of letters in the md file
+        :rtype: int
+        """
+
+        if not md_file_path:
+            md_file_path = os.path.join(self.get_extra_contents_directory(), self.content_public_slug + '.md')
+
         try:
             with open(md_file_path, "rb") as md_file:
                 content = md_file.read().decode("utf-8")
             current_content = PublishedContent.objects.filter(content_pk=self.content_pk, must_redirect=False).first()
             if current_content:
                 return len(content)
-        except OSError as e:
+        except IOError as e:
             logger.warning("could not get file %s to compute nb letters (error=%s)", md_file_path, e)
 
     @classmethod

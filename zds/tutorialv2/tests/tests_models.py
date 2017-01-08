@@ -16,6 +16,7 @@ from zds.gallery.factories import UserGalleryFactory
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent
 from zds.tutorialv2.publication_utils import publish_content
 from zds.utils.models import Tag
+from django.template.defaultfilters import date
 
 overrided_zds_app = settings.ZDS_APP
 overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
@@ -517,18 +518,40 @@ class ContentTests(TestCase):
         self.assertIn('another tag', tuto_tags_list)
 
     def test_nb_letter_after_publication(self):
+        """Test the ``get_nb_letters()`` function.
 
-        article = PublishedContentFactory(type="ARTICLE", author_list=[self.user_author])
+        Special care should be taken with this function, since:
+
+        - The username of the author is, by default "Firmxxx" where "xxx" depends on the tests before ;
+        - The titles (!) also contains a number that also depends on the number of tests before ;
+        - The date is ``datetime.now()`` and contains the months, which is never a fixed number of letters.
+        """
+
+        author = ProfileFactory().user
+        author.username = 'NotAFirm1Clone'
+        author.save()
+
+        len_date_now = len(date(datetime.now(), "d F Y"))
+
+        article = PublishedContentFactory(type="ARTICLE", author_list=[author], title=u'Un titre')
         published = PublishedContent.objects.filter(content=article).first()
-        base_name = os.path.join(published.get_extra_contents_directory(), published.content_public_slug)
-        md_file_path = base_name + '.md'
-        self.assertEqual(published.get_nb_letter(md_file_path), 178)
+        self.assertEqual(published.get_nb_letters(), 160 + len_date_now)
 
-        tuto = PublishedContentFactory(type="TUTORIAL", author_list=[self.user_author])
+        tuto = PublishableContentFactory(type="TUTORIAL", author_list=[author], title=u'Un titre')
+
+        # add a chapter, so it becomes a middle tutorial
+        tuto_draft = tuto.load_version()
+        chapter1 = ContainerFactory(parent=tuto_draft, db_object=tuto, title='Un chapitre')
+        ExtractFactory(container=chapter1, db_object=tuto, title='Un extrait')
+        published = publish_content(tuto, tuto_draft, is_major_update=True)
+
+        tuto.sha_public = tuto_draft.current_version
+        tuto.sha_draft = tuto_draft.current_version
+        tuto.public_version = published
+        tuto.save()
+
         published = PublishedContent.objects.filter(content=tuto).first()
-        base_name = os.path.join(published.get_extra_contents_directory(), published.content_public_slug)
-        md_file_path = base_name + '.md'
-        self.assertEqual(published.get_nb_letter(md_file_path), 178)
+        self.assertEqual(published.get_nb_letters(), 335 + len_date_now)
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):

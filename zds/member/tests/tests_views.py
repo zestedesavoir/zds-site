@@ -1057,7 +1057,7 @@ class MemberTests(TestCase):
         self.client.login(username=tester.user.username, password='hostel77')
         data = {
             'username': 'dummy',
-            'email': ''
+            'email': tester.user.email
         }
         result = self.client.post(reverse('update-username-email-member'), data, follow=False)
 
