@@ -229,4 +229,4 @@ class PagesGuestTests(TestCase):
             reverse('homepage'),
         )
 
-        self.assertTrue('git_version' in result.context[-1])
+        self.assertTrue('git_version' in result.context)
