@@ -304,8 +304,7 @@ class Profile(models.Model):
     def get_hidden_by_staff_posts_count(self):
         return Post.objects.filter(is_visible=False, author=self.user).exclude(editor=self.user).count()
 
-    # TODO: improve this method's name?
-    def get_alerts_posts_count(self):
+    def get_active_alerts_count(self):
         """
         :return: The number of currently active alerts created by this user.
         """

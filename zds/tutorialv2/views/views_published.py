@@ -1,6 +1,7 @@
 # coding: utf-8
 from datetime import datetime
 import json as json_writer
+import logging
 import os
 
 from django.conf import settings
@@ -29,6 +30,8 @@ from zds.tutorialv2.utils import search_container_or_404, last_participation_is_
 from zds.utils.models import CommentVote, SubCategory, Alert, Tag
 from zds.utils.paginator import make_pagination, ZdSPagingListView
 from zds.utils.templatetags.topbar import top_categories_content
+
+logger = logging.getLogger('zds.tutorialv2')
 
 
 class RedirectContentSEO(RedirectView):
@@ -128,6 +131,12 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
         context['isantispam'] = self.object.antispam()
         context['pm_link'] = self.object.get_absolute_contact_url(_(u'À propos de'))
         context['subscriber_count'] = ContentReactionAnswerSubscription.objects.get_subscriptions(self.object).count()
+        # We need reading time expressed in minutes
+        try:
+            context['reading_time'] = (self.object.public_version.nb_letter /
+                                       settings.ZDS_APP['content']['sec_per_minute'])
+        except ZeroDivisionError as e:
+            logger.warning("could not compute reading time : setting sec_per_minute is set to zero (error=%s)", e)
 
         if self.request.user.is_authenticated():
             for reaction in context['reactions']:

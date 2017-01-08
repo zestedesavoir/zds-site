@@ -35,7 +35,7 @@ class MpUtilTest(TestCase):
         self.assertTrue(login_check)
 
         # Save bot group
-        bot = Group(name=settings.ZDS_APP["member"]["bot_group"])
+        bot = Group(name=settings.ZDS_APP['member']['bot_group'])
         bot.save()
 
     def test_new_mp_email(self):
@@ -43,8 +43,8 @@ class MpUtilTest(TestCase):
             reverse('mp-new'),
             {
                 'participants':
-                    self.user2.username + ", " +
-                    self.user3.username + ", " +
+                    self.user2.username + ', ' +
+                    self.user3.username + ', ' +
                     self.user4.username,
                 'title': 'title',
                 'subtitle': 'subtitle',
@@ -77,8 +77,8 @@ class MpUtilTest(TestCase):
             reverse('mp-new'),
             {
                 'participants':
-                    self.user2.username + ", " +
-                    self.user3.username + ", " +
+                    self.user2.username + ', ' +
+                    self.user3.username + ', ' +
                     self.user4.username,
                 'title': 'title',
                 'subtitle': 'subtitle',

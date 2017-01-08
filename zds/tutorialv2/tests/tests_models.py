@@ -13,7 +13,7 @@ from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory, \
     PublishedContentFactory, SubCategoryFactory
 from zds.gallery.factories import UserGalleryFactory
-from zds.tutorialv2.models.models_database import PublishableContent
+from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent
 from zds.tutorialv2.publication_utils import publish_content
 from zds.utils.models import Tag
 
@@ -432,7 +432,7 @@ class ContentTests(TestCase):
 
     def test_publication_and_attributes_consistency(self):
         pubdate = datetime.now() - timedelta(days=1)
-        article = PublishedContentFactory(type="ARTILCE", author_list=[self.user_author])
+        article = PublishedContentFactory(type="ARTICLE", author_list=[self.user_author])
         public_version = article.public_version
         public_version.publication_date = pubdate
         public_version.save()
@@ -515,6 +515,20 @@ class ContentTests(TestCase):
         self.assertIn('qwerty', tuto_tags_list)
         self.assertNotIn(' another tag', tuto_tags_list)
         self.assertIn('another tag', tuto_tags_list)
+
+    def test_nb_letter_after_publication(self):
+
+        article = PublishedContentFactory(type="ARTICLE", author_list=[self.user_author])
+        published = PublishedContent.objects.filter(content=article).first()
+        base_name = os.path.join(published.get_extra_contents_directory(), published.content_public_slug)
+        md_file_path = base_name + '.md'
+        self.assertEqual(published.get_nb_letter(md_file_path), 178)
+
+        tuto = PublishedContentFactory(type="TUTORIAL", author_list=[self.user_author])
+        published = PublishedContent.objects.filter(content=tuto).first()
+        base_name = os.path.join(published.get_extra_contents_directory(), published.content_public_slug)
+        md_file_path = base_name + '.md'
+        self.assertEqual(published.get_nb_letter(md_file_path), 178)
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
