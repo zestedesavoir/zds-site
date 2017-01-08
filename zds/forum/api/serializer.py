@@ -5,7 +5,7 @@ from dry_rest_permissions.generics import DRYPermissionsField
 from dry_rest_permissions.generics import DRYPermissions
 from django.shortcuts import get_object_or_404
 from zds.utils.validators import TitleValidator, TextValidator
-
+from zds.utils.models import Tag
 
 class ForumSerializer(serializers.ModelSerializer):
     class Meta:
@@ -23,27 +23,33 @@ class TopicCreateSerializer(serializers.ModelSerializer, TitleValidator, TextVal
     """
     Serializer to create a new topic.
     """
-    text = serializers.CharField() 
+    text = serializers.CharField()
     permissions = DRYPermissionsField()
 
     class Meta:
         model = Topic
+        #tags = serializers.PrimaryKeyRelatedField(many=True, queryset=Tag.objects.all(), required=False, )
+
+
         fields = ('id', 'title', 'subtitle', 'forum', 'text',
                   'author', 'last_message', 'pubdate',
                   'permissions', 'slug')
         read_only_fields = ('id', 'author', 'last_message', 'pubdate', 'permissions', 'slug')
 
     def create(self, validated_data):
-        
+
+        print(validated_data)
+        #validated_data['tags'] = {'1'}
+
         # Remember that text ist not a field for a Topic but for a post.
         text = validated_data.pop('text')
         new_topic = Topic.objects.create(**validated_data)
-        
+
         # Instead we use text here.
-        first_message = Post.objects.create(topic=new_topic,text=text,position=0,author=new_topic.author)
+        first_message = Post.objects.create(topic=new_topic, text=text, position=0, author=new_topic.author)
         new_topic.last_message = first_message
         new_topic.save()
-        
+
         # And serve it here so it appears in response.
         new_topic.text = text
         return new_topic
@@ -67,9 +73,10 @@ class TopicUpdateSerializer(serializers.ModelSerializer, TitleValidator, TextVal
             setattr(instance, attr, value)
         instance.save()
         return instance
-        
+
     def throw_error(self, key=None, message=None):
         raise serializers.ValidationError(message)
+
 
 class TopicUpdateStaffSerializer(serializers.ModelSerializer, TitleValidator, TextValidator):
     """
@@ -79,8 +86,7 @@ class TopicUpdateStaffSerializer(serializers.ModelSerializer, TitleValidator, Te
     forum = serializers.PrimaryKeyRelatedField(queryset=Forum.objects.all(), required=False)
     #subtitle = serializers.CharField(required=False, allow_blank=True)
     permissions = DRYPermissionsField()
-    
-    
+
     class Meta:
         model = Topic
         fields = ('id', 'title', 'subtitle', 'permissions', 'forum', 'is_locked', 'is_solved', 'tags')
@@ -91,10 +97,10 @@ class TopicUpdateStaffSerializer(serializers.ModelSerializer, TitleValidator, Te
             setattr(instance, attr, value)
         instance.save()
         return instance
-        
+
     def throw_error(self, key=None, message=None):
         raise serializers.ValidationError(message)
-        
+
 class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
@@ -142,7 +148,7 @@ class PostUpdateSerializer(serializers.ModelSerializer, TextValidator):
             setattr(instance, attr, value)
         instance.save()
         return instance
-        
+
 
 class AlertSerializer(serializers.ModelSerializer):
     """

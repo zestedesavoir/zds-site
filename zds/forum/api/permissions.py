@@ -33,11 +33,12 @@ class IsOwnerOrIsStaff(permissions.BasePermission):
             author = obj.author
         else:
             author = AnonymousUser()
-        
+
         print(request.user)
         print(author)
         print(request.user.has_perm("forum.change_topic"))
-        return (author == request.user) or (request.user.has_perm("forum.change_topic")) 
+        return (author == request.user) or (request.user.has_perm("forum.change_topic"))
+
 
 class CanWriteInForum(permissions.BasePermission):
     """
@@ -51,9 +52,10 @@ class CanWriteInForum(permissions.BasePermission):
             forum = Forum.objects.get(id=request.data.get('forum')) # TODO tester si on met un id qui n'existe pas
         except Forum.DoesNotExist:
             raise Http404("Forum with pk {} was not found".format(request.data.get('forum')))
-                
+
         return forum.can_read(request.user)
-        
+
+
 class CanWriteInTopic(permissions.BasePermission):
     """
     Allows access only to people that can write in topic passed by url.

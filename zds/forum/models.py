@@ -9,7 +9,6 @@ from django.contrib.auth.models import Group, User, AnonymousUser
 from django.core.urlresolvers import reverse
 from django.db import models
 
-from zds.member.api.permissions import CanReadTopic, CanReadPost, CanReadAndWriteNowOrReadOnly, IsNotOwnerOrReadOnly, IsOwnerOrReadOnly, IsStaffUser
 from zds.forum.managers import TopicManager, ForumManager, PostManager, TopicReadManager
 from zds.notification import signals
 from zds.settings import ZDS_APP
@@ -152,8 +151,8 @@ class Forum(models.Model):
                     pk=self.pk).exists()
             else:
                 return False
-                
-    @staticmethod            
+
+    @staticmethod
     def has_write_permission(request):
         return request.user.has_perm("member.change_forum")
 
@@ -401,7 +400,6 @@ class Topic(models.Model):
         return Topic.has_write_permission(request) and (Topic.author == request.user)
 
 
-
 class Post(Comment):
     """
     A forum post written by an user.
@@ -437,25 +435,25 @@ class Post(Comment):
         """
         return self.author == user
 
-
     @staticmethod
     def has_read_permission(request):
         return True
 
     def has_object_read_permission(self, request):
-        return Post.has_read_permission(request) 
-        
+        return Post.has_read_permission(request)
+
     @staticmethod
     def has_write_permission(request):
         return request.user.is_authenticated() and request.user.profile.can_write_now()
 
     def has_object_write_permission(self, request):
-        return Topic.has_write_permission(request) 
-        
+        return Topic.has_write_permission(request)
+
     def has_object_update_permission(self, request):
         return self.is_author(request.user)
         # TODO peut on editer quand un topic est ferme ?
         # TODO a tester, l'auteur avait acces a ubn forum prive, mais ce n'est plus le cas, peut il editer ses messages
+
 
 class TopicRead(models.Model):
     """
@@ -476,8 +474,8 @@ class TopicRead(models.Model):
         return u'<Sujet "{0}" lu par {1}, #{2}>'.format(self.topic,
                                                         self.user,
                                                         self.post.pk)
-                                                        
-    
+
+
 def is_read(topic, user=None):
     """
     Checks if the user has read the **last post** of the topic.

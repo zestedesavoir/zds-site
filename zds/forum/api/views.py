@@ -119,7 +119,7 @@ class ForumDetailAPI(RetrieveAPIView):
 
     def get_serializer_class(self):
         return ForumSerializer
-    
+
     def get_permissions(self):
         permission_classes = [CanReadForum] # TODO style plus joli ?
         return [permission() for permission in permission_classes]
@@ -193,7 +193,7 @@ class TopicListAPI(ListCreateAPIView):
               required: true
               paramType: form
             - name: tags
-              description: To add a tag, specify its taf identifier. Specify this parameter
+              description: To add a tag, specify its tag identifier. Specify this parameter
                            several times to add several tags.
               required: false
               paramType: form
@@ -222,7 +222,7 @@ class TopicListAPI(ListCreateAPIView):
         permission_classes = [CanReadForum]
         if self.request.method == 'POST':
             print('requete post')
-            
+
             #forum = Forum.objects.get(id=self.request.data.get('forum'))
             #self.check_object_permissions(self.request, forum)
             #permission_classes.append(CanReadAndWriteNowOrReadOnly)
@@ -272,7 +272,7 @@ class UserTopicListAPI(ListAPIView):
     def get_queryset(self):
         topics = Topic.objects.filter(author=self.request.user)
         return topics
-        
+
     def get_permissions(self):
         permission_classes = [AllowAny, IsAuthenticated]
         return [permission() for permission in permission_classes]
@@ -451,7 +451,7 @@ class PostListAPI(ListCreateAPIView):
         if self.request.method == 'POST':
             permission_classes.append(CanReadAndWriteNowOrReadOnly)
             permission_classes.append(CanWriteInTopic)
-            
+
         return [permission() for permission in permission_classes]
 
 
@@ -491,9 +491,9 @@ class MemberPostListAPI(ListAPIView):
                 author = User.objects.get(pk = self.kwargs.get('pk'))
             except User.DoesNotExist:
                 raise Http404("User with pk {} was not found".format(self.kwargs.get('pk')))
-                
+
             # Gets every post of author visible by current user
-            posts = Post.objects.get_all_messages_of_a_user(self.request.user, author)   
+            posts = Post.objects.get_all_messages_of_a_user(self.request.user, author)
         return posts
 
 
@@ -593,10 +593,10 @@ class PostDetailAPI(RetrieveUpdateAPIView):
     def get_permissions(self):
         permission_classes = [AllowAny, CanReadPost]
         if self.request.method == 'PUT':
-            permission_classes.append(IsOwnerOrIsStaff) 
+            permission_classes.append(IsOwnerOrIsStaff)
             permission_classes.append(CanReadAndWriteNowOrReadOnly)
         return [permission() for permission in permission_classes]
-        
+
 
 class PostAlertAPI(CreateAPIView):
     """
@@ -629,19 +629,19 @@ class PostAlertAPI(CreateAPIView):
         """
         author = request.user
         try:
-            post = Post.objects.get(id = self.kwargs.get('pk'))
+            post = Post.objects.get(id=self.kwargs.get('pk'))
         except Post.DoesNotExist:
             raise Http404("Post with pk {} was not found".format(self.kwargs.get('pk')))
 
         serializer = self.get_serializer_class()(data=request.data, context={'request': self.request})
         serializer.is_valid(raise_exception=True)
-        serializer.save(comment=post, pubdate = datetime.datetime.now(), author = author)
+        serializer.save(comment=post, pubdate=datetime.datetime.now(), author=author)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def get_permissions(self):
         permission_classes = [CanReadPost, IsAuthenticated]
         return [permission() for permission in permission_classes]
-    
+
     def get_serializer_class(self):
         return AlertSerializer
