@@ -207,7 +207,7 @@
     {% endif %}
     {% endif %}
 
-    {% for author in content.public_version.authors.all %}
+    {% for author in content.authors.all %}
         <li>
             <a href="{% url 'content:find-opinion' author.pk %}" class="ico-after offline blue">
                 {% blocktrans %}
@@ -272,6 +272,14 @@
                                         {% trans "Convertir en article" %}
                                     </a>
                                     {% crispy formConvertOpinion %}
+                                </li>
+                            {% endif %}
+                            {% if content.sha_public == content.sha_picked  %}
+                                <li>
+                                    <a href="#unpick-opinion" class="ico-after open-modal cross blue">
+                                        {% trans "Retirer des billets choisis" %}
+                                    </a>
+                                    {% crispy formUnpickOpinion %}
                                 </li>
                             {% endif %}
                         {% endif %}

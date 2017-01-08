@@ -19,7 +19,7 @@ from zds.member.decorator import LoginRequiredMixin, PermissionRequiredMixin, Lo
 from zds.gallery.models import UserGallery
 from zds.notification import signals
 from zds.tutorialv2.forms import AskValidationForm, RejectValidationForm, AcceptValidationForm, RevokeValidationForm, \
-    CancelValidationForm, PublicationForm, OpinionValidationForm, PromoteOpinionToArticleForm
+    CancelValidationForm, PublicationForm, OpinionValidationForm, PromoteOpinionToArticleForm, OpinionInvalidationForm
 from zds.tutorialv2.mixins import SingleContentFormViewMixin, ModalFormView, \
     SingleOnlineContentFormViewMixin, ValidationBeforeViewMixin, NoValidationBeforeFormViewMixin
 from zds.tutorialv2.models.models_database import Validation, PublishableContent
@@ -641,7 +641,7 @@ class Unpublish(LoginRequiredMixin, SingleOnlineContentFormViewMixin, NoValidati
         return super(Unpublish, self).form_valid(form)
 
 
-class ValidPublication(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
+class ValidOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
     """Publish the content"""
 
     form_class = OpinionValidationForm
@@ -654,7 +654,7 @@ class ValidPublication(PermissionRequiredMixin, NoValidationBeforeFormViewMixin)
         raise Http404(_(u"Valider un contenu n'est pas possible avec la méthode « GET »."))
 
     def get_form_kwargs(self):
-        kwargs = super(ValidPublication, self).get_form_kwargs()
+        kwargs = super(ValidOpinion, self).get_form_kwargs()
         kwargs['content'] = self.versioned_object
         return kwargs
 
@@ -687,7 +687,64 @@ class ValidPublication(PermissionRequiredMixin, NoValidationBeforeFormViewMixin)
 
         messages.success(self.request, _(u'Le contenu a bien été validé.'))
 
-        return super(ValidPublication, self).form_valid(form)
+        return super(ValidOpinion, self).form_valid(form)
+
+
+class InvalidOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
+    """Publish the content"""
+
+    form_class = OpinionInvalidationForm
+
+    modal_form = True
+    prefetch_all = False
+    permissions = ["tutorialv2.change_validation"]
+
+    def get(self, request, *args, **kwargs):
+        raise Http404(_(u"Enlever un billet des billets choisis n'est pas possible avec la méthode « GET »."))
+
+    def get_form_kwargs(self):
+        kwargs = super(InvalidOpinion, self).get_form_kwargs()
+        kwargs['content'] = self.versioned_object
+        return kwargs
+
+    def form_valid(self, form):
+
+        db_object = self.object
+        versioned = self.versioned_object
+        self.success_url = versioned.get_absolute_url_online()
+
+        if not db_object.sha_picked:
+            raise PermissionDenied("Retirer des billets choisis quelque chose qui n'y est pas")
+
+        if db_object.sha_picked != form.cleaned_data['version']:
+            raise PermissionDenied("Retirer des billets choisis quelque chose qui n'y est pas")
+
+        db_object.sha_picked = None
+        db_object.save()
+
+        msg = render_to_string(
+            'tutorialv2/messages/validation_invalid_opinion.md',
+            {
+                'content': versioned,
+                'url': versioned.get_absolute_url(),
+                'admin': self.request.user,
+                'message_reject': '\n'.join(['> ' + a for a in form.cleaned_data['text'].split('\n')])
+            })
+
+        bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+        send_mp(
+            bot,
+            versioned.authors.all(),
+            _(u"Billet retiré de la liste des billets choisis"),
+            versioned.title,
+            msg,
+            True,
+            direct=False
+        )
+
+        messages.success(self.request, _(u"Le contenu a bien été enlevé de la liste des billets choisis."))
+
+        return super(InvalidOpinion, self).form_valid(form)
 
 
 class MarkObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
