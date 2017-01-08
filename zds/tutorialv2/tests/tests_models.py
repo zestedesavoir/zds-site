@@ -82,7 +82,7 @@ class ContentTests(TestCase):
             self.assertNotEqual(slug, new_slug)
             self.assertTrue(new_slug in versioned.slug_pool)  # ensure new slugs are in slug pool
 
-        # then test with "real" containers and extracts :
+        # then test with 'real' containers and extracts :
         new_chapter_1 = ContainerFactory(title='aa', parent=versioned, db_object=self.tuto)
         new_chapter_2 = ContainerFactory(title='aa', parent=versioned, db_object=self.tuto)
         self.assertNotEqual(new_chapter_1.slug, new_chapter_2.slug)
@@ -96,10 +96,10 @@ class ContentTests(TestCase):
         self.assertNotEqual(new_extract_3.slug, new_extract_1.slug)  # same parent, forbidden
 
     def test_ensure_unique_slug_2(self):
-        """This text is an extension of the previous one, with the manifest re-loaded each time"""
+        """This test is an extension of the previous one, with the manifest reloaded each time"""
 
-        title = u'Il existe des gens que la ZEP-12 n\'aime pas'
-        random = u'... Mais c\'est pas sencé arriver, donc on va tout faire pour que ça disparaisse !'
+        title = u"Il existe des gens que la ZEP-12 n'aime pas"
+        random = u"... Mais c'est pas censé arriver, donc on va tout faire pour que ça disparaisse !"
 
         # get draft version
         versioned = self.tuto.load_version()
@@ -121,7 +121,7 @@ class ContentTests(TestCase):
             slugs.append(new_version.children[-1].slug)
 
         # add extracts
-        extract_title = u'On va changer de titre (parce qu\'on sais jamais) !'
+        extract_title = u"On va changer de titre (parce qu'on sais jamais) !"
 
         chapter = versioned.children[-1]  # for this second test, the last chapter will be used
         version = chapter.repo_add_extract(extract_title, random)
@@ -147,7 +147,7 @@ class ContentTests(TestCase):
 
         new_title = u'Un nouveau titre'
         other_new_title = u'Un titre différent'
-        random_text = u'J\'ai faim!'
+        random_text = u"J'ai faim!"
         other_random_text = u'Oh, du chocolat <3'
 
         versioned = self.tuto.load_version()
@@ -267,7 +267,7 @@ class ContentTests(TestCase):
     def test_if_none(self):
         """Test the case where introduction and conclusion are `None`"""
 
-        given_title = u'La vie secrète de Clem\''
+        given_title = u"La vie secrète de Clem'"
         some_text = u'Tous ces secrets (ou pas)'
         versioned = self.tuto.load_version()
         # add a new part with `None` for intro and conclusion
@@ -328,7 +328,7 @@ class ContentTests(TestCase):
     def test_extract_is_none(self):
         """Test the case of a null extract"""
 
-        article = PublishableContentFactory(type="ARTICLE")
+        article = PublishableContentFactory(type='ARTICLE')
         versioned = article.load_version()
 
         given_title = u'Peu importe, en fait, ça compte peu'
@@ -358,7 +358,7 @@ class ContentTests(TestCase):
         self.assertIsNotNone(new_extract.text)
         self.assertEqual(some_text, new_extract.get_text())
 
-        # now it change
+        # now it changes
         versioned2 = article.load_version(sha=version)
         self.assertIsNotNone(versioned2)
         self.assertIsNotNone(versioned.children[-1].text)
@@ -373,13 +373,13 @@ class ContentTests(TestCase):
         self.assertIsNone(versioned.children[-1].text)
 
     def test_ensure_slug_stay(self):
-        """This test ensure that slug are not modified when coming from a manifest"""
+        """This test ensures that slugs are not modified when coming from a manifest"""
 
         tuto = PublishableContentFactory(type='TUTORIAL')
         versioned = tuto.load_version()
 
-        random = u'Non, piti bug, tu ne reviendra plus !!!'
-        title = u'N\'importe quel titre'
+        random = u'Non, piti bug, tu ne reviendras plus !!!'
+        title = u"N'importe quel titre"
 
         # add three container with the same title
         versioned.repo_add_container(title, random, random)  # x
@@ -432,7 +432,7 @@ class ContentTests(TestCase):
 
     def test_publication_and_attributes_consistency(self):
         pubdate = datetime.now() - timedelta(days=1)
-        article = PublishedContentFactory(type="ARTICLE", author_list=[self.user_author])
+        article = PublishedContentFactory(type='ARTICLE', author_list=[self.user_author])
         public_version = article.public_version
         public_version.publication_date = pubdate
         public_version.save()
@@ -449,15 +449,15 @@ class ContentTests(TestCase):
                 username=self.user_author.username,
                 password='hostel77'),
             True)
-        self.client.post(reverse("content:edit", args=[article.pk, article.slug]), {
-            "title": old_title + "bla",
-            "description": old_description + "bla",
-            "type": "ARTICLE",
-            "licence": article.licence.pk,
-            "subcategory": SubCategoryFactory().pk,
-            "last_hash": article.sha_draft
+        self.client.post(reverse('content:edit', args=[article.pk, article.slug]), {
+            'title': old_title + 'bla',
+            'description': old_description + 'bla',
+            'type': 'ARTICLE',
+            'licence': article.licence.pk,
+            'subcategory': SubCategoryFactory().pk,
+            'last_hash': article.sha_draft
         })
-        article = PublishableContent.objects.prefetch_related("public_version").get(pk=article.pk)
+        article = PublishableContent.objects.prefetch_related('public_version').get(pk=article.pk)
         article.public_version.load_public_version()
         self.assertEqual(old_title, article.public_version.title())
         self.assertEqual(old_description, article.public_version.description())
@@ -530,13 +530,13 @@ class ContentTests(TestCase):
         author.username = 'NotAFirm1Clone'
         author.save()
 
-        len_date_now = len(date(datetime.now(), "d F Y"))
+        len_date_now = len(date(datetime.now(), 'd F Y'))
 
-        article = PublishedContentFactory(type="ARTICLE", author_list=[author], title=u'Un titre')
+        article = PublishedContentFactory(type='ARTICLE', author_list=[author], title=u'Un titre')
         published = PublishedContent.objects.filter(content=article).first()
         self.assertEqual(published.get_nb_letters(), 160 + len_date_now)
 
-        tuto = PublishableContentFactory(type="TUTORIAL", author_list=[author], title=u'Un titre')
+        tuto = PublishableContentFactory(type='TUTORIAL', author_list=[author], title=u'Un titre')
 
         # add a chapter, so it becomes a middle tutorial
         tuto_draft = tuto.load_version()
@@ -560,5 +560,5 @@ class ContentTests(TestCase):
         if os.path.isdir(settings.MEDIA_ROOT):
             shutil.rmtree(settings.MEDIA_ROOT)
 
-        # re-active PDF build
+        # re-enable PDF builds
         settings.ZDS_APP['content']['build_pdf_when_published'] = True

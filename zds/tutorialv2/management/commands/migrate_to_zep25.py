@@ -33,7 +33,7 @@ class Command(BaseCommand):
             categories = content.subcategory.all()
             for cat in categories:
                 cat_name = cat.title.strip().lower()
-                # do not add "autre" tag (useless)
+                # do not add 'autre' tag (useless)
                 if cat_name != 'autre':
                     current_tag, created = Tag.objects.get_or_create(title=cat_name)
                     content.tags.add(current_tag)
@@ -71,7 +71,7 @@ class Command(BaseCommand):
                 ('Site web',
                  'Accessibilité, Actionscript, Angular JS, CakePHP, Django, HTML/CSS, Java EE, JavaScript, Ngin'
                  'x, Node.js, Oxygen, PHP, Ruby On Rails, SEO/Réferencement*, Symfony, Websocket'),
-                ('Systèmes d\'exploitation', 'Android, GNU/Linux, iOS, MAC OS, Windows, Windows Phone'),
+                ("Systèmes d'exploitation", 'Android, GNU/Linux, iOS, MAC OS, Windows, Windows Phone'),
                 ('Autres (informatique)',
                  'API, Base de données, FTP, Jeux vidéos, MySQL, Oracle, Protocole, Sécurité, TCP/'
                  'IP'),
@@ -159,7 +159,7 @@ class Command(BaseCommand):
                 bot,
                 [user],
                 'Changement de classification du contenu sur Zeste de Savoir',
-                'Ce qui change pour vous en tant qu\'auteur',
+                "Ce qui change pour vous en tant qu'auteur",
                 msg
             )
             self.stdout.write('[ZEP-25] : PM send to {}'.format(user))
@@ -187,7 +187,7 @@ class Command(BaseCommand):
                                                962, 1186, 1226],
             'Site Web': [57, 193, 232, 241, 246, 248, 292, 295, 312, 344, 351, 352, 358, 411, 446, 449, 449, 527, 574,
                          591, 597, 598, 599, 612, 620, 622, 925, 945],
-            'Systèmes d\'exploitation': [
+            "Systèmes d'exploitation": [
                 37, 39, 97, 100, 130, 143, 158, 268, 317, 357, 507, 607, 624, 609, 662, 683, 1034],
             'Autres (informatique)': [4, 12, 88, 193, 245, 250, 297, 299, 321, 323, 324, 351, 379, 415, 723, 730, 925],
             # Sciences de la nature
