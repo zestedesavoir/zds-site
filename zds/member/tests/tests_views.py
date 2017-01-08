@@ -904,6 +904,29 @@ class MemberTests(TestCase):
         staff = Profile.objects.get(id=staff.id)  # refresh
         self.assertTrue(staff.user.is_superuser)  # still superuser !
 
+        # give admin access to user and check it has it
+        result = self.client.post(
+            reverse('member-settings-promote',
+                    kwargs={'user_pk': tester.user.id}),
+            {
+                'activation': "on",
+                'staff': "on"
+            }, follow=False)
+        self.assertEqual(result.status_code, 302)
+        tester = Profile.objects.get(id=tester.id)  # refresh
+        self.assertTrue(tester.user.is_staff)  # shoud be staff
+
+        # and remove it
+        result = self.client.post(
+            reverse('member-settings-promote',
+                    kwargs={'user_pk': tester.user.id}),
+            {
+                'activation': "on"
+            }, follow=False)
+        self.assertEqual(result.status_code, 302)
+        tester = Profile.objects.get(id=tester.id)  # refresh
+        self.assertFalse(tester.user.is_staff)  # shoudn't be staff
+
         # Finally, check that user can connect and can not access the interface
         login_check = self.client.login(
             username=tester.user.username,
