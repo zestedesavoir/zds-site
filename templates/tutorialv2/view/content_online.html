@@ -9,6 +9,7 @@
 {% load crispy_forms_tags %}
 {% load interventions %}
 {% load pluralize_fr %}
+{% load displayable_authors %}
 
 
 {% block title %}
@@ -207,7 +208,7 @@
     {% endif %}
     {% endif %}
 
-    {% for author in content.authors.all %}
+    {% for author in public_object.authors.all %}
         <li>
             <a href="{% url 'content:find-opinion' author.pk %}" class="ico-after offline blue">
                 {% blocktrans %}
