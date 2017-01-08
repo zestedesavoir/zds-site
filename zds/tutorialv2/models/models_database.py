@@ -834,12 +834,14 @@ class PublishedContent(models.Model):
     def get_last_action_date(self):
         return self.update_date or self.publication_date
 
-    """ Compute the number of letters for a given content
-
-    :return:Number of letters in the md file
-    :rtype: int
-    """
     def get_nb_letter(self, md_file_path):
+        """ Compute the number of letters for a given content
+
+        :param md_file_path: path to the md file with all the content
+        :type md_file_path: str
+        :return:Number of letters in the md file
+        :rtype: int
+        """
         try:
             with open(md_file_path, "rb") as md_file:
                 content = md_file.read().decode("utf-8")
