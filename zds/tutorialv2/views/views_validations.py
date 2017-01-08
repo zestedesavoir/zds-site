@@ -641,7 +641,7 @@ class Unpublish(LoginRequiredMixin, SingleOnlineContentFormViewMixin, NoValidati
 
 
 class ValidPublication(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
-    """Publish the content"""
+    """Approve the content"""
 
     form_class = OpinionValidationForm
 
