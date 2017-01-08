@@ -570,6 +570,19 @@ class UtilsTests(TestCase):
         handler.prepare_generation.assert_called_with("/path/to")
         os.remove("path")
 
+    def test_adjust_nb_letters(self):
+        """Test the `adjust_nb_letters` command"""
+
+        article = PublishedContentFactory(type="ARTICLE", author_list=[self.user_author])
+        published = PublishedContent.objects.filter(content=article).first()
+        published.nb_letter = None
+        published.save()
+
+        call_command('adjust_nb_letters')
+
+        published = PublishedContent.objects.get(pk=published.pk)
+        self.assertEqual(published.nb_letter, published.get_nb_letters())
+
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
             shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])

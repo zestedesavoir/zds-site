@@ -834,7 +834,7 @@ class PublishedContent(models.Model):
     def get_last_action_date(self):
         return self.update_date or self.publication_date
 
-    def get_nb_letter(self, md_file_path=None):
+    def get_nb_letters(self, md_file_path=None):
         """ Compute the number of letters for a given content
 
         :param md_file_path: use another file to compute the number of letter rather than the default one.

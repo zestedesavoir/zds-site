@@ -11,6 +11,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         for content in PublishedContent.objects.filter(nb_letter=None):
-            content.nb_letter = content.get_nb_letter()
+            content.nb_letter = content.get_nb_letters()
             content.save()
             logging.info("content %s got %d letters", content.title(), content.nb_letter)

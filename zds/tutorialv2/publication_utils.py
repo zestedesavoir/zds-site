@@ -126,7 +126,7 @@ def publish_content(db_object, versioned, is_major_update=True):
     public_version.content = db_object
     public_version.must_reindex = True
     public_version.save()
-    public_version.nb_letter = public_version.get_nb_letter(md_file_path)
+    public_version.nb_letter = public_version.get_nb_letters(md_file_path)
 
     for author in db_object.authors.all():
         public_version.authors.add(author)
