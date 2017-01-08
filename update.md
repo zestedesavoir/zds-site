@@ -849,3 +849,8 @@ Issue #2743
 -----------
 
 Lancer la commande de calcul des temps de lecture : `python manage.py adjust_nb_letters`.
+
+Maj de Raven + releases
+-----------------------
+Avant de faire le tag des différentes RC, s'assurer qu'un githook a été ajouté comme le propose sentry.
+Mettre à jour le `settings_prod.py` en suivant `doc/source/install/configs/settings_prod.py`.
