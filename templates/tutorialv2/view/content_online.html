@@ -90,17 +90,19 @@
 
     {% if content.is_opinion %}
         {% if content.converted_to %}
-            <div class="alert-box info">
-                {% if content.converted_to.get_absolute_url_online %}
+            {% if content.converted_to.get_absolute_url_online %}
+                <div class="alert-box info">
                     {% blocktrans with url_article=content.converted_to.get_absolute_url_online %}
                         Ce billet a été promu en <a href="{{ url_article }}">article</a>.
                     {% endblocktrans %}
-                {% elif is_staff %}
+                </div>
+            {% elif is_staff %}
+                <div class="alert-box info">
                     {% blocktrans with url_article=content.converted_to.get_absolute_url %}
                         Ce billet a été promu en <a href="{{ url_article }}">article</a> qui est en cours de validation.
                     {% endblocktrans %}
-                {% endif %}
-            </div>
+                </div>
+            {% endif %}
         {% endif %}
     {% endif %}
 
