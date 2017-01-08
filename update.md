@@ -841,8 +841,14 @@ A propos du logging:
 
 Mettre à jour le `settings_prod.py` en suivant `doc/source/install/configs/settings_prod.py`.
 
+
 Actions à faire pour l'upgrade v22
 ==================================
+
+Issue #2743
+-----------
+
+Lancer la commande de calcul des temps de lecture : `python manage.py adjust_nb_letters`.
 
 Maj de Raven + releases
 -----------------------
