@@ -249,13 +249,12 @@ class MemberTests(TestCase):
             {
                 'biography': 'It is **my** life',
                 'preview': '',
-            }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-        
-
-        self.assertEqual(200, response.status_code)
+            },
+            follow=True
+        )
 
         result_string = ''.join(response.streaming_content)
-        self.assertTrue('<strong>my</strong>' in result_string)
+        self.assertIn('<strong>my</strong>', result_string, 'We need the biography to be properly formatted')
 
     def test_login(self):
         """

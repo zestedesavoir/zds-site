@@ -263,12 +263,11 @@ class ContentTests(TestCase):
                 'text': random_with_md,
                 'preview': '',
             }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-        
 
         self.assertEqual(200, response.status_code)
 
         result_string = ''.join(response.streaming_content)
-        self.assertTrue('<strong>markdown</strong>' in result_string)
+        self.assertIn('<strong>markdown</strong>', result_string, 'We need the text to be properly formatted')
 
         result = self.client.post(
             reverse('content:create-tutorial'),
@@ -300,7 +299,6 @@ class ContentTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 200)
 
-
         # preview tutorial
         result = self.client.post(
             reverse('content:edit', args=[pk, slug]),
@@ -309,12 +307,12 @@ class ContentTests(TestCase):
                 'last_hash': versioned.compute_hash(),
                 'preview': ''
             }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-            
+
         self.assertEqual(result.status_code, 200)
-        
+
         result_string = ''.join(result.streaming_content)
-        self.assertTrue('<strong>markdown</strong>' in result_string)
-        
+        self.assertIn('<strong>markdown</strong>', result_string, 'We need the text to be properly formatted')
+
         # edit tutorial:
         new_licence = LicenceFactory()
 
@@ -358,10 +356,10 @@ class ContentTests(TestCase):
                 'preview': ''
             }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(result.status_code, 200)
-        
+
         result_string = ''.join(result.streaming_content)
-        self.assertTrue('<strong>markdown</strong>' in result_string)        
-        
+        self.assertIn('<strong>markdown</strong>', result_string, 'We need the container to be properly formatted')
+
         # create container:
         result = self.client.post(
             reverse('content:create-container', args=[pk, slug]),
@@ -401,7 +399,7 @@ class ContentTests(TestCase):
 
         versioned = PublishableContent.objects.get(pk=pk).load_version()
         container = versioned.children[0]
-        
+
         # preview
         result = self.client.post(
             reverse('content:edit-container', kwargs={'pk': pk, 'slug': slug, 'container_slug': container.slug}),
@@ -411,12 +409,12 @@ class ContentTests(TestCase):
                 'last_hash': container.compute_hash(),
                 'preview': ''
             }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-            
+
         self.assertEqual(result.status_code, 200)
-        
+
         result_string = ''.join(result.streaming_content)
-        self.assertTrue('<strong>markdown</strong>' in result_string)
-        
+        self.assertIn('<strong>markdown</strong>', result_string, 'We need the container to be properly formatted')
+
         versioned = PublishableContent.objects.get(pk=pk).load_version()
         container = versioned.children[0]
         self.assertEqual(container.title, random)
@@ -489,9 +487,9 @@ class ContentTests(TestCase):
                 'preview': ''
             }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(result.status_code, 200)
-        
+
         result_string = ''.join(result.streaming_content)
-        self.assertTrue('<strong>markdown</strong>' in result_string)
+        self.assertIn('<strong>markdown</strong>', result_string, 'We need the container to be properly formatted')
 
         versioned = PublishableContent.objects.get(pk=pk).load_version()
         subcontainer = versioned.children[0].children[0]
@@ -529,9 +527,9 @@ class ContentTests(TestCase):
                 'preview': ''
             }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(result.status_code, 200)
-        
+
         result_string = ''.join(result.streaming_content)
-        self.assertTrue('<strong>markdown</strong>' in result_string)
+        self.assertIn('<strong>markdown</strong>', result_string, 'We need the extract to be properly formatted')
 
         versioned = PublishableContent.objects.get(pk=pk).load_version()
         self.assertEqual(len(versioned.children[0].children[0].children), 1)  # the extract is created
@@ -3174,10 +3172,10 @@ class ContentTests(TestCase):
                 'preview': ''
             }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(result.status_code, 200)
-        
+
         result_string = ''.join(result.streaming_content)
-        self.assertTrue('<strong>markdown</strong>' in result_string)
-        
+        self.assertIn('<strong>markdown</strong>', result_string, 'We need the extract to be properly formatted')
+
         # edit extract
         result = self.client.post(
             reverse('content:edit-extract',

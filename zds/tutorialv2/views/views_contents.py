@@ -84,12 +84,13 @@ class CreateContent(LoggedWithReadWriteHability, FormView):
         if 'preview' in request.POST:
             self.form_invalid(form)
             if request.is_ajax():
-                print(request.POST)
                 content = render_to_response('misc/previsualization.part.html', {'text': request.POST.get('text')})
                 return StreamingHttpResponse(content)
 
         if form.is_valid():
             return self.form_valid(form)
+        else:
+            messages.warning(self.request, _(u'Le formulaire est invalide.'))
 
         return render(request, self.template_name, {'form': form})
 
@@ -948,7 +949,7 @@ class CreateContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         if 'preview' in request.POST:
             self.form_invalid(form)
             if request.is_ajax():
-                content = render_to_response('misc/previsualization.part.html', {'text': request.POST.get('text')})
+                content = render_to_string('misc/previsualization.part.html', {'text': request.POST.get('text')})
                 return StreamingHttpResponse(content)
 
         if form.is_valid():
@@ -1071,7 +1072,6 @@ class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
 
     def get_context_data(self, **kwargs):
         context = super(EditContainer, self).get_context_data(**kwargs)
-        form = kwargs.pop('form', self.get_form())
 
         if 'preview' not in self.request.POST:
             container = search_container_or_404(self.versioned_object, self.kwargs)
@@ -1091,7 +1091,7 @@ class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         initial['container'] = container
 
         initial['last_hash'] = container.compute_hash()
-        
+
         return initial
 
     def post(self, request, *args, **kwargs):
@@ -1101,7 +1101,7 @@ class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
             if request.is_ajax():
                 content = render_to_response('misc/previsualization.part.html', {'text': request.POST.get('text')})
                 return StreamingHttpResponse(content)
-        
+
         if form.is_valid():
             return self.form_valid(form)
 
@@ -1196,12 +1196,11 @@ class EditExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin):
 
     def get_context_data(self, **kwargs):
         context = super(EditExtract, self).get_context_data(**kwargs)
-        form = kwargs.pop('form', self.get_form())
         context['gallery'] = self.object.gallery
 
-        if 'preview' not in self.request.POST:
-            extract = search_extract_or_404(self.versioned_object, self.kwargs)
-            context['extract'] = extract
+        #if 'preview' not in self.request.POST:
+        extract = search_extract_or_404(self.versioned_object, self.kwargs)
+        context['extract'] = extract
 
         return context
 
