@@ -854,3 +854,48 @@ Maj de Raven + releases
 -----------------------
 Avant de faire le tag des différentes RC, s'assurer qu'un githook a été ajouté comme le propose sentry.
 Mettre à jour le `settings_prod.py` en suivant `doc/source/install/configs/settings_prod.py`.
+
+Elasticsearch (PR #4096)
+------------------------
+
+Les commandes suivantes sont à effectuer en *root*:
+
++ Ajouter `deb http://ftp.fr.debian.org/debian jessie-backports` main dans `/etc/apt/sources.list`
++ Installer Java 8 : 
+    * `apt-get update && apt-get install openjdk-8-jdk`. 
+    * Une fois installé, passer de Java 7 à Java 8 en le sélectionnant grâce à `update-alternatives --config java`.
++ Installer Elasticsearch ([informations issues de la documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/deb.html)):
+    * Ajouter la clé publique du dépôt : `wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | apt-key add -`
+    * Installer apt-transport-https `apt-get install apt-transport-https`
+    * Ajouter le dépôt pour Elasticsearch 5 : `echo "deb https://artifacts.elastic.co/packages/5.x/apt stable main" | tee -a /etc/apt/sources.list.d/elastic-5.x.list`
+    * Installer Elasticsearch 5 : `apt-get update && apt-get install elasticsearch`
++ Configurer la mémoire utilisée par Elastisearch: 
+    Remplacer les options `-Xms` et `-Xmx` par
+    
+    ```
+    -Xms512m
+    -Xmx512m
+    ```
+    
+    Dans `/etc/elasticsearch/jvm.options` (**Peut évoluer dans le futur**).
++ Lancer Elasticsearch:
+
+    ```
+    systemctl daemon-reload
+    systemctl enable elasticsearch.service
+    systemctl start elasticsearch.service
+    ```
+    
+Une fois Elasticsearch configuré et lancé,
+
++ Modifier le `settings.py` si nécessaire (normalement, non).
++ Indexer les données (**ça peut être long**):
+
+    ```
+    python manage.py es_manager index-all
+    ```
+    
++ Repasser `ZDS_APP['display_search_bar'] = True` dans `settings_prod.py`.
++ Configurer un *cron* pour que les données soient réindexée à intervale régulier à travers la commande `python manage.py es_manager index-flagged`.
++ Ne pas oublier de désactiver l'ancien *cron* de Solr. Ce dernier peut également être désinstallé.
++ Vérifier que le port 9200 n'est pas accessible de l'extérieur.
