@@ -13,6 +13,7 @@ from zds.utils.templatetags.emarkdown import emarkdown
 
 logger = logging.getLogger(__name__)
 
+
 def send_mp(
         author,
         users,
