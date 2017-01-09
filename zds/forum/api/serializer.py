@@ -140,7 +140,7 @@ class PostUpdateSerializer(serializers.ModelSerializer, TextValidator):
 
     class Meta:
         model = Topic
-        fields = ('id', 'text', 'permissions',)
+        fields = ('id', 'text', 'permissions')
         read_only_fields = ('id', 'permissions',)
 
     def update(self, instance, validated_data):
@@ -148,6 +148,9 @@ class PostUpdateSerializer(serializers.ModelSerializer, TextValidator):
             setattr(instance, attr, value)
         instance.save()
         return instance
+    
+    def throw_error(self, key=None, message=None):
+        raise serializers.ValidationError(message)
 
 
 class AlertSerializer(serializers.ModelSerializer):
