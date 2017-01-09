@@ -13,6 +13,16 @@ Installation
 
     Par défaut, Elasticsearch requiert au moins 2 Gio de mémoire pour démarrer.
 
+    Si vous ne souhaitez pas utiliser autant de mémoire, modifiez le fichier ``config/jvm.option``, en particuliez les options ``-Xms`` et ``-Xmx``.
+    Par exemple, vous pouvez passer la valeur de ces variables à 512 Mio grâce à:
+
+    .. sourcecode:: none
+
+        -Xms512m
+        -Xmx512m
+
+    Plus d'informations sont disponibles `dans la documentation <https://www.elastic.co/guide/en/elasticsearch/reference/current/setting-system-settings.html#jvm-options>`_.
+
 Sous Linux
 ----------
 
@@ -53,7 +63,7 @@ Vous pouvez arrêter Elasticsearch grâce à CTRL+C.
 .. note::
 
     Vous pouvez également installer Elasticsearch comme *daemon* de votre système.
-    Rendez-vous `sur la page d'installation d'Elasticsearch <https://www.elastic.co/guide/en/elasticsearch/reference/5.1/install-elasticsearch.html>`_ pour plus d'informations
+    Rendez-vous `sur la page d'installation d'Elasticsearch <https://www.elastic.co/guide/en/elasticsearch/reference/current/install-elasticsearch.html>`_ pour plus d'informations
 
 Sous macOS
 ----------
@@ -94,6 +104,11 @@ Exécutez ensuite la commande suivante :
 
 
 Vous pouvez arrêter Elasticsearch grâce à CTRL+C, puis en répondant "o" lorsqu'il vous est demandé ``Terminer le programme de commandes (O/N) ?``.
+
+.. note::
+
+    Vous pouvez également le démarrer comme *daemon*, comme sous Linux.
+    Plus d'informations `dans la documentation <https://www.elastic.co/guide/en/elasticsearch/reference/current/windows.html#windows-service>`_.
 
 Indexation et recherche
 =======================
