@@ -296,7 +296,6 @@ class ForumAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('count'), 1) # TODO nombre a affiner en fonction de la realite
 
-
     def test_list_of_forums_with_several_pages(self):
         """
         Gets list of forums with several pages in the database.
@@ -382,13 +381,7 @@ class ForumAPITest(APITestCase):
         self.assertEqual(response.data.get('slug'), forum.slug)
         self.assertEqual(response.data.get('category'), forum.category.id)
         self.assertEqual(response.data.get('position_in_category'), forum.position_in_category)
-
-        print('-------')
-        print(type(response.data.get('group')))
-        print(type(list(forum.group.all())))
-        print('-------')
         self.assertEqual(response.data.get('group'), list(forum.group.all()))
-
 
     def test_details_forum_private(self):
         """
@@ -770,7 +763,7 @@ class ForumAPITest(APITestCase):
         response = self.client_authenticated_staff.get(reverse('api:forum:detail-topic', args=[topic.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-# Editer dans un forum privé ? Verifier les auths
+# Editer topic dans un forum privé ? Verifier les auths
 # TODO
 
     def test_update_topic_details_title(self):
@@ -821,7 +814,7 @@ class ForumAPITest(APITestCase):
         self.client = APIClient()
         response = self.client.put(reverse('api:forum:detail-topic', args=[topic.id]), data)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-    
+
     def test_update_topic_banned_user(self):
         """
         Tries to update a Topic with a banned user.
@@ -1199,8 +1192,8 @@ class ForumAPITest(APITestCase):
 # DONE Créer un message en anonymous
 # DONE Créer un message dans un forum privé en user
 # DONE Créer un message dans un forum privé en staff
-# Créer un message dans un sujet fermé en user
-# Créer un message dans un sujet fermé en staff
+# DONE Créer un message dans un sujet fermé en user
+# DONE Créer un message dans un sujet fermé en staff
 # Créer un message pour tester l'antiflood
 
 
@@ -1236,6 +1229,31 @@ class ForumAPITest(APITestCase):
         with transaction.atomic():
             response = self.client.post(reverse('api:forum:list-post', args=[topic.id]), data)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_create_post_locked_topic(self):
+        """
+        Tries to create a post in a locked topic.
+        """
+        data = {
+            'text': 'Welcome to this post!'
+        }
+        profile = ProfileFactory()
+        category, forum = create_category()
+        # Create a locked topic
+        topic = add_topic_in_a_forum(forum, profile, False, False, True)
+
+        self.client = APIClient()
+        response = self.client.post(reverse('api:forum:list-post', args=[topic.id]), data)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        response = self.client_authenticated.post(reverse('api:forum:list-post', args=[topic.id]), data)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        response = self.client_authenticated_staff.post(reverse('api:forum:list-post', args=[topic.id]), data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        post = Post.objects.filter(topic=topic.id).last()
+        self.assertEqual(response.data.get('text'), data.get('text'))
+        self.assertEqual(post.text, data.get('text'))
 
     def test_create_post_with_bad_topic_id(self):
         """
@@ -1290,7 +1308,7 @@ class ForumAPITest(APITestCase):
         data = {
             'text': 'Welcome to this post!'
         }
-        response = self.client_authenticated_staff.post(reverse('api:forum:list-post', args=[topic.pk,]), data)
+        response = self.client_authenticated_staff.post(reverse('api:forum:list-post', args=[topic.pk]), data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         post = Post.objects.filter(topic=topic.id).last()
@@ -1316,7 +1334,7 @@ class ForumAPITest(APITestCase):
         }
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.post(reverse('api:forum:list-post', args=[topic.id,]), data)
+        response = self.client.post(reverse('api:forum:list-post', args=[topic.id]), data)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         # Read only
@@ -1325,7 +1343,7 @@ class ForumAPITest(APITestCase):
         profile.save()
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.post(reverse('api:forum:list-post', args=[topic.id,]), data)
+        response = self.client.post(reverse('api:forum:list-post', args=[topic.id]), data)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_detail_post(self):
@@ -1570,12 +1588,28 @@ class ForumAPITest(APITestCase):
 
         response = self.client_authenticated.post(reverse('api:forum:alert-post', args=[topic.id, 666]), data)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+                
+    def test_alert_with_banned_user(self):
+
+        profile = ProfileFactory()
+        profile.can_read = False
+        profile.can_write = False
+        profile.save()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, profile)
+        post = PostFactory(topic=topic, author=profile.user, position=1)
+        data = {
+            'text': 'I am the one that flood, this is why I am banned. Please, I have changed !'
+        }
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.post(reverse('api:forum:alert-post', args=[topic.id, post.id]), data)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
 
 # Edite un message d'un sujet fermé user
 # Edite un message d'un sujet fermé staff
-
 # TODO
-
 
     def test_update_post_anonymous(self):
         """
@@ -1584,7 +1618,7 @@ class ForumAPITest(APITestCase):
         data = {
             'text': 'I made an error I want to edit.'
         }
-        self.client = APIClient();
+        self.client = APIClient()
         topic, posts = self.create_topic_with_post()
         response = self.client.put(reverse('api:forum:detail-post', args=[topic.id, posts[0].id]), data)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
@@ -1613,7 +1647,7 @@ class ForumAPITest(APITestCase):
         response = self.client_authenticated.put(reverse('api:forum:detail-post', args=[topic.id, posts[0].id]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('text'), data.get('text'))
-        
+
     def test_update_post_text_empty(self):
         """
         Tries to empty the text of a post.
@@ -1654,7 +1688,7 @@ class ForumAPITest(APITestCase):
         data = {
             'text': 'I made an error I want to edit.'
         }
-        self.client = APIClient();
+        self.client = APIClient()
         category, forum = create_category(self.group_staff)
         topic = add_topic_in_a_forum(forum, self.staff)
         post = PostFactory(topic=topic, author=self.staff.user, position=1)
@@ -1672,6 +1706,41 @@ class ForumAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(data.get('text'), response.data.get('text'))
 
+    def test_update_post_hide_post(self):
+        """
+        Tries to update a post in a forum to hide the content of the post (different users).
+        """
+        data = {
+            'is_visible': False,
+            'text_hidden': 'Flood'
+        }
+        self.client = APIClient()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, self.staff)
+        post = PostFactory(topic=topic, author=self.staff.user, position=1)
+
+        # With anonymous
+        response = self.client.put(reverse('api:forum:detail-post', args=[topic.id, post.id]), data)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        # With user
+        response = self.client_authenticated.put(reverse('api:forum:detail-post', args=[topic.id, post.id]), data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        
+        response = self.client.get(reverse('api:forum:detail-post', args=[topic.id, post.id]))
+        self.assertEqual(response.data.get('text_hidden'), data.get('text_hidden'))
+        self.assertisNone(response.data.get('text_html'))
+        self.assertisNone(response.data.get('text'))
+        self.assertFalse(response.data.get('is_visible'))
+
+        # With staff
+        response = self.client_authenticated_staff.put(reverse('api:forum:detail-post', args=[topic.id, post.id]), data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('text_hidden'), data.get('text_hidden'))
+        self.assertisNone(response.data.get('text_html'))
+        self.assertisNone(response.data.get('text'))
+        self.assertFalse(response.data.get('is_visible'))
+        
 def create_oauth2_client(user):
     client = Application.objects.create(user=user,
                                         client_type=Application.CLIENT_CONFIDENTIAL,
@@ -1696,14 +1765,12 @@ def authenticate_client(client, client_auth, username, password):
 # Gérer le champ update (date) lors de l'edit
 # Gérer l'antispam
 # identifer quand masquer les messages (message modéré ou masqué par son auteur)
-# empecher les ls et les ban de faire des alertes
 # Gestion de tags (post/edit/details)
 # Tests qui ne passent pas
 # Style / PEP8
-# Route listant les Tags ? 
+# Route listant les Tags ?
 
 # TESTS MANQUANTS
-# Vérifier que l'on affiche pas le text hidden ou l'adresse ip (post list et post detail)
+# Vérifier que l'on affiche pas le text dans la list des posts quand le message est masque (list post)
+# Vérifier que l'on affiche pas l'adresse ip (post list et post detail)
 # Créer un topic avec des tags (ajouter le test), éditer les tags
-# Ajouter le cas ou le staff ou un user masque son message, mais un autre user ne peut pas le faire
-# Poste dans un sujet fermé (3 roles)

@@ -85,7 +85,7 @@ class ForumListAPI(ListCreateAPIView):
 
     def get_queryset(self):
         public_forums = Forum.objects.filter(group__isnull=True).order_by('position_in_category')
-        private_forums =  Forum.objects.filter(group__in=self.request.user.groups.all()).order_by('position_in_category')
+        private_forums = Forum.objects.filter(group__in=self.request.user.groups.all()).order_by('position_in_category')
         return public_forums | private_forums
 
     def get_permissions(self):
@@ -222,7 +222,7 @@ class TopicListAPI(ListCreateAPIView):
         permission_classes = [CanReadForum]
         if self.request.method == 'POST':
             print('requete post')
-
+            # TODO
             #forum = Forum.objects.get(id=self.request.data.get('forum'))
             #self.check_object_permissions(self.request, forum)
             #permission_classes.append(CanReadAndWriteNowOrReadOnly)
@@ -488,7 +488,7 @@ class MemberPostListAPI(ListAPIView):
     def get_queryset(self):
         if self.request.method == 'GET':
             try:
-                author = User.objects.get(pk = self.kwargs.get('pk'))
+                author = User.objects.get(pk=self.kwargs.get('pk'))
             except User.DoesNotExist:
                 raise Http404("User with pk {} was not found".format(self.kwargs.get('pk')))
 
@@ -640,7 +640,7 @@ class PostAlertAPI(CreateAPIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def get_permissions(self):
-        permission_classes = [CanReadPost, IsAuthenticated]
+        permission_classes = [CanReadPost]
         return [permission() for permission in permission_classes]
 
     def get_serializer_class(self):
