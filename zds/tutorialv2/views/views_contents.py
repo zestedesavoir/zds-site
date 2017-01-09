@@ -273,7 +273,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         if 'preview' in request.POST:
             self.form_invalid(form)
             if request.is_ajax():
-                content = render_to_response('misc/previsualization.part.html', {'text': request.POST.get('text')})
+                content = render_to_string('misc/previsualization.part.html', {'text': request.POST.get('text')})
                 return StreamingHttpResponse(content)
 
         if form.is_valid():
@@ -1198,7 +1198,6 @@ class EditExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         context = super(EditExtract, self).get_context_data(**kwargs)
         context['gallery'] = self.object.gallery
 
-        #if 'preview' not in self.request.POST:
         extract = search_extract_or_404(self.versioned_object, self.kwargs)
         context['extract'] = extract
 
