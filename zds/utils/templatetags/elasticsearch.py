@@ -8,7 +8,7 @@ html_tag = re.compile(r'<.*?>')
 
 
 def format_highlight(highlighted_fragments):
-    """Strip HTML, then transform back into html with only highlighting.
+    """Strip HTML, then transform back into html with highlighted fragments only.
 
     :param highlighted_fragments: list of fragments from elasticsearch
     :type highlighted_fragments: list

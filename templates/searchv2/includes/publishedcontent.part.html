@@ -21,8 +21,10 @@
     <p>
         {% if search_result.content_type == 'ARTICLE' %}
             {% trans "Article publié" %}
-        {% else %}
+        {% elif search_result.content_type == 'TUTORIAL' %}
             {% trans "Tutoriel publié" %}
+        {% else %}
+            {% trans "Contenu publié" %}
         {% endif %}
 
         &bullet;

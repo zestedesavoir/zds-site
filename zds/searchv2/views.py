@@ -19,7 +19,7 @@ class SearchView(ZdSPagingListView):
     """Research view
     """
 
-    template_name = 'search2/search.html'
+    template_name = 'searchv2/search.html'
     paginate_by = settings.ZDS_APP['search']['results_per_page']
 
     search_form_class = SearchForm
@@ -53,12 +53,12 @@ class SearchView(ZdSPagingListView):
 
     def get_queryset(self):
         if not self.index_manager.connected_to_es:
-            messages.warning(self.request, _(u'Impossible de ce connecter à Elasticsearch'))
+            messages.warning(self.request, _(u'Impossible de se connecter à Elasticsearch'))
             return []
 
         if self.search_query:
 
-            # find forums where the user is allowed to visit
+            # find forums the user is allowed to visit
             user = self.request.user
 
             forums_pub = Forum.objects.filter(group__isnull=True).all()
@@ -78,7 +78,7 @@ class SearchView(ZdSPagingListView):
             part_querysets = []
             models = self.search_form.cleaned_data['models']
 
-            if len(models) == 0:
+            if not models:
                 models = [p[0] for p in settings.ZDS_APP['search']['indexables']]
 
             for model in models:

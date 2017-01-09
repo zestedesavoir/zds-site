@@ -45,9 +45,9 @@ class SearchForm(forms.Form):
 
         try:
             with open(os.path.join(BASE_DIR, 'suggestions.txt'), 'r') as suggestions_file:
-                suggestions = ', '.join(random.sample(suggestions_file.readlines(), 5)) + '...'
+                suggestions = ', '.join(random.sample(suggestions_file.readlines(), 5)) + u'…'
         except IOError:
-            suggestions = 'Mathématiques, Droit, UDK, Langues, Python...'
+            suggestions = _(u'Mathématiques, Droit, UDK, Langues, Python…')
 
         self.fields['q'].widget.attrs['placeholder'] = suggestions
 

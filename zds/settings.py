@@ -551,29 +551,29 @@ ZDS_APP = {
             ('publishedcontent', _(u'Contenus publiés')),
             ('chapter', _(u'Chapitres publiés')),
             ('topic', _(u'Sujets du forum')),
-            ('post', _(u'Messages du forums'))
+            ('post', _(u'Messages du forums')),
         ],
         'boosts': {
             'publishedcontent': {
                 'global': 3.0,
                 'if_article': 1.0,
-                'if_tutorial': 1.0
+                'if_tutorial': 1.0,
             },
             'topic': {
                 'global': 2.0,
                 'if_solved': 1.1,
                 'if_sticky': 1.2,
-                'if_locked': 0.1
+                'if_locked': 0.1,
             },
             'chapter': {
-                'global': 1.5
+                'global': 1.5,
             },
             'post': {
                 'global': 1.0,
                 'if_first': 1.2,
                 'if_useful': 1.5,
                 'ld_ratio_above_1': 1.05,
-                'ld_ratio_below_1': 0.95
+                'ld_ratio_below_1': 0.95,
             }
         }
     },

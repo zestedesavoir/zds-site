@@ -410,7 +410,7 @@ class Topic(AbstractESDjangoIndexable):
 
     @classmethod
     def get_es_django_indexable(cls, force_reindexing=False):
-        """Overridden to and prefetch tags and forum
+        """Overridden to prefetch tags and forum
         """
 
         query = super(Topic, cls).get_es_django_indexable(force_reindexing)

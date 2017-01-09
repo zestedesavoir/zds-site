@@ -942,11 +942,6 @@ class PublishedContent(AbstractESDjangoIndexable):
 def delete_published_content_in_elasticsearch(sender, instance, **kwargs):
     """Catch the pre_delete signal to ensure the deletion in ES. Also, handle the deletion of the corresponding
     chapters.
-
-    For that, it uses the ``_delete_by_query`` API,
-    (https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-delete-by-query.html)
-    which is not available in elasticsearch python API (thought the documentation says the opposite), so it passes
-    directly trough the connection layer.
     """
 
     index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
@@ -958,7 +953,7 @@ def delete_published_content_in_elasticsearch(sender, instance, **kwargs):
 @receiver(pre_save, sender=PublishedContent)
 def delete_published_content_in_elasticsearch_if_set_to_redirect(sender, instance, **kwargs):
     """If the slug of the content changes, the ``must_redirect`` field is set to ``True`` and a new
-    PublishedContnent is created. To avoid doubles, the previous ones must be removed from ES.
+    PublishedContnent is created. To avoid duplicates, the previous ones must be removed from ES.
     """
 
     try:
@@ -973,7 +968,7 @@ def delete_published_content_in_elasticsearch_if_set_to_redirect(sender, instanc
 class FakeChapter(AbstractESIndexable):
     """A simple class that is used by ES to index chapters, constructed from the containers.
 
-    In mapping, the class define PublishedContent as its parent. Also, indexing is done by the parent.
+    In mapping, this class defines PublishedContent as its parent. Also, indexing is done by the parent.
 
     Note that this class is only indexable, not updatable, since it does not maintain value of ``es_already_indexed``
     """

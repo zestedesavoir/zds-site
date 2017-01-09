@@ -13,11 +13,6 @@ Installation
 
     Par défaut, Elasticsearch requiert au moins 2 Gio de mémoire pour démarrer.
 
-.. note::
-
-    Il n'y a pas de procédure d'installation officielle d'Elasticsearch sous Mac OSX, même si il semblerait qu'il soit possible d'utiliser *brew* pour ce faire.
-    Tout retour à ce sujet est le bienvenu.
-
 Sous Linux
 ----------
 
@@ -47,7 +42,7 @@ La procédure d'installation, si vous souhaitez utiliser Elasticsearch sans l'in
     unzip elasticsearch-5.1.1.zip
     cd elasticsearch-5.1.1/
 
-Pour démarer Elasticsearch, utilisez
+Pour démarrer Elasticsearch, utilisez
 
 .. sourcecode:: bash
 
@@ -59,6 +54,29 @@ Vous pouvez arrêter Elasticsearch grâce à CTRL+C.
 
     Vous pouvez également installer Elasticsearch comme *daemon* de votre système.
     Rendez-vous `sur la page d'installation d'Elasticsearch <https://www.elastic.co/guide/en/elasticsearch/reference/5.1/install-elasticsearch.html>`_ pour plus d'informations
+
+Sous macOS
+----------
+
+Utilisez les commandes suivantes pour installer Java 8 et Elasticsearch:
+
+.. sourcecode:: bash
+
+    brew update
+    brew cask install java
+    brew install elasticsearch
+
+
+Pour démarrer Elasticsearch, utilisez la commande suivante:
+
+.. sourcecode:: bash
+
+    elasticsearch --config=/usr/local/opt/elasticsearch/config/elasticsearch.yml
+
+.. note::
+
+    Vous pouvez également le démarrer comme *daemon*, comme sous Linux.
+    Plus d'infos `ici <https://gist.github.com/jpalala/ab3c33dd9ee5a6efbdae>`_.
 
 Sous Windows
 ------------
@@ -81,7 +99,7 @@ Indexation et recherche
 =======================
 
 Pour tester que tout fonctionne, quand Elasticsearch est démarré, rendez-vous sur la page `http://localhost:9200/ <http://localhost:9200/>`_.
-Vous devriez observer une réponse du même genre que celle-ci:
+Vous devriez observer une réponse du même genre que celle-ci :
 
 .. sourcecode:: none
 
@@ -108,14 +126,14 @@ Si c'est le cas, vous pouvez indexer les données à l'aide de la commande ``es_
     python manage.py es_manager index-all
 
 Une fois que c'est fait, en vous rendant sur la page de recherche, `http://localhost:8000/rechercher/ <http://localhost:8000/rechercher/>`_, vous devriez être capable d'utiliser la recherche.
-En particulier, vous ne devriez pas observer de message d'erreur:
+En particulier, vous ne devriez pas observer de message d'erreur :
 
 .. figure:: ../images/search/no-connection.png
     :align: center
 
     Si Elasticsearch n'est pas démarré, le message suivant apparait.
 
-Pour réindexer les nouvelles données, utilisez la commande suivante:
+Pour réindexer les nouvelles données, utilisez la commande suivante :
 
 .. sourcecode:: bash
 

@@ -64,13 +64,13 @@
                     <article class="content-item topic-item">
                         <div class="content-info">
                             {%  if result.meta.doc_type  == 'chapter' %}
-                                {% include "search2/includes/chapter.part.html" with search_result=result %}
+                                {% include "searchv2/includes/chapter.part.html" with search_result=result %}
                             {% elif result.meta.doc_type == 'publishedcontent' %}
-                                {% include "search2/includes/publishedcontent.part.html" with search_result=result %}
+                                {% include "searchv2/includes/publishedcontent.part.html" with search_result=result %}
                             {% elif result.meta.doc_type == 'topic' %}
-                                {% include "search2/includes/topic.part.html" with search_result=result %}
+                                {% include "searchv2/includes/topic.part.html" with search_result=result %}
                             {% elif result.meta.doc_type == 'post' %}
-                                {% include "search2/includes/post.part.html" with search_result=result %}
+                                {% include "searchv2/includes/post.part.html" with search_result=result %}
                             {% else %}
                                 {% trans "type d'objet inconnu" %} : {{ result.meta.doc_type }}
                             {% endif %}

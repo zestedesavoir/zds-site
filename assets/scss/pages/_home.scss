@@ -247,7 +247,7 @@ $content-width: 1145px;
         .home-description.short {
             display: block;
 
-            // Rules to don't be hidden by the .home .search-box::before background-image
+            // Rules to avoid being overridden by .home .search-box::before background-image
             width: auto;
             padding: 0 20px;
 
@@ -267,7 +267,7 @@ $content-width: 1145px;
             }
         }
         .home-description.connected {
-            // Rules to don't be hidden by the .home .search-box::before background-image
+            // Rules to avoid being overridden by .home .search-box::before background-image
             padding: 0 20px !important;
         }
 
@@ -335,7 +335,7 @@ $content-width: 1145px;
         }
         .home-description {
             &.connected {
-                // Rules to don't be hidden by the .home .search-box::before background-image
+                // Rules to avoid being overridden by .home .search-box::before background-image
                 width: auto;
                 padding: 0 80px;
             }
@@ -370,7 +370,7 @@ $content-width: 1145px;
                 }
             }
             &.connected {
-                // Rules to don't be hidden by the .home .search-box::before background-image
+                // Rules to avoid being overridden by .home .search-box::before background-image
                 max-width: 740px;
                 margin: 15px auto 0;
             }
