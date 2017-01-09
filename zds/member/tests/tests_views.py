@@ -244,14 +244,18 @@ class MemberTests(TestCase):
 
     def test_success_preview_biography(self):
 
+        member = ProfileFactory()
+        self.client.login(
+            username=member.user.username,
+            password="hostel77"
+        )
+
         response = self.client.post(
             reverse('update-member'),
             {
-                'biography': 'It is **my** life',
+                'text': 'It is **my** life',
                 'preview': '',
-            },
-            follow=True
-        )
+            }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 
         result_string = ''.join(response.streaming_content)
         self.assertIn('<strong>my</strong>', result_string, 'We need the biography to be properly formatted')
