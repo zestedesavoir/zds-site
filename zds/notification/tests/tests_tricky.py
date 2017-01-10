@@ -34,6 +34,7 @@ class ForumNotification(TestCase):
                 'title': u'Super sujet',
                 'subtitle': u'Pour tester les notifs',
                 'text': u"En tout cas l'un abonnement",
+                'forum': self.forum11.pk,
                 'tags': ''
             },
             follow=False)

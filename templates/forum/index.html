@@ -50,6 +50,12 @@
     </div>
 {% endblock %}
 
+{% block new_btn %}
+    <a href="{% url 'topic-new' %}" class="new-btn ico-after more blue">
+        {% trans "Nouveau sujet" %}
+    </a>
+{% endblock %}
+
 {% block feeds_rss %}
     {% include "forum/includes/feed.part.html" %}
 {% endblock %}

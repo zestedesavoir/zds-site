@@ -208,23 +208,36 @@ class TopicNew(CreateView, SingleObjectMixin):
     @method_decorator(transaction.atomic)
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
-        if not self.object.can_read(request.user):
+        if self.object is not None and not self.object.can_read(request.user):
             raise PermissionDenied
         return super(TopicNew, self).dispatch(request, *args, **kwargs)
 
+    def get_form_kwargs(self, **kwargs):
+        kwargs = super(TopicNew, self).get_form_kwargs(**kwargs)
+        kwargs['user'] = self.request.user
+        return kwargs
+
     def get_object(self, queryset=None):
         try:
-            forum_pk = int(self.request.GET.get('forum'))
+            forum_pk = self.request.GET.get('forum')
+            if forum_pk is None or forum_pk.strip() == '':
+                return None
+            return Forum.objects.get(pk=int(forum_pk))
         except (KeyError, ValueError, TypeError):
             raise Http404
-        return get_object_or_404(Forum, pk=forum_pk)
+        except Forum.DoesNotExist:
+            return None
 
     def get(self, request, *args, **kwargs):
-        return render(request, self.template_name, {'forum': self.object, 'form': self.form_class()})
+        if self.object is None:
+            self.object = self.get_object()
+        if self.object is not None:
+            return render(request, self.template_name, {'forum': self.object,
+                                                        'form': self.form_class(initial={'forum': self.object.pk})})
+        return render(request, self.template_name, {'form': self.form_class()})
 
     def post(self, request, *args, **kwargs):
         form = self.get_form(self.form_class)
-
         if "preview" in request.POST:
             if request.is_ajax():
                 content = render_to_response('misc/previsualization.part.html', {'text': request.POST['text']})
@@ -233,12 +246,16 @@ class TopicNew(CreateView, SingleObjectMixin):
                 initial = {
                     "title": request.POST["title"],
                     "subtitle": request.POST["subtitle"],
+                    "forum": request.POST["forum"],
                     "text": request.POST["text"]
                 }
                 form = self.form_class(initial=initial)
         elif form.is_valid():
+            self.object = get_object_or_404(Forum, pk=form.data['forum'])
+            if not self.object.can_read(request.user):
+                raise PermissionDenied
             return self.form_valid(form)
-        return render(request, self.template_name, {'forum': self.object, 'form': form})
+        return render(request, self.template_name, {'form': form})
 
     def get_form(self, form_class=TopicForm):
         return form_class(self.request.POST)
@@ -291,6 +308,7 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
         form = self.create_form(self.form_class, **{
             'title': self.object.title,
             'subtitle': self.object.subtitle,
+            'forum': self.object.forum,
             'text': self.object.first_post().text,
             'tags': ', '.join([tag['title'] for tag in self.object.tags.values('title')]) or ''
         })
@@ -308,11 +326,13 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
                     form = self.create_form(self.form_class, **{
                         'title': request.POST.get('title'),
                         'subtitle': request.POST.get('subtitle'),
+                        'forum': request.POST.get('forum'),
                         'text': request.POST.get('text'),
                         'tags': request.POST.get('tags')
                     })
             elif form.is_valid():
                 return self.form_valid(form)
+
             return render(request, self.template_name, {'topic': self.object, 'form': form})
 
         response = {}

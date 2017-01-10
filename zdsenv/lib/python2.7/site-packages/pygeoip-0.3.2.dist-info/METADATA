@@ -1,0 +1,21 @@
+Metadata-Version: 2.0
+Name: pygeoip
+Version: 0.3.2
+Summary: Pure Python GeoIP API
+Home-page: https://github.com/appliedsec/pygeoip
+Author: William Tisäter
+Author-email: william@defunct.cc
+License: LGPLv3+
+Keywords: geoip
+Platform: UNKNOWN
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 2.6
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.2
+Classifier: Programming Language :: Python :: 3.3
+Classifier: Programming Language :: Python :: 3.4
+
+UNKNOWN
+
+

@@ -160,6 +160,9 @@
             <h2 class="home-heading ico-after ico-forum" itemprop="name">
                 {% trans "Derniers sujets" %}
                 <a href="{% url 'cats-forums-list' %}" class="btn btn-grey">{% trans "Tous les sujets" %}</a>
+                {% if user.is_authenticated %}
+                <a href="{% url 'topic-new' %}" class="btn btn-grey new-btn ico-after more blue">{% trans "Nouveau sujet" %}</a>
+                {% endif %}
             </h2>
 
             <meta itemprop="itemListOrder" content="Descending">

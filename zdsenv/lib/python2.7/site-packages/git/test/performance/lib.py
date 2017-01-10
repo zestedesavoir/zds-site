@@ -1,0 +1,95 @@
+"""Contains library functions"""
+import os
+from git.test.lib import (
+    TestBase
+)
+from gitdb.test.lib import skip_on_travis_ci
+import shutil
+import tempfile
+import logging
+
+from git.db import (
+    GitCmdObjectDB,
+    GitDB
+)
+
+from git import (
+    Repo
+)
+
+#{ Invvariants
+k_env_git_repo = "GIT_PYTHON_TEST_GIT_REPO_BASE"
+#} END invariants
+
+
+#{ Base Classes
+
+class TestBigRepoR(TestBase):
+
+    """TestCase providing access to readonly 'big' repositories using the following
+    member variables:
+
+    * gitrorepo
+
+     * Read-Only git repository - actually the repo of git itself
+
+    * puregitrorepo
+
+     * As gitrepo, but uses pure python implementation
+    """
+
+    #{ Invariants
+    #} END invariants
+
+    def setUp(self):
+        # This will raise on travis, which is what we want to happen early as to prevent us to do any work
+        skip_on_travis_ci(lambda *args: None)(self)
+        try:
+            super(TestBigRepoR, self).setUp()
+        except AttributeError:
+            pass
+
+        repo_path = os.environ.get(k_env_git_repo)
+        if repo_path is None:
+            logging.info(
+                ("You can set the %s environment variable to a .git repository of" % k_env_git_repo) +
+                "your choice - defaulting to the gitpython repository")
+            repo_path = os.path.dirname(__file__)
+        # end set some repo path
+        self.gitrorepo = Repo(repo_path, odbt=GitCmdObjectDB, search_parent_directories=True)
+        self.puregitrorepo = Repo(repo_path, odbt=GitDB, search_parent_directories=True)
+
+    def tearDown(self):
+        self.gitrorepo.git.clear_cache()
+        self.gitrorepo = None
+        self.puregitrorepo.git.clear_cache()
+        self.puregitrorepo = None
+
+
+class TestBigRepoRW(TestBigRepoR):
+
+    """As above, but provides a big repository that we can write to.
+
+    Provides ``self.gitrwrepo`` and ``self.puregitrwrepo``"""
+
+    def setUp(self):
+        self.gitrwrepo = None
+        try:
+            super(TestBigRepoRW, self).setUp()
+        except AttributeError:
+            pass
+        dirname = tempfile.mktemp()
+        os.mkdir(dirname)
+        self.gitrwrepo = self.gitrorepo.clone(dirname, shared=True, bare=True, odbt=GitCmdObjectDB)
+        self.puregitrwrepo = Repo(dirname, odbt=GitDB)
+
+    def tearDown(self):
+        super(TestBigRepoRW, self).tearDown()
+        if self.gitrwrepo is not None:
+            shutil.rmtree(self.gitrwrepo.working_dir)
+            self.gitrwrepo.git.clear_cache()
+        self.gitrwrepo = None
+        self.puregitrwrepo.git.clear_cache()
+        self.puregitrwrepo = None
+
+#} END base classes
