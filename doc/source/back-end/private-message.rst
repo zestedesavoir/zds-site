@@ -25,7 +25,7 @@ Tout d'abord, entrez le nom des destinataires de votre message en les séparant 
 
 Par conception, la sélection des destinataires a ces propriétés :
 
-- les pseudos insensible à la casse ;
+- les pseudos sont insensible à la casse ;
 - contacter un membre du groupe ``bot_group`` ou un membre banni vous renverra un message d'erreur expliquant que ledit utilisateur est injoignable ;
 - contacter un membre qui n'existe pas vous renverra un message d'erreur expliquant que ledit utilisateur n'existe pas.
 
