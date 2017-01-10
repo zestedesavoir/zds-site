@@ -7,16 +7,17 @@ from django.shortcuts import get_object_or_404
 from zds.utils.validators import TitleValidator, TextValidator
 from zds.utils.models import Tag
 
+
 class ForumSerializer(serializers.ModelSerializer):
     class Meta:
         model = Forum
+
 
 class TopicSerializer(serializers.ModelSerializer):
     class Meta:
         model = Topic
         #fields = ('id', 'title', 'subtitle', 'slug', 'category', 'position_in_category')
         permissions_classes = DRYPermissions
-
 
 
 class TopicCreateSerializer(serializers.ModelSerializer, TitleValidator, TextValidator):
@@ -135,7 +136,7 @@ class PostUpdateSerializer(serializers.ModelSerializer, TextValidator):
     """
     Serializer to update a post.
     """
-    text = serializers.CharField(required=True, allow_blank=True)
+    text = serializers.CharField(required=True, allow_blank=False)
     permissions = DRYPermissionsField()
 
     class Meta:

@@ -248,6 +248,15 @@ REST_FRAMEWORK_EXTENSIONS = {
 
 
 SWAGGER_SETTINGS = {
+    'exclude_namespaces': [
+        'content'
+    ],
+    'enabled_methods': [
+        'get',
+        'post',
+        'put',
+        'delete',
+    ],
     'APIS_SORTER': 'alpha',
     'OPERATIONS_SORTER': 'alpha',
     'SHOW_REQUEST_HEADERS': True,

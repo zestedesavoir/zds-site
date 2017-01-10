@@ -641,6 +641,10 @@ class PostAlertAPI(CreateAPIView):
 
     def get_permissions(self):
         permission_classes = [CanReadPost]
+        if self.request.method == 'POST':
+            permission_classes.append(CanReadAndWriteNowOrReadOnly)
+            permission_classes.append(CanWriteInTopic)
+
         return [permission() for permission in permission_classes]
 
     def get_serializer_class(self):
