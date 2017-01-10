@@ -291,6 +291,11 @@ def answer_private_topic_event(sender, **kwargs):
     by_email = kwargs.get('by_email')
 
     if post.position_in_topic == 1:
+        # Subscribe the author.
+        if by_email:
+            PrivateTopicAnswerSubscription.objects.toggle_follow(post.privatetopic, post.author, by_email=by_email)
+        else:
+            PrivateTopicAnswerSubscription.objects.toggle_follow(post.privatetopic, post.author)
         # Subscribe at the new private topic all participants.
         for participant in post.privatetopic.participants.all():
             if by_email:
@@ -303,12 +308,6 @@ def answer_private_topic_event(sender, **kwargs):
         if subscription.user != post.author:
             send_email = by_email and (subscription.user.profile.email_for_answer or post.position_in_topic == 1)
             subscription.send_notification(content=post, sender=post.author, send_email=send_email)
-
-    # Follow private topic on answering
-    if by_email:
-        PrivateTopicAnswerSubscription.objects.toggle_follow(post.privatetopic, post.author, by_email=by_email)
-    else:
-        PrivateTopicAnswerSubscription.objects.toggle_follow(post.privatetopic, post.author)
 
 
 @receiver(m2m_changed, sender=PrivateTopic.participants.through)

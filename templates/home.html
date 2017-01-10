@@ -9,6 +9,7 @@
 {% load i18n %}
 {% load captureas %}
 {% load crispy_forms_tags %}
+{% load pluralize_fr %}
 
 
 {% block body_class %}home{% endblock %}
@@ -141,7 +142,7 @@
 
                     <div class="content-item write-tutorial">
                         <div class="write-tutorial-text">
-                            <p>{% blocktrans %}Il y a {{ contents_count }}&nbsp;publications sur&nbsp;Zeste&nbsp;de&nbsp;Savoir.{% endblocktrans %}</p>
+                            <p>{% blocktrans %}Il y a {{ contents_count }}&nbsp;publication{{ contents_count|pluralize_fr }} sur&nbsp;Zeste&nbsp;de&nbsp;Savoir.{% endblocktrans %}</p>
                             <p class="lead">{% trans "Pourquoi pas la vôtre ?" %}</p>
                         </div>
                         <a href="{% url "content:create-tutorial" %}" class="btn btn-write-tutorial">{% trans "Commencer à rédiger" %}</a>
