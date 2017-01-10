@@ -233,8 +233,26 @@ class ContentForm(ContainerForm):
             Field('description'),
             Field('tags'),
             Field('type'),
-            Field('image'),
-            Field('introduction', css_class='md-editor'),
+            Field('image'))
+        
+        print('----')
+        
+        if kwargs.get('data') is not None:
+            old_intro = kwargs.get('data').get('introduction')
+            # TODO on peut imagine retirer l'internationalisation
+            # TODO retirer le br et passer en style
+            self.helper.layout.append(Layout(Field('introduction', css_class='md-editor hidden')))
+            # TODO cacher aussi la toolbar de l'introduction ...
+            self.helper.layout.append(Layout(HTML(_(u'<br><br><div id="compare"></div><br><br>'))))
+            # TODO passer couleur du bouton en vert avec un nouveau style
+            # TODO lui passer un id pour le js ?
+            self.helper.layout.append(Layout(
+                ButtonHolder(StrictButton(_(u'Merger'), type='merge', name='merge', css_class='btn btn-grey merge-btn need-to-merge-introduction'))))
+
+        else :
+            self.helper.layout.append(Layout(Field('introduction', css_class='md-editor')))
+                   
+        self.helper.layout.append( Layout(
             Field('conclusion', css_class='md-editor'),
             Field('last_hash'),
             Field('licence'),
@@ -250,7 +268,7 @@ class ContentForm(ContainerForm):
             ButtonHolder(
                 StrictButton('Valider', type='submit'),
             ),
-        )
+        ))
 
         if 'type' in self.initial:
             self.helper['type'].wrap(

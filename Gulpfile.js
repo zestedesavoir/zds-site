@@ -45,6 +45,8 @@ gulp.task('js', () =>
     gulp.src([
         require.resolve('jquery'),
         require.resolve('cookies-eu-banner'),
+        require.resolve('codemirror'),
+        require.resolve('mergely'),
         'assets/js/_custom.modernizr.js',
 
         // Used by other scripts, must be first
@@ -55,6 +57,7 @@ gulp.task('js', () =>
         'assets/js/accordeon.js',
         'assets/js/ajax-actions.js',
         'assets/js/autocompletion.js',
+        'assets/js/auto-merge.js',
         'assets/js/close-alert-box.js',
         'assets/js/compare-commits.js',
         'assets/js/data-click.js',

@@ -237,14 +237,14 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         initial['helps'] = self.object.helps.all()
 
         initial['last_hash'] = versioned.compute_hash()
-
+        print('ici')
         return initial
 
     def get_context_data(self, **kwargs):
         context = super(EditContent, self).get_context_data(**kwargs)
 
         context['gallery'] = self.object.gallery
-
+        print('la')
         return context
 
     def form_valid(self, form):
@@ -255,10 +255,14 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         current_hash = versioned.compute_hash()
         if current_hash != form.cleaned_data['last_hash']:
             data = form.data.copy()
+            your_introduction = data.get('introduction')
+            print(your_introduction)
             data['last_hash'] = current_hash
             data['introduction'] = versioned.get_introduction()
             data['conclusion'] = versioned.get_conclusion()
+            data['your_introduction'] = your_introduction
             form.data = data
+            
             messages.error(self.request, _(u'Une nouvelle version a été postée avant que vous ne validiez.'))
             return self.form_invalid(form)
 
