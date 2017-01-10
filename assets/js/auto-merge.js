@@ -36,11 +36,14 @@ $(document).ready(function () {
         var classList = button.attr('class').split(/\s+/);
         console.log(classList);
 		for (var i = 0; i < classList.length; i++) {
-			// Pour un POC on pourrait faire plus simple, mais je m'intéresse au cas ou il y aura plusieurs
-			// boutons par page, voila un moyen de les différencier.
-			// on pourrait probablement automatiser ça avec une regex ou autre
-		    if (classList[i] === 'need-to-merge-introduction') {
-		        $intro = $("#id_introduction");
+		    if (classList[i].indexOf('need-to-merge-') >= 0) {
+
+		    	// Cut the string to get the ending part
+		    	console.log(classList[i])
+		    	var substring = classList[i].substring(14)
+		    	
+		    	// TODO : problème des retours à la ligne qui s'en vont ?
+		        $intro = $("#id_" + substring);
 		        $to_merge = $("#compare").mergely('get','rhs');
 		        $intro.val($to_merge);
 		        

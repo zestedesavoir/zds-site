@@ -33,15 +33,6 @@
         <p class="ico-after warning">
             {% trans "Une nouvelle version a été postée avant que vous ne validiez" %}.
         </p>
-        <!-- TODO a quoi servent ces lignes puisqu'on passer par l'intergiciel de gestion de messages ??? -->
-    {% endif %}
-    
-    {% if messages %}
-        <!-- A passer correctement par un champ Hidden de formulaire Django -->
-        <div id="your_introduction" style="display  : none;" >{{form.data.your_introduction}}</div>
-        
-        
-        <br>
     {% endif %}
 
     {% crispy form %}
