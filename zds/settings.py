@@ -249,8 +249,7 @@ REST_FRAMEWORK_EXTENSIONS = {
 
 SWAGGER_SETTINGS = {
     'exclude_namespaces': [
-        'content',
-        'forum'
+        'content'
     ],
     'enabled_methods': [
         'get',

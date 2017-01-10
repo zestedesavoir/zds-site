@@ -763,9 +763,6 @@ class ForumAPITest(APITestCase):
         response = self.client_authenticated_staff.get(reverse('api:forum:detail-topic', args=[topic.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-# Editer topic dans un forum privé ? Verifier les auths
-# TODO
-
     def test_update_topic_details_title(self):
         """
         Updates title of a topic.
@@ -911,6 +908,31 @@ class ForumAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data.get('is_locked'))
 
+    def test_update_topic_private_forum(self):
+        """
+        Tries to update a Topic in a private forum with different users.
+        """
+        data = {
+            'title': 'Mon nouveau titre'
+        }
+
+        profile = StaffProfileFactory()
+        category, forum = create_category(self.group_staff)
+        topic = add_topic_in_a_forum(forum, profile)
+
+        self.client = APIClient()
+        response = self.client.put(reverse('api:forum:detail-topic', args=[topic.id]), data)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        response = self.client_authenticated.put(reverse('api:forum:detail-topic', args=[topic.id]), data)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        response = self.client_authenticated_staff.put(reverse('api:forum:detail-topic', args=[topic.id]), data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(data.get('title'), response.data.get('title'))
+        topic = Topic.objects.get(pk=topic.id)
+        self.assertEqual(data.get('title'), topic.title)
+
     def test_update_topic_solve(self):
         """
         Tries to solve a Topic with different users.
@@ -974,8 +996,7 @@ class ForumAPITest(APITestCase):
         group.user_set.add(profile.user)
         category, forum = create_category(group)
         topic = add_topic_in_a_forum(forum, profile)
-        # def add_topic_in_a_forum(forum, profile, is_sticky=False, is_solved=False, is_locked=False):
-
+        # TODO c'est quoi ce test ???
         response = self.client.get(reverse('api:forum:list-post', args=[topic.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('count'), 1)
@@ -993,11 +1014,7 @@ class ForumAPITest(APITestCase):
         topic = add_topic_in_a_forum(forum, profile)
 
         response = self.client_authenticated.get(reverse('api:forum:list-post', args=[topic.id]))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data.get('count'), 1)
-        self.assertEqual(len(response.data.get('results')), 1)
-        self.assertIsNone(response.data.get('next'))
-        self.assertIsNone(response.data.get('previous'))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_list_of_posts_with_several_pages(self):
         """
@@ -1283,6 +1300,25 @@ class ForumAPITest(APITestCase):
         self.assertEqual(response.data.get('is_useful'), post.is_useful)
         self.assertEqual(response.data.get('author'), post.author.id)
         self.assertEqual(response.data.get('position'), post.position)
+    
+    def test_create_post_spamming(self):
+        """
+        Tries to create differents posts in the same Topic without waiting 15 minutes.
+        """
+        
+        data = {
+            'text': 'Welcome to this post!'
+        }
+        
+        # First post, should work alright
+        topic = self.create_multiple_forums_with_topics(1, 1)
+        response = self.client_authenticated.post(reverse('api:forum:list-post', args=[topic.id]), data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        
+        # But this is spam
+        response = self.client_authenticated.post(reverse('api:forum:list-post', args=[topic.id]), data)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN) #  TODO 403 approprié ?
+        # TODO vérifié que la page renvoi un message spécifique ?
 
     def test_failure_post_in_a_forum_we_cannot_read(self):
         """
@@ -1588,7 +1624,7 @@ class ForumAPITest(APITestCase):
 
         response = self.client_authenticated.post(reverse('api:forum:alert-post', args=[topic.id, 666]), data)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-                
+
     def test_alert_with_banned_user(self):
 
         profile = ProfileFactory()
@@ -1605,11 +1641,6 @@ class ForumAPITest(APITestCase):
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
         response = self.client.post(reverse('api:forum:alert-post', args=[topic.id, post.id]), data)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-
-# Edite un message d'un sujet fermé user
-# Edite un message d'un sujet fermé staff
-# TODO
 
     def test_update_post_anonymous(self):
         """
@@ -1644,9 +1675,12 @@ class ForumAPITest(APITestCase):
             'text': 'I made an error I want to edit.'
         }
         topic, posts = self.create_topic_with_post(1, self.profile)
+
         response = self.client_authenticated.put(reverse('api:forum:detail-post', args=[topic.id, posts[0].id]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('text'), data.get('text'))
+        self.assertEqual(response.data.get('editor'), self.profile.user.id)
+        self.assertIsNotNote(response.data.get('update'))
 
     def test_update_post_text_empty(self):
         """
@@ -1683,7 +1717,7 @@ class ForumAPITest(APITestCase):
 
     def test_update_post_in_private_topic(self):
         """
-        Tries to update a post in a private forum (and topic) with anonymous user.
+        Tries to update a post in a private forum (and topic) with different users.
         """
         data = {
             'text': 'I made an error I want to edit.'
@@ -1706,6 +1740,32 @@ class ForumAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(data.get('text'), response.data.get('text'))
 
+    def test_update_post_in_locked_topic(self):
+        """
+        Tries to update a post in a locked topic with different users.
+        """
+        data = {
+            'text': 'I made an error I want to edit.'
+        }
+        self.client = APIClient()
+        category, forum = create_category()
+        # Create locked topic
+        topic = add_topic_in_a_forum(forum, self.profile, False, False, True)
+        post = PostFactory(topic=topic, author=self.profile.user, position=1)
+
+        # With anonymous
+        response = self.client.put(reverse('api:forum:detail-post', args=[topic.id, post.id]), data)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        # With user
+        response = self.client_authenticated.put(reverse('api:forum:detail-post', args=[topic.id, post.id]), data)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # With staff
+        response = self.client_authenticated_staff.put(reverse('api:forum:detail-post', args=[topic.id, post.id]), data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(data.get('text'), response.data.get('text'))
+
     def test_update_post_hide_post(self):
         """
         Tries to update a post in a forum to hide the content of the post (different users).
@@ -1717,7 +1777,7 @@ class ForumAPITest(APITestCase):
         self.client = APIClient()
         category, forum = create_category()
         topic = add_topic_in_a_forum(forum, self.staff)
-        post = PostFactory(topic=topic, author=self.staff.user, position=1)
+        post = PostFactory(topic=topic, author=self.profile.user, position=1)
 
         # With anonymous
         response = self.client.put(reverse('api:forum:detail-post', args=[topic.id, post.id]), data)
@@ -1726,7 +1786,7 @@ class ForumAPITest(APITestCase):
         # With user
         response = self.client_authenticated.put(reverse('api:forum:detail-post', args=[topic.id, post.id]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        
+
         response = self.client.get(reverse('api:forum:detail-post', args=[topic.id, post.id]))
         self.assertEqual(response.data.get('text_hidden'), data.get('text_hidden'))
         self.assertisNone(response.data.get('text_html'))
@@ -1740,7 +1800,7 @@ class ForumAPITest(APITestCase):
         self.assertisNone(response.data.get('text_html'))
         self.assertisNone(response.data.get('text'))
         self.assertFalse(response.data.get('is_visible'))
-        
+
 def create_oauth2_client(user):
     client = Application.objects.create(user=user,
                                         client_type=Application.CLIENT_CONFIDENTIAL,
@@ -1762,15 +1822,15 @@ def authenticate_client(client, client_auth, username, password):
 
 # TODO
 # Reorganiser le code de test en differentes classes, reordonner les tests
-# Gérer le champ update (date) lors de l'edit
-# Gérer l'antispam
-# identifer quand masquer les messages (message modéré ou masqué par son auteur)
+# -----------Gérer le champ update (date) lors de l'edit (test ajouté)
+# -----------Gérer l'antispam (test ajouté)
 # Gestion de tags (post/edit/details)
 # Tests qui ne passent pas
 # Style / PEP8
 # Route listant les Tags ?
 
 # TESTS MANQUANTS
-# Vérifier que l'on affiche pas le text dans la list des posts quand le message est masque (list post)
+# Vérifier que l'on affiche pas le text dans la list des posts quand le message est masque (list post) ou dans topic details quand le post est le premier du topic
 # Vérifier que l'on affiche pas l'adresse ip (post list et post detail)
 # Créer un topic avec des tags (ajouter le test), éditer les tags
+# ALLOWED_HOSTS=['zds-anto59290.c9users.io']
