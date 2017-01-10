@@ -237,14 +237,12 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         initial['helps'] = self.object.helps.all()
 
         initial['last_hash'] = versioned.compute_hash()
-        print('ici')
         return initial
 
     def get_context_data(self, **kwargs):
         context = super(EditContent, self).get_context_data(**kwargs)
 
         context['gallery'] = self.object.gallery
-        print('la')
         return context
 
     def form_valid(self, form):
@@ -256,7 +254,6 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         if current_hash != form.cleaned_data['last_hash']:
             data = form.data.copy()
             your_introduction = data.get('introduction')
-            print(your_introduction)
             data['last_hash'] = current_hash
             data['introduction'] = versioned.get_introduction()
             data['conclusion'] = versioned.get_conclusion()
