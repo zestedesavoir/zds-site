@@ -75,6 +75,27 @@ Les utilitaires de publication (``publication_utils.py``)
 .. automodule:: zds.tutorialv2.publication_utils
     :members:
 
+L'API (``/api/``)
+=================
+
+Les vues (``views.py``)
+-----------------------
+
+.. automodule:: zds.tutorialv2.api.views
+    :members:
+
+Les modèle de traduction JSON <=> models (``view_models.py``)
+-------------------------------------------------------------
+
+.. automodule:: zds.tutorialv2.api.view_models
+    :members:
+
+Les *serializers*/validateurs (``serializers.py``)
+--------------------------------------------------
+
+.. automodule:: zds.tutorialv2.api.serializers
+    :members:
+
 Les receveurs d'évènement bdd (``receivers.py``)
 ================================================
 
