@@ -24,7 +24,7 @@ class CategoriesForumsListViewTests(TestCase):
         self.assertEqual(forum, current_category.get_forums(profile.user)[0])
 
     def test_success_list_all_forums_with_private_forums(self):
-        group = Group.objects.create(name="DummyGroup_1")
+        group = Group.objects.create(name='DummyGroup_1')
 
         profile = ProfileFactory()
         category, forum = create_category(group)
@@ -83,7 +83,7 @@ class CategoryForumsDetailViewTest(TestCase):
         self.assertEqual(response.context['forums'][0], current_category.get_forums(profile.user)[0])
 
     def test_success_list_all_forums_of_a_category_with_private_forums(self):
-        group = Group.objects.create(name="DummyGroup_1")
+        group = Group.objects.create(name='DummyGroup_1')
 
         profile = ProfileFactory()
         category, forum = create_category(group)
@@ -115,7 +115,7 @@ class ForumTopicsListViewTest(TestCase):
         self.assertEqual(404, response.status_code)
 
     def test_failure_list_all_topics_of_a_forum_we_cannot_read(self):
-        group = Group.objects.create(name="DummyGroup_1")
+        group = Group.objects.create(name='DummyGroup_1')
         category, forum = create_category(group)
 
         response = self.client.get(reverse('forum-topics-list', args=[category.slug, forum.slug]))
@@ -191,7 +191,7 @@ class ForumTopicsListViewTest(TestCase):
 
 class TopicPostsListViewTest(TestCase):
     def test_failure_list_all_posts_of_a_topic_of_a_forum_we_cannot_read(self):
-        group = Group.objects.create(name="DummyGroup_1")
+        group = Group.objects.create(name='DummyGroup_1')
         profile = ProfileFactory()
         category, forum = create_category(group)
         topic = add_topic_in_a_forum(forum, profile)
@@ -256,7 +256,7 @@ class TopicNewTest(TestCase):
         self.assertEqual(403, response.status_code)
 
     def test_failure_create_topics_with_a_post_in_a_forum_we_cannot_read(self):
-        group = Group.objects.create(name="DummyGroup_1")
+        group = Group.objects.create(name='DummyGroup_1')
         profile = ProfileFactory()
         category, forum = create_category(group)
 
@@ -312,14 +312,14 @@ class TopicNewTest(TestCase):
         post = Post.objects.filter(topic__pk=topic.pk).first()
         # for user
         url = topic.resolve_last_read_post_absolute_url()
-        self.assertEquals(url, topic.get_absolute_url() + "?page=1#p" + str(post.pk))
+        self.assertEquals(url, topic.get_absolute_url() + '?page=1#p' + str(post.pk))
 
         # for anonymous
         self.client.logout()
-        self.assertEquals(url, topic.get_absolute_url() + "?page=1#p" + str(post.pk))
+        self.assertEquals(url, topic.get_absolute_url() + '?page=1#p' + str(post.pk))
         # for no visit
         self.assertTrue(self.client.login(username=notvisited.user.username, password='hostel77'))
-        self.assertEquals(url, topic.get_absolute_url() + "?page=1#p" + str(post.pk))
+        self.assertEquals(url, topic.get_absolute_url() + '?page=1#p' + str(post.pk))
 
     def test_success_create_topic_with_post_in_preview_in_ajax(self):
         profile = ProfileFactory()
@@ -896,7 +896,7 @@ class PostNewTest(TestCase):
 
     def test_failure_new_post_in_a_forum_we_cannot_read(self):
         profile = ProfileFactory()
-        group = Group.objects.create(name="DummyGroup_1")
+        group = Group.objects.create(name='DummyGroup_1')
         category, forum = create_category(group)
         topic = add_topic_in_a_forum(forum, profile)
 
@@ -1050,7 +1050,7 @@ class PostEditTest(TestCase):
 
     def test_failure_edit_post_in_a_forum_we_cannot_read(self):
         profile = ProfileFactory()
-        group = Group.objects.create(name="DummyGroup_1")
+        group = Group.objects.create(name='DummyGroup_1')
         category, forum = create_category(group)
         topic = add_topic_in_a_forum(forum, profile)
 
@@ -1325,7 +1325,7 @@ class PostUsefulTest(TestCase):
         self.assertEqual(404, response.status_code)
 
     def test_failure_post_useful_of_a_forum_we_cannot_read(self):
-        group = Group.objects.create(name="DummyGroup_1")
+        group = Group.objects.create(name='DummyGroup_1')
 
         profile = ProfileFactory()
         category, forum = create_category(group)
@@ -1546,7 +1546,7 @@ class PostUnreadTest(TestCase):
         self.assertEqual(404, response.status_code)
 
     def test_failure_post_unread_of_a_forum_we_cannot_read(self):
-        group = Group.objects.create(name="DummyGroup_1")
+        group = Group.objects.create(name='DummyGroup_1')
 
         profile = ProfileFactory()
         category, forum = create_category(group)

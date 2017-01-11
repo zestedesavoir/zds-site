@@ -26,7 +26,7 @@ class TutorialIsPublished(FileSystemEventHandler):
     def __cleanup_build_and_watchdog(extra_contents_path, watchdog_file_path):
         for listed in listdir(extra_contents_path, recursive=False):
             try:
-                shutil.copy(join(extra_contents_path, listed), extra_contents_path.replace("__building", ""))
+                shutil.copy(join(extra_contents_path, listed), extra_contents_path.replace('__building', ''))
             except Exception:
                 pass
         shutil.rmtree(extra_contents_path)
@@ -38,13 +38,13 @@ class TutorialIsPublished(FileSystemEventHandler):
 
     def on_created(self, event):
         super(TutorialIsPublished, self).on_created(event)
-        pandoc_debug_str = ""
+        pandoc_debug_str = ''
 
         if settings.PANDOC_LOG_STATE:
-            pandoc_debug_str = " 2>&1 | tee -a " + settings.PANDOC_LOG
+            pandoc_debug_str = ' 2>&1 | tee -a ' + settings.PANDOC_LOG
         if isinstance(event, FileCreatedEvent):
-            with open(event.src_path, encoding="utf-8") as f:
-                infos = f.read().strip().split(";")
+            with open(event.src_path, encoding='utf-8') as f:
+                infos = f.read().strip().split(';')
             md_file_path = infos[1]
             base_name = infos[0]
             extra_contents_path = dirname(md_file_path)

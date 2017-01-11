@@ -60,63 +60,63 @@ class ContentTests(TestCase):
         self.chapter1 = ContainerFactory(parent=self.part1, db_object=self.tuto)
 
         self.extract1 = ExtractFactory(container=self.chapter1, db_object=self.tuto)
-        bot = Group(name=settings.ZDS_APP["member"]["bot_group"])
+        bot = Group(name=settings.ZDS_APP['member']['bot_group'])
         bot.save()
         self.external = UserFactory(
-            username=settings.ZDS_APP["member"]["external_account"],
-            password="anything")
+            username=settings.ZDS_APP['member']['external_account'],
+            password='anything')
 
     def test_public_lists(self):
         tutorial = PublishedContentFactory(author_list=[self.user_author])
         tutorial_unpublished = PublishableContentFactory(author_list=[self.user_author])
-        article = PublishedContentFactory(author_list=[self.user_author], type="ARTICLE")
-        article_unpublished = PublishableContentFactory(author_list=[self.user_author], type="ARTICLE")
+        article = PublishedContentFactory(author_list=[self.user_author], type='ARTICLE')
+        article_unpublished = PublishableContentFactory(author_list=[self.user_author], type='ARTICLE')
         self.client.logout()
-        resp = self.client.get(reverse("tutorial:list"))
+        resp = self.client.get(reverse('tutorial:list'))
         self.assertContains(resp, tutorial.title)
         self.assertNotContains(resp, tutorial_unpublished.title)
-        resp = self.client.get(reverse("article:list"))
+        resp = self.client.get(reverse('article:list'))
         self.assertContains(resp, article.title)
         self.assertNotContains(resp, article_unpublished.title)
-        resp = self.client.get(reverse("content:find-tutorial", args=[self.user_author.pk]) + "?filter=public")
+        resp = self.client.get(reverse('content:find-tutorial', args=[self.user_author.pk]) + '?filter=public')
         self.assertContains(resp, tutorial.title)
         self.assertNotContains(resp, tutorial_unpublished.title)
-        resp = self.client.get(reverse("content:find-tutorial", args=[self.user_author.pk]) + "?filter=redaction")
+        resp = self.client.get(reverse('content:find-tutorial', args=[self.user_author.pk]) + '?filter=redaction')
         self.assertEqual(resp.status_code, 403)
-        resp = self.client.get(reverse("content:find-article", args=[self.user_author.pk]) + "?filter=public")
+        resp = self.client.get(reverse('content:find-article', args=[self.user_author.pk]) + '?filter=public')
         self.assertContains(resp, article.title)
         self.assertNotContains(resp, article_unpublished.title)
-        resp = self.client.get(reverse("content:find-article", args=[self.user_author.pk]) + "?filter=redaction")
+        resp = self.client.get(reverse('content:find-article', args=[self.user_author.pk]) + '?filter=redaction')
         self.assertEqual(resp.status_code, 403)
-        resp = self.client.get(reverse("content:find-article", args=[self.user_author.pk]) + "?filter=chuck-norris")
+        resp = self.client.get(reverse('content:find-article', args=[self.user_author.pk]) + '?filter=chuck-norris')
         self.assertEqual(resp.status_code, 404)
 
     def test_private_lists(self):
         tutorial = PublishedContentFactory(author_list=[self.user_author])
         tutorial_unpublished = PublishableContentFactory(author_list=[self.user_author])
-        article = PublishedContentFactory(author_list=[self.user_author], type="ARTICLE")
-        article_unpublished = PublishableContentFactory(author_list=[self.user_author], type="ARTICLE")
+        article = PublishedContentFactory(author_list=[self.user_author], type='ARTICLE')
+        article_unpublished = PublishableContentFactory(author_list=[self.user_author], type='ARTICLE')
         self.client.login(
             username=self.user_author.username,
             password='hostel77')
-        resp = self.client.get(reverse("content:find-tutorial", args=[self.user_author.pk]))
+        resp = self.client.get(reverse('content:find-tutorial', args=[self.user_author.pk]))
         self.assertContains(resp, tutorial.title)
         self.assertContains(resp, tutorial_unpublished.title)
-        self.assertContains(resp, "content-illu")
-        resp = self.client.get(reverse("content:find-article", args=[self.user_author.pk]))
+        self.assertContains(resp, 'content-illu')
+        resp = self.client.get(reverse('content:find-article', args=[self.user_author.pk]))
         self.assertContains(resp, article.title)
         self.assertContains(resp, article_unpublished.title)
-        self.assertContains(resp, "content-illu")
+        self.assertContains(resp, 'content-illu')
 
     def test_validation_list(self):
         """ensure the behavior of the `validation:list` page (with filters)"""
 
         text = u'Ceci est un éléphant'
 
-        tuto_not_reserved = PublishableContentFactory(type="TUTORIAL", author_list=[self.user_author])
-        tuto_reserved = PublishableContentFactory(type="TUTORIAL", author_list=[self.user_author])
-        article_not_reserved = PublishableContentFactory(type="ARTICLE", author_list=[self.user_author])
-        article_reserved = PublishableContentFactory(type="ARTICLE", author_list=[self.user_author])
+        tuto_not_reserved = PublishableContentFactory(type='TUTORIAL', author_list=[self.user_author])
+        tuto_reserved = PublishableContentFactory(type='TUTORIAL', author_list=[self.user_author])
+        article_not_reserved = PublishableContentFactory(type='ARTICLE', author_list=[self.user_author])
+        article_reserved = PublishableContentFactory(type='ARTICLE', author_list=[self.user_author])
 
         all_contents = [tuto_not_reserved, tuto_reserved, article_not_reserved, article_reserved]
         reserved_contents = [tuto_reserved, article_reserved]
@@ -128,7 +128,7 @@ class ContentTests(TestCase):
 
         # send in validation
         for content in all_contents:
-            v = ValidationFactory(content=content, status="PENDING")
+            v = ValidationFactory(content=content, status='PENDING')
             v.date_proposition = datetime.datetime.now()
             v.version = content.sha_draft
             v.comment_authors = text
@@ -136,7 +136,7 @@ class ContentTests(TestCase):
             if content in reserved_contents:
                 v.validator = self.user_staff
                 v.date_reserve = datetime.datetime.now()
-                v.status = "PENDING_V"
+                v.status = 'PENDING_V'
 
             v.save()
 
@@ -170,17 +170,17 @@ class ContentTests(TestCase):
         self.assertEqual(len(validations), 4)  # a total of 4 contents in validation
 
         # test filters
-        response = self.client.get(reverse('validation:list') + "?type=article", follow=False)
+        response = self.client.get(reverse('validation:list') + '?type=article', follow=False)
         self.assertEqual(response.status_code, 200)  # OK
         validations = response.context['validations']
         self.assertEqual(len(validations), 2)  # 2 articles
 
-        response = self.client.get(reverse('validation:list') + "?type=tuto", follow=False)
+        response = self.client.get(reverse('validation:list') + '?type=tuto', follow=False)
         self.assertEqual(response.status_code, 200)  # OK
         validations = response.context['validations']
         self.assertEqual(len(validations), 2)  # 2 articles
 
-        response = self.client.get(reverse('validation:list') + "?type=orphan", follow=False)
+        response = self.client.get(reverse('validation:list') + '?type=orphan', follow=False)
         self.assertEqual(response.status_code, 200)  # OK
         validations = response.context['validations']
         self.assertEqual(len(validations), 2)  # 2 not-reserved content
@@ -188,7 +188,7 @@ class ContentTests(TestCase):
         for validation in validations:
             self.assertFalse(validation.content in reserved_contents)
 
-        response = self.client.get(reverse('validation:list') + "?type=reserved", follow=False)
+        response = self.client.get(reverse('validation:list') + '?type=reserved', follow=False)
         self.assertEqual(response.status_code, 200)  # OK
         validations = response.context['validations']
         self.assertEqual(len(validations), 2)  # 2 reserved content
@@ -196,7 +196,7 @@ class ContentTests(TestCase):
         for validation in validations:
             self.assertTrue(validation.content in reserved_contents)
 
-        response = self.client.get(reverse('validation:list') + "?subcategory={}".format(subcat.pk), follow=False)
+        response = self.client.get(reverse('validation:list') + '?subcategory={}'.format(subcat.pk), follow=False)
         self.assertEqual(response.status_code, 200)  # OK
         validations = response.context['validations']
         self.assertEqual(len(validations), 1)  # 1 content with this category
