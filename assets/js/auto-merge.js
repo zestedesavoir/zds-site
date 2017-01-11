@@ -3,7 +3,7 @@
 $(document).ready(function () {
     console.log('oooooo');
     
-	$('#compare').mergely({
+	$('.compare-introduction').mergely({
 		width: 'auto',
 		height: 400,
 		sidebar: false,
@@ -15,6 +15,21 @@ $(document).ready(function () {
 			setValue($("#id_introduction").text());
 		}
 	});
+	
+	$('.compare-conclusion').mergely({
+		width: 'auto',
+		height: 400,
+		sidebar: false,
+		cmsettings: { readOnly: false, lineNumbers: true },
+		lhs: function(setValue) {
+			setValue($("#your_conclusion").html());
+		},
+		rhs: function(setValue) {
+			setValue($("#id_conclusion").text());
+		}
+	});
+	
+	// TODO a voir comment on peut factoriser ce code.
 	
 	$("#compare-editor-lhs").append('Votre Version');
 	$("#compare-editor-rhs").append('La version courante');
@@ -42,9 +57,9 @@ $(document).ready(function () {
 		    	console.log(classList[i])
 		    	var substring = classList[i].substring(14)
 		    	
-		    	// TODO : problème des retours à la ligne qui s'en vont ?
+		    	// TODO : problème des retours à la ligne qui s'en vont (ou normal car markdown ?) ?
 		        $intro = $("#id_" + substring);
-		        $to_merge = $("#compare").mergely('get','rhs');
+		        $to_merge = $(".compare-" + substring).mergely('get','rhs');
 		        $intro.val($to_merge);
 		        
 		        console.log($intro.val());

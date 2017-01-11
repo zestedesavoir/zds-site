@@ -235,23 +235,34 @@ class ContentForm(ContainerForm):
             Field('type'),
             Field('image'))
         
-        print('----')
-        
         if kwargs.get('data') is not None:
             old_intro = kwargs.get('data').get('introduction')
             # TODO retirer le br et passer en style
             self.helper.layout.append(Layout(Field('introduction', css_class='hidden')))
             self.helper.layout.append(Layout(HTML('<div id="your_introduction" class="hidden" >'+old_intro+'</div>')))
-            self.helper.layout.append(Layout(HTML('<br><br><div id="compare"></div><br><br>')))
+            self.helper.layout.append(Layout(HTML('<br><br><div id="compare" class="compare-introduction"></div><br><br>')))
 
             self.helper.layout.append(Layout(
                 ButtonHolder(StrictButton(_(u'Merger'), type='merge', name='merge', css_class='btn btn-submit merge-btn need-to-merge-introduction'))))
 
         else :
             self.helper.layout.append(Layout(Field('introduction', css_class='md-editor')))
-                   
+
+        if kwargs.get('data') is not None:
+            old_conclusion = kwargs.get('data').get('conclusion')
+            # TODO retirer le br et passer en style
+            self.helper.layout.append(Layout(Field('conclusion', css_class='hidden')))
+            self.helper.layout.append(Layout(HTML('<div id="your_conclusion" class="hidden" >'+old_conclusion+'</div>')))
+            self.helper.layout.append(Layout(HTML('<br><br><div id="compare" class="compare-conclusion"></div><br><br>')))
+
+            self.helper.layout.append(Layout(
+                ButtonHolder(StrictButton(_(u'Merger'), type='merge', name='merge', css_class='btn btn-submit merge-btn need-to-merge-conclusion'))))
+
+        else :
+            self.helper.layout.append(Layout(Field('conclusion', css_class='md-editor')))
+            
         self.helper.layout.append( Layout(
-            Field('conclusion', css_class='md-editor'),
+    #    Field('conclusion', css_class='md-editor'),
             Field('last_hash'),
             Field('licence'),
             Field('subcategory', template='crispy/checkboxselectmultiple.html'),
