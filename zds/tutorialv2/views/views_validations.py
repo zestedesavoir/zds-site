@@ -642,7 +642,7 @@ class Unpublish(LoginRequiredMixin, SingleOnlineContentFormViewMixin, NoValidati
 
 
 class ValidOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
-    """Publish the content"""
+    """Add the opinion in the picked list """
 
     form_class = OpinionValidationForm
 
@@ -691,7 +691,7 @@ class ValidOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
 
 
 class InvalidOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
-    """Publish the content"""
+    """Remove opinion from the picked list"""
 
     form_class = OpinionInvalidationForm
 
