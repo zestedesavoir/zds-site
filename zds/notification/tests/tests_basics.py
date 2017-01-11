@@ -427,11 +427,11 @@ class NotificationForumTest(TestCase):
         self.client.post(
             reverse('topic-edit') + '?topic={0}'.format(topic.pk),
             {
-                'title': u'[Linux]Un autre sujet',
-                'subtitle': u'Encore ces lombards en plein été',
-                'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
-            },
-            follow=False)
+                'title': u'Un autre sujet',
+                'subtitle': u'Encore ces lombards en plein ete',
+                'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter ',
+                'tags': u'Linux'
+            }, follow=False)
 
         notifications = Notification.objects.filter(object_id=topic.pk, is_read=False).all()
         self.assertEqual(1, len(notifications))
@@ -452,9 +452,10 @@ class NotificationForumTest(TestCase):
         self.client.post(
             reverse('topic-edit') + '?topic={0}'.format(topic.pk),
             {
-                'title': u'[Windows]Un autre sujet',
+                'title': u'Un autre sujet',
                 'subtitle': u'Encore ces lombards en plein été',
-                'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
+                'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter ',
+                'tags': u'Windows'
             },
             follow=False)
 
