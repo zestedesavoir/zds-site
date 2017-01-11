@@ -363,54 +363,54 @@ class ESIndexManager(object):
         self.es.indices.close(self.index)
 
         document = {
-            "analysis": {
-                "filter": {
-                    "french_elision": {
-                        "type": "elision",
-                        "articles_case": True,
-                        "articles": [
-                            "l", "m", "t", "qu", "n", "s",
-                            "j", "d", "c", "jusqu", "quoiqu",
-                            "lorsqu", "puisqu"
+            'analysis': {
+                'filter': {
+                    'french_elision': {
+                        'type': 'elision',
+                        'articles_case': True,
+                        'articles': [
+                            'l', 'm', 't', 'qu', 'n', 's',
+                            'j', 'd', 'c', 'jusqu', 'quoiqu',
+                            'lorsqu', 'puisqu'
                         ]
                     },
-                    "protect_c_language": {
-                        "type": "pattern_replace",
-                        "pattern": "^c$",
-                        "replacement": "langage_c"
+                    'protect_c_language': {
+                        'type': 'pattern_replace',
+                        'pattern': '^c$',
+                        'replacement': 'langage_c'
                     },
-                    "french_stop": {
-                        "type": "stop",
-                        "stopwords": "_french_"
+                    'french_stop': {
+                        'type': 'stop',
+                        'stopwords': '_french_'
                     },
-                    "french_keywords": {
-                        "type": "keyword_marker",
-                        "keywords": ['javafx', 'haskell', 'groovy', 'powershell', 'latex', 'linux', 'windows']
+                    'french_keywords': {
+                        'type': 'keyword_marker',
+                        'keywords': ['javafx', 'haskell', 'groovy', 'powershell', 'latex', 'linux', 'windows']
                     },
-                    "french_stemmer": {
-                        "type": "stemmer",
-                        "language": "light_french"
+                    'french_stemmer': {
+                        'type': 'stemmer',
+                        'language': 'light_french'
                     }
                 },
-                "tokenizer": {
-                    "custom_tokenizer": {
-                        "type": "pattern",
-                        "pattern": u"[ .,!?%\u2026\u00AB\u00A0\u00BB\u202F\uFEFF\u2013\u2014\n]"
+                'tokenizer': {
+                    'custom_tokenizer': {
+                        'type': 'pattern',
+                        'pattern': u'[ .,!?%\u2026\u00AB\u00A0\u00BB\u202F\uFEFF\u2013\u2014\n]'
                     }
                 },
-                "analyzer": {
-                    "default": {
-                        "tokenizer": "custom_tokenizer",
-                        "filter": [
-                            "lowercase",
-                            "protect_c_language",
-                            "french_elision",
-                            "french_stop",
-                            "french_keywords",
-                            "french_stemmer"
+                'analyzer': {
+                    'default': {
+                        'tokenizer': 'custom_tokenizer',
+                        'filter': [
+                            'lowercase',
+                            'protect_c_language',
+                            'french_elision',
+                            'french_stop',
+                            'french_keywords',
+                            'french_stemmer'
                         ],
-                        "char_filter": [
-                            "html_strip",
+                        'char_filter': [
+                            'html_strip',
                         ]
                     }
                 }

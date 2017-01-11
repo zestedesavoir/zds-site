@@ -177,7 +177,7 @@ class ViewsTests(TestCase):
         # 1. Create an hidden forum belonging to an hidden group and add staff in it.
         text = 'test'
 
-        group = Group.objects.create(name=u"Les illuminatis anonymes de ZdS")
+        group = Group.objects.create(name=u'Les illuminatis anonymes de ZdS')
         _, hidden_forum = create_category(group)
 
         self.staff.groups.add(group)

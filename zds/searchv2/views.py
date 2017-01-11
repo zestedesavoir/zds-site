@@ -82,7 +82,7 @@ class SearchView(ZdSPagingListView):
                 models = [p[0] for p in settings.ZDS_APP['search']['indexables']]
 
             for model in models:
-                part_querysets.append(getattr(self, "get_queryset_{}s".format(model))())
+                part_querysets.append(getattr(self, 'get_queryset_{}s'.format(model))())
 
             queryset = part_querysets[0]
             for query in part_querysets[1:]:

@@ -53,5 +53,5 @@ class SearchForm(forms.Form):
 
         self.helper.layout = Layout(
             Field('q'),
-            StrictButton('', type='submit', css_class="ico-after ico-search", title=_(u'Rechercher'))
+            StrictButton('', type='submit', css_class='ico-after ico-search', title=_(u'Rechercher'))
         )
