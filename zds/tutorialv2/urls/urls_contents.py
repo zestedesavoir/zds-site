@@ -34,14 +34,14 @@ urlpatterns = [
     path('tribunes/<int:pk>/', RedirectOldContentOfAuthor.as_view(type='OPINION')),
 
     re_path(r'^aides/$', ContentsWithHelps.as_view(), name='helps'),
-    re_path(r'^(?P<pk>\d+)/(?P<slug>.+)/(?P<parent_container_slug>.+)/(?P<container_slug>.+)/$',
+    re_path(r'^(?P<pk>\d+)/(?P<slug>[a-zA-Z0-9_-]+)/(?P<parent_container_slug>.+)/(?P<container_slug>.+)/$',
             DisplayContainer.as_view(public_is_prioritary=False),
             name='view-container'),
-    re_path(r'^(?P<pk>\d+)/(?P<slug>.+)/(?P<container_slug>.+)/$',
+    re_path(r'^(?P<pk>\d+)/(?P<slug>[a-zA-Z0-9_-]+)/(?P<container_slug>.+)/$',
             DisplayContainer.as_view(public_is_prioritary=False),
             name='view-container'),
 
-    re_path(r'^(?P<pk>\d+)/(?P<slug>.+)/$', DisplayContent.as_view(public_is_prioritary=False),
+    re_path(r'^(?P<pk>\d+)/(?P<slug>[a-zA-Z0-9_-]+)/$', DisplayContent.as_view(public_is_prioritary=False),
             name='view'),
 
     re_path(r'^telecharger/(?P<pk>\d+)/(?P<slug>.+)/$', DownloadContent.as_view(),

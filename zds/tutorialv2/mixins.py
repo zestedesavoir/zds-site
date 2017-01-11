@@ -127,7 +127,7 @@ class SingleContentViewMixin(object):
             slug = self.kwargs['slug']
             if versioned.slug != slug:
                 if slug != self.object.slug:  # retro-compatibility, but should raise permanent redirect instead
-                    raise Http404("Ce slug n'existe pas pour ce contenu.")
+                    raise Http404("Ce slug n'existe pas pour ce contenu.{} vs {}".format(slug, versioned.slug))
 
         return versioned
 

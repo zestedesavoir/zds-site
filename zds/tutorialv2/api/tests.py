@@ -5,15 +5,21 @@ import shutil
 from django.conf import settings
 from django.core.cache import caches
 from django.urls import reverse
+from django.test import TestCase
 
 from rest_framework import status
+from rest_framework.exceptions import ValidationError
 from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
 from rest_framework_extensions.settings import extensions_api_settings
 
+from zds.member.api.tests import create_oauth2_client, authenticate_client
 from zds.member.factories import ProfileFactory
-from zds.tutorialv2.factories import ContentReactionFactory, PublishedContentFactory
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
+from zds.tutorialv2.api.serializers import ChildrenListModifySerializer
+from zds.tutorialv2.api.view_models import UpdateChildrenListViewModel
+from zds.tutorialv2.factories import ContentReactionFactory, PublishedContentFactory, PublishableContentFactory
+from zds.tutorialv2.models.database import PublishableContent
 from zds.utils.models import CommentVote
 
 
@@ -188,3 +194,193 @@ class ContentReactionKarmaAPITest(TutorialTestMixin, APITestCase):
         self.assertEqual(1, len(response.data['dislike']['users']))
         self.assertEqual(1, response.data['like']['count'])
         self.assertEqual(1, response.data['dislike']['count'])
+
+
+class TestChildrenListSerializer(TestCase):
+    def test_good_input(self):
+        data = {
+            'containers': [],
+            'extracts': [
+                {'title': 'Sit minus molestias omnis dolorum et tempora.',
+                 'text': "Ceci est un texte contenant plein d'images, pour la publication.",
+                 'child_type': 'extract', 'slug': 'sit-minus-molestias-omnis-dolorum-et-tempora'},
+                {'title': 'un titre au milieu', 'text': 'blabla bla\n\n# Et donc ...\n\nVoilà :)',
+                 'child_type': 'extract', 'slug': 'un-titre-au-milieu'}
+            ],
+            'introduction': 'Ceci est un texte bidon, **avec markown**',
+            'conclusion': 'Ceci est un texte bidon, **avec markown**',
+            'remove_deleted_children': True, 'message': 'edition',
+            'original_sha': 'd33fef58bedd39dc1c2d38f16305b10010e9058e'}
+        serializer = ChildrenListModifySerializer(data=data,
+                                                  db_object=PublishableContent(sha_draft='d33fef58bedd39dc1c2'
+                                                                                         'd38f16305b10010e9058e'))
+        self.assertTrue(serializer.is_valid())
+        self.assertIsInstance(serializer.create(serializer.validated_data), UpdateChildrenListViewModel)
+
+    def test_missing_not_optional_parameters(self):
+        data = {
+            'containers': [],
+            'extracts': [
+                {'title': 'Sit minus molestias omnis dolorum et tempora.',
+                 'text': "Ceci est un texte contenant plein d'images, pour la publication.",
+                 'child_type': 'extract', 'slug': 'sit-minus-molestias-omnis-dolorum-et-tempora'},
+                {'title': 'un titre au milieu', 'text': 'blabla bla\n\n# Et donc ...\n\nVoilà :)',
+                 'child_type': 'extract', 'slug': 'un-titre-au-milieu'}
+            ], 'original_sha': 'd33fef58bedd39dc1c2d38f16305b10010e9058e'}
+        serializer = ChildrenListModifySerializer(data=data,
+                                                  db_object=PublishableContent(sha_draft='d33fef58bedd39dc1c2'
+                                                                                         'd38f16305b10010e9058e'))
+        self.assertTrue(serializer.is_valid())
+        created = serializer.create(serializer.validated_data)
+        self.assertIsInstance(created, UpdateChildrenListViewModel)
+        self.assertIsNotNone(created.introduction)
+        self.assertIsNotNone(created.conclusion)
+        self.assertIsNotNone(created.message)
+        self.assertFalse(created.remove_deleted_children)
+
+    def test_bad_extract_type(self):
+        data = {
+            'containers': [],
+            'extracts': [
+                {'title': 'Sit minus molestias omnis dolorum et tempora.',
+                 'text': "Ceci est un texte contenant plein d'images, pour la publication.",
+                 'child_type': 'extracts', 'slug': 'sit-minus-molestias-omnis-dolorum-et-tempora'},
+                {'title': 'un titre au milieu', 'text': 'blabla bla\n\n# Et donc ...\n\nVoilà :)',
+                 'child_type': 'extract', 'slug': 'un-titre-au-milieu'}
+            ], 'original_sha': 'd33fef58bedd39dc1c2d38f16305b10010e9058e'}
+        serializer = ChildrenListModifySerializer(data=data,
+                                                  db_object=PublishableContent(sha_draft='d33fef58bedd39dc1c2'
+                                                                                         'd38f16305b10010e9058e'))
+        self.assertRaises(ValidationError, serializer.is_valid, raise_exception=True)
+
+    def test_bad_extract_format(self):
+        data = {
+            'containers': [],
+            'extracts': [
+                {'title': 'Sit minus molestias omnis dolorum et tempora.',
+                 'text': "Ceci est un texte contenant plein d'images, pour la publication.",
+                 'child_type': 'extract', 'slug': 'sit-minus-molestias-omnis-dolorum-et-tempora',
+                 'description': 'this is a description, extracts has no description'},
+                {'title': 'un titre au milieu', 'text': 'blabla bla\n\n# Et donc ...\n\nVoilà :)',
+                 'child_type': 'extract', 'slug': 'un-titre-au-milieu'}
+            ],
+            'introduction': 'Ceci est un texte bidon, **avec markown**',
+            'conclusion': 'Ceci est un texte bidon, **avec markown**',
+            'remove_deleted_children': True, 'message': 'edition',
+            'original_sha': 'd33fef58bedd39dc1c2d38f16305b10010e9058e'}
+        serializer = ChildrenListModifySerializer(data=data,
+                                                  db_object=PublishableContent(sha_draft='d33fef58bedd39dc1c2'
+                                                                                         'd38f16305b10010e9058e'))
+        self.assertRaises(ValidationError, serializer.is_valid, raise_exception=True)
+
+
+class ContentAPIChildrenUpdate(TutorialTestMixin, APITestCase):
+    def setUp(self):
+        self.author = ProfileFactory().user
+        self.client_user = ProfileFactory()
+
+        self.client = APIClient()
+        caches[extensions_api_settings.DEFAULT_USE_CACHE].clear()
+        self.client_oauth2 = create_oauth2_client(self.client_user.user)
+        self.content = PublishableContentFactory(author_list=[self.author])
+        self.content.save()
+
+    def test_add_extract(self):
+        authenticate_client(self.client, self.client_oauth2, self.author.username, 'hostel77')
+        resp = self.client.put(reverse('api:content:children-content', args=[self.content.pk, self.content.slug]),
+                               data={
+                                   'original_sha': self.content.sha_draft,
+                                   'containers': [],
+                                   'extracts': [
+                                       {'title': 'Sit minus molestias omnis dolorum et tempora.',
+                                        'text': "Ceci est un texte contenant plein d'images, pour la publication.",
+                                        'child_type': 'extract',
+                                        'slug': 'sit-minus-molestias-omnis-dolorum-et-tempora'},
+                                       {'title': 'un titre au milieu',
+                                        'text': 'blabla bla\n\n# Et donc ...\n\nVoilà :)',
+                                        'child_type': 'extract', 'slug': 'un-titre-au-milieu'}
+                                   ],
+                                   'introduction': 'Ceci est un texte bidon, **avec markown**',
+                                   'conclusion': 'Ceci est un texte bidon, **avec markown**',
+                                   'remove_deleted_children': True, 'message': 'edition'})
+        self.assertEqual(resp.status_code, status.HTTP_200_OK, resp.content)
+        self.assertNotEqual(self.content.sha_draft, PublishableContent.objects.get(pk=self.content.pk).sha_draft)
+
+    def test_forbidden_access(self):
+        authenticate_client(self.client, self.client_oauth2, self.client_user.user.username, 'hostel77')
+        resp = self.client.put(reverse('api:content:children-content', args=[self.content.pk, self.content.slug]),
+                               data={
+                                   'original_sha': self.content.sha_draft,
+                                   'containers': [],
+                                   'extracts': [{
+                                       'title': 'Sit minus molestias omnis dolorum et tempora.',
+                                       'text': "Ceci est un texte contenant plein d'images, pour la publication.",
+                                       'child_type': 'extract',
+                                       'slug': 'sit-minus-molestias-omnis-dolorum-et-tempora'
+                                   }, {
+                                       'title': 'un titre au milieu',
+                                       'text': 'blabla bla\n\n# Et donc ...\n\nVoilà :)',
+                                       'child_type': 'extract', 'slug': 'un-titre-au-milieu'
+                                   }
+                                   ],
+                                   'introduction': 'Ceci est un texte bidon, **avec markown**',
+                                   'conclusion': 'Ceci est un texte bidon, **avec markown**',
+                                   'remove_deleted_children': True, 'message': 'edition'}
+                               )
+        self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_insert_new_extract(self):
+        authenticate_client(self.client, self.client_oauth2, self.author.username, 'hostel77')
+        resp = self.client.put(reverse('api:content:children-content', args=[self.content.pk, self.content.slug]),
+                               data={
+                                   'original_sha': self.content.sha_draft,
+                                   'containers': [],
+                                   'extracts': [
+                                       {'title': 'Sit minus molestias omnis dolorum et tempora.',
+                                        'text': "Ceci est un texte contenant plein d'images, pour la publication.",
+                                        'child_type': 'extract',
+                                        'slug': 'sit-minus-molestias-omnis-dolorum-et-tempora'},
+                                       {'title': 'un titre au milieu',
+                                        'text': 'blabla bla\n\n# Et donc ...\n\nVoilà :)',
+                                        'child_type': 'extract', 'slug': 'un-titre-au-milieu'}
+                                   ],
+                                   'introduction': 'Ceci est un texte bidon, **avec markown**',
+                                   'conclusion': 'Ceci est un texte bidon, **avec markown**',
+                                   'remove_deleted_children': True, 'message': 'edition'})
+        self.assertEqual(resp.status_code, status.HTTP_200_OK, resp.content)
+        saved = PublishableContent.objects.get(pk=self.content.pk)
+        self.assertNotEqual(self.content.sha_draft, saved.sha_draft)
+        resp = self.client.put(reverse('api:content:children-content', args=[self.content.pk, self.content.slug]),
+                               data={
+                                   'original_sha': saved.sha_draft,
+                                   'containers': [],
+                                   'extracts': [
+                                       {'title': 'Sit minus molestias omnis dolorum et tempora.',
+                                        'text': "Ceci est un texte contenant plein d'images, pour la publication.",
+                                        'child_type': 'extract',
+                                        'slug': 'sit-minus-molestias-omnis-dolorum-et-tempora'},
+                                       {'title': 'un titre au inséré',
+                                        'text': 'blabla bla\n\n# Et donc ...\n\nVoilà :)',
+                                        'child_type': 'extract', 'slug': 'un-titre-insere'},
+                                       {'title': 'un titre au milieu',
+                                        'text': 'blabla bla\n\n# Et donc ...\n\nVoilà :)',
+                                        'child_type': 'extract', 'slug': 'un-titre-au-milieu'}
+                                   ],
+                                   'introduction': 'Ceci est un texte bidon, **avec markown**',
+                                   'conclusion': 'Ceci est un texte bidon, **avec markown**',
+                                   'remove_deleted_children': True, 'message': 'edition'})
+        new_version = PublishableContent.objects.get(pk=self.content.pk)
+        self.assertNotEqual(new_version.sha_draft, saved.sha_draft)
+        self.assertEqual(3, len(new_version.load_version().children))
+        self.assertEqual('un-titre-insere', new_version.load_version().children[1].slug)
+
+    def tearDown(self):
+        if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
+            shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
+        if os.path.isdir(settings.ZDS_APP['content']['repo_public_path']):
+            shutil.rmtree(settings.ZDS_APP['content']['repo_public_path'])
+        if os.path.isdir(settings.MEDIA_ROOT):
+            shutil.rmtree(settings.MEDIA_ROOT)
+
+        # re-active PDF build
+        settings.ZDS_APP['content']['build_pdf_when_published'] = True
