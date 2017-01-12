@@ -64,6 +64,13 @@ $(document).ready(function () {
 		        
 		        console.log($intro.val());
 		        // TODO : un bon petit alert des familles
+                 var msg = '<div class="alert-box alert"> \
+                                <span>Le merge a bien été effectué</span> \
+                                <a href="#close-alert-box" class="close-alert-box ico-after cross white">{% trans "Masquer l\'alerte" %}</a> \
+                            </div>';
+                            
+                 $(".compare-" + substring).append(msg)
+		        
 		        alert('Contenu bien mergé');
 		    }
 		}
