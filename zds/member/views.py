@@ -16,8 +16,8 @@ from django.core.mail import EmailMultiAlternatives
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models import Q
-from django.http import Http404, HttpResponseBadRequest
-from django.shortcuts import redirect, render, get_object_or_404
+from django.http import Http404, HttpResponseBadRequest, StreamingHttpResponse
+from django.shortcuts import redirect, render, get_object_or_404, render_to_response
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
 from django.utils.http import urlunquote
@@ -122,6 +122,12 @@ class UpdateMember(UpdateView):
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
+
+        if "preview" in request.POST:
+            if request.is_ajax():
+                print(request.POST)
+                content = render_to_response('misc/previsualization.part.html', {'text': request.POST.get('text')})
+                return StreamingHttpResponse(content)
 
         if form.is_valid():
             return self.form_valid(form)

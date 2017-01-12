@@ -222,8 +222,14 @@
      */
     $(".message-bottom").on("click", "[data-ajax-input='preview-message']", function(e){
         var $form = $(this).parents("form:first");
+        if ( $form.find(".preview-source").length )
+            {var text = $form.find(".preview-source").val();}
+        else
+            {var text = $form.find("textarea[name=text]").val();}
+            
+            
         var csrfmiddlewaretoken = $form.find("input[name=csrfmiddlewaretoken]").val(),
-            text = $form.find("textarea[name=text]").val(),
+            text,
             lastPost = $form.find("input[name=last_post]").val();
 
         $.ajax({
