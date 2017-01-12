@@ -17,7 +17,7 @@
 					setValue(left.html());
 				},
 				rhs: function(setValue) {
-					setValue(right.text());
+					setValue(right.html());
 				}
 			});
 		}
