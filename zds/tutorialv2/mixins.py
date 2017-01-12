@@ -5,7 +5,7 @@ from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse, HttpResponsePermanentRedirect, StreamingHttpResponse
 from django.template.loader import render_to_string
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import DetailView, FormView
 from django.views.generic import View
@@ -197,12 +197,7 @@ class FormWithPreview(FormView):
                 content = render_to_string('misc/previsualization.part.html', {'text': request.POST.get('text')})
                 return StreamingHttpResponse(content)
 
-        if form.is_valid():
-            return self.form_valid(form)
-        else:
-            messages.warning(self.request, _(u'Le formulaire est invalide.'))
-
-        return render(request, self.template_name, {'form': form})
+        return super(FormWithPreview, self).post(request, *args, **kwargs)
 
 
 class SingleContentFormViewMixin(SingleContentViewMixin, ModalFormView):
