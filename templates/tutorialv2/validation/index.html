@@ -16,8 +16,6 @@
         {% trans "Articles" %} &bull;
     {% elif request.GET.type == "tuto" %}
         {% trans "Tutoriels" %} &bull;
-    {% elif request.GET.type == "opinion" %}
-        {% trans "Billets" %} &bull;
     {% endif %}
 {% endblock %}
 
@@ -42,8 +40,6 @@
                     / {% trans "Articles" %}
                 {% elif request.GET.type == "tuto" %}
                     / {% trans "Tutoriels" %}
-                {% elif request.GET.type == "opinion" %}
-                    / {% trans "Billets" %}
                 {% endif %}
                 {%  if category %}
                     / {{ category.title }}
@@ -163,11 +159,6 @@
             <li>
                 <a href="{% url "validation:list" %}?type=tuto" class="ico-after view {% if request.GET.type == "tuto" %}selected{% endif %}">
                     {% trans "Tutoriels" %}
-                </a>
-            </li>
-            <li>
-                <a href="{% url "validation:list" %}?type=opinion" class="ico-after view {% if request.GET.type == "opinion" %}selected{% endif %}">
-                    {% trans "Billets" %}
                 </a>
             </li>
             {% if request.GET.type or request.GET.subcategory %}
