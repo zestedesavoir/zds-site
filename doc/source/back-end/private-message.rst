@@ -7,12 +7,12 @@ Envoi et participation
 
 Zeste de Savoir fournit un module de messagerie privée qui vous permet de communiquer avec les membres possédant un compte sur le site.
 
-Vous pouvez accéder au module de messagerie privé à tout moment en cliquant sur l'icône :
+Vous pouvez accéder au module de messagerie privée à tout moment en cliquant sur l'icône :
 
    .. figure:: ../images//private_message/icone-mp.png
       :align:   center
 
-      Icône d'accès au module de messagerie privé
+      Icône d'accès au module de messagerie privée
 
 Lors de l'envoi d'un message privé, vous avez accès à cette interface :
 
@@ -25,7 +25,7 @@ Tout d'abord, entrez le nom des destinataires de votre message en les séparant 
 
 Par conception, la sélection des destinataires a ces propriétés :
 
-- les pseudos sont insensible à la casse ;
+- les pseudos sont insensibles à la casse ;
 - contacter un membre du groupe ``bot_group`` ou un membre banni vous renverra un message d'erreur expliquant que ledit utilisateur est injoignable ;
 - contacter un membre qui n'existe pas vous renverra un message d'erreur expliquant que ledit utilisateur n'existe pas.
 
