@@ -694,7 +694,7 @@ class SolveContentAlert(FormView, LoginRequiredMixin):
         alert.solve(request.user, resolve_reason, msg_title, msg_content)
 
         messages.success(self.request, _(u"L'alerte a bien été résolue."))
-        return redirect(content.get_absolute_url())
+        return redirect(content.get_absolute_url_online())
 
 
 class SendNoteAlert(FormView, LoginRequiredMixin):
