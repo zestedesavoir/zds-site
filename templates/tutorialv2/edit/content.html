@@ -3,7 +3,6 @@
 {% load thumbnail %}
 {% load i18n %}
 {% load feminize %}
-{% load htmldiff %}
 
 {% block title %}
     {% trans "Éditer " %}{{ content.textual_type }}
@@ -34,7 +33,6 @@
             {% trans "Une nouvelle version a été postée avant que vous ne validiez" %}.
         </p>
     {% endif %}
-
     {% crispy form %}
 {% endblock %}
 

@@ -237,12 +237,14 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         initial['helps'] = self.object.helps.all()
 
         initial['last_hash'] = versioned.compute_hash()
+
         return initial
 
     def get_context_data(self, **kwargs):
         context = super(EditContent, self).get_context_data(**kwargs)
 
         context['gallery'] = self.object.gallery
+
         return context
 
     def form_valid(self, form):
@@ -257,7 +259,6 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
             data['introduction'] = versioned.get_introduction()
             data['conclusion'] = versioned.get_conclusion()
             form.data = data
-            
             messages.error(self.request, _(u'Une nouvelle version a été postée avant que vous ne validiez.'))
             return self.form_invalid(form)
 
