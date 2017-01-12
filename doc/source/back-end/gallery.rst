@@ -46,7 +46,7 @@ Autrement dit,
 + Obtenir le code à insérer dans un champ de texte acceptant le Markdown pour l'image en elle-même, sa miniature ou encore la miniature accompagnée du lien vers l'image en taille réelle.
 
 .. attention::
-    Le titre de l'image n'entre pas en compte dans le nommage de l'image une fois cette dernière téléchargée. Afin de s'assurer l'unicité des noms, nous utilisons un algorithme de hachage pour cela.
+    Le titre de l'image n'entre pas en compte dans le nommage de l'image une fois cette dernière téléchargée. Afin de s'assurer l'unicité des noms, nous utilisons un algorithme de hashage pour cela.
 
 Les utilisateurs et leurs droits
 --------------------------------
@@ -126,4 +126,4 @@ Les images sont stockées dans le dossier renseigné par la variable ``MEDIA_URL
 Outils logiciels utilisés
 =========================
 
-Afin d'assurer une compatibilité maximale de toutes les images des galeries et leur redimensionnement au besoin, le logiciel pyllow est utilisé.
+Afin d'assurer une compatibilité maximale de toutes les images des galeries et leur redimensionnement au besoin, le logiciel `Pyllow` est utilisé.
