@@ -117,6 +117,12 @@
     }
 }
 
+.opinion-alerts {
+    .alert-box-text {
+        float: none;
+    }
+}
+
 @media only screen and #{$media-tablet} {
     .alert-box .alert-box-text {
         display: inline;
