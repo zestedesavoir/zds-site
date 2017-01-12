@@ -17,8 +17,8 @@ from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models import Count, Q
-from django.http import Http404, StreamingHttpResponse
-from django.shortcuts import redirect, get_object_or_404, render_to_response, render
+from django.http import Http404
+from django.shortcuts import redirect, get_object_or_404
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
 from django.utils.translation import string_concat
@@ -38,7 +38,7 @@ from zds.tutorialv2.forms import ContentForm, JsFiddleActivationForm, AskValidat
     RejectValidationForm, RevokeValidationForm, WarnTypoForm, ImportContentForm, ImportNewContentForm, ContainerForm, \
     ExtractForm, BetaForm, MoveElementForm, AuthorForm, RemoveAuthorForm, CancelValidationForm
 from zds.tutorialv2.mixins import SingleContentDetailViewMixin, SingleContentFormViewMixin, SingleContentViewMixin, \
-    SingleContentDownloadViewMixin, SingleContentPostMixin
+    SingleContentDownloadViewMixin, SingleContentPostMixin, FormWithPreview
 from zds.tutorialv2.models import TYPE_CHOICES_DICT
 from zds.tutorialv2.models.models_database import PublishableContent, Validation
 from zds.tutorialv2.models.models_versioned import Container, Extract
@@ -65,7 +65,7 @@ class RedirectOldBetaTuto(RedirectView):
         return tutorial.get_absolute_url_beta()
 
 
-class CreateContent(LoggedWithReadWriteHability, FormView):
+class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
     template_name = 'tutorialv2/create/content.html'
     model = PublishableContent
     form_class = ContentForm
@@ -77,22 +77,6 @@ class CreateContent(LoggedWithReadWriteHability, FormView):
         form.initial["type"] = self.created_content_type
         form.initial['licence'] = Licence.objects.get(pk=settings.ZDS_APP['content']['default_licence_pk'])
         return form
-
-    def post(self, request, *args, **kwargs):
-        form = self.form_class(request.POST)
-
-        if 'preview' in request.POST:
-            self.form_invalid(form)
-            if request.is_ajax():
-                content = render_to_response('misc/previsualization.part.html', {'text': request.POST.get('text')})
-                return StreamingHttpResponse(content)
-
-        if form.is_valid():
-            return self.form_valid(form)
-        else:
-            messages.warning(self.request, _(u'Le formulaire est invalide.'))
-
-        return render(request, self.template_name, {'form': form})
 
     def form_valid(self, form):
 
@@ -236,7 +220,7 @@ class DisplayBetaContent(DisplayContent):
         return obj
 
 
-class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
+class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormWithPreview):
     template_name = 'tutorialv2/edit/content.html'
     model = PublishableContent
     form_class = ContentForm
@@ -266,20 +250,6 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
             context['gallery'] = self.object.gallery
 
         return context
-
-    def post(self, request, *args, **kwargs):
-        form = self.form_class(request.POST)
-
-        if 'preview' in request.POST:
-            self.form_invalid(form)
-            if request.is_ajax():
-                content = render_to_string('misc/previsualization.part.html', {'text': request.POST.get('text')})
-                return StreamingHttpResponse(content)
-
-        if form.is_valid():
-            return self.form_valid(form)
-
-        return render(request, self.template_name, {'form': form})
 
     def form_valid(self, form):
         versioned = self.versioned_object
@@ -930,7 +900,7 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
         return super(CreateContentFromArchive, self).form_valid(form)
 
 
-class CreateContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
+class CreateContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormWithPreview):
     template_name = 'tutorialv2/create/container.html'
     form_class = ContainerForm
     content = None
@@ -942,20 +912,6 @@ class CreateContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         context['container'] = search_container_or_404(self.versioned_object, self.kwargs)
         context['gallery'] = self.object.gallery
         return context
-
-    def post(self, request, *args, **kwargs):
-        form = self.form_class(request.POST)
-
-        if 'preview' in request.POST:
-            self.form_invalid(form)
-            if request.is_ajax():
-                content = render_to_string('misc/previsualization.part.html', {'text': request.POST.get('text')})
-                return StreamingHttpResponse(content)
-
-        if form.is_valid():
-            return self.form_valid(form)
-
-        return render(request, self.template_name, {'form': form})
 
     def render_to_response(self, context, **response_kwargs):
         parent = context['container']
@@ -1065,7 +1021,7 @@ class DisplayBetaContainer(DisplayContainer):
         return obj
 
 
-class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
+class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormWithPreview):
     template_name = 'tutorialv2/edit/container.html'
     form_class = ContainerForm
     content = None
@@ -1093,19 +1049,6 @@ class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         initial['last_hash'] = container.compute_hash()
 
         return initial
-
-    def post(self, request, *args, **kwargs):
-        form = self.get_form(self.form_class)
-
-        if 'preview' in request.POST:
-            if request.is_ajax():
-                content = render_to_response('misc/previsualization.part.html', {'text': request.POST.get('text')})
-                return StreamingHttpResponse(content)
-
-        if form.is_valid():
-            return self.form_valid(form)
-
-        return render(request, self.template_name, {'form': form})
 
     def form_valid(self, form, *args, **kwargs):
         container = search_container_or_404(self.versioned_object, self.kwargs)
@@ -1137,7 +1080,7 @@ class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         return super(EditContainer, self).form_valid(form)
 
 
-class CreateExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin):
+class CreateExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormWithPreview):
     template_name = 'tutorialv2/create/extract.html'
     form_class = ExtractForm
     content = None
@@ -1158,20 +1101,6 @@ class CreateExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin):
 
         return super(CreateExtract, self).render_to_response(context, **response_kwargs)
 
-    def post(self, request, *args, **kwargs):
-        form = self.form_class(request.POST)
-
-        if 'preview' in request.POST:
-            self.form_invalid(form)
-            if request.is_ajax():
-                content = render_to_response('misc/previsualization.part.html', {'text': request.POST.get('text')})
-                return StreamingHttpResponse(content)
-
-        if form.is_valid():
-            return self.form_valid(form)
-
-        return render(request, self.template_name, {'form': form})
-
     def form_valid(self, form):
         parent = search_container_or_404(self.versioned_object, self.kwargs)
 
@@ -1189,7 +1118,7 @@ class CreateExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         return super(CreateExtract, self).form_valid(form)
 
 
-class EditExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin):
+class EditExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormWithPreview):
     template_name = 'tutorialv2/edit/extract.html'
     form_class = ExtractForm
     content = None
@@ -1215,20 +1144,6 @@ class EditExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         initial['last_hash'] = extract.compute_hash()
 
         return initial
-
-    def post(self, request, *args, **kwargs):
-        form = self.form_class(request.POST)
-
-        if 'preview' in request.POST:
-            self.form_invalid(form)
-            if request.is_ajax():
-                content = render_to_response('misc/previsualization.part.html', {'text': request.POST.get('text')})
-                return StreamingHttpResponse(content)
-
-        if form.is_valid():
-            return self.form_valid(form)
-
-        return render(request, self.template_name, {'form': form})
 
     def form_valid(self, form):
         extract = search_extract_or_404(self.versioned_object, self.kwargs)
