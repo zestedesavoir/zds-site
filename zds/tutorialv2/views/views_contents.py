@@ -1525,6 +1525,11 @@ class WarnTypo(SingleContentFormViewMixin):
             if form.content.is_opinion:
                 _type = _(u'le billet')
 
+            if form.content.get_tree_depth() == 0:
+                pm_title = _(u'J\'ai trouvé une faute dans {} « {} ».').format(_type, form.content.title)
+            else:
+                pm_title = _(u'J\'ai trouvé une faute dans le chapitre « {} ».').format(form.content.title)
+
             msg = render_to_string(
                 'tutorialv2/messages/warn_typo.md',
                 {
@@ -1537,7 +1542,7 @@ class WarnTypo(SingleContentFormViewMixin):
                 })
 
             # send it :
-            send_mp(user, authors, _(u'Proposition de correction'), form.content.title, msg, leave=False)
+            send_mp(user, authors, pm_title, '', msg, leave=False)
 
             messages.success(self.request, _(u'Merci pour votre proposition de correction.'))
 
