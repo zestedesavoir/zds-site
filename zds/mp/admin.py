@@ -18,7 +18,7 @@ class PrivateTopicAdmin(admin.ModelAdmin):
     """Representation of PrivateTopic model in the admin interface."""
 
     list_display = ('title', 'subtitle', 'author', 'last_message', 'pubdate')
-    raw_id_fields = ('author', 'participants')
+    raw_id_fields = ('author', 'participants', 'last_message')
 
 
 class PrivateTopicReadAdmin(admin.ModelAdmin):
