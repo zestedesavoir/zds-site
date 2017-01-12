@@ -235,7 +235,7 @@ class ContentForm(ContainerForm):
             Field('type'),
             Field('image'))
 
-        if kwargs.get('data') is not None:
+        if kwargs.get('data', None) is not None:
             old_intro = kwargs.get('data').get('introduction')
 
             self.helper.layout.append(Layout(Field('introduction', css_class='hidden')))
@@ -246,10 +246,7 @@ class ContentForm(ContainerForm):
             self.helper.layout.append(Layout(
                 ButtonHolder(StrictButton(_(u'Merger'), type='merge', name='merge', css_class='btn btn-submit \
                 merge-btn need-to-merge-introduction'))))
-        else:
-            self.helper.layout.append(Layout(Field('introduction', css_class='md-editor')))
-
-        if kwargs.get('data') is not None:
+                
             old_conclusion = kwargs.get('data').get('conclusion')
 
             self.helper.layout.append(Layout(Field('conclusion', css_class='hidden')))
@@ -261,6 +258,7 @@ class ContentForm(ContainerForm):
                 ButtonHolder(StrictButton(_(u'Merger'), type='merge', name='merge', css_class='btn btn-submit \
                 merge-btn need-to-merge-conclusion'))))
         else:
+            self.helper.layout.append(Layout(Field('introduction', css_class='md-editor')))
             self.helper.layout.append(Layout(Field('conclusion', css_class='md-editor')))
 
         self.helper.layout.append(Layout(
