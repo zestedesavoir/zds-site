@@ -1005,7 +1005,12 @@ class WarnTypoForm(forms.Form):
             self.previous_page_url = targeted.get_absolute_url_beta()
 
         # add an additional link to send PM if needed
-        type_ = _(u"l'article") if content.type == 'ARTICLE' else _(u'le tutoriel')
+        type_ = _(u'l\'article')
+
+        if content.is_tutorial:
+            type_ = _(u'le tutoriel')
+        elif content.is_opinion:
+            type_ = _(u'le billet')
 
         if targeted.get_tree_depth() == 0:
             pm_title = _(u"J'ai trouvé une faute dans {} « {} ».").format(type_, targeted.title)
