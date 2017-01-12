@@ -215,19 +215,20 @@
     /**
      * Preview the message
      */
-    function preview(e){
+    $(".message-bottom, .preview-btn").on("click", function(e) {
         e.stopPropagation();
         e.preventDefault();
         var $btn = $(this);
-        var $form = $(this).parents("form:first");
+        var $form = $btn.parents("form:first");
+        var text = "";
         if ( $form.find(".preview-source").length )
             {
-                var text_source = $btn.parent().prev().find('.preview-source');
-                var text = text_source.val();
+                var textSource = $btn.parent().prev().find(".preview-source");
+                text = textSource.val();
             }
         else
             {
-                var text = $form.find("textarea[name=text]").val();
+                text = $form.find("textarea[name=text]").val();
             }
             
         var csrfmiddlewaretoken = $form.find("input[name=csrfmiddlewaretoken]").val(),
@@ -245,7 +246,7 @@
             success: function(data){
                 $(".previsualisation").remove();
 
-                if (text_source == null)
+                if (textSource === null)
                     $(data).insertAfter($form);
                 else
                     $(data).insertAfter($btn);
@@ -255,11 +256,8 @@
                     MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
             }
         });
-    }
-     
-    $(".message-bottom").on("click", "[data-ajax-input='preview-message']", preview);
-    $(".preview-btn").on("click", preview);
-     
+    });
+
 
     /*
      * Mark a message useful
