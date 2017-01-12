@@ -115,7 +115,8 @@ class ContainerForm(FormWithTitle):
         required=False,
         widget=forms.Textarea(
             attrs={
-                'placeholder': _(u'Votre message, au format Markdown.')
+                'placeholder': _(u'Votre introduction, au format Markdown.'),
+                'class': 'md-editor preview-source'
             }
         )
     )
@@ -125,7 +126,7 @@ class ContainerForm(FormWithTitle):
         required=False,
         widget=forms.Textarea(
             attrs={
-                'placeholder': _(u'Votre message, au format Markdown.')
+                'placeholder': _(u'Votre conclusion, au format Markdown.'),
             }
         )
     )
@@ -151,8 +152,16 @@ class ContainerForm(FormWithTitle):
 
         self.helper.layout = Layout(
             Field('title'),
-            Field('introduction', css_class='md-editor'),
-            Field('conclusion', css_class='md-editor'),
+            Field('introduction', css_class='md-editor preview-source'),
+            ButtonHolder(StrictButton(_(u'Aperçu'), type='preview', name='preview',
+                                      css_class='btn btn-grey preview-btn'),),
+            HTML('{% if form.introduction.value %}{% include "misc/previsualization.part.html" \
+            with text=form.introduction.value %}{% endif %}'),
+            Field('conclusion', css_class='md-editor preview-source'),
+            ButtonHolder(StrictButton(_(u'Aperçu'), type='preview', name='preview',
+                                      css_class='btn btn-grey preview-btn'),),
+            HTML('{% if form.conclusion.value %}{% include "misc/previsualization.part.html" \
+            with text=form.conclusion.value %}{% endif %}'),
             Field('msg_commit'),
             Field('last_hash'),
             ButtonHolder(
@@ -234,8 +243,16 @@ class ContentForm(ContainerForm):
             Field('tags'),
             Field('type'),
             Field('image'),
-            Field('introduction', css_class='md-editor'),
-            Field('conclusion', css_class='md-editor'),
+            Field('introduction', css_class='md-editor preview-source'),
+            ButtonHolder(StrictButton(_(u'Aperçu'), type='preview', name='preview',
+                                      css_class='btn btn-grey preview-btn'),),
+            HTML('{% if form.introduction.value %}{% include "misc/previsualization.part.html" \
+            with text=form.introduction.value %}{% endif %}'),
+            Field('conclusion', css_class='md-editor preview-source'),
+            ButtonHolder(StrictButton(_(u'Aperçu'), type='preview', name='preview',
+                                      css_class='btn btn-grey preview-btn'),),
+            HTML('{% if form.conclusion.value %}{% include "misc/previsualization.part.html" \
+            with text=form.conclusion.value %}{% endif %}'),
             Field('last_hash'),
             Field('licence'),
             Field('subcategory', template='crispy/checkboxselectmultiple.html'),

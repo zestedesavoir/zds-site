@@ -38,7 +38,7 @@ from zds.tutorialv2.forms import ContentForm, JsFiddleActivationForm, AskValidat
     RejectValidationForm, RevokeValidationForm, WarnTypoForm, ImportContentForm, ImportNewContentForm, ContainerForm, \
     ExtractForm, BetaForm, MoveElementForm, AuthorForm, RemoveAuthorForm, CancelValidationForm
 from zds.tutorialv2.mixins import SingleContentDetailViewMixin, SingleContentFormViewMixin, SingleContentViewMixin, \
-    SingleContentDownloadViewMixin, SingleContentPostMixin
+    SingleContentDownloadViewMixin, SingleContentPostMixin, FormWithPreview
 from zds.tutorialv2.models import TYPE_CHOICES_DICT
 from zds.tutorialv2.models.models_database import PublishableContent, Validation
 from zds.tutorialv2.models.models_versioned import Container, Extract
@@ -64,7 +64,7 @@ class RedirectOldBetaTuto(RedirectView):
         return tutorial.get_absolute_url_beta()
 
 
-class CreateContent(LoggedWithReadWriteHability, FormView):
+class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
     template_name = 'tutorialv2/create/content.html'
     model = PublishableContent
     form_class = ContentForm
@@ -77,6 +77,7 @@ class CreateContent(LoggedWithReadWriteHability, FormView):
         return form
 
     def form_valid(self, form):
+
         # create the object:
         self.content = PublishableContent()
         self.content.title = form.cleaned_data['title']
@@ -216,7 +217,7 @@ class DisplayBetaContent(DisplayContent):
         return obj
 
 
-class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
+class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormWithPreview):
     template_name = 'tutorialv2/edit/content.html'
     model = PublishableContent
     form_class = ContentForm
@@ -242,8 +243,8 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
 
     def get_context_data(self, **kwargs):
         context = super(EditContent, self).get_context_data(**kwargs)
-
-        context['gallery'] = self.object.gallery
+        if 'preview' not in self.request.POST:
+            context['gallery'] = self.object.gallery
 
         return context
 
@@ -896,7 +897,7 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
         return super(CreateContentFromArchive, self).form_valid(form)
 
 
-class CreateContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
+class CreateContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormWithPreview):
     template_name = 'tutorialv2/create/container.html'
     form_class = ContainerForm
     content = None
@@ -1016,16 +1017,18 @@ class DisplayBetaContainer(DisplayContainer):
         return obj
 
 
-class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
+class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormWithPreview):
     template_name = 'tutorialv2/edit/container.html'
     form_class = ContainerForm
     content = None
 
     def get_context_data(self, **kwargs):
         context = super(EditContainer, self).get_context_data(**kwargs)
-        form = kwargs.pop('form', self.get_form())
-        context['container'] = form.initial['container']
-        context['gallery'] = self.object.gallery
+
+        if 'preview' not in self.request.POST:
+            container = search_container_or_404(self.versioned_object, self.kwargs)
+            context['container'] = container
+            context['gallery'] = self.object.gallery
 
         return context
 
@@ -1043,7 +1046,7 @@ class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
 
         return initial
 
-    def form_valid(self, form):
+    def form_valid(self, form, *args, **kwargs):
         container = search_container_or_404(self.versioned_object, self.kwargs)
 
         # check if content has changed:
@@ -1073,7 +1076,7 @@ class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         return super(EditContainer, self).form_valid(form)
 
 
-class CreateExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin):
+class CreateExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormWithPreview):
     template_name = 'tutorialv2/create/extract.html'
     form_class = ExtractForm
     content = None
@@ -1097,9 +1100,6 @@ class CreateExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     def form_valid(self, form):
         parent = search_container_or_404(self.versioned_object, self.kwargs)
 
-        if 'preview' in self.request.POST:
-            return self.form_invalid(form)  # using the preview button
-
         sha = parent.repo_add_extract(form.cleaned_data['title'],
                                       form.cleaned_data['text'],
                                       form.cleaned_data['msg_commit'])
@@ -1114,16 +1114,17 @@ class CreateExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         return super(CreateExtract, self).form_valid(form)
 
 
-class EditExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin):
+class EditExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormWithPreview):
     template_name = 'tutorialv2/edit/extract.html'
     form_class = ExtractForm
     content = None
 
     def get_context_data(self, **kwargs):
         context = super(EditExtract, self).get_context_data(**kwargs)
-        form = kwargs.pop('form', self.get_form())
-        context['extract'] = form.initial['extract']
         context['gallery'] = self.object.gallery
+
+        extract = search_extract_or_404(self.versioned_object, self.kwargs)
+        context['extract'] = extract
 
         return context
 
@@ -1152,9 +1153,6 @@ class EditExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin):
             form.data = data
             messages.error(self.request, _(u'Une nouvelle version a été postée avant que vous ne validiez.'))
             return self.form_invalid(form)
-
-        if 'preview' in self.request.POST:
-            return self.form_invalid(form)  # using the preview button
 
         sha = extract.repo_update(form.cleaned_data['title'],
                                   form.cleaned_data['text'],

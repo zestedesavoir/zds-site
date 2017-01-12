@@ -3,7 +3,8 @@
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
-from django.http import Http404, HttpResponse, HttpResponsePermanentRedirect
+from django.http import Http404, HttpResponse, HttpResponsePermanentRedirect, StreamingHttpResponse
+from django.template.loader import render_to_string
 from django.shortcuts import redirect
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import DetailView, FormView
@@ -184,6 +185,19 @@ class ModalFormView(FormView):
                 return redirect(form.previous_page_url)
             else:
                 return redirect(reverse('content:view'))  # assume a default url
+
+
+class FormWithPreview(FormView):
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+
+        if 'preview' in request.POST:
+            self.form_invalid(form)
+            if request.is_ajax():
+                content = render_to_string('misc/previsualization.part.html', {'text': request.POST.get('text')})
+                return StreamingHttpResponse(content)
+
+        return super(FormWithPreview, self).post(request, *args, **kwargs)
 
 
 class SingleContentFormViewMixin(SingleContentViewMixin, ModalFormView):
