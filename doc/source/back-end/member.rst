@@ -37,7 +37,7 @@ La désinscription se fait via l'interface utilisateur.
       Bouton de confirmation
 
 
--  Le clic sur le bouton rouge ouvre une boîte modale qui constitue le dernier avertissement avant le déclenchement du processus de désinscription :
+-  Le clic sur le bouton rouge ouvre une boite modale qui constitue le dernier avertissement avant le déclenchement du processus de désinscription :
 
    .. figure:: ../images/member/desinscription-3.png
       :align:   center
