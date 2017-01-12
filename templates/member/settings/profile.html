@@ -4,19 +4,33 @@
 
 
 {% block title %}
-   {% trans "Mon profil" %}
+    {% if user.profile == profile %}
+        {% trans "Modifier mon profil" %}
+    {% else %}
+        {% trans "Modifier le profil de" %} {{ profile.user.username }}
+    {% endif %}
 {% endblock %}
 
 
 
 {% block breadcrumb %}
-    <li>{% trans "Mon profil" %}</li>
+    <li>
+        {% if user.profile == profile %}
+            {% trans "Modifier mon profil" %}
+        {% else %}
+            {% trans "Modifier le profil de" %} {{ profile.user.username }}
+        {% endif %}
+    </li>
 {% endblock %}
 
 
 
 {% block headline %}
-    {% trans "Mon profil" %}
+    {% if user.profile == profile %}
+        {% trans "Modifier mon profil" %}
+    {% else %}
+        {% trans "Modifier le profil de" %} {{ profile.user.username }}
+    {% endif %}
 {% endblock %}
 
 

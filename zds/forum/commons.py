@@ -35,7 +35,7 @@ class TopicEditMixin(object):
 
     @staticmethod
     def perform_solve_or_unsolve(user, topic):
-        if user == topic.author or user.has_perm("forum.change_topic"):
+        if user == topic.author or user.has_perm('forum.change_topic'):
             topic.is_solved = not topic.is_solved
             return topic.is_solved
         else:
@@ -43,8 +43,8 @@ class TopicEditMixin(object):
 
     @staticmethod
     def perform_lock(topic, request):
-        if request.user.has_perm("forum.change_topic"):
-            topic.is_locked = request.POST.get('lock') == "true"
+        if request.user.has_perm('forum.change_topic'):
+            topic.is_locked = request.POST.get('lock') == 'true'
             if topic.is_locked:
                 success_message = _(u'Le sujet « {0} » est désormais verrouillé.').format(topic.title)
             else:
@@ -55,35 +55,33 @@ class TopicEditMixin(object):
 
     @staticmethod
     def perform_sticky(topic, request):
-        if request.user.has_perm("forum.change_topic"):
+        if request.user.has_perm('forum.change_topic'):
             topic.is_sticky = request.POST.get('sticky') == 'true'
             if topic.is_sticky:
                 success_message = _(u'Le sujet « {0} » est désormais épinglé.').format(topic.title)
             else:
-                success_message = _(u'Le sujet « {0} » n\'est désormais plus épinglé.').format(topic.title)
+                success_message = _(u"Le sujet « {0} » n'est désormais plus épinglé.").format(topic.title)
             messages.success(request, success_message)
         else:
             raise PermissionDenied
 
-    @staticmethod
-    def perform_move(request, topic):
-        if request.user.has_perm("forum.change_topic"):
+    def perform_move(self):
+        if self.request.user.has_perm('forum.change_topic'):
             try:
-                forum_pk = int(request.POST.get('forum'))
-            except (KeyError, ValueError, TypeError):
-                raise Http404
+                forum_pk = int(self.request.POST.get('forum'))
+            except (KeyError, ValueError, TypeError) as e:
+                raise Http404('Forum not found', e)
             forum = get_object_or_404(Forum, pk=forum_pk)
-            topic.forum = forum
+            self.object.forum = forum
 
             # Save topic to update update_index_date
-            topic.save()
+            self.object.save()
 
-            signals.edit_content.send(sender=topic.__class__, instance=topic, action='move')
-
-            messages.success(request,
-                             _(u"Le sujet « {0} » a bien été déplacé dans « {1} ».").format(topic.title, forum.title))
+            signals.edit_content.send(sender=self.object.__class__, instance=self.object, action='move')
+            message = _(u'Le sujet « {0} » a bien été déplacé dans « {1} ».').format(self.object.title, forum.title)
+            messages.success(self.request, message)
         else:
-            raise PermissionDenied
+            raise PermissionDenied()
 
     @staticmethod
     def perform_edit_info(topic, data, editor):

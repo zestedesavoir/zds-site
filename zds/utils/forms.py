@@ -81,10 +81,10 @@ class TagValidator(object):
         """
         validate a string composed as ``tag1,tag2``.
 
-        :param raw_string: the string to be validate. If ``None`` this is considered as a empty str
+        :param raw_string: the string to be validate. If ``None`` this is considered as a empty str.
         :type raw_string: basestring
-        :return: ``True`` if ``raw_string`` is fully valid, ``False`` if at least one error appears. See ``self.errors``
-        to get all internationalized error.
+        :return: ``True`` if ``raw_string`` is fully valid, ``False`` if at least one error appears. \
+        See ``self.errors`` to get all internationalized error.
         """
         if raw_string is None or not isinstance(raw_string, basestring):
             return self.validate_string_list([])

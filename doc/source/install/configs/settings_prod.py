@@ -6,11 +6,13 @@
 import os
 
 from settings import ZDS_APP, INSTALLED_APPS, BASE_DIR
-
+from raven import Client
 
 ##### Django settings #####
 
 # NEVER set this True !!
+from zds.utils.context_processor import get_git_version
+
 DEBUG = False
 
 USE_L10N = True
@@ -102,6 +104,15 @@ TEMPLATES = [
     },
 ]
 
+# Sentry (+ raven, the Python Client)
+# https://docs.getsentry.com/hosted/clients/python/integrations/django/
+RAVEN_CONFIG = {
+#    'dsn': 'to-fill'
+    'dsn': 'to-fill',
+    'release': get_git_version()
+}
+
+
 LOGGING = {
    'version': 1,
    'disable_existing_loggers': True,
@@ -135,7 +146,12 @@ LOGGING = {
         'mail_admins': {
             'level': 'ERROR',
             'class': 'django.utils.log.AdminEmailHandler',
-        }
+        },
+       'sentry': {
+            'level': 'ERROR',  # For beta purpose it can be lowered to WARNING
+            'class': 'raven.handlers.logging.SentryHandler',
+            'dsn': RAVEN_CONFIG['dsn'],
+        },
    },
    'loggers': {
         'django': {
@@ -144,7 +160,7 @@ LOGGING = {
             'level': 'WARNING',
         },
         'zds': {
-            'handlers': ['django_log'],
+            'handlers': ['django_log', 'sentry'],
             'propagate': True,
             'level': 'WARNING',
         },
@@ -185,13 +201,6 @@ PANDOC_PDF_PARAM = ("--latex-engine=xelatex "
                     "--toc -V documentclass=scrbook -V lang=francais "
                     "-V mainfont=Merriweather -V monofont=\"SourceCodePro-Regular\" "
                     "-V fontsize=12pt -V geometry:margin=1in ".format('/opt/zds/zds-site/assets/tex/template.tex'))
-
-# Sentry (+ raven, the Python Client)
-# https://docs.getsentry.com/hosted/clients/python/integrations/django/
-RAVEN_CONFIG = {
-#    'dsn': 'to-fill'
-    'dsn': 'to-fill'
-}
 
 # python-social-auth
 # http://psa.matiasaguirre.net/docs/configuration/django.html

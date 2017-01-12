@@ -1,3 +1,5 @@
+{% load i18n %}
+
 {%  if has_pagination %}
 
     <ul class="pagination pagination-{{ position }} pagination-chapter">
@@ -17,7 +19,23 @@
                 </a>
             </li>
         {% endif %}
-
+        
+        {% if container.parent %}
+            <li class="summary-button">
+                <a
+                    {% if online %}
+                        href="{{ content.get_absolute_url_online }}"
+                    {% elif content.is_beta %}
+                        href="{{ content.get_absolute_url_beta }}"
+                    {% else %}
+                        href="{{ content.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}"
+                    {% endif %}
+                >
+                    {% trans "Sommaire" %}
+                </a>
+            </li>        
+        {% endif %}
+        
         {% if next %}
             <li class="next">
                 <a

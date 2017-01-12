@@ -102,9 +102,9 @@ class PrivateTopicNew(CreateView):
 
     def form_valid(self, form):
         participants = []
-        for participant in form.data['participants'].split(","):
+        for participant in form.data['participants'].split(','):
             current = participant.strip()
-            if current == '':
+            if not current:
                 continue
             participants.append(get_object_or_404(User, username=current))
 
@@ -123,10 +123,10 @@ class PrivateTopicEdit(UpdateView):
     """ Update mp informations """
 
     model = PrivateTopic
-    template_name = "mp/topic/edit.html"
+    template_name = 'mp/topic/edit.html'
     form_class = PrivateTopicEditForm
-    pk_url_kwarg = "pk"
-    context_object_name = "topic"
+    pk_url_kwarg = 'pk'
+    context_object_name = 'topic'
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
@@ -248,9 +248,9 @@ class PrivatePostList(ZdSPagingListView, SingleObjectMixin):
         mark_read(self.object, self.request.user)
 
         if self.object.last_message.author == self.request.user:
-            context["user_can_modify"] = [self.object.last_message.pk]
+            context['user_can_modify'] = [self.object.last_message.pk]
         else:
-            context["user_can_modify"] = []
+            context['user_can_modify'] = []
 
         return context
 
@@ -277,7 +277,7 @@ class PrivatePostAnswer(CreatePostView):
         self.posts = PrivatePost.objects \
             .filter(privatetopic=self.object) \
             .prefetch_related() \
-            .order_by("-pubdate")[:settings.ZDS_APP['forum']['posts_per_page']]
+            .order_by('-pubdate')[:settings.ZDS_APP['forum']['posts_per_page']]
         return super(PrivatePostAnswer, self).dispatch(request, *args, **kwargs)
 
     def create_forum(self, form_class, **kwargs):

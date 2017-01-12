@@ -34,7 +34,7 @@ def filter_keyword(html):
 
     :return: list of important words
     """
-    bs = BeautifulSoup(html)
+    bs = BeautifulSoup(html, 'lxml')
 
     keywords = u''
     for tag in bs.findAll(['h1', 'h2', 'h3', 'em', 'strong']):
@@ -49,7 +49,7 @@ def filter_text(html):
     :param html: The text from which words must be extract
     :return: extracted words
     """
-    bs = BeautifulSoup(html)
+    bs = BeautifulSoup(html, 'lxml')
     return u' '.join(bs.findAll(text=True))
 
 

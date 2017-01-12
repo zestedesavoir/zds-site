@@ -15,6 +15,7 @@ class PublishedContentManager(models.Manager):
     def last_contents_of_a_member_loaded(self, author, _type=None):
         """
         Get contents published by author depends on settings.ZDS_APP['content']['user_page_number']
+
         :param author:
         :param _type: subtype to filter request
         :return:
@@ -30,7 +31,7 @@ class PublishedContentManager(models.Manager):
         if _type:
             queryset = queryset.filter(content_type=_type)
 
-        public_contents = queryset.order_by("-publication_date").all()[:settings.ZDS_APP['content']['user_page_number']]
+        public_contents = queryset.order_by('-publication_date').all()[:settings.ZDS_APP['content']['user_page_number']]
         return public_contents
 
     def last_tutorials_of_a_member_loaded(self, author):
@@ -47,6 +48,13 @@ class PublishedContentManager(models.Manager):
                    .count()
 
     def get_top_tags(self, displayed_types, limit=-1):
+        """
+        Retrieve all most rated tags.
+
+        :param displayed_types:
+        :param limit: if ``-1`` or ``0`` => no limit. Else just takes the provided number of elements.
+        :return:
+        """
         published = self.filter(
             must_redirect=False,
             content__type__in=displayed_types).values('content__tags').distinct()
@@ -96,7 +104,7 @@ class PublishableContentManager(models.Manager):
                     beta_topic.is_locked = True
                     beta_topic.save()
                     first_post = beta_topic.first_post()
-                    first_post.update_content(_(u'# Le tutoriel présenté par ce topic n\'existe plus.'))
+                    first_post.update_content(_(u"# Le tutoriel présenté par ce topic n'existe plus."))
                     first_post.save()
                 content.delete()
             else:
@@ -125,17 +133,18 @@ class PublishableContentManager(models.Manager):
     def get_last_tutorials(self):
         """
         This depends on settings.ZDS_APP['tutorial']['home_number'] parameter
+
         :return: lit of last published content
         :rtype: list
         """
         home_number = settings.ZDS_APP['tutorial']['home_number']
-        all_contents = self.filter(type="TUTORIAL")\
+        all_contents = self.filter(type='TUTORIAL')\
                            .filter(public_version__isnull=False)\
-                           .prefetch_related("authors")\
-                           .prefetch_related("authors__profile")\
-                           .select_related("last_note")\
-                           .select_related("public_version")\
-                           .prefetch_related("subcategory")\
+                           .prefetch_related('authors')\
+                           .prefetch_related('authors__profile')\
+                           .select_related('last_note')\
+                           .select_related('public_version')\
+                           .prefetch_related('subcategory')\
                            .order_by('-public_version__publication_date')[:home_number]
         published = []
         for content in all_contents:
@@ -145,28 +154,29 @@ class PublishableContentManager(models.Manager):
 
     def get_last_articles(self):
         """
-        ..attention:
-            this one use a raw subquery for historical reasons. Il will hopefully be replaced one day by an
+
+        .. attention::
+            this one use a raw subquery for historical reasons. Il will hopefully be replaced one day by an \
             ORM primitive.
 
-        :return: list of last articles expended with "count_note" property that prefetch number of comments
-        :rtype:list
+        :return: list of last articles expended with ``count_note`` property that prefetch number of comments.
+        :rtype: list
         """
-        sub_query = "SELECT COUNT(*) FROM {} WHERE {}={}"
+        sub_query = 'SELECT COUNT(*) FROM {} WHERE {}={}'
         sub_query = sub_query.format(
-            "tutorialv2_contentreaction",
-            "tutorialv2_contentreaction.related_content_id",
-            "tutorialv2_publishedcontent.content_pk"
+            'tutorialv2_contentreaction',
+            'tutorialv2_contentreaction.related_content_id',
+            'tutorialv2_publishedcontent.content_pk'
         )
         home_number = settings.ZDS_APP['article']['home_number']
-        all_contents = self.filter(type="ARTICLE")\
+        all_contents = self.filter(type='ARTICLE')\
                            .filter(public_version__isnull=False)\
-                           .prefetch_related("authors")\
-                           .prefetch_related("authors__profile")\
-                           .select_related("last_note")\
-                           .select_related("public_version")\
-                           .prefetch_related("subcategory")\
-                           .extra(select={"count_note": sub_query})\
+                           .prefetch_related('authors')\
+                           .prefetch_related('authors__profile')\
+                           .select_related('last_note')\
+                           .select_related('public_version')\
+                           .prefetch_related('subcategory')\
+                           .extra(select={'count_note': sub_query})\
                            .order_by('-public_version__publication_date')[:home_number]
         published = []
         for content in all_contents:

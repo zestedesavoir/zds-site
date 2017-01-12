@@ -139,7 +139,7 @@ class PrivatePostForm(forms.Form):
 
         text = cleaned_data.get('text')
 
-        if text is not None and text.strip() == '':
+        if text is not None and not text.strip():
             self._errors['text'] = self.error_class(
                 [_(u'Le champ text ne peut être vide')])
 

@@ -1,8 +1,10 @@
 # coding: utf-8
-
+from __future__ import unicode_literals
+from django.utils.encoding import python_2_unicode_compatible
 from django.db import models
 
 
+@python_2_unicode_compatible
 class SearchIndexTag(models.Model):
     class Meta:
         verbose_name = 'Tag'
@@ -10,7 +12,11 @@ class SearchIndexTag(models.Model):
 
     title = models.CharField('Titre', max_length=80)
 
+    def __str__(self):
+        return '<search tag model #{}>'.format(self.title)
 
+
+@python_2_unicode_compatible
 class SearchIndexAuthors(models.Model):
     class Meta:
         verbose_name = 'Author'
@@ -18,7 +24,11 @@ class SearchIndexAuthors(models.Model):
 
     username = models.CharField('Pseudo', max_length=80)
 
+    def __str__(self):
+        return '<search user model #{}>'.format(self.username)
 
+
+@python_2_unicode_compatible
 class SearchIndexContent(models.Model):
 
     class Meta:
@@ -50,7 +60,11 @@ class SearchIndexContent(models.Model):
 
     type = models.CharField('Type de contenu', max_length=80)
 
+    def __str__(self):
+        return '<search content model #{}>'.format(self.title)
 
+
+@python_2_unicode_compatible
 class SearchIndexContainer(models.Model):
 
     class Meta:
@@ -71,7 +85,11 @@ class SearchIndexContainer(models.Model):
 
     keywords = models.TextField('Mots clés du contenu')
 
+    def __str__(self):
+        return '<search content container model #{}>'.format(self.title)
 
+
+@python_2_unicode_compatible
 class SearchIndexExtract(models.Model):
 
     class Meta:
@@ -88,3 +106,6 @@ class SearchIndexExtract(models.Model):
     extract_content = models.TextField('Contenu', null=True, blank=True)
 
     keywords = models.TextField('Mots clés du contenu')
+
+    def __str__(self):
+        return '<search content extract model #{}>'.format(self.title)
