@@ -34,7 +34,7 @@ class FormWithTitle(forms.Form):
 
         title = cleaned_data.get('title')
 
-        if title is not None and title.strip() == '':
+        if title is not None and not title.strip():
             self._errors['title'] = self.error_class(
                 [_(u'Le champ du titre ne peut être vide.')])
             if 'title' in cleaned_data:
@@ -44,7 +44,7 @@ class FormWithTitle(forms.Form):
             slugify_raise_on_invalid(title)
         except InvalidSlugError as e:
             self._errors['title'] = self.error_class(
-                [_(u'Ce titre n\'est pas autorisé, son slug est invalide {}!').format(e if e.message != '' else '')])
+                [_(u"Ce titre n'est pas autorisé, son slug est invalide {} !").format(e if e.message else '')])
 
         return cleaned_data
 
@@ -69,49 +69,49 @@ class AuthorForm(forms.Form):
         )
 
     def clean_username(self):
-        """Check every username and send it to the cleaned_data["user"] list
+        """Check every username and send it to the cleaned_data['user'] list
 
         :return: a dictionary of all treated data with the users key added
         """
         cleaned_data = super(AuthorForm, self).clean()
         users = []
         if cleaned_data.get('username'):
-            for username in cleaned_data.get('username').split(","):
+            for username in cleaned_data.get('username').split(','):
                 user = Profile.objects.contactable_members().filter(user__username__iexact=username.strip().lower())\
                     .first()
                 if user is not None:
                     users.append(user.user)
             if len(users) > 0:
-                cleaned_data["users"] = users
+                cleaned_data['users'] = users
         return cleaned_data
 
     def is_valid(self):
-        return super(AuthorForm, self).is_valid() and "users" in self.clean()
+        return super(AuthorForm, self).is_valid() and 'users' in self.clean()
 
 
 class RemoveAuthorForm(AuthorForm):
 
     def clean_username(self):
-        """Check every username and send it to the cleaned_data["user"] list
+        """Check every username and send it to the cleaned_data['user'] list
 
         :return: a dictionary of all treated data with the users key added
         """
         cleaned_data = super(AuthorForm, self).clean()
         users = []
-        for username in cleaned_data.get('username').split(","):
+        for username in cleaned_data.get('username').split(','):
             # we can remove all users (bots inclued)
             user = Profile.objects.filter(user__username__iexact=username.strip().lower()).first()
             if user is not None:
                 users.append(user.user)
         if len(users) > 0:
-            cleaned_data["users"] = users
+            cleaned_data['users'] = users
         return cleaned_data
 
 
 class ContainerForm(FormWithTitle):
 
     introduction = forms.CharField(
-        label=_(u"Introduction"),
+        label=_(u'Introduction'),
         required=False,
         widget=forms.Textarea(
             attrs={
@@ -122,7 +122,7 @@ class ContainerForm(FormWithTitle):
     )
 
     conclusion = forms.CharField(
-        label=_(u"Conclusion"),
+        label=_(u'Conclusion'),
         required=False,
         widget=forms.Textarea(
             attrs={
@@ -132,7 +132,7 @@ class ContainerForm(FormWithTitle):
     )
 
     msg_commit = forms.CharField(
-        label=_(u"Message de suivi"),
+        label=_(u'Message de suivi'),
         max_length=80,
         required=False,
         widget=forms.TextInput(
@@ -203,9 +203,9 @@ class ContentForm(ContainerForm):
     )
 
     subcategory = forms.ModelMultipleChoiceField(
-        label=_(u"Sous catégories de votre contenu. Si aucune catégorie ne convient "
+        label=_(u'Sous catégories de votre contenu. Si aucune catégorie ne convient '
                 u"n'hésitez pas à en demander une nouvelle lors de la validation !"),
-        queryset=SubCategory.objects.order_by("title").all(),
+        queryset=SubCategory.objects.order_by('title').all(),
         required=True,
         widget=forms.CheckboxSelectMultiple()
     )
@@ -216,12 +216,12 @@ class ContentForm(ContainerForm):
             .format(
                 settings.ZDS_APP['site']['licenses']['licence_info_title'],
                 settings.ZDS_APP['site']['licenses']['licence_info_link'],
-                settings.ZDS_APP['site']['name']
+                settings.ZDS_APP['site']['litteral_name'],
             )
         ),
-        queryset=Licence.objects.all(),
+        queryset=Licence.objects.order_by('title').all(),
         required=True,
-        empty_label=None
+        empty_label=_('Choisir une licence')
     )
 
     helps = forms.ModelMultipleChoiceField(
@@ -259,9 +259,9 @@ class ContentForm(ContainerForm):
             HTML(_(u"<p>Demander de l'aide à la communauté !<br>"
                    u"Si vous avez besoin d'un coup de main, "
                    u"sélectionnez une ou plusieurs catégories d'aide ci-dessous "
-                   u"et votre contenu apparaîtra alors sur <a href="
-                   u"\"{% url \"content:helps\" %}\" "
-                   u"alt=\"aider les auteurs\">la page d'aide</a>.</p>")),
+                   u'et votre contenu apparaîtra alors sur <a href='
+                   u'"{% url "content:helps" %}" '
+                   u'alt="aider les auteurs">la page d\'aide</a>.</p>')),
             Field('helps'),
             Field('msg_commit'),
             ButtonHolder(
@@ -283,7 +283,7 @@ class ContentForm(ContainerForm):
                 [_(u'Votre logo est trop lourd, la limite autorisée est de {} Ko')
                  .format(settings.ZDS_APP['gallery']['image_max_size'] / 1024)])
         validator = TagValidator()
-        if not validator.validate_raw_string(cleaned_data.get("tags")):
+        if not validator.validate_raw_string(cleaned_data.get('tags')):
             self._errors['tags'] = self.error_class(validator.errors)
         return cleaned_data
 
@@ -301,7 +301,7 @@ class ExtractForm(FormWithTitle):
     )
 
     msg_commit = forms.CharField(
-        label=_(u"Message de suivi"),
+        label=_(u'Message de suivi'),
         max_length=80,
         required=False,
         widget=forms.TextInput(
@@ -357,15 +357,15 @@ class ImportForm(forms.Form):
         images = cleaned_data.get('images')
 
         if tuto is not None:
-            ext = tuto.name.split(".")[-1]
-            if ext != "tuto":
+            ext = tuto.name.split('.')[-1]
+            if ext != 'tuto':
                 del cleaned_data['file']
                 msg = _(u'Le fichier doit être au format .tuto.')
                 self._errors['file'] = self.error_class([msg])
 
         if images is not None:
-            ext = images.name.split(".")[-1]
-            if ext != "zip":
+            ext = images.name.split('.')[-1]
+            if ext != 'zip':
                 del cleaned_data['images']
                 msg = _(u'Le fichier doit être au format .zip.')
                 self._errors['images'] = self.error_class([msg])
@@ -383,7 +383,7 @@ class ImportContentForm(forms.Form):
     )
 
     msg_commit = forms.CharField(
-        label=_(u"Message de suivi"),
+        label=_(u'Message de suivi'),
         max_length=80,
         required=False,
         widget=forms.TextInput(
@@ -404,7 +404,7 @@ class ImportContentForm(forms.Form):
             Field('image_archive'),
             Field('msg_commit'),
             ButtonHolder(
-                StrictButton('Importer l\'archive', type='submit'),
+                StrictButton("Importer l'archive", type='submit'),
             ),
         )
 
@@ -415,19 +415,19 @@ class ImportContentForm(forms.Form):
         archive = cleaned_data.get('archive')
 
         if archive is not None:
-            ext = archive.name.split(".")[-1]
+            ext = archive.name.split('.')[-1]
             if ext != 'zip':
                 del cleaned_data['archive']
-                msg = _(u'L\'archive doit être au format .zip.')
+                msg = _(u"L'archive doit être au format .zip.")
                 self._errors['archive'] = self.error_class([msg])
 
         image_archive = cleaned_data.get('image_archive')
 
         if image_archive is not None:
-            ext = image_archive.name.split(".")[-1]
+            ext = image_archive.name.split('.')[-1]
             if ext != 'zip':
                 del cleaned_data['image_archive']
-                msg = _(u'L\'archive doit être au format .zip.')
+                msg = _(u"L'archive doit être au format .zip.")
                 self._errors['image_archive'] = self.error_class([msg])
 
         return cleaned_data
@@ -436,9 +436,9 @@ class ImportContentForm(forms.Form):
 class ImportNewContentForm(ImportContentForm):
 
     subcategory = forms.ModelMultipleChoiceField(
-        label=_(u"Sous catégories de votre contenu. Si aucune catégorie ne convient "
+        label=_(u'Sous catégories de votre contenu. Si aucune catégorie ne convient '
                 u"n'hésitez pas à en demander une nouvelle lors de la validation !"),
-        queryset=SubCategory.objects.order_by("title").all(),
+        queryset=SubCategory.objects.order_by('title').all(),
         required=True,
         widget=forms.SelectMultiple(
             attrs={
@@ -460,7 +460,7 @@ class ImportNewContentForm(ImportContentForm):
             Field('subcategory'),
             Field('msg_commit'),
             ButtonHolder(
-                StrictButton('Importer l\'archive', type='submit'),
+                StrictButton("Importer l'archive", type='submit'),
             ),
         )
 
@@ -513,7 +513,7 @@ class NoteForm(forms.Form):
             if not reaction:
                 self.helper['text'].wrap(
                     Field,
-                    placeholder=_(u'Vous avez posté il n\'y a pas longtemps. Merci de patienter '
+                    placeholder=_(u"Vous avez posté il n'y a pas longtemps. Merci de patienter "
                                   u'au moins 15 minutes entre deux messages consécutifs '
                                   u'afin de limiter le flood.'),
                     disabled=True)
@@ -525,7 +525,7 @@ class NoteForm(forms.Form):
             )
 
         if reaction is not None:
-            self.initial.setdefault("text", reaction.text)
+            self.initial.setdefault('text', reaction.text)
 
         self.content = content
 
@@ -534,7 +534,7 @@ class NoteForm(forms.Form):
 
         text = cleaned_data.get('text')
 
-        if text is None or text.strip() == '':
+        if text is None or not text.strip():
             self._errors['text'] = self.error_class(
                 [_(u'Vous devez écrire une réponse !')])
             if 'text' in cleaned_data:
@@ -544,12 +544,12 @@ class NoteForm(forms.Form):
             self._errors['text'] = self.error_class(
                 [_(u'Ce message est trop long, il ne doit pas dépasser {0} '
                    u'caractères.').format(settings.ZDS_APP['forum']['max_post_length'])])
-        last_note = cleaned_data.get("last_note", "0")
+        last_note = cleaned_data.get('last_note', '0')
         if last_note is None:
-            last_note = "0"
-        is_valid = last_note == "0" or self.content.last_note is None or int(last_note) == self.content.last_note.pk
+            last_note = '0'
+        is_valid = last_note == '0' or self.content.last_note is None or int(last_note) == self.content.last_note.pk
         if not is_valid:
-            self._errors["last_note"] = self.error_class([_(u'Quelqu\'un a posté pendant que vous répondiez')])
+            self._errors['last_note'] = self.error_class([_(u"Quelqu'un a posté pendant que vous répondiez")])
         return cleaned_data
 
 
@@ -584,7 +584,7 @@ class AskValidationForm(forms.Form):
         required=False,
         widget=forms.TextInput(
             attrs={
-                'placeholder': _(u'Pour un contenu importé d\'un autre site, adresse de la source.')
+                'placeholder': _(u"Pour un contenu importé d'un autre site, adresse de la source.")
             }
         )
     )
@@ -627,7 +627,7 @@ class AskValidationForm(forms.Form):
 
         text = cleaned_data.get('text')
 
-        if text is None or text.strip() == '':
+        if text is None or not text.strip():
             self._errors['text'] = self.error_class(
                 [_(u'Vous devez fournir un commentaire aux validateurs.')])
             if 'text' in cleaned_data:
@@ -668,7 +668,7 @@ class AcceptValidationForm(forms.Form):
         required=False,
         widget=forms.TextInput(
             attrs={
-                'placeholder': _(u'Pour un contenu importé d\'un autre site, adresse de la source.')
+                'placeholder': _(u"Pour un contenu importé d'un autre site, adresse de la source.")
             }
         )
     )
@@ -714,7 +714,7 @@ class AcceptValidationForm(forms.Form):
 
         text = cleaned_data.get('text')
 
-        if text is None or text.strip() == '':
+        if text is None or not text.strip():
             self._errors['text'] = self.error_class(
                 [_(u'Vous devez fournir un commentaire aux validateurs.')])
             if 'text' in cleaned_data:
@@ -760,7 +760,7 @@ class CancelValidationForm(forms.Form):
         self.helper.form_id = 'cancel-validation'
 
         self.helper.layout = Layout(
-            HTML("<p>Êtes-vous certain de vouloir annuler la validation de ce contenu ?</p>"),
+            HTML('<p>Êtes-vous certain de vouloir annuler la validation de ce contenu ?</p>'),
             CommonLayoutModalText(),
             ButtonHolder(
                 StrictButton(
@@ -773,9 +773,9 @@ class CancelValidationForm(forms.Form):
 
         text = cleaned_data.get('text')
 
-        if text is None or text.strip() == '':
+        if text is None or not text.strip():
             self._errors['text'] = self.error_class(
-                [_(u'Merci de fournir une raison à l\'annulation.')])
+                [_(u"Merci de fournir une raison à l'annulation.")])
             if 'text' in cleaned_data:
                 del cleaned_data['text']
 
@@ -839,7 +839,7 @@ class RejectValidationForm(forms.Form):
 
         text = cleaned_data.get('text')
 
-        if text is None or text.strip() == '':
+        if text is None or not text.strip():
             self._errors['text'] = self.error_class(
                 [_(u'Merci de fournir une raison au rejet.')])
             if 'text' in cleaned_data:
@@ -894,7 +894,7 @@ class RevokeValidationForm(forms.Form):
 
         text = cleaned_data.get('text')
 
-        if text is None or text.strip() == '':
+        if text is None or not text.strip():
             self._errors['text'] = self.error_class(
                 [_(u'Veuillez fournir la raison de votre dépublication.')])
             if 'text' in cleaned_data:
@@ -935,12 +935,12 @@ class JsFiddleActivationForm(forms.Form):
 
     def clean(self):
         cleaned_data = super(JsFiddleActivationForm, self).clean()
-        if "js_support" not in cleaned_data:
-            cleaned_data["js_support"] = False
-        if "pk" in self.data and self.data["pk"].isdigit():
-            cleaned_data["pk"] = int(self.data["pk"])
+        if 'js_support' not in cleaned_data:
+            cleaned_data['js_support'] = False
+        if 'pk' in self.data and self.data['pk'].isdigit():
+            cleaned_data['pk'] = int(self.data['pk'])
         else:
-            cleaned_data["pk"] = 0
+            cleaned_data['pk'] = 0
         return cleaned_data
 
 
@@ -951,10 +951,10 @@ class MoveElementForm(forms.Form):
     first_level_slug = forms.HiddenInput()
     moving_method = forms.HiddenInput()
 
-    MOVE_UP = "up"
-    MOVE_DOWN = "down"
-    MOVE_AFTER = "after"
-    MOVE_BEFORE = "before"
+    MOVE_UP = 'up'
+    MOVE_DOWN = 'down'
+    MOVE_AFTER = 'after'
+    MOVE_BEFORE = 'before'
 
     def __init__(self, *args, **kwargs):
         super(MoveElementForm, self).__init__(*args, **kwargs)
@@ -998,12 +998,12 @@ class WarnTypoForm(forms.Form):
             self.previous_page_url = targeted.get_absolute_url_beta()
 
         # add an additional link to send PM if needed
-        type_ = _(u'l\'article') if content.type == 'ARTICLE' else _(u'le tutoriel')
+        type_ = _(u"l'article") if content.type == 'ARTICLE' else _(u'le tutoriel')
 
         if targeted.get_tree_depth() == 0:
-            pm_title = _(u'J\'ai trouvé une faute dans {} « {} ».').format(type_, targeted.title)
+            pm_title = _(u"J'ai trouvé une faute dans {} « {} ».").format(type_, targeted.title)
         else:
-            pm_title = _(u'J\'ai trouvé une faute dans le chapitre « {} ».').format(targeted.title)
+            pm_title = _(u"J'ai trouvé une faute dans le chapitre « {} ».").format(targeted.title)
 
         usernames = ''
         num_of_authors = content.authors.count()
@@ -1013,7 +1013,7 @@ class WarnTypoForm(forms.Form):
             usernames += 'username=' + user.username
 
         msg = _(u'<p>Pas assez de place ? <a href="{}?title={}&{}">Envoyez un MP {}</a> !</a>').format(
-            reverse('mp-new'), pm_title, usernames, _(u'à l\'auteur') if num_of_authors == 1 else _(u'aux auteurs')
+            reverse('mp-new'), pm_title, usernames, _(u"à l'auteur") if num_of_authors == 1 else _(u'aux auteurs')
         )
 
         version = content.sha_beta
@@ -1040,7 +1040,7 @@ class WarnTypoForm(forms.Form):
 
         text = cleaned_data.get('text')
 
-        if text is None or text.strip() == '':
+        if text is None or not text.strip():
             self._errors['text'] = self.error_class(
                 [_(u'Vous devez indiquer la faute commise.')])
             if 'text' in cleaned_data:

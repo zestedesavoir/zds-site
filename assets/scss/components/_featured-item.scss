@@ -23,7 +23,12 @@
         height: 100%;
         width: auto;
         transition: $transition-duration ease;
-        transition-property: filter, opacity, transform;
+        transition-property: opacity, transform;
+
+        // Force hardware acceleration
+        transform: scale(0), translateZ(0);
+        perspective: 1000;
+        backface-visibility: hidden;
     }
 
     .featured-resource-meta {
@@ -60,7 +65,7 @@
         .featured-resource-illu {
             opacity: 0.4;
             filter: blur(5px);
-            transform: scale(1.05);
+            transform: scale(1.05), translateZ(0);
         }
         .featured-resource-meta {
             h3 {

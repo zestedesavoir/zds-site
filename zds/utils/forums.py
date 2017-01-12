@@ -101,12 +101,12 @@ def send_post(request, topic, author, text,):
     post = Post()
     post.topic = topic
     post.author = author
-    post.update_content(text)
     post.pubdate = datetime.now()
     if topic.last_message is not None:
         post.position = topic.last_message.position + 1
     else:
         post.position = 1
+    post.update_content(text)
     post.ip_address = get_client_ip(request)
     post.save()
 

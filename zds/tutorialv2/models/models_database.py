@@ -1,5 +1,6 @@
 # coding: utf-8
-
+from __future__ import unicode_literals
+from django.utils.encoding import python_2_unicode_compatible
 from datetime import datetime
 try:
     import ujson as json_reader
@@ -39,8 +40,10 @@ from zds.tutorialv2.managers import PublishedContentManager, PublishableContentM
 import logging
 
 ALLOWED_TYPES = ['pdf', 'md', 'html', 'epub', 'zip']
+logger = logging.getLogger('zds.tutorialv2')
 
 
+@python_2_unicode_compatible
 class PublishableContent(models.Model):
     """A tutorial whatever its size or an article.
 
@@ -51,7 +54,7 @@ class PublishableContent(models.Model):
     - Creation, publication and update date ;
     - Public, beta, validation and draft sha, for versioning ;
     - Comment support ;
-    - Type, which is either "ARTICLE" or "TUTORIAL"
+    - Type, which is either 'ARTICLE' or 'TUTORIAL'
     """
     class Meta:
         verbose_name = 'Contenu'
@@ -76,7 +79,7 @@ class PublishableContent(models.Model):
 
     # every publishable content has its own gallery to manage images
     gallery = models.ForeignKey(Gallery,
-                                verbose_name='Galerie d\'images',
+                                verbose_name="Galerie d'images",
                                 blank=True, null=True, db_index=True)
 
     creation_date = models.DateTimeField('Date de création')
@@ -121,7 +124,7 @@ class PublishableContent(models.Model):
 
     objects = PublishableContentManager()
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     def textual_type(self):
@@ -133,7 +136,7 @@ class PublishableContent(models.Model):
         if self.is_article():
             return _(u"L'Article")
         else:
-            return _(u"Le Tutoriel")
+            return _(u'Le Tutoriel')
 
     def save(self, *args, **kwargs):
         """
@@ -141,7 +144,7 @@ class PublishableContent(models.Model):
         """
         if kwargs.pop('force_slug_update', True):
             self.slug = uuslug(self.title, instance=self, max_length=80)
-        update_date = kwargs.pop("update_date", True)
+        update_date = kwargs.pop('update_date', True)
         if update_date:
             self.update_date = datetime.now()
         super(PublishableContent, self).save(*args, **kwargs)
@@ -293,7 +296,7 @@ class PublishableContent(models.Model):
             return self.load_version(sha, public)
         except (BadObject, BadName, IOError) as error:
             raise Http404(
-                u"Le code sha existe mais la version demandée ne peut pas être trouvée à cause de {}:{}".format(
+                u'Le code sha existe mais la version demandée ne peut pas être trouvée à cause de {}:{}'.format(
                     type(error), str(error)))
 
     def load_version(self, sha=None, public=None):
@@ -320,7 +323,7 @@ class PublishableContent(models.Model):
                 sha = self.sha_draft
             else:
                 sha = self.sha_public
-        max_title_length = PublishableContent._meta.get_field("title").max_length
+        max_title_length = PublishableContent._meta.get_field('title').max_length
         if public and isinstance(public, PublishedContent):  # use the public (altered and not versioned) repository
             path = public.get_prod_path()
             slug = public.content_public_slug
@@ -469,7 +472,7 @@ class PublishableContent(models.Model):
                         .filter(
                             related_content__pk=self.pk,
                             pk__gt=last_note.pk)\
-                        .select_related("author").first()
+                        .select_related('author').first()
 
                     if next_note:
                         return next_note
@@ -527,7 +530,7 @@ class PublishableContent(models.Model):
                 current_tag, created = Tag.objects.get_or_create(title=tag.lower().strip())
                 self.tags.add(current_tag)
             except ValueError as e:
-                logging.getLogger("zds.tutorialv2").warn(e)
+                logger.warning(e)
 
         self.save()
 
@@ -545,12 +548,13 @@ def delete_gallery(sender, instance, **kwargs):
         instance.gallery.delete()
 
 
+@python_2_unicode_compatible
 class PublishedContent(models.Model):
     """A class that contains information on the published version of a content.
 
     Used for quick url resolution, quick listing, and to know where the public version of the files are.
 
-    Linked to a ``PublishableContent`` for the rest. Don't forget to add a ``.prefetch_related("content")`` !!
+    Linked to a ``PublishableContent`` for the rest. Don't forget to add a ``.prefetch_related('content')`` !!
     """
 
     class Meta:
@@ -566,6 +570,7 @@ class PublishedContent(models.Model):
     publication_date = models.DateTimeField('Date de publication', db_index=True, blank=True, null=True)
     update_date = models.DateTimeField('Date de mise à jour', db_index=True, blank=True, null=True, default=None)
     sha_public = models.CharField('Sha1 de la version publiée', blank=True, null=True, max_length=80, db_index=True)
+    nb_letter = models.IntegerField(default=None, null=True, verbose_name=b'Nombre de lettres du contenu', blank=True)
 
     must_redirect = models.BooleanField(
         'Redirection vers  une version plus récente', blank=True, db_index=True, default=False)
@@ -578,7 +583,7 @@ class PublishedContent(models.Model):
     # sizes contain a python dict (as a string in database) with all information about file sizes
     sizes = models.CharField('Tailles des fichiers téléchargeables', max_length=512, default='{}')
 
-    def __unicode__(self):
+    def __str__(self):
         return _('Version publique de "{}"').format(self.content.title)
 
     def title(self):
@@ -632,7 +637,7 @@ class PublishedContent(models.Model):
         :return: ``True`` if it is an article, ``False`` otherwise.
         :rtype: bool
         """
-        return self.content_type == "ARTICLE"
+        return self.content_type == 'ARTICLE'
 
     def is_tutorial(self):
         """
@@ -640,11 +645,11 @@ class PublishedContent(models.Model):
         :return: ``True`` if it is an article, ``False`` otherwise.
         :rtype: bool
         """
-        return self.content_type == "TUTORIAL"
+        return self.content_type == 'TUTORIAL'
 
     def get_extra_contents_directory(self):
         """
-        :return: path to all the "extra contents"
+        :return: path to all the 'extra contents'
         :rtype: str
         """
         return os.path.join(self.get_prod_path(), settings.ZDS_APP['content']['extra_contents_dirname'])
@@ -829,7 +834,29 @@ class PublishedContent(models.Model):
     def get_last_action_date(self):
         return self.update_date or self.publication_date
 
+    def get_nb_letters(self, md_file_path=None):
+        """ Compute the number of letters for a given content
 
+        :param md_file_path: use another file to compute the number of letter rather than the default one.
+        :type md_file_path: str
+        :return: Number of letters in the md file
+        :rtype: int
+        """
+
+        if not md_file_path:
+            md_file_path = os.path.join(self.get_extra_contents_directory(), self.content_public_slug + '.md')
+
+        try:
+            with open(md_file_path, 'rb') as md_file:
+                content = md_file.read().decode('utf-8')
+            current_content = PublishedContent.objects.filter(content_pk=self.content_pk, must_redirect=False).first()
+            if current_content:
+                return len(content)
+        except IOError as e:
+            logger.warning('could not get file %s to compute nb letters (error=%s)', md_file_path, e)
+
+
+@python_2_unicode_compatible
 class ContentReaction(Comment):
     """
     A comment written by any user about a PublishableContent he just read.
@@ -839,10 +866,10 @@ class ContentReaction(Comment):
         verbose_name_plural = 'notes sur un contenu'
 
     related_content = models.ForeignKey(PublishableContent, verbose_name='Contenu',
-                                        related_name="related_content_note", db_index=True)
+                                        related_name='related_content_note', db_index=True)
 
-    def __unicode__(self):
-        return u'<Tutorial pour "{0}", #{1}>'.format(self.related_content, self.pk)
+    def __str__(self):
+        return "<Réaction pour '{0}', #{1}>".format(self.related_content, self.pk)
 
     def get_absolute_url(self):
         """Find the url to the reaction
@@ -850,10 +877,14 @@ class ContentReaction(Comment):
         :return: the url of the comment
         :rtype: str
         """
-        page = int(ceil(float(self.position) / settings.ZDS_APP["content"]["notes_per_page"]))
+        page = int(ceil(float(self.position) / settings.ZDS_APP['content']['notes_per_page']))
         return '{0}?page={1}#p{2}'.format(self.related_content.get_absolute_url_online(), page, self.pk)
 
+    def get_notification_title(self):
+        return self.related_content.title
 
+
+@python_2_unicode_compatible
 class ContentRead(models.Model):
     """
     Small model which keeps track of the user viewing tutorials.
@@ -877,10 +908,11 @@ class ContentRead(models.Model):
 
         return super(ContentRead, self).save(force_insert, force_update, using, update_fields)
 
-    def __unicode__(self):
-        return u'<Contenu "{}" lu par {}, #{}>'.format(self.content, self.user, self.note.pk)
+    def __str__(self):
+        return '<Contenu "{}" lu par {}, #{}>'.format(self.content, self.user, self.note.pk)
 
 
+@python_2_unicode_compatible
 class Validation(models.Model):
     """
     Content validation.
@@ -894,7 +926,7 @@ class Validation(models.Model):
     version = models.CharField('Sha1 de la version',
                                blank=True, null=True, max_length=80, db_index=True)
     date_proposition = models.DateTimeField('Date de proposition', db_index=True, null=True, blank=True)
-    comment_authors = models.TextField('Commentaire de l\'auteur', null=True, blank=True)
+    comment_authors = models.TextField("Commentaire de l'auteur", null=True, blank=True)
     validator = models.ForeignKey(User,
                                   verbose_name='Validateur',
                                   related_name='author_content_validations',
@@ -910,8 +942,8 @@ class Validation(models.Model):
         choices=STATUS_CHOICES,
         default='PENDING')
 
-    def __unicode__(self):
-        return _(u'Validation de « {} »').format(self.content.title)
+    def __str__(self):
+        return _('Validation de « {} »').format(self.content.title)
 
     def is_pending(self):
         """Check if the validation is pending
@@ -959,6 +991,6 @@ def transfer_paternity_receiver(sender, instance, **kwargs):
     """
     transfer paternity to external user on user deletion
     """
-    external = sender.objects.get(username=settings.ZDS_APP["member"]["external_account"])
+    external = sender.objects.get(username=settings.ZDS_APP['member']['external_account'])
     PublishableContent.objects.transfer_paternity(instance, external, UserGallery)
     PublishedContent.objects.transfer_paternity(instance, external)

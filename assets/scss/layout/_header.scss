@@ -244,6 +244,25 @@
                 }
             }
         }
+        
+        .dropdown-pm {
+            text-align : left;
+            padding-left : 15px;
+            
+            .ico-after {
+                float: right;
+                padding-right: 47px;
+                top: 9px;
+            }
+
+            .pm-new {
+                &.white:after {
+                    @include sprite-position($pm-new-white);
+                    width: 17px;
+                    height: 16px;
+                }
+            }
+        }
     }
 
     .my-account {

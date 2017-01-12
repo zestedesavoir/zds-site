@@ -80,9 +80,8 @@
             {% if content.sha_public %}
                 <p class="content-authors">
                     {% if content.pubdate %}
-                        <time class="content-pubdate" pubdate="{{ content.pubdate|date:"c" }}">
-                            {{ content.pubdate|format_date|capfirst }}
-                        </time>
+                        <span class="long content-pubdate">{{ content.pubdate|format_date|capfirst }}</span>
+                        <span class="short content-pubdate">{{ content.pubdate|format_date:True|capfirst }}</span>
                     {% endif %}
                     {{ authors_text }}
                 </p>

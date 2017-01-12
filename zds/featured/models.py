@@ -1,11 +1,13 @@
 # coding: utf-8
-
+from __future__ import unicode_literals
+from django.utils.encoding import python_2_unicode_compatible
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from zds.featured.managers import FeaturedResourceManager, FeaturedMessageManager
 
 
+@python_2_unicode_compatible
 class FeaturedResource(models.Model):
     """
         A FeaturedResource is a link to a resource that is featured by the Staff
@@ -33,11 +35,12 @@ class FeaturedResource(models.Model):
 
     objects = FeaturedResourceManager()
 
-    def __unicode__(self):
+    def __str__(self):
         """Textual form of a featured resource."""
         return self.title
 
 
+@python_2_unicode_compatible
 class FeaturedMessage(models.Model):
     """
         The Featured Message is a simple one-line information on the home page.
@@ -58,6 +61,6 @@ class FeaturedMessage(models.Model):
 
     objects = FeaturedMessageManager()
 
-    def __unicode__(self):
+    def __str__(self):
         """Textual form of a featured message."""
         return self.message

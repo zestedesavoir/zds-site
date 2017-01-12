@@ -6,7 +6,7 @@ from django.conf import settings
 
 
 def put_authors(apps, schema_editor):
-    PublishedContent = apps.get_model("tutorialv2", "PublishedContent")
+    PublishedContent = apps.get_model('tutorialv2', 'PublishedContent')
     for content in PublishedContent.objects.filter(must_redirect=False).all():
         for author in content.content.authors.all():
             content.authors.add(author)

@@ -41,7 +41,7 @@ class GalleryForm(forms.ModelForm):
 
         title = cleaned_data.get('title')
 
-        if title and title.strip() == '':
+        if title and not title.strip():
             self._errors['title'] = self.error_class(
                 [_(u'Le champ titre ne peut être vide')])
             if 'title' in cleaned_data:
@@ -83,8 +83,8 @@ class UserGalleryForm(forms.Form):
     mode = forms.ChoiceField(
         label='',
         choices=(
-            ('R', "En mode lecture"),
-            ('W', "En mode écriture"),
+            ('R', 'En mode lecture'),
+            ('W', 'En mode écriture'),
         ),
         required=True,
         widget=forms.RadioSelect,
@@ -205,11 +205,11 @@ class ArchiveImageForm(forms.Form):
 
         zip_file = cleaned_data.get('file', None)
         if not zip_file:
-            self.add_error("file", _(u"Le fichier n'a pas été joint."))
+            self.add_error('file', _(u"Le fichier n'a pas été joint."))
             return cleaned_data
         extension = zip_file.name.split('.')[-1]
 
-        if extension != "zip":
+        if extension != 'zip':
             self._errors['file'] = self.error_class(
                 [_(u"Le champ n'accepte que les fichiers zip")])
             if 'file' in cleaned_data:
@@ -232,6 +232,6 @@ class ImageAsAvatarForm(forms.Form):
         self.helper.layout = Layout(
             Hidden('avatar_url', '{{ image.physical.url }}'),
             ButtonHolder(
-                StrictButton(_(u"Utiliser comme avatar"), type='submit'),
+                StrictButton(_(u'Utiliser comme avatar'), type='submit'),
             ),
         )

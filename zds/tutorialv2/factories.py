@@ -15,7 +15,7 @@ from zds.tutorialv2.publication_utils import publish_content
 text_content = u'Ceci est un texte bidon, **avec markown**'
 
 tricky_text_content = \
-    u'Ceci est un texte contenant plein d\'images, pour la publication. Le modifier affectera le test !\n\n' \
+    u"Ceci est un texte contenant plein d'images, pour la publication. Le modifier affectera le test !\n\n" \
     u'# Les images\n\n' \
     u'Image: ![PNG qui existe](http://upload.wikimedia.org/wikipedia/en/9/9d/Commons-logo-31px.png)\n\n' \
     u'Image: ![PNG qui existe pas](example.com/test.png)\n\n' \
@@ -46,12 +46,12 @@ class PublishableContentFactory(factory.DjangoModelFactory):
     @classmethod
     def _prepare(cls, create, **kwargs):
         auths = []
-        if "author_list" in kwargs:
-            auths = kwargs.pop("author_list")
+        if 'author_list' in kwargs:
+            auths = kwargs.pop('author_list')
 
         light = True
-        if "light" in kwargs:
-            light = kwargs.pop("light")
+        if 'light' in kwargs:
+            light = kwargs.pop('light')
         text = text_content
         if not light:
             text = tricky_text_content
@@ -82,8 +82,8 @@ class ContainerFactory(factory.Factory):
         parent = kwargs.pop('parent', None)
 
         light = True
-        if "light" in kwargs:
-            light = kwargs.pop("light")
+        if 'light' in kwargs:
+            light = kwargs.pop('light')
         text = text_content
         if not light:
             text = tricky_text_content
@@ -109,8 +109,8 @@ class ExtractFactory(factory.Factory):
         parent = kwargs.pop('container', None)
 
         light = True
-        if "light" in kwargs:
-            light = kwargs.pop("light")
+        if 'light' in kwargs:
+            light = kwargs.pop('light')
         text = text_content
         if not light:
             text = tricky_text_content
@@ -130,7 +130,7 @@ class ContentReactionFactory(factory.DjangoModelFactory):
         model = ContentReaction
 
     ip_address = '192.168.3.1'
-    text = 'Bonjour, je me présente, je m\'appelle l\'homme au texte bidonné'
+    text = "Bonjour, je me présente, je m'appelle l'homme au texte bidonné"
 
     @classmethod
     def _prepare(cls, create, **kwargs):
@@ -147,10 +147,10 @@ class ContentReactionFactory(factory.DjangoModelFactory):
 class BetaContentFactory(PublishableContentFactory):
     @classmethod
     def _prepare(cls, create, **kwargs):
-        beta_forum = kwargs.pop("forum", None)
+        beta_forum = kwargs.pop('forum', None)
         publishable_content = super(BetaContentFactory, cls)._prepare(create, **kwargs)
         if publishable_content.authors.count() > 0 and beta_forum is not None:
-            beta_topic = TopicFactory(title="[beta]" + publishable_content.title,
+            beta_topic = TopicFactory(title='[beta]' + publishable_content.title,
                                       author=publishable_content.authors.first(),
                                       forum=beta_forum)
             publishable_content.sha_beta = publishable_content.sha_draft
@@ -168,8 +168,10 @@ class PublishedContentFactory(PublishableContentFactory):
         """create a new PublishableContent and then publish it.
         """
 
+        is_major_update = kwargs.pop('is_major_update', True)
+
         content = super(PublishedContentFactory, cls)._prepare(create, **kwargs)
-        published = publish_content(content, content.load_version(), True)
+        published = publish_content(content, content.load_version(), is_major_update)
         content.sha_public = content.sha_draft
         content.public_version = published
         content.save()

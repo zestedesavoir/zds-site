@@ -15,7 +15,7 @@ class PrivateTopicFormTest(TestCase):
         self.profile1 = ProfileFactory()
         self.profile2 = ProfileFactory()
         self.staff1 = StaffProfileFactory()
-        bot = Group(name=ZDS_APP["member"]["bot_group"])
+        bot = Group(name=ZDS_APP['member']['bot_group'])
         bot.save()
 
     def test_valid_topic_form(self):
