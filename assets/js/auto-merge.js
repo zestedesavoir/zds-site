@@ -4,20 +4,24 @@
 	$(document).ready(function () {
 		
 		/**
-		 * Sets up the merge interface (using mergely). 
+		 * Sets up the merge interface (using mergely) in the $div Object. Data is generally retrieved from a form field
+		 * or an aditionnal div exposing the old data, also generated in the form.
+		 * @param {Object} $div - The base object used to set up the interface. Generally created in forms files.
+         * @param {Object} $left - The object from which we will pick the content to put in the left hand side (lhs) of the editor.
+         * @param {Object} $right - The object from which we will pick the content to put in the right hand side (rhs) of the editor.
 		 */
-		function mergelySetUp(div, left, right)
+		function mergelySetUp($div, $left, $right)
 		{
-			div.mergely({
+			$div.mergely({
 				width: "auto",
 				height: 400,
 				sidebar: false,
 				cmsettings: { readOnly: false, lineNumbers: true, lineWrapping: true },
 				lhs: function(setValue) {
-					setValue(left.html());
+					setValue($left.html());
 				},
 				rhs: function(setValue) {
-					setValue(right.html());
+					setValue($right.html());
 				}
 			});
 		}
@@ -38,19 +42,19 @@
 	        e.preventDefault();
 	        
 	        var button = $(this);
-	        var classList = button.attr("class").split(/\s+/);
-	        
-			for (var i = 0; i < classList.length; i++) {
-			    if (classList[i].indexOf("need-to-merge-") >= 0) {
+
+			Array.from(this.classList).forEach(function(element){
+				if (element.indexOf("need-to-merge-") >= 0) {
 	
 			    	// Cut the string to get the ending part
-			    	var substring = classList[i].substring(14);
+			    	var substring = element.substring(14);
 			    	
 			        var $intro = $("#id_" + substring);
 			        var $toMerge = $(".compare-" + substring).mergely("get","rhs");
 			        $intro.val($toMerge);
 			        
-	
+					// TODO : cacher le message avant de l'afficher
+					// TODO ainsi si l'utilisateur clique plusieurs fois les alertes ne se cumulent pas.
 					// Display confirmation message
 	                var msg = "<div class='alert-box success'>" + 
 	                                "<span>Le merge a bien été effectué</span>" + 
@@ -59,7 +63,9 @@
 	                            
 	                 button.before(msg);
 			    }
-			}
+				
+			});
+
 	    });
 		
 	});
