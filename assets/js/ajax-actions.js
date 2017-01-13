@@ -232,7 +232,7 @@
             } else {
                 text = $form.find("textarea[name=text]").val();
             }
-        
+
         var csrfmiddlewaretoken = $form.find("input[name=csrfmiddlewaretoken]").val(),
             lastPost = $form.find("input[name=last_post]").val();
 
