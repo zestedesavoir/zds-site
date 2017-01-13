@@ -1,8 +1,8 @@
 (function($, undefined) {
     "use strict";
-	
+
 	$(document).ready(function () {
-		
+
 		/**
 		 * Sets up the merge interface (using mergely) in the $div Object. Data is generally retrieved from a form field
 		 * or an aditionnal div exposing the old data, also generated in the form.
@@ -31,8 +31,8 @@
 
 		$("#compare-editor-lhs").append("Votre Version");
 		$("#compare-editor-rhs").append("La version courante");
-		
-		
+
+
 		/**
 	     * Merge content
 	     */
@@ -40,33 +40,33 @@
 
 	    	e.stopPropagation();
 	        e.preventDefault();
-	        
+
 	        var button = $(this);
 
 			Array.from(this.classList).forEach(function(element){
 				if (element.indexOf("need-to-merge-") >= 0) {
-	
+
 			    	// Cut the string to get the ending part
 			    	var substring = element.substring(14);
-			    	
+
 			        var $intro = $("#id_" + substring);
 			        var $toMerge = $(".compare-" + substring).mergely("get","rhs");
 			        $intro.val($toMerge);
-			        
+
 					// TODO : cacher le message avant de l'afficher
 					// TODO ainsi si l'utilisateur clique plusieurs fois les alertes ne se cumulent pas.
 					// Display confirmation message
-	                var msg = "<div class='alert-box success'>" + 
-	                                "<span>Le merge a bien été effectué</span>" + 
+	                var msg = "<div class='alert-box success'>" +
+	                                "<span>Le merge a bien été effectué</span>" +
 	                                "<a href='#close-alert-box' class='close-alert-box ico-after cross white'>Masquer l'alerte</a>" +
 	                           "</div>";
-	                            
+
 	                 button.before(msg);
 			    }
-				
+
 			});
 
 	    });
-		
+
 	});
 })(jQuery);
