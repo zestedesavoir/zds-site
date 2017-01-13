@@ -29,7 +29,7 @@ class TopicCreateSerializer(serializers.ModelSerializer, TitleValidator, TextVal
 
     class Meta:
         model = Topic
-        #tags = serializers.PrimaryKeyRelatedField(many=True, queryset=Tag.objects.all(), required=False, )
+        # tags = serializers.PrimaryKeyRelatedField(many=True, queryset=Tag.objects.all(), required=False, )
 
 
         fields = ('id', 'title', 'subtitle', 'forum', 'text',
@@ -38,6 +38,7 @@ class TopicCreateSerializer(serializers.ModelSerializer, TitleValidator, TextVal
         read_only_fields = ('id', 'author', 'last_message', 'pubdate', 'permissions', 'slug')
 
     def create(self, validated_data):
+        self._fields.pop('tags')
 
         print(validated_data)
         #validated_data['tags'] = {'1'}

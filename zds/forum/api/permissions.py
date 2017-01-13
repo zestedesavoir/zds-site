@@ -69,3 +69,19 @@ class CanWriteInTopic(permissions.BasePermission):
         except Topic.DoesNotExist:
             raise Http404("Topic with pk {} was not found".format(topic_pk))
         return topic.forum.can_read(request.user)
+        
+        
+class CanEditTopic(permissions.BasePermission):
+    """
+    Allows access only to people that can edit the topic.
+    """
+    
+    def has_permission(self, request, view):
+        topic_pk = request.resolver_match.kwargs.get('pk')
+        
+        try:
+            topic = Topic.objects.get(id=topic_pk) # TODO tester si on met un id qui n'existe pas
+        except Topic.DoesNotExist:
+            raise Http404("Topic with pk {} was not found".format(topic_pk))       
+            
+        return topic.is_locked or (request.user.has_perm("forum.change_topic"))

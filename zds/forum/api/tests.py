@@ -733,6 +733,7 @@ class ForumAPITest(APITestCase):
         self.assertEqual(response.data.get('forum'), topic.forum.id)
         self.assertIsNotNone(response.data.get('title'))
         self.assertIsNotNone(response.data.get('forum'))
+        self.assertIsNone(response.data.get('ip_address'))
 
     def test_details_unknown_topic(self):
         """
@@ -1400,6 +1401,7 @@ class ForumAPITest(APITestCase):
         print(response.data)
         self.assertEqual(post.position, response.data.get('position'))
         self.assertEqual(topic.author.id, response.data.get('author'))
+        self.assertIsNone(response.data.get('ip_address'))
 
     def test_detail_of_a_private_post_not_present(self):
         """
@@ -1774,6 +1776,11 @@ class ForumAPITest(APITestCase):
             'is_visible': False,
             'text_hidden': 'Flood'
         }
+        
+        data_user = {
+            'is_visible': False,
+        }
+        
         self.client = APIClient()
         category, forum = create_category()
         topic = add_topic_in_a_forum(forum, self.staff)
@@ -1784,7 +1791,7 @@ class ForumAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         # With user
-        response = self.client_authenticated.put(reverse('api:forum:detail-post', args=[topic.id, post.id]), data)
+        response = self.client_authenticated.put(reverse('api:forum:detail-post', args=[topic.id, post.id]), data_user)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         response = self.client.get(reverse('api:forum:detail-post', args=[topic.id, post.id]))
@@ -1831,6 +1838,7 @@ def authenticate_client(client, client_auth, username, password):
 
 # TESTS MANQUANTS
 # Vérifier que l'on affiche pas le text dans la list des posts quand le message est masque (list post) ou dans topic details quand le post est le premier du topic
-# Vérifier que l'on affiche pas l'adresse ip (post list et post detail)
 # Créer un topic avec des tags (ajouter le test), éditer les tags
 # ALLOWED_HOSTS=['zds-anto59290.c9users.io']
+# Test essayer de poster dans un sujet fermé ?
+# Test impossible de un masker son message en tant qu'user
