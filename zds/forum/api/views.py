@@ -20,7 +20,7 @@ from dry_rest_permissions.generics import DRYPermissions
 from zds.api.bits import DJRF3xPaginationKeyBit, UpdatedAtKeyBit
 from zds.utils import slugify
 from zds.forum.api.serializer import ForumSerializer, TopicSerializer, TopicCreateSerializer, TopicUpdateSerializer, TopicUpdateStaffSerializer, PostSerializer, PostCreateSerializer, PostUpdateSerializer, AlertSerializer
-from zds.forum.api.permissions import IsStaffUser, IsOwnerOrIsStaff, CanWriteInForum, CanWriteInTopic
+from zds.forum.api.permissions import IsStaffUser, IsOwnerOrIsStaff, CanWriteInForum, CanWriteInTopic, CanEditTopic
 from zds.member.models import User
 from itertools import chain
 
@@ -595,6 +595,7 @@ class PostDetailAPI(RetrieveUpdateAPIView):
         if self.request.method == 'PUT':
             permission_classes.append(IsOwnerOrIsStaff)
             permission_classes.append(CanReadAndWriteNowOrReadOnly)
+            permission_classes.append(CanEditTopic)
         return [permission() for permission in permission_classes]
 
 
