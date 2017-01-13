@@ -226,16 +226,15 @@
         var $btn = $(this);
         var $form = $btn.parents("form:first");
         var text = "";
-        if ( $form.find(".preview-source").length )
-            {
-                var textSource = $btn.parent().prev().find(".preview-source");
-                text = textSource.val();
-            }
-        else
-            {
+        if ( $form.find(".preview-source").length ) {
+                var $textSource = $btn.parent().prev().find(".preview-source");
+                text = $textSource.val();
+            } else {
                 text = $form.find("textarea[name=text]").val();
             }
-            
+        
+        console.log($textSource);
+        
         var csrfmiddlewaretoken = $form.find("input[name=csrfmiddlewaretoken]").val(),
             lastPost = $form.find("input[name=last_post]").val();
 
@@ -251,7 +250,7 @@
             success: function(data){
                 $(".previsualisation").remove();
 
-                if (textSource === null)
+                if (typeof $textSource === "undefined")
                     $(data).insertAfter($form);
                 else
                     $(data).insertAfter($btn);
