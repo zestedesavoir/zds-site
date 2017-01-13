@@ -242,6 +242,11 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
     model = PublishableContent
     form_class = ContentForm
 
+    def get_form_kwargs(self):
+        kwargs = super(EditContent, self).get_form_kwargs()
+        kwargs["for_tribune"] = self.object.type == "OPINION"
+        return kwargs
+
     def get_initial(self):
         """rewrite function to pre-populate form"""
         initial = super(EditContent, self).get_initial()
