@@ -39,9 +39,6 @@
 
 
 {% block sidebar_actions %}
-    <li class="inactive">
-        {% include 'notification/subscription_count_template.html' with subscriber_count=subscriber_count %}
-    </li>
     <li>
     {% with tag_is_followed=tag|is_followed_for_new_topic %}
         {% url 'topic-tag-find' tag.slug as link_follow %}
@@ -52,7 +49,7 @@
             {% trans "Suivre ce tag" as button_text %}
             {% trans "Ne plus suivre ce tag" as data_onclick %}
         {% endif %}
-        {% include 'notification/follow_template.html' with link=link_follow is_followed=tag_is_followed data_onclick=data_onclick button_text=button_text %}
+        {% include 'notification/follow_template.html' with link=link_follow is_followed=tag_is_followed data_onclick=data_onclick button_text=button_text subscriber_count=subscriber_count %}
     {% endwith %}
     </li>
     <li>
