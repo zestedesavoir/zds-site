@@ -862,20 +862,18 @@ class MemberTests(TestCase):
                     kwargs={'user_pk': tester.user.id}), follow=False)
         self.assertEqual(result.status_code, 200)
 
-        # give user rights and groups thanks to staff (but account still not activated)
+        # give groups thanks to staff (but account still not activated)
         result = self.client.post(
             reverse('member-settings-promote',
                     kwargs={'user_pk': tester.user.id}),
             {
                 'groups': [group.id, groupbis.id],
-                'superuser': "on",
             }, follow=False)
         self.assertEqual(result.status_code, 302)
         tester = Profile.objects.get(id=tester.id)  # refresh
 
         self.assertEqual(len(tester.user.groups.all()), 2)
         self.assertFalse(tester.user.is_active)
-        self.assertTrue(tester.user.is_superuser)
 
         # Now our tester is going to follow one post in every forum (3)
         TopicAnswerSubscription.objects.toggle_follow(topic1, tester.user)
@@ -897,7 +895,6 @@ class MemberTests(TestCase):
 
         self.assertEqual(len(tester.user.groups.all()), 1)
         self.assertTrue(tester.user.is_active)
-        self.assertFalse(tester.user.is_superuser)
         self.assertEqual(len(TopicAnswerSubscription.objects.get_objects_followed_by(tester.user)), 2)
 
         # no groups specified
@@ -910,40 +907,6 @@ class MemberTests(TestCase):
         self.assertEqual(result.status_code, 302)
         tester = Profile.objects.get(id=tester.id)  # refresh
         self.assertEqual(len(TopicAnswerSubscription.objects.get_objects_followed_by(tester.user)), 1)
-
-        # check that staff can't take away it's own super user rights
-        result = self.client.post(
-            reverse('member-settings-promote',
-                    kwargs={'user_pk': staff.user.id}),
-            {
-                'activation': "on"
-            }, follow=False)
-        self.assertEqual(result.status_code, 302)
-        staff = Profile.objects.get(id=staff.id)  # refresh
-        self.assertTrue(staff.user.is_superuser)  # still superuser !
-
-        # give admin access to user and check it has it
-        result = self.client.post(
-            reverse('member-settings-promote',
-                    kwargs={'user_pk': tester.user.id}),
-            {
-                'activation': "on",
-                'staff': "on"
-            }, follow=False)
-        self.assertEqual(result.status_code, 302)
-        tester = Profile.objects.get(id=tester.id)  # refresh
-        self.assertTrue(tester.user.is_staff)  # shoud be staff
-
-        # and remove it
-        result = self.client.post(
-            reverse('member-settings-promote',
-                    kwargs={'user_pk': tester.user.id}),
-            {
-                'activation': "on"
-            }, follow=False)
-        self.assertEqual(result.status_code, 302)
-        tester = Profile.objects.get(id=tester.id)  # refresh
-        self.assertFalse(tester.user.is_staff)  # shoudn't be staff
 
         # Finally, check that user can connect and can not access the interface
         login_check = self.client.login(
