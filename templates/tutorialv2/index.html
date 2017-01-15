@@ -33,13 +33,18 @@
         current
     {% endif %}
 {% endblock %}
+{% block menu_opinion %}
+    {% if opinions %}
+        current
+    {% endif %}
+{% endblock %}
 
 
 {% block breadcrumb_base %}
-    {% if tutorials != None %}
+    {% if tutorials %}
         <li><a href="{% url "tutorial:list" %}">{% trans "Tutoriels" %}</a></li>
         <li><a href="{% url "content:find-tutorial" usr.pk %}">{% trans "Tutoriels de" %} {{ usr.username }}</a></li>
-    {% elif articles != None %}
+    {% elif articles %}
         <li><a href="{% url "article:list" %}">{% trans "Articles" %}</a></li>
         <li><a href="{% url "content:find-article" usr.pk %}">{% trans "Articles de" %} {{ usr.username }}</a></li>
     {% elif opinions != None %}
@@ -58,7 +63,7 @@
                     {% trans "Contenus de" %} {{ usr.username }}
                 {% elif tutorials != None %}
                     {% trans "Tutoriels de" %} {{ usr.username }}
-                {% elif articles != None %}
+                {% elif articles != None%}
                     {% trans "Articles de" %} {{ usr.username }}
                 {% elif opinions != None %}
                     {% trans "Tribune de" %} {{ usr.username }}

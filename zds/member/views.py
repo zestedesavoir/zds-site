@@ -16,8 +16,8 @@ from django.core.mail import EmailMultiAlternatives
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models import Q
-from django.http import Http404, HttpResponseBadRequest
-from django.shortcuts import redirect, render, get_object_or_404
+from django.http import Http404, HttpResponseBadRequest, StreamingHttpResponse
+from django.shortcuts import redirect, render, get_object_or_404, render_to_response
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
 from django.utils.http import urlunquote
@@ -110,7 +110,6 @@ class UpdateMember(UpdateView):
             'biography': profile.biography,
             'site': profile.site,
             'avatar_url': profile.avatar_url,
-            'show_email': profile.show_email,
             'show_sign': profile.show_sign,
             'is_hover_enabled': profile.is_hover_enabled,
             'allow_temp_visual_changes': profile.allow_temp_visual_changes,
@@ -124,6 +123,10 @@ class UpdateMember(UpdateView):
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
+
+        if 'preview' in request.POST and request.is_ajax():
+            content = render_to_response('misc/previsualization.part.html', {'text': request.POST.get('text')})
+            return StreamingHttpResponse(content)
 
         if form.is_valid():
             return self.form_valid(form)
@@ -141,7 +144,6 @@ class UpdateMember(UpdateView):
         cleaned_data_options = form.cleaned_data.get('options')
         profile.biography = form.data['biography']
         profile.site = form.data['site']
-        profile.show_email = 'show_email' in cleaned_data_options
         profile.show_sign = 'show_sign' in cleaned_data_options
         profile.is_hover_enabled = 'is_hover_enabled' in cleaned_data_options
         profile.allow_temp_visual_changes = 'allow_temp_visual_changes' in cleaned_data_options
@@ -223,22 +225,34 @@ class UpdateUsernameEmailMember(UpdateMember):
     form_class = ChangeUserForm
     template_name = 'member/settings/user.html'
 
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.user, request.POST)
+
+        if form.is_valid():
+            return self.form_valid(form)
+
+        return render(request, self.template_name, {'form': form})
+
     def get_form(self, form_class=ChangeUserForm):
-        return form_class(self.request.POST)
+        return form_class(self.request.user)
 
     def update_profile(self, profile, form):
-        if form.data['username']:
+        profile.show_email = 'show_email' in form.cleaned_data.get('options')
+        new_username = form.cleaned_data.get('username')
+        previous_username = form.cleaned_data.get('previous_username')
+        new_email = form.cleaned_data.get('email')
+        previous_email = form.cleaned_data.get('previous_email')
+        if new_username and new_username != previous_username:
             # Add a karma message for the staff
             bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
             KarmaNote(user=profile.user,
                       moderator=bot,
-                      note=_(u"{} s'est renommé {}").format(profile.user.username, form.data['username']),
+                      note=_(u"{} s'est renommé {}").format(profile.user.username, new_username),
                       karma=0).save()
             # Change the pseudo
-            profile.user.username = form.data['username']
-        if form.data['email']:
-            if form.data['email'].strip() != '':
-                profile.user.email = form.data['email']
+            profile.user.username = new_username
+        if new_email and new_email != previous_email:
+            profile.user.email = new_email
 
     def get_success_url(self):
         profile = self.get_object()

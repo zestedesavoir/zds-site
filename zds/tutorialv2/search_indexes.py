@@ -29,7 +29,7 @@ class ContentIndex(indexes.SearchIndex, indexes.Indexable):
         return SearchIndexContent
 
     def get_updated_field(self):
-        return "update_date"
+        return 'update_date'
 
     def index_queryset(self, using=None):
         return self.get_model().objects.select_related()
@@ -41,7 +41,7 @@ class ContentIndex(indexes.SearchIndex, indexes.Indexable):
         return [author.username for author in obj.authors.all()] or None
 
     def prepare_permissions(self, obj):
-        return "public"
+        return 'public'
 
 
 class ContainerIndex(indexes.SearchIndex, indexes.Indexable):
@@ -98,7 +98,7 @@ class ContainerIndex(indexes.SearchIndex, indexes.Indexable):
         return obj.level
 
     def prepare_permissions(self, obj):
-        return "public"
+        return 'public'
 
 
 class ExtractIndex(indexes.SearchIndex, indexes.Indexable):
@@ -150,4 +150,4 @@ class ExtractIndex(indexes.SearchIndex, indexes.Indexable):
         return obj.search_index_content.type
 
     def prepare_permissions(self, obj):
-        return "public"
+        return 'public'

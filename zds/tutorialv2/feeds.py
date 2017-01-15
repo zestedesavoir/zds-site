@@ -13,9 +13,9 @@ class LastContentFeedRSS(Feed):
     """
     RSS feed for any type of content.
     """
-    title = u"Contenus sur {}".format(settings.ZDS_APP['site']['litteral_name'])
-    description = u"Les derniers contenus parus sur {}.".format(settings.ZDS_APP['site']['litteral_name'])
-    link = ""
+    title = u'Contenus sur {}'.format(settings.ZDS_APP['site']['litteral_name'])
+    description = u'Les derniers contenus parus sur {}.'.format(settings.ZDS_APP['site']['litteral_name'])
+    link = ''
     content_type = None
 
     def items(self):
@@ -24,8 +24,8 @@ class LastContentFeedRSS(Feed):
         If `self.type` is not `None`, the contents will only be of this type.
         """
         contents = PublishedContent.objects\
-            .prefetch_related("content")\
-            .prefetch_related("content__authors")
+            .prefetch_related('content')\
+            .prefetch_related('content__authors')
 
         if self.content_type is not None:
             contents = contents.filter(content_type=self.content_type)
@@ -46,7 +46,7 @@ class LastContentFeedRSS(Feed):
         authors = []
         for authors_obj in authors_list:
             authors.append(authors_obj.username)
-        authors = ", ".join(authors)
+        authors = ', '.join(authors)
         return authors
 
     def item_link(self, item):
@@ -62,10 +62,10 @@ class LastTutorialsFeedRSS(LastContentFeedRSS):
     """
     Redefinition of `LastContentFeedRSS` for tutorials only
     """
-    content_type = "TUTORIAL"
-    link = "/tutoriels/"
-    title = u"Tutoriels sur {}".format(settings.ZDS_APP['site']['litteral_name'])
-    description = u"Les derniers tutoriels parus sur {}.".format(settings.ZDS_APP['site']['litteral_name'])
+    content_type = 'TUTORIAL'
+    link = '/tutoriels/'
+    title = u'Tutoriels sur {}'.format(settings.ZDS_APP['site']['litteral_name'])
+    description = u'Les derniers tutoriels parus sur {}.'.format(settings.ZDS_APP['site']['litteral_name'])
 
 
 class LastTutorialsFeedATOM(LastTutorialsFeedRSS):
@@ -77,10 +77,10 @@ class LastArticlesFeedRSS(LastContentFeedRSS):
     """
     Redefinition of `LastContentFeedRSS` for articles only
     """
-    content_type = "ARTICLE"
-    link = "/articles/"
-    title = u"Articles sur {}".format(settings.ZDS_APP['site']['litteral_name'])
-    description = u"Les derniers articles parus sur {}.".format(settings.ZDS_APP['site']['litteral_name'])
+    content_type = 'ARTICLE'
+    link = '/articles/'
+    title = u'Articles sur {}'.format(settings.ZDS_APP['site']['litteral_name'])
+    description = u'Les derniers articles parus sur {}.'.format(settings.ZDS_APP['site']['litteral_name'])
 
 
 class LastArticlesFeedATOM(LastArticlesFeedRSS):

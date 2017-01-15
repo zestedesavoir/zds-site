@@ -34,11 +34,11 @@ class TryToIndexTutorialTests(TestCase):
         self.mas = ProfileFactory().user
         settings.ZDS_APP['member']['bot_account'] = self.mas.username
 
-        bot = Group(name=settings.ZDS_APP["member"]["bot_group"])
+        bot = Group(name=settings.ZDS_APP['member']['bot_group'])
         bot.save()
         self.external = UserFactory(
-            username=settings.ZDS_APP["member"]["external_account"],
-            password="anything")
+            username=settings.ZDS_APP['member']['external_account'],
+            password='anything')
 
         self.beta_forum = ForumFactory(
             pk=settings.ZDS_APP['forum']['beta_forum_id'],
@@ -140,7 +140,7 @@ class TryToIndexTutorialTests(TestCase):
                 self.assertEqual(content.authors.count(), 1)
 
     def test_filter_keyword(self):
-        html = "<h1>Keyword h1</h1><h2>Keyword h2</h2><strong>Keyword strong</strong><em>Keyword italic</em>"
+        html = '<h1>Keyword h1</h1><h2>Keyword h2</h2><strong>Keyword strong</strong><em>Keyword italic</em>'
 
         keywords = filter_keyword(html)
 
@@ -150,7 +150,7 @@ class TryToIndexTutorialTests(TestCase):
         self.assertIn('Keyword italic', keywords)
 
     def test_filter_text(self):
-        html = "<h1>Keyword h1</h1><h2>Keyword h2</h2><strong>Keyword strong</strong><em>Keyword italic</em>"
+        html = '<h1>Keyword h1</h1><h2>Keyword h2</h2><strong>Keyword strong</strong><em>Keyword italic</em>'
 
         words = filter_text(html)
 

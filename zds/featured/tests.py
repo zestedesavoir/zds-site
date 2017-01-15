@@ -10,8 +10,8 @@ from zds.featured.models import FeaturedResource, FeaturedMessage
 
 stringof2001chars = 'http://url.com/'
 for i in range(198):
-    stringof2001chars += "0123456789"
-stringof2001chars += "12.jpg"
+    stringof2001chars += '0123456789'
+stringof2001chars += '12.jpg'
 
 
 class FeaturedResourceListViewTest(TestCase):

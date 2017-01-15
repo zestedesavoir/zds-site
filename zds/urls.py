@@ -56,6 +56,7 @@ class PageSitemap(Sitemap):
     def location(self, item):
         return reverse(item)
 
+
 sitemaps = {
     'tutos': TutoSitemap,
     'articles': ArticleSitemap,
@@ -126,4 +127,4 @@ if settings.SERVE:
     ]
 
 # custom view for 500 errors
-handler500 = "zds.pages.views.custom_error_500"
+handler500 = 'zds.pages.views.custom_error_500'

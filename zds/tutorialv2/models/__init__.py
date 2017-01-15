@@ -63,7 +63,7 @@ CONTENT_TYPE_LIST = [type_[0] for type_ in TYPE_CHOICES]
 TYPE_CHOICES_DICT = dict(TYPE_CHOICES)
 
 STATUS_CHOICES = (
-    ('PENDING', _(u'En attente d\'un validateur')),
+    ('PENDING', _(u"En attente d'un validateur")),
     ('PENDING_V', _(u'En cours de validation')),
     ('ACCEPT', _(u'Publié')),
     ('REJECT', _(u'Rejeté')),

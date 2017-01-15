@@ -39,7 +39,7 @@ from zds.tutorialv2.forms import ContentForm, JsFiddleActivationForm, AskValidat
     ExtractForm, BetaForm, MoveElementForm, AuthorForm, RemoveAuthorForm, CancelValidationForm, PublicationForm, \
     UnpublicationForm
 from zds.tutorialv2.mixins import SingleContentDetailViewMixin, SingleContentFormViewMixin, SingleContentViewMixin, \
-    SingleContentDownloadViewMixin, SingleContentPostMixin
+    SingleContentDownloadViewMixin, SingleContentPostMixin, FormWithPreview
 from zds.tutorialv2.models import TYPE_CHOICES_DICT
 from zds.tutorialv2.models.models_database import PublishableContent, Validation
 from zds.tutorialv2.models.models_versioned import Container, Extract
@@ -61,12 +61,12 @@ class RedirectOldBetaTuto(RedirectView):
 
     def get_redirect_url(self, **kwargs):
         tutorial = PublishableContent.objects.filter(type='TUTORIAL', old_pk=kwargs['pk']).first()
-        if tutorial is None or tutorial.sha_beta is None or tutorial.sha_beta == "":
-            raise Http404(u"Aucun contenu en bêta trouvé avec cet ancien identifiant.")
+        if tutorial is None or tutorial.sha_beta is None or tutorial.sha_beta == '':
+            raise Http404(u'Aucun contenu en bêta trouvé avec cet ancien identifiant.')
         return tutorial.get_absolute_url_beta()
 
 
-class CreateContent(LoggedWithReadWriteHability, FormView):
+class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
     template_name = 'tutorialv2/create/content.html'
     model = PublishableContent
     form_class = ContentForm
@@ -85,19 +85,19 @@ class CreateContent(LoggedWithReadWriteHability, FormView):
         return form
 
     def form_valid(self, form):
+
         # create the object:
         self.content = PublishableContent()
         self.content.title = form.cleaned_data['title']
         self.content.description = form.cleaned_data['description']
-        self.content.type = form.cleaned_data["type"]
-        self.content.licence = form.cleaned_data["licence"]
-
+        self.content.type = form.cleaned_data['type']
+        self.content.licence = form.cleaned_data['licence']
         self.content.creation_date = datetime.now()
 
         # Creating the gallery
         gal = Gallery()
-        gal.title = form.cleaned_data["title"]
-        gal.slug = slugify(form.cleaned_data["title"])
+        gal.title = form.cleaned_data['title']
+        gal.slug = slugify(form.cleaned_data['title'])
         gal.pubdate = datetime.now()
         gal.save()
 
@@ -130,11 +130,11 @@ class CreateContent(LoggedWithReadWriteHability, FormView):
             self.content.subcategory.add(subcat)
 
         # Add helps if needed
-        for helpwriting in form.cleaned_data["helps"]:
+        for helpwriting in form.cleaned_data['helps']:
             self.content.helps.add(helpwriting)
 
         # Add tags
-        self.content.add_tags(form.cleaned_data["tags"].split(','))
+        self.content.add_tags(form.cleaned_data['tags'].split(','))
 
         self.content.save()
 
@@ -162,18 +162,18 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
         """get all the auxiliary forms about validation, js fiddle..."""
 
         validation = Validation.objects.filter(content__pk=self.object.pk) \
-            .order_by("-date_proposition") \
+            .order_by('-date_proposition') \
             .first()
 
-        form_js = JsFiddleActivationForm(initial={"js_support": self.object.js_support})
+        form_js = JsFiddleActivationForm(initial={'js_support': self.object.js_support})
 
-        context["formAskValidation"] = AskValidationForm(
-            content=self.versioned_object, initial={"source": self.object.source, 'version': self.sha})
+        context['formAskValidation'] = AskValidationForm(
+            content=self.versioned_object, initial={'source': self.object.source, 'version': self.sha})
 
         if validation:
-            context["formValid"] = AcceptValidationForm(validation, initial={"source": self.object.source})
-            context["formReject"] = RejectValidationForm(validation)
-            context["formCancel"] = CancelValidationForm(validation)
+            context['formValid'] = AcceptValidationForm(validation, initial={'source': self.object.source})
+            context['formReject'] = RejectValidationForm(validation)
+            context['formCancel'] = CancelValidationForm(validation)
 
         if self.versioned_object.sha_public:
             context['formRevokeValidation'] = RevokeValidationForm(
@@ -184,8 +184,13 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
         if self.versioned_object.is_beta:
             context['formWarnTypo'] = WarnTypoForm(self.versioned_object, self.versioned_object, public=False)
 
-        context["validation"] = validation
-        context["formJs"] = form_js
+        context['validation'] = validation
+        context['formJs'] = form_js
+
+        if self.versioned_object.requires_validation_before:
+            context['formPublication'] = PublicationForm(self.versioned_object, initial={'source': self.object.source})
+        else:
+            context['formPublication'] = None
 
         if self.versioned_object.requires_validation_before:
             context['formPublication'] = PublicationForm(self.versioned_object, initial={'source': self.object.source})
@@ -197,10 +202,10 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
 
         # check whether this tuto support js fiddle
         if self.object.js_support:
-            is_js = "js"
+            is_js = 'js'
         else:
-            is_js = ""
-        context["is_js"] = is_js
+            is_js = ''
+        context['is_js'] = is_js
 
         self.get_forms(context)
 
@@ -231,7 +236,7 @@ class DisplayBetaContent(DisplayContent):
         return obj
 
 
-class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
+class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormWithPreview):
     template_name = 'tutorialv2/edit/content.html'
     model = PublishableContent
     form_class = ContentForm
@@ -257,8 +262,8 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
 
     def get_context_data(self, **kwargs):
         context = super(EditContent, self).get_context_data(**kwargs)
-
-        context['gallery'] = self.object.gallery
+        if 'preview' not in self.request.POST:
+            context['gallery'] = self.object.gallery
 
         return context
 
@@ -325,7 +330,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         # help can only be obtained on contents requiring validation before publication
         if versioned.requires_validation_before():
             publishable.helps.clear()
-            for help_ in form.cleaned_data["helps"]:
+            for help_ in form.cleaned_data['helps']:
                 publishable.helps.add(help_)
 
         publishable.save()
@@ -362,11 +367,11 @@ class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteV
             messages.success(self.request, _(u'Vous avez quitté la rédaction de {}.').format(_type))
 
         else:
-            validation = Validation.objects.filter(content=self.object).order_by("-date_proposition").first()
+            validation = Validation.objects.filter(content=self.object).order_by('-date_proposition').first()
 
             if validation and validation.status == 'PENDING_V':  # if the validation have a validator, warn him by PM
                 if 'text' not in self.request.POST or len(self.request.POST['text'].strip()) < 3:
-                    messages.error(self.request, _(u'Merci de fournir une raison à la  suppression.'))
+                    messages.error(self.request, _(u'Merci de fournir une raison à la suppression.'))
                     return redirect(self.object.get_absolute_url())
                 else:
                     bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
@@ -382,7 +387,7 @@ class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteV
                     send_mp(
                         bot,
                         [validation.validator],
-                        _(u"Demande de validation annulée").format(),
+                        _(u'Demande de validation annulée').format(),
                         self.object.title,
                         msg,
                         False,
@@ -390,12 +395,12 @@ class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteV
             if self.object.beta_topic is not None:
                 beta_topic = self.object.beta_topic
                 beta_topic.is_locked = True
-                beta_topic.add_tags([u"Supprimé"])
+                beta_topic.add_tags([u'Supprimé'])
                 beta_topic.save()
                 post = beta_topic.first_post()
                 post.update_content(
-                    _(u"[[a]]\n"
-                      u"| Malheureusement, {} qui était en bêta a été supprimé par son auteur.\n\n").format(_type) +
+                    _(u'[[a]]\n'
+                      u'| Malheureusement, {} qui était en bêta a été supprimé par son auteur.\n\n').format(_type) +
                     post.text)
 
                 post.save()
@@ -445,7 +450,7 @@ class DownloadContent(LoggedWithReadWriteHability, SingleContentDownloadViewMixi
         zip_file.close()
 
         # return content
-        response = open(zip_path, "rb").read()
+        response = open(zip_path, 'rb').read()
         os.remove(zip_path)
         return response
 
@@ -508,7 +513,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
         except KeyError:
             raise BadArchiveError(_(u'Cette archive ne contient pas de fichier manifest.json.'))
         except UnicodeDecodeError:
-            raise BadArchiveError(_(u'L\'encodage du manifest.json n\'est pas de l\'UTF-8.'))
+            raise BadArchiveError(_(u"L'encodage du manifest.json n'est pas de l'UTF-8."))
 
         # is the manifest ok ?
         try:
@@ -516,7 +521,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
         except ValueError:
             raise BadArchiveError(
                 _(u'Une erreur est survenue durant la lecture du manifest, '
-                  u'vérifiez qu\'il s\'agit de JSON correctement formaté.'))
+                  u"vérifiez qu'il s'agit de JSON correctement formaté."))
         try:
             versioned = get_content_from_json(json_, None, '',
                                               max_title_len=PublishableContent._meta.get_field('title').max_length)
@@ -529,14 +534,14 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                 e2 = _(u' (slug généré à partir de "{}")').format(e.source)
             raise BadArchiveError(_(u'{}{} !').format(e1, e2))
         except Exception as e:
-            raise BadArchiveError(_(u'Une erreur est survenue lors de la lecture de l\'archive : {}.').format(e))
+            raise BadArchiveError(_(u"Une erreur est survenue lors de la lecture de l'archive : {}.").format(e))
 
         # is there everything in the archive ?
         for f in UpdateContentWithArchive.walk_content(versioned):
             try:
                 zip_archive.getinfo(f)
             except KeyError:
-                raise BadArchiveError(_(u'Le fichier "{}" n\'existe pas dans l\'archive.').format(f))
+                raise BadArchiveError(_(u"Le fichier '{}' n'existe pas dans l'archive.").format(f))
 
         return versioned
 
@@ -564,13 +569,13 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                         introduction = unicode(zip_file.read(child.introduction), 'utf-8')
                     except UnicodeDecodeError:
                         raise BadArchiveError(
-                            _(u'Le fichier « {} » n\'est pas encodé en UTF-8'.format(child.introduction)))
+                            _(u"Le fichier « {} » n'est pas encodé en UTF-8".format(child.introduction)))
                 if child.conclusion:
                     try:
                         conclusion = unicode(zip_file.read(child.conclusion), 'utf-8')
                     except UnicodeDecodeError:
                         raise BadArchiveError(
-                            _(u'Le fichier « {} » n\'est pas encodé en UTF-8'.format(child.conclusion)))
+                            _(u"Le fichier « {} » n'est pas encodé en UTF-8".format(child.conclusion)))
 
                 copy_to.repo_add_container(child.title, introduction, conclusion, do_commit=False, slug=child.slug)
                 UpdateContentWithArchive.update_from_new_version_in_zip(copy_to.children[-1], child, zip_file)
@@ -580,7 +585,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                     text = unicode(zip_file.read(child.text), 'utf-8')
                 except UnicodeDecodeError:
                     raise BadArchiveError(
-                        _(u'Le fichier « {} » n\'est pas encodé en UTF-8'.format(child.text)))
+                        _(u"Le fichier « {} » n'est pas encodé en UTF-8".format(child.text)))
 
                 copy_to.repo_add_extract(child.title, text, do_commit=False, slug=child.slug)
 
@@ -614,7 +619,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
             temp_image_path = os.path.abspath(os.path.join(temp, image_basename))
 
             # create a temporary file for the image
-            f_im = open(temp_image_path, "wb")
+            f_im = open(temp_image_path, 'wb')
             f_im.write(zip_file.read(image_path))
             f_im.close()
 
@@ -628,7 +633,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
             if os.stat(temp_image_path).st_size > settings.ZDS_APP['gallery']['image_max_size']:
                 messages.error(
                     request, _(u'Votre image "{}" est beaucoup trop lourde, réduisez sa taille à moins de {:.0f}'
-                               u'Kio avant de l\'envoyer.').format(
+                               u"Kio avant de l'envoyer.").format(
                                    image_path, settings.ZDS_APP['gallery']['image_max_size'] / 1024))
                 continue
 
@@ -637,7 +642,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
             pic.gallery = gallery
             pic.title = image_basename
             pic.slug = slugify(image_basename)
-            pic.physical = get_thumbnailer(open(temp_image_path, "rb"), relative_name=temp_image_path)
+            pic.physical = get_thumbnailer(open(temp_image_path, 'rb'), relative_name=temp_image_path)
             pic.pubdate = datetime.now()
             pic.save()
 
@@ -652,8 +657,8 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
             shutil.rmtree(temp)
 
         # then, modify each extracts
-        image_regex = re.compile(r"((?P<start>!\[.*?\]\()" + settings.ZDS_APP['content']['import_image_prefix'] +
-                                 r":(?P<path>.*?)(?P<end>\)))")
+        image_regex = re.compile(r'((?P<start>!\[.*?\]\()' + settings.ZDS_APP['content']['import_image_prefix'] +
+                                 r':(?P<path>.*?)(?P<end>\)))')
 
         for element in versioned_content.traverse(only_container=False):
             if isinstance(element, Container):
@@ -697,7 +702,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
             try:
                 zfile = zipfile.ZipFile(self.request.FILES['archive'], 'r')
             except zipfile.BadZipfile:
-                messages.error(self.request, _(u'Cette archive n\'est pas au format ZIP.'))
+                messages.error(self.request, _(u"Cette archive n'est pas au format ZIP."))
                 return super(UpdateContentWithArchive, self).form_invalid(form)
 
             try:
@@ -761,14 +766,14 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                 commit_message = form.cleaned_data['msg_commit']
 
                 if not commit_message:
-                    commit_message = _(u'Importation d\'une archive contenant « {} ».').format(new_version.title)
+                    commit_message = _(u"Importation d'une archive contenant « {} ».").format(new_version.title)
 
                 sha = versioned.commit_changes(commit_message)
 
                 # now, use the images from the archive if provided. To work, this HAVE TO happen after commiting files !
                 if "image_archive" in self.request.FILES:
                     try:
-                        zfile = zipfile.ZipFile(self.request.FILES["image_archive"], 'r')
+                        zfile = zipfile.ZipFile(self.request.FILES['image_archive'], 'r')
                     except zipfile.BadZipfile:
                         messages.error(self.request, _(u'L\'archive contenant les images n\'est pas au format ZIP.'))
                         return self.form_invalid(form)
@@ -779,7 +784,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                         versioned,
                         self.object.gallery)
 
-                    commit_message = _(u'Utilisation des images de l\'archive pour « {} »').format(new_version.title)
+                    commit_message = _(u"Utilisation des images de l'archive pour « {} »").format(new_version.title)
                     sha = versioned.commit_changes(commit_message)  # another commit
 
                 # of course, need to update sha
@@ -805,7 +810,7 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
             try:
                 zfile = zipfile.ZipFile(self.request.FILES['archive'], 'r')
             except zipfile.BadZipfile:
-                messages.error(self.request, _(u'Cette archive n\'est pas au format ZIP.'))
+                messages.error(self.request, _(u"Cette archive n'est pas au format ZIP."))
                 return self.form_invalid(form)
 
             try:
@@ -884,16 +889,16 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
                 commit_message = form.cleaned_data['msg_commit']
 
                 if not commit_message:
-                    commit_message = _(u'Importation d\'une archive contenant « {} »').format(new_content.title)
+                    commit_message = _(u"Importation d'une archive contenant « {} »").format(new_content.title)
 
                 sha = versioned.commit_changes(commit_message)
 
                 # This HAVE TO happen after commiting files (if not, content are None)
-                if "image_archive" in self.request.FILES:
+                if 'image_archive' in self.request.FILES:
                     try:
-                        zfile = zipfile.ZipFile(self.request.FILES["image_archive"], 'r')
+                        zfile = zipfile.ZipFile(self.request.FILES['image_archive'], 'r')
                     except zipfile.BadZipfile:
-                        messages.error(self.request, _(u'L\'archive contenant les images n\'est pas au format ZIP.'))
+                        messages.error(self.request, _(u"L'archive contenant les images n'est pas au format ZIP."))
                         return self.form_invalid(form)
 
                     UpdateContentWithArchive.use_images_from_archive(
@@ -902,7 +907,7 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
                         versioned,
                         self.object.gallery)
 
-                    commit_message = _(u'Utilisation des images de l\'archive pour « {} »').format(new_content.title)
+                    commit_message = _(u"Utilisation des images de l'archive pour « {} »").format(new_content.title)
                     sha = versioned.commit_changes(commit_message)  # another commit
 
                 # of course, need to update sha
@@ -915,7 +920,7 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
         return super(CreateContentFromArchive, self).form_valid(form)
 
 
-class CreateContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
+class CreateContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormWithPreview):
     template_name = 'tutorialv2/create/container.html'
     form_class = ContainerForm
     content = None
@@ -1006,10 +1011,10 @@ class DisplayContainer(LoginRequiredMixin, SingleContentDetailViewMixin):
 
         # check whether this tuto support js fiddle
         if self.object.js_support:
-            is_js = "js"
+            is_js = 'js'
         else:
-            is_js = ""
-        context["is_js"] = is_js
+            is_js = ''
+        context['is_js'] = is_js
 
         return context
 
@@ -1035,16 +1040,18 @@ class DisplayBetaContainer(DisplayContainer):
         return obj
 
 
-class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
+class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormWithPreview):
     template_name = 'tutorialv2/edit/container.html'
     form_class = ContainerForm
     content = None
 
     def get_context_data(self, **kwargs):
         context = super(EditContainer, self).get_context_data(**kwargs)
-        form = kwargs.pop('form', self.get_form())
-        context['container'] = form.initial['container']
-        context['gallery'] = self.object.gallery
+
+        if 'preview' not in self.request.POST:
+            container = search_container_or_404(self.versioned_object, self.kwargs)
+            context['container'] = container
+            context['gallery'] = self.object.gallery
 
         return context
 
@@ -1062,7 +1069,7 @@ class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
 
         return initial
 
-    def form_valid(self, form):
+    def form_valid(self, form, *args, **kwargs):
         container = search_container_or_404(self.versioned_object, self.kwargs)
 
         # check if content has changed:
@@ -1092,7 +1099,7 @@ class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         return super(EditContainer, self).form_valid(form)
 
 
-class CreateExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin):
+class CreateExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormWithPreview):
     template_name = 'tutorialv2/create/extract.html'
     form_class = ExtractForm
     content = None
@@ -1116,9 +1123,6 @@ class CreateExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     def form_valid(self, form):
         parent = search_container_or_404(self.versioned_object, self.kwargs)
 
-        if 'preview' in self.request.POST:
-            return self.form_invalid(form)  # using the preview button
-
         sha = parent.repo_add_extract(form.cleaned_data['title'],
                                       form.cleaned_data['text'],
                                       form.cleaned_data['msg_commit'])
@@ -1133,16 +1137,17 @@ class CreateExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         return super(CreateExtract, self).form_valid(form)
 
 
-class EditExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin):
+class EditExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormWithPreview):
     template_name = 'tutorialv2/edit/extract.html'
     form_class = ExtractForm
     content = None
 
     def get_context_data(self, **kwargs):
         context = super(EditExtract, self).get_context_data(**kwargs)
-        form = kwargs.pop('form', self.get_form())
-        context['extract'] = form.initial['extract']
         context['gallery'] = self.object.gallery
+
+        extract = search_extract_or_404(self.versioned_object, self.kwargs)
+        context['extract'] = extract
 
         return context
 
@@ -1171,9 +1176,6 @@ class EditExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin):
             form.data = data
             messages.error(self.request, _(u'Une nouvelle version a été postée avant que vous ne validiez.'))
             return self.form_invalid(form)
-
-        if 'preview' in self.request.POST:
-            return self.form_invalid(form)  # using the preview button
 
         sha = extract.repo_update(form.cleaned_data['title'],
                                   form.cleaned_data['text'],
@@ -1208,7 +1210,7 @@ class DeleteContainerOrExtract(LoggedWithReadWriteHability, SingleContentViewMix
             try:
                 to_delete = parent.children_dict[self.kwargs['object_slug']]
             except KeyError:
-                raise Http404(u"Impossible de récupérer le contenu pour le supprimer.")
+                raise Http404(u'Impossible de récupérer le contenu pour le supprimer.')
 
         sha = to_delete.repo_delete()
 
@@ -1227,7 +1229,7 @@ class DisplayHistory(LoggedWithReadWriteHability, SingleContentDetailViewMixin):
     """
 
     model = PublishableContent
-    template_name = "tutorialv2/view/history.html"
+    template_name = 'tutorialv2/view/history.html'
 
     def get_context_data(self, **kwargs):
         context = super(DisplayHistory, self).get_context_data(**kwargs)
@@ -1241,11 +1243,11 @@ class DisplayHistory(LoggedWithReadWriteHability, SingleContentDetailViewMixin):
             self.request,
             commits,
             settings.ZDS_APP['content']['commits_per_page'],
-            context_list_name="commits")
+            context_list_name='commits')
 
         # Git empty tree is 4b825dc642cb6eb9a060e54bf8d69288fbee4904, see
         # http://stackoverflow.com/questions/9765453/gits-semi-secret-empty-tree
-        context['empty_sha'] = "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
+        context['empty_sha'] = '4b825dc642cb6eb9a060e54bf8d69288fbee4904'
 
         return context
 
@@ -1258,7 +1260,7 @@ class DisplayDiff(LoggedWithReadWriteHability, SingleContentDetailViewMixin):
     """
 
     model = PublishableContent
-    template_name = "tutorialv2/view/diff.html"
+    template_name = 'tutorialv2/view/diff.html'
     only_draft_version = False
 
     def get_context_data(self, **kwargs):
@@ -1278,7 +1280,7 @@ class DisplayDiff(LoggedWithReadWriteHability, SingleContentDetailViewMixin):
             # commit_to.diff raises GitErrorCommand if 00..00 SHA for instance
             tdiff = commit_to.diff(commit_from, R=True)
         except (GitCommandError, BadName, BadObject) as git_error:
-            logging.getLogger("zds.tutorialv2").warn(git_error)
+            logging.getLogger('zds.tutorialv2').warn(git_error)
             raise Http404(u'En traitant le contenu {} git a lancé une erreur de type {}:{}'.format(
                 self.object.title,
                 type(git_error),
@@ -1298,8 +1300,8 @@ class DisplayDiff(LoggedWithReadWriteHability, SingleContentDetailViewMixin):
 class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     """
     Depending of the value of `self.action`, this class will behave differently;
-    - if "set", it will active (of update) the beta
-    - if "inactive", it will inactive the beta on the tutorial
+    - if 'set', it will active (of update) the beta
+    - if 'inactive', it will inactive the beta on the tutorial
     """
 
     model = PublishableContent
@@ -1314,9 +1316,9 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
 
     def _create_beta_topic(self, msg, beta_version, _type, tags):
         topic_title = beta_version.title
-        _tags = "[beta][{}]".format(_type)
+        _tags = '[beta][{}]'.format(_type)
         i = 0
-        max_len = Topic._meta.get_field("title").max_length
+        max_len = Topic._meta.get_field('title').max_length
 
         while i < len(tags) and len(topic_title) + len(_tags) + len(tags[i].title) + 2 < max_len:
             _tags += '[{}]'.format(tags[i])
@@ -1326,7 +1328,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                              author=self.request.user,
                              forum=forum,
                              title=topic_title,
-                             subtitle=u"{}".format(beta_version.description),
+                             subtitle=u'{}'.format(beta_version.description),
                              text=msg,
                              related_publishable_content=self.object)
         topic.save()
@@ -1406,7 +1408,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                     )
                     send_mp(bot,
                             self.object.authors.all(),
-                            _(_type[0].upper() + _type[1:].lower() + u" en bêta"),
+                            _(_type[0].upper() + _type[1:].lower() + u' en bêta'),
                             beta_version.title,
                             msg_pm,
                             False)
@@ -1500,12 +1502,12 @@ class WarnTypo(SingleContentFormViewMixin):
 
         if not authors:
             if self.object.authors.count() > 1:
-                messages.error(self.request, _(u"Les auteurs sont malheureusement injoignables."))
+                messages.error(self.request, _(u'Les auteurs sont malheureusement injoignables.'))
             else:
                 messages.error(self.request, _(u"L'auteur est malheureusement injoignable."))
 
         elif user in authors:  # author try to PM himself
-            messages.error(self.request, _(u'Impossible d\'envoyer la proposition de correction : vous êtes auteur.'))
+            messages.error(self.request, _(u"Impossible d'envoyer la proposition de correction : vous êtes auteur."))
 
         else:  # send correction
             text = '\n'.join(['> ' + line for line in form.cleaned_data['text'].split('\n')])
@@ -1588,19 +1590,20 @@ class ContentsWithHelps(ZdSPagingListView):
 
 class ActivateJSFiddleInContent(LoginRequiredMixin, PermissionRequiredMixin, FormView):
     """Handles changes a validator or staff member can do on the js fiddle support of the provided content
-    Only those members can do it"""
+    Only these users can do it"""
 
-    permissions = ["tutorialv2.change_publishablecontent"]
+    permissions = ['tutorialv2.change_publishablecontent']
     form_class = JsFiddleActivationForm
-    http_method_names = ["post"]
+    http_method_names = ['post']
 
     def form_valid(self, form):
-        """Change the js fiddle support of content and redirect to the view page """
+        """Change the js fiddle support of content and redirect to the view page"""
+
         content = get_object_or_404(PublishableContent, pk=form.cleaned_data['pk'])
         # forbidden for content without a validation before publication
         if not content.load_version().requires_validation_before():
             raise PermissionDenied
-        content.js_support = form.cleaned_data["js_support"]
+        content.js_support = form.cleaned_data['js_support']
         content.save()
         return redirect(content.load_version().get_absolute_url())
 
@@ -1617,14 +1620,14 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
     def form_valid(self, form):
         content = self.get_object()
         versioned = content.load_version()
-        base_container_slug = form.data["container_slug"]
+        base_container_slug = form.data['container_slug']
         child_slug = form.data['child_slug']
 
         if not base_container_slug:
-            raise Http404(u"Le slug du container de base est vide.")
+            raise Http404(u'Le slug du container de base est vide.')
 
         if not child_slug:
-            raise Http404(u"Le slug du container enfant est vide.")
+            raise Http404(u'Le slug du container enfant est vide.')
 
         if base_container_slug == versioned.slug:
             parent = versioned
@@ -1642,51 +1645,51 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
             child = parent.children_dict[child_slug]
             if form.data['moving_method'] == MoveElementForm.MOVE_UP:
                 parent.move_child_up(child_slug)
-                logging.getLogger("zds.tutorialv2").debug("{} was moved up in tutorial id:{}".format(child_slug,
+                logging.getLogger('zds.tutorialv2').debug('{} was moved up in tutorial id:{}'.format(child_slug,
                                                                                                      content.pk))
             elif form.data['moving_method'] == MoveElementForm.MOVE_DOWN:
                 parent.move_child_down(child_slug)
-                logging.getLogger("zds.tutorialv2").debug("{} was moved down in tutorial id:{}".format(child_slug,
+                logging.getLogger('zds.tutorialv2').debug('{} was moved down in tutorial id:{}'.format(child_slug,
                                                                                                        content.pk))
             elif form.data['moving_method'][0:len(MoveElementForm.MOVE_AFTER)] == MoveElementForm.MOVE_AFTER:
                 target = form.data['moving_method'][len(MoveElementForm.MOVE_AFTER) + 1:]
                 if not parent.has_child_with_path(target):
-                    if "/" not in target:
+                    if '/' not in target:
                         target_parent = versioned
                     else:
-                        target_parent = search_container_or_404(versioned, "/".join(target.split("/")[:-1]))
+                        target_parent = search_container_or_404(versioned, '/'.join(target.split('/')[:-1]))
 
-                        if target.split("/")[-1] not in target_parent.children_dict:
+                        if target.split('/')[-1] not in target_parent.children_dict:
                             raise Http404(u"La cible n'est pas un enfant du parent.")
-                    child = target_parent.children_dict[target.split("/")[-1]]
+                    child = target_parent.children_dict[target.split('/')[-1]]
                     try_adopt_new_child(target_parent, parent.children_dict[child_slug])
                     # now, I will fix a bug that happens when the slug changes
                     # this one cost me so much of my hair
                     # and makes me think copy/past are killing kitty cat.
                     child_slug = target_parent.children[-1].slug
                     parent = target_parent
-                parent.move_child_after(child_slug, target.split("/")[-1])
-                logging.getLogger("zds.tutorialv2").debug("{} was moved after {} in tutorial id:{}".format(child_slug,
+                parent.move_child_after(child_slug, target.split('/')[-1])
+                logging.getLogger('zds.tutorialv2').debug('{} was moved after {} in tutorial id:{}'.format(child_slug,
                                                                                                            target,
                                                                                                            content.pk))
             elif form.data['moving_method'][0:len(MoveElementForm.MOVE_BEFORE)] == MoveElementForm.MOVE_BEFORE:
                 target = form.data['moving_method'][len(MoveElementForm.MOVE_BEFORE) + 1:]
                 if not parent.has_child_with_path(target):
-                    if "/" not in target:
+                    if '/' not in target:
                         target_parent = versioned
                     else:
-                        target_parent = search_container_or_404(versioned, "/".join(target.split("/")[:-1]))
+                        target_parent = search_container_or_404(versioned, '/'.join(target.split('/')[:-1]))
 
-                        if target.split("/")[-1] not in target_parent.children_dict:
+                        if target.split('/')[-1] not in target_parent.children_dict:
                             raise Http404(u"La cible n'est pas un enfant du parent.")
-                    child = target_parent.children_dict[target.split("/")[-1]]
+                    child = target_parent.children_dict[target.split('/')[-1]]
                     try_adopt_new_child(target_parent, parent.children_dict[child_slug])
                     # now, I will fix a bug that happens when the slug changes
                     # this one cost me so much of my hair
                     child_slug = target_parent.children[-1].slug
                     parent = target_parent
-                parent.move_child_before(child_slug, target.split("/")[-1])
-                logging.getLogger("zds.tutorialv2").debug("{} was moved before {} in tutorial id:{}".format(child_slug,
+                parent.move_child_before(child_slug, target.split('/')[-1])
+                logging.getLogger('zds.tutorialv2').debug('{} was moved before {} in tutorial id:{}'.format(child_slug,
                                                                                                             target,
                                                                                                             content.pk))
             versioned.slug = content.slug  # we force not to change slug
@@ -1694,27 +1697,27 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
             parent.repo_update(parent.title,
                                parent.get_introduction(),
                                parent.get_conclusion(),
-                               _(u"Déplacement de ") + child_slug, update_slug=False)
+                               _(u'Déplacement de ') + child_slug, update_slug=False)
             content.sha_draft = versioned.sha_draft
             content.save(force_slug_update=False)  # we do not want the save routine to update the slug in case
             # of slug algorithm conflict (for pre-zep-12 or imported content)
             messages.info(self.request, _(u"L'élément a bien été déplacé."))
         except TooDeepContainerError:
             messages.error(self.request, _(u"Ce conteneur contient déjà trop d'enfants pour être"
-                                           u" inclus dans un autre conteneur."))
+                                           u' inclus dans un autre conteneur.'))
         except KeyError:
             messages.warning(self.request, _(u"Vous n'avez pas complètement rempli le formulaire,"
-                                             u"ou bien il est impossible de déplacer cet élément."))
+                                             u'ou bien il est impossible de déplacer cet élément.'))
         except ValueError as e:
             raise Http404(u"L'arbre spécifié n'est pas valide." + str(e))
         except IndexError:
             messages.warning(self.request, _(u"L'élément se situe déjà à la place souhaitée."))
-            logging.getLogger("zds.tutorialv2").debug(u"L'élément {} se situe déjà à la place souhaitée."
+            logging.getLogger('zds.tutorialv2').debug(u"L'élément {} se situe déjà à la place souhaitée."
                                                       .format(child_slug))
         except TypeError:
             messages.error(self.request, _(u"L'élément ne peut pas être déplacé à cet endroit."))
         if base_container_slug == versioned.slug:
-            return redirect(reverse("content:view", args=[content.pk, content.slug]))
+            return redirect(reverse('content:view', args=[content.pk, content.slug]))
         else:
             return redirect(child.get_absolute_url())
 
@@ -1728,7 +1731,7 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
 
     def get(self):
         content = self.get_object()
-        url = "content:find-{}".format("tutorial" if content.is_tutorial() else content.type.lower())
+        url = 'content:find-{}'.format('tutorial' if content.is_tutorial() else content.type.lower())
         return redirect(url, self.request.user)
 
     def form_valid(self, form):
@@ -1740,16 +1743,16 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
             _type = _(u'du billet')
 
         bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
-        for user in form.cleaned_data["users"]:
+        for user in form.cleaned_data['users']:
             if user not in self.object.authors.all() and user != self.request.user:
                 self.object.authors.add(user)
-                url_index = reverse("content:find-" + self.object.type.lower(), args=[user.pk])
+                url_index = reverse('content:find-' + self.object.type.lower(), args=[user.pk])
                 send_mp(
                     bot,
                     [user],
                     string_concat(_(u'Ajout à la rédaction '), _type),
                     self.versioned_object.title,
-                    render_to_string("tutorialv2/messages/add_author_pm.md", {
+                    render_to_string('tutorialv2/messages/add_author_pm.md', {
                         'content': self.object,
                         'type': _type,
                         'url': self.object.get_absolute_url(),
@@ -1805,7 +1808,7 @@ class RemoveAuthorFromContent(AddAuthorToContent):
     def form_valid(self, form):
 
         current_user = False
-        users = form.cleaned_data["users"]
+        users = form.cleaned_data['users']
 
         _type = _(u'cet article')
         if self.object.is_tutorial:
@@ -1827,7 +1830,7 @@ class RemoveAuthorFromContent(AddAuthorToContent):
 
         authors_list = u''
 
-        for index, user in enumerate(form.cleaned_data["users"]):
+        for index, user in enumerate(form.cleaned_data['users']):
             if index > 0:
                 if index == len(users) - 1:
                     authors_list += _(u' et ')
@@ -1864,9 +1867,9 @@ class ContentOfAuthor(ZdSPagingListView):
             _(u'Brouillons'), False, 'edit'],
     }
     sorts = {
-        'creation': [lambda q: q.order_by('creation_date'), _(u"Par date de création")],
-        'abc': [lambda q: q.order_by('title'), _(u"Par ordre alphabétique")],
-        'modification': [lambda q: q.order_by('-update_date'), _(u"Par date de dernière modification")]
+        'creation': [lambda q: q.order_by('creation_date'), _(u'Par date de création')],
+        'abc': [lambda q: q.order_by('title'), _(u'Par ordre alphabétique')],
+        'modification': [lambda q: q.order_by('-update_date'), _(u'Par date de dernière modification')]
     }
     sort = ''
     filter = ''
@@ -1887,7 +1890,7 @@ class ContentOfAuthor(ZdSPagingListView):
         if self.type in TYPE_CHOICES_DICT.keys():
             queryset = PublishableContent.objects.filter(authors__pk__in=[self.user.pk], type=self.type)
         else:
-            raise Http404(u"Ce type de contenu est inconnu dans le système.")
+            raise Http404(u'Ce type de contenu est inconnu dans le système.')
 
         # prefetch:
         queryset = queryset\

@@ -330,8 +330,7 @@ class Profile(models.Model):
     def get_hidden_by_staff_posts_count(self):
         return Post.objects.filter(is_visible=False, author=self.user).exclude(editor=self.user).count()
 
-    # TODO: improve this method's name?
-    def get_alerts_posts_count(self):
+    def get_active_alerts_count(self):
         """
         :return: The number of currently active alerts created by this user.
         """
@@ -341,11 +340,9 @@ class Profile(models.Model):
         if self.user.is_authenticated:
             if self.user.is_active:
                 if self.end_ban_read:
-                    return self.can_read or (
-                        self.end_ban_read < datetime.now())
+                    return self.can_read or (self.end_ban_read < datetime.now())
                 return self.can_read
-            else:
-                return False
+            return False
 
     def can_write_now(self):
         if self.user.is_active:

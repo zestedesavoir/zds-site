@@ -154,7 +154,7 @@ class MiniProfileForm(forms.Form):
         widget=forms.Textarea(
             attrs={
                 'placeholder': _(u'Votre biographie au format Markdown.'),
-                'class': 'md-editor'
+                'class': 'md-editor preview-source'
             }
         )
     )
@@ -230,7 +230,6 @@ class ProfileForm(MiniProfileForm):
         label='',
         required=False,
         choices=(
-            ('show_email', _(u'Afficher mon adresse courriel publiquement')),
             ('show_sign', _(u'Afficher les signatures')),
             ('is_hover_enabled', _(u'Cochez pour dérouler les menus au survol')),
             ('allow_temp_visual_changes', _(u'Activer les changements visuels temporaires')),
@@ -249,9 +248,6 @@ class ProfileForm(MiniProfileForm):
         initial = kwargs.get('initial', {})
         self.fields['options'].initial = ''
 
-        if 'show_email' in initial and initial['show_email']:
-            self.fields['options'].initial += 'show_email'
-
         if 'show_sign' in initial and initial['show_sign']:
             self.fields['options'].initial += 'show_sign'
 
@@ -266,6 +262,10 @@ class ProfileForm(MiniProfileForm):
 
         layout = Layout(
             Field('biography'),
+            ButtonHolder(StrictButton(_(u'Aperçu'), type='preview', name='preview',
+                                      css_class='btn btn-grey preview-btn'),),
+            HTML('{% if form.biographie.value %}{% include "misc/previsualization.part.html" \
+            with text=form.biographie.value %}{% endif %}'),
             Field('site'),
             Field('avatar_url'),
             HTML(_(u'''<p><a href="{% url 'gallery-list' %}">Choisir un avatar dans une galerie</a><br/>
@@ -285,43 +285,71 @@ class ChangeUserForm(forms.Form):
     Update username and email
     """
     username = forms.CharField(
-        label=_(u'Nouveau pseudo'),
+        label=_(u'Mon pseudo'),
         max_length=User._meta.get_field('username').max_length,
         min_length=1,
         required=False,
         widget=forms.TextInput(
             attrs={
-                'placeholder': _(u'Ne mettez rien pour conserver l\'ancien')
+                'placeholder': _(u'Pseudo')
             }
         ),
-        validators=[validate_not_empty, validate_zds_username],
     )
 
     email = forms.EmailField(
-        label=_(u'Nouvelle adresse courriel'),
+        label=_(u'Mon adresse email'),
         max_length=User._meta.get_field('email').max_length,
         required=False,
         widget=forms.TextInput(
             attrs={
-                'placeholder': _(u'Ne mettez rien pour conserver l\'ancienne')
+                'placeholder': _(u'Adresse email')
             }
         ),
-        validators=[validate_not_empty, validate_zds_email],
     )
 
-    def __init__(self, *args, **kwargs):
+    options = forms.MultipleChoiceField(
+        label='',
+        required=False,
+        choices=(
+            ('show_email', _(u'Afficher mon adresse courriel publiquement')),
+        ),
+        widget=forms.CheckboxSelectMultiple,
+    )
+
+    def __init__(self, user, *args, **kwargs):
         super(ChangeUserForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
+        self.previous_email = user.email
+        self.previous_username = user.username
+        self.fields['options'].initial = ''
+
+        if user.profile and user.profile.show_email:
+            self.fields['options'].initial += 'show_email'
 
         self.helper.layout = Layout(
-            Field('username'),
-            Field('email'),
+            Field('username', value=user.username),
+            Field('email', value=user.email),
+            Field('options'),
             ButtonHolder(
                 StrictButton(_(u'Enregistrer'), type='submit'),
             ),
         )
+
+    def clean(self):
+        cleaned_data = super(ChangeUserForm, self).clean()
+        cleaned_data['previous_username'] = self.previous_username
+        cleaned_data['previous_email'] = self.previous_email
+        username = cleaned_data.get('username')
+        email = cleaned_data.get('email')
+        if username != self.previous_username:
+            validate_not_empty(username)
+            validate_zds_username(username)
+        if email != self.previous_email:
+            validate_not_empty(email)
+            validate_zds_email(email)
+        return cleaned_data
 
 
 # TODO: Updates the password --> requires a better name

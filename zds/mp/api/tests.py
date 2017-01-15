@@ -24,7 +24,7 @@ class PrivateTopicListAPITest(APITestCase):
         authenticate_client(self.client, client_oauth2, self.profile.user.username, 'hostel77')
 
         self.bot_group = Group()
-        self.bot_group.name = ZDS_APP["member"]["bot_group"]
+        self.bot_group.name = ZDS_APP['member']['bot_group']
         self.bot_group.save()
 
         caches[extensions_api_settings.DEFAULT_USE_CACHE].clear()
@@ -316,7 +316,7 @@ class PrivateTopicListAPITest(APITestCase):
         """
         Tries to create a new private topic with an unreachable user.
         """
-        anonymous_user = UserFactory(username=ZDS_APP["member"]["anonymous_account"])
+        anonymous_user = UserFactory(username=ZDS_APP['member']['anonymous_account'])
         anonymous_user.groups.add(self.bot_group)
         anonymous_user.save()
         data = {
@@ -402,7 +402,7 @@ class PrivateTopicDetailAPITest(APITestCase):
         authenticate_client(self.client, client_oauth2, self.profile.user.username, 'hostel77')
 
         self.bot_group = Group()
-        self.bot_group.name = ZDS_APP["member"]["bot_group"]
+        self.bot_group.name = ZDS_APP['member']['bot_group']
         self.bot_group.save()
 
         caches[extensions_api_settings.DEFAULT_USE_CACHE].clear()
@@ -523,7 +523,7 @@ class PrivateTopicDetailAPITest(APITestCase):
         """
         Tries to update a private topic with an unreachable user.
         """
-        anonymous_user = UserFactory(username=ZDS_APP["member"]["anonymous_account"])
+        anonymous_user = UserFactory(username=ZDS_APP['member']['anonymous_account'])
         anonymous_user.groups.add(self.bot_group)
         anonymous_user.save()
         data = {
@@ -1040,7 +1040,7 @@ class PrivateTopicUnreadListAPITest(APITestCase):
         authenticate_client(self.another_client, another_client_oauth2, self.another_profile.user.username, 'hostel77')
 
         self.bot_group = Group()
-        self.bot_group.name = ZDS_APP["member"]["bot_group"]
+        self.bot_group.name = ZDS_APP['member']['bot_group']
         self.bot_group.save()
 
         caches[extensions_api_settings.DEFAULT_USE_CACHE].clear()

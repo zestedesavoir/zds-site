@@ -1,6 +1,7 @@
 # coding: utf-8
 from datetime import datetime
 import json as json_writer
+import logging
 import os
 
 from django.conf import settings
@@ -32,6 +33,8 @@ from zds.utils.models import Alert, CommentVote, SubCategory, Tag
 from zds.utils.paginator import make_pagination, ZdSPagingListView
 from zds.utils.templatetags.topbar import top_categories_content
 
+logger = logging.getLogger('zds.tutorialv2')
+
 
 class RedirectContentSEO(RedirectView):
     permanent = True
@@ -41,8 +44,8 @@ class RedirectContentSEO(RedirectView):
         obj = get_object_or_404(PublishableContent, old_pk=int(kwargs.get('pk')), type='TUTORIAL')
         if not obj.in_public():
             raise Http404(u"Aucun contenu public n'est disponible avec cet identifiant.")
-        kwargs["parent_container_slug"] = str(kwargs["p2"]) + "_" + kwargs["parent_container_slug"]
-        kwargs["container_slug"] = str(kwargs["p3"]) + "_" + kwargs["container_slug"]
+        kwargs['parent_container_slug'] = str(kwargs['p2']) + '_' + kwargs['parent_container_slug']
+        kwargs['container_slug'] = str(kwargs['p3']) + '_' + kwargs['container_slug']
         obj = search_container_or_404(obj.load_version(public=True), kwargs)
 
         return obj.get_absolute_url_online()
@@ -124,24 +127,30 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
                         with_previous_item=True)
 
         # is JS activated ?
-        context["is_js"] = True
+        context['is_js'] = True
         if not self.object.js_support:
-            context["is_js"] = False
+            context['is_js'] = False
 
         # optimize requests:
         votes = CommentVote.objects.filter(user_id=self.request.user.id, comment__in=queryset_reactions).all()
-        context["user_like"] = [vote.comment_id for vote in votes if vote.positive]
-        context["user_dislike"] = [vote.comment_id for vote in votes if not vote.positive]
+        context['user_like'] = [vote.comment_id for vote in votes if vote.positive]
+        context['user_dislike'] = [vote.comment_id for vote in votes if not vote.positive]
 
         if self.request.user.has_perm('tutorialv2.change_contentreaction'):
-            context["user_can_modify"] = [reaction.pk for reaction in queryset_reactions]
+            context['user_can_modify'] = [reaction.pk for reaction in queryset_reactions]
         else:
-            context["user_can_modify"] = [reaction.pk for reaction in queryset_reactions
+            context['user_can_modify'] = [reaction.pk for reaction in queryset_reactions
                                           if reaction.author == self.request.user]
 
         context['isantispam'] = self.object.antispam()
         context['pm_link'] = self.object.get_absolute_contact_url(_(u'À propos de'))
         context['subscriber_count'] = ContentReactionAnswerSubscription.objects.get_subscriptions(self.object).count()
+        # We need reading time expressed in minutes
+        try:
+            context['reading_time'] = (self.object.public_version.nb_letter /
+                                       settings.ZDS_APP['content']['sec_per_minute'])
+        except ZeroDivisionError as e:
+            logger.warning('could not compute reading time : setting sec_per_minute is set to zero (error=%s)', e)
 
         if self.request.user.is_authenticated():
             for reaction in context['reactions']:
@@ -179,7 +188,7 @@ class DisplayOnlineOpinion(DisplayOnlineContent):
 
 
 class DownloadOnlineContent(SingleOnlineContentViewMixin, DownloadViewMixin):
-    """ Views that allow users to download "extra contents" of the public version
+    """ Views that allow users to download 'extra contents' of the public version
     """
 
     requested_file = None
@@ -348,12 +357,12 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
             self.tag = get_object_or_404(Tag, title=self.request.GET.get('tag').lower().strip())
             queryset = queryset.filter(content__tags__in=[self.tag])  # different tags can have same
             # slug such as C/C#/C++, as a first version we get all of them
-        queryset = queryset.extra(select={"count_note": sub_query})
+        queryset = queryset.extra(select={'count_note': sub_query})
         return queryset.order_by('-publication_date')
 
     def get_context_data(self, **kwargs):
         context = super(ListOnlineContents, self).get_context_data(**kwargs)
-        for public_content in context["public_contents"]:
+        for public_content in context['public_contents']:
             if public_content.content.last_note is not None:
                 public_content.content.last_note.related_content = public_content.content
                 public_content.content.public_version = public_content
@@ -389,7 +398,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
     form_class = NoteForm
     check_as = True
     reaction = None
-    template_name = "tutorialv2/comment/new.html"
+    template_name = 'tutorialv2/comment/new.html'
 
     quoted_reaction_text = ''
     new_note = False
@@ -435,7 +444,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
             .prefetch_related('alerts_on_this_comment') \
             .prefetch_related('alerts_on_this_comment__author') \
             .filter(related_content=self.object) \
-            .order_by("-pubdate")[:settings.ZDS_APP['content']['notes_per_page']]
+            .order_by('-pubdate')[:settings.ZDS_APP['content']['notes_per_page']]
 
         return context
 
@@ -444,7 +453,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
         # handle quoting case
         if 'cite' in self.request.GET:
             try:
-                cited_pk = int(self.request.GET["cite"])
+                cited_pk = int(self.request.GET['cite'])
             except ValueError:
                 raise Http404(u'L\'argument `cite` doit être un entier.')
 
@@ -455,17 +464,17 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
                     raise PermissionDenied
 
                 text = '\n'.join('> ' + line for line in reaction.text.split('\n'))
-                text += "\nSource: [{}]({})".format(reaction.author.username, reaction.get_absolute_url())
+                text += '\nSource: [{}]({})'.format(reaction.author.username, reaction.get_absolute_url())
 
                 if self.request.is_ajax():
-                    return StreamingHttpResponse(json_writer.dumps({"text": text}, ensure_ascii=False))
+                    return StreamingHttpResponse(json_writer.dumps({'text': text}, ensure_ascii=False))
                 else:
                     self.quoted_reaction_text = text
         try:
             return super(SendNoteFormView, self).get(request, *args, **kwargs)
-        except MustRedirect:  # if someone changed the pk arguments, and reached a "must redirect" public
+        except MustRedirect:  # if someone changed the pk arguments, and reached a 'must redirect' public
             # object
-            raise Http404(u"Aucun contenu public trouvé avec l'identifiant " + str(self.request.GET.get("pk", 0)))
+            raise Http404(u"Aucun contenu public trouvé avec l'identifiant " + str(self.request.GET.get('pk', 0)))
 
     def post(self, request, *args, **kwargs):
 
@@ -504,7 +513,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
             for alert in alerts:
                 alert.solve(self.request.user, _(u'Le message a été modéré.'))
 
-        self.reaction.update_content(form.cleaned_data["text"])
+        self.reaction.update_content(form.cleaned_data['text'])
         self.reaction.ip_address = get_client_ip(self.request)
         self.reaction.save()
 
@@ -518,18 +527,18 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
 
 class UpdateNoteView(SendNoteFormView):
     check_as = False
-    template_name = "tutorialv2/comment/edit.html"
+    template_name = 'tutorialv2/comment/edit.html'
     form_class = NoteEditForm
 
     def get_form_kwargs(self):
         kwargs = super(UpdateNoteView, self).get_form_kwargs()
-        if "message" in self.request.GET and self.request.GET["message"].isdigit():
+        if 'message' in self.request.GET and self.request.GET['message'].isdigit():
             self.reaction = ContentReaction.objects\
-                .prefetch_related("author") \
-                .filter(pk=int(self.request.GET["message"])) \
+                .prefetch_related('author') \
+                .filter(pk=int(self.request.GET['message'])) \
                 .first()
             if not self.reaction:
-                raise Http404(u"Aucun commentaire : " + self.request.GET["message"])
+                raise Http404(u'Aucun commentaire : ' + self.request.GET['message'])
             if self.reaction.author.pk != self.request.user.pk and not self.is_staff:
                 raise PermissionDenied()
 
@@ -558,10 +567,10 @@ class UpdateNoteView(SendNoteFormView):
         return context
 
     def form_valid(self, form):
-        if "message" in self.request.GET and self.request.GET["message"].isdigit():
+        if 'message' in self.request.GET and self.request.GET['message'].isdigit():
             self.reaction = ContentReaction.objects\
-                .filter(pk=int(self.request.GET["message"])) \
-                .prefetch_related("author") \
+                .filter(pk=int(self.request.GET['message'])) \
+                .prefetch_related('author') \
                 .first()
             if self.reaction is None:
                 raise Http404(u"Il n'y a aucun commentaire.")
@@ -576,7 +585,7 @@ class UpdateNoteView(SendNoteFormView):
 
 
 class HideReaction(FormView, LoginRequiredMixin):
-    http_method_names = ["post"]
+    http_method_names = ['post']
 
     @method_decorator(transaction.atomic)
     def dispatch(self, *args, **kwargs):
@@ -584,10 +593,10 @@ class HideReaction(FormView, LoginRequiredMixin):
 
     def post(self, request, *args, **kwargs):
         try:
-            pk = int(self.kwargs["pk"])
+            pk = int(self.kwargs['pk'])
             text = ''
             if 'text_hidden' in self.request.POST:
-                text = self.request.POST["text_hidden"][:80]  # Todo: Make it less static
+                text = self.request.POST['text_hidden'][:80]  # Todo: Make it less static
             reaction = get_object_or_404(ContentReaction, pk=pk)
             if not self.request.user.has_perm('tutorialv2.change_contentreaction') and \
                     not self.request.user.pk == reaction.author.pk:
@@ -595,12 +604,12 @@ class HideReaction(FormView, LoginRequiredMixin):
             reaction.hide_comment_by_user(self.request.user, text)
             return redirect(reaction.get_absolute_url())
         except (IndexError, ValueError, MultiValueDictKeyError):
-            raise Http404(u"Vous ne pouvez pas cacher cette réaction.")
+            raise Http404(u'Vous ne pouvez pas cacher cette réaction.')
 
 
 class ShowReaction(FormView, LoggedWithReadWriteHability, PermissionRequiredMixin):
 
-    permissions = ["tutorialv2.change_contentreaction"]
+    permissions = ['tutorialv2.change_contentreaction']
     http_method_names = ['post']
 
     @method_decorator(transaction.atomic)
@@ -609,7 +618,7 @@ class ShowReaction(FormView, LoggedWithReadWriteHability, PermissionRequiredMixi
 
     def post(self, request, *args, **kwargs):
         try:
-            pk = int(self.kwargs["pk"])
+            pk = int(self.kwargs['pk'])
             reaction = get_object_or_404(ContentReaction, pk=pk)
             reaction.is_visible = True
             reaction.save()
@@ -617,7 +626,7 @@ class ShowReaction(FormView, LoggedWithReadWriteHability, PermissionRequiredMixi
             return redirect(reaction.get_absolute_url())
 
         except (IndexError, ValueError, MultiValueDictKeyError):
-            raise Http404(u"Aucune réaction trouvée.")
+            raise Http404(u'Aucune réaction trouvée.')
 
 
 class SendContentAlert(FormView, LoginRequiredMixin):
@@ -807,9 +816,9 @@ class FollowNewContent(LoggedWithReadWriteHability, FormView):
 class TagsListView(ListView):
 
     model = Tag
-    template_name = "tutorialv2/view/tags.html"
+    template_name = 'tutorialv2/view/tags.html'
     context_object_name = 'tags'
-    displayed_types = ["TUTORIAL", "ARTICLE"]
+    displayed_types = ['TUTORIAL', 'ARTICLE']
 
     def get_queryset(self):
         return PublishedContent.objects.get_top_tags(self.displayed_types)

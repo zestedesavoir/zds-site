@@ -32,7 +32,7 @@ class PublishedContentManager(models.Manager):
         if _type:
             queryset = queryset.filter(content_type=_type)
 
-        public_contents = queryset.order_by("-publication_date").all()[:settings.ZDS_APP['content']['user_page_number']]
+        public_contents = queryset.order_by('-publication_date').all()[:settings.ZDS_APP['content']['user_page_number']]
         return public_contents
 
     def last_tutorials_of_a_member_loaded(self, author):
@@ -108,7 +108,7 @@ class PublishableContentManager(models.Manager):
                     beta_topic.is_locked = True
                     beta_topic.save()
                     first_post = beta_topic.first_post()
-                    first_post.update_content(_(u'# Le tutoriel présenté par ce topic n\'existe plus.'))
+                    first_post.update_content(_(u"# Le tutoriel présenté par ce topic n'existe plus."))
                     first_post.save()
                 content.delete()
             else:

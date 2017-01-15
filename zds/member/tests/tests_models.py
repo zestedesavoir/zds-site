@@ -264,28 +264,68 @@ class MemberModelsTest(TestCase):
         # Should be 0 because even if poster is staff, he is the poster
         self.assertEqual(self.staff.get_hidden_by_staff_posts_count(), 0)
 
-    def test_get_alerts_posts_count(self):
+    def test_get_active_alerts_count(self):
         # Start with 0
-        self.assertEqual(self.user1.get_alerts_posts_count(), 0)
+        self.assertEqual(self.user1.get_active_alerts_count(), 0)
         # Post and Alert it !
         post = PostFactory(topic=self.forumtopic, author=self.user1.user, position=1)
         Alert.objects.create(author=self.user1.user, comment=post, scope='FORUM', pubdate=datetime.now())
         # Should be 1
-        self.assertEqual(self.user1.get_alerts_posts_count(), 1)
+        self.assertEqual(self.user1.get_active_alerts_count(), 1)
 
     def test_can_read_now(self):
+
+        profile = ProfileFactory()
+        profile.is_active = True
+        profile.can_read = True
+        self.assertTrue(profile.can_read_now())
+
+        # Was banned in the past, ban no longer active
+        profile = ProfileFactory()
+        profile.end_ban_read = datetime.now() - timedelta(days=1)
+        self.assertTrue(profile.can_read_now())
+
+        profile = ProfileFactory()
+        profile.is_active = True
+        profile.can_read = False
+        self.assertFalse(profile.can_read_now())
+
+        # Ban is active
+        profile = ProfileFactory()
+        profile.is_active = True
+        profile.can_read = False
+        profile.end_ban_read = datetime.now() + timedelta(days=1)
+        self.assertFalse(profile.can_read_now())
+
         self.user1.user.is_active = False
-        self.assertFalse(self.user1.can_write_now())
-        self.user1.user.is_active = True
-        self.assertTrue(self.user1.can_write_now())
-        # TODO Some conditions still need to be tested
+        self.assertFalse(self.user1.can_read_now())
 
     def test_can_write_now(self):
-        self.user1.user.is_active = False
-        self.assertFalse(self.user1.can_write_now())
+
         self.user1.user.is_active = True
+        self.user1.user.can_write = True
         self.assertTrue(self.user1.can_write_now())
-        # TODO Some conditions still need to be tested
+
+        # Was banned in the past, ban no longer active
+        profile = ProfileFactory()
+        profile.can_write = True
+        profile.end_ban_read = datetime.now() - timedelta(days=1)
+        self.assertTrue(profile.can_write_now())
+
+        profile = ProfileFactory()
+        profile.can_write = False
+        profile.is_active = True
+        self.assertFalse(profile.can_write_now())
+
+        # Ban is active
+        profile = ProfileFactory()
+        profile.can_write = False
+        profile.end_ban_write = datetime.now() + timedelta(days=1)
+        self.assertFalse(profile.can_write_now())
+
+        self.user1.user.is_active = False
+        self.user1.user.can_write = True
+        self.assertFalse(self.user1.can_write_now())
 
     def test_get_followed_topics(self):
         # Start with 0

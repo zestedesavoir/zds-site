@@ -252,6 +252,24 @@ class MemberTests(TestCase):
         )
         self.assertEqual(result.status_code, 200)
 
+    def test_success_preview_biography(self):
+
+        member = ProfileFactory()
+        self.client.login(
+            username=member.user.username,
+            password="hostel77"
+        )
+
+        response = self.client.post(
+            reverse('update-member'),
+            {
+                'text': 'It is **my** life',
+                'preview': '',
+            }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+
+        result_string = ''.join(response.streaming_content)
+        self.assertIn('<strong>my</strong>', result_string, 'We need the biography to be properly formatted')
+
     def test_login(self):
         """
         To test user login.
@@ -1057,7 +1075,7 @@ class MemberTests(TestCase):
         self.client.login(username=tester.user.username, password='hostel77')
         data = {
             'username': 'dummy',
-            'email': ''
+            'email': tester.user.email
         }
         result = self.client.post(reverse('update-username-email-member'), data, follow=False)
 

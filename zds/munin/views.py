@@ -19,8 +19,8 @@ posts.draw LINE1
 comments.label Article and Tutorial comments
 comments.draw STACK""")
 def total_posts(request):
-    return [tuple(["posts", Post.objects.all().count()]),
-            tuple(["comments", ContentReaction.objects.count()])]
+    return [tuple(['posts', Post.objects.all().count()]),
+            tuple(['comments', ContentReaction.objects.count()])]
 
 
 @muninview(config="""graph_title Total MPs

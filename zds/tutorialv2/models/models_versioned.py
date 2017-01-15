@@ -62,7 +62,7 @@ class Container:
         self.slug_pool = default_slug_pool()
 
     def __unicode__(self):
-        return u'<Conteneur \'{}\'>'.format(self.title)
+        return u"<Conteneur '{}'>".format(self.title)
 
     def has_extracts(self):
         """Note : this function rely on the fact that the children can only be of one type.
@@ -137,7 +137,7 @@ class Container:
         """
         if self.get_path(True) not in child_path:
             return False
-        return child_path.replace(self.get_path(True), "").replace("/", "") in self.children_dict
+        return child_path.replace(self.get_path(True), '').replace('/', '') in self.children_dict
 
     def top_container(self):
         """
@@ -283,8 +283,8 @@ class Container:
         Note : this function does not account for a different arrangement of the files.
         """
         # TODO : path comparison instead of pure rewritring ?
-        self.introduction = os.path.join(self.get_path(relative=True), "introduction.md")
-        self.conclusion = os.path.join(self.get_path(relative=True), "conclusion.md")
+        self.introduction = os.path.join(self.get_path(relative=True), 'introduction.md')
+        self.conclusion = os.path.join(self.get_path(relative=True), 'conclusion.md')
         for child in self.children:
             if isinstance(child, Container):
                 child.update_children()
@@ -334,7 +334,7 @@ class Container:
     def get_absolute_url_online(self):
         """
 
-        :return: the "online version" of the url
+        :return: the 'online version' of the url
         :rtype: str
         """
         base = ''
@@ -497,7 +497,7 @@ class Container:
             if self.introduction is None:
                 self.introduction = os.path.join(rel_path, 'introduction.md')
 
-            f = codecs.open(os.path.join(path, self.introduction), "w", encoding='utf-8')
+            f = codecs.open(os.path.join(path, self.introduction), 'w', encoding='utf-8')
             f.write(introduction)
             f.close()
             repo.index.add([self.introduction])
@@ -511,7 +511,7 @@ class Container:
             if self.conclusion is None:
                 self.conclusion = os.path.join(rel_path, 'conclusion.md')
 
-            f = codecs.open(os.path.join(path, self.conclusion), "w", encoding='utf-8')
+            f = codecs.open(os.path.join(path, self.conclusion), 'w', encoding='utf-8')
             f.write(conclusion)
             f.close()
             repo.index.add([self.conclusion])
@@ -587,7 +587,7 @@ class Container:
 
         # make it
         if not commit_message:
-            commit_message = _(u'Création de l\'extrait « {} »').format(title)
+            commit_message = _(u"Création de l'extrait « {} »").format(title)
 
         return extract.repo_update(title, text, commit_message=commit_message, do_commit=do_commit)
 
@@ -631,7 +631,7 @@ class Container:
             raise ValueError(_(child_slug + " n'existe pas."))
         child_pos = self.children.index(self.children_dict[child_slug])
         if child_pos == 0:
-            raise IndexError(_(child_slug + " est le premier élément."))
+            raise IndexError(_(child_slug + ' est le premier élément.'))
         self.children[child_pos], self.children[child_pos - 1] = self.children[child_pos - 1], self.children[child_pos]
         self.children[child_pos].position_in_parent = child_pos + 1
         self.children[child_pos - 1].position_in_parent = child_pos
@@ -648,7 +648,7 @@ class Container:
             raise ValueError(_(child_slug + " n'existe pas."))
         child_pos = self.children.index(self.children_dict[child_slug])
         if child_pos == len(self.children) - 1:
-            raise IndexError(_(child_slug + " est le dernier élément."))
+            raise IndexError(_(child_slug + ' est le dernier élément.'))
         self.children[child_pos], self.children[child_pos + 1] = self.children[child_pos + 1], self.children[child_pos]
         self.children[child_pos].position_in_parent = child_pos
         self.children[child_pos + 1].position_in_parent = child_pos + 1
@@ -736,10 +736,10 @@ class Container:
         if self.get_tree_depth() == 0:
             return self.type
         elif self.get_tree_depth() == 1:
-            return _(u"Partie")
+            return _(u'Partie')
         elif self.get_tree_depth() == 2:
-            return _(u"Chapitre")
-        return _(u"Sous-chapitre")
+            return _(u'Chapitre')
+        return _(u'Sous-chapitre')
 
     def get_next_level_as_string(self):
         """Same as ``self.get_level_as_string()`` but try to guess the level of this container's children
@@ -748,11 +748,11 @@ class Container:
         :rtype: str
         """
         if self.get_tree_depth() == 0 and self.can_add_container():
-            return _(u"Partie")
+            return _(u'Partie')
         elif self.get_tree_depth() == 1 and self.can_add_container():
-            return _(u"Chapitre")
+            return _(u'Chapitre')
         else:
-            return _(u"Section")
+            return _(u'Section')
 
     def can_be_in_beta(self):
         """
@@ -794,7 +794,7 @@ class Extract:
         self.position_in_parent = position_in_parent
 
     def __unicode__(self):
-        return u'<Extrait \'{}\'>'.format(self.title)
+        return u"<Extrait '{}'>".format(self.title)
 
     def get_absolute_url(self):
         """Find the url that point to the offline version of this extract
@@ -947,7 +947,7 @@ class Extract:
 
         if text is not None:
             self.text = self.get_path(relative=True)
-            f = codecs.open(os.path.join(path, self.text), "w", encoding='utf-8')
+            f = codecs.open(os.path.join(path, self.text), 'w', encoding='utf-8')
             f.write(text)
             f.close()
 
@@ -965,7 +965,7 @@ class Extract:
         repo.index.add(['manifest.json'])
 
         if not commit_message:
-            commit_message = _(u'Modification de l\'extrait « {} », situé dans le conteneur « {} »')\
+            commit_message = _(u"Modification de l'extrait « {} », situé dans le conteneur « {} »")\
                 .format(self.title, self.container.title)
 
         if do_commit:
@@ -995,7 +995,7 @@ class Extract:
         repo.index.add(['manifest.json'])
 
         if not commit_message:
-            commit_message = _(u'Suppression de l\'extrait « {} »').format(self.title)
+            commit_message = _(u"Suppression de l'extrait « {} »").format(self.title)
 
         if do_commit:
             return self.container.top_container().commit_changes(commit_message)
@@ -1025,7 +1025,7 @@ class VersionedContent(Container, TemplatableContentModelMixin):
     """
     This class is used to handle a specific version of a tutorial.tutorial
 
-    It is created from the "manifest.json" file, and could dump information in it.
+    It is created from the 'manifest.json' file, and could dump information in it.
 
     For simplicity, it also contains DB information (but cannot modified them!), filled at the creation.
     """
@@ -1103,11 +1103,11 @@ class VersionedContent(Container, TemplatableContentModelMixin):
         if self.is_article:
             return _(u"L'Article")
         elif self.is_tutorial:
-            return _(u"Le Tutoriel")
+            return _(u'Le Tutoriel')
         elif self.is_opinion:
-            return _(u"Le Billet")
+            return _(u'Le Billet')
         else:
-            return _(u"Le Contenu")
+            return _(u'Le Contenu')
 
     def get_absolute_url_online(self):
         """
@@ -1200,13 +1200,13 @@ class VersionedContent(Container, TemplatableContentModelMixin):
     def dump_json(self, path=None):
         """Write the JSON into file
 
-        :param path: path to the file. If `None`, write in "manifest.json"
+        :param path: path to the file. If `None`, write in 'manifest.json'
         """
         if path is None:
             man_path = os.path.join(self.get_path(), 'manifest.json')
         else:
             man_path = path
-        json_data = codecs.open(man_path, "w", encoding='utf-8')
+        json_data = codecs.open(man_path, 'w', encoding='utf-8')
         json_data.write(self.get_json())
         json_data.close()
 

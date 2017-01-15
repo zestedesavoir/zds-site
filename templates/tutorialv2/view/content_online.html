@@ -123,6 +123,22 @@
         {% endif %}
     {% endif %}
 
+    {% if content.is_opinion %}
+        {% if content.converted_to %}
+            <div class="alert-box info">
+                {% if content.converted_to.get_absolute_url_online %}
+                    {% blocktrans with url_article=content.converted_to.get_absolute_url_online %}
+                        Ce billet a été promu en <a href="{{ url_article }}">article</a>.
+                    {% endblocktrans %}
+                {% elif is_staff %}
+                    {% blocktrans with url_article=content.converted_to.get_absolute_url %}
+                        Ce billet a été promu en <a href="{{ url_article }}">article</a> qui est en cours de validation.
+                    {% endblocktrans %}
+                {% endif %}
+            </div>
+        {% endif %}
+    {% endif %}
+
     {% if content.has_extracts %}
         {{ content.get_content_online|safe }}
     {% else %}

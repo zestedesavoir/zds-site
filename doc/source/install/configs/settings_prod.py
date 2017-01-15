@@ -6,11 +6,13 @@
 import os
 
 from settings import ZDS_APP, INSTALLED_APPS, BASE_DIR
-
+from raven import Client
 
 ##### Django settings #####
 
 # NEVER set this True !!
+from zds.utils.context_processor import get_git_version
+
 DEBUG = False
 
 USE_L10N = True
@@ -106,8 +108,10 @@ TEMPLATES = [
 # https://docs.getsentry.com/hosted/clients/python/integrations/django/
 RAVEN_CONFIG = {
 #    'dsn': 'to-fill'
-    'dsn': 'to-fill'
+    'dsn': 'to-fill',
+    'release': get_git_version()
 }
+
 
 LOGGING = {
    'version': 1,

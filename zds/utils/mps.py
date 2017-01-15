@@ -5,10 +5,13 @@ from datetime import datetime
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
+import logging
 
 from zds.mp.models import PrivateTopic, PrivatePost, mark_read
 from zds.notification import signals
 from zds.utils.templatetags.emarkdown import emarkdown
+
+logger = logging.getLogger(__name__)
 
 
 def send_mp(
@@ -101,7 +104,8 @@ def send_message_mp(
             msg.attach_alternative(message_html, 'text/html')
             try:
                 msg.send()
-            except:
+            except Exception:
+                logger.exception()
                 msg = None
 
     return n_topic

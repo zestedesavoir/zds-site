@@ -27,7 +27,7 @@ def publish_content(db_object, versioned, is_major_update=True):
     Publish a given content.
 
     .. note::
-        create a manifest.json without the introduction and conclusion if not needed. Also remove the "text" field
+        create a manifest.json without the introduction and conclusion if not needed. Also remove the 'text' field
         of extracts.
 
     :param db_object: Database representation of the content
@@ -58,7 +58,7 @@ def publish_content(db_object, versioned, is_major_update=True):
     publish_container(db_object, tmp_path, altered_version)
     altered_version.dump_json(os.path.join(tmp_path, 'manifest.json'))
 
-    # make room for "extra contents"
+    # make room for 'extra contents'
     extra_contents_path = os.path.join(tmp_path, settings.ZDS_APP['content']['extra_contents_dirname'])
     os.makedirs(extra_contents_path)
 
@@ -86,14 +86,14 @@ def publish_content(db_object, versioned, is_major_update=True):
     finally:
         md_file.close()
 
-    pandoc_debug_str = ""
+    pandoc_debug_str = ''
     if settings.PANDOC_LOG_STATE:
-        pandoc_debug_str = " 2>&1 | tee -a " + settings.PANDOC_LOG
-    if settings.ZDS_APP['content']['extra_content_generation_policy'] == "SYNC":
+        pandoc_debug_str = ' 2>&1 | tee -a ' + settings.PANDOC_LOG
+    if settings.ZDS_APP['content']['extra_content_generation_policy'] == 'SYNC':
         # ok, now we can really publish the thing !
         generate_exernal_content(base_name, extra_contents_path, md_file_path, pandoc_debug_str)
-    elif settings.ZDS_APP['content']['extra_content_generation_policy'] == "WATCHDOG":
-        PublicatorRegistery.get("watchdog").publish(md_file_path, base_name, silently_pass=False)
+    elif settings.ZDS_APP['content']['extra_content_generation_policy'] == 'WATCHDOG':
+        PublicatorRegistery.get('watchdog').publish(md_file_path, base_name, silently_pass=False)
 
     is_update = False
 
@@ -125,13 +125,14 @@ def publish_content(db_object, versioned, is_major_update=True):
     public_version.content_pk = db_object.pk
     public_version.content = db_object
     public_version.must_reindex = True
-
     public_version.save()
+    public_version.nb_letter = public_version.get_nb_letters(md_file_path)
+
     for author in db_object.authors.all():
         public_version.authors.add(author)
     public_version.save()
     # move the stuffs into the good position
-    if settings.ZDS_APP['content']['extra_content_generation_policy'] != "WATCHDOG":
+    if settings.ZDS_APP['content']['extra_content_generation_policy'] != 'WATCHDOG':
         shutil.move(tmp_path, public_version.get_prod_path())
     else:  # if we use watchdog, we use copy to get md and zip file in prod but everything else will be handled by
         # watchdog
@@ -166,7 +167,7 @@ def generate_exernal_content(base_name, extra_contents_path, md_file_path, pando
     """
     excluded = []
     if not ZDS_APP['content']['build_pdf_when_published'] and not overload_settings:
-        excluded.append("pdf")
+        excluded.append('pdf')
     for __, publicator in PublicatorRegistery.get_all_registered(excluded):
 
         publicator.publish(md_file_path, base_name, change_dir=extra_contents_path, pandoc_debug_str=pandoc_debug_str)
@@ -174,7 +175,7 @@ def generate_exernal_content(base_name, extra_contents_path, md_file_path, pando
 
 class PublicatorRegistery:
     """
-    Register all publicator as a "human-readable name/publicator" instance key/value list
+    Register all publicator as a 'human-readable name/publicator' instance key/value list
     """
     registry = {}
 
@@ -239,9 +240,9 @@ class Publicator:
         raise NotImplemented()
 
 
-@PublicatorRegistery.register("pdf", settings.PANDOC_LOC, "pdf", settings.PANDOC_PDF_PARAM)
-@PublicatorRegistery.register("epub", settings.PANDOC_LOC, "epub")
-@PublicatorRegistery.register("html", settings.PANDOC_LOC, "html")
+@PublicatorRegistery.register('pdf', settings.PANDOC_LOC, 'pdf', settings.PANDOC_PDF_PARAM)
+@PublicatorRegistery.register('epub', settings.PANDOC_LOC, 'epub')
+@PublicatorRegistery.register('html', settings.PANDOC_LOC, 'html')
 class PandocPublicator(Publicator):
 
     """
@@ -251,9 +252,9 @@ class PandocPublicator(Publicator):
         self.pandoc_loc = pandoc_loc
         self.pandoc_pdf_param = pandoc_pdf_param
         self.format = _format
-        self.__logger = logging.getLogger("zds.pandoc-publicator")
+        self.__logger = logging.getLogger('zds.pandoc-publicator')
 
-    def publish(self, md_file_path, base_name, change_dir=".", pandoc_debug_str="", **kwargs):
+    def publish(self, md_file_path, base_name, change_dir='.', pandoc_debug_str='', **kwargs):
         """
 
         :param md_file_path: base markdown file path
@@ -264,24 +265,24 @@ class PandocPublicator(Publicator):
         :return:
         """
         if self.pandoc_pdf_param:
-            self.__logger.debug("Started {} generation".format(base_name + "." + self.format))
+            self.__logger.debug('Started {} generation'.format(base_name + '.' + self.format))
             subprocess.call(
-                self.pandoc_loc + "pandoc " + self.pandoc_pdf_param + " " + md_file_path + " -o " +
-                base_name + "." + self.format + " " + pandoc_debug_str,
+                self.pandoc_loc + 'pandoc ' + self.pandoc_pdf_param + ' ' + md_file_path + ' -o ' +
+                base_name + '.' + self.format + ' ' + pandoc_debug_str,
                 shell=True,
                 cwd=change_dir)
-            self.__logger.info("Finished {} generation".format(base_name + "." + self.format))
+            self.__logger.info('Finished {} generation'.format(base_name + '.' + self.format))
         else:
-            self.__logger.debug("Started {} generation".format(base_name + "." + self.format))
+            self.__logger.debug('Started {} generation'.format(base_name + '.' + self.format))
             subprocess.call(
-                self.pandoc_loc + "pandoc -s -S --toc " + md_file_path + " -o " +
-                base_name + "." + self.format + " " + pandoc_debug_str,
+                self.pandoc_loc + 'pandoc -s -S --toc ' + md_file_path + ' -o ' +
+                base_name + '.' + self.format + ' ' + pandoc_debug_str,
                 shell=True,
                 cwd=change_dir)
-            self.__logger.info("Finished {} generation".format(base_name + "." + self.format))
+            self.__logger.info('Finished {} generation'.format(base_name + '.' + self.format))
 
 
-@PublicatorRegistery.register("watchdog", settings.ZDS_APP['content']['extra_content_watchdog_dir'])
+@PublicatorRegistery.register('watchdog', settings.ZDS_APP['content']['extra_content_watchdog_dir'])
 class WatchdogFilePublicator(Publicator):
     """
     Just create a meta data file for watchdog
@@ -290,15 +291,15 @@ class WatchdogFilePublicator(Publicator):
         self.watched_directory = watched_dir
         if not isdir(self.watched_directory):
             os.mkdir(self.watched_directory)
-        self.__logger = logging.getLogger("zds.watchdog-publicator")
+        self.__logger = logging.getLogger('zds.watchdog-publicator')
 
     def publish(self, md_file_path, base_name, silently_pass=True, **kwargs):
         if silently_pass:
             return
         fname = base_name.replace(dirname(base_name), self.watched_directory)
-        with codecs.open(fname, "w", encoding='utf-8') as w_file:
-            w_file.write(";".join([base_name, md_file_path]))
-        self.__logger.debug("Registered {} for generation".format(md_file_path))
+        with codecs.open(fname, 'w', encoding='utf-8') as w_file:
+            w_file.write(';'.join([base_name, md_file_path]))
+        self.__logger.debug('Registered {} for generation'.format(md_file_path))
 
 
 class FailureDuringPublication(Exception):
@@ -310,7 +311,7 @@ class FailureDuringPublication(Exception):
 
 
 def publish_container(db_object, base_dir, container):
-    """ "Publish" a given container, in a recursive way
+    """ 'Publish' a given container, in a recursive way
 
     :param db_object: database representation of the content
     :type db_object: PublishableContent
@@ -324,15 +325,15 @@ def publish_container(db_object, base_dir, container):
     from zds.tutorialv2.models.models_versioned import Container
 
     if not isinstance(container, Container):
-        raise FailureDuringPublication(_(u'Le conteneur n\'en est pas un !'))
+        raise FailureDuringPublication(_(u"Le conteneur n'en est pas un !"))
 
     template = 'tutorialv2/export/chapter.html'
 
     # jsFiddle support
     if db_object.js_support:
-        is_js = "js"
+        is_js = 'js'
     else:
-        is_js = ""
+        is_js = ''
 
     current_dir = os.path.dirname(os.path.join(base_dir, container.get_prod_path(relative=True)))
 
@@ -373,7 +374,7 @@ def publish_container(db_object, base_dir, container):
                 f.write(emarkdown(container.get_introduction(), db_object.js_support))
             except (UnicodeError, UnicodeEncodeError):
                 raise FailureDuringPublication(
-                    _(u'Une erreur est survenue durant la publication de l\'introduction de « {} »,'
+                    _(u"Une erreur est survenue durant la publication de l'introduction de « {} »,"
                       u' vérifiez le code markdown').format(container.title))
 
             container.introduction = path
@@ -405,7 +406,7 @@ def make_zip_file(published_content):
     publishable = published_content.content
     publishable.sha_public = publishable.sha_draft  # ensure sha update so that archive is updated to
     path = os.path.join(published_content.get_extra_contents_directory(),
-                        published_content.content_public_slug + ".zip")
+                        published_content.content_public_slug + '.zip')
     zip_file = zipfile.ZipFile(path, 'w')
     versioned = publishable.load_version(None, True)
     from zds.tutorialv2.views.views_contents import DownloadContent
