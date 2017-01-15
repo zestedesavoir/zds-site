@@ -147,7 +147,7 @@ Un message est envoyé à l'adresse de courriel de l'utilisateur. Ce courriel co
 
 Cette page permet de changer le mot de passe de l'utilisateur. L'utilisateur remplit le formulaire et clique sur le bouton de validation.
 Si le mot de passe et le champ de confirmation correspondent et que le mot de passe respecte les règles métiers, le mot de passe est changé.
-Le systéme affiche un message de confirmation du changement de mot de passe.
+Le système affiche un message de confirmation du changement de mot de passe.
 
 .. attention::
 
