@@ -28,7 +28,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            'action', type=str, help='action to perform', choices=['setup', 'clear', 'index-all', 'index-flagged'])
+            'action', type=str, help='action to perform', choices=['setup', 'clear', 'index_all', 'index_flagged'])
 
     def handle(self, *args, **options):
 
@@ -36,9 +36,9 @@ class Command(BaseCommand):
             self.setup_es()
         elif options['action'] == 'clear':
             self.clear_es()
-        elif options['action'] == 'index-all':
+        elif options['action'] == 'index_all':
             self.index_documents(force_reindexing=True)
-        elif options['action'] == 'index-flagged':
+        elif options['action'] == 'index_flagged':
             self.index_documents(force_reindexing=False)
         else:
             raise CommandError('unknown action {}'.format(options['action']))

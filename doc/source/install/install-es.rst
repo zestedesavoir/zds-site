@@ -138,7 +138,7 @@ Si c'est le cas, vous pouvez indexer les données à l'aide de la commande ``es_
 
 .. sourcecode:: bash
 
-    python manage.py es_manager index-all
+    python manage.py es_manager index_all
 
 Une fois que c'est fait, en vous rendant sur la page de recherche, `http://localhost:8000/rechercher/ <http://localhost:8000/rechercher/>`_, vous devriez être capable d'utiliser la recherche.
 En particulier, vous ne devriez pas observer de message d'erreur :

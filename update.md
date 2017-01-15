@@ -892,11 +892,11 @@ Une fois Elasticsearch configuré et lancé,
 + Indexer les données (**ça peut être long**):
 
     ```
-    python manage.py es_manager index-all
+    python manage.py es_manager index_all
     ```
     
 + Repasser `ZDS_APP['display_search_bar'] = True` dans `settings_prod.py`.
-+ Configurer un *cron* pour que les données soient réindexée à intervale régulier à travers la commande `python manage.py es_manager index-flagged`.
++ Configurer un *cron* pour que les données soient réindexée à intervale régulier à travers la commande `python manage.py es_manager index_flagged`.
 + Ne pas oublier de désactiver l'ancien *cron* de Solr. Ce dernier peut également être désinstallé.
 + Vérifier que le port 9200 n'est pas accessible de l'extérieur.
 + Ajouter [ce plugin](https://github.com/true/true-munin-plugins/blob/master/elasticsearch) à Munin.

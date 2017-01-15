@@ -184,8 +184,8 @@ où ``<action>`` peut être
 
 + ``clear`` : supprime l'*index* du *cluster* d'ES et marque toutes les données comme "à indexer" ;
 + ``setup`` : crée et configure l'*index* (y compris le *mapping* et l'*analyzer*) dans le *cluster* d'ES ;
-+ ``index-flagged`` : indexe les données marquées comme "à indexer" ;
-+ ``index-all`` : combine les 3 actions précédentes, donc recrée un *index* et y indexe toute les données (qu'elles soient marquées comme "à indexer" ou non).
++ ``index_flagged`` : indexe les données marquées comme "à indexer" ;
++ ``index_all`` : combine les 3 actions précédentes, donc recrée un *index* et y indexe toute les données (qu'elles soient marquées comme "à indexer" ou non).
 
 
 La commande ``index-flagged`` peut donc être lancée de manière régulière (via un *cron* ou *systemd*) afin d'indexer les données de manière régulière.
