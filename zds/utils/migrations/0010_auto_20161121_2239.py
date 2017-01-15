@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('tutorialv2', '0015_auto_20161120_1640'),
+        ('tutorialv2', '0016_auto_20161120_1640'),
         ('utils', '0009_auto_20161113_2328'),
     ]
 
