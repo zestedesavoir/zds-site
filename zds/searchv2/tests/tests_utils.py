@@ -90,7 +90,7 @@ class UtilsTests(TestCase):
         self.assertTrue(published.es_flagged)
 
         # 1. test "index-all"
-        call_command('es_manager', 'index-all')
+        call_command('es_manager', 'index_all')
 
         topic = Topic.objects.get(pk=topic.pk)
         post = Post.objects.get(pk=post.pk)
@@ -157,7 +157,7 @@ class UtilsTests(TestCase):
         self.assertTrue('analysis' in settings_index)  # custom analyzer was setup
 
         # 4. test "index-flagged" once ...
-        call_command('es_manager', 'index-flagged')
+        call_command('es_manager', 'index_flagged')
 
         topic = Topic.objects.get(pk=topic.pk)
         post = Post.objects.get(pk=post.pk)
