@@ -1068,7 +1068,6 @@ class WarnTypoForm(forms.Form):
 
 
 class PublicationForm(forms.Form):
-
     """
     The publication form (used only for content without preliminary validation).
     """
@@ -1136,12 +1135,12 @@ class UnpublicationForm(forms.Form):
         )
 
 
-class OpinionValidationForm(forms.Form):
+class PickOpinionForm(forms.Form):
 
     version = forms.CharField(widget=forms.HiddenInput())
 
     def __init__(self, content, *args, **kwargs):
-        super(OpinionValidationForm, self).__init__(*args, **kwargs)
+        super(PickOpinionForm, self).__init__(*args, **kwargs)
 
         # modal form, send back to previous page:
         self.previous_page_url = content.get_absolute_url_online()
@@ -1163,7 +1162,7 @@ class OpinionValidationForm(forms.Form):
         )
 
 
-class OpinionInvalidationForm(forms.Form):
+class UnpickOpinionForm(forms.Form):
 
     version = forms.CharField(widget=forms.HiddenInput())
 
@@ -1179,7 +1178,7 @@ class OpinionInvalidationForm(forms.Form):
     )
 
     def __init__(self, content, *args, **kwargs):
-        super(OpinionInvalidationForm, self).__init__(*args, **kwargs)
+        super(UnpickOpinionForm, self).__init__(*args, **kwargs)
 
         # modal form, send back to previous page:
         self.previous_page_url = content.get_absolute_url_online()
