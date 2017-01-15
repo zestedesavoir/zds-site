@@ -17,7 +17,7 @@ from elasticsearch_dsl.field import Text, Keyword, Integer, Boolean, Float, Date
 from zds.forum.managers import TopicManager, ForumManager, PostManager, TopicReadManager
 from zds.notification import signals
 from zds.settings import ZDS_APP
-from zds.searchv2.models import AbstractESDjangoIndexable, delete_document_in_elasticsearch
+from zds.searchv2.models import AbstractESDjangoIndexable, delete_document_in_elasticsearch, ESIndexManager
 from zds.utils import get_current_user
 from zds.utils import slugify
 from zds.utils.models import Comment, Tag
@@ -519,6 +519,15 @@ class Post(Comment, AbstractESDjangoIndexable):
         data['forum_get_absolute_url'] = self.topic.forum.get_absolute_url()
 
         return data
+
+    def hide_comment_by_user(self, user, text_hidden):
+        """Overridden to directly hide the post in ES as well
+        """
+
+        super(Post, self).hide_comment_by_user(user, text_hidden)
+
+        index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
+        index_manager.update_single_document(self, {'is_visible': False})
 
 
 @receiver(pre_delete, sender=Post)

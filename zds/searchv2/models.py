@@ -486,6 +486,25 @@ class ESIndexManager(object):
 
         self.es.indices.refresh(self.index)
 
+    def update_single_document(self, document, doc):
+        """Update given fields of a single document.
+
+        See https://www.elastic.co/guide/en/elasticsearch/guide/current/partial-updates.html.
+
+        :param document: the document
+        :type document: AbstractESIndexable
+        :param doc: fields to update
+        :type doc: dict
+        """
+
+        if not self.connected_to_es:
+            return
+
+        arguments = {'index': self.index, 'doc_type': document.get_es_document_type(), 'id': document.es_id}
+        if self.es.exists(**arguments):
+            self.es.update(body={'doc': doc}, **arguments)
+            self.logger.info('partial_update {} with id {}'.format(document.get_es_document_type(), document.es_id))
+
     def delete_document(self, document):
         """Delete a given document, based on its ``es_id``
 

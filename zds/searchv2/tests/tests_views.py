@@ -157,8 +157,6 @@ class ViewsTests(TestCase):
 
         # 2. Hide, reindex and search again:
         post_1.hide_comment_by_user(self.staff, u'Un abus de pouvoir comme un autre ;)')
-
-        self.manager.es_bulk_indexing_of_model(Post)
         self.manager.refresh_index()
 
         result = self.client.get(
