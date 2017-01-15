@@ -19,12 +19,17 @@
 {% endblock %}
 
 {% block menu_tutorial %}
-    {% if tutorials %}
+    {% if tutorials != None %}
         current
     {% endif %}
 {% endblock %}
-{% block menu_article %}
-    {% if articles %}
+{% block menu_article%}
+    {% if articles != None  %}
+        current
+    {% endif %}
+{% endblock %}
+{% block menu_opinion %}
+    {% if opinions != None %}
         current
     {% endif %}
 {% endblock %}
@@ -42,7 +47,7 @@
     {% elif articles %}
         <li><a href="{% url "article:list" %}">{% trans "Articles" %}</a></li>
         <li><a href="{% url "content:find-article" usr.pk %}">{% trans "Articles de" %} {{ usr.username }}</a></li>
-    {% elif opinions %}
+    {% elif opinions != None %}
         <li><a href="{% url "opinion:list" %}">{% trans "Tribunes" %}</a></li>
         <li><a href="{% url "content:find-opinion" usr.pk %}">{% trans "Tribune de" %} {{ usr.username }}</a></li>
     {% endif %}
@@ -54,13 +59,13 @@
     <section class="full-content-wrapper">
         <h2 class="ico-after ico-tutorials">
             {% block headline %}
-                {% if contents %}
+                {% if contents != None %}
                     {% trans "Contenus de" %} {{ usr.username }}
-                {% elif tutorials %}
+                {% elif tutorials != None %}
                     {% trans "Tutoriels de" %} {{ usr.username }}
-                {% elif articles %}
+                {% elif articles != None%}
                     {% trans "Articles de" %} {{ usr.username }}
-                {% elif opinions %}
+                {% elif opinions != None %}
                     {% trans "Tribune de" %} {{ usr.username }}
                 {% endif %}
             {% endblock %}

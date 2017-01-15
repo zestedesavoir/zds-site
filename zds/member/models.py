@@ -349,7 +349,8 @@ class Profile(models.Model):
             if self.end_ban_write:
                 return self.can_write or (self.end_ban_write < datetime.now())
             return self.can_write
-        return False
+        else:
+            return False
 
     def get_followed_topics(self):
         """

@@ -5087,6 +5087,7 @@ class PublishedContentTests(TestCase):
                 username=self.user_staff.username,
                 password='hostel77'),
             True)
+
         url_template = reverse('content:update-reaction') + '?pk={}&message={}'
         result = self.client.get(url_template.format(self.tuto.pk, 454545665895123))
         self.assertEqual(404, result.status_code)
@@ -5340,6 +5341,7 @@ class PublishedContentTests(TestCase):
                 username=self.user_staff.username,
                 password='hostel77'),
             True)
+
         result = self.client.get(reverse('validation:list') + '?type=tuto')
         self.assertIn(old_title, result.content)
         self.assertNotIn(new_title, result.content)
@@ -5436,6 +5438,7 @@ class PublishedContentTests(TestCase):
                 username=self.user_staff.username,
                 password='hostel77'),
             True)
+
         result = self.client.get(reverse('validation:list') + '?type=tuto')
         self.assertIn('class="update_content"', result.content)
 
