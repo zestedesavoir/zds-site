@@ -60,18 +60,18 @@ class ForumMemberTests(TestCase):
         self.assertEqual(response.status_code, 200)
 
         for forum in Forum.objects.all():
-            response = self.client.get(reverse('post-feed-rss') + "?forum={}".format(forum.pk), follow=False)
+            response = self.client.get(reverse('post-feed-rss') + '?forum={}'.format(forum.pk), follow=False)
             self.assertEqual(response.status_code, 200)
 
         for tag in Tag.objects.all():
-            response = self.client.get(reverse('post-feed-rss') + "?tag={}".format(tag.pk), follow=False)
+            response = self.client.get(reverse('post-feed-rss') + '?tag={}'.format(tag.pk), follow=False)
             self.assertEqual(response.status_code, 200)
 
         for forum in Forum.objects.all():
             for tag in Tag.objects.all():
                 response = self.client.get(
                     reverse('post-feed-rss') +
-                    "?tag={}&forum={}".format(
+                    '?tag={}&forum={}'.format(
                         tag.pk,
                         forum.pk),
                     follow=False)
@@ -434,23 +434,23 @@ class ForumMemberTests(TestCase):
         result = self.client.post(
             reverse('post-edit') + '?message={0}'.format(post2.pk),
             {
-                'text': u"  "
+                'text': u'  '
             },
             follow=True)
 
         self.assertEqual(result.status_code, 200)
-        self.assertEqual(result.request["PATH_INFO"], "/forums/message/editer/")
-        self.assertEqual(result.request["QUERY_STRING"], "message={}".format(post2.pk))
+        self.assertEqual(result.request['PATH_INFO'], '/forums/message/editer/')
+        self.assertEqual(result.request['QUERY_STRING'], 'message={}'.format(post2.pk))
 
         result = self.client.post(
             reverse('post-edit') + '?message={0}'.format(post3.pk),
             {
-                'text': u" contenu "
+                'text': u' contenu '
             },
             follow=True)
 
         self.assertEqual(result.status_code, 200)
-        self.assertNotEqual(result.request["PATH_INFO"], "/forums/message/editer/")
+        self.assertNotEqual(result.request['PATH_INFO'], '/forums/message/editer/')
 
     def test_quote_post(self):
         """To test when a member quote anyone post."""
@@ -755,9 +755,9 @@ class ForumMemberTests(TestCase):
 
     def test_add_tag(self):
 
-        tag_c_sharp = TagFactory(title="C#")
+        tag_c_sharp = TagFactory(title='C#')
 
-        tag_c = TagFactory(title="C")
+        tag_c = TagFactory(title='C')
         self.assertEqual(tag_c_sharp.slug, tag_c.slug)
         self.assertNotEqual(tag_c_sharp.title, tag_c.title)
         # post a topic with a tag
@@ -774,29 +774,29 @@ class ForumMemberTests(TestCase):
         # test the topic is added to the good tag
         self.assertEqual(Topic.objects.filter(
             tags__in=[tag_c_sharp])
-            .order_by("-last_message__pubdate").prefetch_related(
-            "tags").count(), 1)
+            .order_by('-last_message__pubdate').prefetch_related(
+            'tags').count(), 1)
         self.assertEqual(Topic.objects.filter(tags__in=[tag_c])
-                         .order_by("-last_message__pubdate").prefetch_related(
-            "tags").count(), 0)
+                         .order_by('-last_message__pubdate').prefetch_related(
+            'tags').count(), 0)
 
         topic_with_conflict_tags = TopicFactory(
             forum=self.forum11, author=self.user)
-        topic_with_conflict_tags.title = u"[C][c][ c][C ]name"
+        topic_with_conflict_tags.title = u'[C][c][ c][C ]name'
         (tags, title) = get_tag_by_title(topic_with_conflict_tags.title)
         topic_with_conflict_tags.add_tags(tags)
         self.assertEqual(topic_with_conflict_tags.tags.all().count(), 1)
 
         topic_with_conflict_tags = TopicFactory(
             forum=self.forum11, author=self.user)
-        topic_with_conflict_tags.title = u"[][ ][   ]name"
+        topic_with_conflict_tags.title = u'[][ ][   ]name'
         (tags, title) = get_tag_by_title(topic_with_conflict_tags.title)
         topic_with_conflict_tags.add_tags(tags)
         self.assertEqual(topic_with_conflict_tags.tags.all().count(), 0)
 
         topic_with_utf8mb4_tags = TopicFactory(
             forum=self.forum11, author=self.user)
-        topic_with_utf8mb4_tags.title = u"[🍆][tag987][🐙]name"
+        topic_with_utf8mb4_tags.title = u'[🍆][tag987][🐙]name'
         (tags, title) = get_tag_by_title(topic_with_utf8mb4_tags.title)
         topic_with_utf8mb4_tags.add_tags(tags)
         self.assertEqual(topic_with_utf8mb4_tags.tags.all().count(), 1)
@@ -864,16 +864,16 @@ class ForumMemberTests(TestCase):
         topic = TopicFactory(forum=forum, author=profiles[1].user)
         expected = u"<strong>Attention</strong>, vous n'êtes pas sur la dernière page de "
         expected += u"ce sujet, assurez-vous de l'avoir lu dans son intégralité avant d'y"
-        expected += u" répondre."
+        expected += u' répondre.'
 
         for i in range(zds_settings.ZDS_APP['forum']['posts_per_page'] + 2):
             PostFactory(topic=topic, author=profiles[i % 2].user, position=i + 2)
-        self.client.login(username=profiles[1].user.username, password="hostel77")
+        self.client.login(username=profiles[1].user.username, password='hostel77')
 
         template_response = self.client.get(topic.get_absolute_url())
         self.assertIn(expected, template_response.content.decode('utf-8'))
 
-        template_response = self.client.get(topic.get_absolute_url() + "?page=2")
+        template_response = self.client.get(topic.get_absolute_url() + '?page=2')
         self.assertNotIn(expected, template_response.content.decode('utf-8'))
 
 
@@ -910,18 +910,18 @@ class ForumGuestTests(TestCase):
         self.assertEqual(response.status_code, 200)
 
         for forum in Forum.objects.all():
-            response = self.client.get(reverse('post-feed-rss') + "?forum={}".format(forum.pk), follow=False)
+            response = self.client.get(reverse('post-feed-rss') + '?forum={}'.format(forum.pk), follow=False)
             self.assertEqual(response.status_code, 200)
 
         for tag in Tag.objects.all():
-            response = self.client.get(reverse('post-feed-rss') + "?tag={}".format(tag.pk), follow=False)
+            response = self.client.get(reverse('post-feed-rss') + '?tag={}'.format(tag.pk), follow=False)
             self.assertEqual(response.status_code, 200)
 
         for forum in Forum.objects.all():
             for tag in Tag.objects.all():
                 response = self.client.get(
                     reverse('post-feed-rss') +
-                    "?tag={}&forum={}".format(
+                    '?tag={}&forum={}'.format(
                         tag.pk,
                         forum.pk),
                     follow=False)
@@ -1254,7 +1254,7 @@ class ManagerTests(TestCase):
             self.forum2 = ForumFactory(category=self.cat1)
 
             self.staff = StaffProfileFactory()
-            staff_group = Group.objects.filter(name="staff").first()
+            staff_group = Group.objects.filter(name='staff').first()
 
             self.forum3 = ForumFactory(category=self.cat1)
             self.forum3.group = [staff_group]

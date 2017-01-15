@@ -50,7 +50,7 @@ class ForumPostKarmaAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_failure_post_karma_of_a_forum_we_cannot_read(self):
-        group = Group.objects.create(name="DummyGroup_1")
+        group = Group.objects.create(name='DummyGroup_1')
 
         profile = ProfileFactory()
         category, forum = create_category(group)

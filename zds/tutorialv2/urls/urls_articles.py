@@ -27,5 +27,5 @@ urlpatterns = [
 
     # Listing
     url(r'^$', ListArticles.as_view(), name='list'),
-    url(r'tags/*', TagsListView.as_view(displayed_types=["ARTICLE"]), name="tags")
+    url(r'tags/*', TagsListView.as_view(displayed_types=['ARTICLE']), name='tags')
 ]
