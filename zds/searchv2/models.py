@@ -260,7 +260,7 @@ def get_django_indexable_objects():
 class ESIndexManager(object):
     """Manage a given index with different taylor-made functions"""
 
-    def __init__(self, name, shards=5, replicas=1, connection_alias='default'):
+    def __init__(self, name, shards=5, replicas=0, connection_alias='default'):
         """Create a manager for a given index
 
         :param name: the index name

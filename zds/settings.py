@@ -363,7 +363,7 @@ ES_CONNECTIONS = {
 ES_SEARCH_INDEX = {
     'name': 'zds_search',
     'shards': 5,
-    'replicas': 1
+    'replicas': 0
 }
 
 GEOIP_PATH = os.path.join(BASE_DIR, 'geodata')

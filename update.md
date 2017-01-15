@@ -888,7 +888,7 @@ Les commandes suivantes sont à effectuer en *root*:
     
 Une fois Elasticsearch configuré et lancé,
 
-+ Modifier le `settings.py` si nécessaire (normalement, non).
++ Passer à 3 *shards* ([conseillé par Firm1](https://github.com/zestedesavoir/zds-site/pull/4096#issuecomment-269861811)): `ES_SEARCH_INDEX['shards'] = 3` dans `settings_prod.py`. 
 + Indexer les données (**ça peut être long**):
 
     ```

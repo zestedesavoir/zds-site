@@ -115,7 +115,7 @@ La configuration de la connexion et de l'*index* se fait dans le ``settings.py``
       ES_SEARCH_INDEX = {
           'name': 'zds_search',
           'shards': 5,
-          'replicas': 1
+          'replicas': 0
       }
 
 
