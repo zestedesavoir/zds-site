@@ -126,7 +126,7 @@
             {% elif is_staff %}
                 <div class="alert-box info">
                     {% blocktrans with url_article=content.converted_to.get_absolute_url %}
-                        Ce billet a été promu en <a href="{{ url_article }}">article</a> qui est en cours de validation.
+                        Ce billet a fait l'objet d'une demande de publication <a href="{{ url_article }}">en tant qu'article</a>. Il est donc présent dans la zone de validation en attente de prise en charge par un validateur.
                     {% endblocktrans %}
                 </div>
             {% endif %}
