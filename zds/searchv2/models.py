@@ -385,7 +385,7 @@ class ESIndexManager(object):
                     },
                     'french_keywords': {
                         'type': 'keyword_marker',
-                        'keywords': ['javafx', 'haskell', 'groovy', 'powershell', 'latex', 'linux', 'windows']
+                        'keywords': settings.ZDS_APP['search']['mark_keywords']
                     },
                     'french_stemmer': {
                         'type': 'stemmer',

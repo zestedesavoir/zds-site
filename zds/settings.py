@@ -546,6 +546,7 @@ ZDS_APP = {
         'folding_limit': 4
     },
     'search': {
+        'mark_keywords': ['javafx', 'haskell', 'groovy', 'powershell', 'latex', 'linux', 'windows'],
         'results_per_page': 20,
         'indexables': [
             ('publishedcontent', _(u'Contenus publiés')),

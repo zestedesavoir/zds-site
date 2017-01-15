@@ -73,7 +73,7 @@ Sans entrer dans les détails, l'*analyzer* utilisé par ES pour ZdS,
 
 + Enlève les tags HTML (en pratique, l'indexation du texte se fait systématiquement sur le contenu parsé en HTML et non sur le texte en *markdown*) ;
 + N'utilise par le *tokenizer* par défaut (découper en *token* après tout caractère non alpha-numérique, en gros) afin de conserver "c++" intact, par exemple ;
-+ Utilise une série de *token filter* orientés pour comprendre le français, parmi lesquels un *stopper* (pour enlever les prépositions, déterminants, ...) et un *stemmer* (qui se charge, à partir d'un mot, d'en dégager la racine, par exemple "programmation", "programmer", "programmateur" ou "programmes" seront tout les quatres compris et indexés de la même manière).
++ Utilise une série de *token filter* orientés pour comprendre le français, parmi lesquels un *stopper* (pour enlever les prépositions, déterminants, ...) et un *stemmer* (qui se charge, à partir d'un mot, d'en dégager la racine, par exemple "programmation", "programmer" ou "programmes" seront tout les trois compris et indexés de la même manière).
 
 Les différents *tokens* qui ressortent de cette phase d'analyse sont alors indexés, et c'est de ces *tokens* dont ES se servira ensuite pour la recherche, plutôt que de réaliser des recherches *full-text*.
 
@@ -128,39 +128,45 @@ Pour modifier les différents paramètres d'une recherche, c'est cette fois dans
 .. sourcecode:: python
 
       'search': {
+        'mark_keywords': ['javafx', 'haskell', 'groovy', 'powershell', 'latex', 'linux', 'windows'],
         'results_per_page': 20,
         'indexables': [
             ('publishedcontent', _(u'Contenus publiés')),
             ('chapter', _(u'Chapitres publiés')),
             ('topic', _(u'Sujets du forum')),
-            ('post', _(u'Messages du forums'))
+            ('post', _(u'Messages du forums')),
         ],
         'boosts': {
             'publishedcontent': {
                 'global': 3.0,
-                'if_article': 1.0,
-                'if_tutorial': 1.0
+                'if_article': 1.0,  # s'il s'agit d'un article
+                'if_tutorial': 1.0,  # ... d'un tuto
             },
             'topic': {
                 'global': 2.0,
                 'if_solved': 1.1,  # si le sujet est résolu
                 'if_sticky': 1.2,  # si le sujet est en post-it
-                'if_locked': 0.1  # si le sujet est fermé
+                'if_locked': 0.1,  # si le sujet est fermé
             },
             'chapter': {
-                'global': 1.5
+                'global': 1.5,
             },
             'post': {
                 'global': 1.0,
                 'if_first': 1.2,  # si le post est le premier du topic
                 'if_useful': 1.5,  # si le post à été marqué comme étant utile
                 'ld_ratio_above_1': 1.05,  # si le ratio pouce vert/rouge est supérieur à 1
-                'ld_ratio_below_1': 0.95  # ... inférieur à 1.
+                'ld_ratio_below_1': 0.95,  # ... inférieur à 1.
             }
         }
     }
 
-où ``'results_per_page'`` est le nombre de résultats affichés, ``'indexables'`` définit les différents types de documents indexés et ``'boosts'`` les différents facteurs de *boost* appliqués dans certaines situations.
+où ``'mark_keywords'`` liste les mots qui ne doivent pas être analysés par le *stemmer* (généralement des noms propres ou des langages de programmation),
+``'results_per_page'`` est le nombre de résultats affichés,
+``'indexables'`` définit les différents types de documents indexés
+et ``'boosts'`` les différents facteurs de *boost* appliqués dans certaines situations.
+
+Puisque la phase de *stemming* advient à la fin de l'analyse, tout les mots listés dans ``'mark_keywords'``  doivent être en minuscule et sans éventuels déterminants.
 
 Dans ``'boosts'``, on peut ensuite modifier le comportement de la recherche en choisissant différents facteurs de *boost*.
 Chacune des valeurs multiplie le score (donc l'agrandit si elle est supérieure à 1 et le diminue si elle est inférieure à 1).
