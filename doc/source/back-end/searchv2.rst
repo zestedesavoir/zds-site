@@ -177,6 +177,11 @@ Ensuite, différentes situations peuvent modifier le score.
 
       Ces valeurs sont données à titre indicatif et doivent être adaptées à la situation.
 
+.. attention::
+
+    Pour que les changements dans ``'mark_keywords'`` soient pris en compte, il est nécessaire de réindexer **tout** le contenu
+    (grâce à ``python manage.py es_manager index_all``).
+
 Indexer les données de ZdS
 --------------------------
 
