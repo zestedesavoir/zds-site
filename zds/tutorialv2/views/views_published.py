@@ -23,7 +23,7 @@ from zds.member.views import get_client_ip
 from zds.notification import signals
 from zds.notification.models import ContentReactionAnswerSubscription, NewPublicationSubscription
 from zds.tutorialv2.forms import RevokeValidationForm, WarnTypoForm, NoteForm, NoteEditForm, UnpublicationForm, \
-    OpinionValidationForm, PromoteOpinionToArticleForm, OpinionInvalidationForm
+    PickOpinionForm, PromoteOpinionToArticleForm, UnpickOpinionForm
 from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin, SingleOnlineContentViewMixin, DownloadViewMixin, \
     ContentTypeMixin, SingleOnlineContentFormViewMixin, MustRedirect
 from zds.tutorialv2.models import TYPE_CHOICES_DICT
@@ -111,9 +111,9 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
                     context['next_article'] = all_articles[position + 1]
 
         if self.versioned_object.type == 'OPINION':
-            context['formPickOpinion'] = OpinionValidationForm(
+            context['formPickOpinion'] = PickOpinionForm(
                 self.versioned_object, initial={'version': self.versioned_object.sha_public})
-            context['formUnpickOpinion'] = OpinionInvalidationForm(
+            context['formUnpickOpinion'] = UnpickOpinionForm(
                 self.versioned_object, initial={'version': self.versioned_object.sha_public})
             context['formConvertOpinion'] = PromoteOpinionToArticleForm(
                 self.versioned_object, initial={'version': self.versioned_object.sha_public})
