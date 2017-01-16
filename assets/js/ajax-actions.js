@@ -220,7 +220,7 @@
     /**
      * Preview the message
      */
-    $(".message-bottom, .preview-btn").on("click", function(e) {
+    $(".message-bottom [data-ajax-input='preview-message'], .preview-btn").on("click", function(e) {
         e.stopPropagation();
         e.preventDefault();
         var $btn = $(this);
