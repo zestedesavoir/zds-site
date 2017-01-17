@@ -61,7 +61,7 @@ class SearchIndexContent(models.Model):
     type = models.CharField('Type de contenu', max_length=80)
 
     def __str__(self):
-        return "<search content model #{}>".format(self.title)
+        return '<search content model #{}>'.format(self.title)
 
 
 @python_2_unicode_compatible
@@ -86,7 +86,7 @@ class SearchIndexContainer(models.Model):
     keywords = models.TextField('Mots clés du contenu')
 
     def __str__(self):
-        return "<search content container model #{}>".format(self.title)
+        return '<search content container model #{}>'.format(self.title)
 
 
 @python_2_unicode_compatible
@@ -108,4 +108,4 @@ class SearchIndexExtract(models.Model):
     keywords = models.TextField('Mots clés du contenu')
 
     def __str__(self):
-        return "<search content extract model #{}>".format(self.title)
+        return '<search content extract model #{}>'.format(self.title)

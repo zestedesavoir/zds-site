@@ -150,7 +150,7 @@ class PostForm(forms.Form):
 class MoveTopicForm(forms.Form):
 
     forum = forms.ModelChoiceField(
-        label=_("Forum"),
+        label=_('Forum'),
         queryset=Forum.objects.all(),
         required=True,
     )

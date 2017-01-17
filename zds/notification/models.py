@@ -42,7 +42,7 @@ class Subscription(models.Model):
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField(db_index=True)
     content_object = GenericForeignKey('content_type', 'object_id')
-    last_notification = models.ForeignKey(u'Notification', related_name="last_notification", null=True, default=None)
+    last_notification = models.ForeignKey(u'Notification', related_name='last_notification', null=True, default=None)
 
     def __str__(self):
         return _('<Abonnement du membre "{0}" aux notifications pour le {1}, #{2}>')\
@@ -93,10 +93,10 @@ class Subscription(models.Model):
         Sends an email notification
         """
 
-        assert hasattr(self, "module")
+        assert hasattr(self, 'module')
 
-        subject = _(u"{} - {} : {}").format(settings.ZDS_APP['site']['litteral_name'], self.module, notification.title)
-        from_email = _(u"{} <{}>").format(settings.ZDS_APP['site']['litteral_name'],
+        subject = _(u'{} - {} : {}').format(settings.ZDS_APP['site']['litteral_name'], self.module, notification.title)
+        from_email = _(u'{} <{}>').format(settings.ZDS_APP['site']['litteral_name'],
                                           settings.ZDS_APP['site']['email_noreply'])
 
         receiver = self.user
@@ -113,7 +113,7 @@ class Subscription(models.Model):
             'email/notification/' + convert_camel_to_underscore(self._meta.object_name) + '.txt', context)
 
         msg = EmailMultiAlternatives(subject, message_txt, from_email, [receiver.email])
-        msg.attach_alternative(message_html, "text/html")
+        msg.attach_alternative(message_html, 'text/html')
         try:
             msg.send()
         except SMTPException:
@@ -189,9 +189,9 @@ class MultipleNotificationsMixin(object):
         :param send_email : whether an email must be sent if the subscription by email is active
         """
 
-        assert hasattr(self, "get_notification_url")
-        assert hasattr(self, "get_notification_title")
-        assert hasattr(self, "send_email")
+        assert hasattr(self, 'get_notification_url')
+        assert hasattr(self, 'get_notification_title')
+        assert hasattr(self, 'send_email')
 
         notification = Notification(subscription=self, content_object=content, sender=sender)
         notification.content_object = content
@@ -220,10 +220,10 @@ class MultipleNotificationsMixin(object):
                                                          object_id=content.pk, is_read=False))
         # handles cases where a same subscription lead to several notifications
         if not notifications:
-            LOG.debug("nothing to mark as read")
+            LOG.debug('nothing to mark as read')
             return
         elif len(notifications) > 1:
-            LOG.warning("%s notifications were find for %s/%s", len(notifications), content.type, content.title)
+            LOG.warning('%s notifications were find for %s/%s', len(notifications), content.type, content.title)
             for notif in notifications[1:]:
                 notif.delete()
 
@@ -233,7 +233,7 @@ class MultipleNotificationsMixin(object):
         try:
             notification.save()
         except IntegrityError:
-            LOG.exception("Could not save %s", notification)
+            LOG.exception('Could not save %s', notification)
 
 
 @python_2_unicode_compatible

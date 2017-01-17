@@ -15,7 +15,7 @@ class Command(BaseCommand):
             # Get alls topic followed by the user.
             topics_followed = TopicFollowed.objects \
                 .filter(user=profile.user, email=True) \
-                .values("topic").distinct().all()
+                .values('topic').distinct().all()
 
             # And update email attribute in the TopicAnswerSubscription model.
             for topic in topics_followed:

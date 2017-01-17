@@ -52,7 +52,7 @@ class CommonLayoutVersionEditor(Layout):
                         _(u'Aperçu'),
                         type='submit',
                         name='preview',
-                        css_class='btn-grey'),
+                        css_class='btn-grey preview-btn'),
                 ),
             ),
             *args, **kwargs

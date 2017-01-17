@@ -30,9 +30,9 @@ from zds.utils.mps import send_mp
 class ValidationListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     """List the validations, with possibilities of filters"""
 
-    permissions = ["tutorialv2.change_validation"]
-    context_object_name = "validations"
-    template_name = "tutorialv2/validation/index.html"
+    permissions = ['tutorialv2.change_validation']
+    context_object_name = 'validations'
+    template_name = 'tutorialv2/validation/index.html'
     subcategory = None
 
     def get_queryset(self):
@@ -41,29 +41,29 @@ class ValidationListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
         # TODO: paginate ?
 
         queryset = Validation.objects\
-            .prefetch_related("validator")\
-            .prefetch_related("content")\
-            .prefetch_related("content__authors")\
-            .prefetch_related("content__subcategory")\
-            .filter(Q(status="PENDING") | Q(status="PENDING_V"))
+            .prefetch_related('validator')\
+            .prefetch_related('content')\
+            .prefetch_related('content__authors')\
+            .prefetch_related('content__subcategory')\
+            .filter(Q(status='PENDING') | Q(status='PENDING_V'))
 
         # filtering by type
         try:
-            type_ = self.request.GET["type"]
-            if type_ == "orphan":
+            type_ = self.request.GET['type']
+            if type_ == 'orphan':
                 queryset = queryset.filter(
                     validator__isnull=True,
-                    status="PENDING")
-            if type_ == "reserved":
+                    status='PENDING')
+            if type_ == 'reserved':
                 queryset = queryset.filter(
                     validator__isnull=False,
-                    status="PENDING_V")
-            if type_ == "article":
+                    status='PENDING_V')
+            if type_ == 'article':
                 queryset = queryset.filter(
-                    content__type="ARTICLE")
-            if type_ == "tuto":
+                    content__type='ARTICLE')
+            if type_ == 'tuto':
                 queryset = queryset.filter(
-                    content__type="TUTORIAL")
+                    content__type='TUTORIAL')
             else:
                 raise KeyError()
         except KeyError:
@@ -71,28 +71,28 @@ class ValidationListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
 
         # filtering by category
         try:
-            category_pk = int(self.request.GET["subcategory"])
+            category_pk = int(self.request.GET['subcategory'])
             self.subcategory = get_object_or_404(SubCategory, pk=category_pk)
             queryset = queryset.filter(content__subcategory__in=[self.subcategory])
         except KeyError:
             pass
         except ValueError:
-            raise Http404(u"Format invalide pour le paramètre de la sous-catégorie.")
+            raise Http404(u'Format invalide pour le paramètre de la sous-catégorie.')
 
-        return queryset.order_by("date_proposition").all()
+        return queryset.order_by('date_proposition').all()
 
     def get_context_data(self, **kwargs):
         context = super(ValidationListView, self).get_context_data(**kwargs)
         removed_ids = []
-        for validation in context["validations"]:
+        for validation in context['validations']:
             try:
                 validation.versioned_content = validation.content.load_version(sha=validation.content.sha_validation)
             except IOError:  # remember that load_version can raise IOError when path is not correct
-                logging.getLogger("zds.tutorialv2.validation")\
-                       .warn("A validation {} for content {} failed to load".format(validation.pk,
+                logging.getLogger('zds.tutorialv2.validation')\
+                       .warn('A validation {} for content {} failed to load'.format(validation.pk,
                                                                                     validation.content.title))
                 removed_ids.append(validation.pk)
-        context["validations"] = [_valid for _valid in context["validations"] if _valid.pk not in removed_ids]
+        context['validations'] = [_valid for _valid in context['validations'] if _valid.pk not in removed_ids]
         context['category'] = self.subcategory
         return context
 
@@ -125,7 +125,7 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
         else:
             old_validator = None
 
-        # create a "validation" object
+        # create a 'validation' object
         validation = Validation()
         validation.content = self.object
         validation.date_proposition = datetime.now()
@@ -151,14 +151,14 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
             send_mp(
                 bot,
                 [old_validator],
-                _(u"Une nouvelle version a été envoyée en validation."),
+                _(u'Une nouvelle version a été envoyée en validation.'),
                 self.versioned_object.title,
                 msg,
                 False,
             )
 
         # update the content with the source and the version of the validation
-        self.object.source = form.cleaned_data["source"]
+        self.object.source = form.cleaned_data['source']
         self.object.sha_validation = validation.version
         self.object.save()
 
@@ -203,7 +203,7 @@ class CancelValidation(LoginRequiredMixin, ModalFormView):
 
         # reject validation:
         quote = '\n'.join(['> ' + line for line in form.cleaned_data['text'].split('\n')])
-        validation.status = "CANCEL"
+        validation.status = 'CANCEL'
         validation.comment_authors += _(u'\n\nLa validation a été **annulée** pour la raison suivante :\n\n{}')\
             .format(quote)
         validation.date_validation = datetime.now()
@@ -228,7 +228,7 @@ class CancelValidation(LoginRequiredMixin, ModalFormView):
             send_mp(
                 bot,
                 [validation.validator],
-                _(u"Demande de validation annulée").format(),
+                _(u'Demande de validation annulée').format(),
                 versioned.title,
                 msg,
                 False,
@@ -236,8 +236,8 @@ class CancelValidation(LoginRequiredMixin, ModalFormView):
 
         messages.info(self.request, _(u'La validation de ce contenu a bien été annulée.'))
 
-        self.success_url = reverse("content:view", args=[validation.content.pk, validation.content.slug]) + \
-            "?version=" + validation.version
+        self.success_url = reverse('content:view', args=[validation.content.pk, validation.content.slug]) + \
+            '?version=' + validation.version
 
         return super(CancelValidation, self).form_valid(form)
 
@@ -245,21 +245,21 @@ class CancelValidation(LoginRequiredMixin, ModalFormView):
 class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
     """Reserve or remove the reservation on a content"""
 
-    permissions = ["tutorialv2.change_validation"]
+    permissions = ['tutorialv2.change_validation']
 
     def post(self, request, *args, **kwargs):
-        validation = get_object_or_404(Validation, pk=kwargs["pk"])
+        validation = get_object_or_404(Validation, pk=kwargs['pk'])
         if validation.validator:
             validation.validator = None
             validation.date_reserve = None
-            validation.status = "PENDING"
+            validation.status = 'PENDING'
             validation.save()
             messages.info(request, _(u"Ce contenu n'est plus réservé."))
-            return redirect(reverse("validation:list"))
+            return redirect(reverse('validation:list'))
         else:
             validation.validator = request.user
             validation.date_reserve = datetime.now()
-            validation.status = "PENDING_V"
+            validation.status = 'PENDING_V'
             validation.save()
 
             versioned = validation.content.load_version(sha=validation.version)
@@ -277,7 +277,7 @@ class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
                 send_mp(
                     validation.validator,
                     authors,
-                    _(u"Contenu réservé - {0}").format(validation.content.title),
+                    _(u'Contenu réservé - {0}').format(validation.content.title),
                     validation.content.title,
                     msg,
                     True,
@@ -286,27 +286,27 @@ class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
                     mark_as_read=True
                 )
 
-            messages.info(request, _(u"Ce contenu a bien été réservé par {0}.").format(request.user.username))
+            messages.info(request, _(u'Ce contenu a bien été réservé par {0}.').format(request.user.username))
 
             return redirect(
-                reverse("content:view", args=[validation.content.pk, validation.content.slug]) +
-                "?version=" + validation.version
+                reverse('content:view', args=[validation.content.pk, validation.content.slug]) +
+                '?version=' + validation.version
             )
 
 
 class HistoryOfValidationDisplay(LoginRequiredMixin, PermissionRequiredMixin, SingleContentDetailViewMixin):
 
     model = PublishableContent
-    permissions = ["tutorialv2.change_validation"]
-    template_name = "tutorialv2/validation/history.html"
+    permissions = ['tutorialv2.change_validation']
+    template_name = 'tutorialv2/validation/history.html'
 
     def get_context_data(self, **kwargs):
         context = super(HistoryOfValidationDisplay, self).get_context_data()
 
-        context["validations"] = Validation.objects\
-            .prefetch_related("validator")\
+        context['validations'] = Validation.objects\
+            .prefetch_related('validator')\
             .filter(content__pk=self.object.pk)\
-            .order_by("date_proposition").all()
+            .order_by('date_proposition').all()
 
         return context
 
@@ -314,7 +314,7 @@ class HistoryOfValidationDisplay(LoginRequiredMixin, PermissionRequiredMixin, Si
 class RejectValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormView):
     """Reject the publication"""
 
-    permissions = ["tutorialv2.change_validation"]
+    permissions = ['tutorialv2.change_validation']
     form_class = RejectValidationForm
 
     modal_form = True
@@ -341,7 +341,7 @@ class RejectValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
 
         # reject validation:
         validation.comment_validator = form.cleaned_data['text']
-        validation.status = "REJECT"
+        validation.status = 'REJECT'
         validation.date_validation = datetime.now()
         validation.save()
 
@@ -363,7 +363,7 @@ class RejectValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
         send_mp(
             bot,
             validation.content.authors.all(),
-            _(u"Rejet de la demande de publication").format(),
+            _(u'Rejet de la demande de publication').format(),
             validation.content.title,
             msg,
             True,
@@ -378,7 +378,7 @@ class RejectValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
 class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormView):
     """Publish the content"""
 
-    permissions = ["tutorialv2.change_validation"]
+    permissions = ['tutorialv2.change_validation']
     form_class = AcceptValidationForm
 
     modal_form = True
@@ -441,7 +441,7 @@ class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
 
             # save validation object
             validation.comment_validator = form.cleaned_data['text']
-            validation.status = "ACCEPT"
+            validation.status = 'ACCEPT'
             validation.date_validation = datetime.now()
             validation.save()
 
@@ -457,7 +457,7 @@ class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
 class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleOnlineContentFormViewMixin):
     """Unpublish a content and reverse the situation back to a pending validation"""
 
-    permissions = ["tutorialv2.change_validation"]
+    permissions = ['tutorialv2.change_validation']
     form_class = RevokeValidationForm
     is_public = True
 
@@ -485,7 +485,7 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleOnline
 
         unpublish_content(self.object)
 
-        validation.status = "PENDING"
+        validation.status = 'PENDING'
         validation.validator = None  # remove previous validator
         validation.date_validation = None
         validation.save()
@@ -509,14 +509,14 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleOnline
         send_mp(
             bot,
             validation.content.authors.all(),
-            _(u"Dépublication"),
+            _(u'Dépublication'),
             validation.content.title,
             msg,
             True,
             direct=False
         )
 
-        messages.success(self.request, _(u"Le contenu a bien été dépublié."))
-        self.success_url = self.versioned_object.get_absolute_url() + "?version=" + validation.version
+        messages.success(self.request, _(u'Le contenu a bien été dépublié.'))
+        self.success_url = self.versioned_object.get_absolute_url() + '?version=' + validation.version
 
         return super(RevokeValidation, self).form_valid(form)
