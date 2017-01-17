@@ -6,6 +6,7 @@ from dry_rest_permissions.generics import DRYPermissions
 from django.shortcuts import get_object_or_404
 from zds.utils.validators import TitleValidator, TextValidator
 from zds.utils.models import Tag
+from datetime import datetime
 
 
 class ForumSerializer(serializers.ModelSerializer):
@@ -126,6 +127,13 @@ class PostCreateSerializer(serializers.ModelSerializer, TextValidator):
         # Get topic
         pk_topic = validated_data.get('topic_id')
         topic = get_object_or_404(Topic, pk=(pk_topic))
+
+        user = None
+        request = self.context.get("request")
+        if request and hasattr(request, "user"):
+            user = request.user
+
+
         new_post = Post.objects.create(**validated_data)
         return new_post
 
@@ -137,20 +145,36 @@ class PostUpdateSerializer(serializers.ModelSerializer, TextValidator):
     """
     Serializer to update a post.
     """
-    text = serializers.CharField(required=True, allow_blank=False)
+    text = serializers.CharField(required=False, allow_blank=False)
     permissions = DRYPermissionsField()
 
     class Meta:
-        model = Topic
-        fields = ('id', 'text', 'permissions')
-        read_only_fields = ('id', 'permissions',)
+        model = Post
+        fields = ('id', 'text', 'permissions', 'is_visible', 'editor')
+        read_only_fields = ('id', 'permissions', 'editor')
 
     def update(self, instance, validated_data):
+
+        is_visible = validated_data.get('is_visible')
+        text = validated_data.get('text')
+
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
+
+        user = None
+        request = self.context.get("request")
+        if request and hasattr(request, "user"):
+            user = request.user
+
+        # TODO ajouter verifier test pour l'user, le text_html et le datetime
+        setattr(instance, 'editor', user)
+        if text is not None:
+            instance.update_content(text)
+        instance.update = datetime.now()
+
         instance.save()
         return instance
-    
+
     def throw_error(self, key=None, message=None):
         raise serializers.ValidationError(message)
 

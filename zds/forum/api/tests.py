@@ -425,7 +425,6 @@ class ForumAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 # TODO
-# Récupérer la liste des sujets en filtrant sur le tag (resulat non vide)
 # Récupérer la liste des sujets en filtrant tag, forum, auteur (resulat non vide)
 
     def test_list_of_topics_empty(self):
@@ -579,6 +578,22 @@ class ForumAPITest(APITestCase):
         self.assertIsNone(response.data.get('next'))
         self.assertIsNone(response.data.get('previous'))
 
+    def test_list_of_topics_with_tag_filter(self):
+        """
+        Gets a list of topics with a specific tag.
+        """
+        self.create_multiple_forums_with_topics(1, REST_PAGE_SIZE)
+        topic = Topic.objects.first()
+        tag = TagFactory()
+        topic.add_tags([tag.title])
+
+        response = self.client.get(reverse('api:forum:list-topic') + '?tags=' + str(self.tag.id))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('count'), 1)
+        self.assertEqual(len(response.data.get('results')), 1)
+        self.assertIsNone(response.data.get('next'))
+        self.assertIsNone(response.data.get('previous'))
+
     def test_new_topic_with_user(self):
         """
         Post a new topic in a forum with an user.
@@ -724,6 +739,9 @@ class ForumAPITest(APITestCase):
         Get details of a topic.
         """
         topic = self.create_multiple_forums_with_topics(1, 1)
+        tag = TagFactory()
+        tag2 = TagFactory()
+        topic.add_tags([tag.title, tag2.title])
 
         self.client = APIClient()
         response = self.client.get(reverse('api:forum:detail-topic', args=(topic.id,)))
@@ -731,6 +749,7 @@ class ForumAPITest(APITestCase):
         self.assertEqual(response.data.get('title'), topic.title)
         self.assertEqual(response.data.get('subtitle'), topic.subtitle)
         self.assertEqual(response.data.get('forum'), topic.forum.id)
+        self.assertEqual(response.data.get('tags'), [tag.id, tag2.id])
         self.assertIsNotNone(response.data.get('title'))
         self.assertIsNotNone(response.data.get('forum'))
         self.assertIsNone(response.data.get('ip_address'))
@@ -773,8 +792,6 @@ class ForumAPITest(APITestCase):
         }
         topic = self.create_multiple_forums_with_topics(1, 1, self.profile)
         response = self.client_authenticated.put(reverse('api:forum:detail-topic', args=[topic.id]), data)
-        print('test_update_topic_details_title')
-        print(response)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('title'), data.get('title'))
 
@@ -1064,7 +1081,6 @@ class ForumAPITest(APITestCase):
         size for the pagination.
         """
         topic, posts = self.create_topic_with_post((REST_PAGE_SIZE * 2) - 1)
-        print (topic)
 
         page_size = 'page_size'
         response = self.client.get(reverse('api:forum:list-post', args=[topic.id]) + '?{}=20'.format(page_size))
@@ -1203,23 +1219,11 @@ class ForumAPITest(APITestCase):
         response = self.client.get(reverse('api:forum:list-usertopic'))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
-
-# DONE Créer un message 200
-# DONE Créer un message avec un contenu vide
-# DONECréer un message dans un sujet qui n'existe pas
-# DONE Créer un message en anonymous
-# DONE Créer un message dans un forum privé en user
-# DONE Créer un message dans un forum privé en staff
-# DONE Créer un message dans un sujet fermé en user
-# DONE Créer un message dans un sujet fermé en staff
-# Créer un message pour tester l'antiflood
-
-
     def test_create_post_with_no_field(self):
         """
         Creates a post in a topic but not with according field.
         """
-        topic = self.create_multiple_forums_with_topics(1, 1)
+        topic = self.create_multiple_forums_with_topics(1, 1, self.staff)
         response = self.client_authenticated.post(reverse('api:forum:list-post', args=[topic.id]), {})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -1230,7 +1234,7 @@ class ForumAPITest(APITestCase):
         data = {
             'text': ''
         }
-        topic = self.create_multiple_forums_with_topics(1, 1)
+        topic = self.create_multiple_forums_with_topics(1, 1, self.staff)
         response = self.client_authenticated.post(reverse('api:forum:list-post', args=[topic.id]), data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -1290,7 +1294,7 @@ class ForumAPITest(APITestCase):
         data = {
             'text': 'Welcome to this post!'
         }
-        topic = self.create_multiple_forums_with_topics(1, 1)
+        topic = self.create_multiple_forums_with_topics(1, 1, self.staff)
         response = self.client_authenticated.post(reverse('api:forum:list-post', args=[topic.id]), data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -1301,31 +1305,29 @@ class ForumAPITest(APITestCase):
         self.assertEqual(response.data.get('is_useful'), post.is_useful)
         self.assertEqual(response.data.get('author'), post.author.id)
         self.assertEqual(response.data.get('position'), post.position)
-    
+
     def test_create_post_spamming(self):
         """
         Tries to create differents posts in the same Topic without waiting 15 minutes.
         """
-        
+
         data = {
             'text': 'Welcome to this post!'
         }
-        
+
         # First post, should work alright
-        topic = self.create_multiple_forums_with_topics(1, 1)
+        topic = self.create_multiple_forums_with_topics(1, 1, self.staff)
         response = self.client_authenticated.post(reverse('api:forum:list-post', args=[topic.id]), data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        
+
         # But this is spam
         response = self.client_authenticated.post(reverse('api:forum:list-post', args=[topic.id]), data)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN) #  TODO 403 approprié ?
-        # TODO vérifié que la page renvoi un message spécifique ?
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_failure_post_in_a_forum_we_cannot_read(self):
         """
         Tries to create a post in a private topic with a normal user.
         """
-        print('--------------------------- test rate--------------')
         profile = StaffProfileFactory()
         category, forum = create_category(self.group_staff)
         topic = add_topic_in_a_forum(forum, profile)
@@ -1397,8 +1399,6 @@ class ForumAPITest(APITestCase):
         self.assertIsNotNone(response.data.get('text_html'))
         self.assertIsNotNone(response.data.get('pubdate'))
         self.assertIsNone(response.data.get('update'))
-        print('test_detail_post')
-        print(response.data)
         self.assertEqual(post.position, response.data.get('position'))
         self.assertEqual(topic.author.id, response.data.get('author'))
         self.assertIsNone(response.data.get('ip_address'))
@@ -1665,7 +1665,6 @@ class ForumAPITest(APITestCase):
         }
         another_profile = ProfileFactory()
         topic, posts = self.create_topic_with_post(REST_PAGE_SIZE, another_profile)
-        print('test_update_post_other_user')
         response = self.client_authenticated.put(reverse('api:forum:detail-post', args=[topic.id, posts[0].id]), data)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -1682,7 +1681,7 @@ class ForumAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('text'), data.get('text'))
         self.assertEqual(response.data.get('editor'), self.profile.user.id)
-        self.assertIsNotNote(response.data.get('update'))
+        self.assertIsNotNone(response.data.get('update'))
 
     def test_update_post_text_empty(self):
         """
@@ -1776,11 +1775,11 @@ class ForumAPITest(APITestCase):
             'is_visible': False,
             'text_hidden': 'Flood'
         }
-        
+
         data_user = {
             'is_visible': False,
         }
-        
+
         self.client = APIClient()
         category, forum = create_category()
         topic = add_topic_in_a_forum(forum, self.staff)
@@ -1795,17 +1794,16 @@ class ForumAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         response = self.client.get(reverse('api:forum:detail-post', args=[topic.id, post.id]))
-        self.assertEqual(response.data.get('text_hidden'), data.get('text_hidden'))
-        self.assertisNone(response.data.get('text_html'))
-        self.assertisNone(response.data.get('text'))
+        self.assertIsNone(response.data.get('text_html'))
+        self.assertIsNone(response.data.get('text'))
         self.assertFalse(response.data.get('is_visible'))
 
         # With staff
         response = self.client_authenticated_staff.put(reverse('api:forum:detail-post', args=[topic.id, post.id]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('text_hidden'), data.get('text_hidden'))
-        self.assertisNone(response.data.get('text_html'))
-        self.assertisNone(response.data.get('text'))
+        self.assertIsNone(response.data.get('text_html'))
+        self.assertIsNone(response.data.get('text'))
         self.assertFalse(response.data.get('is_visible'))
 
 def create_oauth2_client(user):
@@ -1829,16 +1827,17 @@ def authenticate_client(client, client_auth, username, password):
 
 # TODO
 # Reorganiser le code de test en differentes classes, reordonner les tests
-# -----------Gérer le champ update (date) lors de l'edit (test ajouté)
 # -----------Gérer l'antispam (test ajouté)
-# Gestion de tags (post/edit/details)
+# ------------Dans topic details vérifier que les tags sont bien affichés (test ajouté)
+# --------------- Dans la liste des topics filtrer sur les tags (test ajouté)
+# A la création de topic pouvoir mettre des tags
+# A l'édit de topic pouvoir changer des tags
 # Tests qui ne passent pas
 # Style / PEP8
 # Route listant les Tags ?
+# quand on poste un message dans un topic depuis l'API il semblerait que la position dans le topic ne soit pas bonne
 
 # TESTS MANQUANTS
-# Vérifier que l'on affiche pas le text dans la list des posts quand le message est masque (list post) ou dans topic details quand le post est le premier du topic
-# Créer un topic avec des tags (ajouter le test), éditer les tags
+# Vérifier que l'on affiche pas le text / text_html dans la list des posts quand le message est masque (list post)
+# Vérifier que l'on affiche pas le text / text_html dans topic details quand le post est le premier du topic
 # ALLOWED_HOSTS=['zds-anto59290.c9users.io']
-# Test essayer de poster dans un sujet fermé ?
-# Test impossible de un masker son message en tant qu'user
