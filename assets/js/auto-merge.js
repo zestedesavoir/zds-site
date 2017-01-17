@@ -53,15 +53,19 @@
 			        var $toMerge = $(".compare-" + substring).mergely("get","rhs");
 			        $intro.val($toMerge);
 
-					// TODO : cacher le message avant de l'afficher
-					// TODO ainsi si l'utilisateur clique plusieurs fois les alertes ne se cumulent pas.
-					// Display confirmation message
-	                var msg = "<div class='alert-box success'>" +
-	                                "<span>Le merge a bien été effectué</span>" +
+
+					// Confirmation message
+	                var msg = "<div class='alert-box success alert-merge'>" +
+	                                "<span>Le contenu a bien été validé.</span>" +
 	                                "<a href='#close-alert-box' class='close-alert-box ico-after cross white'>Masquer l'alerte</a>" +
 	                           "</div>";
 
-	                 button.before(msg);
+					button.before(msg);
+
+					setTimeout(function() {
+					    $('.alert-merge').fadeOut('fast');
+					}, 2000);
+					
 			    }
 
 			});
