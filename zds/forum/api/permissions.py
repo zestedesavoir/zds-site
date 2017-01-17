@@ -2,7 +2,7 @@
 
 from rest_framework import permissions
 from django.contrib.auth.models import AnonymousUser
-from zds.forum.models import Forum, Topic
+from zds.forum.models import Forum, Topic, Post
 from django.http import Http404
 
 
@@ -34,9 +34,6 @@ class IsOwnerOrIsStaff(permissions.BasePermission):
         else:
             author = AnonymousUser()
 
-        print(request.user)
-        print(author)
-        print(request.user.has_perm("forum.change_topic"))
         return (author == request.user) or (request.user.has_perm("forum.change_topic"))
 
 
@@ -46,8 +43,7 @@ class CanWriteInForum(permissions.BasePermission):
     """
 
     def has_permission(self, request, view):
-        print('can write forum')
-        print(request.data)
+
         try:
             forum = Forum.objects.get(id=request.data.get('forum')) # TODO tester si on met un id qui n'existe pas
         except Forum.DoesNotExist:
@@ -62,26 +58,39 @@ class CanWriteInTopic(permissions.BasePermission):
     """
 
     def has_permission(self, request, view):
-        print('can write topic')
+
         topic_pk = request.resolver_match.kwargs.get('pk')
         try:
             topic = Topic.objects.get(id=topic_pk) # TODO tester si on met un id qui n'existe pas
         except Topic.DoesNotExist:
             raise Http404("Topic with pk {} was not found".format(topic_pk))
-        return topic.forum.can_read(request.user)
-        
-        
-class CanEditTopic(permissions.BasePermission):
+
+        if topic.antispam(request.user):
+            return topic.forum.can_read(request.user)
+        else:
+            return False
+
+
+class CanEditPost(permissions.BasePermission):
     """
     Allows access only to people that can edit the topic.
     """
-    
+
     def has_permission(self, request, view):
-        topic_pk = request.resolver_match.kwargs.get('pk')
-        
+        topic_pk = request.resolver_match.kwargs.get('pk_sujet')
+
         try:
-            topic = Topic.objects.get(id=topic_pk) # TODO tester si on met un id qui n'existe pas
+            topic = Topic.objects.get(id=topic_pk)
         except Topic.DoesNotExist:
-            raise Http404("Topic with pk {} was not found".format(topic_pk))       
-            
-        return topic.is_locked or (request.user.has_perm("forum.change_topic"))
+            raise Http404("Topic with pk {} was not found".format(topic_pk))
+
+        post_pk = request.resolver_match.kwargs.get('pk')
+
+        try:
+            post = Post.objects.get(id=post_pk)
+        except Post.DoesNotExist:
+            raise Http404("Post with pk {} was not found".format(post_pk))
+
+        # Can edit topic if user is admin
+        # Or topic is not locked and user is topic owner
+        return request.user.has_perm("forum.change_post") or (not topic.is_locked and post.author == request.user)

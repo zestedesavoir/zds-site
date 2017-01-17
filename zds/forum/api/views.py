@@ -20,8 +20,9 @@ from dry_rest_permissions.generics import DRYPermissions
 from zds.api.bits import DJRF3xPaginationKeyBit, UpdatedAtKeyBit
 from zds.utils import slugify
 from zds.forum.api.serializer import ForumSerializer, TopicSerializer, TopicCreateSerializer, TopicUpdateSerializer, TopicUpdateStaffSerializer, PostSerializer, PostCreateSerializer, PostUpdateSerializer, AlertSerializer
-from zds.forum.api.permissions import IsStaffUser, IsOwnerOrIsStaff, CanWriteInForum, CanWriteInTopic, CanEditTopic
+from zds.forum.api.permissions import IsStaffUser, IsOwnerOrIsStaff, CanWriteInForum, CanWriteInTopic, CanEditPost
 from zds.member.models import User
+from zds.forum.commons import PostEditMixin
 from itertools import chain
 
 class PostKarmaView(KarmaView):
@@ -356,7 +357,6 @@ class TopicDetailAPI(RetrieveUpdateAPIView):
         if self.request.method == 'GET':
             permission_classes.append(CanReadTopic)
         elif self.request.method == 'PUT':
-            print(self.request.user)
             permission_classes.append(IsOwnerOrIsStaff)
             permission_classes.append(CanReadTopic)
         return [permission() for permission in permission_classes]
@@ -532,7 +532,7 @@ class UserPostListAPI(ListAPIView):
         return posts
 
 
-class PostDetailAPI(RetrieveUpdateAPIView):
+class PostDetailAPI(RetrieveUpdateAPIView, PostEditMixin):
     """
     Profile resource to display details of given post
     """
@@ -595,7 +595,7 @@ class PostDetailAPI(RetrieveUpdateAPIView):
         if self.request.method == 'PUT':
             permission_classes.append(IsOwnerOrIsStaff)
             permission_classes.append(CanReadAndWriteNowOrReadOnly)
-            permission_classes.append(CanEditTopic)
+            permission_classes.append(CanEditPost)
         return [permission() for permission in permission_classes]
 
 
