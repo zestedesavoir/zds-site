@@ -19,13 +19,13 @@ class EasyTagTest(TestCase):
     def test_valid_call(self):
 
         # Call tag without parser and three elements
-        ret = self.wrapped_function(None, Token(TOKEN_TEXT, "elem1 elem2 elem3"))
+        ret = self.wrapped_function(None, Token(TOKEN_TEXT, 'elem1 elem2 elem3'))
 
         # Check arguments have been split
         self.assertEqual(3, len(ret))
-        self.assertEqual("elem1", ret[0])
-        self.assertEqual("elem2", ret[1])
-        self.assertEqual("elem3", ret[2])
+        self.assertEqual('elem1', ret[0])
+        self.assertEqual('elem2', ret[1])
+        self.assertEqual('elem3', ret[2])
 
         # Check functions wrapping
         self.assertEqual(self.simple_function.__name__, self.wrapped_function.__name__)
@@ -35,10 +35,10 @@ class EasyTagTest(TestCase):
 
         wf = self.wrapped_function
         # Check raising TemplateSyntaxError if call with too few arguments
-        self.assertRaises(TemplateSyntaxError, wf, None, Token(TOKEN_TEXT, "elem1 elem2"))
+        self.assertRaises(TemplateSyntaxError, wf, None, Token(TOKEN_TEXT, 'elem1 elem2'))
 
         # Check raising TemplateSyntaxError if call with too many arguments
-        self.assertRaises(TemplateSyntaxError, wf, None, Token(TOKEN_TEXT, "elem1 elem2 elem3 elem4"))
+        self.assertRaises(TemplateSyntaxError, wf, None, Token(TOKEN_TEXT, 'elem1 elem2 elem3 elem4'))
 
 
 class AppendGetNodeTest(TestCase):
@@ -51,65 +51,65 @@ class AppendGetNodeTest(TestCase):
     def test_valid_call(self):
 
         # Test normal call
-        agn = AppendGetNode("key1=var1,key2=var2")
+        agn = AppendGetNode('key1=var1,key2=var2')
         tr = agn.render(self.context)
-        self.assertTrue(tr == "/data/test?key1=1&key2=2" or tr == "/data/test?key2=2&key1=1")
+        self.assertTrue(tr == '/data/test?key1=1&key2=2' or tr == '/data/test?key2=2&key1=1')
 
         # Test call with one argument
-        agn = AppendGetNode("key1=var1")
+        agn = AppendGetNode('key1=var1')
         tr = agn.render(self.context)
-        self.assertEqual(tr, "/data/test?key1=1")
+        self.assertEqual(tr, '/data/test?key1=1')
 
         # Test call without arguments
-        agn = AppendGetNode("")
+        agn = AppendGetNode('')
         tr = agn.render(self.context)
-        self.assertEqual(tr, "/data/test")
+        self.assertEqual(tr, '/data/test')
 
     def test_invalid_call(self):
 
         # Test invalid format
 
         # Space separators args :
-        self.assertRaises(TemplateSyntaxError, AppendGetNode, "key1=var1 key2=var2")
+        self.assertRaises(TemplateSyntaxError, AppendGetNode, 'key1=var1 key2=var2')
         # No values :
-        self.assertRaises(TemplateSyntaxError, AppendGetNode, "key1=,key2=var2")
-        self.assertRaises(TemplateSyntaxError, AppendGetNode, "key1,key2=var2")
+        self.assertRaises(TemplateSyntaxError, AppendGetNode, 'key1=,key2=var2')
+        self.assertRaises(TemplateSyntaxError, AppendGetNode, 'key1,key2=var2')
         # Not resolvable variable
-        agn = AppendGetNode("key1=var3,key2=var2")
+        agn = AppendGetNode('key1=var3,key2=var2')
         self.assertRaises(VariableDoesNotExist, agn.render, self.context)
 
     def test_valid_templatetag(self):
 
         # Test normal call
-        tr = Template("{% load append_to_get %}"
-                      "{% append_to_get key1=var1,key2=var2 %}"
+        tr = Template('{% load append_to_get %}'
+                      '{% append_to_get key1=var1,key2=var2 %}'
                       ).render(self.context)
-        self.assertTrue(tr == "/data/test?key1=1&key2=2" or tr == "/data/test?key2=2&key1=1")
+        self.assertTrue(tr == '/data/test?key1=1&key2=2' or tr == '/data/test?key2=2&key1=1')
 
         # Test call with one argument
-        tr = Template("{% load append_to_get %}"
-                      "{% append_to_get key1=var1 %}"
+        tr = Template('{% load append_to_get %}'
+                      '{% append_to_get key1=var1 %}'
                       ).render(self.context)
-        self.assertEqual(tr, "/data/test?key1=1")
+        self.assertEqual(tr, '/data/test?key1=1')
 
     def test_invalid_templatetag(self):
         # Test invalid format
 
         # Space separators args :
-        str_tp = ("{% load append_to_get %}"
-                  "{% append_to_get key1=var1 key2=var2 %}")
+        str_tp = ('{% load append_to_get %}'
+                  '{% append_to_get key1=var1 key2=var2 %}')
         self.assertRaises(TemplateSyntaxError, Template, str_tp)
 
         # No values :
-        str_tp = ("{% load append_to_get %}"
-                  "{% append_to_get key1=,key2=var2 %}")
+        str_tp = ('{% load append_to_get %}'
+                  '{% append_to_get key1=,key2=var2 %}')
         self.assertRaises(TemplateSyntaxError, Template, str_tp)
-        str_tp = ("{% load append_to_get %}"
-                  "{% append_to_get key1,key2=var2 %}")
+        str_tp = ('{% load append_to_get %}'
+                  '{% append_to_get key1,key2=var2 %}')
         self.assertRaises(TemplateSyntaxError, Template, str_tp)
 
         # Not resolvable variable
-        tr = Template("{% load append_to_get %}"
-                      "{% append_to_get key1=var3,key2=var2 %}"
+        tr = Template('{% load append_to_get %}'
+                      '{% append_to_get key1=var3,key2=var2 %}'
                       )
         self.assertRaises(VariableDoesNotExist, tr.render, self.context)

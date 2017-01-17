@@ -21,15 +21,15 @@ class Command(BaseCommand):
         if not os.path.exists(MEDIA_ROOT):
             os.mkdir(MEDIA_ROOT)
 
-        for filename in glob.glob(" ".join(args)):
+        for filename in glob.glob(' '.join(args)):
             stream = open(filename, 'r')
             fixture_list = yaml.load(stream)
             for fixture in fixture_list:
-                splitted = str(fixture["factory"]).split(".")
-                module_part = ".".join(splitted[:-1])
+                splitted = str(fixture['factory']).split('.')
+                module_part = '.'.join(splitted[:-1])
                 module = __import__(module_part)
                 for comp in splitted[1:-1]:
                     module = getattr(module, comp)
 
-                obj = getattr(module, splitted[-1])(**fixture["fields"])
+                obj = getattr(module, splitted[-1])(**fixture['fields'])
                 print(obj)

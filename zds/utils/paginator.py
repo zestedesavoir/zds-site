@@ -113,9 +113,9 @@ def make_pagination(
     paginator = Paginator(queryset_objs, page_size)
 
     # retrieve page number
-    if "page" in request.GET and request.GET["page"].isdigit():
-        page_number = int(request.GET["page"])
-    elif "page" not in request.GET:
+    if 'page' in request.GET and request.GET['page'].isdigit():
+        page_number = int(request.GET['page'])
+    elif 'page' not in request.GET:
         page_number = 1
     else:
         raise Http404

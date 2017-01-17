@@ -271,7 +271,7 @@ class Alert(models.Model):
     scope = models.CharField(max_length=10, choices=SCOPE_CHOICES, db_index=True)
     text = models.TextField('Texte d\'alerte')
     pubdate = models.DateTimeField('Date de création', db_index=True)
-    solved = models.BooleanField("Est résolue", default=False)
+    solved = models.BooleanField('Est résolue', default=False)
     moderator = models.ForeignKey(User,
                                   verbose_name='Modérateur',
                                   related_name='solved_alerts',
@@ -349,10 +349,10 @@ class CommentVote(models.Model):
 
     comment = models.ForeignKey(Comment, db_index=True)
     user = models.ForeignKey(User, db_index=True)
-    positive = models.BooleanField("Est un vote positif", default=True)
+    positive = models.BooleanField('Est un vote positif', default=True)
 
     def __str__(self):
-        return "Vote from {} about Comment#{} thumb_up={}".format(self.user.username, self.comment.pk, self.positive)
+        return 'Vote from {} about Comment#{} thumb_up={}'.format(self.user.username, self.comment.pk, self.positive)
 
 
 @python_2_unicode_compatible
