@@ -304,13 +304,13 @@ class SendValidationEmailView(FormView, TokenGenerator):
 
         if form.is_valid():
             # Fetch the user
-            self.get_user(form.data["username"], form.data["email"])
+            self.get_user(form.data['username'], form.data['email'])
 
             # User should not be already active
             if not self.usr.is_active:
                 return self.form_valid(form)
             else:
-                if form.data["username"]:
+                if form.data['username']:
                     form.errors['username'] = form.error_class([self.get_error_message()])
                 else:
                     form.errors['email'] = form.error_class([self.get_error_message()])
@@ -333,7 +333,7 @@ class SendValidationEmailView(FormView, TokenGenerator):
         return 'member/register/send_validation_email_success.html'
 
     def get_error_message(self):
-        return _("Le compte est déjà activé.")
+        return _('Le compte est déjà activé.')
 
 
 @login_required
@@ -350,8 +350,8 @@ def warning_unregister(request):
 def unregister(request):
     """allow members to unregister"""
 
-    anonymous = get_object_or_404(User, username=settings.ZDS_APP["member"]["anonymous_account"])
-    external = get_object_or_404(User, username=settings.ZDS_APP["member"]["external_account"])
+    anonymous = get_object_or_404(User, username=settings.ZDS_APP['member']['anonymous_account'])
+    external = get_object_or_404(User, username=settings.ZDS_APP['member']['external_account'])
     current = request.user
     # Nota : as of v21 all about content paternity is held by a proper receiver in zds.tutorialv2.models.models_database
     # comments likes / dislikes
@@ -401,7 +401,7 @@ def unregister(request):
         if gallery.gallery.get_linked_users().count() == 1:
             anonymous_gallery = UserGallery()
             anonymous_gallery.user = external
-            anonymous_gallery.mode = "w"
+            anonymous_gallery.mode = 'w'
             anonymous_gallery.gallery = gallery.gallery
             anonymous_gallery.save()
         gallery.delete()
@@ -412,7 +412,7 @@ def unregister(request):
 
     logout(request)
     User.objects.filter(pk=current.pk).delete()
-    return redirect(reverse("homepage"))
+    return redirect(reverse('homepage'))
 
 
 @require_POST
@@ -429,7 +429,7 @@ def modify_profile(request, user_pk):
     if profile.is_private():
         raise PermissionDenied
     if request.user.profile == profile:
-        messages.error(request, _(u"Vous ne pouvez pas vous sanctionner vous-même !"))
+        messages.error(request, _(u'Vous ne pouvez pas vous sanctionner vous-même !'))
         raise PermissionDenied
 
     if 'ls' in request.POST:
@@ -547,8 +547,8 @@ def articles(request):
         user_articles = profile.get_public_articles()
     else:
         user_articles = PublishableContent.objects\
-            .filter(authors__pk__in=[request.user.pk], type="ARTICLE")\
-            .prefetch_related("authors", "authors__profile")
+            .filter(authors__pk__in=[request.user.pk], type='ARTICLE')\
+            .prefetch_related('authors', 'authors__profile')
 
     # Order articles (abc by default)
 
@@ -579,9 +579,9 @@ def settings_mini_profile(request, user_name):
 
     # extra information about the current user
     profile = get_object_or_404(Profile, user__username=user_name)
-    if request.method == "POST":
+    if request.method == 'POST':
         form = MiniProfileForm(request.POST)
-        data = {"form": form, "profile": profile}
+        data = {'form': form, 'profile': profile}
         if form.is_valid():
             profile.biography = form.data['biography']
             profile.site = form.data['site']
@@ -625,22 +625,22 @@ def login_view(request):
 
     # Redirecting user once logged in?
 
-    if "next" in request.GET:
-        next_page = request.GET["next"]
+    if 'next' in request.GET:
+        next_page = request.GET['next']
     else:
         next_page = None
-    if request.method == "POST":
+    if request.method == 'POST':
         form = LoginForm(request.POST)
-        username = request.POST["username"]
-        password = request.POST["password"]
+        username = request.POST['username']
+        password = request.POST['password']
         user = authenticate(username=username, password=password)
         if user is not None:
             profile = get_object_or_404(Profile, user=user)
             if user.is_active:
                 if profile.can_read_now():
                     login(request, user)
-                    request.session["get_token"] = generate_token()
-                    if "remember" not in request.POST:
+                    request.session['get_token'] = generate_token()
+                    if 'remember' not in request.POST:
                         request.session.set_expiry(0)
                     profile.last_ip_address = get_client_ip(request)
                     profile.save()
@@ -648,33 +648,33 @@ def login_view(request):
                     try:
                         return redirect(next_page)
                     except:
-                        return redirect(reverse("homepage"))
+                        return redirect(reverse('homepage'))
                 else:
                     messages.error(request,
-                                   _(u"Vous n'êtes pas autorisé à vous connecter "
-                                     u"sur le site, vous avez été banni par un "
-                                     u"modérateur."))
+                                   _(u'Vous n\'êtes pas autorisé à vous connecter '
+                                     u'sur le site, vous avez été banni par un '
+                                     u'modérateur.'))
             else:
                 messages.error(request,
-                               _(u"Vous n'avez pas encore activé votre compte, "
-                                 u"vous devez le faire pour pouvoir vous "
-                                 u"connecter sur le site. Regardez dans vos "
-                                 u"mails : {}.").format(user.email))
+                               _(u'Vous n\'avez pas encore activé votre compte, '
+                                 u'vous devez le faire pour pouvoir vous '
+                                 u'connecter sur le site. Regardez dans vos '
+                                 u'mails : {}.').format(user.email))
         else:
             messages.error(request,
-                           _(u"Les identifiants fournis ne sont pas valides."))
+                           _(u'Les identifiants fournis ne sont pas valides.'))
             initial = {'username': username}
 
     form = LoginForm(initial=initial)
     if next_page is not None:
-        form.helper.form_action += "?next=" + next_page
+        form.helper.form_action += '?next=' + next_page
 
-    csrf_tk["error"] = error
-    csrf_tk["form"] = form
-    csrf_tk["next_page"] = next_page
-    return render(request, "member/login.html",
-                  {"form": form,
-                   "csrf_tk": csrf_tk})
+    csrf_tk['error'] = error
+    csrf_tk['form'] = form
+    csrf_tk['next_page'] = next_page
+    return render(request, 'member/login.html',
+                  {'form': form,
+                   'csrf_tk': csrf_tk})
 
 
 @login_required
@@ -684,20 +684,20 @@ def logout_view(request):
 
     logout(request)
     request.session.clear()
-    return redirect(reverse("homepage"))
+    return redirect(reverse('homepage'))
 
 
 def forgot_password(request):
     """If the user forgot his password, he can have a new one."""
 
-    if request.method == "POST":
+    if request.method == 'POST':
         form = UsernameAndEmailForm(request.POST)
         if form.is_valid():
 
             # Get data from form
             data = form.data
-            username = data["username"]
-            email = data["email"]
+            username = data['username']
+            email = data['email']
 
             # Fetch the user, we need his email address
             usr = None
@@ -716,73 +716,73 @@ def forgot_password(request):
             token.save()
 
             # send email
-            subject = _(u"{} - Mot de passe oublié").format(settings.ZDS_APP['site']['litteral_name'])
-            from_email = "{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
+            subject = _(u'{} - Mot de passe oublié').format(settings.ZDS_APP['site']['litteral_name'])
+            from_email = '{} <{}>'.format(settings.ZDS_APP['site']['litteral_name'],
                                           settings.ZDS_APP['site']['email_noreply'])
             context = {
-                "username": usr.username,
-                "site_name": settings.ZDS_APP['site']['litteral_name'],
-                "site_url": settings.ZDS_APP['site']['url'],
-                "url": settings.ZDS_APP['site']['url'] + token.get_absolute_url()
+                'username': usr.username,
+                'site_name': settings.ZDS_APP['site']['litteral_name'],
+                'site_url': settings.ZDS_APP['site']['url'],
+                'url': settings.ZDS_APP['site']['url'] + token.get_absolute_url()
             }
-            message_html = render_to_string("email/member/confirm_forgot_password.html", context)
-            message_txt = render_to_string("email/member/confirm_forgot_password.txt", context)
+            message_html = render_to_string('email/member/confirm_forgot_password.html', context)
+            message_txt = render_to_string('email/member/confirm_forgot_password.txt', context)
 
             msg = EmailMultiAlternatives(subject, message_txt, from_email, [usr.email])
-            msg.attach_alternative(message_html, "text/html")
+            msg.attach_alternative(message_html, 'text/html')
             msg.send()
-            return render(request, "member/forgot_password/success.html")
+            return render(request, 'member/forgot_password/success.html')
         else:
-            return render(request, "member/forgot_password/index.html",
-                          {"form": form})
+            return render(request, 'member/forgot_password/index.html',
+                          {'form': form})
     form = UsernameAndEmailForm()
-    return render(request, "member/forgot_password/index.html", {"form": form})
+    return render(request, 'member/forgot_password/index.html', {'form': form})
 
 
 def new_password(request):
     """Create a new password for a user."""
 
     try:
-        token = request.GET["token"]
+        token = request.GET['token']
     except KeyError:
-        return redirect(reverse("homepage"))
+        return redirect(reverse('homepage'))
     token = get_object_or_404(TokenForgotPassword, token=token)
-    if request.method == "POST":
+    if request.method == 'POST':
         form = NewPasswordForm(token.user.username, request.POST)
         if form.is_valid():
             data = form.data
-            password = data["password"]
+            password = data['password']
             # User can't confirm his request if it is too late.
 
             if datetime.now() > token.date_end:
-                return render(request, "member/new_password/failed.html")
+                return render(request, 'member/new_password/failed.html')
             token.user.set_password(password)
             token.user.save()
             token.delete()
-            return render(request, "member/new_password/success.html")
+            return render(request, 'member/new_password/success.html')
         else:
-            return render(request, "member/new_password/index.html", {"form": form})
+            return render(request, 'member/new_password/index.html', {'form': form})
     form = NewPasswordForm(identifier=token.user.username)
-    return render(request, "member/new_password/index.html", {"form": form})
+    return render(request, 'member/new_password/index.html', {'form': form})
 
 
 def activate_account(request):
     """Active token for a user."""
     try:
-        token = request.GET["token"]
+        token = request.GET['token']
     except KeyError:
-        return redirect(reverse("homepage"))
+        return redirect(reverse('homepage'))
     token = get_object_or_404(TokenRegister, token=token)
     usr = token.user
 
     # User can't confirm their request if their account is already active
     if usr.is_active:
-        return render(request, "member/register/token_already_used.html")
+        return render(request, 'member/register/token_already_used.html')
 
     # User can't confirm their request if it is too late.
     if datetime.now() > token.date_end:
-        return render(request, "member/register/token_failed.html",
-                      {"token": token})
+        return render(request, 'member/register/token_failed.html',
+                      {'token': token})
     usr.is_active = True
     usr.save()
 
@@ -792,9 +792,9 @@ def activate_account(request):
         'member/messages/account_activated.md',
         {
             'username': usr.username,
-            'tutorials_url': settings.ZDS_APP['site']['url'] + reverse("tutorial:list"),
-            'articles_url': settings.ZDS_APP['site']['url'] + reverse("article:list"),
-            'members_url': settings.ZDS_APP['site']['url'] + reverse("member-list"),
+            'tutorials_url': settings.ZDS_APP['site']['url'] + reverse('tutorial:list'),
+            'articles_url': settings.ZDS_APP['site']['url'] + reverse('article:list'),
+            'members_url': settings.ZDS_APP['site']['url'] + reverse('member-list'),
             'forums_url': settings.ZDS_APP['site']['url'] + reverse('cats-forums-list'),
             'site_name': settings.ZDS_APP['site']['litteral_name']
         }
@@ -802,24 +802,24 @@ def activate_account(request):
 
     send_mp(bot,
             [usr],
-            _(u"Bienvenue sur {}").format(settings.ZDS_APP['site']['litteral_name']),
-            _(u"Le manuel du nouveau membre"),
+            _(u'Bienvenue sur {}').format(settings.ZDS_APP['site']['litteral_name']),
+            _(u'Le manuel du nouveau membre'),
             msg,
             False,
             True,
             False)
     token.delete()
     form = LoginForm(initial={'username': usr.username})
-    return render(request, "member/register/token_success.html", {"usr": usr, "form": form})
+    return render(request, 'member/register/token_success.html', {'usr': usr, 'form': form})
 
 
 def generate_token_account(request):
     """Generate token for account."""
 
     try:
-        token = request.GET["token"]
+        token = request.GET['token']
     except KeyError:
-        return redirect(reverse("homepage"))
+        return redirect(reverse('homepage'))
     token = get_object_or_404(TokenRegister, token=token)
 
     # push date
@@ -831,19 +831,19 @@ def generate_token_account(request):
 
     # send email
     subject = _(u"{} - Confirmation d'inscription").format(settings.ZDS_APP['site']['litteral_name'])
-    from_email = "{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
+    from_email = '{} <{}>'.format(settings.ZDS_APP['site']['litteral_name'],
                                   settings.ZDS_APP['site']['email_noreply'])
     context = {
-        "username": token.user.username,
-        "site_url": settings.ZDS_APP['site']['url'],
-        "site_name": settings.ZDS_APP['site']['litteral_name'],
-        "url": settings.ZDS_APP['site']['url'] + token.get_absolute_url()
+        'username': token.user.username,
+        'site_url': settings.ZDS_APP['site']['url'],
+        'site_name': settings.ZDS_APP['site']['litteral_name'],
+        'url': settings.ZDS_APP['site']['url'] + token.get_absolute_url()
     }
-    message_html = render_to_string("email/member/confirm_registration.html", context)
-    message_txt = render_to_string("email/member/confirm_registration.txt", context)
+    message_html = render_to_string('email/member/confirm_registration.html', context)
+    message_txt = render_to_string('email/member/confirm_registration.txt', context)
 
     msg = EmailMultiAlternatives(subject, message_txt, from_email, [token.user.email])
-    msg.attach_alternative(message_html, "text/html")
+    msg.attach_alternative(message_html, 'text/html')
     try:
         msg.send()
     except:
@@ -854,14 +854,14 @@ def generate_token_account(request):
 def get_client_ip(request):
     """Retrieve the real IP address of the client."""
 
-    if "HTTP_X_REAL_IP" in request.META:  # nginx
-        return request.META.get("HTTP_X_REAL_IP")
-    elif "REMOTE_ADDR" in request.META:
+    if 'HTTP_X_REAL_IP' in request.META:  # nginx
+        return request.META.get('HTTP_X_REAL_IP')
+    elif 'REMOTE_ADDR' in request.META:
         # other
-        return request.META.get("REMOTE_ADDR")
+        return request.META.get('REMOTE_ADDR')
     else:
         # should never happend
-        return "0.0.0.0"
+        return '0.0.0.0'
 
 
 def date_to_chart(posts):
@@ -884,7 +884,7 @@ def settings_promote(request, user_pk):
     profile = get_object_or_404(Profile, user__pk=user_pk)
     user = profile.user
 
-    if request.method == "POST":
+    if request.method == 'POST':
         form = PromoteMemberForm(request.POST)
         data = dict(form.data.iterlists())
 
@@ -975,9 +975,9 @@ def settings_promote(request, user_pk):
         'activation': user.is_active
     })
     return render(request, 'member/settings/promote.html', {
-        "usr": user,
-        "profile": profile,
-        "form": form
+        'usr': user,
+        'profile': profile,
+        'form': form
     })
 
 
@@ -1032,6 +1032,6 @@ def modify_karma(request):
             profile.karma += note.karma
             profile.save()
     except ValueError as e:
-        logging.getLogger("zds.member").warn('ValueError: modifying karma failed because {}'.format(e))
+        logging.getLogger('zds.member').warn('ValueError: modifying karma failed because {}'.format(e))
 
     return redirect(reverse('member-detail', args=[profile.user.username]))
