@@ -1086,7 +1086,7 @@ class PublicationForm(forms.Form):
         super(PublicationForm, self).__init__(*args, **kwargs)
 
         self.helper = FormHelper()
-        self.helper.form_action = reverse('validation:publish', kwargs={'pk': content.pk, 'slug': content.slug})
+        self.helper.form_action = reverse('validation:publish-opinion', kwargs={'pk': content.pk, 'slug': content.slug})
         self.helper.form_method = 'post'
         self.helper.form_class = 'modal modal-flex'
         self.helper.form_id = 'valid-publication'
@@ -1121,7 +1121,9 @@ class UnpublicationForm(forms.Form):
         self.previous_page_url = content.get_absolute_url_online()
 
         self.helper = FormHelper()
-        self.helper.form_action = reverse('validation:unpublish', kwargs={'pk': content.pk, 'slug': content.slug})
+        self.helper.form_action = reverse(
+            'validation:unpublish-opinion', kwargs={'pk': content.pk, 'slug': content.slug})
+
         self.helper.form_method = 'post'
         self.helper.form_class = 'modal modal-flex'
         self.helper.form_id = 'unpublish'
@@ -1146,7 +1148,7 @@ class PickOpinionForm(forms.Form):
         self.previous_page_url = content.get_absolute_url_online()
 
         self.helper = FormHelper()
-        self.helper.form_action = reverse('validation:valid', kwargs={'pk': content.pk, 'slug': content.slug})
+        self.helper.form_action = reverse('validation:pick-opinion', kwargs={'pk': content.pk, 'slug': content.slug})
         self.helper.form_method = 'post'
         self.helper.form_class = 'modal modal-flex'
         self.helper.form_id = 'pick-opinion'
@@ -1184,7 +1186,7 @@ class UnpickOpinionForm(forms.Form):
         self.previous_page_url = content.get_absolute_url_online()
 
         self.helper = FormHelper()
-        self.helper.form_action = reverse('validation:invalid', kwargs={'pk': content.pk, 'slug': content.slug})
+        self.helper.form_action = reverse('validation:unpick-opinion', kwargs={'pk': content.pk, 'slug': content.slug})
         self.helper.form_method = 'post'
         self.helper.form_class = 'modal modal-flex'
         self.helper.form_id = 'unpick-opinion'
@@ -1209,7 +1211,7 @@ class PromoteOpinionToArticleForm(forms.Form):
         self.previous_page_url = content.get_absolute_url_online()
 
         self.helper = FormHelper()
-        self.helper.form_action = reverse('validation:promote', kwargs={'pk': content.pk, 'slug': content.slug})
+        self.helper.form_action = reverse('validation:promote-opinion', kwargs={'pk': content.pk, 'slug': content.slug})
         self.helper.form_method = 'post'
         self.helper.form_class = 'modal modal-flex'
         self.helper.form_id = 'convert-opinion'
