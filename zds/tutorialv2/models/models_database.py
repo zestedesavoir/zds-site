@@ -97,6 +97,8 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
     update_date = models.DateTimeField('Date de mise à jour',
                                        blank=True, null=True)
 
+    picked_date = models.DateTimeField('Date de mise en avant', db_index=True, blank=True, null=True, default=None)
+
     sha_public = models.CharField('Sha1 de la version publique',
                                   blank=True, null=True, max_length=80, db_index=True)
     sha_beta = models.CharField('Sha1 de la version beta publique',

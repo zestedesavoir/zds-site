@@ -664,6 +664,7 @@ class PickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
         self.success_url = versioned.get_absolute_url_online()
 
         db_object.sha_picked = form.cleaned_data['version']
+        db_object.picked_date = datetime.now()
         db_object.save()
 
         msg = render_to_string(

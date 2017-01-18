@@ -204,7 +204,7 @@ class PublishableContentManager(models.Manager):
                            .select_related('public_version') \
                            .prefetch_related('subcategory') \
                            .prefetch_related('tags') \
-                           .order_by('-public_version__publication_date')[:home_number]
+                           .order_by('-picked_date')[:home_number]
         published = []
         for content in all_contents:
             content.public_version.content = content
