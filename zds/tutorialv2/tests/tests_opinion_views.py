@@ -326,6 +326,7 @@ class PublishedContentTests(TestCase):
 
         opinion = PublishableContent.objects.get(pk=opinion.pk)
         self.assertIsNone(opinion.sha_picked)
+        self.assertIsNone(opinion.picked_date)
 
         self.assertEqual(
             self.client.login(
@@ -345,6 +346,7 @@ class PublishedContentTests(TestCase):
 
         opinion = PublishableContent.objects.get(pk=opinion.pk)
         self.assertEqual(opinion.sha_picked, opinion_draft.current_version)
+        self.assertIsNotNone(opinion.picked_date)
 
         # invalid with author => 403
         self.assertEqual(
