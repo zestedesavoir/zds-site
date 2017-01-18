@@ -862,23 +862,24 @@ class PublishedContent(AbstractESDjangoIndexable):
 
     @classmethod
     def get_es_mapping(cls):
-        m = Mapping(cls.get_es_document_type())
+        mapping = Mapping(cls.get_es_document_type())
 
-        m.field('content_pk', 'integer')
-        m.field('publication_date', Date())
+        mapping.field('content_pk', 'integer')
+        mapping.field('publication_date', Date())
 
         # not analyzed:
-        m.field('content_type', Text(index='not_analyzed'))
-        m.field('get_absolute_url_online', Text(index='not_analyzed'))
+        mapping.field('content_type', Text(index='not_analyzed'))
+        mapping.field('get_absolute_url_online', Text(index='not_analyzed'))
+        mapping.field('thumbnail', Text(index='not_analyzed'))
 
         # not from PublishedContent directly:
-        m.field('title', Text(boost=1.5))
-        m.field('description', Text(boost=1.5))
-        m.field('tags', Keyword(boost=2.0))
-        m.field('categories', Keyword(boost=2.25))
-        m.field('text', Text())  # for article and mini-tuto, text is directly included into the main object
+        mapping.field('title', Text(boost=1.5))
+        mapping.field('description', Text(boost=1.5))
+        mapping.field('tags', Keyword(boost=2.0))
+        mapping.field('categories', Keyword(boost=2.25))
+        mapping.field('text', Text())  # for article and mini-tuto, text is directly included into the main object
 
-        return m
+        return mapping
 
     @classmethod
     def get_es_django_indexable(cls, force_reindexing=False):
@@ -889,6 +890,7 @@ class PublishedContent(AbstractESDjangoIndexable):
         return q.prefetch_related('content')\
             .prefetch_related('content__tags')\
             .prefetch_related('content__subcategory')\
+            .select_related('content__image')\
             .filter(must_redirect=False)
 
     @classmethod
@@ -916,7 +918,7 @@ class PublishedContent(AbstractESDjangoIndexable):
         """
 
         excluded_fields = excluded_fields or []
-        excluded_fields.extend(['title', 'description', 'tags', 'categories', 'text'])
+        excluded_fields.extend(['title', 'description', 'tags', 'categories', 'text', 'thumbnail'])
 
         data = super(PublishedContent, self).get_es_document_source(excluded_fields=excluded_fields)
 
@@ -926,6 +928,9 @@ class PublishedContent(AbstractESDjangoIndexable):
         data['title'] = versioned.title
         data['description'] = versioned.description
         data['tags'] = [tag.title for tag in versioned.tags.all()]
+
+        if self.content.image:
+            data['thumbnail'] = self.content.image.physical['content_thumb'].url
 
         categories = []
         for subcategory in versioned.subcategory.all():
@@ -980,6 +985,7 @@ class FakeChapter(AbstractESIndexable):
     parent_title = ''
     parent_get_absolute_url_online = ''
     parent_publication_date = ''
+    thumbnail = ''
 
     def __init__(self, chapter, main_container, parent_id):
         self.title = chapter.title
@@ -992,6 +998,9 @@ class FakeChapter(AbstractESIndexable):
         self.parent_title = main_container.title
         self.parent_get_absolute_url_online = main_container.get_absolute_url_online()
         self.parent_publication_date = main_container.pubdate
+
+        if main_container.image:
+            self.thumbnail = main_container.image.physical['content_thumb'].url
 
     @classmethod
     def get_es_document_type(cls):
@@ -1013,6 +1022,7 @@ class FakeChapter(AbstractESIndexable):
         mapping.field('parent_title', Text(index='not_analyzed'))
         mapping.field('parent_get_absolute_url_online', Text(index='not_analyzed'))
         mapping.field('parent_publication_date', Date(index='not_analyzed'))
+        mapping.field('thumbnail', Text(index='not_analyzed'))
 
         return mapping
 
