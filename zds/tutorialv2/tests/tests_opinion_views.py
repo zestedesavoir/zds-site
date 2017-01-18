@@ -55,7 +55,7 @@ class PublishedContentTests(TestCase):
             True)
 
         result = self.client.post(
-            reverse('validation:publish', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            reverse('validation:publish-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
             {
                 'text': text_publication,
                 'source': '',
@@ -118,7 +118,7 @@ class PublishedContentTests(TestCase):
             True)
 
         result = self.client.post(
-            reverse('validation:publish', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            reverse('validation:publish-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
             {
                 'text': text_publication,
                 'source': '',
@@ -152,7 +152,7 @@ class PublishedContentTests(TestCase):
             True)
 
         result = self.client.post(
-            reverse('validation:publish', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            reverse('validation:publish-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
             {
                 'text': text_publication,
                 'source': '',
@@ -190,7 +190,7 @@ class PublishedContentTests(TestCase):
 
         # publish
         result = self.client.post(
-            reverse('validation:publish', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            reverse('validation:publish-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
             {
                 'text': text_publication,
                 'source': '',
@@ -201,7 +201,7 @@ class PublishedContentTests(TestCase):
 
         # unpublish
         result = self.client.post(
-            reverse('validation:unpublish', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            reverse('validation:unpublish-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
             {
                 'text': text_unpublication,
                 'source': '',
@@ -220,7 +220,7 @@ class PublishedContentTests(TestCase):
 
         # publish
         result = self.client.post(
-            reverse('validation:publish', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            reverse('validation:publish-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
             {
                 'text': text_publication,
                 'source': '',
@@ -231,7 +231,7 @@ class PublishedContentTests(TestCase):
 
         # unpublish
         result = self.client.post(
-            reverse('validation:unpublish', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            reverse('validation:unpublish-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
             {
                 'text': text_unpublication,
                 'source': '',
@@ -250,7 +250,7 @@ class PublishedContentTests(TestCase):
 
         # publish with author
         result = self.client.post(
-            reverse('validation:publish', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            reverse('validation:publish-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
             {
                 'text': text_publication,
                 'source': '',
@@ -267,7 +267,7 @@ class PublishedContentTests(TestCase):
 
         # unpublish
         result = self.client.post(
-            reverse('validation:unpublish', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            reverse('validation:unpublish-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
             {
                 'text': text_unpublication,
                 'source': '',
@@ -302,7 +302,7 @@ class PublishedContentTests(TestCase):
 
         # publish
         result = self.client.post(
-            reverse('validation:publish', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            reverse('validation:publish-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
             {
                 'text': text_publication,
                 'source': '',
@@ -316,7 +316,7 @@ class PublishedContentTests(TestCase):
         opinion_draft = opinion.load_version()
 
         result = self.client.post(
-            reverse('validation:valid', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            reverse('validation:pick-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
             {
                 'source': '',
                 'version': opinion_draft.current_version
@@ -336,7 +336,7 @@ class PublishedContentTests(TestCase):
 
         # valid with staff
         result = self.client.post(
-            reverse('validation:valid', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            reverse('validation:pick-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
             {
                 'source': '',
                 'version': opinion_draft.current_version
@@ -356,7 +356,7 @@ class PublishedContentTests(TestCase):
             True)
 
         result = self.client.post(
-            reverse('validation:invalid', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            reverse('validation:unpick-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
             {
                 'text': u'Parce que je veux',
                 'version': opinion_draft.current_version
@@ -375,7 +375,7 @@ class PublishedContentTests(TestCase):
             True)
 
         result = self.client.post(
-            reverse('validation:invalid', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            reverse('validation:unpick-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
             {
                 'text': u'Parce que je peux !',
                 'version': opinion_draft.current_version
@@ -388,7 +388,7 @@ class PublishedContentTests(TestCase):
 
         # double invalidation wont work
         result = self.client.post(
-            reverse('validation:invalid', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            reverse('validation:unpick-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
             {
                 'text': u'Parce que je peux toujours ...',
                 'version': opinion_draft.current_version
@@ -423,7 +423,7 @@ class PublishedContentTests(TestCase):
 
         # publish
         result = self.client.post(
-            reverse('validation:publish', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            reverse('validation:publish-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
             {
                 'text': text_publication,
                 'source': '',
@@ -434,7 +434,7 @@ class PublishedContentTests(TestCase):
 
         # valid with author => 403
         result = self.client.post(
-            reverse('validation:promote', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            reverse('validation:promote-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
             {
                 'source': '',
                 'version': opinion.load_version().current_version
@@ -450,7 +450,7 @@ class PublishedContentTests(TestCase):
 
         # valid with staff
         result = self.client.post(
-            reverse('validation:promote', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            reverse('validation:promote-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
             {
                 'source': '',
                 'version': opinion.load_version().current_version
@@ -481,7 +481,7 @@ class PublishedContentTests(TestCase):
             True)
 
         result = self.client.post(
-            reverse('validation:publish', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            reverse('validation:publish-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
             {
                 'text': text_publication,
                 'source': '',

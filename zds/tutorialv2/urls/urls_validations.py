@@ -24,11 +24,13 @@ urlpatterns = [
     url(r'^revoquer/(?P<pk>\d+)/(?P<slug>.+)/$', RevokeValidation.as_view(), name='revoke'),
 
     # NO VALIDATION BEFORE PUBLICATION
-    url(r'^publier/(?P<pk>\d+)/(?P<slug>.+)/$', PublishOpinion.as_view(), name="publish"),
-    url(r'^depublier/(?P<pk>\d+)/(?P<slug>.+)/$', UnpublishOpinion.as_view(), name="unpublish"),
-    url(r'^valider/(?P<pk>\d+)/(?P<slug>.+)/$', PickOpinion.as_view(), name="valid"),
-    url(r'^devalider/(?P<pk>\d+)/(?P<slug>.+)/$', UnpickOpinion.as_view(), name="invalid"),
-    url(r'^promouvoir/(?P<pk>\d+)/(?P<slug>.+)/$', PromoteOpinionToArticle.as_view(), name="promote"),
+
+    url(r'^publier/(?P<pk>\d+)/(?P<slug>.+)/$', PublishOpinion.as_view(), name="publish-opinion"),
+    url(r'^depublier/(?P<pk>\d+)/(?P<slug>.+)/$', UnpublishOpinion.as_view(), name="unpublish-opinion"),
+    url(r'^choisir/(?P<pk>\d+)/(?P<slug>.+)/$', PickOpinion.as_view(), name="pick-opinion"),
+    url(r'^retirer/(?P<pk>\d+)/(?P<slug>.+)/$', UnpickOpinion.as_view(), name="unpick-opinion"),
+    url(r'^promouvoir/(?P<pk>\d+)/(?P<slug>.+)/$', PromoteOpinionToArticle.as_view(), name="promote-opinion"),
+
     # VALIDATION VIEWS FOR STAFF
 
     url(r'^billets/$', ValidationOpinionListView.as_view(), name='list-opinion'),
