@@ -417,7 +417,6 @@ class FindTopicByTag(FilterMixin, ZdSPagingListView, SingleObjectMixin):
 
     def get_queryset(self):
         self.queryset = Topic.objects.get_all_topics_of_a_tag(self.object, self.request.user)
-        print(self.queryset)
         return super(FindTopicByTag, self).get_queryset()
 
     def filter_queryset(self, queryset, filter_param):
