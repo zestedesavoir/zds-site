@@ -66,8 +66,16 @@
 }
 
 .search-filters {
-    input[type=checkbox] {
-        margin-top: 4px;
+
+    padding-left: 0;
+
+    li {
+        display: inline-flex;
+        padding-right: 16px;
+
+        input[type=checkbox] {
+            margin-top: 8px;
+        }
     }
 }
 
@@ -78,5 +86,9 @@
         label {
             display: none;
         }
+    }
+
+    .search-filters li {
+        display: list-item;
     }
 }

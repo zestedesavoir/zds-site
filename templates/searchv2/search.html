@@ -23,37 +23,32 @@
     <li>{% trans "Recherche" %}</li>
 {% endblock %}
 
-{% block sidebar %}
-    <aside class="sidebar mobile-menu-hide">
-        <div class="mobile-menu-bloc mobile-all-links" data-title="Sujets suivis">
-            <h3>{% trans "Filtrer les résultats" %}</h3>
-
-            <ul class="search-filters">
-                {% for radio in form.models %}
-                    <li>
-                        <label for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
-
-                        <input id="{{ radio.id_for_label }}"
-                               form="search-form" name="models"
-                               type="checkbox" value="{{ radio.choice_value }}"
-
-                                {% if radio.choice_value in form.cleaned_data.models %}
-                                    checked
-                                {% endif %}
-                                >
-                    </li>
-                {% endfor %}
-            </ul>
-        </div>
-    </aside>
-{% endblock %}
-
 
 
 {% block content %}
+
     <section class="search-box">
         {% crispy form %}
     </section>
+
+    <ul class="search-filters">
+
+        {% for radio in form.models %}
+            <li>
+
+                <input id="{{ radio.id_for_label }}"
+                       form="search-form" name="models"
+                       type="checkbox" value="{{ radio.choice_value }}"
+
+                        {% if radio.choice_value in form.cleaned_data.models %}
+                            checked
+                        {% endif %}
+                        >
+
+                <label for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
+            </li>
+        {% endfor %}
+    </ul>
 
     {% if query %}
         {% include "misc/paginator.html" with position="top" %}
