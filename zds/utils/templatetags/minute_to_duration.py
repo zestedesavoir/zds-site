@@ -7,7 +7,7 @@ register = template.Library()
 
 
 # Register filter
-@register.filter("minute_to_duration")
+@register.filter('minute_to_duration')
 def minute_to_duration(value, duration_format=''):
 
     """

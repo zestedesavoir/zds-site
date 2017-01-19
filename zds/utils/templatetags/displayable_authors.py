@@ -5,7 +5,7 @@ from django import template
 register = template.Library()
 
 
-@register.filter("displayable_authors")
+@register.filter('displayable_authors')
 def displayable_authors(content, online):
     """
     gets an iterable over the authors attached to the current displayed version.
