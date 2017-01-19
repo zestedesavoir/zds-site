@@ -257,7 +257,7 @@ class MemberTests(TestCase):
         member = ProfileFactory()
         self.client.login(
             username=member.user.username,
-            password="hostel77"
+            password='hostel77'
         )
 
         response = self.client.post(

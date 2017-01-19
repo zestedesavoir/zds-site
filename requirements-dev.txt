@@ -2,6 +2,7 @@ coverage==4.0.3
 PyYAML==3.11
 django-debug-toolbar==1.5
 flake8==2.5.4
+flake8_quotes==0.8.1
 autopep8==1.2.2
 sphinx==1.4.1
 sphinx_rtd_theme==0.1.9
