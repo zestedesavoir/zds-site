@@ -5,7 +5,7 @@ from zds.member.factories import ProfileFactory, NonAsciiProfileFactory
 from zds.member.forms import LoginForm, RegisterForm, MiniProfileForm, ProfileForm, ChangeUserForm, ChangePasswordForm,\
     NewPasswordForm, KarmaForm, UsernameAndEmailForm
 
-stringof77chars = "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789-----"
+stringof77chars = 'abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789-----'
 stringof251chars = u'abcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxy' \
                    u'abcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxy' \
                    u'abcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxy' \
@@ -14,8 +14,8 @@ stringof251chars = u'abcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxy' \
 stringof501chars = ['1' for n in range(501)]
 stringof2001chars = 'http://url.com/'
 for i in range(198):
-    stringof2001chars += "0123456789"
-stringof2001chars += "12.jpg"
+    stringof2001chars += '0123456789'
+stringof2001chars += '12.jpg'
 
 # This form is tricky to test as it needs a tuto to be done
 # class OldTutoFormTest(TestCase):
@@ -277,7 +277,7 @@ class ChangeUserFormTest(TestCase):
 
     def test_valid_change_username_user_form(self):
         data = {
-            'username': "MyNewPseudo",
+            'username': 'MyNewPseudo',
             'email': self.user1.user.email
         }
         form = ChangeUserForm(data=data, user=self.user1.user)
@@ -554,7 +554,7 @@ class NewPasswordFormTest(TestCase):
         self.assertFalse(form.is_valid())
 
     def test_password_too_long_new_password_form(self):
-        toolong = "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789-----"
+        toolong = 'abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789-----'
         data = {
             'password': toolong,
             'password_confirm': toolong
