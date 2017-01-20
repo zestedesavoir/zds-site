@@ -20,10 +20,10 @@ from dry_rest_permissions.generics import DRYPermissions
 from zds.api.bits import DJRF3xPaginationKeyBit, UpdatedAtKeyBit
 from zds.utils import slugify
 from zds.forum.api.serializer import ForumSerializer, TopicSerializer, TopicCreateSerializer, TopicUpdateSerializer, TopicUpdateStaffSerializer, PostSerializer, PostCreateSerializer, PostUpdateSerializer, AlertSerializer
-from zds.forum.api.permissions import IsStaffUser, IsOwnerOrIsStaff, CanWriteInForum, CanWriteInTopic, CanEditPost
+from zds.forum.api.permissions import IsOwnerOrIsStaff, CanWriteInForum, CanWriteInTopic, CanEditPost
 from zds.member.models import User
 from zds.forum.commons import PostEditMixin
-from itertools import chain
+
 
 class PostKarmaView(KarmaView):
     queryset = Post.objects.all()
@@ -222,7 +222,6 @@ class TopicListAPI(ListCreateAPIView):
     def get_permissions(self):
         permission_classes = [CanReadForum]
         if self.request.method == 'POST':
-            print('requete post')
             # TODO
             #forum = Forum.objects.get(id=self.request.data.get('forum'))
             #self.check_object_permissions(self.request, forum)
@@ -393,7 +392,6 @@ class PostListAPI(ListCreateAPIView):
               message: Not Found
         """
         return self.list(request, *args, **kwargs)
-        # TODO si message cache ? Le cacher dans l'API
 
     def post(self, request, *args, **kwargs):
         """

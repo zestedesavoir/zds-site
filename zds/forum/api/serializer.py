@@ -30,11 +30,11 @@ class TopicCreateSerializer(serializers.ModelSerializer, TitleValidator, TextVal
 
     class Meta:
         model = Topic
-        # tags = serializers.PrimaryKeyRelatedField(many=True, queryset=Tag.objects.all(), required=False, )
-
+        tags = serializers.SlugRelatedField(many=True, read_only=False,
+                                          slug_field='slug', queryset=Tag.objects.all())
 
         fields = ('id', 'title', 'subtitle', 'forum', 'text',
-                  'author', 'last_message', 'pubdate',
+                  'author', 'last_message', 'pubdate', 'tags',
                   'permissions', 'slug')
         read_only_fields = ('id', 'author', 'last_message', 'pubdate', 'permissions', 'slug')
 
@@ -104,12 +104,14 @@ class TopicUpdateStaffSerializer(serializers.ModelSerializer, TitleValidator, Te
     def throw_error(self, key=None, message=None):
         raise serializers.ValidationError(message)
 
+
 class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
         exclude = ('ip_address', 'text_hidden',)
         read_only = ('ip_address', 'text_hidden',)
         permissions_classes = DRYPermissions
+
 
 class PostCreateSerializer(serializers.ModelSerializer, TextValidator):
     """
@@ -141,6 +143,7 @@ class PostCreateSerializer(serializers.ModelSerializer, TextValidator):
     #def throw_error(self, key=None, message=None):
         #raise serializers.ValidationError(message)
 
+
 class PostUpdateSerializer(serializers.ModelSerializer, TextValidator):
     """
     Serializer to update a post.
@@ -150,8 +153,8 @@ class PostUpdateSerializer(serializers.ModelSerializer, TextValidator):
 
     class Meta:
         model = Post
-        fields = ('id', 'text', 'permissions', 'is_visible', 'editor')
-        read_only_fields = ('id', 'permissions', 'editor')
+        fields = ('id', 'text', 'permissions', 'is_visible', 'editor', 'update')
+        read_only_fields = ('id', 'permissions', 'editor', 'update')
 
     def update(self, instance, validated_data):
 
@@ -166,7 +169,6 @@ class PostUpdateSerializer(serializers.ModelSerializer, TextValidator):
         if request and hasattr(request, "user"):
             user = request.user
 
-        # TODO ajouter verifier test pour l'user, le text_html et le datetime
         setattr(instance, 'editor', user)
         if text is not None:
             instance.update_content(text)

@@ -542,8 +542,6 @@ def delete_topic_in_elasticsearch(sender, instance, **kwargs):
 
     def has_object_update_permission(self, request):
         return self.is_author(request.user)
-        # TODO peut on editer quand un topic est ferme ?
-        # TODO a tester, l'auteur avait acces a ubn forum prive, mais ce n'est plus le cas, peut il editer ses messages
 
     @classmethod
     def get_es_mapping(cls):
