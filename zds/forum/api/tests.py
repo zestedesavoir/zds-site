@@ -17,6 +17,11 @@ from zds.forum.factories import PostFactory
 from zds.forum.tests.tests_views import create_category, add_topic_in_a_forum
 from zds.utils.models import CommentVote, Alert
 
+# We remove spam limit so that we dont get 403 during testing
+# Note : Spam limit is reactivated for the following test : test_create_post_spamming
+overrided_zds_app = settings.ZDS_APP
+overrided_zds_app['forum']['spam_limit_seconds'] = 0
+
 
 class ForumPostKarmaAPITest(APITestCase):
     def setUp(self):
@@ -208,6 +213,7 @@ class ForumPostKarmaAPITest(APITestCase):
         self.assertEqual(1, response.data['dislike']['count'])
 
 
+@override_settings(ZDS_APP=overrided_zds_app)
 class ForumAPITest(APITestCase):
     def setUp(self):
         self.client = APIClient()
@@ -732,7 +738,7 @@ class ForumAPITest(APITestCase):
         }
 
         response = self.client_authenticated.post(reverse('api:forum:list-topic'), data)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_details_topic(self):
         """
@@ -782,6 +788,30 @@ class ForumAPITest(APITestCase):
         # Staff
         response = self.client_authenticated_staff.get(reverse('api:forum:detail-topic', args=[topic.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_details_topic_with_post_hidden(self):
+        """
+        Get details of a topic where the first post is hidden.
+        """
+        topic = self.create_multiple_forums_with_topics(1, 1)
+        tag = TagFactory()
+        tag2 = TagFactory()
+        topic.add_tags([tag.title, tag2.title])
+        topic.is_visible = False
+
+        self.client = APIClient()
+        response = self.client.get(reverse('api:forum:detail-topic', args=(topic.id,)))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('title'), topic.title)
+        self.assertEqual(response.data.get('subtitle'), topic.subtitle)
+        self.assertEqual(response.data.get('forum'), topic.forum.id)
+        self.assertEqual(response.data.get('tags'), [tag.id, tag2.id])
+        self.assertIsNotNone(response.data.get('title'))
+        self.assertIsNotNone(response.data.get('forum'))
+        self.assertIsNone(response.data.get('ip_address'))
+        self.assertIsNone(response.data.get('text'))
+        self.assertIsNone(response.data.get('text_html'))
+        self.assertIsFalse(response.data.get('is_visible'))
 
     def test_update_topic_details_title(self):
         """
@@ -1116,6 +1146,36 @@ class ForumAPITest(APITestCase):
         response = self.client.get(reverse('api:forum:list-post', args=[666]))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
+    def test_list_of_posts_with_hidden_post(self):
+        """
+        Gets list of posts in a topic with two that are hidden.
+        """
+        # A post is already included with the topic
+        topic, posts = self.create_topic_with_post(20)
+
+        # Post hidden by user
+        post = posts[4]
+        post.is_visible = False
+        post.save()
+
+        # Post hidden by staff member
+        another_post = posts[5]
+        another_post.is_visible = False
+        another_post.text_hidden = 'Flood'
+        another_post.save()
+
+        response = self.client.get(reverse('api:forum:list-post', args=[topic.id]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertIsNone(response.data.get('results')[4].text)
+        self.assertIsNone(response.data.get('results')[4].text_html)
+        self.assertIsFalse(response.data.get('results')[4].is_visible)
+
+        self.assertIsNone(response.data.get('results')[5].text)
+        self.assertIsNone(response.data.get('results')[5].text_html)
+        self.assertIsFalse(response.data.get('results')[5].is_visible)
+        self.assertIsEqual(response.data.get('results')[5].text_hidden, 'Flood')
+
     def test_list_of_user_topics_empty(self):
         """
         Gets empty list of topic that the user created.
@@ -1306,6 +1366,7 @@ class ForumAPITest(APITestCase):
         self.assertEqual(response.data.get('author'), post.author.id)
         self.assertEqual(response.data.get('position'), post.position)
 
+    # TODO reactiver le setting pour le spam
     def test_create_post_spamming(self):
         """
         Tries to create differents posts in the same Topic without waiting 15 minutes.
@@ -1827,9 +1888,7 @@ def authenticate_client(client, client_auth, username, password):
 
 # TODO
 # Reorganiser le code de test en differentes classes, reordonner les tests
-# -----------Gérer l'antispam (test ajouté)
-# ------------Dans topic details vérifier que les tags sont bien affichés (test ajouté)
-# --------------- Dans la liste des topics filtrer sur les tags (test ajouté)
+
 # A la création de topic pouvoir mettre des tags
 # A l'édit de topic pouvoir changer des tags
 # Tests qui ne passent pas
@@ -1838,6 +1897,4 @@ def authenticate_client(client, client_auth, username, password):
 # quand on poste un message dans un topic depuis l'API il semblerait que la position dans le topic ne soit pas bonne
 
 # TESTS MANQUANTS
-# Vérifier que l'on affiche pas le text / text_html dans la list des posts quand le message est masque (list post)
-# Vérifier que l'on affiche pas le text / text_html dans topic details quand le post est le premier du topic
 # ALLOWED_HOSTS=['zds-anto59290.c9users.io']

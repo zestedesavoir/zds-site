@@ -18,7 +18,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 DEBUG = True
 
-# INTERNAL_IPS = ('127.0.0.1',)  # debug toolbar
+INTERNAL_IPS = ('82.233.188.236')  # debug toolbar
 
 DATABASES = {
     'default': {
@@ -105,6 +105,7 @@ MIDDLEWARE_CLASSES = (
     # CorsMiddleware needs to be before CommonMiddleware.
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -589,3 +590,9 @@ if DEBUG:
     INSTALLED_APPS += (
         'debug_toolbar',
     )
+
+def show_toolbar(request):
+    return True
+DEBUG_TOOLBAR_CONFIG = {
+    "SHOW_TOOLBAR_CALLBACK" : show_toolbar,
+}
