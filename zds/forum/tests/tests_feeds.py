@@ -279,12 +279,11 @@ class LastPostFeedTest(TestCase):
     def test_get_description(self):
         """ test the return value of description """
 
-        # TODO : Fix this test, bug cause of markdown :(
         emarkdown(self.post3.text)
-        # ref = emarkdown(self.post3.text)
-        # posts = self.postfeed.items(obj={'tag': self.tag2.pk})
-        # ret = self.postfeed.item_description(item=posts[0])
-        # self.assertEqual(ret, ref)
+        ref = emarkdown(self.post3.text)
+        posts = self.postfeed.items(obj={'tag': self.tag2.pk})
+        ret = self.postfeed.item_description(item=posts[0])
+        self.assertEqual(ret, ref)
 
     def test_get_author_name(self):
         """ test the return value of author name """

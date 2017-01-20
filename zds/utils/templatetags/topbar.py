@@ -101,6 +101,7 @@ def top_categories_content(_type):
     return {"tags": tags, "categories": cats}
 
 
+
 @register.filter('auth_forum')
 def auth_forum(forum, user):
     return forum.can_read(user)

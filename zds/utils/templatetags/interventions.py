@@ -85,10 +85,10 @@ def humane_delta(value):
     """
     const = {
         1: _("Aujourd'hui"),
-        2: _("Hier"),
-        3: _("Les 7 derniers jours"),
-        4: _("Les 30 derniers jours"),
-        5: _("Plus ancien")
+        2: _('Hier'),
+        3: _('Les 7 derniers jours'),
+        4: _('Les 30 derniers jours'),
+        5: _('Plus ancien')
     }
 
     return const[value]
