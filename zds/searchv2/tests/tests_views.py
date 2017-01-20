@@ -463,6 +463,95 @@ class ViewsTests(TestCase):
 
             settings.ZDS_APP['search']['boosts'][model.get_es_document_type()]['global'] = 1.0
 
+    def test_change_topic_impacts_posts(self):
+
+        if not self.manager.connected_to_es:
+            return
+
+        # 1. Create an hidden forum belonging to an hidden group and add staff in it.
+        text = 'test'
+
+        group = Group.objects.create(name=u'Les illuminatis anonymes de ZdS')
+        _, hidden_forum = create_category(group)
+
+        self.staff.groups.add(group)
+        self.staff.save()
+
+        # 2. Create a normal topic and index it
+        topic_1 = TopicFactory(forum=self.forum, author=self.user, title=text)
+        post_1 = PostFactory(topic=topic_1, author=self.user, position=1)
+        post_1.text = post_1.text_html = text
+        post_1.save()
+
+        self.manager.es_bulk_indexing_of_model(Topic)
+        self.manager.es_bulk_indexing_of_model(Post)
+        self.manager.refresh_index()
+
+        self.assertEqual(len(self.manager.setup_search(Search().query(MatchAll())).execute()), 2)  # indexation ok
+
+        result = self.client.get(
+            reverse('search:query') + '?q=' + text + '&models=' + Post.get_es_document_type(), follow=False)
+
+        self.assertEqual(result.status_code, 200)
+        response = result.context['object_list'].execute()
+        self.assertEqual(response.hits.total, 1)  # ok
+        self.assertEqual(response[0].meta.doc_type, Post.get_es_document_type())
+        self.assertEqual(response[0].forum_pk, self.forum.pk)
+        self.assertEqual(response[0].topic_pk, topic_1.pk)
+        self.assertEqual(response[0].topic_title, topic_1.title)
+
+        # 3. Change topic title and reindex
+        topic_1.title = 'new title'
+        topic_1.save()
+
+        self.manager.es_bulk_indexing_of_model(Topic)
+        self.manager.es_bulk_indexing_of_model(Post)
+        self.manager.refresh_index()
+
+        result = self.client.get(
+            reverse('search:query') + '?q=' + text + '&models=' + Post.get_es_document_type(), follow=False)
+
+        self.assertEqual(result.status_code, 200)
+        response = result.context['object_list'].execute()
+        self.assertEqual(response.hits.total, 1)  # ok
+
+        self.assertEqual(response[0].topic_title, topic_1.title)  # title was changed
+
+        # 4. connect with staff and move topic
+        self.assertTrue(self.client.login(username=self.staff.username, password='hostel77'))
+
+        data = {
+            'move': '',
+            'forum': hidden_forum.pk,
+            'topic': topic_1.pk
+        }
+        response = self.client.post(reverse('topic-edit'), data, follow=False)
+
+        self.assertEqual(302, response.status_code)
+
+        self.manager.es_bulk_indexing_of_model(Topic)
+        self.manager.es_bulk_indexing_of_model(Post)
+        self.manager.refresh_index()
+
+        result = self.client.get(
+            reverse('search:query') + '?q=' + text + '&models=' + Post.get_es_document_type(), follow=False)
+
+        self.assertEqual(result.status_code, 200)
+        response = result.context['object_list'].execute()
+        self.assertEqual(response.hits.total, 1)  # Note: without staff, would not get any results (see below)
+
+        self.assertEqual(response[0].forum_pk, hidden_forum.pk)  # post was updated with new forum
+
+        # 5. Topic is now hidden
+        self.client.logout()
+
+        result = self.client.get(
+            reverse('search:query') + '?q=' + text + '&models=' + Post.get_es_document_type(), follow=False)
+
+        self.assertEqual(result.status_code, 200)
+        response = result.context['object_list'].execute()
+        self.assertEqual(response.hits.total, 0)  # ok
+
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
             shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])

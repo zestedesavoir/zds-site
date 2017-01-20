@@ -431,6 +431,20 @@ class Topic(AbstractESDjangoIndexable):
 
         return data
 
+    def save(self, *args, **kwargs):
+        """Overridden to handle the displacement of the topic to another forum
+        """
+
+        try:
+            old_self = Topic.objects.get(pk=self.pk)
+        except Topic.DoesNotExist:
+            pass
+        else:
+            if old_self.forum.pk != self.forum.pk or old_self.title != self.title:
+                Post.objects.filter(topic__pk=self.pk).update(es_flagged=True)
+
+        return super(Topic, self).save(*args, **kwargs)
+
 
 @receiver(pre_delete, sender=Topic)
 def delete_topic_in_elasticsearch(sender, instance, **kwargs):
@@ -482,6 +496,7 @@ class Post(Comment, AbstractESDjangoIndexable):
         # not analyzed:
         es_mapping.field('get_absolute_url', Text(index='not_analyzed'))
         es_mapping.field('topic_title', Text(index='not_analyzed'))
+        es_mapping.field('topic_pk', Integer(index='not_analyzed'))
 
         es_mapping.field('forum_pk', Integer(index='not_analyzed'))
         es_mapping.field('forum_title', Text(index='not_analyzed'))
@@ -506,12 +521,14 @@ class Post(Comment, AbstractESDjangoIndexable):
 
         excluded_fields = excluded_fields or []
         excluded_fields.extend(
-            ['like_dislike_ratio', 'topic_title', 'forum_title', 'forum_pk', 'forum_get_absolute_url'])
+            ['like_dislike_ratio', 'topic_title', 'topic_pk', 'forum_title', 'forum_pk', 'forum_get_absolute_url'])
 
         data = super(Post, self).get_es_document_source(excluded_fields=excluded_fields)
 
         data['like_dislike_ratio'] = \
             (self.like / self.dislike) if self.dislike != 0 else self.like if self.like != 0 else 1
+
+        data['topic_pk'] = self.topic.pk
         data['topic_title'] = self.topic.title
 
         data['forum_pk'] = self.topic.forum.pk
