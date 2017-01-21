@@ -115,13 +115,14 @@ La configuration de la connexion et de l'*index* se fait dans le ``settings.py``
       ES_SEARCH_INDEX = {
           'name': 'zds_search',
           'shards': 5,
-          'replicas': 0
+          'replicas': 0,
+          'objects_per_batch': 100
       }
 
 
 La première active Elasticsearch pour SdZ.
 La seconde permet de configurer la connexion à Elasticsearch. ``default`` est l'*alias* de la connexion, au cas où il serait nécessaire d'utiliser plusieurs *clusters*.
-La troisièmme est la configuration de l'*index*, avec son nom, son nombre de *shards* et de *replicas*.
+La troisièmme est la configuration de l'*index*, avec son nom, son nombre de *shards* et de *replicas* et finalement le nombre d'objects qui sont récupérés de la base de donnée en même temps pour être indexés (pour limiter l'impact sur la mémoire).
 
 Pour modifier les différents paramètres d'une recherche, c'est cette fois dans la variable ``ZDS_APP`` que ça se passe:
 

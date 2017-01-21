@@ -63,7 +63,7 @@ class AbstractESIndexable(object):
         return es_mapping
 
     @classmethod
-    def get_es_indexable(cls, force_reindexing=False):
+    def get_es_indexable(cls, force_reindexing=False, objects_per_batch=100):
         """Get a list of object to be indexed. Thought this method, you may limit the reindexing.
 
         .. attention::
@@ -71,8 +71,9 @@ class AbstractESIndexable(object):
 
         :param force_reindexing: force to return all objects, even if they may be already indexed.
         :type force_reindexing: bool
-        :return: list of object to be indexed
-        :rtype: list
+        :param objects_per_batch: limit the number of objects at one time
+        :type objects_per_batch: int
+        :rtype: iterator
         """
 
         return []
@@ -141,14 +142,11 @@ class AbstractESIndexable(object):
 
         return document
 
-    def es_done_indexing(self, es_id):
+    def es_done_indexing(self):
         """Save index when indexed
 
-        :param es_id: the id given by ES
-        :type es_id: str
         """
 
-        self.es_id = es_id
         self.es_already_indexed = True
 
 
@@ -204,13 +202,23 @@ class AbstractESDjangoIndexable(AbstractESIndexable, models.Model):
         return query
 
     @classmethod
-    def get_es_indexable(cls, force_reindexing=False):
-        """Override ``get_es_indexable()`` in order to use the Django querysets.
+    def get_es_indexable(cls, force_reindexing=False, objects_per_batch=100):
+        """Override ``get_es_indexable()`` in order to use the Django querysets and batch
         """
 
         query = cls.get_es_django_indexable(force_reindexing)
+        current_pk = 0
 
-        return list(query.all())
+        while True:
+            objects = query.filter(pk__gt=current_pk)[:objects_per_batch].all()
+
+            if not objects:
+                break
+
+            for obj in objects:
+                yield obj
+                current_pk = obj.pk
+                obj.es_done_indexing()
 
     def save(self, *args, **kwargs):
         """Override the ``save()`` method to flag the object if saved
@@ -224,18 +232,11 @@ class AbstractESDjangoIndexable(AbstractESIndexable, models.Model):
 
         return super(AbstractESDjangoIndexable, self).save(*args, **kwargs)
 
-    def es_done_indexing(self, es_id):
+    def es_done_indexing(self):
         """Overridden to actually save the values of ``es_flagged`` and ``es_already_indexed`` into BDD.
-
-        :param es_id: id given by ES
-        :type es_id: str
-        :raise ValueError: if id given by ES and pk does not match.
         """
 
-        if es_id != self.es_id:
-            raise ValueError('mistmach between pk and id given by ES !!')
-
-        super(AbstractESDjangoIndexable, self).es_done_indexing(es_id)
+        super(AbstractESDjangoIndexable, self).es_done_indexing()
         self.save(es_flagged=False)
 
 
@@ -260,23 +261,26 @@ def get_django_indexable_objects():
 class ESIndexManager(object):
     """Manage a given index with different taylor-made functions"""
 
-    def __init__(self, name, shards=5, replicas=0, connection_alias='default'):
+    def __init__(self, name, shards=5, replicas=0, objects_per_batch=100, connection_alias='default'):
         """Create a manager for a given index
 
         :param name: the index name
         :type name: str
-        :param connection_alias: the alias for connection
-        :type connection_alias: str
         :param shards: number of shards
         :type shards: int
         :param replicas: number of replicas
         :type replicas: int
+        :param objects_per_batch: limit the number of objects at one time
+        :type objects_per_batch: int
+        :param connection_alias: the alias for connection
+        :type connection_alias: str
         """
 
         self.index = name
 
         self.number_of_shards = shards
         self.number_of_replicas = replicas
+        self.objects_per_batch = 100
 
         self.logger = logging.getLogger('ESIndexManager:{}'.format(self.index))
 
@@ -439,8 +443,7 @@ class ESIndexManager(object):
             objs = model.get_es_django_indexable(force_reindexing=True)
             objs.update(es_flagged=True, es_already_indexed=False)
         else:
-            objs = list(model.get_es_indexable(force_reindexing=True))
-            for obj in objs:
+            for obj in model.get_es_indexable(force_reindexing=True):
                 obj.es_already_indexed = False
 
         self.logger.info('unindex {}'.format(model.get_es_document_type()))
@@ -461,20 +464,18 @@ class ESIndexManager(object):
         :type force_reindexing: bool
         """
 
+        print(model.get_es_document_type())
+
         if not self.connected_to_es:
             return
 
-        objs = list(model.get_es_indexable(force_reindexing=force_reindexing))
-        documents = (
-            obj.get_es_document_as_bulk_action(
-                self.index, 'update' if obj.es_already_indexed and not force_reindexing else 'index')
-            for obj in objs)
+        def yield_formatted_documents():
+            for obj in model.get_es_indexable(force_reindexing, self.objects_per_batch):
+                yield obj.get_es_document_as_bulk_action(
+                    self.index, 'update' if obj.es_already_indexed and not force_reindexing else 'index')
 
-        for index, (_, hit) in enumerate(streaming_bulk(self.es, documents)):
-            obj = objs[index]
-            action = 'update' if obj.es_already_indexed and not force_reindexing else 'index'
-            objs[index].es_done_indexing(es_id=hit[action]['_id'])
-
+        for _, hit in streaming_bulk(self.es, yield_formatted_documents()):
+            action = hit.keys()[0]
             self.logger.info('{} {} with id {}'.format(action, hit[action]['_type'], hit[action]['_id']))
 
     def refresh_index(self):

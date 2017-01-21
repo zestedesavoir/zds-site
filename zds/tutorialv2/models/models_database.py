@@ -894,17 +894,14 @@ class PublishedContent(AbstractESDjangoIndexable):
             .filter(must_redirect=False)
 
     @classmethod
-    def get_es_indexable(cls, force_reindexing=False):
+    def get_es_indexable(cls, force_reindexing=False, objects_per_batch=100):
         """Overridden to include chapters as well
+        :param objects_per_batch:
         """
-
-        published_contents = super(PublishedContent, cls).get_es_indexable(force_reindexing)
-        indexable = []
-        chapters = []
 
         index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
 
-        for content in published_contents:
+        for content in super(PublishedContent, cls).get_es_indexable(force_reindexing, objects_per_batch=100):
             versioned = content.load_public_version()
 
             if versioned.has_sub_containers():  # chapters are only indexed for middle and big tuto
@@ -916,11 +913,9 @@ class PublishedContent(AbstractESDjangoIndexable):
 
                 # (re)index the new one(s)
                 for chapter in versioned.get_list_of_chapters():
-                    chapters.append(FakeChapter(chapter, versioned, content.es_id))
+                    yield FakeChapter(chapter, versioned, content.es_id)
 
-        indexable.extend(chapters)
-        indexable.extend(published_contents)
-        return indexable
+            yield content
 
     def get_es_document_source(self, excluded_fields=None):
         """Overridden to handle the fact that most information are versioned
@@ -959,7 +954,7 @@ def delete_published_content_in_elasticsearch(sender, instance, **kwargs):
     """
 
     index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
-    index_manager.delete_by_query('chapter', ES_Q('match', _routing=instance.es_id))
+    index_manager.delete_by_query(FakeChapter.get_es_document_type(), ES_Q('match', _routing=instance.es_id))
 
     return delete_document_in_elasticsearch(instance)
 
