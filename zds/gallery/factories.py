@@ -31,14 +31,14 @@ class GalleryFactory(factory.DjangoModelFactory):
 
     title = factory.Sequence(u'titre de la gallerie {0}'.format)
     subtitle = factory.Sequence(u'Sous-titre de la gallerie {0}'.format)
-    slug = factory.LazyAttribute(lambda o: "{0}".format(slugify(o.title)))
+    slug = factory.LazyAttribute(lambda o: '{0}'.format(slugify(o.title)))
 
 
 class UserGalleryFactory(factory.DjangoModelFactory):
     class Meta:
         model = UserGallery
 
-    mode = "W"
+    mode = 'W'
 
     @classmethod
     def _prepare(cls, create, **kwargs):

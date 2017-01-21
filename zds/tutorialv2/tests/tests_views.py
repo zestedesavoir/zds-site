@@ -257,6 +257,19 @@ class ContentTests(TestCase):
         description = u'une description'
         title = u'un titre'
         random = u'un truc à la rien à voir'
+        random_with_md = u'un text contenant du **markdown** .'
+
+        response = self.client.post(
+            reverse('content:create-tutorial'),
+            {
+                'text': random_with_md,
+                'preview': '',
+            }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+
+        self.assertEqual(200, response.status_code)
+
+        result_string = ''.join(response.streaming_content)
+        self.assertIn('<strong>markdown</strong>', result_string, 'We need the text to be properly formatted')
 
         result = self.client.post(
             reverse('content:create-tutorial'),
@@ -287,6 +300,20 @@ class ContentTests(TestCase):
             reverse('content:edit', args=[pk, slug]),
             follow=False)
         self.assertEqual(result.status_code, 200)
+
+        # preview tutorial
+        result = self.client.post(
+            reverse('content:edit', args=[pk, slug]),
+            {
+                'text': random_with_md,
+                'last_hash': versioned.compute_hash(),
+                'preview': ''
+            }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+
+        self.assertEqual(result.status_code, 200)
+
+        result_string = ''.join(result.streaming_content)
+        self.assertIn('<strong>markdown</strong>', result_string, 'We need the text to be properly formatted')
 
         # edit tutorial:
         new_licence = LicenceFactory()
@@ -321,6 +348,19 @@ class ContentTests(TestCase):
         self.assertNotEqual(versioned.slug, slug)
 
         slug = tuto.slug  # make the title change also change the slug !!
+
+        # preview container
+        result = self.client.post(
+            reverse('content:create-container', args=[pk, slug]),
+            {
+                'title': title,
+                'text': random_with_md,
+                'preview': ''
+            }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(result.status_code, 200)
+
+        result_string = ''.join(result.streaming_content)
+        self.assertIn('<strong>markdown</strong>', result_string, 'We need the container to be properly formatted')
 
         # create container:
         result = self.client.post(
@@ -358,6 +398,24 @@ class ContentTests(TestCase):
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
+
+        versioned = PublishableContent.objects.get(pk=pk).load_version()
+        container = versioned.children[0]
+
+        # preview
+        result = self.client.post(
+            reverse('content:edit-container', kwargs={'pk': pk, 'slug': slug, 'container_slug': container.slug}),
+            {
+                'title': random,
+                'text': random_with_md,
+                'last_hash': container.compute_hash(),
+                'preview': ''
+            }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+
+        self.assertEqual(result.status_code, 200)
+
+        result_string = ''.join(result.streaming_content)
+        self.assertIn('<strong>markdown</strong>', result_string, 'We need the container to be properly formatted')
 
         versioned = PublishableContent.objects.get(pk=pk).load_version()
         container = versioned.children[0]
@@ -415,6 +473,28 @@ class ContentTests(TestCase):
 
         versioned = PublishableContent.objects.get(pk=pk).load_version()
         subcontainer = versioned.children[0].children[0]
+
+        result = self.client.post(
+            reverse('content:edit-container',
+                    kwargs={
+                        'pk': pk,
+                        'slug': slug,
+                        'parent_container_slug': container.slug,
+                        'container_slug': subcontainer.slug
+                    }),
+            {
+                'title': random,
+                'text': random_with_md,
+                'last_hash': subcontainer.compute_hash(),
+                'preview': ''
+            }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(result.status_code, 200)
+
+        result_string = ''.join(result.streaming_content)
+        self.assertIn('<strong>markdown</strong>', result_string, 'We need the container to be properly formatted')
+
+        versioned = PublishableContent.objects.get(pk=pk).load_version()
+        subcontainer = versioned.children[0].children[0]
         self.assertEqual(subcontainer.title, random)
         self.assertEqual(subcontainer.get_introduction(), random)
         self.assertEqual(subcontainer.get_conclusion(), random)
@@ -434,6 +514,24 @@ class ContentTests(TestCase):
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
+
+        result = self.client.post(
+            reverse('content:create-extract',
+                    kwargs={
+                        'pk': pk,
+                        'slug': slug,
+                        'parent_container_slug': container.slug,
+                        'container_slug': subcontainer.slug
+                    }),
+            {
+                'title': title,
+                'text': random_with_md,
+                'preview': ''
+            }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(result.status_code, 200)
+
+        result_string = ''.join(result.streaming_content)
+        self.assertIn('<strong>markdown</strong>', result_string, 'We need the extract to be properly formatted')
 
         versioned = PublishableContent.objects.get(pk=pk).load_version()
         self.assertEqual(len(versioned.children[0].children[0].children), 1)  # the extract is created
@@ -2959,6 +3057,7 @@ class ContentTests(TestCase):
         extract = ExtractFactory(container=chapter, db_object=tuto)
 
         random = u"Il est minuit 30 et j'écris un test ;)"
+        random_with_md = u'un text contenant du **markdown** .'
 
         self.assertEqual(
             self.client.login(
@@ -3059,6 +3158,26 @@ class ContentTests(TestCase):
         chapter_version = tuto.load_version().children[0]
         self.assertEqual(chapter_version.get_introduction(), random)
         self.assertEqual(chapter_version.get_conclusion(), random)
+
+        # preview
+        result = self.client.post(
+            reverse('content:edit-extract',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': tuto.slug,
+                        'container_slug': chapter_version.slug,
+                        'extract_slug': extract.slug
+                    }),
+            {
+                'title': random,
+                'text': random_with_md,
+                'last_hash': '',
+                'preview': ''
+            }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(result.status_code, 200)
+
+        result_string = ''.join(result.streaming_content)
+        self.assertIn('<strong>markdown</strong>', result_string, 'We need the extract to be properly formatted')
 
         # edit extract
         result = self.client.post(

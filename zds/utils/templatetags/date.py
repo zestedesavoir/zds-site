@@ -16,10 +16,10 @@ Define a filter to format date.
 
 # Date formatting constants
 
-__DATE_FMT_FUTUR = "Dans le futur"
+__DATE_FMT_FUTUR = 'Dans le futur'
 __ABS_DATE_FMT_SMALL = r'd/m/y à H\hi'       # Small format
 __ABS_DATE_FMT_NORMAL = r'l d F Y à H\hi'    # Normal format
-__ABS_HUMAN_TIME_FMT = "%d %b %Y, %H:%M:%S"
+__ABS_HUMAN_TIME_FMT = '%d %b %Y, %H:%M:%S'
 
 
 def date_formatter(value, tooltip, small):

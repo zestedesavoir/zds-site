@@ -793,6 +793,32 @@ class FindTopicTest(TestCase):
         self.assertEqual(1, len(response.context['topics']))
         self.assertEqual(topic, response.context['topics'][0])
 
+    def test_success_find_topics_of_a_member_private_forum(self):
+        """
+        Test that when an user is part of two groups and that those groups can both read a private forum
+        only one topic is returned by the query (cf. Issue 4068).
+        """
+        profile = ProfileFactory()
+        group = Group.objects.create(name='DummyGroup_1')
+        another_group = Group.objects.create(name='DummyGroup_2')
+        category, forum = create_category(group)
+
+        forum.group.add(another_group)
+        forum.save()
+
+        profile.user.groups.add(group)
+        profile.user.groups.add(another_group)
+        profile.user.save()
+
+        topic = add_topic_in_a_forum(forum, profile)
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.get(reverse('topic-find', args=[profile.user.pk]), follow=False)
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(1, len(response.context['topics']))
+        self.assertEqual(topic, response.context['topics'][0])
+
 
 class FindTopicByTagTest(TestCase):
     def test_failure_find_topics_of_a_tag_not_found(self):
@@ -803,6 +829,35 @@ class FindTopicByTagTest(TestCase):
     def test_success_find_topics_of_a_tag(self):
         profile = ProfileFactory()
         category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, profile)
+        tag = TagFactory()
+        topic.add_tags([tag.title])
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.get(reverse('topic-tag-find', args=[tag.pk, tag.slug]), follow=False)
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(1, len(response.context['topics']))
+        self.assertEqual(topic, response.context['topics'][0])
+        self.assertEqual(tag, response.context['tag'])
+
+    def test_success_find_topics_of_a_tag_private_forums(self):
+        """
+        Test that when an user is part of two groups and that those groups can both read a private forum
+        only one topic is returned by the query (cf. Issue 4068).
+        """
+        profile = ProfileFactory()
+        group = Group.objects.create(name='DummyGroup_1')
+        another_group = Group.objects.create(name='DummyGroup_2')
+        category, forum = create_category(group)
+
+        forum.group.add(another_group)
+        forum.save()
+
+        profile.user.groups.add(group)
+        profile.user.groups.add(another_group)
+        profile.user.save()
+
         topic = add_topic_in_a_forum(forum, profile)
         tag = TagFactory()
         topic.add_tags([tag.title])
@@ -1581,6 +1636,32 @@ class FindPostTest(TestCase):
         category, forum = create_category()
         topic = add_topic_in_a_forum(forum, profile)
 
+        response = self.client.get(reverse('post-find', args=[profile.user.pk]), follow=False)
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(1, len(response.context['posts']))
+        self.assertEqual(topic.last_message, response.context['posts'][0])
+
+    def test_success_find_topics_of_a_member_private_forum(self):
+        """
+        Test that when an user is part of two groups and that those groups can both read a private forum
+        only one post is returned by the query (cf. Issue 4068).
+        """
+        profile = ProfileFactory()
+        group = Group.objects.create(name='DummyGroup_1')
+        another_group = Group.objects.create(name='DummyGroup_2')
+        category, forum = create_category(group)
+
+        forum.group.add(another_group)
+        forum.save()
+
+        profile.user.groups.add(group)
+        profile.user.groups.add(another_group)
+        profile.user.save()
+
+        topic = add_topic_in_a_forum(forum, profile)
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
         response = self.client.get(reverse('post-find', args=[profile.user.pk]), follow=False)
 
         self.assertEqual(200, response.status_code)

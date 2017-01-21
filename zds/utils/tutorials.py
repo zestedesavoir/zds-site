@@ -30,9 +30,9 @@ class GetPublished:
                 # Parse it
                 GetPublished.load_tutorial(json)
 
-        return {"parts": GetPublished.published_part,
-                "chapters": GetPublished.published_chapter,
-                "extracts": GetPublished.published_extract}
+        return {'parts': GetPublished.published_part,
+                'chapters': GetPublished.published_chapter,
+                'extracts': GetPublished.published_extract}
 
     @classmethod
     def load_tutorial(cls, json):
@@ -75,7 +75,7 @@ def get_blob(tree, chemin):
                 data = blob.data_stream.read()
                 return data.decode('utf-8')
         except (OSError, IOError):
-            return ""
+            return ''
     if len(tree.trees) > 0:
         for atree in tree.trees:
             result = get_blob(atree, chemin)

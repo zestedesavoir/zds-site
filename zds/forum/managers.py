@@ -63,7 +63,7 @@ class TopicManager(models.Manager):
         """
         queryset = self.filter(author=author) \
                        .prefetch_related('author')
-        queryset = queryset.filter(self.visibility_check_query(user))
+        queryset = queryset.filter(self.visibility_check_query(user)).distinct()
 
         return queryset.order_by('-pubdate').all()[:settings.ZDS_APP['forum']['home_number']]
 
@@ -91,13 +91,13 @@ class TopicManager(models.Manager):
     def get_all_topics_of_a_user(self, current, target):
         queryset = self.filter(author=target)\
                        .prefetch_related('author')
-        queryset = queryset.filter(self.visibility_check_query(current))
+        queryset = queryset.filter(self.visibility_check_query(current)).distinct()
         return queryset.order_by('-pubdate').all()
 
     def get_all_topics_of_a_tag(self, tag, user):
         queryset = self.filter(tags__in=[tag])\
                        .prefetch_related('author', 'last_message', 'tags')
-        queryset = queryset.filter(self.visibility_check_query(user))
+        queryset = queryset.filter(self.visibility_check_query(user)).distinct()
         return queryset.order_by('-last_message__pubdate')
 
 
@@ -129,7 +129,7 @@ class PostManager(InheritanceManager):
                        .prefetch_related('author')
         if not current.has_perm('forum.change_post'):
             queryset = queryset.filter(is_visible=True)
-        queryset = queryset.filter(self.visibility_check_query(current))
+        queryset = queryset.filter(self.visibility_check_query(current)).distinct()
         return queryset.order_by('-pubdate').all()
 
 

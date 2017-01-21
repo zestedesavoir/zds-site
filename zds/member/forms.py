@@ -154,7 +154,7 @@ class MiniProfileForm(forms.Form):
         widget=forms.Textarea(
             attrs={
                 'placeholder': _(u'Votre biographie au format Markdown.'),
-                'class': 'md-editor'
+                'class': 'md-editor preview-source'
             }
         )
     )
@@ -262,6 +262,10 @@ class ProfileForm(MiniProfileForm):
 
         layout = Layout(
             Field('biography'),
+            ButtonHolder(StrictButton(_(u'Aperçu'), type='preview', name='preview',
+                                      css_class='btn btn-grey preview-btn'),),
+            HTML('{% if form.biographie.value %}{% include "misc/previsualization.part.html" \
+            with text=form.biographie.value %}{% endif %}'),
             Field('site'),
             Field('avatar_url'),
             HTML(_(u'''<p><a href="{% url 'gallery-list' %}">Choisir un avatar dans une galerie</a><br/>

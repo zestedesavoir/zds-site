@@ -574,7 +574,7 @@ class UtilsTests(TestCase):
     def test_adjust_nb_letters(self):
         """Test the `adjust_nb_letters` command"""
 
-        article = PublishedContentFactory(type="ARTICLE", author_list=[self.user_author])
+        article = PublishedContentFactory(type='ARTICLE', author_list=[self.user_author])
         published = PublishedContent.objects.filter(content=article).first()
         published.nb_letter = None
         published.save()

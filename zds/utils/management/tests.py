@@ -38,14 +38,14 @@ class CommandsTestCase(TestCase):
         self.assertTrue(Gallery.objects.count() > 0)
 
     def test_load_factory_data(self):
-        args = ["fixtures/advanced/aide_tuto_media.yaml"]
+        args = ['fixtures/advanced/aide_tuto_media.yaml']
         opts = {}
         call_command('load_factory_data', *args, **opts)
 
         self.assertTrue(HelpWriting.objects.count() > 0)
 
     def test_profiler(self):
-        result = self.client.get("/?prof", follow=True)
+        result = self.client.get('/?prof', follow=True)
         self.assertEqual(result.status_code, 200)
 
         admin = ProfileFactory()
@@ -53,5 +53,5 @@ class CommandsTestCase(TestCase):
         admin.save()
         self.assertTrue(self.client.login(username=admin.user.username, password='hostel77'))
 
-        result = self.client.get("/?prof", follow=True)
+        result = self.client.get('/?prof', follow=True)
         self.assertEqual(result.status_code, 200)
