@@ -858,7 +858,7 @@ Mettre à jour le `settings_prod.py` en suivant `doc/source/install/configs/sett
 Elasticsearch (PR #4096)
 ------------------------
 
-Les commandes suivantes sont à effectuer en *root*:
+Pour installer Elasticsearch, les commandes suivantes sont à effectuer (en *root*):
 
 + Ajouter `deb http://ftp.fr.debian.org/debian jessie-backports` main dans `/etc/apt/sources.list`
 + Installer Java 8 : 
@@ -870,7 +870,7 @@ Les commandes suivantes sont à effectuer en *root*:
     * Ajouter le dépôt pour Elasticsearch 5 : `echo "deb https://artifacts.elastic.co/packages/5.x/apt stable main" | tee -a /etc/apt/sources.list.d/elastic-5.x.list`
     * Installer Elasticsearch 5 : `apt-get update && apt-get install elasticsearch`
 + Configurer la mémoire utilisée par Elastisearch: 
-    Remplacer les options `-Xms` et `-Xmx` par
+    Remplacer les options `-Xms2g` et `-Xmx2g` par
     
     ```
     -Xms512m
@@ -885,6 +885,8 @@ Les commandes suivantes sont à effectuer en *root*:
     systemctl enable elasticsearch.service
     systemctl start elasticsearch.service
     ```
++ Vérifier que le port 9200 n'est pas accessible de l'extérieur (sinon, configurer nginx pour le bloquer)
++ Ajouter [ce plugin](https://github.com/true/true-munin-plugins/blob/master/elasticsearch) à Munin.
     
 Une fois Elasticsearch configuré et lancé,
 
@@ -894,9 +896,19 @@ Une fois Elasticsearch configuré et lancé,
     ```
     python manage.py es_manager index_all
     ```
-    
-+ Repasser `ZDS_APP['display_search_bar'] = True` dans `settings_prod.py`.
 + Configurer un *cron* pour que les données soient réindexée à intervale régulier à travers la commande `python manage.py es_manager index_flagged`.
-+ Ne pas oublier de désactiver l'ancien *cron* de Solr. Ce dernier peut également être désinstallé.
-+ Vérifier que le port 9200 n'est pas accessible de l'extérieur.
-+ Ajouter [ce plugin](https://github.com/true/true-munin-plugins/blob/master/elasticsearch) à Munin.
+
+Une fois que tout est indexé,
+
++ Repasser `ZDS_APP['display_search_bar'] = True` dans `settings_prod.py`.
++ Ne pas oublier de désactiver (et supprimer) l'ancien *cron* de Solr.
++ Désinstaller Solr.
++ Supprimer les tables suivantes de MySQL:
+
+    * `search_searchindexextract`
+    * `search_searchindexcontainer`
+    * `search_searchindexcontent_authors`
+    * `search_searchindexcontent_tags`
+    * `search_searchindextag`
+    * `search_searchindexauthors`
+    * `search_searchindexcontent`
