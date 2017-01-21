@@ -17,9 +17,7 @@
     </a>
 
     <p class="content-description">
-        {% with text=search_result.text|striptags|safe %}
-            {% highlight search_result "text" %}
-        {% endwith %}
+        {% highlight search_result "text" %}
     </p>
 
     <div class="content-meta inline" title="Chapitre">
