@@ -868,9 +868,9 @@ class PublishedContent(AbstractESDjangoIndexable):
         mapping.field('publication_date', Date())
 
         # not analyzed:
-        mapping.field('content_type', Text(index='not_analyzed'))
-        mapping.field('get_absolute_url_online', Text(index='not_analyzed'))
-        mapping.field('thumbnail', Text(index='not_analyzed'))
+        mapping.field('content_type', Text(index=False))
+        mapping.field('get_absolute_url_online', Text(index=False))
+        mapping.field('thumbnail', Text(index=False))
 
         # not from PublishedContent directly:
         mapping.field('title', Text(boost=1.5))
@@ -1022,11 +1022,11 @@ class FakeChapter(AbstractESIndexable):
         mapping.field('text', Text())
 
         # not analyzed:
-        mapping.field('get_absolute_url_online', Text(index='not_analyzed'))
-        mapping.field('parent_title', Text(index='not_analyzed'))
-        mapping.field('parent_get_absolute_url_online', Text(index='not_analyzed'))
-        mapping.field('parent_publication_date', Date(index='not_analyzed'))
-        mapping.field('thumbnail', Text(index='not_analyzed'))
+        mapping.field('get_absolute_url_online', Text(index=False))
+        mapping.field('parent_title', Text(index=False))
+        mapping.field('parent_get_absolute_url_online', Text(index=False))
+        mapping.field('parent_publication_date', Date(index=False))
+        mapping.field('thumbnail', Text(index=False))
 
         return mapping
 

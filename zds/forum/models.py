@@ -400,11 +400,11 @@ class Topic(AbstractESDjangoIndexable):
         es_mapping.field('pubdate', Date())
 
         # not analyzed:
-        es_mapping.field('get_absolute_url', Text(index='not_analyzed'))
+        es_mapping.field('get_absolute_url', Text(index=False))
 
-        es_mapping.field('forum_pk', Integer(index='not_analyzed'))
-        es_mapping.field('forum_title', Text(index='not_analyzed'))
-        es_mapping.field('forum_get_absolute_url', Text(index='not_analyzed'))
+        es_mapping.field('forum_pk', Integer(index=False))
+        es_mapping.field('forum_title', Text(index=False))
+        es_mapping.field('forum_get_absolute_url', Text(index=False))
 
         return es_mapping
 
@@ -494,13 +494,13 @@ class Post(Comment, AbstractESDjangoIndexable):
         es_mapping.field('pubdate', Date())
 
         # not analyzed:
-        es_mapping.field('get_absolute_url', Text(index='not_analyzed'))
-        es_mapping.field('topic_title', Text(index='not_analyzed'))
-        es_mapping.field('topic_pk', Integer(index='not_analyzed'))
+        es_mapping.field('get_absolute_url', Text(index=False))
+        es_mapping.field('topic_title', Text(index=False))
+        es_mapping.field('topic_pk', Integer(index=False))
 
-        es_mapping.field('forum_pk', Integer(index='not_analyzed'))
-        es_mapping.field('forum_title', Text(index='not_analyzed'))
-        es_mapping.field('forum_get_absolute_url', Text(index='not_analyzed'))
+        es_mapping.field('forum_pk', Integer(index=False))
+        es_mapping.field('forum_title', Text(index=False))
+        es_mapping.field('forum_get_absolute_url', Text(index=False))
 
         return es_mapping
 

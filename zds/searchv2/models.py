@@ -464,8 +464,6 @@ class ESIndexManager(object):
         :type force_reindexing: bool
         """
 
-        print(model.get_es_document_type())
-
         if not self.connected_to_es:
             return
 
