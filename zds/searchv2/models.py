@@ -211,13 +211,13 @@ class AbstractESDjangoIndexable(AbstractESIndexable, models.Model):
 
         while True:
             objects = query.filter(pk__gt=current_pk).all()[:objects_per_batch]
-            yield objects
 
             if not objects:
                 break
 
             for obj in objects:
                 current_pk = obj.pk
+            yield objects
 
     def save(self, *args, **kwargs):
         """Override the ``save()`` method to flag the object if saved
