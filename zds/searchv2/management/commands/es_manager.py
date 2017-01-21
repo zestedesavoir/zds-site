@@ -61,7 +61,10 @@ class Command(BaseCommand):
         if force_reindexing:
             self.setup_es()  # remove all previous data
 
-        for model in self.models:
+        for model in self.models[1:]:
+            if force_reindexing:
+                print('- indexing {}s'.format(model.get_es_document_type()))
+
             self.index_manager.es_bulk_indexing_of_model(model, force_reindexing=force_reindexing)
 
         self.index_manager.refresh_index()
