@@ -3,29 +3,20 @@
 {% load i18n %}
 
 
+
 {% block title %}
     {% trans "Recherche" %}
 {% endblock %}
 
 
 
-{% block headline %}
-    {% if query %}
-        {% trans "Résultats de la recherche" %}
-    {% else %}
-        {% trans "Recherche" %}
-    {% endif %}
-{% endblock %}
+{% block body_class %}flexpage searchpage{% endblock %}
 
 
 
-{% block breadcrumb %}
-    <li>{% trans "Recherche" %}</li>
-{% endblock %}
-
-
-
-{% block content %}
+{% block content_out %}
+<section class="flexpage-header">
+<div class="flexpage-wrapper">
 
     <section class="search-box">
         {% crispy form %}
@@ -49,7 +40,10 @@
             </li>
         {% endfor %}
     </ul>
+</div>
+</section>
 
+<div class="flexpage-wrapper">
     {% if query %}
         {% include "misc/paginator.html" with position="top" %}
 
@@ -84,4 +78,5 @@
 
         {% include "misc/paginator.html" with position="bottom" %}
     {% endif %}
+</div>
 {% endblock %}
