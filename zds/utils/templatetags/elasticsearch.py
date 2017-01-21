@@ -18,8 +18,9 @@ def format_highlight(highlighted_fragments):
 
     fragments = []
     for fragment in highlighted_fragments:
-        fragments.append(
-            html_tag.sub('', fragment).replace('[hl]', '<mark class="highlighted">').replace('[/hl]', '</mark>'))
+        if fragment != '':
+            fragments.append(
+                html_tag.sub('', fragment).replace('[hl]', '<mark class="highlighted">').replace('[/hl]', '</mark>'))
 
     return ' &hellip; '.join(fragments)
 
@@ -48,7 +49,10 @@ class HighlightNode(template.Node):
         if field not in search_result:
             raise template.VariableDoesNotExist('field {} is not a member of the search result'.format(field))
 
-        text = html_tag.sub('', search_result[field])
+        text = ''
+
+        if search_result[field] != '':
+            text = html_tag.sub('', search_result[field])
 
         if 'highlight' in search_result.meta:
             if field in search_result.meta.highlight:
