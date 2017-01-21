@@ -902,10 +902,19 @@ class PublishedContent(AbstractESDjangoIndexable):
         indexable = []
         chapters = []
 
+        index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
+
         for content in published_contents:
             versioned = content.load_public_version()
 
             if versioned.has_sub_containers():  # chapters are only indexed for middle and big tuto
+
+                # delete possible previous chapters
+                if content.es_already_indexed:
+                    index_manager.delete_by_query(
+                        FakeChapter.get_es_document_type(), ES_Q('match', _routing=content.es_id))
+
+                # (re)index the new one(s)
                 for chapter in versioned.get_list_of_chapters():
                     chapters.append(FakeChapter(chapter, versioned, content.es_id))
 

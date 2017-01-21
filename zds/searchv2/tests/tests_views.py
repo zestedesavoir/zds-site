@@ -15,7 +15,7 @@ from django.core.urlresolvers import reverse
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, publish_content, \
     PublishedContentFactory
-from zds.tutorialv2.models.models_database import PublishedContent, FakeChapter
+from zds.tutorialv2.models.models_database import PublishedContent, FakeChapter, PublishableContent
 from zds.forum.factories import TopicFactory, PostFactory, Topic, Post
 from zds.forum.tests.tests_views import create_category, Group
 from zds.searchv2.models import ESIndexManager
@@ -551,6 +551,99 @@ class ViewsTests(TestCase):
         self.assertEqual(result.status_code, 200)
         response = result.context['object_list'].execute()
         self.assertEqual(response.hits.total, 0)  # ok
+
+    def test_change_publishedcontents_impacts_chapter(self):
+
+        if not self.manager.connected_to_es:
+            return
+
+        # 1. Create middle tuto and index it
+        text = 'test'
+
+        tuto = PublishableContentFactory(type='TUTORIAL')
+        tuto_draft = tuto.load_version()
+
+        tuto.title = text
+        tuto.authors.add(self.user)
+        tuto.save()
+
+        tuto_draft.repo_update_top_container(text, tuto.slug, text, text)  # change title to be sure it will match
+
+        chapter1 = ContainerFactory(parent=tuto_draft, db_object=tuto)
+        chapter1.repo_update(text, text, text)
+        extract = ExtractFactory(container=chapter1, db_object=tuto)
+        extract.repo_update(text, text)
+
+        published = publish_content(tuto, tuto_draft, is_major_update=True)
+
+        tuto.sha_public = tuto_draft.current_version
+        tuto.sha_draft = tuto_draft.current_version
+        tuto.public_version = published
+        tuto.save()
+
+        self.manager.es_bulk_indexing_of_model(PublishedContent)
+        self.manager.es_bulk_indexing_of_model(FakeChapter)
+        self.manager.refresh_index()
+
+        self.assertEqual(len(self.manager.setup_search(Search().query(MatchAll())).execute()), 2)  # indexation ok
+
+        result = self.client.get(
+            reverse('search:query') + '?q=' + text + '&models=' + FakeChapter.get_es_document_type(), follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        response = result.context['object_list'].execute()
+
+        self.assertEqual(response.hits.total, 1)
+        self.assertEqual(response[0].meta.doc_type, FakeChapter.get_es_document_type())
+        self.assertEqual(response[0].meta.id, published.content_public_slug + '__' + chapter1.slug)
+
+        # 2. Change tuto : delete chapter and insert new one !
+        tuto = PublishableContent.objects.get(pk=tuto.pk)
+        tuto_draft = tuto.load_version()
+
+        tuto_draft.children[0].repo_delete()  # chapter 1 is gone !
+
+        another_text = 'another thing'
+        self.assertTrue(text not in another_text)  # to avoid a future modification to broke this test
+
+        chapter2 = ContainerFactory(parent=tuto_draft, db_object=tuto)
+        chapter2.repo_update(another_text, another_text, another_text)
+        extract2 = ExtractFactory(container=chapter2, db_object=tuto)
+        extract2.repo_update(another_text, another_text)
+
+        published = publish_content(tuto, tuto_draft, is_major_update=False)
+
+        tuto.sha_public = tuto_draft.current_version
+        tuto.sha_draft = tuto_draft.current_version
+        tuto.public_version = published
+        tuto.save()
+
+        self.manager.es_bulk_indexing_of_model(PublishedContent)
+        self.manager.es_bulk_indexing_of_model(FakeChapter)
+        self.manager.refresh_index()
+
+        self.assertEqual(len(self.manager.setup_search(Search().query(MatchAll())).execute()), 2)  # 2 objects, not 3 !
+
+        result = self.client.get(
+            reverse('search:query') + '?q=' + text + '&models=' + FakeChapter.get_es_document_type(), follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        response = result.context['object_list'].execute()
+
+        self.assertEqual(response.hits.total, 0)  # no results with the previous search
+
+        result = self.client.get(
+            reverse('search:query') + '?q=' + another_text + '&models=' + FakeChapter.get_es_document_type(),
+            follow=False
+        )
+
+        self.assertEqual(result.status_code, 200)
+
+        response = result.context['object_list'].execute()
+
+        self.assertEqual(response.hits.total, 1)
+        self.assertEqual(response[0].meta.doc_type, FakeChapter.get_es_document_type())
+        self.assertEqual(response[0].meta.id, published.content_public_slug + '__' + chapter2.slug)  # got new chapter
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
