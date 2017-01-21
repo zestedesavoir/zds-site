@@ -215,9 +215,13 @@ class ESIndexManagerTests(TestCase):
         self.assertTrue(post.pk not in [p.pk for p in Post.get_es_indexable(force_reindexing=False)])
         self.assertTrue(new_post.pk in [p.pk for p in Post.get_es_indexable(force_reindexing=False)])
 
+        published.es_flagged = True  # Since force reindexation delete the chapter, let's reindex the content
+        published.save()
+        self.manager.refresh_index()
+
         for model in self.indexable[1:]:  # ok, so let's index that
             self.manager.es_bulk_indexing_of_model(model, force_reindexing=False)
-            self.manager.refresh_index()
+        self.manager.refresh_index()
 
         s = Search()
         s.query(MatchAll())
