@@ -398,11 +398,11 @@ class Topic(AbstractESDjangoIndexable):
         es_mapping.field('is_locked', Boolean())
         es_mapping.field('is_sticky', Boolean())
         es_mapping.field('pubdate', Date())
+        es_mapping.field('forum_pk', Integer())
 
         # not analyzed:
         es_mapping.field('get_absolute_url', Text(index=False))
 
-        es_mapping.field('forum_pk', Integer(index=False))
         es_mapping.field('forum_title', Text(index=False))
         es_mapping.field('forum_get_absolute_url', Text(index=False))
 
@@ -492,13 +492,12 @@ class Post(Comment, AbstractESDjangoIndexable):
         es_mapping.field('position', Integer())
         es_mapping.field('like_dislike_ratio', Float())
         es_mapping.field('pubdate', Date())
+        es_mapping.field('forum_pk', Integer())
+        es_mapping.field('topic_pk', Integer())
 
         # not analyzed:
         es_mapping.field('get_absolute_url', Text(index=False))
         es_mapping.field('topic_title', Text(index=False))
-        es_mapping.field('topic_pk', Integer(index=False))
-
-        es_mapping.field('forum_pk', Integer(index=False))
         es_mapping.field('forum_title', Text(index=False))
         es_mapping.field('forum_get_absolute_url', Text(index=False))
 

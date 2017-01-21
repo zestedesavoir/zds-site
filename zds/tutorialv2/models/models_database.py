@@ -866,9 +866,9 @@ class PublishedContent(AbstractESDjangoIndexable):
 
         mapping.field('content_pk', 'integer')
         mapping.field('publication_date', Date())
+        mapping.field('content_type', Text())
 
         # not analyzed:
-        mapping.field('content_type', Text(index=False))
         mapping.field('get_absolute_url_online', Text(index=False))
         mapping.field('thumbnail', Text(index=False))
 
@@ -896,26 +896,29 @@ class PublishedContent(AbstractESDjangoIndexable):
     @classmethod
     def get_es_indexable(cls, force_reindexing=False, objects_per_batch=100):
         """Overridden to include chapters as well
-        :param objects_per_batch:
         """
 
         index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
 
-        for content in super(PublishedContent, cls).get_es_indexable(force_reindexing, objects_per_batch=100):
-            versioned = content.load_public_version()
+        for contents in super(PublishedContent, cls).get_es_indexable(force_reindexing, objects_per_batch=100):
+            chapters = []
 
-            if versioned.has_sub_containers():  # chapters are only indexed for middle and big tuto
+            for content in contents:
+                versioned = content.load_public_version()
 
-                # delete possible previous chapters
-                if content.es_already_indexed:
-                    index_manager.delete_by_query(
-                        FakeChapter.get_es_document_type(), ES_Q('match', _routing=content.es_id))
+                if versioned.has_sub_containers():  # chapters are only indexed for middle and big tuto
 
-                # (re)index the new one(s)
-                for chapter in versioned.get_list_of_chapters():
-                    yield FakeChapter(chapter, versioned, content.es_id)
+                    # delete possible previous chapters
+                    if content.es_already_indexed:
+                        index_manager.delete_by_query(
+                            FakeChapter.get_es_document_type(), ES_Q('match', _routing=content.es_id))
 
-            yield content
+                    # (re)index the new one(s)
+                    for chapter in versioned.get_list_of_chapters():
+                        chapters.append(FakeChapter(chapter, versioned, content.es_id))
+
+            yield chapters
+            yield contents
 
     def get_es_document_source(self, excluded_fields=None):
         """Overridden to handle the fact that most information are versioned

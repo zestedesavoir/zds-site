@@ -64,19 +64,19 @@ class AbstractESIndexable(object):
 
     @classmethod
     def get_es_indexable(cls, force_reindexing=False, objects_per_batch=100):
-        """Get a list of object to be indexed. Thought this method, you may limit the reindexing.
+        """Get a list of object to be indexed. Through this method, you may limit the reindexing.
 
         .. attention::
             You need to override this method (otherwise nothing will be indexed).
 
-        :param force_reindexing: force to return all objects, even if they may be already indexed.
+        :param force_reindexing: force to return all objects, even if they may already be indexed.
         :type force_reindexing: bool
         :param objects_per_batch: limit the number of objects at one time
         :type objects_per_batch: int
         :rtype: iterator
         """
 
-        return []
+        yield []
 
     def get_es_document_source(self, excluded_fields=None):
         """Create a document from the variable of the class, based on the mapping.
@@ -206,19 +206,18 @@ class AbstractESDjangoIndexable(AbstractESIndexable, models.Model):
         """Override ``get_es_indexable()`` in order to use the Django querysets and batch
         """
 
-        query = cls.get_es_django_indexable(force_reindexing)
+        query = cls.get_es_django_indexable(force_reindexing).order_by('pk')
         current_pk = 0
 
         while True:
-            objects = query.filter(pk__gt=current_pk)[:objects_per_batch].all()
+            objects = query.filter(pk__gt=current_pk).all()[:objects_per_batch]
+            yield objects
 
             if not objects:
                 break
 
             for obj in objects:
-                yield obj
                 current_pk = obj.pk
-                obj.es_done_indexing()
 
     def save(self, *args, **kwargs):
         """Override the ``save()`` method to flag the object if saved
@@ -233,7 +232,7 @@ class AbstractESDjangoIndexable(AbstractESIndexable, models.Model):
         return super(AbstractESDjangoIndexable, self).save(*args, **kwargs)
 
     def es_done_indexing(self):
-        """Overridden to actually save the values of ``es_flagged`` and ``es_already_indexed`` into BDD.
+        """Overridden to actually save the values of ``es_flagged`` and ``es_already_indexed`` into DB.
         """
 
         super(AbstractESDjangoIndexable, self).es_done_indexing()
@@ -443,14 +442,16 @@ class ESIndexManager(object):
             objs = model.get_es_django_indexable(force_reindexing=True)
             objs.update(es_flagged=True, es_already_indexed=False)
         else:
-            for obj in model.get_es_indexable(force_reindexing=True):
-                obj.es_already_indexed = False
+            for objects in model.get_es_indexable(force_reindexing=True):
+                for obj in objects:
+                    obj.es_already_indexed = False
 
         self.logger.info('unindex {}'.format(model.get_es_document_type()))
 
     @atomic
     def es_bulk_indexing_of_model(self, model, force_reindexing=False):
         """Perform a bulk action on documents of a given model.
+        Documents are batched according to ``self.objects_per_batch`` (``chunk_size`` is set accordingly).
 
         See http://elasticsearch-py.readthedocs.io/en/master/api.html#elasticsearch.Elasticsearch.bulk
         and http://elasticsearch-py.readthedocs.io/en/master/helpers.html#elasticsearch.helpers.streaming_bulk
@@ -467,14 +468,19 @@ class ESIndexManager(object):
         if not self.connected_to_es:
             return
 
-        def yield_formatted_documents():
-            for obj in model.get_es_indexable(force_reindexing, self.objects_per_batch):
-                yield obj.get_es_document_as_bulk_action(
-                    self.index, 'update' if obj.es_already_indexed and not force_reindexing else 'index')
+        for objects in model.get_es_indexable(force_reindexing, self.objects_per_batch):
 
-        for _, hit in streaming_bulk(self.es, yield_formatted_documents()):
-            action = hit.keys()[0]
-            self.logger.info('{} {} with id {}'.format(action, hit[action]['_type'], hit[action]['_id']))
+            def yield_formatted_documents():
+                for obj in objects:
+                    yield obj.get_es_document_as_bulk_action(
+                        self.index, 'update' if obj.es_already_indexed and not force_reindexing else 'index')
+
+            for _, hit in streaming_bulk(self.es, yield_formatted_documents(), chunk_size=self.objects_per_batch):
+                action = hit.keys()[0]
+                self.logger.info('{} {} with id {}'.format(action, hit[action]['_type'], hit[action]['_id']))
+
+            for obj in objects:
+                obj.es_done_indexing()
 
     def refresh_index(self):
         """Refresh the index. The task is done periodically, but may be forced with this method

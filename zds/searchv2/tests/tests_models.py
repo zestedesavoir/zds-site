@@ -199,25 +199,20 @@ class ESIndexManagerTests(TestCase):
         new_topic = TopicFactory(forum=self.forum, author=self.user)
         new_post = PostFactory(topic=new_topic, author=self.user, position=1)
 
-        if_force_reindexing = 0
-        if_not_force_reindexing = 0
+        pk_of_topics_to_reindex = []
+        for tg in Topic.get_es_indexable(force_reindexing=False):
+            for t in tg:
+                pk_of_topics_to_reindex.append(t.pk)
 
-        for model in self.indexable[1:]:  # once again; indexing FakeChapter would be useless
-            if_force_reindexing += len(model.get_es_indexable(force_reindexing=True))
-            if_not_force_reindexing += len(model.get_es_indexable(force_reindexing=False))
+        pk_of_posts_to_reindex = []
+        for pg in Post.get_es_indexable(force_reindexing=False):
+            for p in pg:
+                pk_of_posts_to_reindex.append(p.pk)
 
-        self.assertEqual(if_force_reindexing, 6)
-        self.assertEqual(if_not_force_reindexing, 2)  # only new topic and post
-
-        # just to be sure, let's explicitly looks into the outcome:
-        self.assertTrue(topic.pk not in [t.pk for t in Topic.get_es_indexable(force_reindexing=False)])
-        self.assertTrue(new_topic.pk in [t.pk for t in Topic.get_es_indexable(force_reindexing=False)])
-        self.assertTrue(post.pk not in [p.pk for p in Post.get_es_indexable(force_reindexing=False)])
-        self.assertTrue(new_post.pk in [p.pk for p in Post.get_es_indexable(force_reindexing=False)])
-
-        published.es_flagged = True  # Since force reindexation delete the chapter, let's reindex the content
-        published.save()
-        self.manager.refresh_index()
+        self.assertTrue(topic.pk not in pk_of_topics_to_reindex)
+        self.assertTrue(new_topic.pk in pk_of_topics_to_reindex)
+        self.assertTrue(post.pk not in pk_of_posts_to_reindex)
+        self.assertTrue(new_post.pk in pk_of_posts_to_reindex)
 
         for model in self.indexable[1:]:  # ok, so let's index that
             self.manager.es_bulk_indexing_of_model(model, force_reindexing=False)

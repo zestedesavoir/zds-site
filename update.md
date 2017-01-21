@@ -887,23 +887,14 @@ Pour installer Elasticsearch, les commandes suivantes sont à effectuer (en *roo
     ```
     
 + Vérifier que le port 9200 n'est pas accessible de l'extérieur (sinon, configurer le firewall en conséquence)
-+ Ajouter [ce plugin](https://github.com/true/true-munin-plugins/blob/master/elasticsearch) à Munin :
++ Ajouter [ce plugin](https://github.com/y-ken/munin-plugin-elasticsearch) à Munin:
     
-    ```bash
-    # dépendance:
-    apt install libjson-perl
-    # Installation et configuration
-    cd /usr/share/munin/plugins/
-    wget https://raw.githubusercontent.com/true/true-munin-plugins/master/elasticsearch
-    ln -s /usr/share/munin/plugins/elasticsearch /etc/munin/plugins/elasticsearch_cache
-    ln -s /usr/share/munin/plugins/elasticsearch /etc/munin/plugins/elasticsearch_docs
-    ln -s /usr/share/munin/plugins/elasticsearch /etc/munin/plugins/elasticsearch_index_size
-    ln -s /usr/share/munin/plugins/elasticsearch /etc/munin/plugins/elasticsearch_jvm_memory
-    ln -s /usr/share/munin/plugins/elasticsearch /etc/munin/plugins/elasticsearch_jvm_pool_memory
-    ln -s /usr/share/munin/plugins/elasticsearch /etc/munin/plugins/elasticsearch_jvm_threads
-    # redémarrer le service:
-    service munin-node restart
-    ```
+    * Installer la dépendance manquante:
+    
+        ```bash
+        apt install libjson-perl
+        ```
+    * Suivre les instructions du [README.md](https://github.com/y-ken/munin-plugin-elasticsearch/blob/master/README.md)
     
 Une fois Elasticsearch configuré et lancé,
 
