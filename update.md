@@ -880,13 +880,30 @@ Pour installer Elasticsearch, les commandes suivantes sont à effectuer (en *roo
     Dans `/etc/elasticsearch/jvm.options` (**Peut évoluer dans le futur**).
 + Lancer Elasticsearch:
 
-    ```
+    ```bash
     systemctl daemon-reload
     systemctl enable elasticsearch.service
     systemctl start elasticsearch.service
     ```
-+ Vérifier que le port 9200 n'est pas accessible de l'extérieur (sinon, configurer nginx pour le bloquer)
-+ Ajouter [ce plugin](https://github.com/true/true-munin-plugins/blob/master/elasticsearch) à Munin.
+    
++ Vérifier que le port 9200 n'est pas accessible de l'extérieur (sinon, configurer le firewall en conséquence)
++ Ajouter [ce plugin](https://github.com/true/true-munin-plugins/blob/master/elasticsearch) à Munin :
+    
+    ```bash
+    # dépendance:
+    apt install libjson-perl
+    # Installation et configuration
+    cd /usr/share/munin/plugins/
+    wget https://raw.githubusercontent.com/true/true-munin-plugins/master/elasticsearch
+    ln -s /usr/share/munin/plugins/elasticsearch /etc/munin/plugins/elasticsearch_cache
+    ln -s /usr/share/munin/plugins/elasticsearch /etc/munin/plugins/elasticsearch_docs
+    ln -s /usr/share/munin/plugins/elasticsearch /etc/munin/plugins/elasticsearch_index_size
+    ln -s /usr/share/munin/plugins/elasticsearch /etc/munin/plugins/elasticsearch_jvm_memory
+    ln -s /usr/share/munin/plugins/elasticsearch /etc/munin/plugins/elasticsearch_jvm_pool_memory
+    ln -s /usr/share/munin/plugins/elasticsearch /etc/munin/plugins/elasticsearch_jvm_threads
+    # redémarrer le service:
+    service munin-node restart
+    ```
     
 Une fois Elasticsearch configuré et lancé,
 
@@ -896,12 +913,49 @@ Une fois Elasticsearch configuré et lancé,
     ```
     python manage.py es_manager index_all
     ```
-+ Configurer un *cron* pour que les données soient réindexée à intervale régulier à travers la commande `python manage.py es_manager index_flagged`.
 
 Une fois que tout est indexé,
 
 + Repasser `ZDS_APP['display_search_bar'] = True` dans `settings_prod.py`.
-+ Ne pas oublier de désactiver (et supprimer) l'ancien *cron* de Solr.
+    
++ Configurer *systemd*:
+
+    * `zds-es-index.service` :
+    
+        ```
+        [Unit]
+        Description=Reindex SOLR Service
+        
+        [Service]
+        Type=oneshot
+        User=zds
+        Group=zds
+        ExecStart=/opt/zds/zdsenv/bin/python /opt/zds/zds-site/manage.py es_manager index_flagged
+        ```
+    
+    * `zds-es-index.timer`:
+    
+        ```
+        [Unit]
+        Description=ES reindex flagged contents
+        
+        [Timer]
+        OnCalendar=*:30:00
+        Persistent=true
+        
+        [Install]
+        WantedBy=timers.target
+        ```
+    * Supprimer Solr et ajouter Elasticsearch:
+    
+        ```bash
+        systemctl stop zds-index-solr.timer
+        systemctl disable zds-index-solr.timer
+        
+        systemctl enable zds-es-index.timer
+        systemctl start zds-es-index.timer
+        ```
+        
 + Désinstaller Solr.
 + Supprimer les tables suivantes de MySQL:
 
