@@ -116,7 +116,6 @@ La configuration de la connexion et de l'*index* se fait dans le ``settings.py``
           'name': 'zds_search',
           'shards': 5,
           'replicas': 0,
-          'objects_per_batch': 100
       }
 
 

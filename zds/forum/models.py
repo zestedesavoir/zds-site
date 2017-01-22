@@ -460,7 +460,7 @@ class Post(Comment, AbstractESDjangoIndexable):
     A post can be marked as useful: topic's author (or admin) can declare any topic as "useful", and this post is
     displayed as is on front.
     """
-    objects_per_batch = 1000
+    objects_per_batch = 2000
 
     topic = models.ForeignKey(Topic, verbose_name='Sujet', db_index=True)
 

@@ -208,17 +208,14 @@ class AbstractESDjangoIndexable(AbstractESIndexable, models.Model):
 
         query = cls.get_es_django_indexable(force_reindexing).order_by('pk')
         current_pk = 0
-        count = 0
 
         while True:
             objects = query.filter(pk__gt=current_pk).all()[:objects_per_batch]
-            count = count + objects_per_batch
 
             if not objects:
                 break
 
             current_pk = objects[len(objects) - 1].pk
-            print "{} so far, will continue at pk={}".format(count, current_pk)
 
             yield objects
 
@@ -263,7 +260,7 @@ def get_django_indexable_objects():
 class ESIndexManager(object):
     """Manage a given index with different taylor-made functions"""
 
-    def __init__(self, name, shards=5, replicas=0, objects_per_batch=100, connection_alias='default'):
+    def __init__(self, name, shards=5, replicas=0, connection_alias='default'):
         """Create a manager for a given index
 
         :param name: the index name
@@ -280,7 +277,6 @@ class ESIndexManager(object):
 
         self.number_of_shards = shards
         self.number_of_replicas = replicas
-        self.objects_per_batch = objects_per_batch
 
         self.logger = logging.getLogger('ESIndexManager:{}'.format(self.index))
 
@@ -469,7 +465,9 @@ class ESIndexManager(object):
         if not self.connected_to_es:
             return
 
-        for objects in model.get_es_indexable(force_reindexing, model.objects_per_batch):
+        objects_per_batch = getattr(model, 'objects_per_batch', 100)
+
+        for objects in model.get_es_indexable(force_reindexing, objects_per_batch):
 
             def yield_formatted_documents():
                 for obj in objects:
@@ -479,7 +477,7 @@ class ESIndexManager(object):
             for _, hit in streaming_bulk(
                 self.es,
                 yield_formatted_documents(),
-                chunk_size=model.objects_per_batch,
+                chunk_size=objects_per_batch,
                 request_timeout=30
             ):
                 action = hit.keys()[0]

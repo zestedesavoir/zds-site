@@ -364,7 +364,6 @@ ES_SEARCH_INDEX = {
     'name': 'zds_search',
     'shards': 5,
     'replicas': 0,
-    'objects_per_batch': 100
 }
 
 GEOIP_PATH = os.path.join(BASE_DIR, 'geodata')
