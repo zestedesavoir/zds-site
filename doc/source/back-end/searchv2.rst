@@ -313,27 +313,36 @@ Les avantages de cette situation sont multiples:
 
 
 Pour ce faire, l'indexation des chapitres (stocké à l'aide de la classe ``FakeChapter``, `voir ici <../back-end-code/tutorialv2.html#zds.tutorialv2.models.models_database.FakeChapter>`_) est effectuée en même temps que l'indexation des contenus publiés (``PublishedContent``).
-En particulier, c'est la méthode ``get_es_indexable()`` qui est modifiée, profitant du fait que cette fonction peut retourner n'importe quel type de document à indexer.
+En particulier, c'est la méthode ``get_es_indexable()`` qui est modifiée, profitant du fait que cette fonction peut envoyer n'importe quel type de document à indexer.
 
 .. sourcecode:: python
 
-        @classmethod
-        def get_es_indexable(cls, force_reindexing=False):
+    @classmethod
+    def get_es_indexable(cls, force_reindexing=False, objects_per_batch=100):
+        """Overridden to include chapters as well
+        """
 
-            published_contents = super(PublishedContent, cls).get_es_indexable(force_reindexing)
-            indexable = []
+        index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
+
+        for contents in super(PublishedContent, cls).get_es_indexable(force_reindexing, objects_per_batch=100):
             chapters = []
 
-            for content in published_contents:
+            for content in contents:
                 versioned = content.load_public_version()
 
-                if versioned.has_sub_containers():
+                if versioned.has_sub_containers():  # chapters are only indexed for middle and big tuto
+
+                    # delete possible previous chapters
+                    if content.es_already_indexed:
+                        index_manager.delete_by_query(
+                            FakeChapter.get_es_document_type(), ES_Q('match', _routing=content.es_id))
+
+                    # (re)index the new one(s)
                     for chapter in versioned.get_list_of_chapters():
                         chapters.append(FakeChapter(chapter, versioned, content.es_id))
 
-            indexable.extend(chapters)
-            indexable.extend(published_contents)
-            return indexable
+            yield chapters
+            yield contents
 
 
 

@@ -64,7 +64,7 @@ class AbstractESIndexable(object):
 
     @classmethod
     def get_es_indexable(cls, force_reindexing=False, objects_per_batch=100):
-        """Get a list of object to be indexed. Through this method, you may limit the reindexing.
+        """Yield objects to index by batch of ``objects_per_batch``.
 
         .. attention::
             You need to override this method (otherwise nothing will be indexed).
@@ -203,7 +203,7 @@ class AbstractESDjangoIndexable(AbstractESIndexable, models.Model):
 
     @classmethod
     def get_es_indexable(cls, force_reindexing=False, objects_per_batch=100):
-        """Override ``get_es_indexable()`` in order to use the Django querysets and batch
+        """Override ``get_es_indexable()`` in order to use the Django querysets and batch objects.
         """
 
         query = cls.get_es_django_indexable(force_reindexing).order_by('pk')
@@ -217,6 +217,7 @@ class AbstractESDjangoIndexable(AbstractESIndexable, models.Model):
 
             for obj in objects:
                 current_pk = obj.pk
+
             yield objects
 
     def save(self, *args, **kwargs):
