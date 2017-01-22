@@ -131,7 +131,7 @@ class AbstractESIndexable(object):
         }
 
         if action == 'index':
-            if self.es_id != '':
+            if self.es_id:
                 document['_id'] = self.es_id
             document['_source'] = self.get_es_document_source()
         elif action == 'update':
@@ -208,15 +208,17 @@ class AbstractESDjangoIndexable(AbstractESIndexable, models.Model):
 
         query = cls.get_es_django_indexable(force_reindexing).order_by('pk')
         current_pk = 0
+        count = 0
 
         while True:
             objects = query.filter(pk__gt=current_pk).all()[:objects_per_batch]
+            count = count + objects_per_batch
 
             if not objects:
                 break
 
-            for obj in objects:
-                current_pk = obj.pk
+            current_pk = objects[len(objects) - 1].pk
+            print "{} so far, will continue at pk={}".format(count, current_pk)
 
             yield objects
 
@@ -270,8 +272,6 @@ class ESIndexManager(object):
         :type shards: int
         :param replicas: number of replicas
         :type replicas: int
-        :param objects_per_batch: limit the number of objects at one time
-        :type objects_per_batch: int
         :param connection_alias: the alias for connection
         :type connection_alias: str
         """
@@ -280,7 +280,7 @@ class ESIndexManager(object):
 
         self.number_of_shards = shards
         self.number_of_replicas = replicas
-        self.objects_per_batch = 100
+        self.objects_per_batch = objects_per_batch
 
         self.logger = logging.getLogger('ESIndexManager:{}'.format(self.index))
 
@@ -452,7 +452,7 @@ class ESIndexManager(object):
     @atomic
     def es_bulk_indexing_of_model(self, model, force_reindexing=False):
         """Perform a bulk action on documents of a given model.
-        Documents are batched according to ``self.objects_per_batch`` (``chunk_size`` is set accordingly).
+        Documents are batched according to ``model.objects_per_batch`` (``chunk_size`` is set accordingly).
 
         See http://elasticsearch-py.readthedocs.io/en/master/api.html#elasticsearch.Elasticsearch.bulk
         and http://elasticsearch-py.readthedocs.io/en/master/helpers.html#elasticsearch.helpers.streaming_bulk
@@ -469,14 +469,19 @@ class ESIndexManager(object):
         if not self.connected_to_es:
             return
 
-        for objects in model.get_es_indexable(force_reindexing, self.objects_per_batch):
+        for objects in model.get_es_indexable(force_reindexing, model.objects_per_batch):
 
             def yield_formatted_documents():
                 for obj in objects:
                     yield obj.get_es_document_as_bulk_action(
                         self.index, 'update' if obj.es_already_indexed and not force_reindexing else 'index')
 
-            for _, hit in streaming_bulk(self.es, yield_formatted_documents(), chunk_size=self.objects_per_batch):
+            for _, hit in streaming_bulk(
+                self.es,
+                yield_formatted_documents(),
+                chunk_size=model.objects_per_batch,
+                request_timeout=30
+            ):
                 action = hit.keys()[0]
                 self.logger.info('{} {} with id {}'.format(action, hit[action]['_type'], hit[action]['_id']))
 

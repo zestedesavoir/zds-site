@@ -561,6 +561,7 @@ class PublishedContent(AbstractESDjangoIndexable):
 
     Linked to a ``PublishableContent`` for the rest. Don't forget to add a ``.prefetch_related('content')`` !!
     """
+    objects_per_batch = 250
 
     class Meta:
         verbose_name = 'Contenu publié'
@@ -900,7 +901,10 @@ class PublishedContent(AbstractESDjangoIndexable):
 
         index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
 
-        for contents in super(PublishedContent, cls).get_es_indexable(force_reindexing, objects_per_batch=100):
+        for contents in super(PublishedContent, cls).get_es_indexable(
+            force_reindexing,
+            objects_per_batch=cls.objects_per_batch
+        ):
             chapters = []
 
             for content in contents:

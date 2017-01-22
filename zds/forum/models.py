@@ -170,6 +170,7 @@ class Topic(AbstractESDjangoIndexable):
     - Locked: none can write on a locked topic.
     - Sticky: sticky topics are displayed on top of topic lists (ex: on forum page).
     """
+    objects_per_batch = 1000
 
     class Meta:
         verbose_name = 'Sujet'
@@ -459,6 +460,7 @@ class Post(Comment, AbstractESDjangoIndexable):
     A post can be marked as useful: topic's author (or admin) can declare any topic as "useful", and this post is
     displayed as is on front.
     """
+    objects_per_batch = 1000
 
     topic = models.ForeignKey(Topic, verbose_name='Sujet', db_index=True)
 
@@ -509,8 +511,8 @@ class Post(Comment, AbstractESDjangoIndexable):
         """
 
         q = super(Post, cls).get_es_django_indexable(force_reindexing)\
-            .select_related('topic')\
-            .select_related('topic__forum')
+            .prefetch_related('topic')\
+            .prefetch_related('topic__forum')
 
         return q
 

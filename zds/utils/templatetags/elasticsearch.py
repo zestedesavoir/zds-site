@@ -18,7 +18,7 @@ def format_highlight(highlighted_fragments):
 
     fragments = []
     for fragment in highlighted_fragments:
-        if fragment != '':
+        if fragment:
             fragments.append(
                 html_tag.sub('', fragment).replace('[hl]', '<mark class="highlighted">').replace('[/hl]', '</mark>'))
 
@@ -51,7 +51,7 @@ class HighlightNode(template.Node):
 
         text = ''
 
-        if search_result[field] != '':
+        if search_result[field]:
             text = html_tag.sub('', search_result[field])
 
         if 'highlight' in search_result.meta:
