@@ -61,7 +61,10 @@ class Command(BaseCommand):
         if force_reindexing:
             self.setup_es()  # remove all previous data
 
-        for model in self.models[1:]:
+        for model in self.models:
+            if model is FakeChapter:
+                continue
+
             if force_reindexing:
                 print('- indexing {}s'.format(model.get_es_document_type()))
 
