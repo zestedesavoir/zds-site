@@ -12,12 +12,14 @@ from datetime import datetime
 class ForumSerializer(serializers.ModelSerializer):
     class Meta:
         model = Forum
+        fields = '__all__'
 
 
 class TopicSerializer(serializers.ModelSerializer):
     class Meta:
         model = Topic
         #fields = ('id', 'title', 'subtitle', 'slug', 'category', 'position_in_category')
+        fields = '__all__'
         permissions_classes = DRYPermissions
 
 
@@ -30,8 +32,7 @@ class TopicCreateSerializer(serializers.ModelSerializer, TitleValidator, TextVal
 
     class Meta:
         model = Topic
-        tags = serializers.SlugRelatedField(many=True, read_only=False,
-                                          slug_field='slug', queryset=Tag.objects.all())
+        tags = serializers.PrimaryKeyRelatedField(many=True, read_only=False, queryset=Tag.objects.all())
 
         fields = ('id', 'title', 'subtitle', 'forum', 'text',
                   'author', 'last_message', 'pubdate', 'tags',
@@ -39,14 +40,18 @@ class TopicCreateSerializer(serializers.ModelSerializer, TitleValidator, TextVal
         read_only_fields = ('id', 'author', 'last_message', 'pubdate', 'permissions', 'slug')
 
     def create(self, validated_data):
-        self._fields.pop('tags')
-
-        print(validated_data)
-        #validated_data['tags'] = {'1'}
+        
+        try:
+            tags = validated_data.pop('tags')
+        except KeyError:
+            tags = []
 
         # Remember that text ist not a field for a Topic but for a post.
         text = validated_data.pop('text')
         new_topic = Topic.objects.create(**validated_data)
+        # {"forum":"1", "title": "mon titre", "text": "mon text", "tags" : {"2":2} }
+        for tag in tags:
+            new_topic.tags.add(tag)
 
         # Instead we use text here.
         first_message = Post.objects.create(topic=new_topic, text=text, position=0, author=new_topic.author)
