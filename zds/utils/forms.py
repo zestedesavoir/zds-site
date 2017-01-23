@@ -39,8 +39,7 @@ class CommonLayoutEditor(Layout):
 class CommonLayoutVersionEditor(Layout):
 
     def __init__(self, *args, **kwargs):
-        
-        print(kwargs.get('data', None))
+
         if kwargs.get('data', None) is not None:
             old_text = kwargs.get('data').get('text')
     
