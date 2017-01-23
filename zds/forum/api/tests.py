@@ -5,6 +5,7 @@ from django.core.cache import caches
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import Group
 from django.db import transaction
+from django.test.utils import override_settings
 from rest_framework import status
 from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
@@ -13,7 +14,7 @@ from rest_framework_extensions.settings import extensions_api_settings
 from zds.api.pagination import REST_PAGE_SIZE, REST_MAX_PAGE_SIZE, REST_PAGE_SIZE_QUERY_PARAM
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.forum.models import Forum, Topic, Post
-from zds.forum.factories import PostFactory
+from zds.forum.factories import PostFactory, TagFactory
 from zds.forum.tests.tests_views import create_category, add_topic_in_a_forum
 from zds.utils.models import CommentVote, Alert
 
@@ -213,7 +214,7 @@ class ForumPostKarmaAPITest(APITestCase):
         self.assertEqual(1, response.data['dislike']['count'])
 
 
-@override_settings(ZDS_APP=overrided_zds_app)
+# TODO a reactiver @override_settings(ZDS_APP=overrided_zds_app)
 class ForumAPITest(APITestCase):
     def setUp(self):
         self.client = APIClient()
@@ -593,7 +594,7 @@ class ForumAPITest(APITestCase):
         tag = TagFactory()
         topic.add_tags([tag.title])
 
-        response = self.client.get(reverse('api:forum:list-topic') + '?tags=' + str(self.tag.id))
+        response = self.client.get(reverse('api:forum:list-topic') + '?tags=' + str(tag.id))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('count'), 1)
         self.assertEqual(len(response.data.get('results')), 1)
@@ -605,11 +606,14 @@ class ForumAPITest(APITestCase):
         Post a new topic in a forum with an user.
         """
         self.create_multiple_forums()
+        tag = TagFactory()
+
         data = {
             'title': 'Flask 4 Ever !',
             'subtitle': 'Is it the best framework ?',
             'text': 'I head that Flask is the best framework ever, is that true ?',
-            'forum': 1
+            'forum': 1,
+            'tags': [tag]
         }
 
         response = self.client_authenticated.post(reverse('api:forum:list-topic'), data)
@@ -811,7 +815,7 @@ class ForumAPITest(APITestCase):
         self.assertIsNone(response.data.get('ip_address'))
         self.assertIsNone(response.data.get('text'))
         self.assertIsNone(response.data.get('text_html'))
-        self.assertIsFalse(response.data.get('is_visible'))
+        self.assertFalse(response.data.get('is_visible'))
 
     def test_update_topic_details_title(self):
         """
@@ -1630,7 +1634,7 @@ class ForumAPITest(APITestCase):
         another_profile = ProfileFactory()
         post = PostFactory(topic=topic, author=another_profile.user, position=1)
         data = {
-            'text': 'There is a guy flooding about Flask, con you do something about it ?'
+            'text': 'There is a guy flooding about Flask, can you do something about it ?'
         }
 
         self.client = APIClient()
