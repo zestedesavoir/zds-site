@@ -163,7 +163,6 @@ INSTALLED_APPS = (
     'easy_thumbnails',
     'easy_thumbnails.optimize',
     'crispy_forms',
-    'haystack',
     'munin',
     'social.apps.django_app.default',
     'rest_framework',
@@ -341,16 +340,6 @@ PANDOC_PDF_PARAM = ('--latex-engine=xelatex '
 # LOG PATH FOR PANDOC LOGGING
 PANDOC_LOG = './pandoc.log'
 PANDOC_LOG_STATE = False
-
-HAYSTACK_CONNECTIONS = {
-    'default': {
-        'ENGINE': 'haystack.backends.solr_backend.SolrEngine',
-        'URL': 'http://127.0.0.1:8983/solr'
-        # ...or for multicore...
-        # 'URL': 'http://127.0.0.1:8983/solr/mysite',
-    },
-}
-HAYSTACK_CUSTOM_HIGHLIGHTER = 'zds.utils.highlighter.SearchHighlighter'
 
 ES_ENABLED = True
 

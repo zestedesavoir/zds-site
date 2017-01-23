@@ -853,7 +853,21 @@ Lancer la commande de calcul des temps de lecture : `python manage.py adjust_nb_
 Maj de Raven + releases
 -----------------------
 Avant de faire le tag des différentes RC, s'assurer qu'un githook a été ajouté comme le propose sentry.
-Mettre à jour le `settings_prod.py` en suivant `doc/source/install/configs/settings_prod.py`.
+Mettre à jour le `settings_prod.py` :
+
+```diff
++from raven import Client
++from zds.utils.context_processor import get_git_version
+
+# NEVER set this True !!
+DEBUG = False
+
+# https://docs.getsentry.com/hosted/clients/python/integrations/django/
+RAVEN_CONFIG = {
+  'dsn': 'to-fill',
++  'release': get_git_version()
+}
+```
 
 Elasticsearch (PR #4096)
 ------------------------
