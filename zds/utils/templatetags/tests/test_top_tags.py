@@ -109,12 +109,12 @@ class TopBarTests(TestCase):
         tags_tuto = ['a', 'b', 'c']
         tags_article = ['a', 'd', 'e']
 
-        content = PublishedContentFactory(type="TUTORIAL", author_list=[ProfileFactory().user])
+        content = PublishedContentFactory(type='TUTORIAL', author_list=[ProfileFactory().user])
         content.add_tags(tags_tuto)
         content.save()
         tags_tuto = content.tags.all()
 
-        content = PublishedContentFactory(type="ARTICLE", author_list=[ProfileFactory().user])
+        content = PublishedContentFactory(type='ARTICLE', author_list=[ProfileFactory().user])
         content.add_tags(tags_article)
         content.save()
         tags_article = content.tags.all()
