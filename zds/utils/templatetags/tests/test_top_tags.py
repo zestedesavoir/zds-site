@@ -11,8 +11,7 @@ from zds import settings
 from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.settings import BASE_DIR
-from zds.tutorialv2.factories import PublishableContentFactory
-from zds.tutorialv2.publication_utils import publish_content
+from zds.tutorialv2.factories import PublishedContentFactory
 from zds.utils.templatetags.topbar import top_categories, top_categories_content
 
 overrided_zds_app = settings.ZDS_APP
@@ -110,21 +109,15 @@ class TopBarTests(TestCase):
         tags_tuto = ['a', 'b', 'c']
         tags_article = ['a', 'd', 'e']
 
-        content = PublishableContentFactory(type="TUTORIAL")
+        content = PublishedContentFactory(type="TUTORIAL", author_list=[ProfileFactory().user])
         content.add_tags(tags_tuto)
+        content.save()
         tags_tuto = content.tags.all()
-        published = publish_content(content, content.load_version(), True)
-        content.sha_public = content.sha_draft
-        content.public_version = published
-        content.save()
 
-        content = PublishableContentFactory(type="ARTICLE")
+        content = PublishedContentFactory(type="ARTICLE", author_list=[ProfileFactory().user])
         content.add_tags(tags_article)
-        tags_article = content.tags.all()
-        published = publish_content(content, content.load_version(), True)
-        content.sha_public = content.sha_draft
-        content.public_version = published
         content.save()
+        tags_article = content.tags.all()
 
         top_tags_tuto = top_categories_content('TUTORIAL').get('tags')
         top_tags_article = top_categories_content('ARTICLE').get('tags')
