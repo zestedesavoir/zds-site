@@ -541,7 +541,7 @@ ZDS_APP = {
             ('publishedcontent', _(u'Contenus publiés')),
             ('chapter', _(u'Chapitres publiés')),
             ('topic', _(u'Sujets du forum')),
-            ('post', _(u'Messages du forums')),
+            ('post', _(u'Messages du forum')),
         ],
         'boosts': {
             'publishedcontent': {

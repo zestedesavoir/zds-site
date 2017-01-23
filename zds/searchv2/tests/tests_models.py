@@ -159,7 +159,9 @@ class ESIndexManagerTests(TestCase):
         self.assertTrue(published.es_flagged)
 
         # 1. index all
-        for model in self.indexable[1:]:  # do not try to index FakeChapter, it would be useless
+        for model in self.indexable:
+            if model is FakeChapter:
+                continue
             self.manager.es_bulk_indexing_of_model(model, force_reindexing=False)
             self.manager.refresh_index()
 

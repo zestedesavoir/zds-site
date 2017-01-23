@@ -561,7 +561,8 @@ class PublishedContent(AbstractESDjangoIndexable):
 
     Linked to a ``PublishableContent`` for the rest. Don't forget to add a ``.prefetch_related('content')`` !!
     """
-    objects_per_batch = 250
+
+    objects_per_batch = 25
 
     class Meta:
         verbose_name = 'Contenu publié'
@@ -895,22 +896,25 @@ class PublishedContent(AbstractESDjangoIndexable):
             .filter(must_redirect=False)
 
     @classmethod
-    def get_es_indexable(cls, force_reindexing=False, objects_per_batch=100):
-        """Overridden to include chapters as well
+    def get_es_indexable(cls, force_reindexing=False):
+        """Overridden to also include chapters
         """
 
         index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
 
-        for contents in super(PublishedContent, cls).get_es_indexable(
-            force_reindexing,
-            objects_per_batch=cls.objects_per_batch
-        ):
+        # fetch initial batch
+        last_pk = 0
+        objects_source = super(PublishedContent, cls).get_es_indexable(force_reindexing)
+        objects = list(objects_source.filter(pk__gt=last_pk)[:PublishedContent.objects_per_batch])
+
+        while objects:
             chapters = []
 
-            for content in contents:
+            for content in objects:
                 versioned = content.load_public_version()
 
-                if versioned.has_sub_containers():  # chapters are only indexed for middle and big tuto
+                # chapters are only indexed for middle and big tuto
+                if versioned.has_sub_containers():
 
                     # delete possible previous chapters
                     if content.es_already_indexed:
@@ -921,8 +925,17 @@ class PublishedContent(AbstractESDjangoIndexable):
                     for chapter in versioned.get_list_of_chapters():
                         chapters.append(FakeChapter(chapter, versioned, content.es_id))
 
-            yield chapters
-            yield contents
+            # fetch next batch
+            last_pk = objects[-1].pk
+            objects = list(objects_source.filter(pk__gt=last_pk)[:PublishedContent.objects_per_batch])
+            if chapters:
+                # since we want to return at most PublishedContent.objects_per_batch items
+                # we have to split further
+                while chapters:
+                    yield chapters[:PublishedContent.objects_per_batch]
+                    chapters = chapters[PublishedContent.objects_per_batch:]
+            if objects:
+                yield objects
 
     def get_es_document_source(self, excluded_fields=None):
         """Overridden to handle the fact that most information are versioned
@@ -989,6 +1002,7 @@ class FakeChapter(AbstractESIndexable):
     Note that this class is only indexable, not updatable, since it does not maintain value of ``es_already_indexed``
     """
 
+    parent_model = PublishedContent
     text = ''
     title = ''
     parent_id = ''

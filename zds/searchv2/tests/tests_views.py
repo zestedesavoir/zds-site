@@ -90,6 +90,8 @@ class ViewsTests(TestCase):
 
         # index
         for model in self.indexable:
+            if model is FakeChapter:
+                continue
             self.manager.es_bulk_indexing_of_model(model)
         self.manager.refresh_index()
 
@@ -281,6 +283,8 @@ class ViewsTests(TestCase):
         published_article = PublishedContent.objects.get(content_pk=article.pk)
 
         for model in self.indexable:
+            if model is FakeChapter:
+                continue
             self.manager.es_bulk_indexing_of_model(model)
         self.manager.refresh_index()
 
@@ -582,7 +586,6 @@ class ViewsTests(TestCase):
         tuto.save()
 
         self.manager.es_bulk_indexing_of_model(PublishedContent)
-        self.manager.es_bulk_indexing_of_model(FakeChapter)
         self.manager.refresh_index()
 
         self.assertEqual(len(self.manager.setup_search(Search().query(MatchAll())).execute()), 2)  # indexation ok
