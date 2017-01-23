@@ -53,7 +53,7 @@
 			        var $toMerge = $(".compare-" + substring).mergely("get","rhs");
 			        $intro.val($toMerge);
 
-
+					// La version courante / votre version n'est pas affiche sur le deuxieme textarea
 					// Confirmation message
 	                var msg = "<div class='alert-box success alert-merge'>" +
 	                                "<span>Le contenu a bien été validé.</span>" +

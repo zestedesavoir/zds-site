@@ -39,9 +39,24 @@ class CommonLayoutEditor(Layout):
 class CommonLayoutVersionEditor(Layout):
 
     def __init__(self, *args, **kwargs):
+        
+        print(kwargs.get('data', None))
+        if kwargs.get('data', None) is not None:
+            old_text = kwargs.get('data').get('text')
+    
+            text_field = Field('text', css_class='hidden')
+            text_field += HTML('<div id = "your_text" class = "hidden" >' + old_text + '</div>')
+            text_field += HTML('<div id = "compare" class = "compare-text"></div>')
+    
+            text_field+= ButtonHolder(StrictButton(_(u'Valider cette version'), type='merge', name='merge', \
+                css_class='btn btn-submit merge-btn need-to-merge-text'))
+
+        else:
+            text_field = Field('text', css_class='md-editor')
+            
         super(CommonLayoutVersionEditor, self).__init__(
             Div(
-                Field('text', css_class='md-editor'),
+                text_field,
                 Field('msg_commit'),
                 ButtonHolder(
                     StrictButton(
@@ -52,7 +67,7 @@ class CommonLayoutVersionEditor(Layout):
                         _(u'Aperçu'),
                         type='submit',
                         name='preview',
-                        css_class='btn-grey'),
+                        css_class='btn-grey preview-btn'),
                 ),
             ),
             *args, **kwargs

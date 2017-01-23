@@ -149,10 +149,43 @@ class ContainerForm(FormWithTitle):
         self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
 
-        self.helper.layout = Layout(
-            Field('title'),
-            Field('introduction', css_class='md-editor'),
-            Field('conclusion', css_class='md-editor'),
+        self.helper.layout = Layout(Field('title'))
+        
+        if kwargs.get('data', None) is not None:
+            old_intro = kwargs.get('data').get('introduction')
+
+            self.helper.layout.append(Layout(Field('introduction', css_class='hidden')))
+            self.helper.layout.append(Layout(HTML('<div id = "your_introduction" class = "hidden" >' +
+                                                  old_intro + '</div>')))
+            self.helper.layout.append(Layout(HTML('<div id = "compare" class = "compare-introduction"></div>')))
+
+            self.helper.layout.append(Layout(
+                ButtonHolder(StrictButton(_(u'Valider cette version'), type='merge', name='merge', \
+                css_class='btn btn-submit merge-btn need-to-merge-introduction'))))
+                
+            old_conclusion = kwargs.get('data').get('conclusion')
+
+            self.helper.layout.append(Layout(Field('conclusion', css_class='hidden')))
+            self.helper.layout.append(Layout(HTML('<div id = "your_conclusion" class = "hidden" >' + old_conclusion +
+                                                  '</div>')))
+            self.helper.layout.append(Layout(HTML('<div id = "compare" class="compare-conclusion"></div>')))
+
+            self.helper.layout.append(Layout(
+                ButtonHolder(StrictButton(_(u'Valider cette version'), type='merge', name='merge', \
+                css_class='btn btn-submit merge-btn need-to-merge-conclusion'))))
+        else:
+            
+            self.helper.layout.append(Layout(
+            Field('introduction', css_class='md-editor preview-source'),
+            ButtonHolder(StrictButton(_(u'Aperçu'), type='preview', name='preview',
+                                      css_class='btn btn-grey preview-btn'),),
+            HTML('{% if form.introduction.value %}{% include "misc/previsualization.part.html" \
+            with text=form.introduction.value %}{% endif %}'),
+            Field('conclusion', css_class='md-editor preview-source'),
+            ButtonHolder(StrictButton(_(u'Aperçu'), type='preview', name='preview',
+                                      css_class='btn btn-grey preview-btn'),)))
+
+        self.helper.layout.append(Layout(
             Field('msg_commit'),
             Field('last_hash'),
             ButtonHolder(
@@ -160,7 +193,7 @@ class ContainerForm(FormWithTitle):
                     _(u'Valider'),
                     type='submit'),
             )
-        )
+        ))
 
 
 class ContentForm(ContainerForm):
