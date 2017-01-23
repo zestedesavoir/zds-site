@@ -98,7 +98,7 @@ def top_categories_content(_type):
         else:
             cats[key] = [(csc['subcategory__title'], csc['subcategory__slug'])]
 
-    return {"tags": tags, "categories": cats}
+    return {'tags': tags, 'categories': cats}
 
 
 @register.filter('auth_forum')
