@@ -28,6 +28,7 @@
 
 		mergelySetUp($(".compare-introduction"),$("#your_introduction"),$("#id_introduction"));
 		mergelySetUp($(".compare-conclusion"),$("#your_conclusion"),$("#id_conclusion"));
+		mergelySetUp($(".compare-text"),$("#your_text"),$("#id_text"));
 
 		$("#compare-editor-lhs").append("Votre Version");
 		$("#compare-editor-rhs").append("La version courante");
@@ -53,7 +54,6 @@
 			        var $toMerge = $(".compare-" + substring).mergely("get","rhs");
 			        $intro.val($toMerge);
 
-					// La version courante / votre version n'est pas affiche sur le deuxieme textarea
 					// Confirmation message
 	                var msg = "<div class='alert-box success alert-merge'>" +
 	                                "<span>Le contenu a bien été validé.</span>" +

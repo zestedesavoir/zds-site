@@ -365,7 +365,7 @@ class ExtractForm(FormWithTitle):
     last_hash = forms.CharField(widget=forms.HiddenInput, required=False)
 
     def __init__(self, *args, **kwargs):
-        super(ExtractForm, self).__init__(*args, **kwargs)
+
         self.helper = FormHelper()
         self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
@@ -373,7 +373,7 @@ class ExtractForm(FormWithTitle):
         self.helper.layout = Layout(
             Field('title'),
             Field('last_hash'),
-            CommonLayoutVersionEditor(),
+            CommonLayoutVersionEditor(*args, **kwargs),
         )
 
 

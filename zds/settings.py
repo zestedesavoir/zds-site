@@ -57,6 +57,7 @@ LANGUAGES = (
     ('en', _('Anglais')),
 )
 
+ALLOWED_HOSTS = ['zds-anto59290.c9users.io']
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: '/home/media/media.lawrence.com/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
