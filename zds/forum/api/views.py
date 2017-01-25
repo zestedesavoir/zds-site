@@ -363,7 +363,7 @@ class TopicDetailAPI(RetrieveUpdateAPIView):
 
 class PostListAPI(ListCreateAPIView):
     """
-    Profile resource to list all messages in a topic
+    Profile resource to list all posts in a topic or create a new post.
     """
     list_key_func = PagingSearchListKeyConstructor()
 
@@ -627,9 +627,11 @@ class PostAlertAPI(CreateAPIView):
               message: Not Found
         """
         author = request.user
+        
         try:
             post = Post.objects.get(id=self.kwargs.get('pk'))
         except Post.DoesNotExist:
+            print('alert post not found')
             raise Http404("Post with pk {} was not found".format(self.kwargs.get('pk')))
 
         serializer = self.get_serializer_class()(data=request.data, context={'request': self.request})

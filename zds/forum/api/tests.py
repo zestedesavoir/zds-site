@@ -21,7 +21,7 @@ from zds.utils.models import CommentVote, Alert
 # We remove spam limit so that we dont get 403 during testing
 # Note : Spam limit is reactivated for the following test : test_create_post_spamming
 overrided_zds_app = settings.ZDS_APP
-overrided_zds_app['forum']['spam_limit_seconds'] = 0
+overrided_zds_app['forum']['spam_limit_seconds'] = -1
 
 
 class ForumPostKarmaAPITest(APITestCase):
@@ -214,7 +214,7 @@ class ForumPostKarmaAPITest(APITestCase):
         self.assertEqual(1, response.data['dislike']['count'])
 
 
-# TODO a reactiver @override_settings(ZDS_APP=overrided_zds_app)
+@override_settings(ZDS_APP=overrided_zds_app)
 class ForumAPITest(APITestCase):
     def setUp(self):
         self.client = APIClient()
@@ -593,8 +593,9 @@ class ForumAPITest(APITestCase):
         topic = Topic.objects.first()
         tag = TagFactory()
         topic.add_tags([tag.title])
+        topic.save()
 
-        response = self.client.get(reverse('api:forum:list-topic') + '?tags=' + str(tag.id))
+        response = self.client.get(reverse('api:forum:list-topic') + '?tags__title=' + str(tag.title))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('count'), 1)
         self.assertEqual(len(response.data.get('results')), 1)
@@ -613,7 +614,7 @@ class ForumAPITest(APITestCase):
             'subtitle': 'Is it the best framework ?',
             'text': 'I head that Flask is the best framework ever, is that true ?',
             'forum': 1,
-            'tags': [tag]
+            'tags': [tag.id]
         }
 
         response = self.client_authenticated.post(reverse('api:forum:list-topic'), data)
@@ -624,6 +625,7 @@ class ForumAPITest(APITestCase):
         self.assertEqual(response.data.get('subtitle'), topic.subtitle)
         self.assertEqual(data.get('text'), topic.last_message.text)
         self.assertEqual(response.data.get('author'), self.profile.user.id)
+        self.assertEqual(response.data.get('tags'), [tag.id])
         self.assertIsNotNone(response.data.get('last_message'))
         self.assertIsNotNone(response.data.get('pubdate'))
 
@@ -851,6 +853,20 @@ class ForumAPITest(APITestCase):
         response = self.client_authenticated.put(reverse('api:forum:detail-topic', args=[topic.id]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('subtitle'), data.get('subtitle'))
+        
+    def test_update_topic_details_tags(self):
+        """
+        Updates tags of a topic.
+        """
+        tag = TagFactory()
+        data = {
+            'tags': [tag.id]
+        }
+        
+        topic = self.create_multiple_forums_with_topics(1, 1, self.profile)
+        response = self.client_authenticated.put(reverse('api:forum:detail-topic', args=[topic.id]), data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('tags'), data.get('tags'))
 
     def test_update_topic_anonymous(self):
         """
@@ -1171,7 +1187,10 @@ class ForumAPITest(APITestCase):
         response = self.client.get(reverse('api:forum:list-post', args=[topic.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        self.assertIsNone(response.data.get('results')[4].text)
+        print('ligne 1190')
+        print(response.data.get('results')[4])
+
+        self.assertIsNone(response.data.get('results')[4].get('text'))
         self.assertIsNone(response.data.get('results')[4].text_html)
         self.assertIsFalse(response.data.get('results')[4].is_visible)
 
@@ -1397,7 +1416,8 @@ class ForumAPITest(APITestCase):
         category, forum = create_category(self.group_staff)
         topic = add_topic_in_a_forum(forum, profile)
         data = {
-            'text': 'Welcome to this post!'
+            'text': 'Welcome to this post!', 
+            'forum': forum.id
         }
         response = self.client_authenticated.post(reverse('api:forum:list-post', args=[topic.pk]), data)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
@@ -1410,7 +1430,8 @@ class ForumAPITest(APITestCase):
         category, forum = create_category(self.group_staff)
         topic = add_topic_in_a_forum(forum, self.staff)
         data = {
-            'text': 'Welcome to this post!'
+            'text': 'Welcome to this post!',
+            'forum': forum.id
         }
         response = self.client_authenticated_staff.post(reverse('api:forum:list-post', args=[topic.pk]), data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -1637,6 +1658,7 @@ class ForumAPITest(APITestCase):
             'text': 'There is a guy flooding about Flask, can you do something about it ?'
         }
 
+        print('test alert post')
         self.client = APIClient()
         response = self.client.post(reverse('api:forum:alert-post', args=[topic.id, post.id]), data)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
@@ -1893,8 +1915,6 @@ def authenticate_client(client, client_auth, username, password):
 # TODO
 # Reorganiser le code de test en differentes classes, reordonner les tests
 
-# A la création de topic pouvoir mettre des tags
-# A l'édit de topic pouvoir changer des tags
 # Tests qui ne passent pas
 # Style / PEP8
 # Route listant les Tags ?

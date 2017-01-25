@@ -45,7 +45,7 @@ class CanWriteInForum(permissions.BasePermission):
     def has_permission(self, request, view):
 
         try:
-            forum = Forum.objects.get(id=request.data.get('forum')) # TODO tester si on met un id qui n'existe pas
+            forum = Forum.objects.get(id=request.data.get('forum'))
         except Forum.DoesNotExist:
             raise Http404("Forum with pk {} was not found".format(request.data.get('forum')))
 
@@ -59,15 +59,16 @@ class CanWriteInTopic(permissions.BasePermission):
 
     def has_permission(self, request, view):
 
-        topic_pk = request.resolver_match.kwargs.get('pk')
+        topic_pk = request.resolver_match.kwargs.get('pk_sujet')
         try:
-            topic = Topic.objects.get(id=topic_pk) # TODO tester si on met un id qui n'existe pas
+            topic = Topic.objects.get(id=topic_pk)
         except Topic.DoesNotExist:
             raise Http404("Topic with pk {} was not found".format(topic_pk))
 
         if topic.antispam(request.user):
             return topic.forum.can_read(request.user)
         else:
+            print('antispam refuse')
             return False
 
 
