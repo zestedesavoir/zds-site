@@ -220,10 +220,20 @@
     /**
      * Preview the message
      */
-    $(".message-bottom").on("click", "[data-ajax-input='preview-message']", function(e){
-        var $form = $(this).parents("form:first");
+    $(".message-bottom [data-ajax-input='preview-message'], .preview-btn").on("click", function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        var $btn = $(this);
+        var $form = $btn.parents("form:first");
+        var text = "";
+        if ( $form.find(".preview-source").length ) {
+                var $textSource = $btn.parent().prev().find(".preview-source");
+                text = $textSource.val();
+            } else {
+                text = $form.find("textarea[name=text]").val();
+            }
+
         var csrfmiddlewaretoken = $form.find("input[name=csrfmiddlewaretoken]").val(),
-            text = $form.find("textarea[name=text]").val(),
             lastPost = $form.find("input[name=last_post]").val();
 
         $.ajax({
@@ -238,16 +248,18 @@
             success: function(data){
                 $(".previsualisation").remove();
 
-                $(data).insertAfter($form);
+                if (typeof $textSource === "undefined")
+                    $(data).insertAfter($form);
+                else
+                    $(data).insertAfter($btn);
 
                 /* global MathJax */
                 if (data.indexOf("$") > 0)
                     MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
             }
         });
-        e.stopPropagation();
-        e.preventDefault();
     });
+
 
     /*
      * Mark a message useful

@@ -24,7 +24,7 @@ class TopBarTests(TestCase):
         self.staff1 = StaffProfileFactory()
 
         self.forum12 = ForumFactory(category=self.category2, position_in_category=2)
-        self.forum12.group.add(Group.objects.filter(name="staff").first())
+        self.forum12.group.add(Group.objects.filter(name='staff').first())
         self.forum12.save()
 
     def test_top_tags(self):

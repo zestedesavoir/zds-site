@@ -21,7 +21,7 @@ from zds.utils.models import Comment, Tag
 def sub_tag(tag):
     start = tag.group('start')
     end = tag.group('end')
-    return u"{0}".format(start + end)
+    return u'{0}'.format(start + end)
 
 
 @python_2_unicode_compatible
@@ -42,9 +42,9 @@ class Category(models.Model):
     # As Categories can only be managed by superadmin, this is purely declarative and there is no control on slug.
     slug = models.SlugField(max_length=80,
                             unique=True,
-                            help_text="Ces slugs vont provoquer des conflits "
+                            help_text='Ces slugs vont provoquer des conflits '
                             "d'URL et sont donc interdits : notifications "
-                            "resolution_alerte sujet sujets message messages")
+                            'resolution_alerte sujet sujets message messages')
 
     def __str__(self):
         """Textual form of a category."""
@@ -241,7 +241,7 @@ class Topic(models.Model):
         # all the mess arround last_answer and last_read message
         return Post.objects\
             .filter(topic=self)\
-            .select_related("author")\
+            .select_related('author')\
             .order_by('position')\
             .first()
 
@@ -256,7 +256,7 @@ class Topic(models.Model):
                 current_tag, created = Tag.objects.get_or_create(title=tag.lower().strip())
                 self.tags.add(current_tag)
             except ValueError as e:
-                logging.getLogger("zds.forum").warn(e)
+                logging.getLogger('zds.forum').warn(e)
 
         self.save()
 
@@ -290,8 +290,8 @@ class Topic(models.Model):
             try:
                 pk, pos = self.resolve_last_post_pk_and_pos_read_by_user(user)
                 page_nb = 1
-                if pos > ZDS_APP["forum"]["posts_per_page"]:
-                    page_nb += (pos - 1) // ZDS_APP["forum"]["posts_per_page"]
+                if pos > ZDS_APP['forum']['posts_per_page']:
+                    page_nb += (pos - 1) // ZDS_APP['forum']['posts_per_page']
                 return '{}?page={}#p{}'.format(
                     self.get_absolute_url(), page_nb, pk)
             except TopicRead.DoesNotExist:
@@ -315,7 +315,7 @@ class Topic(models.Model):
         return Post.objects\
             .filter(topic__pk=self.pk)\
             .order_by('position')\
-            .values('pk', "position").first().values()
+            .values('pk', 'position').first().values()
 
     def first_unread_post(self, user=None):
         """
@@ -336,7 +336,7 @@ class Topic(models.Model):
 
             next_post = Post.objects.filter(topic__pk=self.pk,
                                             position__gt=last_post.position) \
-                                    .select_related("author").first()
+                                    .select_related('author').first()
             return next_post
         except (TopicRead.DoesNotExist, Post.DoesNotExist):
             return self.first_post()
@@ -397,7 +397,7 @@ class Post(Comment):
     objects = PostManager()
 
     def __str__(self):
-        return '<Post pour "{0}", #{1}>'.format(self.topic, self.pk)
+        return "<Post pour '{0}', #{1}>".format(self.topic, self.pk)
 
     def get_absolute_url(self):
         """
@@ -423,7 +423,7 @@ class TopicRead(models.Model):
     class Meta:
         verbose_name = 'Sujet lu'
         verbose_name_plural = 'Sujets lus'
-        unique_together = ("topic", "user")
+        unique_together = ('topic', 'user')
 
     topic = models.ForeignKey(Topic, db_index=True)
     post = models.ForeignKey(Post, db_index=True)
@@ -431,7 +431,7 @@ class TopicRead(models.Model):
     objects = TopicReadManager()
 
     def __str__(self):
-        return '<Sujet "{0}" lu par {1}, #{2}>'.format(self.topic,
+        return "<Sujet '{0}' lu par {1}, #{2}>".format(self.topic,
                                                        self.user,
                                                        self.post.pk)
 

@@ -16,7 +16,7 @@ def patch_mysql_sql_create_model(original):
         :class:`django.db.backends.creation.BaseDatabaseCreation`
         """
 
-        fullname = self.__module__ + "." + self.__class__.__name__
+        fullname = self.__module__ + '.' + self.__class__.__name__
         if fullname == 'django.db.backends.mysql.creation.DatabaseCreation':
             # the migration will run MySQL
             sql_statements, pending_references = original(self, model, style, known_models)
@@ -41,8 +41,9 @@ def patch_mysql_sql_create_model(original):
 
     return revised
 
-if __name__ == "__main__":
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "zds.settings")
+
+if __name__ == '__main__':
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'zds.settings')
 
     if len(sys.argv) > 1 and sys.argv[1] in ['migrate', 'test']:
         from django.db.backends.base.creation import BaseDatabaseCreation

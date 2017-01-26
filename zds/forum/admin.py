@@ -17,8 +17,12 @@ class TopicReadAdmin(admin.ModelAdmin):
     raw_id_fields = ('topic', 'post', 'user')
 
 
+class PostAdmin(admin.ModelAdmin):
+    raw_id_fields = ('author', 'editor')
+
+
 admin.site.register(Category)
 admin.site.register(Forum)
-admin.site.register(Post)
+admin.site.register(Post, PostAdmin)
 admin.site.register(Topic, TopicAdmin)
 admin.site.register(TopicRead, TopicReadAdmin)

@@ -211,7 +211,7 @@ class MemberSanctionState(object):
             bot,
             [ban.user],
             ban.type,
-            "",
+            '',
             msg,
             True,
             direct=True,
@@ -224,7 +224,7 @@ class ReadingOnlySanction(MemberSanctionState):
     """
 
     def get_type(self):
-        return _(u"Lecture Seule")
+        return _(u'Lecture Seule')
 
     def get_text(self):
         return self.array_infos.get('ls-text', '')
@@ -246,19 +246,19 @@ class TemporaryReadingOnlySanction(MemberSanctionState):
     """
 
     def get_type(self):
-        return _(u"Lecture Seule Temporaire")
+        return _(u'Lecture Seule Temporaire')
 
     def get_text(self):
         return self.array_infos.get('ls-text', '')
 
     def get_detail(self):
-        jrs = int(self.array_infos.get("ls-jrs"))
+        jrs = int(self.array_infos.get('ls-jrs'))
         return (_(u'vous ne pouvez plus poster dans les forums, ni dans les '
                   u'commentaires d\'articles et de tutoriels pendant {0} jour{1}.')
                 .format(jrs, pluralize(jrs)))
 
     def apply_sanction(self, profile, ban):
-        day = int(self.array_infos.get("ls-jrs"))
+        day = int(self.array_infos.get('ls-jrs'))
         profile.end_ban_write = datetime.now() + timedelta(days=day, hours=0, minutes=0, seconds=0)
         profile.can_write = False
         profile.save()
@@ -293,13 +293,13 @@ class BanSanction(MemberSanctionState):
     """
 
     def get_type(self):
-        return _(u"Ban définitif")
+        return _(u'Ban définitif')
 
     def get_text(self):
         return self.array_infos.get('ban-text', '')
 
     def get_detail(self):
-        return _(u"vous ne pouvez plus vous connecter sur {0}.") \
+        return _(u'vous ne pouvez plus vous connecter sur {0}.') \
             .format(settings.ZDS_APP['site']['litteral_name'])
 
     def apply_sanction(self, profile, ban):
@@ -315,20 +315,20 @@ class TemporaryBanSanction(MemberSanctionState):
     """
 
     def get_type(self):
-        return _(u"Ban Temporaire")
+        return _(u'Ban Temporaire')
 
     def get_text(self):
         return self.array_infos.get('ban-text', '')
 
     def get_detail(self):
-        jrs = int(self.array_infos.get("ban-jrs"))
+        jrs = int(self.array_infos.get('ban-jrs'))
         return (_(u'vous ne pouvez plus vous connecter sur {0} pendant {1} jour{2}.')
                 .format(settings.ZDS_APP['site']['litteral_name'],
                         jrs,
                         pluralize(jrs)))
 
     def apply_sanction(self, profile, ban):
-        day = int(self.array_infos.get("ban-jrs"))
+        day = int(self.array_infos.get('ban-jrs'))
         profile.end_ban_read = datetime.now() + timedelta(days=day, hours=0, minutes=0, seconds=0)
         profile.can_read = False
         profile.save()
@@ -341,13 +341,13 @@ class DeleteBanSanction(MemberSanctionState):
     """
 
     def get_type(self):
-        return _(u"Autorisation de se connecter")
+        return _(u'Autorisation de se connecter')
 
     def get_text(self):
         return self.array_infos.get('unban-text', '')
 
     def get_detail(self):
-        return _(u"vous pouvez désormais vous connecter sur le site.")
+        return _(u'vous pouvez désormais vous connecter sur le site.')
 
     def apply_sanction(self, profile, ban):
         profile.can_read = True

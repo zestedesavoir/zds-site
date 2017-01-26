@@ -15,7 +15,10 @@ class SubCategoryAdmin(admin.ModelAdmin):
     ordering = ('categorysubcategory__category', 'title')
 
 
-admin.site.register(Alert)
+class AlertAdmin(admin.ModelAdmin):
+    raw_id_fields = ('author', 'comment', 'moderator', 'privatetopic')
+
+admin.site.register(Alert, AlertAdmin)
 admin.site.register(Tag)
 admin.site.register(Licence)
 admin.site.register(Category)

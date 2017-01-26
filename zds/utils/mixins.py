@@ -25,7 +25,7 @@ class FilterMixin(object):
         if self.default_filter_param is None:
             raise ImproperlyConfigured(
                 "'FilterMixin' requires the 'default_filter_param' attribute "
-                "to be set.")
+                'to be set.')
         return self.default_filter_param
 
     def get_filter_param(self):
@@ -62,7 +62,7 @@ class QuoteMixin(object):
 
         text = ''
         for line in post_cite.text.splitlines():
-            text = text + "> " + line + "\n"
+            text = text + '> ' + line + '\n'
 
         return _(u'{0}Source:[{1}]({2}{3})').format(
             text,

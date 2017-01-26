@@ -123,12 +123,12 @@ class Profile(models.Model):
         """
         if self.avatar_url:
             if self.avatar_url.startswith(settings.MEDIA_URL):
-                return u"{}{}".format(settings.ZDS_APP["site"]["url"], self.avatar_url)
+                return u'{}{}'.format(settings.ZDS_APP['site']['url'], self.avatar_url)
             else:
                 return self.avatar_url
         else:
             return 'https://secure.gravatar.com/avatar/{0}?d=identicon'.format(
-                md5(self.user.email.lower().encode("utf-8")).hexdigest())
+                md5(self.user.email.lower().encode('utf-8')).hexdigest())
 
     def get_post_count(self):
         """
@@ -226,13 +226,13 @@ class Profile(models.Model):
         """
         :return: the count of tutorials with this user as author. Count all tutorials, no only published one.
         """
-        return self.get_content_count(_type="TUTORIAL")
+        return self.get_content_count(_type='TUTORIAL')
 
     def get_tutos(self):
         """
         :return: All tutorials with this user as author.
         """
-        return self.get_contents(_type="TUTORIAL")
+        return self.get_contents(_type='TUTORIAL')
 
     def get_draft_tutos(self):
         """
@@ -240,49 +240,49 @@ class Profile(models.Model):
         A draft tutorial is a tutorial which is not published, in validation or in beta.
         :return: All draft tutorials with this user as author.
         """
-        return self.get_draft_contents(_type="TUTORIAL")
+        return self.get_draft_contents(_type='TUTORIAL')
 
     def get_public_tutos(self):
         """
         :return: All published tutorials with this user as author.
         """
-        return self.get_public_contents(_type="TUTORIAL")
+        return self.get_public_contents(_type='TUTORIAL')
 
     def get_validate_tutos(self):
         """
         :return: All tutorials in validation with this user as author.
         """
-        return self.get_validate_contents(_type="TUTORIAL")
+        return self.get_validate_contents(_type='TUTORIAL')
 
     def get_beta_tutos(self):
         """
         :return: All tutorials in beta with this user as author.
         """
-        return self.get_beta_contents(_type="TUTORIAL")
+        return self.get_beta_contents(_type='TUTORIAL')
 
     def get_article_count(self):
         """
         :return: the count of articles with this user as author. Count all articles, no only published one.
         """
-        return self.get_content_count(_type="ARTICLE")
+        return self.get_content_count(_type='ARTICLE')
 
     def get_articles(self):
         """
         :return: All articles with this user as author.
         """
-        return self.get_contents(_type="ARTICLE")
+        return self.get_contents(_type='ARTICLE')
 
     def get_public_articles(self):
         """
         :return: All published articles with this user as author.
         """
-        return self.get_public_contents(_type="ARTICLE")
+        return self.get_public_contents(_type='ARTICLE')
 
     def get_validate_articles(self):
         """
         :return: All articles in validation with this user as author.
         """
-        return self.get_validate_contents(_type="ARTICLE")
+        return self.get_validate_contents(_type='ARTICLE')
 
     def get_draft_articles(self):
         """
@@ -290,13 +290,13 @@ class Profile(models.Model):
         A draft article is a article which is not published or in validation.
         :return: All draft article with this user as author.
         """
-        return self.get_draft_contents(_type="ARTICLE")
+        return self.get_draft_contents(_type='ARTICLE')
 
     def get_beta_articles(self):
         """
         :return: All articles in beta with this user as author.
         """
-        return self.get_beta_contents(_type="ARTICLE")
+        return self.get_beta_contents(_type='ARTICLE')
 
     def get_posts(self):
         return Post.objects.filter(author=self.user).all()
@@ -314,21 +314,16 @@ class Profile(models.Model):
         if self.user.is_authenticated:
             if self.user.is_active:
                 if self.end_ban_read:
-                    return self.can_read or (
-                        self.end_ban_read < datetime.now())
-                else:
-                    return self.can_read
-            else:
-                return False
+                    return self.can_read or (self.end_ban_read < datetime.now())
+                return self.can_read
+            return False
 
     def can_write_now(self):
         if self.user.is_active:
             if self.end_ban_write:
                 return self.can_write or (self.end_ban_write < datetime.now())
-            else:
-                return self.can_write
-        else:
-            return False
+            return self.can_write
+        return False
 
     def get_followed_topics(self):
         """
@@ -355,7 +350,7 @@ class Profile(models.Model):
         return True
 
     def has_object_write_permission(self, request):
-        return self.has_object_update_permission(request) or request.user.has_perm("member.change_profile")
+        return self.has_object_update_permission(request) or request.user.has_perm('member.change_profile')
 
     def has_object_update_permission(self, request):
         return request.user.is_authenticated() and request.user == self.user
@@ -365,7 +360,7 @@ class Profile(models.Model):
         return True
 
     def has_object_ban_permission(self, request):
-        return request.user and request.user.has_perm("member.change_profile")
+        return request.user and request.user.has_perm('member.change_profile')
 
     @property
     def group_pks(self):
@@ -405,7 +400,7 @@ class TokenForgotPassword(models.Model):
         return reverse('member-new-password') + '?token={0}'.format(self.token)
 
     def __str__(self):
-        return "{0} - {1}".format(self.user.username, self.date_end)
+        return '{0} - {1}'.format(self.user.username, self.date_end)
 
 
 @python_2_unicode_compatible
@@ -430,7 +425,7 @@ class TokenRegister(models.Model):
         return reverse('member-active-account') + '?token={0}'.format(self.token)
 
     def __str__(self):
-        return "{0} - {1}".format(self.user.username, self.date_end)
+        return '{0} - {1}'.format(self.user.username, self.date_end)
 
 
 # Used by SOCIAL_AUTH_PIPELINE to create a profile on first login via social auth
@@ -438,7 +433,7 @@ def save_profile(backend, user, response, *args, **kwargs):
     profile = Profile.objects.filter(user=user).first()
     if profile is None:
         profile = Profile(user=user)
-        profile.last_ip_address = "0.0.0.0"
+        profile.last_ip_address = '0.0.0.0'
         profile.save()
 
 
@@ -461,7 +456,7 @@ class Ban(models.Model):
     pubdate = models.DateTimeField('Date de publication', blank=True, null=True, db_index=True)
 
     def __str__(self):
-        return "{0} - ban : {1} ({2}) ".format(self.user.username, self.note, self.pubdate)
+        return '{0} - ban : {1} ({2}) '.format(self.user.username, self.note, self.pubdate)
 
 
 @python_2_unicode_compatible
@@ -486,7 +481,7 @@ class KarmaNote(models.Model):
     pubdate = models.DateTimeField('Date d\'ajout', auto_now_add=True)
 
     def __str__(self):
-        return "{0} - note : {1} ({2}) ".format(self.user.username, self.comment, self.pubdate)
+        return '{0} - note : {1} ({2}) '.format(self.user.username, self.comment, self.pubdate)
 
 
 def logout_user(username):

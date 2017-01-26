@@ -686,8 +686,12 @@ class NotificationPrivateTopicTest(TestCase):
 
         self.user1.profile.email_for_answer = True
         self.user1.profile.save()
+        self.user2.profile.email_for_answer = True
+        self.user2.profile.save()
 
         send_message_mp(self.user2, topic, '', send_by_mail=True)
+        subscriptions = PrivateTopicAnswerSubscription.objects.filter(user=self.user2)
+        self.assertTrue(subscriptions.last().by_email)
 
         self.assertEquals(2, len(mail.outbox))
 
