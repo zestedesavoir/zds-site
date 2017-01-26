@@ -61,7 +61,7 @@ class MemberModelsTest(TestCase):
         image_avatar = ImageFactory(gallery=gallerie_avtar)
         user2.avatar_url = image_avatar.physical.url
         self.assertNotEqual(user2.get_avatar_url(), image_avatar.physical.url)
-        self.assertIn("http", user2.get_avatar_url())
+        self.assertIn('http', user2.get_avatar_url())
 
     def test_get_post_count(self):
         # Start with 0
@@ -123,7 +123,7 @@ class MemberModelsTest(TestCase):
         publictuto = PublishableContentFactory(type='TUTORIAL')
         publictuto.authors.add(self.user1.user)
         publictuto.gallery = GalleryFactory()
-        publictuto.sha_public = "whatever"
+        publictuto.sha_public = 'whatever'
         publictuto.save()
         # Should be 0 because publication was not used
         publictutos = self.user1.get_public_tutos()
@@ -192,7 +192,7 @@ class MemberModelsTest(TestCase):
         articles = self.user1.get_public_articles()
         self.assertEqual(len(articles), 0)
         # Should be 1
-        PublishedContentFactory(author_list=[self.user1.user], type="Article")
+        PublishedContentFactory(author_list=[self.user1.user], type='Article')
         self.assertEqual(len(self.user1.get_public_tutos()), 1)
 
     def test_get_validate_articles(self):
@@ -273,18 +273,58 @@ class MemberModelsTest(TestCase):
         self.assertEqual(self.user1.get_active_alerts_count(), 1)
 
     def test_can_read_now(self):
+
+        profile = ProfileFactory()
+        profile.is_active = True
+        profile.can_read = True
+        self.assertTrue(profile.can_read_now())
+
+        # Was banned in the past, ban no longer active
+        profile = ProfileFactory()
+        profile.end_ban_read = datetime.now() - timedelta(days=1)
+        self.assertTrue(profile.can_read_now())
+
+        profile = ProfileFactory()
+        profile.is_active = True
+        profile.can_read = False
+        self.assertFalse(profile.can_read_now())
+
+        # Ban is active
+        profile = ProfileFactory()
+        profile.is_active = True
+        profile.can_read = False
+        profile.end_ban_read = datetime.now() + timedelta(days=1)
+        self.assertFalse(profile.can_read_now())
+
         self.user1.user.is_active = False
-        self.assertFalse(self.user1.can_write_now())
-        self.user1.user.is_active = True
-        self.assertTrue(self.user1.can_write_now())
-        # TODO Some conditions still need to be tested
+        self.assertFalse(self.user1.can_read_now())
 
     def test_can_write_now(self):
-        self.user1.user.is_active = False
-        self.assertFalse(self.user1.can_write_now())
+
         self.user1.user.is_active = True
+        self.user1.user.can_write = True
         self.assertTrue(self.user1.can_write_now())
-        # TODO Some conditions still need to be tested
+
+        # Was banned in the past, ban no longer active
+        profile = ProfileFactory()
+        profile.can_write = True
+        profile.end_ban_read = datetime.now() - timedelta(days=1)
+        self.assertTrue(profile.can_write_now())
+
+        profile = ProfileFactory()
+        profile.can_write = False
+        profile.is_active = True
+        self.assertFalse(profile.can_write_now())
+
+        # Ban is active
+        profile = ProfileFactory()
+        profile.can_write = False
+        profile.end_ban_write = datetime.now() + timedelta(days=1)
+        self.assertFalse(profile.can_write_now())
+
+        self.user1.user.is_active = False
+        self.user1.user.can_write = True
+        self.assertFalse(self.user1.can_write_now())
 
     def test_get_followed_topics(self):
         # Start with 0
@@ -318,13 +358,13 @@ class MemberModelsTest(TestCase):
         profile_inactive.user.is_active = False
         profile_inactive.user.save()
         profile_bot = ProfileFactory()
-        profile_bot.user.username = settings.ZDS_APP["member"]["bot_account"]
+        profile_bot.user.username = settings.ZDS_APP['member']['bot_account']
         profile_bot.user.save()
         profile_anonymous = ProfileFactory()
-        profile_anonymous.user.username = settings.ZDS_APP["member"]["anonymous_account"]
+        profile_anonymous.user.username = settings.ZDS_APP['member']['anonymous_account']
         profile_anonymous.user.save()
         profile_external = ProfileFactory()
-        profile_external.user.username = settings.ZDS_APP["member"]["external_account"]
+        profile_external.user.username = settings.ZDS_APP['member']['external_account']
         profile_external.user.save()
         profile_ban_def = ProfileFactory()
         profile_ban_def.can_read = False
@@ -350,7 +390,7 @@ class MemberModelsTest(TestCase):
 
         # groups
 
-        bot = Group(name=settings.ZDS_APP["member"]["bot_group"])
+        bot = Group(name=settings.ZDS_APP['member']['bot_group'])
         bot.save()
 
         # associate account to groups
@@ -387,7 +427,7 @@ class TestTokenForgotPassword(TestCase):
     def setUp(self):
         self.user1 = ProfileFactory()
         self.token = TokenForgotPassword.objects.create(user=self.user1.user,
-                                                        token="abcde",
+                                                        token='abcde',
                                                         date_end=datetime.now())
 
     def test_get_absolute_url(self):
@@ -399,7 +439,7 @@ class TestTokenRegister(TestCase):
     def setUp(self):
         self.user1 = ProfileFactory()
         self.token = TokenRegister.objects.create(user=self.user1.user,
-                                                  token="abcde",
+                                                  token='abcde',
                                                   date_end=datetime.now())
 
     def test_get_absolute_url(self):

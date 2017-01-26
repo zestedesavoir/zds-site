@@ -35,9 +35,9 @@ def easy_tag(func):
             err_msg = 'Bad arguments for tag "{0}".\nThe tag "{0}" take {1} arguments ({2}).\n {3} were provided ({4}).'
             fstring = err_msg.format(split_arg[0],
                                      len(args),
-                                     ", ".join(args),
+                                     ', '.join(args),
                                      len(split_arg),
-                                     ", ".join(split_arg))
+                                     ', '.join(split_arg))
             raise template.TemplateSyntaxError(fstring)
     return inner
 
@@ -85,8 +85,8 @@ class AppendGetNode(template.Node):
             get[key] = self.__dict_pairs[key].resolve(context)
 
         if len(get) > 0:
-            list_arg = [u"{0}={1}".format(key, urlquote(value)) for key in get.keys() for value in get.getlist(key)]
-            path += u"?" + u"&".join(list_arg)
+            list_arg = [u'{0}={1}'.format(key, urlquote(value)) for key in get.keys() for value in get.getlist(key)]
+            path += u'?' + u'&'.join(list_arg)
 
         return path
 

@@ -55,9 +55,9 @@ class StaffFactory(factory.DjangoModelFactory):
             user.set_password(password)
             if create:
                 user.save()
-        group_staff = Group.objects.filter(name="staff").first()
+        group_staff = Group.objects.filter(name='staff').first()
         if group_staff is None:
-            group_staff = Group(name="staff")
+            group_staff = Group(name='staff')
             group_staff.save()
 
         perms = Permission.objects.filter(codename__startswith='change_').all()

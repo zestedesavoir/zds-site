@@ -62,7 +62,7 @@ class ContentMoveTests(TestCase):
         self.chapter1 = ContainerFactory(parent=self.part1, db_object=self.tuto)
 
         self.extract1 = ExtractFactory(container=self.chapter1, db_object=self.tuto)
-        bot = Group(name=settings.ZDS_APP["member"]["bot_group"])
+        bot = Group(name=settings.ZDS_APP['member']['bot_group'])
         bot.save()
 
     def test_move_up_extract(self):
@@ -184,7 +184,7 @@ class ContentMoveTests(TestCase):
         extract = versioned.children_dict[self.part1.slug].children_dict[self.chapter2.slug].children[1]
         self.assertEqual(self.extract4.slug, extract.slug)
         self.assertEqual(2, len(versioned.children_dict[self.part1.slug].children_dict[self.chapter1.slug].children))
-        # test changing parents on a "midsize content" (i.e depth of 1)
+        # test changing parents on a 'midsize content' (i.e depth of 1)
         midsize = PublishableContentFactory(author_list=[self.user_author])
         midsize_draft = midsize.load_version()
         first_container = ContainerFactory(parent=midsize_draft, db_object=midsize)
@@ -239,7 +239,7 @@ class ContentMoveTests(TestCase):
                 'child_slug': self.extract1.slug,
                 'container_slug': self.chapter2.slug,
                 'first_level_slug': self.part1.slug,
-                'moving_method': 'before:' + self.chapter1.get_path(True) + "/un-mauvais-extrait",
+                'moving_method': 'before:' + self.chapter1.get_path(True) + '/un-mauvais-extrait',
                 'pk': tuto.pk
             },
             follow=True)
@@ -443,7 +443,7 @@ class ContentMoveTests(TestCase):
                 'child_slug': self.extract1.slug,
                 'container_slug': self.chapter2.slug,
                 'first_level_slug': self.part1.slug,
-                'moving_method': 'after:' + self.chapter1.get_path(True) + "/un-mauvais-extrait",
+                'moving_method': 'after:' + self.chapter1.get_path(True) + '/un-mauvais-extrait',
                 'pk': tuto.pk
             },
             follow=True)
@@ -523,13 +523,13 @@ class ContentMoveTests(TestCase):
         telling it is tricky is kind of euphemism.
         :return:
         """
-        LicenceFactory(code="CC BY")
+        LicenceFactory(code='CC BY')
         self.assertEqual(
             self.client.login(
                 username=self.user_author.username,
                 password='hostel77'),
             True)
-        draft_zip_path = join(dirname(__file__), "fake_lasynchrone-et-le-multithread-en-net.zip")
+        draft_zip_path = join(dirname(__file__), 'fake_lasynchrone-et-le-multithread-en-net.zip')
         result = self.client.post(
             reverse('content:import-new'),
             {
@@ -550,7 +550,7 @@ class ContentMoveTests(TestCase):
             reverse('content:move-element'),
             {
                 'child_slug': extract1.slug,
-                'first_level_slug': "",
+                'first_level_slug': '',
                 'container_slug': tuto.slug,
                 'moving_method': 'down',
                 'pk': tuto.pk
