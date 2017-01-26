@@ -188,7 +188,7 @@ class ContainerForm(FormWithTitle):
             HTML('{% if form.conclusion.value %}{% include "misc/previsualization.part.html" \
             with text=form.conclusion.value %}{% endif %}'),
 
-		self.helper.layout.append(Layout(
+        self.helper.layout.append(Layout(
             Field('msg_commit'),
             Field('last_hash'),
             ButtonHolder(
@@ -307,7 +307,7 @@ class ContentForm(ContainerForm):
             HTML('{% if form.conclusion.value %}{% include "misc/previsualization.part.html" \
             with text=form.conclusion.value %}{% endif %}'),
 
-		self.helper.layout.append(Layout(
+        self.helper.layout.append(Layout(
             Field('last_hash'),
             Field('licence'),
             Field('subcategory', template='crispy/checkboxselectmultiple.html'),
