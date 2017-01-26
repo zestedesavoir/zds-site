@@ -151,7 +151,7 @@ class ContainerForm(FormWithTitle):
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(Field('title'))
-        
+
         if kwargs.get('data', None) is not None:
             old_intro = kwargs.get('data').get('introduction')
 
