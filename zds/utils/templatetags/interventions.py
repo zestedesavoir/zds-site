@@ -54,6 +54,13 @@ def is_content_followed(content):
         user, content, is_active=True)
 
 
+@register.filter('is_content_email_followed')
+def is_content_email_followed(content):
+    user = get_current_user()
+    return user.is_authenticated() and ContentReactionAnswerSubscription.objects.does_exist(
+        user, content, is_active=True, by_email=True)
+
+
 @register.filter('is_new_publication_followed')
 def is_new_publication_followed(user_to_follow):
     user = get_current_user()
@@ -78,10 +85,10 @@ def humane_delta(value):
     """
     const = {
         1: _("Aujourd'hui"),
-        2: _("Hier"),
-        3: _("Les 7 derniers jours"),
-        4: _("Les 30 derniers jours"),
-        5: _("Plus ancien")
+        2: _('Hier'),
+        3: _('Les 7 derniers jours'),
+        4: _('Les 30 derniers jours'),
+        5: _('Plus ancien')
     }
 
     return const[value]

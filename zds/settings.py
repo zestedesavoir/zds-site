@@ -58,27 +58,27 @@ LANGUAGES = (
 )
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
-# Example: "/home/media/media.lawrence.com/media/"
+# Example: '/home/media/media.lawrence.com/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
-# Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
+# Examples: 'http://media.lawrence.com/media/', 'http://example.com/media/'
 MEDIA_URL = '/media/'
 
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
-# in apps' "static/" subdirectories and in STATICFILES_DIRS.
-# Example: "/home/media/media.lawrence.com/static/"
+# in apps' 'static/' subdirectories and in STATICFILES_DIRS.
+# Example: '/home/media/media.lawrence.com/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # URL prefix for static files.
-# Example: "http://media.lawrence.com/static/"
+# Example: 'http://media.lawrence.com/static/'
 STATIC_URL = '/static/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
-    # Put strings here, like "/home/html/static" or "C:/www/django/static".
+    # Put strings here, like '/home/html/static' or 'C:/www/django/static'.
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
     os.path.join(BASE_DIR, 'dist'),
@@ -96,8 +96,8 @@ STATICFILES_FINDERS = (
 SECRET_KEY = 'n!01nl+318#x75_%le8#s0=-*ysw&amp;y49uc#t=*wvi(9hnyii0z'  # noqa
 
 FILE_UPLOAD_HANDLERS = (
-    "django.core.files.uploadhandler.MemoryFileUploadHandler",
-    "django.core.files.uploadhandler.TemporaryFileUploadHandler",
+    'django.core.files.uploadhandler.MemoryFileUploadHandler',
+    'django.core.files.uploadhandler.TemporaryFileUploadHandler',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -111,7 +111,7 @@ MIDDLEWARE_CLASSES = (
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'zds.utils.ThreadLocals',
-    'zds.middlewares.SetLastVisitMiddleware.SetLastVisitMiddleware',
+    'zds.middlewares.setlastvisitmiddleware.SetLastVisitMiddleware',
     'zds.middlewares.profile.ProfileMiddleware',
 )
 
@@ -319,7 +319,7 @@ CACHES = {
     }
 }
 
-SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
+SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 
 LOGIN_URL = '/membres/connexion'
 
@@ -332,12 +332,12 @@ ABSOLUTE_URL_OVERRIDES = {
 SERVE = False
 
 PANDOC_LOC = ''
-PANDOC_PDF_PARAM = ("--latex-engine=xelatex "
-                    "--template={} -s -S -N "
-                    "--toc -V documentclass=scrbook -V lang=francais "
-                    "-V mainfont=Merriweather -V monofont=\"SourceCodePro-Regular\" "
-                    "-V fontsize=12pt -V geometry:margin=1in ".format(join("..", "..", "..",
-                                                                           "assets", "tex", "template.tex")))
+PANDOC_PDF_PARAM = ('--latex-engine=xelatex '
+                    '--template={} -s -S -N '
+                    '--toc -V documentclass=scrbook -V lang=francais '
+                    '-V mainfont=Merriweather -V monofont="SourceCodePro-Regular" '
+                    '-V fontsize=12pt -V geometry:margin=1in '.format(join('..', '..', '..',
+                                                                           'assets', 'tex', 'template.tex')))
 # LOG PATH FOR PANDOC LOGGING
 PANDOC_LOG = './pandoc.log'
 PANDOC_LOG_STATE = False
@@ -372,7 +372,7 @@ LOCALE_PATHS = (
 )
 
 # best quality, 100 is the same but documentation says
-# " values up to 100 are allowed, but this is not recommended"
+# ' values up to 100 are allowed, but this is not recommended'
 # so let's use 95
 THUMBNAIL_QUALITY = 95
 # Let's use the default value BUT if we want to let png in lossless format, we have tu use (png,) instead of None
@@ -381,27 +381,27 @@ THUMBNAIL_PRESERVE_EXTENSIONS = None
 
 ZDS_APP = {
     'site': {
-        'name': u"ZesteDeSavoir",
-        'litteral_name': u"Zeste de Savoir",
-        'slogan': u"Zeste de Savoir, la connaissance pour tous et sans pépins",
-        'abbr': u"zds",
-        'url': u"http://127.0.0.1:8000",
-        'secure_url': u"https://127.0.0.1:8000",
-        'dns': u"zestedesavoir.com",
-        'email_contact': u"zestedesavoir@gmail.com",
-        'email_noreply': u"noreply@zestedesavoir.com",
-        'forum_feedback_users': u"/forums/communaute/bug-suggestions/",
-        'contribute_link': u"https://github.com/zestedesavoir/zds-site/blob/dev/CONTRIBUTING.md",
-        'short_description': u"",
-        'long_description': u"Zeste de Savoir est un site de partage de connaissances "
-                            u"sur lequel vous trouverez des tutoriels de tous niveaux, "
-                            u"des articles et des forums d'entraide animés par et pour "
-                            u"la communauté.",
+        'name': u'ZesteDeSavoir',
+        'litteral_name': u'Zeste de Savoir',
+        'slogan': u'Zeste de Savoir, la connaissance pour tous et sans pépins',
+        'abbr': u'zds',
+        'url': u'http://127.0.0.1:8000',
+        'secure_url': u'https://127.0.0.1:8000',
+        'dns': u'zestedesavoir.com',
+        'email_contact': u'zestedesavoir@gmail.com',
+        'email_noreply': u'noreply@zestedesavoir.com',
+        'forum_feedback_users': u'/forums/communaute/bug-suggestions/',
+        'contribute_link': u'https://github.com/zestedesavoir/zds-site/blob/dev/CONTRIBUTING.md',
+        'short_description': u'',
+        'long_description': u'Zeste de Savoir est un site de partage de connaissances '
+                            u'sur lequel vous trouverez des tutoriels de tous niveaux, '
+                            u'des articles et des forums d’entraide animés par et pour '
+                            u'la communauté.',
         'association': {
-            'name': u"Zeste de Savoir",
-            'fee': u"20 €",
-            'email': u"zestedesavoir@gmail.com",
-            'email_ca': u"ca-zeste-de-savoir@googlegroups.com",
+            'name': u'Zeste de Savoir',
+            'fee': u'20 €',
+            'email': u'zestedesavoir@gmail.com',
+            'email_ca': u'ca-zeste-de-savoir@googlegroups.com',
             'forum_ca_pk': 25
         },
         'repository': {
@@ -415,49 +415,50 @@ ZDS_APP = {
         },
         'licenses': {
             'logo': {
-                'code': u"CC-BY",
-                'title': u"Creative Commons License",
-                'description': u"Licence Creative Commons Attribution - Pas d’Utilisation Commerciale - "
-                               u"Partage dans les Mêmes Conditions 4.0 International.",
-                'url_image': u"http://i.creativecommons.org/l/by-nc-sa/4.0/80x15.png",
-                'url_license': u"http://creativecommons.org/licenses/by-nc-sa/4.0/",
-                'author': u"MaxRoyo"
+                'code': u'CC-BY',
+                'title': u'Creative Commons License',
+                'description': u'Licence Creative Commons Attribution - Pas d’Utilisation Commerciale - '
+                               u'Partage dans les Mêmes Conditions 4.0 International.',
+                'url_image': u'http://i.creativecommons.org/l/by-nc-sa/4.0/80x15.png',
+                'url_license': u'http://creativecommons.org/licenses/by-nc-sa/4.0/',
+                'author': u'MaxRoyo'
             },
             'cookies': {
-                'code': u"CC-BY",
-                'title': u"Licence Creative Commons",
-                'description': u"licence Creative Commons Attribution 4.0 International",
-                'url_image': u"http://i.creativecommons.org/l/by-nc-sa/4.0/80x15.png",
-                'url_license': u"http://creativecommons.org/licenses/by-nc-sa/4.0/"
+                'code': u'CC-BY',
+                'title': u'Licence Creative Commons',
+                'description': u'licence Creative Commons Attribution 4.0 International',
+                'url_image': u'http://i.creativecommons.org/l/by-nc-sa/4.0/80x15.png',
+                'url_license': u'http://creativecommons.org/licenses/by-nc-sa/4.0/'
             },
             'source': {
-                'code': u"GPL v3",
-                'url_license': u"http://www.gnu.org/licenses/gpl-3.0.html",
-                'provider_name': u"Progdupeupl",
-                'provider_url': u"http://pdp.microjoe.org",
+                'code': u'GPL v3',
+                'url_license': u'http://www.gnu.org/licenses/gpl-3.0.html',
+                'provider_name': u'Progdupeupl',
+                'provider_url': u'http://pdp.microjoe.org',
             },
             'licence_info_title': u'http://zestedesavoir.com/tutoriels/281/le-droit-dauteur-creative-commons-et-les-lic'
                                   u'ences-sur-zeste-de-savoir/',
             'licence_info_link': u'Le droit d\'auteur, Creative Commons et les licences sur Zeste de Savoir'
         },
         'hosting': {
-            'name': u"GANDI SAS",
-            'address': u"63-65 boulevard Massena - 75013 Paris - France"
+            'name': u'GANDI SAS',
+            'address': u'63-65 boulevard Massena - 75013 Paris - France'
         },
         'social': {
             'facebook': u'https://www.facebook.com/ZesteDeSavoir',
             'twitter': u'https://twitter.com/ZesteDeSavoir',
             'googleplus': u'https://plus.google.com/u/0/107033688356682807298'
         },
-        'cnil': u"1771020",
+        'cnil': u'1771020',
     },
     'member': {
-        'bot_account': u"admin",
-        'anonymous_account': u"anonymous",
-        'external_account': u"external",
+        'bot_account': u'admin',
+        'anonymous_account': u'anonymous',
+        'external_account': u'external',
         'bot_group': u'bot',
         'dev_group': u'devs',
         'members_per_page': 100,
+        'update_last_visit_interval': 600,  # seconds
     },
     'gallery': {
         'image_max_size': 1024 * 1024,
@@ -471,7 +472,7 @@ ZDS_APP = {
     'tutorial': {
         'repo_path': os.path.join(BASE_DIR, 'tutoriels-private'),
         'repo_public_path': os.path.join(BASE_DIR, 'tutoriels-public'),
-        'default_license_pk': 7,
+        'default_licence_pk': 7,
         'home_number': 4,
         'helps_per_page': 20,
         'content_per_page': 42,
@@ -481,10 +482,10 @@ ZDS_APP = {
         'repo_private_path': os.path.join(BASE_DIR, 'contents-private'),
         'repo_public_path': os.path.join(BASE_DIR, 'contents-public'),
         'extra_contents_dirname': 'extra_contents',
-        # can also be 'extra_content_generation_policy': "WATCHDOG"
-        # or 'extra_content_generation_policy': "NOTHING"
-        'extra_content_generation_policy': "SYNC",
-        'extra_content_watchdog_dir': os.path.join(BASE_DIR, "watchdog-build"),
+        # can also be 'extra_content_generation_policy': 'WATCHDOG'
+        # or 'extra_content_generation_policy': 'NOTHING'
+        'extra_content_generation_policy': 'SYNC',
+        'extra_content_watchdog_dir': os.path.join(BASE_DIR, 'watchdog-build'),
         'max_tree_depth': 3,
         'default_licence_pk': 7,
         'content_per_page': 60,
@@ -493,10 +494,11 @@ ZDS_APP = {
         'commits_per_page': 20,
         'feed_length': 5,
         'user_page_number': 5,
-        'default_image': os.path.join(BASE_DIR, "fixtures", "noir_black.png"),
+        'default_image': os.path.join(BASE_DIR, 'fixtures', 'noir_black.png'),
         'import_image_prefix': 'archive',
         'build_pdf_when_published': True,
-        'maximum_slug_size': 150
+        'maximum_slug_size': 150,
+        'sec_per_minute': 1500
     },
     'forum': {
         'posts_per_page': 21,
@@ -515,6 +517,10 @@ ZDS_APP = {
     'topic': {
         'home_number': 6,
     },
+    'comment': {
+        'max_pings': 15,
+        'enable_pings': False,
+    },
     'featured_resource': {
         'featured_per_page': 100,
         'home_number': 5,
@@ -529,7 +535,7 @@ ZDS_APP = {
     'display_search_bar': True
 }
 
-LOGIN_REDIRECT_URL = "/"
+LOGIN_REDIRECT_URL = '/'
 
 AUTHENTICATION_BACKENDS = ('social.backends.facebook.FacebookOAuth2',
                            'social.backends.google.GoogleOAuth2',
@@ -551,14 +557,14 @@ SOCIAL_AUTH_PIPELINE = (
 )
 
 # redefine for real key and secret code
-SOCIAL_AUTH_FACEBOOK_KEY = ""
-SOCIAL_AUTH_FACEBOOK_SECRET = ""
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = "696570367703-r6hc7mdd27t1sktdkivpnc5b25i0uip2.apps.googleusercontent.com"
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = "mApWNh3stCsYHwsGuWdbZWP8"  # noqa
+SOCIAL_AUTH_FACEBOOK_KEY = ''
+SOCIAL_AUTH_FACEBOOK_SECRET = ''
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '696570367703-r6hc7mdd27t1sktdkivpnc5b25i0uip2.apps.googleusercontent.com'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'mApWNh3stCsYHwsGuWdbZWP8'  # noqa
 
 # ReCaptcha stuff
 USE_CAPTCHA = False
-NOCAPTCHA = True  # Use the "No Captcha engine"
+NOCAPTCHA = True  # Use the 'No Captcha engine'
 RECAPTCHA_USE_SSL = True
 # keys (should be overriden in the settings_prod.py file)
 RECAPTCHA_PUBLIC_KEY = 'dummy'  # noqa

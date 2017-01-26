@@ -17,7 +17,7 @@
         @include sprite();
     }
 
-    &.alert {
+    &.alert, &.ico-alert {
         &:after {
             @include sprite-position($alert);
         }

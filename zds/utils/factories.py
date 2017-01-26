@@ -12,9 +12,9 @@ class HelpWritingFactory(factory.DjangoModelFactory):
     class Meta:
         model = HelpWriting
 
-    title = factory.Sequence(u"titre de l\'image {0}".format)
-    slug = factory.LazyAttribute(lambda o: "{0}".format(slugify(o.title)))
-    tablelabel = factory.LazyAttribute(lambda n: u"Besoin de " + n.title)
+    title = factory.Sequence(u"titre de l'image {0}".format)
+    slug = factory.LazyAttribute(lambda o: '{0}'.format(slugify(o.title)))
+    tablelabel = factory.LazyAttribute(lambda n: u'Besoin de ' + n.title)
 
     @classmethod
     def _prepare(cls, create, **kwargs):
@@ -23,7 +23,7 @@ class HelpWritingFactory(factory.DjangoModelFactory):
         fixture_image_path = kwargs.pop('fixture_image_path', None)
 
         if fixture_image_path is not None:
-            image_path = join(BASE_DIR, "fixtures", fixture_image_path)
+            image_path = join(BASE_DIR, 'fixtures', fixture_image_path)
 
         if image_path is not None:
             copyfile(image_path, join(MEDIA_ROOT, basename(image_path)))

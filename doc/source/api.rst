@@ -246,7 +246,13 @@ Pour récupérer les tokens, les développeurs doivent exécuter une requête en
 
 .. sourcecode:: bash
 
-    $ curl -X POST -d "client_id=YOUR_CLIENT_ID&client_secret=YOUR_CLIENT_SECRET&grant_type=password&username=YOUR_USERNAME&password=YOUR_PASSWORD" https://zestedesavoir.com/oauth2/token/
+    $ curl -X POST -H "Content-Type: application/json" -d '{
+            "username": "YOUR_USERNAME",
+            "password": "YOUR_PASSWORD",
+            "grant_type": "password",
+            "client_id": "CLIENT_ID",
+            "client_secret": "CLIENT_SECRET"
+        }' https://zestedesavoir.com/oauth2/token/
 
 Si l'application est bien en "confidentiel", la réponse à cette requête exposera 2 tokens, son type, sa date d'expiration et sa portée.
 
@@ -286,7 +292,12 @@ Si le token n'est plus valide ou que vous avez perdu l'``access_token`` de l'uti
 
 .. sourcecode:: bash
 
-    $ curl -X POST -d "client_id=YOUR_CLIENT_ID&client_secret=YOUR_CLIENT_SECRET&grant_type=refresh_token&refresh_token=YOUR_REFRESH_TOKEN" https://zestedesavoir.com/oauth2/token/
+    $ curl -X POST -H "Content-Type: application/json" -d '{
+            "grant_type": "refresh_token",
+            "client_id": "CLIENT_ID",
+            "client_secret": "CLIENT_SECRET",
+            "refresh_token": "YOUR_REFRESH_TOKEN"
+        }' https://zestedesavoir.com/oauth2/token/
 
 A la suite de cela, de nouveaux tokens seront renvoyés et devront être sauvegardés pour une prochaine utilisation si nécessaire.
 

@@ -8,7 +8,7 @@ from zds.utils.models import Tag
 from zds.utils.misc import contains_utf8mb4
 # for compat with py3
 try:
-    assert isinstance("", basestring)
+    assert isinstance('', basestring)
 except (NameError, AssertionError):
     basestring = str
 
@@ -30,8 +30,8 @@ class CommonLayoutEditor(Layout):
                 name='preview',
                 css_class='btn-grey',
                 data_ajax_input='preview-message'),
-            HTML("</div>"),
-            HTML("</div>"),
+            HTML('</div>'),
+            HTML('</div>'),
             *args, **kwargs
         )
 
@@ -52,7 +52,7 @@ class CommonLayoutVersionEditor(Layout):
                         _(u'Aperçu'),
                         type='submit',
                         name='preview',
-                        css_class='btn-grey'),
+                        css_class='btn-grey preview-btn'),
                 ),
             ),
             *args, **kwargs
@@ -74,21 +74,21 @@ class TagValidator(object):
     """
     def __init__(self):
         self.__errors = []
-        self.logger = logging.getLogger("zds.utils.forms")
+        self.logger = logging.getLogger('zds.utils.forms')
         self.__clean = []
 
     def validate_raw_string(self, raw_string):
         """
         validate a string composed as ``tag1,tag2``.
 
-        :param raw_string: the string to be validate. If ``None`` this is considered as a empty str
+        :param raw_string: the string to be validate. If ``None`` this is considered as a empty str.
         :type raw_string: basestring
-        :return: ``True`` if ``raw_string`` is fully valid, ``False`` if at least one error appears. See ``self.errors``
-        to get all internationalized error.
+        :return: ``True`` if ``raw_string`` is fully valid, ``False`` if at least one error appears. \
+        See ``self.errors`` to get all internationalized error.
         """
         if raw_string is None or not isinstance(raw_string, basestring):
             return self.validate_string_list([])
-        return self.validate_string_list(raw_string.split(","))
+        return self.validate_string_list(raw_string.split(','))
 
     def validate_length(self, tag):
         """
@@ -97,11 +97,11 @@ class TagValidator(object):
         :param tag: the tag lavel to validate
         :return: ``True`` if length is valid
         """
-        if len(tag) > Tag._meta.get_field("title").max_length:
-            self.errors.append(_(u"Le tag {} est trop long (maximum {} caractères)".format(
-                tag, Tag._meta.get_field("title").max_length)))
-            self.logger.debug("%s est trop long expected=%d got=%d", tag,
-                              Tag._meta.get_field("title").max_length, len(tag))
+        if len(tag) > Tag._meta.get_field('title').max_length:
+            self.errors.append(_(u'Le tag {} est trop long (maximum {} caractères)'.format(
+                tag, Tag._meta.get_field('title').max_length)))
+            self.logger.debug('%s est trop long expected=%d got=%d', tag,
+                              Tag._meta.get_field('title').max_length, len(tag))
             return False
         return True
 
@@ -125,8 +125,8 @@ class TagValidator(object):
         :return: ``True`` if no utf8mb4 string is found
         """
         if contains_utf8mb4(tag):
-            self.errors.append(_(u"Le tag {} contient des caractères utf8mb4").format(tag))
-            self.logger.warn("%s contains utf8mb4 char", tag)
+            self.errors.append(_(u'Le tag {} contient des caractères utf8mb4').format(tag))
+            self.logger.warn('%s contains utf8mb4 char', tag)
             return False
         return True
 

@@ -60,6 +60,13 @@ Pour bénéficier de données de test, exécutez les commandes suivantes, dans l
 python manage.py loaddata fixtures/*.yaml
 python manage.py load_factory_data fixtures/advanced/aide_tuto_media.yaml
 ```
+Si vous êtes sur Windows, la première commande ne fonctionnera pas, préférez ceci :
+
+```console
+python .\manage.py loaddata (dir .\fixtures\*.yaml)
+python .\manage.py load_factory_data .\fixtures\advanced\aide_tuto_media.yaml
+```
+
 
 Cela va créer plusieurs entitées :
 

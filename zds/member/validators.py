@@ -19,7 +19,7 @@ def validate_not_empty(value):
     :param value: value to validate (str or None)
     :return:
     """
-    if value is None or value.strip() == '':
+    if value is None or not value.strip():
         raise ValidationError(_(u'Le champs ne peut être vide'))
 
 

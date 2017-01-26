@@ -15,7 +15,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         for c in PublishableContent.objects.all():
-            if '\'' in c.title:
+            if "'" in c.title:
                 good_slug = slugify(c.title)
                 if c.slug != good_slug:
                     if os.path.isdir(os.path.join(ZDS_APP['content']['repo_private_path'], good_slug)):

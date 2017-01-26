@@ -2,16 +2,22 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
-from django.db.migrations import migration
-from django.db.models.aggregates import Count
+from zds.forum.models import TopicRead
 
 
-def force_uniticy(schema, *_):
-    model_before_migration = schema.get_model('forum', 'topicread')
-    for t_read in model_before_migration.objects.annotate(nb_key=Count('topic', 'user')).filter(nb_key__gt=1):
-        for to_be_remove in model_before_migration.objects.filter(topic__pk=t_read.topic.pk,
-                                                                  user__pk=t_read.user.pk)[1:]:
-            to_be_remove.remove()
+def force_unicity(*args, **kwargs):
+    unique_fields = ['topic', 'user']
+    duplicates = (TopicRead.objects.values(*unique_fields)
+                                   .order_by()
+                                   .annotate(max_id=models.Max('id'),
+                                             count_id=models.Count('id'))
+                                   .filter(count_id__gt=1))
+
+    for duplicate in duplicates:
+        print 'deleting a duplicate'
+        (TopicRead.objects.filter(**{x: duplicate[x] for x in unique_fields})
+                          .exclude(id=duplicate['max_id'])
+                          .delete())
 
 
 class Migration(migrations.Migration):
@@ -21,7 +27,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(force_uniticy),
+        migrations.RunPython(force_unicity),
         migrations.AlterUniqueTogether(
             name='topicread',
             unique_together=set([('topic', 'user')]),

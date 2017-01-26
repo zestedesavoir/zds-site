@@ -39,8 +39,8 @@ class ListGallery(ZdSPagingListView):
     """Display the gallery list with all their images"""
 
     object = UserGallery
-    template_name = "gallery/gallery/list.html"
-    context_object_name = "user_galleries"
+    template_name = 'gallery/gallery/list.html'
+    context_object_name = 'user_galleries'
     paginate_by = settings.ZDS_APP['gallery']['gallery_per_page']
 
     @method_decorator(login_required)
@@ -75,7 +75,7 @@ class ListGallery(ZdSPagingListView):
 class NewGallery(CreateView):
     """Create a new gallery"""
 
-    template_name = "gallery/gallery/new.html"
+    template_name = 'gallery/gallery/new.html'
     form_class = GalleryForm
 
     @method_decorator(login_required)
@@ -94,7 +94,7 @@ class NewGallery(CreateView):
         # Attach user :
         userg = UserGallery()
         userg.gallery = gallery
-        userg.mode = "W"
+        userg.mode = 'W'
         userg.user = self.request.user
         userg.save()
 
@@ -128,8 +128,8 @@ def ensure_user_access(gallery, user, can_write=False):
 class GalleryDetails(ZdSPagingListView):
     """Gallery details"""
     object = UserGallery
-    template_name = "gallery/gallery/details.html"
-    context_object_name = "images"
+    template_name = 'gallery/gallery/details.html'
+    context_object_name = 'images'
     paginate_by = settings.ZDS_APP['gallery']['images_per_page']
 
     @method_decorator(login_required)
@@ -155,7 +155,7 @@ class EditGallery(UpdateView):
     """Update gallery information"""
 
     model = Gallery
-    template_name = "gallery/gallery/edit.html"
+    template_name = 'gallery/gallery/edit.html'
     form_class = UpdateGalleryForm
 
     @method_decorator(login_required)
@@ -187,8 +187,8 @@ def modify_gallery(request):
 
     # Global actions
 
-    if "delete_multi" in request.POST:
-        list_items = request.POST.getlist("items")
+    if 'delete_multi' in request.POST:
+        list_items = request.POST.getlist('items')
 
         # Don't delete gallery when it's link to tutorial
         free_galleries = []
@@ -201,14 +201,14 @@ def modify_gallery(request):
                 gallery = Gallery.objects.get(pk=g_pk)
                 _type = _(u'au tutoriel')
                 if v2_content.type == 'ARTICLE':
-                    _type = _(u'à l\'article')
-                error_message = _(u"La galerie « {} » ne peut pas être supprimée car elle est liée {} « {} ».")\
+                    _type = _(u"à l'article")
+                error_message = _(u'La galerie « {} » ne peut pas être supprimée car elle est liée {} « {} ».')\
                     .format(gallery.title, _type, v2_content.title)
                 messages.error(request, error_message)
             else:
                 free_galleries.append(g_pk)
 
-        perms = UserGallery.objects.filter(gallery__pk__in=free_galleries, user=request.user, mode="W").count()
+        perms = UserGallery.objects.filter(gallery__pk__in=free_galleries, user=request.user, mode='W').count()
 
         # Check that the user has the RW right on each gallery
 
@@ -226,13 +226,13 @@ def modify_gallery(request):
         # Finally delete the selected galleries
 
         Gallery.objects.filter(pk__in=free_galleries).delete()
-        return redirect(reverse("gallery-list"))
-    elif "adduser" in request.POST:
+        return redirect(reverse('gallery-list'))
+    elif 'adduser' in request.POST:
 
         # Gallery-specific actions
 
         try:
-            gal_pk = request.POST["gallery"]
+            gal_pk = request.POST['gallery']
         except KeyError:
             raise Http404
         gallery = get_object_or_404(Gallery, pk=gal_pk)
@@ -242,13 +242,13 @@ def modify_gallery(request):
         try:
             gal_mode = UserGallery.objects.get(gallery=gallery,
                                                user=request.user)
-            if gal_mode.mode != "W":
+            if gal_mode.mode != 'W':
                 raise PermissionDenied
         except:
             raise PermissionDenied
         form = UserGalleryForm(request.POST)
         if form.is_valid():
-            user = get_object_or_404(User, username=request.POST["user"])
+            user = get_object_or_404(User, username=request.POST['user'])
 
             # If a user is already in a user gallery, we don't add him.
 
@@ -261,14 +261,14 @@ def modify_gallery(request):
             user_gal = UserGallery()
             user_gal.user = user
             user_gal.gallery = gallery
-            user_gal.mode = request.POST["mode"]
+            user_gal.mode = request.POST['mode']
             user_gal.save()
         else:
-            return render(request, "gallery/gallery/details.html", {
-                "gallery": gallery,
-                "gallery_mode": gal_mode,
-                "images": gallery.get_images(),
-                "form": form,
+            return render(request, 'gallery/gallery/details.html', {
+                'gallery': gallery,
+                'gallery_mode': gal_mode,
+                'images': gallery.get_images(),
+                'form': form,
             })
         return redirect(gallery.get_absolute_url())
 
@@ -321,7 +321,7 @@ class NewImage(GalleryMixin, CreateView):
         img.pubdate = datetime.now()
         img.save()
 
-        return redirect(reverse("gallery-image-edit", args=[img.gallery.pk, img.pk]))
+        return redirect(reverse('gallery-image-edit', args=[img.gallery.pk, img.pk]))
 
 
 class EditImage(GalleryMixin, UpdateView):
@@ -329,7 +329,7 @@ class EditImage(GalleryMixin, UpdateView):
 
     model = Image
     form_class = UpdateImageForm
-    template_name = "gallery/image/edit.html"
+    template_name = 'gallery/image/edit.html'
 
     @method_decorator(login_required)
     @method_decorator(can_write_and_read_now)
@@ -359,17 +359,17 @@ class EditImage(GalleryMixin, UpdateView):
         can_change = True
 
         if 'physical' in self.request.FILES:  # the user request to change the image
-            if self.request.FILES["physical"].size > settings.ZDS_APP['gallery']['image_max_size']:
+            if self.request.FILES['physical'].size > settings.ZDS_APP['gallery']['image_max_size']:
                 messages.error(
                     self.request,
-                    _(u"Votre image est beaucoup trop lourde, réduisez sa taille à moins de {:.0f} "
-                      u"<abbr title=\"kibioctet\">Kio</abbr> avant de l'envoyer.").format(
+                    _(u'Votre image est beaucoup trop lourde, réduisez sa taille à moins de {:.0f} '
+                      u'<abbr title="kibioctet">Kio</abbr> avant de l\'envoyer.').format(
                         settings.ZDS_APP['gallery']['image_max_size'] / 1024))
 
                 can_change = False
             else:
-                img.physical = self.request.FILES["physical"]
-                img.slug = slugify(self.request.FILES["physical"])
+                img.physical = self.request.FILES['physical']
+                img.slug = slugify(self.request.FILES['physical'])
 
         if can_change:
             img.title = form.cleaned_data['title']
@@ -377,7 +377,7 @@ class EditImage(GalleryMixin, UpdateView):
             img.update = datetime.now()
             img.save()
 
-        return redirect(reverse("gallery-image-edit", args=[img.gallery.pk, img.pk]))
+        return redirect(reverse('gallery-image-edit', args=[img.gallery.pk, img.pk]))
 
 
 class DeleteImages(DeleteView):
@@ -398,7 +398,7 @@ class DeleteImages(DeleteView):
         ensure_user_access(gallery, request.user, can_write=True)
 
         if 'delete_multi' in request.POST:
-            list_items = request.POST.getlist("items")
+            list_items = request.POST.getlist('items')
             Image.objects.filter(pk__in=list_items, gallery=gallery).delete()
         elif 'delete' in request.POST:
             pkey = self.request.POST['image']
@@ -417,7 +417,7 @@ class ImportImages(GalleryMixin, FormView):
 
     form_class = ArchiveImageForm
     http_method_names = ['get', 'post', 'put']
-    template_name = "gallery/image/import.html"
+    template_name = 'gallery/image/import.html'
     can_write = True  # only allowed user can import new images
 
     @method_decorator(login_required)
@@ -429,23 +429,23 @@ class ImportImages(GalleryMixin, FormView):
         context = self.get_context_data()
         gallery = context['gallery']
 
-        archive = self.request.FILES["file"]
+        archive = self.request.FILES['file']
         temp = os.path.join(tempfile.gettempdir(), str(time.time()))
 
         if not os.path.exists(temp):
             os.makedirs(temp)
-        zfile = zipfile.ZipFile(archive, "a")
+        zfile = zipfile.ZipFile(archive, 'a')
 
         for i in zfile.namelist():
             filename = os.path.split(i)[1]
 
             ph_temp = os.path.abspath(os.path.join(temp, os.path.basename(i)))
 
-            if filename.strip() == "":  # don't deal with directory
+            if not filename.strip():  # don't deal with directory
                 continue
 
             # create file for image
-            f_im = open(ph_temp, "wb")
+            f_im = open(ph_temp, 'wb')
             f_im.write(zfile.read(i))
             f_im.close()
             (title, ext) = os.path.splitext(os.path.basename(i))
@@ -454,7 +454,7 @@ class ImportImages(GalleryMixin, FormView):
             if os.stat(ph_temp).st_size > settings.ZDS_APP['gallery']['image_max_size']:
                 messages.error(
                     self.request, _(u'Votre image "{}" est beaucoup trop lourde, réduisez sa taille à moins de {:.0f}'
-                                    u'Kio avant de l\'envoyer.').format(
+                                    u"Kio avant de l'envoyer.").format(
                                         title, settings.ZDS_APP['gallery']['image_max_size'] / 1024))
                 continue
 
@@ -465,13 +465,13 @@ class ImportImages(GalleryMixin, FormView):
                 continue
 
             # create picture in database:
-            f_im = File(open(ph_temp, "rb"))
+            f_im = File(open(ph_temp, 'rb'))
             f_im.name = title + ext
 
             pic = Image()
             pic.gallery = gallery
             pic.title = title
-            pic.legend = ""
+            pic.legend = ''
             pic.pubdate = datetime.now()
             pic.physical = f_im
             pic.save()

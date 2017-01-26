@@ -17,11 +17,11 @@ class Command(BaseCommand):
             self.stdout.write(u'Migrate all notifications of {}...'.format(profile.user.username))
             # Forums.
             self.stdout.write(u'Starting migration with topics...')
-            topics_followed = TopicFollowed.objects.filter(user=profile.user).values("topic").distinct().all()
+            topics_followed = TopicFollowed.objects.filter(user=profile.user).values('topic').distinct().all()
             topics_never_read = TopicRead.objects\
                 .filter(user=profile.user)\
                 .filter(topic__in=topics_followed)\
-                .select_related("topic")\
+                .select_related('topic')\
                 .exclude(post=F('topic__last_message')).all()
 
             # Migrate subscriptions.
@@ -61,7 +61,7 @@ class Command(BaseCommand):
             # Migrate subscriptions.
             private_topics = PrivateTopic.objects \
                 .filter(Q(author=profile.user) | Q(participants__in=[profile.user])) \
-                .order_by("-pubdate") \
+                .order_by('-pubdate') \
                 .distinct()
 
             for private_topic in private_topics:
@@ -71,7 +71,7 @@ class Command(BaseCommand):
             private_topics_unread = PrivateTopic.objects \
                 .filter(Q(author=profile.user) | Q(participants__in=[profile.user])) \
                 .exclude(pk__in=tnrs) \
-                .order_by("-pubdate") \
+                .order_by('-pubdate') \
                 .distinct()
 
             for private_topic_unread in private_topics_unread:

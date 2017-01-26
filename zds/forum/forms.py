@@ -72,12 +72,12 @@ class TopicForm(forms.Form):
         tags = cleaned_data.get('tags')
 
         if title is not None:
-            if title.strip() == '':
+            if not title.strip():
                 self._errors['title'] = self.error_class(
                     [_(u'Le champ titre ne peut être vide')])
                 if 'title' in cleaned_data:
                     del cleaned_data['title']
-        if text is not None and text.strip() == '':
+        if text is not None and not text.strip():
             self._errors['text'] = self.error_class(
                 [_(u'Le champ text ne peut être vide')])
             if 'text' in cleaned_data:
@@ -135,7 +135,7 @@ class PostForm(forms.Form):
 
         text = cleaned_data.get('text')
 
-        if text is None or text.strip() == '':
+        if text is None or not text.strip():
             self._errors['text'] = self.error_class(
                 [_(u'Vous devez écrire une réponse !')])
 
@@ -150,7 +150,7 @@ class PostForm(forms.Form):
 class MoveTopicForm(forms.Form):
 
     forum = forms.ModelChoiceField(
-        label=_("Forum"),
+        label=_('Forum'),
         queryset=Forum.objects.all(),
         required=True,
     )

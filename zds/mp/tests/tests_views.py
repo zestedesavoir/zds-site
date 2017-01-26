@@ -268,7 +268,7 @@ class NewTopicViewTest(TestCase):
     def setUp(self):
         self.profile1 = ProfileFactory()
         self.profile2 = ProfileFactory()
-        bot = Group(name=settings.ZDS_APP["member"]["bot_group"])
+        bot = Group(name=settings.ZDS_APP['member']['bot_group'])
         bot.save()
 
         login_check = self.client.login(
@@ -389,7 +389,7 @@ class NewTopicViewTest(TestCase):
         response = self.client.post(
             reverse('mp-new'),
             {
-                'participants': u"{}".format(profile_inactive.user.username),
+                'participants': u'{}'.format(profile_inactive.user.username),
                 'title': 'title',
                 'subtitle': 'subtitle',
                 'text': 'text'
@@ -564,7 +564,7 @@ class AnswerViewTest(TestCase):
 
         self.assertEqual(200, response.status_code)
         self.assertEqual(3, PrivatePost.objects.all().count())
-        self.assertContains(response, 'Luc !?')
+        self.assertContains(response, 'Luc&#x202F;!?')
 
     def test_fail_answer_with_no_right(self):
 
@@ -752,9 +752,9 @@ class LeaveViewTest(TestCase):
         self.profile1 = ProfileFactory()
         self.profile2 = ProfileFactory()
 
-        self.anonymous_account = UserFactory(username=ZDS_APP["member"]["anonymous_account"])
+        self.anonymous_account = UserFactory(username=ZDS_APP['member']['anonymous_account'])
         self.bot_group = Group()
-        self.bot_group.name = ZDS_APP["member"]["bot_group"]
+        self.bot_group.name = ZDS_APP['member']['bot_group']
         self.bot_group.save()
         self.anonymous_account.groups.add(self.bot_group)
         self.anonymous_account.save()
@@ -852,9 +852,9 @@ class AddParticipantViewTest(TestCase):
     def setUp(self):
         self.profile1 = ProfileFactory()
         self.profile2 = ProfileFactory()
-        self.anonymous_account = UserFactory(username=ZDS_APP["member"]["anonymous_account"])
+        self.anonymous_account = UserFactory(username=ZDS_APP['member']['anonymous_account'])
         self.bot_group = Group()
-        self.bot_group.name = ZDS_APP["member"]["bot_group"]
+        self.bot_group.name = ZDS_APP['member']['bot_group']
         self.bot_group.save()
         self.anonymous_account.groups.add(self.bot_group)
         self.anonymous_account.save()

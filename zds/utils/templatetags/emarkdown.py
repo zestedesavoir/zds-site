@@ -2,6 +2,7 @@
 
 import re
 
+from django.conf import settings
 from django import template
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
@@ -21,45 +22,46 @@ Markdown related filters.
 __MD_ERROR_PARSING = _(u'Une erreur est survenue dans la génération de texte Markdown. Veuillez rapporter le bug.')
 
 
-def get_markdown_instance(inline=False, js_support=False):
+def get_markdown_instance(inline=False, js_support=False, ping_url=None):
     """
     Provide a pre-configured markdown parser.
 
     :param bool inline: If `True`, configure parser to parse only inline content.
     :return: A ZMarkdown parser.
     """
-    zdsext = ZdsExtension(inline=inline, emoticons=smileys, js_support=js_support)
+    if not settings.ZDS_APP['comment']['enable_pings']:
+        ping_url = None
+    zdsext = ZdsExtension(inline=inline, emoticons=smileys, js_support=js_support, ping_url=ping_url)
     # Generate parser
     markdown = Markdown(
         extensions=(zdsext,),
-        safe_mode='escape',       # Protect use of html by escape it
         inline=inline,            # Parse only inline content.
-        enable_attributes=False,  # Disable the conversion of attributes.
-                                  # This could potentially allow an untrusted user to inject JavaScript into documents.
-        tab_length=4,             # Length of tabs in the source (default value).
-        output_format='html5',    # HTML5 output (default value).
-        smart_emphasis=True,      # Enable smart emphasis for underscore syntax
-        lazy_ol=True,             # Enable smart ordered list start support
     )
 
     return markdown
 
 
-def render_markdown(text, inline=False, js_support=False):
+def render_markdown(markdown, text, inline=False):
     """
     Render a markdown text to html.
 
+    :param markdown: Python-ZMarkdown object.
     :param str text: Text to render.
     :param bool inline: If `True`, parse only inline content.
-    :param bool js_support: Enable JS in generated html.
     :return: Equivalent html string.
     :rtype: str
     """
-    return get_markdown_instance(inline=inline, js_support=js_support).convert(text).encode('utf-8').strip()
+    try:
+        return mark_safe(markdown.convert(text).encode('utf-8').strip())
+    except:
+        if inline:
+            return mark_safe(u'<p>{}</p>'.format(__MD_ERROR_PARSING))
+        else:
+            return mark_safe(u'<div class="error ico-after"><p>{}</p></div>'.format(__MD_ERROR_PARSING))
 
 
 @register.filter(needs_autoescape=False)
-def emarkdown(text, use_jsfiddle=''):
+def emarkdown(text, use_jsfiddle='', inline=False):
     """
     Filter markdown text and render it to html.
 
@@ -67,11 +69,8 @@ def emarkdown(text, use_jsfiddle=''):
     :return: Equivalent html string.
     :rtype: str
     """
-    is_js = (use_jsfiddle == 'js')
-    try:
-        return mark_safe(render_markdown(text, inline=False, js_support=is_js))
-    except:
-        return mark_safe(u'<div class="error ico-after"><p>{}</p></div>'.format(__MD_ERROR_PARSING))
+    md_instance = get_markdown_instance(inline=inline, js_support=(use_jsfiddle == 'js'), ping_url=None)
+    return render_markdown(md_instance, text, inline=inline)
 
 
 @register.filter(needs_autoescape=False)
@@ -83,11 +82,7 @@ def emarkdown_inline(text):
     :return: Equivalent html string.
     :rtype: str
     """
-
-    try:
-        return mark_safe(render_markdown(text, inline=True))
-    except:
-        return mark_safe(u'<p>{}</p>'.format(__MD_ERROR_PARSING))
+    return emarkdown(text, inline=True)
 
 
 def sub_hd(match, count):
