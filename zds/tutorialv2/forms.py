@@ -149,7 +149,7 @@ class ContainerForm(FormWithTitle):
         self.helper = FormHelper()
         self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
-		
+
         self.helper.layout = Layout(Field('title'))
         
         if kwargs.get('data', None) is not None:
