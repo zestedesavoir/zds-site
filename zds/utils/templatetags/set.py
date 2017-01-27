@@ -13,9 +13,9 @@ class SetVarNode(template.Node):
         try:
             value = template.Variable(self.var_value).resolve(context)
         except template.VariableDoesNotExist:
-            value = ""
+            value = ''
         context[self.var_name] = value
-        return u""
+        return u''
 
 
 @register.tag

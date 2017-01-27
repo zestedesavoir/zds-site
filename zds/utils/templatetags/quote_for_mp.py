@@ -13,4 +13,4 @@ def quote_for_mp(message):
     Return message as a quote
     """
     if message:
-        return "> " + message.replace("\n", "\n>")
+        return '> ' + message.replace('\n', '\n>')

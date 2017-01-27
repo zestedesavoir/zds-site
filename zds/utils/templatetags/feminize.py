@@ -5,17 +5,17 @@ from django.utils.translation import ugettext_lazy as _
 
 register = template.Library()
 articles = {
-    _("le"): _("la"),
-    _("un"): _("une"),
-    _("Nouveau"): _("Nouvelle"),
-    _("Ce"): _("Cette")
+    _('le'): _('la'),
+    _('un'): _('une'),
+    _('Nouveau'): _('Nouvelle'),
+    _('Ce'): _('Cette')
 }
 
 words = {
-    u"commentaire": False,
-    u"partie": True,
-    u"chapitre": False,
-    u"section": True
+    u'commentaire': False,
+    u'partie': True,
+    u'chapitre': False,
+    u'section': True
 }
 
 

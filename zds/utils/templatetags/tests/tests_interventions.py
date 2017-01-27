@@ -26,9 +26,9 @@ class InterventionsTest(TestCase):
     def setUp(self):
         self.author = ProfileFactory()
         self.user = ProfileFactory()
-        self.topic = send_mp(author=self.author.user, users=[], title="Title", text="Testing", subtitle="", leave=False)
+        self.topic = send_mp(author=self.author.user, users=[], title='Title', text='Testing', subtitle='', leave=False)
         self.topic.participants.add(self.user.user)
-        send_message_mp(self.user.user, self.topic, "Testing")
+        send_message_mp(self.user.user, self.topic, 'Testing')
 
         # humane_delta test
         periods = ((1, 0), (2, 1), (3, 7), (4, 30), (5, 360))
@@ -83,30 +83,30 @@ class InterventionsTest(TestCase):
         self.assertContains(response, '<span class="notif-count">1</span>', html=True)
 
     def test_interventions_humane_delta(self):
-        tr = Template("{% load interventions %}"
-                      "{{ date_today|humane_delta }}"
+        tr = Template('{% load interventions %}'
+                      '{{ date_today|humane_delta }}'
                       ).render(self.context)
-        self.assertEqual(u"Aujourd&#39;hui", tr)
+        self.assertEqual(u'Aujourd&#39;hui', tr)
 
-        tr = Template("{% load interventions %}"
-                      "{{ date_yesterday|humane_delta }}"
+        tr = Template('{% load interventions %}'
+                      '{{ date_yesterday|humane_delta }}'
                       ).render(self.context)
-        self.assertEqual(u"Hier", tr)
+        self.assertEqual(u'Hier', tr)
 
-        tr = Template("{% load interventions %}"
-                      "{{ date_last_week|humane_delta }}"
+        tr = Template('{% load interventions %}'
+                      '{{ date_last_week|humane_delta }}'
                       ).render(self.context)
-        self.assertEqual(u"Les 7 derniers jours", tr)
+        self.assertEqual(u'Les 7 derniers jours', tr)
 
-        tr = Template("{% load interventions %}"
-                      "{{ date_last_month|humane_delta }}"
+        tr = Template('{% load interventions %}'
+                      '{{ date_last_month|humane_delta }}'
                       ).render(self.context)
-        self.assertEqual(u"Les 30 derniers jours", tr)
+        self.assertEqual(u'Les 30 derniers jours', tr)
 
-        tr = Template("{% load interventions %}"
-                      "{{ date_last_year|humane_delta }}"
+        tr = Template('{% load interventions %}'
+                      '{{ date_last_year|humane_delta }}'
                       ).render(self.context)
-        self.assertEqual(u"Plus ancien", tr)
+        self.assertEqual(u'Plus ancien', tr)
 
 
 class AlertsTest(TestCase):

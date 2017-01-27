@@ -29,28 +29,28 @@ def get_tag_by_title(title):
     :return: A tuple: (the tag list, the title without the tags).
     """
     nb_bracket = 0
-    current_tag = u""
-    current_title = u""
+    current_tag = u''
+    current_title = u''
     tags = []
     continue_parsing_tags = True
     original_title = title
 
     for char in title:
-        if char == u"[" and nb_bracket == 0 and continue_parsing_tags:
+        if char == u'[' and nb_bracket == 0 and continue_parsing_tags:
             nb_bracket += 1
-        elif nb_bracket > 0 and char != u"]" and continue_parsing_tags:
+        elif nb_bracket > 0 and char != u']' and continue_parsing_tags:
             current_tag = current_tag + char
-            if char == u"[":
+            if char == u'[':
                 nb_bracket += 1
-        elif char == u"]" and nb_bracket > 0 and continue_parsing_tags:
+        elif char == u']' and nb_bracket > 0 and continue_parsing_tags:
             nb_bracket -= 1
-            if nb_bracket == 0 and current_tag.strip() != u"":
+            if nb_bracket == 0 and current_tag.strip() != u'':
                 tags.append(current_tag.strip())
-                current_tag = u""
-            elif current_tag.strip() != u"" and nb_bracket > 0:
+                current_tag = u''
+            elif current_tag.strip() != u'' and nb_bracket > 0:
                 current_tag = current_tag + char
 
-        elif (char != u"[" and char.strip() != "") or not continue_parsing_tags:
+        elif (char != u'[' and char.strip() != '') or not continue_parsing_tags:
             continue_parsing_tags = False
             current_title = current_title + char
 
@@ -134,7 +134,7 @@ class CreatePostView(CreateView, SingleObjectMixin, QuoteMixin):
         text = ''
 
         # Using the quote button
-        if "cite" in request.GET:
+        if 'cite' in request.GET:
             text = self.build_quote(request.GET.get('cite'), request.user)
 
             if request.is_ajax():
@@ -150,17 +150,17 @@ class CreatePostView(CreateView, SingleObjectMixin, QuoteMixin):
 
         votes = CommentVote.objects.filter(user_id=self.request.user.pk,
                                            comment_id__in=[p.pk for p in context['posts']]).all()
-        context["user_like"] = [vote.comment_id for vote in votes if vote.positive]
-        context["user_dislike"] = [vote.comment_id for vote in votes if not vote.positive]
-        context["is_staff"] = self.request.user.has_perm('forum.change_topic')
+        context['user_like'] = [vote.comment_id for vote in votes if vote.positive]
+        context['user_dislike'] = [vote.comment_id for vote in votes if not vote.positive]
+        context['is_staff'] = self.request.user.has_perm('forum.change_topic')
 
         if hasattr(self.object, 'antispam'):
             context['isantispam'] = self.object.antispam()
 
         if self.request.user.has_perm('forum.change_topic'):
-            context["user_can_modify"] = [post.pk for post in context['posts']]
+            context['user_can_modify'] = [post.pk for post in context['posts']]
         else:
-            context["user_can_modify"] = [post.pk for post in context['posts'] if post.author == self.request.user]
+            context['user_can_modify'] = [post.pk for post in context['posts'] if post.author == self.request.user]
 
         return render(request, self.template_name, context)
 
