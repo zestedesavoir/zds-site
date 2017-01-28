@@ -126,4 +126,4 @@ Les images sont stockées dans le dossier renseigné par la variable ``MEDIA_URL
 Outils logiciels utilisés
 =========================
 
-Afin d'assurer une compatibilité maximale de toutes les images des galeries et leur redimensionnement au besoin, le logiciel `Pillow` est utilisé.
+Afin d'assurer une compatibilité maximale de toutes les images des galeries et leur redimensionnement au besoin, le logiciel ``Pillow`` est utilisé.
