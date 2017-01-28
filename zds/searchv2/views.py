@@ -1,4 +1,6 @@
 # coding: utf-8
+import operator
+
 from elasticsearch_dsl import Search
 from elasticsearch_dsl.query import Match, MultiMatch, FunctionScore, Term, Terms, Range
 
@@ -65,7 +67,8 @@ class SearchView(ZdSPagingListView):
             if user and user.is_authenticated():
                 forums_private = Forum \
                     .objects \
-                    .filter(group__isnull=False, group__in=user.groups.all()).all()
+                    .filter(group__isnull=False, group__in=user.groups.all()) \
+                    .all()
                 list_forums = list(forums_pub | forums_private)
             else:
                 list_forums = list(forums_pub)
@@ -76,10 +79,17 @@ class SearchView(ZdSPagingListView):
 
             # setting the different querysets (according to the selected models, if any)
             part_querysets = []
-            models = self.search_form.cleaned_data['models']
+            chosen_groups = self.search_form.cleaned_data['models']
 
-            if not models:
-                models = [p[0] for p in settings.ZDS_APP['search']['indexables']]
+            if chosen_groups:
+                models = []
+                for group in chosen_groups:
+                    if group in settings.ZDS_APP['search']['search_groups']:
+                        models.append(settings.ZDS_APP['search']['search_groups'][group][1])
+            else:
+                models = [v[1] for k, v in settings.ZDS_APP['search']['search_groups'].iteritems()]
+
+            models = reduce(operator.concat, models)
 
             for model in models:
                 part_querysets.append(getattr(self, 'get_queryset_{}s'.format(model))())

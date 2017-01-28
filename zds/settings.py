@@ -543,6 +543,17 @@ ZDS_APP = {
             ('topic', _(u'Sujets du forum')),
             ('post', _(u'Messages du forum')),
         ],
+        'search_groups': {
+            'content': (
+                _(u'Contenus publiés'), ['publishedcontent', 'chapter']
+            ),
+            'topic': (
+                _(u'Sujets du forum'), ['topic']
+            ),
+            'post': (
+                _(u'Messages du forum'), ['post']
+            ),
+        },
         'boosts': {
             'publishedcontent': {
                 'global': 3.0,

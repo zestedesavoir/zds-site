@@ -13,8 +13,10 @@ from elasticsearch_dsl import Mapping
 from elasticsearch_dsl.query import MatchAll
 from elasticsearch_dsl.connections import connections
 
+from django.db import transaction
 
-def parallel_get_es_document(force_reindexing, index, obj):
+
+def es_document_mapper(force_reindexing, index, obj):
     action = 'update' if obj.es_already_indexed and not force_reindexing else 'index'
     return obj.get_es_document_as_bulk_action(index, action)
 
@@ -462,103 +464,100 @@ class ESIndexManager(object):
             self.logger.warn('Cannot index FakeChapter model. Please index its parent model.')
             return 0
 
+        documents_formatter = partial(es_document_mapper, force_reindexing, self.index)
         objects_per_batch = getattr(model, 'objects_per_batch', 100)
         indexed_counter = 0
         if model.__name__ == 'PublishedContent':
-            for objects in model.get_es_indexable(force_reindexing):
-                if not objects:
-                    break
-                if hasattr(objects[0], 'parent_model'):
-                    model_to_update = objects[0].parent_model
-                    pks = [o.parent_id for o in objects]
-                else:
-                    model_to_update = model
-                    pks = [o.pk for o in objects]
-                formatted_documents = []
-                for obj in objects:
-                    formatted_documents.append(obj.get_es_document_as_bulk_action(
-                        self.index, 'update' if obj.es_already_indexed and not force_reindexing else 'index'))
-
-                for _, hit in parallel_bulk(
-                    self.es,
-                    formatted_documents,
-                    chunk_size=objects_per_batch,
-                    request_timeout=30
-                ):
-                    if self.logger.getEffectiveLevel() <= logging.INFO:
-                        action = hit.keys()[0]
-                        self.logger.info('{} {} with id {}'.format(action, hit[action]['_type'], hit[action]['_id']))
+            generate = model.get_es_indexable(force_reindexing)
+            while True:
+                with transaction.atomic():
+                    try:
+                        # fetch a batch
+                        objects = next(generate)
+                    except StopIteration:
+                        break
+                    if not objects:
+                        break
+                    if hasattr(objects[0], 'parent_model'):
+                        model_to_update = objects[0].parent_model
+                        pks = [o.parent_id for o in objects]
                     else:
-                        pass
+                        model_to_update = model
+                        pks = [o.pk for o in objects]
 
-                # mark all these objects as indexed at once
-                update_query = model_to_update.objects.filter(pk__in=pks)
-                if force_reindexing:
-                    # leaves `es_flagged` as-is since it might have set in the meantime
-                    update_query.filter(es_already_indexed=False).update(es_already_indexed=True)
-                else:
-                    # setting flag to "False" also flags as "already_indexed"!
-                    update_query.update(es_already_indexed=True, es_flagged=False)
-                indexed_counter += len(objects)
+                    formatted_documents = list(map(documents_formatter, objects))
+
+                    for _, hit in parallel_bulk(
+                        self.es,
+                        formatted_documents,
+                        chunk_size=objects_per_batch,
+                        request_timeout=30
+                    ):
+                        if self.logger.getEffectiveLevel() <= logging.INFO:
+                            action = hit.keys()[0]
+                            self.logger.info('{} {} with id {}'.format(
+                                action, hit[action]['_type'], hit[action]['_id']))
+
+                    # mark all these objects as indexed at once
+                    model_to_update.objects.filter(pk__in=pks) \
+                                           .update(es_already_indexed=True, es_flagged=False)
+                    indexed_counter += len(objects)
             return indexed_counter
         else:
-            documents_formatter = partial(parallel_get_es_document, force_reindexing, self.index)
             then = time.time()
             prev_obj_per_sec = False
             last_pk = 0
-
             object_source = model.get_es_indexable(force_reindexing)
-            objects = list(object_source.filter(pk__gt=last_pk)[:objects_per_batch])
-            while objects:
-                # close connections before forking, otherwise the number of open connections
-                # grows exponentially
-                formatted_documents = list(map(documents_formatter, objects))
 
-                for _, hit in parallel_bulk(
-                    self.es,
-                    formatted_documents,
-                    chunk_size=objects_per_batch,
-                    request_timeout=30
-                ):
-                    if self.logger.getEffectiveLevel() <= logging.INFO:
-                        action = hit.keys()[0]
-                        self.logger.info('{} {} with id {}'.format(action, hit[action]['_type'], hit[action]['_id']))
+            while True:
+                with transaction.atomic():
+                    # fetch a batch
+                    objects = list(object_source.filter(pk__gt=last_pk)[:objects_per_batch])
+                    if not objects:
+                        break
+
+                    formatted_documents = list(map(documents_formatter, objects))
+
+                    for _, hit in parallel_bulk(
+                        self.es,
+                        formatted_documents,
+                        chunk_size=objects_per_batch,
+                        request_timeout=30
+                    ):
+                        if self.logger.getEffectiveLevel() <= logging.INFO:
+                            action = hit.keys()[0]
+                            self.logger.info('{} {} with id {}'.format(
+                                action, hit[action]['_type'], hit[action]['_id']))
+
+                    # mark all these objects as indexed at once
+                    model.objects.filter(pk__in=[o.pk for o in objects]) \
+                                 .update(es_already_indexed=True, es_flagged=False)
+                    indexed_counter = indexed_counter + len(objects)
+
+                    # basic estimation of indexed objects per second
+                    now = time.time()
+                    last_batch_duration = int(now - then) or 1
+                    then = now
+                    obj_per_sec = round(float(objects_per_batch) / last_batch_duration, 2)
+                    if force_reindexing:
+                        print '    {} so far ({} obj/s, batch size: {})'.format(
+                              indexed_counter, obj_per_sec, objects_per_batch)
+
+                    if prev_obj_per_sec is False:
+                        prev_obj_per_sec = obj_per_sec
                     else:
-                        pass
+                        ratio = obj_per_sec / prev_obj_per_sec
+                        # if we processed this batch 10% slower/faster than the previous one,
+                        # shrink/increase batch size
+                        if abs(1 - ratio) > 0.1:
+                            objects_per_batch = int(objects_per_batch * ratio)
+                            if force_reindexing:
+                                print '     {}x, new batch size: {}'.format(round(ratio, 2), objects_per_batch)
+                        prev_obj_per_sec = obj_per_sec
 
-                # mark all these objects as indexed at once
-                update_query = model.objects.filter(pk__in=[o.pk for o in objects])
-                if force_reindexing:
-                    # leaves `es_flagged` as-is since it might have set in the meantime
-                    update_query.filter(es_already_indexed=False).update(es_already_indexed=True)
-                else:
-                    update_query.update(es_already_indexed=True, es_flagged=False)
-                indexed_counter = indexed_counter + len(objects)
+                    # fetch next batch
+                    last_pk = objects[-1].pk
 
-                # basic estimation of indexed objects per second
-                now = time.time()
-                last_batch_duration = int(now - then) or 1
-                then = now
-                obj_per_sec = round(float(objects_per_batch) / last_batch_duration, 2)
-                if force_reindexing:
-                    print '    {} so far ({} obj/s, batch size: {})'.format(
-                          indexed_counter, obj_per_sec, objects_per_batch)
-
-                if prev_obj_per_sec is False:
-                    prev_obj_per_sec = obj_per_sec
-                else:
-                    ratio = obj_per_sec / prev_obj_per_sec
-                    # if we processed this batch 10% slower/faster than the previous one,
-                    # shrink/increase batch size
-                    if abs(1 - ratio) > 0.1:
-                        objects_per_batch = int(objects_per_batch * ratio)
-                        if force_reindexing:
-                            print '     {}x, new batch size: {}'.format(round(ratio, 2), objects_per_batch)
-                    prev_obj_per_sec = obj_per_sec
-
-                # fetch next batch
-                last_pk = objects[-1].pk
-                objects = list(object_source.filter(pk__gt=last_pk)[:objects_per_batch])
             return indexed_counter
 
     def refresh_index(self):

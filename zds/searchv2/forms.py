@@ -26,11 +26,15 @@ class SearchForm(forms.Form):
         )
     )
 
+    choices = sorted(
+        [(k, v[0]) for k, v in settings.ZDS_APP['search']['search_groups'].iteritems()],
+        key=lambda pair: pair[1]
+    )
     models = forms.MultipleChoiceField(
         label='',
         widget=forms.CheckboxSelectMultiple,
         required=False,
-        choices=settings.ZDS_APP['search']['indexables']
+        choices=choices
     )
 
     def __init__(self, *args, **kwargs):

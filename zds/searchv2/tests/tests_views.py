@@ -108,22 +108,24 @@ class ViewsTests(TestCase):
         published = PublishedContent.objects.get(pk=published.pk)
 
         ids = {
-            'topic': topic_1.es_id,
-            'post': post_1.es_id,
-            'publishedcontent': published.es_id,
-            'chapter': published.content_public_slug + '__' + chapter1.slug
+            'topic': [topic_1.es_id],
+            'post': [post_1.es_id],
+            'content': [published.es_id, published.content_public_slug + '__' + chapter1.slug],
         }
 
-        for doc_type in [t.get_es_document_type() for t in self.indexable]:
+        search_groups = [k for k, v in settings.ZDS_APP['search']['search_groups'].iteritems()]
+        group_to_model = {k: v[1] for k, v in settings.ZDS_APP['search']['search_groups'].iteritems()}
 
+        for doc_type in search_groups:
             result = self.client.get(reverse('search:query') + '?q=' + text + '&models=' + doc_type, follow=False)
             self.assertEqual(result.status_code, 200)
 
             response = result.context['object_list'].execute()
 
-            self.assertEqual(response.hits.total, 1)  # get 1 result of each ...
-            self.assertEqual(response[0].meta.doc_type, doc_type)  # ... and only of the good type ...
-            self.assertEqual(response[0].meta.id, ids[doc_type])  # .. with the good id !
+            self.assertEqual(response.hits.total, len(ids[doc_type]))  # get 1 result of each ...
+            for i, r in enumerate(response):
+                self.assertIn(r.meta.doc_type, group_to_model[doc_type])  # ... and only of the right type ...
+                self.assertEqual(r.meta.id, ids[doc_type][i])  # .. with the right id !
 
     def test_hidden_post_are_not_result(self):
         """Hidden posts should not come out of the search"""
@@ -221,12 +223,12 @@ class ViewsTests(TestCase):
         self.assertEqual(response.hits.total, 2)  # ok !
 
     def test_boosts(self):
-        """Will check if boosts are doing their job"""
+        """Check if boosts are doing their job"""
 
         if not self.manager.connected_to_es:
             return
 
-        # 1. Create topics (with identical title), posts (with identical text), an article and a tuto
+        # 1. Create topics (with identical titles), posts (with identical texts), an article and a tuto
         text = 'test'
 
         topic_1_solved_sticky = TopicFactory(forum=self.forum, author=self.user)
@@ -412,11 +414,11 @@ class ViewsTests(TestCase):
 
         # 5. Test published contents
         result = self.client.get(
-            reverse('search:query') + '?q=' + text + '&models=' + PublishedContent.get_es_document_type(), follow=False)
+            reverse('search:query') + '?q=' + text + '&models=content', follow=False)
 
         self.assertEqual(result.status_code, 200)
         response = result.context['object_list'].execute()
-        self.assertEquals(response.hits.total, 2)
+        self.assertEquals(response.hits.total, 3)
 
         # score are equals without boost:
         self.assertTrue(response[0].meta.score == response[1].meta.score)
@@ -424,11 +426,11 @@ class ViewsTests(TestCase):
         settings.ZDS_APP['search']['boosts']['publishedcontent']['if_article'] = 2.0
 
         result = self.client.get(
-            reverse('search:query') + '?q=' + text + '&models=' + PublishedContent.get_es_document_type(), follow=False)
+            reverse('search:query') + '?q=' + text + '&models=content', follow=False)
 
         self.assertEqual(result.status_code, 200)
         response = result.context['object_list'].execute()
-        self.assertEqual(response.hits.total, 2)
+        self.assertEqual(response.hits.total, 3)
 
         self.assertTrue(response[0].meta.score > response[1].meta.score)
         self.assertEquals(response[0].meta.id, str(published_article.pk))  # obvious
@@ -437,11 +439,11 @@ class ViewsTests(TestCase):
         settings.ZDS_APP['search']['boosts']['publishedcontent']['if_tutorial'] = 2.0
 
         result = self.client.get(
-            reverse('search:query') + '?q=' + text + '&models=' + PublishedContent.get_es_document_type(), follow=False)
+            reverse('search:query') + '?q=' + text + '&models=content', follow=False)
 
         self.assertEqual(result.status_code, 200)
         response = result.context['object_list'].execute()
-        self.assertEqual(response.hits.total, 2)
+        self.assertEqual(response.hits.total, 3)
 
         self.assertTrue(response[0].meta.score > response[1].meta.score)
         self.assertEquals(response[0].meta.id, str(published_tuto.pk))  # obvious
@@ -591,14 +593,16 @@ class ViewsTests(TestCase):
         self.assertEqual(len(self.manager.setup_search(Search().query(MatchAll())).execute()), 2)  # indexation ok
 
         result = self.client.get(
-            reverse('search:query') + '?q=' + text + '&models=' + FakeChapter.get_es_document_type(), follow=False)
+            reverse('search:query') + '?q=' + text + '&models=content', follow=False)
         self.assertEqual(result.status_code, 200)
 
         response = result.context['object_list'].execute()
 
-        self.assertEqual(response.hits.total, 1)
-        self.assertEqual(response[0].meta.doc_type, FakeChapter.get_es_document_type())
-        self.assertEqual(response[0].meta.id, published.content_public_slug + '__' + chapter1.slug)
+        self.assertEqual(response.hits.total, 2)
+
+        chapters = [r for r in response if r.meta.doc_type == 'chapter']
+        self.assertEqual(chapters[0].meta.doc_type, FakeChapter.get_es_document_type())
+        self.assertEqual(chapters[0].meta.id, published.content_public_slug + '__' + chapter1.slug)
 
         # 2. Change tuto : delete chapter and insert new one !
         tuto = PublishableContent.objects.get(pk=tuto.pk)
@@ -607,7 +611,7 @@ class ViewsTests(TestCase):
         tuto_draft.children[0].repo_delete()  # chapter 1 is gone !
 
         another_text = 'another thing'
-        self.assertTrue(text not in another_text)  # to avoid a future modification to broke this test
+        self.assertTrue(text not in another_text)  # to prevent a future modification from breaking this test
 
         chapter2 = ContainerFactory(parent=tuto_draft, db_object=tuto)
         chapter2.repo_update(another_text, another_text, another_text)
@@ -627,25 +631,26 @@ class ViewsTests(TestCase):
         self.assertEqual(len(self.manager.setup_search(Search().query(MatchAll())).execute()), 2)  # 2 objects, not 3 !
 
         result = self.client.get(
-            reverse('search:query') + '?q=' + text + '&models=' + FakeChapter.get_es_document_type(), follow=False)
+            reverse('search:query') + '?q=' + text + '&models=content', follow=False)
         self.assertEqual(result.status_code, 200)
 
         response = result.context['object_list'].execute()
 
-        self.assertEqual(response.hits.total, 0)  # no results with the previous search
+        contents = [r for r in response if r.meta.doc_type != 'chapter']
+        self.assertEqual(response.hits.total, len(contents))  # no chapter found anymore
 
         result = self.client.get(
-            reverse('search:query') + '?q=' + another_text + '&models=' + FakeChapter.get_es_document_type(),
+            reverse('search:query') + '?q=' + another_text + '&models=content',
             follow=False
         )
 
         self.assertEqual(result.status_code, 200)
 
         response = result.context['object_list'].execute()
-
+        chapters = [r for r in response if r.meta.doc_type == 'chapter']
         self.assertEqual(response.hits.total, 1)
-        self.assertEqual(response[0].meta.doc_type, FakeChapter.get_es_document_type())
-        self.assertEqual(response[0].meta.id, published.content_public_slug + '__' + chapter2.slug)  # got new chapter
+        self.assertEqual(chapters[0].meta.doc_type, FakeChapter.get_es_document_type())
+        self.assertEqual(chapters[0].meta.id, published.content_public_slug + '__' + chapter2.slug)  # got new chapter
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
