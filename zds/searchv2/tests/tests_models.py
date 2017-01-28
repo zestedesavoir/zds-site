@@ -11,12 +11,13 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from zds.settings import BASE_DIR
 
-from zds.member.factories import ProfileFactory, StaffProfileFactory
-from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, publish_content
-from zds.tutorialv2.models.models_database import PublishedContent, FakeChapter, PublishableContent
 from zds.forum.factories import TopicFactory, PostFactory, Topic, Post
 from zds.forum.tests.tests_views import create_category
+from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.searchv2.models import ESIndexManager
+from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, publish_content
+from zds.tutorialv2.models.models_database import PublishedContent, FakeChapter, PublishableContent
+
 
 overrided_zds_app = settings.ZDS_APP
 overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
@@ -113,7 +114,7 @@ class ESIndexManagerTests(TestCase):
             # keep "c++" and "linux" intact:
             ('écrire un programme en C++ avec Linux', ['ecrir', 'program', 'c++', 'linux']),
             # elision:
-            ('c\'est de l\'arnaque', ['arnaqu'])
+            ("c'est de l'arnaque", ['arnaqu'])
         ]
 
         for sentence in test_sentences:
@@ -202,21 +203,21 @@ class ESIndexManagerTests(TestCase):
         new_post = PostFactory(topic=new_topic, author=self.user, position=1)
 
         pk_of_topics_to_reindex = []
-        for tg in Topic.get_es_indexable(force_reindexing=False):
-            for t in tg:
-                pk_of_topics_to_reindex.append(t.pk)
+        for item in Topic.get_es_indexable(force_reindexing=False):
+            pk_of_topics_to_reindex.append(item.pk)
 
         pk_of_posts_to_reindex = []
-        for pg in Post.get_es_indexable(force_reindexing=False):
-            for p in pg:
-                pk_of_posts_to_reindex.append(p.pk)
+        for item in Post.get_es_indexable(force_reindexing=False):
+            pk_of_posts_to_reindex.append(item.pk)
 
         self.assertTrue(topic.pk not in pk_of_topics_to_reindex)
         self.assertTrue(new_topic.pk in pk_of_topics_to_reindex)
         self.assertTrue(post.pk not in pk_of_posts_to_reindex)
         self.assertTrue(new_post.pk in pk_of_posts_to_reindex)
 
-        for model in self.indexable[1:]:  # ok, so let's index that
+        for model in self.indexable:  # ok, so let's index that
+            if model is FakeChapter:
+                continue
             self.manager.es_bulk_indexing_of_model(model, force_reindexing=False)
         self.manager.refresh_index()
 
@@ -270,6 +271,8 @@ class ESIndexManagerTests(TestCase):
 
         # 6. Test full desindexation:
         for model in self.indexable:
+            if model is FakeChapter:
+                continue
             self.manager.clear_indexing_of_model(model)
 
         # note "topic" is gone since "post" is gone, due to relationships at the Django level

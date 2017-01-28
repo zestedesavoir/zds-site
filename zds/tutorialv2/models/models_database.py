@@ -925,9 +925,6 @@ class PublishedContent(AbstractESDjangoIndexable):
                     for chapter in versioned.get_list_of_chapters():
                         chapters.append(FakeChapter(chapter, versioned, content.es_id))
 
-            # fetch next batch
-            last_pk = objects[-1].pk
-            objects = list(objects_source.filter(pk__gt=last_pk)[:PublishedContent.objects_per_batch])
             if chapters:
                 # since we want to return at most PublishedContent.objects_per_batch items
                 # we have to split further
@@ -936,6 +933,10 @@ class PublishedContent(AbstractESDjangoIndexable):
                     chapters = chapters[PublishedContent.objects_per_batch:]
             if objects:
                 yield objects
+
+            # fetch next batch
+            last_pk = objects[-1].pk
+            objects = list(objects_source.filter(pk__gt=last_pk)[:PublishedContent.objects_per_batch])
 
     def get_es_document_source(self, excluded_fields=None):
         """Overridden to handle the fact that most information are versioned

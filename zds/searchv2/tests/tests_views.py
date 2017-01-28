@@ -12,13 +12,13 @@ from django.test.utils import override_settings
 from zds.settings import BASE_DIR
 from django.core.urlresolvers import reverse
 
+from zds.forum.factories import TopicFactory, PostFactory, Topic, Post
+from zds.forum.tests.tests_views import create_category, Group
 from zds.member.factories import ProfileFactory, StaffProfileFactory
+from zds.searchv2.models import ESIndexManager
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, publish_content, \
     PublishedContentFactory
 from zds.tutorialv2.models.models_database import PublishedContent, FakeChapter, PublishableContent
-from zds.forum.factories import TopicFactory, PostFactory, Topic, Post
-from zds.forum.tests.tests_views import create_category, Group
-from zds.searchv2.models import ESIndexManager
 
 overrided_zds_app = settings.ZDS_APP
 overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
@@ -27,8 +27,8 @@ overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'conte
 
 @override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
 @override_settings(ZDS_APP=overrided_zds_app)
-@override_settings(ES_SEARCH_INDEX={'name': 'zds_search_test', 'shards': 1, 'replicas': 0})
 # 1 shard is not a recommended setting, but since document on different shard may have a different score, it is ok here
+@override_settings(ES_SEARCH_INDEX={'name': 'zds_search_test', 'shards': 1, 'replicas': 0})
 class ViewsTests(TestCase):
     def setUp(self):
         # don't build PDF to speed up the tests
@@ -174,7 +174,7 @@ class ViewsTests(TestCase):
         if not self.manager.connected_to_es:
             return
 
-        # 1. Create an hidden forum belonging to an hidden group and add staff in it.
+        # 1. Create an hidden forum belonging to a hidden staff group.
         text = 'test'
 
         group = Group.objects.create(name=u'Les illuminatis anonymes de ZdS')
@@ -622,7 +622,6 @@ class ViewsTests(TestCase):
         tuto.save()
 
         self.manager.es_bulk_indexing_of_model(PublishedContent)
-        self.manager.es_bulk_indexing_of_model(FakeChapter)
         self.manager.refresh_index()
 
         self.assertEqual(len(self.manager.setup_search(Search().query(MatchAll())).execute()), 2)  # 2 objects, not 3 !

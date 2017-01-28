@@ -285,8 +285,9 @@ class ESIndexManager(object):
                 self.es.info()
             except ConnectionError:
                 self.connected_to_es = False
+                self.logger.warn('failed to connect to ES cluster')
             else:
-                self.logger.info('connected to cluster')
+                self.logger.info('connected to ES cluster')
 
     def clear_es_index(self):
         """Clear index
@@ -456,6 +457,11 @@ class ESIndexManager(object):
         if not self.connected_to_es:
             return
 
+        # better safe than sorry
+        if model.__name__ == 'FakeChapter':
+            self.logger.warn('Cannot index FakeChapter model. Please index its parent model.')
+            return 0
+
         objects_per_batch = getattr(model, 'objects_per_batch', 100)
         indexed_counter = 0
         if model.__name__ == 'PublishedContent':
@@ -489,10 +495,10 @@ class ESIndexManager(object):
                 update_query = model_to_update.objects.filter(pk__in=pks)
                 if force_reindexing:
                     # leaves `es_flagged` as-is since it might have set in the meantime
-                    update_query = update_query.filter(es_already_indexed=False)
-                    update_query.update(es_already_indexed=True)
+                    update_query.filter(es_already_indexed=False).update(es_already_indexed=True)
                 else:
-                    update_query.update(es_flagged=False)
+                    # setting flag to "False" also flags as "already_indexed"!
+                    update_query.update(es_already_indexed=True, es_flagged=False)
                 indexed_counter += len(objects)
             return indexed_counter
         else:
@@ -500,6 +506,7 @@ class ESIndexManager(object):
             then = time.time()
             prev_obj_per_sec = False
             last_pk = 0
+
             object_source = model.get_es_indexable(force_reindexing)
             objects = list(object_source.filter(pk__gt=last_pk)[:objects_per_batch])
             while objects:
@@ -523,10 +530,9 @@ class ESIndexManager(object):
                 update_query = model.objects.filter(pk__in=[o.pk for o in objects])
                 if force_reindexing:
                     # leaves `es_flagged` as-is since it might have set in the meantime
-                    update_query = update_query.filter(es_already_indexed=False)
-                    update_query.update(es_already_indexed=True)
+                    update_query.filter(es_already_indexed=False).update(es_already_indexed=True)
                 else:
-                    update_query.update(es_flagged=False)
+                    update_query.update(es_already_indexed=True, es_flagged=False)
                 indexed_counter = indexed_counter + len(objects)
 
                 # basic estimation of indexed objects per second

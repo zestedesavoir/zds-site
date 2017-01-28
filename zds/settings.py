@@ -297,7 +297,7 @@ LOGGING = {
     },
     'handlers': {
         'mail_admins': {
-            'level': 'ERROR',
+            'level': 'DEBUG',
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
         }
@@ -305,7 +305,7 @@ LOGGING = {
     'loggers': {
         'django.request': {
             'handlers': ['mail_admins'],
-            'level': 'ERROR',
+            'level': 'DEBUG',
             'propagate': True,
         },
     }
@@ -351,7 +351,7 @@ ES_CONNECTIONS = {
 
 ES_SEARCH_INDEX = {
     'name': 'zds_search',
-    'shards': 5,
+    'shards': 3,
     'replicas': 0,
 }
 
