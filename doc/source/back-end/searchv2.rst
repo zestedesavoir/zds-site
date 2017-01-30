@@ -34,7 +34,7 @@ L'utilisateur peut utiliser la recherche, en utilisant la recherche de `l'en-tê
       :align: center
 
 Des critères de recherche peuvent être ajoutés sur la page de recherche.
-Le seul critère de recherche disponible actuellement est le type de résultat (contenu, chapitre, sujet du forum ou message du forum).
+Le seul critère de recherche disponible actuellement est le type de résultat (contenu, sujet du forum ou message du forum).
 
    .. figure:: ../images/search/search-filters.png
       :align: center
@@ -130,12 +130,17 @@ Pour modifier les différents paramètres d'une recherche, c'est cette fois dans
       'search': {
         'mark_keywords': ['javafx', 'haskell', 'groovy', 'powershell', 'latex', 'linux', 'windows'],
         'results_per_page': 20,
-        'indexables': [
-            ('publishedcontent', _(u'Contenus publiés')),
-            ('chapter', _(u'Chapitres publiés')),
-            ('topic', _(u'Sujets du forum')),
-            ('post', _(u'Messages du forum')),
-        ],
+        'search_groups': {
+            'content': (
+                _(u'Contenus publiés'), ['publishedcontent', 'chapter']
+            ),
+            'topic': (
+                _(u'Sujets du forum'), ['topic']
+            ),
+            'post': (
+                _(u'Messages du forum'), ['post']
+            ),
+        },
         'boosts': {
             'publishedcontent': {
                 'global': 3.0,
@@ -163,7 +168,7 @@ Pour modifier les différents paramètres d'une recherche, c'est cette fois dans
 
 où ``'mark_keywords'`` liste les mots qui ne doivent pas être découpés par le *stemmer* (souvent des noms propres),
 ``'results_per_page'`` est le nombre de résultats affichés,
-``'indexables'`` définit les différents types de documents à indexer
+``'search_groups'`` définit les différents types de documents indexé et la manière dont il sont groupés quand recherchés (sur le formulaire de recherche),
 et ``'boosts'`` les différents facteurs de *boost* appliqués aux différentes situations.
 
 Puisque la phase de *stemming* advient à la fin de l'analyse, tous les mots listés dans ``'mark_keywords'``  doivent être en minuscule et sans éventuels déterminants.

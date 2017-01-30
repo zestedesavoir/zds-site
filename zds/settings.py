@@ -537,12 +537,6 @@ ZDS_APP = {
     'search': {
         'mark_keywords': ['javafx', 'haskell', 'groovy', 'powershell', 'latex', 'linux', 'windows'],
         'results_per_page': 20,
-        'indexables': [
-            ('publishedcontent', _(u'Contenus publiés')),
-            ('chapter', _(u'Chapitres publiés')),
-            ('topic', _(u'Sujets du forum')),
-            ('post', _(u'Messages du forum')),
-        ],
         'search_groups': {
             'content': (
                 _(u'Contenus publiés'), ['publishedcontent', 'chapter']

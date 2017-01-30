@@ -38,6 +38,8 @@ class AbstractESIndexable(object):
     es_already_indexed = False
     es_id = ''
 
+    objects_per_batch = 100
+
     @classmethod
     def get_es_document_type(cls):
         """value of the ``_type`` field in the index"""
@@ -72,19 +74,17 @@ class AbstractESIndexable(object):
 
     @classmethod
     def get_es_indexable(cls, force_reindexing=False):
-        """Yield objects to index by batch of ``objects_per_batch``.
+        """Return objects to index.
 
         .. attention::
             You need to override this method (otherwise nothing will be indexed).
 
         :param force_reindexing: force to return all objects, even if they may already be indexed.
         :type force_reindexing: bool
-        :param objects_per_batch: limit the number of objects at one time
-        :type objects_per_batch: int
-        :rtype: iterator
+        :rtype: list
         """
 
-        yield []
+        return []
 
     def get_es_document_source(self, excluded_fields=None):
         """Create a document from the variable of the class, based on the mapping.
@@ -211,6 +211,9 @@ class AbstractESDjangoIndexable(AbstractESIndexable, models.Model):
     @classmethod
     def get_es_indexable(cls, force_reindexing=False):
         """Override ``get_es_indexable()`` in order to use the Django querysets and batch objects.
+
+        :return: a queryset
+        :rtype: django.db.models.query.QuerySet
         """
 
         return cls.get_es_django_indexable(force_reindexing).order_by('pk').all()
@@ -351,6 +354,10 @@ class ESIndexManager(object):
           other stuffs intact (in order to keep "c++" or "c#", for example).
         - "protect_c_language", a pattern replace filter to prevent "c" from being wiped out by the stopper.
         - "french_keywords", a keyword stopper prevent some programming language from being stemmed.
+
+        .. warning::
+
+            You need to run ``manage.py es_manager index_all`` if you modified this !!
         """
 
         if not self.connected_to_es:
@@ -441,19 +448,21 @@ class ESIndexManager(object):
         self.logger.info('unindex {}'.format(model.get_es_document_type()))
 
     def es_bulk_indexing_of_model(self, model, force_reindexing=False):
-        """Perform a bulk action on documents of a given model.
-        Documents are batched according to ``model.objects_per_batch`` (``chunk_size`` is set accordingly).
+        """Perform a bulk action on documents of a given model. Use the ``objects_per_batch`` property to index.
 
         See http://elasticsearch-py.readthedocs.io/en/master/api.html#elasticsearch.Elasticsearch.bulk
-        and http://elasticsearch-py.readthedocs.io/en/master/helpers.html#elasticsearch.helpers.streaming_bulk
+        and http://elasticsearch-py.readthedocs.io/en/master/helpers.html#elasticsearch.helpers.parallel_bulk
 
         .. attention::
-            Currently only implemented with "index" and "update" !
+            + Currently only implemented with "index" and "update" !
+            + Currently only working with ``AbstractESDjangoIndexable``.
 
         :param model: and model
         :type model: class
         :param force_reindexing: force all document to be returned
         :type force_reindexing: bool
+        :return: the number of documents indexed
+        :rtype: int
         """
 
         if not self.connected_to_es:
@@ -561,7 +570,13 @@ class ESIndexManager(object):
             return indexed_counter
 
     def refresh_index(self):
-        """Refresh the index. The task is done periodically, but may be forced with this method
+        """Force the refreshing the index. The task is normally done periodically, but may be forced with this method.
+
+        See https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-refresh.html.
+
+        .. note::
+
+            The use of this function is mandatory if you want to use the search right after an indexing.
         """
 
         if not self.connected_to_es:
