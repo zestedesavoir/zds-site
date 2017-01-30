@@ -86,7 +86,7 @@ class Forum(models.Model):
     # Groups authorized to read this forum. If no group is defined, the forum is public (and anyone can read it).
     group = models.ManyToManyField(
         Group,
-        verbose_name='Groupe autorisés (Aucun = public)',
+        verbose_name='Groupes autorisés (aucun = public)',
         blank=True)
 
     category = models.ForeignKey(Category, db_index=True, verbose_name='Catégorie')
