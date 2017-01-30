@@ -35,7 +35,7 @@ from zds.member.decorator import can_write_and_read_now
 from zds.member.forms import LoginForm, MiniProfileForm, ProfileForm, RegisterForm, \
     ChangePasswordForm, ChangeUserForm, NewPasswordForm, \
     PromoteMemberForm, KarmaForm, UsernameAndEmailForm
-from zds.member.models import Profile, TokenForgotPassword, TokenRegister, KarmaNote
+from zds.member.models import Profile, TokenForgotPassword, TokenRegister, KarmaNote, Ban
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.tutorialv2.models.models_database import PublishableContent
 from zds.notification.models import TopicAnswerSubscription, NewPublicationSubscription
@@ -383,6 +383,13 @@ def unregister(request):
     for message in PrivatePost.objects.filter(author=current):
         message.author = anonymous
         message.save()
+    # karma notes and sanctions anonymisation (to keep them)
+    for note in KarmaNote.objects.filter(moderator=current):
+        note.moderator = anonymous
+        note.save()
+    for ban in Ban.objects.filter(moderator=current):
+        ban.moderator = anonymous
+        ban.save()
     # in case current has been moderator in his old day
     for message in Comment.objects.filter(editor=current):
         message.editor = anonymous

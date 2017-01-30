@@ -463,6 +463,12 @@ class MemberTests(TestCase):
         self.assertEqual(Application.objects.count(), 1)
         self.assertEqual(AccessToken.objects.count(), 1)
 
+        # add a karma note and a sanction with this user
+        note = KarmaNote(moderator=user.user, user=user2.user, note='Good!', karma=5)
+        note.save()
+        ban = Ban(moderator=user.user, user=user2.user, type='Ban définitif', note='Test')
+        ban.save()
+
         # login and unregister:
         login_check = self.client.login(
             username=user.user.username,
@@ -565,6 +571,10 @@ class MemberTests(TestCase):
         # check API
         self.assertEqual(Application.objects.count(), 0)
         self.assertEqual(AccessToken.objects.count(), 0)
+
+        # check that the karma note and the sanction were kept
+        self.assertTrue(KarmaNote.objects.filter(pk=note.pk).exists())
+        self.assertTrue(Ban.objects.filter(pk=ban.pk).exists())
 
     def test_forgot_password(self):
         """To test nominal scenario of a lost password."""
