@@ -638,7 +638,7 @@ class SolveNoteAlert(FormView, LoginRequiredMixin):
         msg_content = ''
         if 'text' in request.POST and request.POST['text']:
             resolve_reason = request.POST['text']
-            msg_title = _(u"Résolution d'alerte : {0}").format(note.related_content.title),
+            msg_title = _(u"Résolution d'alerte : {0}").format(note.related_content.title)
             msg_content = render_to_string(
                 'tutorialv2/messages/resolve_alert.md', {
                     'content': note.related_content,
