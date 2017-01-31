@@ -150,12 +150,6 @@ class AbstractESIndexable(object):
 
         return document
 
-    def es_done_indexing(self):
-        """Save index when indexed
-
-        """
-        self.es_already_indexed = True
-
 
 class AbstractESDjangoIndexable(AbstractESIndexable, models.Model):
     """Version of AbstractESIndexable for a Django object, with some improvements :
@@ -229,12 +223,6 @@ class AbstractESDjangoIndexable(AbstractESIndexable, models.Model):
         self.es_flagged = kwargs.pop('es_flagged', True)
 
         return super(AbstractESDjangoIndexable, self).save(*args, **kwargs)
-
-    def es_done_indexing(self):
-        """Overridden to actually save the values of ``es_flagged`` and ``es_already_indexed`` into DB.
-        """
-        super(AbstractESDjangoIndexable, self).es_done_indexing()
-        self.save(es_flagged=False)
 
 
 def delete_document_in_elasticsearch(instance):
@@ -502,10 +490,8 @@ class ESIndexManager(object):
                         chunk_size=objects_per_batch,
                         request_timeout=30
                     ):
-                        if self.logger.getEffectiveLevel() <= logging.INFO:
-                            action = hit.keys()[0]
-                            self.logger.info('{} {} with id {}'.format(
-                                action, hit[action]['_type'], hit[action]['_id']))
+                        action = hit.keys()[0]
+                        self.logger.info('{} {} with id {}'.format(action, hit[action]['_type'], hit[action]['_id']))
 
                     # mark all these objects as indexed at once
                     model_to_update.objects.filter(pk__in=pks) \
@@ -541,7 +527,7 @@ class ESIndexManager(object):
                     # mark all these objects as indexed at once
                     model.objects.filter(pk__in=[o.pk for o in objects]) \
                                  .update(es_already_indexed=True, es_flagged=False)
-                    indexed_counter = indexed_counter + len(objects)
+                    indexed_counter += len(objects)
 
                     # basic estimation of indexed objects per second
                     now = time.time()
