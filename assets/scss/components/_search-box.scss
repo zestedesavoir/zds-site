@@ -59,11 +59,11 @@
         height: 134px;
 
         @at-root {
-            body.vc-clem-christmas.home .search-box::before {
+            body.vc-clem-christmas .search-box::before {
                 background-image: url('../images/home-clem-christmas.png');
             }
 
-            body.vc-clem-halloween.home .search-box::before {
+            body.vc-clem-halloween .search-box::before {
                 background-image: url('../images/home-clem-halloween.png');
                 width: 160px;
                 left: -80px;
