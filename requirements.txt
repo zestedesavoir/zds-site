@@ -13,7 +13,7 @@ python-memcached==1.54
 lxml==3.6.0
 factory-boy==2.7.0
 pygeoip==0.3.2
-pillow==3.2.0
+pillow==4.0.0
 gitpython==1.0.1
 https://github.com/zestedesavoir/Python-ZMarkdown/archive/2.6.0-zds.17.zip
 easy-thumbnails==2.3
