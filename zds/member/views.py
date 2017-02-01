@@ -40,7 +40,7 @@ from zds.mp.models import PrivatePost, PrivateTopic
 from zds.tutorialv2.models.models_database import PublishableContent
 from zds.notification.models import TopicAnswerSubscription, NewPublicationSubscription
 from zds.tutorialv2.models.models_database import PublishedContent
-from zds.utils.models import Comment, CommentVote
+from zds.utils.models import Comment, CommentVote, Alert
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView
 from zds.utils.tokens import generate_token
@@ -383,13 +383,19 @@ def unregister(request):
     for message in PrivatePost.objects.filter(author=current):
         message.author = anonymous
         message.save()
-    # karma notes and sanctions anonymisation (to keep them)
+    # karma notes, alerts and sanctions anonymisation (to keep them)
     for note in KarmaNote.objects.filter(moderator=current):
         note.moderator = anonymous
         note.save()
     for ban in Ban.objects.filter(moderator=current):
         ban.moderator = anonymous
         ban.save()
+    for alert in Alert.objects.filter(author=current):
+        alert.author = anonymous
+        alert.save()
+    for alert in Alert.objects.filter(moderator=current):
+        alert.moderator = anonymous
+        alert.save()
     # in case current has been moderator in his old day
     for message in Comment.objects.filter(editor=current):
         message.editor = anonymous
