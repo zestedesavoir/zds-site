@@ -40,7 +40,7 @@ class TopicCreateSerializer(serializers.ModelSerializer, TitleValidator, TextVal
         read_only_fields = ('id', 'author', 'last_message', 'pubdate', 'permissions', 'slug')
 
     def create(self, validated_data):
-        
+
         try:
             tags = validated_data.pop('tags')
         except KeyError:
@@ -128,25 +128,13 @@ class PostCreateSerializer(serializers.ModelSerializer, TextValidator):
         model = Post
         fields = ('id', 'text', 'text_html', 'permissions', 'is_useful', 'author', 'position', 'pubdate')
         read_only_fields = ('text_html', 'permissions', 'is_useful', 'author', 'position', 'pubdate')
-    # TODO a voir quel champ en read only
 
     def create(self, validated_data):
-        # Get topic
-        pk_topic = validated_data.get('topic_id')
-        topic = get_object_or_404(Topic, pk=(pk_topic))
 
-        user = None
-        request = self.context.get("request")
-        if request and hasattr(request, "user"):
-            user = request.user
-
-
+        # TODO fix position ???
+        # TODO du coup on envoi plus les validated data
         new_post = Post.objects.create(**validated_data)
         return new_post
-
-    # Todo a t on besoin d'un validateur
-    #def throw_error(self, key=None, message=None):
-        #raise serializers.ValidationError(message)
 
 
 class PostUpdateSerializer(serializers.ModelSerializer, TextValidator):
@@ -197,7 +185,6 @@ class AlertSerializer(serializers.ModelSerializer):
         fields = ('id', 'text', 'permissions',)
         read_only_fields = ('permissions',)
 
-
     def create(self, validated_data):
         # Get topic TODO pourquoi ces lignes?
         pk_post = validated_data.get('comment')
@@ -205,6 +192,3 @@ class AlertSerializer(serializers.ModelSerializer):
         alert = Alert.objects.create(**validated_data)
         return alert
 
-    # Todo a t on besoin d'un validateur ?
-    #def throw_error(self, key=None, message=None):
-        #raise serializers.ValidationError(message)
