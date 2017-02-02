@@ -59,17 +59,38 @@ class CanWriteInTopic(permissions.BasePermission):
 
     def has_permission(self, request, view):
 
+        topic_pk = request.resolver_match.kwargs.get('pk')
+        try:
+            topic = Topic.objects.get(id=topic_pk)
+        except Topic.DoesNotExist:
+            print('pas trouve')
+            raise Http404("Topic with pk {} was not found".format(topic_pk))
+        # Fonctionner avec obj. ?  TODO
+        # Antispam function returns true when user CAN'T post.
+        if topic.antispam(request.user):
+            print('antispam refuse')
+            return False
+        else:
+            return (topic.forum.can_read(request.user)) and (not topic.is_locked or request.user.has_perm("forum.change_post"))
+            
+            
+class CanAlertPost(permissions.BasePermission):
+    """
+    Allows access only to people that can write in topic passed by url. TODO 
+    """
+
+    def has_permission(self, request, view):
+
         topic_pk = request.resolver_match.kwargs.get('pk_sujet')
         try:
             topic = Topic.objects.get(id=topic_pk)
         except Topic.DoesNotExist:
             raise Http404("Topic with pk {} was not found".format(topic_pk))
-
-        if topic.antispam(request.user):
-            return topic.forum.can_read(request.user)
-        else:
-            print('antispam refuse')
-            return False
+            
+        # Fonctionner avec obj. ?  TODO
+        print('can alert post')
+        print(topic.forum.can_read(request.user))
+        return topic.forum.can_read(request.user)
 
 
 class CanEditPost(permissions.BasePermission):
@@ -79,10 +100,12 @@ class CanEditPost(permissions.BasePermission):
 
     def has_permission(self, request, view):
         topic_pk = request.resolver_match.kwargs.get('pk_sujet')
+        print('can edit post')
 
         try:
             topic = Topic.objects.get(id=topic_pk)
         except Topic.DoesNotExist:
+            print('can edit post : topic non trouve')
             raise Http404("Topic with pk {} was not found".format(topic_pk))
 
         post_pk = request.resolver_match.kwargs.get('pk')
@@ -90,8 +113,12 @@ class CanEditPost(permissions.BasePermission):
         try:
             post = Post.objects.get(id=post_pk)
         except Post.DoesNotExist:
+            print('can edit post : post non trouve')
             raise Http404("Post with pk {} was not found".format(post_pk))
 
         # Can edit topic if user is admin
         # Or topic is not locked and user is topic owner
+        print('fin can edit post')
         return request.user.has_perm("forum.change_post") or (not topic.is_locked and post.author == request.user)
+        
+        # TODO utiliser partout get_object_or_404 ?

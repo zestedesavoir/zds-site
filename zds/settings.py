@@ -57,6 +57,7 @@ LANGUAGES = (
     ('en', _('Anglais')),
 )
 
+ALOWED_HOSTS = ['zds-anto59290.c9users.io']
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: '/home/media/media.lawrence.com/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -659,8 +660,10 @@ if DEBUG:
     )
     MIDDLEWARE_CLASSES = ('debug_toolbar.middleware.DebugToolbarMiddleware',) + MIDDLEWARE_CLASSES
 
-def show_toolbar(request):
-    return True
-DEBUG_TOOLBAR_CONFIG = {
-    "SHOW_TOOLBAR_CALLBACK" : show_toolbar,
-}
+
+    def show_toolbar(request):
+        return True
+
+    DEBUG_TOOLBAR_CONFIG = {
+        "SHOW_TOOLBAR_CALLBACK" : show_toolbar,
+    }

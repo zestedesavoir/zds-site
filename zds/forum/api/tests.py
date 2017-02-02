@@ -301,7 +301,7 @@ class ForumAPITest(APITestCase):
 
         response = self.client_authenticated_staff.get(reverse('api:forum:list'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data.get('count'), 1) # TODO nombre a affiner en fonction de la realite
+        self.assertEqual(response.data.get('count'), 1)
 
     def test_list_of_forums_with_several_pages(self):
         """
@@ -853,7 +853,7 @@ class ForumAPITest(APITestCase):
         response = self.client_authenticated.put(reverse('api:forum:detail-topic', args=[topic.id]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('subtitle'), data.get('subtitle'))
-        
+
     def test_update_topic_details_tags(self):
         """
         Updates tags of a topic.
@@ -862,7 +862,7 @@ class ForumAPITest(APITestCase):
         data = {
             'tags': [tag.id]
         }
-        
+
         topic = self.create_multiple_forums_with_topics(1, 1, self.profile)
         response = self.client_authenticated.put(reverse('api:forum:detail-topic', args=[topic.id]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -1187,9 +1187,6 @@ class ForumAPITest(APITestCase):
         response = self.client.get(reverse('api:forum:list-post', args=[topic.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        print('ligne 1190')
-        print(response.data.get('results')[4])
-
         self.assertIsNone(response.data.get('results')[4].get('text'))
         self.assertIsNone(response.data.get('results')[4].text_html)
         self.assertIsFalse(response.data.get('results')[4].is_visible)
@@ -1355,7 +1352,7 @@ class ForumAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         response = self.client_authenticated_staff.post(reverse('api:forum:list-post', args=[topic.id]), data)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         post = Post.objects.filter(topic=topic.id).last()
         self.assertEqual(response.data.get('text'), data.get('text'))
         self.assertEqual(post.text, data.get('text'))
@@ -1416,7 +1413,7 @@ class ForumAPITest(APITestCase):
         category, forum = create_category(self.group_staff)
         topic = add_topic_in_a_forum(forum, profile)
         data = {
-            'text': 'Welcome to this post!', 
+            'text': 'Welcome to this post!',
             'forum': forum.id
         }
         response = self.client_authenticated.post(reverse('api:forum:list-post', args=[topic.pk]), data)
@@ -1491,7 +1488,7 @@ class ForumAPITest(APITestCase):
 
     def test_detail_of_a_private_post_not_present(self):
         """
-        Gets an error 404 when the post isn't present in the database.
+        Gets a 404 error when the post isn't present in the database.
         """
         topic = self.create_multiple_forums_with_topics(1, 1)
         response = self.client.get(reverse('api:forum:detail-post', args=[topic.id, 666]))
@@ -1658,7 +1655,6 @@ class ForumAPITest(APITestCase):
             'text': 'There is a guy flooding about Flask, can you do something about it ?'
         }
 
-        print('test alert post')
         self.client = APIClient()
         response = self.client.post(reverse('api:forum:alert-post', args=[topic.id, post.id]), data)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
@@ -1674,10 +1670,10 @@ class ForumAPITest(APITestCase):
 
     def test_alert_post_in_private_forum(self):
         """
-        Tries to alert a post in a public forum with different type of users
+        Tries to alert a post in a private forum with different type of users.
         """
-        profile = StaffProfileFactory()
-        category, forum = create_category()
+        profile = ProfileFactory()
+        category, forum = create_category(self.group_staff)
         topic = add_topic_in_a_forum(forum, profile)
         post = PostFactory(topic=topic, author=profile.user, position=1)
         data = {
@@ -1696,8 +1692,8 @@ class ForumAPITest(APITestCase):
 
         alerte = Alert.objects.latest('pubdate')
         self.assertEqual(alerte.text, data.get('text'))
-        self.assertEqual(alerte.author, self.client_authenticated_staff)
-        self.assertEqual(alerte.comment, post.id)
+        self.assertEqual(alerte.author, self.staff.user)
+        self.assertEqual(alerte.comment.id, post.id)
 
     def test_alert_post_not_found(self):
         """
@@ -1740,6 +1736,7 @@ class ForumAPITest(APITestCase):
         }
         self.client = APIClient()
         topic, posts = self.create_topic_with_post()
+
         response = self.client.put(reverse('api:forum:detail-post', args=[topic.id, posts[0].id]), data)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
@@ -1839,7 +1836,7 @@ class ForumAPITest(APITestCase):
         category, forum = create_category()
         # Create locked topic
         topic = add_topic_in_a_forum(forum, self.profile, False, False, True)
-        post = PostFactory(topic=topic, author=self.profile.user, position=1)
+        post = PostFactory(topic=topic, author=self.profile.user, position=2)
 
         # With anonymous
         response = self.client.put(reverse('api:forum:detail-post', args=[topic.id, post.id]), data)
@@ -1873,14 +1870,12 @@ class ForumAPITest(APITestCase):
         post = PostFactory(topic=topic, author=self.profile.user, position=1)
 
         # With anonymous
-        response = self.client.put(reverse('api:forum:detail-post', args=[topic.id, post.id]), data)
+        response = self.client.put(reverse('api:forum:detail-post', args=[topic.id, post.id]), data_user)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         # With user
         response = self.client_authenticated.put(reverse('api:forum:detail-post', args=[topic.id, post.id]), data_user)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        response = self.client.get(reverse('api:forum:detail-post', args=[topic.id, post.id]))
         self.assertIsNone(response.data.get('text_html'))
         self.assertIsNone(response.data.get('text'))
         self.assertFalse(response.data.get('is_visible'))
@@ -1919,6 +1914,4 @@ def authenticate_client(client, client_auth, username, password):
 # Style / PEP8
 # Route listant les Tags ?
 # quand on poste un message dans un topic depuis l'API il semblerait que la position dans le topic ne soit pas bonne
-
-# TESTS MANQUANTS
 # ALLOWED_HOSTS=['zds-anto59290.c9users.io']

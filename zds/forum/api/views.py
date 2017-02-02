@@ -1,12 +1,13 @@
 # coding: utf-8
 
-from zds.member.api.permissions import CanReadTopic, CanReadPost, CanReadForum, CanReadAndWriteNowOrReadOnly, IsNotOwnerOrReadOnly, IsOwnerOrReadOnly, IsStaffUser
+from zds.member.api.permissions import CanReadTopic, CanReadPost, CanReadForum, CanReadAndWriteNowOrReadOnly, IsNotOwnerOrReadOnly
 from zds.utils.api.views import KarmaView
-from zds.forum.models import Post, Forum, Topic, Category
+from zds.forum.models import Post, Forum, Topic
 import datetime
 from django.core.cache import cache
 from django.db.models.signals import post_save, post_delete
 from django.http import Http404
+from django.shortcuts import get_object_or_404
 from rest_framework import filters
 from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveUpdateAPIView, RetrieveAPIView, CreateAPIView
 from rest_framework_extensions.key_constructor.constructors import DefaultKeyConstructor
@@ -16,11 +17,9 @@ from rest_framework_extensions.key_constructor import bits
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny, IsAuthenticated
-from dry_rest_permissions.generics import DRYPermissions
 from zds.api.bits import DJRF3xPaginationKeyBit, UpdatedAtKeyBit
-from zds.utils import slugify
 from zds.forum.api.serializer import ForumSerializer, TopicSerializer, TopicCreateSerializer, TopicUpdateSerializer, TopicUpdateStaffSerializer, PostSerializer, PostCreateSerializer, PostUpdateSerializer, AlertSerializer
-from zds.forum.api.permissions import IsOwnerOrIsStaff, CanWriteInForum, CanWriteInTopic, CanEditPost
+from zds.forum.api.permissions import IsOwnerOrIsStaff, CanWriteInForum, CanWriteInTopic, CanEditPost, CanAlertPost
 from zds.member.models import User
 from zds.forum.commons import PostEditMixin
 
@@ -226,6 +225,8 @@ class TopicListAPI(ListCreateAPIView):
             #forum = Forum.objects.get(id=self.request.data.get('forum'))
             #self.check_object_permissions(self.request, forum)
             #permission_classes.append(CanReadAndWriteNowOrReadOnly)
+            print('laaaa')
+            permission_classes.append(IsAuthenticated)
             permission_classes.append(CanWriteInForum)
             permission_classes.append(CanReadAndWriteNowOrReadOnly)
         return [permission() for permission in permission_classes]
@@ -420,11 +421,14 @@ class PostListAPI(ListCreateAPIView):
               message: Not Found
         """
         author = request.user.id
-        topic = self.kwargs.get('pk')
+        topic_pk = self.kwargs.get('pk')
+        get_object_or_404(Topic, pk=(topic_pk))
+
 
         serializer = self.get_serializer_class()(data=request.data, context={'request': self.request})
         serializer.is_valid(raise_exception=True)
-        serializer.save(position=0, author_id=author, topic_id=topic)
+        # TODO position 
+        serializer.save(position=0, author_id=author, topic_id=topic_pk)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
@@ -440,6 +444,7 @@ class PostListAPI(ListCreateAPIView):
             if posts.count() == 0:
                 raise Http404("Topic with pk {} was not found".format(self.kwargs.get('pk')))
         return posts
+        # Que ce passe t il pour le verbe POST TODO ?
 
     def get_current_user(self):
         return self.request.user.profile
@@ -447,9 +452,9 @@ class PostListAPI(ListCreateAPIView):
     def get_permissions(self):
         permission_classes = [CanReadPost]
         if self.request.method == 'POST':
+            permission_classes.append(IsAuthenticated)
             permission_classes.append(CanReadAndWriteNowOrReadOnly)
             permission_classes.append(CanWriteInTopic)
-
         return [permission() for permission in permission_classes]
 
 
@@ -535,7 +540,7 @@ class PostDetailAPI(RetrieveUpdateAPIView, PostEditMixin):
     Profile resource to display details of given post
     """
 
-    queryset = Post.objects.all()
+    queryset = Post.objects.all() # TODO a retirer ?
     obj_key_func = DetailKeyConstructor()
 
     @etag(obj_key_func)
@@ -552,7 +557,9 @@ class PostDetailAPI(RetrieveUpdateAPIView, PostEditMixin):
             - code: 404
               message: Not Found
         """
+        print('ici')
         post = self.get_object()
+        print(post)
 
         return self.retrieve(request, *args, **kwargs)
 
@@ -627,7 +634,7 @@ class PostAlertAPI(CreateAPIView):
               message: Not Found
         """
         author = request.user
-        
+
         try:
             post = Post.objects.get(id=self.kwargs.get('pk'))
         except Post.DoesNotExist:
@@ -643,8 +650,10 @@ class PostAlertAPI(CreateAPIView):
     def get_permissions(self):
         permission_classes = [CanReadPost]
         if self.request.method == 'POST':
+            IsAuthenticatedOrReadOnly
+            permission_classes.append(IsAuthenticatedOrReadOnly)
             permission_classes.append(CanReadAndWriteNowOrReadOnly)
-            permission_classes.append(CanWriteInTopic)
+            permission_classes.append(CanAlertPost)
 
         return [permission() for permission in permission_classes]
 
