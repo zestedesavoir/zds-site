@@ -305,13 +305,9 @@ class ContentForm(ContainerForm):
             ButtonHolder(StrictButton(_(u'Aperçu'), type='preview', name='preview',
                                       css_class='btn btn-grey preview-btn'),)))
             HTML('{% if form.conclusion.value %}{% include "misc/previsualization.part.html" \
-            with text=form.conclusion.value %}{% endif %}'),
+            with text=form.conclusion.value %}{% endif %}')
 
-<<<<<<< HEAD
         self.helper.layout.append(Layout(
-=======
-		self.helper.layout.append(Layout(
->>>>>>> 0541a3e8eafba77ffd7b2ec0c44d5b7624f3ce0b
             Field('last_hash'),
             Field('licence'),
             Field('subcategory', template='crispy/checkboxselectmultiple.html'),
