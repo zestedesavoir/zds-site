@@ -7,9 +7,10 @@
 
 (function(document ,$, undefined){
     "use strict";
-    
+
     var linkToMathsTutorial = "//zestedesavoir.com/tutoriels/244/comment-rediger-des-maths-sur-zeste-de-savoir/";
     var linkToMarkdownHelp = "//zestedesavoir.com/tutoriels/221/rediger-sur-zds/";
+    var linkToPygments = "//pygments.org/languages";
 
     var tips = [
         "Les simples retours à la ligne ne sont pas pris en compte. Pour créer un nouveau paragraphe, pensez à <em>sauter une ligne !</em>",
@@ -21,6 +22,7 @@
         "Pour tracer une ligne, utilisez <code>---</code>, <code>+++</code> ou <code>***</code>.",
         "Pour aller à la ligne sans changer de paragraphe, finissez votre première ligne par deux espaces.",
         "Pour écrire un bout de code au milieu d’une phrase, utilisez la syntaxe `code`.",
+        "Le langage d’un bloc de code peut être spécifié après les <code>```</code> ouvrants. La liste des langages supportés <a href=\"" + linkToPygments + "\">est disponible ici</a>.",
         "Vous pouvez <a href=\"" + linkToMathsTutorial + "\">écrire des formules mathématiques</a> en encadrant ces dernières du signe dollar ($)."
         ];    
     
