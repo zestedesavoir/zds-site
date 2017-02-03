@@ -369,37 +369,24 @@ def unregister(request):
     current = request.user
     # Nota : as of v21 all about content paternity is held by a proper receiver in zds.tutorialv2.models.models_database
     # comments likes / dislikes
-    for vote in CommentVote.objects.filter(user=current):
+    votes = CommentVote.objects.filter(user=current)
+    for vote in votes:
         if vote.positive:
             vote.comment.like -= 1
         else:
             vote.comment.dislike -= 1
         vote.comment.save()
-        vote.delete()
+    votes.delete()
     # all messages anonymisation (forum, article and tutorial posts)
-    for message in Comment.objects.filter(author=current):
-        message.author = anonymous
-        message.save()
-    for message in PrivatePost.objects.filter(author=current):
-        message.author = anonymous
-        message.save()
+    Comment.objects.filter(author=current).update(author=anonymous)
+    PrivatePost.objects.filter(author=current).update(author=anonymous)
     # karma notes, alerts and sanctions anonymisation (to keep them)
-    for note in KarmaNote.objects.filter(moderator=current):
-        note.moderator = anonymous
-        note.save()
-    for ban in Ban.objects.filter(moderator=current):
-        ban.moderator = anonymous
-        ban.save()
-    for alert in Alert.objects.filter(author=current):
-        alert.author = anonymous
-        alert.save()
-    for alert in Alert.objects.filter(moderator=current):
-        alert.moderator = anonymous
-        alert.save()
+    KarmaNote.objects.filter(moderator=current).update(moderator=anonymous)
+    Ban.objects.filter(moderator=current).update(moderator=anonymous)
+    Alert.objects.filter(author=current).update(author=anonymous)
+    Alert.objects.filter(moderator=current).update(moderator=anonymous)
     # in case current has been moderator in his old day
-    for message in Comment.objects.filter(editor=current):
-        message.editor = anonymous
-        message.save()
+    Comment.objects.filter(editor=current).update(editor=anonymous)
     for topic in PrivateTopic.objects.filter(author=current):
         topic.participants.remove(current)
         if topic.participants.count() > 0:
@@ -411,9 +398,7 @@ def unregister(request):
     for topic in PrivateTopic.objects.filter(participants__in=[current]):
         topic.participants.remove(current)
         topic.save()
-    for topic in Topic.objects.filter(author=current):
-        topic.author = anonymous
-        topic.save()
+    Topic.objects.filter(author=current).update(author=anonymous)
     # Before deleting gallery let's summurize what we deleted
     # - unpublished tutorials with only the unregistering member as an author
     # - unpublished articles with only the unregistering member as an author
@@ -424,6 +409,7 @@ def unregister(request):
     # - "personnal galleries" with more than one owner
     # so we will just delete the unretistering user ownership and give it to anonymous in the only case
     # he was alone so that gallery is not lost
+    galleries = UserGallery.objects.filter(user=current)
     for gallery in UserGallery.objects.filter(user=current):
         if gallery.gallery.get_linked_users().count() == 1:
             anonymous_gallery = UserGallery()
@@ -431,7 +417,7 @@ def unregister(request):
             anonymous_gallery.mode = 'w'
             anonymous_gallery.gallery = gallery.gallery
             anonymous_gallery.save()
-        gallery.delete()
+    galleries.delete()
 
     # remove API access (tokens + applications)
     for token in AccessToken.objects.filter(user=current):
