@@ -48,7 +48,7 @@ cache:
 
 before_install:
   # see https://docs.travis-ci.com/user/database-setup/#Installing-specific-versions-of-ElasticSearch
-  - curl -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.1.2.deb && sudo dpkg -i --force-confnew elasticsearch-5.1.2.deb && sudo service elasticsearch start
+  - curl -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.2.0.deb && sudo dpkg -i --force-confnew elasticsearch-5.2.0.deb && sudo service elasticsearch start
 
 before_script:
   # MySQL config
