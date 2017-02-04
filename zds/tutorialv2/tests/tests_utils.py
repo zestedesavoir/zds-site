@@ -571,18 +571,18 @@ class UtilsTests(TestCase):
         handler.prepare_generation.assert_called_with('/path/to')
         os.remove('path')
 
-    def test_adjust_nb_letters(self):
-        """Test the `adjust_nb_letters` command"""
+    def test_adjust_char_count(self):
+        """Test the `adjust_char_count` command"""
 
         article = PublishedContentFactory(type='ARTICLE', author_list=[self.user_author])
         published = PublishedContent.objects.filter(content=article).first()
-        published.nb_letter = None
+        published.char_count = None
         published.save()
 
-        call_command('adjust_nb_letters')
+        call_command('adjust_char_count')
 
         published = PublishedContent.objects.get(pk=published.pk)
-        self.assertEqual(published.nb_letter, published.get_nb_letters())
+        self.assertEqual(published.char_count, published.get_char_count())
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):

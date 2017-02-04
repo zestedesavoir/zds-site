@@ -577,7 +577,7 @@ class PublishedContent(AbstractESDjangoIndexable):
     publication_date = models.DateTimeField('Date de publication', db_index=True, blank=True, null=True)
     update_date = models.DateTimeField('Date de mise à jour', db_index=True, blank=True, null=True, default=None)
     sha_public = models.CharField('Sha1 de la version publiée', blank=True, null=True, max_length=80, db_index=True)
-    nb_letter = models.IntegerField(default=None, null=True, verbose_name=b'Nombre de lettres du contenu', blank=True)
+    char_count = models.IntegerField(default=None, null=True, verbose_name=b'Nombre de lettres du contenu', blank=True)
 
     must_redirect = models.BooleanField(
         'Redirection vers  une version plus récente', blank=True, db_index=True, default=False)
@@ -841,7 +841,7 @@ class PublishedContent(AbstractESDjangoIndexable):
     def get_last_action_date(self):
         return self.update_date or self.publication_date
 
-    def get_nb_letters(self, md_file_path=None):
+    def get_char_count(self, md_file_path=None):
         """ Compute the number of letters for a given content
 
         :param md_file_path: use another file to compute the number of letter rather than the default one.

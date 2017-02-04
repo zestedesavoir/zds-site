@@ -848,7 +848,7 @@ Actions à faire pour l'upgrade v22
 Issue #2743
 -----------
 
-Lancer la commande de calcul des temps de lecture : `python manage.py adjust_nb_letters`.
+Lancer la commande de calcul du nombre de caractères des contenus publiés : `python manage.py adjust_char_count`.
 
 Maj de Raven + releases
 -----------------------

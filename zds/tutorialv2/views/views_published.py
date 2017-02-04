@@ -133,7 +133,7 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
         context['subscriber_count'] = ContentReactionAnswerSubscription.objects.get_subscriptions(self.object).count()
         # We need reading time expressed in minutes
         try:
-            context['reading_time'] = (self.object.public_version.nb_letter /
+            context['reading_time'] = (self.object.public_version.char_count /
                                        settings.ZDS_APP['content']['sec_per_minute'])
         except ZeroDivisionError as e:
             logger.warning('could not compute reading time : setting sec_per_minute is set to zero (error=%s)', e)
@@ -638,7 +638,7 @@ class SolveNoteAlert(FormView, LoginRequiredMixin):
         msg_content = ''
         if 'text' in request.POST and request.POST['text']:
             resolve_reason = request.POST['text']
-            msg_title = _(u"Résolution d'alerte : {0}").format(note.related_content.title),
+            msg_title = _(u"Résolution d'alerte : {0}").format(note.related_content.title)
             msg_content = render_to_string(
                 'tutorialv2/messages/resolve_alert.md', {
                     'content': note.related_content,
