@@ -8,10 +8,11 @@
 {% load thumbnail %}
 {% load i18n %}
 {% load captureas %}
+{% load crispy_forms_tags %}
 {% load pluralize_fr %}
 
 
-{% block body_class %}home{% endblock %}
+{% block body_class %}flexpage home{% endblock %}
 
 {% block searchbox_id %}search-home{% endblock %}
 
@@ -28,8 +29,8 @@
 
     {% url 'pages-association' as url_association %}
 
-    <section class="home-header">
-        <div class="home-wrapper">
+    <section class="flexpage-header">
+        <div class="flexpage-wrapper">
             {% if user.is_authenticated %}
                 <section class="home-description connected">
                     <blockquote><span>{{ quote }}</span></blockquote>
@@ -81,20 +82,14 @@
                 </section>
             {% endif %}
             {% if app.display_search_bar %}
-                 <section class="home-search-box">
-                    <form action='{% url "haystack_search" %}' id="search-home">
-                        <label for="search-home-input">
-                            {% trans "Recherche" %}
-                        </label>
-                        <input type="text" id="search-home-input" name="q" placeholder='{{ suggestions }}' >
-                        <button type="submit" class="ico-after ico-search" title='{% trans "Lancer la recherche" %}'></button>
-                    </form>
+                 <section class="search-box">
+                    {% crispy search_form %}
                 </section>
             {% endif %}
         </div>
     </section>
 
-    <div class="home-wrapper">
+    <div class="flexpage-wrapper">
         <section class="home-pinned-content">
             <h2 class="home-heading heading-white ico-after ico-news" itemprop="name">
                 {% trans "À la une" %}

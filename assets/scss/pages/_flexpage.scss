@@ -1,0 +1,38 @@
+$content-width: 1145px;
+
+.flexpage {
+    .main {
+        display: block;
+        height: auto;
+        width: auto;
+        margin: 0;
+        padding: 0;
+    }
+
+    #content {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    .sub-header{
+        display: none;
+    }
+
+    .flexpage-wrapper {
+        max-width: $content-width;
+        margin: 0 auto;
+    }
+
+    .flexpage-header {
+        border-bottom: solid 1px white;
+        background-color: #19516b; // fallback for older browser
+        background: #19516b radial-gradient(at top, rgba(255,255,255,0.1),rgba(0,0,0,0) 60%);
+    }
+}
+
+@media only screen and #{$media-mobile-tablet} {
+    .flexpage-wrapper {
+        padding: 20px 10px;
+    }
+}

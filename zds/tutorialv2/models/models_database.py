@@ -20,7 +20,7 @@ from django.db import models
 from django.http import Http404
 from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
-from django.db.models.signals import pre_delete, post_delete
+from django.db.models.signals import pre_delete, post_delete, pre_save
 from django.dispatch import receiver
 
 from git import Repo, BadObject
@@ -28,11 +28,16 @@ from gitdb.exc import BadName
 import os
 from uuslug import uuslug
 
+from elasticsearch_dsl import Mapping, Q as ES_Q
+from elasticsearch_dsl.field import Text, Keyword, Date
+
 from zds.forum.models import Topic
 from zds.gallery.models import Image, Gallery, UserGallery
 from zds.tutorialv2.utils import get_content_from_json, BadManifestError
 from zds.utils import get_current_user
 from zds.utils.models import SubCategory, Licence, HelpWriting, Comment, Tag
+from zds.searchv2.models import AbstractESDjangoIndexable, AbstractESIndexable, delete_document_in_elasticsearch, \
+    ESIndexManager
 from zds.utils.tutorials import get_blob
 from zds.tutorialv2.models import TYPE_CHOICES, STATUS_CHOICES
 from zds.tutorialv2.models.models_versioned import NotAPublicVersion
@@ -367,7 +372,7 @@ class PublishableContent(models.Model):
 
         attrs = [
             'pk', 'authors', 'subcategory', 'image', 'creation_date', 'pubdate', 'update_date', 'source',
-            'sha_draft', 'sha_beta', 'sha_validation', 'sha_public'
+            'sha_draft', 'sha_beta', 'sha_validation', 'sha_public', 'tags'
         ]
 
         fns = [
@@ -549,13 +554,15 @@ def delete_gallery(sender, instance, **kwargs):
 
 
 @python_2_unicode_compatible
-class PublishedContent(models.Model):
+class PublishedContent(AbstractESDjangoIndexable):
     """A class that contains information on the published version of a content.
 
     Used for quick url resolution, quick listing, and to know where the public version of the files are.
 
     Linked to a ``PublishableContent`` for the rest. Don't forget to add a ``.prefetch_related('content')`` !!
     """
+
+    objects_per_batch = 25
 
     class Meta:
         verbose_name = 'Contenu publié'
@@ -854,6 +861,204 @@ class PublishedContent(models.Model):
                 return len(content)
         except IOError as e:
             logger.warning('could not get file %s to compute nb letters (error=%s)', md_file_path, e)
+
+    @classmethod
+    def get_es_mapping(cls):
+        mapping = Mapping(cls.get_es_document_type())
+
+        mapping.field('content_pk', 'integer')
+        mapping.field('publication_date', Date())
+        mapping.field('content_type', Text())
+
+        # not analyzed:
+        mapping.field('get_absolute_url_online', Text(index=False))
+        mapping.field('thumbnail', Text(index=False))
+
+        # not from PublishedContent directly:
+        mapping.field('title', Text(boost=1.5))
+        mapping.field('description', Text(boost=1.5))
+        mapping.field('tags', Keyword(boost=2.0))
+        mapping.field('categories', Keyword(boost=2.25))
+        mapping.field('text', Text())  # for article and mini-tuto, text is directly included into the main object
+
+        return mapping
+
+    @classmethod
+    def get_es_django_indexable(cls, force_reindexing=False):
+        """Overridden to remove must_redirect=True (and prefetch stuffs).
+        """
+
+        q = super(PublishedContent, cls).get_es_django_indexable(force_reindexing)
+        return q.prefetch_related('content')\
+            .prefetch_related('content__tags')\
+            .prefetch_related('content__subcategory')\
+            .select_related('content__image')\
+            .filter(must_redirect=False)
+
+    @classmethod
+    def get_es_indexable(cls, force_reindexing=False):
+        """Overridden to also include chapters
+        """
+
+        index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
+
+        # fetch initial batch
+        last_pk = 0
+        objects_source = super(PublishedContent, cls).get_es_indexable(force_reindexing)
+        objects = list(objects_source.filter(pk__gt=last_pk)[:PublishedContent.objects_per_batch])
+
+        while objects:
+            chapters = []
+
+            for content in objects:
+                versioned = content.load_public_version()
+
+                # chapters are only indexed for middle and big tuto
+                if versioned.has_sub_containers():
+
+                    # delete possible previous chapters
+                    if content.es_already_indexed:
+                        index_manager.delete_by_query(
+                            FakeChapter.get_es_document_type(), ES_Q('match', _routing=content.es_id))
+
+                    # (re)index the new one(s)
+                    for chapter in versioned.get_list_of_chapters():
+                        chapters.append(FakeChapter(chapter, versioned, content.es_id))
+
+            if chapters:
+                # since we want to return at most PublishedContent.objects_per_batch items
+                # we have to split further
+                while chapters:
+                    yield chapters[:PublishedContent.objects_per_batch]
+                    chapters = chapters[PublishedContent.objects_per_batch:]
+            if objects:
+                yield objects
+
+            # fetch next batch
+            last_pk = objects[-1].pk
+            objects = list(objects_source.filter(pk__gt=last_pk)[:PublishedContent.objects_per_batch])
+
+    def get_es_document_source(self, excluded_fields=None):
+        """Overridden to handle the fact that most information are versioned
+        """
+
+        excluded_fields = excluded_fields or []
+        excluded_fields.extend(['title', 'description', 'tags', 'categories', 'text', 'thumbnail'])
+
+        data = super(PublishedContent, self).get_es_document_source(excluded_fields=excluded_fields)
+
+        # fetch versioned information
+        versioned = self.load_public_version()
+
+        data['title'] = versioned.title
+        data['description'] = versioned.description
+        data['tags'] = [tag.title for tag in versioned.tags.all()]
+
+        if self.content.image:
+            data['thumbnail'] = self.content.image.physical['content_thumb'].url
+
+        categories = []
+        for subcategory in versioned.subcategory.all():
+            categories.extend([subcategory.title, subcategory.get_parent_category().title])
+        data['categories'] = list(set(categories))  # remove duplicates
+
+        if versioned.has_extracts():
+            data['text'] = versioned.get_content_online()
+
+        return data
+
+
+@receiver(pre_delete, sender=PublishedContent)
+def delete_published_content_in_elasticsearch(sender, instance, **kwargs):
+    """Catch the pre_delete signal to ensure the deletion in ES. Also, handle the deletion of the corresponding
+    chapters.
+    """
+
+    index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
+    index_manager.delete_by_query(FakeChapter.get_es_document_type(), ES_Q('match', _routing=instance.es_id))
+
+    return delete_document_in_elasticsearch(instance)
+
+
+@receiver(pre_save, sender=PublishedContent)
+def delete_published_content_in_elasticsearch_if_set_to_redirect(sender, instance, **kwargs):
+    """If the slug of the content changes, the ``must_redirect`` field is set to ``True`` and a new
+    PublishedContnent is created. To avoid duplicates, the previous ones must be removed from ES.
+    """
+
+    try:
+        obj = PublishedContent.objects.get(pk=instance.pk)
+    except sender.DoesNotExist:
+        pass  # nothing to worry about
+    else:
+        if not obj.must_redirect and instance.must_redirect:
+            delete_published_content_in_elasticsearch(sender, instance, **kwargs)
+
+
+class FakeChapter(AbstractESIndexable):
+    """A simple class that is used by ES to index chapters, constructed from the containers.
+
+    In mapping, this class defines PublishedContent as its parent. Also, indexing is done by the parent.
+
+    Note that this class is only indexable, not updatable, since it does not maintain value of ``es_already_indexed``
+    """
+
+    parent_model = PublishedContent
+    text = ''
+    title = ''
+    parent_id = ''
+    get_absolute_url_online = ''
+    parent_title = ''
+    parent_get_absolute_url_online = ''
+    parent_publication_date = ''
+    thumbnail = ''
+
+    def __init__(self, chapter, main_container, parent_id):
+        self.title = chapter.title
+        self.text = chapter.get_content_online()
+        self.parent_id = parent_id
+        self.get_absolute_url_online = chapter.get_absolute_url_online()
+
+        self.es_id = main_container.slug + '__' + chapter.slug  # both slugs are unique by design, so id remains unique
+
+        self.parent_title = main_container.title
+        self.parent_get_absolute_url_online = main_container.get_absolute_url_online()
+        self.parent_publication_date = main_container.pubdate
+
+        if main_container.image:
+            self.thumbnail = main_container.image.physical['content_thumb'].url
+
+    @classmethod
+    def get_es_document_type(cls):
+        return 'chapter'
+
+    @classmethod
+    def get_es_mapping(self):
+        """Define mapping and parenting
+        """
+
+        mapping = Mapping(self.get_es_document_type())
+        mapping.meta('parent', type='publishedcontent')
+
+        mapping.field('title', Text(boost=1.5))
+        mapping.field('text', Text())
+
+        # not analyzed:
+        mapping.field('get_absolute_url_online', Text(index=False))
+        mapping.field('parent_title', Text(index=False))
+        mapping.field('parent_get_absolute_url_online', Text(index=False))
+        mapping.field('parent_publication_date', Date(index=False))
+        mapping.field('thumbnail', Text(index=False))
+
+        return mapping
+
+    def get_es_document_as_bulk_action(self, index, action='index'):
+        """Overridden to handle parenting between chapter and PublishedContent
+        """
+
+        document = super(FakeChapter, self).get_es_document_as_bulk_action(index, action)
+        document['_parent'] = self.parent_id
+        return document
 
 
 @python_2_unicode_compatible

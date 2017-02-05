@@ -18,8 +18,6 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST, require_GET
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from django.views.generic.detail import SingleObjectMixin
-from haystack.inputs import AutoQuery
-from haystack.query import SearchQuerySet
 
 from zds.forum.commons import TopicEditMixin, PostEditMixin, SinglePostObjectMixin, ForumEditMixin
 from zds.forum.forms import TopicForm, PostForm, MoveTopicForm
@@ -642,29 +640,6 @@ def solve_alert(request):
     alert.solve(alert, request.user, resolve_reason, msg_title, msg_content)
     messages.success(request, _(u"L'alerte a bien été résolue."))
     return redirect(post.get_absolute_url())
-
-
-# TODO suggestions de recherche auto lors d'un nouveau topic, cf issues #99 et #580. Actuellement désactivées :(
-def complete_topic(request):
-    if not request.GET.get('q', None):
-        return HttpResponse('{}', content_type='application/json')
-
-    similar_contents = SearchQuerySet().filter(content=AutoQuery(request.GET.get('q'))) \
-                                       .order_by('-pubdate').all()
-
-    suggestions = {}
-
-    counter = 0
-    for result in similar_contents:
-        if counter > 5:
-            break
-        if 'Topic' in str(result.model) and result.object.is_solved:
-            suggestions[str(result.object.pk)] = (result.title, result.author, result.object.get_absolute_url())
-            counter += 1
-
-    data = json.dumps(suggestions)
-
-    return HttpResponse(data, content_type='application/json')
 
 
 class CreateGitHubIssue(UpdateView):

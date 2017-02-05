@@ -9,10 +9,15 @@ from django.conf import settings
 from django.contrib.auth.models import Group, User, AnonymousUser
 from django.core.urlresolvers import reverse
 from django.db import models
+from django.dispatch import receiver
+from django.db.models.signals import pre_delete
+
+from elasticsearch_dsl.field import Text, Keyword, Integer, Boolean, Float, Date
 
 from zds.forum.managers import TopicManager, ForumManager, PostManager, TopicReadManager
 from zds.notification import signals
 from zds.settings import ZDS_APP
+from zds.searchv2.models import AbstractESDjangoIndexable, delete_document_in_elasticsearch, ESIndexManager
 from zds.utils import get_current_user
 from zds.utils import slugify
 from zds.utils.models import Comment, Tag
@@ -157,7 +162,7 @@ class Forum(models.Model):
 
 
 @python_2_unicode_compatible
-class Topic(models.Model):
+class Topic(AbstractESDjangoIndexable):
     """
     A Topic is a thread of posts.
     A topic has several states, witch are all independent:
@@ -165,6 +170,7 @@ class Topic(models.Model):
     - Locked: none can write on a locked topic.
     - Sticky: sticky topics are displayed on top of topic lists (ex: on forum page).
     """
+    objects_per_batch = 1000
 
     class Meta:
         verbose_name = 'Sujet'
@@ -382,14 +388,79 @@ class Topic(models.Model):
 
         return False
 
+    @classmethod
+    def get_es_mapping(cls):
+        es_mapping = super(Topic, cls).get_es_mapping()
+
+        es_mapping.field('title', Text(boost=1.5))
+        es_mapping.field('tags', Keyword(boost=2.0))
+        es_mapping.field('subtitle', Text())
+        es_mapping.field('is_solved', Boolean())
+        es_mapping.field('is_locked', Boolean())
+        es_mapping.field('is_sticky', Boolean())
+        es_mapping.field('pubdate', Date())
+        es_mapping.field('forum_pk', Integer())
+
+        # not analyzed:
+        es_mapping.field('get_absolute_url', Text(index=False))
+
+        es_mapping.field('forum_title', Text(index=False))
+        es_mapping.field('forum_get_absolute_url', Text(index=False))
+
+        return es_mapping
+
+    @classmethod
+    def get_es_django_indexable(cls, force_reindexing=False):
+        """Overridden to prefetch tags and forum
+        """
+
+        query = super(Topic, cls).get_es_django_indexable(force_reindexing)
+        return query.prefetch_related('tags').select_related('forum')
+
+    def get_es_document_source(self, excluded_fields=None):
+        """Overridden to handle the case of tags (M2M field)
+        """
+
+        excluded_fields = excluded_fields or []
+        excluded_fields.extend(['tags', 'forum_pk', 'forum_title', 'forum_get_absolute_url'])
+
+        data = super(Topic, self).get_es_document_source(excluded_fields=excluded_fields)
+        data['tags'] = [tag.title for tag in self.tags.all()]
+        data['forum_pk'] = self.forum.pk
+        data['forum_title'] = self.forum.title
+        data['forum_get_absolute_url'] = self.forum.get_absolute_url()
+
+        return data
+
+    def save(self, *args, **kwargs):
+        """Overridden to handle the displacement of the topic to another forum
+        """
+
+        try:
+            old_self = Topic.objects.get(pk=self.pk)
+        except Topic.DoesNotExist:
+            pass
+        else:
+            if old_self.forum.pk != self.forum.pk or old_self.title != self.title:
+                Post.objects.filter(topic__pk=self.pk).update(es_flagged=True)
+
+        return super(Topic, self).save(*args, **kwargs)
+
+
+@receiver(pre_delete, sender=Topic)
+def delete_topic_in_elasticsearch(sender, instance, **kwargs):
+    """catch the pre_delete signal to ensure the deletion in ES"""
+    return delete_document_in_elasticsearch(instance)
+
 
 @python_2_unicode_compatible
-class Post(Comment):
+class Post(Comment, AbstractESDjangoIndexable):
     """
     A forum post written by an user.
     A post can be marked as useful: topic's author (or admin) can declare any topic as "useful", and this post is
     displayed as is on front.
     """
+    objects_per_batch = 2000
 
     topic = models.ForeignKey(Topic, verbose_name='Sujet', db_index=True)
 
@@ -412,6 +483,75 @@ class Post(Comment):
 
     def get_notification_title(self):
         return self.topic.title
+
+    @classmethod
+    def get_es_mapping(cls):
+        es_mapping = super(Post, cls).get_es_mapping()
+
+        es_mapping.field('text_html', Text())
+        es_mapping.field('is_useful', Boolean())
+        es_mapping.field('is_visible', Boolean())
+        es_mapping.field('position', Integer())
+        es_mapping.field('like_dislike_ratio', Float())
+        es_mapping.field('pubdate', Date())
+        es_mapping.field('forum_pk', Integer())
+        es_mapping.field('topic_pk', Integer())
+
+        # not analyzed:
+        es_mapping.field('get_absolute_url', Text(index=False))
+        es_mapping.field('topic_title', Text(index=False))
+        es_mapping.field('forum_title', Text(index=False))
+        es_mapping.field('forum_get_absolute_url', Text(index=False))
+
+        return es_mapping
+
+    @classmethod
+    def get_es_django_indexable(cls, force_reindexing=False):
+        """Overridden to prefetch stuffs
+        """
+
+        q = super(Post, cls).get_es_django_indexable(force_reindexing)\
+            .prefetch_related('topic')\
+            .prefetch_related('topic__forum')
+
+        return q
+
+    def get_es_document_source(self, excluded_fields=None):
+        """Overridden to handle the information of the topic
+        """
+
+        excluded_fields = excluded_fields or []
+        excluded_fields.extend(
+            ['like_dislike_ratio', 'topic_title', 'topic_pk', 'forum_title', 'forum_pk', 'forum_get_absolute_url'])
+
+        data = super(Post, self).get_es_document_source(excluded_fields=excluded_fields)
+
+        data['like_dislike_ratio'] = \
+            (self.like / self.dislike) if self.dislike != 0 else self.like if self.like != 0 else 1
+
+        data['topic_pk'] = self.topic.pk
+        data['topic_title'] = self.topic.title
+
+        data['forum_pk'] = self.topic.forum.pk
+        data['forum_title'] = self.topic.forum.title
+        data['forum_get_absolute_url'] = self.topic.forum.get_absolute_url()
+
+        return data
+
+    def hide_comment_by_user(self, user, text_hidden):
+        """Overridden to directly hide the post in ES as well
+        """
+
+        super(Post, self).hide_comment_by_user(user, text_hidden)
+
+        index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
+        index_manager.update_single_document(self, {'is_visible': False})
+
+
+@receiver(pre_delete, sender=Post)
+def delete_post_in_elasticsearch(sender, instance, **kwargs):
+    """catch the pre_delete signal to ensure the deletion in ES"""
+    return delete_document_in_elasticsearch(instance)
 
 
 @python_2_unicode_compatible

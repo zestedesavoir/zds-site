@@ -34,6 +34,13 @@ reset:
 shell:
 	python manage.py shell
 
+index-all:
+	python manage.py es_manager index_all
+
+index-flagged:
+	python manage.py es_manager index_flagged
+
+
 ## back-utils
 clean-back:
 	find . -name '*.pyc' -exec rm {} \;
@@ -89,6 +96,8 @@ help:
 	@echo "  doc               to generate the html documentation"
 	@echo "  fixtures          to load every fixtures"
 	@echo "  generate-pdf      to regenerate all PDFs"
+	@echo "  index-all         to setup and (re)index all things for search"
+	@echo "  index-flagged     to index flagged things for search"
 	@echo "  help              to get this help"
 	@echo "  install-back      to install backend dependencies"
 	@echo "  install-front     to install frontend dependencies"

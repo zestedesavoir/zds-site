@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+
+
+{% block title %}
+    {% trans "Recherche" %}
+{% endblock %}
+
+
+
+{% block body_class %}flexpage searchpage{% endblock %}
+
+
+
+{% block content_out %}
+<section class="flexpage-header">
+<div class="flexpage-wrapper">
+
+    <section class="search-box">
+        {% crispy form %}
+    </section>
+
+    <ul class="search-filters">
+
+        {% for radio in form.models %}
+            <li>
+
+                <input id="{{ radio.id_for_label }}"
+                       form="search-form" name="models"
+                       type="checkbox" value="{{ radio.choice_value }}"
+
+                        {% if radio.choice_value in form.cleaned_data.models %}
+                            checked
+                        {% endif %}
+                        >
+
+                <label for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+</section>
+
+<div class="flexpage-wrapper">
+    {% if query %}
+        {% include "misc/paginator.html" with position="top" %}
+
+        {% if object_list %}
+            <div class="topic-list navigable-list search-results">
+                {% for result in object_list %}
+                    <article class="content-item topic-item">
+                        {%  if result.meta.doc_type  == 'chapter' %}
+                            {% include "searchv2/includes/chapter.part.html" with search_result=result %}
+                        {% elif result.meta.doc_type == 'publishedcontent' %}
+                            {% include "searchv2/includes/publishedcontent.part.html" with search_result=result %}
+                        {% elif result.meta.doc_type == 'topic' %}
+                            {% include "searchv2/includes/topic.part.html" with search_result=result %}
+                        {% elif result.meta.doc_type == 'post' %}
+                            {% include "searchv2/includes/post.part.html" with search_result=result %}
+                        {% else %}
+                            {% trans "type d'objet inconnu" %} : {{ result.meta.doc_type }}
+                        {% endif %}
+                    </article>
+                {%  empty %}
+                <p>
+                    {% trans "Aucun résultat trouvé" %}.
+                </p>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>
+                {% trans "Aucun résultat trouvé" %}.
+            </p>
+        {% endif %}
+
+
+        {% include "misc/paginator.html" with position="bottom" %}
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,5 +1,11 @@
+import os
+import shutil
+
 from django.test import TestCase
 from django.core.urlresolvers import reverse
+from django.test.utils import override_settings
+from django.conf import settings
+from zds.settings import BASE_DIR
 
 from zds.forum.factories import CategoryFactory, ForumFactory
 from zds.forum.models import Topic
@@ -62,8 +68,21 @@ class ForumNotification(TestCase):
         self.assertTrue(subscription.last_notification.is_read, 'As forum is not reachable, notification is read')
 
 
+overrided_zds_app = settings.ZDS_APP
+overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
+overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
+overrided_zds_app['content']['extra_content_generation_policy'] = 'SYNC'
+
+
+@override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
+@override_settings(ZDS_APP=overrided_zds_app)
+@override_settings(ES_ENABLED=False)
 class ContentNotification(TestCase):
     def setUp(self):
+
+        # don't build PDF to speed up the tests
+        settings.ZDS_APP['content']['build_pdf_when_published'] = False
+
         self.user1 = ProfileFactory().user
         self.user2 = ProfileFactory().user
 
@@ -96,3 +115,15 @@ class ContentNotification(TestCase):
         self.assertEqual(1, len(Notification.objects.get_notifications_of(self.user1)))
         unpublish_content(content)
         self.assertEqual(0, len(Notification.objects.get_notifications_of(self.user1)))
+
+    def tearDown(self):
+
+        if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
+            shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
+        if os.path.isdir(settings.ZDS_APP['content']['repo_public_path']):
+            shutil.rmtree(settings.ZDS_APP['content']['repo_public_path'])
+        if os.path.isdir(settings.MEDIA_ROOT):
+            shutil.rmtree(settings.MEDIA_ROOT)
+
+        # re-active PDF build
+        settings.ZDS_APP['content']['build_pdf_when_published'] = True

@@ -853,4 +853,121 @@ Lancer la commande de calcul du nombre de caractères des contenus publiés : `p
 Maj de Raven + releases
 -----------------------
 Avant de faire le tag des différentes RC, s'assurer qu'un githook a été ajouté comme le propose sentry.
-Mettre à jour le `settings_prod.py` en suivant `doc/source/install/configs/settings_prod.py`.
+Mettre à jour le `settings_prod.py` :
+
+```diff
++from raven import Client
++from zds.utils.context_processor import get_git_version
+
+# NEVER set this True !!
+DEBUG = False
+
+# https://docs.getsentry.com/hosted/clients/python/integrations/django/
+RAVEN_CONFIG = {
+  'dsn': 'to-fill',
++  'release': get_git_version()
+}
+```
+
+Elasticsearch (PR #4096)
+------------------------
+
+Pour installer Elasticsearch, les commandes suivantes sont à effectuer (en *root*):
+
++ Ajouter `deb http://ftp.fr.debian.org/debian jessie-backports` main dans `/etc/apt/sources.list`
++ Installer Java 8 : 
+    * `apt-get update && apt-get install openjdk-8-jdk`. 
+    * Une fois installé, passer de Java 7 à Java 8 en le sélectionnant grâce à `update-alternatives --config java`.
++ Installer Elasticsearch ([informations issues de la documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/deb.html)):
+    * Ajouter la clé publique du dépôt : `wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | apt-key add -`
+    * Installer apt-transport-https `apt-get install apt-transport-https`
+    * Ajouter le dépôt pour Elasticsearch 5 : `echo "deb https://artifacts.elastic.co/packages/5.x/apt stable main" | tee -a /etc/apt/sources.list.d/elastic-5.x.list`
+    * Installer Elasticsearch 5 : `apt-get update && apt-get install elasticsearch`
++ Configurer la mémoire utilisée par Elastisearch: 
+    Remplacer les options `-Xms2g` et `-Xmx2g` par
+    
+    ```
+    -Xms512m
+    -Xmx512m
+    ```
+    
+    Dans `/etc/elasticsearch/jvm.options` (**Peut évoluer dans le futur**).
++ Lancer Elasticsearch:
+
+    ```bash
+    systemctl daemon-reload
+    systemctl enable elasticsearch.service
+    systemctl start elasticsearch.service
+    ```
+    
++ Vérifier que le port 9200 n'est pas accessible de l'extérieur (sinon, configurer le firewall en conséquence)
++ Ajouter [ce plugin](https://github.com/y-ken/munin-plugin-elasticsearch) à Munin:
+    
+    * Installer la dépendance manquante:
+    
+        ```bash
+        apt install libjson-perl
+        ```
+    * Suivre les instructions du [README.md](https://github.com/y-ken/munin-plugin-elasticsearch/blob/master/README.md)
+    
+Une fois Elasticsearch configuré et lancé,
+
++ Passer à 3 *shards* ([conseillé par Firm1](https://github.com/zestedesavoir/zds-site/pull/4096#issuecomment-269861811)): `ES_SEARCH_INDEX['shards'] = 3` dans `settings_prod.py`. 
++ Indexer les données (**ça peut être long**):
+
+    ```
+    python manage.py es_manager index_all
+    ```
+
+Une fois que tout est indexé,
+
++ Repasser `ZDS_APP['display_search_bar'] = True` dans `settings_prod.py`.
+    
++ Configurer *systemd*:
+
+    * `zds-es-index.service` :
+    
+        ```
+        [Unit]
+        Description=Reindex SOLR Service
+        
+        [Service]
+        Type=oneshot
+        User=zds
+        Group=zds
+        ExecStart=/opt/zds/zdsenv/bin/python /opt/zds/zds-site/manage.py es_manager index_flagged
+        ```
+    
+    * `zds-es-index.timer`:
+    
+        ```
+        [Unit]
+        Description=ES reindex flagged contents
+        
+        [Timer]
+        OnCalendar=*:30:00
+        Persistent=true
+        
+        [Install]
+        WantedBy=timers.target
+        ```
+    * Supprimer Solr et ajouter Elasticsearch:
+    
+        ```bash
+        systemctl stop zds-index-solr.timer
+        systemctl disable zds-index-solr.timer
+        
+        systemctl enable zds-es-index.timer
+        systemctl start zds-es-index.timer
+        ```
+        
++ Désinstaller Solr.
++ Supprimer les tables suivantes de MySQL:
+
+    * `search_searchindexextract`
+    * `search_searchindexcontainer`
+    * `search_searchindexcontent_authors`
+    * `search_searchindexcontent_tags`
+    * `search_searchindextag`
+    * `search_searchindexauthors`
+    * `search_searchindexcontent`

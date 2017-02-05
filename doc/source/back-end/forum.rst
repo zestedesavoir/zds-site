@@ -16,7 +16,7 @@ Sur Zeste de Savoir, une modération des forums, autant sur les sujets que sur l
 La modération des sujets
 ------------------------
 
-Tout d'abord, il y a une posibilité de faire de la modération par sujet. Ici, cette modération s'effectue grâce aux liens se trouvant dans la *sidebar* (zone se trouvant sur le côté gauche de la page).
+Tout d'abord, il y a une posibilité de faire de la modération par sujet. Ici, cette modération s'effectue grâce aux liens se trouvant dans la barre latérale (*sidebar*, zone se trouvant sur le côté gauche de la page).
   
   .. figure:: ../images/forum/modo_forum_sujet.png
      :align:   center

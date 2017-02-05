@@ -1,3 +1,0 @@
-{{ object.author.username }}
-
-{{ object.text }}
