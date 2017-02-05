@@ -5,7 +5,8 @@ from django.conf.urls import url
 from zds.member.views import MemberList, MemberDetail, UpdateMember, UpdateAvatarMember, UpdatePasswordMember, \
     UpdateUsernameEmailMember, RegisterView, SendValidationEmailView, modify_karma, \
     modify_profile, settings_mini_profile, member_from_ip, tutorials, articles, settings_promote, login_view, \
-    logout_view, forgot_password, new_password, activate_account, generate_token_account, unregister, warning_unregister
+    logout_view, forgot_password, new_password, activate_account, generate_token_account, unregister, warning_unregister, \
+    sanctions_history
 
 urlpatterns = [
     # list
@@ -23,6 +24,7 @@ urlpatterns = [
     # moderation
     url(r'^profil/karmatiser/$', modify_karma, name='member-modify-karma'),
     url(r'^profil/modifier/(?P<user_pk>\d+)/$', modify_profile, name='member-modify-profile'),
+    url(r'^profil/historique-sanctions/(?P<user_pk>\d+)/$', sanctions_history, name='member-sanctions-history'),
     url(r'^parametres/mini_profil/(?P<user_name>.+)/$', settings_mini_profile, name='member-settings-mini-profile'),
     url(r'^profil/multi/(?P<ip_address>.+)/$', member_from_ip, name='member-from-ip'),
 
