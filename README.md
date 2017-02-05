@@ -39,7 +39,7 @@ Elles sont reportées essentiellement dans le [*bug tracker*](https://github.com
 - [Installation du backend sur Linux](http://zds-site.readthedocs.org/fr/latest/install/backend-linux-install.html)
 - [Installation du backend sur OS X](http://zds-site.readthedocs.org/fr/latest/install/backend-os-x-install.html)
 - [Installation du frontend](http://zds-site.readthedocs.org/fr/latest/install/frontend-install.html)
-- [Installation de Solr](http://zds-site.readthedocs.org/fr/latest/install/install-solr.html) pour gérer la recherche
+- [Installation de Elasticsearch](http://zds-site.readthedocs.io/fr/latest/install/install-es.html) pour gérer la recherche
 
 
 ### Mettre à jour votre version locale de ZdS
