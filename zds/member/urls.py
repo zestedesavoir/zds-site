@@ -5,8 +5,8 @@ from django.conf.urls import url
 from zds.member.views import MemberList, MemberDetail, UpdateMember, UpdateAvatarMember, UpdatePasswordMember, \
     UpdateUsernameEmailMember, RegisterView, SendValidationEmailView, modify_karma, \
     modify_profile, settings_mini_profile, member_from_ip, tutorials, articles, settings_promote, login_view, \
-    logout_view, forgot_password, new_password, activate_account, generate_token_account, unregister, warning_unregister, \
-    sanctions_history
+    logout_view, forgot_password, new_password, activate_account, generate_token_account, unregister, \
+    warning_unregister, sanctions_history
 
 urlpatterns = [
     # list
