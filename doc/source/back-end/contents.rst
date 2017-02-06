@@ -9,7 +9,7 @@ Vocabulaire et définitions
 - **Article** : contenu, généralement court, visant à faire découvrir un sujet plus qu'à l'expliquer au lecteur (introduit sans rentrer dans les détails) ou à fournir un état des lieux sur un point donné de manière concise (rapports de *release*, actualité...).
 - **Tutoriel** : contenu, en général plus long, ayant pour objectif d'enseigner un savoir-faire au lecteur.
 - **git**: système de gestion de versions employé (entre autres) par ZdS. Il permet de faire coexister différentes versions d'un contenu de manière simple et transparente pour l'auteur.
-- **Version** : état du contenu à un moment donné. Toute mise à jour du contenu (ou d'une de ses composantes) génère une nouvelle version de ce dernier, laquelle est désignée par un *hash*, c'est-à-dire par une chaîne de 20 caractères de long (aussi appelée *sha*, en référence à l'algorithme employé pour les générer). Ce *hash* permet d'identifier de manière unique cette version parmi toutes celles du contenu. Certaines versions, en plus du *sha*, sont désignées par un nom. On distingue ainsi la version brouillon (*draft*), la version en bêta (*beta*), la version en validation (*validation*) et la version publiée (*public*). Pour ce faire, les *hash* correspondant à ces versions sont simplement mis de côté.
+- **Version** : état du contenu à un moment donné. Toute mise à jour du contenu (ou d'une de ses composantes) génère une nouvelle version de ce dernier, laquelle est désignée par un *hash*, c'est-à-dire par une chaîne de 40 caractères de long (aussi appelée *sha*, en référence à l'algorithme employé pour les générer). Ce *hash* permet d'identifier de manière unique cette version parmi toutes celles du contenu. Certaines versions, en plus du *sha*, sont désignées par un nom. On distingue ainsi la version brouillon (*draft*), la version en bêta (*beta*), la version en validation (*validation*) et la version publiée (*public*). Pour ce faire, les *hash* correspondant à ces versions sont simplement mis de côté.
 - Fichier **manifest.json** : fichier à la racine de tout contenu dont l'objectif est de décrire ce dernier. Un tel fichier comporte deux types d'informations : à propos du contenu en lui-même (les métadonnées mentionnées plus haut) et à propos de son arborescence. La spécification de ce fichier est détaillée plus loin. On retiendra qu'à chaque version correspond un fichier ``manifest.json`` et que le contenu de ce dernier peut fortement varier d'une version à l'autre.
 - **Conteneur** (*container*) : sous-structure d'un contenu. Explicité plus bas.
 - **Extrait** (*extract*) : base atomique (plus petite unité) d'un contenu. Explicité plus bas.
@@ -131,7 +131,7 @@ pédagogique différente :
 
 D'autre part, tout contenu se voit attribuer un identifiant unique sous la
 forme d'un entier naturel (en anglais : *pk*, pour *primary key*). Cet
-identifiant apparaît dans les URLs, qui sont de la forme
+identifiant apparaît dans les URL, qui sont de la forme
 ``/contenus/{pk}/{slug}``. Il rend plus efficace la recherche en base de
 données. Le *slug*, quant à lui, a le mérite d'être compréhensible par un être
 humain et permet de gérer les cas de redirection 301 (voir plus bas).
@@ -179,8 +179,8 @@ une contrainte sur la taille maximum d'un nom de fichier sur les différents sys
 
 .. attention::
 
-    Suite à un changement majeur dans la librairie ``python-slugify``, une différence peu apparaitre dans le *slug*
-    généré à partir de titres contenant des espaces. Dès lors, pour des raisons de rétro-compatibilités, c'est la version
+    Suite à un changement majeur dans la librairie ``python-slugify``, une différence peut apparaitre dans le *slug*
+    généré à partir de titres contenant des espaces. Dès lors, pour des raisons de rétro-compatibilité, c'est la version
     1.1.4 de cette librairie qui est utilisée par ZdS. Par ailleurs, la commande ``python manage.py adjust_slugs`` a été
     créée pour réparer les éventuels dommages, en détectant les titres posant potentielement des problèmes et en tentant
     de les faire correspondre à nouveau à leur contrepartie dans le système de fichier.
@@ -209,13 +209,14 @@ il faut passer par la méthode adéquate.
 La bêta
 -------
 
-Lorsque les auteurs estiment que leur tutoriel a atteint un certain niveau de
+Lorsque les auteurs estiment que leur contenu a atteint un certain niveau de
 maturité, et qu'ils souhaitent recueillir des retours de la communauté, ils ont
 la possibilité de le mettre à la disposition de cette dernière le contenu en
 lecture seule. C'est le mode bêta.
 
 Lors de la mise en bêta d'un contenu, un sujet est automatiquement ouvert dans
-la Bêta-zone, contenant l'adresse de la bêta. Cette dernière est de la forme :
+le sous-forum des contenus en cours de rédaction, contenant l'adresse de la bêta.
+Cette dernière est de la forme :
 ``/contenus/beta/{pk}/{slug}/``.
 
 Il faut en outre noter que seule une version précise du contenu est mise en
@@ -237,12 +238,12 @@ expliquer les raisons du refus.
 
 L'envoi en validation n'est pas définitif, dans le sens où vous pouvez à tout
 moment mettre à jour la version en cours de validation. Évitez d'en abuser tout
-de même, car, si un validateur commence à lire votre tutoriel, il devra
+de même, car, si un validateur commence à lire votre contenu, il devra
 recommencer son travail si vous faites une mise à jour dessus. Cela pourrait non
-seulement ralentir le processus de validation de votre tutoriel, mais aussi ceux
-autres tutoriels !
+seulement ralentir le processus de validation de votre contenu, mais aussi ceux
+autres contenus !
 
-Comme pour la bêta, la version brouillon du tutoriel peut continuer à être
+Comme pour la bêta, la version brouillon du contenu peut continuer à être
 améliorée pendant que la version de validation reste figée. Auteurs et validateurs
 peuvent donc continuer à travailler chacun de leur côté.
 
@@ -252,7 +253,7 @@ La publication
 **Le cas général**
 
 Une fois que le contenu est passé en validation et a satisfait les critères
-éditoriaux, il est publié. Un message privé est alors envoyé aux auteurs, afin
+éditoriaux, il est publié. Un message privé est alors envoyé aux auteurs afin
 de les informer de la publication, et de leur transmettre le message laissé
 par le validateur en charge du contenu. Il faut bien préciser que le processus
 de validation peut être assez long. 
@@ -297,7 +298,7 @@ est configurable selon trois niveaux à affecter au paramètre ``ZDS_APP['conten
 Les fichiers téléchargeables générés le sont à partir d'un registre de créateur.
 Par défaut le registre contient les 3 formats pandoc HTML, PDF et EPUB.
 
-Vous pouvez définir votre propre formatteur qui devra alors hériter de la classe ``zds.tutorialv2.publication_utils.Publicator`` et implémenter la méthode ``publish``.
+Vous pouvez définir votre propre formateur qui devra alors hériter de la classe ``zds.tutorialv2.publication_utils.Publicator`` et implémenter la méthode ``publish``.
 Si vous désirez vous passer de pandoc, il vous suffira d'appeler ``map(PublicatorRegistry.unregister, ["pdf", "epub", "html"])``.
 Vous pouvez aussi simplement surcharger chacun des ``Publicator`` par défaut en en enregistrant un nouveau sous le même nom.
 
@@ -353,7 +354,7 @@ Ce système est utilisable pour créer de nouveaux contenus à partir de zéros,
 ou bien si vous avez téléchargé l'archive correspondante à votre contenu, modifiée et
 que vous souhaitez importer les modifications.
 
-Il suffit de faire une archive zip du répertoire
+Il suffit de faire une archive ZIP du répertoire
 dans lequel se trouvent les fichiers de votre contenu, puis de vous rendre soit sur
 "Importer un nouveau contenu", soit sur "Importer une nouvelle version" dans n'importe quel contenu
 et de renseigner les champs relatifs à l'import d'une archive, puis de cliquer sur "Importer".
@@ -369,7 +370,7 @@ Import d'image
 À noter que si vous souhaitez importer des images de manière à ce qu'elles soient
 directement intégrée à votre contenu, vous devez écrire les liens vers cette image sous la
 forme ``![légende](archive:image.extension)``, puis créer une archive contenant toutes celles-ci.
-Le système se chargera alors d'importer les images dans la gallerie correspondante, puis de remplacer
+Le système se chargera alors d'importer les images dans la galerie correspondante, puis de remplacer
 les liens quand c'est nécessaire. Ainsi,
 
 .. sourcecode:: text
@@ -471,7 +472,7 @@ Afin de gérer ce module, trois permissions peuvent être utilisées :
 - ``tutorialv2.change_validation`` : pour le droit à accéder à l'interface de validation, réserver, valider ou refuser des contenus ;
 - ``tutorialv2.change_contentreaction`` : pour le droit à modérer les commentaires sur les contenus une fois publiés (masquer, éditer, ...).
 
-Ces permissions doivent être accordées au administateurs/modérateurs/validateurs selon les besoins via l'interface d'administration de Django.
+Ces permissions doivent être accordées aux administateurs/modérateurs/validateurs selon les besoins via l'interface d'administration de Django.
 
 Processus de publication
 ------------------------
@@ -482,7 +483,7 @@ est double : permettre aux visiteurs de consulter le contenu, mais aussi
 d’effectuer certains traitements (détaillés ci-après) afin que celui-ci soit
 sous une forme qui soit plus rapidement affichable par ZdS. C’est pourquoi ces
 contenus ne sont pas stockés au même endroit (voir
-``ZDS_AP['content']['repo_public_path']``) que les brouillons.
+``ZDS_APP['content']['repo_public_path']``) que les brouillons.
 
 La publication se passe comme suit :
 
@@ -492,7 +493,7 @@ La publication se passe comme suit :
     * Dans le cas contraire, l'introduction et la conclusion sont placées dans des fichiers séparés, et les champs correspondants dans le *manifest* sont mis à jour.
 3. Le *manifest* correspondant à la version de validation est copié. Il sera nécessaire afin de valider les URLs et générer le sommaire. Néanmoins, les informations inutiles sont enlevées (champ ``text`` des extraits, champs ``introduction`` et ``conclusion`` des conteneurs comportant des extraits), une fois encore pour gagner du temps ;
 4. L'exportation vers les autres formats est ensuite effectué (PDF, EPUB, ...) en utilisant `pandoc (en) <http://pandoc.org/>`__. Cette étape peut être longue si le contenu possède une taille importante. Il est également important de mentionner que pendant cette étape, l'ensemble des images qu'utilise le contenu est récupéré et que si ce n'est pas possible, une image par défaut est employée à la place, afin d'éviter les erreurs ;
-5. Finalement, si toutes les étapes précédentes se sont bien déroulées, le dossier temporaire est déplacé à la place de celui de l'ancienne version publiée. Un objet ``PublishedContent`` est alors créé (ou mis à jour si le contenu avait déjà été publié par le passé), contenant les informations nécessaire à l'affichage dans la liste des contenus publiés. Le ``sha_public`` est mis à jour dans la base de données et l'objet ``Validation`` est changé de même.
+5. Finalement, si toutes les étapes précédentes se sont bien déroulées, le dossier temporaire est déplacé à la place de celui de l'ancienne version publiée. Un objet ``PublishedContent`` est alors créé (ou mis à jour si le contenu avait déjà été publié par le passé), contenant les informations nécessaire à l'affichage dans la liste des contenus publiés. Le ``sha_public`` est mis à jour dans la base de données et l'objet ``Validation`` est également changé.
 
 Consultation d'un contenu publié
 --------------------------------
@@ -590,7 +591,7 @@ Si vous souhaitez implémenter votre propre convertisseur, voici l'algorithme ut
 Migrer la base de données
 -------------------------
 
-Si vous faites tourner une instance du code de Zeste de Savoir sous la version 1.X et que vous passez à la v2.X, vous allez
+Si vous faites tourner une instance du code de Zeste de Savoir sous la version 1.x et que vous passez à la v2.x, vous allez
 devoir migrer les différents tutoriels. Pour cela, il faudra simplement exécuter la commande ``python manage.py migrate_to_zep12.py``.
 
 Récapitulatif des paramètres du module
@@ -603,14 +604,14 @@ Ces paramètres sont à surcharger dans le dictionnaire ZDS_APP['content']
 - ``extra_contents_dirname``: nom du sous-dosssier qui contient les fichiers téléchargeables (pdf, epub...), par défaut extra_contents
 - ``extra_content_generation_policy``: Contient la politique de génération des fichiers téléchargeable, 'SYNC', 'WATCHDOG' ou 'NOTHING'
 - ``extra_content_watchdog_dir``: dossier qui permet à l'observateur (si ``extra_content_generation_policy`` vaut ``"WATCHDOG"``) de savoir qu'un contenu a été publié
-- ``max_tree_depth``: Profondeur maximal de la hiérarchie des tutoriels : par défaut ``3`` pour partie/chapitre/extrait
-- ``default_licence_pk``: Clef primaire de la licence par défaut (TOUS DROITS RESERVES en français), 7 si vous utilisez les fixtures
-- ``content_per_page``: Nombre de contenus dans les listing (article, tutoriels)
-- ``notes_per_page``: Nombre de réaction nouvelles par page (donc sans compter la répétition de la dernière note de la page précédente)
-- ``helps_per_page`` : Nombre de contenus ayant besoin d'aide dans la page ZEP03
+- ``max_tree_depth``: Profondeur maximale de la hiérarchie des tutoriels : par défaut ``3`` pour partie/chapitre/extrait
+- ``default_licence_pk``: Clé primaire de la licence par défaut (« Tous droits réservés » en français), 7 si vous utilisez les fixtures
+- ``content_per_page``: Nombre de contenus dans les listing (articles, tutoriels)
+- ``notes_per_page``: Nombre de réactions nouvelles par page (donc sans compter la répétition de la dernière note de la page précédente)
+- ``helps_per_page`` : Nombre de contenus ayant besoin d'aide dans la page ZEP-03
 - ``feed_length``: Nombre de contenus affiché dans un flux RSS ou ATOM,
-- ``user_page_number``:  Nombre de contenu de chaque type qu'on affiche sur le profil d'un utilisateur par défaut 5,
+- ``user_page_number``:  Nombre de contenus de chaque type qu'on affiche sur le profil d'un utilisateur, 5 par défaut,
 - ``default_image``: chemin vers l'image utilisée par défaut dans les icônes de contenu,
 - ``import_image_prefix``: préfixe mnémonique permettant d'indiquer que l'image se trouve dans l'archive jointe lors de l'import de contenu
-- ``build_pdf_when_published``: indique que la publication génèrera un PDF (quelque soit la politique, si ``False`` les PDF ne seront pas générés, sauf à appeler la commande adéquate,
+- ``build_pdf_when_published``: indique que la publication générera un PDF (quelque soit la politique, si ``False``, les PDF ne seront pas générés, sauf à appeler la commande adéquate),
 - ``maximum_slug_size``: taille maximale du slug d'un contenu
