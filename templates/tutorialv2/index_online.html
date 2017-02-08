@@ -65,7 +65,7 @@
                 {% endif %}
             {% endblock %}
         </h1>
-        {% if app.content.list == 'old' or hierarchy_level=2 %}
+        {% if app.content.list == 'old' or hierarchy_level == 2 %}
             {% include 'tutorialv2/list_page_elements/list_of_content.html' with col_number=3 paginated_top=True public_contents=public_contents paginated_bottom=True current_content_type=current_content_type %}
         {% else %}
             {% if hierarchy_level == 0 %} {# if we are on main list #}
