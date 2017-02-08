@@ -12,6 +12,7 @@ from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
+from django.utils.translation import ugettext_lazy as _
 
 from zds.forum.factories import ForumFactory, CategoryFactory
 from zds.forum.models import Topic, Post, TopicRead
@@ -5616,7 +5617,7 @@ class PublishedContentTests(TestCase):
         # check that when the content is not marked as obsolete, the alert is not shown
         result = self.client.get(self.tuto.get_absolute_url_online(), follow=False)
         self.assertEqual(result.status_code, 200)
-        self.assertNotContains(result, u'Ce contenu est obsolète.')
+        self.assertNotContains(result, _(u'Ce contenu est obsolète.'))
         # now, let's mark the tutoriel as obsolete
         result = self.client.post(
             reverse('validation:mark-obsolete', kwargs={'pk': self.tuto.pk}),
@@ -5625,7 +5626,7 @@ class PublishedContentTests(TestCase):
         # check that the alert is shown
         result = self.client.get(self.tuto.get_absolute_url_online(), follow=False)
         self.assertEqual(result.status_code, 200)
-        self.assertContains(result, u'Ce contenu est obsolète.')
+        self.assertContains(result, _(u'Ce contenu est obsolète.'))
         # finally, check that this alert can be hidden
         result = self.client.post(
             reverse('validation:mark-obsolete', kwargs={'pk': self.tuto.pk}),
@@ -5633,4 +5634,4 @@ class PublishedContentTests(TestCase):
         self.assertEqual(result.status_code, 302)
         result = self.client.get(self.tuto.get_absolute_url_online(), follow=False)
         self.assertEqual(result.status_code, 200)
-        self.assertNotContains(result, u'Ce contenu est obsolète.')
+        self.assertNotContains(result, _(u'Ce contenu est obsolète.'))
