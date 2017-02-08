@@ -40,11 +40,7 @@ class NotificationList(ZdSPagingListView):
 def mark_notifications_as_read(request):
     """Mark the notifications of the current user as read"""
 
-    notifications = Notification.objects.get_unread_notifications_of(request.user)
-
-    for notification in notifications:
-        notification.is_read = True
-        notification.save()
+    Notification.objects.get_unread_notifications_of(request.user).update(is_read=True)
 
     messages.success(request, _(u'Vos notifications ont bien été marquées comme lues.'))
 

@@ -187,10 +187,15 @@
                         {% trans "Modifier le profil" %}
                     </a>
                 {% endif %}
-                {% if perms.member.super_user %}
+                {% if user.is_superuser %}
                     <a href="{% url "member-settings-promote" profile.user.pk %}" class="new-btn ico-after edit gear blue">
-                        {% trans "Promouvoir" %}
+                        {% trans "Gestion des groupes" %}
                     </a>
+                    {% if user.is_staff %}
+                        <a href="{% url 'admin:auth_user_change' profile.user.pk %}" class="new-btn ico-after edit gear blue">
+                            {% trans "Administration de Django" %}
+                        </a>
+                    {% endif %}
                 {% endif %}
             </div>
         {% endif %}
