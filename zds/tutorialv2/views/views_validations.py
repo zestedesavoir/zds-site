@@ -537,6 +537,6 @@ def mark_obsolete(request, pk):
         messages.info(request, _(u"Le contenu n'est plus marqué comme obsolète."))
     else:
         content.is_obsolete = True
-        messages.info(request, _(u"Le contenu est maintenant marqué comme obsolète."))
+        messages.info(request, _(u'Le contenu est maintenant marqué comme obsolète.'))
     content.save()
     return redirect(content.get_absolute_url_online())
