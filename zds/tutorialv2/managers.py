@@ -96,6 +96,44 @@ class PublishedContentManager(models.Manager):
             published.authors.remove(unsubscribed_user)
             published.save()
 
+    def get_online_list(self, category=None, tag=None, content_type=None):
+        queryset = self.__get_list(category, content_type, tag)
+        return queryset.order_by('-publication_date')
+
+    def get_online_most_commented(self, category=None, tag=None, content_type=None):
+        queryset = self.__get_list(category, content_type, tag)
+        return queryset.order_by('-count_note')
+
+    def __get_list(self, category, content_type, tag):
+        sub_query = 'SELECT COUNT(*) FROM {} WHERE {}={}'
+        sub_query = sub_query.format(
+            'tutorialv2_contentreaction',
+            'tutorialv2_contentreaction.related_content_id',
+            r'`tutorialv2_publishablecontent`.`id`'
+        )
+        queryset = self.filter(must_redirect=False)
+        if content_type:
+            queryset = queryset.filter(content_type=content_type)
+
+        # prefetch:
+        queryset = queryset \
+            .prefetch_related('content') \
+            .prefetch_related('content__subcategory') \
+            .prefetch_related('content__authors') \
+            .select_related('content__licence') \
+            .select_related('content__image') \
+            .select_related('content__last_note') \
+            .select_related('content__last_note__related_content') \
+            .select_related('content__last_note__related_content__public_version') \
+            .filter(pk=F('content__public_version__pk'))
+        if category:
+            queryset = queryset.filter(content__subcategory__in=[self.category])
+        if tag:
+            queryset = queryset.filter(content__tags__in=[self.tag])  # different tags can have same
+            # slug such as C/C#/C++, as a first version we get all of them
+        queryset = queryset.extra(select={'count_note': sub_query})
+        return queryset
+
 
 class PublishableContentManager(models.Manager):
     """..."""

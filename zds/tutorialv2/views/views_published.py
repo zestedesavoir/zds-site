@@ -356,13 +356,14 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
 
         if 'category' in self.request.GET:
             self.category = get_object_or_404(SubCategory, slug=self.request.GET.get('category'))
-            queryset = queryset.filter(content__subcategory__in=[self.category])
+        else:
+            self.category = None
         if 'tag' in self.request.GET:
             self.tag = get_object_or_404(Tag, title=self.request.GET.get('tag').lower().strip())
-            queryset = queryset.filter(content__tags__in=[self.tag])  # different tags can have same
-            # slug such as C/C#/C++, as a first version we get all of them
-        queryset = queryset.extra(select={'count_note': sub_query})
-        return queryset.order_by('-publication_date')
+        else:
+            self.tag = None
+
+        return PublishedContent.objects.get_online_list(self.category, self.tag, self.current_content_type)
 
     def get_context_data(self, **kwargs):
         context = super(ListOnlineContents, self).get_context_data(**kwargs)
@@ -374,7 +375,15 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
         context['category'] = self.category
         context['tag'] = self.tag
         context['top_categories'] = top_categories_content(self.current_content_type)
-
+        context['hierarchy_level'] = 2
+        if 'theme' in self.request.GET:
+            context['hierarchy_level'] = 0
+        elif 'category' in self.request.GET:
+            context['hierarchy_level'] = 1
+        if context['hierarchy_level'] == 1:
+            method_name = settings.ZDS_APP['content']['selected_content_method_name']
+            context['selected_content'] = getattr(PublishedContent.objects, method_name)(self.category, self.tag,
+                                                                                         self.current_content_type)
         return context
 
 
