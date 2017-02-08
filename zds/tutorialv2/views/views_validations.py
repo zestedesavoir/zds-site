@@ -13,8 +13,6 @@ from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import ListView, FormView
-from django.contrib.auth.decorators import login_required, permission_required
-from django.views.decorators.http import require_POST
 
 from zds.member.decorator import LoginRequiredMixin, PermissionRequiredMixin, LoggedWithReadWriteHability
 from zds.notification import signals
@@ -525,18 +523,22 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleOnline
         return super(RevokeValidation, self).form_valid(form)
 
 
-@login_required
-@permission_required('tutorialv2.change_validation', raise_exception=True)
-@require_POST
-def mark_obsolete(request, pk):
-    content = get_object_or_404(PublishableContent, pk=pk)
-    if not content.in_public():
-        raise Http404
-    if content.is_obsolete:
-        content.is_obsolete = False
-        messages.info(request, _(u"Le contenu n'est plus marqué comme obsolète."))
-    else:
-        content.is_obsolete = True
-        messages.info(request, _(u'Le contenu est maintenant marqué comme obsolète.'))
-    content.save()
-    return redirect(content.get_absolute_url_online())
+class MarkObsolete(FormView, LoginRequiredMixin, PermissionRequiredMixin):
+
+    permissions = ['tutorialv2.change_validation']
+
+    def get(self, request, *args, **kwargs):
+        raise Http404(u"Marquer un contenu comme obsolète n'est pas disponible en GET.")
+
+    def post(self, request, *args, **kwargs):
+        content = get_object_or_404(PublishableContent, pk=kwargs['pk'])
+        if not content.in_public():
+            raise Http404
+        if content.is_obsolete:
+            content.is_obsolete = False
+            messages.info(request, _(u"Le contenu n'est plus marqué comme obsolète."))
+        else:
+            content.is_obsolete = True
+            messages.info(request, _(u'Le contenu est maintenant marqué comme obsolète.'))
+        content.save()
+        return redirect(content.get_absolute_url_online())
