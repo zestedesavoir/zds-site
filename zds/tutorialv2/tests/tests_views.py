@@ -5597,3 +5597,40 @@ class PublishedContentTests(TestCase):
         self.assertIsNotNone(beta_topic)
         self.assertTrue(beta_topic.is_locked)
         self.assertEqual(beta_topic.last_message, last_message)
+
+    def test_obsolete(self):
+        # check that this function is only available for staff
+        self.client.login(
+            username=self.user_author.username,
+            password='hostel77'
+        )
+        result = self.client.post(
+            reverse('validation:mark-obsolete', kwargs={'pk': self.tuto.pk}),
+            follow=False)
+        self.assertEqual(result.status_code, 403)
+        # login as staff
+        self.client.login(
+            username=self.user_staff.username,
+            password='hostel77'
+        )
+        # check that when the content is not marked as obsolete, the alert is not shown
+        result = self.client.get(self.tuto.get_absolute_url_online(), follow=False)
+        self.assertEqual(result.status_code, 200)
+        self.assertNotContains(result, u'Ce contenu est obsolète.')
+        # now, let's mark the tutoriel as obsolete
+        result = self.client.post(
+            reverse('validation:mark-obsolete', kwargs={'pk': self.tuto.pk}),
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        # check that the alert is shown
+        result = self.client.get(self.tuto.get_absolute_url_online(), follow=False)
+        self.assertEqual(result.status_code, 200)
+        self.assertContains(result, u'Ce contenu est obsolète.')
+        # finally, check that this alert can be hidden
+        result = self.client.post(
+            reverse('validation:mark-obsolete', kwargs={'pk': self.tuto.pk}),
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        result = self.client.get(self.tuto.get_absolute_url_online(), follow=False)
+        self.assertEqual(result.status_code, 200)
+        self.assertNotContains(result, u'Ce contenu est obsolète.')
