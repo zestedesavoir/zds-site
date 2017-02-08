@@ -8,7 +8,7 @@ from oauth2_provider.models import AccessToken
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User, Group
 from django.template.context_processors import csrf
 from django.core.exceptions import PermissionDenied
@@ -431,12 +431,10 @@ def unregister(request):
 @require_POST
 @can_write_and_read_now
 @login_required
+@permission_required('member.change_profile', raise_exception=True)
 @transaction.atomic
 def modify_profile(request, user_pk):
     """Modifies sanction of a user if there is a POST request."""
-
-    if not request.user.has_perm('member.change_profile'):
-        raise PermissionDenied
 
     profile = get_object_or_404(Profile, user__pk=user_pk)
     if profile.is_private():
@@ -584,11 +582,9 @@ def articles(request):
 
 @can_write_and_read_now
 @login_required
+@permission_required('member.change_profile', raise_exception=True)
 def settings_mini_profile(request, user_name):
     """Minimal settings of users for staff."""
-
-    if not request.user.has_perm('member.change_profile'):
-        raise PermissionDenied
 
     # extra information about the current user
     profile = get_object_or_404(Profile, user__username=user_name)
@@ -976,11 +972,9 @@ def settings_promote(request, user_pk):
 
 
 @login_required
+@permission_required('member.change_profile', raise_exception=True)
 def member_from_ip(request, ip_address):
     """ Get list of user connected from a particular ip """
-
-    if not request.user.has_perm('member.change_profile'):
-        raise PermissionDenied
 
     members = Profile.objects.filter(last_ip_address=ip_address).order_by('-last_visit')
     return render(request, 'member/settings/memberip.html', {
@@ -990,12 +984,10 @@ def member_from_ip(request, ip_address):
 
 
 @login_required
+@permission_required('member.change_profile', raise_exception=True)
 @require_POST
 def modify_karma(request):
     """ Add a Karma note to the user profile """
-
-    if not request.user.has_perm('member.change_profile'):
-        raise PermissionDenied
 
     try:
         profile_pk = int(request.POST['profile_pk'])
