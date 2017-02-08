@@ -944,20 +944,6 @@ def settings_promote(request, user_pk):
             messages.warning(request, _(u'{0} n\'appartient (plus ?) à aucun groupe.')
                              .format(user.username))
 
-        if 'superuser' in data and u'on' in data['superuser']:
-            if not user.is_superuser:
-                user.is_superuser = True
-                messages.success(request, _(u'{0} est maintenant super-utilisateur.')
-                                 .format(user.username))
-        else:
-            if user == request.user:
-                messages.error(request, _(u'Un super-utilisateur ne peut pas se retirer des super-utilisateurs.'))
-            else:
-                if user.is_superuser:
-                    user.is_superuser = False
-                    messages.warning(request, _(u'{0} n\'est maintenant plus super-utilisateur.')
-                                     .format(user.username))
-
         if 'activation' in data and u'on' in data['activation']:
             user.is_active = True
             messages.success(request, _(u'{0} est maintenant activé.')
@@ -980,10 +966,6 @@ def settings_promote(request, user_pk):
                 msg += u'* {0}\n'.format(group.name)
         else:
             msg = string_concat(msg, _(u'* Vous ne faites partie d\'aucun groupe'))
-        msg += u'\n\n'
-        if user.is_superuser:
-            msg = string_concat(msg, _(u'Vous avez aussi rejoint le rang des super-utilisateurs. '
-                                       u'N\'oubliez pas, un grand pouvoir entraîne de grandes responsabilités !'))
         send_mp(
             bot,
             [user],
@@ -997,7 +979,6 @@ def settings_promote(request, user_pk):
         return redirect(profile.get_absolute_url())
 
     form = PromoteMemberForm(initial={
-        'superuser': user.is_superuser,
         'groups': user.groups.all(),
         'activation': user.is_active
     })

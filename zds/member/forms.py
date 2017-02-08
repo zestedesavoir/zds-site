@@ -517,11 +517,6 @@ class PromoteMemberForm(forms.Form):
         required=False,
     )
 
-    superuser = forms.BooleanField(
-        label=_(u'Droits superuser (accès complet à l\'administration Django et donc à la base de données)'),
-        required=False,
-    )
-
     activation = forms.BooleanField(
         label=_(u'Compte actif'),
         required=False,
@@ -535,7 +530,6 @@ class PromoteMemberForm(forms.Form):
 
         self.helper.layout = Layout(
             Field('groups'),
-            Field('superuser'),
             Field('activation'),
             StrictButton(_(u'Valider'), type='submit'),
         )
