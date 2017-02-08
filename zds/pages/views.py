@@ -4,9 +4,8 @@ import os.path
 import random
 
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
-from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.shortcuts import render, get_object_or_404
 from django.template.loader import render_to_string
@@ -129,11 +128,8 @@ def cookies(request):
 
 @can_write_and_read_now
 @login_required
+@permission_required('forum.change_post', raise_exception=True)
 def alerts(request):
-    # only staff can see alerts list
-    if not request.user.has_perm('forum.change_post'):
-        raise PermissionDenied
-
     outstanding = Alert.objects.filter(solved=False).order_by('-pubdate')
     solved = Alert.objects.filter(solved=True).order_by('-pubdate')[:15]
 
