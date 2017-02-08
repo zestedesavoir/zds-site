@@ -481,11 +481,9 @@ def modify_profile(request, user_pk):
 
 
 @login_required
+@permission_required('member.change_profile', raise_exception=True)
 def sanctions_history(request, user_pk):
     """Display the history of a member sanctions"""
-
-    if not request.user.has_perm('member.change_profile'):
-        raise PermissionDenied
 
     user = get_object_or_404(User, pk=user_pk)
 
