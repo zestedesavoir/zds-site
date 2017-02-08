@@ -52,184 +52,49 @@
 
 
 {% block content_out %}
+    <section class="full-content-wrapper" itemscope itemtype="http://schema.org/ItemList">
+        {# will be moved #}
+        <h1 class="ico-after ico-{% if current_content_type == "TUTORIAL" %}tutorials{% elif current_content_type == "ARTICLE" %}articles{% else %}articles{% endif %}" itemprop="name">
+            {% block headline %}
+                {% if tag %}
+                    {{ verbose_type_name_plural|title }} : {{ tag.title }}
+                {% elif category %}
+                    {{ verbose_type_name_plural|title }} : {{ category }}
+                {% else %}
+                    {% trans "Tous les" %} {{ verbose_type_name_plural }}
+                {% endif %}
+            {% endblock %}
+        </h1>
+        {% if app.content.list == 'old' or hierarchy_level=2 %}
+            {% include 'tutorialv2/list_page_elements/list_of_content.html' with col_number=3 paginated_top=True public_contents=public_contents paginated_bottom=True current_content_type=current_content_type %}
+        {% else %}
+            {% if hierarchy_level == 0 %} {# if we are on main list #}
+               <section class="list-of-themes">
+                    {% include 'tutorialv2/list_page_elements/themes_list.html' with themes=themes%}
+               </section>
+               <section class="list-of-last-content">
+                    {% include 'tutorialv2/list_page_elements/list_of_content.html' with col_number=2 public_contents=last_content current_content_type=None %}
+               </section>
+                <section class="list-of-guides">
+                    {# here we'll have "make your own", "help authors"... #}
+                </section>
+            {% elif hierarchy_level == 1 %} {# if we are on a theme list #}
+                <section class="list-of-category">
 
-<section class="flexpage-header">
-    <div class="flexpage-wrapper">
-        <div class="flexpage-title-search">
-            <div class="picto">
-                <img src="http://127.0.0.1:8000/static/images/home-clem.png">
-            </div>
-            <div class="title">
-                <h1>Contenus</h1>
-                {{ content_count }} contenus
-            </div>
-
-            <form action="" id="search-form" class="search" method="get">
-                <label for="id_q" class="control-label ">Recherche</label>
-                <input id="id_q" maxlength="150" name="q" required="required" type="search">
-                <button class="btn ico-after ico-search" type="submit" title="Rechercher"></button>
-            </form>
-        </div>
-    </div>
-</section>
-
-<div class="flexpage-wrapper">
-    {% comment %}
-        Structure de la page de premier level :
-        - 2 tutos mis en avant
-        - présentation des 4 domaines de savoirs
-        - liste des 6 derniers tutos en une colonne
-        - liste des 6 tutos les plus commentés en une colonne
-        - bloc de envie de s'investir
-    {% endcomment %}
-
-    <section>
-        <h2 itemprop="name">À la une</h2>
-        {% for featured_content in featured %}
-            {% include "featured/includes/featured_resource_item.part.html" with featured_resource=featured_content %}
-        {% endfor %}
+                </section>
+                <section class="list-of-last-content">
+                    {% include 'tutorialv2/list_page_elements/list_of_content.html' with col_number=2 public_contents=last_content current_content_type=None %}
+               </section>
+                <section class="list-of-last-content">
+                    {% include 'tutorialv2/list_page_elements/list_of_content.html' with col_number=2 public_contents=selected_content current_content_type=None %}
+               </section>
+            {% endif %}
+        {% endif %}
     </section>
-
-    <section>
-        <h2 class="inline" itemprop="name">Domaines de savoir</h2>
-        <div class="content-linkbox-list">
-            {% include 'tutorialv2/list_page_elements/themes_list.html' %}
-        </div>
-    </section>
-
-    <div class="flexpage-column">
-        <section>
-            <h2 itemprop="name">Derniers tutoriels</h2>
-            {% include 'tutorialv2/list_page_elements/list_of_content.html' with public_contents=public_contents col_number=1 %}
-        </section>
-
-        <section>
-            <h2 itemprop="name">Derniers articles</h2>
-            {% include 'tutorialv2/list_page_elements/list_of_content.html' with public_contents=selected_contents col_number=1 %}
-        </section>
-    </div>
-
-    <section>
-        <h2 class="inline">Envie de s'investir ?</h2>
-
-        <div class="content-linkbox-list">
-            <div class="linkbox-item secondary">
-                <a href="#" class="head">
-                    <h3>Donner son avis</h3>
-                    <span class="icon"></span>
-                </a>
-
-                <a href="#" class="body">
-                    <p>Les contenus presque terminés nécessitent souvent une relecture afin de peaufiner le fond comme la forme.</p>
-                    <p class="right">Consulter les contenus en bêta.</p>
-                </a>
-            </div>
-            
-            <div class="linkbox-item secondary">
-                <div class="head">
-                    <h3>Partager votre savoir</h3>
-                    <span class="icon"></span>
-                </div>
-
-                <div class="body">
-                    <p>Vous avez un savoir à partager, vous vous sentez pédagogue, pourquoi ne pas commencer l'écriture d'un tutoriel ?</p>
-                </div>
-
-                <a href="{% url "content:create-tutorial" %}" class="tail">
-                    <p>Écrire un tutoriel</p>
-                </a>
-
-                <a href="{% url "content:create-article" %}" class="tail">
-                    <p>Écrire un article</p>
-                </a>
-            </div>
-
-            <div class="linkbox-item secondary">
-                <a href="{% url 'content:helps' %}?type=tuto" class="head">
-                    <h3>Aider les auteurs</h3>
-                    <span class="icon"></span>
-                </a>
-
-                <a href="{% url 'content:helps' %}?type=tuto" class="body">
-                    <p>Les auteurs ont souvent besoin d'un peu d'aide pour amener leur contenu jusqu'à la publication.</p>
-                    <p>Dessiner une icône ou des illustrations, corriger un texte ou encore devenir co-auteur vous interesse ?</p>
-                    <p class="right">Parcourir les demandes d'aides.</p>
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <section>
-        <h2 class="inline">Ne rien louper</h2>
-
-        <div class="content-linkbox-list">
-            <div class="linkbox-item">
-                <div class="head">
-                    <h3>Flux</h3>
-                </div>
-
-                <a href="{% url "tutorial:feed-rss" %}" class="tail">
-                    <p>Nouveaux tutoriels (RSS)</p>
-                    <span class="icon"></span>
-                </a>
-                <a href="{% url "tutorial:feed-atom" %}" class="tail">
-                    <p>Nouveaux tutoriels (ATOM)</p>
-                    <span class="icon"></span>
-                </a>
-            </div>
-        </div>
-    </section>
-</div>
-
 {% endblock %}
 
 
 
-
-{% comment %}
-
-# old code
-
-<section class="full-content-wrapper" itemscope itemtype="http://schema.org/ItemList">
-    {# will be moved #}
-    <h1 class="ico-after ico-{% if current_content_type == "TUTORIAL" %}tutorials{% elif current_content_type == "ARTICLE" %}articles{% else %}articles{% endif %}" itemprop="name">
-        {% block headline %}
-            {% if tag %}
-                {{ verbose_type_name_plural|title }} : {{ tag.title }}
-            {% elif category %}
-                {{ verbose_type_name_plural|title }} : {{ category }}
-            {% else %}
-                {% trans "Tous les" %} {{ verbose_type_name_plural }}
-            {% endif %}
-        {% endblock %}
-    </h1>
-    {% if app.content.list == 'old' or hierarchy_level == 2 %}
-        {% include 'tutorialv2/list_page_elements/list_of_content.html' with col_number=3 paginated_top=True public_contents=public_contents paginated_bottom=True current_content_type=current_content_type %}
-    {% else %}
-        {% if hierarchy_level == 0 %} {# if we are on main list #}
-           <section class="list-of-themes">
-                {% include 'tutorialv2/list_page_elements/themes_list.html' with themes=themes%}
-           </section>
-           <section class="list-of-last-content">
-                {% include 'tutorialv2/list_page_elements/list_of_content.html' with col_number=2 public_contents=last_content current_content_type=None %}
-           </section>
-            <section class="list-of-guides">
-                {# here we'll have "make your own", "help authors"... #}
-            </section>
-        {% elif hierarchy_level == 1 %} {# if we are on a theme list #}
-            <section class="list-of-category">
-
-            </section>
-            <section class="list-of-last-content">
-                {% include 'tutorialv2/list_page_elements/list_of_content.html' with col_number=1 public_contents=last_content current_content_type=None %}
-           </section>
-            <section class="list-of-last-content">
-                {% include 'tutorialv2/list_page_elements/list_of_content.html' with col_number=1 public_contents=selected_content current_content_type=None %}
-           </section>
-        {% endif %}
-    {% endif %}
-</section>
-
-
-
-{% endcomment %}
+{% block sidebar %}
+    {% include 'tutorialv2/list_page_elements/side_bar.html' %}
+{% endblock %}
