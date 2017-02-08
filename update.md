@@ -962,7 +962,7 @@ Une fois que tout est indexé,
         ```
         
 + Désinstaller Solr : 
-    * `pp uninstall pysolr django-haystack`
+    * `pip uninstall pysolr django-haystack`
     * Supprimer la base de données de Solr
 + Supprimer les tables suivantes de MySQL:
 
