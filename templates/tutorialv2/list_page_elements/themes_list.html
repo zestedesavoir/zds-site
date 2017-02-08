@@ -1,0 +1,17 @@
+{% comment %}
+exposes themes
+{% endcomment %}
+
+{% for theme in themes %}
+    <article class="content-item">
+    <header>
+        <h2><a href="{% url 'content:list' %}"?theme={{ theme.slug }}>{{ theme.title }}</a></h2>
+        {# see to add img #}
+    </header>
+    <ul>
+        {% for category in theme.categories %}
+            <li><a href="{% url 'content:list' %}?category={{ category.title }}">{{ category.title }}</a></li>
+        {% endfor %}
+    </ul>
+    </article>
+{% endfor %}

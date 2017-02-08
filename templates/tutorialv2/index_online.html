@@ -60,33 +60,31 @@
                 {% endif %}
             {% endblock %}
         </h1>
-
-        <meta itemprop="itemListOrder" content="Unordered">
-
-        {% include "misc/paginator.html" with position="top" %}
-
-        {% if public_contents %}
-            <div class="content-item-list">
-                {% if current_content_type == "ARTICLE" or current_content_type == "OPINION" %}
-                    {% for public_content in public_contents %}
-                        {% include "tutorialv2/includes/content_item.part.html" with public_content=public_content show_description=True show_reactions=True %}
-                    {% endfor %}
-                {% else %}
-                    {% for public_content in public_contents %}
-                        {% include "tutorialv2/includes/content_item.part.html" with public_content=public_content show_description=True %}
-                    {% endfor %}
-                {% endif %}
-                <div class="fill"></div>
-                <div class="fill"></div>
-                <div class="fill"></div>
-            </div>
+        {% if app.content.list == 'old' or hierarchy_level=2 %}
+            {% include 'tutorialv2/list_page_elements/list_of_content.html' with col_number=3 paginated_top=True public_contents=public_contents paginated_bottom=True current_content_type=current_content_type %}
         {% else %}
-            <p>
-                {% trans "Aucun contenu disponible" %}.
-            </p>
-        {% endif %}
+            {% if hierarchy_level == 0 %} {# if we are on main list #}
+               <section class="list-of-themes">
+                    {% include 'tutorialv2/list_page_elements/themes_list.html' with themes=themes%}
+               </section>
+               <section class="list-of-last-content">
+                    {% include 'tutorialv2/list_page_elements/list_of_content.html' with col_number=2 public_contents=last_content current_content_type=None %}
+               </section>
+                <section class="list-of-guides">
+                    {# here we'll have "make your own", "help authors"... #}
+                </section>
+            {% elif hierarchy_level == 1 %} {# if we are on a theme list #}
+                <section class="list-of-category">
 
-        {% include "misc/paginator.html" with position="bottom-clear" %}
+                </section>
+                <section class="list-of-last-content">
+                    {% include 'tutorialv2/list_page_elements/list_of_content.html' with col_number=2 public_contents=last_content current_content_type=None %}
+               </section>
+                <section class="list-of-last-content">
+                    {% include 'tutorialv2/list_page_elements/list_of_content.html' with col_number=2 public_contents=selected_content current_content_type=None %}
+               </section>
+            {% endif %}
+        {% endif %}
     </section>
 {% endblock %}
 
