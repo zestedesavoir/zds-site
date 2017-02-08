@@ -8,7 +8,7 @@ from oauth2_provider.models import AccessToken
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User, Group
 from django.template.context_processors import csrf
 from django.core.exceptions import PermissionDenied
@@ -369,37 +369,24 @@ def unregister(request):
     current = request.user
     # Nota : as of v21 all about content paternity is held by a proper receiver in zds.tutorialv2.models.models_database
     # comments likes / dislikes
-    for vote in CommentVote.objects.filter(user=current):
+    votes = CommentVote.objects.filter(user=current)
+    for vote in votes:
         if vote.positive:
             vote.comment.like -= 1
         else:
             vote.comment.dislike -= 1
         vote.comment.save()
-        vote.delete()
+    votes.delete()
     # all messages anonymisation (forum, article and tutorial posts)
-    for message in Comment.objects.filter(author=current):
-        message.author = anonymous
-        message.save()
-    for message in PrivatePost.objects.filter(author=current):
-        message.author = anonymous
-        message.save()
+    Comment.objects.filter(author=current).update(author=anonymous)
+    PrivatePost.objects.filter(author=current).update(author=anonymous)
     # karma notes, alerts and sanctions anonymisation (to keep them)
-    for note in KarmaNote.objects.filter(moderator=current):
-        note.moderator = anonymous
-        note.save()
-    for ban in Ban.objects.filter(moderator=current):
-        ban.moderator = anonymous
-        ban.save()
-    for alert in Alert.objects.filter(author=current):
-        alert.author = anonymous
-        alert.save()
-    for alert in Alert.objects.filter(moderator=current):
-        alert.moderator = anonymous
-        alert.save()
+    KarmaNote.objects.filter(moderator=current).update(moderator=anonymous)
+    Ban.objects.filter(moderator=current).update(moderator=anonymous)
+    Alert.objects.filter(author=current).update(author=anonymous)
+    Alert.objects.filter(moderator=current).update(moderator=anonymous)
     # in case current has been moderator in his old day
-    for message in Comment.objects.filter(editor=current):
-        message.editor = anonymous
-        message.save()
+    Comment.objects.filter(editor=current).update(editor=anonymous)
     for topic in PrivateTopic.objects.filter(author=current):
         topic.participants.remove(current)
         if topic.participants.count() > 0:
@@ -411,9 +398,7 @@ def unregister(request):
     for topic in PrivateTopic.objects.filter(participants__in=[current]):
         topic.participants.remove(current)
         topic.save()
-    for topic in Topic.objects.filter(author=current):
-        topic.author = anonymous
-        topic.save()
+    Topic.objects.filter(author=current).update(author=anonymous)
     # Before deleting gallery let's summurize what we deleted
     # - unpublished tutorials with only the unregistering member as an author
     # - unpublished articles with only the unregistering member as an author
@@ -424,6 +409,7 @@ def unregister(request):
     # - "personnal galleries" with more than one owner
     # so we will just delete the unretistering user ownership and give it to anonymous in the only case
     # he was alone so that gallery is not lost
+    galleries = UserGallery.objects.filter(user=current)
     for gallery in UserGallery.objects.filter(user=current):
         if gallery.gallery.get_linked_users().count() == 1:
             anonymous_gallery = UserGallery()
@@ -431,7 +417,7 @@ def unregister(request):
             anonymous_gallery.mode = 'w'
             anonymous_gallery.gallery = gallery.gallery
             anonymous_gallery.save()
-        gallery.delete()
+    galleries.delete()
 
     # remove API access (tokens + applications)
     for token in AccessToken.objects.filter(user=current):
@@ -445,12 +431,10 @@ def unregister(request):
 @require_POST
 @can_write_and_read_now
 @login_required
+@permission_required('member.change_profile', raise_exception=True)
 @transaction.atomic
 def modify_profile(request, user_pk):
     """Modifies sanction of a user if there is a POST request."""
-
-    if not request.user.has_perm('member.change_profile'):
-        raise PermissionDenied
 
     profile = get_object_or_404(Profile, user__pk=user_pk)
     if profile.is_private():
@@ -598,11 +582,9 @@ def articles(request):
 
 @can_write_and_read_now
 @login_required
+@permission_required('member.change_profile', raise_exception=True)
 def settings_mini_profile(request, user_name):
     """Minimal settings of users for staff."""
-
-    if not request.user.has_perm('member.change_profile'):
-        raise PermissionDenied
 
     # extra information about the current user
     profile = get_object_or_404(Profile, user__username=user_name)
@@ -944,20 +926,6 @@ def settings_promote(request, user_pk):
             messages.warning(request, _(u'{0} n\'appartient (plus ?) à aucun groupe.')
                              .format(user.username))
 
-        if 'superuser' in data and u'on' in data['superuser']:
-            if not user.is_superuser:
-                user.is_superuser = True
-                messages.success(request, _(u'{0} est maintenant super-utilisateur.')
-                                 .format(user.username))
-        else:
-            if user == request.user:
-                messages.error(request, _(u'Un super-utilisateur ne peut pas se retirer des super-utilisateurs.'))
-            else:
-                if user.is_superuser:
-                    user.is_superuser = False
-                    messages.warning(request, _(u'{0} n\'est maintenant plus super-utilisateur.')
-                                     .format(user.username))
-
         if 'activation' in data and u'on' in data['activation']:
             user.is_active = True
             messages.success(request, _(u'{0} est maintenant activé.')
@@ -980,10 +948,6 @@ def settings_promote(request, user_pk):
                 msg += u'* {0}\n'.format(group.name)
         else:
             msg = string_concat(msg, _(u'* Vous ne faites partie d\'aucun groupe'))
-        msg += u'\n\n'
-        if user.is_superuser:
-            msg = string_concat(msg, _(u'Vous avez aussi rejoint le rang des super-utilisateurs. '
-                                       u'N\'oubliez pas, un grand pouvoir entraîne de grandes responsabilités !'))
         send_mp(
             bot,
             [user],
@@ -997,7 +961,6 @@ def settings_promote(request, user_pk):
         return redirect(profile.get_absolute_url())
 
     form = PromoteMemberForm(initial={
-        'superuser': user.is_superuser,
         'groups': user.groups.all(),
         'activation': user.is_active
     })
@@ -1009,11 +972,9 @@ def settings_promote(request, user_pk):
 
 
 @login_required
+@permission_required('member.change_profile', raise_exception=True)
 def member_from_ip(request, ip_address):
     """ Get list of user connected from a particular ip """
-
-    if not request.user.has_perm('member.change_profile'):
-        raise PermissionDenied
 
     members = Profile.objects.filter(last_ip_address=ip_address).order_by('-last_visit')
     return render(request, 'member/settings/memberip.html', {
@@ -1023,12 +984,10 @@ def member_from_ip(request, ip_address):
 
 
 @login_required
+@permission_required('member.change_profile', raise_exception=True)
 @require_POST
 def modify_karma(request):
     """ Add a Karma note to the user profile """
-
-    if not request.user.has_perm('member.change_profile'):
-        raise PermissionDenied
 
     try:
         profile_pk = int(request.POST['profile_pk'])

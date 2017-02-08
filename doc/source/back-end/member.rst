@@ -109,15 +109,15 @@ L'interface de promotion
 Afin de pouvoir gérer les membres directement depuis le site (c'est-à-dire sans avoir besoin de passer par l'interface d'administration de Django), une interface de promotion a été développée. Elle est accessible aux membres ayant le statut de super-utilisateur via un lien présent sur tous les profils.
 Cette interface permet :
 1. D'ajouter/supprimer un membre dans un/des groupe(s)
-2. D'ajouter/supprimer le statut de super-utilisateur à un membre
-3. De (dés)activer un compte
+2. De (dés)activer un compte
 
 Le premier point permet notamment de passer un membre dans le groupe staff ou développeur. Si d'autres groupes venaient à voir le jour (validateur par exemple), alors il sera possible ici aussi de le changer.
-Le second point permet de donner toutes les permissions à l'utilisateur, notamment l'accès à cette interface de promotion.
-Enfin, le dernier point concerne simplement l'activation du compte (normalement faite par le membre à l'inscription).
+Le second point concerne simplement l'activation du compte (normalement faite par le membre à l'inscription).
 
 Elle est gérée par le formulaire `PromoteMemberForm` présent dans le fichier `zds/member/forms.py`.
 Elle est ensuite visible via le template `member/settings/promote.html`.
+
+Le profil de chaque membre contient également un lien vers l'administration de Django si l'utilisateur connecté y a accès et est super-utilisateur. Cela permet de nommer un membre super-utilisateur ou de lui donner l'accès à l'administration.
 
 L'interface de karma
 --------------------
