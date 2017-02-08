@@ -284,6 +284,7 @@ class Alert(models.Model):
                                       blank=True)
     # PrivateTopic sending the resolve_reason to the alert creator
     privatetopic = models.ForeignKey(PrivateTopic,
+                                     on_delete=models.SET_NULL,
                                      verbose_name=u'Message privé',
                                      db_index=True,
                                      null=True,
