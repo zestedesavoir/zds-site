@@ -440,6 +440,7 @@ class SingleOnlineContentDetailViewMixin(SingleOnlineContentViewMixin, DetailVie
         context = super(SingleOnlineContentDetailViewMixin, self).get_context_data(**kwargs)
 
         context['content'] = self.versioned_object
+        context['is_obsolete'] = self.object.is_obsolete
         context['public_object'] = self.public_content_object
         context['can_edit'] = self.request.user in self.object.authors.all()
         context['isantispam'] = self.object.antispam(self.request.user)

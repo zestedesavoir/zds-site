@@ -124,6 +124,8 @@ class PublishableContent(models.Model):
 
     must_reindex = models.BooleanField(u'Si le contenu doit-être ré-indexé', default=True)
 
+    is_obsolete = models.BooleanField('Est obsolète', default=False)
+
     public_version = models.ForeignKey(
         'PublishedContent', verbose_name=u'Version publiée', blank=True, null=True, on_delete=models.SET_NULL)
 

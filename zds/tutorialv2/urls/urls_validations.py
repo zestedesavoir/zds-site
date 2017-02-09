@@ -4,7 +4,7 @@ from django.conf.urls import url
 
 from zds.tutorialv2.views.views_validations import AskValidationForContent, ReserveValidation, \
     HistoryOfValidationDisplay, AcceptValidation, RejectValidation, RevokeValidation, CancelValidation, \
-    ValidationListView
+    ValidationListView, MarkObsolete
 
 urlpatterns = [
     url(r'^proposer/(?P<pk>\d+)/(?P<slug>.+)/$', AskValidationForContent.as_view(), name='ask'),
@@ -17,5 +17,7 @@ urlpatterns = [
 
     url(r'^depublier/(?P<pk>\d+)/(?P<slug>.+)/$', RevokeValidation.as_view(), name='revoke'),
 
-    url(r'^$', ValidationListView.as_view(), name='list')
+    url(r'^$', ValidationListView.as_view(), name='list'),
+
+    url(r'^marquer-obsolete/(?P<pk>\d+)/$', MarkObsolete.as_view(), name='mark-obsolete'),
 ]

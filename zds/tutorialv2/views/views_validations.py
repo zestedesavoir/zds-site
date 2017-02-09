@@ -425,6 +425,7 @@ class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
 
             if form.cleaned_data['is_major'] or not is_update or db_object.pubdate is None:
                 db_object.pubdate = datetime.now()
+                db_object.is_obsolete = False
 
             # close beta if is an article
             if db_object.type == 'ARTICLE':
@@ -520,3 +521,24 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleOnline
         self.success_url = self.versioned_object.get_absolute_url() + '?version=' + validation.version
 
         return super(RevokeValidation, self).form_valid(form)
+
+
+class MarkObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
+
+    permissions = ['tutorialv2.change_validation']
+
+    def get(self, request, *args, **kwargs):
+        raise Http404(u"Marquer un contenu comme obsolète n'est pas disponible en GET.")
+
+    def post(self, request, *args, **kwargs):
+        content = get_object_or_404(PublishableContent, pk=kwargs['pk'])
+        if not content.in_public():
+            raise Http404
+        if content.is_obsolete:
+            content.is_obsolete = False
+            messages.info(request, _(u"Le contenu n'est plus marqué comme obsolète."))
+        else:
+            content.is_obsolete = True
+            messages.info(request, _(u'Le contenu est maintenant marqué comme obsolète.'))
+        content.save()
+        return redirect(content.get_absolute_url_online())

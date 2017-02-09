@@ -65,6 +65,16 @@
     {% endif %}
 
     {% include 'tutorialv2/includes/tags_authors.part.html' with content=content online=True %}
+
+    {% if is_obsolete %}
+        <div class="content-wrapper">
+            <div class="alert-box warning">
+                {% blocktrans %}
+                    Ce contenu est obsolète. Il peut contenir des informations intéressantes mais soyez prudent avec celles-ci.
+                {% endblocktrans %}
+            </div>
+        </div>
+    {% endif %}
 {% endblock %}
 
 
@@ -161,17 +171,29 @@
                     </a>
                 </li>
                 {% if is_staff %}
-                <li>
-                    <a href="{% url "validation:history" content.pk content.slug %}" class="ico-after history blue">
-                        {% trans "Historique validation" %}
-                    </a>
-                </li>
-                <li>
-                    <a href="#unpublish" class="ico-after open-modal cross blue">
-                        {% trans "Dépublier" %}
-                    </a>
-                    {% crispy formRevokeValidation %}
-                </li>
+                    <li>
+                        <a href="{% url "validation:history" content.pk content.slug %}" class="ico-after history blue">
+                            {% trans "Historique validation" %}
+                        </a>
+                    </li>
+                    <li>
+                        <form action="{% url 'validation:mark-obsolete' content.pk %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="ico-after alert blue">
+                                {% if is_obsolete %}
+                                    {% trans "Marquer comme non obsolète" %}
+                                {% else %}
+                                    {% trans "Marquer comme obsolète" %}
+                                {% endif %}
+                            </button>
+                        </form>
+                    </li>
+                    <li>
+                        <a href="#unpublish" class="ico-after open-modal cross blue">
+                            {% trans "Dépublier" %}
+                        </a>
+                        {% crispy formRevokeValidation %}
+                    </li>
                 {% endif %}
             </ul>
         </div>
