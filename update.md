@@ -961,7 +961,9 @@ Une fois que tout est indexé,
         systemctl start zds-es-index.timer
         ```
         
-+ Désinstaller Solr.
++ Désinstaller Solr : 
+    * `pip uninstall pysolr django-haystack`
+    * Supprimer la base de données de Solr
 + Supprimer les tables suivantes de MySQL:
 
     * `search_searchindexextract`
