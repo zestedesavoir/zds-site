@@ -5627,6 +5627,10 @@ class PublishedContentTests(TestCase):
         result = self.client.get(self.tuto.get_absolute_url_online(), follow=False)
         self.assertEqual(result.status_code, 200)
         self.assertContains(result, _(u'Ce contenu est obsolète.'))
+        # and on a chapter
+        result = self.client.get(self.chapter1.get_absolute_url_online(), follow=False)
+        self.assertEqual(result.status_code, 200)
+        self.assertContains(result, _(u'Ce contenu est obsolète.'))
         # finally, check that this alert can be hidden
         result = self.client.post(
             reverse('validation:mark-obsolete', kwargs={'pk': self.tuto.pk}),

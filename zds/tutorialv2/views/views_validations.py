@@ -523,7 +523,7 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleOnline
         return super(RevokeValidation, self).form_valid(form)
 
 
-class MarkObsolete(FormView, LoginRequiredMixin, PermissionRequiredMixin):
+class MarkObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
 
     permissions = ['tutorialv2.change_validation']
 
