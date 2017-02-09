@@ -23,7 +23,7 @@ $color-linkbox-default: #777;
                 content: '';
                 position: absolute;
                 top: 15px; right: 15px;
-                
+
                 width: 10px; height: 10px;
                 transform: rotate(45deg);
 
@@ -37,7 +37,10 @@ $color-linkbox-default: #777;
                 opacity: 1;
             }
         }
-            
+        .icon {
+            width: 25px;
+            background: white;
+        }
         .head {
             display: flex;
             padding: 15px 30px 15px 10px;
