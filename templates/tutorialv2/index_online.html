@@ -46,55 +46,293 @@
 {% endblock %}
 
 
+{% block body_class %}flexpage{% endblock %}
 
 {% block body_class %}flexpage{% endblock %}
 
 
 
 {% block content_out %}
-    <section class="full-content-wrapper" itemscope itemtype="http://schema.org/ItemList">
-        {# will be moved #}
-        <h1 class="ico-after ico-{% if current_content_type == "TUTORIAL" %}tutorials{% elif current_content_type == "ARTICLE" %}articles{% else %}articles{% endif %}" itemprop="name">
-            {% block headline %}
-                {% if tag %}
-                    {{ verbose_type_name_plural|title }} : {{ tag.title }}
-                {% elif category %}
-                    {{ verbose_type_name_plural|title }} : {{ category }}
-                {% else %}
-                    {% trans "Tous les" %} {{ verbose_type_name_plural }}
-                {% endif %}
-            {% endblock %}
-        </h1>
-        {% if app.content.list == 'old' or hierarchy_level == 2 %}
-            {% include 'tutorialv2/list_page_elements/list_of_content.html' with col_number=3 paginated_top=True public_contents=public_contents paginated_bottom=True current_content_type=current_content_type %}
-        {% else %}
-            {% if hierarchy_level == 0 %} {# if we are on main list #}
-               <section class="list-of-themes">
-                    {% include 'tutorialv2/list_page_elements/themes_list.html' with themes=themes%}
-               </section>
-               <section class="list-of-last-content">
-                    {% include 'tutorialv2/list_page_elements/list_of_content.html' with col_number=2 public_contents=last_content current_content_type=None %}
-               </section>
-                <section class="list-of-guides">
-                    {# here we'll have "make your own", "help authors"... #}
-                </section>
-            {% elif hierarchy_level == 1 %} {# if we are on a theme list #}
-                <section class="list-of-category">
 
-                </section>
-                <section class="list-of-last-content">
-                    {% include 'tutorialv2/list_page_elements/list_of_content.html' with col_number=1 public_contents=last_content current_content_type=None %}
-               </section>
-                <section class="list-of-last-content">
-                    {% include 'tutorialv2/list_page_elements/list_of_content.html' with col_number=1 public_contents=selected_content current_content_type=None %}
-               </section>
-            {% endif %}
+<section class="flexpage-header">
+    <div class="flexpage-wrapper">
+        Header
+    </div>
+</section>
+
+<div class="flexpage-wrapper">
+    {% if app.content.list == 'old' or hierarchy_level == 2 %}
+        {% include 'tutorialv2/list_page_elements/list_of_content.html' with col_number=3 paginated_top=True public_contents=public_contents paginated_bottom=True current_content_type=current_content_type %}
+    {% else %}
+        {% if hierarchy_level == 0 %} {# if we are on main list #}
+           <section class="list-of-themes">
+                {% include 'tutorialv2/list_page_elements/themes_list.html' with themes=themes%}
+           </section>
+           <section class="list-of-last-content">
+                {% include 'tutorialv2/list_page_elements/list_of_content.html' with col_number=2 public_contents=last_content current_content_type=None %}
+           </section>
+            <section class="list-of-guides">
+                {# here we'll have "make your own", "help authors"... #}
+            </section>
+        {% elif hierarchy_level == 1 %} {# if we are on a theme list #}
+            <section class="list-of-category">
+
+            </section>
+            <section class="list-of-last-content">
+                {% include 'tutorialv2/list_page_elements/list_of_content.html' with col_number=1 public_contents=last_content current_content_type=None %}
+           </section>
+            <section class="list-of-last-content">
+                {% include 'tutorialv2/list_page_elements/list_of_content.html' with col_number=1 public_contents=selected_content current_content_type=None %}
+           </section>
         {% endif %}
+    {% endif %}
+
+    <section>
+        <h2 itemprop="name">Domaine de savoir</h2>
+
+        <div class="content-linkbox-list">
+            <div class="linkbox-item">
+                <a href="" class="head">
+                    <h3>Informatique</h3>
+                    <span class="icon"></span>
+                </a>
+
+                <a href="" class="body">
+                    <p>Lint vérifie, par le biais de JSHint, la forme du code (indentation, doubles guillemets, etc). Lint vérifie, par le biais de JSHint, la forme du code.</p>
+                    <p class="right">38 tutoriels</p>
+                </a>
+
+                <a href="" class="tail">
+                    <p>Autres (informatique)</p>
+                    <span class="icon"></span>
+                </a>
+                <a href="" class="tail">
+                    <p>Bureautique et rédaction</p>
+                    <span class="icon"></span>
+                </a>
+                <a href="" class="tail">
+                    <p>Matériel et électronique</p>
+                    <span class="icon"></span>
+                </a>
+                <a href="" class="tail">
+                    <p>Programmation et algorithmique</p>
+                    <span class="icon"></span>
+                </a>
+                <a href="" class="tail">
+                    <p>Site web</p>
+                    <span class="icon"></span>
+                </a>
+                <a href="" class="tail">
+                    <p>Systèmes d'exploitation</p>
+                    <span class="icon"></span>
+                </a>
+            </div>
+
+            <div class="linkbox-item primary">
+                <a href="" class="head">
+                    <h3>Sciences de la nature</h3>
+                    <span class="icon"></span>
+                </a>
+
+                <a href="" class="body">
+                    <p>lint vérifie, par le biais de JSHint, la forme du code (indentation, doubles guillemets, etc).</p>
+                </a>
+
+                <a href="" class="tail">
+                    <p>Astronomie</p>
+                    <span class="icon"></span>
+                </a>
+                <a href="" class="tail">
+                    <p>Autres (sciences de la nature)</p>
+                    <span class="icon"></span>
+                </a>
+                <a href="" class="tail">
+                    <p>Biologie</p>
+                    <span class="icon"></span>
+                </a>
+                <a href="" class="tail">
+                    <p>Chimie</p>
+                    <span class="icon"></span>
+                </a>
+                <a href="" class="tail">
+                    <p>Géologie et géographie physique</p>
+                    <span class="icon"></span>
+                </a>
+                <a href="" class="tail">
+                    <p>Mathématiques</p>
+                    <span class="icon"></span>
+                </a>
+                <a href="" class="tail">
+                    <p>Physique</p>
+                    <span class="icon"></span>
+                </a>
+            </div>
+
+            <div class="linkbox-item secondary">
+                <a href="" class="head">
+                    <h3>Sciences humaines et sociales</h3>
+                    <span class="icon"></span>
+                </a>
+
+                <a href="" class="body">
+                    <p>lint vérifie, par le biais de JSHint, la forme du code (indentation, doubles guillemets, etc).</p>
+                </a>
+
+                <a href="" class="tail">
+                    <p>Autres (sciences humaines et sociales)</p>
+                    <span class="icon"></span>
+                </a>
+                <a href="" class="tail">
+                    <p>Droit</p>
+                    <span class="icon"></span>
+                </a>
+                <a href="" class="tail">
+                    <p>Économie</p>
+                    <span class="icon"></span>
+                </a>
+                <a href="" class="tail">
+                    <p>Histoire</p>
+                    <span class="icon"></span>
+                </a>
+                <a href="" class="tail">
+                    <p>Psychologie</p>
+                    <span class="icon"></span>
+                </a>
+            </div>
+
+            <div class="linkbox-item">
+                <div class="head">
+                    <h3>Autres</h3>
+                    <span class="icon"></span>
+                </div>
+
+                <div class="body">
+                    <p>Du petit texte...</p>
+                </div>
+
+                <div class="tail">
+                    <p>Arts, graphisme et multimédia</p>
+                    <span class="icon"></span>
+                </div>
+                <div class="tail">
+                    <p>Autres</p>
+                    <span class="icon"></span>
+                </div>
+                <div class="tail">
+                    <p>Communication et management</p>
+                    <span class="icon"></span>
+                </div>
+                <div class="tail">
+                    <p>Zeste de Savoir</p>
+                    <span class="icon"></span>
+                </div>
+            </div>
+        </div>
     </section>
-{% endblock %}
 
+    <section>
+        <h2 itemprop="name">Envie de s'investir ?</h2>
 
+        <div class="content-linkbox-list">
+            <div class="linkbox-item secondary">
+                <a href="" class="head">
+                    <h3>Ecrire un tutoriel</h3>
+                    <span class="icon"></span>
+                </a>
 
-{% block sidebar %}
-    {% include 'tutorialv2/list_page_elements/side_bar.html' %}
+                <a href="" class="body">
+                    <p>Lint vérifie, par le biais de JSHint, la forme du code (indentation, doubles guillemets, etc). Lint vérifie, par le biais de JSHint, la forme du code.</p>
+                    <p class="right">Allons-y</p>
+                </a>
+            </div>
+
+            <div class="linkbox-item secondary">
+                <a href="" class="head">
+                    <h3>Aider les auteurs</h3>
+                    <span class="icon"></span>
+                </a>
+
+                <a href="" class="body">
+                    <p>Lint vérifie, par <strong>le biais de JSHint</strong>, la forme du code (indentation, doubles guillemets, etc). Lint vérifie, par le biais de JSHint, la forme du code.</p>
+                    <p>Lint vérifie, par le biais <em>de JSHint</em>, la forme du code (indentation, doubles guillemets, etc). Lint vérifie, par le biais de JSHint, la forme du code.</p>
+                    <p class="right">Proposer son aide</p>
+                </a>
+            </div>
+
+            <div class="linkbox-item secondary">
+                <a href="" class="head">
+                    <h3>Donner son avis</h3>
+                    <span class="icon"></span>
+                </a>
+
+                <a href="" class="body">
+                    <p>Lint vérifie, par le biais de JSHint, la forme du code (indentation, doubles guillemets, etc). Lint vérifie, par le biais de JSHint, la forme du code.</p>
+                    <p class="right">Vers la bêta-zone</p>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2 itemprop="name">Catégorie d'un domaine</h2>
+
+        <div class="content-linkbox-list">
+            <div class="linkbox-item secondary">
+                <a href="" class="head">
+                    <h3>Site web</h3>
+                    <span class="icon"></span>
+                </a>
+
+                <a href="" class="body">
+                    <p>8 tutoriels.</p>
+                </a>
+            </div>
+
+            <div class="linkbox-item">
+                <a href="" class="head">
+                    <h3>Site web</h3>
+                    <span class="icon"></span>
+                </a>
+
+                <a href="" class="body">
+                    <p>8 tutoriels.</p>
+                </a>
+            </div>
+
+            <div class="linkbox-item primary">
+                <a href="" class="head">
+                    <h3>Site web</h3>
+                    <span class="icon"></span>
+                </a>
+
+                <a href="" class="body">
+                    <p>8 tutoriels.</p>
+                </a>
+            </div>
+
+            <div class="linkbox-item secondary">
+                <a href="" class="head">
+                    <h3>Site web</h3>
+                    <span class="icon"></span>
+                </a>
+
+                <a href="" class="body">
+                    <p>8 tutoriels.</p>
+                </a>
+            </div>
+
+            <div class="linkbox-item secondary">
+                <a href="" class="head">
+                    <h3>Site web</h3>
+                    <span class="icon"></span>
+                </a>
+
+                <a href="" class="body">
+                    <p>8 tutoriels.</p>
+                </a>
+            </div>
+        </div>
+    </section>
+</div>
+
 {% endblock %}
