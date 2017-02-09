@@ -375,11 +375,11 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
         context['category'] = self.category
         context['tag'] = self.tag
         context['top_categories'] = top_categories_content(self.current_content_type)
-        context['hierarchy_level'] = 2
+        context['hierarchy_level'] = 0
         if 'theme' in self.request.GET:
-            context['hierarchy_level'] = 0
-        elif 'category' in self.request.GET:
             context['hierarchy_level'] = 1
+        elif 'category' in self.request.GET:
+            context['hierarchy_level'] = 2
         if context['hierarchy_level'] == 1:
             method_name = settings.ZDS_APP['content']['selected_content_method_name']
             context['selected_content'] = getattr(PublishedContent.objects, method_name)(self.category, self.tag,

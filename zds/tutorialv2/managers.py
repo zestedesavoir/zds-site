@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+from __future__ import unicode_literals
 from django.conf import settings
 from django.db import models
 from django.db.models import Count, F
@@ -15,7 +15,7 @@ class PublishedContentManager(models.Manager):
 
     def published_contents(self, _type=None):
         """
-        Get contents published order by date.
+        Get contents published order by date depends on settings.ZDS_APP['content'][''user_page_number']
 
         :return:
         :rtype: django.db.models.QuerySet
@@ -174,7 +174,7 @@ class PublishableContentManager(models.Manager):
                     # we add a sentence to the content's introduction stating it was written by a former member.
                     versioned = content.load_version()
                     title = versioned.title
-                    introduction = _(u'[[i]]\n|Ce contenu a été rédigé par {} qui a quitté le site.\n\n')\
+                    introduction = '[[i]]\n|Ce contenu a été rédigé par {} qui a quitté le site.\n\n'\
                         .format(unregistered_user.username) + versioned.get_introduction()
                     conclusion = versioned.get_conclusion()
                     sha = versioned.repo_update(title, introduction, conclusion,

@@ -6,6 +6,8 @@ Expected variables are :
     - top_categories
 
 {% endcomment %}
+{% load i18n %}
+{% load captureas %}
 
 <aside class="sidebar accordeon mobile-menu-bloc" data-title="{% trans "Catégories des" %} {{ verbose_type_name_plural }}">
         {% if current_content_type == "TUTORIAL" %}
