@@ -98,8 +98,6 @@
                     <li>{% trans "Cet utilisateur n'a reçu aucune remarque" %}</li>
                 {% endif %}
                 </ul>
-                <a href="#karmatiser-modal" class="open-modal">{% trans "Ajouter une remarque" %}</a>
-                {% crispy karmaform %}
             </div>
         {% endif %}
 
@@ -156,6 +154,13 @@
             {% else %}
                 {{ profile.biography|emarkdown }}
             {% endif %}
+        </section>
+    {% endif %}
+
+    {% if perms.member.change_profile %}
+        <hr class="clearfix" />
+        <section class="full-content-wrapper without-margin article-content">
+            <h2 id="historique-moderation">{% trans "Historique de modération" %}</h2>
         </section>
     {% endif %}
 
@@ -300,6 +305,13 @@
                 <li>
                     <a href="#biographie">
                         {% trans "Biographie" %}
+                    </a>
+                </li>
+            {% endif %}
+            {% if perms.member.change_profile %}
+                <li>
+                    <a href="#historique-moderation">
+                        {% trans "Historique de modération" %}
                     </a>
                 </li>
             {% endif %}
@@ -497,6 +509,22 @@
                         {% trans "Alertes actives" %}
                         <span class="count">{{ profile.get_active_alerts_count }}</span>
                     </span>
+                </li>
+            </ul>
+
+            <h4>{% trans "Karma" %}</h4>
+            <ul>
+                <li class="inactive">
+                    <span>
+                        {% trans "Valeur actuelle" %}
+                        <span class="count">{{ profile.karma }}</span>
+                    </span>
+                </li>
+                <li>
+                    <a href="#karmatiser-modal" class="open-modal">
+                        {% trans "Ajouter une remarque" %}
+                    </a>
+                    {% crispy karmaform %}
                 </li>
             </ul>
 
