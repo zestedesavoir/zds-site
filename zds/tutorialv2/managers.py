@@ -127,12 +127,15 @@ class PublishedContentManager(models.Manager):
             .select_related('content__last_note__related_content__public_version') \
             .filter(pk=F('content__public_version__pk'))
         if category:
-            queryset = queryset.filter(content__subcategory__in=[self.category])
+            queryset = queryset.filter(content__subcategory__in=[category])
         if tag:
-            queryset = queryset.filter(content__tags__in=[self.tag])  # different tags can have same
+            queryset = queryset.filter(content__tags__in=[tag])  # different tags can have same
             # slug such as C/C#/C++, as a first version we get all of them
         queryset = queryset.extra(select={'count_note': sub_query})
         return queryset
+
+    def get_featured(self, nb):
+        self.__get_list(None, None, None).order_by('-publication_date')[:2]
 
 
 class PublishableContentManager(models.Manager):

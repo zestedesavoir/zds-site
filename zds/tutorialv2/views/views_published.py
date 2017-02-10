@@ -29,7 +29,7 @@ from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin, SingleOnli
 from zds.tutorialv2.models import TYPE_CHOICES_DICT
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction
 from zds.tutorialv2.utils import search_container_or_404, last_participation_is_old, mark_read
-from zds.utils.models import CommentVote, SubCategory, Alert, Tag, CommentEdit
+from zds.utils.models import Alert, CommentVote, SubCategory, Tag, Category, CategorySubCategory, CommentEdit
 from zds.utils.paginator import make_pagination, ZdSPagingListView
 from zds.utils.templatetags.topbar import top_categories_content
 
@@ -380,10 +380,19 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
             context['hierarchy_level'] = 1
         elif 'category' in self.request.GET:
             context['hierarchy_level'] = 2
-        if context['hierarchy_level'] == 1:
-            method_name = settings.ZDS_APP['content']['selected_content_method_name']
-            context['selected_content'] = getattr(PublishedContent.objects, method_name)(self.category, self.tag,
-                                                                                         self.current_content_type)
+        method_name = settings.ZDS_APP['content']['selected_content_method_name']
+        context['selected_contents'] = getattr(PublishedContent.objects, method_name)(self.category, self.tag,
+                                                                                     self.current_content_type)[:6]
+        if context['hierarchy_level'] == 0:
+            context['themes'] = list(Category.objects.order_by('position').all())
+            for theme in context['themes']:
+                theme.categories = CategorySubCategory.objects.filter(is_main=True, category=theme)\
+                    .prefetch_related('subcategory').values('subcategory__pk', 'subcategory__title',
+                                                            'subcategory__slug', 'subcategory__image')
+                pks = [c['subcategory__pk'] for c in theme.categories]
+                theme.count = PublishedContent.objects.filter(must_redirect=False,
+                                                              content__subcategory__in=pks).count()
+            context['public_contents'] = context['public_contents'][:min(len(context['public_contents']), 6)]
         return context
 
 
