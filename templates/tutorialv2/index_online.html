@@ -102,39 +102,39 @@
 
         <div class="content-linkbox-list">
             <div class="linkbox-item secondary">
-                <a href="" class="head">
+                <a href="{% url "content:create-tutorial" %}" class="head">
                     <h3>Ecrire un tutoriel</h3>
                     <span class="icon"></span>
                 </a>
 
-                <a href="" class="body">
-                    <p>Lint vérifie, par le biais de JSHint, la forme du code (indentation, doubles guillemets, etc). Lint vérifie, par le biais de JSHint, la forme du code.</p>
-                    <p class="right">Allons-y</p>
+                <a href="{% url "content:create-tutorial" %}" class="body">
+                    <p>Vous avez un savoir à partager, vous vous sentez pédagogue, pourquoi ne pas commencer l'écriture d'un tutoriel ?</p>
+                    <p class="right">Allons-y.</p>
                 </a>
             </div>
 
             <div class="linkbox-item secondary">
-                <a href="" class="head">
+                <a href="{% url 'content:helps' %}?type=tuto" class="head">
                     <h3>Aider les auteurs</h3>
                     <span class="icon"></span>
                 </a>
 
-                <a href="" class="body">
-                    <p>Lint vérifie, par <strong>le biais de JSHint</strong>, la forme du code (indentation, doubles guillemets, etc). Lint vérifie, par le biais de JSHint, la forme du code.</p>
-                    <p>Lint vérifie, par le biais <em>de JSHint</em>, la forme du code (indentation, doubles guillemets, etc). Lint vérifie, par le biais de JSHint, la forme du code.</p>
-                    <p class="right">Proposer son aide</p>
+                <a href="{% url 'content:helps' %}?type=tuto" class="body">
+                    <p>Les auteurs ont souvent besoin d'un peu d'aide pour amener leur contenu jusqu'à la publication.</p>
+                    <p>Dessiner une icône ou des illustrations, corriger un texte ou encore devenir co-auteur vous interesse ?</p>
+                    <p class="right">Parcourir les demandes d'aides.</p>
                 </a>
             </div>
 
             <div class="linkbox-item secondary">
-                <a href="" class="head">
+                <a href="#" class="head">
                     <h3>Donner son avis</h3>
                     <span class="icon"></span>
                 </a>
 
-                <a href="" class="body">
-                    <p>Lint vérifie, par le biais de JSHint, la forme du code (indentation, doubles guillemets, etc). Lint vérifie, par le biais de JSHint, la forme du code.</p>
-                    <p class="right">Vers la bêta-zone</p>
+                <a href="#" class="body">
+                    <p>Les contenus presque terminés nécessitent souvent une relecture afin de peaufiner le fond comme la forme.</p>
+                    <p class="right">Consulter les contenus en bêta.</p>
                 </a>
             </div>
         </div>
@@ -149,11 +149,11 @@
                     <h3>Flux</h3>
                 </div>
 
-                <a href="" class="tail">
+                <a href="{% url "tutorial:feed-rss" %}" class="tail">
                     <p>Nouveaux tutoriels (RSS)</p>
                     <span class="icon"></span>
                 </a>
-                <a href="" class="tail">
+                <a href="{% url "tutorial:feed-atom" %}" class="tail">
                     <p>Nouveaux tutoriels (ATOM)</p>
                     <span class="icon"></span>
                 </a>
