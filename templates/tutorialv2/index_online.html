@@ -59,7 +59,7 @@
             TODO : later
         {% endcomment %}
 
-        Header
+        TODO : Header
     </div>
 </section>
 
@@ -75,28 +75,30 @@
 
     <section>
         <h2 itemprop="name">Tutoriels à la une</h2>
-        <p>Ici mettre uniquement les deux tutoriels à la une sous la présentation normale</p>
+        <p>TODO : Ici mettre uniquement les deux tutoriels à la une sous la présentation normale</p>
     </section>
 
     <section>
-        <h2 itemprop="name">Domaines de savoir</h2>
+        <h2 class="inline" itemprop="name">Domaines de savoir</h2>
         <div class="content-linkbox-list">
             {% include 'tutorialv2/list_page_elements/themes_list.html' %}
         </div>
     </section>
 
-    <section>
-        <h2 itemprop="name">Dernier tutoriels</h2>
-        <p>Ici mettre les 6 derniers tutoriels sous la présentation normale</p>
-    </section>
+    <div class="flexpage-column">
+        <section>
+            <h2 itemprop="name">Dernier tutoriels</h2>
+            <p>TODO : Ici mettre les 6 derniers tutoriels sous la présentation normale</p>
+        </section>
+
+        <section>
+            <h2 itemprop="name">Tutoriels chauds</h2>
+            {% include 'tutorialv2/list_page_elements/list_of_content.html' with public_contents=selected_contents col_number=1 %}
+        </section>
+    </div>
 
     <section>
-        <h2 itemprop="name">Tutoriels chauds</h2>
-        {% include 'tutorialv2/list_page_elements/list_of_content.html' with public_contents=selected_contents col_number=1 %}
-    </section>
-
-    <section>
-        <h2>Envie de s'investir ?</h2>
+        <h2 class="inline">Envie de s'investir ?</h2>
 
         <div class="content-linkbox-list">
             <div class="linkbox-item secondary">
@@ -135,14 +137,16 @@
                     <p class="right">Vers la bêta-zone</p>
                 </a>
             </div>
+        </div>
+    </section>
 
+    <section>
+        <h2 class="inline">Ne rien louper</h2>
+
+        <div class="content-linkbox-list">
             <div class="linkbox-item">
                 <div class="head">
                     <h3>Flux</h3>
-                </div>
-
-                <div class="body">
-                    <p>Bla bla</p>
                 </div>
 
                 <a href="" class="tail">
