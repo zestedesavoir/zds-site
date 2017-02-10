@@ -18,8 +18,7 @@ $color-linkbox-default: #777;
             position: relative;
             color: white;
             text-decoration: none;
-
-            &:after {
+&:after {
                 content: '';
                 position: absolute;
                 top: 15px; right: 15px;
@@ -30,8 +29,7 @@ $color-linkbox-default: #777;
                 border-color: white;
                 border-style: solid;
                 border-width: 2px 2px 0 0;
-                opacity: .5;
-            }
+                opacity: .5;        }
 
             &:hover:after, &:focus:after {
                 opacity: 1;
@@ -41,6 +39,7 @@ $color-linkbox-default: #777;
             width: 25px;
             background: white;
         }
+
         .head {
             display: flex;
             padding: 15px 30px 15px 10px;
