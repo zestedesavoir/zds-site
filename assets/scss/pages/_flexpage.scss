@@ -25,6 +25,7 @@ $content-width: 1145px;
     }
 
     .flexpage-header {
+        margin-bottom: 20px;
         border-bottom: solid 1px white;
         background-color: #19516b; // fallback for older browser
         background: #19516b radial-gradient(at top, rgba(255,255,255,0.1),rgba(0,0,0,0) 60%);
@@ -39,6 +40,56 @@ $content-width: 1145px;
             flex: 0 0 auto;
             width: calc(50% - 20px);
             margin-left: 20px;
+        }
+    }
+
+    .flexpage-title-search {
+        padding: 50px;
+
+        .picto {
+            float: left;
+            width: 120px; height: 120px;
+            margin-right: 20px;
+
+            background: white;
+        }
+
+        .title {
+            display: block;
+            color: white;
+            font-size: 1.8rem;
+
+            h1 {
+                display: inline-block;
+                margin: 0 15px 0 0; padding: 0;
+
+                color: inherit;
+                font-size: 6rem;
+                line-height: 6rem;
+                border: none;
+            }
+        }
+
+        .search {
+            display: flex;
+            flex-direction: row;
+            max-width: 500px;
+            margin-top: 20px;
+
+            background: white;
+
+            label {
+                line-height: 40px;
+                margin: 0; padding: 0 15px;
+            }
+
+            input {
+                height: 40px;
+                line-height: 40px;
+                margin: 0; padding: 0 15px;
+
+                border: none;
+            }
         }
     }
 }
