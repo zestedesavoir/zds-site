@@ -387,7 +387,7 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
                                                                                       self.current_content_type)[:6]
         if context['hierarchy_level'] == 0:
             context['featured'] = list(FeaturedResource.objects.filter(
-                Q(title__iexact='tutoriel') | Q(title__iexact='article')))
+                Q(type__iexact='tutoriel') | Q(type__iexact='article')))
             context['themes'] = list(Category.objects.order_by('position').all())
             for theme in context['themes']:
                 theme.categories = CategorySubCategory.objects.filter(is_main=True, category=theme)\

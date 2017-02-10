@@ -81,142 +81,7 @@
     <section>
         <h2 itemprop="name">Domaines de savoir</h2>
         <div class="content-linkbox-list">
-            <div class="linkbox-item primary">
-                <a href="" class="head">
-                    <h3>Informatique</h3>
-                    <span class="icon"></span>
-                </a>
-
-                <a href="" class="body">
-                    <p>Lint vérifie, par le biais de JSHint, la forme du code (indentation, doubles guillemets, etc). Lint vérifie, par le biais de JSHint, la forme du code.</p>
-                    <p class="right">38 tutoriels</p>
-                </a>
-
-                <a href="" class="tail">
-                    <p>Autres (informatique)</p>
-                    <span class="icon"></span>
-                </a>
-                <a href="" class="tail">
-                    <p>Bureautique et rédaction</p>
-                    <span class="icon"></span>
-                </a>
-                <a href="" class="tail">
-                    <p>Matériel et électronique</p>
-                    <span class="icon"></span>
-                </a>
-                <a href="" class="tail">
-                    <p>Programmation et algorithmique</p>
-                    <span class="icon"></span>
-                </a>
-                <a href="" class="tail">
-                    <p>Site web</p>
-                    <span class="icon"></span>
-                </a>
-                <a href="" class="tail">
-                    <p>Systèmes d'exploitation</p>
-                    <span class="icon"></span>
-                </a>
-            </div>
-
-            <div class="linkbox-item primary">
-                <a href="" class="head">
-                    <h3>Sciences de la nature</h3>
-                    <span class="icon"></span>
-                </a>
-
-                <a href="" class="body">
-                    <p>lint vérifie, par le biais de JSHint, la forme du code (indentation, doubles guillemets, etc).</p>
-                </a>
-
-                <a href="" class="tail">
-                    <p>Astronomie</p>
-                    <span class="icon"></span>
-                </a>
-                <a href="" class="tail">
-                    <p>Autres (sciences de la nature)</p>
-                    <span class="icon"></span>
-                </a>
-                <a href="" class="tail">
-                    <p>Biologie</p>
-                    <span class="icon"></span>
-                </a>
-                <a href="" class="tail">
-                    <p>Chimie</p>
-                    <span class="icon"></span>
-                </a>
-                <a href="" class="tail">
-                    <p>Géologie et géographie physique</p>
-                    <span class="icon"></span>
-                </a>
-                <a href="" class="tail">
-                    <p>Mathématiques</p>
-                    <span class="icon"></span>
-                </a>
-                <a href="" class="tail">
-                    <p>Physique</p>
-                    <span class="icon"></span>
-                </a>
-            </div>
-
-            <div class="linkbox-item primary">
-                <a href="" class="head">
-                    <h3>Sciences humaines et sociales</h3>
-                    <span class="icon"></span>
-                </a>
-
-                <a href="" class="body">
-                    <p>lint vérifie, par le biais de JSHint, la forme du code (indentation, doubles guillemets, etc).</p>
-                </a>
-
-                <a href="" class="tail">
-                    <p>Autres (sciences humaines et sociales)</p>
-                    <span class="icon"></span>
-                </a>
-                <a href="" class="tail">
-                    <p>Droit</p>
-                    <span class="icon"></span>
-                </a>
-                <a href="" class="tail">
-                    <p>Économie</p>
-                    <span class="icon"></span>
-                </a>
-                <a href="" class="tail">
-                    <p>Histoire</p>
-                    <span class="icon"></span>
-                </a>
-                <a href="" class="tail">
-                    <p>Psychologie</p>
-                    <span class="icon"></span>
-                </a>
-            </div>
-
-            <div class="linkbox-item primary">
-                <a href="" class="head">
-                    <h3>Autres</h3>
-                    <span class="icon"></span>
-                </a>
-
-                <a href="" class="body">
-                    <p>Du petit texte...</p>
-                </a>
-
-                <a href="" class="tail">
-                    <p>Arts, graphisme et multimédia</p>
-                    <span class="icon"></span>
-                </a>
-                <a href="" class="tail">
-                    <p>Autres</p>
-                    <span class="icon"></span>
-                </a>
-                <a href="" class="tail">
-                    <p>Communication et management</p>
-                    <span class="icon"></span>
-                </a>
-                <a href="" class="tail">
-                    <p>Zeste de Savoir</p>
-                    <span class="icon"></span>
-                </a>
-            </div>
+            {% include 'tutorialv2/list_page_elements/themes_list.html' %}
         </div>
     </section>
 
@@ -227,7 +92,7 @@
 
     <section>
         <h2 itemprop="name">Tutoriels chauds</h2>
-        <p>Ici mettre les 6 tutoriels les plus commentés sous la présentation normale</p>
+        {% include 'tutorialv2/list_page_elements/list_of_content.html' with public_contents=selected_contents col_number=1 %}
     </section>
 
     <section>

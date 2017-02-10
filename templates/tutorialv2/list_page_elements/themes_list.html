@@ -7,17 +7,19 @@ exposes themes
     <div class="linkbox-item primary">
         <a href="{% url 'content:list' %}?theme={{ theme.title }}" class="head">
             <h3>{{ theme.title }}</h3>
-
+            <span class="icon"><img src="{{ theme.image }}" alt="{% trans 'icône' %} {{ theme.title }}"></span>
         </a>
-
         <a href="{% url 'content:list' %}?theme={{ theme.title }}" class="body">
             <p>{{ theme.description }}</p>
             <p class="right">{{ theme.count }} {% trans 'contenus' %}</p>
         </a>
 
         {% for category in theme.categories %}
-            <a href="{% url 'content:list' %}?category={{ category.subcategory__slug }}" class="tail">
-                <p>{{ category.subcategory__title }}</p>
+           <a href="{% url 'content:list' %}?category={{ category.subcategory__slug }}" class="body">
+                <p>
+                    {{ category.subcategory__title }}
+                    <span class="icon"> <img src="{{ category.subcategory__image }}" alt="{% trans 'icône' %} {{ category.subcategory__title }}"></span>
+                </p>
             </a>
         {% endfor %}
     </div>
