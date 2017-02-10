@@ -29,10 +29,34 @@ $content-width: 1145px;
         background-color: #19516b; // fallback for older browser
         background: #19516b radial-gradient(at top, rgba(255,255,255,0.1),rgba(0,0,0,0) 60%);
     }
+
+    .flexpage-column {
+        display: flex;
+        flex: 1;
+        margin-left: -20px;
+
+        section {
+            flex: 0 0 auto;
+            width: calc(50% - 20px);
+            margin-left: 20px;
+        }
+    }
 }
 
 @media only screen and #{$media-mobile-tablet} {
-    .flexpage-wrapper {
-        padding: 20px 10px;
+    .flexpage {
+        .flexpage-wrapper {
+            padding: 20px 10px;
+        }
+
+        .flexpage-column {
+            display: block;
+            margin-left: 10px;
+
+            section {
+                width: 100%;
+                margin-left: 0;
+            }
+        }
     }
 }
