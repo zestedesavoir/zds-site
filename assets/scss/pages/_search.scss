@@ -2,4 +2,13 @@
     .flexpage-header {
         padding-top: 50px;
     }
+    .pagination-top {
+        margin-top: 30px;
+    }
+}
+
+@media only screen and #{$media-mobile-tablet} {
+    .pagination-top {
+        margin-top: 10px;
+    }
 }
