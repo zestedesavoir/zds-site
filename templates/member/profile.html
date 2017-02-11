@@ -86,21 +86,6 @@
             {% endif %}
         </ul>
 
-        {% if perms.member.change_profile and not profile.is_private %}
-            <div>
-                {% trans "Remarques sur cet utilisateur" %} ({{ profile.karma }}) :
-                <ul>
-                {% if karmanotes.count > 0 %}
-                    {% for note in karmanotes %}
-                        <li><strong>{{ note.karma }}</strong> {{ note.pubdate|format_date:True }} {% trans "par" %} {{ note.moderator.username }} : {{ note.note }}</li>
-                    {% endfor %}
-                {% else %}
-                    <li>{% trans "Cet utilisateur n'a reçu aucune remarque" %}</li>
-                {% endif %}
-                </ul>
-            </div>
-        {% endif %}
-
         {% if profile.sign %}
             <h2 id="signature">{% trans "Signature" %}</h2>
             {{ profile.sign|emarkdown_inline }}
@@ -157,10 +142,40 @@
         </section>
     {% endif %}
 
-    {% if perms.member.change_profile %}
+    {% if perms.member.change_profile and actions %}
         <hr class="clearfix" />
         <section class="full-content-wrapper without-margin article-content">
             <h2 id="historique-moderation">{% trans "Historique de modération" %}</h2>
+            <table class="fullwidth">
+                <thead>
+                    <th>{% trans "Action" %}</th>
+                    <th>{% trans "Explication" %}</th>
+                    <th class="wide">{% trans "Modérateur" %}</th>
+                    <th class="wide">{% trans "Date" %}</th>
+                </thead>
+                <tbody>
+                    {% for action in actions %}
+                        <tr>
+                            <td>
+                                {% if action.karma %}
+                                    {% trans "Modification du karma" %} : {{ action.karma }}
+                                {% else %}
+                                    {{ action.type }}
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if action.note %}
+                                    {{ action.note }}
+                                {% else %}
+                                    –
+                                {% endif %}
+                            </td>
+                            <td class="wide"><a href="{% url "member-detail" action.moderator.username %}">{{ action.moderator.username }}</a></td>
+                            <td class="wide">{{ action.pubdate|format_date|capfirst }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </section>
     {% endif %}
 
@@ -308,7 +323,7 @@
                     </a>
                 </li>
             {% endif %}
-            {% if perms.member.change_profile %}
+            {% if perms.member.change_profile and actions %}
                 <li>
                     <a href="#historique-moderation">
                         {% trans "Historique de modération" %}
@@ -512,21 +527,23 @@
                 </li>
             </ul>
 
-            <h4>{% trans "Karma" %}</h4>
-            <ul>
-                <li class="inactive">
-                    <span>
-                        {% trans "Valeur actuelle" %}
-                        <span class="count">{{ profile.karma }}</span>
-                    </span>
-                </li>
-                <li>
-                    <a href="#karmatiser-modal" class="open-modal">
-                        {% trans "Ajouter une remarque" %}
-                    </a>
-                    {% crispy karmaform %}
-                </li>
-            </ul>
+            {% if not profile.is_private %}
+                <h4>{% trans "Karma" %}</h4>
+                <ul>
+                    <li class="inactive">
+                        <span>
+                            {% trans "Valeur actuelle" %}
+                            <span class="count">{{ profile.karma }}</span>
+                        </span>
+                    </li>
+                    <li>
+                        <a href="#karmatiser-modal" class="open-modal">
+                            {% trans "Ajouter une remarque" %}
+                        </a>
+                        {% crispy karmaform %}
+                    </li>
+                </ul>
+            {% endif %}
 
             {% if not profile.is_private and usr != user %}
             <h4>{% trans "Sanctions" %}</h4>

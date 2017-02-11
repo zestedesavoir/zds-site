@@ -83,16 +83,16 @@ class MemberDetail(DetailView):
             topic.is_followed = topic in followed_topics
         context['articles'] = PublishedContent.objects.last_articles_of_a_member_loaded(usr)
         context['tutorials'] = PublishedContent.objects.last_tutorials_of_a_member_loaded(usr)
-        context['karmaform'] = KarmaForm(profile)
         context['topic_read'] = TopicRead.objects.list_read_topic_pk(self.request.user, context['topics'])
         context['subscriber_count'] = NewPublicationSubscription.objects.get_subscriptions(self.object).count()
         if self.request.user.has_perm('member.change_profile'):
-            sanctions = list(Ban.objects.filter(user=usr).order_by('-pubdate').select_related('moderator'))
-            notes = list(KarmaNote.objects.filter(user=usr).order_by('-pubdate').select_related('moderator'))
+            sanctions = list(Ban.objects.filter(user=usr).select_related('moderator'))
+            notes = list(KarmaNote.objects.filter(user=usr).select_related('moderator'))
             actions = sanctions + notes
             actions.sort(key=lambda e: e.pubdate)
             actions.reverse()
             context['actions'] = actions
+            context['karmaform'] = KarmaForm(profile)
         return context
 
 
