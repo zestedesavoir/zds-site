@@ -193,7 +193,50 @@ class MemberTests(TestCase):
         self.assertEqual(result.status_code, 404)
 
     def test_moderation_history(self):
-        
+        user = ProfileFactory().user
+
+        ban = Ban(
+            user=user,
+            moderator=self.staff,
+            type='Lecture Seule Temporaire',
+            note='Test de LS',
+            pubdate=datetime.now(),
+        )
+        ban.save()
+
+        note = KarmaNote(
+            user=user,
+            moderator=self.staff,
+            karma=5,
+            note='Test de karma',
+            pubdate=datetime.now(),
+        )
+        note.save()
+
+        # staff rights are required to view the history, check that
+        self.client.logout()
+        self.client.login(username=user.username, password='hostel77')
+        result = self.client.get(
+            user.profile.get_absolute_url(),
+            follow=False
+        )
+        self.assertNotContains(result, 'Historique de modération')
+
+        self.client.logout()
+        self.client.login(username=self.staff.username, password='hostel77')
+        result = self.client.get(
+            user.profile.get_absolute_url(),
+            follow=False
+        )
+        self.assertContains(result, 'Historique de modération')
+
+        # check that the note and the sanction are in the context
+        self.assertIn(ban, result.context['actions'])
+        self.assertIn(note, result.context['actions'])
+
+        # and are displayed
+        self.assertContains(result, 'Test de LS')
+        self.assertContains(result, 'Test de karma')
 
     def test_profile_page_of_weird_member_username(self):
 

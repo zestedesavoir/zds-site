@@ -89,7 +89,7 @@ class MemberDetail(DetailView):
             sanctions = list(Ban.objects.filter(user=usr).select_related('moderator'))
             notes = list(KarmaNote.objects.filter(user=usr).select_related('moderator'))
             actions = sanctions + notes
-            actions.sort(key=lambda e: e.pubdate)
+            actions.sort(key=lambda action: action.pubdate)
             actions.reverse()
             context['actions'] = actions
             context['karmaform'] = KarmaForm(profile)
