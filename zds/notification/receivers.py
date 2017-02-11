@@ -288,7 +288,7 @@ def answer_comment_event(sender, **kwargs):
             return
     subscription = PingSubscription.objects.get_or_create_active(user, comment)
     if subscription.was_active:
-        logger.info("subsription %s was active", subscription)
+        logger.info('subsription %s was active', subscription)
         return
     subscription.send_notification(content=comment, sender=comment.author, send_email=False)
 
