@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 import logging
 
 from django.db.backends.dummy.base import DatabaseError
+from django.db.models.query_utils import Q
 
 import zds
 
@@ -173,6 +175,14 @@ def edit_topic_event(sender, **kwargs):
             elif notification.subscription.content_object != notification.content_object.forum:
                 notification.is_dead = True
                 notification.save()
+        if settings.ZDS_APP['comment']['enable_pings']:
+            content_type = ContentType.objects.get_for_model(topic.last_message)
+            forum_groups = list(topic.forum.group.all())
+            for message in Post.objects.prefetch_related('topic', 'topic__forum').filter(topic=topic):
+                PingSubscription.objects.filter(content_type=content_type,
+                                                object_id=message.pk)\
+                                        .filter(~Q(user__groups__in=forum_groups))\
+                                        .update(is_active=False)
 
 
 @receiver(post_save, sender=Topic)
