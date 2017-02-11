@@ -83,11 +83,13 @@ class SubscriptionManager(models.Manager):
                 object_id=content_object.pk,
                 content_type__pk=content_type.pk,
                 user=user)
+            subscription.was_active = subscription.is_active
             if not subscription.is_active:
                 subscription.activate()
         except ObjectDoesNotExist:
             subscription = self.model(user=user, content_object=content_object)
             subscription.save()
+            subscription.was_active = False
 
         return subscription
 
