@@ -284,7 +284,7 @@ def answer_comment_event(sender, **kwargs):
     assert user is not None
     # avoids creation of a ping if forum is not visible.
     if sender == Post:
-        if not Topic.objects.filter(pk=comment.topic.forum.pk, group__in=list(user.groups.all())).exists():
+        if not Topic.objects.filter(pk=comment.topic.forum.pk, forum__group__in=list(user.groups.all())).exists():
             return
     subscription = PingSubscription.objects.get_or_create_active(user, comment)
     if subscription.was_active:
