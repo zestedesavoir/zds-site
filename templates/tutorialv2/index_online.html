@@ -56,16 +56,18 @@
 <section class="flexpage-header">
     <div class="flexpage-wrapper">
         <div class="flexpage-title-search">
-            <div class="picto">Icône</div>
+            <div class="picto">
+                <img src="http://127.0.0.1:8000/static/images/home-clem.png">
+            </div>
             <div class="title">
-                <h1>Tutoriels</h1>
-                105 tutoriels
+                <h1>Contenus</h1>
+                105 contenus
             </div>
 
             <form action="" id="search-form" class="search" method="get">
                 <label for="id_q" class="control-label ">Recherche</label>
                 <input id="id_q" maxlength="150" name="q" required="required" type="search">
-                <button type="submit" class="btn ico-after ico-search" title="Rechercher"></button>
+                <button class="btn ico-after ico-search" type="submit" title="Rechercher"></button>
             </form>
         </div>
     </div>
@@ -82,7 +84,7 @@
     {% endcomment %}
 
     <section>
-        <h2 itemprop="name">Tutoriels à la une</h2>
+        <h2 itemprop="name">À la une</h2>
         <p>TODO : Ici mettre uniquement les deux tutoriels à la une sous la présentation normale</p>
     </section>
 
@@ -95,12 +97,12 @@
 
     <div class="flexpage-column">
         <section>
-            <h2 itemprop="name">Dernier tutoriels</h2>
+            <h2 itemprop="name">Derniers tutoriels</h2>
             {% include 'tutorialv2/list_page_elements/list_of_content.html' with public_contents=public_contents col_number=1 %}
         </section>
 
         <section>
-            <h2 itemprop="name">Tutoriels chauds</h2>
+            <h2 itemprop="name">Derniers articles</h2>
             {% include 'tutorialv2/list_page_elements/list_of_content.html' with public_contents=selected_contents col_number=1 %}
         </section>
     </div>
@@ -110,14 +112,33 @@
 
         <div class="content-linkbox-list">
             <div class="linkbox-item secondary">
-                <a href="{% url "content:create-tutorial" %}" class="head">
-                    <h3>Ecrire un tutoriel</h3>
+                <a href="#" class="head">
+                    <h3>Donner son avis</h3>
                     <span class="icon"></span>
                 </a>
 
-                <a href="{% url "content:create-tutorial" %}" class="body">
+                <a href="#" class="body">
+                    <p>Les contenus presque terminés nécessitent souvent une relecture afin de peaufiner le fond comme la forme.</p>
+                    <p class="right">Consulter les contenus en bêta.</p>
+                </a>
+            </div>
+            
+            <div class="linkbox-item secondary">
+                <div class="head">
+                    <h3>Partager votre savoir</h3>
+                    <span class="icon"></span>
+                </div>
+
+                <div class="body">
                     <p>Vous avez un savoir à partager, vous vous sentez pédagogue, pourquoi ne pas commencer l'écriture d'un tutoriel ?</p>
-                    <p class="right">Allons-y.</p>
+                </div>
+
+                <a href="{% url "content:create-tutorial" %}" class="tail">
+                    <p>Écrire un tutoriel</p>
+                </a>
+
+                <a href="{% url "content:create-article" %}" class="tail">
+                    <p>Écrire un article</p>
                 </a>
             </div>
 
@@ -131,18 +152,6 @@
                     <p>Les auteurs ont souvent besoin d'un peu d'aide pour amener leur contenu jusqu'à la publication.</p>
                     <p>Dessiner une icône ou des illustrations, corriger un texte ou encore devenir co-auteur vous interesse ?</p>
                     <p class="right">Parcourir les demandes d'aides.</p>
-                </a>
-            </div>
-
-            <div class="linkbox-item secondary">
-                <a href="#" class="head">
-                    <h3>Donner son avis</h3>
-                    <span class="icon"></span>
-                </a>
-
-                <a href="#" class="body">
-                    <p>Les contenus presque terminés nécessitent souvent une relecture afin de peaufiner le fond comme la forme.</p>
-                    <p class="right">Consulter les contenus en bêta.</p>
                 </a>
             </div>
         </div>

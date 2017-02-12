@@ -45,19 +45,46 @@ $content-width: 1145px;
 
     .flexpage-title-search {
         padding: 50px;
+        font-size: 2rem;
+        font-weight: 100;
 
         .picto {
             float: left;
-            width: 120px; height: 120px;
-            margin-right: 20px;
+            position: relative;
+            width: 104px; height: 60.04px;
+            margin: 30.02px 50px 30.02px 0;
 
-            background: white;
+            background: rgba(0, 0, 0, .2);
+
+            &:before, &:after {
+                z-index: 0;
+                content: '';
+                position: absolute;
+                width: 0;
+                border-left: 52px solid transparent;
+                border-right: 52px solid transparent;
+            }
+
+            &:before {
+                bottom: 100%; left: 0;
+                border-bottom: 30.02px solid rgba(0, 0, 0, .2);
+            }
+
+            &:after {
+                top: 100%; left: 0;
+                width: 0;
+                border-top: 30.02px solid rgba(0, 0, 0, .2);
+            }
+
+            img {
+                position: absolute;
+                bottom: -3px; left: 16px;
+            }
         }
 
         .title {
             display: block;
             color: white;
-            font-size: 1.8rem;
 
             h1 {
                 display: inline-block;
@@ -65,7 +92,7 @@ $content-width: 1145px;
 
                 color: inherit;
                 font-size: 6rem;
-                line-height: 6rem;
+                line-height: 50px;
                 border: none;
             }
         }
@@ -73,22 +100,39 @@ $content-width: 1145px;
         .search {
             display: flex;
             flex-direction: row;
-            max-width: 500px;
+            max-width: 600px;
             margin-top: 20px;
 
             background: white;
 
             label {
-                line-height: 40px;
+                line-height: 50px;
                 margin: 0; padding: 0 15px;
             }
 
             input {
-                height: 40px;
-                line-height: 40px;
+                line-height: 50px;
+                height: 50px;
                 margin: 0; padding: 0 15px;
 
                 border: none;
+            }
+
+            button {
+                width: 50px; height: 50px;
+                line-height: 50px;
+                background: #fff;
+
+                &:after {
+                    margin: 16px !important;
+                    background-position: -256px -232px;
+                    width: 16px;
+                    height: 40px;
+                }
+
+                &:hover, &:focus {
+                    background: #ccc !important;
+                }
             }
         }
     }
