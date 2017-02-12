@@ -522,7 +522,7 @@ ZDS_APP = {
     },
     'comment': {
         'max_pings': 15,
-        'enable_pings': False,
+        'enable_pings': True,
     },
     'featured_resource': {
         'featured_per_page': 100,
