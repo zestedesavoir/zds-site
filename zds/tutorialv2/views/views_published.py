@@ -9,6 +9,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
+from django.db.models.query_utils import Q
 from django.http import Http404, HttpResponsePermanentRedirect, StreamingHttpResponse, HttpResponse
 from django.db.models import F, Q
 from django.shortcuts import get_object_or_404, redirect, render_to_response
@@ -18,6 +19,7 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import RedirectView, FormView, ListView
 
+from zds.featured.models import FeaturedMessage, FeaturedResource
 from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin, PermissionRequiredMixin
 from zds.member.views import get_client_ip
 from zds.notification import signals
@@ -382,8 +384,10 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
             context['hierarchy_level'] = 2
         method_name = settings.ZDS_APP['content']['selected_content_method_name']
         context['selected_contents'] = getattr(PublishedContent.objects, method_name)(self.category, self.tag,
-                                                                                     self.current_content_type)[:6]
+                                                                                      self.current_content_type)[:6]
         if context['hierarchy_level'] == 0:
+            context['featured'] = list(FeaturedResource.objects.filter(
+                Q(title__iexact='tutoriel') | Q(title__iexact='article')))
             context['themes'] = list(Category.objects.order_by('position').all())
             for theme in context['themes']:
                 theme.categories = CategorySubCategory.objects.filter(is_main=True, category=theme)\
@@ -393,6 +397,7 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
                 theme.count = PublishedContent.objects.filter(must_redirect=False,
                                                               content__subcategory__in=pks).count()
             context['public_contents'] = context['public_contents'][:min(len(context['public_contents']), 6)]
+        context['content_count'] = PublishedContent.objects.filter(must_redirect=False).count()
         return context
 
 
