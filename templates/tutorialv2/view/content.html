@@ -332,7 +332,7 @@
         {% if content.sha_public %}
             <li>
                 <a href="{% url "content:diff" content.pk content.slug_repository %}?from={{ content.sha_public }}&amp;to={% if version %}{{ version }}{% else %}{{ content.sha_draft }}{% endif %}" class="ico-after history blue">
-                    {% trans "Comparer avec la version publique" %}
+                    {% trans "Comparer avec la version en ligne" %}
                 </a>
             </li>
         {% endif %}
