@@ -61,7 +61,7 @@
             </div>
             <div class="title">
                 <h1>Contenus</h1>
-                105 contenus
+                {{ content_count }} contenus
             </div>
 
             <form action="" id="search-form" class="search" method="get">
@@ -85,7 +85,9 @@
 
     <section>
         <h2 itemprop="name">À la une</h2>
-        <p>TODO : Ici mettre uniquement les deux tutoriels à la une sous la présentation normale</p>
+        {% for featured_content in featured %}
+            {% include "featured/includes/featured_resource_item.part.html" with featured_resource=featured_content %}
+        {% endfor %}
     </section>
 
     <section>
