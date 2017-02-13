@@ -481,6 +481,21 @@ def modify_profile(request, user_pk):
 
 
 @login_required
+@permission_required('member.change_profile', raise_exception=True)
+def sanctions_history(request, user_pk):
+    """Display the history of a member sanctions"""
+
+    user = get_object_or_404(User, pk=user_pk)
+
+    sanctions = Ban.objects.filter(user=user).order_by('-pubdate').select_related('moderator')
+
+    return render(request, 'member/sanctions_history.html', {
+        'usr': user,
+        'sanctions': sanctions,
+    })
+
+
+@login_required
 def tutorials(request):
     """Returns all tutorials of the authenticated user."""
 

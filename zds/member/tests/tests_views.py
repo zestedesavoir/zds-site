@@ -192,6 +192,54 @@ class MemberTests(TestCase):
         )
         self.assertEqual(result.status_code, 404)
 
+    def test_sanctions_history(self):
+        user = ProfileFactory().user
+
+        ban = Ban(
+            user=user,
+            moderator=self.staff,
+            type='Lecture seule temporaire',
+            note='Test de LS'
+        )
+        ban.save()
+
+        # staff rights are required to view the history, check that
+        self.client.logout()
+        self.client.login(username=user.username, password='hostel77')
+
+        result = self.client.get(
+            reverse('member-sanctions-history', args=[user.pk]),
+            follow=False
+        )
+
+        self.assertEqual(result.status_code, 403)
+
+        self.client.logout()
+        self.client.login(username=self.staff.username, password='hostel77')
+
+        result = self.client.get(
+            reverse('member-sanctions-history', args=[user.pk]),
+            follow=False
+        )
+
+        self.assertEqual(result.status_code, 200)
+
+        # now, check that the history of a unknown user returns a 404
+        result = self.client.get(
+            reverse('member-sanctions-history', args=[0]),
+            follow=False
+        )
+
+        self.assertEqual(result.status_code, 404)
+
+        # finally, check that the history contains the note
+        result = self.client.get(
+            reverse('member-sanctions-history', args=[user.pk]),
+            follow=False
+        )
+
+        self.assertContains(result, 'Test de LS')
+
     def test_profile_page_of_weird_member_username(self):
 
         # create some user with weird username
@@ -635,7 +683,7 @@ class MemberTests(TestCase):
         self.assertIsNone(user.end_ban_write)
         self.assertIsNone(user.end_ban_read)
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-pubdate')[0]
-        self.assertEqual(ban.type, 'Lecture Seule')
+        self.assertEqual(ban.type, 'Lecture seule définitive')
         self.assertEqual(ban.note, 'Texte de test pour LS')
         self.assertEquals(len(mail.outbox), 1)
 
@@ -657,7 +705,7 @@ class MemberTests(TestCase):
         self.assertIsNone(user.end_ban_write)
         self.assertIsNone(user.end_ban_read)
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-id')[0]
-        self.assertEqual(ban.type, u'Autorisation d\'écrire')
+        self.assertEqual(ban.type, u'Fin de lecture seule')
         self.assertEqual(ban.note, 'Texte de test pour un-LS')
         self.assertEquals(len(mail.outbox), 2)
 
@@ -681,7 +729,7 @@ class MemberTests(TestCase):
         self.assertIsNotNone(user.end_ban_write)
         self.assertIsNone(user.end_ban_read)
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-id')[0]
-        self.assertEqual(ban.type, u'Lecture Seule Temporaire')
+        self.assertEqual(ban.type, u'Lecture seule temporaire')
         self.assertEqual(ban.note, u'Texte de test pour LS TEMP')
         self.assertEquals(len(mail.outbox), 3)
 
@@ -704,7 +752,7 @@ class MemberTests(TestCase):
         self.assertIsNone(user.end_ban_write)
         self.assertIsNone(user.end_ban_read)
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-id')[0]
-        self.assertEqual(ban.type, u'Ban définitif')
+        self.assertEqual(ban.type, u'Bannissement définitif')
         self.assertEqual(ban.note, u'Texte de test pour BAN')
         self.assertEquals(len(mail.outbox), 4)
 
@@ -727,7 +775,7 @@ class MemberTests(TestCase):
         self.assertIsNone(user.end_ban_write)
         self.assertIsNone(user.end_ban_read)
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-id')[0]
-        self.assertEqual(ban.type, u'Autorisation de se connecter')
+        self.assertEqual(ban.type, u'Fin de bannissement')
         self.assertEqual(ban.note, u'Texte de test pour BAN')
         self.assertEquals(len(mail.outbox), 5)
 
@@ -751,7 +799,7 @@ class MemberTests(TestCase):
         self.assertIsNone(user.end_ban_write)
         self.assertIsNotNone(user.end_ban_read)
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-id')[0]
-        self.assertEqual(ban.type, u'Ban Temporaire')
+        self.assertEqual(ban.type, u'Bannissement temporaire')
         self.assertEqual(ban.note, u'Texte de test pour BAN TEMP')
         self.assertEquals(len(mail.outbox), 6)
 

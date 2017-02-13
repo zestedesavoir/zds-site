@@ -1,0 +1,54 @@
+{% extends "member/base.html" %}
+{% load i18n %}
+{% load date %}
+
+
+{% block title %}
+    {% trans "Historique des sanctions de" %} {{ usr.username }}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+        <li><a href="{% url "member-detail" usr.username %}">{{ usr.username }}</a></li>
+        <li>{% trans "Historique des sanctions" %}</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    {% trans "Historique des sanctions de" %} {{ usr.username }}
+{% endblock %}
+
+
+
+{% block content %}
+    {% if sanctions %}
+        <table class="fullwidth">
+            <thead>
+                <th>{% trans "Type" %}</th>
+                <th>{% trans "Explication" %}</th>
+                <th class="wide">{% trans "Modérateur" %}</th>
+                <th class="wide">{% trans "Date" %}</th>
+            </thead>
+            <tbody>
+                {% for sanction in sanctions %}
+                    <tr>
+                        <td>{{ sanction.type }}</td>
+                        <td>
+                            {% if sanction.note %}
+                                {{ sanction.note }}
+                            {% else %}
+                                –
+                            {% endif %}
+                        </td>
+                        <td class="wide"><a href="{% url "member-detail" sanction.moderator.username %}">{{ sanction.moderator.username }}</a></td>
+                        <td class="wide">{{ sanction.pubdate|format_date|capfirst }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>{{ usr.username }} {% trans "n'a jamais été sanctionné." %}</p>
+    {% endif %}
+{% endblock %}

@@ -224,7 +224,7 @@ class ReadingOnlySanction(MemberSanctionState):
     """
 
     def get_type(self):
-        return _(u'Lecture Seule')
+        return _(u'Lecture seule définitive')
 
     def get_text(self):
         return self.array_infos.get('ls-text', '')
@@ -246,7 +246,7 @@ class TemporaryReadingOnlySanction(MemberSanctionState):
     """
 
     def get_type(self):
-        return _(u'Lecture Seule Temporaire')
+        return _(u'Lecture seule temporaire')
 
     def get_text(self):
         return self.array_infos.get('ls-text', '')
@@ -271,7 +271,7 @@ class DeleteReadingOnlySanction(MemberSanctionState):
     """
 
     def get_type(self):
-        return _(u"Autorisation d'écrire")
+        return _(u'Fin de lecture seule')
 
     def get_text(self):
         return self.array_infos.get('unls-text', '')
@@ -293,7 +293,7 @@ class BanSanction(MemberSanctionState):
     """
 
     def get_type(self):
-        return _(u'Ban définitif')
+        return _(u'Bannissement définitif')
 
     def get_text(self):
         return self.array_infos.get('ban-text', '')
@@ -315,7 +315,7 @@ class TemporaryBanSanction(MemberSanctionState):
     """
 
     def get_type(self):
-        return _(u'Ban Temporaire')
+        return _(u'Bannissement temporaire')
 
     def get_text(self):
         return self.array_infos.get('ban-text', '')
@@ -341,7 +341,7 @@ class DeleteBanSanction(MemberSanctionState):
     """
 
     def get_type(self):
-        return _(u'Autorisation de se connecter')
+        return _(u'Fin de bannissement')
 
     def get_text(self):
         return self.array_infos.get('unban-text', '')
