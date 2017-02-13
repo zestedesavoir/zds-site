@@ -5,7 +5,7 @@ import json
 import requests
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
@@ -607,6 +607,7 @@ class FindPost(FindTopic):
 
 @can_write_and_read_now
 @login_required
+@permission_required('forum.change_post', raise_exception=True)
 @require_POST
 @transaction.atomic
 def solve_alert(request):
@@ -615,9 +616,6 @@ def solve_alert(request):
     resolver leaves a comment.
     This can only be done by staff.
     """
-
-    if not request.user.has_perm('forum.change_post'):
-        raise PermissionDenied
 
     alert = get_object_or_404(Alert, pk=request.POST['alert_pk'])
     post = Post.objects.get(pk=alert.comment.id)
