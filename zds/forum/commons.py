@@ -7,6 +7,7 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
 from django.views.generic.detail import SingleObjectMixin
+from django.contrib.auth.decorators import permission_required
 
 from zds.forum.models import Forum, Post, TopicRead
 from zds.notification import signals
@@ -42,28 +43,24 @@ class TopicEditMixin(object):
             raise PermissionDenied
 
     @staticmethod
-    def perform_lock(topic, request):
-        if request.user.has_perm('forum.change_topic'):
-            topic.is_locked = request.POST.get('lock') == 'true'
-            if topic.is_locked:
-                success_message = _(u'Le sujet « {0} » est désormais verrouillé.').format(topic.title)
-            else:
-                success_message = _(u'Le sujet « {0} » est désormais déverrouillé.').format(topic.title)
-            messages.success(request, success_message)
+    @permission_required('forum.change_topic', raise_exception=True)
+    def perform_lock(request, topic):
+        topic.is_locked = request.POST.get('lock') == 'true'
+        if topic.is_locked:
+            success_message = _(u'Le sujet « {0} » est désormais verrouillé.').format(topic.title)
         else:
-            raise PermissionDenied
+            success_message = _(u'Le sujet « {0} » est désormais déverrouillé.').format(topic.title)
+        messages.success(request, success_message)
 
     @staticmethod
-    def perform_sticky(topic, request):
-        if request.user.has_perm('forum.change_topic'):
-            topic.is_sticky = request.POST.get('sticky') == 'true'
-            if topic.is_sticky:
-                success_message = _(u'Le sujet « {0} » est désormais épinglé.').format(topic.title)
-            else:
-                success_message = _(u"Le sujet « {0} » n'est désormais plus épinglé.").format(topic.title)
-            messages.success(request, success_message)
+    @permission_required('forum.change_topic', raise_exception=True)
+    def perform_sticky(request, topic):
+        topic.is_sticky = request.POST.get('sticky') == 'true'
+        if topic.is_sticky:
+            success_message = _(u'Le sujet « {0} » est désormais épinglé.').format(topic.title)
         else:
-            raise PermissionDenied
+            success_message = _(u"Le sujet « {0} » n'est désormais plus épinglé.").format(topic.title)
+        messages.success(request, success_message)
 
     def perform_move(self):
         if self.request.user.has_perm('forum.change_topic'):
@@ -118,12 +115,10 @@ class PostEditMixin(object):
             raise PermissionDenied
 
     @staticmethod
-    def perform_show_message(post, user):
-        if user.has_perm('forum.change_post'):
-            post.is_visible = True
-            post.text_hidden = ''
-        else:
-            raise PermissionDenied
+    @permission_required('forum.change_post', raise_exception=True)
+    def perform_show_message(request, post):
+        post.is_visible = True
+        post.text_hidden = ''
 
     @staticmethod
     def perform_alert_message(request, post, user, alert_text):
