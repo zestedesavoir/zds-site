@@ -515,6 +515,24 @@
                                             <li class="staff-only">
                                                 <a href="{% url "validation:list" %}?type=article">{% trans "Validation des articles" %}</a>
                                             </li>
+                                            {% with waiting_tutorials_count=user|waiting_tutorials_count waiting_articles_count=user|waiting_articles_count %}
+                                                <li>
+                                                    <a href="{% url "validation:list" %}?type=tuto">
+                                                        {% trans "Validation des tutoriels" %}
+                                                        {% if waiting_tutorials_count > 0 %}
+                                                            ({{ waiting_tutorials_count }})
+                                                        {% endif %}
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a href="{% url "validation:list" %}?type=article">
+                                                        {% trans "Validation des articles" %}
+                                                        {% if waiting_articles_count > 0 %}
+                                                            ({{ waiting_articles_count }})
+                                                        {% endif %}
+                                                    </a>
+                                                </li>
+                                            {% endwith %}
                                         {% endif %}
 
                                         {% if perms.featured.change_featuredresource %}

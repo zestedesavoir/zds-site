@@ -9,6 +9,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from zds.forum.models import Post, is_read as topic_is_read
 from zds.mp.models import PrivateTopic
+from zds.tutorialv2.models.models_database import Validation
 from zds.notification.models import Notification, TopicAnswerSubscription, ContentReactionAnswerSubscription, \
     NewTopicSubscription, NewPublicationSubscription
 from zds.tutorialv2.models.models_database import ContentReaction
@@ -194,3 +195,19 @@ def alerts_list(user):
                           'text': alert.text})
 
     return {'alerts': total, 'nb_alerts': nb_alerts}
+
+
+@register.filter(name='waiting_tutorials_count')
+def waiting_tutorials_count(user):
+    return Validation.objects.filter(
+        validator__isnull=True,
+        status='PENDING',
+        content__type='TUTORIAL').count()
+
+
+@register.filter(name='waiting_articles_count')
+def waiting_articles_count(user):
+    return Validation.objects.filter(
+        validator__isnull=True,
+        status='PENDING',
+        content__type='ARTICLE').count()
