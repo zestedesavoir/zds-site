@@ -322,9 +322,9 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
         elif 'solved' in request.POST:
             response['solved'] = self.perform_solve_or_unsolve(self.request.user, self.object)
         elif 'lock' in request.POST:
-            self.perform_lock(self.object, request)
+            self.perform_lock(request, self.object)
         elif 'sticky' in request.POST:
-            self.perform_sticky(self.object, request)
+            self.perform_sticky(request, self.object)
         elif 'move' in request.POST:
             self.perform_move()
 
@@ -532,7 +532,7 @@ class PostEdit(UpdateView, SinglePostObjectMixin, PostEditMixin):
         if 'delete_message' in request.POST:
             self.perform_hide_message(request, self.object, self.request.user, self.request.POST)
         if 'show_message' in request.POST:
-            self.perform_show_message(self.object, self.request.user)
+            self.perform_show_message(self.request, self.object)
         if 'signal_message' in request.POST:
             self.perform_alert_message(request, self.object, request.user, request.POST.get('signal_text'))
 
