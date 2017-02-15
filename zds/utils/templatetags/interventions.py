@@ -16,7 +16,8 @@ from zds.tutorialv2.models.models_database import ContentReaction
 from zds.utils import get_current_user
 from zds.utils.models import Alert
 from zds import settings
-from zds.tutorialsv2.models import TYPE_CHOICES_DICT
+from zds.tutorialv2.models import TYPE_CHOICES_DICT
+>>>>>>> tutorialsv2 => tutorialv2
 
 register = template.Library()
 
@@ -201,7 +202,7 @@ def alerts_list(user):
 @register.filter(name='waiting_count')
 def waiting_count(content_type):
     if not content_type in TYPE_CHOICES_DICT:
-        raise template.TemplateSyntaxError("'content_type' must be in 'zds.tutorialsv2.models.TYPE_CHOICES_DICT'")
+        raise template.TemplateSyntaxError("'content_type' must be in 'zds.tutorialv2.models.TYPE_CHOICES_DICT'")
     return Validation.objects.filter(
         validator__isnull=True,
         status='PENDING',
