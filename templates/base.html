@@ -509,14 +509,8 @@
                                         </li>
 
                                         {% if perms.tutorialv2.change_validation %}
-                                            <li class="staff-only">
-                                                <a href="{% url "validation:list" %}?type=tuto">{% trans "Validation des tutoriels" %}</a>
-                                            </li>
-                                            <li class="staff-only">
-                                                <a href="{% url "validation:list" %}?type=article">{% trans "Validation des articles" %}</a>
-                                            </li>
-                                            {% with waiting_tutorials_count=user|waiting_tutorials_count waiting_articles_count=user|waiting_articles_count %}
-                                                <li>
+                                            {% with waiting_tutorials_count="TUTORIAL"|waiting_count waiting_articles_count="ARTICLE"|waiting_count %}
+                                                <li class="staff-only">
                                                     <a href="{% url "validation:list" %}?type=tuto">
                                                         {% trans "Validation des tutoriels" %}
                                                         {% if waiting_tutorials_count > 0 %}
@@ -524,7 +518,7 @@
                                                         {% endif %}
                                                     </a>
                                                 </li>
-                                                <li>
+                                                <li class="staff-only">
                                                     <a href="{% url "validation:list" %}?type=article">
                                                         {% trans "Validation des articles" %}
                                                         {% if waiting_articles_count > 0 %}

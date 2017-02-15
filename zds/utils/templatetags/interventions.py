@@ -197,17 +197,9 @@ def alerts_list(user):
     return {'alerts': total, 'nb_alerts': nb_alerts}
 
 
-@register.filter(name='waiting_tutorials_count')
-def waiting_tutorials_count(user):
+@register.filter(name='waiting_count')
+def waiting_count(content_type):
     return Validation.objects.filter(
         validator__isnull=True,
         status='PENDING',
-        content__type='TUTORIAL').count()
-
-
-@register.filter(name='waiting_articles_count')
-def waiting_articles_count(user):
-    return Validation.objects.filter(
-        validator__isnull=True,
-        status='PENDING',
-        content__type='ARTICLE').count()
+        content__type=content_type).count()
