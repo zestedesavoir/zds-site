@@ -201,7 +201,7 @@ def alerts_list(user):
 
 @register.filter(name='waiting_count')
 def waiting_count(content_type):
-    if not content_type in TYPE_CHOICES_DICT:
+    if content_type not in TYPE_CHOICES_DICT:
         raise template.TemplateSyntaxError("'content_type' must be in 'zds.tutorialv2.models.TYPE_CHOICES_DICT'")
     return Validation.objects.filter(
         validator__isnull=True,
