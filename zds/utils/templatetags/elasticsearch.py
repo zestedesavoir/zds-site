@@ -67,6 +67,7 @@ def highlight(parser, token):
     part = token.split_contents()
 
     if len(part) != 3:
-        template.TemplateSyntaxError("'highlight' tag must be of the form:  {% highlight <search_result> <field> %}")
+        raise template.TemplateSyntaxError(
+            "'highlight' tag must be of the form:  {% highlight <search_result> <field> %}")
 
     return HighlightNode(part[1], part[2])

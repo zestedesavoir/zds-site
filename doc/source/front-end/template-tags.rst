@@ -560,3 +560,18 @@ Exemple :
     {% for authors in content|displayable_authors:False %}
        <!-- here display all author for draft version -->
     {% endfor %}
+
+Le module ``elasticsearch``
+===========================
+
+``highlight``
+
+Permet de mettre en surbrillance les résultats d'une recherche.
+
+Exemple :
+
+.. sourcecode:: html
+
+    {% if search_result.text %}
+        {% highlight search_result "text" %}
+    {% endif %}
