@@ -216,7 +216,7 @@ class SearchView(ZdSPagingListView):
 def opensearch(request):
     """Generate OpenSearch Description file"""
 
-    return render(request, 'search/opensearch.xml', {
+    return render(request, 'searchv2/opensearch.xml', {
         'site_name': settings.ZDS_APP['site']['litteral_name'],
         'site_url': settings.ZDS_APP['site']['url'],
         'email_contact': settings.ZDS_APP['site']['email_contact'],

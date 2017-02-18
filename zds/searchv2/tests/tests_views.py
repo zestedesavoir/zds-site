@@ -652,6 +652,18 @@ class ViewsTests(TestCase):
         self.assertEqual(chapters[0].meta.doc_type, FakeChapter.get_es_document_type())
         self.assertEqual(chapters[0].meta.id, published.content_public_slug + '__' + chapter2.slug)  # got new chapter
 
+    def test_opensearch(self):
+
+        result = self.client.get(
+            reverse('search:opensearch'),
+            follow=False
+        )
+
+        self.assertEqual(result.status_code, 200)
+
+        self.assertContains(result, reverse('search:query'))
+        self.assertContains(result, reverse('search:opensearch'))
+
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
             shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
