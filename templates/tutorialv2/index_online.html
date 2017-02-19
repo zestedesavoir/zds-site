@@ -99,12 +99,20 @@
 
     <div class="flexpage-column">
         <section>
-            <h2 itemprop="name">Derniers tutoriels</h2>
+            <h2 itemprop="name">
+                Derniers tutoriels
+                <a href="{% url "tutorial:feed-rss" %}" class="btn btn-grey">RSS</a>
+                <a href="{% url "tutorial:feed-atom" %}" class="btn btn-grey">Atom</a>
+            </h2>
             {% include 'tutorialv2/list_page_elements/list_of_content.html' with public_contents=public_contents col_number=1 %}
         </section>
 
         <section>
-            <h2 itemprop="name">Derniers articles</h2>
+            <h2 itemprop="name">
+                Derniers articles
+                <a href="{% url "article:feed-rss" %}" class="btn btn-grey">RSS</a>
+                <a href="{% url "article:feed-atom" %}" class="btn btn-grey">Atom</a>
+            </h2>
             {% include 'tutorialv2/list_page_elements/list_of_content.html' with public_contents=selected_contents col_number=1 %}
         </section>
     </div>
@@ -158,78 +166,6 @@
             </div>
         </div>
     </section>
-
-    <section>
-        <h2 class="inline">Ne rien louper</h2>
-
-        <div class="content-linkbox-list">
-            <div class="linkbox-item">
-                <div class="head">
-                    <h3>Flux</h3>
-                </div>
-
-                <a href="{% url "tutorial:feed-rss" %}" class="tail">
-                    <p>Nouveaux tutoriels (RSS)</p>
-                    <span class="icon"></span>
-                </a>
-                <a href="{% url "tutorial:feed-atom" %}" class="tail">
-                    <p>Nouveaux tutoriels (ATOM)</p>
-                    <span class="icon"></span>
-                </a>
-            </div>
-        </div>
-    </section>
 </div>
 
 {% endblock %}
-
-
-
-
-{% comment %}
-
-# old code
-
-<section class="full-content-wrapper" itemscope itemtype="http://schema.org/ItemList">
-    {# will be moved #}
-    <h1 class="ico-after ico-{% if current_content_type == "TUTORIAL" %}tutorials{% elif current_content_type == "ARTICLE" %}articles{% else %}articles{% endif %}" itemprop="name">
-        {% block headline %}
-            {% if tag %}
-                {{ verbose_type_name_plural|title }} : {{ tag.title }}
-            {% elif category %}
-                {{ verbose_type_name_plural|title }} : {{ category }}
-            {% else %}
-                {% trans "Tous les" %} {{ verbose_type_name_plural }}
-            {% endif %}
-        {% endblock %}
-    </h1>
-    {% if app.content.list == 'old' or hierarchy_level == 2 %}
-        {% include 'tutorialv2/list_page_elements/list_of_content.html' with col_number=3 paginated_top=True public_contents=public_contents paginated_bottom=True current_content_type=current_content_type %}
-    {% else %}
-        {% if hierarchy_level == 0 %} {# if we are on main list #}
-           <section class="list-of-themes">
-                {% include 'tutorialv2/list_page_elements/themes_list.html' with themes=themes%}
-           </section>
-           <section class="list-of-last-content">
-                {% include 'tutorialv2/list_page_elements/list_of_content.html' with col_number=2 public_contents=last_content current_content_type=None %}
-           </section>
-            <section class="list-of-guides">
-                {# here we'll have "make your own", "help authors"... #}
-            </section>
-        {% elif hierarchy_level == 1 %} {# if we are on a theme list #}
-            <section class="list-of-category">
-
-            </section>
-            <section class="list-of-last-content">
-                {% include 'tutorialv2/list_page_elements/list_of_content.html' with col_number=1 public_contents=last_content current_content_type=None %}
-           </section>
-            <section class="list-of-last-content">
-                {% include 'tutorialv2/list_page_elements/list_of_content.html' with col_number=1 public_contents=selected_content current_content_type=None %}
-           </section>
-        {% endif %}
-    {% endif %}
-</section>
-
-
-
-{% endcomment %}
