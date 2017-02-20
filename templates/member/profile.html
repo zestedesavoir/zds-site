@@ -157,10 +157,12 @@
                     {% for action in actions %}
                         <tr>
                             <td>
-                                {% if action.karma %}
+                                {% if action.type %}
+                                    {{ action.type }}
+                                {% elif action.karma %}
                                     {% trans "Modification du karma" %} : {{ action.karma }}
                                 {% else %}
-                                    {{ action.type }}
+                                    –
                                 {% endif %}
                             </td>
                             <td>
