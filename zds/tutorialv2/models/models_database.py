@@ -961,7 +961,10 @@ class PublishedContent(AbstractESDjangoIndexable):
 
         categories = []
         for subcategory in versioned.subcategory.all():
-            categories.extend([subcategory.title, subcategory.get_parent_category().title])
+            parent_category = subcategory.get_parent_category()
+            categories.append(subcategory.title)
+            if parent_category:
+                categories.append(parent_category.title)
         data['categories'] = list(set(categories))  # remove duplicates
 
         if versioned.has_extracts():
