@@ -63,7 +63,7 @@
 					button.before(msg);
 
 					setTimeout(function() {
-					    $('.alert-merge').fadeOut('fast');
+					    $(".alert-merge").fadeOut("fast");
 					}, 2000);
 					
 			    }
