@@ -31,7 +31,7 @@ Il est conseillé de lancer à chaque fois PowerShell en administrateur pour les
 Prérequis
 =========
 
-
+- Téléchargez `zlib <http://gnuwin32.sourceforge.net/downlinks/zlib.php>`_ (prérequis pour la bibliothèque ``Pillow``)
 - Téléchargez et installez les outils suivants :
     - `PowerShell 3.0+ <http://www.microsoft.com/fr-fr/download/details.aspx?id=40855>`_. Uniquement pour les PC tournant sous Windows 7 ou antérieur (installé par défaut avec Windows depuis).
     - `Git <http://git-scm.com/download/win>`_ (Git pour Eclipse ne suffit pas ; associez les .sh).
