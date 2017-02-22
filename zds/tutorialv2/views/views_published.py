@@ -381,7 +381,7 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
         if 'theme' in self.request.GET:
             context['hierarchy_level'] = 1
             context['theme'] = get_object_or_404(Category, title__iexact=self.request.GET['theme'])
-            context['categories'] = [c.subcatecory for c in CategorySubCategory.objects
+            context['categories'] = [c.subcategory for c in CategorySubCategory.objects
                                                                                .prefetch_related('subcategory')
                                                                                .filter(category=context['theme']).all()]
         elif 'category' in self.request.GET:
@@ -400,7 +400,6 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
                 theme.count = PublishedContent.objects.filter(must_redirect=False,
                                                               content__subcategory__in=pks).count()
             context['public_contents'] = context['public_contents'][:min(len(context['public_contents']), 6)]
-        context['content_count'] = PublishedContent.objects.filter(must_redirect=False).count()
         return context
 
 
