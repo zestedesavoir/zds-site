@@ -380,14 +380,17 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
         context['hierarchy_level'] = 0
         if 'theme' in self.request.GET:
             context['hierarchy_level'] = 1
+            context['theme'] = get_object_or_404(Category, title__iexact=self.request.GET['theme'])
+            context['categories'] = [c.subcatecory for c in CategorySubCategory.objects
+                                                                               .prefetch_related('subcategory')
+                                                                               .filter(category=context['theme']).all()]
         elif 'category' in self.request.GET:
             context['hierarchy_level'] = 2
         method_name = settings.ZDS_APP['content']['selected_content_method_name']
         context['selected_contents'] = getattr(PublishedContent.objects, method_name)(self.category, self.tag,
                                                                                       self.current_content_type)[:6]
         if context['hierarchy_level'] == 0:
-            context['featured_contents'] = list(FeaturedResource.objects.filter(
-                Q(type__iexact='tutoriel') | Q(type__iexact='article'))[:2])
+
             context['themes'] = list(Category.objects.order_by('position').all())
             for theme in context['themes']:
                 theme.categories = CategorySubCategory.objects.filter(is_main=True, category=theme)\

@@ -1,0 +1,69 @@
+    {% comment %}
+        Structure de la page de second level :
+        - 2 tutos mis en avant
+        - présentation des sous catégories (accessible via {%  for category in categories %}
+        - liste des 6 derniers tutos en une colonne
+        - liste des 6 tutos les plus commentés en une colonne
+
+    {% endcomment %}
+<section class="flexpage-header">
+    <div class="flexpage-wrapper">
+        <div class="flexpage-title-search">
+            <div class="picto">
+                <img src="http://127.0.0.1:8000/static/images/home-clem.png">
+            </div>
+            <div class="title">
+                <h1>Contenus</h1>
+                {{ content_count }} contenus
+            </div>
+
+            <form action="" id="search-form" class="search" method="get">
+                <label for="id_q" class="control-label ">Recherche</label>
+                <input type="hidden" name="models" value="tutorial,article">
+                <input id="id_q" maxlength="150" name="q" required="required" type="search">
+                <button class="btn ico-after ico-search" type="submit" title="Rechercher"></button>
+            </form>
+        </div>
+    </div>
+</section>
+
+<div class="flexpage-wrapper">
+
+
+    <section>
+        <h2 itemprop="name">À la une</h2>
+        <div class="featured-resource-row">
+            {% for featured_content in featured_contents %}
+                {% include "featured/includes/featured_resource_item.part.html" with featured_resource=featured_content %}
+            {% endfor %}
+        </div>
+    </section>
+
+    <section>
+        <h2 class="inline" itemprop="name">Domaines de savoir</h2>
+        <div class="content-linkbox-list">
+            {% include 'tutorialv2/list_page_elements/themes_list.html' %}
+        </div>
+    </section>
+
+    <div class="flexpage-column">
+        <section>
+            <h2 itemprop="name">
+                Derniers tutoriels
+                <a href="{% url "tutorial:feed-rss" %}" class="btn btn-grey">RSS</a>
+                <a href="{% url "tutorial:feed-atom" %}" class="btn btn-grey">Atom</a>
+            </h2>
+            {% include 'tutorialv2/list_page_elements/list_of_content.html' with public_contents=public_contents col_number=1 %}
+        </section>
+
+        <section>
+            <h2 itemprop="name">
+                Derniers articles
+                <a href="{% url "article:feed-rss" %}" class="btn btn-grey">RSS</a>
+                <a href="{% url "article:feed-atom" %}" class="btn btn-grey">Atom</a>
+            </h2>
+            {% include 'tutorialv2/list_page_elements/list_of_content.html' with public_contents=selected_contents col_number=1 %}
+        </section>
+    </div>
+
+</div>
