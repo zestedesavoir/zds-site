@@ -19,7 +19,7 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import RedirectView, FormView, ListView
 
-from zds.featured.models import FeaturedMessage, FeaturedResource
+from zds.featured.models import FeaturedResource
 from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin, PermissionRequiredMixin
 from zds.member.views import get_client_ip
 from zds.notification import signals
@@ -386,8 +386,8 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
         context['selected_contents'] = getattr(PublishedContent.objects, method_name)(self.category, self.tag,
                                                                                       self.current_content_type)[:6]
         if context['hierarchy_level'] == 0:
-            context['featured'] = list(FeaturedResource.objects.filter(
-                Q(type__iexact='tutoriel') | Q(type__iexact='article')))
+            context['featured_contents'] = list(FeaturedResource.objects.filter(
+                Q(type__iexact='tutoriel') | Q(type__iexact='article'))[:2])
             context['themes'] = list(Category.objects.order_by('position').all())
             for theme in context['themes']:
                 theme.categories = CategorySubCategory.objects.filter(is_main=True, category=theme)\

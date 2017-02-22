@@ -85,9 +85,11 @@
 
     <section>
         <h2 itemprop="name">À la une</h2>
-        {% for featured_content in featured %}
-            {% include "featured/includes/featured_resource_item.part.html" with featured_resource=featured_content %}
-        {% endfor %}
+        <div class="featured-resource-row">
+            {% for featured_content in featured_contents %}
+                {% include "featured/includes/featured_resource_item.part.html" with featured_resource=featured_content %}
+            {% endfor %}
+        </div>
     </section>
 
     <section>

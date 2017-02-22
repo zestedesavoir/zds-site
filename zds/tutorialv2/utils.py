@@ -6,10 +6,12 @@ from urllib import urlretrieve
 from urlparse import urlparse
 try:
     import cairosvg
-except ImportError:
+except ImportError as e:
+    cairosvg = None  # no cairo on win.
     print('no cairo imported')
 
 import os
+import logging
 from PIL import Image as ImagePIL
 from django.contrib.auth.models import User
 from django.http import Http404
@@ -25,6 +27,7 @@ from zds.tutorialv2.models import CONTENT_TYPE_LIST
 from zds.utils import get_current_user
 from zds.utils import slugify as old_slugify
 from zds.utils.models import Licence
+logger = logging.getLogger(__name__)
 
 
 def all_is_string_appart_from_children(dict_representation):
@@ -341,7 +344,8 @@ def retrieve_image(url, directory):
         if img_extension == 'svg':  # if SVG, will transform it into PNG
             resize_svg(store_path)
             new_url = new_url_as_png
-            cairosvg.svg2png(url=store_path, write_to=os.path.join(directory, new_url))
+            if cairosvg:
+                cairosvg.svg2png(url=store_path, write_to=os.path.join(directory, new_url))
             os.remove(store_path)
         else:
             img = ImagePIL.open(store_path)
@@ -349,14 +353,18 @@ def retrieve_image(url, directory):
                 # if no extension or gif, will transform it into PNG !
                 new_url = new_url_as_png
                 img.save(os.path.join(directory, new_url))
-                os.remove(store_path)
+                try:
+                    os.remove(store_path)
+                except WindowsError:  # because windows can badly handle this one
+                    logger.error("store path %s not removed", store_path)
 
     except (IOError, KeyError):  # HTTP 404, image does not exists, or Pillow cannot read it !
 
         # will be overwritten anyway, so it's better to remove whatever it was, for security reasons :
-        if os.path.exists(store_path):
+        try:
             os.remove(store_path)
-
+        except OSError:
+            logger.warn("could not remove store path %s", store_path)
         img = ImagePIL.open(settings.ZDS_APP['content']['default_image'])
         new_url = new_url_as_png
         img.save(os.path.join(directory, new_url))
