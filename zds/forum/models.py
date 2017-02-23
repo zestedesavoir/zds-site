@@ -393,7 +393,7 @@ class Topic(AbstractESDjangoIndexable):
         es_mapping = super(Topic, cls).get_es_mapping()
 
         es_mapping.field('title', Text(boost=1.5))
-        es_mapping.field('tags', Keyword(boost=2.0))
+        es_mapping.field('tags', Text(boost=2.0))
         es_mapping.field('subtitle', Text())
         es_mapping.field('is_solved', Boolean())
         es_mapping.field('is_locked', Boolean())
@@ -401,11 +401,10 @@ class Topic(AbstractESDjangoIndexable):
         es_mapping.field('pubdate', Date())
         es_mapping.field('forum_pk', Integer())
 
-        # not analyzed:
-        es_mapping.field('get_absolute_url', Text(index=False))
-
+        # not indexed:
+        es_mapping.field('get_absolute_url', Keyword(index=False))
         es_mapping.field('forum_title', Text(index=False))
-        es_mapping.field('forum_get_absolute_url', Text(index=False))
+        es_mapping.field('forum_get_absolute_url', Keyword(index=False))
 
         return es_mapping
 
@@ -497,11 +496,11 @@ class Post(Comment, AbstractESDjangoIndexable):
         es_mapping.field('forum_pk', Integer())
         es_mapping.field('topic_pk', Integer())
 
-        # not analyzed:
-        es_mapping.field('get_absolute_url', Text(index=False))
+        # not indexed:
+        es_mapping.field('get_absolute_url', Keyword(index=False))
         es_mapping.field('topic_title', Text(index=False))
         es_mapping.field('forum_title', Text(index=False))
-        es_mapping.field('forum_get_absolute_url', Text(index=False))
+        es_mapping.field('forum_get_absolute_url', Keyword(index=False))
 
         return es_mapping
 

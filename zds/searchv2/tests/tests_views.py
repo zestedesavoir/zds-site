@@ -12,12 +12,12 @@ from django.test.utils import override_settings
 from zds.settings import BASE_DIR
 from django.core.urlresolvers import reverse
 
-from zds.forum.factories import TopicFactory, PostFactory, Topic, Post
+from zds.forum.factories import TopicFactory, PostFactory, Topic, Post, TagFactory
 from zds.forum.tests.tests_views import create_category, Group
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.searchv2.models import ESIndexManager
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, publish_content, \
-    PublishedContentFactory
+    PublishedContentFactory, SubCategoryFactory
 from zds.tutorialv2.models.models_database import PublishedContent, FakeChapter, PublishableContent
 
 overrided_zds_app = settings.ZDS_APP
@@ -663,6 +663,111 @@ class ViewsTests(TestCase):
 
         self.assertContains(result, reverse('search:query'))
         self.assertContains(result, reverse('search:opensearch'))
+
+    def test_upercase_and_lowercase_search_give_same_results(self):
+        """Pretty self-explanatory function name, isn't it ?"""
+
+        if not self.manager.connected_to_es:
+            return
+
+        # 1. Index lowercase stuffs
+        text_lc = 'test'
+
+        topic_1_lc = TopicFactory(forum=self.forum, author=self.user, title=text_lc)
+
+        tag_lc = TagFactory(title=text_lc)
+        topic_1_lc.tags.add(tag_lc)
+        topic_1_lc.subtitle = text_lc
+        topic_1_lc.save()
+
+        post_1_lc = PostFactory(topic=topic_1_lc, author=self.user, position=1)
+        post_1_lc.text = post_1_lc.text_html = text_lc
+        post_1_lc.save()
+
+        tuto_lc = PublishableContentFactory(type='TUTORIAL')
+        tuto_draft_lc = tuto_lc.load_version()
+
+        tuto_lc.title = text_lc
+        tuto_lc.authors.add(self.user)
+        subcategory_lc = SubCategoryFactory(title=text_lc)
+        tuto_lc.subcategory.add(subcategory_lc)
+        tuto_lc.tags.add(tag_lc)
+        tuto_lc.save()
+
+        tuto_draft_lc.description = text_lc
+        tuto_draft_lc.repo_update_top_container(text_lc, tuto_lc.slug, text_lc, text_lc)
+
+        chapter1_lc = ContainerFactory(parent=tuto_draft_lc, db_object=tuto_lc)
+        extract_lc = ExtractFactory(container=chapter1_lc, db_object=tuto_lc)
+        extract_lc.repo_update(text_lc, text_lc)
+
+        published_lc = publish_content(tuto_lc, tuto_draft_lc, is_major_update=True)
+
+        tuto_lc.sha_public = tuto_draft_lc.current_version
+        tuto_lc.sha_draft = tuto_draft_lc.current_version
+        tuto_lc.public_version = published_lc
+        tuto_lc.save()
+
+        # 2. Index uppercase stuffs
+        text_uc = 'TEST'
+
+        topic_1_uc = TopicFactory(forum=self.forum, author=self.user, title=text_uc)
+
+        topic_1_uc.tags.add(tag_lc)  # Note: a constraint force tags title to be unique
+        topic_1_uc.subtitle = text_uc
+        topic_1_uc.save()
+
+        post_1_uc = PostFactory(topic=topic_1_uc, author=self.user, position=1)
+        post_1_uc.text = post_1_uc.text_html = text_uc
+        post_1_uc.save()
+
+        tuto_uc = PublishableContentFactory(type='TUTORIAL')
+        tuto_draft_uc = tuto_uc.load_version()
+
+        tuto_uc.title = text_uc
+        tuto_uc.authors.add(self.user)
+        tuto_uc.subcategory.add(subcategory_lc)
+        tuto_uc.tags.add(tag_lc)
+        tuto_uc.save()
+
+        tuto_draft_uc.description = text_uc
+        tuto_draft_uc.repo_update_top_container(text_uc, tuto_uc.slug, text_uc, text_uc)
+
+        chapter1_uc = ContainerFactory(parent=tuto_draft_uc, db_object=tuto_uc)
+        extract_uc = ExtractFactory(container=chapter1_uc, db_object=tuto_uc)
+        extract_uc.repo_update(text_uc, text_uc)
+
+        published_uc = publish_content(tuto_uc, tuto_draft_uc, is_major_update=True)
+
+        tuto_uc.sha_public = tuto_draft_uc.current_version
+        tuto_uc.sha_draft = tuto_draft_uc.current_version
+        tuto_uc.public_version = published_uc
+        tuto_uc.save()
+
+        # 3. Index and search:
+        self.assertEqual(len(self.manager.setup_search(Search().query(MatchAll())).execute()), 0)
+
+        # index
+        for model in self.indexable:
+            if model is FakeChapter:
+                continue
+            self.manager.es_bulk_indexing_of_model(model)
+        self.manager.refresh_index()
+
+        result = self.client.get(reverse('search:query') + '?q=' + text_lc, follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        response_lc = result.context['object_list'].execute()
+        self.assertEqual(response_lc.hits.total, 8)
+
+        result = self.client.get(reverse('search:query') + '?q=' + text_uc, follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        response_uc = result.context['object_list'].execute()
+        self.assertEqual(response_uc.hits.total, 8)
+
+        for responses in zip(response_lc, response_uc):  # we should get results in the same order !
+            self.assertEqual(responses[0].meta.id, responses[1].meta.id)
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
