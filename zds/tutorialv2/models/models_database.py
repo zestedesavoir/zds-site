@@ -870,18 +870,18 @@ class PublishedContent(AbstractESDjangoIndexable):
 
         mapping.field('content_pk', 'integer')
         mapping.field('publication_date', Date())
-        mapping.field('content_type', Text())
-
-        # not analyzed:
-        mapping.field('get_absolute_url_online', Text(index=False))
-        mapping.field('thumbnail', Text(index=False))
+        mapping.field('content_type', Keyword())
 
         # not from PublishedContent directly:
         mapping.field('title', Text(boost=1.5))
         mapping.field('description', Text(boost=1.5))
-        mapping.field('tags', Keyword(boost=2.0))
-        mapping.field('categories', Keyword(boost=2.25))
+        mapping.field('tags', Text(boost=2.0))
+        mapping.field('categories', Text(boost=2.25))
         mapping.field('text', Text())  # for article and mini-tuto, text is directly included into the main object
+
+        # not indexed:
+        mapping.field('get_absolute_url_online', Keyword(index=False))
+        mapping.field('thumbnail', Keyword(index=False))
 
         return mapping
 
@@ -961,7 +961,10 @@ class PublishedContent(AbstractESDjangoIndexable):
 
         categories = []
         for subcategory in versioned.subcategory.all():
-            categories.extend([subcategory.title, subcategory.get_parent_category().title])
+            parent_category = subcategory.get_parent_category()
+            categories.append(subcategory.title)
+            if parent_category:
+                categories.append(parent_category.title)
         data['categories'] = list(set(categories))  # remove duplicates
 
         if versioned.has_extracts():
@@ -1045,12 +1048,12 @@ class FakeChapter(AbstractESIndexable):
         mapping.field('title', Text(boost=1.5))
         mapping.field('text', Text())
 
-        # not analyzed:
-        mapping.field('get_absolute_url_online', Text(index=False))
+        # not indexed:
+        mapping.field('get_absolute_url_online', Keyword(index=False))
         mapping.field('parent_title', Text(index=False))
-        mapping.field('parent_get_absolute_url_online', Text(index=False))
+        mapping.field('parent_get_absolute_url_online', Keyword(index=False))
         mapping.field('parent_publication_date', Date(index=False))
-        mapping.field('thumbnail', Text(index=False))
+        mapping.field('thumbnail', Keyword(index=False))
 
         return mapping
 

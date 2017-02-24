@@ -842,6 +842,22 @@ A propos du logging:
 Mettre à jour le `settings_prod.py` en suivant `doc/source/install/configs/settings_prod.py`.
 
 
+Actions faites sur la prod avant la v22
+=======================================
+
+Mettre à jour nginx
+-------------------
+
+* Supprimer `/etc/apt/sources.list.d/nginx.list`
+* `apt update`
+* `systemctl stop nginx`
+* `apt remove 'nginx-*'`
+* `apt-get -t jessie-backports install nginx-full`
+    - `N or O  : keep your currently-installed version`
+    - `rm /etc/nginx/sites-available/default`
+    - `dpkg --configure -a`
+* `systemctl restart nginx`
+
 Actions à faire pour l'upgrade v22
 ==================================
 
@@ -852,21 +868,28 @@ Lancer la commande de calcul du nombre de caractères des contenus publiés : `p
 
 Maj de Raven + releases
 -----------------------
-Avant de faire le tag des différentes RC, s'assurer qu'un githook a été ajouté comme le propose sentry.
+
 Mettre à jour le `settings_prod.py` :
 
 ```diff
 +from raven import Client
 +from zds.utils.context_processor import get_git_version
+```
 
-# NEVER set this True !!
-DEBUG = False
-
+```diff
 # https://docs.getsentry.com/hosted/clients/python/integrations/django/
 RAVEN_CONFIG = {
   'dsn': 'to-fill',
-+  'release': get_git_version()
++ 'release': get_git_version()['name'],
 }
+```
+
+```diff
+       'sentry': {
+            'level': 'ERROR',  # For beta purpose it can be lowered to WARNING
+            'class': 'raven.handlers.logging.SentryHandler',
++           'dsn': RAVEN_CONFIG['dsn'],
+        },
 ```
 
 Elasticsearch (PR #4096)
@@ -874,8 +897,8 @@ Elasticsearch (PR #4096)
 
 Pour installer Elasticsearch, les commandes suivantes sont à effectuer (en *root*):
 
-+ Ajouter `deb http://ftp.fr.debian.org/debian jessie-backports` main dans `/etc/apt/sources.list`
-+ Installer Java 8 : 
++ S'assurer que `jessie-backports` est disponible dans `/etc/apt/sources.list`
++ S'assurer que Java 8 est disponible par défaut: `java -version`, sinon l'installer : 
     * `apt-get update && apt-get install openjdk-8-jdk`. 
     * Une fois installé, passer de Java 7 à Java 8 en le sélectionnant grâce à `update-alternatives --config java`.
 + Installer Elasticsearch ([informations issues de la documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/deb.html)):
@@ -909,6 +932,7 @@ Pour installer Elasticsearch, les commandes suivantes sont à effectuer (en *roo
         apt install libjson-perl
         ```
     * Suivre les instructions du [README.md](https://github.com/y-ken/munin-plugin-elasticsearch/blob/master/README.md)
+    * Penser à enlever le(s) plugin(s) Solr et relancer `munin-node`
     
 Une fois Elasticsearch configuré et lancé,
 
@@ -951,6 +975,7 @@ Une fois que tout est indexé,
         [Install]
         WantedBy=timers.target
         ```
+
     * Supprimer Solr et ajouter Elasticsearch:
     
         ```bash
@@ -963,13 +988,20 @@ Une fois que tout est indexé,
         
 + Désinstaller Solr : 
     * `pip uninstall pysolr django-haystack`
-    * Supprimer la base de données de Solr
-+ Supprimer les tables suivantes de MySQL:
 
-    * `search_searchindexextract`
-    * `search_searchindexcontainer`
-    * `search_searchindexcontent_authors`
-    * `search_searchindexcontent_tags`
-    * `search_searchindextag`
-    * `search_searchindexauthors`
-    * `search_searchindexcontent`
++ Supprimer Solr
+    * `rm -rf /opt/zds/solr-*`
+
++ Supprimer les tables devenues inutiles dans MySQL:
+
+    * `mysql -u zds -p -B zdsdb`
+
+    ```sql
+    DROP TABLE search_searchindexextract;
+    DROP TABLE search_searchindexcontainer;
+    DROP TABLE search_searchindexcontent_authors;
+    DROP TABLE search_searchindexcontent_tags;
+    DROP TABLE search_searchindextag;
+    DROP TABLE search_searchindexauthors;
+    DROP TABLE search_searchindexcontent;
+    ```
