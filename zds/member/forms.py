@@ -231,9 +231,9 @@ class ProfileForm(MiniProfileForm):
         required=False,
         choices=(
             ('show_sign', _(u'Afficher les signatures')),
-            ('is_hover_enabled', _(u'Cochez pour dérouler les menus au survol')),
+            ('is_hover_enabled', _(u'Dérouler les menus au survol')),
             ('allow_temp_visual_changes', _(u'Activer les changements visuels temporaires')),
-            ('email_for_answer', _(u'Recevez un courriel lorsque vous recevez une réponse à un message privé')),
+            ('email_for_answer', _(u"Recevoir un courriel lors d'une réponse à un message privé")),
         ),
         widget=forms.CheckboxSelectMultiple,
     )
