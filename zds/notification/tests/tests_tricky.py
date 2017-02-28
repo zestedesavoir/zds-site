@@ -29,9 +29,7 @@ class ForumNotification(TestCase):
         self.category1 = CategoryFactory(position=1)
         self.forum11 = ForumFactory(category=self.category1, position_in_category=1)
         self.forum12 = ForumFactory(category=self.category1, position_in_category=2)
-        self.forum1_staff = ForumFactory(category=self.category1, position_in_category=2)
-        self.forum1_staff.groups.add(Group.objects.filter(name='staff').first())
-        self.forum1_staff.save()
+
         for group in self.staff.groups.all():
             self.forum12.group.add(group)
         self.forum12.save()
@@ -87,18 +85,18 @@ class ForumNotification(TestCase):
 
         self.assertEqual(result.status_code, 302)
         self.assertEqual(1, PingSubscription.objects.filter(is_active=True)
-                                            .count(), "One ping subscription must be created and active")
+                                            .count(), 'One ping subscription must be created and active')
         topic = Topic.objects.get(title='Super sujet')
         data = {
             'move': '',
-            'forum': self.forum1_staff.pk,
+            'forum': self.forum12.pk,
             'topic': topic.pk
         }
         response = self.client.post(reverse('topic-edit'), data, follow=False)
 
         self.assertEqual(302, response.status_code)
         self.assertEqual(1, PingSubscription.objects.filter(is_active=False)
-                         .count(), "No active ping subscription.")
+                         .count(), 'No active ping subscription.')
 
 
 overrided_zds_app = settings.ZDS_APP

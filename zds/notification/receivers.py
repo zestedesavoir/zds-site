@@ -178,9 +178,9 @@ def edit_topic_event(sender, **kwargs):
             forum_groups = list(topic.forum.group.all())
             for message in Post.objects.prefetch_related('topic', 'topic__forum').filter(topic=topic):
                 subs = PingSubscription.objects.prefetch_related('last_notification')\
-                                              .filter(content_type=content_type,
-                                                      object_id=message.pk)\
-                                              .filter(~Q(user__groups__in=forum_groups))
+                                               .filter(content_type=content_type,
+                                                       object_id=message.pk)\
+                                               .filter(~Q(user__groups__in=forum_groups))
                 for sub in subs:
                     sub.last_notification.is_read = True
                     sub.last_notification.save()
