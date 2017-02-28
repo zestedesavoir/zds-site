@@ -409,4 +409,4 @@ def cleanup_notification_for_unpublished_content(sender, instance, **_):
             notification.delete()
         logger.debug('Nothing went wrong.')
     except DatabaseError:
-        logger.exception("Error while cleaning up database")
+        logger.exception('Error while cleaning up database')
