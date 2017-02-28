@@ -1,6 +1,8 @@
+from __future__ import unicode_literals
 import os
 import shutil
 
+from django.contrib.auth.models import Group
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.test.utils import override_settings
@@ -11,7 +13,7 @@ from zds.forum.factories import CategoryFactory, ForumFactory
 from zds.forum.models import Topic
 from zds.gallery.factories import UserGalleryFactory
 from zds.member.factories import StaffProfileFactory, ProfileFactory
-from zds.notification.models import NewTopicSubscription, Notification, NewPublicationSubscription
+from zds.notification.models import NewTopicSubscription, Notification, NewPublicationSubscription, PingSubscription
 from zds.notification import signals as notif_signals
 from zds.tutorialv2.factories import PublishableContentFactory, LicenceFactory, SubCategoryFactory, \
     PublishedContentFactory
@@ -27,6 +29,9 @@ class ForumNotification(TestCase):
         self.category1 = CategoryFactory(position=1)
         self.forum11 = ForumFactory(category=self.category1, position_in_category=1)
         self.forum12 = ForumFactory(category=self.category1, position_in_category=2)
+        self.forum1_staff = ForumFactory(category=self.category1, position_in_category=2)
+        self.forum1_staff.groups.add(Group.objects.filter(name='staff').first())
+        self.forum1_staff.save()
         for group in self.staff.groups.all():
             self.forum12.group.add(group)
         self.forum12.save()
@@ -37,9 +42,9 @@ class ForumNotification(TestCase):
         result = self.client.post(
             reverse('topic-new') + '?forum={0}'.format(self.forum11.pk),
             {
-                'title': u'Super sujet',
-                'subtitle': u'Pour tester les notifs',
-                'text': u"En tout cas l'un abonnement",
+                'title': 'Super sujet',
+                'subtitle': 'Pour tester les notifs',
+                'text': "En tout cas l'un abonnement",
                 'tags': ''
             },
             follow=False)
@@ -66,6 +71,34 @@ class ForumNotification(TestCase):
         self.assertEqual(subscription.last_notification,
                          Notification.objects.filter(sender=self.user2).first())
         self.assertTrue(subscription.last_notification.is_read, 'As forum is not reachable, notification is read')
+
+    def test_on_monving_ping(self):
+        self.client.login(username=self.staff.username,
+                          password='hostel77')
+        result = self.client.post(
+            reverse('topic-new') + '?forum={0}'.format(self.forum11.pk),
+            {
+                'title': 'Super sujet',
+                'subtitle': 'Pour tester les notifs',
+                'text': "En tout cas l'un abonnement @" + self.user1.username,
+                'tags': ''
+            },
+            follow=False)
+
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(1, PingSubscription.objects.filter(is_active=True)
+                                            .count(), "One ping subscription must be created and active")
+        topic = Topic.objects.get(title='Super sujet')
+        data = {
+            'move': '',
+            'forum': self.forum1_staff.pk,
+            'topic': topic.pk
+        }
+        response = self.client.post(reverse('topic-edit'), data, follow=False)
+
+        self.assertEqual(302, response.status_code)
+        self.assertEqual(1, PingSubscription.objects.filter(is_active=False)
+                         .count(), "No active ping subscription.")
 
 
 overrided_zds_app = settings.ZDS_APP

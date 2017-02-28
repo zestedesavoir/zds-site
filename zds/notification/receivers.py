@@ -7,8 +7,6 @@ import logging
 from django.db.backends.dummy.base import DatabaseError
 from django.db.models.query_utils import Q
 
-import zds
-
 try:
     from functools import wraps
 except ImportError:
@@ -179,10 +177,15 @@ def edit_topic_event(sender, **kwargs):
             content_type = ContentType.objects.get_for_model(topic.last_message)
             forum_groups = list(topic.forum.group.all())
             for message in Post.objects.prefetch_related('topic', 'topic__forum').filter(topic=topic):
-                PingSubscription.objects.filter(content_type=content_type,
-                                                object_id=message.pk)\
-                                        .filter(~Q(user__groups__in=forum_groups))\
-                                        .update(is_active=False)
+                subs = PingSubscription.objects.prefetch_related('last_notification')\
+                                              .filter(content_type=content_type,
+                                                      object_id=message.pk)\
+                                              .filter(~Q(user__groups__in=forum_groups))
+                for sub in subs:
+                    sub.last_notification.is_read = True
+                    sub.last_notification.save()
+                    sub.is_active = False
+                    sub.save()
 
 
 @receiver(post_save, sender=Topic)
@@ -406,4 +409,4 @@ def cleanup_notification_for_unpublished_content(sender, instance, **_):
             notification.delete()
         logger.debug('Nothing went wrong.')
     except DatabaseError:
-        logger.exception()
+        logger.exception("Error while cleaning up database")
