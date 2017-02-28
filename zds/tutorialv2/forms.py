@@ -154,6 +154,8 @@ class ContainerForm(FormWithTitle):
 
         if kwargs.get('data', None) is not None:
             old_intro = kwargs.get('data').get('introduction')
+            if old_intro is None:
+                old_intro = ''
 
             self.helper.layout.append(Layout(Field('introduction', css_class='hidden')))
             self.helper.layout.append(Layout(HTML('<div id = "your_introduction" class = "hidden" >' +
@@ -165,6 +167,8 @@ class ContainerForm(FormWithTitle):
                 css_class='btn btn-submit merge-btn need-to-merge-introduction'))))
                 
             old_conclusion = kwargs.get('data').get('conclusion')
+            if old_conclusion is None:
+                old_conclusion = ''
 
             self.helper.layout.append(Layout(Field('conclusion', css_class='hidden')))
             self.helper.layout.append(Layout(HTML('<div id = "your_conclusion" class = "hidden" >' + old_conclusion +
@@ -273,6 +277,8 @@ class ContentForm(ContainerForm):
 
         if kwargs.get('data', None) is not None:
             old_intro = kwargs.get('data').get('introduction')
+            if old_intro is None:
+                old_intro = ''
 
             self.helper.layout.append(Layout(Field('introduction', css_class='hidden')))
             self.helper.layout.append(Layout(HTML('<div id = "your_introduction" class = "hidden" >' +
@@ -284,7 +290,9 @@ class ContentForm(ContainerForm):
                 css_class='btn btn-submit merge-btn need-to-merge-introduction'))))
                 
             old_conclusion = kwargs.get('data').get('conclusion')
-
+            if old_conclusion is None:
+                old_conclusion = ''
+                
             self.helper.layout.append(Layout(Field('conclusion', css_class='hidden')))
             self.helper.layout.append(Layout(HTML('<div id = "your_conclusion" class = "hidden" >' + old_conclusion +
                                                   '</div>')))
