@@ -92,6 +92,10 @@
             {% url 'post-new' %}?sujet={{ topic.pk }}&amp;cite={{ message.pk }}
         {% endcaptureas %}
 
+        {% captureas github_link %}
+            {% url 'create-issue' message.pk %}
+        {% endcaptureas %}
+
         {% captureas helpful_link %}
             {% url 'post-useful' %}?message={{ message.pk }}
         {% endcaptureas %}

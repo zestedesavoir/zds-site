@@ -88,7 +88,7 @@
                                 <a href="#create-issue-{{ message.id }}" class="open-modal ico-after github">
                                     {% trans "GitHub" %}
                                 </a>
-                                <form action="{% url 'create-issue' message.pk %}" method="post" id="create-issue-{{ message.id }}" class="modal modal-flex">
+                                <form action="{{ github_link }}" method="post" id="create-issue-{{ message.id }}" class="modal modal-flex">
                                     {% if has_token %}
                                         {% csrf_token %}
                                         <p>
