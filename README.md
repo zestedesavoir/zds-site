@@ -70,7 +70,7 @@ python .\manage.py load_factory_data .\fixtures\advanced\aide_tuto_media.yaml
 
 Cela va créer plusieurs entitées :
 
-* 7 utilisateurs (utilisateur/mot de passe) :
+* 8 utilisateurs (utilisateur/mot de passe) :
 	* user/user : Utilisateur normal
 	* staff/staff : Utilisateur avec les droits d'un staff
 	* admin/admin : Utilisateur avec les droits d'un staff et d'un admin
