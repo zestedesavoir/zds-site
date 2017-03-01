@@ -25,7 +25,6 @@ urlpatterns = [
     # Viewing a thread
     url(r'^sujet/nouveau/$', TopicNew.as_view(), name='topic-new'),
     url(r'^sujet/editer/$', TopicEdit.as_view(), name='topic-edit'),
-    url(r'^sujet/github/(?P<pk>\d+)/$', CreateGitHubIssue.as_view(), name='create-issue'),
     url(r'^sujet/(?P<topic_pk>\d+)/(?P<topic_slug>.+)/$', TopicPostsListView.as_view(), name='topic-posts-list'),
     url(r'^sujets/membre/(?P<user_pk>\d+)/$', FindTopic.as_view(), name='topic-find'),
     url(r'^sujets/tag/(?P<tag_pk>\d+)/(?P<tag_slug>.+)/$', FindTopicByTag.as_view(), name='topic-tag-find'),
@@ -35,6 +34,7 @@ urlpatterns = [
     url(r'^message/editer/$', PostEdit.as_view(), name='post-edit'),
     url(r'^message/utile/$', PostUseful.as_view(), name='post-useful'),
     url(r'^message/nonlu/$', PostUnread.as_view(), name='post-unread'),
+    url(r'^message/github/(?P<pk>\d+)/$', CreateGitHubIssue.as_view(), name='create-issue'),
     url(r'^messages/(?P<user_pk>\d+)/$', FindPost.as_view(), name='post-find'),
 
     # Categories and forums list.
