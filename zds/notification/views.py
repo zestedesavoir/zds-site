@@ -12,6 +12,10 @@ from zds import settings
 from zds.mp.models import PrivateTopic
 from zds.notification.models import Notification
 from zds.utils.paginator import ZdSPagingListView
+from zds.forum.models import Post
+from zds.tutorialv2.models.models_database import PublishableContent
+from zds.forum.models import mark_read as mark_topic_read
+from zds.tutorialv2.utils import mark_read as mark_content_read
 
 
 class NotificationList(ZdSPagingListView):
@@ -40,7 +44,17 @@ class NotificationList(ZdSPagingListView):
 def mark_notifications_as_read(request):
     """Mark the notifications of the current user as read"""
 
-    Notification.objects.get_unread_notifications_of(request.user).update(is_read=True)
+    content_type = ContentType.objects.get_for_model(PrivateTopic)
+    notifications = Notification.objects.get_unread_notifications_of(request.user) \
+        .exclude(subscription__content_type=content_type) \
+
+    for notification in notifications:
+        if isinstance(notification.content_object, Post):
+            mark_topic_read(notification.content_object.topic, request.user)
+        if isinstance(notification.content_object, PublishableContent):
+            mark_content_read(notification.content_object.related_content, request.user)
+
+    notifications.update(is_read=True)
 
     messages.success(request, _(u'Vos notifications ont bien été marquées comme lues.'))
 
