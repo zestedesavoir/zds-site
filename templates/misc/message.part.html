@@ -94,7 +94,7 @@
                                         <p>
                                             {% trans 'Si vous voulez modifier ce qui sera envoyé sur GitHub, éditez ce formulaire.' %}
                                         </p>
-                                        <input type="text" name="title" data-autocomplete="{ 'type': 'single' }" value="{{ topic.title }}" required>
+                                        <input type="text" name="title" value="{{ topic.title }}" required>
                                         <textarea name="body" class="textarea" cols="40">{{ message.text }}</textarea>
                                         {% for tag in tags %}
                                             <label for="tag-{{ tag }}">

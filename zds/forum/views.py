@@ -654,35 +654,32 @@ class CreateGitHubIssue(UpdateView):
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
 
-        if 'title' not in self.request.POST or 'body' not in self.request.POST \
-                or not self.request.POST['title']:
+        if 'title' not in request.POST or 'body' not in request.POST or not request.POST['title']:
             messages.error(request, _('Le titre est obligatoire.'))
-            return redirect(self.object.get_absolute_url())
 
-        tags = [value.strip() for key, value in request.POST.items() if key.startswith('tag-')]
-        body = _('{}\n\nMessage : {}\n*Envoyé depuis {}*')\
-            .format(request.POST['body'],
-                    settings.ZDS_APP['site']['url'] + self.object.get_absolute_url(),
-                    settings.ZDS_APP['site']['litteral_name'])
-        try:
-            response = requests.post(
-                settings.ZDS_APP['site']['repository']['api'] + '/issues',
-                timeout=10,
-                headers={
-                    'Authorization': 'Token {}'.format(self.request.user.profile.github_token)},
-                json={
-                    'title': request.POST['title'],
-                    'body': body,
-                    'labels': tags
-                }
-            )
-            if response.status_code != 201:
-                raise Exception
-        except Exception:
-            messages.error(request, _('Un problème est survenu lors de l\'envoi sur GitHub.'))
         else:
-            messages.success(request, _('Le message a bien été envoyé au bugtracker.'))
+            tags = [value.strip() for key, value in request.POST.items() if key.startswith('tag-')]
+            body = _('{}\n\nMessage : {}\n*Envoyé depuis {}*')\
+                .format(request.POST['body'],
+                        settings.ZDS_APP['site']['url'] + self.object.get_absolute_url(),
+                        settings.ZDS_APP['site']['litteral_name'])
+            try:
+                response = requests.post(
+                    settings.ZDS_APP['site']['repository']['api'] + '/issues',
+                    timeout=10,
+                    headers={
+                        'Authorization': 'Token {}'.format(self.request.user.profile.github_token)},
+                    json={
+                        'title': request.POST['title'],
+                        'body': body,
+                        'labels': tags
+                    }
+                )
+                if response.status_code != 201:
+                    raise Exception
+            except Exception:
+                messages.error(request, _('Un problème est survenu lors de l\'envoi sur GitHub.'))
+            else:
+                messages.success(request, _('Le message a bien été envoyé au bugtracker.'))
 
-        if request.is_ajax():
-            return HttpResponse(json.dumps(self.object), content_type='application/json')
-        return redirect(self.object.get_absolute_url())
+        return redirect(self.object.topic.get_absolute_url())
