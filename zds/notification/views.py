@@ -42,7 +42,12 @@ class NotificationList(ZdSPagingListView):
 @require_POST
 @login_required
 def mark_notifications_as_read(request):
-    """Mark the notifications of the current user as read"""
+    """
+    Mark the notifications of the current user as read.
+    If a notification is linked to a comment, the topic
+    or content associed is also marked as read.
+    Note that notifications for private messages are not concerned.
+    """
 
     content_type = ContentType.objects.get_for_model(PrivateTopic)
     notifications = Notification.objects.get_unread_notifications_of(request.user) \
