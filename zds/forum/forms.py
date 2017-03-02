@@ -20,6 +20,11 @@ class TopicForm(forms.Form):
             attrs={
                 'placeholder': _(u'Titre de mon sujet'),
                 'required': 'required',
+                'data-autocomplete': '''{ "type": "simple",
+                                        "header":"Sujets similaires :",
+                                        "fieldname": "title", "url":
+                                        "/rechercher/topics-similaires/?q=%s",
+                                        "clickable":true }'''
             }
         )
     )
@@ -58,7 +63,7 @@ class TopicForm(forms.Form):
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
-            Field('title', autocomplete='off'),
+            Field('title'),
             Field('subtitle', autocomplete='off'),
             Field('tags'),
             CommonLayoutEditor(),
