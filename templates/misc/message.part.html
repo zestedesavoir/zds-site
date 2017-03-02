@@ -87,7 +87,7 @@
                         {% if message.github_issue %}
                             <li>
                                 <a href="{{ message|get_github_issue_link }}" class="ico-after github">
-                                    {% trans "Issue" %}
+                                    {% trans "Ticket" %} <span class="wide">{% trans "associé" %}</span>
                                 </a>
                             </li>
                         {% elif github %}
