@@ -14,6 +14,7 @@ from zds.notification.models import Notification, TopicAnswerSubscription, Conte
 from zds.tutorialv2.models.models_database import ContentReaction
 from zds.utils import get_current_user
 from zds.utils.models import Alert
+from zds import settings
 
 register = template.Library()
 
@@ -113,6 +114,17 @@ def followed_topics(user):
                     topics[period[0]] = [topic]
                 break
     return topics
+
+
+@register.filter('get_github_issue_link')
+def get_github_issue_link(comment):
+    if not comment.github_issue:
+        return None
+    else:
+        return '{0}/{1}'.format(
+            settings.ZDS_APP['site']['repository']['bugtracker'],
+            comment.github_issue
+        )
 
 
 def comp(dated_element1, dated_element2):

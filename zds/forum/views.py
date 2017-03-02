@@ -657,6 +657,9 @@ class CreateGitHubIssue(UpdateView):
         if 'title' not in request.POST or 'body' not in request.POST or not request.POST['title']:
             messages.error(request, _('Le titre est obligatoire.'))
 
+        elif self.object.github_issue:
+            messages.error(request, _('Une issue a déjà été créée pour ce message.'))
+
         else:
             tags = [value.strip() for key, value in request.POST.items() if key.startswith('tag-')]
             body = _('{}\n\nMessage : {}\n*Envoyé depuis {}*')\
@@ -678,11 +681,12 @@ class CreateGitHubIssue(UpdateView):
                 if response.status_code != 201:
                     raise Exception
                 else:
-                    self.object.github_issue = response.json['number']
+                    json_response = response.json()
+                    self.object.github_issue = json_response['number']
                     self.object.save()
             except Exception:
                 messages.error(request, _('Un problème est survenu lors de l\'envoi sur GitHub.'))
             else:
                 messages.success(request, _('Le message a bien été envoyé au bugtracker.'))
 
-        return redirect(self.object.topic.get_absolute_url())
+        return redirect(self.object.get_absolute_url())

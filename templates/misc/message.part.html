@@ -4,6 +4,7 @@
 {% load set %}
 {% load i18n %}
 {% load pluralize_fr %}
+{% load interventions %}
 
 
 {% if topic.author == message.author and helpful_link %}
@@ -83,7 +84,13 @@
                                 </a>
                             </li>
                         {% endif %}
-                        {% if github %}
+                        {% if message.github_issue %}
+                            <li>
+                                <a href="{{ message|get_github_issue_link }}" class="ico-after github">
+                                    {% trans "Issue" %}
+                                </a>
+                            </li>
+                        {% elif github %}
                             <li>
                                 <a href="#create-issue-{{ message.id }}" class="open-modal ico-after github">
                                     {% trans "GitHub" %}
