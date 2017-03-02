@@ -116,14 +116,14 @@ def followed_topics(user):
     return topics
 
 
-@register.filter('get_github_issue_link')
-def get_github_issue_link(comment):
-    if not comment.github_issue:
+@register.filter('get_github_issue_url')
+def get_github_issue_url(message):
+    if not message.github_issue:
         return None
     else:
         return '{0}/{1}'.format(
             settings.ZDS_APP['site']['repository']['bugtracker'],
-            comment.github_issue
+            message.github_issue
         )
 
 
