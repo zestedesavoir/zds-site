@@ -657,6 +657,9 @@ class CreateGitHubIssue(UpdateView):
         if 'title' not in request.POST or 'body' not in request.POST or not request.POST['title']:
             messages.error(request, _('Le titre est obligatoire.'))
 
+        elif not request.user.profile.github_token:
+            messages.error(request, _("Aucun token d'identification GitHub n'a été renseigné."))
+
         elif self.object.github_issue:
             messages.error(request, _('Une issue a déjà été créée pour ce message.'))
 
@@ -671,7 +674,7 @@ class CreateGitHubIssue(UpdateView):
                     settings.ZDS_APP['site']['repository']['api'] + '/issues',
                     timeout=10,
                     headers={
-                        'Authorization': 'Token {}'.format(self.request.user.profile.github_token)},
+                        'Authorization': 'Token {}'.format(request.user.profile.github_token)},
                     json={
                         'title': request.POST['title'],
                         'body': body,

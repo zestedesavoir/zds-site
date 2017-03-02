@@ -93,7 +93,7 @@
                         {% elif github %}
                             <li>
                                 <a href="#create-issue-{{ message.id }}" class="open-modal ico-after github">
-                                    {% trans "GitHub" %}
+                                    {% trans "Créer" %} <span class="wide">{% trans "un ticket" %}</span>
                                 </a>
                                 <form action="{{ github_link }}" method="post" id="create-issue-{{ message.id }}" class="modal modal-flex">
                                     {% if has_token %}
