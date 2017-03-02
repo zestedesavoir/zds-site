@@ -6,6 +6,6 @@ from zds.searchv2.views import SearchView, opensearch, SimilarSubjectsView
 
 urlpatterns = [
     url(r'^$', SearchView.as_view(), name='query'),
-    url(r'^topics-similaires/$', SimilarSubjectsView.as_view(), name='similar'),
+    url(r'^sujets-similaires/$', SimilarSubjectsView.as_view(), name='similar'),
     url(r'^opensearch\.xml$', opensearch, name='opensearch'),
 ]

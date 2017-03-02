@@ -245,7 +245,7 @@
             }
             this.$dropdown.children().remove();
             if(this.options.header && $list[0].childElementCount) {
-              this.$dropdown.append("<div class=\"autocomplete-dropdown-header\">" + this.options.header + "</div>")
+              this.$dropdown.append("<div class=\"autocomplete-dropdown-header\">" + this.options.header + "</div>");
             }
             this.$dropdown.append($list);
 
@@ -292,7 +292,7 @@
                 "class": "autocomplete-wrapper"
             }),
             $dropdown = $("<div/>", {
-                "class": "autocomplete-dropdown autocomplete-" + input[0].id
+                "class": "autocomplete-dropdown"
             });
 
         return $input.addClass("autocomplete-input")
@@ -323,10 +323,5 @@
             $(this).autocomplete();
           }
         });
-        /*$("#content").on("DOMNodeInserted", "input", function(e) {
-            var $input = $(e.target);
-            if ($input.is("[data-autocomplete]"))
-                $input.autocomplete();
-        });*/
     });
 })(jQuery);

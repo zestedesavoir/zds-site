@@ -1,4 +1,5 @@
 # coding: utf-8
+import json
 
 from django import forms
 from django.conf import settings
@@ -20,11 +21,13 @@ class TopicForm(forms.Form):
             attrs={
                 'placeholder': _(u'Titre de mon sujet'),
                 'required': 'required',
-                'data-autocomplete': '''{ "type": "simple",
-                                        "header":"Sujets similaires :",
-                                        "fieldname": "title", "url":
-                                        "/rechercher/topics-similaires/?q=%s",
-                                        "clickable":true }'''
+                'data-autocomplete': json.dumps({
+                    'type':'simple',
+                    'fieldname':'title',
+                    'header':str(_(u'Sujets similaires :')),
+                    'url':'/rechercher/sujets-similaires/?q=%s',
+                    'clickable':'true'
+                })
             }
         )
     )

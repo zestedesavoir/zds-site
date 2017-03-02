@@ -126,17 +126,13 @@ class SearchView(ZdSPagingListView):
             # find forums the user is allowed to visit
             user = self.request.user
 
-            forums_pub = Forum.objects.filter(groups__isnull=True).all()
+            searched_forums = Forum.objects.filter(group__isnull=True)
             if user and user.is_authenticated():
-                forums_private = Forum \
+                private_forums = Forum \
                     .objects \
-                    .filter(groups__isnull=False, groups__in=user.groups.all()) \
-                    .all()
-                list_forums = list(forums_pub | forums_private)
-            else:
-                list_forums = list(forums_pub)
-
-            self.authorized_forums = [f.pk for f in list_forums]
+                    .filter(group__isnull=False, group__in=user.groups.all())
+                searched_forums = searched_forum | private_forums
+                self.authorized_forums = searched_forums.values_list('pk', flat=True)
 
             search_queryset = Search()
 
