@@ -677,6 +677,9 @@ class CreateGitHubIssue(UpdateView):
                 )
                 if response.status_code != 201:
                     raise Exception
+                else:
+                    self.object.github_issue = response.json['number']
+                    self.object.save()
             except Exception:
                 messages.error(request, _('Un problème est survenu lors de l\'envoi sur GitHub.'))
             else:
