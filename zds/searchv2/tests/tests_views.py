@@ -1,6 +1,7 @@
 # coding: utf-8
 
 import os
+import json
 import shutil
 
 from elasticsearch_dsl import Search
@@ -126,6 +127,51 @@ class ViewsTests(TestCase):
             for i, r in enumerate(response):
                 self.assertIn(r.meta.doc_type, group_to_model[doc_type])  # ... and only of the right type ...
                 self.assertEqual(r.meta.id, ids[doc_type][i])  # .. with the right id !
+
+    def test_get_similar_topics(self):
+        """Get similar topics lists"""
+
+        if not self.manager.connected_to_es:
+            return
+
+        text = 'Clem ne se mange pas'
+
+        topic_1 = TopicFactory(forum=self.forum, author=self.user, title=text)
+        post_1 = PostFactory(topic=topic_1, author=self.user, position=1)
+        post_1.text = post_1.text_html = text
+        post_1.save()
+
+        text = 'Clem est la meilleure mascotte'
+
+        topic_2 = TopicFactory(forum=self.forum, author=self.user, title=text)
+        post_2 = PostFactory(topic=topic_2, author=self.user, position=1)
+        post_2.text = post_1.text_html = text
+        post_2.save()
+
+        # 1. Should not get any result
+        result = self.client.get(reverse('search:similar') + '?q=est', follow=False)
+        self.assertEqual(result.status_code, 200)
+        content = json.loads(result.content)
+        self.assertEqual(len(content['results']), 0)
+
+        # index
+        for model in self.indexable:
+            if model is FakeChapter:
+                continue
+            self.manager.es_bulk_indexing_of_model(model)
+        self.manager.refresh_index()
+
+        # 2. Should not get two results
+        result = self.client.get(reverse('search:similar') + '?q=mange', follow=False)
+        self.assertEqual(result.status_code, 200)
+        content = json.loads(result.content)
+        self.assertEqual(len(content['results']), 1)
+
+        # 2. Should not get two results
+        result = self.client.get(reverse('search:similar') + '?q=Clem', follow=False)
+        self.assertEqual(result.status_code, 200)
+        content = json.loads(result.content)
+        self.assertEqual(len(content['results']), 2)
 
     def test_hidden_post_are_not_result(self):
         """Hidden posts should not come out of the search"""
