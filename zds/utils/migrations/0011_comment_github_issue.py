@@ -14,6 +14,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='comment',
             name='github_issue',
-            field=models.IntegerField(null=True, verbose_name='Issue GitHub', blank=True),
+            field=models.IntegerField(null=True, verbose_name='Ticket GitHub', blank=True),
         ),
     ]
