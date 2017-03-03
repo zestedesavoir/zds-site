@@ -661,7 +661,7 @@ class CreateGitHubIssue(UpdateView):
             messages.error(request, _("Aucun token d'identification GitHub n'a été renseigné."))
 
         elif self.object.github_issue:
-            messages.error(request, _('Une issue a déjà été créée pour ce message.'))
+            messages.error(request, _('Un ticket a déjà été créée pour ce message.'))
 
         else:
             tags = [value.strip() for key, value in request.POST.items() if key.startswith('tag-')]
