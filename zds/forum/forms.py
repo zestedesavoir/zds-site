@@ -22,11 +22,11 @@ class TopicForm(forms.Form):
                 'placeholder': _(u'Titre de mon sujet'),
                 'required': 'required',
                 'data-autocomplete': json.dumps({
-                    'type':'simple',
-                    'fieldname':'title',
-                    'header':str(_(u'Sujets similaires :')),
-                    'url':'/rechercher/sujets-similaires/?q=%s',
-                    'clickable':'true'
+                    'type': 'simple',
+                    'fieldname': 'title',
+                    'header': str(_(u'Sujets similaires :')),
+                    'url': '/rechercher/sujets-similaires/?q=%s',
+                    'clickable': 'true'
                 })
             }
         )
