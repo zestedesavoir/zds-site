@@ -683,13 +683,13 @@ class CreateGitHubIssue(UpdateView):
                 )
                 if response.status_code != 201:
                     raise Exception
-                else:
-                    json_response = response.json()
-                    self.object.github_issue = json_response['number']
-                    self.object.save()
+
+                json_response = response.json()
+                self.object.github_issue = json_response['number']
+                self.object.save()
+
+                messages.success(request, _('Le message a bien été envoyé au bugtracker.'))
             except Exception:
                 messages.error(request, _('Un problème est survenu lors de l\'envoi sur GitHub.'))
-            else:
-                messages.success(request, _('Le message a bien été envoyé au bugtracker.'))
 
         return redirect(self.object.get_absolute_url())
