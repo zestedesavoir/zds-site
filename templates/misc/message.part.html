@@ -66,7 +66,7 @@
                                             <input type="text" name="text_hidden" placeholder="Flood, Troll, Hors sujet, ..." >
                                         {% else %}
                                             <p>
-                                                {% trans "Attention, en masquant ce message, vous ne pourrez plus l'afficher vous même. Êtes vous certains de vouloir le faire" %} ?
+                                                {% trans "Attention, en masquant ce message, vous ne pourrez plus l'afficher vous-même. Êtes-vous certain de vouloir le faire" %} ?
                                             </p>
                                         {% endif %}
 
@@ -107,7 +107,7 @@
                                 {% csrf_token %}
                                 <p>
                                     {% blocktrans with editor=message.editor %}
-                                    Ce message a été masqué par <strong>{{ editor }}</strong>, êtes vous certains de vouloir le ré-afficher ?
+                                    Ce message a été masqué par <strong>{{ editor }}</strong>, êtes-vous certain de vouloir le ré-afficher ?
                                     {% endblocktrans %}
                                 </p>
 
