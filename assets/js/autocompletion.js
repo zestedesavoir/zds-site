@@ -319,9 +319,8 @@
 
     $(document).ready(function() {
         $("[data-autocomplete]").each(function () {
-          if($(this).data) {
-            $(this).autocomplete();
-          }
+          if ($(this).data)
+              $(this).autocomplete();
         });
     });
 })(jQuery);
