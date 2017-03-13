@@ -1936,7 +1936,7 @@ class ContentTests(TestCase):
         self.assertEqual(result.status_code, 200)
 
     def test_validation_subscription(self):
-        """test if the author suscribes to its own content"""
+        """test if the author suscribes to their own content"""
 
         text_validation = u"Valide moi ce truc, s'il te plait"
         source = u'http://example.com'  # thanks the IANA for that one ;-)
