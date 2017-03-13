@@ -249,7 +249,8 @@ def content_published_event(sender, **kwargs):
     by_email = kwargs.get('by_email')
     authors = list(content.authors.all())
     for user in authors:
-        ContentReactionAnswerSubscription.objects.toggle_follow(content, user, by_email=by_email)
+        if not NewPublicationSubscription.objects.get_existing(user, user):
+            ContentReactionAnswerSubscription.objects.toggle_follow(content, user, by_email=by_email)
         # no need for condition here, get_or_create_active has its own
         subscription = NewPublicationSubscription.objects.get_or_create_active(user, user)
         subscription.send_notification(content=content, sender=user, send_email=by_email)
