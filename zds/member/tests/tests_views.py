@@ -90,7 +90,7 @@ class MemberTests(TestCase):
             'note': 'warn'
         }, follow=True)
         self.assertEqual(200, r.status_code)
-        self.assertIn('42', r.content.decode('utf-8'))
+        self.assertIn('Modification du karma : 42', r.content.decode('utf-8'))
         # more than 100 karma must unvalidate the karma
         r = self.client.post(reverse('member-modify-karma'), {
             'profile_pk': user.pk,
@@ -98,7 +98,7 @@ class MemberTests(TestCase):
             'note': 'warn'
         }, follow=True)
         self.assertEqual(200, r.status_code)
-        self.assertNotIn('420', r.content.decode('utf-8'))
+        self.assertNotIn('Modification du karma : 420', r.content.decode('utf-8'))
         # empty warning must unvalidate the karma
         r = self.client.post(reverse('member-modify-karma'), {
             'profile_pk': user.pk,
@@ -106,7 +106,7 @@ class MemberTests(TestCase):
             'note': ''
         }, follow=True)
         self.assertEqual(200, r.status_code)
-        self.assertNotIn('41', r.content.decode('utf-8'))
+        self.assertNotIn('Modification du karma : 41', r.content.decode('utf-8'))
 
     def test_list_members(self):
         """
