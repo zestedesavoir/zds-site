@@ -375,6 +375,21 @@ def auto_delete_token_on_unregistering(sender, instance, **kwargs):
     TokenRegister.objects.filter(user=instance).delete()
 
 
+@receiver(models.signals.post_save, sender=User)
+def remove_token_github_on_removing_from_dev_group(sender, instance, **kwargs):
+    """
+    This signal receiver removes the GitHub token of an user if he's not in the dev group
+    """
+    try:
+        profile = instance.profile
+        if profile.github_token:
+            if not profile.is_dev():
+                profile.github_token = ''
+                profile.save()
+    except Profile.DoesNotExist:
+        pass
+
+
 @python_2_unicode_compatible
 class TokenForgotPassword(models.Model):
     """

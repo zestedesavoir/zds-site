@@ -16,7 +16,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from zds.settings import BASE_DIR
 from zds.notification.models import TopicAnswerSubscription
-from zds.member.factories import ProfileFactory, StaffProfileFactory, NonAsciiProfileFactory, UserFactory
+from zds.member.factories import ProfileFactory, StaffProfileFactory, NonAsciiProfileFactory, UserFactory, \
+    DevProfileFactory
 from zds.mp.factories import PrivateTopicFactory, PrivatePostFactory
 from zds.member.models import Profile, KarmaNote, TokenForgotPassword
 from zds.mp.models import PrivatePost, PrivateTopic
@@ -1160,6 +1161,39 @@ class MemberTests(TestCase):
         result = self.client.get(reverse('member-detail', args=[user_1.user.username]), follow=False)
         self.client.logout()
         self.assertNotContains(result, phrase)
+
+    def test_github_token(self):
+        user = ProfileFactory()
+        dev = DevProfileFactory()
+
+        # test that github settings are only availables for dev
+        self.client.login(username=user.user.username, password='hostel77')
+        result = self.client.get(reverse('update-github'), follow=False)
+        self.assertEqual(result.status_code, 403)
+        result = self.client.post(reverse('remove-github'), follow=False)
+        self.assertEqual(result.status_code, 403)
+        self.client.logout()
+
+        # now, test the form
+        self.client.login(username=dev.user.username, password='hostel77')
+        result = self.client.get(reverse('update-github'), follow=False)
+        self.assertEqual(result.status_code, 200)
+        result = self.client.post(reverse('update-github'), {
+            'github_token': 'test',
+        }, follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # refresh
+        dev = Profile.objects.get(pk=dev.pk)
+        self.assertEqual(dev.github_token, 'test')
+
+        # test the option to remove the token
+        result = self.client.post(reverse('remove-github'), follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # refresh
+        dev = Profile.objects.get(pk=dev.pk)
+        self.assertEqual(dev.github_token, '')
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):

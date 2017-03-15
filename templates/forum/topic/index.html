@@ -242,12 +242,12 @@
                     <button type="submit">{% trans 'Envoyer' %}</button>
                 {% else %}
                     <p>{% trans "Il semblerait que vous n'ayez pas spécifié un token d'identification GitHub, vous ne pouvez donc pas envoyer ce sujet au bugtracker." %}</p>
-                    {% url 'update-member' as update_member %}
+                    {% url 'update-github' as update_github %}
                     <p>
                         {% blocktrans %}
                             Pour y parvenir, pensez simplement à générer un
                             <a href="https://github.com/settings/tokens">token sur GitHub</a> et à le renseigner dans
-                            <a href="{{ update_member }}">votre profil</a>.
+                            <a href="{{ update_github }}">votre profil</a>.
                         {% endblocktrans %}
                     </p>
                 {% endif %}

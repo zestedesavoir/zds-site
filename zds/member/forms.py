@@ -191,16 +191,6 @@ class MiniProfileForm(forms.Form):
         )
     )
 
-    github_token = forms.CharField(
-        label='Token GitHub',
-        required=False,
-        widget=forms.TextInput(
-            attrs={
-                'placeholder': _(u'Token qui permet de communiquer avec la plateforme GitHub.')
-            }
-        )
-    )
-
     def __init__(self, *args, **kwargs):
         super(MiniProfileForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
@@ -274,9 +264,34 @@ class ProfileForm(MiniProfileForm):
             Field('options'),
             ButtonHolder(StrictButton(_(u'Enregistrer'), type='submit'),)
         )
-        if initial.get('is_dev'):
-            layout.fields.insert(5, Field('github_token'))
         self.helper.layout = layout
+
+
+class GitHubTokenForm(forms.Form):
+    """
+    Updates the GitHub token.
+    """
+    github_token = forms.CharField(
+        label='Token GitHub',
+        required=True,
+        widget=forms.TextInput(
+            attrs={
+                'placeholder': _(u'Token qui permet de communiquer avec la plateforme GitHub.')
+            }
+        )
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(GitHubTokenForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = 'content-wrapper'
+        self.helper.form_method = 'post'
+
+        self.helper.layout = Layout(
+            Field('github_token'),
+            ButtonHolder(
+                StrictButton(_(u'Enregistrer'), type='submit'),
+            ))
 
 
 class ChangeUserForm(forms.Form):
