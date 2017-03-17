@@ -6,6 +6,7 @@
 {% load i18n %}
 {% load feminize %}
 {% load captureas %}
+{% load pluralize_fr %}
 
 
 {% block title %}
@@ -104,6 +105,26 @@
                 {% endif %}
             </div>
         </div>
+
+        {% if helps %}
+            <div class="content-wrapper">
+                <div class="alert-box info">
+                    {% if content.authors.count > 1 %}
+                        {% trans "Les auteurs de ce contenu recherchent" %}
+                    {% else %}
+                        {% trans "L'auteur de ce contenu recherche" %}
+                    {% endif %}
+
+                    {% for help in helps.all %}{% if not forloop.first %}{% if forloop.last %}{% trans ' et ' %}{% else %}{% trans ', ' %}{% endif %}{% endif %}un {{ help.title|lower }}{% if forloop.last %}{% trans '.' %}{% endif %}{% endfor %}
+
+                    {% if not can_edit %}
+                        {% blocktrans with plural=content.authors.count|pluralize_fr %}
+                            N'hésitez pas le{{ plural }} contacter <a href="{{ pm_link }}">par MP</a> !
+                        {% endblocktrans %}
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
     {% endif %}
 {% endblock %}
 
