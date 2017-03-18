@@ -1,11 +1,12 @@
-    {% comment %}
-        Structure de la page de second level :
-        - 2 tutos mis en avant
-        - présentation des sous catégories (accessible via {%  for category in categories %}
-        - liste des 6 derniers tutos en une colonne
-        - liste des 6 tutos les plus commentés en une colonne
+{% comment %}
+    Structure de la page de second level :
+    - 2 tutos mis en avant
+    - présentation des sous catégories (accessible via {%  for category in categories %}
+    - liste des 6 derniers tutos en une colonne
+    - liste des 6 tutos les plus commentés en une colonne
 
-    {% endcomment %}
+{% endcomment %}
+
 <section class="flexpage-header">
     <div class="flexpage-wrapper">
         <div class="flexpage-title-search">
@@ -13,7 +14,7 @@
                 <img src="http://127.0.0.1:8000/static/images/home-clem.png">
             </div>
             <div class="title">
-                <h1>Contenus</h1>
+                <h1>Nom du domaine</h1>
                 {{ content_count }} contenus
             </div>
 
@@ -28,8 +29,6 @@
 </section>
 
 <div class="flexpage-wrapper">
-
-
     <section>
         <h2 itemprop="name">À la une</h2>
         <div class="featured-resource-row">
@@ -40,9 +39,19 @@
     </section>
 
     <section>
-        <h2 class="inline" itemprop="name">Domaines de savoir</h2>
+        <h2 class="inline" itemprop="name">Catégorie</h2>
         <div class="content-linkbox-list">
-            {% include 'tutorialv2/list_page_elements/themes_list.html' %}
+            {% for category in categories %}
+                <div class="linkbox-item secondary">
+                    <a href="#" class="head">
+                        <h3>{{ category.title }}</h3>
+                    </a>
+
+                    <a href="#" class="body">
+                        <p class="right">X contenu</p>
+                    </a>
+                </div>
+            {% endfor %}
         </div>
     </section>
 
