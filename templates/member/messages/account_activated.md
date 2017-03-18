@@ -27,7 +27,7 @@ Si tu veux transmettre ton savoir, il y a plusieurs possibilités :
 - aider sur les forums ;
 - commenter les [contenus en cours de rédaction](https://zestedesavoir.com/forums/communaute/beta-zone/) ;
 - aider les [auteurs dans le besoin](https://zestedesavoir.com/contenus/aides/), en tant que co-auteur, illustrateur ou correcteur ;
-- écrire un cours ou un article (en pensant à la [ligne éditoriale](https://zestedesavoir.com/articles/222/la-ligne-editoriale-officielle-de-zeste-de-savoir/)).
+- écrire un tutoriel ou un article (en pensant à la [ligne éditoriale](https://zestedesavoir.com/articles/222/la-ligne-editoriale-officielle-de-zeste-de-savoir/)).
 
 
 L'ensemble du contenu disponible sur le site est et sera toujours gratuit, car la communauté de {{ site_name }} est attachée aux valeurs du libre partage et désire apporter le savoir à tout le monde quels que soient ses moyens.

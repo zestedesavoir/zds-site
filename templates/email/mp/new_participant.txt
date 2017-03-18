@@ -2,7 +2,7 @@
 {% load i18n %}
 
 {% block content_from_staff %}
-{{ author }} {% trans "vous a invité pour participer à une discussion privée sur" %} {{ site_name }}.
+{{ author }} {% trans "vous a invité à participer à une discussion privée sur" %} {{ site_name }}.
 
 {% trans "Pour le lire," %} {% trans "cliquez ou recopiez l'url suivante" %} : {{ url }}
 {% endblock %}

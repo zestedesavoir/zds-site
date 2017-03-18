@@ -62,7 +62,7 @@
         <!-- Confirmation modal for deleting featured -->
         <form id="form-delete-featured" name="form" method="post" action="{% url "featured-resource-list-delete" %}" class="modal modal-flex">
             {% csrf_token %}
-            <p>{% trans "Attention, vous vous appretez à supprimer toutes les unes sélectionnées." %}</p>
+            <p>{% trans "Attention, vous vous apprêtez à supprimer toutes les unes sélectionnées." %}</p>
             <button type="submit" name="delete_multi" class="btn">{% trans "Confirmer" %}</button>
         </form>
     {% else %}
