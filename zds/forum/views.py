@@ -640,7 +640,7 @@ def solve_alert(request):
     return redirect(post.get_absolute_url())
 
 
-class CreateGitHubIssue(UpdateView):
+class ManageGitHubIssue(UpdateView):
     queryset = Topic.objects.all()
 
     @method_decorator(require_POST)
@@ -649,33 +649,58 @@ class CreateGitHubIssue(UpdateView):
     def dispatch(self, request, *args, **kwargs):
         if not request.user.profile.is_dev():
             raise PermissionDenied
-        return super(CreateGitHubIssue, self).dispatch(request, *args, **kwargs)
+        return super(ManageGitHubIssue, self).dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
 
-        tags = [value.strip() for key, value in request.POST.items() if key.startswith('tag-')]
-        body = _('{}\n\nSujet: {}\n*Envoyé depuis {}*')\
-            .format(request.POST['body'],
-                    settings.ZDS_APP['site']['url'] + self.object.get_absolute_url(),
-                    settings.ZDS_APP['site']['litteral_name'])
-        try:
-            response = requests.post(
-                settings.ZDS_APP['site']['repository']['api'] + '/issues',
-                timeout=10,
-                headers={
-                    'Authorization': 'Token {}'.format(self.request.user.profile.github_token)},
-                json={
-                    'title': request.POST['title'],
-                    'body': body,
-                    'labels': tags
-                }
-            )
-            if response.status_code != 201:
-                raise Exception
-        except Exception:
-            messages.error(request, _('Un problème est survenu lors de l\'envoi sur GitHub'))
+        if 'unlink' in request.POST:
+            self.object.github_issue = None
+            self.object.save()
 
-        if request.is_ajax():
-            return HttpResponse(json.dumps(self.object), content_type='application/json')
+            messages.success(request, _('Le sujet a été dissocié de son ticket.'))
+        elif 'link' in request.POST:
+            try:
+                self.object.github_issue = int(request.POST['issue'])
+                self.object.save()
+
+                messages.success(request, _('Le ticket a bien été associé.'))
+            except (KeyError, ValueError, OverflowError):
+                messages.error(request, _('Une erreur est survenue avec le numéro fourni.'))
+        else:  # create
+            if not request.POST.get('title') or not request.POST.get('body'):
+                messages.error(request, _('Le titre et le contenu sont obligatoires.'))
+
+            elif not request.user.profile.github_token:
+                messages.error(request, _("Aucun token d'identification GitHub n'a été renseigné."))
+
+            else:
+                tags = [value.strip() for key, value in request.POST.items() if key.startswith('tag-')]
+                body = _('{}\n\nSujet : {}\n*Envoyé depuis {}*')\
+                    .format(request.POST['body'],
+                            settings.ZDS_APP['site']['url'] + self.object.get_absolute_url(),
+                            settings.ZDS_APP['site']['litteral_name'])
+                try:
+                    response = requests.post(
+                        settings.ZDS_APP['site']['repository']['api'] + '/issues',
+                        timeout=10,
+                        headers={
+                            'Authorization': 'Token {}'.format(self.request.user.profile.github_token)},
+                        json={
+                            'title': request.POST['title'],
+                            'body': body,
+                            'labels': tags
+                        }
+                    )
+                    if response.status_code != 201:
+                        raise Exception
+
+                    json_response = response.json()
+                    self.object.github_issue = json_response['number']
+                    self.object.save()
+
+                    messages.success(request, _('Le ticket a bien été créé.'))
+                except Exception:
+                    messages.error(request, _('Un problème est survenu lors de l\'envoi sur GitHub'))
+
         return redirect(self.object.get_absolute_url())
