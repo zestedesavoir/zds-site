@@ -703,6 +703,6 @@ class ManageGitHubIssue(UpdateView):
 
                     messages.success(request, _('Le ticket a bien été créé.'))
                 except Exception:
-                    messages.error(request, _('Un problème est survenu lors de l\'envoi sur GitHub'))
+                    messages.error(request, _("Un problème est survenu lors de l'envoi sur GitHub."))
 
         return redirect(self.object.get_absolute_url())
