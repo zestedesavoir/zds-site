@@ -284,7 +284,7 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
         is_staff = request.user.has_perm('forum.change_topic')
         if self.object.author != request.user and is_staff:
             messages.warning(request, _(
-                u'Vous éditez un topic en tant que modérateur (auteur : {}). Soyez encore plus '
+                u'Vous éditez ce sujet en tant que modérateur (auteur : {}). Soyez encore plus '
                 u'prudent lors de l\'édition de celui-ci !').format(self.object.author.username))
         form = self.create_form(self.form_class, **{
             'title': self.object.title,

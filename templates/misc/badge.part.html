@@ -6,10 +6,10 @@
     {% if status == 'STAFF' %}
         <span class="badge staff {% if push_badge %}push-badge{% endif %}">{% trans "Staff" %}</span>
     {% elif status == 'DOWN'%}
-        <span class="badge banned {% if push_badge %}push-badge{% endif %}" title={% blocktrans %}"Compte Inactif"{% endblocktrans %}>{% trans "Dead" %}</span>
+        <span class="badge banned {% if push_badge %}push-badge{% endif %}" title={% blocktrans %}"Compte inactif"{% endblocktrans %}>{% trans "Dead" %}</span>
     {% elif status == 'BAN'%}
         <span class="badge banned {% if push_badge %}push-badge{% endif %}">{% trans "Banni" %}</span>
     {% elif status == 'LS'%}
-        <span class="badge readonly {% if push_badge %}push-badge{% endif %}" title={% blocktrans %}"Lecture Seule"{% endblocktrans %}>{% trans "LS" %}</span>
+        <span class="badge readonly {% if push_badge %}push-badge{% endif %}" title={% blocktrans %}"Lecture seule"{% endblocktrans %}>{% trans "LS" %}</span>
     {% endif %}
 {% endwith %}

@@ -481,7 +481,7 @@ class KarmaNote(models.Model):
     pubdate = models.DateTimeField('Date d\'ajout', auto_now_add=True)
 
     def __str__(self):
-        return '{0} - note : {1} ({2}) '.format(self.user.username, self.comment, self.pubdate)
+        return '{0} - note : {1} ({2}) '.format(self.user.username, self.note, self.pubdate)
 
 
 def logout_user(username):

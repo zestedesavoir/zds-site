@@ -11,7 +11,7 @@
     {% if request.GET.type == "reserved" %}
         {% trans "Reservés" %} &bull;
     {% elif request.GET.type == "orphan" %}
-        {% trans "Non-reservés" %} &bull;
+        {% trans "Non reservés" %} &bull;
     {% elif request.GET.type == "article" %}
         {% trans "Articles" %} &bull;
     {% elif request.GET.type == "tuto" %}
@@ -35,7 +35,7 @@
                 {% if request.GET.type == "reserved" %}
                     / {% trans "Reservés" %}
                 {% elif request.GET.type == "orphan" %}
-                    / {% trans "Non-reservés" %}
+                    / {% trans "Non reservés" %}
                 {% elif request.GET.type == "article" %}
                     / {% trans "Articles" %}
                 {% elif request.GET.type == "tuto" %}
