@@ -667,7 +667,7 @@ class ManageGitHubIssue(UpdateView):
                 self.object.save()
 
                 messages.success(request, _('Le ticket a bien été associé.'))
-            except (KeyError, ValueError, OverflowError, AssertionError):
+            except (KeyError, ValueError, OverflowError):
                 messages.error(request, _('Une erreur est survenue avec le numéro fourni.'))
         else:  # create
             if not request.POST.get('title') or not request.POST.get('body'):
