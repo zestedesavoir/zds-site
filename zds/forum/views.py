@@ -662,10 +662,12 @@ class ManageGitHubIssue(UpdateView):
         elif 'link' in request.POST:
             try:
                 self.object.github_issue = int(request.POST['issue'])
+                if self.object.github_issue < 1:
+                    raise ValueError
                 self.object.save()
 
                 messages.success(request, _('Le ticket a bien été associé.'))
-            except (KeyError, ValueError, OverflowError):
+            except (KeyError, ValueError, OverflowError, AssertionError):
                 messages.error(request, _('Une erreur est survenue avec le numéro fourni.'))
         else:  # create
             if not request.POST.get('title') or not request.POST.get('body'):
