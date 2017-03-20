@@ -9,7 +9,7 @@
 - Instruction 2
 - etc
 
-<!-- À compléter par les testeurs qui feront la QA, n'y touchez pas quand vous proposez une pull request. -->
+<!-- À cocher une fois la QA faite. Vous pouvez le faire sur votre pull request si un testeur confirme avoir vérifié le bon fonctionnement de votre PR et avoir relu le code. -->
 
 - [ ] Ça fonctionne !
 - [ ] Code relu et approuvé !
