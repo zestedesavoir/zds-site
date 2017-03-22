@@ -5,6 +5,7 @@
 {% load i18n %}
 {% load times %}
 {% load feminize %}
+{% load pluralize_fr %}
 
 {% block title %}
     {{ container.title }} - {{ content.title }}
@@ -71,7 +72,7 @@
         </div>
     {% endif %}
 
-    {% if helps %}
+    {% if helps.count %}
         <div class="content-wrapper">
             <div class="alert-box info">
                 {% if content.authors.count > 1 %}
@@ -84,7 +85,7 @@
 
                 {% if not can_edit %}
                     {% blocktrans with plural=content.authors.count|pluralize_fr %}
-                        N'hésitez pas le{{ plural }} contacter <a href="{{ pm_link }}">par MP</a> !
+                        N'hésitez pas le{{ plural }} contacter <a href="{{ pm_link }}">par MP</a> pour proposer votre aide !
                     {% endblocktrans %}
                 {% endif %}
             </div>

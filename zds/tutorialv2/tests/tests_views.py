@@ -904,6 +904,51 @@ class ContentTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 200)  # access granted
 
+    def test_beta_helps(self):
+        """Check that editorial helps are visible on the beta"""
+
+        # login with author
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # create and add help
+        help = HelpWritingFactory()
+        help.save()
+
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+        tuto.helps.add(help)
+        tuto.save()
+
+        # activate beta
+        result = self.client.post(
+            reverse('content:set-beta', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
+            {
+                'version': tuto.sha_draft
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # check that the information is displayed on the beta page
+        result = self.client.get(
+            reverse('content:beta-view', args=[tuto.pk, tuto.slug]),
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+        self.assertContains(result, _(u"L'auteur de ce contenu recherche"))
+        # and on a container
+        result = self.client.get(
+            reverse('content:beta-view-container',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': tuto.slug,
+                        'container_slug': self.part1.slug
+                    }),
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+        self.assertContains(result, _(u"L'auteur de ce contenu recherche"))
+
     def test_history_navigation(self):
         """ensure that, if the title (and so the slug) of the content change, its content remain accessible"""
         # login with author
