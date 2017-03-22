@@ -1935,6 +1935,184 @@ class ContentTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 200)
 
+    def test_validation_subscription(self):
+        """test if the author suscribes to their own content"""
+
+        text_validation = u"Valide moi ce truc, s'il te plait"
+        source = u'http://example.com'  # thanks the IANA for that one ;-)
+        different_source = u'http://example.org'
+        text_accept = u"C'est cool, merci !"
+
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+
+        # connect with author:
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # ask validation
+        self.assertEqual(Validation.objects.count(), 0)
+
+        result = self.client.post(
+            reverse('validation:ask', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
+            {
+                'text': text_validation,
+                'source': source,
+                'version': self.tuto_draft.current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Validation.objects.count(), 1)
+
+        self.assertEqual(PublishableContent.objects.get(pk=tuto.pk).source, source)  # source is set
+
+        validation = Validation.objects.filter(content=tuto).last()
+        self.assertIsNotNone(validation)
+
+        self.assertEqual(validation.comment_authors, text_validation)
+        self.assertEqual(validation.version, self.tuto_draft.current_version)
+        self.assertEqual(validation.status, 'PENDING')
+
+        # validate with staff
+        self.client.logout()
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.get(
+            reverse('content:view', kwargs={'pk': tuto.pk, 'slug': tuto.slug}) +
+            '?version=' + validation.version,
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        # reserve tuto:
+        result = self.client.post(
+            reverse('validation:reserve', kwargs={'pk': validation.pk}),
+            {
+                'version': validation.version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        validation = Validation.objects.filter(pk=validation.pk).last()
+        self.assertEqual(validation.status, 'PENDING_V')
+        self.assertEqual(validation.validator, self.user_staff)
+
+        result = self.client.post(
+            reverse('validation:accept', kwargs={'pk': validation.pk}),
+            {
+                'text': text_accept,
+                'is_major': True,
+                'source': different_source  # because ;)
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        validation = Validation.objects.filter(pk=validation.pk).last()
+        self.assertEqual(validation.status, 'ACCEPT')
+        self.assertEqual(validation.comment_validator, text_accept)
+
+        self.assertIsNotNone(NewPublicationSubscription.objects.get_existing(self.user_author, self.user_author))
+        self.assertTrue(ContentReactionAnswerSubscription.objects
+                        .get_existing(user=self.user_author, content_object=tuto).is_active)
+        self.client.logout()
+
+        # Re-ask a new validation
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        tuto = PublishableContent.objects.get(pk=tuto.pk)
+        versioned = tuto.load_version()
+        self.client.post(
+            reverse('content:edit', args=[tuto.pk, tuto.slug]),
+            {
+                'title': 'new title so that everything explode',
+                'description': tuto.description,
+                'introduction': tuto.load_version().get_introduction(),
+                'conclusion': tuto.load_version().get_conclusion(),
+                'type': u'ARTICLE',
+                'licence': tuto.licence.pk,
+                'subcategory': self.subcategory.pk,
+                'last_hash': tuto.load_version(tuto.sha_draft).compute_hash(),
+                'image': open('{}/fixtures/logo.png'.format(settings.BASE_DIR))
+            },
+            follow=False)
+
+        result = self.client.post(
+            reverse('validation:ask', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
+            {
+                'text': text_validation,
+                'source': source,
+                'version': versioned.current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Validation.objects.count(), 2)
+
+        self.assertEqual(PublishableContent.objects.get(pk=tuto.pk).source, source)  # source is set
+
+        validation = Validation.objects.filter(content=tuto).last()
+        self.assertIsNotNone(validation)
+
+        self.assertEqual(validation.comment_authors, text_validation)
+        self.assertEqual(validation.version, self.tuto_draft.current_version)
+        self.assertEqual(validation.status, 'PENDING')
+        self.client.logout()
+
+        # validate with staff
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.get(
+            reverse('content:view', kwargs={'pk': tuto.pk, 'slug': tuto.slug}) +
+            '?version=' + validation.version,
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        # reserve tuto:
+        result = self.client.post(
+            reverse('validation:reserve', kwargs={'pk': validation.pk}),
+            {
+                'version': validation.version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        validation = Validation.objects.filter(pk=validation.pk).last()
+        self.assertEqual(validation.status, 'PENDING_V')
+        self.assertEqual(validation.validator, self.user_staff)
+
+        result = self.client.post(
+            reverse('validation:accept', kwargs={'pk': validation.pk}),
+            {
+                'text': text_accept,
+                'is_major': True,
+                'source': different_source  # because ;)
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        self.assertEqual(Validation.objects.filter(content=tuto).count(), 2)
+
+        validation = Validation.objects.filter(pk=validation.pk).last()
+        self.assertEqual(validation.status, 'ACCEPT')
+        self.assertEqual(validation.comment_validator, text_accept)
+
+        self.assertIsNotNone(NewPublicationSubscription.objects.get_existing(self.user_author, self.user_author))
+        self.assertTrue(ContentReactionAnswerSubscription.objects
+                        .get_existing(user=self.user_author, content_object=tuto).is_active)
+        self.client.logout()
+
     def test_validation_workflow(self):
         """test the different case of validation"""
 
