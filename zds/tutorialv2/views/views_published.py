@@ -20,6 +20,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.generic import RedirectView, FormView, ListView
 
 from zds.featured.models import FeaturedResource
+from zds.forum.models import Forum
 from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin, PermissionRequiredMixin
 from zds.member.views import get_client_ip
 from zds.notification import signals
@@ -390,7 +391,8 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
         context['selected_contents'] = getattr(PublishedContent.objects, method_name)(self.category, self.tag,
                                                                                       self.current_content_type)[:6]
         if context['hierarchy_level'] == 0:
-
+            context['beta_forum'] = Forum.objects.prefetch_related('category')\
+                .filter(pk=settings.ZDS_APP['forum']['beta_forum_id'])
             context['themes'] = list(Category.objects.order_by('position').all())
             for theme in context['themes']:
                 theme.categories = CategorySubCategory.objects.filter(is_main=True, category=theme)\
