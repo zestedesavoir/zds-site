@@ -385,14 +385,18 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
             context['categories'] = [c.subcategory for c in CategorySubCategory.objects
                                                                                .prefetch_related('subcategory')
                                                                                .filter(category=context['theme']).all()]
+            # please someone help me get this far more efficient
+            for category in context['categories']:
+                category.count = PublishedContent.objects.filter(must_redirect=False,
+                                                                 content__subcategory=category).count()
         elif 'category' in self.request.GET:
             context['hierarchy_level'] = 2
         method_name = settings.ZDS_APP['content']['selected_content_method_name']
         context['selected_contents'] = getattr(PublishedContent.objects, method_name)(self.category, self.tag,
                                                                                       self.current_content_type)[:6]
+        context['beta_forum'] = Forum.objects.prefetch_related('category') \
+            .filter(pk=settings.ZDS_APP['forum']['beta_forum_id'])
         if context['hierarchy_level'] == 0:
-            context['beta_forum'] = Forum.objects.prefetch_related('category')\
-                .filter(pk=settings.ZDS_APP['forum']['beta_forum_id'])
             context['themes'] = list(Category.objects.order_by('position').all())
             for theme in context['themes']:
                 theme.categories = CategorySubCategory.objects.filter(is_main=True, category=theme)\
@@ -402,6 +406,7 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
                 theme.count = PublishedContent.objects.filter(must_redirect=False,
                                                               content__subcategory__in=pks).count()
             context['public_contents'] = context['public_contents'][:min(len(context['public_contents']), 6)]
+
         return context
 
 
