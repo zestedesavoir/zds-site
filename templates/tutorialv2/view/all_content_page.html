@@ -1,3 +1,12 @@
+{% comment %}
+    Structure de la page de premier level :
+    - 4 tutos mis en avant
+    - présentation des 4 domaines de savoirs
+    - liste des 6 derniers tutos en une colonne
+    - liste des 6 tutos les plus commentés en une colonne
+    - bloc de envie de s'investir
+{% endcomment %}
+
 <section class="flexpage-header">
     <div class="flexpage-wrapper">
         <div class="flexpage-title-search">
@@ -20,15 +29,6 @@
 </section>
 
 <div class="flexpage-wrapper">
-    {% comment %}
-        Structure de la page de premier level :
-        - 2 tutos mis en avant
-        - présentation des 4 domaines de savoirs
-        - liste des 6 derniers tutos en une colonne
-        - liste des 6 tutos les plus commentés en une colonne
-        - bloc de envie de s'investir
-    {% endcomment %}
-
     <section>
         <h2 itemprop="name">À la une</h2>
         <div class="featured-resource-row">
@@ -53,6 +53,7 @@
                 <a href="{% url "tutorial:feed-atom" %}" class="btn btn-grey">Atom</a>
             </h2>
             {% include 'tutorialv2/list_page_elements/list_of_content.html' with public_contents=public_contents col_number=1 %}
+            <a href="#" class="more-link">Plus de tutoriels</a>
         </section>
 
         <section>
@@ -62,6 +63,7 @@
                 <a href="{% url "article:feed-atom" %}" class="btn btn-grey">Atom</a>
             </h2>
             {% include 'tutorialv2/list_page_elements/list_of_content.html' with public_contents=selected_contents col_number=1 %}
+            <a href="#" class="more-link">Plus d'articles</a>
         </section>
     </div>
 
