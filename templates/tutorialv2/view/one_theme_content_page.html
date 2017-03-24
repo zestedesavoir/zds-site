@@ -1,10 +1,8 @@
 {% comment %}
     Structure de la page de second level :
-    - 2 tutos mis en avant
     - présentation des sous catégories (accessible via {%  for category in categories %}
-    - liste des 6 derniers tutos en une colonne
-    - liste des 6 tutos les plus commentés en une colonne
-
+    - liste des 10 derniers tutos en une colonne
+    - liste des 10 tutos les plus commentés en une colonne
 {% endcomment %}
 
 <section class="flexpage-header">
@@ -30,16 +28,7 @@
 
 <div class="flexpage-wrapper">
     <section>
-        <h2 itemprop="name">À la une</h2>
-        <div class="featured-resource-row">
-            {% for featured_content in featured_contents %}
-                {% include "featured/includes/featured_resource_item.part.html" with featured_resource=featured_content %}
-            {% endfor %}
-        </div>
-    </section>
-
-    <section>
-        <h2 class="inline" itemprop="name">Catégorie</h2>
+        <h2 class="inline" itemprop="name">Catégories de "nom du domaine"</h2>
         <div class="content-linkbox-list">
             {% for category in categories %}
                 <div class="linkbox-item secondary">
@@ -58,20 +47,22 @@
     <div class="flexpage-column">
         <section>
             <h2 itemprop="name">
-                Derniers tutoriels
+                Derniers tutoriels de "nom du domaine"
                 <a href="{% url "tutorial:feed-rss" %}" class="btn btn-grey">RSS</a>
                 <a href="{% url "tutorial:feed-atom" %}" class="btn btn-grey">Atom</a>
             </h2>
             {% include 'tutorialv2/list_page_elements/list_of_content.html' with public_contents=public_contents col_number=1 %}
+            <a href="#" class="more-link">Plus de tutoriels de "nom du domaine"</a>
         </section>
 
         <section>
             <h2 itemprop="name">
-                Derniers articles
+                Derniers articles de "nom du domaine"
                 <a href="{% url "article:feed-rss" %}" class="btn btn-grey">RSS</a>
                 <a href="{% url "article:feed-atom" %}" class="btn btn-grey">Atom</a>
             </h2>
             {% include 'tutorialv2/list_page_elements/list_of_content.html' with public_contents=selected_contents col_number=1 %}
+            <a href="#" class="more-link">Plus d'article de "nom du domaine"</a>
         </section>
     </div>
 
