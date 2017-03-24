@@ -64,7 +64,6 @@ class LoginForm(forms.Form):
             Field('username'),
             Field('password'),
             Field('remember'),
-            HTML('{% csrf_token %}'),
             ButtonHolder(
                 StrictButton(_(u'Se connecter'), type='submit'),
             )
