@@ -137,7 +137,7 @@
 @media only screen and #{$media-wide} {
     body.no-sidebar .main {
         .content-container {
-            width: 80%;
+            width: 100%;
         }
         .sidebar {
             display: none;
@@ -152,7 +152,7 @@
         padding-left: 2.5%;
 
         .content-container {
-            width: 100%;
+            width: 80%;
             margin-right: 0;
 
             .taglist + .pubdate {
