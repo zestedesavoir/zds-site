@@ -879,16 +879,6 @@ def get_client_ip(request):
         return '0.0.0.0'
 
 
-def date_to_chart(posts):
-    lst = 24 * [0]
-    for i in range(len(lst)):
-        lst[i] = 7 * [0]
-    for post in posts:
-        timestamp = post.pubdate.timetuple()
-        lst[timestamp.tm_hour][(timestamp.tm_wday + 1) % 7] = lst[timestamp.tm_hour][(timestamp.tm_wday + 1) % 7] + 1
-    return lst
-
-
 @login_required
 def settings_promote(request, user_pk):
     """ Manage the admin right of user. Only super user can access """

@@ -62,9 +62,6 @@ class Profile(models.Model):
     is_hover_enabled = models.BooleanField('Déroulement au survol ?', default=True)
     allow_temp_visual_changes = models.BooleanField('Activer les changements visuels temporaires', default=True)
     email_for_answer = models.BooleanField('Envoyer pour les réponse MP', default=False)
-    # SdZ tutorial IDs separated by columns (:).
-    # TODO: bad field name (singular --> should be plural), manually handled multi-valued field.
-    sdz_tutorial = models.TextField('Identifiant des tutos SdZ', blank=True, null=True)
     can_read = models.BooleanField('Possibilité de lire', default=True)
     end_ban_read = models.DateTimeField("Fin d'interdiction de lecture", null=True, blank=True)
     can_write = models.BooleanField("Possibilité d'écrire", default=True)
