@@ -137,7 +137,7 @@
 @media only screen and #{$media-wide} {
     body.no-sidebar .main {
         .content-container {
-            width: 100%;
+            width: 80%;
         }
         .sidebar {
             display: none;
