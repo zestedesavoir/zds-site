@@ -23,7 +23,7 @@ def forwards_func(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('member', '0007_auto_20161119_1836'),
+        ('member', '0008_remove_profile_sdz_tutorial'),
     ]
 
     operations = [
