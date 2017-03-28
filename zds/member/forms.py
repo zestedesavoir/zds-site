@@ -276,7 +276,8 @@ class GitHubTokenForm(forms.Form):
         required=True,
         widget=forms.TextInput(
             attrs={
-                'placeholder': _(u'Token qui permet de communiquer avec la plateforme GitHub.')
+                'placeholder': _(u'Token qui permet de communiquer avec la plateforme GitHub.'),
+                'autocomplete': 'off'
             }
         )
     )
