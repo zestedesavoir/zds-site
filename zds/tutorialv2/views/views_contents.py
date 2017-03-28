@@ -216,6 +216,12 @@ class DisplayBetaContent(DisplayContent):
 
         return obj
 
+    def get_context_data(self, **kwargs):
+        context = super(DisplayBetaContent, self).get_context_data(**kwargs)
+        context['helps'] = self.object.helps
+        context['pm_link'] = self.object.get_absolute_contact_url()
+        return context
+
 
 class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormWithPreview):
     template_name = 'tutorialv2/edit/content.html'
@@ -1015,6 +1021,12 @@ class DisplayBetaContainer(DisplayContainer):
             self.kwargs['slug'] = obj.slug
 
         return obj
+
+    def get_context_data(self, **kwargs):
+        context = super(DisplayBetaContainer, self).get_context_data(**kwargs)
+        context['helps'] = self.object.helps
+        context['pm_link'] = self.object.get_absolute_contact_url()
+        return context
 
 
 class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormWithPreview):
