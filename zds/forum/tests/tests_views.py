@@ -803,7 +803,7 @@ class FindTopicTest(TestCase):
         another_group = Group.objects.create(name='DummyGroup_2')
         category, forum = create_category(group)
 
-        forum.group.add(another_group)
+        forum.groups.add(another_group)
         forum.save()
 
         profile.user.groups.add(group)
@@ -851,7 +851,7 @@ class FindTopicByTagTest(TestCase):
         another_group = Group.objects.create(name='DummyGroup_2')
         category, forum = create_category(group)
 
-        forum.group.add(another_group)
+        forum.groups.add(another_group)
         forum.save()
 
         profile.user.groups.add(group)
@@ -1652,7 +1652,7 @@ class FindPostTest(TestCase):
         another_group = Group.objects.create(name='DummyGroup_2')
         category, forum = create_category(group)
 
-        forum.group.add(another_group)
+        forum.groups.add(another_group)
         forum.save()
 
         profile.user.groups.add(group)
