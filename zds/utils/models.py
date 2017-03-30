@@ -179,6 +179,8 @@ class Comment(models.Model):
         auto_now=True,
         db_index=True)
 
+    github_issue = models.IntegerField('Ticket GitHub', null=True, blank=True)
+
     is_visible = models.BooleanField('Est visible', default=True)
     text_hidden = models.CharField(
         'Texte de masquage ',

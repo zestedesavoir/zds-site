@@ -4,6 +4,7 @@
 {% load set %}
 {% load i18n %}
 {% load pluralize_fr %}
+{% load interventions %}
 
 
 {% if topic.author == message.author and helpful_link %}
@@ -81,6 +82,45 @@
                                 <a href="{{ edit_link|safe }}" class="ico-after edit">
                                     {% trans "Éditer" %}
                                 </a>
+                            </li>
+                        {% endif %}
+                        {% if message.github_issue %}
+                            <li>
+                                <a href="{{ message|get_github_issue_url }}" class="ico-after github">
+                                    {% trans "Ticket" %} <span class="wide">{% trans "associé" %}</span>
+                                </a>
+                            </li>
+                        {% elif github %}
+                            <li>
+                                <a href="#create-issue-{{ message.id }}" class="open-modal ico-after github">
+                                    {% trans "Créer" %} <span class="wide">{% trans "un ticket" %}</span>
+                                </a>
+                                <form action="{{ github_link }}" method="post" id="create-issue-{{ message.id }}" class="modal modal-flex">
+                                    {% if has_token %}
+                                        {% csrf_token %}
+                                        <p>
+                                            {% trans 'Si vous voulez modifier ce qui sera envoyé sur GitHub, éditez ce formulaire.' %}
+                                        </p>
+                                        <input type="text" name="title" value="{{ topic.title }}" required>
+                                        <textarea name="body" class="textarea" cols="40">{{ message.text }}</textarea>
+                                        {% for tag in tags %}
+                                            <label for="tag-{{ tag }}">
+                                                {{ tag }}<input type="checkbox" name="tag-{{ tag }}" value="{{ tag }}" id="tag-{{ tag }}">
+                                            </label>
+                                        {% endfor %}
+                                        <button type="submit">{% trans 'Envoyer' %}</button>
+                                    {% else %}
+                                        <p>{% trans "Il semblerait que vous n'ayez pas spécifié un token d'identification GitHub, vous ne pouvez donc pas envoyer ce message au bugtracker." %}</p>
+                                        {% url 'update-member' as update_member %}
+                                        <p>
+                                            {% blocktrans %}
+                                                Pour y parvenir, pensez simplement à générer un
+                                                <a href="https://github.com/settings/tokens">token sur GitHub</a> et à le renseigner dans
+                                                <a href="{{ update_member }}">votre profil</a>.
+                                            {% endblocktrans %}
+                                        </p>
+                                    {% endif %}
+                                </form>
                             </li>
                         {% endif %}
                     {% endif %}

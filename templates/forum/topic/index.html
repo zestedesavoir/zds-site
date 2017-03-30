@@ -92,6 +92,10 @@
             {% url 'post-new' %}?sujet={{ topic.pk }}&amp;cite={{ message.pk }}
         {% endcaptureas %}
 
+        {% captureas github_link %}
+            {% url 'create-issue' message.pk %}
+        {% endcaptureas %}
+
         {% captureas helpful_link %}
             {% url 'post-useful' %}?message={{ message.pk }}
         {% endcaptureas %}
@@ -120,7 +124,7 @@
             {% set True as answer_schema %}
         {% endif %}
 
-        {% include "misc/message.part.html" with answer_schema=answer_schema can_unread=True unread_link=unread_link perms_change=is_staff%}
+        {% include "misc/message.part.html" with answer_schema=answer_schema can_unread=True unread_link=unread_link perms_change=is_staff github=is_dev %}
     {% endfor %}
 
     {% include "misc/paginator.html" with position="bottom" %}
@@ -221,39 +225,6 @@
             {% endwith %}
         {% endwith %}
     </li>
-    {% if is_dev %}
-        <li>
-            <a href="#create-issue" class="open-modal ico-after github blue">{% trans 'Envoyer au bugtracker' %}</a>
-            <form action="{% url 'create-issue' topic.pk %}" method="post" id="create-issue" class="modal modal-flex">
-                {% if has_token %}
-                    {% csrf_token %}
-                    <p>
-                        {% trans 'Si vous voulez modifier ce qui sera envoyé sur GitHub, éditez ce formulaire.' %}
-                    </p>
-                    <input type="text" name="title" data-autocomplete="{ 'type': 'single' }" value="{{ topic.title }}">
-                    <textarea name="body" class="textarea" cols="40">
-                        {{ topic.first_post.text }}
-                    </textarea>
-                    {% for tag in tags %}
-                        <label for="tag-{{ tag }}">
-                            {{ tag }}<input type="checkbox" name="tag-{{ tag }}" value="{{ tag }}" id="tag-{{ tag }}">
-                        </label>
-                    {% endfor %}
-                    <button type="submit">{% trans 'Envoyer' %}</button>
-                {% else %}
-                    <p>{% trans "Il semblerait que vous n'ayez pas spécifié un token d'identification GitHub, vous ne pouvez donc pas envoyer ce sujet au bugtracker." %}</p>
-                    {% url 'update-member' as update_member %}
-                    <p>
-                        {% blocktrans %}
-                            Pour y parvenir, pensez simplement à générer un
-                            <a href="https://github.com/settings/tokens">token sur GitHub</a> et à le renseigner dans
-                            <a href="{{ update_member }}">votre profil</a>.
-                        {% endblocktrans %}
-                    </p>
-                {% endif %}
-            </form>
-        </li>
-    {% endif %}
 {% endblock %}
 
 
