@@ -166,7 +166,7 @@ class NotificationForumTest(TestCase):
         self.assertIsNotNone(Notification.objects.get(subscription__user=self.user1, is_read=False))
 
         forum_not_read = ForumFactory(category=self.category1, position_in_category=2)
-        forum_not_read.group.add(Group.objects.create(name='DummyGroup_1'))
+        forum_not_read.groups.add(Group.objects.create(name='DummyGroup_1'))
 
         self.assertTrue(self.client.login(username=StaffProfileFactory().user.username, password='hostel77'))
         data = {

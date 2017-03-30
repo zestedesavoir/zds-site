@@ -885,12 +885,12 @@ class MemberTests(TestCase):
         forum1 = ForumFactory(
             category=category1,
             position_in_category=1)
-        forum1.group.add(group)
+        forum1.groups.add(group)
         forum1.save()
         forum2 = ForumFactory(
             category=category1,
             position_in_category=2)
-        forum2.group.add(groupbis)
+        forum2.groups.add(groupbis)
         forum2.save()
         forum3 = ForumFactory(
             category=category1,
