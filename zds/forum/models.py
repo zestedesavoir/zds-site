@@ -209,6 +209,8 @@ class Topic(AbstractESDjangoIndexable):
     is_locked = models.BooleanField('Est verrouillé', default=False, db_index=True)
     is_sticky = models.BooleanField('Est en post-it', default=False, db_index=True)
 
+    github_issue = models.PositiveIntegerField('Ticket GitHub', null=True, blank=True)
+
     tags = models.ManyToManyField(
         Tag,
         verbose_name='Tags du forum',
