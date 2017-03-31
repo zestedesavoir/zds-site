@@ -62,7 +62,6 @@ class Profile(models.Model):
     is_hover_enabled = models.BooleanField('Déroulement au survol ?', default=True)
     allow_temp_visual_changes = models.BooleanField('Activer les changements visuels temporaires', default=True)
     email_for_answer = models.BooleanField('Envoyer pour les réponse MP', default=False)
-    sdz_tutorial = models.TextField('Identifiant des tutos SdZ', blank=True, null=True)
     show_staff_badge = models.BooleanField('Afficher le badge staff', default=False)
     can_read = models.BooleanField('Possibilité de lire', default=True)
     end_ban_read = models.DateTimeField("Fin d'interdiction de lecture", null=True, blank=True)
