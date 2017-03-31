@@ -34,7 +34,7 @@ from zds.member.commons import ProfileCreate, TemporaryReadingOnlySanction, Read
 from zds.member.decorator import can_write_and_read_now
 from zds.member.forms import LoginForm, MiniProfileForm, ProfileForm, RegisterForm, \
     ChangePasswordForm, ChangeUserForm, NewPasswordForm, \
-    PromoteMemberForm, KarmaForm, UsernameAndEmailForm
+    PromoteMemberForm, KarmaForm, UsernameAndEmailForm, GitHubTokenForm
 from zds.member.models import Profile, TokenForgotPassword, TokenRegister, KarmaNote, Ban
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.tutorialv2.models.models_database import PublishableContent
@@ -120,7 +120,6 @@ class UpdateMember(UpdateView):
             'allow_temp_visual_changes': profile.allow_temp_visual_changes,
             'email_for_answer': profile.email_for_answer,
             'sign': profile.sign,
-            'github_token': profile.github_token,
             'is_dev': profile.is_dev(),
         })
 
@@ -155,8 +154,6 @@ class UpdateMember(UpdateView):
         profile.email_for_answer = 'email_for_answer' in cleaned_data_options
         profile.avatar_url = form.data['avatar_url']
         profile.sign = form.data['sign']
-        if 'github_token' in form.data:
-            profile.github_token = form.data['github_token']
 
     def get_success_url(self):
         return reverse('update-member')
@@ -175,6 +172,68 @@ class UpdateMember(UpdateView):
 
     def get_error_message(self):
         return _(u'Une erreur est survenue.')
+
+
+class UpdateGitHubToken(UpdateView):
+    """Updates the GitHub token."""
+
+    form_class = GitHubTokenForm
+    template_name = 'member/settings/github.html'
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.profile.is_dev():
+            raise PermissionDenied
+        return super(UpdateGitHubToken, self).dispatch(request, *args, **kwargs)
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(Profile, user=self.request.user)
+
+    def get_form(self, form_class=GitHubTokenForm):
+        return form_class()
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+
+        if form.is_valid():
+            return self.form_valid(form)
+
+        return render(request, self.template_name, {'form': form})
+
+    def form_valid(self, form):
+        profile = self.get_object()
+        profile.github_token = form.data['github_token']
+        profile.save()
+        messages.success(self.request, self.get_success_message())
+
+        return redirect(self.get_success_url())
+
+    def get_success_url(self):
+        return reverse('update-github')
+
+    def get_success_message(self):
+        return _(u'Votre token GitHub a été mis à jour.')
+
+    def get_error_message(self):
+        return _(u'Une erreur est survenue.')
+
+
+@require_POST
+@login_required
+def remove_github_token(request):
+    """
+    Removes the current user's token
+    """
+
+    profile = get_object_or_404(Profile, user=request.user)
+    if not profile.is_dev():
+        raise PermissionDenied
+
+    profile.github_token = ''
+    profile.save()
+
+    messages.success(request, _(u'Votre token GitHub a été supprimé.'))
+    return redirect('update-github')
 
 
 class UpdateAvatarMember(UpdateMember):
