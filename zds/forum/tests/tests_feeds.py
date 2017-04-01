@@ -10,7 +10,6 @@ from zds.forum.factories import CategoryFactory, ForumFactory, \
 from zds.forum.feeds import LastPostsFeedRSS, LastPostsFeedATOM, \
     LastTopicsFeedRSS, LastTopicsFeedATOM
 from zds.member.factories import ProfileFactory
-from zds.utils.templatetags.emarkdown import emarkdown
 
 
 class LastTopicsFeedRSSTest(TestCase):
@@ -279,8 +278,7 @@ class LastPostFeedTest(TestCase):
     def test_get_description(self):
         """ test the return value of description """
 
-        emarkdown(self.post3.text)
-        ref = emarkdown(self.post3.text)
+        ref = self.post3.text_html
         posts = self.postfeed.items(obj={'tag': self.tag2.pk})
         ret = self.postfeed.item_description(item=posts[0])
         self.assertEqual(ret, ref)
