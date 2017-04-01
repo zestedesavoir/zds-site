@@ -206,7 +206,7 @@ def modify_gallery(request):
                 elif v2_content.is_opinion:
                     _type = _(u'à la tribune')
 
-                error_message = _(u"La galerie « {} » ne peut pas être supprimée car elle est liée {} « {} ».")\
+                error_message = _(u'La galerie « {} » ne peut pas être supprimée car elle est liée {} « {} ».')\
                     .format(gallery.title, _type, v2_content.title)
                 messages.error(request, error_message)
             else:

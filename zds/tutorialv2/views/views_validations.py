@@ -103,8 +103,8 @@ class ValidationListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
 class ValidationOpinionListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     """List the validations, with possibilities of filters"""
 
-    permissions = ["tutorialv2.change_validation"]
-    template_name = "tutorialv2/validation/opinions.html"
+    permissions = ['tutorialv2.change_validation']
+    template_name = 'tutorialv2/validation/opinions.html'
     context_object_name = 'contents'
     subcategory = None
     queryset = PublishableContent.objects\
@@ -628,14 +628,14 @@ class UnpublishOpinion(LoginRequiredMixin, SingleOnlineContentFormViewMixin, NoV
         send_mp(
             bot,
             versioned.authors.all(),
-            _(u"Dépublication"),
+            _(u'Dépublication'),
             versioned.title,
             msg,
             True,
             direct=False
         )
 
-        messages.success(self.request, _(u"Le contenu a bien été dépublié."))
+        messages.success(self.request, _(u'Le contenu a bien été dépublié.'))
         self.success_url = self.versioned_object.get_absolute_url()
 
         return super(UnpublishOpinion, self).form_valid(form)
@@ -736,14 +736,14 @@ class UnpickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
         send_mp(
             bot,
             versioned.authors.all(),
-            _(u"Billet retiré de la liste des billets choisis"),
+            _(u'Billet retiré de la liste des billets choisis'),
             versioned.title,
             msg,
             True,
             direct=False
         )
 
-        messages.success(self.request, _(u"Le contenu a bien été enlevé de la liste des billets choisis."))
+        messages.success(self.request, _(u'Le contenu a bien été enlevé de la liste des billets choisis.'))
 
         return super(UnpickOpinion, self).form_valid(form)
 
