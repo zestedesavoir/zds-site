@@ -17,7 +17,7 @@ from zds.utils.models import Alert
 overrided_zds_app = settings.ZDS_APP
 overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
 overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
-overrided_zds_app['content']['extra_content_generation_policy'] = "NONE"
+overrided_zds_app['content']['extra_content_generation_policy'] = 'NONE'
 
 
 @override_settings(ZDS_APP=overrided_zds_app)
@@ -65,14 +65,14 @@ class PublishedContentTests(TestCase):
         self.assertEqual(result.status_code, 302)
 
     def test_accessible_ui_for_author(self):
-        opinion = PublishedContentFactory(author_list=[self.user_author], type="OPINION")
+        opinion = PublishedContentFactory(author_list=[self.user_author], type='OPINION')
         self.assertEqual(
             self.client.login(
                 username=self.user_author.username,
                 password='hostel77'),
             True)
-        resp = self.client.get(reverse("opinion:view", kwargs={"pk": opinion.pk, "slug": opinion.slug}))
-        self.assertContains(resp, "Version brouillon", msg_prefix="Author must access their draft directly")
+        resp = self.client.get(reverse('opinion:view', kwargs={'pk': opinion.pk, 'slug': opinion.slug}))
+        self.assertContains(resp, 'Version brouillon', msg_prefix='Author must access their draft directly')
 
     def test_no_help_for_tribune(self):
         self.assertEqual(
@@ -80,8 +80,8 @@ class PublishedContentTests(TestCase):
                 username=self.user_author.username,
                 password='hostel77'),
             True)
-        resp = self.client.get(reverse("content:create-opinion"))
-        self.assertNotContains(resp, 'id="div_id_helps"', msg_prefix="help field must not be displayed")
+        resp = self.client.get(reverse('content:create-opinion'))
+        self.assertNotContains(resp, 'id="div_id_helps"', msg_prefix='help field must not be displayed')
 
     def test_help_for_article(self):
         self.assertEqual(
@@ -89,9 +89,9 @@ class PublishedContentTests(TestCase):
                 username=self.user_author.username,
                 password='hostel77'),
             True)
-        resp = self.client.get(reverse("content:create-article"))
+        resp = self.client.get(reverse('content:create-article'))
         self.assertEqual(200, resp.status_code)
-        self.assertContains(resp, 'id="div_id_helps"', msg_prefix="help field must be displayed")
+        self.assertContains(resp, 'id="div_id_helps"', msg_prefix='help field must be displayed')
 
     def test_opinion_publication_staff(self):
         """
@@ -502,7 +502,7 @@ class PublishedContentTests(TestCase):
         result = self.client.post(
             reverse('content:alert-content', kwargs={'pk': opinion.pk}),
             {
-                "signal_text": u'Yeurk !'
+                'signal_text': u'Yeurk !'
             }, follow=False
         )
 
@@ -515,8 +515,8 @@ class PublishedContentTests(TestCase):
         result = self.client.post(
             reverse('content:resolve-content', kwargs={'pk': opinion.pk}),
             {
-                "alert_pk": alert.pk,
-                "text": u'Je peux ?'
+                'alert_pk': alert.pk,
+                'text': u'Je peux ?'
             }, follow=False
         )
         self.assertEqual(result.status_code, 403)  # solving the alert by yourself wont work
@@ -533,8 +533,8 @@ class PublishedContentTests(TestCase):
         result = self.client.post(
             reverse('content:resolve-content', kwargs={'pk': opinion.pk}),
             {
-                "alert_pk": alert.pk,
-                "text": u'Anéfé!'
+                'alert_pk': alert.pk,
+                'text': u'Anéfé!'
             }, follow=False
         )
         self.assertEqual(result.status_code, 302)

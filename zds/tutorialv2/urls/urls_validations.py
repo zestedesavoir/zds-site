@@ -25,11 +25,11 @@ urlpatterns = [
 
     # NO VALIDATION BEFORE PUBLICATION
 
-    url(r'^publier/(?P<pk>\d+)/(?P<slug>.+)/$', PublishOpinion.as_view(), name="publish-opinion"),
-    url(r'^depublier/(?P<pk>\d+)/(?P<slug>.+)/$', UnpublishOpinion.as_view(), name="unpublish-opinion"),
-    url(r'^choisir/(?P<pk>\d+)/(?P<slug>.+)/$', PickOpinion.as_view(), name="pick-opinion"),
-    url(r'^retirer/(?P<pk>\d+)/(?P<slug>.+)/$', UnpickOpinion.as_view(), name="unpick-opinion"),
-    url(r'^promouvoir/(?P<pk>\d+)/(?P<slug>.+)/$', PromoteOpinionToArticle.as_view(), name="promote-opinion"),
+    url(r'^publier/(?P<pk>\d+)/(?P<slug>.+)/$', PublishOpinion.as_view(), name='publish-opinion'),
+    url(r'^depublier/(?P<pk>\d+)/(?P<slug>.+)/$', UnpublishOpinion.as_view(), name='unpublish-opinion'),
+    url(r'^choisir/(?P<pk>\d+)/(?P<slug>.+)/$', PickOpinion.as_view(), name='pick-opinion'),
+    url(r'^retirer/(?P<pk>\d+)/(?P<slug>.+)/$', UnpickOpinion.as_view(), name='unpick-opinion'),
+    url(r'^promouvoir/(?P<pk>\d+)/(?P<slug>.+)/$', PromoteOpinionToArticle.as_view(), name='promote-opinion'),
 
     url(r'^marquer-obsolete/(?P<pk>\d+)/$', MarkObsolete.as_view(), name='mark-obsolete'),
     # VALIDATION VIEWS FOR STAFF

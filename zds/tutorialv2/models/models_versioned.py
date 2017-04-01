@@ -1065,7 +1065,7 @@ class VersionedContent(Container, TemplatableContentModelMixin):
     antispam = True
     tags = None
     converted_to = None
-    content_type_attribute = "type"
+    content_type_attribute = 'type'
 
     def __init__(self, current_version, _type, title, slug, slug_repository=''):
         """

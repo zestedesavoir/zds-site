@@ -20,16 +20,16 @@ class Misc(TestCase):
 
     def test_intervention_filter_for_tribunes(self):
         author = ProfileFactory()
-        opinion = PublishedContentFactory(type="OPINION", author_list=[author.user])
+        opinion = PublishedContentFactory(type='OPINION', author_list=[author.user])
         alerter = ProfileFactory()
         staff = StaffProfileFactory()
         alert = Alert()
-        alert.scope = "CONTENT"
+        alert.scope = 'CONTENT'
         alert.author = alerter.user
         alert.content = opinion
         alert.pubdate = datetime.datetime.now()
-        alert.text = "Something to say."
+        alert.text = 'Something to say.'
         alert.save()
         filter_result = alerts_list(staff.user)
-        self.assertEqual(1, filter_result["nb_alerts"])
-        self.assertEqual(alert.text, filter_result["alerts"][0]["text"])
+        self.assertEqual(1, filter_result['nb_alerts'])
+        self.assertEqual(alert.text, filter_result['alerts'][0]['text'])
