@@ -51,7 +51,7 @@ class LastPostsFeedRSS(Feed):
         return item.pubdate
 
     def item_description(self, item):
-        return item.html_text
+        return item.text_html
 
     def item_author_name(self, item):
         return item.author.username
