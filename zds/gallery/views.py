@@ -199,10 +199,14 @@ def modify_gallery(request):
             has_v2_content = v2_content is not None
             if has_v2_content:
                 gallery = Gallery.objects.get(pk=g_pk)
+
                 _type = _(u'au tutoriel')
-                if v2_content.type == 'ARTICLE':
-                    _type = _(u"à l'article")
-                error_message = _(u'La galerie « {} » ne peut pas être supprimée car elle est liée {} « {} ».')\
+                if v2_content.is_article:
+                    _type = _(u'à l\'article')
+                elif v2_content.is_opinion:
+                    _type = _(u'à la tribune')
+
+                error_message = _(u"La galerie « {} » ne peut pas être supprimée car elle est liée {} « {} ».")\
                     .format(gallery.title, _type, v2_content.title)
                 messages.error(request, error_message)
             else:

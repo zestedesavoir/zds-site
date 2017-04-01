@@ -9,6 +9,7 @@
 {% load crispy_forms_tags %}
 {% load interventions %}
 {% load pluralize_fr %}
+{% load displayable_authors %}
 
 
 {% block title %}
@@ -77,20 +78,48 @@
 
 
 {% block content %}
+    <div class="opinion-alerts">
+        {% if is_staff %}
+            {% for alert in alerts %}
+                <div class="alert-box{% if not alert.solved %} error{% endif %}">
+                    {{ alert.pubdate|format_date|capfirst }} {% trans "par" %}
+                    {% include "misc/member_item.part.html" with member=alert.author %} :
+                    <em class="alert-box-text">{{ alert.text }}</em>
+                    {% if alert.solved %}
+                        <span class="close-alert-box close-alert-box-text">
+                            {% trans "Résolu par" %}
+                            {% include "misc/member_item.part.html" with member=alert.moderator %}
+                        </span>
+                    {% else %}
+                        <a href="#solve-content-{{ alert.pk }}" class="open-modal close-alert-box close-alert-box-text">{% trans "Résoudre" %}</a>
+                        <form id="solve-content-{{ alert.pk }}" method="post" action="{% url 'content:resolve-content' alert.pk %}" class="modal modal-flex">
+                            <textarea name="text" class="input" placeholder="{% trans "Message à envoyer au membre ayant lancé l'alerte" %}"></textarea>
+                            <input type="hidden" name="alert_pk" value="{{ alert.pk }}">
+
+                            {% csrf_token %}
+                            <button type="submit" name="delete-post" class="button expand alert tiny">{% trans "Résoudre l'alerte" %}</button>
+                        </form>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
 
     {% if content.is_opinion %}
         {% if content.converted_to %}
-            <div class="alert-box info">
-                {% if content.converted_to.get_absolute_url_online %}
+            {% if content.converted_to.get_absolute_url_online %}
+                <div class="alert-box info">
                     {% blocktrans with url_article=content.converted_to.get_absolute_url_online %}
                         Ce billet a été promu en <a href="{{ url_article }}">article</a>.
                     {% endblocktrans %}
-                {% elif is_staff %}
+                </div>
+            {% elif is_staff %}
+                <div class="alert-box info">
                     {% blocktrans with url_article=content.converted_to.get_absolute_url %}
-                        Ce billet a été promu en <a href="{{ url_article }}">article</a> qui est en cours de validation.
+                        Ce billet a fait l'objet d'une demande de publication <a href="{{ url_article }}">en tant qu'article</a>. Il est donc présent dans la zone de validation en attente de prise en charge par un validateur.
                     {% endblocktrans %}
-                {% endif %}
-            </div>
+                </div>
+            {% endif %}
         {% endif %}
     {% endif %}
 
@@ -121,31 +150,6 @@
             {{ content.get_conclusion_online|safe }}
         {% endif %}
 
-    {% endif %}
-
-    {% if is_staff %}
-        {% for alert in alerts %}
-            <div class="alert-box{% if not alert.solved %} error{% endif %}">
-                {{ alert.pubdate|format_date|capfirst }} {% trans "par" %}
-                {% include "misc/member_item.part.html" with member=alert.author %} :
-                <em class="alert-box-text">{{ alert.text }}</em>
-                {% if alert.solved %}
-                    <span class="close-alert-box close-alert-box-text">
-                        {% trans "Résolu par" %}
-                        {% include "misc/member_item.part.html" with member=alert.moderator %}
-                    </span>
-                {% else %}
-                    <a href="#solve-content-{{ alert.pk }}" class="open-modal close-alert-box close-alert-box-text">{% trans "Résoudre" %}</a>
-                    <form id="solve-content-{{ alert.pk }}" method="post" action="{% url 'content:resolve-content' alert.pk %}" class="modal modal-flex">
-                        <textarea name="text" class="input" placeholder="{% trans "Message à envoyer au membre ayant lancé l'alerte" %}"></textarea>
-                        <input type="hidden" name="alert_pk" value="{{ alert.pk }}">
-
-                        {% csrf_token %}
-                        <button type="submit" name="delete-post" class="button expand alert tiny">{% trans "Résoudre l'alerte" %}</button>
-                    </form>
-                {% endif %}
-            </div>
-        {% endfor %}
     {% endif %}
 
     {% include "tutorialv2/includes/article_pager.part.html" with content=content %}
@@ -195,7 +199,7 @@
     {% endif %}
     {% endif %}
 
-    {% for author in content.public_version.authors.all %}
+    {% for author in public_object.authors.all %}
         <li>
             <a href="{% url 'content:find-opinion' author.pk %}" class="ico-after offline blue">
                 {% blocktrans %}
@@ -248,6 +252,14 @@
                                         {% trans "Convertir en article" %}
                                     </a>
                                     {% crispy formConvertOpinion %}
+                                </li>
+                            {% endif %}
+                            {% if content.sha_public == content.sha_picked  %}
+                                <li>
+                                    <a href="#unpick-opinion" class="ico-after open-modal cross blue">
+                                        {% trans "Retirer des billets choisis" %}
+                                    </a>
+                                    {% crispy formUnpickOpinion %}
                                 </li>
                             {% endif %}
                         {% endif %}

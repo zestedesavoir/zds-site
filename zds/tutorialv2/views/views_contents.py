@@ -352,8 +352,10 @@ class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteV
         object_type = self.object.type.lower()
 
         _type = _(u'ce tutoriel')
-        if self.object.type == 'ARTICLE':
+        if self.object.is_article:
             _type = _(u'cet article')
+        elif self.object.is_opinion:
+            _type = _(u'ce billet')
 
         if self.object.authors.count() > 1:  # if more than one author, just remove author from list
             RemoveAuthorFromContent.remove_author(self.object, self.request.user)
@@ -1505,9 +1507,16 @@ class WarnTypo(SingleContentFormViewMixin):
         else:  # send correction
             text = '\n'.join(['> ' + line for line in form.cleaned_data['text'].split('\n')])
 
-            _type = _(u"l'article")
-            if form.content.type == 'TUTORIAL':
+            _type = _(u'l\'article')
+            if form.content.is_tutorial:
                 _type = _(u'le tutoriel')
+            if form.content.is_opinion:
+                _type = _(u'le billet')
+
+            if form.content.get_tree_depth() == 0:
+                pm_title = _(u'J\'ai trouvé une faute dans {} « {} ».').format(_type, form.content.title)
+            else:
+                pm_title = _(u'J\'ai trouvé une faute dans le chapitre « {} ».').format(form.content.title)
 
             msg = render_to_string(
                 'tutorialv2/messages/warn_typo.md',
@@ -1521,7 +1530,7 @@ class WarnTypo(SingleContentFormViewMixin):
                 })
 
             # send it :
-            send_mp(user, authors, _(u'Proposition de correction'), form.content.title, msg, leave=False)
+            send_mp(user, authors, pm_title, '', msg, leave=False)
 
             messages.success(self.request, _(u'Merci pour votre proposition de correction.'))
 
@@ -1721,11 +1730,14 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
         return redirect(url, self.request.user)
 
     def form_valid(self, form):
-        _type = self.object.type.lower()
-        if _type == 'tutorial':
+
+        _type = _(u"de l'article")
+
+        if self.object.is_tutorial:
             _type = _(u'du tutoriel')
-        else:
-            _type = _(u"de l'article")
+        elif self.object.is_opinion:
+            _type = _(u'du billet')
+
         bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
         for user in form.cleaned_data['users']:
             if user not in self.object.authors.all() and user != self.request.user:
@@ -1795,8 +1807,10 @@ class RemoveAuthorFromContent(AddAuthorToContent):
         users = form.cleaned_data['users']
 
         _type = _(u'cet article')
-        if self.object.type == 'TUTORIAL':
+        if self.object.is_tutorial:
             _type = _(u'ce tutoriel')
+        elif self.object.is_opinion:
+            _type = _(u'ce billet')
 
         for user in users:
             if RemoveAuthorFromContent.remove_author(self.object, user):

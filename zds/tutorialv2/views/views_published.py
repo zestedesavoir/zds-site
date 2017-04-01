@@ -23,7 +23,7 @@ from zds.member.views import get_client_ip
 from zds.notification import signals
 from zds.notification.models import ContentReactionAnswerSubscription, NewPublicationSubscription
 from zds.tutorialv2.forms import RevokeValidationForm, WarnTypoForm, NoteForm, NoteEditForm, UnpublicationForm, \
-    OpinionValidationForm, PromoteOpinionToArticleForm
+    PickOpinionForm, PromoteOpinionToArticleForm, UnpickOpinionForm
 from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin, SingleOnlineContentViewMixin, DownloadViewMixin, \
     ContentTypeMixin, SingleOnlineContentFormViewMixin, MustRedirect
 from zds.tutorialv2.models import TYPE_CHOICES_DICT
@@ -111,7 +111,9 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
                     context['next_article'] = all_articles[position + 1]
 
         if self.versioned_object.type == 'OPINION':
-            context['formPickOpinion'] = OpinionValidationForm(
+            context['formPickOpinion'] = PickOpinionForm(
+                self.versioned_object, initial={'version': self.versioned_object.sha_public})
+            context['formUnpickOpinion'] = UnpickOpinionForm(
                 self.versioned_object, initial={'version': self.versioned_object.sha_public})
             context['formConvertOpinion'] = PromoteOpinionToArticleForm(
                 self.versioned_object, initial={'version': self.versioned_object.sha_public})
@@ -678,7 +680,7 @@ class SolveContentAlert(FormView, LoginRequiredMixin):
             resolve_reason = request.POST['text']
             authors = alert.content.authors.values_list('username', flat=True)
             authors = ', '.join(authors)
-            msg_title = _(u"Résolution d'alerte : {0}").format(content.title),
+            msg_title = _(u"Résolution d'alerte : {0}").format(content.title)
             msg_content = render_to_string(
                 'tutorialv2/messages/resolve_alert.md', {
                     'content': content,
@@ -692,7 +694,7 @@ class SolveContentAlert(FormView, LoginRequiredMixin):
         alert.solve(request.user, resolve_reason, msg_title, msg_content)
 
         messages.success(self.request, _(u"L'alerte a bien été résolue."))
-        return redirect(content.get_absolute_url())
+        return redirect(content.get_absolute_url_online())
 
 
 class SendNoteAlert(FormView, LoginRequiredMixin):
@@ -741,7 +743,7 @@ class SolveNoteAlert(FormView, LoginRequiredMixin):
         msg_content = ''
         if 'text' in request.POST and request.POST['text']:
             resolve_reason = request.POST['text']
-            msg_title = _(u"Résolution d'alerte : {0}").format(note.related_content.title),
+            msg_title = _(u"Résolution d'alerte : {0}").format(note.related_content.title)
             msg_content = render_to_string(
                 'tutorialv2/messages/resolve_alert.md', {
                     'content': note.related_content,

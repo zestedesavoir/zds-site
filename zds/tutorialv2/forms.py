@@ -1005,7 +1005,12 @@ class WarnTypoForm(forms.Form):
             self.previous_page_url = targeted.get_absolute_url_beta()
 
         # add an additional link to send PM if needed
-        type_ = _(u"l'article") if content.type == 'ARTICLE' else _(u'le tutoriel')
+        type_ = _(u'l\'article')
+
+        if content.is_tutorial:
+            type_ = _(u'le tutoriel')
+        elif content.is_opinion:
+            type_ = _(u'le billet')
 
         if targeted.get_tree_depth() == 0:
             pm_title = _(u"J'ai trouvé une faute dans {} « {} ».").format(type_, targeted.title)
@@ -1063,7 +1068,6 @@ class WarnTypoForm(forms.Form):
 
 
 class PublicationForm(forms.Form):
-
     """
     The publication form (used only for content without preliminary validation).
     """
@@ -1082,7 +1086,7 @@ class PublicationForm(forms.Form):
         super(PublicationForm, self).__init__(*args, **kwargs)
 
         self.helper = FormHelper()
-        self.helper.form_action = reverse('validation:publish', kwargs={'pk': content.pk, 'slug': content.slug})
+        self.helper.form_action = reverse('validation:publish-opinion', kwargs={'pk': content.pk, 'slug': content.slug})
         self.helper.form_method = 'post'
         self.helper.form_class = 'modal modal-flex'
         self.helper.form_id = 'valid-publication'
@@ -1117,7 +1121,9 @@ class UnpublicationForm(forms.Form):
         self.previous_page_url = content.get_absolute_url_online()
 
         self.helper = FormHelper()
-        self.helper.form_action = reverse('validation:unpublish', kwargs={'pk': content.pk, 'slug': content.slug})
+        self.helper.form_action = reverse(
+            'validation:unpublish-opinion', kwargs={'pk': content.pk, 'slug': content.slug})
+
         self.helper.form_method = 'post'
         self.helper.form_class = 'modal modal-flex'
         self.helper.form_id = 'unpublish'
@@ -1131,18 +1137,18 @@ class UnpublicationForm(forms.Form):
         )
 
 
-class OpinionValidationForm(forms.Form):
+class PickOpinionForm(forms.Form):
 
     version = forms.CharField(widget=forms.HiddenInput())
 
     def __init__(self, content, *args, **kwargs):
-        super(OpinionValidationForm, self).__init__(*args, **kwargs)
+        super(PickOpinionForm, self).__init__(*args, **kwargs)
 
         # modal form, send back to previous page:
         self.previous_page_url = content.get_absolute_url_online()
 
         self.helper = FormHelper()
-        self.helper.form_action = reverse('validation:valid', kwargs={'pk': content.pk, 'slug': content.slug})
+        self.helper.form_action = reverse('validation:pick-opinion', kwargs={'pk': content.pk, 'slug': content.slug})
         self.helper.form_method = 'post'
         self.helper.form_class = 'modal modal-flex'
         self.helper.form_id = 'pick-opinion'
@@ -1158,6 +1164,42 @@ class OpinionValidationForm(forms.Form):
         )
 
 
+class UnpickOpinionForm(forms.Form):
+
+    version = forms.CharField(widget=forms.HiddenInput())
+
+    text = forms.CharField(
+        label='',
+        required=True,
+        widget=forms.Textarea(
+            attrs={
+                'placeholder': _(u"Pourquoi retirer ce billet de la liste des billets choisis ?"),
+                'rows': '6'
+            }
+        )
+    )
+
+    def __init__(self, content, *args, **kwargs):
+        super(UnpickOpinionForm, self).__init__(*args, **kwargs)
+
+        # modal form, send back to previous page:
+        self.previous_page_url = content.get_absolute_url_online()
+
+        self.helper = FormHelper()
+        self.helper.form_action = reverse('validation:unpick-opinion', kwargs={'pk': content.pk, 'slug': content.slug})
+        self.helper.form_method = 'post'
+        self.helper.form_class = 'modal modal-flex'
+        self.helper.form_id = 'unpick-opinion'
+
+        self.helper.layout = Layout(
+            Field('version'),
+            Field('text'),
+            StrictButton(
+                _(u'Enlever'),
+                type='submit')
+        )
+
+
 class PromoteOpinionToArticleForm(forms.Form):
 
     version = forms.CharField(widget=forms.HiddenInput())
@@ -1169,7 +1211,7 @@ class PromoteOpinionToArticleForm(forms.Form):
         self.previous_page_url = content.get_absolute_url_online()
 
         self.helper = FormHelper()
-        self.helper.form_action = reverse('validation:promote', kwargs={'pk': content.pk, 'slug': content.slug})
+        self.helper.form_action = reverse('validation:promote-opinion', kwargs={'pk': content.pk, 'slug': content.slug})
         self.helper.form_method = 'post'
         self.helper.form_class = 'modal modal-flex'
         self.helper.form_id = 'convert-opinion'
