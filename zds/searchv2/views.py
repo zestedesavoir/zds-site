@@ -130,8 +130,20 @@ class SearchView(ZdSPagingListView):
                 'weight': settings.ZDS_APP['search']['boosts']['publishedcontent']['if_tutorial']
             },
             {
+                'filter': Match(content_type='TUTORIAL') & Match(has_chapters=True),
+                'weight': settings.ZDS_APP['search']['boosts']['publishedcontent']['if_medium_or_big_tutorial']
+            },
+            {
                 'filter': Match(content_type='ARTICLE'),
                 'weight': settings.ZDS_APP['search']['boosts']['publishedcontent']['if_article']
+            },
+            {
+                'filter': Match(content_type='OPINION'),
+                'weight': settings.ZDS_APP['search']['boosts']['publishedcontent']['if_opinion']
+            },
+            {
+                'filter': Match(content_type='OPINION') & Match(picked=False),
+                'weight': settings.ZDS_APP['search']['boosts']['publishedcontent']['if_opinion_not_picked']
             },
         ]
 

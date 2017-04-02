@@ -234,13 +234,20 @@ def delete_document_in_elasticsearch(instance):
     """
 
     index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
-    index_manager.delete_document(instance)
-    index_manager.refresh_index()
+
+    if index_manager.index_exists:
+        index_manager.delete_document(instance)
+        index_manager.refresh_index()
 
 
 def get_django_indexable_objects():
     """Return all indexable objects registered in Django"""
     return [model for model in apps.get_models() if issubclass(model, AbstractESDjangoIndexable)]
+
+
+class NeedIndex(Exception):
+    """Raised when an action requires an index, but it is not created (yet)."""
+    pass
 
 
 class ESIndexManager(object):
@@ -260,6 +267,7 @@ class ESIndexManager(object):
         """
 
         self.index = name
+        self.index_exists = False
 
         self.number_of_shards = shards
         self.number_of_replicas = replicas
@@ -282,6 +290,9 @@ class ESIndexManager(object):
             else:
                 self.logger.info('connected to ES cluster')
 
+            if self.connected_to_es:
+                self.index_exists = self.es.indices.exists(self.index)
+
     def clear_es_index(self):
         """Clear index
         """
@@ -292,6 +303,8 @@ class ESIndexManager(object):
         if self.es.indices.exists(self.index):
             self.es.indices.delete(self.index)
             self.logger.info('index cleared')
+
+            self.index_exists = False
 
     def reset_es_index(self, models):
         """Delete old index and create an new one (with the same name). Setup the number of shards and replicas.
@@ -327,6 +340,8 @@ class ESIndexManager(object):
             }
         )
 
+        self.index_exists = True
+
         self.logger.info('index created')
 
     def setup_custom_analyzer(self):
@@ -350,6 +365,9 @@ class ESIndexManager(object):
 
         if not self.connected_to_es:
             return
+
+        if not self.index_exists:
+            raise NeedIndex()
 
         self.es.indices.close(self.index)
 
@@ -422,9 +440,6 @@ class ESIndexManager(object):
         :type model: class
         """
 
-        if not self.connected_to_es:
-            return
-
         if issubclass(model, AbstractESDjangoIndexable):  # use a global update with Django
             objs = model.get_es_django_indexable(force_reindexing=True)
             objs.update(es_flagged=True, es_already_indexed=False)
@@ -455,6 +470,9 @@ class ESIndexManager(object):
 
         if not self.connected_to_es:
             return
+
+        if not self.index_exists:
+            raise NeedIndex()
 
         # better safe than sorry
         if model.__name__ == 'FakeChapter':
@@ -568,6 +586,9 @@ class ESIndexManager(object):
         if not self.connected_to_es:
             return
 
+        if not self.index_exists:
+            raise NeedIndex()
+
         self.es.indices.refresh(self.index)
 
     def update_single_document(self, document, doc):
@@ -584,6 +605,9 @@ class ESIndexManager(object):
         if not self.connected_to_es:
             return
 
+        if not self.index_exists:
+            raise NeedIndex()
+
         arguments = {'index': self.index, 'doc_type': document.get_es_document_type(), 'id': document.es_id}
         if self.es.exists(**arguments):
             self.es.update(body={'doc': doc}, **arguments)
@@ -598,6 +622,9 @@ class ESIndexManager(object):
 
         if not self.connected_to_es:
             return
+
+        if not self.index_exists:
+            raise NeedIndex()
 
         arguments = {'index': self.index, 'doc_type': document.get_es_document_type(), 'id': document.es_id}
         if self.es.exists(**arguments):
@@ -621,6 +648,9 @@ class ESIndexManager(object):
         if not self.connected_to_es:
             return
 
+        if not self.index_exists:
+            raise NeedIndex()
+
         response = self.es.delete_by_query(index=self.index, doc_type=doc_type, body={'query': query})
 
         self.logger.info('delete_by_query {}s ({})'.format(doc_type, response['deleted']))
@@ -641,6 +671,9 @@ class ESIndexManager(object):
         if not self.connected_to_es:
             return
 
+        if not self.index_exists:
+            raise NeedIndex()
+
         document = {'text': request}
         tokens = []
         for token in self.es.indices.analyze(index=self.index, body=document)['tokens']:
@@ -659,5 +692,8 @@ class ESIndexManager(object):
 
         if not self.connected_to_es:
             return
+
+        if not self.index_exists:
+            raise NeedIndex()
 
         return request.index(self.index).using(self.es)
