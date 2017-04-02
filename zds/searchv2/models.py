@@ -246,6 +246,7 @@ def get_django_indexable_objects():
 
 
 class NeedIndex(Exception):
+    """Raised when an action requires an index, but it is not created (yet)."""
     pass
 
 

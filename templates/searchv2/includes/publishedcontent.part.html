@@ -31,9 +31,9 @@
             {% elif search_result.content_type == 'TUTORIAL' %}
                 {% trans "Tutoriel publié" %}
             {% elif search_result.content_type == 'OPINION' %}
-                {% trans "Opinion" %}
+                {% trans "Billet" %}
                 {% if search_result.picked %}
-                    {% trans "mise en avant" %}
+                    {% trans "mis en avant" %}
                 {% endif %}
             {% else %}
                 {% trans "Contenu publié" %}
