@@ -671,6 +671,10 @@ class PickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
         db_object.picked_date = datetime.now()
         db_object.save()
 
+        # mark to reindex to boost correctly in the search
+        self.public_content_object.es_flagged = True
+        self.public_content_object.save()
+
         msg = render_to_string(
             'tutorialv2/messages/validation_opinion.md',
             {
@@ -725,6 +729,10 @@ class UnpickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
 
         db_object.sha_picked = None
         db_object.save()
+
+        # mark to reindex to boost correctly in the search
+        self.public_content_object.es_flagged = True
+        self.public_content_object.save()
 
         msg = render_to_string(
             'tutorialv2/messages/validation_invalid_opinion.md',
