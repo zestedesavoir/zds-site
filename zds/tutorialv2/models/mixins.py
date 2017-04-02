@@ -3,7 +3,7 @@ from django.utils.translation import ugettext_lazy as _
 
 
 class TemplatableContentModelMixin(object):
-    content_type_attribute = "content_type"
+    content_type_attribute = 'content_type'
 
     @property
     def is_article(self):
@@ -27,7 +27,7 @@ class TemplatableContentModelMixin(object):
         :return: ``True`` if it is an article, ``False`` otherwise.
         :rtype: bool
         """
-        return getattr(self, self.content_type_attribute) == "OPINION"
+        return getattr(self, self.content_type_attribute) == 'OPINION'
 
     def get_absolute_url(self, version=None):
         """
@@ -51,15 +51,15 @@ class TemplatableContentModelMixin(object):
         if self.is_article:
             return _(u"L'Article")
         elif self.is_tutorial:
-            return _(u"Le Tutoriel")
+            return _(u'Le Tutoriel')
         elif self.is_opinion:
-            return _(u"Le Billet")
+            return _(u'Le Billet')
         else:
-            return _(u"Le Contenu")
+            return _(u'Le Contenu')
 
 
 class OnlineLinkableContentMixin(object):
-    content_type_attribute = "content_type"
+    content_type_attribute = 'content_type'
 
     def get_absolute_url_online(self):
         """

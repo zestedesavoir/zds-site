@@ -75,7 +75,7 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
 
     def get_form_kwargs(self):
         kwargs = super(CreateContent, self).get_form_kwargs()
-        kwargs["for_tribune"] = self.created_content_type == "OPINION"
+        kwargs['for_tribune'] = self.created_content_type == 'OPINION'
         return kwargs
 
     def get_form(self, form_class=ContentForm):
@@ -244,7 +244,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
 
     def get_form_kwargs(self):
         kwargs = super(EditContent, self).get_form_kwargs()
-        kwargs["for_tribune"] = self.object.type == "OPINION"
+        kwargs['for_tribune'] = self.object.type == 'OPINION'
         return kwargs
 
     def get_initial(self):

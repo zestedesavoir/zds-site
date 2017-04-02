@@ -341,7 +341,7 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
         if self.current_content_type:
             queryset = queryset.filter(content_type=self.current_content_type)
         else:
-            queryset = queryset.filter(~Q(content_type="OPINION"))
+            queryset = queryset.filter(~Q(content_type='OPINION'))
         # prefetch:
         queryset = queryset\
             .prefetch_related('content') \

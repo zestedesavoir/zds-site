@@ -34,15 +34,15 @@ class ContentSitemap(Sitemap):
 
 
 class TutoSitemap(ContentSitemap):
-    content_type = "TUTORIAL"
+    content_type = 'TUTORIAL'
 
 
 class ArticleSitemap(ContentSitemap):
-    content_type = "ARTICLE"
+    content_type = 'ARTICLE'
 
 
 class OpinionSitemap(ContentSitemap):
-    content_type = "OPINION"
+    content_type = 'OPINION'
 
 
 class PageSitemap(Sitemap):

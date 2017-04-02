@@ -235,8 +235,8 @@ class ContentForm(ContainerForm):
         html_part = HTML(_(u"<p>Demander de l'aide à la communauté !<br>"
                            u"Si vous avez besoin d'un coup de main, "
                            u"sélectionnez une ou plusieurs catégories d'aide ci-dessous "
-                           u"et votre contenu apparaîtra alors sur <a href="
-                           u"\"{% url \"content:helps\" %}\" "
+                           u'et votre contenu apparaîtra alors sur <a href='
+                           u'\"{% url \"content:helps\" %}\" '
                            u"alt=\"aider les auteurs\">la page d'aide</a>.</p>"))
 
         self.helper.layout = Layout(
@@ -268,7 +268,7 @@ class ContentForm(ContainerForm):
         self.helper.layout.append(ButtonHolder(StrictButton('Valider', type='submit')))
 
     def __init__(self, *args, **kwargs):
-        for_tribune = kwargs.pop("for_tribune", False)
+        for_tribune = kwargs.pop('for_tribune', False)
         super(ContentForm, self).__init__(*args, **kwargs)
 
         self.helper = FormHelper()
@@ -1154,7 +1154,7 @@ class PickOpinionForm(forms.Form):
         self.helper.form_id = 'pick-opinion'
 
         self.helper.layout = Layout(
-            HTML("<p>Êtes-vous certain(e) de vouloir valider ce billet ? Il pourra maintenant être présent sur la page "
+            HTML('<p>Êtes-vous certain(e) de vouloir valider ce billet ? Il pourra maintenant être présent sur la page '
                  "d'accueil.</p>"),
             CommonLayoutModalText(),
             Field('version'),
@@ -1173,7 +1173,7 @@ class UnpickOpinionForm(forms.Form):
         required=True,
         widget=forms.Textarea(
             attrs={
-                'placeholder': _(u"Pourquoi retirer ce billet de la liste des billets choisis ?"),
+                'placeholder': _(u'Pourquoi retirer ce billet de la liste des billets choisis ?'),
                 'rows': '6'
             }
         )
@@ -1217,7 +1217,7 @@ class PromoteOpinionToArticleForm(forms.Form):
         self.helper.form_id = 'convert-opinion'
 
         self.helper.layout = Layout(
-            HTML("<p>Êtes-vous certain(e) de vouloir promouvoir ce billet en article ?</p>"),
+            HTML('<p>Êtes-vous certain(e) de vouloir promouvoir ce billet en article ?</p>'),
             CommonLayoutModalText(),
             Field('version'),
             StrictButton(
