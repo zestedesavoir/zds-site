@@ -91,6 +91,8 @@ class UtilsTests(TestCase):
 
         # 1. test "index-all"
         call_command('es_manager', 'index_all')
+        self.assertTrue(self.index_manager.es.indices.exists(self.index_manager.index))
+        self.index_manager.index_exists = True
 
         topic = Topic.objects.get(pk=topic.pk)
         post = Post.objects.get(pk=post.pk)
@@ -126,7 +128,10 @@ class UtilsTests(TestCase):
 
         # 2. test "clear"
         self.assertTrue(self.index_manager.index in self.index_manager.es.cat.indices())  # index in
+
         call_command('es_manager', 'clear')
+        self.assertFalse(self.index_manager.es.indices.exists(self.index_manager.index))
+        self.index_manager.index_exists = False
 
         # must reset every object
         topic = Topic.objects.get(pk=topic.pk)
@@ -145,6 +150,9 @@ class UtilsTests(TestCase):
 
         # 3. test "setup"
         call_command('es_manager', 'setup')
+        self.assertTrue(self.index_manager.es.indices.exists(self.index_manager.index))
+        self.index_manager.index_exists = True
+
         self.assertTrue(self.index_manager.index in self.index_manager.es.cat.indices())  # index back in ...
 
         s = Search()

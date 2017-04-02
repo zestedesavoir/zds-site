@@ -945,7 +945,9 @@ def delete_published_content_in_elasticsearch(sender, instance, **kwargs):
     """
 
     index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
-    index_manager.delete_by_query(FakeChapter.get_es_document_type(), ES_Q('match', _routing=instance.es_id))
+
+    if index_manager.index_exists:
+        index_manager.delete_by_query(FakeChapter.get_es_document_type(), ES_Q('match', _routing=instance.es_id))
 
     return delete_document_in_elasticsearch(instance)
 
