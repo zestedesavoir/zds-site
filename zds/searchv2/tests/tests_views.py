@@ -527,6 +527,19 @@ class ViewsTests(TestCase):
 
         settings.ZDS_APP['search']['boosts']['publishedcontent']['if_opinion'] = 1.0
         settings.ZDS_APP['search']['boosts']['publishedcontent']['if_opinion_not_picked'] = 1.0
+        settings.ZDS_APP['search']['boosts']['publishedcontent']['if_medium_or_big_tutorial'] = 2.0
+
+        result = self.client.get(
+            reverse('search:query') + '?q=' + text + '&models=content', follow=False)
+
+        self.assertEqual(result.status_code, 200)
+        response = result.context['object_list'].execute()
+        self.assertEqual(response.hits.total, 5)
+
+        self.assertTrue(response[0].meta.score > response[1].meta.score)
+        self.assertEquals(response[0].meta.id, str(published_tuto.pk))  # obvious
+
+        settings.ZDS_APP['search']['boosts']['publishedcontent']['if_medium_or_big_tutorial'] = 1.0
 
         # 6. Test global boosts
         # NOTE: score are NOT the same for all documents, no matter how hard it tries to, small differences exists
