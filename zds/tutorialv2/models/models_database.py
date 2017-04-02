@@ -32,7 +32,7 @@ import os
 from uuslug import uuslug
 
 from elasticsearch_dsl import Mapping, Q as ES_Q
-from elasticsearch_dsl.field import Text, Keyword, Date
+from elasticsearch_dsl.field import Text, Keyword, Date, Boolean
 
 from zds.forum.models import Topic
 from zds.gallery.models import Image, Gallery, UserGallery
@@ -843,6 +843,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         mapping.field('tags', Text(boost=2.0))
         mapping.field('categories', Text(boost=2.25))
         mapping.field('text', Text())  # for article and mini-tuto, text is directly included into the main object
+        mapping.field('picked', Boolean())
 
         # not indexed:
         mapping.field('get_absolute_url_online', Keyword(index=False))
@@ -910,7 +911,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         """
 
         excluded_fields = excluded_fields or []
-        excluded_fields.extend(['title', 'description', 'tags', 'categories', 'text', 'thumbnail'])
+        excluded_fields.extend(['title', 'description', 'tags', 'categories', 'text', 'thumbnail', 'picked'])
 
         data = super(PublishedContent, self).get_es_document_source(excluded_fields=excluded_fields)
 
@@ -934,6 +935,11 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
 
         if versioned.has_extracts():
             data['text'] = versioned.get_content_online()
+
+        data['picked'] = False
+
+        if self.content_type == 'OPINION' and self.content.sha_picked is not None:
+            data['picked'] = True
 
         return data
 
