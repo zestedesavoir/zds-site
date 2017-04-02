@@ -843,6 +843,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         mapping.field('tags', Text(boost=2.0))
         mapping.field('categories', Text(boost=2.25))
         mapping.field('text', Text())  # for article and mini-tuto, text is directly included into the main object
+        mapping.field('has_chapters', Boolean())  # ... otherwise, it is written
         mapping.field('picked', Boolean())
 
         # not indexed:
@@ -935,6 +936,9 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
 
         if versioned.has_extracts():
             data['text'] = versioned.get_content_online()
+            data['has_chapters'] = False
+        else:
+            data['has_chapters'] = True
 
         data['picked'] = False
 

@@ -557,6 +557,7 @@ ZDS_APP = {
                 'global': 3.0,
                 'if_article': 1.0,
                 'if_tutorial': 1.0,
+                'if_medium_or_big_tutorial': 1.5,
                 'if_opinion': 0.66,
                 'if_opinion_not_picked': 0.5
             },
