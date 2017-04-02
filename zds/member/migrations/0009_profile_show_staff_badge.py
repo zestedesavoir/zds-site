@@ -10,13 +10,16 @@ from django.db.models import Q
 
 def forwards_func(apps, schema_editor):
     # Check for each user if the staff badge should be displayed
-    staff_perm = Permission.objects.get(codename='change_post')
-    staffs = User.objects.filter(
-        Q(groups__permissions=staff_perm) |
-        Q(user_permissions=staff_perm) |
-        Q(is_superuser=True)
-    ).distinct()
-    Profile.objects.filter(user__in=staffs).update(show_staff_badge=True)
+    try:
+        staff_perm = Permission.objects.get(codename='change_post')
+        staffs = User.objects.filter(
+            Q(groups__permissions=staff_perm) |
+            Q(user_permissions=staff_perm) |
+            Q(is_superuser=True)
+        ).distinct()
+        Profile.objects.filter(user__in=staffs).update(show_staff_badge=True)
+    except Permission.DoesNotExist:
+        pass
 
 
 class Migration(migrations.Migration):
