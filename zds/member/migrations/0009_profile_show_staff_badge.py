@@ -3,21 +3,20 @@ from __future__ import unicode_literals
 
 from django.db import migrations, models
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Permission
 from zds.member.models import Profile
+from django.db.models import Q
 
 
 def forwards_func(apps, schema_editor):
     # Check for each user if the staff badge should be displayed
-    users = User.objects.all()
-    for user in users:
-        if user.has_perm('forum.change_post'):
-            try:
-                user_profile = user.profile
-                user_profile.show_staff_badge = True
-                user_profile.save()
-            except Profile.DoesNotExist:
-                pass
+    staff_perm = Permission.objects.get(codename='change_post')
+    staffs = User.objects.filter(
+        Q(groups__permissions=staff_perm) |
+        Q(user_permissions=staff_perm) |
+        Q(is_superuser=True)
+    ).distinct()
+    Profile.objects.filter(user__in=staffs).update(show_staff_badge=True)
 
 
 class Migration(migrations.Migration):
