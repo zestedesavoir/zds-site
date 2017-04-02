@@ -11,7 +11,7 @@ from zds.gallery.factories import UserGalleryFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.settings import BASE_DIR
 from zds.tutorialv2.factories import PublishableContentFactory, ExtractFactory, LicenceFactory, PublishedContentFactory
-from zds.tutorialv2.models.models_database import PublishableContent
+from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent
 from zds.utils.models import Alert
 
 overrided_zds_app = settings.ZDS_APP
@@ -61,10 +61,16 @@ class PublishedContentTests(TestCase):
             {
                 'text': text_publication,
                 'source': '',
-                'version': opinion.load_version().current_version
+                'version': opinion_draft.current_version
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
+
+        self.assertEqual(PublishedContent.objects.count(), 1)
+
+        opinion = PublishableContent.objects.get(pk=opinion.pk)
+        self.assertIsNotNone(opinion.public_version)
+        self.assertEqual(opinion.public_version.sha_public, opinion_draft.current_version)
 
     def test_accessible_ui_for_author(self):
         opinion = PublishedContentFactory(author_list=[self.user_author], type='OPINION')
@@ -124,10 +130,16 @@ class PublishedContentTests(TestCase):
             {
                 'text': text_publication,
                 'source': '',
-                'version': opinion.load_version().current_version
+                'version': opinion_draft.current_version
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
+
+        self.assertEqual(PublishedContent.objects.count(), 1)
+
+        opinion = PublishableContent.objects.get(pk=opinion.pk)
+        self.assertIsNotNone(opinion.public_version)
+        self.assertEqual(opinion.public_version.sha_public, opinion_draft.current_version)
 
     def test_opinion_publication_guest(self):
         """
@@ -158,10 +170,12 @@ class PublishedContentTests(TestCase):
             {
                 'text': text_publication,
                 'source': '',
-                'version': opinion.load_version().current_version
+                'version': opinion_draft.current_version
             },
             follow=False)
         self.assertEqual(result.status_code, 403)
+
+        self.assertEqual(PublishedContent.objects.count(), 0)
 
     def test_opinion_unpublication(self):
         """
@@ -196,10 +210,16 @@ class PublishedContentTests(TestCase):
             {
                 'text': text_publication,
                 'source': '',
-                'version': opinion.load_version().current_version
+                'version': opinion_draft.current_version
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
+
+        self.assertEqual(PublishedContent.objects.count(), 1)
+
+        opinion = PublishableContent.objects.get(pk=opinion.pk)
+        self.assertIsNotNone(opinion.public_version)
+        self.assertEqual(opinion.public_version.sha_public, opinion_draft.current_version)
 
         # unpublish
         result = self.client.post(
@@ -207,10 +227,15 @@ class PublishedContentTests(TestCase):
             {
                 'text': text_unpublication,
                 'source': '',
-                'version': opinion.load_version().current_version
+                'version': opinion_draft.current_version
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
+
+        self.assertEqual(PublishedContent.objects.count(), 0)
+
+        opinion = PublishableContent.objects.get(pk=opinion.pk)
+        self.assertIsNone(opinion.public_version)
 
         # staff
 
@@ -226,10 +251,16 @@ class PublishedContentTests(TestCase):
             {
                 'text': text_publication,
                 'source': '',
-                'version': opinion.load_version().current_version
+                'version': opinion_draft.current_version
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
+
+        self.assertEqual(PublishedContent.objects.count(), 1)
+
+        opinion = PublishableContent.objects.get(pk=opinion.pk)
+        self.assertIsNotNone(opinion.public_version)
+        self.assertEqual(opinion.public_version.sha_public, opinion_draft.current_version)
 
         # unpublish
         result = self.client.post(
@@ -237,10 +268,15 @@ class PublishedContentTests(TestCase):
             {
                 'text': text_unpublication,
                 'source': '',
-                'version': opinion.load_version().current_version
+                'version': opinion_draft.current_version
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
+
+        self.assertEqual(PublishedContent.objects.count(), 0)
+
+        opinion = PublishableContent.objects.get(pk=opinion.pk)
+        self.assertIsNone(opinion.public_version)
 
         # guest => 403
 
@@ -256,10 +292,16 @@ class PublishedContentTests(TestCase):
             {
                 'text': text_publication,
                 'source': '',
-                'version': opinion.load_version().current_version
+                'version': opinion_draft.current_version
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
+
+        self.assertEqual(PublishedContent.objects.count(), 1)
+
+        opinion = PublishableContent.objects.get(pk=opinion.pk)
+        self.assertIsNotNone(opinion.public_version)
+        self.assertEqual(opinion.public_version.sha_public, opinion_draft.current_version)
 
         self.assertEqual(
             self.client.login(
@@ -273,10 +315,12 @@ class PublishedContentTests(TestCase):
             {
                 'text': text_unpublication,
                 'source': '',
-                'version': opinion.load_version().current_version
+                'version': opinion_draft.current_version
             },
             follow=False)
         self.assertEqual(result.status_code, 403)
+
+        self.assertEqual(PublishedContent.objects.count(), 1)
 
     def test_opinion_validation(self):
         """
@@ -308,10 +352,16 @@ class PublishedContentTests(TestCase):
             {
                 'text': text_publication,
                 'source': '',
-                'version': opinion.load_version().current_version
+                'version': opinion_draft.current_version
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
+
+        self.assertEqual(PublishedContent.objects.count(), 1)
+
+        opinion = PublishableContent.objects.get(pk=opinion.pk)
+        self.assertIsNotNone(opinion.public_version)
+        self.assertEqual(opinion.public_version.sha_public, opinion_draft.current_version)
 
         # valid with author => 403
         opinion = PublishableContent.objects.get(pk=opinion.pk)
@@ -429,17 +479,23 @@ class PublishedContentTests(TestCase):
             {
                 'text': text_publication,
                 'source': '',
-                'version': opinion.load_version().current_version
+                'version': opinion_draft.current_version
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
+
+        self.assertEqual(PublishedContent.objects.count(), 1)
+
+        opinion = PublishableContent.objects.get(pk=opinion.pk)
+        self.assertIsNotNone(opinion.public_version)
+        self.assertEqual(opinion.public_version.sha_public, opinion_draft.current_version)
 
         # valid with author => 403
         result = self.client.post(
             reverse('validation:promote-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
             {
                 'source': '',
-                'version': opinion.load_version().current_version
+                'version': opinion_draft.current_version
             },
             follow=False)
         self.assertEqual(result.status_code, 403)
@@ -455,7 +511,7 @@ class PublishedContentTests(TestCase):
             reverse('validation:promote-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
             {
                 'source': '',
-                'version': opinion.load_version().current_version
+                'version': opinion_draft.current_version
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -487,10 +543,16 @@ class PublishedContentTests(TestCase):
             {
                 'text': text_publication,
                 'source': '',
-                'version': opinion.load_version().current_version
+                'version': opinion_draft.current_version
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
+
+        self.assertEqual(PublishedContent.objects.count(), 1)
+
+        opinion = PublishableContent.objects.get(pk=opinion.pk)
+        self.assertIsNotNone(opinion.public_version)
+        self.assertEqual(opinion.public_version.sha_public, opinion_draft.current_version)
 
         # Alert content
         random_user = ProfileFactory().user
