@@ -20,7 +20,9 @@ overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'conte
 overrided_zds_app['content']['extra_content_generation_policy'] = 'NONE'
 
 
+@override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
 @override_settings(ZDS_APP=overrided_zds_app)
+@override_settings(ES_ENABLED=False)
 class PublishedContentTests(TestCase):
     def setUp(self):
         overrided_zds_app['member']['bot_account'] = ProfileFactory().user.username
