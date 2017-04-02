@@ -1010,10 +1010,16 @@ Une fois que tout est indexé,
 Tribunes
 --------
 
-Ajouter à la fin de `/etc/munin/plugin-conf.d/zds.conf`
++ Ajouter à la fin de `/etc/munin/plugin-conf.d/zds.conf`
 
 ```
     [zds_total_tribunes]
     env.url http://www.zestedesavoir.com/munin/total_tribunes/
     env.graph_category zds
 ```
+
++ Réindexer les données (un champ a été rajouté):
+
+    ```
+    python manage.py es_manager index_all
+    ```

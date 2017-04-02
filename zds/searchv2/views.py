@@ -168,6 +168,14 @@ class SearchView(ZdSPagingListView):
                 'filter': Match(content_type='ARTICLE'),
                 'weight': settings.ZDS_APP['search']['boosts']['publishedcontent']['if_article']
             },
+            {
+                'filter': Match(content_type='OPINION'),
+                'weight': settings.ZDS_APP['search']['boosts']['publishedcontent']['if_opinion']
+            },
+            {
+                'filter': Match(content_type='OPINION') & Match(picked=False),
+                'weight': settings.ZDS_APP['search']['boosts']['publishedcontent']['if_opinion_not_picked']
+            },
         ]
 
         scored_query = FunctionScore(query=query, boost_mode='multiply', functions=functions_score)
