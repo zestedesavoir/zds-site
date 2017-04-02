@@ -607,6 +607,9 @@ class UnpublishOpinion(LoginRequiredMixin, SingleOnlineContentFormViewMixin, NoV
         if user not in versioned.authors.all() and not user.has_perm('tutorialv2.change_validation'):
             raise PermissionDenied
 
+        if form.cleaned_data['version'] != self.object.sha_public:
+            raise PermissionDenied
+
         unpublish_content(self.object)
 
         self.object.sha_public = None
