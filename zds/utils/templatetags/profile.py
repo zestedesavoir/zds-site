@@ -9,8 +9,6 @@ from zds.member.models import Profile
 
 register = template.Library()
 
-perms = {'forum.change_post': {}}
-
 
 @register.filter('profile')
 def profile(current_user):
@@ -69,13 +67,8 @@ def state(current_user):
             user_state = 'BAN'
         elif not user_profile.can_write_now():
             user_state = 'LS'
-        elif current_user.pk in perms['forum.change_post'] and perms['forum.change_post'][current_user.pk]:
+        elif user_profile.show_staff_badge:
             user_state = 'STAFF'
-        elif current_user.pk not in perms['forum.change_post']:
-            perms['forum.change_post'][current_user.pk] = current_user.has_perm('forum.change_post')
-            user_state = None
-            if perms['forum.change_post'][current_user.pk]:
-                user_state = 'STAFF'
         else:
             user_state = None
     except Profile.DoesNotExist:
