@@ -18,7 +18,7 @@ from django.views.generic.detail import SingleObjectMixin
 from zds.searchv2.forms import SearchForm
 from zds.searchv2.models import ESIndexManager
 from zds.utils.paginator import ZdSPagingListView
-from zds.forum.models import Forum
+from zds.utils.templatetags.authorized_forums import get_authorized_forums
 
 
 class SimilarSubjectsView(CreateView, SingleObjectMixin):
@@ -39,21 +39,7 @@ class SimilarSubjectsView(CreateView, SingleObjectMixin):
 
         results = []
         if self.index_manager.connected_to_es and self.search_query:
-
-            # find forums the user is allowed to visit
-            user = self.request.user
-
-            forums_pub = Forum.objects.filter(group__isnull=True).all()
-            if user and user.is_authenticated():
-                forums_private = Forum \
-                    .objects \
-                    .filter(group__isnull=False, group__in=user.groups.all()) \
-                    .all()
-                list_forums = list(forums_pub | forums_private)
-            else:
-                list_forums = list(forums_pub)
-
-            self.authorized_forums = [f.pk for f in list_forums]
+            self.authorized_forums = get_authorized_forums(self.request.user)
 
             search_queryset = Search()
             query = Match(_type='topic') \
@@ -122,19 +108,7 @@ class SearchView(ZdSPagingListView):
         if self.search_query:
 
             # find forums the user is allowed to visit
-            user = self.request.user
-
-            forums_pub = Forum.objects.filter(group__isnull=True).all()
-            if user and user.is_authenticated():
-                forums_private = Forum \
-                    .objects \
-                    .filter(group__isnull=False, group__in=user.groups.all()) \
-                    .all()
-                list_forums = list(forums_pub | forums_private)
-            else:
-                list_forums = list(forums_pub)
-
-            self.authorized_forums = [f.pk for f in list_forums]
+            self.authorized_forums = get_authorized_forums(self.request.user)
 
             search_queryset = Search()
 
