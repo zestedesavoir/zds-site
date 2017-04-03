@@ -17,7 +17,6 @@ from zds.utils import get_current_user
 from zds.utils.models import Alert
 from zds import settings
 from zds.tutorialv2.models import TYPE_CHOICES_DICT
->>>>>>> tutorialsv2 => tutorialv2
 
 register = template.Library()
 
