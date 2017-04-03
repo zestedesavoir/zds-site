@@ -265,7 +265,7 @@
                                 {% endfor %}
                                 <button type="submit" name="create">{% trans 'Envoyer' %}</button>
                             {% else %}
-                                <p>{% trans "Il semblerait que vous n'ayez pas spécifié un token d'identification GitHub, vous ne pouvez donc pas envoyer pas créer de ticket pour ce sujet." %}</p>
+                                <p>{% trans "Il semblerait que vous n'ayez pas spécifié de token d'identification GitHub, vous ne pouvez donc pas créer de ticket pour ce sujet." %}</p>
                                 {% url 'update-github' as update_github %}
                                 <p>
                                     {% blocktrans %}
