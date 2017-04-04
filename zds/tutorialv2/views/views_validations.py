@@ -19,10 +19,11 @@ from zds.member.decorator import LoginRequiredMixin, PermissionRequiredMixin, Lo
 from zds.gallery.models import UserGallery
 from zds.notification import signals
 from zds.tutorialv2.forms import AskValidationForm, RejectValidationForm, AcceptValidationForm, RevokeValidationForm, \
-    CancelValidationForm, PublicationForm, PickOpinionForm, PromoteOpinionToArticleForm, UnpickOpinionForm
+    CancelValidationForm, PublicationForm, PickOpinionForm, PromoteOpinionToArticleForm, UnpickOpinionForm, \
+    DoNotPickOpinionForm
 from zds.tutorialv2.mixins import SingleContentFormViewMixin, ModalFormView, \
     SingleOnlineContentFormViewMixin, ValidationBeforeViewMixin, NoValidationBeforeFormViewMixin
-from zds.tutorialv2.models.models_database import Validation, PublishableContent
+from zds.tutorialv2.models.models_database import Validation, PublishableContent, PickListOperation
 from zds.tutorialv2.publication_utils import publish_content, FailureDuringPublication, unpublish_content
 from zds.tutorialv2.utils import clone_repo
 from zds.utils.forums import send_post, lock_topic
@@ -107,9 +108,13 @@ class ValidationOpinionListView(LoginRequiredMixin, PermissionRequiredMixin, Lis
     template_name = 'tutorialv2/validation/opinions.html'
     context_object_name = 'contents'
     subcategory = None
-    queryset = PublishableContent.objects\
-        .filter(type='OPINION', sha_public__isnull=False)\
-        .exclude(sha_picked=F('sha_public'))
+
+    def get_queryset(self):
+        return PublishableContent.objects\
+            .filter(type='OPINION', sha_public__isnull=False)\
+            .exclude(sha_picked=F('sha_public'))\
+            .exclude(pk__in=PickListOperation.objects.filter(~Q(operation='PICK'))
+                     .values_list('content__pk', flat=True))
 
 
 class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
@@ -644,6 +649,32 @@ class UnpublishOpinion(LoginRequiredMixin, SingleOnlineContentFormViewMixin, NoV
         return super(UnpublishOpinion, self).form_valid(form)
 
 
+class DoNotPickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
+    """Remove"""
+
+    form_class = DoNotPickOpinionForm
+    modal_form = True
+    prefetch_all = False
+    permissions = ['tutorialv2.change_validation']
+
+    def get(self, request, *args, **kwargs):
+        raise Http404(_(u"Valider un contenu n'est pas possible avec la méthode « GET »."))
+
+    def get_form_kwargs(self):
+        kwargs = super(DoNotPickOpinion, self).get_form_kwargs()
+        kwargs['content'] = self.versioned_object
+        return kwargs
+
+    def form_valid(self, form):
+        # get database representation and validated version
+        db_object = self.object
+        versioned = self.versioned_object
+        self.success_url = versioned.get_absolute_url_online()
+        PickListOperation.objects.create(content=self.object, operation=form.cleaned_data['operation'])
+        self.success_url = self.object.get_absolute_url_online()
+        return super(DoNotPickOpinion, self).form_valid(form)
+
+
 class PickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
     """Approve and Add the opinion in the picked list """
 
@@ -674,7 +705,7 @@ class PickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
         # mark to reindex to boost correctly in the search
         self.public_content_object.es_flagged = True
         self.public_content_object.save()
-
+        PickListOperation.objects.create(content=self.object, operation='PICK')
         msg = render_to_string(
             'tutorialv2/messages/validation_opinion.md',
             {

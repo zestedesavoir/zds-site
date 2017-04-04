@@ -1173,6 +1173,25 @@ class Validation(models.Model):
         return self.status == 'CANCEL'
 
 
+@python_2_unicode_compatible
+class PickListOperation(models.Model):
+    class Meta:
+        verbose_name = 'Pick Operation'
+        verbose_name_plural = 'Pick Operations'
+    content = models.ForeignKey(PublishableContent, null=False, blank=True,
+                                verbose_name='Contenu proposé', db_index=True)
+    operation = models.CharField(null=False, blank=False, db_index=True, max_length=len('NO_PICK'),
+                                 choices=[('REJECT', 'Rejeté'), ('NO_PICK', 'Non choisi'), ('PICK', 'Choisi')])
+
+    def __str__(self):
+        return self.operation + ' ' + str(self.content)
+
+    def save(self, **kwargs):
+        if not self.content is None and self.content.type == 'OPINION':
+            return super(PickListOperation, self).save(**kwargs)
+        raise ValueError('Content cannot be null or something else than opinion.', self.content)
+
+
 @receiver(models.signals.pre_delete, sender=User)
 def transfer_paternity_receiver(sender, instance, **kwargs):
     """
