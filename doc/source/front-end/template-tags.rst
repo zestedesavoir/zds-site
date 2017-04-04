@@ -314,7 +314,7 @@ Récupère le nombre de contenus, de tutoriels ou d'articles dans la zone de val
         ...
     {% endwith %}
 
-Le filtre doit être appelé sur ``"TUTORIAL"`` pour récupérer le nombre de tutoriels en attente et sur ``"ARTICLE"`` pour le nombre d'articles. Pour le nombre de contenus, il faut l'appeler sur une chaîne de caractères vide `""`.
+Le filtre doit être appelé sur ``"TUTORIAL"`` pour récupérer le nombre de tutoriels en attente et sur ``"ARTICLE"`` pour le nombre d'articles. Pour le nombre de contenus, il faut l'appeler sur une chaîne de caractères vide ``""``.
 
 ``humane_delta``
 ----------------
