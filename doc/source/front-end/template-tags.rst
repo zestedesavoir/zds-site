@@ -305,16 +305,16 @@ Récupère la liste des alertes (si l'utilisateur possède les droits pour le fa
 ``waiting_count``
 ---------------
 
-Récupère le nombre de tutoriels ou d'articles dans la zone de validation n'ayant pas été réservés par un validateur.
+Récupère le nombre de contenus, de tutoriels ou d'articles dans la zone de validation n'ayant pas été réservés par un validateur.
 
 .. sourcecode:: html
 
     {% load interventions %}
-    {% with waiting_tutorials_count="TUTORIAL"|waiting_count waiting_articles_count="ARTICLE"|waiting_count %}
+    {% with waiting_all_count=""|waiting_count waiting_tutorials_count="TUTORIAL"|waiting_count waiting_articles_count="ARTICLE"|waiting_count %}
         ...
     {% endwith %}
 
-Le filtre doit être appelé sur ``"TUTORIAL"`` pour récupérer le nombre de tutoriels en attente et sur ``"ARTICLE"`` pour le nombre d'articles.
+Le filtre doit être appelé sur ``"TUTORIAL"`` pour récupérer le nombre de tutoriels en attente et sur ``"ARTICLE"`` pour le nombre d'articles. Pour le nombre de contenus, il faut l'appeler sur une chaîne de caractères vide `""`.
 
 ``humane_delta``
 ----------------
