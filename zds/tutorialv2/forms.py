@@ -1,4 +1,5 @@
 # coding: utf-8
+from __future__ import unicode_literals
 from django import forms
 from django.conf import settings
 
@@ -1163,6 +1164,42 @@ class PickOpinionForm(forms.Form):
                 type='submit')
         )
 
+
+class DoNotPickOpinionForm(forms.Form):
+    operation = forms.CharField(widget=forms.HiddenInput())
+
+    def __init__(self, content, *args, **kwargs):
+        super(DoNotPickOpinionForm, self).__init__(*args, **kwargs)
+
+        # modal form, send back to previous page:
+        self.previous_page_url = content.get_absolute_url_online()
+
+        self.helper = FormHelper()
+        self.helper.form_action = reverse('validation:unpick-opinion', kwargs={'pk': content.pk, 'slug': content.slug})
+        self.helper.form_method = 'post'
+        self.helper.form_class = 'modal modal-flex'
+        self.helper.form_id = 'unpick-opinion'
+
+        self.helper.layout = Layout(
+            HTML(_("<p>Ce billet n'apparaîtra plus dans la liste des billets à choisir.</p>")),
+            CommonLayoutModalText(),
+            Field('operation'),
+            StrictButton(
+                _(u'Valider'),
+                type='submit')
+        )
+
+    def clean(self):
+        cleaned = super(DoNotPickOpinionForm, self).clean()
+        cleaned['operation'] = self.data['operation'] if self.data['operation'] in ['NO_PICK', 'REJECT'] else None
+        return cleaned
+
+    def is_valid(self):
+        base = super(DoNotPickOpinionForm, self).is_valid()
+        if not self['operation']:
+            self._errors['operation'] = _('Opération invalide, NO_PICK ou REJECT attendu.')
+            return False
+        return base
 
 class UnpickOpinionForm(forms.Form):
 
