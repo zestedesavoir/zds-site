@@ -75,6 +75,7 @@ gulp.task('js', () =>
         'assets/js/spoiler.js',
         'assets/js/submit-dbclick.js',
         'assets/js/tab-modalize.js',
+        'assets/js/tribune-pick.js',
         'assets/js/zen-mode.js',
     ], { base: '.' })
         .pipe(sourcemaps.init({ loadMaps: true }))

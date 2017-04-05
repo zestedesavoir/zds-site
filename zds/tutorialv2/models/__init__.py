@@ -1,5 +1,5 @@
 # coding: utf-8
-
+from __future__ import unicode_literals
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -41,6 +41,7 @@ CONTENT_TYPES = (
     },
 )
 
+PICK_OPERATIONS = [('REJECT', _('Rejeté')), ('NO_PICK', _('Non choisi')), ('PICK', _('Choisi'))]
 # a list of contents which have to be validated before publication
 CONTENT_TYPES_VALIDATION_BEFORE = [content['name'] for content in CONTENT_TYPES if content['validation_before']]
 

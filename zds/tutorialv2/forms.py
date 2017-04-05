@@ -1201,6 +1201,7 @@ class DoNotPickOpinionForm(forms.Form):
             return False
         return base
 
+
 class UnpickOpinionForm(forms.Form):
 
     version = forms.CharField(widget=forms.HiddenInput())
