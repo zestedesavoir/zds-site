@@ -19,7 +19,7 @@ from easy_thumbnails.fields import ThumbnailerImageField
 
 from zds.notification import signals
 from zds.mp.models import PrivateTopic
-from zds.tutorialv2.models import TYPE_CHOICES
+from zds.tutorialv2.models import TYPE_CHOICES, TYPE_CHOICES_DICT
 from zds.utils.mps import send_mp
 from zds.utils import slugify
 from zds.utils.templatetags.emarkdown import get_markdown_instance, render_markdown
@@ -303,6 +303,12 @@ class Alert(models.Model):
                                        db_index=True,
                                        null=True,
                                        blank=True)
+
+    def get_type(self):
+        if self.scope in TYPE_CHOICES_DICT:
+            return _(u'Commentaire')
+        else:
+            return self.get_scope_display()
 
     def solve(self, moderator, resolve_reason='', msg_title='', msg_content=''):
         """Solve alert and send a PrivateTopic to the alert author if a reason is given
