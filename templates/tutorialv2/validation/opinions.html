@@ -46,12 +46,13 @@
                             <th>{% trans "Titre" %}</th>
                             <th>{% trans "Auteur(s)" %}</th>
                             <th>{% trans "Date dernière publication" %}</th>
+                            <th>{% trans "Opération" %}</th>
                             <th>{% trans "A déjà été choisi" %}</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for content in contents %}
-                            <tr>
+                            <tr class="opinion">
                                 <td>
                                      <a href="{{ content.get_absolute_url_online }}">
                                          {{ content.title }}
@@ -64,6 +65,12 @@
                                 </td>
                                 <td>
                                     <span>{{ content.update_date|format_date:True|capfirst }}</span>
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-grey ico-after hide unpick-action" data-url="{% url 'validation:ignore-opinion' content.pk content.slug %}"
+                                            data-operation="NO_PICK">{% trans "Ignorer" %}</button>
+                                    <button type="button" class="btn btn-grey ico-after cross red unpick-action" data-url="{% url 'validation:ignore-opinion' content.pk content.slug %}"
+                                            data-operation="REJECT">{% trans "Rejeter définitivement" %}</button>
                                 </td>
                                 <td>
                                     {% if content.sha_picked %}

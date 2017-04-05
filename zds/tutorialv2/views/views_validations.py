@@ -1,5 +1,5 @@
 # coding: utf-8
-
+import json
 import logging
 from datetime import datetime
 
@@ -10,6 +10,7 @@ from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.db.models import F, Q
 from django.http import Http404
+from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
@@ -29,6 +30,7 @@ from zds.tutorialv2.utils import clone_repo
 from zds.utils.forums import send_post, lock_topic
 from zds.utils.models import SubCategory
 from zds.utils.mps import send_mp
+logger = logging.getLogger(__name__)
 
 
 class ValidationListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
@@ -581,7 +583,8 @@ class PublishOpinion(LoggedWithReadWriteHability, NoValidationBeforeFormViewMixi
 
             db_object.public_version = published
             db_object.save()
-
+            # if only ignore, we remove it from history
+            PickListOperation.objects.filter(content=db_object, operation="NO_PICK").delete()
             # Follow
             signals.new_content.send(sender=db_object.__class__, instance=db_object, by_email=False)
 
@@ -653,7 +656,7 @@ class DoNotPickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin)
     """Remove"""
 
     form_class = DoNotPickOpinionForm
-    modal_form = True
+    modal_form = False
     prefetch_all = False
     permissions = ['tutorialv2.change_validation']
 
@@ -670,9 +673,15 @@ class DoNotPickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin)
         db_object = self.object
         versioned = self.versioned_object
         self.success_url = versioned.get_absolute_url_online()
-        PickListOperation.objects.create(content=self.object, operation=form.cleaned_data['operation'])
+        try:
+            PickListOperation.objects.create(content=self.object, operation=form.cleaned_data['operation'],
+                                             staff_user=self.request.user, operation_date=datetime.now(),
+                                             version=db_object.sha_public)
+        except ValueError:
+            logger.exception("Could not %s the opinion %s", form.cleaned_data['operation'], str(self.object))
+            return HttpResponse(json.dumps({'result': 'FAIL', 'reason': str(_('Mauvaise opération'))}), status=400)
         self.success_url = self.object.get_absolute_url_online()
-        return super(DoNotPickOpinion, self).form_valid(form)
+        return HttpResponse(json.dumps({'result': 'OK'}))
 
 
 class PickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):

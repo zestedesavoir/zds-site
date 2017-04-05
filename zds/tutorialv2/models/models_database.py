@@ -1,5 +1,7 @@
 # coding: utf-8
 from __future__ import unicode_literals
+
+from django.db.models import CASCADE
 from django.utils.encoding import python_2_unicode_compatible
 from datetime import datetime
 
@@ -37,7 +39,7 @@ from elasticsearch_dsl.field import Text, Keyword, Date, Boolean
 from zds.forum.models import Topic
 from zds.gallery.models import Image, Gallery, UserGallery
 from zds.tutorialv2.managers import PublishedContentManager, PublishableContentManager
-from zds.tutorialv2.models import TYPE_CHOICES, STATUS_CHOICES, CONTENT_TYPES_VALIDATION_BEFORE
+from zds.tutorialv2.models import TYPE_CHOICES, STATUS_CHOICES, CONTENT_TYPES_VALIDATION_BEFORE, PICK_OPERATIONS
 from zds.tutorialv2.models.models_versioned import NotAPublicVersion
 from zds.tutorialv2.utils import get_content_from_json, BadManifestError
 from zds.utils import get_current_user
@@ -1176,18 +1178,21 @@ class Validation(models.Model):
 @python_2_unicode_compatible
 class PickListOperation(models.Model):
     class Meta:
-        verbose_name = 'Pick Operation'
-        verbose_name_plural = 'Pick Operations'
+        verbose_name = 'Choix des Tribunes'
+        verbose_name_plural = 'Choix des Tribunes'
     content = models.ForeignKey(PublishableContent, null=False, blank=True,
                                 verbose_name='Contenu proposé', db_index=True)
     operation = models.CharField(null=False, blank=False, db_index=True, max_length=len('NO_PICK'),
-                                 choices=[('REJECT', 'Rejeté'), ('NO_PICK', 'Non choisi'), ('PICK', 'Choisi')])
+                                 choices=PICK_OPERATIONS)
+    operation_date = models.DateTimeField(null=False, db_index=True)
+    version = models.CharField(null=False, blank=False, max_length=128)
+    staff_user = models.ForeignKey(User, null=False, on_delete=CASCADE)
 
     def __str__(self):
-        return self.operation + ' ' + str(self.content)
+        return '{} {}'.format(self.operation, self.content)
 
     def save(self, **kwargs):
-        if not self.content is None and self.content.type == 'OPINION':
+        if self.content is not None and self.content.type == 'OPINION':
             return super(PickListOperation, self).save(**kwargs)
         raise ValueError('Content cannot be null or something else than opinion.', self.content)
 
