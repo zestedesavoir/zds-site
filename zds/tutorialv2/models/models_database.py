@@ -1187,6 +1187,7 @@ class PickListOperation(models.Model):
     operation_date = models.DateTimeField(null=False, db_index=True)
     version = models.CharField(null=False, blank=False, max_length=128)
     staff_user = models.ForeignKey(User, null=False, on_delete=CASCADE)
+    is_effective = models.BooleanField(verbose_name='Choix actif', default=True)
 
     def __str__(self):
         return '{} {}'.format(self.operation, self.content)

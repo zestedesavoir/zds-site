@@ -20,6 +20,7 @@ class Migration(migrations.Migration):
                 ('operation', models.CharField(db_index=True, max_length=7, choices=[('REJECT', 'Rejet\xe9'), ('NO_PICK', 'Non choisi'), ('PICK', 'Choisi')])),
                 ('operation_date', models.DateTimeField(db_index=True)),
                 ('version', models.CharField(max_length=128)),
+                ('is_effective', models.BooleanField(default=True, verbose_name='Choix actif')),
                 ('content', models.ForeignKey(verbose_name='Contenu propos\xe9', blank=True, to='tutorialv2.PublishableContent')),
                 ('staff_user', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
             ],

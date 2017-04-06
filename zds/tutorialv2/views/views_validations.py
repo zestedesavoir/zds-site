@@ -115,7 +115,7 @@ class ValidationOpinionListView(LoginRequiredMixin, PermissionRequiredMixin, Lis
         return PublishableContent.objects\
             .filter(type='OPINION', sha_public__isnull=False)\
             .exclude(sha_picked=F('sha_public'))\
-            .exclude(pk__in=PickListOperation.objects.filter(~Q(operation='PICK'))
+            .exclude(pk__in=PickListOperation.objects.filter(~Q(operation='PICK'), is_effective=True)
                      .values_list('content__pk', flat=True))
 
 
@@ -584,7 +584,7 @@ class PublishOpinion(LoggedWithReadWriteHability, NoValidationBeforeFormViewMixi
             db_object.public_version = published
             db_object.save()
             # if only ignore, we remove it from history
-            PickListOperation.objects.filter(content=db_object, operation="NO_PICK").delete()
+            PickListOperation.objects.filter(content=db_object, operation='NO_PICK').update(is_effective=False)
             # Follow
             signals.new_content.send(sender=db_object.__class__, instance=db_object, by_email=False)
 
@@ -678,7 +678,7 @@ class DoNotPickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin)
                                              staff_user=self.request.user, operation_date=datetime.now(),
                                              version=db_object.sha_public)
         except ValueError:
-            logger.exception("Could not %s the opinion %s", form.cleaned_data['operation'], str(self.object))
+            logger.exception('Could not %s the opinion %s', form.cleaned_data['operation'], str(self.object))
             return HttpResponse(json.dumps({'result': 'FAIL', 'reason': str(_('Mauvaise opération'))}), status=400)
         self.success_url = self.object.get_absolute_url_online()
         return HttpResponse(json.dumps({'result': 'OK'}))
