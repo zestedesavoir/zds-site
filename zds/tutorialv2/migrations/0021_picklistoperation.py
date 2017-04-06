@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
             name='PickListOperation',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('operation', models.CharField(db_index=True, max_length=7, choices=[('REJECT', 'Rejet\xe9'), ('NO_PICK', 'Non choisi'), ('PICK', 'Choisi')])),
+                ('operation', models.CharField(db_index=True, max_length=7, choices=[('REJECT', 'Rejet\xe9'), ('NO_PICK', 'Non choisi'), ('PICK', 'Choisi'), ('REMOVE_PUB', 'D\xe9publier d\xe9finitivement')])),
                 ('operation_date', models.DateTimeField(db_index=True)),
                 ('version', models.CharField(max_length=128)),
                 ('is_effective', models.BooleanField(default=True, verbose_name='Choix actif')),
@@ -25,8 +25,8 @@ class Migration(migrations.Migration):
                 ('staff_user', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
             ],
             options={
-                'verbose_name': 'Choix des Tribunes',
-                'verbose_name_plural': 'Choix des Tribunes',
+                'verbose_name': 'Choix des Billets',
+                'verbose_name_plural': 'Choix des Billets',
             },
         ),
     ]

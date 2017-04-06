@@ -67,14 +67,17 @@
                                     <span>{{ content.update_date|format_date:True|capfirst }}</span>
                                 </td>
                                 <td>
+
                                     <button type="button" class="btn btn-grey ico-after hide unpick-action" data-url="{% url 'validation:ignore-opinion' content.pk content.slug %}"
-                                            data-operation="NO_PICK">{% trans "Ignorer" %}</button>
+                                            data-operation="NO_PICK">{% trans "Ignorer pour l'instant" %}</button>
                                     <button type="button" class="btn btn-grey ico-after cross red unpick-action" data-url="{% url 'validation:ignore-opinion' content.pk content.slug %}"
-                                            data-operation="REJECT">{% trans "Rejeter définitivement" %}</button>
+                                            data-operation="REJECT">{% trans "Ignorer définitivement" %}</button>
+                                    <button type="button" class="btn btn-grey ico-after hide unpick-action" data-url="{% url 'validation:ignore-opinion' content.pk content.slug %}"
+                                            data-operation="REMOVE_PUB">{% trans "Dépublier définitivement." %}</button>
                                 </td>
                                 <td>
                                     {% if content.sha_picked %}
-                                        {% trans "Oui (mise à jour)" %} - <a href="{% url 'content:diff' content.pk content.slug %}?from={{ content.sha_picked }}&to={{ content.sha_public }}">diff</a>
+                                        {% trans "Oui (mise à jour)" %} - <a href="{% url 'content:diff' content.pk content.slug %}?from={{ content.sha_picked }}&amp;to={{ content.sha_public }}">diff</a>
                                     {% else %}
                                         {% trans "Non" %}
                                     {% endif %}

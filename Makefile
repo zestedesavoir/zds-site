@@ -96,12 +96,7 @@ fixtures:
 	python manage.py loaddata fixtures/*.yaml
 	python manage.py load_factory_data fixtures/advanced/aide_tuto_media.yaml
 
-clean_db:
-	rm -f base.db
-	rm -rf content-private
-	rm -rf content-public
-
-restart_db: clean_db migrate fixtures
+restart_db: wipe migrate fixtures
 	python manage.py load_fixtures size=low
 
 help:
