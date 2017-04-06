@@ -659,9 +659,17 @@ class DoNotPickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin)
     modal_form = False
     prefetch_all = False
     permissions = ['tutorialv2.change_validation']
+    template_name = 'tutorialv2/validation/opinion-moderation-history.html'
+
+    def get_context_data(self):
+        context = super(DoNotPickOpinion, self).get_context_data()
+        context['operations'] = PickListOperation.objects\
+            .filter(content=self.db_object)\
+            .prefetch_related('staff_user', 'staff_user__profile')
+        return context
 
     def get(self, request, *args, **kwargs):
-        raise Http404(_(u"Valider un contenu n'est pas possible avec la méthode « GET »."))
+        return self.render_to_response(self.get_context_data())
 
     def get_form_kwargs(self):
         kwargs = super(DoNotPickOpinion, self).get_form_kwargs()
@@ -677,10 +685,39 @@ class DoNotPickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin)
             PickListOperation.objects.create(content=self.object, operation=form.cleaned_data['operation'],
                                              staff_user=self.request.user, operation_date=datetime.now(),
                                              version=db_object.sha_public)
+            if form.cleaned_data['operation'] == 'REMOVE_PUB':
+                unpublish_content(self.object)
+
+                self.object.sha_public = None
+                self.object.sha_picked = None
+                self.object.pubdate = None
+                self.object.save()
         except ValueError:
             logger.exception('Could not %s the opinion %s', form.cleaned_data['operation'], str(self.object))
             return HttpResponse(json.dumps({'result': 'FAIL', 'reason': str(_('Mauvaise opération'))}), status=400)
         self.success_url = self.object.get_absolute_url_online()
+        return HttpResponse(json.dumps({'result': 'OK'}))
+
+
+class RevokePickOperation(PermissionRequiredMixin, FormView):
+    """
+    Cancels a moderation operation. If operation was REMOVE_PUB, it just marks it as canceled, it does not \
+    republish the opinion.
+    """
+
+    form_class = DoNotPickOpinionForm
+    prefetch_all = False
+    permissions = ['tutorialv2.change_validation']
+
+    def get(self, request, *args, **kwargs):
+        raise Http404('Impossible')
+
+    def post(self, request, *args, **kwargs):
+        operation = PickListOperation.objects.filter(pk=self.kwargs['pk']).first()
+        if operation is None:
+            raise Http404('Introuvable')
+        operation.is_effective = False
+        operation.save()
         return HttpResponse(json.dumps({'result': 'OK'}))
 
 
@@ -714,7 +751,9 @@ class PickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
         # mark to reindex to boost correctly in the search
         self.public_content_object.es_flagged = True
         self.public_content_object.save()
-        PickListOperation.objects.create(content=self.object, operation='PICK')
+        PickListOperation.objects.create(content=self.object, operation='PICK',
+                                         staff_user=self.request.user, operation_date=datetime.now(),
+                                         version=db_object.sha_public)
         msg = render_to_string(
             'tutorialv2/messages/validation_opinion.md',
             {
@@ -769,7 +808,9 @@ class UnpickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
 
         db_object.sha_picked = None
         db_object.save()
-
+        PickListOperation.objects\
+            .filter(operation='PICK', is_effective=True, content=self.object)\
+            .update(is_effective=False)
         # mark to reindex to boost correctly in the search
         self.public_content_object.es_flagged = True
         self.public_content_object.save()

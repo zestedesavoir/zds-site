@@ -1178,8 +1178,8 @@ class Validation(models.Model):
 @python_2_unicode_compatible
 class PickListOperation(models.Model):
     class Meta:
-        verbose_name = 'Choix des Tribunes'
-        verbose_name_plural = 'Choix des Tribunes'
+        verbose_name = 'Choix des Billets'
+        verbose_name_plural = 'Choix des Billets'
     content = models.ForeignKey(PublishableContent, null=False, blank=True,
                                 verbose_name='Contenu proposé', db_index=True)
     operation = models.CharField(null=False, blank=False, db_index=True, max_length=len('NO_PICK'),

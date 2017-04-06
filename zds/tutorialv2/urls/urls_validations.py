@@ -5,7 +5,7 @@ from django.conf.urls import url
 from zds.tutorialv2.views.views_validations import AskValidationForContent, ReserveValidation, \
     HistoryOfValidationDisplay, AcceptValidation, RejectValidation, RevokeValidation, CancelValidation, \
     ValidationListView, PublishOpinion, UnpublishOpinion, PickOpinion, PromoteOpinionToArticle, \
-    ValidationOpinionListView, UnpickOpinion, MarkObsolete, DoNotPickOpinion
+    ValidationOpinionListView, UnpickOpinion, MarkObsolete, DoNotPickOpinion, RevokePickOperation
 
 urlpatterns = [
     url(r'^historique/(?P<pk>\d+)/(?P<slug>.+)/$', HistoryOfValidationDisplay.as_view(), name='history'),
@@ -29,6 +29,7 @@ urlpatterns = [
     url(r'^depublier/(?P<pk>\d+)/(?P<slug>.+)/$', UnpublishOpinion.as_view(), name='unpublish-opinion'),
     url(r'^choisir/(?P<pk>\d+)/(?P<slug>.+)/$', PickOpinion.as_view(), name='pick-opinion'),
     url(r'^ignorer/(?P<pk>\d+)/(?P<slug>.+)/$', DoNotPickOpinion.as_view(), name='ignore-opinion'),
+    url(r'^operation/annuler/(?P<pk>\d+)/$', RevokePickOperation.as_view(), name='revoke-ignore-opinion'),
     url(r'^retirer/(?P<pk>\d+)/(?P<slug>.+)/$', UnpickOpinion.as_view(), name='unpick-opinion'),
     url(r'^promouvoir/(?P<pk>\d+)/(?P<slug>.+)/$', PromoteOpinionToArticle.as_view(), name='promote-opinion'),
 
