@@ -41,7 +41,8 @@ CONTENT_TYPES = (
     },
 )
 
-PICK_OPERATIONS = [('REJECT', _('Rejeté')), ('NO_PICK', _('Non choisi')), ('PICK', _('Choisi'))]
+PICK_OPERATIONS = [('REJECT', _('Rejeté')), ('NO_PICK', _('Non choisi')), ('PICK', _('Choisi')),
+                   ('REMOVE_PUB', _('Dépublier définitivement'))]
 # a list of contents which have to be validated before publication
 CONTENT_TYPES_VALIDATION_BEFORE = [content['name'] for content in CONTENT_TYPES if content['validation_before']]
 
