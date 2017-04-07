@@ -1,7 +1,7 @@
 # coding: utf-8
 from __future__ import unicode_literals
 
-from django.db.models import CASCADE
+from django.db.models import SET_NULL
 from django.utils.encoding import python_2_unicode_compatible
 from datetime import datetime
 
@@ -1186,18 +1186,21 @@ class PickListOperation(models.Model):
         verbose_name = "Choix d'un billet"
         verbose_name_plural = 'Choix des billets'
 
-    content = models.ForeignKey(PublishableContent, null=False, blank=True,
+    content = models.ForeignKey(PublishableContent, null=False, blank=False,
                                 verbose_name='Contenu proposé', db_index=True)
     operation = models.CharField(null=False, blank=False, db_index=True, max_length=len('REMOVE_PUB'),
                                  choices=PICK_OPERATIONS)
     operation_date = models.DateTimeField(null=False, db_index=True, verbose_name="Date de l'opération")
     version = models.CharField(null=False, blank=False, max_length=128, verbose_name='Version du billet concernée')
-    staff_user = models.ForeignKey(User, null=False, on_delete=CASCADE, verbose_name='Modérateur')
-    canceler_user = models.ForeignKey(User, null=True, on_delete=CASCADE, verbose_name='Modérateur qui a annulé la décision')
+    staff_user = models.ForeignKey(User, null=True, blank=True, on_delete=SET_NULL,
+                                   verbose_name='Modérateur', related_name='pick_operations')
+    canceler_user = models.ForeignKey(User, null=True, blank=True, on_delete=SET_NULL,
+                                      verbose_name='Modérateur qui a annulé la décision',
+                                      related_name='canceled_pick_operations')
     is_effective = models.BooleanField(verbose_name='Choix actif', default=True)
 
     def __str__(self):
-        return '{} {}'.format(self.operation, self.content)
+        return '{} : {}'.format(self.get_operation_display(), self.content)
 
     def cancel(self, canceler, autosave=True):
         """
