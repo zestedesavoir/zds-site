@@ -11,7 +11,7 @@ from django.views.generic import DetailView, FormView
 from django.views.generic import View
 
 from zds.forum.models import Topic
-from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentRead
+from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentRead, PickListOperation
 from zds.tutorialv2.utils import mark_read
 
 
@@ -261,7 +261,11 @@ class SingleContentDetailViewMixin(SingleContentViewMixin, DetailView):
         context['content'] = self.versioned_object
         context['can_edit'] = self.is_author
         context['is_staff'] = self.is_staff
-        context['is_definitely_unpublished'] = self.object.is_definitely_unpublished()
+        if self.is_staff and self.object.type == 'OPINION':
+            context['can_publish'] = PickListOperation.objects.filter(is_active=True, content=self.object,
+                                                                      operation='REMOVE_PUB')
+        else:
+            context['can_publish'] = True
         if self.sha != self.object.sha_draft:
             context['version'] = self.sha
 
