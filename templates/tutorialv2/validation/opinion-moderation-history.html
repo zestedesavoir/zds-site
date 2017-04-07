@@ -3,18 +3,15 @@
 {% load captureas %}
 {% load i18n %}
 
-{% block title_base %}
-    {% trans "Historique de modération du billet." %}
-{% endblock %}
-
 {% block title %}
-    {% trans "Historique de modération du billet." %}
+    {% trans "Historique de modération du billet" %}
 {% endblock %}
 
 
 
 {% block breadcrumb_base %}
-    <li>{% trans "Historique de modération du billet." %}</li>
+    <li><a href="{{ content.get_absolute_url }}">{{ content.title }}</a></li>
+    <li>{% trans "Historique de modération" %}</li>
 {% endblock %}
 
 
@@ -23,8 +20,7 @@
     <section class="full-content-wrapper">
         <h1>
             {% block headline %}
-                {% trans "Historique de modération du billet." %}
-                ({{ contents|length }})
+                {% trans "Historique de modération du billet" %}
             {% endblock %}
         </h1>
 
@@ -33,15 +29,15 @@
         {% endcaptureas %}
 
         {% block content %}
-            {% if contents %}
+            {% if operations %}
                 <table class="fullwidth">
                     <thead>
                         <tr>
                             <th>{% trans "Date" %}</th>
                             <th>{% trans "Modérateur" %}</th>
-                            <th>{% trans "Décision encore active" %}</th>
                             <th>{% trans "Décision prise" %}</th>
-                            <th>{% trans "" %}</th>
+                            <th>{% trans "Décision encore active" %}</th>
+                            <th>{% trans "Révoquer" %}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -52,6 +48,9 @@
                                 </td>
                                 <td>
                                     {% include 'misc/member_item.part.html' with member=operation.staff_user avatar=True %}
+                                </td>
+                                <td>
+                                    {{ operation.get_operation_display }}
                                 </td>
                                 <td class="state" data-toggle="{% if operation.is_effective %}
                                         {% trans 'Non' %}
@@ -65,11 +64,8 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    {{ operation.operation }}
-                                </td>
-                                <td>
                                     <button class="btn btn-grey ico-after hide unpick-action" data-url="{% url 'validation:revoke-ignore-opinion' operation.pk %}">
-                                        {% trans 'Révoquer la décision.' %}
+                                        {% trans 'Révoquer la décision' %}
                                     </button>
                                 </td>
                             </tr>
@@ -78,7 +74,7 @@
                 </table>
             {% else %}
                 <p>
-                    {% trans "Aucun billet" %}
+                    {% trans "Aucune action dans l'historique de modération." %}
                 </p>
             {% endif %}
         {% endblock %}

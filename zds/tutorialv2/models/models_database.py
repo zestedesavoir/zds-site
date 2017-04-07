@@ -274,6 +274,11 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         """
         return self.in_public() and sha == self.sha_public
 
+    def is_definitely_unpublished(self):
+        """Is this content definitely unpublished by a moderator ?"""
+
+        return PickListOperation.objects.filter(content=self, operation='REMOVE_PUB', is_effective=True).exists()
+
     def load_version_or_404(self, sha=None, public=None):
         """Using git, load a specific version of the content. if `sha` is `None`, the draft/public version is used (if
         `public` is `True`).
@@ -1178,15 +1183,16 @@ class Validation(models.Model):
 @python_2_unicode_compatible
 class PickListOperation(models.Model):
     class Meta:
-        verbose_name = 'Choix des Billets'
-        verbose_name_plural = 'Choix des Billets'
+        verbose_name = "Choix d'un billet"
+        verbose_name_plural = 'Choix des billets'
+
     content = models.ForeignKey(PublishableContent, null=False, blank=True,
                                 verbose_name='Contenu proposé', db_index=True)
-    operation = models.CharField(null=False, blank=False, db_index=True, max_length=len('NO_PICK'),
+    operation = models.CharField(null=False, blank=False, db_index=True, max_length=len('REMOVE_PUB'),
                                  choices=PICK_OPERATIONS)
-    operation_date = models.DateTimeField(null=False, db_index=True)
-    version = models.CharField(null=False, blank=False, max_length=128)
-    staff_user = models.ForeignKey(User, null=False, on_delete=CASCADE)
+    operation_date = models.DateTimeField(null=False, db_index=True, verbose_name="Date de l'opération")
+    version = models.CharField(null=False, blank=False, max_length=128, verbose_name='Version du billet concernée')
+    staff_user = models.ForeignKey(User, null=False, on_delete=CASCADE, verbose_name='Modérateur')
     is_effective = models.BooleanField(verbose_name='Choix actif', default=True)
 
     def __str__(self):

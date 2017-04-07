@@ -569,6 +569,8 @@ class PublishOpinion(LoggedWithReadWriteHability, NoValidationBeforeFormViewMixi
     def form_valid(self, form):
         # get database representation
         db_object = self.object
+        if self.object.is_definitely_unpublished():
+            raise PermissionDenied
         versioned = self.versioned_object
         self.success_url = versioned.get_absolute_url()
         try:
@@ -664,7 +666,8 @@ class DoNotPickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin)
     def get_context_data(self):
         context = super(DoNotPickOpinion, self).get_context_data()
         context['operations'] = PickListOperation.objects\
-            .filter(content=self.db_object)\
+            .filter(content=self.object)\
+            .order_by('-operation_date')\
             .prefetch_related('staff_user', 'staff_user__profile')
         return context
 
