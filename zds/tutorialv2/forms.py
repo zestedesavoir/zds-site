@@ -1191,13 +1191,14 @@ class DoNotPickOpinionForm(forms.Form):
 
     def clean(self):
         cleaned = super(DoNotPickOpinionForm, self).clean()
-        cleaned['operation'] = self.data['operation'] if self.data['operation'] in ['NO_PICK', 'REJECT'] else None
+        cleaned['operation'] = self.data['operation'] \
+            if self.data['operation'] in ['NO_PICK', 'REJECT', 'REMOVE_PUB'] else None
         return cleaned
 
     def is_valid(self):
         base = super(DoNotPickOpinionForm, self).is_valid()
         if not self['operation']:
-            self._errors['operation'] = _('Opération invalide, NO_PICK ou REJECT attendu.')
+            self._errors['operation'] = _('Opération invalide, NO_PICK, REJECT ou REMOVE_PUB attendu.')
             return False
         return base
 

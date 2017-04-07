@@ -423,7 +423,15 @@
                     <a href="#valid-publication" class="open-modal ico-after tick green">
                         {% trans "Publier" %}
                     </a>
-                    {% crispy formPublication %}
+                    {% if not is_definitely_unpublished %}
+                        {% crispy formPublication %}
+                    {% else %}
+                        <div id="valid-publication" class="modal modal-flex">
+                            <p>
+                                {% trans "Ce billet a été définitivement dépublié par un modérateur. Il ne peut pas faire l'objet d'une nouvelle publication." %}
+                            </p>
+                        </div>
+                    {% endif %}
                 </li>
             {% endif %}
         {% endif %}
