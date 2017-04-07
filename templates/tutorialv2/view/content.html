@@ -418,20 +418,18 @@
                     </a>
                     {% crispy formUnpublication %}
                 </li>
-            {% else %}
+            {% elif can_publish %}
                 <li>
                     <a href="#valid-publication" class="open-modal ico-after tick green">
                         {% trans "Publier" %}
                     </a>
-                    {% if can_publish %}
-                        {% crispy formPublication %}
-                    {% else %}
-                        <div id="valid-publication" class="modal modal-flex">
-                            <p>
-                                {% trans "Ce billet a été définitivement dépublié par un modérateur. Il ne peut pas faire l'objet d'une nouvelle publication." %}
-                            </p>
-                        </div>
-                    {% endif %}
+                    {% crispy formPublication %}
+                </li>
+            {% else %}
+                <li class="inactive">
+                    <span class="ico-after cross disabled">
+                        {% trans "Billet modéré" %}
+                    </span>
                 </li>
             {% endif %}
         {% endif %}
