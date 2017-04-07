@@ -44,7 +44,7 @@
                         {% for operation in operations %}
                             <tr class="opinion">
                                 <td>
-                                     {{ operation.operation_date | format_date }}
+                                     {{ operation.operation_date|format_date|capfirst }}
                                 </td>
                                 <td>
                                     {% if operation.staff_user %}
