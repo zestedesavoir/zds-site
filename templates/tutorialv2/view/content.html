@@ -418,7 +418,7 @@
                     </a>
                     {% crispy formUnpublication %}
                 </li>
-            {% else %}
+            {% elif can_publish %}
                 <li>
                     <a href="#valid-publication" class="open-modal ico-after tick green">
                         {% trans "Publier" %}

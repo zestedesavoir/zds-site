@@ -1,4 +1,5 @@
 # coding: utf-8
+from __future__ import unicode_literals
 import json
 import logging
 from datetime import datetime
@@ -83,7 +84,7 @@ class ValidationListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
         except KeyError:
             pass
         except ValueError:
-            raise Http404(u'Format invalide pour le paramètre de la sous-catégorie.')
+            raise Http404('Format invalide pour le paramètre de la sous-catégorie.')
 
         return queryset.order_by('date_proposition').all()
 
@@ -739,8 +740,7 @@ class RevokePickOperation(PermissionRequiredMixin, FormView):
         operation = PickListOperation.objects.filter(pk=self.kwargs['pk']).first()
         if operation is None:
             raise Http404('Introuvable')
-        operation.is_effective = False
-        operation.save()
+        operation.cancel(self.request.user)
         return HttpResponse(json.dumps({'result': 'OK'}))
 
 
@@ -833,7 +833,7 @@ class UnpickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
         db_object.save()
         PickListOperation.objects\
             .filter(operation='PICK', is_effective=True, content=self.object)\
-            .update(is_effective=False)
+            .first().cancel(self.request.user)
         # mark to reindex to boost correctly in the search
         self.public_content_object.es_flagged = True
         self.public_content_object.save()

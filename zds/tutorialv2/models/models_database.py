@@ -1193,10 +1193,22 @@ class PickListOperation(models.Model):
     operation_date = models.DateTimeField(null=False, db_index=True, verbose_name="Date de l'opération")
     version = models.CharField(null=False, blank=False, max_length=128, verbose_name='Version du billet concernée')
     staff_user = models.ForeignKey(User, null=False, on_delete=CASCADE, verbose_name='Modérateur')
+    canceler_user = models.ForeignKey(User, null=True, on_delete=CASCADE, verbose_name='Modérateur qui a annulé la décision')
     is_effective = models.BooleanField(verbose_name='Choix actif', default=True)
 
     def __str__(self):
         return '{} {}'.format(self.operation, self.content)
+
+    def cancel(self, canceler, autosave=True):
+        """
+        Cancel a decision
+        :param canceler: staff user
+        :param autosave: if ``True`` saves the modification
+        """
+        self.is_effective = False
+        self.canceler_user = canceler
+        if autosave:
+            self.save()
 
     def save(self, **kwargs):
         if self.content is not None and self.content.type == 'OPINION':

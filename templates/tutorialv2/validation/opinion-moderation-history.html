@@ -53,14 +53,14 @@
                                     {{ operation.get_operation_display }}
                                 </td>
                                 <td class="state" data-toggle="{% if operation.is_effective %}
-                                        {% trans 'Non' %}
+                                        {% trans 'Non, vous venez de le désactiver' %}
                                     {% else %}
                                         {% trans 'Oui' %}
                                     {% endif %}">
                                     {% if operation.is_effective %}
                                         {% trans 'Oui' %}
                                     {% else %}
-                                        {% trans 'Non' %}
+                                        {% trans 'Non, désactivé par :' %} {% include 'misc/member_item.part.html' with member=operation.canceler_user avatar=True %}
                                     {% endif %}
                                 </td>
                                 <td>
