@@ -47,11 +47,7 @@
                                      {{ operation.operation_date|format_date|capfirst }}
                                 </td>
                                 <td>
-                                    {% if operation.staff_user %}
-                                        {% include 'misc/member_item.part.html' with member=operation.staff_user avatar=True %}
-                                    {% else %}
-                                        –
-                                    {% endif %}
+                                    {% include 'misc/member_item.part.html' with member=operation.staff_user avatar=True %}
                                 </td>
                                 <td>
                                     {{ operation.get_operation_display }}

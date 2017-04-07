@@ -39,7 +39,7 @@ from zds.member.models import Profile, TokenForgotPassword, TokenRegister, Karma
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.tutorialv2.models.models_database import PublishableContent
 from zds.notification.models import TopicAnswerSubscription, NewPublicationSubscription
-from zds.tutorialv2.models.models_database import PublishedContent
+from zds.tutorialv2.models.models_database import PublishedContent, PickListOperation
 from zds.utils.models import Comment, CommentVote, Alert
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView
@@ -434,6 +434,8 @@ def unregister(request):
     external = get_object_or_404(User, username=settings.ZDS_APP['member']['external_account'])
     current = request.user
     # Nota : as of v21 all about content paternity is held by a proper receiver in zds.tutorialv2.models.models_database
+    PickListOperation.objects.filter(staff_user=current).update(staff_user=anonymous)
+    PickListOperation.objects.filter(canceler_user=current).update(canceler_user=anonymous)
     # comments likes / dislikes
     votes = CommentVote.objects.filter(user=current)
     for vote in votes:
