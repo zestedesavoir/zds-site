@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
-import django.db.models.deletion
 from django.conf import settings
 
 
@@ -22,9 +21,9 @@ class Migration(migrations.Migration):
                 ('operation_date', models.DateTimeField(verbose_name="Date de l'op\xe9ration", db_index=True)),
                 ('version', models.CharField(max_length=128, verbose_name='Version du billet concern\xe9e')),
                 ('is_effective', models.BooleanField(default=True, verbose_name='Choix actif')),
-                ('canceler_user', models.ForeignKey(related_name='canceled_pick_operations', on_delete=django.db.models.deletion.SET_NULL, verbose_name='Mod\xe9rateur qui a annul\xe9 la d\xe9cision', blank=True, to=settings.AUTH_USER_MODEL, null=True)),
+                ('canceler_user', models.ForeignKey(related_name='canceled_pick_operations', verbose_name='Mod\xe9rateur qui a annul\xe9 la d\xe9cision', blank=True, to=settings.AUTH_USER_MODEL, null=True)),
                 ('content', models.ForeignKey(verbose_name='Contenu propos\xe9', to='tutorialv2.PublishableContent')),
-                ('staff_user', models.ForeignKey(related_name='pick_operations', on_delete=django.db.models.deletion.SET_NULL, verbose_name='Mod\xe9rateur', blank=True, to=settings.AUTH_USER_MODEL, null=True)),
+                ('staff_user', models.ForeignKey(related_name='pick_operations', verbose_name='Mod\xe9rateur', to=settings.AUTH_USER_MODEL)),
             ],
             options={
                 'verbose_name': "Choix d'un billet",
