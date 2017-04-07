@@ -1,7 +1,7 @@
 # coding: utf-8
 from __future__ import unicode_literals
 
-from django.db.models import SET_NULL
+from django.db.models import CASCADE
 from django.utils.encoding import python_2_unicode_compatible
 from datetime import datetime
 
@@ -1192,9 +1192,9 @@ class PickListOperation(models.Model):
                                  choices=PICK_OPERATIONS)
     operation_date = models.DateTimeField(null=False, db_index=True, verbose_name="Date de l'opération")
     version = models.CharField(null=False, blank=False, max_length=128, verbose_name='Version du billet concernée')
-    staff_user = models.ForeignKey(User, null=True, blank=True, on_delete=SET_NULL,
+    staff_user = models.ForeignKey(User, null=False, blank=False, on_delete=CASCADE,
                                    verbose_name='Modérateur', related_name='pick_operations')
-    canceler_user = models.ForeignKey(User, null=True, blank=True, on_delete=SET_NULL,
+    canceler_user = models.ForeignKey(User, null=True, blank=True, on_delete=CASCADE,
                                       verbose_name='Modérateur qui a annulé la décision',
                                       related_name='canceled_pick_operations')
     is_effective = models.BooleanField(verbose_name='Choix actif', default=True)
