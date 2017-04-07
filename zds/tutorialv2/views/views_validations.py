@@ -116,7 +116,7 @@ class ValidationOpinionListView(LoginRequiredMixin, PermissionRequiredMixin, Lis
         return PublishableContent.objects\
             .filter(type='OPINION', sha_public__isnull=False)\
             .exclude(sha_picked=F('sha_public'))\
-            .exclude(pk__in=PickListOperation.objects.filter(~Q(operation='PICK'), is_effective=True)
+            .exclude(pk__in=PickListOperation.objects.filter(is_effective=True)
                      .values_list('content__pk', flat=True))
 
 
@@ -587,7 +587,8 @@ class PublishOpinion(LoggedWithReadWriteHability, NoValidationBeforeFormViewMixi
             db_object.public_version = published
             db_object.save()
             # if only ignore, we remove it from history
-            PickListOperation.objects.filter(content=db_object, operation='NO_PICK').update(is_effective=False)
+            PickListOperation.objects.filter(content=db_object,
+                                             operation__in=['NO_PICK', 'PICK']).update(is_effective=False)
             # Follow
             signals.new_content.send(sender=db_object.__class__, instance=db_object, by_email=False)
 
@@ -685,6 +686,10 @@ class DoNotPickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin)
         db_object = self.object
         versioned = self.versioned_object
         self.success_url = versioned.get_absolute_url_online()
+        if not db_object.in_public():
+            raise Http404('This opinion is not published.')
+        elif PickListOperation.objects.filter(content=self.object, is_effective=True).exists():
+            raise PermissionDenied('There is already an effective operation for this content.')
         try:
             PickListOperation.objects.create(content=self.object, operation=form.cleaned_data['operation'],
                                              staff_user=self.request.user, operation_date=datetime.now(),
