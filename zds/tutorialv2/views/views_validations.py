@@ -695,6 +695,26 @@ class DoNotPickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin)
                 self.object.sha_picked = None
                 self.object.pubdate = None
                 self.object.save()
+
+                # send PM
+                msg = render_to_string(
+                    'tutorialv2/messages/validation_unpublish_opinion.md',
+                    {
+                        'content': versioned,
+                        'url': versioned.get_absolute_url(),
+                        'moderator': self.request.user,
+                    })
+
+                bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+                send_mp(
+                    bot,
+                    versioned.authors.all(),
+                    _(u'Dépublication'),
+                    versioned.title,
+                    msg,
+                    True,
+                    direct=False
+                )
         except ValueError:
             logger.exception('Could not %s the opinion %s', form.cleaned_data['operation'], str(self.object))
             return HttpResponse(json.dumps({'result': 'FAIL', 'reason': str(_('Mauvaise opération'))}), status=400)
