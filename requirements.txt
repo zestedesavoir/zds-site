@@ -29,7 +29,7 @@ django-oauth-toolkit==0.10.0
 drf-extensions==0.3.1
 django-rest-swagger==0.3.6
 django-cors-middleware==1.2.0
-dry-rest-permissions==0.1.6
+dry-rest-permissions==0.1.9
 
 # Zep 12 dependency
 watchdog==0.8.3 # use last non-bc-breaking version
