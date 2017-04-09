@@ -1,5 +1,5 @@
 coverage==4.0.3
-PyYAML==3.11
+PyYAML==3.12
 django-debug-toolbar==1.5
 flake8==2.5.4
 flake8_quotes==0.8.1
