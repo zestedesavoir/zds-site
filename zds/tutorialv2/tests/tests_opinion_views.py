@@ -1,17 +1,18 @@
 # coding: utf-8
 import shutil
-
 import os
+
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
+from django.utils.translation import ugettext_lazy as _
 
 from zds.gallery.factories import UserGalleryFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.settings import BASE_DIR
 from zds.tutorialv2.factories import PublishableContentFactory, ExtractFactory, LicenceFactory, PublishedContentFactory
-from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent
+from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, PickListOperation
 from zds.utils.models import Alert
 
 overrided_zds_app = settings.ZDS_APP
@@ -447,6 +448,272 @@ class PublishedContentTests(TestCase):
             },
             follow=False)
         self.assertEqual(result.status_code, 403)
+
+    def test_ignore_opinion(self):
+        opinion = PublishableContentFactory(type='OPINION')
+
+        opinion.authors.add(self.user_author)
+        UserGalleryFactory(gallery=opinion.gallery, user=self.user_author, mode='W')
+        opinion.licence = self.licence
+        opinion.save()
+
+        opinion_draft = opinion.load_version()
+        ExtractFactory(container=opinion_draft, db_object=opinion)
+        ExtractFactory(container=opinion_draft, db_object=opinion)
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # publish
+        result = self.client.post(
+            reverse('validation:publish-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            {
+                'source': '',
+                'version': opinion_draft.current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # ignore with author => 403
+        result = self.client.post(
+            reverse('validation:ignore-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            {
+                'operation': 'NO_PICK',
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 403)
+
+        # now, login as staff
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+
+        # check that the opinion is displayed
+        result = self.client.get(reverse('validation:list-opinion'))
+        self.assertContains(result, opinion.title)
+
+        # ignore the opinion
+        result = self.client.post(
+            reverse('validation:ignore-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            {
+                'operation': 'NO_PICK',
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        # check that the opinion is not displayed
+        result = self.client.get(reverse('validation:list-opinion'))
+        self.assertNotContains(result, opinion.title)
+
+        # publish the opinion again
+        result = self.client.post(
+            reverse('validation:publish-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            {
+                'source': '',
+                'version': opinion_draft.current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # check that the opinion is displayed
+        result = self.client.get(reverse('validation:list-opinion'))
+        self.assertContains(result, opinion.title)
+
+        # reject it
+        result = self.client.post(
+            reverse('validation:ignore-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            {
+                'operation': 'REJECT',
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        # publish again
+        result = self.client.post(
+            reverse('validation:publish-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            {
+                'source': '',
+                'version': opinion_draft.current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # check that the opinion is not displayed
+        result = self.client.get(reverse('validation:list-opinion'))
+        self.assertNotContains(result, opinion.title)
+
+    def test_definitely_unpublish_opinion(self):
+        opinion = PublishableContentFactory(type='OPINION')
+
+        opinion.authors.add(self.user_author)
+        UserGalleryFactory(gallery=opinion.gallery, user=self.user_author, mode='W')
+        opinion.licence = self.licence
+        opinion.save()
+
+        opinion_draft = opinion.load_version()
+        ExtractFactory(container=opinion_draft, db_object=opinion)
+        ExtractFactory(container=opinion_draft, db_object=opinion)
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # publish
+        result = self.client.post(
+            reverse('validation:publish-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            {
+                'source': '',
+                'version': opinion_draft.current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # login as staff
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+
+        # unpublish opinion
+        result = self.client.post(
+            reverse('validation:ignore-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            {
+                'operation': 'REMOVE_PUB',
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        # refresh
+        opinion = PublishableContent.objects.get(pk=opinion.pk)
+
+        # check that the opinion is not published
+        self.assertFalse(opinion.in_public())
+
+        # check that it's impossible to publish the opinion again
+        result = self.client.get(opinion.get_absolute_url())
+        self.assertContains(result, _(u'Billet modéré'))  # front
+
+        result = self.client.post(
+            reverse('validation:publish-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            {
+                'source': '',
+                'version': opinion_draft.current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 403)  # back
+
+    def test_cancel_pick_operation(self):
+        opinion = PublishableContentFactory(type='OPINION')
+
+        opinion.authors.add(self.user_author)
+        UserGalleryFactory(gallery=opinion.gallery, user=self.user_author, mode='W')
+        opinion.licence = self.licence
+        opinion.save()
+
+        opinion_draft = opinion.load_version()
+        ExtractFactory(container=opinion_draft, db_object=opinion)
+        ExtractFactory(container=opinion_draft, db_object=opinion)
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # publish
+        result = self.client.post(
+            reverse('validation:publish-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            {
+                'source': '',
+                'version': opinion_draft.current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # login as staff
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+
+        # PICK
+        result = self.client.post(
+            reverse('validation:pick-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            {
+                'source': '',
+                'version': opinion_draft.current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # cancel the operation
+        operation = PickListOperation.objects.latest('operation_date')
+        result = self.client.post(
+            reverse('validation:revoke-ignore-opinion', kwargs={'pk': operation.pk}),
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        # refresh
+        operation = PickListOperation.objects.get(pk=operation.pk)
+        opinion = PublishableContent.objects.get(pk=opinion.pk)
+        self.assertFalse(operation.is_effective)
+        self.assertEqual(self.user_staff, operation.canceler_user)
+        self.assertIsNone(opinion.sha_picked)
+
+        # NO_PICK
+        result = self.client.post(
+            reverse('validation:ignore-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            {
+                'operation': 'NO_PICK',
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        # cancel the operation
+        operation = PickListOperation.objects.latest('operation_date')
+        result = self.client.post(
+            reverse('validation:revoke-ignore-opinion', kwargs={'pk': operation.pk}),
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        # check that the opinion is displayed on validation page
+        result = self.client.get(reverse('validation:list-opinion'))
+        self.assertContains(result, opinion.title)
+
+        # REMOVE_PUB
+        result = self.client.post(
+            reverse('validation:ignore-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            {
+                'operation': 'REMOVE_PUB',
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        # cancel the operation
+        operation = PickListOperation.objects.latest('operation_date')
+        result = self.client.post(
+            reverse('validation:revoke-ignore-opinion', kwargs={'pk': operation.pk}),
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        # check that the opinion can be published again
+        result = self.client.post(
+            reverse('validation:publish-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            {
+                'source': '',
+                'version': opinion_draft.current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
 
     def test_opinion_conversion(self):
         """
