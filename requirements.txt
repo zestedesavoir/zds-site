@@ -10,7 +10,7 @@ django-crispy-forms==1.6.1
 django-model-utils==2.6.1
 django-munin==0.2.2
 python-memcached==1.58
-lxml==3.6.0
+lxml==3.7.3
 factory-boy==2.7.0
 pygeoip==0.3.2
 pillow==4.0.0
