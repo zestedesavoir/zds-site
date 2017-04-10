@@ -13,7 +13,7 @@
 {% block breadcrumb %}
     <li>
         <a href="{{ comment.get_absolute_url }}">
-            Message de {{ comment.author.username }}
+            {% trans "Message de" %} {{ comment.author.username }}
         </a>
     </li>
     <li>{% trans "Historique des éditions" %}</li>
@@ -47,16 +47,16 @@
                                 {% if is_staff %}
                                     <form method="post" action="{% url 'delete-edit-content' edit.pk %}">
                                         {% csrf_token %}
-                                        <button type="submit" class="btn btn-grey ico-after red cross">Supprimer</button>
+                                        <button type="submit" class="btn btn-grey ico-after red cross">{% trans "Supprimer" %}</button>
                                     </form>
                                 {% endif %}
                                 {% if comment.is_visible %}
                                     <form method="post" action="{% url 'restore-edit' edit.pk %}">
                                         {% csrf_token %}
-                                        <button type="submit" class="btn btn-grey ico-after blue history">Restaurer</button>
+                                        <button type="submit" class="btn btn-grey ico-after blue history">{% trans "Restaurer" %}</button>
                                     </form>
                                 {% endif %}
-                                <a href="{% url 'edit-detail' edit.pk %}" class="btn btn-grey ico-after hide">Voir</a>
+                                <a href="{% url 'edit-detail' edit.pk %}" class="btn btn-grey ico-after hide">{% trans "Voir" %}</a>
                             {% endif %}
                         </td>
                     </tr>
