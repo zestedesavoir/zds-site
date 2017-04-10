@@ -42,7 +42,7 @@
                         <td>{% include 'misc/member_item.part.html' with member=edit.editor avatar=True %}</td>
                         <td class="wide">
                             {% if edit.deleted_by %}
-                                Supprimé par {% include 'misc/member_item.part.html' with member=edit.deleted_by avatar=True %} ({{ edit.deleted_at|format_date }})
+                                {% trans "Supprimé par" %} {% include 'misc/member_item.part.html' with member=edit.deleted_by avatar=True %} ({{ edit.deleted_at|format_date }})
                             {% else %}
                                 {% if is_staff %}
                                     <form method="post" action="{% url 'delete-edit-content' edit.pk %}">
