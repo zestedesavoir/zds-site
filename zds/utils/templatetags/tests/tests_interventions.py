@@ -7,7 +7,9 @@ from django.template import Context, Template
 from django.test import TestCase
 
 from zds.forum.factories import CategoryFactory, ForumFactory, PostFactory, TopicFactory
-from zds.member.factories import ProfileFactory, StaffFactory
+from zds.tutorialv2.models.models_database import Validation
+from zds.tutorialv2.factories import PublishableContentFactory, LicenceFactory, SubCategoryFactory
+from zds.member.factories import ProfileFactory, StaffProfileFactory, StaffFactory
 from zds.utils.models import Alert
 from zds.utils.mps import send_message_mp, send_mp
 from zds.utils.templatetags.interventions import alerts_list
@@ -24,8 +26,27 @@ class InterventionsTest(TestCase):
     """
 
     def setUp(self):
+        self.licence = LicenceFactory()
+        self.subcategory = SubCategoryFactory()
+
         self.author = ProfileFactory()
         self.user = ProfileFactory()
+        self.staff = StaffProfileFactory()
+
+        self.tuto = PublishableContentFactory(type='TUTORIAL')
+        self.tuto.authors.add(self.author.user)
+        self.tuto.licence = self.licence
+        self.tuto.subcategory.add(self.subcategory)
+        self.tuto.save()
+
+        self.validation = Validation(
+            content=self.tuto,
+            version=self.tuto.sha_draft,
+            comment_authors='bla',
+            date_proposition=datetime.now(),
+        )
+        self.validation.save()
+
         self.topic = send_mp(author=self.author.user, users=[], title='Title', text='Testing', subtitle='', leave=False)
         self.topic.participants.add(self.user.user)
         send_message_mp(self.user.user, self.topic, 'Testing')
@@ -81,6 +102,29 @@ class InterventionsTest(TestCase):
         response = self.client.post(reverse('homepage'))
         self.assertEqual(200, response.status_code)
         self.assertContains(response, '<span class="notif-count">1</span>', html=True)
+
+    def test_interventions_waiting_contents(self):
+        # Login as staff
+        self.assertTrue(
+            self.client.login(
+                username=self.staff.user.username,
+                password='hostel77'
+            )
+        )
+
+        # check that the number of waiting tutorials is correct
+        response = self.client.post(reverse('homepage'))
+        self.assertEqual(200, response.status_code)
+        self.assertContains(response, '(1)')
+
+        # Mark the content as reserved
+        self.validation.status = 'PENDING_V'
+        self.validation.save()
+
+        # and check that the count was removed
+        response = self.client.post(reverse('homepage'))
+        self.assertEqual(200, response.status_code)
+        self.assertNotContains(response, '(1)')
 
     def test_interventions_humane_delta(self):
         tr = Template('{% load interventions %}'

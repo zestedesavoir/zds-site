@@ -9,12 +9,14 @@ from django.utils.translation import ugettext_lazy as _
 
 from zds.forum.models import Post, is_read as topic_is_read
 from zds.mp.models import PrivateTopic
+from zds.tutorialv2.models.models_database import Validation
 from zds.notification.models import Notification, TopicAnswerSubscription, ContentReactionAnswerSubscription, \
     NewTopicSubscription, NewPublicationSubscription
 from zds.tutorialv2.models.models_database import ContentReaction
 from zds.utils import get_current_user
 from zds.utils.models import Alert
 from zds import settings
+from zds.tutorialv2.models import TYPE_CHOICES_DICT
 
 register = template.Library()
 
@@ -194,3 +196,19 @@ def alerts_list(user):
                           'text': alert.text})
 
     return {'alerts': total, 'nb_alerts': nb_alerts}
+
+
+@register.filter(name='waiting_count')
+def waiting_count(content_type):
+
+    queryset = Validation.objects.filter(
+        validator__isnull=True,
+        status='PENDING')
+
+    if content_type:
+        if content_type not in TYPE_CHOICES_DICT:
+            raise template.TemplateSyntaxError("'content_type' must be in 'zds.tutorialv2.models.TYPE_CHOICES_DICT'")
+        else:
+            queryset = queryset.filter(content__type=content_type)
+
+    return queryset.count()

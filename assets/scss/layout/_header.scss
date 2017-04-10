@@ -270,6 +270,7 @@
         height: 60px;
         width: 60px;
         float: right;
+        position: relative;
 
         .username {
             display: none;
@@ -481,6 +482,22 @@
             right: 2.5%;
         }
     }
+
+    .my-account {
+        .validations-count {
+                display: block !important;
+                position: absolute;
+                z-index: 1;
+                top: 50%;
+                right: 50%;
+                margin: -20px -22px 0 0;
+                padding: 0 5px;
+                height: 16px;
+                line-height: 14px;
+                background: #c0392b; //@TODO: Color
+                border-radius: 16px;
+        }
+    }
 }
 
 @media only screen and #{$media-extra-wide} {
@@ -488,4 +505,3 @@
         margin-left: 5%;
     }
 }
-
