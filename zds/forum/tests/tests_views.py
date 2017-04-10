@@ -9,6 +9,7 @@ from zds.forum.factories import CategoryFactory, ForumFactory, PostFactory, Topi
 from zds.forum.models import Topic, Post
 from zds.notification.models import TopicAnswerSubscription
 from zds.member.factories import ProfileFactory, StaffProfileFactory
+from zds.utils.models import CommentEdit
 
 
 class CategoriesForumsListViewTests(TestCase):
@@ -1339,6 +1340,33 @@ class PostEditTest(TestCase):
 
         response = self.client.get(reverse('topic-edit') + '?topic={}'.format(topic.pk), follow=False)
         self.assertEqual(403, response.status_code)
+
+    def test_creation_archive_on_edit(self):
+        profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, profile)
+        post_before_edit = Post.objects.get(pk=topic.last_message.pk)
+
+        edits_count = CommentEdit.objects.count()
+
+        # Edit post
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        data = {
+            'text': 'A new post!'
+        }
+        response = self.client.post(
+            reverse('post-edit') + '?message={}'.format(topic.last_message.pk), data, follow=False)
+        self.assertEqual(302, response.status_code)
+
+        # Check that an archive was created
+        self.assertEqual(CommentEdit.objects.count(), edits_count + 1)
+
+        # Check the archive content
+        edit = CommentEdit.objects.latest('date')
+        self.assertEqual(post_before_edit.pk, edit.comment.pk)
+        self.assertEqual(post_before_edit.text, edit.original_text)
+        self.assertEqual(post_before_edit.text_html, edit.original_text_html)
+        self.assertEqual(profile.user, edit.editor)
 
 
 class PostUsefulTest(TestCase):
