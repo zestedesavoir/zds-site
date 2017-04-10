@@ -2,17 +2,20 @@
 
 import os.path
 import random
+from datetime import datetime
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
-from django.views.generic import ListView
+from django.views.generic import ListView, DetailView
 from django.views.generic.edit import FormView
+from django.core.exceptions import PermissionDenied
+from django.views.decorators.http import require_POST
 
 from zds.featured.models import FeaturedResource, FeaturedMessage
 from zds.forum.models import Forum, Topic
@@ -23,7 +26,7 @@ from zds.settings import BASE_DIR, ZDS_APP
 from zds.searchv2.forms import SearchForm
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent
 from zds.utils.forums import create_topic
-from zds.utils.models import Alert
+from zds.utils.models import Alert, CommentEdit, Comment
 
 
 def home(request):
@@ -139,6 +142,111 @@ def alerts(request):
         'alerts': outstanding,
         'solved': solved,
     })
+
+
+class CommentEditsHistory(ListView):
+    model = CommentEdit
+    context_object_name = 'edits'
+    template_name = 'pages/comment_edits_history.html'
+
+    def get_object(self):
+        return get_object_or_404(Comment, pk=self.kwargs['comment_pk'])
+
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        current_user = self.request.user
+        if not self.get_object().author == current_user \
+                and not current_user.has_perm('forum.change_post'):
+            raise PermissionDenied
+        return super(CommentEditsHistory, self).dispatch(*args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(CommentEditsHistory, self).get_context_data(**kwargs)
+        context['comment'] = self.get_object()
+        context['is_staff'] = self.request.user.has_perm('forum.change_post')
+        return context
+
+    def get_queryset(self):
+        comment = self.get_object()
+        return CommentEdit.objects \
+            .filter(comment=comment) \
+            .select_related('editor') \
+            .select_related('deleted_by') \
+            .order_by('-date')
+
+
+class EditDetail(DetailView):
+    model = CommentEdit
+    context_object_name = 'edit'
+    template_name = 'pages/edit_detail.html'
+
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        current_user = self.request.user
+        edit = self.get_object()
+        if not edit.comment.author == current_user \
+                and not current_user.has_perm('forum.change_post'):
+            raise PermissionDenied
+        if edit.deleted_by:
+            raise PermissionDenied
+        return super(EditDetail, self).dispatch(*args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(EditDetail, self).get_context_data(**kwargs)
+        context['comment'] = self.get_object().comment
+        context['is_staff'] = self.request.user.has_perm('forum.change_post')
+        return context
+
+
+@login_required
+@can_write_and_read_now
+@require_POST
+def restore_edit(request, edit_pk):
+    edit = get_object_or_404(CommentEdit, pk=edit_pk)
+    comment = edit.comment
+
+    if not comment.author == request.user \
+            and not request.user.has_perm('forum.change_post'):
+        raise PermissionDenied
+
+    if not comment.is_visible:  # comment was hidden
+        raise PermissionDenied
+
+    if edit.deleted_by:
+        raise PermissionDenied
+
+    new_edit = CommentEdit()
+    new_edit.comment = comment
+    new_edit.editor = request.user
+    new_edit.original_text = comment.text
+    new_edit.original_text_html = comment.text_html
+    new_edit.save()
+
+    comment.update = datetime.now()
+    comment.editor = request.user
+    comment.text = edit.original_text
+    comment.text_html = edit.original_text_html
+    comment.save()
+
+    return redirect(comment.get_absolute_url())
+
+
+@login_required
+@permission_required('forum.change_post', raise_exception=True)
+@require_POST
+def delete_edit_content(request, edit_pk):
+    edit = get_object_or_404(CommentEdit, pk=edit_pk)
+
+    if edit.deleted_by:
+        raise PermissionDenied
+
+    edit.text = ''
+    edit.text_html = ''
+    edit.deleted_by = request.user
+    edit.deleted_at = datetime.now()
+    edit.save()
+
+    return redirect('comment-edits-history', comment_pk=edit.comment.pk)
 
 
 def custom_error_500(request):

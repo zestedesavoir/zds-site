@@ -40,7 +40,7 @@ from zds.mp.models import PrivatePost, PrivateTopic
 from zds.tutorialv2.models.models_database import PublishableContent
 from zds.notification.models import TopicAnswerSubscription, NewPublicationSubscription
 from zds.tutorialv2.models.models_database import PublishedContent, PickListOperation
-from zds.utils.models import Comment, CommentVote, Alert
+from zds.utils.models import Comment, CommentVote, Alert, CommentEdit
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView
 from zds.utils.tokens import generate_token
@@ -448,6 +448,8 @@ def unregister(request):
     # all messages anonymisation (forum, article and tutorial posts)
     Comment.objects.filter(author=current).update(author=anonymous)
     PrivatePost.objects.filter(author=current).update(author=anonymous)
+    CommentEdit.object.filter(editor=current).update(editor=anonymous)
+    CommentEdit.object.filter(deleted_by=current).update(deleted_by=anonymous)
     # karma notes, alerts and sanctions anonymisation (to keep them)
     KarmaNote.objects.filter(moderator=current).update(moderator=anonymous)
     Ban.objects.filter(moderator=current).update(moderator=anonymous)

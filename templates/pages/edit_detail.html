@@ -1,0 +1,55 @@
+{% extends "pages/base.html" %}
+{% load date %}
+{% load i18n %}
+
+
+
+{% block title %}
+    {% trans "Version avant édition" %} &bull; {% trans "Historique des éditions du message" %}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>
+        <a href="{{ comment.get_absolute_url }}">
+            Message de {{ comment.author.username }}
+        </a>
+    </li>
+    <li>
+        <a href="{% url 'comment-edits-history' comment.pk %}">
+            {% trans "Historique des éditions" %}
+        </a>
+    </li>
+    <li>
+        {% trans "Version avant édition" %}
+    </li>
+{% endblock %}
+
+
+
+{% block headline %}
+    <h1>{% trans "Version avant édition" %}</h1>
+{% endblock %}
+
+
+
+{% block content_page %}
+    <div class="message-content">
+        {{ edit.original_text_html|safe }}
+    </div>
+
+    {% if is_staff %}
+        <form method="post" action="{% url 'delete-edit-content' edit.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-grey ico-after red cross">Supprimer</button>
+        </form>
+    {% endif %}
+
+    {% if comment.is_visible %}
+        <form method="post" action="{% url 'restore-edit' edit.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-grey ico-after blue history">Restaurer</button>
+        </form>
+    {% endif %}
+{% endblock %}

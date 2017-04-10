@@ -188,7 +188,11 @@
                 </p>
             {% elif message.update %}
                 <p class="message-edited ico-after edit">
-                    {% trans "Édité" %}
+                    {% if can_view_history %}
+                        <a href="{% url 'comment-edits-history' message.pk %}">{% trans "Édité" %}</a>
+                    {% else %}
+                        {% trans "Édité" %}
+                    {% endif %}
                     {% if message.editor %}
                         {% trans "par" %} {{ message.editor }}
                     {% endif %}
