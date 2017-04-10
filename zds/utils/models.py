@@ -260,7 +260,7 @@ class CommentEdit(models.Model):
 
     class Meta:
         verbose_name = "Édition d'un message"
-        verbose_name_plural = "Éditions de messages"
+        verbose_name_plural = 'Éditions de messages'
 
     comment = models.ForeignKey(Comment, on_delete=models.CASCADE, verbose_name='Message',
                                 related_name='edits', db_index=True)
@@ -270,7 +270,7 @@ class CommentEdit(models.Model):
                                 verbose_name="Date de l'édition", db_column='edit_date')
     original_text = models.TextField("Contenu d'origine", blank=True)
     original_text_html = models.TextField("Contenu d'origine en HTML", blank=True)
-    deleted_at = models.DateTimeField(db_index=True, verbose_name="Date de suppression",
+    deleted_at = models.DateTimeField(db_index=True, verbose_name='Date de suppression',
                                       blank=True, null=True)
     deleted_by = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Supprimé par',
                                    related_name='deleted_edits', db_index=True,
