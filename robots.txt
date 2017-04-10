@@ -21,3 +21,6 @@ Disallow: /rechercher/
 Disallow: /tutoriels/html/
 Disallow: /tutoriels/md/
 Disallow: /tutoriels/zip/
+Disallow: /tribunes/html/
+Disallow: /tribunes/md/
+Disallow: /tribunes/zip/

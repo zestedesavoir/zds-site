@@ -267,7 +267,7 @@ Installer le noeud Munin : ``apt-get install munin-node``.
 
 On obtient les suggestions de plugins à installer avec ``munin-node-configure --suggest`` et les commandes à lancer pour les activer via ``munin-node-configure --shell``.
 
-Pour l'instant le serveur de graphe est fourni par SpaceFox et `est visible ici <http://munin.kisai.info>`__. Seul SpaceFox peut mettre à jour cette configuration. Le serveur de graphe accède au serveur en SSH avec cette clé publique :
+Pour l'instant le serveur de graphe est fourni par SpaceFox et `est visible ici <http://munin.kisai.info>`__. Seul SpaceFox peut mettre à jour cette configuration. Le serveur de graphe accède au serveur en SSH avec cette clé publique, placée dans le home de l'utilisateur munin (sous debian, l'utilisateur créé par le packet munin a son home dans ``/var/lib/munin``, donc sa clé doit être dans ``/var/lib/munin/.ssh/authorized_keys``) :
 
 .. code:: text
 
@@ -290,50 +290,13 @@ Créer les liens vers le plugin Django-Munin :
     ln -s /usr/share/munin/plugins/django.py /etc/munin/plugins/zds_total_topics
     ln -s /usr/share/munin/plugins/django.py /etc/munin/plugins/zds_total_tutorials
     ln -s /usr/share/munin/plugins/django.py /etc/munin/plugins/zds_total_users
+    ln -s /usr/share/munin/plugins/django.py /etc/munin/plugins/zds_total_tribunes
 
-Ajouter les métriques suivantes au fichier ``/etc/munin/plugin-conf.d/munin-node`` :
+Créer le fichier ``/etc/munin/plugin-conf.d/zds.conf`` et y ajouter la config des graphes
+propres à ZdS :
 
-.. code:: text
-
-    [zds_db_performance]
-    env.url http://zestedesavoir.com/munin/db_performance/
-    env.graph_category zds
-
-    [zds_total_users]
-    env.url http://zestedesavoir.com/munin/total_users/
-    env.graph_category zds
-
-    [zds_active_users]
-    env.url http://zestedesavoir.com/munin/active_users/
-    env.graph_category zds
-
-    [zds_total_sessions]
-    env.url http://zestedesavoir.com/munin/total_sessions/
-    env.graph_category zds
-
-    [zds_active_sessions]
-    env.url http://zestedesavoir.com/munin/active_sessions/
-    env.graph_category zds
-
-    [zds_total_topics]
-    env.url http://www.zestedesavoir.com/munin/total_topics/
-    env.graph_category zds
-
-    [zds_total_posts]
-    env.url http://www.zestedesavoir.com/munin/total_posts/
-    env.graph_category zds
-
-    [zds_total_mps]
-    env.url http://www.zestedesavoir.com/munin/total_mps/
-    env.graph_category zds
-
-    [zds_total_tutorials]
-    env.url http://www.zestedesavoir.com/munin/total_tutorials/
-    env.graph_category zds
-
-    [zds_total_articles]
-    env.url http://www.zestedesavoir.com/munin/total_articles/
-    env.graph_category zds
+.. literalinclude:: configs/munin/zds.conf
+  :caption: :download:`configs/munin/zds.conf`
 
 Mise à jour d'une instance existante
 ====================================

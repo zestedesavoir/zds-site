@@ -76,7 +76,7 @@ def top_categories_content(_type):
     if _type:
         tags = PublishedContent.objects.get_top_tags([_type], limit=settings.ZDS_APP['forum']['top_tag_max'])
     else:
-        tags = PublishedContent.objects.get_top_tags(['TUTORIAL', 'ARTICLE'],
+        tags = PublishedContent.objects.get_top_tags(['TUTORIAL', 'ARTICLE', 'OPINION'],
                                                      limit=settings.ZDS_APP['forum']['top_tag_max'])
 
     # get parent categories of subcategories from PublishedContent

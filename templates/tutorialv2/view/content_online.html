@@ -1,6 +1,7 @@
 {% extends "tutorialv2/base_online.html" %}
 {% load emarkdown %}
 {% load profile %}
+{% load date %}
 {% load captureas %}
 {% load set %}
 {% load thumbnail %}
@@ -8,6 +9,7 @@
 {% load crispy_forms_tags %}
 {% load interventions %}
 {% load pluralize_fr %}
+{% load displayable_authors %}
 
 
 {% block title %}
@@ -30,6 +32,12 @@
     {% endif %}
 {% endspaceless %}{% endblock %}
 
+
+{% block extra_link %}
+    {% if content.converted_to.get_absolute_url_online %}
+        <link rel="canonical" href="{{ content.converted_to.get_absolute_url_online }}" />
+    {% endif %}
+{% endblock %}
 
 
 {% block opengraph %}
@@ -80,6 +88,50 @@
 
 
 {% block content %}
+    <div class="opinion-alerts">
+        {% if is_staff %}
+            {% for alert in alerts %}
+                <div class="alert-box{% if not alert.solved %} error{% endif %}">
+                    {{ alert.pubdate|format_date|capfirst }} {% trans "par" %}
+                    {% include "misc/member_item.part.html" with member=alert.author %} :
+                    <em class="alert-box-text">{{ alert.text }}</em>
+                    {% if alert.solved %}
+                        <span class="close-alert-box close-alert-box-text">
+                            {% trans "Résolu par" %}
+                            {% include "misc/member_item.part.html" with member=alert.moderator %}
+                        </span>
+                    {% else %}
+                        <a href="#solve-content-{{ alert.pk }}" class="open-modal close-alert-box close-alert-box-text">{% trans "Résoudre" %}</a>
+                        <form id="solve-content-{{ alert.pk }}" method="post" action="{% url 'content:resolve-content' alert.pk %}" class="modal modal-flex">
+                            <textarea name="text" class="input" placeholder="{% trans "Message à envoyer au membre ayant lancé l'alerte" %}"></textarea>
+                            <input type="hidden" name="alert_pk" value="{{ alert.pk }}">
+
+                            {% csrf_token %}
+                            <button type="submit" name="delete-post" class="button expand alert tiny">{% trans "Résoudre l'alerte" %}</button>
+                        </form>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    {% if content.is_opinion %}
+        {% if content.converted_to %}
+            {% if content.converted_to.get_absolute_url_online %}
+                <div class="alert-box info">
+                    {% blocktrans with url_article=content.converted_to.get_absolute_url_online %}
+                        Ce billet a été promu en <a href="{{ url_article }}">article</a>.
+                    {% endblocktrans %}
+                </div>
+            {% elif is_staff %}
+                <div class="alert-box info">
+                    {% blocktrans with url_article=content.converted_to.get_absolute_url %}
+                        Ce billet a fait l'objet d'une demande de publication <a href="{{ url_article }}">en tant qu'article</a>. Il est donc présent dans la zone de validation en attente de prise en charge par un validateur.
+                    {% endblocktrans %}
+                </div>
+            {% endif %}
+        {% endif %}
+    {% endif %}
 
     {% if content.has_extracts %}
         {{ content.get_content_online|safe }}
@@ -111,7 +163,7 @@
     {% endif %}
 
     {% include "tutorialv2/includes/article_pager.part.html" with content=content %}
-
+    {% include "tutorialv2/includes/alert.html" with content=content current_content_type=current_content_type %}
     {% include "tutorialv2/includes/warn_typo.part.html" with content=content %}
 
 {% endblock %}
@@ -156,6 +208,17 @@
     </li>
     {% endif %}
     {% endif %}
+
+    {% for author in public_object.authors.all %}
+        <li>
+            <a href="{% url 'content:find-opinion' author.pk %}" class="ico-after offline blue">
+                {% blocktrans %}
+                    Voir la tribune de {{ author }}
+                {% endblocktrans %}
+            </a>
+        </li>
+    {% endfor %}
+
 {% endblock %}
 
 {% block sidebar_blocks %}
@@ -171,29 +234,64 @@
                     </a>
                 </li>
                 {% if is_staff %}
-                    <li>
-                        <a href="{% url "validation:history" content.pk content.slug %}" class="ico-after history blue">
-                            {% trans "Historique validation" %}
-                        </a>
-                    </li>
-                    <li>
-                        <form action="{% url 'validation:mark-obsolete' content.pk %}" method="post">
-                            {% csrf_token %}
-                            <button type="submit" class="ico-after alert blue">
-                                {% if is_obsolete %}
-                                    {% trans "Marquer comme non obsolète" %}
-                                {% else %}
-                                    {% trans "Marquer comme obsolète" %}
-                                {% endif %}
-                            </button>
-                        </form>
-                    </li>
-                    <li>
-                        <a href="#unpublish" class="ico-after open-modal cross blue">
-                            {% trans "Dépublier" %}
-                        </a>
-                        {% crispy formRevokeValidation %}
-                    </li>
+                    {% if content.requires_validation_before %}
+                        <li>
+                            <a href="{% url "validation:history" content.pk content.slug %}" class="ico-after history blue">
+                                {% trans "Historique validation" %}
+                            </a>
+                        </li>
+                        <li>
+                            <form action="{% url 'validation:mark-obsolete' content.pk %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="ico-after alert blue">
+                                    {% if is_obsolete %}
+                                        {% trans "Marquer comme non obsolète" %}
+                                    {% else %}
+                                        {% trans "Marquer comme obsolète" %}
+                                    {% endif %}
+                                </button>
+                            </form>
+                        </li>
+                        <li>
+                            <a href="#unpublish" class="ico-after open-modal cross blue">
+                                {% trans "Dépublier" %}
+                            </a>
+                            {% crispy formRevokeValidation %}
+                        </li>
+                    {% else %}
+                        {% if is_staff %}
+                            {% if content.sha_public != content.sha_picked  %}
+                                <li>
+                                    <a href="#pick-opinion" class="ico-after open-modal tick green">
+                                        {% trans "Choisir le billet" %}
+                                    </a>
+                                    {% crispy formPickOpinion %}
+                                </li>
+                            {% endif %}
+                            {% if not content.converted_to %}
+                                <li>
+                                    <a href="#convert-opinion" class="ico-after open-modal tick green">
+                                        {% trans "Convertir en article" %}
+                                    </a>
+                                    {% crispy formConvertOpinion %}
+                                </li>
+                            {% endif %}
+                            {% if content.sha_public == content.sha_picked  %}
+                                <li>
+                                    <a href="#unpick-opinion" class="ico-after open-modal cross blue">
+                                        {% trans "Retirer des billets choisis" %}
+                                    </a>
+                                    {% crispy formUnpickOpinion %}
+                                </li>
+                            {% endif %}
+                        {% endif %}
+                        <li>
+                            <a href="#unpublish" class="ico-after open-modal cross blue">
+                                {% trans "Dépublier" %}
+                            </a>
+                            {% crispy formUnpublication %}
+                        </li>
+                    {% endif %}
                 {% endif %}
             </ul>
         </div>

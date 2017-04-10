@@ -46,3 +46,21 @@ def total_articles(request):
     return [('articles', articles.count()),
             ('offline', articles.filter(sha_public__isnull=True).count()),
             ('online', articles.filter(sha_public__isnull=False).count())]
+
+
+@muninview(config="""graph_title Total Opinions
+graph_vlabel #opinions
+draft.label Draft
+draft.draw LINE1
+featured.label Featured
+featured.draw STACK
+published.label Published
+published.draw STACK
+converted.label Converted
+converted.draw STACK""")
+def total_opinions(request):
+    opinions = PublishableContent.objects.filter(type='OPINION').all()
+    return [('draft', opinions.filter(sha_public__isnull=True).count()),
+            ('featured', opinions.filter(sha_picked__isnull=False).count()),
+            ('published', opinions.filter(sha_public__isnull=False).count()),
+            ('converted', opinions.filter(converted_to__sha_public__isnull=False).count())]

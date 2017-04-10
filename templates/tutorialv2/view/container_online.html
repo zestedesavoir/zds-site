@@ -64,7 +64,7 @@
 
 
 {% block content %}
-    {% if not content.is_article %}
+    {% if content.is_tutorial %}
         {% include "tutorialv2/includes/chapter_pager.part.html" with position="top" online=True %}
     {% endif %}
     {% if container.has_extracts %}
@@ -86,7 +86,7 @@
         {% endif %}
 
     {% endif %}
-    {% if not content.is_article %}
+    {% if content.is_tutorial %}
         {% include "tutorialv2/includes/chapter_pager.part.html" with position="bottom" online=True %}
     {% endif %}
 
