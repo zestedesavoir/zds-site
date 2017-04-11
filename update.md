@@ -1005,3 +1005,13 @@ Une fois que tout est indexé,
     DROP TABLE search_searchindexauthors;
     DROP TABLE search_searchindexcontent;
     ```
+
+Actions à faire pour mettre en prod la version : v23
+====================================================
+
+Mise à jour d'ElasticSearch
+---------------------------
+
+1. `sudo apt update`
+2. `sudo apt upgrade elasticsearch`
+2. `systemctl restart elasticsearch.service`
