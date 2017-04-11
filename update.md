@@ -1006,9 +1006,8 @@ Une fois que tout est indexé,
     DROP TABLE search_searchindexcontent;
     ```
 
-Actions à faire pour l'upgrade v23
-==================================
-
+Actions à faire pour mettre en prod la version : v23
+====================================================
 
 Tribunes
 --------
@@ -1033,3 +1032,11 @@ A propos de social auth:
 Ne pas oublier de mettre le middleware `'zds.member.utils.ZDSCustomizeSocialAuthExceptionMiddleware'`.
 
 Forcer le paramètre `SOCIAL_AUTH_RAISE_EXCEPTIONS = False`.
+
+
+Mise à jour d'ElasticSearch
+---------------------------
+
+1. `sudo apt update`
+2. `sudo apt upgrade elasticsearch`
+2. `systemctl restart elasticsearch.service`
