@@ -1,3 +1,4 @@
+# coding: utf-8
 from __future__ import unicode_literals
 from social.apps.django_app.middleware import SocialAuthExceptionMiddleware
 from django.contrib import messages
