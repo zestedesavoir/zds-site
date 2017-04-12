@@ -1042,6 +1042,26 @@ def member_from_ip(request, ip_address):
     })
 
 
+def save_profile(request, backend, user, response, *args, **kwargs):
+    profile = Profile.objects.filter(user=user).first()
+    if profile is None:
+        profile = Profile(user=user,
+                          show_email=False,
+                          show_sign=True,
+                          hover_or_click=True,
+                          email_for_answer=False)
+        profile.last_ip_address = get_client_ip(request)
+        profile.save()
+
+
+def ban_control(request, backend, user, response, *args, **kwargs):
+    profile = Profile.objects.filter(user=user).first()
+    if not profile.can_read_now():
+        messages.error(request,
+                       _("Votre compte a été banni, vous ne pouvez plus vous connecter"))
+        return redirect(reverse('zds.member.views.login_view'))
+
+
 @login_required
 @permission_required('member.change_profile', raise_exception=True)
 @require_POST
