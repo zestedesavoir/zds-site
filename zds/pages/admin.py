@@ -9,4 +9,5 @@ class GroupContactAdmin(admin.ModelAdmin):
 
     raw_id_fields = ('person_in_charge',)
 
+
 admin.site.register(GroupContact, GroupContactAdmin)

@@ -29,5 +29,6 @@ def setup_es_connections():
     except TransportError:
         pass
 
+
 if ENABLED:
     setup_es_connections()
