@@ -102,7 +102,9 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'social.apps.django_app.context_processors.backends',
                 'social.apps.django_app.context_processors.login_redirect',
+
                 # ZDS context processors
+                'zds.member.utils.ZDSCustomizeSocialAuthExceptionMiddleware',
                 'zds.utils.context_processor.app_settings',
                 'zds.utils.context_processor.git_version',
             ],
@@ -282,6 +284,9 @@ SDZ_TUTO_DIR = '/home/zds/tutos_sdzv3/Sources_md'
 # Force HTTPS for logged users
 FORCE_HTTPS_FOR_MEMBERS = True
 ENABLE_HTTPS_DECORATOR = True
+
+# for social auth exception to be properly handled
+SOCIAL_AUTH_RAISE_EXCEPTIONS = False
 
 # visual changes
 #ZDS_APP['visual_changes'] = ['snow', 'clem-christmas']
