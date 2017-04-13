@@ -18,7 +18,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.generic import ListView, FormView
 
 from zds.member.decorator import LoginRequiredMixin, PermissionRequiredMixin, LoggedWithReadWriteHability
-from zds.gallery.models import UserGallery
+from zds.gallery.models import UserGallery, Gallery
 from zds.notification import signals
 from zds.tutorialv2.forms import AskValidationForm, RejectValidationForm, AcceptValidationForm, RevokeValidationForm, \
     CancelValidationForm, PublicationForm, PickOpinionForm, PromoteOpinionToArticleForm, UnpickOpinionForm, \
@@ -923,68 +923,52 @@ class PromoteOpinionToArticle(PermissionRequiredMixin, NoValidationBeforeFormVie
         authors = db_object.authors.all()
         subcats = db_object.subcategory.all()
         tags = db_object.tags.all()
-        gallery = db_object.gallery
+        article = PublishableContent(title=db_object.title,
+                                     type='ARTICLE',
+                                     creation_date=datetime.now(),
+                                     sha_public=db_object.sha_public,
+                                     public_version=None,
+                                     licence=db_object.licence,
+                                     sha_validation=db_object.sha_public
+                                     )
+
         opinion_url = db_object.get_absolute_url_online()
-        opinion = PublishableContent.objects.get(pk=db_object.pk)
-
-        # copy object and update article to opinion
-        # we set pk to None because next save will create a new object in database
-        db_object.pk = None
-        db_object.type = 'ARTICLE'
-        db_object.creation_date = datetime.now()
-        db_object.sha_public = None
-        db_object.public_version = None
-        db_object.save()
-
-        # add information about the conversion to the original opinion
-        opinion.converted_to = db_object
-        opinion.save()
-
         # add M2M objects
         for author in authors:
-            db_object.authors.add(author)
+            article.authors.add(author)
         for subcat in subcats:
-            db_object.subcategory.add(subcat)
+            article.subcategory.add(subcat)
         for tag in tags:
-            db_object.tags.add(tag)
+            article.tags.add(tag)
+        article.save()
+        # add information about the conversion to the original opinion
+        db_object.converted_to = article
+        db_object.save()
 
         # clone the repo
-        clone_repo(old_git_path, db_object.get_repo_path())
+        clone_repo(old_git_path, article.get_repo_path())
 
         # ask for validation
         validation = Validation()
-        validation.content = db_object
+        validation.content = article
         validation.date_proposition = datetime.now()
         validation.comment_authors = _(u'Promotion du billet « [{0}]({1}) » en article par [{2}]({3}).'.format(
-            opinion.title,
-            db_object.get_absolute_url_online(),
+            article.title,
+            article.get_absolute_url_online(),
             self.request.user.username,
             self.request.user.profile.get_absolute_url()
         ))
-        validation.version = db_object.sha_draft
+        validation.version = article.sha_validation
         validation.save()
-        db_object.sha_validation = validation.version
-
         # creating the gallery
-        gal = gallery
-        gal.pk = None
+        gal = Gallery()
         gal.pubdate = datetime.now()
         gal.save()
-
-        # creating relations between authors and gallery
-        for author in authors:
-            userg = UserGallery()
-            userg.gallery = gal
-            userg.mode = 'W'  # write mode
-            userg.user = author
-            userg.save()
-        db_object.gal = gal
-
+        article.gal = gal
         # save updates
-        db_object.save()
-
-        # copy git repo
-
+        article.save()
+        article.ensure_author_gallery()
+        versionned_article = article.load_version(sha=article.sha_validation)
         # send message to user
         msg = render_to_string(
             'tutorialv2/messages/opinion_promotion.md',
@@ -996,9 +980,9 @@ class PromoteOpinionToArticle(PermissionRequiredMixin, NoValidationBeforeFormVie
         bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
         send_mp(
             bot,
-            db_object.authors.all(),
+            article.authors.all(),
             _(u'Billet promu en article'),
-            versioned.title,
+            versionned_article.title,
             msg,
             True,
             direct=False
