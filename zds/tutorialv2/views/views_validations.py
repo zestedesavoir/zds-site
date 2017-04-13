@@ -18,7 +18,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.generic import ListView, FormView
 
 from zds.member.decorator import LoginRequiredMixin, PermissionRequiredMixin, LoggedWithReadWriteHability
-from zds.gallery.models import UserGallery, Gallery
+from zds.gallery.models import Gallery
 from zds.notification import signals
 from zds.tutorialv2.forms import AskValidationForm, RejectValidationForm, AcceptValidationForm, RevokeValidationForm, \
     CancelValidationForm, PublicationForm, PickOpinionForm, PromoteOpinionToArticleForm, UnpickOpinionForm, \
