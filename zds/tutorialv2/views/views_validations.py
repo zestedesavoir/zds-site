@@ -965,7 +965,7 @@ class PromoteOpinionToArticle(PermissionRequiredMixin, NoValidationBeforeFormVie
         gal = Gallery()
         gal.pubdate = datetime.now()
         gal.save()
-        article.gal = gal
+        article.gallery = gal
         # save updates
         article.save()
         article.ensure_author_gallery()
