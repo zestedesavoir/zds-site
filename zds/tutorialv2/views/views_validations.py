@@ -933,6 +933,7 @@ class PromoteOpinionToArticle(PermissionRequiredMixin, NoValidationBeforeFormVie
                                      )
 
         opinion_url = db_object.get_absolute_url_online()
+        article.save()
         # add M2M objects
         for author in authors:
             article.authors.add(author)
