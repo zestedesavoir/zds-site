@@ -218,7 +218,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         """
         ensure all authors subscribe to gallery
         """
-        author_set = self.gallery.usergallery_set.filter(user__in=[self.authors.all()])
+        author_set = UserGallery.objects.filter(user__in=list(self.authors.all()), gallery=self.gallery)
         for author in self.authors.all():
             if author in author_set:
                 continue
