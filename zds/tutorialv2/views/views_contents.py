@@ -102,6 +102,7 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
         gal.save()
 
         self.content.gallery = gal
+        self.content.save()
         self.content.ensure_author_gallery()
         # create image:
         if 'image' in self.request.FILES:
