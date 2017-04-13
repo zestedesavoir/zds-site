@@ -972,7 +972,8 @@ class PromoteOpinionToArticle(PermissionRequiredMixin, NoValidationBeforeFormVie
         # mandatory to avoid path collision
         versionned_article.slug = article.slug
         article.sha_validation = versionned_article.repo_update(versionned_article.title,
-                                       versionned_article.get_introduction(), versionned_article.get_conclusion())
+                                                                versionned_article.get_introduction(),
+                                                                versionned_article.get_conclusion())
         article.sha_public = article.sha_validation
         article.save()
         # send message to user
