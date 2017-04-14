@@ -963,6 +963,8 @@ class PromoteOpinionToArticle(PermissionRequiredMixin, NoValidationBeforeFormVie
         validation.save()
         # creating the gallery
         gal = Gallery()
+        gal.title = db_object.gallery.title
+        gal.slug = db_object.gallery.slug
         gal.pubdate = datetime.now()
         gal.save()
         article.gallery = gal
