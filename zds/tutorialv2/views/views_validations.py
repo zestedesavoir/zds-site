@@ -929,7 +929,8 @@ class PromoteOpinionToArticle(PermissionRequiredMixin, NoValidationBeforeFormVie
                                      sha_public=db_object.sha_public,
                                      public_version=None,
                                      licence=db_object.licence,
-                                     sha_validation=db_object.sha_public
+                                     sha_validation=db_object.sha_public,
+                                     sha_draft=db_object.sha_public
                                      )
 
         opinion_url = db_object.get_absolute_url_online()
@@ -948,7 +949,14 @@ class PromoteOpinionToArticle(PermissionRequiredMixin, NoValidationBeforeFormVie
 
         # clone the repo
         clone_repo(old_git_path, article.get_repo_path())
-
+        versionned_article = article.load_version(sha=article.sha_validation)
+        # mandatory to avoid path collision
+        versionned_article.slug = article.slug
+        article.sha_validation = versionned_article.repo_update(versionned_article.title,
+                                                                versionned_article.get_introduction(),
+                                                                versionned_article.get_conclusion())
+        article.sha_draft = article.sha_validation
+        article.save()
         # ask for validation
         validation = Validation()
         validation.content = article
@@ -971,14 +979,7 @@ class PromoteOpinionToArticle(PermissionRequiredMixin, NoValidationBeforeFormVie
         # save updates
         article.save()
         article.ensure_author_gallery()
-        versionned_article = article.load_version(sha=article.sha_validation)
-        # mandatory to avoid path collision
-        versionned_article.slug = article.slug
-        article.sha_validation = versionned_article.repo_update(versionned_article.title,
-                                                                versionned_article.get_introduction(),
-                                                                versionned_article.get_conclusion())
-        article.sha_draft = article.sha_validation
-        article.save()
+
         # send message to user
         msg = render_to_string(
             'tutorialv2/messages/opinion_promotion.md',
