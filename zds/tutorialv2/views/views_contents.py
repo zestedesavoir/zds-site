@@ -48,7 +48,7 @@ from zds.tutorialv2.utils import search_container_or_404, get_target_tagged_tree
     default_slug_pool, BadArchiveError, InvalidSlugError
 from zds.utils.forums import send_post, lock_topic, create_topic, unlock_topic
 
-from zds.utils.models import Licence, HelpWriting
+from zds.utils.models import HelpWriting
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView, make_pagination
 
@@ -67,6 +67,10 @@ class RedirectOldBetaTuto(RedirectView):
 
 
 class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
+    """
+    Handle content creation. Since v22, we explicitely ask for user to choose a licence instead of \
+    assuming he just wants the default "All rights reserved" option.
+    """
     template_name = 'tutorialv2/create/content.html'
     model = PublishableContent
     form_class = ContentForm
@@ -81,7 +85,6 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
     def get_form(self, form_class=ContentForm):
         form = super(CreateContent, self).get_form(form_class)
         form.initial['type'] = self.created_content_type
-        form.initial['licence'] = Licence.objects.get(pk=settings.ZDS_APP['content']['default_licence_pk'])
         return form
 
     def form_valid(self, form):
