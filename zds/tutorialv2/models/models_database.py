@@ -214,6 +214,20 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
             # get the full path (with tutorial/article before it)
             return os.path.join(settings.ZDS_APP['content']['repo_private_path'], self.slug)
 
+    def ensure_author_gallery(self):
+        """
+        ensure all authors subscribe to gallery
+        """
+        author_set = UserGallery.objects.filter(user__in=list(self.authors.all()), gallery=self.gallery)
+        for author in self.authors.all():
+            if author in author_set:
+                continue
+            user_gallery = UserGallery()
+            user_gallery.gallery = self.gallery
+            user_gallery.mode = 'W'  # write mode
+            user_gallery.user = author
+            user_gallery.save()
+
     def in_beta(self):
         """A tutorial is not in beta if sha_beta is ``None`` or empty
 

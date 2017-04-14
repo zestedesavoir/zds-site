@@ -101,14 +101,9 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
         gal.pubdate = datetime.now()
         gal.save()
 
-        # Attach user to gallery
-        userg = UserGallery()
-        userg.gallery = gal
-        userg.mode = 'W'  # write mode
-        userg.user = self.request.user
-        userg.save()
         self.content.gallery = gal
-
+        self.content.save()
+        self.content.ensure_author_gallery()
         # create image:
         if 'image' in self.request.FILES:
             img = Image()
@@ -855,12 +850,8 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
                 gal.save()
 
                 # Attach user to gallery
-                userg = UserGallery()
-                userg.gallery = gal
-                userg.mode = 'W'  # write mode
-                userg.user = self.request.user
-                userg.save()
                 self.object.gallery = gal
+                self.object.save()
 
                 # Add subcategories on tutorial
                 for subcat in form.cleaned_data['subcategory']:
@@ -869,7 +860,7 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
                 # We need to save the tutorial before changing its author list since it's a many-to-many relationship
                 self.object.authors.add(self.request.user)
                 self.object.save()
-
+                self.object.ensure_author_gallery()
                 # ok, now we can import
                 introduction = ''
                 conclusion = ''
