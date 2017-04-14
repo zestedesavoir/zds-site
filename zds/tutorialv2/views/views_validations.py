@@ -977,7 +977,7 @@ class PromoteOpinionToArticle(PermissionRequiredMixin, NoValidationBeforeFormVie
         article.sha_validation = versionned_article.repo_update(versionned_article.title,
                                                                 versionned_article.get_introduction(),
                                                                 versionned_article.get_conclusion())
-        article.sha_public = article.sha_validation
+        article.sha_draft = article.sha_validation
         article.save()
         # send message to user
         msg = render_to_string(
