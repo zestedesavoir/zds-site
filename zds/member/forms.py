@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User, Group
 from django.core.urlresolvers import reverse
+from django.forms import ModelForm
 from django.utils.translation import ugettext_lazy as _
 
 from captcha.fields import ReCaptchaField
@@ -267,27 +268,25 @@ class ProfileForm(MiniProfileForm):
         self.helper.layout = layout
 
 
-class GitHubTokenForm(forms.Form):
+class GitHubTokenForm(ModelForm):
     """
     Updates the GitHub token.
     """
-    github_token = forms.CharField(
-        label='Token GitHub',
-        required=True,
-        widget=forms.TextInput(
-            attrs={
-                'placeholder': _(u'Token qui permet de communiquer avec la plateforme GitHub.'),
-                'autocomplete': 'off'
-            }
-        )
-    )
+    class Meta:
+        # Django 1.9 update, uncomment next line to render field as input and not textarea
+        # field_classes = {'github_token': CharField}
+        fields = ['github_token']
+        model = Profile
 
     def __init__(self, *args, **kwargs):
         super(GitHubTokenForm, self).__init__(*args, **kwargs)
+        self.fields['github_token'].widget.attrs['placeholder'] = _(u'Token qui permet de communiquer avec la plateform'
+                                                                    u'e GitHub.')
+        self.fields['github_token'].widget.attrs['autocomplete'] = 'off'
+
         self.helper = FormHelper()
         self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
-
         self.helper.layout = Layout(
             Field('github_token'),
             ButtonHolder(
