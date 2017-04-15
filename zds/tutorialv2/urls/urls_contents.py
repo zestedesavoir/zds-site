@@ -10,7 +10,7 @@ from zds.tutorialv2.views.views_contents import DisplayContent, CreateContent, E
 
 from zds.tutorialv2.views.views_published import SendNoteFormView, UpdateNoteView, \
     HideReaction, ShowReaction, SendNoteAlert, SolveNoteAlert, TagsListView, ListOnlineContents, \
-    FollowContentReaction, FollowNewContent
+    FollowContentReaction, FollowNewContent, SendContentAlert, SolveContentAlert
 
 from zds.tutorialv2.feeds import LastContentFeedRSS, LastContentFeedATOM
 
@@ -25,7 +25,9 @@ urlpatterns = [
     url(r'^articles/(?P<pk>\d+)/$',
         ContentOfAuthor.as_view(type='ARTICLE', context_object_name='articles'),
         name='find-article'),
-
+    url(r'^tribunes/(?P<pk>\d+)/$',
+        ContentOfAuthor.as_view(type='OPINION', context_object_name='opinions'),
+        name='find-opinion'),
     url(r'^aides/$', ContentsWithHelps.as_view(), name='helps'),
     url(r'^(?P<pk>\d+)/(?P<slug>.+)/(?P<parent_container_slug>.+)/(?P<container_slug>.+)/$',
         DisplayContainer.as_view(public_is_prioritary=False),
@@ -62,6 +64,10 @@ urlpatterns = [
     url(r'^suivre/(?P<pk>\d+)/reactions/$', FollowContentReaction.as_view(), name='follow-reactions'),
     url(r'^suivre/membres/(?P<pk>\d+)/$', FollowNewContent.as_view(), name='follow'),
 
+    # content alerts:
+    url(r'^alerter/(?P<pk>\d+)/$', SendContentAlert.as_view(), name='alert-content'),
+    url(r'^resoudre/(?P<pk>\d+)/$', SolveContentAlert.as_view(), name='resolve-content'),
+
     # typo:
     url(r'^reactions/typo/$', WarnTypo.as_view(), name='warn-typo'),
 
@@ -70,6 +76,8 @@ urlpatterns = [
         CreateContent.as_view(created_content_type='TUTORIAL'), name='create-tutorial'),
     url(r'^nouvel-article/$',
         CreateContent.as_view(created_content_type='ARTICLE'), name='create-article'),
+    url(r'^nouveau-billet/$',
+        CreateContent.as_view(created_content_type='OPINION'), name='create-opinion'),
     url(r'^nouveau-conteneur/(?P<pk>\d+)/(?P<slug>.+)/(?P<container_slug>.+)/$',
         CreateContainer.as_view(),
         name='create-container'),

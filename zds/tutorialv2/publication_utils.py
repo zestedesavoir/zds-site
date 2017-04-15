@@ -9,13 +9,11 @@ import zipfile
 from datetime import datetime
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.dispatch.dispatcher import receiver
 from django.template.loader import render_to_string
 from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
 from os.path import isdir, dirname
 from zds import settings
-from zds.search.models import SearchIndexContent
 from zds.settings import ZDS_APP
 from zds.tutorialv2.signals import content_unpublished
 from zds.tutorialv2.utils import retrieve_and_update_images_links
@@ -126,7 +124,7 @@ def publish_content(db_object, versioned, is_major_update=True):
     public_version.content = db_object
     public_version.must_reindex = True
     public_version.save()
-    public_version.nb_letter = public_version.get_nb_letters(md_file_path)
+    public_version.char_count = public_version.get_char_count(md_file_path)
 
     for author in db_object.authors.all():
         public_version.authors.add(author)
@@ -450,12 +448,3 @@ def unpublish_content(db_object):
         pass
 
     return False
-
-
-@receiver(content_unpublished)
-def clean_search_on_removed(sender, instance, **_):
-    from zds.tutorialv2.models.models_database import PublishableContent
-    if sender != PublishableContent.__class__:
-        return
-    # We just delete all index that correspond to the content
-    SearchIndexContent.objects.filter(publishable_content=instance).delete()

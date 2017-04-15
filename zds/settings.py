@@ -18,7 +18,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 DEBUG = True
 
-# INTERNAL_IPS = ('127.0.0.1',)  # debug toolbar
+INTERNAL_IPS = ('127.0.0.1',)  # debug toolbar
 
 DATABASES = {
     'default': {
@@ -164,7 +164,6 @@ INSTALLED_APPS = (
     'easy_thumbnails',
     'easy_thumbnails.optimize',
     'crispy_forms',
-    'haystack',
     'munin',
     'social.apps.django_app.default',
     'rest_framework',
@@ -184,7 +183,7 @@ INSTALLED_APPS = (
     'zds.tutorialv2',
     'zds.member',
     'zds.featured',
-    'zds.search',
+    'zds.searchv2',
     'zds.notification',
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
@@ -299,7 +298,7 @@ LOGGING = {
     },
     'handlers': {
         'mail_admins': {
-            'level': 'ERROR',
+            'level': 'DEBUG',
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
         }
@@ -307,7 +306,7 @@ LOGGING = {
     'loggers': {
         'django.request': {
             'handlers': ['mail_admins'],
-            'level': 'ERROR',
+            'level': 'DEBUG',
             'propagate': True,
         },
     }
@@ -343,15 +342,19 @@ PANDOC_PDF_PARAM = ('--latex-engine=xelatex '
 PANDOC_LOG = './pandoc.log'
 PANDOC_LOG_STATE = False
 
-HAYSTACK_CONNECTIONS = {
+ES_ENABLED = True
+
+ES_CONNECTIONS = {
     'default': {
-        'ENGINE': 'haystack.backends.solr_backend.SolrEngine',
-        'URL': 'http://127.0.0.1:8983/solr'
-        # ...or for multicore...
-        # 'URL': 'http://127.0.0.1:8983/solr/mysite',
-    },
+        'hosts': ['localhost:9200'],
+    }
 }
-HAYSTACK_CUSTOM_HIGHLIGHTER = 'zds.utils.highlighter.SearchHighlighter'
+
+ES_SEARCH_INDEX = {
+    'name': 'zds_search',
+    'shards': 3,
+    'replicas': 0,
+}
 
 GEOIP_PATH = os.path.join(BASE_DIR, 'geodata')
 
@@ -470,6 +473,10 @@ ZDS_APP = {
         'home_number': 3,
         'repo_path': os.path.join(BASE_DIR, 'articles-data')
     },
+    'opinions': {
+        'home_number': 5,
+        'repo_path': os.path.join(BASE_DIR, 'opinions-data')
+    },
     'tutorial': {
         'repo_path': os.path.join(BASE_DIR, 'tutoriels-private'),
         'repo_public_path': os.path.join(BASE_DIR, 'tutoriels-public'),
@@ -516,11 +523,11 @@ ZDS_APP = {
         'top_tag_exclu': ['bug', 'suggestion', 'tutoriel', 'beta', 'article']
     },
     'topic': {
-        'home_number': 6,
+        'home_number': 5,
     },
     'comment': {
         'max_pings': 15,
-        'enable_pings': False,
+        'enable_pings': True,
     },
     'featured_resource': {
         'featured_per_page': 100,
@@ -531,6 +538,47 @@ ZDS_APP = {
     },
     'paginator': {
         'folding_limit': 4
+    },
+    'search': {
+        'mark_keywords': ['javafx', 'haskell', 'groovy', 'powershell', 'latex', 'linux', 'windows'],
+        'results_per_page': 20,
+        'search_groups': {
+            'content': (
+                _(u'Contenus publiés'), ['publishedcontent', 'chapter']
+            ),
+            'topic': (
+                _(u'Sujets du forum'), ['topic']
+            ),
+            'post': (
+                _(u'Messages du forum'), ['post']
+            ),
+        },
+        'boosts': {
+            'publishedcontent': {
+                'global': 3.0,
+                'if_article': 1.0,
+                'if_tutorial': 1.0,
+                'if_medium_or_big_tutorial': 1.5,
+                'if_opinion': 0.66,
+                'if_opinion_not_picked': 0.5
+            },
+            'topic': {
+                'global': 2.0,
+                'if_solved': 1.1,
+                'if_sticky': 1.2,
+                'if_locked': 0.1,
+            },
+            'chapter': {
+                'global': 1.5,
+            },
+            'post': {
+                'global': 1.0,
+                'if_first': 1.2,
+                'if_useful': 1.5,
+                'ld_ratio_above_1': 1.05,
+                'ld_ratio_below_1': 0.95,
+            }
+        }
     },
     'visual_changes': [],
     'display_search_bar': True
@@ -595,4 +643,7 @@ except ImportError:
 if DEBUG:
     INSTALLED_APPS += (
         'debug_toolbar',
+    )
+    MIDDLEWARE_CLASSES += (
+        'debug_toolbar.middleware.DebugToolbarMiddleware',
     )

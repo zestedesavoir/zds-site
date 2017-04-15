@@ -4,9 +4,8 @@ import os.path
 import random
 
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
-from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.shortcuts import render, get_object_or_404
 from django.template.loader import render_to_string
@@ -21,6 +20,7 @@ from zds.member.decorator import can_write_and_read_now
 from zds.pages.forms import AssocSubscribeForm
 from zds.pages.models import GroupContact
 from zds.settings import BASE_DIR, ZDS_APP
+from zds.searchv2.forms import SearchForm
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent
 from zds.utils.forums import create_topic
 from zds.utils.models import Alert
@@ -31,6 +31,7 @@ def home(request):
 
     tutos = PublishableContent.objects.get_last_tutorials()
     articles = PublishableContent.objects.get_last_articles()
+    opinions = PublishableContent.objects.get_last_opinions()
 
     try:
         with open(os.path.join(BASE_DIR, 'quotes.txt'), 'r') as quotes_file:
@@ -38,21 +39,16 @@ def home(request):
     except IOError:
         quote = ZDS_APP['site']['slogan']
 
-    try:
-        with open(os.path.join(BASE_DIR, 'suggestions.txt'), 'r') as suggestions_file:
-            suggestions = ', '.join(random.sample(suggestions_file.readlines(), 5)) + '...'
-    except IOError:
-        suggestions = 'Mathématiques, Droit, UDK, Langues, Python...'
-
     return render(request, 'home.html', {
         'featured_message': FeaturedMessage.objects.get_last_message(),
         'last_tutorials': tutos,
         'last_articles': articles,
+        'last_opinions': opinions,
         'last_featured_resources': FeaturedResource.objects.get_last_featured(),
         'last_topics': Topic.objects.get_last_topics(),
         'contents_count': PublishedContent.objects.get_contents_count(),
         'quote': quote.replace('\n', ''),
-        'suggestions': suggestions,
+        'search_form': SearchForm(initial={}),
     })
 
 
@@ -134,11 +130,8 @@ def cookies(request):
 
 @can_write_and_read_now
 @login_required
+@permission_required('forum.change_post', raise_exception=True)
 def alerts(request):
-    # only staff can see alerts list
-    if not request.user.has_perm('forum.change_post'):
-        raise PermissionDenied
-
     outstanding = Alert.objects.filter(solved=False).order_by('-pubdate')
     solved = Alert.objects.filter(solved=True).order_by('-pubdate')[:15]
 

@@ -86,23 +86,6 @@
             {% endif %}
         </ul>
 
-        {% if perms.member.change_profile and not profile.is_private %}
-            <div>
-                {% trans "Remarques sur cet utilisateur" %} ({{ profile.karma }}) :
-                <ul>
-                {% if karmanotes.count > 0 %}
-                    {% for note in karmanotes %}
-                        <li><strong>{{ note.karma }}</strong> {{ note.pubdate|format_date:True }} {% trans "par" %} {{ note.moderator.username }} : {{ note.note }}</li>
-                    {% endfor %}
-                {% else %}
-                    <li>{% trans "Cet utilisateur n'a reçu aucune remarque" %}</li>
-                {% endif %}
-                </ul>
-                <a href="#karmatiser-modal" class="open-modal">{% trans "Ajouter une remarque" %}</a>
-                {% crispy karmaform %}
-            </div>
-        {% endif %}
-
         {% if profile.sign %}
             <h2 id="signature">{% trans "Signature" %}</h2>
             {{ profile.sign|emarkdown_inline }}
@@ -143,6 +126,15 @@
                 {% endfor %}
             </div>
         {% endif %}
+
+        {% if opinions %}
+            <h2 class="ico-after ico-opinions" id="derniers-billets">{% trans "Derniers billets" %}</h2>
+            <div class="content-item-list">
+                {% for public_opinion in opinions %}
+                    {% include 'tutorialv2/includes/content_item.part.html' with show_description=True public_content=public_opinion %}
+                {% endfor %}
+            </div>
+        {% endif %}
     </section>
 
 
@@ -156,6 +148,45 @@
             {% else %}
                 {{ profile.biography|emarkdown }}
             {% endif %}
+        </section>
+    {% endif %}
+
+    {% if perms.member.change_profile and actions %}
+        <hr class="clearfix" />
+        <section class="full-content-wrapper without-margin article-content">
+            <h2 id="historique-moderation">{% trans "Historique de modération" %}</h2>
+            <table class="fullwidth">
+                <thead>
+                    <th>{% trans "Action" %}</th>
+                    <th>{% trans "Explication" %}</th>
+                    <th class="wide">{% trans "Modérateur" %}</th>
+                    <th class="wide">{% trans "Date" %}</th>
+                </thead>
+                <tbody>
+                    {% for action in actions %}
+                        <tr>
+                            <td>
+                                {% if action.type %}
+                                    {{ action.type }}
+                                {% elif action.karma %}
+                                    {% trans "Modification du karma" %} : {{ action.karma }}
+                                {% else %}
+                                    –
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if action.note %}
+                                    {{ action.note }}
+                                {% else %}
+                                    –
+                                {% endif %}
+                            </td>
+                            <td class="wide"><a href="{% url "member-detail" action.moderator.username %}">{{ action.moderator.username }}</a></td>
+                            <td class="wide">{{ action.pubdate|format_date|capfirst }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </section>
     {% endif %}
 
@@ -187,10 +218,15 @@
                         {% trans "Modifier le profil" %}
                     </a>
                 {% endif %}
-                {% if perms.member.super_user %}
+                {% if user.is_superuser %}
                     <a href="{% url "member-settings-promote" profile.user.pk %}" class="new-btn ico-after edit gear blue">
-                        {% trans "Promouvoir" %}
+                        {% trans "Gestion des groupes" %}
                     </a>
+                    {% if user.is_staff %}
+                        <a href="{% url 'admin:auth_user_change' profile.user.pk %}" class="new-btn ico-after edit gear blue">
+                            {% trans "Administration de Django" %}
+                        </a>
+                    {% endif %}
                 {% endif %}
             </div>
         {% endif %}
@@ -298,6 +334,13 @@
                     </a>
                 </li>
             {% endif %}
+            {% if perms.member.change_profile and actions %}
+                <li>
+                    <a href="#historique-moderation">
+                        {% trans "Historique de modération" %}
+                    </a>
+                </li>
+            {% endif %}
         </ul>
     </div>
 
@@ -394,7 +437,7 @@
                                 {% trans "En béta" %}
                             </a>
                         </li>
-                     {% endif %}
+                    {% endif %}
                     {% if profile.user == user %}
                         {% if articles_validation_count > 0 %}
                             <li>
@@ -429,6 +472,43 @@
                             <li class="inactive mobile-menu-link mobile-menu-sublink">
                                 <span>
                                     <span class="count">{{ articles_draft_count }}</span>
+                                    {% trans "En rédaction" %}
+                                </span>
+                            </li>
+                        {% endif %}
+                    {% endif %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        {% with opinions_draft_count=profile.get_draft_opinions.count opinions_public_count=profile.get_public_opinions.count %}
+            {% if opinions_draft_count > 0 or opinions_public_count > 0 %}
+                <h4 class="mobile-menu-link" data-title="{% trans 'Billets' %}">{% trans 'Billets' %}</h4>
+                <ul>
+                    {% if opinions_public_count > 0 %}
+                        <li>
+                            <a href="{% url "content:find-opinion" usr.pk %}?filter=public"
+                               class="mobile-menu-link mobile-menu-sublink"
+                            >
+                                <span class="count">{{ opinions_public_count }}</span>
+                                {% trans "En ligne" %}
+                            </a>
+                        </li>
+                    {% endif %}
+                    {% if opinions_draft_count > 0 %}
+                        {% if profile.user == user %}
+                            <li>
+                                <a href="{% url "content:find-opinion" usr.pk %}?filter=redaction"
+                                   class="mobile-menu-link mobile-menu-sublink"
+                                >
+                                    <span class="count">{{ opinions_draft_count }}</span>
+                                    {% trans "En rédaction" %}
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="inactive mobile-menu-link mobile-menu-sublink">
+                                <span>
+                                    <span class="count">{{ opinions_draft_count }}</span>
                                     {% trans "En rédaction" %}
                                 </span>
                             </li>
@@ -495,6 +575,24 @@
                 </li>
             </ul>
 
+            {% if not profile.is_private %}
+                <h4>{% trans "Karma" %}</h4>
+                <ul>
+                    <li class="inactive">
+                        <span>
+                            {% trans "Valeur actuelle" %}
+                            <span class="count">{{ profile.karma }}</span>
+                        </span>
+                    </li>
+                    <li>
+                        <a href="#karmatiser-modal" class="open-modal">
+                            {% trans "Ajouter une remarque" %}
+                        </a>
+                        {% crispy karmaform %}
+                    </li>
+                </ul>
+            {% endif %}
+
             {% if not profile.is_private and usr != user %}
             <h4>{% trans "Sanctions" %}</h4>
             <ul>
@@ -543,7 +641,7 @@
                                 Pour quelle raison souhaitez-vous <strong>lever la sanction</strong> de ce membre ?
                                 {% endblocktrans %}
                             </p>
-                            <input type="text" name="unls-text" class="expand" placeholder="Bonne actions ?">
+                            <input type="text" name="unls-text" class="expand" placeholder="Bonne action ?">
                             {% csrf_token %}
                             <button type="submit" name="un-ls">
                                 {% trans "Confirmer" %}

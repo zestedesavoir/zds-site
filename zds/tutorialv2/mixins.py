@@ -261,6 +261,8 @@ class SingleContentDetailViewMixin(SingleContentViewMixin, DetailView):
         context['content'] = self.versioned_object
         context['can_edit'] = self.is_author
         context['is_staff'] = self.is_staff
+        if self.object.type == 'OPINION':
+            context['can_publish'] = not self.object.is_definitely_unpublished()
         if self.sha != self.object.sha_draft:
             context['version'] = self.sha
 
@@ -291,6 +293,10 @@ class ContentTypeMixin(object):
         if self.current_content_type == 'TUTORIAL':
             v_type_name = _(u'tutoriel')
             v_type_name_plural = _(u'tutoriels')
+
+        if self.current_content_type == 'OPINION':
+            v_type_name = _(u'billet')
+            v_type_name_plural = _(u'billets')
 
         context['current_content_type'] = self.current_content_type
         context['verbose_type_name'] = v_type_name
@@ -379,7 +385,7 @@ class SingleOnlineContentViewMixin(ContentTypeMixin):
             else:  # should only happen if the content is unpublished
                 raise Http404(u"La redirection est activée mais le contenu n'est pas public.")
 
-        self.is_author = self.request.user in obj.content.authors.all()
+        self.is_author = self.request.user in obj.authors.all()
         self.is_staff = self.request.user.has_perm('tutorialv2.change_publishablecontent')
 
         self.current_content_type = obj.content_type
@@ -401,7 +407,7 @@ class SingleOnlineContentViewMixin(ContentTypeMixin):
 
 class SingleOnlineContentDetailViewMixin(SingleOnlineContentViewMixin, DetailView):
     """
-    This enhanced DetailView ensure,
+    This enhanced DetailView ensures,
 
     - by rewriting `get()`, that:
         * `self.object` contains the result of `get_object()` (as it must be if `get()` was not rewritten)
@@ -440,6 +446,7 @@ class SingleOnlineContentDetailViewMixin(SingleOnlineContentViewMixin, DetailVie
         context = super(SingleOnlineContentDetailViewMixin, self).get_context_data(**kwargs)
 
         context['content'] = self.versioned_object
+        context['is_obsolete'] = self.object.is_obsolete
         context['public_object'] = self.public_content_object
         context['can_edit'] = self.request.user in self.object.authors.all()
         context['isantispam'] = self.object.antispam(self.request.user)
@@ -537,3 +544,25 @@ class SingleContentDownloadViewMixin(SingleContentViewMixin, DownloadViewMixin):
         self.versioned_object = self.get_versioned_object()
 
         return super(SingleContentDownloadViewMixin, self).get(context, **response_kwargs)
+
+
+class ValidationBeforeViewMixin(SingleContentDetailViewMixin):
+    """
+    Ensure the content require validation before publication.
+    """
+
+    def get(self, request, *args, **kwargs):
+        if not self.get_object().requires_validation_before():
+            raise PermissionDenied
+        return super(ValidationBeforeViewMixin, self).get(request, *args, **kwargs)
+
+
+class NoValidationBeforeFormViewMixin(SingleContentFormViewMixin):
+    """
+    Ensure the content do not require validation before publication.
+    """
+
+    def get_form_kwargs(self):
+        if self.versioned_object.requires_validation_before():
+            raise PermissionDenied
+        return super(NoValidationBeforeFormViewMixin, self).get_form_kwargs()

@@ -1,5 +1,0 @@
-{{ object.title }}
-
-{{ object.extract_content }}
-
-{{ object.keywords }}

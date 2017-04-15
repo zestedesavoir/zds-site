@@ -49,12 +49,22 @@
     </h1>
 
     {% include 'tutorialv2/includes/tags_authors.part.html' with content=content online=True %}
+
+    {% if is_obsolete %}
+        <div class="content-wrapper">
+            <div class="alert-box warning">
+                {% blocktrans %}
+                    Ce contenu est obsolète. Il peut contenir des informations intéressantes mais soyez prudent avec celles-ci.
+                {% endblocktrans %}
+            </div>
+        </div>
+    {% endif %}
 {% endblock %}
 
 
 
 {% block content %}
-    {% if not content.is_article %}
+    {% if content.is_tutorial %}
         {% include "tutorialv2/includes/chapter_pager.part.html" with position="top" online=True %}
     {% endif %}
     {% if container.has_extracts %}
@@ -76,7 +86,7 @@
         {% endif %}
 
     {% endif %}
-    {% if not content.is_article %}
+    {% if content.is_tutorial %}
         {% include "tutorialv2/includes/chapter_pager.part.html" with position="bottom" online=True %}
     {% endif %}
 

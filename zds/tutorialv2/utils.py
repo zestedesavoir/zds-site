@@ -21,6 +21,7 @@ from uuslug import slugify
 from zds import settings
 from zds.notification import signals
 from zds.tutorialv2 import REPLACE_IMAGE_PATTERN, VALID_SLUG
+from zds.tutorialv2.models import CONTENT_TYPE_LIST
 from zds.utils import get_current_user
 from zds.utils import slugify as old_slugify
 from zds.utils.models import Licence
@@ -494,7 +495,7 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
             versioned.description = json['description']
 
         if 'type' in json:
-            if json['type'] == 'ARTICLE' or json['type'] == 'TUTORIAL':
+            if json['type'] in CONTENT_TYPE_LIST:
                 versioned.type = json['type']
 
         if 'licence' in json:
@@ -511,7 +512,8 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
         # then, fill container with children
         fill_containers_from_json(json, versioned)
     else:
-        # MINIMUM (!) fallback for version 1.0
+        # minimal support for deprecated manifest version 1
+        # supported content types are exclusively ARTICLE and TUTORIAL
 
         if 'type' in json:
             if json['type'] == 'article':
@@ -763,6 +765,22 @@ def init_new_repo(db_object, introduction_text, conclusion_text, commit_message=
         db_object.save()
 
     return versioned_content
+
+
+def clone_repo(old_path, new_path):
+    """
+    Proxy to ``git clone command``. Ensure directory are properly created
+
+    :param old_path: path of the repo to be cloned
+    :param new_path: path of the target repo
+    :return: the target repository encapsulated in a ``GitPython`` object.
+    :rtype: Repo
+    """
+    if not os.path.isdir(new_path):
+        os.makedirs(new_path, mode=0o777)
+    old_repo = Repo(old_path)
+    new_repo = old_repo.clone(new_path)
+    return new_repo
 
 
 def get_commit_author():

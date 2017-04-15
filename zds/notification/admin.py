@@ -17,5 +17,6 @@ class SubscriptionAdmin(admin.ModelAdmin):
 
     raw_id_fields = ('user', 'last_notification')
 
+
 admin.site.register(Notification, NotificationAdmin)
 admin.site.register(Subscription, SubscriptionAdmin)

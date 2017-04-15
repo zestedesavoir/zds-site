@@ -16,11 +16,11 @@ register = template.Library()
 def top_categories(user):
     max_tags = settings.ZDS_APP['forum']['top_tag_max']
 
-    forums_pub = Forum.objects.filter(group__isnull=True).select_related('category').distinct().all()
+    forums_pub = Forum.objects.filter(groups__isnull=True).select_related('category').distinct().all()
     if user and user.is_authenticated():
         forums_private = Forum\
             .objects\
-            .filter(group__isnull=False, group__in=user.groups.all())\
+            .filter(groups__isnull=False, groups__in=user.groups.all())\
             .select_related('category').distinct().all()
         forums = list(forums_pub | forums_private)
     else:
@@ -72,6 +72,13 @@ def top_categories_content(_type):
         subcategories_contents = PublishedContent.objects\
             .values('content__subcategory').all()
 
+    # get tags from PublishedContent
+    if _type:
+        tags = PublishedContent.objects.get_top_tags([_type], limit=settings.ZDS_APP['forum']['top_tag_max'])
+    else:
+        tags = PublishedContent.objects.get_top_tags(['TUTORIAL', 'ARTICLE', 'OPINION'],
+                                                     limit=settings.ZDS_APP['forum']['top_tag_max'])
+
     # get parent categories of subcategories from PublishedContent
     categories_from_subcategories = CategorySubCategory.objects\
         .filter(is_main=True)\
@@ -91,9 +98,7 @@ def top_categories_content(_type):
         else:
             cats[key] = [(csc['subcategory__title'], csc['subcategory__slug'])]
 
-    return {'tags': PublishedContent.objects.get_top_tags(['TUTORIAL', 'ARTICLE'],
-                                                          limit=settings.ZDS_APP['forum']['top_tag_max']),
-            'categories': cats}
+    return {'tags': tags, 'categories': cats}
 
 
 @register.filter('auth_forum')

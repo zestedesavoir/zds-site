@@ -8,6 +8,7 @@ addons:
     - mysql-client-5.6
     - language-pack-fr
     - unzip
+    - oracle-java8-set-default
 
 git:
   depth: 1
@@ -21,7 +22,7 @@ env:
   global:
     - secure: "azmDZZQZzf88zpbkYpLpxI66vpEVyv+kniW0QdWAt4qlys8P5OcO3VJBR5YT85vlvnjN9b6raWQAL1ymee0WmVdTmzXed8XjZv7t9QXVw7pfezxMKlEftVp/4Cu4wtvbew0ViZXNWV2hNXHzEqlhgnoIOq94i0UzZ7grMrI0xm0="
   matrix:
-    - TEST_APP="-e back_mysql -- zds.member zds.mp zds.utils zds.forum zds.gallery zds.pages zds.search zds.featured zds.notification"
+    - TEST_APP="-e back_mysql -- zds.member zds.mp zds.utils zds.forum zds.gallery zds.pages zds.featured zds.notification zds.searchv2"
     - TEST_APP="-e back_mysql -- zds.tutorialv2"
     - TEST_APP="-e front"
 
@@ -44,6 +45,10 @@ cache:
     - $HOME/.pandoc
     - $HOME/.texlive
     - $HOME/bin
+
+before_install:
+  # see https://docs.travis-ci.com/user/database-setup/#Installing-specific-versions-of-ElasticSearch
+  - curl -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.3.0.deb && sudo dpkg -i --force-confnew elasticsearch-5.3.0.deb && sudo service elasticsearch start
 
 before_script:
   # MySQL config

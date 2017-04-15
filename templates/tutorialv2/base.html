@@ -31,21 +31,33 @@
         current
     {% endif %}
 {% endblock %}
+{% block menu_opinion %}
+    {% if current_content_type == "OPINION" %}
+        current
+    {% endif %}
+    {%  if content and content.type == "OPINION" %}
+        current
+    {% endif %}
+{% endblock %}
 
 
 {% block breadcrumb_base %}
     {% if user in content.authors.all %}
         {% if content.type == 'TUTORIAL' %}
-            <li><a href="{% url "content:find-tutorial" user.pk %}">{% trans "Tutoriels de" %} {{ user.username }}</a></li>
+            <li><a href="{% url 'content:find-tutorial' user.pk %}">{% trans "Tutoriels de" %} {{ user.username }}</a></li>
         {% elif content.type == 'ARTICLE' %}
-            <li><a href="{% url "content:find-article" user.pk %}">{% trans "Articles de" %} {{ user.username }}</a></li>
+            <li><a href="{% url 'content:find-article' user.pk %}">{% trans "Articles de" %} {{ user.username }}</a></li>
+        {% elif content.type == 'OPINION' %}
+            <li><a href="{% url 'content:find-opinion' user.pk %}">{% trans "Tribune de" %} {{ user.username }}</a></li>
         {% endif %}
     {% elif content %}
         <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
             {% if content.type == 'TUTORIAL' %}
-                <a href="{% url "tutorial:list" %}" itemprop="url"><span itemprop="title">{% trans "Tutoriels" %}</span></a>
+                <a href="{% url 'tutorial:list' %}" itemprop="url"><span itemprop="title">{% trans "Tutoriels" %}</span></a>
             {% elif content.type == 'ARTICLE' %}
                 <a href="{% url 'article:list' %}" itemprop="url"><span itemprop="title">{% trans "Articles" %}</span></a>
+            {% elif content.type == 'OPINION' %}
+                <a href="{% url 'opinion:list' %}" itemprop="url"><span itemprop="title">{% trans "Tribunes" %}</span></a>
             {% endif %}
         </li>
     {% endif %}

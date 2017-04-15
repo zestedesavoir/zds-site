@@ -125,14 +125,6 @@
                 text-align: left;
                 background: rgba(0, 0, 0, 0);
 
-                button {
-                    span {
-                        display: inline-block;
-                        height: 30px;
-                        line-height: 26px;
-                    }
-                }
-
                 &[data-num] {
                     position: relative;
 
@@ -301,6 +293,10 @@
             button {
                 width: 100%;
                 line-height: 28px;
+
+                &.follow span {
+                    vertical-align: inherit;
+                }
             }
 
 

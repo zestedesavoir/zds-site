@@ -4,6 +4,7 @@ from django.contrib.auth.models import User, Permission, Group
 import factory
 
 from zds.member.models import Profile
+from zds import settings
 
 
 class UserFactory(factory.DjangoModelFactory):
@@ -68,6 +69,40 @@ class StaffFactory(factory.DjangoModelFactory):
         return user
 
 
+class DevFactory(factory.DjangoModelFactory):
+    """
+    This factory creates dev User.
+    WARNING: Don't try to directly use `DevFactory`, this didn't create associated Profile then don't work!
+    Use `DevProfileFactory` instead.
+    """
+    class Meta:
+        model = User
+
+    username = factory.Sequence('firmdev{0}'.format)
+    email = factory.Sequence('firmdev{0}@zestedesavoir.com'.format)
+    password = 'hostel77'
+
+    is_active = True
+
+    @classmethod
+    def _prepare(cls, create, **kwargs):
+        password = kwargs.pop('password', None)
+        user = super(DevFactory, cls)._prepare(create, **kwargs)
+        if password:
+            user.set_password(password)
+            if create:
+                user.save()
+        group_dev = Group.objects.filter(name=settings.ZDS_APP['member']['dev_group']).first()
+        if group_dev is None:
+            group_dev = Group(name=settings.ZDS_APP['member']['dev_group'])
+            group_dev.save()
+
+        user.groups.add(group_dev)
+
+        user.save()
+        return user
+
+
 class ProfileFactory(factory.DjangoModelFactory):
     """
     Use this factory when you need a complete Profile for a standard user.
@@ -102,6 +137,25 @@ class StaffProfileFactory(factory.DjangoModelFactory):
         model = Profile
 
     user = factory.SubFactory(StaffFactory)
+
+    last_ip_address = '192.168.2.1'
+    site = 'www.zestedesavoir.com'
+
+    @factory.lazy_attribute
+    def biography(self):
+        return u'My name is {0} and I i\'m the guy who kill the bad guys '.format(self.user.username.lower())
+
+    sign = 'Please look my flavour'
+
+
+class DevProfileFactory(factory.DjangoModelFactory):
+    """
+    Use this factory when you need a complete Profile for a dev user.
+    """
+    class Meta:
+        model = Profile
+
+    user = factory.SubFactory(DevFactory)
 
     last_ip_address = '192.168.2.1'
     site = 'www.zestedesavoir.com'

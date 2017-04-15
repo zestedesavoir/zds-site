@@ -25,6 +25,7 @@ overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'conte
 
 @override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
 @override_settings(ZDS_APP=overrided_zds_app)
+@override_settings(ES_ENABLED=False)
 class ContentTests(TestCase):
 
     def setUp(self):
@@ -516,8 +517,8 @@ class ContentTests(TestCase):
         self.assertNotIn(' another tag', tuto_tags_list)
         self.assertIn('another tag', tuto_tags_list)
 
-    def test_nb_letter_after_publication(self):
-        """Test the ``get_nb_letters()`` function.
+    def test_char_count_after_publication(self):
+        """Test the ``get_char_count()`` function.
 
         Special care should be taken with this function, since:
 
@@ -534,7 +535,7 @@ class ContentTests(TestCase):
 
         article = PublishedContentFactory(type='ARTICLE', author_list=[author], title=u'Un titre')
         published = PublishedContent.objects.filter(content=article).first()
-        self.assertEqual(published.get_nb_letters(), 160 + len_date_now)
+        self.assertEqual(published.get_char_count(), 160 + len_date_now)
 
         tuto = PublishableContentFactory(type='TUTORIAL', author_list=[author], title=u'Un titre')
 
@@ -550,7 +551,7 @@ class ContentTests(TestCase):
         tuto.save()
 
         published = PublishedContent.objects.filter(content=tuto).first()
-        self.assertEqual(published.get_nb_letters(), 335 + len_date_now)
+        self.assertEqual(published.get_char_count(), 335 + len_date_now)
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
@@ -560,5 +561,5 @@ class ContentTests(TestCase):
         if os.path.isdir(settings.MEDIA_ROOT):
             shutil.rmtree(settings.MEDIA_ROOT)
 
-        # re-enable PDF builds
+        # re-activate PDF build
         settings.ZDS_APP['content']['build_pdf_when_published'] = True
