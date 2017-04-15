@@ -109,6 +109,7 @@
             &.inactive > span,
             &.inactive > em {
                 display: block;
+                cursor: pointer;
                 padding-left: 25px;
                 padding-right: 10px;
                 text-decoration: none;
@@ -292,6 +293,10 @@
             button {
                 width: 100%;
                 line-height: 28px;
+
+                &.follow span {
+                    vertical-align: inherit;
+                }
             }
 
 

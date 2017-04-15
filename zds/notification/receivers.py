@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
+import logging
+
+from django.db.backends.dummy.base import DatabaseError
+
+import zds
 
 try:
     from functools import wraps
@@ -13,9 +18,13 @@ from django.dispatch import receiver
 from zds.forum.models import Topic, Post
 from zds.mp.models import PrivateTopic, PrivatePost
 from zds.notification.models import TopicAnswerSubscription, ContentReactionAnswerSubscription, \
-    PrivateTopicAnswerSubscription, Subscription, Notification, NewTopicSubscription, NewPublicationSubscription
+    PrivateTopicAnswerSubscription, Subscription, Notification, NewTopicSubscription, NewPublicationSubscription, \
+    PingSubscription
 from zds.notification.signals import answer_unread, content_read, new_content, edit_content
 from zds.tutorialv2.models.models_database import PublishableContent, ContentReaction
+import zds.tutorialv2.signals
+
+logger = logging.getLogger(__name__)
 
 
 def disable_for_loaddata(signal_handler):
@@ -99,9 +108,12 @@ def mark_content_reactions_read(sender, **kwargs):
         if subscription:
             subscription.mark_notification_read()
     elif target == PublishableContent:
-        for author in content.authors.all():
-            subscription = NewPublicationSubscription.objects.get_existing(user, author, is_active=True)
-            if subscription:
+        authors = list(content.authors.all())
+        for author in authors:
+            subscription = NewPublicationSubscription.objects.get_existing(user, author)
+            # a subscription has to be handled only if it is active OR if it was triggered from the publication
+            # event that creates an "autosubscribe" which is immediately deactivated.
+            if subscription and (subscription.is_active or subscription.user in authors):
                 subscription.mark_notification_read(content=content)
 
 
@@ -122,6 +134,17 @@ def mark_pm_reactions_read(sender, **kwargs):
         subscription.mark_notification_read()
 
 
+@receiver(content_read, sender=ContentReaction)
+@receiver(content_read, sender=Post)
+def mark_comment_read(sender, **kwargs):
+    comment = kwargs.get('instance')
+    user = kwargs.get('user')
+
+    subscription = PingSubscription.objects.get_existing(user, comment, is_active=True)
+    if subscription:
+        subscription.mark_notification_read(comment)
+
+
 @receiver(edit_content, sender=Topic)
 def edit_topic_event(sender, **kwargs):
     """
@@ -135,7 +158,7 @@ def edit_topic_event(sender, **kwargs):
         # If the topic is moved to a restricted forum, users who cannot read this topic any more unfollow it.
         # This avoids unreachable notifications.
         TopicAnswerSubscription.objects.unfollow_and_mark_read_everybody_at(topic)
-
+        NewTopicSubscription.objects.mark_read_everybody_at(topic)
         # If the topic is moved to a forum followed by the user, we update the subscription of the notification.
         # Otherwise, we update the notification as dead.
         content_type = ContentType.objects.get_for_model(topic)
@@ -220,19 +243,39 @@ def content_published_event(sender, **kwargs):
     :param kwargs:  contains
         - instance: the new content.
         - by_mail: Send or not an email.
-    All authors of the content follow their new content published.
+    All authors of the content follow their newly published content.
     """
     content = kwargs.get('instance')
     by_email = kwargs.get('by_email')
+    authors = list(content.authors.all())
+    for user in authors:
+        if not ContentReactionAnswerSubscription.objects.get_existing(user, content):
+            ContentReactionAnswerSubscription.objects.toggle_follow(content, user, by_email=by_email)
+        # no need for condition here, get_or_create_active has its own
+        subscription = NewPublicationSubscription.objects.get_or_create_active(user, user)
+        subscription.send_notification(content=content, sender=user, send_email=by_email)
+        # this allows to fix the "auto subscribe issue" but can deactivate a manually triggered subscription
+        subscription.deactivate()
 
-    for user in content.authors.all():
-        ContentReactionAnswerSubscription.objects.toggle_follow(content, user, by_email=by_email)
-        if not NewPublicationSubscription.objects.does_exist(user, user, is_active=True):
-            NewPublicationSubscription.objects.toggle_follow(user, user, by_email=False)
-
-        for subscription in NewPublicationSubscription.objects.get_subscriptions(user):
+        for subscription in NewPublicationSubscription.objects.get_subscriptions(user).exclude(user__in=authors):
+            # this condition is here to avoid exponential notifications when a user already follows one of the authors
+            # while they are also among the authors.
             by_email = subscription.by_email and subscription.user.profile.email_for_answer
             subscription.send_notification(content=content, sender=user, send_email=by_email)
+
+
+@receiver(new_content, sender=ContentReaction)
+@receiver(new_content, sender=Post)
+@disable_for_loaddata
+def answer_comment_event(sender, **kwargs):
+    comment = kwargs.get('instance')
+    user = kwargs.get('user')
+
+    assert comment is not None
+    assert user is not None
+
+    subscription = PingSubscription.objects.get_or_create_active(user, comment)
+    subscription.send_notification(content=comment, sender=comment.author, send_email=False)
 
 
 @receiver(new_content, sender=PrivatePost)
@@ -249,6 +292,11 @@ def answer_private_topic_event(sender, **kwargs):
     by_email = kwargs.get('by_email')
 
     if post.position_in_topic == 1:
+        # Subscribe the author.
+        if by_email:
+            PrivateTopicAnswerSubscription.objects.toggle_follow(post.privatetopic, post.author, by_email=by_email)
+        else:
+            PrivateTopicAnswerSubscription.objects.toggle_follow(post.privatetopic, post.author)
         # Subscribe at the new private topic all participants.
         for participant in post.privatetopic.participants.all():
             if by_email:
@@ -261,12 +309,6 @@ def answer_private_topic_event(sender, **kwargs):
         if subscription.user != post.author:
             send_email = by_email and (subscription.user.profile.email_for_answer or post.position_in_topic == 1)
             subscription.send_notification(content=post, sender=post.author, send_email=send_email)
-
-    # Follow private topic on answering
-    if by_email:
-        PrivateTopicAnswerSubscription.objects.toggle_follow(post.privatetopic, post.author, by_email=by_email)
-    else:
-        PrivateTopicAnswerSubscription.objects.toggle_follow(post.privatetopic, post.author)
 
 
 @receiver(m2m_changed, sender=PrivateTopic.participants.through)
@@ -326,3 +368,27 @@ def delete_notifications(sender, instance, **kwargs):
     """
     Subscription.objects.filter(user=instance).delete()
     Notification.objects.filter(sender=instance).delete()
+
+
+@receiver(zds.tutorialv2.signals.content_unpublished, sender=PublishableContent)
+def cleanup_notification_for_unpublished_content(sender, instance, **_):
+    """
+    Avoid persistant notification if a content is unpublished. A real talk has to be lead to avoid such cross module \
+    dependency.
+
+    :param sender: always PublishableContent
+    :param instance: the unpublished content
+    :param _: the useless kwargs
+    """
+    logger.debug('deal with %s(%s) notifications.', sender, instance)
+    try:
+        notifications = Notification.objects\
+            .filter(content_type=ContentType.objects.get_for_model(instance, True), object_id=instance.pk)
+        for notification in notifications:
+            if notification.subscription.last_notification.pk == notification.pk:
+                notification.subscription.last_notification = None
+                notification.subscription.save()
+            notification.delete()
+        logger.debug('Nothing went wrong.')
+    except DatabaseError:
+        logger.exception()

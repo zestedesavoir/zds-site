@@ -34,8 +34,8 @@
 
 
 {% block content %}
-	<div data-solved-topics-url="{% url "forum-complete-topic" %}">
-   		{% crispy form %}
+    <div>
+      {% crispy form %}
     </div>
 
     {% if form.text.value %}

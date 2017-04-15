@@ -5,15 +5,18 @@ from git import Repo
 import os
 import shutil
 import codecs
+from uuslug import slugify
 
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
+
 from zds.settings import ZDS_APP
+from zds.tutorialv2.models.mixins import TemplatableContentModelMixin
 from zds.tutorialv2.utils import default_slug_pool, export_content, get_commit_author, InvalidOperationError
-from uuslug import slugify
 from zds.utils.misc import compute_hash
+from zds.tutorialv2.models import SINGLE_CONTAINER, CONTENT_TYPES_BETA, CONTENT_TYPES_VALIDATION_BEFORE
 from zds.tutorialv2.utils import get_blob, InvalidSlugError, check_slug
 
 
@@ -26,7 +29,7 @@ class Container:
 
     It has also a tree depth.
 
-    A container could be either a tutorial/article, a part or a chapter.
+    A container could be either a tutorial/article/opinion, a part or a chapter.
     """
 
     title = ''
@@ -59,7 +62,7 @@ class Container:
         self.slug_pool = default_slug_pool()
 
     def __unicode__(self):
-        return u'<Conteneur \'{}\'>'.format(self.title)
+        return u"<Conteneur '{}'>".format(self.title)
 
     def has_extracts(self):
         """Note : this function rely on the fact that the children can only be of one type.
@@ -134,7 +137,7 @@ class Container:
         """
         if self.get_path(True) not in child_path:
             return False
-        return child_path.replace(self.get_path(True), "").replace("/", "") in self.children_dict
+        return child_path.replace(self.get_path(True), '').replace('/', '') in self.children_dict
 
     def top_container(self):
         """
@@ -215,7 +218,7 @@ class Container:
         """
         if not self.has_extracts():
             if self.get_tree_depth() < ZDS_APP['content']['max_tree_depth'] - 1:
-                if not self.top_container().is_article:
+                if not self.top_container().type in SINGLE_CONTAINER:
                     return True
         return False
 
@@ -280,8 +283,8 @@ class Container:
         Note : this function does not account for a different arrangement of the files.
         """
         # TODO : path comparison instead of pure rewritring ?
-        self.introduction = os.path.join(self.get_path(relative=True), "introduction.md")
-        self.conclusion = os.path.join(self.get_path(relative=True), "conclusion.md")
+        self.introduction = os.path.join(self.get_path(relative=True), 'introduction.md')
+        self.conclusion = os.path.join(self.get_path(relative=True), 'conclusion.md')
         for child in self.children:
             if isinstance(child, Container):
                 child.update_children()
@@ -331,7 +334,7 @@ class Container:
     def get_absolute_url_online(self):
         """
 
-        :return: the "online version" of the url
+        :return: the 'online version' of the url
         :rtype: str
         """
         base = ''
@@ -494,7 +497,7 @@ class Container:
             if self.introduction is None:
                 self.introduction = os.path.join(rel_path, 'introduction.md')
 
-            f = codecs.open(os.path.join(path, self.introduction), "w", encoding='utf-8')
+            f = codecs.open(os.path.join(path, self.introduction), 'w', encoding='utf-8')
             f.write(introduction)
             f.close()
             repo.index.add([self.introduction])
@@ -508,7 +511,7 @@ class Container:
             if self.conclusion is None:
                 self.conclusion = os.path.join(rel_path, 'conclusion.md')
 
-            f = codecs.open(os.path.join(path, self.conclusion), "w", encoding='utf-8')
+            f = codecs.open(os.path.join(path, self.conclusion), 'w', encoding='utf-8')
             f.write(conclusion)
             f.close()
             repo.index.add([self.conclusion])
@@ -521,7 +524,7 @@ class Container:
         self.top_container().dump_json()
         repo.index.add(['manifest.json'])
 
-        if commit_message == '':
+        if not commit_message:
             commit_message = _(u'Mise à jour de « {} »').format(self.title)
 
         if do_commit:
@@ -556,7 +559,7 @@ class Container:
         repo.index.add([rel_path])
 
         # make it
-        if commit_message == '':
+        if not commit_message:
             commit_message = _(u'Création du conteneur « {} »').format(title)
 
         return subcontainer.repo_update(
@@ -583,8 +586,8 @@ class Container:
             raise PermissionDenied
 
         # make it
-        if commit_message == '':
-            commit_message = _(u'Création de l\'extrait « {} »').format(title)
+        if not commit_message:
+            commit_message = _(u"Création de l'extrait « {} »").format(title)
 
         return extract.repo_update(title, text, commit_message=commit_message, do_commit=do_commit)
 
@@ -610,7 +613,7 @@ class Container:
         top.top_container().dump_json()
         repo.index.add(['manifest.json'])
 
-        if commit_message == '':
+        if not commit_message:
             commit_message = _(u'Suppression du conteneur « {} »').format(self.title)
 
         if do_commit:
@@ -628,7 +631,7 @@ class Container:
             raise ValueError(_(child_slug + " n'existe pas."))
         child_pos = self.children.index(self.children_dict[child_slug])
         if child_pos == 0:
-            raise IndexError(_(child_slug + " est le premier élément."))
+            raise IndexError(_(child_slug + ' est le premier élément.'))
         self.children[child_pos], self.children[child_pos - 1] = self.children[child_pos - 1], self.children[child_pos]
         self.children[child_pos].position_in_parent = child_pos + 1
         self.children[child_pos - 1].position_in_parent = child_pos
@@ -645,7 +648,7 @@ class Container:
             raise ValueError(_(child_slug + " n'existe pas."))
         child_pos = self.children.index(self.children_dict[child_slug])
         if child_pos == len(self.children) - 1:
-            raise IndexError(_(child_slug + " est le dernier élément."))
+            raise IndexError(_(child_slug + ' est le dernier élément.'))
         self.children[child_pos], self.children[child_pos + 1] = self.children[child_pos + 1], self.children[child_pos]
         self.children[child_pos].position_in_parent = child_pos
         self.children[child_pos + 1].position_in_parent = child_pos + 1
@@ -733,10 +736,10 @@ class Container:
         if self.get_tree_depth() == 0:
             return self.type
         elif self.get_tree_depth() == 1:
-            return _(u"Partie")
+            return _(u'Partie')
         elif self.get_tree_depth() == 2:
-            return _(u"Chapitre")
-        return _(u"Sous-chapitre")
+            return _(u'Chapitre')
+        return _(u'Sous-chapitre')
 
     def get_next_level_as_string(self):
         """Same as ``self.get_level_as_string()`` but try to guess the level of this container's children
@@ -745,11 +748,30 @@ class Container:
         :rtype: str
         """
         if self.get_tree_depth() == 0 and self.can_add_container():
-            return _(u"Partie")
+            return _(u'Partie')
         elif self.get_tree_depth() == 1 and self.can_add_container():
-            return _(u"Chapitre")
+            return _(u'Chapitre')
         else:
-            return _(u"Section")
+            return _(u'Section')
+
+    def can_be_in_beta(self):
+        """
+        Check if content can be in beta.
+
+        :return: Whether content is in beta.
+        :rtype: bool
+        """
+        return self.type in CONTENT_TYPES_BETA
+
+    def requires_validation_before(self):
+        """
+        Check if content required a validation before publication.
+        Used to check if JsFiddle is available too.
+
+        :return: Whether validation is required before publication.
+        :rtype: bool
+        """
+        return self.type in CONTENT_TYPES_VALIDATION_BEFORE
 
 
 class Extract:
@@ -772,7 +794,7 @@ class Extract:
         self.position_in_parent = position_in_parent
 
     def __unicode__(self):
-        return u'<Extrait \'{}\'>'.format(self.title)
+        return u"<Extrait '{}'>".format(self.title)
 
     def get_absolute_url(self):
         """Find the url that point to the offline version of this extract
@@ -925,7 +947,7 @@ class Extract:
 
         if text is not None:
             self.text = self.get_path(relative=True)
-            f = codecs.open(os.path.join(path, self.text), "w", encoding='utf-8')
+            f = codecs.open(os.path.join(path, self.text), 'w', encoding='utf-8')
             f.write(text)
             f.close()
 
@@ -942,8 +964,8 @@ class Extract:
         self.container.top_container().dump_json()
         repo.index.add(['manifest.json'])
 
-        if commit_message == '':
-            commit_message = _(u'Modification de l\'extrait « {} », situé dans le conteneur « {} »')\
+        if not commit_message:
+            commit_message = _(u"Modification de l'extrait « {} », situé dans le conteneur « {} »")\
                 .format(self.title, self.container.title)
 
         if do_commit:
@@ -972,8 +994,8 @@ class Extract:
         top.top_container().dump_json()
         repo.index.add(['manifest.json'])
 
-        if commit_message == '':
-            commit_message = _(u'Suppression de l\'extrait « {} »').format(self.title)
+        if not commit_message:
+            commit_message = _(u"Suppression de l'extrait « {} »").format(self.title)
 
         if do_commit:
             return self.container.top_container().commit_changes(commit_message)
@@ -999,11 +1021,11 @@ class Extract:
         return depth
 
 
-class VersionedContent(Container):
+class VersionedContent(Container, TemplatableContentModelMixin):
     """
     This class is used to handle a specific version of a tutorial.tutorial
 
-    It is created from the "manifest.json" file, and could dump information in it.
+    It is created from the 'manifest.json' file, and could dump information in it.
 
     For simplicity, it also contains DB information (but cannot modified them!), filled at the creation.
     """
@@ -1025,15 +1047,13 @@ class VersionedContent(Container):
     sha_beta = None
     sha_public = None
     sha_validation = None
+    sha_picked = None
     is_beta = False
     is_validation = False
     is_public = False
     in_beta = False
     in_validation = False
     in_public = False
-
-    is_article = False
-    is_tutorial = False
 
     authors = None
     subcategory = None
@@ -1043,11 +1063,14 @@ class VersionedContent(Container):
     update_date = None
     source = None
     antispam = True
+    tags = None
+    converted_to = None
+    content_type_attribute = 'type'
 
     def __init__(self, current_version, _type, title, slug, slug_repository=''):
         """
         :param current_version: version of the content
-        :param _type: either "TUTORIAL" or "ARTICLE"
+        :param _type: either "TUTORIAL", "ARTICLE" or "OPINION"
         :param title: title of the content
         :param slug: slug of the content
         :param slug_repository: slug of the directory that contains the repository, named after database slug.
@@ -1069,6 +1092,9 @@ class VersionedContent(Container):
     def __unicode__(self):
         return self.title
 
+    def get_absolute_url(self, version=None):
+        return TemplatableContentModelMixin.get_absolute_url(self, version)
+
     def textual_type(self):
         """Create a internationalized string with the human readable type of this content e.g The Article
 
@@ -1077,21 +1103,12 @@ class VersionedContent(Container):
         """
         if self.is_article:
             return _(u"L'Article")
+        elif self.is_tutorial:
+            return _(u'Le Tutoriel')
+        elif self.is_opinion:
+            return _(u'Le Billet')
         else:
-            return _(u"Le Tutoriel")
-
-    def get_absolute_url(self, version=None):
-        """
-
-        :return: the url to access the tutorial when offline
-        :rtype: str
-        """
-        url = reverse('content:view', args=[self.pk, self.slug])
-
-        if version and version != self.sha_draft:
-            url += '?version=' + version
-
-        return url
+            return _(u'Le Contenu')
 
     def get_absolute_url_online(self):
         """
@@ -1105,6 +1122,8 @@ class VersionedContent(Container):
             _reversed = 'article'
         elif self.is_tutorial:
             _reversed = 'tutorial'
+        elif self.is_opinion:
+            _reversed = 'opinion'
         return reverse(_reversed + ':view', kwargs={'pk': self.pk, 'slug': self.slug})
 
     def get_absolute_url_beta(self):
@@ -1159,7 +1178,7 @@ class VersionedContent(Container):
         :rtype: list[Container]
         """
         continuous_list = []
-        if not self.is_article:  # article cannot be paginated
+        if self.type not in SINGLE_CONTAINER:  # cannot be paginated
             if len(self.children) != 0 and isinstance(self.children[0], Container):  # children must be Containers !
                 for child in self.children:
                     if len(child.children) != 0:
@@ -1182,13 +1201,13 @@ class VersionedContent(Container):
     def dump_json(self, path=None):
         """Write the JSON into file
 
-        :param path: path to the file. If `None`, write in "manifest.json"
+        :param path: path to the file. If `None`, write in 'manifest.json'
         """
         if path is None:
             man_path = os.path.join(self.get_path(), 'manifest.json')
         else:
             man_path = path
-        json_data = codecs.open(man_path, "w", encoding='utf-8')
+        json_data = codecs.open(man_path, 'w', encoding='utf-8')
         json_data.write(self.get_json())
         json_data.close()
 
@@ -1262,7 +1281,7 @@ class PublicContent(VersionedContent):
         """ This initialisation function avoid the loading of the Git repository
 
         :param current_version: version of the content
-        :param _type: either "TUTORIAL" or "ARTICLE"
+        :param _type: either "TUTORIAL", "ARTICLE" or "OPINION"
         :param title: title of the content
         :param slug: slug of the content
         """

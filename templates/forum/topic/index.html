@@ -221,44 +221,79 @@
             {% endwith %}
         {% endwith %}
     </li>
-    {% if is_dev %}
-        <li>
-            <a href="#create-issue" class="open-modal ico-after github blue">{% trans 'Envoyer au bugtracker' %}</a>
-            <form action="{% url 'create-issue' topic.pk %}" method="post" id="create-issue" class="modal modal-flex">
-                {% if has_token %}
-                    {% csrf_token %}
-                    <p>
-                        {% trans 'Si vous voulez modifier ce qui sera envoyé sur GitHub, éditez ce formulaire.' %}
-                    </p>
-                    <input type="text" name="title" data-autocomplete="{ 'type': 'single' }" value="{{ topic.title }}">
-                    <textarea name="body" class="textarea" cols="40">
-                        {{ topic.first_post.text }}
-                    </textarea>
-                    {% for tag in tags %}
-                        <label for="tag-{{ tag }}">
-                            {{ tag }}<input type="checkbox" name="tag-{{ tag }}" value="{{ tag }}" id="tag-{{ tag }}">
-                        </label>
-                    {% endfor %}
-                    <button type="submit">{% trans 'Envoyer' %}</button>
-                {% else %}
-                    <p>{% trans "Il semblerait que vous n'ayez pas spécifié un token d'identification GitHub, vous ne pouvez donc pas envoyer ce sujet au bugtracker." %}</p>
-                    {% url 'update-member' as update_member %}
-                    <p>
-                        {% blocktrans %}
-                            Pour y parvenir, pensez simplement à générer un
-                            <a href="https://github.com/settings/tokens">token sur GitHub</a> et à le renseigner dans
-                            <a href="{{ update_member }}">votre profil</a>.
-                        {% endblocktrans %}
-                    </p>
-                {% endif %}
-            </form>
-        </li>
-    {% endif %}
 {% endblock %}
 
 
 
 {% block sidebar_blocks %}
+    {% if is_dev or topic.github_issue %}
+        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Développement">
+            <h3>{% trans "Développement" %}</h3>
+            <ul>
+                {% if topic.github_issue %}
+                    <li>
+                        <a href="{{ topic|get_github_issue_url }}" class="ico-after github blue">{% trans 'Ticket associé' %}</a>
+                    </li>
+
+                    {% if is_dev %}
+                        <li>
+                            <a href="#unlink-issue" class="open-modal ico-after cross red">{% trans 'Dissocier le ticket' %}</a>
+                        </li>
+                        <form action="{% url 'manage-issue' topic.pk %}" method="post" id="unlink-issue" class="modal modal-flex">
+                            {% csrf_token %}
+                            <p>
+                                {% trans 'Voulez-vous vraiment dissocier ce sujet de son ticket GitHub ?' %}
+                            </p>
+                            <button type="submit" name="unlink">{% trans 'Confirmer' %}</button>
+                        </form>
+                    {% endif %}
+                {% else %}
+                    <li>
+                        <a href="#create-issue" class="open-modal ico-after github blue">{% trans 'Créer un ticket' %}</a>
+                        <form action="{% url 'manage-issue' topic.pk %}" method="post" id="create-issue" class="modal modal-flex">
+                            {% if has_token %}
+                                {% csrf_token %}
+                                <p>
+                                    {% trans 'Si vous voulez modifier ce qui sera envoyé sur GitHub, éditez ce formulaire.' %}
+                                </p>
+                                <input type="text" name="title" value="{{ topic.title }}" required>
+                                <textarea name="body" class="textarea" cols="40" required>{{ topic.first_post.text }}</textarea>
+                                {% for tag in tags %}
+                                    <label for="tag-{{ tag }}">
+                                        {{ tag }}<input type="checkbox" name="tag-{{ tag }}" value="{{ tag }}" id="tag-{{ tag }}">
+                                    </label>
+                                {% endfor %}
+                                <button type="submit" name="create">{% trans 'Envoyer' %}</button>
+                            {% else %}
+                                <p>{% trans "Il semblerait que vous n'ayez pas spécifié de token d'identification GitHub, vous ne pouvez donc pas créer de ticket pour ce sujet." %}</p>
+                                {% url 'update-github' as update_github %}
+                                <p>
+                                    {% blocktrans %}
+                                        Pour y parvenir, pensez simplement à générer un
+                                        <a href="https://github.com/settings/tokens">token sur GitHub</a> et à le renseigner dans
+                                        <a href="{{ update_github }}">votre profil</a>.
+                                    {% endblocktrans %}
+                                </p>
+                            {% endif %}
+                        </form>
+                    </li>
+
+                    <li>
+                        <a href="#link-issue" class="open-modal ico-after arrow-right blue">{% trans 'Associer un ticket' %}</a>
+                        <form action="{% url 'manage-issue' topic.pk %}" method="post" id="link-issue" class="modal modal-flex">
+                            {% csrf_token %}
+                            <p>
+                                {% trans "Quel est le numéro du ticket GitHub que vous souhaitez associer ?" %}
+                            </p>
+                            <input type="number" name="issue" min="1" placeholder="{% trans "Numéro du ticket (sans #)" %}" required>
+                            <button type="submit" name="link">{% trans 'Associer' %}</button>
+                        </form>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    {% endif %}
+
     {% if is_staff %}
         <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Modération">
             <h3>{% trans "Modération" %}</h3>

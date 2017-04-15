@@ -1,8 +1,11 @@
 # coding: utf-8
+from __future__ import unicode_literals
+from django.utils.encoding import python_2_unicode_compatible
 from datetime import datetime
 import os
 import string
 import uuid
+
 from django.conf import settings
 
 from django.contrib.auth.models import User
@@ -14,11 +17,12 @@ from django.utils.translation import ugettext_lazy as _
 
 from easy_thumbnails.fields import ThumbnailerImageField
 
+from zds.notification import signals
 from zds.mp.models import PrivateTopic
-from zds.tutorialv2.models import TYPE_CHOICES
+from zds.tutorialv2.models import TYPE_CHOICES, TYPE_CHOICES_DICT
 from zds.utils.mps import send_mp
 from zds.utils import slugify
-from zds.utils.templatetags.emarkdown import emarkdown
+from zds.utils.templatetags.emarkdown import get_markdown_instance, render_markdown
 
 from model_utils.managers import InheritanceManager
 
@@ -37,6 +41,7 @@ def image_path_help(instance, filename):
     return os.path.join('helps/normal', str(instance.pk), filename)
 
 
+@python_2_unicode_compatible
 class Category(models.Model):
 
     """Common category for several concepts of the application."""
@@ -50,11 +55,12 @@ class Category(models.Model):
 
     slug = models.SlugField(max_length=80, unique=True)
 
-    def __unicode__(self):
+    def __str__(self):
         """Textual Category Form."""
         return self.title
 
 
+@python_2_unicode_compatible
 class SubCategory(models.Model):
 
     """Common subcategory for several concepts of the application."""
@@ -72,18 +78,18 @@ class SubCategory(models.Model):
 
     slug = models.SlugField(max_length=80, unique=True)
 
-    def __unicode__(self):
+    def __str__(self):
         """Textual Category Form."""
         return self.title
 
     def get_absolute_url_tutorial(self):
         url = reverse('tutorial-index')
-        url = url + '?tag={}'.format(self.slug)
+        url += '?tag={}'.format(self.slug)
         return url
 
     def get_absolute_url_article(self):
         url = reverse('article-index')
-        url = url + '?tag={}'.format(self.slug)
+        url += '?tag={}'.format(self.slug)
         return url
 
     def get_parent_category(self):
@@ -99,6 +105,7 @@ class SubCategory(models.Model):
             return None
 
 
+@python_2_unicode_compatible
 class CategorySubCategory(models.Model):
 
     """ManyToMany between Category and SubCategory but save a boolean to know
@@ -111,18 +118,19 @@ class CategorySubCategory(models.Model):
     subcategory = models.ForeignKey(SubCategory, verbose_name='Sous-Catégorie', db_index=True)
     is_main = models.BooleanField('Est la catégorie principale', default=True, db_index=True)
 
-    def __unicode__(self):
+    def __str__(self):
         """Textual Link Form."""
         if self.is_main:
-            return u'[{0}][main]: {1}'.format(
+            return '[{0}][main]: {1}'.format(
                 self.category.title,
                 self.subcategory.title)
         else:
-            return u'[{0}]: {1}'.format(
+            return '[{0}]: {1}'.format(
                 self.category.title,
                 self.subcategory.title)
 
 
+@python_2_unicode_compatible
 class Licence(models.Model):
 
     """Publication licence."""
@@ -134,11 +142,12 @@ class Licence(models.Model):
     title = models.CharField('Titre', max_length=80)
     description = models.TextField('Description')
 
-    def __unicode__(self):
+    def __str__(self):
         """Textual Licence Form."""
         return self.title
 
 
+@python_2_unicode_compatible
 class Comment(models.Model):
 
     """Comment in forum, articles, tutorial, chapter, etc."""
@@ -177,8 +186,14 @@ class Comment(models.Model):
         default='')
 
     def update_content(self, text):
+        from zds.notification.models import ping_url
+
         self.text = text
-        self.text_html = emarkdown(self.text)
+        md_instance = get_markdown_instance(ping_url=ping_url)
+        self.text_html = render_markdown(md_instance, self.text)
+        self.save()
+        for username in list(md_instance.metadata.get('ping', []))[:settings.ZDS_APP['comment']['max_pings']]:
+            signals.new_content.send(sender=self.__class__, instance=self, user=User.objects.get(username=username))
 
     def hide_comment_by_user(self, user, text_hidden):
         """Hide a comment and save it
@@ -232,14 +247,16 @@ class Comment(models.Model):
         """ Get the list of the users that disliked this Comment """
         return [vote.user for vote in self.get_votes() if not vote.positive]
 
-    def __unicode__(self):
-        return u'{0}'.format(self.text)
+    def __str__(self):
+        return self.text
 
 
+@python_2_unicode_compatible
 class Alert(models.Model):
-    """Alerts on all kinds of Comments."""
+    """Alerts on all kinds of Comments and PublishedContents."""
     SCOPE_CHOICES = (
         ('FORUM', _(u'Forum')),
+        ('CONTENT', _(u'Contenu')),
     ) + TYPE_CHOICES
 
     SCOPE_CHOICES_DICT = dict(SCOPE_CHOICES)
@@ -250,12 +267,21 @@ class Alert(models.Model):
                                db_index=True)
     comment = models.ForeignKey(Comment,
                                 verbose_name='Commentaire',
-                                related_name='alerts',
-                                db_index=True)
+                                related_name='alerts_on_this_comment',
+                                db_index=True,
+                                null=True,
+                                blank=True)
+    # use of string definition of pk to avoid circular import.
+    content = models.ForeignKey('tutorialv2.PublishableContent',
+                                verbose_name='Contenu',
+                                related_name='alerts_on_this_content',
+                                db_index=True,
+                                null=True,
+                                blank=True)
     scope = models.CharField(max_length=10, choices=SCOPE_CHOICES, db_index=True)
-    text = models.TextField('Texte d\'alerte')
+    text = models.TextField("Texte d'alerte")
     pubdate = models.DateTimeField('Date de création', db_index=True)
-    solved = models.BooleanField("Est résolue", default=False)
+    solved = models.BooleanField('Est résolue', default=False)
     moderator = models.ForeignKey(User,
                                   verbose_name='Modérateur',
                                   related_name='solved_alerts',
@@ -268,6 +294,7 @@ class Alert(models.Model):
                                       blank=True)
     # PrivateTopic sending the resolve_reason to the alert creator
     privatetopic = models.ForeignKey(PrivateTopic,
+                                     on_delete=models.SET_NULL,
                                      verbose_name=u'Message privé',
                                      db_index=True,
                                      null=True,
@@ -277,11 +304,15 @@ class Alert(models.Model):
                                        null=True,
                                        blank=True)
 
-    def solve(self, note, moderator, resolve_reason='', msg_title='', msg_content=''):
-        """Solve alert and send a PrivateTopic if a reason is given
+    def get_type(self):
+        if self.scope in TYPE_CHOICES_DICT:
+            return _(u'Commentaire')
+        else:
+            return self.get_scope_display()
 
-        :param note: the note on which the alert has been raised
-        :type note: ContentReaction
+    def solve(self, moderator, resolve_reason='', msg_title='', msg_content=''):
+        """Solve alert and send a PrivateTopic to the alert author if a reason is given
+
         :param resolve_reason: reason
         :type resolve_reason: str
         """
@@ -314,14 +345,15 @@ class Alert(models.Model):
         utils."""
         return Comment.objects.get_subclass(id=self.comment.id)
 
-    def __unicode__(self):
-        return u'{0}'.format(self.text)
+    def __str__(self):
+        return self.text
 
     class Meta:
         verbose_name = 'Alerte'
         verbose_name_plural = 'Alertes'
 
 
+@python_2_unicode_compatible
 class CommentVote(models.Model):
 
     """Set of comment votes."""
@@ -332,9 +364,13 @@ class CommentVote(models.Model):
 
     comment = models.ForeignKey(Comment, db_index=True)
     user = models.ForeignKey(User, db_index=True)
-    positive = models.BooleanField("Est un vote positif", default=True)
+    positive = models.BooleanField('Est un vote positif', default=True)
+
+    def __str__(self):
+        return 'Vote from {} about Comment#{} thumb_up={}'.format(self.user.username, self.comment.pk, self.positive)
 
 
+@python_2_unicode_compatible
 class Tag(models.Model):
 
     """Set of tags."""
@@ -346,9 +382,9 @@ class Tag(models.Model):
     title = models.CharField('Titre', max_length=30, unique=True, db_index=True)
     slug = models.SlugField('Slug', max_length=30)
 
-    def __unicode__(self):
+    def __str__(self):
         """Textual Link Form."""
-        return u"{0}".format(self.title)
+        return self.title
 
     def get_absolute_url(self):
         return reverse('topic-tag-find', kwargs={'tag_pk': self.pk, 'tag_slug': self.slug})
@@ -369,6 +405,7 @@ class Tag(models.Model):
         return True
 
 
+@python_2_unicode_compatible
 class HelpWriting(models.Model):
 
     """Tutorial Help"""
@@ -386,7 +423,7 @@ class HelpWriting(models.Model):
     # The image to use to illustrate this role
     image = ThumbnailerImageField(upload_to=image_path_help)
 
-    def __unicode__(self):
+    def __str__(self):
         """Textual Help Form."""
         return self.title
 

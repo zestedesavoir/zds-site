@@ -13,7 +13,7 @@ class Command(BaseCommand):
         content_type = ContentType.objects.get_for_model(Topic)
         notifications = Notification.objects.filter(content_type=content_type, is_read=False).all()
         count = 0
-        print ""
+        print('')
         for notification in notifications:
             if notification.subscription.content_object != notification.content_object.forum:
                 notification.is_read = True

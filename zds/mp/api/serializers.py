@@ -20,6 +20,7 @@ class PrivatePostSerializer(ZdSModelSerializer):
 
     class Meta:
         model = PrivatePost
+        fields = '__all__'
         serializers = (UserListSerializer,)
         formats = {'Html': 'text_html', 'Markdown': 'text'}
         read_only_fields = ('permissions',)
@@ -33,6 +34,7 @@ class PrivateTopicSerializer(ZdSModelSerializer):
 
     class Meta:
         model = PrivateTopic
+        fields = '__all__'
         serializers = (PrivatePostSerializer, UserListSerializer,)
         read_only_fields = ('permissions',)
 

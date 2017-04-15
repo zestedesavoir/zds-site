@@ -53,7 +53,7 @@ class IsStaffUser(permissions.BasePermission):
     """
 
     def has_permission(self, request, view):
-        return request.user and request.user.has_perm("member.change_profile")
+        return request.user and request.user.has_perm('member.change_profile')
 
 
 class CanReadAndWriteNowOrReadOnly(permissions.BasePermission):

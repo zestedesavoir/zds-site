@@ -81,7 +81,7 @@
     }
 
     .topic-infos {
-        width: 5%;
+        width: 8%;
 
         input[type=checkbox] {
             margin: 29px 25% 0;
@@ -181,7 +181,7 @@
         padding-top: 29px;
     }
     .topic-last-answer {
-        width: 23%;
+        width: 20%;
 
         .topic-no-last-answer {
             display: block;
@@ -192,7 +192,9 @@
     }
 
     .highlighted {
-        background-color: rgba(255, 255, 100, 0.5);
+        background-color: rgba(255, 255, 100, 0.4);
+        padding: 0 3px;
+        border-radius: 2px;
     }
 }
 

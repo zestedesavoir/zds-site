@@ -17,6 +17,7 @@ class ImageAdmin(admin.ModelAdmin):
     """Representation of Image model in the admin interface."""
 
     list_display = ('title', 'gallery', 'legend', 'pubdate', 'update')
+    raw_id_fields = ('gallery',)
 
 
 class UserGalleryAdmin(admin.ModelAdmin):
@@ -24,6 +25,7 @@ class UserGalleryAdmin(admin.ModelAdmin):
     """Representation of UserGallery model in the admin interface."""
 
     list_display = ('user', 'gallery', 'mode')
+    raw_id_fields = ('user', 'gallery')
 
 
 admin.site.register(Gallery, GalleryAdmin)

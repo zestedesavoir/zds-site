@@ -12,10 +12,12 @@ from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
+from django.utils.translation import ugettext_lazy as _
 
 from zds.settings import BASE_DIR
 from zds.notification.models import TopicAnswerSubscription
-from zds.member.factories import ProfileFactory, StaffProfileFactory, NonAsciiProfileFactory, UserFactory
+from zds.member.factories import ProfileFactory, StaffProfileFactory, NonAsciiProfileFactory, UserFactory, \
+    DevProfileFactory
 from zds.mp.factories import PrivateTopicFactory, PrivatePostFactory
 from zds.member.models import Profile, KarmaNote, TokenForgotPassword
 from zds.mp.models import PrivatePost, PrivateTopic
@@ -44,69 +46,69 @@ class MemberTests(TestCase):
         self.mas = ProfileFactory()
         settings.ZDS_APP['member']['bot_account'] = self.mas.user.username
         self.anonymous = UserFactory(
-            username=settings.ZDS_APP["member"]["anonymous_account"],
-            password="anything")
+            username=settings.ZDS_APP['member']['anonymous_account'],
+            password='anything')
         self.external = UserFactory(
-            username=settings.ZDS_APP["member"]["external_account"],
-            password="anything")
+            username=settings.ZDS_APP['member']['external_account'],
+            password='anything')
         self.category1 = CategoryFactory(position=1)
         self.forum11 = ForumFactory(
             category=self.category1,
             position_in_category=1)
         self.staff = StaffProfileFactory().user
 
-        self.bot = Group(name=settings.ZDS_APP["member"]["bot_group"])
+        self.bot = Group(name=settings.ZDS_APP['member']['bot_group'])
         self.bot.save()
 
     def test_karma(self):
-        to_be_karmated = ProfileFactory()
-        rand_member = ProfileFactory()
+        user = ProfileFactory()
+        other_user = ProfileFactory()
         self.client.login(
-            username=rand_member.user.username,
-            password="hostel77"
+            username=other_user.user.username,
+            password='hostel77'
         )
-        r = self.client.post(reverse("member-modify-karma"), {
-            "profile_pk": to_be_karmated.pk,
-            "points": 42,
-            "warning": "warn"
+        r = self.client.post(reverse('member-modify-karma'), {
+            'profile_pk': user.pk,
+            'karma': 42,
+            'note': 'warn'
         })
         self.assertEqual(403, r.status_code)
         self.client.logout()
         self.client.login(
             username=self.staff.username,
-            password="hostel77"
+            password='hostel77'
         )
         # bad id
-        r = self.client.post(reverse("member-modify-karma"), {
-            "profile_pk": "poo",
-            "points": 42,
-            "warning": "warn"
+        r = self.client.post(reverse('member-modify-karma'), {
+            'profile_pk': 'blah',
+            'karma': 42,
+            'note': 'warn'
         }, follow=True)
         self.assertEqual(404, r.status_code)
         # good karma
-        r = self.client.post(reverse("member-modify-karma"), {
-            "profile_pk": to_be_karmated.pk,
-            "points": 42,
-            "warning": "warn"
+        r = self.client.post(reverse('member-modify-karma'), {
+            'profile_pk': user.pk,
+            'karma': 42,
+            'note': 'warn'
         }, follow=True)
         self.assertEqual(200, r.status_code)
-        self.assertIn("<strong>42</strong>", r.content.decode("utf-8"))
+        self.assertIn('{} : 42'.format(_('Modification du karma')), r.content.decode('utf-8'))
         # more than 100 karma must unvalidate the karma
-        r = self.client.post(reverse("member-modify-karma"), {
-            "profile_pk": to_be_karmated.pk,
-            "points": 420,
-            "warning": "warn"
+        r = self.client.post(reverse('member-modify-karma'), {
+            'profile_pk': user.pk,
+            'karma': 420,
+            'note': 'warn'
         }, follow=True)
         self.assertEqual(200, r.status_code)
-        self.assertNotIn("<strong>420</strong>", r.content.decode("utf-8"))
+        self.assertNotIn('{} : 420'.format(_('Modification du karma')), r.content.decode('utf-8'))
         # empty warning must unvalidate the karma
-        r = self.client.post(reverse("member-modify-karma"), {
-            "profile_pk": to_be_karmated.pk,
-            "points": 41,
-            "warning": ""
+        r = self.client.post(reverse('member-modify-karma'), {
+            'profile_pk': user.pk,
+            'karma': 41,
+            'note': ''
         }, follow=True)
         self.assertEqual(200, r.status_code)
-        self.assertNotIn("<strong>41</strong>", r.content.decode("utf-8"))
+        self.assertNotIn('{} : 41'.format(_('Modification du karma')), r.content.decode('utf-8'))
 
     def test_list_members(self):
         """
@@ -115,8 +117,8 @@ class MemberTests(TestCase):
 
         # create strange member
         weird = ProfileFactory()
-        weird.user.username = u"ïtrema718"
-        weird.user.email = u"foo@\xfbgmail.com"
+        weird.user.username = u'ïtrema718'
+        weird.user.email = u'foo@\xfbgmail.com'
         weird.user.save()
 
         # list of members.
@@ -192,17 +194,63 @@ class MemberTests(TestCase):
         )
         self.assertEqual(result.status_code, 404)
 
+    def test_moderation_history(self):
+        user = ProfileFactory().user
+
+        ban = Ban(
+            user=user,
+            moderator=self.staff,
+            type='Lecture Seule Temporaire',
+            note='Test de LS',
+            pubdate=datetime.now(),
+        )
+        ban.save()
+
+        note = KarmaNote(
+            user=user,
+            moderator=self.staff,
+            karma=5,
+            note='Test de karma',
+            pubdate=datetime.now(),
+        )
+        note.save()
+
+        # staff rights are required to view the history, check that
+        self.client.logout()
+        self.client.login(username=user.username, password='hostel77')
+        result = self.client.get(
+            user.profile.get_absolute_url(),
+            follow=False
+        )
+        self.assertNotContains(result, 'Historique de modération')
+
+        self.client.logout()
+        self.client.login(username=self.staff.username, password='hostel77')
+        result = self.client.get(
+            user.profile.get_absolute_url(),
+            follow=False
+        )
+        self.assertContains(result, 'Historique de modération')
+
+        # check that the note and the sanction are in the context
+        self.assertIn(ban, result.context['actions'])
+        self.assertIn(note, result.context['actions'])
+
+        # and are displayed
+        self.assertContains(result, 'Test de LS')
+        self.assertContains(result, 'Test de karma')
+
     def test_profile_page_of_weird_member_username(self):
 
         # create some user with weird username
         user_1 = ProfileFactory()
         user_2 = ProfileFactory()
         user_3 = ProfileFactory()
-        user_1.user.username = u"ïtrema"
+        user_1.user.username = u'ïtrema'
         user_1.user.save()
-        user_2.user.username = u"&#34;a"
+        user_2.user.username = u'&#34;a'
         user_2.user.save()
-        user_3.user.username = u"_`_`_`_"
+        user_3.user.username = u'_`_`_`_'
         user_3.user.save()
 
         # profile pages of weird users.
@@ -223,14 +271,24 @@ class MemberTests(TestCase):
         self.assertEqual(result.status_code, 200)
 
     def test_modify_member(self):
+        user = ProfileFactory().user
 
-        # we need staff right for update other profile
+        # we need staff right for update other profile, so a member who is not staff can't access to the page
         self.client.logout()
-        self.client.login(username=self.staff.username, password="hostel77")
+        self.client.login(username=user.username, password='hostel77')
+
+        result = self.client.get(
+            reverse('member-settings-mini-profile', args=['xkcd']),
+            follow=False
+        )
+        self.assertEqual(result.status_code, 403)
+
+        self.client.logout()
+        self.client.login(username=self.staff.username, password='hostel77')
 
         # an inexistant member return 404
         result = self.client.get(
-            reverse('member-settings-mini-profile', args=["xkcd"]),
+            reverse('member-settings-mini-profile', args=['xkcd']),
             follow=False
         )
         self.assertEqual(result.status_code, 404)
@@ -241,6 +299,24 @@ class MemberTests(TestCase):
             follow=False
         )
         self.assertEqual(result.status_code, 200)
+
+    def test_success_preview_biography(self):
+
+        member = ProfileFactory()
+        self.client.login(
+            username=member.user.username,
+            password='hostel77'
+        )
+
+        response = self.client.post(
+            reverse('update-member'),
+            {
+                'text': 'It is **my** life',
+                'preview': '',
+            }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+
+        result_string = ''.join(response.streaming_content)
+        self.assertIn('<strong>my</strong>', result_string, 'We need the biography to be properly formatted')
 
     def test_login(self):
         """
@@ -378,7 +454,7 @@ class MemberTests(TestCase):
         writing_tutorial_2.authors.add(user.user)
         writing_tutorial_2.authors.add(user2.user)
         writing_tutorial_2.save()
-        self.client.login(username=self.staff.username, password="hostel77")
+        self.client.login(username=self.staff.username, password='hostel77')
         # same thing for articles
         published_article_alone = PublishedContentFactory(type='ARTICLE')
         published_article_alone.authors.add(user.user)
@@ -435,6 +511,12 @@ class MemberTests(TestCase):
         self.assertEqual(Application.objects.count(), 1)
         self.assertEqual(AccessToken.objects.count(), 1)
 
+        # add a karma note and a sanction with this user
+        note = KarmaNote(moderator=user.user, user=user2.user, note='Good!', karma=5)
+        note.save()
+        ban = Ban(moderator=user.user, user=user2.user, type='Ban définitif', note='Test')
+        ban.save()
+
         # login and unregister:
         login_check = self.client.login(
             username=user.user.username,
@@ -448,11 +530,11 @@ class MemberTests(TestCase):
         # check that the bot have taken authorship of tutorial:
         self.assertEqual(published_tutorial_alone.authors.count(), 1)
         self.assertEqual(published_tutorial_alone.authors.first().username,
-                         settings.ZDS_APP["member"]["external_account"])
+                         settings.ZDS_APP['member']['external_account'])
         self.assertFalse(os.path.exists(writing_tutorial_alone_galler_path))
         self.assertEqual(published_tutorial_2.authors.count(), 1)
         self.assertEqual(published_tutorial_2.authors
-                         .filter(username=settings.ZDS_APP["member"]["external_account"])
+                         .filter(username=settings.ZDS_APP['member']['external_account'])
                          .count(), 0)
 
         # check that published tutorials remain published and accessible
@@ -493,13 +575,13 @@ class MemberTests(TestCase):
         # check that bot haven't take the authorship of the tuto with more than one author
         self.assertEqual(writing_tutorial_2.authors.count(), 1)
         self.assertEqual(writing_tutorial_2.authors
-                         .filter(username=settings.ZDS_APP["member"]["external_account"])
+                         .filter(username=settings.ZDS_APP['member']['external_account'])
                          .count(), 0)
 
         # authorship for the article for which user was the only author
         self.assertEqual(published_article_alone.authors.count(), 1)
         self.assertEqual(published_article_alone.authors
-                         .first().username, settings.ZDS_APP["member"]["external_account"])
+                         .first().username, settings.ZDS_APP['member']['external_account'])
         self.assertEqual(published_article_2.authors.count(), 1)
 
         self.assertEqual(PublishableContent.objects.filter(pk=writing_article_alone.pk).count(), 0)
@@ -507,10 +589,10 @@ class MemberTests(TestCase):
 
         # not bot if another author:
         self.assertEqual(published_article_2.authors
-                         .filter(username=settings.ZDS_APP["member"]["external_account"]).count(), 0)
+                         .filter(username=settings.ZDS_APP['member']['external_account']).count(), 0)
         self.assertEqual(writing_article_2.authors.count(), 1)
         self.assertEqual(writing_article_2.authors
-                         .filter(username=settings.ZDS_APP["member"]["external_account"]).count(), 0)
+                         .filter(username=settings.ZDS_APP['member']['external_account']).count(), 0)
 
         # topics, gallery and PMs:
         self.assertEqual(Topic.objects.filter(author__username=user.user.username).count(), 0)
@@ -537,6 +619,10 @@ class MemberTests(TestCase):
         # check API
         self.assertEqual(Application.objects.count(), 0)
         self.assertEqual(AccessToken.objects.count(), 0)
+
+        # check that the karma note and the sanction were kept
+        self.assertTrue(KarmaNote.objects.filter(pk=note.pk).exists())
+        self.assertTrue(Ban.objects.filter(pk=ban.pk).exists())
 
     def test_forgot_password(self):
         """To test nominal scenario of a lost password."""
@@ -598,7 +684,7 @@ class MemberTests(TestCase):
         self.assertIsNone(user.end_ban_read)
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-pubdate')[0]
         self.assertEqual(ban.type, 'Lecture Seule')
-        self.assertEqual(ban.text, 'Texte de test pour LS')
+        self.assertEqual(ban.note, 'Texte de test pour LS')
         self.assertEquals(len(mail.outbox), 1)
 
         result = self.client.get(reverse('member-list'), follow=False)
@@ -620,7 +706,7 @@ class MemberTests(TestCase):
         self.assertIsNone(user.end_ban_read)
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-id')[0]
         self.assertEqual(ban.type, u'Autorisation d\'écrire')
-        self.assertEqual(ban.text, 'Texte de test pour un-LS')
+        self.assertEqual(ban.note, 'Texte de test pour un-LS')
         self.assertEquals(len(mail.outbox), 2)
 
         result = self.client.get(reverse('member-list'), follow=False)
@@ -644,7 +730,7 @@ class MemberTests(TestCase):
         self.assertIsNone(user.end_ban_read)
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-id')[0]
         self.assertEqual(ban.type, u'Lecture Seule Temporaire')
-        self.assertEqual(ban.text, u'Texte de test pour LS TEMP')
+        self.assertEqual(ban.note, u'Texte de test pour LS TEMP')
         self.assertEquals(len(mail.outbox), 3)
 
         # reset nb_users
@@ -667,7 +753,7 @@ class MemberTests(TestCase):
         self.assertIsNone(user.end_ban_read)
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-id')[0]
         self.assertEqual(ban.type, u'Ban définitif')
-        self.assertEqual(ban.text, u'Texte de test pour BAN')
+        self.assertEqual(ban.note, u'Texte de test pour BAN')
         self.assertEquals(len(mail.outbox), 4)
 
         result = self.client.get(reverse('member-list'), follow=False)
@@ -690,7 +776,7 @@ class MemberTests(TestCase):
         self.assertIsNone(user.end_ban_read)
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-id')[0]
         self.assertEqual(ban.type, u'Autorisation de se connecter')
-        self.assertEqual(ban.text, u'Texte de test pour BAN')
+        self.assertEqual(ban.note, u'Texte de test pour BAN')
         self.assertEquals(len(mail.outbox), 5)
 
         result = self.client.get(reverse('member-list'), follow=False)
@@ -714,8 +800,37 @@ class MemberTests(TestCase):
         self.assertIsNotNone(user.end_ban_read)
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-id')[0]
         self.assertEqual(ban.type, u'Ban Temporaire')
-        self.assertEqual(ban.text, u'Texte de test pour BAN TEMP')
+        self.assertEqual(ban.note, u'Texte de test pour BAN TEMP')
         self.assertEquals(len(mail.outbox), 6)
+
+    def test_sanctions_with_not_staff_user(self):
+        user = ProfileFactory().user
+
+        # we need staff right for update the sanction of an user, so a member who is not staff can't access to the page
+        self.client.logout()
+        self.client.login(username=user.username, password='hostel77')
+
+        # Test: LS
+        result = self.client.post(
+            reverse(
+                'member-modify-profile', kwargs={
+                    'user_pk': self.staff.id}), {
+                'ls': '', 'ls-text': 'Texte de test pour LS'}, follow=False)
+
+        self.assertEqual(result.status_code, 403)
+
+        # if the user is staff, he can update the sanction of an user
+        self.client.logout()
+        self.client.login(username=self.staff.username, password='hostel77')
+
+        # Test: LS
+        result = self.client.post(
+            reverse(
+                'member-modify-profile', kwargs={
+                    'user_pk': user.id}), {
+                'ls': '', 'ls-text': 'Texte de test pour LS'}, follow=False)
+
+        self.assertEqual(result.status_code, 302)
 
     def test_failed_bot_sanctions(self):
 
@@ -763,20 +878,20 @@ class MemberTests(TestCase):
         staff.user.save()
 
         # create groups
-        group = Group.objects.create(name="DummyGroup_1")
-        groupbis = Group.objects.create(name="DummyGroup_2")
+        group = Group.objects.create(name='DummyGroup_1')
+        groupbis = Group.objects.create(name='DummyGroup_2')
 
         # create Forums, Posts and subscribe member to them.
         category1 = CategoryFactory(position=1)
         forum1 = ForumFactory(
             category=category1,
             position_in_category=1)
-        forum1.group.add(group)
+        forum1.groups.add(group)
         forum1.save()
         forum2 = ForumFactory(
             category=category1,
             position_in_category=2)
-        forum2.group.add(groupbis)
+        forum2.groups.add(groupbis)
         forum2.save()
         forum3 = ForumFactory(
             category=category1,
@@ -805,20 +920,18 @@ class MemberTests(TestCase):
                     kwargs={'user_pk': tester.user.id}), follow=False)
         self.assertEqual(result.status_code, 200)
 
-        # give user rights and groups thanks to staff (but account still not activated)
+        # give groups thanks to staff (but account still not activated)
         result = self.client.post(
             reverse('member-settings-promote',
                     kwargs={'user_pk': tester.user.id}),
             {
                 'groups': [group.id, groupbis.id],
-                'superuser': "on",
             }, follow=False)
         self.assertEqual(result.status_code, 302)
         tester = Profile.objects.get(id=tester.id)  # refresh
 
         self.assertEqual(len(tester.user.groups.all()), 2)
         self.assertFalse(tester.user.is_active)
-        self.assertTrue(tester.user.is_superuser)
 
         # Now our tester is going to follow one post in every forum (3)
         TopicAnswerSubscription.objects.toggle_follow(topic1, tester.user)
@@ -833,14 +946,13 @@ class MemberTests(TestCase):
                     kwargs={'user_pk': tester.user.id}),
             {
                 'groups': [group.id],
-                'activation': "on"
+                'activation': 'on'
             }, follow=False)
         self.assertEqual(result.status_code, 302)
         tester = Profile.objects.get(id=tester.id)  # refresh
 
         self.assertEqual(len(tester.user.groups.all()), 1)
         self.assertTrue(tester.user.is_active)
-        self.assertFalse(tester.user.is_superuser)
         self.assertEqual(len(TopicAnswerSubscription.objects.get_objects_followed_by(tester.user)), 2)
 
         # no groups specified
@@ -848,22 +960,11 @@ class MemberTests(TestCase):
             reverse('member-settings-promote',
                     kwargs={'user_pk': tester.user.id}),
             {
-                'activation': "on"
+                'activation': 'on'
             }, follow=False)
         self.assertEqual(result.status_code, 302)
         tester = Profile.objects.get(id=tester.id)  # refresh
         self.assertEqual(len(TopicAnswerSubscription.objects.get_objects_followed_by(tester.user)), 1)
-
-        # check that staff can't take away it's own super user rights
-        result = self.client.post(
-            reverse('member-settings-promote',
-                    kwargs={'user_pk': staff.user.id}),
-            {
-                'activation': "on"
-            }, follow=False)
-        self.assertEqual(result.status_code, 302)
-        staff = Profile.objects.get(id=staff.id)  # refresh
-        self.assertTrue(staff.user.is_superuser)  # still superuser !
 
         # Finally, check that user can connect and can not access the interface
         login_check = self.client.login(
@@ -874,7 +975,7 @@ class MemberTests(TestCase):
             reverse('member-settings-promote',
                     kwargs={'user_pk': staff.user.id}),
             {
-                'activation': "on"
+                'activation': 'on'
             }, follow=False)
         self.assertEqual(result.status_code, 403)  # forbidden !
 
@@ -953,8 +1054,8 @@ class MemberTests(TestCase):
         result = self.client.post(
             reverse('member-modify-karma'),
             {'profile_pk': tester.pk,
-             'warning': 'Bad tester is bad !',
-             'points': '-50'},
+             'note': 'Bad tester is bad !',
+             'karma': '-50'},
             follow=False)
         self.assertEqual(result.status_code, 302)
         tester = Profile.objects.get(pk=tester.pk)
@@ -965,8 +1066,8 @@ class MemberTests(TestCase):
         result = self.client.post(
             reverse('member-modify-karma'),
             {'profile_pk': tester.pk,
-             'warning': 'Good tester is good !',
-             'points': '10'},
+             'note': 'Good tester is good !',
+             'karma': '10'},
             follow=False)
         self.assertEqual(result.status_code, 302)
         tester = Profile.objects.get(pk=tester.pk)
@@ -977,8 +1078,8 @@ class MemberTests(TestCase):
         result = self.client.post(
             reverse('member-modify-karma'),
             {'profile_pk': 9999,
-             'warning': 'Good tester is good !',
-             'points': '10'},
+             'note': 'Good tester is good !',
+             'karma': '10'},
             follow=False)
         self.assertEqual(result.status_code, 404)
 
@@ -986,8 +1087,8 @@ class MemberTests(TestCase):
         result = self.client.post(
             reverse('member-modify-karma'),
             {'profile_pk': tester.pk,
-             'warning': 'Good tester is good !',
-             'points': ''},
+             'note': 'Good tester is good !',
+             'karma': ''},
             follow=False)
         self.assertEqual(result.status_code, 302)
         tester = Profile.objects.get(pk=tester.pk)
@@ -998,7 +1099,7 @@ class MemberTests(TestCase):
         result = self.client.post(
             reverse('member-modify-karma'),
             {'profile_pk': tester.pk,
-             'warning': 'Good tester is good !'},
+             'note': 'Good tester is good !'},
             follow=False)
         self.assertEqual(result.status_code, 302)
         tester = Profile.objects.get(pk=tester.pk)
@@ -1015,17 +1116,17 @@ class MemberTests(TestCase):
         """
         tester = ProfileFactory()
         old_pseudo = tester.user.username
-        self.client.login(username=tester.user.username, password="hostel77")
+        self.client.login(username=tester.user.username, password='hostel77')
         data = {
             'username': 'dummy',
-            'email': ''
+            'email': tester.user.email
         }
         result = self.client.post(reverse('update-username-email-member'), data, follow=False)
 
         self.assertEqual(result.status_code, 302)
         notes = KarmaNote.objects.filter(user=tester.user).all()
         self.assertEqual(len(notes), 1)
-        self.assertTrue(old_pseudo in notes[0].comment and 'dummy' in notes[0].comment)
+        self.assertTrue(old_pseudo in notes[0].note and 'dummy' in notes[0].note)
 
     def test_ban_member_is_not_contactable(self):
         """
@@ -1038,7 +1139,7 @@ class MemberTests(TestCase):
         user_1 = ProfileFactory()
         user_2 = ProfileFactory()
 
-        phrase = "Envoyer un message privé"
+        phrase = 'Envoyer un message privé'
 
         result = self.client.get(reverse('member-detail', args=[user_1.user.username]), follow=False)
         self.assertNotContains(result, phrase)
@@ -1060,6 +1161,39 @@ class MemberTests(TestCase):
         result = self.client.get(reverse('member-detail', args=[user_1.user.username]), follow=False)
         self.client.logout()
         self.assertNotContains(result, phrase)
+
+    def test_github_token(self):
+        user = ProfileFactory()
+        dev = DevProfileFactory()
+
+        # test that github settings are only availables for dev
+        self.client.login(username=user.user.username, password='hostel77')
+        result = self.client.get(reverse('update-github'), follow=False)
+        self.assertEqual(result.status_code, 403)
+        result = self.client.post(reverse('remove-github'), follow=False)
+        self.assertEqual(result.status_code, 403)
+        self.client.logout()
+
+        # now, test the form
+        self.client.login(username=dev.user.username, password='hostel77')
+        result = self.client.get(reverse('update-github'), follow=False)
+        self.assertEqual(result.status_code, 200)
+        result = self.client.post(reverse('update-github'), {
+            'github_token': 'test',
+        }, follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # refresh
+        dev = Profile.objects.get(pk=dev.pk)
+        self.assertEqual(dev.github_token, 'test')
+
+        # test the option to remove the token
+        result = self.client.post(reverse('remove-github'), follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # refresh
+        dev = Profile.objects.get(pk=dev.pk)
+        self.assertEqual(dev.github_token, '')
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):

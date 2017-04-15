@@ -8,9 +8,11 @@
 {% load thumbnail %}
 {% load i18n %}
 {% load captureas %}
+{% load crispy_forms_tags %}
+{% load pluralize_fr %}
 
 
-{% block body_class %}home{% endblock %}
+{% block body_class %}flexpage home{% endblock %}
 
 {% block searchbox_id %}search-home{% endblock %}
 
@@ -23,12 +25,13 @@
 {% block content_out %}
     {% url 'tutorial:list' as url_tutorials %}
     {% url 'article:list' as url_articles %}
+    {% url 'opinion:list' as url_opinions %}
     {% url 'cats-forums-list' as url_forums %}
 
     {% url 'pages-association' as url_association %}
 
-    <section class="home-header">
-        <div class="home-wrapper">
+    <section class="flexpage-header">
+        <div class="flexpage-wrapper">
             {% if user.is_authenticated %}
                 <section class="home-description connected">
                     <blockquote><span>{{ quote }}</span></blockquote>
@@ -51,12 +54,15 @@
                     <div class="column">
                         <h2>{% trans "La connaissance pour tous" %}</h2>
                         {% blocktrans with site_name=app.site.litteral_name %}
-                            <p>{{site_name}}&nbsp;: un site de <strong>partage de connaissances</strong> où vous trouverez,
-                                <strong>gratuitement</strong> et <strong>sans publicité</strong>&nbsp;:</p>
+                            <p>
+                                {{ site_name }}&nbsp;: un site de <strong>partage de connaissances</strong> où vous trouverez,
+                                <strong>gratuitement</strong> et <strong>sans publicité</strong>&nbsp;:
+                            </p>
                             <ul>
-                                <li>des <a href="{{url_tutorials}}">tutoriels de tous niveaux</a>&nbsp;;</li>
-                                <li>des <a href='{{url_articles}}'>articles</a>&nbsp;;</li>
-                                <li>et des <a href='{{url_forums}}'>forums d'entraide</a>.</li>
+                                <li>des <a href="{{ url_tutorials }}">tutoriels de tous niveaux</a>&nbsp;;</li>
+                                <li>des <a href="{{ url_articles }}">articles</a>&nbsp;;</li>
+                                <li>des <a href="{{ url_opinions }}">tribunes</a>&nbsp;;</li>
+                                <li>et des <a href="{{ url_forums }}">forums d'entraide</a>.</li>
                             </ul>
                             <p>Tout est animé par la communauté, tous les sujets sont abordés&nbsp;!</p>
                         {% endblocktrans %}
@@ -69,7 +75,7 @@
                         {% endblocktrans %}
                         <h2>{% trans "… sur une plate-forme libre" %}</h2>
                         {% blocktrans %}
-                            <p>Le site est géré et financé par une <a href="{{url_association}}">association</a> à but non lucratif.</p>
+                            <p>Le site est géré et financé par une <a href="{{ url_association }}">association</a> à but non lucratif.</p>
                         {% endblocktrans %}
                         {% if app.site.contribute_link %}
                             {% blocktrans with contribute_link=app.site.contribute_link %}
@@ -80,26 +86,20 @@
                 </section>
             {% endif %}
             {% if app.display_search_bar %}
-                 <section class="home-search-box">
-                    <form action='{% url "haystack_search" %}' id="search-home">
-                        <label for="search-home-input">
-                            {% trans "Recherche" %}
-                        </label>
-                        <input type="text" id="search-home-input" name="q" placeholder='{{ suggestions }}' >
-                        <button type="submit" class="ico-after ico-search" title='{% trans "Lancer la recherche" %}'></button>
-                    </form>
+                 <section class="search-box">
+                    {% crispy search_form %}
                 </section>
             {% endif %}
         </div>
     </section>
 
-    <div class="home-wrapper">
+    <div class="flexpage-wrapper">
         <section class="home-pinned-content">
             <h2 class="home-heading heading-white ico-after ico-news" itemprop="name">
                 {% trans "À la une" %}
 
                 {% if perms.featured.change_featuredresource %}
-                    <a href="{% url "featured-resource-list" %}" class="btn btn-grey">{% trans "Gérer les Unes" %}</a>
+                    <a href="{% url "featured-resource-list" %}" class="btn btn-grey">{% trans "Gérer les unes" %}</a>
                 {% endif %}
             </h2>
 
@@ -146,7 +146,11 @@
 
                     <div class="content-item write-tutorial">
                         <div class="write-tutorial-text">
-                            <p>{% blocktrans %}Il y a {{ contents_count }}&nbsp;publications sur&nbsp;Zeste&nbsp;de&nbsp;Savoir.{% endblocktrans %}</p>
+                            <p>
+                                {% blocktrans with plural=contents_count|pluralize_fr %}
+                                    Il y a {{ contents_count }}&nbsp;publication{{ plural }} sur&nbsp;Zeste&nbsp;de&nbsp;Savoir.
+                                {% endblocktrans %}
+                            </p>
                             <p class="lead">{% trans "Pourquoi pas la vôtre ?" %}</p>
                         </div>
                         <a href="{% url "content:create-tutorial" %}" class="btn btn-write-tutorial">{% trans "Commencer à rédiger" %}</a>
@@ -155,21 +159,40 @@
             </section>
         </div>
 
-        <section itemscope itemtype="http://schema.org/ItemList">
-            <h2 class="home-heading ico-after ico-forum" itemprop="name">
-                {% trans "Derniers sujets" %}
-                <a href="{% url 'cats-forums-list' %}" class="btn btn-grey">{% trans "Tous les sujets" %}</a>
-            </h2>
+        <div class="home-row">
+            <section itemscope itemtype="http://schema.org/ItemList">
+                <h2 class="ico-after ico-opinions home-heading" itemprop="name">
+                    {% trans "Derniers billets choisis" %}
+                    <a href="{% url "opinion:list" %}" class="btn btn-grey">{% trans "Tous les billets" %}</a>
+                </h2>
 
-            <meta itemprop="itemListOrder" content="Descending">
+                <meta itemprop="itemListOrder" content="Descending">
 
-            <div class="content-item-list">
-              {% for topic in last_topics %}
-                  {% include 'forum/includes/topic_item.part.html' %}
-              {% empty %}
-                  <p>{% trans "Aucun sujet disponible." %}</p>
-              {% endfor %}
-            </div>
-        </section>
+                <div class="content-item-list">
+                    {% for opinion in last_opinions %}
+                        {% include 'tutorialv2/includes/content_item.part.html' with public_content=opinion show_description=True item_class=forloop.first|yesno:", mini" %}
+                    {% empty %}
+                        <p>{% trans "Aucun billet disponible." %}</p>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <section itemscope itemtype="http://schema.org/ItemList">
+                <h2 class="home-heading ico-after ico-forum" itemprop="name">
+                    {% trans "Derniers sujets" %}
+                    <a href="{% url 'cats-forums-list' %}" class="btn btn-grey">{% trans "Tous les sujets" %}</a>
+                </h2>
+
+                <meta itemprop="itemListOrder" content="Descending">
+
+                <div class="content-item-list">
+                  {% for topic in last_topics %}
+                      {% include 'forum/includes/topic_item.part.html' %}
+                  {% empty %}
+                      <p>{% trans "Aucun sujet disponible." %}</p>
+                  {% endfor %}
+                </div>
+            </section>
+        </div>
     </div>
 {% endblock %}

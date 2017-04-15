@@ -5,10 +5,13 @@ from datetime import datetime
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
+import logging
 
 from zds.mp.models import PrivateTopic, PrivatePost, mark_read
 from zds.notification import signals
 from zds.utils.templatetags.emarkdown import emarkdown
+
+logger = logging.getLogger(__name__)
 
 
 def send_mp(
@@ -90,18 +93,19 @@ def send_message_mp(
         signals.new_content.send(sender=post.__class__, instance=post, by_email=send_by_mail)
 
     if send_by_mail and direct:
-        subject = u"{} : {}".format(settings.ZDS_APP['site']['litteral_name'], n_topic.title)
-        from_email = u"{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
+        subject = u'{} : {}'.format(settings.ZDS_APP['site']['litteral_name'], n_topic.title)
+        from_email = u'{} <{}>'.format(settings.ZDS_APP['site']['litteral_name'],
                                        settings.ZDS_APP['site']['email_noreply'])
         for part in n_topic.participants.all():
             message_html = render_to_string('email/direct.html', {'msg': emarkdown(text)})
             message_txt = render_to_string('email/direct.txt', {'msg': text})
 
             msg = EmailMultiAlternatives(subject, message_txt, from_email, [part.email])
-            msg.attach_alternative(message_html, "text/html")
+            msg.attach_alternative(message_html, 'text/html')
             try:
                 msg.send()
-            except:
+            except Exception:
+                logger.exception()
                 msg = None
 
     return n_topic

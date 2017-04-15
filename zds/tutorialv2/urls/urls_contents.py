@@ -10,7 +10,7 @@ from zds.tutorialv2.views.views_contents import DisplayContent, CreateContent, E
 
 from zds.tutorialv2.views.views_published import SendNoteFormView, UpdateNoteView, \
     HideReaction, ShowReaction, SendNoteAlert, SolveNoteAlert, TagsListView, ListOnlineContents, \
-    FollowContentReaction, FollowNewContent
+    FollowContentReaction, FollowNewContent, SendContentAlert, SolveContentAlert
 
 from zds.tutorialv2.feeds import LastContentFeedRSS, LastContentFeedATOM
 
@@ -21,11 +21,13 @@ urlpatterns = [
 
     url(r'^tutoriels/(?P<pk>\d+)/$',
         ContentOfAuthor.as_view(type='TUTORIAL', context_object_name='tutorials'),
-        name="find-tutorial"),
+        name='find-tutorial'),
     url(r'^articles/(?P<pk>\d+)/$',
         ContentOfAuthor.as_view(type='ARTICLE', context_object_name='articles'),
-        name="find-article"),
-
+        name='find-article'),
+    url(r'^tribunes/(?P<pk>\d+)/$',
+        ContentOfAuthor.as_view(type='OPINION', context_object_name='opinions'),
+        name='find-opinion'),
     url(r'^aides/$', ContentsWithHelps.as_view(), name='helps'),
     url(r'^(?P<pk>\d+)/(?P<slug>.+)/(?P<parent_container_slug>.+)/(?P<container_slug>.+)/$',
         DisplayContainer.as_view(public_is_prioritary=False),
@@ -51,25 +53,31 @@ urlpatterns = [
     url(r'^beta/(?P<pk>\d+)/(?P<slug>.+)/$', DisplayBetaContent.as_view(), name='beta-view'),
 
     # reactions:
-    url(r'^reactions/ajouter/$', SendNoteFormView.as_view(redirection_is_needed=False), name="add-reaction"),
-    url(r'^reactions/editer/$', UpdateNoteView.as_view(redirection_is_needed=False), name="update-reaction"),
-    url(r'^reactions/cacher/(?P<pk>\d+)/$', HideReaction.as_view(), name="hide-reaction"),
-    url(r'^reactions/afficher/(?P<pk>\d+)/$', ShowReaction.as_view(), name="show-reaction"),
-    url(r'^reactions/alerter/(?P<pk>\d+)/$', SendNoteAlert.as_view(), name="alert-reaction"),
-    url(r'^reactions/resoudre/$', SolveNoteAlert.as_view(), name="resolve-reaction"),
+    url(r'^reactions/ajouter/$', SendNoteFormView.as_view(redirection_is_needed=False), name='add-reaction'),
+    url(r'^reactions/editer/$', UpdateNoteView.as_view(redirection_is_needed=False), name='update-reaction'),
+    url(r'^reactions/cacher/(?P<pk>\d+)/$', HideReaction.as_view(), name='hide-reaction'),
+    url(r'^reactions/afficher/(?P<pk>\d+)/$', ShowReaction.as_view(), name='show-reaction'),
+    url(r'^reactions/alerter/(?P<pk>\d+)/$', SendNoteAlert.as_view(), name='alert-reaction'),
+    url(r'^reactions/resoudre/$', SolveNoteAlert.as_view(), name='resolve-reaction'),
 
     # follow:
-    url(r'^suivre/(?P<pk>\d+)/reactions/$', FollowContentReaction.as_view(), name="follow-reactions"),
-    url(r'^suivre/membres/(?P<pk>\d+)/$', FollowNewContent.as_view(), name="follow"),
+    url(r'^suivre/(?P<pk>\d+)/reactions/$', FollowContentReaction.as_view(), name='follow-reactions'),
+    url(r'^suivre/membres/(?P<pk>\d+)/$', FollowNewContent.as_view(), name='follow'),
+
+    # content alerts:
+    url(r'^alerter/(?P<pk>\d+)/$', SendContentAlert.as_view(), name='alert-content'),
+    url(r'^resoudre/(?P<pk>\d+)/$', SolveContentAlert.as_view(), name='resolve-content'),
 
     # typo:
-    url(r'^reactions/typo/$', WarnTypo.as_view(), name="warn-typo"),
+    url(r'^reactions/typo/$', WarnTypo.as_view(), name='warn-typo'),
 
     # create:
     url(r'^nouveau-tutoriel/$',
-        CreateContent.as_view(created_content_type="TUTORIAL"), name='create-tutorial'),
+        CreateContent.as_view(created_content_type='TUTORIAL'), name='create-tutorial'),
     url(r'^nouvel-article/$',
-        CreateContent.as_view(created_content_type="ARTICLE"), name='create-article'),
+        CreateContent.as_view(created_content_type='ARTICLE'), name='create-article'),
+    url(r'^nouveau-billet/$',
+        CreateContent.as_view(created_content_type='OPINION'), name='create-opinion'),
     url(r'^nouveau-conteneur/(?P<pk>\d+)/(?P<slug>.+)/(?P<container_slug>.+)/$',
         CreateContainer.as_view(),
         name='create-container'),
@@ -111,18 +119,18 @@ urlpatterns = [
     url(r'^editer/(?P<pk>\d+)/(?P<slug>.+)/$', EditContent.as_view(), name='edit'),
     url(r'^deplacer/$', MoveChild.as_view(), name='move-element'),
 
-    url(r'^historique/(?P<pk>\d+)/(?P<slug>.+)/$', DisplayHistory.as_view(), name="history"),
-    url(r'^comparaison/(?P<pk>\d+)/(?P<slug>.+)/$', DisplayDiff.as_view(), name="diff"),
-    url(r'^ajouter-auteur/(?P<pk>\d+)/$', AddAuthorToContent.as_view(), name="add-author"),
-    url(r'^enlever-auteur/(?P<pk>\d+)/$', RemoveAuthorFromContent.as_view(), name="remove-author"),
+    url(r'^historique/(?P<pk>\d+)/(?P<slug>.+)/$', DisplayHistory.as_view(), name='history'),
+    url(r'^comparaison/(?P<pk>\d+)/(?P<slug>.+)/$', DisplayDiff.as_view(), name='diff'),
+    url(r'^ajouter-auteur/(?P<pk>\d+)/$', AddAuthorToContent.as_view(), name='add-author'),
+    url(r'^enlever-auteur/(?P<pk>\d+)/$', RemoveAuthorFromContent.as_view(), name='remove-author'),
     # beta:
     url(r'^activer-beta/(?P<pk>\d+)/(?P<slug>.+)/$', ManageBetaContent.as_view(action='set'),
-        name="set-beta"),
+        name='set-beta'),
     url(r'^desactiver-beta/(?P<pk>\d+)/(?P<slug>.+)/$', ManageBetaContent.as_view(action='inactive'),
-        name="inactive-beta"),
+        name='inactive-beta'),
 
     # jsfiddle support:
-    url(r'activer-js/', ActivateJSFiddleInContent.as_view(), name="activate-jsfiddle"),
+    url(r'activer-js/', ActivateJSFiddleInContent.as_view(), name='activate-jsfiddle'),
 
     # delete:
     url(r'^supprimer/(?P<pk>\d+)/(?P<slug>.+)/(?P<parent_container_slug>.+)/(?P<container_slug>.+)/'
@@ -139,8 +147,8 @@ urlpatterns = [
     url(r'^supprimer/(?P<pk>\d+)/(?P<slug>.+)/$', DeleteContent.as_view(), name='delete'),
 
     # markdown import
-    url(r'^importer/archive/nouveau/$', CreateContentFromArchive.as_view(), name="import-new"),
-    url(r'^importer/(?P<pk>\d+)/(?P<slug>.+)/$', UpdateContentWithArchive.as_view(), name="import"),
+    url(r'^importer/archive/nouveau/$', CreateContentFromArchive.as_view(), name='import-new'),
+    url(r'^importer/(?P<pk>\d+)/(?P<slug>.+)/$', UpdateContentWithArchive.as_view(), name='import'),
 
     # tags
     url(r'^tags/$', TagsListView.as_view(), name='tags'),

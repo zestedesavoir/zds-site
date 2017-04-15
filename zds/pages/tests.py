@@ -75,9 +75,9 @@ class PagesMemberTests(TestCase):
         settings.ZDS_APP['site']['association']['forum_ca_pk'] = forum.pk
 
         # send form
-        long_str = u""
+        long_str = u''
         for i in range(3100):
-            long_str += u"A"
+            long_str += u'A'
 
         result = self.client.post(
             reverse('pages-assoc-subscribe'),
@@ -229,4 +229,4 @@ class PagesGuestTests(TestCase):
             reverse('homepage'),
         )
 
-        self.assertTrue('git_version' in result.context[-1])
+        self.assertTrue('git_version' in result.context)

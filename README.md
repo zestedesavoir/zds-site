@@ -19,6 +19,7 @@ Site internet communautaire codé à l'aide du framework [Django](https://www.dj
 
 - Tutoriels
 - Articles
+- Tribunes libres
 - Membres
 - Forums
 - Messages privés
@@ -39,7 +40,7 @@ Elles sont reportées essentiellement dans le [*bug tracker*](https://github.com
 - [Installation du backend sur Linux](http://zds-site.readthedocs.org/fr/latest/install/backend-linux-install.html)
 - [Installation du backend sur OS X](http://zds-site.readthedocs.org/fr/latest/install/backend-os-x-install.html)
 - [Installation du frontend](http://zds-site.readthedocs.org/fr/latest/install/frontend-install.html)
-- [Installation de Solr](http://zds-site.readthedocs.org/fr/latest/install/install-solr.html) pour gérer la recherche
+- [Installation de Elasticsearch](http://zds-site.readthedocs.io/fr/latest/install/install-es.html) pour gérer la recherche
 
 
 ### Mettre à jour votre version locale de ZdS
@@ -60,10 +61,17 @@ Pour bénéficier de données de test, exécutez les commandes suivantes, dans l
 python manage.py loaddata fixtures/*.yaml
 python manage.py load_factory_data fixtures/advanced/aide_tuto_media.yaml
 ```
+Si vous êtes sur Windows, la première commande ne fonctionnera pas, préférez ceci :
+
+```console
+python .\manage.py loaddata (dir .\fixtures\*.yaml)
+python .\manage.py load_factory_data .\fixtures\advanced\aide_tuto_media.yaml
+```
+
 
 Cela va créer plusieurs entitées :
 
-* 7 utilisateurs (utilisateur/mot de passe) :
+* 8 utilisateurs (utilisateur/mot de passe) :
 	* user/user : Utilisateur normal
 	* staff/staff : Utilisateur avec les droits d'un staff
 	* admin/admin : Utilisateur avec les droits d'un staff et d'un admin

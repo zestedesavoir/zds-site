@@ -66,7 +66,9 @@
                 <th>{% trans "Version" %}</th>
                 <th>{% trans "Diff." %}</th>
                 <th>{% trans "Auteur" %}</th>
-                <th width="12%">{% trans "Bêta" %}</th>
+                {% if not content.is_opinion %}
+                    <th width="12%">{% trans "Bêta" %}</th>
+                {% endif %}
             </tr>
         </thead>
         <tbody>
@@ -138,39 +140,41 @@
                             <a href="mailto:{{ commit.author.email }}">{{ commit.author.name }}</a>
                         {% endif %}
                     </td>
-                    <td>
-                        {% if content.sha_beta != commit.hexsha %}
-                            <a href="#activ-beta-{{ commit.hexsha }}" class="open-modal">
-                                {% if not content.sha_beta %}
-                                    {% trans "Activer" %}
-                                {% else %}
-                                    {% trans "Mettre à jour" %}
-                                {% endif %}
-                            </a>
-                            <form action="{% url "content:set-beta" content.pk content.slug %}" method="post" class="modal modal-flex" id="activ-beta-{{ commit.hexsha }}">
-                                {% csrf_token %}
-                                <input type="hidden" name="version" value="{{ commit.hexsha }}"/>
-                                <p>
-                                    {% captureas action %}
-                                        {% if not content.sha_beta %}
-                                            {% trans "activer" %}
-                                        {% else %}
-                                            {% trans "mettre à jour" %}
-                                        {% endif %}
-                                    {% endcaptureas %}
-                                    {% blocktrans with action=action date_version=commit.authored_date|humane_time content_title=content.title %}
-                                        Êtes-vous certain de vouloir <strong>{{ action }}</strong> la bêta pour le contenu
-                                        "<em>{{ content_title }}</em>" dans sa version de {{ date_version }} ?
-                                    {% endblocktrans %}
-                                </p>
-                                <button type="submit">
-                                    {% trans "Confirmer" %}
-                                </button>
-                            </form>
-                        {% else %}
-                            <em>{% trans "En bêta" %}</em>
-                        {% endif %}
-                    </td>
+                    {% if not content.is_opinion %}
+                        <td>
+                            {% if content.sha_beta != commit.hexsha %}
+                                <a href="#activ-beta-{{ commit.hexsha }}" class="open-modal">
+                                    {% if not content.sha_beta %}
+                                        {% trans "Activer" %}
+                                    {% else %}
+                                        {% trans "Mettre à jour" %}
+                                    {% endif %}
+                                </a>
+                                <form action="{% url "content:set-beta" content.pk content.slug %}" method="post" class="modal modal-flex" id="activ-beta-{{ commit.hexsha }}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="version" value="{{ commit.hexsha }}"/>
+                                    <p>
+                                        {% captureas action %}
+                                            {% if not content.sha_beta %}
+                                                {% trans "activer" %}
+                                            {% else %}
+                                                {% trans "mettre à jour" %}
+                                            {% endif %}
+                                        {% endcaptureas %}
+                                        {% blocktrans with action=action date_version=commit.authored_date|humane_time content_title=content.title %}
+                                            Êtes-vous certain de vouloir <strong>{{ action }}</strong> la bêta pour le contenu
+                                            "<em>{{ content_title }}</em>" dans sa version de {{ date_version }} ?
+                                        {% endblocktrans %}
+                                    </p>
+                                    <button type="submit">
+                                        {% trans "Confirmer" %}
+                                    </button>
+                                </form>
+                            {% else %}
+                                <em>{% trans "En bêta" %}</em>
+                            {% endif %}
+                        </td>
+                    {% endif %}
                 </tr>
             {% endfor %}
         </tbody>

@@ -16,10 +16,10 @@ Define a filter to format date.
 
 # Date formatting constants
 
-__DATE_FMT_FUTUR = "Dans le futur"
+__DATE_FMT_FUTUR = 'Dans le futur'
 __ABS_DATE_FMT_SMALL = r'd/m/y à H\hi'       # Small format
 __ABS_DATE_FMT_NORMAL = r'l d F Y à H\hi'    # Normal format
-__ABS_HUMAN_TIME_FMT = "%d %b %Y, %H:%M:%S"
+__ABS_HUMAN_TIME_FMT = '%d %b %Y, %H:%M:%S'
 
 
 def date_formatter(value, tooltip, small):
@@ -72,3 +72,13 @@ def tooltip_date(value):
 def humane_time(timestamp):
     """Render time (number of second from epoch) to an human readable string"""
     return format_date(datetime.fromtimestamp(timestamp))
+
+
+@register.filter
+def from_elasticsearch_date(value):
+    try:
+        date = datetime.strptime(value, '%Y-%m-%dT%H:%M:%S.%f')
+    except ValueError:
+        date = datetime.strptime(value, '%Y-%m-%dT%H:%M:%S')
+
+    return date

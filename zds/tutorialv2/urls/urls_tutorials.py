@@ -15,7 +15,7 @@ urlpatterns = [
 
     # view
     url(r'^(?P<pk>\d+)/(?P<slug>.+)/(?P<p2>\d+)/(?P<parent_container_slug>.+)/(?P<p3>\d+)/(?P<container_slug>.+)/$',
-        RedirectContentSEO.as_view(), name="redirect_old_tuto"),
+        RedirectContentSEO.as_view(), name='redirect_old_tuto'),
     url(r'^(?P<pk>\d+)/(?P<slug>.+)/(?P<parent_container_slug>.+)/(?P<container_slug>.+)/$',
         DisplayOnlineContainer.as_view(),
         name='view-container'),
@@ -38,9 +38,9 @@ urlpatterns = [
         DownloadOnlineTutorial.as_view(requested_file='zip'), name='download-zip'),
 
     #  Old beta url compatibility
-    url('^beta/(?P<pk>\d+)/(?P<slug>.+)', RedirectOldBetaTuto.as_view(), name="old-beta-url"),
+    url('^beta/(?P<pk>\d+)/(?P<slug>.+)', RedirectOldBetaTuto.as_view(), name='old-beta-url'),
 
     # Listing
     url(r'^$', ListTutorials.as_view(), name='list'),
-    url(r'tags/$', TagsListView.as_view(displayed_types=["TUTORIAL"]), name="tags")
+    url(r'tags/$', TagsListView.as_view(displayed_types=['TUTORIAL']), name='tags')
 ]

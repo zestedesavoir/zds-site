@@ -38,11 +38,11 @@ class LastTutorialsFeedRSSTest(TestCase):
         self.mas = ProfileFactory().user
         settings.ZDS_APP['member']['bot_account'] = self.mas.username
 
-        bot = Group(name=settings.ZDS_APP["member"]["bot_group"])
+        bot = Group(name=settings.ZDS_APP['member']['bot_group'])
         bot.save()
         self.external = UserFactory(
-            username=settings.ZDS_APP["member"]["external_account"],
-            password="anything")
+            username=settings.ZDS_APP['member']['external_account'],
+            password='anything')
 
         self.beta_forum = ForumFactory(
             pk=settings.ZDS_APP['forum']['beta_forum_id'],
@@ -85,9 +85,9 @@ class LastTutorialsFeedRSSTest(TestCase):
         """ Test that base parameters are Ok """
 
         self.assertEqual(self.tutofeed.link, '/tutoriels/')
-        reftitle = u"Tutoriels sur {}".format(settings.ZDS_APP['site']['litteral_name'])
+        reftitle = u'Tutoriels sur {}'.format(settings.ZDS_APP['site']['litteral_name'])
         self.assertEqual(self.tutofeed.title, reftitle)
-        refdescription = u"Les derniers tutoriels parus sur {}.".format(settings.ZDS_APP['site']['litteral_name'])
+        refdescription = u'Les derniers tutoriels parus sur {}.'.format(settings.ZDS_APP['site']['litteral_name'])
         self.assertEqual(self.tutofeed.description, refdescription)
 
         atom = LastTutorialsFeedATOM()
@@ -147,7 +147,7 @@ class LastTutorialsFeedRSSTest(TestCase):
         if os.path.isdir(settings.MEDIA_ROOT):
             shutil.rmtree(settings.MEDIA_ROOT)
 
-        # re-active PDF build
+        # re-activate PDF build
         settings.ZDS_APP['content']['build_pdf_when_published'] = True
 
 
@@ -164,11 +164,11 @@ class LastArticlesFeedRSSTest(TestCase):
         self.mas = ProfileFactory().user
         settings.ZDS_APP['member']['bot_account'] = self.mas.username
 
-        bot = Group(name=settings.ZDS_APP["member"]["bot_group"])
+        bot = Group(name=settings.ZDS_APP['member']['bot_group'])
         bot.save()
         self.external = UserFactory(
-            username=settings.ZDS_APP["member"]["external_account"],
-            password="anything")
+            username=settings.ZDS_APP['member']['external_account'],
+            password='anything')
 
         self.beta_forum = ForumFactory(
             pk=settings.ZDS_APP['forum']['beta_forum_id'],
@@ -209,9 +209,9 @@ class LastArticlesFeedRSSTest(TestCase):
         """ Test that base parameters are Ok """
 
         self.assertEqual(self.articlefeed.link, '/articles/')
-        reftitle = u"Articles sur {}".format(settings.ZDS_APP['site']['litteral_name'])
+        reftitle = u'Articles sur {}'.format(settings.ZDS_APP['site']['litteral_name'])
         self.assertEqual(self.articlefeed.title, reftitle)
-        refdescription = u"Les derniers articles parus sur {}.".format(settings.ZDS_APP['site']['litteral_name'])
+        refdescription = u'Les derniers articles parus sur {}.'.format(settings.ZDS_APP['site']['litteral_name'])
         self.assertEqual(self.articlefeed.description, refdescription)
 
         atom = LastArticlesFeedATOM()
@@ -271,5 +271,5 @@ class LastArticlesFeedRSSTest(TestCase):
         if os.path.isdir(settings.MEDIA_ROOT):
             shutil.rmtree(settings.MEDIA_ROOT)
 
-        # re-active PDF build
+        # re-activate PDF build
         settings.ZDS_APP['content']['build_pdf_when_published'] = True

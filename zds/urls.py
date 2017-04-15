@@ -15,32 +15,34 @@ from . import settings
 
 
 # SiteMap data
-class TutoSitemap(Sitemap):
+class ContentSitemap(Sitemap):
     changefreq = 'weekly'
     priority = 1
 
     def items(self):
-        return PublishedContent.objects.filter(must_redirect=False, content_type="TUTORIAL").prefetch_related('content')
+        return (
+            PublishedContent.objects
+            .filter(must_redirect=False, content_type=self.content_type)
+            .prefetch_related('content')
+        )
 
-    def lastmod(self, tuto):
-        return tuto.update_date or tuto.publication_date
+    def lastmod(self, content):
+        return content.update_date or content.publication_date
 
-    def location(self, tuto):
-        return tuto.get_absolute_url_online()
+    def location(self, content):
+        return content.get_absolute_url_online()
 
 
-class ArticleSitemap(Sitemap):
-    changefreq = 'weekly'
-    priority = 1
+class TutoSitemap(ContentSitemap):
+    content_type = 'TUTORIAL'
 
-    def items(self):
-        return PublishedContent.objects.filter(must_redirect=False, content_type="ARTICLE").prefetch_related('content')
 
-    def lastmod(self, article):
-        return article.update_date or article.publication_date
+class ArticleSitemap(ContentSitemap):
+    content_type = 'ARTICLE'
 
-    def location(self, article):
-        return article.get_absolute_url_online()
+
+class OpinionSitemap(ContentSitemap):
+    content_type = 'OPINION'
 
 
 class PageSitemap(Sitemap):
@@ -54,22 +56,24 @@ class PageSitemap(Sitemap):
     def location(self, item):
         return reverse(item)
 
+
 sitemaps = {
     'tutos': TutoSitemap,
     'articles': ArticleSitemap,
+    'opinions': OpinionSitemap,
     'categories': GenericSitemap(
         {'queryset': Category.objects.all()},
         changefreq='yearly',
         priority=0.7
     ),
     'forums': GenericSitemap(
-        {'queryset': Forum.objects.filter(group__isnull=True).exclude(pk=settings.ZDS_APP['forum']['beta_forum_id'])},
+        {'queryset': Forum.objects.filter(groups__isnull=True).exclude(pk=settings.ZDS_APP['forum']['beta_forum_id'])},
         changefreq='yearly',
         priority=0.7
     ),
     'topics': GenericSitemap(
         {'queryset': Topic.objects.filter(is_locked=False,
-                                          forum__group__isnull=True)
+                                          forum__groups__isnull=True)
                                   .exclude(forum__pk=settings.ZDS_APP['forum']['beta_forum_id']),
          'date_field': 'pubdate'},
         changefreq='hourly',
@@ -93,7 +97,7 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^pages/', include('zds.pages.urls')),
     url(r'^galerie/', include('zds.gallery.urls')),
-    url(r'^rechercher/', include('zds.search.urls')),
+    url(r'^rechercher/', include('zds.searchv2.urls', namespace='search')),
     url(r'^munin/', include('zds.munin.urls')),
     url(r'^mise-en-avant/', include('zds.featured.urls')),
     url(r'^notifications/', include('zds.notification.urls')),
@@ -123,4 +127,4 @@ if settings.SERVE:
     ]
 
 # custom view for 500 errors
-handler500 = "zds.pages.views.custom_error_500"
+handler500 = 'zds.pages.views.custom_error_500'

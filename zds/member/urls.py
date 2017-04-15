@@ -2,10 +2,11 @@
 
 from django.conf.urls import url
 
-from zds.member.views import MemberList, MemberDetail, UpdateMember, UpdateAvatarMember, UpdatePasswordMember, \
-    UpdateUsernameEmailMember, RegisterView, SendValidationEmailView, modify_karma, \
-    modify_profile, settings_mini_profile, member_from_ip, tutorials, articles, settings_promote, login_view, \
-    logout_view, forgot_password, new_password, active_account, generate_token_account, unregister, warning_unregister
+from zds.member.views import MemberList, MemberDetail, UpdateMember, UpdateGitHubToken, remove_github_token, \
+    UpdateAvatarMember, UpdatePasswordMember, UpdateUsernameEmailMember, RegisterView, \
+    SendValidationEmailView, modify_karma, modify_profile, settings_mini_profile, member_from_ip, \
+    tutorials, articles, settings_promote, login_view, logout_view, forgot_password, new_password, \
+    activate_account, generate_token_account, unregister, warning_unregister
 
 urlpatterns = [
     # list
@@ -16,6 +17,8 @@ urlpatterns = [
 
     # modification
     url(r'^parametres/profil/$', UpdateMember.as_view(), name='update-member'),
+    url(r'^parametres/github/$', UpdateGitHubToken.as_view(), name='update-github'),
+    url(r'^parametres/github/supprimer/$', remove_github_token, name='remove-github'),
     url(r'^parametres/profil/maj_avatar/$', UpdateAvatarMember.as_view(), name='update-avatar-member'),
     url(r'^parametres/compte/$', UpdatePasswordMember.as_view(), name='update-password-member'),
     url(r'^parametres/user/$', UpdateUsernameEmailMember.as_view(), name='update-username-email-member'),
@@ -40,7 +43,7 @@ urlpatterns = [
     url(r'^reinitialisation/$', forgot_password, name='member-forgot-password'),
     url(r'^validation/$', SendValidationEmailView.as_view(), name='send-validation-email'),
     url(r'^new_password/$', new_password, name='member-new-password'),
-    url(r'^activation/$', active_account, name='member-active-account'),
+    url(r'^activation/$', activate_account, name='member-active-account'),
     url(r'^envoi_jeton/$', generate_token_account, name='member-generate-token-account'),
     url(r'^desinscrire/valider/$', unregister, name='member-unregister'),
     url(r'^desinscrire/avertissement/$', warning_unregister, name='member-warning-unregister')

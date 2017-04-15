@@ -3,7 +3,8 @@
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
-from django.http import Http404, HttpResponse, HttpResponsePermanentRedirect
+from django.http import Http404, HttpResponse, HttpResponsePermanentRedirect, StreamingHttpResponse
+from django.template.loader import render_to_string
 from django.shortcuts import redirect
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import DetailView, FormView
@@ -75,14 +76,14 @@ class SingleContentViewMixin(object):
 
         if self.prefetch_all:
             queryset = queryset.\
-                select_related("licence") \
-                .prefetch_related("authors") \
-                .prefetch_related("subcategory") \
+                select_related('licence') \
+                .prefetch_related('authors') \
+                .prefetch_related('subcategory') \
 
         obj = queryset.filter(pk=pk).first()
 
         if not obj:
-            raise Http404(u"Aucun contenu ne possède cet identifiant.")
+            raise Http404(u'Aucun contenu ne possède cet identifiant.')
 
         # check permissions:
         self.is_staff = self.request.user.has_perm('tutorialv2.change_publishablecontent')
@@ -186,6 +187,19 @@ class ModalFormView(FormView):
                 return redirect(reverse('content:view'))  # assume a default url
 
 
+class FormWithPreview(FormView):
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+
+        if 'preview' in request.POST:
+            self.form_invalid(form)
+            if request.is_ajax():
+                content = render_to_string('misc/previsualization.part.html', {'text': request.POST.get('text')})
+                return StreamingHttpResponse(content)
+
+        return super(FormWithPreview, self).post(request, *args, **kwargs)
+
+
 class SingleContentFormViewMixin(SingleContentViewMixin, ModalFormView):
     """
     This enhanced FormView ensure,
@@ -231,7 +245,7 @@ class SingleContentDetailViewMixin(SingleContentViewMixin, DetailView):
 
         if not self.sha:
             try:
-                self.sha = request.GET["version"]
+                self.sha = request.GET['version']
             except KeyError:
                 self.sha = self.object.sha_draft
 
@@ -247,8 +261,10 @@ class SingleContentDetailViewMixin(SingleContentViewMixin, DetailView):
         context['content'] = self.versioned_object
         context['can_edit'] = self.is_author
         context['is_staff'] = self.is_staff
+        if self.object.type == 'OPINION':
+            context['can_publish'] = not self.object.is_definitely_unpublished()
         if self.sha != self.object.sha_draft:
-            context["version"] = self.sha
+            context['version'] = self.sha
 
         if self.object.beta_topic:
             beta_topic = Topic.objects.get(pk=self.object.beta_topic.pk)
@@ -277,6 +293,10 @@ class ContentTypeMixin(object):
         if self.current_content_type == 'TUTORIAL':
             v_type_name = _(u'tutoriel')
             v_type_name_plural = _(u'tutoriels')
+
+        if self.current_content_type == 'OPINION':
+            v_type_name = _(u'billet')
+            v_type_name_plural = _(u'billets')
 
         context['current_content_type'] = self.current_content_type
         context['verbose_type_name'] = v_type_name
@@ -339,9 +359,9 @@ class SingleOnlineContentViewMixin(ContentTypeMixin):
         queryset = PublishedContent.objects\
             .filter(content_pk=pk)\
             .prefetch_related('content')\
-            .prefetch_related("content__authors")\
-            .prefetch_related("content__subcategory")\
-            .prefetch_related("content__tags")\
+            .prefetch_related('content__authors')\
+            .prefetch_related('content__subcategory')\
+            .prefetch_related('content__tags')\
             .prefetch_related('content__public_version')\
             .select_related('content__last_note')
 
@@ -351,10 +371,10 @@ class SingleOnlineContentViewMixin(ContentTypeMixin):
         if 'slug' in self.kwargs:
             queryset = queryset.filter(content_public_slug=self.kwargs['slug'])
 
-        obj = queryset.order_by('publication_date').last()  # "last" version must be the most recent to be published
+        obj = queryset.order_by('publication_date').last()  # 'last' version must be the most recent to be published
 
         if obj is None:
-            raise Http404(u"Aucun contenu ne possède ce slug.")
+            raise Http404(u'Aucun contenu ne possède ce slug.')
 
         # Redirection ?
         if obj.must_redirect:
@@ -365,7 +385,7 @@ class SingleOnlineContentViewMixin(ContentTypeMixin):
             else:  # should only happen if the content is unpublished
                 raise Http404(u"La redirection est activée mais le contenu n'est pas public.")
 
-        self.is_author = self.request.user in obj.content.authors.all()
+        self.is_author = self.request.user in obj.authors.all()
         self.is_staff = self.request.user.has_perm('tutorialv2.change_publishablecontent')
 
         self.current_content_type = obj.content_type
@@ -387,7 +407,7 @@ class SingleOnlineContentViewMixin(ContentTypeMixin):
 
 class SingleOnlineContentDetailViewMixin(SingleOnlineContentViewMixin, DetailView):
     """
-    This enhanced DetailView ensure,
+    This enhanced DetailView ensures,
 
     - by rewriting `get()`, that:
         * `self.object` contains the result of `get_object()` (as it must be if `get()` was not rewritten)
@@ -426,6 +446,7 @@ class SingleOnlineContentDetailViewMixin(SingleOnlineContentViewMixin, DetailVie
         context = super(SingleOnlineContentDetailViewMixin, self).get_context_data(**kwargs)
 
         context['content'] = self.versioned_object
+        context['is_obsolete'] = self.object.is_obsolete
         context['public_object'] = self.public_content_object
         context['can_edit'] = self.request.user in self.object.authors.all()
         context['isantispam'] = self.object.antispam(self.request.user)
@@ -516,10 +537,32 @@ class SingleContentDownloadViewMixin(SingleContentViewMixin, DownloadViewMixin):
 
         if not self.sha:
             try:
-                self.sha = self.request.GET["version"]
+                self.sha = self.request.GET['version']
             except KeyError:
                 self.sha = self.object.sha_draft
 
         self.versioned_object = self.get_versioned_object()
 
         return super(SingleContentDownloadViewMixin, self).get(context, **response_kwargs)
+
+
+class ValidationBeforeViewMixin(SingleContentDetailViewMixin):
+    """
+    Ensure the content require validation before publication.
+    """
+
+    def get(self, request, *args, **kwargs):
+        if not self.get_object().requires_validation_before():
+            raise PermissionDenied
+        return super(ValidationBeforeViewMixin, self).get(request, *args, **kwargs)
+
+
+class NoValidationBeforeFormViewMixin(SingleContentFormViewMixin):
+    """
+    Ensure the content do not require validation before publication.
+    """
+
+    def get_form_kwargs(self):
+        if self.versioned_object.requires_validation_before():
+            raise PermissionDenied
+        return super(NoValidationBeforeFormViewMixin, self).get_form_kwargs()

@@ -1,5 +1,6 @@
 # coding: utf-8
-
+from __future__ import unicode_literals
+from django.utils.encoding import python_2_unicode_compatible
 from datetime import datetime
 from hashlib import md5
 from importlib import import_module
@@ -22,6 +23,7 @@ from zds.tutorialv2.models.models_database import PublishableContent, PublishedC
 from zds.utils.models import Alert
 
 
+@python_2_unicode_compatible
 class Profile(models.Model):
     """
     A user profile. Complementary data of standard Django `auth.user`.
@@ -49,59 +51,29 @@ class Profile(models.Model):
         null=True)
 
     site = models.CharField('Site internet', max_length=2000, blank=True)
-    show_email = models.BooleanField('Afficher adresse mail publiquement',
-                                     default=False)
-
-    avatar_url = models.CharField(
-        'URL de l\'avatar', max_length=2000, null=True, blank=True
-    )
-
+    show_email = models.BooleanField('Afficher adresse mail publiquement', default=False)
+    avatar_url = models.CharField('URL de l\'avatar', max_length=2000, null=True, blank=True)
     biography = models.TextField('Biographie', blank=True)
-
     karma = models.IntegerField('Karma', default=0)
-
     sign = models.TextField('Signature', max_length=500, blank=True)
-
     github_token = models.TextField('GitHub', blank=True)
-
     show_sign = models.BooleanField('Voir les signatures', default=True)
-
     # do UI components open by hovering them, or is clicking on them required?
-    is_hover_enabled = models.BooleanField('Déroulement au survol ?', default=False)
-
+    is_hover_enabled = models.BooleanField('Déroulement au survol ?', default=True)
     allow_temp_visual_changes = models.BooleanField('Activer les changements visuels temporaires', default=True)
-
     email_for_answer = models.BooleanField('Envoyer pour les réponse MP', default=False)
-
-    # SdZ tutorial IDs separated by columns (:).
-    # TODO: bad field name (singular --> should be plural), manually handled multi-valued field.
-    sdz_tutorial = models.TextField(
-        'Identifiant des tutos SdZ',
-        blank=True,
-        null=True)
-
+    show_staff_badge = models.BooleanField('Afficher le badge staff', default=False)
     can_read = models.BooleanField('Possibilité de lire', default=True)
-    end_ban_read = models.DateTimeField(
-        "Fin d'interdiction de lecture",
-        null=True,
-        blank=True)
-
+    end_ban_read = models.DateTimeField("Fin d'interdiction de lecture", null=True, blank=True)
     can_write = models.BooleanField("Possibilité d'écrire", default=True)
-    end_ban_write = models.DateTimeField(
-        "Fin d'interdiction d'écrire",
-        null=True,
-        blank=True)
-
-    last_visit = models.DateTimeField(
-        'Date de dernière visite',
-        null=True,
-        blank=True)
-
-    objects = ProfileManager()
+    end_ban_write = models.DateTimeField("Fin d'interdiction d'écrire", null=True, blank=True)
+    last_visit = models.DateTimeField('Date de dernière visite', null=True, blank=True)
     _permissions = {}
     _groups = None
 
-    def __unicode__(self):
+    objects = ProfileManager()
+
+    def __str__(self):
         return self.user.username
 
     def is_private(self):
@@ -149,12 +121,12 @@ class Profile(models.Model):
         """
         if self.avatar_url:
             if self.avatar_url.startswith(settings.MEDIA_URL):
-                return u"{}{}".format(settings.ZDS_APP["site"]["url"], self.avatar_url)
+                return u'{}{}'.format(settings.ZDS_APP['site']['url'], self.avatar_url)
             else:
                 return self.avatar_url
         else:
             return 'https://secure.gravatar.com/avatar/{0}?d=identicon'.format(
-                md5(self.user.email.lower().encode("utf-8")).hexdigest())
+                md5(self.user.email.lower().encode('utf-8')).hexdigest())
 
     def get_post_count(self):
         """
@@ -252,13 +224,13 @@ class Profile(models.Model):
         """
         :return: the count of tutorials with this user as author. Count all tutorials, no only published one.
         """
-        return self.get_content_count(_type="TUTORIAL")
+        return self.get_content_count(_type='TUTORIAL')
 
     def get_tutos(self):
         """
         :return: All tutorials with this user as author.
         """
-        return self.get_contents(_type="TUTORIAL")
+        return self.get_contents(_type='TUTORIAL')
 
     def get_draft_tutos(self):
         """
@@ -266,49 +238,49 @@ class Profile(models.Model):
         A draft tutorial is a tutorial which is not published, in validation or in beta.
         :return: All draft tutorials with this user as author.
         """
-        return self.get_draft_contents(_type="TUTORIAL")
+        return self.get_draft_contents(_type='TUTORIAL')
 
     def get_public_tutos(self):
         """
         :return: All published tutorials with this user as author.
         """
-        return self.get_public_contents(_type="TUTORIAL")
+        return self.get_public_contents(_type='TUTORIAL')
 
     def get_validate_tutos(self):
         """
         :return: All tutorials in validation with this user as author.
         """
-        return self.get_validate_contents(_type="TUTORIAL")
+        return self.get_validate_contents(_type='TUTORIAL')
 
     def get_beta_tutos(self):
         """
         :return: All tutorials in beta with this user as author.
         """
-        return self.get_beta_contents(_type="TUTORIAL")
+        return self.get_beta_contents(_type='TUTORIAL')
 
     def get_article_count(self):
         """
         :return: the count of articles with this user as author. Count all articles, no only published one.
         """
-        return self.get_content_count(_type="ARTICLE")
+        return self.get_content_count(_type='ARTICLE')
 
     def get_articles(self):
         """
         :return: All articles with this user as author.
         """
-        return self.get_contents(_type="ARTICLE")
+        return self.get_contents(_type='ARTICLE')
 
     def get_public_articles(self):
         """
         :return: All published articles with this user as author.
         """
-        return self.get_public_contents(_type="ARTICLE")
+        return self.get_public_contents(_type='ARTICLE')
 
     def get_validate_articles(self):
         """
         :return: All articles in validation with this user as author.
         """
-        return self.get_validate_contents(_type="ARTICLE")
+        return self.get_validate_contents(_type='ARTICLE')
 
     def get_draft_articles(self):
         """
@@ -316,22 +288,47 @@ class Profile(models.Model):
         A draft article is a article which is not published or in validation.
         :return: All draft article with this user as author.
         """
-        return self.get_draft_contents(_type="ARTICLE")
+        return self.get_draft_contents(_type='ARTICLE')
 
     def get_beta_articles(self):
         """
         :return: All articles in beta with this user as author.
         """
-        return self.get_beta_contents(_type="ARTICLE")
+        return self.get_beta_contents(_type='ARTICLE')
+
+    def get_opinion_count(self):
+        """
+        :return: the count of opinions with this user as author. Count all opinions, no only published one.
+        """
+        return self.get_content_count(_type='OPINION')
+
+    def get_opinions(self):
+        """
+        :return: All opinions with this user as author.
+        """
+        return self.get_contents(_type='OPINION')
+
+    def get_public_opinions(self):
+        """
+        :return: All published opinions with this user as author.
+        """
+        return self.get_public_contents(_type='OPINION')
+
+    def get_draft_opinions(self):
+        """
+        Return all draft opinion with this user as author.
+        A draft opinion is a opinion which is not published or in validation.
+        :return: All draft opinion with this user as author.
+        """
+        return self.get_draft_contents(_type='OPINION')
 
     def get_posts(self):
         return Post.objects.filter(author=self.user).all()
 
-    def get_invisible_posts_count(self):
-        return Post.objects.filter(is_visible=False, author=self.user).count()
+    def get_hidden_by_staff_posts_count(self):
+        return Post.objects.filter(is_visible=False, author=self.user).exclude(editor=self.user).count()
 
-    # TODO: improve this method's name?
-    def get_alerts_posts_count(self):
+    def get_active_alerts_count(self):
         """
         :return: The number of currently active alerts created by this user.
         """
@@ -341,21 +338,16 @@ class Profile(models.Model):
         if self.user.is_authenticated:
             if self.user.is_active:
                 if self.end_ban_read:
-                    return self.can_read or (
-                        self.end_ban_read < datetime.now())
-                else:
-                    return self.can_read
-            else:
-                return False
+                    return self.can_read or (self.end_ban_read < datetime.now())
+                return self.can_read
+            return False
 
     def can_write_now(self):
         if self.user.is_active:
             if self.end_ban_write:
                 return self.can_write or (self.end_ban_write < datetime.now())
-            else:
-                return self.can_write
-        else:
-            return False
+            return self.can_write
+        return False
 
     def get_followed_topics(self):
         """
@@ -382,7 +374,7 @@ class Profile(models.Model):
         return True
 
     def has_object_write_permission(self, request):
-        return self.has_object_update_permission(request) or request.user.has_perm("member.change_profile")
+        return self.has_object_update_permission(request) or request.user.has_perm('member.change_profile')
 
     def has_object_update_permission(self, request):
         return request.user.is_authenticated() and request.user == self.user
@@ -392,7 +384,7 @@ class Profile(models.Model):
         return True
 
     def has_object_ban_permission(self, request):
-        return request.user and request.user.has_perm("member.change_profile")
+        return request.user and request.user.has_perm('member.change_profile')
 
     @property
     def group_pks(self):
@@ -410,6 +402,38 @@ def auto_delete_token_on_unregistering(sender, instance, **kwargs):
     TokenRegister.objects.filter(user=instance).delete()
 
 
+@receiver(models.signals.post_save, sender=User)
+def remove_token_github_on_removing_from_dev_group(sender, instance, **kwargs):
+    """
+    This signal receiver removes the GitHub token of an user if he's not in the dev group
+    """
+    try:
+        profile = instance.profile
+        if profile.github_token and not profile.is_dev():
+            profile.github_token = ''
+            profile.save()
+    except Profile.DoesNotExist:
+        pass
+
+
+@receiver(models.signals.post_save, sender=User)
+def update_staff_badge(sender, instance, **kwargs):
+    """
+    This signal is used to update the field show_staff_badge of the user profile, which is used
+    to know if the staff badge should be displayed for this user.
+    The badge is displayed when the user has the perm forum.change_post.
+    """
+    try:
+        user_profile = instance.profile
+        old_staff_badge = instance.profile.show_staff_badge
+        user_profile.show_staff_badge = instance.has_perm('forum.change_post')
+        if user_profile.show_staff_badge != old_staff_badge:
+            user_profile.save()
+    except Profile.DoesNotExist:
+        pass
+
+
+@python_2_unicode_compatible
 class TokenForgotPassword(models.Model):
     """
     When a user forgot its password, the website sends it an email with a token (embedded in a URL).
@@ -430,10 +454,11 @@ class TokenForgotPassword(models.Model):
         """
         return reverse('member-new-password') + '?token={0}'.format(self.token)
 
-    def __unicode__(self):
-        return u"{0} - {1}".format(self.user.username, self.date_end)
+    def __str__(self):
+        return '{0} - {1}'.format(self.user.username, self.date_end)
 
 
+@python_2_unicode_compatible
 class TokenRegister(models.Model):
     """
     On registration, a token is send by mail to the user. It must use this token (by clicking on a link) to activate its
@@ -454,8 +479,8 @@ class TokenRegister(models.Model):
         """
         return reverse('member-active-account') + '?token={0}'.format(self.token)
 
-    def __unicode__(self):
-        return u"{0} - {1}".format(self.user.username, self.date_end)
+    def __str__(self):
+        return '{0} - {1}'.format(self.user.username, self.date_end)
 
 
 # Used by SOCIAL_AUTH_PIPELINE to create a profile on first login via social auth
@@ -463,10 +488,11 @@ def save_profile(backend, user, response, *args, **kwargs):
     profile = Profile.objects.filter(user=user).first()
     if profile is None:
         profile = Profile(user=user)
-        profile.last_ip_address = "0.0.0.0"
+        profile.last_ip_address = '0.0.0.0'
         profile.save()
 
 
+@python_2_unicode_compatible
 class Ban(models.Model):
     """
     This model stores all sanctions (not only bans).
@@ -479,43 +505,38 @@ class Ban(models.Model):
         verbose_name_plural = 'Sanctions'
 
     user = models.ForeignKey(User, verbose_name='Sanctionné', db_index=True)
-    moderator = models.ForeignKey(User, verbose_name='Moderateur',
-                                  related_name='bans', db_index=True)
+    moderator = models.ForeignKey(User, verbose_name='Moderateur', related_name='bans', db_index=True)
     type = models.CharField('Type', max_length=80, db_index=True)
-    text = models.TextField('Explication de la sanction')
-    pubdate = models.DateTimeField(
-        'Date de publication',
-        blank=True,
-        null=True, db_index=True)
+    note = models.TextField('Explication de la sanction')
+    pubdate = models.DateTimeField('Date de publication', blank=True, null=True, db_index=True)
 
-    def __unicode__(self):
-        return u"{0} - ban : {1} ({2}) ".format(self.user.username, self.text, self.pubdate)
+    def __str__(self):
+        return '{0} - ban : {1} ({2}) '.format(self.user.username, self.note, self.pubdate)
 
 
+@python_2_unicode_compatible
 class KarmaNote(models.Model):
     """
-    A karma note is a tool for staff to store data about a member.
-    Data are:
-    - A note (negative values are bad)
-    - A comment about the member
-    - A date
-    This helps the staff to react and stores history of stupidities of a member.
+    Karma notes are a way of annotating members profiles. They are only visible
+    to the staff.
+
+    Fields are:
+    - target user and the moderator leaving the note
+    - a textual note
+    - some amount of karma, negative values being… negative
     """
     class Meta:
         verbose_name = 'Note de karma'
         verbose_name_plural = 'Notes de karma'
 
     user = models.ForeignKey(User, related_name='karmanote_user', db_index=True)
-    # TODO: coherence, "staff" is called "moderator" in Ban model.
-    staff = models.ForeignKey(User, related_name='karmanote_staff', db_index=True)
-    # TODO: coherence, "comment" is called "text" in Ban model.
-    comment = models.CharField('Commentaire', max_length=150)
-    value = models.IntegerField('Valeur')
-    # TODO: coherence, "create_at" is called "pubdate" in Ban model.
-    create_at = models.DateTimeField('Date d\'ajout', auto_now_add=True)
+    moderator = models.ForeignKey(User, related_name='karmanote_staff', db_index=True)
+    note = models.CharField('Commentaire', max_length=150)
+    karma = models.IntegerField('Valeur')
+    pubdate = models.DateTimeField('Date d\'ajout', auto_now_add=True)
 
-    def __unicode__(self):
-        return u"{0} - note : {1} ({2}) ".format(self.user.username, self.comment, self.create_at)
+    def __str__(self):
+        return '{0} - note : {1} ({2}) '.format(self.user.username, self.note, self.pubdate)
 
 
 def logout_user(username):

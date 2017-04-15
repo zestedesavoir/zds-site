@@ -22,44 +22,48 @@
 
 {% block content %}
     {% if featured_resource_list %}
-        <form id="form" name="form" method="post" action="{% url "featured-resource-list-delete" %}">
-            {% csrf_token %}
 
-            <button class="btn btn-cancel" name="delete_multi">
-                {% trans "Supprimer la sélection" %}
-            </button>
+        <a href="#form-delete-featured" class="btn btn-cancel open-modal">
+            {% trans "Supprimer la sélection" %}
+        </a>
 
-            <button class="toggle-gallery-view btn btn-grey" type="button" title="{% trans 'Alterner entre les modes de vue grille et liste' %}">
-                {% trans "Vue grille" %}
-            </button>
+        <button class="toggle-gallery-view btn btn-grey" type="button" title="{% trans 'Alterner entre les modes de vue grille et liste' %}">
+            {% trans "Vue grille" %}
+        </button>
 
-            <div class="gallery topic-list list-view clearfix navigable-list">
-                {% for featured_resource in featured_resource_list %}
-                    <div class="topic gallery-item navigable-elem">
-                        <div class="topic-infos">
-                            <input name="items" type="checkbox" value="{{ featured_resource.pk }}">
-                        </div>
-                        <div class="topic-description">
-                            <a href="{% url 'featured-resource-update' featured_resource.pk %}" class="topic-title-link navigable-link">
-                                <img src="{{ featured_resource.image_url|remove_url_protocole }}"
-                                    data-caption="{{ featured_resource.title }}"
-                                    alt="{{ featured_resource.title }}"
-                                    class="topic-image"
-                                >
-                                <span class="topic-title">{{ featured_resource.title }}</span>
-                            </a>
-                        </div>
+        <div class="gallery topic-list list-view clearfix navigable-list">
+            {% for featured_resource in featured_resource_list %}
+                <div class="topic gallery-item navigable-elem">
+                    <div class="topic-infos">
+                        <input name="items" type="checkbox" value="{{ featured_resource.pk }}" form="form-delete-featured">
                     </div>
-                {% endfor %}
-            </div>
+                    <div class="topic-description">
+                        <a href="{% url 'featured-resource-update' featured_resource.pk %}" class="topic-title-link navigable-link">
+                            <img src="{{ featured_resource.image_url|remove_url_protocole }}"
+                                 data-caption="{{ featured_resource.title }}"
+                                 alt="{{ featured_resource.title }}"
+                                 class="topic-image"
+                            >
+                            <span class="topic-title">{{ featured_resource.title }}</span>
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
 
-             <button class="btn btn-cancel" name="delete_multi">
-                {% trans "Supprimer la sélection" %}
-            </button>
+        <a href="#form-delete-featured" class="btn btn-cancel open-modal">
+            {% trans "Supprimer la sélection" %}
+        </a>
 
-            <button class="toggle-gallery-view btn btn-grey" type="button" title="{% trans 'Alterner entre les modes de vue grille et liste' %}">
-                {% trans "Vue grille" %}
-            </button>
+        <button class="toggle-gallery-view btn btn-grey" type="button" title="{% trans 'Alterner entre les modes de vue grille et liste' %}">
+            {% trans "Vue grille" %}
+        </button>
+
+        <!-- Confirmation modal for deleting featured -->
+        <form id="form-delete-featured" name="form" method="post" action="{% url "featured-resource-list-delete" %}" class="modal modal-flex">
+            {% csrf_token %}
+            <p>{% trans "Attention, vous vous apprêtez à supprimer toutes les unes sélectionnées." %}</p>
+            <button type="submit" name="delete_multi" class="btn">{% trans "Confirmer" %}</button>
         </form>
     {% else %}
         <p>

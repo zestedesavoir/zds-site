@@ -24,7 +24,7 @@ class CategoriesForumsListViewTests(TestCase):
         self.assertEqual(forum, current_category.get_forums(profile.user)[0])
 
     def test_success_list_all_forums_with_private_forums(self):
-        group = Group.objects.create(name="DummyGroup_1")
+        group = Group.objects.create(name='DummyGroup_1')
 
         profile = ProfileFactory()
         category, forum = create_category(group)
@@ -83,7 +83,7 @@ class CategoryForumsDetailViewTest(TestCase):
         self.assertEqual(response.context['forums'][0], current_category.get_forums(profile.user)[0])
 
     def test_success_list_all_forums_of_a_category_with_private_forums(self):
-        group = Group.objects.create(name="DummyGroup_1")
+        group = Group.objects.create(name='DummyGroup_1')
 
         profile = ProfileFactory()
         category, forum = create_category(group)
@@ -115,7 +115,7 @@ class ForumTopicsListViewTest(TestCase):
         self.assertEqual(404, response.status_code)
 
     def test_failure_list_all_topics_of_a_forum_we_cannot_read(self):
-        group = Group.objects.create(name="DummyGroup_1")
+        group = Group.objects.create(name='DummyGroup_1')
         category, forum = create_category(group)
 
         response = self.client.get(reverse('forum-topics-list', args=[category.slug, forum.slug]))
@@ -191,7 +191,7 @@ class ForumTopicsListViewTest(TestCase):
 
 class TopicPostsListViewTest(TestCase):
     def test_failure_list_all_posts_of_a_topic_of_a_forum_we_cannot_read(self):
-        group = Group.objects.create(name="DummyGroup_1")
+        group = Group.objects.create(name='DummyGroup_1')
         profile = ProfileFactory()
         category, forum = create_category(group)
         topic = add_topic_in_a_forum(forum, profile)
@@ -256,7 +256,7 @@ class TopicNewTest(TestCase):
         self.assertEqual(403, response.status_code)
 
     def test_failure_create_topics_with_a_post_in_a_forum_we_cannot_read(self):
-        group = Group.objects.create(name="DummyGroup_1")
+        group = Group.objects.create(name='DummyGroup_1')
         profile = ProfileFactory()
         category, forum = create_category(group)
 
@@ -312,14 +312,14 @@ class TopicNewTest(TestCase):
         post = Post.objects.filter(topic__pk=topic.pk).first()
         # for user
         url = topic.resolve_last_read_post_absolute_url()
-        self.assertEquals(url, topic.get_absolute_url() + "?page=1#p" + str(post.pk))
+        self.assertEquals(url, topic.get_absolute_url() + '?page=1#p' + str(post.pk))
 
         # for anonymous
         self.client.logout()
-        self.assertEquals(url, topic.get_absolute_url() + "?page=1#p" + str(post.pk))
+        self.assertEquals(url, topic.get_absolute_url() + '?page=1#p' + str(post.pk))
         # for no visit
         self.assertTrue(self.client.login(username=notvisited.user.username, password='hostel77'))
-        self.assertEquals(url, topic.get_absolute_url() + "?page=1#p" + str(post.pk))
+        self.assertEquals(url, topic.get_absolute_url() + '?page=1#p' + str(post.pk))
 
     def test_success_create_topic_with_post_in_preview_in_ajax(self):
         profile = ProfileFactory()
@@ -793,6 +793,32 @@ class FindTopicTest(TestCase):
         self.assertEqual(1, len(response.context['topics']))
         self.assertEqual(topic, response.context['topics'][0])
 
+    def test_success_find_topics_of_a_member_private_forum(self):
+        """
+        Test that when an user is part of two groups and that those groups can both read a private forum
+        only one topic is returned by the query (cf. Issue 4068).
+        """
+        profile = ProfileFactory()
+        group = Group.objects.create(name='DummyGroup_1')
+        another_group = Group.objects.create(name='DummyGroup_2')
+        category, forum = create_category(group)
+
+        forum.groups.add(another_group)
+        forum.save()
+
+        profile.user.groups.add(group)
+        profile.user.groups.add(another_group)
+        profile.user.save()
+
+        topic = add_topic_in_a_forum(forum, profile)
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.get(reverse('topic-find', args=[profile.user.pk]), follow=False)
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(1, len(response.context['topics']))
+        self.assertEqual(topic, response.context['topics'][0])
+
 
 class FindTopicByTagTest(TestCase):
     def test_failure_find_topics_of_a_tag_not_found(self):
@@ -803,6 +829,35 @@ class FindTopicByTagTest(TestCase):
     def test_success_find_topics_of_a_tag(self):
         profile = ProfileFactory()
         category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, profile)
+        tag = TagFactory()
+        topic.add_tags([tag.title])
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.get(reverse('topic-tag-find', args=[tag.pk, tag.slug]), follow=False)
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(1, len(response.context['topics']))
+        self.assertEqual(topic, response.context['topics'][0])
+        self.assertEqual(tag, response.context['tag'])
+
+    def test_success_find_topics_of_a_tag_private_forums(self):
+        """
+        Test that when an user is part of two groups and that those groups can both read a private forum
+        only one topic is returned by the query (cf. Issue 4068).
+        """
+        profile = ProfileFactory()
+        group = Group.objects.create(name='DummyGroup_1')
+        another_group = Group.objects.create(name='DummyGroup_2')
+        category, forum = create_category(group)
+
+        forum.groups.add(another_group)
+        forum.save()
+
+        profile.user.groups.add(group)
+        profile.user.groups.add(another_group)
+        profile.user.save()
+
         topic = add_topic_in_a_forum(forum, profile)
         tag = TagFactory()
         topic.add_tags([tag.title])
@@ -896,7 +951,7 @@ class PostNewTest(TestCase):
 
     def test_failure_new_post_in_a_forum_we_cannot_read(self):
         profile = ProfileFactory()
-        group = Group.objects.create(name="DummyGroup_1")
+        group = Group.objects.create(name='DummyGroup_1')
         category, forum = create_category(group)
         topic = add_topic_in_a_forum(forum, profile)
 
@@ -1050,7 +1105,7 @@ class PostEditTest(TestCase):
 
     def test_failure_edit_post_in_a_forum_we_cannot_read(self):
         profile = ProfileFactory()
-        group = Group.objects.create(name="DummyGroup_1")
+        group = Group.objects.create(name='DummyGroup_1')
         category, forum = create_category(group)
         topic = add_topic_in_a_forum(forum, profile)
 
@@ -1165,7 +1220,7 @@ class PostEditTest(TestCase):
 
         self.assertEqual(302, response.status_code)
         post = Post.objects.get(pk=topic.last_message.pk)
-        self.assertEqual(0, len(post.alerts.all()))
+        self.assertEqual(0, len(post.alerts_on_this_comment.all()))
         self.assertFalse(post.is_visible)
         self.assertEqual(profile.user, post.editor)
         self.assertEqual('', post.text_hidden)
@@ -1187,7 +1242,7 @@ class PostEditTest(TestCase):
 
         self.assertEqual(302, response.status_code)
         post = Post.objects.get(pk=topic.last_message.pk)
-        self.assertEqual(0, len(post.alerts.all()))
+        self.assertEqual(0, len(post.alerts_on_this_comment.all()))
         self.assertFalse(post.is_visible)
         self.assertEqual(staff.user, post.editor)
         self.assertEqual(text_hidden_expected, post.text_hidden)
@@ -1260,8 +1315,8 @@ class PostEditTest(TestCase):
 
         self.assertEqual(302, response.status_code)
         post = Post.objects.get(pk=topic.last_message.pk)
-        self.assertEqual(1, len(post.alerts.all()))
-        self.assertEqual(text_expected, post.alerts.all()[0].text)
+        self.assertEqual(1, len(post.alerts_on_this_comment.all()))
+        self.assertEqual(text_expected, post.alerts_on_this_comment.all()[0].text)
 
     def test_failure_edit_post_hidden_message_by_non_staff(self):
         """Test that a non staff cannot access the page to edit a hidden message"""
@@ -1325,7 +1380,7 @@ class PostUsefulTest(TestCase):
         self.assertEqual(404, response.status_code)
 
     def test_failure_post_useful_of_a_forum_we_cannot_read(self):
-        group = Group.objects.create(name="DummyGroup_1")
+        group = Group.objects.create(name='DummyGroup_1')
 
         profile = ProfileFactory()
         category, forum = create_category(group)
@@ -1546,7 +1601,7 @@ class PostUnreadTest(TestCase):
         self.assertEqual(404, response.status_code)
 
     def test_failure_post_unread_of_a_forum_we_cannot_read(self):
-        group = Group.objects.create(name="DummyGroup_1")
+        group = Group.objects.create(name='DummyGroup_1')
 
         profile = ProfileFactory()
         category, forum = create_category(group)
@@ -1587,12 +1642,38 @@ class FindPostTest(TestCase):
         self.assertEqual(1, len(response.context['posts']))
         self.assertEqual(topic.last_message, response.context['posts'][0])
 
+    def test_success_find_topics_of_a_member_private_forum(self):
+        """
+        Test that when an user is part of two groups and that those groups can both read a private forum
+        only one post is returned by the query (cf. Issue 4068).
+        """
+        profile = ProfileFactory()
+        group = Group.objects.create(name='DummyGroup_1')
+        another_group = Group.objects.create(name='DummyGroup_2')
+        category, forum = create_category(group)
+
+        forum.groups.add(another_group)
+        forum.save()
+
+        profile.user.groups.add(group)
+        profile.user.groups.add(another_group)
+        profile.user.save()
+
+        topic = add_topic_in_a_forum(forum, profile)
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.get(reverse('post-find', args=[profile.user.pk]), follow=False)
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(1, len(response.context['posts']))
+        self.assertEqual(topic.last_message, response.context['posts'][0])
+
 
 def create_category(group=None):
     category = CategoryFactory(position=1)
     forum = ForumFactory(category=category, position_in_category=1)
     if group is not None:
-        forum.group.add(group)
+        forum.groups.add(group)
         forum.save()
     return category, forum
 

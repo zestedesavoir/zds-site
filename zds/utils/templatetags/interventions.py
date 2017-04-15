@@ -9,11 +9,14 @@ from django.utils.translation import ugettext_lazy as _
 
 from zds.forum.models import Post, is_read as topic_is_read
 from zds.mp.models import PrivateTopic
+from zds.tutorialv2.models.models_database import Validation
 from zds.notification.models import Notification, TopicAnswerSubscription, ContentReactionAnswerSubscription, \
     NewTopicSubscription, NewPublicationSubscription
-from zds.tutorialv2.models.models_database import ContentReaction
+from zds.tutorialv2.models.models_database import ContentReaction, PublishableContent
 from zds.utils import get_current_user
 from zds.utils.models import Alert
+from zds import settings
+from zds.tutorialv2.models import TYPE_CHOICES_DICT
 
 register = template.Library()
 
@@ -54,6 +57,13 @@ def is_content_followed(content):
         user, content, is_active=True)
 
 
+@register.filter('is_content_email_followed')
+def is_content_email_followed(content):
+    user = get_current_user()
+    return user.is_authenticated() and ContentReactionAnswerSubscription.objects.does_exist(
+        user, content, is_active=True, by_email=True)
+
+
 @register.filter('is_new_publication_followed')
 def is_new_publication_followed(user_to_follow):
     user = get_current_user()
@@ -78,10 +88,10 @@ def humane_delta(value):
     """
     const = {
         1: _("Aujourd'hui"),
-        2: _("Hier"),
-        3: _("Les 7 derniers jours"),
-        4: _("Les 30 derniers jours"),
-        5: _("Plus ancien")
+        2: _('Hier'),
+        3: _('Les 7 derniers jours'),
+        4: _('Les 30 derniers jours'),
+        5: _('Plus ancien')
     }
 
     return const[value]
@@ -106,6 +116,17 @@ def followed_topics(user):
                     topics[period[0]] = [topic]
                 break
     return topics
+
+
+@register.filter('get_github_issue_url')
+def get_github_issue_url(topic):
+    if not topic.github_issue:
+        return None
+    else:
+        return '{0}/{1}'.format(
+            settings.ZDS_APP['site']['repository']['bugtracker'],
+            topic.github_issue
+        )
 
 
 def comp(dated_element1, dated_element2):
@@ -156,7 +177,7 @@ def interventions_privatetopics(user):
 @register.filter(name='alerts_list')
 def alerts_list(user):
     total = []
-    alerts = Alert.objects.filter(solved=False).select_related('author', 'comment').order_by('-pubdate')[:10]
+    alerts = Alert.objects.filter(solved=False).select_related('author', 'comment', 'content').order_by('-pubdate')[:10]
     nb_alerts = Alert.objects.filter(solved=False).count()
     for alert in alerts:
         if alert.scope == 'FORUM':
@@ -166,12 +187,35 @@ def alerts_list(user):
                           'pubdate': alert.pubdate,
                           'author': alert.author,
                           'text': alert.text})
+        elif alert.scope == 'CONTENT':
+            published = PublishableContent.objects.select_related('public_version').get(pk=alert.content.pk)
+            total.append({'title': published.public_version.title,
+                          'url': published.get_absolute_url_online(),
+                          'pubdate': alert.pubdate,
+                          'author': alert.author,
+                          'text': alert.text})
         else:
-            note = ContentReaction.objects.select_related('related_content').get(pk=alert.comment.pk)
-            total.append({'title': note.related_content.title,
-                          'url': note.get_absolute_url(),
+            comment = ContentReaction.objects.select_related('related_content').get(pk=alert.comment.pk)
+            total.append({'title': comment.related_content.title,
+                          'url': comment.get_absolute_url(),
                           'pubdate': alert.pubdate,
                           'author': alert.author,
                           'text': alert.text})
 
     return {'alerts': total, 'nb_alerts': nb_alerts}
+
+
+@register.filter(name='waiting_count')
+def waiting_count(content_type):
+
+    queryset = Validation.objects.filter(
+        validator__isnull=True,
+        status='PENDING')
+
+    if content_type:
+        if content_type not in TYPE_CHOICES_DICT:
+            raise template.TemplateSyntaxError("'content_type' must be in 'zds.tutorialv2.models.TYPE_CHOICES_DICT'")
+        else:
+            queryset = queryset.filter(content__type=content_type)
+
+    return queryset.count()

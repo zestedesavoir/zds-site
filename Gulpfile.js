@@ -45,6 +45,7 @@ gulp.task('js', () =>
     gulp.src([
         require.resolve('jquery'),
         require.resolve('cookies-eu-banner'),
+        'assets/js/_custom.modernizr.js',
 
         // Used by other scripts, must be first
         'assets/js/modal.js',
@@ -60,7 +61,6 @@ gulp.task('js', () =>
         'assets/js/dropdown-menu.js',
         'assets/js/editor.js',
         'assets/js/featured-resource-preview.js',
-        'assets/js/find-solved-topics.js',
         'assets/js/form-email-username.js',
         'assets/js/gallery.js',
         'assets/js/jquery-tabbable.js',
@@ -75,6 +75,7 @@ gulp.task('js', () =>
         'assets/js/spoiler.js',
         'assets/js/submit-dbclick.js',
         'assets/js/tab-modalize.js',
+        'assets/js/tribune-pick.js',
         'assets/js/zen-mode.js',
     ], { base: '.' })
         .pipe(sourcemaps.init({ loadMaps: true }))

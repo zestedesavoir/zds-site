@@ -61,7 +61,7 @@ class TagsTests(TestCase):
         self.assertIn('another-tag', all_slugs)
 
     def test_validator_with_correct_tags(self):
-        tag = Tag(title="a test")
+        tag = Tag(title='a test')
         tag.save()
         validator = TagValidator()
         self.assertEqual(validator.validate_raw_string(None), True)
@@ -70,7 +70,7 @@ class TagsTests(TestCase):
 
     def test_validator_with_utf8mb4(self):
 
-        raw_string = u"🐙☢,bla"
+        raw_string = u'🐙☢,bla'
         validator = TagValidator()
         self.assertFalse(validator.validate_raw_string(raw_string))
         self.assertEqual(1, len(validator.errors))

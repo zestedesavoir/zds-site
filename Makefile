@@ -34,6 +34,13 @@ reset:
 shell:
 	python manage.py shell
 
+index-all:
+	python manage.py es_manager index_all
+
+index-flagged:
+	python manage.py es_manager index_flagged
+
+
 ## back-utils
 clean-back:
 	find . -name '*.pyc' -exec rm {} \;
@@ -76,12 +83,21 @@ watch-front:
 
 clean: clean-back clean-front
 
+wipe:
+	rm base.db
+	rm -rf contents-private/*
+	rm -rf contents-public/*
+
 doc:
 	cd doc && \
 	make html
 
 fixtures:
 	python manage.py loaddata fixtures/*.yaml
+	python manage.py load_factory_data fixtures/advanced/aide_tuto_media.yaml
+
+restart_db: wipe migrate fixtures
+	python manage.py load_fixtures size=low
 
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
@@ -89,6 +105,8 @@ help:
 	@echo "  doc               to generate the html documentation"
 	@echo "  fixtures          to load every fixtures"
 	@echo "  generate-pdf      to regenerate all PDFs"
+	@echo "  index-all         to setup and (re)index all things for search"
+	@echo "  index-flagged     to index flagged things for search"
 	@echo "  help              to get this help"
 	@echo "  install-back      to install backend dependencies"
 	@echo "  install-front     to install frontend dependencies"
@@ -102,6 +120,7 @@ help:
 	@echo "  clean-back        to clean *.pyc"
 	@echo "  clean-front       to clean frontend builds"
 	@echo "  clean             to clean everything"
+	@echo "  wipe              to clean data (database and contents)"
 	@echo "  watch-front       to watch frontend code"
 	@echo "  migrate           to migrate the project"
 	@echo "  report-release-back  to generate release report"

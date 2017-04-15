@@ -813,6 +813,13 @@ Le déploiement doit être autonome. Ce qui implique que :
 Actions à faire pour l'upgrade v21
 ==================================
 
+**(pré-migration)** Supprimer les notifications persistantes
+------------------------------------------------------------
+
+1. Lancer la commande suivante :
+  * `python manage.py fix_persistent_notifications >> ~/mep_v21.log`
+1. Jeter un oeil aux logs pour s'assurer que tout s'est bien passé.
+
 Actions à faire pour masquer la barre de recherche
 --------------------------------------------------
 
@@ -828,3 +835,208 @@ Ajouter `ZDS_APP['display_search_bar'] = False` à `settings_prod.py`
 -     'zds.middlewares.ForceHttpsMembersMiddleware.ForceHttpsMembersMiddleware',
   )
 ```
+
+A propos du logging:
+--------------------
+
+Mettre à jour le `settings_prod.py` en suivant `doc/source/install/configs/settings_prod.py`.
+
+
+Actions faites sur la prod avant la v22
+=======================================
+
+Mettre à jour nginx
+-------------------
+
+* Supprimer `/etc/apt/sources.list.d/nginx.list`
+* `apt update`
+* `systemctl stop nginx`
+* `apt remove 'nginx-*'`
+* `apt-get -t jessie-backports install nginx-full`
+    - `N or O  : keep your currently-installed version`
+    - `rm /etc/nginx/sites-available/default`
+    - `dpkg --configure -a`
+* `systemctl restart nginx`
+
+Actions à faire pour l'upgrade v22
+==================================
+
+Issue #2743
+-----------
+
+Lancer la commande de calcul du nombre de caractères des contenus publiés : `python manage.py adjust_char_count`.
+
+Maj de Raven + releases
+-----------------------
+
+Mettre à jour le `settings_prod.py` :
+
+```diff
++from raven import Client
++from zds.utils.context_processor import get_git_version
+```
+
+```diff
+# https://docs.getsentry.com/hosted/clients/python/integrations/django/
+RAVEN_CONFIG = {
+  'dsn': 'to-fill',
++ 'release': get_git_version()['name'],
+}
+```
+
+```diff
+       'sentry': {
+            'level': 'ERROR',  # For beta purpose it can be lowered to WARNING
+            'class': 'raven.handlers.logging.SentryHandler',
++           'dsn': RAVEN_CONFIG['dsn'],
+        },
+```
+
+Elasticsearch (PR #4096)
+------------------------
+
+Pour installer Elasticsearch, les commandes suivantes sont à effectuer (en *root*):
+
++ S'assurer que `jessie-backports` est disponible dans `/etc/apt/sources.list`
++ S'assurer que Java 8 est disponible par défaut: `java -version`, sinon l'installer :
+    * `apt-get update && apt-get install openjdk-8-jdk`.
+    * Une fois installé, passer de Java 7 à Java 8 en le sélectionnant grâce à `update-alternatives --config java`.
++ Installer Elasticsearch ([informations issues de la documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/deb.html)):
+    * Ajouter la clé publique du dépôt : `wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | apt-key add -`
+    * Installer apt-transport-https `apt-get install apt-transport-https`
+    * Ajouter le dépôt pour Elasticsearch 5 : `echo "deb https://artifacts.elastic.co/packages/5.x/apt stable main" | tee -a /etc/apt/sources.list.d/elastic-5.x.list`
+    * Installer Elasticsearch 5 : `apt-get update && apt-get install elasticsearch`
++ Configurer la mémoire utilisée par Elastisearch:
+    Remplacer les options `-Xms2g` et `-Xmx2g` par
+
+    ```
+    -Xms512m
+    -Xmx512m
+    ```
+
+    Dans `/etc/elasticsearch/jvm.options` (**Peut évoluer dans le futur**).
++ Lancer Elasticsearch:
+
+    ```bash
+    systemctl daemon-reload
+    systemctl enable elasticsearch.service
+    systemctl start elasticsearch.service
+    ```
+
++ Vérifier que le port 9200 n'est pas accessible de l'extérieur (sinon, configurer le firewall en conséquence)
++ Ajouter [ce plugin](https://github.com/y-ken/munin-plugin-elasticsearch) à Munin:
+
+    * Installer la dépendance manquante:
+
+        ```bash
+        apt install libjson-perl
+        ```
+    * Suivre les instructions du [README.md](https://github.com/y-ken/munin-plugin-elasticsearch/blob/master/README.md)
+    * Penser à enlever le(s) plugin(s) Solr et relancer `munin-node`
+
+Une fois Elasticsearch configuré et lancé,
+
++ Passer à 3 *shards* ([conseillé par Firm1](https://github.com/zestedesavoir/zds-site/pull/4096#issuecomment-269861811)): `ES_SEARCH_INDEX['shards'] = 3` dans `settings_prod.py`.
++ Indexer les données (**ça peut être long**):
+
+    ```
+    python manage.py es_manager index_all
+    ```
+
+Une fois que tout est indexé,
+
++ Repasser `ZDS_APP['display_search_bar'] = True` dans `settings_prod.py`.
+
++ Configurer *systemd*:
+
+    * `zds-es-index.service` :
+
+        ```
+        [Unit]
+        Description=Reindex SOLR Service
+
+        [Service]
+        Type=oneshot
+        User=zds
+        Group=zds
+        ExecStart=/opt/zds/zdsenv/bin/python /opt/zds/zds-site/manage.py es_manager index_flagged
+        ```
+
+    * `zds-es-index.timer`:
+
+        ```
+        [Unit]
+        Description=ES reindex flagged contents
+
+        [Timer]
+        OnCalendar=*:30:00
+        Persistent=true
+
+        [Install]
+        WantedBy=timers.target
+        ```
+
+    * Supprimer Solr et ajouter Elasticsearch:
+
+        ```bash
+        systemctl stop zds-index-solr.timer
+        systemctl disable zds-index-solr.timer
+
+        systemctl enable zds-es-index.timer
+        systemctl start zds-es-index.timer
+        ```
+
++ Désinstaller Solr :
+    * `pip uninstall pysolr django-haystack`
+
++ Supprimer Solr
+    * `rm -rf /opt/zds/solr-*`
+
++ Supprimer les tables devenues inutiles dans MySQL:
+
+    * `mysql -u zds -p -B zdsdb`
+
+    ```sql
+    DROP TABLE search_searchindexextract;
+    DROP TABLE search_searchindexcontainer;
+    DROP TABLE search_searchindexcontent_authors;
+    DROP TABLE search_searchindexcontent_tags;
+    DROP TABLE search_searchindextag;
+    DROP TABLE search_searchindexauthors;
+    DROP TABLE search_searchindexcontent;
+    ```
+
+Actions à faire pour mettre en prod la version : v23
+====================================================
+
+Tribunes
+--------
+
++ Ajouter à la fin de `/etc/munin/plugin-conf.d/zds.conf`
+
+```
+    [zds_total_tribunes]
+    env.url http://www.zestedesavoir.com/munin/total_tribunes/
+    env.graph_category zds
+```
+
++ Réindexer les données (un champ a été rajouté):
+
+    ```
+    python manage.py es_manager index_all
+    ```
+
+A propos de social auth:
+------------------------
+
+Ne pas oublier de mettre le middleware `'zds.member.utils.ZDSCustomizeSocialAuthExceptionMiddleware'`.
+
+Forcer le paramètre `SOCIAL_AUTH_RAISE_EXCEPTIONS = False`.
+
+
+Mise à jour d'ElasticSearch
+---------------------------
+
+1. `sudo apt update`
+2. `sudo apt upgrade elasticsearch`
+2. `systemctl restart elasticsearch.service`

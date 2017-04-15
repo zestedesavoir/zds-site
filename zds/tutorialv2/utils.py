@@ -7,7 +7,7 @@ from urlparse import urlparse
 try:
     import cairosvg
 except ImportError:
-    print("no cairo imported")
+    print('no cairo imported')
 
 import os
 from PIL import Image as ImagePIL
@@ -21,6 +21,7 @@ from uuslug import slugify
 from zds import settings
 from zds.notification import signals
 from zds.tutorialv2 import REPLACE_IMAGE_PATTERN, VALID_SLUG
+from zds.tutorialv2.models import CONTENT_TYPE_LIST
 from zds.utils import get_current_user
 from zds.utils import slugify as old_slugify
 from zds.utils.models import Licence
@@ -33,7 +34,7 @@ def all_is_string_appart_from_children(dict_representation):
     :return:
     :rtype: bool
     """
-    return all([isinstance(value, basestring) for key, value in dict_representation.items() if key != "children"])
+    return all([isinstance(value, basestring) for key, value in dict_representation.items() if key != 'children'])
 
 
 def search_container_or_404(base_content, kwargs_array):
@@ -50,19 +51,19 @@ def search_container_or_404(base_content, kwargs_array):
 
     if isinstance(kwargs_array, basestring):
         dic = {}
-        dic["parent_container_slug"] = kwargs_array.split("/")[0]
-        if len(kwargs_array.split("/")) >= 2:
-            dic["container_slug"] = kwargs_array.split("/")[1]
+        dic['parent_container_slug'] = kwargs_array.split('/')[0]
+        if len(kwargs_array.split('/')) >= 2:
+            dic['container_slug'] = kwargs_array.split('/')[1]
         kwargs_array = dic
 
     if 'parent_container_slug' in kwargs_array:
             try:
                 container = base_content.children_dict[kwargs_array['parent_container_slug']]
             except KeyError:
-                raise Http404(u"Aucun conteneur trouvé.")
+                raise Http404(u'Aucun conteneur trouvé.')
             else:
                 if not isinstance(container, Container):
-                    raise Http404(u"Aucun conteneur trouvé.")
+                    raise Http404(u'Aucun conteneur trouvé.')
     else:
         container = base_content
 
@@ -71,15 +72,15 @@ def search_container_or_404(base_content, kwargs_array):
         try:
             container = container.children_dict[kwargs_array['container_slug']]
         except KeyError:
-            raise Http404(u"Aucun conteneur trouvé.")
+            raise Http404(u'Aucun conteneur trouvé.')
         else:
             if not isinstance(container, Container):
-                raise Http404(u"Aucun conteneur trouvé.")
+                raise Http404(u'Aucun conteneur trouvé.')
     elif container == base_content:
-        # if we have no subcontainer, there is neither "container_slug" nor "parent_container_slug
+        # if we have no subcontainer, there is neither 'container_slug' nor "parent_container_slug
         return base_content
     if container is None:
-        raise Http404(u"Aucun conteneur trouvé.")
+        raise Http404(u'Aucun conteneur trouvé.')
     return container
 
 
@@ -103,10 +104,10 @@ def search_extract_or_404(base_content, kwargs_array):
         try:
             extract = container.children_dict[kwargs_array['extract_slug']]
         except KeyError:
-            raise Http404(u"Aucun extrait trouvé.")
+            raise Http404(u'Aucun extrait trouvé.')
         else:
             if not isinstance(extract, Extract):
-                raise Http404(u"Aucun extrait trouvé.")
+                raise Http404(u'Aucun extrait trouvé.')
     return extract
 
 
@@ -292,7 +293,7 @@ def retrieve_image(url, directory):
     :type url: str
     :param directory: place where the image will be stored
     :type directory: str
-    :return: the "transformed" path to the image
+    :return: the 'transformed' path to the image
     :rtype: str
     """
 
@@ -315,16 +316,16 @@ def retrieve_image(url, directory):
 
     store_path = os.path.abspath(os.path.join(directory, new_url))  # destination
 
-    if img_basename == '' or os.path.exists(store_path) or os.path.exists(os.path.join(directory, new_url_as_png)):
+    if not img_basename or os.path.exists(store_path) or os.path.exists(os.path.join(directory, new_url_as_png)):
         # another image with the same name already exists (but assume the two are different)
-        img_filename += "_" + str(datetime.now().microsecond)
+        img_filename += '_' + str(datetime.now().microsecond)
         new_url = os.path.join('images', img_filename.replace(' ', '_') + '.' + img_extension)
         new_url_as_png = os.path.join('images', img_filename.replace(' ', '_') + '.png')
         store_path = os.path.abspath(os.path.join(directory, new_url))
 
     try:
-        if parsed_url.scheme in ["http", "https", "ftp"] \
-                or parsed_url.netloc[:3] == "www" or parsed_url.path[:3] == "www":
+        if parsed_url.scheme in ['http', 'https', 'ftp'] \
+                or parsed_url.netloc[:3] == 'www' or parsed_url.path[:3] == 'www':
             urlretrieve(url, store_path)  # download online image
         else:  # it's a local image, coming from a gallery
 
@@ -337,14 +338,14 @@ def retrieve_image(url, directory):
             else:
                 raise IOError(source_path)  # ... will use the default image instead
 
-        if img_extension == "svg":  # if SVG, will transform it into PNG
+        if img_extension == 'svg':  # if SVG, will transform it into PNG
             resize_svg(store_path)
             new_url = new_url_as_png
             cairosvg.svg2png(url=store_path, write_to=os.path.join(directory, new_url))
             os.remove(store_path)
         else:
             img = ImagePIL.open(store_path)
-            if img_extension == "gif" or img_extension.strip() == '':
+            if img_extension == 'gif' or not img_extension.strip():
                 # if no extension or gif, will transform it into PNG !
                 new_url = new_url_as_png
                 img.save(os.path.join(directory, new_url))
@@ -370,12 +371,12 @@ def resize_svg(source):
     :type source: str
     """
 
-    max_size = int(settings.THUMBNAIL_ALIASES[""]["content"]["size"][0])
+    max_size = int(settings.THUMBNAIL_ALIASES['']['content']['size'][0])
     tree = etree.parse(source)
     svg = tree.getroot()
     try:
-        width = float(svg.attrib["width"])
-        height = float(svg.attrib["height"])
+        width = float(svg.attrib['width'])
+        height = float(svg.attrib['height'])
     except (KeyError, ValueError):
         width = max_size
         height = max_size
@@ -388,8 +389,8 @@ def resize_svg(source):
         else:
             end_height = max_size
             end_width = (width / height) * max_size
-    svg.attrib["width"] = str(end_width)
-    svg.attrib["height"] = str(end_height)
+    svg.attrib['width'] = str(end_width)
+    svg.attrib['height'] = str(end_height)
     tree.write(source)
 
 
@@ -408,10 +409,10 @@ def retrieve_image_and_update_link(group, previous_urls, directory='.'):
     """
 
     # retrieve groups:
-    start = group.group("start")
-    url = group.group("url")
-    txt = group.group("text")
-    end = group.group("end")
+    start = group.group('start')
+    url = group.group('url')
+    txt = group.group('text')
+    end = group.group('end')
 
     # look for image URL, and make it if needed
     if url not in previous_urls:
@@ -466,7 +467,7 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
     from zds.tutorialv2.models.models_versioned import Container, Extract, VersionedContent, PublicContent
 
     if 'version' in json and json['version'] == 2:
-        json["version"] = "2"
+        json['version'] = '2'
         if not all_is_string_appart_from_children(json):
             json['version'] = 2
             raise BadManifestError(_(u"Le fichier manifest n'est pas bien formaté."))
@@ -474,7 +475,7 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
         # create and fill the container
         if len(json['title']) > max_title_len:
             raise BadManifestError(
-                _(u"Le titre doit être une chaîne de caractères de moins de {} caractères.").format(max_title_len))
+                _(u'Le titre doit être une chaîne de caractères de moins de {} caractères.').format(max_title_len))
 
         # check that title gives correct slug
         slugify_raise_on_invalid(json['title'])
@@ -494,7 +495,7 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
             versioned.description = json['description']
 
         if 'type' in json:
-            if json['type'] == 'ARTICLE' or json['type'] == 'TUTORIAL':
+            if json['type'] in CONTENT_TYPE_LIST:
                 versioned.type = json['type']
 
         if 'licence' in json:
@@ -511,15 +512,16 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
         # then, fill container with children
         fill_containers_from_json(json, versioned)
     else:
-        # MINIMUM (!) fallback for version 1.0
+        # minimal support for deprecated manifest version 1
+        # supported content types are exclusively ARTICLE and TUTORIAL
 
-        if "type" in json:
+        if 'type' in json:
             if json['type'] == 'article':
                 _type = 'ARTICLE'
             else:
-                _type = "TUTORIAL"
+                _type = 'TUTORIAL'
         else:
-            _type = "ARTICLE"
+            _type = 'ARTICLE'
 
         if not public:
             versioned = VersionedContent(sha, _type, json['title'], slug_last_draft)
@@ -528,10 +530,10 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
 
         if 'description' in json:
             versioned.description = json['description']
-        if "introduction" in json:
-            versioned.introduction = json["introduction"]
-        if "conclusion" in json:
-            versioned.conclusion = json["conclusion"]
+        if 'introduction' in json:
+            versioned.introduction = json['introduction']
+        if 'conclusion' in json:
+            versioned.conclusion = json['conclusion']
         if 'licence' in json:
             versioned.licence = Licence.objects.filter(code=json['licence']).first()
 
@@ -539,9 +541,9 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
             versioned.licence = Licence.objects.filter(pk=settings.ZDS_APP['content']['default_licence_pk']).first()
 
         if _type == 'ARTICLE':
-            extract = Extract("text", '')
+            extract = Extract('text', '')
             if 'text' in json:
-                extract.text = json['text']  # probably "text.md" !
+                extract.text = json['text']  # probably 'text.md' !
             versioned.add_extract(extract, generate_slug=True)
 
         else:  # it's a tutorial
@@ -611,10 +613,11 @@ class InvalidSlugError(ValueError):
 
 
 def check_slug(slug):
-    """If the title is incorrect (only special chars so slug is empty)
+    """
+    If the title is incorrect (only special chars so slug is empty).
 
     :param slug: slug to test
-    :type slug; str
+    :type slug: str
     :return: `True` if slug is valid, false otherwise
     :rtype: bool
     """
@@ -622,7 +625,7 @@ def check_slug(slug):
     if not VALID_SLUG.match(slug):
         return False
 
-    if slug.replace("-", "").replace("_", "") == "":
+    if not slug.replace('-', '').replace('_', ''):
         return False
 
     if len(slug) > settings.ZDS_APP['content']['maximum_slug_size']:
@@ -632,15 +635,16 @@ def check_slug(slug):
 
 
 def slugify_raise_on_invalid(title, use_old_slugify=False):
-    """use uuslug to generate a slug but if the title is incorrect (only special chars or slug is empty), an exception
+    """
+    use uuslug to generate a slug but if the title is incorrect (only special chars or slug is empty), an exception
     is raised.
 
     :param title: to be slugified title
     :type title: str
-    :param use_old_slugify: use the function `slugify()` defined in zds.utils instead of the one in uuslug. Usefull
+    :param use_old_slugify: use the function `slugify()` defined in zds.utils instead of the one in uuslug. Usefull \
     for retro-compatibility with the old article/tutorial module, SHOULD NOT be used for the new one !
     :type use_old_slugify: bool
-    :raise InvalidSlugError: on incorrect slug:
+    :raise InvalidSlugError: on incorrect slug
     :return: the slugified title
     :rtype: str
     """
@@ -661,7 +665,7 @@ def slugify_raise_on_invalid(title, use_old_slugify=False):
 def fill_containers_from_json(json_sub, parent):
     """Function which call itself to fill container
 
-    :param json_sub: dictionary from "manifest.json"
+    :param json_sub: dictionary from 'manifest.json'
     :param parent: the container to fill
     :raise BadManifestError: if the manifest is not well formed or the content's type is not correct
     :raise KeyError: if one mandatory key is missing
@@ -711,7 +715,7 @@ def fill_containers_from_json(json_sub, parent):
                 except InvalidOperationError as e:
                     raise BadManifestError(e.message)
             else:
-                raise BadManifestError(_(u'Type d\'objet inconnu : « {} »').format(child['object']))
+                raise BadManifestError(_(u"Type d'objet inconnu : « {} »").format(child['object']))
 
 
 def init_new_repo(db_object, introduction_text, conclusion_text, commit_message='', do_commit=True):
@@ -735,7 +739,7 @@ def init_new_repo(db_object, introduction_text, conclusion_text, commit_message=
         os.makedirs(path, mode=0o777)
 
     # init repo:
-    Repo.init(path, bare=False, template="")
+    Repo.init(path, bare=False, template='')
 
     # create object
     versioned_content = VersionedContent(None, db_object.type, db_object.title, db_object.slug)
@@ -745,7 +749,7 @@ def init_new_repo(db_object, introduction_text, conclusion_text, commit_message=
     versioned_content.description = db_object.description
 
     # perform changes:
-    if commit_message == '':
+    if not commit_message:
         commit_message = u'Création du contenu'
 
     sha = versioned_content.repo_update(
@@ -761,6 +765,22 @@ def init_new_repo(db_object, introduction_text, conclusion_text, commit_message=
         db_object.save()
 
     return versioned_content
+
+
+def clone_repo(old_path, new_path):
+    """
+    Proxy to ``git clone command``. Ensure directory are properly created
+
+    :param old_path: path of the repo to be cloned
+    :param new_path: path of the target repo
+    :return: the target repository encapsulated in a ``GitPython`` object.
+    :rtype: Repo
+    """
+    if not os.path.isdir(new_path):
+        os.makedirs(new_path, mode=0o777)
+    old_repo = Repo(old_path)
+    new_repo = old_repo.clone(new_path)
+    return new_repo
 
 
 def get_commit_author():
@@ -787,8 +807,8 @@ def get_commit_author():
 
         aut_email = None
 
-    if aut_email is None or aut_email.strip() == "":
-        aut_email = _(u"inconnu@{}").format(settings.ZDS_APP['site']['dns'])
+    if aut_email is None or not aut_email.strip():
+        aut_email = _(u'inconnu@{}').format(settings.ZDS_APP['site']['dns'])
 
     return {'author': Actor(aut_user, aut_email), 'committer': Actor(aut_user, aut_email)}
 
@@ -819,7 +839,7 @@ def export_container(container):
     :rtype: dict
     """
     dct = OrderedDict()
-    dct['object'] = "container"
+    dct['object'] = 'container'
     dct['slug'] = container.slug
     dct['title'] = container.title
 
@@ -891,7 +911,7 @@ def get_blob(tree, path):
                 data = blob.data_stream.read()
                 return data
         except (OSError, IOError):  # in case of deleted files, or the system cannot get the lock, juste return ""
-            return ""
+            return ''
     # traverse directories when we are at root or in a part or chapter
     if len(tree.trees) > 0:
         for subtree in tree.trees:

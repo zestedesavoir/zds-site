@@ -8,9 +8,11 @@ import os
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import Group
+from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
+from django.utils.translation import ugettext_lazy as _
 
 from zds.forum.factories import ForumFactory, CategoryFactory
 from zds.forum.models import Topic, Post, TopicRead
@@ -43,18 +45,19 @@ except ImportError:
 overrided_zds_app = settings.ZDS_APP
 overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
 overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
-overrided_zds_app['content']['extra_content_generation_policy'] = "SYNC"
+overrided_zds_app['content']['extra_content_generation_policy'] = 'SYNC'
 
 
-@PublicatorRegistery.register("pdf")
+@PublicatorRegistery.register('pdf')
 class FakePDFPublicator(Publicator):
     def publish(self, md_file_path, base_name, **kwargs):
-        with open(md_file_path[:-2] + "pdf", "w") as f:
-            f.write("plouf")
+        with open(md_file_path[:-2] + 'pdf', 'w') as f:
+            f.write('plouf')
 
 
 @override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
 @override_settings(ZDS_APP=overrided_zds_app)
+@override_settings(ES_ENABLED=False)
 class ContentTests(TestCase):
     def setUp(self):
 
@@ -93,11 +96,11 @@ class ContentTests(TestCase):
         self.chapter1 = ContainerFactory(parent=self.part1, db_object=self.tuto)
 
         self.extract1 = ExtractFactory(container=self.chapter1, db_object=self.tuto)
-        bot = Group(name=settings.ZDS_APP["member"]["bot_group"])
+        bot = Group(name=settings.ZDS_APP['member']['bot_group'])
         bot.save()
         self.external = UserFactory(
-            username=settings.ZDS_APP["member"]["external_account"],
-            password="anything")
+            username=settings.ZDS_APP['member']['external_account'],
+            password='anything')
 
     def test_ensure_access(self):
         """General access test for author, user, guest and staff"""
@@ -255,6 +258,19 @@ class ContentTests(TestCase):
         description = u'une description'
         title = u'un titre'
         random = u'un truc à la rien à voir'
+        random_with_md = u'un text contenant du **markdown** .'
+
+        response = self.client.post(
+            reverse('content:create-tutorial'),
+            {
+                'text': random_with_md,
+                'preview': '',
+            }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+
+        self.assertEqual(200, response.status_code)
+
+        result_string = ''.join(response.streaming_content)
+        self.assertIn('<strong>markdown</strong>', result_string, 'We need the text to be properly formatted')
 
         result = self.client.post(
             reverse('content:create-tutorial'),
@@ -285,6 +301,20 @@ class ContentTests(TestCase):
             reverse('content:edit', args=[pk, slug]),
             follow=False)
         self.assertEqual(result.status_code, 200)
+
+        # preview tutorial
+        result = self.client.post(
+            reverse('content:edit', args=[pk, slug]),
+            {
+                'text': random_with_md,
+                'last_hash': versioned.compute_hash(),
+                'preview': ''
+            }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+
+        self.assertEqual(result.status_code, 200)
+
+        result_string = ''.join(result.streaming_content)
+        self.assertIn('<strong>markdown</strong>', result_string, 'We need the text to be properly formatted')
 
         # edit tutorial:
         new_licence = LicenceFactory()
@@ -319,6 +349,19 @@ class ContentTests(TestCase):
         self.assertNotEqual(versioned.slug, slug)
 
         slug = tuto.slug  # make the title change also change the slug !!
+
+        # preview container
+        result = self.client.post(
+            reverse('content:create-container', args=[pk, slug]),
+            {
+                'title': title,
+                'text': random_with_md,
+                'preview': ''
+            }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(result.status_code, 200)
+
+        result_string = ''.join(result.streaming_content)
+        self.assertIn('<strong>markdown</strong>', result_string, 'We need the container to be properly formatted')
 
         # create container:
         result = self.client.post(
@@ -356,6 +399,24 @@ class ContentTests(TestCase):
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
+
+        versioned = PublishableContent.objects.get(pk=pk).load_version()
+        container = versioned.children[0]
+
+        # preview
+        result = self.client.post(
+            reverse('content:edit-container', kwargs={'pk': pk, 'slug': slug, 'container_slug': container.slug}),
+            {
+                'title': random,
+                'text': random_with_md,
+                'last_hash': container.compute_hash(),
+                'preview': ''
+            }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+
+        self.assertEqual(result.status_code, 200)
+
+        result_string = ''.join(result.streaming_content)
+        self.assertIn('<strong>markdown</strong>', result_string, 'We need the container to be properly formatted')
 
         versioned = PublishableContent.objects.get(pk=pk).load_version()
         container = versioned.children[0]
@@ -413,6 +474,28 @@ class ContentTests(TestCase):
 
         versioned = PublishableContent.objects.get(pk=pk).load_version()
         subcontainer = versioned.children[0].children[0]
+
+        result = self.client.post(
+            reverse('content:edit-container',
+                    kwargs={
+                        'pk': pk,
+                        'slug': slug,
+                        'parent_container_slug': container.slug,
+                        'container_slug': subcontainer.slug
+                    }),
+            {
+                'title': random,
+                'text': random_with_md,
+                'last_hash': subcontainer.compute_hash(),
+                'preview': ''
+            }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(result.status_code, 200)
+
+        result_string = ''.join(result.streaming_content)
+        self.assertIn('<strong>markdown</strong>', result_string, 'We need the container to be properly formatted')
+
+        versioned = PublishableContent.objects.get(pk=pk).load_version()
+        subcontainer = versioned.children[0].children[0]
         self.assertEqual(subcontainer.title, random)
         self.assertEqual(subcontainer.get_introduction(), random)
         self.assertEqual(subcontainer.get_conclusion(), random)
@@ -432,6 +515,24 @@ class ContentTests(TestCase):
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
+
+        result = self.client.post(
+            reverse('content:create-extract',
+                    kwargs={
+                        'pk': pk,
+                        'slug': slug,
+                        'parent_container_slug': container.slug,
+                        'container_slug': subcontainer.slug
+                    }),
+            {
+                'title': title,
+                'text': random_with_md,
+                'preview': ''
+            }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(result.status_code, 200)
+
+        result_string = ''.join(result.streaming_content)
+        self.assertIn('<strong>markdown</strong>', result_string, 'We need the extract to be properly formatted')
 
         versioned = PublishableContent.objects.get(pk=pk).load_version()
         self.assertEqual(len(versioned.children[0].children[0].children), 1)  # the extract is created
@@ -582,7 +683,7 @@ class ContentTests(TestCase):
                 username=self.user_author.username,
                 password='hostel77'),
             True)
-        sometag = Tag(title="randomizeit")
+        sometag = Tag(title='randomizeit')
         sometag.save()
         self.tuto.tags.add(sometag)
         # create second author and add to tuto
@@ -803,6 +904,51 @@ class ContentTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 200)  # access granted
 
+    def test_beta_helps(self):
+        """Check that editorial helps are visible on the beta"""
+
+        # login with author
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # create and add help
+        help = HelpWritingFactory()
+        help.save()
+
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+        tuto.helps.add(help)
+        tuto.save()
+
+        # activate beta
+        result = self.client.post(
+            reverse('content:set-beta', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
+            {
+                'version': tuto.sha_draft
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # check that the information is displayed on the beta page
+        result = self.client.get(
+            reverse('content:beta-view', args=[tuto.pk, tuto.slug]),
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+        self.assertContains(result, _(u"L'auteur de ce contenu recherche"))
+        # and on a container
+        result = self.client.get(
+            reverse('content:beta-view-container',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': tuto.slug,
+                        'container_slug': self.part1.slug
+                    }),
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+        self.assertContains(result, _(u"L'auteur de ce contenu recherche"))
+
     def test_history_navigation(self):
         """ensure that, if the title (and so the slug) of the content change, its content remain accessible"""
         # login with author
@@ -844,10 +990,10 @@ class ContentTests(TestCase):
 
         # edit tutorial:
         old_slug_tuto = tuto.slug
-        version_1 = tuto.sha_draft  # "version 1" is the one before any change
+        version_1 = tuto.sha_draft  # 'version 1' is the one before any change
 
         new_licence = LicenceFactory()
-        random = 'Pâques, c\'est bientôt?'
+        random = "Pâques, c'est bientôt?"
 
         result = self.client.post(
             reverse('content:edit', args=[tuto.pk, tuto.slug]),
@@ -865,7 +1011,7 @@ class ContentTests(TestCase):
         self.assertEqual(result.status_code, 302)
 
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
-        version_2 = tuto.sha_draft  # "version 2" is the one with the different slug for the tutorial
+        version_2 = tuto.sha_draft  # 'version 2' is the one with the different slug for the tutorial
         self.assertNotEqual(tuto.slug, old_slug_tuto)
 
         # check access using old slug and no version
@@ -941,7 +1087,7 @@ class ContentTests(TestCase):
         self.assertEqual(result.status_code, 302)
 
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
-        version_3 = tuto.sha_draft  # "version 3" is the one with the modified part
+        version_3 = tuto.sha_draft  # 'version 3' is the one with the modified part
         versioned = tuto.load_version()
         current_slug_part = versioned.children[0].slug
 
@@ -1101,7 +1247,7 @@ class ContentTests(TestCase):
         given_title = u'Un titre que personne ne lira'
         some_text = u'Tralalala !!'
 
-        # let's cheat a little bit and use the "manual way" to force `None`
+        # let's cheat a little bit and use the 'manual way' to force `None`
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
         versioned = tuto.load_version()
         sha = versioned.repo_add_container(given_title, None, None)
@@ -1485,7 +1631,7 @@ class ContentTests(TestCase):
             True)
 
         given_title = u'Parce que le texte change à chaque fois'
-        some_text = u'Sinon, c\'pas drôle'
+        some_text = u"Sinon, c'pas drôle"
 
         # create a tutorial
         result = self.client.post(
@@ -1598,18 +1744,18 @@ class ContentTests(TestCase):
     def import_with_bad_title(self):
         """Tests an error case that happen when someone sends an archive that modify the content title
            with a string that cannont be properly slugified"""
-        new_article = PublishableContentFactory(type="ARTICLE", title="extension", authors=[self.user_author])
+        new_article = PublishableContentFactory(type='ARTICLE', title='extension', authors=[self.user_author])
         self.assertEqual(
             self.client.login(
                 username=self.user_author.username,
                 password='hostel77'),
             True)
-        archive_path = os.path.join(settings.BASE_DIR, "fixtures", "tuto", "BadArchive.zip")
-        answer = self.client.post(reverse("content:import",
+        archive_path = os.path.join(settings.BASE_DIR, 'fixtures', 'tuto', 'BadArchive.zip')
+        answer = self.client.post(reverse('content:import',
                                           args=[new_article.pk, new_article.slug]),
-                                  {'archive': open(archive_path, "r"),
+                                  {'archive': open(archive_path, 'r'),
                                    'image_archive': None,
-                                   'msg_commit': 'let it go, let it goooooooo ! can\'t hold it back anymoooooore!'})
+                                   'msg_commit': "let it go, let it goooooooo ! can't hold it back anymoooooore!"})
         self.assertEqual(200, answer.status_code)
         msgs = answer.context['messages']
         last = None
@@ -1834,14 +1980,192 @@ class ContentTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 200)
 
+    def test_validation_subscription(self):
+        """test if the author suscribes to their own content"""
+
+        text_validation = u"Valide moi ce truc, s'il te plait"
+        source = u'http://example.com'  # thanks the IANA for that one ;-)
+        different_source = u'http://example.org'
+        text_accept = u"C'est cool, merci !"
+
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+
+        # connect with author:
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # ask validation
+        self.assertEqual(Validation.objects.count(), 0)
+
+        result = self.client.post(
+            reverse('validation:ask', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
+            {
+                'text': text_validation,
+                'source': source,
+                'version': self.tuto_draft.current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Validation.objects.count(), 1)
+
+        self.assertEqual(PublishableContent.objects.get(pk=tuto.pk).source, source)  # source is set
+
+        validation = Validation.objects.filter(content=tuto).last()
+        self.assertIsNotNone(validation)
+
+        self.assertEqual(validation.comment_authors, text_validation)
+        self.assertEqual(validation.version, self.tuto_draft.current_version)
+        self.assertEqual(validation.status, 'PENDING')
+
+        # validate with staff
+        self.client.logout()
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.get(
+            reverse('content:view', kwargs={'pk': tuto.pk, 'slug': tuto.slug}) +
+            '?version=' + validation.version,
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        # reserve tuto:
+        result = self.client.post(
+            reverse('validation:reserve', kwargs={'pk': validation.pk}),
+            {
+                'version': validation.version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        validation = Validation.objects.filter(pk=validation.pk).last()
+        self.assertEqual(validation.status, 'PENDING_V')
+        self.assertEqual(validation.validator, self.user_staff)
+
+        result = self.client.post(
+            reverse('validation:accept', kwargs={'pk': validation.pk}),
+            {
+                'text': text_accept,
+                'is_major': True,
+                'source': different_source  # because ;)
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        validation = Validation.objects.filter(pk=validation.pk).last()
+        self.assertEqual(validation.status, 'ACCEPT')
+        self.assertEqual(validation.comment_validator, text_accept)
+
+        self.assertIsNotNone(NewPublicationSubscription.objects.get_existing(self.user_author, self.user_author))
+        self.assertTrue(ContentReactionAnswerSubscription.objects
+                        .get_existing(user=self.user_author, content_object=tuto).is_active)
+        self.client.logout()
+
+        # Re-ask a new validation
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        tuto = PublishableContent.objects.get(pk=tuto.pk)
+        versioned = tuto.load_version()
+        self.client.post(
+            reverse('content:edit', args=[tuto.pk, tuto.slug]),
+            {
+                'title': 'new title so that everything explode',
+                'description': tuto.description,
+                'introduction': tuto.load_version().get_introduction(),
+                'conclusion': tuto.load_version().get_conclusion(),
+                'type': u'ARTICLE',
+                'licence': tuto.licence.pk,
+                'subcategory': self.subcategory.pk,
+                'last_hash': tuto.load_version(tuto.sha_draft).compute_hash(),
+                'image': open('{}/fixtures/logo.png'.format(settings.BASE_DIR))
+            },
+            follow=False)
+
+        result = self.client.post(
+            reverse('validation:ask', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
+            {
+                'text': text_validation,
+                'source': source,
+                'version': versioned.current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Validation.objects.count(), 2)
+
+        self.assertEqual(PublishableContent.objects.get(pk=tuto.pk).source, source)  # source is set
+
+        validation = Validation.objects.filter(content=tuto).last()
+        self.assertIsNotNone(validation)
+
+        self.assertEqual(validation.comment_authors, text_validation)
+        self.assertEqual(validation.version, self.tuto_draft.current_version)
+        self.assertEqual(validation.status, 'PENDING')
+        self.client.logout()
+
+        # validate with staff
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.get(
+            reverse('content:view', kwargs={'pk': tuto.pk, 'slug': tuto.slug}) +
+            '?version=' + validation.version,
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        # reserve tuto:
+        result = self.client.post(
+            reverse('validation:reserve', kwargs={'pk': validation.pk}),
+            {
+                'version': validation.version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        validation = Validation.objects.filter(pk=validation.pk).last()
+        self.assertEqual(validation.status, 'PENDING_V')
+        self.assertEqual(validation.validator, self.user_staff)
+
+        result = self.client.post(
+            reverse('validation:accept', kwargs={'pk': validation.pk}),
+            {
+                'text': text_accept,
+                'is_major': True,
+                'source': different_source  # because ;)
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        self.assertEqual(Validation.objects.filter(content=tuto).count(), 2)
+
+        validation = Validation.objects.filter(pk=validation.pk).last()
+        self.assertEqual(validation.status, 'ACCEPT')
+        self.assertEqual(validation.comment_validator, text_accept)
+
+        self.assertIsNotNone(NewPublicationSubscription.objects.get_existing(self.user_author, self.user_author))
+        self.assertTrue(ContentReactionAnswerSubscription.objects
+                        .get_existing(user=self.user_author, content_object=tuto).is_active)
+        self.client.logout()
+
     def test_validation_workflow(self):
         """test the different case of validation"""
 
-        text_validation = u'Valide moi ce truc, s\'il te plait'
-        source = u'http://example.com'  # thanks the IANA on that one ;-)
+        text_validation = u"Valide moi ce truc, s'il te plait"
+        source = u'http://example.com'  # thanks the IANA for that one ;-)
         different_source = u'http://example.org'
-        text_accept = u'C\'est de la m***, mais ok, j\'accepte'
-        text_reject = u'Je refuse ce truc, arbitrairement !'
+        text_accept = u"C'est cool, merci !"
+        text_reject = u'Je refuse ce contenu.'
 
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
 
@@ -2128,7 +2452,8 @@ class ContentTests(TestCase):
 
         subscription = NewPublicationSubscription.objects.get_existing(user=self.user_author,
                                                                        content_object=self.user_author)
-        self.assertTrue(subscription.is_active)
+        # subscription must be deactivated.
+        self.assertFalse(subscription.is_active)
         self.assertEqual(1, Notification.objects.filter(subscription=subscription, is_read=False).count())
 
         self.assertEqual(PublishedContent.objects.filter(content=tuto).count(), 1)
@@ -2214,7 +2539,7 @@ class ContentTests(TestCase):
         self.assertEqual(validation.validator, self.user_staff)
 
         # ... and cancel reservation with author
-        text_cancel = u'Nan, mais j\'ai plus envie, en fait'
+        text_cancel = u"Nan, mais j'ai plus envie, en fait"
         self.assertEqual(
             self.client.login(
                 username=self.user_author.username,
@@ -2249,7 +2574,7 @@ class ContentTests(TestCase):
         result = self.client.post(
             reverse('validation:ask', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
             {
-                'text': u'Valide moi ce truc, s\'il te plait',
+                'text': u"Valide moi ce truc, s'il te plait",
                 'version': self.tuto_draft.current_version
             },
             follow=False)
@@ -2278,7 +2603,7 @@ class ContentTests(TestCase):
     def test_delete_while_validating(self):
         """this test ensure that the validator is warned if the content he is validing is removed"""
 
-        text_validation = u'Valide moi ce truc, s\'il te plait'
+        text_validation = u"Valide moi ce truc, s'il te plait"
         source = 'http://example.com'
         text_cancel = u'Veux pas !'
 
@@ -2369,8 +2694,8 @@ class ContentTests(TestCase):
         result = self.client.post(
             reverse('content:activate-jsfiddle'),
             {
-                "pk": self.tuto.pk,
-                "js_support": "on"
+                'pk': self.tuto.pk,
+                'js_support': 'on'
             }, follow=True)
         self.assertEqual(result.status_code, 200)
         updated = PublishableContent.objects.get(pk=self.tuto.pk)
@@ -2378,7 +2703,7 @@ class ContentTests(TestCase):
         result = self.client.post(
             reverse('content:activate-jsfiddle'),
             {
-                "pk": self.tuto.pk,
+                'pk': self.tuto.pk,
             }, follow=True)
         self.assertEqual(result.status_code, 200)
         updated = PublishableContent.objects.get(pk=self.tuto.pk)
@@ -2392,8 +2717,8 @@ class ContentTests(TestCase):
         result = self.client.post(
             reverse('content:activate-jsfiddle'),
             {
-                "pk": self.tuto.pk,
-                "js_support": True
+                'pk': self.tuto.pk,
+                'js_support': True
             })
         self.assertEqual(result.status_code, 403)
 
@@ -2407,16 +2732,16 @@ class ContentTests(TestCase):
         result = self.client.post(
             reverse('validation:ask', kwargs={'pk': self.tuto.pk, 'slug': self.tuto.slug}),
             {
-                'text': "blaaaaa",
-                'source': "",
-                'version': "unexistingversion"
+                'text': 'blaaaaa',
+                'source': '',
+                'version': 'unexistingversion'
             },
             follow=False)
         self.assertEqual(Validation.objects.filter(content__pk=self.tuto.pk).count(), 0)
         self.assertEqual(result.status_code, 404)
 
     def test_help_to_perfect_tuto(self):
-        """ This test aim to unit test the "help me to write my tutorial" interface.
+        """ This test aim to unit test the 'help me to write my tutorial' interface.
         It is testing if the back-end is always sending back good datas"""
 
         # create some helps:
@@ -2494,7 +2819,7 @@ class ContentTests(TestCase):
             self.assertEqual(len(contents), 1)
 
         # now, add an article
-        article = PublishableContentFactory(type="ARTICLE")
+        article = PublishableContentFactory(type='ARTICLE')
         article.authors.add(self.user_author)
         article.subcategory.add(self.subcategory)
         article.save()
@@ -2508,7 +2833,7 @@ class ContentTests(TestCase):
         contents = response.context['contents']
         self.assertEqual(len(contents), 1)
 
-        # test "type" filter
+        # test 'type' filter
         response = self.client.get(
             reverse('content:helps') +
             u'?type=article',
@@ -2558,7 +2883,7 @@ class ContentTests(TestCase):
         contents = response.context['contents']
         self.assertEqual(len(contents), 1)  # but only one if we ask for another need
 
-        # test "type" filter:
+        # test 'type' filter:
         response = self.client.get(
             reverse('content:helps') +
             u'?type=article',
@@ -2601,12 +2926,12 @@ class ContentTests(TestCase):
         temps_1 = datetime.datetime.now()
         temps_2 = temps_1 + datetime.timedelta(0, 1)
 
-        tutoriel_1 = PublishableContentFactory(type="TUTORIAL")
+        tutoriel_1 = PublishableContentFactory(type='TUTORIAL')
         tutoriel_1.update_date = temps_1
         tutoriel_1.helps.add(a_help)
         tutoriel_1.save(update_date=False)
 
-        tutoriel_2 = PublishableContentFactory(type="TUTORIAL")
+        tutoriel_2 = PublishableContentFactory(type='TUTORIAL')
         tutoriel_2.update_date = temps_2
         tutoriel_2.helps.add(a_help)
         tutoriel_2.save(update_date=False)
@@ -2655,7 +2980,7 @@ class ContentTests(TestCase):
         result = self.client.post(
             reverse('content:add-author', args=[self.tuto.pk]),
             {
-                'username': "unknown"
+                'username': 'unknown'
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -2682,7 +3007,7 @@ class ContentTests(TestCase):
         result = self.client.post(
             reverse('content:remove-author', args=[tuto.pk]),
             {
-                'username': "unknown"
+                'username': 'unknown'
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -2715,7 +3040,7 @@ class ContentTests(TestCase):
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
-        self.assertTrue(reverse("content:find-tutorial", args=[self.user_author.pk]) in result.url)
+        self.assertTrue(reverse('content:find-tutorial', args=[self.user_author.pk]) in result.url)
         self.assertEqual(PublishableContent.objects.get(pk=tuto.pk).authors.count(), 1)
         self.assertEqual(PublishableContent.objects.get(pk=tuto.pk).authors.filter(pk=self.user_author.pk).count(), 0)
 
@@ -2724,7 +3049,7 @@ class ContentTests(TestCase):
         Add a non-regression test about warning the author(s) of a typo in tutorial
         """
 
-        typo_text = u'T\'as fait une faute, t\'es trop nul'
+        typo_text = u"Il y a une faute, c'est triste !"
 
         # create a tuto, populate, and set beta
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
@@ -2872,7 +3197,7 @@ class ContentTests(TestCase):
         result = self.client.post(
             reverse('validation:accept', kwargs={'pk': validation.pk}),
             {
-                'text': u'ça m\'as l\'air nul, mais je valide',
+                'text': u"ça m'a l'air intéressant, je valide",
                 'is_major': True,
                 'source': u''
             },
@@ -2955,7 +3280,8 @@ class ContentTests(TestCase):
         chapter = ContainerFactory(parent=versioned, db_object=tuto)
         extract = ExtractFactory(container=chapter, db_object=tuto)
 
-        random = u'Il est miniuit 30 et j\'écris un test ;)'
+        random = u"Il est minuit 30 et j'écris un test ;)"
+        random_with_md = u'un text contenant du **markdown** .'
 
         self.assertEqual(
             self.client.login(
@@ -3057,6 +3383,26 @@ class ContentTests(TestCase):
         self.assertEqual(chapter_version.get_introduction(), random)
         self.assertEqual(chapter_version.get_conclusion(), random)
 
+        # preview
+        result = self.client.post(
+            reverse('content:edit-extract',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': tuto.slug,
+                        'container_slug': chapter_version.slug,
+                        'extract_slug': extract.slug
+                    }),
+            {
+                'title': random,
+                'text': random_with_md,
+                'last_hash': '',
+                'preview': ''
+            }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(result.status_code, 200)
+
+        result_string = ''.join(result.streaming_content)
+        self.assertIn('<strong>markdown</strong>', result_string, 'We need the extract to be properly formatted')
+
         # edit extract
         result = self.client.post(
             reverse('content:edit-extract',
@@ -3112,33 +3458,33 @@ class ContentTests(TestCase):
             True)
 
         result = self.client.get(
-            self.chapter1.get_absolute_url()[:-2] + "/"
+            self.chapter1.get_absolute_url()[:-2] + '/'
         )
         self.assertEqual(result.status_code, 404)
         result = self.client.get(
-            self.part1.get_absolute_url()[:-2] + "/"
+            self.part1.get_absolute_url()[:-2] + '/'
         )
         self.assertEqual(result.status_code, 404)
         result = self.client.get(
-            self.chapter1.get_absolute_url().replace(str(self.tuto.pk), u"he-s-dead-jim")
+            self.chapter1.get_absolute_url().replace(str(self.tuto.pk), u'he-s-dead-jim')
         )
         self.assertEqual(result.status_code, 404)
         result = self.client.get(
-            self.chapter1.get_absolute_url().replace(str(self.tuto.slug), u"he-s-dead-jim")
+            self.chapter1.get_absolute_url().replace(str(self.tuto.slug), u'he-s-dead-jim')
         )
         self.assertEqual(result.status_code, 404)
         publishable = PublishedContentFactory(author_list=[self.user_author])
         published = PublishedContent.objects.filter(content_pk=publishable.pk).first()
         result = self.client.get(
-            published.get_absolute_url_online().replace(str(published.content_public_slug), u"he-s-dead-jim")
+            published.get_absolute_url_online().replace(str(published.content_public_slug), u'he-s-dead-jim')
         )
         self.assertEqual(result.status_code, 404)
         result = self.client.get(
-            published.get_absolute_url_online().replace(str(published.content.pk), u"1000000000")
+            published.get_absolute_url_online().replace(str(published.content.pk), u'1000000000')
         )
         self.assertEqual(result.status_code, 404)
         result = self.client.get(
-            published.get_absolute_url_online().replace(str(published.content.pk), u"he-s-dead-jim")
+            published.get_absolute_url_online().replace(str(published.content.pk), u'he-s-dead-jim')
         )
         self.assertEqual(result.status_code, 404)
         self.assertEqual(
@@ -3148,35 +3494,35 @@ class ContentTests(TestCase):
             True)
 
         result = self.client.post(
-            reverse("content:add-reaction") + u'?pk={}'.format(publishable.pk),
+            reverse('content:add-reaction') + u'?pk={}'.format(publishable.pk),
             {
                 'text': u'message',
                 'last_note': '0'
             }, follow=True)
 
-        result = self.client.get(published.get_absolute_url_online() + "?page=2")
+        result = self.client.get(published.get_absolute_url_online() + '?page=2')
         self.assertEqual(result.status_code, 404)
-        result = self.client.get(published.get_absolute_url_online() + "?page=clementine")
+        result = self.client.get(published.get_absolute_url_online() + '?page=clementine')
         self.assertEqual(result.status_code, 404)
         publishable = PublishableContentFactory(author_list=[self.user_author])
-        result = self.client.get(publishable.get_absolute_url().replace(str(publishable.pk), "10000"))
+        result = self.client.get(publishable.get_absolute_url().replace(str(publishable.pk), '10000'))
         self.assertEqual(result.status_code, 404)
-        result = self.client.get(publishable.get_absolute_url().replace(str(publishable.slug), "10000"))
+        result = self.client.get(publishable.get_absolute_url().replace(str(publishable.slug), '10000'))
         self.assertEqual(result.status_code, 403)  # get 403 since you're not author
 
         publishable = PublishedContentFactory(author_list=[self.user_author])
         old_date = publishable.update_date
         self.client.post(
-            reverse("content:add-reaction") + u'?pk={}'.format(publishable.pk),
+            reverse('content:add-reaction') + u'?pk={}'.format(publishable.pk),
             {
                 'text': u'message',
                 'last_note': '0'
             }, follow=False)
         publishable = PublishableContent.objects.get(pk=publishable.pk)
-        self.assertEqual(old_date, publishable.update_date, "Erreur, le commentaire a entraîné une MAJ de la date!")
+        self.assertEqual(old_date, publishable.update_date, 'Erreur, le commentaire a entraîné une MAJ de la date!')
         # test antispam
         result = self.client.post(
-            reverse("content:add-reaction") + u'?pk={}'.format(publishable.pk),
+            reverse('content:add-reaction') + u'?pk={}'.format(publishable.pk),
             {
                 'text': u'message',
                 'last_note': str(publishable.last_note.pk)
@@ -3184,14 +3530,14 @@ class ContentTests(TestCase):
         self.assertEqual(result.status_code, 403)
         # test bad param
         result = self.client.post(
-            reverse("content:add-reaction") + u'?pk={}'.format(publishable.pk),
+            reverse('content:add-reaction') + u'?pk={}'.format(publishable.pk),
             {
                 'text': u'message',
                 'last_note': str("I'm fine! I'm okay! This is all perfectly normal.")
             }, follow=False)
         self.assertEqual(result.status_code, 200)
         result = self.client.post(
-            reverse("content:add-reaction") + u'?pk={}'.format(publishable.pk),
+            reverse('content:add-reaction') + u'?pk={}'.format(publishable.pk),
             {
                 'text': u'message',
                 'last_note': str(-5)
@@ -3204,11 +3550,11 @@ class ContentTests(TestCase):
                 username=self.user_author.username,
                 password='hostel77'),
             True)
-        base = os.path.join(BASE_DIR, "fixtures", "tuto")
+        base = os.path.join(BASE_DIR, 'fixtures', 'tuto')
         old_contents = [
-            os.path.join(base, "article_v1"),
-            os.path.join(base, "balise_audio"),
-            os.path.join(base, "big_tuto_v1"),
+            os.path.join(base, 'article_v1'),
+            os.path.join(base, 'balise_audio'),
+            os.path.join(base, 'big_tuto_v1'),
         ]
         for old_path in old_contents:
             draft_zip_path = old_path + '.zip'
@@ -3222,11 +3568,11 @@ class ContentTests(TestCase):
                 },
                 follow=False
             )
-            manifest = open(os.path.join(old_path, "manifest.json"), 'r')
+            manifest = open(os.path.join(old_path, 'manifest.json'), 'r')
             json = json_reader.loads(manifest.read())
             manifest.close()
             self.assertEqual(result.status_code, 302)
-            self.assertEqual(json["title"], PublishableContent.objects.last().title)
+            self.assertEqual(json['title'], PublishableContent.objects.last().title)
 
     def test_import_bad_archive(self):
         self.assertEqual(
@@ -3234,16 +3580,16 @@ class ContentTests(TestCase):
                 username=self.user_author.username,
                 password='hostel77'),
             True)
-        base = os.path.join(BASE_DIR, "fixtures", "tuto")
-        old_path = os.path.join(base, "article_v1")
+        base = os.path.join(BASE_DIR, 'fixtures', 'tuto')
+        old_path = os.path.join(base, 'article_v1')
 
-        shutil.move(os.path.join(old_path, "text.md"), os.path.join(old_path, "text2.md"))
+        shutil.move(os.path.join(old_path, 'text.md'), os.path.join(old_path, 'text2.md'))
         shutil.make_archive(old_path, 'zip', old_path)
-        shutil.move(os.path.join(old_path, "text2.md"), os.path.join(old_path, "text.md"))
+        shutil.move(os.path.join(old_path, 'text2.md'), os.path.join(old_path, 'text.md'))
         result = self.client.post(
             reverse('content:import-new'),
             {
-                'archive': open(old_path + ".zip"),
+                'archive': open(old_path + '.zip'),
                 'subcategory': self.subcategory.pk
             },
             follow=False
@@ -3253,15 +3599,15 @@ class ContentTests(TestCase):
         levels = [msg.level for msg in msgs]
         self.assertIn(messages.ERROR, levels)
 
-        shutil.copyfile(os.path.join(old_path, "manifest.json"), os.path.join(old_path, "manifest2.json"))
-        with open(os.path.join(old_path, "manifest.json"), "w") as man_file:
+        shutil.copyfile(os.path.join(old_path, 'manifest.json'), os.path.join(old_path, 'manifest2.json'))
+        with open(os.path.join(old_path, 'manifest.json'), 'w') as man_file:
             man_file.write('{"version":2, "type":"Kitty Cat"}')
         shutil.make_archive(old_path, 'zip', old_path)
-        shutil.copyfile(os.path.join(old_path, "manifest2.json"), os.path.join(old_path, "manifest.json"))
+        shutil.copyfile(os.path.join(old_path, 'manifest2.json'), os.path.join(old_path, 'manifest.json'))
         result = self.client.post(
             reverse('content:import-new'),
             {
-                'archive': open(old_path + ".zip"),
+                'archive': open(old_path + '.zip'),
                 'subcategory': self.subcategory.pk
             },
             follow=False
@@ -3272,14 +3618,14 @@ class ContentTests(TestCase):
         self.assertIn(messages.ERROR, levels)
 
     def test_publication_make_extra_contents(self):
-        """This test make sure that the "extra contents" (PDF, EPUB, ...) are generated by a publication
+        """This test makes sure that the 'extra contents' (PDF, EPUB, ...) are generated by a publication
         while using a text containing images, and accessible !
 
         NOTE: this test will take time !"""
 
-        settings.ZDS_APP['content']['build_pdf_when_published'] = True  # obviously, need PDF build
+        settings.ZDS_APP['content']['build_pdf_when_published'] = True  # obviously, PDF builds have to be enabled
 
-        title = u'C\'est pas le plus important ici !'
+        title = u"C'est pas le plus important ici !"
 
         tuto = PublishableContentFactory(type='TUTORIAL')
 
@@ -3334,7 +3680,7 @@ class ContentTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 302)
 
-        # accept and publish. Will create the "extra contents" !
+        # accept and publish. Will create the 'extra contents' !
         result = self.client.post(
             reverse('validation:accept', kwargs={'pk': validation.pk}),
             {
@@ -3348,7 +3694,7 @@ class ContentTests(TestCase):
         published = PublishedContent.objects.filter(content=tuto).first()
         self.assertIsNotNone(published)  # ok for the publication
 
-        # test the presence of all "extra contents"
+        # test the presence of all 'extra contents'
         self.assertTrue(os.path.exists(published.get_prod_path()))
         self.assertTrue(os.path.exists(published.get_extra_contents_directory()))
         self.assertTrue(os.path.exists(os.path.join(published.get_extra_contents_directory(), 'images')))
@@ -3357,7 +3703,7 @@ class ContentTests(TestCase):
 
         # test existence and access for admin
         for extra in avail_extra:
-            self.assertTrue(published.have_type(extra), "no extra content" + extra)
+            self.assertTrue(published.have_type(extra), 'no extra content of format "{}" was found'.format(extra))
             result = self.client.get(published.get_absolute_url_to_extra_content(extra))
             self.assertEqual(result.status_code, 200)
 
@@ -3369,8 +3715,8 @@ class ContentTests(TestCase):
         self.assertEqual('', published.get_absolute_url_to_extra_content('kboom'))
         self.client.logout()
 
-        with open(md_path, "w") as f:  # remake a .md file, whatever the content
-            f.write("I rebuilt it to finish the test. Perhaps a funny quote would be a good thing?")
+        with open(md_path, 'w') as f:  # remake a .md file, whatever the content
+            f.write('I rebuilt it to finish the test. Perhaps a funny quote would be a good thing?')
 
         # same test with author:
         self.assertEqual(
@@ -3455,7 +3801,7 @@ class ContentTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 302)
 
-        # accept and publish while unchecked the "is_major"
+        # accept and publish while unchecked the 'is_major'
         result = self.client.post(
             reverse('validation:accept', kwargs={'pk': validation.pk}),
             {
@@ -3512,7 +3858,7 @@ class ContentTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 302)
 
-        # accept and publish while unchecked the "is_major"
+        # accept and publish while unchecked the 'is_major'
         result = self.client.post(
             reverse('validation:accept', kwargs={'pk': validation.pk}),
             {
@@ -3730,10 +4076,13 @@ class ContentTests(TestCase):
         if os.path.isdir(settings.MEDIA_ROOT):
             shutil.rmtree(settings.MEDIA_ROOT)
 
-        # re-active PDF build
+        # re-activate PDF build
         settings.ZDS_APP['content']['build_pdf_when_published'] = True
 
 
+@override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
+@override_settings(ZDS_APP=overrided_zds_app)
+@override_settings(ES_ENABLED=False)
 class PublishedContentTests(TestCase):
     def setUp(self):
 
@@ -3746,11 +4095,11 @@ class PublishedContentTests(TestCase):
         self.mas = ProfileFactory().user
         settings.ZDS_APP['member']['bot_account'] = self.mas.username
 
-        bot = Group(name=settings.ZDS_APP["member"]["bot_group"])
+        bot = Group(name=settings.ZDS_APP['member']['bot_group'])
         bot.save()
         self.external = UserFactory(
-            username=settings.ZDS_APP["member"]["external_account"],
-            password="anything")
+            username=settings.ZDS_APP['member']['external_account'],
+            password='anything')
 
         self.beta_forum = ForumFactory(
             pk=settings.ZDS_APP['forum']['beta_forum_id'],
@@ -3786,6 +4135,17 @@ class PublishedContentTests(TestCase):
         self.tuto.sha_draft = version
         self.tuto.public_version = self.published
         self.tuto.save()
+
+    def tearDown(self):
+        if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
+            shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
+        if os.path.isdir(settings.ZDS_APP['content']['repo_public_path']):
+            shutil.rmtree(settings.ZDS_APP['content']['repo_public_path'])
+        if os.path.isdir(settings.MEDIA_ROOT):
+            shutil.rmtree(settings.MEDIA_ROOT)
+
+        # re-activate PDF build
+        settings.ZDS_APP['content']['build_pdf_when_published'] = True
 
     def test_published(self):
         """Just a small test to ensure that the setUp() function produce a proper published content"""
@@ -4239,7 +4599,7 @@ class PublishedContentTests(TestCase):
 
     def test_add_note(self):
 
-        message_to_post = u'la ZEP-12, c\'est énorme ! (CMB)'
+        message_to_post = u'la ZEP-12'
 
         self.assertEqual(
             self.client.login(
@@ -4248,7 +4608,7 @@ class PublishedContentTests(TestCase):
             True)
 
         result = self.client.post(
-            reverse("content:add-reaction") + u'?pk={}'.format(self.published.content.pk),
+            reverse('content:add-reaction') + u'?pk={}'.format(self.published.content.pk),
             {
                 'text': message_to_post,
                 'last_note': 0
@@ -4265,9 +4625,9 @@ class PublishedContentTests(TestCase):
         self.assertEqual(reads[0].note.pk, reactions[0].pk)
 
         self.assertEqual(
-            self.client.get(reverse("tutorial:view", args=[self.tuto.pk, self.tuto.slug])).status_code, 200)
+            self.client.get(reverse('tutorial:view', args=[self.tuto.pk, self.tuto.slug])).status_code, 200)
         result = self.client.post(
-            reverse("content:add-reaction") + u'?clementine={}'.format(self.published.content.pk),
+            reverse('content:add-reaction') + u'?clementine={}'.format(self.published.content.pk),
             {
                 'text': message_to_post,
                 'last_note': '0'
@@ -4282,12 +4642,12 @@ class PublishedContentTests(TestCase):
             True)
 
         self.assertEqual(
-            self.client.get(reverse("tutorial:view", args=[self.tuto.pk, self.tuto.slug])).status_code, 200)
+            self.client.get(reverse('tutorial:view', args=[self.tuto.pk, self.tuto.slug])).status_code, 200)
 
         reads = ContentRead.objects.filter(user=self.user_staff).all()
         # simple visit does not trigger follow but remembers reading
         self.assertEqual(len(reads), 1)
-        interventions = [post["url"] for post in interventions_topics(self.user_staff)]
+        interventions = [post['url'] for post in interventions_topics(self.user_staff)]
         self.assertTrue(reads.first().note.get_absolute_url() not in interventions)
 
         # login with author
@@ -4299,7 +4659,7 @@ class PublishedContentTests(TestCase):
 
         # test preview (without JS)
         result = self.client.post(
-            reverse("content:add-reaction") + u'?pk={}'.format(self.published.content.pk),
+            reverse('content:add-reaction') + u'?pk={}'.format(self.published.content.pk),
             {
                 'text': message_to_post,
                 'last_note': reactions[0].pk,
@@ -4311,7 +4671,7 @@ class PublishedContentTests(TestCase):
 
         # test preview (with JS)
         result = self.client.post(
-            reverse("content:add-reaction") + u'?pk={}'.format(self.published.content.pk),
+            reverse('content:add-reaction') + u'?pk={}'.format(self.published.content.pk),
             {
                 'text': message_to_post,
                 'last_note': reactions[0].pk,
@@ -4324,7 +4684,7 @@ class PublishedContentTests(TestCase):
 
         # test quoting (without JS)
         result = self.client.get(
-            reverse("content:add-reaction") + u'?pk={}&cite={}'.format(self.published.content.pk, reactions[0].pk))
+            reverse('content:add-reaction') + u'?pk={}&cite={}'.format(self.published.content.pk, reactions[0].pk))
         self.assertEqual(result.status_code, 200)
 
         text_field_value = result.context['form'].initial['text']
@@ -4335,7 +4695,7 @@ class PublishedContentTests(TestCase):
 
         # test quoting (with JS)
         result = self.client.get(
-            reverse("content:add-reaction") + u'?pk={}&cite={}'.format(self.published.content.pk, reactions[0].pk),
+            reverse('content:add-reaction') + u'?pk={}&cite={}'.format(self.published.content.pk, reactions[0].pk),
             HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 
         self.assertEqual(result.status_code, 200)
@@ -4357,7 +4717,7 @@ class PublishedContentTests(TestCase):
         self.assertEqual(ContentReaction.objects.count(), 1)
 
         result = self.client.post(
-            reverse("content:add-reaction") + u'?pk={}'.format(self.published.content.pk),
+            reverse('content:add-reaction') + u'?pk={}'.format(self.published.content.pk),
             {
                 'text': message_to_post,
                 'last_note': -1  # wrong pk
@@ -4378,7 +4738,7 @@ class PublishedContentTests(TestCase):
             True)
 
         self.client.post(
-            reverse("content:add-reaction") + u'?pk={}'.format(self.tuto.pk),
+            reverse('content:add-reaction') + u'?pk={}'.format(self.tuto.pk),
             {
                 'text': u'message',
                 'last_note': '0'
@@ -4409,7 +4769,7 @@ class PublishedContentTests(TestCase):
             True)
 
         result = self.client.get(
-            reverse("content:add-reaction") + u'?pk={}&cite={}'.format(self.tuto.pk, reaction.pk), follow=False)
+            reverse('content:add-reaction') + u'?pk={}&cite={}'.format(self.tuto.pk, reaction.pk), follow=False)
         self.assertEqual(result.status_code, 403)  # unable to quote a reaction if hidden
 
         # then, unhide it !
@@ -4436,7 +4796,7 @@ class PublishedContentTests(TestCase):
             True)
 
         self.client.post(
-            reverse("content:add-reaction") + u'?pk={}'.format(self.tuto.pk),
+            reverse('content:add-reaction') + u'?pk={}'.format(self.tuto.pk),
             {
                 'text': u'message',
                 'last_note': '0'
@@ -4450,7 +4810,7 @@ class PublishedContentTests(TestCase):
         result = self.client.post(
             reverse('content:alert-reaction', args=[reaction.pk]),
             {
-                "signal_text": 'No. Try not. Do... or do not. There is no try.'
+                'signal_text': 'No. Try not. Do... or do not. There is no try.'
             }, follow=False
         )
         self.assertEqual(result.status_code, 302)
@@ -4458,8 +4818,8 @@ class PublishedContentTests(TestCase):
         result = self.client.post(
             reverse('content:resolve-reaction'),
             {
-                "alert_pk": Alert.objects.filter(author__pk=self.user_author.pk, comment__pk=reaction.pk).first().pk,
-                "text": 'No. Try not. Do... or do not. There is no try.'
+                'alert_pk': Alert.objects.filter(author__pk=self.user_author.pk, comment__pk=reaction.pk).first().pk,
+                'text': 'No. Try not. Do... or do not. There is no try.'
             }, follow=False
         )
         self.assertEqual(result.status_code, 403)
@@ -4471,8 +4831,8 @@ class PublishedContentTests(TestCase):
         result = self.client.post(
             reverse('content:resolve-reaction'),
             {
-                "alert_pk": Alert.objects.filter(author__pk=self.user_author.pk, comment__pk=reaction.pk).first().pk,
-                "text": 'Much to learn, you still have.'
+                'alert_pk': Alert.objects.filter(author__pk=self.user_author.pk, comment__pk=reaction.pk).first().pk,
+                'text': 'Much to learn, you still have.'
             }, follow=False
         )
         self.assertEqual(result.status_code, 302)
@@ -4489,7 +4849,7 @@ class PublishedContentTests(TestCase):
         result = self.client.post(
             reverse('content:alert-reaction', args=[reaction.pk]),
             {
-                "signal_text": 'No. Try not. Do... or do not. There is no try.'
+                'signal_text': 'No. Try not. Do... or do not. There is no try.'
             }, follow=False
         )
         self.assertEqual(result.status_code, 302)
@@ -4502,9 +4862,9 @@ class PublishedContentTests(TestCase):
                 password='hostel77'),
             True)
         result = self.client.post(
-            reverse('content:update-reaction') + "?message={}&pk={}".format(reaction.pk, self.tuto.pk),
+            reverse('content:update-reaction') + '?message={}&pk={}'.format(reaction.pk, self.tuto.pk),
             {
-                "text": 'Much to learn, you still have.'
+                'text': 'Much to learn, you still have.'
             }, follow=False
         )
         self.assertEqual(result.status_code, 302)
@@ -4597,7 +4957,7 @@ class PublishedContentTests(TestCase):
         )
         self.assertEqual(404, response.status_code)  # this filter does not exists !
 
-        # test "redaction" filter
+        # test 'redaction' filter
         response = self.client.get(
             reverse('content:find-tutorial', args=[self.user_author.pk]) + '?filter=redaction',
             follow=False
@@ -4721,7 +5081,7 @@ class PublishedContentTests(TestCase):
         contents = response.context['articles']
         self.assertEqual(len(contents), 0)  # no published article
 
-        # test no filter → same answer as "public"
+        # test no filter → same answer as 'public'
         response = self.client.get(
             reverse('content:find-tutorial', args=[self.user_author.pk]),
             follow=False
@@ -4810,7 +5170,7 @@ class PublishedContentTests(TestCase):
 
         # post a reaction
         result = self.client.post(
-            reverse("content:add-reaction") + u'?pk={}'.format(self.tuto.pk),
+            reverse('content:add-reaction') + u'?pk={}'.format(self.tuto.pk),
             {
                 'text': u'message',
                 'last_note': '0'
@@ -4848,7 +5208,7 @@ class PublishedContentTests(TestCase):
 
         # post another reaction
         result = self.client.post(
-            reverse("content:add-reaction") + u'?pk={}'.format(self.tuto.pk),
+            reverse('content:add-reaction') + u'?pk={}'.format(self.tuto.pk),
             {
                 'text': u'message',
                 'last_note': reactions[0].pk
@@ -4881,7 +5241,7 @@ class PublishedContentTests(TestCase):
         result = self.client.get(reverse('tutorial:view', kwargs={'pk': tuto.pk, 'slug': tuto.slug}))
         self.assertEqual(result.status_code, 200)
 
-        # but nothing has changed (because not connected = no notifications and no "tracking")
+        # but nothing has changed (because not connected = no notifications and no 'tracking')
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
         self.assertEqual(tuto.last_read_note(), reactions[0])  # last read note = first note
         self.assertEqual(tuto.first_unread_note(), reactions[0])  # first unread note = first note
@@ -4919,17 +5279,47 @@ class PublishedContentTests(TestCase):
         result = self.client.get(reverse('pages-index'))  # go to whatever page
         self.assertEqual(result.status_code, 200)
 
+    def test_reaction_follow_email(self):
+        settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+        self.assertEquals(0, len(mail.outbox))
+
+        profile = ProfileFactory()
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.post(reverse('content:follow-reactions', args=[self.tuto.pk]), {'email': '1'})
+        self.assertEquals(302, response.status_code)
+
+        self.assertIsNotNone(ContentReactionAnswerSubscription.objects.get_existing(
+            profile.user, self.tuto, is_active=True, by_email=True))
+
+        self.client.logout()
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # post another reaction
+        self.client.post(
+            reverse('content:add-reaction') + u'?pk={}'.format(self.tuto.pk),
+            {
+                'text': u'message',
+                'last_note': '0'
+            }, follow=True)
+
+        self.assertEquals(1, len(mail.outbox))
+
     def test_note_with_bad_param(self):
         self.assertEqual(
             self.client.login(
                 username=self.user_staff.username,
                 password='hostel77'),
             True)
-        url_template = reverse("content:update-reaction") + "?pk={}&message={}"
+        url_template = reverse('content:update-reaction') + '?pk={}&message={}'
         result = self.client.get(url_template.format(self.tuto.pk, 454545665895123))
         self.assertEqual(404, result.status_code)
         reaction = ContentReaction(related_content=self.tuto, author=self.user_guest, position=1)
-        reaction.update_content("blah")
+        reaction.update_content('blah')
         reaction.save()
         self.tuto.last_note = reaction
         self.tuto.save()
@@ -4937,11 +5327,11 @@ class PublishedContentTests(TestCase):
         self.assertEqual(404, result.status_code)
 
     def test_cant_edit_not_owned_note(self):
-        article = PublishedContentFactory(author_list=[self.user_author], type="ARTICLE")
+        article = PublishedContentFactory(author_list=[self.user_author], type='ARTICLE')
         new_user = ProfileFactory().user
         new_reaction = ContentReaction(related_content=article, position=1)
-        new_reaction.update_content("I will find you. And I will Kill you.")
         new_reaction.author = self.user_guest
+        new_reaction.update_content('I will find you.')
 
         new_reaction.save()
         self.assertEqual(
@@ -4950,27 +5340,27 @@ class PublishedContentTests(TestCase):
                 password='hostel77'),
             True)
         resp = self.client.get(
-            reverse('content:update-reaction') + "?message={}&pk={}".format(new_reaction.pk, article.pk))
+            reverse('content:update-reaction') + '?message={}&pk={}'.format(new_reaction.pk, article.pk))
         self.assertEqual(403, resp.status_code)
         resp = self.client.post(
-            reverse('content:update-reaction') + "?message={}&pk={}".format(new_reaction.pk, article.pk),
+            reverse('content:update-reaction') + '?message={}&pk={}'.format(new_reaction.pk, article.pk),
             {
-                'text': "I edited it"
+                'text': 'I edited it'
             })
         self.assertEqual(403, resp.status_code)
 
     def test_quote_note(self):
-        """ Ensure the behavior of the `&cite=xxx` parameter on "content:add-reaction"
+        """ Ensure the behavior of the `&cite=xxx` parameter on 'content:add-reaction'
         """
 
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
         text = u'À force de temps, de patience et de crachats, ' \
-               u'on met un pépin de callebasse dans le derrière d\'un moustique (proverbe créole)'
+               u"on met un pépin de callebasse dans le derrière d'un moustique (proverbe créole)"
 
         # add note :
         reaction = ContentReaction(related_content=tuto, position=1)
-        reaction.update_content(text)
         reaction.author = self.user_guest
+        reaction.update_content(text)
         reaction.save()
 
         self.assertEqual(
@@ -4981,19 +5371,19 @@ class PublishedContentTests(TestCase):
 
         # cite note
         result = self.client.get(
-            reverse("content:add-reaction") + u'?pk={}&cite={}'.format(tuto.pk, reaction.pk), follow=True)
+            reverse('content:add-reaction') + u'?pk={}&cite={}'.format(tuto.pk, reaction.pk), follow=True)
         self.assertEqual(200, result.status_code)
 
         self.assertTrue(text in result.context['form'].initial['text'])  # ok, text quoted !
 
         # cite with a abnormal parameter raises 404
         result = self.client.get(
-            reverse("content:add-reaction") + u'?pk={}&cite={}'.format(tuto.pk, 'lililol'), follow=True)
+            reverse('content:add-reaction') + u'?pk={}&cite={}'.format(tuto.pk, 'lililol'), follow=True)
         self.assertEqual(404, result.status_code)
 
         # cite not existing note just gives the form empty
         result = self.client.get(
-            reverse("content:add-reaction") + u'?pk={}&cite={}'.format(tuto.pk, 99999999), follow=True)
+            reverse('content:add-reaction') + u'?pk={}&cite={}'.format(tuto.pk, 99999999), follow=True)
         self.assertEqual(200, result.status_code)
 
         self.assertTrue('text' not in result.context['form'])  # nothing quoted, so no text cited
@@ -5003,7 +5393,7 @@ class PublishedContentTests(TestCase):
         reaction.save()
 
         result = self.client.get(
-            reverse("content:add-reaction") + u'?pk={}&cite={}'.format(tuto.pk, reaction.pk), follow=True)
+            reverse('content:add-reaction') + u'?pk={}&cite={}'.format(tuto.pk, reaction.pk), follow=True)
         self.assertEqual(403, result.status_code)
 
     def test_cant_view_private_even_if_draft_is_equal_to_public(self):
@@ -5013,7 +5403,7 @@ class PublishedContentTests(TestCase):
                 username=self.user_guest.username,
                 password='hostel77'),
             True)
-        resp = self.client.get(reverse("content:view", args=[content.pk, content.slug]))
+        resp = self.client.get(reverse('content:view', args=[content.pk, content.slug]))
         self.assertEqual(403, resp.status_code)
 
     def test_republish_with_different_slug(self):
@@ -5035,7 +5425,7 @@ class PublishedContentTests(TestCase):
         # change title
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
         old_slug = tuto.slug
-        random = u'Whatever, we don\'t care about the details'
+        random = u"Whatever, we don't care about the details"
 
         result = self.client.post(
             reverse('content:edit', args=[tuto.pk, tuto.slug]),
@@ -5116,16 +5506,16 @@ class PublishedContentTests(TestCase):
         self.assertEqual(tuto.public_version.pk, new_published.pk)
 
     def test_logical_article_pagination(self):
-        """Test that the past is "left" and the future is "right", or in other word that the good article
+        """Test that the past is 'left' and the future is 'right', or in other word that the good article
         are given to pagination and not the opposite"""
 
-        article1 = PublishedContentFactory(type="ARTICLE")
+        article1 = PublishedContentFactory(type='ARTICLE')
 
-        # force "article1" to be the first one by setting a publication date equals to one hour before the test
+        # force 'article1' to be the first one by setting a publication date equals to one hour before the test
         article1.public_version.publication_date = datetime.datetime.now() - datetime.timedelta(0, 1)
         article1.public_version.save()
 
-        article2 = PublishedContentFactory(type="ARTICLE")
+        article2 = PublishedContentFactory(type='ARTICLE')
 
         self.assertEqual(PublishedContent.objects.count(), 3)  # both articles have been published
 
@@ -5143,7 +5533,7 @@ class PublishedContentTests(TestCase):
 
     def test_validation_list_has_good_title(self):
         # aka fix 3172
-        tuto = PublishableContentFactory(author_list=[self.user_author], type="TUTORIAL")
+        tuto = PublishableContentFactory(author_list=[self.user_author], type='TUTORIAL')
         self.assertEqual(
             self.client.login(
                 username=self.user_author.username,
@@ -5152,20 +5542,20 @@ class PublishedContentTests(TestCase):
         result = self.client.post(
             reverse('validation:ask', args=[tuto.pk, tuto.slug]),
             {
-                'text': "something good",
+                'text': 'something good',
                 'source': '',
                 'version': tuto.sha_draft
             },
             follow=False)
         old_title = tuto.title
-        new_title = "a brand new title"
+        new_title = 'a brand new title'
         self.client.post(
             reverse('content:edit', args=[tuto.pk, tuto.slug]),
             {
                 'title': new_title,
                 'description': tuto.description,
-                'introduction': "a",
-                'conclusion': "b",
+                'introduction': 'a',
+                'conclusion': 'b',
                 'type': u'TUTORIAL',
                 'licence': self.licence.pk,
                 'subcategory': self.subcategory.pk,
@@ -5178,7 +5568,7 @@ class PublishedContentTests(TestCase):
                 username=self.user_staff.username,
                 password='hostel77'),
             True)
-        result = self.client.get(reverse("validation:list") + "?type=tuto")
+        result = self.client.get(reverse('validation:list') + '?type=tuto')
         self.assertIn(old_title, result.content)
         self.assertNotIn(new_title, result.content)
 
@@ -5194,13 +5584,13 @@ class PublishedContentTests(TestCase):
 
     def test_unpublish_with_title_change(self):
         # aka 3329
-        article = PublishedContentFactory(type="ARTICLE", author_list=[self.user_author], licence=self.licence)
+        article = PublishedContentFactory(type='ARTICLE', author_list=[self.user_author], licence=self.licence)
         registered_validation = Validation(
             content=article,
             version=article.sha_draft,
-            status="ACCEPT",
-            comment_authors="bla",
-            comment_validator="bla",
+            status='ACCEPT',
+            comment_authors='bla',
+            comment_validator='bla',
             date_reserve=datetime.datetime.now(),
             date_proposition=datetime.datetime.now(),
             date_validation=datetime.datetime.now()
@@ -5214,7 +5604,7 @@ class PublishedContentTests(TestCase):
         self.client.post(
             reverse('content:edit', args=[article.pk, article.slug]),
             {
-                'title': "new title so that everything explode",
+                'title': 'new title so that everything explode',
                 'description': article.description,
                 'introduction': article.load_version().get_introduction(),
                 'conclusion': article.load_version().get_conclusion(),
@@ -5235,7 +5625,7 @@ class PublishedContentTests(TestCase):
             follow=False)
         self.assertEqual(302, result.status_code)
         self.assertEqual(public_count - 1, PublishedContent.objects.count())
-        self.assertEqual("PENDING", Validation.objects.get(pk=registered_validation.pk).status)
+        self.assertEqual('PENDING', Validation.objects.get(pk=registered_validation.pk).status)
 
     def test_validation_history(self):
         published = PublishedContentFactory(author_list=[self.user_author])
@@ -5249,8 +5639,8 @@ class PublishedContentTests(TestCase):
             {
                 'title': published.title,
                 'description': published.description,
-                'introduction': "crappy crap",
-                'conclusion': "crappy crap",
+                'introduction': 'crappy crap',
+                'conclusion': 'crappy crap',
                 'type': u'TUTORIAL',
                 'licence': self.licence.pk,
                 'subcategory': self.subcategory.pk,
@@ -5261,8 +5651,8 @@ class PublishedContentTests(TestCase):
         result = self.client.post(
             reverse('validation:ask', kwargs={'pk': published.pk, 'slug': published.slug}),
             {
-                'text': "abcdefg",
-                'source': "",
+                'text': 'abcdefg',
+                'source': '',
                 'version': published.load_version().current_version
             },
             follow=False)
@@ -5274,7 +5664,7 @@ class PublishedContentTests(TestCase):
                 username=self.user_staff.username,
                 password='hostel77'),
             True)
-        result = self.client.get(reverse("validation:list") + "?type=tuto")
+        result = self.client.get(reverse('validation:list') + '?type=tuto')
         self.assertIn('class="update_content"', result.content)
 
     def test_validation_history_for_new_content(self):
@@ -5288,8 +5678,8 @@ class PublishedContentTests(TestCase):
         result = self.client.post(
             reverse('validation:ask', kwargs={'pk': publishable.pk, 'slug': publishable.slug}),
             {
-                'text': "abcdefg",
-                'source': "",
+                'text': 'abcdefg',
+                'source': '',
                 'version': publishable.load_version().current_version
             },
             follow=False)
@@ -5301,20 +5691,8 @@ class PublishedContentTests(TestCase):
                 username=self.user_staff.username,
                 password='hostel77'),
             True)
-        result = self.client.get(reverse("validation:list") + "?type=tuto")
+        result = self.client.get(reverse('validation:list') + '?type=tuto')
         self.assertNotIn('class="update_content"', result.content)
-
-    def tearDown(self):
-
-        if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
-            shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
-        if os.path.isdir(settings.ZDS_APP['content']['repo_public_path']):
-            shutil.rmtree(settings.ZDS_APP['content']['repo_public_path'])
-        if os.path.isdir(settings.MEDIA_ROOT):
-            shutil.rmtree(settings.MEDIA_ROOT)
-
-        # re-active PDF build
-        settings.ZDS_APP['content']['build_pdf_when_published'] = True
 
     def test_beta_article_closed_when_published(self):
         """Test that the beta of an article is locked when the content is published"""
@@ -5442,3 +5820,44 @@ class PublishedContentTests(TestCase):
         self.assertIsNotNone(beta_topic)
         self.assertTrue(beta_topic.is_locked)
         self.assertEqual(beta_topic.last_message, last_message)
+
+    def test_obsolete(self):
+        # check that this function is only available for staff
+        self.client.login(
+            username=self.user_author.username,
+            password='hostel77'
+        )
+        result = self.client.post(
+            reverse('validation:mark-obsolete', kwargs={'pk': self.tuto.pk}),
+            follow=False)
+        self.assertEqual(result.status_code, 403)
+        # login as staff
+        self.client.login(
+            username=self.user_staff.username,
+            password='hostel77'
+        )
+        # check that when the content is not marked as obsolete, the alert is not shown
+        result = self.client.get(self.tuto.get_absolute_url_online(), follow=False)
+        self.assertEqual(result.status_code, 200)
+        self.assertNotContains(result, _(u'Ce contenu est obsolète.'))
+        # now, let's mark the tutoriel as obsolete
+        result = self.client.post(
+            reverse('validation:mark-obsolete', kwargs={'pk': self.tuto.pk}),
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        # check that the alert is shown
+        result = self.client.get(self.tuto.get_absolute_url_online(), follow=False)
+        self.assertEqual(result.status_code, 200)
+        self.assertContains(result, _(u'Ce contenu est obsolète.'))
+        # and on a chapter
+        result = self.client.get(self.chapter1.get_absolute_url_online(), follow=False)
+        self.assertEqual(result.status_code, 200)
+        self.assertContains(result, _(u'Ce contenu est obsolète.'))
+        # finally, check that this alert can be hidden
+        result = self.client.post(
+            reverse('validation:mark-obsolete', kwargs={'pk': self.tuto.pk}),
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        result = self.client.get(self.tuto.get_absolute_url_online(), follow=False)
+        self.assertEqual(result.status_code, 200)
+        self.assertNotContains(result, _(u'Ce contenu est obsolète.'))

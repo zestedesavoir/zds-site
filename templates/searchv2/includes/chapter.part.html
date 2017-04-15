@@ -1,0 +1,34 @@
+{% load emarkdown %}
+{% load i18n %}
+{% load date %}
+{%  load elasticsearch %}
+
+<a href="{{ search_result.get_absolute_url_online }}" tabindex="-1" class="content-illu">
+    {% if search_result.thumbnail %}
+        <img src="{{ search_result.thumbnail }}" alt="{{ search_result.title }}">
+    {% endif %}
+</a>
+
+<div class="content-info">
+    <a href="{{ search_result.get_absolute_url_online }}" title="{{ search_result.title }}">
+        <h3 class="content-title" itemprop="itemListElement">
+            {{ search_result.title }}
+        </h3>
+    </a>
+
+    <p class="content-description">
+        {% highlight search_result "text" %}
+    </p>
+
+    <div class="content-meta inline" title="Chapitre">
+        <p>
+            {% trans "Chapitre du tutoriel" %}
+            <a href="{{ search_result.parent_get_absolute_url_online }}">{{ search_result.parent_title }}</a> &bullet;
+
+            <time class="content-pubdate" pubdate="{{ search_result.parent_publication_date|from_elasticsearch_date }}">
+                <span class="long">{{ search_result.parent_publication_date|from_elasticsearch_date|format_date|capfirst }}</span>
+                <span class="short">{{ search_result.parent_publication_date|from_elasticsearch_date|format_date:True|capfirst }}</span>
+            </time>
+        </p>
+    </div>
+</div>

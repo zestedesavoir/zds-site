@@ -1,5 +1,6 @@
 # coding: utf-8
-
+from __future__ import unicode_literals
+from django.utils.encoding import python_2_unicode_compatible
 import logging
 from datetime import datetime, timedelta
 from math import ceil
@@ -8,21 +9,26 @@ from django.conf import settings
 from django.contrib.auth.models import Group, User, AnonymousUser
 from django.core.urlresolvers import reverse
 from django.db import models
+from django.dispatch import receiver
+from django.db.models.signals import pre_delete
+
+from elasticsearch_dsl.field import Text, Keyword, Integer, Boolean, Float, Date
 
 from zds.forum.managers import TopicManager, ForumManager, PostManager, TopicReadManager
 from zds.notification import signals
 from zds.settings import ZDS_APP
-from zds.utils import get_current_user
-from zds.utils import slugify
+from zds.searchv2.models import AbstractESDjangoIndexable, delete_document_in_elasticsearch, ESIndexManager
+from zds.utils import get_current_user, slugify
 from zds.utils.models import Comment, Tag
 
 
 def sub_tag(tag):
     start = tag.group('start')
     end = tag.group('end')
-    return u"{0}".format(start + end)
+    return u'{0}'.format(start + end)
 
 
+@python_2_unicode_compatible
 class Category(models.Model):
     """
     A Category is a simple container for Forums.
@@ -40,11 +46,11 @@ class Category(models.Model):
     # As Categories can only be managed by superadmin, this is purely declarative and there is no control on slug.
     slug = models.SlugField(max_length=80,
                             unique=True,
-                            help_text="Ces slugs vont provoquer des conflits "
+                            help_text='Ces slugs vont provoquer des conflits '
                             "d'URL et sont donc interdits : notifications "
-                            "resolution_alerte sujet sujets message messages")
+                            'resolution_alerte sujet sujets message messages')
 
-    def __unicode__(self):
+    def __str__(self):
         """Textual form of a category."""
         return self.title
 
@@ -68,6 +74,7 @@ class Category(models.Model):
         return forums_pub
 
 
+@python_2_unicode_compatible
 class Forum(models.Model):
     """
     A Forum, containing Topics. It can be public or restricted to some groups.
@@ -81,9 +88,9 @@ class Forum(models.Model):
     subtitle = models.CharField('Sous-titre', max_length=200)
 
     # Groups authorized to read this forum. If no group is defined, the forum is public (and anyone can read it).
-    group = models.ManyToManyField(
+    groups = models.ManyToManyField(
         Group,
-        verbose_name='Groupe autorisés (Aucun = public)',
+        verbose_name='Groupes autorisés (aucun = public)',
         blank=True)
 
     category = models.ForeignKey(Category, db_index=True, verbose_name='Catégorie')
@@ -91,9 +98,10 @@ class Forum(models.Model):
                                                null=True, blank=True, db_index=True)
 
     slug = models.SlugField(max_length=80, unique=True)
+    _nb_group = None
     objects = ForumManager()
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     def get_absolute_url(self):
@@ -140,14 +148,14 @@ class Forum(models.Model):
         :return: `True` if the user can read this forum, `False` otherwise.
         """
 
-        if self.group.count() == 0:
+        if not self.has_group:
             return True
         else:
             # authentication is the best way to be sure groups are available in the user object
             if user is not None:
                 groups = list(user.groups.all()) if not isinstance(user, AnonymousUser) else []
                 return Forum.objects.filter(
-                    group__in=groups,
+                    groups__in=groups,
                     pk=self.pk).exists()
             else:
                 return False
@@ -156,8 +164,21 @@ class Forum(models.Model):
     def has_write_permission(request):
         return request.user.has_perm("member.change_forum")
 
+    @property
+    def has_group(self):
+        """
+        Checks if this forum belongs to at least one group
 
-class Topic(models.Model):
+        :return: ``True`` if it belongs to at least one group
+        :rtype: bool
+        """
+        if self._nb_group is None:
+            self._nb_group = self.groups.count()
+        return self._nb_group > 0
+
+
+@python_2_unicode_compatible
+class Topic(AbstractESDjangoIndexable):
     """
     A Topic is a thread of posts.
     A topic has several states, witch are all independent:
@@ -165,6 +186,7 @@ class Topic(models.Model):
     - Locked: none can write on a locked topic.
     - Sticky: sticky topics are displayed on top of topic lists (ex: on forum page).
     """
+    objects_per_batch = 1000
 
     class Meta:
         verbose_name = 'Sujet'
@@ -190,6 +212,8 @@ class Topic(models.Model):
     is_locked = models.BooleanField('Est verrouillé', default=False, db_index=True)
     is_sticky = models.BooleanField('Est en post-it', default=False, db_index=True)
 
+    github_issue = models.PositiveIntegerField('Ticket GitHub', null=True, blank=True)
+
     tags = models.ManyToManyField(
         Tag,
         verbose_name='Tags du forum',
@@ -198,7 +222,7 @@ class Topic(models.Model):
 
     objects = TopicManager()
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     def get_absolute_url(self):
@@ -241,7 +265,7 @@ class Topic(models.Model):
         # all the mess arround last_answer and last_read message
         return Post.objects\
             .filter(topic=self)\
-            .select_related("author")\
+            .select_related('author')\
             .order_by('position')\
             .first()
 
@@ -256,7 +280,7 @@ class Topic(models.Model):
                 current_tag, created = Tag.objects.get_or_create(title=tag.lower().strip())
                 self.tags.add(current_tag)
             except ValueError as e:
-                logging.getLogger("zds.forum").warn(e)
+                logging.getLogger('zds.forum').warn(e)
 
         self.save()
 
@@ -290,8 +314,8 @@ class Topic(models.Model):
             try:
                 pk, pos = self.resolve_last_post_pk_and_pos_read_by_user(user)
                 page_nb = 1
-                if pos > ZDS_APP["forum"]["posts_per_page"]:
-                    page_nb += (pos - 1) // ZDS_APP["forum"]["posts_per_page"]
+                if pos > ZDS_APP['forum']['posts_per_page']:
+                    page_nb += (pos - 1) // ZDS_APP['forum']['posts_per_page']
                 return '{}?page={}#p{}'.format(
                     self.get_absolute_url(), page_nb, pk)
             except TopicRead.DoesNotExist:
@@ -315,7 +339,7 @@ class Topic(models.Model):
         return Post.objects\
             .filter(topic__pk=self.pk)\
             .order_by('position')\
-            .values('pk', "position").first().values()
+            .values('pk', 'position').first().values()
 
     def first_unread_post(self, user=None):
         """
@@ -336,7 +360,7 @@ class Topic(models.Model):
 
             next_post = Post.objects.filter(topic__pk=self.pk,
                                             position__gt=last_post.position) \
-                                    .select_related("author").first()
+                                    .select_related('author').first()
             return next_post
         except (TopicRead.DoesNotExist, Post.DoesNotExist):
             return self.first_post()
@@ -406,21 +430,85 @@ class Topic(models.Model):
     def has_object_update_permission(self, request):
         return Topic.has_write_permission(request) and (Topic.author == request.user)
 
+    @classmethod
+    def get_es_mapping(cls):
+        es_mapping = super(Topic, cls).get_es_mapping()
 
-class Post(Comment):
+        es_mapping.field('title', Text(boost=1.5))
+        es_mapping.field('tags', Text(boost=2.0))
+        es_mapping.field('subtitle', Text())
+        es_mapping.field('is_solved', Boolean())
+        es_mapping.field('is_locked', Boolean())
+        es_mapping.field('is_sticky', Boolean())
+        es_mapping.field('pubdate', Date())
+        es_mapping.field('forum_pk', Integer())
+
+        # not indexed:
+        es_mapping.field('get_absolute_url', Keyword(index=False))
+        es_mapping.field('forum_title', Text(index=False))
+        es_mapping.field('forum_get_absolute_url', Keyword(index=False))
+
+        return es_mapping
+
+    @classmethod
+    def get_es_django_indexable(cls, force_reindexing=False):
+        """Overridden to prefetch tags and forum
+        """
+
+        query = super(Topic, cls).get_es_django_indexable(force_reindexing)
+        return query.prefetch_related('tags').select_related('forum')
+
+    def get_es_document_source(self, excluded_fields=None):
+        """Overridden to handle the case of tags (M2M field)
+        """
+
+        excluded_fields = excluded_fields or []
+        excluded_fields.extend(['tags', 'forum_pk', 'forum_title', 'forum_get_absolute_url'])
+
+        data = super(Topic, self).get_es_document_source(excluded_fields=excluded_fields)
+        data['tags'] = [tag.title for tag in self.tags.all()]
+        data['forum_pk'] = self.forum.pk
+        data['forum_title'] = self.forum.title
+        data['forum_get_absolute_url'] = self.forum.get_absolute_url()
+
+        return data
+
+    def save(self, *args, **kwargs):
+        """Overridden to handle the displacement of the topic to another forum
+        """
+
+        try:
+            old_self = Topic.objects.get(pk=self.pk)
+        except Topic.DoesNotExist:
+            pass
+        else:
+            if old_self.forum.pk != self.forum.pk or old_self.title != self.title:
+                Post.objects.filter(topic__pk=self.pk).update(es_flagged=True)
+
+        return super(Topic, self).save(*args, **kwargs)
+
+@receiver(pre_delete, sender=Topic)
+def delete_topic_in_elasticsearch(sender, instance, **kwargs):
+    """catch the pre_delete signal to ensure the deletion in ES"""
+    return delete_document_in_elasticsearch(instance)
+
+
+@python_2_unicode_compatible
+class Post(Comment, AbstractESDjangoIndexable):
     """
     A forum post written by an user.
     A post can be marked as useful: topic's author (or admin) can declare any topic as "useful", and this post is
     displayed as is on front.
     """
+    objects_per_batch = 2000
 
     topic = models.ForeignKey(Topic, verbose_name='Sujet', db_index=True)
 
     is_useful = models.BooleanField('Est utile', default=False)
     objects = PostManager()
 
-    def __unicode__(self):
-        return u'<Post pour "{0}", #{1}>'.format(self.topic, self.pk)
+    def __str__(self):
+        return "<Post pour '{0}', #{1}>".format(self.topic, self.pk)
 
     def get_absolute_url(self):
         """
@@ -459,7 +547,80 @@ class Post(Comment):
     def has_object_update_permission(self, request):
         return self.is_author(request.user)
 
+    def get_notification_title(self):
+        return self.topic.title
 
+    @classmethod
+    def get_es_mapping(cls):
+        es_mapping = super(Post, cls).get_es_mapping()
+
+        es_mapping.field('text_html', Text())
+        es_mapping.field('is_useful', Boolean())
+        es_mapping.field('is_visible', Boolean())
+        es_mapping.field('position', Integer())
+        es_mapping.field('like_dislike_ratio', Float())
+        es_mapping.field('pubdate', Date())
+        es_mapping.field('forum_pk', Integer())
+        es_mapping.field('topic_pk', Integer())
+
+        # not indexed:
+        es_mapping.field('get_absolute_url', Keyword(index=False))
+        es_mapping.field('topic_title', Text(index=False))
+        es_mapping.field('forum_title', Text(index=False))
+        es_mapping.field('forum_get_absolute_url', Keyword(index=False))
+
+        return es_mapping
+
+    @classmethod
+    def get_es_django_indexable(cls, force_reindexing=False):
+        """Overridden to prefetch stuffs
+        """
+
+        q = super(Post, cls).get_es_django_indexable(force_reindexing)\
+            .prefetch_related('topic')\
+            .prefetch_related('topic__forum')
+
+        return q
+
+    def get_es_document_source(self, excluded_fields=None):
+        """Overridden to handle the information of the topic
+        """
+
+        excluded_fields = excluded_fields or []
+        excluded_fields.extend(
+            ['like_dislike_ratio', 'topic_title', 'topic_pk', 'forum_title', 'forum_pk', 'forum_get_absolute_url'])
+
+        data = super(Post, self).get_es_document_source(excluded_fields=excluded_fields)
+
+        data['like_dislike_ratio'] = \
+            (self.like / self.dislike) if self.dislike != 0 else self.like if self.like != 0 else 1
+
+        data['topic_pk'] = self.topic.pk
+        data['topic_title'] = self.topic.title
+
+        data['forum_pk'] = self.topic.forum.pk
+        data['forum_title'] = self.topic.forum.title
+        data['forum_get_absolute_url'] = self.topic.forum.get_absolute_url()
+
+        return data
+
+    def hide_comment_by_user(self, user, text_hidden):
+        """Overridden to directly hide the post in ES as well
+        """
+
+        super(Post, self).hide_comment_by_user(user, text_hidden)
+
+        index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
+        index_manager.update_single_document(self, {'is_visible': False})
+
+
+@receiver(pre_delete, sender=Post)
+def delete_post_in_elasticsearch(sender, instance, **kwargs):
+    """catch the pre_delete signal to ensure the deletion in ES"""
+    return delete_document_in_elasticsearch(instance)
+
+
+@python_2_unicode_compatible
 class TopicRead(models.Model):
     """
     This model tracks the last post read in a topic by a user.
@@ -468,17 +629,17 @@ class TopicRead(models.Model):
     class Meta:
         verbose_name = 'Sujet lu'
         verbose_name_plural = 'Sujets lus'
-        unique_together = ("topic", "user")
+        unique_together = ('topic', 'user')
 
     topic = models.ForeignKey(Topic, db_index=True)
     post = models.ForeignKey(Post, db_index=True)
     user = models.ForeignKey(User, related_name='topics_read', db_index=True)
     objects = TopicReadManager()
 
-    def __unicode__(self):
-        return u'<Sujet "{0}" lu par {1}, #{2}>'.format(self.topic,
-                                                        self.user,
-                                                        self.post.pk)
+    def __str__(self):
+        return "<Sujet '{0}' lu par {1}, #{2}>".format(self.topic,
+                                                       self.user,
+                                                       self.post.pk)
 
 
 def is_read(topic, user=None):

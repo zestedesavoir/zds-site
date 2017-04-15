@@ -5,8 +5,17 @@
 
 import os
 
-from settings import ZDS_APP, INSTALLED_APPS, BASE_DIR
-
+from settings import ABSOLUTE_URL_OVERRIDES, AUTHENTICATION_BACKENDS, BASE_DIR
+from settings import CORS_ALLOW_HEADERS, CORS_ALLOW_METHODS, CORS_EXPOSE_HEADERS
+from settings import CORS_ORIGIN_ALLOW_ALL, CRISPY_TEMPLATE_PACK, FILE_UPLOAD_HANDLERS
+from settings import GEOIP_PATH, HAYSTACK_CONNECTIONS, HAYSTACK_CUSTOM_HIGHLIGHTER
+from settings import INSTALLED_APPS, LANGUAGES, LANGUAGE_CODE, LOCALE_PATHS
+from settings import LOGIN_REDIRECT_URL, LOGIN_URL, MEDIA_URL, MESSAGE_TAGS
+from settings import MIDDLEWARE_CLASSES, OAUTH2_PROVIDER, REST_FRAMEWORK
+from settings import REST_FRAMEWORK_EXTENSIONS, ROOT_URLCONF, SERVE, SITE_ID
+from settings import STATICFILES_DIRS, STATICFILES_FINDERS, STATIC_URL, SWAGGER_SETTINGS
+from settings import THUMBNAIL_ALIASES, THUMBNAIL_PRESERVE_EXTENSIONS, THUMBNAIL_QUALITY
+from settings import TIME_ZONE, USE_I18N, USE_TZ, WSGI_APPLICATION, ZDS_APP
 
 ##### Django settings #####
 
@@ -93,7 +102,9 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'social.apps.django_app.context_processors.backends',
                 'social.apps.django_app.context_processors.login_redirect',
+
                 # ZDS context processors
+                'zds.member.utils.ZDSCustomizeSocialAuthExceptionMiddleware',
                 'zds.utils.context_processor.app_settings',
                 'zds.utils.context_processor.git_version',
             ],
@@ -101,6 +112,12 @@ TEMPLATES = [
         }
     },
 ]
+
+# Sentry (+ raven, the Python Client)
+# https://docs.getsentry.com/hosted/clients/python/integrations/django/
+RAVEN_CONFIG = {
+    'dsn': 'to-fill'
+}
 
 LOGGING = {
    'version': 1,
@@ -135,7 +152,12 @@ LOGGING = {
         'mail_admins': {
             'level': 'ERROR',
             'class': 'django.utils.log.AdminEmailHandler',
-        }
+        },
+       'sentry': {
+            'level': 'ERROR',  # For beta purpose it can be lowered to WARNING
+            'class': 'raven.handlers.logging.SentryHandler',
+            'dsn': 'to-fill'
+        },
    },
    'loggers': {
         'django': {
@@ -144,7 +166,7 @@ LOGGING = {
             'level': 'WARNING',
         },
         'zds': {
-            'handlers': ['django_log'],
+            'handlers': ['django_log', 'sentry'],
             'propagate': True,
             'level': 'WARNING',
         },
@@ -186,13 +208,6 @@ PANDOC_PDF_PARAM = ("--latex-engine=xelatex "
                     "-V mainfont=Merriweather -V monofont=\"SourceCodePro-Regular\" "
                     "-V fontsize=12pt -V geometry:margin=1in ".format('/opt/zds/zds-site/assets/tex/template.tex'))
 
-# Sentry (+ raven, the Python Client)
-# https://docs.getsentry.com/hosted/clients/python/integrations/django/
-RAVEN_CONFIG = {
-#    'dsn': 'to-fill'
-    'dsn': 'to-fill'
-}
-
 # python-social-auth
 # http://psa.matiasaguirre.net/docs/configuration/django.html
 SOCIAL_AUTH_PIPELINE = (
@@ -232,6 +247,9 @@ RECAPTCHA_RIVATE_KEY = 'to-fill'
 # added in v20
 ZDS_APP['site']['secure_url'] = 'https://zestedesavoir.com'
 
+# added in v21
+ZDS_APP['display_search_bar'] = False
+
 # forum
 ZDS_APP['forum']['beta_forum_id'] = 23
 
@@ -267,6 +285,10 @@ SDZ_TUTO_DIR = '/home/zds/tutos_sdzv3/Sources_md'
 FORCE_HTTPS_FOR_MEMBERS = True
 ENABLE_HTTPS_DECORATOR = True
 
+# for social auth exception to be properly handled
+SOCIAL_AUTH_RAISE_EXCEPTIONS = False
+
 # visual changes
 #ZDS_APP['visual_changes'] = ['snow', 'clem-christmas']
 #ZDS_APP['visual_changes'] = ['clem-halloween']
+

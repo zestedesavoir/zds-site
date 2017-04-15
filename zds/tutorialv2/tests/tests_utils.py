@@ -44,6 +44,7 @@ overrided_zds_app['article']['repo_path'] = os.path.join(BASE_DIR, 'article-data
 
 @override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
 @override_settings(ZDS_APP=overrided_zds_app)
+@override_settings(ES_ENABLED=False)
 class UtilsTests(TestCase):
 
     def setUp(self):
@@ -72,8 +73,8 @@ class UtilsTests(TestCase):
         self.old_registry = {key: value for key, value in PublicatorRegistery.get_all_registered()}
 
     def test_get_target_tagged_tree_for_container(self):
-        part2 = ContainerFactory(parent=self.tuto_draft, db_object=self.tuto, title="part2")
-        part3 = ContainerFactory(parent=self.tuto_draft, db_object=self.tuto, title="part3")
+        part2 = ContainerFactory(parent=self.tuto_draft, db_object=self.tuto, title='part2')
+        part3 = ContainerFactory(parent=self.tuto_draft, db_object=self.tuto, title='part3')
         tagged_tree = get_target_tagged_tree_for_container(self.part1, self.tuto_draft)
 
         self.assertEqual(4, len(tagged_tree))
@@ -85,8 +86,8 @@ class UtilsTests(TestCase):
         self.assertFalse(self.tuto_draft.get_path(True) in paths)
         self.assertFalse(paths[self.chapter1.get_path(True)], "can't be moved to a too deep container")
         self.assertFalse(paths[self.part1.get_path(True)], "can't be moved after or before himself")
-        self.assertTrue(paths[part2.get_path(True)], "can be moved after or before part2")
-        self.assertTrue(paths[part3.get_path(True)], "can be moved after or before part3")
+        self.assertTrue(paths[part2.get_path(True)], 'can be moved after or before part2')
+        self.assertTrue(paths[part3.get_path(True)], 'can be moved after or before part3')
         tagged_tree = get_target_tagged_tree_for_container(part3, self.tuto_draft)
         self.assertEqual(4, len(tagged_tree))
         paths = {i[0]: i[3] for i in tagged_tree}
@@ -97,8 +98,8 @@ class UtilsTests(TestCase):
         self.assertFalse(self.tuto_draft.get_path(True) in paths)
         self.assertTrue(paths[self.chapter1.get_path(True)], "can't be moved to a too deep container")
         self.assertTrue(paths[self.part1.get_path(True)], "can't be moved after or before himself")
-        self.assertTrue(paths[part2.get_path(True)], "can be moved after or before part2")
-        self.assertFalse(paths[part3.get_path(True)], "can be moved after or before part3")
+        self.assertTrue(paths[part2.get_path(True)], 'can be moved after or before part2')
+        self.assertFalse(paths[part3.get_path(True)], 'can be moved after or before part3')
 
     def test_publish_content(self):
         """test and ensure the behavior of ``publish_content()`` and ``unpublish_content()``"""
@@ -274,50 +275,50 @@ class UtilsTests(TestCase):
     def test_update_manifest(self):
         opts = {}
         shutil.copy(
-            os.path.join(BASE_DIR, "fixtures", "tuto", "balise_audio", "manifest.json"),
-            os.path.join(BASE_DIR, "fixtures", "tuto", "balise_audio", "manifest2.json")
+            os.path.join(BASE_DIR, 'fixtures', 'tuto', 'balise_audio', 'manifest.json'),
+            os.path.join(BASE_DIR, 'fixtures', 'tuto', 'balise_audio', 'manifest2.json')
         )
-        LicenceFactory(code="CC BY")
-        args = [os.path.join(BASE_DIR, "fixtures", "tuto", "balise_audio", "manifest2.json")]
+        LicenceFactory(code='CC BY')
+        args = [os.path.join(BASE_DIR, 'fixtures', 'tuto', 'balise_audio', 'manifest2.json')]
         call_command('upgrade_manifest_to_v2', *args, **opts)
-        manifest = open(os.path.join(BASE_DIR, "fixtures", "tuto", "balise_audio", "manifest2.json"), 'r')
+        manifest = open(os.path.join(BASE_DIR, 'fixtures', 'tuto', 'balise_audio', 'manifest2.json'), 'r')
         json = json_reader.loads(manifest.read())
 
-        self.assertTrue(u"version" in json)
-        self.assertTrue(u"licence" in json)
-        self.assertTrue(u"children" in json)
-        self.assertEqual(len(json[u"children"]), 3)
-        self.assertEqual(json[u"children"][0][u"object"], u"extract")
+        self.assertTrue(u'version' in json)
+        self.assertTrue(u'licence' in json)
+        self.assertTrue(u'children' in json)
+        self.assertEqual(len(json[u'children']), 3)
+        self.assertEqual(json[u'children'][0][u'object'], u'extract')
         os.unlink(args[0])
-        args = [os.path.join(BASE_DIR, "fixtures", "tuto", "big_tuto_v1", "manifest2.json")]
+        args = [os.path.join(BASE_DIR, 'fixtures', 'tuto', 'big_tuto_v1', 'manifest2.json')]
         shutil.copy(
-            os.path.join(BASE_DIR, "fixtures", "tuto", "big_tuto_v1", "manifest.json"),
-            os.path.join(BASE_DIR, "fixtures", "tuto", "big_tuto_v1", "manifest2.json")
+            os.path.join(BASE_DIR, 'fixtures', 'tuto', 'big_tuto_v1', 'manifest.json'),
+            os.path.join(BASE_DIR, 'fixtures', 'tuto', 'big_tuto_v1', 'manifest2.json')
         )
         call_command('upgrade_manifest_to_v2', *args, **opts)
-        manifest = open(os.path.join(BASE_DIR, "fixtures", "tuto", "big_tuto_v1", "manifest2.json"), 'r')
+        manifest = open(os.path.join(BASE_DIR, 'fixtures', 'tuto', 'big_tuto_v1', 'manifest2.json'), 'r')
         json = json_reader.loads(manifest.read())
         os.unlink(args[0])
-        self.assertTrue(u"version" in json)
-        self.assertTrue(u"licence" in json)
-        self.assertTrue(u"children" in json)
-        self.assertEqual(len(json[u"children"]), 5)
-        self.assertEqual(json[u"children"][0][u"object"], u"container")
-        self.assertEqual(len(json[u"children"][0][u"children"]), 3)
-        self.assertEqual(len(json[u"children"][0][u"children"][0][u"children"]), 3)
-        args = [os.path.join(BASE_DIR, "fixtures", "tuto", "article_v1", "manifest2.json")]
+        self.assertTrue(u'version' in json)
+        self.assertTrue(u'licence' in json)
+        self.assertTrue(u'children' in json)
+        self.assertEqual(len(json[u'children']), 5)
+        self.assertEqual(json[u'children'][0][u'object'], u'container')
+        self.assertEqual(len(json[u'children'][0][u'children']), 3)
+        self.assertEqual(len(json[u'children'][0][u'children'][0][u'children']), 3)
+        args = [os.path.join(BASE_DIR, 'fixtures', 'tuto', 'article_v1', 'manifest2.json')]
         shutil.copy(
-            os.path.join(BASE_DIR, "fixtures", "tuto", "article_v1", "manifest.json"),
-            os.path.join(BASE_DIR, "fixtures", "tuto", "article_v1", "manifest2.json")
+            os.path.join(BASE_DIR, 'fixtures', 'tuto', 'article_v1', 'manifest.json'),
+            os.path.join(BASE_DIR, 'fixtures', 'tuto', 'article_v1', 'manifest2.json')
         )
         call_command('upgrade_manifest_to_v2', *args, **opts)
-        manifest = open(os.path.join(BASE_DIR, "fixtures", "tuto", "article_v1", "manifest2.json"), 'r')
+        manifest = open(os.path.join(BASE_DIR, 'fixtures', 'tuto', 'article_v1', 'manifest2.json'), 'r')
         json = json_reader.loads(manifest.read())
 
-        self.assertTrue(u"version" in json)
-        self.assertTrue(u"licence" in json)
-        self.assertTrue(u"children" in json)
-        self.assertEqual(len(json[u"children"]), 1)
+        self.assertTrue(u'version' in json)
+        self.assertTrue(u'licence' in json)
+        self.assertTrue(u'children' in json)
+        self.assertEqual(len(json[u'children']), 1)
         os.unlink(args[0])
 
     def test_retrieve_images(self):
@@ -424,10 +425,10 @@ class UtilsTests(TestCase):
         self.assertFalse(os.path.exists(pdf_path2))  # so no PDF is generated !
 
     def test_last_participation_is_old(self):
-        article = PublishedContentFactory(author_list=[self.user_author], type="ARTICLE")
+        article = PublishedContentFactory(author_list=[self.user_author], type='ARTICLE')
         new_user = ProfileFactory().user
         reac = ContentReaction(author=self.user_author, position=1, related_content=article)
-        reac.update_content("I will find you. And I Will Kill you.")
+        reac.update_content('I will find you.')
         reac.save()
         article.last_note = reac
         article.save()
@@ -435,7 +436,7 @@ class UtilsTests(TestCase):
         self.assertFalse(last_participation_is_old(article, new_user))
         ContentRead(user=self.user_author, note=reac, content=article).save()
         reac = ContentReaction(author=new_user, position=2, related_content=article)
-        reac.update_content("I will find you. And I Will Kill you.")
+        reac.update_content('I will find you.')
         reac.save()
         article.last_note = reac
         article.save()
@@ -446,9 +447,9 @@ class UtilsTests(TestCase):
     def testParseBadManifest(self):
         base_content = PublishableContentFactory(author_list=[self.user_author])
         versioned = base_content.load_version()
-        versioned.add_container(Container(u"un peu plus près de 42"))
+        versioned.add_container(Container(u'un peu plus près de 42'))
         versioned.dump_json()
-        manifest = os.path.join(versioned.get_path(), "manifest.json")
+        manifest = os.path.join(versioned.get_path(), 'manifest.json')
         dictionary = json_reader.load(open(manifest))
 
         old_title = dictionary['title']
@@ -458,7 +459,7 @@ class UtilsTests(TestCase):
         self.assertRaises(BadManifestError,
                           get_content_from_json, dictionary, None, '',
                           max_title_len=PublishableContent._meta.get_field('title').max_length)
-        dictionary['title'] = "".join(dictionary['title'])
+        dictionary['title'] = ''.join(dictionary['title'])
         self.assertRaises(BadManifestError,
                           get_content_from_json, dictionary, None, '',
                           max_title_len=PublishableContent._meta.get_field('title').max_length)
@@ -473,8 +474,8 @@ class UtilsTests(TestCase):
                           get_content_from_json, dictionary, None, '',
                           max_title_len=PublishableContent._meta.get_field('title').max_length)
 
-        dictionary['children'][0]['title'] = "bla"
-        dictionary['children'][0]['slug'] = "..."
+        dictionary['children'][0]['title'] = 'bla'
+        dictionary['children'][0]['slug'] = '...'
         self.assertRaises(InvalidSlugError,
                           get_content_from_json, dictionary, None, '',
                           max_title_len=PublishableContent._meta.get_field('title').max_length)
@@ -546,29 +547,42 @@ class UtilsTests(TestCase):
 
     def test_watchdog(self):
 
-        PublicatorRegistery.unregister("pdf")
-        PublicatorRegistery.unregister("epub")
-        PublicatorRegistery.unregister("html")
+        PublicatorRegistery.unregister('pdf')
+        PublicatorRegistery.unregister('epub')
+        PublicatorRegistery.unregister('html')
 
-        with open("path", "w") as f:
-            f.write("my_content;/path/to/markdown.md")
+        with open('path', 'w') as f:
+            f.write('my_content;/path/to/markdown.md')
 
-        @PublicatorRegistery.register("test", "", "")
+        @PublicatorRegistery.register('test', '', '')
         class TestPublicator(Publicator):
             def __init__(self, *__):
                 pass
 
-        PublicatorRegistery.get("test").publish = Mock()
-        event = FileCreatedEvent("path")
+        PublicatorRegistery.get('test').publish = Mock()
+        event = FileCreatedEvent('path')
         handler = TutorialIsPublished()
         handler.prepare_generation = Mock()
         handler.finish_generation = Mock()
         handler.on_created(event)
 
-        self.assertTrue(PublicatorRegistery.get("test").publish.called)
-        handler.finish_generation.assert_called_with("/path/to", "path")
-        handler.prepare_generation.assert_called_with("/path/to")
-        os.remove("path")
+        self.assertTrue(PublicatorRegistery.get('test').publish.called)
+        handler.finish_generation.assert_called_with('/path/to', 'path')
+        handler.prepare_generation.assert_called_with('/path/to')
+        os.remove('path')
+
+    def test_adjust_char_count(self):
+        """Test the `adjust_char_count` command"""
+
+        article = PublishedContentFactory(type='ARTICLE', author_list=[self.user_author])
+        published = PublishedContent.objects.filter(content=article).first()
+        published.char_count = None
+        published.save()
+
+        call_command('adjust_char_count')
+
+        published = PublishedContent.objects.get(pk=published.pk)
+        self.assertEqual(published.char_count, published.get_char_count())
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
@@ -579,6 +593,6 @@ class UtilsTests(TestCase):
             shutil.rmtree(settings.MEDIA_ROOT)
         if os.path.isdir(settings.ZDS_APP['content']['extra_content_watchdog_dir']):
             shutil.rmtree(settings.ZDS_APP['content']['extra_content_watchdog_dir'])
-        # re-active PDF build
+        # re-activate PDF build
         settings.ZDS_APP['content']['build_pdf_when_published'] = True
         PublicatorRegistery.registry = self.old_registry
