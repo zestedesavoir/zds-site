@@ -18,11 +18,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 DEBUG = True
 
-<<<<<<< HEAD
-INTERNAL_IPS = ('82.233.188.236')  # debug toolbar
-=======
 INTERNAL_IPS = ('127.0.0.1',)  # debug toolbar
->>>>>>> 943e338702bea9efed00c617ac3e46d5f85448ae
 
 DATABASES = {
     'default': {
