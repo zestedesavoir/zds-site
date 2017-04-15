@@ -10,6 +10,7 @@ from django.contrib.auth.models import Group, User, AnonymousUser
 from django.core.urlresolvers import reverse
 from django.db import models
 
+from zds.member.api.permissions import CanReadTopic, CanReadPost, CanReadAndWriteNowOrReadOnly, IsNotOwnerOrReadOnly, IsOwnerOrReadOnly, IsStaffUser
 from zds.forum.managers import TopicManager, ForumManager, PostManager, TopicReadManager
 from zds.notification import signals
 from zds.settings import ZDS_APP
@@ -154,6 +155,10 @@ class Forum(models.Model):
                     pk=self.pk).exists()
             else:
                 return False
+                
+    @staticmethod            
+    def has_write_permission(request):
+        return request.user.has_perm("member.change_forum")
 
 
 @python_2_unicode_compatible
@@ -382,6 +387,24 @@ class Topic(models.Model):
 
         return False
 
+    @staticmethod
+    def has_read_permission(request):
+        return True
+
+    def has_object_read_permission(self, request):
+        return Topic.has_read_permission(request)
+
+    @staticmethod
+    def has_write_permission(request):
+        return request.user.is_authenticated()
+
+    def has_object_write_permission(self, request):
+        return Topic.has_write_permission(request)
+
+    def has_object_update_permission(self, request):
+        return Topic.has_write_permission(request) and (Topic.author == request.user)
+
+
 
 @python_2_unicode_compatible
 class Post(Comment):
@@ -413,6 +436,33 @@ class Post(Comment):
     def get_notification_title(self):
         return self.topic.title
 
+    def is_author(self, user):
+        """
+        Check if the user given is the author of the message.
+
+        :param user: Potential author of the message.
+        :return: true if the user is the author.
+        """
+        return self.author == user
+
+    @staticmethod
+    def has_read_permission(request):
+        return True
+
+    def has_object_read_permission(self, request):
+        return Post.has_read_permission(request) 
+        
+    @staticmethod
+    def has_write_permission(request):
+        return request.user.is_authenticated() and request.user.profile.can_write_now()
+
+    def has_object_write_permission(self, request):
+        return Topic.has_write_permission(request) 
+        
+    def has_object_update_permission(self, request):
+        return self.is_author(request.user)
+        # TODO peut on editer quand un topic est ferme ?
+        # TODO a tester, l'auteur avait acces a ubn forum prive, mais ce n'est plus le cas, peut il editer ses messages
 
 @python_2_unicode_compatible
 class TopicRead(models.Model):
@@ -430,12 +480,21 @@ class TopicRead(models.Model):
     user = models.ForeignKey(User, related_name='topics_read', db_index=True)
     objects = TopicReadManager()
 
+<<<<<<< HEAD
     def __str__(self):
         return "<Sujet '{0}' lu par {1}, #{2}>".format(self.topic,
                                                        self.user,
                                                        self.post.pk)
 
 
+=======
+    def __unicode__(self):
+        return u'<Sujet "{0}" lu par {1}, #{2}>'.format(self.topic,
+                                                        self.user,
+                                                        self.post.pk)
+                                                        
+    
+>>>>>>> d209ad7d4dc8e72e1b8f91c9484dcaec7f52f096
 def is_read(topic, user=None):
     """
     Checks if the user has read the **last post** of the topic.

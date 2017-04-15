@@ -3,7 +3,6 @@
 from rest_framework import permissions
 from django.contrib.auth.models import AnonymousUser
 
-
 class IsOwnerOrReadOnly(permissions.BasePermission):
     """
     Custom permission to only allow owners of an object to edit it.
@@ -83,6 +82,26 @@ class CanReadAndWriteNowOrReadOnly(permissions.BasePermission):
 class CanReadTopic(permissions.BasePermission):
     """
     Checks if the user can read that topic
+    """
+
+    def has_object_permission(self, request, view, obj):
+        print('can read topic')
+        print(obj.forum.can_read(request.user))
+        return obj.forum.can_read(request.user)
+
+
+class CanReadForum(permissions.BasePermission):
+    """
+    Checks if the user can read that forum
+    """
+
+    def has_object_permission(self, request, view, obj):
+        print('can read forum object')
+        return obj.can_read(request.user)
+
+class CanReadPost(permissions.BasePermission):
+    """
+    Checks if the user can read that post
     """
 
     def has_object_permission(self, request, view, obj):
