@@ -2,7 +2,7 @@
    Manage action button AJAX requests
    ========================================================================== */
 
-(function($, undefined){
+(function(window, $, undefined){
     "use strict";
 
     /**
@@ -201,13 +201,53 @@
         var $act = $(this),
             $editor = $(".md-editor");
 
-        $.ajax({
-            url: $act.attr("href"),
-            dataType: "json",
-            success: function(data){
-                $editor.val($editor.val() + data.text + "\n\n");
+        // quote the selection 
+        var doAjax = !(function() {
+            var $message = $act.closest(".message"),
+                $msgcontent = $message.find("[itemprop=text]"),
+                username = $message.find("[itemprop=name]").text(),
+                href = $message.find("> .message-metadata > a.date")[0].href;
+
+
+            if (window.getSelection) {
+                var selection = window.getSelection(),
+                    range = selection.getRangeAt(0),
+                    node = null;
+
+                if (selection.isCollapsed)
+                    return false;
+
+                if (!$(range.startContainer).closest($msgcontent)[0])
+                    return false;
+
+                if (!$(range.endContainer).closest($msgcontent)[0]) {
+                    node = $msgcontent[0].childNodes;
+                    node = node[node.length - 1];
+
+                    range.setEnd(node, node.nodeValue.length);
+                }
+
+                var markdown = window.html2markdown(range.cloneContents());
+
+                markdown = markdown.replace(/(^|\n)/g, "\n> ");
+                markdown += "\nSource:[" + username + "](" + href + ")";
+
+                $editor.val($editor.val() + markdown + "\n\n\n");
+                return true;
             }
-        });
+
+            return false;
+        })();
+
+        if (doAjax) {
+            $.ajax({
+                url: $act.attr("href"),
+                dataType: "json",
+                success: function(data){
+                    $editor.val($editor.val() + data.text + "\n\n");
+                }
+            });
+        }
 
         // scroll to the textarea and focus the textarea
         $("html, body").animate({ scrollTop: $editor.offset().top }, 500);
@@ -288,4 +328,4 @@
         e.stopPropagation();
         e.preventDefault();
     });
-})(jQuery);
+})(window, jQuery);
