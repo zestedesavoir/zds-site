@@ -191,6 +191,9 @@ class MiniProfileForm(forms.Form):
         )
     )
 
+    def save(self):
+        pass
+
     def __init__(self, *args, **kwargs):
         super(MiniProfileForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
