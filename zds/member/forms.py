@@ -110,6 +110,7 @@ class RegisterForm(forms.Form):
         super(RegisterForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = 'content-wrapper'
+        self.helper.form_action = reverse('zds.member.views.register_view')
         self.helper.form_method = 'post'
 
         layout = Layout(
