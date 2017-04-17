@@ -230,14 +230,14 @@ class ForumAPITest(APITestCase):
         authenticate_client(self.client_authenticated_staff, client_oauth2, self.staff.user.username, 'hostel77')
 
         self.group_staff = Group.objects.filter(name="staff").first()
-
         caches[extensions_api_settings.DEFAULT_USE_CACHE].clear()
 
     def create_multiple_forums(self, number_of_forum=REST_PAGE_SIZE):
         for forum in xrange(0, number_of_forum):
             category, forum = create_category()
 
-    def create_multiple_forums_with_topics(self, number_of_forum=REST_PAGE_SIZE, number_of_topic=REST_PAGE_SIZE, profile=None):
+    def create_multiple_forums_with_topics(self, number_of_forum=REST_PAGE_SIZE,
+        number_of_topic=REST_PAGE_SIZE, profile=None):
         if profile is None:
             profile = ProfileFactory()
         for forum in xrange(0, number_of_forum):
@@ -388,7 +388,7 @@ class ForumAPITest(APITestCase):
         self.assertEqual(response.data.get('slug'), forum.slug)
         self.assertEqual(response.data.get('category'), forum.category.id)
         self.assertEqual(response.data.get('position_in_category'), forum.position_in_category)
-        self.assertEqual(response.data.get('group'), list(forum.group.all()))
+        self.assertEqual(response.data.get('groups'), list(forum.groups.all()))
 
     def test_details_forum_private(self):
         """
@@ -1092,7 +1092,8 @@ class ForumAPITest(APITestCase):
 
         response = self.client.get(reverse('api:forum:list-post', args=[topic.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data.get('count'), REST_PAGE_SIZE + 2) # Note : when creating a Topic a first post is created, explaining the +1
+        # Note : when creating a Topic a first post is created, explaining the +1
+        self.assertEqual(response.data.get('count'), REST_PAGE_SIZE + 2)
         self.assertIsNotNone(response.data.get('next'))
         self.assertIsNone(response.data.get('previous'))
         self.assertEqual(len(response.data.get('results')), REST_PAGE_SIZE)
@@ -1386,25 +1387,6 @@ class ForumAPITest(APITestCase):
         self.assertEqual(response.data.get('author'), post.author.id)
         self.assertEqual(response.data.get('position'), post.position)
 
-    # TODO reactiver le setting pour le spam
-    def test_create_post_spamming(self):
-        """
-        Tries to create differents posts in the same Topic without waiting 15 minutes.
-        """
-
-        data = {
-            'text': 'Welcome to this post!'
-        }
-
-        # First post, should work alright
-        topic = self.create_multiple_forums_with_topics(1, 1, self.staff)
-        response = self.client_authenticated.post(reverse('api:forum:list-post', args=[topic.id]), data)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-        # But this is spam
-        response = self.client_authenticated.post(reverse('api:forum:list-post', args=[topic.id]), data)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
     def test_failure_post_in_a_forum_we_cannot_read(self):
         """
         Tries to create a post in a private topic with a normal user.
@@ -1628,7 +1610,8 @@ class ForumAPITest(APITestCase):
         page_size_value = REST_MAX_PAGE_SIZE + 1
         self.create_multiple_forums_with_topics(page_size_value, 1, self.profile)
 
-        response = self.client_authenticated.get(reverse('api:forum:list-memberpost', args=[self.profile.id]) + '?page_size={}'.format(page_size_value))
+        response = self.client_authenticated.get(
+                   reverse('api:forum:list-memberpost', args=[self.profile.id]) + '?page_size={}'.format(page_size_value))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('count'), page_size_value)
         self.assertIsNotNone(response.data.get('next'))
@@ -1906,6 +1889,52 @@ def authenticate_client(client, client_auth, username, password):
     })
     access_token = AccessToken.objects.get(user__username=username)
     client.credentials(HTTP_AUTHORIZATION='Bearer {}'.format(access_token))
+
+class ForumSpamAPITest(APITestCase):
+    def setUp(self):
+        self.client = APIClient()
+
+        self.profile = ProfileFactory()
+        client_oauth2 = create_oauth2_client(self.profile.user)
+        self.client_authenticated = APIClient()
+        authenticate_client(self.client_authenticated, client_oauth2, self.profile.user.username, 'hostel77')
+
+        self.staff = StaffProfileFactory()
+        client_oauth2 = create_oauth2_client(self.staff.user)
+        self.client_authenticated_staff = APIClient()
+        authenticate_client(self.client_authenticated_staff, client_oauth2, self.staff.user.username, 'hostel77')
+
+        self.group_staff = Group.objects.filter(name="staff").first()
+        caches[extensions_api_settings.DEFAULT_USE_CACHE].clear()
+
+    def create_multiple_forums_with_topics(self, number_of_forum=REST_PAGE_SIZE,
+        number_of_topic=REST_PAGE_SIZE, profile=None):
+        if profile is None:
+            profile = ProfileFactory()
+        for forum in xrange(0, number_of_forum):
+            category, forum = create_category()
+            for topic in xrange(0, number_of_topic):
+                new_topic = add_topic_in_a_forum(forum, profile)
+        if number_of_forum == 1 and number_of_topic == 1:
+            return new_topic
+
+    def test_create_post_spamming(self):
+        """
+        Tries to create differents posts in the same Topic without waiting 15 minutes.
+        """
+
+        data = {
+            'text': 'Welcome to this post!'
+        }
+
+        # First post, should work alright
+        topic = self.create_multiple_forums_with_topics(1, 1, self.staff)
+        response = self.client_authenticated.post(reverse('api:forum:list-post', args=[topic.id]), data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # But this is spam
+        response = self.client_authenticated.post(reverse('api:forum:list-post', args=[topic.id]), data)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 # TODO
 # Reorganiser le code de test en differentes classes, reordonner les tests

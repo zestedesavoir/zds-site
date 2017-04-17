@@ -385,13 +385,6 @@ class Topic(AbstractESDjangoIndexable):
 
         if last_user_post and last_user_post == self.get_last_post():
             duration = datetime.now() - last_user_post.pubdate
-            
-            print('duration')
-            print(duration)
-            
-            print('settings antispam')
-            print(settings.ZDS_APP['forum']['spam_limit_seconds'])
-            
             if duration.total_seconds() < settings.ZDS_APP['forum']['spam_limit_seconds']:
                 return True
 

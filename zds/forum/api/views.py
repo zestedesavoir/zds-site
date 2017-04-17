@@ -84,8 +84,8 @@ class ForumListAPI(ListCreateAPIView):
         return self.list(request, *args, **kwargs)
 
     def get_queryset(self):
-        public_forums = Forum.objects.filter(group__isnull=True).order_by('position_in_category')
-        private_forums = Forum.objects.filter(group__in=self.request.user.groups.all()).order_by('position_in_category')
+        public_forums = Forum.objects.filter(groups__isnull=True).order_by('position_in_category')
+        private_forums = Forum.objects.filter(groups__in=self.request.user.groups.all()).order_by('position_in_category')
         return public_forums | private_forums
 
     def get_permissions(self):
@@ -225,7 +225,6 @@ class TopicListAPI(ListCreateAPIView):
             #forum = Forum.objects.get(id=self.request.data.get('forum'))
             #self.check_object_permissions(self.request, forum)
             #permission_classes.append(CanReadAndWriteNowOrReadOnly)
-            print('laaaa')
             permission_classes.append(IsAuthenticated)
             permission_classes.append(CanWriteInForum)
             permission_classes.append(CanReadAndWriteNowOrReadOnly)
@@ -427,7 +426,7 @@ class PostListAPI(ListCreateAPIView):
 
         serializer = self.get_serializer_class()(data=request.data, context={'request': self.request})
         serializer.is_valid(raise_exception=True)
-        # TODO position 
+        # TODO position
         serializer.save(position=0, author_id=author, topic_id=topic_pk)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
@@ -557,10 +556,7 @@ class PostDetailAPI(RetrieveUpdateAPIView, PostEditMixin):
             - code: 404
               message: Not Found
         """
-        print('ici')
         post = self.get_object()
-        print(post)
-
         return self.retrieve(request, *args, **kwargs)
 
     def put(self, request, *args, **kwargs):
@@ -634,12 +630,7 @@ class PostAlertAPI(CreateAPIView):
               message: Not Found
         """
         author = request.user
-
-        try:
-            post = Post.objects.get(id=self.kwargs.get('pk'))
-        except Post.DoesNotExist:
-            print('alert post not found')
-            raise Http404("Post with pk {} was not found".format(self.kwargs.get('pk')))
+        post = get_object_or_404(Post, id=self.kwargs.get('pk'))
 
         serializer = self.get_serializer_class()(data=request.data, context={'request': self.request})
         serializer.is_valid(raise_exception=True)
