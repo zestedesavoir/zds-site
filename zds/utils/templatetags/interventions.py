@@ -207,15 +207,12 @@ def alerts_list(user):
 
 @register.filter(name='waiting_count')
 def waiting_count(content_type):
-
-    queryset = Validation.objects.filter(
+    """
+    Gets the number of waiting contents of the specified type (without validator).
+    """
+    if content_type not in TYPE_CHOICES_DICT:
+        raise template.TemplateSyntaxError("'content_type' must be in 'zds.tutorialv2.models.TYPE_CHOICES_DICT'")
+    return Validation.objects.filter(
         validator__isnull=True,
-        status='PENDING')
-
-    if content_type:
-        if content_type not in TYPE_CHOICES_DICT:
-            raise template.TemplateSyntaxError("'content_type' must be in 'zds.tutorialv2.models.TYPE_CHOICES_DICT'")
-        else:
-            queryset = queryset.filter(content__type=content_type)
-
-    return queryset.count()
+        status='PENDING',
+        content__type=content_type).count()
