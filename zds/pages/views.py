@@ -27,6 +27,7 @@ from zds.searchv2.forms import SearchForm
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent
 from zds.utils.forums import create_topic
 from zds.utils.models import Alert, CommentEdit, Comment
+from zds.member.decorator import LoginRequiredMixin
 
 
 def home(request):
@@ -144,7 +145,7 @@ def alerts(request):
     })
 
 
-class CommentEditsHistory(ListView):
+class CommentEditsHistory(LoginRequiredMixin, ListView):
     model = CommentEdit
     context_object_name = 'edits'
     template_name = 'pages/comment_edits_history.html'
@@ -152,7 +153,6 @@ class CommentEditsHistory(ListView):
     def get_object(self):
         return get_object_or_404(Comment, pk=self.kwargs['comment_pk'])
 
-    @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         current_user = self.request.user
         if not self.get_object().author == current_user \
@@ -175,12 +175,11 @@ class CommentEditsHistory(ListView):
             .order_by('-date')
 
 
-class EditDetail(DetailView):
+class EditDetail(LoginRequiredMixin, DetailView):
     model = CommentEdit
     context_object_name = 'edit'
     template_name = 'pages/edit_detail.html'
 
-    @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         current_user = self.request.user
         edit = self.get_object()
