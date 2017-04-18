@@ -91,7 +91,7 @@
                     {% else %}
                         {% set content.pubdate as pubdate %}
                     {% endif %}
-                    {% if pubdate %}
+                    {% if pubdate and public_content.type != 'OPINION' %}
                         <span class="long content-pubdate">{{ pubdate|format_date|capfirst }}</span>
                         <span class="short content-pubdate">{{ pubdate|format_date:True|capfirst }}</span>
                     {% endif %}
