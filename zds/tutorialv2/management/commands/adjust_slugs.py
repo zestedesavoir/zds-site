@@ -25,14 +25,20 @@ class Command(BaseCommand):
                         if os.path.isdir(c.get_repo_path()):
                             self.stdout.write(u'[OK]')
                         else:
-                            self.stdout.write(u'[KO]')
+                            self.stdout.write(u'[KO] tried to adjust to {} but failed'.format(good_slug))
                     elif os.path.isdir(os.path.join(ZDS_APP['content']['repo_private_path'], c.slug)):
                         # this content was created during v16 and will be broken if nothing is done
-                        self.stdout.write(u'Fixing in-v16 content #{} (« {} ») ... '.format(c.pk, c.title), ending='')
+                        self.stdout.write(u'Fixing in-v16 content #{} (« {} » (slug {} instead of {})) ... '
+                            .format(c.pk, c.title, c.slug, good_slug), ending='')
                         try:
                             versioned = c.load_version()
                         except IOError:
-                            self.stdout.write(u'[KO]')
+                            self.stdout.write(u'[KO] repository not found')
+                            try:
+                                c.slug = good_slug
+                                versioned = c.load_version()
+                            except IOError:
+                                self.stdout.write(u'[KO] lost, try to repair it by hand.')
                         else:
                             c.sha_draft = versioned.repo_update_top_container(
                                 c.title,
