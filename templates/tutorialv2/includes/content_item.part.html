@@ -12,7 +12,7 @@
 {% endif %}
 
 {% captureas taglist %}
-    {% if public_content.type == 'OPINION' %}
+    {% if public_content.is_opinion %}
         {% url 'opinion:list' %}
     {% else %}
         {% url 'content:list' %}
@@ -91,7 +91,7 @@
                     {% else %}
                         {% set content.pubdate as pubdate %}
                     {% endif %}
-                    {% if pubdate and public_content.type != 'OPINION' %}
+                    {% if pubdate and not public_content.is_opinion %}
                         <span class="long content-pubdate">{{ pubdate|format_date|capfirst }}</span>
                         <span class="short content-pubdate">{{ pubdate|format_date:True|capfirst }}</span>
                     {% endif %}
