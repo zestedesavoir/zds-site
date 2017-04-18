@@ -208,7 +208,7 @@
     </li>
     {% endif %}
     {% endif %}
-    {% if public_object.type == 'OPINION' %}
+    {% if public_object.is_opinion %}
         {% for author in public_object.authors.all %}
             <li>
                 <a href="{% url 'content:find-opinion' author.pk %}" class="ico-after offline blue">
@@ -218,7 +218,7 @@
                 </a>
             </li>
         {% endfor %}
-      {% endif %}
+    {% endif %}
 {% endblock %}
 
 {% block sidebar_blocks %}
