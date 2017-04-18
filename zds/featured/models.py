@@ -23,7 +23,7 @@ class FeaturedResource(models.Model):
         verbose_name_plural = _(u'Unes')
 
     title = models.CharField(_(u'Titre'), max_length=80)
-    type = models.CharField(_(u'Type'), max_length=80)
+    publishable_content_type = models.CharField(_(u'Type'), max_length=80)
     authors = models.CharField(_(u'Auteurs'), max_length=100, blank=True, default='')
     image_url = models.CharField(
         _(u'URL de l\'image à la une'), max_length=2000, null=False, blank=False
