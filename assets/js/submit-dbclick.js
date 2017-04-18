@@ -11,8 +11,6 @@
         $lastButtonClicked = null;
 
     $("body").on("submit", "form", function(){
-        $(buttonsSelector)
-            .addClass("disabled");
 
         if($lastButtonClicked === null)
             $lastButtonClicked = $(buttonsSelector, $(this));
