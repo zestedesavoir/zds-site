@@ -931,7 +931,8 @@ class PromoteOpinionToArticle(PermissionRequiredMixin, NoValidationBeforeFormVie
                                      licence=db_object.licence,
                                      sha_validation=db_object.sha_public,
                                      sha_draft=db_object.sha_public,
-                                     image=db_object.image
+                                     image=db_object.image,
+                                     source=db_object.source
                                      )
 
         opinion_url = db_object.get_absolute_url_online()
