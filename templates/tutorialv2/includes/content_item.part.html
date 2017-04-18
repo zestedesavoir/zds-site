@@ -11,6 +11,13 @@
     {% set False as online %}
 {% endif %}
 
+{% captureas taglist %}
+    {% if public_content.type == 'OPINION' %}
+        {% url 'opinion:list' %}
+    {% else %}
+        {% url 'content:list' %}
+    {% endif %}
+{% endcaptureas %}
 
 {% captureas link %}
     {% if online %}
@@ -122,7 +129,7 @@
         <ul class="content-tags" itemprop="keywords">
             {% for tag in content.tags.all|slice:":3" %}
                 <li>
-                  <a href="{% url 'content:list' %}?tag={{ tag.title|urlencode }}">
+                  <a href="{{ taglist }}?tag={{ tag.title|urlencode }}">
                     {{ tag.title }}
                   </a>
                 </li>
