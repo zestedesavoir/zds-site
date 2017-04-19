@@ -294,6 +294,7 @@ class ContentTests(TestCase):
         versioned = tuto.load_version()
 
         self.assertEqual(Gallery.objects.filter(pk=tuto.gallery.pk).count(), 1)
+        self.assertEqual(UserGallery.objects.filter(gallery__pk=tuto.gallery.pk).count(), tuto.authors.count())
         self.assertEqual(Image.objects.filter(gallery__pk=tuto.gallery.pk).count(), 1)  # icon is uploaded
 
         # access to tutorial
@@ -3986,7 +3987,12 @@ class ContentTests(TestCase):
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
         self.assertEqual(tuto.authors.count(), 2)
         self.assertEqual(tuto.authors.filter(pk=new_author.pk).count(), 1)
-        self.assertEqual(UserGallery.objects.filter(user=new_author, gallery=tuto.gallery).count(), 1)
+        self.assertEqual(UserGallery.objects.filter(user=new_author, gallery=tuto.gallery).count(), 1,
+                         'nb_author={}, nb_gallery={}, gallery_pk={}'.format(tuto.authors.count(),
+                                                                             UserGallery.objects
+                                                                                        .filter(gallery=tuto.gallery)
+                                                                                        .count(),
+                                                                             tuto.gallery.pk))
 
         # login with this new author, try to delete tuto
         self.assertEqual(

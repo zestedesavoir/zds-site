@@ -37,7 +37,7 @@ from elasticsearch_dsl import Mapping, Q as ES_Q
 from elasticsearch_dsl.field import Text, Keyword, Date, Boolean
 
 from zds.forum.models import Topic
-from zds.gallery.models import Image, Gallery, UserGallery
+from zds.gallery.models import Image, Gallery, UserGallery, GALLERY_WRITE
 from zds.tutorialv2.managers import PublishedContentManager, PublishableContentManager
 from zds.tutorialv2.models import TYPE_CHOICES, STATUS_CHOICES, CONTENT_TYPES_VALIDATION_BEFORE, PICK_OPERATIONS
 from zds.tutorialv2.models.models_versioned import NotAPublicVersion
@@ -218,13 +218,14 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         """
         ensure all authors subscribe to gallery
         """
-        author_set = UserGallery.objects.filter(user__in=list(self.authors.all()), gallery=self.gallery)
+        author_set = UserGallery.objects.filter(user__in=list(self.authors.all()), gallery=self.gallery)\
+            .values_list('user__pk', flat=True)
         for author in self.authors.all():
-            if author in author_set:
+            if author.pk in author_set:
                 continue
             user_gallery = UserGallery()
             user_gallery.gallery = self.gallery
-            user_gallery.mode = 'W'  # write mode
+            user_gallery.mode = GALLERY_WRITE  # write mode
             user_gallery.user = author
             user_gallery.save()
 

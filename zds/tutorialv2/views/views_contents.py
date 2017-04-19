@@ -106,7 +106,6 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
 
         self.content.gallery = gal
         self.content.save()
-        self.content.ensure_author_gallery()
         # create image:
         if 'image' in self.request.FILES:
             img = Image()
@@ -122,7 +121,8 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
 
         # We need to save the content before changing its author list since it's a many-to-many relationship
         self.content.authors.add(self.request.user)
-
+        self.content.ensure_author_gallery()
+        self.content.save()
         # Add subcategories on tutorial
         for subcat in form.cleaned_data['subcategory']:
             self.content.subcategory.add(subcat)
@@ -1750,9 +1750,11 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
             _type = _(u'du billet')
 
         bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+        all_authors_pk = [author.pk for author in self.object.authors.all()]
         for user in form.cleaned_data['users']:
-            if user not in self.object.authors.all() and user != self.request.user:
+            if user.pk not in all_authors_pk and user != self.request.user:
                 self.object.authors.add(user)
+                all_authors_pk.append(user.pk)
                 url_index = reverse('content:find-' + self.object.type.lower(), args=[user.pk])
                 send_mp(
                     bot,
@@ -1769,11 +1771,7 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
                     True,
                     direct=False,
                 )
-                new_user = UserGallery()
-                new_user.gallery = self.object.gallery
-                new_user.user = user
-                new_user.mode = GALLERY_WRITE
-                new_user.save()
+                UserGallery(gallery=self.object.gallery, user=user, mode=GALLERY_WRITE).save()
         self.object.save()
         if not self.already_finished:
             self.success_url = self.object.get_absolute_url()
