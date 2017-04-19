@@ -4,11 +4,20 @@
 {% load set %}
 {% load displayable_authors %}
 {% load minute_to_duration %}
+{% load captureas %}
+
+{% captureas taglist %}
+    {% if content.is_opinion %}
+        {% url 'opinion:list' %}
+    {% else %}
+        {% url 'content:list' %}
+    {% endif %}
+{% endcaptureas %}
 
 {% if publishablecontent.tags.all|length > 0 %}
     <ul class="taglist" itemprop="keywords">
         {% for tag in publishablecontent.tags.all %}
-            <li><a href="{% url 'content:list' %}?tag={{ tag.title|urlencode }}">{{ tag.title }}</a></li>
+            <li><a href="{{ taglist }}?tag={{ tag.title|urlencode }}">{{ tag.title }}</a></li>
         {% endfor %}
     </ul>
 {% endif %}
