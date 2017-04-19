@@ -101,7 +101,10 @@ script:
     fi
 
 after_success:
-  - coveralls
+  - |
+    if [[ "$TEST_APP" == *"back"* ]]; then
+      coveralls
+    fi
   - |
     COMMIT_MSG=`git rev-list --format=%B --max-count=1 $TRAVIS_COMMIT`
     if [[ "$TEST_APP" == *"front"* ]] && [[ "$TRAVIS_PULL_REQUEST" == false ]] && [[ ! -z "$TRAVIS_TAG" ]] && [[ ! "$TRAVIS_TAG" == *"-build" ]]
