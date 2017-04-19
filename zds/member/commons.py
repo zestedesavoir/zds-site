@@ -305,6 +305,7 @@ class BanSanction(MemberSanctionState):
     def apply_sanction(self, profile, ban):
         profile.end_ban_read = None
         profile.can_read = False
+        profile.biography = _(u"Biographie masquée car le membre est banni.")
         profile.save()
         ban.save()
 
