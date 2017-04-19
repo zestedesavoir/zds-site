@@ -7,7 +7,7 @@
 {% load captureas %}
 
 {% captureas taglist %}
-    {% if public_content.is_opinion %}
+    {% if content.is_opinion %}
         {% url 'opinion:list' %}
     {% else %}
         {% url 'content:list' %}
