@@ -8,7 +8,7 @@ from oauth2_provider.models import AccessToken
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User, Group
 from django.template.context_processors import csrf
 from django.core.exceptions import PermissionDenied
@@ -34,13 +34,13 @@ from zds.member.commons import ProfileCreate, TemporaryReadingOnlySanction, Read
 from zds.member.decorator import can_write_and_read_now
 from zds.member.forms import LoginForm, MiniProfileForm, ProfileForm, RegisterForm, \
     ChangePasswordForm, ChangeUserForm, NewPasswordForm, \
-    PromoteMemberForm, KarmaForm, UsernameAndEmailForm
-from zds.member.models import Profile, TokenForgotPassword, TokenRegister, KarmaNote
+    PromoteMemberForm, KarmaForm, UsernameAndEmailForm, GitHubTokenForm
+from zds.member.models import Profile, TokenForgotPassword, TokenRegister, KarmaNote, Ban
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.tutorialv2.models.models_database import PublishableContent
 from zds.notification.models import TopicAnswerSubscription, NewPublicationSubscription
-from zds.tutorialv2.models.models_database import PublishedContent
-from zds.utils.models import Comment, CommentVote
+from zds.tutorialv2.models.models_database import PublishedContent, PickListOperation
+from zds.utils.models import Comment, CommentVote, Alert
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView
 from zds.utils.tokens import generate_token
@@ -82,11 +82,18 @@ class MemberDetail(DetailView):
         for topic in context['topics']:
             topic.is_followed = topic in followed_topics
         context['articles'] = PublishedContent.objects.last_articles_of_a_member_loaded(usr)
+        context['opinions'] = PublishedContent.objects.last_opinions_of_a_member_loaded(usr)
         context['tutorials'] = PublishedContent.objects.last_tutorials_of_a_member_loaded(usr)
-        context['karmanotes'] = KarmaNote.objects.filter(user=usr).order_by('-pubdate')
-        context['karmaform'] = KarmaForm(profile)
         context['topic_read'] = TopicRead.objects.list_read_topic_pk(self.request.user, context['topics'])
         context['subscriber_count'] = NewPublicationSubscription.objects.get_subscriptions(self.object).count()
+        if self.request.user.has_perm('member.change_profile'):
+            sanctions = list(Ban.objects.filter(user=usr).select_related('moderator'))
+            notes = list(KarmaNote.objects.filter(user=usr).select_related('moderator'))
+            actions = sanctions + notes
+            actions.sort(key=lambda action: action.pubdate)
+            actions.reverse()
+            context['actions'] = actions
+            context['karmaform'] = KarmaForm(profile)
         return context
 
 
@@ -114,7 +121,6 @@ class UpdateMember(UpdateView):
             'allow_temp_visual_changes': profile.allow_temp_visual_changes,
             'email_for_answer': profile.email_for_answer,
             'sign': profile.sign,
-            'github_token': profile.github_token,
             'is_dev': profile.is_dev(),
         })
 
@@ -149,8 +155,6 @@ class UpdateMember(UpdateView):
         profile.email_for_answer = 'email_for_answer' in cleaned_data_options
         profile.avatar_url = form.data['avatar_url']
         profile.sign = form.data['sign']
-        if 'github_token' in form.data:
-            profile.github_token = form.data['github_token']
 
     def get_success_url(self):
         return reverse('update-member')
@@ -169,6 +173,68 @@ class UpdateMember(UpdateView):
 
     def get_error_message(self):
         return _(u'Une erreur est survenue.')
+
+
+class UpdateGitHubToken(UpdateView):
+    """Updates the GitHub token."""
+
+    form_class = GitHubTokenForm
+    template_name = 'member/settings/github.html'
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.profile.is_dev():
+            raise PermissionDenied
+        return super(UpdateGitHubToken, self).dispatch(request, *args, **kwargs)
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(Profile, user=self.request.user)
+
+    def get_form(self, form_class=GitHubTokenForm):
+        return form_class()
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+
+        if form.is_valid():
+            return self.form_valid(form)
+
+        return render(request, self.template_name, {'form': form})
+
+    def form_valid(self, form):
+        profile = self.get_object()
+        profile.github_token = form.data['github_token']
+        profile.save()
+        messages.success(self.request, self.get_success_message())
+
+        return redirect(self.get_success_url())
+
+    def get_success_url(self):
+        return reverse('update-github')
+
+    def get_success_message(self):
+        return _(u'Votre token GitHub a été mis à jour.')
+
+    def get_error_message(self):
+        return _(u'Une erreur est survenue.')
+
+
+@require_POST
+@login_required
+def remove_github_token(request):
+    """
+    Removes the current user's token
+    """
+
+    profile = get_object_or_404(Profile, user=request.user)
+    if not profile.is_dev():
+        raise PermissionDenied
+
+    profile.github_token = ''
+    profile.save()
+
+    messages.success(request, _(u'Votre token GitHub a été supprimé.'))
+    return redirect('update-github')
 
 
 class UpdateAvatarMember(UpdateMember):
@@ -368,25 +434,27 @@ def unregister(request):
     external = get_object_or_404(User, username=settings.ZDS_APP['member']['external_account'])
     current = request.user
     # Nota : as of v21 all about content paternity is held by a proper receiver in zds.tutorialv2.models.models_database
+    PickListOperation.objects.filter(staff_user=current).update(staff_user=anonymous)
+    PickListOperation.objects.filter(canceler_user=current).update(canceler_user=anonymous)
     # comments likes / dislikes
-    for vote in CommentVote.objects.filter(user=current):
+    votes = CommentVote.objects.filter(user=current)
+    for vote in votes:
         if vote.positive:
             vote.comment.like -= 1
         else:
             vote.comment.dislike -= 1
         vote.comment.save()
-        vote.delete()
+    votes.delete()
     # all messages anonymisation (forum, article and tutorial posts)
-    for message in Comment.objects.filter(author=current):
-        message.author = anonymous
-        message.save()
-    for message in PrivatePost.objects.filter(author=current):
-        message.author = anonymous
-        message.save()
+    Comment.objects.filter(author=current).update(author=anonymous)
+    PrivatePost.objects.filter(author=current).update(author=anonymous)
+    # karma notes, alerts and sanctions anonymisation (to keep them)
+    KarmaNote.objects.filter(moderator=current).update(moderator=anonymous)
+    Ban.objects.filter(moderator=current).update(moderator=anonymous)
+    Alert.objects.filter(author=current).update(author=anonymous)
+    Alert.objects.filter(moderator=current).update(moderator=anonymous)
     # in case current has been moderator in his old day
-    for message in Comment.objects.filter(editor=current):
-        message.editor = anonymous
-        message.save()
+    Comment.objects.filter(editor=current).update(editor=anonymous)
     for topic in PrivateTopic.objects.filter(author=current):
         topic.participants.remove(current)
         if topic.participants.count() > 0:
@@ -398,9 +466,7 @@ def unregister(request):
     for topic in PrivateTopic.objects.filter(participants__in=[current]):
         topic.participants.remove(current)
         topic.save()
-    for topic in Topic.objects.filter(author=current):
-        topic.author = anonymous
-        topic.save()
+    Topic.objects.filter(author=current).update(author=anonymous)
     # Before deleting gallery let's summurize what we deleted
     # - unpublished tutorials with only the unregistering member as an author
     # - unpublished articles with only the unregistering member as an author
@@ -411,6 +477,7 @@ def unregister(request):
     # - "personnal galleries" with more than one owner
     # so we will just delete the unretistering user ownership and give it to anonymous in the only case
     # he was alone so that gallery is not lost
+    galleries = UserGallery.objects.filter(user=current)
     for gallery in UserGallery.objects.filter(user=current):
         if gallery.gallery.get_linked_users().count() == 1:
             anonymous_gallery = UserGallery()
@@ -418,7 +485,7 @@ def unregister(request):
             anonymous_gallery.mode = 'w'
             anonymous_gallery.gallery = gallery.gallery
             anonymous_gallery.save()
-        gallery.delete()
+    galleries.delete()
 
     # remove API access (tokens + applications)
     for token in AccessToken.objects.filter(user=current):
@@ -432,12 +499,10 @@ def unregister(request):
 @require_POST
 @can_write_and_read_now
 @login_required
+@permission_required('member.change_profile', raise_exception=True)
 @transaction.atomic
 def modify_profile(request, user_pk):
     """Modifies sanction of a user if there is a POST request."""
-
-    if not request.user.has_perm('member.change_profile'):
-        raise PermissionDenied
 
     profile = get_object_or_404(Profile, user__pk=user_pk)
     if profile.is_private():
@@ -585,11 +650,9 @@ def articles(request):
 
 @can_write_and_read_now
 @login_required
+@permission_required('member.change_profile', raise_exception=True)
 def settings_mini_profile(request, user_name):
     """Minimal settings of users for staff."""
-
-    if not request.user.has_perm('member.change_profile'):
-        raise PermissionDenied
 
     # extra information about the current user
     profile = get_object_or_404(Profile, user__username=user_name)
@@ -808,6 +871,7 @@ def activate_account(request):
             'username': usr.username,
             'tutorials_url': settings.ZDS_APP['site']['url'] + reverse('tutorial:list'),
             'articles_url': settings.ZDS_APP['site']['url'] + reverse('article:list'),
+            'opinions_url': settings.ZDS_APP['site']['url'] + reverse('opinion:list'),
             'members_url': settings.ZDS_APP['site']['url'] + reverse('member-list'),
             'forums_url': settings.ZDS_APP['site']['url'] + reverse('cats-forums-list'),
             'site_name': settings.ZDS_APP['site']['litteral_name']
@@ -878,16 +942,6 @@ def get_client_ip(request):
         return '0.0.0.0'
 
 
-def date_to_chart(posts):
-    lst = 24 * [0]
-    for i in range(len(lst)):
-        lst[i] = 7 * [0]
-    for post in posts:
-        timestamp = post.pubdate.timetuple()
-        lst[timestamp.tm_hour][(timestamp.tm_wday + 1) % 7] = lst[timestamp.tm_hour][(timestamp.tm_wday + 1) % 7] + 1
-    return lst
-
-
 @login_required
 def settings_promote(request, user_pk):
     """ Manage the admin right of user. Only super user can access """
@@ -919,31 +973,17 @@ def settings_promote(request, user_pk):
                                          .format(user.username, group.name))
                         topics_followed = TopicAnswerSubscription.objects.get_objects_followed_by(user)
                         for topic in topics_followed:
-                            if isinstance(topic, Topic) and group in topic.forum.group.all():
+                            if isinstance(topic, Topic) and group in topic.forum.groups.all():
                                 TopicAnswerSubscription.objects.toggle_follow(topic, user)
         else:
             for group in usergroups:
                 topics_followed = TopicAnswerSubscription.objects.get_objects_followed_by(user)
                 for topic in topics_followed:
-                    if isinstance(topic, Topic) and group in topic.forum.group.all():
+                    if isinstance(topic, Topic) and group in topic.forum.groups.all():
                         TopicAnswerSubscription.objects.toggle_follow(topic, user)
             user.groups.clear()
             messages.warning(request, _(u'{0} n\'appartient (plus ?) à aucun groupe.')
                              .format(user.username))
-
-        if 'superuser' in data and u'on' in data['superuser']:
-            if not user.is_superuser:
-                user.is_superuser = True
-                messages.success(request, _(u'{0} est maintenant super-utilisateur.')
-                                 .format(user.username))
-        else:
-            if user == request.user:
-                messages.error(request, _(u'Un super-utilisateur ne peut pas se retirer des super-utilisateurs.'))
-            else:
-                if user.is_superuser:
-                    user.is_superuser = False
-                    messages.warning(request, _(u'{0} n\'est maintenant plus super-utilisateur.')
-                                     .format(user.username))
 
         if 'activation' in data and u'on' in data['activation']:
             user.is_active = True
@@ -967,10 +1007,6 @@ def settings_promote(request, user_pk):
                 msg += u'* {0}\n'.format(group.name)
         else:
             msg = string_concat(msg, _(u'* Vous ne faites partie d\'aucun groupe'))
-        msg += u'\n\n'
-        if user.is_superuser:
-            msg = string_concat(msg, _(u'Vous avez aussi rejoint le rang des super-utilisateurs. '
-                                       u'N\'oubliez pas, un grand pouvoir entraîne de grandes responsabilités !'))
         send_mp(
             bot,
             [user],
@@ -984,7 +1020,6 @@ def settings_promote(request, user_pk):
         return redirect(profile.get_absolute_url())
 
     form = PromoteMemberForm(initial={
-        'superuser': user.is_superuser,
         'groups': user.groups.all(),
         'activation': user.is_active
     })
@@ -996,11 +1031,9 @@ def settings_promote(request, user_pk):
 
 
 @login_required
+@permission_required('member.change_profile', raise_exception=True)
 def member_from_ip(request, ip_address):
     """ Get list of user connected from a particular ip """
-
-    if not request.user.has_perm('member.change_profile'):
-        raise PermissionDenied
 
     members = Profile.objects.filter(last_ip_address=ip_address).order_by('-last_visit')
     return render(request, 'member/settings/memberip.html', {
@@ -1010,12 +1043,10 @@ def member_from_ip(request, ip_address):
 
 
 @login_required
+@permission_required('member.change_profile', raise_exception=True)
 @require_POST
 def modify_karma(request):
     """ Add a Karma note to the user profile """
-
-    if not request.user.has_perm('member.change_profile'):
-        raise PermissionDenied
 
     try:
         profile_pk = int(request.POST['profile_pk'])

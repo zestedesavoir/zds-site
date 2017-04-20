@@ -44,6 +44,7 @@ overrided_zds_app['article']['repo_path'] = os.path.join(BASE_DIR, 'article-data
 
 @override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
 @override_settings(ZDS_APP=overrided_zds_app)
+@override_settings(ES_ENABLED=False)
 class UtilsTests(TestCase):
 
     def setUp(self):
@@ -570,18 +571,18 @@ class UtilsTests(TestCase):
         handler.prepare_generation.assert_called_with('/path/to')
         os.remove('path')
 
-    def test_adjust_nb_letters(self):
-        """Test the `adjust_nb_letters` command"""
+    def test_adjust_char_count(self):
+        """Test the `adjust_char_count` command"""
 
         article = PublishedContentFactory(type='ARTICLE', author_list=[self.user_author])
         published = PublishedContent.objects.filter(content=article).first()
-        published.nb_letter = None
+        published.char_count = None
         published.save()
 
-        call_command('adjust_nb_letters')
+        call_command('adjust_char_count')
 
         published = PublishedContent.objects.get(pk=published.pk)
-        self.assertEqual(published.nb_letter, published.get_nb_letters())
+        self.assertEqual(published.char_count, published.get_char_count())
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
@@ -592,6 +593,6 @@ class UtilsTests(TestCase):
             shutil.rmtree(settings.MEDIA_ROOT)
         if os.path.isdir(settings.ZDS_APP['content']['extra_content_watchdog_dir']):
             shutil.rmtree(settings.ZDS_APP['content']['extra_content_watchdog_dir'])
-        # re-active PDF build
+        # re-activate PDF build
         settings.ZDS_APP['content']['build_pdf_when_published'] = True
         PublicatorRegistery.registry = self.old_registry

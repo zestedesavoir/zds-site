@@ -12,6 +12,7 @@ Voici les fonctionnalités les plus importantes pour profiter du site :
 
 - les [tutoriels]({{ tutorials_url }}) pour apprendre de nouveaux savoirs ;
 - les [articles]({{ articles_url }}), pour découvrir de nouveaux sujets ;
+- les [tribunes]({{ opinions_url }}), pour partager des opinions ou faire des retours d'expérience ;
 - les [forums]({{ forums_url }}), pour discuter avec [la communauté]({{ members_url }}) et demander de l'aide.
 
 Pour que les autres membres puissent t'aider au mieux, merci de respecter les règles suivantes sur le forum.
@@ -27,7 +28,7 @@ Si tu veux transmettre ton savoir, il y a plusieurs possibilités :
 - aider sur les forums ;
 - commenter les [contenus en cours de rédaction](https://zestedesavoir.com/forums/communaute/beta-zone/) ;
 - aider les [auteurs dans le besoin](https://zestedesavoir.com/contenus/aides/), en tant que co-auteur, illustrateur ou correcteur ;
-- écrire un cours ou un article (en pensant à la [ligne éditoriale](https://zestedesavoir.com/articles/222/la-ligne-editoriale-officielle-de-zeste-de-savoir/)).
+- écrire un tutoriel ou un article (en pensant à la [ligne éditoriale](https://zestedesavoir.com/articles/222/la-ligne-editoriale-officielle-de-zeste-de-savoir/)).
 
 
 L'ensemble du contenu disponible sur le site est et sera toujours gratuit, car la communauté de {{ site_name }} est attachée aux valeurs du libre partage et désire apporter le savoir à tout le monde quels que soient ses moyens.

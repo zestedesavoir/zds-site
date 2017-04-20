@@ -62,6 +62,8 @@ class PublishableContentFactory(factory.DjangoModelFactory):
         for auth in auths:
             publishable_content.authors.add(auth)
 
+        publishable_content.save()
+
         for author in publishable_content.authors.all():
             UserGalleryFactory(user=author, gallery=publishable_content.gallery, mode='W')
 
@@ -174,6 +176,7 @@ class PublishedContentFactory(PublishableContentFactory):
         published = publish_content(content, content.load_version(), is_major_update)
         content.sha_public = content.sha_draft
         content.public_version = published
+
         content.save()
 
         return content

@@ -1,14 +1,25 @@
 # coding: utf-8
+import os
+import shutil
+
 from django.contrib.auth.models import Group
 
 from django.test import TestCase
+from django.test.utils import override_settings
 from zds import settings
 
 from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory
-from zds.utils.templatetags.topbar import top_categories
+from zds.settings import BASE_DIR
+from zds.tutorialv2.factories import PublishedContentFactory
+from zds.utils.templatetags.topbar import top_categories, top_categories_content
+
+overrided_zds_app = settings.ZDS_APP
+overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
+overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
 
 
+@override_settings(ZDS_APP=overrided_zds_app)
 class TopBarTests(TestCase):
 
     def setUp(self):
@@ -24,8 +35,11 @@ class TopBarTests(TestCase):
         self.staff1 = StaffProfileFactory()
 
         self.forum12 = ForumFactory(category=self.category2, position_in_category=2)
-        self.forum12.group.add(Group.objects.filter(name='staff').first())
+        self.forum12.groups.add(Group.objects.filter(name='staff').first())
         self.forum12.save()
+
+        # don't build PDF to speed up the tests
+        settings.ZDS_APP['content']['build_pdf_when_published'] = False
 
     def test_top_tags(self):
         """Unit testing top_categories method """
@@ -88,3 +102,37 @@ class TopBarTests(TestCase):
         top_tags = top_categories(user).get('tags')
         self.assertEqual(top_tags[0].title, 'tag-3-5')
         self.assertEqual(len(top_tags), 1)
+
+    def test_top_tags_content(self):
+        """Unit testing top_categories_content method """
+
+        tags_tuto = ['a', 'b', 'c']
+        tags_article = ['a', 'd', 'e']
+
+        content = PublishedContentFactory(type='TUTORIAL', author_list=[ProfileFactory().user])
+        content.add_tags(tags_tuto)
+        content.save()
+        tags_tuto = content.tags.all()
+
+        content = PublishedContentFactory(type='ARTICLE', author_list=[ProfileFactory().user])
+        content.add_tags(tags_article)
+        content.save()
+        tags_article = content.tags.all()
+
+        top_tags_tuto = top_categories_content('TUTORIAL').get('tags')
+        top_tags_article = top_categories_content('ARTICLE').get('tags')
+
+        self.assertEqual(list(top_tags_tuto), list(tags_tuto))
+        self.assertEqual(list(top_tags_article), list(tags_article))
+
+    def tearDown(self):
+
+        if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
+            shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
+        if os.path.isdir(settings.ZDS_APP['content']['repo_public_path']):
+            shutil.rmtree(settings.ZDS_APP['content']['repo_public_path'])
+        if os.path.isdir(settings.MEDIA_ROOT):
+            shutil.rmtree(settings.MEDIA_ROOT)
+
+        # re-active PDF build
+        settings.ZDS_APP['content']['build_pdf_when_published'] = True

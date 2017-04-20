@@ -1,7 +1,12 @@
 # coding: utf-8
 from __future__ import unicode_literals
+
+from django.db.models import CASCADE
 from django.utils.encoding import python_2_unicode_compatible
 from datetime import datetime
+
+from zds.tutorialv2.models.mixins import TemplatableContentModelMixin, OnlineLinkableContentMixin
+
 try:
     import ujson as json_reader
 except ImportError:
@@ -20,7 +25,7 @@ from django.db import models
 from django.http import Http404
 from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
-from django.db.models.signals import pre_delete, post_delete
+from django.db.models.signals import pre_delete, post_delete, pre_save
 from django.dispatch import receiver
 
 from git import Repo, BadObject
@@ -28,15 +33,20 @@ from gitdb.exc import BadName
 import os
 from uuslug import uuslug
 
+from elasticsearch_dsl import Mapping, Q as ES_Q
+from elasticsearch_dsl.field import Text, Keyword, Date, Boolean
+
 from zds.forum.models import Topic
 from zds.gallery.models import Image, Gallery, UserGallery
+from zds.tutorialv2.managers import PublishedContentManager, PublishableContentManager
+from zds.tutorialv2.models import TYPE_CHOICES, STATUS_CHOICES, CONTENT_TYPES_VALIDATION_BEFORE, PICK_OPERATIONS
+from zds.tutorialv2.models.models_versioned import NotAPublicVersion
 from zds.tutorialv2.utils import get_content_from_json, BadManifestError
 from zds.utils import get_current_user
 from zds.utils.models import SubCategory, Licence, HelpWriting, Comment, Tag
+from zds.searchv2.models import AbstractESDjangoIndexable, AbstractESIndexable, delete_document_in_elasticsearch, \
+    ESIndexManager
 from zds.utils.tutorials import get_blob
-from zds.tutorialv2.models import TYPE_CHOICES, STATUS_CHOICES
-from zds.tutorialv2.models.models_versioned import NotAPublicVersion
-from zds.tutorialv2.managers import PublishedContentManager, PublishableContentManager
 import logging
 
 ALLOWED_TYPES = ['pdf', 'md', 'html', 'epub', 'zip']
@@ -44,8 +54,8 @@ logger = logging.getLogger('zds.tutorialv2')
 
 
 @python_2_unicode_compatible
-class PublishableContent(models.Model):
-    """A tutorial whatever its size or an article.
+class PublishableContent(models.Model, TemplatableContentModelMixin):
+    """A publishable content.
 
     A PublishableContent retains metadata about a content in database, such as
 
@@ -54,12 +64,13 @@ class PublishableContent(models.Model):
     - Creation, publication and update date ;
     - Public, beta, validation and draft sha, for versioning ;
     - Comment support ;
-    - Type, which is either 'ARTICLE' or 'TUTORIAL'
+    - Type, which is either "ARTICLE" "TUTORIAL" or "OPINION"
     """
     class Meta:
         verbose_name = 'Contenu'
         verbose_name_plural = 'Contenus'
 
+    content_type_attribute = 'type'
     title = models.CharField('Titre', max_length=80)
     slug = models.CharField('Slug', max_length=80)
     description = models.CharField('Description', max_length=200)
@@ -88,6 +99,8 @@ class PublishableContent(models.Model):
     update_date = models.DateTimeField('Date de mise à jour',
                                        blank=True, null=True)
 
+    picked_date = models.DateTimeField('Date de mise en avant', db_index=True, blank=True, null=True, default=None)
+
     sha_public = models.CharField('Sha1 de la version publique',
                                   blank=True, null=True, max_length=80, db_index=True)
     sha_beta = models.CharField('Sha1 de la version beta publique',
@@ -96,11 +109,13 @@ class PublishableContent(models.Model):
                                       blank=True, null=True, max_length=80, db_index=True)
     sha_draft = models.CharField('Sha1 de la version de rédaction',
                                  blank=True, null=True, max_length=80, db_index=True)
+    sha_picked = models.CharField('Sha1 de la version choisie (contenus publiés sans validation)',
+                                  blank=True, null=True, max_length=80, db_index=True)
     beta_topic = models.ForeignKey(Topic, verbose_name='Sujet beta associé', default=None, blank=True, null=True)
     licence = models.ForeignKey(Licence,
                                 verbose_name='Licence',
                                 blank=True, null=True, db_index=True)
-    # as of ZEP 12 this field is no longer the size but the type of content (article/tutorial)
+    # as of ZEP 12 this field is no longer the size but the type of content (article/tutorial/opinion)
     type = models.CharField(max_length=10, choices=TYPE_CHOICES, db_index=True)
     # zep03 field
     helps = models.ManyToManyField(HelpWriting, verbose_name='Aides', blank=True, db_index=True)
@@ -119,24 +134,25 @@ class PublishableContent(models.Model):
 
     must_reindex = models.BooleanField(u'Si le contenu doit-être ré-indexé', default=True)
 
+    is_obsolete = models.BooleanField('Est obsolète', default=False)
+
     public_version = models.ForeignKey(
         'PublishedContent', verbose_name=u'Version publiée', blank=True, null=True, on_delete=models.SET_NULL)
+
+    # FK to an opinion which has been converted to article. Useful to keep track of history and
+    # to add a canonical link
+    converted_to = models.ForeignKey(
+        'self',
+        verbose_name=u'Contenu promu',
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name='converted_from')
 
     objects = PublishableContentManager()
 
     def __str__(self):
         return self.title
-
-    def textual_type(self):
-        """Create a internationalized string with the human readable type of this content e.g The Article
-
-        :return: internationalized string
-        :rtype: str
-        """
-        if self.is_article():
-            return _(u"L'Article")
-        else:
-            return _(u'Le Tutoriel')
 
     def save(self, *args, **kwargs):
         """
@@ -148,15 +164,6 @@ class PublishableContent(models.Model):
         if update_date:
             self.update_date = datetime.now()
         super(PublishableContent, self).save(*args, **kwargs)
-
-    def get_absolute_url(self):
-        """NOTE: it's better to use the version contained in `VersionedContent`, if possible !
-
-        :return: absolute URL to the draf version the content
-        :rtype: str
-        """
-
-        return reverse('content:view', kwargs={'pk': self.pk, 'slug': self.slug})
 
     def get_absolute_url_beta(self):
         """NOTE: it's better to use the version contained in `VersionedContent`, if possible !
@@ -267,19 +274,10 @@ class PublishableContent(models.Model):
         """
         return self.in_public() and sha == self.sha_public
 
-    def is_article(self):
-        """
-        :return: ``True`` if article, ``False`` otherwise
-        :rtype: bool
-        """
-        return self.type == 'ARTICLE'
+    def is_definitely_unpublished(self):
+        """Is this content definitely unpublished by a moderator ?"""
 
-    def is_tutorial(self):
-        """
-        :return: ``True`` if tutorial, ``False`` otherwise
-        :rtype: bool
-        """
-        return self.type == 'TUTORIAL'
+        return PickListOperation.objects.filter(content=self, operation='REMOVE_PUB', is_effective=True).exists()
 
     def load_version_or_404(self, sha=None, public=None):
         """Using git, load a specific version of the content. if `sha` is `None`, the draft/public version is used (if
@@ -367,12 +365,13 @@ class PublishableContent(models.Model):
 
         attrs = [
             'pk', 'authors', 'subcategory', 'image', 'creation_date', 'pubdate', 'update_date', 'source',
-            'sha_draft', 'sha_beta', 'sha_validation', 'sha_public'
+            'sha_draft', 'sha_beta', 'sha_validation', 'sha_public', 'tags', 'sha_picked', 'converted_to',
+            'type'
         ]
 
         fns = [
-            'in_beta', 'in_validation', 'in_public', 'is_article', 'is_tutorial', 'get_absolute_contact_url',
-            'get_note_count', 'antispam'
+            'in_beta', 'in_validation', 'in_public',
+            'get_absolute_contact_url', 'get_note_count', 'antispam'
         ]
 
         # load functions and attributs in `versioned`
@@ -413,7 +412,6 @@ class PublishableContent(models.Model):
 
     def first_note(self):
         """
-
         :return: the first post of a topic, written by topic's author, if any.
         :rtype: ContentReaction
         """
@@ -426,7 +424,6 @@ class PublishableContent(models.Model):
 
     def last_read_note(self):
         """
-
         :return: the last post the user has read.
         :rtype: ContentReaction
         """
@@ -534,6 +531,16 @@ class PublishableContent(models.Model):
 
         self.save()
 
+    def requires_validation_before(self):
+        """
+        Check if content required a validation before publication.
+        Used to check if JsFiddle is available too.
+
+        :return: Whether validation is required before publication.
+        :rtype: bool
+        """
+        return self.type in CONTENT_TYPES_VALIDATION_BEFORE
+
 
 @receiver(pre_delete, sender=PublishableContent)
 def delete_repo(sender, instance, **kwargs):
@@ -549,13 +556,15 @@ def delete_gallery(sender, instance, **kwargs):
 
 
 @python_2_unicode_compatible
-class PublishedContent(models.Model):
+class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, OnlineLinkableContentMixin):
     """A class that contains information on the published version of a content.
 
     Used for quick url resolution, quick listing, and to know where the public version of the files are.
 
     Linked to a ``PublishableContent`` for the rest. Don't forget to add a ``.prefetch_related('content')`` !!
     """
+
+    objects_per_batch = 25
 
     class Meta:
         verbose_name = 'Contenu publié'
@@ -570,7 +579,7 @@ class PublishedContent(models.Model):
     publication_date = models.DateTimeField('Date de publication', db_index=True, blank=True, null=True)
     update_date = models.DateTimeField('Date de mise à jour', db_index=True, blank=True, null=True, default=None)
     sha_public = models.CharField('Sha1 de la version publiée', blank=True, null=True, max_length=80, db_index=True)
-    nb_letter = models.IntegerField(default=None, null=True, verbose_name=b'Nombre de lettres du contenu', blank=True)
+    char_count = models.IntegerField(default=None, null=True, verbose_name=b'Nombre de lettres du contenu', blank=True)
 
     must_redirect = models.BooleanField(
         'Redirection vers  une version plus récente', blank=True, db_index=True, default=False)
@@ -604,16 +613,6 @@ class PublishedContent(models.Model):
         else:
             return ''
 
-    def get_absolute_url_online(self):
-        """
-
-        :return: the URL of the published content
-        :rtype: str
-        """
-        reversed_ = self.content_type.lower()
-
-        return reverse(reversed_ + ':view', kwargs={'pk': self.content_pk, 'slug': self.content_public_slug})
-
     def load_public_version_or_404(self):
         """
         :return: the public content
@@ -630,22 +629,6 @@ class PublishedContent(models.Model):
         """
         self.versioned_model = self.content.load_version(sha=self.sha_public, public=self)
         return self.versioned_model
-
-    def is_article(self):
-        """
-
-        :return: ``True`` if it is an article, ``False`` otherwise.
-        :rtype: bool
-        """
-        return self.content_type == 'ARTICLE'
-
-    def is_tutorial(self):
-        """
-
-        :return: ``True`` if it is an article, ``False`` otherwise.
-        :rtype: bool
-        """
-        return self.content_type == 'TUTORIAL'
 
     def get_extra_contents_directory(self):
         """
@@ -780,10 +763,8 @@ class PublishedContent(models.Model):
 
         if type_ in ALLOWED_TYPES:
             reversed_ = self.content_type.lower()
-
             return reverse(
                 reversed_ + ':download-' + type_, kwargs={'pk': self.content_pk, 'slug': self.content_public_slug})
-
         return ''
 
     def get_absolute_url_md(self):
@@ -834,7 +815,7 @@ class PublishedContent(models.Model):
     def get_last_action_date(self):
         return self.update_date or self.publication_date
 
-    def get_nb_letters(self, md_file_path=None):
+    def get_char_count(self, md_file_path=None):
         """ Compute the number of letters for a given content
 
         :param md_file_path: use another file to compute the number of letter rather than the default one.
@@ -855,11 +836,224 @@ class PublishedContent(models.Model):
         except IOError as e:
             logger.warning('could not get file %s to compute nb letters (error=%s)', md_file_path, e)
 
+    @classmethod
+    def get_es_mapping(cls):
+        mapping = Mapping(cls.get_es_document_type())
+
+        mapping.field('content_pk', 'integer')
+        mapping.field('publication_date', Date())
+        mapping.field('content_type', Keyword())
+
+        # not from PublishedContent directly:
+        mapping.field('title', Text(boost=1.5))
+        mapping.field('description', Text(boost=1.5))
+        mapping.field('tags', Text(boost=2.0))
+        mapping.field('categories', Text(boost=2.25))
+        mapping.field('text', Text())  # for article and mini-tuto, text is directly included into the main object
+        mapping.field('has_chapters', Boolean())  # ... otherwise, it is written
+        mapping.field('picked', Boolean())
+
+        # not indexed:
+        mapping.field('get_absolute_url_online', Keyword(index=False))
+        mapping.field('thumbnail', Keyword(index=False))
+
+        return mapping
+
+    @classmethod
+    def get_es_django_indexable(cls, force_reindexing=False):
+        """Overridden to remove must_redirect=True (and prefetch stuffs).
+        """
+
+        q = super(PublishedContent, cls).get_es_django_indexable(force_reindexing)
+        return q.prefetch_related('content')\
+            .prefetch_related('content__tags')\
+            .prefetch_related('content__subcategory')\
+            .select_related('content__image')\
+            .filter(must_redirect=False)
+
+    @classmethod
+    def get_es_indexable(cls, force_reindexing=False):
+        """Overridden to also include chapters
+        """
+
+        index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
+
+        # fetch initial batch
+        last_pk = 0
+        objects_source = super(PublishedContent, cls).get_es_indexable(force_reindexing)
+        objects = list(objects_source.filter(pk__gt=last_pk)[:PublishedContent.objects_per_batch])
+
+        while objects:
+            chapters = []
+
+            for content in objects:
+                versioned = content.load_public_version()
+
+                # chapters are only indexed for middle and big tuto
+                if versioned.has_sub_containers():
+
+                    # delete possible previous chapters
+                    if content.es_already_indexed:
+                        index_manager.delete_by_query(
+                            FakeChapter.get_es_document_type(), ES_Q('match', _routing=content.es_id))
+
+                    # (re)index the new one(s)
+                    for chapter in versioned.get_list_of_chapters():
+                        chapters.append(FakeChapter(chapter, versioned, content.es_id))
+
+            if chapters:
+                # since we want to return at most PublishedContent.objects_per_batch items
+                # we have to split further
+                while chapters:
+                    yield chapters[:PublishedContent.objects_per_batch]
+                    chapters = chapters[PublishedContent.objects_per_batch:]
+            if objects:
+                yield objects
+
+            # fetch next batch
+            last_pk = objects[-1].pk
+            objects = list(objects_source.filter(pk__gt=last_pk)[:PublishedContent.objects_per_batch])
+
+    def get_es_document_source(self, excluded_fields=None):
+        """Overridden to handle the fact that most information are versioned
+        """
+
+        excluded_fields = excluded_fields or []
+        excluded_fields.extend(['title', 'description', 'tags', 'categories', 'text', 'thumbnail', 'picked'])
+
+        data = super(PublishedContent, self).get_es_document_source(excluded_fields=excluded_fields)
+
+        # fetch versioned information
+        versioned = self.load_public_version()
+
+        data['title'] = versioned.title
+        data['description'] = versioned.description
+        data['tags'] = [tag.title for tag in versioned.tags.all()]
+
+        if self.content.image:
+            data['thumbnail'] = self.content.image.physical['content_thumb'].url
+
+        categories = []
+        for subcategory in versioned.subcategory.all():
+            parent_category = subcategory.get_parent_category()
+            categories.append(subcategory.title)
+            if parent_category:
+                categories.append(parent_category.title)
+        data['categories'] = list(set(categories))  # remove duplicates
+
+        if versioned.has_extracts():
+            data['text'] = versioned.get_content_online()
+            data['has_chapters'] = False
+        else:
+            data['has_chapters'] = True
+
+        data['picked'] = False
+
+        if self.content_type == 'OPINION' and self.content.sha_picked is not None:
+            data['picked'] = True
+
+        return data
+
+
+@receiver(pre_delete, sender=PublishedContent)
+def delete_published_content_in_elasticsearch(sender, instance, **kwargs):
+    """Catch the pre_delete signal to ensure the deletion in ES. Also, handle the deletion of the corresponding
+    chapters.
+    """
+
+    index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
+
+    if index_manager.index_exists:
+        index_manager.delete_by_query(FakeChapter.get_es_document_type(), ES_Q('match', _routing=instance.es_id))
+
+    return delete_document_in_elasticsearch(instance)
+
+
+@receiver(pre_save, sender=PublishedContent)
+def delete_published_content_in_elasticsearch_if_set_to_redirect(sender, instance, **kwargs):
+    """If the slug of the content changes, the ``must_redirect`` field is set to ``True`` and a new
+    PublishedContnent is created. To avoid duplicates, the previous ones must be removed from ES.
+    """
+
+    try:
+        obj = PublishedContent.objects.get(pk=instance.pk)
+    except sender.DoesNotExist:
+        pass  # nothing to worry about
+    else:
+        if not obj.must_redirect and instance.must_redirect:
+            delete_published_content_in_elasticsearch(sender, instance, **kwargs)
+
+
+class FakeChapter(AbstractESIndexable):
+    """A simple class that is used by ES to index chapters, constructed from the containers.
+
+    In mapping, this class defines PublishedContent as its parent. Also, indexing is done by the parent.
+
+    Note that this class is only indexable, not updatable, since it does not maintain value of ``es_already_indexed``
+    """
+
+    parent_model = PublishedContent
+    text = ''
+    title = ''
+    parent_id = ''
+    get_absolute_url_online = ''
+    parent_title = ''
+    parent_get_absolute_url_online = ''
+    parent_publication_date = ''
+    thumbnail = ''
+
+    def __init__(self, chapter, main_container, parent_id):
+        self.title = chapter.title
+        self.text = chapter.get_content_online()
+        self.parent_id = parent_id
+        self.get_absolute_url_online = chapter.get_absolute_url_online()
+
+        self.es_id = main_container.slug + '__' + chapter.slug  # both slugs are unique by design, so id remains unique
+
+        self.parent_title = main_container.title
+        self.parent_get_absolute_url_online = main_container.get_absolute_url_online()
+        self.parent_publication_date = main_container.pubdate
+
+        if main_container.image:
+            self.thumbnail = main_container.image.physical['content_thumb'].url
+
+    @classmethod
+    def get_es_document_type(cls):
+        return 'chapter'
+
+    @classmethod
+    def get_es_mapping(self):
+        """Define mapping and parenting
+        """
+
+        mapping = Mapping(self.get_es_document_type())
+        mapping.meta('parent', type='publishedcontent')
+
+        mapping.field('title', Text(boost=1.5))
+        mapping.field('text', Text())
+
+        # not indexed:
+        mapping.field('get_absolute_url_online', Keyword(index=False))
+        mapping.field('parent_title', Text(index=False))
+        mapping.field('parent_get_absolute_url_online', Keyword(index=False))
+        mapping.field('parent_publication_date', Date(index=False))
+        mapping.field('thumbnail', Keyword(index=False))
+
+        return mapping
+
+    def get_es_document_as_bulk_action(self, index, action='index'):
+        """Overridden to handle parenting between chapter and PublishedContent
+        """
+
+        document = super(FakeChapter, self).get_es_document_as_bulk_action(index, action)
+        document['_parent'] = self.parent_id
+        return document
+
 
 @python_2_unicode_compatible
 class ContentReaction(Comment):
     """
-    A comment written by any user about a PublishableContent he just read.
+    A comment written by any user about a PublishableContent they just read.
     """
     class Meta:
         verbose_name = 'note sur un contenu'
@@ -889,7 +1083,7 @@ class ContentRead(models.Model):
     """
     Small model which keeps track of the user viewing tutorials.
 
-    It remembers the PublishableContent he looked and what was the last Note at this time.
+    It remembers the PublishableContent they read and what was the last Note at that time.
     """
     class Meta:
         verbose_name = 'Contenu lu'
@@ -984,6 +1178,45 @@ class Validation(models.Model):
         :rtype: bool
         """
         return self.status == 'CANCEL'
+
+
+@python_2_unicode_compatible
+class PickListOperation(models.Model):
+    class Meta:
+        verbose_name = "Choix d'un billet"
+        verbose_name_plural = 'Choix des billets'
+
+    content = models.ForeignKey(PublishableContent, null=False, blank=False,
+                                verbose_name='Contenu proposé', db_index=True)
+    operation = models.CharField(null=False, blank=False, db_index=True, max_length=len('REMOVE_PUB'),
+                                 choices=PICK_OPERATIONS)
+    operation_date = models.DateTimeField(null=False, db_index=True, verbose_name="Date de l'opération")
+    version = models.CharField(null=False, blank=False, max_length=128, verbose_name='Version du billet concernée')
+    staff_user = models.ForeignKey(User, null=False, blank=False, on_delete=CASCADE,
+                                   verbose_name='Modérateur', related_name='pick_operations')
+    canceler_user = models.ForeignKey(User, null=True, blank=True, on_delete=CASCADE,
+                                      verbose_name='Modérateur qui a annulé la décision',
+                                      related_name='canceled_pick_operations')
+    is_effective = models.BooleanField(verbose_name='Choix actif', default=True)
+
+    def __str__(self):
+        return '{} : {}'.format(self.get_operation_display(), self.content)
+
+    def cancel(self, canceler, autosave=True):
+        """
+        Cancel a decision
+        :param canceler: staff user
+        :param autosave: if ``True`` saves the modification
+        """
+        self.is_effective = False
+        self.canceler_user = canceler
+        if autosave:
+            self.save()
+
+    def save(self, **kwargs):
+        if self.content is not None and self.content.type == 'OPINION':
+            return super(PickListOperation, self).save(**kwargs)
+        raise ValueError('Content cannot be null or something else than opinion.', self.content)
 
 
 @receiver(models.signals.pre_delete, sender=User)

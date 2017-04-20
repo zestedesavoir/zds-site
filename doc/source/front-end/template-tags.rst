@@ -83,6 +83,13 @@ sera rendu :
 
 Si le contenu de ``date_epoch`` etait de ``42``.
 
+``from_elasticsearch_date``
+---------------------------
+
+Par défaut, Elasticsearch stocke ces dates au format ``yyyy-MM-dd'T'HH:mm:ss.SSSZ``
+(il s'agit du format ``strict_date_time``, voir à ce sujet `la documentation d'Elasticsearch <https://www.elastic.co/guide/en/elasticsearch/reference/5.1/mapping-date-format.html>`_).
+Ce filtre transforme cette date en une date que les autres filtres de ce module peuvent exploiter.
+
 Le module ``email_obfuscator``
 ==============================
 
@@ -294,6 +301,20 @@ Récupère la liste des alertes (si l'utilisateur possède les droits pour le fa
 - ``alert.username`` contient le nom de l'auteur de l'alerte ;
 - ``alert.pubdate`` donne la date à laquelle l'alerte à été faite ;
 - ``alert.topic`` donne le texte d'alerte.
+
+``waiting_count``
+---------------
+
+Récupère le nombre de contenus, de tutoriels ou d'articles dans la zone de validation n'ayant pas été réservés par un validateur.
+
+.. sourcecode:: html
+
+    {% load interventions %}
+    {% with waiting_all_count=""|waiting_count waiting_tutorials_count="TUTORIAL"|waiting_count waiting_articles_count="ARTICLE"|waiting_count %}
+        ...
+    {% endwith %}
+
+Le filtre doit être appelé sur ``"TUTORIAL"`` pour récupérer le nombre de tutoriels en attente et sur ``"ARTICLE"`` pour le nombre d'articles. Pour le nombre de contenus, il faut l'appeler sur une chaîne de caractères vide ``""``.
 
 ``humane_delta``
 ----------------
@@ -553,3 +574,18 @@ Exemple :
     {% for authors in content|displayable_authors:False %}
        <!-- here display all author for draft version -->
     {% endfor %}
+
+Le module ``elasticsearch``
+===========================
+
+``highlight``
+
+Permet de mettre en surbrillance les résultats d'une recherche.
+
+Exemple :
+
+.. sourcecode:: html
+
+    {% if search_result.text %}
+        {% highlight search_result "text" %}
+    {% endif %}

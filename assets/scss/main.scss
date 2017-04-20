@@ -64,13 +64,13 @@
 @import "components/content-item";
 @import "components/editor";
 @import "components/featured-item";
-@import "components/home-search-box";
 @import "components/markdown-help";
 @import "components/mobile-menu";
 @import "components/mergely";
 @import "components/modals";
 @import "components/pagination";
 @import "components/pygments";
+@import "components/search-box";
 @import "components/tags";
 @import "components/tooltips";
 @import "components/topic-list";
@@ -81,9 +81,11 @@
 /*------------------------
 9. Pages
 ------------------------*/
+@import "pages/flexpage";
 @import "pages/home";
 @import "pages/gallery";
 @import "pages/api";
+@import "pages/search";
 @import "pages/tutorial-help";
 @import "pages/tutorial-history";
 

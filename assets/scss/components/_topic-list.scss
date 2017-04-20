@@ -192,7 +192,9 @@
     }
 
     .highlighted {
-        background-color: rgba(255, 255, 100, 0.5);
+        background-color: rgba(255, 255, 100, 0.4);
+        padding: 0 3px;
+        border-radius: 2px;
     }
 }
 

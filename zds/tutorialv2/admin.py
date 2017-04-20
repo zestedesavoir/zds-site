@@ -20,6 +20,7 @@ class ContentReactionAdmin(admin.ModelAdmin):
 class ValidationAdmin(admin.ModelAdmin):
     raw_id_fields = ('content', 'validator')
 
+
 admin.site.register(PublishableContent, PublishableContentnAdmin)
 admin.site.register(PublishedContent, PublishedContentAdmin)
 admin.site.register(Validation, ValidationAdmin)
