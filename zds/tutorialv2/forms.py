@@ -263,7 +263,7 @@ class ContentForm(ContainerForm):
         widget=forms.CheckboxSelectMultiple()
     )
 
-    def _create_layout(self, hide_help):
+    def _create_layout(self, hide_help, **kwargs):
         html_part = HTML(_(u"<p>Demander de l'aide à la communauté !<br>"
                            u"Si vous avez besoin d'un coup de main, "
                            u"sélectionnez une ou plusieurs catégories d'aide ci-dessous "
@@ -349,7 +349,7 @@ class ContentForm(ContainerForm):
         self.helper = FormHelper()
         self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
-        self._create_layout(for_tribune)
+        self._create_layout(for_tribune, kwargs)
 
         if 'type' in self.initial:
             self.helper['type'].wrap(
