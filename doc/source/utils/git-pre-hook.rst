@@ -18,14 +18,15 @@ restera propre et lisible au cours du temps !
 
     #!/bin/sh
 
-    flake8 --exclude=migrations --max-line-length=120 zds
+    cd $GIT_DIR/../
+
+    make lint-back
 
     # Store tests result
     RESULT=$?
 
     [ $RESULT -ne 0 ] && exit 1
     exit 0
-
 
 Enfin n'oubliez pas de le rendre executable via chmod
 
