@@ -383,7 +383,8 @@ def cleanup_notification_for_unpublished_content(sender, instance, **_):
     logger.debug('deal with %s(%s) notifications.', sender, instance)
     try:
         notifications = Notification.objects\
-            .filter(content_type=ContentType.objects.get_for_model(instance, True), object_id=instance.pk)
+            .filter(content_type=ContentType.objects.get_for_model(instance, True),
+                    object_id=instance.pk, subscription__last_notification__isnull=False)
         for notification in notifications:
             if notification.subscription.last_notification.pk == notification.pk:
                 notification.subscription.last_notification = None
