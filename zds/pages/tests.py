@@ -7,6 +7,8 @@ from django.test.utils import override_settings
 
 from zds.forum.factories import CategoryFactory, ForumFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory
+from zds.forum.tests.tests_views import create_category, add_topic_in_a_forum
+from zds.utils.models import CommentEdit
 
 
 @override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
@@ -230,3 +232,59 @@ class PagesGuestTests(TestCase):
         )
 
         self.assertTrue('git_version' in result.context)
+
+
+class CommentEditsHistoryTests(TestCase):
+
+    def setUp(self):
+        self.user = ProfileFactory().user
+        self.staff = StaffProfileFactory().user
+
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, self.user.profile)
+
+        self.assertTrue(self.client.login(username=self.user.username, password='hostel77'))
+        data = {
+            'text': 'A new post!'
+        }
+        self.client.post(
+            reverse('post-edit') + '?message={}'.format(topic.last_message.pk), data, follow=False)
+        self.post = topic.last_message
+        self.edit = CommentEdit.objects.latest('date')
+
+    def test_history_with_wrong_pk(self):
+        self.assertTrue(self.client.login(username=self.user.username, password='hostel77'))
+        response = self.client.get(reverse('comment-edits-history', args=[self.post.pk + 1]))
+        self.assertEqual(response.status_code, 404)
+        response = self.client.get(reverse('edit-detail', args=[self.edit.pk + 1]))
+        self.assertEqual(response.status_code, 404)
+
+    def test_history_access(self):
+        # Logout and check that the history can't be displayed
+        self.client.logout()
+        response = self.client.get(reverse('comment-edits-history', args=[self.post.pk]))
+        self.assertEqual(response.status_code, 302)
+        response = self.client.get(reverse('edit-detail', args=[self.edit.pk]))
+        self.assertEqual(response.status_code, 302)
+
+        # Login with another user and check that the history can't be displayed
+        other_user = ProfileFactory().user
+        self.assertTrue(self.client.login(username=other_user.username, password='hostel77'))
+        response = self.client.get(reverse('comment-edits-history', args=[self.post.pk]))
+        self.assertEqual(response.status_code, 403)
+        response = self.client.get(reverse('edit-detail', args=[self.edit.pk]))
+        self.assertEqual(response.status_code, 403)
+
+        # Login as staff and check that the history can be displayed
+        self.assertTrue(self.client.login(username=self.staff.username, password='hostel77'))
+        response = self.client.get(reverse('comment-edits-history', args=[self.post.pk]))
+        self.assertEqual(response.status_code, 200)
+        response = self.client.get(reverse('edit-detail', args=[self.edit.pk]))
+        self.assertEqual(response.status_code, 200)
+
+        # And finally, check that the post author can see the history
+        self.assertTrue(self.client.login(username=self.user.username, password='hostel77'))
+        response = self.client.get(reverse('comment-edits-history', args=[self.post.pk]))
+        self.assertEqual(response.status_code, 200)
+        response = self.client.get(reverse('edit-detail', args=[self.edit.pk]))
+        self.assertEqual(response.status_code, 200)

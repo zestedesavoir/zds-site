@@ -27,7 +27,6 @@ from zds.searchv2.forms import SearchForm
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent
 from zds.utils.forums import create_topic
 from zds.utils.models import Alert, CommentEdit, Comment
-from zds.member.decorator import LoginRequiredMixin
 
 
 def home(request):
@@ -145,7 +144,7 @@ def alerts(request):
     })
 
 
-class CommentEditsHistory(LoginRequiredMixin, ListView):
+class CommentEditsHistory(ListView):
     model = CommentEdit
     context_object_name = 'edits'
     template_name = 'pages/comment_edits_history.html'
@@ -153,12 +152,14 @@ class CommentEditsHistory(LoginRequiredMixin, ListView):
     def get_object(self):
         return get_object_or_404(Comment, pk=self.kwargs['comment_pk'])
 
+    @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
+        response = super(CommentEditsHistory, self).dispatch(*args, **kwargs)
         current_user = self.request.user
         if not self.get_object().author == current_user \
                 and not current_user.has_perm('forum.change_post'):
             raise PermissionDenied
-        return super(CommentEditsHistory, self).dispatch(*args, **kwargs)
+        return response
 
     def get_context_data(self, **kwargs):
         context = super(CommentEditsHistory, self).get_context_data(**kwargs)
@@ -177,12 +178,14 @@ class CommentEditsHistory(LoginRequiredMixin, ListView):
             .order_by('-date')
 
 
-class EditDetail(LoginRequiredMixin, DetailView):
+class EditDetail(DetailView):
     model = CommentEdit
     context_object_name = 'edit'
     template_name = 'pages/edit_detail.html'
 
+    @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
+        response = super(EditDetail, self).dispatch(*args, **kwargs)
         current_user = self.request.user
         edit = self.get_object()
         if not edit.comment.author == current_user \
@@ -190,7 +193,7 @@ class EditDetail(LoginRequiredMixin, DetailView):
             raise PermissionDenied
         if edit.deleted_by:
             raise PermissionDenied
-        return super(EditDetail, self).dispatch(*args, **kwargs)
+        return response
 
     def get_context_data(self, **kwargs):
         context = super(EditDetail, self).get_context_data(**kwargs)
