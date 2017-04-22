@@ -6,6 +6,7 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django.utils.translation import ugettext_lazy as _
 
+from zds.forum.models import Post
 from zds.forum.factories import CategoryFactory, ForumFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.forum.tests.tests_views import create_category, add_topic_in_a_forum
@@ -315,3 +316,48 @@ class CommentEditsHistoryTests(TestCase):
         # Check that the original content is displayed
         response = self.client.get(reverse('edit-detail', args=[self.edit.pk]))
         self.assertContains(response, self.edit.original_text)
+
+    def test_restore_original_content(self):
+        original_edits_count = CommentEdit.objects.count()
+
+        # Test that this option is only available for author and staff
+        other_user = ProfileFactory().user
+        self.assertTrue(self.client.login(username=other_user.username, password='hostel77'))
+        response = self.client.post(reverse('restore-edit', args=[self.edit.pk]))
+        self.assertEqual(response.status_code, 403)
+        self.assertTrue(self.client.login(username=self.user.username, password='hostel77'))
+        response = self.client.post(reverse('restore-edit', args=[self.edit.pk]))
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(self.client.login(username=self.staff.username, password='hostel77'))
+        response = self.client.post(reverse('restore-edit', args=[self.edit.pk]))
+        self.assertEqual(response.status_code, 302)
+
+        # Test that a sanctionned user can't do this
+        self.user.profile.can_write = False
+        self.user.profile.save()
+        self.assertTrue(self.client.login(username=self.user.username, password='hostel77'))
+        response = self.client.post(reverse('restore-edit', args=[self.edit.pk]))
+        self.assertEqual(response.status_code, 403)
+
+        # Test that the text was restored
+        self.post = Post.objects.get(pk=self.post.pk)
+        self.assertEqual(self.post.text, self.edit.original_text)
+
+        # And that two archives (tests by author and staff) were created
+        self.assertEqual(original_edits_count + 2, CommentEdit.objects.count())
+
+    def test_delete_original_content(self):
+        # This option should only be available for staff
+        self.assertTrue(self.client.login(username=self.user.username, password='hostel77'))
+        response = self.client.post(reverse('delete-edit-content', args=[self.edit.pk]))
+        self.assertEqual(response.status_code, 403)
+        self.assertTrue(self.client.login(username=self.staff.username, password='hostel77'))
+        response = self.client.post(reverse('delete-edit-content', args=[self.edit.pk]))
+        self.assertEqual(response.status_code, 302)
+
+        # Test that the edit content was removed
+        self.edit = CommentEdit.objects.get(pk=self.edit.pk)
+        self.assertEqual(self.edit.original_text, '')
+        self.assertEqual(self.edit.original_text_html, '')
+        self.assertIsNotNone(self.edit.deleted_at)
+        self.assertEqual(self.edit.deleted_by, self.staff)

@@ -244,8 +244,8 @@ def delete_edit_content(request, edit_pk):
     if edit.deleted_by:
         raise PermissionDenied
 
-    edit.text = ''
-    edit.text_html = ''
+    edit.original_text = ''
+    edit.original_text_html = ''
     edit.deleted_by = request.user
     edit.deleted_at = datetime.now()
     edit.save()
