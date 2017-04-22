@@ -11,6 +11,7 @@ from zds.forum.factories import CategoryFactory, ForumFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.forum.tests.tests_views import create_category, add_topic_in_a_forum
 from zds.utils.models import CommentEdit
+from zds.utils.templatetags.emarkdown import get_markdown_instance, render_markdown
 
 
 @override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
@@ -315,7 +316,9 @@ class CommentEditsHistoryTests(TestCase):
 
         # Check that the original content is displayed
         response = self.client.get(reverse('edit-detail', args=[self.edit.pk]))
-        self.assertContains(response, self.edit.original_text)
+        md_instance = get_markdown_instance(ping_url=None)
+        original_text_html = render_markdown(md_instance, self.edit.original_text)
+        self.assertContains(response, original_text_html)
 
     def test_restore_original_content(self):
         original_edits_count = CommentEdit.objects.count()
