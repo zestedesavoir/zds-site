@@ -503,7 +503,6 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
             edit.comment = self.reaction
             edit.editor = self.request.user
             edit.original_text = self.reaction.text
-            edit.original_text_html = self.reaction.text_html
             edit.save()
 
             self.reaction.update = datetime.now()

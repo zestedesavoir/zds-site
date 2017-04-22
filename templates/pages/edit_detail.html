@@ -1,6 +1,7 @@
 {% extends "pages/base.html" %}
 {% load date %}
 {% load i18n %}
+{% load emarkdown %}
 
 
 
@@ -36,7 +37,7 @@
 
 {% block content_page %}
     <div class="message-content">
-        {{ edit.original_text_html|safe }}
+        {{ edit.original_text|emarkdown }}
     </div>
 
     {% if is_staff %}

@@ -269,7 +269,6 @@ class CommentEdit(models.Model):
     date = models.DateTimeField(auto_now_add=True, db_index=True,
                                 verbose_name="Date de l'édition", db_column='edit_date')
     original_text = models.TextField("Contenu d'origine", blank=True)
-    original_text_html = models.TextField("Contenu d'origine en HTML", blank=True)
     deleted_at = models.DateTimeField(db_index=True, verbose_name='Date de suppression',
                                       blank=True, null=True)
     deleted_by = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Supprimé par',

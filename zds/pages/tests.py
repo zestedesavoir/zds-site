@@ -358,6 +358,5 @@ class CommentEditsHistoryTests(TestCase):
         # Test that the edit content was removed
         self.edit = CommentEdit.objects.get(pk=self.edit.pk)
         self.assertEqual(self.edit.original_text, '')
-        self.assertEqual(self.edit.original_text_html, '')
         self.assertIsNotNone(self.edit.deleted_at)
         self.assertEqual(self.edit.deleted_by, self.staff)

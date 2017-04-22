@@ -168,7 +168,6 @@ class PostEditMixin(object):
         edit.comment = post
         edit.editor = user
         edit.original_text = post.text
-        edit.original_text_html = post.text_html
         edit.save()
 
         post.update_content(text)

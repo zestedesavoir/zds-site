@@ -223,13 +223,11 @@ def restore_edit(request, edit_pk):
     new_edit.comment = comment
     new_edit.editor = request.user
     new_edit.original_text = comment.text
-    new_edit.original_text_html = comment.text_html
     new_edit.save()
 
     comment.update = datetime.now()
     comment.editor = request.user
-    comment.text = edit.original_text
-    comment.text_html = edit.original_text_html
+    comment.update_content(edit.original_text)
     comment.save()
 
     return redirect(comment.get_absolute_url())
@@ -245,7 +243,6 @@ def delete_edit_content(request, edit_pk):
         raise PermissionDenied
 
     edit.original_text = ''
-    edit.original_text_html = ''
     edit.deleted_by = request.user
     edit.deleted_at = datetime.now()
     edit.save()

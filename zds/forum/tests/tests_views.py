@@ -1365,7 +1365,6 @@ class PostEditTest(TestCase):
         edit = CommentEdit.objects.latest('date')
         self.assertEqual(post_before_edit.pk, edit.comment.pk)
         self.assertEqual(post_before_edit.text, edit.original_text)
-        self.assertEqual(post_before_edit.text_html, edit.original_text_html)
         self.assertEqual(profile.user, edit.editor)
 
 
