@@ -171,7 +171,9 @@ class CommentEditsHistory(LoginRequiredMixin, ListView):
         return CommentEdit.objects \
             .filter(comment=comment) \
             .select_related('editor') \
+            .select_related('editor__profile') \
             .select_related('deleted_by') \
+            .select_related('deleted_by__profile') \
             .order_by('-date')
 
 
