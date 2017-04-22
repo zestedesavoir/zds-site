@@ -4,6 +4,7 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
+from django.utils.translation import ugettext_lazy as _
 
 from zds.forum.factories import CategoryFactory, ForumFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory
@@ -288,3 +289,29 @@ class CommentEditsHistoryTests(TestCase):
         self.assertEqual(response.status_code, 200)
         response = self.client.get(reverse('edit-detail', args=[self.edit.pk]))
         self.assertEqual(response.status_code, 200)
+
+    def test_history_content(self):
+        # Login as staff
+        self.assertTrue(self.client.login(username=self.staff.username, password='hostel77'))
+
+        # Check that there is a row on the history
+        response = self.client.get(reverse('comment-edits-history', args=[self.post.pk]))
+        self.assertContains(response, _(u'Voir'))
+        self.assertIn(self.edit, response.context['edits'])
+
+        # Check that there is a button to delete the edit content
+        self.assertContains(response, _(u'Supprimer'))
+
+        # And not when we're logged as author
+        self.client.logout()
+        self.assertTrue(self.client.login(username=self.user.username, password='hostel77'))
+        response = self.client.get(reverse('comment-edits-history', args=[self.post.pk]))
+        self.assertNotContains(response, _(u'Supprimer'))
+
+    def test_edit_detail(self):
+        # Login as staff
+        self.assertTrue(self.client.login(username=self.staff.username, password='hostel77'))
+
+        # Check that the original content is displayed
+        response = self.client.get(reverse('edit-detail', args=[self.edit.pk]))
+        self.assertContains(response, self.edit.original_text)
