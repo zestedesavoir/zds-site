@@ -10,6 +10,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from zds.utils.misc import contains_utf8mb4
 from zds.settings import BASE_DIR
+from zds.member.models import BannedEmailProvider
 
 
 def validate_not_empty(value):
@@ -46,10 +47,10 @@ class ZdSEmailValidator(EmailValidator):
             raise ValidationError(self.message, code=self.code)
 
         # check if provider is blacklisted
-        with open(os.path.join(BASE_DIR, 'forbidden_email_providers.txt'), 'r') as black_list:
-            for provider in black_list:
-                if provider.strip() in value:
-                    raise ValidationError(_(u'Utilisez un autre fournisseur d\'adresses courriel'), code=self.code)
+        black_list = BannedEmailProvider.objects.values_list('provider', flat=True)
+        for provider in black_list:
+            if '@{}'.format(provider.strip()) in value:
+                raise ValidationError(_(u'Ce fournisseur ne peut pas être utilisé.'), code=self.code)
 
         # check if email is used by another user
         user_count = User.objects.filter(email=value).count()

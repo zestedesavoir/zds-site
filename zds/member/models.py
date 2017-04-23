@@ -494,6 +494,45 @@ def save_profile(backend, user, response, *args, **kwargs):
 
 
 @python_2_unicode_compatible
+class NewEmailProvider(models.Model):
+    """A new-used email provider which should be checked by a staff member."""
+
+    class Meta:
+        verbose_name = 'Nouveau fournisseur'
+        verbose_name_plural = 'Nouveaux fournisseurs'
+
+    provider = models.CharField('Fournisseur', max_length=253, unique=True, db_index=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Utilisateur concerné',
+                             related_name='new_providers', db_index=True)
+    date = models.DateTimeField(auto_now_add=True, db_index=True,
+                                verbose_name="Date de l'alerte", db_column='alert_date')
+
+    def __str__(self):
+        return 'Alert about the new provider {}'.format(self.provider)
+
+
+@python_2_unicode_compatible
+class BannedEmailProvider(models.Model):
+    """
+    A email provider which has been banned by a staff member.
+    It cannot be used for registration.
+    """
+
+    class Meta:
+        verbose_name = 'Fournisseur banni'
+        verbose_name_plural = 'Fournisseurs bannis'
+
+    provider = models.CharField('Fournisseur', max_length=253, unique=True, db_index=True)
+    moderator = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Modérateur',
+                                  related_name='banned_providers', db_index=True)
+    date = models.DateTimeField(auto_now_add=True, db_index=True,
+                                verbose_name='Date du bannissement', db_column='ban_date')
+
+    def __str__(self):
+        return 'Ban of the {} provider'.format(self.provider)
+
+
+@python_2_unicode_compatible
 class Ban(models.Model):
     """
     This model stores all sanctions (not only bans).

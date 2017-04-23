@@ -13,7 +13,7 @@ from django.contrib.auth.models import User, Group
 from django.template.context_processors import csrf
 from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMultiAlternatives
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.db import transaction
 from django.db.models import Q
 from django.http import Http404, HttpResponseBadRequest, StreamingHttpResponse
@@ -31,11 +31,13 @@ from zds.gallery.forms import ImageAsAvatarForm
 from zds.gallery.models import UserGallery
 from zds.member.commons import ProfileCreate, TemporaryReadingOnlySanction, ReadingOnlySanction, \
     DeleteReadingOnlySanction, TemporaryBanSanction, BanSanction, DeleteBanSanction, TokenGenerator
-from zds.member.decorator import can_write_and_read_now
+from zds.member.decorator import can_write_and_read_now, LoginRequiredMixin, PermissionRequiredMixin
 from zds.member.forms import LoginForm, MiniProfileForm, ProfileForm, RegisterForm, \
     ChangePasswordForm, ChangeUserForm, NewPasswordForm, \
-    PromoteMemberForm, KarmaForm, UsernameAndEmailForm, GitHubTokenForm
-from zds.member.models import Profile, TokenForgotPassword, TokenRegister, KarmaNote, Ban
+    PromoteMemberForm, KarmaForm, UsernameAndEmailForm, GitHubTokenForm, \
+    BannedEmailProviderForm
+from zds.member.models import Profile, TokenForgotPassword, TokenRegister, KarmaNote, Ban, \
+    BannedEmailProvider
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.notification.models import TopicAnswerSubscription, NewPublicationSubscription
 from zds.tutorialv2.models.models_database import PublishedContent, PickListOperation
@@ -455,6 +457,7 @@ def unregister(request):
     Ban.objects.filter(moderator=current).update(moderator=anonymous)
     Alert.objects.filter(author=current).update(author=anonymous)
     Alert.objects.filter(moderator=current).update(moderator=anonymous)
+    BannedEmailProvider.objects.filter(moderator=current).update(moderator=anonymous)
     # in case current has been moderator in his old day
     Comment.objects.filter(editor=current).update(editor=anonymous)
     for topic in PrivateTopic.objects.filter(author=current):
@@ -594,6 +597,46 @@ def settings_mini_profile(request, user_name):
             u'Le profil que vous éditez n\'est pas le vôtre. '
             u'Soyez encore plus prudent lors de l\'édition de celui-ci !'))
         return render(request, 'member/settings/profile.html', data)
+
+
+class BannedEmailProvidersList(LoginRequiredMixin, PermissionRequiredMixin, ZdSPagingListView):
+    permissions = ['member.change_profile']
+    paginate_by = paginate_by = settings.ZDS_APP['member']['providers_per_page']
+
+    model = BannedEmailProvider
+    context_object_name = 'providers'
+    template_name = 'member/banned_email_providers.html'
+    queryset = BannedEmailProvider.objects \
+        .select_related('moderator') \
+        .select_related('moderator__profile') \
+        .order_by('-date')
+
+
+class AddBannedEmailProvider(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    permissions = ['member.change_profile']
+
+    model = BannedEmailProvider
+    template_name = 'member/add_banned_email_provider.html'
+    form_class = BannedEmailProviderForm
+    success_url = reverse_lazy('banned-email-providers')
+
+    def form_valid(self, form):
+        form.instance.moderator = self.request.user
+        messages.success(self.request, _(u'Le fournisseur a été banni.'))
+        return super(AddBannedEmailProvider, self).form_valid(form)
+
+
+@require_POST
+@login_required
+@permission_required('member.change_profile', raise_exception=True)
+def remove_banned_email_provider(request, provider_pk):
+    """Used to unban a email provider"""
+
+    provider = get_object_or_404(BannedEmailProvider, pk=provider_pk)
+    provider.delete()
+
+    messages.success(request, _(u'Le fournisseur a été débanni.'))
+    return redirect('banned-email-providers')
 
 
 def login_view(request):
