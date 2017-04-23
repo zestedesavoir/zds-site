@@ -6,8 +6,8 @@ from zds.member.views import MemberList, MemberDetail, UpdateMember, UpdateGitHu
     UpdateAvatarMember, UpdatePasswordMember, UpdateUsernameEmailMember, RegisterView, \
     SendValidationEmailView, modify_karma, modify_profile, settings_mini_profile, member_from_ip, \
     settings_promote, login_view, logout_view, forgot_password, new_password, activate_account, \
-    generate_token_account, unregister, warning_unregister, BannedEmailProvidersList, \
-    AddBannedEmailProvider, remove_banned_email_provider
+    generate_token_account, unregister, warning_unregister, BannedEmailProvidersList, NewEmailProvidersList, \
+    AddBannedEmailProvider, remove_banned_email_provider, check_new_email_provider
 
 urlpatterns = [
     # list
@@ -31,6 +31,9 @@ urlpatterns = [
     url(r'^profil/multi/(?P<ip_address>.+)/$', member_from_ip, name='member-from-ip'),
 
     # email providers
+    url(r'^fournisseurs/nouveaux/$', NewEmailProvidersList.as_view(), name='new-email-providers'),
+    url(r'^fournisseurs/nouveaux/verifier/(?P<provider_pk>\d+)/$', check_new_email_provider,
+        name='check-new-email-provider'),
     url(r'^fournisseurs/bannis/$', BannedEmailProvidersList.as_view(), name='banned-email-providers'),
     url(r'^fournisseurs/bannis/ajouter/$', AddBannedEmailProvider.as_view(), name='add-banned-email-provider'),
     url(r'^fournisseurs/bannis/supprimer/(?P<provider_pk>\d+)/$', remove_banned_email_provider,

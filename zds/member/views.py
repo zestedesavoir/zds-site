@@ -37,7 +37,7 @@ from zds.member.forms import LoginForm, MiniProfileForm, ProfileForm, RegisterFo
     PromoteMemberForm, KarmaForm, UsernameAndEmailForm, GitHubTokenForm, \
     BannedEmailProviderForm
 from zds.member.models import Profile, TokenForgotPassword, TokenRegister, KarmaNote, Ban, \
-    BannedEmailProvider
+    BannedEmailProvider, NewEmailProvider
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.notification.models import TopicAnswerSubscription, NewPublicationSubscription
 from zds.tutorialv2.models.models_database import PublishedContent, PickListOperation
@@ -597,6 +597,35 @@ def settings_mini_profile(request, user_name):
             u'Le profil que vous éditez n\'est pas le vôtre. '
             u'Soyez encore plus prudent lors de l\'édition de celui-ci !'))
         return render(request, 'member/settings/profile.html', data)
+
+
+class NewEmailProvidersList(LoginRequiredMixin, PermissionRequiredMixin, ZdSPagingListView):
+    permissions = ['member.change_profile']
+    paginate_by = paginate_by = settings.ZDS_APP['member']['providers_per_page']
+
+    model = NewEmailProvider
+    context_object_name = 'providers'
+    template_name = 'member/new_email_providers.html'
+    queryset = NewEmailProvider.objects \
+        .select_related('user') \
+        .select_related('user__profile') \
+        .order_by('-date')
+
+
+@require_POST
+@login_required
+@permission_required('member.change_profile', raise_exception=True)
+def check_new_email_provider(request, provider_pk):
+    """Remove an alert about a new provider"""
+
+    provider = get_object_or_404(NewEmailProvider, pk=provider_pk)
+    if 'ban' in request.POST \
+            and not BannedEmailProvider.objects.filter(provider=provider.provider).exists():
+        BannedEmailProvider.objects.create(provider=provider.provider, moderator=request.user)
+    provider.delete()
+
+    messages.success(request, _(u'Action effectuée.'))
+    return redirect('new-email-providers')
 
 
 class BannedEmailProvidersList(LoginRequiredMixin, PermissionRequiredMixin, ZdSPagingListView):
