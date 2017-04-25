@@ -4,13 +4,20 @@
 
 
 {% block title %}
-    {% trans "Fournisseurs en attente de vérification" %}
+    {% trans "Fournisseurs en attente de vérification" %} &bull; {% trans "Gestion des fournisseurs bannis" %}
 {% endblock %}
 
 
 
 {% block breadcrumb %}
-    <li>{% trans "Fournisseurs en attente de vérification" %}</li>
+    <li>
+        <a href="{% url 'banned-email-providers' %}">
+            {% trans "Gestion des fournisseurs bannis" %}
+        </a>
+    </li>
+    <li>
+        {% trans "Fournisseurs en attente de vérification" %}
+    </li>
 {% endblock %}
 
 
@@ -66,6 +73,10 @@
     <div>
         <a href="{% url "banned-email-providers" %}" class="new-btn ico-after cross blue">
             {% trans "Fournisseurs bannis" %}
+        </a>
+
+        <a href="{% url "add-banned-email-provider" %}" class="new-btn ico-after more blue">
+            {% trans "Bannir" %} <span class="wide">{% trans "un fournisseur" %}</span>
         </a>
     </div>
 {% endblock %}

@@ -595,6 +595,19 @@
                                             {% endwith %}
                                         {% endif %}
 
+                                        {% if perms.member.change_profile %}
+                                            {% with new_providers_count=user|new_providers_count %}
+                                                <li class="staff-only">
+                                                    <a href="{% url 'new-email-providers' %}">
+                                                        {% trans "Nouveaux fournisseurs" %}
+                                                        {% if new_providers_count > 0 %}
+                                                            ({{ new_providers_count }})
+                                                        {% endif %}
+                                                    </a>
+                                                </li>
+                                            {% endwith %}
+                                        {% endif %}
+
                                         {% if perms.featured.change_featuredresource %}
                                             <li class="staff-only">
                                                 <a href="{% url 'featured-resource-list' %}">{% trans 'Gestion des mises en avant' %}</a>
@@ -715,9 +728,6 @@
                     <li><a href="{% url "api:docs:django.swagger.base.view" %}">{% trans "API" %}</a></li>
                     <li><a href="{% url "pages-eula" %}">{% trans "CGU" %}</a></li>
                     <li><a href="{% url "pages-about" %}">{% trans "À propos" %}</a></li>
-                    {% if perms.member.change_profile %}
-                        <li><a href="{% url "banned-email-providers" %}">{% trans "Fournisseurs bannis" %}</a></li>
-                    {% endif %}
                     {% if app.site.association %}
                         <li><a href="{% url "pages-association" %}">{% trans "L'association" %}</a></li>
                         {% if user.is_authenticated %}

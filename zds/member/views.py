@@ -2,6 +2,7 @@
 
 import uuid
 from datetime import datetime, timedelta
+import re
 
 from oauth2_provider.models import AccessToken
 
@@ -320,6 +321,11 @@ class UpdateUsernameEmailMember(UpdateMember):
             profile.user.username = new_username
         if new_email and new_email != previous_email:
             profile.user.email = new_email
+            # create an alert for staff if it's a new provider
+            provider = re.findall(r'@(.+)', new_email)[0]
+            if not NewEmailProvider.objects.filter(provider=provider).exists() \
+                    and not User.objects.filter(email__endswith='@{}'.format(provider)):
+                NewEmailProvider.objects.create(user=profile.user, provider=provider)
 
     def get_success_url(self):
         profile = self.get_object()
@@ -853,6 +859,13 @@ def activate_account(request):
             'site_name': settings.ZDS_APP['site']['litteral_name']
         }
     )
+
+    # create an alert for staff if it's a new provider
+    if usr.email:
+        provider = re.findall(r'@(.+)', usr.email)[0]
+        if not NewEmailProvider.objects.filter(provider=provider).exists() \
+                and not User.objects.filter(email__endswith='@{}'.format(provider)):
+            NewEmailProvider.objects.create(user=usr, provider=provider)
 
     send_mp(bot,
             [usr],
