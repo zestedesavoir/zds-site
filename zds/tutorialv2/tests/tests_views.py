@@ -5643,10 +5643,10 @@ class PublishedContentTests(TestCase):
         subscriber = ProfileFactory().user
         self.client.login(username=subscriber.username, password='hostel77')
         resp = self.client.post(reverse('content:follow-reactions', args=[article.pk]), {'follow': True})
-        self.assertEqual(200, resp.status_code)
+        self.assertEqual(302, resp.status_code)
         public_count = PublishedContent.objects.count()
         self.client.logout()
-        self.client.login(username=self.user_author.username, password='hostel77')
+        self.client.login(username=self.user_staff.username, password='hostel77')
         result = self.client.post(
             reverse('validation:revoke', kwargs={'pk': article.pk, 'slug': article.public_version.content_public_slug}),
             {
@@ -5656,7 +5656,7 @@ class PublishedContentTests(TestCase):
             follow=False)
         self.assertEqual(302, result.status_code)
         self.assertEqual(public_count - 1, PublishedContent.objects.count())
-        self.assertEqual(Subscription.objects.filter(is_active=False).count(), 1)
+        self.assertEqual(Subscription.objects.filter(is_active=False).count(), 2)  # author + subscriber
 
     def test_validation_history(self):
         published = PublishedContentFactory(author_list=[self.user_author])
