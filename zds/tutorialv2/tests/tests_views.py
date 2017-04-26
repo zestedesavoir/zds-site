@@ -22,7 +22,7 @@ from zds.gallery.models import Image
 from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.mp.models import PrivateTopic, is_privatetopic_unread
 from zds.notification.models import TopicAnswerSubscription, ContentReactionAnswerSubscription, \
-    NewPublicationSubscription, Notification
+    NewPublicationSubscription, Notification, Subscription
 from zds.settings import BASE_DIR
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory, \
     SubCategoryFactory, PublishedContentFactory, tricky_text_content, BetaContentFactory
@@ -5656,6 +5656,7 @@ class PublishedContentTests(TestCase):
             follow=False)
         self.assertEqual(302, result.status_code)
         self.assertEqual(public_count - 1, PublishedContent.objects.count())
+        self.assertEqual(Subscription.objects.filter(is_active=False).count(), 1)
 
     def test_validation_history(self):
         published = PublishedContentFactory(author_list=[self.user_author])
