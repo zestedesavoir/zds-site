@@ -624,11 +624,6 @@ class UnpublishOpinion(LoginRequiredMixin, SingleOnlineContentFormViewMixin, NoV
 
         unpublish_content(self.object)
 
-        self.object.sha_public = None
-        self.object.sha_picked = None
-        self.object.pubdate = None
-        self.object.save()
-
         # send PM
         msg = render_to_string(
             'tutorialv2/messages/validation_revoke.md',
@@ -696,11 +691,6 @@ class DoNotPickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin)
                                              version=db_object.sha_public)
             if form.cleaned_data['operation'] == 'REMOVE_PUB':
                 unpublish_content(self.object)
-
-                self.object.sha_public = None
-                self.object.sha_picked = None
-                self.object.pubdate = None
-                self.object.save()
 
                 # send PM
                 msg = render_to_string(

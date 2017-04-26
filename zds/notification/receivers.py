@@ -371,6 +371,7 @@ def delete_notifications(sender, instance, **kwargs):
 
 
 @receiver(zds.tutorialv2.signals.content_unpublished, sender=PublishableContent)
+@receiver(zds.tutorialv2.signals.content_unpublished, sender=ContentReaction)
 def cleanup_notification_for_unpublished_content(sender, instance, **_):
     """
     Avoid persistant notification if a content is unpublished. A real talk has to be lead to avoid such cross module \
@@ -383,12 +384,16 @@ def cleanup_notification_for_unpublished_content(sender, instance, **_):
     logger.debug('deal with %s(%s) notifications.', sender, instance)
     try:
         notifications = Notification.objects\
-            .filter(content_type=ContentType.objects.get_for_model(instance, True), object_id=instance.pk)
+            .filter(content_type=ContentType.objects.get_for_model(instance, True),
+                    object_id=instance.pk)
         for notification in notifications:
-            if notification.subscription.last_notification.pk == notification.pk:
+            subscription = notification.subscription
+            if subscription.last_notification and subscription.last_notification.pk == notification.pk:
                 notification.subscription.last_notification = None
                 notification.subscription.save()
             notification.delete()
+        Subscription.objects.filter(content_type=ContentType.objects.get_for_model(instance, True),
+                                    object_id=instance.pk).update(is_active=False)
         logger.debug('Nothing went wrong.')
     except DatabaseError:
         logger.exception()

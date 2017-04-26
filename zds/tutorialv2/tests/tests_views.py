@@ -22,7 +22,7 @@ from zds.gallery.models import Image
 from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.mp.models import PrivateTopic, is_privatetopic_unread
 from zds.notification.models import TopicAnswerSubscription, ContentReactionAnswerSubscription, \
-    NewPublicationSubscription, Notification
+    NewPublicationSubscription, Notification, Subscription
 from zds.settings import BASE_DIR
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory, \
     SubCategoryFactory, PublishedContentFactory, tricky_text_content, BetaContentFactory
@@ -5632,6 +5632,37 @@ class PublishedContentTests(TestCase):
         self.assertEqual(302, result.status_code)
         self.assertEqual(public_count - 1, PublishedContent.objects.count())
         self.assertEqual('PENDING', Validation.objects.get(pk=registered_validation.pk).status)
+
+    def test_unpublish_with_empty_subscription(self):
+        article = PublishedContentFactory(type='ARTICLE', author_list=[self.user_author], licence=self.licence)
+        registered_validation = Validation(
+            content=article,
+            version=article.sha_draft,
+            status='ACCEPT',
+            comment_authors='bla',
+            comment_validator='bla',
+            date_reserve=datetime.datetime.now(),
+            date_proposition=datetime.datetime.now(),
+            date_validation=datetime.datetime.now()
+        )
+        registered_validation.save()
+        subscriber = ProfileFactory().user
+        self.client.login(username=subscriber.username, password='hostel77')
+        resp = self.client.post(reverse('content:follow-reactions', args=[article.pk]), {'follow': True})
+        self.assertEqual(302, resp.status_code)
+        public_count = PublishedContent.objects.count()
+        self.client.logout()
+        self.client.login(username=self.user_staff.username, password='hostel77')
+        result = self.client.post(
+            reverse('validation:revoke', kwargs={'pk': article.pk, 'slug': article.public_version.content_public_slug}),
+            {
+                'text': 'This content was bad',
+                'version': article.public_version.sha_public
+            },
+            follow=False)
+        self.assertEqual(302, result.status_code)
+        self.assertEqual(public_count - 1, PublishedContent.objects.count())
+        self.assertEqual(Subscription.objects.filter(is_active=False).count(), 2)  # author + subscriber
 
     def test_validation_history(self):
         published = PublishedContentFactory(author_list=[self.user_author])
