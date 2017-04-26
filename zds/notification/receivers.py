@@ -371,6 +371,7 @@ def delete_notifications(sender, instance, **kwargs):
 
 
 @receiver(zds.tutorialv2.signals.content_unpublished, sender=PublishableContent)
+@receiver(zds.tutorialv2.signals.content_unpublished, sender=ContentReaction)
 def cleanup_notification_for_unpublished_content(sender, instance, **_):
     """
     Avoid persistant notification if a content is unpublished. A real talk has to be lead to avoid such cross module \
