@@ -272,6 +272,7 @@
    serv\xE9s\n\nSi vous avez besoin d'\xE9crire un caract\xE8re r\xE9serv\xE9 entrant\
    \ en conflit avec l'une des syntaxes d\xE9crites ici (l'ast\xE9risque par exemple),\
    \ vous pouvez le faire en le pr\xE9c\xE9dent d'un antislash : `\\*`\n\n"
+        text_html: "<em>(fixture incomplète, cliquez sur \"éditer\" pour voir le vrai texte)</em>"
         like: 1337
         dislike: 0
         pubdate: 2014-01-05T18:20:30+00:00
