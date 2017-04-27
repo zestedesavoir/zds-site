@@ -43,6 +43,15 @@ rm -rf ./dist/
 git fetch --tags
 # Server has git < 1.9, git fetch --tags doesn't retrieve commits...
 git fetch
+
+if git rev-parse $1 >/dev/null 2>&1
+then
+	echo "Tag $1 found!"
+else
+	echo "Tag $1 doesn't exist."
+	exit 1;
+fi
+
 # Checkout the tag
 git checkout $1-build
 # Create a branch with the same name - required to have version data in footer
