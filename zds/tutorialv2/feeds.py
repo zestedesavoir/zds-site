@@ -23,14 +23,9 @@ class LastContentFeedRSS(Feed):
         :return: The last (typically 5) contents (sorted by publication date).
         If `self.type` is not `None`, the contents will only be of this type.
         """
-        contents = PublishedContent.objects\
-            .prefetch_related('content')\
-            .prefetch_related('content__authors')
+        contents = PublishedContent.objects.published_contents(self.content_type)[:ZDS_APP['content']['feed_length']]
 
-        if self.content_type is not None:
-            contents = contents.filter(content_type=self.content_type)
-
-        return contents.order_by('-publication_date')[:ZDS_APP['content']['feed_length']]
+        return contents
 
     def item_title(self, item):
         return item.content.title

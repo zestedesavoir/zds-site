@@ -13,6 +13,24 @@ class PublishedContentManager(models.Manager):
     Custom published content manager.
     """
 
+    def published_contents(self, _type=None):
+        """
+        Get contents published order by date.
+
+        :return:
+        :rtype: django.db.models.QuerySet
+        """
+        queryset = self.prefetch_related('content') \
+            .prefetch_related('content__authors') \
+            .prefetch_related('content__subcategory') \
+            .filter(must_redirect=False) \
+            .order_by('-publication_date')
+
+        if _type:
+            queryset = queryset.filter(content_type=_type)
+
+        return queryset
+
     def last_contents_of_a_member_loaded(self, author, _type=None):
         """
         Get contents published by author depends on settings.ZDS_APP['content']['user_page_number']
@@ -22,17 +40,10 @@ class PublishedContentManager(models.Manager):
         :return:
         :rtype: django.db.models.QuerySet
         """
+        queryset = self.published_contents(_type) \
+            .filter(content__authors__in=[author])
 
-        queryset = self.prefetch_related('content') \
-            .prefetch_related('content__authors') \
-            .prefetch_related('content__subcategory') \
-            .filter(content__authors__in=[author]) \
-            .filter(must_redirect=False)
-
-        if _type:
-            queryset = queryset.filter(content_type=_type)
-
-        public_contents = queryset.order_by('-publication_date').all()[:settings.ZDS_APP['content']['user_page_number']]
+        public_contents = queryset.all()[:settings.ZDS_APP['content']['user_page_number']]
         return public_contents
 
     def last_tutorials_of_a_member_loaded(self, author):

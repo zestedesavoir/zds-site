@@ -37,7 +37,7 @@ from elasticsearch_dsl import Mapping, Q as ES_Q
 from elasticsearch_dsl.field import Text, Keyword, Date, Boolean
 
 from zds.forum.models import Topic
-from zds.gallery.models import Image, Gallery, UserGallery
+from zds.gallery.models import Image, Gallery, UserGallery, GALLERY_WRITE
 from zds.tutorialv2.managers import PublishedContentManager, PublishableContentManager
 from zds.tutorialv2.models import TYPE_CHOICES, STATUS_CHOICES, CONTENT_TYPES_VALIDATION_BEFORE, PICK_OPERATIONS
 from zds.tutorialv2.models.models_versioned import NotAPublicVersion
@@ -213,6 +213,21 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         else:
             # get the full path (with tutorial/article before it)
             return os.path.join(settings.ZDS_APP['content']['repo_private_path'], self.slug)
+
+    def ensure_author_gallery(self):
+        """
+        ensure all authors subscribe to gallery
+        """
+        author_set = UserGallery.objects.filter(user__in=list(self.authors.all()), gallery=self.gallery)\
+            .values_list('user__pk', flat=True)
+        for author in self.authors.all():
+            if author.pk in author_set:
+                continue
+            user_gallery = UserGallery()
+            user_gallery.gallery = self.gallery
+            user_gallery.mode = GALLERY_WRITE  # write mode
+            user_gallery.user = author
+            user_gallery.save()
 
     def in_beta(self):
         """A tutorial is not in beta if sha_beta is ``None`` or empty
