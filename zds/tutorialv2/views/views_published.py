@@ -9,7 +9,6 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.db.models.query_utils import Q
 from django.http import Http404, HttpResponsePermanentRedirect, StreamingHttpResponse, HttpResponse
 from django.db.models import F, Q
 from django.shortcuts import get_object_or_404, redirect, render_to_response
@@ -19,7 +18,6 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import RedirectView, FormView, ListView
 
-from zds.featured.models import FeaturedResource
 from zds.forum.models import Forum
 from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin, PermissionRequiredMixin
 from zds.member.views import get_client_ip
@@ -328,44 +326,6 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
         :return: list of contents with the right type
         :rtype: list of zds.tutorialv2.models.models_database.PublishedContent
         """
-        sub_query = 'SELECT COUNT(*) FROM {} WHERE {}={}'.format(
-            'tutorialv2_contentreaction',
-            'tutorialv2_contentreaction.related_content_id',
-            'tutorialv2_publishablecontent.id'
-        )
-        queryset = PublishedContent.objects \
-            .filter(must_redirect=False)
-        # this condition got more complexe with development of zep13
-        # if we do filter by content_type, then every published content can be
-        # displayed. Othewise, we have to be sure the content was expressly chosen by
-        # someone with staff authorization. Another way to say it "it has to be a
-        # validated content (article, tutorial), `ContentWithoutValidation` live their
-        # own life in their own page.
-        if self.current_content_type:
-            queryset = queryset.filter(content_type=self.current_content_type)
-        else:
-            queryset = queryset.filter(~Q(content_type='OPINION'))
-        # prefetch:
-        queryset = queryset\
-            .prefetch_related('content') \
-            .prefetch_related('content__subcategory') \
-            .prefetch_related('content__authors') \
-            .select_related('content__licence') \
-            .select_related('content__image') \
-            .select_related('content__last_note') \
-            .select_related('content__last_note__related_content') \
-            .select_related('content__last_note__related_content__public_version') \
-            .filter(pk=F('content__public_version__pk'))
-
-        if 'category' in self.request.GET:
-            self.category = get_object_or_404(SubCategory, slug=self.request.GET.get('category'))
-        else:
-            self.category = None
-        if 'tag' in self.request.GET:
-            self.tag = get_object_or_404(Tag, title=self.request.GET.get('tag').lower().strip())
-        else:
-            self.tag = None
-
         return PublishedContent.objects.get_online_list(self.category, self.tag, self.current_content_type)
 
     def get_context_data(self, **kwargs):

@@ -356,7 +356,7 @@ def retrieve_image(url, directory):
                 try:
                     os.remove(store_path)
                 except WindowsError:  # because windows can badly handle this one
-                    logger.error("store path %s not removed", store_path)
+                    logger.error('store path %s not removed', store_path)
 
     except (IOError, KeyError):  # HTTP 404, image does not exists, or Pillow cannot read it !
 
@@ -364,7 +364,7 @@ def retrieve_image(url, directory):
         try:
             os.remove(store_path)
         except OSError:
-            logger.warn("could not remove store path %s", store_path)
+            logger.warn('could not remove store path %s', store_path)
         img = ImagePIL.open(settings.ZDS_APP['content']['default_image'])
         new_url = new_url_as_png
         img.save(os.path.join(directory, new_url))
