@@ -34,12 +34,12 @@ from zds.member.commons import ProfileCreate, TemporaryReadingOnlySanction, Read
 from zds.member.decorator import can_write_and_read_now
 from zds.member.forms import LoginForm, MiniProfileForm, ProfileForm, RegisterForm, \
     ChangePasswordForm, ChangeUserForm, NewPasswordForm, \
-    PromoteMemberForm, KarmaForm, UsernameAndEmailForm
+    PromoteMemberForm, KarmaForm, UsernameAndEmailForm, GitHubTokenForm
 from zds.member.models import Profile, TokenForgotPassword, TokenRegister, KarmaNote, Ban
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.tutorialv2.models.models_database import PublishableContent
 from zds.notification.models import TopicAnswerSubscription, NewPublicationSubscription
-from zds.tutorialv2.models.models_database import PublishedContent
+from zds.tutorialv2.models.models_database import PublishedContent, PickListOperation
 from zds.utils.models import Comment, CommentVote, Alert
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView
@@ -82,11 +82,18 @@ class MemberDetail(DetailView):
         for topic in context['topics']:
             topic.is_followed = topic in followed_topics
         context['articles'] = PublishedContent.objects.last_articles_of_a_member_loaded(usr)
+        context['opinions'] = PublishedContent.objects.last_opinions_of_a_member_loaded(usr)
         context['tutorials'] = PublishedContent.objects.last_tutorials_of_a_member_loaded(usr)
-        context['karmanotes'] = KarmaNote.objects.filter(user=usr).order_by('-pubdate')
-        context['karmaform'] = KarmaForm(profile)
         context['topic_read'] = TopicRead.objects.list_read_topic_pk(self.request.user, context['topics'])
         context['subscriber_count'] = NewPublicationSubscription.objects.get_subscriptions(self.object).count()
+        if self.request.user.has_perm('member.change_profile'):
+            sanctions = list(Ban.objects.filter(user=usr).select_related('moderator'))
+            notes = list(KarmaNote.objects.filter(user=usr).select_related('moderator'))
+            actions = sanctions + notes
+            actions.sort(key=lambda action: action.pubdate)
+            actions.reverse()
+            context['actions'] = actions
+            context['karmaform'] = KarmaForm(profile)
         return context
 
 
@@ -114,7 +121,6 @@ class UpdateMember(UpdateView):
             'allow_temp_visual_changes': profile.allow_temp_visual_changes,
             'email_for_answer': profile.email_for_answer,
             'sign': profile.sign,
-            'github_token': profile.github_token,
             'is_dev': profile.is_dev(),
         })
 
@@ -149,8 +155,6 @@ class UpdateMember(UpdateView):
         profile.email_for_answer = 'email_for_answer' in cleaned_data_options
         profile.avatar_url = form.data['avatar_url']
         profile.sign = form.data['sign']
-        if 'github_token' in form.data:
-            profile.github_token = form.data['github_token']
 
     def get_success_url(self):
         return reverse('update-member')
@@ -169,6 +173,68 @@ class UpdateMember(UpdateView):
 
     def get_error_message(self):
         return _(u'Une erreur est survenue.')
+
+
+class UpdateGitHubToken(UpdateView):
+    """Updates the GitHub token."""
+
+    form_class = GitHubTokenForm
+    template_name = 'member/settings/github.html'
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.profile.is_dev():
+            raise PermissionDenied
+        return super(UpdateGitHubToken, self).dispatch(request, *args, **kwargs)
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(Profile, user=self.request.user)
+
+    def get_form(self, form_class=GitHubTokenForm):
+        return form_class()
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+
+        if form.is_valid():
+            return self.form_valid(form)
+
+        return render(request, self.template_name, {'form': form})
+
+    def form_valid(self, form):
+        profile = self.get_object()
+        profile.github_token = form.data['github_token']
+        profile.save()
+        messages.success(self.request, self.get_success_message())
+
+        return redirect(self.get_success_url())
+
+    def get_success_url(self):
+        return reverse('update-github')
+
+    def get_success_message(self):
+        return _(u'Votre token GitHub a été mis à jour.')
+
+    def get_error_message(self):
+        return _(u'Une erreur est survenue.')
+
+
+@require_POST
+@login_required
+def remove_github_token(request):
+    """
+    Removes the current user's token
+    """
+
+    profile = get_object_or_404(Profile, user=request.user)
+    if not profile.is_dev():
+        raise PermissionDenied
+
+    profile.github_token = ''
+    profile.save()
+
+    messages.success(request, _(u'Votre token GitHub a été supprimé.'))
+    return redirect('update-github')
 
 
 class UpdateAvatarMember(UpdateMember):
@@ -368,6 +434,8 @@ def unregister(request):
     external = get_object_or_404(User, username=settings.ZDS_APP['member']['external_account'])
     current = request.user
     # Nota : as of v21 all about content paternity is held by a proper receiver in zds.tutorialv2.models.models_database
+    PickListOperation.objects.filter(staff_user=current).update(staff_user=anonymous)
+    PickListOperation.objects.filter(canceler_user=current).update(canceler_user=anonymous)
     # comments likes / dislikes
     votes = CommentVote.objects.filter(user=current)
     for vote in votes:
@@ -803,6 +871,7 @@ def activate_account(request):
             'username': usr.username,
             'tutorials_url': settings.ZDS_APP['site']['url'] + reverse('tutorial:list'),
             'articles_url': settings.ZDS_APP['site']['url'] + reverse('article:list'),
+            'opinions_url': settings.ZDS_APP['site']['url'] + reverse('opinion:list'),
             'members_url': settings.ZDS_APP['site']['url'] + reverse('member-list'),
             'forums_url': settings.ZDS_APP['site']['url'] + reverse('cats-forums-list'),
             'site_name': settings.ZDS_APP['site']['litteral_name']
@@ -873,16 +942,6 @@ def get_client_ip(request):
         return '0.0.0.0'
 
 
-def date_to_chart(posts):
-    lst = 24 * [0]
-    for i in range(len(lst)):
-        lst[i] = 7 * [0]
-    for post in posts:
-        timestamp = post.pubdate.timetuple()
-        lst[timestamp.tm_hour][(timestamp.tm_wday + 1) % 7] = lst[timestamp.tm_hour][(timestamp.tm_wday + 1) % 7] + 1
-    return lst
-
-
 @login_required
 def settings_promote(request, user_pk):
     """ Manage the admin right of user. Only super user can access """
@@ -914,13 +973,13 @@ def settings_promote(request, user_pk):
                                          .format(user.username, group.name))
                         topics_followed = TopicAnswerSubscription.objects.get_objects_followed_by(user)
                         for topic in topics_followed:
-                            if isinstance(topic, Topic) and group in topic.forum.group.all():
+                            if isinstance(topic, Topic) and group in topic.forum.groups.all():
                                 TopicAnswerSubscription.objects.toggle_follow(topic, user)
         else:
             for group in usergroups:
                 topics_followed = TopicAnswerSubscription.objects.get_objects_followed_by(user)
                 for topic in topics_followed:
-                    if isinstance(topic, Topic) and group in topic.forum.group.all():
+                    if isinstance(topic, Topic) and group in topic.forum.groups.all():
                         TopicAnswerSubscription.objects.toggle_follow(topic, user)
             user.groups.clear()
             messages.warning(request, _(u'{0} n\'appartient (plus ?) à aucun groupe.')

@@ -8,7 +8,7 @@ from zds.forum.models import Topic
 
 
 def cleanup(apps, *_):
-    for topic in Topic.objects.filter(forum__group__isnull=False).all():
+    for topic in Topic.objects.filter(forum__groups__isnull=False).all():
         TopicAnswerSubscription.objects.unfollow_and_mark_read_everybody_at(topic)
 
 

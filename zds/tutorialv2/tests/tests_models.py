@@ -7,6 +7,8 @@ import shutil
 from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings
+
+from zds.gallery.models import UserGallery
 from zds.settings import BASE_DIR
 
 from zds.member.factories import ProfileFactory, StaffProfileFactory
@@ -553,6 +555,18 @@ class ContentTests(TestCase):
         published = PublishedContent.objects.filter(content=tuto).first()
         self.assertEqual(published.get_char_count(), 335 + len_date_now)
 
+    def test_ensure_gallery(self):
+        content = PublishedContentFactory()
+        content.authors.add(ProfileFactory().user)
+        content.authors.add(ProfileFactory().user)
+        content.save()
+        content.ensure_author_gallery()
+        self.assertEqual(UserGallery.objects.filter(gallery__pk=content.gallery.pk).count(), content.authors.count())
+        content.authors.add(ProfileFactory().user)
+        content.save()
+        content.ensure_author_gallery()
+        self.assertEqual(UserGallery.objects.filter(gallery__pk=content.gallery.pk).count(), content.authors.count())
+
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
             shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
@@ -561,5 +575,5 @@ class ContentTests(TestCase):
         if os.path.isdir(settings.MEDIA_ROOT):
             shutil.rmtree(settings.MEDIA_ROOT)
 
-        # re-enable PDF builds
+        # re-activate PDF build
         settings.ZDS_APP['content']['build_pdf_when_published'] = True

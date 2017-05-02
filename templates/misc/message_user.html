@@ -13,7 +13,7 @@
 
         {% if perms.forum.change_post and profile.karma != 0 %}
             <div class="user-metadata">
-                <a href="{{ member.get_absolute_url }}"
+                <a href="{{ member.get_absolute_url }}#historique-moderation"
                    class="user-karma
                           {% if profile.karma < 0 %}
                               negative

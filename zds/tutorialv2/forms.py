@@ -1,4 +1,5 @@
 # coding: utf-8
+from __future__ import unicode_literals
 from django import forms
 from django.conf import settings
 
@@ -231,11 +232,13 @@ class ContentForm(ContainerForm):
         widget=forms.CheckboxSelectMultiple()
     )
 
-    def __init__(self, *args, **kwargs):
-        super(ContentForm, self).__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.form_class = 'content-wrapper'
-        self.helper.form_method = 'post'
+    def _create_layout(self, hide_help):
+        html_part = HTML(_(u"<p>Demander de l'aide à la communauté !<br>"
+                           u"Si vous avez besoin d'un coup de main, "
+                           u"sélectionnez une ou plusieurs catégories d'aide ci-dessous "
+                           u'et votre contenu apparaîtra alors sur <a href='
+                           u'\"{% url \"content:helps\" %}\" '
+                           u"alt=\"aider les auteurs\">la page d'aide</a>.</p>"))
 
         self.helper.layout = Layout(
             Field('title'),
@@ -256,18 +259,23 @@ class ContentForm(ContainerForm):
             Field('last_hash'),
             Field('licence'),
             Field('subcategory', template='crispy/checkboxselectmultiple.html'),
-            HTML(_(u"<p>Demander de l'aide à la communauté !<br>"
-                   u"Si vous avez besoin d'un coup de main, "
-                   u"sélectionnez une ou plusieurs catégories d'aide ci-dessous "
-                   u'et votre contenu apparaîtra alors sur <a href='
-                   u'"{% url "content:helps" %}" '
-                   u'alt="aider les auteurs">la page d\'aide</a>.</p>')),
-            Field('helps'),
-            Field('msg_commit'),
-            ButtonHolder(
-                StrictButton('Valider', type='submit'),
-            ),
         )
+
+        if not hide_help:
+            self.helper.layout.append(html_part)
+            self.helper.layout.append(Field('helps'))
+
+        self.helper.layout.append(Field('msg_commit'))
+        self.helper.layout.append(ButtonHolder(StrictButton('Valider', type='submit')))
+
+    def __init__(self, *args, **kwargs):
+        for_tribune = kwargs.pop('for_tribune', False)
+        super(ContentForm, self).__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.form_class = 'content-wrapper'
+        self.helper.form_method = 'post'
+        self._create_layout(for_tribune)
 
         if 'type' in self.initial:
             self.helper['type'].wrap(
@@ -276,7 +284,7 @@ class ContentForm(ContainerForm):
 
     def clean(self):
         cleaned_data = super(ContentForm, self).clean()
-        image = cleaned_data.get('image')
+        image = cleaned_data.get('image', None)
 
         if image is not None and image.size > settings.ZDS_APP['gallery']['image_max_size']:
             self._errors['image'] = self.error_class(
@@ -998,7 +1006,12 @@ class WarnTypoForm(forms.Form):
             self.previous_page_url = targeted.get_absolute_url_beta()
 
         # add an additional link to send PM if needed
-        type_ = _(u"l'article") if content.type == 'ARTICLE' else _(u'le tutoriel')
+        type_ = _(u'l\'article')
+
+        if content.is_tutorial:
+            type_ = _(u'le tutoriel')
+        elif content.is_opinion:
+            type_ = _(u'le billet')
 
         if targeted.get_tree_depth() == 0:
             pm_title = _(u"J'ai trouvé une faute dans {} « {} ».").format(type_, targeted.title)
@@ -1053,3 +1066,200 @@ class WarnTypoForm(forms.Form):
                 del cleaned_data['text']
 
         return cleaned_data
+
+
+class PublicationForm(forms.Form):
+    """
+    The publication form (used only for content without preliminary validation).
+    """
+
+    source = forms.CharField(
+        label='',
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                'placeholder': _(u'Pour un contenu importé d\'un autre site, adresse de la source.')
+            }
+        )
+    )
+
+    def __init__(self, content, *args, **kwargs):
+        super(PublicationForm, self).__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.form_action = reverse('validation:publish-opinion', kwargs={'pk': content.pk, 'slug': content.slug})
+        self.helper.form_method = 'post'
+        self.helper.form_class = 'modal modal-flex'
+        self.helper.form_id = 'valid-publication'
+
+        self.helper.layout = Layout(
+            CommonLayoutModalText(),
+            Field('source'),
+            HTML("<p>Ce billet sera publié directement et n'engage que vous.</p>"),
+            StrictButton(_(u'Publier'), type='submit')
+        )
+
+
+class UnpublicationForm(forms.Form):
+
+    version = forms.CharField(widget=forms.HiddenInput())
+
+    text = forms.CharField(
+        label='',
+        required=True,
+        widget=forms.Textarea(
+            attrs={
+                'placeholder': _(u'Pourquoi dépublier ce contenu ?'),
+                'rows': '6'
+            }
+        )
+    )
+
+    def __init__(self, content, *args, **kwargs):
+        super(UnpublicationForm, self).__init__(*args, **kwargs)
+
+        # modal form, send back to previous page:
+        self.previous_page_url = content.get_absolute_url_online()
+
+        self.helper = FormHelper()
+        self.helper.form_action = reverse(
+            'validation:unpublish-opinion', kwargs={'pk': content.pk, 'slug': content.slug})
+
+        self.helper.form_method = 'post'
+        self.helper.form_class = 'modal modal-flex'
+        self.helper.form_id = 'unpublish'
+
+        self.helper.layout = Layout(
+            CommonLayoutModalText(),
+            Field('version'),
+            StrictButton(
+                _(u'Dépublier'),
+                type='submit')
+        )
+
+
+class PickOpinionForm(forms.Form):
+
+    version = forms.CharField(widget=forms.HiddenInput())
+
+    def __init__(self, content, *args, **kwargs):
+        super(PickOpinionForm, self).__init__(*args, **kwargs)
+
+        # modal form, send back to previous page:
+        self.previous_page_url = content.get_absolute_url_online()
+
+        self.helper = FormHelper()
+        self.helper.form_action = reverse('validation:pick-opinion', kwargs={'pk': content.pk, 'slug': content.slug})
+        self.helper.form_method = 'post'
+        self.helper.form_class = 'modal modal-flex'
+        self.helper.form_id = 'pick-opinion'
+
+        self.helper.layout = Layout(
+            HTML('<p>Êtes-vous certain(e) de vouloir valider ce billet ? Il pourra maintenant être présent sur la page '
+                 "d'accueil.</p>"),
+            CommonLayoutModalText(),
+            Field('version'),
+            StrictButton(
+                _(u'Valider'),
+                type='submit')
+        )
+
+
+class DoNotPickOpinionForm(forms.Form):
+    operation = forms.CharField(widget=forms.HiddenInput())
+
+    def __init__(self, content, *args, **kwargs):
+        super(DoNotPickOpinionForm, self).__init__(*args, **kwargs)
+
+        # modal form, send back to previous page:
+        self.previous_page_url = content.get_absolute_url_online()
+
+        self.helper = FormHelper()
+        self.helper.form_action = reverse('validation:unpick-opinion', kwargs={'pk': content.pk, 'slug': content.slug})
+        self.helper.form_method = 'post'
+        self.helper.form_class = 'modal modal-flex'
+        self.helper.form_id = 'unpick-opinion'
+
+        self.helper.layout = Layout(
+            HTML(_("<p>Ce billet n'apparaîtra plus dans la liste des billets à choisir.</p>")),
+            CommonLayoutModalText(),
+            Field('operation'),
+            StrictButton(
+                _(u'Valider'),
+                type='submit')
+        )
+
+    def clean(self):
+        cleaned = super(DoNotPickOpinionForm, self).clean()
+        cleaned['operation'] = self.data['operation'] \
+            if self.data['operation'] in ['NO_PICK', 'REJECT', 'REMOVE_PUB'] else None
+        return cleaned
+
+    def is_valid(self):
+        base = super(DoNotPickOpinionForm, self).is_valid()
+        if not self['operation']:
+            self._errors['operation'] = _('Opération invalide, NO_PICK, REJECT ou REMOVE_PUB attendu.')
+            return False
+        return base
+
+
+class UnpickOpinionForm(forms.Form):
+
+    version = forms.CharField(widget=forms.HiddenInput())
+
+    text = forms.CharField(
+        label='',
+        required=True,
+        widget=forms.Textarea(
+            attrs={
+                'placeholder': _(u'Pourquoi retirer ce billet de la liste des billets choisis ?'),
+                'rows': '6'
+            }
+        )
+    )
+
+    def __init__(self, content, *args, **kwargs):
+        super(UnpickOpinionForm, self).__init__(*args, **kwargs)
+
+        # modal form, send back to previous page:
+        self.previous_page_url = content.get_absolute_url_online()
+
+        self.helper = FormHelper()
+        self.helper.form_action = reverse('validation:unpick-opinion', kwargs={'pk': content.pk, 'slug': content.slug})
+        self.helper.form_method = 'post'
+        self.helper.form_class = 'modal modal-flex'
+        self.helper.form_id = 'unpick-opinion'
+
+        self.helper.layout = Layout(
+            Field('version'),
+            Field('text'),
+            StrictButton(
+                _(u'Enlever'),
+                type='submit')
+        )
+
+
+class PromoteOpinionToArticleForm(forms.Form):
+
+    version = forms.CharField(widget=forms.HiddenInput())
+
+    def __init__(self, content, *args, **kwargs):
+        super(PromoteOpinionToArticleForm, self).__init__(*args, **kwargs)
+
+        # modal form, send back to previous page:
+        self.previous_page_url = content.get_absolute_url_online()
+
+        self.helper = FormHelper()
+        self.helper.form_action = reverse('validation:promote-opinion', kwargs={'pk': content.pk, 'slug': content.slug})
+        self.helper.form_method = 'post'
+        self.helper.form_class = 'modal modal-flex'
+        self.helper.form_id = 'convert-opinion'
+
+        self.helper.layout = Layout(
+            HTML('<p>Êtes-vous certain(e) de vouloir promouvoir ce billet en article ?</p>'),
+            CommonLayoutModalText(),
+            Field('version'),
+            StrictButton(
+                _(u'Valider'),
+                type='submit')
+        )

@@ -803,7 +803,7 @@ class FindTopicTest(TestCase):
         another_group = Group.objects.create(name='DummyGroup_2')
         category, forum = create_category(group)
 
-        forum.group.add(another_group)
+        forum.groups.add(another_group)
         forum.save()
 
         profile.user.groups.add(group)
@@ -851,7 +851,7 @@ class FindTopicByTagTest(TestCase):
         another_group = Group.objects.create(name='DummyGroup_2')
         category, forum = create_category(group)
 
-        forum.group.add(another_group)
+        forum.groups.add(another_group)
         forum.save()
 
         profile.user.groups.add(group)
@@ -1220,7 +1220,7 @@ class PostEditTest(TestCase):
 
         self.assertEqual(302, response.status_code)
         post = Post.objects.get(pk=topic.last_message.pk)
-        self.assertEqual(0, len(post.alerts.all()))
+        self.assertEqual(0, len(post.alerts_on_this_comment.all()))
         self.assertFalse(post.is_visible)
         self.assertEqual(profile.user, post.editor)
         self.assertEqual('', post.text_hidden)
@@ -1242,7 +1242,7 @@ class PostEditTest(TestCase):
 
         self.assertEqual(302, response.status_code)
         post = Post.objects.get(pk=topic.last_message.pk)
-        self.assertEqual(0, len(post.alerts.all()))
+        self.assertEqual(0, len(post.alerts_on_this_comment.all()))
         self.assertFalse(post.is_visible)
         self.assertEqual(staff.user, post.editor)
         self.assertEqual(text_hidden_expected, post.text_hidden)
@@ -1315,8 +1315,8 @@ class PostEditTest(TestCase):
 
         self.assertEqual(302, response.status_code)
         post = Post.objects.get(pk=topic.last_message.pk)
-        self.assertEqual(1, len(post.alerts.all()))
-        self.assertEqual(text_expected, post.alerts.all()[0].text)
+        self.assertEqual(1, len(post.alerts_on_this_comment.all()))
+        self.assertEqual(text_expected, post.alerts_on_this_comment.all()[0].text)
 
     def test_failure_edit_post_hidden_message_by_non_staff(self):
         """Test that a non staff cannot access the page to edit a hidden message"""
@@ -1652,7 +1652,7 @@ class FindPostTest(TestCase):
         another_group = Group.objects.create(name='DummyGroup_2')
         category, forum = create_category(group)
 
-        forum.group.add(another_group)
+        forum.groups.add(another_group)
         forum.save()
 
         profile.user.groups.add(group)
@@ -1673,7 +1673,7 @@ def create_category(group=None):
     category = CategoryFactory(position=1)
     forum = ForumFactory(category=category, position_in_category=1)
     if group is not None:
-        forum.group.add(group)
+        forum.groups.add(group)
         forum.save()
     return category, forum
 

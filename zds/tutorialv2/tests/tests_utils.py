@@ -593,6 +593,6 @@ class UtilsTests(TestCase):
             shutil.rmtree(settings.MEDIA_ROOT)
         if os.path.isdir(settings.ZDS_APP['content']['extra_content_watchdog_dir']):
             shutil.rmtree(settings.ZDS_APP['content']['extra_content_watchdog_dir'])
-        # re-active PDF build
+        # re-activate PDF build
         settings.ZDS_APP['content']['build_pdf_when_published'] = True
         PublicatorRegistery.registry = self.old_registry

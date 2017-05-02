@@ -18,7 +18,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 DEBUG = True
 
-# INTERNAL_IPS = ('127.0.0.1',)  # debug toolbar
+INTERNAL_IPS = ('127.0.0.1',)  # debug toolbar
 
 DATABASES = {
     'default': {
@@ -113,6 +113,7 @@ MIDDLEWARE_CLASSES = (
     'zds.utils.ThreadLocals',
     'zds.middlewares.setlastvisitmiddleware.SetLastVisitMiddleware',
     'zds.middlewares.profile.ProfileMiddleware',
+    'zds.member.utils.ZDSCustomizeSocialAuthExceptionMiddleware',
 )
 
 ROOT_URLCONF = 'zds.urls'
@@ -148,7 +149,7 @@ TEMPLATES = [
         }
     },
 ]
-
+SOCIAL_AUTH_RAISE_EXCEPTIONS = False
 CRISPY_TEMPLATE_PACK = 'bootstrap'
 
 INSTALLED_APPS = (
@@ -472,6 +473,10 @@ ZDS_APP = {
         'home_number': 3,
         'repo_path': os.path.join(BASE_DIR, 'articles-data')
     },
+    'opinions': {
+        'home_number': 5,
+        'repo_path': os.path.join(BASE_DIR, 'opinions-data')
+    },
     'tutorial': {
         'repo_path': os.path.join(BASE_DIR, 'tutoriels-private'),
         'repo_public_path': os.path.join(BASE_DIR, 'tutoriels-public'),
@@ -518,11 +523,11 @@ ZDS_APP = {
         'top_tag_exclu': ['bug', 'suggestion', 'tutoriel', 'beta', 'article']
     },
     'topic': {
-        'home_number': 6,
+        'home_number': 5,
     },
     'comment': {
         'max_pings': 15,
-        'enable_pings': False,
+        'enable_pings': True,
     },
     'featured_resource': {
         'featured_per_page': 100,
@@ -553,6 +558,9 @@ ZDS_APP = {
                 'global': 3.0,
                 'if_article': 1.0,
                 'if_tutorial': 1.0,
+                'if_medium_or_big_tutorial': 1.5,
+                'if_opinion': 0.66,
+                'if_opinion_not_picked': 0.5
             },
             'topic': {
                 'global': 2.0,
@@ -635,4 +643,7 @@ except ImportError:
 if DEBUG:
     INSTALLED_APPS += (
         'debug_toolbar',
+    )
+    MIDDLEWARE_CLASSES += (
+        'debug_toolbar.middleware.DebugToolbarMiddleware',
     )

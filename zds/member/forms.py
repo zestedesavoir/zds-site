@@ -64,7 +64,6 @@ class LoginForm(forms.Form):
             Field('username'),
             Field('password'),
             Field('remember'),
-            HTML('{% csrf_token %}'),
             ButtonHolder(
                 StrictButton(_(u'Se connecter'), type='submit'),
             )
@@ -176,7 +175,7 @@ class MiniProfileForm(forms.Form):
         max_length=Profile._meta.get_field('avatar_url').max_length,
         widget=forms.TextInput(
             attrs={
-                'placeholder': _(u'Lien vers un avatar externe laissez vide pour utiliser Gravatar).')
+                'placeholder': _(u'Lien vers un avatar externe (laissez vide pour utiliser Gravatar).')
             }
         )
     )
@@ -188,16 +187,6 @@ class MiniProfileForm(forms.Form):
         widget=forms.TextInput(
             attrs={
                 'placeholder': _(u'Elle apparaitra dans les messages de forums. ')
-            }
-        )
-    )
-
-    github_token = forms.CharField(
-        label='Token GitHub',
-        required=False,
-        widget=forms.TextInput(
-            attrs={
-                'placeholder': _(u'Token qui permet de communiquer avec la plateforme GitHub.')
             }
         )
     )
@@ -231,9 +220,9 @@ class ProfileForm(MiniProfileForm):
         required=False,
         choices=(
             ('show_sign', _(u'Afficher les signatures')),
-            ('is_hover_enabled', _(u'Cochez pour dérouler les menus au survol')),
+            ('is_hover_enabled', _(u'Dérouler les menus au survol')),
             ('allow_temp_visual_changes', _(u'Activer les changements visuels temporaires')),
-            ('email_for_answer', _(u'Recevez un courriel lorsque vous recevez une réponse à un message privé')),
+            ('email_for_answer', _(u"Recevoir un courriel lors d'une réponse à un message privé")),
         ),
         widget=forms.CheckboxSelectMultiple,
     )
@@ -275,9 +264,35 @@ class ProfileForm(MiniProfileForm):
             Field('options'),
             ButtonHolder(StrictButton(_(u'Enregistrer'), type='submit'),)
         )
-        if initial.get('is_dev'):
-            layout.fields.insert(5, Field('github_token'))
         self.helper.layout = layout
+
+
+class GitHubTokenForm(forms.Form):
+    """
+    Updates the GitHub token.
+    """
+    github_token = forms.CharField(
+        label='Token GitHub',
+        required=True,
+        widget=forms.TextInput(
+            attrs={
+                'placeholder': _(u'Token qui permet de communiquer avec la plateforme GitHub.'),
+                'autocomplete': 'off'
+            }
+        )
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(GitHubTokenForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = 'content-wrapper'
+        self.helper.form_method = 'post'
+
+        self.helper.layout = Layout(
+            Field('github_token'),
+            ButtonHolder(
+                StrictButton(_(u'Enregistrer'), type='submit'),
+            ))
 
 
 class ChangeUserForm(forms.Form):

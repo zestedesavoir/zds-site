@@ -13,7 +13,7 @@ from hashlib import md5
 
 from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory, PostFactory
 from zds.notification.models import TopicAnswerSubscription
-from zds.member.factories import ProfileFactory, StaffProfileFactory
+from zds.member.factories import ProfileFactory, StaffProfileFactory, DevProfileFactory
 from zds.member.models import TokenForgotPassword, TokenRegister, Profile
 from zds.tutorialv2.factories import PublishableContentFactory, PublishedContentFactory
 from zds.gallery.factories import GalleryFactory, ImageFactory
@@ -193,7 +193,8 @@ class MemberModelsTest(TestCase):
         self.assertEqual(len(articles), 0)
         # Should be 1
         PublishedContentFactory(author_list=[self.user1.user], type='Article')
-        self.assertEqual(len(self.user1.get_public_tutos()), 1)
+        self.assertEqual(len(self.user1.get_public_articles()), 1)
+        self.assertEqual(len(self.user1.get_public_tutos()), 0)
 
     def test_get_validate_articles(self):
         # Start with 0
@@ -347,6 +348,20 @@ class MemberModelsTest(TestCase):
         self.user1.last_ip_address = '0000:0000:0000:0000:0000:0000:0000:0001'
         # Then the get_city is not found and return empty string
         self.assertEqual('', self.user1.get_city())
+
+    def test_remove_token_on_removing_from_dev_group(self):
+        dev = DevProfileFactory()
+        dev.github_token = 'test'
+        dev.save()
+        dev.user.save()
+
+        self.assertEqual('test', dev.github_token)
+
+        # remove dev from dev group
+        dev.user.groups.clear()
+        dev.user.save()
+
+        self.assertEqual('', dev.github_token)
 
     def test_reachable_manager(self):
         # profile types

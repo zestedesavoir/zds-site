@@ -22,7 +22,7 @@ from zds.gallery.models import Image
 from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.mp.models import PrivateTopic, is_privatetopic_unread
 from zds.notification.models import TopicAnswerSubscription, ContentReactionAnswerSubscription, \
-    NewPublicationSubscription, Notification
+    NewPublicationSubscription, Notification, Subscription
 from zds.settings import BASE_DIR
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory, \
     SubCategoryFactory, PublishedContentFactory, tricky_text_content, BetaContentFactory
@@ -294,6 +294,7 @@ class ContentTests(TestCase):
         versioned = tuto.load_version()
 
         self.assertEqual(Gallery.objects.filter(pk=tuto.gallery.pk).count(), 1)
+        self.assertEqual(UserGallery.objects.filter(gallery__pk=tuto.gallery.pk).count(), tuto.authors.count())
         self.assertEqual(Image.objects.filter(gallery__pk=tuto.gallery.pk).count(), 1)  # icon is uploaded
 
         # access to tutorial
@@ -903,6 +904,51 @@ class ContentTests(TestCase):
             reverse('content:view', args=[tuto.pk, tuto.slug]) + '?version=' + old_sha_beta,
             follow=False)
         self.assertEqual(result.status_code, 200)  # access granted
+
+    def test_beta_helps(self):
+        """Check that editorial helps are visible on the beta"""
+
+        # login with author
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # create and add help
+        help = HelpWritingFactory()
+        help.save()
+
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+        tuto.helps.add(help)
+        tuto.save()
+
+        # activate beta
+        result = self.client.post(
+            reverse('content:set-beta', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
+            {
+                'version': tuto.sha_draft
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # check that the information is displayed on the beta page
+        result = self.client.get(
+            reverse('content:beta-view', args=[tuto.pk, tuto.slug]),
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+        self.assertContains(result, _(u"L'auteur de ce contenu recherche"))
+        # and on a container
+        result = self.client.get(
+            reverse('content:beta-view-container',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': tuto.slug,
+                        'container_slug': self.part1.slug
+                    }),
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+        self.assertContains(result, _(u"L'auteur de ce contenu recherche"))
 
     def test_history_navigation(self):
         """ensure that, if the title (and so the slug) of the content change, its content remain accessible"""
@@ -1934,6 +1980,184 @@ class ContentTests(TestCase):
             '?from=HEAD&to=HEAD^',
             follow=False)
         self.assertEqual(result.status_code, 200)
+
+    def test_validation_subscription(self):
+        """test if the author suscribes to their own content"""
+
+        text_validation = u"Valide moi ce truc, s'il te plait"
+        source = u'http://example.com'  # thanks the IANA for that one ;-)
+        different_source = u'http://example.org'
+        text_accept = u"C'est cool, merci !"
+
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+
+        # connect with author:
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # ask validation
+        self.assertEqual(Validation.objects.count(), 0)
+
+        result = self.client.post(
+            reverse('validation:ask', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
+            {
+                'text': text_validation,
+                'source': source,
+                'version': self.tuto_draft.current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Validation.objects.count(), 1)
+
+        self.assertEqual(PublishableContent.objects.get(pk=tuto.pk).source, source)  # source is set
+
+        validation = Validation.objects.filter(content=tuto).last()
+        self.assertIsNotNone(validation)
+
+        self.assertEqual(validation.comment_authors, text_validation)
+        self.assertEqual(validation.version, self.tuto_draft.current_version)
+        self.assertEqual(validation.status, 'PENDING')
+
+        # validate with staff
+        self.client.logout()
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.get(
+            reverse('content:view', kwargs={'pk': tuto.pk, 'slug': tuto.slug}) +
+            '?version=' + validation.version,
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        # reserve tuto:
+        result = self.client.post(
+            reverse('validation:reserve', kwargs={'pk': validation.pk}),
+            {
+                'version': validation.version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        validation = Validation.objects.filter(pk=validation.pk).last()
+        self.assertEqual(validation.status, 'PENDING_V')
+        self.assertEqual(validation.validator, self.user_staff)
+
+        result = self.client.post(
+            reverse('validation:accept', kwargs={'pk': validation.pk}),
+            {
+                'text': text_accept,
+                'is_major': True,
+                'source': different_source  # because ;)
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        validation = Validation.objects.filter(pk=validation.pk).last()
+        self.assertEqual(validation.status, 'ACCEPT')
+        self.assertEqual(validation.comment_validator, text_accept)
+
+        self.assertIsNotNone(NewPublicationSubscription.objects.get_existing(self.user_author, self.user_author))
+        self.assertTrue(ContentReactionAnswerSubscription.objects
+                        .get_existing(user=self.user_author, content_object=tuto).is_active)
+        self.client.logout()
+
+        # Re-ask a new validation
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        tuto = PublishableContent.objects.get(pk=tuto.pk)
+        versioned = tuto.load_version()
+        self.client.post(
+            reverse('content:edit', args=[tuto.pk, tuto.slug]),
+            {
+                'title': 'new title so that everything explode',
+                'description': tuto.description,
+                'introduction': tuto.load_version().get_introduction(),
+                'conclusion': tuto.load_version().get_conclusion(),
+                'type': u'ARTICLE',
+                'licence': tuto.licence.pk,
+                'subcategory': self.subcategory.pk,
+                'last_hash': tuto.load_version(tuto.sha_draft).compute_hash(),
+                'image': open('{}/fixtures/logo.png'.format(settings.BASE_DIR))
+            },
+            follow=False)
+
+        result = self.client.post(
+            reverse('validation:ask', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
+            {
+                'text': text_validation,
+                'source': source,
+                'version': versioned.current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Validation.objects.count(), 2)
+
+        self.assertEqual(PublishableContent.objects.get(pk=tuto.pk).source, source)  # source is set
+
+        validation = Validation.objects.filter(content=tuto).last()
+        self.assertIsNotNone(validation)
+
+        self.assertEqual(validation.comment_authors, text_validation)
+        self.assertEqual(validation.version, self.tuto_draft.current_version)
+        self.assertEqual(validation.status, 'PENDING')
+        self.client.logout()
+
+        # validate with staff
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.get(
+            reverse('content:view', kwargs={'pk': tuto.pk, 'slug': tuto.slug}) +
+            '?version=' + validation.version,
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        # reserve tuto:
+        result = self.client.post(
+            reverse('validation:reserve', kwargs={'pk': validation.pk}),
+            {
+                'version': validation.version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        validation = Validation.objects.filter(pk=validation.pk).last()
+        self.assertEqual(validation.status, 'PENDING_V')
+        self.assertEqual(validation.validator, self.user_staff)
+
+        result = self.client.post(
+            reverse('validation:accept', kwargs={'pk': validation.pk}),
+            {
+                'text': text_accept,
+                'is_major': True,
+                'source': different_source  # because ;)
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        self.assertEqual(Validation.objects.filter(content=tuto).count(), 2)
+
+        validation = Validation.objects.filter(pk=validation.pk).last()
+        self.assertEqual(validation.status, 'ACCEPT')
+        self.assertEqual(validation.comment_validator, text_accept)
+
+        self.assertIsNotNone(NewPublicationSubscription.objects.get_existing(self.user_author, self.user_author))
+        self.assertTrue(ContentReactionAnswerSubscription.objects
+                        .get_existing(user=self.user_author, content_object=tuto).is_active)
+        self.client.logout()
 
     def test_validation_workflow(self):
         """test the different case of validation"""
@@ -3763,7 +3987,12 @@ class ContentTests(TestCase):
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
         self.assertEqual(tuto.authors.count(), 2)
         self.assertEqual(tuto.authors.filter(pk=new_author.pk).count(), 1)
-        self.assertEqual(UserGallery.objects.filter(user=new_author, gallery=tuto.gallery).count(), 1)
+        self.assertEqual(UserGallery.objects.filter(user=new_author, gallery=tuto.gallery).count(), 1,
+                         'nb_author={}, nb_gallery={}, gallery_pk={}'.format(tuto.authors.count(),
+                                                                             UserGallery.objects
+                                                                                        .filter(gallery=tuto.gallery)
+                                                                                        .count(),
+                                                                             tuto.gallery.pk))
 
         # login with this new author, try to delete tuto
         self.assertEqual(
@@ -3853,7 +4082,7 @@ class ContentTests(TestCase):
         if os.path.isdir(settings.MEDIA_ROOT):
             shutil.rmtree(settings.MEDIA_ROOT)
 
-        # re-active PDF build
+        # re-activate PDF build
         settings.ZDS_APP['content']['build_pdf_when_published'] = True
 
 
@@ -3912,6 +4141,17 @@ class PublishedContentTests(TestCase):
         self.tuto.sha_draft = version
         self.tuto.public_version = self.published
         self.tuto.save()
+
+    def tearDown(self):
+        if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
+            shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
+        if os.path.isdir(settings.ZDS_APP['content']['repo_public_path']):
+            shutil.rmtree(settings.ZDS_APP['content']['repo_public_path'])
+        if os.path.isdir(settings.MEDIA_ROOT):
+            shutil.rmtree(settings.MEDIA_ROOT)
+
+        # re-activate PDF build
+        settings.ZDS_APP['content']['build_pdf_when_published'] = True
 
     def test_published(self):
         """Just a small test to ensure that the setUp() function produce a proper published content"""
@@ -5393,6 +5633,37 @@ class PublishedContentTests(TestCase):
         self.assertEqual(public_count - 1, PublishedContent.objects.count())
         self.assertEqual('PENDING', Validation.objects.get(pk=registered_validation.pk).status)
 
+    def test_unpublish_with_empty_subscription(self):
+        article = PublishedContentFactory(type='ARTICLE', author_list=[self.user_author], licence=self.licence)
+        registered_validation = Validation(
+            content=article,
+            version=article.sha_draft,
+            status='ACCEPT',
+            comment_authors='bla',
+            comment_validator='bla',
+            date_reserve=datetime.datetime.now(),
+            date_proposition=datetime.datetime.now(),
+            date_validation=datetime.datetime.now()
+        )
+        registered_validation.save()
+        subscriber = ProfileFactory().user
+        self.client.login(username=subscriber.username, password='hostel77')
+        resp = self.client.post(reverse('content:follow-reactions', args=[article.pk]), {'follow': True})
+        self.assertEqual(302, resp.status_code)
+        public_count = PublishedContent.objects.count()
+        self.client.logout()
+        self.client.login(username=self.user_staff.username, password='hostel77')
+        result = self.client.post(
+            reverse('validation:revoke', kwargs={'pk': article.pk, 'slug': article.public_version.content_public_slug}),
+            {
+                'text': 'This content was bad',
+                'version': article.public_version.sha_public
+            },
+            follow=False)
+        self.assertEqual(302, result.status_code)
+        self.assertEqual(public_count - 1, PublishedContent.objects.count())
+        self.assertEqual(Subscription.objects.filter(is_active=False).count(), 2)  # author + subscriber
+
     def test_validation_history(self):
         published = PublishedContentFactory(author_list=[self.user_author])
         self.assertEqual(
@@ -5459,18 +5730,6 @@ class PublishedContentTests(TestCase):
             True)
         result = self.client.get(reverse('validation:list') + '?type=tuto')
         self.assertNotIn('class="update_content"', result.content)
-
-    def tearDown(self):
-
-        if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
-            shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
-        if os.path.isdir(settings.ZDS_APP['content']['repo_public_path']):
-            shutil.rmtree(settings.ZDS_APP['content']['repo_public_path'])
-        if os.path.isdir(settings.MEDIA_ROOT):
-            shutil.rmtree(settings.MEDIA_ROOT)
-
-        # re-active PDF build
-        settings.ZDS_APP['content']['build_pdf_when_published'] = True
 
     def test_beta_article_closed_when_published(self):
         """Test that the beta of an article is locked when the content is published"""

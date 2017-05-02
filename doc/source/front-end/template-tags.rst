@@ -302,6 +302,20 @@ Récupère la liste des alertes (si l'utilisateur possède les droits pour le fa
 - ``alert.pubdate`` donne la date à laquelle l'alerte à été faite ;
 - ``alert.topic`` donne le texte d'alerte.
 
+``waiting_count``
+---------------
+
+Récupère le nombre de tutoriels ou d'articles dans la zone de validation n'ayant pas été réservés par un validateur.
+
+.. sourcecode:: html
+
+    {% load interventions %}
+    {% with waiting_tutorials_count="TUTORIAL"|waiting_count waiting_articles_count="ARTICLE"|waiting_count %}
+        ...
+    {% endwith %}
+
+Le filtre doit être appelé sur ``"TUTORIAL"`` pour récupérer le nombre de tutoriels en attente et sur ``"ARTICLE"`` pour le nombre d'articles.
+
 ``humane_delta``
 ----------------
 
@@ -560,3 +574,18 @@ Exemple :
     {% for authors in content|displayable_authors:False %}
        <!-- here display all author for draft version -->
     {% endfor %}
+
+Le module ``elasticsearch``
+===========================
+
+``highlight``
+
+Permet de mettre en surbrillance les résultats d'une recherche.
+
+Exemple :
+
+.. sourcecode:: html
+
+    {% if search_result.text %}
+        {% highlight search_result "text" %}
+    {% endif %}

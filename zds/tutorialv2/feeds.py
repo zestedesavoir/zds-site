@@ -23,14 +23,9 @@ class LastContentFeedRSS(Feed):
         :return: The last (typically 5) contents (sorted by publication date).
         If `self.type` is not `None`, the contents will only be of this type.
         """
-        contents = PublishedContent.objects\
-            .prefetch_related('content')\
-            .prefetch_related('content__authors')
+        contents = PublishedContent.objects.published_contents(self.content_type)[:ZDS_APP['content']['feed_length']]
 
-        if self.content_type is not None:
-            contents = contents.filter(content_type=self.content_type)
-
-        return contents.order_by('-publication_date')[:ZDS_APP['content']['feed_length']]
+        return contents
 
     def item_title(self, item):
         return item.content.title
@@ -86,3 +81,19 @@ class LastArticlesFeedRSS(LastContentFeedRSS):
 class LastArticlesFeedATOM(LastArticlesFeedRSS):
     feed_type = Atom1Feed
     subtitle = LastArticlesFeedRSS.description
+
+
+class LastOpinionsFeedRSS(LastContentFeedRSS):
+    """
+    Redefinition of `LastContentFeedRSS` for opinions only
+    """
+    content_type = 'OPINION'
+    link = '/tribunes/'
+    title = u'Tribunes sur {}'.format(settings.ZDS_APP['site']['litteral_name'])
+    description = u'Les derniers billets des tribunes parus sur {}.'.format(
+        settings.ZDS_APP['site']['litteral_name'])
+
+
+class LastOpinionsFeedATOM(LastOpinionsFeedRSS):
+    feed_type = Atom1Feed
+    subtitle = LastOpinionsFeedRSS.description

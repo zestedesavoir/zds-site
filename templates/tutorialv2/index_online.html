@@ -49,7 +49,7 @@
 
 {% block content_out %}
     <section class="full-content-wrapper" itemscope itemtype="http://schema.org/ItemList">
-        <h1 class="ico-after ico-{% if current_content_type == "TUTORIAL" %}tutorials{% elif current_content_type == "ARTICLE" %}articles{% else %}articles{% endif %}" itemprop="name">
+        <h1 class="ico-after ico-{% if current_content_type == "TUTORIAL" %}tutorials{% elif current_content_type == "ARTICLE" %}articles{% elif current_content_type == "OPINION" %}opinions{% else %}articles{% endif %}" itemprop="name">
             {% block headline %}
                 {% if tag %}
                     {{ verbose_type_name_plural|title }} : {{ tag.title }}
@@ -67,7 +67,7 @@
 
         {% if public_contents %}
             <div class="content-item-list">
-                {% if current_content_type == "ARTICLE" %}
+                {% if current_content_type == "ARTICLE" or current_content_type == "OPINION" %}
                     {% for public_content in public_contents %}
                         {% include "tutorialv2/includes/content_item.part.html" with public_content=public_content show_description=True show_reactions=True %}
                     {% endfor %}
@@ -110,6 +110,10 @@
             <a href="{% url 'content:helps' %}?type=article" class="new-btn ico-after help blue">
                 {% trans "Aider les auteurs" %}
             </a>
+        {% elif current_content_type == "OPINION" %}
+            <a href="{% url "content:create-opinion" %}" class="new-btn ico-after more blue">
+                {% trans "Nouveau billet" %}
+            </a>
         {% elif current_content_type == None %}
             <a href="{% url "content:create-article" %}" class="new-btn ico-after more blue">
                 {% trans "Nouvel article" %}
@@ -117,6 +121,10 @@
 
             <a href="{% url "content:create-tutorial" %}" class="new-btn ico-after more blue">
                 {% trans "Nouveau tutoriel" %}
+            </a>
+
+            <a href="{% url "content:create-opinion" %}" class="new-btn ico-after more blue">
+                {% trans "Nouveau billet" %}
             </a>
 
             <a href="{% url 'content:helps' %}" class="new-btn ico-after help blue">
@@ -131,6 +139,8 @@
                 {% url "article:list" %}
             {% elif current_content_type == "TUTORIAL" %}
                 {% url "tutorial:list" %}
+            {% elif current_content_type == "OPINION" %}
+                {% url "opinion:list" %}
             {% elif current_content_type == None %}
                 {% url "content:list" %}
             {% endif %}
@@ -164,6 +174,8 @@
                             href="{% url "article:feed-rss" %}"
                         {% elif current_content_type == "TUTORIAL" %}
                             href="{% url "tutorial:feed-rss" %}"
+                        {% elif current_content_type == "OPINION" %}
+                            href="{% url "opinion:feed-rss" %}"
                         {% elif current_content_type == None %}
                             href="{% url "content:feed-rss" %}"
                         {% endif %}
@@ -177,6 +189,8 @@
                             href="{% url "article:feed-atom" %}"
                         {% elif current_content_type == "TUTORIAL" %}
                             href="{% url "tutorial:feed-atom" %}"
+                        {% elif current_content_type == "OPINION" %}
+                            href="{% url "opinion:feed-atom" %}"
                         {% elif current_content_type == None %}
                             href="{% url "content:feed-atom" %}"
                         {% endif %}

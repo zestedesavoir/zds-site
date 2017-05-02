@@ -110,8 +110,11 @@
     <link rel="alternate" type="application/atom+xml" title="Nouveaux tutoriels (ATOM)" href="{% url "tutorial:feed-atom" %}">
     <link rel="alternate" type="application/rss+xml" title="Nouveaux articles (RSS)" href="{% url "article:feed-rss" %}">
     <link rel="alternate" type="application/atom+xml" title="Nouveaux articles (ATOM)" href="{% url "article:feed-atom" %}">
+    <link rel="alternate" type="application/rss+xml" title="Nouveaux billets (RSS)" href="{% url "opinion:feed-rss" %}">
+    <link rel="alternate" type="application/atom+xml" title="Nouveaux billets (ATOM)" href="{% url "opinion:feed-atom" %}">
     {# OpenSearch plugin autodiscovery #}
     <link rel="search" type="application/opensearchdescription+xml" title="{{ app.site.litteral_name }}" href="{% url "search:opensearch" %}">
+    {% block extra_link %}{% endblock %}
 </head>
 
 {% if not user.is_authenticated or user.profile.allow_temp_visual_changes %}
@@ -205,7 +208,7 @@
                                                             {% for subcat,slug in subcats %}
                                                                 <li>
                                                                     <a href="{% url "tutorial:list" %}?category={{ slug }}">
-                                                                        {{  subcat }}
+                                                                        {{ subcat }}
                                                                     </a>
                                                                 </li>
                                                             {% endfor %}
@@ -256,7 +259,7 @@
                                                             {% for subcat,slug in subcats %}
                                                                 <li>
                                                                     <a href="{% url "article:list" %}?category={{ slug }}">
-                                                                        {{  subcat }}
+                                                                        {{ subcat }}
                                                                     </a>
                                                                 </li>
                                                             {% endfor %}
@@ -288,6 +291,58 @@
                                 {% endcache %}
                             </li>
                             <li>
+                                <a href="{% url "opinion:list" %}" class="mobile-menu-link {% block menu_opinion %}{% endblock %}">
+                                    {% trans "Tribunes" %}
+                                </a>
+                                {% cache 1800 menu_opinion user|groups %}
+                                    <div class="dropdown header-menu-dropdown">
+                                        <a href="{% url "opinion:list" %}" class="dropdown-link-all">
+                                            {% trans "Tous les billets" %}
+                                        </a>
+
+                                        <ul class="dropdown-list">
+                                            {% with categories='OPINION'|top_categories_content %}
+                                                {% for title, subcats in categories.categories.items %}
+                                                    <li>
+                                                        <ul>
+                                                            <li class="dropdown-title">
+                                                                {{ title }}
+                                                            </li>
+                                                            {% for subcat,slug in subcats %}
+                                                                <li>
+                                                                    <a href="{% url "opinion:list" %}?category={{ slug }}">
+                                                                        {{ subcat }}
+                                                                    </a>
+                                                                </li>
+                                                            {% endfor %}
+                                                        </ul>
+                                                    </li>
+                                                {% empty %}
+                                                    <ul>
+                                                        <li class="dropdown-title">
+                                                            {% trans "Aucune tribune disponible." %}
+                                                        </li>
+                                                    </ul>
+                                                {% endfor %}
+                                                {% if categories.tags %}
+                                                    <li>
+                                                        <ul>
+                                                            <li class="dropdown-title">
+                                                                {% trans "Tags les plus utilisés" %}
+                                                            </li>
+                                                            {% for tag in categories.tags %}
+                                                                <li><a href="{% url 'opinion:list' %}?tag={{ tag.title|urlencode }}">{{ tag }}</a></li>
+                                                            {% endfor %}
+                                                            <li><a href="{% url 'content:tags' %}">Tous les tags</a></li>
+                                                        </ul>
+                                                    </li>
+                                                {% endif %}
+                                            {% endwith %}
+                                        </ul>
+                                    </div>
+                                {% endcache %}
+                            </li>
+                            <li>
                                 <a href="{% url "cats-forums-list" %}" class="mobile-menu-link {% block menu_forum %}{% endblock %}">
                                     {% trans "Forums" %}
                                 </a>
@@ -306,7 +361,7 @@
                                                                 {{ title }}
                                                             </li>
                                                             {% for forum in forums %}
-                                                                <li><a href="{{ forum.get_absolute_url }}">{{ forum.title }}</a></li>
+                                                                <li {% if forum.has_group %}class="staff-only"{% endif %}><a href="{{ forum.get_absolute_url }}">{{ forum.title }}</a></li>
                                                             {% endfor %}
                                                         </ul>
                                                     </li>
@@ -318,16 +373,16 @@
                                                     </ul>
                                                 {% endfor %}
                                                 {% if top.tags %}
-                                                <li>
-                                                    <ul>
-                                                        <li class="dropdown-title">
-                                                            {% trans "Tags les plus utilisés" %}
-                                                        </li>
-                                                        {% for tag in top.tags %}
-                                                            <li><a href="{{ tag.get_absolute_url }}">{{ tag.title }}</a></li>
-                                                        {% endfor %}
-                                                    </ul>
-                                                </li>
+                                                    <li>
+                                                        <ul>
+                                                            <li class="dropdown-title">
+                                                                {% trans "Tags les plus utilisés" %}
+                                                            </li>
+                                                            {% for tag in top.tags %}
+                                                                <li><a href="{{ tag.get_absolute_url }}">{{ tag.title }}</a></li>
+                                                            {% endfor %}
+                                                        </ul>
+                                                    </li>
                                                 {% endif %}
                                             {% endwith %}
                                         </ul>
@@ -360,7 +415,7 @@
                                                 {% trans "Messagerie privée" %}
                                                 <a href="{% url "mp-new" %}" class="ico-after pm-new white" title="{% trans 'Envoyer un nouveau message privé' %}"></a>
                                            </span>
-                                            
+
                                             <ul class="dropdown-list">
                                                 {% for notification in notifications %}
                                                 <li>
@@ -437,7 +492,7 @@
                                                 {% endif %}
                                             </a>
 
-                                            <div class="dropdown">
+                                            <div class="dropdown staff-only">
                                                 <span class="dropdown-title">{% trans "Alertes de modération" %}</span>
                                                 <ul class="dropdown-list">
                                                     {% for alert in alerts_list.alerts %}
@@ -502,6 +557,9 @@
                                             <a href="{% url "content:find-article" user.pk %}">{% trans "Mes articles" %}</a>
                                         </li>
                                         <li>
+                                            <a href="{% url "content:find-opinion" user.pk %}">{% trans "Mes billets" %}</a>
+                                        </li>
+                                        <li>
                                             <a href="{% url "gallery-list" %}">{% trans "Galeries d'images" %}</a>
                                         </li>
                                         <li>
@@ -509,16 +567,31 @@
                                         </li>
 
                                         {% if perms.tutorialv2.change_validation %}
-                                            <li>
-                                                <a href="{% url "validation:list" %}?type=tuto">{% trans "Validation des tutoriels" %}</a>
+                                            {% with waiting_tutorials_count="TUTORIAL"|waiting_count waiting_articles_count="ARTICLE"|waiting_count %}
+                                                <li class="staff-only">
+                                                    <a href="{% url "validation:list" %}?type=tuto">
+                                                        {% trans "Validation des tutoriels" %}
+                                                        {% if waiting_tutorials_count > 0 %}
+                                                            ({{ waiting_tutorials_count }})
+                                                        {% endif %}
+                                                    </a>
+                                                </li>
+                                                <li class="staff-only">
+                                                    <a href="{% url "validation:list" %}?type=article">
+                                                        {% trans "Validation des articles" %}
+                                                        {% if waiting_articles_count > 0 %}
+                                                            ({{ waiting_articles_count }})
+                                                        {% endif %}
+                                                    </a>
+                                                </li>
+                                                <li class="staff-only">
+                                                <a href="{% url "validation:list-opinion" %}">{% trans "Choix des billets" %}</a>
                                             </li>
-                                            <li>
-                                                <a href="{% url "validation:list" %}?type=article">{% trans "Validation des articles" %}</a>
-                                            </li>
+                                            {% endwith %}
                                         {% endif %}
 
                                         {% if perms.featured.change_featuredresource %}
-                                            <li>
+                                            <li class="staff-only">
                                                 <a href="{% url 'featured-resource-list' %}">{% trans 'Gestion des mises en avant' %}</a>
                                             </li>
                                         {% endif %}

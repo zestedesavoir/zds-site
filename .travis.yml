@@ -27,10 +27,12 @@ env:
     - TEST_APP="-e front"
 
 notifications:
-  irc:
-    channels:
-      - irc.smoothirc.net#zds-dev
-    skip_join: true
+  webhooks:
+    urls:
+        - "https://scalar.vector.im/api/neb/services/hooks/dHJhdmlzLWNpLyU0MHNhbmRob3NlJTNBc2FuZGhvc2UuZnIvJTIxd2dlbkt2dHpNY3NYREtiZEhZJTNBbWF0cml4Lm9yZw"
+    on_success: change
+    on_failure: always
+    on_start: never
 
 services:
  - memcached
@@ -48,7 +50,7 @@ cache:
 
 before_install:
   # see https://docs.travis-ci.com/user/database-setup/#Installing-specific-versions-of-ElasticSearch
-  - curl -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.2.0.deb && sudo dpkg -i --force-confnew elasticsearch-5.2.0.deb && sudo service elasticsearch start
+  - curl -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.3.0.deb && sudo dpkg -i --force-confnew elasticsearch-5.3.0.deb && sudo service elasticsearch start
 
 before_script:
   # MySQL config

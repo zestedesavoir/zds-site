@@ -27,6 +27,7 @@ class UserGalleryAdmin(admin.ModelAdmin):
     list_display = ('user', 'gallery', 'mode')
     raw_id_fields = ('user', 'gallery')
 
+
 admin.site.register(Gallery, GalleryAdmin)
 admin.site.register(Image, ImageAdmin)
 admin.site.register(UserGallery, UserGalleryAdmin)

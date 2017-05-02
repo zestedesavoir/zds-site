@@ -1,7 +1,9 @@
 # coding: utf-8
 
 import os
+import json
 import shutil
+import datetime
 
 from elasticsearch_dsl import Search
 from elasticsearch_dsl.query import MatchAll
@@ -126,6 +128,51 @@ class ViewsTests(TestCase):
             for i, r in enumerate(response):
                 self.assertIn(r.meta.doc_type, group_to_model[doc_type])  # ... and only of the right type ...
                 self.assertEqual(r.meta.id, ids[doc_type][i])  # .. with the right id !
+
+    def test_get_similar_topics(self):
+        """Get similar topics lists"""
+
+        if not self.manager.connected_to_es:
+            return
+
+        text = 'Clem ne se mange pas'
+
+        topic_1 = TopicFactory(forum=self.forum, author=self.user, title=text)
+        post_1 = PostFactory(topic=topic_1, author=self.user, position=1)
+        post_1.text = post_1.text_html = text
+        post_1.save()
+
+        text = 'Clem est la meilleure mascotte'
+
+        topic_2 = TopicFactory(forum=self.forum, author=self.user, title=text)
+        post_2 = PostFactory(topic=topic_2, author=self.user, position=1)
+        post_2.text = post_1.text_html = text
+        post_2.save()
+
+        # 1. Should not get any result
+        result = self.client.get(reverse('search:similar') + '?q=est', follow=False)
+        self.assertEqual(result.status_code, 200)
+        content = json.loads(result.content)
+        self.assertEqual(len(content['results']), 0)
+
+        # index
+        for model in self.indexable:
+            if model is FakeChapter:
+                continue
+            self.manager.es_bulk_indexing_of_model(model)
+        self.manager.refresh_index()
+
+        # 2. Should not get two results
+        result = self.client.get(reverse('search:similar') + '?q=mange', follow=False)
+        self.assertEqual(result.status_code, 200)
+        content = json.loads(result.content)
+        self.assertEqual(len(content['results']), 1)
+
+        # 2. Should not get two results
+        result = self.client.get(reverse('search:similar') + '?q=Clem', follow=False)
+        self.assertEqual(result.status_code, 200)
+        content = json.loads(result.content)
+        self.assertEqual(len(content['results']), 2)
 
     def test_hidden_post_are_not_result(self):
         """Hidden posts should not come out of the search"""
@@ -284,13 +331,23 @@ class ViewsTests(TestCase):
         article = PublishedContentFactory(type='ARTICLE', title=text)
         published_article = PublishedContent.objects.get(content_pk=article.pk)
 
+        opinion_not_picked = PublishedContentFactory(type='OPINION', title=text)
+        published_opinion_not_picked = PublishedContent.objects.get(content_pk=opinion_not_picked.pk)
+
+        opinion_picked = PublishedContentFactory(type='OPINION', title=text)
+        opinion_picked.sha_picked = opinion_picked.sha_draft
+        opinion_picked.date_picked = datetime.datetime.now()
+        opinion_picked.save()
+
+        published_opinion_picked = PublishedContent.objects.get(content_pk=opinion_picked.pk)
+
         for model in self.indexable:
             if model is FakeChapter:
                 continue
             self.manager.es_bulk_indexing_of_model(model)
         self.manager.refresh_index()
 
-        self.assertEqual(len(self.manager.setup_search(Search().query(MatchAll())).execute()), 8)
+        self.assertEqual(len(self.manager.setup_search(Search().query(MatchAll())).execute()), 10)
 
         # 2. Reset all boosts to 1
         for doc_type in settings.ZDS_APP['search']['boosts']:
@@ -418,10 +475,14 @@ class ViewsTests(TestCase):
 
         self.assertEqual(result.status_code, 200)
         response = result.context['object_list'].execute()
-        self.assertEquals(response.hits.total, 3)
+        self.assertEquals(response.hits.total, 5)
 
         # score are equals without boost:
-        self.assertTrue(response[0].meta.score == response[1].meta.score)
+        self.assertTrue(response[0].meta.score ==
+                        response[1].meta.score ==
+                        response[2].meta.score ==
+                        response[3].meta.score ==
+                        response[4].meta.score)
 
         settings.ZDS_APP['search']['boosts']['publishedcontent']['if_article'] = 2.0
 
@@ -430,7 +491,7 @@ class ViewsTests(TestCase):
 
         self.assertEqual(result.status_code, 200)
         response = result.context['object_list'].execute()
-        self.assertEqual(response.hits.total, 3)
+        self.assertEqual(response.hits.total, 5)
 
         self.assertTrue(response[0].meta.score > response[1].meta.score)
         self.assertEquals(response[0].meta.id, str(published_article.pk))  # obvious
@@ -443,12 +504,42 @@ class ViewsTests(TestCase):
 
         self.assertEqual(result.status_code, 200)
         response = result.context['object_list'].execute()
-        self.assertEqual(response.hits.total, 3)
+        self.assertEqual(response.hits.total, 5)
 
         self.assertTrue(response[0].meta.score > response[1].meta.score)
         self.assertEquals(response[0].meta.id, str(published_tuto.pk))  # obvious
 
         settings.ZDS_APP['search']['boosts']['publishedcontent']['if_tutorial'] = 1.0
+        settings.ZDS_APP['search']['boosts']['publishedcontent']['if_opinion'] = 2.0
+        settings.ZDS_APP['search']['boosts']['publishedcontent']['if_opinion_not_picked'] = 4.0
+        # Note: in "real life", unpicked opinion would get a boost < 1.
+
+        result = self.client.get(
+            reverse('search:query') + '?q=' + text + '&models=content', follow=False)
+
+        self.assertEqual(result.status_code, 200)
+        response = result.context['object_list'].execute()
+        self.assertEqual(response.hits.total, 5)
+
+        self.assertTrue(response[0].meta.score > response[1].meta.score > response[2].meta.score)
+        self.assertEquals(response[0].meta.id, str(published_opinion_not_picked.pk))  # unpicked opinion got first
+        self.assertEquals(response[1].meta.id, str(published_opinion_picked.pk))
+
+        settings.ZDS_APP['search']['boosts']['publishedcontent']['if_opinion'] = 1.0
+        settings.ZDS_APP['search']['boosts']['publishedcontent']['if_opinion_not_picked'] = 1.0
+        settings.ZDS_APP['search']['boosts']['publishedcontent']['if_medium_or_big_tutorial'] = 2.0
+
+        result = self.client.get(
+            reverse('search:query') + '?q=' + text + '&models=content', follow=False)
+
+        self.assertEqual(result.status_code, 200)
+        response = result.context['object_list'].execute()
+        self.assertEqual(response.hits.total, 5)
+
+        self.assertTrue(response[0].meta.score > response[1].meta.score)
+        self.assertEquals(response[0].meta.id, str(published_tuto.pk))  # obvious
+
+        settings.ZDS_APP['search']['boosts']['publishedcontent']['if_medium_or_big_tutorial'] = 1.0
 
         # 6. Test global boosts
         # NOTE: score are NOT the same for all documents, no matter how hard it tries to, small differences exists
@@ -463,7 +554,7 @@ class ViewsTests(TestCase):
 
             self.assertEqual(result.status_code, 200)
             response = result.context['object_list'].execute()
-            self.assertEqual(response.hits.total, 8)
+            self.assertEqual(response.hits.total, 10)
 
             self.assertEqual(response[0].meta.doc_type, model.get_es_document_type())  # obvious
 

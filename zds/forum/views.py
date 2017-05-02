@@ -5,7 +5,7 @@ import json
 import requests
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
@@ -284,7 +284,7 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
         is_staff = request.user.has_perm('forum.change_topic')
         if self.object.author != request.user and is_staff:
             messages.warning(request, _(
-                u'Vous éditez un topic en tant que modérateur (auteur : {}). Soyez encore plus '
+                u'Vous éditez ce sujet en tant que modérateur (auteur : {}). Soyez encore plus '
                 u'prudent lors de l\'édition de celui-ci !').format(self.object.author.username))
         form = self.create_form(self.form_class, **{
             'title': self.object.title,
@@ -322,9 +322,9 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
         elif 'solved' in request.POST:
             response['solved'] = self.perform_solve_or_unsolve(self.request.user, self.object)
         elif 'lock' in request.POST:
-            self.perform_lock(self.object, request)
+            self.perform_lock(request, self.object)
         elif 'sticky' in request.POST:
-            self.perform_sticky(self.object, request)
+            self.perform_sticky(request, self.object)
         elif 'move' in request.POST:
             self.perform_move()
 
@@ -532,7 +532,7 @@ class PostEdit(UpdateView, SinglePostObjectMixin, PostEditMixin):
         if 'delete_message' in request.POST:
             self.perform_hide_message(request, self.object, self.request.user, self.request.POST)
         if 'show_message' in request.POST:
-            self.perform_show_message(self.object, self.request.user)
+            self.perform_show_message(self.request, self.object)
         if 'signal_message' in request.POST:
             self.perform_alert_message(request, self.object, request.user, request.POST.get('signal_text'))
 
@@ -607,6 +607,7 @@ class FindPost(FindTopic):
 
 @can_write_and_read_now
 @login_required
+@permission_required('forum.change_post', raise_exception=True)
 @require_POST
 @transaction.atomic
 def solve_alert(request):
@@ -615,9 +616,6 @@ def solve_alert(request):
     resolver leaves a comment.
     This can only be done by staff.
     """
-
-    if not request.user.has_perm('forum.change_post'):
-        raise PermissionDenied
 
     alert = get_object_or_404(Alert, pk=request.POST['alert_pk'])
     post = Post.objects.get(pk=alert.comment.id)
@@ -637,12 +635,12 @@ def solve_alert(request):
             'staff_message': resolve_reason,
         })
 
-    alert.solve(alert, request.user, resolve_reason, msg_title, msg_content)
+    alert.solve(request.user, resolve_reason, msg_title, msg_content)
     messages.success(request, _(u"L'alerte a bien été résolue."))
     return redirect(post.get_absolute_url())
 
 
-class CreateGitHubIssue(UpdateView):
+class ManageGitHubIssue(UpdateView):
     queryset = Topic.objects.all()
 
     @method_decorator(require_POST)
@@ -651,33 +649,60 @@ class CreateGitHubIssue(UpdateView):
     def dispatch(self, request, *args, **kwargs):
         if not request.user.profile.is_dev():
             raise PermissionDenied
-        return super(CreateGitHubIssue, self).dispatch(request, *args, **kwargs)
+        return super(ManageGitHubIssue, self).dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
 
-        tags = [value.strip() for key, value in request.POST.items() if key.startswith('tag-')]
-        body = _('{}\n\nSujet: {}\n*Envoyé depuis {}*')\
-            .format(request.POST['body'],
-                    settings.ZDS_APP['site']['url'] + self.object.get_absolute_url(),
-                    settings.ZDS_APP['site']['litteral_name'])
-        try:
-            response = requests.post(
-                settings.ZDS_APP['site']['repository']['api'] + '/issues',
-                timeout=10,
-                headers={
-                    'Authorization': 'Token {}'.format(self.request.user.profile.github_token)},
-                json={
-                    'title': request.POST['title'],
-                    'body': body,
-                    'labels': tags
-                }
-            )
-            if response.status_code != 201:
-                raise Exception
-        except Exception:
-            messages.error(request, _('Un problème est survenu lors de l\'envoi sur GitHub'))
+        if 'unlink' in request.POST:
+            self.object.github_issue = None
+            self.object.save()
 
-        if request.is_ajax():
-            return HttpResponse(json.dumps(self.object), content_type='application/json')
+            messages.success(request, _('Le sujet a été dissocié de son ticket.'))
+        elif 'link' in request.POST:
+            try:
+                self.object.github_issue = int(request.POST['issue'])
+                if self.object.github_issue < 1:
+                    raise ValueError
+                self.object.save()
+
+                messages.success(request, _('Le ticket a bien été associé.'))
+            except (KeyError, ValueError, OverflowError):
+                messages.error(request, _('Une erreur est survenue avec le numéro fourni.'))
+        else:  # create
+            if not request.POST.get('title') or not request.POST.get('body'):
+                messages.error(request, _('Le titre et le contenu sont obligatoires.'))
+
+            elif not request.user.profile.github_token:
+                messages.error(request, _("Aucun token d'identification GitHub n'a été renseigné."))
+
+            else:
+                tags = [value.strip() for key, value in request.POST.items() if key.startswith('tag-')]
+                body = _('{}\n\nSujet : {}\n*Envoyé depuis {}*')\
+                    .format(request.POST['body'],
+                            settings.ZDS_APP['site']['url'] + self.object.get_absolute_url(),
+                            settings.ZDS_APP['site']['litteral_name'])
+                try:
+                    response = requests.post(
+                        settings.ZDS_APP['site']['repository']['api'] + '/issues',
+                        timeout=10,
+                        headers={
+                            'Authorization': 'Token {}'.format(self.request.user.profile.github_token)},
+                        json={
+                            'title': request.POST['title'],
+                            'body': body,
+                            'labels': tags
+                        }
+                    )
+                    if response.status_code != 201:
+                        raise Exception
+
+                    json_response = response.json()
+                    self.object.github_issue = json_response['number']
+                    self.object.save()
+
+                    messages.success(request, _('Le ticket a bien été créé.'))
+                except Exception:
+                    messages.error(request, _("Un problème est survenu lors de l'envoi sur GitHub."))
+
         return redirect(self.object.get_absolute_url())

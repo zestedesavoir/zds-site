@@ -31,6 +31,7 @@ def home(request):
 
     tutos = PublishableContent.objects.get_last_tutorials()
     articles = PublishableContent.objects.get_last_articles()
+    opinions = PublishableContent.objects.get_last_opinions()
 
     try:
         with open(os.path.join(BASE_DIR, 'quotes.txt'), 'r') as quotes_file:
@@ -42,6 +43,7 @@ def home(request):
         'featured_message': FeaturedMessage.objects.get_last_message(),
         'last_tutorials': tutos,
         'last_articles': articles,
+        'last_opinions': opinions,
         'last_featured_resources': FeaturedResource.objects.get_last_featured(),
         'last_topics': Topic.objects.get_last_topics(),
         'contents_count': PublishedContent.objects.get_contents_count(),

@@ -11,6 +11,13 @@
     {% set False as online %}
 {% endif %}
 
+{% captureas taglist %}
+    {% if public_content.is_opinion %}
+        {% url 'opinion:list' %}
+    {% else %}
+        {% url 'content:list' %}
+    {% endif %}
+{% endcaptureas %}
 
 {% captureas link %}
     {% if online %}
@@ -79,9 +86,14 @@
 
             {% if content.sha_public %}
                 <p class="content-authors">
-                    {% if content.pubdate %}
-                        <span class="long content-pubdate">{{ content.pubdate|format_date|capfirst }}</span>
-                        <span class="short content-pubdate">{{ content.pubdate|format_date:True|capfirst }}</span>
+                    {% if content.public_version %}
+                        {% set content.public_version.publication_date as pubdate %}
+                    {% else %}
+                        {% set content.pubdate as pubdate %}
+                    {% endif %}
+                    {% if pubdate and not ignore_date %}
+                        <span class="long content-pubdate">{{ pubdate|format_date|capfirst }}</span>
+                        <span class="short content-pubdate">{{ pubdate|format_date:True|capfirst }}</span>
                     {% endif %}
                     {{ authors_text }}
                 </p>
@@ -117,7 +129,7 @@
         <ul class="content-tags" itemprop="keywords">
             {% for tag in content.tags.all|slice:":3" %}
                 <li>
-                  <a href="{% url 'content:list' %}?tag={{ tag.title|urlencode }}">
+                  <a href="{{ taglist }}?tag={{ tag.title|urlencode }}">
                     {{ tag.title }}
                   </a>
                 </li>

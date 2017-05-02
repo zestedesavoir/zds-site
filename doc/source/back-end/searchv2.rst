@@ -119,7 +119,7 @@ La configuration de la connexion et de l'*index* se fait dans le ``settings.py``
       }
 
 
-La première active Elasticsearch pour SdZ.
+La première active Elasticsearch pour ZdS.
 La seconde permet de configurer la connexion à Elasticsearch. ``default`` est l'*alias* de la connexion, au cas où il serait nécessaire d'utiliser plusieurs *clusters*.
 La troisième est la configuration de l'*index* avec son nom, son nombre de *shards* et de *replicas*.
 

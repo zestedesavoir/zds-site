@@ -1,4 +1,5 @@
 # coding: utf-8
+import json
 import operator
 
 from elasticsearch_dsl import Search
@@ -7,14 +8,60 @@ from elasticsearch_dsl.query import Match, MultiMatch, FunctionScore, Term, Term
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.contrib import messages
+from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
+from django.views.generic import CreateView
+from django.views.generic.detail import SingleObjectMixin
 
 from zds.searchv2.forms import SearchForm
 from zds.searchv2.models import ESIndexManager
 from zds.utils.paginator import ZdSPagingListView
-from zds.forum.models import Forum
+from zds.utils.templatetags.authorized_forums import get_authorized_forums
+
+
+class SimilarSubjectsView(CreateView, SingleObjectMixin):
+    search_query = None
+    authorized_forums = ''
+    index_manager = None
+
+    def __init__(self, **kwargs):
+        """Overridden because index manager must NOT be initialized elsewhere
+        """
+
+        super(SimilarSubjectsView, self).__init__(**kwargs)
+        self.index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
+
+    def get(self, request, *args, **kwargs):
+        if 'q' in request.GET:
+            self.search_query = ''.join(request.GET['q'])
+
+        results = []
+        if self.index_manager.connected_to_es and self.search_query:
+            self.authorized_forums = get_authorized_forums(self.request.user)
+
+            search_queryset = Search()
+            query = Match(_type='topic') \
+                & Terms(forum_pk=self.authorized_forums) \
+                & MultiMatch(query=self.search_query, fields=['title', 'subtitle', 'tags'])
+
+            functions_score = [
+                {'filter': Match(is_solved=True), 'weight': settings.ZDS_APP['search']['boosts']['topic']['if_solved']},
+                {'filter': Match(is_sticky=True), 'weight': settings.ZDS_APP['search']['boosts']['topic']['if_sticky']},
+                {'filter': Match(is_locked=True), 'weight': settings.ZDS_APP['search']['boosts']['topic']['if_locked']}
+            ]
+
+            scored_query = FunctionScore(query=query, boost_mode='multiply', functions=functions_score)
+            search_queryset = search_queryset.query(scored_query)[:10]
+
+            # Build the result
+            for hit in search_queryset.execute():
+                result = {'id': hit.pk, 'url': str(hit.get_absolute_url), 'title': str(hit.title)}
+                results.append(result)
+
+        data = {'results': results}
+        return HttpResponse(json.dumps(data), content_type='application/json')
 
 
 class SearchView(ZdSPagingListView):
@@ -61,19 +108,7 @@ class SearchView(ZdSPagingListView):
         if self.search_query:
 
             # find forums the user is allowed to visit
-            user = self.request.user
-
-            forums_pub = Forum.objects.filter(group__isnull=True).all()
-            if user and user.is_authenticated():
-                forums_private = Forum \
-                    .objects \
-                    .filter(group__isnull=False, group__in=user.groups.all()) \
-                    .all()
-                list_forums = list(forums_pub | forums_private)
-            else:
-                list_forums = list(forums_pub)
-
-            self.authorized_forums = [f.pk for f in list_forums]
+            self.authorized_forums = get_authorized_forums(self.request.user)
 
             search_queryset = Search()
 
@@ -130,8 +165,20 @@ class SearchView(ZdSPagingListView):
                 'weight': settings.ZDS_APP['search']['boosts']['publishedcontent']['if_tutorial']
             },
             {
+                'filter': Match(content_type='TUTORIAL') & Match(has_chapters=True),
+                'weight': settings.ZDS_APP['search']['boosts']['publishedcontent']['if_medium_or_big_tutorial']
+            },
+            {
                 'filter': Match(content_type='ARTICLE'),
                 'weight': settings.ZDS_APP['search']['boosts']['publishedcontent']['if_article']
+            },
+            {
+                'filter': Match(content_type='OPINION'),
+                'weight': settings.ZDS_APP['search']['boosts']['publishedcontent']['if_opinion']
+            },
+            {
+                'filter': Match(content_type='OPINION') & Match(picked=False),
+                'weight': settings.ZDS_APP['search']['boosts']['publishedcontent']['if_opinion_not_picked']
             },
         ]
 

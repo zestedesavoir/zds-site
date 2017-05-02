@@ -83,12 +83,21 @@ watch-front:
 
 clean: clean-back clean-front
 
+wipe:
+	rm base.db
+	rm -rf contents-private/*
+	rm -rf contents-public/*
+
 doc:
 	cd doc && \
 	make html
 
 fixtures:
 	python manage.py loaddata fixtures/*.yaml
+	python manage.py load_factory_data fixtures/advanced/aide_tuto_media.yaml
+
+restart_db: wipe migrate fixtures
+	python manage.py load_fixtures size=low
 
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
@@ -111,6 +120,7 @@ help:
 	@echo "  clean-back        to clean *.pyc"
 	@echo "  clean-front       to clean frontend builds"
 	@echo "  clean             to clean everything"
+	@echo "  wipe              to clean data (database and contents)"
 	@echo "  watch-front       to watch frontend code"
 	@echo "  migrate           to migrate the project"
 	@echo "  report-release-back  to generate release report"

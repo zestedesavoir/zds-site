@@ -33,6 +33,10 @@ a,
     }
 }
 
+.page-container .header-container .staff-only a {
+    color: $color-staff-link;
+}
+
 button.link {
     display: inline-block;
     background: none;

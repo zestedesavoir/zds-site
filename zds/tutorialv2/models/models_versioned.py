@@ -5,15 +5,18 @@ from git import Repo
 import os
 import shutil
 import codecs
+from uuslug import slugify
 
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
+
 from zds.settings import ZDS_APP
+from zds.tutorialv2.models.mixins import TemplatableContentModelMixin
 from zds.tutorialv2.utils import default_slug_pool, export_content, get_commit_author, InvalidOperationError
-from uuslug import slugify
 from zds.utils.misc import compute_hash
+from zds.tutorialv2.models import SINGLE_CONTAINER, CONTENT_TYPES_BETA, CONTENT_TYPES_VALIDATION_BEFORE
 from zds.tutorialv2.utils import get_blob, InvalidSlugError, check_slug
 
 
@@ -26,7 +29,7 @@ class Container:
 
     It has also a tree depth.
 
-    A container could be either a tutorial/article, a part or a chapter.
+    A container could be either a tutorial/article/opinion, a part or a chapter.
     """
 
     title = ''
@@ -215,7 +218,7 @@ class Container:
         """
         if not self.has_extracts():
             if self.get_tree_depth() < ZDS_APP['content']['max_tree_depth'] - 1:
-                if not self.top_container().is_article:
+                if not self.top_container().type in SINGLE_CONTAINER:
                     return True
         return False
 
@@ -751,6 +754,25 @@ class Container:
         else:
             return _(u'Section')
 
+    def can_be_in_beta(self):
+        """
+        Check if content can be in beta.
+
+        :return: Whether content is in beta.
+        :rtype: bool
+        """
+        return self.type in CONTENT_TYPES_BETA
+
+    def requires_validation_before(self):
+        """
+        Check if content required a validation before publication.
+        Used to check if JsFiddle is available too.
+
+        :return: Whether validation is required before publication.
+        :rtype: bool
+        """
+        return self.type in CONTENT_TYPES_VALIDATION_BEFORE
+
 
 class Extract:
     """
@@ -999,7 +1021,7 @@ class Extract:
         return depth
 
 
-class VersionedContent(Container):
+class VersionedContent(Container, TemplatableContentModelMixin):
     """
     This class is used to handle a specific version of a tutorial.tutorial
 
@@ -1025,15 +1047,13 @@ class VersionedContent(Container):
     sha_beta = None
     sha_public = None
     sha_validation = None
+    sha_picked = None
     is_beta = False
     is_validation = False
     is_public = False
     in_beta = False
     in_validation = False
     in_public = False
-
-    is_article = False
-    is_tutorial = False
 
     authors = None
     subcategory = None
@@ -1044,11 +1064,13 @@ class VersionedContent(Container):
     source = None
     antispam = True
     tags = None
+    converted_to = None
+    content_type_attribute = 'type'
 
     def __init__(self, current_version, _type, title, slug, slug_repository=''):
         """
         :param current_version: version of the content
-        :param _type: either 'TUTORIAL' or 'ARTICLE'
+        :param _type: either "TUTORIAL", "ARTICLE" or "OPINION"
         :param title: title of the content
         :param slug: slug of the content
         :param slug_repository: slug of the directory that contains the repository, named after database slug.
@@ -1070,6 +1092,9 @@ class VersionedContent(Container):
     def __unicode__(self):
         return self.title
 
+    def get_absolute_url(self, version=None):
+        return TemplatableContentModelMixin.get_absolute_url(self, version)
+
     def textual_type(self):
         """Create a internationalized string with the human readable type of this content e.g The Article
 
@@ -1078,21 +1103,12 @@ class VersionedContent(Container):
         """
         if self.is_article:
             return _(u"L'Article")
-        else:
+        elif self.is_tutorial:
             return _(u'Le Tutoriel')
-
-    def get_absolute_url(self, version=None):
-        """
-
-        :return: the url to access the tutorial when offline
-        :rtype: str
-        """
-        url = reverse('content:view', args=[self.pk, self.slug])
-
-        if version and version != self.sha_draft:
-            url += '?version=' + version
-
-        return url
+        elif self.is_opinion:
+            return _(u'Le Billet')
+        else:
+            return _(u'Le Contenu')
 
     def get_absolute_url_online(self):
         """
@@ -1106,6 +1122,8 @@ class VersionedContent(Container):
             _reversed = 'article'
         elif self.is_tutorial:
             _reversed = 'tutorial'
+        elif self.is_opinion:
+            _reversed = 'opinion'
         return reverse(_reversed + ':view', kwargs={'pk': self.pk, 'slug': self.slug})
 
     def get_absolute_url_beta(self):
@@ -1160,7 +1178,7 @@ class VersionedContent(Container):
         :rtype: list[Container]
         """
         continuous_list = []
-        if not self.is_article:  # article cannot be paginated
+        if self.type not in SINGLE_CONTAINER:  # cannot be paginated
             if len(self.children) != 0 and isinstance(self.children[0], Container):  # children must be Containers !
                 for child in self.children:
                     if len(child.children) != 0:
@@ -1263,7 +1281,7 @@ class PublicContent(VersionedContent):
         """ This initialisation function avoid the loading of the Git repository
 
         :param current_version: version of the content
-        :param _type: either 'TUTORIAL' or 'ARTICLE'
+        :param _type: either "TUTORIAL", "ARTICLE" or "OPINION"
         :param title: title of the content
         :param slug: slug of the content
         """
