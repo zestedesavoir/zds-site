@@ -15,7 +15,7 @@ from rest_framework_extensions.etag.decorators import etag
 from rest_framework_extensions.key_constructor import bits
 from rest_framework_extensions.key_constructor.constructors import DefaultKeyConstructor
 
-from zds.api.bits import DJRF3xPaginationKeyBit, UpdatedAtKeyBit
+from zds.api.bits import UpdatedAtKeyBit
 from zds.mp.api.permissions import IsParticipant, IsParticipantFromPrivatePost, IsLastPrivatePostOfCurrentUser, \
     IsAuthor, IsNotAloneInPrivatePost
 from zds.mp.api.serializers import PrivateTopicSerializer, PrivateTopicUpdateSerializer, PrivateTopicCreateSerializer, \
@@ -26,7 +26,7 @@ from zds.notification.models import Notification
 
 
 class PagingPrivateTopicListKeyConstructor(DefaultKeyConstructor):
-    pagination = DJRF3xPaginationKeyBit()
+    pagination = bits.PaginationKeyBit()
     search = bits.QueryParamsKeyBit(['search', 'ordering'])
     list_sql_query = bits.ListSqlQueryKeyBit()
     unique_view_id = bits.UniqueViewIdKeyBit()
@@ -35,7 +35,7 @@ class PagingPrivateTopicListKeyConstructor(DefaultKeyConstructor):
 
 
 class PagingPrivatePostListKeyConstructor(DefaultKeyConstructor):
-    pagination = DJRF3xPaginationKeyBit()
+    pagination = bits.PaginationKeyBit()
     search = bits.QueryParamsKeyBit(['ordering'])
     list_sql_query = bits.ListSqlQueryKeyBit()
     unique_view_id = bits.UniqueViewIdKeyBit()
@@ -44,7 +44,7 @@ class PagingPrivatePostListKeyConstructor(DefaultKeyConstructor):
 
 
 class PagingNotificationListKeyConstructor(DefaultKeyConstructor):
-    pagination = DJRF3xPaginationKeyBit()
+    pagination = bits.PaginationKeyBit()
     unique_view_id = bits.UniqueViewIdKeyBit()
     user = bits.UserKeyBit()
     updated_at = UpdatedAtKeyBit('api_updated_notification')
