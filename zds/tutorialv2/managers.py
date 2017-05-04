@@ -177,7 +177,7 @@ class PublishableContentManager(models.Manager):
                     # we add a sentence to the content's introduction stating it was written by a former member.
                     versioned = content.load_version()
                     title = versioned.title
-                    introduction = '[[i]]\n|Ce contenu a été rédigé par {} qui a quitté le site.\n\n'\
+                    introduction = _('[[i]]\n|Ce contenu a été rédigé par {} qui a quitté le site.\n\n')\
                         .format(unregistered_user.username) + versioned.get_introduction()
                     conclusion = versioned.get_conclusion()
                     sha = versioned.repo_update(title, introduction, conclusion,

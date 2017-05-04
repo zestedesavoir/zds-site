@@ -365,7 +365,7 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
                 theme.count = PublishedContent.objects.filter(must_redirect=False,
                                                               content__subcategory__in=pks).count()
             context['public_contents'] = context['public_contents'][:min(len(context['public_contents']), 6)]
-
+        context['content_count'] = self.get_queryset().count()
         return context
 
 

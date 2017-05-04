@@ -50,17 +50,17 @@ Expected variables are :
 
     <h3>{% blocktrans %} Catégories <span class="wide">des {{ verbose_type_name_plural }}</span> {% endblocktrans %}</h3>
 
-    {% captureas content_list_url %}
-        {% if current_content_type == "ARTICLE" %}
-            {% url "article:list" %}
-        {% elif current_content_type == "TUTORIAL" %}
-            {% url "tutorial:list" %}
-        {% elif current_content_type == "OPINION" %}
+        {% captureas content_list_url %}
+            {% if current_content_type == "ARTICLE" %}
+                {% url "article:list" %}
+            {% elif current_content_type == "TUTORIAL" %}
+                {% url "tutorial:list" %}
+            {% elif current_content_type == "OPINION" %}
             {% url "opinion:list" %}
-        {% elif current_content_type == None %}
-            {% url "content:list" %}
-        {% endif %}
-    {% endcaptureas %}
+        {% elif current_content_type ==None %}
+                {% url "content:list" %}
+            {% endif %}
+        {% endcaptureas %}
 
     {% for title, subcats in top_categories.categories.items %}
         <h4 class="mobile-menu-link">{{ title }}</h4>

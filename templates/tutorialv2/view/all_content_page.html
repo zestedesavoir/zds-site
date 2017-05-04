@@ -1,12 +1,4 @@
-{% comment %}
-    Structure de la page de premier level :
-    - 4 tutos mis en avant
-    - présentation des 4 domaines de savoirs
-    - liste des 6 derniers tutos en une colonne
-    - liste des 6 tutos les plus commentés en une colonne
-    - bloc de envie de s'investir
-{% endcomment %}
-
+{% load i18n %}
 <section class="flexpage-header">
     <div class="flexpage-wrapper">
         <div class="flexpage-title-search">
@@ -14,8 +6,8 @@
                 <img src="http://127.0.0.1:8000/static/images/home-clem.png">
             </div>
             <div class="title">
-                <h1>Contenus</h1>
-                {{ content_count }} contenus
+                <h1>{% trans 'Contenus' %}</h1>
+                {{ content_count }} {% trans 'contenus' %}
             </div>
 
             <form action="" id="search-form" class="search" method="get">
@@ -29,8 +21,17 @@
 </section>
 
 <div class="flexpage-wrapper">
+    {% comment %}
+        First level page
+        - 2 featured tutorials
+        - all 4 knownledge domains presentation
+        - 1 column with last 6 contents
+        - 1 column with 6 most commented contents
+        - self investment block
+    {% endcomment %}
+
     <section>
-        <h2 itemprop="name">À la une</h2>
+        <h2 itemprop="name">{%  trans  'À la une' %}</h2>
         <div class="featured-resource-row">
             {% for featured_content in featured_contents %}
                 {% include "featured/includes/featured_resource_item.part.html" with featured_resource=featured_content %}
@@ -39,7 +40,7 @@
     </section>
 
     <section>
-        <h2 class="inline" itemprop="name">Domaines de savoir</h2>
+        <h2 class="inline" itemprop="name">{% trans 'Domaines de savoir' %}</h2>
         <div class="content-linkbox-list">
             {% include 'tutorialv2/list_page_elements/themes_list.html' %}
         </div>
@@ -48,7 +49,7 @@
     <div class="flexpage-column">
         <section>
             <h2 itemprop="name">
-                Derniers tutoriels
+                {% trans 'Derniers tutoriels' %}
                 <a href="{% url "tutorial:feed-rss" %}" class="btn btn-grey">RSS</a>
                 <a href="{% url "tutorial:feed-atom" %}" class="btn btn-grey">Atom</a>
             </h2>
@@ -58,7 +59,7 @@
 
         <section>
             <h2 itemprop="name">
-                Derniers articles
+                {% trans 'Derniers articles' %}
                 <a href="{% url "article:feed-rss" %}" class="btn btn-grey">RSS</a>
                 <a href="{% url "article:feed-atom" %}" class="btn btn-grey">Atom</a>
             </h2>
@@ -68,50 +69,54 @@
     </div>
 
     <section>
-        <h2 class="inline">Envie de s'investir ?</h2>
+        <h2 class="inline">{% trans 'Envie de s'investir ?' %}</h2>
 
         <div class="content-linkbox-list">
             <div class="linkbox-item secondary">
                 <a href="{{ beta_forum.get_absolute_url }}" class="head">
-                    <h3>Donner son avis</h3>
+                    <h3>{% trans 'Donner son avis' %}</h3>
                     <span class="icon"></span>
                 </a>
 
                 <a href="{{ beta_forum.get_absolute_url }}" class="body">
+                    {% blocktrans %}
                     <p>Les contenus presque terminés nécessitent souvent une relecture afin de peaufiner le fond comme la forme.</p>
                     <p class="right">Consulter les contenus en bêta.</p>
+                    {% endblocktrans %}
                 </a>
             </div>
 
             <div class="linkbox-item secondary">
                 <div class="head">
-                    <h3>Partager votre savoir</h3>
+                    <h3>{% trans 'Partager votre savoir' %}</h3>
                     <span class="icon"></span>
                 </div>
 
                 <div class="body">
-                    <p>Vous avez un savoir à partager, vous vous sentez pédagogue, pourquoi ne pas commencer l'écriture d'un tutoriel ?</p>
+                    <p>{% trans 'Vous avez un savoir à partager, vous vous sentez pédagogue, pourquoi ne pas commencer l'écriture d'un tutoriel ?' %}</p>
                 </div>
 
                 <a href="{% url "content:create-tutorial" %}" class="tail">
-                    <p>Écrire un tutoriel</p>
+                    <p>{% trans 'Écrire un tutoriel' %}</p>
                 </a>
 
                 <a href="{% url "content:create-article" %}" class="tail">
-                    <p>Écrire un article</p>
+                    <p>{% trans 'Écrire un article' %}</p>
                 </a>
             </div>
 
             <div class="linkbox-item secondary">
                 <a href="{% url 'content:helps' %}?type=tuto" class="head">
-                    <h3>Aider les auteurs</h3>
+                    <h3>{% trans 'Aider les auteurs' %}</h3>
                     <span class="icon"></span>
                 </a>
 
                 <a href="{% url 'content:helps' %}?type=tuto" class="body">
+                    {% blocktrans %}
                     <p>Les auteurs ont souvent besoin d'un peu d'aide pour amener leur contenu jusqu'à la publication.</p>
                     <p>Dessiner une icône ou des illustrations, corriger un texte ou encore devenir co-auteur vous interesse ?</p>
                     <p class="right">Parcourir les demandes d'aides.</p>
+                    {% endblocktrans %}
                 </a>
             </div>
         </div>
