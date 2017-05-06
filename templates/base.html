@@ -595,7 +595,7 @@
                                             {% endwith %}
                                         {% endif %}
 
-                                        {% if perms.member.change_profile %}
+                                        {% if perms.member.change_bannedemailprovider %}
                                             {% with new_providers_count=user|new_providers_count %}
                                                 <li class="staff-only">
                                                     <a href="{% url 'new-email-providers' %}">

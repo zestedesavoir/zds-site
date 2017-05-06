@@ -1042,3 +1042,12 @@ Mise à jour d'ElasticSearch
 1. `sudo apt update`
 2. `sudo apt upgrade elasticsearch`
 2. `systemctl restart elasticsearch.service`
+
+
+Actions à faire pour mettre en prod la version : v24
+====================================================
+
+Ticket #4313
+-----------
+
+Via l'admin Django, ajouter la permission `member.change_bannedemailprovider` aux groupes autorisés à gérer les fournisseurs e-mail bannis.

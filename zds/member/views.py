@@ -606,7 +606,7 @@ def settings_mini_profile(request, user_name):
 
 
 class NewEmailProvidersList(LoginRequiredMixin, PermissionRequiredMixin, ZdSPagingListView):
-    permissions = ['member.change_profile']
+    permissions = ['member.change_bannedemailprovider']
     paginate_by = settings.ZDS_APP['member']['providers_per_page']
 
     model = NewEmailProvider
@@ -620,7 +620,7 @@ class NewEmailProvidersList(LoginRequiredMixin, PermissionRequiredMixin, ZdSPagi
 
 @require_POST
 @login_required
-@permission_required('member.change_profile', raise_exception=True)
+@permission_required('member.change_bannedemailprovider', raise_exception=True)
 def check_new_email_provider(request, provider_pk):
     """Remove an alert about a new provider"""
 
@@ -635,7 +635,7 @@ def check_new_email_provider(request, provider_pk):
 
 
 class BannedEmailProvidersList(LoginRequiredMixin, PermissionRequiredMixin, ZdSPagingListView):
-    permissions = ['member.change_profile']
+    permissions = ['member.change_bannedemailprovider']
     paginate_by = settings.ZDS_APP['member']['providers_per_page']
 
     model = BannedEmailProvider
@@ -648,7 +648,7 @@ class BannedEmailProvidersList(LoginRequiredMixin, PermissionRequiredMixin, ZdSP
 
 
 class AddBannedEmailProvider(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
-    permissions = ['member.change_profile']
+    permissions = ['member.change_bannedemailprovider']
 
     model = BannedEmailProvider
     template_name = 'member/add_banned_email_provider.html'
@@ -663,7 +663,7 @@ class AddBannedEmailProvider(LoginRequiredMixin, PermissionRequiredMixin, Create
 
 @require_POST
 @login_required
-@permission_required('member.change_profile', raise_exception=True)
+@permission_required('member.change_bannedemailprovider', raise_exception=True)
 def remove_banned_email_provider(request, provider_pk):
     """Used to unban a email provider"""
 
