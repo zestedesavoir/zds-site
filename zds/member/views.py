@@ -607,7 +607,7 @@ def settings_mini_profile(request, user_name):
 
 class NewEmailProvidersList(LoginRequiredMixin, PermissionRequiredMixin, ZdSPagingListView):
     permissions = ['member.change_profile']
-    paginate_by = paginate_by = settings.ZDS_APP['member']['providers_per_page']
+    paginate_by = settings.ZDS_APP['member']['providers_per_page']
 
     model = NewEmailProvider
     context_object_name = 'providers'
@@ -636,7 +636,7 @@ def check_new_email_provider(request, provider_pk):
 
 class BannedEmailProvidersList(LoginRequiredMixin, PermissionRequiredMixin, ZdSPagingListView):
     permissions = ['member.change_profile']
-    paginate_by = paginate_by = settings.ZDS_APP['member']['providers_per_page']
+    paginate_by = settings.ZDS_APP['member']['providers_per_page']
 
     model = BannedEmailProvider
     context_object_name = 'providers'
