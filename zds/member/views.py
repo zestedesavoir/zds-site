@@ -666,7 +666,7 @@ class AddBannedEmailProvider(LoginRequiredMixin, PermissionRequiredMixin, Create
 @login_required
 @permission_required('member.change_bannedemailprovider', raise_exception=True)
 def remove_banned_email_provider(request, provider_pk):
-    """Used to unban a email provider"""
+    """Used to unban an email provider"""
 
     provider = get_object_or_404(BannedEmailProvider, pk=provider_pk)
     provider.delete()
