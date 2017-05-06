@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import os
 import re
 
 from django.contrib.auth.models import User
@@ -10,7 +9,6 @@ from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
 
 from zds.utils.misc import contains_utf8mb4
-from zds.settings import BASE_DIR
 from zds.member.models import BannedEmailProvider
 
 
