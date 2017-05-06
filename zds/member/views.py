@@ -324,7 +324,8 @@ class UpdateUsernameEmailMember(UpdateMember):
             # create an alert for staff if it's a new provider
             provider = re.findall(r'@(.+)', new_email)[0]
             if not NewEmailProvider.objects.filter(provider=provider).exists() \
-                    and not User.objects.filter(email__endswith='@{}'.format(provider)):
+                    and not User.objects.filter(email__endswith='@{}'.format(provider)) \
+                    .exclude(pk=profile.user.pk).exists():
                 NewEmailProvider.objects.create(user=profile.user, provider=provider, use='EMAIL_EDIT')
 
     def get_success_url(self):
@@ -860,13 +861,6 @@ def activate_account(request):
         }
     )
 
-    # create an alert for staff if it's a new provider
-    if usr.email:
-        provider = re.findall(r'@(.+)', usr.email)[0]
-        if not NewEmailProvider.objects.filter(provider=provider).exists() \
-                and not User.objects.filter(email__endswith='@{}'.format(provider)):
-            NewEmailProvider.objects.create(user=usr, provider=provider, use='NEW_ACCOUNT')
-
     send_mp(bot,
             [usr],
             _(u'Bienvenue sur {}').format(settings.ZDS_APP['site']['litteral_name']),
@@ -876,6 +870,15 @@ def activate_account(request):
             True,
             False)
     token.delete()
+
+    # create an alert for staff if it's a new provider
+    if usr.email:
+        provider = re.findall(r'@(.+)', usr.email)[0]
+        if not NewEmailProvider.objects.filter(provider=provider).exists() \
+                and not User.objects.filter(email__endswith='@{}'.format(provider)) \
+                .exclude(pk=usr.pk).exists():
+            NewEmailProvider.objects.create(user=usr, provider=provider, use='NEW_ACCOUNT')
+
     form = LoginForm(initial={'username': usr.username})
     return render(request, 'member/register/token_success.html', {'usr': usr, 'form': form})
 
