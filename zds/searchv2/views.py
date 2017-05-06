@@ -57,7 +57,12 @@ class SimilarSubjectsView(CreateView, SingleObjectMixin):
 
             # Build the result
             for hit in search_queryset.execute():
-                result = {'id': hit.pk, 'url': str(hit.get_absolute_url), 'title': str(hit.title)}
+                result = {'id': hit.pk,
+                          'url': str(hit.get_absolute_url),
+                          'title': str(hit.title),
+                          'subtitle': str(hit.subtitle),
+                          'forum': str(hit.forum_title)
+                          }
                 results.append(result)
 
         data = {'results': results}
