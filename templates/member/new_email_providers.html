@@ -39,6 +39,7 @@
         <table class="fullwidth">
             <thead>
                 <th>{% trans "Fournisseur" %}</th>
+                <th class="wide">{% trans "Utilisation" %}</th>
                 <th class="wide">{% trans "Compte concerné" %}</th>
                 <th class="wide">{% trans "Date d'utilisation" %}</th>
                 <th>{% trans "Actions" %}</th>
@@ -47,6 +48,7 @@
                 {% for provider in providers %}
                     <tr>
                         <td>{{ provider.provider }}</td>
+                        <td class="wide">{{ provider.get_use_display }}</td>
                         <td class="wide">{% include 'misc/member_item.part.html' with member=provider.user avatar=True %}</td>
                         <td class="wide">{{ provider.date|format_date|capfirst }}</td>
                         <td>

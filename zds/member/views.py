@@ -325,7 +325,7 @@ class UpdateUsernameEmailMember(UpdateMember):
             provider = re.findall(r'@(.+)', new_email)[0]
             if not NewEmailProvider.objects.filter(provider=provider).exists() \
                     and not User.objects.filter(email__endswith='@{}'.format(provider)):
-                NewEmailProvider.objects.create(user=profile.user, provider=provider)
+                NewEmailProvider.objects.create(user=profile.user, provider=provider, use='EMAIL_EDIT')
 
     def get_success_url(self):
         profile = self.get_object()
@@ -865,7 +865,7 @@ def activate_account(request):
         provider = re.findall(r'@(.+)', usr.email)[0]
         if not NewEmailProvider.objects.filter(provider=provider).exists() \
                 and not User.objects.filter(email__endswith='@{}'.format(provider)):
-            NewEmailProvider.objects.create(user=usr, provider=provider)
+            NewEmailProvider.objects.create(user=usr, provider=provider, use='NEW_ACCOUNT')
 
     send_mp(bot,
             [usr],

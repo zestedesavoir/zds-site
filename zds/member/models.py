@@ -18,6 +18,7 @@ from django.http import HttpRequest
 from django.utils.translation import ugettext_lazy as _
 
 from zds.forum.models import Post, Topic
+from zds.member import NEW_PROVIDER_USES
 from zds.member.managers import ProfileManager
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent
 from zds.utils.models import Alert
@@ -502,6 +503,7 @@ class NewEmailProvider(models.Model):
         verbose_name_plural = 'Nouveaux fournisseurs'
 
     provider = models.CharField('Fournisseur', max_length=253, unique=True, db_index=True)
+    use = models.CharField(max_length=11, choices=NEW_PROVIDER_USES)
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Utilisateur concerné',
                              related_name='new_providers', db_index=True)
     date = models.DateTimeField(auto_now_add=True, db_index=True,
