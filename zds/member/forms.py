@@ -222,7 +222,7 @@ class ProfileForm(MiniProfileForm):
             ('show_sign', _(u'Afficher les signatures')),
             ('is_hover_enabled', _(u'Dérouler les menus au survol')),
             ('allow_temp_visual_changes', _(u'Activer les changements visuels temporaires')),
-            ('show_markdown_help', _(u"Afficher l’aide Markdown dans l’éditeur")),
+            ('show_markdown_help', _(u"Afficher l'aide Markdown dans l'éditeur")),
             ('email_for_answer', _(u"Recevoir un courriel lors d'une réponse à un message privé")),
         ),
         widget=forms.CheckboxSelectMultiple,
