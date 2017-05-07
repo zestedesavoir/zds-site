@@ -119,9 +119,9 @@ class UpdateMember(UpdateView):
             'show_sign': profile.show_sign,
             'is_hover_enabled': profile.is_hover_enabled,
             'allow_temp_visual_changes': profile.allow_temp_visual_changes,
+            'show_markdown_help': profile.show_markdown_help,
             'email_for_answer': profile.email_for_answer,
             'sign': profile.sign,
-            'is_dev': profile.is_dev(),
         })
 
         return form
@@ -152,6 +152,7 @@ class UpdateMember(UpdateView):
         profile.show_sign = 'show_sign' in cleaned_data_options
         profile.is_hover_enabled = 'is_hover_enabled' in cleaned_data_options
         profile.allow_temp_visual_changes = 'allow_temp_visual_changes' in cleaned_data_options
+        profile.show_markdown_help = 'show_markdown_help' in cleaned_data_options
         profile.email_for_answer = 'email_for_answer' in cleaned_data_options
         profile.avatar_url = form.data['avatar_url']
         profile.sign = form.data['sign']
