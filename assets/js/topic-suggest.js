@@ -1,5 +1,5 @@
 /* ===== Zeste de Savoir ====================================================
-   Suggest Topice when user makes topic
+   Suggest Topic when user makes topic
    ---------------------------------
    Author: A-312, AmarOk
    ========================================================================== */
