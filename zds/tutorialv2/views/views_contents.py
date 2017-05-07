@@ -48,7 +48,7 @@ from zds.tutorialv2.utils import search_container_or_404, get_target_tagged_tree
     default_slug_pool, BadArchiveError, InvalidSlugError
 from zds.utils.forums import send_post, lock_topic, create_topic, unlock_topic
 
-from zds.utils.models import Licence, HelpWriting
+from zds.utils.models import HelpWriting
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView, make_pagination
 
@@ -67,6 +67,10 @@ class RedirectOldBetaTuto(RedirectView):
 
 
 class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
+    """
+    Handle content creation. Since v22, we explicitely ask for user to choose a licence instead of \
+    assuming he just wants the default "All rights reserved" option.
+    """
     template_name = 'tutorialv2/create/content.html'
     model = PublishableContent
     form_class = ContentForm
@@ -81,7 +85,6 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
     def get_form(self, form_class=ContentForm):
         form = super(CreateContent, self).get_form(form_class)
         form.initial['type'] = self.created_content_type
-        form.initial['licence'] = Licence.objects.get(pk=settings.ZDS_APP['content']['default_licence_pk'])
         return form
 
     def form_valid(self, form):
@@ -101,14 +104,8 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
         gal.pubdate = datetime.now()
         gal.save()
 
-        # Attach user to gallery
-        userg = UserGallery()
-        userg.gallery = gal
-        userg.mode = 'W'  # write mode
-        userg.user = self.request.user
-        userg.save()
         self.content.gallery = gal
-
+        self.content.save()
         # create image:
         if 'image' in self.request.FILES:
             img = Image()
@@ -124,7 +121,8 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
 
         # We need to save the content before changing its author list since it's a many-to-many relationship
         self.content.authors.add(self.request.user)
-
+        self.content.ensure_author_gallery()
+        self.content.save()
         # Add subcategories on tutorial
         for subcat in form.cleaned_data['subcategory']:
             self.content.subcategory.add(subcat)
@@ -855,12 +853,8 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
                 gal.save()
 
                 # Attach user to gallery
-                userg = UserGallery()
-                userg.gallery = gal
-                userg.mode = 'W'  # write mode
-                userg.user = self.request.user
-                userg.save()
                 self.object.gallery = gal
+                self.object.save()
 
                 # Add subcategories on tutorial
                 for subcat in form.cleaned_data['subcategory']:
@@ -869,7 +863,7 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
                 # We need to save the tutorial before changing its author list since it's a many-to-many relationship
                 self.object.authors.add(self.request.user)
                 self.object.save()
-
+                self.object.ensure_author_gallery()
                 # ok, now we can import
                 introduction = ''
                 conclusion = ''
@@ -1756,9 +1750,11 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
             _type = _(u'du billet')
 
         bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+        all_authors_pk = [author.pk for author in self.object.authors.all()]
         for user in form.cleaned_data['users']:
-            if user not in self.object.authors.all() and user != self.request.user:
+            if user.pk not in all_authors_pk and user != self.request.user:
                 self.object.authors.add(user)
+                all_authors_pk.append(user.pk)
                 url_index = reverse('content:find-' + self.object.type.lower(), args=[user.pk])
                 send_mp(
                     bot,
@@ -1775,11 +1771,7 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
                     True,
                     direct=False,
                 )
-                new_user = UserGallery()
-                new_user.gallery = self.object.gallery
-                new_user.user = user
-                new_user.mode = GALLERY_WRITE
-                new_user.save()
+                UserGallery(gallery=self.object.gallery, user=user, mode=GALLERY_WRITE).save()
         self.object.save()
         if not self.already_finished:
             self.success_url = self.object.get_absolute_url()

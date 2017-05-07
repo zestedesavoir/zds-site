@@ -1,3 +1,4 @@
+# coding: utf-8
 from __future__ import unicode_literals
 from social.apps.django_app.middleware import SocialAuthExceptionMiddleware
 from django.contrib import messages
@@ -20,5 +21,5 @@ class ZDSCustomizeSocialAuthExceptionMiddleware(SocialAuthExceptionMiddleware):
         # this one is just for social auth compatibility (will be passed as get param)
         return 'Bad communication'
 
-    def get_redirect_uri(self, **_):
+    def get_redirect_uri(self, *_, **__):
         return reverse('member-login')

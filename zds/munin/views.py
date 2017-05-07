@@ -53,11 +53,9 @@ graph_vlabel #opinions
 draft.label Draft
 draft.draw LINE1
 featured.label Featured
-featured.draw STACK
 published.label Published
-published.draw STACK
 converted.label Converted
-converted.draw STACK""")
+""")
 def total_opinions(request):
     opinions = PublishableContent.objects.filter(type='OPINION').all()
     return [('draft', opinions.filter(sha_public__isnull=True).count()),

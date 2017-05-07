@@ -208,17 +208,17 @@
     </li>
     {% endif %}
     {% endif %}
-
-    {% for author in public_object.authors.all %}
-        <li>
-            <a href="{% url 'content:find-opinion' author.pk %}" class="ico-after offline blue">
-                {% blocktrans %}
-                    Voir la tribune de {{ author }}
-                {% endblocktrans %}
-            </a>
-        </li>
-    {% endfor %}
-
+    {% if public_object.is_opinion %}
+        {% for author in public_object.authors.all %}
+            <li>
+                <a href="{% url 'content:find-opinion' author.pk %}" class="ico-after offline blue">
+                    {% blocktrans %}
+                        Voir la tribune de {{ author }}
+                    {% endblocktrans %}
+                </a>
+            </li>
+        {% endfor %}
+    {% endif %}
 {% endblock %}
 
 {% block sidebar_blocks %}

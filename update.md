@@ -1016,9 +1016,11 @@ Tribunes
 
 ```
     [zds_total_tribunes]
-    env.url http://www.zestedesavoir.com/munin/total_tribunes/
+    env.url https://zestedesavoir.com/munin/total_opinions/
     env.graph_category zds
 ```
+
++ Créer le symlink nécessaire dans `/etc/munin/plugins` (`ln -s /usr/share/munin/plugins/django.py zds_total_tribunes`)
 
 + Réindexer les données (un champ a été rajouté):
 
