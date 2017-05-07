@@ -41,7 +41,7 @@ class PublishedContentManager(models.Manager):
         :rtype: django.db.models.QuerySet
         """
         queryset = self.published_contents(_type) \
-            .filter(content__authors__in=[author])
+            .filter(authors__in=[author])
 
         public_contents = queryset.all()[:settings.ZDS_APP['content']['user_page_number']]
         return public_contents
