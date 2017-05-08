@@ -120,6 +120,12 @@
             {% set True as answer_schema %}
         {% endif %}
 
+        {% if user == message.author or is_staff %}
+            {% set True as can_view_history %}
+        {% else %}
+            {% set False as can_view_history %}
+        {% endif %}
+
         {% include "misc/message.part.html" with answer_schema=answer_schema can_unread=True unread_link=unread_link perms_change=is_staff%}
     {% endfor %}
 

@@ -12,7 +12,7 @@ from django.contrib.auth.decorators import permission_required
 from zds.forum.models import Forum, Post, TopicRead
 from zds.notification import signals
 from zds.notification.models import TopicAnswerSubscription, Notification, NewTopicSubscription
-from zds.utils.models import Alert
+from zds.utils.models import Alert, CommentEdit
 
 
 class ForumEditMixin(object):
@@ -163,6 +163,13 @@ class PostEditMixin(object):
 
     @staticmethod
     def perform_edit_post(post, user, text):
+        # create an archive
+        edit = CommentEdit()
+        edit.comment = post
+        edit.editor = user
+        edit.original_text = post.text
+        edit.save()
+
         post.update_content(text)
         post.update = datetime.now()
         post.editor = user
