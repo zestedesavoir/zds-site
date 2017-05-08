@@ -1,0 +1,53 @@
+{% extends "member/base.html" %}
+{% load date %}
+{% load i18n %}
+{% load remove_url_protocole %}
+
+{% block title %}
+    {% trans "Membres utilisant un fournisseur" %}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li><a href="{% url 'banned-email-providers' %}">{% trans "Gestion des fournisseurs bannis" %}</a></li>
+    <li>{% trans "Recherche de membres :" %} {{ provider.provider }}</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    {% trans "Recherche de membres :" %} {{ provider.provider }}
+{% endblock %}
+
+
+
+{% block content %}
+    {% blocktrans with provider_name=provider.provider %}
+        Liste des membres utilisant une adresse e-mail fournie par {{ provider_name }} :
+    {% endblocktrans %}
+
+    <div class="authors">
+        <ul>
+            {% for member in members %}
+                <li>
+                    {% include "misc/member_item.part.html" with avatar=True %}
+                </li>
+            {% empty %}
+                <li>
+                    {% trans "Aucun membre n'utilise ce fournisseur." %}
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}
+
+
+
+{% block sidebar_actions %}
+    <div>
+        <a href="{% url "banned-email-providers" %}" class="new-btn ico-after arrow-left blue">
+            {% trans "Retour" %} <span class="wide">{% trans "aux fournisseurs" %}</span>
+        </a>
+    </div>
+{% endblock %}

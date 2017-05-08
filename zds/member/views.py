@@ -25,7 +25,7 @@ from django.utils.http import urlunquote
 from django.utils.translation import string_concat
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST
-from django.views.generic import DetailView, UpdateView, CreateView, FormView
+from django.views.generic import DetailView, ListView, UpdateView, CreateView, FormView
 
 from zds.forum.models import Topic, TopicRead
 from zds.gallery.forms import ImageAsAvatarForm
@@ -646,6 +646,29 @@ class BannedEmailProvidersList(LoginRequiredMixin, PermissionRequiredMixin, ZdSP
         .select_related('moderator') \
         .select_related('moderator__profile') \
         .order_by('-date')
+
+
+class MembersWithProviderList(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+    permissions = ['member.change_bannedemailprovider']
+
+    model = User
+    context_object_name = 'members'
+    template_name = 'member/members_with_provider.html'
+
+    def get_object(self):
+        return get_object_or_404(BannedEmailProvider, pk=self.kwargs['provider_pk'])
+
+    def get_context_data(self, **kwargs):
+        context = super(MembersWithProviderList, self).get_context_data(**kwargs)
+        context['provider'] = self.get_object()
+        return context
+
+    def get_queryset(self):
+        provider = self.get_object()
+        return Profile.objects \
+            .select_related('user') \
+            .order_by('-last_visit') \
+            .filter(user__email__endswith='@{}'.format(provider.provider))
 
 
 class AddBannedEmailProvider(LoginRequiredMixin, PermissionRequiredMixin, CreateView):

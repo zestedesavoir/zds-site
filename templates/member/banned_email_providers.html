@@ -34,7 +34,7 @@
                 <th>{% trans "Fournisseur" %}</th>
                 <th class="wide">{% trans "Modérateur" %}</th>
                 <th class="wide">{% trans "Date du bannissement" %}</th>
-                <th>{% trans "Débannir" %}</th>
+                <th>{% trans "Actions" %}</th>
             </thead>
             <tbody>
                 {% for provider in providers %}
@@ -47,6 +47,7 @@
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-grey ico-after red cross">{% trans "Débannir" %}</button>
                             </form>
+                            <a href="{% url 'members-with-provider' provider.pk %}" class="btn btn-grey ico-after blue view">{% trans "Comptes avec ce fournisseur" %}</a>
                         </td>
                     </tr>
                 {% endfor %}
