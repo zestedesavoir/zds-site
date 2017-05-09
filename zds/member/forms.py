@@ -222,6 +222,7 @@ class ProfileForm(MiniProfileForm):
             ('show_sign', _(u'Afficher les signatures')),
             ('is_hover_enabled', _(u'Dérouler les menus au survol')),
             ('allow_temp_visual_changes', _(u'Activer les changements visuels temporaires')),
+            ('show_markdown_help', _(u"Afficher l'aide Markdown dans l'éditeur")),
             ('email_for_answer', _(u"Recevoir un courriel lors d'une réponse à un message privé")),
         ),
         widget=forms.CheckboxSelectMultiple,
@@ -245,6 +246,9 @@ class ProfileForm(MiniProfileForm):
 
         if 'allow_temp_visual_changes' in initial and initial['allow_temp_visual_changes']:
             self.fields['options'].initial += 'allow_temp_visual_changes'
+
+        if 'show_markdown_help' in initial and initial['show_markdown_help']:
+            self.fields['options'].initial += 'show_markdown_help'
 
         if 'email_for_answer' in initial and initial['email_for_answer']:
             self.fields['options'].initial += 'email_for_answer'
