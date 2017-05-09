@@ -242,7 +242,8 @@ class MemberListAPITest(APITestCase):
         Gets an error when the user tries to register a new user with a forbidden email.
         """
         moderator = StaffProfileFactory().user
-        BannedEmailProvider.objects.create(provider='yopmail.com', moderator=moderator)
+        if not BannedEmailProvider.objects.filter(provider='yopmail.com').exists():
+            BannedEmailProvider.objects.create(provider='yopmail.com', moderator=moderator)
         data = {
             'username': 'Clem',
             'email': 'clem@yopmail.com',

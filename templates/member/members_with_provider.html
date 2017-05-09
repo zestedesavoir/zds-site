@@ -27,6 +27,8 @@
         Liste des membres utilisant une adresse e-mail fournie par {{ provider_name }} :
     {% endblocktrans %}
 
+    {% include "misc/paginator.html" with position="top" %}
+
     <div class="authors">
         <ul>
             {% for member in members %}
@@ -40,6 +42,8 @@
             {% endfor %}
         </ul>
     </div>
+
+    {% include "misc/paginator.html" with position="bottom" %}
 {% endblock %}
 
 

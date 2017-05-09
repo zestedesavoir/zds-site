@@ -25,7 +25,7 @@ from django.utils.http import urlunquote
 from django.utils.translation import string_concat
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST
-from django.views.generic import DetailView, ListView, UpdateView, CreateView, FormView
+from django.views.generic import DetailView, UpdateView, CreateView, FormView
 
 from zds.forum.models import Topic, TopicRead
 from zds.gallery.forms import ImageAsAvatarForm
@@ -648,8 +648,9 @@ class BannedEmailProvidersList(LoginRequiredMixin, PermissionRequiredMixin, ZdSP
         .order_by('-date')
 
 
-class MembersWithProviderList(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+class MembersWithProviderList(LoginRequiredMixin, PermissionRequiredMixin, ZdSPagingListView):
     permissions = ['member.change_bannedemailprovider']
+    paginate_by = settings.ZDS_APP['member']['members_per_page']
 
     model = User
     context_object_name = 'members'

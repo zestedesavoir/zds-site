@@ -113,7 +113,8 @@ class RegisterFormTest(TestCase):
 
     def test_forbidden_email_provider_register_form(self):
         moderator = StaffProfileFactory().user
-        BannedEmailProvider.objects.create(provider='yopmail.com', moderator=moderator)
+        if not BannedEmailProvider.objects.filter(provider='yopmail.com').exists():
+            BannedEmailProvider.objects.create(provider='yopmail.com', moderator=moderator)
         data = {
             'email': 'test@yopmail.com',
             'username': 'ZeTester',
@@ -313,7 +314,8 @@ class ChangeUserFormTest(TestCase):
 
     def test_forbidden_email_provider_user_form(self):
         moderator = StaffProfileFactory().user
-        BannedEmailProvider.objects.create(provider='yopmail.com', moderator=moderator)
+        if not BannedEmailProvider.objects.filter(provider='yopmail.com').exists():
+            BannedEmailProvider.objects.create(provider='yopmail.com', moderator=moderator)
         data = {
             'username': self.user1.user.username,
             'email': 'test@yopmail.com'
