@@ -155,6 +155,8 @@ class ContainerForm(FormWithTitle):
 
         if kwargs.get('data', None) is not None:
             old_intro = kwargs.get('data').get('introduction')
+            if old_intro is None:
+                old_intro = ''
 
             self.helper.layout.append(Layout(Field('introduction', css_class='hidden')))
             self.helper.layout.append(Layout(HTML('<div id = "your_introduction" class = "hidden" >' +
@@ -166,6 +168,8 @@ class ContainerForm(FormWithTitle):
                                          css_class='btn btn-submit merge-btn need-to-merge-introduction'))))
 
             old_conclusion = kwargs.get('data').get('conclusion')
+            if old_conclusion is None:
+                old_conclusion = ''
 
             self.helper.layout.append(Layout(Field('conclusion', css_class='hidden')))
             self.helper.layout.append(Layout(HTML('<div id = "your_conclusion" class = "hidden" >' + old_conclusion +
@@ -259,7 +263,7 @@ class ContentForm(ContainerForm):
         widget=forms.CheckboxSelectMultiple()
     )
 
-    def _create_layout(self, hide_help):
+    def _create_layout(self, hide_help, **kwargs):
         html_part = HTML(_(u"<p>Demander de l'aide à la communauté !<br>"
                            u"Si vous avez besoin d'un coup de main, "
                            u"sélectionnez une ou plusieurs catégories d'aide ci-dessous "
@@ -276,6 +280,8 @@ class ContentForm(ContainerForm):
 
         if kwargs.get('data', None) is not None:
             old_intro = kwargs.get('data').get('introduction')
+            if old_intro is None:
+                old_intro = ''
 
             self.helper.layout.append(Layout(Field('introduction', css_class='hidden')))
             self.helper.layout.append(Layout(HTML('<div id = "your_introduction" class = "hidden" >' +
@@ -287,7 +293,9 @@ class ContentForm(ContainerForm):
                 css_class='btn btn-submit merge-btn need-to-merge-introduction'))))
 
             old_conclusion = kwargs.get('data').get('conclusion')
-
+            if old_conclusion is None:
+                old_conclusion = ''
+                
             self.helper.layout.append(Layout(Field('conclusion', css_class='hidden')))
             self.helper.layout.append(Layout(HTML('<div id = "your_conclusion" class = "hidden" >' + old_conclusion +
                                                   '</div>')))
@@ -307,6 +315,7 @@ class ContentForm(ContainerForm):
             Field('conclusion', css_class='md-editor preview-source'),
             ButtonHolder(StrictButton(_(u'Aperçu'), type='preview', name='preview',
                                       css_class='btn btn-grey preview-btn'),)))
+
             HTML('{% if form.conclusion.value %}{% include "misc/previsualization.part.html"
             with text=form.conclusion.value %}{% endif %}'),
 
@@ -321,6 +330,7 @@ class ContentForm(ContainerForm):
                    u'"{% url "content:helps" %}" '
                    u'alt="aider les auteurs">la page d\'aide</a>.</p>')),
             Field('helps'),
+
             Field('msg_commit'),
             ButtonHolder(
                 StrictButton('Valider', type='submit'),
@@ -341,7 +351,7 @@ class ContentForm(ContainerForm):
         self.helper = FormHelper()
         self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
-        self._create_layout(for_tribune)
+        self._create_layout(for_tribune, **kwargs)
 
         if 'type' in self.initial:
             self.helper['type'].wrap(
