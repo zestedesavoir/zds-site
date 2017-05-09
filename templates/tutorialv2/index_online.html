@@ -67,7 +67,7 @@
 
         {% if public_contents %}
             <div class="content-item-list">
-                {% if current_content_type == "ARTICLE" %}
+                {% if current_content_type == "ARTICLE" or current_content_type == "OPINION" %}
                     {% for public_content in public_contents %}
                         {% include "tutorialv2/includes/content_item.part.html" with public_content=public_content show_description=True show_reactions=True %}
                     {% endfor %}

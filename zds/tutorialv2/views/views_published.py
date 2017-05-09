@@ -29,7 +29,7 @@ from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin, SingleOnli
 from zds.tutorialv2.models import TYPE_CHOICES_DICT
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction
 from zds.tutorialv2.utils import search_container_or_404, last_participation_is_old, mark_read
-from zds.utils.models import Alert, CommentVote, SubCategory, Tag
+from zds.utils.models import CommentVote, SubCategory, Alert, Tag, CommentEdit
 from zds.utils.paginator import make_pagination, ZdSPagingListView
 from zds.utils.templatetags.topbar import top_categories_content
 
@@ -499,6 +499,12 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
         is_new = False
 
         if self.reaction:  # it's an edition
+            edit = CommentEdit()
+            edit.comment = self.reaction
+            edit.editor = self.request.user
+            edit.original_text = self.reaction.text
+            edit.save()
+
             self.reaction.update = datetime.now()
             self.reaction.editor = self.request.user
 

@@ -61,6 +61,7 @@ class Profile(models.Model):
     # do UI components open by hovering them, or is clicking on them required?
     is_hover_enabled = models.BooleanField('Déroulement au survol ?', default=True)
     allow_temp_visual_changes = models.BooleanField('Activer les changements visuels temporaires', default=True)
+    show_markdown_help = models.BooleanField("Afficher l'aide Markdown dans l'éditeur", default=True)
     email_for_answer = models.BooleanField('Envoyer pour les réponse MP', default=False)
     show_staff_badge = models.BooleanField('Afficher le badge staff', default=False)
     can_read = models.BooleanField('Possibilité de lire', default=True)

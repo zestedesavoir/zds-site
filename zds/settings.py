@@ -114,6 +114,7 @@ MIDDLEWARE_CLASSES = (
     'zds.utils.ThreadLocals',
     'zds.middlewares.setlastvisitmiddleware.SetLastVisitMiddleware',
     'zds.middlewares.profile.ProfileMiddleware',
+    'zds.member.utils.ZDSCustomizeSocialAuthExceptionMiddleware',
 )
 
 ROOT_URLCONF = 'zds.urls'
@@ -149,7 +150,7 @@ TEMPLATES = [
         }
     },
 ]
-
+SOCIAL_AUTH_RAISE_EXCEPTIONS = False
 CRISPY_TEMPLATE_PACK = 'bootstrap'
 
 INSTALLED_APPS = (

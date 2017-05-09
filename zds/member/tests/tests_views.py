@@ -1195,6 +1195,20 @@ class MemberTests(TestCase):
         dev = Profile.objects.get(pk=dev.pk)
         self.assertEqual(dev.github_token, '')
 
+    def test_markdown_help_settings(self):
+        user = ProfileFactory().user
+
+        # login and check that the Markdown help is displayed
+        self.client.login(username=user.username, password='hostel77')
+        result = self.client.get(reverse('pages-index'), follow=False)
+        self.assertContains(result, 'data-show-markdown-help="true"')
+
+        # disable Markdown help
+        user.profile.show_markdown_help = False
+        user.profile.save()
+        result = self.client.get(reverse('pages-index'), follow=False)
+        self.assertContains(result, 'data-show-markdown-help="false"')
+
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
             shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])

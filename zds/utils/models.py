@@ -247,8 +247,37 @@ class Comment(models.Model):
         """ Get the list of the users that disliked this Comment """
         return [vote.user for vote in self.get_votes() if not vote.positive]
 
+    def get_absolute_url(self):
+        return Comment.objects.get_subclass(id=self.id).get_absolute_url()
+
     def __str__(self):
-        return self.text
+        return 'Comment by {}'.format(self.author.username)
+
+
+@python_2_unicode_compatible
+class CommentEdit(models.Model):
+    """Archive for editing a comment."""
+
+    class Meta:
+        verbose_name = "Édition d'un message"
+        verbose_name_plural = 'Éditions de messages'
+
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, verbose_name='Message',
+                                related_name='edits', db_index=True)
+    editor = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Éditeur',
+                               related_name='edits', db_index=True)
+    date = models.DateTimeField(auto_now_add=True, db_index=True,
+                                verbose_name="Date de l'édition", db_column='edit_date')
+    original_text = models.TextField("Contenu d'origine", blank=True)
+    deleted_at = models.DateTimeField(db_index=True, verbose_name='Date de suppression',
+                                      blank=True, null=True)
+    deleted_by = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Supprimé par',
+                                   related_name='deleted_edits', db_index=True,
+                                   null=True, blank=True)
+
+    def __str__(self):
+        return 'Edit by {0} on a comment of {1}'.format(
+            self.editor.username, self.comment.author.username)
 
 
 @python_2_unicode_compatible

@@ -27,7 +27,8 @@ class TopicForm(forms.Form):
                     'fieldname': 'title',
                     'header': str(_(u'Sujets similaires :')),
                     'url': '/rechercher/sujets-similaires/?q=%s',
-                    'clickable': 'true'
+                    'clickable': 'true',
+                    'minLength': 3,
                 })
             }
         )

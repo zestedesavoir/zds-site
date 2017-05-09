@@ -24,7 +24,7 @@
         "Pour écrire un bout de code au milieu d’une phrase, utilisez la syntaxe <code>`un bout de code`</code>.",
         "Le langage d’un bloc de code peut être spécifié après les <code>```</code> ouvrants. La liste des langages supportés <a href=\"" + linkToPygments + "\">est disponible ici</a>.",
         "Vous pouvez <a href=\"" + linkToMathsTutorial + "\">écrire des formules mathématiques</a> en encadrant ces dernières du signe dollar <code>$</code>."
-        ];    
+    ];
     
     function addDocMD($elem){
         $elem.each(function(){
@@ -38,12 +38,14 @@
     
 
     $(document).ready(function(){
-        addDocMD($(".md-editor"));
-        $("#content").on("DOMNodeInserted", ".md-editor", function(e){
-            var $editor = $(e.target);
-            if($editor.next().hasClass("markdown-help") === false) {
-                addDocMD($editor);
-            }
-        });
+        if ($("body").data("show-markdown-help")) {
+            addDocMD($(".md-editor"));
+            $("#content").on("DOMNodeInserted", ".md-editor", function(e){
+                var $editor = $(e.target);
+                if($editor.next().hasClass("markdown-help") === false) {
+                    addDocMD($editor);
+                }
+            });
+        }
     });
 })(document, jQuery);

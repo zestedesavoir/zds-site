@@ -89,16 +89,18 @@
             if (!search || search === this._lastAutocomplete) {
                 this.hideDropdown();
             } else {
-                this.fetchData(search)
-                    .done(function(data) {
-                        self.updateCache(data.results);
-                        self.updateDropdown(self.sortList(data.results, search));
-                    })
-                    .fail(function() {
-                        console.error("[Autocompletition] Something went wrong...");
-                    });
-                this.updateDropdown(this.sortList(this.searchCache(search), search));
-                this.showDropdown();
+                if (!this.options.minLength || search.length >= this.options.minLength) {
+                  this.fetchData(search)
+                  .done(function(data) {
+                    self.updateCache(data.results);
+                    self.updateDropdown(self.sortList(data.results, search));
+                  })
+                  .fail(function() {
+                    console.error("[Autocompletition] Something went wrong...");
+                  });
+                  this.updateDropdown(this.sortList(this.searchCache(search), search));
+                  this.showDropdown();
+                }
             }
         },
 

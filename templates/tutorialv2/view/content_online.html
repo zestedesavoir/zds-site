@@ -208,17 +208,17 @@
     </li>
     {% endif %}
     {% endif %}
-
-    {% for author in public_object.authors.all %}
-        <li>
-            <a href="{% url 'content:find-opinion' author.pk %}" class="ico-after offline blue">
-                {% blocktrans %}
-                    Voir la tribune de {{ author }}
-                {% endblocktrans %}
-            </a>
-        </li>
-    {% endfor %}
-
+    {% if public_object.is_opinion %}
+        {% for author in public_object.authors.all %}
+            <li>
+                <a href="{% url 'content:find-opinion' author.pk %}" class="ico-after offline blue">
+                    {% blocktrans %}
+                        Voir la tribune de {{ author }}
+                    {% endblocktrans %}
+                </a>
+            </li>
+        {% endfor %}
+    {% endif %}
 {% endblock %}
 
 {% block sidebar_blocks %}
@@ -315,6 +315,8 @@
 
     {% include "misc/paginator.html" with position="top" topic=content is_online=True anchor="comments" %}
 
+    {% set perms.tutorialv2.change_contentreaction as is_staff %}
+
     {% for message in reactions %}
 
         {% captureas edit_link %}
@@ -349,7 +351,13 @@
             {% set False as is_repeated_message %}
         {% endif %}
 
-        {% include "misc/message.part.html" with perms_change=perms.tutorialv2.change_contentreaction topic=object %}
+        {% if user == message.author or is_staff %}
+            {% set True as can_view_history %}
+        {% else %}
+            {% set False as can_view_history %}
+        {% endif %}
+
+        {% include "misc/message.part.html" with perms_change=is_staff topic=object %}
     {% endfor %}
 
 
