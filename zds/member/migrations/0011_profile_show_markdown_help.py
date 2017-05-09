@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('member', '0009_profile_show_staff_badge'),
+        ('member', '0010_bannedemailprovider_newemailprovider'),
     ]
 
     operations = [
