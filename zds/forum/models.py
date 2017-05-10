@@ -583,13 +583,12 @@ class TopicRead(models.Model):
     user = models.ForeignKey(User, related_name='topics_read', db_index=True)
     objects = TopicReadManager()
 
-    def __unicode__(self):
-        return u'<Sujet "{0}" lu par {1}, #{2}>'.format(self.topic,
-                                                        self.user,
-                                                        self.post.pk)
-                                                        
+    def __str__(self):
+        return "<Sujet '{0}' lu par {1}, #{2}>".format(self.topic,
+                                                       self.user,
+                                                       self.post.pk)
 
-def is_read(topic, user=None):
+    def is_read(topic, user=None):
     """
     Checks if the user has read the **last post** of the topic.
     Returns false if the user read the topic except its last post.
