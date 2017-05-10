@@ -407,25 +407,6 @@ class Topic(AbstractESDjangoIndexable):
 
         return False
 
-<<<<<<< HEAD
-    @staticmethod
-    def has_read_permission(request):
-        return True
-
-    def has_object_read_permission(self, request):
-        return Topic.has_read_permission(request)
-
-    @staticmethod
-    def has_write_permission(request):
-        return request.user.is_authenticated()
-
-    def has_object_write_permission(self, request):
-        return Topic.has_write_permission(request)
-
-    def has_object_update_permission(self, request):
-        return Topic.has_write_permission(request) and (Topic.author == request.user)
-
-=======
     @classmethod
     def get_es_mapping(cls):
         es_mapping = super(Topic, cls).get_es_mapping()
@@ -488,7 +469,6 @@ class Topic(AbstractESDjangoIndexable):
 def delete_topic_in_elasticsearch(sender, instance, **kwargs):
     """catch the pre_delete signal to ensure the deletion in ES"""
     return delete_document_in_elasticsearch(instance)
->>>>>>> 943e338702bea9efed00c617ac3e46d5f85448ae
 
 
 @python_2_unicode_compatible
