@@ -310,13 +310,13 @@ class ContentForm(ContainerForm):
             Field('introduction', css_class='md-editor preview-source'),
             ButtonHolder(StrictButton(_(u'Aperçu'), type='preview', name='preview',
                                       css_class='btn btn-grey preview-btn'),),
-            HTML('{% if form.introduction.value %}{% include "misc/previsualization.part.html"
+            HTML('{% if form.introduction.value %}{% include "misc/previsualization.part.html" \
             with text=form.introduction.value %}{% endif %}'),
             Field('conclusion', css_class='md-editor preview-source'),
             ButtonHolder(StrictButton(_(u'Aperçu'), type='preview', name='preview',
                                       css_class='btn btn-grey preview-btn'),)))
 
-            HTML('{% if form.conclusion.value %}{% include "misc/previsualization.part.html"
+            HTML('{% if form.conclusion.value %}{% include "misc/previsualization.part.html" \
             with text=form.conclusion.value %}{% endif %}'),
 
         self.helper.layout.append(Layout(
