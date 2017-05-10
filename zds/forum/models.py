@@ -14,7 +14,6 @@ from django.db.models.signals import pre_delete
 
 from elasticsearch_dsl.field import Text, Keyword, Integer, Boolean, Float, Date
 
-from zds.member.api.permissions import CanReadTopic, CanReadPost, CanReadAndWriteNowOrReadOnly, IsNotOwnerOrReadOnly, IsOwnerOrReadOnly, IsStaffUser
 from zds.forum.managers import TopicManager, ForumManager, PostManager, TopicReadManager
 from zds.notification import signals
 from zds.settings import ZDS_APP
@@ -160,10 +159,6 @@ class Forum(models.Model):
                     pk=self.pk).exists()
             else:
                 return False
-                
-    @staticmethod            
-    def has_write_permission(request):
-        return request.user.has_perm("member.change_forum")
 
     @property
     def has_group(self):
@@ -502,35 +497,6 @@ class Post(Comment, AbstractESDjangoIndexable):
     def get_notification_title(self):
         return self.topic.title
 
-<<<<<<< HEAD
-    def is_author(self, user):
-        """
-        Check if the user given is the author of the message.
-
-        :param user: Potential author of the message.
-        :return: true if the user is the author.
-        """
-        return self.author == user
-
-    @staticmethod
-    def has_read_permission(request):
-        return True
-
-    def has_object_read_permission(self, request):
-        return Post.has_read_permission(request) 
-        
-    @staticmethod
-    def has_write_permission(request):
-        return request.user.is_authenticated() and request.user.profile.can_write_now()
-
-    def has_object_write_permission(self, request):
-        return Topic.has_write_permission(request) 
-        
-    def has_object_update_permission(self, request):
-        return self.is_author(request.user)
-        # TODO peut on editer quand un topic est ferme ?
-        # TODO a tester, l'auteur avait acces a ubn forum prive, mais ce n'est plus le cas, peut il editer ses messages
-=======
     @classmethod
     def get_es_mapping(cls):
         es_mapping = super(Post, cls).get_es_mapping()
@@ -600,7 +566,6 @@ def delete_post_in_elasticsearch(sender, instance, **kwargs):
     """catch the pre_delete signal to ensure the deletion in ES"""
     return delete_document_in_elasticsearch(instance)
 
->>>>>>> 943e338702bea9efed00c617ac3e46d5f85448ae
 
 @python_2_unicode_compatible
 class TopicRead(models.Model):
