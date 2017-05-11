@@ -16,7 +16,7 @@ from zds.tutorialv2.models.models_database import PublishableContent
 from django.utils.translation import ugettext_lazy as _
 from zds.member.models import Profile
 from zds.tutorialv2.utils import slugify_raise_on_invalid, InvalidSlugError
-from zds.utils.validators import TagValidator
+from zds.utils.forms import TagValidator
 
 
 class FormWithTitle(forms.Form):
