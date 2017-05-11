@@ -588,6 +588,7 @@ class TopicRead(models.Model):
                                                        self.user,
                                                        self.post.pk)
 
+
 def is_read(topic, user=None):
     """
     Checks if the user has read the **last post** of the topic.
