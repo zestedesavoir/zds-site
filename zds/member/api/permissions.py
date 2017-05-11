@@ -86,4 +86,4 @@ class CanReadTopic(permissions.BasePermission):
     """
 
     def has_object_permission(self, request, view, obj):
-        return obj.forum.can_read(request.user)
+        return obj.topic.forum.can_read(request.user)
