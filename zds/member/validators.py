@@ -46,9 +46,10 @@ class ZdSEmailValidator(EmailValidator):
             raise ValidationError(self.message, code=self.code)
 
         # check if provider is blacklisted
-        provider = re.findall(r'@(.+)', value)[0]
-        if BannedEmailProvider.objects.filter(provider=provider).exists():
-            raise ValidationError(_(u'Ce fournisseur ne peut pas être utilisé.'), code=self.code)
+        blacklist = BannedEmailProvider.objects.values_list('provider', flat=True)
+        for provider in blacklist:
+            if '@{}'.format(provider) in value:
+                raise ValidationError(_(u'Ce fournisseur ne peut pas être utilisé.'), code=self.code)
 
         # check if email is used by another user
         user_count = User.objects.filter(email=value).count()

@@ -46,8 +46,8 @@
                             <form method="post" action="{% url 'remove-banned-email-provider' provider.pk %}">
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-grey ico-after red cross">{% trans "Débannir" %}</button>
+                                <a href="{% url 'members-with-provider' provider.pk %}" class="btn btn-grey ico-after blue view">{% trans "Comptes correspondants" %}</a>
                             </form>
-                            <a href="{% url 'members-with-provider' provider.pk %}" class="btn btn-grey ico-after blue view">{% trans "Comptes avec ce fournisseur" %}</a>
                         </td>
                     </tr>
                 {% endfor %}

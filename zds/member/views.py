@@ -321,7 +321,7 @@ class UpdateUsernameEmailMember(UpdateMember):
             profile.user.username = new_username
         if new_email and new_email != previous_email:
             profile.user.email = new_email
-            # create an alert for staff if it's a new provider
+            # create an alert for the staff if it's a new provider
             provider = re.findall(r'@(.+)', new_email)[0]
             if not NewEmailProvider.objects.filter(provider=provider).exists() \
                     and not User.objects.filter(email__endswith='@{}'.format(provider)) \
@@ -612,7 +612,7 @@ class NewEmailProvidersList(LoginRequiredMixin, PermissionRequiredMixin, ZdSPagi
 
     model = NewEmailProvider
     context_object_name = 'providers'
-    template_name = 'member/new_email_providers.html'
+    template_name = 'member/settings/new_email_providers.html'
     queryset = NewEmailProvider.objects \
         .select_related('user') \
         .select_related('user__profile') \
@@ -641,7 +641,7 @@ class BannedEmailProvidersList(LoginRequiredMixin, PermissionRequiredMixin, ZdSP
 
     model = BannedEmailProvider
     context_object_name = 'providers'
-    template_name = 'member/banned_email_providers.html'
+    template_name = 'member/settings/banned_email_providers.html'
     queryset = BannedEmailProvider.objects \
         .select_related('moderator') \
         .select_related('moderator__profile') \
@@ -654,7 +654,7 @@ class MembersWithProviderList(LoginRequiredMixin, PermissionRequiredMixin, ZdSPa
 
     model = User
     context_object_name = 'members'
-    template_name = 'member/members_with_provider.html'
+    template_name = 'member/settings/members_with_provider.html'
 
     def get_object(self):
         return get_object_or_404(BannedEmailProvider, pk=self.kwargs['provider_pk'])
@@ -669,14 +669,14 @@ class MembersWithProviderList(LoginRequiredMixin, PermissionRequiredMixin, ZdSPa
         return Profile.objects \
             .select_related('user') \
             .order_by('-last_visit') \
-            .filter(user__email__endswith='@{}'.format(provider.provider))
+            .filter(user__email__contains='@{}'.format(provider.provider))
 
 
 class AddBannedEmailProvider(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     permissions = ['member.change_bannedemailprovider']
 
     model = BannedEmailProvider
-    template_name = 'member/add_banned_email_provider.html'
+    template_name = 'member/settings/add_banned_email_provider.html'
     form_class = BannedEmailProviderForm
     success_url = reverse_lazy('banned-email-providers')
 
@@ -695,7 +695,7 @@ def remove_banned_email_provider(request, provider_pk):
     provider = get_object_or_404(BannedEmailProvider, pk=provider_pk)
     provider.delete()
 
-    messages.success(request, _(u'Le fournisseur a été débanni.'))
+    messages.success(request, _(u'Le fournisseur « {} » a été débanni.').format(provider.provider))
     return redirect('banned-email-providers')
 
 
@@ -895,7 +895,7 @@ def activate_account(request):
             False)
     token.delete()
 
-    # create an alert for staff if it's a new provider
+    # create an alert for the staff if it's a new provider
     if usr.email:
         provider = re.findall(r'@(.+)', usr.email)[0]
         if not NewEmailProvider.objects.filter(provider=provider).exists() \
