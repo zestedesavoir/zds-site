@@ -407,13 +407,14 @@ class FindTopicByTag(FilterMixin, ForumEditMixin, ZdSPagingListView, SingleObjec
         response = {}
         if 'follow' in request.POST:
             response['follow'] = self.perform_follow(self.object, request.user)
+            response['subscriberCount'] = NewTopicSubscription.objects.get_subscriptions(self.object).count(),
         elif 'email' in request.POST:
             response['email'] = self.perform_follow_by_email(self.object, request.user)
 
         self.object.save()
         if request.is_ajax():
             return HttpResponse(json.dumps(response), content_type='application/json')
-        return redirect(u"{}?page={}".format(self.object.get_absolute_url(), self.page))
+        return redirect(u'{}?page={}'.format(self.object.get_absolute_url(), self.page))
 
     def get_context_data(self, *args, **kwargs):
         context = super(FindTopicByTag, self).get_context_data(*args, **kwargs)

@@ -191,7 +191,7 @@ def edit_topic_event(sender, **kwargs):
         notifications = Notification.objects \
             .filter(object_id=topic.pk, content_type__pk=topic_content_type.pk, is_read=False).all()
         for notification in notifications:
-            is_still_valid = not notification.subscription.content_type == tag_content_type
+            is_still_valid = notification.subscription.content_type != tag_content_type
             if not is_still_valid:
                 for tag in topic.tags.all():
                     if tag.id == notification.subscription.object_id:
