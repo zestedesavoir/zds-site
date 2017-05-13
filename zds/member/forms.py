@@ -614,3 +614,7 @@ class BannedEmailProviderForm(forms.ModelForm):
             ButtonHolder(
                 StrictButton(_(u'Bannir ce fournisseur'), type='submit'),
             ))
+
+    def clean_provider(self):
+        data = self.cleaned_data['provider']
+        return data.lower()

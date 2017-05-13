@@ -322,9 +322,9 @@ class UpdateUsernameEmailMember(UpdateMember):
         if new_email and new_email != previous_email:
             profile.user.email = new_email
             # create an alert for the staff if it's a new provider
-            provider = re.findall(r'@(.+)', new_email)[0]
+            provider = re.findall(r'@(.+)', new_email)[0].lower()
             if not NewEmailProvider.objects.filter(provider=provider).exists() \
-                    and not User.objects.filter(email__endswith='@{}'.format(provider)) \
+                    and not User.objects.filter(email__iendswith='@{}'.format(provider)) \
                     .exclude(pk=profile.user.pk).exists():
                 NewEmailProvider.objects.create(user=profile.user, provider=provider, use='EMAIL_EDIT')
 
@@ -669,7 +669,7 @@ class MembersWithProviderList(LoginRequiredMixin, PermissionRequiredMixin, ZdSPa
         return Profile.objects \
             .select_related('user') \
             .order_by('-last_visit') \
-            .filter(user__email__contains='@{}'.format(provider.provider))
+            .filter(user__email__icontains='@{}'.format(provider.provider))
 
 
 class AddBannedEmailProvider(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
@@ -897,9 +897,9 @@ def activate_account(request):
 
     # create an alert for the staff if it's a new provider
     if usr.email:
-        provider = re.findall(r'@(.+)', usr.email)[0]
+        provider = re.findall(r'@(.+)', usr.email)[0].lower()
         if not NewEmailProvider.objects.filter(provider=provider).exists() \
-                and not User.objects.filter(email__endswith='@{}'.format(provider)) \
+                and not User.objects.filter(email__iendswith='@{}'.format(provider)) \
                 .exclude(pk=usr.pk).exists():
             NewEmailProvider.objects.create(user=usr, provider=provider, use='NEW_ACCOUNT')
 
