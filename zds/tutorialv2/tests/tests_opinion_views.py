@@ -646,8 +646,8 @@ class PublishedContentTests(TestCase):
                 password='hostel77'),
             True)
         alerter = ProfileFactory().user
-        Alert.create(author=alerter, scope='CONTENT', content=opinion, pubdate=datetime.datetime.now(),
-                     text="J'ai un probleme avec cette opinion : c'est pas la mienne.")
+        Alert.objects.create(author=alerter, scope='CONTENT', content=opinion, pubdate=datetime.datetime.now(),
+                             text="J'ai un probleme avec cette opinion : c'est pas la mienne.")
         # unpublish opinion
         result = self.client.post(
             reverse('validation:ignore-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
