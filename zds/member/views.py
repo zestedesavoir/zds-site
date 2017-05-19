@@ -30,6 +30,7 @@ from django.views.generic import DetailView, UpdateView, CreateView, FormView
 from zds.forum.models import Topic, TopicRead
 from zds.gallery.forms import ImageAsAvatarForm
 from zds.gallery.models import UserGallery
+from zds.member import NEW_ACCOUNT, EMAIL_EDIT
 from zds.member.commons import ProfileCreate, TemporaryReadingOnlySanction, ReadingOnlySanction, \
     DeleteReadingOnlySanction, TemporaryBanSanction, BanSanction, DeleteBanSanction, TokenGenerator
 from zds.member.decorator import can_write_and_read_now, LoginRequiredMixin, PermissionRequiredMixin
@@ -322,11 +323,11 @@ class UpdateUsernameEmailMember(UpdateMember):
         if new_email and new_email != previous_email:
             profile.user.email = new_email
             # create an alert for the staff if it's a new provider
-            provider = re.findall(r'@(.+)', new_email)[0].lower()
+            provider = provider = new_email.split('@')[-1].lower()
             if not NewEmailProvider.objects.filter(provider=provider).exists() \
                     and not User.objects.filter(email__iendswith='@{}'.format(provider)) \
                     .exclude(pk=profile.user.pk).exists():
-                NewEmailProvider.objects.create(user=profile.user, provider=provider, use='EMAIL_EDIT')
+                NewEmailProvider.objects.create(user=profile.user, provider=provider, use=EMAIL_EDIT)
 
     def get_success_url(self):
         profile = self.get_object()
@@ -897,11 +898,11 @@ def activate_account(request):
 
     # create an alert for the staff if it's a new provider
     if usr.email:
-        provider = re.findall(r'@(.+)', usr.email)[0].lower()
+        provider = usr.email.split('@')[-1].lower()
         if not NewEmailProvider.objects.filter(provider=provider).exists() \
                 and not User.objects.filter(email__iendswith='@{}'.format(provider)) \
                 .exclude(pk=usr.pk).exists():
-            NewEmailProvider.objects.create(user=usr, provider=provider, use='NEW_ACCOUNT')
+            NewEmailProvider.objects.create(user=usr, provider=provider, use=NEW_ACCOUNT)
 
     form = LoginForm(initial={'username': usr.username})
     return render(request, 'member/register/token_success.html', {'usr': usr, 'form': form})
