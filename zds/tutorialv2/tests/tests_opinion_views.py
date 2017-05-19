@@ -677,7 +677,7 @@ class PublishedContentTests(TestCase):
         self.assertEqual(result.status_code, 403)  # back
         self.assertTrue(Alert.objects.filter(content=opinion).last().solved)
         # check alert page is still accessible and our alert is well displayed
-        resp = self.client.get(reverse('pages-alert'))
+        resp = self.client.get(reverse('pages-alerts'))
         self.assertEqual(200, resp.status_code)
         self.assertEqual(0, len(resp.context['alerts']))
         self.assertEqual(1, len(resp.context['solved']))
