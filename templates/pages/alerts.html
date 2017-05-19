@@ -39,7 +39,7 @@
                         <td><a href="{% url "member-detail" alert.author.username %}">{{ alert.author.username }}</a></td>
                         <td class="wide">{{ alert.pubdate|format_date|capfirst }}</td>
                         <td class="wide">
-                            {% if alert.scope == 'CONTENT' and content.is_public %}
+                            {% if alert.scope == 'CONTENT' and content.in_public %}
                                 <a href="{{ alert.content.get_absolute_url_online }}">{{ alert.text }}</a>
                             {% elif alert.scope == 'CONTENT' %}
                                 <em>{% trans 'Sur le contenu : ' %} {{ alert.content.title }}</em> <br/>
@@ -84,7 +84,7 @@
                         <td><a href="{% url "member-detail" alert.author.username %}">{{ alert.author.username }}</a></td>
                         <td class="wide">{{ alert.solved_date|format_date|capfirst }}</td>
                         <td class="wide">
-                            {% if alert.scope == 'CONTENT' and content.is_public %}
+                            {% if alert.scope == 'CONTENT' and content.in_public %}
                                 <a href="{{ alert.content.get_absolute_url_online }}">{{ alert.text }}</a>
                             {% elif alert.scope == 'CONTENT' %}
                                 <em>{% trans 'Sur le contenu : ' %} {{ alert.content.title }}</em> <br/>
