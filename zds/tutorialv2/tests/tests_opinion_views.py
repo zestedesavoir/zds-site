@@ -547,7 +547,7 @@ class PublishedContentTests(TestCase):
         result = self.client.get(reverse('validation:list-opinion'))
         self.assertNotContains(result, opinion.title)
 
-    def test_definitely_unpublish_opinion(self):
+    def test_permanently_unpublish_opinion(self):
         opinion = PublishableContentFactory(type='OPINION')
 
         opinion.authors.add(self.user_author)

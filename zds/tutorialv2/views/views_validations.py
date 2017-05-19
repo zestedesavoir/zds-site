@@ -570,7 +570,7 @@ class PublishOpinion(LoggedWithReadWriteHability, NoValidationBeforeFormViewMixi
     def form_valid(self, form):
         # get database representation
         db_object = self.object
-        if self.object.is_definitely_unpublished():
+        if self.object.is_permanently_unpublished():
             raise PermissionDenied
         versioned = self.versioned_object
         self.success_url = versioned.get_absolute_url()
