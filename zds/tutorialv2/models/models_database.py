@@ -1243,4 +1243,4 @@ def transfer_paternity_receiver(sender, instance, **kwargs):
     PublishableContent.objects.transfer_paternity(instance, external, UserGallery)
     PublishedContent.objects.transfer_paternity(instance, external)
 
-import receivers  # noqa
+import zds.tutorialv2.receivers  # noqa
