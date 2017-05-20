@@ -622,7 +622,7 @@ class UnpublishOpinion(LoginRequiredMixin, SingleOnlineContentFormViewMixin, NoV
         if form.cleaned_data['version'] != self.object.sha_public:
             raise PermissionDenied
 
-        unpublish_content(self.object)
+        unpublish_content(self.object, moderator=self.request.user)
 
         # send PM
         msg = render_to_string(
@@ -690,7 +690,7 @@ class DoNotPickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin)
                                              staff_user=self.request.user, operation_date=datetime.now(),
                                              version=db_object.sha_public)
             if form.cleaned_data['operation'] == 'REMOVE_PUB':
-                unpublish_content(self.object)
+                unpublish_content(self.object, moderator=self.request.user)
 
                 # send PM
                 msg = render_to_string(
