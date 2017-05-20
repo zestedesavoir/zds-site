@@ -13,7 +13,7 @@ from zds.utils.models import Alert
 @receiver(content_unpublished, sender=PublishableContent)
 def cleanup_validation_alerts(sender, instance, **kwargs):
     """
-    When opinions are unpublished (probably definitely), we must be sure all alerts are handled. For now we just \
+    When opinions are unpublished (probably permanently), we must be sure all alerts are handled. For now we just \
     resolve them.
 
     :param sender: sender class
