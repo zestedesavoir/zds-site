@@ -2,7 +2,6 @@
 
 import uuid
 from datetime import datetime, timedelta
-import re
 
 from oauth2_provider.models import AccessToken
 
