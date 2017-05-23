@@ -182,6 +182,19 @@
         {% endif %}
         {% include 'notification/follow_template.html' with link=link_follow is_followed=content_is_followed data_onclick=data_onclick button_text=button_text subscriber_count=subscriber_count %}
     {% endwith %}
+    <li>
+    {% with content_is_followed=object|is_content_email_followed %}
+        {% url 'content:follow-reactions' object.pk as link_follow %}
+        {% if content_is_followed %}
+            {% trans "Suivre ce contenu par courriel" as data_onclick %}
+            {% trans "Ne plus suivre ce contenu par courriel" as button_text %}
+        {% else %}
+            {% trans "Suivre ce contenu par courriel" as button_text %}
+            {% trans "Ne plus suivre ce contenu par courriel" as data_onclick %}
+        {% endif %}
+        {% include 'notification/follow_by_email_template.html' with link=link_follow is_followed=content_is_followed data_onclick=data_onclick button_text=button_text %}
+    {% endwith %}
+        </li>
     </li>
     <li>
     {% with content_is_followed=object|is_content_email_followed %}
