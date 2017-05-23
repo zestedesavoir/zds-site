@@ -161,7 +161,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         :param fields: Fields to update
         :return: modified self
         """
-        self.objects.filter(pk=self.pk).update(**fields)
+        self.__class__.objects.filter(pk=self.pk).update(**fields)
         self.refresh_from_db(fields=list(fields.keys()))
         return self
 
