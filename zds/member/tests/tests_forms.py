@@ -187,6 +187,7 @@ class RegisterFormTest(TestCase):
         self.assertFalse(form.is_valid())
 
     def test_username_spaces_register_form(self):
+        # since Django 1.9, models.CharField is striped by default
         ProfileFactory()
         data = {
             'email': 'test@gmail.com',
@@ -195,7 +196,7 @@ class RegisterFormTest(TestCase):
             'password_confirm': 'ZePassword'
         }
         form = RegisterForm(data=data)
-        self.assertFalse(form.is_valid())
+        self.assertTrue(form.is_valid())
 
     def test_username_coma_register_form(self):
         ProfileFactory()
@@ -360,13 +361,14 @@ class ChangeUserFormTest(TestCase):
         self.assertFalse(form.is_valid())
 
     def test_username_spaces_register_form(self):
+        # since Django 1.9, models.CharField is striped by default
         ProfileFactory()
         data = {
             'username': '  ZeTester  ',
             'email': self.user1.user.email,
         }
         form = ChangeUserForm(data=data, user=self.user1.user)
-        self.assertFalse(form.is_valid())
+        self.assertTrue(form.is_valid())
 
     def test_username_coma_register_form(self):
         ProfileFactory()

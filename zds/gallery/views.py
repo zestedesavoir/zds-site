@@ -188,7 +188,7 @@ def modify_gallery(request):
     # Global actions
 
     if 'delete_multi' in request.POST:
-        list_items = request.POST.getlist('items')
+        list_items = request.POST.getlist('g_items')
 
         # Don't delete gallery when it's link to tutorial
         free_galleries = []
@@ -402,7 +402,7 @@ class DeleteImages(DeleteView):
         ensure_user_access(gallery, request.user, can_write=True)
 
         if 'delete_multi' in request.POST:
-            list_items = request.POST.getlist('items')
+            list_items = request.POST.getlist('g_items')
             Image.objects.filter(pk__in=list_items, gallery=gallery).delete()
         elif 'delete' in request.POST:
             pkey = self.request.POST['image']

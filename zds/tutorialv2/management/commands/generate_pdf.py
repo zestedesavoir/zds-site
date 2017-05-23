@@ -13,16 +13,14 @@ class Command(BaseCommand):
     help = 'Generate pdfs of published contents'
     # python manage.py generate_pdf id=3
 
-    def handle(self, *args, **options):
-        ids = []
+    def add_arguments(self, parser):
+        parser.add_argument('id', nargs='*', type=str)
 
-        for arg in args:
-            param = arg.split('=')
-            if len(param) < 2:
-                continue
-            elif len(param) > 1:
-                if param[0] in ['id', 'ids']:
-                    ids = param[1].split(',')
+    def handle(self, *args, **options):
+        try:
+            ids = list(set(options.get('id')[0].replace('id=', '').split(',')))
+        except IndexError:
+            ids = []
 
         pandoc_debug_str = ''
         if settings.PANDOC_LOG_STATE:

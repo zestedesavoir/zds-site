@@ -15,12 +15,12 @@ except ImportError:
 
 class Command(BaseCommand):
     help = 'Create a v2.0 manifest from a 1.0 manifest.json'
-    args = 'manifest_path'
+
+    def add_arguments(self, parser):
+        parser.add_argument('manifest_path', type=str)
 
     def handle(self, *args, **options):
-        if len(args) == 0:
-            exit()
-        _file = args[0]
+        _file = options['manifest_path']
         if os.path.isfile(_file) and _file[-5:] == '.json':
             with open(_file, 'r') as json_file:
                 data = json_reader.load(json_file)

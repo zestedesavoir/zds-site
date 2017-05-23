@@ -45,9 +45,9 @@
                                         {% trans "Supprimer la galerie" %}
                                     </a>
                                     <form action="{% url "gallery-modify" %}" method="post" id="delete-galleries" class="modal modal-flex">
-                                        <label for="items" class="checkbox">
+                                        <label for="g_items" class="checkbox">
                                             <input
-                                                name="items"
+                                                name="g_items"
                                                 type="checkbox"
                                                 checked
                                                 value="{{ gallery.pk }}"

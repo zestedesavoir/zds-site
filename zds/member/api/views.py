@@ -223,6 +223,8 @@ class MemberDetailAPI(RetrieveUpdateAPIView):
             return ProfileDetailSerializer
         elif self.request.method == 'PUT':
             return ProfileValidatorSerializer
+        else:  # used only for API documentation
+            return ProfileDetailSerializer
 
     def get_permissions(self):
         permission_classes = []
