@@ -5,8 +5,8 @@ from django.conf.urls import url
 from zds.member.views import MemberList, MemberDetail, UpdateMember, UpdateGitHubToken, remove_github_token, \
     UpdateAvatarMember, UpdatePasswordMember, UpdateUsernameEmailMember, RegisterView, \
     SendValidationEmailView, modify_karma, modify_profile, settings_mini_profile, member_from_ip, \
-    tutorials, articles, settings_promote, login_view, logout_view, forgot_password, new_password, \
-    activate_account, generate_token_account, unregister, warning_unregister
+    settings_promote, login_view, logout_view, forgot_password, new_password, activate_account, \
+    generate_token_account, unregister, warning_unregister
 
 urlpatterns = [
     # list
@@ -28,10 +28,6 @@ urlpatterns = [
     url(r'^profil/modifier/(?P<user_pk>\d+)/$', modify_profile, name='member-modify-profile'),
     url(r'^parametres/mini_profil/(?P<user_name>.+)/$', settings_mini_profile, name='member-settings-mini-profile'),
     url(r'^profil/multi/(?P<ip_address>.+)/$', member_from_ip, name='member-from-ip'),
-
-    # tutorials and articles
-    url(r'^tutoriels/$', tutorials, name='member-tutorials'),
-    url(r'^articles/$', articles, name='member-articles'),
 
     # user rights
     url(r'^profil/promouvoir/(?P<user_pk>\d+)/$', settings_promote, name='member-settings-promote'),
