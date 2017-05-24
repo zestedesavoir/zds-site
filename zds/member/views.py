@@ -37,7 +37,6 @@ from zds.member.forms import LoginForm, MiniProfileForm, ProfileForm, RegisterFo
     PromoteMemberForm, KarmaForm, UsernameAndEmailForm, GitHubTokenForm
 from zds.member.models import Profile, TokenForgotPassword, TokenRegister, KarmaNote, Ban
 from zds.mp.models import PrivatePost, PrivateTopic
-from zds.tutorialv2.models.models_database import PublishableContent
 from zds.notification.models import TopicAnswerSubscription, NewPublicationSubscription
 from zds.tutorialv2.models.models_database import PublishedContent, PickListOperation
 from zds.utils.models import Comment, CommentVote, Alert, CommentEdit
@@ -549,104 +548,6 @@ def modify_profile(request, user_pk):
 
     state.notify_member(ban, msg)
     return redirect(profile.get_absolute_url())
-
-
-@login_required
-def tutorials(request):
-    """Returns all tutorials of the authenticated user."""
-
-    # The type indicate what the user would like to display. We can display
-    # public, draft, beta, validate or all user's tutorials.
-
-    try:
-        state = request.GET['type']
-    except KeyError:
-        state = None
-
-    # The sort indicate the order of tutorials.
-
-    try:
-        sort_tuto = request.GET['sort']
-    except KeyError:
-        sort_tuto = 'abc'
-
-    # Retrieves all tutorials of the current user.
-
-    profile = request.user.profile
-    if state == 'draft':
-        user_tutorials = profile.get_draft_tutos()
-    elif state == 'beta':
-        user_tutorials = profile.get_beta_tutos()
-    elif state == 'validate':
-        user_tutorials = profile.get_validate_tutos()
-    elif state == 'public':
-        user_tutorials = profile.get_public_tutos()
-    else:
-        user_tutorials = profile.get_tutos()
-
-    # Order articles (abc by default)
-
-    if sort_tuto == 'creation':
-        pass  # nothing to do. Tutorials are already sort by creation date
-    elif sort_tuto == 'modification':
-        user_tutorials = user_tutorials.order_by('-update')
-    else:
-        user_tutorials = user_tutorials.extra(select={'lower_title': 'lower(title)'}).order_by('lower_title')
-
-    return render(
-        request,
-        'tutorial/member/index.html',
-        {'tutorials': user_tutorials, 'type': state, 'sort': sort_tuto}
-    )
-
-
-@login_required
-def articles(request):
-    """Returns all articles of the authenticated user."""
-
-    # The type indicate what the user would like to display. We can display public, draft or all user's articles.
-
-    try:
-        state = request.GET['type']
-    except KeyError:
-        state = None
-
-    # The sort indicate the order of articles.
-
-    try:
-        sort_articles = request.GET['sort']
-    except KeyError:
-        sort_articles = 'abc'
-
-    # Retrieves all articles of the current user.
-
-    profile = request.user.profile
-    if state == 'draft':
-        user_articles = profile.get_draft_articles()
-    elif state == 'validate':
-        user_articles = profile.get_validate_articles()
-    elif state == 'public':
-        user_articles = profile.get_public_articles()
-    else:
-        user_articles = PublishableContent.objects\
-            .filter(authors__pk__in=[request.user.pk], type='ARTICLE')\
-            .prefetch_related('authors', 'authors__profile')
-
-    # Order articles (abc by default)
-
-    if sort_articles == 'creation':
-        pass  # nothing to do. Articles are already sort by creation date
-    elif sort_articles == 'modification':
-        user_articles = user_articles.order_by('-update')
-    else:
-        user_articles = user_articles.extra(select={'lower_title': 'lower(title)'}).order_by('lower_title')
-    user_articles = [raw_article.load_dic(raw_article.load_json(None, raw_article.on_line()))
-                     for raw_article in user_articles]
-    return render(
-        request,
-        'article/member/index.html',
-        {'articles': user_articles, 'type': type, 'sort': sort_articles}
-    )
 
 
 # settings for public profile
