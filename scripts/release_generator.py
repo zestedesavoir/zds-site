@@ -105,7 +105,7 @@ def parse_issues(req):
 
 def dump_issues(milestone, openissues, closed_bug, closed_evo, closed_unk):
     # output all tables to a file
-    with codecs.open(OUTPUT_PATH, 'w', 'utf-8') as out:
+    with codecs.open(OUTPUT_PATH, 'w+', 'utf-8') as out:
         out.write(u'Rapport pour le jalon **[{}](https://github.com/zestedesavoir/zds-site/milestones/{})** *({})*\n\n'
                   .format(milestone['title'], milestone['title'], milestone['description']))
         out.write(u'{} tickets sont compris dans ce jalon ({} ouverts et {} fermés)\n\n'
