@@ -24,7 +24,9 @@
 {% block content %}
     <div class="content-wrapper">
         <div class="alert-box info">
-            Vous allez créer un nouveau contenu sur {{ site_name }}. Pensez à prendre connaissance de la <a href="{{ editorial_line_link }}">ligne éditoriale du site</a>.
+            {% blocktrans %}
+                Vous allez créer un nouveau contenu sur {{ site_name }}. Pensez à prendre connaissance de la <a href="{{ editorial_line_link }}">ligne éditoriale du site</a>.
+            {% endblocktrans %}
         </div>
     </div>
 

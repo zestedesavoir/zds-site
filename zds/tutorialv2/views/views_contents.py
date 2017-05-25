@@ -51,7 +51,6 @@ from zds.utils.forums import send_post, lock_topic, create_topic, unlock_topic
 from zds.utils.models import HelpWriting
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView, make_pagination
-from zds import settings
 
 
 class RedirectOldBetaTuto(RedirectView):
