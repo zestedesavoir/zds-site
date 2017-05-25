@@ -53,7 +53,7 @@
                 <a href="{% url "tutorial:feed-atom" %}" class="btn btn-grey">Atom</a>
             </h2>
             {% include 'tutorialv2/list_page_elements/list_of_content.html' with public_contents=public_contents col_number=1 %}
-            <a href="#" class="more-link">Plus de tutoriels de "nom du domaine"</a>
+            <a href="#" class="more-link">Plus de tutoriels dans {{ theme | lower }}</a>
         </section>
 
         <section>
@@ -63,7 +63,7 @@
                 <a href="{% url "article:feed-atom" %}" class="btn btn-grey">Atom</a>
             </h2>
             {% include 'tutorialv2/list_page_elements/list_of_content.html' with public_contents=public_contents col_number=1 %}
-            <a href="#" class="more-link">Plus d'article de "nom du domaine"</a>
+            <a href="#" class="more-link">Plus d'article dans {{ theme | lower }}</a>
         </section>
     </div>
 
