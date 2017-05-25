@@ -12,8 +12,9 @@
                 <img src="http://127.0.0.1:8000/static/images/home-clem.png">
             </div>
             <div class="title">
-                <h1>Nom du domaine</h1>
-                {{ content_count }} contenus
+                <h1><a href="{% url 'content:list' %}">Contenus</a></h1>
+                <span class="separator"></span>
+                <h2>{{ theme }}</h2>
             </div>
 
             <form action="" id="search-form" class="search" method="get">
@@ -28,7 +29,7 @@
 
 <div class="flexpage-wrapper">
     <section>
-        <h2 class="inline" itemprop="name">Catégories de "nom du domaine"</h2>
+        <h2 class="inline" itemprop="name">Catégories dans {{ theme | lower }}</h2>
         <div class="content-linkbox-list">
             {% for category in categories %}
                 <div class="linkbox-item secondary">
@@ -47,7 +48,7 @@
     <div class="flexpage-column">
         <section>
             <h2 itemprop="name">
-                Derniers tutoriels de "nom du domaine"
+                Derniers tutoriels
                 <a href="{% url "tutorial:feed-rss" %}" class="btn btn-grey">RSS</a>
                 <a href="{% url "tutorial:feed-atom" %}" class="btn btn-grey">Atom</a>
             </h2>
@@ -57,11 +58,11 @@
 
         <section>
             <h2 itemprop="name">
-                Derniers articles de "nom du domaine"
+                Derniers articles
                 <a href="{% url "article:feed-rss" %}" class="btn btn-grey">RSS</a>
                 <a href="{% url "article:feed-atom" %}" class="btn btn-grey">Atom</a>
             </h2>
-            {% include 'tutorialv2/list_page_elements/list_of_content.html' with public_contents=selected_contents col_number=1 %}
+            {% include 'tutorialv2/list_page_elements/list_of_content.html' with public_contents=public_contents col_number=1 %}
             <a href="#" class="more-link">Plus d'article de "nom du domaine"</a>
         </section>
     </div>
