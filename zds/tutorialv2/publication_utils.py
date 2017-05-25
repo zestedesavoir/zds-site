@@ -413,7 +413,7 @@ def make_zip_file(published_content):
     zip_file.close()
 
 
-def unpublish_content(db_object):
+def unpublish_content(db_object, moderator=None):
     """
     Remove the given content from the public view.
 
@@ -449,7 +449,7 @@ def unpublish_content(db_object):
             db_object.pubdate = None
             db_object.save()
         db_object.save()
-        content_unpublished.send(sender=db_object.__class__, instance=db_object)
+        content_unpublished.send(sender=db_object.__class__, instance=db_object, moderator=moderator)
 
         return True
 
