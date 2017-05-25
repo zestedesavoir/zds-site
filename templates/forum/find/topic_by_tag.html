@@ -2,6 +2,7 @@
 {% load profile %}
 {% load emarkdown %}
 {% load i18n %}
+{% load interventions %}
 
 
 {% block title %}
@@ -34,6 +35,36 @@
     </div>
 
     {% include "misc/paginator.html" with position="bottom" %}
+{% endblock %}
+
+
+{% block sidebar_actions %}
+    <li>
+    {% with tag_is_followed=tag|is_followed_for_new_topic %}
+        {% url 'topic-tag-find' tag.slug as link_follow %}
+        {% if tag_is_followed %}
+            {% trans "Suivre ce tag" as data_onclick %}
+            {% trans "Ne plus suivre ce tag" as button_text %}
+        {% else %}
+            {% trans "Suivre ce tag" as button_text %}
+            {% trans "Ne plus suivre ce tag" as data_onclick %}
+        {% endif %}
+        {% include 'notification/follow_template.html' with link=link_follow is_followed=tag_is_followed data_onclick=data_onclick button_text=button_text subscriber_count=subscriber_count %}
+    {% endwith %}
+    </li>
+    <li>
+    {% with tag_is_email_followed=tag|is_email_followed_for_new_topic %}
+        {% url 'topic-tag-find' tag.slug as link_follow %}
+        {% if tag_is_email_followed %}
+            {% trans "Être notifié par courriel" as data_onclick %}
+            {% trans "Ne plus être notifié par courriel" as button_text %}
+        {% else %}
+            {% trans "Être notifié par courriel" as button_text %}
+            {% trans "Ne plus être notifié par courriel" as data_onclick %}
+        {% endif %}
+        {% include 'notification/follow_by_email_template.html' with link=link_follow is_followed=tag_is_email_followed data_onclick=data_onclick button_text=button_text %}
+    {% endwith %}
+    </li>
 {% endblock %}
 
 
