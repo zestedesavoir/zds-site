@@ -74,13 +74,13 @@
         <div class="content-linkbox-list">
             <div class="linkbox-item secondary">
                 <a href="{{ beta_forum.get_absolute_url }}" class="head">
-                    <h3>{% trans 'Donner son avis' %}</h3>
+                    <h3>{% trans 'Donner votre avis' %}</h3>
                 </a>
 
                 <a href="{{ beta_forum.get_absolute_url }}" class="body">
                     {% blocktrans %}
-                    <p>Les contenus presque terminés nécessitent souvent une relecture afin de peaufiner le fond comme la forme.</p>
-                    <p class="right">Consulter les contenus en bêta.</p>
+                    <p>Les contenus presque terminés nécessitent souvent une relecture afin d'en peaufiner le fond comme la forme.</p>
+                    <p class="right">Consulter les contenus en bêta</p>
                     {% endblocktrans %}
                 </a>
             </div>
@@ -91,7 +91,7 @@
                 </div>
 
                 <div class="body">
-                    <p>{% trans "Vous avez un savoir à partager, vous vous sentez pédagogue, pourquoi ne pas commencer l'écriture d'un tutoriel ?" %}</p>
+                    <p>{% trans "Vous avez un savoir à partager, vous vous sentez pédagogue, pourquoi ne pas commencer l'écriture d'un contenu ?" %}</p>
                 </div>
 
                 <a href="{% url "content:create-tutorial" %}" class="tail">
@@ -111,8 +111,8 @@
                 <a href="{% url 'content:helps' %}" class="body">
                     {% blocktrans %}
                     <p>Les auteurs ont souvent besoin d'un peu d'aide pour amener leur contenu jusqu'à la publication.</p>
-                    <p>Dessiner une icône ou des illustrations, corriger un texte ou encore devenir co-auteur vous interesse ?</p>
-                    <p class="right">Parcourir les demandes d'aides.</p>
+                    <p>Dessiner une icône ou des illustrations, corriger un texte ou encore devenir co-auteur vous intéresse ?</p>
+                    <p class="right">Parcourir les demandes d'aides</p>
                     {% endblocktrans %}
                 </a>
             </div>
