@@ -88,12 +88,47 @@ $content-width: 1145px;
 
             h1 {
                 display: inline-block;
-                margin: 0 15px 0 0; padding: 0;
+                margin: 0 10px 0 0; padding: 0;
 
                 color: inherit;
                 font-size: 6rem;
                 line-height: 50px;
                 border: none;
+            }
+
+            h2 {
+                display: inline-block;
+                margin: 0 10px; padding: 0;
+
+                color: inherit;
+                font-size: 3rem;
+                border: none;
+            }
+
+            a {
+                color: white;
+                text-decoration: none;
+            }
+
+            .separator {
+                position: relative;
+                display: inline-block;
+                width: 15px; height: 15px; line-height: 15px;
+                margin: 0; padding: 0;
+
+                &:after {
+                    content: '';
+                    position: absolute;
+                    top: 0; right: 0;
+
+                    width: 10px; height: 10px;
+                    transform: rotate(45deg);
+
+                    border-color: white;
+                    border-style: solid;
+                    border-width: 2px 2px 0 0;
+                    opacity: .5;
+                }
             }
         }
 

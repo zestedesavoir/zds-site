@@ -75,7 +75,6 @@
             <div class="linkbox-item secondary">
                 <a href="{{ beta_forum.get_absolute_url }}" class="head">
                     <h3>{% trans 'Donner son avis' %}</h3>
-                    <span class="icon"></span>
                 </a>
 
                 <a href="{{ beta_forum.get_absolute_url }}" class="body">
@@ -89,7 +88,6 @@
             <div class="linkbox-item secondary">
                 <div class="head">
                     <h3>{% trans 'Partager votre savoir' %}</h3>
-                    <span class="icon"></span>
                 </div>
 
                 <div class="body">
@@ -106,12 +104,11 @@
             </div>
 
             <div class="linkbox-item secondary">
-                <a href="{% url 'content:helps' %}?type=tuto" class="head">
+                <a href="{% url 'content:helps' %}" class="head">
                     <h3>{% trans 'Aider les auteurs' %}</h3>
-                    <span class="icon"></span>
                 </a>
 
-                <a href="{% url 'content:helps' %}?type=tuto" class="body">
+                <a href="{% url 'content:helps' %}" class="body">
                     {% blocktrans %}
                     <p>Les auteurs ont souvent besoin d'un peu d'aide pour amener leur contenu jusqu'à la publication.</p>
                     <p>Dessiner une icône ou des illustrations, corriger un texte ou encore devenir co-auteur vous interesse ?</p>
