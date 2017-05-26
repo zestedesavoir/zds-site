@@ -44,7 +44,9 @@
 {% block sidebar_actions %}
     <div>
         <a href="{% url "banned-email-providers" %}" class="new-btn ico-after arrow-left blue">
-            {% trans "Retour" %} <span class="wide">{% trans "aux fournisseurs" %}</span>
+            {% blocktrans %}
+                Retour <span class="wide">aux fournisseurs</span>
+            {% endblocktrans %}
         </a>
     </div>
 {% endblock %}

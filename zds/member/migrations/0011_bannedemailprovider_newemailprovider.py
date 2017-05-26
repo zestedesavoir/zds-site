@@ -854,7 +854,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('provider', models.CharField(unique=True, max_length=253, verbose_name='Fournisseur', db_index=True)),
-                ('use', models.CharField(max_length=11, choices=[('NEW_ACCOUNT', 'Nouveau compte'), ('EMAIL_EDIT', "\xc9dition de l'adresse e-mail")])),
+                ('use', models.CharField(max_length=11, verbose_name='Utilisation', choices=[('NEW_ACCOUNT', 'Nouveau compte'), ('EMAIL_EDIT', "\xc9dition de l'adresse e-mail")])),
                 ('date', models.DateTimeField(db_column='alert_date', auto_now_add=True, verbose_name="Date de l'alerte", db_index=True)),
                 ('user', models.ForeignKey(related_name='new_providers', verbose_name='Utilisateur concern\xe9', to=settings.AUTH_USER_MODEL)),
             ],
@@ -864,4 +864,9 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.RunPython(forwards_func),
+        migrations.AlterField(
+            model_name='profile',
+            name='show_markdown_help',
+            field=models.BooleanField(default=True, verbose_name="Afficher l'aide Markdown dans l'\xe9diteur"),
+        ),
     ]

@@ -78,7 +78,9 @@
         </a>
 
         <a href="{% url "add-banned-email-provider" %}" class="new-btn ico-after more blue">
-            {% trans "Bannir" %} <span class="wide">{% trans "un fournisseur" %}</span>
+            {% blocktrans %}
+                Bannir <span class="wide">un fournisseur</span>
+            {% endblocktrans %}
         </a>
     </div>
 {% endblock %}

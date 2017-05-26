@@ -503,11 +503,11 @@ class NewEmailProvider(models.Model):
         verbose_name_plural = 'Nouveaux fournisseurs'
 
     provider = models.CharField('Fournisseur', max_length=253, unique=True, db_index=True)
-    use = models.CharField(max_length=11, choices=NEW_PROVIDER_USES)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Utilisateur concerné',
+    use = models.CharField('Utilisation', max_length=11, choices=NEW_PROVIDER_USES)
+    user = models.ForeignKey(User, verbose_name='Utilisateur concerné', on_delete=models.CASCADE,
                              related_name='new_providers', db_index=True)
-    date = models.DateTimeField(auto_now_add=True, db_index=True,
-                                verbose_name="Date de l'alerte", db_column='alert_date')
+    date = models.DateTimeField("Date de l'alerte", auto_now_add=True, db_index=True,
+                                db_column='alert_date')
 
     def __str__(self):
         return 'Alert about the new provider {}'.format(self.provider)
@@ -525,10 +525,10 @@ class BannedEmailProvider(models.Model):
         verbose_name_plural = 'Fournisseurs bannis'
 
     provider = models.CharField('Fournisseur', max_length=253, unique=True, db_index=True)
-    moderator = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Modérateur',
+    moderator = models.ForeignKey(User, verbose_name='Modérateur', on_delete=models.CASCADE,
                                   related_name='banned_providers', db_index=True)
-    date = models.DateTimeField(auto_now_add=True, db_index=True,
-                                verbose_name='Date du bannissement', db_column='ban_date')
+    date = models.DateTimeField('Date du bannissement', auto_now_add=True, db_index=True,
+                                db_column='ban_date')
 
     def __str__(self):
         return 'Ban of the {} provider'.format(self.provider)

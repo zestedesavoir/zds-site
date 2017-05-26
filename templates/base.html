@@ -599,7 +599,7 @@
                                             {% with new_providers_count=user|new_providers_count %}
                                                 <li class="staff-only">
                                                     <a href="{% url 'new-email-providers' %}">
-                                                        {% trans "Nouveaux fournisseurs" %}
+                                                        {% trans "Fournisseurs e-mail" %}
                                                         {% if new_providers_count > 0 %}
                                                             ({{ new_providers_count }})
                                                         {% endif %}

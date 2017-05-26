@@ -462,7 +462,7 @@ ZDS_APP = {
         'bot_group': u'bot',
         'dev_group': u'devs',
         'members_per_page': 100,
-        'providers_per_page': 50,
+        'providers_per_page': 100,
         'update_last_visit_interval': 600,  # seconds
     },
     'gallery': {

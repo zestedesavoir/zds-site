@@ -31,14 +31,14 @@ urlpatterns = [
     url(r'^profil/multi/(?P<ip_address>.+)/$', member_from_ip, name='member-from-ip'),
 
     # email providers
-    url(r'^fournisseurs/nouveaux/$', NewEmailProvidersList.as_view(), name='new-email-providers'),
-    url(r'^fournisseurs/nouveaux/verifier/(?P<provider_pk>\d+)/$', check_new_email_provider,
+    url(r'^fournisseurs-email/nouveaux/$', NewEmailProvidersList.as_view(), name='new-email-providers'),
+    url(r'^fournisseurs-email/nouveaux/verifier/(?P<provider_pk>\d+)/$', check_new_email_provider,
         name='check-new-email-provider'),
-    url(r'^fournisseurs/bannis/$', BannedEmailProvidersList.as_view(), name='banned-email-providers'),
-    url(r'^fournisseurs/bannis/ajouter/$', AddBannedEmailProvider.as_view(), name='add-banned-email-provider'),
-    url(r'^fournisseurs/bannis/rechercher/(?P<provider_pk>\d+)/$', MembersWithProviderList.as_view(),
+    url(r'^fournisseurs-email/bannis/$', BannedEmailProvidersList.as_view(), name='banned-email-providers'),
+    url(r'^fournisseurs-email/bannis/ajouter/$', AddBannedEmailProvider.as_view(), name='add-banned-email-provider'),
+    url(r'^fournisseurs-email/bannis/rechercher/(?P<provider_pk>\d+)/$', MembersWithProviderList.as_view(),
         name='members-with-provider'),
-    url(r'^fournisseurs/bannis/supprimer/(?P<provider_pk>\d+)/$', remove_banned_email_provider,
+    url(r'^fournisseurs-email/bannis/supprimer/(?P<provider_pk>\d+)/$', remove_banned_email_provider,
         name='remove-banned-email-provider'),
 
     # user rights

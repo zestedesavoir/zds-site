@@ -65,7 +65,9 @@
 {% block sidebar_actions %}
     <div>
         <a href="{% url "add-banned-email-provider" %}" class="new-btn ico-after more blue">
-            {% trans "Bannir" %} <span class="wide">{% trans "un fournisseur" %}</span>
+            {% blocktrans %}
+                Bannir <span class="wide">un fournisseur</span>
+            {% endblocktrans %}
         </a>
 
         <a href="{% url "new-email-providers" %}" class="new-btn ico-after history blue">
