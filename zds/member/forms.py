@@ -599,7 +599,7 @@ class BannedEmailProviderForm(forms.ModelForm):
         widgets = {
             'provider': forms.TextInput(attrs={
                 'autofocus': 'on',
-                'placeholder': _(u"La partie qui suit l'arobase dans l'adresse e-mail."),
+                'placeholder': _(u"Le nom de domaine à bannir."),
             }),
         }
 
