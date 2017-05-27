@@ -599,7 +599,7 @@ class BannedEmailProviderForm(forms.ModelForm):
         widgets = {
             'provider': forms.TextInput(attrs={
                 'autofocus': 'on',
-                'placeholder': _(u"Le nom de domaine à bannir."),
+                'placeholder': _(u'Le nom de domaine à bannir.'),
             }),
         }
 
