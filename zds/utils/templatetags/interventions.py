@@ -17,6 +17,7 @@ from zds.utils import get_current_user
 from zds.utils.models import Alert
 from zds import settings
 from zds.tutorialv2.models import TYPE_CHOICES_DICT
+from zds.member.models import NewEmailProvider
 
 register = template.Library()
 
@@ -212,7 +213,13 @@ def waiting_count(content_type):
     """
     if content_type not in TYPE_CHOICES_DICT:
         raise template.TemplateSyntaxError("'content_type' must be in 'zds.tutorialv2.models.TYPE_CHOICES_DICT'")
+
     return Validation.objects.filter(
         validator__isnull=True,
         status='PENDING',
         content__type=content_type).count()
+
+
+@register.filter(name='new_providers_count')
+def new_providers_count(user):
+    return NewEmailProvider.objects.count()

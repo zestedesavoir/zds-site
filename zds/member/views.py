@@ -13,7 +13,7 @@ from django.contrib.auth.models import User, Group
 from django.template.context_processors import csrf
 from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMultiAlternatives
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.db import transaction
 from django.db.models import Q
 from django.http import Http404, HttpResponseBadRequest, StreamingHttpResponse
@@ -29,13 +29,16 @@ from django.views.generic import DetailView, UpdateView, CreateView, FormView
 from zds.forum.models import Topic, TopicRead
 from zds.gallery.forms import ImageAsAvatarForm
 from zds.gallery.models import UserGallery
+from zds.member import NEW_ACCOUNT, EMAIL_EDIT
 from zds.member.commons import ProfileCreate, TemporaryReadingOnlySanction, ReadingOnlySanction, \
     DeleteReadingOnlySanction, TemporaryBanSanction, BanSanction, DeleteBanSanction, TokenGenerator
-from zds.member.decorator import can_write_and_read_now
+from zds.member.decorator import can_write_and_read_now, LoginRequiredMixin, PermissionRequiredMixin
 from zds.member.forms import LoginForm, MiniProfileForm, ProfileForm, RegisterForm, \
     ChangePasswordForm, ChangeUserForm, NewPasswordForm, \
-    PromoteMemberForm, KarmaForm, UsernameAndEmailForm, GitHubTokenForm
-from zds.member.models import Profile, TokenForgotPassword, TokenRegister, KarmaNote, Ban
+    PromoteMemberForm, KarmaForm, UsernameAndEmailForm, GitHubTokenForm, \
+    BannedEmailProviderForm
+from zds.member.models import Profile, TokenForgotPassword, TokenRegister, KarmaNote, Ban, \
+    BannedEmailProvider, NewEmailProvider
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.notification.models import TopicAnswerSubscription, NewPublicationSubscription
 from zds.tutorialv2.models.models_database import PublishedContent, PickListOperation
@@ -318,6 +321,12 @@ class UpdateUsernameEmailMember(UpdateMember):
             profile.user.username = new_username
         if new_email and new_email != previous_email:
             profile.user.email = new_email
+            # create an alert for the staff if it's a new provider
+            provider = provider = new_email.split('@')[-1].lower()
+            if not NewEmailProvider.objects.filter(provider=provider).exists() \
+                    and not User.objects.filter(email__iendswith='@{}'.format(provider)) \
+                    .exclude(pk=profile.user.pk).exists():
+                NewEmailProvider.objects.create(user=profile.user, provider=provider, use=EMAIL_EDIT)
 
     def get_success_url(self):
         profile = self.get_object()
@@ -455,6 +464,7 @@ def unregister(request):
     Ban.objects.filter(moderator=current).update(moderator=anonymous)
     Alert.objects.filter(author=current).update(author=anonymous)
     Alert.objects.filter(moderator=current).update(moderator=anonymous)
+    BannedEmailProvider.objects.filter(moderator=current).update(moderator=anonymous)
     # in case current has been moderator in his old day
     Comment.objects.filter(editor=current).update(editor=anonymous)
     for topic in PrivateTopic.objects.filter(author=current):
@@ -594,6 +604,99 @@ def settings_mini_profile(request, user_name):
             u'Le profil que vous éditez n\'est pas le vôtre. '
             u'Soyez encore plus prudent lors de l\'édition de celui-ci !'))
         return render(request, 'member/settings/profile.html', data)
+
+
+class NewEmailProvidersList(LoginRequiredMixin, PermissionRequiredMixin, ZdSPagingListView):
+    permissions = ['member.change_bannedemailprovider']
+    paginate_by = settings.ZDS_APP['member']['providers_per_page']
+
+    model = NewEmailProvider
+    context_object_name = 'providers'
+    template_name = 'member/settings/new_email_providers.html'
+    queryset = NewEmailProvider.objects \
+        .select_related('user') \
+        .select_related('user__profile') \
+        .order_by('-date')
+
+
+@require_POST
+@login_required
+@permission_required('member.change_bannedemailprovider', raise_exception=True)
+def check_new_email_provider(request, provider_pk):
+    """Remove an alert about a new provider"""
+
+    provider = get_object_or_404(NewEmailProvider, pk=provider_pk)
+    if 'ban' in request.POST \
+            and not BannedEmailProvider.objects.filter(provider=provider.provider).exists():
+        BannedEmailProvider.objects.create(provider=provider.provider, moderator=request.user)
+    provider.delete()
+
+    messages.success(request, _(u'Action effectuée.'))
+    return redirect('new-email-providers')
+
+
+class BannedEmailProvidersList(LoginRequiredMixin, PermissionRequiredMixin, ZdSPagingListView):
+    permissions = ['member.change_bannedemailprovider']
+    paginate_by = settings.ZDS_APP['member']['providers_per_page']
+
+    model = BannedEmailProvider
+    context_object_name = 'providers'
+    template_name = 'member/settings/banned_email_providers.html'
+    queryset = BannedEmailProvider.objects \
+        .select_related('moderator') \
+        .select_related('moderator__profile') \
+        .order_by('-date')
+
+
+class MembersWithProviderList(LoginRequiredMixin, PermissionRequiredMixin, ZdSPagingListView):
+    permissions = ['member.change_bannedemailprovider']
+    paginate_by = settings.ZDS_APP['member']['members_per_page']
+
+    model = User
+    context_object_name = 'members'
+    template_name = 'member/settings/members_with_provider.html'
+
+    def get_object(self):
+        return get_object_or_404(BannedEmailProvider, pk=self.kwargs['provider_pk'])
+
+    def get_context_data(self, **kwargs):
+        context = super(MembersWithProviderList, self).get_context_data(**kwargs)
+        context['provider'] = self.get_object()
+        return context
+
+    def get_queryset(self):
+        provider = self.get_object()
+        return Profile.objects \
+            .select_related('user') \
+            .order_by('-last_visit') \
+            .filter(user__email__icontains='@{}'.format(provider.provider))
+
+
+class AddBannedEmailProvider(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    permissions = ['member.change_bannedemailprovider']
+
+    model = BannedEmailProvider
+    template_name = 'member/settings/add_banned_email_provider.html'
+    form_class = BannedEmailProviderForm
+    success_url = reverse_lazy('banned-email-providers')
+
+    def form_valid(self, form):
+        form.instance.moderator = self.request.user
+        messages.success(self.request, _(u'Le fournisseur a été banni.'))
+        return super(AddBannedEmailProvider, self).form_valid(form)
+
+
+@require_POST
+@login_required
+@permission_required('member.change_bannedemailprovider', raise_exception=True)
+def remove_banned_email_provider(request, provider_pk):
+    """Used to unban an email provider"""
+
+    provider = get_object_or_404(BannedEmailProvider, pk=provider_pk)
+    provider.delete()
+
+    messages.success(request, _(u'Le fournisseur « {} » a été débanni.').format(provider.provider))
+    return redirect('banned-email-providers')
 
 
 def login_view(request):
@@ -791,6 +894,15 @@ def activate_account(request):
             True,
             False)
     token.delete()
+
+    # create an alert for the staff if it's a new provider
+    if usr.email:
+        provider = usr.email.split('@')[-1].lower()
+        if not NewEmailProvider.objects.filter(provider=provider).exists() \
+                and not User.objects.filter(email__iendswith='@{}'.format(provider)) \
+                .exclude(pk=usr.pk).exists():
+            NewEmailProvider.objects.create(user=usr, provider=provider, use=NEW_ACCOUNT)
+
     form = LoginForm(initial={'username': usr.username})
     return render(request, 'member/register/token_success.html', {'usr': usr, 'form': form})
 

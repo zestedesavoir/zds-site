@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import os
+from __future__ import unicode_literals
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -9,7 +9,7 @@ from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
 
 from zds.utils.misc import contains_utf8mb4
-from zds.settings import BASE_DIR
+from zds.member.models import BannedEmailProvider
 
 
 def validate_not_empty(value):
@@ -20,7 +20,7 @@ def validate_not_empty(value):
     :return:
     """
     if value is None or not value.strip():
-        raise ValidationError(_(u'Le champs ne peut être vide'))
+        raise ValidationError(_('Le champs ne peut être vide'))
 
 
 class ZdSEmailValidator(EmailValidator):
@@ -32,7 +32,7 @@ class ZdSEmailValidator(EmailValidator):
       - remove whitelist check
       - add custom errors and translate them into French
     """
-    message = _(u'Utilisez une adresse de courriel valide.')
+    message = _('Utilisez une adresse de courriel valide.')
 
     def __call__(self, value, check_username_available=True):
         value = force_text(value)
@@ -46,18 +46,18 @@ class ZdSEmailValidator(EmailValidator):
             raise ValidationError(self.message, code=self.code)
 
         # check if provider is blacklisted
-        with open(os.path.join(BASE_DIR, 'forbidden_email_providers.txt'), 'r') as black_list:
-            for provider in black_list:
-                if provider.strip() in value:
-                    raise ValidationError(_(u'Utilisez un autre fournisseur d\'adresses courriel'), code=self.code)
+        blacklist = BannedEmailProvider.objects.values_list('provider', flat=True)
+        for provider in blacklist:
+            if '@{}'.format(provider) in value.lower():
+                raise ValidationError(_('Ce fournisseur ne peut pas être utilisé.'), code=self.code)
 
         # check if email is used by another user
         user_count = User.objects.filter(email=value).count()
         if check_username_available and user_count > 0:
-            raise ValidationError(_(u'Cette adresse courriel est déjà utilisée'), code=self.code)
+            raise ValidationError(_('Cette adresse courriel est déjà utilisée'), code=self.code)
         # check if email exists in database
         elif not check_username_available and user_count == 0:
-            raise ValidationError(_(u'Cette adresse courriel n\'existe pas'), code=self.code)
+            raise ValidationError(_('Cette adresse courriel n\'existe pas'), code=self.code)
 
         if domain_part and not self.validate_domain_part(domain_part):
             # Try for possible IDN domain-part
@@ -83,15 +83,15 @@ def validate_zds_username(value, check_username_available=True):
     msg = None
     user_count = User.objects.filter(username=value).count()
     if ',' in value:
-        msg = _(u'Le nom d\'utilisateur ne peut contenir de virgules')
+        msg = _('Le nom d\'utilisateur ne peut contenir de virgules')
     elif value != value.strip():
-        msg = _(u'Le nom d\'utilisateur ne peut commencer ou finir par des espaces')
+        msg = _('Le nom d\'utilisateur ne peut commencer ou finir par des espaces')
     elif contains_utf8mb4(value):
-        msg = _(u'Le nom d\'utilisateur ne peut pas contenir des caractères utf8mb4')
+        msg = _('Le nom d\'utilisateur ne peut pas contenir des caractères utf8mb4')
     elif check_username_available and user_count > 0:
-        msg = _(u'Ce nom d\'utilisateur est déjà utilisé')
+        msg = _('Ce nom d\'utilisateur est déjà utilisé')
     elif not check_username_available and user_count == 0:
-        msg = _(u'Ce nom d\'utilisateur n\'existe pas')
+        msg = _('Ce nom d\'utilisateur n\'existe pas')
     if msg is not None:
         raise ValidationError(msg)
 
@@ -103,7 +103,7 @@ def validate_zds_password(value):
     :return:
     """
     if contains_utf8mb4(value):
-        raise ValidationError(_(u'Le mot de passe ne peut pas contenir des caractères utf8mb4'))
+        raise ValidationError(_('Le mot de passe ne peut pas contenir des caractères utf8mb4'))
 
 
 def validate_passwords(cleaned_data, password_label='password', password_confirm_label='password_confirm',
@@ -124,7 +124,7 @@ def validate_passwords(cleaned_data, password_label='password', password_confirm
         username = cleaned_data.get('username')
 
     if not password_confirm == password:
-        msg = _(u'Les mots de passe sont différents')
+        msg = _('Les mots de passe sont différents')
 
         if password_label in cleaned_data:
             del cleaned_data[password_label]
@@ -135,7 +135,7 @@ def validate_passwords(cleaned_data, password_label='password', password_confirm
     if username is not None:
         # Check that password != username
         if password == username:
-            msg = _(u'Le mot de passe doit être différent du pseudo')
+            msg = _('Le mot de passe doit être différent du pseudo')
             if password_label in cleaned_data:
                 del cleaned_data[password_label]
             if password_confirm_label in cleaned_data:

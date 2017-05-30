@@ -11,7 +11,7 @@ from rest_framework.test import APIClient
 
 from zds.api.pagination import REST_PAGE_SIZE, REST_MAX_PAGE_SIZE, REST_PAGE_SIZE_QUERY_PARAM
 from zds.member.factories import ProfileFactory, StaffProfileFactory, ProfileNotSyncFactory
-from zds.member.models import TokenRegister
+from zds.member.models import TokenRegister, BannedEmailProvider
 from rest_framework_extensions.settings import extensions_api_settings
 from django.core.cache import caches
 
@@ -241,6 +241,9 @@ class MemberListAPITest(APITestCase):
         """
         Gets an error when the user tries to register a new user with a forbidden email.
         """
+        moderator = StaffProfileFactory().user
+        if not BannedEmailProvider.objects.filter(provider='yopmail.com').exists():
+            BannedEmailProvider.objects.create(provider='yopmail.com', moderator=moderator)
         data = {
             'username': 'Clem',
             'email': 'clem@yopmail.com',
