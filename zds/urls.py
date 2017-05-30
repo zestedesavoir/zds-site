@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-from django.conf.urls import include, url
+from django.conf.urls import include, url, patterns
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.sitemaps import GenericSitemap, Sitemap
@@ -125,6 +125,10 @@ if settings.SERVE:
         url(r'^static/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT}),
         url(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
     ]
+
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns += patterns('', (url(r'^__debug__/', include(debug_toolbar.urls)),))
 
 # custom view for 500 errors
 handler500 = 'zds.pages.views.custom_error_500'

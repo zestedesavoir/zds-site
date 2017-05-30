@@ -1,4 +1,4 @@
-from django.core.management import call_command
+from django.core.management import call_command, get_commands
 from django.test import TestCase
 
 from django.contrib.auth.models import User, Permission
@@ -10,6 +10,9 @@ from zds.member.factories import ProfileFactory
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction, \
     Validation as CValidation
 from zds.gallery.models import Gallery, UserGallery
+from zds.utils.management.commands.load_fixtures import Command as FixturesCommand
+from zds.utils.management.commands.load_factory_data import Command as FactoryDataCommand
+from six import StringIO
 
 
 class CommandsTestCase(TestCase):
@@ -17,6 +20,7 @@ class CommandsTestCase(TestCase):
 
         args = []
         opts = {}
+        get_commands()['load_fixtures'] = FixturesCommand(stdout=StringIO())
         call_command('load_fixtures', *args, **opts)
 
         self.assertTrue(User.objects.count() > 0)
@@ -40,6 +44,7 @@ class CommandsTestCase(TestCase):
     def test_load_factory_data(self):
         args = ['fixtures/advanced/aide_tuto_media.yaml']
         opts = {}
+        get_commands()['load_factory_data'] = FactoryDataCommand(stdout=StringIO())
         call_command('load_factory_data', *args, **opts)
 
         self.assertTrue(HelpWriting.objects.count() > 0)
