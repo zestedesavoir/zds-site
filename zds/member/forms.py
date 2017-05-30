@@ -13,7 +13,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import HTML, Layout, \
     Submit, Field, ButtonHolder, Hidden, Div
 
-from zds.member.models import Profile, KarmaNote
+from zds.member.models import Profile, KarmaNote, BannedEmailProvider
 from zds.member.validators import validate_not_empty, validate_zds_email, validate_zds_username, validate_passwords, \
     validate_zds_password
 from zds.utils.forms import CommonLayoutModalText
@@ -590,3 +590,31 @@ class KarmaForm(forms.Form):
                 StrictButton(u'Valider', type='submit'),
             ),
         )
+
+
+class BannedEmailProviderForm(forms.ModelForm):
+    class Meta:
+        model = BannedEmailProvider
+        fields = ('provider',)
+        widgets = {
+            'provider': forms.TextInput(attrs={
+                'autofocus': 'on',
+                'placeholder': _(u'Le nom de domaine à bannir.'),
+            }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(BannedEmailProviderForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = 'content-wrapper'
+        self.helper.form_method = 'post'
+
+        self.helper.layout = Layout(
+            Field('provider'),
+            ButtonHolder(
+                StrictButton(_(u'Bannir ce fournisseur'), type='submit'),
+            ))
+
+    def clean_provider(self):
+        data = self.cleaned_data['provider']
+        return data.lower()

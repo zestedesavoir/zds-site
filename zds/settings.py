@@ -462,6 +462,7 @@ ZDS_APP = {
         'bot_group': u'bot',
         'dev_group': u'devs',
         'members_per_page': 100,
+        'providers_per_page': 100,
         'update_last_visit_interval': 600,  # seconds
     },
     'gallery': {
@@ -506,7 +507,9 @@ ZDS_APP = {
         'import_image_prefix': 'archive',
         'build_pdf_when_published': True,
         'maximum_slug_size': 150,
-        'sec_per_minute': 1500
+        'sec_per_minute': 1500,
+        'editorial_line_link':
+        u'https://zestedesavoir.com/articles/222/la-ligne-editoriale-officielle-de-zeste-de-savoir/'
     },
     'forum': {
         'posts_per_page': 21,
