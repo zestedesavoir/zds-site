@@ -1051,3 +1051,52 @@ Ticket #4313
 ------------
 
 + Via l'admin Django, ajouter la permission `member.change_bannedemailprovider` aux groupes autorisés à gérer les fournisseurs e-mail bannis.
+
+Ticket #4352 (python-social-auth)
+---------------------------------
+
+### Actions à faire AVANT de lancer le script de mise-à-jour
+
+1. Installer la version 0.2.21 de *python-social-auth* : `pip install --upgrade "python-social-auth==0.2.21"`
+2. Lancer la migration de la base de données pour cette application uniquement : `python manage.py migrate social_auth`
+
+### Après la mise-à-jour
+
+1. Désinstaller complètement *python-social-auth* : `pip uninstall python-social-auth`
+2. Changer les valeurs suivantes dans le settings_prod.py :
+
+```diff
+# TEMPLATE
+-                'social.apps.django_app.context_processors.backends',
+-                'social.apps.django_app.context_processors.login_redirect',
++                'social_django.context_processors.backends',
++                'social_django.context_processors.login_redirect',
+
+# SOCIAL_AUTH_PIPELINE
+SOCIAL_AUTH_PIPELINE = (
+-    'social.pipeline.social_auth.social_details',
+-    'social.pipeline.social_auth.social_uid',
+-    'social.pipeline.social_auth.auth_allowed',
+-    'social.pipeline.social_auth.social_user',
+-    'social.pipeline.user.get_username',
+-    'social.pipeline.social_auth.associate_by_email',
+-    'social.pipeline.user.create_user',
+-    'zds.member.models.save_profile',
+-    'social.pipeline.social_auth.associate_user',
+-    'social.pipeline.social_auth.load_extra_data',
+-    'social.pipeline.user.user_details'
++    'social_core.pipeline.social_auth.social_details',
++    'social_core.pipeline.social_auth.social_uid',
++    'social_core.pipeline.social_auth.auth_allowed',
++    'social_core.pipeline.social_auth.social_user',
++    'social_core.pipeline.user.get_username',
++    'social_core.pipeline.user.create_user',
++    'zds.member.models.save_profile',
++    'social_core.pipeline.social_auth.associate_user',
++    'social_core.pipeline.social_auth.load_extra_data',
++    'social_core.pipeline.user.user_details'
+)
+
+```
+
+3. Relancer les services : `sudo systemct restart zds.{service,socket}

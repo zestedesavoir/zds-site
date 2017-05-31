@@ -1,17 +1,22 @@
 # coding: utf-8
+
 from __future__ import unicode_literals
-from social.apps.django_app.middleware import SocialAuthExceptionMiddleware
+
+import logging
+
+from social_django.middleware import SocialAuthExceptionMiddleware
+
 from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
-import logging
+
 logger = logging.getLogger(__name__)
 
 
 class ZDSCustomizeSocialAuthExceptionMiddleware(SocialAuthExceptionMiddleware):
     """
     For more information, \
-    see http://python-social-auth.readthedocs.io/en/latest/configuration/django.html#exceptions-middleware.
+    see https://python-social-auth.readthedocs.io/en/latest/configuration/django.html#exceptions-middleware.
     """
     def get_message(self, request, exception):
         # this message aims to be displayed in our "error" widget

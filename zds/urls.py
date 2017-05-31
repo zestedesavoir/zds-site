@@ -101,7 +101,7 @@ urlpatterns = [
     url(r'^munin/', include('zds.munin.urls')),
     url(r'^mise-en-avant/', include('zds.featured.urls')),
     url(r'^notifications/', include('zds.notification.urls')),
-    url('', include('social.apps.django_app.urls', namespace='social')),
+    url('', include('social_django.urls', namespace='social')),
     url('', include('django.contrib.auth.urls', namespace='auth')),
 
     url(r'^munin/', include('munin.urls')),
