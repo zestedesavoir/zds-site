@@ -165,7 +165,7 @@ class ContainerForm(FormWithTitle):
 
             self.helper.layout.append(Layout(
                 ButtonHolder(StrictButton(_(u'Valider cette version'), type='merge', name='merge',
-                                         css_class='btn btn-submit merge-btn need-to-merge-introduction'))))
+                                          css_class='btn btn-submit merge-btn need-to-merge-introduction'))))
 
             old_conclusion = kwargs.get('data').get('conclusion')
             if old_conclusion is None:
@@ -190,8 +190,7 @@ class ContainerForm(FormWithTitle):
             Field('conclusion', css_class='md-editor preview-source'),
             ButtonHolder(StrictButton(_(u'Aperçu'), type='preview', name='preview',
                                       css_class='btn btn-grey preview-btn'),)))
-            
-        
+
         self.helper.layout = Layout(
             HTML('{% if form.conclusion.value %}{% include "misc/previsualization.part.html" \
                 with text=form.conclusion.value %}{% endif %}'),
@@ -299,7 +298,7 @@ class ContentForm(ContainerForm):
             old_conclusion = kwargs.get('data').get('conclusion')
             if old_conclusion is None:
                 old_conclusion = ''
-                
+
             self.helper.layout.append(Layout(Field('conclusion', css_class='hidden')))
             self.helper.layout.append(Layout(HTML('<div id = "your_conclusion" class = "hidden" >' + old_conclusion +
                                                   '</div>')))
@@ -320,14 +319,20 @@ class ContentForm(ContainerForm):
                                      ButtonHolder(StrictButton(_(u'Aperçu'), type='preview', name='preview',
                                                               css_class='btn btn-grey preview-btn'),)))
 
-            HTML('{% if form.conclusion.value %}{% include "misc/previsualization.part.html" \
-                with text=form.conclusion.value %}{% endif %}')
 
-            Field('msg_commit'),
-            ButtonHolder(
-                StrictButton('Valider', type='submit'),
-            ),
-            ))
+        self.helper.layout = Layout(
+            HTML('{% if form.conclusion.value %}{% include "misc/previsualization.part.html" \
+                with text=form.conclusion.value %}{% endif %}'),
+
+            self.helper.layout.append(Layout(
+                Field('msg_commit'),
+                ButtonHolder(
+                    StrictButton(
+                        _(u'Valider'),
+                        type='submit'),
+                )
+            )),
+            )
 
         if not hide_help:
             self.helper.layout.append(html_part)
