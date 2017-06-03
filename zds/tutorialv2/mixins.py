@@ -262,7 +262,7 @@ class SingleContentDetailViewMixin(SingleContentViewMixin, DetailView):
         context['can_edit'] = self.is_author
         context['is_staff'] = self.is_staff
         if self.object.type == 'OPINION':
-            context['can_publish'] = not self.object.is_definitely_unpublished()
+            context['can_publish'] = not self.object.is_permanently_unpublished()
         if self.sha != self.object.sha_draft:
             context['version'] = self.sha
 
