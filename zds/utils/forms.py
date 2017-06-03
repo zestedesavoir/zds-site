@@ -42,17 +42,17 @@ class CommonLayoutVersionEditor(Layout):
 
         if kwargs.get('data', None) is not None:
             old_text = kwargs.get('data').get('text')
-    
+
             text_field = Field('text', css_class='hidden')
             text_field += HTML('<div id = "your_text" class = "hidden" >' + old_text + '</div>')
             text_field += HTML('<div id = "compare" class = "compare-text"></div>')
-    
-            text_field += ButtonHolder(StrictButton(_(u'Valider cette version'), type='merge', name='merge', \
-                                      css_class='btn btn-submit merge-btn need-to-merge-text'))
+
+            text_field += ButtonHolder(StrictButton(_(u'Valider cette version'), type='merge', name='merge',
+                                                    css_class='btn btn-submit merge-btn need-to-merge-text'))
 
         else:
             text_field = Field('text', css_class='md-editor')
-            
+
         super(CommonLayoutVersionEditor, self).__init__(
             Div(
                 text_field,
