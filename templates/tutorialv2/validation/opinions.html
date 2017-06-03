@@ -23,7 +23,7 @@
                 {%  if category %}
                     / {{ category.title }}
                 {% endif %}
-                ({{ contents|length }})
+                (<span id="opinion-count">{{ contents|length }}</span>)
             {% endblock %}
         </h1>
 
