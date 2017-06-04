@@ -158,6 +158,7 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
         validation.version = form.cleaned_data['version']
         if old_validator:
             validation.validator = old_validator
+            validation.date_reserve = old_validation.date_reserve
             validation.status = 'PENDING_V'
         validation.save()
 
