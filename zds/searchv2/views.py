@@ -61,7 +61,8 @@ class SimilarSubjectsView(CreateView, SingleObjectMixin):
                           'url': str(hit.get_absolute_url),
                           'title': str(hit.title),
                           'subtitle': str(hit.subtitle),
-                          'forum': str(hit.forum_title),
+                          'forum_title': str(hit.forum_title),
+                          'forum_url': str(hit.forum_get_absolute_url),
                           'pubdate': str(hit.pubdate),
                           }
                 results.append(result)

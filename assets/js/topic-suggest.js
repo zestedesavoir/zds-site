@@ -33,7 +33,8 @@
           $title = $("<a></a>").attr("target", "_blank");
           $title.text(topic.title).attr("href", topic.url).attr("title", topic.subtitle);
           var $topicDate = new Date(topic.pubdate).toLocaleDateString();
-          $("<li></li>").text(" dans le forum " + topic.forum + " le " + $topicDate).prepend($title).appendTo($ul);
+          var $forumLink = $("<a></a>").text(topic.forum_title).attr("href", topic.forum_url);
+          $("<li></li>").text(" dans le forum ").append($forumLink).append(" le " + $topicDate).prepend($title).appendTo($ul);
           count++;
           if (count === 5) return;
         });
