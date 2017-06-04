@@ -64,7 +64,7 @@ class TopicForm(forms.Form):
   <label>{0}</label>
   <div id="topic-result-container" data-neither="{1}"></div>
 </div>'''
-                 .format(_(u'Sujets similaires au votre :'), _(u'Aucun résultat'))),
+                 .format(_(u'Sujets similaires au vôtre :'), _(u'Aucun résultat'))),
             CommonLayoutEditor(),
         )
 

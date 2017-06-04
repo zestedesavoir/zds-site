@@ -32,8 +32,8 @@
         $.each(json.results, function(index, topic) {
           $title = $("<a></a>").attr("target", "_blank");
           $title.text(topic.title).attr("href", topic.url).attr("title", topic.subtitle);
-
-          $("<li></li>").text(" dans " + topic.forum).prepend($title).appendTo($ul);
+          var $topicDate = new Date(topic.pubdate).toLocaleDateString();
+          $("<li></li>").text(" dans le forum " + topic.forum + " le " + $topicDate).prepend($title).appendTo($ul);
           count++;
           if (count === 5) return;
         });
