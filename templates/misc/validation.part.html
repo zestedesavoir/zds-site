@@ -20,6 +20,9 @@
 
         {% if validation.date_reserve %}
             {{ validation.date_reserve|format_date:True }}
+            {% if validation.date_proposition > validation.date_reserve  %}
+                ({% trans 'contenu mis à jour depuis la réservation' %})
+            {% endif %}
             <br>
         {% endif %}
     {% endif %}
