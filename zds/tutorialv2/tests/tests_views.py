@@ -5731,6 +5731,62 @@ class PublishedContentTests(TestCase):
         result = self.client.get(reverse('validation:list') + '?type=tuto')
         self.assertNotIn('class="update_content"', result.content)
 
+    def test_ask_validation_update(self):
+        """
+        Test AskValidationView.
+        """
+        text_validation = u'La validation on vous aime !'
+        content = PublishableContentFactory(author_list=[self.user_author], type='ARTICLE')
+        content.save()
+        content_draft = content.load_version()
+
+        self.assertEqual(Validation.objects.count(), 0)
+
+        # login with user and ask validation
+        self.assertEqual(self.client.login(username=self.user_author.username, password='hostel77'), True)
+        result = self.client.post(
+            reverse('validation:ask', kwargs={'pk': content_draft.pk, 'slug': content_draft.slug}),
+            {'text': text_validation, 'source': '', 'version': content_draft.current_version},
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Validation.objects.count(), 1)
+
+        # login with staff and reserve the content
+        self.assertEqual(self.client.login(username=self.user_staff.username, password='hostel77'), True)
+        validation = Validation.objects.filter(content=content).last()
+        result = self.client.post(
+            reverse('validation:reserve', kwargs={'pk': validation.pk}),
+            {'version': validation.version},
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # login with user, edit content and ask validation for update
+        self.assertEqual(self.client.login(username=self.user_author.username, password='hostel77'), True)
+        result = self.client.post(
+            reverse('content:edit', args=[content_draft.pk, content_draft.slug]),
+            {
+                'title': content_draft.title + u'2',
+                'description': content_draft.description,
+                'introduction': content_draft.introduction,
+                'conclusion': content_draft.conclusion,
+                'type': content_draft.type,
+                'licence': self.licence.pk,
+                'subcategory': self.subcategory.pk,
+                'last_hash': content_draft.compute_hash(),
+                'image': content_draft.image
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        result = self.client.post(
+            reverse('validation:ask', kwargs={'pk': content_draft.pk, 'slug': content_draft.slug}),
+            {'text': text_validation, 'source': '', 'version': content_draft.current_version},
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # ensure the validation is effective
+        self.assertEqual(Validation.objects.count(), 2)
+        self.assertIsNotNone(Validation.objects.last().date_reserve)  # issue #3432
+
     def test_beta_article_closed_when_published(self):
         """Test that the beta of an article is locked when the content is published"""
 
