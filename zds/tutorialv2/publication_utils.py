@@ -440,15 +440,15 @@ def unpublish_content(db_object):
             [ContentReaction.objects.filter(related_content=db_object).all()])
         # remove public_version:
         public_version.delete()
-
-        db_object.public_version = None
+        update_params = {}
+        update_params['public_version'] = None
 
         if db_object.is_opinion:
-            db_object.sha_public = None
-            db_object.sha_picked = None
-            db_object.pubdate = None
-            db_object.save()
-        db_object.save()
+            update_params['sha_public'] = None
+            update_params['sha_picked'] = None
+            update_params['pubdate'] = None
+
+        db_object.update(**update_params)
         content_unpublished.send(sender=db_object.__class__, instance=db_object)
 
         return True

@@ -154,6 +154,17 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
     def __str__(self):
         return self.title
 
+    def update(self, **fields):
+        """
+        wrapper arround ``self.objects.update``
+
+        :param fields: Fields to update
+        :return: modified self
+        """
+        self.__class__.objects.filter(pk=self.pk).update(**fields)
+        self.refresh_from_db(fields=list(fields.keys()))
+        return self
+
     def save(self, *args, **kwargs):
         """
         Rewrite the `save()` function to handle slug uniqueness

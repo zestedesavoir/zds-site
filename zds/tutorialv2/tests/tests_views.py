@@ -1617,7 +1617,22 @@ class ContentTests(TestCase):
 
         extract = new_chapter.children[-1]
         self.assertEqual(extract.get_text(), some_text)
+        result = self.client.post(
+            reverse('content:import-new'),
+            {
+                'archive': open(draft_zip_path),
+                'subcategory': self.subcategory.pk
+            },
+            follow=False
+        )
+        self.assertEqual(result.status_code, 302)
 
+        self.assertEqual(PublishableContent.objects.count(), 4)
+        second_tuto = PublishableContent.objects.last()
+        self.assertNotEqual(new_tuto.pk, second_tuto.pk)  # those are two different content !
+        first_versioned = new_tuto.load_version()
+        second_versioned = second_tuto.load_version()
+        self.assertNotEqual(second_versioned.slug, first_versioned.slug)
         # clean up
         os.remove(draft_zip_path)
 
