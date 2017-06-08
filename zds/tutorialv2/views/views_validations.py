@@ -158,6 +158,7 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
         validation.version = form.cleaned_data['version']
         if old_validator:
             validation.validator = old_validator
+            validation.date_reserve = old_validation.date_reserve
             validation.status = 'PENDING_V'
         validation.save()
 
@@ -570,7 +571,7 @@ class PublishOpinion(LoggedWithReadWriteHability, NoValidationBeforeFormViewMixi
     def form_valid(self, form):
         # get database representation
         db_object = self.object
-        if self.object.is_definitely_unpublished():
+        if self.object.is_permanently_unpublished():
             raise PermissionDenied
         versioned = self.versioned_object
         self.success_url = versioned.get_absolute_url()

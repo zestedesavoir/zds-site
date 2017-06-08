@@ -300,8 +300,8 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         """
         return self.in_public() and sha == self.sha_public
 
-    def is_definitely_unpublished(self):
-        """Is this content definitely unpublished by a moderator ?"""
+    def is_permanently_unpublished(self):
+        """Is this content permanently unpublished by a moderator ?"""
 
         return PickListOperation.objects.filter(content=self, operation='REMOVE_PUB', is_effective=True).exists()
 

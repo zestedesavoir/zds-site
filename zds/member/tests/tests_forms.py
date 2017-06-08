@@ -4,6 +4,8 @@ from django.test import TestCase
 from zds.member.factories import ProfileFactory, NonAsciiProfileFactory
 from zds.member.forms import LoginForm, RegisterForm, MiniProfileForm, ProfileForm, ChangeUserForm, ChangePasswordForm,\
     NewPasswordForm, KarmaForm, UsernameAndEmailForm
+from zds.member.models import BannedEmailProvider
+from zds.member.factories import StaffProfileFactory
 
 stringof77chars = 'abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789-----'
 stringof251chars = u'abcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxy' \
@@ -109,7 +111,10 @@ class RegisterFormTest(TestCase):
         form = RegisterForm(data=data)
         self.assertFalse(form.is_valid())
 
-    def test_forbiden_email_provider_register_form(self):
+    def test_forbidden_email_provider_register_form(self):
+        moderator = StaffProfileFactory().user
+        if not BannedEmailProvider.objects.filter(provider='yopmail.com').exists():
+            BannedEmailProvider.objects.create(provider='yopmail.com', moderator=moderator)
         data = {
             'email': 'test@yopmail.com',
             'username': 'ZeTester',
@@ -308,6 +313,9 @@ class ChangeUserFormTest(TestCase):
         self.assertFalse(form.is_valid())
 
     def test_forbidden_email_provider_user_form(self):
+        moderator = StaffProfileFactory().user
+        if not BannedEmailProvider.objects.filter(provider='yopmail.com').exists():
+            BannedEmailProvider.objects.create(provider='yopmail.com', moderator=moderator)
         data = {
             'username': self.user1.user.username,
             'email': 'test@yopmail.com'

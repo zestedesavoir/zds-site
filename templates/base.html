@@ -595,6 +595,19 @@
                                             {% endwith %}
                                         {% endif %}
 
+                                        {% if perms.member.change_bannedemailprovider %}
+                                            {% with new_providers_count=user|new_providers_count %}
+                                                <li class="staff-only">
+                                                    <a href="{% url 'new-email-providers' %}">
+                                                        {% trans "Fournisseurs e-mail" %}
+                                                        {% if new_providers_count > 0 %}
+                                                            ({{ new_providers_count }})
+                                                        {% endif %}
+                                                    </a>
+                                                </li>
+                                            {% endwith %}
+                                        {% endif %}
+
                                         {% if perms.featured.change_featuredresource %}
                                             <li class="staff-only">
                                                 <a href="{% url 'featured-resource-list' %}">{% trans 'Gestion des mises en avant' %}</a>
@@ -770,6 +783,9 @@
             messageStyle: "none",
         });
     </script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js"
+        integrity="sha384-Ra6zh6uYMmH5ydwCqqMoykyf1T/+ZcnOQfFPhDrp2kI4OIxadnhsvvA2vv9A7xYv"
+        crossorigin="anonymous">
+    </script>
 </body>
 </html>
