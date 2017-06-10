@@ -594,16 +594,16 @@ Examples:
             self.stdout.write(self.help)
             exit()
         for arg in args:
-            options = arg.split('=')
-            if len(options) < 2:
+            _options = arg.split('=')
+            if len(_options) < 2:
                 continue
             else:
-                if options[0] in ['size', 'sizes', 'taille', 'level']:
+                if _options[0] in ['size', 'sizes', 'taille', 'level']:
                     default_size = options[1].split(',')[0]
-                elif options[0] in ['type', 'types']:
+                elif _options[0] in ['type', 'types']:
                     default_module = options[1].split(',')
-                elif options[0] in ['racine']:
-                    default_root = options[1].split(',')[0]
+                elif _options[0] in ['racine']:
+                    default_root = _options[1].split(',')[0]
 
         if default_size == 'low':
             size = 1
