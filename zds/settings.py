@@ -57,6 +57,7 @@ LANGUAGES = (
     ('en', _('Anglais')),
 )
 
+ALOWED_HOSTS = ['zds-anto59290.c9users.io']
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: '/home/media/media.lawrence.com/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -104,6 +105,7 @@ MIDDLEWARE_CLASSES = (
     # CorsMiddleware needs to be before CommonMiddleware.
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -248,8 +250,7 @@ REST_FRAMEWORK_EXTENSIONS = {
 
 SWAGGER_SETTINGS = {
     'exclude_namespaces': [
-        'content',
-        'forum'
+        'content'
     ],
     'enabled_methods': [
         'get',

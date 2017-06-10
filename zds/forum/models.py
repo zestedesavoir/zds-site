@@ -160,6 +160,10 @@ class Forum(models.Model):
             else:
                 return False
 
+    @staticmethod
+    def has_write_permission(request):
+        return request.user.has_perm("member.change_forum")
+
     @property
     def has_group(self):
         """
@@ -403,6 +407,23 @@ class Topic(AbstractESDjangoIndexable):
 
         return False
 
+    @staticmethod
+    def has_read_permission(request):
+        return True
+
+    def has_object_read_permission(self, request):
+        return Topic.has_read_permission(request)
+
+    @staticmethod
+    def has_write_permission(request):
+        return request.user.is_authenticated()
+
+    def has_object_write_permission(self, request):
+        return Topic.has_write_permission(request)
+
+    def has_object_update_permission(self, request):
+        return Topic.has_write_permission(request) and (Topic.author == request.user)
+
     @classmethod
     def get_es_mapping(cls):
         es_mapping = super(Topic, cls).get_es_mapping()
@@ -460,7 +481,6 @@ class Topic(AbstractESDjangoIndexable):
 
         return super(Topic, self).save(*args, **kwargs)
 
-
 @receiver(pre_delete, sender=Topic)
 def delete_topic_in_elasticsearch(sender, instance, **kwargs):
     """catch the pre_delete signal to ensure the deletion in ES"""
@@ -494,6 +514,32 @@ class Post(Comment, AbstractESDjangoIndexable):
             self.topic.get_absolute_url(),
             page,
             self.pk)
+
+    def is_author(self, user):
+        """
+        Check if the user given is the author of the message.
+
+        :param user: Potential author of the message.
+        :return: true if the user is the author.
+        """
+        return self.author == user
+
+    @staticmethod
+    def has_read_permission(request):
+        return True
+
+    def has_object_read_permission(self, request):
+        return Post.has_read_permission(request)
+
+    @staticmethod
+    def has_write_permission(request):
+        return request.user.is_authenticated() and request.user.profile.can_write_now()
+
+    def has_object_write_permission(self, request):
+        return Topic.has_write_permission(request)
+
+    def has_object_update_permission(self, request):
+        return self.is_author(request.user)
 
     def get_notification_title(self):
         return self.topic.title
