@@ -125,12 +125,22 @@ class PostManager(InheritanceManager):
                    .order_by('position').all()
 
     def get_all_messages_of_a_user(self, current, target):
-        queryset = self.filter(author=target)\
-                       .prefetch_related('author')
+        queryset = self.filter(author=target).distinct()
+
+        # if user can't change posts, exclude hidden messages from queryset
         if not current.has_perm('forum.change_post'):
             queryset = queryset.filter(is_visible=True)
-        queryset = queryset.filter(self.visibility_check_query(current)).distinct()
-        return queryset.order_by('-pubdate').all()
+
+        full_queryset_len = queryset.count()
+        queryset = queryset.filter(self.visibility_check_query(current))
+        hidden_messages_count = full_queryset_len - queryset.count()
+
+        queryset = queryset.prefetch_related('author').order_by('-pubdate').all()
+
+        return {
+            'posts': queryset,
+            'hidden_messages_count': hidden_messages_count,
+        }
 
 
 class TopicReadManager(models.Manager):

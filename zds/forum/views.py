@@ -376,7 +376,8 @@ class FindTopic(ZdSPagingListView, SingleObjectMixin):
     def get_context_data(self, **kwargs):
         context = super(FindTopic, self).get_context_data(**kwargs)
         context.update({
-            'usr': self.object
+            'usr': self.object,
+            'hidden_topics_count': Topic.objects.filter(author=self.object).count() - context['paginator'].count,
         })
         return context
 
@@ -620,8 +621,10 @@ class FindPost(FindTopic):
     template_name = 'forum/find/post.html'
     paginate_by = settings.ZDS_APP['forum']['posts_per_page']
 
-    def get_queryset(self):
-        return Post.objects.get_all_messages_of_a_user(self.request.user, self.object)
+    def get_context_data(self, **kwargs):
+        context = super(FindPost, self).get_context_data(**kwargs)
+        context.update(Post.objects.get_all_messages_of_a_user(self.request.user, self.object))
+        return context
 
 
 @can_write_and_read_now
