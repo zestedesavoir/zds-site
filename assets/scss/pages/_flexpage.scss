@@ -43,7 +43,7 @@ $content-width: 1145px;
         }
     }
 
-    .flexpage-title-search {
+    .flexpage-title-tool {
         padding: 50px;
         font-size: 2rem;
         font-weight: 100;
@@ -99,6 +99,12 @@ $content-width: 1145px;
             h2 {
                 display: inline-block;
                 margin: 0 10px; padding: 0;
+                max-width: 250px;
+                vertical-align: bottom;
+                
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
 
                 color: inherit;
                 font-size: 3rem;
@@ -133,42 +139,52 @@ $content-width: 1145px;
             }
         }
 
-        .search {
+        .aside {
             display: flex;
-            flex-direction: row;
-            max-width: 600px;
+            
             margin-top: 20px;
+            max-width: 600px;
+            height: 50px;
 
-            background: white;
+            .search {
+                display: flex;
+                flex-direction: row;
 
-            label {
-                line-height: 50px;
-                margin: 0; padding: 0 15px;
-            }
+                background: white;
 
-            input {
-                line-height: 50px;
-                height: 50px;
-                margin: 0; padding: 0 15px;
-
-                border: none;
-            }
-
-            button {
-                width: 50px; height: 50px;
-                line-height: 50px;
-                background: #fff;
-
-                &:after {
-                    margin: 16px !important;
-                    background-position: -256px -232px;
-                    width: 16px;
-                    height: 40px;
+                label {
+                    line-height: 50px;
+                    margin: 0; padding: 0 15px;
                 }
 
-                &:hover, &:focus {
-                    background: #ccc !important;
+                input {
+                    line-height: 50px;
+                    height: 50px;
+                    margin: 0; padding: 0 15px;
+
+                    border: none;
                 }
+
+                button {
+                    width: 50px; height: 50px;
+                    line-height: 50px;
+                    background: #fff;
+
+                    &:after {
+                        margin: 16px !important;
+                        background-position: -256px -232px;
+                        width: 16px;
+                        height: 40px;
+                    }
+
+                    &:hover, &:focus {
+                        background: #ccc !important;
+                    }
+                }
+            }
+
+            .toolbox {
+
             }
         }
     }
@@ -187,6 +203,16 @@ $content-width: 1145px;
             section {
                 width: 100%;
                 margin-left: 0;
+            }
+        }
+
+        .flexpage-title-tool {
+            .picto {
+                display: none;
+            }
+
+            .aside {
+                max-width: 100%;
             }
         }
     }

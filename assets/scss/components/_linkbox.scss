@@ -9,7 +9,10 @@ $color-linkbox-default: #777;
 
     .linkbox-item {
         flex: 0 0 auto;
-        width: calc(25% - 20px);
+
+        width: 33.33%;
+        width: calc(33.33% - 20px);
+
         margin: 0 0 20px 20px;
 
         color: white;
@@ -160,16 +163,30 @@ $color-linkbox-default: #777;
     }
 }
 
+$media-mega-wide: "(min-width: 1360px)";
+$media-extra-wide: "(min-width: 1140px)";
+$media-wide: "(min-width: 960px)";
+$media-tablet: "(min-width: 760px)";
+$media-mobile-tablet: "(max-width: 959px)";
+$media-mobile: "(max-width: 759px)";
+
+@media only screen and #{$media-extra-wide} {
+    .content-linkbox-list .linkbox-item {
+        width: 25%;
+        width: calc(25% - 20px);
+    }
+}
+
 @media only screen and #{$media-mobile-tablet} {
     .content-linkbox-list .linkbox-item {
-        width: 33.33%;
-        width: calc(33.33% - 20px);
+        width: 50%;
+        width: calc(50% - 20px);
     }
 }
 
 @media only screen and #{$media-mobile} {
     .content-linkbox-list .linkbox-item {
-        width: 50%;
-        width: calc(50% - 20px);
+        width: 100%;
+        width: calc(100% - 20px);
     }
 }
