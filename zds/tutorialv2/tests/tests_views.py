@@ -3964,7 +3964,7 @@ class ContentTests(TestCase):
             reverse('gallery-modify'),
             {
                 'delete_multi': '',
-                'items': [gallery.pk]
+                'g_items': [gallery.pk]
             },
             follow=True
         )

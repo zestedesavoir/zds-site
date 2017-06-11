@@ -246,17 +246,17 @@ REST_FRAMEWORK_EXTENSIONS = {
     'DEFAULT_CACHE_RESPONSE_TIMEOUT': 60 * 15
 }
 
+
 SWAGGER_SETTINGS = {
-    'exclude_namespaces': [
-        'content',
-        'forum'
-    ],
-    'enabled_methods': [
+    'APIS_SORTER': 'alpha',
+    'OPERATIONS_SORTER': 'alpha',
+    'SHOW_REQUEST_HEADERS': True,
+    'SUPPORTED_SUBMIT_METHODS': [
         'get',
         'post',
         'put',
-        'delete'
-    ]
+        'delete',
+    ],
 }
 
 CORS_ORIGIN_ALLOW_ALL = True
@@ -647,6 +647,4 @@ if DEBUG:
     INSTALLED_APPS += (
         'debug_toolbar',
     )
-    MIDDLEWARE_CLASSES += (
-        'debug_toolbar.middleware.DebugToolbarMiddleware',
-    )
+    MIDDLEWARE_CLASSES = ('debug_toolbar.middleware.DebugToolbarMiddleware',) + MIDDLEWARE_CLASSES

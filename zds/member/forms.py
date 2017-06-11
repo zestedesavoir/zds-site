@@ -43,7 +43,6 @@ class LoginForm(forms.Form):
     password = forms.CharField(
         label=_(u'Mot de passe'),
         max_length=MAX_PASSWORD_LENGTH,
-        min_length=MIN_PASSWORD_LENGTH,
         required=True,
         widget=forms.PasswordInput,
     )
