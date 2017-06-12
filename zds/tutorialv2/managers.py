@@ -195,7 +195,7 @@ class PublishableContentManager(models.Manager):
         :return: list of last published content
         :rtype: list
         """
-        number = number or settings.ZDS_APP['content']['home_number']
+        number = number or settings.ZDS_APP['tutorial']['home_number']
         all_contents = self.filter(type='TUTORIAL') \
                            .filter(public_version__isnull=False) \
                            .prefetch_related('authors') \
