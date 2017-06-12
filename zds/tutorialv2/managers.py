@@ -186,14 +186,16 @@ class PublishableContentManager(models.Manager):
                     content.sha_draft = sha
                     content.save()
 
-    def get_last_tutorials(self):
+    def get_last_tutorials(self, number=0):
         """
-        This depends on settings.ZDS_APP['tutorial']['home_number'] parameter
+        get list of last published tutorial
 
-        :return: lit of last published content
+        :param number: number of tutorial you want. By default it is interpreted as \
+        ``settings.ZDS_APP['tutorial']['home_number']``
+        :return: list of last published content
         :rtype: list
         """
-        home_number = settings.ZDS_APP['tutorial']['home_number']
+        number = number or settings.ZDS_APP['content']['home_number']
         all_contents = self.filter(type='TUTORIAL') \
                            .filter(public_version__isnull=False) \
                            .prefetch_related('authors') \
@@ -202,14 +204,14 @@ class PublishableContentManager(models.Manager):
                            .select_related('public_version') \
                            .prefetch_related('subcategory') \
                            .prefetch_related('tags') \
-                           .order_by('-public_version__publication_date')[:home_number]
+                           .order_by('-public_version__publication_date')[:number]
         published = []
         for content in all_contents:
             content.public_version.content = content
             published.append(content.public_version)
         return published
 
-    def get_last_articles(self):
+    def get_last_articles(self, number=0):
         """
         ..attention:
             this one uses a raw subquery for historical reasons. It will hopefully be replaced one day by an
@@ -223,7 +225,7 @@ class PublishableContentManager(models.Manager):
             'tutorialv2_contentreaction.related_content_id',
             'tutorialv2_publishedcontent.content_pk',
         )
-        home_number = settings.ZDS_APP['article']['home_number']
+        number = number or settings.ZDS_APP['article']['home_number']
         all_contents = self.filter(type='ARTICLE') \
                            .filter(public_version__isnull=False) \
                            .prefetch_related('authors') \
@@ -233,7 +235,7 @@ class PublishableContentManager(models.Manager):
                            .prefetch_related('subcategory') \
                            .prefetch_related('tags') \
                            .extra(select={'count_note': sub_query}) \
-                           .order_by('-public_version__publication_date')[:home_number]
+                           .order_by('-public_version__publication_date')[:number]
         published = []
         for content in all_contents:
             content.public_version.content = content

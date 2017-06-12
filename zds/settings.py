@@ -509,10 +509,11 @@ ZDS_APP = {
         'maximum_slug_size': 150,
         'characters_per_minute': 1500,
         'editorial_line_link':
-        u'https://zestedesavoir.com/articles/222/la-ligne-editoriale-officielle-de-zeste-de-savoir/'
+        u'https://zestedesavoir.com/articles/222/la-ligne-editoriale-officielle-de-zeste-de-savoir/',
         'sec_per_minute': 1500,
         'list': 'new',  # put 'old' if you want to go back to old way of displaying tutorial
-        'selected_content_method_name': 'get_online_most_commented'  # allow to customize "top tutorial" appears
+        'selected_content_method_name': 'get_online_most_commented',  # allow to customize "top tutorial" appears
+        'content_per_theme': 10
     },
     'forum': {
         'posts_per_page': 21,

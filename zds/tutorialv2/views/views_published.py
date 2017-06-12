@@ -351,8 +351,9 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
         elif 'category' in self.request.GET:
             context['hierarchy_level'] = 2
         method_name = settings.ZDS_APP['content']['selected_content_method_name']
+        nb = settings.ZDS_APP['content']['home_number']
         context['selected_contents'] = getattr(PublishedContent.objects, method_name)(self.category, self.tag,
-                                                                                      self.current_content_type)[:6]
+                                                                                      self.current_content_type)[:nb]
         context['beta_forum'] = Forum.objects.prefetch_related('category') \
             .filter(pk=settings.ZDS_APP['forum']['beta_forum_id'])
         if context['hierarchy_level'] == 0:
@@ -364,7 +365,7 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
                 pks = [c['subcategory__pk'] for c in theme.categories]
                 theme.count = PublishedContent.objects.filter(must_redirect=False,
                                                               content__subcategory__in=pks).count()
-            context['public_contents'] = context['public_contents'][:min(len(context['public_contents']), 6)]
+            context['public_contents'] = context['public_contents'][:min(len(context['public_contents']), nb)]
         context['content_count'] = self.get_queryset().count()
         return context
 
