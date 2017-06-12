@@ -351,7 +351,7 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
         elif 'category' in self.request.GET:
             context['hierarchy_level'] = 2
         method_name = settings.ZDS_APP['content']['selected_content_method_name']
-        nb = settings.ZDS_APP['content']['home_number']
+        nb = settings.ZDS_APP['content']['content_per_theme']
         context['selected_contents'] = getattr(PublishedContent.objects, method_name)(self.category, self.tag,
                                                                                       self.current_content_type)[:nb]
         context['beta_forum'] = Forum.objects.prefetch_related('category') \
