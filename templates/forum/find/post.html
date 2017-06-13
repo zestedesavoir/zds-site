@@ -75,4 +75,14 @@
     {% endif %}
 
     {% include "misc/paginator.html" with position="bottom" %}
+
+    {% if hidden_messages_count %}
+        <em>
+            {% blocktrans count counter=hidden_messages_count %}
+                Note : {{ counter }} message est invisible car dans un sujet inaccessible.
+            {% plural %}
+                Note : {{ counter }} messages sont invisibles car dans un sujet inaccessible.
+            {% endblocktrans %}
+        </em>
+    {% endif %}
 {% endblock %}
