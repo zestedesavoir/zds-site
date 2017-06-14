@@ -7,7 +7,7 @@ from smtplib import SMTPException
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.core.mail import EmailMultiAlternatives
 from django.db import models, IntegrityError
 from django.template.loader import render_to_string
@@ -150,6 +150,12 @@ class SingleNotificationMixin(object):
                 notification = Notification.objects.get(subscription=self)
             except Notification.DoesNotExist:
                 notification = Notification(subscription=self, content_object=content, sender=sender)
+            except MultipleObjectsReturned:
+                notifications = list(Notification.objects.filter(subscription=self))
+                LOG.error('found %s notifications for %s', len(notifications, self), exc_info=True)
+                Notification.objects.filter(pk__in=[n.pk for n in notifications[1:]]).delete()
+                LOG.info('removed doubly.')
+                notification = notifications[0]
             notification.content_object = content
             notification.sender = sender
             notification.url = self.get_notification_url(content)
