@@ -57,6 +57,7 @@ class Profile(models.Model):
     biography = models.TextField('Biographie', blank=True)
     karma = models.IntegerField('Karma', default=0)
     sign = models.TextField('Signature', max_length=500, blank=True)
+    licence = models.TextField('Licence préférée', null=True, blank=True)
     github_token = models.TextField('GitHub', blank=True)
     show_sign = models.BooleanField('Voir les signatures', default=True)
     # do UI components open by hovering them, or is clicking on them required?
