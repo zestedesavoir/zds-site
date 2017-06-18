@@ -232,7 +232,7 @@ class ProfileForm(MiniProfileForm):
         label=(
             _(u'Licence préférée pour vos publications '
               u'(<a href="{0}" alt="{1}">En savoir plus sur les licences et {2}</a>).')
-                .format(
+            .format(
                 settings.ZDS_APP['site']['licenses']['licence_info_title'],
                 settings.ZDS_APP['site']['licenses']['licence_info_link'],
                 settings.ZDS_APP['site']['litteral_name'],
