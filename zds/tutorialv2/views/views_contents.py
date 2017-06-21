@@ -68,9 +68,9 @@ class RedirectOldBetaTuto(RedirectView):
 
 class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
     """
-    Handle content creation. Since v22, we explicitely ask for user to choose a licence instead of
-    assuming he just wants the default "All rights reserved" option. Even though, the user can configure
-    a default licence in his profile.
+    Handle content creation. Since v22 a licence must be explicitly selected
+    instead of defaulting to "All rights reserved". Users can however
+    set a default licence in their profile.
     """
     template_name = 'tutorialv2/create/content.html'
     model = PublishableContent
