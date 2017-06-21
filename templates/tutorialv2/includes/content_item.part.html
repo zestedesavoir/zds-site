@@ -57,7 +57,7 @@
 
 <article class="content-item{% if online and show_reactions %} has-reactions{% endif %}{{ item_class }}">
 
-    <a href="{{ link }}" tabindex="-1" class="content-illu">
+    <a href="{{ link }}" tabindex="-1" class="content-illu {{ content.type|lower }}-illu">
         {% if content.image %}
             <img src="{{ content.image.physical.content_thumb.url }}" alt="">
         {% endif %}
