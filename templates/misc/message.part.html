@@ -17,6 +17,7 @@
 <article
     class="
         topic-message
+        {% if message.with_hat %}with-hat{% endif %}
         {% if message.is_useful %}helpful{% endif %}
         {% if is_repeated_message %}repeated{% endif %}
     "
@@ -36,9 +37,15 @@
 
 
     <div class="message">
-        {% if is_author %}
-            <span class="is-author">{% trans "Auteur du sujet" %}</span>
-        {% endif %}
+        <span class="banners">
+            {% if is_author %}
+                <span>{% trans "Auteur du sujet" %}</span>
+            {% endif %}
+
+            {% if message.with_hat %}
+                <span class="hat">{{ message.with_hat }}</span>
+            {% endif %}
+        </span>
 
         {% if user.is_authenticated %}
             <ul class="message-actions">

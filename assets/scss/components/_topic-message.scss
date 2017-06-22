@@ -4,7 +4,7 @@
     &.repeated {
         .message {
             &,
-            .is-author {
+            .banners span {
                 background: #EEE;
             }
 
@@ -13,10 +13,34 @@
             }
         }
     }
-    &.helpful {
+    &.with-hat {
         .message {
             &,
-            .is-author {
+            .banners span {
+                background: $color-with-hat;
+            }
+
+            &:after {
+                border-right-color: $color-with-hat;
+            }
+        }
+        &.repeated {
+            .message {
+                &,
+                .banners span {
+                    background: desaturate($color-with-hat, 50%);
+                }
+
+                &:after {
+                    border-right-color: desaturate($color-with-hat, 50%);
+                }
+            }
+        }
+    }
+    &.helpful:not(.with-hat) {
+        .message {
+            &,
+            .banners span {
                 background: $color-helpful;
             }
 
@@ -27,7 +51,7 @@
         &.repeated {
             .message {
                 &,
-                .is-author {
+                .banners span {
                     background: desaturate($color-helpful, 50%);
                 }
 
@@ -105,32 +129,28 @@
         border-bottom-width: 3px;
         min-height: 75px;
 
-        .is-author {
+        .banners {
             position: absolute;
-            top: -16px;
+            top: -17px;
             left: 10px;
-            background: #FDFDFD;
-            padding: 0 5px;
             font-size: 12px;
-            line-height: 20px;
-            color: #999;
-            border-top: 1px solid #D2D5D6;
+            line-height: 19px;
 
-            &:before,
-            &:after {
-                content: " ";
-                display: block;
-                position: absolute;
-                top: 0;
-                height: 15px;
-                width: 1px;
-                background: #D2D5D6;
-            }
-            &:before {
-                left: 0;
-            }
-            &:after {
-                right: 0;
+            span {
+                background: #FDFDFD;
+                padding: 2px 5px 1px;
+                color: #999;
+                border: 1px solid #D2D5D6;
+                border-bottom: none;
+
+                &:not(:first-child) {
+                    margin-left: 8px;
+                }
+
+                &.hat {
+                    color: $color-hat;
+                    font-weight: bold;
+                }
             }
         }
 
@@ -609,7 +629,7 @@ form.topic-message {
                 border-right-color: #FDFDFD;
             }
 
-            .is-author {
+            s {
                 left: 5px;
             }
 

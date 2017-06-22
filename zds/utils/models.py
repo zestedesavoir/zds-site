@@ -185,6 +185,8 @@ class Comment(models.Model):
         max_length=80,
         default='')
 
+    with_hat = models.CharField('Casquette', max_length=40, blank=True)
+
     def update_content(self, text):
         from zds.notification.models import ping_url
 
@@ -459,3 +461,22 @@ class HelpWriting(models.Model):
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)
         super(HelpWriting, self).save(*args, **kwargs)
+
+
+@python_2_unicode_compatible
+class Hat(models.Model):
+    """
+    A hat is a label that a user can add to its messages.
+    It is linked to a specific group whose members are allowed to use it.
+    It can be used for exemple to allow members to identify
+    that a moderation message was posted by a staff member.
+    """
+
+    class Meta:
+        verbose_name = 'Casquette'
+        verbose_name_plural = 'Casquettes'
+
+    name = models.CharField('Casquette', max_length=40, unique=True)
+
+    def __str__(self):
+        return self.name
