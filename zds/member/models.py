@@ -21,7 +21,7 @@ from zds.forum.models import Post, Topic
 from zds.member import NEW_PROVIDER_USES
 from zds.member.managers import ProfileManager
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent
-from zds.utils.models import Alert, Licence
+from zds.utils.models import Alert, Licence, Hat
 
 
 @python_2_unicode_compatible
@@ -68,6 +68,7 @@ class Profile(models.Model):
     show_markdown_help = models.BooleanField("Afficher l'aide Markdown dans l'éditeur", default=True)
     email_for_answer = models.BooleanField('Envoyer pour les réponse MP', default=False)
     show_staff_badge = models.BooleanField('Afficher le badge staff', default=False)
+    hats = models.ManyToManyField(Hat, verbose_name='Casquettes', db_index=True)
     can_read = models.BooleanField('Possibilité de lire', default=True)
     end_ban_read = models.DateTimeField("Fin d'interdiction de lecture", null=True, blank=True)
     can_write = models.BooleanField("Possibilité d'écrire", default=True)

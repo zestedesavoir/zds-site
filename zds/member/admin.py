@@ -11,7 +11,7 @@ class ProfileAdmin(admin.ModelAdmin):
     list_display = ('user', 'last_ip_address', 'can_read', 'end_ban_read', 'can_write', 'end_ban_write', 'last_visit')
     list_filter = ('can_read', 'can_write')
     search_fields = ['user__username']
-    raw_id_fields = ('user',)
+    raw_id_fields = ('user', 'hats')
 
 
 class BanAdmin(admin.ModelAdmin):
