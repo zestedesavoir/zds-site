@@ -5,7 +5,8 @@ from django.db.models.signals import post_save, post_delete
 from dry_rest_permissions.generics import DRYPermissions
 from rest_framework import filters
 from rest_framework import status
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateAPIView, RetrieveAPIView, get_object_or_404
+from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveUpdateAPIView, \
+    RetrieveAPIView, get_object_or_404
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_extensions.cache.decorators import cache_response
@@ -121,6 +122,55 @@ class MemberListAPI(ListCreateAPIView, ProfileCreate, TokenGenerator):
     def get_permissions(self):
         permission_classes = [AllowAny, ]
         if self.request.method == 'GET' or self.request.method == 'POST':
+            permission_classes.append(DRYPermissions)
+        return [permission() for permission in permission_classes]
+
+
+class MemberExistsAPI(ListAPIView):
+    """
+    Profile resource to get if a username exists.
+    """
+
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('=user__username',)
+    list_key_func = PagingSearchListKeyConstructor()
+    serializer_class = ProfileDetailSerializer
+
+    def get_queryset(self):
+        return Profile.objects.contactable_members()
+
+    @etag(list_key_func)
+    @cache_response(key_func=list_key_func)
+    def get(self, request, *args, **kwargs):
+        """
+        Get if a username exists.
+        ---
+
+        parameters:
+            - name: page
+              description: Restricts output to the given page number.
+              required: false
+              paramType: query
+            - name: page_size
+              description: Sets the number of profiles per page.
+              required: false
+              paramType: query
+            - name: search
+              description: Filters by username.
+              required: false
+              paramType: query
+        responseMessages:
+            - code: 404
+              user doesn't exists.
+        """
+        r = self.list(request, *args, **kwargs)
+        if r.data['count'] is 0:
+            return Response(r.data, status=status.HTTP_404_NOT_FOUND)
+        return r
+
+    def get_permissions(self):
+        permission_classes = [AllowAny, ]
+        if self.request.method == 'GET':
             permission_classes.append(DRYPermissions)
         return [permission() for permission in permission_classes]
 
