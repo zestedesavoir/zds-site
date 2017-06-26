@@ -21,7 +21,7 @@ from zds.forum.models import Post, Topic
 from zds.member import NEW_PROVIDER_USES
 from zds.member.managers import ProfileManager
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent
-from zds.utils.models import Alert
+from zds.utils.models import Alert, Licence
 
 
 @python_2_unicode_compatible
@@ -57,6 +57,9 @@ class Profile(models.Model):
     biography = models.TextField('Biographie', blank=True)
     karma = models.IntegerField('Karma', default=0)
     sign = models.TextField('Signature', max_length=500, blank=True)
+    licence = models.ForeignKey(Licence,
+                                verbose_name='Licence préférée',
+                                blank=True, null=True)
     github_token = models.TextField('GitHub', blank=True)
     show_sign = models.BooleanField('Voir les signatures', default=True)
     # do UI components open by hovering them, or is clicking on them required?

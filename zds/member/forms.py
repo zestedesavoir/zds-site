@@ -17,6 +17,7 @@ from zds.member.models import Profile, KarmaNote, BannedEmailProvider
 from zds.member.validators import validate_not_empty, validate_zds_email, validate_zds_username, validate_passwords, \
     validate_zds_password
 from zds.utils.forms import CommonLayoutModalText
+from zds.utils.models import Licence
 
 # Max password length for the user.
 # Unlike other fields, this is not the length of DB field
@@ -227,6 +228,21 @@ class ProfileForm(MiniProfileForm):
         widget=forms.CheckboxSelectMultiple,
     )
 
+    licence = forms.ModelChoiceField(
+        label=(
+            _(u'Licence préférée pour vos publications '
+              u'(<a href="{0}" alt="{1}">En savoir plus sur les licences et {2}</a>).')
+            .format(
+                settings.ZDS_APP['site']['licenses']['licence_info_title'],
+                settings.ZDS_APP['site']['licenses']['licence_info_link'],
+                settings.ZDS_APP['site']['litteral_name'],
+            )
+        ),
+        queryset=Licence.objects.order_by('title').all(),
+        required=False,
+        empty_label=_('Choisir une licence')
+    )
+
     def __init__(self, *args, **kwargs):
         super(ProfileForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
@@ -264,6 +280,7 @@ class ProfileForm(MiniProfileForm):
             Naviguez vers l'image voulue et cliquez sur le bouton "<em>Choisir comme avatar</em>".<br/>
             Créez une galerie et importez votre avatar si ce n'est pas déjà fait !</p>''')),
             Field('sign'),
+            Field('licence'),
             Field('options'),
             ButtonHolder(StrictButton(_(u'Enregistrer'), type='submit'),)
         )
