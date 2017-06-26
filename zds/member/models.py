@@ -368,6 +368,12 @@ class Profile(models.Model):
         """
         return self.user.groups.filter(name=settings.ZDS_APP['member']['dev_group']).exists()
 
+    def has_hat(self):
+        """
+        Checks if this user can at least use one hat.
+        """
+        return self.hats.count() >= 1
+
     @staticmethod
     def has_read_permission(request):
         return True

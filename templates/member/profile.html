@@ -91,6 +91,45 @@
             {{ profile.sign|emarkdown_inline }}
         {% endif %}
 
+        {% if profile.has_hat or perms.utils.change_hat %}
+            <h2 id="casquettes">{% trans "Casquettes" %}</h2>
+            <ul>
+                {% for hat in profile.hats.all %}
+                    <li>
+                        {{ hat.name }}
+                        {% if perms.utils.change_hat %}
+                            <a href="#revoke-hat-{{ hat.pk }}" class="open-modal">{% trans "Retirer" %}</a>
+                        {% endif %}
+                    </li>
+                    <form action="{% url 'remove-hat' usr.pk hat.pk %}" method="post" id="revoke-hat-{{ hat.pk }}" class="modal modal-flex">
+                        {% csrf_token %}
+                        <p>
+                            {% blocktrans with hat=hat.name username=usr.username %}
+                                Voulez-vous vraiment retirer la casquette « {{ hat }} » à {{ username }} ?
+                            {% endblocktrans %}
+                        </p>
+                        <button type="submit">{% trans 'Confirmer' %}</button>
+                    </form>
+                {% empty %}
+                    <li>{% trans "Aucune casquette" %}</li>
+                {% endfor %}
+            </ul>
+            {% if perms.utils.change_hat %}
+                <a href="#add-hat" class="open-modal">{% trans "Ajouter une casquette" %}</a>
+                <form action="{% url 'add-hat' usr.pk %}" method="post" id="add-hat" class="modal modal-flex">
+                    {% csrf_token %}
+                    <p>
+                        {% blocktrans with username=usr.username %}Vous allez ajouter une casquette à {{ username }} :{% endblocktrans %}
+                    </p>
+                    <ul>
+                        <li>{% trans "Le membre aura la possibilité pour chaque message de poster avec ou sans sa casquette." %}</li>
+                        <li>{% trans "Il sera possible de retirer la casquette au membre par la suite. Les messages ayant été postés avec le resteront." %}</li>
+                    </ul>
+                    <input type="text" name="hat" maxlength="40" placeholder="{% trans 'Casquette à attribuer.' %}" required>
+                    <button type="submit">{% trans 'Valider' %}</button>
+                </form>
+            {% endif %}
+        {% endif %}
 
         {% if topics %}
             <h2 id="derniers-sujets">{% trans "Derniers sujets créés" %}</h2>
@@ -303,6 +342,13 @@
                 <li>
                     <a href="#signature">
                         {% trans "Signature" %}
+                    </a>
+                </li>
+            {% endif %}
+            {% if profile.has_hat or perms.utils.change_hat %}
+                <li>
+                    <a href="#casquettes">
+                        {% trans "Casquettes" %}
                     </a>
                 </li>
             {% endif %}

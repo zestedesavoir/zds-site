@@ -466,8 +466,8 @@ class HelpWriting(models.Model):
 @python_2_unicode_compatible
 class Hat(models.Model):
     """
-    A hat is a label that a user can add to its messages.
-    It is linked to a specific group whose members are allowed to use it.
+    Hats are labels that users can add to their messages.
+    Each member can be allowed to use several hats.
     It can be used for exemple to allow members to identify
     that a moderation message was posted by a staff member.
     """
