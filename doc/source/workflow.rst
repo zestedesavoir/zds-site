@@ -1,8 +1,8 @@
-===============================
-*Workflow* et détails pratiques
-===============================
+==========
+*Workflow*
+==========
 
-Cette page détaille le *workflow* utilisé lors du développement de Zeste de Savoir. La `page de contribution <https://github.com/zestedesavoir/zds-site/blob/dev/CONTRIBUTING.md>`__ devrait répondre à vos questions quant au processus de développement. Ici seront aussi décrit quelques détails sur la gestion des tickets sur Github (*tagging* et priorité).
+Cette page détaille le *workflow* utilisé lors du développement de Zeste de Savoir. La `page de contribution <contributing.html>`__ devrait répondre à vos questions quant au processus de développement. Ici seront aussi décrit quelques détails sur la gestion des tickets sur Github (*tagging* et priorité).
 
 Ce *workflow* est très fortement basé sur le `Git flow <http://nvie.com/posts/a-successful-git-branching-model/>`__.
 
@@ -28,16 +28,18 @@ Description
 2. Ces PR sont unitaires. Aucune PR qui corrige plusieurs problèmes ou apporte plusieurs fonctionnalité ne sera acceptée; la règle est : une PR = une fonctionnalité ou une correction.
 3. Ces PR sont mergées dans la branche ``dev`` (appelée ``develop`` dans le git flow standard), après une *Quality Assurance* (QA) légère.
 4. La branche ``prod`` (appelée ``master`` dans le git flow standard) contient exclusivement le code en production, pas la peine d'essayer de faire le moindre *commit* dessus !
-5. Les branches du dépôt principal (``dev``, ``prod`` et la branche de release) ne devraient contenir que des merge de PR, aucun commit direct.
+5. Les branches du dépôt principal (``dev``, ``prod`` et la branche de release) ne devraient contenir que des merge de PR, aucun *commit* direct.
 
 Quelques précisions
 -------------------
 
-**Où peut-on trouver les détails pratiques ?**
+Où peut-on trouver les détails pratiques ?
+..........................................
 
-Tous ces détails sont `dans la page de contribution <https://github.com/zestedesavoir/zds-site/blob/dev/CONTRIBUTING.md>`__. On y trouve entre autres les recommendations en terme de PR ou de messages de commits.
+Tous ces détails sont `dans la page de contribution <contributing.html>`__. On y trouve entre autres les recommendations en terme de PR ou de messages de commits.
 
-**Qu'est-ce qu'une "QA légère"** ?
+Qu'est-ce qu'une "QA légère" ?
+..............................
 
 C'est s'assurer que le code fait ce qu'il devrait sans passer des heures à re-tester l'intégralité du site. Concrètement, cela implique :
 

@@ -14,6 +14,7 @@ Site internet communautaire codé à l'aide du framework [Django](https://www.dj
 
 [Voir l'instance en ligne](https://zestedesavoir.com).
 
+Zeste de Savoir est basé sur un fork de [Progdupeupl](https://pdp.microjoe.org) ([voir le dépôt Git](https://github.com/progdupeupl/pdp_website)).
 
 ## Fonctionnalités implémentées
 
@@ -26,13 +27,13 @@ Site internet communautaire codé à l'aide du framework [Django](https://www.dj
 - Galeries d'images
 - Recherche
 
-
 ## Fonctionnalités à venir
 
 Elles sont reportées essentiellement dans le [*bug tracker*](https://github.com/zestedesavoir/zds-site/issues).
 
-
 ## Comment démarrer une instance de ZdS ?
+
+Plus d'informations [sur la page dédiée](http://zds-site.readthedocs.org/fr/latest/contributing.html).
 
 ### Installation d'une version locale de ZdS
 
@@ -51,7 +52,6 @@ Après avoir mis à jour votre dépôt, vous devez exécuter les commandes suiva
 pip install --upgrade -r requirements.txt -r requirements-dev.txt
 python manage.py migrate --fake-initial
 ```
-
 
 ### Données de test
 
@@ -99,21 +99,12 @@ La documentation de ZdS est générée par Sphinx, et elle doit être mise à jo
 
 Pour générer la documentation en local, rendez-vous dans le répertoire `zds-site/doc/` depuis votre terminal, et lancez la commande `make html`. Vous pourrez ensuite la consulter en ouvrant le fichier `zds-site/doc/build/html/index.html`
 
-
-### Conseils de développement
-
-Vous trouverez tout sur [la page dédiée de la documentation](CONTRIBUTING.md)
-
 ### Code de Conduite Contributeurs
 
 En contribuant, vous vous engagez à respecter le [Code de Conduite Contributeurs](CODE_OF_CONDUCT.md).
 
-
 ## En savoir plus
 
-- [Comment déployer ZDS sur un serveur de production ?](http://zds-site.readthedocs.org/fr/latest/install/deploy-in-production.html)
-- [Comment contribuer et conseils de développement](CONTRIBUTING.md)
-- [Comment contribuer : comprendre comment suivre le workflow (sur zds)](http://zestedesavoir.com/forums/sujet/324/comment-contribuer-comprendre-comment-suivre-le-workflow/)
+- [Comment contribuer ?](http://zds-site.readthedocs.org/fr/latest/contributing.html)
 - [Les détails du workflow utilisé sur Zeste de Savoir](http://zds-site.readthedocs.org/fr/latest/workflow.html)
-
-Zeste de Savoir est basé sur un fork de [Progdupeupl](https://pdp.microjoe.org) ([voir le dépôt Git](https://github.com/progdupeupl/pdp_website)).
+- [Comment déployer ZDS sur un serveur de production ?](http://zds-site.readthedocs.org/fr/latest/install/deploy-in-production.html)
