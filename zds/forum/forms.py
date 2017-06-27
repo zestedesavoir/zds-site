@@ -2,13 +2,13 @@
 from django import forms
 from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.utils.translation import ugettext_lazy as _
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Hidden, HTML
 from crispy_forms.bootstrap import StrictButton
 from zds.forum.models import Forum, Topic
 from zds.utils.forms import CommonLayoutEditor, TagValidator
-from django.utils.translation import ugettext_lazy as _
 
 
 class TopicForm(forms.Form):
@@ -68,6 +68,9 @@ class TopicForm(forms.Form):
             CommonLayoutEditor(),
         )
 
+        if 'text' not in self.initial:
+            self.helper.layout.append(HTML("{% include 'misc/hat_choice.html' %}"))
+
     def clean(self):
         cleaned_data = super(TopicForm, self).clean()
 
@@ -118,6 +121,10 @@ class PostForm(forms.Form):
             CommonLayoutEditor(),
             Hidden('last_post', '{{ last_post_pk }}'),
         )
+
+        if 'text' not in self.initial:
+            self.helper.layout.append(HTML("{% include 'misc/hat_choice.html' %}"))
+
         if topic.antispam(user):
             if 'text' not in self.initial:
                 self.helper['text'].wrap(

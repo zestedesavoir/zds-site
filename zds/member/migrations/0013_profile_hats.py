@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('utils', '0013_auto_20170619_1854'),
-        ('member', '0011_bannedemailprovider_newemailprovider'),
+        ('member', '0012_profile_licence'),
     ]
 
     operations = [
