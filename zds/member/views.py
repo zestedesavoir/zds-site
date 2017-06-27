@@ -704,6 +704,7 @@ def remove_banned_email_provider(request, provider_pk):
 @require_POST
 @login_required
 @permission_required('utils.change_hat', raise_exception=True)
+@transaction.atomic
 def add_hat(request, user_pk):
     """
     Used to add a hat to a user.
@@ -712,12 +713,12 @@ def add_hat(request, user_pk):
 
     user = get_object_or_404(User, pk=user_pk)
 
-    if not request.POST.get('hat'):
+    hat_name = request.POST.get('hat', None)
+    if not hat_name:
         messages.error(request, _(u'Aucune casquette saisie.'))
-    if len(request.POST.get('hat')) > 40:
+    elif len(hat_name) > 40:
         messages.error(request, _(u'Une casquette ne peut dépasser 40 caractères.'))
     else:
-        hat_name = request.POST.get('hat')
         try:
             hat = Hat.objects.get(name__iexact=hat_name)
             user.profile.hats.add(hat)
@@ -733,6 +734,7 @@ def add_hat(request, user_pk):
 @require_POST
 @login_required
 @permission_required('utils.change_hat', raise_exception=True)
+@transaction.atomic
 def remove_hat(request, user_pk, hat_pk):
     """
     Used to remove a hat from a user.

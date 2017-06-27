@@ -5,6 +5,7 @@ from datetime import datetime
 import os
 import string
 import uuid
+import logging
 
 from django.conf import settings
 
@@ -25,6 +26,9 @@ from zds.utils import slugify
 from zds.utils.templatetags.emarkdown import get_markdown_instance, render_markdown
 
 from model_utils.managers import InheritanceManager
+
+
+logger = logging.getLogger('zds.utils')
 
 
 def image_path_category(instance, filename):
@@ -490,4 +494,5 @@ def get_hat_from_request(request):
         assert hat in request.user.profile.hats.all()
         return hat.name
     except (ValueError, Hat.DoesNotExist, AssertionError):
+        logger.warning('User #{0} failed to use hat #{1}.'.format(request.user.pk, request.POST.get('hat')))
         return ''
