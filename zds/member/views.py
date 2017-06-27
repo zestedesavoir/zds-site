@@ -741,7 +741,7 @@ def remove_hat(request, user_pk, hat_pk):
 
     user = get_object_or_404(User, pk=user_pk)
     hat = get_object_or_404(Hat, pk=hat_pk)
-    if not hat in user.profile.hats.all():
+    if hat not in user.profile.hats.all():
         raise Http404
 
     user.profile.hats.remove(hat)
