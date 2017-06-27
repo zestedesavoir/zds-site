@@ -585,6 +585,10 @@ form.topic-message {
             }
         }
     }
+
+    .with-hat .badge {
+        display: none;
+    }
 }
 
 @media only screen and #{$media-wide} {

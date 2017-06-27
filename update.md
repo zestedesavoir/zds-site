@@ -1052,8 +1052,22 @@ Ticket #4313
 
 + Via l'admin Django, ajouter la permission `member.change_bannedemailprovider` aux groupes autorisés à gérer les fournisseurs e-mail bannis.
 
+<<<<<<< 0e0c5fd35c25fb8642ddeca7bbfd5dcd16e33d5a
 
 Actions à faire pour mettre en prod la version : v25
 ====================================================
 
 * Dans le `settings_prod.py`, renommer `sec_per_minute` en `characters_per_minute` si présent
+
+Casquettes
+----------
+
+Par défaut, les casquettes ne sont modifiables que par les super-utilisateurs. Pour autoriser un groupe à le faire, il faut lui ajouter la permission `utils.change_hat` via l'admin Django.
+
+Il faut ensuite créer des casquettes. Une commande est disponible pour ajouter une casquette à tous les membres d'un groupe. Lancez donc les commandes suivantes :
+
++ `python manage.py add_hat_to_group 'CA' "Conseil d'Administration"`
++ `python manage.py add_hat_to_group 'devs' 'Équipe technique'`
++ `python manage.py add_hat_to_group 'staffs' 'Staff'`
++ `python manage.py add_hat_to_group 'Communication' 'Communication'`
++ `python manage.py add_hat_to_group 'dtc' 'DTC'`
