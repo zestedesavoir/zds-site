@@ -26,10 +26,5 @@ class Command(BaseCommand):
             hat.save()
 
         for user in group.user_set.all():
-            if hat in user.profile.hats.all():
-                self.stdout.write(self.style.WARNING('{0} is already allowed to use {1}.'.format(
-                    user.username, hat.name
-                )))
-            else:
-                user.profile.hats.add(hat)
-                self.stdout.write(self.style.SUCCESS('{0} was added to {1}.'.format(hat.name, user.username)))
+            user.profile.hats.add(hat)
+            self.stdout.write(self.style.SUCCESS('{0} was added to {1}.'.format(hat.name, user.username)))

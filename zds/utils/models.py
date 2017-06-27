@@ -480,3 +480,14 @@ class Hat(models.Model):
 
     def __str__(self):
         return self.name
+
+
+def get_hat_from_request(request):
+    if not request.POST.get('hat'):
+        return ''
+    try:
+        hat = Hat.objects.get(pk=int(request.POST.get('hat')))
+        assert hat in request.user.profile.hats.all()
+        return hat.name
+    except (ValueError, Hat.DoesNotExist, AssertionError):
+        return ''
