@@ -487,7 +487,7 @@ class Hat(models.Model):
 
 
 def get_hat_from_request(request):
-    if not request.POST.get('hat'):
+    if not request.POST.get('hat', None):
         return ''
     try:
         hat = Hat.objects.get(pk=int(request.POST.get('hat')))

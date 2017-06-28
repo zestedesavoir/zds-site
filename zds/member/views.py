@@ -738,7 +738,6 @@ def add_hat(request, user_pk):
 def remove_hat(request, user_pk, hat_pk):
     """
     Used to remove a hat from a user.
-    The hat will be deleted from database if there are no users having it.
     """
 
     user = get_object_or_404(User, pk=user_pk)
@@ -747,9 +746,6 @@ def remove_hat(request, user_pk, hat_pk):
         raise Http404
 
     user.profile.hats.remove(hat)
-
-    if hat.profile_set.count() == 0:
-        hat.delete()
 
     messages.success(request, _(u'La casquette a bien été retirée.'))
     return redirect(user.profile.get_absolute_url())
