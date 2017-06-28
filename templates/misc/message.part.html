@@ -17,7 +17,6 @@
 <article
     class="
         topic-message
-        {% if message.with_hat %}with-hat{% endif %}
         {% if message.is_useful %}helpful{% endif %}
         {% if is_repeated_message %}repeated{% endif %}
     "
@@ -37,15 +36,9 @@
 
 
     <div class="message">
-        <span class="banners">
-            {% if is_author %}
-                <span>{% trans "Auteur du sujet" %}</span>
-            {% endif %}
-
-            {% if message.with_hat %}
-                <span class="hat">{{ message.with_hat }}</span>
-            {% endif %}
-        </span>
+        {% if is_author %}
+            <span class="is-author">{% trans "Auteur du sujet" %}</span>
+        {% endif %}
 
         {% if user.is_authenticated %}
             <ul class="message-actions">
@@ -164,6 +157,12 @@
         </div>
 
         <div class="message-content">
+            {% if message.with_hat and message.is_visible %}
+                <p class="with-hat" title="{% blocktrans with hat=message.with_hat %}Posté avec la casquette « {{ hat }} »{% endblocktrans %}">
+                    {{ message.with_hat }}
+                </p>
+            {% endif %}
+
             {% if is_repeated_message %}
                 <p class="message-repeated">
                     {% trans "Reprise du dernier message de la page précédente" %}

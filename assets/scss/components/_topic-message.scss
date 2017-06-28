@@ -4,7 +4,7 @@
     &.repeated {
         .message {
             &,
-            .banners span {
+            .is-author {
                 background: #EEE;
             }
 
@@ -13,34 +13,10 @@
             }
         }
     }
-    &.with-hat {
+    &.helpful {
         .message {
             &,
-            .banners span {
-                background: $color-with-hat;
-            }
-
-            &:after {
-                border-right-color: $color-with-hat;
-            }
-        }
-        &.repeated {
-            .message {
-                &,
-                .banners span {
-                    background: desaturate($color-with-hat, 50%);
-                }
-
-                &:after {
-                    border-right-color: desaturate($color-with-hat, 50%);
-                }
-            }
-        }
-    }
-    &.helpful:not(.with-hat) {
-        .message {
-            &,
-            .banners span {
+            .is-author {
                 background: $color-helpful;
             }
 
@@ -51,7 +27,7 @@
         &.repeated {
             .message {
                 &,
-                .banners span {
+                .is-author {
                     background: desaturate($color-helpful, 50%);
                 }
 
@@ -129,28 +105,32 @@
         border-bottom-width: 3px;
         min-height: 75px;
 
-        .banners {
+        .is-author {
             position: absolute;
-            top: -17px;
+            top: -16px;
             left: 10px;
+            background: #FDFDFD;
+            padding: 0 5px;
             font-size: 12px;
-            line-height: 19px;
+            line-height: 20px;
+            color: #999;
+            border-top: 1px solid #D2D5D6;
 
-            span {
-                background: #FDFDFD;
-                padding: 2px 5px 1px;
-                color: #999;
-                border: 1px solid #D2D5D6;
-                border-bottom: none;
-
-                &:not(:first-child) {
-                    margin-left: 8px;
-                }
-
-                &.hat {
-                    color: $color-hat;
-                    font-weight: bold;
-                }
+            &:before,
+            &:after {
+                content: " ";
+                display: block;
+                position: absolute;
+                top: 0;
+                height: 15px;
+                width: 1px;
+                background: #D2D5D6;
+            }
+            &:before {
+                left: 0;
+            }
+            &:after {
+                right: 0;
             }
         }
 
@@ -221,6 +201,16 @@
 
             .message-hidden-content {
                 display: none;
+            }
+
+            .with-hat {
+                color: #FFF;
+                background-color: $color-hat;
+                border-radius: 4px;
+                display: inline-block;
+                padding: 0 5px;
+                margin-top: 5px;
+                margin-bottom: 0;
             }
 
             .message-edited,
@@ -585,10 +575,6 @@ form.topic-message {
             }
         }
     }
-
-    .with-hat .badge {
-        display: none;
-    }
 }
 
 @media only screen and #{$media-wide} {
@@ -633,7 +619,7 @@ form.topic-message {
                 border-right-color: #FDFDFD;
             }
 
-            s {
+            .is-author {
                 left: 5px;
             }
 
