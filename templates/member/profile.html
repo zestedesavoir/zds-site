@@ -98,10 +98,10 @@
                     <li>
                         {{ hat.name }}
                         {% if perms.utils.change_hat %}
-                            <a href="#revoke-hat-{{ hat.pk }}" class="open-modal">{% trans "Retirer" %}</a>
+                            <a href="#remove-hat-{{ hat.pk }}" class="open-modal">{% trans "Retirer" %}</a>
                         {% endif %}
                     </li>
-                    <form action="{% url 'remove-hat' usr.pk hat.pk %}" method="post" id="revoke-hat-{{ hat.pk }}" class="modal modal-flex">
+                    <form action="{% url 'remove-hat' usr.pk hat.pk %}" method="post" id="remove-hat-{{ hat.pk }}" class="modal modal-flex">
                         {% csrf_token %}
                         <p>
                             {% blocktrans with hat=hat.name username=usr.username %}
