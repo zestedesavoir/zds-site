@@ -719,13 +719,10 @@ def add_hat(request, user_pk):
     elif len(hat_name) > 40:
         messages.error(request, _(u'Une casquette ne peut dépasser 40 caractères.'))
     else:
-        try:
-            hat = Hat.objects.get(name__iexact=hat_name)
-            user.profile.hats.add(hat)
-        except Hat.DoesNotExist:
-            hat = Hat(name=hat_name)
-            hat.save()
-            user.profile.hats.add(hat)
+        hat, created = Hat.objects.get_or_create(name__iexact=hat_name, defaults={'name': hat_name})
+        if created:
+            messages.success(request, _(u'La casquette « {} » a été créée.').format(hat_name))
+        user.profile.hats.add(hat)
         messages.success(request, _(u'La casquette a bien été ajoutée.'))
 
     return redirect(user.profile.get_absolute_url())
