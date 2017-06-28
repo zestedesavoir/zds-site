@@ -131,6 +131,8 @@ Les casquettes d'un membre peuvent être modifiées sur son profil par les membr
 
 Pour ajouter une casquette à tous les membres d'un groupe, une commande ``django-admin`` a été créée. Par exemple, la commande à taper (à la racine du projet) pour ajouter la casquette « Équipe technique » à tous les membres du groupe « dev » est ``python manage.py add_hat_to_group 'dev' 'Équipe technique'``.
 
+Les casquettes sont ajoutées aux MP automatiques en fonction des paramètres ``ZDS_APP['member']['validation_hat']`` et ``ZDS_APP['member']['moderation_hat']`` renseignés dans le fichier ``settings.py``.
+
 L'interface de karma
 --------------------
 

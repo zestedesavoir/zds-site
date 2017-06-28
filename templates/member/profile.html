@@ -101,15 +101,17 @@
                             <a href="#remove-hat-{{ hat.pk }}" class="open-modal">{% trans "Retirer" %}</a>
                         {% endif %}
                     </li>
-                    <form action="{% url 'remove-hat' usr.pk hat.pk %}" method="post" id="remove-hat-{{ hat.pk }}" class="modal modal-flex">
-                        {% csrf_token %}
-                        <p>
-                            {% blocktrans with hat=hat.name username=usr.username %}
-                                Voulez-vous vraiment retirer la casquette « {{ hat }} » à {{ username }} ?
-                            {% endblocktrans %}
-                        </p>
-                        <button type="submit">{% trans 'Confirmer' %}</button>
-                    </form>
+                    {% if perms.utils.change_hat %}
+                        <form action="{% url 'remove-hat' usr.pk hat.pk %}" method="post" id="remove-hat-{{ hat.pk }}" class="modal modal-flex">
+                            {% csrf_token %}
+                            <p>
+                                {% blocktrans with hat=hat.name username=usr.username %}
+                                    Voulez-vous vraiment retirer la casquette « {{ hat }} » à {{ username }} ?
+                                {% endblocktrans %}
+                            </p>
+                            <button type="submit">{% trans 'Confirmer' %}</button>
+                        </form>
+                    {% endif %}
                 {% empty %}
                     <li>{% trans "Aucune casquette" %}</li>
                 {% endfor %}
@@ -125,6 +127,7 @@
                         <li>{% trans "Le membre aura la possibilité pour chaque message de poster avec ou sans sa casquette." %}</li>
                         <li>{% trans "Il sera possible de retirer la casquette au membre par la suite. Les messages ayant été postés avec le resteront." %}</li>
                     </ul>
+                    <p>{% trans "La casquette sera créée si elle n'existe pas." %}</p>
                     <input type="text" name="hat" maxlength="40" placeholder="{% trans 'Casquette à attribuer.' %}" required>
                     <button type="submit">{% trans 'Valider' %}</button>
                 </form>

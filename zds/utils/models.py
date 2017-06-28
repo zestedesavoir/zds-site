@@ -361,6 +361,7 @@ class Alert(models.Model):
                 '',
                 msg_content,
                 True,
+                with_hat=settings.ZDS_APP['member']['moderation_hat'],
             )
             self.privatetopic = privatetopic
 
