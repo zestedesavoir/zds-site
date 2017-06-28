@@ -19,12 +19,16 @@ class Command(BaseCommand):
         except Group.DoesNotExist:
             raise CommandError('Group {} does not exist.'.format(options['group']))
 
-        try:
-            hat = Hat.objects.get(name__iexact=options['hat'])
-        except Hat.DoesNotExist:
-            hat = Hat(name=options['hat'])
-            hat.save()
+        hat_name = options['hat']
+        if not hat_name:
+            raise CommandError('Hat required!')
+        elif len(hat_name) > 40:
+            raise CommandError('Hat length is limited to 40 characters.')
+
+        hat, created = Hat.objects.get_or_create(name__iexact=hat_name, defaults={'name': hat_name})
+        if created:
+            self.stdout.write(self.style.SUCCESS('Hat « {} » created.'.format(hat_name)))
 
         for user in group.user_set.all():
             user.profile.hats.add(hat)
-            self.stdout.write(self.style.SUCCESS('{0} was added to {1}.'.format(hat.name, user.username)))
+            self.stdout.write(self.style.SUCCESS('« {0} » was added to {1}.'.format(hat.name, user.username)))
