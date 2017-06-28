@@ -941,7 +941,8 @@ def activate_account(request):
             msg,
             False,
             True,
-            False)
+            False,
+            with_hat=settings.ZDS_APP['member']['moderation_hat'])
     token.delete()
 
     # create an alert for the staff if it's a new provider
@@ -1080,6 +1081,7 @@ def settings_promote(request, user_pk):
             msg,
             True,
             True,
+            with_hat=settings.ZDS_APP['member']['moderation_hat'],
         )
 
         return redirect(profile.get_absolute_url())
