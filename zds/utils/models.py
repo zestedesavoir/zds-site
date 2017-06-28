@@ -477,11 +477,11 @@ class Hat(models.Model):
     that a moderation message was posted by a staff member.
     """
 
+    name = models.CharField('Casquette', max_length=40, unique=True)
+
     class Meta:
         verbose_name = 'Casquette'
         verbose_name_plural = 'Casquettes'
-
-    name = models.CharField('Casquette', max_length=40, unique=True)
 
     def __str__(self):
         return self.name
