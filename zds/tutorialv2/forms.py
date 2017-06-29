@@ -517,7 +517,7 @@ class NoteForm(forms.Form):
             Field('last_note') if not last_note else Hidden('last_note', last_note)
         )
 
-        if reaction is None:  # it's a new comment
+        if reaction is None:  # we're not editing an existing comment
             self.helper.layout.append(HTML("{% include 'misc/hat_choice.html' %}"))
 
         if content.antispam():
