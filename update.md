@@ -1052,7 +1052,6 @@ Ticket #4313
 
 + Via l'admin Django, ajouter la permission `member.change_bannedemailprovider` aux groupes autorisés à gérer les fournisseurs e-mail bannis.
 
-<<<<<<< 0e0c5fd35c25fb8642ddeca7bbfd5dcd16e33d5a
 
 Actions à faire pour mettre en prod la version : v25
 ====================================================

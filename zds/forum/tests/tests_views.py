@@ -370,6 +370,26 @@ class TopicNewTest(TestCase):
 
         self.assertEqual(302, response.status_code)
 
+    def test_create_topic_with_hat(self):
+        profile = ProfileFactory()
+        category, forum = create_category()
+
+        hat, created = Hat.objects.get_or_create(name__iexact='A hat', defaults={'name': 'A hat'})
+        profile.hats.add(hat)
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        data = {
+            'title': 'Title of the topic',
+            'subtitle': 'Subtitle of the topic',
+            'text': 'A new post!',
+            'tags': '',
+            'hat': hat.pk,
+        }
+        response = self.client.post(reverse('topic-new') + '?forum={}'.format(forum.pk), data, follow=False)
+
+        self.assertEqual(302, response.status_code)
+        self.assertEqual(Post.objects.latest('pubdate').with_hat, hat.name)
+
 
 class TopicEditTest(TestCase):
     def test_failure_edit_topic_with_client_unauthenticated(self):

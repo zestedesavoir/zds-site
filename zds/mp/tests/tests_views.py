@@ -5,11 +5,14 @@ import urllib
 from django.conf import settings
 from django.test import TestCase
 from django.core.urlresolvers import reverse
+from django.contrib.auth.models import Group
 
 from zds.member.factories import ProfileFactory, UserFactory
 from zds.mp.factories import PrivateTopicFactory, PrivatePostFactory
 from zds.mp.models import PrivateTopic, PrivatePost
 from django.contrib.auth.models import Group
+from zds.settings import ZDS_APP
+from zds.utils.models import Hat
 
 
 class IndexViewTest(TestCase):
@@ -270,6 +273,9 @@ class NewTopicViewTest(TestCase):
         bot = Group(name=settings.ZDS_APP['member']['bot_group'])
         bot.save()
 
+        self.hat, created = Hat.objects.get_or_create(name__iexact='A hat', defaults={'name': 'A hat'})
+        self.profile1.hats.add(self.hat)
+
         login_check = self.client.login(
             username=self.profile1.user.username,
             password='hostel77'
@@ -415,6 +421,22 @@ class NewTopicViewTest(TestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual(1, PrivateTopic.objects.all().count())
 
+    def test_new_topic_with_hat(self):
+        response = self.client.post(
+            reverse('mp-new'),
+            {
+                'participants': self.profile2.user.username,
+                'title': 'title',
+                'subtitle': 'subtitle',
+                'text': 'text',
+                'hat': self.hat.pk,
+            },
+            follow=True
+        )
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(PrivatePost.objects.latest('pubdate').with_hat, self.hat.name)
+
     def test_fail_new_topic_user_add_only_himself(self):
 
         self.assertEqual(0, PrivateTopic.objects.all().count())
@@ -463,6 +485,9 @@ class AnswerViewTest(TestCase):
         self.profile1 = ProfileFactory()
         self.profile2 = ProfileFactory()
         self.profile3 = ProfileFactory()
+
+        self.hat, created = Hat.objects.get_or_create(name__iexact='A hat', defaults={'name': 'A hat'})
+        self.profile1.hats.add(self.hat)
 
         self.topic1 = PrivateTopicFactory(author=self.profile1.user)
         self.topic1.participants.add(self.profile2.user)
@@ -564,6 +589,20 @@ class AnswerViewTest(TestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual(3, PrivatePost.objects.all().count())
         self.assertContains(response, 'Luc&#x202F;!?')
+
+    def test_answer_with_hat(self):
+        response = self.client.post(
+            reverse('private-posts-new', args=[self.topic1.pk, self.topic1.slug]),
+            {
+                'text': 'Luc !?',
+                'last_post': self.topic1.last_message.pk,
+                'hat': self.hat.pk,
+            },
+            follow=False
+        )
+
+        self.assertEqual(302, response.status_code)
+        self.assertEqual(PrivatePost.objects.latest('pubdate').with_hat, self.hat.name)
 
     def test_fail_answer_with_no_right(self):
 
