@@ -29,7 +29,7 @@ from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory
 from zds.tutorialv2.models.models_database import PublishableContent, Validation, PublishedContent, ContentReaction, \
     ContentRead
 from zds.tutorialv2.publication_utils import publish_content, Publicator, PublicatorRegistery
-from zds.utils.models import HelpWriting, Alert, Tag
+from zds.utils.models import HelpWriting, Alert, Tag, Hat
 from zds.utils.factories import HelpWritingFactory
 from zds.utils.templatetags.interventions import interventions_topics
 
@@ -4134,6 +4134,9 @@ class PublishedContentTests(TestCase):
         self.user_staff = StaffProfileFactory().user
         self.user_guest = ProfileFactory().user
 
+        self.hat, created = Hat.objects.get_or_create(name__iexact='A hat', defaults={'name': 'A hat'})
+        self.user_guest.profile.hats.add(self.hat)
+
         # create a tutorial
         self.tuto = PublishableContentFactory(type='TUTORIAL')
         self.tuto.authors.add(self.user_author)
@@ -4632,9 +4635,11 @@ class PublishedContentTests(TestCase):
             reverse('content:add-reaction') + u'?pk={}'.format(self.published.content.pk),
             {
                 'text': message_to_post,
-                'last_note': 0
+                'last_note': 0,
+                'hat': self.hat.pk
             }, follow=True)
         self.assertEqual(result.status_code, 200)
+        self.assertEqual(ContentReaction.objects.latest('pubdate').with_hat, self.hat.name)
 
         reactions = ContentReaction.objects.all()
         self.assertEqual(len(reactions), 1)
