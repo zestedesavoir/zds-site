@@ -27,8 +27,8 @@ class Command(BaseCommand):
 
         hat, created = Hat.objects.get_or_create(name__iexact=hat_name, defaults={'name': hat_name})
         if created:
-            self.stdout.write(self.style.SUCCESS('Hat « {} » created.'.format(hat_name)))
+            self.stdout.write(self.style.SUCCESS('Hat "{}" created.'.format(hat_name)))
 
         for user in group.user_set.all():
             user.profile.hats.add(hat)
-            self.stdout.write(self.style.SUCCESS('« {0} » was added to {1}.'.format(hat.name, user.username)))
+            self.stdout.write(self.style.SUCCESS('"{0}" was added to {1}.'.format(hat.name, user.username)))
