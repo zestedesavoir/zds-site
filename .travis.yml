@@ -56,9 +56,7 @@ cache:
   pip: true
   yarn: true
   directories:
-    - $HOME/.cabal
     - $HOME/.fonts
-    - $HOME/.pandoc
     - $HOME/.texlive
     - $HOME/bin
     - node_modules
