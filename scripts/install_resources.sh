@@ -1,32 +1,33 @@
 #!/bin/bash
 
-if [[ -f "$HOME/.fonts/truetype/SourceCodePro/SourceCodePro-Regular.ttf" ]]; then
-  echo "Using cached fonts"
-else
-  echo "Installing fonts"
-  rm -rf $HOME/.fonts
-  mkdir -p $HOME/.fonts/truetype
-  cp -r export-assets/fonts/* $HOME/.fonts/truetype
-  chmod a+r -R $HOME/.fonts/truetype/*
-  echo "Installation complete !"
-fi
-# always refresh font cache because $HOME/.fonts has been added either here or via the cache
-fc-cache -f -v
+EXTRA_PACKAGES="adjustbox blindtext capt-of catoptions cm-super collectbox framed fvextra glossaries ifplatform menukeys minted multirow ntheorem pagecolor relsize tabu varwidth xpatch xstring mfirstuc xfor datatool substr tracklang"
 
-if [[ -f "$HOME/bin/pandoc" && -f "$HOME/.pandoc/templates/default.epub" ]]; then
-  echo "Using cached pandoc"
+if [[ -f $HOME/.texlive/bin/x86_64-linux/tlmgr ]]; then
+  echo "Using cached texlive install"
 else
-  echo "Installing pandoc"
-  rm -rf $HOME/.cabal $HOME/.pandoc
-  mkdir -p $HOME/.cabal/bin
-  mkdir -p $HOME/.pandoc
-  unzip -u export-assets/pandoc/pandoc.zip -d $HOME/.cabal/bin
-  mkdir -p $HOME/.pandoc/templates
-  cp export-assets/pandoc/default.* $HOME/.pandoc/templates
-  ln -sf $HOME/.cabal/bin/pandoc $HOME/bin/
+  # Force cache upload after successful build
+  touch $HOME/.cache_updated
+  echo "Installing texlive to \$HOME/.texlive"
+  rm -rf $HOME/.texlive
+  TEXLIVE_PROFILE=${BASH_SOURCE[0]/%install_resources.sh/texlive.profile}
+
+  # Create install dir
+  mkdir -p $HOME/.texlive/
+  cp $TEXLIVE_PROFILE $HOME/.texlive/
+  cd $HOME/.texlive/
+
+  # Fix paths in profile (needs absolute paths)
+  sed -i 's@\$HOME@'"$HOME"'@' texlive.profile
+
+  # Download and run installer
+  wget -O install-tl.tar.gz http://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz
+  tar xzf install-tl.tar.gz
+
+  ./install-tl*/install-tl -profile texlive.profile
+
+  # Install extra latex packages
+  $HOME/.texlive/bin/x86_64-linux/tlmgr install $EXTRA_PACKAGES
+  $HOME/.texlive/bin/x86_64-linux/tlmgr update --self
+
   echo "Installation complete !"
 fi
-touch $HOME/.pandoc/epub.css
-touch $HOME/.pandoc/templates/epub.css
-chmod u+x,g+x,o+x $HOME/bin/*
-$HOME/bin/pandoc --version
