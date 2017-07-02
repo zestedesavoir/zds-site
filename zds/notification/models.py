@@ -354,13 +354,6 @@ class PingSubscription(AnswerSubscription, MultipleNotificationsMixin):
         return _(u'{0} vous a mentionné sur {1}.').format(answer.author, answer.get_notification_title())
 
 
-def ping_url(user=None):
-    try:
-        return Profile.objects.get(user__username=user).get_absolute_url()
-    except ObjectDoesNotExist:
-        pass
-
-
 @python_2_unicode_compatible
 class Notification(models.Model):
     """

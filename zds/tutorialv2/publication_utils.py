@@ -249,9 +249,13 @@ class PandocPublicator(Publicator):
     """
     def __init__(self, pandoc_loc, _format, pandoc_pdf_param=None):
         self.pandoc_loc = pandoc_loc
+        self.pandoc_bin = self.pandoc_loc + 'pandoc'
         self.pandoc_pdf_param = pandoc_pdf_param
         self.format = _format
         self.__logger = logging.getLogger('zds.pandoc-publicator')
+
+        self.pandoc_bin = '/bin/date'
+        self.pandoc_pdf_param = ' #'
 
     def publish(self, md_file_path, base_name, change_dir='.', pandoc_debug_str='', **kwargs):
         """
@@ -266,7 +270,7 @@ class PandocPublicator(Publicator):
         if self.pandoc_pdf_param:
             self.__logger.debug('Started {} generation'.format(base_name + '.' + self.format))
             subprocess.call(
-                self.pandoc_loc + 'pandoc ' + self.pandoc_pdf_param + ' ' + md_file_path + ' -o ' +
+                self.pandoc_bin + ' ' + self.pandoc_pdf_param + ' ' + md_file_path + ' -o ' +
                 base_name + '.' + self.format + ' ' + pandoc_debug_str,
                 shell=True,
                 cwd=change_dir)
@@ -274,7 +278,7 @@ class PandocPublicator(Publicator):
         else:
             self.__logger.debug('Started {} generation'.format(base_name + '.' + self.format))
             subprocess.call(
-                self.pandoc_loc + 'pandoc -s -S --toc ' + md_file_path + ' -o ' +
+                self.pandoc_bin + ' -s -S --toc ' + md_file_path + ' -o ' +
                 base_name + '.' + self.format + ' ' + pandoc_debug_str,
                 shell=True,
                 cwd=change_dir)
