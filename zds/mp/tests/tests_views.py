@@ -576,7 +576,7 @@ class AnswerViewTest(TestCase):
         response = self.client.post(
             reverse('private-posts-new', args=[self.topic1.pk, self.topic1.slug]),
             {
-                'text': 'Luc !?',
+                'text': 'Bonjour Luc',
                 'last_post': self.topic1.last_message.pk
             },
             follow=True
@@ -584,7 +584,7 @@ class AnswerViewTest(TestCase):
 
         self.assertEqual(200, response.status_code)
         self.assertEqual(3, PrivatePost.objects.all().count())
-        self.assertContains(response, 'Luc&#x202F;!?')
+        self.assertContains(response, 'Bonjour Luc')
 
     def test_answer_with_hat(self):
         response = self.client.post(
