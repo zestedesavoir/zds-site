@@ -15,12 +15,12 @@ factory-boy==2.8.1
 pygeoip==0.3.2
 pillow==4.2.1
 gitpython==2.1.5
-git+https://github.com/zestedesavoir/Python-ZMarkdown.git@a1481fb4764aafc6051da859ee9280fa16868f65
 easy-thumbnails==2.4.2
 CairoSVG==1.0.20
 beautifulsoup4==4.6.0
 django-recaptcha==1.3.1
 toml==0.9.3.1
+requests==2.18.1
 
 # Api dependencies
 djangorestframework==3.6.4

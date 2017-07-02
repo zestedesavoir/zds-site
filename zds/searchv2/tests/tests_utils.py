@@ -12,8 +12,9 @@ from django.test.utils import override_settings
 from django.core.management import call_command
 
 from zds.member.factories import ProfileFactory, StaffProfileFactory
-from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, publish_content
+from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory
 from zds.tutorialv2.models.database import PublishedContent
+from zds.tutorialv2.publication_utils import publish_content
 from zds.forum.factories import TopicFactory, PostFactory, Topic, Post
 from zds.forum.tests.tests_views import create_category
 from zds.searchv2.models import ESIndexManager

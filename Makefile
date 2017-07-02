@@ -40,6 +40,17 @@ index-all:
 index-flagged:
 	python manage.py es_manager index_flagged
 
+## zmd utils
+zmd-start: zmd-stop
+	npm run zmd-start
+
+zmd-stop:
+	npm run zmd-stop
+
+zmd-test:
+	npm run zmd-stop;
+	npm run zmd-start && \
+	python zmd-server-test.py
 
 ## back-utils
 clean-back:
@@ -54,14 +65,13 @@ lint-back:
 report-release-back:
 	python scripts/release_generator.py
 
-run-back:
-	python manage.py runserver localhost:8000
+run-back: zmd-start
+	python manage.py runserver
 
 test-front:
 		python manage.py test --settings zds.settings.test --tag=front
 
-test-back:
-	make clean-back && \
+test-back: clean-back zmd-test
 	python manage.py test --settings zds.settings.test --exclude-tag=front
 
 # front
