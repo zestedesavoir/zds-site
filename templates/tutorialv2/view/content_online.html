@@ -10,13 +10,28 @@
 {% load interventions %}
 {% load pluralize_fr %}
 {% load displayable_authors %}
+{% load joinby %}
 
 
 {% block title %}
     {{ content.title }}
 {% endblock %}
 
-
+{% block DCMI_cards %}
+    <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/" />
+    <meta name="DC.publisher" lang="fr" content="{{app.site.name}}" />
+    <meta name="DC.creator" content="{% joinby content.authors.all %}" />
+    <meta name="DC.type" content="text" />
+    <meta name="DC.title" content="{{ content.title }}" />
+    <meta name="DC.abstract" content="{{ content.type.title }} : {{ content.title }}{% if content.description %} - {{ content.description }}{% endif %}" />
+    <meta name="DC.subject" lang="fr" content="{% joinby content.subcategory.all %}{% if content.tags.all %} - {% joinby content.tags.all separator=' ; ' same_final_separator=True %}{% endif %}" />
+    {% if content.description %}<meta name="DC.description" lang="fr" content="{{ content.description }}" />{% endif %}
+    <meta name="DC.date" content="{% if content.pubdate %}{{ content.pubdate|date:'Y/m/d' }}{% else %}{{ content.update_date|date:'Y/m/d' }}{% endif %}" />
+    <meta name="DC.format" content="text/html" />
+    {% if content.source %}<meta name="DC.source" content="{{ content.source }}" />{% endif %}
+    <meta name="DC.language" content="fr" />
+    <meta name="DC.rights" content="{{ content.licence }}" />
+{% endblock %}
 
 {% block description %}
     {{ content.description }}
