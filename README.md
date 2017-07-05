@@ -72,22 +72,21 @@ python .\manage.py load_factory_data .\fixtures\advanced\aide_tuto_media.yaml
 Cela va créer plusieurs entitées :
 
 * 8 utilisateurs (utilisateur/mot de passe) :
-    * user/user : Utilisateur normal
-    * staff/staff : Utilisateur avec les droits d'un staff
-    * admin/admin : Utilisateur avec les droits d'un staff et d'un admin
-    * anonymous/anonymous : Utilisateur qui permet l'anonymisation des messages sur les forums
-    * Auteur externe/external : Utilisateur qui permet de récupérer les tutoriels d'anciens membres et/ou de publier des tutoriels externes.
-    * ïtrema/ïtrema : Utilisateur de test supplémentaire sans droit
-    * decal/decal : le compte qui possède un identifiant ``Profile`` différent de l'identifiant ``user`` pour permettre de tester des cas ou ces id sont différents
-    * dev/dev : Utilisateur dans le groupe des développeurs.
-
-* 3 catégories
-* 11 forums
-* 3 sujets avec une réponse
-* 1 message privé (MP) avec 3 participants
-* 3 catégories et 2 sous-catégories
-* 4 aides pour l'écriture des tutoriels
-* 5 unes mises en avant sur la page d'accueil
+    * user/user : Utilisateur normal ;
+    * staff/staff : Utilisateur avec les droits d'un staff ;
+    * admin/admin : Utilisateur avec les droits d'un staff et d'un admin ;
+    * anonymous/anonymous : Utilisateur qui permet l'anonymisation des messages sur les forums ;
+    * Auteur externe/external : Utilisateur qui permet de récupérer les tutoriels d'anciens membres et/ou de publier des tutoriels externes ;
+    * ïtrema/ïtrema : Utilisateur de test supplémentaire sans droit ;
+    * decal/decal : le compte qui possède un identifiant ``Profile`` différent de l'identifiant ``user`` pour permettre de tester des cas ou ces id sont différents ;
+    * dev/dev : Utilisateur dans le groupe des développeurs ;
+* 3 catégories ;
+* 11 forums ;
+* 3 sujets avec une réponse ;
+* 1 message privé (MP) avec 3 participants ;
+* 3 catégories et 2 sous-catégories ;
+* 4 aides pour l'écriture des tutoriels ;
+* 5 unes mises en avant sur la page d'accueil.
 
 Pour en savoir plus sur cette commande, [consulter la documentation](http://zds-site.readthedocs.org/fr/latest/utils/fixture_loaders.html).
 
