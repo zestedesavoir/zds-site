@@ -22,7 +22,7 @@ Les contributions externes sont les bienvenues !
 9. Poussez votre travail et faites une _pull request_
 
 # Quelques bonnes pratiques
-* Respectez [les conventions de code de Django](https://docs.djangoproject.com/en/1.7/internals/contributing/writing-code/coding-style/), ce qui inclut la [PEP 8 de Python](http://legacy.python.org/dev/peps/pep-0008/)
+* Respectez [les conventions de code de Django](https://docs.djangoproject.com/en/1.10/internals/contributing/writing-code/coding-style/), ce qui inclut la [PEP 8 de Python](http://legacy.python.org/dev/peps/pep-0008/)
 * Le code et les commentaires sont en anglais
 * Le _workflow_ Git utilisé est le [Git flow](http://nvie.com/posts/a-successful-git-branching-model/). En détail :
     * Les arrivées fonctionnalités et corrections de gros bugs hors release se font via des PR.
@@ -30,7 +30,7 @@ Les contributions externes sont les bienvenues !
     * Ces PR sont mergées dans la branche `dev` (appelée `develop` dans le git flow standard), après une QA légère.
     * Pensez à préfixer vos branches selon l'objet de votre PR : `hotfix-XXX`, `feature-XXX`, etc.
     * La branche `prod` (appelée `master` dans le git flow standard) contient exclusivement le code en production, pas la peine d'essayer de faire le moindre _commit_ dessus !
-	
+    
 Tous les détails sur le workflow se trouvent [sur la page dédiée](http://zds-site.readthedocs.org/fr/latest/workflow.html).
 
 * Votre test doit échouer sans votre modification, et réussir avec
