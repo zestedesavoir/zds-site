@@ -14,7 +14,7 @@ from zds.notification.models import Notification, TopicAnswerSubscription, Conte
     NewTopicSubscription, NewPublicationSubscription
 from zds.tutorialv2.models.models_database import ContentReaction, PublishableContent
 from zds.utils import get_current_user
-from zds.utils.models import Alert
+from zds.utils.models import Alert, HatRequest
 from zds import settings
 from zds.tutorialv2.models import TYPE_CHOICES_DICT
 from zds.member.models import NewEmailProvider
@@ -223,3 +223,8 @@ def waiting_count(content_type):
 @register.filter(name='new_providers_count')
 def new_providers_count(user):
     return NewEmailProvider.objects.count()
+
+
+@register.filter(name='request_hats_count')
+def request_hats_count(user):
+    return HatRequest.objects.count()

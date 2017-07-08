@@ -595,6 +595,19 @@
                                             {% endwith %}
                                         {% endif %}
 
+                                        {% if perms.utils.change_hat %}
+                                            {% with request_hats_count=user|request_hats_count %}
+                                                <li class="staff-only">
+                                                    <a href="{% url "requested-hats" %}">
+                                                        {% trans "Demandes de casquettes" %}
+                                                        {% if request_hats_count > 0 %}
+                                                            ({{ request_hats_count }})
+                                                        {% endif %}
+                                                    </a>
+                                                </li>
+                                            {% endwith %}
+                                        {% endif %}
+
                                         {% if perms.member.change_bannedemailprovider %}
                                             {% with new_providers_count=user|new_providers_count %}
                                                 <li class="staff-only">

@@ -17,7 +17,8 @@ from zds.member.models import Profile, KarmaNote, BannedEmailProvider
 from zds.member.validators import validate_not_empty, validate_zds_email, validate_zds_username, validate_passwords, \
     validate_zds_password
 from zds.utils.forms import CommonLayoutModalText
-from zds.utils.models import Licence
+from zds.utils.models import Licence, Hat, HatRequest
+from zds.utils import get_current_user
 
 # Max password length for the user.
 # Unlike other fields, this is not the length of DB field
@@ -634,3 +635,39 @@ class BannedEmailProviderForm(forms.ModelForm):
     def clean_provider(self):
         data = self.cleaned_data['provider']
         return data.lower()
+
+
+class HatRequestForm(forms.ModelForm):
+    class Meta:
+        model = HatRequest
+        fields = ('hat', 'reason')
+        widgets = {
+            'hat': forms.TextInput(attrs={
+                'placeholder': _(u'La casquette que vous demandez.'),
+            }),
+            'reason': forms.Textarea(attrs={
+                'placeholder': _(u'Expliquez pourquoi vous devriez porter cette casquette (3000 caractères maximum).'),
+            }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(HatRequestForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = 'content-wrapper'
+        self.helper.form_method = 'post'
+
+        self.helper.layout = Layout(
+            Field('hat'),
+            Field('reason'),
+            ButtonHolder(
+                StrictButton(_(u'Envoyer la demande'), type='submit'),
+            ))
+
+    def clean_hat(self):
+        data = self.cleaned_data['hat']
+        user = get_current_user()
+        if data.lower() in [hat.lower() for hat in user.profile.hats.values_list('name', flat=True)]:
+            raise forms.ValidationError(_(u'Vous possédez déjà cette casquette.'))
+        if data.lower() in [hat.lower() for hat in user.requested_hats.values_list('hat', flat=True)]:
+            raise forms.ValidationError(_(u'Vous avez déjà demandé cette casquette.'))
+        return data

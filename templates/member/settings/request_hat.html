@@ -1,0 +1,61 @@
+{% extends "member/settings/base.html" %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+
+{% block title %}
+    {% trans "Casquettes" %}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>
+        {% trans "Casquettes" %}
+    </li>
+{% endblock %}
+
+
+
+{% block headline %}
+    {% trans "Casquettes" %}
+{% endblock %}
+
+
+
+{% block content %}
+    <p>{% trans "Une casquette est un moyen de certifier que vous possédez un rôle en particulier. Il peut s'agir d'un rôle interne au site (ex : « Staff ») ou d'un rôle lié à un projet externe." %}</p>
+
+    {% if user.profile.has_hat %}
+        <h2>{% trans "Vos casquettes" %}</h2>
+
+        <ul>
+            {% for hat in user.profile.hats.all %}
+                <li>{{ hat.name }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% if user.requested_hats.count >= 1 %}
+        <h2>{% trans "Demandes en cours" %}</h2>
+
+        <ul>
+            {% for request in user.requested_hats.all %}
+                <li>{{ request.hat }} – <a href="#reason-{{ request.pk }}" class="open-modal">{% trans "Afficher la raison" %}</a></li>
+                <div class="modal" id="reason-{{ request.pk }}" data-modal-close="{% trans "Fermer" %}">
+                    {{ request.reason|linebreaks }}
+                </div>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <h2>{% trans "Demander une casquette" %}</h2>
+
+    <p>{% trans "Vous pouvez utiliser ce formulaire pour demander une casquette. Votre demande sera vérifiée par un membre de l'équipe du site qui pourra vous accorder la casquette. Veuillez indiquer dans votre demande pourquoi vous avez la légitimité de porter cette casquette." %}</p>
+
+    <p>{% trans "Si la casquette vous est accordée, vous pourrez alors l'utiliser pour poster des messages qui nécessitent de montrer que vous avez ce rôle." %}</p>
+
+    <div class="content-wrapper">
+        {% crispy form %}
+    </div>
+{% endblock %}
