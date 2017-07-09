@@ -109,12 +109,5 @@ after_success:
     COMMIT_MSG=`git rev-list --format=%B --max-count=1 $TRAVIS_COMMIT`
     if [[ "$TRAVIS_BRANCH" == *"tag-test"* ]] || [[ "$TEST_APP" == *"front"* ]] && [[ "$TRAVIS_PULL_REQUEST" == false ]] && [[ ! -z "$TRAVIS_TAG" ]] && [[ ! "$TRAVIS_TAG" == *"-build" ]]
     then
-      # Adding GitHub OAuth token to login
-      git config --global user.name "ZDS-Bot"
-      git config --global user.email "zestedesavoir@gmail.com"
-      git config --global push.default simple
-      git remote add upstream https://${GITHUB_TOKEN}:x-oauth-basic@github.com/zestedesavoir/zds-site.git > /dev/null 2>&1
-
-      # Run script
       ./scripts/push_front.sh $TRAVIS_TAG
     fi
