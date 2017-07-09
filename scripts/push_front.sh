@@ -24,11 +24,10 @@ git commit -m "Automatic front build"
 # Creating tag and pushing
 TAG_NAME=$1-build
 git tag -a $TAG_NAME -m "$1 with built front files"
-git push https://${GITHUB_TOKEN}@github.com/zestedesavoir/zds-site.git $TAG_NAME
-
+git push https://${GITHUB_TOKEN}@github.com/zestedesavoir/zds-site $TAG_NAME
 if [ $? -eq 0 ]
 then
-  echo "Front pushed to tag $TAG_NAME !"
+  echo "Front pushed to tag $TAG_NAME !" >&2
 else
-  echo "Pushing to GitHub failed! Check the logs."
+  echo "Pushing to GitHub failed! Check the logs." >&2
 fi
