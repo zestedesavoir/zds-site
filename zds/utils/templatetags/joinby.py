@@ -22,7 +22,7 @@ def joinby(values, separator=', ', same_final_separator=False):
     if same_final_separator:
         final_sep = separator
     else:
-        final_sep = _(" et ")
+        final_sep = _(' et ')
     return separator.join(map(str, values[:len(values) - 1])) + (
         final_sep + str(values.last())
     )
