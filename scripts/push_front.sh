@@ -19,6 +19,6 @@ git commit -m "Automatic front build"
 # Creating tag and pushing
 TAG_NAME=$1-build
 git tag -a $TAG_NAME -m "$1 with built front files"
-git push origin $TAG_NAME
+git push upstream $TAG_NAME
 
 echo "Front pushed to tag $TAG_NAME !"
