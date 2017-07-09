@@ -10,7 +10,7 @@
 
 # Zeste de Savoir
 
-Site internet communautaire codé à l'aide du framework [Django](https://www.djangoproject.com/) 1.10 et de [Python](https://www.python.org/) 2.7.
+Site internet communautaire codé à l'aide du framework [Django](https://www.djangoproject.com/) 1.10 et de [Python](https://www.python.org/) 2.7.a
 
 [Voir l'instance en ligne](https://zestedesavoir.com).
 
