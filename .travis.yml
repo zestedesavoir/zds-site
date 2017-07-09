@@ -113,7 +113,7 @@ after_success:
       git config --global user.name "ZDS-Bot"
       git config --global user.email "zestedesavoir@gmail.com"
       git config --global push.default simple
-      git remote add upstream https://ZDS-Bot:${GITHUB_TOKEN}@github.com/zestedesavoir/zds-site > /dev/null 2>&1
+      git remote add upstream https://${GITHUB_TOKEN}:x-oauth-basic@github.com/zestedesavoir/zds-site.git > /dev/null 2>&1
 
       # Run script
       ./scripts/push_front.sh $TRAVIS_TAG
