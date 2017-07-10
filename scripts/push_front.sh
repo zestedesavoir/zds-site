@@ -9,7 +9,7 @@ fi
 
 # Adding GitHub login
 git config user.name "ZDS-Bot"
-git config user.email "zestedesavoir@gmail.com"
+# git config user.email "zestedesavoir@gmail.com"
 
 echo "Pushing front to GitHub"
 
@@ -23,7 +23,7 @@ git commit -m "Automatic front build"
 # Creating tag and pushing
 TAG_NAME=$1-build
 git tag -a $TAG_NAME -m "$1 with built front files"
-git push https://${GITHUB_TOKEN}@github.com/zestedesavoir/zds-site $TAG_NAME
+git push origin $TAG_NAME
 
 if [ $? -eq 0 ]
 then

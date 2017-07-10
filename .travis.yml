@@ -49,6 +49,7 @@ cache:
     - $HOME/bin
 
 before_install:
+  - echo -e "machine github.com\n  login $CI_USER_TOKEN" >> ~/.netrc
   # see https://docs.travis-ci.com/user/database-setup/#Installing-specific-versions-of-ElasticSearch
   - curl -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.3.0.deb && sudo dpkg -i --force-confnew elasticsearch-5.3.0.deb && sudo service elasticsearch start
 
@@ -107,7 +108,7 @@ after_success:
   - |
     echo $TRAVIS_BRANCH
     COMMIT_MSG=`git rev-list --format=%B --max-count=1 $TRAVIS_COMMIT`
-    if [[ "$TRAVIS_BRANCH" == *"tag-test"* ]] || [[ "$TEST_APP" == *"front"* ]] && [[ "$TRAVIS_PULL_REQUEST" == false ]] && [[ ! -z "$TRAVIS_TAG" ]] && [[ ! "$TRAVIS_TAG" == *"-build" ]]
+    if [[ "$TEST_APP" == *"front"* ]] && [[ "$TRAVIS_PULL_REQUEST" == false ]] && [[ ! -z "$TRAVIS_TAG" ]] && [[ ! "$TRAVIS_TAG" == *"-build" ]]
     then
       ./scripts/push_front.sh $TRAVIS_TAG
     fi
