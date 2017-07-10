@@ -29,7 +29,7 @@ env:
 notifications:
   webhooks:
     urls:
-        - "https://scalar.vector.im/api/neb/services/hooks/dHJhdmlzLWNpLyU0MHNhbmRob3NlJTNBc2FuZGhvc2UuZnIvJTIxd2dlbkt2dHpNY3NYREtiZEhZJTNBbWF0cml4Lm9yZw"
+    - "https://scalar.vector.im/api/neb/services/hooks/dHJhdmlzLWNpLyU0MHNhbmRob3NlJTNBc2FuZGhvc2UuZnIvJTIxd2dlbkt2dHpNY3NYREtiZEhZJTNBbWF0cml4Lm9yZw"
     on_success: change
     on_failure: always
     on_start: never
@@ -49,6 +49,7 @@ cache:
     - $HOME/bin
 
 before_install:
+  - echo -e "machine github.com\n  login $CI_USER_TOKEN" >> ~/.netrc
   # see https://docs.travis-ci.com/user/database-setup/#Installing-specific-versions-of-ElasticSearch
   - curl -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.3.0.deb && sudo dpkg -i --force-confnew elasticsearch-5.3.0.deb && sudo service elasticsearch start
 
@@ -108,13 +109,5 @@ after_success:
     COMMIT_MSG=`git rev-list --format=%B --max-count=1 $TRAVIS_COMMIT`
     if [[ "$TEST_APP" == *"front"* ]] && [[ "$TRAVIS_PULL_REQUEST" == false ]] && [[ ! -z "$TRAVIS_TAG" ]] && [[ ! "$TRAVIS_TAG" == *"-build" ]]
     then
-      # Adding GitHub OAuth token to login
-      echo "machine github.com login $GITHUB_TOKEN password x-oauth-basic" > $HOME/.netrc
-      git config --global url."https://".insteadOf git://
-      git config --global user.name "Build bot"
-      git config --global user.email "zestedesavoir@gmail.com"
-      git config --global push.default simple
-
-      # Run script
       ./scripts/push_front.sh $TRAVIS_TAG
     fi
