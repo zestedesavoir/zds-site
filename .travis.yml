@@ -109,8 +109,7 @@ after_success:
     if [[ "$TEST_APP" == *"front"* ]] && [[ "$TRAVIS_PULL_REQUEST" == false ]] && [[ ! -z "$TRAVIS_TAG" ]] && [[ ! "$TRAVIS_TAG" == *"-build" ]]
     then
       # Adding GitHub OAuth token to login
-      echo "machine github.com login $CI_USER_TOKEN password
-x-oauth-basic" > $HOME/.netrc
+      echo "machine github.com login $CI_USER_TOKEN password\nx-oauth-basic" > $HOME/.netrc
       git config --global url."https://".insteadOf git://
       git config --global user.name "Build bot"
       git config --global user.email "zestedesavoir@gmail.com"
