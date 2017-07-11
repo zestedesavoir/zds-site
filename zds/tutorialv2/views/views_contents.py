@@ -55,7 +55,7 @@ from zds.utils.paginator import ZdSPagingListView, make_pagination
 
 class RedirectOldBetaTuto(RedirectView):
     """
-    allows to redirect /tutoriels/beta/old_pk/slug to /contenus/beta/new_pk/slug
+    Allows to redirect /tutoriels/beta/old_pk/slug to /contenus/beta/new_pk/slug.
     """
     permanent = True
 
@@ -68,7 +68,7 @@ class RedirectOldBetaTuto(RedirectView):
 
 class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
     """
-    Handle content creation. Since v22 a licence must be explicitly selected
+    Handles content creation. Since v22 a licence must be explicitly selected
     instead of defaulting to "All rights reserved". Users can however
     set a default licence in their profile.
     """
@@ -86,7 +86,7 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
     def get_form(self, form_class=ContentForm):
         form = super(CreateContent, self).get_form(form_class)
         form.initial['type'] = self.created_content_type
-        # Check for default licence in the profile
+        # Check for default licence in the profile.
         profile = self.request.user.profile
         form.initial['licence'] = profile.licence
         return form
@@ -99,7 +99,7 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
 
     def form_valid(self, form):
 
-        # create the object:
+        # Create the object:
         self.content = PublishableContent()
         self.content.title = form.cleaned_data['title']
         self.content.description = form.cleaned_data['description']
@@ -107,7 +107,7 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
         self.content.licence = form.cleaned_data['licence']
         self.content.creation_date = datetime.now()
 
-        # Creating the gallery
+        # Creating the gallery.
         gal = Gallery()
         gal.title = form.cleaned_data['title']
         gal.slug = slugify(form.cleaned_data['title'])
@@ -116,7 +116,7 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
 
         self.content.gallery = gal
         self.content.save()
-        # create image:
+        # Create image:
         if 'image' in self.request.FILES:
             img = Image()
             img.physical = self.request.FILES['image']
@@ -129,24 +129,24 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
 
         self.content.save()
 
-        # We need to save the content before changing its author list since it's a many-to-many relationship
+        # We need to save the content before changing its author list since it's a many-to-many relationship.
         self.content.authors.add(self.request.user)
         self.content.ensure_author_gallery()
         self.content.save()
-        # Add subcategories on tutorial
+        # Add subcategories on tutorial.
         for subcat in form.cleaned_data['subcategory']:
             self.content.subcategory.add(subcat)
 
-        # Add helps if needed
+        # Add helps if needed.
         for helpwriting in form.cleaned_data['helps']:
             self.content.helps.add(helpwriting)
 
-        # Add tags
+        # Add tags.
         self.content.add_tags(form.cleaned_data['tags'].split(','))
 
         self.content.save()
 
-        # create a new repo :
+        # Create a new repo :
         init_new_repo(self.content,
                       form.cleaned_data['introduction'],
                       form.cleaned_data['conclusion'],
@@ -159,7 +159,7 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
 
 
 class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
-    """Base class that can show any content in any state"""
+    """Base class that can show any content in any state."""
 
     model = PublishableContent
     template_name = 'tutorialv2/view/content.html'
@@ -167,7 +167,7 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
     only_draft_version = False
 
     def get_forms(self, context):
-        """get all the auxiliary forms about validation, js fiddle..."""
+        """Get all the auxiliary forms about validation, js fiddle..."""
 
         validation = Validation.objects.filter(content__pk=self.object.pk) \
             .order_by('-date_proposition') \
@@ -203,7 +203,7 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
     def get_context_data(self, **kwargs):
         context = super(DisplayContent, self).get_context_data(**kwargs)
 
-        # check whether this tuto support js fiddle
+        # Check whether this tuto supports js fiddle.
         if self.object.js_support:
             is_js = 'js'
         else:
@@ -219,12 +219,15 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
 
 
 class DisplayBetaContent(DisplayContent):
-    """View to get the beta version of a content"""
+    """Gets the beta version of a content."""
 
     sha = None
 
     def get_object(self, queryset=None):
-        """rewritten to ensure that the version is set to beta, raise Http404 if there is no such version"""
+        """
+        Overrides to ensure that the version is set to beta,
+        raise Http404 if there is no such version.
+        """
         obj = super(DisplayBetaContent, self).get_object(queryset)
 
         if not obj.sha_beta:
@@ -232,7 +235,7 @@ class DisplayBetaContent(DisplayContent):
         else:
             self.sha = obj.sha_beta
 
-        # make the slug always right in URLs resolution:
+        # Make the slug always right in URLs resolution:
         if 'slug' in self.kwargs:
             self.kwargs['slug'] = obj.slug
 
@@ -246,6 +249,7 @@ class DisplayBetaContent(DisplayContent):
 
 
 class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormWithPreview):
+
     template_name = 'tutorialv2/edit/content.html'
     model = PublishableContent
     form_class = ContentForm
@@ -256,7 +260,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
         return kwargs
 
     def get_initial(self):
-        """rewrite function to pre-populate form"""
+        """Overrides function to pre-populate form."""
         initial = super(EditContent, self).get_initial()
         versioned = self.versioned_object
 
@@ -285,7 +289,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
         versioned = self.versioned_object
         publishable = self.object
 
-        # check if content has changed:
+        # Check if content has changed:
         current_hash = versioned.compute_hash()
         if current_hash != form.cleaned_data['last_hash']:
             data = form.data.copy()
@@ -296,14 +300,14 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
             messages.error(self.request, _(u'Une nouvelle version a été postée avant que vous ne validiez.'))
             return self.form_invalid(form)
 
-        # first, update DB (in order to get a new slug if needed)
+        # First, update DB (in order to get a new slug if needed).
         publishable.title = form.cleaned_data['title']
         publishable.description = form.cleaned_data['description']
         publishable.licence = form.cleaned_data['licence']
 
         publishable.update_date = datetime.now()
 
-        # update gallery and image:
+        # Update gallery and image:
         gal = Gallery.objects.filter(pk=publishable.gallery.pk)
         gal.update(title=publishable.title)
         gal.update(slug=slugify(publishable.title))
@@ -321,7 +325,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
 
         publishable.save()
 
-        # now, update the versioned information
+        # Now, update the versioned informations.
         versioned.description = form.cleaned_data['description']
         versioned.licence = form.cleaned_data['licence']
 
@@ -331,7 +335,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
                                                   form.cleaned_data['conclusion'],
                                                   form.cleaned_data['msg_commit'])
 
-        # update relationships :
+        # Update relationships :
         publishable.sha_draft = sha
 
         publishable.subcategory.clear()
@@ -341,7 +345,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
         publishable.tags.clear()
         publishable.add_tags(form.cleaned_data['tags'].split(','))
 
-        # help can only be obtained on contents requiring validation before publication
+        # Help can only be obtained on contents requiring validation before publication.
         if versioned.requires_validation_before():
             publishable.helps.clear()
             for help_ in form.cleaned_data['helps']:
@@ -354,18 +358,19 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
 
 
 class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteView):
+
     model = PublishableContent
     template_name = None
     http_method_names = [u'delete', u'post']
     object = None
-    authorized_for_staff = False  # deletion is creator's privilege
+    authorized_for_staff = False  # Deletion is creator's privilege.
 
     @method_decorator(transaction.atomic)
     def dispatch(self, *args, **kwargs):
         return super(DeleteContent, self).dispatch(*args, **kwargs)
 
     def delete(self, request, *args, **kwargs):
-        """rewrite delete() function to ensure repository deletion"""
+        """Overrides delete() function to ensure repository deletion."""
 
         self.object = self.get_object()
         object_type = self.object.type.lower()
@@ -429,7 +434,7 @@ class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteV
 
 class DownloadContent(LoggedWithReadWriteHability, SingleContentDownloadViewMixin):
     """
-    Download a zip archive with all the content of the repository directory
+    Downloads a zip archive with all the content of the repository directory.
     """
 
     mimetype = 'application/zip'
@@ -438,7 +443,7 @@ class DownloadContent(LoggedWithReadWriteHability, SingleContentDownloadViewMixi
 
     @staticmethod
     def insert_into_zip(zip_file, git_tree):
-        """Recursively add file into zip
+        """Recursively add file into zip.
 
         :param zip_file: a ``zipfile`` object (with writing permissions)
         :param git_tree: Git tree (from ``repository.commit(sha).tree``)
@@ -450,7 +455,7 @@ class DownloadContent(LoggedWithReadWriteHability, SingleContentDownloadViewMixi
                 DownloadContent.insert_into_zip(zip_file, subtree)
 
     def get_contents(self):
-        """get the zip file stream
+        """Get the zip file stream.
 
         :return: a zip file
         :rtype: byte
@@ -474,14 +479,14 @@ class DownloadContent(LoggedWithReadWriteHability, SingleContentDownloadViewMixi
 
 
 class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormViewMixin):
-    """Update a content using an archive"""
+    """Updates a content using an archive."""
 
     template_name = 'tutorialv2/import/content.html'
     form_class = ImportContentForm
 
     @staticmethod
     def walk_container(container):
-        """Iterator that yield each file path in a Container
+        """Iterator that yield each file path in a Container.
 
         :param container: the container
         :type container: Container
@@ -502,7 +507,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
 
     @staticmethod
     def walk_content(versioned):
-        """Iterator that yield each files in a VersionedContent
+        """Iterator that yield each files in a VersionedContent.
 
         :param versioned: the content
         :type versioned: VersionedContent
@@ -514,7 +519,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
 
     @staticmethod
     def extract_content_from_zip(zip_archive):
-        """Check if the data in the zip file are coherent
+        """Checks if the data in the zip file are coherent.
 
         :param zip_archive: the zip archive to analyze
         :type zip_archive: zipfile.ZipFile
@@ -530,7 +535,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
         except UnicodeDecodeError:
             raise BadArchiveError(_(u"L'encodage du manifest.json n'est pas de l'UTF-8."))
 
-        # is the manifest ok ?
+        # Is the manifest ok?
         try:
             json_ = json_reader.loads(manifest)
         except ValueError:
@@ -551,7 +556,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
         except Exception as e:
             raise BadArchiveError(_(u"Une erreur est survenue lors de la lecture de l'archive : {}.").format(e))
 
-        # is there everything in the archive ?
+        # Is there everything in the archive?
         for f in UpdateContentWithArchive.walk_content(versioned):
             try:
                 zip_archive.getinfo(f)
@@ -562,8 +567,8 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
 
     @staticmethod
     def update_from_new_version_in_zip(copy_to, copy_from, zip_file):
-        """Copy the information from ``new_container`` into ``copy_to``.
-        This function correct path for file if necessary
+        """Copies the information from ``new_container`` into ``copy_to``.
+        This function correct file path if necessary.
 
         :param copy_to: container that to copy to
         :type copy_to: Container
@@ -606,7 +611,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
 
     @staticmethod
     def use_images_from_archive(request, zip_file, versioned_content, gallery):
-        """Extract image from a gallery and then translate the ``![.+](prefix:filename)`` into the final image we want.
+        """Extracts image from a gallery and then translate the ``![.+](prefix:filename)`` into the final image we want.
         The ``prefix`` is defined into the settings.
         Note that this function does not perform any commit.
 
@@ -619,7 +624,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
         """
         translation_dic = {}
 
-        # create a temporary directory:
+        # Create a temporary directory:
         temp = os.path.join(tempfile.gettempdir(), str(time.time()))
         if not os.path.exists(temp):
             os.makedirs(temp)
@@ -628,23 +633,23 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
 
             image_basename = os.path.basename(image_path)
 
-            if not image_basename.strip():  # don't deal with directory
+            if not image_basename.strip():  # Don't deal with directory.
                 continue
 
             temp_image_path = os.path.abspath(os.path.join(temp, image_basename))
 
-            # create a temporary file for the image
+            # Create a temporary file for the image.
             f_im = open(temp_image_path, 'wb')
             f_im.write(zip_file.read(image_path))
             f_im.close()
 
-            # if it's not an image, pass
+            # If it's not an image, pass.
             try:
                 ImagePIL.open(temp_image_path)
             except IOError:
                 continue
 
-            # if size is too large, pass
+            # If size is too large, pass.
             if os.stat(temp_image_path).st_size > settings.ZDS_APP['gallery']['image_max_size']:
                 messages.error(
                     request, _(u'Votre image "{}" est beaucoup trop lourde, réduisez sa taille à moins de {:.0f}'
@@ -652,7 +657,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                                    image_path, settings.ZDS_APP['gallery']['image_max_size'] / 1024))
                 continue
 
-            # create picture in database:
+            # Create picture in database:
             pic = Image()
             pic.gallery = gallery
             pic.title = image_basename
@@ -663,7 +668,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
 
             translation_dic[image_path] = settings.ZDS_APP['site']['secure_url'] + pic.physical.url
 
-            # finally, remove image
+            # Finally, remove image.
             if os.path.exists(temp_image_path):
                 os.remove(temp_image_path)
 
@@ -671,7 +676,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
         if os.path.exists(temp):
             shutil.rmtree(temp)
 
-        # then, modify each extracts
+        # Then, modify each extracts.
         image_regex = re.compile(r'((?P<start>!\[.*?\]\()' + settings.ZDS_APP['content']['import_image_prefix'] +
                                  r':(?P<path>.*?)(?P<end>\)))')
 
@@ -694,7 +699,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
 
     @staticmethod
     def update_image_link(group, translation_dic):
-        """callback function for the transformation of ``image:xxx`` to the right path in gallery
+        """Callback function for the transformation of ``image:xxx`` to the right path in gallery.
 
         :param group: matching object
         :type group: re.MatchObject
@@ -727,37 +732,37 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                 return super(UpdateContentWithArchive, self).form_invalid(form)
             else:
 
-                # warn user if licence have changed:
+                # Warn user if licence have changed:
                 manifest = json_reader.loads(unicode(zfile.read('manifest.json'), 'utf-8'))
                 if 'licence' not in manifest or manifest['licence'] != new_version.licence.code:
                     messages.info(
                         self.request, _(u'la licence « {} » a été appliquée.').format(new_version.licence.code))
 
-                # first, update DB object (in order to get a new slug if needed)
+                # First, update DB object (in order to get a new slug if needed).
                 self.object.title = new_version.title
                 self.object.description = new_version.description
                 self.object.licence = new_version.licence
-                self.object.type = new_version.type  # change of type is then allowed !!
+                self.object.type = new_version.type  # Change of type is then allowed !!
                 self.object.save()
 
-                new_version.slug = self.object.slug  # new slug if any !!
+                new_version.slug = self.object.slug  # New slug if any !!
 
-                # ok, then, let's do the import. First, remove everything in the repository
+                # ok, then, let's do the import. First, remove everything in the repository.
                 while True:
                     if versioned.children:
                         versioned.children[0].repo_delete(do_commit=False)
                     else:
-                        break  # this weird construction ensure that everything is removed
+                        break  # This weird construction ensure that everything is removed.
 
-                versioned.slug_pool = default_slug_pool()  # slug pool to its initial value (to avoid weird stuffs)
+                versioned.slug_pool = default_slug_pool()  # Slug pool to its initial value (to avoid weird stuffs).
 
-                # start by copying extra information
-                self.object.insert_data_in_versioned(versioned)  # better have a clean version of those one
+                # Start by copying extra information.
+                self.object.insert_data_in_versioned(versioned)  # Better have a clean version of those one.
                 versioned.description = new_version.description
                 versioned.type = new_version.type
                 versioned.licence = new_version.licence
 
-                # update container (and repo)
+                # Update container (and repo).
                 introduction = ''
                 conclusion = ''
 
@@ -769,7 +774,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                 versioned.repo_update_top_container(
                     new_version.title, new_version.slug, introduction, conclusion, do_commit=False)
 
-                # then do the dirty job:
+                # Then do the dirty job:
                 try:
                     UpdateContentWithArchive.update_from_new_version_in_zip(versioned, new_version, zfile)
                 except BadArchiveError as e:
@@ -777,7 +782,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                     messages.error(self.request, e.message)
                     return super(UpdateContentWithArchive, self).form_invalid(form)
 
-                # and end up by a commit !!
+                # And end up by a commit !!
                 commit_message = form.cleaned_data['msg_commit']
 
                 if not commit_message:
@@ -785,7 +790,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
 
                 sha = versioned.commit_changes(commit_message)
 
-                # now, use the images from the archive if provided. To work, this HAVE TO happen after commiting files !
+                # Now, use the images from the archive if provided. To work, this HAVE TO happen after commiting files !
                 if 'image_archive' in self.request.FILES:
                     try:
                         zfile = zipfile.ZipFile(self.request.FILES['image_archive'], 'r')
@@ -802,7 +807,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                     commit_message = _(u"Utilisation des images de l'archive pour « {} »").format(new_version.title)
                     sha = versioned.commit_changes(commit_message)  # another commit
 
-                # of course, need to update sha
+                # Of course, need to update sha.
                 self.object.sha_draft = sha
                 self.object.update_date = datetime.now()
                 self.object.save()
@@ -813,7 +818,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
 
 
 class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
-    """Create a content using an archive"""
+    """Create a content using an archive."""
 
     form_class = ImportNewContentForm
     template_name = 'tutorialv2/import/content-new.html'
@@ -838,44 +843,45 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
                 return super(CreateContentFromArchive, self).form_invalid(form)
             else:
 
-                # warn user if licence have changed:
+                # Warn user if licence have changed:
                 manifest = json_reader.loads(unicode(zfile.read('manifest.json'), 'utf-8'))
                 if 'licence' not in manifest or manifest['licence'] != new_content.licence.code:
                     messages.info(
                         self.request, _(u'la licence « {} » a été appliquée.'.format(new_content.licence.code)))
 
-                # first, create DB object (in order to get a slug)
+                # First, create DB object (in order to get a slug).
                 self.object = PublishableContent()
                 self.object.title = new_content.title
                 self.object.description = new_content.description
                 self.object.licence = new_content.licence
-                self.object.type = new_content.type  # change of type is then allowed !!
+                self.object.type = new_content.type  # Change of type is then allowed !!
                 self.object.creation_date = datetime.now()
 
                 self.object.save()
 
-                new_content.slug = self.object.slug  # new slug (choosen via DB)
+                new_content.slug = self.object.slug  # New slug (choosen via DB).
 
-                # Creating the gallery
+                # Creating the gallery.
                 gal = Gallery()
                 gal.title = new_content.title
                 gal.slug = slugify(new_content.title)
                 gal.pubdate = datetime.now()
                 gal.save()
 
-                # Attach user to gallery
+                # Attach user to gallery.
                 self.object.gallery = gal
                 self.object.save()
 
-                # Add subcategories on tutorial
+                # Add subcategories on tutorial.
                 for subcat in form.cleaned_data['subcategory']:
                     self.object.subcategory.add(subcat)
 
-                # We need to save the tutorial before changing its author list since it's a many-to-many relationship
+                # We need to save the tutorial before changing its author
+                # list since it's a many-to-many relationship.
                 self.object.authors.add(self.request.user)
                 self.object.save()
                 self.object.ensure_author_gallery()
-                # ok, now we can import
+                # Ok, now we can import
                 introduction = ''
                 conclusion = ''
 
@@ -887,16 +893,16 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
                 commit_message = _(u'Création de « {} »').format(new_content.title)
                 init_new_repo(self.object, introduction, conclusion, commit_message=commit_message)
 
-                # copy all:
+                # Copy all:
                 versioned = self.object.load_version()
                 try:
                     UpdateContentWithArchive.update_from_new_version_in_zip(versioned, new_content, zfile)
                 except BadArchiveError as e:
-                    self.object.delete()  # abort content creation
+                    self.object.delete()  # Abort content creation.
                     messages.error(self.request, e.message)
                     return super(CreateContentFromArchive, self).form_invalid(form)
 
-                # and end up by a commit !!
+                # And end up by a commit !!
                 commit_message = form.cleaned_data['msg_commit']
 
                 if not commit_message:
@@ -905,7 +911,7 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
                 sha = versioned.repo_update(versioned.title, versioned.get_introduction(),
                                             versioned.get_conclusion(), commit_message, update_slug=True)
 
-                # This HAVE TO happen after commiting files (if not, content are None)
+                # This HAVE TO happen after commiting files (if not, content are None).
                 if 'image_archive' in self.request.FILES:
                     try:
                         zfile = zipfile.ZipFile(self.request.FILES['image_archive'], 'r')
@@ -922,7 +928,7 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
                     commit_message = _(u"Utilisation des images de l'archive pour « {} »").format(new_content.title)
                     sha = versioned.commit_changes(commit_message)  # another commit
 
-                # of course, need to update sha
+                # Of course, need to update sha.
                 self.object.sha_draft = sha
                 self.object.update_date = datetime.now()
                 self.object.save()
@@ -933,10 +939,11 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
 
 
 class CreateContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormWithPreview):
+
     template_name = 'tutorialv2/create/container.html'
     form_class = ContainerForm
     content = None
-    authorized_for_staff = True  # former behaviour
+    authorized_for_staff = True  # Former behaviour.
 
     def get_context_data(self, **kwargs):
         context = super(CreateContainer, self).get_context_data(**kwargs)
@@ -961,7 +968,7 @@ class CreateContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin, F
                                         form.cleaned_data['conclusion'],
                                         form.cleaned_data['msg_commit'])
 
-        # then save:
+        # Then save:
         self.object.sha_draft = sha
         self.object.update_date = datetime.now()
         self.object.save()
@@ -972,12 +979,12 @@ class CreateContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin, F
 
 
 class DisplayContainer(LoginRequiredMixin, SingleContentDetailViewMixin):
-    """Base class that can show any content in any state"""
+    """Base class that can show any content in any state."""
 
     model = PublishableContent
     template_name = 'tutorialv2/view/container.html'
     sha = None
-    must_be_author = False  # beta state does not need the author
+    must_be_author = False  # Beta state does not need the author.
     only_draft_version = False
 
     def get_context_data(self, **kwargs):
@@ -995,13 +1002,13 @@ class DisplayContainer(LoginRequiredMixin, SingleContentDetailViewMixin):
 
         context['container'] = container
 
-        # pagination: search for `previous` and `next`, if available
+        # Pagination: search for `previous` and `next`, if available.
         if self.versioned_object.type != 'ARTICLE' and not self.versioned_object.has_extracts():
             chapters = self.versioned_object.get_list_of_chapters()
             try:
                 position = chapters.index(container)
             except ValueError:
-                pass  # this is not (yet?) a chapter
+                pass  # This is not (yet?) a chapter.
             else:
                 context['has_pagination'] = True
                 context['previous'] = None
@@ -1021,7 +1028,7 @@ class DisplayContainer(LoginRequiredMixin, SingleContentDetailViewMixin):
                     else:
                         context['next'] = next_chapter.parent
 
-        # check whether this tuto support js fiddle
+        # Check whether this tuto support js fiddle.
         if self.object.js_support:
             is_js = 'js'
         else:
@@ -1032,12 +1039,15 @@ class DisplayContainer(LoginRequiredMixin, SingleContentDetailViewMixin):
 
 
 class DisplayBetaContainer(DisplayContainer):
-    """View to get the beta version of a container"""
+    """View to get the beta version of a container."""
 
     sha = None
 
     def get_object(self, queryset=None):
-        """rewritten to ensure that the version is set to beta, raise Http404 if there is no such version"""
+        """
+        Overrides to ensure that the version is set to beta,
+        raise Http404 if there is no such version.
+        """
         obj = super(DisplayBetaContainer, self).get_object(queryset)
 
         if not obj.sha_beta:
@@ -1045,7 +1055,7 @@ class DisplayBetaContainer(DisplayContainer):
         else:
             self.sha = obj.sha_beta
 
-        # make the slug always right in URLs resolution:
+        # Make the slug always right in URLs resolution:
         if 'slug' in self.kwargs:
             self.kwargs['slug'] = obj.slug
 
@@ -1059,6 +1069,7 @@ class DisplayBetaContainer(DisplayContainer):
 
 
 class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormWithPreview):
+
     template_name = 'tutorialv2/edit/container.html'
     form_class = ContainerForm
     content = None
@@ -1074,7 +1085,7 @@ class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin, For
         return context
 
     def get_initial(self):
-        """rewrite function to pre-populate form"""
+        """Overrides function to pre-populate form."""
         initial = super(EditContainer, self).get_initial()
         container = search_container_or_404(self.versioned_object, self.kwargs)
 
@@ -1090,7 +1101,7 @@ class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin, For
     def form_valid(self, form, *args, **kwargs):
         container = search_container_or_404(self.versioned_object, self.kwargs)
 
-        # check if content has changed:
+        # Check if content has changed:
         current_hash = container.compute_hash()
         if current_hash != form.cleaned_data['last_hash']:
             data = form.data.copy()
@@ -1107,7 +1118,7 @@ class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin, For
                                     form.cleaned_data['msg_commit'],
                                     update_slug=self.object.public_version is None)
 
-        # then save
+        # Then save.
         self.object.sha_draft = sha
         self.object.update_date = datetime.now()
         self.object.save()
@@ -1118,6 +1129,7 @@ class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin, For
 
 
 class CreateExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormWithPreview):
+
     template_name = 'tutorialv2/create/extract.html'
     form_class = ExtractForm
     content = None
@@ -1145,7 +1157,7 @@ class CreateExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin, For
                                       form.cleaned_data['text'],
                                       form.cleaned_data['msg_commit'])
 
-        # then save
+        # Then save.
         self.object.sha_draft = sha
         self.object.update_date = datetime.now()
         self.object.save()
@@ -1156,6 +1168,7 @@ class CreateExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin, For
 
 
 class EditExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormWithPreview):
+
     template_name = 'tutorialv2/edit/extract.html'
     form_class = ExtractForm
     content = None
@@ -1170,7 +1183,7 @@ class EditExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
         return context
 
     def get_initial(self):
-        """rewrite function to pre-populate form"""
+        """Overrides function to pre-populate form."""
         initial = super(EditExtract, self).get_initial()
         extract = search_extract_or_404(self.versioned_object, self.kwargs)
 
@@ -1185,7 +1198,7 @@ class EditExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
     def form_valid(self, form):
         extract = search_extract_or_404(self.versioned_object, self.kwargs)
 
-        # check if content has changed:
+        # Check if content has changed:
         current_hash = extract.compute_hash()
         if current_hash != form.cleaned_data['last_hash']:
             data = form.data.copy()
@@ -1199,7 +1212,7 @@ class EditExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
                                   form.cleaned_data['text'],
                                   form.cleaned_data['msg_commit'])
 
-        # then save
+        # Then save.
         self.object.update(sha_draft=sha, update_date=datetime.now())
 
         self.success_url = extract.get_absolute_url()
@@ -1215,12 +1228,12 @@ class DeleteContainerOrExtract(LoggedWithReadWriteHability, SingleContentViewMix
     versioned_object = None
 
     def delete(self, request, *args, **kwargs):
-        """delete any object, either Extract or Container"""
+        """Deletes any object, either Extract or Container."""
         self.object = self.get_object()
         self.versioned_object = self.get_versioned_object()
         parent = search_container_or_404(self.versioned_object, self.kwargs)
 
-        # find something to delete and delete it
+        # Find something to delete and delete it.
         to_delete = None
         if 'object_slug' in self.kwargs:
             try:
@@ -1230,7 +1243,7 @@ class DeleteContainerOrExtract(LoggedWithReadWriteHability, SingleContentViewMix
 
         sha = to_delete.repo_delete()
 
-        # then save
+        # Then save.
         self.object.update(sha_draft=sha, update_date=datetime.now())
 
         return redirect(parent.get_absolute_url())
@@ -1238,7 +1251,7 @@ class DeleteContainerOrExtract(LoggedWithReadWriteHability, SingleContentViewMix
 
 class DisplayHistory(LoggedWithReadWriteHability, SingleContentDetailViewMixin):
     """
-    Display the whole modification history.
+    Displays the whole modification history.
     This class has no reason to be adapted to any content type.
     """
 
@@ -1251,7 +1264,7 @@ class DisplayHistory(LoggedWithReadWriteHability, SingleContentDetailViewMixin):
         repo = self.versioned_object.repository
         commits = list(objects.commit.Commit.iter_items(repo, 'HEAD'))
 
-        # Pagination of commits
+        # Pagination of commits.
         make_pagination(
             context,
             self.request,
@@ -1268,9 +1281,10 @@ class DisplayHistory(LoggedWithReadWriteHability, SingleContentDetailViewMixin):
 
 class DisplayDiff(LoggedWithReadWriteHability, SingleContentDetailViewMixin):
     """
-    Display the difference between two versions of a content.
-    The left version is given in a GET query parameter named from, the right one with to.
-    This class has no reason to be adapted to any content type.
+    Displays the difference between two versions of a content.
+    The left version is given in a GET query parameter named from,
+    the right one with to. This class has no reason to be adapted
+    to any content type.
     """
 
     model = PublishableContent
@@ -1285,13 +1299,13 @@ class DisplayDiff(LoggedWithReadWriteHability, SingleContentDetailViewMixin):
         if 'to' not in self.request.GET:
             raise Http404(u"Paramètre GET 'to' manquant.")
 
-        # open git repo and find diff between two versions
+        # Open git repo and find diff between two versions.
         repo = self.versioned_object.repository
         try:
-            # repo.commit raises BadObject or BadName if invalid SHA
+            # repo.commit raises BadObject or BadName if invalid SHA.
             commit_from = repo.commit(self.request.GET['from'])
             commit_to = repo.commit(self.request.GET['to'])
-            # commit_to.diff raises GitErrorCommand if 00..00 SHA for instance
+            # commit_to.diff raises GitErrorCommand if 00..00 SHA for instance.
             tdiff = commit_to.diff(commit_from, R=True)
         except (GitCommandError, BadName, BadObject) as git_error:
             logging.getLogger('zds.tutorialv2').warn(git_error)
@@ -1314,8 +1328,8 @@ class DisplayDiff(LoggedWithReadWriteHability, SingleContentDetailViewMixin):
 class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     """
     Depending of the value of `self.action`, this class will behave differently;
-    - if 'set', it will active (of update) the beta
-    - if 'inactive', it will inactive the beta on the tutorial
+    - if 'set', it will active (of update) the beta;
+    - if 'inactive', it will inactive the beta on the tutorial.
     """
 
     model = PublishableContent
@@ -1346,7 +1360,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                              text=msg,
                              related_publishable_content=self.object)
         topic.save()
-        # make all authors follow the topic:
+        # Make all authors follow the topic:
         for author in self.object.authors.all():
             TopicAnswerSubscription.objects.get_or_create_active(author, topic)
             mark_read(topic, author)
@@ -1361,12 +1375,12 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
         beta_version = self.versioned_object
         sha_beta = beta_version.current_version
 
-        # topic of the beta version:
+        # Topic of the beta version:
         topic = self.object.beta_topic
 
         if topic:
             if topic.forum_id != settings.ZDS_APP['forum']['beta_forum_id']:
-                # if the topic is moved from the beta forum, then a new one is created instead
+                # If the topic is moved from the beta forum, then a new one is created instead.
                 topic = None
 
         _type = self.object.type.lower()
@@ -1375,7 +1389,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
         elif _type == 'opinion':
             raise PermissionDenied
 
-        # perform actions:
+        # Perform actions:
         if self.action == 'inactive':
             self.object.sha_beta = None
 
@@ -1404,9 +1418,9 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                 )
 
                 if not topic:
-                    # if first time putting the content in beta, send a message on the forum and a PM
+                    # If first time putting the content in beta, send a message on the forum and a PM.
 
-                    # find tags
+                    # Find tags.
                     all_tags = self._get_all_tags()
                     topic = self._create_beta_topic(msg, beta_version, _type, all_tags)
 
@@ -1450,19 +1464,19 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                         )
                     topic = send_post(self.request, topic, self.request.user, msg_post)
 
-                    # make sure that all authors follow the topic:
+                    # Make sure that all authors follow the topic:
                     for author in self.object.authors.all():
                         TopicAnswerSubscription.objects.get_or_create_active(author, topic)
                         mark_read(topic, author)
 
-            # finally set the tags on the topic
+            # Finally set the tags on the topic.
             if topic:
                 topic.tags.clear()
                 for tag in all_tags:
                     topic.tags.add(tag)
                 topic.save()
 
-        self.object.save(force_slug_update=False)  # we should prefer .update but it needs a uge refactoring
+        self.object.save(force_slug_update=False)  # We should prefer .update but it needs a huge refactoring.
 
         self.success_url = self.versioned_object.get_absolute_url(version=sha_beta)
 
@@ -1507,7 +1521,7 @@ class WarnTypo(SingleContentFormViewMixin):
                        .filter(user__in=self.object.authors.all()))
         authors = list(map(lambda author: author.user, authors))
 
-        # check if the warn is done on a public or beta version :
+        # Check if the warn is done on a public or beta version:
         is_public = False
 
         if form.content.is_public:
@@ -1521,10 +1535,10 @@ class WarnTypo(SingleContentFormViewMixin):
             else:
                 messages.error(self.request, _(u"L'auteur est malheureusement injoignable."))
 
-        elif user in authors:  # author try to PM himself
+        elif user in authors:  # Author try to PM himself.
             messages.error(self.request, _(u"Impossible d'envoyer la proposition de correction : vous êtes auteur."))
 
-        else:  # send correction
+        else:  # Send correction.
             text = '\n'.join(['> ' + line for line in form.cleaned_data['text'].split('\n')])
 
             _type = _(u'l\'article')
@@ -1549,7 +1563,7 @@ class WarnTypo(SingleContentFormViewMixin):
                     'text': text
                 })
 
-            # send it :
+            # Send it:
             send_mp(user, authors, pm_title, '', msg, leave=False)
 
             messages.success(self.request, _(u'Merci pour votre proposition de correction.'))
@@ -1558,8 +1572,11 @@ class WarnTypo(SingleContentFormViewMixin):
 
 
 class ContentsWithHelps(ZdSPagingListView):
-    """List all tutorial that needs help, i.e registered as needing at least one HelpWriting or is in beta
-    for more documentation, have a look to ZEP 03 specification (fr)"""
+    """
+    Lists all tutorial that needs help, i.e registered as needing
+    at least one HelpWriting or is in beta.
+    For more documentation, have a look to ZEP 03 specification (fr).
+    """
 
     context_object_name = 'contents'
     template_name = 'tutorialv2/view/help.html'
@@ -1568,7 +1585,7 @@ class ContentsWithHelps(ZdSPagingListView):
     specific_need = None
 
     def get_queryset(self):
-        """get only tutorial that need help and handle filtering if asked"""
+        """Gets only tutorial that need help and handle filtering if asked."""
         query_set = PublishableContent.objects \
             .annotate(total=Count('helps'), shasize=Count('sha_beta')) \
             .filter((Q(sha_beta__isnull=False) & Q(shasize__gt=0)) | Q(total__gt=0)) \
@@ -1589,7 +1606,10 @@ class ContentsWithHelps(ZdSPagingListView):
         return query_set
 
     def get_context_data(self, **kwargs):
-        """Add all HelpWriting objects registered to the context so that the template can use it"""
+        """
+        Adds all HelpWriting objects registered to the context
+        so that the template can use it.
+        """
         context = super(ContentsWithHelps, self).get_context_data(**kwargs)
         queryset = kwargs.pop('object_list', self.object_list)
 
@@ -1604,15 +1624,18 @@ class ContentsWithHelps(ZdSPagingListView):
 
 
 class ActivateJSFiddleInContent(LoginRequiredMixin, PermissionRequiredMixin, FormView):
-    """Handles changes a validator or staff member can do on the js fiddle support of the provided content
-    Only these users can do it"""
+    """
+    Handles changes a validator or staff member can do on the
+    js fiddle support of the provided content.
+    Only these users can do it.
+    """
 
     permissions = ['tutorialv2.change_publishablecontent']
     form_class = JsFiddleActivationForm
     http_method_names = ['post']
 
     def form_valid(self, form):
-        """Change the js fiddle support of content and redirect to the view page"""
+        """Changes the js fiddle support of content and redirect to the view page."""
 
         content = get_object_or_404(PublishableContent, pk=form.cleaned_data['pk'])
         # forbidden for content without a validation before publication
@@ -1677,8 +1700,8 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
                             raise Http404(u"La cible n'est pas un enfant du parent.")
                     child = target_parent.children_dict[target.split('/')[-1]]
                     try_adopt_new_child(target_parent, parent.children_dict[child_slug])
-                    # now, I will fix a bug that happens when the slug changes
-                    # this one cost me so much of my hair
+                    # Now, I will fix a bug that happens when the slug changes.
+                    # This one cost me so much of my hair
                     # and makes me think copy/past are killing kitty cat.
                     child_slug = target_parent.children[-1].slug
                     parent = target_parent
@@ -1698,23 +1721,23 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
                             raise Http404(u"La cible n'est pas un enfant du parent.")
                     child = target_parent.children_dict[target.split('/')[-1]]
                     try_adopt_new_child(target_parent, parent.children_dict[child_slug])
-                    # now, I will fix a bug that happens when the slug changes
-                    # this one cost me so much of my hair
+                    # Now, I will fix a bug that happens when the slug changes.
+                    # This one cost me so much of my hair.
                     child_slug = target_parent.children[-1].slug
                     parent = target_parent
                 parent.move_child_before(child_slug, target.split('/')[-1])
                 logging.getLogger('zds.tutorialv2').debug('{} was moved before {} in tutorial id:{}'.format(child_slug,
                                                                                                             target,
                                                                                                             content.pk))
-            versioned.slug = content.slug  # we force not to change slug
+            versioned.slug = content.slug  # We force not to change slug.
             versioned.dump_json()
             parent.repo_update(parent.title,
                                parent.get_introduction(),
                                parent.get_conclusion(),
                                _(u'Déplacement de ') + child_slug, update_slug=False)
             content.sha_draft = versioned.sha_draft
-            content.save(force_slug_update=False)  # we do not want the save routine to update the slug in case
-            # of slug algorithm conflict (for pre-zep-12 or imported content)
+            content.save(force_slug_update=False)  # We do not want the save routine to update the slug in case
+            # of slug algorithm conflict (for pre-zep-12 or imported content).
             messages.info(self.request, _(u"L'élément a bien été déplacé."))
         except TooDeepContainerError:
             messages.error(self.request, _(u"Ce conteneur contient déjà trop d'enfants pour être"
@@ -1737,6 +1760,7 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
 
 
 class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
+
     only_draft_version = True
     must_be_author = True
     form_class = AuthorForm
@@ -1799,7 +1823,7 @@ class RemoveAuthorFromContent(AddAuthorToContent):
 
     @staticmethod
     def remove_author(content, user):
-        """Remove an user from the authors and ensure that he is access to the content's gallery is also removed.
+        """Removes an user from the authors and ensure that he is access to the content's gallery is also removed.
         The last author is not removed.
 
         :param content: the content
@@ -1834,7 +1858,7 @@ class RemoveAuthorFromContent(AddAuthorToContent):
             if RemoveAuthorFromContent.remove_author(self.object, user):
                 if user.pk == self.request.user.pk:
                     current_user = True
-            else:  # if user is incorrect or alone
+            else:  # If user is incorrect or alone.
                 messages.error(self.request,
                                _(u'Vous êtes le seul auteur de {} ou le membre sélectionné '
                                  u'en a déjà quitté la rédaction.').format(_type))
@@ -1852,20 +1876,21 @@ class RemoveAuthorFromContent(AddAuthorToContent):
                     authors_list += _(u', ')
             authors_list += user.username
 
-        if not current_user:  # if the removed author is not current user
+        if not current_user:  # If the removed author is not current user.
             messages.success(
                 self.request, _(u'Vous avez enlevé {} de la liste des auteurs de {}.').format(authors_list, _type))
             self.success_url = self.object.get_absolute_url()
-        else:  # if current user is leaving the content's redaction, redirect him to a more suitable page
+        else:  # If current user is leaving the content's redaction, redirect him to a more suitable page.
             messages.success(self.request, _(u'Vous avez bien quitté la rédaction de {}.').format(_type))
             self.success_url = reverse('content:find-' + self.object.type.lower(), args=[self.request.user.pk])
-        self.already_finished = True  # this one is kind of tricky : because of inheritance we used to force redirection
+        self.already_finished = True  # This one is kind of tricky : because of inheritance we used to force redirection
         # to the content itself. This does not please me but I think it is better to do that like that instead of
         # super(FormView, self).form_valid(form). I find it so hard to understand.
         return super(RemoveAuthorFromContent, self).form_valid(form)
 
 
 class ContentOfAuthor(ZdSPagingListView):
+
     type = 'ALL'
     context_object_name = 'contents'
     paginate_by = settings.ZDS_APP['content']['content_per_page']
@@ -1906,7 +1931,7 @@ class ContentOfAuthor(ZdSPagingListView):
         else:
             raise Http404(u'Ce type de contenu est inconnu dans le système.')
 
-        # prefetch:
+        # Prefetch:
         queryset = queryset\
             .prefetch_related('authors')\
             .prefetch_related('subcategory')\
