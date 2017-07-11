@@ -493,7 +493,7 @@ def unregister(request):
     # - "personnal galleries" with only one owner (unregistering user);
     # - "personnal galleries" with more than one owner.
     # So we will just remove the unregistering user's ownership and
-    # give it to anonymous in the only case he was alone so that
+    # give it to anonymous in the only case him was alone so that
     # gallery is not lost.
     galleries = UserGallery.objects.filter(user=current)
     for gallery in galleries:

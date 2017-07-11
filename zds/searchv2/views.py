@@ -73,7 +73,7 @@ class SimilarSubjectsView(CreateView, SingleObjectMixin):
 
 
 class SearchView(ZdSPagingListView):
-    """Research view."""
+    """Search view."""
 
     template_name = 'searchv2/search.html'
     paginate_by = settings.ZDS_APP['search']['results_per_page']
@@ -116,7 +116,7 @@ class SearchView(ZdSPagingListView):
 
         if self.search_query:
 
-            # Find forums the user is allowed to visit.
+            # Searches forums the user is allowed to visit.
             self.authorized_forums = get_authorized_forums(self.request.user)
 
             search_queryset = Search()
@@ -168,7 +168,7 @@ class SearchView(ZdSPagingListView):
         return []
 
     def get_queryset_publishedcontents(self):
-        """Finds in PublishedContents."""
+        """Searches in PublishedContents."""
 
         query = Match(_type='publishedcontent') \
             & MultiMatch(
@@ -209,7 +209,7 @@ class SearchView(ZdSPagingListView):
         return scored_query
 
     def get_queryset_chapters(self):
-        """Finds in chapters."""
+        """Searches in content chapters."""
 
         query = Match(_type='chapter') \
             & MultiMatch(query=self.search_query, fields=['title', 'text'])
@@ -223,7 +223,7 @@ class SearchView(ZdSPagingListView):
         return query
 
     def get_queryset_topics(self):
-        """Finds in topics, and remove result if the forum is not allowed for the user.
+        """Searches in topics, and remove result if the forum is not allowed for the user.
 
         Score is modified if :
 
@@ -247,7 +247,7 @@ class SearchView(ZdSPagingListView):
         return scored_query
 
     def get_queryset_posts(self):
-        """Finds in posts, and remove result if the forum is not allowed for the user or if the message is invisible.
+        """Searches in posts, and remove result if the forum is not allowed for the user or if the message is invisible.
 
         Score is modified if :
 
