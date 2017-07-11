@@ -496,7 +496,7 @@ def unregister(request):
     # give it to anonymous in the only case he was alone so that
     # gallery is not lost.
     galleries = UserGallery.objects.filter(user=current)
-    for gallery in UserGallery.objects.filter(user=current):
+    for gallery in galleries:
         if gallery.gallery.get_linked_users().count() == 1:
             anonymous_gallery = UserGallery()
             anonymous_gallery.user = external
