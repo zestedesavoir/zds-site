@@ -232,7 +232,7 @@ class UpdateGitHubToken(UpdateView):
 @require_POST
 @login_required
 def remove_github_token(request):
-    """Removes the current user's token."""
+    """Removes the current user token."""
 
     profile = get_object_or_404(Profile, user=request.user)
     if not profile.is_dev():
@@ -246,7 +246,7 @@ def remove_github_token(request):
 
 
 class UpdateAvatarMember(UpdateMember):
-    """Updates avatar of a user logged in."""
+    """Updates avatar of a logged in user."""
 
     form_class = ImageAsAvatarForm
 
@@ -400,7 +400,7 @@ class SendValidationEmailView(FormView, TokenGenerator):
             # Fetch the user.
             self.get_user(form.data['username'], form.data['email'])
 
-            # User should not be already active.
+            # User should not already be active.
             if not self.usr.is_active:
                 return self.form_valid(form)
             else:
@@ -470,7 +470,7 @@ def unregister(request):
     Alert.objects.filter(author=current).update(author=anonymous)
     Alert.objects.filter(moderator=current).update(moderator=anonymous)
     BannedEmailProvider.objects.filter(moderator=current).update(moderator=anonymous)
-    # In case current has been moderator in the past.
+    # In case current user has been moderator in the past.
     Comment.objects.filter(editor=current).update(editor=anonymous)
     for topic in PrivateTopic.objects.filter(author=current):
         topic.participants.remove(current)
@@ -484,8 +484,8 @@ def unregister(request):
         topic.participants.remove(current)
         topic.save()
     Topic.objects.filter(author=current).update(author=anonymous)
-    # All contents with only the unregistering member as an author will
-    # be deleted just before the User object (with a pre_delete receiver).
+    # All contents with the unregistering member as only author will
+    # be deleted just before the User object is (with a pre_delete receiver).
     # So concerning galleries, we just have for us:
     # - "personal galleries" with only one owner (unregistering user);
     # - "personal galleries" with more than one owner.
@@ -582,8 +582,8 @@ def settings_mini_profile(request, user_name):
             profile.avatar_url = form.data['avatar_url']
             profile.sign = form.data['sign']
 
-            # Save the profile and redirect the user to the configuration
-            # space with message indicate the state of the operation.
+            # Save profile and redirect user to the settings page
+            # with a message indicating the operation state.
 
             try:
                 profile.save()
@@ -842,7 +842,7 @@ def remove_hat(request, user_pk, hat_pk):
 
 
 def login_view(request):
-    """Logs in user."""
+    """Logs user in."""
 
     csrf_tk = {}
     csrf_tk.update(csrf(request))
@@ -913,7 +913,7 @@ def login_view(request):
 @login_required
 @require_POST
 def logout_view(request):
-    """Logs out user."""
+    """Logs user out."""
 
     logout(request)
     request.session.clear()
@@ -924,7 +924,7 @@ def logout_view(request):
 
 
 def forgot_password(request):
-    """If the user forgot his password, he can have a new one."""
+    """If the user forgot their password, they can have a new one."""
 
     if request.method == 'POST':
         form = UsernameAndEmailForm(request.POST)

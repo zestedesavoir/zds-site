@@ -203,7 +203,7 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
     def get_context_data(self, **kwargs):
         context = super(DisplayContent, self).get_context_data(**kwargs)
 
-        # Check whether this tuto supports js fiddle.
+        # Check whether this content supports js fiddle.
         if self.object.js_support:
             is_js = 'js'
         else:
@@ -226,7 +226,7 @@ class DisplayBetaContent(DisplayContent):
     def get_object(self, queryset=None):
         """
         Overrides to ensure that the version is set to beta,
-        raise Http404 if there is no such version.
+        raises Http404 if there is no such version.
         """
         obj = super(DisplayBetaContent, self).get_object(queryset)
 
@@ -235,7 +235,7 @@ class DisplayBetaContent(DisplayContent):
         else:
             self.sha = obj.sha_beta
 
-        # Make the slug always right in URLs resolution:
+        # Make the slug always correct in URLs resolution:
         if 'slug' in self.kwargs:
             self.kwargs['slug'] = obj.slug
 
@@ -325,7 +325,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
 
         publishable.save()
 
-        # Now, update the versioned informations.
+        # Now, update the versioned information.
         versioned.description = form.cleaned_data['description']
         versioned.licence = form.cleaned_data['licence']
 
@@ -568,7 +568,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
     @staticmethod
     def update_from_new_version_in_zip(copy_to, copy_from, zip_file):
         """Copies the information from ``new_container`` into ``copy_to``.
-        This function correct file path if necessary.
+        This function corrects file path if necessary.
 
         :param copy_to: container that to copy to
         :type copy_to: Container
@@ -611,7 +611,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
 
     @staticmethod
     def use_images_from_archive(request, zip_file, versioned_content, gallery):
-        """Extracts image from a gallery and then translate the ``![.+](prefix:filename)`` into the final image we want.
+        """Extracts image from a gallery and then translates the ``![.+](prefix:filename)`` into the final image we want.
         The ``prefix`` is defined into the settings.
         Note that this function does not perform any commit.
 
@@ -676,7 +676,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
         if os.path.exists(temp):
             shutil.rmtree(temp)
 
-        # Then, modify each extracts.
+        # Then, modify each extract.
         image_regex = re.compile(r'((?P<start>!\[.*?\]\()' + settings.ZDS_APP['content']['import_image_prefix'] +
                                  r':(?P<path>.*?)(?P<end>\)))')
 
@@ -732,7 +732,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                 return super(UpdateContentWithArchive, self).form_invalid(form)
             else:
 
-                # Warn user if licence have changed:
+                # Warn user if licence has changed:
                 manifest = json_reader.loads(unicode(zfile.read('manifest.json'), 'utf-8'))
                 if 'licence' not in manifest or manifest['licence'] != new_version.licence.code:
                     messages.info(
@@ -742,22 +742,22 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                 self.object.title = new_version.title
                 self.object.description = new_version.description
                 self.object.licence = new_version.licence
-                self.object.type = new_version.type  # Change of type is then allowed !!
+                self.object.type = new_version.type  # Change of type is then allowed.
                 self.object.save()
 
-                new_version.slug = self.object.slug  # New slug if any !!
+                new_version.slug = self.object.slug  # New slug if any.
 
                 # ok, then, let's do the import. First, remove everything in the repository.
                 while True:
                     if versioned.children:
                         versioned.children[0].repo_delete(do_commit=False)
                     else:
-                        break  # This weird construction ensure that everything is removed.
+                        break  # This weird construction ensures that everything gets removed.
 
                 versioned.slug_pool = default_slug_pool()  # Slug pool to its initial value (to avoid weird stuffs).
 
                 # Start by copying extra information.
-                self.object.insert_data_in_versioned(versioned)  # Better have a clean version of those one.
+                self.object.insert_data_in_versioned(versioned)
                 versioned.description = new_version.description
                 versioned.type = new_version.type
                 versioned.licence = new_version.licence
@@ -782,7 +782,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                     messages.error(self.request, e.message)
                     return super(UpdateContentWithArchive, self).form_invalid(form)
 
-                # And end up by a commit !!
+                # And end up by a commit.
                 commit_message = form.cleaned_data['msg_commit']
 
                 if not commit_message:
@@ -790,7 +790,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
 
                 sha = versioned.commit_changes(commit_message)
 
-                # Now, use the images from the archive if provided. To work, this HAVE TO happen after commiting files !
+                # Now, use the images from the archive if provided. To work, this HAS TO happen after commiting files !
                 if 'image_archive' in self.request.FILES:
                     try:
                         zfile = zipfile.ZipFile(self.request.FILES['image_archive'], 'r')
@@ -843,7 +843,7 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
                 return super(CreateContentFromArchive, self).form_invalid(form)
             else:
 
-                # Warn user if licence have changed:
+                # Warn user if licence has changed:
                 manifest = json_reader.loads(unicode(zfile.read('manifest.json'), 'utf-8'))
                 if 'licence' not in manifest or manifest['licence'] != new_content.licence.code:
                     messages.info(
@@ -872,7 +872,7 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
                 self.object.gallery = gal
                 self.object.save()
 
-                # Add subcategories on tutorial.
+                # Add subcategories on content.
                 for subcat in form.cleaned_data['subcategory']:
                     self.object.subcategory.add(subcat)
 
@@ -902,16 +902,16 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
                     messages.error(self.request, e.message)
                     return super(CreateContentFromArchive, self).form_invalid(form)
 
-                # And end up by a commit !!
+                # And end up by a commit.
                 commit_message = form.cleaned_data['msg_commit']
 
                 if not commit_message:
                     commit_message = _(u"Importation d'une archive contenant « {} »").format(new_content.title)
-                versioned.slug = self.object.slug  # force slug to ensure path resolution
+                versioned.slug = self.object.slug  # Forces slug to ensure path resolution.
                 sha = versioned.repo_update(versioned.title, versioned.get_introduction(),
                                             versioned.get_conclusion(), commit_message, update_slug=True)
 
-                # This HAVE TO happen after commiting files (if not, content are None).
+                # This HAS TO happen after commiting files (if not, content is None).
                 if 'image_archive' in self.request.FILES:
                     try:
                         zfile = zipfile.ZipFile(self.request.FILES['image_archive'], 'r')
@@ -926,7 +926,7 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
                         self.object.gallery)
 
                     commit_message = _(u"Utilisation des images de l'archive pour « {} »").format(new_content.title)
-                    sha = versioned.commit_changes(commit_message)  # another commit
+                    sha = versioned.commit_changes(commit_message)
 
                 # Of course, need to update sha.
                 self.object.sha_draft = sha
@@ -1281,7 +1281,7 @@ class DisplayHistory(LoggedWithReadWriteHability, SingleContentDetailViewMixin):
 
 class DisplayDiff(LoggedWithReadWriteHability, SingleContentDetailViewMixin):
     """
-    Displays the difference between two versions of a content.
+    Displays the difference with two versions of a content.
     The left version is given in a GET query parameter named from,
     the right one with to. This class has no reason to be adapted
     to any content type.
@@ -1328,8 +1328,8 @@ class DisplayDiff(LoggedWithReadWriteHability, SingleContentDetailViewMixin):
 class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     """
     Depending of the value of `self.action`, this class will behave differently;
-    - if 'set', it will active (of update) the beta;
-    - if 'inactive', it will inactive the beta on the tutorial.
+    - if 'set', it will activate (of update) the beta;
+    - if 'inactive', it will deactivate the beta on the tutorial.
     """
 
     model = PublishableContent
