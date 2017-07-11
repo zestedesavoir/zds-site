@@ -484,12 +484,9 @@ def unregister(request):
         topic.participants.remove(current)
         topic.save()
     Topic.objects.filter(author=current).update(author=anonymous)
-    # Before deleting galleries, let's summarize what we deleted :
-    # - unpublished tutorials with only the unregistering member as an author;
-    # - unpublished articles with only the unregistering member as an author;
-    # - all category associated with those entites (have a look on article.delete_entity_and_tree);
-    # - tutorial.delete_entity_and_tree.
-    # So concerning galleries, we just have for us :
+    # All contents with only the unregistering member as an author will
+    # be deleted just before the User object (with a pre_delete receiver).
+    # So concerning galleries, we just have for us:
     # - "personal galleries" with only one owner (unregistering user);
     # - "personal galleries" with more than one owner.
     # So we will just remove the unregistering user's ownership and
