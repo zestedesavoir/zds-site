@@ -121,7 +121,11 @@ class ValidationOpinionListView(LoginRequiredMixin, PermissionRequiredMixin, Lis
 
 
 class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
+<<<<<<< d809670b73deb7713bff727e7b91b2ca43bcfa6f
     """User ask validation for his tutorial. Staff member can also to that"""
+=======
+    """User ask validation for his tutorial. Staff member can also do this."""
+>>>>>>> Corrige des erreurs dans les commentaires et les docstrings
 
     prefetch_all = False
     form_class = AskValidationForm
@@ -752,7 +756,7 @@ class RevokePickOperation(PermissionRequiredMixin, FormView):
 
 
 class PickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
-    """Approve and Add the opinion in the picked list """
+    """Approves and adds the opinion in the picked list."""
 
     form_class = PickOpinionForm
 
@@ -894,8 +898,15 @@ class MarkObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
 
 
 class PromoteOpinionToArticle(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
+<<<<<<< d809670b73deb7713bff727e7b91b2ca43bcfa6f
     """Promote an opinion to article. this duplicates the opinion and declares
     the clone as an article."""
+=======
+    """
+    Promote an opinion to article. This duplicates the opinion and
+    declares the clone as an article.
+    """
+>>>>>>> Corrige des erreurs dans les commentaires et les docstrings
 
     form_class = PromoteOpinionToArticleForm
 

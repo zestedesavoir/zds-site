@@ -133,7 +133,7 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
         if not self.object.js_support:
             context['is_js'] = False
 
-        # Pptimize requests:
+        # Optimize requests:
         votes = CommentVote.objects.filter(user_id=self.request.user.id, comment__in=queryset_reactions).all()
         context['user_like'] = [vote.comment_id for vote in votes if vote.positive]
         context['user_dislike'] = [vote.comment_id for vote in votes if not vote.positive]
@@ -182,7 +182,7 @@ class DisplayOnlineTutorial(DisplayOnlineContent):
 
 
 class DisplayOnlineOpinion(DisplayOnlineContent):
-    """Displays the list of published articles."""
+    """Displays the list of published opinions."""
 
     current_content_type = 'OPINION'
     verbose_type_name = _(u'billet')

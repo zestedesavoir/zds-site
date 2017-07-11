@@ -459,18 +459,18 @@ def unregister(request):
             vote.comment.dislike -= 1
         vote.comment.save()
     votes.delete()
-    # All messages anonymisation (forum, article and tutorial posts).
+    # All contents anonymization.
     Comment.objects.filter(author=current).update(author=anonymous)
     PrivatePost.objects.filter(author=current).update(author=anonymous)
     CommentEdit.objects.filter(editor=current).update(editor=anonymous)
     CommentEdit.objects.filter(deleted_by=current).update(deleted_by=anonymous)
-    # Karma notes, alerts and sanctions anonymisation (to keep them).
+    # Karma notes, alerts and sanctions anonymization (to keep them).
     KarmaNote.objects.filter(moderator=current).update(moderator=anonymous)
     Ban.objects.filter(moderator=current).update(moderator=anonymous)
     Alert.objects.filter(author=current).update(author=anonymous)
     Alert.objects.filter(moderator=current).update(moderator=anonymous)
     BannedEmailProvider.objects.filter(moderator=current).update(moderator=anonymous)
-    # In case current has been moderator in his old day.
+    # In case current has been moderator in the past.
     Comment.objects.filter(editor=current).update(editor=anonymous)
     for topic in PrivateTopic.objects.filter(author=current):
         topic.participants.remove(current)
@@ -490,8 +490,8 @@ def unregister(request):
     # - all category associated with those entites (have a look on article.delete_entity_and_tree);
     # - tutorial.delete_entity_and_tree.
     # So concerning galleries, we just have for us :
-    # - "personnal galleries" with only one owner (unregistering user);
-    # - "personnal galleries" with more than one owner.
+    # - "personal galleries" with only one owner (unregistering user);
+    # - "personal galleries" with more than one owner.
     # So we will just remove the unregistering user's ownership and
     # give it to anonymous in the only case they were alone so that
     # gallery is not lost.
@@ -1006,7 +1006,7 @@ def new_password(request):
 
 
 def activate_account(request):
-    """Activates a token for a user."""
+    """Activates an account with a token."""
     try:
         token = request.GET['token']
     except KeyError:
@@ -1116,7 +1116,10 @@ def get_client_ip(request):
 
 @login_required
 def settings_promote(request, user_pk):
-    """ Manage the admin right of user. Only super user can access."""
+    """
+    Manages groups and activation status of a user.
+    Only superusers are allowed to use this.
+    """
 
     if not request.user.is_superuser:
         raise PermissionDenied
@@ -1219,7 +1222,7 @@ def member_from_ip(request, ip_address):
 @permission_required('member.change_profile', raise_exception=True)
 @require_POST
 def modify_karma(request):
-    """Adds a Karma note to the user profile."""
+    """Adds a Karma note to a user profile."""
 
     try:
         profile_pk = int(request.POST['profile_pk'])

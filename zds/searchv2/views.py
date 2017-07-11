@@ -168,7 +168,7 @@ class SearchView(ZdSPagingListView):
         return []
 
     def get_queryset_publishedcontents(self):
-        """Searches in PublishedContents."""
+        """Searches in PublishedContent objects."""
 
         query = Match(_type='publishedcontent') \
             & MultiMatch(
