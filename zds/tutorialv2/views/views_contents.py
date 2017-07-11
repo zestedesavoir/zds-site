@@ -1880,7 +1880,7 @@ class RemoveAuthorFromContent(AddAuthorToContent):
             messages.success(
                 self.request, _(u'Vous avez enlevé {} de la liste des auteurs de {}.').format(authors_list, _type))
             self.success_url = self.object.get_absolute_url()
-        else:  # If current user is leaving the content's redaction, redirect him to a more suitable page.
+        else:  # If current user is leaving the content's redaction, redirect they to a more suitable page.
             messages.success(self.request, _(u'Vous avez bien quitté la rédaction de {}.').format(_type))
             self.success_url = reverse('content:find-' + self.object.type.lower(), args=[self.request.user.pk])
         self.already_finished = True  # This one is kind of tricky : because of inheritance we used to force redirection
