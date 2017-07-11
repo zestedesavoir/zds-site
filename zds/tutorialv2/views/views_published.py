@@ -42,7 +42,7 @@ class RedirectContentSEO(RedirectView):
     permanent = True
 
     def get_redirect_url(self, **kwargs):
-        """Redirects the user to the new url"""
+        """Redirects the user to the new url."""
         obj = get_object_or_404(PublishableContent, old_pk=int(kwargs.get('pk')), type='TUTORIAL')
         if not obj.in_public():
             raise Http404(u"Aucun contenu public n'est disponible avec cet identifiant.")
@@ -54,7 +54,7 @@ class RedirectContentSEO(RedirectView):
 
 
 class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
-    """Base class that can show any online content"""
+    """Base class that can show any online content."""
 
     model = PublishedContent
     template_name = 'tutorialv2/view/content_online.html'
@@ -64,7 +64,7 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
     verbose_type_name_plural = _(u'contenus')
 
     def get_context_data(self, **kwargs):
-        """Show the given tutorial if exists."""
+        """Shows the given tutorial if exists."""
         context = super(DisplayOnlineContent, self).get_context_data(**kwargs)
 
         if context['is_staff']:
@@ -86,11 +86,11 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
             .filter(related_content__pk=self.object.pk) \
             .order_by('pubdate')
 
-        # pagination of articles
+        # Pagination of articles.
         context['paginate_articles'] = False
 
         if self.object.type == 'ARTICLE':
-            # fetch all articles in order to find the previous and the next one
+            # Fetches all articles in order to find the previous and the next one.
             all_articles = \
                 [a for a in PublishedContent.objects
                     .filter(content_type='ARTICLE', must_redirect=False)
@@ -101,7 +101,7 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
             try:
                 position = all_articles.index(self.public_content_object)
             except ValueError:
-                pass  # for an unknown reason, the article is not in the list. This should not happen
+                pass  # For an unknown reason, the article is not in the list. This should not happen.
             else:
                 context['paginate_articles'] = True
                 context['previous_article'] = None
@@ -120,7 +120,7 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
             context['formConvertOpinion'] = PromoteOpinionToArticleForm(
                 self.versioned_object, initial={'version': self.versioned_object.sha_public})
 
-        # pagination of comments
+        # Pagination of comments.
         make_pagination(context,
                         self.request,
                         queryset_reactions,
@@ -128,12 +128,12 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
                         context_list_name='reactions',
                         with_previous_item=True)
 
-        # is JS activated ?
+        # Is JS activated ?
         context['is_js'] = True
         if not self.object.js_support:
             context['is_js'] = False
 
-        # optimize requests:
+        # Pptimize requests:
         votes = CommentVote.objects.filter(user_id=self.request.user.id, comment__in=queryset_reactions).all()
         context['user_like'] = [vote.comment_id for vote in votes if vote.positive]
         context['user_dislike'] = [vote.comment_id for vote in votes if not vote.positive]
@@ -147,7 +147,7 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
         context['isantispam'] = self.object.antispam()
         context['pm_link'] = self.object.get_absolute_contact_url(_(u'À propos de'))
         context['subscriber_count'] = ContentReactionAnswerSubscription.objects.get_subscriptions(self.object).count()
-        # We need reading time expressed in minutes
+        # We need reading time expressed in minutes.
         try:
             context['reading_time'] = (self.versioned_object.get_tree_level() * self.object.public_version.char_count /
                                        settings.ZDS_APP['content']['characters_per_minute'])
@@ -166,7 +166,7 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
 
 
 class DisplayOnlineArticle(DisplayOnlineContent):
-    """Displays the list of published articles"""
+    """Displays the list of published articles."""
 
     current_content_type = 'ARTICLE'
     verbose_type_name = _(u'article')
@@ -174,7 +174,7 @@ class DisplayOnlineArticle(DisplayOnlineContent):
 
 
 class DisplayOnlineTutorial(DisplayOnlineContent):
-    """Displays the list of published tutorials"""
+    """Displays the list of published tutorials."""
 
     current_content_type = 'TUTORIAL'
     verbose_type_name = _(u'tutoriel')
@@ -182,7 +182,7 @@ class DisplayOnlineTutorial(DisplayOnlineContent):
 
 
 class DisplayOnlineOpinion(DisplayOnlineContent):
-    """Displays the list of published articles"""
+    """Displays the list of published articles."""
 
     current_content_type = 'OPINION'
     verbose_type_name = _(u'billet')
@@ -190,7 +190,8 @@ class DisplayOnlineOpinion(DisplayOnlineContent):
 
 
 class DownloadOnlineContent(SingleOnlineContentViewMixin, DownloadViewMixin):
-    """ Views that allow users to download 'extra contents' of the public version
+    """ 
+    Allows users to download 'extra contents' of the public version.
     """
 
     requested_file = None
@@ -207,7 +208,7 @@ class DownloadOnlineContent(SingleOnlineContentViewMixin, DownloadViewMixin):
 
     def get(self, context, **response_kwargs):
 
-        # fill the variables
+        # Fill the variables
         try:
             self.public_content_object = self.get_public_object()
         except MustRedirect as redirect_url:
@@ -216,22 +217,22 @@ class DownloadOnlineContent(SingleOnlineContentViewMixin, DownloadViewMixin):
         self.object = self.get_object()
         self.versioned_object = self.get_versioned_object()
 
-        # check that type is ok
+        # Check that type is ok.
         if self.requested_file not in self.allowed_types:
             raise Http404(u"Le type du fichier n'est pas permis.")
 
-        # check existence
+        # Check existence.
         if not self.public_content_object.have_type(self.requested_file):
             raise Http404(u"Le type n'existe pas.")
 
         if self.requested_file == 'md' and not self.is_author and not self.is_staff:
-            # download markdown is only for staff and author
+            # Download markdown is only for staff and author.
             raise Http404(u"Seul le staff et l'auteur peuvent télécharger la version Markdown du contenu.")
 
-        # set mimetype accordingly
+        # Set mimetype accordingly.
         self.mimetype = self.mimetypes[self.requested_file]
 
-        # set UTF-8 response for markdown
+        # Set UTF-8 response for markdown.
         if self.requested_file == 'md':
             self.mimetype += '; charset=utf-8'
 
@@ -266,10 +267,10 @@ class DownloadOnlineOpinion(DownloadOnlineContent):
 
 
 class DisplayOnlineContainer(SingleOnlineContentDetailViewMixin):
-    """Base class that can show any content in any state"""
+    """Base class that can show any content in any state."""
 
     template_name = 'tutorialv2/view/container_online.html'
-    current_content_type = 'TUTORIAL'  # obviously, an article cannot have container !
+    current_content_type = 'TUTORIAL'  # Obviously, an article cannot have container !
 
     def get_context_data(self, **kwargs):
         context = super(DisplayOnlineContainer, self).get_context_data(**kwargs)
@@ -281,13 +282,13 @@ class DisplayOnlineContainer(SingleOnlineContentDetailViewMixin):
         context['formWarnTypo'] = WarnTypoForm(
             self.versioned_object, container, initial={'target': container.get_path(relative=True)})
 
-        # pagination: search for `previous` and `next`, if available
+        # Pagination: search for `previous` and `next`, if available.
         if not self.versioned_object.has_extracts():
             chapters = self.versioned_object.get_list_of_chapters()
             try:
                 position = chapters.index(container)
             except ValueError:
-                pass  # this is not (yet?) a chapter
+                pass  # This is not (yet?) a chapter.
             else:
                 context['has_pagination'] = True
                 context['previous'] = None
@@ -311,7 +312,7 @@ class DisplayOnlineContainer(SingleOnlineContentDetailViewMixin):
 
 
 class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
-    """Displays the list of published contents"""
+    """Displays the list of published contents."""
 
     context_object_name = 'public_contents'
     paginate_by = settings.ZDS_APP['content']['content_per_page']
@@ -334,17 +335,17 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
         )
         queryset = PublishedContent.objects \
             .filter(must_redirect=False)
-        # this condition got more complexe with development of zep13
-        # if we do filter by content_type, then every published content can be
+        # This condition got more complexe with development of zep13.
+        # If we do filter by content_type, then every published content can be
         # displayed. Othewise, we have to be sure the content was expressly chosen by
         # someone with staff authorization. Another way to say it "it has to be a
-        # validated content (article, tutorial), `ContentWithoutValidation` live their
+        # validated content" (article, tutorial), `ContentWithoutValidation` live their
         # own life in their own page.
         if self.current_content_type:
             queryset = queryset.filter(content_type=self.current_content_type)
         else:
             queryset = queryset.filter(~Q(content_type='OPINION'))
-        # prefetch:
+        # Prefetch:
         queryset = queryset\
             .prefetch_related('content') \
             .prefetch_related('content__subcategory') \
@@ -362,8 +363,8 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
 
         if 'tag' in self.request.GET:
             self.tag = get_object_or_404(Tag, title=self.request.GET.get('tag').lower().strip())
-            # TODO: fix me
-            # different tags can have same slug such as C/C#/C++, as a first version we get all of them
+            # TODO: fix me.
+            # Different tags can have same slug such as C/C#/C++, as a first version we get all of them.
             queryset = queryset.filter(content__tags__in=[self.tag])
         queryset = queryset.extra(select={'count_note': sub_query})
         return queryset.order_by('-publication_date')
@@ -601,7 +602,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
         kwargs['content'] = self.object
         kwargs['reaction'] = None
 
-        # handle the case when another user have post something in between
+        # Handle the case when another user have post something in between.
         if 'last_note' in self.request.POST and self.request.POST['last_note'].strip() != '':
             try:
                 last_note = int(self.request.POST['last_note'])
@@ -625,11 +626,11 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
     def get_context_data(self, **kwargs):
         context = super(SendNoteFormView, self).get_context_data(**kwargs)
 
-        # handle the case were there is a new message in the discussion
+        # Handle the case were there is a new message in the discussion.
         if self.new_note:
             context['newnote'] = True
 
-        # last few messages
+        # Last few messages.
         context['notes'] = ContentReaction.objects\
             .select_related('author') \
             .select_related('author__profile') \
@@ -643,7 +644,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
 
     def get(self, request, *args, **kwargs):
 
-        # handle quoting case
+        # Handle quoting case.
         if 'cite' in self.request.GET:
             try:
                 cited_pk = int(self.request.GET['cite'])
@@ -666,7 +667,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
         try:
             return super(SendNoteFormView, self).get(request, *args, **kwargs)
         except MustRedirect:
-            # if someone changed the pk argument, and reached a 'must redirect' public object
+            # If someone changed the pk argument, and reached a 'must redirect' public object.
             raise Http404(
                 u"Aucun contenu public trouvé avec l'identifiant {}".format(str(self.request.GET.get('pk', 0))))
 
@@ -688,7 +689,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
 
         is_new = False
 
-        if self.reaction:  # it's an edition
+        if self.reaction:  # It's an edition.
             edit = CommentEdit()
             edit.comment = self.reaction
             edit.editor = self.request.user
@@ -709,7 +710,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
 
             is_new = True
 
-        # also treat alerts if editor is a moderator
+        # Also treat alerts if editor is a moderator.
         if self.request.user != self.reaction.author and not is_new:
             alerts = Alert.objects.filter(comment__pk=self.reaction.pk, solved=False)
             for alert in alerts:
@@ -719,7 +720,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
         self.reaction.ip_address = get_client_ip(self.request)
         self.reaction.save()
 
-        if is_new:  # we first need to save the reaction
+        if is_new:  # We first need to save the reaction.
             self.object.last_note = self.reaction
             self.object.save(update_date=False)
 
@@ -728,6 +729,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
 
 
 class UpdateNoteView(SendNoteFormView):
+
     check_as = False
     template_name = 'tutorialv2/comment/edit.html'
     form_class = NoteEditForm
@@ -793,6 +795,7 @@ class UpdateNoteView(SendNoteFormView):
 
 
 class HideReaction(FormView, LoginRequiredMixin):
+
     http_method_names = ['post']
 
     @method_decorator(transaction.atomic)
@@ -838,6 +841,7 @@ class ShowReaction(FormView, LoggedWithReadWriteHability, PermissionRequiredMixi
 
 
 class SendContentAlert(FormView, LoginRequiredMixin):
+
     http_method_names = ['post']
 
     @method_decorator(transaction.atomic)
@@ -1001,13 +1005,13 @@ class FollowNewContent(LoggedWithReadWriteHability, FormView):
     def post(self, request, *args, **kwargs):
         response = {}
 
-        # get user to follow
+        # Get user to follow.
         try:
             user_to_follow = User.objects.get(pk=kwargs['pk'])
         except User.DoesNotExist:
             raise Http404
 
-        # follow content if user != user_to_follow only
+        # Follow content if user != user_to_follow only.
         if user_to_follow == request.user:
             raise PermissionDenied
 
