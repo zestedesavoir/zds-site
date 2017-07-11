@@ -27,7 +27,8 @@ class SimilarSubjectsView(CreateView, SingleObjectMixin):
     index_manager = None
 
     def __init__(self, **kwargs):
-        """Overridden because index manager must NOT be initialized elsewhere
+        """
+        Overridden because index manager must NOT be initialized elsewhere.
         """
 
         super(SimilarSubjectsView, self).__init__(**kwargs)
@@ -55,7 +56,7 @@ class SimilarSubjectsView(CreateView, SingleObjectMixin):
             scored_query = FunctionScore(query=query, boost_mode='multiply', functions=functions_score)
             search_queryset = search_queryset.query(scored_query)[:10]
 
-            # Build the result
+            # Build the result.
             for hit in search_queryset.execute():
                 result = {'id': hit.pk,
                           'url': str(hit.get_absolute_url),
@@ -72,8 +73,7 @@ class SimilarSubjectsView(CreateView, SingleObjectMixin):
 
 
 class SearchView(ZdSPagingListView):
-    """Research view
-    """
+    """Research view."""
 
     template_name = 'searchv2/search.html'
     paginate_by = settings.ZDS_APP['search']['results_per_page']
@@ -89,15 +89,15 @@ class SearchView(ZdSPagingListView):
     index_manager = None
 
     def __init__(self, **kwargs):
-        """Overridden because index manager must NOT be initialized elsewhere
+        """
+        Overridden because index manager must NOT be initialized elsewhere.
         """
 
         super(SearchView, self).__init__(**kwargs)
         self.index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
 
     def get(self, request, *args, **kwargs):
-        """Overridden to catch the request and fill the form.
-        """
+        """Overridden to catch the request and fill the form."""
 
         if 'q' in request.GET:
             self.search_query = ''.join(request.GET['q'])
@@ -116,18 +116,18 @@ class SearchView(ZdSPagingListView):
 
         if self.search_query:
 
-            # find forums the user is allowed to visit
+            # Find forums the user is allowed to visit.
             self.authorized_forums = get_authorized_forums(self.request.user)
 
             search_queryset = Search()
 
-            # restrict (sub)category if any
+            # Restrict (sub)category if any.
             if self.search_form.cleaned_data['category']:
                 self.content_category = self.search_form.cleaned_data['category']
             if self.search_form.cleaned_data['subcategory']:
                 self.content_subcategory = self.search_form.cleaned_data['subcategory']
 
-            # setting the different querysets (according to the selected models, if any)
+            # Setting the different querysets (according to the selected models, if any).
             part_querysets = []
             chosen_groups = self.search_form.cleaned_data['models']
 
@@ -148,7 +148,7 @@ class SearchView(ZdSPagingListView):
             for query in part_querysets[1:]:
                 queryset |= query
 
-            # weighting:
+            # Weighting:
             weight_functions = []
             for _type, weights in settings.ZDS_APP['search']['boosts'].items():
                 if _type in models:
@@ -157,19 +157,18 @@ class SearchView(ZdSPagingListView):
             scored_queryset = FunctionScore(query=queryset, boost_mode='multiply', functions=weight_functions)
             search_queryset = search_queryset.query(scored_queryset)
 
-            # highlighting:
+            # Highlighting:
             search_queryset = search_queryset.highlight_options(
                 fragment_size=150, number_of_fragments=5, pre_tags=['[hl]'], post_tags=['[/hl]'])
             search_queryset = search_queryset.highlight('text').highlight('text_html')
 
-            # executing:
+            # Executing:
             return self.index_manager.setup_search(search_queryset)
 
         return []
 
     def get_queryset_publishedcontents(self):
-        """Find in PublishedContents.
-        """
+        """Finds in PublishedContents."""
 
         query = Match(_type='publishedcontent') \
             & MultiMatch(
@@ -210,8 +209,7 @@ class SearchView(ZdSPagingListView):
         return scored_query
 
     def get_queryset_chapters(self):
-        """Find in chapters.
-        """
+        """Finds in chapters."""
 
         query = Match(_type='chapter') \
             & MultiMatch(query=self.search_query, fields=['title', 'text'])
@@ -225,14 +223,13 @@ class SearchView(ZdSPagingListView):
         return query
 
     def get_queryset_topics(self):
-        """Find in topics, and remove result if the forum is not allowed for the user.
+        """Finds in topics, and remove result if the forum is not allowed for the user.
 
         Score is modified if :
 
         + topic is solved ;
         + Topic is sticky ;
         + Topic is locked.
-
         """
 
         query = Match(_type='topic') \
@@ -250,7 +247,7 @@ class SearchView(ZdSPagingListView):
         return scored_query
 
     def get_queryset_posts(self):
-        """Find in posts, and remove result if the forum is not allowed for the user or if the message is invisible.
+        """Finds in posts, and remove result if the forum is not allowed for the user or if the message is invisible.
 
         Score is modified if :
 
@@ -290,7 +287,7 @@ class SearchView(ZdSPagingListView):
 
 
 def opensearch(request):
-    """Generate OpenSearch Description file"""
+    """Generates OpenSearch Description file."""
 
     return render(request, 'searchv2/opensearch.xml', {
         'site_name': settings.ZDS_APP['site']['literal_name'],
