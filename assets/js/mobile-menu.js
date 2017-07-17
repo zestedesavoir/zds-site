@@ -231,7 +231,7 @@
                 });
                 $("html").addClass("show-mobile-menu");
 
-                viewportmeta.content = "width=device-width, minimum-scale=1.0, maximum-scale=1.0, initial-scale=1.0";
+                viewportmeta.content = "width=device-width, minimum-scale=basic.0, maximum-scale=basic.0, initial-scale=basic.0";
             }
 
             // Manage back button to close sidebar
@@ -267,7 +267,7 @@
                 $("#mobile-menu").scrollTop(0);
 
                 // Restore zoom
-                viewportmeta.content = "width=device-width, minimum-scale=1.0, initial-scale=1.0";
+                viewportmeta.content = "width=device-width, minimum-scale=basic.0, initial-scale=basic.0";
 
                 // Bugfix <html> element
                 $("html").css({

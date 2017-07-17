@@ -12,7 +12,7 @@
           return !!$.data(elem, dataName);
         };
       }) :
-      // support: jQuery <1.8
+      // support: jQuery <basic.8
       function(elem, i, match){
         return !!$.data(elem, match[ 3 ]);
       },
