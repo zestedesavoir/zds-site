@@ -8,7 +8,7 @@ markdown_client.connect("tcp://127.0.0.1:24242")
 
 
 def foo():
-    content, metadata = markdown_client.toHTML(textwrap.dedent("""
+    content, metadata = markdown_client.toLatex(textwrap.dedent("""
         !(https://www.youtube.com/watch?v=dQw4w9WgXcQ)
         # title 1
 
@@ -38,7 +38,7 @@ def foo():
         [^bar]: bar
         [^italic]: italic
 
-    """), {'foo': True, 'disable_ping': True})
+    """), {'foo': True, 'disable_ping': True, 'disable_jsfiddle': False})
 
     pprint(metadata)
     pprint(content)

@@ -324,17 +324,6 @@ ABSOLUTE_URL_OVERRIDES = {
 # Django fileserve settings (set to True for local dev version only)
 SERVE = False
 
-PANDOC_LOC = ''
-PANDOC_PDF_PARAM = ('--latex-engine=xelatex '
-                    '--template={} -s -S -N '
-                    '--toc -V documentclass=scrbook -V lang=francais '
-                    '-V mainfont=Merriweather -V monofont="SourceCodePro-Regular" '
-                    '-V fontsize=12pt -V geometry:margin=1in '.format(join('..', '..', '..',
-                                                                           'assets', 'tex', 'template.tex')))
-# LOG PATH FOR PANDOC LOGGING
-PANDOC_LOG = './pandoc.log'
-PANDOC_LOG_STATE = False
-
 ES_ENABLED = True
 
 ES_CONNECTIONS = {
@@ -506,6 +495,10 @@ ZDS_APP = {
         'characters_per_minute': 1500,
         'editorial_line_link':
         'https://zestedesavoir.com/articles/222/la-ligne-editoriale-officielle-de-zeste-de-savoir/',
+        'epub_stylesheets': {
+            'toc': 'toc.css',
+            'full': 'full.css'
+        }
     },
     'forum': {
         'posts_per_page': 21,

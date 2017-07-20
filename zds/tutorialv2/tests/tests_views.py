@@ -3722,7 +3722,7 @@ class ContentTests(TestCase):
 
         # test existence and access for admin
         for extra in avail_extra:
-            self.assertTrue(published.have_type(extra), 'no extra content of format "{}" was found'.format(extra))
+            self.assertTrue(published.has_type(extra), 'no extra content of format "{}" was found'.format(extra))
             result = self.client.get(published.get_absolute_url_to_extra_content(extra))
             self.assertEqual(result.status_code, 200)
 
