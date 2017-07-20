@@ -1058,6 +1058,7 @@ Actions à faire pour mettre en prod la version : v25
 
 * Dans le `settings_prod.py`, renommer `sec_per_minute` en `characters_per_minute` si présent
 
+
 Casquettes
 ----------
 
