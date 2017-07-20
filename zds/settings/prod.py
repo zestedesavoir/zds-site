@@ -183,22 +183,6 @@ SOCIAL_AUTH_PIPELINE = (
 # ZESTE DE SAVOIR SETTINGS
 
 
-tex_template_path = '/opt/zds/zds-site/assets/tex/template.tex'
-
-# Pandoc settings
-PANDOC_LOC = '/usr/local/bin/'
-PANDOC_LOG = '/var/log/zds/pandoc.log'
-PANDOC_LOG_STATE = True
-# fix for Gandi
-PANDOC_PDF_PARAM = (
-    '--latex-engine=xelatex '
-    '--template={} -s -S -N '
-    '--toc -V documentclass=scrbook -V lang=francais '
-    '-V mainfont=Merriweather -V monofont="SourceCodePro-Regular" '
-    '-V fontsize=12pt -V geometry:margin=1in '
-).format(tex_template_path)
-
-
 ES_SEARCH_INDEX['shards'] = config['elasticsearch'].get('shards', 3),
 
 
