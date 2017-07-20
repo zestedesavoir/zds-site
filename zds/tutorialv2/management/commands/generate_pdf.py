@@ -6,6 +6,7 @@ from django.core.management.base import BaseCommand
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 from zds.tutorialv2.models.database import PublishedContent
+from zds.tutorialv2.publication_utils import PublicatorRegistery
 
 
 class Command(BaseCommand):
@@ -21,10 +22,6 @@ class Command(BaseCommand):
             ids = list(set(options.get('id')[0].replace('id=', '').split(',')))
         except IndexError:
             ids = []
-
-        pandoc_debug_str = ''
-        if settings.PANDOC_LOG_STATE:
-            pandoc_debug_str = ' 2>&1 | tee -a ' + settings.PANDOC_LOG
 
         if len(ids) > 0:
             public_contents = PublishedContent.objects.filter(content_pk__in=ids, must_redirect=False).all()
@@ -49,13 +46,7 @@ class Command(BaseCommand):
             # delete previous one
             if os.path.exists(base_name + '.pdf'):
                 os.remove(base_name + '.pdf')
-
-            # generate PDF (assume images)
-            subprocess.call(
-                settings.PANDOC_LOC + 'pandoc ' + settings.PANDOC_PDF_PARAM + ' ' +
-                base_name + '.md -o ' + base_name + '.pdf' + pandoc_debug_str,
-                shell=True,
-                cwd=extra_content_dir)
+            PublicatorRegistery.get("pdf").publish(os.path.join(extra_content_dir, base_name + ".md"), base_name)
 
             # check:
             if os.path.exists(base_name + '.pdf'):

@@ -194,13 +194,14 @@ class DownloadOnlineContent(SingleOnlineContentViewMixin, DownloadViewMixin):
     """
 
     requested_file = None
-    allowed_types = ['md', 'html', 'pdf', 'epub', 'zip']
+    allowed_types = ['md', 'html', 'pdf', 'epub', 'zip', 'tex']
 
     mimetypes = {'html': 'text/html',
                  'md': 'text/plain',
                  'pdf': 'application/pdf',
                  'epub': 'application/epub+zip',
-                 'zip': 'application/zip'}
+                 'zip': 'application/zip',
+                 'tex': 'application/x-latex'}
 
     def get_redirect_url(self, public_version):
         return public_version.content.public_version.get_absolute_url_to_extra_content(self.requested_file)
@@ -221,7 +222,7 @@ class DownloadOnlineContent(SingleOnlineContentViewMixin, DownloadViewMixin):
             raise Http404("Le type du fichier n'est pas permis.")
 
         # check existence
-        if not self.public_content_object.have_type(self.requested_file):
+        if not self.public_content_object.has_type(self.requested_file):
             raise Http404("Le type n'existe pas.")
 
         if self.requested_file == 'md' and not self.is_author and not self.is_staff:

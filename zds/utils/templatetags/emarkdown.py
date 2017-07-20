@@ -60,7 +60,8 @@ def render_markdown(md_input, **kwargs):
             **dict(
                 kwargs,
                 disable_ping=disable_ping,
-                attempts=attempts + 1
+                attempts=attempts + 1,
+                is_latex=is_latex
             ))
 
     if inline:

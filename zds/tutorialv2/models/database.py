@@ -665,7 +665,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         """
         return os.path.join(self.get_prod_path(), settings.ZDS_APP['content']['extra_contents_dirname'])
 
-    def have_type(self, type_):
+    def has_type(self, type_):
         """check if a given extra content exists
 
         :return: ``True`` if the file exists, ``False`` otherwhise
@@ -678,45 +678,45 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
 
         return False
 
-    def have_md(self):
-        """Check if the markdown version of the content is available
+    def has_md(self):
+        """Check if the flat markdown version of the content is available
 
         :return: ``True`` if available, ``False`` otherwise
         :rtype: bool
         """
-        return self.have_type('md')
+        return self.has_type('md')
 
-    def have_html(self):
+    def has_html(self):
         """Check if the html version of the content is available
 
         :return: ``True`` if available, ``False`` otherwise
         :rtype: bool
         """
-        return self.have_type('html')
+        return self.has_type('html')
 
-    def have_pdf(self):
+    def has_pdf(self):
         """Check if the pdf version of the content is available
 
         :return: ``True`` if available, ``False`` otherwise
         :rtype: bool
         """
-        return self.have_type('pdf')
+        return self.has_type('pdf')
 
-    def have_epub(self):
+    def has_epub(self):
         """Check if the standard epub version of the content is available
 
         :return: ``True`` if available, ``False`` otherwise
         :rtype: bool
         """
-        return self.have_type('epub')
+        return self.has_type('epub')
 
-    def have_zip(self):
+    def has_zip(self):
         """Check if the standard zip version of the content is available
 
         :return: ``True`` if available, ``False`` otherwise
         :rtype: bool
         """
-        return self.have_type('zip')
+        return self.has_type('zip')
 
     def get_size_file_type(self, type_):
         """
