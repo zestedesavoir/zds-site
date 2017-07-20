@@ -31,20 +31,20 @@ def render_markdown(md_input, **kwargs):
     Render a markdown string.
     """
     inline = kwargs.get('inline', False) is True
-
+    is_latex = kwargs.pop('is_latex', False) is True
+    markdown_compiler = markdown_client.toHTML if not is_latex else markdown_client.toLatex
     metadata = {}
 
     try:
-        content, metadata = markdown_client.toHTML(str(md_input), kwargs)
+        content, metadata = markdown_compiler(str(md_input), kwargs)
         content = content.encode('utf-8').strip()
         if inline:
             content = content.replace('</p>\n', '\n\n').replace('\n<p>', '\n')
         return mark_safe(content), metadata
-    except (RemoteError, TimeoutExpired):
-        e = sys.exc_info()
+    except (RemoteError, TimeoutExpired) as e:
         logger.warn(e)
     except:
-        logger.error(sys.exc_info())
+        logger.exception("Could not generate markdown")
 
     disable_ping = kwargs.get('disable_ping', False)
     if not settings.ZDS_APP['comment']['enable_pings']:
@@ -60,7 +60,8 @@ def render_markdown(md_input, **kwargs):
             **dict(
                 kwargs,
                 disable_ping=disable_ping,
-                attempts=attempts + 1
+                attempts=attempts + 1,
+                is_latex=is_latex
             ))
 
     if inline:
