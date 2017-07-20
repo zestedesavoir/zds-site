@@ -380,8 +380,8 @@ class UtilsTests(TestCase, TutorialTestMixin):
         published2 = PublishedContent.objects.get(content_pk=tuto2.pk)
 
         # ensure that PDF exists in the first place
-        self.assertTrue(published.have_pdf())
-        self.assertTrue(published2.have_pdf())
+        self.assertTrue(published.has_pdf())
+        self.assertTrue(published2.has_pdf())
 
         pdf_path = os.path.join(published.get_extra_contents_directory(), published.content_public_slug + '.pdf')
         pdf_path2 = os.path.join(published2.get_extra_contents_directory(), published2.content_public_slug + '.pdf')
