@@ -44,7 +44,7 @@ if __name__ == '__main__':
 
     if len(sys.argv) > 1 and sys.argv[1] in ['migrate', 'test']:
 
-        from django.db.backends.base.creation import BaseDatabaseCreation
+        from django.db.backends.mysql.creation import BaseDatabaseCreation
         BaseDatabaseCreation.sql_create_model = patch_mysql_sql_create_model(BaseDatabaseCreation.sql_create_model)
         from django.db.backends.mysql.schema import DatabaseSchemaEditor
 
