@@ -1,14 +1,12 @@
 import timeit
-import zerorpc
 import textwrap
 from pprint import pprint
-
-markdown_client = zerorpc.Client(heartbeat=5)
-markdown_client.connect("tcp://127.0.0.1:24242")
+import os
+from requests import post
 
 
 def foo():
-    content, metadata = markdown_client.toLatex(textwrap.dedent("""
+    md_source = textwrap.dedent("""
         !(https://www.youtube.com/watch?v=dQw4w9WgXcQ)
         # title 1
 
@@ -38,11 +36,17 @@ def foo():
         [^bar]: bar
         [^italic]: italic
 
-    """), {'foo': True, 'disable_ping': True, 'disable_jsfiddle': False})
+    """)
 
-    pprint(metadata)
+    opts = {'foo': True, 'disable_ping': True, 'disable_jsfiddle': False}
+    r = post('http://127.0.0.1:27272/html', json={
+        'opts': opts,
+        'md': md_source
+    })
+    content, metadata = r.json()
     pprint(content)
+    pprint(metadata)
 
 if __name__ == '__main__':
     foo()
-# print(timeit.timeit("foo()", setup="from __main__ import foo", number=1000))
+# print(timeit.timeit("foo()", setup="from __main__ import foo", number=10000))
