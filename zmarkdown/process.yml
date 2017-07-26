@@ -1,6 +1,4 @@
 apps:
   - script: zmarkdown/markdown-server.js
-    # never scale this! The way zmq binds to the port makes it impossible for
-    # pm2 to intercept and load-balance
-    instances: 1
+    instances: 3
     max_memory_restart : 100M
