@@ -1,11 +1,10 @@
 # coding: utf-8
 
-import json
 import logging
 import re
 import sys
-import zerorpc
-from zerorpc.exceptions import RemoteError, TimeoutExpired
+
+from requests import post
 
 from django import template
 from django.conf import settings
@@ -22,35 +21,36 @@ Markdown related filters.
 # Constant strings
 MD_PARSING_ERROR = _(u'Une erreur est survenue dans la génération de texte Markdown. Veuillez rapporter le bug.')
 
-markdown_client = zerorpc.Client(heartbeat=5)
-markdown_client.connect("tcp://127.0.0.1:24242")
-
 
 def render_markdown(md_input, **kwargs):
     """
     Render a markdown string.
     """
+    attempts = kwargs.get('attempts', 0)
     inline = kwargs.get('inline', False) is True
     is_latex = kwargs.pop('is_latex', False) is True
-    markdown_compiler = markdown_client.toHTML if not is_latex else markdown_client.toLatex
+    endpoint = '/html' if not is_latex else '/latex'
     metadata = {}
 
     try:
-        content, metadata = markdown_compiler(str(md_input), kwargs)
+        response = post('{}{}'.format(settings.ZDS_APP['zmd']['server'], endpoint), json={
+            'opts': kwargs,
+            'md': str(md_input),
+        }, timeout=10)
+        content, metadata = response.json()
         content = content.encode('utf-8').strip()
         if inline:
             content = content.replace('</p>\n', '\n\n').replace('\n<p>', '\n')
         return mark_safe(content), metadata
-    except (RemoteError, TimeoutExpired) as e:
-        logger.warn(e)
     except:
-        logger.exception("Could not generate markdown")
+        e = sys.exc_info()[1]
+        logger.info('Markdown render failed, attempt {}#'.format(attempts), md_input, kwargs)
+        logger.exception(e, 'Could not generate markdown')
 
     disable_ping = kwargs.get('disable_ping', False)
-    if not settings.ZDS_APP['comment']['enable_pings']:
+    if settings.ZDS_APP['zmd']['disable_pings'] is True:
         disable_ping = True
 
-    attempts = kwargs.get('attempts', 0)
     if attempts < 3:
         logger.warn("RETRYING")
         if not kwargs:
