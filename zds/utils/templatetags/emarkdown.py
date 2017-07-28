@@ -1,9 +1,8 @@
 import re
-import sys
 
 import logging
 from requests import post
-
+import requests
 from django import template
 from django.conf import settings
 from django.template.defaultfilters import stringfilter
@@ -40,10 +39,12 @@ def render_markdown(md_input, **kwargs):
         if inline:
             content = content.replace('</p>\n', '\n\n').replace('\n<p>', '\n')
         return mark_safe(content), metadata
-    except:
-        e = sys.exc_info()[1]
+    except (requests.HTTPError, ValueError):
         logger.info('Markdown render failed, attempt {}#'.format(attempts), md_input, kwargs)
-        logger.exception(e, 'Could not generate markdown')
+        logger.exception('Could not generate markdown')
+    except:  # noqa
+        logger.exception("Unforeseen error appears. We were able to get back to a normal behaviour but this needs"
+                         "to be inspected.")
 
     disable_ping = kwargs.get('disable_ping', False)
     if settings.ZDS_APP['zmd']['disable_pings'] is True:
