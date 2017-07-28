@@ -51,7 +51,6 @@ def publish_content(db_object, versioned, is_major_update=True):
     # First write the files in a temporary directory: if anything goes wrong,
     # the last published version is not impacted !
     tmp_path = os.path.join(settings.ZDS_APP['content']['repo_public_path'], versioned.slug + '__building')
-
     if os.path.exists(tmp_path):
         shutil.rmtree(tmp_path)  # erase previous attempt, if any
 
@@ -88,13 +87,6 @@ def publish_content(db_object, versioned, is_major_update=True):
     finally:
         md_file.close()
 
-    pandoc_debug_str = ''
-    if settings.ZDS_APP['content']['extra_content_generation_policy'] == 'SYNC':
-        # ok, now we can really publish the thing !
-        generate_exernal_content(base_name, extra_contents_path, md_file_path, pandoc_debug_str)
-    elif settings.ZDS_APP['content']['extra_content_generation_policy'] == 'WATCHDOG':
-        PublicatorRegistery.get('watchdog').publish(md_file_path, base_name, silently_pass=False)
-
     is_update = False
 
     if db_object.public_version:
@@ -103,7 +95,8 @@ def publish_content(db_object, versioned, is_major_update=True):
 
         # the content have been published in the past, so clean old files !
         old_path = public_version.get_prod_path()
-        shutil.rmtree(old_path)
+        logging.getLogger(__name__).debug('erase ' + old_path)
+        # shutil.rmtree(old_path)
 
         # if the slug change, instead of using the same object, a new one will be created
         if versioned.slug != public_version.content_public_slug:
@@ -133,7 +126,7 @@ def publish_content(db_object, versioned, is_major_update=True):
     public_version.save()
     # move the stuffs into the good position
     if settings.ZDS_APP['content']['extra_content_generation_policy'] != 'WATCHDOG':
-        shutil.move(tmp_path, public_version.get_prod_path())
+        shutil.copytree(tmp_path, public_version.get_prod_path())
     else:  # if we use watchdog, we use copy to get md and zip file in prod but everything else will be handled by
         # watchdog
         shutil.copytree(tmp_path, public_version.get_prod_path())
@@ -145,6 +138,11 @@ def publish_content(db_object, versioned, is_major_update=True):
 
     public_version.sha_public = versioned.current_version
     public_version.save()
+    if settings.ZDS_APP['content']['extra_content_generation_policy'] == 'SYNC':
+        # ok, now we can really publish the thing !
+        generate_exernal_content(base_name, extra_contents_path, md_file_path)
+    elif settings.ZDS_APP['content']['extra_content_generation_policy'] == 'WATCHDOG':
+        PublicatorRegistery.get('watchdog').publish(md_file_path, base_name, silently_pass=False)
     try:
         make_zip_file(public_version)
     except OSError:
@@ -153,7 +151,7 @@ def publish_content(db_object, versioned, is_major_update=True):
     return public_version
 
 
-def generate_exernal_content(base_name, extra_contents_path, md_file_path, pandoc_debug_str, overload_settings=False):
+def generate_exernal_content(base_name, extra_contents_path, md_file_path, overload_settings=False):
     """
     generate all static file that allow offline access to content
 
@@ -265,23 +263,27 @@ class ZmarkdownHtmlPublicator(Publicator):
 
 @PublicatorRegistery.register('pdf')
 class ZMarkdownRebberLatexPublicator(Publicator):
+    """
+    use zmarkdown and rebber stringifyer to produce latex & pdf output.
+    """
     def publish(self, md_file_path, base_name, **kwargs):
         md_flat_content = _read_flat_markdown(md_file_path)
-        latex_content = render_markdown(md_flat_content, disable_ping=True,
-                                        disable_js=True, is_latex=True)
+        content_slug = PublishedContent.get_slug_from_file_path(md_file_path)
+        latex_content, _ = render_markdown(md_flat_content, disable_ping=True,
+                                          disable_js=True, is_latex=True)
         published_content_entity = PublishedContent.objects\
-            .filter(must_redirect=False, content_public_slug=base_name)\
+            .filter(must_redirect=False, content_public_slug=content_slug)\
             .first()
         depth_to_size_map = {
-            1: 'small',
-            2: 'medium',
-            3: 'big'
+            2: 'small',
+            3: 'medium',
+            4: 'big'
         }
         public_versionned_source = published_content_entity\
             .content\
             .load_version(public=True)
         content_size = depth_to_size_map[public_versionned_source.get_tree_level()]
-        title = published_content_entity.title
+        title = published_content_entity.title()
         comma_separated_authors = ', '.join([a.username for a in published_content_entity.authors.all()])
         licence_type = published_content_entity.content.licence.title
         content = dedent("""
@@ -290,7 +292,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
         \\usepackage{blindtext}
         \\title{%s}
         \\author{%s}
-        \\licence{CC-BY-NC-ND}
+        \\licence{%s}
 
         \\smileysPath{./test-smileys}
         \\makeglossaries
@@ -301,27 +303,36 @@ class ZMarkdownRebberLatexPublicator(Publicator):
 
         %s
         \\end{document}
-        """ % (content_size, title, comma_separated_authors, licence_type,
-               latex_content))
-        with codecs.open(md_file_path[:-2] + 'tex', mode='w', encoding='utf-8') as latex_file:
+        """) % (content_size, title, comma_separated_authors, licence_type, latex_content)
+
+        latex_file_path = os.path.splitext(md_file_path)[0] + '.tex'
+        pdf_file_path = os.path.splitext(md_file_path)[0] + '.pdf'
+        with codecs.open(latex_file_path, mode='w', encoding='utf-8') as latex_file:
             latex_file.write(content)
 
         try:
-            self.full_pdf_tex_call(latex_file)
-            self.full_pdf_tex_call(latex_file)
-            self.make_glossary(base_name, latex_file)
-            self.full_pdf_tex_call(latex_file)
+            self.full_pdftex_call(latex_file_path)
+            self.full_pdftex_call(latex_file_path)
+            self.make_glossary(base_name.split('/')[-1], latex_file_path)
+            self.full_pdftex_call(latex_file_path)
         except FailureDuringPublication:
             logging.getLogger(self.__class__.__name__).exception("could not publish %s", base_name)
+        else:
+            shutil.move(latex_file_path, published_content_entity.get_extra_contents_directory())
+            shutil.move(pdf_file_path, published_content_entity.get_extra_contents_directory())
+            logging.info("published latex=%s, pdf=%s", published_content_entity.has_type('tex'),
+                         published_content_entity.has_type('pdf'))
 
-    def full_pdf_tex_call(self, latex_file):
+    def full_pdftex_call(self, latex_file):
         success_flag = self.pdftex(latex_file)
         if not success_flag:
             self.handle_pdf_tex_error(latex_file)
 
-    def handle_pdf_tex_error(self, latex_file):
-        with codecs.open(latex_file[:-3] + "log") as latex_log:
-            errors = '\n'.join(filter(line for line in latex_log if "fatal" in line.lower() or "error" in line.lower()))
+    def handle_pdf_tex_error(self, latex_file_path):
+        log_file_path = latex_file_path[:-3] + 'log'
+
+        with codecs.open(log_file_path) as latex_log:
+            errors = '\n'.join([line for line in latex_log if "fatal" in line.lower() or "error" in line.lower()])
         try:
             from raven import breadcrumbs
             breadcrumbs.record(message="pdftex call", data=errors, type="cmd")
@@ -330,15 +341,16 @@ class ZMarkdownRebberLatexPublicator(Publicator):
         raise FailureDuringPublication(errors)
 
     def handle_makeglossaries_error(self, latex_file):
-        with codecs.open(latex_file[:-3] + "log") as latex_log:
-            errors = '\n'.join(filter(line for line in latex_log if "fatal" in line.lower() or "error" in line.lower()))
+        with codecs.open(os.path.splitext(latex_file)[0] + '.log') as latex_log:
+            errors = '\n'.join(filter(line for line in latex_log if 'fatal' in line.lower() or 'error' in line.lower()))
         raise FailureDuringPublication(errors)
 
     def pdftex(self, texfile):
-        new_err = six.StringIO()
+        command_process = subprocess.Popen('pdflatex -shell-escape -interaction=nonstopmode ' + texfile,
+                                           shell=True, cwd=os.path.dirname(texfile),
+                                           stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        command_process.communicate()
 
-        exit_code = subprocess.call('pdflatex -draftmode -shell-escape -interaction=nonstopmode ' + texfile,
-                                    shell=True, cwd=os.path.dirname(texfile), stderr=new_err)
         try:
             from raven import breadcrumbs
             breadcrumbs.record(message="pdftex call",
@@ -346,16 +358,15 @@ class ZMarkdownRebberLatexPublicator(Publicator):
                                type="cmd")
         except ImportError:
             pass
-
-        if exit_code == 0 and os.exists(texfile[:-3] + "pdf"):
-            # success
-            return True
-        self.handle_pdf_tex_error(new_err.getvalue())
+        pdf_file_path = os.path.splitext(texfile)[0] + '.pdf'
+        return os.path.exists(pdf_file_path)
 
     def make_glossary(self, basename, texfile):
-        new_err = six.StringIO()
-        exit_code = subprocess.call('makeglossaries ' + basename,
-                                    shell=True, cwd=os.path.dirname(texfile), stderr=new_err)
+        command_process = subprocess.Popen('makeglossaries ' + basename,
+                                           shell=True, cwd=os.path.dirname(texfile),
+                                           stdout=subprocess.PIPE,
+                                           stderr=subprocess.PIPE)
+        std_out, std_err = command_process.communicate()
         try:
             from raven import breadcrumbs
             breadcrumbs.record(message="makeglossaries call",
@@ -363,7 +374,8 @@ class ZMarkdownRebberLatexPublicator(Publicator):
                                type="cmd")
         except ImportError:
             pass
-        if exit_code == 0:
+        # TODO: deeply inspect makeglossary output and fix that ugly line
+        if "fatal" not in std_out.decode('utf-8').lower() and 'fatal' not in std_err.decode('utf-8').lower():
             return True
         else:
             self.handle_makeglossaries_error(texfile)
