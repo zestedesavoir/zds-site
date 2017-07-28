@@ -1,7 +1,5 @@
-% {{ content.title|safe|upper }} {% load emarkdown %}{% load profile %}{% load captureas %}
-% {% for member in content.authors.all %}{% if not forloop.first %}, {% endif %}{{ member.username }}{% endfor %}
-% {{ content.pubdate|date:"d F Y" }}
-
+{% load captureas %}
+{% load emarkdown %}
 {% autoescape off %}
 {% if content.introduction %}
 {% captureas intro %}{{ content.get_introduction|safe }}{% endcaptureas %}

@@ -36,3 +36,4 @@ watchdog==0.8.3 # use last non-bc-breaking version
 # next versions of this libraries break previous behavior for slug generation from string with single quotes
 django-uuslug==1.0.3
 python-slugify==1.1.4
+Pygments==2.2.0

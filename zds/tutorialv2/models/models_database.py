@@ -50,7 +50,7 @@ from zds.searchv2.models import AbstractESDjangoIndexable, AbstractESIndexable, 
 from zds.utils.tutorials import get_blob
 import logging
 
-ALLOWED_TYPES = ['pdf', 'md', 'html', 'epub', 'zip']
+ALLOWED_TYPES = ['pdf', 'md', 'html', 'epub', 'zip', 'tex']
 logger = logging.getLogger('zds.tutorialv2')
 
 
@@ -617,6 +617,10 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
 
     # sizes contain a python dict (as a string in database) with all information about file sizes
     sizes = models.CharField('Tailles des fichiers téléchargeables', max_length=512, default='{}')
+
+    @staticmethod
+    def get_slug_from_file_path(file_path):
+        return os.path.splitext(os.path.split(file_path)[1])[0]
 
     def __str__(self):
         return _('Version publique de "{}"').format(self.content.title)
