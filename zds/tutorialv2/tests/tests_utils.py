@@ -26,6 +26,7 @@ from zds.tutorialv2.publication_utils import Publicator, PublicatorRegistery
 from watchdog.events import FileCreatedEvent
 from zds.tutorialv2.management.commands.publication_watchdog import TutorialIsPublished
 from mock import Mock
+from copy import deepcopy
 try:
     import ujson as json_reader
 except ImportError:
@@ -34,7 +35,7 @@ except ImportError:
     except:
         import json as json_reader
 
-overrided_zds_app = settings.ZDS_APP
+overrided_zds_app = deepcopy(settings.ZDS_APP)
 overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
 overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
 overrided_zds_app['tutorial']['repo_path'] = os.path.join(BASE_DIR, 'tutoriels-private-test')

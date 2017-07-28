@@ -16,7 +16,7 @@ from zds.notification import signals as notif_signals
 from zds.tutorialv2.factories import PublishableContentFactory, LicenceFactory, SubCategoryFactory, \
     PublishedContentFactory
 from zds.tutorialv2.publication_utils import publish_content
-
+from copy import deepcopy
 
 class ForumNotification(TestCase):
     def setUp(self):
@@ -68,7 +68,7 @@ class ForumNotification(TestCase):
         self.assertTrue(subscription.last_notification.is_read, 'As forum is not reachable, notification is read')
 
 
-overrided_zds_app = settings.ZDS_APP
+overrided_zds_app = deepcopy(settings.ZDS_APP)
 overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
 overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
 overrided_zds_app['content']['extra_content_generation_policy'] = 'SYNC'

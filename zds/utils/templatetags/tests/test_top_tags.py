@@ -13,8 +13,9 @@ from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.settings import BASE_DIR
 from zds.tutorialv2.factories import PublishedContentFactory
 from zds.utils.templatetags.topbar import top_categories, top_categories_content
+from copy import deepcopy
 
-overrided_zds_app = settings.ZDS_APP
+overrided_zds_app = deepcopy(settings.ZDS_APP)
 overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
 overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
 

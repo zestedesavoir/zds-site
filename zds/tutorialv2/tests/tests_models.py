@@ -19,8 +19,9 @@ from zds.tutorialv2.models.models_database import PublishableContent, PublishedC
 from zds.tutorialv2.publication_utils import publish_content
 from zds.utils.models import Tag
 from django.template.defaultfilters import date
+from copy import deepcopy
 
-overrided_zds_app = settings.ZDS_APP
+overrided_zds_app = deepcopy(settings.ZDS_APP)
 overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
 overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
 

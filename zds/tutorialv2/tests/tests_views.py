@@ -32,6 +32,7 @@ from zds.tutorialv2.publication_utils import publish_content, Publicator, Public
 from zds.utils.models import HelpWriting, Alert, Tag
 from zds.utils.factories import HelpWritingFactory
 from zds.utils.templatetags.interventions import interventions_topics
+from copy import deepcopy
 
 try:
     import ujson as json_reader
@@ -42,7 +43,7 @@ except ImportError:
         import json as json_reader
 
 
-overrided_zds_app = settings.ZDS_APP
+overrided_zds_app = deepcopy(settings.ZDS_APP)
 overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
 overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
 overrided_zds_app['content']['extra_content_generation_policy'] = 'SYNC'
