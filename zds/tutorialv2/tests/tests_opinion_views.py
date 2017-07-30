@@ -876,12 +876,9 @@ class PublishedContentTests(TestCase):
 
     def tearDown(self):
 
-        if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
-            shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
-        if os.path.isdir(settings.ZDS_APP['content']['repo_public_path']):
-            shutil.rmtree(settings.ZDS_APP['content']['repo_public_path'])
+        if os.path.isdir(overrided_zds_app['content']['repo_private_path']):
+            shutil.rmtree(overrided_zds_app['content']['repo_private_path'])
+        if os.path.isdir(overrided_zds_app['content']['repo_public_path']):
+            shutil.rmtree(overrided_zds_app['content']['repo_public_path'])
         if os.path.isdir(settings.MEDIA_ROOT):
             shutil.rmtree(settings.MEDIA_ROOT)
-
-        # re-activate PDF build
-        settings.ZDS_APP['content']['build_pdf_when_published'] = True

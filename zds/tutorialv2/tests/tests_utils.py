@@ -51,11 +51,11 @@ class UtilsTests(TestCase):
     def setUp(self):
 
         # don't build PDF to speed up the tests
-        settings.ZDS_APP['content']['build_pdf_when_published'] = False
+        overrided_zds_app['content']['build_pdf_when_published'] = False
 
         settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
         self.mas = ProfileFactory().user
-        settings.ZDS_APP['member']['bot_account'] = self.mas.username
+        overrided_zds_app['member']['bot_account'] = self.mas.username
 
         self.licence = LicenceFactory()
 
@@ -382,7 +382,7 @@ class UtilsTests(TestCase):
     def test_generate_pdf(self):
         """ensure the behavior of the `python manage.py generate_pdf` commmand"""
 
-        settings.ZDS_APP['content']['build_pdf_when_published'] = True  # this test need PDF build, if any
+        overrided_zds_app['content']['build_pdf_when_published'] = True  # this test need PDF build, if any
 
         tuto = PublishedContentFactory(type='TUTORIAL')  # generate and publish a tutorial
         published = PublishedContent.objects.get(content_pk=tuto.pk)
@@ -543,7 +543,7 @@ class UtilsTests(TestCase):
             self.assertFalse(check_slug(s))
 
         # too long slugs are forbidden :
-        too_damn_long_slug = 'a' * (settings.ZDS_APP['content']['maximum_slug_size'] + 1)
+        too_damn_long_slug = 'a' * (overrided_zds_app['content']['maximum_slug_size'] + 1)
         self.assertFalse(check_slug(too_damn_long_slug))
 
     def test_watchdog(self):
@@ -586,14 +586,12 @@ class UtilsTests(TestCase):
         self.assertEqual(published.char_count, published.get_char_count())
 
     def tearDown(self):
-        if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
-            shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
-        if os.path.isdir(settings.ZDS_APP['content']['repo_public_path']):
-            shutil.rmtree(settings.ZDS_APP['content']['repo_public_path'])
+        if os.path.isdir(overrided_zds_app['content']['repo_private_path']):
+            shutil.rmtree(overrided_zds_app['content']['repo_private_path'])
+        if os.path.isdir(overrided_zds_app['content']['repo_public_path']):
+            shutil.rmtree(overrided_zds_app['content']['repo_public_path'])
         if os.path.isdir(settings.MEDIA_ROOT):
             shutil.rmtree(settings.MEDIA_ROOT)
-        if os.path.isdir(settings.ZDS_APP['content']['extra_content_watchdog_dir']):
-            shutil.rmtree(settings.ZDS_APP['content']['extra_content_watchdog_dir'])
-        # re-activate PDF build
-        settings.ZDS_APP['content']['build_pdf_when_published'] = True
+        if os.path.isdir(overrided_zds_app['content']['extra_content_watchdog_dir']):
+            shutil.rmtree(overrided_zds_app['content']['extra_content_watchdog_dir'])
         PublicatorRegistery.registry = self.old_registry
