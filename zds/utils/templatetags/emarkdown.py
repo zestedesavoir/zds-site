@@ -18,7 +18,8 @@ register = template.Library()
 Markdown related filters.
 """
 
-# Constant strings
+# Constants
+MAX_ATTEMPS = 3
 MD_PARSING_ERROR = _(u'Une erreur est survenue dans la génération de texte Markdown. Veuillez rapporter le bug.')
 
 
@@ -43,17 +44,16 @@ def render_markdown(md_input, **kwargs):
             content = content.replace('</p>\n', '\n\n').replace('\n<p>', '\n')
         return mark_safe(content), metadata
     except (requests.HTTPError, ValueError):
-        logger.info('Markdown render failed, attempt {}#'.format(attempts), md_input, kwargs)
+        logger.info('Markdown render failed, attempt {}/{}'.format(attempts, MAX_ATTEMPS), md_input, kwargs)
         logger.exception('Could not generate markdown')
     except:  # noqa
-        logger.exception("Unforeseen error appears. We were able to get back to a normal behaviour but this needs"
-                         "to be inspected.")
+        logger.exception('Unexpected exception raised, attempt {}/{}'.format(attempts, MAX_ATTEMPS), md_input, kwargs)
 
     disable_ping = kwargs.get('disable_ping', False)
     if settings.ZDS_APP['zmd']['disable_pings'] is True:
         disable_ping = True
 
-    if attempts < 3:
+    if attempts < MAX_ATTEMPS:
         logger.warn("RETRYING")
         if not kwargs:
             kwargs = dict()
@@ -84,7 +84,7 @@ def emarkdown(md_input, use_jsfiddle='', **kwargs):
     """
     disable_jsfiddle = (use_jsfiddle != 'js')
 
-    content, metadata = render_markdown(md_input, **dict(kwargs, disable_jsfiddle=disable_jsfiddle))
+    content, _ = render_markdown(md_input, **dict(kwargs, disable_jsfiddle=disable_jsfiddle))
     return content
 
 
