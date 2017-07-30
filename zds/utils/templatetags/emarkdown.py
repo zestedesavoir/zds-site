@@ -15,7 +15,8 @@ register = template.Library()
 Markdown related filters.
 """
 
-# Constant strings
+# Constants
+MAX_ATTEMPS = 3
 MD_PARSING_ERROR = _('Une erreur est survenue dans la génération de texte Markdown. Veuillez rapporter le bug.')
 
 
@@ -25,9 +26,19 @@ def render_markdown(md_input, **kwargs):
     """
     attempts = kwargs.get('attempts', 0)
     inline = kwargs.get('inline', False) is True
-    is_latex = kwargs.pop('is_latex', False) is True
-    endpoint = '/html' if not is_latex else '/latex'
+    to_latex = kwargs.get('to_latex', False) is True
+    to_latex_document = kwargs.get('to_latex_document', False) is True
+
+    endpoint = '/html'
+    if to_latex:
+        endpoint = '/latex'
+    if to_latex_document:
+        endpoint = '/latex-document'
+
     metadata = {}
+
+    if settings.ZDS_APP['zmd']['disable_pings'] is True:
+        kwargs['disable_ping'] = True
 
     try:
         response = post('{}{}'.format(settings.ZDS_APP['zmd']['server'], endpoint), json={
@@ -40,28 +51,15 @@ def render_markdown(md_input, **kwargs):
             content = content.replace('</p>\n', '\n\n').replace('\n<p>', '\n')
         return mark_safe(content), metadata
     except (requests.HTTPError, ValueError):
-        logger.info('Markdown render failed, attempt {}#'.format(attempts), md_input, kwargs)
+        logger.info('Markdown render failed, attempt {}/{}'.format(attempts, MAX_ATTEMPS), md_input, kwargs)
         logger.exception('Could not generate markdown')
     except:  # noqa
-        logger.exception("Unforeseen error appears. We were able to get back to a normal behaviour but this needs"
-                         "to be inspected.")
+        logger.exception('Unexpected exception raised, attempt {}/{}'.format(attempts, MAX_ATTEMPS), md_input, kwargs)
 
-    disable_ping = kwargs.get('disable_ping', False)
-    if settings.ZDS_APP['zmd']['disable_pings'] is True:
-        disable_ping = True
-
-    if attempts < 3:
-        logger.warn("RETRYING")
+    if attempts < MAX_ATTEMPS:
         if not kwargs:
             kwargs = dict()
-        return render_markdown(
-            md_input,
-            **dict(
-                kwargs,
-                disable_ping=disable_ping,
-                attempts=attempts + 1,
-                is_latex=is_latex
-            ))
+        return render_markdown(md_input, **dict(kwargs, attempts=attempts + 1))
 
     if inline:
         return mark_safe('<p>{}</p>'.format(MD_PARSING_ERROR)), metadata
@@ -81,7 +79,7 @@ def emarkdown(md_input, use_jsfiddle='', **kwargs):
     """
     disable_jsfiddle = (use_jsfiddle != 'js')
 
-    content, metadata = render_markdown(md_input, **dict(kwargs, disable_jsfiddle=disable_jsfiddle))
+    content, _ = render_markdown(md_input, **dict(kwargs, disable_jsfiddle=disable_jsfiddle))
     return content
 
 
