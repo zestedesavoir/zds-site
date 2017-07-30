@@ -34,7 +34,7 @@ def __traverse_chapter(html_code):
 
 
 def __traverse_and_identify_images(image_dir):
-    for root, _, files in os.walk(image_dir):
+    for _, _, files in os.walk(image_dir):
         for image_filename in files:
             yield join(image_dir, image_filename), str(uuid4())
 
@@ -44,13 +44,13 @@ def build_html_chapter_file(full_html_file, working_dir):
     parses an the full html file, extracts the ``<hX>`` tags and split their content into new files.
     it yields all the produced files
 
-    :param full_html_file: 
+    :param full_html_file:
     :return: a generator of tuples composed as ``[chapter_full_title, splitted_html_file_relative_path]``
     """
     with open(full_html_file, encoding='utf-8') as f:
         html_code = f.read()
     for chapter_title, chapter_html in __traverse_chapter(html_code):
-        with open(join(working_dir, slugify(chapter_title)), 'wb', encoding='utf-8') as f:
+        with open(join(working_dir, slugify(chapter_title)), mode='wb', encoding='utf-8') as f:
             f.write(chapter_html)
         yield chapter_title, join(slugify(chapter_title))
 
@@ -62,7 +62,7 @@ def build_toc_cnx(chapters, tutorial, working_dir):
                     'chapters': chapters,
                     'title': tutorial.title,
                     'description': tutorial.description
-                })
+        })
 
 
 def build_content_opf(content, chapters, images, working_dir):

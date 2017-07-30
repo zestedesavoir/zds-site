@@ -1,7 +1,6 @@
 import timeit
 import textwrap
 from pprint import pprint
-import os
 from requests import post
 
 
