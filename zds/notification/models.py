@@ -218,8 +218,8 @@ class MultipleNotificationsMixin(object):
         """
         if content is None:
             raise ValueError('Object content of notification must be defined')
-        with transaction.atomic():
 
+        with transaction.atomic():
             content_notification_type = ContentType.objects.get_for_model(content)
             notifications = list(Notification.objects.filter(subscription=self,
                                                              content_type__pk=content_notification_type.pk,
