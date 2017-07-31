@@ -56,15 +56,13 @@ class FakePDFPublicator(Publicator):
             f.write('plouf')
 
 
-overriden_zds_app['content']['default_licence_pk'] = LicenceFactory().pk
-
-
 @override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
 @override_settings(ZDS_APP=overriden_zds_app)
 @override_settings(ES_ENABLED=False)
 class ContentTests(TestCase):
-    def setUp(self):
 
+    def setUp(self):
+        overriden_zds_app['content']['default_licence_pk'] = LicenceFactory().pk
         # don't build PDF to speed up the tests
         overriden_zds_app['content']['build_pdf_when_published'] = False
 
@@ -4105,7 +4103,7 @@ class ContentTests(TestCase):
 @override_settings(ES_ENABLED=False)
 class PublishedContentTests(TestCase):
     def setUp(self):
-
+        overriden_zds_app['content']['default_licence_pk'] = LicenceFactory().pk
         # don't build PDF to speed up the tests
         overriden_zds_app['content']['build_pdf_when_published'] = False
 
