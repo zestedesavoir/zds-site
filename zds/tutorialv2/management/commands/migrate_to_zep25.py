@@ -6,7 +6,7 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404
 from django.utils.text import slugify
 
-from zds import settings
+from django.conf import settings
 from zds.tutorialv2.models.models_database import PublishableContent
 from zds.utils.models import Category, SubCategory, CategorySubCategory, Tag
 from zds.utils.mps import send_mp

@@ -6,7 +6,7 @@ from django.contrib.auth.models import Group
 
 from django.test import TestCase
 from django.test.utils import override_settings
-from zds import settings
+from django.conf import settings
 
 from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory

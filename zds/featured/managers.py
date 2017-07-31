@@ -3,7 +3,7 @@ from datetime import datetime
 
 from django.db import models
 
-from zds import settings
+from django.conf import settings
 
 
 class FeaturedResourceManager(models.Manager):

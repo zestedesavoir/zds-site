@@ -2,7 +2,7 @@ import datetime
 
 from django.contrib.auth import logout
 
-from zds import settings
+from django.conf import settings
 from zds.member.views import get_client_ip
 
 

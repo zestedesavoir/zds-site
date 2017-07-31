@@ -41,19 +41,16 @@ overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'conte
 overrided_zds_app['tutorial']['repo_path'] = os.path.join(BASE_DIR, 'tutoriels-private-test')
 overrided_zds_app['tutorial']['repo_public_path'] = os.path.join(BASE_DIR, 'tutoriels-public-test')
 overrided_zds_app['article']['repo_path'] = os.path.join(BASE_DIR, 'article-data-test')
+overrided_zds_app['content']['build_pdf_when_published'] = False
 
 
 @override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
 @override_settings(ZDS_APP=overrided_zds_app)
 @override_settings(ES_ENABLED=False)
+@override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
 class UtilsTests(TestCase):
 
     def setUp(self):
-
-        # don't build PDF to speed up the tests
-        overrided_zds_app['content']['build_pdf_when_published'] = False
-
-        settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
         self.mas = ProfileFactory().user
         overrided_zds_app['member']['bot_account'] = self.mas.username
 
@@ -507,10 +504,7 @@ class UtilsTests(TestCase):
         self.assertEqual(actor['committer'].email, self.user_author.email)
         self.assertEqual(actor['author'].email, self.user_author.email)
 
-        # 2. Without connected user
-        self.client.logout()
-
-        # as above ...
+    def test_get_commit_author_not_auth(self):
         result = self.client.get(reverse('pages-index'))
         self.assertEqual(result.status_code, 200)
 

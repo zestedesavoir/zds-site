@@ -9,7 +9,7 @@ from django.shortcuts import get_object_or_404
 
 from zds.member.factories import ProfileFactory
 from zds.member.models import Profile
-from zds import settings
+from django.conf import settings
 from copy import deepcopy
 
 overrided_zds_app = deepcopy(settings.ZDS_APP)

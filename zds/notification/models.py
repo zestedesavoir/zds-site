@@ -13,7 +13,7 @@ from django.db import models, IntegrityError
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 
-from zds import settings
+from django.conf import settings
 from zds.forum.models import Topic
 from zds.member.models import Profile
 from zds.notification.managers import NotificationManager, SubscriptionManager, TopicFollowedManager, \

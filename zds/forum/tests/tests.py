@@ -17,7 +17,7 @@ from zds.notification.models import TopicAnswerSubscription
 from zds.utils import slugify
 from zds.utils.forums import get_tag_by_title
 from zds.utils.models import Alert, Tag
-from zds import settings as zds_settings
+from django.conf import settings as zds_settings
 
 
 class ForumMemberTests(TestCase):
