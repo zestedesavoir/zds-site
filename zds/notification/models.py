@@ -152,7 +152,7 @@ class SingleNotificationMixin(object):
                     notification = Notification(subscription=self, content_object=content, sender=sender)
                 except MultipleObjectsReturned:
                     notifications = list(Notification.objects.filter(subscription=self))
-                    LOG.error('found %s notifications for %s', len(notifications, self), exc_info=True)
+                    LOG.error('found %s notifications for %s', len(notifications), self, exc_info=True)
                     Notification.objects.filter(pk__in=[n.pk for n in notifications[1:]]).delete()
                     LOG.info('removed doubly.')
                     notification = notifications[0]
