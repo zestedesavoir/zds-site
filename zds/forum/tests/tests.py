@@ -17,7 +17,6 @@ from zds.notification.models import TopicAnswerSubscription
 from zds.utils import slugify
 from zds.utils.forums import get_tag_by_title
 from zds.utils.models import Alert, Tag
-from zds import settings as zds_settings
 
 
 class ForumMemberTests(TestCase):
@@ -866,7 +865,7 @@ class ForumMemberTests(TestCase):
         expected += u"ce sujet, assurez-vous de l'avoir lu dans son intégralité avant d'y"
         expected += u' répondre.'
 
-        for i in range(zds_settings.ZDS_APP['forum']['posts_per_page'] + 2):
+        for i in range(settings.ZDS_APP['forum']['posts_per_page'] + 2):
             PostFactory(topic=topic, author=profiles[i % 2].user, position=i + 2)
         self.client.login(username=profiles[1].user.username, password='hostel77')
 

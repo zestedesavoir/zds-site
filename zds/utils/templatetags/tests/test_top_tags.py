@@ -6,17 +6,19 @@ from django.contrib.auth.models import Group
 
 from django.test import TestCase
 from django.test.utils import override_settings
-from zds import settings
+from django.conf import settings
 
 from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.settings import BASE_DIR
 from zds.tutorialv2.factories import PublishedContentFactory
 from zds.utils.templatetags.topbar import top_categories, top_categories_content
+from copy import deepcopy
 
-overrided_zds_app = settings.ZDS_APP
+overrided_zds_app = deepcopy(settings.ZDS_APP)
 overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
 overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
+overrided_zds_app['content']['build_pdf_when_published'] = False
 
 
 @override_settings(ZDS_APP=overrided_zds_app)
@@ -39,7 +41,6 @@ class TopBarTests(TestCase):
         self.forum12.save()
 
         # don't build PDF to speed up the tests
-        settings.ZDS_APP['content']['build_pdf_when_published'] = False
 
     def test_top_tags(self):
         """Unit testing top_categories method """
@@ -96,7 +97,7 @@ class TopBarTests(TestCase):
         self.assertEqual(len(top_tags), 4)
 
         # Now we want to exclude a tag
-        settings.ZDS_APP['forum']['top_tag_exclu'] = {'tag-4-4'}
+        overrided_zds_app['forum']['top_tag_exclu'] = {'tag-4-4'}
 
         # User only sees the only 'public' tag left
         top_tags = top_categories(user).get('tags')
@@ -127,12 +128,9 @@ class TopBarTests(TestCase):
 
     def tearDown(self):
 
-        if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
-            shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
-        if os.path.isdir(settings.ZDS_APP['content']['repo_public_path']):
-            shutil.rmtree(settings.ZDS_APP['content']['repo_public_path'])
+        if os.path.isdir(overrided_zds_app['content']['repo_private_path']):
+            shutil.rmtree(overrided_zds_app['content']['repo_private_path'])
+        if os.path.isdir(overrided_zds_app['content']['repo_public_path']):
+            shutil.rmtree(overrided_zds_app['content']['repo_public_path'])
         if os.path.isdir(settings.MEDIA_ROOT):
             shutil.rmtree(settings.MEDIA_ROOT)
-
-        # re-active PDF build
-        settings.ZDS_APP['content']['build_pdf_when_published'] = True

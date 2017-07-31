@@ -9,14 +9,14 @@ from django.shortcuts import get_object_or_404
 
 from zds.member.factories import ProfileFactory
 from zds.member.models import Profile
-from zds import settings
+from django.conf import settings
+from copy import deepcopy
+
+overriden_zds_app = deepcopy(settings.ZDS_APP)
+overriden_zds_app['member']['update_last_visit_interval'] = 30
 
 
-overrided_zds_app = settings.ZDS_APP
-overrided_zds_app['member']['update_last_visit_interval'] = 30
-
-
-@override_settings(ZDS_APP=overrided_zds_app)
+@override_settings(ZDS_APP=overriden_zds_app)
 class SetLastVisitMiddlewareTest(TestCase):
     def setUp(self):
         self.user = ProfileFactory()

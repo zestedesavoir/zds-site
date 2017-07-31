@@ -10,7 +10,7 @@ from django.core.urlresolvers import reverse
 from zds.member.factories import ProfileFactory
 from zds.gallery.factories import GalleryFactory, UserGalleryFactory, ImageFactory
 from zds.gallery.models import Gallery, UserGallery, Image
-from zds import settings
+from django.conf import settings
 
 
 class GalleryListViewTest(TestCase):

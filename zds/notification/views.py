@@ -8,7 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
 
-from zds import settings
+from django.conf import settings
 from zds.mp.models import PrivateTopic
 from zds.notification.models import Notification
 from zds.utils.paginator import ZdSPagingListView

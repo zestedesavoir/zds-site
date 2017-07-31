@@ -1,7 +1,7 @@
 # coding: utf-8
 
 import os
-from zds import settings
+from django.conf import settings
 
 SMILEYS_BASE_URL = os.path.join(settings.STATIC_URL, 'smileys')
 
