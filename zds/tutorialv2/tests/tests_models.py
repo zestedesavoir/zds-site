@@ -522,7 +522,7 @@ class ContentTests(TestCase):
         self.assertNotIn(' another tag', tuto_tags_list)
         self.assertIn('another tag', tuto_tags_list)
 
-    @unittest.skip("The test seems to be incorrect in its way to count chars")
+    @unittest.skip('The test seems to be incorrect in its way to count chars')
     def test_char_count_after_publication(self):
         """Test the ``get_char_count()`` function.
 
