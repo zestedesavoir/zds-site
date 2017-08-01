@@ -32,7 +32,7 @@
     "gulp-imagemin": "3.1.1",
     "gulp-postcss": "6.2.0",
     "gulp-rename": "1.2.2",
-    "gulp-sass": "2.3.2",
+    "gulp-sass": "3.1.0",
     "gulp-sourcemaps": "2.2.2",
     "gulp-uglify": "2.0.0",
     "gulp.spritesmith": "6.2.1",
