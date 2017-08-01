@@ -40,8 +40,6 @@ class TutorialIsPublished(FileSystemEventHandler):
         super(TutorialIsPublished, self).on_created(event)
         pandoc_debug_str = ''
 
-        if settings.PANDOC_LOG_STATE:
-            pandoc_debug_str = ' 2>&1 | tee -a ' + settings.PANDOC_LOG
         if isinstance(event, FileCreatedEvent):
             with open(event.src_path, encoding='utf-8') as f:
                 infos = f.read().strip().split(';')
