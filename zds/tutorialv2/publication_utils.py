@@ -18,6 +18,7 @@ from zds.settings import ZDS_APP
 from zds.tutorialv2.models.models_database import ContentReaction, PublishedContent
 from zds.tutorialv2.signals import content_unpublished
 from zds.tutorialv2.utils import retrieve_and_update_images_links
+from zds.utils.templatetags.smileysDef import SMILEYS_BASE_PATH
 from zds.utils.templatetags.emarkdown import emarkdown, render_markdown, MD_PARSING_ERROR
 
 
@@ -281,7 +282,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
         content_type = depth_to_size_map[public_versionned_source.get_tree_level()]
         title = published_content_entity.title()
         authors = [a.username for a in published_content_entity.authors.all()]
-        smileys_directory = './test-smileys'
+        smileys_directory = SMILEYS_BASE_PATH
         licence = published_content_entity.content.licence.title
         toc = True
 
