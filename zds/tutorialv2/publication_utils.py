@@ -7,7 +7,6 @@ import shutil
 import subprocess
 import zipfile
 from datetime import datetime
-from textwrap import dedent
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
@@ -321,21 +320,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
     def full_pdftex_call(self, latex_file):
         success_flag = self.pdftex(latex_file)
         if not success_flag:
-            self.handle_pdftex_error(latex_file)
-
-    def handle_pdftex_error(self, latex_file_path):
-        # TODO zmd: fix extension parsing
-        log_file_path = latex_file_path[:-3] + 'log'
-
-        with codecs.open(log_file_path) as latex_log:
-            # TODO zmd: see if the lines we extract here contain enough info for debugging purpose
-            errors = '\n'.join([line for line in latex_log if "fatal" in line.lower() or "error" in line.lower()])
-        try:
-            from raven import breadcrumbs
-            breadcrumbs.record(message="pdftex call", data=errors, type="cmd")
-        except ImportError:
-            pass
-        raise FailureDuringPublication(errors)
+            handle_pdftex_error(latex_file)
 
     def handle_makeglossaries_error(self, latex_file):
         with codecs.open(path.splitext(latex_file)[0] + '.log') as latex_log:
@@ -380,6 +365,21 @@ class ZMarkdownRebberLatexPublicator(Publicator):
             return True
 
         self.handle_makeglossaries_error(texfile)
+
+
+def handle_pdftex_error(latex_file_path):
+    # TODO zmd: fix extension parsing
+    log_file_path = latex_file_path[:-3] + 'log'
+
+    with codecs.open(log_file_path) as latex_log:
+        # TODO zmd: see if the lines we extract here contain enough info for debugging purpose
+        errors = '\n'.join([line for line in latex_log if "fatal" in line.lower() or "error" in line.lower()])
+    try:
+        from raven import breadcrumbs
+        breadcrumbs.record(message="pdftex call", data=errors, type="cmd")
+    except ImportError:
+        pass
+    raise FailureDuringPublication(errors)
 
 
 @PublicatorRegistery.register('watchdog', settings.ZDS_APP['content']['extra_content_watchdog_dir'])

@@ -316,7 +316,7 @@ class CommentEditsHistoryTests(TestCase):
 
         # Check that the original content is displayed
         response = self.client.get(reverse('edit-detail', args=[self.edit.pk]))
-        original_text_html, metadata = render_markdown(self.edit.original_text, disable_ping=True)
+        original_text_html, _ = render_markdown(self.edit.original_text, disable_ping=True)
         self.assertContains(response, original_text_html)
 
     def test_restore_original_content(self):
