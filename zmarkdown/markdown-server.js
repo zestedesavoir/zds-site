@@ -5,6 +5,7 @@ const express = require('express')
 const bodyParser = require('body-parser')
 
 const zmarkdown = require('zmarkdown')
+/* TODO zmd: use proper config for zestedesavoir */
 const defaultConfig = require('zmarkdown/config')
 
 
@@ -13,7 +14,7 @@ app.use(bodyParser.json())
 
 /* temporary fix to prevent tests from hitting the API */
 defaultConfig.ping.pingUsername = () => true
-/* TODO: above section should be gone by the time we release */
+/* TODO zmd: above section should be gone by the time we release */
 
 const processors = {}
 let times = []
@@ -23,6 +24,12 @@ let t = 0
 app.post('/latex', (req, res) => {
   toLatex(req.body.md, req.body.opts, (err, result) => {
     res.json(result)
+  })
+})
+
+app.post('/latex-document', (req, res) => {
+  toLatexDocument(req.body.md, req.body.opts, (err, result) => {
+    res.send(result)
   })
 })
 
@@ -122,3 +129,34 @@ function toLatex(markdown, opts = {}, callback) {
     callback(null, [content, metadata])
   })
 }
+
+
+function toLatexDocument(markdown, opts = {}, callback) {
+  toLatex(markdown, opts, (err, [content, metadata]) => {
+    if (err) return callback(err)
+    const {
+      contentType,
+      title,
+      authors,
+      license,
+      smileysDirectory,
+      toc = true,
+      latex = content,
+    } = opts
+    try {
+      const latexDocument = zmarkdown().latexDocumentTemplate({
+        contentType,
+        title,
+        authors,
+        license,
+        smileysDirectory,
+        toc,
+        latex,
+      })
+      callback(null, [latexDocument, {}])
+    } catch (e) {
+      callback(e)
+    }
+  })
+}
+
