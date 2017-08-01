@@ -22,14 +22,15 @@ const postcssPlugins = [
 
 const customSass = sass({
     sourceMapContents: true,
-    includePaths: path.join(__dirname, 'node_modules'),
+    includePaths: [
+        path.join(__dirname, 'node_modules'),
+        path.join(__dirname, 'dist', 'scss'),
+    ],
 });
 
 // Deletes the generated files
 gulp.task('clean', () => del([
     'dist/',
-    'assets/scss/_sprite.scss',
-    'assets/images/sprite*.png',
 ]));
 
 // Lint the js source files
@@ -107,7 +108,7 @@ gulp.task('css:sprite', () =>
             retinaImgName: 'images/sprite@2x.png',
             retinaSrcFilter: 'assets/images/sprite/*@2x.png',
         }))
-        .pipe(gulp.dest('assets/')));
+        .pipe(gulp.dest('dist/')));
 
 // Optimizes the images
 gulp.task('images', ['css:sprite'], () =>
