@@ -269,8 +269,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
     def publish(self, md_file_path, base_name, **kwargs):
         md_flat_content = _read_flat_markdown(md_file_path)
         content_slug = PublishedContent.get_slug_from_file_path(md_file_path)
-        latex_content, _ = render_markdown(md_flat_content, disable_ping=True,
-                                           disable_js=True, is_latex=True)
+
         published_content_entity = PublishedContent.objects \
             .filter(must_redirect=False, content_public_slug=content_slug) \
             .first()
@@ -280,29 +279,26 @@ class ZMarkdownRebberLatexPublicator(Publicator):
             4: 'big'
         }
         public_versionned_source = published_content_entity.content.load_version(public=True)
-        content_size = depth_to_size_map[public_versionned_source.get_tree_level()]
+        content_type = depth_to_size_map[public_versionned_source.get_tree_level()]
         title = published_content_entity.title()
-        comma_separated_authors = ', '.join([a.username for a in published_content_entity.authors.all()])
-        licence_type = published_content_entity.content.licence.title
-        # TODO zmd: extract template to a file, render it using something like render_to_string(template, params)
-        content = dedent("""
-        \\documentclass[%s]{zmdocument}
+        authors = [a.username for a in published_content_entity.authors.all()]
+        smileys_directory = './test-smileys'
+        licence = published_content_entity.content.licence.title
+        toc = True
 
-        \\usepackage{blindtext}
-        \\title{%s}
-        \\author{%s}
-        \\licence{%s}
-
-        \\smileysPath{./test-smileys}
-        \\makeglossaries
-
-        \\begin{document}
-        \\maketitle
-        \\tableofcontents
-
-        %s
-        \\end{document}
-        """) % (content_size, title, comma_separated_authors, licence_type, latex_content)
+        content, _ = render_markdown(
+            md_flat_content,
+            disable_ping=True,
+            disable_js=True,
+            to_latex_document=True,
+            # latex template arguments
+            contentType=content_type,
+            title=title,
+            authors=authors,
+            license=licence,
+            smileysDirectory=smileys_directory,
+            toc=toc
+        )
 
         latex_file_path = path.splitext(md_file_path)[0] + '.tex'
         pdf_file_path = path.splitext(md_file_path)[0] + '.pdf'
