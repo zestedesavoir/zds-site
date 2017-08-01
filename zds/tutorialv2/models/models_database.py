@@ -874,7 +874,8 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         mapping.field('title', Text(boost=1.5))
         mapping.field('description', Text(boost=1.5))
         mapping.field('tags', Text(boost=2.0))
-        mapping.field('categories', Text(boost=2.25))
+        mapping.field('categories', Keyword(boost=1.5))
+        mapping.field('subcategories', Keyword(boost=1.5))
         mapping.field('text', Text())  # for article and mini-tuto, text is directly included into the main object
         mapping.field('has_chapters', Boolean())  # ... otherwise, it is written
         mapping.field('picked', Boolean())
@@ -960,12 +961,16 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
             data['thumbnail'] = self.content.image.physical['content_thumb'].url
 
         categories = []
+        subcategories = []
         for subcategory in versioned.subcategory.all():
             parent_category = subcategory.get_parent_category()
-            categories.append(subcategory.title)
-            if parent_category:
+            if subcategory.title not in subcategories:
+                subcategories.append(subcategory.title)
+            if parent_category and parent_category.title not in categories:
                 categories.append(parent_category.title)
-        data['categories'] = list(set(categories))  # remove duplicates
+
+        data['categories'] = categories
+        data['subcategories'] = subcategories
 
         if versioned.has_extracts():
             data['text'] = versioned.get_content_online()
@@ -1027,6 +1032,8 @@ class FakeChapter(AbstractESIndexable):
     parent_get_absolute_url_online = ''
     parent_publication_date = ''
     thumbnail = ''
+    categories = None
+    subcategories = None
 
     def __init__(self, chapter, main_container, parent_id):
         self.title = chapter.title
@@ -1043,6 +1050,15 @@ class FakeChapter(AbstractESIndexable):
         if main_container.image:
             self.thumbnail = main_container.image.physical['content_thumb'].url
 
+        self.categories = []
+        self.subcategories = []
+        for subcategory in main_container.subcategory.all():
+            parent_category = subcategory.get_parent_category()
+            if subcategory.title not in self.subcategories:
+                self.subcategories.append(subcategory.title)
+            if parent_category and parent_category.title not in self.categories:
+                self.categories.append(parent_category.title)
+
     @classmethod
     def get_es_document_type(cls):
         return 'chapter'
@@ -1057,6 +1073,8 @@ class FakeChapter(AbstractESIndexable):
 
         mapping.field('title', Text(boost=1.5))
         mapping.field('text', Text())
+        mapping.field('categories', Keyword(boost=1.5))
+        mapping.field('subcategories', Keyword(boost=1.5))
 
         # not indexed:
         mapping.field('get_absolute_url_online', Keyword(index=False))

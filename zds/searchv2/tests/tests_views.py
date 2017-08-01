@@ -860,6 +860,107 @@ class ViewsTests(TestCase):
         for responses in zip(response_lc, response_uc):  # we should get results in the same order !
             self.assertEqual(responses[0].meta.id, responses[1].meta.id)
 
+    def test_category_and_subcategory_impact_search(self):
+        """If two content does not belong to the same (sub)category"""
+
+        if not self.manager.connected_to_es:
+            return
+
+        text = 'Did you ever hear the tragedy of Darth Plagueis The Wise?'
+
+        # 1. Create two content with different subcategories
+        category_1 = 'category 1'
+        subcategory_1 = SubCategoryFactory(title=category_1)
+        category_2 = 'category 2'
+        subcategory_2 = SubCategoryFactory(title=category_2)
+
+        tuto_1 = PublishableContentFactory(type='TUTORIAL')
+        tuto_1_draft = tuto_1.load_version()
+
+        tuto_1.title = text
+        tuto_1.authors.add(self.user)
+        tuto_1.subcategory.add(subcategory_1)
+        tuto_1.save()
+
+        tuto_1_draft.description = text
+        tuto_1_draft.repo_update_top_container(text, tuto_1.slug, text, text)
+
+        chapter_1 = ContainerFactory(parent=tuto_1_draft, db_object=tuto_1)
+        extract_1 = ExtractFactory(container=chapter_1, db_object=tuto_1)
+        extract_1.repo_update(text, text)
+
+        published_1 = publish_content(tuto_1, tuto_1_draft, is_major_update=True)
+
+        tuto_1.sha_public = tuto_1_draft.current_version
+        tuto_1.sha_draft = tuto_1_draft.current_version
+        tuto_1.public_version = published_1
+        tuto_1.save()
+
+        tuto_2 = PublishableContentFactory(type='TUTORIAL')
+        tuto_2_draft = tuto_2.load_version()
+
+        tuto_2.title = text
+        tuto_2.authors.add(self.user)
+        tuto_2.subcategory.add(subcategory_2)
+        tuto_2.save()
+
+        tuto_2_draft.description = text
+        tuto_2_draft.repo_update_top_container(text, tuto_2.slug, text, text)
+
+        chapter_2 = ContainerFactory(parent=tuto_2_draft, db_object=tuto_2)
+        extract_2 = ExtractFactory(container=chapter_2, db_object=tuto_2)
+        extract_2.repo_update(text, text)
+
+        published_2 = publish_content(tuto_2, tuto_2_draft, is_major_update=True)
+
+        tuto_2.sha_public = tuto_2_draft.current_version
+        tuto_2.sha_draft = tuto_2_draft.current_version
+        tuto_2.public_version = published_2
+        tuto_2.save()
+
+        # 2. Index:
+        self.assertEqual(len(self.manager.setup_search(Search().query(MatchAll())).execute()), 0)
+
+        # index
+        for model in self.indexable:
+            if model is FakeChapter:
+                continue
+            self.manager.es_bulk_indexing_of_model(model)
+        self.manager.refresh_index()
+
+        result = self.client.get(reverse('search:query') + '?q=' + text, follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        response = result.context['object_list'].execute()
+        self.assertEqual(response.hits.total, 4)  # Ok
+
+        # 3. Test
+        result = self.client.get(
+            reverse('search:query') + '?q=' + text + '&model=content&subcategory=' + category_1, follow=False)
+
+        self.assertEqual(result.status_code, 200)
+
+        response = result.context['object_list'].execute()
+        self.assertEqual(response.hits.total, 2)
+
+        self.assertEqual([int(r.meta.id) for r in response if r.meta.doc_type == 'publishedcontent'][0], published_1.pk)
+        self.assertEqual(
+            [r.meta.id for r in response if r.meta.doc_type == 'chapter'][0],
+            tuto_1.slug + '__' + chapter_1.slug)
+
+        result = self.client.get(
+            reverse('search:query') + '?q=' + text + '&model=content&subcategory=' + category_2, follow=False)
+
+        self.assertEqual(result.status_code, 200)
+
+        response = result.context['object_list'].execute()
+        self.assertEqual(response.hits.total, 2)
+
+        self.assertEqual([int(r.meta.id) for r in response if r.meta.doc_type == 'publishedcontent'][0], published_2.pk)
+        self.assertEqual(
+            [r.meta.id for r in response if r.meta.doc_type == 'chapter'][0],
+            tuto_2.slug + '__' + chapter_2.slug)
+
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
             shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])

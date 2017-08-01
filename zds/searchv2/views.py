@@ -81,6 +81,8 @@ class SearchView(ZdSPagingListView):
     search_form_class = SearchForm
     search_form = None
     search_query = None
+    content_category = None
+    content_subcategory = None
 
     authorized_forums = ''
 
@@ -118,6 +120,12 @@ class SearchView(ZdSPagingListView):
             self.authorized_forums = get_authorized_forums(self.request.user)
 
             search_queryset = Search()
+
+            # restrict (sub)category if any
+            if self.search_form.cleaned_data['category']:
+                self.content_category = self.search_form.cleaned_data['category']
+            if self.search_form.cleaned_data['subcategory']:
+                self.content_subcategory = self.search_form.cleaned_data['subcategory']
 
             # setting the different querysets (according to the selected models, if any)
             part_querysets = []
@@ -164,7 +172,15 @@ class SearchView(ZdSPagingListView):
         """
 
         query = Match(_type='publishedcontent') \
-            & MultiMatch(query=self.search_query, fields=['title', 'description', 'categories', 'tags', 'text'])
+            & MultiMatch(
+            query=self.search_query,
+            fields=['title', 'description', 'categories', 'subcategories', 'tags', 'text'])
+
+        if self.content_category:
+            query &= Match(categories=self.content_category)
+
+        if self.content_subcategory:
+            query &= Match(subcategories=self.content_subcategory)
 
         functions_score = [
             {
@@ -199,6 +215,12 @@ class SearchView(ZdSPagingListView):
 
         query = Match(_type='chapter') \
             & MultiMatch(query=self.search_query, fields=['title', 'text'])
+
+        if self.content_category:
+            query &= Match(categories=self.content_category)
+
+        if self.content_subcategory:
+            query &= Match(subcategories=self.content_subcategory)
 
         return query
 
