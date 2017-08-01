@@ -1,0 +1,12 @@
+FROM node:8
+
+RUN mkdir -p /zds
+WORKDIR /zds
+
+ENV NODE_ENV=development
+
+COPY package.json ./
+
+RUN npm install
+
+CMD ["npm", "run", "gulp"]

@@ -1,0 +1,35 @@
+version: '3'
+
+services:
+  front:
+    build:
+      context: .
+      dockerfile: Dockerfile_front
+    volumes:
+      - ./assets:/zds/assets:ro
+      - ./Gulpfile.js:/zds/Gulpfile.js:ro
+      - dist:/zds/dist
+
+  back:
+    build:
+      context: .
+      dockerfile: Dockerfile_back
+    volumes:
+      - db:/zds/db
+      - ./.git:/zds/.git:ro
+      - dist:/zds/dist:ro
+      - ./export-assets:/zds/export-assets:ro
+      - ./fixtures:/zds/fixtures:ro
+      - ./geodata:/zds/geodata:ro
+      - ./manage.py:/zds/manage.py:ro
+      - ./quotes.txt:/zds/quotes.txt:ro
+      - ./scripts:/zds/scripts:ro
+      - ./templates:/zds/templates:ro
+      - ./tox.ini:/zds/tox.ini:ro
+      - ./zds:/zds/zds:ro
+    ports:
+      - 8000:8000
+
+volumes:
+  dist:
+  db:
