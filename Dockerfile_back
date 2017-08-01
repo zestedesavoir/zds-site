@@ -1,0 +1,19 @@
+FROM debian:stretch
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        git python-dev python-setuptools libxml2-dev python-lxml \
+        libxslt-dev libz-dev python-sqlparse libjpeg62-turbo \
+        libjpeg62-turbo-dev libfreetype6 libfreetype6-dev \
+        libffi-dev python-pip python-tox build-essential \
+    && pip install wheel \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN mkdir -p /zds
+WORKDIR /zds
+
+COPY requirements.txt requirements-dev.txt Makefile ./
+
+RUN make install-back
+
+CMD ["./scripts/docker_dev_entrypoint.sh"]
