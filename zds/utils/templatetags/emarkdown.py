@@ -60,7 +60,6 @@ def render_markdown(md_input, **kwargs):
         logger.exception('Unexpected exception raised, attempt {}/{}'.format(attempts, MAX_ATTEMPS), md_input, kwargs)
 
     if attempts < MAX_ATTEMPS:
-        logger.warn("RETRYING")
         if not kwargs:
             kwargs = dict()
         return render_markdown(md_input, **dict(kwargs, attempts=attempts + 1))
