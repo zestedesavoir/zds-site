@@ -4372,9 +4372,9 @@ readdirp@^2.0.0:
     readable-stream "^2.0.2"
     set-immediate-shim "^1.0.1"
 
-rebber@^0.0.30:
-  version "0.0.30"
-  resolved "https://registry.yarnpkg.com/rebber/-/rebber-0.0.30.tgz#6a89a0515c277c56fd799ee55868e7a95dc4bc3a"
+rebber@^0.0.31:
+  version "0.0.31"
+  resolved "https://registry.yarnpkg.com/rebber/-/rebber-0.0.31.tgz#47b8f72235b496298d46738db69a852e7a42bcfd"
   dependencies:
     has "^1.0.1"
     xtend "^4.0.1"
@@ -5901,11 +5901,11 @@ yauzl@^2.2.1:
     buffer-crc32 "~0.2.3"
     fd-slicer "~1.0.1"
 
-zmarkdown@^0.0.53:
-  version "0.0.53"
-  resolved "https://registry.yarnpkg.com/zmarkdown/-/zmarkdown-0.0.53.tgz#bed2536381a0a79f1fa3e163a42b703186caf5de"
+zmarkdown@^0.0.55:
+  version "0.0.55"
+  resolved "https://registry.yarnpkg.com/zmarkdown/-/zmarkdown-0.0.55.tgz#7e1a984bc4abcb2ead36df5121391af66a4750a5"
   dependencies:
-    rebber "^0.0.30"
+    rebber "^0.0.31"
     rehype-footnotes-title "^0.0.15"
     rehype-html-blocks "^0.0.16"
     rehype-katex "^1.0.1"
