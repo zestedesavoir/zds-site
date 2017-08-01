@@ -23,8 +23,6 @@ class Command(BaseCommand):
                     ids = param[1].split(',')
 
         pandoc_debug_str = ''
-        if settings.PANDOC_LOG_STATE:
-            pandoc_debug_str = ' 2>&1 | tee -a ' + settings.PANDOC_LOG
 
         if len(ids) > 0:
             tutorials = Tutorial.objects.filter(pk__in=ids, sha_public__isnull=False).all()
