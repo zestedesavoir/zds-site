@@ -58,10 +58,10 @@ def publish_content(db_object, versioned, is_major_update=True):
     altered_version.dump_json(path.join(tmp_path, 'manifest.json'))
 
     # make room for 'extra contents'
-    extra_contents_path = path.join(tmp_path, settings.ZDS_APP['content']['extra_contents_dirname'])
-    makedirs(extra_contents_path)
+    build_extra_contents_path = path.join(tmp_path, settings.ZDS_APP['content']['extra_contents_dirname'])
+    makedirs(build_extra_contents_path)
 
-    base_name = path.join(extra_contents_path, versioned.slug)
+    base_name = path.join(build_extra_contents_path, versioned.slug)
 
     # 1. markdown file (base for the others) :
     # If we come from a command line, we need to activate i18n, to have the date in the french language.
@@ -73,17 +73,15 @@ def publish_content(db_object, versioned, is_major_update=True):
     finally:
         translation.activate(cur_language)
 
-    parsed_with_local_images = retrieve_and_update_images_links(parsed, directory=extra_contents_path)
+    parsed_with_local_images = retrieve_and_update_images_links(parsed, directory=build_extra_contents_path)
 
     md_file_path = base_name + '.md'
-    md_file = codecs.open(md_file_path, 'w', encoding='utf-8')
+    with codecs.open(md_file_path, 'w', encoding='utf-8')as md_file:
     try:
         md_file.write(parsed_with_local_images)
     except (UnicodeError, UnicodeEncodeError):
         raise FailureDuringPublication(_('Une erreur est survenue durant la génération du fichier markdown '
                                          'à télécharger, vérifiez le code markdown'))
-    finally:
-        md_file.close()
 
     is_update = False
 
@@ -116,19 +114,13 @@ def publish_content(db_object, versioned, is_major_update=True):
     public_version.content_pk = db_object.pk
     public_version.content = db_object
     public_version.must_reindex = True
+    # TODO: use update instead of save !
     public_version.save()
     public_version.char_count = public_version.get_char_count(md_file_path)
 
     for author in db_object.authors.all():
         public_version.authors.add(author)
     public_version.save()
-    # move the stuffs into the right position
-    if settings.ZDS_APP['content']['extra_content_generation_policy'] == 'WATCHDOG':
-        # use copy to get md and zip file in prod but everything else will be handled by watchdog
-        shutil.copytree(tmp_path, public_version.get_prod_path())
-    else:
-        # TODO zmd: the two branches of this condition are identical
-        shutil.copytree(tmp_path, public_version.get_prod_path())
     # save public version
     if is_major_update or not is_update:
         public_version.publication_date = datetime.now()
@@ -136,16 +128,14 @@ def publish_content(db_object, versioned, is_major_update=True):
         public_version.update_date = datetime.now()
 
     public_version.sha_public = versioned.current_version
+    # TODO: use update
     public_version.save()
+    makedirs(path.join(public_version.get_extra_contents_directory()))
     if settings.ZDS_APP['content']['extra_content_generation_policy'] == 'SYNC':
         # ok, now we can really publish the thing !
-        generate_exernal_content(base_name, extra_contents_path, md_file_path)
+        generate_exernal_content(base_name, build_extra_contents_path, md_file_path)
     elif settings.ZDS_APP['content']['extra_content_generation_policy'] == 'WATCHDOG':
         PublicatorRegistery.get('watchdog').publish(md_file_path, base_name, silently_pass=False)
-    try:
-        make_zip_file(public_version)
-    except OSError:
-        pass
 
     return public_version
 
@@ -165,6 +155,7 @@ def generate_exernal_content(base_name, extra_contents_path, md_file_path, overl
     excluded = []
     if not settings.ZDS_APP['content']['build_pdf_when_published'] and not overload_settings:
         excluded.append('pdf')
+    # TODO: exclude watchdog
     for publicator_name, publicator in PublicatorRegistery.get_all_registered(excluded):
         try:
             publicator.publish(md_file_path, base_name, change_dir=extra_contents_path)
@@ -239,6 +230,13 @@ class Publicator:
         """
         raise NotImplemented()
 
+    def get_published_content_entity(self, md_file_path):
+        content_slug = PublishedContent.get_slug_from_file_path(md_file_path)
+        published_content_entity = PublishedContent.objects \
+            .filter(must_redirect=False, content_public_slug=content_slug) \
+            .first()
+        return published_content_entity
+
 
 def _read_flat_markdown(md_file_path):
     with codecs.open(md_file_path, encoding='utf-8') as md_file_handler:
@@ -246,19 +244,32 @@ def _read_flat_markdown(md_file_path):
     return md_flat_content
 
 
+@PublicatorRegistery.register('zip')
+class ZipPublicator(Publicator):
+    def publish(self, md_file_path, base_name, **kwargs):
+        try:
+            published_content_entity = self.get_published_content_entity(md_file_path)
+            zip_file_path = make_zip_file(published_content_entity)
+            shutil.move(zip_file_path, published_content_entity.get_extra_contents_directory())
+        except IOError:
+            raise FailureDuringPublication('Zip could not be created')
+
 @PublicatorRegistery.register('html')
 class ZmarkdownHtmlPublicator(Publicator):
 
     def publish(self, md_file_path, base_name, **kwargs):
         md_flat_content = _read_flat_markdown(md_file_path)
+        published_content_entity = self.get_published_content_entity(md_file_path)
         html_flat_content, _ = render_markdown(md_flat_content, disable_ping=True,
                                                disable_js=True)
+        html_file_path = path.splitext(md_file_path)[0] + '.html'
         if str(MD_PARSING_ERROR) in html_flat_content:
             logging.getLogger(self.__class__.__name__).error('HTML was not rendered')
             return
         # TODO zmd: fix extension parsing
-        with codecs.open(md_file_path[:-2] + 'html', mode='w', encoding='utf-8') as final_file:
+        with codecs.open(html_file_path, mode='w', encoding='utf-8') as final_file:
             final_file.write(html_flat_content)
+        shutil.move(html_file_path, published_content_entity.get_extra_contents_directory())
 
 
 @PublicatorRegistery.register('pdf')
@@ -268,17 +279,14 @@ class ZMarkdownRebberLatexPublicator(Publicator):
     """
     def publish(self, md_file_path, base_name, **kwargs):
         md_flat_content = _read_flat_markdown(md_file_path)
-        content_slug = PublishedContent.get_slug_from_file_path(md_file_path)
-
-        published_content_entity = PublishedContent.objects \
-            .filter(must_redirect=False, content_public_slug=content_slug) \
-            .first()
+        published_content_entity = self.get_published_content_entity(md_file_path)
         depth_to_size_map = {
             2: 'small',
             3: 'medium',
             4: 'big'
         }
-        public_versionned_source = published_content_entity.content.load_version(public=True)
+        public_versionned_source = published_content_entity.content\
+            .load_version(sha=published_content_entity.sha_public)
         content_type = depth_to_size_map[public_versionned_source.get_tree_level()]
         title = published_content_entity.title()
         authors = [a.username for a in published_content_entity.authors.all()]
@@ -411,13 +419,14 @@ class FailureDuringPublication(Exception):
         super(FailureDuringPublication, self).__init__(*args, **kwargs)
 
 
-def publish_container(db_object, base_dir, container):
+def publish_container(db_object, base_dir, container, template='tutorialv2/export/chapter.html'):
     """ 'Publish' a given container, in a recursive way
 
     :param db_object: database representation of the content
     :type db_object: PublishableContent
     :param base_dir: directory of the top container
     :type base_dir: str
+    :param template: the django template we will use to produce chapter export to html.
     :param container: a given container
     :type container: Container
     :raise FailureDuringPublication: if anything goes wrong
@@ -428,7 +437,7 @@ def publish_container(db_object, base_dir, container):
     if not isinstance(container, Container):
         raise FailureDuringPublication(_("Le conteneur n'en est pas un !"))
 
-    template = 'tutorialv2/export/chapter.html'
+
 
     # jsFiddle support
     is_js = ''
@@ -514,6 +523,7 @@ def make_zip_file(published_content):
     from zds.tutorialv2.views.contents import DownloadContent
     DownloadContent.insert_into_zip(zip_file, versioned.repository.commit(versioned.current_version).tree)
     zip_file.close()
+    return file_path
 
 
 def unpublish_content(db_object, moderator=None):

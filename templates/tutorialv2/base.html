@@ -95,7 +95,7 @@
                                     </li>
                                 {% endif %}
                             {% endif %}
-                            {% if public_object.have_html %}
+                            {% if public_object.has_html %}
                                 <li>
                                     <a href="{{ public_object.get_absolute_url_html }}" class="ico-after download blue">
                                         {% trans "HTML" %}
@@ -107,7 +107,7 @@
                                     </a>
                                 </li>
                             {% endif %}
-                            {% if public_object.have_pdf %}
+                            {% if public_object.has_pdf %}
                                 <li>
                                     <a href="{{ public_object.get_absolute_url_pdf }}" class="ico-after download blue">
                                         {% trans "PDF" %}
@@ -119,7 +119,7 @@
                                     </a>
                                 </li>
                             {% endif %}
-                            {% if public_object.have_epub %}
+                            {% if public_object.has_epub %}
                                 <li>
                                     <a href="{{ public_object.get_absolute_url_epub }}" class="ico-after download blue">
                                         {% trans "EPUB" %}
@@ -131,7 +131,7 @@
                                     </a>
                                 </li>
                             {% endif %}
-                            {% if public_object.have_zip %}
+                            {% if public_object.has_zip %}
                                 <li>
                                     <a href="{{ public_object.get_absolute_url_zip }}" class="ico-after download blue">
                                         {% trans "Archive" %}
