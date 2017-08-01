@@ -1052,7 +1052,6 @@ Ticket #4313
 
 + Via l'admin Django, ajouter la permission `member.change_bannedemailprovider` aux groupes autorisés à gérer les fournisseurs e-mail bannis.
 
-
 Actions à faire pour mettre en prod la version : v25
 ====================================================
 
@@ -1089,3 +1088,10 @@ Node.js, yarn et npm
 Mettre à jour Node.js à la version v8.x.x.
 
 Installer Yarn à la version v0.27.x ou supérieure. Yarn peut-être installé avec `npm i -g yarn`.
+
+Mise à jour d'ElasticSearch (#420)
+----------------------------------
+
+1. `sudo apt update`
+2. `sudo apt upgrade elasticsearch`
+3. `systemctl restart elasticsearch.service`
