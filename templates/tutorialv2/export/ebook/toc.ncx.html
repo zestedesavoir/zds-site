@@ -11,7 +11,7 @@
             <h1>{{ title }}</h1>
             <h2>{{ description }}</h2>
             <ol>
-                {% for title, path %}
+                {% for title, path in chapters %}
                   <li id="np-313">
                       <a href="{{ path }}">{{ title }}</a>
                   </li>
