@@ -20,7 +20,7 @@ const postcssPlugins = [
     cssnano(),
 ];
 
-const customSass = sass({
+const customSass = () => sass({
     sourceMapContents: true,
     includePaths: [
         path.join(__dirname, 'node_modules'),
@@ -93,7 +93,7 @@ gulp.task('js', () =>
 gulp.task('css', ['css:sprite'], () =>
     gulp.src('assets/scss/main.scss')
         .pipe(sourcemaps.init())
-        .pipe(customSass)
+        .pipe(customSass())
         .pipe(postcss(postcssPlugins))
         .pipe(sourcemaps.write('.', { includeContent: true, sourceRoot: '../../assets/scss/' }))
         .pipe(gulp.dest('dist/css/')));
@@ -135,7 +135,7 @@ gulp.task('watch', ['build'], () => {
 gulp.task('errors', () =>
     gulp.src('errors/scss/main.scss')
         .pipe(sourcemaps.init())
-        .pipe(customSass)
+        .pipe(customSass())
         .pipe(postcss(postcssPlugins))
         .pipe(sourcemaps.write('.', { includeContent: true, sourceRoot: '../scss/' }))
         .pipe(gulp.dest('errors/css/')));
