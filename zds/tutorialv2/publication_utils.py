@@ -2,11 +2,11 @@
 import codecs
 import copy
 import logging
-from os import makedirs, mkdir, path
 import shutil
 import subprocess
 import zipfile
 from datetime import datetime
+from os import makedirs, mkdir, path
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
@@ -15,11 +15,13 @@ from django.utils.translation import ugettext_lazy as _
 
 from zds import settings
 from zds.settings import ZDS_APP
+from zds.tutorialv2.epub_utils import build_ebook
 from zds.tutorialv2.models.models_database import ContentReaction, PublishedContent
+from zds.tutorialv2.publish_container import publish_container
 from zds.tutorialv2.signals import content_unpublished
 from zds.tutorialv2.utils import retrieve_and_update_images_links
+from zds.utils.templatetags.emarkdown import render_markdown, MD_PARSING_ERROR
 from zds.utils.templatetags.smileysDef import SMILEYS_BASE_PATH
-from zds.utils.templatetags.emarkdown import emarkdown, render_markdown, MD_PARSING_ERROR
 
 
 def publish_content(db_object, versioned, is_major_update=True):
@@ -393,6 +395,20 @@ def handle_pdftex_error(latex_file_path):
     raise FailureDuringPublication(errors)
 
 
+@PublicatorRegistery.register('epub')
+class ZMarkdownEpubPublicator(Publicator):
+    def publish(self, md_file_path, base_name, **kwargs):
+        try:
+            published_content_entity = self.get_published_content_entity(md_file_path)
+            build_ebook(published_content_entity,
+                        path.dirname(md_file_path))
+            epub_file_path = path.splitext(md_file_path)[0] + '.epub'
+        except (IOError, OSError):
+            raise FailureDuringPublication('Error while generating epub file.')
+        else:
+            shutil.move(epub_file_path, published_content_entity.get_extra_contents_directory())
+
+
 @PublicatorRegistery.register('watchdog', settings.ZDS_APP['content']['extra_content_watchdog_dir'])
 class WatchdogFilePublicator(Publicator):
     """
@@ -419,92 +435,6 @@ class FailureDuringPublication(Exception):
 
     def __init__(self, *args, **kwargs):
         super(FailureDuringPublication, self).__init__(*args, **kwargs)
-
-
-def publish_container(db_object, base_dir, container, template='tutorialv2/export/chapter.html'):
-    """ 'Publish' a given container, in a recursive way
-
-    :param db_object: database representation of the content
-    :type db_object: PublishableContent
-    :param base_dir: directory of the top container
-    :type base_dir: str
-    :param template: the django template we will use to produce chapter export to html.
-    :param container: a given container
-    :type container: Container
-    :raise FailureDuringPublication: if anything goes wrong
-    """
-
-    from zds.tutorialv2.models.models_versioned import Container
-
-    if not isinstance(container, Container):
-        raise FailureDuringPublication(_(u"Le conteneur n'en est pas un !"))
-
-
-
-    # jsFiddle support
-    is_js = ''
-    if db_object.js_support:
-        is_js = 'js'
-
-    current_dir = path.dirname(path.join(base_dir, container.get_prod_path(relative=True)))
-
-    if not path.isdir(current_dir):
-        makedirs(current_dir)
-
-    if container.has_extracts():  # the container can be rendered in one template
-        parsed = render_to_string(template, {'container': container, 'is_js': is_js})
-        f = codecs.open(path.join(base_dir, container.get_prod_path(relative=True)), 'w', encoding='utf-8')
-
-        try:
-            f.write(parsed)
-        except (UnicodeError, UnicodeEncodeError):
-            raise FailureDuringPublication(
-                _(u'Une erreur est survenue durant la publication de « {} », vérifiez le code markdown')
-                .format(container.title))
-
-        f.close()
-
-        for extract in container.children:
-            extract.text = None
-
-        container.introduction = None
-        container.conclusion = None
-
-    else:  # separate render of introduction and conclusion
-        current_dir = path.join(base_dir, container.get_prod_path(relative=True))
-
-        # create subdirectory
-        if not path.isdir(current_dir):
-            makedirs(current_dir)
-
-        if container.introduction:
-            part_path = path.join(container.get_prod_path(relative=True), 'introduction.html')
-            f = codecs.open(path.join(base_dir, part_path), 'w', encoding='utf-8')
-
-            try:
-                f.write(emarkdown(container.get_introduction(), db_object.js_support))
-            except (UnicodeError, UnicodeEncodeError):
-                raise FailureDuringPublication(
-                    _(u"Une erreur est survenue durant la publication de l'introduction de « {} »,"
-                      u' vérifiez le code markdown').format(container.title))
-
-            container.introduction = part_path
-
-        if container.conclusion:
-            part_path = path.join(container.get_prod_path(relative=True), 'conclusion.html')
-            f = codecs.open(path.join(base_dir, part_path), 'w', encoding='utf-8')
-
-            try:
-                f.write(emarkdown(container.get_conclusion(), db_object.js_support))
-            except (UnicodeError, UnicodeEncodeError):
-                raise FailureDuringPublication(
-                    _(u'Une erreur est survenue durant la publication de la conclusion de « {} »,'
-                      u' vérifiez le code markdown').format(container.title))
-
-            container.conclusion = part_path
-
-        for child in container.children:
-            publish_container(db_object, base_dir, child)
 
 
 def make_zip_file(published_content):
