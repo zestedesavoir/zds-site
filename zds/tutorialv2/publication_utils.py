@@ -130,7 +130,8 @@ def publish_content(db_object, versioned, is_major_update=True):
     public_version.sha_public = versioned.current_version
     # TODO: use update
     public_version.save()
-    makedirs(path.join(public_version.get_extra_contents_directory()))
+    # this put the manifest.json and base json file on the prod path.
+    shutil.copytree(tmp_path, public_version.get_prod_path())
     if settings.ZDS_APP['content']['extra_content_generation_policy'] == 'SYNC':
         # ok, now we can really publish the thing !
         generate_exernal_content(base_name, build_extra_contents_path, md_file_path)
@@ -250,9 +251,10 @@ class ZipPublicator(Publicator):
         try:
             published_content_entity = self.get_published_content_entity(md_file_path)
             zip_file_path = make_zip_file(published_content_entity)
-            shutil.move(zip_file_path, published_content_entity.get_extra_contents_directory())
+            # for zip no need to move it because this is already dumped in the public directory
         except IOError:
             raise FailureDuringPublication('Zip could not be created')
+
 
 @PublicatorRegistery.register('html')
 class ZmarkdownHtmlPublicator(Publicator):
