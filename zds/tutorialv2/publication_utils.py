@@ -340,7 +340,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
         raise FailureDuringPublication(errors)
 
     def pdftex(self, texfile):
-        command = 'pdflatex -shell-escape -interaction=nonstopmode {}'.format(texfile)
+        command = 'xelatex -shell-escape -interaction=nonstopmode {}'.format(texfile)
         # TODO zmd: make sure the shell spawned here has venv in its path, needed to shell-escape into Pygments
         command_process = subprocess.Popen(command,
                                            shell=True, cwd=path.dirname(texfile),
@@ -349,7 +349,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
 
         try:
             from raven import breadcrumbs
-            breadcrumbs.record(message="pdftex call",
+            breadcrumbs.record(message="xelatex call",
                                data=command,
                                type="cmd")
         except ImportError:
@@ -388,7 +388,7 @@ def handle_pdftex_error(latex_file_path):
         errors = '\n'.join([line for line in latex_log if "fatal" in line.lower() or "error" in line.lower()])
     try:
         from raven import breadcrumbs
-        breadcrumbs.record(message="pdftex call", data=errors, type="cmd")
+        breadcrumbs.record(message="xelatex call", data=errors, type="cmd")
     except ImportError:
         pass
     raise FailureDuringPublication(errors)
