@@ -131,6 +131,7 @@ def publish_content(db_object, versioned, is_major_update=True):
     # TODO: use update
     public_version.save()
     # this put the manifest.json and base json file on the prod path.
+    shutil.rmtree(public_version.get_prod_path(), ignore_errors=True)
     shutil.copytree(tmp_path, public_version.get_prod_path())
     if settings.ZDS_APP['content']['extra_content_generation_policy'] == 'SYNC':
         # ok, now we can really publish the thing !
