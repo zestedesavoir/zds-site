@@ -247,8 +247,8 @@
         }
 
         .message-bottom {
-            @include display(flex);
-            @include align-items(flex-start);
+            display: flex;
+            align-items: flex-start;
             min-height: 30px;
 
             .signature {
@@ -395,7 +395,7 @@
         .message-buttons,
         .message-karma,
         .message-submit {
-            @include display(flex);
+            display: flex;
 
             form {
                 width: auto;
