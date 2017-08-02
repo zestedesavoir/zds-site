@@ -15,7 +15,7 @@ factory-boy==2.8.1
 pygeoip==0.3.2
 pillow==4.1.0
 gitpython==1.0.1
-https://github.com/zestedesavoir/Python-ZMarkdown/archive/2.6.0-zds.17.zip
+git+git://github.com/zestedesavoir/Python-ZMarkdown.git@a1481fb4764aafc6051da859ee9280fa16868f65
 easy-thumbnails==2.4.1
 CairoSVG==1.0.20
 beautifulsoup4==4.5.3
