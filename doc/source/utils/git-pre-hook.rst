@@ -18,7 +18,7 @@ restera propre et lisible au cours du temps !
 
     #!/bin/sh
 
-    flake8 --exclude=migrations --max-line-length=120 zds
+    flake8 zds
 
     # Store tests result
     RESULT=$?
