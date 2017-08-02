@@ -1,0 +1,293 @@
+/**
+ * Base styling for content.
+ * This is included in layout/_content.scss and zmd.scss
+ */
+
+h2,
+h3 {
+    clear: both;
+
+    &,
+    a {
+        color: darken($color-secondary, 11%);
+        margin-top: 40px;
+        text-decoration: none;
+    }
+
+    a:hover,
+    a:focus {
+        text-decoration: underline;
+    }
+}
+
+h2 {
+    font-size: 22px;
+    font-size: 2.2rem;
+    line-height: 50px;
+    margin-bottom: 20px;
+    background: #FFF;
+    border-top: 1px solid #e0e4e5;
+    padding-left: 1%;
+    font-weight: 400;
+}
+
+h3 {
+    font-size: 20px;
+    font-size: 2.0rem;
+    margin-bottom: 14px;
+}
+
+h4 {
+    font-size: 18px;
+    font-size: 1.8rem;
+    margin-bottom: 12px;
+}
+
+h5 {
+    font-size: 16px;
+    font-size: 1.6rem;
+    margin-bottom: 10px;
+}
+
+h6 {
+    font-size: 15px;
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+}
+
+.actions-title {
+    float: right;
+    margin: -60px 10px 0 0;
+
+    .btn {
+        height: 30px;
+        line-height: 30px;
+        margin-left: 3px;
+        opacity: .7;
+        z-index: 1;
+
+        &.ico-after:after {
+            margin-top: 7px;
+        }
+
+        &:hover,
+        &:focus {
+            opacity: 1;
+        }
+    }
+}
+
+:not(.alert-box) {
+    &.information,
+    &.question,
+    &.error,
+    &.warning,
+    &.spoiler {
+        margin: 25px 0;
+        padding: 7px 15px 7px 45px;
+
+        &.ico-after:after {
+            position: absolute;
+            top: 50%;
+            left: 23px;
+            margin: -11px 0 0 -11px;
+            height: 22px;
+            width: 22px;
+        }
+    }
+
+    &.information {
+        background: #daeaee;
+
+        &.ico-after:after {
+            @include sprite-position($information);
+        }
+    }
+
+    &.question {
+        background: #e2daee;
+
+        &.ico-after:after {
+            @include sprite-position($question);
+        }
+    }
+
+    &.error {
+        background: #eedada;
+
+        &.ico-after:after {
+            @include sprite-position($error);
+        }
+    }
+
+    &.warning {
+        background: #eee7da;
+
+        &.ico-after:after {
+            @include sprite-position($warning);
+        }
+    }
+}
+
+.spoiler {
+    margin-top: 0;
+    padding-left: 15px;
+    background: #EEE;
+}
+
+.spoiler-title {
+    display: block;
+    background: #EEE;
+    margin: 15px 0;
+    padding: 3px 15px 3px 40px;
+    text-decoration: none;
+    border-bottom: 1px solid #DDD;
+    color: #555;
+
+    &.ico-after:after {
+        margin: 8px 0 0 10px;
+    }
+
+    &:nth-last-child(2) {
+        margin-bottom: 15px;
+    }
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+img {
+    max-width: 100%;
+}
+
+figure {
+    margin: 30px 0;
+    text-align: center;
+}
+
+figure > {
+    img,
+    video,
+    pre,
+    code,
+    table,
+    blockquote,
+    embed,
+    video {
+        max-width: 100%;
+        margin: 0 auto;
+        text-align: left;
+    }
+
+    img,
+    video,
+    pre,
+    code {
+        display: block;
+    }
+
+    figcaption {
+        display: block;
+    }
+
+    blockquote ~ figcaption {
+        padding: 0 0 1px 2%;
+        font-style: italic;
+        text-align: left;
+        color: #999;
+        border-left: 5px solid #CCC;
+
+        p {
+            margin: 0 0 5px;
+        }
+
+        p:before {
+            content: "— ";
+        }
+    }
+}
+
+blockquote {
+    margin: 0;
+    color: #777;
+    padding: 1px 2%;
+    border-left: 5px solid #CCC;
+
+    & > p:first-child {
+        margin-top: 5px;
+    }
+
+    & > p:last-child {
+        margin-bottom: 5px;
+    }
+
+    figure {
+        margin: 15px 0;
+    }
+
+    &:last-child {
+        margin-bottom: 15px;
+    }
+}
+
+code,
+kbd,
+pre,
+samp {
+    font-family: $font-monospace;
+}
+
+pre {
+    margin: 0;
+}
+
+// touche
+kbd {
+    background-color: $color-keyboard;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: solid 1px desaturate(darken($color-keyboard, 15%), 10%);
+    border-bottom-width: 3px;
+    text-shadow: 0 1px 0 #FFF;
+    color: darken($color-keyboard, 70%);
+}
+
+// Code inline
+p code,
+li code {
+    color: #A00;
+    background: #EEE;
+    border: 1px solid #CCC;
+    padding: 0 5px;
+}
+
+// @ping
+.ping {
+    color: inherit;
+    font-weight: bold;
+    text-decoration: none;
+
+    &:hover,
+    &:focus {
+        text-decoration: underline;
+    }
+}
+
+.mathjax-wrapper {
+    max-width: 100%;
+    overflow: auto;
+
+    mathjax {
+        font-size: 16px;
+        font-size: 1.6rem;
+    }
+}
+
+.footnote {
+    opacity: .7;
+
+    ol {
+        padding-left: 25px;
+    }
+}
