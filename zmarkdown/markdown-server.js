@@ -1,4 +1,3 @@
-'use strict'
 // TODO zmd: Implement Sentry monitoring
 const clone = require('clone')
 const express = require('express')
@@ -29,7 +28,7 @@ app.post('/latex', (req, res) => {
 
 app.post('/latex-document', (req, res) => {
   toLatexDocument(req.body.md, req.body.opts, (err, result) => {
-    res.send(result)
+    res.json(result)
   })
 })
 
@@ -123,15 +122,16 @@ function toLatex(markdown, opts = {}, callback) {
     processors[key] = zmarkdown(config, 'latex')
   }
 
-  processors[key].renderString(String(markdown), (err, {content, metadata}) => {
+  processors[key].renderString(String(markdown), (err, content) => {
     if (err) return callback(err, markdown)
 
-    callback(null, [content, metadata])
+    callback(null, [content, {}])
   })
 }
 
 
 function toLatexDocument(markdown, opts = {}, callback) {
+  console.log({markdown})
   toLatex(markdown, opts, (err, [content, metadata]) => {
     if (err) return callback(err)
     const {
