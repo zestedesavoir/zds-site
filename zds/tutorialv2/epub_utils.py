@@ -10,6 +10,8 @@ from lxml import etree
 from lxml.html import HTMLParser
 from uuid import uuid4
 
+from zds.tutorialv2.publish_container import publish_container
+
 
 def __build_mime_type_conf():
     # this is just a way to make the "mime" more mockable. For now I'm compatible with
@@ -39,30 +41,29 @@ def __traverse_and_identify_images(image_dir):
             yield join(image_dir, image_filename), str(uuid4())
 
 
-def build_html_chapter_file(full_html_file, working_dir):
+def build_html_chapter_file(publishable_object, versioned_object, working_dir, root_dir):
     """
     parses an the full html file, extracts the ``<hX>`` tags and split their content into new files.
     it yields all the produced files
 
     :param full_html_file:
-    :return: a generator of tuples composed as ``[chapter_full_title, splitted_html_file_relative_path]``
+    :return: a generator of tuples composed as ``[plitted_html_file_relative_path,chapter_full_title]``
     """
-    with open(full_html_file, encoding='utf-8') as f:
-        html_code = f.read()
-    for chapter_title, chapter_html in __traverse_chapter(html_code):
-        with open(join(working_dir, slugify(chapter_title)), mode='wb', encoding='utf-8') as f:
-            f.write(chapter_html)
-        yield chapter_title, join(slugify(chapter_title))
+    path_to_title_dict = publish_container(publishable_object, working_dir, versioned_object,
+                                           template='tutorialv2/export/ebook/chapter.html')
+    for path, title in path_to_title_dict.items():
+        # TODO: check if a function exists in the std lib to get rid of `root_dir + '/'`
+        yield path.replace(root_dir + '/', ''), title
 
 
-def build_toc_cnx(chapters, tutorial, working_dir):
+def build_toc_ncx(chapters, tutorial, working_dir):
     with open(join(working_dir, 'toc.ncx'), mode='wb', encoding='utf-8') as f:
-        f.write(render_to_string('tutorialv2/export/ebook/toc.cnx.html'),
-                context={
-                    'chapters': chapters,
-                    'title': tutorial.title,
-                    'description': tutorial.description
-        })
+        f.write(render_to_string('tutorialv2/export/ebook/toc.ncx.html',
+                                 context={
+                                     'chapters': chapters,
+                                     'title': tutorial.title,
+                                     'description': tutorial.description
+        }))
 
 
 def build_content_opf(content, chapters, images, working_dir):
@@ -80,7 +81,7 @@ def build_container_xml(working_dir):
         f.write(render_to_string('tutorialv2/export/ebook/container.xml'))
 
 
-def build_ebook(published_content_entity, full_html_file_path, working_dir):
+def build_ebook(published_content_entity, working_dir):
     makedirs(join(working_dir, 'ebook', 'OPS', 'Text'))
     makedirs(join(working_dir, 'ebook', 'OPS', 'Style'))
     makedirs(join(working_dir, 'ebook', 'OPS', 'Fonts'))
@@ -89,8 +90,12 @@ def build_ebook(published_content_entity, full_html_file_path, working_dir):
     mimetype_conf = __build_mime_type_conf()
     with open(join(working_dir, 'ebook', mimetype_conf['filename']), mode="w", encoding='utf-8') as mimefile:
         mimefile.write(mimetype_conf['content'])
-    chapters = list(build_html_chapter_file(full_html_file_path, join(working_dir, 'ebook', 'OPS', 'Text')))
-    build_toc_cnx(chapters, published_content_entity, join(working_dir, 'ebook', 'OPS'))
+    chapters = list(
+        build_html_chapter_file(published_content_entity.content,
+                                published_content_entity.content.load_version(sha=published_content_entity.sha_public),
+                                working_dir=join(working_dir, 'ebook', 'OPS', 'Text'),
+                                root_dir=join(working_dir, 'ebook')))
+    build_toc_ncx(chapters, published_content_entity, join(working_dir, 'ebook', 'OPS'))
     images = __traverse_and_identify_images(join(working_dir, 'ebook', 'OPS', 'Images'))
     build_content_opf(published_content_entity, chapters, images, join(working_dir, 'ebook', 'OPS'))
     build_container_xml(join(working_dir, 'ebook', 'META-INF'))
