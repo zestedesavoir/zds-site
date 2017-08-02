@@ -5,7 +5,6 @@ const del = require('del');
 const gulp = require('gulp');
 const imagemin = require('gulp-imagemin');
 const postcss = require('gulp-postcss');
-const rename = require('gulp-rename');
 const sass = require('gulp-sass');
 const sourcemaps = require('gulp-sourcemaps');
 const spritesmith = require('gulp.spritesmith');
@@ -21,12 +20,17 @@ const postcssPlugins = [
     cssnano(),
 ];
 
+const customSass = () => sass({
+    sourceMapContents: true,
+    includePaths: [
+        path.join(__dirname, 'node_modules'),
+        path.join(__dirname, 'dist', 'scss'),
+    ],
+});
+
 // Deletes the generated files
 gulp.task('clean', () => del([
     'dist/',
-    'assets/scss/_sprite.scss',
-    'assets/*/vendors/',
-    'assets/images/sprite*.png',
 ]));
 
 // Lint the js source files
@@ -85,18 +89,11 @@ gulp.task('js', () =>
         .pipe(sourcemaps.write('.', { includeContent: true, sourceRoot: '../../' }))
         .pipe(gulp.dest('dist/js/')));
 
-
-// Copy normalize.css into the vendors directory
-gulp.task('css:vendors', () =>
-    gulp.src(require.resolve('normalize.css'))
-        .pipe(rename({ prefix: '_', extname: '.scss' }))
-        .pipe(gulp.dest('assets/scss/vendors/')));
-
 // Compiles the SCSS files to CSS
-gulp.task('css', ['css:sprite', 'css:vendors'], () =>
+gulp.task('css', ['css:sprite'], () =>
     gulp.src('assets/scss/main.scss')
         .pipe(sourcemaps.init())
-        .pipe(sass({ sourceMapContents: true }))
+        .pipe(customSass())
         .pipe(postcss(postcssPlugins))
         .pipe(sourcemaps.write('.', { includeContent: true, sourceRoot: '../../assets/scss/' }))
         .pipe(gulp.dest('dist/css/')));
@@ -111,7 +108,7 @@ gulp.task('css:sprite', () =>
             retinaImgName: 'images/sprite@2x.png',
             retinaSrcFilter: 'assets/images/sprite/*@2x.png',
         }))
-        .pipe(gulp.dest('assets/')));
+        .pipe(gulp.dest('dist/')));
 
 // Optimizes the images
 gulp.task('images', ['css:sprite'], () =>
@@ -138,7 +135,7 @@ gulp.task('watch', ['build'], () => {
 gulp.task('errors', () =>
     gulp.src('errors/scss/main.scss')
         .pipe(sourcemaps.init())
-        .pipe(sass({ sourceMapContents: true, includePaths: 'assets/scss/' }))
+        .pipe(customSass())
         .pipe(postcss(postcssPlugins))
         .pipe(sourcemaps.write('.', { includeContent: true, sourceRoot: '../scss/' }))
         .pipe(gulp.dest('errors/css/')));
