@@ -183,7 +183,7 @@ ZDS_APP = {
         'https://zestedesavoir.com/articles/222/la-ligne-editoriale-officielle-de-zeste-de-savoir/',
         'epub_stylesheets': {
             'toc': 'toc.css',
-            'full': 'full.css'
+            'full': join(BASE_DIR, 'dist', 'css', 'zmd.css'),
         }
     },
     'forum': {
