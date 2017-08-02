@@ -537,7 +537,7 @@ ZDS_APP = {
         'https://zestedesavoir.com/articles/222/la-ligne-editoriale-officielle-de-zeste-de-savoir/',
         'epub_stylesheets': {
             'toc': 'toc.css',
-            'full': 'full.css'
+            'full': os.path.join(BASE_DIR, 'dist', 'css', 'zmd.css'),
         }
     },
     'forum': {
@@ -680,4 +680,5 @@ if DEBUG:
     INSTALLED_APPS += (
         'debug_toolbar',
     )
-    MIDDLEWARE_CLASSES = ('debug_toolbar.middleware.DebugToolbarMiddleware',) + MIDDLEWARE_CLASSES
+    MIDDLEWARE_CLASSES = (
+        'debug_toolbar.middleware.DebugToolbarMiddleware',) + MIDDLEWARE_CLASSES
