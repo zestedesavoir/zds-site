@@ -22,7 +22,7 @@ Nous possédons un ensemble de données sérialisées dans le dossier fixtures:
 - ``topics.yaml``: **nécessite le chargement des users**, contient la création de plusieurs topics dans les forums dont un résolu
 - ``users.yaml``: Crée 6 utilisateurs:
     - admin/admin avec les droits d'administration
-    - staff/admin faisant partie du groupe staff
+    - staff/staff faisant partie du groupe staff
     - user/user un utilisateur normal et sans problème
     - ïtrema/ïtrema un utilisateur normal, sans problème mais qui aime l'utf8
     - Anonymous/anonymous : le compte d'anonymisation
