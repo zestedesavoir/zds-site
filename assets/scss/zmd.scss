@@ -1,0 +1,16 @@
+/**
+ * Stylesheet with only the content styling
+ */
+
+// FIXME: high-dpi support for icons?
+@import "vendors/normalize";
+@import "variables/variables";
+@import "sprite";
+@import "components/alert-box";
+@import "base/icons";
+
+.zmarkdown {
+    color: #424242;
+
+    @import "base/content";
+}
