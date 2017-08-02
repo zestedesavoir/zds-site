@@ -117,7 +117,7 @@ gulp.task('images', ['css:sprite'], () =>
         .pipe(gulp.dest('dist/')));
 
 // Watch for file changes
-gulp.task('watch', ['build'], () => {
+gulp.task('watch-runner', () => {
     gulp.watch('assets/js/*.js', ['js']);
     gulp.watch(['assets/{images,smileys}/**/*', '!assets/images/sprite*.png'], ['images']);
     gulp.watch(['assets/scss/**/*.scss', '!assets/scss/_sprite.scss'], ['css']);
@@ -129,6 +129,30 @@ gulp.task('watch', ['build'], () => {
     );
 
     livereload.listen();
+});
+
+// https://github.com/gulpjs/gulp/issues/259#issuecomment-152177973
+gulp.task('watch', cb => {
+    function spawnGulp(args) {
+        return require('child_process')
+            .spawn(
+                'node_modules/.bin/gulp',
+                args,
+                {stdio: 'inherit'}
+            )
+    }
+
+    function spawnBuild() {
+        return spawnGulp(['build'])
+            .on('close', spawnWatch)
+    }
+
+    function spawnWatch() {
+        return spawnGulp(['watch-runner'])
+            .on('close', spawnWatch)
+    }
+
+    spawnBuild();
 });
 
 // Compiles errors' CSS
