@@ -28,8 +28,27 @@ services:
       - ./tox.ini:/zds/tox.ini:ro
       - ./zds:/zds/zds:ro
     ports:
-      - 8000:8000
+      - "${ZDS_ADDRESS:-127.0.0.1}:${ZDS_PORT:-8000}:8000"
+    environment:
+      # An optional comma-separated list of the hostnames to allow.
+      # Sets Django’s ALLOWED_HOSTS configuration variable.
+      - "ZDS_ALLOWED_HOSTS=${ZDS_ALLOWED_HOSTS}"
+      # Elasticsearch is enabled if this variable is nonempty
+      - "ZDS_ELASTICSEARCH=${ZDS_ELASTICSEARCH}"
+    links:
+      - elasticsearch
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:5.5.2
+    environment:
+      - "http.host=0.0.0.0"
+      - "transport.host=127.0.0.1"
+      - "xpack.security.enabled=false"
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - elasticsearch:/usr/share/elasticsearch/data
 
 volumes:
   dist:
   db:
+  elasticsearch:

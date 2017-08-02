@@ -1,6 +1,11 @@
+import os
 from os.path import join
 
 from .abstract_base import *
+
+allowed_hosts_string = os.environ.get('ZDS_ALLOWED_HOSTS')
+if allowed_hosts_string:
+    ALLOWED_HOSTS = allowed_hosts_string.split(',')
 
 DB_DIR = join(BASE_DIR, 'db')
 
@@ -22,6 +27,14 @@ ZDS_APP['tutorial']['repo_public_path'] = join(DB_DIR, 'tutoriels-public')
 
 ZDS_APP['content']['repo_private_path'] = join(DB_DIR, 'contents-private')
 ZDS_APP['content']['repo_public_path'] = join(DB_DIR, 'contents-public')
-# I have no idea wtf is this
-ZDS_APP['content']['extra_content_watchdog_dir'] = join(
-    DB_DIR, 'watchdog-build')
+
+# No need to set 'extra_content_watchdog_dir' since
+# 'extra_content_generation_policy' is 'SYNC' by default.
+
+
+if os.environ.get('ZDS_ELASTICSEARCH'):
+    ES_CONNECTIONS = {
+        'default': {
+            'hosts': ['elasticsearch:9200'],
+        }
+    }
