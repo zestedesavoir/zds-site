@@ -6,7 +6,7 @@
     <dc:title>Zonzon Pépette, fille de Londres</dc:title>
     <dc:language>fr</dc:language>
     <dc:publisher>publie.net</dc:publisher>
-    {% for author in content.authors %}
+    {% for author in content.authors.all %}
       {% if loop.first %}
           <dc:creator opf:role="aut">{{ author.username }}</dc:creator>
       {% else %}
@@ -21,7 +21,7 @@
     <meta name="cover" content="cover.png" />
   </metadata>
   <manifest>
-      {% for title, path in chapters %}
+      {% for path, title in chapters %}
         <item id="{{ path }}"
               href="{{ path }}"
               media-type="text/html"/>
