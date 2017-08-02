@@ -6,12 +6,11 @@
 
 @import "variables/variables";
 @import "sprite";
-@import "mixins/display-flex";
 
 /*------------------------
 1. Normalize
 ------------------------*/
-@import "vendors/normalize";
+@import "normalize.css/normalize";
 
 /*------------------------
 2. Base
