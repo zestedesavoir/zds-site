@@ -2,11 +2,11 @@
 import codecs
 import copy
 import logging
-from os import makedirs, mkdir, path
 import shutil
 import subprocess
 import zipfile
 from datetime import datetime
+from os import makedirs, mkdir, path
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
@@ -15,11 +15,13 @@ from django.utils.translation import ugettext_lazy as _
 
 from zds import settings
 from zds.settings import ZDS_APP
+from zds.tutorialv2.epub_utils import build_ebook
 from zds.tutorialv2.models.database import ContentReaction, PublishedContent
+from zds.tutorialv2.publish_container import publish_container
 from zds.tutorialv2.signals import content_unpublished
 from zds.tutorialv2.utils import retrieve_and_update_images_links
+from zds.utils.templatetags.emarkdown import render_markdown, MD_PARSING_ERROR
 from zds.utils.templatetags.smileysDef import SMILEYS_BASE_PATH
-from zds.utils.templatetags.emarkdown import emarkdown, render_markdown, MD_PARSING_ERROR
 
 
 def publish_content(db_object, versioned, is_major_update=True):
@@ -392,6 +394,20 @@ def handle_pdftex_error(latex_file_path):
     except ImportError:
         pass
     raise FailureDuringPublication(errors)
+
+
+@PublicatorRegistery.register('epub')
+class ZMarkdownEpubPublicator(Publicator):
+    def publish(self, md_file_path, base_name, **kwargs):
+        try:
+            published_content_entity = self.get_published_content_entity(md_file_path)
+            build_ebook(published_content_entity,
+                        path.dirname(md_file_path))
+            epub_file_path = path.splitext(md_file_path)[0] + '.epub'
+        except (IOError, OSError):
+            raise FailureDuringPublication('Error while generating epub file.')
+        else:
+            shutil.move(epub_file_path, published_content_entity.get_extra_contents_directory())
 
 
 @PublicatorRegistery.register('watchdog', settings.ZDS_APP['content']['extra_content_watchdog_dir'])
