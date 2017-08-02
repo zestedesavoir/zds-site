@@ -145,8 +145,8 @@
     }
 
     .main {
-        @include display(flex);
-        @include flex-direction(row-reverse);
+        display: flex;
+        flex-direction: row-reverse;
         height: 100%;
         margin-left: 0;
         padding-left: 2.5%;
