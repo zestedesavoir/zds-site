@@ -4,9 +4,9 @@ import glob
 import os
 import yaml
 
+from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db import transaction
-from zds.settings import MEDIA_ROOT
 
 
 @transaction.atomic
@@ -23,8 +23,8 @@ class Command(BaseCommand):
         files = options.get('files')
 
         # create "media" folder if not existing
-        if not os.path.exists(MEDIA_ROOT):
-            os.mkdir(MEDIA_ROOT)
+        if not os.path.exists(settings.MEDIA_ROOT):
+            os.mkdir(settings.MEDIA_ROOT)
 
         for filename in glob.glob(files):
             stream = open(filename, 'r')

@@ -23,7 +23,6 @@ from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactor
 from zds.mp.models import PrivateTopic, is_privatetopic_unread
 from zds.notification.models import TopicAnswerSubscription, ContentReactionAnswerSubscription, \
     NewPublicationSubscription, Notification, Subscription
-from zds.settings import BASE_DIR
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory, \
     SubCategoryFactory, PublishedContentFactory, tricky_text_content, BetaContentFactory
 from zds.tutorialv2.models.models_database import PublishableContent, Validation, PublishedContent, ContentReaction, \
@@ -33,6 +32,10 @@ from zds.utils.models import HelpWriting, Alert, Tag
 from zds.utils.factories import HelpWritingFactory
 from zds.utils.templatetags.interventions import interventions_topics
 from copy import deepcopy
+
+
+BASE_DIR = settings.BASE_DIR
+
 
 try:
     import ujson as json_reader
@@ -282,7 +285,7 @@ class ContentTests(TestCase):
                 'type': u'TUTORIAL',
                 'licence': self.licence.pk,
                 'subcategory': self.subcategory.pk,
-                'image': open('{}/fixtures/noir_black.png'.format(settings.BASE_DIR))
+                'image': open('{}/fixtures/noir_black.png'.format(BASE_DIR))
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -331,7 +334,7 @@ class ContentTests(TestCase):
                 'licence': new_licence.pk,
                 'subcategory': self.subcategory.pk,
                 'last_hash': versioned.compute_hash(),
-                'image': open('{}/fixtures/logo.png'.format(settings.BASE_DIR))
+                'image': open('{}/fixtures/logo.png'.format(BASE_DIR))
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -1766,7 +1769,7 @@ class ContentTests(TestCase):
                 username=self.user_author.username,
                 password='hostel77'),
             True)
-        archive_path = os.path.join(settings.BASE_DIR, 'fixtures', 'tuto', 'BadArchive.zip')
+        archive_path = os.path.join(BASE_DIR, 'fixtures', 'tuto', 'BadArchive.zip')
         answer = self.client.post(reverse('content:import',
                                           args=[new_article.pk, new_article.slug]),
                                   {'archive': open(archive_path, 'r'),
@@ -2102,7 +2105,7 @@ class ContentTests(TestCase):
                 'licence': tuto.licence.pk,
                 'subcategory': self.subcategory.pk,
                 'last_hash': tuto.load_version(tuto.sha_draft).compute_hash(),
-                'image': open('{}/fixtures/logo.png'.format(settings.BASE_DIR))
+                'image': open('{}/fixtures/logo.png'.format(BASE_DIR))
             },
             follow=False)
 
@@ -5453,7 +5456,7 @@ class PublishedContentTests(TestCase):
                 'licence': self.tuto.licence.pk,
                 'subcategory': self.subcategory.pk,
                 'last_hash': tuto.load_version().compute_hash(),
-                'image': open('{}/fixtures/logo.png'.format(settings.BASE_DIR))
+                'image': open('{}/fixtures/logo.png'.format(BASE_DIR))
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -5627,7 +5630,7 @@ class PublishedContentTests(TestCase):
                 'licence': article.licence.pk,
                 'subcategory': self.subcategory.pk,
                 'last_hash': article.load_version(article.sha_draft).compute_hash(),
-                'image': open('{}/fixtures/logo.png'.format(settings.BASE_DIR))
+                'image': open('{}/fixtures/logo.png'.format(BASE_DIR))
             },
             follow=False)
         public_count = PublishedContent.objects.count()

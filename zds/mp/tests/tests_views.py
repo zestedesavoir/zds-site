@@ -9,7 +9,6 @@ from django.core.urlresolvers import reverse
 from zds.member.factories import ProfileFactory, UserFactory
 from zds.mp.factories import PrivateTopicFactory, PrivatePostFactory
 from zds.mp.models import PrivateTopic, PrivatePost
-from zds.settings import ZDS_APP
 from django.contrib.auth.models import Group
 
 
@@ -752,9 +751,9 @@ class LeaveViewTest(TestCase):
         self.profile1 = ProfileFactory()
         self.profile2 = ProfileFactory()
 
-        self.anonymous_account = UserFactory(username=ZDS_APP['member']['anonymous_account'])
+        self.anonymous_account = UserFactory(username=settings.ZDS_APP['member']['anonymous_account'])
         self.bot_group = Group()
-        self.bot_group.name = ZDS_APP['member']['bot_group']
+        self.bot_group.name = settings.ZDS_APP['member']['bot_group']
         self.bot_group.save()
         self.anonymous_account.groups.add(self.bot_group)
         self.anonymous_account.save()
@@ -852,9 +851,9 @@ class AddParticipantViewTest(TestCase):
     def setUp(self):
         self.profile1 = ProfileFactory()
         self.profile2 = ProfileFactory()
-        self.anonymous_account = UserFactory(username=ZDS_APP['member']['anonymous_account'])
+        self.anonymous_account = UserFactory(username=settings.ZDS_APP['member']['anonymous_account'])
         self.bot_group = Group()
-        self.bot_group.name = ZDS_APP['member']['bot_group']
+        self.bot_group.name = settings.ZDS_APP['member']['bot_group']
         self.bot_group.save()
         self.anonymous_account.groups.add(self.bot_group)
         self.anonymous_account.save()

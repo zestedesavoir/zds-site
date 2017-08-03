@@ -11,19 +11,18 @@ from django.utils.translation import ugettext_lazy as _
 
 from zds.gallery.factories import UserGalleryFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory
-from zds.settings import BASE_DIR
 from zds.tutorialv2.factories import PublishableContentFactory, ExtractFactory, LicenceFactory, PublishedContentFactory
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, PickListOperation
 from zds.utils.models import Alert
 from copy import deepcopy
 
 overrided_zds_app = deepcopy(settings.ZDS_APP)
-overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
-overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
+overrided_zds_app['content']['repo_private_path'] = os.path.join(settings.BASE_DIR, 'contents-private-test')
+overrided_zds_app['content']['repo_public_path'] = os.path.join(settings.BASE_DIR, 'contents-public-test')
 overrided_zds_app['content']['extra_content_generation_policy'] = 'NONE'
 
 
-@override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
+@override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'media-test'))
 @override_settings(ZDS_APP=overrided_zds_app)
 @override_settings(ES_ENABLED=False)
 class PublishedContentTests(TestCase):

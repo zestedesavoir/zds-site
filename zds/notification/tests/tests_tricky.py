@@ -1,11 +1,10 @@
 import os
 import shutil
 
-from django.test import TestCase
-from django.core.urlresolvers import reverse
-from django.test.utils import override_settings
 from django.conf import settings
-from zds.settings import BASE_DIR
+from django.core.urlresolvers import reverse
+from django.test import TestCase
+from django.test.utils import override_settings
 
 from zds.forum.factories import CategoryFactory, ForumFactory
 from zds.forum.models import Topic
@@ -70,12 +69,12 @@ class ForumNotification(TestCase):
 
 
 overriden_zds_app = deepcopy(settings.ZDS_APP)
-overriden_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
-overriden_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
+overriden_zds_app['content']['repo_private_path'] = os.path.join(settings.BASE_DIR, 'contents-private-test')
+overriden_zds_app['content']['repo_public_path'] = os.path.join(settings.BASE_DIR, 'contents-public-test')
 overriden_zds_app['content']['extra_content_generation_policy'] = 'SYNC'
 
 
-@override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
+@override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'media-test'))
 @override_settings(ZDS_APP=overriden_zds_app)
 @override_settings(ES_ENABLED=False)
 class ContentNotification(TestCase):

@@ -11,7 +11,6 @@ from elasticsearch_dsl.query import MatchAll
 from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings
-from zds.settings import BASE_DIR
 from django.core.urlresolvers import reverse
 
 from zds.forum.factories import TopicFactory, PostFactory, Topic, Post, TagFactory
@@ -24,11 +23,11 @@ from zds.tutorialv2.models.models_database import PublishedContent, FakeChapter,
 from copy import deepcopy
 
 overrided_zds_app = deepcopy(settings.ZDS_APP)
-overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
-overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
+overrided_zds_app['content']['repo_private_path'] = os.path.join(settings.BASE_DIR, 'contents-private-test')
+overrided_zds_app['content']['repo_public_path'] = os.path.join(settings.BASE_DIR, 'contents-public-test')
 
 
-@override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
+@override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'media-test'))
 @override_settings(ZDS_APP=overrided_zds_app)
 # 1 shard is not a recommended setting, but since document on different shard may have a different score, it is ok here
 @override_settings(ES_SEARCH_INDEX={'name': 'zds_search_test', 'shards': 1, 'replicas': 0})

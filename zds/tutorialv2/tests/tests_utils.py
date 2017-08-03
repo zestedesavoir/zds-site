@@ -8,7 +8,6 @@ import datetime
 from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings
-from zds.settings import BASE_DIR
 from django.core.urlresolvers import reverse
 
 from zds.member.factories import ProfileFactory, StaffProfileFactory
@@ -34,6 +33,8 @@ except ImportError:
         import simplejson as json_reader
     except:
         import json as json_reader
+
+BASE_DIR = settings.BASE_DIR
 
 overrided_zds_app = deepcopy(settings.ZDS_APP)
 overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
