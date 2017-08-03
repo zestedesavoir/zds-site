@@ -1,12 +1,10 @@
 # coding: utf-8
 
-from django.contrib.syndication.views import Feed
 from django.conf import settings
-
+from django.contrib.syndication.views import Feed
 from django.utils.feedgenerator import Atom1Feed
 
 from zds.tutorialv2.models.models_database import PublishedContent
-from zds.settings import ZDS_APP
 
 
 class LastContentFeedRSS(Feed):
@@ -23,7 +21,8 @@ class LastContentFeedRSS(Feed):
         :return: The last (typically 5) contents (sorted by publication date).
         If `self.type` is not `None`, the contents will only be of this type.
         """
-        contents = PublishedContent.objects.published_contents(self.content_type)[:ZDS_APP['content']['feed_length']]
+        feed_length = settings.ZDS_APP['content']['feed_length']
+        contents = PublishedContent.objects.published_contents(self.content_type)[:feed_length]
 
         return contents
 

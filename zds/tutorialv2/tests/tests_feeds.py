@@ -11,7 +11,6 @@ from django.contrib.auth.models import Group
 from zds.gallery.factories import UserGalleryFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.forum.factories import ForumFactory, CategoryFactory
-from zds.settings import BASE_DIR
 from zds.tutorialv2.models.models_database import PublishedContent
 from zds.tutorialv2.feeds import LastTutorialsFeedRSS, LastTutorialsFeedATOM, LastArticlesFeedRSS, LastArticlesFeedATOM
 from zds.tutorialv2.factories import LicenceFactory, SubCategoryFactory, PublishableContentFactory, ContainerFactory, \
@@ -20,11 +19,11 @@ from zds.tutorialv2.publication_utils import publish_content
 from copy import deepcopy
 
 overrided_zds_app = deepcopy(settings.ZDS_APP)
-overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
-overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
+overrided_zds_app['content']['repo_private_path'] = os.path.join(settings.BASE_DIR, 'contents-private-test')
+overrided_zds_app['content']['repo_public_path'] = os.path.join(settings.BASE_DIR, 'contents-public-test')
 
 
-@override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
+@override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'media-test'))
 @override_settings(ZDS_APP=overrided_zds_app)
 class LastTutorialsFeedRSSTest(TestCase):
 

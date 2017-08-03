@@ -16,7 +16,6 @@ from elasticsearch_dsl.field import Text, Keyword, Integer, Boolean, Float, Date
 
 from zds.forum.managers import TopicManager, ForumManager, PostManager, TopicReadManager
 from zds.notification import signals
-from zds.settings import ZDS_APP
 from zds.searchv2.models import AbstractESDjangoIndexable, delete_document_in_elasticsearch, ESIndexManager
 from zds.utils import get_current_user, slugify
 from zds.utils.models import Comment, Tag
@@ -311,8 +310,8 @@ class Topic(AbstractESDjangoIndexable):
             try:
                 pk, pos = self.resolve_last_post_pk_and_pos_read_by_user(user)
                 page_nb = 1
-                if pos > ZDS_APP['forum']['posts_per_page']:
-                    page_nb += (pos - 1) // ZDS_APP['forum']['posts_per_page']
+                if pos > settings.ZDS_APP['forum']['posts_per_page']:
+                    page_nb += (pos - 1) // settings.ZDS_APP['forum']['posts_per_page']
                 return '{}?page={}#p{}'.format(
                     self.get_absolute_url(), page_nb, pk)
             except TopicRead.DoesNotExist:
