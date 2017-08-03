@@ -4,8 +4,7 @@ from django.views.generic import ListView
 from django.views.generic.list import MultipleObjectMixin
 from django.core.paginator import Paginator, EmptyPage
 from django.http import Http404
-
-from zds.settings import ZDS_APP
+from django.conf.settings import ZDS_APP
 
 
 class ZdSPagingListView(ListView):

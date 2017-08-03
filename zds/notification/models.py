@@ -4,6 +4,7 @@ from django.utils.encoding import python_2_unicode_compatible
 import logging
 from smtplib import SMTPException
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -13,7 +14,6 @@ from django.db import models, IntegrityError
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 
-from zds import settings
 from zds.forum.models import Topic
 from zds.member.models import Profile
 from zds.notification.managers import NotificationManager, SubscriptionManager, TopicFollowedManager, \

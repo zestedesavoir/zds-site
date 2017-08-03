@@ -5,7 +5,7 @@ import logging
 from datetime import datetime, timedelta
 from math import ceil
 
-from django.conf import settings
+from django.conf.settings import ZDS_APP, ES_SEARCH_INDEX
 from django.contrib.auth.models import Group, User, AnonymousUser
 from django.core.urlresolvers import reverse
 from django.db import models
@@ -16,11 +16,9 @@ from elasticsearch_dsl.field import Text, Keyword, Integer, Boolean, Float, Date
 
 from zds.forum.managers import TopicManager, ForumManager, PostManager, TopicReadManager
 from zds.notification import signals
-from zds.settings import ZDS_APP
 from zds.searchv2.models import AbstractESDjangoIndexable, delete_document_in_elasticsearch, ESIndexManager
 from zds.utils import get_current_user, slugify
 from zds.utils.models import Comment, Tag
-
 
 def sub_tag(tag):
     start = tag.group('start')
@@ -382,7 +380,7 @@ class Topic(AbstractESDjangoIndexable):
 
         if last_user_post and last_user_post == self.get_last_post():
             duration = datetime.now() - last_user_post.pubdate
-            if duration.total_seconds() < settings.ZDS_APP['forum']['spam_limit_seconds']:
+            if duration.total_seconds() < ZDS_APP['forum']['spam_limit_seconds']:
                 return True
 
         return False
@@ -397,7 +395,7 @@ class Topic(AbstractESDjangoIndexable):
         last_post = self.last_message
 
         if last_post is not None:
-            t = last_post.pubdate + timedelta(days=settings.ZDS_APP['forum']['old_post_limit_days'])
+            t = last_post.pubdate + timedelta(days=ZDS_APP['forum']['old_post_limit_days'])
             if t < datetime.today():
                 return True
 
@@ -488,7 +486,7 @@ class Post(Comment, AbstractESDjangoIndexable):
         """
         :return: the absolute URL for this post, including page in the topic.
         """
-        page = int(ceil(float(self.position) / settings.ZDS_APP['forum']['posts_per_page']))
+        page = int(ceil(float(self.position) / ZDS_APP['forum']['posts_per_page']))
 
         return '{0}?page={1}#p{2}'.format(
             self.topic.get_absolute_url(),
@@ -558,7 +556,7 @@ class Post(Comment, AbstractESDjangoIndexable):
 
         super(Post, self).hide_comment_by_user(user, text_hidden)
 
-        index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
+        index_manager = ESIndexManager(**ES_SEARCH_INDEX)
         index_manager.update_single_document(self, {'is_visible': False})
 
 

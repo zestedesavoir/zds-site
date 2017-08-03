@@ -1,5 +1,5 @@
 from django import template
-from zds.settings import ZDS_APP
+from django.conf.settings import ZDS_APP
 
 
 register = template.Library()

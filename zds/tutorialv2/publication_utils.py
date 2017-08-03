@@ -8,13 +8,13 @@ import subprocess
 import zipfile
 from datetime import datetime
 
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
 from os.path import isdir, dirname
-from zds import settings
-from zds.settings import ZDS_APP
+
 from zds.tutorialv2.models.models_database import ContentReaction
 from zds.tutorialv2.signals import content_unpublished
 from zds.tutorialv2.utils import retrieve_and_update_images_links
@@ -165,7 +165,7 @@ def generate_exernal_content(base_name, extra_contents_path, md_file_path, pando
     :return:
     """
     excluded = []
-    if not ZDS_APP['content']['build_pdf_when_published'] and not overload_settings:
+    if not settings.ZDS_APP['content']['build_pdf_when_published'] and not overload_settings:
         excluded.append('pdf')
     for __, publicator in PublicatorRegistery.get_all_registered(excluded):
 

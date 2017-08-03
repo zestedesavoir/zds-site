@@ -3,7 +3,8 @@ from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
-from zds import settings
+from django.conf.settings import ZDS_APP
+
 from zds.utils.models import Comment
 
 
@@ -67,5 +68,5 @@ class QuoteMixin(object):
         return _(u'{0}Source:[{1}]({2}{3})').format(
             text,
             post_cite.author.username,
-            settings.ZDS_APP['site']['url'],
+            ZDS_APP['site']['url'],
             post_cite.get_absolute_url())

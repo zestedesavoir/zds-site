@@ -16,13 +16,13 @@ from django.views.generic import ListView, DetailView
 from django.views.generic.edit import FormView
 from django.core.exceptions import PermissionDenied
 from django.views.decorators.http import require_POST
+from django.conf.settings import ZDS_APP, BASE_DIR
 
 from zds.featured.models import FeaturedResource, FeaturedMessage
 from zds.forum.models import Forum, Topic
 from zds.member.decorator import can_write_and_read_now
 from zds.pages.forms import AssocSubscribeForm
 from zds.pages.models import GroupContact
-from zds.settings import BASE_DIR, ZDS_APP
 from zds.searchv2.forms import SearchForm
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent
 from zds.utils.forums import create_topic
@@ -36,8 +36,10 @@ def home(request):
     articles = PublishableContent.objects.get_last_articles()
     opinions = PublishableContent.objects.get_last_opinions()
 
+    quotes_file_path = os.path.join(BASE_DIR, 'quotes.txt')
+
     try:
-        with open(os.path.join(BASE_DIR, 'quotes.txt'), 'r') as quotes_file:
+        with open(quotes_file_path, 'r') as quotes_file:
             quote = random.choice(quotes_file.readlines())
     except IOError:
         quote = ZDS_APP['site']['slogan']

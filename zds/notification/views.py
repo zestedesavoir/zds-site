@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.utils.decorators import method_decorator
@@ -8,7 +9,6 @@ from django.utils.translation import ugettext_lazy as _
 from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
 
-from zds import settings
 from zds.mp.models import PrivateTopic
 from zds.notification.models import Notification
 from zds.utils.paginator import ZdSPagingListView

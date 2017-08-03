@@ -1,7 +1,7 @@
 # coding: utf-8
 from zds.utils.models import HelpWriting
 from zds.utils import slugify
-from zds.settings import BASE_DIR, MEDIA_ROOT
+from django.conf.settings import BASE_DIR, MEDIA_ROOT
 from shutil import copyfile
 from os.path import basename, join
 
