@@ -92,6 +92,7 @@ install:
   - travis_retry pip install tox==2.0.1
 
 script:
+  - ./scripts/no_import_zds_settings.sh
   - tox $TEST_APP
   - |
     # avoid cache update & upload when we didn't explicitely change its content
