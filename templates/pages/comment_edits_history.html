@@ -33,14 +33,14 @@
             <thead>
                 <th>{% trans "Date" %}</th>
                 <th>{% trans "Éditeur" %}</th>
-                <th class="wide">{% trans "Version avant édition" %}</th>
+                <th>{% trans "Version avant édition" %}</th>
             </thead>
             <tbody>
                 {% for edit in edits %}
                     <tr>
                         <td>{{ edit.date|format_date|capfirst }}</td>
                         <td>{% include 'misc/member_item.part.html' with member=edit.editor avatar=True %}</td>
-                        <td class="wide">
+                        <td>
                             {% if edit.deleted_by %}
                                 {% trans "Supprimée par" %} {% include 'misc/member_item.part.html' with member=edit.deleted_by avatar=True %} ({{ edit.deleted_at|format_date }})
                             {% else %}
