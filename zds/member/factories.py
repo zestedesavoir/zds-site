@@ -1,10 +1,10 @@
 # coding: utf-8
 
 from django.contrib.auth.models import User, Permission, Group
+from django.conf import settings
 import factory
 
 from zds.member.models import Profile
-from zds import settings
 
 
 class UserFactory(factory.DjangoModelFactory):

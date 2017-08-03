@@ -4,9 +4,9 @@ import glob
 import os
 import yaml
 
+from django.conf.settings import MEDIA_ROOT
 from django.core.management.base import BaseCommand
 from django.db import transaction
-from zds.settings import MEDIA_ROOT
 
 
 @transaction.atomic

@@ -3,7 +3,8 @@ import os
 from uuslug import slugify
 
 from django.core.management.base import BaseCommand
-from zds.settings import ZDS_APP
+from django.conf.settings import ZDS_APP
+
 from zds.tutorialv2.models.models_database import PublishableContent
 
 

@@ -6,10 +6,11 @@ import time
 
 from datetime import datetime
 from django.core.management.base import BaseCommand
+from django.conf import settings
 from random import randint
 from faker import Factory
-from zds.utils.templatetags.emarkdown import emarkdown
 
+from zds.utils.templatetags.emarkdown import emarkdown
 from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory, PostFactory
 from zds.gallery.factories import GalleryFactory, UserGalleryFactory, ImageFactory
 from zds.member.factories import StaffProfileFactory, ProfileFactory
@@ -18,7 +19,6 @@ from zds.member.models import Profile
 from zds.forum.models import Forum, Topic, Category as FCategory
 from zds.utils.models import Tag, Category as TCategory, CategorySubCategory, SubCategory, Licence
 from zds.utils import slugify
-from zds import settings
 from django.db import transaction
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, \
     Validation as CValidation, ContentReactionFactory

@@ -11,8 +11,8 @@ from django.utils.translation import ugettext as _
 from django.views.generic import CreateView, RedirectView, UpdateView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.list import MultipleObjectMixin
+from django.conf import settings
 
-from zds import settings
 from zds.featured.forms import FeaturedResourceForm, FeaturedMessageForm
 from zds.featured.models import FeaturedResource, FeaturedMessage
 from zds.utils.paginator import ZdSPagingListView

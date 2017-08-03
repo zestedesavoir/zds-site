@@ -3,14 +3,15 @@ from os.path import dirname, join
 import os
 import time
 
-import shutil
+from codecs import open
 from django.core.management import BaseCommand
+from django.conf import settings
 from pathtools.path import listdir
+import shutil
 from watchdog.observers import Observer
 from watchdog.events import FileCreatedEvent, FileSystemEventHandler, LoggingEventHandler
-from zds import settings
+
 from zds.tutorialv2.publication_utils import generate_exernal_content
-from codecs import open
 
 
 class TutorialIsPublished(FileSystemEventHandler):
