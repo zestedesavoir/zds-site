@@ -15,7 +15,8 @@ from django.template.loader import render_to_string
 from django.utils.datastructures import MultiValueDictKeyError
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
-from django.views.generic import RedirectView, FormView, ListView
+from django.views.generic import RedirectView, FormView, ListView, TemplateView, DetailView
+from django.db.models import F, Q
 
 from zds.forum.models import Forum
 from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin, PermissionRequiredMixin
@@ -29,7 +30,7 @@ from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin, SingleOnli
 from zds.tutorialv2.models import TYPE_CHOICES_DICT
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction
 from zds.tutorialv2.utils import search_container_or_404, last_participation_is_old, mark_read
-from zds.utils.models import Alert, CommentVote, Tag, Category, CategorySubCategory, CommentEdit
+from zds.utils.models import Alert, CommentVote, Tag, Category, CategorySubCategory, CommentEdit, SubCategory
 from zds.utils.paginator import make_pagination, ZdSPagingListView
 from zds.utils.templatetags.topbar import top_categories_content
 
@@ -313,19 +314,61 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
 
     context_object_name = 'public_contents'
     paginate_by = settings.ZDS_APP['content']['content_per_page']
-    template_name = 'tutorialv2/index_online.html'
+    template_name = 'tutorialv2/index_online_contents.html'
     category = None
+    subcategory = None
     tag = None
     current_content_type = None
 
     def get_queryset(self):
         """Filter the contents to obtain the list of contents of given type.
         If category parameter is provided, only contents which have this category will be listed.
-
         :return: list of contents with the right type
         :rtype: list of zds.tutorialv2.models.models_database.PublishedContent
         """
-        return PublishedContent.objects.get_online_list(self.category, self.tag, self.current_content_type)
+        sub_query = 'SELECT COUNT(*) FROM {} WHERE {}={}'.format(
+            'tutorialv2_contentreaction',
+            'tutorialv2_contentreaction.related_content_id',
+            'tutorialv2_publishablecontent.id'
+        )
+        queryset = PublishedContent.objects \
+            .filter(must_redirect=False)
+        # this condition got more complexe with development of zep13
+        # if we do filter by content_type, then every published content can be
+        # displayed. Othewise, we have to be sure the content was expressly chosen by
+        # someone with staff authorization. Another way to say it "it has to be a
+        # validated content (article, tutorial), `ContentWithoutValidation` live their
+        # own life in their own page.
+        if self.current_content_type:
+            queryset = queryset.filter(content_type=self.current_content_type)
+        else:
+            queryset = queryset.filter(~Q(content_type='OPINION'))
+        # prefetch:
+        queryset = queryset\
+            .prefetch_related('content') \
+            .prefetch_related('content__subcategory') \
+            .prefetch_related('content__authors') \
+            .select_related('content__licence') \
+            .select_related('content__image') \
+            .select_related('content__last_note') \
+            .select_related('content__last_note__related_content') \
+            .select_related('content__last_note__related_content__public_version') \
+            .filter(pk=F('content__public_version__pk'))
+
+        if 'theme' in self.request.GET:
+            self.category = get_object_or_404(Category, slug=self.request.GET.get('theme'))
+            queryset = queryset.filter(content__subcategory__in=self.category.get_subcategories())
+
+        if 'category' in self.request.GET:
+            self.subcategory = get_object_or_404(SubCategory, slug=self.request.GET.get('category'))
+            queryset = queryset.filter(content__subcategory__in=[self.subcategory])
+
+        if 'tag' in self.request.GET:
+            self.tag = get_object_or_404(Tag, title=self.request.GET.get('tag').lower().strip())
+            queryset = queryset.filter(content__tags__in=[self.tag])  # different tags can have same
+            # slug such as C/C#/C++, as a first version we get all of them
+        queryset = queryset.extra(select={'count_note': sub_query})
+        return queryset.order_by('-publication_date')
 
     def get_context_data(self, **kwargs):
         context = super(ListOnlineContents, self).get_context_data(**kwargs)
@@ -334,39 +377,12 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
                 public_content.content.last_note.related_content = public_content.content
                 public_content.content.public_version = public_content
                 public_content.content.count_note = public_content.count_note
+
         context['category'] = self.category
+        context['subcategory'] = self.subcategory
         context['tag'] = self.tag
         context['top_categories'] = top_categories_content(self.current_content_type)
-        context['hierarchy_level'] = 0
-        if 'theme' in self.request.GET:
-            context['hierarchy_level'] = 1
-            context['theme'] = get_object_or_404(Category, title__iexact=self.request.GET['theme'])
-            context['categories'] = [c.subcategory for c in CategorySubCategory.objects
-                                                                               .prefetch_related('subcategory')
-                                                                               .filter(category=context['theme']).all()]
-            # please someone help me get this far more efficient
-            for category in context['categories']:
-                category.count = PublishedContent.objects.filter(must_redirect=False,
-                                                                 content__subcategory=category).count()
-        elif 'category' in self.request.GET:
-            context['hierarchy_level'] = 2
-        method_name = settings.ZDS_APP['content']['selected_content_method_name']
-        nb = settings.ZDS_APP['content']['content_per_theme']
-        context['selected_contents'] = getattr(PublishedContent.objects, method_name)(self.category, self.tag,
-                                                                                      self.current_content_type)[:nb]
-        context['beta_forum'] = Forum.objects.prefetch_related('category') \
-            .filter(pk=settings.ZDS_APP['forum']['beta_forum_id'])
-        if context['hierarchy_level'] == 0:
-            context['themes'] = list(Category.objects.order_by('position').all())
-            for theme in context['themes']:
-                theme.categories = CategorySubCategory.objects.filter(is_main=True, category=theme)\
-                    .prefetch_related('subcategory').values('subcategory__pk', 'subcategory__title',
-                                                            'subcategory__slug', 'subcategory__image')
-                pks = [c['subcategory__pk'] for c in theme.categories]
-                theme.count = PublishedContent.objects.filter(must_redirect=False,
-                                                              content__subcategory__in=pks).count()
-            context['public_contents'] = context['public_contents'][:min(len(context['public_contents']), nb)]
-        context['content_count'] = self.get_queryset().count()
+
         return context
 
 
@@ -386,6 +402,130 @@ class ListOpinions(ListOnlineContents):
     """Displays the list of published opinions"""
 
     current_content_type = 'OPINION'
+
+
+class ViewAllCategories(TemplateView):
+    """Displays the list of categories, plus a few contents"""
+
+    template_name = 'tutorialv2/view/categories.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ViewAllCategories, self).get_context_data(**kwargs)
+
+        # get categories and subcategories
+        total_count = 0
+
+        context['categories'] = list(Category.objects.order_by('position').all())
+        for category in context['categories']:
+            category.subcategories = list(
+                CategorySubCategory.objects
+                    .filter(is_main=True, category=category)
+                    .prefetch_related('subcategory')
+                    .values('subcategory__pk', 'subcategory__title', 'subcategory__slug', 'subcategory__image')
+                    .all())
+
+            pks = [c['subcategory__pk'] for c in category.subcategories]
+            category.count_contents = PublishedContent.objects\
+                .published_contents()\
+                .filter(content__subcategory__in=pks)\
+                .count()
+            total_count += category.count_contents
+
+        # get last articles and tutorials
+        context['last_articles'] = PublishedContent.objects.get_recent_list(content_type='ARTICLE')[:10]
+        context['last_tutorials'] = PublishedContent.objects.get_recent_list(content_type='TUTORIAL')[:10]
+
+        context['beta_forum'] = Forum.objects\
+            .prefetch_related('category')\
+            .filter(pk=settings.ZDS_APP['forum']['beta_forum_id'])\
+            .last()
+
+        context['content_count'] = total_count
+
+        return context
+
+
+class ViewCategory(DetailView):
+    """Displays a category"""
+
+    template_name = 'tutorialv2/view/category.html'
+    slug = None
+    model = Category
+
+    def get_object(self, queryset=None):
+        self.slug = self.kwargs.pop('slug')
+        return get_object_or_404(self.model, slug=self.slug)
+
+    def get_context_data(self, **kwargs):
+        context = super(ViewCategory, self).get_context_data(**kwargs)
+
+        # get subcategories
+        context['subcategories'] = [
+            c.subcategory for c in CategorySubCategory.objects
+            .prefetch_related('subcategory')
+            .filter(category__pk=self.object.pk)
+            .all()]
+
+        total_count = 0
+
+        for subcategory in context['subcategories']:
+            subcategory.count_contents = PublishedContent.objects \
+                .published_contents() \
+                .filter(content__subcategory__pk=subcategory.pk) \
+                .count()
+            total_count += subcategory.count_contents
+
+        context['content_count'] = total_count
+
+        # get last articles and tutorials
+        context['last_articles'] = PublishedContent.objects.get_recent_list(
+            content_type='ARTICLE',
+            subcategories=context['subcategories'])[:5]
+
+        context['last_tutorials'] = PublishedContent.objects.get_recent_list(
+            content_type='TUTORIAL',
+            subcategories=context['subcategories'])[:5]
+
+        return context
+
+
+class ViewSubCategory(DetailView):
+    """Displays a subcategory"""
+
+    template_name = 'tutorialv2/view/subcategory.html'
+    slug = None
+    model = SubCategory
+
+    category = None
+
+    def get_object(self, queryset=None):
+        self.slug = self.kwargs.pop('slug')
+        obj = get_object_or_404(self.model, slug=self.slug)
+
+        self.category = obj.get_parent_category()
+        slug_category = self.kwargs.pop('slug_category')
+
+        if not self.category or self.category.slug != slug_category:
+            raise Http404('category_slug')
+
+        return obj
+
+    def get_context_data(self, **kwargs):
+        context = super(ViewSubCategory, self).get_context_data(**kwargs)
+
+        context['category'] = self.category
+        context['content_count'] = PublishedContent.objects.get_recent_list(subcategories=[self.object]).count()
+
+        # get last articles and tutorials
+        context['last_articles'] = PublishedContent.objects.get_recent_list(
+            content_type='ARTICLE',
+            subcategories=[self.object])[:5]
+
+        context['last_tutorials'] = PublishedContent.objects.get_recent_list(
+            content_type='TUTORIAL',
+            subcategories=[self.object])[:5]
+
+        return context
 
 
 class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewMixin):

@@ -59,6 +59,13 @@ class Category(models.Model):
         """Textual Category Form."""
         return self.title
 
+    def get_subcategories(self):
+        return [a.subcategory
+                for a in CategorySubCategory.objects
+                .filter(is_main=True, category__pk=self.pk)
+                .prefetch_related('subcategory')
+                .all()]
+
 
 @python_2_unicode_compatible
 class SubCategory(models.Model):

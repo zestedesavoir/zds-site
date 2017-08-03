@@ -1,0 +1,31 @@
+{% comment %}
+exposes categories
+{% endcomment %}
+{% load i18n %}
+{% load pluralize_fr %}
+
+{% for category in categories %}
+    <div class="linkbox-item primary">
+        <a href="{% url 'publication:category' slug=category.slug %}" class="head">
+            <h3>{{ category.title }}</h3>
+
+        </a>
+
+        <a href="{% url 'publication:category' slug=category.slug %}" class="body">
+            <p>{{ category.description }}</p>
+            <p class="right">
+                {% if category.count_contents != 0 %}
+                    {{ category.count_contents }} {% trans 'contenu' %}{{ category.count_contents|pluralize_fr }}
+                {% else %}
+                    {% trans 'Aucun contenu' %}
+                {% endif %}
+            </p>
+        </a>
+
+        {% for subcategory in category.subcategories %}
+           <a href="{% url 'publication:subcategory' slug_category=category.slug slug=subcategory.subcategory__slug %}" class="tail">
+                <p>{{ subcategory.subcategory__title }}</p>
+            </a>
+        {% endfor %}
+    </div>
+{% endfor %}

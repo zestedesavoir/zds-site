@@ -96,15 +96,27 @@ class PublishedContentManager(models.Manager):
             published.authors.remove(unsubscribed_user)
             published.save()
 
-    def get_online_list(self, category=None, tag=None, content_type=None):
-        queryset = self.__get_list(category, content_type, tag)
+    def get_recent_list(self, subcategories=None, tags=None, content_type=None):
+        queryset = self.__get_list(subcategories, tags, content_type)
         return queryset.order_by('-publication_date')
 
-    def get_online_most_commented(self, category=None, tag=None, content_type=None):
-        queryset = self.__get_list(category, content_type, tag)
+    def get_most_commented_list(self, subcategories=None, tags=None, content_type=None):
+        queryset = self.__get_list(subcategories, tags, content_type)
         return queryset.order_by('-count_note')
 
-    def __get_list(self, category, content_type, tag):
+    def __get_list(self, subcategories=None, tags=None, content_type=None):
+        """
+
+        :param subcategories: subcatergories
+        :type subcategories: list of SubCategory
+        :param tags: tags
+        :type tags: list of Tag
+        :param content_type: type of content
+        :type content_type: str
+        :return: queryset
+        :rtype: django.db.models.QuerySet
+        """
+
         sub_query = 'SELECT COUNT(*) FROM {} WHERE {}={}'
         sub_query = sub_query.format(
             'tutorialv2_contentreaction',
@@ -126,16 +138,15 @@ class PublishedContentManager(models.Manager):
             .select_related('content__last_note__related_content') \
             .select_related('content__last_note__related_content__public_version') \
             .filter(pk=F('content__public_version__pk'))
-        if category:
-            queryset = queryset.filter(content__subcategory__in=[category])
-        if tag:
-            queryset = queryset.filter(content__tags__in=[tag])  # different tags can have same
-            # slug such as C/C#/C++, as a first version we get all of them
+        if subcategories:
+            queryset = queryset.filter(content__subcategory__in=subcategories)
+        if tags:
+            queryset = queryset.filter(content__tags__in=tags)
         queryset = queryset.extra(select={'count_note': sub_query})
         return queryset
 
-    def get_featured(self, nb):
-        self.__get_list(None, None, None).order_by('-publication_date')[:2]
+    def get_featured(self, nb=2):
+        return self.__get_list().order_by('-publication_date')[:nb]
 
 
 class PublishableContentManager(models.Manager):

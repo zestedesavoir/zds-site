@@ -1,0 +1,41 @@
+{% extends "tutorialv2/view/base_categories.html" %}
+{% load i18n %}
+
+{% comment %}
+    Structure de la page de second level :
+    - présentation des sous catégories (accessible via {%  for subcategory in subcategories %}
+    - liste des 5 derniers tutos en une colonne
+    - liste des 5 derniers articles en une colonne
+{% endcomment %}
+
+{% block content_category %}
+    <section>
+        <h2 class="inline" itemprop="name">Catégories dans {{ category.title | lower }}</h2>
+        {% include 'tutorialv2/list_page_elements/list_subcategories.html' with subcategories=subcategories %}
+
+    </section>
+
+    <div class="flexpage-column">
+        <section>
+            <h2 itemprop="name">
+                Derniers tutoriels
+                <a href="{% url "tutorial:feed-rss" %}" class="btn btn-grey">RSS</a>
+                <a href="{% url "tutorial:feed-atom" %}" class="btn btn-grey">Atom</a>
+            </h2>
+            {% include 'tutorialv2/list_page_elements/list_of_online_contents.html' with public_contents=last_tutorials col_number=1 %}
+            <a href="{% url 'tutorial:list' %}?theme={{ category.slug }}" class="more-link">Plus de tutoriels dans {{ category.title | lower }}</a>
+        </section>
+
+        <section>
+            <h2 itemprop="name">
+                Derniers articles
+                <a href="{% url "article:feed-rss" %}" class="btn btn-grey">RSS</a>
+                <a href="{% url "article:feed-atom" %}" class="btn btn-grey">Atom</a>
+            </h2>
+            {% include 'tutorialv2/list_page_elements/list_of_online_contents.html' with public_contents=last_articles col_number=1 %}
+            <a href="{% url 'article:list' %}?theme={{ category.slug }}" class="more-link">Plus d'articles dans {{ category.title | lower }}</a>
+        </section>
+    </div>
+
+    {% include 'tutorialv2/list_page_elements/call_for_helps.html' %}
+{% endblock %}

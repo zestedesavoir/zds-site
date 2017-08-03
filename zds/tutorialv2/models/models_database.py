@@ -964,10 +964,10 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         subcategories = []
         for subcategory in versioned.subcategory.all():
             parent_category = subcategory.get_parent_category()
-            if subcategory.title not in subcategories:
-                subcategories.append(subcategory.title)
-            if parent_category and parent_category.title not in categories:
-                categories.append(parent_category.title)
+            if subcategory.slug not in subcategories:
+                subcategories.append(subcategory.slug)
+            if parent_category and parent_category.slug not in categories:
+                categories.append(parent_category.slug)
 
         data['categories'] = categories
         data['subcategories'] = subcategories
@@ -1054,10 +1054,10 @@ class FakeChapter(AbstractESIndexable):
         self.subcategories = []
         for subcategory in main_container.subcategory.all():
             parent_category = subcategory.get_parent_category()
-            if subcategory.title not in self.subcategories:
-                self.subcategories.append(subcategory.title)
-            if parent_category and parent_category.title not in self.categories:
-                self.categories.append(parent_category.title)
+            if subcategory.slug not in self.subcategories:
+                self.subcategories.append(subcategory.slug)
+            if parent_category and parent_category.slug not in self.categories:
+                self.categories.append(parent_category.slug)
 
     @classmethod
     def get_es_document_type(cls):

@@ -8,4 +8,5 @@ urlpatterns = [
     url(r'^tutoriels/', include('zds.tutorialv2.urls.urls_tutorials', namespace='tutorial')),
     url(r'^billets/', include('zds.tutorialv2.urls.urls_opinions', namespace='opinion')),
     url(r'^articles/', include('zds.tutorialv2.urls.urls_articles', namespace='article')),
+    url(r'^publications/', include('zds.tutorialv2.urls.urls_publications', namespace='publication')),
 ]

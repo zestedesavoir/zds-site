@@ -120,13 +120,8 @@
 
                 <meta itemprop="itemListOrder" content="Descending">
 
-                <div class="content-item-list">
-                    {% for tutorial in last_tutorials %}
-                        {% include 'tutorialv2/includes/content_item.part.html' with public_content=tutorial show_description=True %}
-                    {% empty %}
-                        <p>{% trans "Aucun tutoriel disponible." %}</p>
-                    {% endfor %}
-                </div>
+                {% include "tutorialv2/list_page_elements/list_of_online_contents.html" with public_contents=last_tutorials col_number=1 %}
+
             </section>
 
             <section itemscope itemtype="http://schema.org/ItemList">
@@ -137,12 +132,9 @@
 
                 <meta itemprop="itemListOrder" content="Descending">
 
+                {% include "tutorialv2/list_page_elements/list_of_online_contents.html" with public_contents=last_articles col_number=1 %}
+
                 <div class="content-item-list">
-                    {% for article in last_articles %}
-                        {% include 'tutorialv2/includes/content_item.part.html' with public_content=article show_description=True show_reactions=True %}
-                    {% empty %}
-                        <p>{% trans "Aucun article disponible." %}</p>
-                    {% endfor %}
 
                     <div class="content-item write-tutorial">
                         <div class="write-tutorial-text">

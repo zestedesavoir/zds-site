@@ -17,15 +17,13 @@ Display a list of content_item.part.html. This template is fully customizable by
 {% endif %}
     {% if public_contents %}
         <div class="content-item-list">
-            {% if current_content_type == "ARTICLE" or current_content_type == "OPINION" %}
-                {% for public_content in public_contents %}
+            {% for public_content in public_contents %}
+                {% if public_content.content_type == 'ARTICLE' or public_content.content_type == 'OPINION' %}
                     {% include "tutorialv2/includes/content_item.part.html" with public_content=public_content show_description=True show_reactions=True %}
-                {% endfor %}
-            {% else %}
-                {% for public_content in public_contents %}
+                {% else %}
                     {% include "tutorialv2/includes/content_item.part.html" with public_content=public_content show_description=True %}
-                {% endfor %}
-            {% endif %}
+                {% endif %}
+            {% endfor %}
         {% for i in col_number|times %}
             <div class="fill"></div>
         {% endfor %}
