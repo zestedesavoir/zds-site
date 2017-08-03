@@ -936,7 +936,7 @@ class ViewsTests(TestCase):
 
         # 3. Test
         result = self.client.get(
-            reverse('search:query') + '?q=' + text + '&model=content&subcategory=' + category_1, follow=False)
+            reverse('search:query') + '?q=' + text + '&model=content&subcategory=' + subcategory_1.slug, follow=False)
 
         self.assertEqual(result.status_code, 200)
 
@@ -949,7 +949,7 @@ class ViewsTests(TestCase):
             tuto_1.slug + '__' + chapter_1.slug)
 
         result = self.client.get(
-            reverse('search:query') + '?q=' + text + '&model=content&subcategory=' + category_2, follow=False)
+            reverse('search:query') + '?q=' + text + '&model=content&subcategory=' + subcategory_2.slug, follow=False)
 
         self.assertEqual(result.status_code, 200)
 
