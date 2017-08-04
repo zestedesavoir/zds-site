@@ -55,15 +55,21 @@ class FeaturedResourceCreate(CreateView):
 
         return render(request, self.template_name, {'form': form})
 
-    def form_valid(self, form):
+    def get_form_kwargs(self):
+        return {'hide_major_update_field': True}
 
+    def form_valid(self, form):
         featured_resource = FeaturedResource()
-        featured_resource.title = form.data.get('title')
-        featured_resource.type = form.data.get('type')
-        featured_resource.authors = form.data.get('authors')
-        featured_resource.image_url = form.data.get('image_url')
-        featured_resource.url = form.data.get('url')
-        featured_resource.pubdate = form.data.get('pubdate')
+        featured_resource.title = form.cleaned_data.get('title')
+        featured_resource.type = form.cleaned_data.get('type')
+        featured_resource.authors = form.cleaned_data.get('authors')
+        featured_resource.image_url = form.cleaned_data.get('image_url')
+        featured_resource.url = form.cleaned_data.get('url')
+        if form.cleaned_data.get('major_update', False):
+            featured_resource.pubdate = datetime.now()
+        else:
+            featured_resource.pubdate = form.cleaned_data.get('pubdate')
+
         featured_resource.save()
 
         return redirect(reverse('featured-resource-list'))
@@ -108,16 +114,18 @@ class FeaturedResourceUpdate(UpdateView):
 
     def form_valid(self, form):
 
-        self.featured_resource.title = form.data.get('title')
-        self.featured_resource.type = form.data.get('type')
-        self.featured_resource.authors = form.data.get('authors')
-        self.featured_resource.image_url = form.data.get('image_url')
-        self.featured_resource.url = form.data.get('url')
-        if form.data.get('major_update') is not None:
+        self.featured_resource.title = form.cleaned_data.get('title')
+        self.featured_resource.type = form.cleaned_data.get('type')
+        self.featured_resource.authors = form.cleaned_data.get('authors')
+        self.featured_resource.image_url = form.cleaned_data.get('image_url')
+        self.featured_resource.url = form.cleaned_data.get('url')
+        if form.cleaned_data.get('major_update', False):
             self.featured_resource.pubdate = datetime.now()
+        else:
+            self.featured_resource.pubdate = form.cleaned_data.get('pubdate')
 
         self.featured_resource.save()
-        return redirect(reverse('homepage'))
+        return redirect(reverse('featured-resource-list'))
 
     def get_form(self, form_class=FeaturedResourceForm):
         form = self.form_class(self.request.POST)
