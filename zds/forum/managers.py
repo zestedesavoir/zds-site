@@ -131,16 +131,12 @@ class PostManager(InheritanceManager):
         if not current.has_perm('forum.change_post'):
             queryset = queryset.filter(is_visible=True)
 
-        full_queryset_len = queryset.count()
-        queryset = queryset.filter(self.visibility_check_query(current))
-        hidden_messages_count = full_queryset_len - queryset.count()
+        queryset = queryset\
+            .filter(self.visibility_check_query(current))\
+            .prefetch_related('author')\
+            .order_by('-pubdate')
 
-        queryset = queryset.prefetch_related('author').order_by('-pubdate').all()
-
-        return {
-            'posts': queryset,
-            'hidden_messages_count': hidden_messages_count,
-        }
+        return queryset
 
 
 class TopicReadManager(models.Manager):
