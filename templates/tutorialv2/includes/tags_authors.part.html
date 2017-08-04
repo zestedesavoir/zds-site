@@ -10,7 +10,7 @@
     {% if content.is_opinion %}
         {% url 'opinion:list' %}
     {% else %}
-        {% url 'content:list' %}
+        {% url 'publication:list' %}
     {% endif %}
 {% endcaptureas %}
 
@@ -71,7 +71,7 @@
     </span>
     <ul>
         {% for category in content.subcategory.all %}
-            {% if forloop.first %}{% elif forloop.last %} {% trans "et" %}{% else %},{% endif %} <a href="{% url 'content:list' %}?category={{ category.slug }}">{{ category.title }}</a>
+            {% if forloop.first %}{% elif forloop.last %} {% trans "et" %}{% else %},{% endif %} <a href="{% url 'publication:list' %}?category={{ category.slug }}">{{ category.title }}</a>
         {% endfor %}
     </ul>
     <br/>

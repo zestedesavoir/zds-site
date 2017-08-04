@@ -113,13 +113,13 @@
 
         {% captureas content_list_url %}
             {% if current_content_type == "ARTICLE" %}
-                {% url "article:list" %}
+                {% url "publication:list" %}?type=article
             {% elif current_content_type == "TUTORIAL" %}
-                {% url "tutorial:list" %}
+                {% url "publication:list" %}?type=tutorial
             {% elif current_content_type == "OPINION" %}
                 {% url "opinion:list" %}
             {% elif current_content_type == None %}
-                {% url "content:list" %}
+                {% url "publication:list" %}
             {% endif %}
         {% endcaptureas %}
 
