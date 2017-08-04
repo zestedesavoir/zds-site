@@ -1051,3 +1051,9 @@ Ticket #4313
 ------------
 
 + Via l'admin Django, ajouter la permission `member.change_bannedemailprovider` aux groupes autorisés à gérer les fournisseurs e-mail bannis.
+
+
+Actions à faire pour mettre en prod la version : v25
+====================================================
+
+* Dans le `settings_prod.py`, renommer `sec_per_minute` en `characters_per_minute` si présent
