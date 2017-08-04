@@ -50,8 +50,9 @@
 
         & > li {
             display: block;
-            flex: 1;
-            max-width: 150px;
+            flex-grow: 0;
+            flex-shrink: 1;
+            flex-basis: 150px;
 
             & > a {
                 display: block;
