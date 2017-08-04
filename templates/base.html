@@ -81,6 +81,10 @@
     <meta property="twitter:image" content="http://{{ meta_image }}">
 
 
+    {# DCMI cards #}
+    {% block DCMI_cards %}{% endblock %}
+
+
     {# Stylesheets #}
     <link rel="stylesheet" href="{% static "css/main.css" %}">
     {% if not debug %}
@@ -721,7 +725,7 @@
                     {% endif %}
                     {% if app.site.social.googleplus %}
                         <li><a href="{{app.site.social.googleplus}}" title="Retrouvez-nous sur Google+" class="btn ico-after google-plus light btn-google-plus btn-holder"></a></li>
-		    {% endif %}
+                    {% endif %}
                 </ul>
 
                 <ul class="links">
