@@ -486,6 +486,11 @@ class ViewCategory(DetailView):
             content_type='TUTORIAL',
             subcategories=context['subcategories'])[:5]
 
+        context['beta_forum'] = Forum.objects\
+            .prefetch_related('category')\
+            .filter(pk=settings.ZDS_APP['forum']['beta_forum_id'])\
+            .last()
+
         return context
 
 
@@ -524,6 +529,11 @@ class ViewSubCategory(DetailView):
         context['last_tutorials'] = PublishedContent.objects.get_recent_list(
             content_type='TUTORIAL',
             subcategories=[self.object])[:5]
+
+        context['beta_forum'] = Forum.objects\
+            .prefetch_related('category')\
+            .filter(pk=settings.ZDS_APP['forum']['beta_forum_id'])\
+            .last()
 
         return context
 
