@@ -235,7 +235,7 @@ class ProfileForm(MiniProfileForm):
             .format(
                 settings.ZDS_APP['site']['licenses']['licence_info_title'],
                 settings.ZDS_APP['site']['licenses']['licence_info_link'],
-                settings.ZDS_APP['site']['litteral_name'],
+                settings.ZDS_APP['site']['literal_name'],
             )
         ),
         queryset=Licence.objects.order_by('title').all(),

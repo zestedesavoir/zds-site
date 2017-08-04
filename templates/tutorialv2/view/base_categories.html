@@ -52,7 +52,7 @@
                 </div>
                 <div class="title">
 
-                    <h1><a href="{% url 'publication:list' %}">{% trans 'Publications' %}</a></h1>
+                    <h1><a href="{% url 'publication:list' %}">{% trans 'Bibliothèque' %}</a></h1>
                     {% if category %}
                         <span class="separator"></span>
                         <h2><a href="{% url 'publication:category' slug=category.slug %}">{{ category.title }}</a></h2>
@@ -70,7 +70,7 @@
                 <div class="aside">
                     <form action="{% url 'search:query' %}" id="search-form" class="search" method="get">
                         <label for="id_q" class="control-label">Recherche</label>
-                        <input id="id_q" maxlength="150" name="q" required="required" type="search" placeholder="{% trans 'dans' %} {% if subcategory %}{{ subcategory.title|lower }}{% elif category %}{{ category.title|lower }}{% else %}{% trans 'les publications' %}{% endif %} ...">
+                        <input id="id_q" maxlength="150" name="q" required="required" type="search" placeholder="{% trans 'dans' %} {% if subcategory %}{{ subcategory.title|lower }}{% elif category %}{{ category.title|lower }}{% else %}{% trans 'la bibliothèque' %}{% endif %} …">
                         <input type="hidden" name="models" value="content">
                         {% if category %}
                             <input type="hidden" name="category" value="{{ category.slug }}">

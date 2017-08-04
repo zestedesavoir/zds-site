@@ -196,18 +196,23 @@
 
                     <ul class="header-menu-list">
                         <li>
+<<<<<<< dev
                             <a href="{% url "tutorial:list" %}" class="mobile-menu-link {% block menu_tutorial %}{% endblock %}">
                                 {% trans "Tutoriels" %}
                                 <span class="arrow" />
+=======
+                                <a href="{% url "publication:list" %}" class="mobile-menu-link {% block menu_tutorial %}{% endblock %}">
+                                    {% trans "Bibliothèque" %}
+>>>>>>> HEAD~16
                             </a>
-                            {% cache 1800 menu_tutorial user|groups %}
+                                {% cache 1800 menu_publications user|groups %}
                                 <div class="dropdown header-menu-dropdown">
-                                    <a href="{% url "tutorial:list" %}" class="dropdown-link-all">
-                                        {% trans "Tous les tutoriels" %}
+                                        <a href="{% url "publication:list" %}" class="dropdown-link-all">
+                                            {% trans "Accéder à tous les contenus de la bibliothèque" %}
                                     </a>
 
                                     <ul class="dropdown-list">
-                                        {% with categories='TUTORIAL'|top_categories_content %}
+                                            {% with categories=''|top_categories_content %}
                                             {% for title, subcats in categories.categories.items %}
                                                 <li>
                                                     <ul>
@@ -216,7 +221,7 @@
                                                         </li>
                                                         {% for subcat,slug in subcats %}
                                                             <li>
-                                                                <a href="{% url "tutorial:list" %}?category={{ slug }}">
+                                                                    <a href="{% url "publication:list" %}?category={{ slug }}">
                                                                     {{ subcat }}
                                                                 </a>
                                                             </li>
@@ -226,7 +231,7 @@
                                             {% empty %}
                                                 <ul>
                                                     <li class="dropdown-title">
-                                                        {% trans "Aucun tutoriel disponible." %}
+                                                            {% trans "Aucun contenu disponible." %}
                                                     </li>
                                                 </ul>
                                             {% endfor %}
@@ -249,6 +254,7 @@
                             {% endcache %}
                         </li>
                         <li>
+<<<<<<< dev
                             <a href="{% url "article:list" %}" class="mobile-menu-link {% block menu_article %}{% endblock %}">
                                 {% trans "Articles" %}
                                 <span class="arrow" />
@@ -304,6 +310,10 @@
                             <a href="{% url "opinion:list" %}" class="mobile-menu-link {% block menu_opinion %}{% endblock %}">
                                 {% trans "Tribunes" %}
                                 <span class="arrow" />
+=======
+                                <a href="{% url "opinion:list" %}" class="mobile-menu-link {% block menu_opinion %}{% endblock %}">
+                                    {% trans "Tribune" %}
+>>>>>>> HEAD~16
                             </a>
                             {% cache 1800 menu_opinion user|groups %}
                                 <div class="dropdown header-menu-dropdown">
@@ -355,7 +365,7 @@
                         </li>
                         <li>
                             <a href="{% url "cats-forums-list" %}" class="mobile-menu-link {% block menu_forum %}{% endblock %}">
-                                {% trans "Forums" %}
+                                {% trans "Forum" %}
                                 <span class="arrow" />
                             </a>
                             {% cache 1800 menu_forum user|groups %}

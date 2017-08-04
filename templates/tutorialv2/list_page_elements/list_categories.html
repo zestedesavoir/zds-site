@@ -24,6 +24,12 @@ exposes categories
 
         {% for subcategory in category.subcategories %}
            <a href="{% url 'publication:subcategory' slug_category=category.slug slug=subcategory.subcategory__slug %}" class="tail">
+                <!--
+                  TODO: lien avec query param vers niveau 3:
+                  /bibliotheque?subcategory=bureautique-et-redaction
+                  au lieu de:
+                  /bibliotheque/informatique/bureautique-et-redaction/
+                -->
                 <p>{{ subcategory.subcategory__title }}</p>
             </a>
         {% endfor %}

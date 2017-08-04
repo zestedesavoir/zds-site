@@ -101,8 +101,8 @@ class ForumTopicsListView(FilterMixin, ForumEditMixin, ZdSPagingListView, Update
         # "already read topic" set out of this list and MySQL does not support that type of subquery
 
         # Add a topic.is_followed attribute
-        followed_query_set = TopicAnswerSubscription.objects.get_objects_followed_by(self.request.user.id)
-        followed_topics = list(set(followed_query_set) & set(context['topics'] + sticky))
+        followed_queryset = TopicAnswerSubscription.objects.get_objects_followed_by(self.request.user.id)
+        followed_topics = list(set(followed_queryset) & set(context['topics'] + sticky))
         for topic in set(context['topics'] + sticky):
             topic.is_followed = topic in followed_topics
 
@@ -721,7 +721,7 @@ class ManageGitHubIssue(UpdateView):
                 body = _('{}\n\nSujet : {}\n*Envoyé depuis {}*')\
                     .format(request.POST['body'],
                             settings.ZDS_APP['site']['url'] + self.object.get_absolute_url(),
-                            settings.ZDS_APP['site']['litteral_name'])
+                            settings.ZDS_APP['site']['literal_name'])
                 try:
                     response = requests.post(
                         settings.ZDS_APP['site']['repository']['api'] + '/issues',

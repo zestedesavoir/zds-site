@@ -51,7 +51,7 @@ class CreateDestroyMemberSanctionAPIView(CreateAPIView, DestroyAPIView):
                     ban.type,
                     state.get_detail(),
                     ban.note,
-                    settings.ZDS_APP['site']['litteral_name'])
+                    settings.ZDS_APP['site']['literal_name'])
         state.notify_member(ban, msg)
         return Response(serializer.data)
 

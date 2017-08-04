@@ -556,7 +556,7 @@ def modify_profile(request, user_pk):
                      ban.type,
                      state.get_detail(),
                      ban.note,
-                     settings.ZDS_APP['site']['litteral_name'])
+                     settings.ZDS_APP['site']['literal_name'])
 
     state.notify_member(ban, msg)
     return redirect(profile.get_absolute_url())
@@ -802,12 +802,12 @@ def forgot_password(request):
             token.save()
 
             # send email
-            subject = _(u'{} - Mot de passe oublié').format(settings.ZDS_APP['site']['litteral_name'])
-            from_email = '{} <{}>'.format(settings.ZDS_APP['site']['litteral_name'],
+            subject = _(u'{} - Mot de passe oublié').format(settings.ZDS_APP['site']['literal_name'])
+            from_email = '{} <{}>'.format(settings.ZDS_APP['site']['literal_name'],
                                           settings.ZDS_APP['site']['email_noreply'])
             context = {
                 'username': usr.username,
-                'site_name': settings.ZDS_APP['site']['litteral_name'],
+                'site_name': settings.ZDS_APP['site']['literal_name'],
                 'site_url': settings.ZDS_APP['site']['url'],
                 'url': settings.ZDS_APP['site']['url'] + token.get_absolute_url()
             }
@@ -883,13 +883,13 @@ def activate_account(request):
             'opinions_url': settings.ZDS_APP['site']['url'] + reverse('opinion:list'),
             'members_url': settings.ZDS_APP['site']['url'] + reverse('member-list'),
             'forums_url': settings.ZDS_APP['site']['url'] + reverse('cats-forums-list'),
-            'site_name': settings.ZDS_APP['site']['litteral_name']
+            'site_name': settings.ZDS_APP['site']['literal_name']
         }
     )
 
     send_mp(bot,
             [usr],
-            _(u'Bienvenue sur {}').format(settings.ZDS_APP['site']['litteral_name']),
+            _(u'Bienvenue sur {}').format(settings.ZDS_APP['site']['literal_name']),
             _(u'Le manuel du nouveau membre'),
             msg,
             False,
@@ -926,13 +926,13 @@ def generate_token_account(request):
     token.save()
 
     # send email
-    subject = _(u"{} - Confirmation d'inscription").format(settings.ZDS_APP['site']['litteral_name'])
-    from_email = '{} <{}>'.format(settings.ZDS_APP['site']['litteral_name'],
+    subject = _(u"{} - Confirmation d'inscription").format(settings.ZDS_APP['site']['literal_name'])
+    from_email = '{} <{}>'.format(settings.ZDS_APP['site']['literal_name'],
                                   settings.ZDS_APP['site']['email_noreply'])
     context = {
         'username': token.user.username,
         'site_url': settings.ZDS_APP['site']['url'],
-        'site_name': settings.ZDS_APP['site']['litteral_name'],
+        'site_name': settings.ZDS_APP['site']['literal_name'],
         'url': settings.ZDS_APP['site']['url'] + token.get_absolute_url()
     }
     message_html = render_to_string('email/member/confirm_registration.html', context)

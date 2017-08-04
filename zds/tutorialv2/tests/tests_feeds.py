@@ -85,9 +85,9 @@ class LastTutorialsFeedRSSTest(TestCase):
         """ Test that base parameters are Ok """
 
         self.assertEqual(self.tutofeed.link, '/tutoriels/')
-        reftitle = u'Tutoriels sur {}'.format(overrided_zds_app['site']['litteral_name'])
+        reftitle = u'Tutoriels sur {}'.format(overrided_zds_app['site']['literal_name'])
         self.assertEqual(self.tutofeed.title, reftitle)
-        refdescription = u'Les derniers tutoriels parus sur {}.'.format(overrided_zds_app['site']['litteral_name'])
+        refdescription = u'Les derniers tutoriels parus sur {}.'.format(overrided_zds_app['site']['literal_name'])
         self.assertEqual(self.tutofeed.description, refdescription)
 
         atom = LastTutorialsFeedATOM()
@@ -207,9 +207,9 @@ class LastArticlesFeedRSSTest(TestCase):
         """ Test that base parameters are Ok """
 
         self.assertEqual(self.articlefeed.link, '/articles/')
-        reftitle = u'Articles sur {}'.format(overrided_zds_app['site']['litteral_name'])
+        reftitle = u'Articles sur {}'.format(overrided_zds_app['site']['literal_name'])
         self.assertEqual(self.articlefeed.title, reftitle)
-        refdescription = u'Les derniers articles parus sur {}.'.format(overrided_zds_app['site']['litteral_name'])
+        refdescription = u'Les derniers articles parus sur {}.'.format(overrided_zds_app['site']['literal_name'])
         self.assertEqual(self.articlefeed.description, refdescription)
 
         atom = LastArticlesFeedATOM()

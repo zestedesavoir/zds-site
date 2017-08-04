@@ -3,19 +3,16 @@ from __future__ import unicode_literals
 from django.conf import settings
 from django.db import models
 from django.db.models import Count, F
-
-from zds.utils.models import Tag
 from django.utils.translation import ugettext_lazy as _
+
+from zds.utils.models import Tag, Category
 
 
 class PublishedContentManager(models.Manager):
-    """
-    Custom published content manager.
-    """
 
-    def published_contents(self, _type=None):
+    def published_contents(self, _type=None, categories=[], subcategories=[]):
         """
-        Get contents published order by date depends on settings.ZDS_APP['content'][''user_page_number']
+        Get contents published ordered by date
 
         :return:
         :rtype: django.db.models.QuerySet
@@ -28,6 +25,25 @@ class PublishedContentManager(models.Manager):
 
         if _type:
             queryset = queryset.filter(content_type=_type)
+
+        if categories:
+            if isinstance(categories[0], int):
+                cats = Category.objects.filter(pk__in=categories)
+            else:
+                cats = Category.objects.filter(slug__in=categories)
+
+            for cat in cats:
+                subcats = cat.get_subcategories()
+                for subcat in subcats:
+                    subcategories.append(subcat)
+
+            subcategories = list(set(subcategories))
+
+        if subcategories:
+            if isinstance(subcategories[0], int):
+                queryset = queryset.filter(content__subcategory__in=subcategories)
+            else:
+                queryset = queryset.filter(content__subcategory__slug__in=subcategories)
 
         return queryset
 
@@ -96,18 +112,18 @@ class PublishedContentManager(models.Manager):
             published.authors.remove(unsubscribed_user)
             published.save()
 
-    def get_recent_list(self, subcategories=None, tags=None, content_type=None):
+    def get_recent_list(self, subcategories=[], tags=[], content_type=None):
         queryset = self.__get_list(subcategories, tags, content_type)
         return queryset.order_by('-publication_date')
 
-    def get_most_commented_list(self, subcategories=None, tags=None, content_type=None):
+    def get_most_commented_list(self, subcategories=[], tags=[], content_type=None):
         queryset = self.__get_list(subcategories, tags, content_type)
         return queryset.order_by('-count_note')
 
-    def __get_list(self, subcategories=None, tags=None, content_type=None):
+    def __get_list(self, subcategories=[], tags=[], content_type=None):
         """
 
-        :param subcategories: subcatergories
+        :param subcategories: subcategories
         :type subcategories: list of SubCategory
         :param tags: tags
         :type tags: list of Tag
@@ -117,12 +133,11 @@ class PublishedContentManager(models.Manager):
         :rtype: django.db.models.QuerySet
         """
 
-        sub_query = 'SELECT COUNT(*) FROM {} WHERE {}={}'
-        sub_query = sub_query.format(
-            'tutorialv2_contentreaction',
-            'tutorialv2_contentreaction.related_content_id',
-            r'`tutorialv2_publishablecontent`.`id`'
-        )
+        sub_query = """
+            SELECT COUNT(*)
+            FROM tutorialv2_contentreaction
+            WHERE tutorialv2_contentreaction.related_content_id=`tutorialv2_publishablecontent`.`id`
+        """
         queryset = self.filter(must_redirect=False)
         if content_type:
             queryset = queryset.filter(content_type=content_type)

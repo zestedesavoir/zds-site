@@ -412,9 +412,9 @@ class ViewAllCategories(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(ViewAllCategories, self).get_context_data(**kwargs)
 
-        # get categories and subcategories
-        total_count = 0
+        contents_count = 0
 
+        # get categories and subcategories
         context['categories'] = list(Category.objects.order_by('position').all())
         for category in context['categories']:
             category.subcategories = list(
@@ -425,11 +425,11 @@ class ViewAllCategories(TemplateView):
                     .all())
 
             pks = [c['subcategory__pk'] for c in category.subcategories]
-            category.count_contents = PublishedContent.objects\
+            category.contents_count = PublishedContent.objects\
                 .published_contents()\
                 .filter(content__subcategory__in=pks)\
                 .count()
-            total_count += category.count_contents
+            contents_count += category.contents_count
 
         # get last articles and tutorials
         context['last_articles'] = PublishedContent.objects.get_recent_list(content_type='ARTICLE')[:10]
@@ -440,7 +440,7 @@ class ViewAllCategories(TemplateView):
             .filter(pk=settings.ZDS_APP['forum']['beta_forum_id'])\
             .last()
 
-        context['content_count'] = total_count
+        context['content_count'] = contents_count
 
         return context
 
@@ -469,11 +469,11 @@ class ViewCategory(DetailView):
         total_count = 0
 
         for subcategory in context['subcategories']:
-            subcategory.count_contents = PublishedContent.objects \
+            subcategory.contents_count = PublishedContent.objects \
                 .published_contents() \
                 .filter(content__subcategory__pk=subcategory.pk) \
                 .count()
-            total_count += subcategory.count_contents
+            total_count += subcategory.contents_count
 
         context['content_count'] = total_count
 

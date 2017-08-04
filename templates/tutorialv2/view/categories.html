@@ -10,7 +10,6 @@
         - 1 column with last 6 contents
         - 1 column with 6 most commented contents
         - self investment block
-    {% endcomment %}
 
     <section>
         <h2 itemprop="name">{%  trans  'À la une' %}</h2>
@@ -20,6 +19,7 @@
             {% endfor %}
         </div>
     </section>
+    {% endcomment %}
 
     <section>
         <h2 class="inline" itemprop="name">{% trans 'Domaines de savoir' %}</h2>
@@ -31,11 +31,15 @@
     <div class="flexpage-column">
         <section>
             <h2 itemprop="name">
-                {% trans 'Derniers tutoriels' %}
+              {% trans 'Derniers tutoriels' %}
                 <a href="{% url "tutorial:feed-rss" %}" class="btn btn-grey">RSS</a>
                 <a href="{% url "tutorial:feed-atom" %}" class="btn btn-grey">Atom</a>
             </h2>
             {% include 'tutorialv2/list_page_elements/list_of_online_contents.html' with public_contents=last_tutorials col_number=1 %}
+            <!--
+              TODO: lien avec query param vers niveau 3 + type de publication:
+              /bibliotheque?type=tutoriel
+            -->
             <a href="{% url 'tutorial:list' %}" class="more-link">Plus de tutoriels</a>
         </section>
 
@@ -46,6 +50,10 @@
                 <a href="{% url "article:feed-atom" %}" class="btn btn-grey">Atom</a>
             </h2>
             {% include 'tutorialv2/list_page_elements/list_of_online_contents.html' with public_contents=last_articles col_number=1 %}
+            <!--
+              TODO: lien avec query param vers niveau 3 + type de publication:
+              /bibliotheque?type=article
+            -->
             <a href="{% url 'article:list' %}" class="more-link">Plus d'articles</a>
         </section>
     </div>

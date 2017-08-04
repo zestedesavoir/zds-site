@@ -386,7 +386,7 @@ THUMBNAIL_PRESERVE_EXTENSIONS = None
 ZDS_APP = {
     'site': {
         'name': u'ZesteDeSavoir',
-        'litteral_name': u'Zeste de Savoir',
+        'literal_name': u'Zeste de Savoir',
         'slogan': u'Zeste de Savoir, la connaissance pour tous et sans pépins',
         'abbr': u'zds',
         'url': u'http://127.0.0.1:8000',
@@ -510,10 +510,6 @@ ZDS_APP = {
         'characters_per_minute': 1500,
         'editorial_line_link':
         u'https://zestedesavoir.com/articles/222/la-ligne-editoriale-officielle-de-zeste-de-savoir/',
-        'sec_per_minute': 1500,
-        'list': 'new',  # put 'old' if you want to go back to old way of displaying tutorial
-        'selected_content_method_name': 'get_most_commented_list',  # allow to customize "top tutorial" appears
-        'content_per_theme': 10
     },
     'forum': {
         'posts_per_page': 21,

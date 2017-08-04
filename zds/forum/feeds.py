@@ -9,10 +9,10 @@ from .models import Post, Topic
 
 
 class LastPostsFeedRSS(Feed):
-    title = u'Derniers messages sur {}'.format(settings.ZDS_APP['site']['litteral_name'])
+    title = u'Derniers messages sur {}'.format(settings.ZDS_APP['site']['literal_name'])
     link = '/forums/'
     description = (u'Les derniers messages '
-                   u'parus sur le forum de {}.'.format(settings.ZDS_APP['site']['litteral_name']))
+                   u'parus sur le forum de {}.'.format(settings.ZDS_APP['site']['literal_name']))
 
     def get_object(self, request):
         obj = {}
@@ -69,9 +69,9 @@ class LastPostsFeedATOM(LastPostsFeedRSS):
 
 
 class LastTopicsFeedRSS(Feed):
-    title = u'Derniers sujets sur {}'.format(settings.ZDS_APP['site']['litteral_name'])
+    title = u'Derniers sujets sur {}'.format(settings.ZDS_APP['site']['literal_name'])
     link = '/forums/'
-    description = u'Les derniers sujets créés sur le forum de {}.'.format(settings.ZDS_APP['site']['litteral_name'])
+    description = u'Les derniers sujets créés sur le forum de {}.'.format(settings.ZDS_APP['site']['literal_name'])
 
     def get_object(self, request):
         obj = {}
