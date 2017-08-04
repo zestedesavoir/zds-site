@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 import logging
 
+from django.db import transaction
 from django.db.backends.dummy.base import DatabaseError
 
 import zds
@@ -424,18 +425,21 @@ def cleanup_notification_for_unpublished_content(sender, instance, **_):
     :param _: the useless kwargs
     """
     logger.debug('deal with %s(%s) notifications.', sender, instance)
-    try:
-        notifications = Notification.objects\
-            .filter(content_type=ContentType.objects.get_for_model(instance, True),
-                    object_id=instance.pk)
-        for notification in notifications:
-            subscription = notification.subscription
-            if subscription.last_notification and subscription.last_notification.pk == notification.pk:
-                notification.subscription.last_notification = None
-                notification.subscription.save()
-            notification.delete()
-        Subscription.objects.filter(content_type=ContentType.objects.get_for_model(instance, True),
-                                    object_id=instance.pk).update(is_active=False)
-        logger.debug('Nothing went wrong.')
-    except DatabaseError:
-        logger.exception()
+    with transaction.atomic():
+        try:
+            notifications = Notification.objects\
+                .filter(content_type=ContentType.objects.get_for_model(instance, True),
+                        object_id=instance.pk)
+            for notification in notifications:
+                subscription = notification.subscription
+                if subscription.last_notification and subscription.last_notification.pk == notification.pk:
+                    notification.subscription.last_notification = None
+                    notification.subscription.save()
+                notification.delete()
+            Subscription.objects.filter(content_type=ContentType.objects.get_for_model(instance, True),
+                                        object_id=instance.pk).update(is_active=False)
+            logger.debug('Nothing went wrong.')
+            for subscription in ContentReactionAnswerSubscription.iter_for_content(instance):
+                subscription.mark_notification_read()
+        except DatabaseError:
+            logger.exception()

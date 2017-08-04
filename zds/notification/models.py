@@ -48,38 +48,36 @@ class Subscription(models.Model):
         return _('<Abonnement du membre "{0}" aux notifications pour le {1}, #{2}>')\
             .format(self.user.username, self.content_type, self.object_id)
 
+    def update(self, **kwargs):
+        self.__class__.objects.filter(pk=self.pk).update(**kwargs)
+
     def activate(self):
         """
         Activates the subscription if it's inactive. Does nothing otherwise
         """
         if not self.is_active:
-            self.is_active = True
-            self.save()
+            self.update(is_active=True)
 
     def activate_email(self):
         """
         Activates the notifications by email (and the subscription itself if needed)
         """
         if not self.is_active or not self.by_email:
-            self.is_active = True
-            self.by_email = True
-            self.save()
+            self.update(is_active=True, by_email=True)
 
     def deactivate(self):
         """
         Deactivate the subscription if it is active. Does nothing otherwise
         """
         if self.is_active:
-            self.is_active = False
-            self.save()
+            self.update(is_active=False)
 
     def deactivate_email(self):
         """
         Deactivate the email if it is active. Does nothing otherwise
         """
         if self.is_active and self.by_email:
-            self.by_email = False
-            self.save()
+            self.update(by_email=False)
 
     def set_last_notification(self, notification):
         """
@@ -158,7 +156,6 @@ class SingleNotificationMixin(object):
             notification.is_read = False
             notification.save()
             self.set_last_notification(notification)
-            self.save()
 
             if send_email and self.by_email:
                 self.send_email(notification)
@@ -201,7 +198,6 @@ class MultipleNotificationsMixin(object):
         notification.is_read = False
         notification.save()
         self.set_last_notification(notification)
-        self.save()
 
         if send_email and self.by_email:
             self.send_email(notification)
@@ -286,6 +282,17 @@ class ContentReactionAnswerSubscription(AnswerSubscription, SingleNotificationMi
     """
     module = _(u'Contenu')
     objects = SubscriptionManager()
+
+    @classmethod
+    def iter_for_content(cls, content_object):
+        content_type = ContentType.objects.get_for_model(content_object)
+        lookup = dict(
+            object_id=content_object.pk,
+            content_type__pk=content_type.pk,
+            is_active=True
+        )
+        for sub in cls.objects.filter(**lookup):
+            yield sub
 
     def __str__(self):
         return _('<Abonnement du membre "{0}" aux réponses du contenu #{1}>')\
