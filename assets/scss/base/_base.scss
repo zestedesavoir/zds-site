@@ -14,6 +14,19 @@ body {
     min-height: 100%;
     width: 100%;
 }
+
+::selection, ::-moz-selection, .taglist li:hover {
+    color: white;
+    background: $color-primary;
+}
+.flexpage-header, .write-tutorial, .page-footer, .header-menu, .header-right, .taglist li:not(:hover) {
+    ::selection, ::-moz-selection {
+        /* color: #1C5B78; */
+        color: $color-primary;
+        background: white;
+    }
+}
+
 .page-container,
 .main-container {
     min-height: 100%;
