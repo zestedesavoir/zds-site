@@ -611,6 +611,59 @@ class PublishedContentTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 403)  # back
 
+    def test_permanently_unpublish_opinion_from_its_page(self):
+        """
+        Check that it's also possible to
+        permanently unpublish an opinion from its page.
+        """
+
+        # create and publish an opinion with user_author
+        opinion = PublishableContentFactory(type='OPINION')
+
+        opinion.authors.add(self.user_author)
+        UserGalleryFactory(gallery=opinion.gallery, user=self.user_author, mode='W')
+        opinion.licence = self.licence
+        opinion.save()
+
+        opinion_draft = opinion.load_version()
+        ExtractFactory(container=opinion_draft, db_object=opinion)
+        ExtractFactory(container=opinion_draft, db_object=opinion)
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.post(
+            reverse('validation:publish-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            {
+                'source': '',
+                'version': opinion_draft.current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # login with user_staff
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+
+        # the option should be available
+        result = self.client.post(
+            reverse('validation:unpublish-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            {
+                'text': 'Test',
+                'permanently': 'on',
+                'version': opinion_draft.current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        result = self.client.get(opinion.get_absolute_url())
+        self.assertContains(result, _(u'Billet modéré'))
+
     def test_cancel_pick_operation(self):
         opinion = PublishableContentFactory(type='OPINION')
 

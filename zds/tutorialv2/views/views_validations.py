@@ -623,6 +623,12 @@ class UnpublishOpinion(LoginRequiredMixin, SingleOnlineContentFormViewMixin, NoV
         if form.cleaned_data['version'] != self.object.sha_public:
             raise PermissionDenied
 
+        # if the content is permanently unpublished
+        if user.has_perm('tutorialv2.change_validation') and 'permanently' in self.request.POST:
+            PickListOperation.objects.create(content=self.object, operation='REMOVE_PUB',
+                                             staff_user=user, operation_date=datetime.now(),
+                                             version=self.object.sha_public)
+
         unpublish_content(self.object)
 
         # send PM

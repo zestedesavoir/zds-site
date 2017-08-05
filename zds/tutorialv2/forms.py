@@ -16,6 +16,7 @@ from zds.tutorialv2.models.models_database import PublishableContent
 from django.utils.translation import ugettext_lazy as _
 from zds.member.models import Profile
 from zds.tutorialv2.utils import slugify_raise_on_invalid, InvalidSlugError
+from zds.utils import get_current_user
 from zds.utils.forms import TagValidator
 
 
@@ -1115,6 +1116,8 @@ class UnpublicationForm(forms.Form):
         )
     )
 
+    permanently = forms.BooleanField(label=_(u'Empêcher de futures republications'))
+
     def __init__(self, content, *args, **kwargs):
         super(UnpublicationForm, self).__init__(*args, **kwargs)
 
@@ -1129,13 +1132,19 @@ class UnpublicationForm(forms.Form):
         self.helper.form_class = 'modal modal-flex'
         self.helper.form_id = 'unpublish'
 
-        self.helper.layout = Layout(
+        layout = Layout(
             CommonLayoutModalText(),
             Field('version'),
             StrictButton(
                 _(u'Dépublier'),
                 type='submit')
         )
+
+        user = get_current_user()
+        if user and user.has_perm('tutorialv2.change_validation'):
+            layout.fields.insert(1, Field('permanently'))
+
+        self.helper.layout = layout
 
 
 class PickOpinionForm(forms.Form):
