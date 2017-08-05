@@ -1,0 +1,11 @@
+{% if validations %}
+    <ul class="validation_history">
+    {% for validation in validations %}
+        {% if validation.status != "PENDING_V" %}
+            <li class="{% if validation.status == "REJECT" or validation.status == "CANCEL" %}validation-reject
+                       {% elif validation.status == "ACCEPT" %}validation-accept
+                       {%  endif %}">{{ validation.comment_authors }}</li>
+        {% endif %}
+    {% endfor %}
+    </ul>
+{% endif %}

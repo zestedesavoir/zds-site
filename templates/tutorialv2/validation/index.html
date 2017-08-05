@@ -70,9 +70,18 @@
                     </thead>
                     <tbody>
                         {% for validation in validations %}
-                            <tr>
+                            <tr class="{% if validation.validator and validation.validator.pk == user.pk %}
+                                my-validation-content-title
+                                {% endif %}">
                                 <td>
-                                    <a href="{% url "content:view" validation.content.pk validation.content.slug %}?version={{ validation.version }}">
+                                    <a href="{% url 'content:view' validation.content.pk validation.content.slug %}?version={{ validation.version }}"
+                                       class="{% if validation.versioned_content.has_extracts %}
+                                            small-content-title
+                                        {% elif not validation.versioned_content.has_chapters %}
+                                            medium-content-title
+                                        {% else %}
+                                            big-content-title
+                                        {% endif %}">
                                         {{ validation.versioned_content.title }}
                                     </a>
                                     <br>
@@ -92,9 +101,9 @@
                                 </td>
                                 <td>
                                     {% if validation.content.type == "ARTICLE" %}
-                                        <a href="{% url "validation:list" %}?type=article">Article</a>
+                                        <a href="{% url 'validation:list' %}?type=article">Article</a>
                                     {% else %}
-                                        <a href="{% url "validation:list" %}?type=tuto">Tutoriel</a>
+                                        <a href="{% url 'validation:list' %}?type=tuto">Tutoriel</a>
                                     {% endif %}
                                 </td>
                                 <td>

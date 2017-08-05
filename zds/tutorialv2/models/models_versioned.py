@@ -74,6 +74,9 @@ class Container:
             return False
         return isinstance(self.children[0], Extract)
 
+    def has_chapters(self):
+        return self.has_sub_containers() and self.children[0].has_sub_containers()
+
     def has_sub_containers(self):
         """Note : this function rely on the fact that the children can only be of one type.
 
