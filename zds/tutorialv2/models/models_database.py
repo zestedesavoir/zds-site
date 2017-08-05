@@ -1253,3 +1253,5 @@ def transfer_paternity_receiver(sender, instance, **kwargs):
     external = sender.objects.get(username=settings.ZDS_APP['member']['external_account'])
     PublishableContent.objects.transfer_paternity(instance, external, UserGallery)
     PublishedContent.objects.transfer_paternity(instance, external)
+
+import zds.tutorialv2.receivers  # noqa

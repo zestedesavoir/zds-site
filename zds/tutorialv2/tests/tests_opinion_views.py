@@ -2,6 +2,7 @@
 import shutil
 import os
 
+import datetime
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.test import TestCase
@@ -610,6 +611,77 @@ class PublishedContentTests(TestCase):
             },
             follow=False)
         self.assertEqual(result.status_code, 403)  # back
+
+    def test_defenitely_unpublish_alerted_opinion(self):
+        opinion = PublishableContentFactory(type='OPINION')
+
+        opinion.authors.add(self.user_author)
+        UserGalleryFactory(gallery=opinion.gallery, user=self.user_author, mode='W')
+        opinion.licence = self.licence
+        opinion.save()
+
+        opinion_draft = opinion.load_version()
+        ExtractFactory(container=opinion_draft, db_object=opinion)
+        ExtractFactory(container=opinion_draft, db_object=opinion)
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # publish
+        result = self.client.post(
+            reverse('validation:publish-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            {
+                'source': '',
+                'version': opinion_draft.current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # login as staff
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+        alerter = ProfileFactory().user
+        Alert.objects.create(author=alerter, scope='CONTENT', content=opinion, pubdate=datetime.datetime.now(),
+                             text="J'ai un probleme avec cette opinion : c'est pas la mienne.")
+        # unpublish opinion
+        result = self.client.post(
+            reverse('validation:ignore-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            {
+                'operation': 'REMOVE_PUB',
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        # refresh
+        opinion = PublishableContent.objects.get(pk=opinion.pk)
+
+        # check that the opinion is not published
+        self.assertFalse(opinion.in_public())
+
+        # check that it's impossible to publish the opinion again
+        result = self.client.get(opinion.get_absolute_url())
+        self.assertContains(result, _(u'Billet modéré'))  # front
+
+        result = self.client.post(
+            reverse('validation:publish-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            {
+                'source': '',
+                'version': opinion_draft.current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 403)  # back
+        self.assertTrue(Alert.objects.filter(content=opinion).last().solved)
+        # check alert page is still accessible and our alert is well displayed
+        resp = self.client.get(reverse('pages-alerts'))
+        self.assertEqual(200, resp.status_code)
+        self.assertEqual(0, len(resp.context['alerts']))
+        self.assertEqual(1, len(resp.context['solved']))
 
     def test_cancel_pick_operation(self):
         opinion = PublishableContentFactory(type='OPINION')
