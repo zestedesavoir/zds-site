@@ -15,15 +15,43 @@ body {
     width: 100%;
 }
 
-::selection, ::-moz-selection, .taglist li:hover {
+@mixin set-selection {
+    &::selection {
+        @content;
+    }
+
+    &::-moz-selection {
+        @content;
+    }
+}
+
+@mixin normal-selection {
     color: white;
     background: $color-primary;
 }
-.flexpage-header, .write-tutorial, .page-footer, .header-menu, .header-right, .taglist li:not(:hover) {
-    ::selection, ::-moz-selection {
-        /* color: #1C5B78; */
-        color: $color-primary;
-        background: white;
+
+@mixin negative-selection {
+    color: $color-primary;
+    background: white;
+}
+
+@include set-selection {
+    @include normal-selection;
+}
+
+// Elements with a dark background
+.flexpage-header, .write-tutorial, .page-footer, .header-menu, .header-right, .taglist {
+    &, * {
+        @include set-selection {
+            @include negative-selection;
+        }
+    }
+
+    input {
+        // We don't care about buttons and others, there aren't selectable
+        @include set-selection {
+            @include normal-selection;
+        }
     }
 }
 
