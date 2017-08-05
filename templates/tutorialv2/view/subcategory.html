@@ -24,6 +24,4 @@
             <a href="{% url 'publication:list' %}?subcategory={{ subcategory.slug }}&amp;type=article" class="more-link">Plus d'articles dans {{ subcategory.title | lower }}</a>
         </section>
     </div>
-
-    {% include 'tutorialv2/list_page_elements/call_for_helps.html' %}
 {% endblock %}

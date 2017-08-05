@@ -68,11 +68,27 @@
                     {% elif level == 4 %}
                         <span class="separator"></span>
                         <h2>Parcourir</h2>
+
+                        <div>
+                            <span class="separator"></span>
+                            {% if category %}
+                                <span class="option">Domaine de savoir : <strong>{{category}}</strong></span>
+                            {% endif %}
+                            {% if subcategory %}
+                                <span class="option">Catégorie : <strong>{{subcategory}}</strong></span>
+                            {% endif %}
+                            {% if type %}
+                                <span class="option">Contenu : <strong>{{type}}</strong></span>
+                            {% endif %}
+                            {% if tags %}
+                                <span class="option">Tags : <strong>{{tags}}</strong></span>
+                            {% endif %}
+                        </div>
                     {% endif %}
                 </div>
 
-                <div class="aside">
-                    {% if level < 4 %}
+                {% if level < 4 %}
+                    <div class="aside">
                         <form action="{% url 'search:query' %}" id="search-form" class="search" method="get">
                             <label for="id_q" class="control-label">Recherche</label>
                             <input id="id_q" maxlength="150" name="q" required="required" type="search" placeholder="{% trans 'dans' %} {% if subcategory %}{{ subcategory.title|lower }}{% elif category %}{{ category.title|lower }}{% else %}{% trans 'la bibliothèque' %}{% endif %} …">
@@ -85,13 +101,8 @@
                             {% endif %}
                             <button class="btn ico-after ico-search" type="submit" title="Rechercher"></button>
                         </form>
-                    {% else %}
-                        {% if category %}category: {{category}}{% endif %}
-                        {% if subcategory %}subcategory: {{subcategory}}{% endif %}
-                        {% if type %}type: {{type}}{% endif %}
-                        {% if tags %}tags: {{tags}}{% endif %}
-                    {% endif %}
-                </div>
+                    </div>
+                {% endif %}
             </div>
         </div>
     </section>

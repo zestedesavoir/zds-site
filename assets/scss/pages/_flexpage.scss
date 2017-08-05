@@ -88,7 +88,7 @@ $content-width: 1145px;
 
             h1 {
                 display: block;
-                margin: 0 10px 0 0; padding: 0;
+                margin: 0; padding: 0;
 
                 color: inherit;
                 font-size: 6rem;
@@ -105,6 +105,12 @@ $content-width: 1145px;
                 font-size: 3rem;
                 line-height: 3rem;
                 border: none;
+            }
+
+            .option {
+                display: inline-block;
+                margin: 10px 10px 0 10px;
+                line-height: 3rem;
             }
 
             a {
