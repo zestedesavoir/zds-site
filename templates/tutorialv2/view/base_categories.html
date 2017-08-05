@@ -52,12 +52,16 @@
                 </div>
 
                 <div class="title">
-                    <h1><a href="{% url 'publication:list' %}">{% trans 'Bibliothèque' %}</a></h1>
-                    {% if level == 1 %}
-                        {% if content_count %}
-                            {{ content_count }} {% trans 'contenu' %}{{ content_count|pluralize_fr }}
+                    <div>
+                        <h1><a href="{% url 'publication:list' %}">{% trans 'Bibliothèque' %}</a></h1>
+                        {% if level == 1 %}
+                            {% if content_count %}
+                                {{ content_count }} {% trans 'contenu' %}{{ content_count|pluralize_fr }}
+                            {% endif %}
                         {% endif %}
-                    {% elif level == 2 %}
+                    </div>
+
+                    {% if level == 2 %}
                         <span class="separator"></span>
                         <h2><a href="{% url 'publication:category' slug=category.slug %}">{{ category.title }}</a></h2>
                     {% elif level == 3 %}
