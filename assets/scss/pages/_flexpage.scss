@@ -43,7 +43,7 @@ $content-width: 1145px;
         }
     }
 
-    .flexpage-title-tool {
+        .flexpage-title-tool {
         padding: 50px;
         font-size: 2rem;
         font-weight: 100;
@@ -78,7 +78,7 @@ $content-width: 1145px;
 
             img {
                 position: absolute;
-                bottom: -3px; left: 16px;
+                top: -20px; left: 2px;
             }
         }
 
@@ -87,7 +87,7 @@ $content-width: 1145px;
             color: white;
 
             h1 {
-                display: inline-block;
+                display: block;
                 margin: 0 10px 0 0; padding: 0;
 
                 color: inherit;
@@ -98,13 +98,8 @@ $content-width: 1145px;
 
             h2 {
                 display: inline-block;
-                margin: 0 10px; padding: 0;
-                max-width: 250px;
+                margin: 10px 10px 0 10px; padding: 0;
                 vertical-align: bottom;
-                
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
 
                 color: inherit;
                 font-size: 3rem;
@@ -115,6 +110,11 @@ $content-width: 1145px;
             a {
                 color: white;
                 text-decoration: none;
+            }
+
+            img {
+                display: inline-block;
+                vertical-align: top;
             }
 
             .separator {
@@ -181,10 +181,6 @@ $content-width: 1145px;
                         background: #ccc !important;
                     }
                 }
-            }
-
-            .toolbox {
-
             }
         }
     }
