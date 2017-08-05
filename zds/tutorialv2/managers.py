@@ -113,16 +113,33 @@ class PublishedContentManager(models.Manager):
             published.save()
 
     def get_recent_list(self, subcategories=[], tags=[], content_type=None):
-        queryset = self.__get_list(subcategories, tags, content_type)
+        queryset = self.__get_list(
+            subcategories=subcategories,
+            tags=tags,
+            content_type=content_type)
         return queryset.order_by('-publication_date')
 
     def get_most_commented_list(self, subcategories=[], tags=[], content_type=None):
-        queryset = self.__get_list(subcategories, tags, content_type)
+        queryset = self.__get_list(
+            subcategories=subcategories,
+            tags=tags,
+            content_type=content_type)
         return queryset.order_by('-count_note')
+
+    def get_browse_list(self, subcategories=[], tags=[], content_type=None, order_fields=[]):
+        queryset = self.__get_list(
+            subcategories=subcategories,
+            tags=tags,
+            content_type=content_type)
+        if order_fields:
+            queryset.order_by(*order_fields)
+        return queryset
+
+    def get_featured(self, nb=2):
+        return self.__get_list().order_by('-publication_date')[:nb]
 
     def __get_list(self, subcategories=[], tags=[], content_type=None):
         """
-
         :param subcategories: subcategories
         :type subcategories: list of SubCategory
         :param tags: tags
@@ -140,7 +157,7 @@ class PublishedContentManager(models.Manager):
         """
         queryset = self.filter(must_redirect=False)
         if content_type:
-            queryset = queryset.filter(content_type=content_type)
+            queryset = queryset.filter(content_type=content_type.upper())
 
         # prefetch:
         queryset = queryset \
@@ -159,9 +176,6 @@ class PublishedContentManager(models.Manager):
             queryset = queryset.filter(content__tags__in=tags)
         queryset = queryset.extra(select={'count_note': sub_query})
         return queryset
-
-    def get_featured(self, nb=2):
-        return self.__get_list().order_by('-publication_date')[:nb]
 
 
 class PublishableContentManager(models.Manager):

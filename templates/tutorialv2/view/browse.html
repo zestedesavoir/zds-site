@@ -3,8 +3,6 @@
 
 {% block content_category %}
         <section>
-            <p>Ici mettre la pagination</p>
-            {% include 'tutorialv2/list_page_elements/list_of_online_contents.html' with public_contents=last_tutorials col_number=2 %}
-            <p>Ici mettre la pagination</p>
+            {% include 'tutorialv2/list_page_elements/list_of_online_contents.html' with public_contents=filtered_contents col_number=2 paginated_top=True paginated_bottom=True %}
         </section>
 {% endblock %}

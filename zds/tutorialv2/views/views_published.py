@@ -463,22 +463,48 @@ class ViewPublications(TemplateView):
             recent_kwargs['subcategories'] = [subcategory]
 
         elif self.level is 4:
-            context['category'] = self.request.GET.get('category', False)
-            context['subcategory'] = self.request.GET.get('subcategory', False)
-            context['type'] = self.request.GET.get('type', False)
-            context['tags'] = self.request.GET.get('tags', False)
+            category = self.request.GET.get('category', False)
+            subcategory = self.request.GET.get('subcategory', [])
+            subcategories = []
+            if category:
+                context['category'] = get_object_or_404(Category, slug=category)
+                subcategories = context['category'].get_subcategories()
+            elif subcategory:
+                subcategory = get_object_or_404(SubCategory, slug=self.kwargs.get('slug'))
+                context['category'] = subcategory.get_parent_category()
+                context['subcategory'] = subcategory
+                subcategories = [subcategory]
 
-        context['last_articles'] = PublishedContent.objects.get_recent_list(
-            **dict(content_type='ARTICLE', **recent_kwargs)
-        )[:self.max_last_contents]
-        context['last_tutorials'] = PublishedContent.objects.get_recent_list(
-            **dict(content_type='TUTORIAL', **recent_kwargs)
-        )[:self.max_last_contents]
+            content_type = self.request.GET.get('type', None)
+            context['type'] = content_type
+            tags = self.request.GET.get('tags', [])
 
-        context['beta_forum'] = Forum.objects\
-            .prefetch_related('category')\
-            .filter(pk=settings.ZDS_APP['forum']['beta_forum_id'])\
-            .last()
+            contents_queryset = PublishedContent.objects.get_browse_list(
+                subcategories=subcategories,
+                tags=tags,
+                content_type=content_type,
+                order_fields=['-pubdate'])
+            items_per_page = 12
+            make_pagination(
+                context,
+                self.request,
+                contents_queryset,
+                items_per_page,
+                context_list_name='filtered_contents',
+                with_previous_item=True)
+
+        if self.level < 4:
+            context['last_articles'] = PublishedContent.objects.get_recent_list(
+                **dict(content_type='ARTICLE', **recent_kwargs)
+            )[:self.max_last_contents]
+            context['last_tutorials'] = PublishedContent.objects.get_recent_list(
+                **dict(content_type='TUTORIAL', **recent_kwargs)
+            )[:self.max_last_contents]
+
+            context['beta_forum'] = Forum.objects\
+                .prefetch_related('category')\
+                .filter(pk=settings.ZDS_APP['forum']['beta_forum_id'])\
+                .last()
 
         context['level'] = self.level
         return context
