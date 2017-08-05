@@ -21,8 +21,9 @@ from zds.searchv2.models import ESIndexManager
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, publish_content, \
     PublishedContentFactory, SubCategoryFactory
 from zds.tutorialv2.models.models_database import PublishedContent, FakeChapter, PublishableContent
+from copy import deepcopy
 
-overrided_zds_app = settings.ZDS_APP
+overrided_zds_app = deepcopy(settings.ZDS_APP)
 overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
 overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
 

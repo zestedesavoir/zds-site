@@ -7,7 +7,7 @@ from math import ceil
 from zds.member.factories import ProfileFactory
 from zds.mp.factories import PrivateTopicFactory, PrivatePostFactory
 from zds.mp.models import mark_read, is_privatetopic_unread, PrivateTopicRead
-from zds import settings
+from django.conf import settings
 
 # by moment, i wrote the scenario to be simpler
 

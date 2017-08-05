@@ -15,8 +15,9 @@ from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory
     SubCategoryFactory, PublishedContentFactory, ValidationFactory
 from zds.gallery.factories import UserGalleryFactory
 from zds.forum.factories import ForumFactory, CategoryFactory
+from copy import deepcopy
 
-overrided_zds_app = settings.ZDS_APP
+overrided_zds_app = deepcopy(settings.ZDS_APP)
 overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
 overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
 
@@ -28,13 +29,13 @@ class ContentTests(TestCase):
     def setUp(self):
 
         # don't build PDF to speed up the tests
-        settings.ZDS_APP['content']['build_pdf_when_published'] = False
+        overrided_zds_app['content']['build_pdf_when_published'] = False
 
         self.staff = StaffProfileFactory().user
 
         settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
         self.mas = ProfileFactory().user
-        settings.ZDS_APP['member']['bot_account'] = self.mas.username
+        overrided_zds_app['member']['bot_account'] = self.mas.username
 
         self.licence = LicenceFactory()
         self.subcategory = SubCategoryFactory()
@@ -51,7 +52,7 @@ class ContentTests(TestCase):
         self.tuto.save()
 
         self.beta_forum = ForumFactory(
-            pk=settings.ZDS_APP['forum']['beta_forum_id'],
+            pk=overrided_zds_app['forum']['beta_forum_id'],
             category=CategoryFactory(position=1),
             position_in_category=1)  # ensure that the forum, for the beta versions, is created
 
@@ -60,10 +61,10 @@ class ContentTests(TestCase):
         self.chapter1 = ContainerFactory(parent=self.part1, db_object=self.tuto)
 
         self.extract1 = ExtractFactory(container=self.chapter1, db_object=self.tuto)
-        bot = Group(name=settings.ZDS_APP['member']['bot_group'])
+        bot = Group(name=overrided_zds_app['member']['bot_group'])
         bot.save()
         self.external = UserFactory(
-            username=settings.ZDS_APP['member']['external_account'],
+            username=overrided_zds_app['member']['external_account'],
             password='anything')
 
     def test_public_lists(self):
@@ -205,12 +206,9 @@ class ContentTests(TestCase):
 
     def tearDown(self):
 
-        if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
-            shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
-        if os.path.isdir(settings.ZDS_APP['content']['repo_public_path']):
-            shutil.rmtree(settings.ZDS_APP['content']['repo_public_path'])
+        if os.path.isdir(overrided_zds_app['content']['repo_private_path']):
+            shutil.rmtree(overrided_zds_app['content']['repo_private_path'])
+        if os.path.isdir(overrided_zds_app['content']['repo_public_path']):
+            shutil.rmtree(overrided_zds_app['content']['repo_public_path'])
         if os.path.isdir(settings.MEDIA_ROOT):
             shutil.rmtree(settings.MEDIA_ROOT)
-
-        # re-activate PDF build
-        settings.ZDS_APP['content']['build_pdf_when_published'] = True

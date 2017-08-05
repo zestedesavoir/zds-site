@@ -8,7 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from zds.gallery.factories import GalleryFactory, UserGalleryFactory, ImageFactory
 from zds.member.factories import ProfileFactory
-from zds import settings
+from django.conf import settings
 
 
 class UserGalleryTest(TestCase):

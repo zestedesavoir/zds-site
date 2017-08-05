@@ -32,6 +32,7 @@ from zds.tutorialv2.publication_utils import publish_content, Publicator, Public
 from zds.utils.models import HelpWriting, Alert, Tag
 from zds.utils.factories import HelpWritingFactory
 from zds.utils.templatetags.interventions import interventions_topics
+from copy import deepcopy
 
 try:
     import ujson as json_reader
@@ -42,10 +43,10 @@ except ImportError:
         import json as json_reader
 
 
-overrided_zds_app = settings.ZDS_APP
-overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
-overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
-overrided_zds_app['content']['extra_content_generation_policy'] = 'SYNC'
+overriden_zds_app = deepcopy(settings.ZDS_APP)
+overriden_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
+overriden_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
+overriden_zds_app['content']['extra_content_generation_policy'] = 'SYNC'
 
 
 @PublicatorRegistery.register('pdf')
@@ -56,24 +57,23 @@ class FakePDFPublicator(Publicator):
 
 
 @override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
-@override_settings(ZDS_APP=overrided_zds_app)
+@override_settings(ZDS_APP=overriden_zds_app)
 @override_settings(ES_ENABLED=False)
 class ContentTests(TestCase):
-    def setUp(self):
 
+    def setUp(self):
+        overriden_zds_app['content']['default_licence_pk'] = LicenceFactory().pk
         # don't build PDF to speed up the tests
-        settings.ZDS_APP['content']['build_pdf_when_published'] = False
+        overriden_zds_app['content']['build_pdf_when_published'] = False
 
         self.staff = StaffProfileFactory().user
 
         settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
         self.mas = ProfileFactory().user
-        settings.ZDS_APP['member']['bot_account'] = self.mas.username
+        overriden_zds_app['member']['bot_account'] = self.mas.username
 
         self.licence = LicenceFactory()
         self.subcategory = SubCategoryFactory()
-
-        settings.ZDS_APP['content']['default_licence_pk'] = self.licence.pk
 
         self.user_author = ProfileFactory().user
         self.user_staff = StaffProfileFactory().user
@@ -87,7 +87,7 @@ class ContentTests(TestCase):
         self.tuto.save()
 
         self.beta_forum = ForumFactory(
-            pk=settings.ZDS_APP['forum']['beta_forum_id'],
+            pk=overriden_zds_app['forum']['beta_forum_id'],
             category=CategoryFactory(position=1),
             position_in_category=1)  # ensure that the forum, for the beta versions, is created
 
@@ -96,10 +96,10 @@ class ContentTests(TestCase):
         self.chapter1 = ContainerFactory(parent=self.part1, db_object=self.tuto)
 
         self.extract1 = ExtractFactory(container=self.chapter1, db_object=self.tuto)
-        bot = Group(name=settings.ZDS_APP['member']['bot_group'])
+        bot = Group(name=overriden_zds_app['member']['bot_group'])
         bot.save()
         self.external = UserFactory(
-            username=settings.ZDS_APP['member']['external_account'],
+            username=overriden_zds_app['member']['external_account'],
             password='anything')
 
     def test_ensure_access(self):
@@ -1782,7 +1782,7 @@ class ContentTests(TestCase):
     def test_import_image_with_archive(self):
         """ensure that import archive work, and link are changed"""
 
-        prefix = settings.ZDS_APP['content']['import_image_prefix']
+        prefix = overriden_zds_app['content']['import_image_prefix']
         title = u'OSEF ici du titre :p'
         text1 = u'![]({}:image1.png) ![]({}:dossier/image2.png)'.format(prefix, prefix)
         text2 = u'![Piège](img3.png) ![Image qui existe pas]({}:img3.png) ![](mauvais:img3.png)'.format(prefix)
@@ -1858,7 +1858,7 @@ class ContentTests(TestCase):
         # check links:
         text = versioned.children[0].get_text()
         for img in Image.objects.filter(gallery=new_article.gallery).all():
-            self.assertTrue('![]({})'.format(settings.ZDS_APP['site']['secure_url'] + img.physical.url) in text)
+            self.assertTrue('![]({})'.format(overriden_zds_app['site']['secure_url'] + img.physical.url) in text)
 
         # import into first article (that will only change the images)
         result = self.client.post(
@@ -1885,7 +1885,7 @@ class ContentTests(TestCase):
         # check links:
         text = versioned.children[0].get_text()
         for img in Image.objects.filter(gallery=new_version.gallery).all():
-            self.assertTrue('![]({})'.format(settings.ZDS_APP['site']['secure_url'] + img.physical.url) in text)
+            self.assertTrue('![]({})'.format(overriden_zds_app['site']['secure_url'] + img.physical.url) in text)
 
         # clean up
         os.remove(draft_zip_path)
@@ -3639,7 +3639,7 @@ class ContentTests(TestCase):
 
         NOTE: this test will take time !"""
 
-        settings.ZDS_APP['content']['build_pdf_when_published'] = True  # obviously, PDF builds have to be enabled
+        overriden_zds_app['content']['build_pdf_when_published'] = True  # obviously, PDF builds have to be enabled
 
         title = u"C'est pas le plus important ici !"
 
@@ -4090,40 +4090,37 @@ class ContentTests(TestCase):
 
     def tearDown(self):
 
-        if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
-            shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
-        if os.path.isdir(settings.ZDS_APP['content']['repo_public_path']):
-            shutil.rmtree(settings.ZDS_APP['content']['repo_public_path'])
+        if os.path.isdir(overriden_zds_app['content']['repo_private_path']):
+            shutil.rmtree(overriden_zds_app['content']['repo_private_path'])
+        if os.path.isdir(overriden_zds_app['content']['repo_public_path']):
+            shutil.rmtree(overriden_zds_app['content']['repo_public_path'])
         if os.path.isdir(settings.MEDIA_ROOT):
             shutil.rmtree(settings.MEDIA_ROOT)
 
-        # re-activate PDF build
-        settings.ZDS_APP['content']['build_pdf_when_published'] = True
-
 
 @override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
-@override_settings(ZDS_APP=overrided_zds_app)
+@override_settings(ZDS_APP=overriden_zds_app)
 @override_settings(ES_ENABLED=False)
 class PublishedContentTests(TestCase):
     def setUp(self):
-
+        overriden_zds_app['content']['default_licence_pk'] = LicenceFactory().pk
         # don't build PDF to speed up the tests
-        settings.ZDS_APP['content']['build_pdf_when_published'] = False
+        overriden_zds_app['content']['build_pdf_when_published'] = False
 
         self.staff = StaffProfileFactory().user
 
         settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
         self.mas = ProfileFactory().user
-        settings.ZDS_APP['member']['bot_account'] = self.mas.username
+        overriden_zds_app['member']['bot_account'] = self.mas.username
 
-        bot = Group(name=settings.ZDS_APP['member']['bot_group'])
+        bot = Group(name=overriden_zds_app['member']['bot_group'])
         bot.save()
         self.external = UserFactory(
-            username=settings.ZDS_APP['member']['external_account'],
+            username=overriden_zds_app['member']['external_account'],
             password='anything')
 
         self.beta_forum = ForumFactory(
-            pk=settings.ZDS_APP['forum']['beta_forum_id'],
+            pk=overriden_zds_app['forum']['beta_forum_id'],
             category=CategoryFactory(position=1),
             position_in_category=1)  # ensure that the forum, for the beta versions, is created
 
@@ -4158,15 +4155,12 @@ class PublishedContentTests(TestCase):
         self.tuto.save()
 
     def tearDown(self):
-        if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
-            shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
-        if os.path.isdir(settings.ZDS_APP['content']['repo_public_path']):
-            shutil.rmtree(settings.ZDS_APP['content']['repo_public_path'])
+        if os.path.isdir(overriden_zds_app['content']['repo_private_path']):
+            shutil.rmtree(overriden_zds_app['content']['repo_private_path'])
+        if os.path.isdir(overriden_zds_app['content']['repo_public_path']):
+            shutil.rmtree(overriden_zds_app['content']['repo_public_path'])
         if os.path.isdir(settings.MEDIA_ROOT):
             shutil.rmtree(settings.MEDIA_ROOT)
-
-        # re-activate PDF build
-        settings.ZDS_APP['content']['build_pdf_when_published'] = True
 
     def test_published(self):
         """Just a small test to ensure that the setUp() function produce a proper published content"""

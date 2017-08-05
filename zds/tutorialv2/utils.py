@@ -18,7 +18,7 @@ from git import Repo, Actor
 from lxml import etree
 from uuslug import slugify
 
-from zds import settings
+from django.conf import settings
 from zds.notification import signals
 from zds.tutorialv2 import REPLACE_IMAGE_PATTERN, VALID_SLUG
 from zds.tutorialv2.models import CONTENT_TYPE_LIST
@@ -802,7 +802,7 @@ def get_commit_author():
     else:
         try:
             aut_user = str(User.objects.filter(username=settings.ZDS_APP['member']['bot_account']).first().pk)
-        except AttributeError:
+        except AttributeError:  # if nothing is found, `first` returns None, which does not have attribute pk
             aut_user = '0'
 
         aut_email = None

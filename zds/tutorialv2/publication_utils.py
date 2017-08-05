@@ -13,7 +13,7 @@ from django.template.loader import render_to_string
 from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
 from os.path import isdir, dirname
-from zds import settings
+from django.conf import settings
 from zds.settings import ZDS_APP
 from zds.tutorialv2.models.models_database import ContentReaction
 from zds.tutorialv2.signals import content_unpublished

@@ -3,7 +3,7 @@ from django.contrib.auth.models import Group
 from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase
-from zds import settings
+from django.conf import settings
 from zds.member.factories import ProfileFactory
 from zds.mp.models import PrivateTopic
 

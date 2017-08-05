@@ -18,7 +18,7 @@ from zds.member.models import Profile
 from zds.forum.models import Forum, Topic, Category as FCategory
 from zds.utils.models import Tag, Category as TCategory, CategorySubCategory, SubCategory, Licence
 from zds.utils import slugify
-from zds import settings
+from django.conf import settings
 from django.db import transaction
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, \
     Validation as CValidation, ContentReactionFactory

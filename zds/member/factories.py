@@ -4,7 +4,7 @@ from django.contrib.auth.models import User, Permission, Group
 import factory
 
 from zds.member.models import Profile
-from zds import settings
+from django.conf import settings
 
 
 class UserFactory(factory.DjangoModelFactory):
