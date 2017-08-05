@@ -2,6 +2,8 @@
 
 from difflib import HtmlDiff
 from django import template
+from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -19,4 +21,4 @@ def htmldiff(string1, string2):
     if u'<td>&nbsp;No Differences Found&nbsp;</td>' in result:
         return _(u'<p>Pas de changements.</p>')
     else:
-        return u'<div class="diff_delta">{}</div>'.format(result)
+        return format_html('<div class="diff_delta">{}</div>', mark_safe(result))
