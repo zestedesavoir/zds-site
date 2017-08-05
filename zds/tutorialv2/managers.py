@@ -112,21 +112,21 @@ class PublishedContentManager(models.Manager):
             published.authors.remove(unsubscribed_user)
             published.save()
 
-    def get_recent_list(self, subcategories=[], tags=[], content_type=None):
+    def get_recent_list(self, subcategories=[], tags=[], content_type=[]):
         queryset = self.__get_list(
             subcategories=subcategories,
             tags=tags,
             content_type=content_type)
         return queryset.order_by('-publication_date')
 
-    def get_most_commented_list(self, subcategories=[], tags=[], content_type=None):
+    def get_most_commented_list(self, subcategories=[], tags=[], content_type=[]):
         queryset = self.__get_list(
             subcategories=subcategories,
             tags=tags,
             content_type=content_type)
         return queryset.order_by('-count_note')
 
-    def get_browse_list(self, subcategories=[], tags=[], content_type=None, order_fields=[]):
+    def get_browse_list(self, subcategories=[], tags=[], content_type=[], order_fields=[]):
         queryset = self.__get_list(
             subcategories=subcategories,
             tags=tags,
@@ -138,7 +138,7 @@ class PublishedContentManager(models.Manager):
     def get_featured(self, nb=2):
         return self.__get_list().order_by('-publication_date')[:nb]
 
-    def __get_list(self, subcategories=[], tags=[], content_type=None):
+    def __get_list(self, subcategories=[], tags=[], content_type=[]):
         """
         :param subcategories: subcategories
         :type subcategories: list of SubCategory
@@ -149,6 +149,8 @@ class PublishedContentManager(models.Manager):
         :return: queryset
         :rtype: django.db.models.QuerySet
         """
+        if isinstance(content_type, str):
+            content_type = [content_type]
 
         sub_query = """
             SELECT COUNT(*)
@@ -157,7 +159,7 @@ class PublishedContentManager(models.Manager):
         """
         queryset = self.filter(must_redirect=False)
         if content_type:
-            queryset = queryset.filter(content_type=content_type.upper())
+            queryset = queryset.filter(content_type__in=list(map(lambda c: c.upper(), content_type)))
 
         # prefetch:
         queryset = queryset \
@@ -172,9 +174,11 @@ class PublishedContentManager(models.Manager):
             .filter(pk=F('content__public_version__pk'))
         if subcategories:
             queryset = queryset.filter(content__subcategory__in=subcategories)
+            # TODO: this is incorrect because it's AND, should be OR
         if tags:
             queryset = queryset.filter(content__tags__in=tags)
         queryset = queryset.extra(select={'count_note': sub_query})
+        print queryset.query
         return queryset
 
 

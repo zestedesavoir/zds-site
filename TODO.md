@@ -20,5 +20,9 @@
   * pas de recherche
   * pré-filtré par type + (sous)catégorie
     * les filtres sont affichés à la place de la recherche
+  * affichage en 2 colonnes, mais qu'une seule :
+    1 2
+    3 4
+    5 6
   * (tri par date?) (tri par alphabétique?)
   * pagination

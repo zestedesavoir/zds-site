@@ -431,6 +431,7 @@ class ViewPublications(TemplateView):
                 category.contents_count = PublishedContent.objects \
                     .published_contents() \
                     .filter(content__subcategory__in=category.subcategories) \
+                    .filter(content_type__in=['TUTORIAL', 'ARTICLE']) \
                     .count()
                 contents_count += category.contents_count
 
@@ -447,6 +448,7 @@ class ViewPublications(TemplateView):
                 subcategory.contents_count = PublishedContent.objects \
                     .published_contents() \
                     .filter(content__subcategory__pk=subcategory.pk) \
+                    .filter(content_type__in=['TUTORIAL', 'ARTICLE']) \
                     .count()
                 total_count += subcategory.contents_count
 
@@ -459,6 +461,7 @@ class ViewPublications(TemplateView):
             context['subcategory'] = subcategory
             context['content_count'] = PublishedContent.objects \
                 .get_recent_list(subcategories=[subcategory]) \
+                .filter(content_type__in=['TUTORIAL', 'ARTICLE']) \
                 .count()
             recent_kwargs['subcategories'] = [subcategory]
 
@@ -470,12 +473,12 @@ class ViewPublications(TemplateView):
                 context['category'] = get_object_or_404(Category, slug=category)
                 subcategories = context['category'].get_subcategories()
             elif subcategory:
-                subcategory = get_object_or_404(SubCategory, slug=self.kwargs.get('slug'))
+                subcategory = get_object_or_404(SubCategory, slug=self.request.GET.get('subcategory'))
                 context['category'] = subcategory.get_parent_category()
                 context['subcategory'] = subcategory
                 subcategories = [subcategory]
 
-            content_type = self.request.GET.get('type', None)
+            content_type = self.request.GET.get('type', ['TUTORIAL', 'ARTICLE'])
             context['type'] = content_type
             tags = self.request.GET.get('tags', [])
 
