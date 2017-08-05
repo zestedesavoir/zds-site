@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 from django.conf import settings
 from django.db import models
-from django.db.models import Count, F
+from django.db.models import Count, F, Q
 from django.utils.translation import ugettext_lazy as _
 
 from zds.utils.models import Tag, Category
@@ -140,16 +140,16 @@ class PublishedContentManager(models.Manager):
 
     def __get_list(self, subcategories=[], tags=[], content_type=[]):
         """
-        :param subcategories: subcategories
+        :param subcategories: subcategories, filters with OR
         :type subcategories: list of SubCategory
-        :param tags: tags
+        :param tags: tags, filters with AND
         :type tags: list of Tag
-        :param content_type: type of content
-        :type content_type: str
+        :param content_type: type of content, filters with OR
+        :type content_type: list of content types
         :return: queryset
         :rtype: django.db.models.QuerySet
         """
-        if isinstance(content_type, str):
+        if not isinstance(content_type, list):
             content_type = [content_type]
 
         sub_query = """
@@ -172,13 +172,17 @@ class PublishedContentManager(models.Manager):
             .select_related('content__last_note__related_content') \
             .select_related('content__last_note__related_content__public_version') \
             .filter(pk=F('content__public_version__pk'))
+
+        subcategories = list(map(lambda x: x.slug, subcategories))
         if subcategories:
-            queryset = queryset.filter(content__subcategory__in=subcategories)
-            # TODO: this is incorrect because it's AND, should be OR
+            subcategories_filter = Q()
+            for category in subcategories:
+                subcategories_filter |= Q(content__subcategory__slug=category)
+            queryset = queryset.filter(subcategories_filter)
         if tags:
             queryset = queryset.filter(content__tags__in=tags)
         queryset = queryset.extra(select={'count_note': sub_query})
-        print queryset.query
+
         return queryset
 
 

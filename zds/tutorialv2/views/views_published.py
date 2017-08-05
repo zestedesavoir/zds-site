@@ -479,7 +479,7 @@ class ViewPublications(TemplateView):
                 subcategories = [subcategory]
 
             content_type = self.request.GET.get('type', ['TUTORIAL', 'ARTICLE'])
-            context['type'] = content_type
+            context['type'] = TYPE_CHOICES_DICT[content_type.upper()]
             tags = self.request.GET.get('tags', [])
 
             contents_queryset = PublishedContent.objects.get_browse_list(
