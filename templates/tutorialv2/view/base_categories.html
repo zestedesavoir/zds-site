@@ -53,33 +53,44 @@
                 
                 <div class="title">
                     <h1><a href="{% url 'publication:list' %}">{% trans 'Bibliothèque' %}</a></h1>
-                    {% if category %}
-                        <span class="separator"></span>
-                        <h2><a href="{% url 'publication:category' slug=category.slug %}">{{ category.title }}</a></h2>
-                        {% if subcategory %}
-                            <span class="separator"></span>
-                            <h2><a href="{% url 'publication:subcategory' slug_category=category.slug slug=subcategory.slug %}">{{ subcategory.title }}</a></h2>
-                        {% endif %}
-                    {% else %}
+                    {% if level == 1 %}
                         {% if content_count %}
                             {{ content_count }} {% trans 'contenu' %}{{ content_count|pluralize_fr }}
                         {% endif %}
+                    {% elif level == 2 %}
+                        <span class="separator"></span>
+                        <h2><a href="{% url 'publication:category' slug=category.slug %}">{{ category.title }}</a></h2>
+                    {% elif level == 3 %}
+                        <span class="separator"></span>
+                        <h2><a href="{% url 'publication:category' slug=category.slug %}">{{ category.title }}</a></h2>
+                        <span class="separator"></span>
+                        <h2><a href="{% url 'publication:subcategory' slug_category=category.slug slug=subcategory.slug %}">{{ subcategory.title }}</a></h2>
+                    {% elif level == 4 %}
+                        <span class="separator"></span>
+                        <h2>Parcourir</h2>
                     {% endif %}
                 </div>
 
                 <div class="aside">
-                    <form action="{% url 'search:query' %}" id="search-form" class="search" method="get">
-                        <label for="id_q" class="control-label">Recherche</label>
-                        <input id="id_q" maxlength="150" name="q" required="required" type="search" placeholder="{% trans 'dans' %} {% if subcategory %}{{ subcategory.title|lower }}{% elif category %}{{ category.title|lower }}{% else %}{% trans 'la bibliothèque' %}{% endif %} …">
-                        <input type="hidden" name="models" value="content">
-                        {% if category %}
-                            <input type="hidden" name="category" value="{{ category.slug }}">
-                            {% if subcategory %}
-                                <input type="hidden" name="subcategory" value="{{ subcategory.slug }}">
+                    {% if level < 4 %}
+                        <form action="{% url 'search:query' %}" id="search-form" class="search" method="get">
+                            <label for="id_q" class="control-label">Recherche</label>
+                            <input id="id_q" maxlength="150" name="q" required="required" type="search" placeholder="{% trans 'dans' %} {% if subcategory %}{{ subcategory.title|lower }}{% elif category %}{{ category.title|lower }}{% else %}{% trans 'la bibliothèque' %}{% endif %} …">
+                            <input type="hidden" name="models" value="content">
+                            {% if category %}
+                                <input type="hidden" name="category" value="{{ category.slug }}">
+                                {% if subcategory %}
+                                    <input type="hidden" name="subcategory" value="{{ subcategory.slug }}">
+                                {% endif %}
                             {% endif %}
-                        {% endif %}
-                        <button class="btn ico-after ico-search" type="submit" title="Rechercher"></button>
-                    </form>
+                            <button class="btn ico-after ico-search" type="submit" title="Rechercher"></button>
+                        </form>
+                    {% else %}
+                        {% if category %}category: {{category}}{% endif %}
+                        {% if subcategory %}subcategory: {{subcategory}}{% endif %}
+                        {% if type %}type: {{type}}{% endif %}
+                        {% if tags %}tags: {{tags}}{% endif %}
+                    {% endif %}
                 </div>
             </div>
         </div>

@@ -394,7 +394,7 @@ class ViewPublications(TemplateView):
         1: 'tutorialv2/view/categories.html',
         2: 'tutorialv2/view/category.html',
         3: 'tutorialv2/view/subcategory.html',
-        4: 'TODO'
+        4: 'tutorialv2/view/browse.html',
     }
 
     level = 1
@@ -417,7 +417,7 @@ class ViewPublications(TemplateView):
                 self.request.GET.get('type', False) or \
                 self.request.GET.get('tags', False):
             self.level = 4
-            raise NotImplementedError('filter view, cf. TODO.md at repository root')
+            self.max_last_contents = 50
 
         self.template_name = self.templates[self.level]
         recent_kwargs = {}
@@ -451,7 +451,7 @@ class ViewPublications(TemplateView):
                 total_count += subcategory.contents_count
 
             context['content_count'] = total_count
-            recent_kwargs['subcategory'] = context['subcategories']
+            recent_kwargs['subcategories'] = context['subcategories']
 
         elif self.level is 3:
             subcategory = get_object_or_404(SubCategory, slug=self.kwargs.get('slug'))
@@ -461,6 +461,12 @@ class ViewPublications(TemplateView):
                 .get_recent_list(subcategories=[subcategory]) \
                 .count()
             recent_kwargs['subcategories'] = [subcategory]
+
+        elif self.level is 4:
+            context['category'] = self.request.GET.get('category', False)
+            context['subcategory'] = self.request.GET.get('subcategory', False)
+            context['type'] = self.request.GET.get('type', False)
+            context['tags'] = self.request.GET.get('tags', False)
 
         context['last_articles'] = PublishedContent.objects.get_recent_list(
             **dict(content_type='ARTICLE', **recent_kwargs)
@@ -474,6 +480,7 @@ class ViewPublications(TemplateView):
             .filter(pk=settings.ZDS_APP['forum']['beta_forum_id'])\
             .last()
 
+        context['level'] = self.level
         return context
 
 
