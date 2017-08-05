@@ -878,8 +878,8 @@ def activate_account(request):
         'member/messages/account_activated.md',
         {
             'username': usr.username,
-            'tutorials_url': settings.ZDS_APP['site']['url'] + reverse('tutorial:list'),
-            'articles_url': settings.ZDS_APP['site']['url'] + reverse('article:list'),
+            'tutorials_url': settings.ZDS_APP['site']['url'] + reverse('publication:list') + '?type=tutorial',
+            'articles_url': settings.ZDS_APP['site']['url'] + reverse('publication:list') + '?type=article',
             'opinions_url': settings.ZDS_APP['site']['url'] + reverse('opinion:list'),
             'members_url': settings.ZDS_APP['site']['url'] + reverse('member-list'),
             'forums_url': settings.ZDS_APP['site']['url'] + reverse('cats-forums-list'),

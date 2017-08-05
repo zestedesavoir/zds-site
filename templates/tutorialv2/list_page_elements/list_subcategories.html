@@ -8,26 +8,13 @@ exposes subcategories
 <div class="content-linkbox-list">
     {% for subcategory in subcategories %}
         <div class="linkbox-item secondary">
-            <!--
-              TODO: lien avec query param vers niveau 3:
-              /bibliotheque?subcategory=bureautique-et-redaction
-              au lieu de:
-              /bibliotheque/informatique/bureautique-et-redaction/
-            -->
             <a href="{% url 'publication:subcategory' slug_category=category.slug slug=subcategory.slug %}" class="head">
                 <h3>{{ subcategory.title }}</h3>
             </a>
-
-            <!--
-              TODO: lien avec query param vers niveau 3:
-              /bibliotheque?subcategory=bureautique-et-redaction
-              au lieu de:
-              /bibliotheque/informatique/bureautique-et-redaction/
-            -->
             <a href="{% url 'publication:subcategory' slug_category=category.slug slug=subcategory.slug %}" class="body">
                 <p class="right">
-                {% if subcategory.count_contents != 0 %}
-                    {{ subcategory.count_contents }} {% trans 'contenu' %}{{ subcategory.count_contents|pluralize_fr }}
+                {% if subcategory.contents_count %}
+                    {{ subcategory.contents_count }} {% trans 'contenu' %}{{ subcategory.contents_count|pluralize_fr }}
                 {% else %}
                     {% trans 'Aucun contenu' %}
                 {% endif %}

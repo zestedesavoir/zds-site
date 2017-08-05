@@ -23,10 +23,9 @@
 
 
 {% block content_out %}
-    {% url 'tutorial:list' as url_tutorials %}
-    {% url 'article:list' as url_articles %}
     {% url 'opinion:list' as url_opinions %}
     {% url 'cats-forums-list' as url_forums %}
+    {% url 'publication:list' as url_publications %}
 
     {% url 'pages-association' as url_association %}
 
@@ -59,8 +58,8 @@
                                 <strong>gratuitement</strong> et <strong>sans publicité</strong>&nbsp;:
                             </p>
                             <ul>
-                                <li>des <a href="{{ url_tutorials }}">tutoriels de tous niveaux</a>&nbsp;;</li>
-                                <li>des <a href="{{ url_articles }}">articles</a>&nbsp;;</li>
+                                <li>des <a href="{{ url_publications }}?type=tutorial">tutoriels de tous niveaux</a>&nbsp;;</li>
+                                <li>des <a href="{{ url_publications }}?type=article">articles</a>&nbsp;;</li>
                                 <li>des <a href="{{ url_opinions }}">tribunes</a>&nbsp;;</li>
                                 <li>et des <a href="{{ url_forums }}">forums d'entraide</a>.</li>
                             </ul>
@@ -115,7 +114,7 @@
             <section itemscope itemtype="http://schema.org/ItemList">
                 <h2 class="ico-after ico-tutorials home-heading" itemprop="name">
                     {% trans "Derniers tutoriels" %}
-                    <a href="{% url "tutorial:list" %}" class="btn btn-grey">{% trans "Tous les tutoriels" %}</a>
+                    <a href="{% url 'publication:list' %}?type=tutorial" class="btn btn-grey">{% trans "Tous les tutoriels" %}</a>
                 </h2>
 
                 <meta itemprop="itemListOrder" content="Descending">
@@ -127,7 +126,7 @@
             <section itemscope itemtype="http://schema.org/ItemList">
                 <h2 class="ico-after ico-articles home-heading" itemprop="name">
                     {% trans "Derniers articles" %}
-                    <a href="{% url "article:list" %}" class="btn btn-grey">{% trans "Tous les articles" %}</a>
+                    <a href="{% url 'publication:list' %}?type=article" class="btn btn-grey">{% trans "Tous les articles" %}</a>
                 </h2>
 
                 <meta itemprop="itemListOrder" content="Descending">

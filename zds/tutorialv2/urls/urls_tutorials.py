@@ -1,9 +1,10 @@
 # coding: utf-8
 
 from django.conf.urls import url
+from django.views.generic.base import RedirectView
 from zds.tutorialv2.views.views_contents import RedirectOldBetaTuto
 
-from zds.tutorialv2.views.views_published import ListTutorials, DisplayOnlineTutorial, DisplayOnlineContainer, \
+from zds.tutorialv2.views.views_published import DisplayOnlineTutorial, DisplayOnlineContainer, \
     DownloadOnlineTutorial, RedirectContentSEO, TagsListView
 from zds.tutorialv2.feeds import LastTutorialsFeedRSS, LastTutorialsFeedATOM
 
@@ -41,6 +42,6 @@ urlpatterns = [
     url('^beta/(?P<pk>\d+)/(?P<slug>.+)', RedirectOldBetaTuto.as_view(), name='old-beta-url'),
 
     # Listing
-    url(r'^$', ListTutorials.as_view(), name='list'),
+    url(r'^$', RedirectView.as_view(pattern_name='publication:list', permanent=True)),
     url(r'tags/$', TagsListView.as_view(displayed_types=['TUTORIAL']), name='tags')
 ]

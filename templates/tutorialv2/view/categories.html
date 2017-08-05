@@ -36,11 +36,7 @@
                 <a href="{% url "tutorial:feed-atom" %}" class="btn btn-grey">Atom</a>
             </h2>
             {% include 'tutorialv2/list_page_elements/list_of_online_contents.html' with public_contents=last_tutorials col_number=1 %}
-            <!--
-              TODO: lien avec query param vers niveau 3 + type de publication:
-              /bibliotheque?type=tutoriel
-            -->
-            <a href="{% url 'tutorial:list' %}" class="more-link">Plus de tutoriels</a>
+            <a href="{% url 'publication:list' %}?type=tutorial" class="more-link">Plus de tutoriels</a>
         </section>
 
         <section>
@@ -50,11 +46,7 @@
                 <a href="{% url "article:feed-atom" %}" class="btn btn-grey">Atom</a>
             </h2>
             {% include 'tutorialv2/list_page_elements/list_of_online_contents.html' with public_contents=last_articles col_number=1 %}
-            <!--
-              TODO: lien avec query param vers niveau 3 + type de publication:
-              /bibliotheque?type=article
-            -->
-            <a href="{% url 'article:list' %}" class="more-link">Plus d'articles</a>
+            <a href="{% url 'publication:list' %}?type=article" class="more-link">Plus d'articles</a>
         </section>
     </div>
 

@@ -15,7 +15,7 @@ from django.template.loader import render_to_string
 from django.utils.datastructures import MultiValueDictKeyError
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
-from django.views.generic import RedirectView, FormView, ListView, TemplateView, DetailView
+from django.views.generic import RedirectView, FormView, ListView, TemplateView
 from django.db.models import F, Q
 
 from zds.forum.models import Forum
@@ -30,7 +30,7 @@ from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin, SingleOnli
 from zds.tutorialv2.models import TYPE_CHOICES_DICT
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction
 from zds.tutorialv2.utils import search_container_or_404, last_participation_is_old, mark_read
-from zds.utils.models import Alert, CommentVote, Tag, Category, CategorySubCategory, CommentEdit, SubCategory
+from zds.utils.models import Alert, CommentVote, Tag, Category, CommentEdit, SubCategory
 from zds.utils.paginator import make_pagination, ZdSPagingListView
 from zds.utils.templatetags.topbar import top_categories_content
 
@@ -355,18 +355,15 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
             .select_related('content__last_note__related_content__public_version') \
             .filter(pk=F('content__public_version__pk'))
 
-        if 'theme' in self.request.GET:
-            self.category = get_object_or_404(Category, slug=self.request.GET.get('theme'))
-            queryset = queryset.filter(content__subcategory__in=self.category.get_subcategories())
-
         if 'category' in self.request.GET:
             self.subcategory = get_object_or_404(SubCategory, slug=self.request.GET.get('category'))
             queryset = queryset.filter(content__subcategory__in=[self.subcategory])
 
         if 'tag' in self.request.GET:
             self.tag = get_object_or_404(Tag, title=self.request.GET.get('tag').lower().strip())
-            queryset = queryset.filter(content__tags__in=[self.tag])  # different tags can have same
-            # slug such as C/C#/C++, as a first version we get all of them
+            # TODO: fix me
+            # different tags can have same slug such as C/C#/C++, as a first version we get all of them
+            queryset = queryset.filter(content__tags__in=[self.tag])
         queryset = queryset.extra(select={'count_note': sub_query})
         return queryset.order_by('-publication_date')
 
@@ -386,149 +383,91 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
         return context
 
 
-class ListArticles(ListOnlineContents):
-    """Displays the list of published articles"""
-
-    current_content_type = 'ARTICLE'
-
-
-class ListTutorials(ListOnlineContents):
-    """Displays the list of published tutorials"""
-
-    current_content_type = 'TUTORIAL'
-
-
 class ListOpinions(ListOnlineContents):
     """Displays the list of published opinions"""
 
     current_content_type = 'OPINION'
 
 
-class ViewAllCategories(TemplateView):
-    """Displays the list of categories, plus a few contents"""
+class ViewPublications(TemplateView):
+    templates = {
+        1: 'tutorialv2/view/categories.html',
+        2: 'tutorialv2/view/category.html',
+        3: 'tutorialv2/view/subcategory.html',
+        4: 'TODO'
+    }
 
-    template_name = 'tutorialv2/view/categories.html'
+    level = 1
+    max_last_contents = 10
+    template_name = templates[level]
 
     def get_context_data(self, **kwargs):
-        context = super(ViewAllCategories, self).get_context_data(**kwargs)
+        context = super(ViewPublications, self).get_context_data(**kwargs)
 
         contents_count = 0
 
-        # get categories and subcategories
-        context['categories'] = list(Category.objects.order_by('position').all())
-        for category in context['categories']:
-            category.subcategories = list(
-                CategorySubCategory.objects
-                    .filter(is_main=True, category=category)
-                    .prefetch_related('subcategory')
-                    .values('subcategory__pk', 'subcategory__title', 'subcategory__slug', 'subcategory__image')
-                    .all())
+        if self.kwargs.get('slug', False):
+            self.level = 2
+            self.max_last_contents = 5
+        if self.kwargs.get('slug_category', False):
+            self.level = 3
+            self.max_last_contents = 5
+        if self.request.GET.get('category', False) or \
+                self.request.GET.get('subcategory', False) or \
+                self.request.GET.get('type', False) or \
+                self.request.GET.get('tags', False):
+            self.level = 4
+            raise NotImplementedError('filter view, cf. TODO.md at repository root')
 
-            pks = [c['subcategory__pk'] for c in category.subcategories]
-            category.contents_count = PublishedContent.objects\
-                .published_contents()\
-                .filter(content__subcategory__in=pks)\
+        self.template_name = self.templates[self.level]
+        recent_kwargs = {}
+
+        if self.level is 1:
+            contents_count = 0
+            # get categories and subcategories
+            categories = list(Category.objects.order_by('position').all())
+            for category in categories:
+                category.subcategories = category.get_subcategories()
+                category.contents_count = PublishedContent.objects \
+                    .published_contents() \
+                    .filter(content__subcategory__in=category.subcategories) \
+                    .count()
+                contents_count += category.contents_count
+
+            context['categories'] = categories
+            context['content_count'] = contents_count
+
+        elif self.level is 2:
+            context['category'] = get_object_or_404(Category, slug=self.kwargs.get('slug'))
+            context['subcategories'] = context['category'].get_subcategories()
+
+            total_count = 0
+
+            for subcategory in context['subcategories']:
+                subcategory.contents_count = PublishedContent.objects \
+                    .published_contents() \
+                    .filter(content__subcategory__pk=subcategory.pk) \
+                    .count()
+                total_count += subcategory.contents_count
+
+            context['content_count'] = total_count
+            recent_kwargs['subcategory'] = context['subcategories']
+
+        elif self.level is 3:
+            subcategory = get_object_or_404(SubCategory, slug=self.kwargs.get('slug'))
+            context['category'] = subcategory.get_parent_category()
+            context['subcategory'] = subcategory
+            context['content_count'] = PublishedContent.objects \
+                .get_recent_list(subcategories=[subcategory]) \
                 .count()
-            contents_count += category.contents_count
+            recent_kwargs['subcategories'] = [subcategory]
 
-        # get last articles and tutorials
-        context['last_articles'] = PublishedContent.objects.get_recent_list(content_type='ARTICLE')[:10]
-        context['last_tutorials'] = PublishedContent.objects.get_recent_list(content_type='TUTORIAL')[:10]
-
-        context['beta_forum'] = Forum.objects\
-            .prefetch_related('category')\
-            .filter(pk=settings.ZDS_APP['forum']['beta_forum_id'])\
-            .last()
-
-        context['content_count'] = contents_count
-
-        return context
-
-
-class ViewCategory(DetailView):
-    """Displays a category"""
-
-    template_name = 'tutorialv2/view/category.html'
-    slug = None
-    model = Category
-
-    def get_object(self, queryset=None):
-        self.slug = self.kwargs.pop('slug')
-        return get_object_or_404(self.model, slug=self.slug)
-
-    def get_context_data(self, **kwargs):
-        context = super(ViewCategory, self).get_context_data(**kwargs)
-
-        # get subcategories
-        context['subcategories'] = [
-            c.subcategory for c in CategorySubCategory.objects
-            .prefetch_related('subcategory')
-            .filter(category__pk=self.object.pk)
-            .all()]
-
-        total_count = 0
-
-        for subcategory in context['subcategories']:
-            subcategory.contents_count = PublishedContent.objects \
-                .published_contents() \
-                .filter(content__subcategory__pk=subcategory.pk) \
-                .count()
-            total_count += subcategory.contents_count
-
-        context['content_count'] = total_count
-
-        # get last articles and tutorials
         context['last_articles'] = PublishedContent.objects.get_recent_list(
-            content_type='ARTICLE',
-            subcategories=context['subcategories'])[:5]
-
+            **dict(content_type='ARTICLE', **recent_kwargs)
+        )[:self.max_last_contents]
         context['last_tutorials'] = PublishedContent.objects.get_recent_list(
-            content_type='TUTORIAL',
-            subcategories=context['subcategories'])[:5]
-
-        context['beta_forum'] = Forum.objects\
-            .prefetch_related('category')\
-            .filter(pk=settings.ZDS_APP['forum']['beta_forum_id'])\
-            .last()
-
-        return context
-
-
-class ViewSubCategory(DetailView):
-    """Displays a subcategory"""
-
-    template_name = 'tutorialv2/view/subcategory.html'
-    slug = None
-    model = SubCategory
-
-    category = None
-
-    def get_object(self, queryset=None):
-        self.slug = self.kwargs.pop('slug')
-        obj = get_object_or_404(self.model, slug=self.slug)
-
-        self.category = obj.get_parent_category()
-        slug_category = self.kwargs.pop('slug_category')
-
-        if not self.category or self.category.slug != slug_category:
-            raise Http404('category_slug')
-
-        return obj
-
-    def get_context_data(self, **kwargs):
-        context = super(ViewSubCategory, self).get_context_data(**kwargs)
-
-        context['category'] = self.category
-        context['content_count'] = PublishedContent.objects.get_recent_list(subcategories=[self.object]).count()
-
-        # get last articles and tutorials
-        context['last_articles'] = PublishedContent.objects.get_recent_list(
-            content_type='ARTICLE',
-            subcategories=[self.object])[:5]
-
-        context['last_tutorials'] = PublishedContent.objects.get_recent_list(
-            content_type='TUTORIAL',
-            subcategories=[self.object])[:5]
+            **dict(content_type='TUTORIAL', **recent_kwargs)
+        )[:self.max_last_contents]
 
         context['beta_forum'] = Forum.objects\
             .prefetch_related('category')\
@@ -618,13 +557,14 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
                     self.quoted_reaction_text = text
         try:
             return super(SendNoteFormView, self).get(request, *args, **kwargs)
-        except MustRedirect:  # if someone changed the pk arguments, and reached a 'must redirect' public
-            # object
-            raise Http404(u"Aucun contenu public trouvé avec l'identifiant " + str(self.request.GET.get('pk', 0)))
+        except MustRedirect:
+            # if someone changed the pk argument, and reached a 'must redirect' public object
+            raise Http404(
+                u"Aucun contenu public trouvé avec l'identifiant {}".format(str(self.request.GET.get('pk', 0))))
 
     def post(self, request, *args, **kwargs):
 
-        if 'preview' in request.POST and request.is_ajax():  # preview
+        if 'preview' in request.POST and request.is_ajax():
             content = render_to_response('misc/previsualization.part.html', {'text': request.POST['text']})
             return StreamingHttpResponse(content)
         else:
@@ -635,7 +575,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
         if self.check_as and self.object.antispam(self.request.user):
             raise PermissionDenied
 
-        if 'preview' in self.request.POST:  # previewing
+        if 'preview' in self.request.POST:
             return self.form_invalid(form)
 
         is_new = False
@@ -696,7 +636,7 @@ class UpdateNoteView(SendNoteFormView):
 
             kwargs['reaction'] = self.reaction
         else:
-            raise Http404(u"Le paramètre 'message' doit être un digit.")
+            raise Http404(u"Le paramètre 'message' doit être un nombre entier positif.")
         return kwargs
 
     def get_context_data(self, **kwargs):
@@ -712,7 +652,7 @@ class UpdateNoteView(SendNoteFormView):
             # show alert, if any
             alerts = Alert.objects.filter(comment__pk=self.reaction.pk, solved=False)
             if alerts.count():
-                msg_alert = _(u'Attention, en éditant ce message, vous résolvez également les alertes suivantes : {}') \
+                msg_alert = _(u'Attention, en éditant ce message vous résolvez également les alertes suivantes : {}') \
                     .format(', '.join([u'« {} » (signalé par {})'.format(a.text, a.author.username) for a in alerts]))
                 messages.warning(self.request, msg_alert)
 
@@ -748,7 +688,7 @@ class HideReaction(FormView, LoginRequiredMixin):
             pk = int(self.kwargs['pk'])
             text = ''
             if 'text_hidden' in self.request.POST:
-                text = self.request.POST['text_hidden'][:80]  # Todo: Make it less static
+                text = self.request.POST['text_hidden'][:80]  # TODO: Make it less static
             reaction = get_object_or_404(ContentReaction, pk=pk)
             if not self.request.user.has_perm('tutorialv2.change_contentreaction') and \
                     not self.request.user.pk == reaction.author.pk:
@@ -792,7 +732,7 @@ class SendContentAlert(FormView, LoginRequiredMixin):
         try:
             content_pk = int(self.kwargs['pk'])
         except (KeyError, ValueError):
-            raise Http404(u"Impossible de convertir l'identifiant en entier.")
+            raise Http404(u'Identifiant manquant ou conversion en entier impossible.')
         content = get_object_or_404(PublishableContent, pk=content_pk)
 
         alert = Alert(

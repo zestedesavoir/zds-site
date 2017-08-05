@@ -8,29 +8,21 @@ exposes categories
     <div class="linkbox-item primary">
         <a href="{% url 'publication:category' slug=category.slug %}" class="head">
             <h3>{{ category.title }}</h3>
-
         </a>
 
         <a href="{% url 'publication:category' slug=category.slug %}" class="body">
             <p>{{ category.description }}</p>
             <p class="right">
-                {% if category.count_contents != 0 %}
-                    {{ category.count_contents }} {% trans 'contenu' %}{{ category.count_contents|pluralize_fr }}
+                {% if category.contents_count != 0 %}
+                    {{ category.contents_count }} {% trans 'contenu' %}{{ category.contents_count|pluralize_fr }}
                 {% else %}
                     {% trans 'Aucun contenu' %}
                 {% endif %}
             </p>
         </a>
-
         {% for subcategory in category.subcategories %}
-           <a href="{% url 'publication:subcategory' slug_category=category.slug slug=subcategory.subcategory__slug %}" class="tail">
-                <!--
-                  TODO: lien avec query param vers niveau 3:
-                  /bibliotheque?subcategory=bureautique-et-redaction
-                  au lieu de:
-                  /bibliotheque/informatique/bureautique-et-redaction/
-                -->
-                <p>{{ subcategory.subcategory__title }}</p>
+            <a href="{% url 'publication:subcategory' slug_category=category.slug slug=subcategory.slug %}" class="tail">
+                <p>{{ subcategory.title }}</p>
             </a>
         {% endfor %}
     </div>

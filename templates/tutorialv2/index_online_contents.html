@@ -91,7 +91,7 @@
             <a href="{% url "content:create-opinion" %}" class="new-btn ico-after more blue">
                 {% trans "Nouveau billet" %}
             </a>
-        {% elif current_content_type == None %}
+        {% elif not current_content_type %}
             <a href="{% url "content:create-article" %}" class="new-btn ico-after more blue">
                 {% trans "Nouvel article" %}
             </a>
@@ -118,7 +118,7 @@
                 {% url "publication:list" %}?type=tutorial
             {% elif current_content_type == "OPINION" %}
                 {% url "opinion:list" %}
-            {% elif current_content_type == None %}
+            {% elif not current_content_type %}
                 {% url "publication:list" %}
             {% endif %}
         {% endcaptureas %}
@@ -153,7 +153,7 @@
                             href="{% url "tutorial:feed-rss" %}"
                         {% elif current_content_type == "OPINION" %}
                             href="{% url "opinion:feed-rss" %}"
-                        {% elif current_content_type == None %}
+                        {% elif not current_content_type %}
                             href="{% url "content:feed-rss" %}"
                         {% endif %}
                     class="ico-after rss blue">
@@ -168,7 +168,7 @@
                             href="{% url "tutorial:feed-atom" %}"
                         {% elif current_content_type == "OPINION" %}
                             href="{% url "opinion:feed-atom" %}"
-                        {% elif current_content_type == None %}
+                        {% elif not current_content_type %}
                             href="{% url "content:feed-atom" %}"
                         {% endif %}
                     class="ico-after rss blue">

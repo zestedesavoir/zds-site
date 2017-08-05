@@ -1,8 +1,9 @@
 # coding: utf-8
 
 from django.conf.urls import url
+from django.views.generic.base import RedirectView
 
-from zds.tutorialv2.views.views_published import ListArticles, DisplayOnlineArticle, DownloadOnlineArticle, \
+from zds.tutorialv2.views.views_published import DisplayOnlineArticle, DownloadOnlineArticle, \
     TagsListView
 from zds.tutorialv2.feeds import LastArticlesFeedRSS, LastArticlesFeedATOM
 
@@ -26,6 +27,6 @@ urlpatterns = [
         name='download-zip'),
 
     # Listing
-    url(r'^$', ListArticles.as_view(), name='list'),
+    url(r'^$', RedirectView.as_view(pattern_name='publication:list', permanent=True)),
     url(r'tags/*', TagsListView.as_view(displayed_types=['ARTICLE']), name='tags')
 ]

@@ -11,7 +11,7 @@
                 <a href="{% url "tutorial:feed-atom" %}?subcategory={{ subcategory.slug }}" class="btn btn-grey">Atom</a>
             </h2>
             {% include 'tutorialv2/list_page_elements/list_of_online_contents.html' with public_contents=last_tutorials col_number=1 %}
-            <a href="{% url 'tutorial:list' %}?theme={{ category.slug }}" class="more-link">Plus de tutoriels dans {{ subcategory.title | lower }}</a>
+            <a href="{% url 'publication:list' %}?subcategory={{ subcategory.slug }}&amp;type=tutoriel" class="more-link">Plus de tutoriels dans {{ subcategory.title | lower }}</a>
         </section>
 
         <section>
@@ -21,7 +21,7 @@
                 <a href="{% url "article:feed-atom" %}?subcategory={{ subcategory.slug }}" class="btn btn-grey">Atom</a>
             </h2>
             {% include 'tutorialv2/list_page_elements/list_of_online_contents.html' with public_contents=last_articles col_number=1 %}
-            <a href="{% url 'article:list' %}?theme={{ category.slug }}" class="more-link">Plus d'articles dans {{ subcategory.title | lower }}</a>
+            <a href="{% url 'publication:list' %}?subcategory={{ subcategory.slug }}&amp;type=article" class="more-link">Plus d'articles dans {{ subcategory.title | lower }}</a>
         </section>
     </div>
 

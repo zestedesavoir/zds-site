@@ -16,6 +16,7 @@ class LastContentFeedRSS(Feed):
     description = _(u'Les derniers contenus parus sur {}.').format(settings.ZDS_APP['site']['literal_name'])
     link = ''
     content_type = None
+    query_params = {}
 
     def get_object(self, request, *args, **kwargs):
         self.query_params = request.GET
