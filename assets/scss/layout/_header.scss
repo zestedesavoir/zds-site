@@ -467,6 +467,9 @@
     .logbox .dropdown.my-account-dropdown ul li {
         height: 30px;
         line-height: 30px;
+        button {
+            cursor: pointer;
+        }
     }
 
     .lt-ie9 .dropdown {

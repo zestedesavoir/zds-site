@@ -2,7 +2,8 @@
 
 from django.contrib import admin
 
-from zds.member.models import Profile, Ban, TokenRegister, TokenForgotPassword, KarmaNote
+from zds.member.models import Profile, Ban, TokenRegister, TokenForgotPassword, KarmaNote, \
+    NewEmailProvider, BannedEmailProvider
 
 
 class ProfileAdmin(admin.ModelAdmin):
@@ -42,8 +43,24 @@ class KarmaNoteAdmin(admin.ModelAdmin):
     raw_id_fields = ('user', 'moderator')
 
 
+class NewEmailProviderAdmin(admin.ModelAdmin):
+    """Representation of NewEmailProvider model in the admin interface."""
+    list_display = ('provider', 'user', 'date')
+    search_fields = ('provider', 'user__username')
+    raw_id_fields = ('user',)
+
+
+class BannedEmailProviderAdmin(admin.ModelAdmin):
+    """Representation of BannedEmailProvider model in the admin interface."""
+    list_display = ('provider', 'moderator', 'date')
+    search_fields = ('provider',)
+    raw_id_fields = ('moderator',)
+
+
 admin.site.register(Profile, ProfileAdmin)
 admin.site.register(Ban, BanAdmin)
 admin.site.register(TokenRegister, TokenRegisterAdmin)
 admin.site.register(TokenForgotPassword, TokenForgotPasswordAdmin)
 admin.site.register(KarmaNote, KarmaNoteAdmin)
+admin.site.register(NewEmailProvider, NewEmailProviderAdmin)
+admin.site.register(BannedEmailProvider, BannedEmailProviderAdmin)

@@ -154,6 +154,17 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
     def __str__(self):
         return self.title
 
+    def update(self, **fields):
+        """
+        wrapper arround ``self.objects.update``
+
+        :param fields: Fields to update
+        :return: modified self
+        """
+        self.__class__.objects.filter(pk=self.pk).update(**fields)
+        self.refresh_from_db(fields=list(fields.keys()))
+        return self
+
     def save(self, *args, **kwargs):
         """
         Rewrite the `save()` function to handle slug uniqueness
@@ -289,8 +300,8 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         """
         return self.in_public() and sha == self.sha_public
 
-    def is_definitely_unpublished(self):
-        """Is this content definitely unpublished by a moderator ?"""
+    def is_permanently_unpublished(self):
+        """Is this content permanently unpublished by a moderator ?"""
 
         return PickListOperation.objects.filter(content=self, operation='REMOVE_PUB', is_effective=True).exists()
 

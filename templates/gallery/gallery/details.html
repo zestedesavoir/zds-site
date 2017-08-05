@@ -77,7 +77,7 @@
             {% for img in images %}
                 <div class="topic gallery-item navigable-elem">
                     <div class="topic-infos">
-                        <input name="items" type="checkbox" value="{{ img.pk }}" form="form-delete-images">
+                        <input name="g_items" type="checkbox" value="{{ img.pk }}" form="form-delete-images">
                     </div>
                     <div class="topic-description">
                         <a href="{% url "gallery-image-edit" gallery.pk img.pk %}" class="topic-title-link navigable-link">

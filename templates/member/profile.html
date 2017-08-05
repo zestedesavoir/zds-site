@@ -131,7 +131,7 @@
             <h2 class="ico-after ico-opinions" id="derniers-billets">{% trans "Derniers billets" %}</h2>
             <div class="content-item-list">
                 {% for public_opinion in opinions %}
-                    {% include 'tutorialv2/includes/content_item.part.html' with show_description=True public_content=public_opinion %}
+                    {% include 'tutorialv2/includes/content_item.part.html' with show_description=True public_content=public_opinion show_reactions=True %}
                 {% endfor %}
             </div>
         {% endif %}
@@ -324,6 +324,13 @@
                 <li>
                     <a href="#derniers-articles">
                         {% trans "Derniers articles" %}
+                    </a>
+                </li>
+            {% endif %}
+            {% if opinions %}
+                <li>
+                    <a href="#derniers-billets">
+                        {% trans "Derniers billets" %}
                     </a>
                 </li>
             {% endif %}

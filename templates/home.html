@@ -170,7 +170,7 @@
 
                 <div class="content-item-list">
                     {% for opinion in last_opinions %}
-                        {% include 'tutorialv2/includes/content_item.part.html' with public_content=opinion show_description=True item_class=forloop.first|yesno:", mini" ignore_date=True %}
+                        {% include 'tutorialv2/includes/content_item.part.html' with public_content=opinion show_description=True item_class=forloop.first|yesno:", mini" ignore_date=True show_reactions=True %}
                     {% empty %}
                         <p>{% trans "Aucun billet disponible." %}</p>
                     {% endfor %}

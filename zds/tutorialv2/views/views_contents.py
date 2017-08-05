@@ -68,8 +68,9 @@ class RedirectOldBetaTuto(RedirectView):
 
 class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
     """
-    Handle content creation. Since v22, we explicitely ask for user to choose a licence instead of \
-    assuming he just wants the default "All rights reserved" option.
+    Handle content creation. Since v22 a licence must be explicitly selected
+    instead of defaulting to "All rights reserved". Users can however
+    set a default licence in their profile.
     """
     template_name = 'tutorialv2/create/content.html'
     model = PublishableContent
@@ -85,7 +86,16 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
     def get_form(self, form_class=ContentForm):
         form = super(CreateContent, self).get_form(form_class)
         form.initial['type'] = self.created_content_type
+        # Check for default licence in the profile
+        profile = self.request.user.profile
+        form.initial['licence'] = profile.licence
         return form
+
+    def get_context_data(self, **kwargs):
+        context = super(CreateContent, self).get_context_data(**kwargs)
+        context['editorial_line_link'] = settings.ZDS_APP['content']['editorial_line_link']
+        context['site_name'] = settings.ZDS_APP['site']['litteral_name']
+        return context
 
     def form_valid(self, form):
 
@@ -890,8 +900,9 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
 
                 if not commit_message:
                     commit_message = _(u"Importation d'une archive contenant « {} »").format(new_content.title)
-
-                sha = versioned.commit_changes(commit_message)
+                versioned.slug = self.object.slug  # force slug to ensure path resolution
+                sha = versioned.repo_update(versioned.title, versioned.get_introduction(),
+                                            versioned.get_conclusion(), commit_message, update_slug=True)
 
                 # This HAVE TO happen after commiting files (if not, content are None)
                 if 'image_archive' in self.request.FILES:
@@ -1188,9 +1199,7 @@ class EditExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
                                   form.cleaned_data['msg_commit'])
 
         # then save
-        self.object.sha_draft = sha
-        self.object.update_date = datetime.now()
-        self.object.save()
+        self.object.update(sha_draft=sha, update_date=datetime.now())
 
         self.success_url = extract.get_absolute_url()
 
@@ -1221,9 +1230,7 @@ class DeleteContainerOrExtract(LoggedWithReadWriteHability, SingleContentViewMix
         sha = to_delete.repo_delete()
 
         # then save
-        self.object.sha_draft = sha
-        self.object.update_date = datetime.now()
-        self.object.save()
+        self.object.update(sha_draft=sha, update_date=datetime.now())
 
         return redirect(parent.get_absolute_url())
 
@@ -1453,7 +1460,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                     topic.tags.add(tag)
                 topic.save()
 
-        self.object.save()
+        self.object.save(force_slug_update=False)  # we should prefer .update but it needs a uge refactoring
 
         self.success_url = self.versioned_object.get_absolute_url(version=sha_beta)
 
@@ -1609,8 +1616,7 @@ class ActivateJSFiddleInContent(LoginRequiredMixin, PermissionRequiredMixin, For
         # forbidden for content without a validation before publication
         if not content.load_version().requires_validation_before():
             raise PermissionDenied
-        content.js_support = form.cleaned_data['js_support']
-        content.save()
+        content.update(js_support=form.cleaned_data['js_support'])
         return redirect(content.load_version().get_absolute_url())
 
 
@@ -1831,7 +1837,7 @@ class RemoveAuthorFromContent(AddAuthorToContent):
                                  u'en a déjà quitté la rédaction.').format(_type))
                 return redirect(self.object.get_absolute_url())
 
-        self.object.save()
+        self.object.save(force_slug_update=False)
 
         authors_list = u''
 

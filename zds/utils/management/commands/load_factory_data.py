@@ -14,14 +14,19 @@ class Command(BaseCommand):
     args = 'files'
     help = 'Load complex fixtures for ZdS'
 
+    def add_arguments(self, parser):
+        parser.add_argument('files', nargs='?', type=str)
+
     # python manage.py load_factory_data
 
     def handle(self, *args, **options):
+        files = options.get('files')
+
         # create "media" folder if not existing
         if not os.path.exists(MEDIA_ROOT):
             os.mkdir(MEDIA_ROOT)
 
-        for filename in glob.glob(' '.join(args)):
+        for filename in glob.glob(files):
             stream = open(filename, 'r')
             fixture_list = yaml.load(stream)
             for fixture in fixture_list:

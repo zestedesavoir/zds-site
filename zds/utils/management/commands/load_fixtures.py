@@ -18,7 +18,7 @@ from zds.member.models import Profile
 from zds.forum.models import Forum, Topic, Category as FCategory
 from zds.utils.models import Tag, Category as TCategory, CategorySubCategory, SubCategory, Licence
 from zds.utils import slugify
-from zds import settings
+from django.conf import settings
 from django.db import transaction
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, \
     Validation as CValidation, ContentReactionFactory
@@ -540,70 +540,48 @@ def load_contents(cli, _type, size, fake):
 
 @transaction.atomic
 class Command(BaseCommand):
-    args = 'size=[low|medium|high] type=member,staff,category_forum,category_content,forum,tag,topic,post,note,galler' \
-           'y,article,tutorial,comment,reaction racine=user'
+
+    zds_modules = ','.join([
+        'member',
+        'staff',
+        'category_forum',
+        'category_content',
+        'forum',
+        'tag',
+        'topic',
+        'post',
+        'note',
+        'gallery',
+        'article',
+        'tutorial',
+        'opinion',
+        'comment',
+        'reaction'
+    ])
+
+    def add_arguments(self, parser):
+        parser.add_argument('racine', action='store', nargs='?', default='user', type=str,
+                            help='The prefix for users. Default: user.')
+        parser.add_argument('size', action='store', nargs='?', default='low', choices=['low', 'medium', 'high'],
+                            type=str, help='Size level: low (x1), medium (x2) or high (x3). Default: low.')
+        parser.add_argument('type', action='store', nargs='*', type=str, default=self.zds_modules,
+                            help='Type of content you want to create. You could add many types separated by a comma. '
+                                 'Default: all types.')
+
     help = '''Load fixtures for ZdS
 
-Usage: {}
-Options:
-    racine  The prefix for users. Default: user.
-    size    Size level: low (x1), medium (x2) or high (x3). Default: low.
-    type    Type of content you want to create. You could add many types separated by a comma. Default: all types.
-            Types available:
-                article
-                category_content
-                category_forum
-                comment
-                forum
-                gallery
-                member
-                note
-                post
-                reaction
-                staff
-                tag
-                topic
-                tutorial
 Examples:
     All:
         python manage.py load_fixtures
     All with high size:
         python manage.py load_fixtures size=high
     Only users with medium size and a different racine:
-        python manage.py load_fixtures size=medium type=member,staff racine=john'''.format(args)
+        python manage.py load_fixtures size=medium type=member,staff racine=john'''
 
     def handle(self, *args, **options):
-        default_size = 'low'
-        default_root = 'user'
-        default_module = ['member',
-                          'staff',
-                          'category_forum',
-                          'category_content',
-                          'forum',
-                          'tag',
-                          'topic',
-                          'post',
-                          'note',
-                          'gallery',
-                          'article',
-                          'tutorial',
-                          'opinion',
-                          'comment',
-                          'reaction']
-        if len(args) == 1 and args[0] == 'help':
-            self.stdout.write(self.help)
-            exit()
-        for arg in args:
-            options = arg.split('=')
-            if len(options) < 2:
-                continue
-            else:
-                if options[0] in ['size', 'sizes', 'taille', 'level']:
-                    default_size = options[1].split(',')[0]
-                elif options[0] in ['type', 'types']:
-                    default_module = options[1].split(',')
-                elif options[0] in ['racine']:
-                    default_root = options[1].split(',')[0]
+        default_size = options.get('size', 'low')
+        default_root = options.get('racine', 'user')
+        default_module = options.get('type', self.zds_modules)
 
         if default_size == 'low':
             size = 1

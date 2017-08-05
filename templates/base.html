@@ -122,8 +122,13 @@
 {% endif %}
 
 <body class="{% block body_class %}{% endblock %}{% for vc in visual_changes %} vc-{{ vc }}{% endfor %}"
-      itemscope
-      itemtype="http://schema.org/WebPage"
+    itemscope
+    itemtype="http://schema.org/WebPage"
+    {% if not user.is_authenticated or user.profile.show_markdown_help %}
+        data-show-markdown-help="true"
+    {% else %}
+        data-show-markdown-help="false"
+    {% endif %}
 >
     <!--[if lt IE 9]>
         <p class="chromeframe">Vous utilisez un navigateur <strong>dépassé</strong>. Merci de <a href="http://browsehappy.com/">mettre à jour celui-ci</a> pour améliorer votre expérience.</p>
@@ -590,6 +595,19 @@
                                             {% endwith %}
                                         {% endif %}
 
+                                        {% if perms.member.change_bannedemailprovider %}
+                                            {% with new_providers_count=user|new_providers_count %}
+                                                <li class="staff-only">
+                                                    <a href="{% url 'new-email-providers' %}">
+                                                        {% trans "Fournisseurs e-mail" %}
+                                                        {% if new_providers_count > 0 %}
+                                                            ({{ new_providers_count }})
+                                                        {% endif %}
+                                                    </a>
+                                                </li>
+                                            {% endwith %}
+                                        {% endif %}
+
                                         {% if perms.featured.change_featuredresource %}
                                             <li class="staff-only">
                                                 <a href="{% url 'featured-resource-list' %}">{% trans 'Gestion des mises en avant' %}</a>
@@ -707,7 +725,7 @@
                 </ul>
 
                 <ul class="links">
-                    <li><a href="{% url "api:docs:django.swagger.base.view" %}">{% trans "API" %}</a></li>
+                    <li><a href="{% url "api:docs" %}">{% trans "API" %}</a></li>
                     <li><a href="{% url "pages-eula" %}">{% trans "CGU" %}</a></li>
                     <li><a href="{% url "pages-about" %}">{% trans "À propos" %}</a></li>
                     {% if app.site.association %}
@@ -765,6 +783,9 @@
             messageStyle: "none",
         });
     </script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"
+        integrity="sha384-Ra6zh6uYMmH5ydwCqqMoykyf1T/+ZcnOQfFPhDrp2kI4OIxadnhsvvA2vv9A7xYv"
+        crossorigin="anonymous">
+    </script>
 </body>
 </html>

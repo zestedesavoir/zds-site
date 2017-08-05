@@ -11,7 +11,7 @@ from rest_framework.test import APIClient
 
 from zds.api.pagination import REST_PAGE_SIZE, REST_MAX_PAGE_SIZE, REST_PAGE_SIZE_QUERY_PARAM
 from zds.member.factories import ProfileFactory, StaffProfileFactory, ProfileNotSyncFactory
-from zds.member.models import TokenRegister
+from zds.member.models import TokenRegister, BannedEmailProvider
 from rest_framework_extensions.settings import extensions_api_settings
 from django.core.cache import caches
 
@@ -241,6 +241,9 @@ class MemberListAPITest(APITestCase):
         """
         Gets an error when the user tries to register a new user with a forbidden email.
         """
+        moderator = StaffProfileFactory().user
+        if not BannedEmailProvider.objects.filter(provider='yopmail.com').exists():
+            BannedEmailProvider.objects.create(provider='yopmail.com', moderator=moderator)
         data = {
             'username': 'Clem',
             'email': 'clem@yopmail.com',
@@ -321,6 +324,79 @@ class MemberListAPITest(APITestCase):
         Gets an error when the user try to make a request with a method not allowed.
         """
         response = self.client.delete(reverse('api:member:list'))
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def create_multiple_users(self, number_of_users=REST_PAGE_SIZE):
+        for user in xrange(0, number_of_users):
+            ProfileFactory()
+
+
+class MemberExistsAPITest(APITestCase):
+    def setUp(self):
+        self.client = APIClient()
+        caches[extensions_api_settings.DEFAULT_USE_CACHE].clear()
+        self.bot = Group(name=settings.ZDS_APP['member']['bot_group'])
+        self.bot.save()
+
+    def test_list_of_users_empty(self):
+        """
+        Gets empty list of users in the database.
+        """
+        response = self.client.get(reverse('api:member:exists'))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.data.get('count'), 0)
+        self.assertEqual(response.data.get('results'), [])
+        self.assertIsNone(response.data.get('next'))
+        self.assertIsNone(response.data.get('previous'))
+
+    def test_search_in_list_of_users(self):
+        """
+        Gets list of users corresponding to the value given by the search parameter.
+        """
+        self.create_multiple_users()
+        StaffProfileFactory()
+
+        # get an username
+        response = self.client.get(reverse('api:member:list') + '?search=firmstaff')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        username = response.data['results'][0]['username']
+
+        response = self.client.get(reverse('api:member:exists') + '?search=' + username)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data.get('count') > 0)
+
+    def test_search_without_results_in_list_of_users(self):
+        """
+        Gets a list empty when there are users but which doesn't match with the search
+        parameter value.
+        """
+        self.create_multiple_users()
+
+        response = self.client.get(reverse('api:member:exists') + '?search=zozor')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.data.get('count'), 0)
+        self.assertIsNone(response.data.get('next'))
+        self.assertIsNone(response.data.get('previous'))
+
+    def test_member_list_url_with_put_method(self):
+        """
+        Gets an error when the user try to make a request with a method not allowed.
+        """
+        response = self.client.put(reverse('api:member:exists'))
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_member_list_url_with_post_method(self):
+        """
+        Gets an error when the user try to make a request with a method not allowed.
+        """
+        response = self.client.post(reverse('api:member:exists'))
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_member_list_url_with_delete_method(self):
+        """
+        Gets an error when the user try to make a request with a method not allowed.
+        """
+        response = self.client.delete(reverse('api:member:exists'))
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def create_multiple_users(self, number_of_users=REST_PAGE_SIZE):

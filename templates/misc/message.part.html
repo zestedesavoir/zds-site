@@ -188,13 +188,19 @@
                 </p>
             {% elif message.update %}
                 <p class="message-edited ico-after edit">
-                    {% trans "Édité" %}
-                    {% if message.editor %}
-                        {% trans "par" %} {{ message.editor }}
+                    {% if can_view_history %}
+                        <a href="{% url 'comment-edits-history' message.pk %}">
                     {% endif %}
-                    <time itemprop="dateModified" datetime="{{ message.update|date:"c" }}">
-                        {{ message.update|format_date }}
-                    </time>
+                        {% trans "Édité" %}
+                        {% if message.editor %}
+                            {% trans "par" %} {{ message.editor }}
+                        {% endif %}
+                        <time itemprop="dateModified" datetime="{{ message.update|date:"c" }}">
+                            {{ message.update|format_date }}
+                        </time>
+                    {% if can_view_history %}
+                        </a>
+                    {% endif %}
                 </p>
             {% endif %}
         </div>

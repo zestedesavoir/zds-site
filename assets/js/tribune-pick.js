@@ -1,5 +1,6 @@
 (function ($, undefined) {
     var $opinions = $(".opinion");
+    var $opinionCount = $("#opinion-count");
     $opinions.on("click", ".unpick-action", function () {
         var $button = $(this);
         var $row = $button.parent().parent();
@@ -19,6 +20,7 @@
                 var $stateCol = $row.find(".state");
                 $stateCol.text($stateCol.data("toggle"));
             }
+            $opinionCount.text(parseInt($opinionCount.text(), 10)-1);
         });
     });
 })(jQuery);

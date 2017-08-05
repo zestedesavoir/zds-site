@@ -15,8 +15,9 @@ from zds.notification.models import Notification, TopicAnswerSubscription, Conte
 from zds.tutorialv2.models.models_database import ContentReaction, PublishableContent
 from zds.utils import get_current_user
 from zds.utils.models import Alert
-from zds import settings
+from django.conf import settings
 from zds.tutorialv2.models import TYPE_CHOICES_DICT
+from zds.member.models import NewEmailProvider
 
 register = template.Library()
 
@@ -38,16 +39,16 @@ def is_email_followed(topic):
     return TopicAnswerSubscription.objects.does_exist(user, topic, is_active=True, by_email=True)
 
 
-@register.filter('is_forum_followed')
-def is_forum_followed(forum):
+@register.filter('is_followed_for_new_topic')
+def is_followed_for_new_topic(forum_or_tag):
     user = get_current_user()
-    return NewTopicSubscription.objects.does_exist(user, forum, is_active=True)
+    return NewTopicSubscription.objects.does_exist(user, forum_or_tag, is_active=True)
 
 
-@register.filter('is_forum_email_followed')
-def is_forum_email_followed(forum):
+@register.filter('is_email_followed_for_new_topic')
+def is_email_followed_for_new_topic(forum_or_tag):
     user = get_current_user()
-    return NewTopicSubscription.objects.does_exist(user, forum, is_active=True, by_email=True)
+    return NewTopicSubscription.objects.does_exist(user, forum_or_tag, is_active=True, by_email=True)
 
 
 @register.filter('is_content_followed')
@@ -212,7 +213,13 @@ def waiting_count(content_type):
     """
     if content_type not in TYPE_CHOICES_DICT:
         raise template.TemplateSyntaxError("'content_type' must be in 'zds.tutorialv2.models.TYPE_CHOICES_DICT'")
+
     return Validation.objects.filter(
         validator__isnull=True,
         status='PENDING',
         content__type=content_type).count()
+
+
+@register.filter(name='new_providers_count')
+def new_providers_count(user):
+    return NewEmailProvider.objects.count()

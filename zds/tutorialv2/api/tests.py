@@ -15,8 +15,9 @@ from zds.member.factories import ProfileFactory
 from zds.settings import BASE_DIR
 from zds.tutorialv2.factories import ContentReactionFactory, PublishedContentFactory
 from zds.utils.models import CommentVote
+from copy import deepcopy
 
-overrided_zds_app = settings.ZDS_APP
+overrided_zds_app = deepcopy(settings.ZDS_APP)
 overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
 overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
 overrided_zds_app['content']['extra_content_generation_policy'] = 'SYNC'

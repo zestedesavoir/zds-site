@@ -10,7 +10,7 @@ from django.core.urlresolvers import reverse
 from zds.member.factories import ProfileFactory
 from zds.gallery.factories import GalleryFactory, UserGalleryFactory, ImageFactory
 from zds.gallery.models import Gallery, UserGallery, Image
-from zds import settings
+from django.conf import settings
 
 
 class GalleryListViewTest(TestCase):
@@ -175,7 +175,7 @@ class ModifyGalleryViewTest(TestCase):
             reverse('gallery-modify'),
             {
                 'delete_multi': '',
-                'items': [self.gallery1.pk]
+                'g_items': [self.gallery1.pk]
             },
             follow=True
         )
@@ -197,7 +197,7 @@ class ModifyGalleryViewTest(TestCase):
             reverse('gallery-modify'),
             {
                 'delete_multi': '',
-                'items': [self.gallery1.pk, self.gallery2.pk]
+                'g_items': [self.gallery1.pk, self.gallery2.pk]
             },
             follow=True
         )
@@ -568,7 +568,7 @@ class ModifyImageTest(TestCase):
             {
                 'gallery': self.gallery1.pk,
                 'delete_multi': '',
-                'items': [self.image1.pk, self.image2.pk]
+                'g_items': [self.image1.pk, self.image2.pk]
             },
             follow=True,
         )

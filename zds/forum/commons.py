@@ -12,17 +12,17 @@ from django.contrib.auth.decorators import permission_required
 from zds.forum.models import Forum, Post, TopicRead
 from zds.notification import signals
 from zds.notification.models import TopicAnswerSubscription, Notification, NewTopicSubscription
-from zds.utils.models import Alert
+from zds.utils.models import Alert, CommentEdit
 
 
 class ForumEditMixin(object):
     @staticmethod
-    def perform_follow(forum, user):
-        return NewTopicSubscription.objects.toggle_follow(forum, user).is_active
+    def perform_follow(forum_or_tag, user):
+        return NewTopicSubscription.objects.toggle_follow(forum_or_tag, user).is_active
 
     @staticmethod
-    def perform_follow_by_email(forum, user):
-        return NewTopicSubscription.objects.toggle_follow(forum, user, True).is_active
+    def perform_follow_by_email(forum_or_tag, user):
+        return NewTopicSubscription.objects.toggle_follow(forum_or_tag, user, True).is_active
 
 
 class TopicEditMixin(object):
@@ -92,6 +92,7 @@ class TopicEditMixin(object):
         topic.tags.clear()
         if data.get('tags'):
             topic.add_tags(data.get('tags').split(','))
+
         return topic
 
 
@@ -163,6 +164,13 @@ class PostEditMixin(object):
 
     @staticmethod
     def perform_edit_post(post, user, text):
+        # create an archive
+        edit = CommentEdit()
+        edit.comment = post
+        edit.editor = user
+        edit.original_text = post.text
+        edit.save()
+
         post.update_content(text)
         post.update = datetime.now()
         post.editor = user

@@ -15,8 +15,9 @@ from zds.settings import BASE_DIR
 from zds.tutorialv2.factories import PublishableContentFactory, ExtractFactory, LicenceFactory, PublishedContentFactory
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, PickListOperation
 from zds.utils.models import Alert
+from copy import deepcopy
 
-overrided_zds_app = settings.ZDS_APP
+overrided_zds_app = deepcopy(settings.ZDS_APP)
 overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
 overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
 overrided_zds_app['content']['extra_content_generation_policy'] = 'NONE'
@@ -548,7 +549,7 @@ class PublishedContentTests(TestCase):
         result = self.client.get(reverse('validation:list-opinion'))
         self.assertNotContains(result, opinion.title)
 
-    def test_definitely_unpublish_opinion(self):
+    def test_permanently_unpublish_opinion(self):
         opinion = PublishableContentFactory(type='OPINION')
 
         opinion.authors.add(self.user_author)
@@ -947,12 +948,9 @@ class PublishedContentTests(TestCase):
 
     def tearDown(self):
 
-        if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
-            shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
-        if os.path.isdir(settings.ZDS_APP['content']['repo_public_path']):
-            shutil.rmtree(settings.ZDS_APP['content']['repo_public_path'])
+        if os.path.isdir(overrided_zds_app['content']['repo_private_path']):
+            shutil.rmtree(overrided_zds_app['content']['repo_private_path'])
+        if os.path.isdir(overrided_zds_app['content']['repo_public_path']):
+            shutil.rmtree(overrided_zds_app['content']['repo_public_path'])
         if os.path.isdir(settings.MEDIA_ROOT):
             shutil.rmtree(settings.MEDIA_ROOT)
-
-        # re-activate PDF build
-        settings.ZDS_APP['content']['build_pdf_when_published'] = True

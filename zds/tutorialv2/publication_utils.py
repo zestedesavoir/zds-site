@@ -13,7 +13,7 @@ from django.template.loader import render_to_string
 from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
 from os.path import isdir, dirname
-from zds import settings
+from django.conf import settings
 from zds.settings import ZDS_APP
 from zds.tutorialv2.models.models_database import ContentReaction
 from zds.tutorialv2.signals import content_unpublished
@@ -440,16 +440,16 @@ def unpublish_content(db_object, moderator=None):
             [ContentReaction.objects.filter(related_content=db_object).all()])
         # remove public_version:
         public_version.delete()
-
-        db_object.public_version = None
+        update_params = {}
+        update_params['public_version'] = None
 
         if db_object.is_opinion:
-            db_object.sha_public = None
-            db_object.sha_picked = None
-            db_object.pubdate = None
-            db_object.save()
-        db_object.save()
-        content_unpublished.send(sender=db_object.__class__, instance=db_object, moderator=moderator)
+            update_params['sha_public'] = None
+            update_params['sha_picked'] = None
+            update_params['pubdate'] = None
+
+        db_object.update(**update_params)
+        content_unpublished.send(sender=db_object.__class__, instance=db_object)
 
         return True
 

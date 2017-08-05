@@ -246,17 +246,17 @@ REST_FRAMEWORK_EXTENSIONS = {
     'DEFAULT_CACHE_RESPONSE_TIMEOUT': 60 * 15
 }
 
+
 SWAGGER_SETTINGS = {
-    'exclude_namespaces': [
-        'content',
-        'forum'
-    ],
-    'enabled_methods': [
+    'APIS_SORTER': 'alpha',
+    'OPERATIONS_SORTER': 'alpha',
+    'SHOW_REQUEST_HEADERS': True,
+    'SUPPORTED_SUBMIT_METHODS': [
         'get',
         'post',
         'put',
-        'delete'
-    ]
+        'delete',
+    ],
 }
 
 CORS_ORIGIN_ALLOW_ALL = True
@@ -462,6 +462,7 @@ ZDS_APP = {
         'bot_group': u'bot',
         'dev_group': u'devs',
         'members_per_page': 100,
+        'providers_per_page': 100,
         'update_last_visit_interval': 600,  # seconds
     },
     'gallery': {
@@ -506,7 +507,9 @@ ZDS_APP = {
         'import_image_prefix': 'archive',
         'build_pdf_when_published': True,
         'maximum_slug_size': 150,
-        'sec_per_minute': 1500
+        'sec_per_minute': 1500,
+        'editorial_line_link':
+        u'https://zestedesavoir.com/articles/222/la-ligne-editoriale-officielle-de-zeste-de-savoir/'
     },
     'forum': {
         'posts_per_page': 21,
@@ -644,6 +647,4 @@ if DEBUG:
     INSTALLED_APPS += (
         'debug_toolbar',
     )
-    MIDDLEWARE_CLASSES += (
-        'debug_toolbar.middleware.DebugToolbarMiddleware',
-    )
+    MIDDLEWARE_CLASSES = ('debug_toolbar.middleware.DebugToolbarMiddleware',) + MIDDLEWARE_CLASSES

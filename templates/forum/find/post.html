@@ -29,6 +29,17 @@
 
 
 {% block content %}
+
+    {% if hidden_posts_count %}
+        <p class="alert-box info">
+            {% blocktrans count counter=hidden_posts_count %}
+                {{ counter }} message est invisible car dans un sujet inaccessible.
+            {% plural %}
+                {{ counter }} messages sont invisibles car dans un sujet inaccessible.
+            {% endblocktrans %}
+        </p>
+    {% endif %}
+
     {% include "misc/paginator.html" with position="top" %}
 
     {% if posts %}

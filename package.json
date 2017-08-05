@@ -1,7 +1,7 @@
 {
   "name": "zds-site",
   "version": "0.2.0",
-  "description": "Site internet communautaire codé à l'aide du Framework Django 1.8",
+  "description": "Site internet communautaire codé à l'aide du Framework Django 1.10",
   "directories": {
     "doc": "doc"
   },

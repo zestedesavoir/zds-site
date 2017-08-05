@@ -16,6 +16,7 @@ from zds.notification import signals as notif_signals
 from zds.tutorialv2.factories import PublishableContentFactory, LicenceFactory, SubCategoryFactory, \
     PublishedContentFactory
 from zds.tutorialv2.publication_utils import publish_content
+from copy import deepcopy
 
 
 class ForumNotification(TestCase):
@@ -68,20 +69,20 @@ class ForumNotification(TestCase):
         self.assertTrue(subscription.last_notification.is_read, 'As forum is not reachable, notification is read')
 
 
-overrided_zds_app = settings.ZDS_APP
-overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
-overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
-overrided_zds_app['content']['extra_content_generation_policy'] = 'SYNC'
+overriden_zds_app = deepcopy(settings.ZDS_APP)
+overriden_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
+overriden_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
+overriden_zds_app['content']['extra_content_generation_policy'] = 'SYNC'
 
 
 @override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
-@override_settings(ZDS_APP=overrided_zds_app)
+@override_settings(ZDS_APP=overriden_zds_app)
 @override_settings(ES_ENABLED=False)
 class ContentNotification(TestCase):
     def setUp(self):
 
         # don't build PDF to speed up the tests
-        settings.ZDS_APP['content']['build_pdf_when_published'] = False
+        overriden_zds_app['content']['build_pdf_when_published'] = False
 
         self.user1 = ProfileFactory().user
         self.user2 = ProfileFactory().user
@@ -118,12 +119,9 @@ class ContentNotification(TestCase):
 
     def tearDown(self):
 
-        if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
-            shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
-        if os.path.isdir(settings.ZDS_APP['content']['repo_public_path']):
-            shutil.rmtree(settings.ZDS_APP['content']['repo_public_path'])
+        if os.path.isdir(overriden_zds_app['content']['repo_private_path']):
+            shutil.rmtree(overriden_zds_app['content']['repo_private_path'])
+        if os.path.isdir(overriden_zds_app['content']['repo_public_path']):
+            shutil.rmtree(overriden_zds_app['content']['repo_public_path'])
         if os.path.isdir(settings.MEDIA_ROOT):
             shutil.rmtree(settings.MEDIA_ROOT)
-
-        # re-active PDF build
-        settings.ZDS_APP['content']['build_pdf_when_published'] = True

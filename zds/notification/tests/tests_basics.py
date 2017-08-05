@@ -8,8 +8,8 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.db import IntegrityError
 
-from zds import settings
-from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory, PostFactory
+from django.conf import settings
+from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory, PostFactory, TagFactory
 from zds.forum.models import Topic, is_read
 from zds.gallery.factories import UserGalleryFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
@@ -33,6 +33,9 @@ class NotificationForumTest(TestCase):
         self.category1 = CategoryFactory(position=1)
         self.forum11 = ForumFactory(category=self.category1, position_in_category=1)
         self.forum12 = ForumFactory(category=self.category1, position_in_category=2)
+
+        self.tag1 = TagFactory(title='Linux')
+        self.tag2 = TagFactory(title='Windows')
 
         self.assertTrue(self.client.login(username=self.user1.username, password='hostel77'))
 
@@ -371,6 +374,92 @@ class NotificationForumTest(TestCase):
         self.assertEqual(200, response.status_code)
 
         self.assertEqual(1, len(Notification.objects.filter(object_id=topic.pk, is_read=True, is_dead=False).all()))
+
+    def test_notifications_on_a_tag_subscribed(self):
+        """
+        When a user subscribes to a tag, they receive a notification for each topic created.
+        """
+        # Subscribe.
+        NewTopicSubscription.objects.toggle_follow(self.tag1, self.user1)
+
+        topic1 = TopicFactory(forum=self.forum11, author=self.user2)
+        topic1.add_tags(['Linux'])
+
+        notifications = Notification.objects.filter(object_id=topic1.pk, is_read=False).all()
+        self.assertEqual(1, len(notifications))
+
+        # Unsubscribe.
+        NewTopicSubscription.objects.toggle_follow(self.tag1, self.user1)
+
+        topic2 = TopicFactory(forum=self.forum11, author=self.user2)
+        topic2.add_tags(['Linux'])
+        notifications = Notification.objects.filter(object_id=topic2.pk, is_read=False).all()
+        self.assertEqual(0, len(notifications))
+
+    def test_mark_read_a_topic_of_a_tag_subscribed(self):
+        """
+        When a user has a notification on a topic, the notification should be marked as read.
+        """
+        NewTopicSubscription.objects.toggle_follow(self.tag1, self.user1)
+
+        topic = TopicFactory(forum=self.forum11, author=self.user2)
+        topic.add_tags(['Linux'])
+
+        PostFactory(topic=topic, author=self.user2, position=1)
+        notifications = Notification.objects.filter(object_id=topic.pk, is_read=False).all()
+        self.assertEqual(1, len(notifications))
+
+        response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
+        self.assertEqual(response.status_code, 200)
+
+        notifications = Notification.objects.filter(object_id=topic.pk, is_read=False).all()
+        self.assertEqual(0, len(notifications))
+
+    def test_add_subscribed_tag(self):
+        """
+            When the topic is edited and a tag is added to which the user has subscribed
+        """
+        NewTopicSubscription.objects.toggle_follow(self.tag1, self.user2)
+
+        topic = TopicFactory(forum=self.forum11, author=self.user1)
+        PostFactory(topic=topic, author=self.user1, position=1)
+
+        self.client.post(
+            reverse('topic-edit') + '?topic={0}'.format(topic.pk),
+            {
+                'title': u'Un autre sujet',
+                'subtitle': u'Encore ces lombards en plein ete',
+                'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter ',
+                'tags': u'Linux'
+            }, follow=False)
+
+        notifications = Notification.objects.filter(object_id=topic.pk, is_read=False).all()
+        self.assertEqual(1, len(notifications))
+
+    def test_remove_subscribed_tag(self):
+        """
+            When the topic is edited and a tag is added to which the user has subscribed
+        """
+        NewTopicSubscription.objects.toggle_follow(self.tag1, self.user2)
+
+        topic = TopicFactory(forum=self.forum11, author=self.user1)
+        topic.add_tags(['Linux'])
+        PostFactory(topic=topic, author=self.user1, position=1)
+
+        notifications = Notification.objects.filter(object_id=topic.pk, is_read=False).all()
+        self.assertEqual(1, len(notifications))
+
+        self.client.post(
+            reverse('topic-edit') + '?topic={0}'.format(topic.pk),
+            {
+                'title': u'Un autre sujet',
+                'subtitle': u'Encore ces lombards en plein été',
+                'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter ',
+                'tags': u'Windows'
+            },
+            follow=False)
+
+        self.assertEqual(1, len(Notification.objects.filter(object_id=topic.pk, is_read=False, is_dead=True).all()))
 
 
 class NotificationPublishableContentTest(TestCase):

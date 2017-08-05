@@ -2,56 +2,34 @@ import os
 import sys
 
 
-def patch_mysql_sql_create_model(original):
+def patch_create_suffix(original):
     """
-    Inspired by github.com/miyagi389/zipcode-django-python - The MIT License - Copyright (c) 2014 miyagi389
+    Patch mysql creation policy to handle the "utf8mb4" facility. This appears tricky but it's necessary
+    due to the conception of "extended utf-8" in mysql. If we do not patch, the mysql backend cannot index
+    ``VARCHAR(255)`` fields !
+    see <http://bd808.com/blog/2017/04/17/making-django-migrations-that-work-with-mysql-55-and-utf8mb4/>
+    for explanations
 
-    :param :class:`django.db.backends.creation.BaseDatabaseCreation` original: BaseDatabaseCreation
-    :return: BaseDatabaseCreation
-    :rtype: :class:`django.db.backends.creation.BaseDatabaseCreation`
+    :param original: the original function we are patching
+    :return: the patched function
     """
-
-    def revised(self, model, style, known_models=set()):
-        """
-        :class:`django.db.backends.creation.BaseDatabaseCreation`
-        """
-
-        fullname = self.__module__ + '.' + self.__class__.__name__
-        if fullname == 'django.db.backends.mysql.creation.DatabaseCreation':
-            # the migration will run MySQL
-            sql_statements, pending_references = original(self, model, style, known_models)
-
-            final_output = []
-            for statement in sql_statements:
-                if not statement.startswith('CREATE TABLE'):
-                    continue
-
-                end = ''
-                if statement.endswith(';'):
-                    end = ';'
-                    statement = statement[:-1]
-
-                statement += 'ROW_FORMAT=DYNAMIC{}'.format(end)
-
-                final_output.append(statement)
-
-            return final_output, pending_references
-        else:
-            return original(self, model, style, known_models)
-
-    return revised
+    def patch(self):
+        return original(self) + ' ROW_FORMAT=DYNAMIC'
+    return patch
 
 
 if __name__ == '__main__':
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'zds.settings')
 
     if len(sys.argv) > 1 and sys.argv[1] in ['migrate', 'test']:
-        from django.db.backends.base.creation import BaseDatabaseCreation
-        BaseDatabaseCreation.sql_create_model = patch_mysql_sql_create_model(BaseDatabaseCreation.sql_create_model)
 
+        from django.db.backends.mysql.creation import BaseDatabaseCreation
+
+        BaseDatabaseCreation.sql_table_creation_suffix = \
+            patch_create_suffix(BaseDatabaseCreation.sql_table_creation_suffix)
         from django.db.backends.mysql.schema import DatabaseSchemaEditor
-        DatabaseSchemaEditor.sql_create_table += ' ROW_FORMAT=DYNAMIC'
 
+        DatabaseSchemaEditor.sql_create_table += ' ROW_FORMAT=DYNAMIC'
     from django.core.management import execute_from_command_line
 
     execute_from_command_line(sys.argv)
