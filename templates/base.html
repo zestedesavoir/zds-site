@@ -186,17 +186,15 @@
 
                 {# Menu #}
                 <nav class="header-menu" id="menu" data-title="Menu"
-                    {% if user.is_authenticated %}
-                        {% with profile=user.profile %}
-                            data-is-hover="{{ profile.is_hover_enabled }}"
-                        {% endwith %}
+                    {% if user.is_authenticated and user.profile.is_hover_enabled %}
+                        data-hovering-mode
                     {% endif %}
                 >
 
 
                     <ul class="header-menu-list">
                         <li>
-                            <a href="{% url "publication:list" %}" class="mobile-menu-link {% block menu_publications %}{% endblock %}">
+                            <a href="{% url "publication:list" %}" class="mobile-menu-link has-dropdown {% block menu_publications %}{% endblock %}">
                                 {% trans "Bibliothèque" %}
                                 <span class="arrow" />
                             </a>
@@ -250,7 +248,7 @@
                             {% endcache %}
                         </li>
                         <li>
-                            <a href="{% url "opinion:list" %}" class="mobile-menu-link {% block menu_opinion %}{% endblock %}">
+                            <a href="{% url "opinion:list" %}" class="mobile-menu-link has-dropdown {% block menu_opinion %}{% endblock %}">
                                 {% trans "Tribune" %}
                                 <span class="arrow" />
                             </a>
@@ -303,7 +301,7 @@
                             {% endcache %}
                         </li>
                         <li>
-                            <a href="{% url "cats-forums-list" %}" class="mobile-menu-link {% block menu_forum %}{% endblock %}">
+                            <a href="{% url "cats-forums-list" %}" class="mobile-menu-link has-dropdown {% block menu_forum %}{% endblock %}">
                                 {% trans "Forum" %}
                                 <span class="arrow" />
                             </a>
@@ -476,14 +474,6 @@
                                         </div>
                                     </div>
                                 {% endwith %}
-                            {% else %}
-                                <a href="{% url "member-detail" user.username %}"
-                                   id="open-my-account"
-                                   class="ico-link dont-click-if-sidebar"
-                                   data-click="my-account"
-                                >
-                                    <span class="notif-text ico ico-params">{% trans "Mon Compte" %}</span>
-                                </a>
                             {% endif %}
                         </div>
 
@@ -499,7 +489,7 @@
                                        data-active="open-my-account"
                                    {% endif %}
                                 >
-                                    <img src="{{ profile.get_avatar_url|remove_url_protocole }}" alt="" class="avatar">
+                                    <img src="{{ profile.get_avatar_url|remove_url_protocole }}" alt="Mon compte" class="avatar">
                                     <span class="username label">{{ user.username }}</span>
                                 </a>
                             {% endwith %}

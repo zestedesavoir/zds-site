@@ -61,7 +61,6 @@ gulp.task('js', () =>
         'assets/js/autocompletion.js',
         'assets/js/close-alert-box.js',
         'assets/js/compare-commits.js',
-        'assets/js/data-click.js',
         'assets/js/dropdown-menu.js',
         'assets/js/editor.js',
         'assets/js/featured-resource-preview.js',
@@ -86,6 +85,10 @@ gulp.task('js', () =>
         .pipe(sourcemaps.init({ loadMaps: true }))
         .pipe(concat('script.js', { newline: ';\r\n' }))
         .pipe(uglify())
+        .on('error', function (err) {
+            // gulp-uglify sucks
+            console.log(err.toString());
+        })
         .pipe(sourcemaps.write('.', { includeContent: true, sourceRoot: '../../' }))
         .pipe(gulp.dest('dist/js/')));
 
