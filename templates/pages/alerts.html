@@ -26,18 +26,18 @@
     {% if alerts %}
         <table class="fullwidth">
             <thead>
-                <th>{% trans "Type" %}</th>
+                <th class="wide">{% trans "Type" %}</th>
                 <th>{% trans "Auteur" %}</th>
-                <th>{% trans "Date" %}</th>
+                <th class="wide">{% trans "Date" %}</th>
                 <th>{% trans "Contenu signalé" %}</th>
                 <th>{% trans "Auteur du message" %}</th>
             </thead>
             <tbody>
                 {% for alert in alerts %}
                     <tr>
-                        <td>{{ alert.get_type }}</td>
+                        <td class="wide">{{ alert.get_type }}</td>
                         <td><a href="{% url 'member-detail' alert.author.username %}">{{ alert.author.username }}</a></td>
-                        <td>{{ alert.pubdate|format_date|capfirst }}</td>
+                        <td class="wide">{{ alert.pubdate|format_date|capfirst }}</td>
                         <td>
                             {% if alert.scope == 'CONTENT' and alert.content.in_public %}
                                 <a href="{{ alert.content.get_absolute_url_online }}">{{ alert.text }}</a>
@@ -71,18 +71,18 @@
     {% if solved %}
         <table class="fullwidth">
             <thead>
-                <th>{% trans "Type" %}</th>
+                <th class="wide">{% trans "Type" %}</th>
                 <th>{% trans "Auteur" %}</th>
-                <th>{% trans "Date de résolution" %}</th>
+                <th class="wide">{% trans "Date de résolution" %}</th>
                 <th>{% trans "Contenu signalé" %}</th>
                 <th>{% trans "Résolu par" %}</th>
             </thead>
             <tbody>
                 {% for alert in solved %}
                     <tr>
-                        <td>{{ alert.get_type }}</td>
+                        <td class="wide">{{ alert.get_type }}</td>
                         <td><a href="{% url 'member-detail' alert.author.username %}">{{ alert.author.username }}</a></td>
-                        <td>{{ alert.solved_date|format_date|capfirst }}</td>
+                        <td class="wide">{{ alert.solved_date|format_date|capfirst }}</td>
                         <td>
                             {% if alert.scope == 'CONTENT' and alert.content.in_public %}
                                 <a href="{{ alert.content.get_absolute_url_online }}">{{ alert.text }}</a>
