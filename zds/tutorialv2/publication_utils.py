@@ -226,7 +226,7 @@ class PublicatorRegistery:
 
 class Publicator:
     """
-    Publicator base object, all methods must be overriden
+    Publicator base object, all methods must be overridden
     """
 
     def publish(self, md_file_path, base_name, **kwargs):

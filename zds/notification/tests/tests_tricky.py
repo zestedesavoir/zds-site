@@ -68,20 +68,20 @@ class ForumNotification(TestCase):
         self.assertTrue(subscription.last_notification.is_read, 'As forum is not reachable, notification is read')
 
 
-overriden_zds_app = deepcopy(settings.ZDS_APP)
-overriden_zds_app['content']['repo_private_path'] = os.path.join(settings.BASE_DIR, 'contents-private-test')
-overriden_zds_app['content']['repo_public_path'] = os.path.join(settings.BASE_DIR, 'contents-public-test')
-overriden_zds_app['content']['extra_content_generation_policy'] = 'SYNC'
+overridden_zds_app = deepcopy(settings.ZDS_APP)
+overridden_zds_app['content']['repo_private_path'] = os.path.join(settings.BASE_DIR, 'contents-private-test')
+overridden_zds_app['content']['repo_public_path'] = os.path.join(settings.BASE_DIR, 'contents-public-test')
+overridden_zds_app['content']['extra_content_generation_policy'] = 'SYNC'
 
 
 @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'media-test'))
-@override_settings(ZDS_APP=overriden_zds_app)
+@override_settings(ZDS_APP=overridden_zds_app)
 @override_settings(ES_ENABLED=False)
 class ContentNotification(TestCase):
     def setUp(self):
 
         # don't build PDF to speed up the tests
-        overriden_zds_app['content']['build_pdf_when_published'] = False
+        overridden_zds_app['content']['build_pdf_when_published'] = False
 
         self.user1 = ProfileFactory().user
         self.user2 = ProfileFactory().user
@@ -118,9 +118,9 @@ class ContentNotification(TestCase):
 
     def tearDown(self):
 
-        if os.path.isdir(overriden_zds_app['content']['repo_private_path']):
-            shutil.rmtree(overriden_zds_app['content']['repo_private_path'])
-        if os.path.isdir(overriden_zds_app['content']['repo_public_path']):
-            shutil.rmtree(overriden_zds_app['content']['repo_public_path'])
+        if os.path.isdir(overridden_zds_app['content']['repo_private_path']):
+            shutil.rmtree(overridden_zds_app['content']['repo_private_path'])
+        if os.path.isdir(overridden_zds_app['content']['repo_public_path']):
+            shutil.rmtree(overridden_zds_app['content']['repo_public_path'])
         if os.path.isdir(settings.MEDIA_ROOT):
             shutil.rmtree(settings.MEDIA_ROOT)

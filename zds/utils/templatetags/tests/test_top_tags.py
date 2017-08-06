@@ -14,13 +14,13 @@ from zds.tutorialv2.factories import PublishedContentFactory
 from zds.utils.templatetags.topbar import top_categories, top_categories_content
 from copy import deepcopy
 
-overrided_zds_app = deepcopy(settings.ZDS_APP)
-overrided_zds_app['content']['repo_private_path'] = os.path.join(settings.BASE_DIR, 'contents-private-test')
-overrided_zds_app['content']['repo_public_path'] = os.path.join(settings.BASE_DIR, 'contents-public-test')
-overrided_zds_app['content']['build_pdf_when_published'] = False
+overridden_zds_app = deepcopy(settings.ZDS_APP)
+overridden_zds_app['content']['repo_private_path'] = os.path.join(settings.BASE_DIR, 'contents-private-test')
+overridden_zds_app['content']['repo_public_path'] = os.path.join(settings.BASE_DIR, 'contents-public-test')
+overridden_zds_app['content']['build_pdf_when_published'] = False
 
 
-@override_settings(ZDS_APP=overrided_zds_app)
+@override_settings(ZDS_APP=overridden_zds_app)
 class TopBarTests(TestCase):
 
     def setUp(self):
@@ -96,7 +96,7 @@ class TopBarTests(TestCase):
         self.assertEqual(len(top_tags), 4)
 
         # Now we want to exclude a tag
-        overrided_zds_app['forum']['top_tag_exclu'] = {'tag-4-4'}
+        overridden_zds_app['forum']['top_tag_exclu'] = {'tag-4-4'}
 
         # User only sees the only 'public' tag left
         top_tags = top_categories(user).get('tags')
@@ -127,9 +127,9 @@ class TopBarTests(TestCase):
 
     def tearDown(self):
 
-        if os.path.isdir(overrided_zds_app['content']['repo_private_path']):
-            shutil.rmtree(overrided_zds_app['content']['repo_private_path'])
-        if os.path.isdir(overrided_zds_app['content']['repo_public_path']):
-            shutil.rmtree(overrided_zds_app['content']['repo_public_path'])
+        if os.path.isdir(overridden_zds_app['content']['repo_private_path']):
+            shutil.rmtree(overridden_zds_app['content']['repo_private_path'])
+        if os.path.isdir(overridden_zds_app['content']['repo_public_path']):
+            shutil.rmtree(overridden_zds_app['content']['repo_public_path'])
         if os.path.isdir(settings.MEDIA_ROOT):
             shutil.rmtree(settings.MEDIA_ROOT)
