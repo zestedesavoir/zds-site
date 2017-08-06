@@ -252,4 +252,4 @@ def delete_edit_content(request, edit_pk):
 
 def custom_error_500(request):
     """Custom view for 500 errors"""
-    return render(request, '500.html')
+    return render(request, '500.html', status=500)
