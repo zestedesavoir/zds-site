@@ -15,28 +15,28 @@
     </section>
 
     <div class="flexpage-column">
-        {% if last_tutorials %}
-            <section>
-                <h2 itemprop="name">
-                    Derniers tutoriels
-                    <a href="{% url "tutorial:feed-rss" %}?category={{ category.slug }}" class="btn btn-grey">RSS</a>
-                    <a href="{% url "tutorial:feed-atom" %}?category={{ category.slug }}" class="btn btn-grey">Atom</a>
-                </h2>
-                {% include 'tutorialv2/list_page_elements/list_of_online_contents.html' with public_contents=last_tutorials col_number=1 %}
+        <section>
+            <h2 itemprop="name">
+                Derniers tutoriels
+                <a href="{% url "tutorial:feed-rss" %}?category={{ category.slug }}" class="btn btn-grey">RSS</a>
+                <a href="{% url "tutorial:feed-atom" %}?category={{ category.slug }}" class="btn btn-grey">Atom</a>
+            </h2>
+            {% include 'tutorialv2/list_page_elements/list_of_online_contents.html' with public_contents=last_tutorials col_number=1 %}
+            {% if last_tutorials %}
                 <a href="{% url 'publication:list' %}?category={{ category.slug }}&amp;type=tutorial" class="more-link">Plus de tutoriels dans {{ category.title | lower }}</a>
-            </section>
-        {% endif %}
+            {% endif %}
+        </section>
 
-        {% if last_tutorials %}
-            <section>
-                <h2 itemprop="name">
-                    Derniers articles
-                    <a href="{% url "article:feed-rss" %}?category={{ category.slug }}" class="btn btn-grey">RSS</a>
-                    <a href="{% url "article:feed-atom" %}?category={{ category.slug }}" class="btn btn-grey">Atom</a>
-                </h2>
-                {% include 'tutorialv2/list_page_elements/list_of_online_contents.html' with public_contents=last_articles col_number=1 %}
+        <section>
+            <h2 itemprop="name">
+                Derniers articles
+                <a href="{% url "article:feed-rss" %}?category={{ category.slug }}" class="btn btn-grey">RSS</a>
+                <a href="{% url "article:feed-atom" %}?category={{ category.slug }}" class="btn btn-grey">Atom</a>
+            </h2>
+            {% include 'tutorialv2/list_page_elements/list_of_online_contents.html' with public_contents=last_articles col_number=1 %}
+            {% if last_tutorials %}
                 <a href="{% url 'publication:list' %}?category={{ category.slug }}&amp;type=article" class="more-link">Plus d'articles dans {{ category.title | lower }}</a>
-            </section>
-        {% endif %}
+            {% endif %}
+        </section>
     </div>
 {% endblock %}
