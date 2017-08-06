@@ -132,7 +132,7 @@ class PublishedContentManager(models.Manager):
             tags=tags,
             content_type=content_type)
         if order_fields:
-            queryset.order_by(*order_fields)
+            queryset = queryset.order_by(*order_fields)
         return queryset
 
     def get_featured(self, nb=2):
@@ -169,7 +169,7 @@ class PublishedContentManager(models.Manager):
             .select_related('content__licence') \
             .select_related('content__image') \
             .select_related('content__last_note') \
-            .select_related('content__last_note__related_content') \
+            .select_related('content__last_note__related_content')       \
             .select_related('content__last_note__related_content__public_version') \
             .filter(pk=F('content__public_version__pk'))
 
