@@ -14,6 +14,47 @@ body {
     min-height: 100%;
     width: 100%;
 }
+
+@mixin set-selection {
+    &::selection {
+        @content;
+    }
+
+    &::-moz-selection {
+        @content;
+    }
+}
+
+@mixin normal-selection {
+    color: white;
+    background: $color-primary;
+}
+
+@mixin negative-selection {
+    color: $color-primary;
+    background: white;
+}
+
+@include set-selection {
+    @include normal-selection;
+}
+
+// Elements with a dark background
+.flexpage-header, .write-tutorial, .page-footer, .header-menu, .header-right, .taglist {
+    &, * {
+        @include set-selection {
+            @include negative-selection;
+        }
+    }
+
+    input {
+        // We don't care about buttons and others, there aren't selectable
+        @include set-selection {
+            @include normal-selection;
+        }
+    }
+}
+
 .page-container,
 .main-container {
     min-height: 100%;
