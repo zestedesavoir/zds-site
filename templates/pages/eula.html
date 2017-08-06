@@ -39,7 +39,7 @@
     <h3>2. Mentions légales</h3>
     {% if app.site.association %}
         <p>
-            L'édition du site {{ app.site.dns }} est assurée par l'association française de loi 1901 {{ app.site.litteral_name }}, déclarée à la préfecture de Vendée et parue au Journal Officiel le 19 avril 2014.
+            L'édition du site {{ app.site.dns }} est assurée par l'association française de loi 1901 {{ app.site.literal_name }}, déclarée à la préfecture de Vendée et parue au Journal Officiel le 19 avril 2014.
         </p>
         <p>
             Vous pouvez joindre l’association via l’adresse courriel : <a href="mailto:{{ app.site.association.email }}">{{ app.site.association.email }}</a>.
@@ -250,17 +250,17 @@
     <h4>7.2 Code source du site</h4>
     {% if app.site.licenses.source %}
         <p>
-            {{ app.site.litteral_name }} est un site dont le code source est sous licence <a href="{{ app.site.licenses.source.url_license }}">{{ app.site.licenses.source.code }}</a>, et provient en partie de <a href="{{ app.site.licenses.source.provider_url }}">{{ app.site.licenses.source.provider_name }}</a>.
+            {{ app.site.literal_name }} est un site dont le code source est sous licence <a href="{{ app.site.licenses.source.url_license }}">{{ app.site.licenses.source.code }}</a>, et provient en partie de <a href="{{ app.site.licenses.source.provider_url }}">{{ app.site.licenses.source.provider_name }}</a>.
         </p>
     {% else %}
         <p>
-        {{ app.site.litteral_name }} est un site dont le code source est sous licence <a href="http://www.gnu.org/licenses/gpl-3.0.html">GPL v3</a>, et provient en partie de <a href="http://zestedesavoir.com">Zeste de Savoir</a>.
+        {{ app.site.literal_name }} est un site dont le code source est sous licence <a href="http://www.gnu.org/licenses/gpl-3.0.html">GPL v3</a>, et provient en partie de <a href="http://zestedesavoir.com">Zeste de Savoir</a>.
         </p>
     {% endif %}
 
     <h4>7.3 Politique de signalement d'abus</h4>
     <p>
-        {{ app.site.litteral_name }} respecte les droits de propriété intellectuelle d'autrui et demande à ce que les utilisateurs du site agissent de même.
+        {{ app.site.literal_name }} respecte les droits de propriété intellectuelle d'autrui et demande à ce que les utilisateurs du site agissent de même.
     </p>
     <p>
         Si vous pensez qu'un contenu vous appartenant a été reproduit ou diffusé sans votre autorisation, veuillez nous contacter via le formulaire de contact présent sur le site ou via l'adresse de contact fournie dans les mentions légales du présent document.
