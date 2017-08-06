@@ -85,7 +85,7 @@ def top_categories_content(_type):
         .filter(subcategory__in=subcategories_contents)\
         .order_by('category__position', 'subcategory__title')\
         .select_related('subcategory', 'category')\
-        .values('category__title', 'subcategory__title', 'subcategory__slug')\
+        .values('category__title', 'category__slug', 'subcategory__title', 'subcategory__slug')\
         .all()
 
     # store all categories in a dict with only title and slug
@@ -94,9 +94,9 @@ def top_categories_content(_type):
         key = csc['category__title']
 
         if key in cats:
-            cats[key].append((csc['subcategory__title'], csc['subcategory__slug']))
+            cats[key].append((csc['subcategory__title'], csc['subcategory__slug'], csc['category__slug']))
         else:
-            cats[key] = [(csc['subcategory__title'], csc['subcategory__slug'])]
+            cats[key] = [(csc['subcategory__title'], csc['subcategory__slug'], csc['category__slug'])]
 
     return {'tags': tags, 'categories': cats}
 

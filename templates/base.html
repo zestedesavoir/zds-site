@@ -219,9 +219,9 @@
                                                         <li class="dropdown-title">
                                                             {{ title }}
                                                         </li>
-                                                        {% for subcat,slug in subcats %}
+                                                            {% for subcat,slug,slug_parent in subcats %}
                                                             <li>
-                                                                    <a href="{% url "publication:list" %}?category={{ slug }}">
+                                                                    <a href="{% url 'publication:subcategory' slug_category=slug_parent slug=slug %}">
                                                                     {{ subcat }}
                                                                 </a>
                                                             </li>
