@@ -52,28 +52,33 @@
                 </div>
 
                 <div class="title">
-                    <div>
-                        <h1><a href="{% url 'publication:list' %}">{% trans 'Bibliothèque' %}</a></h1>
-                        {% if level == 1 %}
+                    <h1><a href="{% url 'publication:list' %}">{% trans 'Bibliothèque' %}</a></h1>
+
+                    {% if level == 1 %}
+                        <div class="line">
                             {% if content_count %}
                                 {{ content_count }} {% trans 'publication' %}{{ content_count|pluralize_fr }}
                             {% endif %}
-                        {% endif %}
-                    </div>
-
-                    {% if level == 2 %}
-                        <span class="separator"></span>
-                        <h2><a href="{% url 'publication:category' slug=category.slug %}">{{ category.title }}</a></h2>
+                        </div>
+                    {% elif level == 2 %}
+                        <div class="line">
+                            <span class="separator"></span>
+                            <h2><a href="{% url 'publication:category' slug=category.slug %}">{{ category.title }}</a></h2>
+                        </div>
                     {% elif level == 3 %}
-                        <span class="separator"></span>
-                        <h2><a href="{% url 'publication:category' slug=category.slug %}">{{ category.title }}</a></h2>
-                        <span class="separator"></span>
-                        <h2><a href="{% url 'publication:subcategory' slug_category=category.slug slug=subcategory.slug %}">{{ subcategory.title }}</a></h2>
+                        <div class="line">
+                            <span class="separator"></span>
+                            <h2><a href="{% url 'publication:category' slug=category.slug %}">{{ category.title }}</a></h2>
+                            <span class="separator"></span>
+                            <h2><a href="{% url 'publication:subcategory' slug_category=category.slug slug=subcategory.slug %}">{{ subcategory.title }}</a></h2>
+                        </div>
                     {% elif level == 4 %}
-                        <span class="separator"></span>
-                        <h2>Parcourir</h2>
+                        <div class="line">
+                            <span class="separator"></span>
+                            <h2>Parcourir</h2>
+                        </div>
 
-                        <div>
+                        <div class="line">
                             <span class="separator"></span>
                             {% if category %}
                                 <span class="option">Domaine de savoir : <strong><a href="{% url 'publication:category' slug=category.slug %}">{{category}}</a></strong></span>
