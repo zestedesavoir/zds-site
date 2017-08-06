@@ -1,7 +1,9 @@
+
 .footer-container footer {
     color: #424242;
     padding: 20px 0;
 }
+
 .page-footer {
     background: $color-primary;
     height: 40px;
@@ -15,18 +17,25 @@
     }
 
     .copyright {
-        color: #EEE;
+        flex-shrink: 1;
+        min-width: 0;
+
         margin: 0;
+        padding: 0 1rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     ul {
         list-style: none;
         margin: 0;
         padding: 0;
+        white-space: nowrap;
 
         &.links li {
             display: inline-block;
-            margin-left: 25px;
+            margin: 0 1rem;
 
             a {
                 text-decoration: none;
@@ -69,7 +78,7 @@
         }
     }
 
-    .version {
+    .copyright {
         &,
         a {
             color: rgba(255, 255, 255, .5);
@@ -80,10 +89,8 @@
             color: #FFF;
         }
     }
-}
 
-@media only screen and #{$media-mobile-tablet} {
-    .page-footer {
+    @media only screen and #{$media-mobile-tablet} {
         text-align: center;
         height: auto;
 
@@ -100,6 +107,7 @@
         }
 
         ul {
+            white-space: initial;
             li {
                 margin: 0 5px;
             }
