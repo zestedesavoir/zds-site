@@ -88,7 +88,7 @@ def top_categories_content(_type):
         .values('category__title', 'category__slug', 'subcategory__title', 'subcategory__slug')\
         .all()
 
-    # store all categories in a dict with only title and slug
+    # store all categories in a dict with only title and slug, parent slug
     cats = OrderedDict()
     for csc in categories_from_subcategories:
         key = csc['category__title']
