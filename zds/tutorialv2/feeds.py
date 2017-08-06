@@ -2,9 +2,11 @@
 
 from django.conf import settings
 from django.contrib.syndication.views import Feed
+from django.shortcuts import get_object_or_404
 from django.utils.feedgenerator import Atom1Feed
 from django.utils.translation import ugettext_lazy as _
 
+from zds.utils.models import Category
 from zds.tutorialv2.models.models_database import PublishedContent
 
 
@@ -26,10 +28,10 @@ class LastContentFeedRSS(Feed):
         """
         :return: The last (typically 5) contents (sorted by publication date).
         """
-        categories = []
-        if 'category' in self.query_params:
-            categories = [self.query_params.get('category')]
         subcategories = []
+        if 'category' in self.query_params:
+            category = get_object_or_404(Category, slug=self.query_params.get('category'))
+            subcategories = category.get_subcategories()
         if 'subcategory' in self.query_params:
             subcategories = [self.query_params.get('subcategory')]
 
@@ -37,7 +39,6 @@ class LastContentFeedRSS(Feed):
 
         contents = PublishedContent.objects.published_contents(
             _type=self.content_type,
-            categories=categories,
             subcategories=subcategories
         )[:feed_length]
 
