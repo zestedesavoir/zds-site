@@ -6,12 +6,11 @@ from django.conf import settings
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import Group
+from django.conf.settings import ZDS_APP
 
 from zds.member.factories import ProfileFactory, UserFactory
 from zds.mp.factories import PrivateTopicFactory, PrivatePostFactory
 from zds.mp.models import PrivateTopic, PrivatePost
-from django.contrib.auth.models import Group
-from zds.settings import ZDS_APP
 from zds.utils.models import Hat
 
 
