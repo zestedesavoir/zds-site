@@ -208,7 +208,8 @@
                                     </a>
 
                                     <ul class="dropdown-list">
-                                            {% with categories=''|top_categories_content %}
+                                        {% set 'TUTORIAL ARTICLE' as types_content %}
+                                        {% with categories=types_content.split|top_categories_content %}
                                             {% for title, subcats in categories.categories.items %}
                                                 <li>
                                                     <ul>

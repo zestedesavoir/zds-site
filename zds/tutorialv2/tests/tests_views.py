@@ -14,7 +14,7 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django.utils.translation import ugettext_lazy as _
 
-from zds.forum.factories import ForumFactory, CategoryFactory
+from zds.forum.factories import ForumFactory, CategoryFactory as ForumCategoryFactory
 from zds.forum.models import Topic, Post, TopicRead
 from zds.gallery.factories import UserGalleryFactory
 from zds.gallery.models import GALLERY_WRITE, UserGallery, Gallery
@@ -29,7 +29,7 @@ from zds.tutorialv2.models.models_database import PublishableContent, Validation
     ContentRead
 from zds.tutorialv2.publication_utils import publish_content, Publicator, PublicatorRegistery
 from zds.utils.models import HelpWriting, Alert, Tag, Hat
-from zds.utils.factories import HelpWritingFactory
+from zds.utils.factories import HelpWritingFactory, CategoryFactory
 from zds.utils.templatetags.interventions import interventions_topics
 from copy import deepcopy
 
@@ -4124,7 +4124,7 @@ class PublishedContentTests(TestCase):
 
         self.beta_forum = ForumFactory(
             pk=overridden_zds_app['forum']['beta_forum_id'],
-            category=CategoryFactory(position=1),
+            category=ForumCategoryFactory(position=1),
             position_in_category=1)  # ensure that the forum, for the beta versions, is created
 
         self.licence = LicenceFactory()
@@ -5971,3 +5971,202 @@ class PublishedContentTests(TestCase):
         result = self.client.get(self.tuto.get_absolute_url_online(), follow=False)
         self.assertEqual(result.status_code, 200)
         self.assertNotContains(result, _(u'Ce contenu est obsolète.'))
+
+    def test_list_publications(self):
+        """Test the behavior of the publication list"""
+
+        category_1 = CategoryFactory()
+        category_2 = CategoryFactory()
+        subcategory_1 = SubCategoryFactory(category=category_1)
+        subcategory_2 = SubCategoryFactory(category=category_1)
+        subcategory_3 = SubCategoryFactory(category=category_2)
+        subcategory_4 = SubCategoryFactory(category=category_2)
+        tag_1 = Tag(title='random')
+        tag_1.save()
+
+        tuto_1 = PublishedContentFactory(author_list=[self.user_author])
+        tuto_2 = PublishedContentFactory(author_list=[self.user_author])
+        tuto_3 = PublishedContentFactory(author_list=[self.user_author])
+
+        article_1 = PublishedContentFactory(author_list=[self.user_author], type='ARTICLE')
+
+        tuto_1.subcategory.add(subcategory_1)
+        tuto_1.subcategory.add(subcategory_2)
+        tuto_1.save()
+
+        tuto_2.subcategory.add(subcategory_1)
+        tuto_2.subcategory.add(subcategory_2)
+        tuto_2.save()
+
+        tuto_3.subcategory.add(subcategory_3)
+        tuto_3.save()
+
+        article_1.subcategory.add(subcategory_4)
+        article_1.tags.add(tag_1)
+        article_1.save()
+
+        self.assertEqual(PublishableContent.objects.filter(type='ARTICLE').count(), 1)
+        self.assertEqual(PublishableContent.objects.filter(type='TUTORIAL').count(), 4)
+
+        # 1. Publication list
+        result = self.client.get(reverse('publication:list'))
+        self.assertEqual(result.status_code, 200)
+
+        self.assertEqual(len(result.context['last_articles']), 1)
+        self.assertEqual(len(result.context['last_tutorials']), 4)
+
+        # 2. Category page
+        result = self.client.get(reverse('publication:category', kwargs={'slug': category_1.slug}))
+        self.assertEqual(result.status_code, 200)
+
+        self.assertEqual(len(result.context['last_articles']), 0)
+        self.assertEqual(len(result.context['last_tutorials']), 2)
+
+        pks = [x.pk for x in result.context['last_tutorials']]
+        self.assertIn(tuto_1.pk, pks)
+        self.assertIn(tuto_2.pk, pks)
+
+        result = self.client.get(reverse('publication:category', kwargs={'slug': category_2.slug}))
+        self.assertEqual(result.status_code, 200)
+
+        self.assertEqual(len(result.context['last_articles']), 1)
+        self.assertEqual(len(result.context['last_tutorials']), 1)
+
+        pks = [x.pk for x in result.context['last_tutorials']]
+        self.assertIn(tuto_3.pk, pks)
+
+        pks = [x.pk for x in result.context['last_articles']]
+        self.assertIn(article_1.pk, pks)
+
+        # 3. Subcategory page
+        result = self.client.get(
+            reverse('publication:subcategory', kwargs={'slug_category': category_1.slug, 'slug': subcategory_1.slug}))
+
+        self.assertEqual(result.status_code, 200)
+
+        self.assertEqual(len(result.context['last_articles']), 0)
+        self.assertEqual(len(result.context['last_tutorials']), 2)
+
+        pks = [x.pk for x in result.context['last_tutorials']]
+        self.assertIn(tuto_1.pk, pks)
+        self.assertIn(tuto_2.pk, pks)
+
+        result = self.client.get(
+            reverse('publication:subcategory', kwargs={'slug_category': category_1.slug, 'slug': subcategory_2.slug}))
+
+        self.assertEqual(result.status_code, 200)
+
+        self.assertEqual(len(result.context['last_articles']), 0)
+        self.assertEqual(len(result.context['last_tutorials']), 2)
+
+        pks = [x.pk for x in result.context['last_tutorials']]
+        self.assertIn(tuto_1.pk, pks)
+        self.assertIn(tuto_2.pk, pks)
+
+        result = self.client.get(
+            reverse('publication:subcategory', kwargs={'slug_category': category_2.slug, 'slug': subcategory_3.slug}))
+
+        self.assertEqual(result.status_code, 200)
+
+        self.assertEqual(len(result.context['last_articles']), 0)
+        self.assertEqual(len(result.context['last_tutorials']), 1)
+
+        pks = [x.pk for x in result.context['last_tutorials']]
+        self.assertIn(tuto_3.pk, pks)
+
+        result = self.client.get(
+            reverse('publication:subcategory', kwargs={'slug_category': category_2.slug, 'slug': subcategory_4.slug}))
+
+        self.assertEqual(result.status_code, 200)
+
+        self.assertEqual(len(result.context['last_articles']), 1)
+        self.assertEqual(len(result.context['last_tutorials']), 0)
+
+        pks = [x.pk for x in result.context['last_articles']]
+        self.assertIn(article_1.pk, pks)
+
+        # 4. Final page and filters
+        result = self.client.get(reverse('publication:list') + '?category={}'.format(category_1.slug))
+        self.assertEqual(result.status_code, 200)
+
+        self.assertEqual(len(result.context['filtered_contents']), 2)
+        pks = [x.pk for x in result.context['filtered_contents']]
+        self.assertIn(tuto_1.pk, pks)
+        self.assertIn(tuto_2.pk, pks)
+
+        # filter by category and type
+        result = self.client.get(reverse('publication:list') + '?category={}'.format(category_2.slug))
+        self.assertEqual(result.status_code, 200)
+
+        self.assertEqual(len(result.context['filtered_contents']), 2)
+        pks = [x.pk for x in result.context['filtered_contents']]
+        self.assertIn(tuto_3.pk, pks)
+        self.assertIn(article_1.pk, pks)
+
+        result = self.client.get(
+            reverse('publication:list') + '?category={}'.format(category_2.slug) + '&type=article')
+        self.assertEqual(result.status_code, 200)
+
+        self.assertEqual(len(result.context['filtered_contents']), 1)
+        pks = [x.pk for x in result.context['filtered_contents']]
+        self.assertIn(article_1.pk, pks)
+
+        result = self.client.get(
+            reverse('publication:list') + '?category={}'.format(category_2.slug) + '&type=tutorial')
+        self.assertEqual(result.status_code, 200)
+
+        self.assertEqual(len(result.context['filtered_contents']), 1)
+        pks = [x.pk for x in result.context['filtered_contents']]
+        self.assertIn(tuto_3.pk, pks)
+
+        # filter by subcategory
+        result = self.client.get(reverse('publication:list') + '?subcategory={}'.format(subcategory_1.slug))
+        self.assertEqual(result.status_code, 200)
+
+        self.assertEqual(len(result.context['filtered_contents']), 2)
+        pks = [x.pk for x in result.context['filtered_contents']]
+        self.assertIn(tuto_1.pk, pks)
+        self.assertIn(tuto_2.pk, pks)
+
+        # filter by subcategory and type
+        result = self.client.get(reverse('publication:list') + '?subcategory={}'.format(subcategory_3.slug))
+        self.assertEqual(result.status_code, 200)
+
+        self.assertEqual(len(result.context['filtered_contents']), 1)
+        pks = [x.pk for x in result.context['filtered_contents']]
+        self.assertIn(tuto_3.pk, pks)
+
+        result = self.client.get(
+            reverse('publication:list') + '?subcategory={}'.format(subcategory_3.slug) + '&type=article')
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(len(result.context['filtered_contents']), 0)
+
+        result = self.client.get(
+            reverse('publication:list') + '?subcategory={}'.format(subcategory_3.slug) + '&type=tutorial')
+        self.assertEqual(result.status_code, 200)
+
+        self.assertEqual(len(result.context['filtered_contents']), 1)
+        pks = [x.pk for x in result.context['filtered_contents']]
+        self.assertIn(tuto_3.pk, pks)
+
+        # filter by tag
+        result = self.client.get(
+            reverse('publication:list') + '?tag={}'.format(tag_1.slug) + '&type=article')
+        self.assertEqual(result.status_code, 200)
+
+        self.assertEqual(len(result.context['filtered_contents']), 1)
+        pks = [x.pk for x in result.context['filtered_contents']]
+        self.assertIn(article_1.pk, pks)
+
+        # 5. Everything else results in 404
+        wrong_urls = [
+            reverse('publication:list') + '?category=xxx',
+            reverse('publication:list') + '?subcategory=xxx',
+            reverse('publication:list') + '?type=xxx',
+            reverse('publication:list') + '?tag=xxx',
+            reverse('publication:category', kwargs={'slug': 'xxx'}),
+            reverse('publication:subcategory', kwargs={'slug_category': category_2.slug, 'slug': 'xxx'})
+        ]
+
+        for url in wrong_urls:
+            self.assertEqual(self.client.get(url).status_code, 404, msg=url)

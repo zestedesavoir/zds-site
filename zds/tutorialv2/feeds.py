@@ -37,8 +37,8 @@ class LastContentFeedRSS(Feed):
 
         feed_length = settings.ZDS_APP['content']['feed_length']
 
-        contents = PublishedContent.objects.published_contents(
-            _type=self.content_type,
+        contents = PublishedContent.objects.last_contents(
+            content_type=[self.content_type],
             subcategories=subcategories
         )[:feed_length]
 

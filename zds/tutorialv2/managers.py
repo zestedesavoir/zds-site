@@ -2,48 +2,58 @@
 from __future__ import unicode_literals
 from django.conf import settings
 from django.db import models
-from django.db.models import Count, F, Q
+from django.db.models import Count, F
 from django.utils.translation import ugettext_lazy as _
 
-from zds.utils.models import Tag, Category
+from zds.utils.models import Tag
 
 
 class PublishedContentManager(models.Manager):
 
-    def published_contents(self, _type=None, categories=[], subcategories=[]):
+    def __get_list(self, subcategories=None, tags=None, content_type=None):
         """
-        Get contents published ordered by date
-
-        :return:
+        :param subcategories: subcategories, filters with OR
+        :type subcategories: list of zds.utils.models.SubCategory
+        :param tags: tags, filters with AND
+        :type tags: list of zds.utils.models.Tag
+        :param content_type: type of content, filters with OR
+        :type content_type: list of str
+        :return: queryset
         :rtype: django.db.models.QuerySet
         """
-        queryset = self.prefetch_related('content') \
-            .prefetch_related('content__authors') \
+
+        queryset = self.filter(must_redirect=False)
+        if content_type is not None:
+            if not isinstance(content_type, list):
+                content_type = [content_type]
+
+            queryset = queryset.filter(content_type__in=list(map(lambda c: c.upper(), content_type)))
+
+        # prefetch:
+        queryset = queryset \
+            .prefetch_related('content') \
             .prefetch_related('content__subcategory') \
-            .filter(must_redirect=False) \
-            .order_by('-publication_date')
+            .prefetch_related('content__authors') \
+            .select_related('content__licence') \
+            .select_related('content__image') \
+            .select_related('content__last_note') \
+            .select_related('content__last_note__related_content')       \
+            .select_related('content__last_note__related_content__public_version')
 
-        if _type:
-            queryset = queryset.filter(content_type=_type)
+        if subcategories is not None:
+            queryset = queryset.filter(content__subcategory__in=subcategories)
+        if tags is not None:
+            queryset = queryset.filter(content__tags__in=tags)
+        if subcategories is not None or tags is not None:
+            queryset = queryset.distinct()
 
-        if categories:
-            if isinstance(categories[0], int):
-                cats = Category.objects.filter(pk__in=categories)
-            else:
-                cats = Category.objects.filter(slug__in=categories)
+        sub_query = """
+            SELECT COUNT(*)
+            FROM tutorialv2_contentreaction
+            WHERE tutorialv2_contentreaction.related_content_id=`tutorialv2_publishablecontent`.`id`
+        """
 
-            for cat in cats:
-                subcats = cat.get_subcategories()
-                for subcat in subcats:
-                    subcategories.append(subcat)
-
-            subcategories = list(set(subcategories))
-
-        if subcategories:
-            if isinstance(subcategories[0], int):
-                queryset = queryset.filter(content__subcategory__in=subcategories)
-            else:
-                queryset = queryset.filter(content__subcategory__slug__in=subcategories)
+        queryset = queryset.extra(select={'count_note': sub_query})
 
         return queryset
 
@@ -51,12 +61,11 @@ class PublishedContentManager(models.Manager):
         """
         Get contents published by author depends on settings.ZDS_APP['content']['user_page_number']
 
-        :param author:
+        :param author: the author
         :param _type: subtype to filter request
-        :return:
         :rtype: django.db.models.QuerySet
         """
-        queryset = self.published_contents(_type) \
+        queryset = self.__get_list(content_type=[_type]) \
             .filter(authors__in=[author])
 
         public_contents = queryset.all()[:settings.ZDS_APP['content']['user_page_number']]
@@ -112,78 +121,22 @@ class PublishedContentManager(models.Manager):
             published.authors.remove(unsubscribed_user)
             published.save()
 
-    def get_recent_list(self, subcategories=[], tags=[], content_type=[]):
+    def last_contents(self, subcategories=None, tags=None, content_type=None):
         queryset = self.__get_list(
             subcategories=subcategories,
             tags=tags,
             content_type=content_type)
         return queryset.order_by('-publication_date')
 
-    def get_most_commented_list(self, subcategories=[], tags=[], content_type=[]):
+    def most_commented_contents(self, subcategories=None, tags=None, content_type=None):
         queryset = self.__get_list(
             subcategories=subcategories,
             tags=tags,
             content_type=content_type)
         return queryset.order_by('-count_note')
 
-    def get_browse_list(self, subcategories=[], tags=[], content_type=[], order_fields=[]):
-        queryset = self.__get_list(
-            subcategories=subcategories,
-            tags=tags,
-            content_type=content_type)
-        if order_fields:
-            queryset = queryset.order_by(*order_fields)
-        return queryset
-
-    def get_featured(self, nb=2):
-        return self.__get_list().order_by('-publication_date')[:nb]
-
-    def __get_list(self, subcategories=[], tags=[], content_type=[]):
-        """
-        :param subcategories: subcategories, filters with OR
-        :type subcategories: list of SubCategory
-        :param tags: tags, filters with AND
-        :type tags: list of Tag
-        :param content_type: type of content, filters with OR
-        :type content_type: list of content types
-        :return: queryset
-        :rtype: django.db.models.QuerySet
-        """
-        if not isinstance(content_type, list):
-            content_type = [content_type]
-
-        sub_query = """
-            SELECT COUNT(*)
-            FROM tutorialv2_contentreaction
-            WHERE tutorialv2_contentreaction.related_content_id=`tutorialv2_publishablecontent`.`id`
-        """
-        queryset = self.filter(must_redirect=False)
-        if content_type:
-            queryset = queryset.filter(content_type__in=list(map(lambda c: c.upper(), content_type)))
-
-        # prefetch:
-        queryset = queryset \
-            .prefetch_related('content') \
-            .prefetch_related('content__subcategory') \
-            .prefetch_related('content__authors') \
-            .select_related('content__licence') \
-            .select_related('content__image') \
-            .select_related('content__last_note') \
-            .select_related('content__last_note__related_content')       \
-            .select_related('content__last_note__related_content__public_version') \
-            .filter(pk=F('content__public_version__pk'))
-
-        subcategories = list(map(lambda x: x.slug, subcategories))
-        if subcategories:
-            subcategories_filter = Q()
-            for category in subcategories:
-                subcategories_filter |= Q(content__subcategory__slug=category)
-            queryset = queryset.filter(subcategories_filter)
-        if tags:
-            queryset = queryset.filter(content__tags__in=tags)
-        queryset = queryset.extra(select={'count_note': sub_query})
-
-        return queryset
+    def featured_contents(self, nb=2):
+        return self.last_contents()[:nb]
 
 
 class PublishableContentManager(models.Manager):

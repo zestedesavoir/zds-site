@@ -414,7 +414,7 @@ class ViewPublications(TemplateView):
         if self.request.GET.get('category', False) or \
                 self.request.GET.get('subcategory', False) or \
                 self.request.GET.get('type', False) or \
-                self.request.GET.get('tags', False):
+                self.request.GET.get('tag', False):
             self.level = 4
             self.max_last_contents = 50
 
@@ -427,15 +427,12 @@ class ViewPublications(TemplateView):
             for category in categories:
                 category.subcategories = category.get_subcategories()
                 category.contents_count = PublishedContent.objects \
-                    .published_contents() \
-                    .filter(content__subcategory__in=category.subcategories) \
-                    .filter(content_type__in=self.handle_types) \
+                    .last_contents(subcategories=category.subcategories, content_type=self.handle_types) \
                     .count()
 
             context['categories'] = categories
-            context['content_count'] = PublishedContent.objects\
-                .published_contents()\
-                .filter(content_type__in=self.handle_types) \
+            context['content_count'] = PublishedContent.objects \
+                .last_contents(content_type=self.handle_types) \
                 .count()
 
         elif self.level is 2:
@@ -444,14 +441,11 @@ class ViewPublications(TemplateView):
 
             for subcategory in context['subcategories']:
                 subcategory.contents_count = PublishedContent.objects \
-                    .published_contents() \
-                    .filter(content__subcategory__pk=subcategory.pk) \
-                    .filter(content_type__in=self.handle_types) \
+                    .last_contents(subcategories=[subcategory], content_type=self.handle_types) \
                     .count()
 
-            context['content_count'] = PublishedContent.objects\
-                .published_contents(subcategories=context['subcategories'])\
-                .filter(content_type__in=self.handle_types) \
+            context['content_count'] = PublishedContent.objects \
+                .last_contents(subcategories=context['subcategories'], content_type=self.handle_types) \
                 .count()
 
             recent_kwargs['subcategories'] = context['subcategories']
@@ -461,19 +455,19 @@ class ViewPublications(TemplateView):
             context['category'] = subcategory.get_parent_category()
             context['subcategory'] = subcategory
             context['content_count'] = PublishedContent.objects \
-                .get_recent_list(subcategories=[subcategory]) \
+                .last_contents(subcategories=[subcategory]) \
                 .filter(content_type__in=self.handle_types) \
                 .count()
-            recent_kwargs['subcategories'] = [subcategory]()
+            recent_kwargs['subcategories'] = [subcategory]
 
         elif self.level is 4:
-            category = self.request.GET.get('category', False)
-            subcategory = self.request.GET.get('subcategory', [])
-            subcategories = []
-            if category:
+            category = self.request.GET.get('category', None)
+            subcategory = self.request.GET.get('subcategory', None)
+            subcategories = None
+            if category is not None:
                 context['category'] = get_object_or_404(Category, slug=category)
                 subcategories = context['category'].get_subcategories()
-            elif subcategory:
+            elif subcategory is not None:
                 subcategory = get_object_or_404(SubCategory, slug=self.request.GET.get('subcategory'))
                 context['category'] = subcategory.get_parent_category()
                 context['subcategory'] = subcategory
@@ -486,14 +480,18 @@ class ViewPublications(TemplateView):
                 if _type in self.handle_types:
                     content_type = _type
                     context['type'] = TYPE_CHOICES_DICT[_type]
+                else:
+                    raise Http404('wrong type {}'.format(_type))
 
-            tags = self.request.GET.get('tags', [])
+            tag = self.request.GET.get('tag', None)
+            tags = None
+            if tag is not None:
+                tags = [get_object_or_404(Tag, slug=tag)]
 
-            contents_queryset = PublishedContent.objects.get_browse_list(
+            contents_queryset = PublishedContent.objects.last_contents(
                 subcategories=subcategories,
                 tags=tags,
-                content_type=content_type,
-                order_fields=['-publication_date'])
+                content_type=content_type)
             items_per_page = 12
             make_pagination(
                 context,
@@ -504,10 +502,10 @@ class ViewPublications(TemplateView):
                 with_previous_item=True)
 
         if self.level < 4:
-            context['last_articles'] = PublishedContent.objects.get_recent_list(
+            context['last_articles'] = PublishedContent.objects.last_contents(
                 **dict(content_type='ARTICLE', **recent_kwargs)
             )[:self.max_last_contents]
-            context['last_tutorials'] = PublishedContent.objects.get_recent_list(
+            context['last_tutorials'] = PublishedContent.objects.last_contents(
                 **dict(content_type='TUTORIAL', **recent_kwargs)
             )[:self.max_last_contents]
 

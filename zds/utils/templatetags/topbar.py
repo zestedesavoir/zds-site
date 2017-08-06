@@ -64,8 +64,12 @@ def top_categories_content(_type):
     """
     # get subcategories from PublishedContent
     if _type:
+        if type(_type) != list:
+            _type = [_type]
+
         subcategories_contents = PublishedContent.objects\
-            .filter(content_type=_type)\
+            .filter(must_redirect=False)\
+            .filter(content_type__in=_type)\
             .values('content__subcategory').all()
     else:
         # used in page with all content types
