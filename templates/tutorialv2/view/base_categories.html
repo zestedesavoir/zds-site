@@ -76,10 +76,10 @@
                         <div>
                             <span class="separator"></span>
                             {% if category %}
-                                <span class="option">Domaine de savoir : <strong>{{category}}</strong></span>
+                                <span class="option">Domaine de savoir : <strong><a href="{% url 'publication:category' slug=category.slug %}">{{category}}</a></strong></span>
                             {% endif %}
                             {% if subcategory %}
-                                <span class="option">Catégorie : <strong>{{subcategory}}</strong></span>
+                                <span class="option">Catégorie : <strong><a href="{% url 'publication:subcategory' slug_category=category.slug slug=subcategory.slug %}">{{subcategory}}</a></strong></span>
                             {% endif %}
                             {% if type %}
                                 <span class="option">Contenu : <strong>{{type}}</strong></span>
