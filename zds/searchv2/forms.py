@@ -29,12 +29,16 @@ class SearchForm(forms.Form):
         [(k, v[0]) for k, v in settings.ZDS_APP['search']['search_groups'].iteritems()],
         key=lambda pair: pair[1]
     )
+
     models = forms.MultipleChoiceField(
         label='',
         widget=forms.CheckboxSelectMultiple,
         required=False,
         choices=choices
     )
+
+    category = forms.CharField(widget=forms.HiddenInput, required=False)
+    subcategory = forms.CharField(widget=forms.HiddenInput, required=False)
 
     def __init__(self, *args, **kwargs):
 
@@ -56,5 +60,7 @@ class SearchForm(forms.Form):
 
         self.helper.layout = Layout(
             Field('q'),
-            StrictButton('', type='submit', css_class='ico-after ico-search', title=_(u'Rechercher'))
+            StrictButton('', type='submit', css_class='ico-after ico-search', title=_(u'Rechercher')),
+            Field('category'),
+            Field('subcategory')
         )

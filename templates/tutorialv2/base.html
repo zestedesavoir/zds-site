@@ -53,9 +53,9 @@
     {% elif content %}
         <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
             {% if content.type == 'TUTORIAL' %}
-                <a href="{% url 'tutorial:list' %}" itemprop="url"><span itemprop="title">{% trans "Tutoriels" %}</span></a>
+                <a href="{% url 'publication:list' %}?type=tutorial" itemprop="url"><span itemprop="title">{% trans "Tutoriels" %}</span></a>
             {% elif content.type == 'ARTICLE' %}
-                <a href="{% url 'article:list' %}" itemprop="url"><span itemprop="title">{% trans "Articles" %}</span></a>
+                <a href="{% url 'publication:list' %}?type=article" itemprop="url"><span itemprop="title">{% trans "Articles" %}</span></a>
             {% elif content.type == 'OPINION' %}
                 <a href="{% url 'opinion:list' %}" itemprop="url"><span itemprop="title">{% trans "Tribunes" %}</span></a>
             {% endif %}

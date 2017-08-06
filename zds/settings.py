@@ -386,7 +386,7 @@ THUMBNAIL_PRESERVE_EXTENSIONS = None
 ZDS_APP = {
     'site': {
         'name': u'ZesteDeSavoir',
-        'litteral_name': u'Zeste de Savoir',
+        'literal_name': u'Zeste de Savoir',
         'slogan': u'Zeste de Savoir, la connaissance pour tous et sans pépins',
         'abbr': u'zds',
         'url': u'http://127.0.0.1:8000',
@@ -511,7 +511,7 @@ ZDS_APP = {
         'maximum_slug_size': 150,
         'characters_per_minute': 1500,
         'editorial_line_link':
-        u'https://zestedesavoir.com/articles/222/la-ligne-editoriale-officielle-de-zeste-de-savoir/'
+        u'https://zestedesavoir.com/articles/222/la-ligne-editoriale-officielle-de-zeste-de-savoir/',
     },
     'forum': {
         'posts_per_page': 21,

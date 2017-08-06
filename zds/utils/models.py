@@ -47,8 +47,8 @@ def image_path_help(instance, filename):
 
 @python_2_unicode_compatible
 class Category(models.Model):
-
     """Common category for several concepts of the application."""
+
     class Meta:
         verbose_name = 'Categorie'
         verbose_name_plural = 'Categories'
@@ -60,14 +60,20 @@ class Category(models.Model):
     slug = models.SlugField(max_length=80, unique=True)
 
     def __str__(self):
-        """Textual Category Form."""
         return self.title
+
+    def get_subcategories(self):
+        return [a.subcategory
+                for a in CategorySubCategory.objects
+                .filter(is_main=True, category__pk=self.pk)
+                .prefetch_related('subcategory')
+                .all()]
 
 
 @python_2_unicode_compatible
 class SubCategory(models.Model):
-
     """Common subcategory for several concepts of the application."""
+
     class Meta:
         verbose_name = 'Sous-categorie'
         verbose_name_plural = 'Sous-categories'
@@ -75,15 +81,11 @@ class SubCategory(models.Model):
     title = models.CharField('Titre', max_length=80, unique=True)
     subtitle = models.CharField('Sous-titre', max_length=200)
 
-    image = models.ImageField(
-        upload_to=image_path_category,
-        blank=True,
-        null=True)
+    image = models.ImageField(upload_to=image_path_category, blank=True, null=True)
 
     slug = models.SlugField(max_length=80, unique=True)
 
     def __str__(self):
-        """Textual Category Form."""
         return self.title
 
     def get_absolute_url_tutorial(self):
