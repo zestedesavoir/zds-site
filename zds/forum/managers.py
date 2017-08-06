@@ -20,7 +20,7 @@ class ForumManager(models.Manager):
         category
         :type with_count: bool
         """
-        query_set = self.filter(category=category, groups__isnull=True).select_related('category').distinct()
+        queryset = self.filter(category=category, groups__isnull=True).select_related('category').distinct()
         if with_count:
             # this request count the threads in each forum
             thread_sub_query = 'SELECT COUNT(*) FROM forum_topic WHERE forum_topic.forum_id=forum_forum.id'
@@ -28,8 +28,8 @@ class ForumManager(models.Manager):
             post_sub_query = 'SELECT COUNT(*) FROM forum_post WHERE forum_post.topic_id ' \
                              'IN(SELECT id FROM forum_topic WHERE forum_topic.forum_id=forum_forum.id)'
 
-            query_set = query_set.extra(select={'thread_count': thread_sub_query, 'post_count': post_sub_query})
-        return query_set.all()
+            queryset = queryset.extra(select={'thread_count': thread_sub_query, 'post_count': post_sub_query})
+        return queryset.all()
 
     def get_private_forums_of_category(self, category, user):
         return self.filter(category=category, groups__in=user.groups.all())\
@@ -150,12 +150,12 @@ class TopicReadManager(models.Manager):
         :return: the queryset over the already read topics
         :rtype: QuerySet
         """
-        base_query_set = self.filter(user__pk=user.pk)
+        base_queryset = self.filter(user__pk=user.pk)
         if topic_sub_list is not None:
-            base_query_set = base_query_set.filter(topic__in=topic_sub_list)
-        base_query_set = base_query_set.filter(post=F('topic__last_message'))
+            base_queryset = base_queryset.filter(topic__in=topic_sub_list)
+        base_queryset = base_queryset.filter(post=F('topic__last_message'))
 
-        return base_query_set
+        return base_queryset
 
     def list_read_topic_pk(self, user, topic_sub_list=None):
         """ get all the topic that the user has already read in a flat list.

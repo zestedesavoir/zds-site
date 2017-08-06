@@ -93,8 +93,8 @@ def send_message_mp(
         signals.new_content.send(sender=post.__class__, instance=post, by_email=send_by_mail)
 
     if send_by_mail and direct:
-        subject = u'{} : {}'.format(settings.ZDS_APP['site']['litteral_name'], n_topic.title)
-        from_email = u'{} <{}>'.format(settings.ZDS_APP['site']['litteral_name'],
+        subject = u'{} : {}'.format(settings.ZDS_APP['site']['literal_name'], n_topic.title)
+        from_email = u'{} <{}>'.format(settings.ZDS_APP['site']['literal_name'],
                                        settings.ZDS_APP['site']['email_noreply'])
         for part in n_topic.participants.all():
             message_html = render_to_string('email/direct.html', {'msg': emarkdown(text)})

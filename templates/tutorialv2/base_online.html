@@ -38,13 +38,13 @@
     <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
         <a
             {% if current_content_type == "ARTICLE" %}
-                href="{% url "article:list" %}"
+                href="{% url "publication:list" %}?type=article"
             {% elif current_content_type == "TUTORIAL" %}
-                href="{% url "tutorial:list" %}"
+                href="{% url "publication:list" %}?type=tutorial"
             {% elif current_content_type == "OPINION" %}
                 href="{% url "opinion:list" %}"
             {% else %}
-                href="{% url "content:list" %}"
+                href="{% url "publication:list" %}"
             {% endif %}
             itemprop="url">
             <span itemprop="title">{{ verbose_type_name_plural|title }}</span>

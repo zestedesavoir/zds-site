@@ -95,8 +95,8 @@ class Subscription(models.Model):
 
         assert hasattr(self, 'module')
 
-        subject = _(u'{} - {} : {}').format(settings.ZDS_APP['site']['litteral_name'], self.module, notification.title)
-        from_email = _(u'{} <{}>').format(settings.ZDS_APP['site']['litteral_name'],
+        subject = _(u'{} - {} : {}').format(settings.ZDS_APP['site']['literal_name'], self.module, notification.title)
+        from_email = _(u'{} <{}>').format(settings.ZDS_APP['site']['literal_name'],
                                           settings.ZDS_APP['site']['email_noreply'])
 
         receiver = self.user
@@ -105,7 +105,7 @@ class Subscription(models.Model):
             'title': notification.title,
             'url': settings.ZDS_APP['site']['url'] + notification.url,
             'author': notification.sender.username,
-            'site_name': settings.ZDS_APP['site']['litteral_name']
+            'site_name': settings.ZDS_APP['site']['literal_name']
         }
         message_html = render_to_string(
             'email/notification/' + convert_camel_to_underscore(self._meta.object_name) + '.html', context)

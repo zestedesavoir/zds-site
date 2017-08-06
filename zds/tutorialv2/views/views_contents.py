@@ -94,7 +94,7 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
     def get_context_data(self, **kwargs):
         context = super(CreateContent, self).get_context_data(**kwargs)
         context['editorial_line_link'] = settings.ZDS_APP['content']['editorial_line_link']
-        context['site_name'] = settings.ZDS_APP['site']['litteral_name']
+        context['site_name'] = settings.ZDS_APP['site']['literal_name']
         return context
 
     def form_valid(self, form):
