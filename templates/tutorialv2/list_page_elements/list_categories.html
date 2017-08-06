@@ -7,7 +7,7 @@ exposes categories
 {% for category in categories %}
     <div class="linkbox-item primary">
         <a href="{% url 'publication:category' slug=category.slug %}" class="head">
-            <h3>{{ category.title }}</h3>
+            <h3 title="{{ category.title }}">{{ category.title }}</h3>
         </a>
 
         <a href="{% url 'publication:category' slug=category.slug %}" class="body">
