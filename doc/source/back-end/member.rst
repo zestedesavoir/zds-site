@@ -70,7 +70,7 @@ Le clic sur "Me désinscrire" entraîne alors une série d'action (qui sont **ir
 Les membres dans les environnement de test et de développement
 ==============================================================
 
-Afin de faciliter les procédures de test en local, 7 utilisateurs ont été créés via la fixture ``users.yaml`` (utilisateur/mot de passe):
+Afin de faciliter les procédures de test en local, 8 utilisateurs ont été créés via la fixture ``users.yaml`` (utilisateur/mot de passe):
 
 - user/user : utilisateur normal
 - staff/staff : utilisateur avec les droits d'un staff
@@ -79,6 +79,7 @@ Afin de faciliter les procédures de test en local, 7 utilisateurs ont été cr�
 - external/external : utilisateur qui permet de récupérer les tutoriels d'anciens membres et/ou de publier des tutoriels externes.
 - ïtrema/ïtrema : utilisateur de test supplémentaire sans droit
 - decal/decal: un compte qui possède un identifiant ``Profile`` différent de l'identifiant ``user`` pour permettre de tester le cas où ces identifiants sont différents
+- dev/dev : utilisateur dans le groupe des développeurs
 
 Pour que ces membres soient ajoutés à la base de données, il est donc nécéssaire d'exécuter la commande suivante, à la racine du site :
 
@@ -118,6 +119,19 @@ Elle est gérée par le formulaire `PromoteMemberForm` présent dans le fichier 
 Elle est ensuite visible via le template `member/settings/promote.html`.
 
 Le profil de chaque membre contient également un lien vers l'administration de Django si l'utilisateur connecté y a accès et est super-utilisateur. Cela permet de nommer un membre super-utilisateur ou de lui donner l'accès à l'administration.
+
+Les casquettes
+--------------------
+
+Les casquettes sont un moyen de certifier qu'un utilisateur a un rôle particulier (comme membre du staff, développeur, etc). Les casquettes d'un membre sont listées sur son profil et il est également possible lors de l'envoi d'un message de le poster avec une casquette particulière, qui sera mise en avant sur le message.
+
+Lorsqu'une casquette est retirée à un membre, elle reste présente sur les messages qui ont été postés avec. Il n'est pas possible d'utiliser plusieurs casquettes pour un message ou de modifier la casquette utilisée après envoi.
+
+Les casquettes d'un membre peuvent être modifiées sur son profil par les membres ayant la permission ``utils.change_hat``. Attention : la casse est déterminée lors du premier ajout d'une casquette. Ainsi, si vous ajoutez une casquette « Staff » à un membre, ajouter une casquette « staff » à un autre membre par la suite lui ajoutera en réalité la casquette « Staff ». Si nécessaire, la casse d'une casquette peut être modifiée via l'administration de Django.
+
+Pour ajouter une casquette à tous les membres d'un groupe, une commande ``django-admin`` a été créée. Par exemple, la commande à taper (à la racine du projet) pour ajouter la casquette « Équipe technique » à tous les membres du groupe « dev » est ``python manage.py add_hat_to_group 'dev' 'Équipe technique'``.
+
+Les casquettes sont ajoutées aux MP automatiques en fonction des paramètres ``ZDS_APP['member']['validation_hat']`` et ``ZDS_APP['member']['moderation_hat']`` renseignés dans le fichier ``settings.py``.
 
 L'interface de karma
 --------------------

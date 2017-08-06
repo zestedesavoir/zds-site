@@ -405,6 +405,7 @@ class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteV
                         self.object.title,
                         msg,
                         False,
+                        with_hat=settings.ZDS_APP['member']['validation_hat'],
                     )
             if self.object.beta_topic is not None:
                 beta_topic = self.object.beta_topic
@@ -1424,7 +1425,8 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                             _(_type[0].upper() + _type[1:].lower() + u' en bêta'),
                             beta_version.title,
                             msg_pm,
-                            False)
+                            False,
+                            with_hat=settings.ZDS_APP['member']['validation_hat'])
                 else:
                     all_tags = self._get_all_tags()
                     if not already_in_beta:
@@ -1776,6 +1778,7 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
                     }),
                     True,
                     direct=False,
+                    with_hat=settings.ZDS_APP['member']['validation_hat'],
                 )
                 UserGallery(gallery=self.object.gallery, user=user, mode=GALLERY_WRITE).save()
         self.object.save()

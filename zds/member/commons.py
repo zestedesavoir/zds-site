@@ -215,6 +215,7 @@ class MemberSanctionState(object):
             msg,
             True,
             direct=True,
+            with_hat=settings.ZDS_APP['member']['moderation_hat'],
         )
 
 

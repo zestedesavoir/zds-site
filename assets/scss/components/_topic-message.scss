@@ -203,6 +203,16 @@
                 display: none;
             }
 
+            .with-hat {
+                color: #FFF;
+                background-color: $color-hat;
+                border-radius: 4px;
+                display: inline-block;
+                padding: 0 5px;
+                margin-top: 5px;
+                margin-bottom: 0;
+            }
+
             .message-edited,
             .message-hidden,
             .message-helpful,

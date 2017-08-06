@@ -42,7 +42,7 @@ from zds.member.models import Profile, TokenForgotPassword, TokenRegister, Karma
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.notification.models import TopicAnswerSubscription, NewPublicationSubscription
 from zds.tutorialv2.models.models_database import PublishedContent, PickListOperation
-from zds.utils.models import Comment, CommentVote, Alert, CommentEdit
+from zds.utils.models import Comment, CommentVote, Alert, CommentEdit, Hat
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView
 from zds.utils.tokens import generate_token
@@ -701,6 +701,53 @@ def remove_banned_email_provider(request, provider_pk):
     return redirect('banned-email-providers')
 
 
+@require_POST
+@login_required
+@permission_required('utils.change_hat', raise_exception=True)
+@transaction.atomic
+def add_hat(request, user_pk):
+    """
+    Used to add a hat to a user.
+    Creates the hat if it doesn't exist.
+    """
+
+    user = get_object_or_404(User, pk=user_pk)
+
+    hat_name = request.POST.get('hat', None)
+    if not hat_name:
+        messages.error(request, _(u'Aucune casquette saisie.'))
+    elif len(hat_name) > 40:
+        messages.error(request, _(u'Une casquette ne peut dépasser 40 caractères.'))
+    else:
+        hat, created = Hat.objects.get_or_create(name__iexact=hat_name, defaults={'name': hat_name})
+        if created:
+            messages.success(request, _(u'La casquette « {} » a été créée.').format(hat_name))
+        user.profile.hats.add(hat)
+        messages.success(request, _(u'La casquette a bien été ajoutée.'))
+
+    return redirect(user.profile.get_absolute_url())
+
+
+@require_POST
+@login_required
+@permission_required('utils.change_hat', raise_exception=True)
+@transaction.atomic
+def remove_hat(request, user_pk, hat_pk):
+    """
+    Used to remove a hat from a user.
+    """
+
+    user = get_object_or_404(User, pk=user_pk)
+    hat = get_object_or_404(Hat, pk=hat_pk)
+    if hat not in user.profile.hats.all():
+        raise Http404
+
+    user.profile.hats.remove(hat)
+
+    messages.success(request, _(u'La casquette a bien été retirée.'))
+    return redirect(user.profile.get_absolute_url())
+
+
 def login_view(request):
     """Log in user."""
 
@@ -894,7 +941,8 @@ def activate_account(request):
             msg,
             False,
             True,
-            False)
+            False,
+            with_hat=settings.ZDS_APP['member']['moderation_hat'])
     token.delete()
 
     # create an alert for the staff if it's a new provider
@@ -1033,6 +1081,7 @@ def settings_promote(request, user_pk):
             msg,
             True,
             True,
+            with_hat=settings.ZDS_APP['member']['moderation_hat'],
         )
 
         return redirect(profile.get_absolute_url())

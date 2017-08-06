@@ -5,6 +5,7 @@ from datetime import datetime
 import os
 import string
 import uuid
+import logging
 
 from django.conf import settings
 
@@ -25,6 +26,9 @@ from zds.utils import slugify
 from zds.utils.templatetags.emarkdown import get_markdown_instance, render_markdown
 
 from model_utils.managers import InheritanceManager
+
+
+logger = logging.getLogger('zds.utils')
 
 
 def image_path_category(instance, filename):
@@ -186,6 +190,8 @@ class Comment(models.Model):
         'Texte de masquage ',
         max_length=80,
         default='')
+
+    with_hat = models.CharField('Casquette', max_length=40, blank=True)
 
     def update_content(self, text):
         from zds.notification.models import ping_url
@@ -357,6 +363,7 @@ class Alert(models.Model):
                 '',
                 msg_content,
                 True,
+                with_hat=settings.ZDS_APP['member']['moderation_hat'],
             )
             self.privatetopic = privatetopic
 
@@ -461,3 +468,34 @@ class HelpWriting(models.Model):
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)
         super(HelpWriting, self).save(*args, **kwargs)
+
+
+@python_2_unicode_compatible
+class Hat(models.Model):
+    """
+    Hats are labels that users can add to their messages.
+    Each member can be allowed to use several hats.
+    It can be used for exemple to allow members to identify
+    that a moderation message was posted by a staff member.
+    """
+
+    name = models.CharField('Casquette', max_length=40, unique=True)
+
+    class Meta:
+        verbose_name = 'Casquette'
+        verbose_name_plural = 'Casquettes'
+
+    def __str__(self):
+        return self.name
+
+
+def get_hat_from_request(request):
+    if not request.POST.get('hat', None):
+        return ''
+    try:
+        hat = Hat.objects.get(pk=int(request.POST.get('hat')))
+        assert hat in request.user.profile.hats.all()
+        return hat.name
+    except (ValueError, Hat.DoesNotExist, AssertionError):
+        logger.warning('User #{0} failed to use hat #{1}.'.format(request.user.pk, request.POST.get('hat')))
+        return ''
