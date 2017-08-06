@@ -5,11 +5,10 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.urlresolvers import reverse
 from django.db import transaction
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext as _
-from django.views.generic import CreateView, RedirectView, UpdateView
-from django.views.generic.detail import SingleObjectMixin
+from django.views.generic import CreateView, RedirectView, UpdateView, FormView, DeleteView
 from django.views.generic.list import MultipleObjectMixin
 
 from zds import settings
@@ -41,22 +40,17 @@ class FeaturedResourceCreate(CreateView):
 
     form_class = FeaturedResourceForm
     template_name = 'featured/resource/create.html'
+    context_object_name = 'featured_resource'
 
     @method_decorator(login_required)
     @method_decorator(permission_required('featured.change_featuredresource', raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(FeaturedResourceCreate, self).dispatch(request, *args, **kwargs)
 
-    def post(self, request, *args, **kwargs):
-        form = self.form_class(request.POST)
-
-        if form.is_valid():
-            return self.form_valid(form)
-
-        return render(request, self.template_name, {'form': form})
-
     def get_form_kwargs(self):
-        return {'hide_major_update_field': True}
+        kw = super(FeaturedResourceCreate, self).get_form_kwargs()
+        kw['hide_major_update_field'] = True
+        return kw
 
     def form_valid(self, form):
         featured_resource = FeaturedResource()
@@ -65,6 +59,7 @@ class FeaturedResourceCreate(CreateView):
         featured_resource.authors = form.cleaned_data.get('authors')
         featured_resource.image_url = form.cleaned_data.get('image_url')
         featured_resource.url = form.cleaned_data.get('url')
+
         if form.cleaned_data.get('major_update', False):
             featured_resource.pubdate = datetime.now()
         else:
@@ -72,6 +67,7 @@ class FeaturedResourceCreate(CreateView):
 
         featured_resource.save()
 
+        messages.success(self.request, _(u'La une a été créée.'))
         return redirect(reverse('featured-resource-list'))
 
 
@@ -83,76 +79,66 @@ class FeaturedResourceUpdate(UpdateView):
     form_class = FeaturedResourceForm
     template_name = 'featured/resource/update.html'
     queryset = FeaturedResource.objects.all()
-    featured_resource = None
+    context_object_name = 'featured_resource'
 
     @method_decorator(login_required)
     @method_decorator(permission_required('featured.change_featuredresource', raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(FeaturedResourceUpdate, self).dispatch(request, *args, **kwargs)
 
-    def get(self, request, *args, **kwargs):
-        self.featured_resource = self.get_object()
-        form = self.form_class(initial={
-            'title': self.featured_resource.title,
-            'type': self.featured_resource.type,
-            'authors': self.featured_resource.authors,
-            'image_url': self.featured_resource.image_url,
-            'url': self.featured_resource.url,
-            'pubdate': self.featured_resource.pubdate,
+    def get_initial(self):
+        initial = super(FeaturedResourceUpdate, self).get_initial()
+        initial.update({
+            'title': self.object.title,
+            'type': self.object.type,
+            'authors': self.object.authors,
+            'image_url': self.object.image_url,
+            'url': self.object.url,
+            'pubdate': self.object.pubdate,
         })
-        form.helper.form_action = reverse('featured-resource-update', args=[self.featured_resource.pk])
-        return render(request, self.template_name, {'form': form, 'featured_resource': self.featured_resource})
 
-    def post(self, request, *args, **kwargs):
-        self.featured_resource = self.get_object()
-        form = self.form_class(request.POST)
-
-        if form.is_valid():
-            return self.form_valid(form)
-
-        return render(request, self.template_name, {'form': form, 'featured_resource': self.featured_resource})
+        return initial
 
     def form_valid(self, form):
 
-        self.featured_resource.title = form.cleaned_data.get('title')
-        self.featured_resource.type = form.cleaned_data.get('type')
-        self.featured_resource.authors = form.cleaned_data.get('authors')
-        self.featured_resource.image_url = form.cleaned_data.get('image_url')
-        self.featured_resource.url = form.cleaned_data.get('url')
+        self.object.title = form.cleaned_data.get('title')
+        self.object.type = form.cleaned_data.get('type')
+        self.object.authors = form.cleaned_data.get('authors')
+        self.object.image_url = form.cleaned_data.get('image_url')
+        self.object.url = form.cleaned_data.get('url')
         if form.cleaned_data.get('major_update', False):
-            self.featured_resource.pubdate = datetime.now()
+            self.object.pubdate = datetime.now()
         else:
-            self.featured_resource.pubdate = form.cleaned_data.get('pubdate')
+            self.object.pubdate = form.cleaned_data.get('pubdate')
 
-        self.featured_resource.save()
-        return redirect(reverse('featured-resource-list'))
+        messages.success(self.request, _(u'La une a été mise à jour.'))
+        self.success_url = reverse('featured-resource-list')
+        return super(FeaturedResourceUpdate, self).form_valid(form)
 
-    def get_form(self, form_class=FeaturedResourceForm):
-        form = self.form_class(self.request.POST)
-        form.helper.form_action = reverse('featured-resource-update', args=[self.featured_resource.pk])
+    def get_form(self, form_class=None):
+        form = super(FeaturedResourceUpdate, self).get_form(form_class)
+        form.helper.form_action = reverse('featured-resource-update', args=[self.object.pk])
         return form
 
 
-class FeaturedResourceDeleteDetail(SingleObjectMixin, RedirectView):
+class FeaturedResourceDeleteDetail(DeleteView):
     """
     Deletes a featured resource.
     """
-    queryset = FeaturedResource.objects.all()
-    permanent = False
+
+    model = FeaturedResource
 
     @method_decorator(login_required)
     @method_decorator(transaction.atomic)
     @method_decorator(permission_required('featured.change_featuredresource', raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
+        self.success_url = reverse('featured-resource-list')
         return super(FeaturedResourceDeleteDetail, self).dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        featured_resource = self.get_object()
-        featured_resource.delete()
-
+        r = super(FeaturedResourceDeleteDetail, self).post(request, *args, **kwargs)
         messages.success(request, _(u'La une a été supprimée avec succès.'))
-
-        return redirect(reverse('featured-resource-list'))
+        return r
 
 
 class FeaturedResourceDeleteList(MultipleObjectMixin, RedirectView):
@@ -179,48 +165,42 @@ class FeaturedResourceDeleteList(MultipleObjectMixin, RedirectView):
         return redirect(reverse('featured-resource-list'))
 
 
-class FeaturedMessageCreateUpdate(CreateView):
+class FeaturedMessageCreateUpdate(FormView):
     """
     Creates or updates the featured message.
     """
 
     form_class = FeaturedMessageForm
     template_name = 'featured/message/create.html'
+    last_message = None
 
     @method_decorator(login_required)
     @method_decorator(permission_required('featured.change_featuredmessage', raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
+        self.last_message = FeaturedMessage.objects.get_last_message()
         return super(FeaturedMessageCreateUpdate, self).dispatch(request, *args, **kwargs)
 
-    def get(self, request, *args, **kwargs):
-        last_message = FeaturedMessage.objects.get_last_message()
-        init = {}
-        if last_message is not None:
-            init = {
-                'hook': last_message.hook,
-                'message': last_message.message,
-                'url': last_message.url,
-            }
+    def get_initial(self):
+        init = super(FeaturedMessageCreateUpdate, self).get_initial()
 
-        form = self.form_class(initial=init)
-        form.helper.form_action = reverse('featured-message-create')
-        return render(request, self.template_name, {'form': form})
+        if self.last_message is not None:
+            init.update({
+                'hook': self.last_message.hook,
+                'message': self.last_message.message,
+                'url': self.last_message.url,
+            })
 
-    def post(self, request, *args, **kwargs):
-        form = self.form_class(request.POST)
-
-        if form.is_valid():
-            return self.form_valid(form)
-
-        return render(request, self.template_name, {'form': form})
+        return init
 
     def form_valid(self, form):
-        last_message = FeaturedMessage.objects.get_last_message()
-        if last_message:
-            last_message.delete()
+        if self.last_message:
+            self.last_message.delete()
+
         featured_message = FeaturedMessage()
         featured_message.hook = form.data.get('hook')
         featured_message.message = form.data.get('message')
         featured_message.url = form.data.get('url')
         featured_message.save()
-        return redirect(reverse('homepage'))
+
+        messages.success(self.request, _(u'Le message a été changé'))
+        return redirect(reverse('featured-resource-list'))
