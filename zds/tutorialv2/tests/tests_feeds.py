@@ -18,34 +18,34 @@ from zds.tutorialv2.factories import LicenceFactory, SubCategoryFactory, Publish
 from zds.tutorialv2.publication_utils import publish_content
 from copy import deepcopy
 
-overrided_zds_app = deepcopy(settings.ZDS_APP)
-overrided_zds_app['content']['repo_private_path'] = os.path.join(settings.BASE_DIR, 'contents-private-test')
-overrided_zds_app['content']['repo_public_path'] = os.path.join(settings.BASE_DIR, 'contents-public-test')
+overridden_zds_app = deepcopy(settings.ZDS_APP)
+overridden_zds_app['content']['repo_private_path'] = os.path.join(settings.BASE_DIR, 'contents-private-test')
+overridden_zds_app['content']['repo_public_path'] = os.path.join(settings.BASE_DIR, 'contents-public-test')
 
 
 @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'media-test'))
-@override_settings(ZDS_APP=overrided_zds_app)
+@override_settings(ZDS_APP=overridden_zds_app)
 class LastTutorialsFeedRSSTest(TestCase):
 
     def setUp(self):
 
         # don't build PDF to speed up the tests
-        overrided_zds_app['content']['build_pdf_when_published'] = False
+        overridden_zds_app['content']['build_pdf_when_published'] = False
 
         self.staff = StaffProfileFactory().user
 
         settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
         self.mas = ProfileFactory().user
-        overrided_zds_app['member']['bot_account'] = self.mas.username
+        overridden_zds_app['member']['bot_account'] = self.mas.username
 
-        bot = Group(name=overrided_zds_app['member']['bot_group'])
+        bot = Group(name=overridden_zds_app['member']['bot_group'])
         bot.save()
         self.external = UserFactory(
-            username=overrided_zds_app['member']['external_account'],
+            username=overridden_zds_app['member']['external_account'],
             password='anything')
 
         self.beta_forum = ForumFactory(
-            pk=overrided_zds_app['forum']['beta_forum_id'],
+            pk=overridden_zds_app['forum']['beta_forum_id'],
             category=CategoryFactory(position=1),
             position_in_category=1)  # ensure that the forum, for the beta versions, is created
 
@@ -85,9 +85,9 @@ class LastTutorialsFeedRSSTest(TestCase):
         """ Test that base parameters are Ok """
 
         self.assertEqual(self.tutofeed.link, '/tutoriels/')
-        reftitle = u'Tutoriels sur {}'.format(overrided_zds_app['site']['literal_name'])
+        reftitle = u'Tutoriels sur {}'.format(overridden_zds_app['site']['literal_name'])
         self.assertEqual(self.tutofeed.title, reftitle)
-        refdescription = u'Les derniers tutoriels parus sur {}.'.format(overrided_zds_app['site']['literal_name'])
+        refdescription = u'Les derniers tutoriels parus sur {}.'.format(overridden_zds_app['site']['literal_name'])
         self.assertEqual(self.tutofeed.description, refdescription)
 
         atom = LastTutorialsFeedATOM()
@@ -140,36 +140,36 @@ class LastTutorialsFeedRSSTest(TestCase):
         self.assertEqual(ret, ref)
 
     def tearDown(self):
-        if os.path.isdir(overrided_zds_app['content']['repo_private_path']):
-            shutil.rmtree(overrided_zds_app['content']['repo_private_path'])
-        if os.path.isdir(overrided_zds_app['content']['repo_public_path']):
-            shutil.rmtree(overrided_zds_app['content']['repo_public_path'])
+        if os.path.isdir(overridden_zds_app['content']['repo_private_path']):
+            shutil.rmtree(overridden_zds_app['content']['repo_private_path'])
+        if os.path.isdir(overridden_zds_app['content']['repo_public_path']):
+            shutil.rmtree(overridden_zds_app['content']['repo_public_path'])
         if os.path.isdir(settings.MEDIA_ROOT):
             shutil.rmtree(settings.MEDIA_ROOT)
 
 
-@override_settings(ZDS_APP=overrided_zds_app)
+@override_settings(ZDS_APP=overridden_zds_app)
 class LastArticlesFeedRSSTest(TestCase):
 
     def setUp(self):
 
         # don't build PDF to speed up the tests
-        overrided_zds_app['content']['build_pdf_when_published'] = False
+        overridden_zds_app['content']['build_pdf_when_published'] = False
 
         self.staff = StaffProfileFactory().user
 
         settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
         self.mas = ProfileFactory().user
-        overrided_zds_app['member']['bot_account'] = self.mas.username
+        overridden_zds_app['member']['bot_account'] = self.mas.username
 
-        bot = Group(name=overrided_zds_app['member']['bot_group'])
+        bot = Group(name=overridden_zds_app['member']['bot_group'])
         bot.save()
         self.external = UserFactory(
-            username=overrided_zds_app['member']['external_account'],
+            username=overridden_zds_app['member']['external_account'],
             password='anything')
 
         self.beta_forum = ForumFactory(
-            pk=overrided_zds_app['forum']['beta_forum_id'],
+            pk=overridden_zds_app['forum']['beta_forum_id'],
             category=CategoryFactory(position=1),
             position_in_category=1)  # ensure that the forum, for the beta versions, is created
 
@@ -207,9 +207,9 @@ class LastArticlesFeedRSSTest(TestCase):
         """ Test that base parameters are Ok """
 
         self.assertEqual(self.articlefeed.link, '/articles/')
-        reftitle = u'Articles sur {}'.format(overrided_zds_app['site']['literal_name'])
+        reftitle = u'Articles sur {}'.format(overridden_zds_app['site']['literal_name'])
         self.assertEqual(self.articlefeed.title, reftitle)
-        refdescription = u'Les derniers articles parus sur {}.'.format(overrided_zds_app['site']['literal_name'])
+        refdescription = u'Les derniers articles parus sur {}.'.format(overridden_zds_app['site']['literal_name'])
         self.assertEqual(self.articlefeed.description, refdescription)
 
         atom = LastArticlesFeedATOM()
@@ -262,9 +262,9 @@ class LastArticlesFeedRSSTest(TestCase):
         self.assertEqual(ret, ref)
 
     def tearDown(self):
-        if os.path.isdir(overrided_zds_app['content']['repo_private_path']):
-            shutil.rmtree(overrided_zds_app['content']['repo_private_path'])
-        if os.path.isdir(overrided_zds_app['content']['repo_public_path']):
-            shutil.rmtree(overrided_zds_app['content']['repo_public_path'])
+        if os.path.isdir(overridden_zds_app['content']['repo_private_path']):
+            shutil.rmtree(overridden_zds_app['content']['repo_private_path'])
+        if os.path.isdir(overridden_zds_app['content']['repo_public_path']):
+            shutil.rmtree(overridden_zds_app['content']['repo_public_path'])
         if os.path.isdir(settings.MEDIA_ROOT):
             shutil.rmtree(settings.MEDIA_ROOT)

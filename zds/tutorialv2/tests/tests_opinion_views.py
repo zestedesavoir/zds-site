@@ -16,20 +16,20 @@ from zds.tutorialv2.models.models_database import PublishableContent, PublishedC
 from zds.utils.models import Alert
 from copy import deepcopy
 
-overrided_zds_app = deepcopy(settings.ZDS_APP)
-overrided_zds_app['content']['repo_private_path'] = os.path.join(settings.BASE_DIR, 'contents-private-test')
-overrided_zds_app['content']['repo_public_path'] = os.path.join(settings.BASE_DIR, 'contents-public-test')
-overrided_zds_app['content']['extra_content_generation_policy'] = 'NONE'
+overridden_zds_app = deepcopy(settings.ZDS_APP)
+overridden_zds_app['content']['repo_private_path'] = os.path.join(settings.BASE_DIR, 'contents-private-test')
+overridden_zds_app['content']['repo_public_path'] = os.path.join(settings.BASE_DIR, 'contents-public-test')
+overridden_zds_app['content']['extra_content_generation_policy'] = 'NONE'
 
 
 @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'media-test'))
-@override_settings(ZDS_APP=overrided_zds_app)
+@override_settings(ZDS_APP=overridden_zds_app)
 @override_settings(ES_ENABLED=False)
 class PublishedContentTests(TestCase):
     def setUp(self):
-        overrided_zds_app['member']['bot_account'] = ProfileFactory().user.username
+        overridden_zds_app['member']['bot_account'] = ProfileFactory().user.username
         self.licence = LicenceFactory()
-        overrided_zds_app['content']['default_licence_pk'] = LicenceFactory().pk
+        overridden_zds_app['content']['default_licence_pk'] = LicenceFactory().pk
         self.user_author = ProfileFactory().user
         self.user_staff = StaffProfileFactory().user
         self.user_guest = ProfileFactory().user
@@ -947,9 +947,9 @@ class PublishedContentTests(TestCase):
 
     def tearDown(self):
 
-        if os.path.isdir(overrided_zds_app['content']['repo_private_path']):
-            shutil.rmtree(overrided_zds_app['content']['repo_private_path'])
-        if os.path.isdir(overrided_zds_app['content']['repo_public_path']):
-            shutil.rmtree(overrided_zds_app['content']['repo_public_path'])
+        if os.path.isdir(overridden_zds_app['content']['repo_private_path']):
+            shutil.rmtree(overridden_zds_app['content']['repo_private_path'])
+        if os.path.isdir(overridden_zds_app['content']['repo_public_path']):
+            shutil.rmtree(overridden_zds_app['content']['repo_public_path'])
         if os.path.isdir(settings.MEDIA_ROOT):
             shutil.rmtree(settings.MEDIA_ROOT)

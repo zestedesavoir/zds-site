@@ -22,24 +22,24 @@ from zds.utils.models import Tag
 from django.template.defaultfilters import date
 from copy import deepcopy
 
-overrided_zds_app = deepcopy(settings.ZDS_APP)
-overrided_zds_app['content']['repo_private_path'] = os.path.join(settings.BASE_DIR, 'contents-private-test')
-overrided_zds_app['content']['repo_public_path'] = os.path.join(settings.BASE_DIR, 'contents-public-test')
+overridden_zds_app = deepcopy(settings.ZDS_APP)
+overridden_zds_app['content']['repo_private_path'] = os.path.join(settings.BASE_DIR, 'contents-private-test')
+overridden_zds_app['content']['repo_public_path'] = os.path.join(settings.BASE_DIR, 'contents-public-test')
 
 
 @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'media-test'))
-@override_settings(ZDS_APP=overrided_zds_app)
+@override_settings(ZDS_APP=overridden_zds_app)
 @override_settings(ES_ENABLED=False)
 class ContentTests(TestCase):
 
     def setUp(self):
 
         # don't build PDF to speed up the tests
-        overrided_zds_app['content']['build_pdf_when_published'] = False
+        overridden_zds_app['content']['build_pdf_when_published'] = False
 
         settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
         self.mas = ProfileFactory().user
-        overrided_zds_app['member']['bot_account'] = self.mas.username
+        overridden_zds_app['member']['bot_account'] = self.mas.username
 
         self.licence = LicenceFactory()
 
@@ -571,9 +571,9 @@ class ContentTests(TestCase):
         self.assertEqual(UserGallery.objects.filter(gallery__pk=content.gallery.pk).count(), content.authors.count())
 
     def tearDown(self):
-        if os.path.isdir(overrided_zds_app['content']['repo_private_path']):
-            shutil.rmtree(overrided_zds_app['content']['repo_private_path'])
-        if os.path.isdir(overrided_zds_app['content']['repo_public_path']):
-            shutil.rmtree(overrided_zds_app['content']['repo_public_path'])
+        if os.path.isdir(overridden_zds_app['content']['repo_private_path']):
+            shutil.rmtree(overridden_zds_app['content']['repo_private_path'])
+        if os.path.isdir(overridden_zds_app['content']['repo_public_path']):
+            shutil.rmtree(overridden_zds_app['content']['repo_public_path'])
         if os.path.isdir(settings.MEDIA_ROOT):
             shutil.rmtree(settings.MEDIA_ROOT)

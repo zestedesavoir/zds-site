@@ -620,7 +620,7 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'mApWNh3stCsYHwsGuWdbZWP8'  # noqa
 USE_CAPTCHA = False
 NOCAPTCHA = True  # Use the 'No Captcha engine'
 RECAPTCHA_USE_SSL = True
-# keys (should be overriden in the settings_prod.py file)
+# keys (should be overridden in the settings_prod.py file)
 RECAPTCHA_PUBLIC_KEY = 'dummy'  # noqa
 RECAPTCHA_PRIVATE_KEY = 'dummy'  # noqa
 

@@ -17,15 +17,15 @@ from zds.member.factories import ProfileFactory
 from zds.tutorialv2.factories import ContentReactionFactory, PublishedContentFactory
 from zds.utils.models import CommentVote
 
-overrided_zds_app = deepcopy(settings.ZDS_APP)
-overrided_zds_app['content']['repo_private_path'] = os.path.join(settings.BASE_DIR, 'contents-private-test')
-overrided_zds_app['content']['repo_public_path'] = os.path.join(settings.BASE_DIR, 'contents-public-test')
-overrided_zds_app['content']['extra_content_generation_policy'] = 'SYNC'
-overrided_zds_app['content']['build_pdf_when_published'] = False
+overridden_zds_app = deepcopy(settings.ZDS_APP)
+overridden_zds_app['content']['repo_private_path'] = os.path.join(settings.BASE_DIR, 'contents-private-test')
+overridden_zds_app['content']['repo_public_path'] = os.path.join(settings.BASE_DIR, 'contents-public-test')
+overridden_zds_app['content']['extra_content_generation_policy'] = 'SYNC'
+overridden_zds_app['content']['build_pdf_when_published'] = False
 
 
 @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'media-test'))
-@override_settings(ZDS_APP=overrided_zds_app)
+@override_settings(ZDS_APP=overridden_zds_app)
 class ContentReactionKarmaAPITest(APITestCase):
     def setUp(self):
         self.client = APIClient()
