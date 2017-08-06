@@ -18,7 +18,7 @@
     {% endif %}
 {% endblock %}
 
-
+{% block menu_publications %}current{% endblock %}
 
 {% block description %}
     {% if category %}
@@ -112,6 +112,6 @@
     </section>
 
     <div class="flexpage-wrapper">
-    {% block content_category %}{% endblock %}
+        {% block content_category %}{% endblock %}
     </div>
 {% endblock %}
