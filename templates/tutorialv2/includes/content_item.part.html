@@ -52,7 +52,7 @@
 
 {# Categories (in X, Y and Z) #}
 {% captureas categories_text %}
-    {% for cat in content.subcategory.all %}{% if forloop.first %}{% trans "dans" %}{% elif forloop.last %} {% trans "et" %}{% else %},{% endif %} <a href="{% url 'publication:subcategory' slug=cat.slug slug_category=category.slug %}">{{ cat.title }}</a>{% endfor %}
+    {% for cat in content.subcategory.all %}{% if forloop.first %}{% trans "dans" %}{% elif forloop.last %} {% trans "et" %}{% else %},{% endif %} {% if category %}<a href="{% url 'publication:subcategory' slug=cat.slug slug_category=category.slug %}">{% else %}<a href="{% url 'publication:category' slug=cat.slug %}">{% endif %}{{ cat.title }}</a>{% endfor %}
 {% endcaptureas %}
 
 <article class="content-item{% if online and show_reactions %} has-reactions{% endif %}{{ item_class }}">
