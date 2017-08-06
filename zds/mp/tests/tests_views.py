@@ -273,7 +273,7 @@ class NewTopicViewTest(TestCase):
         bot = Group(name=settings.ZDS_APP['member']['bot_group'])
         bot.save()
 
-        self.hat, created = Hat.objects.get_or_create(name__iexact='A hat', defaults={'name': 'A hat'})
+        self.hat, _ = Hat.objects.get_or_create(name__iexact='A hat', defaults={'name': 'A hat'})
         self.profile1.hats.add(self.hat)
 
         login_check = self.client.login(
@@ -486,7 +486,7 @@ class AnswerViewTest(TestCase):
         self.profile2 = ProfileFactory()
         self.profile3 = ProfileFactory()
 
-        self.hat, created = Hat.objects.get_or_create(name__iexact='A hat', defaults={'name': 'A hat'})
+        self.hat, _ = Hat.objects.get_or_create(name__iexact='A hat', defaults={'name': 'A hat'})
         self.profile1.hats.add(self.hat)
 
         self.topic1 = PrivateTopicFactory(author=self.profile1.user)

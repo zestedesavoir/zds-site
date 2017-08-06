@@ -4134,7 +4134,7 @@ class PublishedContentTests(TestCase):
         self.user_staff = StaffProfileFactory().user
         self.user_guest = ProfileFactory().user
 
-        self.hat, created = Hat.objects.get_or_create(name__iexact='A hat', defaults={'name': 'A hat'})
+        self.hat, _ = Hat.objects.get_or_create(name__iexact='A hat', defaults={'name': 'A hat'})
         self.user_guest.profile.hats.add(self.hat)
 
         # create a tutorial

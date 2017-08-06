@@ -374,7 +374,7 @@ class TopicNewTest(TestCase):
         profile = ProfileFactory()
         category, forum = create_category()
 
-        hat, created = Hat.objects.get_or_create(name__iexact='A hat', defaults={'name': 'A hat'})
+        hat, _ = Hat.objects.get_or_create(name__iexact='A hat', defaults={'name': 'A hat'})
         profile.hats.add(hat)
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
@@ -1098,8 +1098,8 @@ class PostNewTest(TestCase):
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
 
-        hat, created = Hat.objects.get_or_create(name__iexact='A hat', defaults={'name': 'A hat'})
-        other_hat, created = Hat.objects.get_or_create(name__iexact='Another hat', defaults={'name': 'Another hat'})
+        hat, _ = Hat.objects.get_or_create(name__iexact='A hat', defaults={'name': 'A hat'})
+        other_hat, _ = Hat.objects.get_or_create(name__iexact='Another hat', defaults={'name': 'Another hat'})
 
         # Add a hat to profile
         profile.hats.add(hat)
