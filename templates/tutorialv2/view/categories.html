@@ -29,25 +29,29 @@
     </section>
 
     <div class="flexpage-column">
-        <section>
-            <h2 itemprop="name">
-              {% trans 'Derniers tutoriels' %}
-                <a href="{% url "tutorial:feed-rss" %}" class="btn btn-grey">RSS</a>
-                <a href="{% url "tutorial:feed-atom" %}" class="btn btn-grey">Atom</a>
-            </h2>
-            {% include 'tutorialv2/list_page_elements/list_of_online_contents.html' with public_contents=last_tutorials col_number=1 %}
-            <a href="{% url 'publication:list' %}?type=tutorial" class="more-link">Plus de tutoriels</a>
-        </section>
+        {% if last_tutorials %}
+            <section>
+                <h2 itemprop="name">
+                  {% trans 'Derniers tutoriels' %}
+                    <a href="{% url "tutorial:feed-rss" %}" class="btn btn-grey">RSS</a>
+                    <a href="{% url "tutorial:feed-atom" %}" class="btn btn-grey">Atom</a>
+                </h2>
+                {% include 'tutorialv2/list_page_elements/list_of_online_contents.html' with public_contents=last_tutorials col_number=1 %}
+                <a href="{% url 'publication:list' %}?type=tutorial" class="more-link">Plus de tutoriels</a>
+            </section>
+        {% endif %}
 
-        <section>
-            <h2 itemprop="name">
-                {% trans 'Derniers articles' %}
-                <a href="{% url "article:feed-rss" %}" class="btn btn-grey">RSS</a>
-                <a href="{% url "article:feed-atom" %}" class="btn btn-grey">Atom</a>
-            </h2>
-            {% include 'tutorialv2/list_page_elements/list_of_online_contents.html' with public_contents=last_articles col_number=1 %}
-            <a href="{% url 'publication:list' %}?type=article" class="more-link">Plus d'articles</a>
-        </section>
+        {% if last_articles %}
+            <section>
+                <h2 itemprop="name">
+                    {% trans 'Derniers articles' %}
+                    <a href="{% url "article:feed-rss" %}" class="btn btn-grey">RSS</a>
+                    <a href="{% url "article:feed-atom" %}" class="btn btn-grey">Atom</a>
+                </h2>
+                {% include 'tutorialv2/list_page_elements/list_of_online_contents.html' with public_contents=last_articles col_number=1 %}
+                <a href="{% url 'publication:list' %}?type=article" class="more-link">Plus d'articles</a>
+            </section>
+        {% endif %}
     </div>
 
     {% include 'tutorialv2/list_page_elements/call_for_helps.html' %}
