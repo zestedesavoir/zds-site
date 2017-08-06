@@ -396,6 +396,7 @@ class ViewPublications(TemplateView):
         3: 'tutorialv2/view/subcategory.html',
         4: 'tutorialv2/view/browse.html',
     }
+    handle_types = ['TUTORIAL', 'ARTICLE']
 
     level = 1
     max_last_contents = 10
@@ -431,7 +432,7 @@ class ViewPublications(TemplateView):
                 category.contents_count = PublishedContent.objects \
                     .published_contents() \
                     .filter(content__subcategory__in=category.subcategories) \
-                    .filter(content_type__in=['TUTORIAL', 'ARTICLE']) \
+                    .filter(content_type__in=self.handle_types) \
                     .count()
                 contents_count += category.contents_count
 
@@ -448,7 +449,7 @@ class ViewPublications(TemplateView):
                 subcategory.contents_count = PublishedContent.objects \
                     .published_contents() \
                     .filter(content__subcategory__pk=subcategory.pk) \
-                    .filter(content_type__in=['TUTORIAL', 'ARTICLE']) \
+                    .filter(content_type__in=self.handle_types) \
                     .count()
                 total_count += subcategory.contents_count
 
@@ -461,7 +462,7 @@ class ViewPublications(TemplateView):
             context['subcategory'] = subcategory
             context['content_count'] = PublishedContent.objects \
                 .get_recent_list(subcategories=[subcategory]) \
-                .filter(content_type__in=['TUTORIAL', 'ARTICLE']) \
+                .filter(content_type__in=self.handle_types) \
                 .count()
             recent_kwargs['subcategories'] = [subcategory]
 
@@ -478,8 +479,14 @@ class ViewPublications(TemplateView):
                 context['subcategory'] = subcategory
                 subcategories = [subcategory]
 
-            content_type = self.request.GET.get('type', ['TUTORIAL', 'ARTICLE'])
-            context['type'] = TYPE_CHOICES_DICT[content_type.upper()]
+            content_type = self.handle_types
+            context['type'] = None
+            if 'type' in self.request.GET:
+                _type = self.request.GET.get('type', '').upper()
+                if _type in self.handle_types:
+                    content_type = _type
+                    context['type'] = TYPE_CHOICES_DICT[_type]
+
             tags = self.request.GET.get('tags', [])
 
             contents_queryset = PublishedContent.objects.get_browse_list(
