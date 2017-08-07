@@ -28,7 +28,7 @@ class LastContentFeedRSS(Feed):
         """
         :return: The last (typically 5) contents (sorted by publication date).
         """
-        subcategories = []
+        subcategories = None
         if 'category' in self.query_params:
             category = get_object_or_404(Category, slug=self.query_params.get('category'))
             subcategories = category.get_subcategories()

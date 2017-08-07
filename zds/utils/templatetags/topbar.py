@@ -64,7 +64,7 @@ def top_categories_content(_type):
     """
     # get subcategories from PublishedContent
     if _type:
-        if type(_type) != list:
+        if type(_type) is not list:
             _type = [_type]
 
         subcategories_contents = PublishedContent.objects\
@@ -78,7 +78,7 @@ def top_categories_content(_type):
 
     # get tags from PublishedContent
     if _type:
-        tags = PublishedContent.objects.get_top_tags([_type], limit=settings.ZDS_APP['forum']['top_tag_max'])
+        tags = PublishedContent.objects.get_top_tags(_type, limit=settings.ZDS_APP['forum']['top_tag_max'])
     else:
         tags = PublishedContent.objects.get_top_tags(['TUTORIAL', 'ARTICLE', 'OPINION'],
                                                      limit=settings.ZDS_APP['forum']['top_tag_max'])

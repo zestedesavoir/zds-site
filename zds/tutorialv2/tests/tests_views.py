@@ -91,7 +91,7 @@ class ContentTests(TestCase):
 
         self.beta_forum = ForumFactory(
             pk=overridden_zds_app['forum']['beta_forum_id'],
-            category=CategoryFactory(position=1),
+            category=ForumCategoryFactory(position=1),
             position_in_category=1)  # ensure that the forum, for the beta versions, is created
 
         self.tuto_draft = self.tuto.load_version()
@@ -5984,26 +5984,31 @@ class PublishedContentTests(TestCase):
         tag_1 = Tag(title='random')
         tag_1.save()
 
-        tuto_1 = PublishedContentFactory(author_list=[self.user_author])
-        tuto_2 = PublishedContentFactory(author_list=[self.user_author])
-        tuto_3 = PublishedContentFactory(author_list=[self.user_author])
+        tuto_p_1 = PublishedContentFactory(author_list=[self.user_author])
+        tuto_p_2 = PublishedContentFactory(author_list=[self.user_author])
+        tuto_p_3 = PublishedContentFactory(author_list=[self.user_author])
 
-        article_1 = PublishedContentFactory(author_list=[self.user_author], type='ARTICLE')
+        article_p_1 = PublishedContentFactory(author_list=[self.user_author], type='ARTICLE')
 
-        tuto_1.subcategory.add(subcategory_1)
-        tuto_1.subcategory.add(subcategory_2)
-        tuto_1.save()
+        tuto_p_1.subcategory.add(subcategory_1)
+        tuto_p_1.subcategory.add(subcategory_2)
+        tuto_p_1.save()
 
-        tuto_2.subcategory.add(subcategory_1)
-        tuto_2.subcategory.add(subcategory_2)
-        tuto_2.save()
+        tuto_p_2.subcategory.add(subcategory_1)
+        tuto_p_2.subcategory.add(subcategory_2)
+        tuto_p_2.save()
 
-        tuto_3.subcategory.add(subcategory_3)
-        tuto_3.save()
+        tuto_p_3.subcategory.add(subcategory_3)
+        tuto_p_3.save()
 
-        article_1.subcategory.add(subcategory_4)
-        article_1.tags.add(tag_1)
-        article_1.save()
+        article_p_1.subcategory.add(subcategory_4)
+        article_p_1.tags.add(tag_1)
+        article_p_1.save()
+
+        tuto_1 = PublishedContent.objects.get(content=tuto_p_1.pk)
+        tuto_2 = PublishedContent.objects.get(content=tuto_p_2.pk)
+        tuto_3 = PublishedContent.objects.get(content=tuto_p_3.pk)
+        article_1 = PublishedContent.objects.get(content=article_p_1.pk)
 
         self.assertEqual(PublishableContent.objects.filter(type='ARTICLE').count(), 1)
         self.assertEqual(PublishableContent.objects.filter(type='TUTORIAL').count(), 4)
