@@ -288,7 +288,7 @@ class NewTopicViewTest(TestCase):
         self.assertRedirects(
             response,
             reverse('member-login') +
-            '?next=' + urllib.quote(reverse('mp-new'), ''))
+            '?next=' + reverse('mp-new'))
 
     def test_success_get_with_and_without_username(self):
 
@@ -514,7 +514,7 @@ class AnswerViewTest(TestCase):
         self.assertRedirects(
             response,
             reverse('member-login') +
-            '?next=' + urllib.quote(reverse('private-posts-new', args=[1, 'private-topic']), ''))
+            '?next=' + reverse('private-posts-new', args=[1, 'private-topic']))
 
     def test_fail_answer_not_send_topic_pk(self):
 
@@ -698,7 +698,7 @@ class EditPostViewTest(TestCase):
         self.assertRedirects(
             response,
             reverse('member-login') +
-            '?next=' + urllib.quote(reverse('private-posts-edit', args=[1, 'private-topic', 1]), ''))
+            '?next=' + reverse('private-posts-edit', args=[1, 'private-topic', 1]))
 
     def test_succes_get_edit_post_page(self):
         self.client.logout()
@@ -822,7 +822,7 @@ class LeaveViewTest(TestCase):
         self.assertRedirects(
             response,
             reverse('member-login') +
-            '?next=' + urllib.quote(reverse('mp-delete', args=[1, 'private-topic']), ''))
+            '?next=' + reverse('mp-delete', args=[1, 'private-topic']))
 
     def test_fail_leave_topic_no_exist(self):
 
@@ -924,7 +924,7 @@ class AddParticipantViewTest(TestCase):
         self.assertRedirects(
             response,
             reverse('member-login') +
-            '?next=' + urllib.quote(reverse('mp-edit-participant', args=[1, 'private-topic']), ''))
+            '?next=' + reverse('mp-edit-participant', args=[1, 'private-topic']))
 
     def test_fail_add_participant_topic_no_exist(self):
 
@@ -1052,7 +1052,7 @@ class PrivateTopicEditTest(TestCase):
         self.assertRedirects(
             response,
             reverse('member-login') +
-            '?next=' + urllib.quote(reverse('mp-edit-topic', args=[self.topic1.pk, 'private-topic']), ''))
+            '?next=' + reverse('mp-edit-topic', args=[self.topic1.pk, 'private-topic']))
 
         # post
         response = self.client.post(reverse('mp-edit-topic', args=[self.topic1.pk, 'private-topic']), {
@@ -1063,7 +1063,7 @@ class PrivateTopicEditTest(TestCase):
         self.assertRedirects(
             response,
             reverse('member-login') +
-            '?next=' + urllib.quote(reverse('mp-edit-topic', args=[self.topic1.pk, 'private-topic']), ''))
+            '?next=' + reverse('mp-edit-topic', args=[self.topic1.pk, 'private-topic']))
 
         topic = PrivateTopic.objects.get(pk=self.topic1.pk)
         self.assertEqual('super title', topic.title)
