@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import urllib
 import os
 
 from django.test import TestCase
@@ -49,16 +48,22 @@ class GalleryDetailViewTest(TestCase):
     def test_denies_anonymous(self):
         response = self.client.get(reverse('gallery-details',
                                            args=['89', 'test-gallery']), follow=True)
-        self.assertRedirects(response,
-                             reverse('member-login') +
-                             '?next=' + reverse('gallery-details',
-                                                             args=['89', 'test-gallery']))
+        self.assertRedirects(
+            response,
+            reverse('member-login') + '?next=' + reverse(
+                'gallery-details', args=['89', 'test-gallery']
+            )
+        )
 
     def test_fail_gallery_no_exist(self):
         login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
         self.assertTrue(login_check)
-        response = self.client.get(reverse('gallery-details',
-                                           args=['89', 'test-gallery']), follow=True)
+        response = self.client.get(
+            reverse(
+                'gallery-details', args=['89', 'test-gallery']
+            ),
+            follow=True
+        )
 
         self.assertEqual(404, response.status_code)
 
