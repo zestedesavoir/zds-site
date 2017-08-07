@@ -480,15 +480,6 @@ ZDS_APP = {
         'home_number': 5,
         'repo_path': os.path.join(BASE_DIR, 'opinions-data')
     },
-    'tutorial': {
-        'repo_path': os.path.join(BASE_DIR, 'tutoriels-private'),
-        'repo_public_path': os.path.join(BASE_DIR, 'tutoriels-public'),
-        'default_licence_pk': 7,
-        'home_number': 4,
-        'helps_per_page': 20,
-        'content_per_page': 42,
-        'feed_length': 5,
-    },
     'content': {
         'repo_private_path': os.path.join(BASE_DIR, 'contents-private'),
         'repo_public_path': os.path.join(BASE_DIR, 'contents-public'),
@@ -499,7 +490,10 @@ ZDS_APP = {
         'extra_content_watchdog_dir': os.path.join(BASE_DIR, 'watchdog-build'),
         'max_tree_depth': 3,
         'default_licence_pk': 7,
-        'content_per_page': 60,
+        'content_per_page': 42,
+        'max_last_content_publications_level_1': 6,
+        'max_last_content_publications_level_2': 12,
+        'max_last_content_publications_level_3': 12,
         'notes_per_page': 25,
         'helps_per_page': 20,
         'commits_per_page': 20,
