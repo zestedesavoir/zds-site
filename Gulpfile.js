@@ -37,7 +37,6 @@ gulp.task('clean', () => del([
 gulp.task('js:lint', () =>
     gulp.src([
         'assets/js/*.js',
-        '!assets/js/_custom.modernizr.js',
         '!assets/js/editor.js', // We'll fix that later
     ])
         .pipe(jshint())
@@ -49,8 +48,6 @@ gulp.task('js', () =>
     gulp.src([
         require.resolve('jquery'),
         require.resolve('cookies-eu-banner'),
-        'assets/js/_custom.modernizr.js',
-
         // Used by other scripts, must be first
         'assets/js/modal.js',
         'assets/js/tooltips.js',
@@ -67,6 +64,7 @@ gulp.task('js', () =>
         'assets/js/featured-resource-preview.js',
         'assets/js/form-email-username.js',
         'assets/js/gallery.js',
+        'assets/js/index.js',
         'assets/js/jquery-tabbable.js',
         'assets/js/karma.js',
         'assets/js/keyboard-navigation.js',

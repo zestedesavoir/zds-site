@@ -31,7 +31,7 @@
             body.vc-clem-christmas.home .home-search-box::before {
                 background-image: url('../images/home-clem-christmas@2x.png');
             }
-            
+
             body.vc-clem-halloween.home .home-search-box::before {
                 background-image: url('../images/home-clem-halloween@2x.png');
             }
@@ -46,7 +46,7 @@
        only screen and (min-resolution: 192dpi) and #{$media-mobile-tablet},
        only screen and (min-resolution: 2dppx) and #{$media-mobile-tablet} {
 
-    .js.enable-mobile-menu .mobile-menu-hide .page-container .mobile-menu-btn:after {
+    .enable-mobile-menu .mobile-menu-hide .page-container .mobile-menu-btn:after {
         @include sprite-2x();
     }
 
