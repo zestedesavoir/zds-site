@@ -196,7 +196,7 @@
                         <li>
                             <a href="{% url "publication:list" %}" class="mobile-menu-link has-dropdown {% block menu_publications %}{% endblock %}">
                                 {% trans "Bibliothèque" %}
-                                <span class="arrow" />
+                                <span class="arrow"></span>
                             </a>
 
                                 {% cache 1800 menu_publications user|groups %}
@@ -250,7 +250,7 @@
                         <li>
                             <a href="{% url "opinion:list" %}" class="mobile-menu-link has-dropdown {% block menu_opinion %}{% endblock %}">
                                 {% trans "Tribune" %}
-                                <span class="arrow" />
+                                <span class="arrow"></span>
                             </a>
                             {% cache 1800 menu_opinion user|groups %}
                                 <div class="dropdown header-menu-dropdown">
@@ -303,7 +303,7 @@
                         <li>
                             <a href="{% url "cats-forums-list" %}" class="mobile-menu-link has-dropdown {% block menu_forum %}{% endblock %}">
                                 {% trans "Forum" %}
-                                <span class="arrow" />
+                                <span class="arrow"></span>
                             </a>
                             {% cache 1800 menu_forum user|groups %}
                                 <div class="dropdown header-menu-dropdown">
