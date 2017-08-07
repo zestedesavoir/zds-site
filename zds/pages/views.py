@@ -26,7 +26,7 @@ from zds.pages.models import GroupContact
 from zds.searchv2.forms import SearchForm
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent
 from zds.utils.forums import create_topic
-from zds.utils.models import Alert, CommentEdit, Comment
+from zds.utils.models import Alert, CommentEdit, Comment, Hat
 
 
 def home(request):
@@ -230,6 +230,13 @@ def restore_edit(request, edit_pk):
     comment.update = datetime.now()
     comment.editor = request.user
     comment.update_content(edit.original_text)
+    # remove hat if the author hasn't it anymore
+    if comment.with_hat:
+        try:
+            hat = Hat.objects.get(name=comment.with_hat)
+            assert hat in comment.author.profile.hats.all()
+        except (Hat.DoesNotExist, AssertionError):
+            comment.with_hat = ''
     comment.save()
 
     return redirect(comment.get_absolute_url())
