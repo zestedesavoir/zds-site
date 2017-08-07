@@ -52,9 +52,10 @@
             display: block;
             flex-grow: 0;
             flex-shrink: 1;
-            flex-basis: 150px;
+            flex-basis: auto;
 
             & > a {
+                padding: 0 2rem;
                 display: block;
                 position: relative;
                 text-align: center;
@@ -135,10 +136,6 @@
             height: 9px;
             position: relative;
 
-            @media only screen and #{$media-extra-wide} {
-                width: 28px;
-            }
-
             &:after {
                 content: "";
                 display: block;
@@ -159,15 +156,16 @@
     background: rgba(255, 255, 255, .05);
 
     .notifs-links {
-        margin-right: 60px;
+        display: flex;
 
         .ico-link {
+            flex: 0;
+
             display: block;
             position: relative;
-            width: 33.3%;
+            width: 60px;
             height: 60px;
             line-height: 60px;
-            float: left;
 
             .notif-count {
                 display: block;
@@ -244,7 +242,6 @@
                     overflow: hidden;
                     position: relative;
                     height: 100%;
-                    width: 100%;
 
                     &,
                     &:hover,
@@ -369,7 +366,7 @@
     &.unlogged {
         a {
             display: block;
-            width: 50%;
+            width: 60px * 2;
             text-align: center;
             float: left;
             line-height: 60px;
@@ -422,7 +419,6 @@
         }
 
         .logbox {
-            width: 150px;
             background: none;
 
             .notifs-links {
@@ -496,6 +492,6 @@
     }
 
     .header-right {
-        width: 230px;
+        display: flex;
     }
 }

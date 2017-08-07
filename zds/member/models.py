@@ -63,7 +63,7 @@ class Profile(models.Model):
     github_token = models.TextField('GitHub', blank=True)
     show_sign = models.BooleanField('Voir les signatures', default=True)
     # do UI components open by hovering them, or is clicking on them required?
-    is_hover_enabled = models.BooleanField('Déroulement au survol ?', default=True)
+    is_hover_enabled = models.BooleanField('Déroulement au survol ?', default=False)
     allow_temp_visual_changes = models.BooleanField('Activer les changements visuels temporaires', default=True)
     show_markdown_help = models.BooleanField("Afficher l'aide Markdown dans l'éditeur", default=True)
     email_for_answer = models.BooleanField('Envoyer pour les réponse MP', default=False)
