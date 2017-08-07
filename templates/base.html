@@ -12,7 +12,7 @@
 
 
 <!DOCTYPE html>
-<html class="no-js enable-mobile-menu wf-active" lang="fr">
+<html class="enable-mobile-menu" lang="fr">
 <head>
     <meta charset="utf-8">
 
@@ -26,7 +26,7 @@
                 {{ title_blocks|safe }}
                 &bull;
             {% endif %}
-            {{app.site.litteral_name}}
+            {{app.site.literal_name}}
         {% endcaptureas %}
         {{ title|safe }}
     </title>
@@ -59,7 +59,7 @@
 
 
     {# OpenGraph #}
-    <meta property="og:site_name" content="{{app.site.litteral_name}}">
+    <meta property="og:site_name" content="{{app.site.literal_name}}">
     <meta property="og:title" content="{{ title|safe }}">
     <meta property="og:url" content="{{app.site.url}}{{ request.path }}">
     <meta property="og:language" content="fr_FR">
@@ -117,7 +117,7 @@
     <link rel="alternate" type="application/rss+xml" title="Nouveaux billets (RSS)" href="{% url "opinion:feed-rss" %}">
     <link rel="alternate" type="application/atom+xml" title="Nouveaux billets (ATOM)" href="{% url "opinion:feed-atom" %}">
     {# OpenSearch plugin autodiscovery #}
-    <link rel="search" type="application/opensearchdescription+xml" title="{{ app.site.litteral_name }}" href="{% url "search:opensearch" %}">
+    <link rel="search" type="application/opensearchdescription+xml" title="{{ app.site.literal_name }}" href="{% url "search:opensearch" %}">
     {% block extra_link %}{% endblock %}
 </head>
 
@@ -169,7 +169,7 @@
 
                 {% captureas mobiletitle %}
                     {% block mobile_title %}
-                        {{app.site.litteral_name}}
+                        {{app.site.literal_name}}
                     {% endblock %}
                 {% endcaptureas %}
 
@@ -179,26 +179,24 @@
                        class="header-logo-link"
                        data-title="{{ mobiletitle }}"
                     >
-                        {{app.site.litteral_name}}
+                        {{app.site.literal_name}}
                     </a>
                 </div>
 
 
                 {# Menu #}
                 <nav class="header-menu" id="menu" data-title="Menu"
-                    {% if user.is_authenticated %}
-                        {% with profile=user.profile %}
-                            data-is-hover="{{ profile.is_hover_enabled }}"
-                        {% endwith %}
+                    {% if user.is_authenticated and user.profile.is_hover_enabled %}
+                        data-hovering-mode
                     {% endif %}
                 >
 
 
                     <ul class="header-menu-list">
                         <li>
-                            <a href="{% url "publication:list" %}" class="mobile-menu-link {% block menu_publications %}{% endblock %}">
+                            <a href="{% url "publication:list" %}" class="mobile-menu-link has-dropdown {% block menu_publications %}{% endblock %}">
                                 {% trans "Bibliothèque" %}
-                                <span class="arrow" />
+                                <span class="arrow"></span>
                             </a>
 
                                 {% cache 1800 menu_publications user|groups %}
@@ -250,9 +248,9 @@
                             {% endcache %}
                         </li>
                         <li>
-                            <a href="{% url "opinion:list" %}" class="mobile-menu-link {% block menu_opinion %}{% endblock %}">
+                            <a href="{% url "opinion:list" %}" class="mobile-menu-link has-dropdown {% block menu_opinion %}{% endblock %}">
                                 {% trans "Tribune" %}
-                                <span class="arrow" />
+                                <span class="arrow"></span>
                             </a>
                             {% cache 1800 menu_opinion user|groups %}
                                 <div class="dropdown header-menu-dropdown">
@@ -303,9 +301,9 @@
                             {% endcache %}
                         </li>
                         <li>
-                            <a href="{% url "cats-forums-list" %}" class="mobile-menu-link {% block menu_forum %}{% endblock %}">
+                            <a href="{% url "cats-forums-list" %}" class="mobile-menu-link has-dropdown {% block menu_forum %}{% endblock %}">
                                 {% trans "Forum" %}
-                                <span class="arrow" />
+                                <span class="arrow"></span>
                             </a>
                             {% cache 1800 menu_forum user|groups %}
                                 <div class="dropdown header-menu-dropdown">
@@ -476,14 +474,6 @@
                                         </div>
                                     </div>
                                 {% endwith %}
-                            {% else %}
-                                <a href="{% url "member-detail" user.username %}"
-                                   id="open-my-account"
-                                   class="ico-link dont-click-if-sidebar"
-                                   data-click="my-account"
-                                >
-                                    <span class="notif-text ico ico-params">{% trans "Mon Compte" %}</span>
-                                </a>
                             {% endif %}
                         </div>
 
@@ -499,7 +489,7 @@
                                        data-active="open-my-account"
                                    {% endif %}
                                 >
-                                    <img src="{{ profile.get_avatar_url|remove_url_protocole }}" alt="" class="avatar">
+                                    <img src="{{ profile.get_avatar_url|remove_url_protocole }}" alt="Mon compte" class="avatar">
                                     <span class="username label">{{ user.username }}</span>
                                 </a>
                             {% endwith %}
@@ -659,7 +649,7 @@
         <footer class="page-footer">
             <div class="wrapper">
                 <p class="copyright">
-                    {{app.site.litteral_name}}
+                    {{app.site.literal_name}}
                     <span class="version">
                         &bull; {% trans "Version" %} : <a href="{{git_version.url}}">{{git_version.name}}</a>
                     </span>
