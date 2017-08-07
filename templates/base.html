@@ -26,7 +26,7 @@
                 {{ title_blocks|safe }}
                 &bull;
             {% endif %}
-            {{app.site.litteral_name}}
+            {{app.site.literal_name}}
         {% endcaptureas %}
         {{ title|safe }}
     </title>
@@ -59,7 +59,7 @@
 
 
     {# OpenGraph #}
-    <meta property="og:site_name" content="{{app.site.litteral_name}}">
+    <meta property="og:site_name" content="{{app.site.literal_name}}">
     <meta property="og:title" content="{{ title|safe }}">
     <meta property="og:url" content="{{app.site.url}}{{ request.path }}">
     <meta property="og:language" content="fr_FR">
@@ -117,7 +117,7 @@
     <link rel="alternate" type="application/rss+xml" title="Nouveaux billets (RSS)" href="{% url "opinion:feed-rss" %}">
     <link rel="alternate" type="application/atom+xml" title="Nouveaux billets (ATOM)" href="{% url "opinion:feed-atom" %}">
     {# OpenSearch plugin autodiscovery #}
-    <link rel="search" type="application/opensearchdescription+xml" title="{{ app.site.litteral_name }}" href="{% url "search:opensearch" %}">
+    <link rel="search" type="application/opensearchdescription+xml" title="{{ app.site.literal_name }}" href="{% url "search:opensearch" %}">
     {% block extra_link %}{% endblock %}
 </head>
 
@@ -169,7 +169,7 @@
 
                 {% captureas mobiletitle %}
                     {% block mobile_title %}
-                        {{app.site.litteral_name}}
+                        {{app.site.literal_name}}
                     {% endblock %}
                 {% endcaptureas %}
 
@@ -179,7 +179,7 @@
                        class="header-logo-link"
                        data-title="{{ mobiletitle }}"
                     >
-                        {{app.site.litteral_name}}
+                        {{app.site.literal_name}}
                     </a>
                 </div>
 
@@ -198,7 +198,7 @@
                         <li>
                             <a href="{% url "publication:list" %}" class="mobile-menu-link {% block menu_publications %}{% endblock %}">
                                 {% trans "Bibliothèque" %}
-                                <span class="arrow" />
+                                <span class="arrow"></span>
                             </a>
 
                                 {% cache 1800 menu_publications user|groups %}
@@ -252,7 +252,7 @@
                         <li>
                             <a href="{% url "opinion:list" %}" class="mobile-menu-link {% block menu_opinion %}{% endblock %}">
                                 {% trans "Tribune" %}
-                                <span class="arrow" />
+                                <span class="arrow"></span>
                             </a>
                             {% cache 1800 menu_opinion user|groups %}
                                 <div class="dropdown header-menu-dropdown">
@@ -305,7 +305,7 @@
                         <li>
                             <a href="{% url "cats-forums-list" %}" class="mobile-menu-link {% block menu_forum %}{% endblock %}">
                                 {% trans "Forum" %}
-                                <span class="arrow" />
+                                <span class="arrow"></span>
                             </a>
                             {% cache 1800 menu_forum user|groups %}
                                 <div class="dropdown header-menu-dropdown">
@@ -659,7 +659,7 @@
         <footer class="page-footer">
             <div class="wrapper">
                 <p class="copyright">
-                    {{app.site.litteral_name}}
+                    {{app.site.literal_name}}
                     <span class="version">
                         &bull; {% trans "Version" %} : <a href="{{git_version.url}}">{{git_version.name}}</a>
                     </span>
