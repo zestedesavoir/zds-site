@@ -39,9 +39,6 @@ BASE_DIR = settings.BASE_DIR
 overridden_zds_app = deepcopy(settings.ZDS_APP)
 overridden_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
 overridden_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
-overridden_zds_app['tutorial']['repo_path'] = os.path.join(BASE_DIR, 'tutoriels-private-test')
-overridden_zds_app['tutorial']['repo_public_path'] = os.path.join(BASE_DIR, 'tutoriels-public-test')
-overridden_zds_app['article']['repo_path'] = os.path.join(BASE_DIR, 'article-data-test')
 overridden_zds_app['content']['build_pdf_when_published'] = False
 
 

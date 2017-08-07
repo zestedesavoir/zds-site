@@ -472,13 +472,14 @@ ZDS_APP = {
         'gallery_per_page': 21,
         'images_per_page': 21,
     },
+    'tutorial': {
+        'home_number': 5,
+    },
     'article': {
-        'home_number': 3,
-        'repo_path': os.path.join(BASE_DIR, 'articles-data')
+        'home_number': 3
     },
     'opinions': {
-        'home_number': 5,
-        'repo_path': os.path.join(BASE_DIR, 'opinions-data')
+        'home_number': 5
     },
     'content': {
         'repo_private_path': os.path.join(BASE_DIR, 'contents-private'),
