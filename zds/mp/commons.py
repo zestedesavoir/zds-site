@@ -2,6 +2,7 @@
 from datetime import datetime
 
 from zds.utils.templatetags.emarkdown import emarkdown
+from zds.utils.models import get_hat_from_request
 
 
 class LeavePrivateTopic(object):
@@ -30,9 +31,10 @@ class UpdatePrivatePost(object):
     Updates a private topic.
     """
 
-    def perform_update(self, instance, data):
-        instance.text = data.get('text')
-        instance.text_html = emarkdown(data.get('text'))
+    def perform_update(self, instance, request):
+        instance.with_hat = get_hat_from_request(request, instance.author)
+        instance.text = request.POST.get('text')
+        instance.text_html = emarkdown(request.POST.get('text'))
         instance.update = datetime.now()
         instance.save()
         return instance
