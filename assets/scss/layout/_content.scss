@@ -18,7 +18,7 @@
         p a,
         ul:not(.pagination),
         ol:not(.summary-part) {
-            font-family: $font-serif-active;
+            font-family: $font-serif;
         }
     }
 
@@ -357,26 +357,7 @@
         line-height: 30px;
     }
 }
-.wf-active .main .content-container {
-    .article-content {
-        p,
-        ul:not(.pagination),
-        ol:not(.summary-part) {
-            font-family: $font-serif-active;
-        }
-        figcaption p {
-            font-family: $font-sans-serif-active;
-            font-size: 16px;
-            font-size: 1.6rem;
-        }
-    }
-    .article-content,
-    .message-content {
-        code, kbd, pre, samp {
-            font-family: $font-monospace-active;
-        }
-    }
-}
+
 .js .spoiler {
     display: none;
 }
