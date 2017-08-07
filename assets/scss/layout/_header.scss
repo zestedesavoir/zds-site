@@ -52,9 +52,10 @@
             display: block;
             flex-grow: 0;
             flex-shrink: 1;
-            flex-basis: 150px;
+            flex-basis: auto;
 
             & > a {
+                padding: 0 2rem;
                 display: block;
                 position: relative;
                 text-align: center;
@@ -134,10 +135,6 @@
             width: 20px;
             height: 9px;
             position: relative;
-
-            @media only screen and #{$media-extra-wide} {
-                width: 28px;
-            }
 
             &:after {
                 content: "";
