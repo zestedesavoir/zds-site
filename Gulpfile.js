@@ -37,7 +37,6 @@ gulp.task('clean', () => del([
 gulp.task('js:lint', () =>
     gulp.src([
         'assets/js/*.js',
-        '!assets/js/_custom.modernizr.js',
         '!assets/js/editor.js', // We'll fix that later
     ])
         .pipe(jshint())
@@ -49,8 +48,6 @@ gulp.task('js', () =>
     gulp.src([
         require.resolve('jquery'),
         require.resolve('cookies-eu-banner'),
-        'assets/js/_custom.modernizr.js',
-
         // Used by other scripts, must be first
         'assets/js/modal.js',
         'assets/js/tooltips.js',
@@ -61,12 +58,12 @@ gulp.task('js', () =>
         'assets/js/autocompletion.js',
         'assets/js/close-alert-box.js',
         'assets/js/compare-commits.js',
-        'assets/js/data-click.js',
         'assets/js/dropdown-menu.js',
         'assets/js/editor.js',
         'assets/js/featured-resource-preview.js',
         'assets/js/form-email-username.js',
         'assets/js/gallery.js',
+        'assets/js/index.js',
         'assets/js/jquery-tabbable.js',
         'assets/js/karma.js',
         'assets/js/keyboard-navigation.js',
@@ -86,6 +83,10 @@ gulp.task('js', () =>
         .pipe(sourcemaps.init({ loadMaps: true }))
         .pipe(concat('script.js', { newline: ';\r\n' }))
         .pipe(uglify())
+        .on('error', function (err) {
+            // gulp-uglify sucks
+            console.log(err.toString());
+        })
         .pipe(sourcemaps.write('.', { includeContent: true, sourceRoot: '../../' }))
         .pipe(gulp.dest('dist/js/')));
 

@@ -1,3 +1,8 @@
+
+.main {
+    flex: 1;
+}
+
 .main .content-container {
     padding-top: 30px;
 
@@ -158,7 +163,6 @@
     .main {
         display: flex;
         flex-direction: row-reverse;
-        height: 100%;
         margin-left: 0;
         padding-left: 2.5%;
 

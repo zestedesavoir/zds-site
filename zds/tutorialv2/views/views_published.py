@@ -501,7 +501,7 @@ class ViewPublications(TemplateView):
                 contents_queryset,
                 items_per_page,
                 context_list_name='filtered_contents',
-                with_previous_item=True)
+                with_previous_item=False)
 
         if self.level < 4:
             context['last_articles'] = PublishedContent.objects.get_recent_list(
