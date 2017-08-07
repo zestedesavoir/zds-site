@@ -487,6 +487,7 @@ class ViewPublications(TemplateView):
             tags = None
             if tag is not None:
                 tags = [get_object_or_404(Tag, slug=tag)]
+                context['tag'] = tags[0]
 
             contents_queryset = PublishedContent.objects.last_contents(
                 subcategories=subcategories,
