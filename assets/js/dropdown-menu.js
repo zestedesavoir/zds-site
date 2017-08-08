@@ -4,128 +4,193 @@
    Author: Alex-D / Alexandre Demode
    ========================================================================== */
 
-(function($, undefined){
+(function ($) {
     "use strict";
-    
-    var mouseDown = false,
-        shiftHold = false;
 
-    $(document).on("keydown keyup", function(e){
-        shiftHold = e.shiftKey;
-    });
+    var mouseDown = false;
+    var shiftHeld = false;
 
-    $(".dropdown").each(function(){
-        var $dropdown = $(this),
-            $elem = $(this).parent().find("> a");
+    function hoveringModeEnabled() {
+        return $(".header-menu").is("[data-hovering-mode]");
+    }
 
-        if(!$elem.parents(".logbox").length)
-            $elem.addClass("has-dropdown");
+    var handlers = $(".dropdown")
+        .map(function (_, dropdown) {
+            return setupDropdown($(dropdown));
+        });
 
-        $elem
-        .on("mousedown", function(){
-            mouseDown = true;
-        })
-        .on("mouseup", function(){
-            mouseDown = false;
-        })
-        .on("click", function(e){
-            if(($(this).parents(".header-menu-list").length > 0 && parseInt($("html").css("width")) < 960))
+    function closeAll() {
+        handlers.each(function (_, handler) {
+            handler.close();
+        });
+    }
+
+    function isDropdownContainer(element) {
+        for (var i = 0; i < handlers.length; i++) {
+            if (handlers[i].$container[0] === element) {
                 return true;
-
-            e.preventDefault();
-            e.stopPropagation();
-
-            if(!$(this).hasClass("active")){
-                activeDropdown($(this));
-                $(this).off("blur");
-            } else {
-                $(this).removeClass("active");
-                triggerCloseDropdown($(this));
             }
-        })
-        .on("focus", function(e){
-            e.preventDefault();
+        }
+        return false;
+    }
 
-            if(!mouseDown && !$elem.hasClass("active")){
-                activeDropdown($elem);
-                
-                $elem
-                .off("blur")
-                .on("blur", function(){
-                    $elem
-                    .one("blur", function(){
-                        if(shiftHold)
-                            triggerCloseDropdown($elem);
-                    });
+    function areSomeDropdownsFocused() {
+        return $(document.activeElement)
+            .parents()
+            .filter(function (_, element) {
+                return isDropdownContainer(element);
+            })
+            .length;
+    }
 
-                    setTimeout(function(){
-                        if($(":tabbable:focus", $dropdown).length){
-                            var listenBlurLast = function(){
-                                $(":tabbable:last", $dropdown)
-                                .one("blur", function(){
-                                    if(shiftHold){
-                                        listenBlurLast();
-                                        return;
-                                    }
-                                    $elem.removeClass("active");
-                                    triggerCloseDropdown($elem);
-                                });
-                            };
-                            listenBlurLast();
-                        } else {
-                            $elem.removeClass("active");
-                            triggerCloseDropdown($elem);
-                        }
-                    }, 10);
-                })
-                .one("mousemove", function(){
-                    $(this).off("blur");
-                });
+    $("body")
+        .on("click", closeAll)
+        .on("keydown", function (event) {
+            if (event.key === "Tab") {
+                setTimeout(function () {
+                    if (!areSomeDropdownsFocused()) {
+                        closeAll();
+                    }
+                }, 5);
             }
         });
+
+    $(document).on("keydown keyup", function (event) {
+        shiftHeld = event.shiftKey;
     });
 
-    $(".dropdown-list").on("focus", function(){
-        $(this).find(":tabbable:first").focus();
-    });
-
-    $("body").on("keydown", function(e){
-        if(e.which === 27)
-            $(".has-dropdown.active, .ico-link.active, #my-account.active").focus().removeClass("active");
-    });
-
-    function activeDropdown($elem){
-        $("body").trigger("click");
-        $elem.addClass("active");
-        $elem.parent().find(".dropdown-list").scrollTop(0);
-
-        if($elem.is("[data-active]"))
-            $("#" + $elem.attr("data-active")).addClass("active");
-
-        if($elem.parents(".logbox").length)
-            $("html").addClass("dropdown-active");
-
-        triggerCloseDropdown($elem);
+    function getTabIndex(element) {
+        var tabbables = $(":tabbable");
+        for (var i = 0; i < tabbables.length; i++) {
+            if (tabbables[i] === element) {
+                return i;
+            }
+        }
+        return -1;
     }
-    function triggerCloseDropdown($that){
-        if($that.hasClass("active")){
-            $("body").one("click", function(e){
-                if(!$(e.target).hasClass("dropdown") && !$(e.target).parents(".dropdown").length) {
-                    $that.removeClass("active");
-                    $that.next(":tabbable").focus();
 
-                    if($that.is("[data-active]"))
-                        $("#" + $that.attr("data-active")).removeClass("active");
-                }
-                
-                triggerCloseDropdown($that);
-            });
-        } else {
-            $("html").removeClass("dropdown-active");
-            $(".dropdown :tabbable").off("blur");
+    function moveFocus(element, container, direction) {
+        var index = getTabIndex(element);
+        if (index === -1) {
+            return;
+        }
 
-            if($that.is("[data-active]"))
-                $("#" + $that.attr("data-active")).removeClass("active");
+        var tabbables = $(":tabbable");
+        for (var i = index + direction; i < tabbables.length; i += direction) {
+            if (!container.contains(tabbables[i])) {
+                closeAll();
+                tabbables[i].focus();
+                return;
+            }
         }
     }
+
+
+
+    // Returns a dropdown handler
+    function setupDropdown($dropdown) {
+        var $container = $dropdown.parent();
+        var $toggleLink = $container.find("> a");
+        var closingTimer;
+
+        function open() {
+            cancelClosingTimer();
+
+            // Close any other dropdown
+            $("body").trigger("click");
+
+            $toggleLink.addClass("active");
+            $dropdown.find(".dropdown-list").scrollTop(0);
+        }
+
+        function cancelClosingTimer() {
+            if (closingTimer) {
+                clearTimeout(closingTimer);
+                closingTimer = null;
+            }
+        }
+
+        function close() {
+            cancelClosingTimer();
+            $toggleLink.removeClass("active");
+        }
+
+        function closeLater() {
+            if (closingTimer) {
+                return;
+            }
+            closingTimer = setTimeout(close, 200);
+        }
+
+        $container
+            .on("mouseenter", function () {
+                if (hoveringModeEnabled()) {
+                    open();
+                }
+            })
+
+            .on("mouseleave", function () {
+                if (hoveringModeEnabled()) {
+                    closeLater();
+                }
+            })
+
+            .on("keydown", function (event) {
+                if (event.key === "ArrowRight") {
+                    event.preventDefault();
+                    moveFocus($toggleLink[0], $container[0], 1);
+                }
+
+                if (event.key === "ArrowLeft") {
+                    event.preventDefault();
+                    moveFocus($toggleLink[0], $container[0], -1);
+                }
+            });
+
+        $toggleLink
+
+            // Mutates global state but there is only one mouse
+            .on("mousedown", function () {
+                mouseDown = true;
+            })
+            .on("mouseup", function () {
+                mouseDown = false;
+            })
+
+            .on("click", function (event) {
+                if (hoveringModeEnabled()) {
+                    return;
+                }
+
+                event.preventDefault();
+                event.stopPropagation();
+
+                if ($toggleLink.hasClass("active")) {
+                    close();
+                } else {
+                    open();
+                }
+            })
+
+            .on("focus", function (event) {
+                event.preventDefault();
+
+                if(mouseDown || $toggleLink.hasClass("active")) {
+                    return;
+                }
+
+                open();
+
+                if (!shiftHeld) {
+                    $dropdown.find(":tabbable:first").focus();
+                }
+            });
+
+        return {
+            open: open,
+            close: close,
+            $container: $container,
+        };
+    }
+
 })(jQuery);

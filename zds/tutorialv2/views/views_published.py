@@ -396,9 +396,10 @@ class ViewPublications(TemplateView):
         3: 'tutorialv2/view/subcategory.html',
         4: 'tutorialv2/view/browse.html',
     }
+    handle_types = ['TUTORIAL', 'ARTICLE']
 
     level = 1
-    max_last_contents = 10
+    max_last_contents = 6
     template_name = templates[level]
 
     def get_context_data(self, **kwargs):
@@ -408,10 +409,10 @@ class ViewPublications(TemplateView):
 
         if self.kwargs.get('slug', False):
             self.level = 2
-            self.max_last_contents = 5
+            self.max_last_contents = 12
         if self.kwargs.get('slug_category', False):
             self.level = 3
-            self.max_last_contents = 5
+            self.max_last_contents = 12
         if self.request.GET.get('category', False) or \
                 self.request.GET.get('subcategory', False) or \
                 self.request.GET.get('type', False) or \
@@ -431,7 +432,7 @@ class ViewPublications(TemplateView):
                 category.contents_count = PublishedContent.objects \
                     .published_contents() \
                     .filter(content__subcategory__in=category.subcategories) \
-                    .filter(content_type__in=['TUTORIAL', 'ARTICLE']) \
+                    .filter(content_type__in=self.handle_types) \
                     .count()
                 contents_count += category.contents_count
 
@@ -448,7 +449,7 @@ class ViewPublications(TemplateView):
                 subcategory.contents_count = PublishedContent.objects \
                     .published_contents() \
                     .filter(content__subcategory__pk=subcategory.pk) \
-                    .filter(content_type__in=['TUTORIAL', 'ARTICLE']) \
+                    .filter(content_type__in=self.handle_types) \
                     .count()
                 total_count += subcategory.contents_count
 
@@ -461,7 +462,7 @@ class ViewPublications(TemplateView):
             context['subcategory'] = subcategory
             context['content_count'] = PublishedContent.objects \
                 .get_recent_list(subcategories=[subcategory]) \
-                .filter(content_type__in=['TUTORIAL', 'ARTICLE']) \
+                .filter(content_type__in=self.handle_types) \
                 .count()
             recent_kwargs['subcategories'] = [subcategory]
 
@@ -478,8 +479,14 @@ class ViewPublications(TemplateView):
                 context['subcategory'] = subcategory
                 subcategories = [subcategory]
 
-            content_type = self.request.GET.get('type', ['TUTORIAL', 'ARTICLE'])
-            context['type'] = TYPE_CHOICES_DICT[content_type.upper()]
+            content_type = self.handle_types
+            context['type'] = None
+            if 'type' in self.request.GET:
+                _type = self.request.GET.get('type', '').upper()
+                if _type in self.handle_types:
+                    content_type = _type
+                    context['type'] = TYPE_CHOICES_DICT[_type]
+
             tags = self.request.GET.get('tags', [])
 
             contents_queryset = PublishedContent.objects.get_browse_list(
@@ -487,14 +494,14 @@ class ViewPublications(TemplateView):
                 tags=tags,
                 content_type=content_type,
                 order_fields=['-pubdate'])
-            items_per_page = 12
+            items_per_page = settings.ZDS_APP['tutorial']['content_per_page']
             make_pagination(
                 context,
                 self.request,
                 contents_queryset,
                 items_per_page,
                 context_list_name='filtered_contents',
-                with_previous_item=True)
+                with_previous_item=False)
 
         if self.level < 4:
             context['last_articles'] = PublishedContent.objects.get_recent_list(

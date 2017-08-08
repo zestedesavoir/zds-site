@@ -3,7 +3,7 @@
 }
 
 .search {
-    display: block;
+    display: flex;
     position: relative;
 
     form {
@@ -95,7 +95,7 @@
             input {
                 padding: 6px 10px;
                 height: 30px;
-                width: 170px;
+                width: 60px * 3;
             }
             button {
                 height: 30px;

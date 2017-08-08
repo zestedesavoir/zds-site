@@ -5,21 +5,22 @@
 
     <div class="content-linkbox-list">
         <div class="linkbox-item secondary">
-            <a href="{{ beta_forum.get_absolute_url }}" class="head">
-                <h3>{% trans 'Donner votre avis' %}</h3>
-            </a>
+            <div class="head">
+                <h3>{% trans 'Donnez votre avis' %}</h3>
+            </div>
 
-            <a href="{{ beta_forum.get_absolute_url }}" class="body">
-                {% blocktrans %}
-                    <p>Les contenus presque terminés nécessitent souvent une relecture afin d'en peaufiner le fond comme la forme.</p>
-                    <p class="right">Consulter les contenus en bêta</p>
-                {% endblocktrans %}
+            <div class="body">
+                <p>{% trans "Les contenus presque terminés nécessitent souvent une relecture afin d'en peaufiner le fond comme la forme." %}</p>
+            </div>
+
+            <a href="{{ beta_forum.get_absolute_url }}" class="tail">
+                <p>{% trans "Consulter les contenus en bêta" %}</p>
             </a>
         </div>
 
         <div class="linkbox-item secondary">
             <div class="head">
-                <h3>{% trans 'Partager votre savoir' %}</h3>
+                <h3>{% trans 'Partagez votre savoir' %}</h3>
             </div>
 
             <div class="body">
@@ -36,16 +37,19 @@
         </div>
 
         <div class="linkbox-item secondary">
-            <a href="{% url 'content:helps' %}" class="head">
-                <h3>{% trans 'Aider les auteurs' %}</h3>
-            </a>
+            <div class="head">
+                <h3>{% trans 'Aidez les auteurs' %}</h3>
+            </div>
 
-            <a href="{% url 'content:helps' %}" class="body">
+            <div class="body">
                 {% blocktrans %}
                     <p>Les auteurs ont souvent besoin d'un peu d'aide pour amener leur contenu jusqu'à la publication.</p>
                     <p>Dessiner une icône ou des illustrations, corriger un texte ou encore devenir co-auteur vous intéresse ?</p>
-                    <p class="right">Parcourir les demandes d'aides</p>
                 {% endblocktrans %}
+            </div>
+
+            <a href="{% url 'content:helps' %}" class="tail">
+                <p>{% trans "Parcourir les demandes d'aides" %}</p>
             </a>
         </div>
     </div>

@@ -19,7 +19,7 @@
 
 {% block DCMI_cards %}
     <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/" />
-    <meta name="DC.publisher" lang="fr" content="{{ app.site.litteral_name }}" />
+    <meta name="DC.publisher" lang="fr" content="{{ app.site.literal_name }}" />
     <meta name="DC.creator" content="{% joinby publishablecontent|displayable_authors:True %}" />
     <meta name="DC.type" content="text" />
     <meta name="DC.title" content="{{ content.title }}" />
