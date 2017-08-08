@@ -42,9 +42,7 @@
                 {% if profile.user == user %}
                     {% include 'notification/subscription_count_template.html' with subscriber_count=subscriber_count own_profile=True %}
                 {% else %}
-                    {% include 'notification/subscription_count_template.html' with
-                        subscriber_count=subscriber_count
-                        own_profile=False %}
+                    {% include 'notification/subscription_count_template.html' with subscriber_count=subscriber_count own_profile=False %}
                 {% endif %}
             </li>
         </ul>
