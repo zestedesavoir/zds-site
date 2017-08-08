@@ -71,6 +71,11 @@
         <dd>{% blocktrans %}Ce cookie contient une chaîne de caractères aléatoires qui permet de se prémunir des attaques <a href="http://fr.wikipedia.org/wiki/Cross-Site_Request_Forgery">CSRF</a>. Composant indispensable de la sécurité du site, vous ne pourrez rien poster sans ce cookie.{% endblocktrans %}</dd>
         <dt><tt>hasconsent</tt></dt>
         <dd>{% blocktrans %}Ce cookie indique si vous acceptez l'analyse d'audience. Il peut prendre les valeurs <tt>true</tt> (analyse acceptée) ou <tt>false</tt> (analyse refusée).{% endblocktrans %}</dd>
+        {% if app.member.clem_smileys_allowed %}
+            <dt><tt>{{ app.member.clem_smileys_cookie_key }}</tt></dt>
+            {% url 'update-member' as update_member  %}
+            <dd>{% blocktrans with url=update_member %}Ce cookie est utilisé pour afficher les smileys "Clem" en lieu et place des habituels, si vous activez cette option <a href="{{ url }}">dans votre profil</a>.{% endblocktrans %}</dd>
+        {% endif %}
     </dl>
 
     <h4>{% trans "Cookies d'analyse d'audience" %}</h4>
