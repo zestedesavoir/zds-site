@@ -399,7 +399,7 @@ class ViewPublications(TemplateView):
     handle_types = ['TUTORIAL', 'ARTICLE']
 
     level = 1
-    max_last_contents = settings.ZDS_APP['content']['max_last_content_publications_level_1']
+    max_last_contents = settings.ZDS_APP['content']['max_last_publications_level_1']
     template_name = templates[level]
 
     def get_context_data(self, **kwargs):
@@ -407,10 +407,10 @@ class ViewPublications(TemplateView):
 
         if self.kwargs.get('slug', False):
             self.level = 2
-            self.max_last_contents = settings.ZDS_APP['content']['max_last_content_publications_level_2']
+            self.max_last_contents = settings.ZDS_APP['content']['max_last_publications_level_2']
         if self.kwargs.get('slug_category', False):
             self.level = 3
-            self.max_last_contents = settings.ZDS_APP['content']['max_last_content_publications_level_3']
+            self.max_last_contents = settings.ZDS_APP['content']['max_last_publications_level_3']
         if self.request.GET.get('category', False) or \
                 self.request.GET.get('subcategory', False) or \
                 self.request.GET.get('type', False) or \
