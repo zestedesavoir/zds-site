@@ -67,8 +67,6 @@ def state(current_user):
             user_state = 'BAN'
         elif not user_profile.can_write_now():
             user_state = 'LS'
-        elif user_profile.show_staff_badge:
-            user_state = 'STAFF'
         else:
             user_state = None
     except Profile.DoesNotExist:

@@ -42,7 +42,7 @@ from zds.member.models import Profile, TokenForgotPassword, TokenRegister, Karma
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.notification.models import TopicAnswerSubscription, NewPublicationSubscription
 from zds.tutorialv2.models.models_database import PublishedContent, PickListOperation
-from zds.utils.models import Comment, CommentVote, Alert, CommentEdit
+from zds.utils.models import Comment, CommentVote, Alert, CommentEdit, Hat
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView
 from zds.utils.tokens import generate_token
@@ -556,7 +556,7 @@ def modify_profile(request, user_pk):
                      ban.type,
                      state.get_detail(),
                      ban.note,
-                     settings.ZDS_APP['site']['litteral_name'])
+                     settings.ZDS_APP['site']['literal_name'])
 
     state.notify_member(ban, msg)
     return redirect(profile.get_absolute_url())
@@ -701,6 +701,53 @@ def remove_banned_email_provider(request, provider_pk):
     return redirect('banned-email-providers')
 
 
+@require_POST
+@login_required
+@permission_required('utils.change_hat', raise_exception=True)
+@transaction.atomic
+def add_hat(request, user_pk):
+    """
+    Used to add a hat to a user.
+    Creates the hat if it doesn't exist.
+    """
+
+    user = get_object_or_404(User, pk=user_pk)
+
+    hat_name = request.POST.get('hat', None)
+    if not hat_name:
+        messages.error(request, _(u'Aucune casquette saisie.'))
+    elif len(hat_name) > 40:
+        messages.error(request, _(u'Une casquette ne peut dépasser 40 caractères.'))
+    else:
+        hat, created = Hat.objects.get_or_create(name__iexact=hat_name, defaults={'name': hat_name})
+        if created:
+            messages.success(request, _(u'La casquette « {} » a été créée.').format(hat_name))
+        user.profile.hats.add(hat)
+        messages.success(request, _(u'La casquette a bien été ajoutée.'))
+
+    return redirect(user.profile.get_absolute_url())
+
+
+@require_POST
+@login_required
+@permission_required('utils.change_hat', raise_exception=True)
+@transaction.atomic
+def remove_hat(request, user_pk, hat_pk):
+    """
+    Used to remove a hat from a user.
+    """
+
+    user = get_object_or_404(User, pk=user_pk)
+    hat = get_object_or_404(Hat, pk=hat_pk)
+    if hat not in user.profile.hats.all():
+        raise Http404
+
+    user.profile.hats.remove(hat)
+
+    messages.success(request, _(u'La casquette a bien été retirée.'))
+    return redirect(user.profile.get_absolute_url())
+
+
 def login_view(request):
     """Log in user."""
 
@@ -802,12 +849,12 @@ def forgot_password(request):
             token.save()
 
             # send email
-            subject = _(u'{} - Mot de passe oublié').format(settings.ZDS_APP['site']['litteral_name'])
-            from_email = '{} <{}>'.format(settings.ZDS_APP['site']['litteral_name'],
+            subject = _(u'{} - Mot de passe oublié').format(settings.ZDS_APP['site']['literal_name'])
+            from_email = '{} <{}>'.format(settings.ZDS_APP['site']['literal_name'],
                                           settings.ZDS_APP['site']['email_noreply'])
             context = {
                 'username': usr.username,
-                'site_name': settings.ZDS_APP['site']['litteral_name'],
+                'site_name': settings.ZDS_APP['site']['literal_name'],
                 'site_url': settings.ZDS_APP['site']['url'],
                 'url': settings.ZDS_APP['site']['url'] + token.get_absolute_url()
             }
@@ -878,23 +925,24 @@ def activate_account(request):
         'member/messages/account_activated.md',
         {
             'username': usr.username,
-            'tutorials_url': settings.ZDS_APP['site']['url'] + reverse('tutorial:list'),
-            'articles_url': settings.ZDS_APP['site']['url'] + reverse('article:list'),
+            'tutorials_url': settings.ZDS_APP['site']['url'] + reverse('publication:list') + '?type=tutorial',
+            'articles_url': settings.ZDS_APP['site']['url'] + reverse('publication:list') + '?type=article',
             'opinions_url': settings.ZDS_APP['site']['url'] + reverse('opinion:list'),
             'members_url': settings.ZDS_APP['site']['url'] + reverse('member-list'),
             'forums_url': settings.ZDS_APP['site']['url'] + reverse('cats-forums-list'),
-            'site_name': settings.ZDS_APP['site']['litteral_name']
+            'site_name': settings.ZDS_APP['site']['literal_name']
         }
     )
 
     send_mp(bot,
             [usr],
-            _(u'Bienvenue sur {}').format(settings.ZDS_APP['site']['litteral_name']),
+            _(u'Bienvenue sur {}').format(settings.ZDS_APP['site']['literal_name']),
             _(u'Le manuel du nouveau membre'),
             msg,
             False,
             True,
-            False)
+            False,
+            with_hat=settings.ZDS_APP['member']['moderation_hat'])
     token.delete()
 
     # create an alert for the staff if it's a new provider
@@ -926,13 +974,13 @@ def generate_token_account(request):
     token.save()
 
     # send email
-    subject = _(u"{} - Confirmation d'inscription").format(settings.ZDS_APP['site']['litteral_name'])
-    from_email = '{} <{}>'.format(settings.ZDS_APP['site']['litteral_name'],
+    subject = _(u"{} - Confirmation d'inscription").format(settings.ZDS_APP['site']['literal_name'])
+    from_email = '{} <{}>'.format(settings.ZDS_APP['site']['literal_name'],
                                   settings.ZDS_APP['site']['email_noreply'])
     context = {
         'username': token.user.username,
         'site_url': settings.ZDS_APP['site']['url'],
-        'site_name': settings.ZDS_APP['site']['litteral_name'],
+        'site_name': settings.ZDS_APP['site']['literal_name'],
         'url': settings.ZDS_APP['site']['url'] + token.get_absolute_url()
     }
     message_html = render_to_string('email/member/confirm_registration.html', context)
@@ -1033,6 +1081,7 @@ def settings_promote(request, user_pk):
             msg,
             True,
             True,
+            with_hat=settings.ZDS_APP['member']['moderation_hat'],
         )
 
         return redirect(profile.get_absolute_url())

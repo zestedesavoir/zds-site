@@ -51,6 +51,7 @@ class LoginForm(forms.Form):
     remember = forms.BooleanField(
         label=_(u'Se souvenir de moi'),
         initial=True,
+        required=False,
     )
 
     def __init__(self, next=None, *args, **kwargs):
@@ -235,7 +236,7 @@ class ProfileForm(MiniProfileForm):
             .format(
                 settings.ZDS_APP['site']['licenses']['licence_info_title'],
                 settings.ZDS_APP['site']['licenses']['licence_info_link'],
-                settings.ZDS_APP['site']['litteral_name'],
+                settings.ZDS_APP['site']['literal_name'],
             )
         ),
         queryset=Licence.objects.order_by('title').all(),

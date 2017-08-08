@@ -92,6 +92,7 @@ install:
   - travis_retry pip install tox==2.0.1
 
 script:
+  - ./scripts/no_import_zds_settings.sh
   - tox $TEST_APP
   - |
     # avoid cache update & upload when we didn't explicitely change its content
@@ -109,7 +110,7 @@ after_success:
     if [[ "$TEST_APP" == *"front"* ]] && [[ "$TRAVIS_PULL_REQUEST" == false ]] && [[ ! -z "$TRAVIS_TAG" ]] && [[ ! "$TRAVIS_TAG" == *"-build" ]]
     then
       # Adding GitHub OAuth token to login
-      echo "machine github.com login $GITHUB_TOKEN password x-oauth-basic" > $HOME/.netrc
+      echo -e "machine github.com login $BOT_LOGIN\n password $BOT_PASSWORD" > $HOME/.netrc
       git config --global url."https://".insteadOf git://
       git config --global user.name "Build bot"
       git config --global user.email "zestedesavoir@gmail.com"

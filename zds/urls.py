@@ -116,7 +116,8 @@ urlpatterns = [
 # SiteMap URLs
 urlpatterns += [
     url(r'^sitemap\.xml$', index_view, {'sitemaps': sitemaps}),
-    url(r'^sitemap-(?P<section>.+)\.xml$', sitemap_view, {'sitemaps': sitemaps}),
+    url(r'^sitemap-(?P<section>.+)\.xml$', sitemap_view, {'sitemaps': sitemaps},
+        name='django.contrib.sitemaps.views.sitemap'),
 ]
 
 if settings.SERVE:

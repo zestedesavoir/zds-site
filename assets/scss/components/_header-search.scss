@@ -3,7 +3,7 @@
 }
 
 .search {
-    display: block;
+    display: flex;
     position: relative;
 
     form {
@@ -90,11 +90,12 @@
             width: 20px;
             background: linear-gradient(to left, rgba(0, 0, 0, .03), rgba(0, 0, 0, 0));
         }
+
         form {
             input {
                 padding: 6px 10px;
-                height: 18px;
-                width: 150px;
+                height: 30px;
+                width: 60px * 3;
             }
             button {
                 height: 30px;
@@ -106,6 +107,7 @@
                 }
             }
         }
+
         .search-more {
             width: 30px;
             height: 30px;

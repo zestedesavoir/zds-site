@@ -101,8 +101,8 @@ class ForumTopicsListView(FilterMixin, ForumEditMixin, ZdSPagingListView, Update
         # "already read topic" set out of this list and MySQL does not support that type of subquery
 
         # Add a topic.is_followed attribute
-        followed_query_set = TopicAnswerSubscription.objects.get_objects_followed_by(self.request.user.id)
-        followed_topics = list(set(followed_query_set) & set(context['topics'] + sticky))
+        followed_queryset = TopicAnswerSubscription.objects.get_objects_followed_by(self.request.user.id)
+        followed_topics = list(set(followed_queryset) & set(context['topics'] + sticky))
         for topic in set(context['topics'] + sticky):
             topic.is_followed = topic in followed_topics
 
@@ -615,16 +615,34 @@ class PostUnread(UpdateView, SinglePostObjectMixin, PostEditMixin):
             self.object.topic.forum.category.slug, self.object.topic.forum.slug]))
 
 
-class FindPost(FindTopic):
+class FindPost(ZdSPagingListView, SingleObjectMixin):
 
     context_object_name = 'posts'
     template_name = 'forum/find/post.html'
     paginate_by = settings.ZDS_APP['forum']['posts_per_page']
+    pk_url_kwarg = 'user_pk'
+    object = None
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return super(FindPost, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(FindPost, self).get_context_data(**kwargs)
-        context.update(Post.objects.get_all_messages_of_a_user(self.request.user, self.object))
+
+        context.update({
+            'usr': self.object,
+            'hidden_posts_count':
+                Post.objects.filter(author=self.object).distinct().count() - context['paginator'].count,
+        })
+
         return context
+
+    def get_queryset(self):
+        return Post.objects.get_all_messages_of_a_user(self.request.user, self.object)
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(User, pk=self.kwargs.get(self.pk_url_kwarg))
 
 
 @can_write_and_read_now
@@ -703,7 +721,7 @@ class ManageGitHubIssue(UpdateView):
                 body = _('{}\n\nSujet : {}\n*Envoyé depuis {}*')\
                     .format(request.POST['body'],
                             settings.ZDS_APP['site']['url'] + self.object.get_absolute_url(),
-                            settings.ZDS_APP['site']['litteral_name'])
+                            settings.ZDS_APP['site']['literal_name'])
                 try:
                     response = requests.post(
                         settings.ZDS_APP['site']['repository']['api'] + '/issues',

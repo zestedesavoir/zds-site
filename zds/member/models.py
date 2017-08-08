@@ -21,7 +21,7 @@ from zds.forum.models import Post, Topic
 from zds.member import NEW_PROVIDER_USES
 from zds.member.managers import ProfileManager
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent
-from zds.utils.models import Alert, Licence
+from zds.utils.models import Alert, Licence, Hat
 
 
 @python_2_unicode_compatible
@@ -63,11 +63,11 @@ class Profile(models.Model):
     github_token = models.TextField('GitHub', blank=True)
     show_sign = models.BooleanField('Voir les signatures', default=True)
     # do UI components open by hovering them, or is clicking on them required?
-    is_hover_enabled = models.BooleanField('Déroulement au survol ?', default=True)
+    is_hover_enabled = models.BooleanField('Déroulement au survol ?', default=False)
     allow_temp_visual_changes = models.BooleanField('Activer les changements visuels temporaires', default=True)
     show_markdown_help = models.BooleanField("Afficher l'aide Markdown dans l'éditeur", default=True)
     email_for_answer = models.BooleanField('Envoyer pour les réponse MP', default=False)
-    show_staff_badge = models.BooleanField('Afficher le badge staff', default=False)
+    hats = models.ManyToManyField(Hat, verbose_name='Casquettes', db_index=True)
     can_read = models.BooleanField('Possibilité de lire', default=True)
     end_ban_read = models.DateTimeField("Fin d'interdiction de lecture", null=True, blank=True)
     can_write = models.BooleanField("Possibilité d'écrire", default=True)
@@ -367,6 +367,12 @@ class Profile(models.Model):
         """
         return self.user.groups.filter(name=settings.ZDS_APP['member']['dev_group']).exists()
 
+    def has_hat(self):
+        """
+        Checks if this user can at least use one hat.
+        """
+        return self.hats.count() >= 1
+
     @staticmethod
     def has_read_permission(request):
         return True
@@ -417,23 +423,6 @@ def remove_token_github_on_removing_from_dev_group(sender, instance, **kwargs):
         if profile.github_token and not profile.is_dev():
             profile.github_token = ''
             profile.save()
-    except Profile.DoesNotExist:
-        pass
-
-
-@receiver(models.signals.post_save, sender=User)
-def update_staff_badge(sender, instance, **kwargs):
-    """
-    This signal is used to update the field show_staff_badge of the user profile, which is used
-    to know if the staff badge should be displayed for this user.
-    The badge is displayed when the user has the perm forum.change_post.
-    """
-    try:
-        user_profile = instance.profile
-        old_staff_badge = instance.profile.show_staff_badge
-        user_profile.show_staff_badge = instance.has_perm('forum.change_post')
-        if user_profile.show_staff_badge != old_staff_badge:
-            user_profile.save()
     except Profile.DoesNotExist:
         pass
 
