@@ -321,7 +321,7 @@ CACHES = {
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 
-LOGIN_URL = '/membres/connexion'
+LOGIN_URL = 'member-login'
 
 ABSOLUTE_URL_OVERRIDES = {
     'auth.user': lambda u: '/membres/voir/{0}/'.format(urlquote(u.username.encode('utf-8')))
