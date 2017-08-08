@@ -1082,3 +1082,5 @@ Les menus s’ouvrent désormais au survol lorsque l’option est activée. Éta
 from zds.member.models import Profile
 Profile.objects.update(is_hover_enabled=False)
 ```
+
+TODO: Au revoir npm, on passe à yarn
