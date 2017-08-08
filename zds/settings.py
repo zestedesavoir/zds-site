@@ -473,7 +473,7 @@ ZDS_APP = {
         'images_per_page': 21,
     },
     'tutorial': {
-        'home_number': 5,
+        'home_number': 4,
     },
     'article': {
         'home_number': 3
