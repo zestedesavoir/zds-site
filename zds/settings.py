@@ -466,7 +466,7 @@ ZDS_APP = {
         'update_last_visit_interval': 600,  # seconds
         'validation_hat': 'Staff',
         'moderation_hat': 'Staff',
-        'clem_smileys_allowed': True,
+        'clem_smileys_allowed': False,
         'clem_smileys_cookie_key': 'use_clem_smileys',
     },
     'gallery': {
