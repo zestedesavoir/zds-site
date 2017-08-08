@@ -225,13 +225,10 @@ class ProfileForm(MiniProfileForm):
         ('email_for_answer', _(u"Recevoir un courriel lors d'une réponse à un message privé")),
     ]
 
-    if settings.ZDS_APP['member']['clem_smileys_allowed']:
-        multi_choices.insert(3, ('use_clem_smileys', _(u'Utiliser les smileys Clem')))
-
     options = forms.MultipleChoiceField(
         label='',
         required=False,
-        choices=multi_choices,
+        choices=tuple(multi_choices),
         widget=forms.CheckboxSelectMultiple,
     )
 
@@ -255,6 +252,9 @@ class ProfileForm(MiniProfileForm):
         self.helper = FormHelper()
         self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
+
+        if settings.ZDS_APP['member']['clem_smileys_allowed']:
+            self.fields['options'].choices.insert(3, ('use_clem_smileys', _(u'Utiliser les smileys Clem')))
 
         # to get initial value form checkbox show email
         initial = kwargs.get('initial', {})

@@ -1451,6 +1451,9 @@ class MemberTests(TestCase):
         cookie_key = settings.ZDS_APP['member']['clem_smileys_cookie_key']
 
         profile_without_clem = ProfileFactory()
+        profile_without_clem = Profile.objects.get(pk=profile_without_clem.pk)
+        self.assertFalse(profile_without_clem.use_clem_smileys)
+
         user_without_clem = profile_without_clem.user
         profile_with_clem = ProfileFactory()
         profile_with_clem.use_clem_smileys = True
@@ -1486,7 +1489,7 @@ class MemberTests(TestCase):
         self.assertEqual(result.status_code, 302)
         self.assertEqual(self.client.cookies[cookie_key]['expires'], 0)
 
-        # set set use_smileys set cookie
+        # setting use_smileys sets the cookie
         self.client.post(reverse('update-member'), {
             'biography': '',
             'site': '',
@@ -1496,9 +1499,11 @@ class MemberTests(TestCase):
         })
         self.client.get(reverse('homepage'))
 
+        profile_without_clem = Profile.objects.get(pk=profile_without_clem.pk)
+        self.assertTrue(profile_without_clem.use_clem_smileys)
         self.assertNotEqual(self.client.cookies[cookie_key]['expires'], 0)
 
-        # ... and that not setting it remove the cookie
+        # ... and that not setting it removes the cookie
         self.client.post(reverse('update-member'), {
             'biography': '',
             'site': '',
@@ -1508,6 +1513,8 @@ class MemberTests(TestCase):
         })
         self.client.get(reverse('homepage'))
 
+        profile_without_clem = Profile.objects.get(pk=profile_without_clem.pk)
+        self.assertFalse(profile_without_clem.use_clem_smileys)
         self.assertEqual(self.client.cookies[cookie_key]['expires'], 0)
 
     def tearDown(self):
