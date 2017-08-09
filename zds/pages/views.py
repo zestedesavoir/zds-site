@@ -234,8 +234,9 @@ def restore_edit(request, edit_pk):
     if comment.with_hat:
         try:
             hat = Hat.objects.get(name=comment.with_hat)
-            assert hat in comment.author.profile.hats.all()
-        except (Hat.DoesNotExist, AssertionError):
+            if hat not in comment.author.profile.hats.all():
+                raise ValueError
+        except (Hat.DoesNotExist, ValueError):
             comment.with_hat = ''
     comment.save()
 

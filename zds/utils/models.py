@@ -496,8 +496,9 @@ def get_hat_from_request(request, author=None):
         return ''
     try:
         hat = Hat.objects.get(pk=int(request.POST.get('hat')))
-        assert hat in author.profile.hats.all()
+        if hat not in author.profile.hats.all():
+            raise ValueError
         return hat.name
-    except (ValueError, Hat.DoesNotExist, AssertionError):
+    except (ValueError, Hat.DoesNotExist):
         logger.warning('User #{0} failed to use hat #{1}.'.format(request.user.pk, request.POST.get('hat')))
         return ''
