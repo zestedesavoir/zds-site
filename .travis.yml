@@ -67,6 +67,7 @@ before_install:
   - travis_retry pip install -q coveralls
 
   - |
+    # install elasticsearch
     if [[ "$ZDS_TEST_JOB" == *"zds.searchv2"* ]]; then
       # see https://docs.travis-ci.com/user/database-setup/#Installing-specific-versions-of-ElasticSearch
       curl -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.3.0.deb \
@@ -75,6 +76,7 @@ before_install:
     fi
 
   - |
+    # setup mysql
     if [[ "$ZDS_TEST_JOB" == *"zds."* ]]; then
       # MySQL config
       ./scripts/ci_mysql_setup.sh
@@ -83,6 +85,7 @@ before_install:
 
 install:
   - |
+    # install frontend dependencies
     if [[ "$ZDS_TEST_JOB" == *"front"* ]]; then
       nvm install 8 \
       && nvm use 8 \
@@ -91,6 +94,7 @@ install:
     fi
 
   - |
+    # install latex
     if [[ "$ZDS_TEST_JOB" == *"zds.tutorialv2"* ]]; then
       mkdir -p $HOME/bin \
       && ./scripts/install_texlive.sh \
@@ -100,6 +104,7 @@ install:
     fi
 
   - |
+    # install backend dependencies
     if [[ "$ZDS_TEST_JOB" == *"zds."* ]]; then
       pip install -q -rrequirements.txt -rrequirements-dev.txt -rrequirements-prod.txt
     fi
@@ -107,17 +112,20 @@ install:
 
 script:
   - |
+      # lint backend
     if [[ "$ZDS_TEST_JOB" == *"zds.gallery"* ]]; then
       ./scripts/no_import_zds_settings.sh \
       && flake8
     fi
 
   - |
+    # test frontend
     if [[ "$ZDS_TEST_JOB" == *"front"* ]]; then
       yarn test
     fi
 
   - |
+    # test backend
     if [[ "$ZDS_TEST_JOB" == *"zds."* ]]; then
       coverage run --source='.' manage.py \
         test \
@@ -131,11 +139,13 @@ after_success:
   - du -sh $HOME/.texlive 2>/dev/null | true
 
   - |
+    # upload coverage
     if [[ "$ZDS_TEST_JOB" != "none" ]]; then
       coveralls
     fi
 
   - |
+    # upload compiled assets
     COMMIT_MSG=`git rev-list --format=%B --max-count=1 $TRAVIS_COMMIT`
     if [[ "$ZDS_TEST_JOB" == *"front"* ]] && [[ "$TRAVIS_PULL_REQUEST" == false ]] && [[ ! -z "$TRAVIS_TAG" ]] && [[ ! "$TRAVIS_TAG" == *"-build" ]]
     then
