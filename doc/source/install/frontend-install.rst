@@ -14,6 +14,8 @@ L'installation de ``node`` est détaillée sur le site de Node.js, soit par `té
 
 Alternativement, l’installation de Node.js avec `nvm <https://github.com/creationix/nvm`_ est relativement simple. De plus, nvm permet très facilement de basculer d’une version à une autre.
 
+Yarn peut être installé avec `npm i -g yarn` ou `en suivant ces instructions <https://yarnpkg.com/fr/docs/install/>`_.
+
 
 
 Vérifier que les bonnes versions sont installées
