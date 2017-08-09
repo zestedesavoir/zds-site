@@ -5,6 +5,9 @@
   "directories": {
     "doc": "doc"
   },
+  "engines" : {
+    "node" : ">=8.0.0"
+  },
   "scripts": {
     "gulp": "gulp",
     "lint": "gulp js:lint",
