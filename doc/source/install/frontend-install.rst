@@ -28,7 +28,7 @@ Pour vérifier que Node.js et yarn sont installés (et que vous avez les bonnes 
     $ yarn -v
     0.27.x
 
-Si `yarn` n’est pas installé, vous pouvez le rajouter avec `npm i -g yarn`.
+Si `yarn` n’est pas installé ou pas à jour, utilisez `npm i -g yarn`.
 
 Mise à jour de Node.js et Yarn
 -----------------------------
