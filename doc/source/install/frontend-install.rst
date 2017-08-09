@@ -37,7 +37,7 @@ Pour Yarn, il suffit de le mettre à jour avec cette commande :
 
 .. sourcecode:: bash
 
-    $ yarn install -g yarn
+    $ npm install -g yarn
 
 Pour ce qui est de Node.js, utilisez soit votre gestionnaire de paquet, soit nvm.
 
