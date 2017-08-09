@@ -18,6 +18,8 @@ language: python
 python:
   - 2.7
 
+node_js: '8'
+
 env:
   global:
     - secure: "azmDZZQZzf88zpbkYpLpxI66vpEVyv+kniW0QdWAt4qlys8P5OcO3VJBR5YT85vlvnjN9b6raWQAL1ymee0WmVdTmzXed8XjZv7t9QXVw7pfezxMKlEftVp/4Cu4wtvbew0ViZXNWV2hNXHzEqlhgnoIOq94i0UzZ7grMrI0xm0="
@@ -40,6 +42,7 @@ services:
 cache:
   apt: true
   pip: true
+  yarn: true
   directories:
     - $HOME/.cabal
     - $HOME/.fonts
