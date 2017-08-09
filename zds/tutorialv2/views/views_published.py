@@ -700,8 +700,11 @@ class UpdateNoteView(SendNoteFormView):
                 # show alert, if any
                 alerts = Alert.objects.filter(comment__pk=self.reaction.pk, solved=False)
                 if alerts.count():
-                    msg_alert = _(u'Attention, en éditant ce message vous résolvez également les alertes suivantes : {}') \
-                        .format(', '.join([u'« {} » (signalé par {})'.format(a.text, a.author.username) for a in alerts]))
+                    msg_alert = _(u'Attention, en éditant ce message vous résolvez également '
+                                  u'les alertes suivantes : {}') \
+                        .format(', '.join(
+                            [u'« {} » (signalé par {})'.format(a.text, a.author.username) for a in alerts]
+                        ))
                     messages.warning(self.request, msg_alert)
 
         return context

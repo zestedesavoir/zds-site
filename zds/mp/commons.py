@@ -2,7 +2,6 @@
 from datetime import datetime
 
 from zds.utils.templatetags.emarkdown import emarkdown
-from zds.utils.models import get_hat_from_request
 
 
 class LeavePrivateTopic(object):
