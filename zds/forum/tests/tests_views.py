@@ -1444,14 +1444,15 @@ class PostEditTest(TestCase):
             'last_post': topic.last_message.pk,
             'hat': hat.pk,
         }
-        response = self.client.post(reverse('post-new') + '?sujet={}'.format(topic.pk), data, follow=False)
+        self.client.post(reverse('post-new') + '?sujet={}'.format(topic.pk), data, follow=False)
+        topic = Topic.objects.get(pk=topic.pk)  # refresh
         self.assertEqual(topic.last_message.with_hat, hat.name)  # Hat was used
 
         # test that it's possible to remove the hat
         data = {
             'text': 'A new post!'
         }
-        response = self.client.post(
+        self.client.post(
             reverse('post-edit') + '?message={}'.format(topic.last_message.pk), data, follow=False)
         topic = Topic.objects.get(pk=topic.pk)  # refresh
         self.assertEqual(topic.last_message.with_hat, '')  # Hat was removed
@@ -1461,7 +1462,7 @@ class PostEditTest(TestCase):
             'text': 'A new post!',
             'hat': other_hat.pk,
         }
-        response = self.client.post(
+        self.client.post(
             reverse('post-edit') + '?message={}'.format(topic.last_message.pk), data, follow=False)
         topic = Topic.objects.get(pk=topic.pk)  # refresh
         self.assertEqual(topic.last_message.with_hat, '')  # Hat wasn't used
@@ -1472,7 +1473,7 @@ class PostEditTest(TestCase):
             'text': 'A new post!',
             'hat': other_hat.pk,
         }
-        response = self.client.post(
+        self.client.post(
             reverse('post-edit') + '?message={}'.format(topic.last_message.pk), data, follow=False)
         topic = Topic.objects.get(pk=topic.pk)  # refresh
         self.assertEqual(topic.last_message.with_hat, other_hat.name)  # Now, it works
