@@ -8,11 +8,12 @@ Vous voulez nous aider au développement du frontend ? Installez Node.js et Yarn
 Installation de Node.js et Yarn
 ==============================
 
-Le frontend de Zeste de Savoir repose sur la version supportée à long terme actuelle de Node.js, la version 4.
+Le frontend de Zeste de Savoir repose sur la version supportée à long terme actuelle de Node.js, la version 8.
 
-L’installation de Node.js avec [nvm](https://github.com/creationix/nvm) est relativement simple. De plus, nvm permet très facilement de basculer d’une version à une autre.
+L'installation de ``node`` est détaillée sur le site de Node.js, soit par `téléchargement direct <https://nodejs.org/en/download/>`_, soit via un `gestionnaire de paquet <https://nodejs.org/en/download/package-manager/>`_. Zeste de Savoir requiert la version 8.
 
-Autrement, l'installation de ``node`` est détaillée sur le site de Node.js, soit par `téléchargement direct <https://nodejs.org/en/download/>`_, soit via un `gestionnaire de paquet <https://nodejs.org/en/download/package-manager/>`_. Zeste de Savoir requiert la version 4, mais marche également avec la version 6.
+Alternativement, l’installation de Node.js avec [nvm](https://github.com/creationix/nvm) est relativement simple. De plus, nvm permet très facilement de basculer d’une version à une autre.
+
 
 
 Vérifier que les bonnes versions sont installées
@@ -23,13 +24,11 @@ Pour vérifier que Node.js et yarn sont installés (et que vous avez les bonnes 
 .. sourcecode:: bash
 
     $ node -v
-    v4.x.x
+    v8.x.x
     $ yarn -v
     0.27.x
 
 Si `yarn` n’est pas installé, vous pouvez le rajouter avec `npm i -g yarn`.
-
-Vous devez avoir au minimum la version 4.x.x de Node.js.
 
 Mise à jour de Node.js et Yarn
 -----------------------------
@@ -40,14 +39,13 @@ Pour Yarn, il suffit de le mettre à jour avec cette commande :
 
     $ yarn install -g yarn
 
-Pour ce qui est de Node.js, utilisez nvm si possible.
+Pour ce qui est de Node.js, utilisez soit votre gestionnaire de paquet, soit nvm.
 
 
 Installation des dépendances Yarn
 --------------------------------
 
-L'installation de Gulp, ainsi que des différentes dépendances et
-bibliothèques, se fait via Yarn dans le répertoire du projet :
+L'installation de Gulp, ainsi que des différentes dépendances et bibliothèques, se fait via Yarn dans le répertoire du projet :
 
 .. sourcecode:: bash
 
@@ -105,8 +103,7 @@ Les fichiers générés sont disponibles dans le dossier ``dist/`` (un aperçu e
    C'est la tâche que vous utiliserez sûrement le plus souvent car vous devez la lancer à chaque modification
    de ``assets/`` !
 
-Si vos modifications n'apparaissent pas dans votre navigateur et que ce n'est pas dû à Gulp, pensez à vider le
-cache de votre navigateur !
+Si vos modifications n'apparaissent pas dans votre navigateur et que ce n'est pas dû à Gulp, pensez à vider le cache de votre navigateur !
 
 Supprimer les fichiers générés avec ``clean``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
