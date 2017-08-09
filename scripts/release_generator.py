@@ -152,7 +152,7 @@ for i in range(0, len(milestones)):
 jalon_id = 0
 while not jalon_id:
     try:
-        jalon_id = raw_input(u'Quelle milestone voulez-vous generer (id) (q=quitter) ? ')
+        jalon_id = input(u'Quelle milestone voulez-vous generer (id) (q=quitter) ? ')
         jalon_id = int(jalon_id)
         if jalon_id > len(milestones):
             print(u'{} ne fait pas parti des milestones connues'.format(jalon_id))
