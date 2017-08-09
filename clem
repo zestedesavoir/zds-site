@@ -74,8 +74,7 @@ def test_back():
 
 def test_front():
     cmd = [
-        'npm',
-        'run',
+        'yarn',
         'test',
         '--'
     ] + cli_args.ARG
@@ -147,7 +146,7 @@ def wipe():
 
 
 def lint_front():
-    return run('front', ['npm', 'run', 'lint', '--'] + cli_args.ARG)
+    return run('front', ['yarn', 'run', 'lint', '--'] + cli_args.ARG)
 
 
 def lint_back():

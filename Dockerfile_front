@@ -1,12 +1,12 @@
-FROM node:8
+FROM node:8-slim
 
 RUN mkdir -p /zds
 WORKDIR /zds
 
 ENV NODE_ENV=development
 
-COPY package.json ./
+COPY package.json yarn.lock ./
 
-RUN npm install
+RUN yarn
 
-CMD ["npm", "run", "gulp"]
+CMD ["yarn", "run", "gulp"]
