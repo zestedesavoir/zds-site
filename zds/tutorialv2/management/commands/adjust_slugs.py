@@ -2,8 +2,9 @@
 import os
 from uuslug import slugify
 
+from django.conf import settings
 from django.core.management.base import BaseCommand
-from zds.settings import ZDS_APP
+
 from zds.tutorialv2.models.models_database import PublishableContent
 
 
@@ -18,7 +19,7 @@ class Command(BaseCommand):
             if "'" in c.title:
                 good_slug = slugify(c.title)
                 if c.slug != good_slug:
-                    if os.path.isdir(os.path.join(ZDS_APP['content']['repo_private_path'], good_slug)):
+                    if os.path.isdir(os.path.join(settings.ZDS_APP['content']['repo_private_path'], good_slug)):
                         # this content was created before v16 and is probably broken
                         self.stdout.write(u'Fixing pre-v16 content #{} (« {} ») ... '.format(c.pk, c.title), ending='')
                         c.save()
@@ -26,7 +27,7 @@ class Command(BaseCommand):
                             self.stdout.write(u'[OK]')
                         else:
                             self.stdout.write(u'[KO]')
-                    elif os.path.isdir(os.path.join(ZDS_APP['content']['repo_private_path'], c.slug)):
+                    elif os.path.isdir(os.path.join(settings.ZDS_APP['content']['repo_private_path'], c.slug)):
                         # this content was created during v16 and will be broken if nothing is done
                         self.stdout.write(u'Fixing in-v16 content #{} (« {} ») ... '.format(c.pk, c.title), ending='')
                         try:

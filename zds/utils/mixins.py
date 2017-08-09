@@ -3,7 +3,7 @@ from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
-from zds import settings
+from django.conf import settings
 from zds.utils.models import Comment
 
 

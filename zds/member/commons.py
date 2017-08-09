@@ -75,13 +75,13 @@ class TokenGenerator(object):
         :return: nothing
         :rtype: None
         """
-        subject = _(u'{} - Confirmation d\'inscription').format(settings.ZDS_APP['site']['litteral_name'])
-        from_email = u'{} <{}>'.format(settings.ZDS_APP['site']['litteral_name'],
+        subject = _(u'{} - Confirmation d\'inscription').format(settings.ZDS_APP['site']['literal_name'])
+        from_email = u'{} <{}>'.format(settings.ZDS_APP['site']['literal_name'],
                                        settings.ZDS_APP['site']['email_noreply'])
         context = {
             'username': user.username,
             'url': settings.ZDS_APP['site']['url'] + token.get_absolute_url(),
-            'site_name': settings.ZDS_APP['site']['litteral_name'],
+            'site_name': settings.ZDS_APP['site']['literal_name'],
             'site_url': settings.ZDS_APP['site']['url']
         }
         message_html = render_to_string('email/member/confirm_registration.html', context)
@@ -215,6 +215,7 @@ class MemberSanctionState(object):
             msg,
             True,
             direct=True,
+            with_hat=settings.ZDS_APP['member']['moderation_hat'],
         )
 
 
@@ -300,7 +301,7 @@ class BanSanction(MemberSanctionState):
 
     def get_detail(self):
         return _(u'vous ne pouvez plus vous connecter sur {0}.') \
-            .format(settings.ZDS_APP['site']['litteral_name'])
+            .format(settings.ZDS_APP['site']['literal_name'])
 
     def apply_sanction(self, profile, ban):
         profile.end_ban_read = None
@@ -323,7 +324,7 @@ class TemporaryBanSanction(MemberSanctionState):
     def get_detail(self):
         jrs = int(self.array_infos.get('ban-jrs'))
         return (_(u'vous ne pouvez plus vous connecter sur {0} pendant {1} jour{2}.')
-                .format(settings.ZDS_APP['site']['litteral_name'],
+                .format(settings.ZDS_APP['site']['literal_name'],
                         jrs,
                         pluralize(jrs)))
 

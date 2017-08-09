@@ -2,7 +2,7 @@
 
 from django.core.management.base import BaseCommand
 from zds.tutorial.models import Tutorial
-from zds import settings
+from django.conf import settings
 import os
 
 

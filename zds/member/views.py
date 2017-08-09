@@ -38,11 +38,11 @@ from zds.member.forms import LoginForm, MiniProfileForm, ProfileForm, RegisterFo
     PromoteMemberForm, KarmaForm, UsernameAndEmailForm, GitHubTokenForm, \
     BannedEmailProviderForm
 from zds.member.models import Profile, TokenForgotPassword, TokenRegister, KarmaNote, Ban, \
-    BannedEmailProvider, NewEmailProvider
+    BannedEmailProvider, NewEmailProvider, set_clem_smileys_cookie, remove_clem_smileys_cookie
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.notification.models import TopicAnswerSubscription, NewPublicationSubscription
 from zds.tutorialv2.models.models_database import PublishedContent, PickListOperation
-from zds.utils.models import Comment, CommentVote, Alert, CommentEdit
+from zds.utils.models import Comment, CommentVote, Alert, CommentEdit, Hat
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView
 from zds.utils.tokens import generate_token
@@ -120,6 +120,7 @@ class UpdateMember(UpdateView):
             'avatar_url': profile.avatar_url,
             'show_sign': profile.show_sign,
             'is_hover_enabled': profile.is_hover_enabled,
+            'use_clem_smileys': profile.use_clem_smileys,
             'allow_temp_visual_changes': profile.allow_temp_visual_changes,
             'show_markdown_help': profile.show_markdown_help,
             'email_for_answer': profile.email_for_answer,
@@ -146,7 +147,9 @@ class UpdateMember(UpdateView):
         self.update_profile(profile, form)
         self.save_profile(profile)
 
-        return redirect(self.get_success_url())
+        response = redirect(self.get_success_url())
+        set_clem_smileys_cookie(response, profile)
+        return response
 
     def update_profile(self, profile, form):
         cleaned_data_options = form.cleaned_data.get('options')
@@ -154,6 +157,7 @@ class UpdateMember(UpdateView):
         profile.site = form.data['site']
         profile.show_sign = 'show_sign' in cleaned_data_options
         profile.is_hover_enabled = 'is_hover_enabled' in cleaned_data_options
+        profile.use_clem_smileys = 'use_clem_smileys' in cleaned_data_options
         profile.allow_temp_visual_changes = 'allow_temp_visual_changes' in cleaned_data_options
         profile.show_markdown_help = 'show_markdown_help' in cleaned_data_options
         profile.email_for_answer = 'email_for_answer' in cleaned_data_options
@@ -556,7 +560,7 @@ def modify_profile(request, user_pk):
                      ban.type,
                      state.get_detail(),
                      ban.note,
-                     settings.ZDS_APP['site']['litteral_name'])
+                     settings.ZDS_APP['site']['literal_name'])
 
     state.notify_member(ban, msg)
     return redirect(profile.get_absolute_url())
@@ -701,6 +705,53 @@ def remove_banned_email_provider(request, provider_pk):
     return redirect('banned-email-providers')
 
 
+@require_POST
+@login_required
+@permission_required('utils.change_hat', raise_exception=True)
+@transaction.atomic
+def add_hat(request, user_pk):
+    """
+    Used to add a hat to a user.
+    Creates the hat if it doesn't exist.
+    """
+
+    user = get_object_or_404(User, pk=user_pk)
+
+    hat_name = request.POST.get('hat', None)
+    if not hat_name:
+        messages.error(request, _(u'Aucune casquette saisie.'))
+    elif len(hat_name) > 40:
+        messages.error(request, _(u'Une casquette ne peut dépasser 40 caractères.'))
+    else:
+        hat, created = Hat.objects.get_or_create(name__iexact=hat_name, defaults={'name': hat_name})
+        if created:
+            messages.success(request, _(u'La casquette « {} » a été créée.').format(hat_name))
+        user.profile.hats.add(hat)
+        messages.success(request, _(u'La casquette a bien été ajoutée.'))
+
+    return redirect(user.profile.get_absolute_url())
+
+
+@require_POST
+@login_required
+@permission_required('utils.change_hat', raise_exception=True)
+@transaction.atomic
+def remove_hat(request, user_pk, hat_pk):
+    """
+    Used to remove a hat from a user.
+    """
+
+    user = get_object_or_404(User, pk=user_pk)
+    hat = get_object_or_404(Hat, pk=hat_pk)
+    if hat not in user.profile.hats.all():
+        raise Http404
+
+    user.profile.hats.remove(hat)
+
+    messages.success(request, _(u'La casquette a bien été retirée.'))
+    return redirect(user.profile.get_absolute_url())
+
+
 def login_view(request):
     """Log in user."""
 
@@ -731,10 +782,16 @@ def login_view(request):
                     profile.last_ip_address = get_client_ip(request)
                     profile.save()
                     # redirect the user if needed
+                    # set the cookie for Clem smileys
+                    # (for people switching account or clearing cookies after a browser session)
                     try:
-                        return redirect(next_page)
+                        response = redirect(next_page)
+                        set_clem_smileys_cookie(response, profile)
+                        return response
                     except:
-                        return redirect(reverse('homepage'))
+                        response = redirect(reverse('homepage'))
+                        set_clem_smileys_cookie(response, profile)
+                        return response
                 else:
                     messages.error(request,
                                    _(u'Vous n\'êtes pas autorisé à vous connecter '
@@ -770,7 +827,10 @@ def logout_view(request):
 
     logout(request)
     request.session.clear()
-    return redirect(reverse('homepage'))
+    response = redirect(reverse('homepage'))
+    # disable Clem smileys:
+    remove_clem_smileys_cookie(response)
+    return response
 
 
 def forgot_password(request):
@@ -802,12 +862,12 @@ def forgot_password(request):
             token.save()
 
             # send email
-            subject = _(u'{} - Mot de passe oublié').format(settings.ZDS_APP['site']['litteral_name'])
-            from_email = '{} <{}>'.format(settings.ZDS_APP['site']['litteral_name'],
+            subject = _(u'{} - Mot de passe oublié').format(settings.ZDS_APP['site']['literal_name'])
+            from_email = '{} <{}>'.format(settings.ZDS_APP['site']['literal_name'],
                                           settings.ZDS_APP['site']['email_noreply'])
             context = {
                 'username': usr.username,
-                'site_name': settings.ZDS_APP['site']['litteral_name'],
+                'site_name': settings.ZDS_APP['site']['literal_name'],
                 'site_url': settings.ZDS_APP['site']['url'],
                 'url': settings.ZDS_APP['site']['url'] + token.get_absolute_url()
             }
@@ -878,23 +938,24 @@ def activate_account(request):
         'member/messages/account_activated.md',
         {
             'username': usr.username,
-            'tutorials_url': settings.ZDS_APP['site']['url'] + reverse('tutorial:list'),
-            'articles_url': settings.ZDS_APP['site']['url'] + reverse('article:list'),
+            'tutorials_url': settings.ZDS_APP['site']['url'] + reverse('publication:list') + '?type=tutorial',
+            'articles_url': settings.ZDS_APP['site']['url'] + reverse('publication:list') + '?type=article',
             'opinions_url': settings.ZDS_APP['site']['url'] + reverse('opinion:list'),
             'members_url': settings.ZDS_APP['site']['url'] + reverse('member-list'),
             'forums_url': settings.ZDS_APP['site']['url'] + reverse('cats-forums-list'),
-            'site_name': settings.ZDS_APP['site']['litteral_name']
+            'site_name': settings.ZDS_APP['site']['literal_name']
         }
     )
 
     send_mp(bot,
             [usr],
-            _(u'Bienvenue sur {}').format(settings.ZDS_APP['site']['litteral_name']),
+            _(u'Bienvenue sur {}').format(settings.ZDS_APP['site']['literal_name']),
             _(u'Le manuel du nouveau membre'),
             msg,
             False,
             True,
-            False)
+            False,
+            with_hat=settings.ZDS_APP['member']['moderation_hat'])
     token.delete()
 
     # create an alert for the staff if it's a new provider
@@ -926,13 +987,13 @@ def generate_token_account(request):
     token.save()
 
     # send email
-    subject = _(u"{} - Confirmation d'inscription").format(settings.ZDS_APP['site']['litteral_name'])
-    from_email = '{} <{}>'.format(settings.ZDS_APP['site']['litteral_name'],
+    subject = _(u"{} - Confirmation d'inscription").format(settings.ZDS_APP['site']['literal_name'])
+    from_email = '{} <{}>'.format(settings.ZDS_APP['site']['literal_name'],
                                   settings.ZDS_APP['site']['email_noreply'])
     context = {
         'username': token.user.username,
         'site_url': settings.ZDS_APP['site']['url'],
-        'site_name': settings.ZDS_APP['site']['litteral_name'],
+        'site_name': settings.ZDS_APP['site']['literal_name'],
         'url': settings.ZDS_APP['site']['url'] + token.get_absolute_url()
     }
     message_html = render_to_string('email/member/confirm_registration.html', context)
@@ -1033,6 +1094,7 @@ def settings_promote(request, user_pk):
             msg,
             True,
             True,
+            with_hat=settings.ZDS_APP['member']['moderation_hat'],
         )
 
         return redirect(profile.get_absolute_url())

@@ -21,7 +21,7 @@ from zds.forum.models import Post, Topic
 from zds.member import NEW_PROVIDER_USES
 from zds.member.managers import ProfileManager
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent
-from zds.utils.models import Alert, Licence
+from zds.utils.models import Alert, Licence, Hat
 
 
 @python_2_unicode_compatible
@@ -63,16 +63,17 @@ class Profile(models.Model):
     github_token = models.TextField('GitHub', blank=True)
     show_sign = models.BooleanField('Voir les signatures', default=True)
     # do UI components open by hovering them, or is clicking on them required?
-    is_hover_enabled = models.BooleanField('Déroulement au survol ?', default=True)
+    is_hover_enabled = models.BooleanField('Déroulement au survol ?', default=False)
     allow_temp_visual_changes = models.BooleanField('Activer les changements visuels temporaires', default=True)
     show_markdown_help = models.BooleanField("Afficher l'aide Markdown dans l'éditeur", default=True)
     email_for_answer = models.BooleanField('Envoyer pour les réponse MP', default=False)
-    show_staff_badge = models.BooleanField('Afficher le badge staff', default=False)
+    hats = models.ManyToManyField(Hat, verbose_name='Casquettes', db_index=True)
     can_read = models.BooleanField('Possibilité de lire', default=True)
     end_ban_read = models.DateTimeField("Fin d'interdiction de lecture", null=True, blank=True)
     can_write = models.BooleanField("Possibilité d'écrire", default=True)
     end_ban_write = models.DateTimeField("Fin d'interdiction d'écrire", null=True, blank=True)
     last_visit = models.DateTimeField('Date de dernière visite', null=True, blank=True)
+    use_clem_smileys = models.BooleanField('Utilise les smileys Clem ?', default=False)
     _permissions = {}
     _groups = None
 
@@ -367,6 +368,12 @@ class Profile(models.Model):
         """
         return self.user.groups.filter(name=settings.ZDS_APP['member']['dev_group']).exists()
 
+    def has_hat(self):
+        """
+        Checks if this user can at least use one hat.
+        """
+        return self.hats.count() >= 1
+
     @staticmethod
     def has_read_permission(request):
         return True
@@ -421,21 +428,31 @@ def remove_token_github_on_removing_from_dev_group(sender, instance, **kwargs):
         pass
 
 
-@receiver(models.signals.post_save, sender=User)
-def update_staff_badge(sender, instance, **kwargs):
+def remove_clem_smileys_cookie(response):
+    """Remove the Clem smileys cookie by immediate expiration
+
+    :param response: the HTTP response
+    :type: django.http.response.HttpResponse
     """
-    This signal is used to update the field show_staff_badge of the user profile, which is used
-    to know if the staff badge should be displayed for this user.
-    The badge is displayed when the user has the perm forum.change_post.
+
+    response.set_cookie(settings.ZDS_APP['member']['clem_smileys_cookie_key'], '', expires=0)
+
+
+def set_clem_smileys_cookie(response, profile):
+    """Set the Clem smileys cookie according to profile (and if allowed)
+
+    :param response: the HTTP response
+    :type: django.http.response.HttpResponse
+    :param profile: the profile
+    :type profile: Profile
     """
-    try:
-        user_profile = instance.profile
-        old_staff_badge = instance.profile.show_staff_badge
-        user_profile.show_staff_badge = instance.has_perm('forum.change_post')
-        if user_profile.show_staff_badge != old_staff_badge:
-            user_profile.save()
-    except Profile.DoesNotExist:
-        pass
+
+    if settings.ZDS_APP['member']['clem_smileys_allowed']:
+        if profile.use_clem_smileys:
+            # TODO: set max_age, expires and so all (see https://stackoverflow.com/a/1623910)
+            response.set_cookie(settings.ZDS_APP['member']['clem_smileys_cookie_key'], profile.use_clem_smileys)
+        else:
+            remove_clem_smileys_cookie(response)
 
 
 @python_2_unicode_compatible

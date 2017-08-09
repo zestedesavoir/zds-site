@@ -10,14 +10,15 @@ from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.http import Http404, HttpResponsePermanentRedirect, StreamingHttpResponse, HttpResponse
-from django.db.models import F, Q
 from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template.loader import render_to_string
 from django.utils.datastructures import MultiValueDictKeyError
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
-from django.views.generic import RedirectView, FormView, ListView
+from django.views.generic import RedirectView, FormView, ListView, TemplateView
+from django.db.models import F, Q
 
+from zds.forum.models import Forum
 from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin, PermissionRequiredMixin
 from zds.member.views import get_client_ip
 from zds.notification import signals
@@ -29,7 +30,7 @@ from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin, SingleOnli
 from zds.tutorialv2.models import TYPE_CHOICES_DICT
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction
 from zds.tutorialv2.utils import search_container_or_404, last_participation_is_old, mark_read
-from zds.utils.models import CommentVote, SubCategory, Alert, Tag, CommentEdit
+from zds.utils.models import Alert, CommentVote, Tag, Category, CommentEdit, SubCategory, get_hat_from_request
 from zds.utils.paginator import make_pagination, ZdSPagingListView
 from zds.utils.templatetags.topbar import top_categories_content
 
@@ -148,9 +149,9 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
         # We need reading time expressed in minutes
         try:
             context['reading_time'] = (self.versioned_object.get_tree_level() * self.object.public_version.char_count /
-                                       settings.ZDS_APP['content']['sec_per_minute'])
+                                       settings.ZDS_APP['content']['characters_per_minute'])
         except ZeroDivisionError as e:
-            logger.warning('could not compute reading time : setting sec_per_minute is set to zero (error=%s)', e)
+            logger.warning('could not compute reading time: setting characters_per_minute is set to zero (error=%s)', e)
 
         if self.request.user.is_authenticated():
             for reaction in context['reactions']:
@@ -313,15 +314,15 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
 
     context_object_name = 'public_contents'
     paginate_by = settings.ZDS_APP['content']['content_per_page']
-    template_name = 'tutorialv2/index_online.html'
+    template_name = 'tutorialv2/index_online_contents.html'
     category = None
+    subcategory = None
     tag = None
     current_content_type = None
 
     def get_queryset(self):
         """Filter the contents to obtain the list of contents of given type.
         If category parameter is provided, only contents which have this category will be listed.
-
         :return: list of contents with the right type
         :rtype: list of zds.tutorialv2.models.models_database.PublishedContent
         """
@@ -355,12 +356,14 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
             .filter(pk=F('content__public_version__pk'))
 
         if 'category' in self.request.GET:
-            self.category = get_object_or_404(SubCategory, slug=self.request.GET.get('category'))
-            queryset = queryset.filter(content__subcategory__in=[self.category])
+            self.subcategory = get_object_or_404(SubCategory, slug=self.request.GET.get('category'))
+            queryset = queryset.filter(content__subcategory__in=[self.subcategory])
+
         if 'tag' in self.request.GET:
             self.tag = get_object_or_404(Tag, title=self.request.GET.get('tag').lower().strip())
-            queryset = queryset.filter(content__tags__in=[self.tag])  # different tags can have same
-            # slug such as C/C#/C++, as a first version we get all of them
+            # TODO: fix me
+            # different tags can have same slug such as C/C#/C++, as a first version we get all of them
+            queryset = queryset.filter(content__tags__in=[self.tag])
         queryset = queryset.extra(select={'count_note': sub_query})
         return queryset.order_by('-publication_date')
 
@@ -371,29 +374,150 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
                 public_content.content.last_note.related_content = public_content.content
                 public_content.content.public_version = public_content
                 public_content.content.count_note = public_content.count_note
+
         context['category'] = self.category
+        context['subcategory'] = self.subcategory
         context['tag'] = self.tag
         context['top_categories'] = top_categories_content(self.current_content_type)
 
         return context
 
 
-class ListArticles(ListOnlineContents):
-    """Displays the list of published articles"""
-
-    current_content_type = 'ARTICLE'
-
-
-class ListTutorials(ListOnlineContents):
-    """Displays the list of published tutorials"""
-
-    current_content_type = 'TUTORIAL'
-
-
 class ListOpinions(ListOnlineContents):
     """Displays the list of published opinions"""
 
     current_content_type = 'OPINION'
+
+
+class ViewPublications(TemplateView):
+    templates = {
+        1: 'tutorialv2/view/categories.html',
+        2: 'tutorialv2/view/category.html',
+        3: 'tutorialv2/view/subcategory.html',
+        4: 'tutorialv2/view/browse.html',
+    }
+    handle_types = ['TUTORIAL', 'ARTICLE']
+
+    level = 1
+    max_last_contents = 6
+    template_name = templates[level]
+
+    def get_context_data(self, **kwargs):
+        context = super(ViewPublications, self).get_context_data(**kwargs)
+
+        contents_count = 0
+
+        if self.kwargs.get('slug', False):
+            self.level = 2
+            self.max_last_contents = 12
+        if self.kwargs.get('slug_category', False):
+            self.level = 3
+            self.max_last_contents = 12
+        if self.request.GET.get('category', False) or \
+                self.request.GET.get('subcategory', False) or \
+                self.request.GET.get('type', False) or \
+                self.request.GET.get('tags', False):
+            self.level = 4
+            self.max_last_contents = 50
+
+        self.template_name = self.templates[self.level]
+        recent_kwargs = {}
+
+        if self.level is 1:
+            contents_count = 0
+            # get categories and subcategories
+            categories = list(Category.objects.order_by('position').all())
+            for category in categories:
+                category.subcategories = category.get_subcategories()
+                category.contents_count = PublishedContent.objects \
+                    .published_contents() \
+                    .filter(content__subcategory__in=category.subcategories) \
+                    .filter(content_type__in=self.handle_types) \
+                    .count()
+                contents_count += category.contents_count
+
+            context['categories'] = categories
+            context['content_count'] = contents_count
+
+        elif self.level is 2:
+            context['category'] = get_object_or_404(Category, slug=self.kwargs.get('slug'))
+            context['subcategories'] = context['category'].get_subcategories()
+
+            total_count = 0
+
+            for subcategory in context['subcategories']:
+                subcategory.contents_count = PublishedContent.objects \
+                    .published_contents() \
+                    .filter(content__subcategory__pk=subcategory.pk) \
+                    .filter(content_type__in=self.handle_types) \
+                    .count()
+                total_count += subcategory.contents_count
+
+            context['content_count'] = total_count
+            recent_kwargs['subcategories'] = context['subcategories']
+
+        elif self.level is 3:
+            subcategory = get_object_or_404(SubCategory, slug=self.kwargs.get('slug'))
+            context['category'] = subcategory.get_parent_category()
+            context['subcategory'] = subcategory
+            context['content_count'] = PublishedContent.objects \
+                .get_recent_list(subcategories=[subcategory]) \
+                .filter(content_type__in=self.handle_types) \
+                .count()
+            recent_kwargs['subcategories'] = [subcategory]
+
+        elif self.level is 4:
+            category = self.request.GET.get('category', False)
+            subcategory = self.request.GET.get('subcategory', [])
+            subcategories = []
+            if category:
+                context['category'] = get_object_or_404(Category, slug=category)
+                subcategories = context['category'].get_subcategories()
+            elif subcategory:
+                subcategory = get_object_or_404(SubCategory, slug=self.request.GET.get('subcategory'))
+                context['category'] = subcategory.get_parent_category()
+                context['subcategory'] = subcategory
+                subcategories = [subcategory]
+
+            content_type = self.handle_types
+            context['type'] = None
+            if 'type' in self.request.GET:
+                _type = self.request.GET.get('type', '').upper()
+                if _type in self.handle_types:
+                    content_type = _type
+                    context['type'] = TYPE_CHOICES_DICT[_type]
+
+            tags = self.request.GET.get('tags', [])
+
+            contents_queryset = PublishedContent.objects.get_browse_list(
+                subcategories=subcategories,
+                tags=tags,
+                content_type=content_type,
+                order_fields=['-pubdate'])
+            items_per_page = settings.ZDS_APP['tutorial']['content_per_page']
+            make_pagination(
+                context,
+                self.request,
+                contents_queryset,
+                items_per_page,
+                context_list_name='filtered_contents',
+                with_previous_item=False)
+
+        if self.level < 4:
+            context['last_articles'] = PublishedContent.objects.get_recent_list(
+                **dict(content_type='ARTICLE', **recent_kwargs)
+            )[:self.max_last_contents]
+            context['last_tutorials'] = PublishedContent.objects.get_recent_list(
+                **dict(content_type='TUTORIAL', **recent_kwargs)
+            )[:self.max_last_contents]
+
+            context['beta_forum'] = Forum.objects\
+                .prefetch_related('category')\
+                .filter(pk=settings.ZDS_APP['forum']['beta_forum_id'])\
+                .last()
+
+        context['level'] = self.level
+        return context
 
 
 class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewMixin):
@@ -476,13 +600,14 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
                     self.quoted_reaction_text = text
         try:
             return super(SendNoteFormView, self).get(request, *args, **kwargs)
-        except MustRedirect:  # if someone changed the pk arguments, and reached a 'must redirect' public
-            # object
-            raise Http404(u"Aucun contenu public trouvé avec l'identifiant " + str(self.request.GET.get('pk', 0)))
+        except MustRedirect:
+            # if someone changed the pk argument, and reached a 'must redirect' public object
+            raise Http404(
+                u"Aucun contenu public trouvé avec l'identifiant {}".format(str(self.request.GET.get('pk', 0))))
 
     def post(self, request, *args, **kwargs):
 
-        if 'preview' in request.POST and request.is_ajax():  # preview
+        if 'preview' in request.POST and request.is_ajax():
             content = render_to_response('misc/previsualization.part.html', {'text': request.POST['text']})
             return StreamingHttpResponse(content)
         else:
@@ -493,7 +618,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
         if self.check_as and self.object.antispam(self.request.user):
             raise PermissionDenied
 
-        if 'preview' in self.request.POST:  # previewing
+        if 'preview' in self.request.POST:
             return self.form_invalid(form)
 
         is_new = False
@@ -514,6 +639,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
             self.reaction.author = self.request.user
             self.reaction.position = self.object.get_note_count() + 1
             self.reaction.related_content = self.object
+            self.reaction.with_hat = get_hat_from_request(self.request)
 
             is_new = True
 
@@ -554,7 +680,7 @@ class UpdateNoteView(SendNoteFormView):
 
             kwargs['reaction'] = self.reaction
         else:
-            raise Http404(u"Le paramètre 'message' doit être un digit.")
+            raise Http404(u"Le paramètre 'message' doit être un nombre entier positif.")
         return kwargs
 
     def get_context_data(self, **kwargs):
@@ -570,7 +696,7 @@ class UpdateNoteView(SendNoteFormView):
             # show alert, if any
             alerts = Alert.objects.filter(comment__pk=self.reaction.pk, solved=False)
             if alerts.count():
-                msg_alert = _(u'Attention, en éditant ce message, vous résolvez également les alertes suivantes : {}') \
+                msg_alert = _(u'Attention, en éditant ce message vous résolvez également les alertes suivantes : {}') \
                     .format(', '.join([u'« {} » (signalé par {})'.format(a.text, a.author.username) for a in alerts]))
                 messages.warning(self.request, msg_alert)
 
@@ -606,7 +732,7 @@ class HideReaction(FormView, LoginRequiredMixin):
             pk = int(self.kwargs['pk'])
             text = ''
             if 'text_hidden' in self.request.POST:
-                text = self.request.POST['text_hidden'][:80]  # Todo: Make it less static
+                text = self.request.POST['text_hidden'][:80]  # TODO: Make it less static
             reaction = get_object_or_404(ContentReaction, pk=pk)
             if not self.request.user.has_perm('tutorialv2.change_contentreaction') and \
                     not self.request.user.pk == reaction.author.pk:
@@ -650,7 +776,7 @@ class SendContentAlert(FormView, LoginRequiredMixin):
         try:
             content_pk = int(self.kwargs['pk'])
         except (KeyError, ValueError):
-            raise Http404(u"Impossible de convertir l'identifiant en entier.")
+            raise Http404(u'Identifiant manquant ou conversion en entier impossible.')
         content = get_object_or_404(PublishableContent, pk=content_pk)
 
         alert = Alert(

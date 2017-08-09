@@ -223,6 +223,7 @@ class PrivatePost(models.Model):
     pubdate = models.DateTimeField(u'Date de publication', auto_now_add=True, db_index=True)
     update = models.DateTimeField(u'Date d\'édition', null=True, blank=True)
     position_in_topic = models.IntegerField(u'Position dans le sujet', db_index=True)
+    with_hat = models.CharField('Casquette', max_length=40, blank=True)
     objects = PrivatePostManager()
 
     def __str__(self):

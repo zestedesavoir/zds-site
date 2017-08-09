@@ -23,25 +23,25 @@
   },
   "homepage": "https://github.com/zestedesavoir/zds-site",
   "dependencies": {
-    "autoprefixer": "6.5.3",
-    "cookies-eu-banner": "1.2.7",
-    "cssnano": "3.8.1",
-    "del": "2.2.2",
+    "autoprefixer": "7.1.2",
+    "cookies-eu-banner": "1.2.8",
+    "cssnano": "3.10.0",
+    "del": "3.0.0",
     "gulp": "3.9.1",
     "gulp-concat": "2.6.1",
-    "gulp-imagemin": "3.1.1",
-    "gulp-postcss": "6.2.0",
+    "gulp-imagemin": "3.3.0",
+    "gulp-postcss": "7.0.0",
     "gulp-sass": "3.1.0",
-    "gulp-sourcemaps": "2.2.2",
-    "gulp-uglify": "2.0.0",
-    "gulp.spritesmith": "6.2.1",
-    "jquery": "3.1.1",
-    "normalize.css": "4.2.0"
+    "gulp-sourcemaps": "2.6.0",
+    "gulp-uglify": "3.0.0",
+    "gulp.spritesmith": "6.5.1",
+    "jquery": "3.2.1",
+    "normalize.css": "7.0.0"
   },
   "devDependencies": {
     "gulp-jshint": "2.0.4",
     "gulp-livereload": "3.8.1",
-    "jshint": "2.9.4",
+    "jshint": "2.9.5",
     "jshint-stylish": "2.2.1"
   }
 }

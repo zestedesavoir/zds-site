@@ -217,7 +217,7 @@ class ContentForm(ContainerForm):
             .format(
                 settings.ZDS_APP['site']['licenses']['licence_info_title'],
                 settings.ZDS_APP['site']['licenses']['licence_info_link'],
-                settings.ZDS_APP['site']['litteral_name'],
+                settings.ZDS_APP['site']['literal_name'],
             )
         ),
         queryset=Licence.objects.order_by('title').all(),
@@ -516,6 +516,9 @@ class NoteForm(forms.Form):
             CommonLayoutEditor(),
             Field('last_note') if not last_note else Hidden('last_note', last_note)
         )
+
+        if reaction is None:  # we're not editing an existing comment
+            self.helper.layout.append(HTML("{% include 'misc/hat_choice.html' %}"))
 
         if content.antispam():
             if not reaction:

@@ -51,6 +51,7 @@ class LoginForm(forms.Form):
     remember = forms.BooleanField(
         label=_(u'Se souvenir de moi'),
         initial=True,
+        required=False,
     )
 
     def __init__(self, next=None, *args, **kwargs):
@@ -215,16 +216,19 @@ class ProfileForm(MiniProfileForm):
     - Display menus on hover
     - Receive an email when receiving a personal message
     """
+
+    multi_choices = [
+        ('show_sign', _(u'Afficher les signatures')),
+        ('is_hover_enabled', _(u'Dérouler les menus au survol')),
+        ('allow_temp_visual_changes', _(u'Activer les changements visuels temporaires')),
+        ('show_markdown_help', _(u"Afficher l'aide Markdown dans l'éditeur")),
+        ('email_for_answer', _(u"Recevoir un courriel lors d'une réponse à un message privé")),
+    ]
+
     options = forms.MultipleChoiceField(
         label='',
         required=False,
-        choices=(
-            ('show_sign', _(u'Afficher les signatures')),
-            ('is_hover_enabled', _(u'Dérouler les menus au survol')),
-            ('allow_temp_visual_changes', _(u'Activer les changements visuels temporaires')),
-            ('show_markdown_help', _(u"Afficher l'aide Markdown dans l'éditeur")),
-            ('email_for_answer', _(u"Recevoir un courriel lors d'une réponse à un message privé")),
-        ),
+        choices=tuple(multi_choices),
         widget=forms.CheckboxSelectMultiple,
     )
 
@@ -235,7 +239,7 @@ class ProfileForm(MiniProfileForm):
             .format(
                 settings.ZDS_APP['site']['licenses']['licence_info_title'],
                 settings.ZDS_APP['site']['licenses']['licence_info_link'],
-                settings.ZDS_APP['site']['litteral_name'],
+                settings.ZDS_APP['site']['literal_name'],
             )
         ),
         queryset=Licence.objects.order_by('title').all(),
@@ -249,6 +253,9 @@ class ProfileForm(MiniProfileForm):
         self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
 
+        if settings.ZDS_APP['member']['clem_smileys_allowed']:
+            self.fields['options'].choices.insert(3, ('use_clem_smileys', _(u'Utiliser les smileys Clem')))
+
         # to get initial value form checkbox show email
         initial = kwargs.get('initial', {})
         self.fields['options'].initial = ''
@@ -261,6 +268,9 @@ class ProfileForm(MiniProfileForm):
 
         if 'allow_temp_visual_changes' in initial and initial['allow_temp_visual_changes']:
             self.fields['options'].initial += 'allow_temp_visual_changes'
+
+        if 'use_clem_smileys' in initial and initial['use_clem_smileys']:
+            self.fields['options'].initial += 'use_clem_smileys'
 
         if 'show_markdown_help' in initial and initial['show_markdown_help']:
             self.fields['options'].initial += 'show_markdown_help'
