@@ -61,6 +61,6 @@ def mark_notifications_as_read(request):
 
     notifications.update(is_read=True)
 
-    messages.success(request, _(u'Vos notifications ont bien été marquées comme lues.'))
+    messages.success(request, _('Vos notifications ont bien été marquées comme lues.'))
 
     return redirect(reverse('notification-list'))

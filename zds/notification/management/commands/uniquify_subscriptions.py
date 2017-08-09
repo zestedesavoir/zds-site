@@ -9,7 +9,7 @@ class Command(BaseCommand):
     help = 'Delete all but last duplicate subscriptions'
 
     def handle(self, *args, **options):
-        self.stdout.write(u'Starting uniquifying subscriptions')
+        self.stdout.write('Starting uniquifying subscriptions')
         count = 0
         # Find all duplicates
         duplicates = Subscription.objects.values('user', 'content_type', 'object_id') \
@@ -25,4 +25,4 @@ class Command(BaseCommand):
             for pk in pks:
                 Subscription.objects.filter(pk=pk).delete()
 
-        self.stdout.write(u'Deleted {} duplicates'.format(count))
+        self.stdout.write('Deleted {} duplicates'.format(count))

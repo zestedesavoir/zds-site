@@ -49,13 +49,13 @@ class TemplatableContentModelMixin(object):
         :rtype: str
         """
         if self.is_article:
-            return _(u"L'Article")
+            return _("L'Article")
         elif self.is_tutorial:
-            return _(u'Le Tutoriel')
+            return _('Le Tutoriel')
         elif self.is_opinion:
-            return _(u'Le Billet')
+            return _('Le Billet')
         else:
-            return _(u'Le Contenu')
+            return _('Le Contenu')
 
 
 class OnlineLinkableContentMixin(object):

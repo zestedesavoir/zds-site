@@ -13,8 +13,8 @@ def get_git_version():
         repo = Repo(settings.BASE_DIR)
         branch = repo.active_branch
         commit = repo.head.commit.hexsha
-        name = u'{0}/{1}'.format(branch, commit[:7])
-        return {'name': name, 'url': u'{}/tree/{}'.format(settings.ZDS_APP['site']['repository']['url'], commit)}
+        name = '{0}/{1}'.format(branch, commit[:7])
+        return {'name': name, 'url': '{}/tree/{}'.format(settings.ZDS_APP['site']['repository']['url'], commit)}
     except (KeyError, TypeError):
         return {'name': '', 'url': ''}
 

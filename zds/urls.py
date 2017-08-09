@@ -50,7 +50,7 @@ class PageSitemap(Sitemap):
     priority = 0.5
 
     def items(self):
-        urls = get_resolver(None).reverse_dict.keys()
+        urls = list(get_resolver(None).reverse_dict.keys())
         return [url for url in urls if 'pages-' in str(url)]
 
     def location(self, item):

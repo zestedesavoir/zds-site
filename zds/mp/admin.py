@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 
-from models import PrivatePost, PrivateTopic, PrivateTopicRead
+from zds.mp.models import PrivatePost, PrivateTopic, PrivateTopicRead
 
 
 class PrivatePostAdmin(admin.ModelAdmin):

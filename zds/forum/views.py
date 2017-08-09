@@ -88,7 +88,7 @@ class ForumTopicsListView(FilterMixin, ForumEditMixin, ZdSPagingListView, Update
         self.object.save()
         if request.is_ajax():
             return HttpResponse(json.dumps(response), content_type='application/json')
-        return redirect(u'{}?page={}'.format(self.object.get_absolute_url(), self.page))
+        return redirect('{}?page={}'.format(self.object.get_absolute_url(), self.page))
 
     def get_context_data(self, **kwargs):
         context = super(ForumTopicsListView, self).get_context_data(**kwargs)
@@ -285,8 +285,8 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
         is_staff = request.user.has_perm('forum.change_topic')
         if self.object.author != request.user and is_staff:
             messages.warning(request, _(
-                u'Vous éditez ce sujet en tant que modérateur (auteur : {}). Soyez encore plus '
-                u'prudent lors de l\'édition de celui-ci !').format(self.object.author.username))
+                'Vous éditez ce sujet en tant que modérateur (auteur : {}). Soyez encore plus '
+                'prudent lors de l\'édition de celui-ci !').format(self.object.author.username))
         form = self.create_form(self.form_class, **{
             'title': self.object.title,
             'subtitle': self.object.subtitle,
@@ -332,7 +332,7 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
         self.object.save()
         if request.is_ajax():
             return HttpResponse(json.dumps(response), content_type='application/json')
-        return redirect(u'{}?page={}'.format(self.object.get_absolute_url(), self.page))
+        return redirect('{}?page={}'.format(self.object.get_absolute_url(), self.page))
 
     def get_object(self, queryset=None):
         try:
@@ -341,7 +341,7 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
             elif 'topic' in self.request.POST:
                 topic_pk = int(self.request.POST['topic'])
             else:
-                raise Http404(u'Impossible de trouver votre sujet.')
+                raise Http404('Impossible de trouver votre sujet.')
         except (KeyError, ValueError, TypeError):
             raise Http404
         return get_object_or_404(Topic, pk=topic_pk)
@@ -416,7 +416,7 @@ class FindTopicByTag(FilterMixin, ForumEditMixin, ZdSPagingListView, SingleObjec
         self.object.save()
         if request.is_ajax():
             return HttpResponse(json.dumps(response), content_type='application/json')
-        return redirect(u'{}?page={}'.format(self.object.get_absolute_url(), self.page))
+        return redirect('{}?page={}'.format(self.object.get_absolute_url(), self.page))
 
     def get_context_data(self, *args, **kwargs):
         context = super(FindTopicByTag, self).get_context_data(*args, **kwargs)
@@ -515,8 +515,8 @@ class PostEdit(UpdateView, SinglePostObjectMixin, PostEditMixin):
     def get(self, request, *args, **kwargs):
         if self.object.author != request.user and request.user.has_perm('forum.change_post'):
             messages.warning(request, _(
-                u'Vous éditez ce message en tant que modérateur (auteur : {}). Soyez encore plus '
-                u'prudent lors de l\'édition de celui-ci !').format(self.object.author.username))
+                'Vous éditez ce message en tant que modérateur (auteur : {}). Soyez encore plus '
+                'prudent lors de l\'édition de celui-ci !').format(self.object.author.username))
 
         form = self.create_form(self.form_class, **{
             'text': self.object.text
@@ -665,7 +665,7 @@ def solve_alert(request):
     msg_content = ''
     if 'text' in request.POST and request.POST['text']:
         resolve_reason = request.POST['text']
-        msg_title = _(u"Résolution d'alerte : {0}").format(post.topic.title)
+        msg_title = _("Résolution d'alerte : {0}").format(post.topic.title)
         msg_content = render_to_string('forum/messages/solve_alert_pm.md', {
             'alert_author': alert.author.username,
             'post_author': post.author.username,
@@ -676,7 +676,7 @@ def solve_alert(request):
         })
 
     alert.solve(request.user, resolve_reason, msg_title, msg_content)
-    messages.success(request, _(u"L'alerte a bien été résolue."))
+    messages.success(request, _("L'alerte a bien été résolue."))
     return redirect(post.get_absolute_url())
 
 
@@ -717,7 +717,7 @@ class ManageGitHubIssue(UpdateView):
                 messages.error(request, _("Aucun token d'identification GitHub n'a été renseigné."))
 
             else:
-                tags = [value.strip() for key, value in request.POST.items() if key.startswith('tag-')]
+                tags = [value.strip() for key, value in list(request.POST.items()) if key.startswith('tag-')]
                 body = _('{}\n\nSujet : {}\n*Envoyé depuis {}*')\
                     .format(request.POST['body'],
                             settings.ZDS_APP['site']['url'] + self.object.get_absolute_url(),

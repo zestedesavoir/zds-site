@@ -1319,7 +1319,7 @@ class PostEditTest(TestCase):
 
         staff = StaffProfileFactory()
         self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
-        text_hidden_expected = u'Bad guy!'
+        text_hidden_expected = 'Bad guy!'
         data = {
             'delete_message': '',
             'text_hidden': text_hidden_expected
@@ -1583,13 +1583,13 @@ class MessageActionTest(TestCase):
         # authenticated, two 'Alert' buttons because we have two messages
         self.client.login(username=profile.user.username, password='hostel77')
         response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
-        alerts = [word for word in response.content.split() if word == 'alert']
+        alerts = [word for word in str(response.content).split() if word == 'alert']
         self.assertEqual(len(alerts), 2)
 
         # staff hides a message
         staff = StaffProfileFactory()
         self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
-        text_hidden_expected = u'Bad guy!'
+        text_hidden_expected = 'Bad guy!'
         data = {
             'delete_message': '',
             'text_hidden': text_hidden_expected
@@ -1601,7 +1601,7 @@ class MessageActionTest(TestCase):
         # authenticated, user can still alert both messages
         self.client.login(username=profile.user.username, password='hostel77')
         response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
-        alerts = [word for word in response.content.split() if word == 'alert']
+        alerts = [word for word in response.content.decode().split() if word == 'alert']
         self.assertEqual(len(alerts), 2)
 
     def test_hide(self):
@@ -1613,7 +1613,8 @@ class MessageActionTest(TestCase):
 
         # two posts are displayed
         response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
-        posts = [word for word in response.content.split() if word == 'm\'appelle']
+
+        posts = [word for word in response.content.decode().split() if word == 'm\'appelle']
         self.assertEqual(len(posts), 2)
 
         # unauthenticated, no 'Hide' button
@@ -1623,13 +1624,13 @@ class MessageActionTest(TestCase):
         # authenticated, only one 'Hide' buttons because our user only posted one of them
         self.client.login(username=profile.user.username, password='hostel77')
         response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
-        hide_buttons = [word for word in response.content.split() if word == 'hide']
+        hide_buttons = [word for word in response.content.decode().split() if word == 'hide']
         self.assertEqual(len(hide_buttons), 1)
 
         # staff hides a message
         staff = StaffProfileFactory()
         self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
-        text_hidden_expected = u'Bad guy!'
+        text_hidden_expected = 'Bad guy!'
         data = {
             'delete_message': '',
             'text_hidden': text_hidden_expected
@@ -1642,7 +1643,7 @@ class MessageActionTest(TestCase):
         # only one post is displayed, visitor can see hide reason and cannot show or re-enable
         self.client.logout()
         response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
-        posts = [word for word in response.content.split() if word == 'm\'appelle']
+        posts = [word for word in response.content.decode().split() if word == 'm\'appelle']
         self.assertEqual(len(posts), 1)
         self.assertNotContains(response, '#show-message-hidden-')
         self.assertNotContains(response, 'Démasquer')
@@ -1660,7 +1661,7 @@ class MessageActionTest(TestCase):
         response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
         self.assertContains(response, 'show-message-hidden-')
         self.assertContains(response, 'Démasquer')
-        text_hidden_expected = u'Bad guy!'
+        text_hidden_expected = 'Bad guy!'
         data = {
             'show_message': '',
         }
@@ -1671,7 +1672,7 @@ class MessageActionTest(TestCase):
         # two posts are displayed again
         self.client.logout()
         response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
-        posts = [word for word in response.content.split() if word == 'm\'appelle']
+        posts = [word for word in response.content.decode().split() if word == 'm\'appelle']
         self.assertEqual(len(posts), 2)
 
 

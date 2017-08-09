@@ -8,9 +8,9 @@ from zds.utils.models import Tag
 from zds.utils.misc import contains_utf8mb4
 # for compat with py3
 try:
-    assert isinstance('', basestring)
+    assert isinstance('', str)
 except (NameError, AssertionError):
-    basestring = str
+    str = str
 
 
 class CommonLayoutEditor(Layout):
@@ -21,11 +21,11 @@ class CommonLayoutEditor(Layout):
             HTML("<div class='message-bottom'>"),
             HTML("<div class='message-submit'>"),
             StrictButton(
-                _(u'Envoyer'),
+                _('Envoyer'),
                 type='submit',
                 name='answer'),
             StrictButton(
-                _(u'Aperçu'),
+                _('Aperçu'),
                 type='submit',
                 name='preview',
                 css_class='btn-grey',
@@ -45,11 +45,11 @@ class CommonLayoutVersionEditor(Layout):
                 Field('msg_commit'),
                 ButtonHolder(
                     StrictButton(
-                        _(u'Envoyer'),
+                        _('Envoyer'),
                         type='submit',
                         name='answer'),
                     StrictButton(
-                        _(u'Aperçu'),
+                        _('Aperçu'),
                         type='submit',
                         name='preview',
                         css_class='btn-grey preview-btn'),
@@ -86,7 +86,7 @@ class TagValidator(object):
         :return: ``True`` if ``raw_string`` is fully valid, ``False`` if at least one error appears. \
         See ``self.errors`` to get all internationalized error.
         """
-        if raw_string is None or not isinstance(raw_string, basestring):
+        if raw_string is None or not isinstance(raw_string, str):
             return self.validate_string_list([])
         return self.validate_string_list(raw_string.split(','))
 
@@ -98,7 +98,7 @@ class TagValidator(object):
         :return: ``True`` if length is valid
         """
         if len(tag) > Tag._meta.get_field('title').max_length:
-            self.errors.append(_(u'Le tag {} est trop long (maximum {} caractères)'.format(
+            self.errors.append(_('Le tag {} est trop long (maximum {} caractères)'.format(
                 tag, Tag._meta.get_field('title').max_length)))
             self.logger.debug('%s est trop long expected=%d got=%d', tag,
                               Tag._meta.get_field('title').max_length, len(tag))
@@ -125,7 +125,7 @@ class TagValidator(object):
         :return: ``True`` if no utf8mb4 string is found
         """
         if contains_utf8mb4(tag):
-            self.errors.append(_(u'Le tag {} contient des caractères utf8mb4').format(tag))
+            self.errors.append(_('Le tag {} contient des caractères utf8mb4').format(tag))
             self.logger.warn('%s contains utf8mb4 char', tag)
             return False
         return True

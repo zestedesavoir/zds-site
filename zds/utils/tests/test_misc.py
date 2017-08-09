@@ -12,11 +12,11 @@ from zds.utils.templatetags.interventions import alerts_list
 class Misc(TestCase):
     def test_utf8mb4(self):
         self.assertFalse(contains_utf8mb4('abc'))
-        self.assertFalse(contains_utf8mb4(u'abc'))
+        self.assertFalse(contains_utf8mb4('abc'))
         self.assertFalse(contains_utf8mb4('abc€'))
-        self.assertFalse(contains_utf8mb4(u'abc€'))
+        self.assertFalse(contains_utf8mb4('abc€'))
         self.assertTrue(contains_utf8mb4('a🐙tbc€'))
-        self.assertTrue(contains_utf8mb4(u'a🐙tbc€'))
+        self.assertTrue(contains_utf8mb4('a🐙tbc€'))
 
     def test_intervention_filter_for_tribunes(self):
         author = ProfileFactory()

@@ -1,6 +1,7 @@
 # coding: utf-8
 import json
 import operator
+import functools
 
 from elasticsearch_dsl import Search
 from elasticsearch_dsl.query import Match, MultiMatch, FunctionScore, Term, Terms, Range
@@ -111,7 +112,7 @@ class SearchView(ZdSPagingListView):
 
     def get_queryset(self):
         if not self.index_manager.connected_to_es:
-            messages.warning(self.request, _(u'Impossible de se connecter à Elasticsearch'))
+            messages.warning(self.request, _('Impossible de se connecter à Elasticsearch'))
             return []
 
         if self.search_query:
@@ -137,9 +138,9 @@ class SearchView(ZdSPagingListView):
                     if group in settings.ZDS_APP['search']['search_groups']:
                         models.append(settings.ZDS_APP['search']['search_groups'][group][1])
             else:
-                models = [v[1] for k, v in settings.ZDS_APP['search']['search_groups'].iteritems()]
+                models = [v[1] for k, v in list(settings.ZDS_APP['search']['search_groups'].items())]
 
-            models = reduce(operator.concat, models)
+            models = functools.reduce(operator.concat, models)
 
             for model in models:
                 part_querysets.append(getattr(self, 'get_queryset_{}s'.format(model))())
@@ -150,7 +151,7 @@ class SearchView(ZdSPagingListView):
 
             # weighting:
             weight_functions = []
-            for _type, weights in settings.ZDS_APP['search']['boosts'].items():
+            for _type, weights in list(settings.ZDS_APP['search']['boosts'].items()):
                 if _type in models:
                     weight_functions.append({'filter': Match(_type=_type), 'weight': weights['global']})
 

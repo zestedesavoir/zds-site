@@ -1,5 +1,5 @@
 # coding: utf-8
-from __future__ import unicode_literals
+
 from django.utils.encoding import python_2_unicode_compatible
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
@@ -19,19 +19,19 @@ class FeaturedResource(models.Model):
     """
 
     class Meta:
-        verbose_name = _(u'Une')
-        verbose_name_plural = _(u'Unes')
+        verbose_name = _('Une')
+        verbose_name_plural = _('Unes')
 
-    title = models.CharField(_(u'Titre'), max_length=80)
-    type = models.CharField(_(u'Type'), max_length=80)
-    authors = models.CharField(_(u'Auteurs'), max_length=100, blank=True, default='')
+    title = models.CharField(_('Titre'), max_length=80)
+    type = models.CharField(_('Type'), max_length=80)
+    authors = models.CharField(_('Auteurs'), max_length=100, blank=True, default='')
     image_url = models.CharField(
-        _(u'URL de l\'image à la une'), max_length=2000, null=False, blank=False
+        _('URL de l\'image à la une'), max_length=2000, null=False, blank=False
     )
     url = models.CharField(
-        _(u'URL de la une'), max_length=2000, null=False, blank=False
+        _('URL de la une'), max_length=2000, null=False, blank=False
     )
-    pubdate = models.DateTimeField(_(u'Date de publication'), blank=False, null=False, db_index=True)
+    pubdate = models.DateTimeField(_('Date de publication'), blank=False, null=False, db_index=True)
 
     objects = FeaturedResourceManager()
 
@@ -52,12 +52,12 @@ class FeaturedMessage(models.Model):
     """
 
     class Meta:
-        verbose_name = _(u'Message')
-        verbose_name_plural = _(u'Messages')
+        verbose_name = _('Message')
+        verbose_name_plural = _('Messages')
 
-    hook = models.CharField(_(u'Accroche'), max_length=100, blank=True, null=True)
-    message = models.CharField(_(u'Message'), max_length=255, blank=True, null=True)
-    url = models.CharField(_(u'URL du message'), max_length=2000, blank=True, null=True)
+    hook = models.CharField(_('Accroche'), max_length=100, blank=True, null=True)
+    message = models.CharField(_('Message'), max_length=255, blank=True, null=True)
+    url = models.CharField(_('URL du message'), max_length=2000, blank=True, null=True)
 
     objects = FeaturedMessageManager()
 

@@ -115,8 +115,8 @@ class ViewsTests(TestCase):
             'content': [published.es_id, published.content_public_slug + '__' + chapter1.slug],
         }
 
-        search_groups = [k for k, v in settings.ZDS_APP['search']['search_groups'].iteritems()]
-        group_to_model = {k: v[1] for k, v in settings.ZDS_APP['search']['search_groups'].iteritems()}
+        search_groups = [k for k, v in list(settings.ZDS_APP['search']['search_groups'].items())]
+        group_to_model = {k: v[1] for k, v in list(settings.ZDS_APP['search']['search_groups'].items())}
 
         for doc_type in search_groups:
             result = self.client.get(reverse('search:query') + '?q=' + text + '&models=' + doc_type, follow=False)
@@ -152,7 +152,7 @@ class ViewsTests(TestCase):
         # 1. Should not get any result
         result = self.client.get(reverse('search:similar') + '?q=est', follow=False)
         self.assertEqual(result.status_code, 200)
-        content = json.loads(result.content)
+        content = json.loads(result.content.decode('utf-8'))
         self.assertEqual(len(content['results']), 0)
 
         # index
@@ -165,13 +165,13 @@ class ViewsTests(TestCase):
         # 2. Should get exactly one result
         result = self.client.get(reverse('search:similar') + '?q=mange', follow=False)
         self.assertEqual(result.status_code, 200)
-        content = json.loads(result.content)
+        content = json.loads(result.content.decode('utf-8'))
         self.assertEqual(len(content['results']), 1)
 
         # 2. Should get exactly two results
         result = self.client.get(reverse('search:similar') + '?q=Clem', follow=False)
         self.assertEqual(result.status_code, 200)
-        content = json.loads(result.content)
+        content = json.loads(result.content.decode('utf-8'))
         self.assertEqual(len(content['results']), 2)
 
     def test_hidden_post_are_not_result(self):
@@ -207,7 +207,7 @@ class ViewsTests(TestCase):
         self.assertEqual(response[0].meta.id, post_1.es_id)
 
         # 2. Hide, reindex and search again:
-        post_1.hide_comment_by_user(self.staff, u'Un abus de pouvoir comme un autre ;)')
+        post_1.hide_comment_by_user(self.staff, 'Un abus de pouvoir comme un autre ;)')
         self.manager.refresh_index()
 
         result = self.client.get(
@@ -226,7 +226,7 @@ class ViewsTests(TestCase):
         # 1. Create a hidden forum belonging to a hidden staff group.
         text = 'test'
 
-        group = Group.objects.create(name=u'Les illuminatis anonymes de ZdS')
+        group = Group.objects.create(name='Les illuminatis anonymes de ZdS')
         _, hidden_forum = create_category(group)
 
         self.staff.groups.add(group)
@@ -318,7 +318,7 @@ class ViewsTests(TestCase):
         tuto_draft.repo_update_top_container(text, tuto.slug, text, text)
 
         chapter1 = ContainerFactory(parent=tuto_draft, db_object=tuto)
-        chapter1.repo_update(text, u'Who cares ?', u'Same here')
+        chapter1.repo_update(text, 'Who cares ?', 'Same here')
         ExtractFactory(container=chapter1, db_object=tuto)
 
         published_tuto = publish_content(tuto, tuto_draft, is_major_update=True)
@@ -568,7 +568,7 @@ class ViewsTests(TestCase):
         # 1. Create a hidden forum belonging to a hidden group and add staff in it.
         text = 'test'
 
-        group = Group.objects.create(name=u'Les illuminatis anonymes de ZdS')
+        group = Group.objects.create(name='Les illuminatis anonymes de ZdS')
         _, hidden_forum = create_category(group)
 
         self.staff.groups.add(group)

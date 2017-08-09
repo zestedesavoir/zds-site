@@ -1,5 +1,5 @@
 # coding: utf-8
-from __future__ import unicode_literals
+
 import json
 import logging
 from datetime import datetime
@@ -177,7 +177,7 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
             send_mp(
                 bot,
                 [old_validator],
-                _(u'Une nouvelle version a été envoyée en validation.'),
+                _('Une nouvelle version a été envoyée en validation.'),
                 self.versioned_object.title,
                 msg,
                 False,
@@ -189,7 +189,7 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
         self.object.sha_validation = validation.version
         self.object.save()
 
-        messages.success(self.request, _(u"Votre demande de validation a été transmise à l'équipe."))
+        messages.success(self.request, _("Votre demande de validation a été transmise à l'équipe."))
 
         self.success_url = self.versioned_object.get_absolute_url(version=self.sha)
         return super(AskValidationForContent, self).form_valid(form)
@@ -231,7 +231,7 @@ class CancelValidation(LoginRequiredMixin, ModalFormView):
         # reject validation:
         quote = '\n'.join(['> ' + line for line in form.cleaned_data['text'].split('\n')])
         validation.status = 'CANCEL'
-        validation.comment_authors += _(u'\n\nLa validation a été **annulée** pour la raison suivante :\n\n{}')\
+        validation.comment_authors += _('\n\nLa validation a été **annulée** pour la raison suivante :\n\n{}')\
             .format(quote)
         validation.date_validation = datetime.now()
         validation.save()
@@ -255,14 +255,14 @@ class CancelValidation(LoginRequiredMixin, ModalFormView):
             send_mp(
                 bot,
                 [validation.validator],
-                _(u'Demande de validation annulée').format(),
+                _('Demande de validation annulée').format(),
                 versioned.title,
                 msg,
                 False,
                 with_hat=settings.ZDS_APP['member']['validation_hat'],
             )
 
-        messages.info(self.request, _(u'La validation de ce contenu a bien été annulée.'))
+        messages.info(self.request, _('La validation de ce contenu a bien été annulée.'))
 
         self.success_url = reverse('content:view', args=[validation.content.pk, validation.content.slug]) + \
             '?version=' + validation.version
@@ -282,7 +282,7 @@ class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
             validation.date_reserve = None
             validation.status = 'PENDING'
             validation.save()
-            messages.info(request, _(u"Ce contenu n'est plus réservé."))
+            messages.info(request, _("Ce contenu n'est plus réservé."))
             return redirect(reverse('validation:list'))
         else:
             validation.validator = request.user
@@ -301,11 +301,11 @@ class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
             authors = list(validation.content.authors.all())
             if validation.validator in authors:
                 authors.remove(validation.validator)
-            if authors.__len__ > 0:
+            if len(authors) > 0:
                 send_mp(
                     validation.validator,
                     authors,
-                    _(u'Contenu réservé - {0}').format(validation.content.title),
+                    _('Contenu réservé - {0}').format(validation.content.title),
                     validation.content.title,
                     msg,
                     True,
@@ -315,7 +315,7 @@ class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
                     with_hat=settings.ZDS_APP['member']['validation_hat'],
                 )
 
-            messages.info(request, _(u'Ce contenu a bien été réservé par {0}.').format(request.user.username))
+            messages.info(request, _('Ce contenu a bien été réservé par {0}.').format(request.user.username))
 
             return redirect(
                 reverse('content:view', args=[validation.content.pk, validation.content.slug]) +
@@ -393,7 +393,7 @@ class RejectValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
         send_mp(
             bot,
             validation.content.authors.all(),
-            _(u'Rejet de la demande de publication').format(),
+            _('Rejet de la demande de publication').format(),
             validation.content.title,
             msg,
             True,
@@ -401,7 +401,7 @@ class RejectValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
             with_hat=settings.ZDS_APP['member']['validation_hat'],
         )
 
-        messages.info(self.request, _(u'Le contenu a bien été refusé.'))
+        messages.info(self.request, _('Le contenu a bien été refusé.'))
         self.success_url = reverse('validation:list')
         return super(RejectValidation, self).form_valid(form)
 
@@ -415,7 +415,7 @@ class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
     modal_form = True
 
     def get(self, request, *args, **kwargs):
-        raise Http404(u"Publier un contenu depuis la validation n'est pas disponible en GET.")
+        raise Http404("Publier un contenu depuis la validation n'est pas disponible en GET.")
 
     def get_form_kwargs(self):
         kwargs = super(AcceptValidation, self).get_form_kwargs()
@@ -480,7 +480,7 @@ class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
             # Follow
             signals.new_content.send(sender=db_object.__class__, instance=db_object, by_email=False)
 
-            messages.success(self.request, _(u'Le contenu a bien été validé.'))
+            messages.success(self.request, _('Le contenu a bien été validé.'))
             self.success_url = published.get_absolute_url_online()
 
         return super(AcceptValidation, self).form_valid(form)
@@ -541,7 +541,7 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleOnline
         send_mp(
             bot,
             validation.content.authors.all(),
-            _(u'Dépublication'),
+            _('Dépublication'),
             validation.content.title,
             msg,
             True,
@@ -549,7 +549,7 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleOnline
             with_hat=settings.ZDS_APP['member']['validation_hat'],
         )
 
-        messages.success(self.request, _(u'Le contenu a bien été dépublié.'))
+        messages.success(self.request, _('Le contenu a bien été dépublié.'))
         self.success_url = self.versioned_object.get_absolute_url() + '?version=' + validation.version
 
         return super(RevokeValidation, self).form_valid(form)
@@ -566,7 +566,7 @@ class PublishOpinion(LoggedWithReadWriteHability, NoValidationBeforeFormViewMixi
     authorized_for_staff = True
 
     def get(self, request, *args, **kwargs):
-        raise Http404(_(u"Publier un contenu n'est pas possible avec la méthode « GET »."))
+        raise Http404(_("Publier un contenu n'est pas possible avec la méthode « GET »."))
 
     def get_form_kwargs(self):
         kwargs = super(PublishOpinion, self).get_form_kwargs()
@@ -598,7 +598,7 @@ class PublishOpinion(LoggedWithReadWriteHability, NoValidationBeforeFormViewMixi
             # Follow
             signals.new_content.send(sender=db_object.__class__, instance=db_object, by_email=False)
 
-            messages.success(self.request, _(u'Le contenu a bien été publié.'))
+            messages.success(self.request, _('Le contenu a bien été publié.'))
             self.success_url = published.get_absolute_url_online()
 
         return super(PublishOpinion, self).form_valid(form)
@@ -644,7 +644,7 @@ class UnpublishOpinion(LoginRequiredMixin, SingleOnlineContentFormViewMixin, NoV
         send_mp(
             bot,
             versioned.authors.all(),
-            _(u'Dépublication'),
+            _('Dépublication'),
             versioned.title,
             msg,
             True,
@@ -652,7 +652,7 @@ class UnpublishOpinion(LoginRequiredMixin, SingleOnlineContentFormViewMixin, NoV
             with_hat=settings.ZDS_APP['member']['moderation_hat'],
         )
 
-        messages.success(self.request, _(u'Le contenu a bien été dépublié.'))
+        messages.success(self.request, _('Le contenu a bien été dépublié.'))
         self.success_url = self.versioned_object.get_absolute_url()
 
         return super(UnpublishOpinion, self).form_valid(form)
@@ -712,7 +712,7 @@ class DoNotPickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin)
                 send_mp(
                     bot,
                     versioned.authors.all(),
-                    _(u'Dépublication'),
+                    _('Dépublication'),
                     versioned.title,
                     msg,
                     True,
@@ -761,7 +761,7 @@ class PickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
     permissions = ['tutorialv2.change_validation']
 
     def get(self, request, *args, **kwargs):
-        raise Http404(_(u"Valider un contenu n'est pas possible avec la méthode « GET »."))
+        raise Http404(_("Valider un contenu n'est pas possible avec la méthode « GET »."))
 
     def get_form_kwargs(self):
         kwargs = super(PickOpinion, self).get_form_kwargs()
@@ -795,7 +795,7 @@ class PickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
         send_mp(
             bot,
             versioned.authors.all(),
-            _(u'Billet approuvé'),
+            _('Billet approuvé'),
             versioned.title,
             msg,
             True,
@@ -803,7 +803,7 @@ class PickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
             with_hat=settings.ZDS_APP['member']['moderation_hat'],
         )
 
-        messages.success(self.request, _(u'Le contenu a bien été validé.'))
+        messages.success(self.request, _('Le contenu a bien été validé.'))
 
         return super(PickOpinion, self).form_valid(form)
 
@@ -818,7 +818,7 @@ class UnpickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
     permissions = ['tutorialv2.change_validation']
 
     def get(self, request, *args, **kwargs):
-        raise Http404(_(u"Enlever un billet des billets choisis n'est pas possible avec la méthode « GET »."))
+        raise Http404(_("Enlever un billet des billets choisis n'est pas possible avec la méthode « GET »."))
 
     def get_form_kwargs(self):
         kwargs = super(UnpickOpinion, self).get_form_kwargs()
@@ -859,7 +859,7 @@ class UnpickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
         send_mp(
             bot,
             versioned.authors.all(),
-            _(u'Billet retiré de la liste des billets choisis'),
+            _('Billet retiré de la liste des billets choisis'),
             versioned.title,
             msg,
             True,
@@ -867,7 +867,7 @@ class UnpickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
             with_hat=settings.ZDS_APP['member']['moderation_hat'],
         )
 
-        messages.success(self.request, _(u'Le contenu a bien été enlevé de la liste des billets choisis.'))
+        messages.success(self.request, _('Le contenu a bien été enlevé de la liste des billets choisis.'))
 
         return super(UnpickOpinion, self).form_valid(form)
 
@@ -877,7 +877,7 @@ class MarkObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
     permissions = ['tutorialv2.change_validation']
 
     def get(self, request, *args, **kwargs):
-        raise Http404(u"Marquer un contenu comme obsolète n'est pas disponible en GET.")
+        raise Http404("Marquer un contenu comme obsolète n'est pas disponible en GET.")
 
     def post(self, request, *args, **kwargs):
         content = get_object_or_404(PublishableContent, pk=kwargs['pk'])
@@ -885,10 +885,10 @@ class MarkObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
             raise Http404
         if content.is_obsolete:
             content.is_obsolete = False
-            messages.info(request, _(u"Le contenu n'est plus marqué comme obsolète."))
+            messages.info(request, _("Le contenu n'est plus marqué comme obsolète."))
         else:
             content.is_obsolete = True
-            messages.info(request, _(u'Le contenu est maintenant marqué comme obsolète.'))
+            messages.info(request, _('Le contenu est maintenant marqué comme obsolète.'))
         content.save()
         return redirect(content.get_absolute_url_online())
 
@@ -904,7 +904,7 @@ class PromoteOpinionToArticle(PermissionRequiredMixin, NoValidationBeforeFormVie
     permissions = ['tutorialv2.change_validation']
 
     def get(self, request, *args, **kwargs):
-        raise Http404(_(u"Promouvoir un billet en article n'est pas possible avec la méthode « GET »."))
+        raise Http404(_("Promouvoir un billet en article n'est pas possible avec la méthode « GET »."))
 
     def get_form_kwargs(self):
         kwargs = super(PromoteOpinionToArticle, self).get_form_kwargs()
@@ -963,7 +963,7 @@ class PromoteOpinionToArticle(PermissionRequiredMixin, NoValidationBeforeFormVie
         validation = Validation()
         validation.content = article
         validation.date_proposition = datetime.now()
-        validation.comment_authors = _(u'Promotion du billet « [{0}]({1}) » en article par [{2}]({3}).'.format(
+        validation.comment_authors = _('Promotion du billet « [{0}]({1}) » en article par [{2}]({3}).'.format(
             article.title,
             article.get_absolute_url_online(),
             self.request.user.username,
@@ -994,7 +994,7 @@ class PromoteOpinionToArticle(PermissionRequiredMixin, NoValidationBeforeFormVie
         send_mp(
             bot,
             article.authors.all(),
-            _(u'Billet promu en article'),
+            _('Billet promu en article'),
             versionned_article.title,
             msg,
             True,
@@ -1004,6 +1004,6 @@ class PromoteOpinionToArticle(PermissionRequiredMixin, NoValidationBeforeFormVie
 
         self.success_url = db_object.get_absolute_url()
 
-        messages.success(self.request, _(u'Le billet a bien été promu en article et est en attente de validation.'))
+        messages.success(self.request, _('Le billet a bien été promu en article et est en attente de validation.'))
 
         return super(PromoteOpinionToArticle, self).form_valid(form)

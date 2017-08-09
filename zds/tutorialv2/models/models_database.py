@@ -1,5 +1,5 @@
 # coding: utf-8
-from __future__ import unicode_literals
+
 
 from django.db.models import CASCADE
 from django.utils.encoding import python_2_unicode_compatible
@@ -132,18 +132,18 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
     is_locked = models.BooleanField('Est verrouillé', default=False)
     js_support = models.BooleanField('Support du Javascript', default=False)
 
-    must_reindex = models.BooleanField(u'Si le contenu doit-être ré-indexé', default=True)
+    must_reindex = models.BooleanField('Si le contenu doit-être ré-indexé', default=True)
 
     is_obsolete = models.BooleanField('Est obsolète', default=False)
 
     public_version = models.ForeignKey(
-        'PublishedContent', verbose_name=u'Version publiée', blank=True, null=True, on_delete=models.SET_NULL)
+        'PublishedContent', verbose_name='Version publiée', blank=True, null=True, on_delete=models.SET_NULL)
 
     # FK to an opinion which has been converted to article. Useful to keep track of history and
     # to add a canonical link
     converted_to = models.ForeignKey(
         'self',
-        verbose_name=u'Contenu promu',
+        verbose_name='Contenu promu',
         blank=True,
         null=True,
         on_delete=models.SET_NULL,
@@ -197,7 +197,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
 
         return ''
 
-    def get_absolute_contact_url(self, title=u'Collaboration'):
+    def get_absolute_contact_url(self, title='Collaboration'):
         """ Get url to send a new PM for collaboration
 
         :param title: what is going to be in the title of the PM before the name of the content
@@ -205,7 +205,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         :return: url to the PM creation form
         :rtype: str
         """
-        get = '?' + urlencode({'title': u'{} - {}'.format(title, self.title)})
+        get = '?' + urlencode({'title': '{} - {}'.format(title, self.title)})
 
         for author in self.authors.all():
             get += '&' + urlencode({'username': author.username})
@@ -320,7 +320,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
             return self.load_version(sha, public)
         except (BadObject, BadName, IOError) as error:
             raise Http404(
-                u'Le code sha existe mais la version demandée ne peut pas être trouvée à cause de {}:{}'.format(
+                'Le code sha existe mais la version demandée ne peut pas être trouvée à cause de {}:{}'.format(
                     type(error), str(error)))
 
     def load_version(self, sha=None, public=None):
@@ -376,7 +376,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
                 json = json_reader.loads(data)
             except ValueError:
                 raise BadManifestError(
-                    _(u'Une erreur est survenue lors de la lecture du manifest.json, est-ce du JSON ?'))
+                    _('Une erreur est survenue lors de la lecture du manifest.json, est-ce du JSON ?'))
 
             versioned = get_content_from_json(json, sha, self.slug, max_title_len=max_title_length)
 
@@ -1142,7 +1142,7 @@ class ContentRead(models.Model):
         Save this model but check that if we have not a related note it is because the user is content author.
         """
         if self.user not in self.content.authors.all() and self.note is None:
-            raise ValueError(_(u"La note doit exister ou l'utilisateur doit être l'un des auteurs."))
+            raise ValueError(_("La note doit exister ou l'utilisateur doit être l'un des auteurs."))
 
         return super(ContentRead, self).save(force_insert, force_update, using, update_fields)
 

@@ -1,4 +1,4 @@
 gunicorn==19.7.1
-MySQL-python==1.2.5
+mysqlclient==1.3.7
 raven==5.32.0
 ujson==1.35
