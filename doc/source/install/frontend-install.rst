@@ -12,7 +12,7 @@ Le frontend de Zeste de Savoir repose sur la version supportée à long terme ac
 
 L'installation de ``node`` est détaillée sur le site de Node.js, soit par `téléchargement direct <https://nodejs.org/en/download/>`_, soit via un `gestionnaire de paquet <https://nodejs.org/en/download/package-manager/>`_. Zeste de Savoir requiert la version 8.
 
-Alternativement, l’installation de Node.js avec [nvm](https://github.com/creationix/nvm) est relativement simple. De plus, nvm permet très facilement de basculer d’une version à une autre.
+Alternativement, l’installation de Node.js avec `nvm <https://github.com/creationix/nvm`_ est relativement simple. De plus, nvm permet très facilement de basculer d’une version à une autre.
 
 
 
