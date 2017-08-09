@@ -57,6 +57,7 @@
                         {% if topic.is_locked or topic.antispam or topic.alone %}disabled{% endif %}
                         placeholder="Votre message au format Markdown"
                     >{{ text }}</textarea>
+                    {% include 'misc/hat_choice.html' %}
                 </div>
 
                 <div class="message-bottom">

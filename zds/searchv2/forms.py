@@ -5,7 +5,6 @@ import random
 from django import forms
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
-from zds.settings import BASE_DIR
 
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
@@ -30,12 +29,16 @@ class SearchForm(forms.Form):
         [(k, v[0]) for k, v in settings.ZDS_APP['search']['search_groups'].iteritems()],
         key=lambda pair: pair[1]
     )
+
     models = forms.MultipleChoiceField(
         label='',
         widget=forms.CheckboxSelectMultiple,
         required=False,
         choices=choices
     )
+
+    category = forms.CharField(widget=forms.HiddenInput, required=False)
+    subcategory = forms.CharField(widget=forms.HiddenInput, required=False)
 
     def __init__(self, *args, **kwargs):
 
@@ -48,7 +51,7 @@ class SearchForm(forms.Form):
         self.helper.form_action = reverse('search:query')
 
         try:
-            with open(os.path.join(BASE_DIR, 'suggestions.txt'), 'r') as suggestions_file:
+            with open(os.path.join(settings.BASE_DIR, 'suggestions.txt'), 'r') as suggestions_file:
                 suggestions = ', '.join(random.sample(suggestions_file.readlines(), 5)) + u'…'
         except IOError:
             suggestions = _(u'Mathématiques, Droit, UDK, Langues, Python…')
@@ -57,5 +60,7 @@ class SearchForm(forms.Form):
 
         self.helper.layout = Layout(
             Field('q'),
-            StrictButton('', type='submit', css_class='ico-after ico-search', title=_(u'Rechercher'))
+            StrictButton('', type='submit', css_class='ico-after ico-search', title=_(u'Rechercher')),
+            Field('category'),
+            Field('subcategory')
         )

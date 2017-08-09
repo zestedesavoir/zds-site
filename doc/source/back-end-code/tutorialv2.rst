@@ -74,3 +74,10 @@ Les utilitaires de publication (``publication_utils.py``)
 
 .. automodule:: zds.tutorialv2.publication_utils
     :members:
+
+Les receveurs d'évènement bdd (``receivers.py``)
+================================================
+
+.. automodule:: zds.tutorialv2.receivers
+    :members:
+

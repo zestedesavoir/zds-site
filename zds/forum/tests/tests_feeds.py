@@ -46,10 +46,10 @@ class LastTopicsFeedRSSTest(TestCase):
         """ Test that base parameters are Ok """
 
         self.assertEqual(self.topicfeed.link, '/forums/')
-        reftitle = u'Derniers sujets sur {}'.format(settings.ZDS_APP['site']['litteral_name'])
+        reftitle = u'Derniers sujets sur {}'.format(settings.ZDS_APP['site']['literal_name'])
         self.assertEqual(self.topicfeed.title, reftitle)
         refdescription = (u'Les derniers sujets créés '
-                          u'sur le forum de {}.'.format(settings.ZDS_APP['site']['litteral_name']))
+                          u'sur le forum de {}.'.format(settings.ZDS_APP['site']['literal_name']))
         self.assertEqual(self.topicfeed.description, refdescription)
 
         atom = LastTopicsFeedATOM()
@@ -202,10 +202,10 @@ class LastPostFeedTest(TestCase):
         """ Test that base parameters are Ok """
 
         self.assertEqual(self.postfeed.link, '/forums/')
-        reftitle = u'Derniers messages sur {}'.format(settings.ZDS_APP['site']['litteral_name'])
+        reftitle = u'Derniers messages sur {}'.format(settings.ZDS_APP['site']['literal_name'])
         self.assertEqual(self.postfeed.title, reftitle)
         refdescription = (u'Les derniers messages '
-                          u'parus sur le forum de {}.'.format(settings.ZDS_APP['site']['litteral_name']))
+                          u'parus sur le forum de {}.'.format(settings.ZDS_APP['site']['literal_name']))
         self.assertEqual(self.postfeed.description, refdescription)
 
         atom = LastPostsFeedATOM()

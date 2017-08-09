@@ -8,7 +8,6 @@ import datetime
 from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings
-from zds.settings import BASE_DIR
 from django.core.urlresolvers import reverse
 
 from zds.member.factories import ProfileFactory, StaffProfileFactory
@@ -26,6 +25,7 @@ from zds.tutorialv2.publication_utils import Publicator, PublicatorRegistery
 from watchdog.events import FileCreatedEvent
 from zds.tutorialv2.management.commands.publication_watchdog import TutorialIsPublished
 from mock import Mock
+from copy import deepcopy
 try:
     import ujson as json_reader
 except ImportError:
@@ -34,27 +34,26 @@ except ImportError:
     except:
         import json as json_reader
 
-overrided_zds_app = settings.ZDS_APP
-overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
-overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
-overrided_zds_app['tutorial']['repo_path'] = os.path.join(BASE_DIR, 'tutoriels-private-test')
-overrided_zds_app['tutorial']['repo_public_path'] = os.path.join(BASE_DIR, 'tutoriels-public-test')
-overrided_zds_app['article']['repo_path'] = os.path.join(BASE_DIR, 'article-data-test')
+BASE_DIR = settings.BASE_DIR
+
+overridden_zds_app = deepcopy(settings.ZDS_APP)
+overridden_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
+overridden_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
+overridden_zds_app['tutorial']['repo_path'] = os.path.join(BASE_DIR, 'tutoriels-private-test')
+overridden_zds_app['tutorial']['repo_public_path'] = os.path.join(BASE_DIR, 'tutoriels-public-test')
+overridden_zds_app['article']['repo_path'] = os.path.join(BASE_DIR, 'article-data-test')
+overridden_zds_app['content']['build_pdf_when_published'] = False
 
 
 @override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
-@override_settings(ZDS_APP=overrided_zds_app)
+@override_settings(ZDS_APP=overridden_zds_app)
 @override_settings(ES_ENABLED=False)
+@override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
 class UtilsTests(TestCase):
 
     def setUp(self):
-
-        # don't build PDF to speed up the tests
-        settings.ZDS_APP['content']['build_pdf_when_published'] = False
-
-        settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
         self.mas = ProfileFactory().user
-        settings.ZDS_APP['member']['bot_account'] = self.mas.username
+        overridden_zds_app['member']['bot_account'] = self.mas.username
 
         self.licence = LicenceFactory()
 
@@ -381,7 +380,7 @@ class UtilsTests(TestCase):
     def test_generate_pdf(self):
         """ensure the behavior of the `python manage.py generate_pdf` commmand"""
 
-        settings.ZDS_APP['content']['build_pdf_when_published'] = True  # this test need PDF build, if any
+        overridden_zds_app['content']['build_pdf_when_published'] = True  # this test need PDF build, if any
 
         tuto = PublishedContentFactory(type='TUTORIAL')  # generate and publish a tutorial
         published = PublishedContent.objects.get(content_pk=tuto.pk)
@@ -506,10 +505,7 @@ class UtilsTests(TestCase):
         self.assertEqual(actor['committer'].email, self.user_author.email)
         self.assertEqual(actor['author'].email, self.user_author.email)
 
-        # 2. Without connected user
-        self.client.logout()
-
-        # as above ...
+    def test_get_commit_author_not_auth(self):
         result = self.client.get(reverse('pages-index'))
         self.assertEqual(result.status_code, 200)
 
@@ -542,7 +538,7 @@ class UtilsTests(TestCase):
             self.assertFalse(check_slug(s))
 
         # too long slugs are forbidden :
-        too_damn_long_slug = 'a' * (settings.ZDS_APP['content']['maximum_slug_size'] + 1)
+        too_damn_long_slug = 'a' * (overridden_zds_app['content']['maximum_slug_size'] + 1)
         self.assertFalse(check_slug(too_damn_long_slug))
 
     def test_watchdog(self):
@@ -585,14 +581,12 @@ class UtilsTests(TestCase):
         self.assertEqual(published.char_count, published.get_char_count())
 
     def tearDown(self):
-        if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
-            shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
-        if os.path.isdir(settings.ZDS_APP['content']['repo_public_path']):
-            shutil.rmtree(settings.ZDS_APP['content']['repo_public_path'])
+        if os.path.isdir(overridden_zds_app['content']['repo_private_path']):
+            shutil.rmtree(overridden_zds_app['content']['repo_private_path'])
+        if os.path.isdir(overridden_zds_app['content']['repo_public_path']):
+            shutil.rmtree(overridden_zds_app['content']['repo_public_path'])
         if os.path.isdir(settings.MEDIA_ROOT):
             shutil.rmtree(settings.MEDIA_ROOT)
-        if os.path.isdir(settings.ZDS_APP['content']['extra_content_watchdog_dir']):
-            shutil.rmtree(settings.ZDS_APP['content']['extra_content_watchdog_dir'])
-        # re-activate PDF build
-        settings.ZDS_APP['content']['build_pdf_when_published'] = True
+        if os.path.isdir(overridden_zds_app['content']['extra_content_watchdog_dir']):
+            shutil.rmtree(overridden_zds_app['content']['extra_content_watchdog_dir'])
         PublicatorRegistery.registry = self.old_registry

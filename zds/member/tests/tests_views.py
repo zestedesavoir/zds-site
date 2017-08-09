@@ -14,7 +14,6 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django.utils.translation import ugettext_lazy as _
 
-from zds.settings import BASE_DIR
 from zds.notification.models import TopicAnswerSubscription
 from zds.member.factories import ProfileFactory, StaffProfileFactory, NonAsciiProfileFactory, UserFactory, \
     DevProfileFactory
@@ -28,16 +27,16 @@ from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory, Pos
 from zds.forum.models import Topic, Post
 from zds.gallery.factories import GalleryFactory, UserGalleryFactory
 from zds.gallery.models import Gallery, UserGallery
-from zds.utils.models import CommentVote
+from zds.utils.models import CommentVote, Hat
+from copy import deepcopy
+
+overridden_zds_app = deepcopy(settings.ZDS_APP)
+overridden_zds_app['content']['repo_private_path'] = os.path.join(settings.BASE_DIR, 'contents-private-test')
+overridden_zds_app['content']['repo_public_path'] = os.path.join(settings.BASE_DIR, 'contents-public-test')
 
 
-overrided_zds_app = settings.ZDS_APP
-overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
-overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
-
-
-@override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
-@override_settings(ZDS_APP=overrided_zds_app)
+@override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'media-test'))
+@override_settings(ZDS_APP=overridden_zds_app)
 class MemberTests(TestCase):
 
     def setUp(self):
@@ -1361,6 +1360,89 @@ class MemberTests(TestCase):
         result = self.client.post(reverse('remove-banned-email-provider', args=[provider.pk]), follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertFalse(BannedEmailProvider.objects.filter(pk=provider.pk).exists())
+
+    def test_hats_on_profile(self):
+        hat_name = 'A hat'
+
+        profile = ProfileFactory()
+        user = profile.user
+        # Test that hats doesn't appear if there are not hats and if the current user is not staff member
+        self.client.login(username=user.username, password='hostel77')
+        result = self.client.get(profile.get_absolute_url())
+        self.assertEqual(result.status_code, 200)
+        self.assertNotContains(result, _('Casquettes'))
+        # Test that they appear with a staff member
+        self.client.login(username=self.staff.username, password='hostel77')
+        result = self.client.get(profile.get_absolute_url())
+        self.assertEqual(result.status_code, 200)
+        self.assertContains(result, _('Casquettes'))
+        # Add a hat and check that it appears
+        self.client.post(reverse('add-hat', args=[user.pk]),
+                         {'hat': hat_name}, follow=False)
+        self.assertIn(hat_name, profile.hats.values_list('name', flat=True))
+        result = self.client.get(profile.get_absolute_url())
+        self.assertEqual(result.status_code, 200)
+        self.assertContains(result, hat_name)
+        # And also for a member that is not staff
+        self.client.login(username=user.username, password='hostel77')
+        result = self.client.get(profile.get_absolute_url())
+        self.assertEqual(result.status_code, 200)
+        self.assertContains(result, _('Casquettes'))
+        self.assertContains(result, hat_name)
+
+    def test_add_hat(self):
+        short_hat = 'A new hat'
+        long_hat = 'A very long hat' * 3
+
+        profile = ProfileFactory()
+        user = profile.user
+        # check that this option is only available for a staff member
+        self.client.login(username=user.username, password='hostel77')
+        result = self.client.post(reverse('add-hat', args=[user.pk]),
+                                  {'hat': short_hat}, follow=False)
+        self.assertEqual(result.status_code, 403)
+        # login as staff
+        self.client.login(username=self.staff.username, password='hostel77')
+        # test that it doesn't work with a too long hat (> 40 characters)
+        result = self.client.post(reverse('add-hat', args=[user.pk]),
+                                  {'hat': long_hat}, follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertNotIn(long_hat, profile.hats.values_list('name', flat=True))
+        # test that it works with a short hat (<= 40 characters)
+        result = self.client.post(reverse('add-hat', args=[user.pk]),
+                                  {'hat': short_hat}, follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertIn(short_hat, profile.hats.values_list('name', flat=True))
+        # test that if the hat already exists, it is used
+        result = self.client.post(reverse('add-hat', args=[self.staff.pk]),
+                                  {'hat': short_hat}, follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertIn(short_hat, self.staff.profile.hats.values_list('name', flat=True))
+        self.assertEqual(Hat.objects.filter(name=short_hat).count(), 1)
+
+    def test_remove_hat(self):
+        hat_name = 'A hat'
+
+        profile = ProfileFactory()
+        user = profile.user
+        # add a hat with a staff member
+        self.client.login(username=self.staff.username, password='hostel77')
+        self.client.post(reverse('add-hat', args=[user.pk]),
+                         {'hat': hat_name}, follow=False)
+        self.assertIn(hat_name, profile.hats.values_list('name', flat=True))
+        hat = Hat.objects.get(name=hat_name)
+        # test that this option is only available for a staff member
+        self.client.login(username=user.username, password='hostel77')
+        result = self.client.post(reverse('remove-hat', args=[user.pk, hat.pk]), follow=False)
+        self.assertEqual(result.status_code, 403)
+        self.assertIn(hat, profile.hats.all())
+        # test that it works for a staff member
+        self.client.login(username=self.staff.username, password='hostel77')
+        result = self.client.post(reverse('remove-hat', args=[user.pk, hat.pk]), follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertNotIn(hat, profile.hats.all())
+        # but check that the hat still exists in database
+        self.assertTrue(Hat.objects.filter(name=hat_name).exists())
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):

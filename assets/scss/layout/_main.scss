@@ -1,3 +1,8 @@
+
+.main {
+    flex: 1;
+}
+
 .main .content-container {
     padding-top: 30px;
 
@@ -51,6 +56,17 @@
             border: 1px solid #cdd0d1;
             width: 50px;
             height: 50px;
+        }
+
+        &.inline {
+            display: inline-block;
+        }
+
+        .btn {
+            font-size: 16px;
+
+            height: 38px;
+            line-height: 38px;
         }
     }
 
@@ -147,7 +163,6 @@
     .main {
         display: flex;
         flex-direction: row-reverse;
-        height: 100%;
         margin-left: 0;
         padding-left: 2.5%;
 

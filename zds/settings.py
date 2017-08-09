@@ -321,7 +321,7 @@ CACHES = {
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 
-LOGIN_URL = '/membres/connexion'
+LOGIN_URL = 'member-login'
 
 ABSOLUTE_URL_OVERRIDES = {
     'auth.user': lambda u: '/membres/voir/{0}/'.format(urlquote(u.username.encode('utf-8')))
@@ -386,7 +386,7 @@ THUMBNAIL_PRESERVE_EXTENSIONS = None
 ZDS_APP = {
     'site': {
         'name': u'ZesteDeSavoir',
-        'litteral_name': u'Zeste de Savoir',
+        'literal_name': u'Zeste de Savoir',
         'slogan': u'Zeste de Savoir, la connaissance pour tous et sans pépins',
         'abbr': u'zds',
         'url': u'http://127.0.0.1:8000',
@@ -464,6 +464,8 @@ ZDS_APP = {
         'members_per_page': 100,
         'providers_per_page': 100,
         'update_last_visit_interval': 600,  # seconds
+        'validation_hat': 'Staff',
+        'moderation_hat': 'Staff',
     },
     'gallery': {
         'image_max_size': 1024 * 1024,
@@ -507,9 +509,9 @@ ZDS_APP = {
         'import_image_prefix': 'archive',
         'build_pdf_when_published': True,
         'maximum_slug_size': 150,
-        'sec_per_minute': 1500,
+        'characters_per_minute': 1500,
         'editorial_line_link':
-        u'https://zestedesavoir.com/articles/222/la-ligne-editoriale-officielle-de-zeste-de-savoir/'
+        u'https://zestedesavoir.com/articles/222/la-ligne-editoriale-officielle-de-zeste-de-savoir/',
     },
     'forum': {
         'posts_per_page': 21,
@@ -618,7 +620,7 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'mApWNh3stCsYHwsGuWdbZWP8'  # noqa
 USE_CAPTCHA = False
 NOCAPTCHA = True  # Use the 'No Captcha engine'
 RECAPTCHA_USE_SSL = True
-# keys (should be overriden in the settings_prod.py file)
+# keys (should be overridden in the settings_prod.py file)
 RECAPTCHA_PUBLIC_KEY = 'dummy'  # noqa
 RECAPTCHA_PRIVATE_KEY = 'dummy'  # noqa
 

@@ -23,7 +23,8 @@ def send_mp(
         send_by_mail=True,
         leave=True,
         direct=False,
-        mark_as_read=False):
+        mark_as_read=False,
+        with_hat=''):
     """
     Send MP at members.
     Most of the param are obvious, excepted :
@@ -44,7 +45,7 @@ def send_mp(
     for part in users:
         n_topic.participants.add(part)
 
-    topic = send_message_mp(author, n_topic, text, send_by_mail, direct)
+    topic = send_message_mp(author, n_topic, text, send_by_mail, direct, with_hat)
     if mark_as_read:
         mark_read(topic, author)
 
@@ -62,7 +63,8 @@ def send_message_mp(
         n_topic,
         text,
         send_by_mail=True,
-        direct=False):
+        direct=False,
+        with_hat=''):
     """
     Send a post in an MP.
     Most of the param are obvious, excepted :
@@ -84,6 +86,7 @@ def send_message_mp(
     post.text_html = emarkdown(text)
     post.pubdate = datetime.now()
     post.position_in_topic = pos
+    post.with_hat = with_hat
     post.save()
 
     n_topic.last_message = post
@@ -93,8 +96,8 @@ def send_message_mp(
         signals.new_content.send(sender=post.__class__, instance=post, by_email=send_by_mail)
 
     if send_by_mail and direct:
-        subject = u'{} : {}'.format(settings.ZDS_APP['site']['litteral_name'], n_topic.title)
-        from_email = u'{} <{}>'.format(settings.ZDS_APP['site']['litteral_name'],
+        subject = u'{} : {}'.format(settings.ZDS_APP['site']['literal_name'], n_topic.title)
+        from_email = u'{} <{}>'.format(settings.ZDS_APP['site']['literal_name'],
                                        settings.ZDS_APP['site']['email_noreply'])
         for part in n_topic.participants.all():
             message_html = render_to_string('email/direct.html', {'msg': emarkdown(text)})

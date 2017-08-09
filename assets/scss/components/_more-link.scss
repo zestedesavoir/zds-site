@@ -1,0 +1,23 @@
+$content-border-color: #DEDEDE;
+$content-illu-size: 96px;
+$content-reaction-offset: -14px; // -30px to not offset the meta
+
+.more-link {
+    background: #FFF;
+    height: 40px;
+    display: block;
+
+    border: solid 1px $content-border-color;
+    border-bottom-width: 2px;
+    margin: 0 0 15px 0;
+    line-height: 40px;
+    text-align: center;
+    font-size: 1.7rem;
+    text-decoration: none;
+}
+
+@media only screen and #{$media-mobile-tablet} {
+}
+
+@media only screen and #{$media-mobile} {
+}

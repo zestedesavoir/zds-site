@@ -1,0 +1,18 @@
+{% load i18n %}
+
+
+{% if user.is_authenticated and user.profile.has_hat %}
+    <label for="hat-choice">{% trans "Poster avec ma caquette :" %}</label>
+    <select name="hat" id="hat-choice">
+        <option value>{% trans "–" %}</option>
+        {% for hat in user.profile.hats.all %}
+            <option value="{{ hat.pk }}"
+                {% if request.POST.hat|add:0 == hat.pk %}
+                    selected
+                {% endif %}
+            >
+                {{ hat.name }}
+            </option>
+        {% endfor %}
+    </select>
+{% endif %}

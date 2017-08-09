@@ -23,15 +23,19 @@ from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactor
 from zds.mp.models import PrivateTopic, is_privatetopic_unread
 from zds.notification.models import TopicAnswerSubscription, ContentReactionAnswerSubscription, \
     NewPublicationSubscription, Notification, Subscription
-from zds.settings import BASE_DIR
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory, \
     SubCategoryFactory, PublishedContentFactory, tricky_text_content, BetaContentFactory
 from zds.tutorialv2.models.models_database import PublishableContent, Validation, PublishedContent, ContentReaction, \
     ContentRead
 from zds.tutorialv2.publication_utils import publish_content, Publicator, PublicatorRegistery
-from zds.utils.models import HelpWriting, Alert, Tag
+from zds.utils.models import HelpWriting, Alert, Tag, Hat
 from zds.utils.factories import HelpWritingFactory
 from zds.utils.templatetags.interventions import interventions_topics
+from copy import deepcopy
+
+
+BASE_DIR = settings.BASE_DIR
+
 
 try:
     import ujson as json_reader
@@ -42,10 +46,10 @@ except ImportError:
         import json as json_reader
 
 
-overrided_zds_app = settings.ZDS_APP
-overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
-overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
-overrided_zds_app['content']['extra_content_generation_policy'] = 'SYNC'
+overridden_zds_app = deepcopy(settings.ZDS_APP)
+overridden_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
+overridden_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
+overridden_zds_app['content']['extra_content_generation_policy'] = 'SYNC'
 
 
 @PublicatorRegistery.register('pdf')
@@ -56,24 +60,23 @@ class FakePDFPublicator(Publicator):
 
 
 @override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
-@override_settings(ZDS_APP=overrided_zds_app)
+@override_settings(ZDS_APP=overridden_zds_app)
 @override_settings(ES_ENABLED=False)
 class ContentTests(TestCase):
-    def setUp(self):
 
+    def setUp(self):
+        overridden_zds_app['content']['default_licence_pk'] = LicenceFactory().pk
         # don't build PDF to speed up the tests
-        settings.ZDS_APP['content']['build_pdf_when_published'] = False
+        overridden_zds_app['content']['build_pdf_when_published'] = False
 
         self.staff = StaffProfileFactory().user
 
         settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
         self.mas = ProfileFactory().user
-        settings.ZDS_APP['member']['bot_account'] = self.mas.username
+        overridden_zds_app['member']['bot_account'] = self.mas.username
 
         self.licence = LicenceFactory()
         self.subcategory = SubCategoryFactory()
-
-        settings.ZDS_APP['content']['default_licence_pk'] = self.licence.pk
 
         self.user_author = ProfileFactory().user
         self.user_staff = StaffProfileFactory().user
@@ -87,7 +90,7 @@ class ContentTests(TestCase):
         self.tuto.save()
 
         self.beta_forum = ForumFactory(
-            pk=settings.ZDS_APP['forum']['beta_forum_id'],
+            pk=overridden_zds_app['forum']['beta_forum_id'],
             category=CategoryFactory(position=1),
             position_in_category=1)  # ensure that the forum, for the beta versions, is created
 
@@ -96,10 +99,10 @@ class ContentTests(TestCase):
         self.chapter1 = ContainerFactory(parent=self.part1, db_object=self.tuto)
 
         self.extract1 = ExtractFactory(container=self.chapter1, db_object=self.tuto)
-        bot = Group(name=settings.ZDS_APP['member']['bot_group'])
+        bot = Group(name=overridden_zds_app['member']['bot_group'])
         bot.save()
         self.external = UserFactory(
-            username=settings.ZDS_APP['member']['external_account'],
+            username=overridden_zds_app['member']['external_account'],
             password='anything')
 
     def test_ensure_access(self):
@@ -282,7 +285,7 @@ class ContentTests(TestCase):
                 'type': u'TUTORIAL',
                 'licence': self.licence.pk,
                 'subcategory': self.subcategory.pk,
-                'image': open('{}/fixtures/noir_black.png'.format(settings.BASE_DIR))
+                'image': open('{}/fixtures/noir_black.png'.format(BASE_DIR))
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -331,7 +334,7 @@ class ContentTests(TestCase):
                 'licence': new_licence.pk,
                 'subcategory': self.subcategory.pk,
                 'last_hash': versioned.compute_hash(),
-                'image': open('{}/fixtures/logo.png'.format(settings.BASE_DIR))
+                'image': open('{}/fixtures/logo.png'.format(BASE_DIR))
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -1766,7 +1769,7 @@ class ContentTests(TestCase):
                 username=self.user_author.username,
                 password='hostel77'),
             True)
-        archive_path = os.path.join(settings.BASE_DIR, 'fixtures', 'tuto', 'BadArchive.zip')
+        archive_path = os.path.join(BASE_DIR, 'fixtures', 'tuto', 'BadArchive.zip')
         answer = self.client.post(reverse('content:import',
                                           args=[new_article.pk, new_article.slug]),
                                   {'archive': open(archive_path, 'r'),
@@ -1782,7 +1785,7 @@ class ContentTests(TestCase):
     def test_import_image_with_archive(self):
         """ensure that import archive work, and link are changed"""
 
-        prefix = settings.ZDS_APP['content']['import_image_prefix']
+        prefix = overridden_zds_app['content']['import_image_prefix']
         title = u'OSEF ici du titre :p'
         text1 = u'![]({}:image1.png) ![]({}:dossier/image2.png)'.format(prefix, prefix)
         text2 = u'![Piège](img3.png) ![Image qui existe pas]({}:img3.png) ![](mauvais:img3.png)'.format(prefix)
@@ -1858,7 +1861,7 @@ class ContentTests(TestCase):
         # check links:
         text = versioned.children[0].get_text()
         for img in Image.objects.filter(gallery=new_article.gallery).all():
-            self.assertTrue('![]({})'.format(settings.ZDS_APP['site']['secure_url'] + img.physical.url) in text)
+            self.assertTrue('![]({})'.format(overridden_zds_app['site']['secure_url'] + img.physical.url) in text)
 
         # import into first article (that will only change the images)
         result = self.client.post(
@@ -1885,7 +1888,7 @@ class ContentTests(TestCase):
         # check links:
         text = versioned.children[0].get_text()
         for img in Image.objects.filter(gallery=new_version.gallery).all():
-            self.assertTrue('![]({})'.format(settings.ZDS_APP['site']['secure_url'] + img.physical.url) in text)
+            self.assertTrue('![]({})'.format(overridden_zds_app['site']['secure_url'] + img.physical.url) in text)
 
         # clean up
         os.remove(draft_zip_path)
@@ -2102,7 +2105,7 @@ class ContentTests(TestCase):
                 'licence': tuto.licence.pk,
                 'subcategory': self.subcategory.pk,
                 'last_hash': tuto.load_version(tuto.sha_draft).compute_hash(),
-                'image': open('{}/fixtures/logo.png'.format(settings.BASE_DIR))
+                'image': open('{}/fixtures/logo.png'.format(BASE_DIR))
             },
             follow=False)
 
@@ -3639,7 +3642,7 @@ class ContentTests(TestCase):
 
         NOTE: this test will take time !"""
 
-        settings.ZDS_APP['content']['build_pdf_when_published'] = True  # obviously, PDF builds have to be enabled
+        overridden_zds_app['content']['build_pdf_when_published'] = True  # obviously, PDF builds have to be enabled
 
         title = u"C'est pas le plus important ici !"
 
@@ -4090,40 +4093,37 @@ class ContentTests(TestCase):
 
     def tearDown(self):
 
-        if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
-            shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
-        if os.path.isdir(settings.ZDS_APP['content']['repo_public_path']):
-            shutil.rmtree(settings.ZDS_APP['content']['repo_public_path'])
+        if os.path.isdir(overridden_zds_app['content']['repo_private_path']):
+            shutil.rmtree(overridden_zds_app['content']['repo_private_path'])
+        if os.path.isdir(overridden_zds_app['content']['repo_public_path']):
+            shutil.rmtree(overridden_zds_app['content']['repo_public_path'])
         if os.path.isdir(settings.MEDIA_ROOT):
             shutil.rmtree(settings.MEDIA_ROOT)
 
-        # re-activate PDF build
-        settings.ZDS_APP['content']['build_pdf_when_published'] = True
-
 
 @override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
-@override_settings(ZDS_APP=overrided_zds_app)
+@override_settings(ZDS_APP=overridden_zds_app)
 @override_settings(ES_ENABLED=False)
 class PublishedContentTests(TestCase):
     def setUp(self):
-
+        overridden_zds_app['content']['default_licence_pk'] = LicenceFactory().pk
         # don't build PDF to speed up the tests
-        settings.ZDS_APP['content']['build_pdf_when_published'] = False
+        overridden_zds_app['content']['build_pdf_when_published'] = False
 
         self.staff = StaffProfileFactory().user
 
         settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
         self.mas = ProfileFactory().user
-        settings.ZDS_APP['member']['bot_account'] = self.mas.username
+        overridden_zds_app['member']['bot_account'] = self.mas.username
 
-        bot = Group(name=settings.ZDS_APP['member']['bot_group'])
+        bot = Group(name=overridden_zds_app['member']['bot_group'])
         bot.save()
         self.external = UserFactory(
-            username=settings.ZDS_APP['member']['external_account'],
+            username=overridden_zds_app['member']['external_account'],
             password='anything')
 
         self.beta_forum = ForumFactory(
-            pk=settings.ZDS_APP['forum']['beta_forum_id'],
+            pk=overridden_zds_app['forum']['beta_forum_id'],
             category=CategoryFactory(position=1),
             position_in_category=1)  # ensure that the forum, for the beta versions, is created
 
@@ -4133,6 +4133,9 @@ class PublishedContentTests(TestCase):
         self.user_author = ProfileFactory().user
         self.user_staff = StaffProfileFactory().user
         self.user_guest = ProfileFactory().user
+
+        self.hat, _ = Hat.objects.get_or_create(name__iexact='A hat', defaults={'name': 'A hat'})
+        self.user_guest.profile.hats.add(self.hat)
 
         # create a tutorial
         self.tuto = PublishableContentFactory(type='TUTORIAL')
@@ -4158,15 +4161,12 @@ class PublishedContentTests(TestCase):
         self.tuto.save()
 
     def tearDown(self):
-        if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
-            shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
-        if os.path.isdir(settings.ZDS_APP['content']['repo_public_path']):
-            shutil.rmtree(settings.ZDS_APP['content']['repo_public_path'])
+        if os.path.isdir(overridden_zds_app['content']['repo_private_path']):
+            shutil.rmtree(overridden_zds_app['content']['repo_private_path'])
+        if os.path.isdir(overridden_zds_app['content']['repo_public_path']):
+            shutil.rmtree(overridden_zds_app['content']['repo_public_path'])
         if os.path.isdir(settings.MEDIA_ROOT):
             shutil.rmtree(settings.MEDIA_ROOT)
-
-        # re-activate PDF build
-        settings.ZDS_APP['content']['build_pdf_when_published'] = True
 
     def test_published(self):
         """Just a small test to ensure that the setUp() function produce a proper published content"""
@@ -4632,9 +4632,11 @@ class PublishedContentTests(TestCase):
             reverse('content:add-reaction') + u'?pk={}'.format(self.published.content.pk),
             {
                 'text': message_to_post,
-                'last_note': 0
+                'last_note': 0,
+                'hat': self.hat.pk
             }, follow=True)
         self.assertEqual(result.status_code, 200)
+        self.assertEqual(ContentReaction.objects.latest('pubdate').with_hat, self.hat.name)
 
         reactions = ContentReaction.objects.all()
         self.assertEqual(len(reactions), 1)
@@ -5459,7 +5461,7 @@ class PublishedContentTests(TestCase):
                 'licence': self.tuto.licence.pk,
                 'subcategory': self.subcategory.pk,
                 'last_hash': tuto.load_version().compute_hash(),
-                'image': open('{}/fixtures/logo.png'.format(settings.BASE_DIR))
+                'image': open('{}/fixtures/logo.png'.format(BASE_DIR))
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -5633,7 +5635,7 @@ class PublishedContentTests(TestCase):
                 'licence': article.licence.pk,
                 'subcategory': self.subcategory.pk,
                 'last_hash': article.load_version(article.sha_draft).compute_hash(),
-                'image': open('{}/fixtures/logo.png'.format(settings.BASE_DIR))
+                'image': open('{}/fixtures/logo.png'.format(BASE_DIR))
             },
             follow=False)
         public_count = PublishedContent.objects.count()

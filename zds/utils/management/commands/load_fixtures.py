@@ -18,7 +18,7 @@ from zds.member.models import Profile
 from zds.forum.models import Forum, Topic, Category as FCategory
 from zds.utils.models import Tag, Category as TCategory, CategorySubCategory, SubCategory, Licence
 from zds.utils import slugify
-from zds import settings
+from django.conf import settings
 from django.db import transaction
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, \
     Validation as CValidation, ContentReactionFactory
@@ -289,8 +289,8 @@ def load_categories_content(cli, size, fake):
     cli.stdout.write(u'Nombres de catégories de contenus à créer : {}'.format(nb_categories))
     cli.stdout.write(u'Nombres de sous-catégories de contenus à créer : {}'.format(nb_sub_categories))
     tps1 = time.time()
-    for i in range(0, nb_categories):
-        ttl = fake.word() + str(i)
+    for i in xrange(0, nb_categories):
+        ttl = str(i) + ' ' + fake.job()
         cat = TCategory(title=ttl,
                         description=fake.sentence(nb_words=15, variable_nb_words=True),
                         slug=slugify(ttl))
@@ -299,8 +299,8 @@ def load_categories_content(cli, size, fake):
         sys.stdout.write(' Cat. {}/{}  \r'.format(i + 1, nb_categories))
         sys.stdout.flush()
 
-    for i in range(0, nb_sub_categories):
-        ttl = fake.word() + str(i * 10) + str(i)
+    for i in xrange(0, nb_sub_categories):
+        ttl = str(i * 10) + str(i) + ' ' + fake.word()
         subcat = SubCategory(title=ttl,
                              subtitle=fake.sentence(nb_words=5, variable_nb_words=True),
                              slug=slugify(ttl))
@@ -309,7 +309,7 @@ def load_categories_content(cli, size, fake):
         sys.stdout.write(' SubCat. {}/{}  \r'.format(i + 1, nb_sub_categories))
         sys.stdout.flush()
 
-    for i in range(0, nb_sub_categories):
+    for i in xrange(0, nb_sub_categories):
         catsubcat = CategorySubCategory(category=categories[i % nb_categories],
                                         subcategory=sub_categories[i],
                                         is_main=True)
