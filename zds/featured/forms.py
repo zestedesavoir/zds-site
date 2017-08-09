@@ -54,12 +54,16 @@ class FeaturedResourceForm(forms.ModelForm):
     )
 
     pubdate = forms.DateTimeField(
-        label=_(u'Date de publication'),
+        label=_(u'Date de publication (exemple: 25/12/2015 15:00 ou 2015-12-25T15:00)'),
         input_formats=[
-            '%d/%m/%Y %H:%M:%S', '%Y-%m-%d %H:%M:%S', '%Y-%m-%d %H:%M', '%d/%m/%Y %H:%M', '%Y-%m-%d', '%d/%m/%Y'],
+            '%d/%m/%Y %H:%M:%S', '%Y-%m-%d %H:%M:%S',  # full format with second
+            '%Y-%m-%dT%H:%M',  # datetime field format
+            '%Y-%m-%d %H:%M', '%d/%m/%Y %H:%M',  # without second
+            '%Y-%m-%d', '%d/%m/%Y'  # day only
+        ],
         widget=forms.DateTimeInput(
-            attrs={'placeholder': _(u'Exemple : 25/12/2016 10:00')},
-            format='%d/%m/%Y %H:%M:%S'
+            attrs={'placeholder': _(u'Exemple : 25/12/2016 10:00'), 'type': 'datetime-local'},
+            format='%Y-%m-%dT%H:%M'  # datetime field format
         )
     )
 
