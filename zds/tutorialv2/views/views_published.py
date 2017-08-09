@@ -453,6 +453,11 @@ class ViewPublications(TemplateView):
         elif self.level is 3:
             subcategory = get_object_or_404(SubCategory, slug=self.kwargs.get('slug'))
             context['category'] = subcategory.get_parent_category()
+
+            if context['category'].slug != self.kwargs.get('slug_category'):
+                raise Http404('wrong slug for category ({} != {})'.format(
+                    context['category'].slug, self.kwargs.get('slug_category')))
+
             context['subcategory'] = subcategory
             context['content_count'] = PublishedContent.objects \
                 .last_contents(subcategories=[subcategory]) \

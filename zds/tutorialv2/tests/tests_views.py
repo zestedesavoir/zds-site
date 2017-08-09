@@ -4160,14 +4160,6 @@ class PublishedContentTests(TestCase):
         self.tuto.public_version = self.published
         self.tuto.save()
 
-    def tearDown(self):
-        if os.path.isdir(overridden_zds_app['content']['repo_private_path']):
-            shutil.rmtree(overridden_zds_app['content']['repo_private_path'])
-        if os.path.isdir(overridden_zds_app['content']['repo_public_path']):
-            shutil.rmtree(overridden_zds_app['content']['repo_public_path'])
-        if os.path.isdir(settings.MEDIA_ROOT):
-            shutil.rmtree(settings.MEDIA_ROOT)
-
     def test_published(self):
         """Just a small test to ensure that the setUp() function produce a proper published content"""
 
@@ -6165,13 +6157,24 @@ class PublishedContentTests(TestCase):
 
         # 5. Everything else results in 404
         wrong_urls = [
+            # not existing (sub)categories, types or tags with slug "xxx"
             reverse('publication:list') + '?category=xxx',
             reverse('publication:list') + '?subcategory=xxx',
             reverse('publication:list') + '?type=xxx',
             reverse('publication:list') + '?tag=xxx',
             reverse('publication:category', kwargs={'slug': 'xxx'}),
-            reverse('publication:subcategory', kwargs={'slug_category': category_2.slug, 'slug': 'xxx'})
+            reverse('publication:subcategory', kwargs={'slug_category': category_2.slug, 'slug': 'xxx'}),
+            # subcategory_1 does not belong to category_2:
+            reverse('publication:subcategory', kwargs={'slug_category': category_2.slug, 'slug': subcategory_1.slug})
         ]
 
         for url in wrong_urls:
             self.assertEqual(self.client.get(url).status_code, 404, msg=url)
+
+    def tearDown(self):
+        if os.path.isdir(overridden_zds_app['content']['repo_private_path']):
+            shutil.rmtree(overridden_zds_app['content']['repo_private_path'])
+        if os.path.isdir(overridden_zds_app['content']['repo_public_path']):
+            shutil.rmtree(overridden_zds_app['content']['repo_public_path'])
+        if os.path.isdir(settings.MEDIA_ROOT):
+            shutil.rmtree(settings.MEDIA_ROOT)
