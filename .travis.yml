@@ -76,8 +76,7 @@ install:
   - |
     # only for front tests
     if [[ "$TEST_APP" == *"front"* ]]; then
-      nvm install 8
-      nvm use 8
+      node --version
       npm i -g yarn
       yarn --silent
     fi
