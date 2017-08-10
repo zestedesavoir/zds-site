@@ -918,11 +918,11 @@ class ContentTests(TestCase):
             True)
 
         # create and add help
-        help = HelpWritingFactory()
-        help.save()
+        help_ = HelpWritingFactory()
+        help_.save()
 
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
-        tuto.helps.add(help)
+        tuto.helps.add(help_)
         tuto.save()
 
         # activate beta
@@ -1828,9 +1828,9 @@ class ContentTests(TestCase):
         image_zip_path = os.path.join(tempfile.gettempdir(), '__images.zip')
         zfile = zipfile.ZipFile(image_zip_path, 'a')
 
-        bytes = open('fixtures/noir_black.png', 'rb').read()
-        zfile.writestr('image1.png', bytes)
-        zfile.writestr('dossier/image2.png', bytes)
+        bytes_ = open('fixtures/noir_black.png', 'rb').read()
+        zfile.writestr('image1.png', bytes_)
+        zfile.writestr('dossier/image2.png', bytes_)
         zfile.close()
 
         # then, use the archive to create a new content with images !
@@ -2764,7 +2764,7 @@ class ContentTests(TestCase):
 
         # create some helps:
         num_of_helps = 5  # note: should be at least "2" for this test to be performed
-        for i in range(num_of_helps):
+        for _ in range(num_of_helps):
             a = HelpWritingFactory()
             a.save()
 

@@ -95,7 +95,7 @@ class RemoveAuthorForm(AuthorForm):
 
         :return: a dictionary of all treated data with the users key added
         """
-        cleaned_data = super(AuthorForm, self).clean()
+        cleaned_data = super(RemoveAuthorForm, self).clean()
         users = []
         for username in cleaned_data.get('username').split(','):
             # we can remove all users (bots inclued)
@@ -454,7 +454,7 @@ class ImportNewContentForm(ImportContentForm):
     )
 
     def __init__(self, *args, **kwargs):
-        super(ImportContentForm, self).__init__(*args, **kwargs)
+        super(ImportNewContentForm, self).__init__(*args, **kwargs)
 
         self.helper = FormHelper()
         self.helper.form_class = 'content-wrapper'

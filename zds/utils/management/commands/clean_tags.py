@@ -43,7 +43,7 @@ class Command(BaseCommand):
             stripped=tag.title.strip(),
         ) for tag in tags if tag.title.strip() != tag.title}
 
-        for title, tag in tags_tmp_dict.items():
+        for _, tag in tags_tmp_dict.items():
             tag_to_use_instead = Tag.objects.filter(title=tag['stripped']).first()
             if tag_to_use_instead:
                 # if we got something to use instead

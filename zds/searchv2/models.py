@@ -7,7 +7,7 @@ from django.db import models
 from django.conf import settings
 
 from elasticsearch.helpers import parallel_bulk
-from elasticsearch import ConnectionError
+from elasticsearch import ConnectionError as ESConnectionError
 from elasticsearch_dsl import Mapping
 from elasticsearch_dsl.query import MatchAll
 from elasticsearch_dsl.connections import connections
@@ -284,7 +284,7 @@ class ESIndexManager(object):
             # test connection:
             try:
                 self.es.info()
-            except ConnectionError:
+            except ESConnectionError:
                 self.connected_to_es = False
                 self.logger.warn('failed to connect to ES cluster')
             else:

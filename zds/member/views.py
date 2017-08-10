@@ -104,8 +104,8 @@ class UpdateMember(UpdateView):
     template_name = 'member/settings/profile.html'
 
     @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super(UpdateMember, self).dispatch(*args, **kwargs)
+    def dispatch(self, request, *args, **kwargs):
+        return super(UpdateMember, self).dispatch(request, *args, **kwargs)
 
     def get_object(self, queryset=None):
         return get_object_or_404(Profile, user=self.request.user)

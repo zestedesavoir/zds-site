@@ -237,7 +237,7 @@ class Comment(models.Model):
         self.like = CommentVote.objects.filter(positive=True, comment=self).count()
         self.dislike = CommentVote.objects.filter(positive=False, comment=self).count()
 
-    def get_votes(self, type=None):
+    def get_votes(self, type_=None):
         """ Get the non-anonymous votes """
         if not hasattr(self, 'votes'):
             self.votes = CommentVote.objects.filter(comment=self,

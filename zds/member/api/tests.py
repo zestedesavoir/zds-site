@@ -325,7 +325,7 @@ class MemberListAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def create_multiple_users(self, number_of_users=REST_PAGE_SIZE):
-        for user in range(0, number_of_users):
+        for _ in range(0, number_of_users):
             ProfileFactory()
 
 

@@ -115,7 +115,7 @@ class ContentTests(TestCase):
 
         slugs = [new_version.children[-1].slug]
 
-        for i in range(0, 2):  # will add 3 new container
+        for _ in range(0, 2):  # will add 3 new container
             version = versioned.repo_add_container(title, random, random)
             new_version = self.tuto.load_version(sha=version)
             self.assertEqual(new_version.children[-1].slug, versioned.children[-1].slug)

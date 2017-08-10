@@ -235,7 +235,7 @@ class Publicator:
         :param base_name: file name without extension
         :param kwargs: other publicator dependant options
         """
-        raise NotImplemented()
+        raise NotImplementedError('publicator')
 
 
 @PublicatorRegistery.register('pdf', settings.PANDOC_LOC, 'pdf', settings.PANDOC_PDF_PARAM)

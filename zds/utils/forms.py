@@ -5,11 +5,6 @@ from crispy_forms.layout import Layout, ButtonHolder, Field, Div, HTML
 from django.utils.translation import ugettext_lazy as _
 from zds.utils.models import Tag
 from zds.utils.misc import contains_utf8mb4
-# for compat with py3
-try:
-    assert isinstance('', str)
-except (NameError, AssertionError):
-    str = str
 
 
 class CommonLayoutEditor(Layout):
