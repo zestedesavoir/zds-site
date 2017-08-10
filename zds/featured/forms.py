@@ -13,7 +13,7 @@ class FeaturedResourceForm(forms.ModelForm):
     class Meta:
         model = FeaturedResource
 
-        fields = ['title', 'type', 'authors', 'image_url', 'url', 'pubdate']
+        fields = ['title', 'type', 'authors', 'image_url', 'url']
 
         widgets = {
             'title': forms.TextInput(
@@ -44,12 +44,6 @@ class FeaturedResourceForm(forms.ModelForm):
                 attrs={
                     'placeholder': _(u'Lien vers la ressource.')
                 }
-            ),
-
-            'pubdate': forms.DateTimeInput(
-                attrs={
-                    'placeholder': _(u'Exemple : 2016-12-25 00:00:00')
-                }
             )
         }
 
@@ -59,25 +53,48 @@ class FeaturedResourceForm(forms.ModelForm):
         required=False
     )
 
+    pubdate = forms.DateTimeField(
+        label=_(u'Date de publication (exemple: 25/12/2015 15:00 ou 2015-12-25T15:00)'),
+        input_formats=[
+            '%d/%m/%Y %H:%M:%S', '%Y-%m-%d %H:%M:%S',  # full format with second
+            '%Y-%m-%dT%H:%M',  # datetime field format
+            '%Y-%m-%d %H:%M', '%d/%m/%Y %H:%M',  # without second
+            '%Y-%m-%d', '%d/%m/%Y'  # day only
+        ],
+        widget=forms.DateTimeInput(
+            attrs={'placeholder': _(u'Exemple : 25/12/2016 10:00'), 'type': 'datetime-local'},
+            format='%Y-%m-%dT%H:%M'  # datetime field format
+        )
+    )
+
     def __init__(self, *args, **kwargs):
+        hide_major_update_field = kwargs.pop('hide_major_update_field', False)
+
         super(FeaturedResourceForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
         self.helper.form_action = reverse('featured-resource-create')
 
-        self.helper.layout = Layout(
+        fields = [
             Field('title'),
             Field('type'),
             Field('authors'),
             Field('image_url'),
-            Field('url'),
-            Field('major_update'),
+            Field('url')
+        ]
+
+        if not hide_major_update_field:
+            fields.append(Field('major_update'))
+
+        fields.extend([
             Field('pubdate'),
             ButtonHolder(
                 StrictButton(_(u'Enregistrer'), type='submit'),
-            ),
-        )
+            )
+        ])
+
+        self.helper.layout = Layout(*fields)
 
 
 class FeaturedMessageForm(forms.ModelForm):
