@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from django.contrib import admin
 
 from zds.mp.models import PrivatePost, PrivateTopic, PrivateTopicRead

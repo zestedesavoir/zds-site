@@ -1,5 +1,3 @@
-# coding: utf-8
-
 import json as json_writer
 from git import Repo
 import os

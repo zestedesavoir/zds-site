@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-s
-
 from django.utils.encoding import python_2_unicode_compatible
 import logging
 from smtplib import SMTPException

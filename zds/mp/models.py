@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from django.utils.encoding import python_2_unicode_compatible
 from math import ceil
 from django.conf import settings

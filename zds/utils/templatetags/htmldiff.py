@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from difflib import HtmlDiff
 from django import template
 from django.utils.html import format_html

@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from django.test import TestCase
 
 from zds.utils.templatetags.quote_for_mp import quote_for_mp

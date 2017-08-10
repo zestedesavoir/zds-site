@@ -1,6 +1,3 @@
-# coding: utf-8
-
-
 from rest_framework.pagination import PageNumberPagination
 
 REST_PAGE_SIZE = 10

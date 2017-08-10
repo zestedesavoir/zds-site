@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from django.conf import settings
 
 from zds.utils.models import HelpWriting
