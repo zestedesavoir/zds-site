@@ -11,7 +11,6 @@ from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
-from django.utils.translation import ugettext_lazy as _
 
 from zds.forum.factories import ForumFactory, CategoryFactory
 from zds.forum.models import Topic, Post, TopicRead
@@ -939,7 +938,7 @@ class ContentTests(TestCase):
             reverse('content:beta-view', args=[tuto.pk, tuto.slug]),
             follow=False)
         self.assertEqual(result.status_code, 200)
-        self.assertContains(result, _("L'auteur de ce contenu recherche"))
+        self.assertContains(result, "L'auteur de ce contenu recherche")
         # and on a container
         result = self.client.get(
             reverse('content:beta-view-container',
@@ -950,7 +949,7 @@ class ContentTests(TestCase):
                     }),
             follow=False)
         self.assertEqual(result.status_code, 200)
-        self.assertContains(result, _("L'auteur de ce contenu recherche"))
+        self.assertContains(result, "L'auteur de ce contenu recherche")
 
     def test_history_navigation(self):
         """ensure that, if the title (and so the slug) of the content change, its content remain accessible"""
@@ -5948,7 +5947,7 @@ class PublishedContentTests(TestCase):
         # check that when the content is not marked as obsolete, the alert is not shown
         result = self.client.get(self.tuto.get_absolute_url_online(), follow=False)
         self.assertEqual(result.status_code, 200)
-        self.assertNotContains(result, _('Ce contenu est obsolète.'))
+        self.assertNotContains(result, 'Ce contenu est obsolète.')
         # now, let's mark the tutoriel as obsolete
         result = self.client.post(
             reverse('validation:mark-obsolete', kwargs={'pk': self.tuto.pk}),
@@ -5957,11 +5956,11 @@ class PublishedContentTests(TestCase):
         # check that the alert is shown
         result = self.client.get(self.tuto.get_absolute_url_online(), follow=False)
         self.assertEqual(result.status_code, 200)
-        self.assertContains(result, _('Ce contenu est obsolète.'))
+        self.assertContains(result, 'Ce contenu est obsolète.')
         # and on a chapter
         result = self.client.get(self.chapter1.get_absolute_url_online(), follow=False)
         self.assertEqual(result.status_code, 200)
-        self.assertContains(result, _('Ce contenu est obsolète.'))
+        self.assertContains(result, 'Ce contenu est obsolète.')
         # finally, check that this alert can be hidden
         result = self.client.post(
             reverse('validation:mark-obsolete', kwargs={'pk': self.tuto.pk}),
@@ -5969,4 +5968,4 @@ class PublishedContentTests(TestCase):
         self.assertEqual(result.status_code, 302)
         result = self.client.get(self.tuto.get_absolute_url_online(), follow=False)
         self.assertEqual(result.status_code, 200)
-        self.assertNotContains(result, _('Ce contenu est obsolète.'))
+        self.assertNotContains(result, 'Ce contenu est obsolète.')
