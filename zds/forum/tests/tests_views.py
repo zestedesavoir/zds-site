@@ -1427,6 +1427,57 @@ class PostEditTest(TestCase):
         response = self.client.get(reverse('topic-edit') + '?topic={}'.format(topic.pk), follow=False)
         self.assertEqual(403, response.status_code)
 
+    def test_hat_edit(self):
+        profile = ProfileFactory()
+        hat, _ = Hat.objects.get_or_create(name__iexact='A hat', defaults={'name': 'A hat'})
+        other_hat, _ = Hat.objects.get_or_create(name__iexact='Another hat', defaults={'name': 'Another hat'})
+        profile.hats.add(hat)
+
+        # add a new thread
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, ProfileFactory())
+
+        # post a message with a hat
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        data = {
+            'text': 'A new post!',
+            'last_post': topic.last_message.pk,
+            'hat': hat.pk,
+        }
+        self.client.post(reverse('post-new') + '?sujet={}'.format(topic.pk), data, follow=False)
+        topic = Topic.objects.get(pk=topic.pk)  # refresh
+        self.assertEqual(topic.last_message.with_hat, hat.name)  # Hat was used
+
+        # test that it's possible to remove the hat
+        data = {
+            'text': 'A new post!'
+        }
+        self.client.post(
+            reverse('post-edit') + '?message={}'.format(topic.last_message.pk), data, follow=False)
+        topic = Topic.objects.get(pk=topic.pk)  # refresh
+        self.assertEqual(topic.last_message.with_hat, '')  # Hat was removed
+
+        # test that it's impossible to use a hat the user hasn't
+        data = {
+            'text': 'A new post!',
+            'hat': other_hat.pk,
+        }
+        self.client.post(
+            reverse('post-edit') + '?message={}'.format(topic.last_message.pk), data, follow=False)
+        topic = Topic.objects.get(pk=topic.pk)  # refresh
+        self.assertEqual(topic.last_message.with_hat, '')  # Hat wasn't used
+
+        # but check that it's possible to use a hat the user has
+        profile.hats.add(other_hat)
+        data = {
+            'text': 'A new post!',
+            'hat': other_hat.pk,
+        }
+        self.client.post(
+            reverse('post-edit') + '?message={}'.format(topic.last_message.pk), data, follow=False)
+        topic = Topic.objects.get(pk=topic.pk)  # refresh
+        self.assertEqual(topic.last_message.with_hat, other_hat.name)  # Now, it works
+
     def test_creation_archive_on_edit(self):
         profile = ProfileFactory()
         category, forum = create_category()

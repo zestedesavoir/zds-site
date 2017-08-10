@@ -632,6 +632,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
 
             self.reaction.update = datetime.now()
             self.reaction.editor = self.request.user
+            self.reaction.with_hat = get_hat_from_request(self.request, self.reaction.author)
 
         else:
             self.reaction = ContentReaction()
@@ -686,19 +687,25 @@ class UpdateNoteView(SendNoteFormView):
     def get_context_data(self, **kwargs):
         context = super(UpdateNoteView, self).get_context_data(**kwargs)
 
-        if self.reaction and self.reaction.author != self.request.user:
-            messages.add_message(
-                self.request, messages.WARNING,
-                _(u'Vous éditez ce message en tant que modérateur (auteur : {}).'
-                  u' Ne faites pas de bêtise !')
-                .format(self.reaction.author.username))
+        if self.reaction:
+            context['reaction'] = self.reaction
 
-            # show alert, if any
-            alerts = Alert.objects.filter(comment__pk=self.reaction.pk, solved=False)
-            if alerts.count():
-                msg_alert = _(u'Attention, en éditant ce message vous résolvez également les alertes suivantes : {}') \
-                    .format(', '.join([u'« {} » (signalé par {})'.format(a.text, a.author.username) for a in alerts]))
-                messages.warning(self.request, msg_alert)
+            if self.reaction.author != self.request.user:
+                messages.add_message(
+                    self.request, messages.WARNING,
+                    _(u'Vous éditez ce message en tant que modérateur (auteur : {}).'
+                      u' Ne faites pas de bêtise !')
+                    .format(self.reaction.author.username))
+
+                # show alert, if any
+                alerts = Alert.objects.filter(comment__pk=self.reaction.pk, solved=False)
+                if alerts.count():
+                    msg_alert = _(u'Attention, en éditant ce message vous résolvez également '
+                                  u'les alertes suivantes : {}') \
+                        .format(', '.join(
+                            [u'« {} » (signalé par {})'.format(a.text, a.author.username) for a in alerts]
+                        ))
+                    messages.warning(self.request, msg_alert)
 
         return context
 

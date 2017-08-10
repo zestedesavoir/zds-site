@@ -357,7 +357,7 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
         return form
 
     def form_valid(self, form):
-        topic = self.perform_edit_info(self.object, self.request.POST, self.request.user)
+        topic = self.perform_edit_info(self.request, self.object, self.request.POST, self.request.user)
         return redirect(topic.get_absolute_url())
 
 
@@ -570,7 +570,7 @@ class PostEdit(UpdateView, SinglePostObjectMixin, PostEditMixin):
         return form
 
     def form_valid(self, form):
-        post = self.perform_edit_post(self.object, self.request.user, self.request.POST.get('text'))
+        post = self.perform_edit_post(self.request, self.object, self.request.user, self.request.POST.get('text'))
         return redirect(post.get_absolute_url())
 
 
