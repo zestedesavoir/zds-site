@@ -62,7 +62,7 @@ cache:
 
 
 before_install:
-  - . ./scripts/ci_turbo.sh
+  - ./scripts/ci_turbo.sh
 
   - travis_retry pip install -q coveralls
 
