@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from django.conf import settings
 from django.contrib.auth.models import User, Group
 from django.core import mail
@@ -327,7 +325,7 @@ class MemberListAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def create_multiple_users(self, number_of_users=REST_PAGE_SIZE):
-        for user in xrange(0, number_of_users):
+        for _ in range(0, number_of_users):
             ProfileFactory()
 
 
@@ -400,7 +398,7 @@ class MemberExistsAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def create_multiple_users(self, number_of_users=REST_PAGE_SIZE):
-        for user in xrange(0, number_of_users):
+        for user in range(0, number_of_users):
             ProfileFactory()
 
 

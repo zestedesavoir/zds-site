@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 from django.conf import settings
 from django.db import models
 from django.db.models import Count, F, Q
@@ -159,7 +157,7 @@ class PublishedContentManager(models.Manager):
         """
         queryset = self.filter(must_redirect=False)
         if content_type:
-            queryset = queryset.filter(content_type__in=list(map(lambda c: c.upper(), content_type)))
+            queryset = queryset.filter(content_type__in=list([c.upper() for c in content_type]))
 
         # prefetch:
         queryset = queryset \
@@ -173,7 +171,7 @@ class PublishedContentManager(models.Manager):
             .select_related('content__last_note__related_content__public_version') \
             .filter(pk=F('content__public_version__pk'))
 
-        subcategories = list(map(lambda x: x.slug, subcategories))
+        subcategories = list([x.slug for x in subcategories])
         if subcategories:
             subcategories_filter = Q()
             for category in subcategories:
@@ -208,7 +206,7 @@ class PublishableContentManager(models.Manager):
                     beta_topic.is_locked = True
                     beta_topic.save()
                     first_post = beta_topic.first_post()
-                    first_post.update_content(_(u"# Le tutoriel présenté par ce topic n'existe plus."))
+                    first_post.update_content(_("# Le tutoriel présenté par ce topic n'existe plus."))
                     first_post.save()
                 content.delete()
             else:
@@ -225,8 +223,9 @@ class PublishableContentManager(models.Manager):
                     # we add a sentence to the content's introduction stating it was written by a former member.
                     versioned = content.load_version()
                     title = versioned.title
-                    introduction = _('[[i]]\n|Ce contenu a été rédigé par {} qui a quitté le site.\n\n')\
-                        .format(unregistered_user.username) + versioned.get_introduction()
+                    introduction = str(
+                        _('[[i]]\n|Ce contenu a été rédigé par {} qui a quitté le site.\n\n').format(
+                            unregistered_user.username)) + versioned.get_introduction()
                     conclusion = versioned.get_conclusion()
                     sha = versioned.repo_update(title, introduction, conclusion,
                                                 commit_message='Author unsubscribed',

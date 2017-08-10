@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.utils.decorators import method_decorator
@@ -61,6 +60,6 @@ def mark_notifications_as_read(request):
 
     notifications.update(is_read=True)
 
-    messages.success(request, _(u'Vos notifications ont bien été marquées comme lues.'))
+    messages.success(request, _('Vos notifications ont bien été marquées comme lues.'))
 
     return redirect(reverse('notification-list'))

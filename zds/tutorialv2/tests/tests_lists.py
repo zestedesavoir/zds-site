@@ -1,4 +1,3 @@
-# coding: utf-8
 from django.contrib.auth.models import Group
 
 import os
@@ -111,7 +110,7 @@ class ContentTests(TestCase):
     def test_validation_list(self):
         """ensure the behavior of the `validation:list` page (with filters)"""
 
-        text = u'Ceci est un éléphant'
+        text = 'Ceci est un éléphant'
 
         tuto_not_reserved = PublishableContentFactory(type='TUTORIAL', author_list=[self.user_author])
         tuto_reserved = PublishableContentFactory(type='TUTORIAL', author_list=[self.user_author])

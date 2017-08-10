@@ -1,6 +1,3 @@
-# coding: utf-8
-from __future__ import unicode_literals
-
 import datetime
 from django.dispatch.dispatcher import receiver
 from django.utils.translation import ugettext_lazy as _

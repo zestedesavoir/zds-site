@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from django.conf.urls import url
 
 from zds.tutorialv2.api.views import ContentReactionKarmaView

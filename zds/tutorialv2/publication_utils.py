@@ -1,4 +1,3 @@
-# coding: utf-8
 import codecs
 import copy
 import logging
@@ -80,8 +79,8 @@ def publish_content(db_object, versioned, is_major_update=True):
     try:
         md_file.write(parsed_with_local_images)
     except (UnicodeError, UnicodeEncodeError):
-        raise FailureDuringPublication(_(u'Une erreur est survenue durant la génération du fichier markdown '
-                                         u'à télécharger, vérifiez le code markdown'))
+        raise FailureDuringPublication(_('Une erreur est survenue durant la génération du fichier markdown '
+                                         'à télécharger, vérifiez le code markdown'))
     finally:
         md_file.close()
 
@@ -197,7 +196,7 @@ class PublicatorRegistery:
         """
         if exclude is None:
             exclude = []
-        for key, value in cls.registry.items():
+        for key, value in list(cls.registry.items()):
             if key not in exclude:
                 yield key, value
 
@@ -236,7 +235,7 @@ class Publicator:
         :param base_name: file name without extension
         :param kwargs: other publicator dependant options
         """
-        raise NotImplemented()
+        raise NotImplementedError('publicator')
 
 
 @PublicatorRegistery.register('pdf', settings.PANDOC_LOC, 'pdf', settings.PANDOC_PDF_PARAM)
@@ -324,7 +323,7 @@ def publish_container(db_object, base_dir, container):
     from zds.tutorialv2.models.models_versioned import Container
 
     if not isinstance(container, Container):
-        raise FailureDuringPublication(_(u"Le conteneur n'en est pas un !"))
+        raise FailureDuringPublication(_("Le conteneur n'en est pas un !"))
 
     template = 'tutorialv2/export/chapter.html'
 
@@ -347,7 +346,7 @@ def publish_container(db_object, base_dir, container):
             f.write(parsed)
         except (UnicodeError, UnicodeEncodeError):
             raise FailureDuringPublication(
-                _(u'Une erreur est survenue durant la publication de « {} », vérifiez le code markdown')
+                _('Une erreur est survenue durant la publication de « {} », vérifiez le code markdown')
                 .format(container.title))
 
         f.close()
@@ -373,8 +372,8 @@ def publish_container(db_object, base_dir, container):
                 f.write(emarkdown(container.get_introduction(), db_object.js_support))
             except (UnicodeError, UnicodeEncodeError):
                 raise FailureDuringPublication(
-                    _(u"Une erreur est survenue durant la publication de l'introduction de « {} »,"
-                      u' vérifiez le code markdown').format(container.title))
+                    _("Une erreur est survenue durant la publication de l'introduction de « {} »,"
+                      ' vérifiez le code markdown').format(container.title))
 
             container.introduction = path
 
@@ -386,8 +385,8 @@ def publish_container(db_object, base_dir, container):
                 f.write(emarkdown(container.get_conclusion(), db_object.js_support))
             except (UnicodeError, UnicodeEncodeError):
                 raise FailureDuringPublication(
-                    _(u'Une erreur est survenue durant la publication de la conclusion de « {} »,'
-                      u' vérifiez le code markdown').format(container.title))
+                    _('Une erreur est survenue durant la publication de la conclusion de « {} »,'
+                      ' vérifiez le code markdown').format(container.title))
 
             container.conclusion = path
 
@@ -436,8 +435,8 @@ def unpublish_content(db_object, moderator=None):
 
         if os.path.exists(old_path):
             shutil.rmtree(old_path)
-        map(lambda reaction: content_unpublished.send(sender=reaction.__class__, instance=reaction),
-            [ContentReaction.objects.filter(related_content=db_object).all()])
+        list(map(lambda reaction: content_unpublished.send(sender=reaction.__class__, instance=reaction),
+                 [ContentReaction.objects.filter(related_content=db_object).all()]))
         # remove public_version:
         public_version.delete()
         update_params = {}

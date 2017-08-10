@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-s
-from __future__ import unicode_literals
 from django.utils.encoding import python_2_unicode_compatible
 import logging
 from smtplib import SMTPException
@@ -31,18 +29,18 @@ class Subscription(models.Model):
     """
 
     class Meta:
-        verbose_name = _(u'Abonnement')
-        verbose_name_plural = _(u'Abonnements')
+        verbose_name = _('Abonnement')
+        verbose_name_plural = _('Abonnements')
         unique_together = (('user', 'content_type', 'object_id'),)
 
     user = models.ForeignKey(User, related_name='subscriber', db_index=True)
-    pubdate = models.DateTimeField(_(u'Date de création'), auto_now_add=True, db_index=True)
-    is_active = models.BooleanField(_(u'Actif'), default=True, db_index=True)
-    by_email = models.BooleanField(_(u'Recevoir un email'), default=False)
+    pubdate = models.DateTimeField(_('Date de création'), auto_now_add=True, db_index=True)
+    is_active = models.BooleanField(_('Actif'), default=True, db_index=True)
+    by_email = models.BooleanField(_('Recevoir un email'), default=False)
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField(db_index=True)
     content_object = GenericForeignKey('content_type', 'object_id')
-    last_notification = models.ForeignKey(u'Notification', related_name='last_notification', null=True, default=None)
+    last_notification = models.ForeignKey('Notification', related_name='last_notification', null=True, default=None)
 
     def __str__(self):
         return _('<Abonnement du membre "{0}" aux notifications pour le {1}, #{2}>')\
@@ -95,9 +93,9 @@ class Subscription(models.Model):
 
         assert hasattr(self, 'module')
 
-        subject = _(u'{} - {} : {}').format(settings.ZDS_APP['site']['literal_name'], self.module, notification.title)
-        from_email = _(u'{} <{}>').format(settings.ZDS_APP['site']['literal_name'],
-                                          settings.ZDS_APP['site']['email_noreply'])
+        subject = _('{} - {} : {}').format(settings.ZDS_APP['site']['literal_name'], self.module, notification.title)
+        from_email = _('{} <{}>').format(
+            settings.ZDS_APP['site']['literal_name'], settings.ZDS_APP['site']['email_noreply'])
 
         receiver = self.user
         context = {
@@ -264,7 +262,7 @@ class TopicAnswerSubscription(AnswerSubscription, SingleNotificationMixin):
     """
     Subscription to new answer in a topic
     """
-    module = _(u'Forum')
+    module = _('Forum')
     objects = TopicAnswerSubscriptionManager()
 
     def __str__(self):
@@ -277,7 +275,7 @@ class PrivateTopicAnswerSubscription(AnswerSubscription, SingleNotificationMixin
     """
     Subscription to new answer in a private topic.
     """
-    module = _(u'Message privé')
+    module = _('Message privé')
     objects = SubscriptionManager()
 
     def __str__(self):
@@ -290,7 +288,7 @@ class ContentReactionAnswerSubscription(AnswerSubscription, SingleNotificationMi
     """
     Subscription to new answer in a publishable content.
     """
-    module = _(u'Contenu')
+    module = _('Contenu')
     objects = SubscriptionManager()
 
     def __str__(self):
@@ -303,7 +301,7 @@ class NewTopicSubscription(Subscription, MultipleNotificationsMixin):
     """
     Subscription to new topics in a forum or with a tag
     """
-    module = _(u'Forum')
+    module = _('Forum')
     objects = NewTopicSubscriptionManager()
 
     def __str__(self):
@@ -322,7 +320,7 @@ class NewPublicationSubscription(Subscription, MultipleNotificationsMixin):
     """
     Subscription to new publications from a user.
     """
-    module = _(u'Contenu')
+    module = _('Contenu')
     objects = SubscriptionManager()
 
     def __str__(self):
@@ -341,17 +339,17 @@ class PingSubscription(AnswerSubscription, MultipleNotificationsMixin):
     """
     Subscription to ping of a user
     """
-    module = _(u'Ping')
+    module = _('Ping')
     objects = SubscriptionManager()
 
     def __str__(self):
-        return _(u'<Abonnement du membre "{0}" aux mentions>').format(self.profile, self.object_id)
+        return _('<Abonnement du membre "{0}" aux mentions>').format(self.profile, self.object_id)
 
     def get_notification_title(self, answer):
         assert hasattr(answer, 'author')
         assert hasattr(answer, 'get_notification_title')
 
-        return _(u'{0} vous a mentionné sur {1}.').format(answer.author, answer.get_notification_title())
+        return _('{0} vous a mentionné sur {1}.').format(answer.author, answer.get_notification_title())
 
 
 def ping_url(user=None):
@@ -367,16 +365,16 @@ class Notification(models.Model):
     A notification
     """
     class Meta:
-        verbose_name = _(u'Notification')
-        verbose_name_plural = _(u'Notifications')
+        verbose_name = _('Notification')
+        verbose_name_plural = _('Notifications')
 
     subscription = models.ForeignKey(Subscription, related_name='subscription', db_index=True)
-    pubdate = models.DateTimeField(_(u'Date de création'), auto_now_add=True, db_index=True)
+    pubdate = models.DateTimeField(_('Date de création'), auto_now_add=True, db_index=True)
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField(db_index=True)
     content_object = GenericForeignKey('content_type', 'object_id')
-    is_read = models.BooleanField(_(u'Lue'), default=False, db_index=True)
-    is_dead = models.BooleanField(_(u'Morte'), default=False)
+    is_read = models.BooleanField(_('Lue'), default=False, db_index=True)
+    is_dead = models.BooleanField(_('Morte'), default=False)
     url = models.CharField('URL', max_length=255)
     sender = models.ForeignKey(User, related_name='sender', db_index=True)
     title = models.CharField('Titre', max_length=200)
@@ -423,4 +421,4 @@ class TopicFollowed(models.Model):
 
 # used to fix Django 1.9 Warning
 # https://github.com/zestedesavoir/zds-site/issues/3451
-import receivers  # noqa
+import zds.notification.receivers  # noqa

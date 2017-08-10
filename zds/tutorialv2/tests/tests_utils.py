@@ -1,5 +1,3 @@
-# coding: utf-8
-
 import os
 import shutil
 import tempfile
@@ -283,11 +281,11 @@ class UtilsTests(TestCase):
         manifest = open(os.path.join(BASE_DIR, 'fixtures', 'tuto', 'balise_audio', 'manifest2.json'), 'r')
         json = json_reader.loads(manifest.read())
 
-        self.assertTrue(u'version' in json)
-        self.assertTrue(u'licence' in json)
-        self.assertTrue(u'children' in json)
-        self.assertEqual(len(json[u'children']), 3)
-        self.assertEqual(json[u'children'][0][u'object'], u'extract')
+        self.assertTrue('version' in json)
+        self.assertTrue('licence' in json)
+        self.assertTrue('children' in json)
+        self.assertEqual(len(json['children']), 3)
+        self.assertEqual(json['children'][0]['object'], 'extract')
         os.unlink(args[0])
         args = [os.path.join(BASE_DIR, 'fixtures', 'tuto', 'big_tuto_v1', 'manifest2.json')]
         shutil.copy(
@@ -298,13 +296,13 @@ class UtilsTests(TestCase):
         manifest = open(os.path.join(BASE_DIR, 'fixtures', 'tuto', 'big_tuto_v1', 'manifest2.json'), 'r')
         json = json_reader.loads(manifest.read())
         os.unlink(args[0])
-        self.assertTrue(u'version' in json)
-        self.assertTrue(u'licence' in json)
-        self.assertTrue(u'children' in json)
-        self.assertEqual(len(json[u'children']), 5)
-        self.assertEqual(json[u'children'][0][u'object'], u'container')
-        self.assertEqual(len(json[u'children'][0][u'children']), 3)
-        self.assertEqual(len(json[u'children'][0][u'children'][0][u'children']), 3)
+        self.assertTrue('version' in json)
+        self.assertTrue('licence' in json)
+        self.assertTrue('children' in json)
+        self.assertEqual(len(json['children']), 5)
+        self.assertEqual(json['children'][0]['object'], 'container')
+        self.assertEqual(len(json['children'][0]['children']), 3)
+        self.assertEqual(len(json['children'][0]['children'][0]['children']), 3)
         args = [os.path.join(BASE_DIR, 'fixtures', 'tuto', 'article_v1', 'manifest2.json')]
         shutil.copy(
             os.path.join(BASE_DIR, 'fixtures', 'tuto', 'article_v1', 'manifest.json'),
@@ -314,10 +312,10 @@ class UtilsTests(TestCase):
         manifest = open(os.path.join(BASE_DIR, 'fixtures', 'tuto', 'article_v1', 'manifest2.json'), 'r')
         json = json_reader.loads(manifest.read())
 
-        self.assertTrue(u'version' in json)
-        self.assertTrue(u'licence' in json)
-        self.assertTrue(u'children' in json)
-        self.assertEqual(len(json[u'children']), 1)
+        self.assertTrue('version' in json)
+        self.assertTrue('licence' in json)
+        self.assertTrue('children' in json)
+        self.assertEqual(len(json['children']), 1)
         os.unlink(args[0])
 
     def test_retrieve_images(self):
@@ -446,7 +444,7 @@ class UtilsTests(TestCase):
     def testParseBadManifest(self):
         base_content = PublishableContentFactory(author_list=[self.user_author])
         versioned = base_content.load_version()
-        versioned.add_container(Container(u'un peu plus près de 42'))
+        versioned.add_container(Container('un peu plus près de 42'))
         versioned.dump_json()
         manifest = os.path.join(versioned.get_path(), 'manifest.json')
         dictionary = json_reader.load(open(manifest))
@@ -517,21 +515,21 @@ class UtilsTests(TestCase):
         """ensure that an exception is raised when it should"""
 
         # exception are raised when title are invalid
-        invalid_titles = [u'-', u'_', u'__', u'-_-', u'$', u'@', u'&', u'{}', u'    ', u'...']
+        invalid_titles = ['-', '_', '__', '-_-', '$', '@', '&', '{}', '    ', '...']
 
         for t in invalid_titles:
             self.assertRaises(InvalidSlugError, slugify_raise_on_invalid, t)
 
         # Those slugs are recognized as wrong slug
         invalid_slugs = [
-            u'',  # empty
-            u'----',  # empty
-            u'___',  # empty
-            u'-_-',  # empty (!)
-            u'&;',  # invalid characters
-            u'!{',  # invalid characters
-            u'@',  # invalid character
-            u'a '  # space !
+            '',  # empty
+            '----',  # empty
+            '___',  # empty
+            '-_-',  # empty (!)
+            '&;',  # invalid characters
+            '!{',  # invalid characters
+            '@',  # invalid character
+            'a '  # space !
         ]
 
         for s in invalid_slugs:

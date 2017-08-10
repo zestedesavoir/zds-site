@@ -1,4 +1,3 @@
-# coding: utf-8
 import os
 import random
 
@@ -14,7 +13,7 @@ from django.core.urlresolvers import reverse
 
 class SearchForm(forms.Form):
     q = forms.CharField(
-        label=_(u'Recherche'),
+        label=_('Recherche'),
         max_length=150,
         required=False,
         widget=forms.TextInput(
@@ -26,7 +25,7 @@ class SearchForm(forms.Form):
     )
 
     choices = sorted(
-        [(k, v[0]) for k, v in settings.ZDS_APP['search']['search_groups'].iteritems()],
+        [(k, v[0]) for k, v in list(settings.ZDS_APP['search']['search_groups'].items())],
         key=lambda pair: pair[1]
     )
 
@@ -52,15 +51,15 @@ class SearchForm(forms.Form):
 
         try:
             with open(os.path.join(settings.BASE_DIR, 'suggestions.txt'), 'r') as suggestions_file:
-                suggestions = ', '.join(random.sample(suggestions_file.readlines(), 5)) + u'…'
+                suggestions = ', '.join(random.sample(suggestions_file.readlines(), 5)) + '…'
         except IOError:
-            suggestions = _(u'Mathématiques, Droit, UDK, Langues, Python…')
+            suggestions = _('Mathématiques, Droit, UDK, Langues, Python…')
 
         self.fields['q'].widget.attrs['placeholder'] = suggestions
 
         self.helper.layout = Layout(
             Field('q'),
-            StrictButton('', type='submit', css_class='ico-after ico-search', title=_(u'Rechercher')),
+            StrictButton('', type='submit', css_class='ico-after ico-search', title=_('Rechercher')),
             Field('category'),
             Field('subcategory')
         )

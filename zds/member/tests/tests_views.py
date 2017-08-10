@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from datetime import datetime
 import os
 import shutil
@@ -118,8 +116,8 @@ class MemberTests(TestCase):
 
         # create strange member
         weird = ProfileFactory()
-        weird.user.username = u'ïtrema718'
-        weird.user.email = u'foo@\xfbgmail.com'
+        weird.user.username = 'ïtrema718'
+        weird.user.email = 'foo@\xfbgmail.com'
         weird.user.save()
 
         # list of members.
@@ -155,7 +153,7 @@ class MemberTests(TestCase):
 
         # list of members with page parameter.
         result = self.client.get(
-            reverse('member-list') + u'?page=1',
+            reverse('member-list') + '?page=1',
             follow=False
         )
         self.assertEqual(result.status_code, 200)
@@ -163,7 +161,7 @@ class MemberTests(TestCase):
         # page which doesn't exist.
         result = self.client.get(
             reverse('member-list') +
-            u'?page=1534',
+            '?page=1534',
             follow=False
         )
         self.assertEqual(result.status_code, 404)
@@ -171,7 +169,7 @@ class MemberTests(TestCase):
         # page parameter isn't an integer.
         result = self.client.get(
             reverse('member-list') +
-            u'?page=abcd',
+            '?page=abcd',
             follow=False
         )
         self.assertEqual(result.status_code, 404)
@@ -247,11 +245,11 @@ class MemberTests(TestCase):
         user_1 = ProfileFactory()
         user_2 = ProfileFactory()
         user_3 = ProfileFactory()
-        user_1.user.username = u'ïtrema'
+        user_1.user.username = 'ïtrema'
         user_1.user.save()
-        user_2.user.username = u'&#34;a'
+        user_2.user.username = '&#34;a'
         user_2.user.save()
-        user_3.user.username = u'_`_`_`_'
+        user_3.user.username = '_`_`_`_'
         user_3.user.save()
 
         # profile pages of weird users.
@@ -316,7 +314,7 @@ class MemberTests(TestCase):
                 'preview': '',
             }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 
-        result_string = ''.join(response.streaming_content)
+        result_string = ''.join(a.decode() for a in response.streaming_content)
         self.assertIn('<strong>my</strong>', result_string, 'We need the biography to be properly formatted')
 
     def test_login(self):
@@ -706,7 +704,7 @@ class MemberTests(TestCase):
         self.assertIsNone(user.end_ban_write)
         self.assertIsNone(user.end_ban_read)
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-id')[0]
-        self.assertEqual(ban.type, u'Autorisation d\'écrire')
+        self.assertEqual(ban.type, 'Autorisation d\'écrire')
         self.assertEqual(ban.note, 'Texte de test pour un-LS')
         self.assertEquals(len(mail.outbox), 2)
 
@@ -721,7 +719,7 @@ class MemberTests(TestCase):
                 'member-modify-profile', kwargs={
                     'user_pk': user_ls_temp.user.id}), {
                 'ls-temp': '', 'ls-jrs': 10,
-                'ls-text': u'Texte de test pour LS TEMP'},
+                'ls-text': 'Texte de test pour LS TEMP'},
             follow=False)
         user = Profile.objects.get(id=user_ls_temp.id)   # Refresh profile from DB
         self.assertEqual(result.status_code, 302)
@@ -730,8 +728,8 @@ class MemberTests(TestCase):
         self.assertIsNotNone(user.end_ban_write)
         self.assertIsNone(user.end_ban_read)
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-id')[0]
-        self.assertEqual(ban.type, u'Lecture Seule Temporaire')
-        self.assertEqual(ban.note, u'Texte de test pour LS TEMP')
+        self.assertEqual(ban.type, 'Lecture Seule Temporaire')
+        self.assertEqual(ban.note, 'Texte de test pour LS TEMP')
         self.assertEquals(len(mail.outbox), 3)
 
         # reset nb_users
@@ -745,7 +743,7 @@ class MemberTests(TestCase):
             reverse(
                 'member-modify-profile', kwargs={
                     'user_pk': user_ban.user.id}), {
-                'ban': '', 'ban-text': u'Texte de test pour BAN'}, follow=False)
+                'ban': '', 'ban-text': 'Texte de test pour BAN'}, follow=False)
         user = Profile.objects.get(id=user_ban.id)    # Refresh profile from DB
         self.assertEqual(result.status_code, 302)
         self.assertTrue(user.can_write)
@@ -753,8 +751,8 @@ class MemberTests(TestCase):
         self.assertIsNone(user.end_ban_write)
         self.assertIsNone(user.end_ban_read)
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-id')[0]
-        self.assertEqual(ban.type, u'Ban définitif')
-        self.assertEqual(ban.note, u'Texte de test pour BAN')
+        self.assertEqual(ban.type, 'Ban définitif')
+        self.assertEqual(ban.note, 'Texte de test pour BAN')
         self.assertEquals(len(mail.outbox), 4)
 
         result = self.client.get(reverse('member-list'), follow=False)
@@ -767,7 +765,7 @@ class MemberTests(TestCase):
                 'member-modify-profile', kwargs={
                     'user_pk': user_ban.user.id}),
             {'un-ban': '',
-             'unban-text': u'Texte de test pour BAN'},
+             'unban-text': 'Texte de test pour BAN'},
             follow=False)
         user = Profile.objects.get(id=user_ban.id)    # Refresh profile from DB
         self.assertEqual(result.status_code, 302)
@@ -776,8 +774,8 @@ class MemberTests(TestCase):
         self.assertIsNone(user.end_ban_write)
         self.assertIsNone(user.end_ban_read)
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-id')[0]
-        self.assertEqual(ban.type, u'Autorisation de se connecter')
-        self.assertEqual(ban.note, u'Texte de test pour BAN')
+        self.assertEqual(ban.type, 'Autorisation de se connecter')
+        self.assertEqual(ban.note, 'Texte de test pour BAN')
         self.assertEquals(len(mail.outbox), 5)
 
         result = self.client.get(reverse('member-list'), follow=False)
@@ -790,7 +788,7 @@ class MemberTests(TestCase):
             reverse('member-modify-profile',
                     kwargs={'user_pk': user_ban_temp.user.id}),
             {'ban-temp': '', 'ban-jrs': 10,
-             'ban-text': u'Texte de test pour BAN TEMP'},
+             'ban-text': 'Texte de test pour BAN TEMP'},
             follow=False)
         user = Profile.objects.get(
             id=user_ban_temp.id)    # Refresh profile from DB
@@ -800,8 +798,8 @@ class MemberTests(TestCase):
         self.assertIsNone(user.end_ban_write)
         self.assertIsNotNone(user.end_ban_read)
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-id')[0]
-        self.assertEqual(ban.type, u'Ban Temporaire')
-        self.assertEqual(ban.note, u'Texte de test pour BAN TEMP')
+        self.assertEqual(ban.type, 'Ban Temporaire')
+        self.assertEqual(ban.note, 'Texte de test pour BAN TEMP')
         self.assertEquals(len(mail.outbox), 6)
 
     def test_sanctions_with_not_staff_user(self):
@@ -880,7 +878,9 @@ class MemberTests(TestCase):
 
         # create groups
         group = Group.objects.create(name='DummyGroup_1')
+        group.save()
         groupbis = Group.objects.create(name='DummyGroup_2')
+        groupbis.save()
 
         # create Forums, Posts and subscribe member to them.
         category1 = CategoryFactory(position=1)

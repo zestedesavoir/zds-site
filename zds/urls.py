@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
@@ -50,7 +48,7 @@ class PageSitemap(Sitemap):
     priority = 0.5
 
     def items(self):
-        urls = get_resolver(None).reverse_dict.keys()
+        urls = list(get_resolver(None).reverse_dict.keys())
         return [url for url in urls if 'pages-' in str(url)]
 
     def location(self, item):

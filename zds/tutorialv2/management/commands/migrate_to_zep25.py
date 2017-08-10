@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
 from django.db import transaction
@@ -109,14 +107,14 @@ class Command(BaseCommand):
             cat.title = category
             cat.description = category
             cat.position = i
-            cat.slug = slugify(u'{}'.format(category))
+            cat.slug = slugify('{}'.format(category))
             cat.save()
             self.stdout.write('[ZEP-25] : New category "{}" added'.format(cat))
             for subcategory in subcategories[i]:
                 sub = SubCategory()
                 sub.title = subcategory[0]
                 sub.subtitle = subcategory[1]
-                sub.slug = slugify(u'{}'.format(subcategory[0]))
+                sub.slug = slugify('{}'.format(subcategory[0]))
                 sub.save()
                 self.stdout.write('[ZEP-25] : New subcategory "{}" added'.format(sub))
                 catsubcat = CategorySubCategory()
@@ -215,7 +213,7 @@ class Command(BaseCommand):
             'Autres': [11, 13, 14, 15, 52, 69, 90, 95, 103, 104, 142, 173, 196, 195, 936, 950, 1128, 1139, 1214],
         }
         contents_pk = [item['pk'] for item in PublishableContent.objects.values('pk')]
-        for subcat, cts in contents.items():
+        for subcat, cts in list(contents.items()):
             for ct in cts:
                 try:
                     content = PublishableContent.objects.get(pk=ct)

@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from django.conf.urls import url
 
 from zds.member.views import MemberList, MemberDetail, UpdateMember, UpdateGitHubToken, remove_github_token, \

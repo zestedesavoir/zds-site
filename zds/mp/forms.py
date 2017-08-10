@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Hidden, ButtonHolder, HTML
 from crispy_forms.bootstrap import StrictButton
@@ -18,8 +16,8 @@ class PrivateTopicForm(forms.Form, ParticipantsStringValidator, TitleValidator, 
         label=_('Participants'),
         widget=forms.TextInput(
             attrs={
-                'placeholder': _(u'Les participants doivent '
-                                 u'être séparés par une virgule.'),
+                'placeholder': _('Les participants doivent '
+                                 'être séparés par une virgule.'),
                 'required': 'required',
                 'data-autocomplete': '{ "type": "multiple", "url": "/api/membres/?search=%s" }'}))
 
@@ -93,7 +91,7 @@ class PrivateTopicEditForm(forms.ModelForm, TitleValidator):
             Field('title'),
             Field('subtitle'),
             ButtonHolder(
-                StrictButton(_(u'Mettre à jour'), type='submit'),
+                StrictButton(_('Mettre à jour'), type='submit'),
             ),
         )
 
@@ -131,8 +129,8 @@ class PrivatePostForm(forms.Form):
         if topic.alone():
             self.helper['text'].wrap(
                 Field,
-                placeholder=_(u'Vous êtes seul dans cette conversation, '
-                              u'vous ne pouvez plus y écrire.'),
+                placeholder=_('Vous êtes seul dans cette conversation, '
+                              'vous ne pouvez plus y écrire.'),
                 disabled=True)
 
     def clean(self):
@@ -142,6 +140,6 @@ class PrivatePostForm(forms.Form):
 
         if text is not None and not text.strip():
             self._errors['text'] = self.error_class(
-                [_(u'Le champ text ne peut être vide')])
+                [_('Le champ text ne peut être vide')])
 
         return cleaned_data

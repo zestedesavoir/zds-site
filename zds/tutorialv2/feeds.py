@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from django.conf import settings
 from django.contrib.syndication.views import Feed
 from django.shortcuts import get_object_or_404
@@ -14,8 +12,8 @@ class LastContentFeedRSS(Feed):
     """
     RSS feed for any type of content.
     """
-    title = _(u'Contenus sur {}').format(settings.ZDS_APP['site']['literal_name'])
-    description = _(u'Les derniers contenus parus sur {}.').format(settings.ZDS_APP['site']['literal_name'])
+    title = _('Contenus sur {}').format(settings.ZDS_APP['site']['literal_name'])
+    description = _('Les derniers contenus parus sur {}.').format(settings.ZDS_APP['site']['literal_name'])
     link = ''
     content_type = None
     query_params = {}
@@ -76,8 +74,8 @@ class LastTutorialsFeedRSS(LastContentFeedRSS):
     """
     content_type = 'TUTORIAL'
     link = '/tutoriels/'
-    title = _(u'Tutoriels sur {}').format(settings.ZDS_APP['site']['literal_name'])
-    description = _(u'Les derniers tutoriels parus sur {}.').format(settings.ZDS_APP['site']['literal_name'])
+    title = _('Tutoriels sur {}').format(settings.ZDS_APP['site']['literal_name'])
+    description = _('Les derniers tutoriels parus sur {}.').format(settings.ZDS_APP['site']['literal_name'])
 
 
 class LastTutorialsFeedATOM(LastTutorialsFeedRSS):
@@ -91,8 +89,8 @@ class LastArticlesFeedRSS(LastContentFeedRSS):
     """
     content_type = 'ARTICLE'
     link = '/articles/'
-    title = _(u'Articles sur {}').format(settings.ZDS_APP['site']['literal_name'])
-    description = _(u'Les derniers articles parus sur {}.').format(settings.ZDS_APP['site']['literal_name'])
+    title = _('Articles sur {}').format(settings.ZDS_APP['site']['literal_name'])
+    description = _('Les derniers articles parus sur {}.').format(settings.ZDS_APP['site']['literal_name'])
 
 
 class LastArticlesFeedATOM(LastArticlesFeedRSS):
@@ -106,8 +104,8 @@ class LastOpinionsFeedRSS(LastContentFeedRSS):
     """
     content_type = 'OPINION'
     link = '/tribunes/'
-    title = _(u'Tribunes sur {}').format(settings.ZDS_APP['site']['literal_name'])
-    description = _(u'Les derniers billets des tribunes parus sur {}.').format(
+    title = _('Tribunes sur {}').format(settings.ZDS_APP['site']['literal_name'])
+    description = _('Les derniers billets des tribunes parus sur {}.').format(
         settings.ZDS_APP['site']['literal_name'])
 
 

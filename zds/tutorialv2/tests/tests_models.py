@@ -1,4 +1,3 @@
-# coding: utf-8
 import unittest
 
 from django.core.urlresolvers import reverse
@@ -69,7 +68,7 @@ class ContentTests(TestCase):
         self.assertEqual(self.extract1.title, versioned.children[0].children[0].children[0].title)
 
         # ensure url resolution project using dictionary :
-        self.assertTrue(self.part1.slug in versioned.children_dict.keys())
+        self.assertTrue(self.part1.slug in list(versioned.children_dict.keys()))
         self.assertTrue(self.chapter1.slug in versioned.children_dict[self.part1.slug].children_dict)
 
     def test_ensure_unique_slug(self):
@@ -103,8 +102,8 @@ class ContentTests(TestCase):
     def test_ensure_unique_slug_2(self):
         """This test is an extension of the previous one, with the manifest reloaded each time"""
 
-        title = u"Il existe des gens que la ZEP-12 n'aime pas"
-        random = u"... Mais c'est pas censé arriver, donc on va tout faire pour que ça disparaisse !"
+        title = "Il existe des gens que la ZEP-12 n'aime pas"
+        random = "... Mais c'est pas censé arriver, donc on va tout faire pour que ça disparaisse !"
 
         # get draft version
         versioned = self.tuto.load_version()
@@ -116,7 +115,7 @@ class ContentTests(TestCase):
 
         slugs = [new_version.children[-1].slug]
 
-        for i in range(0, 2):  # will add 3 new container
+        for _ in range(0, 2):  # will add 3 new container
             version = versioned.repo_add_container(title, random, random)
             new_version = self.tuto.load_version(sha=version)
             self.assertEqual(new_version.children[-1].slug, versioned.children[-1].slug)
@@ -126,7 +125,7 @@ class ContentTests(TestCase):
             slugs.append(new_version.children[-1].slug)
 
         # add extracts
-        extract_title = u"On va changer de titre (parce qu'on sais jamais) !"
+        extract_title = "On va changer de titre (parce qu'on sais jamais) !"
 
         chapter = versioned.children[-1]  # for this second test, the last chapter will be used
         version = chapter.repo_add_extract(extract_title, random)
@@ -150,10 +149,10 @@ class ContentTests(TestCase):
         - if they change the `self.sha_*` as they are suppose to.
         """
 
-        new_title = u'Un nouveau titre'
-        other_new_title = u'Un titre différent'
-        random_text = u"J'ai faim!"
-        other_random_text = u'Oh, du chocolat <3'
+        new_title = 'Un nouveau titre'
+        other_new_title = 'Un titre différent'
+        random_text = "J'ai faim!"
+        other_random_text = 'Oh, du chocolat <3'
 
         versioned = self.tuto.load_version()
         current_version = versioned.current_version
@@ -272,8 +271,8 @@ class ContentTests(TestCase):
     def test_if_none(self):
         """Test the case where introduction and conclusion are `None`"""
 
-        given_title = u"La vie secrète de Clem'"
-        some_text = u'Tous ces secrets (ou pas)'
+        given_title = "La vie secrète de Clem'"
+        some_text = 'Tous ces secrets (ou pas)'
         versioned = self.tuto.load_version()
         # add a new part with `None` for intro and conclusion
         version = versioned.repo_add_container(given_title, None, None)
@@ -336,8 +335,8 @@ class ContentTests(TestCase):
         article = PublishableContentFactory(type='ARTICLE')
         versioned = article.load_version()
 
-        given_title = u'Peu importe, en fait, ça compte peu'
-        some_text = u'Disparaitra aussi vite que possible'
+        given_title = 'Peu importe, en fait, ça compte peu'
+        some_text = 'Disparaitra aussi vite que possible'
 
         # add a new extract with `None` for text
         version = versioned.repo_add_extract(given_title, None)
@@ -383,8 +382,8 @@ class ContentTests(TestCase):
         tuto = PublishableContentFactory(type='TUTORIAL')
         versioned = tuto.load_version()
 
-        random = u'Non, piti bug, tu ne reviendras plus !!!'
-        title = u"N'importe quel titre"
+        random = 'Non, piti bug, tu ne reviendras plus !!!'
+        title = "N'importe quel titre"
 
         # add three container with the same title
         versioned.repo_add_container(title, random, random)  # x
@@ -538,11 +537,11 @@ class ContentTests(TestCase):
 
         len_date_now = len(date(datetime.now(), 'd F Y'))
 
-        article = PublishedContentFactory(type='ARTICLE', author_list=[author], title=u'Un titre')
+        article = PublishedContentFactory(type='ARTICLE', author_list=[author], title='Un titre')
         published = PublishedContent.objects.filter(content=article).first()
         self.assertEqual(published.get_char_count(), 160 + len_date_now)
 
-        tuto = PublishableContentFactory(type='TUTORIAL', author_list=[author], title=u'Un titre')
+        tuto = PublishableContentFactory(type='TUTORIAL', author_list=[author], title='Un titre')
 
         # add a chapter, so it becomes a middle tutorial
         tuto_draft = tuto.load_version()

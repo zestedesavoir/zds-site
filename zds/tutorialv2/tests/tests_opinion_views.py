@@ -1,4 +1,3 @@
-# coding: utf-8
 import shutil
 import os
 
@@ -39,7 +38,7 @@ class PublishedContentTests(TestCase):
         Test the publication of PublishableContent where type is OPINION (with author).
         """
 
-        text_publication = u'Aussi tôt dit, aussi tôt fait !'
+        text_publication = 'Aussi tôt dit, aussi tôt fait !'
 
         opinion = PublishableContentFactory(type='OPINION')
 
@@ -108,7 +107,7 @@ class PublishedContentTests(TestCase):
         Test the publication of PublishableContent where type is OPINION (with staff).
         """
 
-        text_publication = u'Aussi tôt dit, aussi tôt fait !'
+        text_publication = 'Aussi tôt dit, aussi tôt fait !'
 
         opinion = PublishableContentFactory(type='OPINION')
 
@@ -148,7 +147,7 @@ class PublishedContentTests(TestCase):
         Test the publication of PublishableContent where type is OPINION (with guest => 403).
         """
 
-        text_publication = u'Aussi tôt dit, aussi tôt fait !'
+        text_publication = 'Aussi tôt dit, aussi tôt fait !'
 
         opinion = PublishableContentFactory(type='OPINION')
 
@@ -184,8 +183,8 @@ class PublishedContentTests(TestCase):
         Test the unpublication of PublishableContent where type is OPINION (with author).
         """
 
-        text_publication = u'Aussi tôt dit, aussi tôt fait !'
-        text_unpublication = u'Au revoir !'
+        text_publication = 'Aussi tôt dit, aussi tôt fait !'
+        text_unpublication = 'Au revoir !'
 
         opinion = PublishableContentFactory(type='OPINION')
 
@@ -329,7 +328,7 @@ class PublishedContentTests(TestCase):
         Test the validation of PublishableContent where type is OPINION.
         """
 
-        text_publication = u'Aussi tôt dit, aussi tôt fait !'
+        text_publication = 'Aussi tôt dit, aussi tôt fait !'
 
         opinion = PublishableContentFactory(type='OPINION')
 
@@ -412,7 +411,7 @@ class PublishedContentTests(TestCase):
         result = self.client.post(
             reverse('validation:unpick-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
             {
-                'text': u'Parce que je veux',
+                'text': 'Parce que je veux',
                 'version': opinion_draft.current_version
             },
             follow=False)
@@ -431,7 +430,7 @@ class PublishedContentTests(TestCase):
         result = self.client.post(
             reverse('validation:unpick-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
             {
-                'text': u'Parce que je peux !',
+                'text': 'Parce que je peux !',
                 'version': opinion_draft.current_version
             },
             follow=False)
@@ -444,7 +443,7 @@ class PublishedContentTests(TestCase):
         result = self.client.post(
             reverse('validation:unpick-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
             {
-                'text': u'Parce que je peux toujours ...',
+                'text': 'Parce que je peux toujours ...',
                 'version': opinion_draft.current_version
             },
             follow=False)
@@ -600,7 +599,7 @@ class PublishedContentTests(TestCase):
 
         # check that it's impossible to publish the opinion again
         result = self.client.get(opinion.get_absolute_url())
-        self.assertContains(result, _(u'Billet modéré'))  # front
+        self.assertContains(result, _('Billet modéré'))  # front
 
         result = self.client.post(
             reverse('validation:publish-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
@@ -665,7 +664,7 @@ class PublishedContentTests(TestCase):
 
         # check that it's impossible to publish the opinion again
         result = self.client.get(opinion.get_absolute_url())
-        self.assertContains(result, _(u'Billet modéré'))  # front
+        self.assertContains(result, _('Billet modéré'))  # front
 
         result = self.client.post(
             reverse('validation:publish-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
@@ -793,7 +792,7 @@ class PublishedContentTests(TestCase):
         to PublishableContent with type=ARTICLE
         """
 
-        text_publication = u'Aussi tôt dit, aussi tôt fait !'
+        text_publication = 'Aussi tôt dit, aussi tôt fait !'
 
         opinion = PublishableContentFactory(type='OPINION')
 
@@ -858,7 +857,7 @@ class PublishedContentTests(TestCase):
     def test_opinion_alert(self):
         """Test content alert"""
 
-        text_publication = u'Aussi tôt dit, aussi tôt fait !'
+        text_publication = 'Aussi tôt dit, aussi tôt fait !'
 
         opinion = PublishableContentFactory(type='OPINION')
 
@@ -905,7 +904,7 @@ class PublishedContentTests(TestCase):
         result = self.client.post(
             reverse('content:alert-content', kwargs={'pk': opinion.pk}),
             {
-                'signal_text': u'Yeurk !'
+                'signal_text': 'Yeurk !'
             }, follow=False
         )
 
@@ -919,7 +918,7 @@ class PublishedContentTests(TestCase):
             reverse('content:resolve-content', kwargs={'pk': opinion.pk}),
             {
                 'alert_pk': alert.pk,
-                'text': u'Je peux ?'
+                'text': 'Je peux ?'
             }, follow=False
         )
         self.assertEqual(result.status_code, 403)  # solving the alert by yourself wont work
@@ -937,7 +936,7 @@ class PublishedContentTests(TestCase):
             reverse('content:resolve-content', kwargs={'pk': opinion.pk}),
             {
                 'alert_pk': alert.pk,
-                'text': u'Anéfé!'
+                'text': 'Anéfé!'
             }, follow=False
         )
         self.assertEqual(result.status_code, 302)

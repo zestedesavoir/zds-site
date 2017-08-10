@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 
@@ -66,10 +64,10 @@ class Command(BaseCommand):
                 continue
 
             if force_reindexing:
-                print('- indexing {}s'.format(model.get_es_document_type()))
+                print(('- indexing {}s'.format(model.get_es_document_type())))
 
             indexed_counter = self.index_manager.es_bulk_indexing_of_model(model, force_reindexing=force_reindexing)
             if force_reindexing:
-                print('  {}\titems indexed'.format(indexed_counter))
+                print(('  {}\titems indexed'.format(indexed_counter)))
 
         self.index_manager.refresh_index()

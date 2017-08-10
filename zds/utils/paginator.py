@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from django.conf import settings
 from django.views.generic import ListView
 from django.views.generic.list import MultipleObjectMixin
@@ -64,7 +62,7 @@ def paginator_range(current, stop, start=1):
 
     # Basic case when no folding
     if stop - start <= settings.ZDS_APP['paginator']['folding_limit']:
-        return range(start, stop + 1)
+        return list(range(start, stop + 1))
 
     # Complex case when folding
     lst = []

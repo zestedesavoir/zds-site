@@ -1,4 +1,3 @@
-# coding: utf-8
 from django import forms
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -17,7 +16,7 @@ class TopicForm(forms.Form):
         max_length=Topic._meta.get_field('title').max_length,
         widget=forms.TextInput(
             attrs={
-                'placeholder': _(u'Titre de mon sujet'),
+                'placeholder': _('Titre de mon sujet'),
                 'required': 'required'
             }
         )
@@ -30,7 +29,7 @@ class TopicForm(forms.Form):
     )
 
     tags = forms.CharField(
-        label=_(u'Tag(s) séparés par une virgule (exemple: python,django,web)'),
+        label=_('Tag(s) séparés par une virgule (exemple: python,django,web)'),
         max_length=64,
         required=False,
         widget=forms.TextInput(
@@ -60,11 +59,11 @@ class TopicForm(forms.Form):
             Field('title'),
             Field('subtitle', autocomplete='off'),
             Field('tags'),
-            HTML(u'''<div id="topic-suggest" style="display:none;"  url="/rechercher/sujets-similaires/">
+            HTML('''<div id="topic-suggest" style="display:none;"  url="/rechercher/sujets-similaires/">
   <label>{0}</label>
   <div id="topic-result-container" data-neither="{1}"></div>
 </div>'''
-                 .format(_(u'Sujets similaires au vôtre :'), _(u'Aucun résultat'))),
+                 .format(_('Sujets similaires au vôtre :'), _('Aucun résultat'))),
             CommonLayoutEditor(),
         )
 
@@ -81,19 +80,19 @@ class TopicForm(forms.Form):
         if title is not None:
             if not title.strip():
                 self._errors['title'] = self.error_class(
-                    [_(u'Le champ titre ne peut être vide')])
+                    [_('Le champ titre ne peut être vide')])
                 if 'title' in cleaned_data:
                     del cleaned_data['title']
         if text is not None and not text.strip():
             self._errors['text'] = self.error_class(
-                [_(u'Le champ text ne peut être vide')])
+                [_('Le champ text ne peut être vide')])
             if 'text' in cleaned_data:
                 del cleaned_data['text']
 
         if text is not None and len(text) > settings.ZDS_APP['forum']['max_post_length']:
             self._errors['text'] = self.error_class(
-                [_(u'Ce message est trop long, il ne doit pas dépasser {0} '
-                   u'caractères').format(settings.ZDS_APP['forum']['max_post_length'])])
+                [_('Ce message est trop long, il ne doit pas dépasser {0} '
+                   'caractères').format(settings.ZDS_APP['forum']['max_post_length'])])
 
         validator = TagValidator()
         if not validator.validate_raw_string(tags):
@@ -129,15 +128,15 @@ class PostForm(forms.Form):
             if 'text' not in self.initial:
                 self.helper['text'].wrap(
                     Field,
-                    placeholder=_(u'Vous venez de poster. Merci de patienter '
-                                  u'au moins 15 minutes entre deux messages consécutifs '
-                                  u'afin de limiter le flood.'),
+                    placeholder=_('Vous venez de poster. Merci de patienter '
+                                  'au moins 15 minutes entre deux messages consécutifs '
+                                  'afin de limiter le flood.'),
                     disabled=True)
         elif topic.is_locked:
             if 'text' not in self.initial:
                 self.helper['text'].wrap(
                     Field,
-                    placeholder=_(u'Ce topic est verrouillé.'),
+                    placeholder=_('Ce topic est verrouillé.'),
                     disabled=True
                 )
 
@@ -148,12 +147,12 @@ class PostForm(forms.Form):
 
         if text is None or not text.strip():
             self._errors['text'] = self.error_class(
-                [_(u'Vous devez écrire une réponse !')])
+                [_('Vous devez écrire une réponse !')])
 
         elif len(text) > settings.ZDS_APP['forum']['max_post_length']:
             self._errors['text'] = self.error_class(
-                [_(u'Ce message est trop long, il ne doit pas dépasser {0} '
-                   u'caractères').format(settings.ZDS_APP['forum']['max_post_length'])])
+                [_('Ce message est trop long, il ne doit pas dépasser {0} '
+                   'caractères').format(settings.ZDS_APP['forum']['max_post_length'])])
 
         return cleaned_data
 

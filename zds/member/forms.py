@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from django import forms
 from django.conf import settings
 from django.contrib.auth import authenticate
@@ -31,7 +29,7 @@ class LoginForm(forms.Form):
     The login form, including the "remember me" checkbox.
     """
     username = forms.CharField(
-        label=_(u'Nom d\'utilisateur'),
+        label=_('Nom d\'utilisateur'),
         max_length=User._meta.get_field('username').max_length,
         required=True,
         widget=forms.TextInput(
@@ -42,14 +40,14 @@ class LoginForm(forms.Form):
     )
 
     password = forms.CharField(
-        label=_(u'Mot de passe'),
+        label=_('Mot de passe'),
         max_length=MAX_PASSWORD_LENGTH,
         required=True,
         widget=forms.PasswordInput,
     )
 
     remember = forms.BooleanField(
-        label=_(u'Se souvenir de moi'),
+        label=_('Se souvenir de moi'),
         initial=True,
         required=False,
     )
@@ -66,7 +64,7 @@ class LoginForm(forms.Form):
             Field('password'),
             Field('remember'),
             ButtonHolder(
-                StrictButton(_(u'Se connecter'), type='submit'),
+                StrictButton(_('Se connecter'), type='submit'),
             )
         )
 
@@ -76,21 +74,21 @@ class RegisterForm(forms.Form):
     Form to register a new user.
     """
     email = forms.EmailField(
-        label=_(u'Adresse courriel'),
+        label=_('Adresse courriel'),
         max_length=User._meta.get_field('email').max_length,
         required=True,
         validators=[validate_not_empty, validate_zds_email],
     )
 
     username = forms.CharField(
-        label=_(u'Nom d\'utilisateur'),
+        label=_('Nom d\'utilisateur'),
         max_length=User._meta.get_field('username').max_length,
         required=True,
         validators=[validate_not_empty, validate_zds_username],
     )
 
     password = forms.CharField(
-        label=_(u'Mot de passe'),
+        label=_('Mot de passe'),
         max_length=MAX_PASSWORD_LENGTH,
         min_length=MIN_PASSWORD_LENGTH,
         required=True,
@@ -99,7 +97,7 @@ class RegisterForm(forms.Form):
     )
 
     password_confirm = forms.CharField(
-        label=_(u'Confirmation du mot de passe'),
+        label=_('Confirmation du mot de passe'),
         max_length=MAX_PASSWORD_LENGTH,
         min_length=MIN_PASSWORD_LENGTH,
         required=True,
@@ -131,7 +129,7 @@ class RegisterForm(forms.Form):
         layout = Layout(
             layout,
             ButtonHolder(
-                Submit('submit', _(u'Valider mon inscription')),
+                Submit('submit', _('Valider mon inscription')),
             ))
 
         self.helper.layout = layout
@@ -153,7 +151,7 @@ class MiniProfileForm(forms.Form):
         required=False,
         widget=forms.Textarea(
             attrs={
-                'placeholder': _(u'Votre biographie au format Markdown.'),
+                'placeholder': _('Votre biographie au format Markdown.'),
                 'class': 'md-editor preview-source'
             }
         )
@@ -165,7 +163,7 @@ class MiniProfileForm(forms.Form):
         max_length=Profile._meta.get_field('site').max_length,
         widget=forms.TextInput(
             attrs={
-                'placeholder': _(u'Lien vers votre site web personnel (ne pas oublier le http:// ou https:// devant).')
+                'placeholder': _('Lien vers votre site web personnel (ne pas oublier le http:// ou https:// devant).')
             }
         )
     )
@@ -176,7 +174,7 @@ class MiniProfileForm(forms.Form):
         max_length=Profile._meta.get_field('avatar_url').max_length,
         widget=forms.TextInput(
             attrs={
-                'placeholder': _(u'Lien vers un avatar externe (laissez vide pour utiliser Gravatar).')
+                'placeholder': _('Lien vers un avatar externe (laissez vide pour utiliser Gravatar).')
             }
         )
     )
@@ -187,7 +185,7 @@ class MiniProfileForm(forms.Form):
         max_length=Profile._meta.get_field('sign').max_length,
         widget=forms.TextInput(
             attrs={
-                'placeholder': _(u'Elle apparaitra dans les messages de forums. ')
+                'placeholder': _('Elle apparaitra dans les messages de forums. ')
             }
         )
     )
@@ -204,7 +202,7 @@ class MiniProfileForm(forms.Form):
             Field('avatar_url'),
             Field('sign'),
             ButtonHolder(
-                StrictButton(_(u'Enregistrer'), type='submit'),
+                StrictButton(_('Enregistrer'), type='submit'),
             ))
 
 
@@ -220,19 +218,19 @@ class ProfileForm(MiniProfileForm):
         label='',
         required=False,
         choices=(
-            ('show_sign', _(u'Afficher les signatures')),
-            ('is_hover_enabled', _(u'Dérouler les menus au survol')),
-            ('allow_temp_visual_changes', _(u'Activer les changements visuels temporaires')),
-            ('show_markdown_help', _(u"Afficher l'aide Markdown dans l'éditeur")),
-            ('email_for_answer', _(u"Recevoir un courriel lors d'une réponse à un message privé")),
+            ('show_sign', _('Afficher les signatures')),
+            ('is_hover_enabled', _('Dérouler les menus au survol')),
+            ('allow_temp_visual_changes', _('Activer les changements visuels temporaires')),
+            ('show_markdown_help', _("Afficher l'aide Markdown dans l'éditeur")),
+            ('email_for_answer', _("Recevoir un courriel lors d'une réponse à un message privé")),
         ),
         widget=forms.CheckboxSelectMultiple,
     )
 
     licence = forms.ModelChoiceField(
         label=(
-            _(u'Licence préférée pour vos publications '
-              u'(<a href="{0}" alt="{1}">En savoir plus sur les licences et {2}</a>).')
+            _('Licence préférée pour vos publications '
+              '(<a href="{0}" alt="{1}">En savoir plus sur les licences et {2}</a>).')
             .format(
                 settings.ZDS_APP['site']['licenses']['licence_info_title'],
                 settings.ZDS_APP['site']['licenses']['licence_info_link'],
@@ -271,19 +269,19 @@ class ProfileForm(MiniProfileForm):
 
         layout = Layout(
             Field('biography'),
-            ButtonHolder(StrictButton(_(u'Aperçu'), type='preview', name='preview',
+            ButtonHolder(StrictButton(_('Aperçu'), type='preview', name='preview',
                                       css_class='btn btn-grey preview-btn'),),
             HTML('{% if form.biographie.value %}{% include "misc/previsualization.part.html" \
             with text=form.biographie.value %}{% endif %}'),
             Field('site'),
             Field('avatar_url'),
-            HTML(_(u'''<p><a href="{% url 'gallery-list' %}">Choisir un avatar dans une galerie</a><br/>
+            HTML(_('''<p><a href="{% url 'gallery-list' %}">Choisir un avatar dans une galerie</a><br/>
             Naviguez vers l'image voulue et cliquez sur le bouton "<em>Choisir comme avatar</em>".<br/>
             Créez une galerie et importez votre avatar si ce n'est pas déjà fait !</p>''')),
             Field('sign'),
             Field('licence'),
             Field('options'),
-            ButtonHolder(StrictButton(_(u'Enregistrer'), type='submit'),)
+            ButtonHolder(StrictButton(_('Enregistrer'), type='submit'),)
         )
         self.helper.layout = layout
 
@@ -297,7 +295,7 @@ class GitHubTokenForm(forms.Form):
         required=True,
         widget=forms.TextInput(
             attrs={
-                'placeholder': _(u'Token qui permet de communiquer avec la plateforme GitHub.'),
+                'placeholder': _('Token qui permet de communiquer avec la plateforme GitHub.'),
                 'autocomplete': 'off'
             }
         )
@@ -312,7 +310,7 @@ class GitHubTokenForm(forms.Form):
         self.helper.layout = Layout(
             Field('github_token'),
             ButtonHolder(
-                StrictButton(_(u'Enregistrer'), type='submit'),
+                StrictButton(_('Enregistrer'), type='submit'),
             ))
 
 
@@ -321,24 +319,24 @@ class ChangeUserForm(forms.Form):
     Update username and email
     """
     username = forms.CharField(
-        label=_(u'Mon pseudo'),
+        label=_('Mon pseudo'),
         max_length=User._meta.get_field('username').max_length,
         min_length=1,
         required=False,
         widget=forms.TextInput(
             attrs={
-                'placeholder': _(u'Pseudo')
+                'placeholder': _('Pseudo')
             }
         ),
     )
 
     email = forms.EmailField(
-        label=_(u'Mon adresse email'),
+        label=_('Mon adresse email'),
         max_length=User._meta.get_field('email').max_length,
         required=False,
         widget=forms.TextInput(
             attrs={
-                'placeholder': _(u'Adresse email')
+                'placeholder': _('Adresse email')
             }
         ),
     )
@@ -347,7 +345,7 @@ class ChangeUserForm(forms.Form):
         label='',
         required=False,
         choices=(
-            ('show_email', _(u'Afficher mon adresse courriel publiquement')),
+            ('show_email', _('Afficher mon adresse courriel publiquement')),
         ),
         widget=forms.CheckboxSelectMultiple,
     )
@@ -369,7 +367,7 @@ class ChangeUserForm(forms.Form):
             Field('email', value=user.email),
             Field('options'),
             ButtonHolder(
-                StrictButton(_(u'Enregistrer'), type='submit'),
+                StrictButton(_('Enregistrer'), type='submit'),
             ),
         )
 
@@ -392,12 +390,12 @@ class ChangeUserForm(forms.Form):
 class ChangePasswordForm(forms.Form):
 
     password_old = forms.CharField(
-        label=_(u'Mot de passe actuel'),
+        label=_('Mot de passe actuel'),
         widget=forms.PasswordInput,
     )
 
     password_new = forms.CharField(
-        label=_(u'Nouveau mot de passe'),
+        label=_('Nouveau mot de passe'),
         max_length=MAX_PASSWORD_LENGTH,
         min_length=MIN_PASSWORD_LENGTH,
         widget=forms.PasswordInput,
@@ -405,7 +403,7 @@ class ChangePasswordForm(forms.Form):
     )
 
     password_confirm = forms.CharField(
-        label=_(u'Confirmer le nouveau mot de passe'),
+        label=_('Confirmer le nouveau mot de passe'),
         max_length=MAX_PASSWORD_LENGTH,
         min_length=MIN_PASSWORD_LENGTH,
         widget=forms.PasswordInput,
@@ -425,7 +423,7 @@ class ChangePasswordForm(forms.Form):
             Field('password_new'),
             Field('password_confirm'),
             ButtonHolder(
-                StrictButton(_(u'Enregistrer'), type='submit'),
+                StrictButton(_('Enregistrer'), type='submit'),
             )
         )
 
@@ -439,7 +437,7 @@ class ChangePasswordForm(forms.Form):
             user_exist = authenticate(username=self.user.username, password=password_old)
             # Check if the user exist with old informations.
             if not user_exist and password_old != '':
-                self._errors['password_old'] = self.error_class([_(u'Mot de passe incorrect.')])
+                self._errors['password_old'] = self.error_class([_('Mot de passe incorrect.')])
                 if 'password_old' in cleaned_data:
                     del cleaned_data['password_old']
 
@@ -448,12 +446,12 @@ class ChangePasswordForm(forms.Form):
 
 class UsernameAndEmailForm(forms.Form):
     username = forms.CharField(
-        label=_(u'Nom d\'utilisateur'),
+        label=_('Nom d\'utilisateur'),
         required=False,
     )
 
     email = forms.CharField(
-        label=_(u'Adresse de courriel'),
+        label=_('Adresse de courriel'),
         required=False,
     )
 
@@ -467,14 +465,14 @@ class UsernameAndEmailForm(forms.Form):
             Div(
                 Field('username'),
                 ButtonHolder(
-                    StrictButton(_(u'Envoyer'), type='submit'),
+                    StrictButton(_('Envoyer'), type='submit'),
                 ),
                 css_id='form-username'
             ),
             Div(
                 Field('email'),
                 ButtonHolder(
-                    StrictButton(_(u'Envoyer'), type='submit'),
+                    StrictButton(_('Envoyer'), type='submit'),
                 ),
                 css_id='form-email'
             )
@@ -488,10 +486,10 @@ class UsernameAndEmailForm(forms.Form):
         email = cleaned_data.get('email')
 
         if username and email:
-            self._errors['username'] = self.error_class([_(u'Seul un des deux champ doit être rempli. Remplissez soi'
-                                                           u't l\'adresse de courriel soit le nom d\'utilisateur')])
+            self._errors['username'] = self.error_class([_('Seul un des deux champ doit être rempli. Remplissez soi'
+                                                           't l\'adresse de courriel soit le nom d\'utilisateur')])
         elif not username and not email:
-            self._errors['username'] = self.error_class([_(u'Il vous faut remplir au moins un des deux champs')])
+            self._errors['username'] = self.error_class([_('Il vous faut remplir au moins un des deux champs')])
         else:
             # run validators
             if username:
@@ -509,14 +507,14 @@ class NewPasswordForm(forms.Form):
     Defines a new password (when the current one has been forgotten)
     """
     password = forms.CharField(
-        label=_(u'Mot de passe'),
+        label=_('Mot de passe'),
         max_length=MAX_PASSWORD_LENGTH,
         min_length=MIN_PASSWORD_LENGTH,
         widget=forms.PasswordInput,
         validators=[validate_zds_password],
     )
     password_confirm = forms.CharField(
-        label=_(u'Confirmation'),
+        label=_('Confirmation'),
         max_length=MAX_PASSWORD_LENGTH,
         min_length=MIN_PASSWORD_LENGTH,
         widget=forms.PasswordInput,
@@ -534,7 +532,7 @@ class NewPasswordForm(forms.Form):
             Field('password'),
             Field('password_confirm'),
             ButtonHolder(
-                StrictButton(_(u'Envoyer'), type='submit'),
+                StrictButton(_('Envoyer'), type='submit'),
             )
         )
 
@@ -548,13 +546,13 @@ class PromoteMemberForm(forms.Form):
     Promotes a user to an arbitrary group
     """
     groups = forms.ModelMultipleChoiceField(
-        label=_(u'Groupe de l\'utilisateur'),
+        label=_('Groupe de l\'utilisateur'),
         queryset=Group.objects.all(),
         required=False,
     )
 
     activation = forms.BooleanField(
-        label=_(u'Compte actif'),
+        label=_('Compte actif'),
         required=False,
     )
 
@@ -567,18 +565,18 @@ class PromoteMemberForm(forms.Form):
         self.helper.layout = Layout(
             Field('groups'),
             Field('activation'),
-            StrictButton(_(u'Valider'), type='submit'),
+            StrictButton(_('Valider'), type='submit'),
         )
 
 
 class KarmaForm(forms.Form):
     note = forms.CharField(
-        label=_(u'Commentaire'),
+        label=_('Commentaire'),
         max_length=KarmaNote._meta.get_field('note').max_length,
         widget=forms.TextInput(
             attrs={
-                'placeholder': _(u'Commentaire sur le comportement de ce membre'),
-                'required': u'required'
+                'placeholder': _('Commentaire sur le comportement de ce membre'),
+                'required': 'required'
             }),
         required=True,
     )
@@ -604,7 +602,7 @@ class KarmaForm(forms.Form):
             Field('karma'),
             Hidden('profile_pk', '{{ profile.pk }}'),
             ButtonHolder(
-                StrictButton(u'Valider', type='submit'),
+                StrictButton('Valider', type='submit'),
             ),
         )
 
@@ -616,7 +614,7 @@ class BannedEmailProviderForm(forms.ModelForm):
         widgets = {
             'provider': forms.TextInput(attrs={
                 'autofocus': 'on',
-                'placeholder': _(u'Le nom de domaine à bannir.'),
+                'placeholder': _('Le nom de domaine à bannir.'),
             }),
         }
 
@@ -629,7 +627,7 @@ class BannedEmailProviderForm(forms.ModelForm):
         self.helper.layout = Layout(
             Field('provider'),
             ButtonHolder(
-                StrictButton(_(u'Bannir ce fournisseur'), type='submit'),
+                StrictButton(_('Bannir ce fournisseur'), type='submit'),
             ))
 
     def clean_provider(self):

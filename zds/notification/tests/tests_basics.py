@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import copy
 from datetime import datetime, timedelta
 from django.contrib.auth.models import Group
@@ -46,15 +45,15 @@ class NotificationForumTest(TestCase):
         result = self.client.post(
             reverse('topic-new') + '?forum={0}'.format(self.forum12.pk),
             {
-                'title': u'Super sujet',
-                'subtitle': u'Pour tester les notifs',
-                'text': u'En tout cas l\'un abonnement',
+                'title': 'Super sujet',
+                'subtitle': 'Pour tester les notifs',
+                'text': 'En tout cas l\'un abonnement',
                 'tags': ''
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
 
-        topic = Topic.objects.filter(title=u'Super sujet').first()
+        topic = Topic.objects.filter(title='Super sujet').first()
         content_type = ContentType.objects.get_for_model(topic)
 
         subscription = TopicAnswerSubscription.objects.get(object_id=topic.pk,
@@ -104,7 +103,7 @@ class NotificationForumTest(TestCase):
             reverse('post-new') + '?sujet={0}'.format(topic1.pk),
             {
                 'last_post': topic1.last_message.pk,
-                'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
+                'text': 'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
             },
             follow=False)
 
@@ -136,7 +135,7 @@ class NotificationForumTest(TestCase):
             reverse('post-new') + '?sujet={0}'.format(topic1.pk),
             {
                 'last_post': topic1.last_message.pk,
-                'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
+                'text': 'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
             },
             follow=False)
 
@@ -427,10 +426,10 @@ class NotificationForumTest(TestCase):
         self.client.post(
             reverse('topic-edit') + '?topic={0}'.format(topic.pk),
             {
-                'title': u'Un autre sujet',
-                'subtitle': u'Encore ces lombards en plein ete',
-                'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter ',
-                'tags': u'Linux'
+                'title': 'Un autre sujet',
+                'subtitle': 'Encore ces lombards en plein ete',
+                'text': 'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter ',
+                'tags': 'Linux'
             }, follow=False)
 
         notifications = Notification.objects.filter(object_id=topic.pk, is_read=False).all()
@@ -452,10 +451,10 @@ class NotificationForumTest(TestCase):
         self.client.post(
             reverse('topic-edit') + '?topic={0}'.format(topic.pk),
             {
-                'title': u'Un autre sujet',
-                'subtitle': u'Encore ces lombards en plein été',
-                'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter ',
-                'tags': u'Windows'
+                'title': 'Un autre sujet',
+                'subtitle': 'Encore ces lombards en plein été',
+                'text': 'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter ',
+                'tags': 'Windows'
             },
             follow=False)
 
@@ -520,8 +519,8 @@ class NotificationPublishableContentTest(TestCase):
         subscription = ContentReactionAnswerSubscription.objects.get_existing(user=self.user1, content_object=self.tuto)
         self.assertIsNone(subscription)
 
-        result = self.client.post(reverse('content:add-reaction') + u'?pk={}'.format(self.tuto.pk), {
-            'text': u'message',
+        result = self.client.post(reverse('content:add-reaction') + '?pk={}'.format(self.tuto.pk), {
+            'text': 'message',
             'last_note': '0'
         }, follow=True)
         self.assertEqual(result.status_code, 200)

@@ -1,4 +1,3 @@
-# coding: utf-8
 import logging
 from django.core.management.base import BaseCommand
 from zds.tutorialv2.models.models_database import PublishedContent

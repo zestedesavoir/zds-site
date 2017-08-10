@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from django.conf import settings
 
 from zds.utils.models import HelpWriting
@@ -14,9 +12,9 @@ class HelpWritingFactory(factory.DjangoModelFactory):
     class Meta:
         model = HelpWriting
 
-    title = factory.Sequence(u"titre de l'image {0}".format)
+    title = factory.Sequence("titre de l'image {0}".format)
     slug = factory.LazyAttribute(lambda o: '{0}'.format(slugify(o.title)))
-    tablelabel = factory.LazyAttribute(lambda n: u'Besoin de ' + n.title)
+    tablelabel = factory.LazyAttribute(lambda n: 'Besoin de ' + n.title)
 
     @classmethod
     def _prepare(cls, create, **kwargs):

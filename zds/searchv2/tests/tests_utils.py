@@ -1,5 +1,3 @@
-# coding: utf-8
-
 import os
 import shutil
 
@@ -52,7 +50,7 @@ class UtilsTests(TestCase):
         # in the beginning: the void
         self.assertTrue(self.index_manager.index not in self.index_manager.es.cat.indices())
 
-        text = u'Ceci est un texte de test'
+        text = 'Ceci est un texte de test'
 
         # create a topic with a post
         topic = TopicFactory(forum=self.forum, author=self.user, title=text)

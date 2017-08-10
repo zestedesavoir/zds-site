@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from django.conf.urls import url
 
 from zds.notification.views import NotificationList, mark_notifications_as_read
