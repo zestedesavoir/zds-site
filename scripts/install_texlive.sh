@@ -5,8 +5,6 @@ EXTRA_PACKAGES="wallpaper titlesec"
 if [[ -f $HOME/.texlive/bin/x86_64-linux/tlmgr ]]; then
   echo "Using cached texlive install"
 else
-  # force cache upload after successful build
-  touch $HOME/.cache_updated
   echo "Installing texlive to \$HOME/.texlive"
   rm -rf $HOME/.texlive
   TEXLIVE_PROFILE=${BASH_SOURCE[0]/%install_texlive.sh/texlive.profile}
