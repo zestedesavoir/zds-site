@@ -62,7 +62,7 @@ cache:
 
 
 before_install:
-  - ./scripts/ci_turbo.sh
+  - . ./scripts/ci_turbo.sh # This script exports environment variables, it must be sourced
 
   - travis_retry pip install -q coveralls
 
@@ -119,9 +119,10 @@ script:
     fi
 
   - |
-    # test frontend
+    # test and build frontend
     if [[ "$ZDS_TEST_JOB" == *"front"* ]]; then
       yarn test
+      yarn build # we need to upload the assets later
     fi
 
   - |

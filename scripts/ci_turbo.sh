@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# This script is sourced from the .travis.yml file
+
 default_branch=dev
 
 git remote set-branches origin $default_branch
@@ -7,7 +9,8 @@ git fetch --unshallow origin $default_branch
 
 if [[ ! -z "$TRAVIS_TAG" ]]
 then
-    exit 0
+    # Remember, we are sourced, we must not exit the main shell
+    return
 fi
 
 changed_files=$(git --no-pager diff --name-only $TRAVIS_COMMIT $(git merge-base $TRAVIS_COMMIT origin/$default_branch))
