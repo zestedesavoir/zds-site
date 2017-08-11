@@ -97,11 +97,11 @@
         p,
         ul:not(.pagination),
         ol:not(.summary-part) {
-            font-family: $font-serif-active;
+            font-family: $font-serif;
         }
 
         figcaption p {
-            font-family: $font-sans-serif-active;
+            font-family: $font-sans-serif;
             font-size: 16px;
             font-size: 1.6rem;
         }
@@ -110,7 +110,7 @@
     .article-content,
     .message-content {
         code, kbd, pre, samp {
-            font-family: $font-monospace-active;
+            font-family: $font-monospace;
         }
     }
 }
