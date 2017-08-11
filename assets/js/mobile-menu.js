@@ -21,10 +21,6 @@
     var appleWebKitVersion = (resultAppleWebKitRegEx === null ? null : parseFloat(regExAppleWebKit.exec(navU)[1]));
     var disableMobileMenu = isAndroidMobile && appleWebKitVersion !== null && appleWebKitVersion < 537;
 
-    if(disableMobileMenu)
-        $("html").removeClass("enable-mobile-menu");
-
-
 
     /**
      * Get prefix to support CSS transform

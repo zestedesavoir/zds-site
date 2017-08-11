@@ -20,13 +20,9 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
         .content-description {
             height: 36px; // 2 lines
             white-space: normal;
-            font-size: 14px;
-            font-size: 1.4rem;
-            line-height: 18px;
         }
 
         .content-meta {
-            line-height: 16px;
             overflow: hidden;
             white-space: nowrap;
             text-overflow: ellipsis;
@@ -91,10 +87,9 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
 
         color: $color-secondary;
         text-align: center;
-        line-height: 32px;
         font-weight: bold;
-        font-size: 14px;
         font-size: 1.4rem;
+        line-height: 32px;
 
         span {
             position: relative;
@@ -133,7 +128,6 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
     .content-title {
         margin: 0;
 
-        font-size: 17px;
         font-size: 1.7rem;
         font-weight: normal;
         line-height: 20px;
@@ -158,9 +152,6 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
 
     .content-description {
         margin: 0;
-        font-size: 15px;
-        font-size: 1.5rem;
-        line-height: 26px;
         height: 26px;
         color: #999;
         margin-bottom: 2px;
@@ -176,9 +167,6 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
 
     .content-meta {
         color: $color-secondary;
-        font-size: 13px;
-        font-size: 1.3rem;
-        line-height: 15px;
 
         &:not(.inline) > * {
             white-space: nowrap;
@@ -220,7 +208,6 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
             a {
                 color: inherit;
                 padding: 0 12px;
-                line-height: 22px;
                 height: 22px;
                 display: block; // to have the click zone matching the parent box
 
@@ -269,22 +256,16 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
 
     &.topic-item {
         .content-info {
-            padding: 14px 20px;
             height: 68px;
         }
 
         .content-title {
-            font-size: 19px;
-            font-size: 1.9rem;
-            line-height: 24px;
+            font-size: 1.2rem;
             color: $color-primary;
         }
 
         .content-description {
             color: #505050;
-            font-size: 16px;
-            font-size: 1.6rem;
-
         }
 
         .member-item {
@@ -294,9 +275,6 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
         }
 
         .content-meta {
-            font-size: 14px;
-            font-size: 1.4rem;
-            line-height: 16px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;

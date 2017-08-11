@@ -3,6 +3,7 @@
     max-width: 500px;
     margin: 20px auto;
 }
+
 .main .content-container {
     .content-wrapper {
         &.article-content,
@@ -92,7 +93,6 @@
             }
         }
         h2 {
-            font-size: 22px;
             font-size: 2.2rem;
             line-height: 50px;
             margin-bottom: 20px;
@@ -102,22 +102,18 @@
             font-weight: 400;
         }
         h3 {
-            font-size: 20px;
             font-size: 2.0rem;
             margin-bottom: 14px;
         }
         h4 {
-            font-size: 18px;
             font-size: 1.8rem;
             margin-bottom: 12px;
         }
         h5 {
-            font-size: 16px;
             font-size: 1.6rem;
             margin-bottom: 10px;
         }
         h6 {
-            font-size: 15px;
             font-size: 1.5rem;
             margin-bottom: 10px;
         }
@@ -333,7 +329,6 @@
             overflow: auto;
 
             mathjax {
-                font-size: 16px;
                 font-size: 1.6rem;
             }
         }
@@ -352,7 +347,6 @@
         color: $color-primary;
         border-bottom: 1px solid $color-secondary;
         font-weight: normal;
-        font-size: 22px;
         font-size: 2.2rem;
         line-height: 30px;
     }
@@ -405,7 +399,6 @@
             p,
             ol,
             ul:not(.pagination) {
-                font-size: 15px;
                 font-size: 1.5rem;
                 font-size: 1.8ex;
             }

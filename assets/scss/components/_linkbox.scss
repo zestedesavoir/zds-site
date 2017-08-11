@@ -21,7 +21,7 @@ $color-linkbox-default: #777;
             position: relative;
             color: white;
             text-decoration: none;
-            
+
             &:after {
                 content: '';
                 position: absolute;
@@ -50,8 +50,7 @@ $color-linkbox-default: #777;
             padding: 10px;
 
             h3 {
-                font-size: 2.2rem;
-                line-height: 32px;
+                font-size: 1.25rem;
                 font-weight: normal;
                 margin: 0; padding: 0;
                 width: 100%;
@@ -65,8 +64,6 @@ $color-linkbox-default: #777;
         .body {
             display: block;
             padding: 10px 10px 5px 10px;
-            font-size: 1.3rem;
-            line-height: 1.7rem;
 
             border-top: solid 1px rgba(0, 0, 0, .25);
 
@@ -82,12 +79,12 @@ $color-linkbox-default: #777;
         .tail {
             display: flex;
             padding: 10px;
-            
+
             border-top: solid 1px rgba(255, 255, 255, .2);
 
             p {
                 margin: 0; padding: 0;
-                line-height: 2.2rem;
+                line-height: 1.5rem;
                 width: 100%;
 
                 overflow: hidden;
