@@ -82,13 +82,11 @@ before_install:
 
 install:
   - |
-    # install frontend dependencies
-    if [[ "$ZDS_TEST_JOB" == *"front"* ]]; then
-      nvm install 8 \
-      && nvm use 8 \
-      && npm i -g yarn \
-      && yarn --silent
-    fi
+    # install frontend+zmarkdown dependencies
+    nvm install 8 \
+    && nvm use 8 \
+    && npm i -g yarn pm2 \
+    && yarn --silent
 
   - |
     # install latex
