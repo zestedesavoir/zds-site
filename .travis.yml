@@ -62,7 +62,7 @@ cache:
 
 
 before_install:
-  - . ./scripts/ci_turbo.sh
+  - ./scripts/ci_turbo.sh
 
   - travis_retry pip install -q coveralls
 
@@ -147,7 +147,7 @@ after_success:
   - |
     # upload compiled assets
     COMMIT_MSG=`git rev-list --format=%B --max-count=1 $TRAVIS_COMMIT`
-    if [[ "$ZDS_TEST_JOB" == *"front"* ]] && [[ "$TRAVIS_PULL_REQUEST" == false ]] && [[ ! -z "$TRAVIS_TAG" ]] && [[ ! "$TRAVIS_TAG" == *"-build" ]]
+    if [[ "$ZDS_TEST_JOB" == *"front"* ]] && [[ ! -z "$TRAVIS_TAG" ]] && [[ ! "$TRAVIS_TAG" == *"-build" ]]
     then
       # Adding GitHub OAuth token to login
       echo -e "machine github.com login $BOT_LOGIN\n password $BOT_PASSWORD" > $HOME/.netrc
