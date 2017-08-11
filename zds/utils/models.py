@@ -58,14 +58,14 @@ class Category(models.Model):
     description = models.TextField('Description')
     position = models.IntegerField('Position', default=0)
 
-    slug = models.SlugField(max_length=80, unique=True)
+    slug = models.SlugField(max_length=80, unique=True, db_index=True)
 
     def __str__(self):
         return self.title
 
     def get_subcategories(self):
-        return [a.subcategory
-                for a in CategorySubCategory.objects
+        return [a.subcategory for a in
+                CategorySubCategory.objects
                 .filter(is_main=True, category__pk=self.pk)
                 .prefetch_related('subcategory')
                 .all()]
@@ -84,7 +84,7 @@ class SubCategory(models.Model):
 
     image = models.ImageField(upload_to=image_path_category, blank=True, null=True)
 
-    slug = models.SlugField(max_length=80, unique=True)
+    slug = models.SlugField(max_length=80, unique=True, db_index=True)
 
     def __str__(self):
         return self.title
@@ -419,7 +419,7 @@ class Tag(models.Model):
         verbose_name_plural = 'Tags'
 
     title = models.CharField('Titre', max_length=30, unique=True, db_index=True)
-    slug = models.CharField('Slug', max_length=30, unique=True)
+    slug = models.CharField('Slug', max_length=30, unique=True, db_index=True)
 
     def __str__(self):
         """Textual Link Form."""
