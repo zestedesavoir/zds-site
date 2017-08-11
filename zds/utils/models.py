@@ -510,6 +510,9 @@ class HatRequest(models.Model):
         return 'Hat {0} requested by {1}'.format(
             self.hat, self.user.username)
 
+    def get_absolute_url(self):
+        return reverse('hat-request', args=[self.pk])
+
 
 def get_hat_from_request(request, author=None):
     if author is None:

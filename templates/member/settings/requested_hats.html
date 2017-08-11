@@ -29,27 +29,19 @@
     {% if requests %}
         <table class="fullwidth">
             <thead>
-                <th>{% trans "Utilisateur" %}</th>
                 <th>{% trans "Casquette demandée" %}</th>
-                <th>{% trans "Actions" %}</th>
+                <th>{% trans "Utilisateur" %}</th>
+                <th>{% trans "Date" %}</th>
             </thead>
             <tbody>
                 {% for request in requests %}
                     <tr>
-                        <td>{% include 'misc/member_item.part.html' with member=request.user avatar=True %}</td>
-                        <td>{{ request.hat }} – <a href="#reason-{{ request.pk }}" class="open-modal">{% trans "Afficher la raison" %}</a></td>
                         <td>
-                            <form method="post" action="{% url 'solve-hat-request' request.pk %}">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-grey ico-after red cross">{% trans "Refuser" %}</button>
-                                <button type="submit" name="grant" class="btn btn-grey ico-after green tick">{% trans "Accorder" %}</button>
-                            </form>
+                            <a href="{{ request.get_absolute_url }}">{{ request.hat }}</a>
                         </td>
+                        <td>{% include 'misc/member_item.part.html' with member=request.user avatar=True %}</td>
+                        <td>{{ request.date|format_date:True }}
                     </tr>
-
-                    <div class="modal" id="reason-{{ request.pk }}" data-modal-close="{% trans "Fermer" %}">
-                        {{ request.reason|linebreaks }}
-                    </div>
                 {% endfor %}
             </tbody>
         </table>

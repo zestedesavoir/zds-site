@@ -1,0 +1,74 @@
+{% extends "member/base.html" %}
+{% load date %}
+{% load i18n %}
+
+
+{% block title %}
+    {% trans "Demande de" %} « {{ hat_request.hat }} » &bull; {% trans "Demandes de casquettes" %}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>
+        <a href="{% url 'requested-hats' %}">
+            {% trans "Demandes de casquettes" %}
+        </a>
+    <li>
+        {% trans "Demande de" %} « {{ hat_request.hat }} »
+    </li>
+{% endblock %}
+
+
+
+{% block headline %}
+    {% trans "Demande de" %} « {{ hat_request.hat }} »
+{% endblock %}
+
+
+
+{% block content %}
+    <p>
+        {% blocktrans with user_url=hat_request.user.profile.get_absolute_url username=hat_request.user.username hat=hat_request.hat date=hat_request.date|format_date:True %}
+            <a href="{{ user_url }}">{{ username }}</a> a demandé la casquette « {{ hat }} » {{ date }} :
+        {% endblocktrans %}
+    </p>
+
+    <div class="message-content">
+        <blockquote>
+            {{ hat_request.reason|linebreaks }}
+        </blockquote>
+    </div>
+{% endblock %}
+
+
+{% block sidebar_actions %}
+    <div>
+        <a href="{% url "requested-hats" %}" class="new-btn ico-after arrow-left blue">
+            {% blocktrans %}
+                Retour <span class="wide">aux demandes</span>
+            {% endblocktrans %}
+        </a>
+
+        <a href="#grant-hat" class="new-btn ico-after green tick open-modal">
+            {% trans "Accorder" %}
+        </a>
+
+        <form id="grant-hat" class="modal modal-flex" method="post" action="{% url 'solve-hat-request' hat_request.pk %}">
+            <p>{% trans "La casquette va être accordée." %}</p>
+            <textarea name="comment" placeholder="{% trans "Commentaire (facultatif)." %}" maxlength="1000"></textarea>
+            {% csrf_token %}
+            <button type="submit" name="grant">{% trans "Accorder" %}</button>
+        </form>
+
+        <a href="#deny-hat" class="new-btn ico-after red cross open-modal">
+            {% trans "Refuser" %}
+        </a>
+
+        <form id="deny-hat" class="modal modal-flex" method="post" action="{% url 'solve-hat-request' hat_request.pk %}">
+            <textarea name="comment" placeholder="{% trans "Commentaire de refus (facultatif)." %}" maxlength="1000"></textarea>
+            {% csrf_token %}
+            <button type="submit">{% trans "Refuser" %}</button>
+        </form>
+    </div>
+{% endblock %}
