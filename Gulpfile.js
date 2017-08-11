@@ -91,7 +91,7 @@ gulp.task('js', () =>
         .pipe(gulp.dest('dist/js/')));
 
 // Compiles the SCSS files to CSS
-gulp.task('css', ['css:sprite', 'css:vendors'], () =>
+gulp.task('css', ['css:sprite'], () =>
     gulp.src(['assets/scss/main.scss', 'assets/scss/zmd.scss'])
         .pipe(sourcemaps.init())
         .pipe(customSass())
