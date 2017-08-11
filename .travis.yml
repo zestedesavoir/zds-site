@@ -97,13 +97,11 @@ install:
     fi
 
   - |
-    # install frontend dependencies
-    if [[ "$ZDS_TEST_JOB" == *"front"* ]] || [[ "$ZDS_TEST_JOB" == *"selenium"* ]]; then
-      nvm install 8 \
-      && nvm use 8 \
-      && npm i -g yarn \
-      && yarn --silent
-    fi
+    # install frontend+zmarkdown dependencies
+    nvm install 8 \
+    && nvm use 8 \
+    && npm i -g yarn pm2 \
+    && yarn --silent
 
   - |
     # install latex
