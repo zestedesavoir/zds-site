@@ -6,6 +6,7 @@ import os
 import string
 import uuid
 import logging
+from uuslug import uuslug
 
 from django.conf import settings
 
@@ -418,7 +419,7 @@ class Tag(models.Model):
         verbose_name_plural = 'Tags'
 
     title = models.CharField('Titre', max_length=30, unique=True, db_index=True)
-    slug = models.SlugField('Slug', max_length=30)
+    slug = models.CharField('Slug', max_length=30, unique=True)
 
     def __str__(self):
         """Textual Link Form."""
@@ -432,7 +433,7 @@ class Tag(models.Model):
         if not self.title or not slugify(self.title.replace('-', '')):
             raise ValueError('Tag "{}" is not correct'.format(self.title))
         self.title = smart_text(self.title).lower()
-        self.slug = slugify(self.title)
+        self.slug = uuslug(self.title, instance=self, max_length=80)
         super(Tag, self).save(*args, **kwargs)
 
     @staticmethod
