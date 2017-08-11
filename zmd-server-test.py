@@ -7,7 +7,6 @@ from requests import post
 def foo():
     md_source = textwrap.dedent("""
         !(https://www.youtube.com/watch?v=dQw4w9WgXcQ)
-        # title 1
 
         A [link with **bold**](http://example.com)
 
@@ -45,6 +44,7 @@ def foo():
     content, metadata = r.json()
     pprint(content)
     pprint(metadata)
+
 
 if __name__ == '__main__':
     foo()
