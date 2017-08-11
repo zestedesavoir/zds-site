@@ -126,6 +126,7 @@ class PostForm(forms.Form):
             Hidden('last_post', '{{ last_post_pk }}'),
         )
 
+
         if 'text' in self.initial:
             self.helper.layout.append(HTML("{% include 'misc/hat_choice.html' with edited_message=post %}"))
         else:

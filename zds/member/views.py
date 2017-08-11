@@ -24,7 +24,7 @@ from django.utils.http import urlunquote
 from django.utils.translation import string_concat
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST
-from django.views.generic import DetailView, UpdateView, CreateView, FormView
+from django.views.generic import DetailView, UpdateView, CreateView, FormView, ListView
 
 from zds.forum.models import Topic, TopicRead
 from zds.gallery.forms import ImageAsAvatarForm
@@ -36,13 +36,13 @@ from zds.member.decorator import can_write_and_read_now, LoginRequiredMixin, Per
 from zds.member.forms import LoginForm, MiniProfileForm, ProfileForm, RegisterForm, \
     ChangePasswordForm, ChangeUserForm, NewPasswordForm, \
     PromoteMemberForm, KarmaForm, UsernameAndEmailForm, GitHubTokenForm, \
-    BannedEmailProviderForm
+    BannedEmailProviderForm, HatRequestForm
 from zds.member.models import Profile, TokenForgotPassword, TokenRegister, KarmaNote, Ban, \
     BannedEmailProvider, NewEmailProvider
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.notification.models import TopicAnswerSubscription, NewPublicationSubscription
 from zds.tutorialv2.models.models_database import PublishedContent, PickListOperation
-from zds.utils.models import Comment, CommentVote, Alert, CommentEdit, Hat
+from zds.utils.models import Comment, CommentVote, Alert, CommentEdit, Hat, HatRequest
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView
 from zds.utils.tokens import generate_token
@@ -699,6 +699,77 @@ def remove_banned_email_provider(request, provider_pk):
 
     messages.success(request, _(u'Le fournisseur « {} » a été débanni.').format(provider.provider))
     return redirect('banned-email-providers')
+
+
+class RequestHat(LoginRequiredMixin, CreateView):
+    model = HatRequest
+    template_name = 'member/settings/request_hat.html'
+    form_class = HatRequestForm
+    success_url = reverse_lazy('request-hat')
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        messages.success(self.request, _(u'Votre demande a bien été envoyée.'))
+        return super(RequestHat, self).form_valid(form)
+
+
+class RequestedHatsList(LoginRequiredMixin, PermissionRequiredMixin, ZdSPagingListView):
+    permissions = ['utils.change_hat']
+    paginate_by = settings.ZDS_APP['member']['requested_hats_per_page']
+
+    model = HatRequest
+    context_object_name = 'requests'
+    template_name = 'member/settings/requested_hats.html'
+    queryset = HatRequest.objects \
+        .select_related('user') \
+        .order_by('-date')
+
+
+@require_POST
+@login_required
+@permission_required('utils.change_hat', raise_exception=True)
+@transaction.atomic
+def solve_hat_request(request, request_pk):
+    """
+    Solves a hat request by granting or denying
+    the requested hat according to moderator's decision.
+    """
+
+    hat_request = get_object_or_404(HatRequest, pk=request_pk)
+
+    if 'grant' in request.POST:  # hat is granted
+        hat, created = Hat.objects.get_or_create(name__iexact=hat_request.hat, defaults={'name': hat_request.hat})
+        hat_request.user.profile.hats.add(hat)
+        messages.success(request, _(u'La casquette « {0} » a été accordée à {1}.').format(
+            hat_request.hat, hat_request.user.username))
+    else:
+        messages.success(request, _(u'La casquette « {0} » a été refusée à {1}.').format(
+            hat_request.hat, hat_request.user.username))
+
+    # send a PM to notify member about this decision
+    bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+    msg = render_to_string(
+        'member/messages/hat_request_decision.md',
+        {
+            'is_granted': 'grant' in request.POST,
+            'moderator': request.user,
+            'hat': hat_request.hat,
+            'site_name': settings.ZDS_APP['site']['litteral_name']
+        }
+    )
+    send_mp(bot,
+            [hat_request.user],
+            _(u'Casquette « {} »').format(hat_request.hat),
+            u'',
+            msg,
+            False,
+            True,
+            False,
+            with_hat=settings.ZDS_APP['member']['moderation_hat'])
+
+    hat_request.delete()
+
+    return redirect('requested-hats')
 
 
 @require_POST
