@@ -408,17 +408,17 @@ class ViewPublications(TemplateView):
         """Rewritten to give the number of contents at the same time as the subcategories"""
 
         sub_query = """
-          SELECT COUNT(*) FROM tutorialv2_publishedcontent
-          INNER JOIN "tutorialv2_publishablecontent"
-            ON ("tutorialv2_publishedcontent"."content_id" = "tutorialv2_publishablecontent"."id")
-          INNER JOIN "tutorialv2_publishablecontent_subcategory"
-            ON ("tutorialv2_publishablecontent"."id" =
-              "tutorialv2_publishablecontent_subcategory"."publishablecontent_id")
+          SELECT COUNT(*) FROM `tutorialv2_publishedcontent`
+          INNER JOIN `tutorialv2_publishablecontent`
+            ON (`tutorialv2_publishedcontent`.`content_id` = `tutorialv2_publishablecontent`.`id`)
+          INNER JOIN `tutorialv2_publishablecontent_subcategory`
+            ON (`tutorialv2_publishablecontent`.`id` =
+              `tutorialv2_publishablecontent_subcategory`.`publishablecontent_id`)
           WHERE (
-            "tutorialv2_publishedcontent"."must_redirect" = 0
-            AND "tutorialv2_publishablecontent"."type" IN ({})
-            AND "tutorialv2_publishablecontent_subcategory"."subcategory_id" =
-              "utils_categorysubcategory"."subcategory_id")
+            `tutorialv2_publishedcontent`.`must_redirect` = 0
+            AND `tutorialv2_publishablecontent`.`type` IN ({})
+            AND `tutorialv2_publishablecontent_subcategory`.`subcategory_id` =
+              `utils_categorysubcategory`.`subcategory_id`)
         """.format(', '.join('\'{}\''.format(t) for t in handle_types))
 
         queryset = CategorySubCategory.objects \
