@@ -30,7 +30,8 @@ from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin, SingleOnli
 from zds.tutorialv2.models import TYPE_CHOICES_DICT
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction
 from zds.tutorialv2.utils import search_container_or_404, last_participation_is_old, mark_read
-from zds.utils.models import Alert, CommentVote, Tag, Category, CommentEdit, SubCategory, get_hat_from_request
+from zds.utils.models import Alert, CommentVote, Tag, Category, CommentEdit, SubCategory, get_hat_from_request, \
+    CategorySubCategory
 from zds.utils.paginator import make_pagination, ZdSPagingListView
 from zds.utils.templatetags.topbar import top_categories_content
 
@@ -402,6 +403,38 @@ class ViewPublications(TemplateView):
     max_last_contents = settings.ZDS_APP['content']['max_last_publications_level_1']
     template_name = templates[level]
 
+    @staticmethod
+    def subcategories_with_contents_count(id_category, handle_types):
+        """Rewritten to give the number of contents at the same time as the subcategories"""
+
+        sub_query = """
+          SELECT COUNT(*) FROM tutorialv2_publishedcontent
+          INNER JOIN "tutorialv2_publishablecontent"
+            ON ("tutorialv2_publishedcontent"."content_id" = "tutorialv2_publishablecontent"."id")
+          INNER JOIN "tutorialv2_publishablecontent_subcategory"
+            ON ("tutorialv2_publishablecontent"."id" =
+              "tutorialv2_publishablecontent_subcategory"."publishablecontent_id")
+          WHERE (
+            "tutorialv2_publishedcontent"."must_redirect" = 0
+            AND "tutorialv2_publishablecontent"."type" IN ({})
+            AND "tutorialv2_publishablecontent_subcategory"."subcategory_id" =
+              "utils_categorysubcategory"."subcategory_id")
+        """.format(', '.join('\'{}\''.format(t) for t in handle_types))
+
+        queryset = CategorySubCategory.objects \
+            .filter(is_main=True, category__id=id_category) \
+            .prefetch_related('subcategory')\
+            .extra(select={'contents_count': sub_query})
+
+        subcategories = []
+
+        for category_to_subcategory in queryset:
+            subcategory = category_to_subcategory.subcategory
+            subcategory.contents_count = category_to_subcategory.contents_count
+            subcategories.append(subcategory)
+
+        return subcategories
+
     def get_context_data(self, **kwargs):
         context = super(ViewPublications, self).get_context_data(**kwargs)
 
@@ -427,27 +460,21 @@ class ViewPublications(TemplateView):
             for category in categories:
                 category.subcategories = category.get_subcategories()
                 category.contents_count = PublishedContent.objects \
-                    .last_contents(subcategories=category.subcategories, content_type=self.handle_types) \
+                    .last_contents(
+                        subcategories=category.subcategories,
+                        content_type=self.handle_types,
+                        fetch_comments=False) \
                     .count()
 
             context['categories'] = categories
             context['content_count'] = PublishedContent.objects \
-                .last_contents(content_type=self.handle_types) \
+                .last_contents(content_type=self.handle_types, fetch_comments=False) \
                 .count()
 
         elif self.level is 2:
             context['category'] = get_object_or_404(Category, slug=self.kwargs.get('slug'))
-            context['subcategories'] = context['category'].get_subcategories()
-
-            for subcategory in context['subcategories']:
-                subcategory.contents_count = PublishedContent.objects \
-                    .last_contents(subcategories=[subcategory], content_type=self.handle_types) \
-                    .count()
-
-            context['content_count'] = PublishedContent.objects \
-                .last_contents(subcategories=context['subcategories'], content_type=self.handle_types) \
-                .count()
-
+            context['subcategories'] = ViewPublications.subcategories_with_contents_count(
+                context['category'].id, self.handle_types)
             recent_kwargs['subcategories'] = context['subcategories']
 
         elif self.level is 3:
@@ -459,10 +486,6 @@ class ViewPublications(TemplateView):
                     context['category'].slug, self.kwargs.get('slug_category')))
 
             context['subcategory'] = subcategory
-            context['content_count'] = PublishedContent.objects \
-                .last_contents(subcategories=[subcategory]) \
-                .filter(content_type__in=self.handle_types) \
-                .count()
             recent_kwargs['subcategories'] = [subcategory]
 
         elif self.level is 4:
@@ -512,7 +535,7 @@ class ViewPublications(TemplateView):
                 **dict(content_type='ARTICLE', **recent_kwargs)
             )[:self.max_last_contents]
             context['last_tutorials'] = PublishedContent.objects.last_contents(
-                **dict(content_type='TUTORIAL', **recent_kwargs)
+                **dict(content_type='TUTORIAL', fetch_comments=False, **recent_kwargs)
             )[:self.max_last_contents]
 
             context['beta_forum'] = Forum.objects\
