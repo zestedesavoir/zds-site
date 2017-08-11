@@ -5,8 +5,6 @@ EXTRA_PACKAGES="adjustbox blindtext capt-of catoptions cm-super collectbox frame
 if [[ -f $HOME/.texlive/bin/x86_64-linux/tlmgr ]]; then
   echo "Using cached texlive install"
 else
-  # Force cache upload after successful build
-  touch $HOME/.cache_updated
   echo "Installing texlive to \$HOME/.texlive"
   rm -rf $HOME/.texlive
   TEXLIVE_PROFILE=${BASH_SOURCE[0]/%install_resources.sh/texlive.profile}

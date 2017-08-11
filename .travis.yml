@@ -109,7 +109,6 @@ install:
     # install latex
     if [[ "$ZDS_TEST_JOB" == *"zds.tutorialv2"* ]]; then
       mkdir -p $HOME/bin \
-      && ./scripts/install_texlive.sh \
       && ./scripts/install_resources.sh \
       && export PATH=$HOME/.texlive/bin/x86_64-linux:$PATH \
       && export PATH=$PATH:$HOME/bin
@@ -141,6 +140,7 @@ script:
   - |
     # test backend
     if [[ "$ZDS_TEST_JOB" == *"zds."* ]]; then
+      npm run zmd-start
       coverage run --source='.' manage.py \
         test \
         --keepdb \
