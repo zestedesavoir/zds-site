@@ -13,8 +13,7 @@ from django.template.loader import render_to_string
 from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
 
-from zds import settings
-from zds.settings import ZDS_APP
+from django.conf import settings
 from zds.tutorialv2.epub_utils import build_ebook
 from zds.tutorialv2.models.database import ContentReaction, PublishedContent
 from zds.tutorialv2.publish_container import publish_container
