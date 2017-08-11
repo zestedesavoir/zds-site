@@ -1433,12 +1433,18 @@ class MemberTests(TestCase):
                          {'hat': hat_name}, follow=False)
         self.assertIn(hat_name, profile.hats.values_list('name', flat=True))
         hat = Hat.objects.get(name=hat_name)
-        # test that this option is only available for a staff member
-        self.client.login(username=user.username, password='hostel77')
+        # test that this option is not available for an other user
+        self.client.login(username=ProfileFactory().user.username, password='hostel77')
         result = self.client.post(reverse('remove-hat', args=[user.pk, hat.pk]), follow=False)
         self.assertEqual(result.status_code, 403)
         self.assertIn(hat, profile.hats.all())
+        # but check that it works for the user having the hat
+        self.client.login(username=user.username, password='hostel77')
+        result = self.client.post(reverse('remove-hat', args=[user.pk, hat.pk]), follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertNotIn(hat, profile.hats.all())
         # test that it works for a staff member
+        profile.hats.add(hat)  # we have to add the hat again for this test
         self.client.login(username=self.staff.username, password='hostel77')
         result = self.client.post(reverse('remove-hat', args=[user.pk, hat.pk]), follow=False)
         self.assertEqual(result.status_code, 302)
