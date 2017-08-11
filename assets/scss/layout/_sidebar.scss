@@ -3,8 +3,13 @@
     background: $color-sidebar-background;
     border-bottom: 1px solid #FFF;
     color: #424242;
-    width: 105%;
-    margin: 0 0 0 -2.7%;
+
+    @media only screen and #{$media-wide} {
+        flex-basis: 20rem;
+        flex-shrink: 0;
+        flex-grow: 0;
+        border-bottom: none;
+    }
 
     .new-btn {
         display: block;
@@ -13,8 +18,6 @@
         text-decoration: none;
         text-indent: 25px;
         line-height: 40px;
-        font-size: 16px;
-        font-size: 1.6rem;
         position: relative;
         color: lighten($color-primary, 20%);
         transition: all $transition-duration ease;
@@ -36,29 +39,38 @@
 
     h3,
     h4 {
+        font-size: 1.2rem;
         font-weight: normal;
         margin: 0;
         padding: 0;
     }
+
     h3 {
-        font-size: 18px;
-        font-size: 1.8rem;
         line-height: 38px;
         line-height: 3.8rem;
         color: $color-primary;
         border-bottom: 1px solid $color-secondary;
         margin-top: 30px;
     }
+
     h4 {
         padding-top: 20px;
-        font-size: 17px;
-        font-size: 1.7rem;
 
         a {
             text-decoration: none;
             color: #424242;
         }
     }
+
+    @media only screen and #{$media-wide} {
+        h3,
+        h4,
+        ul li,
+        ol li {
+            padding-left: 11.5%;
+        }
+    }
+
     &.accordeon h4 {
         cursor: pointer;
     }
@@ -79,6 +91,20 @@
     h3 + ul,
     h3 + ol {
         margin: 7px 0;
+    }
+
+    @media only screen and #{$media-wide} {
+        h3:first-child {
+            margin-top: 31px;
+        }
+
+        h4[data-num] {
+            padding-left: calc(11% + 25px);
+
+            &:before {
+                left: 11%;
+            }
+        }
     }
 
     ul,
@@ -117,8 +143,6 @@
                 overflow: hidden;
                 height: 30px;
                 line-height: 30px;
-                font-size: 14px;
-                font-size: 1.4rem;
                 text-overflow: ellipsis;
                 white-space: nowrap;
                 border: 0;

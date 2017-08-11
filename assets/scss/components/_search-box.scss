@@ -15,16 +15,16 @@
         height: 50px;
     }
 
+    font-size: 1.2rem;
+
     label {
         text-align: right;
         padding: 0 5px;
-        font-size: 2rem;
         font-weight: 300;
         margin-left: 50px;
     }
 
     input {
-        font-size: 2rem;
         border: none;
         font-weight: 300;
         flex: 1;
@@ -144,4 +144,3 @@
         margin: 30px 40px 0;
     }
 }
-

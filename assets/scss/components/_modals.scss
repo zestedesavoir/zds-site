@@ -123,7 +123,7 @@
     }
 }
 
-.enable-mobile-menu .modals-container .modal {
+.modals-container .modal {
     margin: $modal-margin;
     box-shadow: 0 0 5px #000;
     max-width: 100%;
@@ -134,7 +134,7 @@
 }
 
 @media only screen and #{$media-wide} {
-    .enable-mobile-menu .modals-container .modal {
+    .modals-container .modal {
         box-shadow: 0 2px 7px rgba(0, 0, 0, .7);
 
         .modal-title {

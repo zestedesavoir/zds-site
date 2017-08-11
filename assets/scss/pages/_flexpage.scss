@@ -9,10 +9,8 @@ $content-width: 1145px;
         padding: 0;
     }
 
-    #content {
-        width: 100%;
-        margin: 0;
-        padding: 0;
+    .content-container {
+        max-width: initial;
     }
 
     .sub-header{
@@ -43,7 +41,7 @@ $content-width: 1145px;
         }
     }
 
-        .flexpage-title-tool {
+    .flexpage-title-tool {
         padding: 50px;
         font-size: 2rem;
         font-weight: 100;
@@ -91,7 +89,7 @@ $content-width: 1145px;
                 margin: 0 10px 0 0; padding: 0;
 
                 color: inherit;
-                font-size: 6rem;
+                font-size: 3rem;
                 line-height: 50px;
                 border: none;
             }
@@ -147,7 +145,7 @@ $content-width: 1145px;
 
         .aside {
             display: flex;
-            
+
             margin-top: 20px;
             max-width: 600px;
             height: 50px;
@@ -167,6 +165,7 @@ $content-width: 1145px;
                     line-height: 50px;
                     height: 50px;
                     margin: 0; padding: 0 15px;
+                    font-weight: inherit;
 
                     border: none;
                 }

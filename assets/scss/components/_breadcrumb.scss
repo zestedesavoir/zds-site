@@ -7,7 +7,7 @@
         position: relative;
         display: flex;
         width: calc(100% - 60px * 4);
-        height: 30px;
+        height: 2em;
         padding-left: 2rem;
 
         &:after {
@@ -28,12 +28,13 @@
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+            display: flex;
+            align-items: center;
 
             li {
                 position: relative;
-                display: inline-block;
-                padding-right: 30px;
-                line-height: 30px;
+                display: flex;
+                align-items: center;
 
                 a {
                     text-decoration: none;
@@ -47,17 +48,14 @@
                 }
 
                 &:not(:last-child):after {
-                    display: block;
-                    position: absolute;
-                    top: 0;
-                    right: 7px;
                     content: " ";
                     height: 30px;
                     width: 15px;
                     @include sprite();
-                    background-repeat: no-repeat;
                     @include sprite-position($ariane);
-                    opacity: .2;
+                    background-repeat: no-repeat;
+                    opacity: 0.2;
+                    margin: 0 1rem;
                 }
             }
         }

@@ -12,7 +12,7 @@
             float: left;
             border: none;
             background: rgba(255, 255, 255, .25);
-            height: 40px;
+            height: 100%;
             transition-property: background;
             transition-duration: $transition-duration;
 
@@ -25,7 +25,6 @@
             }
         }
         input {
-            height: 30px;
             padding: 5px 3%;
             width: 70%;
         }
@@ -52,10 +51,10 @@
             }
         }
     }
+
     .search-more {
         display: block;
         float: left;
-        height: 40px;
         font-family: Arial, sans-serif;
         line-height: 40px;
         width: 12%;
@@ -94,11 +93,9 @@
         form {
             input {
                 padding: 6px 10px;
-                height: 30px;
                 width: 60px * 3;
             }
             button {
-                height: 30px;
                 line-height: 30px;
                 width: 30px;
 
@@ -110,7 +107,6 @@
 
         .search-more {
             width: 30px;
-            height: 30px;
             line-height: 30px;
         }
     }

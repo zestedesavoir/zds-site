@@ -172,8 +172,6 @@
             Modal.current = this;
 
             this.body.find("input:visible, select, textarea").first().focus();
-            if(!$("html").hasClass("enable-mobile-menu"))
-                $("html").addClass("dropdown-active");
         },
 
         /**
