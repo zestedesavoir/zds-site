@@ -404,8 +404,52 @@ class ViewPublications(TemplateView):
     template_name = templates[level]
 
     @staticmethod
+    def categories_with_contents_count(handle_types):
+        """Rewritten to select categories with subcategories and contents count in two queries"""
+
+        sub_query = """
+          SELECT COUNT(*) FROM `tutorialv2_publishedcontent`
+          INNER JOIN `tutorialv2_publishablecontent`
+            ON (`tutorialv2_publishedcontent`.`content_id` = `tutorialv2_publishablecontent`.`id`)
+          INNER JOIN `tutorialv2_publishablecontent_subcategory`
+            ON (`tutorialv2_publishablecontent`.`id` =
+              `tutorialv2_publishablecontent_subcategory`.`publishablecontent_id`)
+          LEFT JOIN  `utils_categorysubcategory`
+            ON ( `utils_categorysubcategory`.`subcategory_id` =
+              `tutorialv2_publishablecontent_subcategory`.`subcategory_id`)
+          WHERE (
+            `tutorialv2_publishedcontent`.`must_redirect` = 0
+            AND `tutorialv2_publishablecontent`.`type` IN ({})
+            AND `utils_categorysubcategory`.`category_id` = `utils_category`.`id`)
+        """.format(', '.join('\'{}\''.format(t) for t in handle_types))
+
+        queryset_category = Category.objects.order_by('position').extra(select={'contents_count': sub_query})
+
+        queryset_subcategory = CategorySubCategory\
+            .objects\
+            .prefetch_related('category', 'subcategory')\
+            .filter(is_main=True)\
+            .order_by('category__id')\
+            .all()
+
+        subcategories_sorted = {}
+
+        for category_to_sub_category in queryset_subcategory:
+            if category_to_sub_category.category.id not in subcategories_sorted:
+                subcategories_sorted[category_to_sub_category.category.id] = []
+            subcategories_sorted[category_to_sub_category.category.id].append(category_to_sub_category.subcategory)
+
+        categories = []
+
+        for category in queryset_category:
+            category.subcategories = subcategories_sorted[category.id]
+            categories.append(category)
+
+        return categories
+
+    @staticmethod
     def subcategories_with_contents_count(id_category, handle_types):
-        """Rewritten to give the number of contents at the same time as the subcategories"""
+        """Rewritten to give the number of contents at the same time as the subcategories (in one query)"""
 
         sub_query = """
           SELECT COUNT(*) FROM `tutorialv2_publishedcontent`
@@ -456,15 +500,7 @@ class ViewPublications(TemplateView):
 
         if self.level is 1:
             # get categories and subcategories
-            categories = list(Category.objects.order_by('position').all())
-            for category in categories:
-                category.subcategories = category.get_subcategories()
-                category.contents_count = PublishedContent.objects \
-                    .last_contents(
-                        subcategories=category.subcategories,
-                        content_type=self.handle_types,
-                        fetch_comments=False) \
-                    .count()
+            categories = ViewPublications.categories_with_contents_count(self.handle_types)
 
             context['categories'] = categories
             context['content_count'] = PublishedContent.objects \
