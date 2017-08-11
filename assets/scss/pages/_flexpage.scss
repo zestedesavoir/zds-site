@@ -105,6 +105,10 @@ $content-width: 1145px;
             .line {
                 display: block;
                 line-height: 34px;
+
+                .line-item {
+                    display: inline-block;
+                }
             }
 
             h2 {
