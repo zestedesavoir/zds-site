@@ -36,7 +36,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='tag',
             name='slug',
-            field=models.CharField(db_index=True, max_length=30, unique=True, verbose_name='Slug'),
+            field=models.SlugField(max_length=30, unique=True, verbose_name='Slug'),
         ),
         migrations.AlterField(
             model_name='category',
