@@ -1564,7 +1564,7 @@ class MemberTests(TestCase):
         request = HatRequest.objects.latest('date')
         requests_count = HatRequest.objects.count()
         result = self.client.post(reverse('solve-hat-request', args=[request.pk]),
-            {'grant': 'on'}, follow=False)
+                                  {'grant': 'on'}, follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertIn(hat_name, [h.name for h in profile.hats.all()])
         self.assertEqual(requests_count - 1, HatRequest.objects.count())
