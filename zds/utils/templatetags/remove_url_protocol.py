@@ -5,8 +5,8 @@ from django.conf import settings
 register = template.Library()
 
 
-@register.filter('remove_url_protocole')
-def remove_url_protocole(input_url):
+@register.filter('remove_url_protocol')
+def remove_url_protocol(input_url):
     """
     make every image url pointing to this website protocol independant so that https is not broken
     """

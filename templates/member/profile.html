@@ -5,7 +5,7 @@
 {% load date %}
 {% load profile %}
 {% load i18n %}
-{% load remove_url_protocole %}
+{% load remove_url_protocol %}
 
 
 {% block title %}
@@ -32,7 +32,7 @@
 
         <div class="member-card">
             <div class="member-avatar">
-                <img src="{{ profile.get_avatar_url|remove_url_protocole }}" alt="" class="avatar">
+                <img src="{{ profile.get_avatar_url|remove_url_protocol }}" alt="" class="avatar">
 
                 {% include 'misc/badge.part.html' with member=usr %}
             </div>

@@ -1,12 +1,12 @@
 {% load profile %}
 {% load i18n %}
-{% load remove_url_protocole %}
+{% load remove_url_protocol %}
 
 
 <div class="user">
     {% with profile=member|profile %}
         <a href="{{ member.get_absolute_url }}" class="avatar-link">
-            <img src="{{ profile.get_avatar_url|remove_url_protocole }}" alt="" class="avatar">
+            <img src="{{ profile.get_avatar_url|remove_url_protocol }}" alt="" class="avatar">
         </a>
 
         {% include 'misc/badge.part.html' %}
