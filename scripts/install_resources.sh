@@ -3,8 +3,6 @@
 if [[ -f "$HOME/.fonts/truetype/SourceCodePro/SourceCodePro-Regular.ttf" ]]; then
   echo "Using cached fonts"
 else
-  # force cache upload after successful build
-  touch $HOME/.cache_updated
   echo "Installing fonts"
   rm -rf $HOME/.fonts
   mkdir -p $HOME/.fonts/truetype
@@ -18,8 +16,6 @@ fc-cache -f -v
 if [[ -f "$HOME/bin/pandoc" && -f "$HOME/.pandoc/templates/default.epub" ]]; then
   echo "Using cached pandoc"
 else
-  # force cache upload after successful build
-  touch $HOME/.cache_updated
   echo "Installing pandoc"
   rm -rf $HOME/.cabal $HOME/.pandoc
   mkdir -p $HOME/.cabal/bin

@@ -28,7 +28,7 @@ class LastContentFeedRSS(Feed):
         """
         :return: The last (typically 5) contents (sorted by publication date).
         """
-        subcategories = []
+        subcategories = None
         if 'category' in self.query_params:
             category = get_object_or_404(Category, slug=self.query_params.get('category'))
             subcategories = category.get_subcategories()
@@ -37,8 +37,8 @@ class LastContentFeedRSS(Feed):
 
         feed_length = settings.ZDS_APP['content']['feed_length']
 
-        contents = PublishedContent.objects.published_contents(
-            _type=self.content_type,
+        contents = PublishedContent.objects.last_contents(
+            content_type=[self.content_type],
             subcategories=subcategories
         )[:feed_length]
 

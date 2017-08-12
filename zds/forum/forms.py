@@ -68,7 +68,11 @@ class TopicForm(forms.Form):
             CommonLayoutEditor(),
         )
 
-        if 'text' not in self.initial:
+        if 'text' in self.initial:
+            self.helper.layout.append(
+                HTML("{% include 'misc/hat_choice.html' with edited_message=topic.first_post %}")
+            )
+        else:
             self.helper.layout.append(HTML("{% include 'misc/hat_choice.html' %}"))
 
     def clean(self):
@@ -122,7 +126,9 @@ class PostForm(forms.Form):
             Hidden('last_post', '{{ last_post_pk }}'),
         )
 
-        if 'text' not in self.initial:
+        if 'text' in self.initial:
+            self.helper.layout.append(HTML("{% include 'misc/hat_choice.html' with edited_message=post %}"))
+        else:
             self.helper.layout.append(HTML("{% include 'misc/hat_choice.html' %}"))
 
         if topic.antispam(user):

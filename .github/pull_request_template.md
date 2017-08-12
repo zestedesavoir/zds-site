@@ -5,7 +5,7 @@
 
 ### QA
 
-- Instruction 1 (exemple : lancez `python manage.py migrate` et `npm run gulp build`)
+- Instruction 1 (exemple : lancez `python manage.py migrate` et `yarn test`)
 - Instruction 2
 - ...
 - Code review

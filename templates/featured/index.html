@@ -1,6 +1,7 @@
 {% extends "featured/base.html" %}
 {% load i18n %}
 {% load remove_url_protocole %}
+{% load date %}
 
 {% block title %}
     {% trans "Liste des unes" %}
@@ -45,6 +46,7 @@
                                  class="topic-image"
                             >
                             <span class="topic-title">{{ featured_resource.title }}</span>
+                            <span class="topic-subtitle">{% trans 'Publiée' %} {{ featured_resource.pubdate|format_date:True|lower }}</span>
                         </a>
                     </div>
                 </div>

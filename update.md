@@ -1083,6 +1083,13 @@ from zds.member.models import Profile
 Profile.objects.update(is_hover_enabled=False)
 ```
 
+Node.js, yarn et npm
+--------------------
+
+Mettre à jour Node.js à la version v8.x.x.
+
+Installer Yarn à la version v0.27.x ou supérieure. Yarn peut-être installé avec `npm i -g yarn`.
+
 Smileys Clem (#4408)
 --------------------
 

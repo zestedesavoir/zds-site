@@ -14,9 +14,9 @@ exposes categories
             <p>{{ category.description }}</p>
             <p class="right">
                 {% if category.contents_count != 0 %}
-                    {{ category.contents_count }} {% trans 'contenu' %}{{ category.contents_count|pluralize_fr }}
+                    {{ category.contents_count }} {% trans 'publication' %}{{ category.contents_count|pluralize_fr }}
                 {% else %}
-                    {% trans 'Aucun contenu' %}
+                    {% trans 'Aucune publication' %}
                 {% endif %}
             </p>
         </a>

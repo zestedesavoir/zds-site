@@ -23,6 +23,8 @@ from copy import deepcopy
 overridden_zds_app = deepcopy(settings.ZDS_APP)
 overridden_zds_app['content']['repo_private_path'] = os.path.join(settings.BASE_DIR, 'contents-private-test')
 overridden_zds_app['content']['repo_public_path'] = os.path.join(settings.BASE_DIR, 'contents-public-test')
+overridden_zds_app['content']['extra_content_generation_policy'] = 'SYNC'
+overridden_zds_app['content']['build_pdf_when_published'] = False
 
 
 @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'media-test'))
@@ -191,7 +193,7 @@ class MemberModelsTest(TestCase):
         articles = self.user1.get_public_articles()
         self.assertEqual(len(articles), 0)
         # Should be 1
-        PublishedContentFactory(author_list=[self.user1.user], type='Article')
+        PublishedContentFactory(author_list=[self.user1.user], type='ARTICLE')
         self.assertEqual(len(self.user1.get_public_articles()), 1)
         self.assertEqual(len(self.user1.get_public_tutos()), 0)
 
