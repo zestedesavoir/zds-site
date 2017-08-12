@@ -56,7 +56,7 @@
                         <h1><a href="{% url 'publication:list' %}">{% trans 'Bibliothèque' %}</a></h1>
                         {% if level == 1 %}
                             {% if content_count %}
-                                {{ content_count }} {% trans 'contenu' %}{{ content_count|pluralize_fr }}
+                                {{ content_count }} {% trans 'publication' %}{{ content_count|pluralize_fr }}
                             {% endif %}
                         {% endif %}
                     </div>
@@ -82,7 +82,7 @@
                                 <span class="option">Catégorie : <strong><a href="{% url 'publication:subcategory' slug_category=category.slug slug=subcategory.slug %}">{{subcategory}}</a></strong></span>
                             {% endif %}
                             {% if type %}
-                                <span class="option">Contenu : <strong>{{type}}</strong></span>
+                                <span class="option">Type : <strong>{{type}}</strong></span>
                             {% endif %}
                             {% if tag %}
                                 <span class="option">Tag : <strong>{{tag}}</strong></span>

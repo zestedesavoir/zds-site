@@ -14,9 +14,9 @@ exposes subcategories
             <a href="{% url 'publication:subcategory' slug_category=category.slug slug=subcategory.slug %}" class="body">
                 <p class="right">
                 {% if subcategory.contents_count %}
-                    {{ subcategory.contents_count }} {% trans 'contenu' %}{{ subcategory.contents_count|pluralize_fr }}
+                    {{ subcategory.contents_count }} {% trans 'publication' %}{{ subcategory.contents_count|pluralize_fr }}
                 {% else %}
-                    {% trans 'Aucun contenu' %}
+                    {% trans 'Aucune publication' %}
                 {% endif %}
                 </p>
             </a>
