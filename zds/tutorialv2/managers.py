@@ -10,7 +10,7 @@ from zds.utils.models import Tag
 
 class PublishedContentManager(models.Manager):
 
-    def __get_list(self, subcategories=None, tags=None, content_type=None, fetch_comments=True):
+    def __get_list(self, subcategories=None, tags=None, content_type=None, with_comments_count=True):
         """
         :param subcategories: subcategories, filters with OR
         :type subcategories: list of zds.utils.models.SubCategory
@@ -34,10 +34,12 @@ class PublishedContentManager(models.Manager):
             .prefetch_related('content') \
             .prefetch_related('content__subcategory') \
             .prefetch_related('content__authors') \
+            .prefetch_related('content__public_version__authors') \
+            .prefetch_related('content__tags') \
             .select_related('content__licence') \
             .select_related('content__image') \
             .select_related('content__last_note') \
-            .select_related('content__last_note__related_content')       \
+            .select_related('content__last_note__related_content')  \
             .select_related('content__last_note__related_content__public_version')
 
         if subcategories is not None:
@@ -47,7 +49,7 @@ class PublishedContentManager(models.Manager):
         if subcategories is not None or tags is not None:
             queryset = queryset.distinct()
 
-        if fetch_comments:
+        if with_comments_count:
             sub_query = """
                 SELECT COUNT(*)
                 FROM tutorialv2_contentreaction
@@ -127,7 +129,7 @@ class PublishedContentManager(models.Manager):
             subcategories=subcategories,
             tags=tags,
             content_type=content_type,
-            fetch_comments=fetch_comments)
+            with_comments_count=fetch_comments)
         return queryset.order_by('-publication_date')
 
     def most_commented_contents(self, subcategories=None, tags=None, content_type=None):
