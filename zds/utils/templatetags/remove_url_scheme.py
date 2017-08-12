@@ -1,6 +1,6 @@
 from django import template
 from django.conf import settings
-
+from six.moves import urllib_parse as urlparse
 
 register = template.Library()
 
@@ -19,8 +19,9 @@ def remove_url_scheme(input_url):
     ``/media/gallery/1/1.png``
 
     """
-    if settings.ZDS_APP['site']['dns'] in input_url or settings.ZDS_APP['site']['url'] in input_url:
-        return input_url.replace('http:/', 'https:/')\
-                        .replace('https://' + settings.ZDS_APP['site']['dns'], '')\
-                        .replace(settings.ZDS_APP['site']['url'], '')
+
+    schemeless_url = input_url[len(urlparse.urlparse(input_url)).scheme:]
+    schemeless_url = schemeless_url[len('://'):] if schemeless_url.startswith('://') else schemeless_url
+    if schemeless_url.startswith(settings.ZDS_APP['site']['dns']):
+        return schemeless_url[len(settings.ZDS_APP['site']['dns']):]
     return input_url
