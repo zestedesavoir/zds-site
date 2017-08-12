@@ -1,5 +1,6 @@
 # coding: utf-8
 
+from __future__ import unicode_literals
 import uuid
 from datetime import datetime, timedelta
 
@@ -709,7 +710,7 @@ class HatsSettings(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.user = self.request.user
-        messages.success(self.request, _(u'Votre demande a bien été envoyée.'))
+        messages.success(self.request, _('Votre demande a bien été envoyée.'))
         return super(HatsSettings, self).form_valid(form)
 
 
@@ -748,12 +749,12 @@ def solve_hat_request(request, request_pk):
     if 'grant' in request.POST:  # hat is granted
         hat, created = Hat.objects.get_or_create(name__iexact=hat_request.hat, defaults={'name': hat_request.hat})
         if created:
-            messages.success(request, _(u'La casquette « {} » a été créée.').format(hat_request.hat))
+            messages.success(request, _('La casquette « {} » a été créée.').format(hat_request.hat))
         hat_request.user.profile.hats.add(hat)
-        messages.success(request, _(u'La casquette « {0} » a été accordée à {1}.').format(
+        messages.success(request, _('La casquette « {0} » a été accordée à {1}.').format(
             hat_request.hat, hat_request.user.username))
     else:
-        messages.success(request, _(u'La casquette « {0} » a été refusée à {1}.').format(
+        messages.success(request, _('La casquette « {0} » a été refusée à {1}.').format(
             hat_request.hat, hat_request.user.username))
 
     # send a PM to notify member about this decision
@@ -770,8 +771,8 @@ def solve_hat_request(request, request_pk):
     )
     send_mp(bot,
             [hat_request.user],
-            _(u'Casquette « {} »').format(hat_request.hat),
-            u'',
+            _('Casquette « {} »').format(hat_request.hat),
+            '',
             msg,
             False,
             True,

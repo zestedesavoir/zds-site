@@ -125,7 +125,7 @@ Les casquettes
 
 Les casquettes sont un moyen de certifier qu'un utilisateur a un rôle particulier (comme membre du staff, développeur, etc). Les casquettes d'un membre sont listées sur son profil et il est également possible lors de l'envoi d'un message de le poster avec une casquette particulière, qui sera mise en avant sur le message.
 
-Il est possible de modifier la casquette d'un message en l'éditant. Seules les casquettes possédées par le membre lors de l'édition peuvent être sélectionnés. Lorsqu'une casquette est retirée à un membre, les messages ayant été postés avec le restent. Cependant, il est obligatoire de modifier (ou de supprimer) la casquette d'un message s'il est édité alors que le membre ne la possède plus.
+Il est possible de modifier la casquette d'un message en l'éditant. Seules les casquettes possédées par le membre lors de l'édition peuvent être sélectionnés. Lorsqu'une casquette est retirée à un membre, les messages ayant été postés avec cette casquette la conservent. Cependant, il est obligatoire de modifier (ou de supprimer) la casquette d'un message s'il est édité alors que le membre ne la possède plus.
 
 Les casquettes peuvent être demandées dans les paramètres de son compte. Les demandes sont vérifiées par les modérateurs ayant la permission ``utils.change_hat`` qui peuvent décider de les accepter ou de les refuser. Les membres ayant cette permission peuvent également ajouter une casquette sans passer par le système de demande.
 
