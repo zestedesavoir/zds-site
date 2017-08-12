@@ -1446,23 +1446,23 @@ class MemberTests(TestCase):
         # but check that the hat still exists in database
         self.assertTrue(Hat.objects.filter(name=hat_name).exists())
 
-    def test_smileys_clem(self):
+    def test_old_smileys(self):
         """Test the cookie"""
 
         # NOTE: we have to use the "real" login and logout pages here
-        cookie_key = settings.ZDS_APP['member']['clem_smileys_cookie_key']
+        cookie_key = settings.ZDS_APP['member']['old_smileys_cookie_key']
 
         profile_without_clem = ProfileFactory()
         profile_without_clem = Profile.objects.get(pk=profile_without_clem.pk)
-        self.assertFalse(profile_without_clem.use_clem_smileys)
+        self.assertFalse(profile_without_clem.use_old_smileys)
 
         user_without_clem = profile_without_clem.user
         profile_with_clem = ProfileFactory()
-        profile_with_clem.use_clem_smileys = True
+        profile_with_clem.use_old_smileys = True
         profile_with_clem.save()
         user_with_clem = profile_with_clem.user
 
-        settings.ZDS_APP['member']['clem_smileys_allowed'] = True
+        settings.ZDS_APP['member']['old_smileys_allowed'] = True
 
         # test that the cookie is set when connection
         result = self.client.post(reverse('member-login'), {
@@ -1497,12 +1497,12 @@ class MemberTests(TestCase):
             'site': '',
             'avatar_url': '',
             'sign': '',
-            'options': ['use_clem_smileys']
+            'options': ['use_old_smileys']
         })
         self.client.get(reverse('homepage'))
 
         profile_without_clem = Profile.objects.get(pk=profile_without_clem.pk)
-        self.assertTrue(profile_without_clem.use_clem_smileys)
+        self.assertTrue(profile_without_clem.use_old_smileys)
         self.assertNotEqual(self.client.cookies[cookie_key]['expires'], 0)
 
         # ... and that not setting it removes the cookie
@@ -1516,7 +1516,7 @@ class MemberTests(TestCase):
         self.client.get(reverse('homepage'))
 
         profile_without_clem = Profile.objects.get(pk=profile_without_clem.pk)
-        self.assertFalse(profile_without_clem.use_clem_smileys)
+        self.assertFalse(profile_without_clem.use_old_smileys)
         self.assertEqual(self.client.cookies[cookie_key]['expires'], 0)
 
     def tearDown(self):

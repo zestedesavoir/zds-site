@@ -73,7 +73,7 @@ class Profile(models.Model):
     can_write = models.BooleanField("Possibilité d'écrire", default=True)
     end_ban_write = models.DateTimeField("Fin d'interdiction d'écrire", null=True, blank=True)
     last_visit = models.DateTimeField('Date de dernière visite', null=True, blank=True)
-    use_clem_smileys = models.BooleanField('Utilise les smileys Clem ?', default=False)
+    use_old_smileys = models.BooleanField('Utilise les anciens smileys ?', default=False)
     _permissions = {}
     _groups = None
 
@@ -428,17 +428,17 @@ def remove_token_github_on_removing_from_dev_group(sender, instance, **kwargs):
         pass
 
 
-def remove_clem_smileys_cookie(response):
+def remove_old_smileys_cookie(response):
     """Remove the Clem smileys cookie by immediate expiration
 
     :param response: the HTTP response
     :type: django.http.response.HttpResponse
     """
 
-    response.set_cookie(settings.ZDS_APP['member']['clem_smileys_cookie_key'], '', expires=0)
+    response.set_cookie(settings.ZDS_APP['member']['old_smileys_cookie_key'], '', expires=0)
 
 
-def set_clem_smileys_cookie(response, profile):
+def set_old_smileys_cookie(response, profile):
     """Set the Clem smileys cookie according to profile (and if allowed)
 
     :param response: the HTTP response
@@ -447,12 +447,12 @@ def set_clem_smileys_cookie(response, profile):
     :type profile: Profile
     """
 
-    if settings.ZDS_APP['member']['clem_smileys_allowed']:
-        if profile.use_clem_smileys:
+    if settings.ZDS_APP['member']['old_smileys_allowed']:
+        if profile.use_old_smileys:
             # TODO: set max_age, expires and so all (see https://stackoverflow.com/a/1623910)
-            response.set_cookie(settings.ZDS_APP['member']['clem_smileys_cookie_key'], profile.use_clem_smileys)
+            response.set_cookie(settings.ZDS_APP['member']['old_smileys_cookie_key'], profile.use_old_smileys)
         else:
-            remove_clem_smileys_cookie(response)
+            remove_old_smileys_cookie(response)
 
 
 @python_2_unicode_compatible
