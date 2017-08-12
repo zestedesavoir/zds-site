@@ -54,5 +54,5 @@ class Misc(TestCase):
         }
 
         for element in oracle:
-            with self.subtest(element.name):
-                self.assertEquals(remove_url_scheme(element.given), element.expected)
+            # as we are not in py3 we do not have subTest method. so we use a bare for loop.
+            self.assertEquals(remove_url_scheme(element.given), element.expected)
