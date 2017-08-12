@@ -24,7 +24,7 @@ from django.utils.http import urlunquote
 from django.utils.translation import string_concat
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST
-from django.views.generic import DetailView, UpdateView, CreateView, FormView, ListView
+from django.views.generic import DetailView, UpdateView, CreateView, FormView
 
 from zds.forum.models import Topic, TopicRead
 from zds.gallery.forms import ImageAsAvatarForm

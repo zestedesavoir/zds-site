@@ -16,7 +16,6 @@ from zds.tutorialv2.models.models_database import ContentReaction, PublishableCo
 from zds.utils import get_current_user
 from zds.utils.models import Alert, HatRequest
 from django.conf import settings
-from zds.utils.models import Alert, HatRequest
 from zds.tutorialv2.models import TYPE_CHOICES_DICT
 from zds.member.models import NewEmailProvider
 

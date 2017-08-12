@@ -17,7 +17,7 @@ from zds.member.models import Profile, KarmaNote, BannedEmailProvider
 from zds.member.validators import validate_not_empty, validate_zds_email, validate_zds_username, validate_passwords, \
     validate_zds_password
 from zds.utils.forms import CommonLayoutModalText
-from zds.utils.models import Licence, Hat, HatRequest
+from zds.utils.models import Licence, HatRequest
 from zds.utils import get_current_user
 
 # Max password length for the user.

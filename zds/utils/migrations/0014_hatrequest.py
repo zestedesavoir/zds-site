@@ -21,8 +21,10 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('hat', models.CharField(max_length=40, verbose_name='Casquette')),
                 ('reason', models.TextField(max_length=3000, verbose_name='Raison de la demande')),
-                ('date', models.DateTimeField(auto_now_add=True, db_column='request_date', db_index=True, verbose_name='Date de la demande')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='requested_hats', to=settings.AUTH_USER_MODEL, verbose_name='Utilisateur')),
+                ('date', models.DateTimeField(auto_now_add=True, db_column='request_date',
+                                              db_index=True, verbose_name='Date de la demande')),
+                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='requested_hats',
+                                           to=settings.AUTH_USER_MODEL, verbose_name='Utilisateur')),
             ],
             options={
                 'verbose_name': 'Demande de casquette',
