@@ -27,7 +27,7 @@ from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory, Pos
 from zds.forum.models import Topic, Post
 from zds.gallery.factories import GalleryFactory, UserGalleryFactory
 from zds.gallery.models import Gallery, UserGallery
-from zds.utils.models import CommentVote, Hat
+from zds.utils.models import CommentVote, Hat, HatRequest
 from copy import deepcopy
 
 overridden_zds_app = deepcopy(settings.ZDS_APP)
@@ -1433,18 +1433,141 @@ class MemberTests(TestCase):
                          {'hat': hat_name}, follow=False)
         self.assertIn(hat_name, profile.hats.values_list('name', flat=True))
         hat = Hat.objects.get(name=hat_name)
-        # test that this option is only available for a staff member
-        self.client.login(username=user.username, password='hostel77')
+        # test that this option is not available for an other user
+        self.client.login(username=ProfileFactory().user.username, password='hostel77')
         result = self.client.post(reverse('remove-hat', args=[user.pk, hat.pk]), follow=False)
         self.assertEqual(result.status_code, 403)
         self.assertIn(hat, profile.hats.all())
+        # but check that it works for the user having the hat
+        self.client.login(username=user.username, password='hostel77')
+        result = self.client.post(reverse('remove-hat', args=[user.pk, hat.pk]), follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertNotIn(hat, profile.hats.all())
         # test that it works for a staff member
+        profile.hats.add(hat)  # we have to add the hat again for this test
         self.client.login(username=self.staff.username, password='hostel77')
         result = self.client.post(reverse('remove-hat', args=[user.pk, hat.pk]), follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertNotIn(hat, profile.hats.all())
         # but check that the hat still exists in database
         self.assertTrue(Hat.objects.filter(name=hat_name).exists())
+
+    def test_hats_settings(self):
+        hat_name = 'A hat'
+        other_hat_name = 'Another hat'
+        hat, _ = hat, _ = Hat.objects.get_or_create(name__iexact=hat_name, defaults={'name': hat_name})
+        requests_count = HatRequest.objects.count()
+        profile = ProfileFactory()
+        profile.hats.add(hat)
+        # login and check that the hat appears
+        self.client.login(username=profile.user.username, password='hostel77')
+        result = self.client.get(reverse('hats-settings'))
+        self.assertEqual(result.status_code, 200)
+        self.assertContains(result, hat_name)
+        # check that it's impossible to ask for a hat the user already has
+        result = self.client.post(reverse('hats-settings'), {
+            'hat': hat_name,
+            'reason': 'test',
+        }, follow=False)
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(HatRequest.objects.count(), requests_count)  # request wasn't sent
+        # ask for another hat
+        result = self.client.post(reverse('hats-settings'), {
+            'hat': other_hat_name,
+            'reason': 'test',
+        }, follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(HatRequest.objects.count(), requests_count + 1)  # request was sent!
+        # check the request appears
+        result = self.client.get(reverse('hats-settings'))
+        self.assertEqual(result.status_code, 200)
+        self.assertContains(result, other_hat_name)
+        # and check it's impossible to ask for it again
+        result = self.client.post(reverse('hats-settings'), {
+            'hat': other_hat_name,
+            'reason': 'test',
+        }, follow=False)
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(HatRequest.objects.count(), requests_count + 1)  # request wasn't sent
+
+    def test_requested_hats(self):
+        hat_name = 'A hat'
+        # ask for a hat
+        profile = ProfileFactory()
+        self.client.login(username=profile.user.username, password='hostel77')
+        result = self.client.post(reverse('hats-settings'), {
+            'hat': hat_name,
+            'reason': 'test',
+        }, follow=False)
+        self.assertEqual(result.status_code, 302)
+        # test this page is only available for staff
+        result = self.client.get(reverse('requested-hats'))
+        self.assertEqual(result.status_code, 403)
+        # login as staff
+        self.client.login(username=self.staff.username, password='hostel77')
+        # test the count displayed on the user menu is right
+        requests_count = HatRequest.objects.count()
+        result = self.client.get(reverse('pages-index'))
+        self.assertEqual(result.status_code, 200)
+        self.assertContains(result, '({})'.format(requests_count))
+        # test that the hat asked appears on the requested hats page
+        result = self.client.get(reverse('requested-hats'))
+        self.assertEqual(result.status_code, 200)
+        self.assertContains(result, hat_name)
+
+    def test_hat_request_detail(self):
+        hat_name = 'A hat'
+        # ask for a hat
+        profile = ProfileFactory()
+        self.client.login(username=profile.user.username, password='hostel77')
+        result = self.client.post(reverse('hats-settings'), {
+            'hat': hat_name,
+            'reason': 'test',
+        }, follow=False)
+        self.assertEqual(result.status_code, 302)
+        request = HatRequest.objects.latest('date')
+        # test this page is only available for staff
+        result = self.client.get(request.get_absolute_url())
+        self.assertEqual(result.status_code, 403)
+        # login as staff
+        self.client.login(username=self.staff.username, password='hostel77')
+        # test the page works
+        result = self.client.get(request.get_absolute_url())
+        self.assertEqual(result.status_code, 200)
+        self.assertContains(result, hat_name)
+        self.assertContains(result, profile.user.username)
+        self.assertContains(result, request.reason)
+
+    def test_solve_hat_request(self):
+        hat_name = 'A hat'
+        # ask for a hat
+        profile = ProfileFactory()
+        self.client.login(username=profile.user.username, password='hostel77')
+        result = self.client.post(reverse('hats-settings'), {
+            'hat': hat_name,
+            'reason': 'test',
+        }, follow=False)
+        self.assertEqual(result.status_code, 302)
+        request = HatRequest.objects.latest('date')
+        requests_count = HatRequest.objects.count()
+        # test this page is only available for staff
+        result = self.client.post(reverse('solve-hat-request', args=[request.pk]), follow=False)
+        self.assertEqual(result.status_code, 403)
+        # test denying as staff
+        self.client.login(username=self.staff.username, password='hostel77')
+        result = self.client.post(reverse('solve-hat-request', args=[request.pk]), follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertNotIn(hat_name, [h.name for h in profile.hats.all()])
+        self.assertEqual(requests_count - 1, HatRequest.objects.count())
+        # add a new request and test granting
+        HatRequest.objects.create(user=profile.user, hat=hat_name, reason='test')
+        request = HatRequest.objects.latest('date')
+        requests_count = HatRequest.objects.count()
+        result = self.client.post(reverse('solve-hat-request', args=[request.pk]),
+                                  {'grant': 'on'}, follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertIn(hat_name, [h.name for h in profile.hats.all()])
+        self.assertEqual(requests_count - 1, HatRequest.objects.count())
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):

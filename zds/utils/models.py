@@ -489,6 +489,31 @@ class Hat(models.Model):
         return self.name
 
 
+@python_2_unicode_compatible
+class HatRequest(models.Model):
+    """
+    A hat requested by a user.
+    """
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Utilisateur',
+                             related_name='requested_hats')
+    hat = models.CharField('Casquette', max_length=40)
+    reason = models.TextField('Raison de la demande', max_length=3000)
+    date = models.DateTimeField(auto_now_add=True, db_index=True,
+                                verbose_name='Date de la demande', db_column='request_date')
+
+    class Meta:
+        verbose_name = 'Demande de casquette'
+        verbose_name_plural = 'Demandes de casquettes'
+
+    def __str__(self):
+        return 'Hat {0} requested by {1}'.format(
+            self.hat, self.user.username)
+
+    def get_absolute_url(self):
+        return reverse('hat-request', args=[self.pk])
+
+
 def get_hat_from_request(request, author=None):
     if author is None:
         author = request.user
