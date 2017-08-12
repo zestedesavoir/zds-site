@@ -20,7 +20,7 @@ def remove_url_scheme(input_url):
 
     """
 
-    schemeless_url = input_url[len(urlparse.urlparse(input_url)).scheme:]
+    schemeless_url = input_url[len(urlparse.urlparse(input_url).scheme):]
     schemeless_url = schemeless_url[len('://'):] if schemeless_url.startswith('://') else schemeless_url
     if schemeless_url.startswith(settings.ZDS_APP['site']['dns']):
         return schemeless_url[len(settings.ZDS_APP['site']['dns']):]
