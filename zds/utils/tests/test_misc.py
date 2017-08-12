@@ -39,14 +39,20 @@ class Misc(TestCase):
     def test_remove_url_scheme(self):
         Element = collections.namedtuple('element', ['name', 'given', 'expected'])
         oracle = {
-            Element('cannonique http', 'http://{}/media/gallery/1/1.png'.format(settings.ZDS_APP['site']['dns']),
+            Element('cannonical http', 'http://{}/media/gallery/1/1.png'.format(settings.ZDS_APP['site']['dns']),
                     '/media/gallery/1/1.png'),
-            Element('cannonique https', 'https://{}/media/gallery/1/1.png'.format(settings.ZDS_APP['site']['dns']),
+            Element('cannonical no scheme internal', '{}/media/gallery/1/1.png'.format(settings.ZDS_APP['site']['dns']),
                     '/media/gallery/1/1.png'),
+            Element('cannonical no scheme external', 'example.com/media/gallery/1/1.png',
+                    'example.com/media/gallery/1/1.png'),
+            Element('cannonical https', 'https://{}/media/gallery/1/1.png'.format(settings.ZDS_APP['site']['dns']),
+                    '/media/gallery/1/1.png'),
+            Element('limit: empty url', '',
+                    ''),
             Element('old bug: url in qstring', 'http://example.com?q=http://{}'.format(settings.ZDS_APP['site']['dns']),
                     'http://example.com?q=http://{}'.format(settings.ZDS_APP['site']['dns'])),
         }
 
-        for element in  oracle:
+        for element in oracle:
             with self.subtest(element.name):
                 self.assertEquals(remove_url_scheme(element.given), element.expected)
