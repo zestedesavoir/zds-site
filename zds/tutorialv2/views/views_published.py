@@ -427,7 +427,7 @@ class ViewPublications(TemplateView):
 
         queryset_subcategory = CategorySubCategory\
             .objects\
-            .prefetch_related('subcategory')\
+            .prefetch_related('subcategory', 'category')\
             .filter(is_main=True)\
             .order_by('category__id')\
             .all()
@@ -571,7 +571,7 @@ class ViewPublications(TemplateView):
                 **dict(content_type='ARTICLE', **recent_kwargs)
             )[:self.max_last_contents]
             context['last_tutorials'] = PublishedContent.objects.last_contents(
-                **dict(content_type='TUTORIAL', fetch_comments=False, **recent_kwargs)
+                **dict(content_type='TUTORIAL', **recent_kwargs)
             )[:self.max_last_contents]
 
             context['beta_forum'] = Forum.objects\

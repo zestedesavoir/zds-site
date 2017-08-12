@@ -360,12 +360,11 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
 
             manifest = open(os.path.join(path, 'manifest.json'), 'r')
             json = json_reader.loads(manifest.read())
-            versioned = get_content_from_json(json, public.sha_public,
-                                              slug, public=True, max_title_len=max_title_length)
+            versioned = get_content_from_json(
+                json, public.sha_public, slug, public=True, max_title_len=max_title_length, hint_licence=self.licence)
 
         else:  # draft version, use the repository (slower, but allows manipulation)
             path = self.get_repo_path()
-            slug = self.slug
 
             if not os.path.isdir(path):
                 raise IOError(path)
@@ -645,6 +644,11 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         :rtype: zds.tutorialv2.models.models_database.PublicContent
         :raise Http404: if the version is not available
         """
+        try:
+            self.content.count_note = self.count_note
+        except AttributeError:
+            pass
+
         self.versioned_model = self.content.load_version_or_404(sha=self.sha_public, public=self)
         return self.versioned_model
 
@@ -653,6 +657,11 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         :rtype: zds.tutorialv2.models.models_database.PublicContent
         :return: the public content
         """
+        try:
+            self.content.count_note = self.count_note
+        except AttributeError:
+            pass
+
         self.versioned_model = self.content.load_version(sha=self.sha_public, public=self)
         return self.versioned_model
 
