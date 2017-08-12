@@ -438,4 +438,4 @@ def cleanup_notification_for_unpublished_content(sender, instance, **_):
                                     object_id=instance.pk).update(is_active=False)
         logger.debug('Nothing went wrong.')
     except DatabaseError as e:
-        logger.exception("Error wwhile saving %s, %s", instance, e)
+        logger.exception('Error while saving %s, %s', instance, e)

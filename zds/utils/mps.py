@@ -108,6 +108,6 @@ def send_message_mp(
             try:
                 msg.send()
             except Exception as e:
-                logger.exception("Message was not sent to %s due to %s", recipient, e)
+                logger.exception('Message was not sent to %s due to %s', recipient, e)
 
     return n_topic
