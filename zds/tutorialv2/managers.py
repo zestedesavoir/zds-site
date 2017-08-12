@@ -50,6 +50,7 @@ class PublishedContentManager(models.Manager):
             queryset = queryset.distinct()
 
         if with_comments_count:
+            # TODO: check if we can use ORM to do that
             sub_query = """
                 SELECT COUNT(*)
                 FROM tutorialv2_contentreaction
@@ -124,12 +125,12 @@ class PublishedContentManager(models.Manager):
             published.authors.remove(unsubscribed_user)
             published.save()
 
-    def last_contents(self, subcategories=None, tags=None, content_type=None, fetch_comments=True):
+    def last_contents(self, subcategories=None, tags=None, content_type=None, with_comments_count=True):
         queryset = self.__get_list(
             subcategories=subcategories,
             tags=tags,
             content_type=content_type,
-            with_comments_count=fetch_comments)
+            with_comments_count=with_comments_count)
         return queryset.order_by('-publication_date')
 
     def most_commented_contents(self, subcategories=None, tags=None, content_type=None):

@@ -407,6 +407,7 @@ class ViewPublications(TemplateView):
     def categories_with_contents_count(handle_types):
         """Rewritten to select categories with subcategories and contents count in two queries"""
 
+        # TODO: check if we can use ORM to do that
         sub_query = """
           SELECT COUNT(*) FROM `tutorialv2_publishedcontent`
           INNER JOIN `tutorialv2_publishablecontent`
@@ -451,6 +452,7 @@ class ViewPublications(TemplateView):
     def subcategories_with_contents_count(category, handle_types):
         """Rewritten to give the number of contents at the same time as the subcategories (in one query)"""
 
+        # TODO: check if we can use ORM to do that
         sub_query = """
           SELECT COUNT(*) FROM `tutorialv2_publishedcontent`
           INNER JOIN `tutorialv2_publishablecontent`
@@ -504,7 +506,7 @@ class ViewPublications(TemplateView):
 
             context['categories'] = categories
             context['content_count'] = PublishedContent.objects \
-                .last_contents(content_type=self.handle_types, fetch_comments=False) \
+                .last_contents(content_type=self.handle_types, with_comments_count=False) \
                 .count()
 
         elif self.level is 2:
