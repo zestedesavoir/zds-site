@@ -427,7 +427,7 @@ class ViewPublications(TemplateView):
 
         queryset_subcategory = CategorySubCategory\
             .objects\
-            .prefetch_related('category', 'subcategory')\
+            .prefetch_related('subcategory')\
             .filter(is_main=True)\
             .order_by('category__id')\
             .all()
@@ -448,7 +448,7 @@ class ViewPublications(TemplateView):
         return categories
 
     @staticmethod
-    def subcategories_with_contents_count(id_category, handle_types):
+    def subcategories_with_contents_count(category, handle_types):
         """Rewritten to give the number of contents at the same time as the subcategories (in one query)"""
 
         sub_query = """
@@ -466,7 +466,7 @@ class ViewPublications(TemplateView):
         """.format(', '.join('\'{}\''.format(t) for t in handle_types))
 
         queryset = CategorySubCategory.objects \
-            .filter(is_main=True, category__id=id_category) \
+            .filter(is_main=True, category=category) \
             .prefetch_related('subcategory')\
             .extra(select={'contents_count': sub_query})
 
@@ -510,7 +510,7 @@ class ViewPublications(TemplateView):
         elif self.level is 2:
             context['category'] = get_object_or_404(Category, slug=self.kwargs.get('slug'))
             context['subcategories'] = ViewPublications.subcategories_with_contents_count(
-                context['category'].id, self.handle_types)
+                context['category'], self.handle_types)
             recent_kwargs['subcategories'] = context['subcategories']
 
         elif self.level is 3:
