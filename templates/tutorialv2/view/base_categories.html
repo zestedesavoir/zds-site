@@ -63,43 +63,38 @@
                     {% elif level == 2 %}
                         <div class="line">
                             <div class="line-item">
-                                <span class="separator"></span>
-                                <h2><a href="{% url 'publication:category' slug=category.slug %}">{{ category.title }}</a></h2>
+                                <h2 class="has-separator"><a href="{% url 'publication:category' slug=category.slug %}">{{ category.title }}</a></h2>
                             </div>
                         </div>
                     {% elif level == 3 %}
                         <div class="line">
                             <div class="line-item">
-                                <span class="separator"></span>
-                                <h2><a href="{% url 'publication:category' slug=category.slug %}">{{ category.title }}</a></h2>
+                                <h2 class="has-separator"><a href="{% url 'publication:category' slug=category.slug %}">{{ category.title }}</a></h2>
                             </div>
                             <div class="line-item">
-                                <span class="separator"></span>
-                                <h2><a href="{% url 'publication:subcategory' slug_category=category.slug slug=subcategory.slug %}">{{ subcategory.title }}</a></h2>
+                                <h2 class="has-separator"><a href="{% url 'publication:subcategory' slug_category=category.slug slug=subcategory.slug %}">{{ subcategory.title }}</a></h2>
                             </div>
                         </div>
                     {% elif level == 4 %}
                         <div class="line">
                             <div class="line-item">
-                                <span class="separator"></span>
-                                <h2>Parcourir</h2>
+                                <h2 class="has-separator">Parcourir</h2>
                             </div>
                         </div>
 
                         <div class="line">
                             <div class="line-item">
-                                <span class="separator"></span>
                                 {% if category %}
-                                    <span class="option">Domaine de savoir : <strong><a href="{% url 'publication:category' slug=category.slug %}">{{category}}</a></strong></span>
+                                    <span class="has-separator option">Domaine de savoir : <strong><a href="{% url 'publication:category' slug=category.slug %}">{{category}}</a></strong></span>
                                 {% endif %}
                                 {% if subcategory %}
-                                    <span class="option">Catégorie : <strong><a href="{% url 'publication:subcategory' slug_category=category.slug slug=subcategory.slug %}">{{subcategory}}</a></strong></span>
+                                    <span class="has-separator option">Catégorie : <strong><a href="{% url 'publication:subcategory' slug_category=category.slug slug=subcategory.slug %}">{{subcategory}}</a></strong></span>
                                 {% endif %}
                                 {% if type %}
-                                    <span class="option">Type : <strong>{{type}}</strong></span>
+                                    <span class="has-separator option">Type : <strong>{{type}}</strong></span>
                                 {% endif %}
                                 {% if tags %}
-                                    <span class="option">Tags : <strong>{{tags}}</strong></span>
+                                    <span class="has-separator option">Tags : <strong>{{tags}}</strong></span>
                                 {% endif %}
                             </div>
                         </div>
