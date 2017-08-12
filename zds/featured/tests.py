@@ -6,6 +6,7 @@ from django.test import TestCase
 from zds.member.factories import StaffProfileFactory, ProfileFactory
 from zds.featured.factories import FeaturedResourceFactory
 from zds.featured.models import FeaturedResource, FeaturedMessage
+from datetime import datetime, date
 
 
 stringof2001chars = 'http://url.com/'
@@ -52,24 +53,43 @@ class FeaturedResourceCreateViewTest(TestCase):
             username=staff.user.username,
             password='hostel77'
         )
-        self.assertTrue(login_check)
 
+        self.assertTrue(login_check)
         self.assertEqual(0, FeaturedResource.objects.all().count())
-        response = self.client.post(
-            reverse('featured-resource-create'),
-            {
-                'title': 'title',
-                'type': 'type',
-                'image_url': 'image_url',
-                'url': 'url',
-                'authors': staff.user.username,
-                'pubdate': '2016-12-25 00:00:00'
-            },
-            follow=True
-        )
+
+        pubdate = date(2016, 1, 1).strftime('%d/%m/%Y %H:%M:%S')
+
+        fields = {
+            'title': 'title',
+            'type': 'type',
+            'image_url': 'http://test.com/image.png',
+            'url': 'http://test.com',
+            'authors': staff.user.username,
+            'pubdate': pubdate
+        }
+
+        response = self.client.post(reverse('featured-resource-create'), fields, follow=True)
 
         self.assertEqual(200, response.status_code)
         self.assertEqual(1, FeaturedResource.objects.all().count())
+
+        featured = FeaturedResource.objects.first()
+
+        for field, value in fields.items():
+            if field != 'pubdate':
+                self.assertEqual(value, getattr(featured, field), msg='Error on {}'.format(field))
+            else:
+                self.assertEqual(value, featured.pubdate.strftime('%d/%m/%Y %H:%M:%S'))
+
+        # now with major_update
+        fields['major_update'] = 'on'
+
+        response = self.client.post(reverse('featured-resource-create'), fields, follow=True)
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(2, FeaturedResource.objects.all().count())
+
+        featured = FeaturedResource.objects.last()
+        self.assertTrue((datetime.now() - featured.pubdate).total_seconds() < 10)
 
     def test_failure_create_featured_with_unauthenticated_user(self):
         response = self.client.get(reverse('featured-resource-create'))
@@ -103,7 +123,7 @@ class FeaturedResourceCreateViewTest(TestCase):
                 'title': 'title',
                 'type': 'type',
                 'image_url': stringof2001chars,
-                'url': 'url',
+                'url': 'http://test.com',
                 'authors': staff.user.username
             },
             follow=True
@@ -117,7 +137,7 @@ class FeaturedResourceCreateViewTest(TestCase):
             {
                 'title': 'title',
                 'type': 'type',
-                'image_url': 'url',
+                'image_url': 'http://test.com/image.png',
                 'url': stringof2001chars,
                 'authors': staff.user.username
             },
@@ -139,20 +159,44 @@ class FeaturedResourceUpdateViewTest(TestCase):
 
         news = FeaturedResourceFactory()
         self.assertEqual(1, FeaturedResource.objects.all().count())
-        response = self.client.post(
-            reverse('featured-resource-update', args=[news.pk]),
-            {
-                'title': 'title',
-                'type': 'type',
-                'image_url': 'image_url',
-                'url': 'url',
-                'authors': staff.user.username
-            },
-            follow=True
-        )
+
+        old_featured = FeaturedResource.objects.first()
+
+        pubdate = date(2016, 1, 1).strftime('%d/%m/%Y %H:%M:%S')
+
+        fields = {
+            'title': 'title',
+            'type': 'type',
+            'image_url': 'http://test.com/image.png',
+            'url': 'http://test.com',
+            'authors': staff.user.username,
+            'pubdate': pubdate
+        }
+
+        response = self.client.post(reverse('featured-resource-update', args=[news.pk]), fields, follow=True)
 
         self.assertEqual(200, response.status_code)
         self.assertEqual(1, FeaturedResource.objects.all().count())
+
+        featured = FeaturedResource.objects.first()
+
+        for field, value in fields.items():
+            self.assertNotEqual(getattr(featured, field), getattr(old_featured, field))
+
+            if field != 'pubdate':
+                self.assertEqual(value, getattr(featured, field), msg='Error on {}'.format(field))
+            else:
+                self.assertEqual(value, featured.pubdate.strftime('%d/%m/%Y %H:%M:%S'))
+
+        # now with major_update
+        self.assertFalse((datetime.now() - featured.pubdate).total_seconds() < 10)
+
+        fields['major_update'] = 'on'
+
+        response = self.client.post(reverse('featured-resource-update', args=[news.pk]), fields, follow=True)
+        self.assertEqual(200, response.status_code)
+        featured = FeaturedResource.objects.first()
+        self.assertTrue((datetime.now() - featured.pubdate).total_seconds() < 10)
 
     def test_failure_create_featured_with_unauthenticated_user(self):
         response = self.client.get(reverse('featured-resource-update', args=[42]))
@@ -266,7 +310,7 @@ class FeaturedMessageCreateUpdateViewTest(TestCase):
             reverse('featured-message-create'),
             {
                 'message': 'message',
-                'url': 'url',
+                'url': 'http://test.com',
             },
             follow=True
         )
@@ -286,7 +330,7 @@ class FeaturedMessageCreateUpdateViewTest(TestCase):
             reverse('featured-message-create'),
             {
                 'message': 'message',
-                'url': 'url',
+                'url': 'http://test.com',
             },
             follow=True
         )
@@ -298,7 +342,7 @@ class FeaturedMessageCreateUpdateViewTest(TestCase):
             reverse('featured-message-create'),
             {
                 'message': 'message',
-                'url': 'url',
+                'url': 'http://test.com',
             },
             follow=True
         )

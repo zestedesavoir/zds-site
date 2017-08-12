@@ -358,6 +358,7 @@ class PrivatePostEdit(UpdateView, UpdatePrivatePost):
         return form
 
     def form_valid(self, form):
-        self.perform_update(self.current_post, self.request.POST)
+        self.perform_update(self.current_post, self.request.POST,
+                            with_hat=get_hat_from_request(self.request, self.current_post.author))
 
         return redirect(self.current_post.get_absolute_url())

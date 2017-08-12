@@ -2,7 +2,7 @@
 
 from django.conf import settings
 
-from zds.utils.models import HelpWriting
+from zds.utils.models import HelpWriting, Category
 from zds.utils import slugify
 from shutil import copyfile
 from os.path import basename, join
@@ -40,3 +40,11 @@ class HelpWritingFactory(factory.DjangoModelFactory):
         kwargs.pop('fixture_image_path', None)
 
         return super(HelpWritingFactory, cls)._create(target_class, *args, **kwargs)
+
+
+class CategoryFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = Category
+
+    title = factory.Sequence('Ma catégorie No{0}'.format)
+    slug = factory.Sequence('category{0}'.format)

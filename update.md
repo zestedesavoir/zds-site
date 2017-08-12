@@ -1072,3 +1072,20 @@ Il faut ensuite créer des casquettes. Une commande est disponible pour ajouter 
 + `python manage.py add_hat_to_group 'staffs' 'Staff'`
 + `python manage.py add_hat_to_group 'Communication' 'Communication'`
 + `python manage.py add_hat_to_group 'dtc' 'DTC'`
+
+Menu au survol (#4454)
+----------------------
+
+Les menus s’ouvrent désormais au survol lorsque l’option est activée. Étant donné que cette option est activée par défaut, désactiver cette option pour tous les utilisateurs existants via le shell de Django afin de ne pas troubler la communauté :
+
+```python
+from zds.member.models import Profile
+Profile.objects.update(is_hover_enabled=False)
+```
+
+Node.js, yarn et npm
+--------------------
+
+Mettre à jour Node.js à la version v8.x.x.
+
+Installer Yarn à la version v0.27.x ou supérieure. Yarn peut-être installé avec `npm i -g yarn`.

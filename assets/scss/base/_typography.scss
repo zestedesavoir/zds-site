@@ -6,11 +6,6 @@ select,
 textarea {
     font-family: $font-sans-serif;
     color: #222;
-
-    .wf-active &,
-    .no-js & {
-        font-family: $font-sans-serif-active;
-    }
 }
 
 hr {

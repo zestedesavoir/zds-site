@@ -57,7 +57,7 @@
                     {% if level == 1 %}
                         <div class="line">
                             {% if content_count %}
-                                {{ content_count }} {% trans 'contenu' %}{{ content_count|pluralize_fr }}
+                                {{ content_count }} {% trans 'publication' %}{{ content_count|pluralize_fr }}
                             {% endif %}
                         </div>
                     {% elif level == 2 %}
@@ -81,7 +81,7 @@
                                 <h2 class="has-separator">Parcourir</h2>
                             </div>
                         </div>
-
+                        
                         <div class="line">
                             <div class="line-item">
                                 {% if category %}
