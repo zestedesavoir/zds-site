@@ -1,6 +1,7 @@
 # coding: utf-8
 import hashlib
 import re
+from contextlib import contextmanager
 
 THUMB_MAX_WIDTH = 80
 THUMB_MAX_HEIGHT = 80
@@ -55,3 +56,11 @@ def contains_utf8mb4(s):
         s = unicode(s, 'utf-8')
     re_pattern = re.compile(u'[^\u0000-\uD7FF\uE000-\uFFFF]', re.UNICODE)
     return s != re_pattern.sub(u'\uFFFD', s)
+
+
+@contextmanager
+def ignore(*exceptions):
+    try:
+        yield
+    except exceptions:
+        pass
