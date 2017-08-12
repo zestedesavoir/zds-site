@@ -37,7 +37,7 @@
     {# Color the browser elements. See https://developers.google.com/web/fundamentals/design-and-ui/browser-customization/theme-color?hl=en #}
     <meta name="theme-color" content="#084561">
     <meta name="msapplication-navbutton-color" content="#084561">
-    {# Fullsceen on iOS and enable bar customisation #}
+    {# Fullscreen on iOS and enable bar customisation #}
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
@@ -85,6 +85,9 @@
 
 
     {# Stylesheets #}
+
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.css" crossorigin="anonymous">
     <link rel="stylesheet" href="{% static "css/main.css" %}">
     {% if not debug %}
         {% block canonical %}{% endblock %}

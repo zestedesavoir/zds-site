@@ -40,13 +40,14 @@
     "gulp-imagemin": "3.3.0",
     "gulp-postcss": "7.0.0",
     "gulp-sass": "3.1.0",
-    "gulp-sourcemaps": "2.6.0",
+    "gulp-sourcemaps": "^2.6.1",
     "gulp-uglify": "3.0.0",
     "gulp.spritesmith": "6.5.1",
     "jquery": "3.2.1",
     "normalize.css": "7.0.0",
     "pm2": "^2.6.1",
-    "zmarkdown": "^1.0.1"
+    "raven": "^2.1.2",
+    "zmarkdown": "^1.0.8"
   },
   "devDependencies": {
     "gulp-jshint": "2.0.4",
