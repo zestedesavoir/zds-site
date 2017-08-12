@@ -58,7 +58,7 @@ class Category(models.Model):
     description = models.TextField('Description')
     position = models.IntegerField('Position', default=0, db_index=True)
 
-    slug = models.SlugField(max_length=80, unique=True, db_index=True)
+    slug = models.SlugField(max_length=80, unique=True)
 
     def __str__(self):
         return self.title
@@ -84,7 +84,7 @@ class SubCategory(models.Model):
 
     image = models.ImageField(upload_to=image_path_category, blank=True, null=True)
 
-    slug = models.SlugField(max_length=80, unique=True, db_index=True)
+    slug = models.SlugField(max_length=80, unique=True)
 
     def __str__(self):
         return self.title
@@ -419,7 +419,7 @@ class Tag(models.Model):
         verbose_name_plural = 'Tags'
 
     title = models.CharField('Titre', max_length=30, unique=True, db_index=True)
-    slug = models.CharField('Slug', max_length=30, unique=True, db_index=True)
+    slug = models.SlugField('Slug', max_length=30, unique=True)
 
     def __str__(self):
         """Textual Link Form."""
@@ -433,7 +433,7 @@ class Tag(models.Model):
         if not self.title or not slugify(self.title.replace('-', '')):
             raise ValueError('Tag "{}" is not correct'.format(self.title))
         self.title = smart_text(self.title).lower()
-        self.slug = uuslug(self.title, instance=self, max_length=80)
+        self.slug = uuslug(self.title, instance=self, max_length=Tag._meta.get_field('slug').max_length)
         super(Tag, self).save(*args, **kwargs)
 
     @staticmethod
