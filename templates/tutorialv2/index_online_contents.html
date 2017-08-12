@@ -126,7 +126,7 @@
         {% for title, subcats in top_categories.categories.items %}
             <h4 class="mobile-menu-link">{{ title }}</h4>
             <ul>
-                {% for subcat,slug in subcats %}
+                {% for subcat, slug, _ in subcats %}
                     <li>
                         <a href="{{ content_list_url }}?category={{ slug }}" class="mobile-menu-link mobile-menu-sublink">
                             {{  subcat }}

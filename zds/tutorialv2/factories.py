@@ -7,7 +7,7 @@ from zds.forum.factories import PostFactory, TopicFactory
 
 from zds.tutorialv2.models.models_database import PublishableContent, Validation, ContentReaction
 from zds.tutorialv2.models.models_versioned import Container, Extract
-from zds.utils.models import SubCategory, Licence
+from zds.utils.models import SubCategory, Licence, CategorySubCategory
 from zds.gallery.factories import GalleryFactory, UserGalleryFactory
 from zds.tutorialv2.utils import init_new_repo
 from zds.tutorialv2.publication_utils import publish_content
@@ -189,6 +189,19 @@ class SubCategoryFactory(factory.DjangoModelFactory):
     title = factory.Sequence(lambda n: 'Sous-Categorie {0} pour Tuto'.format(n))
     subtitle = factory.Sequence(lambda n: 'Sous titre de Sous-Categorie {0} pour Tuto'.format(n))
     slug = factory.Sequence(lambda n: 'sous-categorie-{0}'.format(n))
+
+    @classmethod
+    def _prepare(cls, create, **kwargs):
+
+        category = kwargs.pop('category', None)
+
+        subcategory = super(SubCategoryFactory, cls)._prepare(create, **kwargs)
+
+        if category is not None:
+            relation = CategorySubCategory(category=category, subcategory=subcategory)
+            relation.save()
+
+        return subcategory
 
 
 class ValidationFactory(factory.DjangoModelFactory):

@@ -253,8 +253,8 @@ class ProfileForm(MiniProfileForm):
         self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
 
-        if settings.ZDS_APP['member']['clem_smileys_allowed']:
-            self.fields['options'].choices.insert(3, ('use_clem_smileys', _(u'Utiliser les smileys Clem')))
+        if settings.ZDS_APP['member']['old_smileys_allowed']:
+            self.fields['options'].choices.insert(3, ('use_old_smileys', _(u'Utiliser les anciens smileys')))
 
         # to get initial value form checkbox show email
         initial = kwargs.get('initial', {})
@@ -269,8 +269,8 @@ class ProfileForm(MiniProfileForm):
         if 'allow_temp_visual_changes' in initial and initial['allow_temp_visual_changes']:
             self.fields['options'].initial += 'allow_temp_visual_changes'
 
-        if 'use_clem_smileys' in initial and initial['use_clem_smileys']:
-            self.fields['options'].initial += 'use_clem_smileys'
+        if 'use_old_smileys' in initial and initial['use_old_smileys']:
+            self.fields['options'].initial += 'use_old_smileys'
 
         if 'show_markdown_help' in initial and initial['show_markdown_help']:
             self.fields['options'].initial += 'show_markdown_help'

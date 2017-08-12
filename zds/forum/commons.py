@@ -12,7 +12,7 @@ from django.contrib.auth.decorators import permission_required
 from zds.forum.models import Forum, Post, TopicRead
 from zds.notification import signals
 from zds.notification.models import TopicAnswerSubscription, Notification, NewTopicSubscription
-from zds.utils.models import Alert, CommentEdit
+from zds.utils.models import Alert, CommentEdit, get_hat_from_request
 
 
 class ForumEditMixin(object):
@@ -81,12 +81,12 @@ class TopicEditMixin(object):
             raise PermissionDenied()
 
     @staticmethod
-    def perform_edit_info(topic, data, editor):
+    def perform_edit_info(request, topic, data, editor):
         topic.title = data.get('title')
         topic.subtitle = data.get('subtitle')
         topic.save()
 
-        PostEditMixin.perform_edit_post(topic.first_post(), editor, data.get('text'))
+        PostEditMixin.perform_edit_post(request, topic.first_post(), editor, data.get('text'))
 
         # add tags
         topic.tags.clear()
@@ -163,7 +163,7 @@ class PostEditMixin(object):
         signals.answer_unread.send(sender=post.topic.__class__, instance=post, user=user)
 
     @staticmethod
-    def perform_edit_post(post, user, text):
+    def perform_edit_post(request, post, user, text):
         # create an archive
         edit = CommentEdit()
         edit.comment = post
@@ -172,6 +172,7 @@ class PostEditMixin(object):
         edit.save()
 
         post.update_content(text)
+        post.with_hat = get_hat_from_request(request, post.author)
         post.update = datetime.now()
         post.editor = user
         post.save()

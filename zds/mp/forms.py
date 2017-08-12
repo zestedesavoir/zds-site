@@ -125,6 +125,7 @@ class PrivatePostForm(forms.Form):
 
         self.helper.layout = Layout(
             CommonLayoutEditor(),
+            HTML("{% include 'misc/hat_choice.html' with edited_message=post %}"),
             Hidden('last_post', '{{ last_post_pk }}'),
         )
 
