@@ -1,0 +1,79 @@
+{% extends "member/settings/base.html" %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+
+{% block title %}
+    {% trans "Casquettes" %}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>
+        {% trans "Casquettes" %}
+    </li>
+{% endblock %}
+
+
+
+{% block headline %}
+    {% trans "Casquettes" %}
+{% endblock %}
+
+
+
+{% block content %}
+    <p>
+        {% blocktrans with site_name=app.site.literal_name %}
+            Une casquette est un moyen d'identifier formellement vos responsabilités lorsque vous vous exprimez au nom d'un projet particulier, d'une organisation, d'une entreprise ou autre. Ces responsabilités peuvent être au sein de {{ site_name }} comme au sein d'une entité externe.
+        {% endblocktrans %}
+    </p>
+
+    <p>{% trans "Chaque utilisateur peut posséder plusieurs casquettes, parmi lesquelles une peut être choisie pour chaque message." %}</p>
+
+    {% if user.profile.has_hat %}
+        <h2>{% trans "Vos casquettes" %}</h2>
+
+        <ul>
+            {% for hat in user.profile.hats.all %}
+                <li>{{ hat.name }} – <a href="#remove-hat-{{ hat.pk }}" class="open-modal">{% trans "Supprimer" %}</a></li>
+                <form action="{% url 'remove-hat' user.pk hat.pk %}" method="post" id="remove-hat-{{ hat.pk }}" class="modal modal-flex">
+                    {% csrf_token %}
+                    <p>
+                        {% blocktrans with hat=hat.name %}
+                            Voulez-vous vraiment supprimer votre casquette « {{ hat }} » ?
+                        {% endblocktrans %}
+                    </p>
+                    <p>{% trans "Vous ne pourrez plus poster avec cette casquette et elle n'apparaîtra plus sur votre profil. Les messages ayant été postés avec le resteront. Notez toutefois que vous ne pourrez pas conserver la casquette si vous les éditez." %}
+                    <button type="submit">{% trans 'Confirmer' %}</button>
+                </form>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% if user.requested_hats.count >= 1 %}
+        <h2>{% trans "Demandes en cours" %}</h2>
+
+        <ul>
+            {% for request in user.requested_hats.all %}
+                <li>{{ request.hat }} – <a href="#reason-{{ request.pk }}" class="open-modal">{% trans "Afficher la raison" %}</a></li>
+                <div class="modal" id="reason-{{ request.pk }}" data-modal-close="{% trans "Fermer" %}">
+                    {{ request.reason|linebreaks }}
+                </div>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <h2>{% trans "Demander une casquette" %}</h2>
+
+    <p>{% trans "Vous pouvez utiliser ce formulaire pour demander une casquette. Votre demande sera vérifiée par un membre de l'équipe du site qui pourra vous accorder la casquette." %}</p>
+
+    <p>{% trans "Veuillez indiquer dans votre demande pourquoi vous avez la légitimité de porter cette casquette. Vous pourriez par exemple donner votre adresse email au sein du projet en question (« votre.nom@entreprise-ou-projet.com »), une page de profil sur le site de l'entité en question, etc." %}</p>
+
+    <p>{% trans "Si la casquette vous est accordée, vous pourrez alors l'utiliser pour poster des messages pour lesquels montrer que vous avez ce rôle porte un intérêt." %}</p>
+
+    <div class="content-wrapper">
+        {% crispy form %}
+    </div>
+{% endblock %}

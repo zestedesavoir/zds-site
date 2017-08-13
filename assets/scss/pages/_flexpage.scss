@@ -43,14 +43,15 @@ $content-width: 1145px;
         }
     }
 
-        .flexpage-title-tool {
-        padding: 50px;
+    .flexpage-title-tool {
+        position: relative;
+        padding: 50px 50px 50px 200px;
         font-size: 2rem;
         font-weight: 100;
 
         .picto {
-            float: left;
-            position: relative;
+            position: absolute;
+            left: 50px; top: 50px;
             width: 104px; height: 60.04px;
             margin: 30.02px 50px 30.02px 0;
 
@@ -85,54 +86,62 @@ $content-width: 1145px;
         .title {
             display: block;
             color: white;
+            font-size: 2.2rem;
+
+            .line {
+                display: block;
+                line-height: 34px;
+
+                .line-item {
+                    display: inline-block;
+                }
+            }
 
             h1 {
-                display: inline-block;
-                margin: 0 10px 0 0; padding: 0;
+                display: block;
+                margin: 0; padding: 0;
 
                 color: inherit;
-                font-size: 6rem;
+                font-size: 5rem;
                 line-height: 50px;
                 border: none;
+
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
             }
 
             h2 {
                 display: inline-block;
-                margin: 10px 10px 0 10px; padding: 0;
+                margin: 0; padding: 0;
                 vertical-align: bottom;
 
+                font-size: inherit;
+                line-height: inherit;
                 color: inherit;
-                font-size: 3rem;
-                line-height: 3rem;
                 border: none;
             }
 
             .option {
                 display: inline-block;
-                margin: 10px 10px 0 10px;
-                line-height: 3rem;
+                margin: 0 15px 0 0;
             }
 
             a {
+                display: inline;
                 color: white;
                 text-decoration: none;
             }
 
-            img {
-                display: inline-block;
-                vertical-align: top;
-            }
-
-            .separator {
+            .has-separator {
                 position: relative;
-                display: inline-block;
-                width: 15px; height: 15px; line-height: 15px;
-                margin: 0; padding: 0;
+                padding-left: 25px;
+                padding-right: 5px;
 
                 &:after {
                     content: '';
                     position: absolute;
-                    top: 0; right: 0;
+                    top: 12px; left: 0;
 
                     width: 10px; height: 10px;
                     transform: rotate(45deg);
@@ -148,7 +157,7 @@ $content-width: 1145px;
         .aside {
             display: flex;
             
-            margin-top: 20px;
+            margin-top: 10px;
             max-width: 600px;
             height: 50px;
 
@@ -209,6 +218,8 @@ $content-width: 1145px;
         }
 
         .flexpage-title-tool {
+             padding: 15px 25px;
+
             .picto {
                 display: none;
             }

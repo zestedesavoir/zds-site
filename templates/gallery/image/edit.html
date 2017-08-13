@@ -1,7 +1,7 @@
 {% extends "gallery/base.html" %}
 {% load crispy_forms_tags %}
 {% load thumbnail %}
-{% load remove_url_protocole %}
+{% load remove_url_scheme %}
 {% load i18n %}
 
 
@@ -31,15 +31,15 @@
         <p>
             {% trans "Image" %} :
         </p>
-        <a href="{{ image.physical.url|remove_url_protocole }}">
-            <img src="{{ image.physical.gallery_illu.url|remove_url_protocole }}" alt="{{ image.legend|default:image.title }}">
+        <a href="{{ image.physical.url|remove_url_scheme }}">
+            <img src="{{ image.physical.gallery_illu.url|remove_url_scheme }}" alt="{{ image.legend|default:image.title }}">
         </a>
 
         <p>
             {% trans "Miniature" %} :
         </p>
-        <a href="{{ image.physical.gallery.url|remove_url_protocole }}">
-            <img src="{{ image.physical.gallery.url|remove_url_protocole }}" alt="{{ image.legend|default:image.title }}">
+        <a href="{{ image.physical.gallery.url|remove_url_scheme }}">
+            <img src="{{ image.physical.gallery.url|remove_url_scheme }}" alt="{{ image.legend|default:image.title }}">
         </a>
 
         {% if perms.featured.change_featuredresource %}
@@ -59,13 +59,13 @@
             {% trans "Code markdown pour insérer cette image" %} : <br>
 
             {% trans "Taille normale" %} :
-            <input type="text" value="![{{ image.legend|default:image.title }}]({{ image.physical.url|remove_url_protocole }})" readonly onclick="this.select()"> <br>
+            <input type="text" value="![{{ image.legend|default:image.title }}]({{ image.physical.url|remove_url_scheme }})" readonly onclick="this.select()"> <br>
 
             {% trans "Miniature" %} :
-            <input type="text" value="![{{ image.legend|default:image.title }}]({{ image.physical.gallery.url|remove_url_protocole }})" readonly onclick="this.select()"> <br>
+            <input type="text" value="![{{ image.legend|default:image.title }}]({{ image.physical.gallery.url|remove_url_scheme }})" readonly onclick="this.select()"> <br>
 
             {% trans "Miniature + lien vers taille normale" %} :
-            <input type="text" value="[![{{ image.legend|default:image.title }}]({{ image.physical.gallery.url|remove_url_protocole }})]({{ image.physical.url|remove_url_protocole }})" readonly onclick="this.select()">
+            <input type="text" value="[![{{ image.legend|default:image.title }}]({{ image.physical.gallery.url|remove_url_scheme }})]({{ image.physical.url|remove_url_scheme }})" readonly onclick="this.select()">
         </p>
 
         {% crispy as_avatar_form %}
