@@ -91,7 +91,6 @@ install:
       && nvm use 8 \
       && npm i -g yarn \
       && yarn --silent \
-      && pip install selenium \
       && wget https://github.com/mozilla/geckodriver/releases/download/v0.16.1/geckodriver-v0.16.1-linux64.tar.gz \
       && mkdir geckodriver \
       && tar -xzf geckodriver-v0.16.1-linux64.tar.gz -C geckodriver \
@@ -131,7 +130,7 @@ script:
     if [[ "$ZDS_TEST_JOB" == *"front"* ]]; then
       yarn test
       yarn build # we need to upload the assets later
-      manage.py \
+      python manage.py \
         test \
         --keepdb \
         --settings zds.settings_test_travis \
