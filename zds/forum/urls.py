@@ -4,7 +4,7 @@ from django.conf.urls import url
 
 from zds.forum import feeds
 from zds.forum.views import CategoriesForumsListView, CategoryForumsDetailView, ForumTopicsListView, \
-    TopicPostsListView, TopicNew, TopicEdit, FindTopic, FindTopicByTag, PostNew, PostEdit, \
+    TopicPostsListView, TopicNew, TopicEdit, FindTopic, FindTopicByTag, PostNew, PostEdit, PostSignal, \
     PostUseful, PostUnread, FindPost, solve_alert, ManageGitHubIssue
 
 urlpatterns = [
@@ -34,6 +34,7 @@ urlpatterns = [
     url(r'^message/nouveau/$', PostNew.as_view(), name='post-new'),
     url(r'^message/editer/$', PostEdit.as_view(), name='post-edit'),
     url(r'^message/utile/$', PostUseful.as_view(), name='post-useful'),
+    url(r'^message/signaler/$', PostSignal.as_view(), name='post-create-alert'),
     url(r'^message/nonlu/$', PostUnread.as_view(), name='post-unread'),
     url(r'^messages/(?P<user_pk>\d+)/$', FindPost.as_view(), name='post-find'),
 

@@ -1398,7 +1398,7 @@ class PostEditTest(TestCase):
             'signal_text': text_expected
         }
         response = self.client.post(
-            reverse('post-edit') + '?message={}'.format(topic.last_message.pk), data, follow=False)
+            reverse('post-create-alert') + '?message={}'.format(topic.last_message.pk), data, follow=False)
 
         self.assertEqual(302, response.status_code)
         post = Post.objects.get(pk=topic.last_message.pk)
