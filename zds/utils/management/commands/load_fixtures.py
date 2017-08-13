@@ -1,10 +1,13 @@
 # coding: utf-8
-
+from __future__ import unicode_literals
+import collections
+import logging
 import random
 import sys
 import time
 
 from datetime import datetime
+
 from django.core.management.base import BaseCommand
 from random import randint
 from faker import Factory
@@ -26,7 +29,7 @@ from zds.tutorialv2.models.models_database import PublishableContent
 from zds.tutorialv2.publication_utils import publish_content
 
 
-def load_member(cli, size, fake, root):
+def load_member(cli, size, fake, root, *_):
     """
     Load members
     """
@@ -74,7 +77,7 @@ def load_member(cli, size, fake, root):
     cli.stdout.write(u'\nFait en {} sec'.format(tps2 - tps1))
 
 
-def load_staff(cli, size, fake, root):
+def load_staff(cli, size, fake, root, *_):
     """
     Load staff
     """
@@ -102,40 +105,44 @@ def load_staff(cli, size, fake, root):
     cli.stdout.write(u'\nFait en {} sec'.format(tps2 - tps1))
 
 
-def load_gallery(cli, size, fake):
+def load_gallery(cli, size, fake, *_, **__):
     """
     Load galleries
     """
     nb_galleries = size * 1
     nb_images = size * 3
-    cli.stdout.write(u'Nombres de galéries à créer par utilisateur: {}'.format(nb_galleries))
-    cli.stdout.write(u"Nombres d'images à créer par gallerie: {}".format(nb_images))
+    cli.stdout.write('Nombres de galéries à créer par utilisateur: {}'.format(nb_galleries))
+    cli.stdout.write("Nombres d'images à créer par gallerie: {}".format(nb_images))
     tps1 = time.time()
     nb_users = User.objects.count()
     if nb_users == 0:
-        cli.stdout.write(u"Il n'y a aucun membre actuellement. "
-                         u'Vous devez rajouter les membres dans vos fixtures (member)')
-    else:
-        profiles = list(Profile.objects.all())
-        for i in range(0, nb_users):
-            for j in range(0, nb_galleries):
-                gal = GalleryFactory(title=fake.text(max_nb_chars=80), subtitle=fake.text(max_nb_chars=200))
-                UserGalleryFactory(user=profiles[i].user, gallery=gal)
-                for k in range(0, nb_images):
-                    ImageFactory(gallery=gal)
-                    sys.stdout.write(' User {}/{}  \tGallery {}/{}  \tImage {}/{}  \r'.
-                                     format(i + 1, nb_users, j + 1, nb_galleries, k + 1, nb_images))
-                    sys.stdout.flush()
-        tps2 = time.time()
-        cli.stdout.write(u'\nFait en {} sec'.format(tps2 - tps1))
+        cli.stdout.write("Il n'y a aucun membre actuellement. "
+                         'Vous devez rajouter les membres dans vos fixtures (member)')
+        return
+    profiles = list(Profile.objects.all())
+    for user_index in range(0, nb_users):
+        for gallery_index in range(0, nb_galleries):
+            gal = GalleryFactory(title=fake.text(max_nb_chars=80), subtitle=fake.text(max_nb_chars=200))
+            UserGalleryFactory(user=profiles[user_index].user, gallery=gal)
+            __push_images_into_gallery(gal, user_index, gallery_index, nb_galleries, nb_images, nb_users)
+    tps2 = time.time()
+    cli.stdout.write('\nFait en {} sec'.format(tps2 - tps1))
 
 
-def load_categories_forum(cli, size, fake):
+def __push_images_into_gallery(gal, i, j, nb_galleries, nb_images, nb_users):
+    for k in range(0, nb_images):
+        ImageFactory(gallery=gal)
+        sys.stdout.write(' User {}/{}  \tGallery {}/{}  \tImage {}/{}  \r'.
+                         format(i + 1, nb_users, j + 1, nb_galleries, k + 1, nb_images))
+        sys.stdout.flush()
+
+
+def load_categories_forum(cli, size, fake, *_, **__):
     """
     Load categories
     """
     nb_categories = size * 4
-    cli.stdout.write(u'Nombres de catégories de forum à créer : {}'.format(nb_categories))
+    cli.stdout.write('Nombres de catégories de forum à créer : {}'.format(nb_categories))
     tps1 = time.time()
     for i in range(0, nb_categories):
         cat = CategoryFactory(position=i + 1)
@@ -144,20 +151,20 @@ def load_categories_forum(cli, size, fake):
         sys.stdout.write(' Cat. {}/{}  \r'.format(i + 1, nb_categories))
         sys.stdout.flush()
     tps2 = time.time()
-    cli.stdout.write(u'\nFait en {} sec'.format(tps2 - tps1))
+    cli.stdout.write('\nFait en {} sec'.format(tps2 - tps1))
 
 
-def load_forums(cli, size, fake):
+def load_forums(cli, size, fake, *_, **__):
     """
     Load forums
     """
     nb_forums = size * 8
-    cli.stdout.write(u'Nombres de Forums à créer : {}'.format(nb_forums))
+    cli.stdout.write('Nombres de Forums à créer : {}'.format(nb_forums))
     tps1 = time.time()
     nb_categories = FCategory.objects.count()
     if nb_categories == 0:
-        cli.stdout.write(u"Il n'y a aucune catgorie actuellement. "
-                         u'Vous devez rajouter les categories de forum dans vos fixtures (category_forum)')
+        cli.stdout.write("Il n'y a aucune catgorie actuellement. "
+                         'Vous devez rajouter les categories de forum dans vos fixtures (category_forum)')
     else:
         categories = list(FCategory.objects.all())
         for i in range(0, nb_forums):
@@ -169,108 +176,114 @@ def load_forums(cli, size, fake):
             sys.stdout.write(' Forum {}/{}  \r'.format(i + 1, nb_forums))
             sys.stdout.flush()
         tps2 = time.time()
-        cli.stdout.write(u'\nFait en {} sec'.format(tps2 - tps1))
+        cli.stdout.write('\nFait en {} sec'.format(tps2 - tps1))
 
 
-def load_tags(cli, size, fake):
+def load_tags(cli, size, fake, *_, **__):
     """
     Load tags
     """
     nb_tags = size * 30
-    cli.stdout.write(u'Nombres de Tags de forum à créer : {}'.format(nb_tags))
+    cli.stdout.write('Nombres de Tags de forum à créer : {}'.format(nb_tags))
     tps1 = time.time()
     for i in range(0, nb_tags):
         title = fake.word()
         tag, created = Tag.objects.get_or_create(title=title.lower())
+        logging.getLogger(cli.__class__.__name__).debug('tag=%s is_new=%s', tag, created)
         sys.stdout.write(' Tag {}/{}  \r'.format(i + 1, nb_tags))
         sys.stdout.flush()
     tps2 = time.time()
-    cli.stdout.write(u'\nFait en {} sec'.format(tps2 - tps1))
+    cli.stdout.write('\nFait en {} sec'.format(tps2 - tps1))
 
 
-def load_topics(cli, size, fake):
+def load_topics(cli, size, fake, *_, **__):
     """
     Load topics
     """
     nb_topics = size * 10
-    cli.stdout.write(u'Nombres de Topics à créer : {}'.format(nb_topics))
+    cli.stdout.write('Nombres de Topics à créer : {}'.format(nb_topics))
     tps1 = time.time()
     nb_forums = Forum.objects.count()
     if nb_forums == 0:
-        cli.stdout.write(u"Il n'y a aucun forum actuellement. "
-                         u'Vous devez rajouter les forums dans vos fixtures (forum)')
-    else:
-        forums = list(Forum.objects.all())
-        nb_users = User.objects.count()
-        if nb_users == 0:
-            cli.stdout.write(u"Il n'y a aucun membre actuellement. "
-                             u'Vous devez rajouter les membres dans vos fixtures (member)')
-        else:
-            profiles = list(Profile.objects.all())
-            nb_tags = Tag.objects.count()
-            if nb_tags == 0:
-                cli.stdout.write(u"Il n'y a aucun tag actuellement. "
-                                 u'Vous devez rajouter les tags dans vos fixtures (tag)')
-            else:
-                for i in range(0, nb_topics):
-                    topic = TopicFactory(forum=forums[i % nb_forums], author=profiles[i % nb_users].user)
-                    if i % 5 == 0:
-                        topic.is_solved = True
-                    if i % 10 == 0:
-                        topic.is_locked = True
-                    if i % 15 == 0:
-                        topic.is_sticky = True
-                    nb_rand_tags = random.randint(0, 5)
-                    for k in range(0, nb_rand_tags):
-                        my_random_tag = Tag.objects.filter(pk=random.randint(1, nb_tags)).first()
-                        if my_random_tag:
-                            topic.tags.add(my_random_tag)
-                    topic.title = fake.text(max_nb_chars=80)
-                    topic.subtitle = fake.text(max_nb_chars=200)
-                    topic.save()
-                    PostFactory(topic=topic, author=topic.author, position=1)
-                    sys.stdout.write(' Topic {}/{}  \r'.format(i + 1, nb_topics))
-                    sys.stdout.flush()
-                tps2 = time.time()
-                cli.stdout.write(u'\nFait en {} sec'.format(tps2 - tps1))
+        cli.stdout.write("Il n'y a aucun forum actuellement. "
+                         'Vous devez rajouter les forums dans vos fixtures (forum)')
+        return
+    forums = list(Forum.objects.all())
+    nb_users = User.objects.count()
+    if nb_users == 0:
+        cli.stdout.write("Il n'y a aucun membre actuellement. "
+                         'Vous devez rajouter les membres dans vos fixtures (member)')
+        return
+    profiles = list(Profile.objects.all())
+    nb_tags = Tag.objects.count()
+    if nb_tags == 0:
+        cli.stdout.write("Il n'y a aucun tag actuellement. "
+                         'Vous devez rajouter les tags dans vos fixtures (tag)')
+        return
+    for i in range(0, nb_topics):
+        topic = TopicFactory(forum=forums[i % nb_forums], author=profiles[i % nb_users].user)
+        topic.is_solved = i % 5 == 0
+        topic.is_locked = i % 10 == 0
+        topic.is_sticky = i % 15 == 0
+        nb_rand_tags = random.randint(0, 5)
+        add_generated_tags_to_topic(nb_rand_tags, nb_tags, topic)
+        topic.title = fake.text(max_nb_chars=80)
+        topic.subtitle = fake.text(max_nb_chars=200)
+        topic.save()
+        PostFactory(topic=topic, author=topic.author, position=1)
+        sys.stdout.write(' Topic {}/{}  \r'.format(i + 1, nb_topics))
+        sys.stdout.flush()
+    tps2 = time.time()
+    cli.stdout.write('\nFait en {} sec'.format(tps2 - tps1))
 
 
-def load_posts(cli, size, fake):
+def add_generated_tags_to_topic(nb_rand_tags, nb_tags, topic):
+    for _ in range(0, nb_rand_tags):
+        my_random_tag = Tag.objects.filter(pk=random.randint(1, nb_tags)).first()
+        if my_random_tag:
+            topic.tags.add(my_random_tag)
+
+
+def load_posts(cli, size, fake, *_, **__):
     """
     Load posts
     """
     nb_avg_posts_in_topic = size * 20
-    cli.stdout.write(u'Nombres de messages à poster en moyenne dans un sujet : {}'.format(nb_avg_posts_in_topic))
+    cli.stdout.write('Nombres de messages à poster en moyenne dans un sujet : {}'.format(nb_avg_posts_in_topic))
     tps1 = time.time()
     nb_topics = Topic.objects.count()
     if nb_topics == 0:
-        cli.stdout.write(u"Il n'y a aucun topic actuellement. "
-                         u'Vous devez rajouter les topics dans vos fixtures (topic)')
-    else:
-        topics = list(Topic.objects.all())
-        nb_users = User.objects.count()
-        if nb_users == 0:
-            cli.stdout.write(u"Il n'y a aucun membre actuellement. "
-                             u'Vous devez rajouter les membres dans vos fixtures (member)')
-        else:
-            profiles = list(Profile.objects.all())
-            for i in range(0, nb_topics):
-                nb_posts = randint(0, nb_avg_posts_in_topic * 2) + 1
-                for j in range(1, nb_posts):
-                    post = PostFactory(topic=topics[i], author=profiles[j % nb_users].user, position=j + 1)
-                    post.text = fake.paragraph(nb_sentences=5, variable_nb_sentences=True)
-                    post.text_html = emarkdown(post.text)
-                    if int(nb_posts * 0.3) > 0:
-                        if j % int(nb_posts * 0.3) == 0:
-                            post.is_useful = True
-                    post.save()
-                    sys.stdout.write(' Topic {}/{}  \tPost {}/{}  \r'.format(i + 1, nb_topics, j + 1, nb_posts))
-                    sys.stdout.flush()
-            tps2 = time.time()
-            cli.stdout.write(u'\nFait en {} sec'.format(tps2 - tps1))
+        cli.stdout.write("Il n'y a aucun topic actuellement. "
+                         'Vous devez rajouter les topics dans vos fixtures (topic)')
+        return
+    topics = list(Topic.objects.all())
+    nb_users = User.objects.count()
+    if nb_users == 0:
+        cli.stdout.write("Il n'y a aucun membre actuellement. "
+                         'Vous devez rajouter les membres dans vos fixtures (member)')
+        return
+    __generate_topic_and_post(cli, fake, nb_avg_posts_in_topic, nb_topics, nb_users, topics, tps1)
 
 
-def load_categories_content(cli, size, fake):
+def __generate_topic_and_post(cli, fake, nb_avg_posts_in_topic, nb_topics, nb_users, topics, tps1):
+    profiles = list(Profile.objects.all())
+    for topic_index in range(0, nb_topics):
+        nb_posts = randint(0, nb_avg_posts_in_topic * 2) + 1
+        for post_index in range(1, nb_posts):
+            post = PostFactory(topic=topics[topic_index], author=profiles[post_index % nb_users].user,
+                               position=post_index + 1)
+            post.text = fake.paragraph(nb_sentences=5, variable_nb_sentences=True)
+            post.text_html = emarkdown(post.text)
+            post.is_useful = int(nb_posts * 0.3) > 0 and post_index % int(nb_posts * 0.3) == 0
+            post.save()
+            sys.stdout.write(' Topic {}/{}  \tPost {}/{}  \r'.format(topic_index + 1,
+                                                                     nb_topics, post_index + 1, nb_posts))
+            sys.stdout.flush()
+    tps2 = time.time()
+    cli.stdout.write('\nFait en {} sec'.format(tps2 - tps1))
+
+
+def load_categories_content(cli, size, fake, *_, **__):
     """
     Load categories and subcategories for tutorial and article
     """
@@ -281,13 +294,13 @@ def load_categories_content(cli, size, fake):
         if len(ex) is 0:
             licence = Licence(code=lic, title=lic, description='')
             licence.save()
-            cli.stdout.write(u'Note: ajout de la licence {}'.format(lic))
+            cli.stdout.write('Note: ajout de la licence {}'.format(lic))
     categories = []
     sub_categories = []
     nb_categories = size * 5
     nb_sub_categories = size * 10
-    cli.stdout.write(u'Nombres de catégories de contenus à créer : {}'.format(nb_categories))
-    cli.stdout.write(u'Nombres de sous-catégories de contenus à créer : {}'.format(nb_sub_categories))
+    cli.stdout.write('Nombres de catégories de contenus à créer : {}'.format(nb_categories))
+    cli.stdout.write('Nombres de sous-catégories de contenus à créer : {}'.format(nb_sub_categories))
     tps1 = time.time()
     for i in xrange(0, nb_categories):
         ttl = str(i) + ' ' + fake.job()
@@ -318,15 +331,15 @@ def load_categories_content(cli, size, fake):
         sys.stdout.flush()
 
     tps2 = time.time()
-    cli.stdout.write(u'\nFait en {} sec'.format(tps2 - tps1))
+    cli.stdout.write('\nFait en {} sec'.format(tps2 - tps1))
 
 
-def load_comment_content(cli, size, fake):
+def load_comment_content(cli, size, fake, *_, **__):
     """
     Load content's comments
     """
     nb_avg_posts = size * 20
-    cli.stdout.write(u'Nombres de messages à poster en moyenne : {}'.format(nb_avg_posts))
+    cli.stdout.write('Nombres de messages à poster en moyenne : {}'.format(nb_avg_posts))
     tps1 = time.time()
     contents = list(PublishableContent.objects.filter(sha_public__isnull=False))
     nb_contents = len(contents)
@@ -346,10 +359,10 @@ def load_comment_content(cli, size, fake):
         contents[i].last_note = post
         contents[i].save()
     tps2 = time.time()
-    cli.stdout.write(u'\nFait en {:.3f} sec'.format(tps2 - tps1))
+    cli.stdout.write('\nFait en {:.3f} sec'.format(tps2 - tps1))
 
 
-def load_contents(cli, _type, size, fake):
+def load_contents(cli, size, fake, _type, *_, **__):
     """Create v2 contents"""
 
     nb_contents = size * 10
@@ -366,14 +379,14 @@ def load_contents(cli, _type, size, fake):
     is_tutorials = _type == 'TUTORIAL'
     is_opinion = _type == 'OPINION'
 
-    textual_type = u'article'
+    textual_type = 'article'
     if is_tutorials:
-        textual_type = u'tutoriel'
+        textual_type = 'tutoriel'
     elif is_opinion:
-        textual_type = u'billet'
+        textual_type = 'billet'
 
     # small introduction
-    cli.stdout.write(u'À créer: {:d} {}s'.format(nb_contents, textual_type), ending='')
+    cli.stdout.write('À créer: {:d} {}s'.format(nb_contents, textual_type), ending='')
 
     if is_tutorials:
         cli.stdout.write(u' ({:g} petits, {:g} moyens et {:g} grands)'
@@ -382,42 +395,42 @@ def load_contents(cli, _type, size, fake):
         cli.stdout.write('')
 
     cli.stdout.write(
-        u' - {:g} en brouillon'.format(
+        ' - {:g} en brouillon'.format(
             nb_contents *
             (1 - percent_contents_public - percent_contents_in_validation - percent_contents_with_validator)))
     if is_opinion:
         cli.stdout.write(
-            u' - {:g} publiés et aprouvés'.format(
+            " - {:g} publiés et {:g} aprouvés en page d'accueil".format(
                 nb_contents * (percent_contents_in_validation + percent_contents_with_validator),
                 nb_contents * percent_contents_with_validator))
     else:
         cli.stdout.write(
-            u' - {:g} en validation (dont {:g} réservés)'
+            ' - {:g} en validation (dont {:g} réservés)'
             .format(nb_contents * (percent_contents_in_validation + percent_contents_with_validator),
                     nb_contents * percent_contents_with_validator))
-    cli.stdout.write(u' - {:g} publiés'.format(nb_contents * percent_contents_public))
+    cli.stdout.write(' - {:g} publiés'.format(nb_contents * percent_contents_public))
 
     tps1 = time.time()
 
     # create tables with 0=draft, 1=in validation, 2=reserved, 3=published
     what_to_do = []
-    for i in range(nb_contents):
+    for created_content_index in range(nb_contents):
         what = 0  # in draft
-        if i < percent_contents_public * nb_contents:
+        if created_content_index < percent_contents_public * nb_contents:
             what = 3
-        elif i < (percent_contents_public + percent_contents_with_validator) * nb_contents:
+        elif created_content_index < (percent_contents_public + percent_contents_with_validator) * nb_contents:
             what = 2
-        elif i >= (1 - percent_contents_in_validation) * nb_contents:
+        elif created_content_index >= (1 - percent_contents_in_validation) * nb_contents:
             what = 1
         what_to_do.append(what)
 
     # create a table with 0=mini, 1=medium, 2=big
     content_sizes = []
-    for i in range(nb_contents):
+    for created_content_index in range(nb_contents):
         sz = 0
-        if i < percent_big * nb_contents:
+        if created_content_index < percent_big * nb_contents:
             sz = 2
-        elif i >= (1 - percent_medium) * nb_contents:
+        elif created_content_index >= (1 - percent_medium) * nb_contents:
             sz = 1
         content_sizes.append(sz)
 
@@ -431,13 +444,13 @@ def load_contents(cli, _type, size, fake):
     sub_categories = list(SubCategory.objects.all())
     nb_sub_categories = len(sub_categories)
     if nb_users == 0:
-        cli.stdout.write(u"Il n'y a aucun membre actuellement. "
-                         u'Vous devez rajouter les membre dans vos fixtures (member)')
+        cli.stdout.write("Il n'y a aucun membre actuellement. "
+                         'Vous devez rajouter les membre dans vos fixtures (member)')
         return
 
     if nb_sub_categories == 0:
-        cli.stdout.write(u"Il n'y a aucune catégories actuellement."
-                         u'Vous devez rajouter les catégories dans vos fixtures (category_content)')
+        cli.stdout.write("Il n'y a aucune catégories actuellement."
+                         'Vous devez rajouter les catégories dans vos fixtures (category_content)')
         return
 
     perms = list(Permission.objects.filter(codename__startswith='change_').all())
@@ -445,24 +458,24 @@ def load_contents(cli, _type, size, fake):
     nb_staffs = len(staffs)
 
     if nb_staffs == 0:
-        cli.stdout.write(u"Il n'y a aucun staff actuellement."
-                         u'Vous devez rajouter les staffs dans vos fixtures (staff)')
+        cli.stdout.write("Il n'y a aucun staff actuellement."
+                         'Vous devez rajouter les staffs dans vos fixtures (staff)')
         return
 
     licenses = list(Licence.objects.all())
     nb_licenses = len(licenses)
 
     if nb_licenses == 0:
-        cli.stdout.write(u"Il n'y a aucune licence actuellement."
-                         u'Vous devez rajouter les licences dans vos fixtures (category_content)')
+        cli.stdout.write("Il n'y a aucune licence actuellement."
+                         'Vous devez rajouter les licences dans vos fixtures (category_content)')
         return
 
     # create and so all:
-    for i in range(nb_contents):
-        sys.stdout.write('Création {} : {}/{}  \r'.format(textual_type, i + 1, nb_contents))
+    for created_content_index in range(nb_contents):
+        sys.stdout.write('Création {} : {}/{}  \r'.format(textual_type, created_content_index + 1, nb_contents))
 
-        current_size = content_sizes[i]
-        to_do = what_to_do[i]
+        current_size = content_sizes[created_content_index]
+        action_flag = what_to_do[created_content_index]
 
         # creation:
         content = PublishableContentFactory(
@@ -472,23 +485,8 @@ def load_contents(cli, _type, size, fake):
 
         versioned = content.load_version()
 
-        if current_size == 0 or is_articles or is_opinion:
-            for j in range(random.randint(1, nb_avg_extracts_in_content * 2)):
-                ExtractFactory(container=versioned, title=fake.text(max_nb_chars=60), light=False)
-        else:
-            for j in range(random.randint(1, nb_avg_containers_in_content * 2)):
-                container = ContainerFactory(parent=versioned, title=fake.text(max_nb_chars=60))
-
-                if current_size == 1:  # medium size tutorial
-                    for k in range(random.randint(1, nb_avg_extracts_in_content * 2)):
-                        ExtractFactory(container=container, title=fake.text(max_nb_chars=60), light=False)
-                else:  # big-size tutorial
-                    for k in range(random.randint(1, nb_avg_containers_in_content * 2)):
-                        subcontainer = ContainerFactory(parent=container, title=fake.text(max_nb_chars=60))
-
-                        for l in range(random.randint(1, nb_avg_extracts_in_content * 2)):
-                            ExtractFactory(container=subcontainer, title=fake.text(max_nb_chars=60), light=False)
-
+        generate_text_for_content(current_size, fake, is_articles, is_opinion, nb_avg_containers_in_content,
+                                  nb_avg_extracts_in_content, versioned)
         # add some informations:
         author = users[random.randint(0, nb_users - 1)].user
         content.authors.add(author)
@@ -499,74 +497,113 @@ def load_contents(cli, _type, size, fake):
         content.save()
 
         # then, validation if needed:
-        if to_do > 0:
+        if action_flag > 0:
             if is_opinion:
-                if to_do >= 1:
-                    content.sha_public = content.sha_draft
-                    if to_do == 1:
-                        content.sha_picked = content.sha_draft
-                published = publish_content(content, versioned)
-                content.public_version = published
-                content.save()
-
+                publish_opinion(content, action_flag, versioned)
             else:
-                valid = CValidation(
-                    content=content, version=content.sha_draft, date_proposition=datetime.now(), status='PENDING')
-                valid.comment_validator = fake.text(max_nb_chars=200)
-
-                content.sha_validation = content.sha_draft
-
-                if to_do > 1:  # reserve validation
-                    valid.date_reserve = datetime.now()
-                    valid.validator = staffs[random.randint(0, nb_staffs - 1)]
-                    valid.status = 'PENDING_V'
-                if to_do > 2:  # publish content
-                    valid.comment_validator = fake.text(max_nb_chars=80)
-                    valid.status = 'ACCEPT'
-                    valid.date_validation = datetime.now()
-                    content.sha_public = content.sha_draft
-
-                    published = publish_content(content, versioned)
-                    content.public_version = published
-
-                valid.save()
-                content.save()
+                validate_edited_content(content, fake, nb_staffs, staffs, action_flag, versioned)
 
         sys.stdout.flush()
 
     tps2 = time.time()
-    cli.stdout.write(u'\nFait en {:.3f} sec'.format(tps2 - tps1))
+    cli.stdout.write('\nFait en {:.3f} sec'.format(tps2 - tps1))
+
+
+def validate_edited_content(content, fake, nb_staffs, staffs, to_do, versioned):
+    valid = CValidation(
+        content=content, version=content.sha_draft, date_proposition=datetime.now(), status='PENDING')
+    valid.comment_validator = fake.text(max_nb_chars=200)
+    content.sha_validation = content.sha_draft
+    if to_do > 1:  # reserve validation
+        valid.date_reserve = datetime.now()
+        valid.validator = staffs[random.randint(0, nb_staffs - 1)]
+        valid.status = 'PENDING_V'
+    if to_do > 2:  # publish content
+        valid.comment_validator = fake.text(max_nb_chars=80)
+        valid.status = 'ACCEPT'
+        valid.date_validation = datetime.now()
+        content.sha_public = content.sha_draft
+
+        published = publish_content(content, versioned)
+        content.public_version = published
+    valid.save()
+    content.save()
+
+
+def generate_text_for_content(current_size, fake, is_articles, is_opinion, nb_avg_containers_in_content,
+                              nb_avg_extracts_in_content, versioned):
+    if current_size == 0 or is_articles or is_opinion:
+        for _ in range(random.randint(1, nb_avg_extracts_in_content * 2)):
+            ExtractFactory(container=versioned, title=fake.text(max_nb_chars=60), light=False)
+    else:
+        for _ in range(random.randint(1, nb_avg_containers_in_content * 2)):
+            container = ContainerFactory(parent=versioned, title=fake.text(max_nb_chars=60))
+
+            handle_content_with_chapter_and_parts(container, current_size, fake, nb_avg_containers_in_content,
+                                                  nb_avg_extracts_in_content)
+
+
+def publish_opinion(content, action_flag, versioned):
+    if action_flag >= 1:
+        content.sha_public = content.sha_draft
+        if action_flag == 1:
+            content.sha_picked = content.sha_draft
+    published = publish_content(content, versioned)
+    content.public_version = published
+    content.save()
+
+
+def handle_content_with_chapter_and_parts(container, current_size, fake, nb_avg_containers_in_content,
+                                          nb_avg_extracts_in_content):
+    if current_size == 1:  # medium size tutorial
+        for k in range(random.randint(1, nb_avg_extracts_in_content * 2)):
+            ExtractFactory(container=container, title=fake.text(max_nb_chars=60), light=False)
+    else:  # big-size tutorial
+        for k in range(random.randint(1, nb_avg_containers_in_content * 2)):
+            subcontainer = ContainerFactory(parent=container, title=fake.text(max_nb_chars=60))
+
+            for l in range(random.randint(1, nb_avg_extracts_in_content * 2)):
+                ExtractFactory(container=subcontainer, title=fake.text(max_nb_chars=60), light=False)
+
+
+ZDSResource = collections.namedtuple('zdsresource', ['name', 'description', 'callback', 'extra_args'])
 
 
 @transaction.atomic
 class Command(BaseCommand):
 
-    zds_modules = ','.join([
-        'member',
-        'staff',
-        'category_forum',
-        'category_content',
-        'forum',
-        'tag',
-        'topic',
-        'post',
-        'note',
-        'gallery',
-        'article',
-        'tutorial',
-        'opinion',
-        'comment',
-        'reaction'
-    ])
+    zds_resource_config = [
+        ZDSResource('member', 'basic users', load_member, tuple()),
+        ZDSResource('staff', 'privileged users', load_staff, tuple()),
+        ZDSResource('category_forum', 'categories for forums', load_categories_forum, tuple()),
+        ZDSResource('category_content', 'categories for contents', load_categories_content, tuple()),
+        ZDSResource('forum', 'forums', load_forums, tuple()),
+        ZDSResource('tag', 'tags for forum topics', load_tags, tuple()),
+        ZDSResource('topic', 'forum topics', load_topics, tuple()),
+        ZDSResource('post', 'forum message', load_posts, tuple()),
+        ZDSResource('gallery', 'image gallery for each member', load_gallery, tuple()),
+        ZDSResource('article', 'article-typed publications, in draft, in validation and published',
+                    load_contents, ('ARTICLE',)),
+        ZDSResource('tutorial', 'tutorial-typed publications, in draft, in validation and published',
+                    load_contents, ('TUTORIAL',)),
+        ZDSResource('opinion', 'opinion-typed publications, in draft and published',
+                    load_contents, ('OPINION',)),
+        ZDSResource('comment', 'publication reactions.', load_comment_content, tuple()),
+    ]
 
     def add_arguments(self, parser):
-        parser.add_argument('racine', action='store', nargs='?', default='user', type=str,
+        parser.add_argument('--racine', action='store', default='user', type=str, dest='user_prefix',
                             help='The prefix for users. Default: user.')
-        parser.add_argument('size', action='store', nargs='?', default='low', choices=['low', 'medium', 'high'],
+        parser.add_argument('--size', action='store', default='low', dest='size', choices=['low', 'medium', 'high'],
                             type=str, help='Size level: low (x1), medium (x2) or high (x3). Default: low.')
-        parser.add_argument('type', action='store', nargs='*', type=str, default=self.zds_modules,
-                            help='Type of content you want to create. You could add many types separated by a comma. '
-                                 'Default: all types.')
+        all_vs_one_per_one_switch = parser.add_mutually_exclusive_group('Select --all to populate all modules.')
+        all_vs_one_per_one_switch.add_argument_group('all').add_argument('--all', dest='modules', action='store_const',
+                                                                         const=self.__class__.zds_resource_config)
+        group = all_vs_one_per_one_switch.add_argument_group('one_per_one')
+        for zds_module in self.__class__.zds_resource_config:
+            group.add_argument('--{}'.format(zds_module.name.replace('_', '-')), dest='modules',
+                               help='add new {}.'.format(zds_module.description), action='append_const',
+                               const=zds_module)
 
     help = '''Load fixtures for ZdS
 
@@ -575,47 +612,18 @@ Examples:
         python manage.py load_fixtures
     All with high size:
         python manage.py load_fixtures size=high
-    Only users with medium size and a different racine:
-        python manage.py load_fixtures size=medium type=member,staff racine=john'''
+    Only users with medium size and a different prefix than bare "user":
+        python manage.py load_fixtures --size=medium --member --staff --racine=john'''
 
     def handle(self, *args, **options):
-        default_size = options.get('size', 'low')
-        default_root = options.get('racine', 'user')
-        default_module = options.get('type', self.zds_modules)
+        size_map = {'low': 1, 'medium': 2, 'high': 3}
+        size = size_map.get(options['size'], 1)
+        default_root = options['user_prefix']
+        populated_modules = options['modules']
 
-        if default_size == 'low':
-            size = 1
-        elif default_size == 'medium':
-            size = 2
-        elif default_size == 'high':
-            size = 3
-        else:
-            size = 1
         fake = Factory.create(locale='fr_FR')
-
-        if 'member' in default_module:
-            load_member(self, size, fake, default_root)
-        if 'staff' in default_module:
-            load_staff(self, size, fake, default_root)
-        if 'gallery' in default_module:
-            load_gallery(self, size, fake)
-        if 'category_forum' in default_module:
-            load_categories_forum(self, size, fake)
-        if 'forum' in default_module:
-            load_forums(self, size, fake)
-        if 'tag' in default_module:
-            load_tags(self, size, fake)
-        if 'topic' in default_module:
-            load_topics(self, size, fake)
-        if 'post' in default_module:
-            load_posts(self, size, fake)
-        if 'category_content' in default_module:
-            load_categories_content(self, size, fake)
-        if 'tutorial' in default_module:
-            load_contents(self, 'TUTORIAL', size, fake)
-        if 'article' in default_module:
-            load_contents(self, 'ARTICLE', size, fake)
-        if 'opinion' in default_module:
-            load_contents(self, 'OPINION', size, fake)
-        if 'comment' in default_module:
-            load_comment_content(self, size, fake)
+        module_order = ('member', 'staff', 'gallery', 'category_forum', 'forum', 'tag', 'topic', 'post',
+                        'category_content', 'tutorial', 'article', 'opinion', 'comment')
+        populated_modules.sort(key=lambda zds_module: module_order.index(zds_module.name))
+        for zds_module in populated_modules:
+            zds_module.callback(self, size, fake, *zds_module.extra_args, root=default_root)

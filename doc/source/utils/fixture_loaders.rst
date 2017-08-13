@@ -83,12 +83,13 @@ Afin de tester avec un jeu de données qui se rapproche le plus possible de ce q
 trouver une variété suffisante pour être confiant en vos tests, nous avons développé une commande qui génère une immense
 quantité de données.
 
-Pour l'utiliser il suffit de lancer ``python manage.py load_fixtures size=SIZE type=LIST_OF_TYPE``.
+Pour l'utiliser il suffit de lancer ``python manage.py load_fixtures --size=SIZE --all``.
 
 .. note::
-    Vous pouvez remplacer ``size`` par ``sizes``, ``taille`` ou ``level``.
-    Vous pouvez remplacer ``type`` par ``types``.
-    Vous pouvez ajouter ``racine`` qui permet de changer la base pour le nommage des utilisateurs (« user » par défaut).
+
+    Vous pouvez ajouter ``--racine`` qui permet de changer la base pour le nommage des utilisateurs (« user » par défaut).
+    Vous pouvez ne créer les éléments d'un module précis (ou de quelques-uns) via des options telles que ``--forum``. Ces options ne sont pas utilisables
+    quand ``--all`` est ajouté.
 
 Les types à charger sont en fait les modèles de données qui seront créés.
 
