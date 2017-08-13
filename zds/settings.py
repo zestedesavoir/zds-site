@@ -463,6 +463,7 @@ ZDS_APP = {
         'dev_group': u'devs',
         'members_per_page': 100,
         'providers_per_page': 100,
+        'requested_hats_per_page': 100,
         'update_last_visit_interval': 600,  # seconds
         'validation_hat': 'Staff',
         'moderation_hat': 'Staff',

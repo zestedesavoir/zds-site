@@ -1076,7 +1076,7 @@ Il faut ensuite créer des casquettes. Une commande est disponible pour ajouter 
 Menu au survol (#4454)
 ----------------------
 
-Les menus s’ouvrent désormais au survol lorsque l’option est activée. Étant donné que cette option est activée par défaut, désactiver cette option pour tous les utilisateurs existants via le shell de Django afin de ne pas troubler la communauté :
+Les menus s’ouvrent désormais au survol lorsque l’option est activée. Étant donné que cette option est activée par défaut, désactiver cette option pour tous les utilisateurs existants via le shell de Django afin de ne pas troubler la communauté :
 
 ```python
 from zds.member.models import Profile

@@ -1,4 +1,4 @@
-﻿===========
+===========
 Les membres
 ===========
 
@@ -125,9 +125,13 @@ Les casquettes
 
 Les casquettes sont un moyen de certifier qu'un utilisateur a un rôle particulier (comme membre du staff, développeur, etc). Les casquettes d'un membre sont listées sur son profil et il est également possible lors de l'envoi d'un message de le poster avec une casquette particulière, qui sera mise en avant sur le message.
 
-Lorsqu'une casquette est retirée à un membre, elle reste présente sur les messages qui ont été postés avec. Il n'est pas possible d'utiliser plusieurs casquettes pour un message ou de modifier la casquette utilisée après envoi.
+Il est possible de modifier la casquette d'un message en l'éditant. Seules les casquettes possédées par le membre lors de l'édition peuvent être sélectionnés. Lorsqu'une casquette est retirée à un membre, les messages ayant été postés avec cette casquette la conservent. Cependant, il est obligatoire de modifier (ou de supprimer) la casquette d'un message s'il est édité alors que le membre ne la possède plus.
 
-Les casquettes d'un membre peuvent être modifiées sur son profil par les membres ayant la permission ``utils.change_hat``. Attention : la casse est déterminée lors du premier ajout d'une casquette. Ainsi, si vous ajoutez une casquette « Staff » à un membre, ajouter une casquette « staff » à un autre membre par la suite lui ajoutera en réalité la casquette « Staff ». Si nécessaire, la casse d'une casquette peut être modifiée via l'administration de Django.
+Les casquettes peuvent être demandées dans les paramètres de son compte. Les demandes sont vérifiées par les modérateurs ayant la permission ``utils.change_hat`` qui peuvent décider de les accepter ou de les refuser. Les membres ayant cette permission peuvent également ajouter une casquette sans passer par le système de demande.
+
+Les membres peuvent supprimer eux-mêmes leurs casquettes. Les utilisateurs ayant la permission ``utils.change_hat`` peuvent supprimer les casquettes de tout le monde.
+
+Attention : la casse est déterminée lors du premier ajout d'une casquette. Ainsi, si vous ajoutez une casquette « Staff » à un membre, ajouter une casquette « staff » à un autre membre par la suite lui ajoutera en réalité la casquette « Staff ». Si nécessaire, la casse d'une casquette peut être modifiée via l'administration de Django.
 
 Pour ajouter une casquette à tous les membres d'un groupe, une commande ``django-admin`` a été créée. Par exemple, la commande à taper (à la racine du projet) pour ajouter la casquette « Équipe technique » à tous les membres du groupe « dev » est ``python manage.py add_hat_to_group 'dev' 'Équipe technique'``.
 
