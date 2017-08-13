@@ -57,9 +57,12 @@ report-release-back:
 run-back:
 	python manage.py runserver 0.0.0.0:8000
 
+test-front:
+		python manage.py test --settings zds.settings_test_local --tag=front
+
 test-back:
 	make clean-back && \
-	python manage.py test --settings zds.settings_test_local
+	python manage.py test --settings zds.settings_test_local --exclude-tag=front
 
 # front
 ## front-utils
@@ -139,7 +142,7 @@ lint: lint-back lint-front
 run:
 	make -j2 watch-front run-back
 
-test: test-back
+test: test-back test-front
 
 travis:
 	tox $TEST_APP # set by travis, see .travis.yml
