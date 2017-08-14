@@ -5,17 +5,17 @@ from django.test import tag
 
 # NOTE In Django 1.11.4 there is a --selenium option for python manage.py test
 @tag('front')
-class MySeleniumTests(StaticLiveServerTestCase):
+class MemberFrontTests(StaticLiveServerTestCase):
     @classmethod
     def setUpClass(cls):
-        super(MySeleniumTests, cls).setUpClass()
+        super(MemberFrontTests, cls).setUpClass()
         cls.selenium = WebDriver()
         cls.selenium.implicitly_wait(10)
 
     @classmethod
     def tearDownClass(cls):
         cls.selenium.quit()
-        super(MySeleniumTests, cls).tearDownClass()
+        super(MemberFrontTests, cls).tearDownClass()
 
     def test_zestedesavoir_is_present(self):
         self.selenium.get('%s%s' % (self.live_server_url, '/'))
