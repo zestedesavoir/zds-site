@@ -88,8 +88,8 @@ Pour l'utiliser il suffit de lancer ``python manage.py load_fixtures --size=SIZE
 .. note::
 
     Vous pouvez ajouter ``--racine`` qui permet de changer la base pour le nommage des utilisateurs (« user » par défaut).
-    Vous pouvez ne créer les éléments d'un module précis (ou de quelques-uns) via des options telles que ``--forum``. Ces options ne sont pas utilisables
-    quand ``--all`` est ajouté.
+    Vous pouvez ne créer les éléments que d'un module précis (ou de quelques-uns) via des options telles que ``--forum``.
+    Ces options ne sont pas utilisables quand ``--all`` est ajouté.
 
 Les types à charger sont en fait les modèles de données qui seront créés.
 
