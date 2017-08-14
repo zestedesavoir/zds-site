@@ -596,7 +596,7 @@ class Command(BaseCommand):
                             help='The prefix for users. Default: user.')
         parser.add_argument('--size', action='store', default='low', dest='size', choices=['low', 'medium', 'high'],
                             type=str, help='Size level: low (x1), medium (x2) or high (x3). Default: low.')
-        all_vs_one_per_one_switch = parser.add_mutually_exclusive_group('Select --all to populate all modules.')
+        all_vs_one_per_one_switch = parser.add_mutually_exclusive_group()
         all_vs_one_per_one_switch.add_argument_group('all').add_argument('--all', dest='modules', action='store_const',
                                                                          const=self.__class__.zds_resource_config)
         group = all_vs_one_per_one_switch.add_argument_group('one_per_one')

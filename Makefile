@@ -100,7 +100,7 @@ fixtures:
 	python manage.py load_factory_data fixtures/advanced/aide_tuto_media.yaml
 
 restart_db: wipe migrate fixtures
-	python manage.py load_fixtures size=low
+	python manage.py load_fixtures --size=low --all
 
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
