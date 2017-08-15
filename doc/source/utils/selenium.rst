@@ -9,20 +9,21 @@ Pour l'utiliser, il suffit au développeur d'installer Selenium et un webdriver.
 Les tests front-end
 ------------------
 
-Installation de Selenium
-~~~~~~~~~~~~~~~~~~~~~~~~
+Installation du webdriver
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Il est nécessaire d'installer deux choses pour utiliser Selenium avec Django, Selenium et un webdriver. Pour ceci, il suffit d'éxécuter :
+Il est nécessaire d'installer deux choses pour utiliser Selenium avec Django, Selenium (présent dans requirement-dev) et un webdriver. Pour ceci, il suffit d'éxécuter :
 
 .. sourcecode:: bash
 
-   pip install selenium
    # Installation du webdriver
    wget https://github.com/mozilla/geckodriver/releases/download/v0.16.1/geckodriver-v0.16.1-linux64.tar.gz
    mkdir geckodriver
    tar -xzf geckodriver-v0.16.1-linux64.tar.gz -C geckodriver
    # Ajout du webdriver dans le PATH
    export PATH=$PATH:$PWD/geckodriver
+
+Pour Mac OS ou Windows, il suffit de lire les instructions à l'adresse suivante : https://github.com/mozilla/geckodriver/
 
 Écriture des tests
 ~~~~~~~~~~~~~~~~~~
