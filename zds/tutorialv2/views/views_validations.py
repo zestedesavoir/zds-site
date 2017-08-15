@@ -158,6 +158,7 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
         validation.version = form.cleaned_data['version']
         if old_validator:
             validation.validator = old_validator
+            validation.date_reserve = old_validation.date_reserve
             validation.status = 'PENDING_V'
         validation.save()
 
@@ -180,6 +181,7 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
                 self.versioned_object.title,
                 msg,
                 False,
+                with_hat=settings.ZDS_APP['member']['validation_hat'],
             )
 
         # update the content with the source and the version of the validation
@@ -257,6 +259,7 @@ class CancelValidation(LoginRequiredMixin, ModalFormView):
                 versioned.title,
                 msg,
                 False,
+                with_hat=settings.ZDS_APP['member']['validation_hat'],
             )
 
         messages.info(self.request, _(u'La validation de ce contenu a bien été annulée.'))
@@ -308,7 +311,8 @@ class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
                     True,
                     leave=False,
                     direct=False,
-                    mark_as_read=True
+                    mark_as_read=True,
+                    with_hat=settings.ZDS_APP['member']['validation_hat'],
                 )
 
             messages.info(request, _(u'Ce contenu a bien été réservé par {0}.').format(request.user.username))
@@ -393,7 +397,8 @@ class RejectValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
             validation.content.title,
             msg,
             True,
-            direct=False
+            direct=False,
+            with_hat=settings.ZDS_APP['member']['validation_hat'],
         )
 
         messages.info(self.request, _(u'Le contenu a bien été refusé.'))
@@ -540,7 +545,8 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleOnline
             validation.content.title,
             msg,
             True,
-            direct=False
+            direct=False,
+            with_hat=settings.ZDS_APP['member']['validation_hat'],
         )
 
         messages.success(self.request, _(u'Le contenu a bien été dépublié.'))
@@ -570,7 +576,7 @@ class PublishOpinion(LoggedWithReadWriteHability, NoValidationBeforeFormViewMixi
     def form_valid(self, form):
         # get database representation
         db_object = self.object
-        if self.object.is_definitely_unpublished():
+        if self.object.is_permanently_unpublished():
             raise PermissionDenied
         versioned = self.versioned_object
         self.success_url = versioned.get_absolute_url()
@@ -622,7 +628,7 @@ class UnpublishOpinion(LoginRequiredMixin, SingleOnlineContentFormViewMixin, NoV
         if form.cleaned_data['version'] != self.object.sha_public:
             raise PermissionDenied
 
-        unpublish_content(self.object)
+        unpublish_content(self.object, moderator=self.request.user)
 
         # send PM
         msg = render_to_string(
@@ -642,7 +648,8 @@ class UnpublishOpinion(LoginRequiredMixin, SingleOnlineContentFormViewMixin, NoV
             versioned.title,
             msg,
             True,
-            direct=False
+            direct=False,
+            with_hat=settings.ZDS_APP['member']['moderation_hat'],
         )
 
         messages.success(self.request, _(u'Le contenu a bien été dépublié.'))
@@ -690,7 +697,7 @@ class DoNotPickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin)
                                              staff_user=self.request.user, operation_date=datetime.now(),
                                              version=db_object.sha_public)
             if form.cleaned_data['operation'] == 'REMOVE_PUB':
-                unpublish_content(self.object)
+                unpublish_content(self.object, moderator=self.request.user)
 
                 # send PM
                 msg = render_to_string(
@@ -709,7 +716,8 @@ class DoNotPickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin)
                     versioned.title,
                     msg,
                     True,
-                    direct=False
+                    direct=False,
+                    with_hat=settings.ZDS_APP['member']['moderation_hat'],
                 )
         except ValueError:
             logger.exception('Could not %s the opinion %s', form.cleaned_data['operation'], str(self.object))
@@ -791,7 +799,8 @@ class PickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
             versioned.title,
             msg,
             True,
-            direct=False
+            direct=False,
+            with_hat=settings.ZDS_APP['member']['moderation_hat'],
         )
 
         messages.success(self.request, _(u'Le contenu a bien été validé.'))
@@ -854,7 +863,8 @@ class UnpickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
             versioned.title,
             msg,
             True,
-            direct=False
+            direct=False,
+            with_hat=settings.ZDS_APP['member']['moderation_hat'],
         )
 
         messages.success(self.request, _(u'Le contenu a bien été enlevé de la liste des billets choisis.'))
@@ -988,7 +998,8 @@ class PromoteOpinionToArticle(PermissionRequiredMixin, NoValidationBeforeFormVie
             versionned_article.title,
             msg,
             True,
-            direct=False
+            direct=False,
+            with_hat=settings.ZDS_APP['member']['validation_hat'],
         )
 
         self.success_url = db_object.get_absolute_url()

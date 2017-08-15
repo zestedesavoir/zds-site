@@ -157,6 +157,12 @@
         </div>
 
         <div class="message-content">
+            {% if message.with_hat and message.is_visible != False %}
+                <p class="with-hat" title="{% blocktrans with hat=message.with_hat %}Posté avec la casquette « {{ hat }} »{% endblocktrans %}">
+                    {{ message.with_hat }}
+                </p>
+            {% endif %}
+
             {% if is_repeated_message %}
                 <p class="message-repeated">
                     {% trans "Reprise du dernier message de la page précédente" %}

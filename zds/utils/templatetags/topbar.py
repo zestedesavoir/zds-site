@@ -64,8 +64,12 @@ def top_categories_content(_type):
     """
     # get subcategories from PublishedContent
     if _type:
+        if type(_type) is not list:
+            _type = [_type]
+
         subcategories_contents = PublishedContent.objects\
-            .filter(content_type=_type)\
+            .filter(must_redirect=False)\
+            .filter(content_type__in=_type)\
             .values('content__subcategory').all()
     else:
         # used in page with all content types
@@ -74,7 +78,7 @@ def top_categories_content(_type):
 
     # get tags from PublishedContent
     if _type:
-        tags = PublishedContent.objects.get_top_tags([_type], limit=settings.ZDS_APP['forum']['top_tag_max'])
+        tags = PublishedContent.objects.get_top_tags(_type, limit=settings.ZDS_APP['forum']['top_tag_max'])
     else:
         tags = PublishedContent.objects.get_top_tags(['TUTORIAL', 'ARTICLE', 'OPINION'],
                                                      limit=settings.ZDS_APP['forum']['top_tag_max'])
@@ -85,18 +89,18 @@ def top_categories_content(_type):
         .filter(subcategory__in=subcategories_contents)\
         .order_by('category__position', 'subcategory__title')\
         .select_related('subcategory', 'category')\
-        .values('category__title', 'subcategory__title', 'subcategory__slug')\
+        .values('category__title', 'category__slug', 'subcategory__title', 'subcategory__slug')\
         .all()
 
-    # store all categories in a dict with only title and slug
+    # store all categories in a dict with only title and slug, parent slug
     cats = OrderedDict()
     for csc in categories_from_subcategories:
         key = csc['category__title']
 
         if key in cats:
-            cats[key].append((csc['subcategory__title'], csc['subcategory__slug']))
+            cats[key].append((csc['subcategory__title'], csc['subcategory__slug'], csc['category__slug']))
         else:
-            cats[key] = [(csc['subcategory__title'], csc['subcategory__slug'])]
+            cats[key] = [(csc['subcategory__title'], csc['subcategory__slug'], csc['category__slug'])]
 
     return {'tags': tags, 'categories': cats}
 

@@ -1,7 +1,7 @@
 # coding: utf-8
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Field, Hidden, ButtonHolder
+from crispy_forms.layout import Layout, Field, Hidden, ButtonHolder, HTML
 from crispy_forms.bootstrap import StrictButton
 
 from django import forms
@@ -61,6 +61,7 @@ class PrivateTopicForm(forms.Form, ParticipantsStringValidator, TitleValidator, 
             Field('title', autocomplete='off'),
             Field('subtitle', autocomplete='off'),
             CommonLayoutEditor(),
+            HTML("{% include 'misc/hat_choice.html' %}"),
         )
 
     def clean(self):
@@ -124,6 +125,7 @@ class PrivatePostForm(forms.Form):
 
         self.helper.layout = Layout(
             CommonLayoutEditor(),
+            HTML("{% include 'misc/hat_choice.html' with edited_message=post %}"),
             Hidden('last_post', '{{ last_post_pk }}'),
         )
 

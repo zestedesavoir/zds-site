@@ -19,6 +19,7 @@ from django.views.generic.list import MultipleObjectMixin
 from zds.member.models import Profile
 from zds.mp.commons import LeavePrivateTopic, UpdatePrivatePost
 from zds.mp.decorator import is_participant
+from zds.utils.models import get_hat_from_request
 from zds.utils.forums import CreatePostView
 from zds.utils.mps import send_mp, send_message_mp
 from zds.utils.paginator import ZdSPagingListView
@@ -114,7 +115,8 @@ class PrivateTopicNew(CreateView):
                           form.data['subtitle'],
                           form.data['text'],
                           True,
-                          False)
+                          False,
+                          with_hat=get_hat_from_request(self.request))
 
         return redirect(p_topic.get_absolute_url())
 
@@ -287,7 +289,8 @@ class PrivatePostAnswer(CreatePostView):
         return form_class(self.object, self.request.POST)
 
     def form_valid(self, form):
-        send_message_mp(self.request.user, self.object, form.data.get('text'), True, False)
+        send_message_mp(self.request.user, self.object, form.data.get('text'), True, False,
+                        with_hat=get_hat_from_request(self.request))
         return redirect(self.object.last_message.get_absolute_url())
 
 
@@ -355,6 +358,7 @@ class PrivatePostEdit(UpdateView, UpdatePrivatePost):
         return form
 
     def form_valid(self, form):
-        self.perform_update(self.current_post, self.request.POST)
+        self.perform_update(self.current_post, self.request.POST,
+                            with_hat=get_hat_from_request(self.request, self.current_post.author))
 
         return redirect(self.current_post.get_absolute_url())

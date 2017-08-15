@@ -3,18 +3,18 @@ import codecs
 import copy
 import logging
 import os
+from os.path import isdir, dirname
 import shutil
 import subprocess
 import zipfile
 from datetime import datetime
 
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
-from os.path import isdir, dirname
-from zds import settings
-from zds.settings import ZDS_APP
+
 from zds.tutorialv2.models.models_database import ContentReaction
 from zds.tutorialv2.signals import content_unpublished
 from zds.tutorialv2.utils import retrieve_and_update_images_links
@@ -165,7 +165,7 @@ def generate_exernal_content(base_name, extra_contents_path, md_file_path, pando
     :return:
     """
     excluded = []
-    if not ZDS_APP['content']['build_pdf_when_published'] and not overload_settings:
+    if not settings.ZDS_APP['content']['build_pdf_when_published'] and not overload_settings:
         excluded.append('pdf')
     for __, publicator in PublicatorRegistery.get_all_registered(excluded):
 
@@ -226,7 +226,7 @@ class PublicatorRegistery:
 
 class Publicator:
     """
-    Publicator base object, all methods must be overriden
+    Publicator base object, all methods must be overridden
     """
 
     def publish(self, md_file_path, base_name, **kwargs):
@@ -413,7 +413,7 @@ def make_zip_file(published_content):
     zip_file.close()
 
 
-def unpublish_content(db_object):
+def unpublish_content(db_object, moderator=None):
     """
     Remove the given content from the public view.
 
@@ -440,15 +440,15 @@ def unpublish_content(db_object):
             [ContentReaction.objects.filter(related_content=db_object).all()])
         # remove public_version:
         public_version.delete()
-
-        db_object.public_version = None
+        update_params = {}
+        update_params['public_version'] = None
 
         if db_object.is_opinion:
-            db_object.sha_public = None
-            db_object.sha_picked = None
-            db_object.pubdate = None
-            db_object.save()
-        db_object.save()
+            update_params['sha_public'] = None
+            update_params['sha_picked'] = None
+            update_params['pubdate'] = None
+
+        db_object.update(**update_params)
         content_unpublished.send(sender=db_object.__class__, instance=db_object)
 
         return True

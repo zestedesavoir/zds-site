@@ -4,9 +4,9 @@ import glob
 import os
 import yaml
 
+from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db import transaction
-from zds.settings import MEDIA_ROOT
 
 
 @transaction.atomic
@@ -14,14 +14,19 @@ class Command(BaseCommand):
     args = 'files'
     help = 'Load complex fixtures for ZdS'
 
+    def add_arguments(self, parser):
+        parser.add_argument('files', nargs='?', type=str)
+
     # python manage.py load_factory_data
 
     def handle(self, *args, **options):
-        # create "media" folder if not existing
-        if not os.path.exists(MEDIA_ROOT):
-            os.mkdir(MEDIA_ROOT)
+        files = options.get('files')
 
-        for filename in glob.glob(' '.join(args)):
+        # create "media" folder if not existing
+        if not os.path.exists(settings.MEDIA_ROOT):
+            os.mkdir(settings.MEDIA_ROOT)
+
+        for filename in glob.glob(files):
             stream = open(filename, 'r')
             fixture_list = yaml.load(stream)
             for fixture in fixture_list:

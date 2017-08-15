@@ -154,6 +154,17 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
     def __str__(self):
         return self.title
 
+    def update(self, **fields):
+        """
+        wrapper arround ``self.objects.update``
+
+        :param fields: Fields to update
+        :return: modified self
+        """
+        self.__class__.objects.filter(pk=self.pk).update(**fields)
+        self.refresh_from_db(fields=list(fields.keys()))
+        return self
+
     def save(self, *args, **kwargs):
         """
         Rewrite the `save()` function to handle slug uniqueness
@@ -289,8 +300,8 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         """
         return self.in_public() and sha == self.sha_public
 
-    def is_definitely_unpublished(self):
-        """Is this content definitely unpublished by a moderator ?"""
+    def is_permanently_unpublished(self):
+        """Is this content permanently unpublished by a moderator ?"""
 
         return PickListOperation.objects.filter(content=self, operation='REMOVE_PUB', is_effective=True).exists()
 
@@ -863,7 +874,8 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         mapping.field('title', Text(boost=1.5))
         mapping.field('description', Text(boost=1.5))
         mapping.field('tags', Text(boost=2.0))
-        mapping.field('categories', Text(boost=2.25))
+        mapping.field('categories', Keyword(boost=1.5))
+        mapping.field('subcategories', Keyword(boost=1.5))
         mapping.field('text', Text())  # for article and mini-tuto, text is directly included into the main object
         mapping.field('has_chapters', Boolean())  # ... otherwise, it is written
         mapping.field('picked', Boolean())
@@ -949,12 +961,16 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
             data['thumbnail'] = self.content.image.physical['content_thumb'].url
 
         categories = []
+        subcategories = []
         for subcategory in versioned.subcategory.all():
             parent_category = subcategory.get_parent_category()
-            categories.append(subcategory.title)
-            if parent_category:
-                categories.append(parent_category.title)
-        data['categories'] = list(set(categories))  # remove duplicates
+            if subcategory.slug not in subcategories:
+                subcategories.append(subcategory.slug)
+            if parent_category and parent_category.slug not in categories:
+                categories.append(parent_category.slug)
+
+        data['categories'] = categories
+        data['subcategories'] = subcategories
 
         if versioned.has_extracts():
             data['text'] = versioned.get_content_online()
@@ -1016,6 +1032,8 @@ class FakeChapter(AbstractESIndexable):
     parent_get_absolute_url_online = ''
     parent_publication_date = ''
     thumbnail = ''
+    categories = None
+    subcategories = None
 
     def __init__(self, chapter, main_container, parent_id):
         self.title = chapter.title
@@ -1032,6 +1050,15 @@ class FakeChapter(AbstractESIndexable):
         if main_container.image:
             self.thumbnail = main_container.image.physical['content_thumb'].url
 
+        self.categories = []
+        self.subcategories = []
+        for subcategory in main_container.subcategory.all():
+            parent_category = subcategory.get_parent_category()
+            if subcategory.slug not in self.subcategories:
+                self.subcategories.append(subcategory.slug)
+            if parent_category and parent_category.slug not in self.categories:
+                self.categories.append(parent_category.slug)
+
     @classmethod
     def get_es_document_type(cls):
         return 'chapter'
@@ -1046,6 +1073,8 @@ class FakeChapter(AbstractESIndexable):
 
         mapping.field('title', Text(boost=1.5))
         mapping.field('text', Text())
+        mapping.field('categories', Keyword(boost=1.5))
+        mapping.field('subcategories', Keyword(boost=1.5))
 
         # not indexed:
         mapping.field('get_absolute_url_online', Keyword(index=False))
@@ -1242,3 +1271,5 @@ def transfer_paternity_receiver(sender, instance, **kwargs):
     external = sender.objects.get(username=settings.ZDS_APP['member']['external_account'])
     PublishableContent.objects.transfer_paternity(instance, external, UserGallery)
     PublishedContent.objects.transfer_paternity(instance, external)
+
+import zds.tutorialv2.receivers  # noqa

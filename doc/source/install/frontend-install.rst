@@ -2,54 +2,62 @@
 Installation du frontend
 ========================
 
-Vous voulez nous aider au développement du frontend ? Installez Node.js et npm grâce aux instructions qui suivent !
+Vous voulez nous aider au développement du frontend ? Installez Node.js et Yarn grâce aux instructions qui suivent !
 
 
-Installation de Node.js et npm
+Installation de Node.js et Yarn
 ==============================
 
-Le frontend de Zeste de Savoir repose sur la version supportée à long terme actuelle de Node.js, la version 4.
+Le frontend de Zeste de Savoir repose sur la version supportée à long terme actuelle de Node.js, la version 8.
 
-L'installation de ``node`` est détaillée sur le site de Node.js, soit par `téléchargement direct <https://nodejs.org/en/download/>`_, soit via un `gestionnaire de paquet <https://nodejs.org/en/download/package-manager/>`_. Zeste de Savoir requiert la version 4, mais marche également avec la version 6.
+L'installation de ``node`` est détaillée sur le site de Node.js, soit par `téléchargement direct <https://nodejs.org/en/download/>`_, soit via un `gestionnaire de paquet <https://nodejs.org/en/download/package-manager/>`_. Zeste de Savoir requiert la version 8.
+
+Alternativement, l’installation de Node.js avec `nvm <https://github.com/creationix/nvm>`_ est relativement simple. De plus, nvm permet très facilement de basculer d’une version à une autre.
+
+Yarn peut être installé avec `npm i -g yarn` ou `en suivant ces instructions <https://yarnpkg.com/fr/docs/install/>`_.
+
+
 
 Vérifier que les bonnes versions sont installées
 ------------------------------------------------
 
-Pour vérifier que Node.js et npm sont installés (et que vous avez les bonnes versions) :
+Pour vérifier que Node.js et yarn sont installés (et que vous avez les bonnes versions) :
 
 .. sourcecode:: bash
 
-    node -v
-    v4.x.x
-    npm -v
-    2.14.12 # n'importe quelle version plus grande que 1.x
+    $ node -v
+    v8.x.x
+    $ yarn -v
+    0.27.x
 
-**Vous devez avoir une version de Node.js v4.x et de npm 2 ou supérieure.** Si votre version de npm est 1.x.x, vous devez le mettre à jour (voir juste en dessous).
+Si `yarn` n’est pas installé ou pas à jour, utilisez `npm i -g yarn`.
 
-Mise à jour de Node.js et npm
+Mise à jour de Node.js et Yarn
 -----------------------------
 
-Pour npm, il suffit de le mettre à jour avec cette commande :
+Pour Yarn, il suffit de le mettre à jour avec cette commande :
 
 .. sourcecode:: bash
 
-    npm install -g npm # si ça échoue, retentez avec sudo
+    $ npm install -g yarn
 
-Pour ce qui est de Node.js, une mise à jour via le gestionnaire de paquets devrait fonctionner.
-
-.. note::
-   En cas de gros pépin avec l'installation de npm, il peut arriver que ce dernier soit complètement en vrac. Dans ce genre de situation, ce `lien StackOverflow <http://stackoverflow.com/questions/31025048/npm-doesnt-work-get-always-this-error-error-cannot-find-module-are-we-ther>`_ peut vous sauver ;) .
+Pour ce qui est de Node.js, utilisez soit votre gestionnaire de paquet, soit nvm.
 
 
-Installation des dépendances npm
+Installation des dépendances Yarn
 --------------------------------
 
-L'installation de Gulp, ainsi que des différentes dépendances et bibliothèques, se fait via npm dans le répertoire du projet :
+L'installation de Gulp, ainsi que des différentes dépendances et bibliothèques, se fait via Yarn dans le répertoire du projet :
 
 .. sourcecode:: bash
 
-    make install-front # ou la commande suivante :
-    npm install
+    $ make install-front
+
+Ou alors :
+
+.. sourcecode:: bash
+
+    $ yarn
 
 
 Utilisation des outils
@@ -57,22 +65,18 @@ Utilisation des outils
 
 Vous avez installé les outils ? Voilà comment on s'en sert dans notre projet !
 
-**Note :** dans la suite de ce document, les utilisateurs d'OS X et de GNU/Linux préféreront utiliser ``make``, les utilisateurs de Windows qui ne connaissent pas ``make`` préféreront utilise ``npm`` directement.
+**Note :** dans la suite de ce document, les utilisateurs d'OS X et de GNU/Linux préféreront utiliser ``make``, les utilisateurs de Windows qui ne connaissent pas ``make`` préféreront utiliser ``yarn`` directement.
+
 
 Présentation de Gulp
 --------------------
 
-Gulp est un outil permettant d'automatiser les tâches liées au *front-end*. Dans notre cas, il permet de :
-
-- vérifier la syntaxe Javascript ;
-- minimiser les fichiers Javascript et les rassembler en un fichier ;
-- compiler les fichiers SCSS pour les transformer CSS ;
-- compresser les images et créer un sprite.
+Gulp est un outil permettant d'automatiser les tâches liées au *front-end*. C’est une sorte de Makefile.
 
 Utilisation de Gulp
 -------------------
 
-Gulp se lance avec ``npm run gulp -- [tâche]`` où ``[tâche]`` est la tâche à lancer.
+Gulp se lance avec ``yarn run gulp -- [tâche]`` où ``[tâche]`` est la tâche à lancer.
 
 Générer les fichiers avec ``build``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -81,32 +85,34 @@ Saisissez la commande suivante (elle vous permet de générer les fichiers Web d
 
 .. sourcecode:: bash
 
-    # Au choix, en fonction de votre environnement :
-    make build-front
-    npm run build
+    $ make build-front
+
+Ou alors :
+
+.. sourcecode:: bash
+
+    $ yarn run build
 
 ``build`` permet de :
 
-- minimiser les fichiers Javascript et les rassembler en un fichier ;
+- minimiser les fichiers Javascript et les rassembler en un seul fichier ;
 - compiler les fichiers SCSS pour les transformer CSS ;
 - compresser les images et créer un sprite.
 
-Les fichiers générés sont disponibles dans le dossier ``dist/`` (un aperçu est disponible
-`ici <../front-end/arborescence-des-fichiers.html>`_).
+Les fichiers générés sont disponibles dans le dossier ``dist/`` (un aperçu est disponible `ici <../front-end/arborescence-des-fichiers.html>`_).
 
 .. note::
    C'est la tâche que vous utiliserez sûrement le plus souvent car vous devez la lancer à chaque modification
    de ``assets/`` !
 
-Si vos modifications n'apparaissent pas dans votre navigateur et que ce n'est pas dû à Gulp, pensez à vider le
-cache de votre navigateur !
+Si vos modifications n'apparaissent pas dans votre navigateur et que ce n'est pas dû à Gulp, pensez à vider le cache de votre navigateur !
 
 Supprimer les fichiers générés avec ``clean``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ``clean`` supprime les fichiers générés par ``build`` (il supprime simplement le dossier ``dist/``).
 
-``make clean-front`` ou ``npm run clean``
+``make clean-front`` ou ``yarn run clean``
 
 Vérifier le code avec ``lint``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -118,14 +124,13 @@ que vous devez corriger.
 .. note::
    L'outil d'intégration continue que nous utilisons, Travis CI, fait cette vérification à la création de chaque *pull
    request* et sortira la liste des erreurs et des avertissements. Pour éviter d'attendre qu'il ait fini, il est plus
-   pratique pour vous (et nous) que vous lanciez cette commande en amont avec ``make lint-front` ou ``npm run test`` (ou
-   ``npm test``).
+   pratique pour vous (et nous) que vous lanciez cette commande en amont avec ``make lint-front` ou ``yarn run test`` (ou
+   ``yarn test``).
 
 Coder plus simplement avec ``watch``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``watch`` surveille les fichiers SCSS et Javascript lance la tâche ``build`` dès qu'ils sont modifiés. C'est très
-utile pour le développement car ça permet de ne pas avoir à relancer ``build`` manuellement. Pour lancer cette commande, faites ``make watch-front`` ou ``npm run watch``. Pour arrêter cette commande, il suffit de presser ``Ctrl+C``.
+``watch`` surveille les fichiers SCSS et Javascript lance la tâche ``build`` dès qu'ils sont modifiés. C'est très utile pour le développement car ça permet de ne pas avoir à relancer ``build`` manuellement. Pour lancer cette commande, faites ``make watch-front`` ou ``yarn run watch``. Pour arrêter cette commande, il suffit de presser ``Ctrl+C``.
 
 -----
 
@@ -140,19 +145,6 @@ Nettoyage des outils
 Désinstaller les dépendances
 ----------------------------
 
-Il vous suffit pour cela de lancer la commande :
-
 .. sourcecode:: bash
 
-    npm uninstall
-
-Si ça ne fonctionne pas, vous pouvez le faire manuellement grâce à ``rm -rI node_modules/``.
-
-Désinstaller les dépendances inutilisées
-----------------------------------------
-
-Il y a une commande toute faite pour ça :
-
-.. sourcecode:: bash
-
-    npm prune
+   rm -r node_modules/.

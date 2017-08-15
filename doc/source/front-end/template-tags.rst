@@ -540,7 +540,7 @@ Exemple :
             </option>
     {% endfor %}
 
-le module ``url_category``
+Le module ``url_category``
 ==========================
 
 Ce module défini un *templatetag* permetant d'accéder à l'url des listes de tutoriels et articles filtrés par tag. Il est employé pour l'affichage des *tags* des tutoriels et articles.
@@ -589,3 +589,20 @@ Exemple :
     {% if search_result.text %}
         {% highlight search_result "text" %}
     {% endif %}
+
+Le module ``joinby``
+===========================
+
+Ce module permet de lister le contenu d'un itérable en une seule ligne. C'est un équivalent un peu plus flexible de la fonction ``str.join`` en Python. Le séparateur peut être modifié et une option permet d'utiliser le même séparateur pour le dernier élément. Par défaut, le mot "et" est utilisé pour précéder le dernier élément.
+
+Exemple :
+
+.. sourcecode:: html
+
+    {% joinby fruits %}
+    {% joinby fruits ';' same_final_separator=True %}
+
+.. sourcecode:: text
+
+    Clémentine, Orange et Citron
+    Clémentine;Orange;Citron

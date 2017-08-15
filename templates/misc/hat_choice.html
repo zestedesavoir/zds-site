@@ -1,0 +1,35 @@
+{% load i18n %}
+{% load set %}
+
+
+{% if edited_message %}
+    {% set edited_message.author as hats_owner %}
+{% else %}
+    {% set user as hats_owner %}
+{% endif %}
+
+{% if hats_owner.profile.has_hat %}
+    <label for="hat-choice">
+        {% if edited_message %}
+            {% trans "Modifier la casquette :" %}
+        {% else %}
+            {% trans "Poster avec ma casquette :" %}
+        {% endif %}
+    </label>
+    <select name="hat" id="hat-choice">
+        <option value>{% trans "–" %}</option>
+        {% for hat in hats_owner.profile.hats.all %}
+            <option value="{{ hat.pk }}"
+                {% if request.POST.hat|add:0 == hat.pk or not request.POST.hat and edited_message.with_hat == hat.name %}
+                    selected
+                {% endif %}
+            >
+                {{ hat.name }}
+            </option>
+        {% endfor %}
+    </select>
+{% elif edited_message.with_hat %}
+    {% blocktrans %}
+        <strong>Attention</strong>, la casquette sera supprimée.
+    {% endblocktrans %}
+{% endif %}

@@ -4,6 +4,7 @@ import os.path
 import random
 from datetime import datetime
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
@@ -22,11 +23,10 @@ from zds.forum.models import Forum, Topic
 from zds.member.decorator import can_write_and_read_now
 from zds.pages.forms import AssocSubscribeForm
 from zds.pages.models import GroupContact
-from zds.settings import BASE_DIR, ZDS_APP
 from zds.searchv2.forms import SearchForm
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent
 from zds.utils.forums import create_topic
-from zds.utils.models import Alert, CommentEdit, Comment
+from zds.utils.models import Alert, CommentEdit, Comment, Hat
 
 
 def home(request):
@@ -37,10 +37,10 @@ def home(request):
     opinions = PublishableContent.objects.get_last_opinions()
 
     try:
-        with open(os.path.join(BASE_DIR, 'quotes.txt'), 'r') as quotes_file:
+        with open(os.path.join(settings.BASE_DIR, 'quotes.txt'), 'r') as quotes_file:
             quote = random.choice(quotes_file.readlines())
     except IOError:
-        quote = ZDS_APP['site']['slogan']
+        quote = settings.ZDS_APP['site']['slogan']
 
     return render(request, 'home.html', {
         'featured_message': FeaturedMessage.objects.get_last_message(),
@@ -73,8 +73,10 @@ class AssocSubscribeView(FormView):
         user = self.request.user
         data = form.data
 
-        bot = get_object_or_404(User, username=ZDS_APP['member']['bot_account'])
-        forum = get_object_or_404(Forum, pk=ZDS_APP['site']['association']['forum_ca_pk'])
+        site = settings.ZDS_APP['site']
+
+        bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+        forum = get_object_or_404(Forum, pk=site['association']['forum_ca_pk'])
 
         # create the topic
         title = _(u'Demande d\'adhésion de {}').format(user.username)
@@ -87,7 +89,7 @@ class AssocSubscribeView(FormView):
             'address': data['address'],
             'justification': data['justification'],
             'username': user.username,
-            'profile_url': ZDS_APP['site']['url'] + reverse('member-detail', kwargs={'user_name': user.username}),
+            'profile_url': site['url'] + reverse('member-detail', kwargs={'user_name': user.username}),
 
         }
         text = render_to_string('pages/messages/association_subscribre.md', context)
@@ -228,6 +230,14 @@ def restore_edit(request, edit_pk):
     comment.update = datetime.now()
     comment.editor = request.user
     comment.update_content(edit.original_text)
+    # remove hat if the author hasn't it anymore
+    if comment.with_hat:
+        try:
+            hat = Hat.objects.get(name=comment.with_hat)
+            if hat not in comment.author.profile.hats.all():
+                raise ValueError
+        except (Hat.DoesNotExist, ValueError):
+            comment.with_hat = ''
     comment.save()
 
     return redirect(comment.get_absolute_url())
@@ -252,4 +262,4 @@ def delete_edit_content(request, edit_pk):
 
 def custom_error_500(request):
     """Custom view for 500 errors"""
-    return render(request, '500.html')
+    return render(request, '500.html', status=500)

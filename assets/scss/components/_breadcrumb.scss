@@ -5,10 +5,10 @@
 @media only screen and #{$media-wide} {
     .breadcrumb {
         position: relative;
-        display: block;
-        float: left;
-        width: calc(100% - 230px);
+        display: flex;
+        width: calc(100% - 60px * 4);
         height: 30px;
+        padding-left: 2rem;
 
         &:after {
             content: " ";

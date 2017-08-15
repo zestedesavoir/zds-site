@@ -18,16 +18,17 @@ from zds.member.models import TokenForgotPassword, TokenRegister, Profile
 from zds.tutorialv2.factories import PublishableContentFactory, PublishedContentFactory
 from zds.gallery.factories import GalleryFactory, ImageFactory
 from zds.utils.models import Alert
-from zds.settings import BASE_DIR
+from copy import deepcopy
+
+overridden_zds_app = deepcopy(settings.ZDS_APP)
+overridden_zds_app['content']['repo_private_path'] = os.path.join(settings.BASE_DIR, 'contents-private-test')
+overridden_zds_app['content']['repo_public_path'] = os.path.join(settings.BASE_DIR, 'contents-public-test')
+overridden_zds_app['content']['extra_content_generation_policy'] = 'SYNC'
+overridden_zds_app['content']['build_pdf_when_published'] = False
 
 
-overrided_zds_app = settings.ZDS_APP
-overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
-overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
-
-
-@override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
-@override_settings(ZDS_APP=overrided_zds_app)
+@override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'media-test'))
+@override_settings(ZDS_APP=overridden_zds_app)
 class MemberModelsTest(TestCase):
 
     def setUp(self):
@@ -192,7 +193,7 @@ class MemberModelsTest(TestCase):
         articles = self.user1.get_public_articles()
         self.assertEqual(len(articles), 0)
         # Should be 1
-        PublishedContentFactory(author_list=[self.user1.user], type='Article')
+        PublishedContentFactory(author_list=[self.user1.user], type='ARTICLE')
         self.assertEqual(len(self.user1.get_public_articles()), 1)
         self.assertEqual(len(self.user1.get_public_tutos()), 0)
 

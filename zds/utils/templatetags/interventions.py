@@ -14,8 +14,8 @@ from zds.notification.models import Notification, TopicAnswerSubscription, Conte
     NewTopicSubscription, NewPublicationSubscription
 from zds.tutorialv2.models.models_database import ContentReaction, PublishableContent
 from zds.utils import get_current_user
-from zds.utils.models import Alert
-from zds import settings
+from zds.utils.models import Alert, HatRequest
+from django.conf import settings
 from zds.tutorialv2.models import TYPE_CHOICES_DICT
 from zds.member.models import NewEmailProvider
 
@@ -190,8 +190,8 @@ def alerts_list(user):
                           'text': alert.text})
         elif alert.scope == 'CONTENT':
             published = PublishableContent.objects.select_related('public_version').get(pk=alert.content.pk)
-            total.append({'title': published.public_version.title,
-                          'url': published.get_absolute_url_online(),
+            total.append({'title': published.public_version.title if published.public_version else published.title,
+                          'url': published.get_absolute_url_online() if published.public_version else '',
                           'pubdate': alert.pubdate,
                           'author': alert.author,
                           'text': alert.text})
@@ -223,3 +223,8 @@ def waiting_count(content_type):
 @register.filter(name='new_providers_count')
 def new_providers_count(user):
     return NewEmailProvider.objects.count()
+
+
+@register.filter(name='request_hats_count')
+def request_hats_count(user):
+    return HatRequest.objects.count()

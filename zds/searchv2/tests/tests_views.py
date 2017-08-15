@@ -11,7 +11,6 @@ from elasticsearch_dsl.query import MatchAll
 from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings
-from zds.settings import BASE_DIR
 from django.core.urlresolvers import reverse
 
 from zds.forum.factories import TopicFactory, PostFactory, Topic, Post, TagFactory
@@ -21,15 +20,16 @@ from zds.searchv2.models import ESIndexManager
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, publish_content, \
     PublishedContentFactory, SubCategoryFactory
 from zds.tutorialv2.models.models_database import PublishedContent, FakeChapter, PublishableContent
+from copy import deepcopy
 
-overrided_zds_app = settings.ZDS_APP
-overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
-overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
+overridden_zds_app = deepcopy(settings.ZDS_APP)
+overridden_zds_app['content']['repo_private_path'] = os.path.join(settings.BASE_DIR, 'contents-private-test')
+overridden_zds_app['content']['repo_public_path'] = os.path.join(settings.BASE_DIR, 'contents-public-test')
 
 
-@override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
-@override_settings(ZDS_APP=overrided_zds_app)
-# 1 shard is not a recommended setting, but since document on different shard may have a different score, it is ok here
+@override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'media-test'))
+@override_settings(ZDS_APP=overridden_zds_app)
+# 1 shard is not a recommended setting, but since document on different shards may have different scores, it is ok here
 @override_settings(ES_SEARCH_INDEX={'name': 'zds_search_test', 'shards': 1, 'replicas': 0})
 class ViewsTests(TestCase):
     def setUp(self):
@@ -66,7 +66,7 @@ class ViewsTests(TestCase):
         post_1.text = post_1.text_html = text
         post_1.save()
 
-        # create a middle-tutorial and publish it
+        # create a middle-size content and publish it
         tuto = PublishableContentFactory(type='TUTORIAL')
         tuto_draft = tuto.load_version()
 
@@ -87,7 +87,7 @@ class ViewsTests(TestCase):
         tuto.public_version = published
         tuto.save()
 
-        # nothing was indexed before:
+        # nothing has been indexed yet:
         self.assertEqual(len(self.manager.setup_search(Search().query(MatchAll())).execute()), 0)
 
         # index
@@ -124,10 +124,10 @@ class ViewsTests(TestCase):
 
             response = result.context['object_list'].execute()
 
-            self.assertEqual(response.hits.total, len(ids[doc_type]))  # get 1 result of each ...
+            self.assertEqual(response.hits.total, len(ids[doc_type]))  # get 1 result of each …
             for i, r in enumerate(response):
-                self.assertIn(r.meta.doc_type, group_to_model[doc_type])  # ... and only of the right type ...
-                self.assertEqual(r.meta.id, ids[doc_type][i])  # .. with the right id !
+                self.assertIn(r.meta.doc_type, group_to_model[doc_type])  # … and only of the right type …
+                self.assertEqual(r.meta.id, ids[doc_type][i])  # … with the right id !
 
     def test_get_similar_topics(self):
         """Get similar topics lists"""
@@ -162,20 +162,20 @@ class ViewsTests(TestCase):
             self.manager.es_bulk_indexing_of_model(model)
         self.manager.refresh_index()
 
-        # 2. Should not get two results
+        # 2. Should get exactly one result
         result = self.client.get(reverse('search:similar') + '?q=mange', follow=False)
         self.assertEqual(result.status_code, 200)
         content = json.loads(result.content)
         self.assertEqual(len(content['results']), 1)
 
-        # 2. Should not get two results
+        # 2. Should get exactly two results
         result = self.client.get(reverse('search:similar') + '?q=Clem', follow=False)
         self.assertEqual(result.status_code, 200)
         content = json.loads(result.content)
         self.assertEqual(len(content['results']), 2)
 
     def test_hidden_post_are_not_result(self):
-        """Hidden posts should not come out of the search"""
+        """Hidden posts should not show up in the search results"""
 
         if not self.manager.connected_to_es:
             return
@@ -192,7 +192,7 @@ class ViewsTests(TestCase):
         self.manager.es_bulk_indexing_of_model(Post)
         self.manager.refresh_index()
 
-        self.assertEqual(len(self.manager.setup_search(Search().query(MatchAll())).execute()), 2)  # indexation ok
+        self.assertEqual(len(self.manager.setup_search(Search().query(MatchAll())).execute()), 2)  # indexing ok
 
         post_1 = Post.objects.get(pk=post_1.pk)
 
@@ -223,7 +223,7 @@ class ViewsTests(TestCase):
         if not self.manager.connected_to_es:
             return
 
-        # 1. Create an hidden forum belonging to a hidden staff group.
+        # 1. Create a hidden forum belonging to a hidden staff group.
         text = 'test'
 
         group = Group.objects.create(name=u'Les illuminatis anonymes de ZdS')
@@ -241,7 +241,7 @@ class ViewsTests(TestCase):
         self.manager.es_bulk_indexing_of_model(Post)
         self.manager.refresh_index()
 
-        self.assertEqual(len(self.manager.setup_search(Search().query(MatchAll())).execute()), 2)  # indexation ok
+        self.assertEqual(len(self.manager.setup_search(Search().query(MatchAll())).execute()), 2)  # indexing ok
 
         # 2. search without connection and get not result
         result = self.client.get(reverse('search:query') + '?q=' + text, follow=False)
@@ -250,7 +250,7 @@ class ViewsTests(TestCase):
         response = result.context['object_list'].execute()
         self.assertEqual(response.hits.total, 0)
 
-        # 3. Connect with user (not a member of the group), search, and get not result
+        # 3. Connect with user (not a member of the group), search, and get no result
         self.assertTrue(self.client.login(username=self.user.username, password='hostel77'))
 
         result = self.client.get(reverse('search:query') + '?q=' + text, follow=False)
@@ -565,7 +565,7 @@ class ViewsTests(TestCase):
         if not self.manager.connected_to_es:
             return
 
-        # 1. Create an hidden forum belonging to an hidden group and add staff in it.
+        # 1. Create a hidden forum belonging to a hidden group and add staff in it.
         text = 'test'
 
         group = Group.objects.create(name=u'Les illuminatis anonymes de ZdS')
@@ -584,7 +584,7 @@ class ViewsTests(TestCase):
         self.manager.es_bulk_indexing_of_model(Post)
         self.manager.refresh_index()
 
-        self.assertEqual(len(self.manager.setup_search(Search().query(MatchAll())).execute()), 2)  # indexation ok
+        self.assertEqual(len(self.manager.setup_search(Search().query(MatchAll())).execute()), 2)  # indexing ok
 
         result = self.client.get(
             reverse('search:query') + '?q=' + text + '&models=' + Post.get_es_document_type(), follow=False)
@@ -654,7 +654,7 @@ class ViewsTests(TestCase):
         if not self.manager.connected_to_es:
             return
 
-        # 1. Create middle tuto and index it
+        # 1. Create middle-size content and index it
         text = 'test'
 
         tuto = PublishableContentFactory(type='TUTORIAL')
@@ -681,7 +681,7 @@ class ViewsTests(TestCase):
         self.manager.es_bulk_indexing_of_model(PublishedContent)
         self.manager.refresh_index()
 
-        self.assertEqual(len(self.manager.setup_search(Search().query(MatchAll())).execute()), 2)  # indexation ok
+        self.assertEqual(len(self.manager.setup_search(Search().query(MatchAll())).execute()), 2)  # indexing ok
 
         result = self.client.get(
             reverse('search:query') + '?q=' + text + '&models=content', follow=False)
@@ -695,7 +695,7 @@ class ViewsTests(TestCase):
         self.assertEqual(chapters[0].meta.doc_type, FakeChapter.get_es_document_type())
         self.assertEqual(chapters[0].meta.id, published.content_public_slug + '__' + chapter1.slug)
 
-        # 2. Change tuto : delete chapter and insert new one !
+        # 2. Change tuto: delete chapter and insert new one !
         tuto = PublishableContent.objects.get(pk=tuto.pk)
         tuto_draft = tuto.load_version()
 
@@ -804,7 +804,7 @@ class ViewsTests(TestCase):
 
         topic_1_uc = TopicFactory(forum=self.forum, author=self.user, title=text_uc)
 
-        topic_1_uc.tags.add(tag_lc)  # Note: a constraint force tags title to be unique
+        topic_1_uc.tags.add(tag_lc)  # Note: a constraint forces tags title to be unique
         topic_1_uc.subtitle = text_uc
         topic_1_uc.save()
 
@@ -857,8 +857,109 @@ class ViewsTests(TestCase):
         response_uc = result.context['object_list'].execute()
         self.assertEqual(response_uc.hits.total, 8)
 
-        for responses in zip(response_lc, response_uc):  # we should get results in the same order !
+        for responses in zip(response_lc, response_uc):  # we should get results in the same order!
             self.assertEqual(responses[0].meta.id, responses[1].meta.id)
+
+    def test_category_and_subcategory_impact_search(self):
+        """If two contents do not belong to the same (sub)category"""
+
+        if not self.manager.connected_to_es:
+            return
+
+        text = 'Did you ever hear the tragedy of Darth Plagueis The Wise?'
+
+        # 1. Create two contents with different subcategories
+        category_1 = 'category 1'
+        subcategory_1 = SubCategoryFactory(title=category_1)
+        category_2 = 'category 2'
+        subcategory_2 = SubCategoryFactory(title=category_2)
+
+        tuto_1 = PublishableContentFactory(type='TUTORIAL')
+        tuto_1_draft = tuto_1.load_version()
+
+        tuto_1.title = text
+        tuto_1.authors.add(self.user)
+        tuto_1.subcategory.add(subcategory_1)
+        tuto_1.save()
+
+        tuto_1_draft.description = text
+        tuto_1_draft.repo_update_top_container(text, tuto_1.slug, text, text)
+
+        chapter_1 = ContainerFactory(parent=tuto_1_draft, db_object=tuto_1)
+        extract_1 = ExtractFactory(container=chapter_1, db_object=tuto_1)
+        extract_1.repo_update(text, text)
+
+        published_1 = publish_content(tuto_1, tuto_1_draft, is_major_update=True)
+
+        tuto_1.sha_public = tuto_1_draft.current_version
+        tuto_1.sha_draft = tuto_1_draft.current_version
+        tuto_1.public_version = published_1
+        tuto_1.save()
+
+        tuto_2 = PublishableContentFactory(type='TUTORIAL')
+        tuto_2_draft = tuto_2.load_version()
+
+        tuto_2.title = text
+        tuto_2.authors.add(self.user)
+        tuto_2.subcategory.add(subcategory_2)
+        tuto_2.save()
+
+        tuto_2_draft.description = text
+        tuto_2_draft.repo_update_top_container(text, tuto_2.slug, text, text)
+
+        chapter_2 = ContainerFactory(parent=tuto_2_draft, db_object=tuto_2)
+        extract_2 = ExtractFactory(container=chapter_2, db_object=tuto_2)
+        extract_2.repo_update(text, text)
+
+        published_2 = publish_content(tuto_2, tuto_2_draft, is_major_update=True)
+
+        tuto_2.sha_public = tuto_2_draft.current_version
+        tuto_2.sha_draft = tuto_2_draft.current_version
+        tuto_2.public_version = published_2
+        tuto_2.save()
+
+        # 2. Index:
+        self.assertEqual(len(self.manager.setup_search(Search().query(MatchAll())).execute()), 0)
+
+        # index
+        for model in self.indexable:
+            if model is FakeChapter:
+                continue
+            self.manager.es_bulk_indexing_of_model(model)
+        self.manager.refresh_index()
+
+        result = self.client.get(reverse('search:query') + '?q=' + text, follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        response = result.context['object_list'].execute()
+        self.assertEqual(response.hits.total, 4)  # Ok
+
+        # 3. Test
+        result = self.client.get(
+            reverse('search:query') + '?q=' + text + '&model=content&subcategory=' + subcategory_1.slug, follow=False)
+
+        self.assertEqual(result.status_code, 200)
+
+        response = result.context['object_list'].execute()
+        self.assertEqual(response.hits.total, 2)
+
+        self.assertEqual([int(r.meta.id) for r in response if r.meta.doc_type == 'publishedcontent'][0], published_1.pk)
+        self.assertEqual(
+            [r.meta.id for r in response if r.meta.doc_type == 'chapter'][0],
+            tuto_1.slug + '__' + chapter_1.slug)
+
+        result = self.client.get(
+            reverse('search:query') + '?q=' + text + '&model=content&subcategory=' + subcategory_2.slug, follow=False)
+
+        self.assertEqual(result.status_code, 200)
+
+        response = result.context['object_list'].execute()
+        self.assertEqual(response.hits.total, 2)
+
+        self.assertEqual([int(r.meta.id) for r in response if r.meta.doc_type == 'publishedcontent'][0], published_2.pk)
+        self.assertEqual(
+            [r.meta.id for r in response if r.meta.doc_type == 'chapter'][0],
+            tuto_2.slug + '__' + chapter_2.slug)
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):

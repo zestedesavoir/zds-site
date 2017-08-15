@@ -1051,3 +1051,41 @@ Ticket #4313
 ------------
 
 + Via l'admin Django, ajouter la permission `member.change_bannedemailprovider` aux groupes autorisés à gérer les fournisseurs e-mail bannis.
+
+
+Actions à faire pour mettre en prod la version : v25
+====================================================
+
+
+* Dans les `settings*.py`, renommer `sec_per_minute` en `characters_per_minute` si présent
+* Dans les `settings*.py`, renommer `litteral_name` en `literal_name`
+
+Casquettes
+----------
+
+Par défaut, les casquettes ne sont modifiables que par les super-utilisateurs. Pour autoriser un groupe à le faire, il faut lui ajouter la permission `utils.change_hat` via l'admin Django.
+
+Il faut ensuite créer des casquettes. Une commande est disponible pour ajouter une casquette à tous les membres d'un groupe. Lancez donc les commandes suivantes :
+
++ `python manage.py add_hat_to_group 'CA' "Conseil d'Administration"`
++ `python manage.py add_hat_to_group 'devs' 'Équipe technique'`
++ `python manage.py add_hat_to_group 'staffs' 'Staff'`
++ `python manage.py add_hat_to_group 'Communication' 'Communication'`
++ `python manage.py add_hat_to_group 'dtc' 'DTC'`
+
+Menu au survol (#4454)
+----------------------
+
+Les menus s’ouvrent désormais au survol lorsque l’option est activée. Étant donné que cette option est activée par défaut, désactiver cette option pour tous les utilisateurs existants via le shell de Django afin de ne pas troubler la communauté :
+
+```python
+from zds.member.models import Profile
+Profile.objects.update(is_hover_enabled=False)
+```
+
+Node.js, yarn et npm
+--------------------
+
+Mettre à jour Node.js à la version v8.x.x.
+
+Installer Yarn à la version v0.27.x ou supérieure. Yarn peut-être installé avec `npm i -g yarn`.

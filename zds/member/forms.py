@@ -17,6 +17,8 @@ from zds.member.models import Profile, KarmaNote, BannedEmailProvider
 from zds.member.validators import validate_not_empty, validate_zds_email, validate_zds_username, validate_passwords, \
     validate_zds_password
 from zds.utils.forms import CommonLayoutModalText
+from zds.utils.models import Licence, HatRequest
+from zds.utils import get_current_user
 
 # Max password length for the user.
 # Unlike other fields, this is not the length of DB field
@@ -43,7 +45,6 @@ class LoginForm(forms.Form):
     password = forms.CharField(
         label=_(u'Mot de passe'),
         max_length=MAX_PASSWORD_LENGTH,
-        min_length=MIN_PASSWORD_LENGTH,
         required=True,
         widget=forms.PasswordInput,
     )
@@ -51,6 +52,7 @@ class LoginForm(forms.Form):
     remember = forms.BooleanField(
         label=_(u'Se souvenir de moi'),
         initial=True,
+        required=False,
     )
 
     def __init__(self, next=None, *args, **kwargs):
@@ -228,6 +230,21 @@ class ProfileForm(MiniProfileForm):
         widget=forms.CheckboxSelectMultiple,
     )
 
+    licence = forms.ModelChoiceField(
+        label=(
+            _(u'Licence préférée pour vos publications '
+              u'(<a href="{0}" alt="{1}">En savoir plus sur les licences et {2}</a>).')
+            .format(
+                settings.ZDS_APP['site']['licenses']['licence_info_title'],
+                settings.ZDS_APP['site']['licenses']['licence_info_link'],
+                settings.ZDS_APP['site']['literal_name'],
+            )
+        ),
+        queryset=Licence.objects.order_by('title').all(),
+        required=False,
+        empty_label=_('Choisir une licence')
+    )
+
     def __init__(self, *args, **kwargs):
         super(ProfileForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
@@ -265,6 +282,7 @@ class ProfileForm(MiniProfileForm):
             Naviguez vers l'image voulue et cliquez sur le bouton "<em>Choisir comme avatar</em>".<br/>
             Créez une galerie et importez votre avatar si ce n'est pas déjà fait !</p>''')),
             Field('sign'),
+            Field('licence'),
             Field('options'),
             ButtonHolder(StrictButton(_(u'Enregistrer'), type='submit'),)
         )
@@ -618,3 +636,39 @@ class BannedEmailProviderForm(forms.ModelForm):
     def clean_provider(self):
         data = self.cleaned_data['provider']
         return data.lower()
+
+
+class HatRequestForm(forms.ModelForm):
+    class Meta:
+        model = HatRequest
+        fields = ('hat', 'reason')
+        widgets = {
+            'hat': forms.TextInput(attrs={
+                'placeholder': _(u'La casquette que vous demandez.'),
+            }),
+            'reason': forms.Textarea(attrs={
+                'placeholder': _(u'Expliquez pourquoi vous devriez porter cette casquette (3000 caractères maximum).'),
+            }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(HatRequestForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = 'content-wrapper'
+        self.helper.form_method = 'post'
+
+        self.helper.layout = Layout(
+            Field('hat'),
+            Field('reason'),
+            ButtonHolder(
+                StrictButton(_(u'Envoyer la demande'), type='submit'),
+            ))
+
+    def clean_hat(self):
+        data = self.cleaned_data['hat']
+        user = get_current_user()
+        if data.lower() in [hat.lower() for hat in user.profile.hats.values_list('name', flat=True)]:
+            raise forms.ValidationError(_(u'Vous possédez déjà cette casquette.'))
+        if data.lower() in [hat.lower() for hat in user.requested_hats.values_list('hat', flat=True)]:
+            raise forms.ValidationError(_(u'Vous avez déjà demandé cette casquette.'))
+        return data

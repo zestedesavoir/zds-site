@@ -7,7 +7,8 @@ from zds.member.views import MemberList, MemberDetail, UpdateMember, UpdateGitHu
     SendValidationEmailView, modify_karma, modify_profile, settings_mini_profile, member_from_ip, \
     settings_promote, login_view, logout_view, forgot_password, new_password, activate_account, \
     generate_token_account, unregister, warning_unregister, BannedEmailProvidersList, NewEmailProvidersList, \
-    AddBannedEmailProvider, remove_banned_email_provider, check_new_email_provider, MembersWithProviderList
+    AddBannedEmailProvider, remove_banned_email_provider, check_new_email_provider, MembersWithProviderList, \
+    HatsSettings, RequestedHatsList, HatRequestDetail, add_hat, remove_hat, solve_hat_request
 
 urlpatterns = [
     # list
@@ -43,6 +44,14 @@ urlpatterns = [
 
     # user rights
     url(r'^profil/promouvoir/(?P<user_pk>\d+)/$', settings_promote, name='member-settings-promote'),
+
+    # hats
+    url(r'^parametres/casquettes/$', HatsSettings.as_view(), name='hats-settings'),
+    url(r'^casquettes/demandes/$', RequestedHatsList.as_view(), name='requested-hats'),
+    url(r'^casquettes/demandes/(?P<pk>\d+)/$', HatRequestDetail.as_view(), name='hat-request'),
+    url(r'^casquettes/demandes/(?P<request_pk>\d+)/resoudre/$', solve_hat_request, name='solve-hat-request'),
+    url(r'^casquettes/ajouter/(?P<user_pk>\d+)/$', add_hat, name='add-hat'),
+    url(r'^casquettes/retirer/(?P<user_pk>\d+)/(?P<hat_pk>\d+)/$', remove_hat, name='remove-hat'),
 
     # membership
     url(r'^connexion/$', login_view, name='member-login'),

@@ -1,33 +1,59 @@
 # -*- coding: utf-8 -*-
-
+from __future__ import unicode_literals
 from django.conf import settings
 from django.db import models
 from django.db.models import Count, F
+from django.utils.translation import ugettext_lazy as _
 
 from zds.utils.models import Tag
-from django.utils.translation import ugettext_lazy as _
 
 
 class PublishedContentManager(models.Manager):
-    """
-    Custom published content manager.
-    """
 
-    def published_contents(self, _type=None):
+    def __get_list(self, subcategories=None, tags=None, content_type=None):
         """
-        Get contents published order by date.
-
-        :return:
+        :param subcategories: subcategories, filters with OR
+        :type subcategories: list of zds.utils.models.SubCategory
+        :param tags: tags, filters with AND
+        :type tags: list of zds.utils.models.Tag
+        :param content_type: type of content, filters with OR
+        :type content_type: list of str
+        :return: queryset
         :rtype: django.db.models.QuerySet
         """
-        queryset = self.prefetch_related('content') \
-            .prefetch_related('content__authors') \
-            .prefetch_related('content__subcategory') \
-            .filter(must_redirect=False) \
-            .order_by('-publication_date')
 
-        if _type:
-            queryset = queryset.filter(content_type=_type)
+        queryset = self.filter(must_redirect=False)
+        if content_type is not None:
+            if not isinstance(content_type, list):
+                content_type = [content_type]
+
+            queryset = queryset.filter(content_type__in=list(map(lambda c: c.upper(), content_type)))
+
+        # prefetch:
+        queryset = queryset \
+            .prefetch_related('content') \
+            .prefetch_related('content__subcategory') \
+            .prefetch_related('content__authors') \
+            .select_related('content__licence') \
+            .select_related('content__image') \
+            .select_related('content__last_note') \
+            .select_related('content__last_note__related_content')       \
+            .select_related('content__last_note__related_content__public_version')
+
+        if subcategories is not None:
+            queryset = queryset.filter(content__subcategory__in=subcategories)
+        if tags is not None:
+            queryset = queryset.filter(content__tags__in=tags)
+        if subcategories is not None or tags is not None:
+            queryset = queryset.distinct()
+
+        sub_query = """
+            SELECT COUNT(*)
+            FROM tutorialv2_contentreaction
+            WHERE tutorialv2_contentreaction.related_content_id=`tutorialv2_publishablecontent`.`id`
+        """
+
+        queryset = queryset.extra(select={'count_note': sub_query})
 
         return queryset
 
@@ -35,12 +61,11 @@ class PublishedContentManager(models.Manager):
         """
         Get contents published by author depends on settings.ZDS_APP['content']['user_page_number']
 
-        :param author:
+        :param author: the author
         :param _type: subtype to filter request
-        :return:
         :rtype: django.db.models.QuerySet
         """
-        queryset = self.published_contents(_type) \
+        queryset = self.__get_list(content_type=[_type]) \
             .filter(authors__in=[author])
 
         public_contents = queryset.all()[:settings.ZDS_APP['content']['user_page_number']]
@@ -96,6 +121,23 @@ class PublishedContentManager(models.Manager):
             published.authors.remove(unsubscribed_user)
             published.save()
 
+    def last_contents(self, subcategories=None, tags=None, content_type=None):
+        queryset = self.__get_list(
+            subcategories=subcategories,
+            tags=tags,
+            content_type=content_type)
+        return queryset.order_by('-publication_date')
+
+    def most_commented_contents(self, subcategories=None, tags=None, content_type=None):
+        queryset = self.__get_list(
+            subcategories=subcategories,
+            tags=tags,
+            content_type=content_type)
+        return queryset.order_by('-count_note')
+
+    def featured_contents(self, nb=2):
+        return self.last_contents()[:nb]
+
 
 class PublishableContentManager(models.Manager):
     """..."""
@@ -136,7 +178,7 @@ class PublishableContentManager(models.Manager):
                     # we add a sentence to the content's introduction stating it was written by a former member.
                     versioned = content.load_version()
                     title = versioned.title
-                    introduction = _(u'[[i]]\n|Ce contenu a été rédigé par {} qui a quitté le site.\n\n')\
+                    introduction = _('[[i]]\n|Ce contenu a été rédigé par {} qui a quitté le site.\n\n')\
                         .format(unregistered_user.username) + versioned.get_introduction()
                     conclusion = versioned.get_conclusion()
                     sha = versioned.repo_update(title, introduction, conclusion,
@@ -145,14 +187,16 @@ class PublishableContentManager(models.Manager):
                     content.sha_draft = sha
                     content.save()
 
-    def get_last_tutorials(self):
+    def get_last_tutorials(self, number=0):
         """
-        This depends on settings.ZDS_APP['tutorial']['home_number'] parameter
+        get list of last published tutorial
 
-        :return: lit of last published content
+        :param number: number of tutorial you want. By default it is interpreted as \
+        ``settings.ZDS_APP['tutorial']['home_number']``
+        :return: list of last published content
         :rtype: list
         """
-        home_number = settings.ZDS_APP['tutorial']['home_number']
+        number = number or settings.ZDS_APP['tutorial']['home_number']
         all_contents = self.filter(type='TUTORIAL') \
                            .filter(public_version__isnull=False) \
                            .prefetch_related('authors') \
@@ -161,14 +205,14 @@ class PublishableContentManager(models.Manager):
                            .select_related('public_version') \
                            .prefetch_related('subcategory') \
                            .prefetch_related('tags') \
-                           .order_by('-public_version__publication_date')[:home_number]
+                           .order_by('-public_version__publication_date')[:number]
         published = []
         for content in all_contents:
             content.public_version.content = content
             published.append(content.public_version)
         return published
 
-    def get_last_articles(self):
+    def get_last_articles(self, number=0):
         """
         ..attention:
             this one uses a raw subquery for historical reasons. It will hopefully be replaced one day by an
@@ -182,7 +226,7 @@ class PublishableContentManager(models.Manager):
             'tutorialv2_contentreaction.related_content_id',
             'tutorialv2_publishedcontent.content_pk',
         )
-        home_number = settings.ZDS_APP['article']['home_number']
+        number = number or settings.ZDS_APP['article']['home_number']
         all_contents = self.filter(type='ARTICLE') \
                            .filter(public_version__isnull=False) \
                            .prefetch_related('authors') \
@@ -192,7 +236,7 @@ class PublishableContentManager(models.Manager):
                            .prefetch_related('subcategory') \
                            .prefetch_related('tags') \
                            .extra(select={'count_note': sub_query}) \
-                           .order_by('-public_version__publication_date')[:home_number]
+                           .order_by('-public_version__publication_date')[:number]
         published = []
         for content in all_contents:
             content.public_version.content = content

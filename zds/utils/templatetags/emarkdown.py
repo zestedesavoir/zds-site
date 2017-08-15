@@ -7,8 +7,8 @@ from django import template
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
-from markdown import Markdown
-from markdown.extensions.zds import ZdsExtension
+from zmarkdown import ZMarkdown
+from zmarkdown.extensions.zds import ZdsExtension
 
 from zds.utils.templatetags.smileysDef import smileys
 
@@ -33,7 +33,7 @@ def get_markdown_instance(inline=False, js_support=False, ping_url=None):
         ping_url = None
     zdsext = ZdsExtension(inline=inline, emoticons=smileys, js_support=js_support, ping_url=ping_url)
     # Generate parser
-    markdown = Markdown(
+    markdown = ZMarkdown(
         extensions=(zdsext,),
         inline=inline,            # Parse only inline content.
     )

@@ -23,10 +23,9 @@
 
 
 {% block content_out %}
-    {% url 'tutorial:list' as url_tutorials %}
-    {% url 'article:list' as url_articles %}
     {% url 'opinion:list' as url_opinions %}
     {% url 'cats-forums-list' as url_forums %}
+    {% url 'publication:list' as url_publications %}
 
     {% url 'pages-association' as url_association %}
 
@@ -53,15 +52,14 @@
                 <section class="home-description">
                     <div class="column">
                         <h2>{% trans "La connaissance pour tous" %}</h2>
-                        {% blocktrans with site_name=app.site.litteral_name %}
+                        {% blocktrans with site_name=app.site.literal_name %}
                             <p>
                                 {{ site_name }}&nbsp;: un site de <strong>partage de connaissances</strong> où vous trouverez,
                                 <strong>gratuitement</strong> et <strong>sans publicité</strong>&nbsp;:
                             </p>
                             <ul>
-                                <li>des <a href="{{ url_tutorials }}">tutoriels de tous niveaux</a>&nbsp;;</li>
-                                <li>des <a href="{{ url_articles }}">articles</a>&nbsp;;</li>
-                                <li>des <a href="{{ url_opinions }}">tribunes</a>&nbsp;;</li>
+                                <li>une <a href="{{ url_publications }}">biblothèque</a>, comprenant des <a href="{{ url_publications }}?type=tutorial">tutoriels</a>&nbsp;et <a href="{{ url_publications }}?type=article">articles</a> de tous niveaux&nbsp;;</li>
+                                <li>une <a href="{{ url_opinions }}">tribune</a>, où se trouvent les billets écrits par les membres&nbsp;;</li>
                                 <li>et des <a href="{{ url_forums }}">forums d'entraide</a>.</li>
                             </ul>
                             <p>Tout est animé par la communauté, tous les sujets sont abordés&nbsp;!</p>
@@ -115,34 +113,26 @@
             <section itemscope itemtype="http://schema.org/ItemList">
                 <h2 class="ico-after ico-tutorials home-heading" itemprop="name">
                     {% trans "Derniers tutoriels" %}
-                    <a href="{% url "tutorial:list" %}" class="btn btn-grey">{% trans "Tous les tutoriels" %}</a>
+                    <a href="{% url 'publication:list' %}?type=tutorial" class="btn btn-grey">{% trans "Tous les tutoriels" %}</a>
                 </h2>
 
                 <meta itemprop="itemListOrder" content="Descending">
 
-                <div class="content-item-list">
-                    {% for tutorial in last_tutorials %}
-                        {% include 'tutorialv2/includes/content_item.part.html' with public_content=tutorial show_description=True %}
-                    {% empty %}
-                        <p>{% trans "Aucun tutoriel disponible." %}</p>
-                    {% endfor %}
-                </div>
+                {% include "tutorialv2/list_page_elements/list_of_online_contents.html" with public_contents=last_tutorials col_number=1 %}
+
             </section>
 
             <section itemscope itemtype="http://schema.org/ItemList">
                 <h2 class="ico-after ico-articles home-heading" itemprop="name">
                     {% trans "Derniers articles" %}
-                    <a href="{% url "article:list" %}" class="btn btn-grey">{% trans "Tous les articles" %}</a>
+                    <a href="{% url 'publication:list' %}?type=article" class="btn btn-grey">{% trans "Tous les articles" %}</a>
                 </h2>
 
                 <meta itemprop="itemListOrder" content="Descending">
 
+                {% include "tutorialv2/list_page_elements/list_of_online_contents.html" with public_contents=last_articles col_number=1 %}
+
                 <div class="content-item-list">
-                    {% for article in last_articles %}
-                        {% include 'tutorialv2/includes/content_item.part.html' with public_content=article show_description=True show_reactions=True %}
-                    {% empty %}
-                        <p>{% trans "Aucun article disponible." %}</p>
-                    {% endfor %}
 
                     <div class="content-item write-tutorial">
                         <div class="write-tutorial-text">

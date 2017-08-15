@@ -6,12 +6,11 @@
 
 @import "variables/variables";
 @import "sprite";
-@import "mixins/display-flex";
 
 /*------------------------
 1. Normalize
 ------------------------*/
-@import "vendors/normalize";
+@import "normalize.css/normalize";
 
 /*------------------------
 2. Base
@@ -75,7 +74,10 @@
 @import "components/topic-list";
 @import "components/notification-list";
 @import "components/topic-message";
+@import "components/topic-new";
 @import "components/user-profile";
+@import "components/linkbox";
+@import "components/more-link";
 
 /*------------------------
 9. Pages

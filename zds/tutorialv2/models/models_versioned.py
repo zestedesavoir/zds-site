@@ -12,7 +12,6 @@ from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
-from zds.settings import ZDS_APP
 from zds.tutorialv2.models.mixins import TemplatableContentModelMixin
 from zds.tutorialv2.utils import default_slug_pool, export_content, get_commit_author, InvalidOperationError
 from zds.utils.misc import compute_hash
@@ -217,7 +216,7 @@ class Container:
         :rtype: bool
         """
         if not self.has_extracts():
-            if self.get_tree_depth() < ZDS_APP['content']['max_tree_depth'] - 1:
+            if self.get_tree_depth() < settings.ZDS_APP['content']['max_tree_depth'] - 1:
                 if not self.top_container().type in SINGLE_CONTAINER:
                     return True
         return False
@@ -229,7 +228,7 @@ class Container:
         :rtype: bool
         """
         if not self.has_sub_containers():
-            if self.get_tree_depth() <= ZDS_APP['content']['max_tree_depth']:
+            if self.get_tree_depth() <= settings.ZDS_APP['content']['max_tree_depth']:
                 return True
         return False
 

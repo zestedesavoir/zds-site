@@ -28,6 +28,17 @@
 
 
 {% block content %}
+
+    {% if hidden_topics_count %}
+        <p class="alert-box info">
+            {% blocktrans count counter=hidden_topics_count %}
+                {{ counter }} sujet est invisible car dans un forum inaccessible.
+            {% plural %}
+                {{ counter }} sujets sont invisibles car dans un forum inaccessible.
+            {% endblocktrans %}
+        </p>
+    {% endif %}
+
     {% include "misc/paginator.html" with position="top" %}
 
     {% if topics %}

@@ -9,7 +9,6 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django.core.urlresolvers import reverse
 
-from zds.settings import BASE_DIR
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory, \
     SubCategoryFactory
@@ -17,27 +16,28 @@ from zds.tutorialv2.models.models_database import PublishableContent
 from zds.gallery.factories import UserGalleryFactory
 from zds.forum.factories import ForumFactory, CategoryFactory
 from zds.tutorialv2.publication_utils import publish_content
+from copy import deepcopy
 
-overrided_zds_app = settings.ZDS_APP
-overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
-overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
+overridden_zds_app = deepcopy(settings.ZDS_APP)
+overridden_zds_app['content']['repo_private_path'] = os.path.join(settings.BASE_DIR, 'contents-private-test')
+overridden_zds_app['content']['repo_public_path'] = os.path.join(settings.BASE_DIR, 'contents-public-test')
 
 
-@override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
-@override_settings(ZDS_APP=overrided_zds_app)
+@override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'media-test'))
+@override_settings(ZDS_APP=overridden_zds_app)
 @override_settings(ES_ENABLED=False)
 class ContentMoveTests(TestCase):
 
     def setUp(self):
 
         # don't build PDF to speed up the tests
-        settings.ZDS_APP['content']['build_pdf_when_published'] = False
+        overridden_zds_app['content']['build_pdf_when_published'] = False
 
         self.staff = StaffProfileFactory().user
 
         settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
         self.mas = ProfileFactory().user
-        settings.ZDS_APP['member']['bot_account'] = self.mas.username
+        overridden_zds_app['member']['bot_account'] = self.mas.username
 
         self.licence = LicenceFactory()
         self.subcategory = SubCategoryFactory()
@@ -54,7 +54,7 @@ class ContentMoveTests(TestCase):
         self.tuto.save()
 
         self.beta_forum = ForumFactory(
-            pk=settings.ZDS_APP['forum']['beta_forum_id'],
+            pk=overridden_zds_app['forum']['beta_forum_id'],
             category=CategoryFactory(position=1),
             position_in_category=1)  # ensure that the forum, for the beta versions, is created
 
@@ -63,7 +63,7 @@ class ContentMoveTests(TestCase):
         self.chapter1 = ContainerFactory(parent=self.part1, db_object=self.tuto)
 
         self.extract1 = ExtractFactory(container=self.chapter1, db_object=self.tuto)
-        bot = Group(name=settings.ZDS_APP['member']['bot_group'])
+        bot = Group(name=overridden_zds_app['member']['bot_group'])
         bot.save()
 
     def test_move_up_extract(self):
@@ -561,12 +561,9 @@ class ContentMoveTests(TestCase):
         self.assertTrue(isdir(tuto.get_repo_path()))
 
     def tearDown(self):
-        if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
-            shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
-        if os.path.isdir(settings.ZDS_APP['content']['repo_public_path']):
-            shutil.rmtree(settings.ZDS_APP['content']['repo_public_path'])
+        if os.path.isdir(overridden_zds_app['content']['repo_private_path']):
+            shutil.rmtree(overridden_zds_app['content']['repo_private_path'])
+        if os.path.isdir(overridden_zds_app['content']['repo_public_path']):
+            shutil.rmtree(overridden_zds_app['content']['repo_public_path'])
         if os.path.isdir(settings.MEDIA_ROOT):
             shutil.rmtree(settings.MEDIA_ROOT)
-
-        # re-activate PDF build
-        settings.ZDS_APP['content']['build_pdf_when_published'] = True

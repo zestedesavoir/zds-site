@@ -1,115 +1,157 @@
 dist: trusty
+language: python
 sudo: required
+
+
+python:
+  - 2.7
+
+
 addons:
   apt:
     packages:
-    - mysql-server-5.6
-    - mysql-client-core-5.6
-    - mysql-client-5.6
-    - language-pack-fr
-    - unzip
-    - oracle-java8-set-default
+      - mysql-server-5.6
+      - mysql-client-core-5.6
+      - mysql-client-5.6
+      - language-pack-fr
+      - unzip
+      - oracle-java8-set-default
+
 
 git:
   depth: 1
 
-language: python
 
-python:
-  - 2.7
+matrix:
+  fast_finish: true
+
 
 env:
   global:
     - secure: "azmDZZQZzf88zpbkYpLpxI66vpEVyv+kniW0QdWAt4qlys8P5OcO3VJBR5YT85vlvnjN9b6raWQAL1ymee0WmVdTmzXed8XjZv7t9QXVw7pfezxMKlEftVp/4Cu4wtvbew0ViZXNWV2hNXHzEqlhgnoIOq94i0UzZ7grMrI0xm0="
   matrix:
-    - TEST_APP="-e back_mysql -- zds.member zds.mp zds.utils zds.forum zds.gallery zds.pages zds.featured zds.notification zds.searchv2"
-    - TEST_APP="-e back_mysql -- zds.tutorialv2"
-    - TEST_APP="-e front"
+    - ZDS_TEST_JOB="zds.tutorialv2"
+    - ZDS_TEST_JOB="zds.member zds.utils zds.forum"
+    - ZDS_TEST_JOB="front zds.mp zds.gallery zds.pages zds.featured zds.notification zds.searchv2"
+
 
 notifications:
   webhooks:
     urls:
-        - "https://scalar.vector.im/api/neb/services/hooks/dHJhdmlzLWNpLyU0MHNhbmRob3NlJTNBc2FuZGhvc2UuZnIvJTIxd2dlbkt2dHpNY3NYREtiZEhZJTNBbWF0cml4Lm9yZw"
+      - "https://scalar.vector.im/api/neb/services/hooks/dHJhdmlzLWNpLyU0MHNhbmRob3NlJTNBc2FuZGhvc2UuZnIvJTIxd2dlbkt2dHpNY3NYREtiZEhZJTNBbWF0cml4Lm9yZw"
     on_success: change
     on_failure: always
     on_start: never
 
+
 services:
- - memcached
+  - memcached
+
 
 cache:
   apt: true
   pip: true
+  yarn: true
   directories:
     - $HOME/.cabal
     - $HOME/.fonts
-    - $HOME/.nvm
     - $HOME/.pandoc
     - $HOME/.texlive
     - $HOME/bin
+    - node_modules
+
 
 before_install:
-  # see https://docs.travis-ci.com/user/database-setup/#Installing-specific-versions-of-ElasticSearch
-  - curl -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.3.0.deb && sudo dpkg -i --force-confnew elasticsearch-5.3.0.deb && sudo service elasticsearch start
+  - . ./scripts/ci_turbo.sh # This script exports environment variables, it must be sourced
 
-before_script:
-  # MySQL config
-  - sudo sed -i'' 's/\[client\]/\[client\]\ndefault-character-set=utf8mb4/' /etc/mysql/my.cnf
-  - sudo sed -i'' 's/\[mysql\]/\[mysql\]\ndefault-character-set=utf8mb4/' /etc/mysql/my.cnf
-  - sudo sed -i'' 's/\[mysqld\]/\[mysqld\]\ninnodb_file_per_table=on\ninnodb_file_format=barracuda\ninnodb_large_prefix=on\ncharacter-set-client-handshake=false\ncharacter-set-server=utf8mb4\ncollation-server=utf8mb4_unicode_ci/' /etc/mysql/my.cnf
-  - sudo /etc/init.d/mysql restart
-  # Travis should fail as soon as possible
-  - mysql -u root -e "SET GLOBAL sql_mode = 'NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES';"
-  # Avoid "mysql has gone away" errors
-  - mysql -u root -e "SET GLOBAL wait_timeout = 36000;"
-  - mysql -u root -e "SET GLOBAL max_allowed_packet = 134209536;"
-  # Create database with the correct charset and collation
-  - mysql -u root -e "CREATE DATABASE zds_test CHARACTER SET = utf8mb4 COLLATE utf8mb4_unicode_ci;"
-  - mv zds/settings_test_travis.py zds/settings_prod.py
+  - travis_retry pip install -q coveralls
+
+  - |
+    # install elasticsearch
+    if [[ "$ZDS_TEST_JOB" == *"zds.searchv2"* ]]; then
+      # see https://docs.travis-ci.com/user/database-setup/#Installing-specific-versions-of-ElasticSearch
+      curl -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.3.0.deb \
+      && sudo dpkg -i --force-confnew elasticsearch-5.3.0.deb \
+      && sudo service elasticsearch start
+    fi
+
+  - |
+    # setup mysql
+    if [[ "$ZDS_TEST_JOB" == *"zds."* ]]; then
+      # MySQL config
+      ./scripts/ci_mysql_setup.sh
+    fi
+
 
 install:
-  - mkdir -p $HOME/bin
-  - ./scripts/install_texlive.sh
   - |
-    # cache these no matter what
-    if ls $HOME/.nvm/alias/lts/\* 1> /dev/null 2>&1; then
-      echo "Using cached nvm"
-    else
-      touch $HOME/.cache_updated
-      nvm install 'lts/*'
+    # install frontend dependencies
+    if [[ "$ZDS_TEST_JOB" == *"front"* ]]; then
+      nvm install 8 \
+      && nvm use 8 \
+      && npm i -g yarn \
+      && yarn --silent
     fi
 
-    # only for front tests
-    if [[ "$TEST_APP" == *"front"* ]]; then
-      nvm use 'lts/*'
-      npm install -g npm
+  - |
+    # install latex
+    if [[ "$ZDS_TEST_JOB" == *"zds.tutorialv2"* ]]; then
+      mkdir -p $HOME/bin \
+      && ./scripts/install_texlive.sh \
+      && ./scripts/install_resources.sh \
+      && export PATH=$HOME/.texlive/bin/x86_64-linux:$PATH \
+      && export PATH=$PATH:$HOME/bin
     fi
-  - ./scripts/install_resources.sh
-  - export PATH=$HOME/.texlive/bin/x86_64-linux:$PATH
-  - export PATH=$PATH:$HOME/bin
-  # Python dependencies
-  - travis_retry pip install coveralls
-  - travis_retry pip install tox==2.0.1
+
+  - |
+    # install backend dependencies
+    if [[ "$ZDS_TEST_JOB" == *"zds."* ]]; then
+      pip install -q -rrequirements.txt -rrequirements-dev.txt -rrequirements-prod.txt
+    fi
+
 
 script:
-  - tox $TEST_APP
   - |
-    # avoid cache update & upload when we didn't explicitely change its content
-    if [[ -f "$HOME/.cache_updated" ]]; then
-      echo "Cache updated."
-    else
-      echo "Cache not updated."
-      rm -rf $HOME/.cabal $HOME/.fonts $HOME/.nvm $HOME/.pandoc $HOME/.texlive $HOME/bin
+    # lint backend
+    if [[ "$ZDS_TEST_JOB" == *"zds.gallery"* ]]; then
+      ./scripts/no_import_zds_settings.sh \
+      && flake8
     fi
 
-after_success:
-  - coveralls
   - |
+    # test and build frontend
+    if [[ "$ZDS_TEST_JOB" == *"front"* ]]; then
+      yarn test
+      yarn build # we need to upload the assets later
+    fi
+
+  - |
+    # test backend
+    if [[ "$ZDS_TEST_JOB" == *"zds."* ]]; then
+      coverage run --source='.' manage.py \
+        test \
+        --keepdb \
+        --settings zds.settings_test_travis \
+        ${ZDS_TEST_JOB/front/}
+    fi
+
+
+after_success:
+  - du -sh $HOME/.texlive 2>/dev/null | true
+
+  - |
+    # upload coverage
+    if [[ "$ZDS_TEST_JOB" != "none" ]]; then
+      coveralls
+    fi
+
+  - |
+    # upload compiled assets
     COMMIT_MSG=`git rev-list --format=%B --max-count=1 $TRAVIS_COMMIT`
-    if [[ "$TEST_APP" == *"front"* ]] && [[ "$TRAVIS_PULL_REQUEST" == false ]] && [[ ! -z "$TRAVIS_TAG" ]] && [[ ! "$TRAVIS_TAG" == *"-build" ]]
+    if [[ "$ZDS_TEST_JOB" == *"front"* ]] && [[ "$TRAVIS_PULL_REQUEST" == false ]] && [[ ! -z "$TRAVIS_TAG" ]] && [[ ! "$TRAVIS_TAG" == *"-build" ]]
     then
       # Adding GitHub OAuth token to login
-      echo "machine github.com login $GITHUB_TOKEN password x-oauth-basic" > $HOME/.netrc
+      echo -e "machine github.com login $BOT_LOGIN\n password $BOT_PASSWORD" > $HOME/.netrc
       git config --global url."https://".insteadOf git://
       git config --global user.name "Build bot"
       git config --global user.email "zestedesavoir@gmail.com"

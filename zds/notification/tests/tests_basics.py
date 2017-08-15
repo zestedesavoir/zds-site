@@ -8,7 +8,7 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.db import IntegrityError
 
-from zds import settings
+from django.conf import settings
 from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory, PostFactory, TagFactory
 from zds.forum.models import Topic, is_read
 from zds.gallery.factories import UserGalleryFactory

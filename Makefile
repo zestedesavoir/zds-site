@@ -17,8 +17,8 @@ install-archlinux:
 	sudo pacman -Sy git python2 python2-setuptools python2-pip libxml2 python2-lxml libxslt zlib python2-sqlparse libffi libjpeg-turbo freetype2 python2-tox base-devel
 
 install-osx:
-	brew install gettext cairo --without-x11 py2cairo node && \ 
-	pip install virtualenv virtualenvwrapper 
+	brew install gettext cairo --without-x11 py2cairo node && \
+	pip install virtualenv virtualenvwrapper
 
 # dev back
 ## django
@@ -49,7 +49,7 @@ install-back:
 	pip install --upgrade -r requirements.txt -r requirements-dev.txt
 
 lint-back:
-	flake8 --exclude=migrations --max-line-length=120 zds
+	flake8 zds
 
 report-release-back:
 	python scripts/release_generator.py
@@ -65,19 +65,19 @@ test-back:
 ## front-utils
 
 build-front:
-	npm run build
+	yarn run build
 
 clean-front:
-	npm run clean
+	yarn run clean
 
 install-front:
-	npm install
+	yarn
 
 lint-front:
-	npm run lint
+	yarn run lint
 
 watch-front:
-	npm run gulp
+	yarn run gulp
 
 # generic utils
 

@@ -152,7 +152,7 @@ Pour réindexer les nouvelles données, utilisez la commande suivante :
 
 .. sourcecode:: bash
 
-    python manage.py es_manager index-flagged
+    python manage.py es_manager index_flagged
 
 Plus d'informations sur la commande ``es_manager`` sont disponibles sur la page `concernant la recherche sur ZdS <../back-end/searchv2.html#indexer-les-donnees-de-zds>`_.
 

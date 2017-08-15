@@ -24,29 +24,33 @@
 {% block content %}
     {% include "misc/paginator.html" with position="top" %}
 
-    <div class="notification-list navigable-list">
-        {% for notification in notifications %}
-            <div class="notification navigation-elem {% if not notification.is_read %}unread{% endif %}">
-                <div class="notification-infos">
-                    {# In the future, we'll add the icon of the notification. #}
+    {% if notifications %}
+        <div class="notification-list navigable-list">
+            {% for notification in notifications %}
+                <div class="notification navigation-elem {% if not notification.is_read %}unread{% endif %}">
+                    <div class="notification-infos">
+                        {# In the future, we'll add the icon of the notification. #}
+                    </div>
+                    <div class="notification-description">
+                        <a href="{{ notification.url }}" class="notification-title-link navigable-link"
+                           title="{{ notification.title }}">
+                            <h4 class="notification-title" itemprop="itemListElement">{{ notification.title }}</h4>
+                        </a>
+                    </div>
+                    <p class="notification-last-answer">
+                        <span class="notification-last-answer-short-date">{{ notification.pubdate|format_date:True|capfirst }}</span>
+                        <span class="notification-last-answer-long-date">{{ notification.pubdate|format_date|capfirst }}</span>
+                        <span class="notification-last-answer-author">
+                            {% trans "par" %}
+                            {% include "misc/member_item.part.html" with member=notification.sender %}
+                        </span>
+                    </p>
                 </div>
-                <div class="notification-description">
-                    <a href="{{ notification.url }}" class="notification-title-link navigable-link"
-                       title="{{ notification.title }}">
-                        <h4 class="notification-title" itemprop="itemListElement">{{ notification.title }}</h4>
-                    </a>
-                </div>
-                <p class="notification-last-answer">
-                    <span class="notification-last-answer-short-date">{{ notification.pubdate|format_date:True|capfirst }}</span>
-                    <span class="notification-last-answer-long-date">{{ notification.pubdate|format_date|capfirst }}</span>
-                    <span class="notification-last-answer-author">
-                        {% trans "par" %}
-                        {% include "misc/member_item.part.html" with member=notification.sender %}
-                    </span>
-                </p>
-            </div>
-        {% endfor %}
-    </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        {% trans "Vous n'avez pas encore de notification." %}
+    {% endif %}
 
     {% include "misc/paginator.html" with position="bottom" %}
 {% endblock %}

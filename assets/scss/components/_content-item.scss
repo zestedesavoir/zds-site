@@ -50,11 +50,22 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
         flex: 0 0 $content-illu-size;
         height: $content-illu-size;
         background-color: $content-border-color;
+        background-size: contain;
 
         img {
             width: 100%;
             height: 100%;
             background-color: #FFF;
+        }
+
+        &.article-illu {
+            background-image: url("/static/images/article-illu.png");
+        }
+        &.tutorial-illu {
+            background-image: url("/static/images/tutorial-illu.png");
+        }
+        &.opinion-illu {
+            background-image: url("/static/images/opinion-illu.png");
         }
     }
 

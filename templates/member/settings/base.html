@@ -28,6 +28,7 @@
                 <li><a href="{% url "update-member" %}">{% trans "Mon profil" %}</a></li>
                 <li><a href="{% url "update-password-member" %}">{% trans "Mot de passe" %}</a></li>
                 <li><a href="{% url "update-username-email-member" %}">{% trans "Pseudo et courriel" %}</a></li>
+                <li><a href="{% url "hats-settings" %}">{% trans "Casquettes" %}</a></li>
                 {% if user.profile.is_dev %}
                     <li><a href="{% url "update-github" %}">{% trans "Token GitHub" %}</a></li>
                 {% endif %}

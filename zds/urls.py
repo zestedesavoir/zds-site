@@ -116,7 +116,8 @@ urlpatterns = [
 # SiteMap URLs
 urlpatterns += [
     url(r'^sitemap\.xml$', index_view, {'sitemaps': sitemaps}),
-    url(r'^sitemap-(?P<section>.+)\.xml$', sitemap_view, {'sitemaps': sitemaps}),
+    url(r'^sitemap-(?P<section>.+)\.xml$', sitemap_view, {'sitemaps': sitemaps},
+        name='django.contrib.sitemaps.views.sitemap'),
 ]
 
 if settings.SERVE:
@@ -124,6 +125,12 @@ if settings.SERVE:
     urlpatterns += [
         url(r'^static/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT}),
         url(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+    ]
+
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns += [
+        url(r'^__debug__/', include(debug_toolbar.urls)),
     ]
 
 # custom view for 500 errors

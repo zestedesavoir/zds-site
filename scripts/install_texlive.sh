@@ -1,10 +1,10 @@
 #!/bin/bash
 
+EXTRA_PACKAGES="wallpaper titlesec"
+
 if [[ -f $HOME/.texlive/bin/x86_64-linux/tlmgr ]]; then
   echo "Using cached texlive install"
 else
-  # force cache upload after successful build
-  touch $HOME/.cache_updated
   echo "Installing texlive to \$HOME/.texlive"
   rm -rf $HOME/.texlive
   TEXLIVE_PROFILE=${BASH_SOURCE[0]/%install_texlive.sh/texlive.profile}
@@ -24,7 +24,8 @@ else
   ./install-tl*/install-tl -profile texlive.profile
 
   # Install extra latex packages
-  ./bin/x86_64-linux/tlmgr install wallpaper titlesec
+  $HOME/.texlive/bin/x86_64-linux/tlmgr install $EXTRA_PACKAGES
+  $HOME/.texlive/bin/x86_64-linux/tlmgr update --self
 
   echo "Installation complete !"
 fi

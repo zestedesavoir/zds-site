@@ -28,11 +28,6 @@ base.db
 /node_modules
 /dist
 /npm-debug.log
-/assets/scss/_sprite.scss
-/assets/scss/vendors
-/assets/js/vendors
-/assets/images/sprite.png
-/assets/images/sprite@2x.png
 
 #############
 ## Python

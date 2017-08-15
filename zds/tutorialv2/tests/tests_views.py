@@ -14,7 +14,7 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django.utils.translation import ugettext_lazy as _
 
-from zds.forum.factories import ForumFactory, CategoryFactory
+from zds.forum.factories import ForumFactory, CategoryFactory as ForumCategoryFactory
 from zds.forum.models import Topic, Post, TopicRead
 from zds.gallery.factories import UserGalleryFactory
 from zds.gallery.models import GALLERY_WRITE, UserGallery, Gallery
@@ -23,15 +23,19 @@ from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactor
 from zds.mp.models import PrivateTopic, is_privatetopic_unread
 from zds.notification.models import TopicAnswerSubscription, ContentReactionAnswerSubscription, \
     NewPublicationSubscription, Notification, Subscription
-from zds.settings import BASE_DIR
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory, \
     SubCategoryFactory, PublishedContentFactory, tricky_text_content, BetaContentFactory
 from zds.tutorialv2.models.models_database import PublishableContent, Validation, PublishedContent, ContentReaction, \
     ContentRead
 from zds.tutorialv2.publication_utils import publish_content, Publicator, PublicatorRegistery
-from zds.utils.models import HelpWriting, Alert, Tag
-from zds.utils.factories import HelpWritingFactory
+from zds.utils.models import HelpWriting, Alert, Tag, Hat
+from zds.utils.factories import HelpWritingFactory, CategoryFactory
 from zds.utils.templatetags.interventions import interventions_topics
+from copy import deepcopy
+
+
+BASE_DIR = settings.BASE_DIR
+
 
 try:
     import ujson as json_reader
@@ -42,10 +46,10 @@ except ImportError:
         import json as json_reader
 
 
-overrided_zds_app = settings.ZDS_APP
-overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
-overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
-overrided_zds_app['content']['extra_content_generation_policy'] = 'SYNC'
+overridden_zds_app = deepcopy(settings.ZDS_APP)
+overridden_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
+overridden_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
+overridden_zds_app['content']['extra_content_generation_policy'] = 'SYNC'
 
 
 @PublicatorRegistery.register('pdf')
@@ -56,24 +60,23 @@ class FakePDFPublicator(Publicator):
 
 
 @override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
-@override_settings(ZDS_APP=overrided_zds_app)
+@override_settings(ZDS_APP=overridden_zds_app)
 @override_settings(ES_ENABLED=False)
 class ContentTests(TestCase):
-    def setUp(self):
 
+    def setUp(self):
+        overridden_zds_app['content']['default_licence_pk'] = LicenceFactory().pk
         # don't build PDF to speed up the tests
-        settings.ZDS_APP['content']['build_pdf_when_published'] = False
+        overridden_zds_app['content']['build_pdf_when_published'] = False
 
         self.staff = StaffProfileFactory().user
 
         settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
         self.mas = ProfileFactory().user
-        settings.ZDS_APP['member']['bot_account'] = self.mas.username
+        overridden_zds_app['member']['bot_account'] = self.mas.username
 
         self.licence = LicenceFactory()
         self.subcategory = SubCategoryFactory()
-
-        settings.ZDS_APP['content']['default_licence_pk'] = self.licence.pk
 
         self.user_author = ProfileFactory().user
         self.user_staff = StaffProfileFactory().user
@@ -87,8 +90,8 @@ class ContentTests(TestCase):
         self.tuto.save()
 
         self.beta_forum = ForumFactory(
-            pk=settings.ZDS_APP['forum']['beta_forum_id'],
-            category=CategoryFactory(position=1),
+            pk=overridden_zds_app['forum']['beta_forum_id'],
+            category=ForumCategoryFactory(position=1),
             position_in_category=1)  # ensure that the forum, for the beta versions, is created
 
         self.tuto_draft = self.tuto.load_version()
@@ -96,10 +99,10 @@ class ContentTests(TestCase):
         self.chapter1 = ContainerFactory(parent=self.part1, db_object=self.tuto)
 
         self.extract1 = ExtractFactory(container=self.chapter1, db_object=self.tuto)
-        bot = Group(name=settings.ZDS_APP['member']['bot_group'])
+        bot = Group(name=overridden_zds_app['member']['bot_group'])
         bot.save()
         self.external = UserFactory(
-            username=settings.ZDS_APP['member']['external_account'],
+            username=overridden_zds_app['member']['external_account'],
             password='anything')
 
     def test_ensure_access(self):
@@ -282,7 +285,7 @@ class ContentTests(TestCase):
                 'type': u'TUTORIAL',
                 'licence': self.licence.pk,
                 'subcategory': self.subcategory.pk,
-                'image': open('{}/fixtures/noir_black.png'.format(settings.BASE_DIR))
+                'image': open('{}/fixtures/noir_black.png'.format(BASE_DIR))
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -331,7 +334,7 @@ class ContentTests(TestCase):
                 'licence': new_licence.pk,
                 'subcategory': self.subcategory.pk,
                 'last_hash': versioned.compute_hash(),
-                'image': open('{}/fixtures/logo.png'.format(settings.BASE_DIR))
+                'image': open('{}/fixtures/logo.png'.format(BASE_DIR))
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -1617,7 +1620,22 @@ class ContentTests(TestCase):
 
         extract = new_chapter.children[-1]
         self.assertEqual(extract.get_text(), some_text)
+        result = self.client.post(
+            reverse('content:import-new'),
+            {
+                'archive': open(draft_zip_path),
+                'subcategory': self.subcategory.pk
+            },
+            follow=False
+        )
+        self.assertEqual(result.status_code, 302)
 
+        self.assertEqual(PublishableContent.objects.count(), 4)
+        second_tuto = PublishableContent.objects.last()
+        self.assertNotEqual(new_tuto.pk, second_tuto.pk)  # those are two different content !
+        first_versioned = new_tuto.load_version()
+        second_versioned = second_tuto.load_version()
+        self.assertNotEqual(second_versioned.slug, first_versioned.slug)
         # clean up
         os.remove(draft_zip_path)
 
@@ -1751,7 +1769,7 @@ class ContentTests(TestCase):
                 username=self.user_author.username,
                 password='hostel77'),
             True)
-        archive_path = os.path.join(settings.BASE_DIR, 'fixtures', 'tuto', 'BadArchive.zip')
+        archive_path = os.path.join(BASE_DIR, 'fixtures', 'tuto', 'BadArchive.zip')
         answer = self.client.post(reverse('content:import',
                                           args=[new_article.pk, new_article.slug]),
                                   {'archive': open(archive_path, 'r'),
@@ -1767,7 +1785,7 @@ class ContentTests(TestCase):
     def test_import_image_with_archive(self):
         """ensure that import archive work, and link are changed"""
 
-        prefix = settings.ZDS_APP['content']['import_image_prefix']
+        prefix = overridden_zds_app['content']['import_image_prefix']
         title = u'OSEF ici du titre :p'
         text1 = u'![]({}:image1.png) ![]({}:dossier/image2.png)'.format(prefix, prefix)
         text2 = u'![Piège](img3.png) ![Image qui existe pas]({}:img3.png) ![](mauvais:img3.png)'.format(prefix)
@@ -1843,7 +1861,7 @@ class ContentTests(TestCase):
         # check links:
         text = versioned.children[0].get_text()
         for img in Image.objects.filter(gallery=new_article.gallery).all():
-            self.assertTrue('![]({})'.format(settings.ZDS_APP['site']['secure_url'] + img.physical.url) in text)
+            self.assertTrue('![]({})'.format(overridden_zds_app['site']['secure_url'] + img.physical.url) in text)
 
         # import into first article (that will only change the images)
         result = self.client.post(
@@ -1870,7 +1888,7 @@ class ContentTests(TestCase):
         # check links:
         text = versioned.children[0].get_text()
         for img in Image.objects.filter(gallery=new_version.gallery).all():
-            self.assertTrue('![]({})'.format(settings.ZDS_APP['site']['secure_url'] + img.physical.url) in text)
+            self.assertTrue('![]({})'.format(overridden_zds_app['site']['secure_url'] + img.physical.url) in text)
 
         # clean up
         os.remove(draft_zip_path)
@@ -2087,7 +2105,7 @@ class ContentTests(TestCase):
                 'licence': tuto.licence.pk,
                 'subcategory': self.subcategory.pk,
                 'last_hash': tuto.load_version(tuto.sha_draft).compute_hash(),
-                'image': open('{}/fixtures/logo.png'.format(settings.BASE_DIR))
+                'image': open('{}/fixtures/logo.png'.format(BASE_DIR))
             },
             follow=False)
 
@@ -3624,7 +3642,7 @@ class ContentTests(TestCase):
 
         NOTE: this test will take time !"""
 
-        settings.ZDS_APP['content']['build_pdf_when_published'] = True  # obviously, PDF builds have to be enabled
+        overridden_zds_app['content']['build_pdf_when_published'] = True  # obviously, PDF builds have to be enabled
 
         title = u"C'est pas le plus important ici !"
 
@@ -3949,7 +3967,7 @@ class ContentTests(TestCase):
             reverse('gallery-modify'),
             {
                 'delete_multi': '',
-                'items': [gallery.pk]
+                'g_items': [gallery.pk]
             },
             follow=True
         )
@@ -4075,41 +4093,38 @@ class ContentTests(TestCase):
 
     def tearDown(self):
 
-        if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
-            shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
-        if os.path.isdir(settings.ZDS_APP['content']['repo_public_path']):
-            shutil.rmtree(settings.ZDS_APP['content']['repo_public_path'])
+        if os.path.isdir(overridden_zds_app['content']['repo_private_path']):
+            shutil.rmtree(overridden_zds_app['content']['repo_private_path'])
+        if os.path.isdir(overridden_zds_app['content']['repo_public_path']):
+            shutil.rmtree(overridden_zds_app['content']['repo_public_path'])
         if os.path.isdir(settings.MEDIA_ROOT):
             shutil.rmtree(settings.MEDIA_ROOT)
 
-        # re-activate PDF build
-        settings.ZDS_APP['content']['build_pdf_when_published'] = True
-
 
 @override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
-@override_settings(ZDS_APP=overrided_zds_app)
+@override_settings(ZDS_APP=overridden_zds_app)
 @override_settings(ES_ENABLED=False)
 class PublishedContentTests(TestCase):
     def setUp(self):
-
+        overridden_zds_app['content']['default_licence_pk'] = LicenceFactory().pk
         # don't build PDF to speed up the tests
-        settings.ZDS_APP['content']['build_pdf_when_published'] = False
+        overridden_zds_app['content']['build_pdf_when_published'] = False
 
         self.staff = StaffProfileFactory().user
 
         settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
         self.mas = ProfileFactory().user
-        settings.ZDS_APP['member']['bot_account'] = self.mas.username
+        overridden_zds_app['member']['bot_account'] = self.mas.username
 
-        bot = Group(name=settings.ZDS_APP['member']['bot_group'])
+        bot = Group(name=overridden_zds_app['member']['bot_group'])
         bot.save()
         self.external = UserFactory(
-            username=settings.ZDS_APP['member']['external_account'],
+            username=overridden_zds_app['member']['external_account'],
             password='anything')
 
         self.beta_forum = ForumFactory(
-            pk=settings.ZDS_APP['forum']['beta_forum_id'],
-            category=CategoryFactory(position=1),
+            pk=overridden_zds_app['forum']['beta_forum_id'],
+            category=ForumCategoryFactory(position=1),
             position_in_category=1)  # ensure that the forum, for the beta versions, is created
 
         self.licence = LicenceFactory()
@@ -4118,6 +4133,9 @@ class PublishedContentTests(TestCase):
         self.user_author = ProfileFactory().user
         self.user_staff = StaffProfileFactory().user
         self.user_guest = ProfileFactory().user
+
+        self.hat, _ = Hat.objects.get_or_create(name__iexact='A hat', defaults={'name': 'A hat'})
+        self.user_guest.profile.hats.add(self.hat)
 
         # create a tutorial
         self.tuto = PublishableContentFactory(type='TUTORIAL')
@@ -4141,17 +4159,6 @@ class PublishedContentTests(TestCase):
         self.tuto.sha_draft = version
         self.tuto.public_version = self.published
         self.tuto.save()
-
-    def tearDown(self):
-        if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
-            shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
-        if os.path.isdir(settings.ZDS_APP['content']['repo_public_path']):
-            shutil.rmtree(settings.ZDS_APP['content']['repo_public_path'])
-        if os.path.isdir(settings.MEDIA_ROOT):
-            shutil.rmtree(settings.MEDIA_ROOT)
-
-        # re-activate PDF build
-        settings.ZDS_APP['content']['build_pdf_when_published'] = True
 
     def test_published(self):
         """Just a small test to ensure that the setUp() function produce a proper published content"""
@@ -4617,9 +4624,11 @@ class PublishedContentTests(TestCase):
             reverse('content:add-reaction') + u'?pk={}'.format(self.published.content.pk),
             {
                 'text': message_to_post,
-                'last_note': 0
+                'last_note': 0,
+                'hat': self.hat.pk
             }, follow=True)
         self.assertEqual(result.status_code, 200)
+        self.assertEqual(ContentReaction.objects.latest('pubdate').with_hat, self.hat.name)
 
         reactions = ContentReaction.objects.all()
         self.assertEqual(len(reactions), 1)
@@ -5444,7 +5453,7 @@ class PublishedContentTests(TestCase):
                 'licence': self.tuto.licence.pk,
                 'subcategory': self.subcategory.pk,
                 'last_hash': tuto.load_version().compute_hash(),
-                'image': open('{}/fixtures/logo.png'.format(settings.BASE_DIR))
+                'image': open('{}/fixtures/logo.png'.format(BASE_DIR))
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -5618,7 +5627,7 @@ class PublishedContentTests(TestCase):
                 'licence': article.licence.pk,
                 'subcategory': self.subcategory.pk,
                 'last_hash': article.load_version(article.sha_draft).compute_hash(),
-                'image': open('{}/fixtures/logo.png'.format(settings.BASE_DIR))
+                'image': open('{}/fixtures/logo.png'.format(BASE_DIR))
             },
             follow=False)
         public_count = PublishedContent.objects.count()
@@ -5730,6 +5739,62 @@ class PublishedContentTests(TestCase):
             True)
         result = self.client.get(reverse('validation:list') + '?type=tuto')
         self.assertNotIn('class="update_content"', result.content)
+
+    def test_ask_validation_update(self):
+        """
+        Test AskValidationView.
+        """
+        text_validation = u'La validation on vous aime !'
+        content = PublishableContentFactory(author_list=[self.user_author], type='ARTICLE')
+        content.save()
+        content_draft = content.load_version()
+
+        self.assertEqual(Validation.objects.count(), 0)
+
+        # login with user and ask validation
+        self.assertEqual(self.client.login(username=self.user_author.username, password='hostel77'), True)
+        result = self.client.post(
+            reverse('validation:ask', kwargs={'pk': content_draft.pk, 'slug': content_draft.slug}),
+            {'text': text_validation, 'source': '', 'version': content_draft.current_version},
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Validation.objects.count(), 1)
+
+        # login with staff and reserve the content
+        self.assertEqual(self.client.login(username=self.user_staff.username, password='hostel77'), True)
+        validation = Validation.objects.filter(content=content).last()
+        result = self.client.post(
+            reverse('validation:reserve', kwargs={'pk': validation.pk}),
+            {'version': validation.version},
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # login with user, edit content and ask validation for update
+        self.assertEqual(self.client.login(username=self.user_author.username, password='hostel77'), True)
+        result = self.client.post(
+            reverse('content:edit', args=[content_draft.pk, content_draft.slug]),
+            {
+                'title': content_draft.title + u'2',
+                'description': content_draft.description,
+                'introduction': content_draft.introduction,
+                'conclusion': content_draft.conclusion,
+                'type': content_draft.type,
+                'licence': self.licence.pk,
+                'subcategory': self.subcategory.pk,
+                'last_hash': content_draft.compute_hash(),
+                'image': content_draft.image
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        result = self.client.post(
+            reverse('validation:ask', kwargs={'pk': content_draft.pk, 'slug': content_draft.slug}),
+            {'text': text_validation, 'source': '', 'version': content_draft.current_version},
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # ensure the validation is effective
+        self.assertEqual(Validation.objects.count(), 2)
+        self.assertIsNotNone(Validation.objects.last().date_reserve)  # issue #3432
 
     def test_beta_article_closed_when_published(self):
         """Test that the beta of an article is locked when the content is published"""
@@ -5898,3 +5963,218 @@ class PublishedContentTests(TestCase):
         result = self.client.get(self.tuto.get_absolute_url_online(), follow=False)
         self.assertEqual(result.status_code, 200)
         self.assertNotContains(result, _(u'Ce contenu est obsolète.'))
+
+    def test_list_publications(self):
+        """Test the behavior of the publication list"""
+
+        category_1 = CategoryFactory()
+        category_2 = CategoryFactory()
+        subcategory_1 = SubCategoryFactory(category=category_1)
+        subcategory_2 = SubCategoryFactory(category=category_1)
+        subcategory_3 = SubCategoryFactory(category=category_2)
+        subcategory_4 = SubCategoryFactory(category=category_2)
+        tag_1 = Tag(title='random')
+        tag_1.save()
+
+        tuto_p_1 = PublishedContentFactory(author_list=[self.user_author])
+        tuto_p_2 = PublishedContentFactory(author_list=[self.user_author])
+        tuto_p_3 = PublishedContentFactory(author_list=[self.user_author])
+
+        article_p_1 = PublishedContentFactory(author_list=[self.user_author], type='ARTICLE')
+
+        tuto_p_1.subcategory.add(subcategory_1)
+        tuto_p_1.subcategory.add(subcategory_2)
+        tuto_p_1.save()
+
+        tuto_p_2.subcategory.add(subcategory_1)
+        tuto_p_2.subcategory.add(subcategory_2)
+        tuto_p_2.save()
+
+        tuto_p_3.subcategory.add(subcategory_3)
+        tuto_p_3.save()
+
+        article_p_1.subcategory.add(subcategory_4)
+        article_p_1.tags.add(tag_1)
+        article_p_1.save()
+
+        tuto_1 = PublishedContent.objects.get(content=tuto_p_1.pk)
+        tuto_2 = PublishedContent.objects.get(content=tuto_p_2.pk)
+        tuto_3 = PublishedContent.objects.get(content=tuto_p_3.pk)
+        article_1 = PublishedContent.objects.get(content=article_p_1.pk)
+
+        self.assertEqual(PublishableContent.objects.filter(type='ARTICLE').count(), 1)
+        self.assertEqual(PublishableContent.objects.filter(type='TUTORIAL').count(), 4)
+
+        # 1. Publication list
+        result = self.client.get(reverse('publication:list'))
+        self.assertEqual(result.status_code, 200)
+
+        self.assertEqual(len(result.context['last_articles']), 1)
+        self.assertEqual(len(result.context['last_tutorials']), 4)
+
+        # 2. Category page
+        result = self.client.get(reverse('publication:category', kwargs={'slug': category_1.slug}))
+        self.assertEqual(result.status_code, 200)
+
+        self.assertEqual(len(result.context['last_articles']), 0)
+        self.assertEqual(len(result.context['last_tutorials']), 2)
+
+        pks = [x.pk for x in result.context['last_tutorials']]
+        self.assertIn(tuto_1.pk, pks)
+        self.assertIn(tuto_2.pk, pks)
+
+        result = self.client.get(reverse('publication:category', kwargs={'slug': category_2.slug}))
+        self.assertEqual(result.status_code, 200)
+
+        self.assertEqual(len(result.context['last_articles']), 1)
+        self.assertEqual(len(result.context['last_tutorials']), 1)
+
+        pks = [x.pk for x in result.context['last_tutorials']]
+        self.assertIn(tuto_3.pk, pks)
+
+        pks = [x.pk for x in result.context['last_articles']]
+        self.assertIn(article_1.pk, pks)
+
+        # 3. Subcategory page
+        result = self.client.get(
+            reverse('publication:subcategory', kwargs={'slug_category': category_1.slug, 'slug': subcategory_1.slug}))
+
+        self.assertEqual(result.status_code, 200)
+
+        self.assertEqual(len(result.context['last_articles']), 0)
+        self.assertEqual(len(result.context['last_tutorials']), 2)
+
+        pks = [x.pk for x in result.context['last_tutorials']]
+        self.assertIn(tuto_1.pk, pks)
+        self.assertIn(tuto_2.pk, pks)
+
+        result = self.client.get(
+            reverse('publication:subcategory', kwargs={'slug_category': category_1.slug, 'slug': subcategory_2.slug}))
+
+        self.assertEqual(result.status_code, 200)
+
+        self.assertEqual(len(result.context['last_articles']), 0)
+        self.assertEqual(len(result.context['last_tutorials']), 2)
+
+        pks = [x.pk for x in result.context['last_tutorials']]
+        self.assertIn(tuto_1.pk, pks)
+        self.assertIn(tuto_2.pk, pks)
+
+        result = self.client.get(
+            reverse('publication:subcategory', kwargs={'slug_category': category_2.slug, 'slug': subcategory_3.slug}))
+
+        self.assertEqual(result.status_code, 200)
+
+        self.assertEqual(len(result.context['last_articles']), 0)
+        self.assertEqual(len(result.context['last_tutorials']), 1)
+
+        pks = [x.pk for x in result.context['last_tutorials']]
+        self.assertIn(tuto_3.pk, pks)
+
+        result = self.client.get(
+            reverse('publication:subcategory', kwargs={'slug_category': category_2.slug, 'slug': subcategory_4.slug}))
+
+        self.assertEqual(result.status_code, 200)
+
+        self.assertEqual(len(result.context['last_articles']), 1)
+        self.assertEqual(len(result.context['last_tutorials']), 0)
+
+        pks = [x.pk for x in result.context['last_articles']]
+        self.assertIn(article_1.pk, pks)
+
+        # 4. Final page and filters
+        result = self.client.get(reverse('publication:list') + '?category={}'.format(category_1.slug))
+        self.assertEqual(result.status_code, 200)
+
+        self.assertEqual(len(result.context['filtered_contents']), 2)
+        pks = [x.pk for x in result.context['filtered_contents']]
+        self.assertIn(tuto_1.pk, pks)
+        self.assertIn(tuto_2.pk, pks)
+
+        # filter by category and type
+        result = self.client.get(reverse('publication:list') + '?category={}'.format(category_2.slug))
+        self.assertEqual(result.status_code, 200)
+
+        self.assertEqual(len(result.context['filtered_contents']), 2)
+        pks = [x.pk for x in result.context['filtered_contents']]
+        self.assertIn(tuto_3.pk, pks)
+        self.assertIn(article_1.pk, pks)
+
+        result = self.client.get(
+            reverse('publication:list') + '?category={}'.format(category_2.slug) + '&type=article')
+        self.assertEqual(result.status_code, 200)
+
+        self.assertEqual(len(result.context['filtered_contents']), 1)
+        pks = [x.pk for x in result.context['filtered_contents']]
+        self.assertIn(article_1.pk, pks)
+
+        result = self.client.get(
+            reverse('publication:list') + '?category={}'.format(category_2.slug) + '&type=tutorial')
+        self.assertEqual(result.status_code, 200)
+
+        self.assertEqual(len(result.context['filtered_contents']), 1)
+        pks = [x.pk for x in result.context['filtered_contents']]
+        self.assertIn(tuto_3.pk, pks)
+
+        # filter by subcategory
+        result = self.client.get(reverse('publication:list') + '?subcategory={}'.format(subcategory_1.slug))
+        self.assertEqual(result.status_code, 200)
+
+        self.assertEqual(len(result.context['filtered_contents']), 2)
+        pks = [x.pk for x in result.context['filtered_contents']]
+        self.assertIn(tuto_1.pk, pks)
+        self.assertIn(tuto_2.pk, pks)
+
+        # filter by subcategory and type
+        result = self.client.get(reverse('publication:list') + '?subcategory={}'.format(subcategory_3.slug))
+        self.assertEqual(result.status_code, 200)
+
+        self.assertEqual(len(result.context['filtered_contents']), 1)
+        pks = [x.pk for x in result.context['filtered_contents']]
+        self.assertIn(tuto_3.pk, pks)
+
+        result = self.client.get(
+            reverse('publication:list') + '?subcategory={}'.format(subcategory_3.slug) + '&type=article')
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(len(result.context['filtered_contents']), 0)
+
+        result = self.client.get(
+            reverse('publication:list') + '?subcategory={}'.format(subcategory_3.slug) + '&type=tutorial')
+        self.assertEqual(result.status_code, 200)
+
+        self.assertEqual(len(result.context['filtered_contents']), 1)
+        pks = [x.pk for x in result.context['filtered_contents']]
+        self.assertIn(tuto_3.pk, pks)
+
+        # filter by tag
+        result = self.client.get(
+            reverse('publication:list') + '?tag={}'.format(tag_1.slug) + '&type=article')
+        self.assertEqual(result.status_code, 200)
+
+        self.assertEqual(len(result.context['filtered_contents']), 1)
+        pks = [x.pk for x in result.context['filtered_contents']]
+        self.assertIn(article_1.pk, pks)
+
+        # 5. Everything else results in 404
+        wrong_urls = [
+            # not existing (sub)categories, types or tags with slug "xxx"
+            reverse('publication:list') + '?category=xxx',
+            reverse('publication:list') + '?subcategory=xxx',
+            reverse('publication:list') + '?type=xxx',
+            reverse('publication:list') + '?tag=xxx',
+            reverse('publication:category', kwargs={'slug': 'xxx'}),
+            reverse('publication:subcategory', kwargs={'slug_category': category_2.slug, 'slug': 'xxx'}),
+            # subcategory_1 does not belong to category_2:
+            reverse('publication:subcategory', kwargs={'slug_category': category_2.slug, 'slug': subcategory_1.slug})
+        ]
+
+        for url in wrong_urls:
+            self.assertEqual(self.client.get(url).status_code, 404, msg=url)
+
+    def tearDown(self):
+        if os.path.isdir(overridden_zds_app['content']['repo_private_path']):
+            shutil.rmtree(overridden_zds_app['content']['repo_private_path'])
+        if os.path.isdir(overridden_zds_app['content']['repo_public_path']):
+            shutil.rmtree(overridden_zds_app['content']['repo_public_path'])
+        if os.path.isdir(settings.MEDIA_ROOT):
+            shutil.rmtree(settings.MEDIA_ROOT)

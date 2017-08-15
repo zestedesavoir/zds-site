@@ -1,0 +1,25 @@
+{% comment %}
+exposes subcategories
+{% endcomment %}
+
+{% load i18n %}
+{% load pluralize_fr %}
+
+<div class="content-linkbox-list">
+    {% for subcategory in subcategories %}
+        <div class="linkbox-item secondary">
+            <a href="{% url 'publication:subcategory' slug_category=category.slug slug=subcategory.slug %}" class="head">
+                <h3 title="{{ subcategory.title }}">{{ subcategory.title }}</h3>
+            </a>
+            <a href="{% url 'publication:subcategory' slug_category=category.slug slug=subcategory.slug %}" class="body">
+                <p class="right">
+                {% if subcategory.contents_count %}
+                    {{ subcategory.contents_count }} {% trans 'publication' %}{{ subcategory.contents_count|pluralize_fr }}
+                {% else %}
+                    {% trans 'Aucune publication' %}
+                {% endif %}
+                </p>
+            </a>
+        </div>
+    {% endfor %}
+</div>

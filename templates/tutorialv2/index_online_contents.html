@@ -8,8 +8,8 @@
 {% block title %}
     {% if tag %}
         {{ tag }}
-    {% elif category %}
-        {{ category }}
+    {% elif subcategory %}
+        {{ subcategory }}
     {% else %}
         {% trans "Tous les" %} {{ verbose_type_name_plural }}
     {% endif %}
@@ -22,9 +22,9 @@
         {% blocktrans %}
             Découvrez tous nos {{ verbose_type_name_plural }} sur {{ tag }}. Vous pourrez également découvrir divers sujets tous plus intéressants les uns que les autres !
         {% endblocktrans %}
-    {% elif category %}
+    {% elif subcategory %}
         {% blocktrans %}
-            Découvrez tous nos {{ verbose_type_name_plural }} sur {{ category }}. Vous pourrez également découvrir divers sujets tous plus intéressants les uns que les autres !
+            Découvrez tous nos {{ verbose_type_name_plural }} sur {{ subcategory }}. Vous pourrez également découvrir divers sujets tous plus intéressants les uns que les autres !
         {% endblocktrans %}
     {% else %}
         {% blocktrans %}
@@ -38,8 +38,8 @@
 {% block breadcrumb %}
     {% if tag %}
         <li>{{ tag }}</li>
-    {% elif category %}
-        <li>{{ category }}</li>
+    {% elif subcategory %}
+        <li>{{ subcategory }}</li>
     {% else %}
         <li>{% trans "Tous les" %} {{ verbose_type_name_plural }}</li>
     {% endif %}
@@ -55,38 +55,15 @@
                     {{ verbose_type_name_plural|title }} : {{ tag.title }}
                 {% elif category %}
                     {{ verbose_type_name_plural|title }} : {{ category }}
+                {% elif subcategory %}
+                    {{ verbose_type_name_plural|title }} : {{ subcategory }}
                 {% else %}
                     {% trans "Tous les" %} {{ verbose_type_name_plural }}
                 {% endif %}
             {% endblock %}
         </h1>
 
-        <meta itemprop="itemListOrder" content="Unordered">
-
-        {% include "misc/paginator.html" with position="top" %}
-
-        {% if public_contents %}
-            <div class="content-item-list">
-                {% if current_content_type == "ARTICLE" or current_content_type == "OPINION" %}
-                    {% for public_content in public_contents %}
-                        {% include "tutorialv2/includes/content_item.part.html" with public_content=public_content show_description=True show_reactions=True %}
-                    {% endfor %}
-                {% else %}
-                    {% for public_content in public_contents %}
-                        {% include "tutorialv2/includes/content_item.part.html" with public_content=public_content show_description=True %}
-                    {% endfor %}
-                {% endif %}
-                <div class="fill"></div>
-                <div class="fill"></div>
-                <div class="fill"></div>
-            </div>
-        {% else %}
-            <p>
-                {% trans "Aucun contenu disponible" %}.
-            </p>
-        {% endif %}
-
-        {% include "misc/paginator.html" with position="bottom-clear" %}
+        {% include "tutorialv2/list_page_elements/list_of_online_contents.html" with public_content=public_content col_number=3 paginated_top=True paginated_bottom=True %}
     </section>
 {% endblock %}
 
@@ -114,7 +91,7 @@
             <a href="{% url "content:create-opinion" %}" class="new-btn ico-after more blue">
                 {% trans "Nouveau billet" %}
             </a>
-        {% elif current_content_type == None %}
+        {% elif not current_content_type %}
             <a href="{% url "content:create-article" %}" class="new-btn ico-after more blue">
                 {% trans "Nouvel article" %}
             </a>
@@ -136,20 +113,20 @@
 
         {% captureas content_list_url %}
             {% if current_content_type == "ARTICLE" %}
-                {% url "article:list" %}
+                {% url "publication:list" %}?type=article
             {% elif current_content_type == "TUTORIAL" %}
-                {% url "tutorial:list" %}
+                {% url "publication:list" %}?type=tutorial
             {% elif current_content_type == "OPINION" %}
                 {% url "opinion:list" %}
-            {% elif current_content_type == None %}
-                {% url "content:list" %}
+            {% elif not current_content_type %}
+                {% url "publication:list" %}
             {% endif %}
         {% endcaptureas %}
 
         {% for title, subcats in top_categories.categories.items %}
             <h4 class="mobile-menu-link">{{ title }}</h4>
             <ul>
-                {% for subcat,slug in subcats %}
+                {% for subcat, slug, _ in subcats %}
                     <li>
                         <a href="{{ content_list_url }}?category={{ slug }}" class="mobile-menu-link mobile-menu-sublink">
                             {{  subcat }}
@@ -176,7 +153,7 @@
                             href="{% url "tutorial:feed-rss" %}"
                         {% elif current_content_type == "OPINION" %}
                             href="{% url "opinion:feed-rss" %}"
-                        {% elif current_content_type == None %}
+                        {% elif not current_content_type %}
                             href="{% url "content:feed-rss" %}"
                         {% endif %}
                     class="ico-after rss blue">
@@ -191,7 +168,7 @@
                             href="{% url "tutorial:feed-atom" %}"
                         {% elif current_content_type == "OPINION" %}
                             href="{% url "opinion:feed-atom" %}"
-                        {% elif current_content_type == None %}
+                        {% elif not current_content_type %}
                             href="{% url "content:feed-atom" %}"
                         {% endif %}
                     class="ico-after rss blue">

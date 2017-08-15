@@ -62,6 +62,7 @@ class ForumTopicsListView(FilterMixin, ForumEditMixin, ZdSPagingListView, Update
     context_object_name = 'topics'
     paginate_by = settings.ZDS_APP['forum']['topics_per_page']
     template_name = 'forum/category/forum.html'
+    fields = '__all__'
     filter_url_kwarg = 'filter'
     default_filter_param = 'all'
     object = None
@@ -100,8 +101,8 @@ class ForumTopicsListView(FilterMixin, ForumEditMixin, ZdSPagingListView, Update
         # "already read topic" set out of this list and MySQL does not support that type of subquery
 
         # Add a topic.is_followed attribute
-        followed_query_set = TopicAnswerSubscription.objects.get_objects_followed_by(self.request.user.id)
-        followed_topics = list(set(followed_query_set) & set(context['topics'] + sticky))
+        followed_queryset = TopicAnswerSubscription.objects.get_objects_followed_by(self.request.user.id)
+        followed_topics = list(set(followed_queryset) & set(context['topics'] + sticky))
         for topic in set(context['topics'] + sticky):
             topic.is_followed = topic in followed_topics
 
@@ -356,7 +357,7 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
         return form
 
     def form_valid(self, form):
-        topic = self.perform_edit_info(self.object, self.request.POST, self.request.user)
+        topic = self.perform_edit_info(self.request, self.object, self.request.POST, self.request.user)
         return redirect(topic.get_absolute_url())
 
 
@@ -375,7 +376,8 @@ class FindTopic(ZdSPagingListView, SingleObjectMixin):
     def get_context_data(self, **kwargs):
         context = super(FindTopic, self).get_context_data(**kwargs)
         context.update({
-            'usr': self.object
+            'usr': self.object,
+            'hidden_topics_count': Topic.objects.filter(author=self.object).count() - context['paginator'].count,
         })
         return context
 
@@ -503,8 +505,7 @@ class PostEdit(UpdateView, SinglePostObjectMixin, PostEditMixin):
         self.object = self.get_object()
         if not self.object.topic.forum.can_read(request.user):
             raise PermissionDenied
-        if self.object.author != request.user and not request.user.has_perm(
-                'forum.change_post') and 'signal_message' not in request.POST:
+        if self.object.author != request.user and not request.user.has_perm('forum.change_post'):
             raise PermissionDenied
         if not self.object.is_visible and not request.user.has_perm('forum.change_post'):
             raise PermissionDenied
@@ -552,7 +553,7 @@ class PostEdit(UpdateView, SinglePostObjectMixin, PostEditMixin):
         if 'show_message' in request.POST:
             self.perform_show_message(self.request, self.object)
         if 'signal_message' in request.POST:
-            self.perform_alert_message(request, self.object, request.user, request.POST.get('signal_text'))
+            raise PermissionDenied('Not the good URL anymore!')
 
         self.object.save()
         return redirect(self.object.get_absolute_url())
@@ -568,8 +569,35 @@ class PostEdit(UpdateView, SinglePostObjectMixin, PostEditMixin):
         return form
 
     def form_valid(self, form):
-        post = self.perform_edit_post(self.object, self.request.user, self.request.POST.get('text'))
+        post = self.perform_edit_post(self.request, self.object, self.request.user, self.request.POST.get('text'))
         return redirect(post.get_absolute_url())
+
+
+class PostSignal(UpdateView, SinglePostObjectMixin, PostEditMixin):
+
+    http_method_names = [u'post']
+
+    @method_decorator(login_required)
+    @method_decorator(can_write_and_read_now)
+    @method_decorator(transaction.atomic)
+    def dispatch(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        if not self.object.topic.forum.can_read(request.user):
+            raise PermissionDenied
+        if not self.object.is_visible and not request.user.has_perm('forum.change_post'):
+            raise PermissionDenied
+
+        return super(PostSignal, self).dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        if 'signal_message' in request.POST:
+            self.perform_alert_message(request, self.object, request.user, request.POST.get('signal_text'))
+        else:
+            raise Http404('no signal_message in POST')
+
+        self.object.save()
+        return redirect(self.object.get_absolute_url())
 
 
 class PostUseful(UpdateView, SinglePostObjectMixin, PostEditMixin):
@@ -613,14 +641,34 @@ class PostUnread(UpdateView, SinglePostObjectMixin, PostEditMixin):
             self.object.topic.forum.category.slug, self.object.topic.forum.slug]))
 
 
-class FindPost(FindTopic):
+class FindPost(ZdSPagingListView, SingleObjectMixin):
 
     context_object_name = 'posts'
     template_name = 'forum/find/post.html'
     paginate_by = settings.ZDS_APP['forum']['posts_per_page']
+    pk_url_kwarg = 'user_pk'
+    object = None
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return super(FindPost, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(FindPost, self).get_context_data(**kwargs)
+
+        context.update({
+            'usr': self.object,
+            'hidden_posts_count':
+                Post.objects.filter(author=self.object).distinct().count() - context['paginator'].count,
+        })
+
+        return context
 
     def get_queryset(self):
         return Post.objects.get_all_messages_of_a_user(self.request.user, self.object)
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(User, pk=self.kwargs.get(self.pk_url_kwarg))
 
 
 @can_write_and_read_now
@@ -699,7 +747,7 @@ class ManageGitHubIssue(UpdateView):
                 body = _('{}\n\nSujet : {}\n*Envoyé depuis {}*')\
                     .format(request.POST['body'],
                             settings.ZDS_APP['site']['url'] + self.object.get_absolute_url(),
-                            settings.ZDS_APP['site']['litteral_name'])
+                            settings.ZDS_APP['site']['literal_name'])
                 try:
                     response = requests.post(
                         settings.ZDS_APP['site']['repository']['api'] + '/issues',

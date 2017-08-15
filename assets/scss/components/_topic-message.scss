@@ -203,6 +203,16 @@
                 display: none;
             }
 
+            .with-hat {
+                color: #FFF;
+                background-color: $color-hat;
+                border-radius: 4px;
+                display: inline-block;
+                padding: 0 5px;
+                margin-top: 5px;
+                margin-bottom: 0;
+            }
+
             .message-edited,
             .message-hidden,
             .message-helpful,
@@ -247,8 +257,8 @@
         }
 
         .message-bottom {
-            @include display(flex);
-            @include align-items(flex-start);
+            display: flex;
+            align-items: flex-start;
             min-height: 30px;
 
             .signature {
@@ -395,7 +405,7 @@
         .message-buttons,
         .message-karma,
         .message-submit {
-            @include display(flex);
+            display: flex;
 
             form {
                 width: auto;

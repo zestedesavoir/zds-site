@@ -1,0 +1,38 @@
+{% comment %}
+Display a list of content_item.part.html. This template is fully customizable by :
+
+    - public_contents = list of contents to display
+    - paginated_top = display pagination on top of list
+    - paginated_bottom = display pagination below the list
+    - col_number = number of expected columns contents will be displayed. It will allow to add some "fill" div to avoid broken columns
+    - current_content_type
+{% endcomment %}
+{% load times %}
+{% load i18n %}
+
+
+<meta itemprop="itemListOrder" content="Unordered">
+{% if paginated_top %}
+    {% include "misc/paginator.html" with position="top" %}
+{% endif %}
+    {% if public_contents %}
+        <div class="content-item-list">
+            {% for public_content in public_contents %}
+                {% if public_content.content_type == 'ARTICLE' or public_content.content_type == 'OPINION' %}
+                    {% include "tutorialv2/includes/content_item.part.html" with public_content=public_content show_description=True show_reactions=True %}
+                {% else %}
+                    {% include "tutorialv2/includes/content_item.part.html" with public_content=public_content show_description=True %}
+                {% endif %}
+            {% endfor %}
+        {% for i in col_number|times %}
+            <div class="fill"></div>
+        {% endfor %}
+        </div>
+    {% else %}
+        <p>
+            {% trans "Aucune publication disponible" %}.
+        </p>
+    {% endif %}
+{% if paginated_bottom %}
+    {% include "misc/paginator.html" with position="bottom-clear" %}
+{% endif %}
