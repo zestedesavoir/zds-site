@@ -4,7 +4,7 @@
 {% load i18n %}
 {% load interventions %}
 {% load profile %}
-{% load remove_url_protocole %}
+{% load remove_url_scheme %}
 {% load set %}
 {% load staticfiles %}
 {% load thumbnail %}
@@ -380,7 +380,7 @@
                                             {% for notification in notifications %}
                                             <li>
                                                 <a href="{{ notification.url }}">
-                                                    <img src="{{ notification.sender.profile.get_avatar_url|remove_url_protocole }}" alt="" class="avatar">
+                                                    <img src="{{ notification.sender.profile.get_avatar_url|remove_url_scheme }}" alt="" class="avatar">
                                                     <span class="username">{{ notification.sender.username }}</span>
                                                     <span class="date">{{ notification.pubdate|format_date:True|capfirst }}</span>
                                                     <span class="topic">{{ notification.title }}</span>
@@ -420,7 +420,7 @@
                                             {% for first_unread in unread_posts %}
                                                 <li>
                                                     <a href="{{ first_unread.url }}">
-                                                        <img src="{{ first_unread.author.profile.get_avatar_url|remove_url_protocole }}" alt="" class="avatar">
+                                                        <img src="{{ first_unread.author.profile.get_avatar_url|remove_url_scheme }}" alt="" class="avatar">
                                                         <span class="username">{{ first_unread.author.username }}</span>
                                                         <span class="date">{{ first_unread.pubdate|format_date:True|capfirst }}</span>
                                                         <span class="topic">{{ first_unread.title }}</span>
@@ -490,7 +490,7 @@
                                        data-active="open-my-account"
                                    {% endif %}
                                 >
-                                    <img src="{{ profile.get_avatar_url|remove_url_protocole }}" alt="Mon compte" class="avatar">
+                                    <img src="{{ profile.get_avatar_url|remove_url_scheme }}" alt="Mon compte" class="avatar">
                                     <span class="username label">{{ user.username }}</span>
                                 </a>
                             {% endwith %}
@@ -539,6 +539,19 @@
                                             <li class="staff-only">
                                             <a href="{% url "validation:list-opinion" %}">{% trans "Choix des billets" %}</a>
                                         </li>
+                                        {% endwith %}
+                                    {% endif %}
+
+                                    {% if perms.utils.change_hat %}
+                                        {% with request_hats_count=user|request_hats_count %}
+                                            <li class="staff-only">
+                                                <a href="{% url "requested-hats" %}">
+                                                    {% trans "Demandes de casquettes" %}
+                                                    {% if request_hats_count > 0 %}
+                                                        ({{ request_hats_count }})
+                                                    {% endif %}
+                                                </a>
+                                            </li>
                                         {% endwith %}
                                     {% endif %}
 

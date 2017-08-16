@@ -99,16 +99,15 @@ def send_message_mp(
         subject = u'{} : {}'.format(settings.ZDS_APP['site']['literal_name'], n_topic.title)
         from_email = u'{} <{}>'.format(settings.ZDS_APP['site']['literal_name'],
                                        settings.ZDS_APP['site']['email_noreply'])
-        for part in n_topic.participants.all():
+        for recipient in n_topic.participants.values_list('email', flat=True):
             message_html = render_to_string('email/direct.html', {'msg': emarkdown(text)})
             message_txt = render_to_string('email/direct.txt', {'msg': text})
 
-            msg = EmailMultiAlternatives(subject, message_txt, from_email, [part.email])
+            msg = EmailMultiAlternatives(subject, message_txt, from_email, [recipient])
             msg.attach_alternative(message_html, 'text/html')
             try:
                 msg.send()
-            except Exception:
-                logger.exception()
-                msg = None
+            except Exception as e:
+                logger.exception('Message was not sent to %s due to %s', recipient, e)
 
     return n_topic

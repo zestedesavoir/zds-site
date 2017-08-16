@@ -505,8 +505,7 @@ class PostEdit(UpdateView, SinglePostObjectMixin, PostEditMixin):
         self.object = self.get_object()
         if not self.object.topic.forum.can_read(request.user):
             raise PermissionDenied
-        if self.object.author != request.user and not request.user.has_perm(
-                'forum.change_post') and 'signal_message' not in request.POST:
+        if self.object.author != request.user and not request.user.has_perm('forum.change_post'):
             raise PermissionDenied
         if not self.object.is_visible and not request.user.has_perm('forum.change_post'):
             raise PermissionDenied
@@ -554,7 +553,7 @@ class PostEdit(UpdateView, SinglePostObjectMixin, PostEditMixin):
         if 'show_message' in request.POST:
             self.perform_show_message(self.request, self.object)
         if 'signal_message' in request.POST:
-            self.perform_alert_message(request, self.object, request.user, request.POST.get('signal_text'))
+            raise PermissionDenied('Not the good URL anymore!')
 
         self.object.save()
         return redirect(self.object.get_absolute_url())
@@ -572,6 +571,33 @@ class PostEdit(UpdateView, SinglePostObjectMixin, PostEditMixin):
     def form_valid(self, form):
         post = self.perform_edit_post(self.request, self.object, self.request.user, self.request.POST.get('text'))
         return redirect(post.get_absolute_url())
+
+
+class PostSignal(UpdateView, SinglePostObjectMixin, PostEditMixin):
+
+    http_method_names = [u'post']
+
+    @method_decorator(login_required)
+    @method_decorator(can_write_and_read_now)
+    @method_decorator(transaction.atomic)
+    def dispatch(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        if not self.object.topic.forum.can_read(request.user):
+            raise PermissionDenied
+        if not self.object.is_visible and not request.user.has_perm('forum.change_post'):
+            raise PermissionDenied
+
+        return super(PostSignal, self).dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        if 'signal_message' in request.POST:
+            self.perform_alert_message(request, self.object, request.user, request.POST.get('signal_text'))
+        else:
+            raise Http404('no signal_message in POST')
+
+        self.object.save()
+        return redirect(self.object.get_absolute_url())
 
 
 class PostUseful(UpdateView, SinglePostObjectMixin, PostEditMixin):

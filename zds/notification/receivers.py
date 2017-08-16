@@ -437,5 +437,5 @@ def cleanup_notification_for_unpublished_content(sender, instance, **_):
         Subscription.objects.filter(content_type=ContentType.objects.get_for_model(instance, True),
                                     object_id=instance.pk).update(is_active=False)
         logger.debug('Nothing went wrong.')
-    except DatabaseError:
-        logger.exception()
+    except DatabaseError as e:
+        logger.exception('Error while saving %s, %s', instance, e)
