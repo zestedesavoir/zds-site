@@ -27,7 +27,7 @@ from zds.tutorialv2.forms import RevokeValidationForm, WarnTypoForm, NoteForm, N
     PickOpinionForm, PromoteOpinionToArticleForm, UnpickOpinionForm
 from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin, SingleOnlineContentViewMixin, DownloadViewMixin, \
     ContentTypeMixin, SingleOnlineContentFormViewMixin, MustRedirect
-from zds.tutorialv2.models import TYPE_CHOICES_DICT
+from zds.tutorialv2.models import TYPE_CHOICES_DICT, CONTENT_TYPE_LIST
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction
 from zds.tutorialv2.utils import search_container_or_404, last_participation_is_old, mark_read
 from zds.utils.models import Alert, CommentVote, Tag, Category, CommentEdit, SubCategory, get_hat_from_request, \
@@ -1030,4 +1030,10 @@ class TagsListView(ListView):
     displayed_types = ['TUTORIAL', 'ARTICLE']
 
     def get_queryset(self):
+        if 'type' in self.request.GET:
+            t = self.request.GET.get('type').upper()
+            if t not in CONTENT_TYPE_LIST:
+                raise Http404('type {} unknown'.format(t))
+            self.displayed_types = [t]
+
         return PublishedContent.objects.get_top_tags(self.displayed_types)

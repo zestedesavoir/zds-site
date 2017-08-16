@@ -292,7 +292,7 @@
                                                         {% for tag in categories.tags %}
                                                             <li><a href="{% url 'opinion:list' %}?tag={{ tag.title|urlencode }}">{{ tag }}</a></li>
                                                         {% endfor %}
-                                                        <li><a href="{% url 'content:tags' %}">Tous les tags</a></li>
+                                                        <li><a href="{% url 'content:tags' %}?type=opinion">Tous les tags</a></li>
                                                     </ul>
                                                 </li>
                                             {% endif %}
