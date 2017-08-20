@@ -10,7 +10,7 @@ from zds.utils.models import Tag
 
 class PublishedContentManager(models.Manager):
 
-    def __get_list(self, subcategories=None, tags=None, content_type=None):
+    def __get_list(self, subcategories=None, tags=None, content_type=None, with_comments_count=True):
         """
         :param subcategories: subcategories, filters with OR
         :type subcategories: list of zds.utils.models.SubCategory
@@ -34,10 +34,12 @@ class PublishedContentManager(models.Manager):
             .prefetch_related('content') \
             .prefetch_related('content__subcategory') \
             .prefetch_related('content__authors') \
+            .prefetch_related('content__public_version__authors') \
+            .prefetch_related('content__tags') \
             .select_related('content__licence') \
             .select_related('content__image') \
             .select_related('content__last_note') \
-            .select_related('content__last_note__related_content')       \
+            .select_related('content__last_note__related_content')  \
             .select_related('content__last_note__related_content__public_version')
 
         if subcategories is not None:
@@ -47,13 +49,15 @@ class PublishedContentManager(models.Manager):
         if subcategories is not None or tags is not None:
             queryset = queryset.distinct()
 
-        sub_query = """
-            SELECT COUNT(*)
-            FROM tutorialv2_contentreaction
-            WHERE tutorialv2_contentreaction.related_content_id=`tutorialv2_publishablecontent`.`id`
-        """
+        if with_comments_count:
+            # TODO: check if we can use ORM to do that
+            sub_query = """
+                SELECT COUNT(*)
+                FROM tutorialv2_contentreaction
+                WHERE tutorialv2_contentreaction.related_content_id=`tutorialv2_publishablecontent`.`id`
+            """
 
-        queryset = queryset.extra(select={'count_note': sub_query})
+            queryset = queryset.extra(select={'count_note': sub_query})
 
         return queryset
 
@@ -121,11 +125,12 @@ class PublishedContentManager(models.Manager):
             published.authors.remove(unsubscribed_user)
             published.save()
 
-    def last_contents(self, subcategories=None, tags=None, content_type=None):
+    def last_contents(self, subcategories=None, tags=None, content_type=None, with_comments_count=True):
         queryset = self.__get_list(
             subcategories=subcategories,
             tags=tags,
-            content_type=content_type)
+            content_type=content_type,
+            with_comments_count=with_comments_count)
         return queryset.order_by('-publication_date')
 
     def most_commented_contents(self, subcategories=None, tags=None, content_type=None):
@@ -259,7 +264,7 @@ class PublishableContentManager(models.Manager):
                            .select_related('public_version') \
                            .prefetch_related('subcategory') \
                            .prefetch_related('tags') \
-                           .order_by('-picked_date')[:home_number]
+                           .order_by('-public_version__publication_date')[:home_number]
         published = []
         for content in all_contents:
             content.public_version.content = content

@@ -70,8 +70,8 @@ before_install:
     # install elasticsearch
     if [[ "$ZDS_TEST_JOB" == *"zds.searchv2"* ]]; then
       # see https://docs.travis-ci.com/user/database-setup/#Installing-specific-versions-of-ElasticSearch
-      curl -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.3.0.deb \
-      && sudo dpkg -i --force-confnew elasticsearch-5.3.0.deb \
+      curl -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.5.2.deb \
+      && sudo dpkg -i --force-confnew elasticsearch-5.5.2.deb \
       && sudo service elasticsearch start
     fi
 
@@ -81,7 +81,6 @@ before_install:
       # MySQL config
       ./scripts/ci_mysql_setup.sh
     fi
-
 
 install:
   - |

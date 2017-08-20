@@ -44,6 +44,7 @@ from zds.tutorialv2.models.models_versioned import NotAPublicVersion
 from zds.tutorialv2.utils import get_content_from_json, BadManifestError
 from zds.utils import get_current_user
 from zds.utils.models import SubCategory, Licence, HelpWriting, Comment, Tag
+from zds.utils.misc import ignore
 from zds.searchv2.models import AbstractESDjangoIndexable, AbstractESIndexable, delete_document_in_elasticsearch, \
     ESIndexManager
 from zds.utils.tutorials import get_blob
@@ -360,12 +361,11 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
 
             manifest = open(os.path.join(path, 'manifest.json'), 'r')
             json = json_reader.loads(manifest.read())
-            versioned = get_content_from_json(json, public.sha_public,
-                                              slug, public=True, max_title_len=max_title_length)
+            versioned = get_content_from_json(
+                json, public.sha_public, slug, public=True, max_title_len=max_title_length, hint_licence=self.licence)
 
         else:  # draft version, use the repository (slower, but allows manipulation)
             path = self.get_repo_path()
-            slug = self.slug
 
             if not os.path.isdir(path):
                 raise IOError(path)
@@ -645,6 +645,9 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         :rtype: zds.tutorialv2.models.models_database.PublicContent
         :raise Http404: if the version is not available
         """
+        with ignore(AttributeError):
+            self.content.count_note = self.count_note
+
         self.versioned_model = self.content.load_version_or_404(sha=self.sha_public, public=self)
         return self.versioned_model
 
@@ -653,6 +656,9 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         :rtype: zds.tutorialv2.models.models_database.PublicContent
         :return: the public content
         """
+        with ignore(AttributeError):
+            self.content.count_note = self.count_note
+
         self.versioned_model = self.content.load_version(sha=self.sha_public, public=self)
         return self.versioned_model
 

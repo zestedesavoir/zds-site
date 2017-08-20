@@ -477,7 +477,7 @@ class ForumMemberTests(TestCase):
         PostFactory(topic=topic1, author=user1, position=3)
 
         result = self.client.post(
-            reverse('post-edit') + '?message={0}'.format(post2.pk),
+            reverse('post-create-alert') + '?message={0}'.format(post2.pk),
             {
                 'signal_text': u'Troll',
                 'signal_message': 'confirmer'
@@ -490,7 +490,7 @@ class ForumMemberTests(TestCase):
         self.assertEqual(Alert.objects.get(author=self.user, solved=False).text, u'Troll')
 
         result = self.client.post(
-            reverse('post-edit') + '?message={0}'.format(post1.pk),
+            reverse('post-create-alert') + '?message={0}'.format(post1.pk),
             {
                 'signal_text': u'Bad title',
                 'signal_message': 'confirmer'
@@ -552,7 +552,7 @@ class ForumMemberTests(TestCase):
         PostFactory(topic=topic1, author=user1, position=3)
 
         result = self.client.post(
-            reverse('post-edit') + '?message={0}'.format(post2.pk),
+            reverse('post-create-alert') + '?message={0}'.format(post2.pk),
             {
                 'signal_text': u'Troll',
                 'signal_message': 'confirmer'
@@ -757,7 +757,7 @@ class ForumMemberTests(TestCase):
         tag_c_sharp = TagFactory(title='C#')
 
         tag_c = TagFactory(title='C')
-        self.assertEqual(tag_c_sharp.slug, tag_c.slug)
+        self.assertNotEqual(tag_c_sharp.slug, tag_c.slug)  # uniqueness of the slug!
         self.assertNotEqual(tag_c_sharp.title, tag_c.title)
         # post a topic with a tag
         result = self.client.post(
