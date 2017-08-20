@@ -1095,3 +1095,11 @@ Mise à jour d'ElasticSearch (#420)
 1. `sudo apt update`
 2. `sudo apt upgrade elasticsearch`
 3. `systemctl restart elasticsearch.service`
+
+Smileys Clem (#4408)
+--------------------
+
++ Ajouter `ZDS_APP['member']['old_smileys_allowed'] = True` au `settings_prod.py`.
++ Télécharger le fichier [`clem_smileys.conf`](https://github.com/zestedesavoir/zds-site/blob/dev/doc/source/install/configs/nginx/snippets/clem_smileys.conf) et le placer dans `/etc/nginx/snippets/zds/`.
++ Éditer `/etc/nginx/sites-available/zestedesavoir` et ajouter `include snippets/zds/clem_smileys.conf;` dans le bloc `location ~* ^/(static|media|errors)/ {` (après la ligne 66?)
++ Redémarrer nginx: `systemctl restart nginx` 
