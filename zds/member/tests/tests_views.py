@@ -1129,6 +1129,17 @@ class MemberTests(TestCase):
         self.assertEqual(len(notes), 1)
         self.assertTrue(old_pseudo in notes[0].note and 'dummy' in notes[0].note)
 
+        data = {
+            'username': 'DuMmY',
+            'email': tester.user.email
+        }
+        result = self.client.post(reverse('update-username-email-member'), data, follow=False)
+
+        self.assertEqual(result.status_code, 302)
+        notes = KarmaNote.objects.filter(user=tester.user).all()
+        self.assertEqual(len(notes), 2)
+        self.assertTrue('dummy'  in notes[1].note and 'DuMmY' in notes[1].note)
+
     def test_ban_member_is_not_contactable(self):
         """
         When a member is ban, we hide the button to send a PM.

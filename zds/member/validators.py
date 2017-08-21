@@ -81,16 +81,16 @@ def validate_zds_username(value, check_username_available=True):
     :return:
     """
     msg = None
-    user_count = User.objects.filter(username=value).count()
+    user_exist = User.objects.filter(username=value).exists()
     if ',' in value:
         msg = _('Le nom d\'utilisateur ne peut contenir de virgules')
     elif value != value.strip():
         msg = _('Le nom d\'utilisateur ne peut commencer ou finir par des espaces')
     elif contains_utf8mb4(value):
         msg = _('Le nom d\'utilisateur ne peut pas contenir des caractères utf8mb4')
-    elif check_username_available and user_count > 0:
+    elif check_username_available and user_exist:
         msg = _('Ce nom d\'utilisateur est déjà utilisé')
-    elif not check_username_available and user_count == 0:
+    elif not check_username_available and not user_exist:
         msg = _('Ce nom d\'utilisateur n\'existe pas')
     if msg is not None:
         raise ValidationError(msg)
