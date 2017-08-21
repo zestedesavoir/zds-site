@@ -36,7 +36,7 @@
                 <a href="{% url "tutorial:feed-atom" %}" class="btn btn-grey">Atom</a>
             </h2>
             {% include 'tutorialv2/list_page_elements/list_of_online_contents.html' with public_contents=last_tutorials col_number=1 %}
-            {% if last_tutorials %}
+            {% if last_tutorials and more_tutorials %}
                 <a href="{% url 'publication:list' %}?type=tutorial" class="more-link">Plus de tutoriels</a>
             {% endif %}
         </section>
@@ -48,7 +48,7 @@
                 <a href="{% url "article:feed-atom" %}" class="btn btn-grey">Atom</a>
             </h2>
             {% include 'tutorialv2/list_page_elements/list_of_online_contents.html' with public_contents=last_articles col_number=1 %}
-            {% if last_articles %}
+            {% if last_articles and more_articles %}
                 <a href="{% url 'publication:list' %}?type=article" class="more-link">Plus d'articles</a>
             {% endif %}
         </section>
