@@ -17,18 +17,33 @@
     <li>{% trans "Liste des tags" %}</li>
 {% endblock %}
 
-
-
 {% block content_out %}
+    {% captureas url_list %}
+        {% if tags_to_display == 'OPINION' %}
+            {% url 'opinion:list' %}
+        {% else %}
+            {% url 'publication:list' %}
+        {% endif %}
+    {% endcaptureas %}
+
     <section class="full-content-wrapper">
         <h2 class="ico-after ico-tags">
-          Tous les tags
+            {% trans 'Tous les tags' %}
+            {% if tags_to_display == 'publications' %}
+                {% trans 'de la bibliothèque' %}
+            {% elif tags_to_display == 'OPINION' %}
+                {% trans 'des billets' %}
+            {% elif tags_to_display == 'ARTICLE' %}
+                {% trans 'des articles' %}
+            {% elif tags_to_display == 'TUTORIAL' %}
+                {% trans 'des tutoriels' %}
+            {% endif %}
         </h2>
 
         <div class="content-tags-list">
             {% for tag in tags %}
                 <div class="content-tag">
-                    <a href="{% url 'publication:list' %}?tag={{ tag.slug }}">
+                    <a href="{{ url_list }}?tag={{ tag.slug }}">
                         <div class="tag-title">{{ tag }}</div>
                         <div class="tag-count">
                             {%  blocktrans with tag_count=tag.num_content plural=tag.num_content|pluralize_fr %}
