@@ -569,12 +569,15 @@ class ViewPublications(TemplateView):
                 with_previous_item=False)
 
         if self.level < 4:
-            context['last_articles'] = PublishedContent.objects.last_contents(
-                **dict(content_type='ARTICLE', **recent_kwargs)
-            )[:self.max_last_contents]
-            context['last_tutorials'] = PublishedContent.objects.last_contents(
-                **dict(content_type='TUTORIAL', **recent_kwargs)
-            )[:self.max_last_contents]
+            last_articles = PublishedContent.objects.last_contents(
+                **dict(content_type='ARTICLE', **recent_kwargs))
+            context['last_articles'] = last_articles[:self.max_last_contents]
+            context['more_articles'] = last_articles.count() > self.max_last_contents
+
+            last_tutorials = PublishedContent.objects.last_contents(
+                **dict(content_type='TUTORIAL', **recent_kwargs))
+            context['last_tutorials'] = last_tutorials[:self.max_last_contents]
+            context['more_tutorials'] = last_tutorials.count() > self.max_last_contents
 
             context['beta_forum'] = Forum.objects\
                 .prefetch_related('category')\
