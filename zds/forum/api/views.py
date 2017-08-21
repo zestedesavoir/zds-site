@@ -221,10 +221,6 @@ class TopicListAPI(ListCreateAPIView):
     def get_permissions(self):
         permission_classes = [CanReadForum]
         if self.request.method == 'POST':
-            # TODO
-            #forum = Forum.objects.get(id=self.request.data.get('forum'))
-            #self.check_object_permissions(self.request, forum)
-            #permission_classes.append(CanReadAndWriteNowOrReadOnly)
             permission_classes.append(IsAuthenticated)
             permission_classes.append(CanWriteInForum)
             permission_classes.append(CanReadAndWriteNowOrReadOnly)
@@ -299,9 +295,7 @@ class TopicDetailAPI(RetrieveUpdateAPIView):
             - code: 404
               message: Not Found
         """
-        topic = self.get_object()
-
-        return self.retrieve(request, *args, **kwargs)
+        return super(TopicDetailAPI, self).get(request, *args, **kwargs)
 
     def put(self, request, *args, **kwargs):
         """
@@ -340,7 +334,7 @@ class TopicDetailAPI(RetrieveUpdateAPIView):
             - code: 404
               message: Not Found
         """
-        return self.update(request, *args, **kwargs)
+        return super(TopicDetailAPI, self).put(request, *args, **kwargs)
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -421,13 +415,14 @@ class PostListAPI(ListCreateAPIView):
         """
         author = request.user.id
         topic_pk = self.kwargs.get('pk')
-        get_object_or_404(Topic, pk=(topic_pk))
+        topic = get_object_or_404(Topic, pk=topic_pk)
 
-
-        serializer = self.get_serializer_class()(data=request.data, context={'request': self.request})
+        serializer = self.get_serializer_class()(data=request.data,
+                                                 context={'request': self.request,
+                                                          'topic': topic,
+                                                          'author': author})
         serializer.is_valid(raise_exception=True)
-        # TODO position
-        serializer.save(position=0, author_id=author, topic_id=topic_pk)
+        serializer.create(author_id=author, topic_id=topic_pk)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 

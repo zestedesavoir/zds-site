@@ -435,8 +435,6 @@ class Topic(AbstractESDjangoIndexable):
         es_mapping.field('pubdate', Date())
         es_mapping.field('forum_pk', Integer())
 
-
-# not indexed:
         es_mapping.field('get_absolute_url', Keyword(index=False))
         es_mapping.field('forum_title', Text(index=False))
         es_mapping.field('forum_get_absolute_url', Keyword(index=False))
@@ -481,13 +479,16 @@ class Topic(AbstractESDjangoIndexable):
         return super(Topic, self).save(*args, **kwargs)
 
 
+
+
 @receiver(pre_delete, sender=Topic)
 def delete_topic_in_elasticsearch(sender, instance, **kwargs):
     """catch the pre_delete signal to ensure the deletion in ES"""
     return delete_document_in_elasticsearch(instance)
 
 
-@python_2_unicode_compatibleclass Post(Comment, AbstractESDjangoIndexable):
+@python_2_unicode_compatible
+class Post(Comment, AbstractESDjangoIndexable):
     """
     A forum post written by an user.
     A post can be marked as useful: topic's author (or admin) can declare any topic as "useful", and this post is
@@ -633,6 +634,7 @@ class TopicRead(models.Model):
         return "<Sujet '{0}' lu par {1}, #{2}>".format(self.topic,
                                                        self.user,
                                                        self.post.pk)
+
 
 def is_read(topic, user=None):
     """

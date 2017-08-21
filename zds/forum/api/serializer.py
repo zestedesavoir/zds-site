@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from zds.forum.models import Forum, Topic, Post
+from zds.utils.forums import send_post
 from zds.utils.models import Alert
 from dry_rest_permissions.generics import DRYPermissionsField
 from dry_rest_permissions.generics import DRYPermissions
@@ -130,11 +131,8 @@ class PostCreateSerializer(serializers.ModelSerializer, TextValidator):
         read_only_fields = ('text_html', 'permissions', 'is_useful', 'author', 'position', 'pubdate')
 
     def create(self, validated_data):
-
-        # TODO fix position ???
-        # TODO du coup on envoi plus les validated data
-        new_post = Post.objects.create(**validated_data)
-        return new_post
+        return send_post(self.context['request'], self.context['topic'],
+                         self.context['author'], self.validated_data['text']).last_message
 
 
 class PostUpdateSerializer(serializers.ModelSerializer, TextValidator):
