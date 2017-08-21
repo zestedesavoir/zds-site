@@ -1040,3 +1040,13 @@ class TagsListView(ListView):
             self.displayed_types = [t]
 
         return PublishedContent.objects.get_top_tags(self.displayed_types)
+
+    def get_context_data(self, **kwargs):
+        context = super(TagsListView, self).get_context_data(**kwargs)
+
+        context['tags_to_display'] = 'publications'
+
+        if len(self.displayed_types) == 1:
+            context['tags_to_display'] = self.displayed_types[0]
+
+        return context
