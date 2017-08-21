@@ -430,7 +430,7 @@ class ViewPublications(TemplateView):
             .objects\
             .prefetch_related('subcategory', 'category')\
             .filter(is_main=True)\
-            .order_by('category__id')\
+            .order_by('category__id', 'subcategory__title')\
             .all()
 
         subcategories_sorted = {}
@@ -470,6 +470,7 @@ class ViewPublications(TemplateView):
         queryset = CategorySubCategory.objects \
             .filter(is_main=True, category=category) \
             .prefetch_related('subcategory')\
+            .order_by('subcategory__title')\
             .extra(select={'contents_count': sub_query})
 
         subcategories = []
