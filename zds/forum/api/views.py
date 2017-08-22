@@ -1,6 +1,7 @@
 # coding: utf-8
 
-from zds.member.api.permissions import CanReadTopic, CanReadPost, CanReadForum, CanReadAndWriteNowOrReadOnly, IsNotOwnerOrReadOnly
+from zds.member.api.permissions import CanReadTopic, CanReadPost, CanReadForum, CanReadAndWriteNowOrReadOnly,\
+    IsNotOwnerOrReadOnly
 from zds.utils.api.views import KarmaView
 from zds.forum.models import Post, Forum, Topic
 import datetime
@@ -9,7 +10,8 @@ from django.db.models.signals import post_save, post_delete
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from rest_framework import filters
-from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveUpdateAPIView, RetrieveAPIView, CreateAPIView
+from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveUpdateAPIView, RetrieveAPIView,\
+    CreateAPIView
 from rest_framework_extensions.key_constructor.constructors import DefaultKeyConstructor
 from rest_framework_extensions.cache.decorators import cache_response
 from rest_framework_extensions.etag.decorators import etag
@@ -18,7 +20,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny, IsAuthenticated
 from zds.api.bits import DJRF3xPaginationKeyBit, UpdatedAtKeyBit
-from zds.forum.api.serializer import ForumSerializer, TopicSerializer, TopicCreateSerializer, TopicUpdateSerializer, TopicUpdateStaffSerializer, PostSerializer, PostCreateSerializer, PostUpdateSerializer, AlertSerializer
+from zds.forum.api.serializer import ForumSerializer, TopicSerializer, TopicCreateSerializer, TopicUpdateSerializer,\
+    TopicUpdateStaffSerializer, PostSerializer, PostCreateSerializer, PostUpdateSerializer, AlertSerializer
 from zds.forum.api.permissions import IsOwnerOrIsStaff, CanWriteInForum, CanWriteInTopic, CanEditPost, CanAlertPost
 from zds.member.models import User
 from zds.forum.commons import PostEditMixin
@@ -85,7 +88,8 @@ class ForumListAPI(ListCreateAPIView):
 
     def get_queryset(self):
         public_forums = Forum.objects.filter(groups__isnull=True).order_by('position_in_category')
-        private_forums = Forum.objects.filter(groups__in=self.request.user.groups.all()).order_by('position_in_category')
+        private_forums = Forum.objects.filter(groups__in=self.request.user.groups.all())\
+            .order_by('position_in_category')
         return public_forums | private_forums
 
     def get_permissions(self):
@@ -433,12 +437,10 @@ class PostListAPI(ListCreateAPIView):
             return PostCreateSerializer
 
     def get_queryset(self):
-        if self.request.method == 'GET':
-            posts = Post.objects.filter(topic=self.kwargs.get('pk'))
-            if posts.count() == 0:
-                raise Http404("Topic with pk {} was not found".format(self.kwargs.get('pk')))
-        return posts
-        # Que ce passe t il pour le verbe POST TODO ?
+
+        posts = Post.objects.filter(topic=self.kwargs.get('pk'))
+        if posts.count() == 0:
+            raise Http404("Topic with pk {} was not found".format(self.kwargs.get('pk')))
 
     def get_current_user(self):
         return self.request.user.profile
@@ -534,8 +536,10 @@ class PostDetailAPI(RetrieveUpdateAPIView, PostEditMixin):
     Profile resource to display details of given post
     """
 
-    queryset = Post.objects.all() # TODO a retirer ?
     obj_key_func = DetailKeyConstructor()
+
+    def get_object(self):
+        return get_object_or_404(Post, pk=int(self.kwargs.get('pk', -1)))
 
     @etag(obj_key_func)
     @cache_response(key_func=obj_key_func)
@@ -551,7 +555,6 @@ class PostDetailAPI(RetrieveUpdateAPIView, PostEditMixin):
             - code: 404
               message: Not Found
         """
-        post = self.get_object()
         return self.retrieve(request, *args, **kwargs)
 
     def put(self, request, *args, **kwargs):
@@ -578,7 +581,7 @@ class PostDetailAPI(RetrieveUpdateAPIView, PostEditMixin):
             - code: 404
               message: Not Found
         """
-        return self.update(request, *args, **kwargs)
+        return super(PostDetailAPI, self).put(request, *args, **kwargs)
 
     def get_serializer_class(self):
         if self.request.method == 'GET':

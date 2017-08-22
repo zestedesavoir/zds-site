@@ -147,25 +147,19 @@ class PostUpdateSerializer(serializers.ModelSerializer, TextValidator):
         fields = ('id', 'text', 'permissions', 'is_visible', 'editor', 'update')
         read_only_fields = ('id', 'permissions', 'editor', 'update')
 
+    def is_valid(self, raise_exception=False):
+        super(PostUpdateSerializer, self).is_valid(raise_exception)
+        self._validated_data['editor'] = self.context.get("request").user
+        return True
+
     def update(self, instance, validated_data):
-
-        is_visible = validated_data.get('is_visible')
-        text = validated_data.get('text')
-
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-
-        user = None
-        request = self.context.get("request")
-        if request and hasattr(request, "user"):
-            user = request.user
-
-        setattr(instance, 'editor', user)
-        if text is not None:
-            instance.update_content(text)
-        instance.update = datetime.now()
-
-        instance.save()
+        to_be_updated = {key: value for key, value in validated_data.items() if hasattr(instance, key)}
+        instance.update_text(validated_data['text'], save=False)
+        to_be_updated['text_html'] = instance.text_html
+        to_be_updated['update'] = datetime.now()
+        Post.objects.filter(pk=instance.pk).update(
+            **to_be_updated
+        )
         return instance
 
     def throw_error(self, key=None, message=None):
