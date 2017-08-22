@@ -141,7 +141,7 @@ class CreatePostView(CreateView, SingleObjectMixin, QuoteMixin):
             if request.is_ajax():
                 return HttpResponse(json.dumps({'text': text}), content_type='application/json')
 
-        form = self.create_forum(self.form_class, **{'text': text})
+        form = self.create_form(self.form_class, **{'text': text})
         context = {
             'topic': self.object,
             'posts': list(self.posts),
@@ -188,5 +188,5 @@ class CreatePostView(CreateView, SingleObjectMixin, QuoteMixin):
             'form': form,
         })
 
-    def create_forum(self, form_class, **kwargs):
-        raise NotImplementedError('`create_forum()` must be implemented.')
+    def create_form(self, form_class, **kwargs):
+        return self.form_class(**kwargs)
