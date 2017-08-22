@@ -50,6 +50,26 @@ class FormWithTitle(forms.Form):
         return cleaned_data
 
 
+class MergeableFieldMixin():
+
+	def add_merge_interface_to_field(self, field_name, **kwargs):
+
+		field_old_content = kwargs.get('data').get(field_name)
+		if field_old_content is None:
+			field_old_content = ''
+		self.helper.layout.append(Layout(Field(field_name, css_class='hidden')))
+
+		self.helper.layout.append(
+			  Layout(HTML('<div id="your_{0}" class="hidden" >{1}</div>'
+			  .format(field_name, field_old_content))))
+		self.helper.layout.append(
+			  Layout(HTML('<div id="compare" class="compare-{0}"></div>'
+			  .format(field_name))))
+		self.helper.layout.append(Layout(
+			ButtonHolder(StrictButton(_(u'Valider cette version'), type='merge', name='merge',
+									  css_class='btn btn-submit merge-btn need-to-merge-{0}'.format(field_name)))))
+
+
 class AuthorForm(forms.Form):
 
     username = forms.CharField(
@@ -207,7 +227,7 @@ class ContainerForm(FormWithTitle):
         )
 
 
-class ContentForm(ContainerForm):
+class ContentForm(ContainerForm, MergeableFieldMixin):
 
     description = forms.CharField(
         label=_(u'Description'),
@@ -281,35 +301,12 @@ class ContentForm(ContainerForm):
             Field('type'),
             Field('image'))
 
-        if kwargs.get('data', None) is not None:
-            old_intro = kwargs.get('data').get('introduction')
-            if old_intro is None:
-                old_intro = ''
-
-            self.helper.layout.append(Layout(Field('introduction', css_class='hidden')))
-            self.helper.layout.append(Layout(HTML('<div id = "your_introduction" class = "hidden" >' +
-                                                  old_intro + '</div>')))
-            self.helper.layout.append(Layout(HTML('<div id = "compare" class = "compare-introduction"></div>')))
-
-            self.helper.layout.append(Layout(
-                ButtonHolder(StrictButton(_(u'Valider cette version'), type='merge', name='merge',
-                                          css_class='btn btn-submit merge-btn need-to-merge-introduction'))))
-
-            old_conclusion = kwargs.get('data').get('conclusion')
-            if old_conclusion is None:
-                old_conclusion = ''
-
-            self.helper.layout.append(Layout(Field('conclusion', css_class='hidden')))
-            self.helper.layout.append(Layout(HTML('<div id = "your_conclusion" class = "hidden" >' + old_conclusion +
-                                                  '</div>')))
-            self.helper.layout.append(Layout(HTML('<div id = "compare" class="compare-conclusion"></div>')))
-
-            self.helper.layout.append(Layout(
-                ButtonHolder(StrictButton(_(u'Valider cette version'), type='merge', name='merge',
-                                          css_class='btn btn-submit merge-btn need-to-merge-conclusion'))))
+        if kwargs.get('data') is not None:
+			print('on ajoute les champs de merge')
+			self.add_merge_interface_to_field('introduction', **kwargs)
+			self.add_merge_interface_to_field('conclusion', **kwargs)
         else:
-
-            self.helper.layout.append(Layout(
+			self.helper.layout.append(Layout(
                 Field('introduction', css_class='md-editor preview-source'),
                 ButtonHolder(StrictButton(_(u'Aperçu'), type='preview', name='preview',
                                           css_class='btn btn-grey preview-btn'),),
@@ -319,19 +316,13 @@ class ContentForm(ContainerForm):
                 ButtonHolder(StrictButton(_(u'Aperçu'), type='preview', name='preview',
                                           css_class='btn btn-grey preview-btn'),)))
 
-        self.helper.layout = Layout(
+        self.helper.layout.append(Layout(
             HTML('{% if form.conclusion.value %}{% include "misc/previsualization.part.html" \
                 with text=form.conclusion.value %}{% endif %}'),
-
-            self.helper.layout.append(Layout(
-                Field('msg_commit'),
-                ButtonHolder(
-                    StrictButton(
-                        _(u'Valider'),
-                        type='submit'),
-                )
-            )),
-        )
+			Field('last_hash'),
+			Field('licence'),
+			Field('subcategory', template='crispy/checkboxselectmultiple.html'),
+        ))
 
         if not hide_help:
             self.helper.layout.append(html_part)

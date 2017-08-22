@@ -27,6 +27,7 @@
   "homepage": "https://github.com/zestedesavoir/zds-site",
   "dependencies": {
     "autoprefixer": "7.1.2",
+    "codemirror": "^5.28.0",
     "cookies-eu-banner": "1.2.8",
     "cssnano": "3.10.0",
     "del": "3.0.0",

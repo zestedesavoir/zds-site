@@ -50,8 +50,6 @@ gulp.task('js', () =>
         require.resolve('cookies-eu-banner'),
         require.resolve('codemirror'),
         require.resolve('mergely'),
-        'assets/js/_custom.modernizr.js',
-  
         // Used by other scripts, must be first
         'assets/js/modal.js',
         'assets/js/tooltips.js',

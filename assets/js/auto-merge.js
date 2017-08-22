@@ -33,7 +33,6 @@
 		$("#compare-editor-lhs").append("Votre Version");
 		$("#compare-editor-rhs").append("La version courante");
 
-
 		/**
 	     * Merge content
 	     */
@@ -65,12 +64,8 @@
 					setTimeout(function() {
 					    $(".alert-merge").fadeOut("fast");
 					}, 2000);
-					
 			    }
-
 			});
-
 	    });
-
 	});
 })(jQuery);
