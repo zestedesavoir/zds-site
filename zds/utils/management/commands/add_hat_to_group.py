@@ -19,7 +19,7 @@ class Command(BaseCommand):
         except Group.DoesNotExist:
             raise CommandError('Group {} does not exist.'.format(options['group']))
 
-        hat_name = options['hat']
+        hat_name = options['hat'].strip()
         if not hat_name:
             raise CommandError('Hat required!')
         elif len(hat_name) > 40:
