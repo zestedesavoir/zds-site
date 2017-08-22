@@ -800,7 +800,7 @@ def add_hat(request, user_pk):
 
     user = get_object_or_404(User, pk=user_pk)
 
-    hat_name = request.POST.get('hat', None)
+    hat_name = request.POST.get('hat', None).strip()
     if not hat_name:
         messages.error(request, _(u'Aucune casquette saisie.'))
     elif len(hat_name) > 40:
