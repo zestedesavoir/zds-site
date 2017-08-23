@@ -48,7 +48,7 @@
         {{ container.title }}
     </h1>
 
-    {% include 'tutorialv2/includes/tags_authors.part.html' with content=content online=True %}
+    {% include 'tutorialv2/includes/tags_authors.part.html' with content=content online=True is_part_or_chapter=True %}
 
     {% if is_obsolete %}
         <div class="content-wrapper">
