@@ -1,3 +1,6 @@
+$logo-horizontal-margin: 10px;
+$logo-width: 240px;
+
 .header-container {
     * {
         box-sizing: border-box;
@@ -101,13 +104,10 @@
         display: block;
         margin: 0 auto;
         text-indent: -9999px;
-        width: 100%;
-        max-width: 240px;
+        width: $logo-width + $logo-horizontal-margin;
         height: 60px;
         background: url('../images/logo.png') no-repeat center center;
-
-        // Simulate margins around the picture
-        background-size: 90% auto;
+        background-size: $logo-width auto;
 
         &:hover,
         &:focus {
@@ -472,7 +472,7 @@
 
     .header-logo {
         text-align: left;
-        width: 240px;
+        width: $logo-width + $logo-horizontal-margin;
     }
 
     .dropdown {
