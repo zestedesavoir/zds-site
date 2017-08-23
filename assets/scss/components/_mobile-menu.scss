@@ -247,7 +247,6 @@
                     left: 13px;
                     height: 22px;
                     width: 22px;
-                    @include sprite();
                     background-repeat: no-repeat;
                     @include sprite-position($menu);
                 }
