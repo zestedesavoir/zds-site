@@ -121,7 +121,10 @@ class ValidationOpinionListView(LoginRequiredMixin, PermissionRequiredMixin, Lis
 
 
 class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
-    """User ask validation for his tutorial. Staff member can also to that"""
+    """
+    Request validation for a tutorial.
+    Can be used by regular users or staff.
+    """
 
     prefetch_all = False
     form_class = AskValidationForm
@@ -142,7 +145,7 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
         old_validation = Validation.objects.filter(
             content__pk=self.object.pk, status__in=['PENDING', 'PENDING_V']).first()
 
-        if old_validation:  # if an old validation exists, cancel it !
+        if old_validation:  # if an old validation exists, cancel it!
             old_validator = old_validation.validator
             old_validation.status = 'CANCEL'
             old_validation.date_validation = datetime.now()
@@ -196,7 +199,10 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
 
 
 class CancelValidation(LoginRequiredMixin, ModalFormView):
-    """The user or an admin cancel the validation process"""
+    """
+    Cancel the validation process.
+    Can be used by regular users or staff.
+    """
 
     form_class = CancelValidationForm
 
@@ -728,8 +734,9 @@ class DoNotPickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin)
 
 class RevokePickOperation(PermissionRequiredMixin, FormView):
     """
-    Cancels a moderation operation. If operation was REMOVE_PUB, it just marks it as canceled, it does not \
-    republish the opinion.
+    Cancel a moderation operation.
+    If operation was REMOVE_PUB, it just marks it as canceled, it does
+    not republish the opinion.
     """
 
     form_class = DoNotPickOpinionForm
@@ -752,7 +759,7 @@ class RevokePickOperation(PermissionRequiredMixin, FormView):
 
 
 class PickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
-    """Approve and Add the opinion in the picked list """
+    """Approve and add an opinion in the picked list."""
 
     form_class = PickOpinionForm
 
@@ -809,7 +816,7 @@ class PickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
 
 
 class UnpickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
-    """Remove opinion from the picked list"""
+    """Remove an opinion from the picked list."""
 
     form_class = UnpickOpinionForm
 
@@ -894,8 +901,10 @@ class MarkObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
 
 
 class PromoteOpinionToArticle(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
-    """Promote an opinion to article. this duplicates the opinion and declares
-    the clone as an article."""
+    """
+    Promote an opinion to an article.
+    This duplicates the opinion and declares the clone as an article.
+    """
 
     form_class = PromoteOpinionToArticleForm
 
