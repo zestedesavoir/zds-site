@@ -323,14 +323,14 @@ class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
             )
 
 
-class HistoryOfValidationDisplay(LoginRequiredMixin, PermissionRequiredMixin, ValidationBeforeViewMixin):
+class ValidationHistoryView(LoginRequiredMixin, PermissionRequiredMixin, ValidationBeforeViewMixin):
 
     model = PublishableContent
     permissions = ['tutorialv2.change_validation']
     template_name = 'tutorialv2/validation/history.html'
 
     def get_context_data(self, **kwargs):
-        context = super(HistoryOfValidationDisplay, self).get_context_data()
+        context = super(ValidationHistoryView, self).get_context_data()
 
         context['validations'] = Validation.objects\
             .prefetch_related('validator')\
