@@ -28,8 +28,8 @@ class MemberFrontTests(StaticLiveServerTestCase):
     def test_trigger_remember(self):
         self.selenium.get('%s%s'
                           % (self.live_server_url, '/membres/connexion/'))
-        isChecked = self.selenium.find_element_by_id('id_remember').is_selected()
+        is_checked = self.selenium.find_element_by_id('id_remember').is_selected()
         self.selenium.find_element_by_id('id_remember').click()
-        self.assertNotEquals(isChecked,
+        self.assertNotEquals(is_checked,
                              self.selenium.
                              find_element_by_id('id_remember').is_selected())
