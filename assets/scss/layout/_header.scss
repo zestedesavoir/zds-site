@@ -38,7 +38,7 @@ $logo-width: 240px;
 
     .header-menu {
         height: 60px;
-        flex: 1;
+        flex-basis: auto;
 
         display: flex;
     }
@@ -102,7 +102,7 @@ $logo-width: 240px;
 
     .header-logo-link {
         display: block;
-        margin: 0 auto;
+        margin: 0;
         text-indent: -9999px;
         width: $logo-width + $logo-horizontal-margin;
         height: 60px;
@@ -153,7 +153,9 @@ $logo-width: 240px;
 
 
 .logbox {
-    background: rgba(255, 255, 255, .05);
+    &>div {
+        background: rgba(white, .05);
+    }
 
     .notifs-links {
         display: flex;
@@ -416,6 +418,7 @@ $logo-width: 240px;
 
         header .header-menu {
             height: 30px;
+            flex-grow: 1;
         }
 
         .logbox {
@@ -468,6 +471,11 @@ $logo-width: 240px;
         header {
             background-image: linear-gradient(to right,transparent 20%,rgba(255,255,255,.07) 40%,rgba(255,255,255,.07) 60%,transparent 80%);
         }
+
+        .header-menu {
+            flex-shrink: 0;
+            flex-grow: 0;
+        }
     }
 
     .header-logo {
@@ -491,7 +499,14 @@ $logo-width: 240px;
         top: 90px;
     }
 
+    .header-logo, .header-right {
+        flex-grow: 1;
+        flex-basis: 0;
+    }
+
     .header-right {
         display: flex;
+        flex-shrink: 0;
+        justify-content: flex-end;
     }
 }
