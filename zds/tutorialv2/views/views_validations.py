@@ -121,7 +121,7 @@ class ValidationOpinionListView(LoginRequiredMixin, PermissionRequiredMixin, Lis
 
 
 class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
-    """User ask validation for his tutorial. Staff member can also to that"""
+    """User ask validation for his tutorial. Staff member can also to that."""
 
     prefetch_all = False
     form_class = AskValidationForm
@@ -752,7 +752,7 @@ class RevokePickOperation(PermissionRequiredMixin, FormView):
 
 
 class PickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
-    """Approve and Add the opinion in the picked list """
+    """Approves and adds the opinion in the picked list."""
 
     form_class = PickOpinionForm
 
@@ -809,7 +809,7 @@ class PickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
 
 
 class UnpickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
-    """Remove opinion from the picked list"""
+    """Removes opinion from the picked list."""
 
     form_class = UnpickOpinionForm
 
@@ -894,8 +894,9 @@ class MarkObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
 
 
 class PromoteOpinionToArticle(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
-    """Promote an opinion to article. this duplicates the opinion and declares
-    the clone as an article."""
+    """Promotes an opinion to article.
+    This duplicates the opinion and declares the clone as an article.
+    """
 
     form_class = PromoteOpinionToArticleForm
 
