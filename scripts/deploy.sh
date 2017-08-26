@@ -4,34 +4,42 @@
 #
 # Deploys specified version of Zeste de Savoir
 #
-# Usage:
-# - This script must be run by zds user
-# - This script has exactly 1 parameter: the tag name to deploy
+# DON'T RUN THIS SCRIPT DIRECTLY
+# Running update_and_deploy.sh <tag> instead will first get the
+# appropriate version of this script and run it instead.
+
+set -euo pipefail
+IFS=$'\n\t'
 
 ENV_PATH="/opt/zds/zdsenv"
 REPO_PATH="/opt/zds/zds-site"
 
-if [ "$(whoami)" != "zds" ]; then
-	echo "This script must be run by zds user" >&2
-	exit 1
+if [ "$1" != "ok" ]; then
+  echo "This script shouldn't be run directly. Run ./update_and_deploy.sh <tag> instead." >&2
+  exit 1
 fi
 
-if [ "$#" -ne 1 ]; then
-	echo "Usage: $0 <tag name>" >&2
-	exit 1
+if [ "$(whoami)" != "zds" ]; then
+  echo "This script must be run by zds user" >&2
+  exit 1
+fi
+
+if ! git diff-index --quiet HEAD --; then
+  echo "Git repo has uncommited changes. Make sure it's clean before trying again" >&2
+  exit 1
 fi
 
 read -p "Did you run specific tasks for this version as described in update.md? [y/N] " -r
-echo    # move to a new line
-if [[ ! $REPLY =~ ^[Yy]$ ]]
-then
-	echo "Do it, now!"
-	exit 1
+echo  # move to a new line
+
+if [[ ! $REPLY =~ ^[Yy]$ ]] then
+  echo "Do it, now!"
+  exit 1
 fi
 
 cd $REPO_PATH
 
-# Maintenance mode
+# Enable maintenance mode
 sudo ln -s errors/maintenance.html $ENV_PATH/webroot/
 
 # Delete old branch if exists
@@ -46,10 +54,10 @@ git fetch
 
 if git rev-parse $1 >/dev/null 2>&1
 then
-	echo "Tag $1 found!"
+  echo "Tag $1 found!"
 else
-	echo "Tag $1 doesn't exist."
-	exit 1;
+  echo "Tag $1 doesn't exist."
+  exit 1;
 fi
 
 # Checkout the tag
@@ -63,17 +71,19 @@ pip install --upgrade -r requirements.txt
 pip install --upgrade -r requirements-prod.txt
 python manage.py migrate
 python manage.py compilemessages
-# Collect all staticfiles from dist/ and python packages to static/
+
+## Collect all staticfiles from dist/ and python packages to static/
 python manage.py collectstatic --noinput --clear
+## Exit venv
 deactivate
 
 # Restart zds
 sudo systemctl restart zds.{service,socket}
 
-# clean the cache by restarting it
+# Clean the cache by restarting it
 sudo service memcached restart
 
-# Exit maintenance mode
+# Disable maintenance mode
 sudo rm $ENV_PATH/webroot/maintenance.html
 
 # Display current branch and commit
