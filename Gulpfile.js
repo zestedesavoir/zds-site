@@ -116,7 +116,7 @@ gulp.task('css:sprite', () =>
 
 // Optimizes the images
 gulp.task('images', ['css:sprite'], () =>
-    gulp.src('assets/{images,smileys}/*')
+    gulp.src('assets/{images,smileys}/**/*')
         .pipe(imagemin())
         .pipe(gulp.dest('dist/')));
 

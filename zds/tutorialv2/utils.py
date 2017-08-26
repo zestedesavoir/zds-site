@@ -460,7 +460,7 @@ class BadManifestError(Exception):
         super(BadManifestError, self).__init__(*args, **kwargs)
 
 
-def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_len=80):
+def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_len=80, hint_licence=None):
     """Transform the JSON formated data into ``VersionedContent``
 
     :param json: JSON data from a `manifest.json` file
@@ -468,6 +468,7 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
     :param slug_last_draft: the slug for draft marked version
     :param max_title_len: max str length for title
     :param public: the function will fill a PublicContent instead of a VersionedContent if `True`
+    :param hint_licence: avoid loading the licence if it is already the same as the one loaded
     :return: a Public/VersionedContent with all the information retrieved from JSON
     :rtype: models.models_versioned.VersionedContent|models.models_database.PublishedContent
     """
@@ -507,7 +508,10 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
                 versioned.type = json['type']
 
         if 'licence' in json:
-            versioned.licence = Licence.objects.filter(code=json['licence']).first()
+            if hint_licence is not None and hint_licence.code == json['licence']:
+                versioned.licence = hint_licence
+            else:
+                versioned.licence = Licence.objects.filter(code=json['licence']).first()
 
         if 'licence' not in json or not versioned.licence:
             versioned.licence = Licence.objects.filter(pk=settings.ZDS_APP['content']['default_licence_pk']).first()
