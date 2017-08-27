@@ -1452,6 +1452,79 @@ class MemberTests(TestCase):
         # but check that the hat still exists in database
         self.assertTrue(Hat.objects.filter(name=hat_name).exists())
 
+    def test_old_smileys(self):
+        """Test the cookie"""
+
+        # NOTE: we have to use the "real" login and logout pages here
+        cookie_key = settings.ZDS_APP['member']['old_smileys_cookie_key']
+
+        profile_without_clem = ProfileFactory()
+        profile_without_clem = Profile.objects.get(pk=profile_without_clem.pk)
+        self.assertFalse(profile_without_clem.use_old_smileys)
+
+        user_without_clem = profile_without_clem.user
+        profile_with_clem = ProfileFactory()
+        profile_with_clem.use_old_smileys = True
+        profile_with_clem.save()
+        user_with_clem = profile_with_clem.user
+
+        settings.ZDS_APP['member']['old_smileys_allowed'] = True
+
+        # test that the cookie is set when connection
+        result = self.client.post(reverse('member-login'), {
+            'username': user_with_clem.username,
+            'password': 'hostel77',
+            'remember': 'remember'
+        }, follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.client.get(reverse('homepage'))
+
+        self.assertIn(cookie_key, self.client.cookies)
+        self.assertNotEqual(self.client.cookies[cookie_key]['expires'], 0)
+
+        # test that logout set the cookies expiration to 0 (= no more cookie)
+        self.client.post(reverse('member-logout'), follow=True)
+        self.client.get(reverse('homepage'))
+        self.assertEqual(self.client.cookies[cookie_key]['expires'], 0)
+
+        # test that user without the setting have the cookie with expiration 0 (= no cookie)
+        result = self.client.post(reverse('member-login'), {
+            'username': user_without_clem.username,
+            'password': 'hostel77',
+            'remember': 'remember'
+        }, follow=False)
+
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(self.client.cookies[cookie_key]['expires'], 0)
+
+        # setting use_smileys sets the cookie
+        self.client.post(reverse('update-member'), {
+            'biography': '',
+            'site': '',
+            'avatar_url': '',
+            'sign': '',
+            'options': ['use_old_smileys']
+        })
+        self.client.get(reverse('homepage'))
+
+        profile_without_clem = Profile.objects.get(pk=profile_without_clem.pk)
+        self.assertTrue(profile_without_clem.use_old_smileys)
+        self.assertNotEqual(self.client.cookies[cookie_key]['expires'], 0)
+
+        # ... and that not setting it removes the cookie
+        self.client.post(reverse('update-member'), {
+            'biography': '',
+            'site': '',
+            'avatar_url': '',
+            'sign': '',
+            'options': []
+        })
+        self.client.get(reverse('homepage'))
+
+        profile_without_clem = Profile.objects.get(pk=profile_without_clem.pk)
+        self.assertFalse(profile_without_clem.use_old_smileys)
+        self.assertEqual(self.client.cookies[cookie_key]['expires'], 0)
+
     def test_hats_settings(self):
         hat_name = 'A hat'
         other_hat_name = 'Another hat'

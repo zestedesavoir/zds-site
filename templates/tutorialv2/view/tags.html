@@ -28,7 +28,7 @@
         <div class="content-tags-list">
             {% for tag in tags %}
                 <div class="content-tag">
-                    <a href="{% url 'content:list' %}?tag={{ tag.title|urlencode }}">
+                    <a href="{% url 'publication:list' %}?tag={{ tag.slug }}">
                         <div class="tag-title">{{ tag }}</div>
                         <div class="tag-count">
                             {%  blocktrans with tag_count=tag.num_content plural=tag.num_content|pluralize_fr %}

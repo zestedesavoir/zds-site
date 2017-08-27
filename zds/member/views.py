@@ -39,7 +39,7 @@ from zds.member.forms import LoginForm, MiniProfileForm, ProfileForm, RegisterFo
     PromoteMemberForm, KarmaForm, UsernameAndEmailForm, GitHubTokenForm, \
     BannedEmailProviderForm, HatRequestForm
 from zds.member.models import Profile, TokenForgotPassword, TokenRegister, KarmaNote, Ban, \
-    BannedEmailProvider, NewEmailProvider
+    BannedEmailProvider, NewEmailProvider, set_old_smileys_cookie, remove_old_smileys_cookie
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.notification.models import TopicAnswerSubscription, NewPublicationSubscription
 from zds.tutorialv2.models.models_database import PublishedContent, PickListOperation
@@ -121,6 +121,7 @@ class UpdateMember(UpdateView):
             'avatar_url': profile.avatar_url,
             'show_sign': profile.show_sign,
             'is_hover_enabled': profile.is_hover_enabled,
+            'use_old_smileys': profile.use_old_smileys,
             'allow_temp_visual_changes': profile.allow_temp_visual_changes,
             'show_markdown_help': profile.show_markdown_help,
             'email_for_answer': profile.email_for_answer,
@@ -147,7 +148,9 @@ class UpdateMember(UpdateView):
         self.update_profile(profile, form)
         self.save_profile(profile)
 
-        return redirect(self.get_success_url())
+        response = redirect(self.get_success_url())
+        set_old_smileys_cookie(response, profile)
+        return response
 
     def update_profile(self, profile, form):
         cleaned_data_options = form.cleaned_data.get('options')
@@ -155,6 +158,7 @@ class UpdateMember(UpdateView):
         profile.site = form.data['site']
         profile.show_sign = 'show_sign' in cleaned_data_options
         profile.is_hover_enabled = 'is_hover_enabled' in cleaned_data_options
+        profile.use_old_smileys = 'use_old_smileys' in cleaned_data_options
         profile.allow_temp_visual_changes = 'allow_temp_visual_changes' in cleaned_data_options
         profile.show_markdown_help = 'show_markdown_help' in cleaned_data_options
         profile.email_for_answer = 'email_for_answer' in cleaned_data_options
@@ -865,10 +869,16 @@ def login_view(request):
                     profile.last_ip_address = get_client_ip(request)
                     profile.save()
                     # redirect the user if needed
+                    # set the cookie for Clem smileys
+                    # (for people switching account or clearing cookies after a browser session)
                     try:
-                        return redirect(next_page)
+                        response = redirect(next_page)
+                        set_old_smileys_cookie(response, profile)
+                        return response
                     except:
-                        return redirect(reverse('homepage'))
+                        response = redirect(reverse('homepage'))
+                        set_old_smileys_cookie(response, profile)
+                        return response
                 else:
                     messages.error(request,
                                    _(u'Vous n\'êtes pas autorisé à vous connecter '
@@ -904,7 +914,10 @@ def logout_view(request):
 
     logout(request)
     request.session.clear()
-    return redirect(reverse('homepage'))
+    response = redirect(reverse('homepage'))
+    # disable Clem smileys:
+    remove_old_smileys_cookie(response)
+    return response
 
 
 def forgot_password(request):

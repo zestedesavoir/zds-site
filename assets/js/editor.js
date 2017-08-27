@@ -108,34 +108,34 @@
 
         smilies: {
             0: {
-                smiley_sm: { title: ":)",         start: ":)",         end: "", image: "https://zestedesavoir.com/static/smileys/smile.png" },
-                smiley_he: { title: ":D",         start: ":D",         end: "", image: "https://zestedesavoir.com/static/smileys/heureux.png" },
-                smiley_cl: { title: ";)",         start: ";)",         end: "", image: "https://zestedesavoir.com/static/smileys/clin.png" },
-                smiley_la: { title: ":p",         start: ":p",         end: "", image: "https://zestedesavoir.com/static/smileys/langue.png" },
-                smiley_ri: { title: ":lol:",      start: ":lol:",      end: "", image: "https://zestedesavoir.com/static/smileys/rire.gif" },
-                smiley_un: { title: ":euh:",      start: ":euh:",      end: "", image: "https://zestedesavoir.com/static/smileys/unsure.gif" },
-                smiley_tr: { title: ":(",         start: ":(",         end: "", image: "https://zestedesavoir.com/static/smileys/triste.png" },
-                smiley_hu: { title: ":o",         start: ":o",         end: "", image: "https://zestedesavoir.com/static/smileys/huh.png" }
+                smiley_sm: { title: ":)",         start: ":)",         end: "", image: "/static/smileys/smile.png" },
+                smiley_he: { title: ":D",         start: ":D",         end: "", image: "/static/smileys/heureux.png" },
+                smiley_cl: { title: ";)",         start: ";)",         end: "", image: "/static/smileys/clin.png" },
+                smiley_la: { title: ":p",         start: ":p",         end: "", image: "/static/smileys/langue.png" },
+                smiley_ri: { title: ":lol:",      start: ":lol:",      end: "", image: "/static/smileys/rire.gif" },
+                smiley_un: { title: ":euh:",      start: ":euh:",      end: "", image: "/static/smileys/unsure.gif" },
+                smiley_tr: { title: ":(",         start: ":(",         end: "", image: "/static/smileys/triste.png" },
+                smiley_hu: { title: ":o",         start: ":o",         end: "", image: "/static/smileys/huh.png" }
             },
             1: {
-                smiley_c1: { title: ":colere2:",  start: ":colere2:",  end: "", image: "https://zestedesavoir.com/static/smileys/mechant.png" },
-                smiley_oo: { title: "o_O",        start: "o_O",        end: "", image: "https://zestedesavoir.com/static/smileys/blink.gif" },
-                smiley_uu: { title: "^^",         start: "^^",         end: "", image: "https://zestedesavoir.com/static/smileys/hihi.png" },
-                smiley_si: { title: ":-°",        start: ":-°",        end: "", image: "https://zestedesavoir.com/static/smileys/siffle.png" },
-                smiley_an: { title: ":ange:",     start: ":ange:",     end: "", image: "https://zestedesavoir.com/static/smileys/ange.png" },
-                smiley_c2: { title: ":colere:",   start: ":colere:",   end: "", image: "https://zestedesavoir.com/static/smileys/angry.gif" },
-                smiley_di: { title: ":diable:",   start: ":diable:",   end: "", image: "https://zestedesavoir.com/static/smileys/diable.png" },
-                smiley_ma: { title: ":magicien:", start: ":magicien:", end: "", image: "https://zestedesavoir.com/static/smileys/magicien.png" }
+                smiley_c1: { title: ":colere2:",  start: ":colere2:",  end: "", image: "/static/smileys/mechant.png" },
+                smiley_oo: { title: "o_O",        start: "o_O",        end: "", image: "/static/smileys/blink.gif" },
+                smiley_uu: { title: "^^",         start: "^^",         end: "", image: "/static/smileys/hihi.png" },
+                smiley_si: { title: ":-°",        start: ":-°",        end: "", image: "/static/smileys/siffle.png" },
+                smiley_an: { title: ":ange:",     start: ":ange:",     end: "", image: "/static/smileys/ange.png" },
+                smiley_c2: { title: ":colere:",   start: ":colere:",   end: "", image: "/static/smileys/angry.gif" },
+                smiley_di: { title: ":diable:",   start: ":diable:",   end: "", image: "/static/smileys/diable.png" },
+                smiley_ma: { title: ":magicien:", start: ":magicien:", end: "", image: "/static/smileys/magicien.png" }
             },
             2: {
-                smiley_ni: { title: ":ninja:",    start: ":ninja:",    end: "", image: "https://zestedesavoir.com/static/smileys/ninja.png" },
-                smiley_gd: { title: "&gt;_&lt;",  start: "&gt;_&lt;",  end: "", image: "https://zestedesavoir.com/static/smileys/pinch.png" },
-                smiley_pi: { title: ":pirate:",   start: ":pirate:",   end: "", image: "https://zestedesavoir.com/static/smileys/pirate.png" },
-                smiley_pl: { title: ":'(",        start: ":'(",        end: "", image: "https://zestedesavoir.com/static/smileys/pleure.png" },
-                smiley_ro: { title: ":honte:",    start: ":honte:",    end: "", image: "https://zestedesavoir.com/static/smileys/rouge.png" },
-                smiley_so: { title: ":soleil:",   start: ":soleil:",   end: "", image: "https://zestedesavoir.com/static/smileys/soleil.png" },
-                smiley_ww: { title: ":waw:",      start: ":waw:",      end: "", image: "https://zestedesavoir.com/static/smileys/waw.png" },
-                smiley_zz: { title: ":zorro:",    start: ":zorro:",    end: "", image: "https://zestedesavoir.com/static/smileys/zorro.png" }
+                smiley_ni: { title: ":ninja:",    start: ":ninja:",    end: "", image: "/static/smileys/ninja.gif" },
+                smiley_gd: { title: "&gt;_&lt;",  start: "&gt;_&lt;",  end: "", image: "/static/smileys/pinch.png" },
+                smiley_pi: { title: ":pirate:",   start: ":pirate:",   end: "", image: "/static/smileys/pirate.png" },
+                smiley_pl: { title: ":'(",        start: ":'(",        end: "", image: "/static/smileys/pleure.png" },
+                smiley_ro: { title: ":honte:",    start: ":honte:",    end: "", image: "/static/smileys/rouge.png" },
+                smiley_so: { title: ":soleil:",   start: ":soleil:",   end: "", image: "/static/smileys/soleil.png" },
+                smiley_ww: { title: ":waw:",      start: ":waw:",      end: "", image: "/static/smileys/waw.png" },
+                smiley_zz: { title: ":zorro:",    start: ":zorro:",    end: "", image: "/static/smileys/zorro.png" }
             }
         },
 

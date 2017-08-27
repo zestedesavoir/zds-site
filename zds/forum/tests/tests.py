@@ -757,7 +757,7 @@ class ForumMemberTests(TestCase):
         tag_c_sharp = TagFactory(title='C#')
 
         tag_c = TagFactory(title='C')
-        self.assertEqual(tag_c_sharp.slug, tag_c.slug)
+        self.assertNotEqual(tag_c_sharp.slug, tag_c.slug)  # uniqueness of the slug!
         self.assertNotEqual(tag_c_sharp.title, tag_c.title)
         # post a topic with a tag
         result = self.client.post(

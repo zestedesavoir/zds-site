@@ -22,7 +22,7 @@ SMILEYS_BASE = {
     'angry.gif': (':colere:', ),
     'diable.png': (':diable:', ),
     'magicien.png': (':magicien:', ),
-    'ninja.png': (':ninja:', ),
+    'ninja.gif': (':ninja:', ),
     'pinch.png': ('>_<', ),
     'pirate.png': (':pirate:', ),
     'pleure.png': (":'(", ),
