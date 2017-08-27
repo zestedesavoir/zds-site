@@ -49,8 +49,9 @@ gulp.task('js', () =>
         require.resolve('jquery'),
         require.resolve('cookies-eu-banner'),
         require.resolve('codemirror'),
-        require.resolve('mergely'),
+        //require('codemirror/addon/merge/merge'),
         // Used by other scripts, must be first
+        '../node_modules/codemirror/addon/merge/merge.js',
         'assets/js/modal.js',
         'assets/js/tooltips.js',
 

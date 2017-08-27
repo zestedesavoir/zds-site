@@ -40,7 +40,6 @@
     "gulp-uglify": "3.0.0",
     "gulp.spritesmith": "6.5.1",
     "jquery": "3.2.1",
-    "mergely": "3.4.0",
     "normalize.css": "7.0.0"
   },
   "devDependencies": {
