@@ -52,7 +52,7 @@ Pour avoir une vue d'ensemble des modifications inclues ou à inclure dans chaqu
 
 Les *milestones* sont également utilisées par le script de génération de rapport de release, rapport contenant quelques détails sur la release en question.
 
-Toute PR se voit attribuer une *milestone*. Elle est attribuée au plus tôt par le DTC à l'ouverture de la PR si cette PR doit impérativement passer dans la prochaine release, au plus tard par la personne qui merge la PR lors de son merge. Bien qu'une PR doit généralement être atomique, il arrive - notamment dans le cas des ZEP - qu'elle ait pour effet secondaire de régler plusieurs bugs, d'introduire plusieurs fonctionnalités. Dans ces rares cas, chaque ticket fermé par effet secondaire d'une PR peut également recevoir une *milestone*.
+Toute PR se voit attribuer une *milestone*. Elle est attribuée au plus tôt par le *Maintainer* ou le *Release Manager* à l'ouverture de la PR si cette PR doit impérativement passer dans la prochaine release, au plus tard par la personne qui merge la PR lors de son merge. Bien qu'une PR doit généralement être atomique, il arrive - notamment dans le cas des ZEP - qu'elle ait pour effet secondaire de régler plusieurs bugs, d'introduire plusieurs fonctionnalités. Dans ces rares cas, chaque ticket fermé par effet secondaire d'une PR peut également recevoir une *milestone*.
 
 * Toute PR mergée dans dev doit porter la *milestone* « Version de développement »
 * Toute PR mergée ailleurs (la branche de release si c'est une correction de bêta, prod en cas de hotfix) doit porter la *milestone* « Version N »
@@ -153,33 +153,30 @@ Rôles et Responsabilités
 ========================
 
 Le projet Zeste de Savoir est dirigé par sa communauté. Ensuite les développeurs prennent en main l'aspect technique.
-On distingue cependant trois rôles particuliers au sein de l'équipe de développement.
+On distingue cependant deux rôles particuliers au sein de l'équipe de développement.
 Voici leurs noms ainsi que leurs tâches :
 
-Le DTC (Directeur Technique)
-----------------------------
+Le Maintainer (M)
+-----------------
 
-  - Faire les déploiements
+  - Suivi des éventuels bugs et suggestions remontés sur le forum
+  - Écriture d'un *changelog* incluant les instructions de déploiement et les tests à effectuer en bêta
   - Confirmer les choix techniques
   - Trancher les choix techniques qui ne sont pas évidents
-  - Le DTC marque les tickets bloquants et le CdP donne les coups de fouet pour qu'ils soient fermés
-
-Le CdP (Chef de Projet)
------------------------
-
-  - S'assurer que les tickets vivent leur vie (tag par exemple)
+  - S'assurer que les tickets vivent leur vie (tags par exemple)
+  - Marquer les tickets comme bloquants et donner des coups de fouet pour qu'ils soient fermés
   - S'assurer que les PR s'écoulent et se débloquent
-  - Faire un suivi des développements en cours
   - Gérer les tensions entre devs/membres si nécessaire
   - Gérer la "vie de l'équipe" et sa logistique (droits github…)
 
-Le Sysadmin (administrateur système et réseau)
-----------------------------------------------
+Le Release Manager (RM)
+-----------------------
 
   - Roles
 
+    - Gestion de la branche de production du dépôt
+    - Mise en bêta puis mise en production
     - Gérer et monitorer l'infra (configuration des logiciels, logs, sécurité) [pré]prod'
-    - Assister/remplacer le DTC sur les histoires de migration prod -> préprod quand nécessaire
     - Donner un avis sur les contraintes de changement de serveur (ou prévenir sur les limites de l'actuel quand nécessaire, cf. premier point)
     - Suivre les tickets "infra" sur GH et faire les actions nécessaires
     - Gérer les personnes ayant accès au serveur [pré]prod'
@@ -190,6 +187,7 @@ Le Sysadmin (administrateur système et réseau)
     - **Confidentialité** vis-a-vis des données privées présente sur les serveurs (email, contenu de MP…)
     - Si possible, toujours tester en preprod' avant de reproduire en prod'
     - **Professionnalisme**, "si on sait pas on fait pas" pour ne pas mettre la production en péril (sauf en preprod entre les releases)
+  
 
 Chacun de ces postes est occupé par une personne différente (idéalement) qui aura été choisi parmi les développeurs et pour qui l'association Zeste de Savoir a donné son approbation (en raison du caractère confidentiel de certaines données).
 
