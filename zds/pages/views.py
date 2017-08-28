@@ -138,7 +138,7 @@ def cookies(request):
 @permission_required('forum.change_post', raise_exception=True)
 def alerts(request):
     outstanding = Alert.objects.filter(solved=False).order_by('-pubdate')
-    solved = Alert.objects.filter(solved=True).order_by('-pubdate')[:15]
+    solved = Alert.objects.filter(solved=True).order_by('-solved_date')[:15]
 
     return render(request, 'pages/alerts.html', {
         'alerts': outstanding,
