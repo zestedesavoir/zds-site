@@ -43,6 +43,7 @@ from zds.member.models import Profile, TokenForgotPassword, TokenRegister, Karma
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.notification.models import TopicAnswerSubscription, NewPublicationSubscription
 from zds.tutorialv2.models.models_database import PublishedContent, PickListOperation
+from zds.utils.misc import contains_utf8mb4
 from zds.utils.models import Comment, CommentVote, Alert, CommentEdit, Hat, HatRequest
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView
@@ -812,6 +813,8 @@ def add_hat(request, user_pk):
     hat_name = request.POST.get('hat', '').strip()
     if not hat_name:
         messages.error(request, _(u'Aucune casquette saisie.'))
+    if contains_utf8mb4(hat_name):
+        messages.error(request, _(u'Les caractères utf8mb4 ne sont pas autorisés dans les casquettes.'))
     elif len(hat_name) > 40:
         messages.error(request, _(u'Une casquette ne peut dépasser 40 caractères.'))
     else:
