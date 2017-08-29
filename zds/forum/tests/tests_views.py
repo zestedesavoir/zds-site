@@ -477,6 +477,29 @@ class TopicEditTest(TestCase):
         self.assertEqual(302, response.status_code)
         self.assertIsNotNone(TopicAnswerSubscription.objects.get_existing(profile.user, topic, is_active=True))
 
+    def test_success_edit_topic_follow_with_hidden_post(self):
+        profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, profile)
+
+        first_post = topic.first_post()
+        first_post.is_visible = False
+        first_post.save()
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        data = {
+            'follow': '1'
+        }
+        response = self.client.post(reverse('topic-edit') + '?topic={}'.format(topic.pk), data, follow=False)
+
+        self.assertEqual(302, response.status_code)
+        self.assertIsNotNone(TopicAnswerSubscription.objects.get_existing(profile.user, topic, is_active=False))
+
+        response = self.client.post(reverse('topic-edit') + '?topic={}'.format(topic.pk), data, follow=False)
+
+        self.assertEqual(302, response.status_code)
+        self.assertIsNotNone(TopicAnswerSubscription.objects.get_existing(profile.user, topic, is_active=True))
+
     def test_success_edit_topic_follow_email(self):
         profile = ProfileFactory()
         category, forum = create_category()
