@@ -10,42 +10,47 @@ class ProfileAdmin(admin.ModelAdmin):
     """Representation of Profile model in the admin interface."""
     list_display = ('user', 'last_ip_address', 'can_read', 'end_ban_read', 'can_write', 'end_ban_write', 'last_visit')
     list_filter = ('can_read', 'can_write')
-    search_fields = ['user__username']
+    ordering = ('-last_visit',)
     raw_id_fields = ('user',)
+    search_fields = ('user__username', 'sign', 'site', 'avatar_url', 'biography', 'last_ip_address')
 
 
 class BanAdmin(admin.ModelAdmin):
     """Representation of Ban model in the admin interface."""
     list_display = ('user', 'moderator', 'type', 'note', 'pubdate')
     list_filter = ('type',)
-    search_fields = ['user__username']
+    ordering = ('-pubdate',)
     raw_id_fields = ('user', 'moderator')
+    search_fields = ('user__username', 'note')
 
 
 class TokenRegisterAdmin(admin.ModelAdmin):
     """Representation of TokenRegister model in the admin interface."""
     list_display = ('user', 'date_end')
-    search_fields = ['user__username']
+    search_fields = ('user__username',)
     raw_id_fields = ('user',)
 
 
 class TokenForgotPasswordAdmin(admin.ModelAdmin):
     """Representation of TokenForgotPassword model in the admin interface."""
     list_display = ('user', 'date_end')
-    search_fields = ['user__username']
+    search_fields = ('user__username',)
     raw_id_fields = ('user',)
 
 
 class KarmaNoteAdmin(admin.ModelAdmin):
     """Representation of KarmaNote model in the admin interface."""
     list_display = ('user', 'moderator', 'note', 'karma', 'pubdate')
-    search_fields = ['user__username']
+    ordering = ('-pubdate',)
+    search_fields = ('user__username', 'note')
     raw_id_fields = ('user', 'moderator')
 
 
 class NewEmailProviderAdmin(admin.ModelAdmin):
     """Representation of NewEmailProvider model in the admin interface."""
     list_display = ('provider', 'user', 'date')
+    list_filter = ('use',)
+    ordering = ('-date',)
     search_fields = ('provider', 'user__username')
     raw_id_fields = ('user',)
 
@@ -53,6 +58,7 @@ class NewEmailProviderAdmin(admin.ModelAdmin):
 class BannedEmailProviderAdmin(admin.ModelAdmin):
     """Representation of BannedEmailProvider model in the admin interface."""
     list_display = ('provider', 'moderator', 'date')
+    ordering = ('-date',)
     search_fields = ('provider',)
     raw_id_fields = ('moderator',)
 
