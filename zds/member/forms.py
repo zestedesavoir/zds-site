@@ -17,6 +17,7 @@ from zds.member.models import Profile, KarmaNote, BannedEmailProvider
 from zds.member.validators import validate_not_empty, validate_zds_email, validate_zds_username, validate_passwords, \
     validate_zds_password
 from zds.utils.forms import CommonLayoutModalText
+from zds.utils.misc import contains_utf8mb4
 from zds.utils.models import Licence, HatRequest
 from zds.utils import get_current_user
 
@@ -676,6 +677,8 @@ class HatRequestForm(forms.ModelForm):
     def clean_hat(self):
         data = self.cleaned_data['hat']
         user = get_current_user()
+        if contains_utf8mb4(data):
+            raise forms.ValidationError(_(u'Les caractères utf8mb4 ne sont pas autorisés dans les casquettes.'))
         if data.lower() in [hat.lower() for hat in user.profile.hats.values_list('name', flat=True)]:
             raise forms.ValidationError(_(u'Vous possédez déjà cette casquette.'))
         if data.lower() in [hat.lower() for hat in user.requested_hats.values_list('hat', flat=True)]:
