@@ -8,13 +8,11 @@ Vous voulez nous aider au développement du frontend ? Installez Node.js et Yarn
 Installation de Node.js et Yarn
 ==============================
 
-Le frontend de Zeste de Savoir repose sur la version supportée à long terme actuelle de Node.js, la version 8.
+Le frontend de Zeste de Savoir repose sur la version actuelle de Node.js supportée à long terme, la version 8. Vous pouvez installer Node.js 8 via `votre gestionnaire de paquet <https://nodejs.org/en/download/package-manager/>`_ (``apt``, ``yum``, …) ou en téléchargeant une `archive <https://nodejs.org/en/download/>`_.
 
-L'installation de ``node`` est détaillée sur le site de Node.js, soit par `téléchargement direct <https://nodejs.org/en/download/>`_, soit via un `gestionnaire de paquet <https://nodejs.org/en/download/package-manager/>`_. Zeste de Savoir requiert la version 8.
+Dans le cas où vous avez besoin de faire cohabiter sur votre système différentes versions de Node.js pour des projets différents, à l’instar de virtualenv ou rvm, il existe `nvm <https://github.com/creationix/nvm>`_ (Node Version Manager) qui permet d’installer plusieurs version de Node.js et de basculer d’une version à l’autre facilement.
 
-Alternativement, l’installation de Node.js avec `nvm <https://github.com/creationix/nvm>`_ est relativement simple. De plus, nvm permet très facilement de basculer d’une version à une autre.
-
-Yarn peut être installé avec `npm i -g yarn` ou `en suivant ces instructions <https://yarnpkg.com/fr/docs/install/>`_.
+Le gestionnaire de paquet ``npm`` (Node.js Package Manager) est fourni avec Node.js, mais nous préferons utiliser Yarn qui est plus rapide et plus sûr. Yarn n’est strictement nécessaire qu’en production mais nous recommandons également de s'en servir lors du développement. `Installer Yarn <https://yarnpkg.com/fr/docs/install/>`_.
 
 
 
@@ -30,7 +28,9 @@ Pour vérifier que Node.js et yarn sont installés (et que vous avez les bonnes 
     $ yarn -v
     0.27.x
 
-Si `yarn` n’est pas installé ou pas à jour, utilisez `npm i -g yarn`.
+Si ``yarn`` n’est pas installé ou pas à jour, utilisez ``npm i -g yarn``.
+
+Si vous désirez utiliser ``npm`` à la place de ``yarn``, vérifiez que vous avez la version 5 ou une plus récente.
 
 Mise à jour de Node.js et Yarn
 -----------------------------
@@ -124,7 +124,7 @@ que vous devez corriger.
 .. note::
    L'outil d'intégration continue que nous utilisons, Travis CI, fait cette vérification à la création de chaque *pull
    request* et sortira la liste des erreurs et des avertissements. Pour éviter d'attendre qu'il ait fini, il est plus
-   pratique pour vous (et nous) que vous lanciez cette commande en amont avec ``make lint-front` ou ``yarn run test`` (ou
+   pratique pour vous (et nous) que vous lanciez cette commande en amont avec ``make lint-front`` ou ``yarn run test`` (ou
    ``yarn test``).
 
 Coder plus simplement avec ``watch``
