@@ -19,8 +19,10 @@ from zds.tutorialv2.models.database import ContentReaction, PublishedContent
 from zds.tutorialv2.publish_container import publish_container
 from zds.tutorialv2.signals import content_unpublished
 from zds.tutorialv2.utils import retrieve_and_update_images_links
-from zds.utils.templatetags.emarkdown import render_markdown, MD_PARSING_ERROR
-from zds.utils.templatetags.smileysDef import SMILEYS_BASE_PATH
+from zds.utils.templatetags.emarkdown import render_markdown, MD_PARSING_ERROR, emarkdown
+from zds.utils.templatetags.smileys_def import SMILEYS_BASE_PATH
+
+logger = logging.getLogger(__name__)
 
 
 def publish_content(db_object, versioned, is_major_update=True):
@@ -32,9 +34,9 @@ def publish_content(db_object, versioned, is_major_update=True):
         of extracts.
 
     :param db_object: Database representation of the content
-    :type db_object: PublishableContent
+    :type db_object: zds.tutorialv2.models.models_database.PublishableContent
     :param versioned: version of the content to publish
-    :type versioned: VersionedContent
+    :type versioned: zds.tutorialv2.models.models_versioned.VersionedContent
     :param is_major_update: if set to `True`, will update the publication date
     :type is_major_update: bool
     :raise FailureDuringPublication: if something goes wrong
@@ -47,11 +49,11 @@ def publish_content(db_object, versioned, is_major_update=True):
     if is_major_update:
         versioned.pubdate = datetime.now()
 
-    # First write the files in a temporary directory: if anything goes wrong,
+    # First write the files to a temporary directory: if anything goes wrong,
     # the last published version is not impacted !
     tmp_path = path.join(settings.ZDS_APP['content']['repo_public_path'], versioned.slug + '__building')
     if path.exists(tmp_path):
-        shutil.rmtree(tmp_path)  # erase previous attempt, if any
+        shutil.rmtree(tmp_path)  # remove previous attempt, if any
 
     # render HTML:
     altered_version = copy.deepcopy(versioned)
@@ -78,11 +80,12 @@ def publish_content(db_object, versioned, is_major_update=True):
 
     md_file_path = base_name + '.md'
     with codecs.open(md_file_path, 'w', encoding='utf-8')as md_file:
-    try:
-        md_file.write(parsed_with_local_images)
-    except (UnicodeError, UnicodeEncodeError):
-        raise FailureDuringPublication(_('Une erreur est survenue durant la génération du fichier markdown '
-                                         'à télécharger, vérifiez le code markdown'))
+        try:
+            md_file.write(parsed_with_local_images)
+        except UnicodeError:
+            logger.error("Could not encode %s in UTF-8, publication aborted", versioned.title)
+            raise FailureDuringPublication(_('Une erreur est survenue durant la génération du fichier markdown '
+                                             'à télécharger, vérifiez le code markdown'))
 
     is_update = False
 
@@ -93,7 +96,7 @@ def publish_content(db_object, versioned, is_major_update=True):
         # the content have been published in the past, so clean old files !
         old_path = public_version.get_prod_path()
         logging.getLogger(__name__).debug('erase ' + old_path)
-        # shutil.rmtree(old_path)
+        shutil.rmtree(old_path)
 
         # if the slug change, instead of using the same object, a new one will be created
         if versioned.slug != public_version.content_public_slug:
@@ -131,19 +134,19 @@ def publish_content(db_object, versioned, is_major_update=True):
     public_version.sha_public = versioned.current_version
     # TODO: use update
     public_version.save()
-    # this put the manifest.json and base json file on the prod path.
+    # this puts the manifest.json and base json file on the prod path.
     shutil.rmtree(public_version.get_prod_path(), ignore_errors=True)
     shutil.copytree(tmp_path, public_version.get_prod_path())
     if settings.ZDS_APP['content']['extra_content_generation_policy'] == 'SYNC':
-        # ok, now we can really publish the thing !
-        generate_exernal_content(base_name, build_extra_contents_path, md_file_path)
+        # ok, now we can really publish the thing!
+        generate_external_content(base_name, build_extra_contents_path, md_file_path)
     elif settings.ZDS_APP['content']['extra_content_generation_policy'] == 'WATCHDOG':
         PublicatorRegistery.get('watchdog').publish(md_file_path, base_name, silently_pass=False)
 
     return public_version
 
 
-def generate_exernal_content(base_name, extra_contents_path, md_file_path, overload_settings=False):
+def generate_external_content(base_name, extra_contents_path, md_file_path, overload_settings=False):
     """
     generate all static file that allow offline access to content
 
@@ -252,7 +255,7 @@ class ZipPublicator(Publicator):
     def publish(self, md_file_path, base_name, **kwargs):
         try:
             published_content_entity = self.get_published_content_entity(md_file_path)
-            zip_file_path = make_zip_file(published_content_entity)
+            make_zip_file(published_content_entity)
             # for zip no need to move it because this is already dumped in the public directory
         except IOError:
             raise FailureDuringPublication('Zip could not be created')

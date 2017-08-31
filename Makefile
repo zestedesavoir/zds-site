@@ -49,7 +49,7 @@ zmd-stop:
 
 zmd-test:
 	npm run zmd-stop;
-	npm run zmd-start && \
+	npm run zmd-start && sleep 5 && \
 	python zmd-server-test.py
 
 ## back-utils

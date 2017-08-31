@@ -14,12 +14,14 @@ class EMarkdownTest(TestCase):
 
         tr = Template('{% load emarkdown %}{{ content | emarkdown}}').render(self.context)
 
-        expected = ('<h3>Titre 1</h3>\n'
-                    '<h4>Titre <strong>2</strong></h4>\n'
-                    '<h5>Titre 3</h5>\n'
-                    '<blockquote>\n'
-                    '<p>test</p>\n'
-                    '</blockquote>')
+        expected = (
+            '<h3 id="titre-1">Titre 1<a aria-hidden="true" href="#titre-1">'
+            '<span class="icon icon-link"></span></a></h3>\n<h4 id="titre-2">'
+            'Titre <strong>2</strong><a aria-hidden="true" href="#titre-2"><span'
+            ' class="icon icon-link"></span></a></h4>\n<h5 id="titre-3">Titre 3'
+            '<a aria-hidden="true" href="#titre-3"><span class="icon icon-link">'
+            '</span></a></h5>\n<blockquote>\n<p>test</p>\n</blockquote>'
+        )
         self.assertEqual(tr, expected)
 
         # Todo: Found a way to force parsing crash or simulate it.

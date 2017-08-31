@@ -9,7 +9,7 @@ from pathtools.path import listdir
 from watchdog.observers import Observer
 from watchdog.events import FileCreatedEvent, FileSystemEventHandler, LoggingEventHandler
 from django.conf import settings
-from zds.tutorialv2.publication_utils import generate_exernal_content
+from zds.tutorialv2.publication_utils import generate_external_content
 from codecs import open
 
 
@@ -48,7 +48,7 @@ class TutorialIsPublished(FileSystemEventHandler):
             extra_contents_path = dirname(md_file_path)
             self.prepare_generation(extra_contents_path)
             try:
-                generate_exernal_content(base_name, extra_contents_path, md_file_path,
+                generate_external_content(base_name, extra_contents_path, md_file_path,
                                          pandoc_debug_str, overload_settings=True)
             finally:
                 self.finish_generation(extra_contents_path, event.src_path)

@@ -77,9 +77,7 @@ class PublishedContentTests(TestCase, TutorialTestMixin):
     def test_accessible_ui_for_author(self):
         opinion = PublishedContentFactory(author_list=[self.user_author], type='OPINION')
         self.assertEqual(
-            self.client.login(
-                username=self.user_author.username,
-                password='hostel77'),
+            self.client.login(username=self.user_author.username, password='hostel77'),
             True)
         resp = self.client.get(reverse('opinion:view', kwargs={'pk': opinion.pk, 'slug': opinion.slug}))
         self.assertContains(resp, 'Version brouillon', msg_prefix='Author must access their draft directly')
