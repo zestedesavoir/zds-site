@@ -14,7 +14,7 @@ module.exports = function markdownHandlers (Raven) {
     toLatexDocument,
   }
 
-  function toHTML(markdown, opts = {}, callback) {
+  function toHTML (markdown, opts = {}, callback) {
     if (typeof markdown !== 'string') markdown = String(markdown)
 
     /* zmd parser memoization */
@@ -52,14 +52,26 @@ module.exports = function markdownHandlers (Raven) {
       processors[key] = zmarkdown(config, 'html')
     }
 
-    processors[key].renderString(String(markdown), (err, {content, metadata}) => {
-      if (err) return callback(err, markdown)
+    processors[key].renderString(String(markdown), (err, {content, metadata} = {}) => {
+      if (err) {
+        Raven.mergeContext({
+          extra: {
+            zmdConfig: makeSerializable(processors[key].config),
+            markdown: markdown,
+            zmdOutput: {
+              content,
+              metadata,
+            }
+          }
+        })
+        return callback(err, markdown)
+      }
 
       callback(null, [content, metadata])
     })
   }
 
-  function toLatex(markdown, opts = {}, callback) {
+  function toLatex (markdown, opts = {}, callback) {
     if (typeof markdown !== 'string') markdown = String(markdown)
 
     /* zmd parser memoization */
@@ -78,15 +90,39 @@ module.exports = function markdownHandlers (Raven) {
     }
 
     processors[key].renderString(String(markdown), (err, content) => {
-      if (err) return callback(err, markdown)
+      if (err) {
+        Raven.mergeContext({
+          extra: {
+            zmdConfig: makeSerializable(processors[key].config),
+            markdown: markdown,
+            zmdOutput: {
+              content,
+            }
+          }
+        })
+        return callback(err, markdown)
+      }
 
       callback(null, [content, {}])
     })
   }
 
-  function toLatexDocument(markdown, opts = {}, callback) {
-    toLatex(markdown, opts, (err, [content, metadata]) => {
-      if (err) return callback(err)
+  function toLatexDocument (markdown, opts = {}, callback) {
+    toLatex(markdown, opts, (err, [content, metadata] = []) => {
+      if (err) {
+        Raven.mergeContext({
+          extra: {
+            zmdConfig: makeSerializable(opts),
+            markdown: markdown,
+            zmdOutput: {
+              content,
+              metadata,
+            }
+          }
+        })
+        return callback(err, markdown)
+      }
+
       const {
         contentType,
         title,
@@ -106,10 +142,15 @@ module.exports = function markdownHandlers (Raven) {
           disableToc,
           latex,
         })
-        callback(null, [latexDocument, {}])
+        return callback(null, [latexDocument, {}])
       } catch (e) {
-        callback(e)
+        Raven.captureException(e)
+        return callback(e)
       }
     })
   }
+}
+
+function makeSerializable (obj) {
+  return JSON.parse(JSON.stringify(obj))
 }
