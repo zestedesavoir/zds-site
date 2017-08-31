@@ -1124,3 +1124,8 @@ Les menus s’ouvrent désormais au survol lorsque l’option est activée. Éta
 from zds.member.models import Profile
 Profile.objects.update(is_hover_enabled=False)
 ```
+
+Responsables de groupe (#4600)
+------------------------------
+
+Il faut réassigner les responsables de chaque groupe dans l'admin django post-déploiement.
