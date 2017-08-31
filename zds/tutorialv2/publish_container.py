@@ -25,6 +25,7 @@ def publish_container(db_object, base_dir, container, template='tutorialv2/expor
     from zds.tutorialv2.models.models_versioned import Container
     from zds.tutorialv2.publication_utils import FailureDuringPublication
     path_to_title_dict = {}
+
     if not isinstance(container, Container):
         raise FailureDuringPublication(_(u"Le conteneur n'en est pas un !"))
 
@@ -41,7 +42,7 @@ def publish_container(db_object, base_dir, container, template='tutorialv2/expor
     if container.has_extracts():  # the container can be rendered in one template
         parsed = render_to_string(template, {'container': container, 'is_js': is_js})
 
-        write_chapter_file(base_dir, container, parsed, path_to_title_dict)
+        write_chapter_file(base_dir, container, 'index.html', parsed, path_to_title_dict)
         for extract in container.children:
             extract.text = None
 
@@ -57,9 +58,9 @@ def publish_container(db_object, base_dir, container, template='tutorialv2/expor
 
         if container.introduction:
             part_path = path.join(container.get_prod_path(relative=True), 'introduction.html')
-            write_chapter_file(base_dir, container, emarkdown(container.get_introduction(), db_object.js_support),
-                               path_to_title_dict)
+            parsed = emarkdown(container.get_introduction(), db_object.js_support)
             container.introduction = part_path
+            write_chapter_file(base_dir, container, part_path, parsed, path_to_title_dict)
 
         if container.conclusion:
             part_path = path.join(container.get_prod_path(relative=True), 'conclusion.html')
@@ -79,13 +80,14 @@ def publish_container(db_object, base_dir, container, template='tutorialv2/expor
     return path_to_title_dict
 
 
-def write_chapter_file(base_dir, container, parsed, path_to_title_dict):
-    with codecs.open(path.join(base_dir, container.get_prod_path(relative=True)),
+def write_chapter_file(base_dir, container, part_path, parsed, path_to_title_dict):
+    with codecs.open(path.join(base_dir, part_path),
                      'w', encoding='utf-8') as chapter_file:
         try:
             chapter_file.write(parsed)
         except (UnicodeError, UnicodeEncodeError):
+            from zds.tutorialv2.publication_utils import FailureDuringPublication
             raise FailureDuringPublication(
                 _(u'Une erreur est survenue durant la publication de « {} », vérifiez le code markdown')
-                    .format(container.title))
-    path_to_title_dict[path.join(base_dir, container.get_prod_path(relative=True))] = container.title
+                .format(container.title))
+    path_to_title_dict[path.join(base_dir, part_path)] = container.title
