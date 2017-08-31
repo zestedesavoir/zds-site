@@ -127,6 +127,11 @@ class SearchView(ZdSPagingListView):
             if self.search_form.cleaned_data['subcategory']:
                 self.content_subcategory = self.search_form.cleaned_data['subcategory']
 
+            # mark that contents must come from library if required
+            self.from_library = False
+            if self.search_form.cleaned_data['from_library'] == 'on':
+                self.from_library = True
+
             # setting the different querysets (according to the selected models, if any)
             part_querysets = []
             chosen_groups = self.search_form.cleaned_data['models']
@@ -175,6 +180,9 @@ class SearchView(ZdSPagingListView):
             & MultiMatch(
             query=self.search_query,
             fields=['title', 'description', 'categories', 'subcategories', 'tags', 'text'])
+
+        if self.from_library:
+            query &= Match(content_type='TUTORIAL') | Match(content_type='ARTICLE')
 
         if self.content_category:
             query &= Match(categories=self.content_category)
