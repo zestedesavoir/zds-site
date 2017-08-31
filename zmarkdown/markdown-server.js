@@ -1,14 +1,20 @@
-// TODO zmd: Implement Sentry monitoring
 const express = require('express')
 const bodyParser = require('body-parser')
+
+const Raven = require('raven')
+Raven.config(process.env.SENTRY_DSN).install();
 
 const {
   toHTML,
   toLatex,
   toLatexDocument,
-} = require('./markdown-handlers')
+} = require('./markdown-handlers')(Raven)
 
 const app = express()
+
+app.use(Raven.requestHandler())
+app.use(Raven.errorHandler());
+
 app.use(bodyParser.json())
 app.post('/latex', controllerFactory(toLatex))
 app.post('/latex-document', controllerFactory(toLatexDocument))

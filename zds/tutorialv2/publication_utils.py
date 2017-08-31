@@ -47,11 +47,11 @@ def publish_content(db_object, versioned, is_major_update=True):
     if is_major_update:
         versioned.pubdate = datetime.now()
 
-    # First write the files in a temporary directory: if anything goes wrong,
+    # First write the files to a temporary directory: if anything goes wrong,
     # the last published version is not impacted !
     tmp_path = path.join(settings.ZDS_APP['content']['repo_public_path'], versioned.slug + '__building')
     if path.exists(tmp_path):
-        shutil.rmtree(tmp_path)  # erase previous attempt, if any
+        shutil.rmtree(tmp_path)  # remove previous attempt, if any
 
     # render HTML:
     altered_version = copy.deepcopy(versioned)
@@ -92,7 +92,7 @@ def publish_content(db_object, versioned, is_major_update=True):
         # the content have been published in the past, so clean old files !
         old_path = public_version.get_prod_path()
         logging.getLogger(__name__).debug('erase ' + old_path)
-        # shutil.rmtree(old_path)
+        shutil.rmtree(old_path)
 
         # if the slug change, instead of using the same object, a new one will be created
         if versioned.slug != public_version.content_public_slug:
@@ -130,19 +130,19 @@ def publish_content(db_object, versioned, is_major_update=True):
     public_version.sha_public = versioned.current_version
     # TODO: use update
     public_version.save()
-    # this put the manifest.json and base json file on the prod path.
+    # this puts the manifest.json and base json file on the prod path.
     shutil.rmtree(public_version.get_prod_path(), ignore_errors=True)
     shutil.copytree(tmp_path, public_version.get_prod_path())
     if settings.ZDS_APP['content']['extra_content_generation_policy'] == 'SYNC':
-        # ok, now we can really publish the thing !
-        generate_exernal_content(base_name, build_extra_contents_path, md_file_path)
+        # ok, now we can really publish the thing!
+        generate_external_content(base_name, build_extra_contents_path, md_file_path)
     elif settings.ZDS_APP['content']['extra_content_generation_policy'] == 'WATCHDOG':
         PublicatorRegistery.get('watchdog').publish(md_file_path, base_name, silently_pass=False)
 
     return public_version
 
 
-def generate_exernal_content(base_name, extra_contents_path, md_file_path, overload_settings=False):
+def generate_external_content(base_name, extra_contents_path, md_file_path, overload_settings=False):
     """
     generate all static file that allow offline access to content
 
@@ -251,7 +251,7 @@ class ZipPublicator(Publicator):
     def publish(self, md_file_path, base_name, **kwargs):
         try:
             published_content_entity = self.get_published_content_entity(md_file_path)
-            zip_file_path = make_zip_file(published_content_entity)
+            make_zip_file(published_content_entity)
             # for zip no need to move it because this is already dumped in the public directory
         except IOError:
             raise FailureDuringPublication('Zip could not be created')
