@@ -18,8 +18,8 @@ class GroupContact(models.Model):
     name = models.CharField(_('Nom (ex: Le staff)'), max_length=32, unique=True)
     description = models.TextField(_('Description (en markdown)'), blank=True, null=True)
     email = models.EmailField(_('Adresse mail du groupe'), blank=True, null=True)
-    person_in_charge = models.ForeignKey(User, verbose_name=_('Responsable'), blank=True, null=True)
+    persons_in_charge = models.ManyToManyField(User, verbose_name=_('Responsables'), blank=True)
     position = models.PositiveSmallIntegerField(_('Position dans la page'), unique=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
