@@ -38,6 +38,16 @@ from zds.utils.templatetags.topbar import top_categories_content
 logger = logging.getLogger('zds.tutorialv2')
 
 
+def filter_by_content_number(queryset_or_iterable):
+    """
+    filter an iterable of some object that have a ``content_counts`` attribute greater than 0
+
+    :param queryset_or_iterable: the iterable to filter
+    :return: the filter iterable
+    """
+    return filter(lambda c: c.content_counts != 0, queryset_or_iterable)
+
+
 class RedirectContentSEO(RedirectView):
     permanent = True
 
@@ -408,6 +418,14 @@ class ViewPublications(TemplateView):
         """Rewritten to select categories with subcategories and contents count in two queries"""
 
         # TODO: check if we can use ORM to do that
+        # in fact there is a way thanks to the OuterRef and SubQuery tool that comes with django 1.11
+        # sub_queryset = PublishableContent.objects\
+        #    .filter(public_version__isnull=False, type__in=handle_types,
+        #            subcategory__pk=OuterRef('category__pk'))
+        # count_queryset = sub_queryset.annotate(nb_content=Count('*')).values('nb_content')
+        # final_queryset = Category.objects.order_by('position').annotate(contents_count=Subquery(count_queryset))
+        # see https://stackoverflow.com/questions/42543978/django-1-11-annotating-a-subquery-aggregate and
+        # https://docs.djangoproject.com/fr/1.11/_modules/django/db/models/expressions/#OuterRef
         sub_query = """
           SELECT COUNT(*) FROM `tutorialv2_publishedcontent`
           INNER JOIN `tutorialv2_publishablecontent`
@@ -424,8 +442,8 @@ class ViewPublications(TemplateView):
             AND `utils_categorysubcategory`.`category_id` = `utils_category`.`id`)
         """.format(', '.join('\'{}\''.format(t) for t in handle_types))
 
-        queryset_category = Category.objects.order_by('position').extra(select={'contents_count': sub_query})
-
+        queryset_category = Category.objects.order_by('position')\
+            .extra(select={'contents_count': sub_query})
         queryset_subcategory = CategorySubCategory\
             .objects\
             .prefetch_related('subcategory', 'category')\
@@ -442,7 +460,7 @@ class ViewPublications(TemplateView):
 
         categories = []
 
-        for category in queryset_category:
+        for category in filter_by_content_number(queryset_category):
             category.subcategories = subcategories_sorted[category.id]
             categories.append(category)
 
@@ -475,12 +493,18 @@ class ViewPublications(TemplateView):
 
         subcategories = []
 
-        for category_to_subcategory in queryset:
+        for category_to_subcategory in filter_by_content_number(queryset):
             subcategory = category_to_subcategory.subcategory
             subcategory.contents_count = category_to_subcategory.contents_count
             subcategories.append(subcategory)
 
         return subcategories
+
+    def is_on_free_browse_page(self):
+        return self.request.GET.get('category', False) or \
+                self.request.GET.get('subcategory', False) or \
+                self.request.GET.get('type', False) or \
+                self.request.GET.get('tag', False)
 
     def get_context_data(self, **kwargs):
         context = super(ViewPublications, self).get_context_data(**kwargs)
@@ -491,10 +515,7 @@ class ViewPublications(TemplateView):
         if self.kwargs.get('slug_category', False):
             self.level = 3
             self.max_last_contents = settings.ZDS_APP['content']['max_last_publications_level_3']
-        if self.request.GET.get('category', False) or \
-                self.request.GET.get('subcategory', False) or \
-                self.request.GET.get('type', False) or \
-                self.request.GET.get('tag', False):
+        if self.is_on_free_browse_page():
             self.level = 4
             self.max_last_contents = 50
 
@@ -528,46 +549,7 @@ class ViewPublications(TemplateView):
             recent_kwargs['subcategories'] = [subcategory]
 
         elif self.level is 4:
-            category = self.request.GET.get('category', None)
-            subcategory = self.request.GET.get('subcategory', None)
-            subcategories = None
-            if category is not None:
-                context['category'] = get_object_or_404(Category, slug=category)
-                subcategories = context['category'].get_subcategories()
-            elif subcategory is not None:
-                subcategory = get_object_or_404(SubCategory, slug=self.request.GET.get('subcategory'))
-                context['category'] = subcategory.get_parent_category()
-                context['subcategory'] = subcategory
-                subcategories = [subcategory]
-
-            content_type = self.handle_types
-            context['type'] = None
-            if 'type' in self.request.GET:
-                _type = self.request.GET.get('type', '').upper()
-                if _type in self.handle_types:
-                    content_type = _type
-                    context['type'] = TYPE_CHOICES_DICT[_type]
-                else:
-                    raise Http404('wrong type {}'.format(_type))
-
-            tag = self.request.GET.get('tag', None)
-            tags = None
-            if tag is not None:
-                tags = [get_object_or_404(Tag, slug=tag)]
-                context['tag'] = tags[0]
-
-            contents_queryset = PublishedContent.objects.last_contents(
-                subcategories=subcategories,
-                tags=tags,
-                content_type=content_type)
-            items_per_page = settings.ZDS_APP['content']['content_per_page']
-            make_pagination(
-                context,
-                self.request,
-                contents_queryset,
-                items_per_page,
-                context_list_name='filtered_contents',
-                with_previous_item=False)
+            self.generate_free_browse_page_context(context)
 
         if self.level < 4:
             last_articles = PublishedContent.objects.last_contents(
@@ -587,6 +569,46 @@ class ViewPublications(TemplateView):
 
         context['level'] = self.level
         return context
+
+    def generate_free_browse_page_context(self, context):
+        category = self.request.GET.get('category', None)
+        subcategory = self.request.GET.get('subcategory', None)
+        subcategories = None
+        if category is not None:
+            context['category'] = get_object_or_404(Category, slug=category)
+            subcategories = context['category'].get_subcategories()
+        elif subcategory is not None:
+            subcategory = get_object_or_404(SubCategory, slug=self.request.GET.get('subcategory'))
+            context['category'] = subcategory.get_parent_category()
+            context['subcategory'] = subcategory
+            subcategories = [subcategory]
+        content_type = self.handle_types
+        context['type'] = None
+        if 'type' in self.request.GET:
+            _type = self.request.GET.get('type', '').upper()
+            if _type in self.handle_types:
+                content_type = _type
+                context['type'] = TYPE_CHOICES_DICT[_type]
+            else:
+                logger.warn("asked for type=%s on %s", _type, self.request.path)
+                raise Http404('wrong type {}'.format(_type))
+        tag = self.request.GET.get('tag', None)
+        tags = None
+        if tag is not None:
+            tags = [get_object_or_404(Tag, slug=tag)]
+            context['tag'] = tags[0]
+        contents_queryset = PublishedContent.objects.last_contents(
+            subcategories=subcategories,
+            tags=tags,
+            content_type=content_type)
+        items_per_page = settings.ZDS_APP['content']['content_per_page']
+        make_pagination(
+            context,
+            self.request,
+            contents_queryset,
+            items_per_page,
+            context_list_name='filtered_contents',
+            with_previous_item=False)
 
 
 class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewMixin):
