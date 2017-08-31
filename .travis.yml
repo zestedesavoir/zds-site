@@ -120,8 +120,8 @@ script:
   - |
     # test and build frontend
     if [[ "$ZDS_TEST_JOB" == *"front"* ]]; then
-      yarn test
-      yarn build # we need to upload the assets later
+      yarn test \
+      && yarn build # we need to upload the assets later
     fi
 
   - |
