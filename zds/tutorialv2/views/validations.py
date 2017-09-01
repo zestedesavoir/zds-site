@@ -827,16 +827,15 @@ class UnpickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormViewMix
         return kwargs
 
     def form_valid(self, form):
-
         db_object = self.object
         versioned = self.versioned_object
         self.success_url = versioned.get_absolute_url_online()
 
         if not db_object.sha_picked:
-            raise PermissionDenied("Retirer des billets choisis quelque chose qui n'y est pas")
+            raise PermissionDenied('Impossible de retirer des billets choisis un billet pas choisi.')
 
         if db_object.sha_picked != form.cleaned_data['version']:
-            raise PermissionDenied("Retirer des billets choisis quelque chose qui n'y est pas")
+            raise PermissionDenied('Impossible de retirer des billets choisis un billet pas choisi.')
 
         db_object.sha_picked = None
         db_object.save()

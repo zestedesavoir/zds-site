@@ -202,12 +202,12 @@ class TopicNew(CreateView, SingleObjectMixin):
 
     @method_decorator(login_required)
     @method_decorator(can_write_and_read_now)
-    @method_decorator(transaction.atomic)
     def dispatch(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        if not self.object.can_read(request.user):
-            raise PermissionDenied
-        return super(TopicNew, self).dispatch(request, *args, **kwargs)
+        with transaction.atomic():
+            self.object = self.get_object()
+            if self.object.can_read(request.user):
+                return super(TopicNew, self).dispatch(request, *args, **kwargs)
+        raise PermissionDenied
 
     def get_object(self, queryset=None):
         try:
@@ -456,19 +456,18 @@ class PostNew(CreatePostView):
 
     @method_decorator(login_required)
     @method_decorator(can_write_and_read_now)
-    @method_decorator(transaction.atomic)
     def dispatch(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        if not self.object.forum.can_read(request.user):
-            raise PermissionDenied
-        if self.object.is_locked:
-            raise PermissionDenied
-        if self.object.antispam(request.user):
-            raise PermissionDenied
-        self.posts = Post.objects.filter(topic=self.object) \
-                         .prefetch_related() \
-                         .order_by('-position')[:settings.ZDS_APP['forum']['posts_per_page']]
-        return super(PostNew, self).dispatch(request, *args, **kwargs)
+        with transaction.atomic():
+            self.object = self.get_object()
+            can_read = self.object.forum.can_read(request.user)
+            not_locked = not self.object.is_locked
+            not_spamming = not self.object.antispam(request.user)
+            if can_read and not_locked and not_spamming:
+                self.posts = Post.objects.filter(topic=self.object) \
+                                 .prefetch_related() \
+                                 .order_by('-position')[:settings.ZDS_APP['forum']['posts_per_page']]
+                return super(PostNew, self).dispatch(request, *args, **kwargs)
+        raise PermissionDenied
 
     def create_forum(self, form_class, **kwargs):
         form = form_class(self.object, self.request.user, initial=kwargs)
@@ -499,16 +498,15 @@ class PostEdit(UpdateView, SinglePostObjectMixin, PostEditMixin):
 
     @method_decorator(login_required)
     @method_decorator(can_write_and_read_now)
-    @method_decorator(transaction.atomic)
     def dispatch(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        if not self.object.topic.forum.can_read(request.user):
-            raise PermissionDenied
-        if self.object.author != request.user and not request.user.has_perm('forum.change_post'):
-            raise PermissionDenied
-        if not self.object.is_visible and not request.user.has_perm('forum.change_post'):
-            raise PermissionDenied
-        return super(PostEdit, self).dispatch(request, *args, **kwargs)
+        with transaction.atomic():
+            self.object = self.get_object()
+            is_author = self.object.author == request.user
+            can_read = self.object.topic.forum.can_read(request.user)
+            is_visible = self.object.is_visible
+            if can_read and ((is_author and is_visible) or request.user.has_perm('forum.change_post')):
+                return super(PostEdit, self).dispatch(request, *args, **kwargs)
+        raise PermissionDenied
 
     def get(self, request, *args, **kwargs):
         if self.object.author != request.user and request.user.has_perm('forum.change_post'):
@@ -578,16 +576,15 @@ class PostSignal(UpdateView, SinglePostObjectMixin, PostEditMixin):
 
     @method_decorator(login_required)
     @method_decorator(can_write_and_read_now)
-    @method_decorator(transaction.atomic)
     def dispatch(self, request, *args, **kwargs):
-        self.object = self.get_object()
-
-        if not self.object.topic.forum.can_read(request.user):
-            raise PermissionDenied
-        if not self.object.is_visible and not request.user.has_perm('forum.change_post'):
-            raise PermissionDenied
-
-        return super(PostSignal, self).dispatch(request, *args, **kwargs)
+        with transaction.atomic():
+            self.object = self.get_object()
+            can_read = self.object.topic.forum.can_read(request.user)
+            is_visible = self.object.is_visible
+            can_edit = request.user.has_perm('forum.change_post')
+            if can_read and (is_visible or can_edit):
+                return super(PostSignal, self).dispatch(request, *args, **kwargs)
+        raise PermissionDenied
 
     def post(self, request, *args, **kwargs):
         if 'signal_message' in request.POST:
