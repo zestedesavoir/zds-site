@@ -18,7 +18,7 @@ module.exports = function markdownHandlers (Raven) {
     if (typeof markdown !== 'string') markdown = String(markdown)
 
     /* zmd parser memoization */
-    const key = JSON.stringify(opts)
+    const key = `toHTML${JSON.stringify(opts)}`
     if (!processors.hasOwnProperty(key)) {
       const config = clone(defaultConfig)
 
@@ -75,7 +75,7 @@ module.exports = function markdownHandlers (Raven) {
     if (typeof markdown !== 'string') markdown = String(markdown)
 
     /* zmd parser memoization */
-    const key = JSON.stringify(opts)
+    const key = `toLatex${JSON.stringify(opts)}`
     if (!processors.hasOwnProperty(key)) {
       const config = clone(defaultConfig)
 
