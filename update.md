@@ -261,7 +261,7 @@ Issues #2718, #2658 et #2615
 ----------------------------
 
 1. **Sauvegarder** le fichiers de configuration Nginx `zestedesavoir` et `zds-maintenance`.
-2. Les **remplacer** par ceux [présents dans la documentation](http://zds-site.readthedocs.org/fr/latest/install/deploy-in-production.html).
+2. Les **remplacer** par ceux [présents dans la documentation](http://docs.zestedesavoir.com/install/deploy-in-production.html).
 
 Si le fichier `zds-maintenance` n'est pas dans la doc, c'est que vous n'êtes pas sur la bonne version.
 
