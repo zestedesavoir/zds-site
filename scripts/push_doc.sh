@@ -4,6 +4,7 @@
 
 echo "Move the generated doc in a new branch"
 touch doc/build/html/.nojekyll
+echo "docs.zestedesavoir.com" > doc/build/html/CNAME
 git add doc/build/html -f
 git commit -m "Build documentation"
 git subtree split --branch build_doc --prefix doc/build/html
