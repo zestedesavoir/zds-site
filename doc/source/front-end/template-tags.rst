@@ -303,7 +303,7 @@ Récupère la liste des alertes (si l'utilisateur possède les droits pour le fa
 - ``alert.topic`` donne le texte d'alerte.
 
 ``waiting_count``
----------------
+-----------------
 
 Récupère le nombre de tutoriels ou d'articles dans la zone de validation n'ayant pas été réservés par un validateur.
 
@@ -453,8 +453,7 @@ Ce filtre récupère les forums, classés par catégorie.
 où,
 
 - ``top.categories`` est un dictionaire contenant le nom de la catégorie (ici ``title``) et la liste des forums situés dans cette catégorie (ici ``forums``), c'est-à-dire une liste d'objets de type ``Forum`` (`voir le détail de l'implémentation de cet objet ici <../back-end-code/forum.html#zds.forum.models.Forum>`__).
-- ``top.tags`` contient une liste des 5 *tags* les plus utilisés, qui sont des objets de type
-``Tag`` (`voir le détail de l'implémentation de cet objet ici <../back-end-code/utils.html#zds.utils.models.Tag>`__). Certains tags peuvent être exclus de cette liste. Pour exclure un tag, vous devez l'ajouter dans la configuration (top_tag_exclu dans le settings.py).
+- ``top.tags`` contient une liste des 5 *tags* les plus utilisés, qui sont des objets de type ``Tag`` (`voir le détail de l'implémentation de cet objet ici <../back-end-code/utils.html#zds.utils.models.Tag>`__). Certains tags peuvent être exclus de cette liste. Pour exclure un tag, vous devez l'ajouter dans la configuration (top_tag_exclu dans le settings.py).
 
 
 ``top_categories_content``
