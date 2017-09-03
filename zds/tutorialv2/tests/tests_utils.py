@@ -127,7 +127,7 @@ class UtilsTests(TestCase):
 
         public = article.load_version(sha=published.sha_public, public=published)
         self.assertIsNotNone(public)
-        self.assertTrue(public.PUBLIC)  # its a PublicContent object !
+        self.assertTrue(public.PUBLIC)  # it's a PublicContent object
         self.assertEqual(public.type, published.content_type)
         self.assertEqual(public.current_version, published.sha_public)
 
@@ -182,7 +182,7 @@ class UtilsTests(TestCase):
 
         public = midsize_tuto.load_version(sha=published.sha_public, public=published)
         self.assertIsNotNone(public)
-        self.assertTrue(public.PUBLIC)  # its a PublicContent object
+        self.assertTrue(public.PUBLIC)  # it's a PublicContent object
         self.assertEqual(public.type, published.content_type)
         self.assertEqual(public.current_version, published.sha_public)
 
@@ -228,7 +228,7 @@ class UtilsTests(TestCase):
 
         public = bigtuto.load_version(sha=published.sha_public, public=published)
         self.assertIsNotNone(public)
-        self.assertTrue(public.PUBLIC)  # its a PublicContent object
+        self.assertTrue(public.PUBLIC)  # it's a PublicContent object
         self.assertEqual(public.type, published.content_type)
         self.assertEqual(public.current_version, published.sha_public)
 
