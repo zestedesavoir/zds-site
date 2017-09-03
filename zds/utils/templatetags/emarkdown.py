@@ -31,7 +31,7 @@ def get_markdown_instance(inline=False, js_support=False, ping_url=None):
     """
     if not settings.ZDS_APP['comment']['enable_pings']:
         ping_url = None
-    zdsext = ZdsExtension(inline=inline, emoticons=smileys, js_support=js_support, ping_url=ping_url)
+    zdsext = ZdsExtension(inline=inline, emoticons=smileys, js_support=js_support, ping_url=ping_url,marker_key)
     # Generate parser
     markdown = ZMarkdown(
         extensions=(zdsext,),
