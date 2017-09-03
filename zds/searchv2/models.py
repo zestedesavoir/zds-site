@@ -156,7 +156,7 @@ class AbstractESDjangoIndexable(AbstractESIndexable, models.Model):
 
     - Already include ``pk`` in mapping ;
     - Match ES ``_id`` field and ``pk`` ;
-    - Overide ``es_already_indexed`` to a database field.
+    - Override ``es_already_indexed`` to a database field.
     - Define a ``es_flagged`` field to restrict the number of object to be indexed ;
     - Override ``save()`` to manage the field ;
     - Define a ``get_es_django_indexable()`` method that can be overridden to change the queryset to fetch object.
