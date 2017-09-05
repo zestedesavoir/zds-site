@@ -108,7 +108,7 @@ def send_post(request, topic, author, text,):
         post.position = 1
     post.update_content(text)
     post.ip_address = get_client_ip(request)
-    post.with_hat = get_hat_from_request(request)
+    post.hat = get_hat_from_request(request)
     post.save()
 
     topic.last_message = post

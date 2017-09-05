@@ -155,6 +155,71 @@ class Licence(models.Model):
 
 
 @python_2_unicode_compatible
+class Hat(models.Model):
+    """
+    Hats are labels that users can add to their messages.
+    Each member can be allowed to use several hats.
+    It can be used for exemple to allow members to identify
+    that a moderation message was posted by a staff member.
+    """
+
+    name = models.CharField('Casquette', max_length=40, unique=True)
+
+    class Meta:
+        verbose_name = 'Casquette'
+        verbose_name_plural = 'Casquettes'
+
+    def __str__(self):
+        return self.name
+
+
+@python_2_unicode_compatible
+class HatRequest(models.Model):
+    """
+    A hat requested by a user.
+    """
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Utilisateur',
+                             related_name='requested_hats')
+    hat = models.CharField('Casquette', max_length=40)
+    reason = models.TextField('Raison de la demande', max_length=3000)
+    date = models.DateTimeField(auto_now_add=True, db_index=True,
+                                verbose_name='Date de la demande', db_column='request_date')
+
+    class Meta:
+        verbose_name = 'Demande de casquette'
+        verbose_name_plural = 'Demandes de casquettes'
+
+    def __str__(self):
+        return 'Hat {0} requested by {1}'.format(
+            self.hat, self.user.username)
+
+    def get_absolute_url(self):
+        return reverse('hat-request', args=[self.pk])
+
+
+def get_hat_from_request(request, author=None):
+    if author is None:
+        author = request.user
+    if not request.POST.get('with_hat', None):
+        return None
+    try:
+        hat = Hat.objects.get(pk=int(request.POST.get('with_hat')))
+        if hat not in author.profile.hats.all():
+            raise ValueError
+        return hat
+    except (ValueError, Hat.DoesNotExist):
+        logger.warning('User #{0} failed to use hat #{1}.'.format(request.user.pk, request.POST.get('hat')))
+        return None
+
+
+def get_hat_from_settings(key):
+    hat_name = settings.ZDS_APP['hats'][key]
+    hat, _ = Hat.objects.get_or_create(name__iexact=hat_name, defaults={'name': hat_name})
+    return hat
+
+
+@python_2_unicode_compatible
 class Comment(models.Model):
 
     """Comment in forum, articles, tutorial, chapter, etc."""
@@ -192,7 +257,8 @@ class Comment(models.Model):
         max_length=80,
         default='')
 
-    with_hat = models.CharField('Casquette', max_length=40, blank=True)
+    hat = models.ForeignKey(Hat, verbose_name='Casquette', on_delete=models.SET_NULL,
+                            related_name='comments', blank=True, null=True)
 
     def update_content(self, text):
         from zds.notification.models import ping_url
@@ -364,7 +430,7 @@ class Alert(models.Model):
                 '',
                 msg_content,
                 True,
-                with_hat=settings.ZDS_APP['member']['moderation_hat'],
+                hat=get_hat_from_settings('moderation'),
             )
             self.privatetopic = privatetopic
 
@@ -469,62 +535,3 @@ class HelpWriting(models.Model):
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)
         super(HelpWriting, self).save(*args, **kwargs)
-
-
-@python_2_unicode_compatible
-class Hat(models.Model):
-    """
-    Hats are labels that users can add to their messages.
-    Each member can be allowed to use several hats.
-    It can be used for exemple to allow members to identify
-    that a moderation message was posted by a staff member.
-    """
-
-    name = models.CharField('Casquette', max_length=40, unique=True)
-
-    class Meta:
-        verbose_name = 'Casquette'
-        verbose_name_plural = 'Casquettes'
-
-    def __str__(self):
-        return self.name
-
-
-@python_2_unicode_compatible
-class HatRequest(models.Model):
-    """
-    A hat requested by a user.
-    """
-
-    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Utilisateur',
-                             related_name='requested_hats')
-    hat = models.CharField('Casquette', max_length=40)
-    reason = models.TextField('Raison de la demande', max_length=3000)
-    date = models.DateTimeField(auto_now_add=True, db_index=True,
-                                verbose_name='Date de la demande', db_column='request_date')
-
-    class Meta:
-        verbose_name = 'Demande de casquette'
-        verbose_name_plural = 'Demandes de casquettes'
-
-    def __str__(self):
-        return 'Hat {0} requested by {1}'.format(
-            self.hat, self.user.username)
-
-    def get_absolute_url(self):
-        return reverse('hat-request', args=[self.pk])
-
-
-def get_hat_from_request(request, author=None):
-    if author is None:
-        author = request.user
-    if not request.POST.get('hat', None):
-        return ''
-    try:
-        hat = Hat.objects.get(pk=int(request.POST.get('hat')))
-        if hat not in author.profile.hats.all():
-            raise ValueError
-        return hat.name
-    except (ValueError, Hat.DoesNotExist):
-        logger.warning('User #{0} failed to use hat #{1}.'.format(request.user.pk, request.POST.get('hat')))
-        return ''

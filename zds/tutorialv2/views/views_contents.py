@@ -48,7 +48,7 @@ from zds.tutorialv2.utils import search_container_or_404, get_target_tagged_tree
     default_slug_pool, BadArchiveError, InvalidSlugError
 from zds.utils.forums import send_post, lock_topic, create_topic, unlock_topic
 
-from zds.utils.models import HelpWriting
+from zds.utils.models import HelpWriting, get_hat_from_settings
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView, make_pagination
 
@@ -405,7 +405,7 @@ class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteV
                         self.object.title,
                         msg,
                         False,
-                        with_hat=settings.ZDS_APP['member']['validation_hat'],
+                        hat=get_hat_from_settings('validation'),
                     )
             if self.object.beta_topic is not None:
                 beta_topic = self.object.beta_topic
@@ -1426,7 +1426,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                             beta_version.title,
                             msg_pm,
                             False,
-                            with_hat=settings.ZDS_APP['member']['validation_hat'])
+                            hat=get_hat_from_settings('validation'))
                 else:
                     all_tags = self._get_all_tags()
                     if not already_in_beta:
@@ -1778,7 +1778,7 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
                     }),
                     True,
                     direct=False,
-                    with_hat=settings.ZDS_APP['member']['validation_hat'],
+                    hat=get_hat_from_settings('validation'),
                 )
                 UserGallery(gallery=self.object.gallery, user=user, mode=GALLERY_WRITE).save()
         self.object.save()

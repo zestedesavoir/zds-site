@@ -118,6 +118,7 @@ class PostManager(InheritanceManager):
 
     def get_messages_of_a_topic(self, topic_pk):
         return self.filter(topic__pk=topic_pk)\
+                   .select_related('hat')\
                    .select_related('author__profile')\
                    .prefetch_related('alerts_on_this_comment')\
                    .prefetch_related('alerts_on_this_comment__author')\

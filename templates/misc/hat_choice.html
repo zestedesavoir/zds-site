@@ -16,11 +16,11 @@
             {% trans "Poster avec ma casquette :" %}
         {% endif %}
     </label>
-    <select name="hat" id="hat-choice">
+    <select name="with_hat" id="hat-choice">
         <option value>{% trans "–" %}</option>
         {% for hat in hats_owner.profile.hats.all %}
             <option value="{{ hat.pk }}"
-                {% if request.POST.hat|add:0 == hat.pk or not request.POST.hat and edited_message.with_hat == hat.name %}
+                {% if request.POST.with_hat|add:0 == hat.pk or not request.POST.with_hat and edited_message.hat == hat %}
                     selected
                 {% endif %}
             >
@@ -28,7 +28,7 @@
             </option>
         {% endfor %}
     </select>
-{% elif edited_message.with_hat %}
+{% elif edited_message.hat %}
     {% blocktrans %}
         <strong>Attention</strong>, la casquette sera supprimée.
     {% endblocktrans %}
