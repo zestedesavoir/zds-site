@@ -159,9 +159,9 @@
         </div>
 
         <div class="message-content">
-            {% if message.with_hat and message.is_visible != False %}
-                <p class="with-hat" title="{% blocktrans with hat=message.with_hat %}Posté avec la casquette « {{ hat }} »{% endblocktrans %}">
-                    {{ message.with_hat }}
+            {% if message.hat and message.is_visible != False %}
+                <p class="with-hat" title="{% blocktrans with hat=message.hat.name %}Posté avec la casquette « {{ hat }} »{% endblocktrans %}">
+                    {{ message.hat.name }}
                 </p>
             {% endif %}
 

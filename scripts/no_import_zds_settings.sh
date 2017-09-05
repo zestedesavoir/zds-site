@@ -5,7 +5,7 @@ cd "$(dirname "$0")"
 cd ../zds
 
 search() {
-    grep -rn zds | grep settings | grep import | grep -v '^settings'
+    grep -rn zds | grep settings | grep import | grep -v '^settings' | grep -v 'get_hat_from_settings'
 }
 
 if ! search >/dev/null

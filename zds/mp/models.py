@@ -1,14 +1,15 @@
 # coding: utf-8
 from __future__ import unicode_literals
-from django.utils.encoding import python_2_unicode_compatible
 from math import ceil
+
+from django.utils.encoding import python_2_unicode_compatible
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db import models
+
 from zds.mp.managers import PrivateTopicManager, PrivatePostManager
 from zds.notification import signals
-
 from zds.utils import get_current_user, slugify
 
 
@@ -223,7 +224,8 @@ class PrivatePost(models.Model):
     pubdate = models.DateTimeField(u'Date de publication', auto_now_add=True, db_index=True)
     update = models.DateTimeField(u'Date d\'édition', null=True, blank=True)
     position_in_topic = models.IntegerField(u'Position dans le sujet', db_index=True)
-    with_hat = models.CharField('Casquette', max_length=40, blank=True)
+    hat = models.ForeignKey('utils.Hat', on_delete=models.SET_NULL, verbose_name='Casquette',
+                            related_name='privateposts', blank=True, null=True)
     objects = PrivatePostManager()
 
     def __str__(self):

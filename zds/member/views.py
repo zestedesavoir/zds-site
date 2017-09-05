@@ -44,7 +44,7 @@ from zds.mp.models import PrivatePost, PrivateTopic
 from zds.notification.models import TopicAnswerSubscription, NewPublicationSubscription
 from zds.tutorialv2.models.models_database import PublishedContent, PickListOperation
 from zds.utils.misc import contains_utf8mb4
-from zds.utils.models import Comment, CommentVote, Alert, CommentEdit, Hat, HatRequest
+from zds.utils.models import Comment, CommentVote, Alert, CommentEdit, Hat, HatRequest, get_hat_from_settings
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView
 from zds.utils.tokens import generate_token
@@ -791,7 +791,7 @@ def solve_hat_request(request, request_pk):
             False,
             True,
             False,
-            with_hat=settings.ZDS_APP['member']['moderation_hat'])
+            hat=get_hat_from_settings('hats_management'))
 
     hat_request.delete()
 
@@ -1053,7 +1053,7 @@ def activate_account(request):
             False,
             True,
             False,
-            with_hat=settings.ZDS_APP['member']['moderation_hat'])
+            hat=get_hat_from_settings('moderation'))
     token.delete()
 
     # Create an alert for the staff if it's a new provider
@@ -1195,7 +1195,7 @@ def settings_promote(request, user_pk):
             msg,
             True,
             True,
-            with_hat=settings.ZDS_APP['member']['moderation_hat'],
+            hat=get_hat_from_settings('moderation'),
         )
 
         return redirect(profile.get_absolute_url())
