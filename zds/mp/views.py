@@ -116,7 +116,7 @@ class PrivateTopicNew(CreateView):
                           form.data['text'],
                           True,
                           False,
-                          with_hat=get_hat_from_request(self.request))
+                          hat=get_hat_from_request(self.request))
 
         return redirect(p_topic.get_absolute_url())
 
@@ -290,7 +290,7 @@ class PrivatePostAnswer(CreatePostView):
 
     def form_valid(self, form):
         send_message_mp(self.request.user, self.object, form.data.get('text'), True, False,
-                        with_hat=get_hat_from_request(self.request))
+                        hat=get_hat_from_request(self.request))
         return redirect(self.object.last_message.get_absolute_url())
 
 
@@ -359,6 +359,6 @@ class PrivatePostEdit(UpdateView, UpdatePrivatePost):
 
     def form_valid(self, form):
         self.perform_update(self.current_post, self.request.POST,
-                            with_hat=get_hat_from_request(self.request, self.current_post.author))
+                            hat=get_hat_from_request(self.request, self.current_post.author))
 
         return redirect(self.current_post.get_absolute_url())

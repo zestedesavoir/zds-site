@@ -80,6 +80,7 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
         queryset_reactions = ContentReaction.objects\
             .select_related('author') \
             .select_related('author__profile') \
+            .select_related('hat') \
             .select_related('editor') \
             .prefetch_related('alerts_on_this_comment') \
             .prefetch_related('alerts_on_this_comment__author') \
@@ -637,6 +638,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
         context['notes'] = ContentReaction.objects\
             .select_related('author') \
             .select_related('author__profile') \
+            .select_related('hat') \
             .select_related('editor') \
             .prefetch_related('alerts_on_this_comment') \
             .prefetch_related('alerts_on_this_comment__author') \
@@ -701,7 +703,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
 
             self.reaction.update = datetime.now()
             self.reaction.editor = self.request.user
-            self.reaction.with_hat = get_hat_from_request(self.request, self.reaction.author)
+            self.reaction.hat = get_hat_from_request(self.request, self.reaction.author)
 
         else:
             self.reaction = ContentReaction()
@@ -709,7 +711,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
             self.reaction.author = self.request.user
             self.reaction.position = self.object.get_note_count() + 1
             self.reaction.related_content = self.object
-            self.reaction.with_hat = get_hat_from_request(self.request)
+            self.reaction.hat = get_hat_from_request(self.request)
 
             is_new = True
 

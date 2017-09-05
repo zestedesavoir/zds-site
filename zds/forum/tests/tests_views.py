@@ -383,12 +383,12 @@ class TopicNewTest(TestCase):
             'subtitle': 'Subtitle of the topic',
             'text': 'A new post!',
             'tags': '',
-            'hat': hat.pk,
+            'with_hat': hat.pk,
         }
         response = self.client.post(reverse('topic-new') + '?forum={}'.format(forum.pk), data, follow=False)
 
         self.assertEqual(302, response.status_code)
-        self.assertEqual(Post.objects.latest('pubdate').with_hat, hat.name)
+        self.assertEqual(Post.objects.latest('pubdate').hat, hat)
 
 
 class TopicEditTest(TestCase):
@@ -1109,52 +1109,52 @@ class PostNewTest(TestCase):
         data = {
             'text': 'A new post!',
             'last_post': topic.last_message.pk,
-            'hat': 'abc',
+            'with_hat': 'abc',
         }
         response = self.client.post(reverse('post-new') + '?sujet={}'.format(topic.pk), data, follow=False)
         self.assertEqual(302, response.status_code)
         topic = Topic.objects.get(pk=topic.pk)  # refresh
         self.assertEqual(2, Post.objects.filter(topic__pk=topic.pk).count())
-        self.assertEqual(topic.last_message.with_hat, '')  # Hat wasn't used
+        self.assertEqual(topic.last_message.hat, None)  # Hat wasn't used
 
         # Post with a hat that doesn't exist
         topic = add_topic_in_a_forum(forum, another_profile)
         data = {
             'text': 'A new post!',
             'last_post': topic.last_message.pk,
-            'hat': 1587,
+            'with_hat': 1587,
         }
         response = self.client.post(reverse('post-new') + '?sujet={}'.format(topic.pk), data, follow=False)
         self.assertEqual(302, response.status_code)
         topic = Topic.objects.get(pk=topic.pk)  # refresh
         self.assertEqual(2, Post.objects.filter(topic__pk=topic.pk).count())
-        self.assertEqual(topic.last_message.with_hat, '')  # Hat wasn't used
+        self.assertEqual(topic.last_message.hat, None)  # Hat wasn't used
 
         # Post with a hat the user hasn't
         topic = add_topic_in_a_forum(forum, another_profile)
         data = {
             'text': 'A new post!',
             'last_post': topic.last_message.pk,
-            'hat': other_hat.pk,
+            'with_hat': other_hat.pk,
         }
         response = self.client.post(reverse('post-new') + '?sujet={}'.format(topic.pk), data, follow=False)
         self.assertEqual(302, response.status_code)
         topic = Topic.objects.get(pk=topic.pk)  # refresh
         self.assertEqual(2, Post.objects.filter(topic__pk=topic.pk).count())
-        self.assertEqual(topic.last_message.with_hat, '')  # Hat wasn't used
+        self.assertEqual(topic.last_message.hat, None)  # Hat wasn't used
 
         # Post with a hat the user has
         topic = add_topic_in_a_forum(forum, another_profile)
         data = {
             'text': 'A new post!',
             'last_post': topic.last_message.pk,
-            'hat': hat.pk,
+            'with_hat': hat.pk,
         }
         response = self.client.post(reverse('post-new') + '?sujet={}'.format(topic.pk), data, follow=False)
         self.assertEqual(302, response.status_code)
         topic = Topic.objects.get(pk=topic.pk)  # refresh
         self.assertEqual(2, Post.objects.filter(topic__pk=topic.pk).count())
-        self.assertEqual(topic.last_message.with_hat, hat.name)  # Hat was used
+        self.assertEqual(topic.last_message.hat, hat)  # Hat was used
 
 
 class PostEditTest(TestCase):
@@ -1442,11 +1442,11 @@ class PostEditTest(TestCase):
         data = {
             'text': 'A new post!',
             'last_post': topic.last_message.pk,
-            'hat': hat.pk,
+            'with_hat': hat.pk,
         }
         self.client.post(reverse('post-new') + '?sujet={}'.format(topic.pk), data, follow=False)
         topic = Topic.objects.get(pk=topic.pk)  # refresh
-        self.assertEqual(topic.last_message.with_hat, hat.name)  # Hat was used
+        self.assertEqual(topic.last_message.hat, hat)  # Hat was used
 
         # test that it's possible to remove the hat
         data = {
@@ -1455,28 +1455,28 @@ class PostEditTest(TestCase):
         self.client.post(
             reverse('post-edit') + '?message={}'.format(topic.last_message.pk), data, follow=False)
         topic = Topic.objects.get(pk=topic.pk)  # refresh
-        self.assertEqual(topic.last_message.with_hat, '')  # Hat was removed
+        self.assertEqual(topic.last_message.hat, None)  # Hat was removed
 
         # test that it's impossible to use a hat the user hasn't
         data = {
             'text': 'A new post!',
-            'hat': other_hat.pk,
+            'with_hat': other_hat.pk,
         }
         self.client.post(
             reverse('post-edit') + '?message={}'.format(topic.last_message.pk), data, follow=False)
         topic = Topic.objects.get(pk=topic.pk)  # refresh
-        self.assertEqual(topic.last_message.with_hat, '')  # Hat wasn't used
+        self.assertEqual(topic.last_message.hat, None)  # Hat wasn't used
 
         # but check that it's possible to use a hat the user has
         profile.hats.add(other_hat)
         data = {
             'text': 'A new post!',
-            'hat': other_hat.pk,
+            'with_hat': other_hat.pk,
         }
         self.client.post(
             reverse('post-edit') + '?message={}'.format(topic.last_message.pk), data, follow=False)
         topic = Topic.objects.get(pk=topic.pk)  # refresh
-        self.assertEqual(topic.last_message.with_hat, other_hat.name)  # Now, it works
+        self.assertEqual(topic.last_message.hat, other_hat)  # Now, it works
 
     def test_creation_archive_on_edit(self):
         profile = ProfileFactory()

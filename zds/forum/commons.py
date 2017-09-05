@@ -172,7 +172,7 @@ class PostEditMixin(object):
         edit.save()
 
         post.update_content(text)
-        post.with_hat = get_hat_from_request(request, post.author)
+        post.hat = get_hat_from_request(request, post.author)
         post.update = datetime.now()
         post.editor = user
         post.save()
