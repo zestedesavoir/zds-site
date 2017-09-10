@@ -59,6 +59,7 @@
              */
             this.target = $(this.options.target);
 
+            this.hasContent = false;
             this.setOrientation("top");
             this.setContent(this.options.content);
             this.hide();
@@ -114,17 +115,26 @@
         /**
          * Set the content of the tooltip
          *
-         * @param {string} content - HTML content of the tooltip
+         * @param {string|Array} content - content of the tooltip
          */
         setContent: function(content) {
-            this.content = $.trim(content);
-            this.elem.html(this.content);
+            if (!Array.isArray(content)) content = [content];
+            this.elem.empty();
+            this.hasContent = false;
 
-            if(this.content === "") {
-                this.hide();
-            } else if(this.mouseon) {
-                this.show();
+            for (var i = 0; i < content.length; i++) {
+                if (!content[i]) continue;
+                this.hasContent = true;
+
+                if (typeof content[i] === "string") {
+                    this.elem.append(document.createTextNode($.trim(content[i])));
+                } else {
+                    this.elem.append(content[i]);
+                }
             }
+
+            if (!this.hasContent) this.hide();
+            else if (this.mouseon) this.show(); // Recalculate tooltip position
         },
 
         /**
@@ -139,7 +149,7 @@
          * Show the tooltip if the content is not empty
          */
         show: function() {
-            if(this.content !== "") {
+            if(this.hasContent) {
                 this.wrapper.show();
                 this.elem.attr("aria-hidden", false);
                 this.recalc(); // Need to recalc on this tick & on next
