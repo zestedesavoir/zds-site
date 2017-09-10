@@ -141,3 +141,14 @@
     fields:
         user: 8
         last_ip_address: 192.168.0.1
+
+-   model: utils.Hat
+    pk: 1
+    fields:
+        name: Staff
+        group: 1
+-   model: utils.Hat
+    pk: 2
+    fields:
+        name: Équipe technique
+        group: 3

@@ -1391,6 +1391,11 @@ class MemberTests(TestCase):
         self.assertEqual(result.status_code, 200)
         self.assertContains(result, _('Casquettes'))
         self.assertContains(result, hat_name)
+        # Test that a hat linked to a group appears
+        result = self.client.get(self.staff.profile.get_absolute_url())
+        self.assertEqual(result.status_code, 200)
+        self.assertContains(result, _('Casquettes'))
+        self.assertContains(result, 'Staff')
 
     def test_add_hat(self):
         short_hat = 'A new hat'
@@ -1413,6 +1418,9 @@ class MemberTests(TestCase):
         # test that it doesn't work with a hat using utf8mb4 characters
         result = self.client.post(reverse('add-hat', args=[user.pk]),
                                   {'hat': '🍊'}, follow=False)
+        # test that it doesn't work with a hat linked to a group
+        result = self.client.post(reverse('add-hat', args=[user.pk]),
+                                  {'hat': 'Staff'}, follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertNotIn(long_hat, profile.hats.values_list('name', flat=True))
         # test that it works with a short hat (<= 40 characters)
@@ -1533,7 +1541,7 @@ class MemberTests(TestCase):
     def test_hats_settings(self):
         hat_name = 'A hat'
         other_hat_name = 'Another hat'
-        hat, _ = hat, _ = Hat.objects.get_or_create(name__iexact=hat_name, defaults={'name': hat_name})
+        hat, _ = Hat.objects.get_or_create(name__iexact=hat_name, defaults={'name': hat_name})
         requests_count = HatRequest.objects.count()
         profile = ProfileFactory()
         profile.hats.add(hat)
@@ -1563,6 +1571,13 @@ class MemberTests(TestCase):
         # and check it's impossible to ask for it again
         result = self.client.post(reverse('hats-settings'), {
             'hat': other_hat_name,
+            'reason': 'test',
+        }, follow=False)
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(HatRequest.objects.count(), requests_count + 1)  # request wasn't sent
+        # check that it's impossible to ask for a hat linked to a group
+        result = self.client.post(reverse('hats-settings'), {
+            'hat': 'Staff',
             'reason': 'test',
         }, follow=False)
         self.assertEqual(result.status_code, 200)

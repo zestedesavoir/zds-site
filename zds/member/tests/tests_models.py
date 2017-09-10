@@ -17,7 +17,7 @@ from zds.member.factories import ProfileFactory, StaffProfileFactory, DevProfile
 from zds.member.models import TokenForgotPassword, TokenRegister, Profile
 from zds.tutorialv2.factories import PublishableContentFactory, PublishedContentFactory
 from zds.gallery.factories import GalleryFactory, ImageFactory
-from zds.utils.models import Alert
+from zds.utils.models import Alert, Hat
 from copy import deepcopy
 
 overridden_zds_app = deepcopy(settings.ZDS_APP)
@@ -428,6 +428,19 @@ class MemberModelsTest(TestCase):
         self.assertNotIn(profile_ban_temp, profiles_reacheable)
         self.assertIn(profile_ls_def, profiles_reacheable)
         self.assertIn(profile_ls_temp, profiles_reacheable)
+
+    def test_remove_hats_linked_to_group(self):
+        # create a hat linked to a group
+        hat_name = 'Test hat'
+        hat, _ = Hat.objects.get_or_create(name__iexact=hat_name, defaults={'name': hat_name})
+        group, _ = Group.objects.get_or_create(name='test_hat')
+        hat.group = group
+        hat.save()
+        # add it to a user
+        self.user1.hats.add(hat)
+        self.user1.save()
+        # the user shound't have the hat through their profile
+        self.assertNotIn(hat, self.user1.hats.all())
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):

@@ -18,7 +18,7 @@
     </label>
     <select name="with_hat" id="hat-choice">
         <option value>{% trans "–" %}</option>
-        {% for hat in hats_owner.profile.hats.all %}
+        {% for hat in hats_owner.profile.get_hats %}
             <option value="{{ hat.pk }}"
                 {% if request.POST.with_hat|add:0 == hat.pk or not request.POST.with_hat and edited_message.hat == hat %}
                     selected

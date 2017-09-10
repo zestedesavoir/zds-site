@@ -92,10 +92,10 @@
         {% if profile.has_hat or perms.utils.change_hat %}
             <h2 id="casquettes">{% trans "Casquettes" %}</h2>
             <ul>
-                {% for hat in profile.hats.all %}
+                {% for hat in profile.get_hats %}
                     <li>
                         {{ hat.name }}
-                        {% if perms.utils.change_hat %}
+                        {% if perms.utils.change_hat and not hat.group %}
                             – <a href="#remove-hat-{{ hat.pk }}" class="open-modal">{% trans "Retirer" %}</a>
                         {% endif %}
                     </li>
