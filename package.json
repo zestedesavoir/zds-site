@@ -47,7 +47,7 @@
     "normalize.css": "7.0.0",
     "pm2": "^2.6.1",
     "raven": "^2.1.2",
-    "zmarkdown": "^1.0.8"
+    "zmarkdown": "^2.1.0"
   },
   "devDependencies": {
     "gulp-jshint": "2.0.4",
