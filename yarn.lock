@@ -4762,9 +4762,9 @@ remark-custom-blocks@^1.0.6:
   dependencies:
     space-separated-tokens "^1.1.1"
 
-remark-disable-tokenizers@^1.0.7:
-  version "1.0.7"
-  resolved "https://registry.yarnpkg.com/remark-disable-tokenizers/-/remark-disable-tokenizers-1.0.7.tgz#34c0f8fd90ef2eb89a6ab3a4acd90b731cbff812"
+remark-disable-tokenizers@^1.0.9:
+  version "1.0.9"
+  resolved "https://registry.yarnpkg.com/remark-disable-tokenizers/-/remark-disable-tokenizers-1.0.9.tgz#ae527ebadeca635872eb134e4d4a280fe155b7da"
   dependencies:
     clone "^2.1.1"
 
@@ -4792,9 +4792,9 @@ remark-heading-trailing-spaces@^0.0.18:
   version "0.0.18"
   resolved "https://registry.yarnpkg.com/remark-heading-trailing-spaces/-/remark-heading-trailing-spaces-0.0.18.tgz#266ea548c587b1a3833cf121201918ae929f98bc"
 
-remark-iframes@^1.0.6:
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/remark-iframes/-/remark-iframes-1.0.6.tgz#5cd5c32aa3d99fe5ddfb91ea783711578f34ec62"
+remark-iframes@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/remark-iframes/-/remark-iframes-2.0.0.tgz#731ef68862bfdd810ae0890a9a9c6c45a97d0a92"
 
 remark-kbd@^1.0.6:
   version "1.0.6"
@@ -6251,9 +6251,9 @@ yauzl@^2.2.1:
     buffer-crc32 "~0.2.3"
     fd-slicer "~1.0.1"
 
-zmarkdown@^1.0.8:
-  version "1.0.8"
-  resolved "https://registry.yarnpkg.com/zmarkdown/-/zmarkdown-1.0.8.tgz#23a0af7979981881c2a25a4821ae81cabd73c4d2"
+zmarkdown@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/zmarkdown/-/zmarkdown-2.1.0.tgz#901cab05ae93b1b3c803dcf736652b9d3ce07657"
   dependencies:
     dedent "^0.7.0"
     rebber "^2.0.2"
@@ -6270,13 +6270,13 @@ zmarkdown@^1.0.8:
     remark-captions "^1.0.5"
     remark-comments "^1.0.7"
     remark-custom-blocks "^1.0.6"
-    remark-disable-tokenizers "^1.0.7"
+    remark-disable-tokenizers "^1.0.9"
     remark-emoticons "^0.0.25"
     remark-escape-escaped "^0.0.22"
     remark-grid-tables "^1.0.6"
     remark-heading-shift "^1.0.3"
     remark-heading-trailing-spaces "^0.0.18"
-    remark-iframes "^1.0.6"
+    remark-iframes "^2.0.0"
     remark-kbd "^1.0.6"
     remark-math "^1.0.1"
     remark-numbered-footnotes "^1.0.1"
