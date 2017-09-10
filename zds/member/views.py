@@ -821,8 +821,12 @@ def add_hat(request, user_pk):
         hat, created = Hat.objects.get_or_create(name__iexact=hat_name, defaults={'name': hat_name})
         if created:
             messages.success(request, _(u'La casquette « {} » a été créée.').format(hat_name))
-        user.profile.hats.add(hat)
-        messages.success(request, _(u'La casquette a bien été ajoutée.'))
+        if hat.group:
+            messages.error(request, _(u'Cette casquette est accordée aux membres d\'un groupe particulier. '
+                                      u'Elle ne peut pas être ajoutée individuellement.'))
+        else:
+            user.profile.hats.add(hat)
+            messages.success(request, _(u'La casquette a bien été ajoutée.'))
 
         # if hat was asked, remove request
         HatRequest.objects.filter(user=user, hat__iexact=hat_name).delete()

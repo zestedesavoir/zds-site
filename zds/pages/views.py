@@ -230,8 +230,8 @@ def restore_edit(request, edit_pk):
     comment.update = datetime.now()
     comment.editor = request.user
     comment.update_content(edit.original_text)
-    # remove hat if the author hasn't it anymore
-    if comment.hat and comment.hat not in comment.author.profile.hats.all():
+    # remove hat if the author doesn't have it anymore
+    if comment.hat and comment.hat not in comment.author.profile.get_hats():
         comment.hat = None
     comment.save()
 

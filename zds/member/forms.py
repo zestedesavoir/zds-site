@@ -18,7 +18,7 @@ from zds.member.validators import validate_not_empty, validate_zds_email, valida
     validate_zds_password
 from zds.utils.forms import CommonLayoutModalText
 from zds.utils.misc import contains_utf8mb4
-from zds.utils.models import Licence, HatRequest
+from zds.utils.models import Licence, HatRequest, Hat
 from zds.utils import get_current_user
 
 # Max password length for the user.
@@ -686,8 +686,16 @@ class HatRequestForm(forms.ModelForm):
         user = get_current_user()
         if contains_utf8mb4(data):
             raise forms.ValidationError(_(u'Les caractères utf8mb4 ne sont pas autorisés dans les casquettes.'))
-        if data.lower() in [hat.lower() for hat in user.profile.hats.values_list('name', flat=True)]:
+        if data.lower() in [hat.name.lower() for hat in user.profile.get_hats()]:
             raise forms.ValidationError(_(u'Vous possédez déjà cette casquette.'))
         if data.lower() in [hat.lower() for hat in user.requested_hats.values_list('hat', flat=True)]:
             raise forms.ValidationError(_(u'Vous avez déjà demandé cette casquette.'))
+        try:
+            hat = Hat.objects.get(name__iexact=data)
+            if hat.group:
+                raise forms.ValidationError(_(u'Cette casquette n\'est accordée qu\'aux membres '
+                                              u'd\'un groupe particulier. Vous ne pouvez pas '
+                                              u'la demander.'))
+        except Hat.DoesNotExist:
+            pass
         return data

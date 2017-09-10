@@ -10,12 +10,13 @@ from uuslug import uuslug
 
 from django.conf import settings
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.core.urlresolvers import reverse
 from django.utils.encoding import smart_text
 from django.db import models
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
+from django.dispatch import receiver
 
 from easy_thumbnails.fields import ThumbnailerImageField
 
@@ -159,11 +160,15 @@ class Hat(models.Model):
     """
     Hats are labels that users can add to their messages.
     Each member can be allowed to use several hats.
+    A hat may also be linked to a group, which
+    allows all members of the group to use it.
     It can be used for exemple to allow members to identify
     that a moderation message was posted by a staff member.
     """
 
     name = models.CharField('Casquette', max_length=40, unique=True)
+    group = models.ForeignKey(Group, on_delete=models.SET_NULL, verbose_name='Groupe possédant la casquette',
+                              related_name='hats', db_index=True, null=True, blank=True)
 
     class Meta:
         verbose_name = 'Casquette'
@@ -198,6 +203,18 @@ class HatRequest(models.Model):
         return reverse('hat-request', args=[self.pk])
 
 
+@receiver(models.signals.post_save, sender=Hat)
+def prevent_users_getting_hat_linked_to_group(sender, instance, **kwargs):
+    """
+    When a hat is saved with a linked group, all users that have gotten it by another way
+    lose it to prevent a hat from being linked to a user through their profile and one of their groups.
+    Hat requests for this hat are also canceled.
+    """
+    if instance.group:
+        instance.profile_set.clear()
+        HatRequest.objects.filter(hat__iexact=instance.name).delete()
+
+
 def get_hat_from_request(request, author=None):
     if author is None:
         author = request.user
@@ -205,7 +222,7 @@ def get_hat_from_request(request, author=None):
         return None
     try:
         hat = Hat.objects.get(pk=int(request.POST.get('with_hat')))
-        if hat not in author.profile.hats.all():
+        if hat not in author.profile.get_hats():
             raise ValueError
         return hat
     except (ValueError, Hat.DoesNotExist):
