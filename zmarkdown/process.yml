@@ -1,0 +1,4 @@
+apps:
+  - script: zmarkdown/markdown-server.js
+    instances: 3
+    max_memory_restart : 100M

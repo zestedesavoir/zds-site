@@ -2,23 +2,25 @@
 import codecs
 import copy
 import logging
-import os
-from os.path import isdir, dirname
 import shutil
 import subprocess
 import zipfile
 from datetime import datetime
+from os import makedirs, mkdir, path
 
-from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
 
-from zds.tutorialv2.models.models_database import ContentReaction
+from django.conf import settings
+from zds.tutorialv2.epub_utils import build_ebook
+from zds.tutorialv2.models.models_database import ContentReaction, PublishedContent
+from zds.tutorialv2.publish_container import publish_container
 from zds.tutorialv2.signals import content_unpublished
 from zds.tutorialv2.utils import retrieve_and_update_images_links
-from zds.utils.templatetags.emarkdown import emarkdown
+from zds.utils.templatetags.emarkdown import render_markdown, MD_PARSING_ERROR
+from zds.utils.templatetags.smileysDef import SMILEYS_BASE_PATH
 
 
 def publish_content(db_object, versioned, is_major_update=True):
@@ -45,23 +47,22 @@ def publish_content(db_object, versioned, is_major_update=True):
     if is_major_update:
         versioned.pubdate = datetime.now()
 
-    # First write the files in a temporary directory: if anything goes wrong,
+    # First write the files to a temporary directory: if anything goes wrong,
     # the last published version is not impacted !
-    tmp_path = os.path.join(settings.ZDS_APP['content']['repo_public_path'], versioned.slug + '__building')
-
-    if os.path.exists(tmp_path):
-        shutil.rmtree(tmp_path)  # erase previous attempt, if any
+    tmp_path = path.join(settings.ZDS_APP['content']['repo_public_path'], versioned.slug + '__building')
+    if path.exists(tmp_path):
+        shutil.rmtree(tmp_path)  # remove previous attempt, if any
 
     # render HTML:
     altered_version = copy.deepcopy(versioned)
     publish_container(db_object, tmp_path, altered_version)
-    altered_version.dump_json(os.path.join(tmp_path, 'manifest.json'))
+    altered_version.dump_json(path.join(tmp_path, 'manifest.json'))
 
     # make room for 'extra contents'
-    extra_contents_path = os.path.join(tmp_path, settings.ZDS_APP['content']['extra_contents_dirname'])
-    os.makedirs(extra_contents_path)
+    build_extra_contents_path = path.join(tmp_path, settings.ZDS_APP['content']['extra_contents_dirname'])
+    makedirs(build_extra_contents_path)
 
-    base_name = os.path.join(extra_contents_path, versioned.slug)
+    base_name = path.join(build_extra_contents_path, versioned.slug)
 
     # 1. markdown file (base for the others) :
     # If we come from a command line, we need to activate i18n, to have the date in the french language.
@@ -73,27 +74,15 @@ def publish_content(db_object, versioned, is_major_update=True):
     finally:
         translation.activate(cur_language)
 
-    parsed_with_local_images = retrieve_and_update_images_links(parsed, directory=extra_contents_path)
+    parsed_with_local_images = retrieve_and_update_images_links(parsed, directory=build_extra_contents_path)
 
     md_file_path = base_name + '.md'
-    md_file = codecs.open(md_file_path, 'w', encoding='utf-8')
-    try:
-        md_file.write(parsed_with_local_images)
-    except (UnicodeError, UnicodeEncodeError):
-        raise FailureDuringPublication(_(u'Une erreur est survenue durant la génération du fichier markdown '
-                                         u'à télécharger, vérifiez le code markdown'))
-    finally:
-        md_file.close()
-
-    pandoc_debug_str = ''
-    if settings.PANDOC_LOG_STATE:
-        pandoc_debug_str = ' 2>&1 | tee -a ' + settings.PANDOC_LOG
-    if settings.ZDS_APP['content']['extra_content_generation_policy'] == 'SYNC':
-        # ok, now we can really publish the thing !
-        generate_exernal_content(base_name, extra_contents_path, md_file_path, pandoc_debug_str)
-    elif settings.ZDS_APP['content']['extra_content_generation_policy'] == 'WATCHDOG':
-        PublicatorRegistery.get('watchdog').publish(md_file_path, base_name, silently_pass=False)
-
+    with codecs.open(md_file_path, 'w', encoding='utf-8') as md_file:
+        try:
+            md_file.write(parsed_with_local_images)
+        except (UnicodeError, UnicodeEncodeError):
+            raise FailureDuringPublication(_(u'Une erreur est survenue durant la génération du fichier markdown '
+                                             u'à télécharger, vérifiez le code markdown'))
     is_update = False
 
     if db_object.public_version:
@@ -102,6 +91,7 @@ def publish_content(db_object, versioned, is_major_update=True):
 
         # the content have been published in the past, so clean old files !
         old_path = public_version.get_prod_path()
+        logging.getLogger(__name__).debug('erase ' + old_path)
         shutil.rmtree(old_path)
 
         # if the slug change, instead of using the same object, a new one will be created
@@ -124,18 +114,13 @@ def publish_content(db_object, versioned, is_major_update=True):
     public_version.content_pk = db_object.pk
     public_version.content = db_object
     public_version.must_reindex = True
+    # TODO: use update instead of save !
     public_version.save()
     public_version.char_count = public_version.get_char_count(md_file_path)
 
     for author in db_object.authors.all():
         public_version.authors.add(author)
     public_version.save()
-    # move the stuffs into the good position
-    if settings.ZDS_APP['content']['extra_content_generation_policy'] != 'WATCHDOG':
-        shutil.move(tmp_path, public_version.get_prod_path())
-    else:  # if we use watchdog, we use copy to get md and zip file in prod but everything else will be handled by
-        # watchdog
-        shutil.copytree(tmp_path, public_version.get_prod_path())
     # save public version
     if is_major_update or not is_update:
         public_version.publication_date = datetime.now()
@@ -143,16 +128,21 @@ def publish_content(db_object, versioned, is_major_update=True):
         public_version.update_date = datetime.now()
 
     public_version.sha_public = versioned.current_version
+    # TODO: use update
     public_version.save()
-    try:
-        make_zip_file(public_version)
-    except IOError:
-        pass
+    # this puts the manifest.json and base json file on the prod path.
+    shutil.rmtree(public_version.get_prod_path(), ignore_errors=True)
+    shutil.copytree(tmp_path, public_version.get_prod_path())
+    if settings.ZDS_APP['content']['extra_content_generation_policy'] == 'SYNC':
+        # ok, now we can really publish the thing!
+        generate_external_content(base_name, build_extra_contents_path, md_file_path)
+    elif settings.ZDS_APP['content']['extra_content_generation_policy'] == 'WATCHDOG':
+        PublicatorRegistery.get('watchdog').publish(md_file_path, base_name, silently_pass=False)
 
     return public_version
 
 
-def generate_exernal_content(base_name, extra_contents_path, md_file_path, pandoc_debug_str, overload_settings=False):
+def generate_external_content(base_name, extra_contents_path, md_file_path, overload_settings=False):
     """
     generate all static file that allow offline access to content
 
@@ -167,9 +157,13 @@ def generate_exernal_content(base_name, extra_contents_path, md_file_path, pando
     excluded = []
     if not settings.ZDS_APP['content']['build_pdf_when_published'] and not overload_settings:
         excluded.append('pdf')
-    for __, publicator in PublicatorRegistery.get_all_registered(excluded):
-
-        publicator.publish(md_file_path, base_name, change_dir=extra_contents_path, pandoc_debug_str=pandoc_debug_str)
+    # TODO: exclude watchdog
+    for publicator_name, publicator in PublicatorRegistery.get_all_registered(excluded):
+        try:
+            publicator.publish(md_file_path, base_name, change_dir=extra_contents_path)
+        except FailureDuringPublication:
+            logging.getLogger(__name__).exception("Could not publish %s format from %s base.",
+                                                  publicator_name, md_file_path)
 
 
 class PublicatorRegistery:
@@ -238,47 +232,180 @@ class Publicator:
         """
         raise NotImplemented()
 
+    def get_published_content_entity(self, md_file_path):
+        content_slug = PublishedContent.get_slug_from_file_path(md_file_path)
+        published_content_entity = PublishedContent.objects \
+            .filter(must_redirect=False, content_public_slug=content_slug) \
+            .first()
+        return published_content_entity
 
-@PublicatorRegistery.register('pdf', settings.PANDOC_LOC, 'pdf', settings.PANDOC_PDF_PARAM)
-@PublicatorRegistery.register('epub', settings.PANDOC_LOC, 'epub')
-@PublicatorRegistery.register('html', settings.PANDOC_LOC, 'html')
-class PandocPublicator(Publicator):
 
+def _read_flat_markdown(md_file_path):
+    with codecs.open(md_file_path, encoding='utf-8') as md_file_handler:
+        md_flat_content = md_file_handler.read()
+    return md_flat_content
+
+
+@PublicatorRegistery.register('zip')
+class ZipPublicator(Publicator):
+    def publish(self, md_file_path, base_name, **kwargs):
+        try:
+            published_content_entity = self.get_published_content_entity(md_file_path)
+            make_zip_file(published_content_entity)
+            # for zip no need to move it because this is already dumped in the public directory
+        except IOError:
+            raise FailureDuringPublication('Zip could not be created')
+
+
+@PublicatorRegistery.register('html')
+class ZmarkdownHtmlPublicator(Publicator):
+
+    def publish(self, md_file_path, base_name, **kwargs):
+        md_flat_content = _read_flat_markdown(md_file_path)
+        published_content_entity = self.get_published_content_entity(md_file_path)
+        html_flat_content, _ = render_markdown(md_flat_content, disable_ping=True,
+                                               disable_js=True)
+        html_file_path = path.splitext(md_file_path)[0] + '.html'
+        if str(MD_PARSING_ERROR) in html_flat_content:
+            logging.getLogger(self.__class__.__name__).error('HTML was not rendered')
+            return
+        # TODO zmd: fix extension parsing
+        with codecs.open(html_file_path, mode='w', encoding='utf-8') as final_file:
+            final_file.write(html_flat_content)
+        shutil.move(html_file_path, published_content_entity.get_extra_contents_directory())
+
+
+@PublicatorRegistery.register('pdf')
+class ZMarkdownRebberLatexPublicator(Publicator):
     """
-    Wrapper arround pandoc commands
+    use zmarkdown and rebber stringifyer to produce latex & pdf output.
     """
-    def __init__(self, pandoc_loc, _format, pandoc_pdf_param=None):
-        self.pandoc_loc = pandoc_loc
-        self.pandoc_pdf_param = pandoc_pdf_param
-        self.format = _format
-        self.__logger = logging.getLogger('zds.pandoc-publicator')
+    def publish(self, md_file_path, base_name, **kwargs):
+        md_flat_content = _read_flat_markdown(md_file_path)
+        published_content_entity = self.get_published_content_entity(md_file_path)
+        depth_to_size_map = {
+            2: 'small',
+            3: 'medium',
+            4: 'big'
+        }
+        public_versionned_source = published_content_entity.content\
+            .load_version(sha=published_content_entity.sha_public)
+        content_type = depth_to_size_map[public_versionned_source.get_tree_level()]
+        title = published_content_entity.title()
+        authors = [a.username for a in published_content_entity.authors.all()]
+        smileys_directory = SMILEYS_BASE_PATH
+        licence = published_content_entity.content.licence.title
+        toc = True
 
-    def publish(self, md_file_path, base_name, change_dir='.', pandoc_debug_str='', **kwargs):
-        """
+        content, _ = render_markdown(
+            md_flat_content,
+            disable_ping=True,
+            disable_js=True,
+            to_latex_document=True,
+            # latex template arguments
+            contentType=content_type,
+            title=title,
+            authors=authors,
+            license=licence,
+            smileysDirectory=smileys_directory,
+            toc=toc
+        )
 
-        :param md_file_path: base markdown file path
-        :param base_name: file name without extension
-        :param change_dir: directory in wich pandoc commands will be executed
-        :param pandoc_debug_str: end of command to allow debugging
-        :param kwargs: othe publicator dependant options ignored by this one
-        :return:
-        """
-        if self.pandoc_pdf_param:
-            self.__logger.debug('Started {} generation'.format(base_name + '.' + self.format))
-            subprocess.call(
-                self.pandoc_loc + 'pandoc ' + self.pandoc_pdf_param + ' ' + md_file_path + ' -o ' +
-                base_name + '.' + self.format + ' ' + pandoc_debug_str,
-                shell=True,
-                cwd=change_dir)
-            self.__logger.info('Finished {} generation'.format(base_name + '.' + self.format))
+        latex_file_path = path.splitext(md_file_path)[0] + '.tex'
+        pdf_file_path = path.splitext(md_file_path)[0] + '.pdf'
+        with codecs.open(latex_file_path, mode='w', encoding='utf-8') as latex_file:
+            latex_file.write(content)
+
+        try:
+            self.full_pdftex_call(latex_file_path)
+            self.full_pdftex_call(latex_file_path)
+            self.make_glossary(base_name.split('/')[-1], latex_file_path)
+            self.full_pdftex_call(latex_file_path)
+        except FailureDuringPublication:
+            logging.getLogger(self.__class__.__name__).exception("could not publish %s", base_name)
         else:
-            self.__logger.debug('Started {} generation'.format(base_name + '.' + self.format))
-            subprocess.call(
-                self.pandoc_loc + 'pandoc -s -S --toc ' + md_file_path + ' -o ' +
-                base_name + '.' + self.format + ' ' + pandoc_debug_str,
-                shell=True,
-                cwd=change_dir)
-            self.__logger.info('Finished {} generation'.format(base_name + '.' + self.format))
+            shutil.move(latex_file_path, published_content_entity.get_extra_contents_directory())
+            shutil.move(pdf_file_path, published_content_entity.get_extra_contents_directory())
+            logging.info("published latex=%s, pdf=%s", published_content_entity.has_type('tex'),
+                         published_content_entity.has_type('pdf'))
+
+    def full_pdftex_call(self, latex_file):
+        success_flag = self.pdftex(latex_file)
+        if not success_flag:
+            handle_pdftex_error(latex_file)
+
+    def handle_makeglossaries_error(self, latex_file):
+        with codecs.open(path.splitext(latex_file)[0] + '.log') as latex_log:
+            errors = '\n'.join(filter(line for line in latex_log if 'fatal' in line.lower() or 'error' in line.lower()))
+        raise FailureDuringPublication(errors)
+
+    def pdftex(self, texfile):
+        command = 'xelatex -shell-escape -interaction=nonstopmode {}'.format(texfile)
+        # TODO zmd: make sure the shell spawned here has venv in its path, needed to shell-escape into Pygments
+        command_process = subprocess.Popen(command,
+                                           shell=True, cwd=path.dirname(texfile),
+                                           stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        command_process.communicate()
+
+        try:
+            from raven import breadcrumbs
+            breadcrumbs.record(message="xelatex call",
+                               data=command,
+                               type="cmd")
+        except ImportError:
+            pass
+
+        pdf_file_path = path.splitext(texfile)[0] + '.pdf'
+        return path.exists(pdf_file_path)
+
+    def make_glossary(self, basename, texfile):
+        command = 'makeglossaries {}'.format(basename)
+        command_process = subprocess.Popen(command,
+                                           shell=True, cwd=path.dirname(texfile),
+                                           stdout=subprocess.PIPE,
+                                           stderr=subprocess.PIPE)
+        std_out, std_err = command_process.communicate()
+        try:
+            from raven import breadcrumbs
+            breadcrumbs.record(message="makeglossaries call",
+                               data=command,
+                               type="cmd")
+        except ImportError:
+            pass
+        # TODO: check makeglossary exit codes to see if we can enhance error detection
+        if "fatal" not in std_out.decode('utf-8').lower() and 'fatal' not in std_err.decode('utf-8').lower():
+            return True
+
+        self.handle_makeglossaries_error(texfile)
+
+
+def handle_pdftex_error(latex_file_path):
+    # TODO zmd: fix extension parsing
+    log_file_path = latex_file_path[:-3] + 'log'
+
+    with codecs.open(log_file_path) as latex_log:
+        # TODO zmd: see if the lines we extract here contain enough info for debugging purpose
+        errors = '\n'.join([line for line in latex_log if "fatal" in line.lower() or "error" in line.lower()])
+    try:
+        from raven import breadcrumbs
+        breadcrumbs.record(message="xelatex call", data=errors, type="cmd")
+    except ImportError:
+        pass
+    raise FailureDuringPublication(errors)
+
+
+@PublicatorRegistery.register('epub')
+class ZMarkdownEpubPublicator(Publicator):
+    def publish(self, md_file_path, base_name, **kwargs):
+        try:
+            published_content_entity = self.get_published_content_entity(md_file_path)
+            build_ebook(published_content_entity,
+                        path.dirname(md_file_path))
+            epub_file_path = path.splitext(md_file_path)[0] + '.epub'
+        except (IOError, OSError):
+            raise FailureDuringPublication('Error while generating epub file.')
+        else:
+            shutil.move(epub_file_path, published_content_entity.get_extra_contents_directory())
 
 
 @PublicatorRegistery.register('watchdog', settings.ZDS_APP['content']['extra_content_watchdog_dir'])
@@ -288,15 +415,15 @@ class WatchdogFilePublicator(Publicator):
     """
     def __init__(self, watched_dir):
         self.watched_directory = watched_dir
-        if not isdir(self.watched_directory):
-            os.mkdir(self.watched_directory)
+        if not path.isdir(self.watched_directory):
+            mkdir(self.watched_directory)
         self.__logger = logging.getLogger('zds.watchdog-publicator')
 
     def publish(self, md_file_path, base_name, silently_pass=True, **kwargs):
         if silently_pass:
             return
-        fname = base_name.replace(dirname(base_name), self.watched_directory)
-        with codecs.open(fname, 'w', encoding='utf-8') as w_file:
+        filename = base_name.replace(path.dirname(base_name), self.watched_directory)
+        with codecs.open(filename, 'w', encoding='utf-8') as w_file:
             w_file.write(';'.join([base_name, md_file_path]))
         self.__logger.debug('Registered {} for generation'.format(md_file_path))
 
@@ -309,92 +436,6 @@ class FailureDuringPublication(Exception):
         super(FailureDuringPublication, self).__init__(*args, **kwargs)
 
 
-def publish_container(db_object, base_dir, container):
-    """ 'Publish' a given container, in a recursive way
-
-    :param db_object: database representation of the content
-    :type db_object: PublishableContent
-    :param base_dir: directory of the top container
-    :type base_dir: str
-    :param container: a given container
-    :type container: Container
-    :raise FailureDuringPublication: if anything goes wrong
-    """
-
-    from zds.tutorialv2.models.models_versioned import Container
-
-    if not isinstance(container, Container):
-        raise FailureDuringPublication(_(u"Le conteneur n'en est pas un !"))
-
-    template = 'tutorialv2/export/chapter.html'
-
-    # jsFiddle support
-    if db_object.js_support:
-        is_js = 'js'
-    else:
-        is_js = ''
-
-    current_dir = os.path.dirname(os.path.join(base_dir, container.get_prod_path(relative=True)))
-
-    if not os.path.isdir(current_dir):
-        os.makedirs(current_dir)
-
-    if container.has_extracts():  # the container can be rendered in one template
-        parsed = render_to_string(template, {'container': container, 'is_js': is_js})
-        f = codecs.open(os.path.join(base_dir, container.get_prod_path(relative=True)), 'w', encoding='utf-8')
-
-        try:
-            f.write(parsed)
-        except (UnicodeError, UnicodeEncodeError):
-            raise FailureDuringPublication(
-                _(u'Une erreur est survenue durant la publication de « {} », vérifiez le code markdown')
-                .format(container.title))
-
-        f.close()
-
-        for extract in container.children:
-            extract.text = None
-
-        container.introduction = None
-        container.conclusion = None
-
-    else:  # separate render of introduction and conclusion
-
-        current_dir = os.path.join(base_dir, container.get_prod_path(relative=True))  # create subdirectory
-
-        if not os.path.isdir(current_dir):
-            os.makedirs(current_dir)
-
-        if container.introduction:
-            path = os.path.join(container.get_prod_path(relative=True), 'introduction.html')
-            f = codecs.open(os.path.join(base_dir, path), 'w', encoding='utf-8')
-
-            try:
-                f.write(emarkdown(container.get_introduction(), db_object.js_support))
-            except (UnicodeError, UnicodeEncodeError):
-                raise FailureDuringPublication(
-                    _(u"Une erreur est survenue durant la publication de l'introduction de « {} »,"
-                      u' vérifiez le code markdown').format(container.title))
-
-            container.introduction = path
-
-        if container.conclusion:
-            path = os.path.join(container.get_prod_path(relative=True), 'conclusion.html')
-            f = codecs.open(os.path.join(base_dir, path), 'w', encoding='utf-8')
-
-            try:
-                f.write(emarkdown(container.get_conclusion(), db_object.js_support))
-            except (UnicodeError, UnicodeEncodeError):
-                raise FailureDuringPublication(
-                    _(u'Une erreur est survenue durant la publication de la conclusion de « {} »,'
-                      u' vérifiez le code markdown').format(container.title))
-
-            container.conclusion = path
-
-        for child in container.children:
-            publish_container(db_object, base_dir, child)
-
-
 def make_zip_file(published_content):
     """Create the zip archive extra content from the published content
 
@@ -403,14 +444,17 @@ def make_zip_file(published_content):
     """
 
     publishable = published_content.content
-    publishable.sha_public = publishable.sha_draft  # ensure sha update so that archive is updated to
-    path = os.path.join(published_content.get_extra_contents_directory(),
-                        published_content.content_public_slug + '.zip')
-    zip_file = zipfile.ZipFile(path, 'w')
+    # update SHA so that archive gets updated too
+    publishable.sha_public = publishable.sha_draft
+    # TODO zmd: fix extension parsing
+    file_path = path.join(published_content.get_extra_contents_directory(),
+                          published_content.content_public_slug + '.zip')
+    zip_file = zipfile.ZipFile(file_path, 'w')
     versioned = publishable.load_version(None, True)
     from zds.tutorialv2.views.views_contents import DownloadContent
     DownloadContent.insert_into_zip(zip_file, versioned.repository.commit(versioned.current_version).tree)
     zip_file.close()
+    return file_path
 
 
 def unpublish_content(db_object, moderator=None):
@@ -434,7 +478,7 @@ def unpublish_content(db_object, moderator=None):
         # clean files
         old_path = public_version.get_prod_path()
 
-        if os.path.exists(old_path):
+        if path.exists(old_path):
             shutil.rmtree(old_path)
         map(lambda reaction: content_unpublished.send(sender=reaction.__class__, instance=reaction),
             [ContentReaction.objects.filter(related_content=db_object).all()])

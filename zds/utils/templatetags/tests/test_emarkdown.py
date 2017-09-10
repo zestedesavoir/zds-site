@@ -14,12 +14,15 @@ class EMarkdownTest(TestCase):
 
         tr = Template('{% load emarkdown %}{{ content | emarkdown}}').render(self.context)
 
-        self.assertEqual(u'<h3>Titre 1</h3>\n'
-                         '<h4>Titre <strong>2</strong></h4>\n'
-                         '<h5>Titre 3</h5>\n'
-                         '<blockquote>\n'
-                         '<p>test</p>\n'
-                         '</blockquote>', tr)
+        expected = (
+            '<h3 id="titre-1">Titre 1<a aria-hidden="true" href="#titre-1">'
+            '<span class="icon icon-link"></span></a></h3>\n<h4 id="titre-2">'
+            'Titre <strong>2</strong><a aria-hidden="true" href="#titre-2"><span'
+            ' class="icon icon-link"></span></a></h4>\n<h5 id="titre-3">Titre 3'
+            '<a aria-hidden="true" href="#titre-3"><span class="icon icon-link">'
+            '</span></a></h5>\n<blockquote>\n<p>test</p>\n</blockquote>'
+        )
+        self.assertEqual(tr, expected)
 
         # Todo: Found a way to force parsing crash or simulate it.
 
@@ -28,28 +31,29 @@ class EMarkdownTest(TestCase):
 
         tr = Template('{% load emarkdown %}{{ content | emarkdown_inline}}').render(self.context)
 
-        self.assertEqual(u'<p># Titre 1\n\n'
-                         '## Titre <strong>2</strong>\n\n'
-                         '### Titre 3\n\n'
-                         '&gt; test\n'
-                         '</p>', tr)
+        expected = ('<p># Titre 1\n\n'
+                    '## Titre <strong>2</strong>\n\n'
+                    '### Titre 3\n\n'
+                    '> test</p>')
+
+        self.assertEqual(tr, expected)
 
         # Todo: Found a way to force parsing crash or simulate it.
 
-    def test_decale_header(self):
-        tr = Template('{% load emarkdown %}{{ content | decale_header_1}}').render(self.context)
+    def test_shift_heading(self):
+        tr = Template('{% load emarkdown %}{{ content | shift_heading_1}}').render(self.context)
         self.assertEqual(u'## Titre 1\n\n'
                          '### Titre **2**\n\n'
                          '#### Titre 3\n\n'
                          '&gt; test', tr)
 
-        tr = Template('{% load emarkdown %}{{ content | decale_header_2}}').render(self.context)
+        tr = Template('{% load emarkdown %}{{ content | shift_heading_2}}').render(self.context)
         self.assertEqual(u'### Titre 1\n\n'
                          '#### Titre **2**\n\n'
                          '##### Titre 3\n\n'
                          '&gt; test', tr)
 
-        tr = Template('{% load emarkdown %}{{ content | decale_header_3}}').render(self.context)
+        tr = Template('{% load emarkdown %}{{ content | shift_heading_3}}').render(self.context)
         self.assertEqual(u'#### Titre 1\n\n'
                          '##### Titre **2**\n\n'
                          '###### Titre 3\n\n'

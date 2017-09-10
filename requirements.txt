@@ -15,11 +15,11 @@ factory-boy==2.8.1
 pygeoip==0.3.2
 pillow==4.1.0
 gitpython==1.0.1
-git+https://github.com/zestedesavoir/Python-ZMarkdown.git@a1481fb4764aafc6051da859ee9280fa16868f65
 easy-thumbnails==2.4.1
 CairoSVG==1.0.20
 beautifulsoup4==4.5.3
 django-recaptcha==1.2.1
+requests==2.18.1
 
 # Api dependencies
 djangorestframework==3.6.2
@@ -36,3 +36,4 @@ watchdog==0.8.3 # use last non-bc-breaking version
 # next versions of this libraries break previous behavior for slug generation from string with single quotes
 django-uuslug==1.0.3
 python-slugify==1.1.4
+Pygments==2.2.0
