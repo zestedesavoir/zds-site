@@ -98,6 +98,7 @@ class PostEditMixin(object):
 
         for alert in post.alerts_on_this_comment.all():
             alert.solve(user, _(u'Le message a été masqué.'))
+
         post.is_visible = False
         post.editor = user
 
@@ -105,6 +106,7 @@ class PostEditMixin(object):
             post.text_hidden = data.get('text_hidden', '')
 
         messages.success(request, _(u'Le message est désormais masqué.'))
+
         for user in Notification.objects.get_users_for_unread_notification_on(post):
             signals.content_read.send(sender=post.topic.__class__, instance=post.topic, user=user)
 
