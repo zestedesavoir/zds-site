@@ -990,12 +990,8 @@ class FollowContentReaction(LoggedWithReadWriteHability, SingleOnlineContentView
 class FollowNewContent(LoggedWithReadWriteHability, FormView):
 
     @staticmethod
-    def perform_follow(user_to_follow, user):
-        return NewPublicationSubscription.objects.toggle_follow(user_to_follow, user).is_active
-
-    @staticmethod
-    def perform_follow_by_email(user_to_follow, user):
-        return NewPublicationSubscription.objects.toggle_follow(user_to_follow, user, True).is_active
+    def perform_follow(user_to_follow, user, is_email_follow=False):
+        return NewPublicationSubscription.objects.toggle_follow(user_to_follow, user, is_email_follow).is_active
 
     @method_decorator(transaction.atomic)
     def post(self, request, *args, **kwargs):
@@ -1015,7 +1011,7 @@ class FollowNewContent(LoggedWithReadWriteHability, FormView):
             response['follow'] = self.perform_follow(user_to_follow, request.user)
             response['subscriberCount'] = NewPublicationSubscription.objects.get_subscriptions(user_to_follow).count()
         elif 'email' in request.POST:
-            response['email'] = self.perform_follow_by_email(user_to_follow, request.user)
+            response['email'] = self.perform_follow(user_to_follow, request.user, True)
 
         if request.is_ajax():
             return HttpResponse(json_writer.dumps(response), content_type='application/json')
