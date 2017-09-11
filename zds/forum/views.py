@@ -83,7 +83,7 @@ class ForumTopicsListView(FilterMixin, ForumEditMixin, ZdSPagingListView, Update
             response['follow'] = self.perform_follow(self.object, request.user)
             response['subscriberCount'] = NewTopicSubscription.objects.get_subscriptions(self.object).count()
         elif 'email' in request.POST:
-            response['email'] = self.perform_follow_by_email(self.object, request.user)
+            response['email'] = self.perform_follow(self.object, request.user, True)
 
         self.object.save()
         if request.is_ajax():
@@ -320,9 +320,9 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
             response['follow'] = self.perform_follow(self.object, request.user).is_active
             response['subscriberCount'] = TopicAnswerSubscription.objects.get_subscriptions(self.object).count()
         elif 'email' in request.POST:
-            response['email'] = self.perform_follow_by_email(self.object, request.user).is_active
+            response['email'] = self.perform_follow(self.object, request.user, True).is_active
         elif 'solved' in request.POST:
-            response['solved'] = self.perform_solve_or_unsolve(self.request.user, self.object)
+            response['solved'] = self.toggle_solve(self.request.user, self.object)
         elif 'lock' in request.POST:
             self.perform_lock(request, self.object)
         elif 'sticky' in request.POST:
@@ -412,7 +412,7 @@ class FindTopicByTag(FilterMixin, ForumEditMixin, ZdSPagingListView, SingleObjec
             response['follow'] = self.perform_follow(self.object, request.user)
             response['subscriberCount'] = NewTopicSubscription.objects.get_subscriptions(self.object).count(),
         elif 'email' in request.POST:
-            response['email'] = self.perform_follow_by_email(self.object, request.user)
+            response['email'] = self.perform_follow(self.object, request.user, True)
 
         self.object.save()
         if request.is_ajax():
@@ -616,7 +616,7 @@ class PostUseful(UpdateView, SinglePostObjectMixin, PostEditMixin):
         return super(PostUseful, self).dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        self.perform_useful(self.object)
+        self.toggle_useful(self.object)
 
         if request.is_ajax():
             return HttpResponse(json.dumps(self.object.is_useful), content_type='application/json')

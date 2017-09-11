@@ -17,30 +17,22 @@ from zds.utils.models import Alert, CommentEdit, get_hat_from_request
 
 class ForumEditMixin(object):
     @staticmethod
-    def perform_follow(forum_or_tag, user):
-        return NewTopicSubscription.objects.toggle_follow(forum_or_tag, user).is_active
-
-    @staticmethod
-    def perform_follow_by_email(forum_or_tag, user):
-        return NewTopicSubscription.objects.toggle_follow(forum_or_tag, user, True).is_active
+    def perform_follow(forum_or_tag, user, is_email_follow=False):
+        return NewTopicSubscription.objects.toggle_follow(forum_or_tag, user, is_email_follow).is_active
 
 
 class TopicEditMixin(object):
     @staticmethod
-    def perform_follow(topic, user):
-        return TopicAnswerSubscription.objects.toggle_follow(topic, user)
+    def perform_follow(topic, user, is_email_follow=False):
+        return TopicAnswerSubscription.objects.toggle_follow(topic, user, is_email_follow)
 
     @staticmethod
-    def perform_follow_by_email(topic, user):
-        return TopicAnswerSubscription.objects.toggle_follow(topic, user, True)
-
-    @staticmethod
-    def perform_solve_or_unsolve(user, topic):
-        if user == topic.author or user.has_perm('forum.change_topic'):
-            topic.is_solved = not topic.is_solved
-            return topic.is_solved
-        else:
+    def toggle_solve(user, topic):
+        if not user == topic.author and not user.has_perm('forum.change_topic'):
             raise PermissionDenied
+
+        topic.is_solved = not topic.is_solved
+        return topic.is_solved
 
     @staticmethod
     @permission_required('forum.change_topic', raise_exception=True)
@@ -63,22 +55,22 @@ class TopicEditMixin(object):
         messages.success(request, success_message)
 
     def perform_move(self):
-        if self.request.user.has_perm('forum.change_topic'):
-            try:
-                forum_pk = int(self.request.POST.get('forum'))
-            except (KeyError, ValueError, TypeError) as e:
-                raise Http404('Forum not found', e)
-            forum = get_object_or_404(Forum, pk=forum_pk)
-            self.object.forum = forum
-
-            # Save topic to update update_index_date
-            self.object.save()
-
-            signals.edit_content.send(sender=self.object.__class__, instance=self.object, action='move')
-            message = _('Le sujet « {0} » a bien été déplacé dans « {1} ».').format(self.object.title, forum.title)
-            messages.success(self.request, message)
-        else:
+        if not self.request.user.has_perm('forum.change_topic'):
             raise PermissionDenied()
+
+        try:
+            forum_pk = int(self.request.POST.get('forum'))
+        except (KeyError, ValueError, TypeError) as e:
+            raise Http404('Forum not found', e)
+
+        self.object.forum = forum = get_object_or_404(Forum, pk=forum_pk)
+
+        # Save topic to update update_index_date
+        self.object.save()
+
+        signals.edit_content.send(sender=self.object.__class__, instance=self.object, action='move')
+        message = _('Le sujet « {0} » a bien été déplacé dans « {1} ».').format(self.object.title, forum.title)
+        messages.success(self.request, message)
 
     @staticmethod
     def perform_edit_info(request, topic, data, editor):
@@ -100,20 +92,21 @@ class PostEditMixin(object):
     @staticmethod
     def perform_hide_message(request, post, user, data):
         is_staff = user.has_perm('forum.change_post')
-        if post.author == user or is_staff:
-            for alert in post.alerts_on_this_comment.all():
-                alert.solve(user, _('Le message a été masqué.'))
-            post.is_visible = False
-            post.editor = user
 
-            if is_staff:
-                post.text_hidden = data.get('text_hidden', '')
-
-            messages.success(request, _('Le message est désormais masqué.'))
-            for user in Notification.objects.get_users_for_unread_notification_on(post):
-                signals.content_read.send(sender=post.topic.__class__, instance=post.topic, user=user)
-        else:
+        if not post.author == user and not is_staff:
             raise PermissionDenied
+
+        for alert in post.alerts_on_this_comment.all():
+            alert.solve(user, _(u'Le message a été masqué.'))
+        post.is_visible = False
+        post.editor = user
+
+        if is_staff:
+            post.text_hidden = data.get('text_hidden', '')
+
+        messages.success(request, _(u'Le message est désormais masqué.'))
+        for user in Notification.objects.get_users_for_unread_notification_on(post):
+            signals.content_read.send(sender=post.topic.__class__, instance=post.topic, user=user)
 
     @staticmethod
     @permission_required('forum.change_post', raise_exception=True)
@@ -123,18 +116,17 @@ class PostEditMixin(object):
 
     @staticmethod
     def perform_alert_message(request, post, user, alert_text):
-        alert = Alert(
+        Alert(
             author=user,
             comment=post,
             scope='FORUM',
             text=alert_text,
-            pubdate=datetime.now())
-        alert.save()
+            pubdate=datetime.now()).save()
 
         messages.success(request, _("Une alerte a été envoyée à l'équipe concernant ce message."))
 
     @staticmethod
-    def perform_useful(post):
+    def toggle_useful(post):
         post.is_useful = not post.is_useful
         post.save()
 
