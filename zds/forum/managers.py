@@ -34,7 +34,9 @@ class ForumManager(models.Manager):
     def get_private_forums_of_category(self, category, user):
         return self.filter(category=category, groups__in=user.groups.all())\
             .order_by('position_in_category')\
-            .select_related('category').distinct().all()
+            .select_related('category') \
+            .distinct() \
+            .all()
 
 
 class TopicManager(models.Manager):
@@ -61,11 +63,12 @@ class TopicManager(models.Manager):
         :param user: Request user.
         :return: List of topics.
         """
-        queryset = self.filter(author=author) \
-                       .prefetch_related('author')
-        queryset = queryset.filter(self.visibility_check_query(user)).distinct()
-
-        return queryset.order_by('-pubdate').all()[:settings.ZDS_APP['forum']['home_number']]
+        return self.filter(author=author) \
+                   .prefetch_related('author') \
+                   .filter(self.visibility_check_query(user)) \
+                   .distinct() \
+                   .order_by('-pubdate') \
+                   .all()[:settings.ZDS_APP['forum']['home_number']]
 
     def get_beta_topic_of(self, tutorial):
         return self.filter(key=tutorial.pk, key__isnull=False).first()
@@ -79,26 +82,31 @@ class TopicManager(models.Manager):
         """
         return self.filter(is_locked=False, forum__groups__isnull=True) \
                    .select_related('forum', 'author', 'last_message') \
-                   .prefetch_related('tags').order_by('-pubdate') \
+                   .prefetch_related('tags') \
+                   .order_by('-pubdate') \
                    .all()[:settings.ZDS_APP['topic']['home_number']]
 
     def get_all_topics_of_a_forum(self, forum_pk, is_sticky=False):
         return self.filter(forum__pk=forum_pk, is_sticky=is_sticky) \
-                   .order_by('-last_message__pubdate')\
-                   .select_related('author__profile')\
-                   .prefetch_related('last_message', 'tags').all()
+                   .order_by('-last_message__pubdate') \
+                   .select_related('author__profile') \
+                   .prefetch_related('last_message', 'tags') \
+                   .all()
 
     def get_all_topics_of_a_user(self, current, target):
-        queryset = self.filter(author=target)\
-                       .prefetch_related('author')
-        queryset = queryset.filter(self.visibility_check_query(current)).distinct()
-        return queryset.order_by('-pubdate').all()
+        return self.filter(author=target) \
+                   .prefetch_related('author') \
+                   .filter(self.visibility_check_query(current)) \
+                   .distinct() \
+                   .order_by('-pubdate') \
+                   .all()
 
     def get_all_topics_of_a_tag(self, tag, user):
-        queryset = self.filter(tags__in=[tag])\
-                       .prefetch_related('author', 'last_message', 'tags')
-        queryset = queryset.filter(self.visibility_check_query(user)).distinct()
-        return queryset.order_by('-last_message__pubdate')
+        return self.filter(tags__in=[tag]) \
+                   .prefetch_related('author', 'last_message', 'tags') \
+                   .filter(self.visibility_check_query(user)) \
+                   .distinct() \
+                   .order_by('-last_message__pubdate')
 
 
 class PostManager(InheritanceManager):
