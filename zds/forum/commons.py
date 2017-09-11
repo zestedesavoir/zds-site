@@ -39,20 +39,20 @@ class TopicEditMixin(object):
     def perform_lock(request, topic):
         topic.is_locked = request.POST.get('lock') == 'true'
         if topic.is_locked:
-            success_message = _(u'Le sujet « {0} » est désormais verrouillé.').format(topic.title)
+            message = _(u'Le sujet « {0} » est désormais verrouillé.').format(topic.title)
         else:
-            success_message = _(u'Le sujet « {0} » est désormais déverrouillé.').format(topic.title)
-        messages.success(request, success_message)
+            message = _(u'Le sujet « {0} » est désormais déverrouillé.').format(topic.title)
+        messages.success(request, message)
 
     @staticmethod
     @permission_required('forum.change_topic', raise_exception=True)
     def perform_sticky(request, topic):
         topic.is_sticky = request.POST.get('sticky') == 'true'
         if topic.is_sticky:
-            success_message = _(u'Le sujet « {0} » est désormais épinglé.').format(topic.title)
+            message = _(u'Le sujet « {0} » est désormais épinglé.').format(topic.title)
         else:
-            success_message = _(u"Le sujet « {0} » n'est désormais plus épinglé.").format(topic.title)
-        messages.success(request, success_message)
+            message = _(u"Le sujet « {0} » n'est désormais plus épinglé.").format(topic.title)
+        messages.success(request, message)
 
     def perform_move(self):
         if not self.request.user.has_perm('forum.change_topic'):
