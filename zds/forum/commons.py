@@ -144,15 +144,13 @@ class PostEditMixin(object):
         # or if you have two tabs in your browser.
         if topic_read is None and post.position > 1:
             unread = Post.objects.filter(topic=post.topic, position=(post.position - 1)).first()
-            topic_read = TopicRead(post=unread, topic=unread.topic, user=user)
+            TopicRead(post=unread, topic=unread.topic, user=user).save()
+        elif post.position > 1:
+            unread = Post.objects.filter(topic=post.topic, position=(post.position - 1)).first()
+            topic_read.post = unread
             topic_read.save()
-        else:
-            if post.position > 1:
-                unread = Post.objects.filter(topic=post.topic, position=(post.position - 1)).first()
-                topic_read.post = unread
-                topic_read.save()
-            elif topic_read:
-                topic_read.delete()
+        elif topic_read:
+            topic_read.delete()
 
         signals.answer_unread.send(sender=post.topic.__class__, instance=post, user=user)
 
