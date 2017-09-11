@@ -11,7 +11,7 @@
      */
     var Tooltip = function(options) {
         this.options = $.extend({ target: null, content: null }, options);
-        if(!Tooltip._initialized) {
+        if (!Tooltip._initialized) {
             this.firstRun();
         }
 
@@ -97,7 +97,7 @@
          * @access private
          */
         mouseover: function() {
-            if(!this.mouseon) this.show();
+            if (!this.mouseon) this.show();
             this.mouseon = true;
             clearTimeout(this.hideTimeout);
         },
@@ -114,8 +114,11 @@
 
         /**
          * Set the content of the tooltip
+         * WARNING: passing HTMLElement(s) will insert them directly into the DOM
+         * without sanitization, beware of XSS. As they are inserted as text,
+         * passing strings is always safe.
          *
-         * @param {string|Array} content - content of the tooltip
+         * @param {string|HTMLElement|Array<string|HTMLElement>} content - content of the tooltip
          */
         setContent: function(content) {
             if (!Array.isArray(content)) content = [content];
@@ -149,7 +152,7 @@
          * Show the tooltip if the content is not empty
          */
         show: function() {
-            if(this.hasContent) {
+            if (this.hasContent) {
                 this.wrapper.show();
                 this.elem.attr("aria-hidden", false);
                 this.recalc(); // Need to recalc on this tick & on next
@@ -163,7 +166,7 @@
          * @access private
          */
         guessOrientation: function() {
-            if(this.target.offset().top - $(window).scrollTop() < this.wrapper.height()) {
+            if (this.target.offset().top - $(window).scrollTop() < this.wrapper.height()) {
                 this.setOrientation("bottom");
             } else {
                 this.setOrientation("top");
@@ -183,9 +186,9 @@
             };
 
             this.guessOrientation();
-            if(this.orientation === "top") {
+            if (this.orientation === "top") {
                 css.top = this.target.offset().top - this.wrapper.outerHeight();
-            } else if(this.orientation === "bottom") {
+            } else if (this.orientation === "bottom") {
                 css.top = this.target.offset().top + this.target.outerHeight();
             } else {
                 css.bottom = this.target.offset().top - this.wrapper.outerHeight() + 8;
@@ -219,8 +222,8 @@
      */
     $.fn.tooltip = function(content) {
         var tooltip = $(this).data("tooltip");
-        if(tooltip) {
-            if(content) tooltip.setContent(content);
+        if (tooltip) {
+            if (content) tooltip.setContent(content);
         } else {
             tooltip = new Tooltip({ target: this, content: content });
             $(this).data("tooltip", tooltip);
