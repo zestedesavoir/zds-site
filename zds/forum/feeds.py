@@ -29,11 +29,11 @@ class LastPostsFeedRSS(Feed):
                                             topic__forum__pk=int(obj['forum']),
                                             topic__tags__pk__in=[obj['tag']]) \
                                     .order_by('-pubdate')[:settings.ZDS_APP['forum']['posts_per_page']]
-            elif 'forum' in obj and 'tag' not in obj:
+            elif 'forum' in obj:
                 posts = Post.objects.filter(topic__forum__groups__isnull=True,
                                             topic__forum__pk=int(obj['forum'])) \
                                     .order_by('-pubdate')[:settings.ZDS_APP['forum']['posts_per_page']]
-            elif 'forum' not in obj and 'tag' in obj:
+            elif 'tag' in obj:
                 posts = Post.objects.filter(topic__forum__groups__isnull=True,
                                             topic__tags__pk__in=[obj['tag']]) \
                                     .order_by('-pubdate')[:settings.ZDS_APP['forum']['posts_per_page']]
