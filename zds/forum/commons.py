@@ -28,7 +28,7 @@ class TopicEditMixin(object):
 
     @staticmethod
     def toggle_solve(user, topic):
-        if not user == topic.author and not user.has_perm('forum.change_topic'):
+        if user != topic.author and not user.has_perm('forum.change_topic'):
             raise PermissionDenied
 
         topic.is_solved = not topic.is_solved
@@ -39,20 +39,20 @@ class TopicEditMixin(object):
     def perform_lock(request, topic):
         topic.is_locked = request.POST.get('lock') == 'true'
         if topic.is_locked:
-            message = _(u'Le sujet « {0} » est désormais verrouillé.').format(topic.title)
+            success_message = _(u'Le sujet « {0} » est désormais verrouillé.').format(topic.title)
         else:
-            message = _(u'Le sujet « {0} » est désormais déverrouillé.').format(topic.title)
-        messages.success(request, message)
+            success_message = _(u'Le sujet « {0} » est désormais déverrouillé.').format(topic.title)
+        messages.success(request, success_message)
 
     @staticmethod
     @permission_required('forum.change_topic', raise_exception=True)
     def perform_sticky(request, topic):
         topic.is_sticky = request.POST.get('sticky') == 'true'
         if topic.is_sticky:
-            message = _(u'Le sujet « {0} » est désormais épinglé.').format(topic.title)
+            success_message = _(u'Le sujet « {0} » est désormais épinglé.').format(topic.title)
         else:
-            message = _(u"Le sujet « {0} » n'est désormais plus épinglé.").format(topic.title)
-        messages.success(request, message)
+            success_message = _(u"Le sujet « {0} » n'est désormais plus épinglé.").format(topic.title)
+        messages.success(request, success_message)
 
     def perform_move(self):
         if not self.request.user.has_perm('forum.change_topic'):
@@ -93,22 +93,11 @@ class PostEditMixin(object):
     def perform_hide_message(request, post, user, data):
         is_staff = user.has_perm('forum.change_post')
 
-        if not post.author == user and not is_staff:
+        if post.author != user and not is_staff:
             raise PermissionDenied
 
-        for alert in post.alerts_on_this_comment.all():
-            alert.solve(user, _(u'Le message a été masqué.'))
-
-        post.is_visible = False
-        post.editor = user
-
-        if is_staff:
-            post.text_hidden = data.get('text_hidden', '')
-
+        post.hide(user, data.get('text_hidden', '') if is_staff else '')
         messages.success(request, _(u'Le message est désormais masqué.'))
-
-        for user in Notification.objects.get_users_for_unread_notification_on(post):
-            signals.content_read.send(sender=post.topic.__class__, instance=post.topic, user=user)
 
     @staticmethod
     @permission_required('forum.change_post', raise_exception=True)

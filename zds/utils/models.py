@@ -256,6 +256,19 @@ class Comment(models.Model):
         """ Get the list of the users that disliked this Comment """
         return [vote.user for vote in self.get_votes() if not vote.positive]
 
+    def hide(self, user, moderation_message=''):
+        self.solve_attached_alerts(user)
+        self.is_visible = False
+        self.editor = user
+        post.text_hidden = moderation_message
+
+        for user in Notification.objects.get_users_for_unread_notification_on(self):
+            signals.content_read.send(sender=self.topic.__class__, instance=self.topic, user=user)
+
+    def solve_attached_alerts(self, user):
+        for alert in self.alerts_on_this_comment.all():
+            alert.solve(user, _(u'Le message a été masqué.'))
+
     def get_absolute_url(self):
         return Comment.objects.get_subclass(id=self.id).get_absolute_url()
 
