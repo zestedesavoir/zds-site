@@ -1,5 +1,5 @@
 {% extends "tutorialv2/base.html" %}
-{% load append_to_get %}
+{% load append_query_params %}
 {% load date %}
 {% load i18n %}
 {% load captureas %}
@@ -190,7 +190,7 @@
             <h3>Trier</h3>
             <ul>
                 {% for current_sort in sorts %}
-                    <li><a href="{% append_to_get sort=current_sort.key %}" class="ico-after gear {% if sort == current_sort.key %}selected{% endif %}">{{ current_sort.text }}</a></li>
+                    <li><a href="{% append_query_params sort=current_sort.key %}" class="ico-after gear {% if sort == current_sort.key %}selected{% endif %}">{{ current_sort.text }}</a></li>
                 {% endfor %}
             </ul>
         </div>
