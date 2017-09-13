@@ -200,15 +200,14 @@
                 var otherLikeCount = data[sign].count - likers.length;
 
                 var currentUser = $("#my-account .username").text();
-                var likeStr = likers.map(function(e) { return e.username === currentUser ? "Vous (" + e.username + ")" : e.username; }).join("<br>");
+                var likes = likers.map(function(e) { return e.username === currentUser ? "Vous (" + e.username + ")" : e.username; });
                 if(otherLikeCount > 0) {
-                    if(likeStr !== "") likeStr += "<br> et " + otherLikeCount + " autre";
-                    else likeStr = otherLikeCount + " vote";
-
-                    if(otherLikeCount !== 1) likeStr += "s";
+                    var otherLikeStr = likes.length > 0 ? "et " + otherLikeCount + " autre" : otherLikeCount + " vote";
+                    if(otherLikeCount !== 1) otherLikeStr += "s";
+                    likes.push(otherLikeStr);
                 }
 
-                this[sign].tooltip.setContent(likeStr);
+                this[sign].tooltip.setContent(likes.map(function(l) { return $("<div>", { text: l }); }));
 
                 // Build list in modal
                 this[sign].listElem.empty();
