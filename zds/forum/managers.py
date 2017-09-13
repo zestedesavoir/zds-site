@@ -73,7 +73,9 @@ class TopicManager(models.Manager):
             .all()[:settings.ZDS_APP['forum']['home_number']]
 
     def get_beta_topic_of(self, tutorial):
-        return self.filter(key=tutorial.pk, key__isnull=False).first()
+        return self \
+            .filter(key=tutorial.pk, key__isnull=False) \
+            .first()
 
     def get_last_topics(self):
         """
@@ -134,7 +136,7 @@ class PostManager(InheritanceManager):
         return res | Q(topic__forum__groups__pk__in=current_user.profile.group_pks)
 
     def get_messages_of_a_topic(self, topic_pk):
-        return self
+        return self \
             .filter(topic__pk=topic_pk) \
             .select_related('author__profile') \
             .prefetch_related('alerts_on_this_comment') \

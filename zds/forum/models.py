@@ -156,7 +156,7 @@ class Forum(models.Model):
                 groups__in=groups,
                 pk=self.pk).exists()
 
-        return self.has_group
+        return not self.has_group
 
     @property
     def has_group(self):
@@ -603,9 +603,11 @@ def is_read(topic, user=None):
     :param user: A user. If undefined, the current user is used.
     :return:
     """
+    user = user or get_current_user()
+
     return TopicRead \
         .objects \
-        .filter(post=topic.last_message, topic=topic, user=user or get_current_user()) \
+        .filter(post=topic.last_message, topic=topic, user=user) \
         .exists()
 
 
@@ -614,8 +616,7 @@ def mark_read(topic, user=None):
     Mark the last message of a topic as read for the current user.
     :param topic: A topic.
     """
-    if not user:
-        user = get_current_user()
+    user = user or get_current_user()
 
     if user and user.is_authenticated():
         current_topic_read = TopicRead.objects.filter(topic=topic, user=user).first()

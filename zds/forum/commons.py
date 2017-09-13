@@ -17,14 +17,14 @@ from zds.utils.models import Alert, CommentEdit, get_hat_from_request
 
 class ForumEditMixin(object):
     @staticmethod
-    def perform_follow(forum_or_tag, user, is_email_follow=False):
-        return NewTopicSubscription.objects.toggle_follow(forum_or_tag, user, is_email_follow).is_active
+    def perform_follow(forum_or_tag, user, follow_by_email=False):
+        return NewTopicSubscription.objects.toggle_follow(forum_or_tag, user, follow_by_email).is_active
 
 
 class TopicEditMixin(object):
     @staticmethod
-    def perform_follow(topic, user, is_email_follow=False):
-        return TopicAnswerSubscription.objects.toggle_follow(topic, user, is_email_follow)
+    def perform_follow(topic, user, follow_by_email=False):
+        return TopicAnswerSubscription.objects.toggle_follow(topic, user, follow_by_email)
 
     @staticmethod
     def toggle_solve(user, topic):
@@ -131,13 +131,13 @@ class PostEditMixin(object):
         # issue 3227 proves that you can have post.position==1 AND topic_read to None
         # it can happen whether on double click (the event "mark as not read" is therefore sent twice)
         # or if you have two tabs in your browser.
-        if topic_read is None and post.position > 1:
+        if post.position > 1:
             unread = Post.objects.filter(topic=post.topic, position=(post.position - 1)).first()
-            TopicRead(post=unread, topic=unread.topic, user=user).save()
-        elif post.position > 1:
-            unread = Post.objects.filter(topic=post.topic, position=(post.position - 1)).first()
-            topic_read.post = unread
-            topic_read.save()
+            if topic_read is None:
+                TopicRead(post=unread, topic=unread.topic, user=user).save()
+            else:
+                topic_read.post = unread
+                topic_read.save()
         elif topic_read:
             topic_read.delete()
 

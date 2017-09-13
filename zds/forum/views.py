@@ -340,8 +340,11 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
         if 'text' in request.POST:
             form = self.get_form(self.form_class)
 
-            if 'preview' not in request.POST and form.is_valid():
-                return self.form_valid(form)
+            if 'preview' not in request.POST:
+                if form.is_valid():
+                    return self.form_valid(form)
+
+                return render(request, self.template_name, {'topic': self.object, 'form': form})
 
             if request.is_ajax():
                 content = render_to_response('misc/previsualization.part.html', {'text': request.POST['text']})
@@ -401,7 +404,7 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
 
     def get_form(self, form_class=TopicForm):
         form = form_class(self.request.POST)
-        form.helper.form_action = reverse('topic-edit') + '{}?topic={}' \
+        form.helper.form_action = '{}?topic={}' \
             .format(reverse('topic-edit'), self.object.pk)
         return form
 
@@ -516,7 +519,8 @@ class PostNew(CreatePostView):
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
 
-        if not self.object.forum.can_read(request.user) or self.object.is_locked or self.object.antispam(request.user):
+        if not self.object.forum.can_read(request.user) \
+            or self.object.is_locked or self.object.antispam(request.user):
             raise PermissionDenied
 
         self.posts = Post \
@@ -591,16 +595,19 @@ class PostEdit(UpdateView, SinglePostObjectMixin, PostEditMixin):
         if 'text' in request.POST:
             form = self.get_form(self.form_class)
 
-            if 'preview' not in request.POST and form.is_valid():
-                return self.form_valid(form)
+            if 'preview' not in request.POST:
+                if form.is_valid():
+                    return self.form_valid(form)
+            else:
+                if request.is_ajax():
+                    content = render_to_response(
+                        'misc/previsualization.part.html',
+                        {'text': request.POST.get('text')})
+                    return StreamingHttpResponse(content)
 
-            if request.is_ajax():
-                content = render_to_response('misc/previsualization.part.html', {'text': request.POST.get('text')})
-                return StreamingHttpResponse(content)
-
-            form = self.create_form(self.form_class, **{
-                'text': request.POST.get('text')
-            })
+                form = self.create_form(self.form_class, **{
+                    'text': request.POST.get('text')
+                })
 
             return render(request, self.template_name, {
                 'post': self.object,
@@ -673,7 +680,7 @@ class PostUseful(UpdateView, SinglePostObjectMixin, PostEditMixin):
         if not self.object.topic.forum.can_read(request.user):
             raise PermissionDenied
 
-        if self.object.topic.autho != request.user and not request.user.has_perm('forum.change_post'):
+        if self.object.topic.author != request.user and not request.user.has_perm('forum.change_post'):
             raise PermissionDenied
 
         return super(PostUseful, self).dispatch(request, *args, **kwargs)
