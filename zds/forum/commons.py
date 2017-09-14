@@ -107,12 +107,12 @@ class PostEditMixin(object):
 
     @staticmethod
     def perform_alert_message(request, post, user, alert_text):
-        Alert(
+        Alert.objects.create(
             author=user,
             comment=post,
             scope='FORUM',
             text=alert_text,
-            pubdate=datetime.now()).save()
+            pubdate=datetime.now())
 
         messages.success(request, _(u"Une alerte a été envoyée à l'équipe concernant ce message."))
 
@@ -134,7 +134,7 @@ class PostEditMixin(object):
         if post.position > 1:
             unread = Post.objects.filter(topic=post.topic, position=(post.position - 1)).first()
             if topic_read is None:
-                TopicRead(post=unread, topic=unread.topic, user=user).save()
+                TopicRead.objects.create(post=unread, topic=unread.topic, user=user)
             else:
                 topic_read.post = unread
                 topic_read.save()
