@@ -55,7 +55,7 @@ $logo-width: 240px;
             flex-basis: auto;
 
             & > a {
-                padding: 0 2rem;
+                padding: 0 2.5rem;
                 display: block;
                 position: relative;
                 text-align: center;
@@ -68,6 +68,18 @@ $logo-width: 240px;
                 &:focus,
                 &.active {
                     background: $color-header-hover;
+
+                    .arrow:after {
+                        border-top: 6px solid #FFF;
+                    }
+                }
+
+                &.has-dropdown {
+                    padding-right: 1.5rem;
+
+                    .arrow {
+                        display: inline-block;
+                    }
                 }
 
                 &.current {
@@ -117,34 +129,22 @@ $logo-width: 240px;
         background: #EEE;
     }
 
-    .has-dropdown {
+    .arrow {
+        display: none;
+        width: 20px;
+        height: 9px;
         position: relative;
 
-        &:hover,
-        &:focus,
-        &.active {
-            .arrow:after {
-                border-top: 6px solid #FFF;
-            }
-        }
-
-        .arrow {
-            display: inline-block;
-            width: 20px;
-            height: 9px;
-            position: relative;
-
-            &:after {
-                content: "";
-                display: block;
-                position: absolute;
-                right: 0;
-                height: 0;
-                width: 0;
-                border: 6px solid transparent;
-                border-top: 6px solid rgba(255, 255, 255, 0.7);
-                border-left: 6px inset transparent;
-            }
+        &:after {
+            content: "";
+            display: block;
+            position: absolute;
+            right: 0;
+            height: 0;
+            width: 0;
+            border: 6px solid transparent;
+            border-top: 6px solid rgba(255, 255, 255, 0.7);
+            border-left: 6px inset transparent;
         }
     }
 }
