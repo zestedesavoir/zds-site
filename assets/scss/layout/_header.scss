@@ -33,13 +33,11 @@ $logo-width: 240px;
                 outline: none;
             }
         }
-
     }
 
     .header-menu {
         height: 60px;
         flex-basis: auto;
-
         display: flex;
     }
 
@@ -47,7 +45,6 @@ $logo-width: 240px;
         margin: 0;
         padding: 0;
         flex: 1;
-
         display: flex;
         justify-content: center;
 
@@ -86,6 +83,7 @@ $logo-width: 240px;
                         border-radius: 2px 2px 0 0;
                         background-color: $color-secondary;
                     }
+
                     &.active:before {
                         height: 0;
                     }
@@ -106,7 +104,7 @@ $logo-width: 240px;
         text-indent: -9999px;
         width: $logo-width + $logo-horizontal-margin;
         height: 60px;
-        background: url('../images/logo.png') no-repeat center center;
+        background: url("../images/logo.png") no-repeat center center;
         background-size: $logo-width auto;
 
         &:hover,
@@ -144,17 +142,16 @@ $logo-width: 240px;
                 height: 0;
                 width: 0;
                 border: 6px solid transparent;
-                border-top: 6px solid rgba(255, 255, 255, .7);
+                border-top: 6px solid rgba(255, 255, 255, 0.7);
                 border-left: 6px inset transparent;
             }
         }
     }
 }
 
-
 .logbox {
-    &>div {
-        background: rgba(white, .05);
+    & > div {
+        background: rgba(white, 0.05);
     }
 
     .notifs-links {
@@ -162,7 +159,6 @@ $logo-width: 240px;
 
         .ico-link {
             flex: 0;
-
             display: block;
             position: relative;
             width: 60px;
@@ -179,9 +175,12 @@ $logo-width: 240px;
                 padding: 0 5px;
                 height: 16px;
                 line-height: 14px;
-                background: #c0392b; //@TODO: Color
+                background: #c0392b;
+
+                //@TODO: Color
                 border-radius: 16px;
             }
+
             .notif-text {
                 display: block;
                 position: absolute;
@@ -195,12 +194,15 @@ $logo-width: 240px;
                 &.ico-messages {
                     @include sprite-position($messages);
                 }
+
                 &.ico-notifs {
                     @include sprite-position($notifications);
                 }
+
                 &.ico-alerts {
                     @include sprite-position($alerts);
                 }
+
                 &.ico-params {
                     @include sprite-position($params);
                 }
@@ -223,7 +225,9 @@ $logo-width: 240px;
             height: 35px;
             line-height: 37px;
             text-align: center;
-            border-bottom: 1px solid #274a5a; // @TODO: Color
+            border-bottom: 1px solid #274a5a;
+
+            // @TODO: Color
             background-color: $color-header-hover;
         }
 
@@ -232,7 +236,9 @@ $logo-width: 240px;
             margin: 0;
             padding: 0;
             list-style: none;
-            background-color: #19526c; // @TODO: Color
+            background-color: #19526c;
+
+            // @TODO: Color
 
             li {
                 display: block;
@@ -251,12 +257,13 @@ $logo-width: 240px;
                         opacity: 1;
                         transition-property: opacity, background-color;
                     }
+
                     &:hover,
                     &:focus {
                         background-color: $color-header-hover;
 
                         .username {
-                            text-shadow: rgba(0, 0, 0, .5) 0 0 5px;
+                            text-shadow: rgba(0, 0, 0, 0.5) 0 0 5px;
                         }
 
                         .date {
@@ -270,29 +277,36 @@ $logo-width: 240px;
                     height: 30px;
                     width: 30px;
                 }
+
                 .username {
                     display: block;
                     float: left;
                     margin: 4px 0 0 7px;
-                    color: #95D7F5; // @TODO: Color
+                    color: #95D7F5;
+
+                    // @TODO: Color
                     width: 50%;
                     overflow: hidden;
                     text-overflow: ellipsis;
                     white-space: nowrap;
                 }
+
                 .date {
-                    color: #5196b6; // @TODO: Color
+                    color: #5196b6;
+
+                    // @TODO: Color
                     float: right;
                     padding: 4px 10px 0 0;
                     transition-property: color;
                 }
+
                 .topic {
                     display: block;
                     position: absolute;
                     bottom: 0;
                     left: 0;
                     overflow: hidden;
-                    height: 25px;
+                    height: 31px;
                     padding: 4px 7px 2px;
                     text-overflow: ellipsis;
                     white-space: nowrap;
@@ -310,8 +324,8 @@ $logo-width: 240px;
         }
 
         .dropdown-pm {
-            text-align : left;
-            padding-left : 15px;
+            text-align: left;
+            padding-left: 15px;
 
             .ico-after {
                 float: right;
@@ -322,6 +336,7 @@ $logo-width: 240px;
             .pm-new {
                 &.white:after {
                     @include sprite-position($pm-new-white);
+
                     width: 17px;
                     height: 16px;
                 }
@@ -338,6 +353,7 @@ $logo-width: 240px;
         .username {
             display: none;
         }
+
         .avatar {
             background: $color-header-hover;
         }
@@ -363,7 +379,6 @@ $logo-width: 240px;
             }
         }
     }
-
 
     &.unlogged {
         a {
@@ -391,7 +406,7 @@ $logo-width: 240px;
         }
 
         .header-logo-link {
-            background-image: url('../images/logo-mobile.png') !important;
+            background-image: url("../images/logo-mobile.png") !important;
             background-size: 100%;
             width: 100%;
             height: 100%;
@@ -436,6 +451,7 @@ $logo-width: 240px;
             .dropdown {
                 top: 50px;
             }
+
             .dropdown.my-account-dropdown .dropdown-list {
                 bottom: 0;
 
@@ -450,7 +466,7 @@ $logo-width: 240px;
                 font-size: 1.3rem;
 
                 a {
-                    background-color: rgba(255, 255, 255, .1);
+                    background-color: rgba(255, 255, 255, 0.1);
                     line-height: 30px;
                     height: 30px;
                     margin: 10px 0;
@@ -466,10 +482,10 @@ $logo-width: 240px;
     .header-container {
         z-index: 1;
         position: relative;
-        box-shadow: 0 0 4px rgba(0, 0, 0, .3);
+        box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
 
         header {
-            background-image: linear-gradient(to right,transparent 20%,rgba(255,255,255,.07) 40%,rgba(255,255,255,.07) 60%,transparent 80%);
+            background-image: linear-gradient(to right, transparent 20%, rgba(255, 255, 255, 0.07) 40%, rgba(255, 255, 255, 0.07) 60%, transparent 80%);
         }
 
         .header-menu {
@@ -490,6 +506,7 @@ $logo-width: 240px;
     .logbox .dropdown.my-account-dropdown ul li {
         height: 30px;
         line-height: 30px;
+
         button {
             cursor: pointer;
         }
