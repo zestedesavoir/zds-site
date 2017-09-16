@@ -157,23 +157,9 @@
         }
     }
 
-    .home-heading {
-        height: 40px;
-        padding-left: 50px!important;
-        margin-bottom: 18px!important;
-
-        &.heading-white {
-            color: white;
-            border-bottom-color: white;
-        }
-
-        &.ico-after::after {
-            margin-left: 0!important;
-        }
-
-        .btn {
-            font-size: 15px;
-        }
+    .home-heading.heading-white {
+        color: white;
+        border-bottom-color: white;
     }
 }
 

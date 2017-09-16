@@ -27,12 +27,11 @@
         }
 
         &.ico-after {
-            padding-left: 80px;
+            padding-left: 50px;
 
             &:after {
                 @include sprite-width($articles);
                 @include sprite-height($articles);
-                margin-left: 21px;
             }
         }
         &.ico-articles:after {
@@ -64,10 +63,9 @@
         }
 
         .btn {
-            font-size: 16px;
-
-            height: 38px;
+            font-size: 15px;
             line-height: 38px;
+            height: 38px;
         }
     }
 
