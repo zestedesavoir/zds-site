@@ -9,7 +9,7 @@ $logo-width: 240px;
     header, .sub-header {
         display: flex;
 
-        @media only screen and #{$media-extra-wide} {
+        @media only screen and #{$media-wide} {
             padding: 0 2rem;
 
             .header-right .dropdown {
@@ -150,7 +150,8 @@ $logo-width: 240px;
 }
 
 .logbox {
-    & > div {
+    & > div,
+    & > a {
         background: rgba(white, 0.05);
     }
 
