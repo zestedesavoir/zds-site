@@ -177,8 +177,6 @@ $logo-width: 240px;
                 height: 16px;
                 line-height: 14px;
                 background: #c0392b;
-
-                //@TODO: Color
                 border-radius: 16px;
             }
 
@@ -227,8 +225,6 @@ $logo-width: 240px;
             line-height: 37px;
             text-align: center;
             border-bottom: 1px solid #274a5a;
-
-            // @TODO: Color
             background-color: $color-header-hover;
         }
 
@@ -238,8 +234,6 @@ $logo-width: 240px;
             padding: 0;
             list-style: none;
             background-color: #19526c;
-
-            // @TODO: Color
 
             li {
                 display: block;
@@ -284,8 +278,6 @@ $logo-width: 240px;
                     float: left;
                     margin: 4px 0 0 7px;
                     color: #95D7F5;
-
-                    // @TODO: Color
                     width: 50%;
                     overflow: hidden;
                     text-overflow: ellipsis;
@@ -294,8 +286,6 @@ $logo-width: 240px;
 
                 .date {
                     color: #5196b6;
-
-                    // @TODO: Color
                     float: right;
                     padding: 4px 10px 0 0;
                     transition-property: color;
