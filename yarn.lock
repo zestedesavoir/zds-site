@@ -535,7 +535,7 @@ code-point-at@^1.0.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/code-point-at/-/code-point-at-1.1.0.tgz#0d070b4d043a5bea33a2f1a40e2edb3d9a4ccf77"
 
-codemirror@^5.10.0, codemirror@^5.28.0:
+codemirror@^5.28.0:
   version "5.28.0"
   resolved "https://registry.yarnpkg.com/codemirror/-/codemirror-5.28.0.tgz#2978d9280d671351a4f5737d06bbd681a0fd6f83"
 
@@ -941,6 +941,21 @@ detect-file@^0.1.0:
 detect-newline@2.X:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/detect-newline/-/detect-newline-2.1.0.tgz#f41f1c10be4b00e87b5f13da680759f2c5bfd3e2"
+
+diff-merge-patch@0.4.0:
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/diff-merge-patch/-/diff-merge-patch-0.4.0.tgz#c13251422e53fa4b72b2f7c3a3afd1cba2763ec8"
+  dependencies:
+    longest-common-substring "0.0.1"
+    underscore "~1.4.3"
+
+diff-merge-patch@^0.6.0:
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/diff-merge-patch/-/diff-merge-patch-0.6.0.tgz#3ff2886f00ce1de3d5f455e0bfee0b8ad950322b"
+  dependencies:
+    diff-merge-patch "0.4.0"
+    longest-common-substring "0.0.1"
+    underscore "~1.4.3"
 
 dom-serializer@0:
   version "0.1.0"
@@ -1838,7 +1853,7 @@ gulp.spritesmith@6.5.1:
     underscore "~1.8.3"
     url2 "~1.0.4"
 
-gulp@3.9.1:
+gulp@^3.9.1:
   version "3.9.1"
   resolved "https://registry.yarnpkg.com/gulp/-/gulp-3.9.1.tgz#571ce45928dd40af6514fc4011866016c13845b4"
   dependencies:
@@ -2337,7 +2352,7 @@ jpegtran-bin@^3.0.0:
     bin-wrapper "^3.0.0"
     logalot "^2.0.0"
 
-jquery@3.2.1, jquery@>=1.1.0:
+jquery@3.2.1:
   version "3.2.1"
   resolved "https://registry.yarnpkg.com/jquery/-/jquery-3.2.1.tgz#5c4d9de652af6cd0a770154a631bba12b015c787"
 
@@ -2663,6 +2678,10 @@ logalot@^2.0.0:
     figures "^1.3.5"
     squeak "^1.0.0"
 
+longest-common-substring@0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/longest-common-substring/-/longest-common-substring-0.0.1.tgz#d91f8d08ab5d2debc9914fca8d4b91413956acc8"
+
 longest@^1.0.0, longest@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/longest/-/longest-1.0.1.tgz#30a0b2da38f73770e8294a0d22e6625ed77d0097"
@@ -2777,13 +2796,6 @@ merge-stream@^1.0.0:
   resolved "https://registry.yarnpkg.com/merge-stream/-/merge-stream-1.0.1.tgz#4041202d508a342ba00174008df0c251b8c135e1"
   dependencies:
     readable-stream "^2.0.1"
-
-mergely@3.4.4:
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/mergely/-/mergely-3.4.0.tgz#c48d295ace372ac7e40743b590dfb301f206e918"
-  dependencies:
-    codemirror "^5.10.0"
-    jquery ">=1.1.0"
 
 micromatch@^2.3.7:
   version "2.3.11"
@@ -4454,7 +4466,7 @@ underscore.string@~3.0.3:
   version "3.0.3"
   resolved "https://registry.yarnpkg.com/underscore.string/-/underscore.string-3.0.3.tgz#4617b8c1a250cf6e5064fbbb363d0fa96cf14552"
 
-underscore@~1.4.2:
+underscore@~1.4.2, underscore@~1.4.3:
   version "1.4.4"
   resolved "https://registry.yarnpkg.com/underscore/-/underscore-1.4.4.tgz#61a6a32010622afa07963bf325203cf12239d604"
 

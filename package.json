@@ -5,8 +5,8 @@
   "directories": {
     "doc": "doc"
   },
-  "engines" : {
-    "node" : ">=8.0.0"
+  "engines": {
+    "node": ">=8.0.0"
   },
   "scripts": {
     "gulp": "gulp",
@@ -31,7 +31,8 @@
     "cookies-eu-banner": "1.2.8",
     "cssnano": "3.10.0",
     "del": "3.0.0",
-    "gulp": "3.9.1",
+    "diff-merge-patch": "^0.6.0",
+    "gulp": "^3.9.1",
     "gulp-concat": "2.6.1",
     "gulp-imagemin": "3.3.0",
     "gulp-postcss": "7.0.0",
