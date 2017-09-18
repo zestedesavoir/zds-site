@@ -6,6 +6,17 @@
 {% load set %}
 
 
+{% block title_base %}
+    &bull; {% trans "Bibliothèque" %}
+{% endblock %}
+
+
+
+{% block mobile_title %}
+    {% trans "Bibliothèque" %}
+{% endblock %}
+
+
 {% block title %}
     {% if category %}
         {% if subcategory %}
