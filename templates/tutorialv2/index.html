@@ -18,13 +18,8 @@
     {% endif %}
 {% endblock %}
 
-{% block menu_tutorial %}
-    {% if tutorials != None %}
-        current
-    {% endif %}
-{% endblock %}
-{% block menu_article%}
-    {% if articles != None  %}
+{% block menu_publications %}
+    {% if tutorials != None or articles != None %}
         current
     {% endif %}
 {% endblock %}
