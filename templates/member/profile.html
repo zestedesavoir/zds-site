@@ -96,7 +96,7 @@
                     <li>
                         {{ hat.name }}
                         {% if perms.utils.change_hat %}
-                            <a href="#remove-hat-{{ hat.pk }}" class="open-modal">{% trans "Retirer" %}</a>
+                            – <a href="#remove-hat-{{ hat.pk }}" class="open-modal">{% trans "Retirer" %}</a>
                         {% endif %}
                     </li>
                     {% if perms.utils.change_hat %}
