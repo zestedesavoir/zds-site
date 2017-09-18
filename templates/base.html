@@ -109,7 +109,7 @@
 
 
     {# RSS links #}
-    <link rel="alternate" type="application/rss+xml" title="Forum" href="{% url "post-feed-rss" %}">
+    <link rel="alternate" type="application/rss+xml" title="Forums" href="{% url "post-feed-rss" %}">
     <link rel="alternate" type="application/rss+xml" title="Nouveaux tutoriels (RSS)" href="{% url "tutorial:feed-rss" %}">
     <link rel="alternate" type="application/atom+xml" title="Nouveaux tutoriels (ATOM)" href="{% url "tutorial:feed-atom" %}">
     <link rel="alternate" type="application/rss+xml" title="Nouveaux articles (RSS)" href="{% url "article:feed-rss" %}">
@@ -303,7 +303,7 @@
                         </li>
                         <li>
                             <a href="{% url "cats-forums-list" %}" class="mobile-menu-link has-dropdown {% block menu_forum %}{% endblock %}">
-                                {% trans "Forum" %}
+                                {% trans "Forums" %}
                                 <span class="arrow"></span>
                             </a>
                             {% cache 1800 menu_forum user|groups %}
