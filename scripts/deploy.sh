@@ -19,12 +19,16 @@ if [ "$1" != "ok" ]; then
   exit 1
 fi
 
+# Shift the first arg "ok"
+shift
+
 if [ "$(whoami)" != "zds" ]; then
   echo "This script must be run by zds user" >&2
   exit 1
 fi
 
-if ! git diff-index --quiet HEAD --; then
+# Check if the git working directory is clean (excluding scripts/ folder)
+if ! git diff-index --quiet HEAD ':scripts/' --; then
   echo "Git repo has uncommited changes. Make sure it's clean before trying again" >&2
   exit 1
 fi
