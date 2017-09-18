@@ -8,13 +8,8 @@
 {% endblock %}
 
 
-{% block menu_tutorial %}
-    {% if current_content_type == "TUTORIAL" %}
-        current
-    {% endif %}
-{% endblock %}
-{% block menu_article %}
-    {% if current_content_type == "ARTICLE" %}
+{% block menu_publications %}
+    {% if current_content_type and current_content_type != "OPINION" %}
         current
     {% endif %}
 {% endblock %}
@@ -28,7 +23,7 @@
 
 {% block canonical %}
     {% if content.source and content.source != "" %}
-    	<link rel="canonical" href="{{ content.source }}">
+        <link rel="canonical" href="{{ content.source }}">
     {% endif %}
 {% endblock %}
 
