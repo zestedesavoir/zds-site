@@ -1093,6 +1093,17 @@ Smileys Clem (#4408)
 + Éditer `/etc/nginx/sites-available/zestedesavoir` et ajouter `include snippets/clem_smileys.conf;` dans le bloc `location ~* ^/(static|media|errors)/ {`
 + Tester la configuration : `nginx -t`
 
+Script de déploiement
+---------------------
+
+Le script de mise à jour du script de déploiement ayant changé, il faut d'abord récupérer la nouvelle version en faisant dans /opt/zds/zds-site
+
+```sh
+git fetch origin
+git checkout origin/dev scripts/update_and_deploy.sh
+```
+
+
 Lancer le script de déploiement
 -------------------------------
 
