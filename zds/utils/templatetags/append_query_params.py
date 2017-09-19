@@ -93,7 +93,7 @@ class AppendGetNode(template.Node):
 
 @register.tag()
 @easy_tag
-def append_to_get(_, arg_list):
+def append_query_params(_, arg_list):
     """Render an URL appending argument to current GET address.
 
     :param _: Tag name (not used)

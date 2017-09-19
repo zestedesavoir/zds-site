@@ -8,16 +8,16 @@ Le dossier ``zds/utils/templatetags/`` contient un ensemble de tags et filtres p
 La majorité de ces modules proposent aussi des fonctions proposant les même fonctionnalités depuis le reste du code
 Python.
 
-append_to_get
+append_query_params
 =============
 
-L'élément ``append_to_get`` permet de rajouter des paramètres à la requête ``GET`` courante. Par exemple, sur une page
+L'élément ``append_query_params`` permet de rajouter des paramètres à la requête ``GET`` courante. Par exemple, sur une page
 ``module/toto``, le code de template suivant :
 
 .. sourcecode:: html
 
-    {% load append_to_get %}
-    <a href="{% append_to_get key1=var1,key2=var2 %}">Mon lien</a>
+    {% load append_query_params %}
+    <a href="{% append_query_params key1=var1,key2=var2 %}">Mon lien</a>
 
 produira le code suivant :
 
@@ -303,7 +303,7 @@ Récupère la liste des alertes (si l'utilisateur possède les droits pour le fa
 - ``alert.topic`` donne le texte d'alerte.
 
 ``waiting_count``
----------------
+-----------------
 
 Récupère le nombre de tutoriels ou d'articles dans la zone de validation n'ayant pas été réservés par un validateur.
 
@@ -453,8 +453,7 @@ Ce filtre récupère les forums, classés par catégorie.
 où,
 
 - ``top.categories`` est un dictionaire contenant le nom de la catégorie (ici ``title``) et la liste des forums situés dans cette catégorie (ici ``forums``), c'est-à-dire une liste d'objets de type ``Forum`` (`voir le détail de l'implémentation de cet objet ici <../back-end-code/forum.html#zds.forum.models.Forum>`__).
-- ``top.tags`` contient une liste des 5 *tags* les plus utilisés, qui sont des objets de type
-``Tag`` (`voir le détail de l'implémentation de cet objet ici <../back-end-code/utils.html#zds.utils.models.Tag>`__). Certains tags peuvent être exclus de cette liste. Pour exclure un tag, vous devez l'ajouter dans la configuration (top_tag_exclu dans le settings.py).
+- ``top.tags`` contient une liste des 5 *tags* les plus utilisés, qui sont des objets de type ``Tag`` (`voir le détail de l'implémentation de cet objet ici <../back-end-code/utils.html#zds.utils.models.Tag>`__). Certains tags peuvent être exclus de cette liste. Pour exclure un tag, vous devez l'ajouter dans la configuration (top_tag_exclu dans le settings.py).
 
 
 ``top_categories_content``

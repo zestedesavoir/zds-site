@@ -4625,10 +4625,10 @@ class PublishedContentTests(TestCase):
             {
                 'text': message_to_post,
                 'last_note': 0,
-                'hat': self.hat.pk
+                'with_hat': self.hat.pk
             }, follow=True)
         self.assertEqual(result.status_code, 200)
-        self.assertEqual(ContentReaction.objects.latest('pubdate').with_hat, self.hat.name)
+        self.assertEqual(ContentReaction.objects.latest('pubdate').hat, self.hat)
 
         reactions = ContentReaction.objects.all()
         self.assertEqual(len(reactions), 1)

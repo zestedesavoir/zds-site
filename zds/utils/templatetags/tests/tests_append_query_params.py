@@ -4,7 +4,7 @@
 from django.test import TestCase, RequestFactory
 from django.template.base import TemplateSyntaxError, Token, TOKEN_TEXT, Context, VariableDoesNotExist, Template
 
-from zds.utils.templatetags.append_to_get import easy_tag, AppendGetNode
+from zds.utils.templatetags.append_query_params import easy_tag, AppendGetNode
 
 
 class EasyTagTest(TestCase):
@@ -81,14 +81,14 @@ class AppendGetNodeTest(TestCase):
     def test_valid_templatetag(self):
 
         # Test normal call
-        tr = Template('{% load append_to_get %}'
-                      '{% append_to_get key1=var1,key2=var2 %}'
+        tr = Template('{% load append_query_params %}'
+                      '{% append_query_params key1=var1,key2=var2 %}'
                       ).render(self.context)
         self.assertTrue(tr == '/data/test?key1=1&key2=2' or tr == '/data/test?key2=2&key1=1')
 
         # Test call with one argument
-        tr = Template('{% load append_to_get %}'
-                      '{% append_to_get key1=var1 %}'
+        tr = Template('{% load append_query_params %}'
+                      '{% append_query_params key1=var1 %}'
                       ).render(self.context)
         self.assertEqual(tr, '/data/test?key1=1')
 
@@ -96,20 +96,20 @@ class AppendGetNodeTest(TestCase):
         # Test invalid format
 
         # Space separators args :
-        str_tp = ('{% load append_to_get %}'
-                  '{% append_to_get key1=var1 key2=var2 %}')
+        str_tp = ('{% load append_query_params %}'
+                  '{% append_query_params key1=var1 key2=var2 %}')
         self.assertRaises(TemplateSyntaxError, Template, str_tp)
 
         # No values :
-        str_tp = ('{% load append_to_get %}'
-                  '{% append_to_get key1=,key2=var2 %}')
+        str_tp = ('{% load append_query_params %}'
+                  '{% append_query_params key1=,key2=var2 %}')
         self.assertRaises(TemplateSyntaxError, Template, str_tp)
-        str_tp = ('{% load append_to_get %}'
-                  '{% append_to_get key1,key2=var2 %}')
+        str_tp = ('{% load append_query_params %}'
+                  '{% append_query_params key1,key2=var2 %}')
         self.assertRaises(TemplateSyntaxError, Template, str_tp)
 
         # Not resolvable variable
-        tr = Template('{% load append_to_get %}'
-                      '{% append_to_get key1=var3,key2=var2 %}'
+        tr = Template('{% load append_query_params %}'
+                      '{% append_query_params key1=var3,key2=var2 %}'
                       )
         self.assertRaises(VariableDoesNotExist, tr.render, self.context)

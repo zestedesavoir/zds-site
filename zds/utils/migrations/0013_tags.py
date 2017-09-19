@@ -28,7 +28,7 @@ def force_unicity(*args, **kwargs):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('utils', '0014_hatrequest'),
+        ('utils', '0012_commentedit'),
     ]
 
     operations = [

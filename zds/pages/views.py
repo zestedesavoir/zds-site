@@ -26,7 +26,7 @@ from zds.pages.models import GroupContact
 from zds.searchv2.forms import SearchForm
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent
 from zds.utils.forums import create_topic
-from zds.utils.models import Alert, CommentEdit, Comment, Hat
+from zds.utils.models import Alert, CommentEdit, Comment
 
 
 def home(request):
@@ -138,7 +138,7 @@ def cookies(request):
 @permission_required('forum.change_post', raise_exception=True)
 def alerts(request):
     outstanding = Alert.objects.filter(solved=False).order_by('-pubdate')
-    solved = Alert.objects.filter(solved=True).order_by('-pubdate')[:15]
+    solved = Alert.objects.filter(solved=True).order_by('-solved_date')[:15]
 
     return render(request, 'pages/alerts.html', {
         'alerts': outstanding,
@@ -231,13 +231,8 @@ def restore_edit(request, edit_pk):
     comment.editor = request.user
     comment.update_content(edit.original_text)
     # remove hat if the author hasn't it anymore
-    if comment.with_hat:
-        try:
-            hat = Hat.objects.get(name=comment.with_hat)
-            if hat not in comment.author.profile.hats.all():
-                raise ValueError
-        except (Hat.DoesNotExist, ValueError):
-            comment.with_hat = ''
+    if comment.hat and comment.hat not in comment.author.profile.hats.all():
+        comment.hat = None
     comment.save()
 
     return redirect(comment.get_absolute_url())

@@ -33,7 +33,7 @@ Les contributions externes sont les bienvenues !
     * Pensez à préfixer vos branches selon l'objet de votre PR : `hotfix-XXX`, `feature-XXX`, etc.
     * La branche `prod` (appelée `master` dans le git flow standard) contient exclusivement le code en production, pas la peine d'essayer de faire le moindre _commit_ dessus !
 
-Tous les détails sur le workflow se trouvent [sur la page dédiée](http://zds-site.readthedocs.org/fr/latest/workflow.html).
+Tous les détails sur le workflow se trouvent [sur la page dédiée](http://docs.zestedesavoir.com/workflow.html).
 
 * Votre test doit échouer sans votre modification, et réussir avec.
 * Faites des messages de _commit_ clairs et en français.

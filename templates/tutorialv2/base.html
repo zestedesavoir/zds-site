@@ -5,29 +5,21 @@
 
 
 {% block title_base %}
-    &bull; {% trans "Contenus" %}
+    &bull; {% trans "Bibliothèque" %}
 {% endblock %}
 
 
 
 {% block mobile_title %}
-    {% trans "Contenus" %}
+    {% trans "Bibliothèque" %}
 {% endblock %}
 
 
-{% block menu_tutorial %}
-    {% if current_content_type == "TUTORIAL" %}
+{% block menu_publications %}
+    {% if current_content_type and current_content_type != "OPINION" %}
         current
     {% endif %}
-    {%  if content and content.type == "TUTORIAL" %}
-        current
-    {% endif %}
-{% endblock %}
-{% block menu_article %}
-    {% if current_content_type == "ARTICLE" %}
-        current
-    {% endif %}
-    {%  if content and content.type == "ARTICLE" %}
+    {%  if content and content.type != "OPINION" %}
         current
     {% endif %}
 {% endblock %}

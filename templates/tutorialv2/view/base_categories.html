@@ -6,6 +6,17 @@
 {% load set %}
 
 
+{% block title_base %}
+    &bull; {% trans "Bibliothèque" %}
+{% endblock %}
+
+
+
+{% block mobile_title %}
+    {% trans "Bibliothèque" %}
+{% endblock %}
+
+
 {% block title %}
     {% if category %}
         {% if subcategory %}
@@ -107,6 +118,7 @@
                             <label for="id_q" class="control-label">Recherche</label>
                             <input id="id_q" maxlength="150" name="q" required="required" type="search" placeholder="{% trans 'dans' %} {% if subcategory %}{{ subcategory.title|lower }}{% elif category %}{{ category.title|lower }}{% else %}{% trans 'la bibliothèque' %}{% endif %}…">
                             <input type="hidden" name="models" value="content">
+                            <input type="hidden" name="from_library" value="on">
                             {% if category %}
                                 <input type="hidden" name="category" value="{{ category.slug }}">
                                 {% if subcategory %}

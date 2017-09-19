@@ -35,7 +35,7 @@ env:
     - ZDS_TEST_JOB="zds.member zds.utils zds.forum"
     - ZDS_TEST_JOB="front zds.mp zds.gallery zds.pages zds.featured zds.notification zds.searchv2"
     - ZDS_TEST_JOB="selenium"
-
+    - ZDS_TEST_JOB="doc"
 
 notifications:
   webhooks:
@@ -79,7 +79,7 @@ before_install:
 
   - |
     # setup mysql
-    if [[ "$ZDS_TEST_JOB" == *"zds."* || "$ZDS_TEST_JOB" == *"selenium"* ]]; then
+    if [[ "$ZDS_TEST_JOB" == *"zds."* ]] || [[ "$ZDS_TEST_JOB" == *"selenium"* ]]; then
       # MySQL config
       ./scripts/ci_mysql_setup.sh
     fi
@@ -99,7 +99,7 @@ install:
 
   - |
     # install frontend dependencies
-    if [[ "$ZDS_TEST_JOB" == *"front"* || "$ZDS_TEST_JOB" == *"selenium"* ]]; then
+    if [[ "$ZDS_TEST_JOB" == *"front"* ]] || [[ "$ZDS_TEST_JOB" == *"selenium"* ]]; then
       nvm install 8 \
       && nvm use 8 \
       && npm i -g yarn \
@@ -118,7 +118,7 @@ install:
 
   - |
     # install backend dependencies
-    if [[ "$ZDS_TEST_JOB" == *"zds."* || "$ZDS_TEST_JOB" == *"selenium"* ]]; then
+    if [[ "$ZDS_TEST_JOB" == *"zds."* ]] || [[ "$ZDS_TEST_JOB" == *"selenium"* ]] || [[ "$ZDS_TEST_JOB" == *"doc"* ]]; then
       pip install -q -rrequirements.txt -rrequirements-dev.txt -rrequirements-prod.txt
     fi
 
@@ -134,8 +134,8 @@ script:
   - |
     # test and build frontend
     if [[ "$ZDS_TEST_JOB" == *"front"* ]]; then
-      yarn test
-      yarn build # we need to upload the assets later
+      yarn test \
+      && yarn build # we need to upload the assets later
     fi
 
   - |
@@ -160,6 +160,11 @@ script:
         --tag=front
     fi
 
+  - |
+    # test and build frontend
+    if [[ "$ZDS_TEST_JOB" == *"doc"* ]]; then
+      make --directory doc html
+    fi
 
 after_success:
   - du -sh $HOME/.texlive 2>/dev/null | true
@@ -184,4 +189,16 @@ after_success:
 
       # Run script
       ./scripts/push_front.sh $TRAVIS_TAG
+    fi
+
+  - |
+    # upload built documentation to GitHub Pages
+    if [[ "$ZDS_TEST_JOB" == *"doc"* ]] && [[ "$TRAVIS_BRANCH" == "dev" ]]; then
+      # Adding GitHub OAuth token to login
+      echo -e "machine github.com login $BOT_LOGIN\n password $BOT_PASSWORD" > $HOME/.netrc \
+      && git config --global url."https://".insteadOf git:// \
+      && git config --global user.name "Build bot" \
+      && git config --global user.email "zestedesavoir@gmail.com" \
+      && git config --global push.default simple \
+      && ./scripts/push_doc.sh
     fi
