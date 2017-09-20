@@ -33,7 +33,7 @@ def do_captureas(parser, token):
 
 class CaptureasNode(template.Node):
     """
-    Capture end render node content to a variable name.
+    Capture and render a nodelist to a new variable.
     """
 
     def __init__(self, nodelist, variable_name):
