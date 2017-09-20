@@ -8,6 +8,7 @@ python:
 
 
 addons:
+  firefox: "latest"
   apt:
     packages:
       - mysql-server-5.6
@@ -33,6 +34,7 @@ env:
     - ZDS_TEST_JOB="zds.tutorialv2"
     - ZDS_TEST_JOB="zds.member zds.utils zds.forum"
     - ZDS_TEST_JOB="front zds.mp zds.gallery zds.pages zds.featured zds.notification zds.searchv2"
+    - ZDS_TEST_JOB="selenium"
     - ZDS_TEST_JOB="doc"
 
 notifications:
@@ -77,15 +79,27 @@ before_install:
 
   - |
     # setup mysql
-    if [[ "$ZDS_TEST_JOB" == *"zds."* ]]; then
+    if [[ "$ZDS_TEST_JOB" == *"zds."* ]] || [[ "$ZDS_TEST_JOB" == *"selenium"* ]]; then
       # MySQL config
       ./scripts/ci_mysql_setup.sh
     fi
 
 install:
   - |
+    # install webdriver for selenium.
+    if [[ "$ZDS_TEST_JOB" == *"selenium"* ]]; then
+      wget https://github.com/mozilla/geckodriver/releases/download/v0.16.1/geckodriver-v0.16.1-linux64.tar.gz \
+      && mkdir geckodriver \
+      && tar -xzf geckodriver-v0.16.1-linux64.tar.gz -C geckodriver \
+      && export PATH=$PATH:$PWD/geckodriver \
+      && export DISPLAY=:99.0 \
+      && sh -e /etc/init.d/xvfb start \
+      && sleep 3 # give xvfb some time to start
+    fi
+
+  - |
     # install frontend dependencies
-    if [[ "$ZDS_TEST_JOB" == *"front"* ]]; then
+    if [[ "$ZDS_TEST_JOB" == *"front"* ]] || [[ "$ZDS_TEST_JOB" == *"selenium"* ]]; then
       nvm install 8 \
       && nvm use 8 \
       && npm i -g yarn \
@@ -104,7 +118,7 @@ install:
 
   - |
     # install backend dependencies
-    if [[ "$ZDS_TEST_JOB" == *"zds."* ]] || [[ "$ZDS_TEST_JOB" == *"doc"* ]]; then
+    if [[ "$ZDS_TEST_JOB" == *"zds."* ]] || [[ "$ZDS_TEST_JOB" == *"selenium"* ]] || [[ "$ZDS_TEST_JOB" == *"doc"* ]]; then
       pip install -q -rrequirements.txt -rrequirements-dev.txt -rrequirements-prod.txt
     fi
 
@@ -131,7 +145,19 @@ script:
         test \
         --keepdb \
         --settings zds.settings_test_travis \
+        --exclude-tag=front \
         ${ZDS_TEST_JOB/front/}
+    fi
+
+  - |
+    # selenium tests
+    if [[ "$ZDS_TEST_JOB" == *"selenium"* ]]; then
+      yarn build
+      python manage.py \
+        test \
+        --keepdb \
+        --settings zds.settings_test_travis \
+        --tag=front
     fi
 
   - |
