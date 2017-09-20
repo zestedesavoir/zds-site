@@ -599,7 +599,7 @@ Exemple :
 .. sourcecode:: html
 
     {% joinby fruits %}
-    {% joinby fruits ';' same_final_separator=True %}
+    {% joinby fruits ';' final_separator=';' %}
 
 .. sourcecode:: text
 
