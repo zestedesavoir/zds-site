@@ -129,6 +129,22 @@ $logo-width: 240px;
         background: #EEE;
     }
 
+    .header-mobile-page-title {
+        flex-grow: 1;
+        flex-basis: 0;
+
+        color: white;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        margin: 0 0.5em;
+        line-height: 50px;
+        font-size: 1.7rem;
+        @media only screen and #{$media-wide} {
+            display: none;
+        }
+    }
+
     .arrow {
         display: none;
         width: 20px;
@@ -401,25 +417,6 @@ $logo-width: 240px;
             background-size: 100%;
             width: 100%;
             height: 100%;
-
-            &:after {
-                display: block;
-                content: attr(data-title);
-                position: absolute;
-                top: 0;
-                left: 95px;
-                right: 155px;
-                line-height: 50px;
-                text-indent: 0;
-                text-align: left;
-                font-weight: normal;
-                font-size: 17px;
-                font-size: 1.7rem;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-                overflow: hidden;
-                max-width: 200px;
-            }
         }
 
         header .header-menu {
