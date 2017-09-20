@@ -141,19 +141,14 @@
         width: 100%;
 
         .no-featured-resource {
-            flex: 1;
             margin: 0;
-            line-height: 0;
             text-align: center;
-            margin-right: 1px;
-            font-size: 20px;
-            background-color: white;
-
-            &::before, &::after {
-                display: block;
-                content: "";
-                padding-top: 10%;
-            }
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #777;
+            padding: 1em;
+            height: 230px;
         }
     }
 
