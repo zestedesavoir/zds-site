@@ -145,7 +145,7 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
             context['user_can_modify'] = [reaction.pk for reaction in queryset_reactions
                                           if reaction.author == self.request.user]
 
-        context['isantispam'] = self.object.antispam()
+        context['is_antispam'] = self.object.antispam()
         context['pm_link'] = self.object.get_absolute_contact_url(_(u'À propos de'))
         context['subscriber_count'] = ContentReactionAnswerSubscription.objects.get_subscriptions(self.object).count()
         # We need reading time expressed in minutes

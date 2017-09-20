@@ -156,7 +156,7 @@ class CreatePostView(CreateView, SingleObjectMixin, QuoteMixin):
         context['is_staff'] = self.request.user.has_perm('forum.change_topic')
 
         if hasattr(self.object, 'antispam'):
-            context['isantispam'] = self.object.antispam()
+            context['is_antispam'] = self.object.antispam()
 
         if self.request.user.has_perm('forum.change_topic'):
             context['user_can_modify'] = [post.pk for post in context['posts']]
