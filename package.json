@@ -5,8 +5,8 @@
   "directories": {
     "doc": "doc"
   },
-  "engines" : {
-    "node" : ">=8.0.0"
+  "engines": {
+    "node": ">=8.0.0"
   },
   "scripts": {
     "gulp": "gulp",
@@ -27,7 +27,7 @@
   "homepage": "https://github.com/zestedesavoir/zds-site",
   "dependencies": {
     "autoprefixer": "7.1.2",
-    "cookies-eu-banner": "1.2.8",
+    "cookies-eu-banner": "^1.2.10",
     "cssnano": "3.10.0",
     "del": "3.0.0",
     "gulp": "3.9.1",
