@@ -29,7 +29,7 @@ from zds.tutorialv2.models.models_database import Validation, PublishableContent
 from zds.tutorialv2.publication_utils import publish_content, FailureDuringPublication, unpublish_content
 from zds.tutorialv2.utils import clone_repo
 from zds.utils.forums import send_post, lock_topic
-from zds.utils.models import SubCategory
+from zds.utils.models import SubCategory, get_hat_from_settings
 from zds.utils.mps import send_mp
 logger = logging.getLogger(__name__)
 
@@ -184,7 +184,7 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
                 self.versioned_object.title,
                 msg,
                 False,
-                with_hat=settings.ZDS_APP['member']['validation_hat'],
+                hat=get_hat_from_settings('validation'),
             )
 
         # update the content with the source and the version of the validation
@@ -265,7 +265,7 @@ class CancelValidation(LoginRequiredMixin, ModalFormView):
                 versioned.title,
                 msg,
                 False,
-                with_hat=settings.ZDS_APP['member']['validation_hat'],
+                hat=get_hat_from_settings('validation'),
             )
 
         messages.info(self.request, _(u'La validation de ce contenu a bien été annulée.'))
@@ -318,7 +318,7 @@ class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
                     leave=False,
                     direct=False,
                     mark_as_read=True,
-                    with_hat=settings.ZDS_APP['member']['validation_hat'],
+                    hat=get_hat_from_settings('validation'),
                 )
 
             messages.info(request, _(u'Ce contenu a bien été réservé par {0}.').format(request.user.username))
@@ -404,7 +404,7 @@ class RejectValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
             msg,
             True,
             direct=False,
-            with_hat=settings.ZDS_APP['member']['validation_hat'],
+            hat=get_hat_from_settings('validation'),
         )
 
         messages.info(self.request, _(u'Le contenu a bien été refusé.'))
@@ -552,7 +552,7 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleOnline
             msg,
             True,
             direct=False,
-            with_hat=settings.ZDS_APP['member']['validation_hat'],
+            hat=get_hat_from_settings('validation'),
         )
 
         messages.success(self.request, _(u'Le contenu a bien été dépublié.'))
@@ -655,7 +655,7 @@ class UnpublishOpinion(LoginRequiredMixin, SingleOnlineContentFormViewMixin, NoV
             msg,
             True,
             direct=False,
-            with_hat=settings.ZDS_APP['member']['moderation_hat'],
+            hat=get_hat_from_settings('moderation'),
         )
 
         messages.success(self.request, _(u'Le contenu a bien été dépublié.'))
@@ -723,7 +723,7 @@ class DoNotPickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin)
                     msg,
                     True,
                     direct=False,
-                    with_hat=settings.ZDS_APP['member']['moderation_hat'],
+                    hat=get_hat_from_settings('moderation'),
                 )
         except ValueError:
             logger.exception('Could not %s the opinion %s', form.cleaned_data['operation'], str(self.object))
@@ -807,7 +807,7 @@ class PickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
             msg,
             True,
             direct=False,
-            with_hat=settings.ZDS_APP['member']['moderation_hat'],
+            hat=get_hat_from_settings('moderation'),
         )
 
         messages.success(self.request, _(u'Le contenu a bien été validé.'))
@@ -871,7 +871,7 @@ class UnpickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
             msg,
             True,
             direct=False,
-            with_hat=settings.ZDS_APP['member']['moderation_hat'],
+            hat=get_hat_from_settings('moderation'),
         )
 
         messages.success(self.request, _(u'Le contenu a bien été enlevé de la liste des billets choisis.'))
@@ -1008,7 +1008,7 @@ class PromoteOpinionToArticle(PermissionRequiredMixin, NoValidationBeforeFormVie
             msg,
             True,
             direct=False,
-            with_hat=settings.ZDS_APP['member']['validation_hat'],
+            hat=get_hat_from_settings('validation'),
         )
 
         self.success_url = db_object.get_absolute_url()

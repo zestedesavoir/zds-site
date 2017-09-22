@@ -67,7 +67,7 @@ class Profile(models.Model):
     allow_temp_visual_changes = models.BooleanField('Activer les changements visuels temporaires', default=True)
     show_markdown_help = models.BooleanField("Afficher l'aide Markdown dans l'éditeur", default=True)
     email_for_answer = models.BooleanField('Envoyer pour les réponse MP', default=False)
-    hats = models.ManyToManyField(Hat, verbose_name='Casquettes', db_index=True)
+    hats = models.ManyToManyField(Hat, verbose_name='Casquettes', db_index=True, blank=True)
     can_read = models.BooleanField('Possibilité de lire', default=True)
     end_ban_read = models.DateTimeField("Fin d'interdiction de lecture", null=True, blank=True)
     can_write = models.BooleanField("Possibilité d'écrire", default=True)

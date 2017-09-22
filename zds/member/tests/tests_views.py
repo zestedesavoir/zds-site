@@ -1410,6 +1410,11 @@ class MemberTests(TestCase):
                                   {'hat': long_hat}, follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertNotIn(long_hat, profile.hats.values_list('name', flat=True))
+        # test that it doesn't work with a hat using utf8mb4 characters
+        result = self.client.post(reverse('add-hat', args=[user.pk]),
+                                  {'hat': '🍊'}, follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertNotIn(long_hat, profile.hats.values_list('name', flat=True))
         # test that it works with a short hat (<= 40 characters)
         result = self.client.post(reverse('add-hat', args=[user.pk]),
                                   {'hat': short_hat}, follow=False)

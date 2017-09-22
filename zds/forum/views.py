@@ -170,7 +170,7 @@ class TopicPostsListView(ZdSPagingListView, SingleObjectMixin):
         context['user_like'] = [vote.comment_id for vote in votes if vote.positive]
         context['user_dislike'] = [vote.comment_id for vote in votes if not vote.positive]
         context['is_staff'] = self.request.user.has_perm('forum.change_topic')
-        context['isantispam'] = self.object.antispam()
+        context['is_antispam'] = self.object.antispam()
         context['subscriber_count'] = TopicAnswerSubscription.objects.get_subscriptions(self.object).count()
         if hasattr(self.request.user, 'profile'):
             context['is_dev'] = self.request.user.profile.is_dev()

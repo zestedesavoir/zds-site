@@ -465,10 +465,13 @@ ZDS_APP = {
         'providers_per_page': 100,
         'requested_hats_per_page': 100,
         'update_last_visit_interval': 600,  # seconds
-        'validation_hat': 'Staff',
-        'moderation_hat': 'Staff',
         'old_smileys_allowed': False,
         'old_smileys_cookie_key': 'use_old_smileys',
+    },
+    'hats': {
+        'moderation': u'Staff',
+        'validation': u'Staff',
+        'hats_management': u'Staff',
     },
     'gallery': {
         'image_max_size': 1024 * 1024,

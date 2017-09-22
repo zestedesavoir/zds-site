@@ -80,6 +80,7 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
         queryset_reactions = ContentReaction.objects\
             .select_related('author') \
             .select_related('author__profile') \
+            .select_related('hat') \
             .select_related('editor') \
             .prefetch_related('alerts_on_this_comment') \
             .prefetch_related('alerts_on_this_comment__author') \
@@ -144,7 +145,7 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
             context['user_can_modify'] = [reaction.pk for reaction in queryset_reactions
                                           if reaction.author == self.request.user]
 
-        context['isantispam'] = self.object.antispam()
+        context['is_antispam'] = self.object.antispam()
         context['pm_link'] = self.object.get_absolute_contact_url(_(u'À propos de'))
         context['subscriber_count'] = ContentReactionAnswerSubscription.objects.get_subscriptions(self.object).count()
         # We need reading time expressed in minutes
@@ -430,7 +431,7 @@ class ViewPublications(TemplateView):
             .objects\
             .prefetch_related('subcategory', 'category')\
             .filter(is_main=True)\
-            .order_by('category__id')\
+            .order_by('category__id', 'subcategory__title')\
             .all()
 
         subcategories_sorted = {}
@@ -470,6 +471,7 @@ class ViewPublications(TemplateView):
         queryset = CategorySubCategory.objects \
             .filter(is_main=True, category=category) \
             .prefetch_related('subcategory')\
+            .order_by('subcategory__title')\
             .extra(select={'contents_count': sub_query})
 
         subcategories = []
@@ -569,12 +571,15 @@ class ViewPublications(TemplateView):
                 with_previous_item=False)
 
         if self.level < 4:
-            context['last_articles'] = PublishedContent.objects.last_contents(
-                **dict(content_type='ARTICLE', **recent_kwargs)
-            )[:self.max_last_contents]
-            context['last_tutorials'] = PublishedContent.objects.last_contents(
-                **dict(content_type='TUTORIAL', **recent_kwargs)
-            )[:self.max_last_contents]
+            last_articles = PublishedContent.objects.last_contents(
+                **dict(content_type='ARTICLE', **recent_kwargs))
+            context['last_articles'] = last_articles[:self.max_last_contents]
+            context['more_articles'] = last_articles.count() > self.max_last_contents
+
+            last_tutorials = PublishedContent.objects.last_contents(
+                **dict(content_type='TUTORIAL', **recent_kwargs))
+            context['last_tutorials'] = last_tutorials[:self.max_last_contents]
+            context['more_tutorials'] = last_tutorials.count() > self.max_last_contents
 
             context['beta_forum'] = Forum.objects\
                 .prefetch_related('category')\
@@ -633,6 +638,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
         context['notes'] = ContentReaction.objects\
             .select_related('author') \
             .select_related('author__profile') \
+            .select_related('hat') \
             .select_related('editor') \
             .prefetch_related('alerts_on_this_comment') \
             .prefetch_related('alerts_on_this_comment__author') \
@@ -697,7 +703,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
 
             self.reaction.update = datetime.now()
             self.reaction.editor = self.request.user
-            self.reaction.with_hat = get_hat_from_request(self.request, self.reaction.author)
+            self.reaction.hat = get_hat_from_request(self.request, self.reaction.author)
 
         else:
             self.reaction = ContentReaction()
@@ -705,7 +711,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
             self.reaction.author = self.request.user
             self.reaction.position = self.object.get_note_count() + 1
             self.reaction.related_content = self.object
-            self.reaction.with_hat = get_hat_from_request(self.request)
+            self.reaction.hat = get_hat_from_request(self.request)
 
             is_new = True
 
@@ -1037,3 +1043,13 @@ class TagsListView(ListView):
             self.displayed_types = [t]
 
         return PublishedContent.objects.get_top_tags(self.displayed_types)
+
+    def get_context_data(self, **kwargs):
+        context = super(TagsListView, self).get_context_data(**kwargs)
+
+        context['tags_to_display'] = 'publications'
+
+        if len(self.displayed_types) == 1:
+            context['tags_to_display'] = self.displayed_types[0]
+
+        return context

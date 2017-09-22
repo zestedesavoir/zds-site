@@ -3,6 +3,7 @@
 from django.core.management.base import BaseCommand, CommandError
 from django.contrib.auth.models import Group
 
+from zds.utils.misc import contains_utf8mb4
 from zds.utils.models import Hat
 
 
@@ -19,9 +20,11 @@ class Command(BaseCommand):
         except Group.DoesNotExist:
             raise CommandError('Group {} does not exist.'.format(options['group']))
 
-        hat_name = options['hat']
+        hat_name = options.get('hat', '').strip()
         if not hat_name:
             raise CommandError('Hat required!')
+        if contains_utf8mb4(hat_name):
+            raise CommandError('utf8mb4 characters are not allowed.')
         elif len(hat_name) > 40:
             raise CommandError('Hat length is limited to 40 characters.')
 

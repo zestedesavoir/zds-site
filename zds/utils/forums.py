@@ -108,7 +108,7 @@ def send_post(request, topic, author, text,):
         post.position = 1
     post.update_content(text)
     post.ip_address = get_client_ip(request)
-    post.with_hat = get_hat_from_request(request)
+    post.hat = get_hat_from_request(request)
     post.save()
 
     topic.last_message = post
@@ -156,7 +156,7 @@ class CreatePostView(CreateView, SingleObjectMixin, QuoteMixin):
         context['is_staff'] = self.request.user.has_perm('forum.change_topic')
 
         if hasattr(self.object, 'antispam'):
-            context['isantispam'] = self.object.antispam()
+            context['is_antispam'] = self.object.antispam()
 
         if self.request.user.has_perm('forum.change_topic'):
             context['user_can_modify'] = [post.pk for post in context['posts']]

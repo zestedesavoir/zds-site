@@ -8,16 +8,16 @@ Le dossier ``zds/utils/templatetags/`` contient un ensemble de tags et filtres p
 La majorité de ces modules proposent aussi des fonctions proposant les même fonctionnalités depuis le reste du code
 Python.
 
-append_to_get
+append_query_params
 =============
 
-L'élément ``append_to_get`` permet de rajouter des paramètres à la requête ``GET`` courante. Par exemple, sur une page
+L'élément ``append_query_params`` permet de rajouter des paramètres à la requête ``GET`` courante. Par exemple, sur une page
 ``module/toto``, le code de template suivant :
 
 .. sourcecode:: html
 
-    {% load append_to_get %}
-    <a href="{% append_to_get key1=var1,key2=var2 %}">Mon lien</a>
+    {% load append_query_params %}
+    <a href="{% append_query_params key1=var1,key2=var2 %}">Mon lien</a>
 
 produira le code suivant :
 

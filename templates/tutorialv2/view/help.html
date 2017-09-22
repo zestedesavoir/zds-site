@@ -4,7 +4,7 @@
 {% load thumbnail %}
 {% load i18n %}
 {% load profile %}
-{% load append_to_get %}
+{% load append_query_params %}
 
 
 
@@ -61,9 +61,9 @@
 
                         <p class="tutorial-authors">
                             {% if content.is_article %}
-                                {% trans "Un" %} <a href="{% append_to_get type="article" %}">{% trans "article" %}</a>
+                                {% trans "Un" %} <a href="{% append_query_params type="article" %}">{% trans "article" %}</a>
                             {% else %}
-                                {% trans "Un" %} <a href="{% append_to_get type="tuto" %}">{% trans "tutoriel" %}</a>
+                                {% trans "Un" %} <a href="{% append_query_params type="tuto" %}">{% trans "tutoriel" %}</a>
                             {% endif %}
 
                             {% for author in content.authors.all %}
@@ -159,7 +159,7 @@
                 <li>
                     <a style="background: url('{{ help.image.help_mini_illu.url }}') no-repeat; padding-left:32px;"
                        class="{% if request.GET.need and request.GET.need == help.slug %}selected{% endif %}"
-                       href="{% append_to_get need=help.slug,page=1 %}">
+                       href="{% append_query_params need=help.slug,page=1 %}">
                         {{ help.title }}
                     </a>
                 </li>
@@ -170,7 +170,7 @@
             {% endfor %}
             {% if request.GET.need %}
                 <li>
-                    <a href="{% append_to_get need="",page=1 %}" class="ico-after cross red ">
+                    <a href="{% append_query_params need="",page=1 %}" class="ico-after cross red ">
                         {% trans "Annuler le filtre" %}
                     </a>
                 </li>
@@ -183,14 +183,14 @@
         <h3>{% trans "Type" %}</h3>
         <ul>
             <li>
-                <a href="{% append_to_get type="article",page=1 %}" class="ico-after view {% if request.GET.type == "article" %}selected{% endif %}">Articles</a>
+                <a href="{% append_query_params type="article",page=1 %}" class="ico-after view {% if request.GET.type == "article" %}selected{% endif %}">Articles</a>
             </li>
             <li>
-                <a href="{% append_to_get type="tuto",page=1 %}" class="ico-after view {% if request.GET.type == "tuto" %}selected{% endif %}">Tutoriels</a>
+                <a href="{% append_query_params type="tuto",page=1 %}" class="ico-after view {% if request.GET.type == "tuto" %}selected{% endif %}">Tutoriels</a>
             </li>
             {% if request.GET.type %}
                 <li>
-                    <a href="{% append_to_get type="",page=1 %}" class="ico-after cross red ">
+                    <a href="{% append_query_params type="",page=1 %}" class="ico-after cross red ">
                         {% trans "Annuler le filtre" %}
                     </a>
                 </li>

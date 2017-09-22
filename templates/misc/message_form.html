@@ -18,7 +18,7 @@
             <a href="{% url "register-member" %}" class="alert-box-btn">{% trans "Créer un compte" %}</a>
         </p>
     </div>
-{% elif topic.antispam or isantispam %}
+{% elif topic.antispam or is_antispam %}
     <div class="alert-box ico-after ico-alert light">
         {% trans "Vous venez de poster. Merci de patienter au moins 15 minutes entre deux messages consécutifs afin de limiter le flood" %}.
     </div>

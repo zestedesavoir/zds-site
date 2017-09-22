@@ -69,9 +69,7 @@ class PublishedContentManager(models.Manager):
         :param _type: subtype to filter request
         :rtype: django.db.models.QuerySet
         """
-        queryset = self.__get_list(content_type=[_type]) \
-            .filter(authors__in=[author])
-
+        queryset = self.last_contents(with_comments_count=True, content_type=_type).filter(authors__in=[author])
         public_contents = queryset.all()[:settings.ZDS_APP['content']['user_page_number']]
         return public_contents
 

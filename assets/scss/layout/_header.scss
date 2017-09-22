@@ -1,3 +1,6 @@
+$logo-horizontal-margin: 10px;
+$logo-width: 240px;
+
 .header-container {
     * {
         box-sizing: border-box;
@@ -6,7 +9,7 @@
     header, .sub-header {
         display: flex;
 
-        @media only screen and #{$media-extra-wide} {
+        @media only screen and #{$media-wide} {
             padding: 0 2rem;
 
             .header-right .dropdown {
@@ -30,13 +33,11 @@
                 outline: none;
             }
         }
-
     }
 
     .header-menu {
         height: 60px;
-        flex: 1;
-
+        flex-basis: auto;
         display: flex;
     }
 
@@ -44,7 +45,6 @@
         margin: 0;
         padding: 0;
         flex: 1;
-
         display: flex;
         justify-content: center;
 
@@ -55,7 +55,7 @@
             flex-basis: auto;
 
             & > a {
-                padding: 0 2rem;
+                padding: 0 2.5rem;
                 display: block;
                 position: relative;
                 text-align: center;
@@ -68,6 +68,18 @@
                 &:focus,
                 &.active {
                     background: $color-header-hover;
+
+                    .arrow:after {
+                        border-top: 6px solid #FFF;
+                    }
+                }
+
+                &.has-dropdown {
+                    padding-right: 1.5rem;
+
+                    .arrow {
+                        display: inline-block;
+                    }
                 }
 
                 &.current {
@@ -83,6 +95,7 @@
                         border-radius: 2px 2px 0 0;
                         background-color: $color-secondary;
                     }
+
                     &.active:before {
                         height: 0;
                     }
@@ -99,15 +112,12 @@
 
     .header-logo-link {
         display: block;
-        margin: 0 auto;
+        margin: 0;
         text-indent: -9999px;
-        width: 100%;
-        max-width: 240px;
+        width: $logo-width + $logo-horizontal-margin;
         height: 60px;
-        background: url('../images/logo.png') no-repeat center center;
-
-        // Simulate margins around the picture
-        background-size: 90% auto;
+        background: url("../images/logo.png") no-repeat center center;
+        background-size: $logo-width auto;
 
         &:hover,
         &:focus {
@@ -119,48 +129,37 @@
         background: #EEE;
     }
 
-    .has-dropdown {
+    .arrow {
+        display: none;
+        width: 20px;
+        height: 9px;
         position: relative;
 
-        &:hover,
-        &:focus,
-        &.active {
-            .arrow:after {
-                border-top: 6px solid #FFF;
-            }
-        }
-
-        .arrow {
-            display: inline-block;
-            width: 20px;
-            height: 9px;
-            position: relative;
-
-            &:after {
-                content: "";
-                display: block;
-                position: absolute;
-                right: 0;
-                height: 0;
-                width: 0;
-                border: 6px solid transparent;
-                border-top: 6px solid rgba(255, 255, 255, .7);
-                border-left: 6px inset transparent;
-            }
+        &:after {
+            content: "";
+            display: block;
+            position: absolute;
+            right: 0;
+            height: 0;
+            width: 0;
+            border: 6px solid transparent;
+            border-top: 6px solid rgba(255, 255, 255, 0.7);
+            border-left: 6px inset transparent;
         }
     }
 }
 
-
 .logbox {
-    background: rgba(255, 255, 255, .05);
+    .notifs-links,
+    & > a {
+        background: rgba(white, 0.05);
+    }
 
     .notifs-links {
         display: flex;
 
         .ico-link {
             flex: 0;
-
             display: block;
             position: relative;
             width: 60px;
@@ -177,9 +176,10 @@
                 padding: 0 5px;
                 height: 16px;
                 line-height: 14px;
-                background: #c0392b; //@TODO: Color
+                background: #c0392b;
                 border-radius: 16px;
             }
+
             .notif-text {
                 display: block;
                 position: absolute;
@@ -193,12 +193,15 @@
                 &.ico-messages {
                     @include sprite-position($messages);
                 }
+
                 &.ico-notifs {
                     @include sprite-position($notifications);
                 }
+
                 &.ico-alerts {
                     @include sprite-position($alerts);
                 }
+
                 &.ico-params {
                     @include sprite-position($params);
                 }
@@ -221,7 +224,7 @@
             height: 35px;
             line-height: 37px;
             text-align: center;
-            border-bottom: 1px solid #274a5a; // @TODO: Color
+            border-bottom: 1px solid #274a5a;
             background-color: $color-header-hover;
         }
 
@@ -230,7 +233,7 @@
             margin: 0;
             padding: 0;
             list-style: none;
-            background-color: #19526c; // @TODO: Color
+            background-color: #19526c;
 
             li {
                 display: block;
@@ -249,12 +252,13 @@
                         opacity: 1;
                         transition-property: opacity, background-color;
                     }
+
                     &:hover,
                     &:focus {
                         background-color: $color-header-hover;
 
                         .username {
-                            text-shadow: rgba(0, 0, 0, .5) 0 0 5px;
+                            text-shadow: rgba(0, 0, 0, 0.5) 0 0 5px;
                         }
 
                         .date {
@@ -268,29 +272,32 @@
                     height: 30px;
                     width: 30px;
                 }
+
                 .username {
                     display: block;
                     float: left;
                     margin: 4px 0 0 7px;
-                    color: #95D7F5; // @TODO: Color
+                    color: #95D7F5;
                     width: 50%;
                     overflow: hidden;
                     text-overflow: ellipsis;
                     white-space: nowrap;
                 }
+
                 .date {
-                    color: #5196b6; // @TODO: Color
+                    color: #5196b6;
                     float: right;
                     padding: 4px 10px 0 0;
                     transition-property: color;
                 }
+
                 .topic {
                     display: block;
                     position: absolute;
                     bottom: 0;
                     left: 0;
                     overflow: hidden;
-                    height: 25px;
+                    height: 31px;
                     padding: 4px 7px 2px;
                     text-overflow: ellipsis;
                     white-space: nowrap;
@@ -308,8 +315,8 @@
         }
 
         .dropdown-pm {
-            text-align : left;
-            padding-left : 15px;
+            text-align: left;
+            padding-left: 15px;
 
             .ico-after {
                 float: right;
@@ -320,6 +327,7 @@
             .pm-new {
                 &.white:after {
                     @include sprite-position($pm-new-white);
+
                     width: 17px;
                     height: 16px;
                 }
@@ -336,6 +344,7 @@
         .username {
             display: none;
         }
+
         .avatar {
             background: $color-header-hover;
         }
@@ -361,7 +370,6 @@
             }
         }
     }
-
 
     &.unlogged {
         a {
@@ -389,7 +397,7 @@
         }
 
         .header-logo-link {
-            background-image: url('../images/logo-mobile.png') !important;
+            background-image: url("../images/logo-mobile.png") !important;
             background-size: 100%;
             width: 100%;
             height: 100%;
@@ -416,12 +424,12 @@
 
         header .header-menu {
             height: 30px;
+            flex-grow: 1;
         }
 
         .logbox {
-            background: none;
-
             .notifs-links {
+                background: none;
                 width: 100%;
 
                 .ico-link {
@@ -433,6 +441,7 @@
             .dropdown {
                 top: 50px;
             }
+
             .dropdown.my-account-dropdown .dropdown-list {
                 bottom: 0;
 
@@ -447,7 +456,6 @@
                 font-size: 1.3rem;
 
                 a {
-                    background-color: rgba(255, 255, 255, .1);
                     line-height: 30px;
                     height: 30px;
                     margin: 10px 0;
@@ -463,16 +471,21 @@
     .header-container {
         z-index: 1;
         position: relative;
-        box-shadow: 0 0 4px rgba(0, 0, 0, .3);
+        box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
 
         header {
-            background-image: linear-gradient(to right,transparent 20%,rgba(255,255,255,.07) 40%,rgba(255,255,255,.07) 60%,transparent 80%);
+            background-image: linear-gradient(to right, transparent 20%, rgba(255, 255, 255, 0.07) 40%, rgba(255, 255, 255, 0.07) 60%, transparent 80%);
+        }
+
+        .header-menu {
+            flex-shrink: 0;
+            flex-grow: 0;
         }
     }
 
     .header-logo {
         text-align: left;
-        width: 240px;
+        width: $logo-width + $logo-horizontal-margin;
     }
 
     .dropdown {
@@ -482,6 +495,7 @@
     .logbox .dropdown.my-account-dropdown ul li {
         height: 30px;
         line-height: 30px;
+
         button {
             cursor: pointer;
         }
@@ -491,7 +505,14 @@
         top: 90px;
     }
 
+    .header-logo, .header-right {
+        flex-grow: 1;
+        flex-basis: 0;
+    }
+
     .header-right {
         display: flex;
+        flex-shrink: 0;
+        justify-content: flex-end;
     }
 }

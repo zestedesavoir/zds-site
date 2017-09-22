@@ -12,6 +12,7 @@ from django.template.defaultfilters import pluralize
 from django.utils.translation import ugettext_lazy as _
 
 from zds.member.models import Profile, TokenRegister, Ban
+from zds.utils.models import get_hat_from_settings
 from zds.utils.mps import send_mp
 
 
@@ -215,7 +216,7 @@ class MemberSanctionState(object):
             msg,
             True,
             direct=True,
-            with_hat=settings.ZDS_APP['member']['moderation_hat'],
+            hat=get_hat_from_settings('moderation'),
         )
 
 
