@@ -63,6 +63,7 @@ def run(service, args):
 
 def test_back():
     cmd = [
+        './scripts/docker_start_xvfb.sh',
         'python',
         'manage.py',
         'test',
