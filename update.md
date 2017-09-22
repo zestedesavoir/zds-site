@@ -1140,3 +1140,9 @@ Responsables de groupe (#4600)
 ------------------------------
 
 Il faut réassigner les responsables de chaque groupe dans l'admin django post-déploiement.
+
+
+Versions supérieures à la v25
+=============================
+
+Ce fichier n'est plus utilisé après la v25. Il a été remplacé par un *changelog* disponible sur le [wiki GitHub](https://github.com/zestedesavoir/zds-site/wiki).
