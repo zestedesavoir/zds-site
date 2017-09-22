@@ -213,7 +213,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'zds.api.pagination.DefaultPagination',
     # Active OAuth2 authentication.
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'oauth2_provider.ext.rest_framework.OAuth2Authentication',
+        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
         'rest_framework.authentication.SessionAuthentication',
     ),
     'DEFAULT_PARSER_CLASSES': (
