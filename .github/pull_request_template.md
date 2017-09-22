@@ -9,3 +9,5 @@
 - Instruction 2
 - ...
 - Code review
+
+<!-- Si votre pull request nécessite d'effectuer des actions particulières lors de la mise en production, renseignez-les ici afin qu'elles soient ajoutées au changelog lors du merge. --> 
