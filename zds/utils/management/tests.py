@@ -16,6 +16,7 @@ from zds.member.factories import ProfileFactory
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction, \
     Validation as CValidation
 from zds.gallery.models import Gallery, UserGallery
+from zds.utils.management.commands.load_fixtures import Command as FixtureCommand
 
 BASE_DIR = settings.BASE_DIR
 
@@ -33,7 +34,9 @@ class CommandsTestCase(TestCase):
     def test_load_fixtures(self):
 
         args = []
-        opts = {}
+        opts = {
+            'modules': FixtureCommand.zds_resource_config
+        }
         call_command('load_fixtures', *args, **opts)
 
         self.assertTrue(User.objects.count() > 0)
