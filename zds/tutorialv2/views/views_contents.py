@@ -1293,7 +1293,7 @@ class DisplayDiff(LoggedWithReadWriteHability, SingleContentDetailViewMixin):
             commit_to = repo.commit(self.request.GET['to'])
             # commit_to.diff raises GitErrorCommand if 00..00 SHA for instance
             tdiff = commit_to.diff(commit_from, R=True)
-        except (GitCommandError, BadName, BadObject) as git_error:
+        except (GitCommandError, BadName, BadObject, ValueError) as git_error:
             logging.getLogger('zds.tutorialv2').warn(git_error)
             raise Http404(u'En traitant le contenu {} git a lancé une erreur de type {}:{}'.format(
                 self.object.title,
