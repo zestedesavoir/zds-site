@@ -82,7 +82,7 @@
     <br/>
     <span>
         {% if online and reading_time and not is_part_or_chapter %}
-            {% trans "Temps de lecture estimé : " %}{{ reading_time | minute_to_duration:"long"}}
+            {% trans "Temps de lecture estimé : " %}{{ reading_time|minute_to_duration }}
         {% elif online and not is_part_or_chapter %}
             {% trans "Temps de lecture estimé à moins d’une minute." %}
         {% endif %}
