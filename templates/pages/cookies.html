@@ -24,7 +24,7 @@
 
 {% block content %}
     {% set app.site.literal_name as site_name %}
-    <h3>{% trans "Qu'est-ce qu'un cookie ?" %}</h3>
+    <h3>{% trans "Qu'est-ce qu'un cookie&nbsp;?" %}</h3>
     <p>
         {% blocktrans %}
             Un <strong>cookie</strong> (aussi appelé <strong>témoin de connexion</strong> ou <strong>témoin</strong> au Québec) est un petit bout de texte envoyé par le serveur web au navigateur, et renvoyé à l'identique par le navigateur au serveur.
@@ -37,7 +37,7 @@
         {% endblocktrans %}
     </p>
 
-    <h3>{% trans "À quoi servent les cookies ?" %}</h3>
+    <h3>{% trans "À quoi servent les cookies&nbsp;?" %}</h3>
     <p>{% trans "Les cookies se répartissent en deux grands types : les impératifs techniques et la mesure d'audience." %}</p>
     <p>{% blocktrans %}<strong>En aucun cas</strong> les cookies servent à recueillir des renseignements personnels, transmettre des données sensibles ou transmettre des données personnelles à des tiers.{% endblocktrans %}</p>
 
@@ -47,12 +47,12 @@
     <p>{% blocktrans %}Ces cookies, purement techniques, <strong>sont indispensables au fonctionnement de {{ site_name }}</strong>. Si vous les refusez, les éléments qui en dépendent ne fonctionneront tout simplement pas&nbsp;!{% endblocktrans %}</p>
 
     <h4>{% trans "Cookies d'analyse d'audience" %}</h4>
-    <p>{% blocktrans %}{{ site_name }} analyse son audience. Que signifie ce terme barbare ? Tout simplement que nous étudions la manière dont le site est utilisé :{% endblocktrans %}</p>
+    <p>{% blocktrans %}{{ site_name }} analyse son audience. Que signifie ce terme barbare&nbsp;? Tout simplement que nous étudions la manière dont le site est utilisé :{% endblocktrans %}</p>
     <ul>
-        <li>{% trans "Quelles fonctionnalités sont utilisées ?" %}</li>
-        <li>{% trans "À quelle fréquence ?" %}</li>
-        <li>{% trans "D'où viennent nos utilisateurs ? (oui, c'est de vous dont je parle&nbsp;!)" %}</li>
-        <li>{% trans "Comment naviguent-ils dans le site ?" %}</li>
+        <li>{% trans "Quelles fonctionnalités sont utilisées&nbsp;?" %}</li>
+        <li>{% trans "À quelle fréquence&nbsp;?" %}</li>
+        <li>{% trans "D'où viennent nos utilisateurs&nbsp;? (oui, c'est de vous dont je parle&nbsp;!)" %}</li>
+        <li>{% trans "Comment naviguent-ils dans le site&nbsp;?" %}</li>
         <li>{% trans "Etc." %}</li>
     </ul>
     <p>{% trans "<em>À quoi cela peut-il bien servir</em>, allez-vous me demander avec sagacité." %}</p>

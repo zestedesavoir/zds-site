@@ -67,7 +67,7 @@
                         <form action="{% url 'mark-notifications-as-read' %}" method="post" id="mark-notifications-as-read" class="modal modal-flex">
                             {% csrf_token %}
                             <p>
-                                {% trans 'Voulez-vous vraiment marquer toutes vos notifications comme lues ?' %}
+                                {% trans 'Voulez-vous vraiment marquer toutes vos notifications comme lues&nbsp;?' %}
                             </p>
                             <button type="submit">{% trans 'Confirmer' %}</button>
                     </form>

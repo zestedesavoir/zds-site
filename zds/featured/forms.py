@@ -30,7 +30,7 @@ class FeaturedResourceForm(forms.ModelForm):
 
             'authors': forms.TextInput(
                 attrs={
-                    'placeholder': _(u'Des auteurs (ou pas) ?')
+                    'placeholder': _(u'Des auteurs (ou pas)&nbsp;?')
                 }
             ),
 

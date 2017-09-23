@@ -1166,7 +1166,7 @@ def settings_promote(request, user_pk):
                     if isinstance(topic, Topic) and group in topic.forum.groups.all():
                         TopicAnswerSubscription.objects.toggle_follow(topic, user)
             user.groups.clear()
-            messages.warning(request, _(u'{0} n\'appartient (plus ?) à aucun groupe.')
+            messages.warning(request, _(u'{0} n\'appartient (plus&nbsp;?) à aucun groupe.')
                              .format(user.username))
 
         if 'activation' in data and u'on' in data['activation']:
