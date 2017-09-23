@@ -61,6 +61,9 @@ class Misc(TestCase):
 
 class TemplateTagsTest(TestCase):
     def test_joinby(self):
+        self.assertEqual(joinby([]), '')
+        self.assertEqual(joinby(()), '')
+
         l = ['apple', 'banana', 'orange', 'clementine']
         self.assertEqual(
             joinby(l, final_separator=', '),
