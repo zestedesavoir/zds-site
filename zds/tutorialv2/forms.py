@@ -671,7 +671,7 @@ class AcceptValidationForm(forms.Form):
     )
 
     is_major = forms.BooleanField(
-        label=_(u'Version majeure ?'),
+        label=_(u'Version majeure&nbsp;?'),
         required=False,
         initial=True
     )
@@ -749,7 +749,7 @@ class CancelValidationForm(forms.Form):
         required=True,
         widget=forms.Textarea(
             attrs={
-                'placeholder': _(u'Pourquoi annuler la validation ?'),
+                'placeholder': _(u'Pourquoi annuler la validation&nbsp;?'),
                 'rows': '4'
             }
         )
@@ -773,7 +773,7 @@ class CancelValidationForm(forms.Form):
         self.helper.form_id = 'cancel-validation'
 
         self.helper.layout = Layout(
-            HTML('<p>Êtes-vous certain de vouloir annuler la validation de ce contenu ?</p>'),
+            HTML('<p>Êtes-vous certain de vouloir annuler la validation de ce contenu&nbsp;?</p>'),
             CommonLayoutModalText(),
             ButtonHolder(
                 StrictButton(
@@ -876,7 +876,7 @@ class RevokeValidationForm(forms.Form):
         required=True,
         widget=forms.Textarea(
             attrs={
-                'placeholder': _(u'Pourquoi dépublier ce contenu ?'),
+                'placeholder': _(u'Pourquoi dépublier ce contenu&nbsp;?'),
                 'rows': '6'
             }
         )
@@ -1030,7 +1030,7 @@ class WarnTypoForm(forms.Form):
                 usernames += '&'
             usernames += 'username=' + user.username
 
-        msg = _(u'<p>Pas assez de place ? <a href="{}?title={}&{}">Envoyez un MP {}</a>&nbsp;!</a>').format(
+        msg = _(u'<p>Pas assez de place&nbsp;? <a href="{}?title={}&{}">Envoyez un MP {}</a>&nbsp;!</a>').format(
             reverse('mp-new'), pm_title, usernames, _(u"à l'auteur") if num_of_authors == 1 else _(u'aux auteurs')
         )
 
@@ -1114,7 +1114,7 @@ class UnpublicationForm(forms.Form):
         required=True,
         widget=forms.Textarea(
             attrs={
-                'placeholder': _(u'Pourquoi dépublier ce contenu ?'),
+                'placeholder': _(u'Pourquoi dépublier ce contenu&nbsp;?'),
                 'rows': '6'
             }
         )
@@ -1160,8 +1160,8 @@ class PickOpinionForm(forms.Form):
         self.helper.form_id = 'pick-opinion'
 
         self.helper.layout = Layout(
-            HTML('<p>Êtes-vous certain(e) de vouloir valider ce billet ? Il pourra maintenant être présent sur la page '
-                 "d'accueil.</p>"),
+            HTML('<p>Êtes-vous certain(e) de vouloir valider ce billet&nbsp;? '
+                 'Il pourra maintenant être présent sur la page d’accueil.</p>'),
             CommonLayoutModalText(),
             Field('version'),
             StrictButton(
@@ -1217,7 +1217,7 @@ class UnpickOpinionForm(forms.Form):
         required=True,
         widget=forms.Textarea(
             attrs={
-                'placeholder': _(u'Pourquoi retirer ce billet de la liste des billets choisis ?'),
+                'placeholder': _(u'Pourquoi retirer ce billet de la liste des billets choisis&nbsp;?'),
                 'rows': '6'
             }
         )
@@ -1261,7 +1261,7 @@ class PromoteOpinionToArticleForm(forms.Form):
         self.helper.form_id = 'convert-opinion'
 
         self.helper.layout = Layout(
-            HTML('<p>Êtes-vous certain(e) de vouloir promouvoir ce billet en article ?</p>'),
+            HTML('<p>Êtes-vous certain(e) de vouloir promouvoir ce billet en article&nbsp;?</p>'),
             CommonLayoutModalText(),
             Field('version'),
             StrictButton(

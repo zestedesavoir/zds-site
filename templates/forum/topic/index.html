@@ -248,7 +248,7 @@
                         <form action="{% url 'manage-issue' topic.pk %}" method="post" id="unlink-issue" class="modal modal-flex">
                             {% csrf_token %}
                             <p>
-                                {% trans 'Voulez-vous vraiment dissocier ce sujet de son ticket GitHub ?' %}
+                                {% trans 'Voulez-vous vraiment dissocier ce sujet de son ticket GitHub&nbsp;?' %}
                             </p>
                             <button type="submit" name="unlink">{% trans 'Confirmer' %}</button>
                         </form>
@@ -289,7 +289,7 @@
                         <form action="{% url 'manage-issue' topic.pk %}" method="post" id="link-issue" class="modal modal-flex">
                             {% csrf_token %}
                             <p>
-                                {% trans "Quel est le numéro du ticket GitHub que vous souhaitez associer ?" %}
+                                {% trans "Quel est le numéro du ticket GitHub que vous souhaitez associer&nbsp;?" %}
                             </p>
                             <input type="number" name="issue" min="1" placeholder="{% trans "Numéro du ticket (sans #)" %}" required>
                             <button type="submit" name="link">{% trans 'Associer' %}</button>
@@ -328,7 +328,7 @@
                                         {% trans "la fermeture" %}
                                     {% endif %}
                                 </em>
-                            {% trans "du sujet ?" %}
+                            {% trans "du sujet&nbsp;?" %}
                         </p>
 
                         <button type="submit" name="lock-open-topic-{{ topic.pk }}">

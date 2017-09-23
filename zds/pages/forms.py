@@ -9,7 +9,7 @@ from django.utils.translation import ugettext_lazy as _
 
 class AssocSubscribeForm(forms.Form):
     full_name = forms.CharField(
-        label=_(u'Qui êtes-vous ?'),
+        label=_(u'Qui êtes-vous&nbsp;?'),
         max_length=50,
         required=True,
         widget=forms.TextInput(
@@ -40,7 +40,7 @@ class AssocSubscribeForm(forms.Form):
     )
 
     justification = forms.CharField(
-        label=_(u'Pourquoi voulez-vous adhérer à l\'association ?'),
+        label=_(u'Pourquoi voulez-vous adhérer à l\'association&nbsp;?'),
         required=False,
         max_length=3000,
         widget=forms.Textarea(
