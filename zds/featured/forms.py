@@ -106,7 +106,7 @@ class FeaturedMessageForm(forms.ModelForm):
         widgets = {
             'hook': forms.TextInput(
                 attrs={
-                    'placeholder': _(u'Mot d\'accroche court ("Nouveau !")')
+                    'placeholder': _(u'Mot d\'accroche court ("Nouveau&nbsp;!")')
                 }
             ),
 

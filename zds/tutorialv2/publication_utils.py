@@ -324,7 +324,7 @@ def publish_container(db_object, base_dir, container):
     from zds.tutorialv2.models.models_versioned import Container
 
     if not isinstance(container, Container):
-        raise FailureDuringPublication(_(u"Le conteneur n'en est pas un !"))
+        raise FailureDuringPublication(_(u"Le conteneur n'en est pas un&nbsp;!"))
 
     template = 'tutorialv2/export/chapter.html'
 

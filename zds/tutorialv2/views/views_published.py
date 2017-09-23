@@ -522,7 +522,7 @@ class ViewPublications(TemplateView):
             context['category'] = subcategory.get_parent_category()
 
             if context['category'].slug != self.kwargs.get('slug_category'):
-                raise Http404('wrong slug for category ({} != {})'.format(
+                raise Http404('wrong slug for category ({}&nbsp;!= {})'.format(
                     context['category'].slug, self.kwargs.get('slug_category')))
 
             context['subcategory'] = subcategory
@@ -765,7 +765,7 @@ class UpdateNoteView(SendNoteFormView):
                 messages.add_message(
                     self.request, messages.WARNING,
                     _(u'Vous éditez ce message en tant que modérateur (auteur : {}).'
-                      u' Ne faites pas de bêtise !')
+                      u' Ne faites pas de bêtise&nbsp;!')
                     .format(self.reaction.author.username))
 
                 # show alert, if any
@@ -792,7 +792,7 @@ class UpdateNoteView(SendNoteFormView):
                 if not self.request.user.has_perm('tutorialv2.change_contentreaction'):
                     raise PermissionDenied
         else:
-            messages.error(self.request, _(u'Oh non ! Une erreur est survenue dans la requête !'))
+            messages.error(self.request, _(u'Oh non&nbsp;! Une erreur est survenue dans la requête&nbsp;!'))
             return self.form_invalid(form)
 
         return super(UpdateNoteView, self).form_valid(form)
