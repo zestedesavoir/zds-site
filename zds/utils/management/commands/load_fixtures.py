@@ -605,15 +605,17 @@ class Command(BaseCommand):
                                help='add new {}.'.format(zds_module.description), action='append_const',
                                const=zds_module)
 
-    help = '''Load fixtures for ZdS
+    help = """
+        Load fixtures for ZdS
 
-Examples:
-    All:
-        python manage.py load_fixtures
-    All with high size:
-        python manage.py load_fixtures size=high
-    Only users with medium size and a different prefix than bare "user":
-        python manage.py load_fixtures --size=medium --member --staff --racine=john'''
+        Examples:
+            All:
+                python manage.py load_fixtures
+            All with high size:
+                python manage.py load_fixtures size=high
+            Only users with medium size and a different prefix than bare "user":
+                python manage.py load_fixtures --size=medium --member --staff --racine=john
+    """
 
     def handle(self, *args, **options):
         size_map = {'low': 1, 'medium': 2, 'high': 3}

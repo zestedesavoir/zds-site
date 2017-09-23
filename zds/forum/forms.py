@@ -60,10 +60,10 @@ class TopicForm(forms.Form):
             Field('title'),
             Field('subtitle', autocomplete='off'),
             Field('tags'),
-            HTML(u'''<div id="topic-suggest" style="display:none;"  url="/rechercher/sujets-similaires/">
+            HTML(u"""<div id="topic-suggest" style="display:none;"  url="/rechercher/sujets-similaires/">
   <label>{0}</label>
   <div id="topic-result-container" data-neither="{1}"></div>
-</div>'''
+</div>"""
                  .format(_(u'Sujets similaires au vôtre :'), _(u'Aucun résultat'))),
             CommonLayoutEditor(),
         )
