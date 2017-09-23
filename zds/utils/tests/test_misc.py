@@ -58,6 +58,7 @@ class Misc(TestCase):
             # as we are not in py3 we do not have subTest method. so we use a bare for loop.
             self.assertEquals(remove_url_scheme(element.given), element.expected)
 
+
 class TemplateTagsTest(TestCase):
     def test_joinby(self):
         l = ['apple', 'banana', 'orange', 'clementine']
