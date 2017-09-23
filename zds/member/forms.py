@@ -284,13 +284,20 @@ class ProfileForm(MiniProfileForm):
             Field('biography'),
             ButtonHolder(StrictButton(_(u'Aperçu'), type='preview', name='preview',
                                       css_class='btn btn-grey preview-btn'),),
-            HTML('{% if form.biographie.value %}{% include "misc/previsualization.part.html" \
-            with text=form.biographie.value %}{% endif %}'),
+            HTML("""
+                {% if form.biographie.value %}
+                    {% include "misc/previsualization.part.html" with text=form.biographie.value %}
+                {% endif %}
+            """),
             Field('site'),
             Field('avatar_url'),
-            HTML(_(u'''<p><a href="{% url 'gallery-list' %}">Choisir un avatar dans une galerie</a><br/>
-            Naviguez vers l'image voulue et cliquez sur le bouton "<em>Choisir comme avatar</em>".<br/>
-            Créez une galerie et importez votre avatar si ce n'est pas déjà fait !</p>''')),
+            HTML(_(u"""
+                <p>
+                    <a href="{% url 'gallery-list' %}">Choisir un avatar dans une galerie</a><br/>
+                    Naviguez vers l'image voulue et cliquez sur le bouton "<em>Choisir comme avatar</em>".<br/>
+                    Créez une galerie et importez votre avatar si ce n'est pas déjà fait&nbsp;!
+                </p>
+            """)),
             Field('sign'),
             Field('licence'),
             Field('options'),
