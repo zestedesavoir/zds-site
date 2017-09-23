@@ -167,22 +167,19 @@
             <header>
                 <div class="mobile-menu-btn ico-after"></div>
 
-                {% captureas mobiletitle %}
-                    {% block mobile_title %}
-                        {{app.site.literal_name}}
-                    {% endblock %}
-                {% endcaptureas %}
-
                 {# Logo #}
                 <div class="header-logo">
                     <a href="{% url "homepage" %}"
-                       class="header-logo-link"
-                       data-title="{{ mobiletitle }}"
-                    >
+                       class="header-logo-link">
                         {{app.site.literal_name}}
                     </a>
                 </div>
 
+                <div class="header-mobile-page-title">
+                    {% block mobile_title %}
+                        {{app.site.literal_name}}
+                    {% endblock %}
+                </div>
 
                 {# Menu #}
                 <nav class="header-menu" id="menu" data-title="Menu"
