@@ -531,7 +531,7 @@ def modify_profile(request, user_pk):
     if profile.is_private():
         raise PermissionDenied
     if request.user.profile == profile:
-        messages.error(request, _(u'Vous ne pouvez pas vous sanctionner vous-même !'))
+        messages.error(request, _(u'Vous ne pouvez pas vous sanctionner vous-même&nbsp;!'))
         raise PermissionDenied
 
     if 'ls' in request.POST:
@@ -613,7 +613,7 @@ def settings_mini_profile(request, user_name):
         data = {'form': form, 'profile': profile}
         messages.warning(request, _(
             u'Le profil que vous éditez n\'est pas le vôtre. '
-            u'Soyez encore plus prudent lors de l\'édition de celui-ci !'))
+            u'Soyez encore plus prudent lors de l\'édition de celui-ci&nbsp;!'))
         return render(request, 'member/settings/profile.html', data)
 
 

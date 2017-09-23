@@ -45,7 +45,7 @@ class FormWithTitle(forms.Form):
             slugify_raise_on_invalid(title)
         except InvalidSlugError as e:
             self._errors['title'] = self.error_class(
-                [_(u"Ce titre n'est pas autorisé, son slug est invalide {} !").format(e if e.message else '')])
+                [_(u"Ce titre n'est pas autorisé, son slug est invalide {}&nbsp;!").format(e if e.message else '')])
 
         return cleaned_data
 
@@ -205,7 +205,7 @@ class ContentForm(ContainerForm):
 
     subcategory = forms.ModelMultipleChoiceField(
         label=_(u'Sous catégories de votre contenu. Si aucune catégorie ne convient '
-                u"n'hésitez pas à en demander une nouvelle lors de la validation !"),
+                u"n'hésitez pas à en demander une nouvelle lors de la validation&nbsp;!"),
         queryset=SubCategory.objects.order_by('title').all(),
         required=True,
         widget=forms.CheckboxSelectMultiple()
@@ -233,7 +233,7 @@ class ContentForm(ContainerForm):
     )
 
     def _create_layout(self, hide_help):
-        html_part = HTML(_(u"<p>Demander de l'aide à la communauté !<br>"
+        html_part = HTML(_(u"<p>Demander de l'aide à la communauté&nbsp;!<br>"
                            u"Si vous avez besoin d'un coup de main, "
                            u"sélectionnez une ou plusieurs catégories d'aide ci-dessous "
                            u'et votre contenu apparaîtra alors sur <a href='
@@ -445,7 +445,7 @@ class ImportNewContentForm(ImportContentForm):
 
     subcategory = forms.ModelMultipleChoiceField(
         label=_(u'Sous catégories de votre contenu. Si aucune catégorie ne convient '
-                u"n'hésitez pas à en demander une nouvelle lors de la validation !"),
+                u"n'hésitez pas à en demander une nouvelle lors de la validation&nbsp;!"),
         queryset=SubCategory.objects.order_by('title').all(),
         required=True,
         widget=forms.SelectMultiple(
@@ -549,7 +549,7 @@ class NoteForm(forms.Form):
 
         if text is None or not text.strip():
             self._errors['text'] = self.error_class(
-                [_(u'Vous devez écrire une réponse !')])
+                [_(u'Vous devez écrire une réponse&nbsp;!')])
             if 'text' in cleaned_data:
                 del cleaned_data['text']
 
@@ -1030,7 +1030,7 @@ class WarnTypoForm(forms.Form):
                 usernames += '&'
             usernames += 'username=' + user.username
 
-        msg = _(u'<p>Pas assez de place ? <a href="{}?title={}&{}">Envoyez un MP {}</a> !</a>').format(
+        msg = _(u'<p>Pas assez de place ? <a href="{}?title={}&{}">Envoyez un MP {}</a>&nbsp;!</a>').format(
             reverse('mp-new'), pm_title, usernames, _(u"à l'auteur") if num_of_authors == 1 else _(u'aux auteurs')
         )
 

@@ -287,7 +287,7 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
         if self.object.author != request.user and is_staff:
             messages.warning(request, _(
                 u'Vous éditez ce sujet en tant que modérateur (auteur : {}). Soyez encore plus '
-                u'prudent lors de l\'édition de celui-ci !').format(self.object.author.username))
+                u'prudent lors de l\'édition de celui-ci&nbsp;!').format(self.object.author.username))
         form = self.create_form(self.form_class, **{
             'title': self.object.title,
             'subtitle': self.object.subtitle,
@@ -516,7 +516,7 @@ class PostEdit(UpdateView, SinglePostObjectMixin, PostEditMixin):
         if self.object.author != request.user and request.user.has_perm('forum.change_post'):
             messages.warning(request, _(
                 u'Vous éditez ce message en tant que modérateur (auteur : {}). Soyez encore plus '
-                u'prudent lors de l\'édition de celui-ci !').format(self.object.author.username))
+                u'prudent lors de l\'édition de celui-ci&nbsp;!').format(self.object.author.username))
 
         form = self.create_form(self.form_class, **{
             'text': self.object.text
