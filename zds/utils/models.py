@@ -260,15 +260,22 @@ class Comment(models.Model):
     hat = models.ForeignKey(Hat, verbose_name='Casquette', on_delete=models.SET_NULL,
                             related_name='comments', blank=True, null=True)
 
-    def update_content(self, text):
+    def update_content(self, text, save=True):
+        """
+        change the text and update de compiled text. If ``save`` is true it flush it in database
+
+        :param text: the markdown text
+        :param save: if true, flush and notified pingged users
+        """
         from zds.notification.models import ping_url
 
         self.text = text
         md_instance = get_markdown_instance(ping_url=ping_url)
         self.text_html = render_markdown(md_instance, self.text)
-        self.save()
-        for username in list(md_instance.metadata.get('ping', []))[:settings.ZDS_APP['comment']['max_pings']]:
-            signals.new_content.send(sender=self.__class__, instance=self, user=User.objects.get(username=username))
+        if save:
+            self.save()
+            for username in list(md_instance.metadata.get('ping', []))[:settings.ZDS_APP['comment']['max_pings']]:
+                signals.new_content.send(sender=self.__class__, instance=self, user=User.objects.get(username=username))
 
     def hide_comment_by_user(self, user, text_hidden):
         """Hide a comment and save it

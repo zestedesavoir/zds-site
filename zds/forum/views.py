@@ -472,7 +472,7 @@ class PostNew(CreatePostView):
                          .order_by('-position')[:settings.ZDS_APP['forum']['posts_per_page']]
         return super(PostNew, self).dispatch(request, *args, **kwargs)
 
-    def create_forum(self, form_class, **kwargs):
+    def create_form(self, form_class, **kwargs):
         form = form_class(self.object, self.request.user, initial=kwargs)
         form.helper.form_action = reverse('post-new') + '?sujet=' + str(self.object.pk)
         return form

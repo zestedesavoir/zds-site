@@ -57,6 +57,7 @@ LANGUAGES = (
     ('en', _('Anglais')),
 )
 
+# ALOWED_HOSTS = ['127.0.0.1']
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: '/home/media/media.lawrence.com/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -248,6 +249,15 @@ REST_FRAMEWORK_EXTENSIONS = {
 
 
 SWAGGER_SETTINGS = {
+    'exclude_namespaces': [
+        'content'
+    ],
+    'enabled_methods': [
+        'get',
+        'post',
+        'put',
+        'delete',
+    ],
     'APIS_SORTER': 'alpha',
     'OPERATIONS_SORTER': 'alpha',
     'SHOW_REQUEST_HEADERS': True,
