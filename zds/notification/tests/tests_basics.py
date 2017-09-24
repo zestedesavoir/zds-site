@@ -863,6 +863,30 @@ class NotificationTest(TestCase):
         notifs = list(Notification.objects.get_notifications_of(author1.user))
         self.assertEqual(1, len(notifs))
 
+    def test_subscriptions_list(self):
+        """
+        Tests that the subscriptions for new contents and new topics are displayed
+        on the notifications page.
+        """
+        user = ProfileFactory().user
+        followed_user = ProfileFactory().user
+        NewPublicationSubscription.objects.toggle_follow(followed_user, user)
+        category = CategoryFactory(position=1)
+        followed_forum = ForumFactory(category=category, position_in_category=1)
+        NewTopicSubscription.objects.toggle_follow(followed_forum, user)
+        followed_tag = TagFactory()
+        NewTopicSubscription.objects.toggle_follow(followed_tag, user)
+
+        # login as user and check that the subcriptions are rendered
+        self.client.login(username=user.username, password='hostel77')
+        result = self.client.get(reverse('notification-list'))
+        self.assertIn(followed_user, [s.content_object for s in result.context['followed_users']])
+        self.assertIn(followed_forum, [s.content_object for s in result.context['followed_forums']])
+        self.assertIn(followed_tag, [s.content_object for s in result.context['followed_tags']])
+        self.assertContains(result, followed_user.username)
+        self.assertContains(result, followed_forum.title)
+        self.assertContains(result, followed_tag.title)
+
     def test_mark_notifications_as_read(self):
         category = CategoryFactory(position=1)
         forum = ForumFactory(category=category, position_in_category=1)

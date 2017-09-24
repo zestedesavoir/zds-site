@@ -7,15 +7,17 @@ from django.views.decorators.http import require_POST
 from django.utils.translation import ugettext_lazy as _
 from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
+from django.contrib.auth.models import User
 
 from django.conf import settings
 from zds.mp.models import PrivateTopic
-from zds.notification.models import Notification
+from zds.notification.models import Notification, Subscription
 from zds.utils.paginator import ZdSPagingListView
-from zds.forum.models import Post
+from zds.forum.models import Post, Forum
 from zds.tutorialv2.models.models_database import ContentReaction
 from zds.forum.models import mark_read as mark_topic_read
 from zds.tutorialv2.utils import mark_read as mark_content_read
+from zds.utils.models import Tag
 
 
 class NotificationList(ZdSPagingListView):
@@ -37,6 +39,25 @@ class NotificationList(ZdSPagingListView):
             .exclude(subscription__content_type=content_type) \
             .order_by('is_read', '-pubdate') \
             .all()
+
+    def get_context_data(self, **kwargs):
+        user_content_type = ContentType.objects.get_for_model(User)
+        forum_content_type = ContentType.objects.get_for_model(Forum)
+        tag_content_type = ContentType.objects.get_for_model(Tag)
+
+        context = super(NotificationList, self).get_context_data(**kwargs)
+        context['followed_users'] = Subscription.objects \
+            .filter(user=self.request.user, is_active=True, content_type=user_content_type) \
+            .prefetch_related('content_object') \
+            .prefetch_related('content_object__profile')
+        context['followed_forums'] = Subscription.objects \
+            .filter(user=self.request.user, is_active=True, content_type=forum_content_type) \
+            .prefetch_related('content_object') \
+            .prefetch_related('content_object__category')
+        context['followed_tags'] = Subscription.objects \
+            .filter(user=self.request.user, is_active=True, content_type=tag_content_type) \
+            .prefetch_related('content_object')
+        return context
 
 
 @require_POST

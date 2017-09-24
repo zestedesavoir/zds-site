@@ -74,5 +74,93 @@
                 </li>
             </ul>
         </div>
+
+        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Abonnements">
+            <h3>{% trans "Abonnements" %}</h3>
+            <ul>
+                <li>
+                    <a href="#followed-users" class="open-modal">{% trans 'Membres suivis' %}</a>
+                        <div id="followed-users" class="modal modal-flex" data-modal-close="{% trans 'Fermer' %}">
+                            {% if followed_users %}
+                                <table class="fullwidth">
+                                    <thead>
+                                        <th>{% trans "Membre" %}</th>
+                                        <th width="100px">{% trans "Par courriel" %}</th>
+                                    </thead>
+                                    <tbody>
+                                        {% for user in followed_users %}
+                                            <tr>
+                                                <td>{% include "misc/member_item.part.html" with member=user.content_object %}</td>
+                                                <td>{{ user.by_email|yesno:_('Oui,Non') }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            {% else %}
+                                <p>{% trans "Vous ne suivez aucun membre." %}</p>
+                            {% endif %}
+                        </div>
+                    </form>
+                </li>
+
+                <li>
+                    <a href="#followed-forums" class="open-modal">{% trans 'Forums suivis' %}</a>
+                        <div id="followed-forums" class="modal modal-flex" data-modal-close="{% trans 'Fermer' %}">
+                            {% if followed_forums %}
+                                <table class="fullwidth">
+                                    <thead>
+                                        <th>{% trans "Forum" %}</th>
+                                        <th width="100px">{% trans "Par courriel" %}</th>
+                                    </thead>
+                                    <tbody>
+                                        {% for forum in followed_forums %}
+                                            <tr>
+                                                <td>
+                                                    <a href="{{ forum.content_object.get_absolute_url }}">
+                                                        {{ forum.content_object.title }}
+                                                    </a>
+                                                </td>
+                                                <td>{{ forum.by_email|yesno:_('Oui,Non') }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            {% else %}
+                                <p>{% trans "Vous ne suivez aucun forum." %}</p>
+                            {% endif %}
+                        </div>
+                    </form>
+                </li>
+
+                <li>
+                    <a href="#followed-tags" class="open-modal">{% trans 'Tags suivis' %}</a>
+                        <div id="followed-tags" class="modal modal-flex" data-modal-close="{% trans 'Fermer' %}">
+                            {% if followed_tags %}
+                                <table class="fullwidth">
+                                    <thead>
+                                        <th>{% trans "Tag" %}</th>
+                                        <th width="100px">{% trans "Par courriel" %}</th>
+                                    </thead>
+                                    <tbody>
+                                        {% for tag in followed_tags %}
+                                            <tr>
+                                                <td>
+                                                    <a href="{{ tag.content_object.get_absolute_url }}">
+                                                        {{ tag.content_object.title }}
+                                                    </a>
+                                                </td>
+                                                <td>{{ tag.by_email|yesno:_('Oui,Non') }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            {% else %}
+                                <p>{% trans "Vous ne suivez aucun tag." %}</p>
+                            {% endif %}
+                        </div>
+                    </form>
+                </li>
+            </ul>
+        </div>
     </aside>
 {% endblock %}
