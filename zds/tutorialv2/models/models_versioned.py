@@ -240,7 +240,7 @@ class Container:
             this function will also raise an Exception if article, because it cannot contain child container
 
         :param container: the new container
-        :param generate_slug: if ``True``, ask the top container an unique slug for this object
+        :param generate_slug: if ``True``, ask the top container a unique slug for this object
         :raises InvalidOperationError: if cannot add container to this one. Please use ``can_add_container`` to check\
         this before calling ``add_container``.
         """
@@ -260,7 +260,7 @@ class Container:
         """Add a child container, but only if no container were previously added
 
         :param extract: the new extract
-        :param generate_slug: if `True`, ask the top container an unique slug for this object
+        :param generate_slug: if `True`, ask the top container a unique slug for this object
         :raise InvalidOperationError: if cannot add extract to this container.
         """
         if self.can_add_extract():
