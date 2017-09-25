@@ -107,8 +107,8 @@ class Forum(models.Model):
         return reverse('forum-topics-list', kwargs={'cat_slug': self.category.slug, 'forum_slug': self.slug})
 
     def get_topic_count(self):
-        """Retrieve or agregate the number of threads in this forum. If this number already exists, it must be stored \
-        in thread_count. Otherwise it will process a SQL query
+        """Retrieve or aggregate the number of threads in this forum. If this number already exists, it must be stored \
+        in thread_count. Otherwise it will process a SQL query.
 
         :return: the number of threads in the forum.
         """
@@ -118,8 +118,8 @@ class Forum(models.Model):
             return Topic.objects.filter(forum=self).count()
 
     def get_post_count(self):
-        """Retrieve or agregate the number of posts in this forum. If this number already exists, it must be stored \
-        in post_count. Otherwise it will process a SQL query
+        """Retrieve or aggregate the number of posts in this forum. If this number already exists, it must be stored \
+        in post_count. Otherwise it will process a SQL query.
 
         :return: the number of posts for a forum.
         """
