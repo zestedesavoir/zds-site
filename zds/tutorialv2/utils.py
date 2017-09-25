@@ -115,7 +115,7 @@ def search_extract_or_404(base_content, kwargs_array):
 
 
 def never_read(content, user=None):
-    """Check if a content note feed has been read by an user since its last post was added.
+    """Check if a content note feed has been read by a user since its last post was added.
 
     :param content: the content to check
     :type content: zds.tutorialv2.models.models_database.PublishableContent

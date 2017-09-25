@@ -1799,7 +1799,7 @@ class RemoveAuthorFromContent(AddAuthorToContent):
 
     @staticmethod
     def remove_author(content, user):
-        """Remove an user from the authors and ensure that he is access to the content's gallery is also removed.
+        """Remove a user from the authors and ensure that he is access to the content's gallery is also removed.
         The last author is not removed.
 
         :param content: the content

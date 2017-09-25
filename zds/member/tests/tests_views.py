@@ -807,7 +807,7 @@ class MemberTests(TestCase):
     def test_sanctions_with_not_staff_user(self):
         user = ProfileFactory().user
 
-        # we need staff right for update the sanction of an user, so a member who is not staff can't access to the page
+        # we need staff right for update the sanction of a user, so a member who is not staff can't access to the page
         self.client.logout()
         self.client.login(username=user.username, password='hostel77')
 
@@ -820,7 +820,7 @@ class MemberTests(TestCase):
 
         self.assertEqual(result.status_code, 403)
 
-        # if the user is staff, he can update the sanction of an user
+        # if the user is staff, he can update the sanction of a user
         self.client.logout()
         self.client.login(username=self.staff.username, password='hostel77')
 
