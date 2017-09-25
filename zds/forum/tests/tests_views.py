@@ -839,7 +839,7 @@ class FindTopicTest(TestCase):
 
     def test_success_find_topics_of_a_member_private_forum(self):
         """
-        Test that when an user is part of two groups and that those groups can both read a private forum
+        Test that when a user is part of two groups and that those groups can both read a private forum
         only one topic is returned by the query (cf. Issue 4068).
         """
         profile = ProfileFactory()
@@ -887,7 +887,7 @@ class FindTopicByTagTest(TestCase):
 
     def test_success_find_topics_of_a_tag_private_forums(self):
         """
-        Test that when an user is part of two groups and that those groups can both read a private forum
+        Test that when a user is part of two groups and that those groups can both read a private forum
         only one topic is returned by the query (cf. Issue 4068).
         """
         profile = ProfileFactory()
@@ -1836,7 +1836,7 @@ class FindPostTest(TestCase):
 
     def test_success_find_topics_of_a_member_private_forum(self):
         """
-        Test that when an user is part of two groups and that those groups can both read a private forum
+        Test that when a user is part of two groups and that those groups can both read a private forum
         only one post is returned by the query (cf. Issue 4068).
         """
         profile = ProfileFactory()

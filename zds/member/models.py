@@ -427,7 +427,7 @@ def auto_delete_token_on_unregistering(sender, instance, **kwargs):
 @receiver(models.signals.post_save, sender=User)
 def remove_token_github_on_removing_from_dev_group(sender, instance, **kwargs):
     """
-    This signal receiver removes the GitHub token of an user if he's not in the dev group
+    This signal receiver removes the GitHub token of a user if he's not in the dev group
     """
     try:
         profile = instance.profile
