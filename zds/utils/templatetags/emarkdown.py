@@ -10,7 +10,7 @@ from django.utils.translation import ugettext_lazy as _
 from zmarkdown import ZMarkdown
 from zmarkdown.extensions.zds import ZdsExtension
 
-from zds.utils.templatetags.smileysDef import smileys
+from zds.utils.templatetags.smileys_def import smileys
 
 register = template.Library()
 
