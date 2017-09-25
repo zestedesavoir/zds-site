@@ -68,9 +68,17 @@ class ContentTests(TestCase):
         self.assertEqual(self.part1.title, versioned.children[0].title)
         self.assertEqual(self.extract1.title, versioned.children[0].children[0].children[0].title)
 
-        # ensure url resolution project using dictionary :
+        # ensure url resolution project using dictionary:
         self.assertTrue(self.part1.slug in list(versioned.children_dict.keys()))
         self.assertTrue(self.chapter1.slug in versioned.children_dict[self.part1.slug].children_dict)
+
+    def test_slug_pool(self):
+        versioned = self.tuto.load_version()
+
+        for i in [1, 2, 3]:
+            slug = 'introduction-' + str(i)
+            self.assertEqual(slug, versioned.get_unique_slug('introduction'))
+            self.assertTrue(slug in versioned.slug_pool)
 
     def test_ensure_unique_slug(self):
         """
@@ -79,7 +87,7 @@ class ContentTests(TestCase):
         # get draft version
         versioned = self.tuto.load_version()
 
-        # forbidden slugs :
+        # forbidden slugs:
         slug_to_test = ['introduction', 'conclusion']
 
         for slug in slug_to_test:
@@ -87,12 +95,12 @@ class ContentTests(TestCase):
             self.assertNotEqual(slug, new_slug)
             self.assertTrue(new_slug in versioned.slug_pool)  # ensure new slugs are in slug pool
 
-        # then test with 'real' containers and extracts :
+        # then test with 'real' containers and extracts:
         new_chapter_1 = ContainerFactory(title='aa', parent=versioned, db_object=self.tuto)
         new_chapter_2 = ContainerFactory(title='aa', parent=versioned, db_object=self.tuto)
         self.assertNotEqual(new_chapter_1.slug, new_chapter_2.slug)
         new_extract_1 = ExtractFactory(title='aa', container=new_chapter_1, db_object=self.tuto)
-        self.assertEqual(new_extract_1.slug, new_chapter_1.slug)  # different level can have the same slug !
+        self.assertEqual(new_extract_1.slug, new_chapter_1.slug)  # different level can have the same slug!
 
         new_extract_2 = ExtractFactory(title='aa', container=new_chapter_2, db_object=self.tuto)
         self.assertEqual(new_extract_2.slug, new_extract_1.slug)  # not the same parent, so allowed
@@ -145,7 +153,7 @@ class ContentTests(TestCase):
 
     def test_workflow_repository(self):
         """
-        Test to ensure the behavior of repo_*() functions :
+        Test to ensure the behavior of repo_*() functions:
         - if they change the filesystem as they are suppose to ;
         - if they change the `self.sha_*` as they are suppose to.
         """
@@ -162,7 +170,7 @@ class ContentTests(TestCase):
         # VersionedContent:
         old_path = versioned.get_path()
         self.assertTrue(os.path.isdir(old_path))
-        new_slug = versioned.get_unique_slug(new_title)  # normally, you get a new slug by asking database !
+        new_slug = versioned.get_unique_slug(new_title)  # normally, you get a new slug by asking database!
 
         versioned.repo_update_top_container(new_title, new_slug, random_text, random_text)
         self.assertNotEqual(versioned.sha_draft, current_version)
@@ -210,7 +218,7 @@ class ContentTests(TestCase):
         self.assertEqual(part.get_conclusion(), other_random_text)
 
         # 3. delete it
-        part.repo_delete()  # boom !
+        part.repo_delete()  # boom!
         self.assertNotEqual(versioned.sha_draft, current_version)
         self.assertNotEqual(versioned.current_version, current_version)
         self.assertEqual(versioned.current_version, versioned.sha_draft)
@@ -218,7 +226,7 @@ class ContentTests(TestCase):
 
         self.assertFalse(os.path.isdir(new_path))
 
-        # Extract :
+        # Extract:
 
         # 1. add new extract
         versioned.repo_add_container(new_title, random_text, random_text)  # need to add a new part before
@@ -278,12 +286,12 @@ class ContentTests(TestCase):
         # add a new part with `None` for intro and conclusion
         version = versioned.repo_add_container(given_title, None, None)
 
-        # check on the model :
+        # check on the model:
         new_part = versioned.children[-1]
         self.assertIsNone(new_part.introduction)
         self.assertIsNone(new_part.conclusion)
 
-        # it remains when loading the manifest !
+        # it remains when loading the manifest!
         versioned2 = self.tuto.load_version(sha=version)
         self.assertIsNotNone(versioned2)
         self.assertIsNone(versioned.children[-1].introduction)
@@ -293,7 +301,7 @@ class ContentTests(TestCase):
         self.assertIsNone(new_part.introduction)
         self.assertIsNone(new_part.conclusion)
 
-        # does it still remains ?
+        # does it still remains?
         versioned2 = self.tuto.load_version(sha=version)
         self.assertIsNotNone(versioned2)
         self.assertIsNone(versioned.children[-1].introduction)
@@ -320,13 +328,13 @@ class ContentTests(TestCase):
         self.assertFalse(os.path.isfile(os.path.join(versioned.get_path(), old_intro)))  # introduction is deleted
         self.assertFalse(os.path.isfile(os.path.join(versioned.get_path(), old_conclu)))
 
-        # does it go back to None ?
+        # does it go back to None?
         versioned2 = self.tuto.load_version(sha=version)
         self.assertIsNotNone(versioned2)
         self.assertIsNone(versioned.children[-1].introduction)
         self.assertIsNone(versioned.children[-1].conclusion)
 
-        new_part.repo_update(given_title, '', '')  # empty string != `None`
+        new_part.repo_update(given_title, '', '')  # '' is not None
         self.assertIsNotNone(new_part.introduction)
         self.assertIsNotNone(new_part.conclusion)
 
@@ -342,11 +350,11 @@ class ContentTests(TestCase):
         # add a new extract with `None` for text
         version = versioned.repo_add_extract(given_title, None)
 
-        # check on the model :
+        # check on the model:
         new_extract = versioned.children[-1]
         self.assertIsNone(new_extract.text)
 
-        # it remains when loading the manifest !
+        # it remains when loading the manifest!
         versioned2 = article.load_version(sha=version)
         self.assertIsNotNone(versioned2)
         self.assertIsNone(versioned.children[-1].text)
@@ -423,7 +431,7 @@ class ContentTests(TestCase):
         for index, child in enumerate(current.children[0].children):
             self.assertEqual(child.slug, chapter.children[index].slug)  # slug remains
 
-        # delete the second one !
+        # delete the second one!
         last_slug = chapter.children[2].slug
         version = chapter.children[1].repo_delete()
         self.assertEqual(len(chapter.children), 2)
@@ -433,7 +441,7 @@ class ContentTests(TestCase):
         self.assertEqual(len(current.children[0].children), 2)
 
         for index, child in enumerate(current.children[0].children):
-            self.assertEqual(child.slug, chapter.children[index].slug)  # slug remains for extract as well !
+            self.assertEqual(child.slug, chapter.children[index].slug)  # slug remains for extract as well!
 
     def test_publication_and_attributes_consistency(self):
         pubdate = datetime.now() - timedelta(days=1)
