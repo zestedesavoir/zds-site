@@ -307,7 +307,7 @@ class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
             authors = list(validation.content.authors.all())
             if validation.validator in authors:
                 authors.remove(validation.validator)
-            if authors.__len__ > 0:
+            if len(authors) > 0:
                 send_mp(
                     validation.validator,
                     authors,

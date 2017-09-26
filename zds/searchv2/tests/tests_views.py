@@ -152,7 +152,7 @@ class ViewsTests(TestCase):
         # 1. Should not get any result
         result = self.client.get(reverse('search:similar') + '?q=est', follow=False)
         self.assertEqual(result.status_code, 200)
-        content = json.loads(result.content)
+        content = json.loads(result.content.decode('utf-8'))
         self.assertEqual(len(content['results']), 0)
 
         # index
@@ -165,13 +165,13 @@ class ViewsTests(TestCase):
         # 2. Should get exactly one result
         result = self.client.get(reverse('search:similar') + '?q=mange', follow=False)
         self.assertEqual(result.status_code, 200)
-        content = json.loads(result.content)
+        content = json.loads(result.content.decode('utf-8'))
         self.assertEqual(len(content['results']), 1)
 
         # 2. Should get exactly two results
         result = self.client.get(reverse('search:similar') + '?q=Clem', follow=False)
         self.assertEqual(result.status_code, 200)
-        content = json.loads(result.content)
+        content = json.loads(result.content.decode('utf-8'))
         self.assertEqual(len(content['results']), 2)
 
     def test_hidden_post_are_not_result(self):

@@ -304,7 +304,6 @@ def retrieve_image(url, directory):
     parsed_url = urlparse(url)
 
     img_directory, img_basename = os.path.split(parsed_url.path)
-    img_basename = img_basename.decode('utf-8')
     img_basename_splitted = img_basename.split('.')
 
     if len(img_basename_splitted) > 1:
@@ -920,7 +919,7 @@ def get_blob(tree, path):
     for blob in tree.blobs:
         try:
             if os.path.abspath(blob.path) == os.path.abspath(path):
-                data = blob.data_stream.read()
+                data = blob.data_stream.read().decode()
                 return data
         except (OSError, IOError):  # in case of deleted files, or the system cannot get the lock, juste return ""
             return ''

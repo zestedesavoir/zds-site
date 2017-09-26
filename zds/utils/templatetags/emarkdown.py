@@ -52,7 +52,7 @@ def render_markdown(markdown, text, inline=False):
     :rtype: str
     """
     try:
-        return mark_safe(markdown.convert(text).encode('utf-8').strip())
+        return mark_safe(markdown.convert(text).strip())
     except:
         if inline:
             return mark_safe(u'<p>{}</p>'.format(__MD_ERROR_PARSING))
@@ -106,7 +106,7 @@ def decale_header(text, count):
     :return: Filtered text.
     :rtype: str
     """
-    return re.sub(r'(^|\n)(?P<level>#{1,4})(?P<header>.*?)#*(\n|$)', lambda t: sub_hd(t, count), text.encode('utf-8'))
+    return re.sub(r'(^|\n)(?P<level>#{1,4})(?P<header>.*?)#*(\n|$)', lambda t: sub_hd(t, count), text)
 
 
 @register.filter('decale_header_1')

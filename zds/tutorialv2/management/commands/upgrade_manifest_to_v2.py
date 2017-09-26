@@ -74,4 +74,4 @@ class Command(BaseCommand):
                 extract.text = extract.get_path(True)
 
             with open(_file, 'w') as json_file:
-                json_file.write(versioned.get_json().encode('utf-8'))
+                json_file.write(versioned.get_json())

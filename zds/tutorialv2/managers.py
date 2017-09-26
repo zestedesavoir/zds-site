@@ -27,7 +27,7 @@ class PublishedContentManager(models.Manager):
             if not isinstance(content_type, list):
                 content_type = [content_type]
 
-            queryset = queryset.filter(content_type__in=list(map(lambda c: c.upper(), content_type)))
+            queryset = queryset.filter(content_type__in=list([c.upper() for c in content_type]))
 
         # prefetch:
         queryset = queryset \
@@ -181,8 +181,10 @@ class PublishableContentManager(models.Manager):
                     # we add a sentence to the content's introduction stating it was written by a former member.
                     versioned = content.load_version()
                     title = versioned.title
-                    introduction = _('[[i]]\n|Ce contenu a été rédigé par {} qui a quitté le site.\n\n')\
-                        .format(unregistered_user.username) + versioned.get_introduction()
+                    introduction = str(
+                        _('[[i]]\n|Ce contenu a été rédigé par {} qui a quitté le site.\n\n')
+                            .format(unregistered_user.username)
+                    ) + versioned.get_introduction()
                     conclusion = versioned.get_conclusion()
                     sha = versioned.repo_update(title, introduction, conclusion,
                                                 commit_message='Author unsubscribed',

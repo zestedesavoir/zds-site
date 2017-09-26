@@ -215,7 +215,7 @@ class Command(BaseCommand):
             'Autres': [11, 13, 14, 15, 52, 69, 90, 95, 103, 104, 142, 173, 196, 195, 936, 950, 1128, 1139, 1214],
         }
         contents_pk = [item['pk'] for item in PublishableContent.objects.values('pk')]
-        for subcat, cts in contents.items():
+        for subcat, cts in list(contents.items()):
             for ct in cts:
                 try:
                     content = PublishableContent.objects.get(pk=ct)
