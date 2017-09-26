@@ -673,6 +673,7 @@ class HatRequestForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
+        self.helper.form_action = '{}#send-request'.format(reverse('hats-settings'))
 
         self.helper.layout = Layout(
             Field('hat'),

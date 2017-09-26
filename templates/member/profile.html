@@ -94,7 +94,10 @@
             <ul>
                 {% for hat in profile.get_hats %}
                     <li>
-                        {{ hat.name }}
+                        <a href="{{ hat.get_absolute_url }}">{{ hat.name }}</a>
+                        {% if hat.is_staff %}
+                            <em>({{ app.site.literal_name }})</em>
+                        {% endif %}
                         {% if perms.utils.change_hat and not hat.group %}
                             – <a href="#remove-hat-{{ hat.pk }}" class="open-modal">{% trans "Retirer" %}</a>
                         {% endif %}
