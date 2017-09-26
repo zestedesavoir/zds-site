@@ -4,12 +4,17 @@
 
 
 {% block title %}
-    {% trans "Demande de" %} « {{ hat_request.hat }} » &bull; {% trans "Demandes de casquettes" %}
+    {% trans "Demande de" %} « {{ hat_request.hat }} » &bull; {% trans "Demandes de casquettes" %} &bull; {% trans "Casquettes" %}
 {% endblock %}
 
 
 
 {% block breadcrumb %}
+    <li>
+        <a href="{% url 'hats-list' %}">
+            {% trans "Casquettes" %}
+        </a>
+    </li>
     <li>
         <a href="{% url 'requested-hats' %}">
             {% trans "Demandes de casquettes" %}

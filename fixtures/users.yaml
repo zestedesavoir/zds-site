@@ -147,8 +147,10 @@
     fields:
         name: Staff
         group: 1
+        is_staff: True
 -   model: utils.Hat
     pk: 2
     fields:
         name: Équipe technique
         group: 3
+        is_staff: True

@@ -32,6 +32,12 @@ class CommentEditAdmin(admin.ModelAdmin):
     search_fields = ('editor__username', 'original_text')
 
 
+class HatAdmin(admin.ModelAdmin):
+    list_display = ('name', 'group', 'is_staff')
+    list_filter = ('group', 'is_staff')
+    search_fields = ('name',)
+
+
 class HatRequestAdmin(admin.ModelAdmin):
     list_display = ('user', 'hat', 'date')
     ordering = ('-date',)
@@ -47,5 +53,5 @@ admin.site.register(SubCategory, SubCategoryAdmin)
 admin.site.register(CategorySubCategory)
 admin.site.register(HelpWriting)
 admin.site.register(CommentEdit, CommentEditAdmin)
-admin.site.register(Hat)
+admin.site.register(Hat, HatAdmin)
 admin.site.register(HatRequest, HatRequestAdmin)

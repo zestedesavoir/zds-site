@@ -716,11 +716,54 @@ def remove_banned_email_provider(request, provider_pk):
     return redirect('banned-email-providers')
 
 
+class HatsList(ZdSPagingListView):
+    """Display the list of hats."""
+
+    context_object_name = 'hats'
+    paginate_by = settings.ZDS_APP['member']['hats_per_page']
+    template_name = 'member/hats.html'
+    queryset = Hat.objects \
+                  .order_by('name') \
+                  .select_related('group') \
+                  .prefetch_related('group__user_set') \
+                  .prefetch_related('group__user_set__profile') \
+                  .prefetch_related('profile_set') \
+                  .prefetch_related('profile_set__user')
+
+
+class HatDetail(DetailView):
+    model = Hat
+    context_object_name = 'hat'
+    template_name = 'member/hat.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(HatDetail, self).get_context_data(**kwargs)
+        hat = context['hat']
+        if self.request.user.is_authenticated:
+            context['is_required'] = hat.name.lower() \
+                in [h.lower() for h in self.request.user.requested_hats.values_list('hat', flat=True)]
+        if hat.group:
+            context['users'] = hat.group.user_set.select_related('profile')
+        else:
+            context['users'] = [p.user for p in hat.profile_set.select_related('user')]
+        return context
+
+
 class HatsSettings(LoginRequiredMixin, CreateView):
     model = HatRequest
     template_name = 'member/settings/hats.html'
     form_class = HatRequestForm
     success_url = reverse_lazy('hats-settings')
+
+    def get_initial(self):
+        initial = super(HatsSettings, self).get_initial()
+        if 'ask' in self.request.GET:
+            try:
+                hat = Hat.objects.get(pk=int(self.request.GET['ask']))
+                initial['hat'] = hat.name
+            except (ValueError, Hat.DoesNotExist):
+                pass
+        return initial
 
     def form_valid(self, form):
         form.instance.user = self.request.user

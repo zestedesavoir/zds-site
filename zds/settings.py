@@ -456,6 +456,8 @@ ZDS_APP = {
         'dev_group': 'devs',
         'members_per_page': 100,
         'providers_per_page': 100,
+        'hats_per_page': 50,
+        'users_in_hats_list': 5,
         'requested_hats_per_page': 100,
         'update_last_visit_interval': 600,  # seconds
         'old_smileys_allowed': False,
