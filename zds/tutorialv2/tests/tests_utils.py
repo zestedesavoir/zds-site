@@ -577,6 +577,17 @@ class UtilsTests(TestCase):
         published = PublishedContent.objects.get(pk=published.pk)
         self.assertEqual(published.char_count, published.get_char_count())
 
+    def test_image_with_non_ascii_chars(self):
+        """seen on #4144"""
+        article = PublishableContentFactory(type='article', author_list=[self.user_author])
+        image_string = '![Portrait de Richard Stallman en 2014. [Source](https://commons.wikimedia.org/wiki/' \
+                       'File:Richard_Stallman_-_Fête_de_l%27Humanité_2014_-_010.jpg).]' \
+                       '(/media/galleries/4410/c1016bf1-a1de-48a1-9ef1-144308e8725d.jpg)'
+        article.sha_draft = article.load_version().repo_update(article.title, image_string, '', update_slug=False)
+        article.save(force_slug_update=False)
+        publish_content(article, article.load_version())
+        self.assertTrue(PublishedContent.objects.filter(content_id=article.pk).exists())
+
     def tearDown(self):
         if os.path.isdir(overridden_zds_app['content']['repo_private_path']):
             shutil.rmtree(overridden_zds_app['content']['repo_private_path'])

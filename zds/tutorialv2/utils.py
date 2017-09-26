@@ -12,6 +12,7 @@ except ImportError as e:
 
 import os
 import logging
+from urllib.parse import urlsplit, urlunsplit, quote
 from PIL import Image as ImagePIL
 from django.contrib.auth.models import User
 from django.http import Http404
@@ -289,6 +290,27 @@ def get_target_tagged_tree_for_container(movable_child, root, bias=-1):
     return target_tagged_tree
 
 
+def normalize_unicode_url(unicode_url):
+    """Sometimes you get an URL by a user that just isn't a real URL
+    because it contains unsafe characters like 'β' and so on.  This
+    function can fix some of the problems in a similar way browsers
+    handle data entered by the user:
+
+    .. sourcecode:: python
+
+        normalize_unicode_url(u'http://de.wikipedia.org/wiki/Elf (Begriffsklärung)')
+        # 'http://de.wikipedia.org/wiki/Elf%20%28Begriffskl%C3%A4rung%29'
+
+
+    :param charset: The target charset for the URL if the url was
+                    given as unicode string.
+    """
+    scheme, netloc, path, querystring, anchor = urlsplit(unicode_url)
+    path = quote(path, '/%')
+    querystring = quote(querystring, ':&=')
+    return urlunsplit((scheme, netloc, path, querystring, anchor))
+
+
 def retrieve_image(url, directory):
     """For a given image, retrieve it, transform it into PNG (if needed) and store it
 
@@ -328,6 +350,7 @@ def retrieve_image(url, directory):
     try:
         if parsed_url.scheme in ['http', 'https', 'ftp'] \
                 or parsed_url.netloc[:3] == 'www' or parsed_url.path[:3] == 'www':
+            url = normalize_unicode_url(url)
             urlretrieve(url, store_path)  # download online image
         else:  # it's a local image, coming from a gallery
 
