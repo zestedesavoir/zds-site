@@ -109,8 +109,9 @@ class TagValidator(object):
         :return: ``True`` if ``v`` is fully valid, ``False`` if at least one error appears. See ``self.errors``
         to get all internationalized error.
         """
-        self.__clean = list(filter(self.validate_length, string_list))
-        self.__clean = list(filter(self.validate_utf8mb4, self.__clean))
+        string_list = list(filter(lambda s: s.strip(), string_list))  # needed to keep only real candidates
+        self.__clean = filter(self.validate_length, string_list)
+        self.__clean = filter(self.validate_utf8mb4, self.__clean)
         self.__clean = list(filter(self.validate_no_empty_slug, self.__clean))
         return len(string_list) == len(self.__clean)
 
