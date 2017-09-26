@@ -21,7 +21,7 @@ class ProfileCreate(object):
         """
         Creates an inactive profile in the database.
 
-        :param data: Array about an user.
+        :param data: Array about a user.
         :type data: array
         :return: instance of a profile inactive
         :rtype: Profile object
@@ -54,7 +54,7 @@ class TokenGenerator(object):
         """
         Generates a token for member registration.
 
-        :param user: An User object.
+        :param user: A User object.
         :type user: User object
         :return: A token object
         :rtype: Token object

@@ -225,7 +225,7 @@ class ModifyGalleryViewTest(TestCase):
         )
         self.assertEqual(404, response.status_code)
 
-        # try to add an user with write permission
+        # try to add a user with write permission
         response = self.client.post(
             reverse('gallery-modify'),
             {
@@ -257,7 +257,7 @@ class ModifyGalleryViewTest(TestCase):
         self.assertEqual(1, len(permissions))
         self.assertEqual('R', permissions[0].mode)
 
-        # try to add write permission to an user
+        # try to add write permission to a user
         # who has already an read permission
         response = self.client.post(
             reverse('gallery-modify'),

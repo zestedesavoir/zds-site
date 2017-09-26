@@ -1,10 +1,12 @@
 # coding: utf-8
 
-from django.contrib.auth.models import User, Permission, Group
 import factory
 
-from zds.member.models import Profile
+from django.contrib.auth.models import User, Permission, Group
 from django.conf import settings
+
+from zds.member.models import Profile
+from zds.utils.models import Hat
 
 
 class UserFactory(factory.DjangoModelFactory):
@@ -60,6 +62,9 @@ class StaffFactory(factory.DjangoModelFactory):
         if group_staff is None:
             group_staff = Group(name='staff')
             group_staff.save()
+            hat, _ = Hat.objects.get_or_create(name__iexact='Staff', defaults={'name': 'Staff'})
+            hat.group = group_staff
+            hat.save()
 
         perms = Permission.objects.filter(codename__startswith='change_').all()
         group_staff.permissions = perms

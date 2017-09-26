@@ -56,7 +56,7 @@ Mixins (``mixins.py``)
 .. automodule:: zds.tutorialv2.mixins
     :members:
 
-Les forumulaires (``forms.py``)
+Les formulaires (``forms.py``)
 ===============================
 
 .. automodule:: zds.tutorialv2.forms

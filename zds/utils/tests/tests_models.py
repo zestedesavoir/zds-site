@@ -1,9 +1,12 @@
 # coding: utf-8
 from django.test import TestCase
 from django.db import IntegrityError, transaction
+from django.contrib.auth.models import Group
 
+from zds.member.models import Profile
+from zds.member.factories import ProfileFactory
 from zds.utils.forms import TagValidator
-from zds.utils.models import Tag
+from zds.utils.models import Tag, Hat
 
 
 class TagsTests(TestCase):
@@ -74,3 +77,18 @@ class TagsTests(TestCase):
         validator = TagValidator()
         self.assertFalse(validator.validate_raw_string(raw_string))
         self.assertEqual(1, len(validator.errors))
+
+    def test_prevent_users_getting_hat_linked_to_group(self):
+        # Create a hat and add it to a user
+        hat_name = 'Test hat'
+        profile = ProfileFactory()
+        hat, _ = Hat.objects.get_or_create(name__iexact=hat_name, defaults={'name': hat_name})
+        profile.hats.add(hat)
+        self.assertIn(hat_name, [h.name for h in profile.hats.all()])
+        # Now, link a group to this hat
+        group, _ = Group.objects.get_or_create(name='test_hat')
+        hat.group = group
+        hat.save()
+        # The user shoudn't have the hat through their profile anymore
+        profile = Profile.objects.get(pk=profile.pk)  # reload
+        self.assertNotIn(hat, profile.hats.all())

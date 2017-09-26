@@ -221,11 +221,13 @@
                                                     </ul>
                                                 </li>
                                             {% empty %}
-                                                <ul>
-                                                    <li class="dropdown-title">
+                                                <li>
+                                                    <ul>
+                                                        <li class="dropdown-title">
                                                             {% trans "Aucun contenu disponible." %}
-                                                    </li>
-                                                </ul>
+                                                        </li>
+                                                    </ul>
+                                                </li>
                                             {% endfor %}
                                             {% if categories.tags %}
                                                 <li>
@@ -234,7 +236,7 @@
                                                             {% trans "Tags les plus utilisés" %}
                                                         </li>
                                                         {% for tag in categories.tags %}
-                                                                <li><a href="{% url 'publication:list' %}?tag={{ tag.title|urlencode }}">{{ tag }}</a></li>
+                                                            <li><a href="{% url 'publication:list' %}?tag={{ tag.title|urlencode }}">{{ tag }}</a></li>
                                                         {% endfor %}
                                                         <li><a href="{% url 'content:tags' %}">Tous les tags</a></li>
                                                     </ul>
@@ -274,11 +276,13 @@
                                                     </ul>
                                                 </li>
                                             {% empty %}
-                                                <ul>
-                                                    <li class="dropdown-title">
-                                                        {% trans "Aucune tribune disponible." %}
-                                                    </li>
-                                                </ul>
+                                                <li>
+                                                    <ul>
+                                                        <li class="dropdown-title">
+                                                            {% trans "Aucune tribune disponible." %}
+                                                        </li>
+                                                    </ul>
+                                                </li>
                                             {% endfor %}
                                             {% if categories.tags %}
                                                 <li>
@@ -323,11 +327,13 @@
                                                     </ul>
                                                 </li>
                                             {% empty %}
-                                                <ul>
-                                                    <li class="dropdown-title">
-                                                        {% trans "Aucun forum disponible." %}
-                                                    </li>
-                                                </ul>
+                                                <li>
+                                                    <ul>
+                                                        <li class="dropdown-title">
+                                                            {% trans "Aucun forum disponible." %}
+                                                        </li>
+                                                    </ul>
+                                                </li>
                                             {% endfor %}
                                             {% if top.tags %}
                                                 <li>

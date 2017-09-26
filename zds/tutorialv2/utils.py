@@ -115,7 +115,7 @@ def search_extract_or_404(base_content, kwargs_array):
 
 
 def never_read(content, user=None):
-    """Check if a content note feed has been read by an user since its last post was added.
+    """Check if a content note feed has been read by a user since its last post was added.
 
     :param content: the content to check
     :type content: zds.tutorialv2.models.models_database.PublishableContent
@@ -215,7 +215,7 @@ def get_target_tagged_tree(movable_child, root):
     """Gets the tagged tree with deplacement availability
 
     :param movable_child: the extract we want to move
-    :param root: the VersionnedContent we use as root
+    :param root: the VersionedContent we use as root
     :rtype: tuple
     :return: an array of tuples that represent the capacity of movable_child to be moved near another child\
     check get_target_tagged_tree_for_extract and get_target_tagged_tree_for_container for format
@@ -233,7 +233,7 @@ def get_target_tagged_tree_for_extract(movable_child, root):
     """Gets the tagged tree with displacement availability when movable_child is an extract
 
     :param movable_child: the extract we want to move
-    :param root: the VersionnedContent we use as root
+    :param root: the VersionedContent we use as root
     :rtype: tuple
     :return: an array of tuples that represent the capacity of movable_child to be moved near another child\
     tuples are ``(relative_path, title, level, can_be_a_target)``
@@ -256,7 +256,7 @@ def get_target_tagged_tree_for_container(movable_child, root, bias=-1):
     """Gets the tagged tree with displacement availability when movable_child is an extract
 
     :param movable_child: the container we want to move
-    :param root: the VersionnedContent we use as root
+    :param root: the VersionedContent we use as root
     :param bias: a negative or zero integer that represent the level bias. A value of -1 (default) represent\
     the fact that we want to make the *movable_child* **a sibling** of the tagged child, a value of 0 that we want\
     to make it a sub child.

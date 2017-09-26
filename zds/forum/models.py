@@ -107,8 +107,8 @@ class Forum(models.Model):
         return reverse('forum-topics-list', kwargs={'cat_slug': self.category.slug, 'forum_slug': self.slug})
 
     def get_topic_count(self):
-        """Retrieve or agregate the number of threads in this forum. If this number already exists, it must be stored \
-        in thread_count. Otherwise it will process a SQL query
+        """Retrieve or aggregate the number of threads in this forum. If this number already exists, it must be stored \
+        in thread_count. Otherwise it will process a SQL query.
 
         :return: the number of threads in the forum.
         """
@@ -118,8 +118,8 @@ class Forum(models.Model):
             return Topic.objects.filter(forum=self).count()
 
     def get_post_count(self):
-        """Retrieve or agregate the number of posts in this forum. If this number already exists, it must be stored \
-        in post_count. Otherwise it will process a SQL query
+        """Retrieve or aggregate the number of posts in this forum. If this number already exists, it must be stored \
+        in post_count. Otherwise it will process a SQL query.
 
         :return: the number of posts for a forum.
         """
@@ -139,7 +139,7 @@ class Forum(models.Model):
 
     def can_read(self, user):
         """
-        Checks if an user can read current forum.
+        Checks if a user can read current forum.
         The forum can be read if:
         - The forum has no access restriction (= no group), or
         - the user is in our database and is part of the restricted group which is needed to access this forum
@@ -367,7 +367,7 @@ class Topic(AbstractESDjangoIndexable):
         The user can always post if someone else has posted last.
         If the user is the last poster and there is less than `ZDS_APP['forum']['spam_limit_seconds']` since the last
         post, the anti-spam is active and the user cannot post.
-        :param user: An user. If undefined, the current user is used.
+        :param user: A user. If undefined, the current user is used.
         :return: `True` if the anti-spam is active (user can't post), `False` otherwise.
         """
         if user is None:
@@ -469,7 +469,7 @@ def delete_topic_in_elasticsearch(sender, instance, **kwargs):
 @python_2_unicode_compatible
 class Post(Comment, AbstractESDjangoIndexable):
     """
-    A forum post written by an user.
+    A forum post written by a user.
     A post can be marked as useful: topic's author (or admin) can declare any topic as "useful", and this post is
     displayed as is on front.
     """

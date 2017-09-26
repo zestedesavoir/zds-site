@@ -36,20 +36,33 @@
         <h2>{% trans "Vos casquettes" %}</h2>
 
         <ul>
-            {% for hat in user.profile.hats.all %}
-                <li>{{ hat.name }} – <a href="#remove-hat-{{ hat.pk }}" class="open-modal">{% trans "Supprimer" %}</a></li>
-                <form action="{% url 'remove-hat' user.pk hat.pk %}" method="post" id="remove-hat-{{ hat.pk }}" class="modal modal-flex">
-                    {% csrf_token %}
-                    <p>
-                        {% blocktrans with hat=hat.name %}
-                            Voulez-vous vraiment supprimer votre casquette « {{ hat }} » ?
-                        {% endblocktrans %}
-                    </p>
-                    <p>{% trans "Vous ne pourrez plus poster avec cette casquette et elle n'apparaîtra plus sur votre profil. Les messages ayant été postés avec le resteront. Notez toutefois que vous ne pourrez pas conserver la casquette si vous les éditez." %}
-                    <button type="submit">{% trans 'Confirmer' %}</button>
-                </form>
+            {% for hat in user.profile.get_hats %}
+                <li>
+                    {{ hat.name }} –
+                    {% if hat.group %}
+                        <a href="#group-hat" class="open-modal">{% trans "Liée à un groupe" %}</a>
+                    {% else %}
+                        <a href="#remove-hat-{{ hat.pk }}" class="open-modal">{% trans "Supprimer" %}</a>
+                    {% endif %}
+                </li>
+                {% if not hat.group %}
+                    <form action="{% url 'remove-hat' user.pk hat.pk %}" method="post" id="remove-hat-{{ hat.pk }}" class="modal modal-flex">
+                        {% csrf_token %}
+                        <p>
+                            {% blocktrans with hat=hat.name %}
+                                Voulez-vous vraiment supprimer votre casquette « {{ hat }} »&nbsp;?
+                            {% endblocktrans %}
+                        </p>
+                        <p>{% trans "Vous ne pourrez plus poster avec cette casquette et elle n'apparaîtra plus sur votre profil. Les messages ayant été postés avec le resteront. Notez toutefois que vous ne pourrez pas conserver la casquette si vous les éditez." %}
+                        <button type="submit">{% trans 'Confirmer' %}</button>
+                    </form>
+                {% endif %}
             {% endfor %}
         </ul>
+
+        <div id="group-hat" class="modal modal-flex" data-modal-close="{% trans "Fermer" %}">
+            <p>{% trans "Vous possédez cette casquette car vous êtes membre du groupe autorisé à l'utiliser. Vous ne pouvez pas la supprimer manuellement." %}</p>
+        </div>
     {% endif %}
 
     {% if user.requested_hats.count >= 1 %}

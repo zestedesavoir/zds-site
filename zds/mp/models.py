@@ -160,9 +160,9 @@ class PrivateTopic(models.Model):
 
     def is_unread(self, user=None):
         """
-        Check if an user has never read the current PrivateTopic.
+        Check if a user has never read the current PrivateTopic.
 
-        :param user: an user as Django User object. If None, the current user is used.
+        :param user: a user as Django User object. If None, the current user is used.
         :type user: User object
         :return: True if the PrivateTopic was never read
         :rtype: bool
@@ -211,7 +211,7 @@ class PrivateTopic(models.Model):
 
 @python_2_unicode_compatible
 class PrivatePost(models.Model):
-    """A private post written by an user."""
+    """A private post written by a user."""
 
     class Meta:
         verbose_name = u'Réponse à un message privé'
@@ -316,11 +316,11 @@ class PrivateTopicRead(models.Model):
 
 def is_privatetopic_unread(privatetopic, user=None):
     """
-    Check if a private topic has been read by an user since it last post was added.
+    Check if a private topic has been read by a user since it last post was added.
 
     :param privatetopic: a PrivateTopic to check
     :type privatetopic: PrivateTopic object
-    :param user: an user as Django User object. If None, the current user is used
+    :param user: a user as Django User object. If None, the current user is used
     :type user: User object
     :return: True if the PrivateTopic was never read
     :rtype: bool
@@ -340,7 +340,7 @@ def mark_read(privatetopic, user=None):
 
     :param privatetopic: a PrivateTopic to check
     :type privatetopic: PrivateTopic object
-    :param user: an user as Django User object. If None, the current user is used
+    :param user: a user as Django User object. If None, the current user is used
     :type user: User object
     :return: nothing is returned
     :rtype: None

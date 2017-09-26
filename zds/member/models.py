@@ -372,7 +372,17 @@ class Profile(models.Model):
         """
         Checks if this user can at least use one hat.
         """
-        return self.hats.count() >= 1
+        return len(self.get_hats()) >= 1
+
+    def get_hats(self):
+        """
+        Return all hats the user is allowed to use.
+        """
+        profile_hats = list(self.hats.all())
+        groups_hats = list(Hat.objects.filter(group__in=self.user.groups.all()))
+        hats = profile_hats + groups_hats
+        hats.sort(key=lambda hat: hat.name)
+        return hats
 
     @staticmethod
     def has_read_permission(request):
@@ -417,7 +427,7 @@ def auto_delete_token_on_unregistering(sender, instance, **kwargs):
 @receiver(models.signals.post_save, sender=User)
 def remove_token_github_on_removing_from_dev_group(sender, instance, **kwargs):
     """
-    This signal receiver removes the GitHub token of an user if he's not in the dev group
+    This signal receiver removes the GitHub token of a user if he's not in the dev group
     """
     try:
         profile = instance.profile
@@ -426,6 +436,17 @@ def remove_token_github_on_removing_from_dev_group(sender, instance, **kwargs):
             profile.save()
     except Profile.DoesNotExist:
         pass
+
+
+@receiver(models.signals.post_save, sender=Profile)
+def remove_hats_linked_to_group(sender, instance, **kwargs):
+    """
+    When a user is saved, their hats are checked to be sure that none of them is
+    linked to a group. In this case, the relevant hat will be removed from the user.
+    """
+    for hat in instance.hats.all():
+        if hat.group:
+            instance.hats.remove(hat)
 
 
 def remove_old_smileys_cookie(response):

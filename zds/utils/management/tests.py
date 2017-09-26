@@ -7,11 +7,11 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django.conf import settings
 
-from django.contrib.auth.models import User, Group, Permission
+from django.contrib.auth.models import User, Permission
 from zds.member.models import Profile
 from zds.forum.models import Forum, Topic, Category as FCategory
 from zds.utils.models import Tag, Category as TCategory, CategorySubCategory, SubCategory, \
-    HelpWriting, Licence, Hat
+    HelpWriting, Licence
 from zds.member.factories import ProfileFactory
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction, \
     Validation as CValidation
@@ -63,14 +63,6 @@ class CommandsTestCase(TestCase):
         call_command('load_factory_data', *args, **opts)
 
         self.assertTrue(HelpWriting.objects.count() > 0)
-
-    def test_add_hat_to_group(self):
-        group = Group.objects.create(name='test_hat')
-        user = ProfileFactory().user
-        user.groups.add(group)
-        call_command('add_hat_to_group', group.name, 'Hat')
-        hat = Hat.objects.get(name='Hat')
-        self.assertIn(hat, user.profile.hats.all())
 
     def test_profiler(self):
         result = self.client.get('/?prof', follow=True)
