@@ -4,7 +4,7 @@ sudo: required
 
 
 python:
-  - 2.7
+  - 3.4
 
 
 addons:
@@ -14,6 +14,7 @@ addons:
       - mysql-server-5.6
       - mysql-client-core-5.6
       - mysql-client-5.6
+      - libmysqlclient-dev
       - language-pack-fr
       - unzip
       - oracle-java8-set-default

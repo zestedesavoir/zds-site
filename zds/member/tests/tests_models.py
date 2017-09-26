@@ -40,9 +40,6 @@ class MemberModelsTest(TestCase):
         self.forum = ForumFactory(category=self.forumcat)
         self.forumtopic = TopicFactory(forum=self.forum, author=self.staff.user)
 
-    def test_unicode_of_username(self):
-        self.assertEqual(self.user1.__unicode__(), self.user1.user.username)
-
     def test_get_absolute_url_for_details_of_member(self):
         self.assertEqual(self.user1.get_absolute_url(), '/membres/voir/{0}/'.format(self.user1.user.username))
 
@@ -50,7 +47,7 @@ class MemberModelsTest(TestCase):
         # if no url was specified -> gravatar !
         self.assertEqual(self.user1.get_avatar_url(),
                          'https://secure.gravatar.com/avatar/{0}?d=identicon'.
-                         format(md5(self.user1.user.email.lower()).hexdigest()))
+                         format(md5(self.user1.user.email.lower().encode()).hexdigest()))
         # if an url is specified -> take it !
         user2 = ProfileFactory()
         testurl = 'http://test.com/avatar.jpg'
@@ -473,6 +470,3 @@ class TestTokenRegister(TestCase):
 
     def test_get_absolute_url(self):
         self.assertEqual(self.token.get_absolute_url(), '/membres/activation/?token={0}'.format(self.token.token))
-
-    def test_unicode(self):
-        self.assertEqual(self.token.__unicode__(), '{0} - {1}'.format(self.user1.user.username, self.token.date_end))

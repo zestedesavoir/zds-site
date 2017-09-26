@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 from django.utils.encoding import python_2_unicode_compatible
 import os
-from string import lower
 from uuid import uuid4
 from shutil import rmtree
 
@@ -33,8 +32,8 @@ def image_path(instance, filename):
     :return: local filesystem path of the uploaded image
     :rtype: unicode
     """
-    ext = filename.split('.')[-1]
-    filename = u'{0}.{1}'.format(str(uuid4()), lower(ext))
+    ext = filename.split('.')[-1].lower()
+    filename = u'{0}.{1}'.format(str(uuid4()), ext)
 
     return os.path.join('galleries', str(instance.gallery.pk), filename)
 

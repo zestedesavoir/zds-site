@@ -45,7 +45,7 @@ class FormWithTitle(forms.Form):
             slugify_raise_on_invalid(title)
         except InvalidSlugError as e:
             self._errors['title'] = self.error_class(
-                [_(u"Ce titre n'est pas autorisé, son slug est invalide {}&nbsp;!").format(e if e.message else '')])
+                [_(u"Ce titre n'est pas autorisé, son slug est invalide {}&nbsp;!").format(e)])
 
         return cleaned_data
 

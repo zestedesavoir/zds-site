@@ -197,7 +197,7 @@ class PublicatorRegistery:
         """
         if exclude is None:
             exclude = []
-        for key, value in cls.registry.items():
+        for key, value in list(cls.registry.items()):
             if key not in exclude:
                 yield key, value
 
@@ -436,8 +436,10 @@ def unpublish_content(db_object, moderator=None):
 
         if os.path.exists(old_path):
             shutil.rmtree(old_path)
-        map(lambda reaction: content_unpublished.send(sender=reaction.__class__, instance=reaction),
-            [ContentReaction.objects.filter(related_content=db_object).all()])
+        list(map(
+            lambda reaction: content_unpublished.send(sender=reaction.__class__, instance=reaction),
+            [ContentReaction.objects.filter(related_content=db_object).all()]
+        ))
         # remove public_version:
         public_version.delete()
         update_params = {}

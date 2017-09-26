@@ -272,7 +272,7 @@ class ContentTests(TestCase):
 
         self.assertEqual(200, response.status_code)
 
-        result_string = ''.join(response.streaming_content)
+        result_string = ''.join(str(a, 'utf-8') for a in response.streaming_content)
         self.assertIn('<strong>markdown</strong>', result_string, 'We need the text to be properly formatted')
 
         result = self.client.post(
@@ -285,7 +285,7 @@ class ContentTests(TestCase):
                 'type': u'TUTORIAL',
                 'licence': self.licence.pk,
                 'subcategory': self.subcategory.pk,
-                'image': open('{}/fixtures/noir_black.png'.format(BASE_DIR))
+                'image': open('{}/fixtures/noir_black.png'.format(BASE_DIR), 'rb')
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -317,7 +317,7 @@ class ContentTests(TestCase):
 
         self.assertEqual(result.status_code, 200)
 
-        result_string = ''.join(result.streaming_content)
+        result_string = ''.join(a.decode() for a in result.streaming_content)
         self.assertIn('<strong>markdown</strong>', result_string, 'We need the text to be properly formatted')
 
         # edit tutorial:
@@ -334,7 +334,7 @@ class ContentTests(TestCase):
                 'licence': new_licence.pk,
                 'subcategory': self.subcategory.pk,
                 'last_hash': versioned.compute_hash(),
-                'image': open('{}/fixtures/logo.png'.format(BASE_DIR))
+                'image': open('{}/fixtures/logo.png'.format(BASE_DIR), 'rb')
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -364,7 +364,7 @@ class ContentTests(TestCase):
             }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(result.status_code, 200)
 
-        result_string = ''.join(result.streaming_content)
+        result_string = ''.join(a.decode() for a in result.streaming_content)
         self.assertIn('<strong>markdown</strong>', result_string, 'We need the container to be properly formatted')
 
         # create container:
@@ -419,7 +419,7 @@ class ContentTests(TestCase):
 
         self.assertEqual(result.status_code, 200)
 
-        result_string = ''.join(result.streaming_content)
+        result_string = ''.join(a.decode() for a in result.streaming_content)
         self.assertIn('<strong>markdown</strong>', result_string, 'We need the container to be properly formatted')
 
         versioned = PublishableContent.objects.get(pk=pk).load_version()
@@ -495,7 +495,7 @@ class ContentTests(TestCase):
             }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(result.status_code, 200)
 
-        result_string = ''.join(result.streaming_content)
+        result_string = ''.join(a.decode() for a in result.streaming_content)
         self.assertIn('<strong>markdown</strong>', result_string, 'We need the container to be properly formatted')
 
         versioned = PublishableContent.objects.get(pk=pk).load_version()
@@ -535,7 +535,7 @@ class ContentTests(TestCase):
             }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(result.status_code, 200)
 
-        result_string = ''.join(result.streaming_content)
+        result_string = ''.join(a.decode() for a in result.streaming_content)
         self.assertIn('<strong>markdown</strong>', result_string, 'We need the extract to be properly formatted')
 
         versioned = PublishableContent.objects.get(pk=pk).load_version()
@@ -1396,7 +1396,7 @@ class ContentTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 200)
         draft_zip_path = os.path.join(tempfile.gettempdir(), '__draft1.zip')
-        f = open(draft_zip_path, 'w')
+        f = open(draft_zip_path, 'wb')
         f.write(result.content)
         f.close()
 
@@ -1450,7 +1450,7 @@ class ContentTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 200)
         draft_zip_path_2 = os.path.join(tempfile.gettempdir(), '__draft2.zip')
-        f = open(draft_zip_path_2, 'w')
+        f = open(draft_zip_path_2, 'wb')
         f.write(result.content)
         f.close()
 
@@ -1478,7 +1478,7 @@ class ContentTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 200)
         draft_zip_path_3 = os.path.join(tempfile.gettempdir(), '__draft3.zip')
-        f = open(draft_zip_path_3, 'w')
+        f = open(draft_zip_path_3, 'wb')
         f.write(result.content)
         f.close()
 
@@ -1571,7 +1571,7 @@ class ContentTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 200)
         draft_zip_path = os.path.join(tempfile.gettempdir(), '__draft1.zip')
-        f = open(draft_zip_path, 'w')
+        f = open(draft_zip_path, 'wb')
         f.write(result.content)
         f.close()
 
@@ -1581,7 +1581,7 @@ class ContentTests(TestCase):
         result = self.client.post(
             reverse('content:import-new'),
             {
-                'archive': open(draft_zip_path),
+                'archive': open(draft_zip_path, 'rb'),
                 'subcategory': self.subcategory.pk
             },
             follow=False
@@ -1623,7 +1623,7 @@ class ContentTests(TestCase):
         result = self.client.post(
             reverse('content:import-new'),
             {
-                'archive': open(draft_zip_path),
+                'archive': open(draft_zip_path, 'rb'),
                 'subcategory': self.subcategory.pk
             },
             follow=False
@@ -1707,7 +1707,7 @@ class ContentTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 200)
         draft_zip_path = os.path.join(tempfile.gettempdir(), '__draft1.zip')
-        f = open(draft_zip_path, 'w')
+        f = open(draft_zip_path, 'wb')
         f.write(result.content)
         f.close()
 
@@ -1717,7 +1717,7 @@ class ContentTests(TestCase):
         result = self.client.post(
             reverse('content:import', kwargs={'pk': self.tuto.pk, 'slug': self.tuto.slug}),
             {
-                'archive': open(draft_zip_path),
+                'archive': open(draft_zip_path, 'rb'),
                 'subcategory': self.subcategory.pk
             },
             follow=False
@@ -1772,7 +1772,7 @@ class ContentTests(TestCase):
         archive_path = os.path.join(BASE_DIR, 'fixtures', 'tuto', 'BadArchive.zip')
         answer = self.client.post(reverse('content:import',
                                           args=[new_article.pk, new_article.slug]),
-                                  {'archive': open(archive_path, 'r'),
+                                  {'archive': open(archive_path, 'rb'),
                                    'image_archive': None,
                                    'msg_commit': "let it go, let it goooooooo ! can't hold it back anymoooooore!"})
         self.assertEqual(200, answer.status_code)
@@ -1821,7 +1821,7 @@ class ContentTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 200)
         draft_zip_path = os.path.join(tempfile.gettempdir(), '__draft1.zip')
-        f = open(draft_zip_path, 'w')
+        f = open(draft_zip_path, 'wb')
         f.write(result.content)
         f.close()
 
@@ -1829,7 +1829,7 @@ class ContentTests(TestCase):
         image_zip_path = os.path.join(tempfile.gettempdir(), '__images.zip')
         zfile = zipfile.ZipFile(image_zip_path, 'a')
 
-        bytes = open('fixtures/noir_black.png').read()
+        bytes = open('fixtures/noir_black.png', 'rb').read()
         zfile.writestr('image1.png', bytes)
         zfile.writestr('dossier/image2.png', bytes)
         zfile.close()
@@ -1838,8 +1838,8 @@ class ContentTests(TestCase):
         result = self.client.post(
             reverse('content:import-new'),
             {
-                'archive': open(draft_zip_path),
-                'image_archive': open(image_zip_path),
+                'archive': open(draft_zip_path, 'rb'),
+                'image_archive': open(image_zip_path, 'rb'),
                 'subcategory': self.subcategory.pk
             },
             follow=False
@@ -1867,8 +1867,8 @@ class ContentTests(TestCase):
         result = self.client.post(
             reverse('content:import', args=[article.pk, article.slug]),
             {
-                'archive': open(draft_zip_path),
-                'image_archive': open(image_zip_path),
+                'archive': open(draft_zip_path, 'rb'),
+                'image_archive': open(image_zip_path, 'rb'),
                 'subcategory': self.subcategory.pk
             },
             follow=False
@@ -2105,7 +2105,7 @@ class ContentTests(TestCase):
                 'licence': tuto.licence.pk,
                 'subcategory': self.subcategory.pk,
                 'last_hash': tuto.load_version(tuto.sha_draft).compute_hash(),
-                'image': open('{}/fixtures/logo.png'.format(BASE_DIR))
+                'image': open('{}/fixtures/logo.png'.format(BASE_DIR), 'rb')
             },
             follow=False)
 
@@ -3419,7 +3419,7 @@ class ContentTests(TestCase):
             }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(result.status_code, 200)
 
-        result_string = ''.join(result.streaming_content)
+        result_string = ''.join(a.decode() for a in result.streaming_content)
         self.assertIn('<strong>markdown</strong>', result_string, 'We need the extract to be properly formatted')
 
         # edit extract
@@ -3582,12 +3582,12 @@ class ContentTests(TestCase):
             result = self.client.post(
                 reverse('content:import-new'),
                 {
-                    'archive': open(draft_zip_path),
+                    'archive': open(draft_zip_path, 'rb'),
                     'subcategory': self.subcategory.pk
                 },
                 follow=False
             )
-            manifest = open(os.path.join(old_path, 'manifest.json'), 'r')
+            manifest = open(os.path.join(old_path, 'manifest.json'), 'rb')
             json = json_reader.loads(manifest.read())
             manifest.close()
             self.assertEqual(result.status_code, 302)
@@ -3608,7 +3608,7 @@ class ContentTests(TestCase):
         result = self.client.post(
             reverse('content:import-new'),
             {
-                'archive': open(old_path + '.zip'),
+                'archive': open(old_path + '.zip', 'rb'),
                 'subcategory': self.subcategory.pk
             },
             follow=False
@@ -3626,7 +3626,7 @@ class ContentTests(TestCase):
         result = self.client.post(
             reverse('content:import-new'),
             {
-                'archive': open(old_path + '.zip'),
+                'archive': open(old_path + '.zip', 'rb'),
                 'subcategory': self.subcategory.pk
             },
             follow=False
@@ -4694,7 +4694,7 @@ class PublishedContentTests(TestCase):
             }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(result.status_code, 200)
 
-        result_string = ''.join(result.streaming_content)
+        result_string = ''.join(a.decode() for a in result.streaming_content)
         self.assertTrue(message_to_post in result_string)
 
         # test quoting (without JS)
@@ -4717,7 +4717,7 @@ class PublishedContentTests(TestCase):
         json = {}
 
         try:
-            json = json_reader.loads(''.join(result.streaming_content))
+            json = json_reader.loads(''.join(a.decode() for a in result.streaming_content))
         except Exception as e:  # broad exception on purpose
             self.assertEqual(e, '')
 
@@ -5453,7 +5453,7 @@ class PublishedContentTests(TestCase):
                 'licence': self.tuto.licence.pk,
                 'subcategory': self.subcategory.pk,
                 'last_hash': tuto.load_version().compute_hash(),
-                'image': open('{}/fixtures/logo.png'.format(BASE_DIR))
+                'image': open('{}/fixtures/logo.png'.format(BASE_DIR), 'rb')
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -5584,8 +5584,8 @@ class PublishedContentTests(TestCase):
                 password='hostel77'),
             True)
         result = self.client.get(reverse('validation:list') + '?type=tuto')
-        self.assertIn(old_title, result.content)
-        self.assertNotIn(new_title, result.content)
+        self.assertIn(old_title, str(result.content))
+        self.assertNotIn(new_title, str(result.content))
 
     def test_public_authors_versioned(self):
         published = PublishedContentFactory(author_list=[self.user_author])
@@ -5593,8 +5593,8 @@ class PublishedContentTests(TestCase):
         published.authors.add(other_author.user)
         published.save()
         response = self.client.get(published.get_absolute_url_online())
-        self.assertIn(self.user_author.username, response.content)
-        self.assertNotIn(other_author.user.username, response.content)
+        self.assertIn(self.user_author.username, str(response.content))
+        self.assertNotIn(other_author.user.username, str(response.content))
         self.assertEqual(0, len(other_author.get_public_contents()))
 
     def test_unpublish_with_title_change(self):
@@ -5627,7 +5627,7 @@ class PublishedContentTests(TestCase):
                 'licence': article.licence.pk,
                 'subcategory': self.subcategory.pk,
                 'last_hash': article.load_version(article.sha_draft).compute_hash(),
-                'image': open('{}/fixtures/logo.png'.format(BASE_DIR))
+                'image': open('{}/fixtures/logo.png'.format(BASE_DIR), 'rb')
             },
             follow=False)
         public_count = PublishedContent.objects.count()
@@ -5711,7 +5711,7 @@ class PublishedContentTests(TestCase):
                 password='hostel77'),
             True)
         result = self.client.get(reverse('validation:list') + '?type=tuto')
-        self.assertIn('class="update_content"', result.content)
+        self.assertIn('class="update_content"', str(result.content))
 
     def test_validation_history_for_new_content(self):
         publishable = PublishableContentFactory(author_list=[self.user_author])
@@ -5738,7 +5738,7 @@ class PublishedContentTests(TestCase):
                 password='hostel77'),
             True)
         result = self.client.get(reverse('validation:list') + '?type=tuto')
-        self.assertNotIn('class="update_content"', result.content)
+        self.assertNotIn('class="update_content"', str(result.content))
 
     def test_ask_validation_update(self):
         """

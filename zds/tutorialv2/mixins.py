@@ -176,7 +176,7 @@ class ModalFormView(FormView):
         else:
             errors = form.errors.as_data()
             if len(errors) > 0:
-                messages.error(self.request, errors[errors.keys()[0]][0][0])  # only the first error is provided
+                messages.error(self.request, list(errors.values())[0][0])  # only the first error is provided
             else:
                 messages.error(
                     self.request, _(u'Une erreur inconnue est survenue durant le traitement des données.'))

@@ -534,7 +534,7 @@ class ContentMoveTests(TestCase):
         result = self.client.post(
             reverse('content:import-new'),
             {
-                'archive': open(draft_zip_path),
+                'archive': open(draft_zip_path, 'rb'),
                 'subcategory': self.subcategory.pk
             },
             follow=False

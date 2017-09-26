@@ -316,7 +316,7 @@ class MemberTests(TestCase):
                 'preview': '',
             }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 
-        result_string = ''.join(response.streaming_content)
+        result_string = ''.join(a.decode() for a in response.streaming_content)
         self.assertIn('<strong>my</strong>', result_string, 'We need the biography to be properly formatted')
 
     def test_login(self):
