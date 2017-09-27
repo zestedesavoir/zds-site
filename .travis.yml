@@ -124,12 +124,13 @@ install:
 
 
 script:
-  - |
-    # lint backend
-    if [[ "$ZDS_TEST_JOB" == *"zds.gallery"* ]]; then
-      ./scripts/no_import_zds_settings.sh \
-      && flake8
-    fi
+# TODO: Re-enable flake8 as soon as possible
+# - |
+#   # lint backend
+#   if [[ "$ZDS_TEST_JOB" == *"zds.gallery"* ]]; then
+#     ./scripts/no_import_zds_settings.sh \
+#     && flake8
+#   fi
 
   - |
     # test and build frontend
