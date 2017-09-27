@@ -1,5 +1,5 @@
 # coding: utf-8
-from __future__ import unicode_literals
+
 import collections
 import logging
 import random
@@ -34,7 +34,7 @@ def load_member(cli, size, fake, root, *_):
     Load members
     """
     nb_users = size * 10
-    cli.stdout.write(u'Nombres de membres à créer : {}'.format(nb_users))
+    cli.stdout.write('Nombres de membres à créer : {}'.format(nb_users))
     tps1 = time.time()
     cpt = 1
     # member in settings
@@ -74,7 +74,7 @@ def load_member(cli, size, fake, root, *_):
         sys.stdout.write(' User {}/{}  \r'.format(i + 1, nb_users))
         sys.stdout.flush()
     tps2 = time.time()
-    cli.stdout.write(u'\nFait en {} sec'.format(tps2 - tps1))
+    cli.stdout.write('\nFait en {} sec'.format(tps2 - tps1))
 
 
 def load_staff(cli, size, fake, root, *_):
@@ -82,7 +82,7 @@ def load_staff(cli, size, fake, root, *_):
     Load staff
     """
     nb_staffs = size * 3
-    cli.stdout.write(u'Nombres de staffs à créer : {}'.format(nb_staffs))
+    cli.stdout.write('Nombres de staffs à créer : {}'.format(nb_staffs))
     tps1 = time.time()
     cpt = 1
     for i in range(0, nb_staffs):
@@ -102,7 +102,7 @@ def load_staff(cli, size, fake, root, *_):
         sys.stdout.write(' Staff {}/{}  \r'.format(i + 1, nb_staffs))
         sys.stdout.flush()
     tps2 = time.time()
-    cli.stdout.write(u'\nFait en {} sec'.format(tps2 - tps1))
+    cli.stdout.write('\nFait en {} sec'.format(tps2 - tps1))
 
 
 def load_gallery(cli, size, fake, *_, **__):
@@ -302,7 +302,7 @@ def load_categories_content(cli, size, fake, *_, **__):
     cli.stdout.write('Nombres de catégories de contenus à créer : {}'.format(nb_categories))
     cli.stdout.write('Nombres de sous-catégories de contenus à créer : {}'.format(nb_sub_categories))
     tps1 = time.time()
-    for i in xrange(0, nb_categories):
+    for i in range(0, nb_categories):
         ttl = str(i) + ' ' + fake.job()
         cat = TCategory(title=ttl,
                         description=fake.sentence(nb_words=15, variable_nb_words=True),
@@ -312,7 +312,7 @@ def load_categories_content(cli, size, fake, *_, **__):
         sys.stdout.write(' Cat. {}/{}  \r'.format(i + 1, nb_categories))
         sys.stdout.flush()
 
-    for i in xrange(0, nb_sub_categories):
+    for i in range(0, nb_sub_categories):
         ttl = str(i * 10) + str(i) + ' ' + fake.word()
         subcat = SubCategory(title=ttl,
                              subtitle=fake.sentence(nb_words=5, variable_nb_words=True),
@@ -322,7 +322,7 @@ def load_categories_content(cli, size, fake, *_, **__):
         sys.stdout.write(' SubCat. {}/{}  \r'.format(i + 1, nb_sub_categories))
         sys.stdout.flush()
 
-    for i in xrange(0, nb_sub_categories):
+    for i in range(0, nb_sub_categories):
         catsubcat = CategorySubCategory(category=categories[i % nb_categories],
                                         subcategory=sub_categories[i],
                                         is_main=True)
@@ -389,7 +389,7 @@ def load_contents(cli, size, fake, _type, *_, **__):
     cli.stdout.write('À créer: {:d} {}s'.format(nb_contents, textual_type), ending='')
 
     if is_tutorials:
-        cli.stdout.write(u' ({:g} petits, {:g} moyens et {:g} grands)'
+        cli.stdout.write(' ({:g} petits, {:g} moyens et {:g} grands)'
                          .format(nb_contents * percent_mini, nb_contents * percent_medium, nb_contents * percent_big))
     else:
         cli.stdout.write('')

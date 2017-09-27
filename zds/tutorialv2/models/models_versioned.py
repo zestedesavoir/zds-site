@@ -61,7 +61,7 @@ class Container:
         self.slug_pool = default_slug_pool()
 
     def __unicode__(self):
-        return u"<Conteneur '{}'>".format(self.title)
+        return "<Conteneur '{}'>".format(self.title)
 
     def has_extracts(self):
         """Note : this function rely on the fact that the children can only be of one type.
@@ -198,7 +198,7 @@ class Container:
             self.slug_pool[slug] = 1
         else:
             raise InvalidOperationError(
-                _(u'Le slug « {} » est déjà présent dans le conteneur « {} »').format(slug, self.title))
+                _('Le slug « {} » est déjà présent dans le conteneur « {} »').format(slug, self.title))
 
     def long_slug(self):
         """
@@ -254,7 +254,7 @@ class Container:
             self.children.append(container)
             self.children_dict[container.slug] = container
         else:
-            raise InvalidOperationError(_(u"Impossible d'ajouter un conteneur au conteneur « {} »").format(self.title))
+            raise InvalidOperationError(_("Impossible d'ajouter un conteneur au conteneur « {} »").format(self.title))
 
     def add_extract(self, extract, generate_slug=False):
         """Add a child container, but only if no container were previously added
@@ -273,7 +273,7 @@ class Container:
             self.children.append(extract)
             self.children_dict[extract.slug] = extract
         else:
-            raise InvalidOperationError(_(u"Impossible d'ajouter un extrait au conteneur « {} »").format(self.title))
+            raise InvalidOperationError(_("Impossible d'ajouter un extrait au conteneur « {} »").format(self.title))
 
     def update_children(self):
         """Update the path for introduction and conclusion for the container and all its children. If the children is an
@@ -524,7 +524,7 @@ class Container:
         repo.index.add(['manifest.json'])
 
         if not commit_message:
-            commit_message = _(u'Mise à jour de « {} »').format(self.title)
+            commit_message = _('Mise à jour de « {} »').format(self.title)
 
         if do_commit:
             return self.top_container().commit_changes(commit_message)
@@ -559,7 +559,7 @@ class Container:
 
         # make it
         if not commit_message:
-            commit_message = _(u'Création du conteneur « {} »').format(title)
+            commit_message = _('Création du conteneur « {} »').format(title)
 
         return subcontainer.repo_update(
             title, introduction, conclusion, commit_message=commit_message, do_commit=do_commit)
@@ -586,7 +586,7 @@ class Container:
 
         # make it
         if not commit_message:
-            commit_message = _(u"Création de l'extrait « {} »").format(title)
+            commit_message = _("Création de l'extrait « {} »").format(title)
 
         return extract.repo_update(title, text, commit_message=commit_message, do_commit=do_commit)
 
@@ -613,7 +613,7 @@ class Container:
         repo.index.add(['manifest.json'])
 
         if not commit_message:
-            commit_message = _(u'Suppression du conteneur « {} »').format(self.title)
+            commit_message = _('Suppression du conteneur « {} »').format(self.title)
 
         if do_commit:
             return self.top_container().commit_changes(commit_message)
@@ -735,10 +735,10 @@ class Container:
         if self.get_tree_depth() == 0:
             return self.type
         elif self.get_tree_depth() == 1:
-            return _(u'Partie')
+            return _('Partie')
         elif self.get_tree_depth() == 2:
-            return _(u'Chapitre')
-        return _(u'Sous-chapitre')
+            return _('Chapitre')
+        return _('Sous-chapitre')
 
     def get_next_level_as_string(self):
         """Same as ``self.get_level_as_string()`` but try to guess the level of this container's children
@@ -747,11 +747,11 @@ class Container:
         :rtype: str
         """
         if self.get_tree_depth() == 0 and self.can_add_container():
-            return _(u'Partie')
+            return _('Partie')
         elif self.get_tree_depth() == 1 and self.can_add_container():
-            return _(u'Chapitre')
+            return _('Chapitre')
         else:
-            return _(u'Section')
+            return _('Section')
 
     def can_be_in_beta(self):
         """
@@ -793,7 +793,7 @@ class Extract:
         self.position_in_parent = position_in_parent
 
     def __unicode__(self):
-        return u"<Extrait '{}'>".format(self.title)
+        return "<Extrait '{}'>".format(self.title)
 
     def get_absolute_url(self):
         """Find the url that point to the offline version of this extract
@@ -964,7 +964,7 @@ class Extract:
         repo.index.add(['manifest.json'])
 
         if not commit_message:
-            commit_message = _(u"Modification de l'extrait « {} », situé dans le conteneur « {} »")\
+            commit_message = _("Modification de l'extrait « {} », situé dans le conteneur « {} »")\
                 .format(self.title, self.container.title)
 
         if do_commit:
@@ -994,7 +994,7 @@ class Extract:
         repo.index.add(['manifest.json'])
 
         if not commit_message:
-            commit_message = _(u"Suppression de l'extrait « {} »").format(self.title)
+            commit_message = _("Suppression de l'extrait « {} »").format(self.title)
 
         if do_commit:
             return self.container.top_container().commit_changes(commit_message)
@@ -1101,13 +1101,13 @@ class VersionedContent(Container, TemplatableContentModelMixin):
         :rtype: str
         """
         if self.is_article:
-            return _(u"L'Article")
+            return _("L'Article")
         elif self.is_tutorial:
-            return _(u'Le Tutoriel')
+            return _('Le Tutoriel')
         elif self.is_opinion:
-            return _(u'Le Billet')
+            return _('Le Billet')
         else:
-            return _(u'Le Contenu')
+            return _('Le Contenu')
 
     def get_absolute_url_online(self):
         """

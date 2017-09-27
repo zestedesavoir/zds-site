@@ -109,14 +109,14 @@ class Command(BaseCommand):
             cat.title = category
             cat.description = category
             cat.position = i
-            cat.slug = slugify(u'{}'.format(category))
+            cat.slug = slugify('{}'.format(category))
             cat.save()
             self.stdout.write('[ZEP-25] : New category "{}" added'.format(cat))
             for subcategory in subcategories[i]:
                 sub = SubCategory()
                 sub.title = subcategory[0]
                 sub.subtitle = subcategory[1]
-                sub.slug = slugify(u'{}'.format(subcategory[0]))
+                sub.slug = slugify('{}'.format(subcategory[0]))
                 sub.save()
                 self.stdout.write('[ZEP-25] : New subcategory "{}" added'.format(sub))
                 catsubcat = CategorySubCategory()

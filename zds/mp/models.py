@@ -1,5 +1,5 @@
 # coding: utf-8
-from __future__ import unicode_literals
+
 from math import ceil
 
 from django.utils.encoding import python_2_unicode_compatible
@@ -20,17 +20,17 @@ class PrivateTopic(models.Model):
     """
 
     class Meta:
-        verbose_name = u'Message privé'
-        verbose_name_plural = u'Messages privés'
+        verbose_name = 'Message privé'
+        verbose_name_plural = 'Messages privés'
 
-    title = models.CharField(u'Titre', max_length=130)
-    subtitle = models.CharField(u'Sous-titre', max_length=200, blank=True)
-    author = models.ForeignKey(User, verbose_name=u'Auteur', related_name='author', db_index=True)
-    participants = models.ManyToManyField(User, verbose_name=u'Participants', related_name='participants',
+    title = models.CharField('Titre', max_length=130)
+    subtitle = models.CharField('Sous-titre', max_length=200, blank=True)
+    author = models.ForeignKey(User, verbose_name='Auteur', related_name='author', db_index=True)
+    participants = models.ManyToManyField(User, verbose_name='Participants', related_name='participants',
                                           db_index=True)
     last_message = models.ForeignKey('PrivatePost', null=True, related_name='last_message',
-                                     verbose_name=u'Dernier message')
-    pubdate = models.DateTimeField(u'Date de création', auto_now_add=True, db_index=True)
+                                     verbose_name='Dernier message')
+    pubdate = models.DateTimeField('Date de création', auto_now_add=True, db_index=True)
     objects = PrivateTopicManager()
 
     def __str__(self):
@@ -214,16 +214,16 @@ class PrivatePost(models.Model):
     """A private post written by a user."""
 
     class Meta:
-        verbose_name = u'Réponse à un message privé'
-        verbose_name_plural = u'Réponses à un message privé'
+        verbose_name = 'Réponse à un message privé'
+        verbose_name_plural = 'Réponses à un message privé'
 
-    privatetopic = models.ForeignKey(PrivateTopic, verbose_name=u'Message privé', db_index=True)
+    privatetopic = models.ForeignKey(PrivateTopic, verbose_name='Message privé', db_index=True)
     author = models.ForeignKey(User, verbose_name='Auteur', related_name='privateposts', db_index=True)
-    text = models.TextField(u'Texte')
-    text_html = models.TextField(u'Texte en HTML')
-    pubdate = models.DateTimeField(u'Date de publication', auto_now_add=True, db_index=True)
-    update = models.DateTimeField(u'Date d\'édition', null=True, blank=True)
-    position_in_topic = models.IntegerField(u'Position dans le sujet', db_index=True)
+    text = models.TextField('Texte')
+    text_html = models.TextField('Texte en HTML')
+    pubdate = models.DateTimeField('Date de publication', auto_now_add=True, db_index=True)
+    update = models.DateTimeField('Date d\'édition', null=True, blank=True)
+    position_in_topic = models.IntegerField('Position dans le sujet', db_index=True)
     hat = models.ForeignKey('utils.Hat', on_delete=models.SET_NULL, verbose_name='Casquette',
                             related_name='privateposts', blank=True, null=True)
     objects = PrivatePostManager()
@@ -297,8 +297,8 @@ class PrivateTopicRead(models.Model):
     """
 
     class Meta:
-        verbose_name = u'Message privé lu'
-        verbose_name_plural = u'Messages privés lus'
+        verbose_name = 'Message privé lu'
+        verbose_name_plural = 'Messages privés lus'
 
     privatetopic = models.ForeignKey(PrivateTopic, db_index=True)
     privatepost = models.ForeignKey(PrivatePost, db_index=True)

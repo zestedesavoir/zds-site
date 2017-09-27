@@ -134,4 +134,4 @@ def minute_to_duration(value, duration_format=''):
     else:
 
         # Provide 'No duration' message
-        return _(u'Inconnu')
+        return _('Inconnu')

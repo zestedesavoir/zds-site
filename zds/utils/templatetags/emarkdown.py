@@ -19,7 +19,7 @@ Markdown related filters.
 """
 
 # Constant strings
-__MD_ERROR_PARSING = _(u'Une erreur est survenue dans la génération de texte Markdown. Veuillez rapporter le bug.')
+__MD_ERROR_PARSING = _('Une erreur est survenue dans la génération de texte Markdown. Veuillez rapporter le bug.')
 
 
 def get_markdown_instance(inline=False, js_support=False, ping_url=None):
@@ -55,9 +55,9 @@ def render_markdown(markdown, text, inline=False):
         return mark_safe(markdown.convert(text).strip())
     except:
         if inline:
-            return mark_safe(u'<p>{}</p>'.format(__MD_ERROR_PARSING))
+            return mark_safe('<p>{}</p>'.format(__MD_ERROR_PARSING))
         else:
-            return mark_safe(u'<div class="error ico-after"><p>{}</p></div>'.format(__MD_ERROR_PARSING))
+            return mark_safe('<div class="error ico-after"><p>{}</p></div>'.format(__MD_ERROR_PARSING))
 
 
 @register.filter(needs_autoescape=False)

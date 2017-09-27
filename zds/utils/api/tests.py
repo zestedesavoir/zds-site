@@ -142,7 +142,7 @@ class TagListAPITest(APITestCase):
 
     def create_multiple_tags(self, number_of_tags=REST_PAGE_SIZE):
         tags = []
-        for tag in xrange(0, number_of_tags):
+        for tag in range(0, number_of_tags):
             tags.append('number' + str(tag))
 
         # Prepare content containing all the tags

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 from django.conf import settings
 from django.db import models
 from django.db.models import Count, F
@@ -164,7 +164,7 @@ class PublishableContentManager(models.Manager):
                     beta_topic.is_locked = True
                     beta_topic.save()
                     first_post = beta_topic.first_post()
-                    first_post.update_content(_(u"# Le tutoriel présenté par ce topic n'existe plus."))
+                    first_post.update_content(_("# Le tutoriel présenté par ce topic n'existe plus."))
                     first_post.save()
                 content.delete()
             else:

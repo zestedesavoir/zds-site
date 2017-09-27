@@ -24,7 +24,7 @@ def setup_es_connections():
     """
 
     try:
-        for alias, params in CONNECTIONS.items():
+        for alias, params in list(CONNECTIONS.items()):
             connections.create_connection(alias, **params)
     except TransportError:
         pass

@@ -80,9 +80,9 @@ class PagesMemberTests(TestCase):
         settings.ZDS_APP['site']['association']['forum_ca_pk'] = forum.pk
 
         # send form
-        long_str = u''
+        long_str = ''
         for i in range(3100):
-            long_str += u'A'
+            long_str += 'A'
 
         result = self.client.post(
             reverse('pages-assoc-subscribe'),
@@ -298,17 +298,17 @@ class CommentEditsHistoryTests(TestCase):
 
         # Check that there is a row on the history
         response = self.client.get(reverse('comment-edits-history', args=[self.post.pk]))
-        self.assertContains(response, _(u'Voir'))
+        self.assertContains(response, _('Voir'))
         self.assertIn(self.edit, response.context['edits'])
 
         # Check that there is a button to delete the edit content
-        self.assertContains(response, _(u'Supprimer'))
+        self.assertContains(response, _('Supprimer'))
 
         # And not when we're logged as author
         self.client.logout()
         self.assertTrue(self.client.login(username=self.user.username, password='hostel77'))
         response = self.client.get(reverse('comment-edits-history', args=[self.post.pk]))
-        self.assertNotContains(response, _(u'Supprimer'))
+        self.assertNotContains(response, _('Supprimer'))
 
     def test_edit_detail(self):
         # Login as staff

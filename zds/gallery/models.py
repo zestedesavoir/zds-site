@@ -1,5 +1,5 @@
 # coding: utf-8
-from __future__ import unicode_literals
+
 from django.utils.encoding import python_2_unicode_compatible
 import os
 from uuid import uuid4
@@ -33,7 +33,7 @@ def image_path(instance, filename):
     :rtype: unicode
     """
     ext = filename.split('.')[-1].lower()
-    filename = u'{0}.{1}'.format(str(uuid4()), ext)
+    filename = '{0}.{1}'.format(str(uuid4()), ext)
 
     return os.path.join('galleries', str(instance.gallery.pk), filename)
 
@@ -43,16 +43,16 @@ class UserGallery(models.Model):
     """A gallery of images created by a user."""
 
     class Meta:
-        verbose_name = _(u'Galeries de l\'utilisateur')
-        verbose_name_plural = _(u'Galeries de l\'utilisateur')
+        verbose_name = _('Galeries de l\'utilisateur')
+        verbose_name_plural = _('Galeries de l\'utilisateur')
 
     MODE_CHOICES = (
-        (GALLERY_READ, _(u'Lecture')),
-        (GALLERY_WRITE, _(u'Écriture'))
+        (GALLERY_READ, _('Lecture')),
+        (GALLERY_WRITE, _('Écriture'))
     )
 
-    user = models.ForeignKey(User, verbose_name=_(u'Membre'), db_index=True)
-    gallery = models.ForeignKey('Gallery', verbose_name=_(u'Galerie'), db_index=True)
+    user = models.ForeignKey(User, verbose_name=_('Membre'), db_index=True)
+    gallery = models.ForeignKey('Gallery', verbose_name=_('Galerie'), db_index=True)
     mode = models.CharField(max_length=1, choices=MODE_CHOICES, default=GALLERY_READ)
 
     def __str__(self):
@@ -93,16 +93,16 @@ class Image(models.Model):
     """Represent an image in database"""
 
     class Meta:
-        verbose_name = _(u'Image')
-        verbose_name_plural = _(u'Images')
+        verbose_name = _('Image')
+        verbose_name_plural = _('Images')
 
-    gallery = models.ForeignKey('Gallery', verbose_name=_(u'Galerie'), db_index=True)
-    title = models.CharField(_(u'Titre'), max_length=80)
+    gallery = models.ForeignKey('Gallery', verbose_name=_('Galerie'), db_index=True)
+    title = models.CharField(_('Titre'), max_length=80)
     slug = models.SlugField(max_length=80)
     physical = ThumbnailerImageField(upload_to=image_path, max_length=200)
     legend = models.CharField(_('Légende'), max_length=80, null=True, blank=True)
-    pubdate = models.DateTimeField(_(u'Date de création'), auto_now_add=True, db_index=True)
-    update = models.DateTimeField(_(u'Date de modification'), null=True, blank=True)
+    pubdate = models.DateTimeField(_('Date de création'), auto_now_add=True, db_index=True)
+    update = models.DateTimeField(_('Date de modification'), null=True, blank=True)
 
     def __init__(self, *args, **kwargs):
         super(Image, self).__init__(*args, **kwargs)
@@ -148,14 +148,14 @@ def auto_delete_file_on_delete(sender, instance, **kwargs):
 class Gallery(models.Model):
 
     class Meta:
-        verbose_name = _(u'Galerie')
-        verbose_name_plural = _(u'Galeries')
+        verbose_name = _('Galerie')
+        verbose_name_plural = _('Galeries')
 
-    title = models.CharField(_(u'Titre'), max_length=80)
-    subtitle = models.CharField(_(u'Sous titre'), max_length=200, blank=True)
+    title = models.CharField(_('Titre'), max_length=80)
+    subtitle = models.CharField(_('Sous titre'), max_length=200, blank=True)
     slug = models.SlugField(max_length=80)
-    pubdate = models.DateTimeField(_(u'Date de création'), auto_now_add=True, db_index=True)
-    update = models.DateTimeField(_(u'Date de modification'), null=True, blank=True)
+    pubdate = models.DateTimeField(_('Date de création'), auto_now_add=True, db_index=True)
+    update = models.DateTimeField(_('Date de modification'), null=True, blank=True)
 
     def __str__(self):
         """Human-readable representation of the Gallery model.
