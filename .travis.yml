@@ -133,8 +133,6 @@ script:
 #     && flake8
 #   fi
 
-  - ./python3.sh
-
   - |
     # test and build frontend
     if [[ "$ZDS_TEST_JOB" == *"front"* ]]; then
