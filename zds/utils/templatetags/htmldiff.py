@@ -18,7 +18,7 @@ def htmldiff(string1, string2):
     diff = HtmlDiff(tabsize=4, wrapcolumn=80)
     result = diff.make_table(txt1, txt2, context=True, numlines=2)
 
-    if u'<td>&nbsp;No Differences Found&nbsp;</td>' in result:
-        return _(u'<p>Pas de changements.</p>')
+    if '<td>&nbsp;No Differences Found&nbsp;</td>' in result:
+        return _('<p>Pas de changements.</p>')
     else:
         return format_html('<div class="diff_delta">{}</div>', mark_safe(result))

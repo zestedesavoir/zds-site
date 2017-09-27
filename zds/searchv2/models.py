@@ -404,7 +404,7 @@ class ESIndexManager(object):
                 'tokenizer': {
                     'custom_tokenizer': {
                         'type': 'pattern',
-                        'pattern': u'[ .,!?%\u2026\u00AB\u00A0\u00BB\u202F\uFEFF\u2013\u2014\n]'
+                        'pattern': '[ .,!?%\u2026\u00AB\u00A0\u00BB\u202F\uFEFF\u2013\u2014\n]'
                     }
                 },
                 'analyzer': {
@@ -508,7 +508,7 @@ class ESIndexManager(object):
                         chunk_size=objects_per_batch,
                         request_timeout=30
                     ):
-                        action = hit.keys()[0]
+                        action = list(hit.keys())[0]
                         self.logger.info('{} {} with id {}'.format(action, hit[action]['_type'], hit[action]['_id']))
 
                     # mark all these objects as indexed at once
@@ -538,7 +538,7 @@ class ESIndexManager(object):
                         request_timeout=30
                     ):
                         if self.logger.getEffectiveLevel() <= logging.INFO:
-                            action = hit.keys()[0]
+                            action = list(hit.keys())[0]
                             self.logger.info('{} {} with id {}'.format(
                                 action, hit[action]['_type'], hit[action]['_id']))
 
@@ -553,8 +553,8 @@ class ESIndexManager(object):
                     then = now
                     obj_per_sec = round(float(objects_per_batch) / last_batch_duration, 2)
                     if force_reindexing:
-                        print '    {} so far ({} obj/s, batch size: {})'.format(
-                              indexed_counter, obj_per_sec, objects_per_batch)
+                        print('    {} so far ({} obj/s, batch size: {})'.format(
+                              indexed_counter, obj_per_sec, objects_per_batch))
 
                     if prev_obj_per_sec is False:
                         prev_obj_per_sec = obj_per_sec
@@ -565,7 +565,7 @@ class ESIndexManager(object):
                         if abs(1 - ratio) > 0.1:
                             objects_per_batch = int(objects_per_batch * ratio)
                             if force_reindexing:
-                                print '     {}x, new batch size: {}'.format(round(ratio, 2), objects_per_batch)
+                                print('     {}x, new batch size: {}'.format(round(ratio, 2), objects_per_batch))
                         prev_obj_per_sec = obj_per_sec
 
                     # fetch next batch

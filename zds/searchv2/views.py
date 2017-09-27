@@ -19,6 +19,7 @@ from zds.searchv2.forms import SearchForm
 from zds.searchv2.models import ESIndexManager
 from zds.utils.paginator import ZdSPagingListView
 from zds.utils.templatetags.authorized_forums import get_authorized_forums
+from functools import reduce
 
 
 class SimilarSubjectsView(CreateView, SingleObjectMixin):
@@ -107,7 +108,7 @@ class SearchView(ZdSPagingListView):
 
     def get_queryset(self):
         if not self.index_manager.connected_to_es:
-            messages.warning(self.request, _(u'Impossible de se connecter à Elasticsearch'))
+            messages.warning(self.request, _('Impossible de se connecter à Elasticsearch'))
             return []
 
         if self.search_query:
@@ -138,7 +139,7 @@ class SearchView(ZdSPagingListView):
                     if group in settings.ZDS_APP['search']['search_groups']:
                         models.append(settings.ZDS_APP['search']['search_groups'][group][1])
             else:
-                models = [v[1] for k, v in settings.ZDS_APP['search']['search_groups'].iteritems()]
+                models = [v[1] for k, v in settings.ZDS_APP['search']['search_groups'].items()]
 
             models = reduce(operator.concat, models)
 
@@ -151,7 +152,7 @@ class SearchView(ZdSPagingListView):
 
             # Weighting:
             weight_functions = []
-            for _type, weights in settings.ZDS_APP['search']['boosts'].items():
+            for _type, weights in list(settings.ZDS_APP['search']['boosts'].items()):
                 if _type in models:
                     weight_functions.append({'filter': Match(_type=_type), 'weight': weights['global']})
 

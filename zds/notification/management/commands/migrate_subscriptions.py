@@ -14,9 +14,9 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         for profile in Profile.objects.all():
-            self.stdout.write(u'Migrate all notifications of {}...'.format(profile.user.username))
+            self.stdout.write('Migrate all notifications of {}...'.format(profile.user.username))
             # Forums.
-            self.stdout.write(u'Starting migration with topics...')
+            self.stdout.write('Starting migration with topics...')
             topics_followed = TopicFollowed.objects.filter(user=profile.user).values('topic').distinct().all()
             topics_never_read = TopicRead.objects\
                 .filter(user=profile.user)\
@@ -46,10 +46,10 @@ class Command(BaseCommand):
                 notification.pubdate = content.pubdate
                 notification.save()
 
-                self.stdout.write(u'Migration about « {} » [OK]'.format(topic_never_read.topic.title))
+                self.stdout.write('Migration about « {} » [OK]'.format(topic_never_read.topic.title))
 
             # Private messages.
-            self.stdout.write(u'Starting migration with private topics...')
+            self.stdout.write('Starting migration with private topics...')
             topics_never_read = list(PrivateTopicRead.objects
                                      .filter(user=profile.user)
                                      .filter(privatepost=F('privatetopic__last_message')).all())
@@ -89,10 +89,10 @@ class Command(BaseCommand):
                 notification.pubdate = answer.pubdate
                 notification.save()
 
-                self.stdout.write(u'Migration about « {} » [OK]'.format(private_topic_unread.title))
+                self.stdout.write('Migration about « {} » [OK]'.format(private_topic_unread.title))
 
             # Contents.
-            self.stdout.write(u'Starting migration with contents...')
+            self.stdout.write('Starting migration with contents...')
             # Migrate subscriptions.
             contents_followed = ContentReaction.objects \
                 .filter(author=profile.user, related_content__public_version__isnull=False) \
@@ -136,4 +136,4 @@ class Command(BaseCommand):
                 notification.pubdate = reaction.pubdate
                 notification.save()
 
-                self.stdout.write(u'Migration about « {} » [OK]'.format(content.title))
+                self.stdout.write('Migration about « {} » [OK]'.format(content.title))

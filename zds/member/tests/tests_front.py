@@ -20,7 +20,7 @@ class MemberFrontTests(StaticLiveServerTestCase):
     def test_zestedesavoir_is_present(self):
         self.selenium.get('%s%s' % (self.live_server_url, '/'))
         self.assertEqual(
-            u'Zeste de Savoir',
+            'Zeste de Savoir',
             self.selenium.find_element_by_css_selector('p.copyright').text[:15]
         )
         self.assertEqual('Zeste de Savoir', self.selenium.title)
@@ -30,6 +30,6 @@ class MemberFrontTests(StaticLiveServerTestCase):
                           % (self.live_server_url, '/membres/connexion/'))
         is_checked = self.selenium.find_element_by_id('id_remember').is_selected()
         self.selenium.find_element_by_id('id_remember').click()
-        self.assertNotEquals(is_checked,
+        self.assertNotEqual(is_checked,
                              self.selenium.
                              find_element_by_id('id_remember').is_selected())

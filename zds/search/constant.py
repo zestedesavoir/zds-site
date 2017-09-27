@@ -10,14 +10,14 @@ MODEL_CHAPTER = 'chapters'
 MODEL_EXTRACT = 'extracts'
 
 MODEL_NAMES = [
-    (MODEL_TOPIC, _(u'Sujets du forum')),
-    (MODEL_POST, _(u'Messages du forum')),
-    (MODEL_ARTICLE, _(u'Articles')),
-    (MODEL_TUTORIAL, _(u'Tutoriels')),
-    (MODEL_OPINION, _(u'Billets')),
-    (MODEL_PART, _(u'Parties des tutoriels')),
-    (MODEL_CHAPTER, _(u'Chapitres des tutoriels')),
-    (MODEL_EXTRACT, _(u'Sections des tutoriels'))
+    (MODEL_TOPIC, _('Sujets du forum')),
+    (MODEL_POST, _('Messages du forum')),
+    (MODEL_ARTICLE, _('Articles')),
+    (MODEL_TUTORIAL, _('Tutoriels')),
+    (MODEL_OPINION, _('Billets')),
+    (MODEL_PART, _('Parties des tutoriels')),
+    (MODEL_CHAPTER, _('Chapitres des tutoriels')),
+    (MODEL_EXTRACT, _('Sections des tutoriels'))
 ]
 
 

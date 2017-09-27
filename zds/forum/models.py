@@ -1,5 +1,5 @@
 # coding: utf-8
-from __future__ import unicode_literals
+
 from django.utils.encoding import python_2_unicode_compatible
 import logging
 from datetime import datetime, timedelta
@@ -24,7 +24,7 @@ from zds.utils.models import Comment, Tag
 def sub_tag(tag):
     start = tag.group('start')
     end = tag.group('end')
-    return u'{0}'.format(start + end)
+    return '{0}'.format(start + end)
 
 
 @python_2_unicode_compatible
@@ -332,10 +332,10 @@ class Topic(AbstractESDjangoIndexable):
                           .latest('post__position')
         if t_read:
             return t_read.post.pk, t_read.post.position
-        return Post.objects\
+        return list(Post.objects\
             .filter(topic__pk=self.pk)\
             .order_by('position')\
-            .values('pk', 'position').first().values()
+            .values('pk', 'position').first().values())
 
     def first_unread_post(self, user=None):
         """

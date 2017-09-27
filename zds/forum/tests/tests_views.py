@@ -313,14 +313,14 @@ class TopicNewTest(TestCase):
         post = Post.objects.filter(topic__pk=topic.pk).first()
         # for user
         url = topic.resolve_last_read_post_absolute_url()
-        self.assertEquals(url, topic.get_absolute_url() + '?page=1#p' + str(post.pk))
+        self.assertEqual(url, topic.get_absolute_url() + '?page=1#p' + str(post.pk))
 
         # for anonymous
         self.client.logout()
-        self.assertEquals(url, topic.get_absolute_url() + '?page=1#p' + str(post.pk))
+        self.assertEqual(url, topic.get_absolute_url() + '?page=1#p' + str(post.pk))
         # for no visit
         self.assertTrue(self.client.login(username=notvisited.user.username, password='hostel77'))
-        self.assertEquals(url, topic.get_absolute_url() + '?page=1#p' + str(post.pk))
+        self.assertEqual(url, topic.get_absolute_url() + '?page=1#p' + str(post.pk))
 
     def test_success_create_topic_with_post_in_preview_in_ajax(self):
         profile = ProfileFactory()
@@ -1342,7 +1342,7 @@ class PostEditTest(TestCase):
 
         staff = StaffProfileFactory()
         self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
-        text_hidden_expected = u'Bad guy!'
+        text_hidden_expected = 'Bad guy!'
         data = {
             'delete_message': '',
             'text_hidden': text_hidden_expected
@@ -1663,7 +1663,7 @@ class MessageActionTest(TestCase):
         # staff hides a message
         staff = StaffProfileFactory()
         self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
-        text_hidden_expected = u'Bad guy!'
+        text_hidden_expected = 'Bad guy!'
         data = {
             'delete_message': '',
             'text_hidden': text_hidden_expected
@@ -1708,7 +1708,7 @@ class MessageActionTest(TestCase):
         # staff hides a message
         staff = StaffProfileFactory()
         self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
-        text_hidden_expected = u'Bad guy!'
+        text_hidden_expected = 'Bad guy!'
         data = {
             'delete_message': '',
             'text_hidden': text_hidden_expected
@@ -1739,7 +1739,7 @@ class MessageActionTest(TestCase):
         response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
         self.assertContains(response, 'show-message-hidden-')
         self.assertContains(response, 'Démasquer')
-        text_hidden_expected = u'Bad guy!'
+        text_hidden_expected = 'Bad guy!'
         data = {
             'show_message': '',
         }

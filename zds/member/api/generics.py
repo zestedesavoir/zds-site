@@ -37,13 +37,13 @@ class CreateDestroyMemberSanctionAPIView(CreateAPIView, DestroyAPIView):
         ban = state.get_sanction(request.user, instance.user)
 
         if ban.user == ban.moderator:
-            return Response({u'detail': u'Sanction can not be applied to yourself.'},
+            return Response({'detail': 'Sanction can not be applied to yourself.'},
                             status=status.HTTP_403_FORBIDDEN)
 
         try:
             state.apply_sanction(instance, ban)
         except ValueError:
-            return Response({u'detail': u'Sanction could not be applied with received data.'},
+            return Response({'detail': 'Sanction could not be applied with received data.'},
                             status=status.HTTP_400_BAD_REQUEST)
         msg = state.get_message_sanction() \
             .format(ban.user,

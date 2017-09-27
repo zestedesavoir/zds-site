@@ -37,15 +37,15 @@ class ForumNotification(TestCase):
         result = self.client.post(
             reverse('topic-new') + '?forum={0}'.format(self.forum11.pk),
             {
-                'title': u'Super sujet',
-                'subtitle': u'Pour tester les notifs',
-                'text': u"En tout cas l'un abonnement",
+                'title': 'Super sujet',
+                'subtitle': 'Pour tester les notifs',
+                'text': "En tout cas l'un abonnement",
                 'tags': ''
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
 
-        topic = Topic.objects.filter(title=u'Super sujet').first()
+        topic = Topic.objects.filter(title='Super sujet').first()
         subscription = NewTopicSubscription.objects.get_existing(self.user1, self.forum11, True)
         self.assertIsNotNone(subscription, 'There must be an active subscription for now')
         self.assertIsNotNone(subscription.last_notification, 'There must be a notification for now')
