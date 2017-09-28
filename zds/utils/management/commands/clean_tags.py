@@ -17,7 +17,7 @@ class Command(BaseCommand):
 
         def replace(tag_to_delete, tag_to_use_instead):
             self.stdout.write('Replacing {} with {}'.format(title_pk(tag_to_delete),
-                                                             title_pk(tag_to_use_instead)))
+                                                            title_pk(tag_to_use_instead)))
 
             topics = Topic.objects.filter(tags__pk=tag_to_delete['pk'])
             for topic in topics:

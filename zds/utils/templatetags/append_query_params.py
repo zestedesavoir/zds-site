@@ -85,7 +85,11 @@ class AppendGetNode(template.Node):
             get[key] = self.__dict_pairs[key].resolve(context)
 
         if len(get) > 0:
-            list_arg = ['{0}={1}'.format(key, urlquote(value)) for key in list(get.keys()) for value in get.getlist(key)]
+            list_arg = [
+                '{0}={1}'.format(key, urlquote(value))
+                for key in list(get.keys())
+                for value in get.getlist(key)
+            ]
             path += '?' + '&'.join(list_arg)
 
         return path

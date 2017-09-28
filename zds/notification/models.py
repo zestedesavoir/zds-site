@@ -97,7 +97,7 @@ class Subscription(models.Model):
 
         subject = _('{} - {} : {}').format(settings.ZDS_APP['site']['literal_name'], self.module, notification.title)
         from_email = _('{} <{}>').format(settings.ZDS_APP['site']['literal_name'],
-                                          settings.ZDS_APP['site']['email_noreply'])
+                                         settings.ZDS_APP['site']['email_noreply'])
 
         receiver = self.user
         context = {

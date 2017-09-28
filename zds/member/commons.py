@@ -78,7 +78,7 @@ class TokenGenerator(object):
         """
         subject = _('{} - Confirmation d\'inscription').format(settings.ZDS_APP['site']['literal_name'])
         from_email = '{} <{}>'.format(settings.ZDS_APP['site']['literal_name'],
-                                       settings.ZDS_APP['site']['email_noreply'])
+                                      settings.ZDS_APP['site']['email_noreply'])
         context = {
             'username': user.username,
             'url': settings.ZDS_APP['site']['url'] + token.get_absolute_url(),

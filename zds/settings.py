@@ -1,7 +1,6 @@
 # coding: utf-8
 
 import os
-import sys
 from os.path import join
 
 from django.contrib.messages import constants as message_constants

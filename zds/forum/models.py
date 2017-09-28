@@ -332,10 +332,12 @@ class Topic(AbstractESDjangoIndexable):
                           .latest('post__position')
         if t_read:
             return t_read.post.pk, t_read.post.position
-        return list(Post.objects\
-            .filter(topic__pk=self.pk)\
-            .order_by('position')\
-            .values('pk', 'position').first().values())
+        return list(
+            Post.objects
+            .filter(topic__pk=self.pk)
+            .order_by('position')
+            .values('pk', 'position').first().values()
+        )
 
     def first_unread_post(self, user=None):
         """
