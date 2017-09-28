@@ -1,11 +1,11 @@
-FROM debian:stretch
+FROM python:3-stretch
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends --no-install-suggests \
-        git python-dev python-setuptools libxml2-dev python-lxml \
-        libxslt-dev libz-dev python-sqlparse libjpeg62-turbo \
+        git python3-setuptools libxml2-dev python3-lxml \
+        libxslt-dev libz-dev python3-sqlparse libjpeg62-turbo \
         libjpeg62-turbo-dev libfreetype6 libfreetype6-dev \
-        libffi-dev python-pip python-tox build-essential \
+        libffi-dev python-tox build-essential \
         xvfb xauth firefox-esr wget \
     && pip install wheel \
     && wget https://github.com/mozilla/geckodriver/releases/download/v0.16.1/geckodriver-v0.16.1-linux64.tar.gz \
@@ -22,6 +22,6 @@ COPY requirements.txt requirements-dev.txt Makefile ./
 
 RUN make install-back
 
-ENV DISPLAY=":99.0"
+ENV DISPLAY=":99.0" PYTHONIOENCODING="utf-8"
 
 CMD ["./scripts/docker_dev_entrypoint.sh"]
