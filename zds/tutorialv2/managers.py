@@ -183,7 +183,7 @@ class PublishableContentManager(models.Manager):
                     title = versioned.title
                     introduction = str(
                         _('[[i]]\n|Ce contenu a été rédigé par {} qui a quitté le site.\n\n')
-                            .format(unregistered_user.username)
+                        .format(unregistered_user.username)
                     ) + versioned.get_introduction()
                     conclusion = versioned.get_conclusion()
                     sha = versioned.repo_update(title, introduction, conclusion,

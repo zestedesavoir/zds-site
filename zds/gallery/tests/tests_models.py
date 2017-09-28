@@ -4,7 +4,6 @@ import os
 
 from django.test import TestCase
 from django.core.urlresolvers import reverse
-from django.utils.translation import ugettext_lazy as _
 
 from zds.gallery.factories import GalleryFactory, UserGalleryFactory, ImageFactory
 from zds.member.factories import ProfileFactory

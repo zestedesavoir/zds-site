@@ -31,5 +31,5 @@ class MemberFrontTests(StaticLiveServerTestCase):
         is_checked = self.selenium.find_element_by_id('id_remember').is_selected()
         self.selenium.find_element_by_id('id_remember').click()
         self.assertNotEqual(is_checked,
-                             self.selenium.
-                             find_element_by_id('id_remember').is_selected())
+                            self.selenium.
+                            find_element_by_id('id_remember').is_selected())
