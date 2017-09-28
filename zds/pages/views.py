@@ -79,9 +79,9 @@ class AssocSubscribeView(FormView):
         forum = get_object_or_404(Forum, pk=site['association']['forum_ca_pk'])
 
         # create the topic
-        title = _(u'Demande d\'adhésion de {}').format(user.username)
-        subtitle = _(u'Sujet créé automatiquement pour la demande d\'adhésion à l\'association du membre {} via le form'
-                     u'ulaire du site').format(user.username)
+        title = _('Demande d\'adhésion de {}').format(user.username)
+        subtitle = _('Sujet créé automatiquement pour la demande d\'adhésion à l\'association du membre {} via le form'
+                     'ulaire du site').format(user.username)
         context = {
             'full_name': data['full_name'],
             'email': data['email'],
@@ -95,7 +95,7 @@ class AssocSubscribeView(FormView):
         text = render_to_string('pages/messages/association_subscribre.md', context)
         create_topic(self.request, bot, forum, title, subtitle, text)
 
-        messages.success(self.request, _(u'Votre demande d\'adhésion a bien été envoyée et va être étudiée.'))
+        messages.success(self.request, _('Votre demande d\'adhésion a bien été envoyée et va être étudiée.'))
 
         return super(AssocSubscribeView, self).form_valid(form)
 

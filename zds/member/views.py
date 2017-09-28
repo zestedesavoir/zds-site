@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from __future__ import unicode_literals
+
 import uuid
 from datetime import datetime, timedelta
 
@@ -180,10 +180,10 @@ class UpdateMember(UpdateView):
         messages.success(self.request, self.get_success_message())
 
     def get_success_message(self):
-        return _(u'Le profil a correctement été mis à jour.')
+        return _('Le profil a correctement été mis à jour.')
 
     def get_error_message(self):
-        return _(u'Une erreur est survenue.')
+        return _('Une erreur est survenue.')
 
 
 class UpdateGitHubToken(UpdateView):
@@ -224,10 +224,10 @@ class UpdateGitHubToken(UpdateView):
         return reverse('update-github')
 
     def get_success_message(self):
-        return _(u'Votre token GitHub a été mis à jour.')
+        return _('Votre token GitHub a été mis à jour.')
 
     def get_error_message(self):
-        return _(u'Une erreur est survenue.')
+        return _('Une erreur est survenue.')
 
 
 @require_POST
@@ -242,7 +242,7 @@ def remove_github_token(request):
     profile.github_token = ''
     profile.save()
 
-    messages.success(request, _(u'Votre token GitHub a été supprimé.'))
+    messages.success(request, _('Votre token GitHub a été supprimé.'))
     return redirect('update-github')
 
 
@@ -263,7 +263,7 @@ class UpdateAvatarMember(UpdateMember):
         profile.avatar_url = form.data['avatar_url']
 
     def get_success_message(self):
-        return _(u'L\'avatar a correctement été mis à jour.')
+        return _('L\'avatar a correctement été mis à jour.')
 
 
 class UpdatePasswordMember(UpdateMember):
@@ -287,7 +287,7 @@ class UpdatePasswordMember(UpdateMember):
         profile.user.set_password(form.data['password_new'])
 
     def get_success_message(self):
-        return _(u'Le mot de passe a correctement été mis à jour.')
+        return _('Le mot de passe a correctement été mis à jour.')
 
     def get_success_url(self):
         return reverse('update-password-member')
@@ -321,7 +321,7 @@ class UpdateUsernameEmailMember(UpdateMember):
             bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
             KarmaNote(user=profile.user,
                       moderator=bot,
-                      note=_(u"{} s'est renommé {}").format(profile.user.username, new_username),
+                      note=_("{} s'est renommé {}").format(profile.user.username, new_username),
                       karma=0).save()
             # Change the username
             profile.user.username = new_username
@@ -531,7 +531,7 @@ def modify_profile(request, user_pk):
     if profile.is_private():
         raise PermissionDenied
     if request.user.profile == profile:
-        messages.error(request, _(u'Vous ne pouvez pas vous sanctionner vous-même !'))
+        messages.error(request, _('Vous ne pouvez pas vous sanctionner vous-même&nbsp;!'))
         raise PermissionDenied
 
     if 'ls' in request.POST:
@@ -596,10 +596,10 @@ def settings_mini_profile(request, user_name):
             try:
                 profile.save()
             except:
-                messages.error(request, _(u'Une erreur est survenue.'))
+                messages.error(request, _('Une erreur est survenue.'))
                 return redirect(reverse('member-settings-mini-profile'))
 
-            messages.success(request, _(u'Le profil a correctement été mis à jour.'))
+            messages.success(request, _('Le profil a correctement été mis à jour.'))
             return redirect(reverse('member-detail', args=[profile.user.username]))
         else:
             return render(request, 'member/settings/profile.html', data)
@@ -612,8 +612,8 @@ def settings_mini_profile(request, user_name):
         })
         data = {'form': form, 'profile': profile}
         messages.warning(request, _(
-            u'Le profil que vous éditez n\'est pas le vôtre. '
-            u'Soyez encore plus prudent lors de l\'édition de celui-ci !'))
+            'Le profil que vous éditez n\'est pas le vôtre. '
+            'Soyez encore plus prudent lors de l\'édition de celui-ci&nbsp;!'))
         return render(request, 'member/settings/profile.html', data)
 
 
@@ -642,7 +642,7 @@ def check_new_email_provider(request, provider_pk):
         BannedEmailProvider.objects.create(provider=provider.provider, moderator=request.user)
     provider.delete()
 
-    messages.success(request, _(u'Action effectuée.'))
+    messages.success(request, _('Action effectuée.'))
     return redirect('new-email-providers')
 
 
@@ -699,7 +699,7 @@ class AddBannedEmailProvider(LoginRequiredMixin, PermissionRequiredMixin, Create
 
     def form_valid(self, form):
         form.instance.moderator = self.request.user
-        messages.success(self.request, _(u'Le fournisseur a été banni.'))
+        messages.success(self.request, _('Le fournisseur a été banni.'))
         return super(AddBannedEmailProvider, self).form_valid(form)
 
 
@@ -712,7 +712,7 @@ def remove_banned_email_provider(request, provider_pk):
     provider = get_object_or_404(BannedEmailProvider, pk=provider_pk)
     provider.delete()
 
-    messages.success(request, _(u'Le fournisseur « {} » a été débanni.').format(provider.provider))
+    messages.success(request, _('Le fournisseur « {} » a été débanni.').format(provider.provider))
     return redirect('banned-email-providers')
 
 
@@ -812,21 +812,21 @@ def add_hat(request, user_pk):
 
     hat_name = request.POST.get('hat', '').strip()
     if not hat_name:
-        messages.error(request, _(u'Aucune casquette saisie.'))
+        messages.error(request, _('Aucune casquette saisie.'))
     if contains_utf8mb4(hat_name):
-        messages.error(request, _(u'Les caractères utf8mb4 ne sont pas autorisés dans les casquettes.'))
+        messages.error(request, _('Les caractères utf8mb4 ne sont pas autorisés dans les casquettes.'))
     elif len(hat_name) > 40:
-        messages.error(request, _(u'Une casquette ne peut dépasser 40 caractères.'))
+        messages.error(request, _('Une casquette ne peut dépasser 40 caractères.'))
     else:
         hat, created = Hat.objects.get_or_create(name__iexact=hat_name, defaults={'name': hat_name})
         if created:
-            messages.success(request, _(u'La casquette « {} » a été créée.').format(hat_name))
+            messages.success(request, _('La casquette « {} » a été créée.').format(hat_name))
         if hat.group:
-            messages.error(request, _(u'Cette casquette est accordée aux membres d\'un groupe particulier. '
-                                      u'Elle ne peut pas être ajoutée individuellement.'))
+            messages.error(request, _('Cette casquette est accordée aux membres d\'un groupe particulier. '
+                                      'Elle ne peut pas être ajoutée individuellement.'))
         else:
             user.profile.hats.add(hat)
-            messages.success(request, _(u'La casquette a bien été ajoutée.'))
+            messages.success(request, _('La casquette a bien été ajoutée.'))
 
         # if hat was asked, remove request
         HatRequest.objects.filter(user=user, hat__iexact=hat_name).delete()
@@ -849,7 +849,7 @@ def remove_hat(request, user_pk, hat_pk):
 
     user.profile.hats.remove(hat)
 
-    messages.success(request, _(u'La casquette a bien été retirée.'))
+    messages.success(request, _('La casquette a bien été retirée.'))
     return redirect(user.profile.get_absolute_url())
 
 
@@ -896,18 +896,18 @@ def login_view(request):
                         return response
                 else:
                     messages.error(request,
-                                   _(u'Vous n\'êtes pas autorisé à vous connecter '
-                                     u'sur le site, vous avez été banni par un '
-                                     u'modérateur.'))
+                                   _('Vous n\'êtes pas autorisé à vous connecter '
+                                     'sur le site, vous avez été banni par un '
+                                     'modérateur.'))
             else:
                 messages.error(request,
-                               _(u'Vous n\'avez pas encore activé votre compte, '
-                                 u'vous devez le faire pour pouvoir vous '
-                                 u'connecter sur le site. Regardez dans vos '
-                                 u'mails : {}.').format(user.email))
+                               _('Vous n\'avez pas encore activé votre compte, '
+                                 'vous devez le faire pour pouvoir vous '
+                                 'connecter sur le site. Regardez dans vos '
+                                 'mails : {}.').format(user.email))
         else:
             messages.error(request,
-                           _(u'Les identifiants fournis ne sont pas valides.'))
+                           _('Les identifiants fournis ne sont pas valides.'))
             initial = {'username': username}
 
     form = LoginForm(initial=initial)
@@ -964,7 +964,7 @@ def forgot_password(request):
             token.save()
 
             # Send email
-            subject = _(u'{} - Mot de passe oublié').format(settings.ZDS_APP['site']['literal_name'])
+            subject = _('{} - Mot de passe oublié').format(settings.ZDS_APP['site']['literal_name'])
             from_email = '{} <{}>'.format(settings.ZDS_APP['site']['literal_name'],
                                           settings.ZDS_APP['site']['email_noreply'])
             context = {
@@ -1051,8 +1051,8 @@ def activate_account(request):
 
     send_mp(bot,
             [usr],
-            _(u'Bienvenue sur {}').format(settings.ZDS_APP['site']['literal_name']),
-            _(u'Le manuel du nouveau membre'),
+            _('Bienvenue sur {}').format(settings.ZDS_APP['site']['literal_name']),
+            _('Le manuel du nouveau membre'),
             msg,
             False,
             True,
@@ -1089,7 +1089,7 @@ def generate_token_account(request):
     token.save()
 
     # Send email
-    subject = _(u"{} - Confirmation d'inscription").format(settings.ZDS_APP['site']['literal_name'])
+    subject = _("{} - Confirmation d'inscription").format(settings.ZDS_APP['site']['literal_name'])
     from_email = '{} <{}>'.format(settings.ZDS_APP['site']['literal_name'],
                                   settings.ZDS_APP['site']['email_noreply'])
     context = {
@@ -1138,22 +1138,22 @@ def settings_promote(request, user_pk):
 
     if request.method == 'POST':
         form = PromoteMemberForm(request.POST)
-        data = dict(form.data.iterlists())
+        data = dict(form.data)
 
         groups = Group.objects.all()
         usergroups = user.groups.all()
 
         if 'groups' in data:
             for group in groups:
-                if unicode(group.id) in data['groups']:
+                if str(group.id) in data['groups']:
                     if group not in usergroups:
                         user.groups.add(group)
-                        messages.success(request, _(u'{0} appartient maintenant au groupe {1}.')
+                        messages.success(request, _('{0} appartient maintenant au groupe {1}.')
                                          .format(user.username, group.name))
                 else:
                     if group in usergroups:
                         user.groups.remove(group)
-                        messages.warning(request, _(u'{0} n\'appartient maintenant plus au groupe {1}.')
+                        messages.warning(request, _('{0} n\'appartient maintenant plus au groupe {1}.')
                                          .format(user.username, group.name))
                         topics_followed = TopicAnswerSubscription.objects.get_objects_followed_by(user)
                         for topic in topics_followed:
@@ -1166,36 +1166,36 @@ def settings_promote(request, user_pk):
                     if isinstance(topic, Topic) and group in topic.forum.groups.all():
                         TopicAnswerSubscription.objects.toggle_follow(topic, user)
             user.groups.clear()
-            messages.warning(request, _(u'{0} n\'appartient (plus ?) à aucun groupe.')
+            messages.warning(request, _('{0} n\'appartient (plus&nbsp;?) à aucun groupe.')
                              .format(user.username))
 
-        if 'activation' in data and u'on' in data['activation']:
+        if 'activation' in data and 'on' in data['activation']:
             user.is_active = True
-            messages.success(request, _(u'{0} est maintenant activé.')
+            messages.success(request, _('{0} est maintenant activé.')
                              .format(user.username))
         else:
             user.is_active = False
-            messages.warning(request, _(u'{0} est désactivé.')
+            messages.warning(request, _('{0} est désactivé.')
                              .format(user.username))
 
         user.save()
 
         usergroups = user.groups.all()
         bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
-        msg = _(u'Bonjour {0},\n\n'
-                u'Un administrateur vient de modifier les groupes '
-                u'auxquels vous appartenez.  \n').format(user.username)
+        msg = _('Bonjour {0},\n\n'
+                'Un administrateur vient de modifier les groupes '
+                'auxquels vous appartenez.  \n').format(user.username)
         if len(usergroups) > 0:
-            msg = string_concat(msg, _(u'Voici la liste des groupes dont vous faites dorénavant partie :\n\n'))
+            msg = string_concat(msg, _('Voici la liste des groupes dont vous faites dorénavant partie :\n\n'))
             for group in usergroups:
-                msg += u'* {0}\n'.format(group.name)
+                msg += '* {0}\n'.format(group.name)
         else:
-            msg = string_concat(msg, _(u'* Vous ne faites partie d\'aucun groupe'))
+            msg = string_concat(msg, _('* Vous ne faites partie d\'aucun groupe'))
         send_mp(
             bot,
             [user],
-            _(u'Modification des groupes'),
-            u'',
+            _('Modification des groupes'),
+            '',
             msg,
             True,
             True,

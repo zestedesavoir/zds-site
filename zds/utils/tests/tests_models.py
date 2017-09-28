@@ -48,7 +48,7 @@ class TagsTests(TestCase):
                          'all tags are "{}"'.format('","'.join(Tag.objects.values_list('title', flat=True))))
 
         # test tags title stripping
-        tags = ['foo bar', '  azerty', u'\u00A0qwerty ', ' another tag ']
+        tags = ['foo bar', '  azerty', '\u00A0qwerty ', ' another tag ']
         insert_valid_tags(tags)
 
         all_titles = Tag.objects.values_list('title', flat=True)
@@ -73,7 +73,7 @@ class TagsTests(TestCase):
 
     def test_validator_with_utf8mb4(self):
 
-        raw_string = u'🐙☢,bla'
+        raw_string = '🐙☢,bla'
         validator = TagValidator()
         self.assertFalse(validator.validate_raw_string(raw_string))
         self.assertEqual(1, len(validator.errors))

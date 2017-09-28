@@ -1,5 +1,5 @@
 # coding: utf-8
-from __future__ import unicode_literals
+
 from django.utils.encoding import python_2_unicode_compatible
 from datetime import datetime
 import os
@@ -36,14 +36,14 @@ logger = logging.getLogger('zds.utils')
 def image_path_category(instance, filename):
     """Return path to an image."""
     ext = filename.split('.')[-1]
-    filename = u'{}.{}'.format(str(uuid.uuid4()), string.lower(ext))
+    filename = '{}.{}'.format(str(uuid.uuid4()), string.lower(ext))
     return os.path.join('categorie/normal', str(instance.pk), filename)
 
 
 def image_path_help(instance, filename):
     """Return path to an image."""
     ext = filename.split('.')[-1]
-    filename = u'{}.{}'.format(str(uuid.uuid4()), string.lower(ext))
+    filename = '{}.{}'.format(str(uuid.uuid4()), string.lower(ext))
     return os.path.join('helps/normal', str(instance.pk), filename)
 
 
@@ -376,8 +376,8 @@ class CommentEdit(models.Model):
 class Alert(models.Model):
     """Alerts on all kinds of Comments and PublishedContents."""
     SCOPE_CHOICES = (
-        ('FORUM', _(u'Forum')),
-        ('CONTENT', _(u'Contenu')),
+        ('FORUM', _('Forum')),
+        ('CONTENT', _('Contenu')),
     ) + TYPE_CHOICES
 
     SCOPE_CHOICES_DICT = dict(SCOPE_CHOICES)
@@ -416,7 +416,7 @@ class Alert(models.Model):
     # PrivateTopic sending the resolve_reason to the alert creator
     privatetopic = models.ForeignKey(PrivateTopic,
                                      on_delete=models.SET_NULL,
-                                     verbose_name=u'Message privé',
+                                     verbose_name='Message privé',
                                      db_index=True,
                                      null=True,
                                      blank=True)
@@ -427,7 +427,7 @@ class Alert(models.Model):
 
     def get_type(self):
         if self.scope in TYPE_CHOICES_DICT:
-            return _(u'Commentaire')
+            return _('Commentaire')
         else:
             return self.get_scope_display()
 
@@ -532,8 +532,8 @@ class HelpWriting(models.Model):
 
     """Tutorial Help"""
     class Meta:
-        verbose_name = u'Aide à la rédaction'
-        verbose_name_plural = u'Aides à la rédaction'
+        verbose_name = 'Aide à la rédaction'
+        verbose_name_plural = 'Aides à la rédaction'
 
     # A name for this help
     title = models.CharField('Name', max_length=20, null=False)

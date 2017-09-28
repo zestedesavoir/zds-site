@@ -1,5 +1,5 @@
 # coding: utf-8
-from __future__ import unicode_literals
+
 from django.utils.encoding import python_2_unicode_compatible
 from datetime import datetime
 from hashlib import md5
@@ -34,8 +34,8 @@ class Profile(models.Model):
         verbose_name = 'Profil'
         verbose_name_plural = 'Profils'
         permissions = (
-            ('moderation', _(u'Modérer un membre')),
-            ('show_ip', _(u"Afficher les IP d'un membre")),
+            ('moderation', _('Modérer un membre')),
+            ('show_ip', _("Afficher les IP d'un membre")),
         )
 
     # Link with standard user is a simple one-to-one link, as recommended in official documentation.
@@ -63,7 +63,7 @@ class Profile(models.Model):
     github_token = models.TextField('GitHub', blank=True)
     show_sign = models.BooleanField('Voir les signatures', default=True)
     # do UI components open by hovering them, or is clicking on them required?
-    is_hover_enabled = models.BooleanField('Déroulement au survol ?', default=False)
+    is_hover_enabled = models.BooleanField('Déroulement au survol&nbsp;?', default=False)
     allow_temp_visual_changes = models.BooleanField('Activer les changements visuels temporaires', default=True)
     show_markdown_help = models.BooleanField("Afficher l'aide Markdown dans l'éditeur", default=True)
     email_for_answer = models.BooleanField('Envoyer pour les réponse MP', default=False)
@@ -73,7 +73,7 @@ class Profile(models.Model):
     can_write = models.BooleanField("Possibilité d'écrire", default=True)
     end_ban_write = models.DateTimeField("Fin d'interdiction d'écrire", null=True, blank=True)
     last_visit = models.DateTimeField('Date de dernière visite', null=True, blank=True)
-    use_old_smileys = models.BooleanField('Utilise les anciens smileys ?', default=False)
+    use_old_smileys = models.BooleanField('Utilise les anciens smileys&nbsp;?', default=False)
     _permissions = {}
     _groups = None
 
@@ -115,7 +115,7 @@ class Profile(models.Model):
         geo = gic.record_by_addr(self.last_ip_address)
 
         if geo is not None:
-            return u'{0}, {1}'.format(geo['city'], geo['country_name'])
+            return '{0}, {1}'.format(geo['city'], geo['country_name'])
         return ''
 
     def get_avatar_url(self):
@@ -127,7 +127,7 @@ class Profile(models.Model):
         """
         if self.avatar_url:
             if self.avatar_url.startswith(settings.MEDIA_URL):
-                return u'{}{}'.format(settings.ZDS_APP['site']['url'], self.avatar_url)
+                return '{}{}'.format(settings.ZDS_APP['site']['url'], self.avatar_url)
             else:
                 return self.avatar_url
         else:

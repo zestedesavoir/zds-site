@@ -53,7 +53,7 @@
                                                 value="{{ gallery.pk }}"
                                                 form="delete-galleries"
 
-                                            /> {% trans "Supprimer la galerie" %} ?
+                                            /> {% trans "Supprimer la galerie" %}&nbsp;?
                                         </label>
                                         {% csrf_token %}
                                         <button type="submit" name="delete_multi" class="btn">{% trans "Supprimer" %}</button>

@@ -15,11 +15,11 @@ from zds.utils.templatetags.joinby import joinby
 class Misc(TestCase):
     def test_utf8mb4(self):
         self.assertFalse(contains_utf8mb4('abc'))
-        self.assertFalse(contains_utf8mb4(u'abc'))
+        self.assertFalse(contains_utf8mb4('abc'))
         self.assertFalse(contains_utf8mb4('abc€'))
-        self.assertFalse(contains_utf8mb4(u'abc€'))
+        self.assertFalse(contains_utf8mb4('abc€'))
         self.assertTrue(contains_utf8mb4('a🐙tbc€'))
-        self.assertTrue(contains_utf8mb4(u'a🐙tbc€'))
+        self.assertTrue(contains_utf8mb4('a🐙tbc€'))
 
     def test_intervention_filter_for_tribunes(self):
         author = ProfileFactory()
@@ -57,6 +57,7 @@ class Misc(TestCase):
         for element in oracle:
             # as we are not in py3 we do not have subTest method. so we use a bare for loop.
             self.assertEquals(remove_url_scheme(element.given), element.expected)
+            self.assertEqual(remove_url_scheme(element.given), element.expected)
 
 
 class TemplateTagsTest(TestCase):

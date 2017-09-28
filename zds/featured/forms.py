@@ -18,43 +18,43 @@ class FeaturedResourceForm(forms.ModelForm):
         widgets = {
             'title': forms.TextInput(
                 attrs={
-                    'placeholder': _(u'Titre de la Une')
+                    'placeholder': _('Titre de la Une')
                 }
             ),
 
             'type': forms.TextInput(
                 attrs={
-                    'placeholder': _(u'ex: Un projet, Un article, Un tutoriel...')
+                    'placeholder': _('ex: Un projet, Un article, Un tutoriel...')
                 }
             ),
 
             'authors': forms.TextInput(
                 attrs={
-                    'placeholder': _(u'Des auteurs (ou pas) ?')
+                    'placeholder': _('Des auteurs (ou pas)&nbsp;?')
                 }
             ),
 
             'image_url': forms.URLInput(
                 attrs={
-                    'placeholder': _(u'Lien vers l\'image de la Une (dimensions: 228x228px).')
+                    'placeholder': _('Lien vers l\'image de la Une (dimensions: 228x228px).')
                 }
             ),
 
             'url': forms.URLInput(
                 attrs={
-                    'placeholder': _(u'Lien vers la ressource.')
+                    'placeholder': _('Lien vers la ressource.')
                 }
             )
         }
 
     major_update = forms.BooleanField(
-        label=_(u'Mise à jour majeure (fera passer la Une en première position lors d\'un changement)'),
+        label=_('Mise à jour majeure (fera passer la Une en première position lors d\'un changement)'),
         initial=False,
         required=False
     )
 
     pubdate = forms.DateTimeField(
-        label=_(u'Date de publication (exemple: 25/12/2015 15:00 ou 2015-12-25T15:00)'),
+        label=_('Date de publication (exemple: 25/12/2015 15:00 ou 2015-12-25T15:00)'),
         input_formats=[
             '%d/%m/%Y %H:%M:%S', '%Y-%m-%d %H:%M:%S',  # full format with second
             '%Y-%m-%dT%H:%M',  # datetime field format
@@ -62,7 +62,7 @@ class FeaturedResourceForm(forms.ModelForm):
             '%Y-%m-%d', '%d/%m/%Y'  # day only
         ],
         widget=forms.DateTimeInput(
-            attrs={'placeholder': _(u'Exemple : 25/12/2016 10:00'), 'type': 'datetime-local'},
+            attrs={'placeholder': _('Exemple : 25/12/2016 10:00'), 'type': 'datetime-local'},
             format='%Y-%m-%dT%H:%M'  # datetime field format
         )
     )
@@ -90,7 +90,7 @@ class FeaturedResourceForm(forms.ModelForm):
         fields.extend([
             Field('pubdate'),
             ButtonHolder(
-                StrictButton(_(u'Enregistrer'), type='submit'),
+                StrictButton(_('Enregistrer'), type='submit'),
             )
         ])
 
@@ -106,19 +106,19 @@ class FeaturedMessageForm(forms.ModelForm):
         widgets = {
             'hook': forms.TextInput(
                 attrs={
-                    'placeholder': _(u'Mot d\'accroche court ("Nouveau !")')
+                    'placeholder': _('Mot d\'accroche court ("Nouveau&nbsp;!")')
                 }
             ),
 
             'message': forms.TextInput(
                 attrs={
-                    'placeholder': _(u'Message à afficher')
+                    'placeholder': _('Message à afficher')
                 }
             ),
 
             'url': forms.URLInput(
                 attrs={
-                    'placeholder': _(u'Lien vers la description de la ressource')
+                    'placeholder': _('Lien vers la description de la ressource')
                 }
             )
         }
@@ -135,6 +135,6 @@ class FeaturedMessageForm(forms.ModelForm):
             Field('message'),
             Field('url'),
             ButtonHolder(
-                StrictButton(_(u'Enregistrer'), type='submit'),
+                StrictButton(_('Enregistrer'), type='submit'),
             ),
         )

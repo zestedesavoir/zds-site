@@ -12,10 +12,10 @@ articles = {
 }
 
 words = {
-    u'commentaire': False,
-    u'partie': True,
-    u'chapitre': False,
-    u'section': True
+    'commentaire': False,
+    'partie': True,
+    'chapitre': False,
+    'section': True
 }
 
 

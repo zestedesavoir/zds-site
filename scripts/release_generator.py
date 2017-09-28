@@ -93,9 +93,9 @@ def parse_issues(req):
             for l in issue['labels']:
                 labels.append(l['name'])
 
-            if 'S-BUG' in labels or u'S-Régression' in labels:
+            if 'S-BUG' in labels or 'S-Régression' in labels:
                 closed_bug.append(issue)
-            elif u'S-Évolution' in labels:
+            elif 'S-Évolution' in labels:
                 closed_evo.append(issue)
             else:
                 closed_unk.append(issue)
@@ -106,25 +106,25 @@ def parse_issues(req):
 def dump_issues(milestone, openissues, closed_bug, closed_evo, closed_unk):
     # output all tables to a file
     with codecs.open(OUTPUT_PATH, 'w', 'utf-8') as out:
-        out.write(u'Rapport pour le jalon **[{}](https://github.com/zestedesavoir/zds-site/milestones/{})** *({})*\n\n'
+        out.write('Rapport pour le jalon **[{}](https://github.com/zestedesavoir/zds-site/milestones/{})** *({})*\n\n'
                   .format(milestone['title'], milestone['title'], milestone['description']))
-        out.write(u'{} tickets sont compris dans ce jalon ({} ouverts et {} fermés)\n\n'
+        out.write('{} tickets sont compris dans ce jalon ({} ouverts et {} fermés)\n\n'
                   .format(len(openissues) + len(closed_bug) + len(closed_evo) + len(closed_unk),
                           len(openissues), len(closed_bug) + len(closed_evo) + len(closed_unk)))
-        out.write(u'# Tickets toujours ouvert\n\n')
+        out.write('# Tickets toujours ouvert\n\n')
         out.write(mdarray(openissues))
-        out.write(u'# Tickets fermé\n\n')
-        out.write(u'## Corrections de bug\n\n')
+        out.write('# Tickets fermé\n\n')
+        out.write('## Corrections de bug\n\n')
         out.write(mdarray(closed_bug))
-        out.write(u'## Évolutions\n\n')
+        out.write('## Évolutions\n\n')
         out.write(mdarray(closed_evo))
-        out.write(u'## Non défini\n\n')
+        out.write('## Non défini\n\n')
         out.write(mdarray(closed_unk))
 
 
 def mdarray(tableau):
     if len(tableau) == 0:
-        return u'Aucun ticket\n\n'
+        return 'Aucun ticket\n\n'
     ret = 'Ticket # | Titre | Label(s)\n'
     ret += '---------|-------|---------\n'
     for issue in tableau:
@@ -132,7 +132,7 @@ def mdarray(tableau):
         for label in issue['labels']:
             labels += label['name'] + ', '
         labels = labels[:-2]
-        ret += u'[#{}]({}) | {} | {}\n' \
+        ret += '[#{}]({}) | {} | {}\n' \
             .format(issue['number'],
                     issue['html_url'],
                     issue['title'],
@@ -147,23 +147,23 @@ milestones = get_milestones()
 
 # print the milestones
 for i in range(0, len(milestones)):
-    print(u'{}. {}'.format(i + 1, milestones[i]['title']))
+    print(('{}. {}'.format(i + 1, milestones[i]['title'])))
 
 jalon_id = 0
 while not jalon_id:
     try:
-        jalon_id = raw_input(u'Quelle milestone voulez-vous generer (id) (q=quitter) ? ')
+        jalon_id = eval(input('Quelle milestone voulez-vous generer (id) (q=quitter) ? '))
         jalon_id = int(jalon_id)
         if jalon_id > len(milestones):
-            print(u'{} ne fait pas parti des milestones connues'.format(jalon_id))
+            print(('{} ne fait pas parti des milestones connues'.format(jalon_id)))
             jalon_id = 0
     except:
         if jalon_id.lower() == 'q':
             sys.exit('Bye Bye !')
-        print(u'{} n\'est pas un nombre !'.format(jalon_id))
+        print(('{} n\'est pas un nombre !'.format(jalon_id)))
         jalon_id = 0
 
-print(u'Récuperation des tickets...')
+print('Récuperation des tickets...')
 
 [openissues, closed_bug, closed_evo, closed_unk] = get_issues(milestones[jalon_id - 1]['number'])
 dump_issues(milestones[jalon_id - 1], openissues, closed_bug, closed_evo, closed_unk)

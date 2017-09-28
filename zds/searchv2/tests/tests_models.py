@@ -327,10 +327,10 @@ class ESIndexManagerTests(TestCase):
         tuto = PublishableContent.objects.get(pk=tuto.pk)
         versioned = tuto.load_version(sha=tuto.sha_draft)
 
-        tuto.title = u'un titre complètement différent!'
+        tuto.title = 'un titre complètement différent!'
         tuto.save()
 
-        versioned.repo_update_top_container(tuto.title, tuto.slug, u'osef', u'osef')
+        versioned.repo_update_top_container(tuto.title, tuto.slug, 'osef', 'osef')
         second_publication = publish_content(tuto, versioned, True)
 
         tuto.sha_public = versioned.current_version
