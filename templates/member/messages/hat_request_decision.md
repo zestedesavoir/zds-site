@@ -1,13 +1,15 @@
 {% load i18n %}
 
-{% trans "Bonjour," %}
+{% trans "Salut !" %}
 
-{% blocktrans with decision=is_granted|yesno:_("acceptée,refusée") moderator_name=moderator.username|safe moderator_url=moderator.profile.get_absolute_url hat=hat|safe %}
-Vous avez demandé la casquette **{{ hat }}** pour votre compte. Votre demande a été {{ decision }} par [{{ moderator_name }}]({{ moderator_url }}).
+{% blocktrans with decision=is_granted|yesno:_("acceptée,refusée") hat=hat|safe %}
+Tu as demandé la casquette **{{ hat }}** pour ton compte. Ta demande a été {{ decision }}.
 {% endblocktrans %}
 
 {% if comment %}
 > {{ comment|safe }}
 {% endif %}
 
-{% trans "L’équipe" %} {{ site_name|safe }}
+{% if not solved_by_bot %}
+{% trans "Si tu as des questions, n’hésite pas à répondre directement à ce message." %}
+{% endif %}

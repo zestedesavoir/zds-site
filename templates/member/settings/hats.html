@@ -1,6 +1,8 @@
 {% extends "member/settings/base.html" %}
+
 {% load crispy_forms_tags %}
 {% load i18n %}
+{% load date %}
 
 
 {% block title %}
@@ -66,15 +68,12 @@
         </div>
     {% endif %}
 
-    {% if user.requested_hats.count >= 1 %}
+    {% if user.profile.get_requested_hats|length >= 1 %}
         <h2>{% trans "Demandes en cours" %}</h2>
 
         <ul>
-            {% for request in user.requested_hats.all %}
-                <li>{{ request.hat }} – <a href="#reason-{{ request.pk }}" class="open-modal">{% trans "Afficher la raison" %}</a></li>
-                <div class="modal" id="reason-{{ request.pk }}" data-modal-close="{% trans "Fermer" %}">
-                    {{ request.reason|linebreaks }}
-                </div>
+            {% for request in user.profile.get_requested_hats %}
+                <li>{{ request.hat }} ({{ request.date|format_date:True }}) – <a href="{{ request.get_absolute_url }}">{% trans "Afficher les détails" %}</a></li>
             {% endfor %}
         </ul>
     {% endif %}
@@ -90,4 +89,17 @@
     <div class="content-wrapper">
         {% crispy form %}
     </div>
+
+    {% if user.profile.get_solved_hat_requests|length >= 1 %}
+        <h2>{% trans "Anciennes demandes" %}</h2>
+
+        <ul>
+            {% for request in user.profile.get_solved_hat_requests %}
+                <li>
+                    {{ request.hat }} ({{ request.is_granted|yesno:_("acceptée,refusée") }} {{ request.solved_at|format_date:True }})
+                    – <a href="{{ request.get_absolute_url }}">{% trans "Afficher les détails" %}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
 {% endblock %}
