@@ -37,7 +37,7 @@ def home(request):
     opinions = PublishableContent.objects.get_last_opinions()
 
     try:
-        with open(os.path.join(settings.BASE_DIR, 'quotes.txt'), 'r') as quotes_file:
+        with open(os.path.join(settings.BASE_DIR, 'quotes.txt'), 'r', encoding='utf-8') as quotes_file:
             quote = random.choice(quotes_file.readlines())
     except OSError:
         quote = settings.ZDS_APP['site']['slogan']
