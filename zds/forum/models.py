@@ -11,6 +11,7 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.dispatch import receiver
 from django.db.models.signals import pre_delete
+from django.utils.translation import ugettext_lazy as _
 
 from elasticsearch_dsl.field import Text, Keyword, Integer, Boolean, Float, Date
 
@@ -34,20 +35,20 @@ class Category(models.Model):
     There is no kind of logic in a Category. It simply here for Forum presentation in a predefined order.
     """
     class Meta:
-        verbose_name = 'Catégorie'
-        verbose_name_plural = 'Catégories'
+        verbose_name = _('Catégorie')
+        verbose_name_plural = _('Catégories')
         ordering = ['position', 'title']
 
-    title = models.CharField('Titre', max_length=80)
-    position = models.IntegerField('Position', default=0)
+    title = models.CharField(_('Titre'), max_length=80)
+    position = models.IntegerField(_('Position'), default=0)
     # Some category slugs are forbidden due to path collisions: Category path is `/forums/<slug>` but some actions on
     # forums have path like `/forums/<action_name>`. Forbidden slugs are all top-level path in forum's `url.py` module.
     # As Categories can only be managed by superadmin, this is purely declarative and there is no control on slug.
     slug = models.SlugField(max_length=80,
                             unique=True,
-                            help_text='Ces slugs vont provoquer des conflits '
+                            help_text=_('Ces slugs vont provoquer des conflits '
                             "d'URL et sont donc interdits : notifications "
-                            'resolution_alerte sujet sujets message messages')
+                            'resolution_alerte sujet sujets message messages'))
 
     def __str__(self):
         """Textual form of a category."""
@@ -79,8 +80,8 @@ class Forum(models.Model):
     A Forum, containing Topics. It can be public or restricted to some groups.
     """
     class Meta:
-        verbose_name = 'Forum'
-        verbose_name_plural = 'Forums'
+        verbose_name = _('Forum')
+        verbose_name_plural = _('Forums')
         ordering = ['position_in_category', 'title']
 
     title = models.CharField('Titre', max_length=80)
@@ -89,11 +90,11 @@ class Forum(models.Model):
     # Groups authorized to read this forum. If no group is defined, the forum is public (and anyone can read it).
     groups = models.ManyToManyField(
         Group,
-        verbose_name='Groupes autorisés (aucun = public)',
+        verbose_name=_('Groupes autorisés (aucun = public)'),
         blank=True)
 
-    category = models.ForeignKey(Category, db_index=True, verbose_name='Catégorie')
-    position_in_category = models.IntegerField('Position dans la catégorie',
+    category = models.ForeignKey(Category, db_index=True, verbose_name=_('Catégorie'))
+    position_in_category = models.IntegerField(_('Position dans la catégorie'),
                                                null=True, blank=True, db_index=True)
 
     slug = models.SlugField(max_length=80, unique=True)
@@ -184,34 +185,34 @@ class Topic(AbstractESDjangoIndexable):
     objects_per_batch = 1000
 
     class Meta:
-        verbose_name = 'Sujet'
-        verbose_name_plural = 'Sujets'
+        verbose_name = _('Sujet')
+        verbose_name_plural = _('Sujets')
 
-    title = models.CharField('Titre', max_length=160)
-    subtitle = models.CharField('Sous-titre', max_length=200, null=True,
+    title = models.CharField(_('Titre'), max_length=160)
+    subtitle = models.CharField(_('Sous-titre'), max_length=200, null=True,
                                 blank=True)
 
-    forum = models.ForeignKey(Forum, verbose_name='Forum', db_index=True)
-    author = models.ForeignKey(User, verbose_name='Auteur',
+    forum = models.ForeignKey(Forum, verbose_name=_('Forum'), db_index=True)
+    author = models.ForeignKey(User, verbose_name=_('Auteur'),
                                related_name='topics', db_index=True)
     last_message = models.ForeignKey('Post', null=True,
                                      related_name='last_message',
-                                     verbose_name='Dernier message')
-    pubdate = models.DateTimeField('Date de création', auto_now_add=True)
+                                     verbose_name=_('Dernier message'))
+    pubdate = models.DateTimeField(_('Date de création'), auto_now_add=True)
     update_index_date = models.DateTimeField(
-        'Date de dernière modification pour la réindexation partielle',
+        _('Date de dernière modification pour la réindexation partielle'),
         auto_now=True,
         db_index=True)
 
-    is_solved = models.BooleanField('Est résolu', default=False, db_index=True)
-    is_locked = models.BooleanField('Est verrouillé', default=False, db_index=True)
-    is_sticky = models.BooleanField('Est en post-it', default=False, db_index=True)
+    is_solved = models.BooleanField(_('Est résolu'), default=False, db_index=True)
+    is_locked = models.BooleanField(_('Est verrouillé'), default=False, db_index=True)
+    is_sticky = models.BooleanField(_('Est en post-it'), default=False, db_index=True)
 
-    github_issue = models.PositiveIntegerField('Ticket GitHub', null=True, blank=True)
+    github_issue = models.PositiveIntegerField(_('Ticket GitHub'), null=True, blank=True)
 
     tags = models.ManyToManyField(
         Tag,
-        verbose_name='Tags du forum',
+        verbose_name=_('Tags du forum'),
         blank=True,
         db_index=True)
 
@@ -477,9 +478,9 @@ class Post(Comment, AbstractESDjangoIndexable):
     """
     objects_per_batch = 2000
 
-    topic = models.ForeignKey(Topic, verbose_name='Sujet', db_index=True)
+    topic = models.ForeignKey(Topic, verbose_name=_('Sujet'), db_index=True)
 
-    is_useful = models.BooleanField('Est utile', default=False)
+    is_useful = models.BooleanField(_('Est utile'), default=False)
     objects = PostManager()
 
     def __str__(self):
@@ -576,8 +577,8 @@ class TopicRead(models.Model):
     Technically it is a simple joint [user, topic, last read post].
     """
     class Meta:
-        verbose_name = 'Sujet lu'
-        verbose_name_plural = 'Sujets lus'
+        verbose_name = _('Sujet lu')
+        verbose_name_plural = _('Sujets lus')
         unique_together = ('topic', 'user')
 
     topic = models.ForeignKey(Topic, db_index=True)

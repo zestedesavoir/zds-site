@@ -52,12 +52,12 @@ class Category(models.Model):
     """Common category for several concepts of the application."""
 
     class Meta:
-        verbose_name = 'Categorie'
-        verbose_name_plural = 'Categories'
+        verbose_name = _('Categorie')
+        verbose_name_plural = _('Categories')
 
-    title = models.CharField('Titre', unique=True, max_length=80)
-    description = models.TextField('Description')
-    position = models.IntegerField('Position', default=0, db_index=True)
+    title = models.CharField(_('Titre'), unique=True, max_length=80)
+    description = models.TextField(_('Description'))
+    position = models.IntegerField(_('Position'), default=0, db_index=True)
 
     slug = models.SlugField(max_length=80, unique=True)
 
@@ -77,11 +77,11 @@ class SubCategory(models.Model):
     """Common subcategory for several concepts of the application."""
 
     class Meta:
-        verbose_name = 'Sous-categorie'
-        verbose_name_plural = 'Sous-categories'
+        verbose_name = _('Sous-categorie')
+        verbose_name_plural = _('Sous-categories')
 
-    title = models.CharField('Titre', max_length=80, unique=True)
-    subtitle = models.CharField('Sous-titre', max_length=200)
+    title = models.CharField(_('Titre'), max_length=80, unique=True)
+    subtitle = models.CharField(_('Sous-titre'), max_length=200)
 
     image = models.ImageField(upload_to=image_path_category, blank=True, null=True)
 
@@ -119,12 +119,12 @@ class CategorySubCategory(models.Model):
     """ManyToMany between Category and SubCategory but save a boolean to know
     if category is his main category."""
     class Meta:
-        verbose_name = 'Hierarchie catégorie'
-        verbose_name_plural = 'Hierarchies catégories'
+        verbose_name = _('Hierarchie catégorie')
+        verbose_name_plural = _('Hierarchies catégories')
 
-    category = models.ForeignKey(Category, verbose_name='Catégorie', db_index=True)
-    subcategory = models.ForeignKey(SubCategory, verbose_name='Sous-Catégorie', db_index=True)
-    is_main = models.BooleanField('Est la catégorie principale', default=True, db_index=True)
+    category = models.ForeignKey(Category, verbose_name=_('Catégorie'), db_index=True)
+    subcategory = models.ForeignKey(SubCategory, verbose_name=_('Sous-Catégorie'), db_index=True)
+    is_main = models.BooleanField(_('Est la catégorie principale'), default=True, db_index=True)
 
     def __str__(self):
         """Textual Link Form."""
@@ -143,12 +143,12 @@ class Licence(models.Model):
 
     """Publication licence."""
     class Meta:
-        verbose_name = 'Licence'
-        verbose_name_plural = 'Licences'
+        verbose_name = _('Licence')
+        verbose_name_plural = _('Licences')
 
-    code = models.CharField('Code', max_length=20)
-    title = models.CharField('Titre', max_length=80)
-    description = models.TextField('Description')
+    code = models.CharField(_('Code'), max_length=20)
+    title = models.CharField(_('Titre'), max_length=80)
+    description = models.TextField(_('Description'))
 
     def __str__(self):
         """Textual Licence Form."""
@@ -166,13 +166,13 @@ class Hat(models.Model):
     that a moderation message was posted by a staff member.
     """
 
-    name = models.CharField('Casquette', max_length=40, unique=True)
+    name = models.CharField(_('Casquette'), max_length=40, unique=True)
     group = models.ForeignKey(Group, on_delete=models.SET_NULL, verbose_name='Groupe possédant la casquette',
                               related_name='hats', db_index=True, null=True, blank=True)
 
     class Meta:
-        verbose_name = 'Casquette'
-        verbose_name_plural = 'Casquettes'
+        verbose_name = _('Casquette')
+        verbose_name_plural = _('Casquettes')
 
     def __str__(self):
         return self.name
@@ -184,16 +184,16 @@ class HatRequest(models.Model):
     A hat requested by a user.
     """
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Utilisateur',
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('Utilisateur'),
                              related_name='requested_hats')
-    hat = models.CharField('Casquette', max_length=40)
-    reason = models.TextField('Raison de la demande', max_length=3000)
+    hat = models.CharField(_('Casquette'), max_length=40)
+    reason = models.TextField(_('Raison de la demande'), max_length=3000)
     date = models.DateTimeField(auto_now_add=True, db_index=True,
-                                verbose_name='Date de la demande', db_column='request_date')
+                                verbose_name=_('Date de la demande'), db_column='request_date')
 
     class Meta:
-        verbose_name = 'Demande de casquette'
-        verbose_name_plural = 'Demandes de casquettes'
+        verbose_name = _('Demande de casquette')
+        verbose_name_plural = _('Demandes de casquettes')
 
     def __str__(self):
         return 'Hat {0} requested by {1}'.format(
@@ -241,40 +241,40 @@ class Comment(models.Model):
 
     """Comment in forum, articles, tutorial, chapter, etc."""
     class Meta:
-        verbose_name = 'Commentaire'
-        verbose_name_plural = 'Commentaires'
+        verbose_name = _('Commentaire')
+        verbose_name_plural = _('Commentaires')
 
     objects = InheritanceManager()
 
-    author = models.ForeignKey(User, verbose_name='Auteur',
+    author = models.ForeignKey(User, verbose_name=_('Auteur'),
                                related_name='comments', db_index=True)
-    editor = models.ForeignKey(User, verbose_name='Editeur',
+    editor = models.ForeignKey(User, verbose_name=_('Editeur'),
                                related_name='comments-editor+',
                                null=True, blank=True)
-    ip_address = models.CharField('Adresse IP de l\'auteur ', max_length=39)
+    ip_address = models.CharField(_("Adresse IP de l\'auteur"), max_length=39)
 
-    position = models.IntegerField('Position', db_index=True)
+    position = models.IntegerField(_('Position'), db_index=True)
 
-    text = models.TextField('Texte')
-    text_html = models.TextField('Texte en Html')
+    text = models.TextField(_('Texte'))
+    text_html = models.TextField(_('Texte en Html'))
 
-    like = models.IntegerField('Likes', default=0)
-    dislike = models.IntegerField('Dislikes', default=0)
+    like = models.IntegerField(_('Likes'), default=0)
+    dislike = models.IntegerField(_('Dislikes'), default=0)
 
-    pubdate = models.DateTimeField('Date de publication', auto_now_add=True, db_index=True)
-    update = models.DateTimeField('Date d\'édition', null=True, blank=True)
+    pubdate = models.DateTimeField(_('Date de publication'), auto_now_add=True, db_index=True)
+    update = models.DateTimeField(_("Date d'édition"), null=True, blank=True)
     update_index_date = models.DateTimeField(
-        'Date de dernière modification pour la réindexation partielle',
+        _('Date de dernière modification pour la réindexation partielle'),
         auto_now=True,
         db_index=True)
 
-    is_visible = models.BooleanField('Est visible', default=True)
+    is_visible = models.BooleanField(_('Est visible'), default=True)
     text_hidden = models.CharField(
-        'Texte de masquage ',
+        _('Texte de masquage'),
         max_length=80,
         default='')
 
-    hat = models.ForeignKey(Hat, verbose_name='Casquette', on_delete=models.SET_NULL,
+    hat = models.ForeignKey(Hat, verbose_name=_('Casquette'), on_delete=models.SET_NULL,
                             related_name='comments', blank=True, null=True)
 
     def update_content(self, text):
@@ -351,19 +351,19 @@ class CommentEdit(models.Model):
     """Archive for editing a comment."""
 
     class Meta:
-        verbose_name = "Édition d'un message"
-        verbose_name_plural = 'Éditions de messages'
+        verbose_name = _("Édition d'un message")
+        verbose_name_plural = _('Éditions de messages')
 
-    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, verbose_name='Message',
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, verbose_name=_('Message'),
                                 related_name='edits', db_index=True)
-    editor = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Éditeur',
+    editor = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('Éditeur'),
                                related_name='edits', db_index=True)
     date = models.DateTimeField(auto_now_add=True, db_index=True,
-                                verbose_name="Date de l'édition", db_column='edit_date')
-    original_text = models.TextField("Contenu d'origine", blank=True)
-    deleted_at = models.DateTimeField(db_index=True, verbose_name='Date de suppression',
+                                verbose_name=_("Date de l'édition"), db_column='edit_date')
+    original_text = models.TextField(_("Contenu d'origine"), blank=True)
+    deleted_at = models.DateTimeField(db_index=True, verbose_name=_('Date de suppression'),
                                       blank=True, null=True)
-    deleted_by = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Supprimé par',
+    deleted_by = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('Supprimé par'),
                                    related_name='deleted_edits', db_index=True,
                                    null=True, blank=True)
 
@@ -383,44 +383,44 @@ class Alert(models.Model):
     SCOPE_CHOICES_DICT = dict(SCOPE_CHOICES)
 
     author = models.ForeignKey(User,
-                               verbose_name='Auteur',
+                               verbose_name=_('Auteur'),
                                related_name='alerts',
                                db_index=True)
     comment = models.ForeignKey(Comment,
-                                verbose_name='Commentaire',
+                                verbose_name=_('Commentaire'),
                                 related_name='alerts_on_this_comment',
                                 db_index=True,
                                 null=True,
                                 blank=True)
     # use of string definition of pk to avoid circular import.
     content = models.ForeignKey('tutorialv2.PublishableContent',
-                                verbose_name='Contenu',
+                                verbose_name=_('Contenu'),
                                 related_name='alerts_on_this_content',
                                 db_index=True,
                                 null=True,
                                 blank=True)
     scope = models.CharField(max_length=10, choices=SCOPE_CHOICES, db_index=True)
-    text = models.TextField("Texte d'alerte")
-    pubdate = models.DateTimeField('Date de création', db_index=True)
-    solved = models.BooleanField('Est résolue', default=False)
+    text = models.TextField(_("Texte d'alerte"))
+    pubdate = models.DateTimeField(_('Date de création'), db_index=True)
+    solved = models.BooleanField(_('Est résolue'), default=False)
     moderator = models.ForeignKey(User,
-                                  verbose_name='Modérateur',
+                                  verbose_name=_('Modérateur'),
                                   related_name='solved_alerts',
                                   db_index=True,
                                   null=True,
                                   blank=True)
     # sent to the alert creator
-    resolve_reason = models.TextField('Texte de résolution',
+    resolve_reason = models.TextField(_('Texte de résolution'),
                                       null=True,
                                       blank=True)
     # PrivateTopic sending the resolve_reason to the alert creator
     privatetopic = models.ForeignKey(PrivateTopic,
                                      on_delete=models.SET_NULL,
-                                     verbose_name='Message privé',
+                                     verbose_name=_('Message privé'),
                                      db_index=True,
                                      null=True,
                                      blank=True)
-    solved_date = models.DateTimeField('Date de résolution',
+    solved_date = models.DateTimeField(_('Date de résolution'),
                                        db_index=True,
                                        null=True,
                                        blank=True)
@@ -471,8 +471,8 @@ class Alert(models.Model):
         return self.text
 
     class Meta:
-        verbose_name = 'Alerte'
-        verbose_name_plural = 'Alertes'
+        verbose_name = _('Alerte')
+        verbose_name_plural = _('Alertes')
 
 
 @python_2_unicode_compatible
@@ -480,13 +480,13 @@ class CommentVote(models.Model):
 
     """Set of comment votes."""
     class Meta:
-        verbose_name = 'Vote'
-        verbose_name_plural = 'Votes'
+        verbose_name = _('Vote')
+        verbose_name_plural = _('Votes')
         unique_together = ('user', 'comment')
 
     comment = models.ForeignKey(Comment, db_index=True)
     user = models.ForeignKey(User, db_index=True)
-    positive = models.BooleanField('Est un vote positif', default=True)
+    positive = models.BooleanField(_('Est un vote positif'), default=True)
 
     def __str__(self):
         return 'Vote from {} about Comment#{} thumb_up={}'.format(self.user.username, self.comment.pk, self.positive)
@@ -498,11 +498,11 @@ class Tag(models.Model):
     """Set of tags."""
 
     class Meta:
-        verbose_name = 'Tag'
-        verbose_name_plural = 'Tags'
+        verbose_name = _('Tag')
+        verbose_name_plural = _('Tags')
 
-    title = models.CharField('Titre', max_length=30, unique=True, db_index=True)
-    slug = models.SlugField('Slug', max_length=30, unique=True)
+    title = models.CharField(_('Titre'), max_length=30, unique=True, db_index=True)
+    slug = models.SlugField(_('Slug'), max_length=30, unique=True)
 
     def __str__(self):
         """Textual Link Form."""
@@ -532,15 +532,15 @@ class HelpWriting(models.Model):
 
     """Tutorial Help"""
     class Meta:
-        verbose_name = 'Aide à la rédaction'
-        verbose_name_plural = 'Aides à la rédaction'
+        verbose_name = _('Aide à la rédaction')
+        verbose_name_plural = _('Aides à la rédaction')
 
     # A name for this help
-    title = models.CharField('Name', max_length=20, null=False)
+    title = models.CharField(_('Name'), max_length=20, null=False)
     slug = models.SlugField(max_length=20)
 
     # tablelabel: Used for the accessibility "This tutoriel need help for writing"
-    tablelabel = models.CharField('TableLabel', max_length=150, null=False)
+    tablelabel = models.CharField(_('TableLabel'), max_length=150, null=False)
 
     # The image to use to illustrate this role
     image = ThumbnailerImageField(upload_to=image_path_help)

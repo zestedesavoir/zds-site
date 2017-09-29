@@ -1,6 +1,5 @@
 # coding: utf-8
 
-
 from django.db.models import CASCADE
 from django.utils.encoding import python_2_unicode_compatible
 from datetime import datetime
@@ -68,83 +67,83 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
     - Type, which is either "ARTICLE" "TUTORIAL" or "OPINION"
     """
     class Meta:
-        verbose_name = 'Contenu'
-        verbose_name_plural = 'Contenus'
+        verbose_name = _('Contenu')
+        verbose_name_plural = _('Contenus')
 
     content_type_attribute = 'type'
-    title = models.CharField('Titre', max_length=80)
-    slug = models.CharField('Slug', max_length=80)
-    description = models.CharField('Description', max_length=200)
-    source = models.CharField('Source', max_length=200, blank=True, null=True)
-    authors = models.ManyToManyField(User, verbose_name='Auteurs', db_index=True)
+    title = models.CharField(_('Titre'), max_length=80)
+    slug = models.CharField(_('Slug'), max_length=80)
+    description = models.CharField(_('Description'), max_length=200)
+    source = models.CharField(_('Source'), max_length=200, blank=True, null=True)
+    authors = models.ManyToManyField(User, verbose_name=_('Auteurs'), db_index=True)
     old_pk = models.IntegerField(db_index=True, default=0)
     subcategory = models.ManyToManyField(SubCategory,
-                                         verbose_name='Sous-Catégorie',
+                                         verbose_name=_('Sous-Catégorie'),
                                          blank=True, db_index=True)
 
-    tags = models.ManyToManyField(Tag, verbose_name='Tags du contenu', blank=True, db_index=True)
+    tags = models.ManyToManyField(Tag, verbose_name=_('Tags du contenu'), blank=True, db_index=True)
     # store the thumbnail for tutorial or article
     image = models.ForeignKey(Image,
-                              verbose_name='Image du tutoriel',
+                              verbose_name=_('Image du tutoriel'),
                               blank=True, null=True,
                               on_delete=models.SET_NULL)
 
     # every publishable content has its own gallery to manage images
     gallery = models.ForeignKey(Gallery,
-                                verbose_name="Galerie d'images",
+                                verbose_name=_("Galerie d'images"),
                                 blank=True, null=True, db_index=True)
 
-    creation_date = models.DateTimeField('Date de création')
-    pubdate = models.DateTimeField('Date de publication',
+    creation_date = models.DateTimeField(_('Date de création'))
+    pubdate = models.DateTimeField(_('Date de publication'),
                                    blank=True, null=True, db_index=True)
-    update_date = models.DateTimeField('Date de mise à jour',
+    update_date = models.DateTimeField(_('Date de mise à jour'),
                                        blank=True, null=True)
 
-    picked_date = models.DateTimeField('Date de mise en avant', db_index=True, blank=True, null=True, default=None)
+    picked_date = models.DateTimeField(_('Date de mise en avant'), db_index=True, blank=True, null=True, default=None)
 
-    sha_public = models.CharField('Sha1 de la version publique',
+    sha_public = models.CharField(_('Sha1 de la version publique'),
                                   blank=True, null=True, max_length=80, db_index=True)
-    sha_beta = models.CharField('Sha1 de la version beta publique',
+    sha_beta = models.CharField(_('Sha1 de la version beta publique'),
                                 blank=True, null=True, max_length=80, db_index=True)
-    sha_validation = models.CharField('Sha1 de la version en validation',
+    sha_validation = models.CharField(_('Sha1 de la version en validation'),
                                       blank=True, null=True, max_length=80, db_index=True)
-    sha_draft = models.CharField('Sha1 de la version de rédaction',
+    sha_draft = models.CharField(_('Sha1 de la version de rédaction'),
                                  blank=True, null=True, max_length=80, db_index=True)
-    sha_picked = models.CharField('Sha1 de la version choisie (contenus publiés sans validation)',
+    sha_picked = models.CharField(_('Sha1 de la version choisie (contenus publiés sans validation)'),
                                   blank=True, null=True, max_length=80, db_index=True)
-    beta_topic = models.ForeignKey(Topic, verbose_name='Sujet beta associé', default=None, blank=True, null=True)
+    beta_topic = models.ForeignKey(Topic, verbose_name=_('Sujet beta associé'), default=None, blank=True, null=True)
     licence = models.ForeignKey(Licence,
-                                verbose_name='Licence',
+                                verbose_name=_('Licence'),
                                 blank=True, null=True, db_index=True)
     # as of ZEP 12 this field is no longer the size but the type of content (article/tutorial/opinion)
     type = models.CharField(max_length=10, choices=TYPE_CHOICES, db_index=True)
     # zep03 field
-    helps = models.ManyToManyField(HelpWriting, verbose_name='Aides', blank=True, db_index=True)
+    helps = models.ManyToManyField(HelpWriting, verbose_name=_('Aides'), blank=True, db_index=True)
 
     relative_images_path = models.CharField(
-        'chemin relatif images',
+        _('chemin relatif images'),
         blank=True,
         null=True,
         max_length=200)
 
     last_note = models.ForeignKey('ContentReaction', blank=True, null=True,
                                   related_name='last_note',
-                                  verbose_name='Derniere note')
-    is_locked = models.BooleanField('Est verrouillé', default=False)
-    js_support = models.BooleanField('Support du Javascript', default=False)
+                                  verbose_name=_('Derniere note'))
+    is_locked = models.BooleanField(_('Est verrouillé'), default=False)
+    js_support = models.BooleanField(_('Support du Javascript'), default=False)
 
-    must_reindex = models.BooleanField('Si le contenu doit-être ré-indexé', default=True)
+    must_reindex = models.BooleanField(_('Si le contenu doit-être ré-indexé'), default=True)
 
-    is_obsolete = models.BooleanField('Est obsolète', default=False)
+    is_obsolete = models.BooleanField(_('Est obsolète'), default=False)
 
     public_version = models.ForeignKey(
-        'PublishedContent', verbose_name='Version publiée', blank=True, null=True, on_delete=models.SET_NULL)
+        'PublishedContent', verbose_name=_('Version publiée'), blank=True, null=True, on_delete=models.SET_NULL)
 
     # FK to an opinion which has been converted to article. Useful to keep track of history and
     # to add a canonical link
     converted_to = models.ForeignKey(
         'self',
-        verbose_name='Contenu promu',
+        verbose_name=_('Contenu promu'),
         blank=True,
         null=True,
         on_delete=models.SET_NULL,
@@ -1136,8 +1135,8 @@ class ContentRead(models.Model):
     It remembers the PublishableContent they read and what was the last Note at that time.
     """
     class Meta:
-        verbose_name = 'Contenu lu'
-        verbose_name_plural = 'Contenu lus'
+        verbose_name = _('Contenu lu')
+        verbose_name_plural = _('Contenu lus')
 
     content = models.ForeignKey(PublishableContent, db_index=True)
     note = models.ForeignKey(ContentReaction, db_index=True, null=True)
@@ -1162,24 +1161,24 @@ class Validation(models.Model):
     Content validation.
     """
     class Meta:
-        verbose_name = 'Validation'
-        verbose_name_plural = 'Validations'
+        verbose_name = _('Validation')
+        verbose_name_plural = _('Validations')
 
     content = models.ForeignKey(PublishableContent, null=True, blank=True,
-                                verbose_name='Contenu proposé', db_index=True)
-    version = models.CharField('Sha1 de la version',
+                                verbose_name=_('Contenu proposé'), db_index=True)
+    version = models.CharField(_('Sha1 de la version'),
                                blank=True, null=True, max_length=80, db_index=True)
-    date_proposition = models.DateTimeField('Date de proposition', db_index=True, null=True, blank=True)
-    comment_authors = models.TextField("Commentaire de l'auteur", null=True, blank=True)
+    date_proposition = models.DateTimeField(_('Date de proposition'), db_index=True, null=True, blank=True)
+    comment_authors = models.TextField(_("Commentaire de l'auteur"), null=True, blank=True)
     validator = models.ForeignKey(User,
-                                  verbose_name='Validateur',
+                                  verbose_name=_('Validateur'),
                                   related_name='author_content_validations',
                                   blank=True, null=True, db_index=True)
-    date_reserve = models.DateTimeField('Date de réservation',
+    date_reserve = models.DateTimeField(_('Date de réservation'),
                                         blank=True, null=True)
-    date_validation = models.DateTimeField('Date de validation',
+    date_validation = models.DateTimeField(_('Date de validation'),
                                            blank=True, null=True)
-    comment_validator = models.TextField('Commentaire du validateur',
+    comment_validator = models.TextField(_('Commentaire du validateur'),
                                          blank=True, null=True)
     status = models.CharField(
         max_length=10,
@@ -1233,21 +1232,21 @@ class Validation(models.Model):
 @python_2_unicode_compatible
 class PickListOperation(models.Model):
     class Meta:
-        verbose_name = "Choix d'un billet"
-        verbose_name_plural = 'Choix des billets'
+        verbose_name = _("Choix d'un billet")
+        verbose_name_plural = _('Choix des billets')
 
     content = models.ForeignKey(PublishableContent, null=False, blank=False,
-                                verbose_name='Contenu proposé', db_index=True)
+                                verbose_name=_('Contenu proposé'), db_index=True)
     operation = models.CharField(null=False, blank=False, db_index=True, max_length=len('REMOVE_PUB'),
                                  choices=PICK_OPERATIONS)
-    operation_date = models.DateTimeField(null=False, db_index=True, verbose_name="Date de l'opération")
-    version = models.CharField(null=False, blank=False, max_length=128, verbose_name='Version du billet concernée')
+    operation_date = models.DateTimeField(null=False, db_index=True, verbose_name=_("Date de l'opération"))
+    version = models.CharField(null=False, blank=False, max_length=128, verbose_name=_('Version du billet concernée'))
     staff_user = models.ForeignKey(User, null=False, blank=False, on_delete=CASCADE,
-                                   verbose_name='Modérateur', related_name='pick_operations')
+                                   verbose_name=_('Modérateur'), related_name='pick_operations')
     canceler_user = models.ForeignKey(User, null=True, blank=True, on_delete=CASCADE,
-                                      verbose_name='Modérateur qui a annulé la décision',
+                                      verbose_name=_('Modérateur qui a annulé la décision'),
                                       related_name='canceled_pick_operations')
-    is_effective = models.BooleanField(verbose_name='Choix actif', default=True)
+    is_effective = models.BooleanField(verbose_name=_('Choix actif'), default=True)
 
     def __str__(self):
         return '{} : {}'.format(self.get_operation_display(), self.content)

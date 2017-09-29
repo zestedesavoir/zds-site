@@ -31,8 +31,8 @@ class Profile(models.Model):
     """
 
     class Meta:
-        verbose_name = 'Profil'
-        verbose_name_plural = 'Profils'
+        verbose_name = _('Profil')
+        verbose_name_plural = _('Profils')
         permissions = (
             ('moderation', _('Modérer un membre')),
             ('show_ip', _("Afficher les IP d'un membre")),
@@ -42,38 +42,38 @@ class Profile(models.Model):
     # See https://docs.djangoproject.com/en/1.6/topics/auth/customizing/#extending-the-existing-user-model
     user = models.OneToOneField(
         User,
-        verbose_name='Utilisateur',
+        verbose_name=_('Utilisateur'),
         related_name='profile')
 
     last_ip_address = models.CharField(
-        'Adresse IP',
+        _('Adresse IP'),
         max_length=39,
         blank=True,
         null=True)
 
-    site = models.CharField('Site internet', max_length=2000, blank=True)
-    show_email = models.BooleanField('Afficher adresse mail publiquement', default=False)
-    avatar_url = models.CharField('URL de l\'avatar', max_length=2000, null=True, blank=True)
-    biography = models.TextField('Biographie', blank=True)
-    karma = models.IntegerField('Karma', default=0)
-    sign = models.TextField('Signature', max_length=500, blank=True)
+    site = models.CharField(_('Site internet'), max_length=2000, blank=True)
+    show_email = models.BooleanField(_('Afficher adresse mail publiquement'), default=False)
+    avatar_url = models.CharField(_('URL de l\'avatar'), max_length=2000, null=True, blank=True)
+    biography = models.TextField(_('Biographie'), blank=True)
+    karma = models.IntegerField(_('Karma'), default=0)
+    sign = models.TextField(_('Signature'), max_length=500, blank=True)
     licence = models.ForeignKey(Licence,
-                                verbose_name='Licence préférée',
+                                verbose_name=_('Licence préférée'),
                                 blank=True, null=True)
-    github_token = models.TextField('GitHub', blank=True)
-    show_sign = models.BooleanField('Voir les signatures', default=True)
+    github_token = models.TextField(_('GitHub'), blank=True)
+    show_sign = models.BooleanField(_('Voir les signatures'), default=True)
     # do UI components open by hovering them, or is clicking on them required?
-    is_hover_enabled = models.BooleanField('Déroulement au survol&nbsp;?', default=False)
-    allow_temp_visual_changes = models.BooleanField('Activer les changements visuels temporaires', default=True)
-    show_markdown_help = models.BooleanField("Afficher l'aide Markdown dans l'éditeur", default=True)
-    email_for_answer = models.BooleanField('Envoyer pour les réponse MP', default=False)
-    hats = models.ManyToManyField(Hat, verbose_name='Casquettes', db_index=True, blank=True)
-    can_read = models.BooleanField('Possibilité de lire', default=True)
-    end_ban_read = models.DateTimeField("Fin d'interdiction de lecture", null=True, blank=True)
-    can_write = models.BooleanField("Possibilité d'écrire", default=True)
-    end_ban_write = models.DateTimeField("Fin d'interdiction d'écrire", null=True, blank=True)
-    last_visit = models.DateTimeField('Date de dernière visite', null=True, blank=True)
-    use_old_smileys = models.BooleanField('Utilise les anciens smileys&nbsp;?', default=False)
+    is_hover_enabled = models.BooleanField(_('Déroulement au survol&nbsp;?'), default=False)
+    allow_temp_visual_changes = models.BooleanField(_('Activer les changements visuels temporaires'), default=True)
+    show_markdown_help = models.BooleanField(_("Afficher l'aide Markdown dans l'éditeur"), default=True)
+    email_for_answer = models.BooleanField(_('Envoyer pour les réponse MP'), default=False)
+    hats = models.ManyToManyField(Hat, verbose_name=_('Casquettes'), db_index=True, blank=True)
+    can_read = models.BooleanField(_('Possibilité de lire'), default=True)
+    end_ban_read = models.DateTimeField(_("Fin d'interdiction de lecture"), null=True, blank=True)
+    can_write = models.BooleanField(_("Possibilité d'écrire"), default=True)
+    end_ban_write = models.DateTimeField(_("Fin d'interdiction d'écrire"), null=True, blank=True)
+    last_visit = models.DateTimeField(_('Date de dernière visite'), null=True, blank=True)
+    use_old_smileys = models.BooleanField(_('Utilise les anciens smileys&nbsp;?'), default=False)
     _permissions = {}
     _groups = None
 
@@ -484,12 +484,12 @@ class TokenForgotPassword(models.Model):
     This model stores the tokens for the users that have forgot their passwords, with an expiration date.
     """
     class Meta:
-        verbose_name = 'Token de mot de passe oublié'
-        verbose_name_plural = 'Tokens de mots de passe oubliés'
+        verbose_name = _('Token de mot de passe oublié')
+        verbose_name_plural = _('Tokens de mots de passe oubliés')
 
     user = models.ForeignKey(User, verbose_name='Utilisateur', db_index=True)
     token = models.CharField(max_length=100, db_index=True)
-    date_end = models.DateTimeField('Date de fin')
+    date_end = models.DateTimeField(_('Date de fin'))
 
     def get_absolute_url(self):
         """
@@ -509,12 +509,12 @@ class TokenRegister(models.Model):
     This model stores the registration token for each user, with an expiration date.
     """
     class Meta:
-        verbose_name = 'Token d\'inscription'
-        verbose_name_plural = 'Tokens  d\'inscription'
+        verbose_name = _("Token d'inscription")
+        verbose_name_plural = _("Tokens  d'inscription")
 
-    user = models.ForeignKey(User, verbose_name='Utilisateur', db_index=True)
+    user = models.ForeignKey(User, verbose_name=_('Utilisateur'), db_index=True)
     token = models.CharField(max_length=100, db_index=True)
-    date_end = models.DateTimeField('Date de fin')
+    date_end = models.DateTimeField(_('Date de fin'))
 
     def get_absolute_url(self):
         """
@@ -540,14 +540,14 @@ class NewEmailProvider(models.Model):
     """A new-used email provider which should be checked by a staff member."""
 
     class Meta:
-        verbose_name = 'Nouveau fournisseur'
-        verbose_name_plural = 'Nouveaux fournisseurs'
+        verbose_name = _('Nouveau fournisseur')
+        verbose_name_plural = _('Nouveaux fournisseurs')
 
-    provider = models.CharField('Fournisseur', max_length=253, unique=True, db_index=True)
-    use = models.CharField('Utilisation', max_length=11, choices=NEW_PROVIDER_USES)
-    user = models.ForeignKey(User, verbose_name='Utilisateur concerné', on_delete=models.CASCADE,
+    provider = models.CharField(_('Fournisseur'), max_length=253, unique=True, db_index=True)
+    use = models.CharField(_('Utilisation'), max_length=11, choices=NEW_PROVIDER_USES)
+    user = models.ForeignKey(User, verbose_name=_('Utilisateur concerné'), on_delete=models.CASCADE,
                              related_name='new_providers', db_index=True)
-    date = models.DateTimeField("Date de l'alerte", auto_now_add=True, db_index=True,
+    date = models.DateTimeField(_("Date de l'alerte"), auto_now_add=True, db_index=True,
                                 db_column='alert_date')
 
     def __str__(self):
@@ -562,13 +562,13 @@ class BannedEmailProvider(models.Model):
     """
 
     class Meta:
-        verbose_name = 'Fournisseur banni'
-        verbose_name_plural = 'Fournisseurs bannis'
+        verbose_name = _('Fournisseur banni')
+        verbose_name_plural = _('Fournisseurs bannis')
 
-    provider = models.CharField('Fournisseur', max_length=253, unique=True, db_index=True)
-    moderator = models.ForeignKey(User, verbose_name='Modérateur', on_delete=models.CASCADE,
+    provider = models.CharField(_('Fournisseur'), max_length=253, unique=True, db_index=True)
+    moderator = models.ForeignKey(User, verbose_name=_('Modérateur'), on_delete=models.CASCADE,
                                   related_name='banned_providers', db_index=True)
-    date = models.DateTimeField('Date du bannissement', auto_now_add=True, db_index=True,
+    date = models.DateTimeField(_('Date du bannissement'), auto_now_add=True, db_index=True,
                                 db_column='ban_date')
 
     def __str__(self):
@@ -584,14 +584,14 @@ class Ban(models.Model):
     """
 
     class Meta:
-        verbose_name = 'Sanction'
-        verbose_name_plural = 'Sanctions'
+        verbose_name = _('Sanction')
+        verbose_name_plural = _('Sanctions')
 
-    user = models.ForeignKey(User, verbose_name='Sanctionné', db_index=True)
-    moderator = models.ForeignKey(User, verbose_name='Moderateur', related_name='bans', db_index=True)
-    type = models.CharField('Type', max_length=80, db_index=True)
-    note = models.TextField('Explication de la sanction')
-    pubdate = models.DateTimeField('Date de publication', blank=True, null=True, db_index=True)
+    user = models.ForeignKey(User, verbose_name=_('Sanctionné'), db_index=True)
+    moderator = models.ForeignKey(User, verbose_name=_('Moderateur'), related_name='bans', db_index=True)
+    type = models.CharField(_('Type'), max_length=80, db_index=True)
+    note = models.TextField(_('Explication de la sanction'))
+    pubdate = models.DateTimeField(_('Date de publication'), blank=True, null=True, db_index=True)
 
     def __str__(self):
         return '{0} - ban : {1} ({2}) '.format(self.user.username, self.note, self.pubdate)
@@ -609,14 +609,14 @@ class KarmaNote(models.Model):
     - some amount of karma, negative values being… negative
     """
     class Meta:
-        verbose_name = 'Note de karma'
-        verbose_name_plural = 'Notes de karma'
+        verbose_name = _('Note de karma')
+        verbose_name_plural = _('Notes de karma')
 
     user = models.ForeignKey(User, related_name='karmanote_user', db_index=True)
     moderator = models.ForeignKey(User, related_name='karmanote_staff', db_index=True)
-    note = models.CharField('Commentaire', max_length=150)
-    karma = models.IntegerField('Valeur')
-    pubdate = models.DateTimeField('Date d\'ajout', auto_now_add=True)
+    note = models.CharField(_('Commentaire'), max_length=150)
+    karma = models.IntegerField(_('Valeur'))
+    pubdate = models.DateTimeField(_("Date d'ajout"), auto_now_add=True)
 
     def __str__(self):
         return '{0} - note : {1} ({2}) '.format(self.user.username, self.note, self.pubdate)
