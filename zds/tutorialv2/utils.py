@@ -18,14 +18,15 @@ from zds.utils.models import Licence
 logger = logging.getLogger(__name__)
 
 
-def all_is_string_appart_from_children(dict_representation):
+def all_is_string_appart_from_given_keys(dict_representation, keys=('children',)):
     """check all keys are string appart from the children key
     :param dict_representation: the json decoded dictionary
+    :param keys: keys that do not need to be string
     :type dict_representation: dict
     :return:
     :rtype: bool
     """
-    return all([isinstance(value, str) for key, value in list(dict_representation.items()) if key != 'children'])
+    return all([isinstance(value, str) for key, value in list(dict_representation.items()) if key not in keys])
 
 
 def search_container_or_404(base_content, kwargs_array):
@@ -320,12 +321,9 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
 
     from zds.tutorialv2.models.versioned import Container, Extract, VersionedContent, PublicContent
 
-    if 'version' in json and json['version'] == 2:
-        json['version'] = '2'
-        if not all_is_string_appart_from_children(json):
-            json['version'] = 2
+    if 'version' in json and json['version'] in (2, 2.1):  # add newest version of manifest
+        if not all_is_string_appart_from_given_keys(json, ('children', 'ready_to_publish', 'version')):
             raise BadManifestError(_("Le fichier manifest n'est pas bien formaté."))
-        json['version'] = 2
         # create and fill the container
         if len(json['title']) > max_title_len:
             raise BadManifestError(
@@ -396,7 +394,7 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
 
         if 'licence' not in json or not versioned.licence:
             versioned.licence = Licence.objects.filter(pk=settings.ZDS_APP['content']['default_licence_pk']).first()
-
+        versioned.ready_to_publish = True  # the parent is always ready to publish
         if _type == 'ARTICLE':
             extract = Extract('text', '')
             if 'text' in json:
@@ -533,7 +531,7 @@ def fill_containers_from_json(json_sub, parent):
     if 'children' in json_sub:
 
         for child in json_sub['children']:
-            if not all_is_string_appart_from_children(child):
+            if not all_is_string_appart_from_given_keys(child, ('children', 'ready_to_publish')):
                 raise BadManifestError(
                     _("Le fichier manifest n'est pas bien formaté dans le conteneur " + str(json_sub['title'])))
             if child['object'] == 'container':
@@ -553,6 +551,7 @@ def fill_containers_from_json(json_sub, parent):
                     parent.add_container(new_container, generate_slug=(slug == ''))
                 except InvalidOperationError as e:
                     raise BadManifestError(e.message)
+                new_container.ready_to_publish = json_sub.get('ready_to_publish', True)
                 if 'children' in child:
                     fill_containers_from_json(child, new_container)
             elif child['object'] == 'extract':
@@ -692,6 +691,7 @@ def export_container(container):
     """Export a container to a dictionary
 
     :param container: the container
+    :type container: zds.tutorialv2.models.models_versioned.Container
     :return: dictionary containing the information
     :rtype: dict
     """
@@ -701,13 +701,13 @@ def export_container(container):
     dct['title'] = container.title
 
     if container.introduction:
-        dct['introduction'] = container.introduction
+        dct['introduction'] = str(container.introduction)
 
     if container.conclusion:
-        dct['conclusion'] = container.conclusion
+        dct['conclusion'] = str(container.conclusion)
 
     dct['children'] = []
-
+    dct['ready_to_publish'] = container.ready_to_publish
     if container.has_sub_containers():
         for child in container.children:
             dct['children'].append(export_container(child))
@@ -728,7 +728,7 @@ def export_content(content):
     dct = export_container(content)
 
     # append metadata :
-    dct['version'] = 2  # to recognize old and new version of the content
+    dct['version'] = 2.1
     dct['description'] = content.description
     dct['type'] = content.type
     if content.licence:
@@ -786,3 +786,11 @@ class BadArchiveError(Exception):
 
     def __init__(self, reason):
         self.message = reason
+
+
+class FailureDuringPublication(Exception):
+    """Exception raised if something goes wrong during publication process
+    """
+
+    def __init__(self, *args, **kwargs):
+        super(FailureDuringPublication, self).__init__(*args, **kwargs)

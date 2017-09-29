@@ -35,10 +35,21 @@ La version du manifeste est donnée par le champ éponyme situé à la racine du
 L'absence du champ version est interprétée comme ``{version: "1.0"}``.
 Les 0 non significatifs sont optionnels ainsi ``{version: "1"}`` est strictement équivalent à ``{version: "1.0"}`` lui-même strictement équivalent à ``{version: "1.0.0"}``.
 
+Version 2.1
+-----------
+
+La version 2.1 est la version actuelement utilisée.
+Le manifest voit l'arrivée d'un nouvel élément non obligatoire ``ready_to_publish`` qui sera utilisé sur tous les éléments de type `Container`.
+Cet élément permet de marquer qu'une partie ou un chapitre est prêt à être publié. Lorsque la valeur est à ``False``, la partie ou le chapitre
+sont simplement ignoré du processus de publication.
+
+Lorsque l'attribut n'est pas renseigné, il est supposé *truthy*.
+
+
 Version 2.0
 -----------
 
-La version 2.0 est la version actuelement utilisée.
+
 
 .. sourcecode:: json
 

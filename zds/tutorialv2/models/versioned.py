@@ -1,3 +1,7 @@
+import contextlib
+import copy
+from pathlib import Path
+
 from zds import json_handler
 from git import Repo
 import os
@@ -9,12 +13,15 @@ from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
+from django.template.loader import render_to_string
 
 from zds.tutorialv2.models.mixins import TemplatableContentModelMixin
-from zds.tutorialv2.utils import default_slug_pool, export_content, get_commit_author, InvalidOperationError
+from zds.tutorialv2.utils import default_slug_pool, export_content, get_commit_author, InvalidOperationError,\
+    FailureDuringPublication
 from zds.utils.misc import compute_hash
 from zds.tutorialv2.models import SINGLE_CONTAINER_CONTENT_TYPES, CONTENT_TYPES_BETA, CONTENT_TYPES_REQUIRING_VALIDATION
 from zds.tutorialv2.utils import get_blob, InvalidSlugError, check_slug
+from zds.utils.templatetags.emarkdown import emarkdown
 
 
 class Container:
@@ -34,6 +41,7 @@ class Container:
     introduction = None
     conclusion = None
     parent = None
+    ready_to_publish = True  # By default, so that we do not need to migrate "non partial publication ready contents"
     position_in_parent = 1
     children = []
     children_dict = {}
@@ -58,8 +66,18 @@ class Container:
 
         self.slug_pool = default_slug_pool()
 
-    def __unicode__(self):
+    def __str__(self):
         return "<Conteneur '{}'>".format(self.title)
+
+    def __copy__(self):
+        cpy = self.__class__(self.title, self.slug, self.parent, self.position_in_parent)
+        cpy.children_dict = copy.copy(self.children_dict)
+        cpy.children = copy.copy(self.children)
+        cpy.slug_pool = copy.deepcopy(self.slug_pool)
+        cpy.ready_to_publish = self.ready_to_publish
+        cpy.introduction = self.introduction
+        cpy.conclusion = self.conclusion
+        return cpy
 
     def has_extracts(self):
         """Note: This function relies on the fact that every child has the
@@ -563,7 +581,8 @@ class Container:
         repo = self.top_container().repository
         path = self.top_container().get_path()
         rel_path = subcontainer.get_path(relative=True)
-        os.makedirs(os.path.join(path, rel_path), mode=0o777)
+        with contextlib.suppress(FileExistsError):
+            Path(path, rel_path).mkdir(parents=True)
 
         repo.index.add([rel_path])
 
@@ -775,6 +794,54 @@ class Container:
         """
         return self.type in CONTENT_TYPES_REQUIRING_VALIDATION
 
+    def _dump_html(self, file_path, content, db_object):
+        try:
+            with file_path.open('w', encoding='utf-8') as f:
+                f.write(emarkdown(content, db_object.js_support))
+        except (UnicodeError, UnicodeEncodeError):
+            raise FailureDuringPublication(
+                _("Une erreur est survenue durant la publication de l'introduction de « {} »,"
+                  ' vérifiez le code markdown').format(self.title))
+
+    def publish_introduction_and_conclusion(self, base_dir, db_object):
+        if self.has_extracts():
+            return
+        current_dir_path = Path(base_dir, self.get_prod_path(relative=True))  # create subdirectory
+        with contextlib.suppress(FileExistsError):
+            current_dir_path.mkdir(parents=True)
+
+        if self.introduction:
+            path = current_dir_path / 'introduction.html'
+            self._dump_html(path, self.get_introduction(), db_object)
+            self.introduction = Path(self.get_path(relative=True), 'introduction.html')
+
+        if self.conclusion:
+            path = current_dir_path / 'conclusion.html'
+            self._dump_html(path, self.get_conclusion(), db_object)
+            self.conclusion = Path(self.get_path(relative=True), 'conclusion.html')
+
+    def publish_extracts(self, base_dir, is_js, template, failure_exception):
+        """
+        Publish the current element thanks to a templated view.
+
+        :param base_dir: directory into which we will put the result
+        :param is_js: jsfiddle activation flag
+        :param template: templated view name
+        :param failure_exception: the exception to throw when we fail
+        :return:
+        """
+        parsed = render_to_string(template, {'container': self, 'is_js': is_js})
+        with Path(base_dir, self.get_prod_path(relative=True)).open('w', encoding='utf-8') as f:
+            try:
+                f.write(parsed)
+            except (UnicodeError, UnicodeEncodeError):
+                raise failure_exception(
+                    _('Une erreur est survenue durant la publication de « {} »,'
+                      ' vérifiez le code markdown').format(self.title))
+        # as introduction and conclusion are published in the full file, we remove reference to them
+        self.introduction = None
+        self.conclusion = None
+
 
 class Extract:
     """
@@ -795,7 +862,7 @@ class Extract:
         self.container = container
         self.position_in_parent = position_in_parent
 
-    def __unicode__(self):
+    def __str__(self):
         return "<Extrait '{}'>".format(self.title)
 
     def get_absolute_url(self):
@@ -1071,6 +1138,20 @@ class VersionedContent(Container, TemplatableContentModelMixin):
     converted_to = None
     content_type_attribute = 'type'
 
+    def __copy__(self):
+        cpy = self.__class__(self.current_version, self.type, self.title, self.slug, self.slug_repository)
+        cpy.children_dict = copy.copy(self.children_dict)
+        cpy.children = copy.copy(self.children)
+        cpy.slug_pool = copy.deepcopy(self.slug_pool)
+        cpy.ready_to_publish = self.ready_to_publish
+        cpy.introduction = self.introduction
+        cpy.conclusion = self.conclusion
+        for attr in dir(cpy):
+            value = getattr(cpy, attr)
+            if not value and not callable(value):
+                setattr(cpy, attr, getattr(self, attr))
+        return cpy
+
     def __init__(self, current_version, _type, title, slug, slug_repository=''):
         """
         :param current_version: version of the content
@@ -1093,7 +1174,7 @@ class VersionedContent(Container, TemplatableContentModelMixin):
         if self.slug != '' and os.path.exists(self.get_path()):
             self.repository = Repo(self.get_path())
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     def get_absolute_url(self, version=None):

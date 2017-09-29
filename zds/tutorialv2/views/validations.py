@@ -23,8 +23,8 @@ from zds.tutorialv2.forms import AskValidationForm, RejectValidationForm, Accept
 from zds.tutorialv2.mixins import SingleContentFormViewMixin, ModalFormView, \
     SingleOnlineContentFormViewMixin, RequiresValidationViewMixin, DoesNotRequireValidationFormViewMixin
 from zds.tutorialv2.models.database import Validation, PublishableContent, PickListOperation
-from zds.tutorialv2.publication_utils import publish_content, FailureDuringPublication, unpublish_content, notify_update
-from zds.tutorialv2.utils import clone_repo
+from zds.tutorialv2.publication_utils import publish_content, unpublish_content, notify_update
+from zds.tutorialv2.utils import clone_repo, FailureDuringPublication
 from zds.utils.forums import send_post, lock_topic
 from zds.utils.models import SubCategory, get_hat_from_settings
 from zds.utils.mps import send_mp

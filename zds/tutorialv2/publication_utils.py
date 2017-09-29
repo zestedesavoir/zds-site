@@ -75,7 +75,7 @@ def publish_content(db_object, versioned, is_major_update=True):
     # 1. markdown file (base for the others) :
     # If we come from a command line, we need to activate i18n, to have the date in the french language.
     cur_language = translation.get_language()
-    versioned.pubdate = datetime.now()
+    altered_version.pubdate = datetime.now()
     try:
         translation.activate(settings.LANGUAGE_CODE)
         parsed = render_to_string('tutorialv2/export/content.md', {'content': versioned})
@@ -108,6 +108,9 @@ def publish_content(db_object, versioned, is_major_update=True):
     elif is_update:
         public_version.update_date = datetime.now()
     public_version.sha_public = versioned.current_version
+    public_version.save()
+    with contextlib.suppress(OSError):
+        make_zip_file(public_version)
 
     public_version.save(
         update_fields=['char_count', 'publication_date', 'update_date', 'sha_public'])
