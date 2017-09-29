@@ -5,7 +5,7 @@ import collections
 import contextlib
 from os import path, makedirs
 from pathlib import Path
-
+import copy
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 
@@ -70,8 +70,11 @@ def publish_container(db_object, base_dir, container, template='tutorialv2/expor
             container.introduction = str(part_path)
             write_chapter_file(base_dir, container, part_path, parsed, path_to_title_dict, image_callback)
 
-        for child in container.children:
-            path_to_title_dict.update(publish_container(db_object, base_dir, child, file_ext=file_ext,
+        for i, child in enumerate(copy.copy(container.children)):
+            altered_version = copy.copy(child)
+            container.children[i] = altered_version
+            container.children_dict[altered_version.slug] = altered_version
+            path_to_title_dict.update(publish_container(db_object, base_dir, altered_version, file_ext=file_ext,
                                                         image_callback=image_callback))
         if container.conclusion and container.get_conclusion():
             part_path = Path(container.get_prod_path(relative=True), 'conclusion.' + file_ext)

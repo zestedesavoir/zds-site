@@ -7,6 +7,7 @@ from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.core.urlresolvers import reverse
+from pathlib import Path
 
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, LicenceFactory, ExtractFactory, \
@@ -101,7 +102,7 @@ class UtilsTests(TestCase, TutorialTestMixin):
         self.assertTrue(paths[part2.get_path(True)], 'can be moved after or before part2')
         self.assertFalse(paths[part3.get_path(True)], 'can be moved after or before part3')
 
-    def test_publish_content(self):
+    def test_publish_content_article(self):
         """test and ensure the behavior of ``publish_content()`` and ``unpublish_content()``"""
 
         # 1. Article:
@@ -160,7 +161,7 @@ class UtilsTests(TestCase, TutorialTestMixin):
         self.assertFalse(os.path.exists(public.get_prod_path()))  # article was removed
         # ... For the next tests, I will assume that the unpublication works.
 
-        # 2. Mini-tutorial → Not tested, because at this point, it's the same as an article (with a different metadata)
+    def test_publish_content_medium_tuto(self):
         # 3. Medium-size tutorial
         midsize_tuto = PublishableContentFactory(type='TUTORIAL')
 
@@ -193,11 +194,11 @@ class UtilsTests(TestCase, TutorialTestMixin):
         self.assertEqual(public.current_version, published.sha_public)
 
         # test creation of files:
-        self.assertTrue(os.path.isdir(published.get_prod_path()))
-        self.assertTrue(os.path.isfile(os.path.join(published.get_prod_path(), 'manifest.json')))
+        self.assertTrue(Path(published.get_prod_path()).is_dir())
+        self.assertTrue(Path(published.get_prod_path(), 'manifest.json').is_file())
 
-        self.assertTrue(os.path.isfile(os.path.join(public.get_prod_path(), public.introduction)))
-        self.assertTrue(os.path.isfile(os.path.join(public.get_prod_path(), public.conclusion)))
+        self.assertTrue(Path(public.get_prod_path(), public.introduction).is_file())
+        self.assertTrue(Path(public.get_prod_path(), public.conclusion).is_file())
 
         self.assertEqual(len(public.children), 2)
         for child in public.children:
@@ -205,6 +206,7 @@ class UtilsTests(TestCase, TutorialTestMixin):
             self.assertIsNone(child.introduction)
             self.assertIsNone(child.conclusion)
 
+    def test_publish_content_big_tuto(self):
         # 4. Big tutorial:
         bigtuto = PublishableContentFactory(type='TUTORIAL')
 
