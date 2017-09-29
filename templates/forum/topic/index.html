@@ -67,7 +67,7 @@
             class="alert-box success ico-after tick light {% if not topic.is_solved %}empty{% endif %}"
             data-ajax-output="solve-topic"
         >
-            {% trans "L'auteur de ce sujet a trouvé une solution à son problème" %}.
+            {% trans "L’auteur de ce sujet a trouvé une solution à son problème" %}.
         </div>
 
 
@@ -271,7 +271,7 @@
                                 {% endfor %}
                                 <button type="submit" name="create">{% trans 'Envoyer' %}</button>
                             {% else %}
-                                <p>{% trans "Il semblerait que vous n'ayez pas spécifié de token d'identification GitHub, vous ne pouvez donc pas créer de ticket pour ce sujet." %}</p>
+                                <p>{% trans "Il semblerait que vous n’ayez pas spécifié de token d’identification GitHub, vous ne pouvez donc pas créer de ticket pour ce sujet." %}</p>
                                 {% url 'update-github' as update_github %}
                                 <p>
                                     {% blocktrans %}
@@ -317,7 +317,7 @@
                         <input type="hidden" name="nb" value="{{ nb }}">
                         <input type="hidden" name="page" value="{{ nb }}">
                         <input type="hidden" name="lock" value="{% if topic.is_locked %}false{% else %}true{% endif %}">
-            			{% csrf_token %}
+                        {% csrf_token %}
 
                         <p>
                             {% trans "Voulez-vous confirmer" %}
@@ -343,7 +343,7 @@
                         <input type="hidden" name="nb" value="{{ nb }}">
                         <input type="hidden" name="page" value="{{ nb }}">
                         <input type="hidden" name="sticky" value="{% if topic.is_sticky %}false{% else %}true{% endif %}">
-            			{% csrf_token %}
+                        {% csrf_token %}
 
                         <button class="ico-after pin {% if not topic.is_sticky %}blue{% endif %}" type="submit">
                             {% if topic.is_sticky %}

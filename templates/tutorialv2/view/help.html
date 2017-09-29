@@ -27,7 +27,7 @@
 
                 {% if request.GET.type %}
                     {% if  request.GET.type == "article" %}
-                        {% trans "d'articles" %}
+                        {% trans "d’articles" %}
                     {% elif request.GET.type == "tuto" %}
                         {% trans "de tutoriels" %}
                     {% endif %}
@@ -139,9 +139,9 @@
         {% else %}
             <p>
                 {% if not 'need' in request.GET %}
-                    {% trans "Aucun auteur n'a besoin d'aide pour le moment." %}
+                    {% trans "Aucun auteur n’a besoin d’aide pour le moment." %}
                 {% else %}
-                    {% trans "Aucun auteur n'a besoin de ce type d'aide pour le moment." %}
+                    {% trans "Aucun auteur n’a besoin de ce type d’aide pour le moment." %}
                 {% endif %}
             </p>
         {% endif %}

@@ -51,7 +51,7 @@
             {% if validation.version == content.current_version %}
                 {% if validation.is_pending %}
                     <p class="content-wrapper alert-box alert">
-                        {% trans "Ce contenu est en attente d'un validateur." %}
+                        {% trans "Ce contenu est en attente d’un validateur." %}
                     </p>
                 {% elif validation.is_pending_valid %}
                     <p class="content-wrapper alert-box info">
@@ -76,7 +76,7 @@
                         <a href="{{ object.get_absolute_url }}?version={{ validation.version }}">
                             {% trans "Une autre version de ce contenu" %}
                         </a>
-                        {% trans "est en attente d'un validateur" %}
+                        {% trans "est en attente d’un validateur" %}
                     </p>
                 {% elif validation.is_pending_valid %}
                     <p class="content-wrapper alert-box info">
@@ -112,14 +112,14 @@
                     {% if content.authors.count > 1 %}
                         {% trans "Les auteurs de ce contenu recherchent" %}
                     {% else %}
-                        {% trans "L'auteur de ce contenu recherche" %}
+                        {% trans "L’auteur de ce contenu recherche" %}
                     {% endif %}
 
                     {% for help in helps.all %}{% if not forloop.first %}{% if forloop.last %}{% trans ' et ' %}{% else %}{% trans ', ' %}{% endif %}{% endif %}un {{ help.title|lower }}{% if forloop.last %}{% trans '.' %}{% endif %}{% endfor %}
 
                     {% if not can_edit %}
                         {% blocktrans with plural=content.authors.count|pluralize_fr %}
-                            N'hésitez pas à <a href="{{ pm_link }}">le{{ plural }} contacter par MP</a> pour proposer votre aide&nbsp;!
+                            N’hésitez pas à <a href="{{ pm_link }}">le{{ plural }} contacter par MP</a> pour proposer votre aide&nbsp;!
                         {% endblocktrans %}
                     {% endif %}
                 </div>
@@ -134,7 +134,7 @@
         {{ content.get_introduction|emarkdown:is_js }}
     {% elif not content.is_beta %}
         <p class="ico-after warning">
-            {% trans "Il n'y a pas d'introduction" %}.
+            {% trans "Il n’y a pas d’introduction" %}.
         </p>
     {% endif %}
 
@@ -165,7 +165,7 @@
         {{ content.get_conclusion|emarkdown:is_js }}
     {% elif not content.is_beta %}
         <p class="ico-after warning">
-            {% trans "Il n'y a pas de conclusion" %}.
+            {% trans "Il n’y a pas de conclusion" %}.
         </p>
     {% endif %}
 
@@ -220,7 +220,7 @@
                 </a>
                 <form action="{% url "content:add-author" content.pk %}" method="post" class="modal modal-flex" id="add-author">
                     {% csrf_token %}
-                    <input type="text" name="username" placeholder="Pseudo de l'utilisateur à ajouter" data-autocomplete="{ 'type': 'single' }">
+                    <input type="text" name="username" placeholder="Pseudo de l’utilisateur à ajouter" data-autocomplete="{ 'type': 'single' }">
                     <button type="submit" name="add_author">
                         {% trans "Confirmer" %}
                     </button>
@@ -478,7 +478,7 @@
                         {% if content.authors.all|length > 1 %}
                             {% trans "aux auteurs" %}
                         {% else %}
-                            à {% trans "l'auteur" %}
+                            à {% trans "l’auteur" %}
                         {% endif %}
                     </a>
                 </li>

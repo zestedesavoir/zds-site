@@ -8,5 +8,5 @@ Votre alerte a été traitée par **{{ staff_name }}** qui vous a laissé le mes
 
 > {{ staff_message }}
 
-Toute l'équipe de la modération vous remercie !
+Toute l’équipe de la modération vous remercie !
 {% endblocktrans %}

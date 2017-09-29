@@ -66,7 +66,7 @@
                                             <input type="text" name="text_hidden" placeholder="Flood, Troll, Hors sujet, ..." >
                                         {% else %}
                                             <p>
-                                                {% trans "Attention, en masquant ce message, vous ne pourrez plus l'afficher vous-même. Êtes-vous certain de vouloir le faire" %}&nbsp;?
+                                                {% trans "Attention, en masquant ce message, vous ne pourrez plus l’afficher vous-même. Êtes-vous certain de vouloir le faire" %}&nbsp;?
                                             </p>
                                         {% endif %}
 
@@ -174,7 +174,7 @@
                 class="message-helpful tick ico-after green {% if not message.is_useful or is_creator %}hidden{% endif %}"
                 data-ajax-output="mark-message-as-useful"
              >
-                {% trans "Cette réponse a aidé l'auteur du sujet" %}
+                {% trans "Cette réponse a aidé l’auteur du sujet" %}
             </p>
 
             {% if message.is_visible != False %}
@@ -227,11 +227,11 @@
                     {% else %}
                         <a href="#solve-alert-{{ alert.pk }}" class="open-modal close-alert-box close-alert-box-text">{% trans "Résoudre" %}</a>
                         <form id="solve-alert-{{ alert.pk }}" method="post" action="{{ alert_solve_link }}" class="modal modal-flex">
-                            <textarea name="text" class="input" placeholder="{% trans "Message à envoyer au membre ayant lancé l'alerte" %}"></textarea>
+                            <textarea name="text" class="input" placeholder="{% trans "Message à envoyer au membre ayant lancé l’alerte" %}"></textarea>
                             <input type="hidden" name="alert_pk" value="{{ alert.pk }}">
 
                             {% csrf_token %}
-                            <button type="submit" name="delete-post" class="button expand alert tiny">{% trans "Résoudre l'alerte" %}</button>
+                            <button type="submit" name="delete-post" class="button expand alert tiny">{% trans "Résoudre l’alerte" %}</button>
                         </form>
                     {% endif %}
                 </div>
@@ -270,15 +270,15 @@
                                         data-ajax-input="mark-message-as-useful"
                                         data-content-on-click="
                                             {% if message.is_useful %}
-                                                {% trans "Cette réponse m'a aidé" %}
+                                                {% trans "Cette réponse m’a aidé" %}
                                             {% else %}
-                                                {% trans "Cette réponse ne m'a pas aidé" %}
+                                                {% trans "Cette réponse ne m’a pas aidé" %}
                                             {% endif %}"
                                     >
                                         {% if message.is_useful %}
-                                            {% trans "Cette réponse ne m'a pas aidé" %}
+                                            {% trans "Cette réponse ne m’a pas aidé" %}
                                         {% else %}
-                                            {% trans "Cette réponse m'a aidé" %}
+                                            {% trans "Cette réponse m’a aidé" %}
                                         {% endif %}
                                     </button>
                                 </form>
@@ -300,7 +300,7 @@
 
                             <button
                                 value="{% if message.pk in user_dislike %}neutral{% else %}dislike{% endif %}"
-                                title="{% trans "Ce message n'est pas utile" %}{% if message.dislike > 0 %}{% blocktrans with dislike_count=message.dislike plural=message.dislike|pluralize_fr plural_word=message.dislike|pluralize_fr:"a,ont" %}({{ dislike_count }} personne{{ plural }} n'{{ plural_word }} pas trouvé ce message utile){% endblocktrans %}{% endif %}"
+                                title="{% trans "Ce message n’est pas utile" %}{% if message.dislike > 0 %}{% blocktrans with dislike_count=message.dislike plural=message.dislike|pluralize_fr plural_word=message.dislike|pluralize_fr:"a,ont" %}({{ dislike_count }} personne{{ plural }} n'{{ plural_word }} pas trouvé ce message utile){% endblocktrans %}{% endif %}"
                                 class="downvote
                                        ico-after
                                        {% if message.like < message.dislike %}more-voted{% endif %}
