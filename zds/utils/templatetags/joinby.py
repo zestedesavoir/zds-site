@@ -18,7 +18,7 @@ def joinby(values, separator=', ', final_separator=_(' et ')):
         return ''
     # Allows to pass a queryset (instead of a list of strings)
     # to the function.
-    values = map(str, values)
+    values = [str(v) for v in values]
     if len(values) == 1:
         return values[0]
     if separator == final_separator:
