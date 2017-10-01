@@ -16,13 +16,13 @@ Certaines des commandes d'installation (débutant par ``apt-get``) sont données
 ZdS a besoin des dépendances suivantes, installables manuellement ou à l'aide d'un Makefile (voir plus bas) :
 
 - git : ``apt-get install git``
-- python2.7
+- python3.5
 - python-dev : ``apt-get install python-dev``
 - easy_install : ``apt-get install python-setuptools``
-- pip : ``easy_install pip``
+- pip3 : ``apt-get install python3-pip``
 - tox : ``pip install tox``
 - libxml2-dev : ``apt-get install libxml2-dev``
-- python-lxml : ``apt-get install python-lxml``
+- python-lxml : ``apt-get install python3-lxml``
 - libxlst-dev (peut être appelée libxlst1-dev sur certains OS comme Ubuntu)
 - libz-dev (peut être libz1g-dev sur système 64bits)
 - python-sqlparse
@@ -65,8 +65,8 @@ Installation et configuration de `virtualenv`
 
 .. sourcecode:: bash
 
-    pip install --user virtualenv # Ajout du module virtualenv
-    virtualenv zdsenv --python=python2 # Création du répertoire "zdsenv"
+    pip3 install --user virtualenv # Ajout du module virtualenv
+    virtualenv zdsenv --python=python3 # Création du répertoire "zdsenv"
 
 
 **À chaque fois** que vous souhaitez travailler dans votre environnement, activez-le via la commande suivante :

@@ -9,7 +9,7 @@
 
 # Zeste de Savoir
 
-Site internet communautaire codé à l'aide du framework [Django](https://www.djangoproject.com/) 1.10 et de [Python](https://www.python.org/) 2.7.
+Site internet communautaire codé à l'aide du framework [Django](https://www.djangoproject.com/) 1.10 et de [Python](https://www.python.org/) 3.5.
 
 [Voir l'instance en ligne](https://zestedesavoir.com).
 
@@ -47,8 +47,8 @@ Elles sont reportées essentiellement dans le [*bug tracker*](https://github.com
 Après avoir mis à jour votre dépôt, vous devez exécuter les commandes suivantes (depuis la racine de votre projet) pour mettre à jour les dépendances.
 
 ```console
-pip install --upgrade -r requirements.txt -r requirements-dev.txt
-python manage.py migrate --fake-initial
+pip3 install --upgrade -r requirements.txt -r requirements-dev.txt
+python3 manage.py migrate --fake-initial
 ```
 
 
@@ -57,14 +57,14 @@ python manage.py migrate --fake-initial
 Pour bénéficier de données de test, exécutez les commandes suivantes, dans l'ordre, à la fin des précédentes :
 
 ```console
-python manage.py loaddata fixtures/*.yaml
-python manage.py load_factory_data fixtures/advanced/aide_tuto_media.yaml
+python3 manage.py loaddata fixtures/*.yaml
+python3 manage.py load_factory_data fixtures/advanced/aide_tuto_media.yaml
 ```
 Si vous êtes sur Windows, la première commande ne fonctionnera pas, préférez ceci :
 
 ```console
-python .\manage.py loaddata (dir .\fixtures\*.yaml)
-python .\manage.py load_factory_data .\fixtures\advanced\aide_tuto_media.yaml
+python3 .\manage.py loaddata (dir .\fixtures\*.yaml)
+python3 .\manage.py load_factory_data .\fixtures\advanced\aide_tuto_media.yaml
 ```
 
 
