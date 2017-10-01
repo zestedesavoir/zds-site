@@ -28,6 +28,7 @@ base.db
 /node_modules
 /dist
 /npm-debug.log
+/geckodriver.log
 
 #############
 ## Python
