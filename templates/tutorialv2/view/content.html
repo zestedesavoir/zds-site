@@ -577,7 +577,7 @@
                                 {% csrf_token %}
                                 <p>
                                     {% blocktrans with content_title=content.title %}
-                                        Attention, vous vous apprêtez à <strong>supprimer définitivement</strong> « {{ content_title }} ». Cela aura pour effet de supprimer également la galerie associée.
+                                        Attention, vous vous apprêtez à <strong>supprimer définitivement</strong> « {{ content_title }} ». Cela aura pour effet de supprimer également la galerie associée.
                                     {% endblocktrans %}
                                     {%  if need_reason %}
                                         {% blocktrans with username=validation.validator.username %}

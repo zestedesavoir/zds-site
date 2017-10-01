@@ -4,7 +4,7 @@
 
 Félicitations !
 
-Je viens de promouvoir le billet « [{{ title }}]({{ url }}) » en article !
+Je viens de promouvoir le billet « [{{ title }}]({{ url }}) » en article !
 
 Il est en validation et sera examiné prochainement.
 

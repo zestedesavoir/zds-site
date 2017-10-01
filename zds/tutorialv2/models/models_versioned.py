@@ -263,7 +263,7 @@ class Container:
             self.children.append(container)
             self.children_dict[container.slug] = container
         else:
-            raise InvalidOperationError(_("Impossible d'ajouter un conteneur au conteneur « {} »").format(self.title))
+            raise InvalidOperationError(_("Impossible d'ajouter un conteneur au conteneur « {} »").format(self.title))
 
     def add_extract(self, extract, generate_slug=False):
         """Add a child container, but only if no container were previously added
@@ -282,7 +282,7 @@ class Container:
             self.children.append(extract)
             self.children_dict[extract.slug] = extract
         else:
-            raise InvalidOperationError(_("Impossible d'ajouter un extrait au conteneur « {} »").format(self.title))
+            raise InvalidOperationError(_("Impossible d'ajouter un extrait au conteneur « {} »").format(self.title))
 
     def update_children(self):
         """Update the path for introduction and conclusion for the container and all its children. If the children is an
@@ -534,7 +534,7 @@ class Container:
         repo.index.add(['manifest.json'])
 
         if not commit_message:
-            commit_message = _('Mise à jour de « {} »').format(self.title)
+            commit_message = _('Mise à jour de « {} »').format(self.title)
 
         if do_commit:
             return self.top_container().commit_changes(commit_message)
@@ -569,7 +569,7 @@ class Container:
 
         # make it
         if not commit_message:
-            commit_message = _('Création du conteneur « {} »').format(title)
+            commit_message = _('Création du conteneur « {} »').format(title)
 
         return subcontainer.repo_update(
             title, introduction, conclusion, commit_message=commit_message, do_commit=do_commit)
@@ -596,7 +596,7 @@ class Container:
 
         # make it
         if not commit_message:
-            commit_message = _("Création de l'extrait « {} »").format(title)
+            commit_message = _("Création de l'extrait « {} »").format(title)
 
         return extract.repo_update(title, text, commit_message=commit_message, do_commit=do_commit)
 
@@ -623,7 +623,7 @@ class Container:
         repo.index.add(['manifest.json'])
 
         if not commit_message:
-            commit_message = _('Suppression du conteneur « {} »').format(self.title)
+            commit_message = _('Suppression du conteneur « {} »').format(self.title)
 
         if do_commit:
             return self.top_container().commit_changes(commit_message)
@@ -969,7 +969,7 @@ class Extract:
         repo.index.add(['manifest.json'])
 
         if not commit_message:
-            commit_message = _("Modification de l'extrait « {} », situé dans le conteneur « {} »")\
+            commit_message = _("Modification de l'extrait « {} », situé dans le conteneur « {} »")\
                 .format(self.title, self.container.title)
 
         if do_commit:
@@ -999,7 +999,7 @@ class Extract:
         repo.index.add(['manifest.json'])
 
         if not commit_message:
-            commit_message = _("Suppression de l'extrait « {} »").format(self.title)
+            commit_message = _("Suppression de l'extrait « {} »").format(self.title)
 
         if do_commit:
             return self.container.top_container().commit_changes(commit_message)

@@ -4,7 +4,7 @@
 
 Salut !
 
-Je viens de prendre en charge la validation de ton contenu, « [{{ title }}]({{ url }}) ».
+Je viens de prendre en charge la validation de ton contenu, « [{{ title }}]({{ url }}) ».
 
 À bientôt !
 

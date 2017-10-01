@@ -160,7 +160,7 @@
 
         <div class="message-content">
             {% if message.hat and message.is_visible != False %}
-                <p class="with-hat {% if message.hat.is_staff %}staff-hat{% endif %}" title="{% blocktrans with hat=message.hat.name %}Posté avec la casquette « {{ hat }} »{% endblocktrans %}">
+                <p class="with-hat {% if message.hat.is_staff %}staff-hat{% endif %}" title="{% blocktrans with hat=message.hat.name %}Posté avec la casquette « {{ hat }} »{% endblocktrans %}">
                     <a href="{{ message.hat.get_absolute_url }}">{{ message.hat.name }}</a>
                 </p>
             {% endif %}

@@ -59,7 +59,7 @@ class UserGallery(models.Model):
         :return: UserGalley description
         :rtype: unicode
         """
-        return _('Galerie « {0} » de {1}').format(self.gallery, self.user)
+        return _('Galerie « {0} » de {1}').format(self.gallery, self.user)
 
     def can_write(self):
         """Check if user can write in the gallery.

@@ -54,12 +54,12 @@ Les *milestones* sont également utilisées par le script de génération de rap
 
 Toute PR se voit attribuer une *milestone*. Elle est attribuée au plus tôt par le *Maintainer* ou le *Release Manager* à l'ouverture de la PR si cette PR doit impérativement passer dans la prochaine release, au plus tard par la personne qui merge la PR lors de son merge. Bien qu'une PR doit généralement être atomique, il arrive - notamment dans le cas des ZEP - qu'elle ait pour effet secondaire de régler plusieurs bugs, d'introduire plusieurs fonctionnalités. Dans ces rares cas, chaque ticket fermé par effet secondaire d'une PR peut également recevoir une *milestone*.
 
-* Toute PR mergée dans dev doit porter la *milestone* « Version de développement »
-* Toute PR mergée ailleurs (la branche de release si c'est une correction de bêta, prod en cas de hotfix) doit porter la *milestone* « Version N »
+* Toute PR mergée dans dev doit porter la *milestone* « Version de développement »
+* Toute PR mergée ailleurs (la branche de release si c'est une correction de bêta, prod en cas de hotfix) doit porter la *milestone* « Version N »
 
-La *milestone* « Version de développement » s'appelle comme ça parce qu'elle contient les modifications apportées depuis la dernière release. Cette *milestone* étant largement la plus utilisée, son nom a l'avantage qu'on voit immédiatement si on attribue ou non la bonne *milestone*, sans avoir à réfléchir au numéro de version.
+La *milestone* « Version de développement » s'appelle comme ça parce qu'elle contient les modifications apportées depuis la dernière release. Cette *milestone* étant largement la plus utilisée, son nom a l'avantage qu'on voit immédiatement si on attribue ou non la bonne *milestone*, sans avoir à réfléchir au numéro de version.
 
-Lors de la clôture de chaque release, la *milestone* « Version de développement » est renommée « Version N » et une nouvelle *milestone* « Version de développement » est créée.
+Lors de la clôture de chaque release, la *milestone* « Version de développement » est renommée « Version N » et une nouvelle *milestone* « Version de développement » est créée.
 
 
 Stratégie de *tagging* des tickets
