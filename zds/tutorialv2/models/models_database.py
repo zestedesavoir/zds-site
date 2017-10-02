@@ -319,7 +319,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         """
         try:
             return self.load_version(sha, public)
-        except (BadObject, BadName, IOError) as error:
+        except (BadObject, BadName, OSError) as error:
             raise Http404(
                 'Le code sha existe mais la version demandée ne peut pas être trouvée à cause de {}:{}'.format(
                     type(error), str(error)))
@@ -336,7 +336,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         :param public: if set with the right object, return the public version
         :type public: PublishedContent
         :raise BadObject: if sha is not None and related version could not be found
-        :raise IOError: if the path to the repository is wrong
+        :raise OSError: if the path to the repository is wrong
         :raise NotAPublicVersion: if the sha does not correspond to a public version
         :return: the versioned content
         :rtype: zds.tutorialv2.models.models_versioned.VersionedContent
@@ -354,7 +354,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
             slug = public.content_public_slug
 
             if not os.path.isdir(path):
-                raise IOError(path)
+                raise OSError(path)
 
             if sha != public.sha_public:
                 raise NotAPublicVersion
@@ -368,7 +368,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
             path = self.get_repo_path()
 
             if not os.path.isdir(path):
-                raise IOError(path)
+                raise OSError(path)
 
             repo = Repo(path)
             data = get_blob(repo.commit(sha).tree, 'manifest.json')
@@ -865,7 +865,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
             current_content = PublishedContent.objects.filter(content_pk=self.content_pk, must_redirect=False).first()
             if current_content:
                 return len(content)
-        except IOError as e:
+        except OSError as e:
             logger.warning('could not get file %s to compute nb letters (error=%s)', md_file_path, e)
 
     @classmethod

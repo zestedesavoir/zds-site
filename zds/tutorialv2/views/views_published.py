@@ -245,7 +245,7 @@ class DownloadOnlineContent(SingleOnlineContentViewMixin, DownloadViewMixin):
         path = os.path.join(self.public_content_object.get_extra_contents_directory(), self.get_filename())
         try:
             response = open(path, 'rb').read()
-        except IOError:
+        except OSError:
             raise Http404("Le fichier n'existe pas.")
 
         return response

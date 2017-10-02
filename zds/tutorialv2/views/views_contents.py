@@ -641,7 +641,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
             # if it's not an image, pass
             try:
                 ImagePIL.open(temp_image_path)
-            except IOError:
+            except OSError:
                 continue
 
             # if size is too large, pass

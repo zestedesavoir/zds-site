@@ -338,7 +338,7 @@ def retrieve_image(url, directory):
             if os.path.isfile(source_path):
                 shutil.copy(source_path, store_path)
             else:
-                raise IOError(source_path)  # ... will use the default image instead
+                raise OSError(source_path)  # ... will use the default image instead
 
         if img_extension == 'svg':  # if SVG, will transform it into PNG
             resize_svg(store_path)
@@ -357,7 +357,7 @@ def retrieve_image(url, directory):
                 except WindowsError:  # because windows can badly handle this one
                     logger.error('store path %s not removed', store_path)
 
-    except (IOError, KeyError):  # HTTP 404, image does not exists, or Pillow cannot read it !
+    except (OSError, KeyError):  # HTTP 404, image does not exists, or Pillow cannot read it !
 
         # will be overwritten anyway, so it's better to remove whatever it was, for security reasons :
         try:
@@ -921,7 +921,7 @@ def get_blob(tree, path):
             if os.path.abspath(blob.path) == os.path.abspath(path):
                 data = blob.data_stream.read().decode()
                 return data
-        except (OSError, IOError):  # in case of deleted files, or the system cannot get the lock, juste return ""
+        except OSError:  # in case of deleted files, or the system cannot get the lock, juste return ""
             return ''
     # traverse directories when we are at root or in a part or chapter
     if len(tree.trees) > 0:

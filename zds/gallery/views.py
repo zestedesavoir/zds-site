@@ -465,7 +465,7 @@ class ImportImages(GalleryMixin, FormView):
             # if it's not an image, pass
             try:
                 ImagePIL.open(ph_temp)
-            except IOError:
+            except OSError:
                 continue
 
             # create picture in database:

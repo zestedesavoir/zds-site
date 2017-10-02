@@ -146,7 +146,7 @@ def publish_content(db_object, versioned, is_major_update=True):
     public_version.save()
     try:
         make_zip_file(public_version)
-    except IOError:
+    except OSError:
         pass
 
     return public_version
@@ -452,7 +452,7 @@ def unpublish_content(db_object, moderator=None):
 
         return True
 
-    except (ObjectDoesNotExist, IOError):
+    except (ObjectDoesNotExist, OSError):
         pass
 
     return False
