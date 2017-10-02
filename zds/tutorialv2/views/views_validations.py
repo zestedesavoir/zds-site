@@ -94,7 +94,7 @@ class ValidationListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
         for validation in context['validations']:
             try:
                 validation.versioned_content = validation.content.load_version(sha=validation.content.sha_validation)
-            except IOError:  # remember that load_version can raise IOError when path is not correct
+            except OSError:  # remember that load_version can raise OSError when path is not correct
                 logging.getLogger('zds.tutorialv2.validation')\
                        .warn('A validation {} for content {} failed to load'.format(validation.pk,
                                                                                     validation.content.title))

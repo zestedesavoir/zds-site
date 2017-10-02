@@ -32,7 +32,7 @@ class Command(BaseCommand):
                         self.stdout.write('Fixing in-v16 content #{} (« {} ») ... '.format(c.pk, c.title), ending='')
                         try:
                             versioned = c.load_version()
-                        except IOError:
+                        except OSError:
                             self.stdout.write('[KO]')
                         else:
                             c.sha_draft = versioned.repo_update_top_container(

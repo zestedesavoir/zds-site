@@ -39,7 +39,7 @@ def home(request):
     try:
         with open(os.path.join(settings.BASE_DIR, 'quotes.txt'), 'r') as quotes_file:
             quote = random.choice(quotes_file.readlines())
-    except IOError:
+    except OSError:
         quote = settings.ZDS_APP['site']['slogan']
 
     return render(request, 'home.html', {
