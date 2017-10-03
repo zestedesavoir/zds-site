@@ -940,7 +940,7 @@ class ContentTests(TestCase):
             reverse('content:beta-view', args=[tuto.pk, tuto.slug]),
             follow=False)
         self.assertEqual(result.status_code, 200)
-        self.assertContains(result, _("L’auteur de ce contenu recherche"))
+        self.assertContains(result, _('L’auteur de ce contenu recherche'))
         # and on a container
         result = self.client.get(
             reverse('content:beta-view-container',
