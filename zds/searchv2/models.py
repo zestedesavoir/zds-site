@@ -14,6 +14,7 @@ from elasticsearch_dsl.query import MatchAll
 from elasticsearch_dsl.connections import connections
 
 from django.db import transaction
+from django.utils.translation import ugettext_lazy as _
 
 
 def es_document_mapper(force_reindexing, index, obj):
@@ -165,8 +166,8 @@ class AbstractESDjangoIndexable(AbstractESIndexable, models.Model):
     class Meta:
         abstract = True
 
-    es_flagged = models.BooleanField('Doit être (ré)indexé par ES', default=True, db_index=True)
-    es_already_indexed = models.BooleanField('Déjà indexé par ES', default=False, db_index=True)
+    es_flagged = models.BooleanField(_('Doit être (ré)indexé par ES'), default=True, db_index=True)
+    es_already_indexed = models.BooleanField(_('Déjà indexé par ES'), default=False, db_index=True)
 
     def __init__(self, *args, **kwargs):
         """Override to match ES ``_id`` field and ``pk``"""
