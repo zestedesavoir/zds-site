@@ -14,7 +14,7 @@ class ParticipantsUserValidator(Validator):
         if value or self.can_be_empty:
             for participant in value:
                 if participant.username == self.get_current_user().username:
-                    msg = _('Vous ne pouvez pas vous écrire à vous-même&nbsp;!')
+                    msg = _('Vous ne pouvez pas vous écrire à vous-même !')
                 try:
                     current = get_object_or_404(Profile, user__username=participant)
                     if not Profile.objects.contactable_members().filter(pk=current.pk).exists():
@@ -54,7 +54,7 @@ class ParticipantsStringValidator(Validator):
                     if not participant:
                         continue
                     if participant.strip().lower() == username.lower():
-                        msg = _('Vous ne pouvez pas vous écrire à vous-même&nbsp;!')
+                        msg = _('Vous ne pouvez pas vous écrire à vous-même !')
                     try:
                         current = get_object_or_404(Profile, user__username=participant)
                         if not Profile.objects.contactable_members().filter(pk=current.pk).exists():

@@ -531,7 +531,7 @@ def modify_profile(request, user_pk):
     if profile.is_private():
         raise PermissionDenied
     if request.user.profile == profile:
-        messages.error(request, _('Vous ne pouvez pas vous sanctionner vous-même&nbsp;!'))
+        messages.error(request, _('Vous ne pouvez pas vous sanctionner vous-même !'))
         raise PermissionDenied
 
     if 'ls' in request.POST:
@@ -613,7 +613,7 @@ def settings_mini_profile(request, user_name):
         data = {'form': form, 'profile': profile}
         messages.warning(request, _(
             'Le profil que vous éditez n\'est pas le vôtre. '
-            'Soyez encore plus prudent lors de l\'édition de celui-ci&nbsp;!'))
+            'Soyez encore plus prudent lors de l\'édition de celui-ci !'))
         return render(request, 'member/settings/profile.html', data)
 
 
@@ -1166,7 +1166,7 @@ def settings_promote(request, user_pk):
                     if isinstance(topic, Topic) and group in topic.forum.groups.all():
                         TopicAnswerSubscription.objects.toggle_follow(topic, user)
             user.groups.clear()
-            messages.warning(request, _('{0} n\'appartient (plus&nbsp;?) à aucun groupe.')
+            messages.warning(request, _('{0} n\'appartient (plus ?) à aucun groupe.')
                              .format(user.username))
 
         if 'activation' in data and 'on' in data['activation']:

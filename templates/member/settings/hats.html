@@ -50,7 +50,7 @@
                         {% csrf_token %}
                         <p>
                             {% blocktrans with hat=hat.name %}
-                                Voulez-vous vraiment supprimer votre casquette « {{ hat }} »&nbsp;?
+                                Voulez-vous vraiment supprimer votre casquette « {{ hat }} » ?
                             {% endblocktrans %}
                         </p>
                         <p>{% trans "Vous ne pourrez plus poster avec cette casquette et elle n'apparaîtra plus sur votre profil. Les messages ayant été postés avec le resteront. Notez toutefois que vous ne pourrez pas conserver la casquette si vous les éditez." %}
