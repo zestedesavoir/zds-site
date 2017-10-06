@@ -1926,7 +1926,7 @@ class ContentOfAuthor(ZdSPagingListView):
         # Sort.
         if 'sort' in self.request.GET and self.request.GET['sort'].lower() in self.sorts:
             self.sort = self.request.GET['sort']
-        else:
+        elif not self.sort:
             self.sort = 'abc'
         queryset = self.sorts[self.sort.lower()][0](queryset)
         return queryset
