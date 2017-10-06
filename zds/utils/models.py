@@ -169,6 +169,7 @@ class Hat(models.Model):
     name = models.CharField('Casquette', max_length=40, unique=True)
     group = models.ForeignKey(Group, on_delete=models.SET_NULL, verbose_name='Groupe possédant la casquette',
                               related_name='hats', db_index=True, null=True, blank=True)
+    is_staff = models.BooleanField('Casquette interne au site', default=False)
 
     class Meta:
         verbose_name = 'Casquette'
@@ -176,6 +177,24 @@ class Hat(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse('hat-detail', args=[self.pk])
+
+    def get_users(self):
+        """
+        Return all users being allowed to use this hat.
+        """
+        if self.group:
+            return self.group.user_set.all()
+        else:
+            return [p.user for p in self.profile_set.all()]
+
+    def get_users_count(self):
+        return len(self.get_users())
+
+    def get_users_preview(self):
+        return self.get_users()[:settings.ZDS_APP['member']['users_in_hats_list']]
 
 
 @python_2_unicode_compatible

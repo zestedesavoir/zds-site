@@ -60,7 +60,7 @@
         <div class="content-wrapper">
             <div class="alert-box warning">
                 {% blocktrans %}
-                    Cette version est en <strong>BÊTA</strong>&nbsp;!
+                    Cette version est en <strong>BÊTA</strong> !
                 {% endblocktrans %}
 
                 {% if beta_topic %}
@@ -85,7 +85,7 @@
 
                 {% if not can_edit %}
                     {% blocktrans with plural=content.authors.count|pluralize_fr %}
-                        N'hésitez pas à <a href="{{ pm_link }}">le{{ plural }} contacter par MP</a> pour proposer votre aide&nbsp;!
+                        N'hésitez pas à <a href="{{ pm_link }}">le{{ plural }} contacter par MP</a> pour proposer votre aide !
                     {% endblocktrans %}
                 {% endif %}
             </div>

@@ -63,7 +63,7 @@ class Profile(models.Model):
     github_token = models.TextField('GitHub', blank=True)
     show_sign = models.BooleanField('Voir les signatures', default=True)
     # do UI components open by hovering them, or is clicking on them required?
-    is_hover_enabled = models.BooleanField('Déroulement au survol&nbsp;?', default=False)
+    is_hover_enabled = models.BooleanField('Déroulement au survol ?', default=False)
     allow_temp_visual_changes = models.BooleanField('Activer les changements visuels temporaires', default=True)
     show_markdown_help = models.BooleanField("Afficher l'aide Markdown dans l'éditeur", default=True)
     email_for_answer = models.BooleanField('Envoyer pour les réponse MP', default=False)
@@ -73,7 +73,7 @@ class Profile(models.Model):
     can_write = models.BooleanField("Possibilité d'écrire", default=True)
     end_ban_write = models.DateTimeField("Fin d'interdiction d'écrire", null=True, blank=True)
     last_visit = models.DateTimeField('Date de dernière visite', null=True, blank=True)
-    use_old_smileys = models.BooleanField('Utilise les anciens smileys&nbsp;?', default=False)
+    use_old_smileys = models.BooleanField('Utilise les anciens smileys ?', default=False)
     _permissions = {}
     _groups = None
 

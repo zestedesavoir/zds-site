@@ -110,7 +110,7 @@ class ESIndexManagerTests(TestCase):
             # keep "c" intact:
             ('apprendre à programmer en C', ['aprendr', 'program', 'langage_c']),
             # remove HTML and some special characters:
-            ('<p>&laquo;&nbsp;test&#x202F;!&nbsp;&raquo;, en hurlant &hellip;</p>', ['test', 'hurlant']),
+            ('<p>&laquo; test&#x202F;! &raquo;, en hurlant &hellip;</p>', ['test', 'hurlant']),
             # keep "c++" and "linux" intact:
             ('écrire un programme en C++ avec Linux', ['ecrir', 'program', 'c++', 'linux']),
             # elision:

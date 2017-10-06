@@ -464,7 +464,7 @@
                               class="modal modal-flex">
                             <p>
                                 {% blocktrans %}
-                                    Pour quelle raison souhaitez-vous mettre ce membre en lecture seule <em>temporairement</em>&nbsp;?
+                                    Pour quelle raison souhaitez-vous mettre ce membre en lecture seule <em>temporairement</em> ?
                                 {% endblocktrans %}
                             </p>
                             <input type="text"
@@ -493,7 +493,7 @@
                               id="ls-{{ profile.pk }}"
                               class="modal modal-flex">
                             <p>
-                                {% trans "Pour quelle raison souhaitez-vous mettre ce membre en lecture seule" %}&nbsp;?
+                                {% trans "Pour quelle raison souhaitez-vous mettre ce membre en lecture seule" %} ?
                             </p>
                             <input type="text"
                                    name="ls-text"
@@ -518,13 +518,13 @@
                               class="modal modal-flex">
                             <p>
                                 {% blocktrans %}
-                                Pour quelle raison souhaitez-vous <strong>lever la sanction</strong> de ce membre&nbsp;?
+                                Pour quelle raison souhaitez-vous <strong>lever la sanction</strong> de ce membre ?
                                 {% endblocktrans %}
                             </p>
                             <input type="text"
                                    name="unls-text"
                                    class="expand"
-                                   placeholder="Bonne action&nbsp;?">
+                                   placeholder="Bonne action ?">
                             {% csrf_token %}
                             <button type="submit"
                                     name="un-ls">
@@ -546,7 +546,7 @@
                               class="modal modal-flex">
                             <p>
                                 {% blocktrans %}
-                                    Pour quelle raison souhaitez-vous bannir ce membre <em>temporairement</em>&nbsp;?
+                                    Pour quelle raison souhaitez-vous bannir ce membre <em>temporairement</em> ?
                                 {% endblocktrans %}
                             </p>
                             <input type="text"
@@ -575,7 +575,7 @@
                               id="ban-{{ profile.pk }}"
                               class="modal modal-flex">
                             <p>
-                                {% trans "Pour quelle raison souhaitez-vous bannir ce membre" %}&nbsp;?
+                                {% trans "Pour quelle raison souhaitez-vous bannir ce membre" %} ?
                             </p>
                             <input type="text"
                                    name="ban-text"
@@ -599,12 +599,12 @@
                               id="unban-{{ profile.pk }}"
                               class="modal modal-flex">
                             <p>
-                                {% trans "Pour quelle raison souhaitez vous lever la sanction de ce membre" %}&nbsp;?
+                                {% trans "Pour quelle raison souhaitez vous lever la sanction de ce membre" %} ?
                             </p>
                             <input type="text"
                                    name="unban-text"
                                    class="expand"
-                                   placeholder="Bonne action&nbsp;?">
+                                   placeholder="Bonne action ?">
                             {% csrf_token %}
                             <button type="submit"
                                     name="un-ban">

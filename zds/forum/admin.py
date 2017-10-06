@@ -6,19 +6,25 @@ from zds.forum.models import Category, Forum, Post, Topic, TopicRead
 
 
 class TopicAdmin(admin.ModelAdmin):
-    fields = ('title', 'subtitle', 'is_solved', 'is_locked', 'is_sticky', 'github_issue', 'forum', 'author',
-              'last_message', 'tags', 'pubdate', 'update_index_date')
+    list_display = ('title', 'author', 'forum', 'pubdate', 'is_solved')
+    list_filter = ('is_solved', 'is_locked', 'is_sticky')
     raw_id_fields = ('forum', 'author', 'last_message', 'tags')
-    readonly_fields = ('pubdate', 'update_index_date')
+    ordering = ('-pubdate',)
+    search_fields = ('author__username', 'title', 'subtitle', 'github_issue')
 
 
 class TopicReadAdmin(admin.ModelAdmin):
-    fields = ('topic', 'post', 'user')
+    list_display = ('topic', 'user')
     raw_id_fields = ('topic', 'post', 'user')
+    search_fields = ('topic__title', 'user__username')
 
 
 class PostAdmin(admin.ModelAdmin):
+    list_display = ('topic', 'author', 'ip_address', 'pubdate', 'is_visible')
+    list_filter = ('is_visible',)
     raw_id_fields = ('author', 'editor')
+    ordering = ('-pubdate',)
+    search_fields = ('author__username', 'text', 'text_hidden', 'ip_address')
 
 
 admin.site.register(Category)

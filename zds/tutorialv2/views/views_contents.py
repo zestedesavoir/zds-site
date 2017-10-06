@@ -547,7 +547,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
             e2 = ''
             if e.had_source:
                 e2 = _(' (slug généré à partir de "{}")').format(e.source)
-            raise BadArchiveError(_('{}{}&nbsp;!').format(e1, e2))
+            raise BadArchiveError(_('{}{} !').format(e1, e2))
         except Exception as e:
             raise BadArchiveError(_("Une erreur est survenue lors de la lecture de l'archive : {}.").format(e))
 

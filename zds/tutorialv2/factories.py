@@ -15,7 +15,7 @@ from zds.tutorialv2.publication_utils import publish_content
 text_content = 'Ceci est un texte bidon, **avec markown**'
 
 tricky_text_content = \
-    "Ceci est un texte contenant plein d'images, pour la publication. Le modifier affectera le test&nbsp;!\n\n" \
+    "Ceci est un texte contenant plein d'images, pour la publication. Le modifier affectera le test !\n\n" \
     '# Les images\n\n' \
     'Image: ![PNG qui existe](http://upload.wikimedia.org/wikipedia/en/9/9d/Commons-logo-31px.png)\n\n' \
     'Image: ![PNG qui existe pas](example.com/test.png)\n\n' \

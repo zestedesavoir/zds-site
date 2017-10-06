@@ -25,8 +25,9 @@
 
 {% block content %}
     <p>
+        {% url 'hats-list' as hats_list_url %}
         {% blocktrans with site_name=app.site.literal_name %}
-            Une casquette est un moyen d'identifier formellement vos responsabilités lorsque vous vous exprimez au nom d'un projet particulier, d'une organisation, d'une entreprise ou autre. Ces responsabilités peuvent être au sein de {{ site_name }} comme au sein d'une entité externe.
+            Une casquette est un moyen d'identifier formellement vos responsabilités lorsque vous vous exprimez au nom d'un projet particulier, d'une organisation, d'une entreprise ou autre. Ces responsabilités peuvent être au sein de {{ site_name }} comme au sein d'une entité externe. Vous pouvez consulter des exemples sur la <a href="{{ hats_list_url }}">liste des casquettes</a>.
         {% endblocktrans %}
     </p>
 
@@ -50,7 +51,7 @@
                         {% csrf_token %}
                         <p>
                             {% blocktrans with hat=hat.name %}
-                                Voulez-vous vraiment supprimer votre casquette « {{ hat }} »&nbsp;?
+                                Voulez-vous vraiment supprimer votre casquette « {{ hat }} » ?
                             {% endblocktrans %}
                         </p>
                         <p>{% trans "Vous ne pourrez plus poster avec cette casquette et elle n'apparaîtra plus sur votre profil. Les messages ayant été postés avec le resteront. Notez toutefois que vous ne pourrez pas conserver la casquette si vous les éditez." %}
@@ -78,7 +79,7 @@
         </ul>
     {% endif %}
 
-    <h2>{% trans "Demander une casquette" %}</h2>
+    <h2 id="send-request">{% trans "Demander une casquette" %}</h2>
 
     <p>{% trans "Vous pouvez utiliser ce formulaire pour demander une casquette. Votre demande sera vérifiée par un membre de l'équipe du site qui pourra vous accorder la casquette." %}</p>
 

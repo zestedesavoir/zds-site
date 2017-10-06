@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from zds.utils.models import Alert, Licence, Category, SubCategory, \
-    CategorySubCategory, Tag, HelpWriting, CommentEdit, Hat
+    CategorySubCategory, Tag, HelpWriting, CommentEdit, Hat, HatRequest
 
 
 class SubCategoryAdmin(admin.ModelAdmin):
@@ -17,13 +17,32 @@ class SubCategoryAdmin(admin.ModelAdmin):
 
 
 class AlertAdmin(admin.ModelAdmin):
+    list_display = ('author', 'text', 'solved')
+    list_filter = ('scope', 'solved')
     raw_id_fields = ('author', 'comment', 'moderator', 'privatetopic')
+    ordering = ('-pubdate',)
+    search_fields = ('author__username', 'text')
 
 
 class CommentEditAdmin(admin.ModelAdmin):
+    list_display = ('editor', 'date')
     raw_id_fields = ('comment', 'editor', 'deleted_by')
     ordering = ('-date',)
     date_hierarchy = 'date'
+    search_fields = ('editor__username', 'original_text')
+
+
+class HatAdmin(admin.ModelAdmin):
+    list_display = ('name', 'group', 'is_staff')
+    list_filter = ('group', 'is_staff')
+    search_fields = ('name',)
+
+
+class HatRequestAdmin(admin.ModelAdmin):
+    list_display = ('user', 'hat', 'date')
+    ordering = ('-date',)
+    raw_id_fields = ('user',)
+    search_fields = ('user__username', 'hat')
 
 
 admin.site.register(Alert, AlertAdmin)
@@ -34,4 +53,5 @@ admin.site.register(SubCategory, SubCategoryAdmin)
 admin.site.register(CategorySubCategory)
 admin.site.register(HelpWriting)
 admin.site.register(CommentEdit, CommentEditAdmin)
-admin.site.register(Hat)
+admin.site.register(Hat, HatAdmin)
+admin.site.register(HatRequest, HatRequestAdmin)

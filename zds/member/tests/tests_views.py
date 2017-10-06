@@ -1662,6 +1662,37 @@ class MemberTests(TestCase):
         self.assertIn(hat_name, [h.name for h in profile.hats.all()])
         self.assertEqual(requests_count - 1, HatRequest.objects.count())
 
+    def test_hats_list(self):
+        # test the page is accessible without being authenticated
+        self.client.logout()
+        result = self.client.get(reverse('hats-list'))
+        self.assertEqual(result.status_code, 200)
+        # and while being authenticated
+        self.client.login(username=self.staff.username, password='hostel77')
+        result = self.client.get(reverse('hats-list'))
+        self.assertEqual(result.status_code, 200)
+        # test that it does contain the name of a hat
+        self.assertContains(result, 'Staff')  # this hat hat was created with the staff user
+
+    def test_hat_detail(self):
+        # we will use the staff hat, created with the staff user
+        hat = Hat.objects.get(name='Staff')
+        # test the page is accessible without being authenticated
+        self.client.logout()
+        result = self.client.get(hat.get_absolute_url())
+        self.assertEqual(result.status_code, 200)
+        # and while being authenticated
+        self.client.login(username=self.staff.username, password='hostel77')
+        result = self.client.get(hat.get_absolute_url())
+        self.assertEqual(result.status_code, 200)
+        # test that it does contain the name of a hat
+        self.assertContains(result, hat.name)
+        # and the name of a user having it
+        self.client.logout()  # to prevent the username from being shown in topbar
+        result = self.client.get(hat.get_absolute_url())
+        self.assertEqual(result.status_code, 200)
+        self.assertContains(result, self.staff.username)
+
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
             shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
