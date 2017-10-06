@@ -16,7 +16,7 @@ Certaines des commandes d'installation (débutant par ``apt-get``) sont données
 ZdS a besoin des dépendances suivantes, installables manuellement ou à l'aide d'un Makefile (voir plus bas) :
 
 - git : ``apt-get install git``
-- python2.7
+- python3.4
 - python-dev : ``apt-get install python-dev``
 - easy_install : ``apt-get install python-setuptools``
 - pip : ``easy_install pip``
@@ -29,8 +29,6 @@ ZdS a besoin des dépendances suivantes, installables manuellement ou à l'aide 
 - libffi : ``apt-get install libffi-dev``
 - libjpeg62-turbo libjpeg62-turbo-dev libfreetype6 libfreetype6-dev : ``apt-get install libjpeg62-turbo libjpeg62-turbo-dev libfreetype6 libfreetype6-dev`` (peut être appelée libjpeg8 et libjpeg8-dev sur  certains OS comme Ubuntu)
 - gcc : ``apt-get install build-essential``
-
-**NB** : pour les utilisateurs d'Archlinux, les outils python doivent être ceux de python 2, généralement sous la forme ``python2-smth``
 
 Ou à l'aide du Makefile (``sudo`` sera appelé automatiquement, ne l'ajoutez jamais si on ne le précise pas) :
 
@@ -66,7 +64,7 @@ Installation et configuration de `virtualenv`
 .. sourcecode:: bash
 
     pip install --user virtualenv # Ajout du module virtualenv
-    virtualenv zdsenv --python=python2 # Création du répertoire "zdsenv"
+    virtualenv zdsenv --python=python3 # Création du répertoire "zdsenv"
 
 
 **À chaque fois** que vous souhaitez travailler dans votre environnement, activez-le via la commande suivante :
@@ -96,6 +94,9 @@ Une fois dans votre environnement python (``source ../bin/activate`` si vous uti
     make install-back # Dépendances Python
     make migrate # Cf. "migrate" de Django
     make run-back # Démarre l'instance de ZdS
+
+**NB** : Vérifier bien que votre interpréteur par défaut utilise Python 3 et non la version 2.x.
+
 
 
 Aller plus loin
