@@ -94,6 +94,8 @@ Une fois dans votre environnement python (``source ../bin/activate`` si vous uti
     make migrate # Cf. "migrate" de Django
     make run-back # Démarre l'instance de ZdS
 
+**NB** : Vérifiez bien que votre interpréteur par défaut utilise Python 3 et non une version 2.x.
+
 
 Aller plus loin
 ===============

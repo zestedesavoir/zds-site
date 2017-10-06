@@ -98,7 +98,7 @@ Suite de l'installation
 - Dans la console PowerShell via l'environnement zdsenv installez les dépendances.
     - ``easy_install lxml``
     - ``pip install -r requirements.txt -r requirements-dev.txt``
-    - Cairo, disponible `ici <http://www.salsabeatmachine.org/python/pycairo-1.8.10.win32-py2.7.exe>`_
+    - Cairo, disponible `ici <https://www.cairographics.org/download>`_
     - GTK+ (qui contient les DLL de Cairo) disponible `ici <http://downloads.sourceforge.net/gladewin32/gtk-2.12.9-win32-2.exe>`_
     - ``python manage.py migrate``
     - ``python manage.py runserver``
