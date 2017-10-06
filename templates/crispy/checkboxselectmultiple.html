@@ -47,7 +47,7 @@
                                            checked="checked"
                                        {% endif %}
                                        name="{{ field.html_name }}"
-                                       id="id_{{ field.html_name }}_{{ forloop.counter }}"
+                                       id="id_{{ field.html_name }}_{{ item.choice.0|unlocalize }}"
                                        value="{{ item.choice.0|unlocalize }}"
                                        {{ field.field.widget.attrs|flatatt }}>
 
