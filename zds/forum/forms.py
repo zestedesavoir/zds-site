@@ -154,7 +154,7 @@ class PostForm(forms.Form):
 
         if text is None or not text.strip():
             self._errors['text'] = self.error_class(
-                [_('Vous devez écrire une réponse&nbsp;!')])
+                [_('Vous devez écrire une réponse !')])
 
         elif len(text) > settings.ZDS_APP['forum']['max_post_length']:
             self._errors['text'] = self.error_class(

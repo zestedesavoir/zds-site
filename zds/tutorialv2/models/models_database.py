@@ -376,7 +376,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
                 json = json_reader.loads(data)
             except ValueError:
                 raise BadManifestError(
-                    _('Une erreur est survenue lors de la lecture du manifest.json, est-ce du JSON&nbsp;?'))
+                    _('Une erreur est survenue lors de la lecture du manifest.json, est-ce du JSON ?'))
 
             versioned = get_content_from_json(json, sha, self.slug, max_title_len=max_title_length)
 

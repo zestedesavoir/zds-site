@@ -61,12 +61,12 @@
                                         {% csrf_token %}
                                         {% if perms_change %}
                                             <p>
-                                                {% trans "Pour quelle raison souhaitez vous masquer ce message" %}&nbsp;?
+                                                {% trans "Pour quelle raison souhaitez vous masquer ce message" %} ?
                                             </p>
                                             <input type="text" name="text_hidden" placeholder="Flood, Troll, Hors sujet, ..." >
                                         {% else %}
                                             <p>
-                                                {% trans "Attention, en masquant ce message, vous ne pourrez plus l'afficher vous-même. Êtes-vous certain de vouloir le faire" %}&nbsp;?
+                                                {% trans "Attention, en masquant ce message, vous ne pourrez plus l'afficher vous-même. Êtes-vous certain de vouloir le faire" %} ?
                                             </p>
                                         {% endif %}
 
@@ -107,7 +107,7 @@
                                 {% csrf_token %}
                                 <p>
                                     {% blocktrans with editor=message.editor %}
-                                    Ce message a été masqué par <strong>{{ editor }}</strong>, êtes-vous certain de vouloir le ré-afficher&nbsp;?
+                                    Ce message a été masqué par <strong>{{ editor }}</strong>, êtes-vous certain de vouloir le ré-afficher ?
                                     {% endblocktrans %}
                                 </p>
 
@@ -127,7 +127,7 @@
                             <form action="{{ alert_link|safe }}" method="post" id="signal-message-{{ message.id }}" class="modal modal-flex">
                                 {% csrf_token %}
                                 <label for="signal-message-{{ message.id }}-field">
-                                    {% trans "Pour quelle raison signalez-vous ce message" %}&nbsp;?
+                                    {% trans "Pour quelle raison signalez-vous ce message" %} ?
                                 </label>
                                 <textarea type="text" name="signal_text" id="signal-message-{{ message.id }}-field" placeholder="Flood, Troll, Hors sujet, …" pattern=".{3,}" required title='{% trans "Minimum 3 caractères pour signaler" %}' rows="4"></textarea>
 
