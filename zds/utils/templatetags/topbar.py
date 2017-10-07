@@ -10,8 +10,8 @@ from django.db.models import Count
 register = template.Library()
 
 
-@register.filter('top_categories')
-def top_categories(user):
+@register.filter('topbar_forum_categories')
+def topbar_forum_categories(user):
     max_tags = settings.ZDS_APP['forum']['top_tag_max']
 
     forums_pub = Forum.objects.filter(groups__isnull=True).select_related('category').distinct().all()
@@ -49,14 +49,14 @@ def top_categories(user):
     return {'tags': tags, 'categories': topbar_cats}
 
 
-@register.filter('top_categories_content')
-def top_categories_content(_type):
-    """Get all the categories and their related subcategories associated with existing contents.
+@register.filter('topbar_publication_categories')
+def topbar_publication_categories(_type):
+    """Get all the categories and their related subcategories associated with existing publications.
     The result is sorted by alphabetic order.
 
-    :param _type: type of the content
+    :param _type: type of the publication
     :type _type: str
-    :return: a dictionary, with the title being the name of the category and the content a list of subcategories,
+    :return: a dictionary, with the title being the name of the category and the publication a list of subcategories,
     Each of these are stored in a tuple of the form ``title, slug``.
     :rtype: OrderedDict
     """
@@ -101,8 +101,3 @@ def top_categories_content(_type):
             cats[key] = [(csc['subcategory__title'], csc['subcategory__slug'], csc['category__slug'])]
 
     return {'tags': tags, 'categories': cats}
-
-
-@register.filter('auth_forum')
-def auth_forum(forum, user):
-    return forum.can_read(user)
