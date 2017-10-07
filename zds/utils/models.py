@@ -1,6 +1,5 @@
 # coding: utf-8
 
-from django.utils.encoding import python_2_unicode_compatible
 from datetime import datetime
 import os
 import string
@@ -47,7 +46,6 @@ def image_path_help(instance, filename):
     return os.path.join('helps/normal', str(instance.pk), filename)
 
 
-@python_2_unicode_compatible
 class Category(models.Model):
     """Common category for several concepts of the application."""
 
@@ -72,7 +70,6 @@ class Category(models.Model):
                 .all()]
 
 
-@python_2_unicode_compatible
 class SubCategory(models.Model):
     """Common subcategory for several concepts of the application."""
 
@@ -113,7 +110,6 @@ class SubCategory(models.Model):
             return None
 
 
-@python_2_unicode_compatible
 class CategorySubCategory(models.Model):
 
     """ManyToMany between Category and SubCategory but save a boolean to know
@@ -138,7 +134,6 @@ class CategorySubCategory(models.Model):
                 self.subcategory.title)
 
 
-@python_2_unicode_compatible
 class Licence(models.Model):
 
     """Publication licence."""
@@ -155,7 +150,6 @@ class Licence(models.Model):
         return self.title
 
 
-@python_2_unicode_compatible
 class Hat(models.Model):
     """
     Hats are labels that users can add to their messages.
@@ -197,7 +191,6 @@ class Hat(models.Model):
         return self.get_users()[:settings.ZDS_APP['member']['users_in_hats_list']]
 
 
-@python_2_unicode_compatible
 class HatRequest(models.Model):
     """
     A hat requested by a user.
@@ -255,7 +248,6 @@ def get_hat_from_settings(key):
     return hat
 
 
-@python_2_unicode_compatible
 class Comment(models.Model):
 
     """Comment in forum, articles, tutorial, chapter, etc."""
@@ -365,7 +357,6 @@ class Comment(models.Model):
         return 'Comment by {}'.format(self.author.username)
 
 
-@python_2_unicode_compatible
 class CommentEdit(models.Model):
     """Archive for editing a comment."""
 
@@ -391,7 +382,6 @@ class CommentEdit(models.Model):
             self.editor.username, self.comment.author.username)
 
 
-@python_2_unicode_compatible
 class Alert(models.Model):
     """Alerts on all kinds of Comments and PublishedContents."""
     SCOPE_CHOICES = (
@@ -494,7 +484,6 @@ class Alert(models.Model):
         verbose_name_plural = 'Alertes'
 
 
-@python_2_unicode_compatible
 class CommentVote(models.Model):
 
     """Set of comment votes."""
@@ -511,7 +500,6 @@ class CommentVote(models.Model):
         return 'Vote from {} about Comment#{} thumb_up={}'.format(self.user.username, self.comment.pk, self.positive)
 
 
-@python_2_unicode_compatible
 class Tag(models.Model):
 
     """Set of tags."""
@@ -546,7 +534,6 @@ class Tag(models.Model):
         return True
 
 
-@python_2_unicode_compatible
 class HelpWriting(models.Model):
 
     """Tutorial Help"""

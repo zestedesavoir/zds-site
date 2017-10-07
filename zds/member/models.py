@@ -1,6 +1,5 @@
 # coding: utf-8
 
-from django.utils.encoding import python_2_unicode_compatible
 from datetime import datetime
 from hashlib import md5
 from importlib import import_module
@@ -24,7 +23,6 @@ from zds.tutorialv2.models.models_database import PublishableContent, PublishedC
 from zds.utils.models import Alert, Licence, Hat
 
 
-@python_2_unicode_compatible
 class Profile(models.Model):
     """
     A user profile. Complementary data of standard Django `auth.user`.
@@ -476,7 +474,6 @@ def set_old_smileys_cookie(response, profile):
             remove_old_smileys_cookie(response)
 
 
-@python_2_unicode_compatible
 class TokenForgotPassword(models.Model):
     """
     When a user forgot its password, the website sends it an email with a token (embedded in a URL).
@@ -501,7 +498,6 @@ class TokenForgotPassword(models.Model):
         return '{0} - {1}'.format(self.user.username, self.date_end)
 
 
-@python_2_unicode_compatible
 class TokenRegister(models.Model):
     """
     On registration, a token is send by mail to the user. It must use this token (by clicking on a link) to activate its
@@ -535,7 +531,6 @@ def save_profile(backend, user, response, *args, **kwargs):
         profile.save()
 
 
-@python_2_unicode_compatible
 class NewEmailProvider(models.Model):
     """A new-used email provider which should be checked by a staff member."""
 
@@ -554,7 +549,6 @@ class NewEmailProvider(models.Model):
         return 'Alert about the new provider {}'.format(self.provider)
 
 
-@python_2_unicode_compatible
 class BannedEmailProvider(models.Model):
     """
     A email provider which has been banned by a staff member.
@@ -575,7 +569,6 @@ class BannedEmailProvider(models.Model):
         return 'Ban of the {} provider'.format(self.provider)
 
 
-@python_2_unicode_compatible
 class Ban(models.Model):
     """
     This model stores all sanctions (not only bans).
@@ -597,7 +590,6 @@ class Ban(models.Model):
         return '{0} - ban : {1} ({2}) '.format(self.user.username, self.note, self.pubdate)
 
 
-@python_2_unicode_compatible
 class KarmaNote(models.Model):
     """
     Karma notes are a way of annotating members profiles. They are only visible
