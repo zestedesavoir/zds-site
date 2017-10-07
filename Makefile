@@ -143,6 +143,3 @@ run:
 	make -j2 watch-front run-back
 
 test: test-back test-front
-
-travis:
-	tox $TEST_APP # set by travis, see .travis.yml
