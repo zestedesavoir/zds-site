@@ -2,7 +2,6 @@
 
 
 from django.db.models import CASCADE
-from django.utils.encoding import python_2_unicode_compatible
 from datetime import datetime
 
 from zds.tutorialv2.models.mixins import TemplatableContentModelMixin, OnlineLinkableContentMixin
@@ -54,7 +53,6 @@ ALLOWED_TYPES = ['pdf', 'md', 'html', 'epub', 'zip']
 logger = logging.getLogger('zds.tutorialv2')
 
 
-@python_2_unicode_compatible
 class PublishableContent(models.Model, TemplatableContentModelMixin):
     """A publishable content.
 
@@ -581,7 +579,6 @@ def delete_gallery(sender, instance, **kwargs):
         instance.gallery.delete()
 
 
-@python_2_unicode_compatible
 class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, OnlineLinkableContentMixin):
     """A class that contains information on the published version of a content.
 
@@ -1100,7 +1097,6 @@ class FakeChapter(AbstractESIndexable):
         return document
 
 
-@python_2_unicode_compatible
 class ContentReaction(Comment):
     """
     A comment written by any user about a PublishableContent they just read.
@@ -1128,7 +1124,6 @@ class ContentReaction(Comment):
         return self.related_content.title
 
 
-@python_2_unicode_compatible
 class ContentRead(models.Model):
     """
     Small model which keeps track of the user viewing tutorials.
@@ -1156,7 +1151,6 @@ class ContentRead(models.Model):
         return '<Contenu "{}" lu par {}, #{}>'.format(self.content, self.user, self.note.pk)
 
 
-@python_2_unicode_compatible
 class Validation(models.Model):
     """
     Content validation.
@@ -1230,7 +1224,6 @@ class Validation(models.Model):
         return self.status == 'CANCEL'
 
 
-@python_2_unicode_compatible
 class PickListOperation(models.Model):
     class Meta:
         verbose_name = "Choix d'un billet"
