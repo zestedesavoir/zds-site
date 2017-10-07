@@ -2,7 +2,7 @@
 Documentation de Zeste De Savoir
 ================================
 
-Zeste de Savoir est un site internet communautaire codé à l'aide du framework Django 1.10 et de Python 3.4
+Zeste de Savoir est un site internet communautaire codé à l'aide du framework Django 1.10 et de Python 3.
 
 `Voir l'instance en ligne <https://zestedesavoir.com>`_
 
