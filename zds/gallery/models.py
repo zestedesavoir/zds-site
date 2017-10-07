@@ -1,6 +1,5 @@
 # coding: utf-8
 
-from django.utils.encoding import python_2_unicode_compatible
 import os
 from uuid import uuid4
 from shutil import rmtree
@@ -38,7 +37,6 @@ def image_path(instance, filename):
     return os.path.join('galleries', str(instance.gallery.pk), filename)
 
 
-@python_2_unicode_compatible
 class UserGallery(models.Model):
     """A gallery of images created by a user."""
 
@@ -88,7 +86,6 @@ class UserGallery(models.Model):
         return Image.objects.filter(gallery=self.gallery).order_by('update').all()
 
 
-@python_2_unicode_compatible
 class Image(models.Model):
     """Represent an image in database"""
 
@@ -144,7 +141,6 @@ def auto_delete_file_on_delete(sender, instance, **kwargs):
         thumbmanager.delete(save=False)
 
 
-@python_2_unicode_compatible
 class Gallery(models.Model):
 
     class Meta:
