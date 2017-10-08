@@ -20,9 +20,8 @@ def can_write_and_read_now(func):
             # The user is a visitor
             profile = None
 
-        if profile is not None:
-            if not profile.can_read_now() or not profile.can_write_now():
-                raise PermissionDenied
+        if profile is not None and (not profile.can_read_now() or not profile.can_write_now()):
+            raise PermissionDenied
 
         return func(request, *args, **kwargs)
     return _can_write_and_read_now
@@ -36,7 +35,7 @@ class PermissionRequiredMixin(object):
     permissions = []
 
     def check_permissions(self):
-        if False in [self.request.user.has_perm(p) for p in self.permissions]:
+        if any(not self.request.user.has_perm(p) for p in self.permissions):
             raise PermissionDenied
 
     def dispatch(self, *args, **kwargs):
