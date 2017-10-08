@@ -205,7 +205,11 @@
             url: $act.attr("href"),
             dataType: "json",
             success: function(data){
-                $editor.val($editor.val() + data.text + "\n\n");
+                var selStart = $editor[0].selectionStart;
+                var selEnd = $editor[0].selectionEnd;
+                $editor.val($editor.val().slice(0, selStart) + data.text + "\n\n" + $editor.val().slice(selEnd));
+                var caretPos = selEnd + data.text.length + 2;
+                $editor[0].setSelectionRange(caretPos, caretPos);
             }
         });
 
