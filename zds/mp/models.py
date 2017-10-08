@@ -232,7 +232,7 @@ class PrivatePost(models.Model):
         :return: PrivatePost description
         :rtype: unicode
         """
-        return '<Post pour « {0} », #{1}>'.format(self.privatetopic, self.pk)
+        return '<Post pour « {0} », #{1}>'.format(self.privatetopic, self.pk)
 
     def get_absolute_url(self):
         """
@@ -307,7 +307,7 @@ class PrivateTopicRead(models.Model):
         :return: PrivateTopicRead description
         :rtype: unicode
         """
-        return '<Sujet « {0} » lu par {1}, #{2}>'.format(self.privatetopic, self.user, self.privatepost.pk)
+        return '<Sujet « {0} » lu par {1}, #{2}>'.format(self.privatetopic, self.user, self.privatepost.pk)
 
 
 def is_privatetopic_unread(privatetopic, user=None):

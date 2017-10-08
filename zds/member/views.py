@@ -712,7 +712,7 @@ def remove_banned_email_provider(request, provider_pk):
     provider = get_object_or_404(BannedEmailProvider, pk=provider_pk)
     provider.delete()
 
-    messages.success(request, _('Le fournisseur « {} » a été débanni.').format(provider.provider))
+    messages.success(request, _('Le fournisseur « {} » a été débanni.').format(provider.provider))
     return redirect('banned-email-providers')
 
 
@@ -806,12 +806,12 @@ def solve_hat_request(request, request_pk):
     if 'grant' in request.POST:  # hat is granted
         hat, created = Hat.objects.get_or_create(name__iexact=hat_request.hat, defaults={'name': hat_request.hat})
         if created:
-            messages.success(request, _('La casquette « {} » a été créée.').format(hat_request.hat))
+            messages.success(request, _('La casquette « {} » a été créée.').format(hat_request.hat))
         hat_request.user.profile.hats.add(hat)
-        messages.success(request, _('La casquette « {0} » a été accordée à {1}.').format(
+        messages.success(request, _('La casquette « {0} » a été accordée à {1}.').format(
             hat_request.hat, hat_request.user.username))
     else:
-        messages.success(request, _('La casquette « {0} » a été refusée à {1}.').format(
+        messages.success(request, _('La casquette « {0} » a été refusée à {1}.').format(
             hat_request.hat, hat_request.user.username))
 
     # send a PM to notify member about this decision
@@ -828,7 +828,7 @@ def solve_hat_request(request, request_pk):
     )
     send_mp(bot,
             [hat_request.user],
-            _('Casquette « {} »').format(hat_request.hat),
+            _('Casquette « {} »').format(hat_request.hat),
             '',
             msg,
             False,
@@ -863,7 +863,7 @@ def add_hat(request, user_pk):
     else:
         hat, created = Hat.objects.get_or_create(name__iexact=hat_name, defaults={'name': hat_name})
         if created:
-            messages.success(request, _('La casquette « {} » a été créée.').format(hat_name))
+            messages.success(request, _('La casquette « {} » a été créée.').format(hat_name))
         if hat.group:
             messages.error(request, _('Cette casquette est accordée aux membres d\'un groupe particulier. '
                                       'Elle ne peut pas être ajoutée individuellement.'))

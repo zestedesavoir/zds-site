@@ -107,7 +107,7 @@
                             {% csrf_token %}
                             <p>
                                 {% blocktrans with hat=hat.name username=usr.username %}
-                                    Voulez-vous vraiment retirer la casquette « {{ hat }} » à {{ username }} ?
+                                    Voulez-vous vraiment retirer la casquette « {{ hat }} » à {{ username }} ?
                                 {% endblocktrans %}
                             </p>
                             <button type="submit">{% trans 'Confirmer' %}</button>

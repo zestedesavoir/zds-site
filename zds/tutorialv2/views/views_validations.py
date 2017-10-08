@@ -572,7 +572,7 @@ class PublishOpinion(LoggedWithReadWriteHability, NoValidationBeforeFormViewMixi
     authorized_for_staff = True
 
     def get(self, request, *args, **kwargs):
-        raise Http404(_("Publier un contenu n'est pas possible avec la méthode « GET »."))
+        raise Http404(_("Publier un contenu n'est pas possible avec la méthode « GET »."))
 
     def get_form_kwargs(self):
         kwargs = super(PublishOpinion, self).get_form_kwargs()
@@ -768,7 +768,7 @@ class PickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
     permissions = ['tutorialv2.change_validation']
 
     def get(self, request, *args, **kwargs):
-        raise Http404(_("Valider un contenu n'est pas possible avec la méthode « GET »."))
+        raise Http404(_("Valider un contenu n'est pas possible avec la méthode « GET »."))
 
     def get_form_kwargs(self):
         kwargs = super(PickOpinion, self).get_form_kwargs()
@@ -825,7 +825,7 @@ class UnpickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
     permissions = ['tutorialv2.change_validation']
 
     def get(self, request, *args, **kwargs):
-        raise Http404(_("Enlever un billet des billets choisis n'est pas possible avec la méthode « GET »."))
+        raise Http404(_("Enlever un billet des billets choisis n'est pas possible avec la méthode « GET »."))
 
     def get_form_kwargs(self):
         kwargs = super(UnpickOpinion, self).get_form_kwargs()
@@ -913,7 +913,7 @@ class PromoteOpinionToArticle(PermissionRequiredMixin, NoValidationBeforeFormVie
     permissions = ['tutorialv2.change_validation']
 
     def get(self, request, *args, **kwargs):
-        raise Http404(_("Promouvoir un billet en article n'est pas possible avec la méthode « GET »."))
+        raise Http404(_("Promouvoir un billet en article n'est pas possible avec la méthode « GET »."))
 
     def get_form_kwargs(self):
         kwargs = super(PromoteOpinionToArticle, self).get_form_kwargs()
@@ -972,7 +972,7 @@ class PromoteOpinionToArticle(PermissionRequiredMixin, NoValidationBeforeFormVie
         validation = Validation()
         validation.content = article
         validation.date_proposition = datetime.now()
-        validation.comment_authors = _('Promotion du billet « [{0}]({1}) » en article par [{2}]({3}).'.format(
+        validation.comment_authors = _('Promotion du billet « [{0}]({1}) » en article par [{2}]({3}).'.format(
             article.title,
             article.get_absolute_url_online(),
             self.request.user.username,

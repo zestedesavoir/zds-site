@@ -1187,7 +1187,7 @@ class Validation(models.Model):
         default='PENDING')
 
     def __str__(self):
-        return _('Validation de « {} »').format(self.content.title)
+        return _('Validation de « {} »').format(self.content.title)
 
     def is_pending(self):
         """Check if the validation is pending

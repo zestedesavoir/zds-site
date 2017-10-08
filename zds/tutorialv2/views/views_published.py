@@ -774,7 +774,7 @@ class UpdateNoteView(SendNoteFormView):
                     msg_alert = _('Attention, en éditant ce message vous résolvez également '
                                   'les alertes suivantes : {}') \
                         .format(', '.join(
-                            ['« {} » (signalé par {})'.format(a.text, a.author.username) for a in alerts]
+                            ['« {} » (signalé par {})'.format(a.text, a.author.username) for a in alerts]
                         ))
                     messages.warning(self.request, msg_alert)
 

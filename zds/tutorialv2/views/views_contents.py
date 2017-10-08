@@ -584,13 +584,13 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                         introduction = str(zip_file.read(child.introduction), 'utf-8')
                     except UnicodeDecodeError:
                         raise BadArchiveError(
-                            _("Le fichier « {} » n'est pas encodé en UTF-8".format(child.introduction)))
+                            _("Le fichier « {} » n'est pas encodé en UTF-8".format(child.introduction)))
                 if child.conclusion:
                     try:
                         conclusion = str(zip_file.read(child.conclusion), 'utf-8')
                     except UnicodeDecodeError:
                         raise BadArchiveError(
-                            _("Le fichier « {} » n'est pas encodé en UTF-8".format(child.conclusion)))
+                            _("Le fichier « {} » n'est pas encodé en UTF-8".format(child.conclusion)))
 
                 copy_to.repo_add_container(child.title, introduction, conclusion, do_commit=False, slug=child.slug)
                 UpdateContentWithArchive.update_from_new_version_in_zip(copy_to.children[-1], child, zip_file)
@@ -600,7 +600,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                     text = str(zip_file.read(child.text), 'utf-8')
                 except UnicodeDecodeError:
                     raise BadArchiveError(
-                        _("Le fichier « {} » n'est pas encodé en UTF-8".format(child.text)))
+                        _("Le fichier « {} » n'est pas encodé en UTF-8".format(child.text)))
 
                 copy_to.repo_add_extract(child.title, text, do_commit=False, slug=child.slug)
 
@@ -731,7 +731,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                 manifest = json_reader.loads(str(zfile.read('manifest.json'), 'utf-8'))
                 if 'licence' not in manifest or manifest['licence'] != new_version.licence.code:
                     messages.info(
-                        self.request, _('la licence « {} » a été appliquée.').format(new_version.licence.code))
+                        self.request, _('la licence « {} » a été appliquée.').format(new_version.licence.code))
 
                 # first, update DB object (in order to get a new slug if needed)
                 self.object.title = new_version.title
@@ -781,7 +781,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                 commit_message = form.cleaned_data['msg_commit']
 
                 if not commit_message:
-                    commit_message = _("Importation d'une archive contenant « {} ».").format(new_version.title)
+                    commit_message = _("Importation d'une archive contenant « {} ».").format(new_version.title)
 
                 sha = versioned.commit_changes(commit_message)
 
@@ -799,7 +799,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                         versioned,
                         self.object.gallery)
 
-                    commit_message = _("Utilisation des images de l'archive pour « {} »").format(new_version.title)
+                    commit_message = _("Utilisation des images de l'archive pour « {} »").format(new_version.title)
                     sha = versioned.commit_changes(commit_message)  # another commit
 
                 # of course, need to update sha
@@ -842,7 +842,7 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
                 manifest = json_reader.loads(str(zfile.read('manifest.json'), 'utf-8'))
                 if 'licence' not in manifest or manifest['licence'] != new_content.licence.code:
                     messages.info(
-                        self.request, _('la licence « {} » a été appliquée.'.format(new_content.licence.code)))
+                        self.request, _('la licence « {} » a été appliquée.'.format(new_content.licence.code)))
 
                 # first, create DB object (in order to get a slug)
                 self.object = PublishableContent()
@@ -884,7 +884,7 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
                 if new_content.conclusion:
                     conclusion = str(zfile.read(new_content.conclusion), 'utf-8')
 
-                commit_message = _('Création de « {} »').format(new_content.title)
+                commit_message = _('Création de « {} »').format(new_content.title)
                 init_new_repo(self.object, introduction, conclusion, commit_message=commit_message)
 
                 # copy all:
@@ -900,7 +900,7 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
                 commit_message = form.cleaned_data['msg_commit']
 
                 if not commit_message:
-                    commit_message = _("Importation d'une archive contenant « {} »").format(new_content.title)
+                    commit_message = _("Importation d'une archive contenant « {} »").format(new_content.title)
                 versioned.slug = self.object.slug  # force slug to ensure path resolution
                 sha = versioned.repo_update(versioned.title, versioned.get_introduction(),
                                             versioned.get_conclusion(), commit_message, update_slug=True)
@@ -919,7 +919,7 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
                         versioned,
                         self.object.gallery)
 
-                    commit_message = _("Utilisation des images de l'archive pour « {} »").format(new_content.title)
+                    commit_message = _("Utilisation des images de l'archive pour « {} »").format(new_content.title)
                     sha = versioned.commit_changes(commit_message)  # another commit
 
                 # of course, need to update sha
@@ -948,7 +948,7 @@ class CreateContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin, F
     def render_to_response(self, context, **response_kwargs):
         parent = context['container']
         if not parent.can_add_container():
-            messages.error(self.request, _('Vous ne pouvez plus ajouter de conteneur à « {} ».').format(parent.title))
+            messages.error(self.request, _('Vous ne pouvez plus ajouter de conteneur à « {} ».').format(parent.title))
             return redirect(parent.get_absolute_url())
 
         return super(CreateContainer, self).render_to_response(context, **response_kwargs)
@@ -1133,7 +1133,7 @@ class CreateExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin, For
     def render_to_response(self, context, **response_kwargs):
         parent = context['container']
         if not parent.can_add_extract():
-            messages.error(self.request, _('Vous ne pouvez plus ajouter de section à « {} ».').format(parent.title))
+            messages.error(self.request, _('Vous ne pouvez plus ajouter de section à « {} ».').format(parent.title))
             return redirect(parent.get_absolute_url())
 
         return super(CreateExtract, self).render_to_response(context, **response_kwargs)
@@ -1534,9 +1534,9 @@ class WarnTypo(SingleContentFormViewMixin):
                 _type = _('le billet')
 
             if form.content.get_tree_depth() == 0:
-                pm_title = _('J\'ai trouvé une faute dans {} « {} ».').format(_type, form.content.title)
+                pm_title = _('J\'ai trouvé une faute dans {} « {} ».').format(_type, form.content.title)
             else:
-                pm_title = _('J\'ai trouvé une faute dans le chapitre « {} ».').format(form.content.title)
+                pm_title = _('J\'ai trouvé une faute dans le chapitre « {} ».').format(form.content.title)
 
             msg = render_to_string(
                 'tutorialv2/messages/warn_typo.md',

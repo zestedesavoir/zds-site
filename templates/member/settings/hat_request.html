@@ -4,7 +4,7 @@
 
 
 {% block title %}
-    {% trans "Demande de" %} « {{ hat_request.hat }} » &bull; {% trans "Demandes de casquettes" %} &bull; {% trans "Casquettes" %}
+    {% trans "Demande de" %} « {{ hat_request.hat }} » &bull; {% trans "Demandes de casquettes" %} &bull; {% trans "Casquettes" %}
 {% endblock %}
 
 
@@ -21,14 +21,14 @@
         </a>
     </li>
     <li>
-        {% trans "Demande de" %} « {{ hat_request.hat }} »
+        {% trans "Demande de" %} « {{ hat_request.hat }} »
     </li>
 {% endblock %}
 
 
 
 {% block headline %}
-    {% trans "Demande de" %} « {{ hat_request.hat }} »
+    {% trans "Demande de" %} « {{ hat_request.hat }} »
 {% endblock %}
 
 
@@ -36,7 +36,7 @@
 {% block content %}
     <p>
         {% blocktrans with user_url=hat_request.user.profile.get_absolute_url username=hat_request.user.username hat=hat_request.hat date=hat_request.date|format_date:True %}
-            <a href="{{ user_url }}">{{ username }}</a> a demandé la casquette « {{ hat }} » {{ date }} :
+            <a href="{{ user_url }}">{{ username }}</a> a demandé la casquette « {{ hat }} » {{ date }} :
         {% endblocktrans %}
     </p>
 
