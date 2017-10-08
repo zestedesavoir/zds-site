@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+ 
 import datetime
 from django.core.cache import cache
 from django.utils.encoding import force_text

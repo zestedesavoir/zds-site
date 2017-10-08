@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+ 
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
