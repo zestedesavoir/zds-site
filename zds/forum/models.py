@@ -326,23 +326,15 @@ class Topic(AbstractESDjangoIndexable):
 
         if t_read:
             return t_read.post.pk, t_read.post.position
-<<<<<<< HEAD
+
         return list(
-            Post.objects
+            Post
+            .objects
             .filter(topic__pk=self.pk)
             .order_by('position')
-            .values('pk', 'position').first().values()
-        )
-=======
-
-        return Post \
-            .objects \
-            .filter(topic__pk=self.pk) \
-            .order_by('position') \
-            .values('pk', 'position') \
-            .first() \
-            .values()
->>>>>>> Refactorisation
+            .values('pk', 'position')
+            .first()
+            .values())
 
     def first_unread_post(self, user=None):
         """
