@@ -65,10 +65,12 @@ class Category(models.Model):
         :rtype: list[Forum]
         """
         forums_pub = Forum.objects.get_public_forums_of_category(self, with_count=with_count)
-        if user is not None and user.is_authenticated():
-            forums_private = Forum.objects.get_private_forums_of_category(self, user)
-            return list(forums_pub | forums_private)
-        return forums_pub
+
+        if user is None or not user.is_authenticated():
+            return forums_pub
+
+        forums_private = Forum.objects.get_private_forums_of_category(self, user)
+        return list(forums_pub | forums_private)
 
 
 class Forum(models.Model):
@@ -144,17 +146,14 @@ class Forum(models.Model):
         :return: `True` if the user can read this forum, `False` otherwise.
         """
 
-        if not self.has_group:
-            return True
-        else:
-            # authentication is the best way to be sure groups are available in the user object
-            if user is not None:
-                groups = list(user.groups.all()) if not isinstance(user, AnonymousUser) else []
-                return Forum.objects.filter(
-                    groups__in=groups,
-                    pk=self.pk).exists()
-            else:
-                return False
+        # authentication is the best way to be sure groups are available in the user object
+        if self.has_group and user is not None:
+            groups = list(user.groups.all()) if not isinstance(user, AnonymousUser) else []
+            return Forum.objects.filter(
+                groups__in=groups,
+                pk=self.pk).exists()
+
+        return not self.has_group
 
     @property
     def has_group(self):
@@ -164,9 +163,7 @@ class Forum(models.Model):
         :return: ``True`` if it belongs to at least one group
         :rtype: bool
         """
-        if self._nb_group is None:
-            self._nb_group = self.groups.count()
-        return self._nb_group > 0
+        return (self.groups.count() if self._nb_group is None else self._nb_group) > 0
 
 
 class Topic(AbstractESDjangoIndexable):
@@ -242,11 +239,7 @@ class Topic(AbstractESDjangoIndexable):
         :return: the last answer in the thread, if any.
         """
         last_post = self.get_last_post()
-
-        if last_post == self.first_post():
-            return None
-        else:
-            return last_post
+        return None if last_post == self.first_post() else last_post
 
     def first_post(self):
         """
@@ -254,10 +247,11 @@ class Topic(AbstractESDjangoIndexable):
         """
         # we need the author prefetching as this method is widely used in templating directly or with
         # all the mess arround last_answer and last_read message
-        return Post.objects\
-            .filter(topic=self)\
-            .select_related('author')\
-            .order_by('position')\
+        return Post \
+            .objects \
+            .filter(topic=self) \
+            .select_related('author') \
+            .order_by('position') \
             .first()
 
     def add_tags(self, tag_collection):
@@ -284,11 +278,12 @@ class Topic(AbstractESDjangoIndexable):
         :return: the last post the user has read.
         """
         try:
-            return TopicRead.objects \
-                            .select_related() \
-                            .filter(topic__pk=self.pk,
-                                    user__pk=get_current_user().pk) \
-                            .latest('post__position').post
+            return TopicRead \
+                .objects \
+                .select_related() \
+                .filter(topic__pk=self.pk,
+                        user__pk=get_current_user().pk) \
+                .latest('post__position').post
         except TopicRead.DoesNotExist:
             return self.first_post()
 
@@ -300,18 +295,19 @@ class Topic(AbstractESDjangoIndexable):
         :rtype: str
         """
         user = get_current_user()
+
         if user is None or not user.is_authenticated():
             return self.first_unread_post().get_absolute_url()
-        else:
-            try:
-                pk, pos = self.resolve_last_post_pk_and_pos_read_by_user(user)
-                page_nb = 1
-                if pos > settings.ZDS_APP['forum']['posts_per_page']:
-                    page_nb += (pos - 1) // settings.ZDS_APP['forum']['posts_per_page']
-                return '{}?page={}#p{}'.format(
-                    self.get_absolute_url(), page_nb, pk)
-            except TopicRead.DoesNotExist:
-                return self.first_unread_post().get_absolute_url()
+
+        try:
+            pk, pos = self.resolve_last_post_pk_and_pos_read_by_user(user)
+            page_nb = 1
+            if pos > settings.ZDS_APP['forum']['posts_per_page']:
+                page_nb += (pos - 1) // settings.ZDS_APP['forum']['posts_per_page']
+            return '{}?page={}#p{}'.format(
+                self.get_absolute_url(), page_nb, pk)
+        except TopicRead.DoesNotExist:
+            return self.first_unread_post().get_absolute_url()
 
     def resolve_last_post_pk_and_pos_read_by_user(self, user):
         """get the primary key and position of the last post the user read
@@ -321,19 +317,23 @@ class Topic(AbstractESDjangoIndexable):
         :return: the primary key
         :rtype: int
         """
-        t_read = TopicRead.objects\
-                          .select_related('post')\
-                          .filter(topic__pk=self.pk,
-                                  user__pk=user.pk) \
-                          .latest('post__position')
+        t_read = TopicRead \
+            .objects \
+            .select_related('post') \
+            .filter(topic__pk=self.pk,
+                    user__pk=user.pk) \
+            .latest('post__position')
+
         if t_read:
             return t_read.post.pk, t_read.post.position
-        return list(
-            Post.objects
+
+        return list(Post
+            .objects
             .filter(topic__pk=self.pk)
             .order_by('position')
-            .values('pk', 'position').first().values()
-        )
+            .values('pk', 'position')
+            .first()
+            .values())
 
     def first_unread_post(self, user=None):
         """
@@ -347,15 +347,19 @@ class Topic(AbstractESDjangoIndexable):
             if user is None:
                 user = get_current_user()
 
-            last_post = TopicRead.objects \
-                                 .filter(topic__pk=self.pk,
-                                         user__pk=user.pk) \
-                                 .latest('post__position').post
+            last_post = TopicRead \
+                .objects \
+                .filter(topic__pk=self.pk,
+                        user__pk=user.pk) \
+                .latest('post__position') \
+                .post
 
-            next_post = Post.objects.filter(topic__pk=self.pk,
-                                            position__gt=last_post.position) \
-                                    .select_related('author').first()
-            return next_post
+            return Post \
+                .objects \
+                .filter(topic__pk=self.pk,
+                        position__gt=last_post.position) \
+                .select_related('author') \
+                .first()
         except (TopicRead.DoesNotExist, Post.DoesNotExist):
             return self.first_post()
 
@@ -371,10 +375,10 @@ class Topic(AbstractESDjangoIndexable):
         if user is None:
             user = get_current_user()
 
-        last_user_post = Post.objects\
-            .filter(topic=self)\
-            .filter(author=user.pk)\
-            .order_by('position')\
+        last_user_post = Post.objects \
+            .filter(topic=self) \
+            .filter(author=user.pk) \
+            .order_by('position') \
             .last()
 
         if last_user_post and last_user_post == self.get_last_post():
@@ -393,12 +397,11 @@ class Topic(AbstractESDjangoIndexable):
         """
         last_post = self.last_message
 
-        if last_post is not None:
-            t = last_post.pubdate + timedelta(days=settings.ZDS_APP['forum']['old_post_limit_days'])
-            if t < datetime.today():
-                return True
+        if last_post is None:
+            return False
 
-        return False
+        t = last_post.pubdate + timedelta(days=settings.ZDS_APP['forum']['old_post_limit_days'])
+        return t < datetime.today()
 
     @classmethod
     def get_es_mapping(cls):
@@ -520,11 +523,9 @@ class Post(Comment, AbstractESDjangoIndexable):
         """Overridden to prefetch stuffs
         """
 
-        q = super(Post, cls).get_es_django_indexable(force_reindexing)\
+        return super(Post, cls).get_es_django_indexable(force_reindexing)\
             .prefetch_related('topic')\
             .prefetch_related('topic__forum')
-
-        return q
 
     def get_es_document_source(self, excluded_fields=None):
         """Overridden to handle the information of the topic
@@ -554,8 +555,8 @@ class Post(Comment, AbstractESDjangoIndexable):
 
         super(Post, self).hide_comment_by_user(user, text_hidden)
 
-        index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
-        index_manager.update_single_document(self, {'is_visible': False})
+        ESIndexManager(**settings.ES_SEARCH_INDEX) \
+            .update_single_document(self, {'is_visible': False})
 
 
 @receiver(pre_delete, sender=Post)
@@ -580,9 +581,10 @@ class TopicRead(models.Model):
     objects = TopicReadManager()
 
     def __str__(self):
-        return "<Sujet '{0}' lu par {1}, #{2}>".format(self.topic,
-                                                       self.user,
-                                                       self.post.pk)
+        return "<Sujet '{0}' lu par {1}, #{2}>".format(
+            self.topic,
+            self.user,
+            self.post.pk)
 
 
 def is_read(topic, user=None):
@@ -595,10 +597,12 @@ def is_read(topic, user=None):
     :param user: A user. If undefined, the current user is used.
     :return:
     """
-    if user is None:
-        user = get_current_user()
+    user = user or get_current_user()
 
-    return TopicRead.objects.filter(post=topic.last_message, topic=topic, user=user).exists()
+    return TopicRead \
+        .objects \
+        .filter(post=topic.last_message, topic=topic, user=user) \
+        .exists()
 
 
 def mark_read(topic, user=None):
@@ -606,14 +610,15 @@ def mark_read(topic, user=None):
     Mark the last message of a topic as read for the current user.
     :param topic: A topic.
     """
-    if not user:
-        user = get_current_user()
+    user = user or get_current_user()
 
     if user and user.is_authenticated():
         current_topic_read = TopicRead.objects.filter(topic=topic, user=user).first()
+
         if current_topic_read is None:
             current_topic_read = TopicRead(post=topic.last_message, topic=topic, user=user)
         else:
             current_topic_read.post = topic.last_message
+
         current_topic_read.save()
         signals.content_read.send(sender=topic.__class__, instance=topic, user=user)
