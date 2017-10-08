@@ -497,14 +497,12 @@ class UsernameAndEmailForm(forms.Form):
                                                            't l\'adresse de courriel soit le nom d\'utilisateur')])
         elif not username and not email:
             self._errors['username'] = self.error_class([_('Il vous faut remplir au moins un des deux champs')])
-        else:
-            # run validators
-            if username:
-                validate_not_empty(username)
-                validate_zds_username(username, check_username_available=False)
-            else:
-                validate_not_empty(email)
-                validate_zds_email(email, check_username_available=False)
+        elif username:
+            validate_not_empty(username)
+            validate_zds_username(username, check_username_available=False)
+        else: # use the email
+            validate_not_empty(email)
+            validate_zds_email(email, check_username_available=False)
 
         return cleaned_data
 
