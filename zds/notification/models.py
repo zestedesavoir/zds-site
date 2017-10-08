@@ -79,13 +79,6 @@ class Subscription(models.Model):
             self.by_email = False
             self.save()
 
-    def set_last_notification(self, notification):
-        """
-        Replace last_notification by the one given
-        """
-        self.last_notification = notification
-        self.save()
-
     def send_email(self, notification):
         """
         Sends an email notification
@@ -137,7 +130,6 @@ class SingleNotificationMixin(object):
         :param send_email : whether an email must be sent if the subscription by email is active
         """
         assert hasattr(self, 'last_notification')
-        assert hasattr(self, 'set_last_notification')
         assert hasattr(self, 'get_notification_url')
         assert hasattr(self, 'get_notification_title')
         assert hasattr(self, 'send_email')
@@ -161,7 +153,7 @@ class SingleNotificationMixin(object):
                 notification.pubdate = content.pubdate
                 notification.is_read = False
                 notification.save()
-                self.set_last_notification(notification)
+                self.last_notification = notification
                 self.save()
 
                 if send_email and self.by_email:
@@ -203,7 +195,7 @@ class MultipleNotificationsMixin(object):
             notification.title = self.get_notification_title(content)
             notification.is_read = False
             notification.save()
-            self.set_last_notification(notification)
+            self.last_notification = notification
             self.save()
 
             if send_email and self.by_email:
