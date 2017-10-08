@@ -45,16 +45,8 @@
                                         {% trans "Supprimer la galerie" %}
                                     </a>
                                     <form action="{% url "gallery-modify" %}" method="post" id="delete-galleries" class="modal modal-flex">
-                                        <label for="g_items" class="checkbox">
-                                            <input
-                                                name="g_items"
-                                                type="checkbox"
-                                                checked
-                                                value="{{ gallery.pk }}"
-                                                form="delete-galleries"
-
-                                            /> {% trans "Supprimer la galerie" %} ?
-                                        </label>
+                                        <input name="g_items" type="hidden" value="{{ gallery.pk }}" form="delete-galleries" />
+                                        <p>{% trans "Êtes-vous certain de vouloir supprimer cette galerie ?" %}</p>
                                         {% csrf_token %}
                                         <button type="submit" name="delete_multi" class="btn">{% trans "Supprimer" %}</button>
                                     </form>
