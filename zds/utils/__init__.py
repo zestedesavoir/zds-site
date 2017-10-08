@@ -1,29 +1,23 @@
 # coding: utf-8
 
+from threading import local
+
 from django.template import defaultfilters
 
 
-try:
-    from threading import local
-except ImportError:
-    from django.utils._threading_local import local
-
-_thread_locals = local()
-
-
 def get_current_user():
-    return getattr(_thread_locals, 'user', None)
+    return getattr(local(), 'user', None)
 
 
 def get_current_request():
-    return getattr(_thread_locals, 'request', None)
+    return getattr(local(), 'request', None)
 
 
 class ThreadLocals(object):
 
     def process_request(self, request):
-        _thread_locals.user = getattr(request, 'user', None)
-        _thread_locals.request = request
+        local().user = getattr(request, 'user', None)
+        local().request = request
 
 
 def slugify(text):
