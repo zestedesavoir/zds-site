@@ -2,7 +2,6 @@
 
 
 from django.db.models import CASCADE
-from django.utils.encoding import python_2_unicode_compatible
 from datetime import datetime
 
 from zds.tutorialv2.models.mixins import TemplatableContentModelMixin, OnlineLinkableContentMixin
@@ -54,7 +53,6 @@ ALLOWED_TYPES = ['pdf', 'md', 'html', 'epub', 'zip']
 logger = logging.getLogger('zds.tutorialv2')
 
 
-@python_2_unicode_compatible
 class PublishableContent(models.Model, TemplatableContentModelMixin):
     """A publishable content.
 
@@ -359,10 +357,16 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
             if sha != public.sha_public:
                 raise NotAPublicVersion
 
-            manifest = open(os.path.join(path, 'manifest.json'), 'r')
-            json = json_reader.loads(manifest.read())
-            versioned = get_content_from_json(
-                json, public.sha_public, slug, public=True, max_title_len=max_title_length, hint_licence=self.licence)
+            with open(os.path.join(path, 'manifest.json'), 'r', encoding='utf-8') as manifest:
+                json = json_reader.loads(manifest.read())
+                versioned = get_content_from_json(
+                    json,
+                    public.sha_public,
+                    slug,
+                    public=True,
+                    max_title_len=max_title_length,
+                    hint_licence=self.licence,
+                )
 
         else:  # draft version, use the repository (slower, but allows manipulation)
             path = self.get_repo_path()
@@ -581,7 +585,6 @@ def delete_gallery(sender, instance, **kwargs):
         instance.gallery.delete()
 
 
-@python_2_unicode_compatible
 class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, OnlineLinkableContentMixin):
     """A class that contains information on the published version of a content.
 
@@ -1100,7 +1103,6 @@ class FakeChapter(AbstractESIndexable):
         return document
 
 
-@python_2_unicode_compatible
 class ContentReaction(Comment):
     """
     A comment written by any user about a PublishableContent they just read.
@@ -1128,7 +1130,6 @@ class ContentReaction(Comment):
         return self.related_content.title
 
 
-@python_2_unicode_compatible
 class ContentRead(models.Model):
     """
     Small model which keeps track of the user viewing tutorials.
@@ -1156,7 +1157,6 @@ class ContentRead(models.Model):
         return '<Contenu "{}" lu par {}, #{}>'.format(self.content, self.user, self.note.pk)
 
 
-@python_2_unicode_compatible
 class Validation(models.Model):
     """
     Content validation.
@@ -1187,7 +1187,7 @@ class Validation(models.Model):
         default='PENDING')
 
     def __str__(self):
-        return _('Validation de « {} »').format(self.content.title)
+        return _('Validation de « {} »').format(self.content.title)
 
     def is_pending(self):
         """Check if the validation is pending
@@ -1230,7 +1230,6 @@ class Validation(models.Model):
         return self.status == 'CANCEL'
 
 
-@python_2_unicode_compatible
 class PickListOperation(models.Model):
     class Meta:
         verbose_name = "Choix d'un billet"

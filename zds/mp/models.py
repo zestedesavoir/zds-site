@@ -2,7 +2,6 @@
 
 from math import ceil
 
-from django.utils.encoding import python_2_unicode_compatible
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
@@ -13,7 +12,6 @@ from zds.notification import signals
 from zds.utils import get_current_user, slugify
 
 
-@python_2_unicode_compatible
 class PrivateTopic(models.Model):
     """
     Topic private, containing private posts.
@@ -209,7 +207,6 @@ class PrivateTopic(models.Model):
         return PrivateTopic.has_write_permission(request) and self.is_author(request.user)
 
 
-@python_2_unicode_compatible
 class PrivatePost(models.Model):
     """A private post written by a user."""
 
@@ -235,7 +232,7 @@ class PrivatePost(models.Model):
         :return: PrivatePost description
         :rtype: unicode
         """
-        return '<Post pour « {0} », #{1}>'.format(self.privatetopic, self.pk)
+        return '<Post pour « {0} », #{1}>'.format(self.privatetopic, self.pk)
 
     def get_absolute_url(self):
         """
@@ -288,7 +285,6 @@ class PrivatePost(models.Model):
         return PrivateTopic.has_write_permission(request) and self.is_last_message() and self.is_author(request.user)
 
 
-@python_2_unicode_compatible
 class PrivateTopicRead(models.Model):
     """
     Small model which keeps track of the user viewing private topics.
@@ -311,7 +307,7 @@ class PrivateTopicRead(models.Model):
         :return: PrivateTopicRead description
         :rtype: unicode
         """
-        return '<Sujet « {0} » lu par {1}, #{2}>'.format(self.privatetopic, self.user, self.privatepost.pk)
+        return '<Sujet « {0} » lu par {1}, #{2}>'.format(self.privatetopic, self.user, self.privatepost.pk)
 
 
 def is_privatetopic_unread(privatetopic, user=None):

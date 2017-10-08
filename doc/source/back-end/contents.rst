@@ -24,7 +24,7 @@ Des extraits
 
 Un **extrait** est une unité de texte. Il possède un titre (*title*) et du
 texte (*text*). Dans l'interface d'édition d'un tutoriel, un extrait est
-désigné par le terme « section ».
+désigné par le terme « section ».
 
 Des conteneurs
 --------------
@@ -34,16 +34,16 @@ sémantiquement proches. Il est caractérisé par son titre (*title*) et possèd
 une introduction (*introduction*) ainsi qu'une conclusion (*conclusion*),
 possiblement vides.
 
-Les éléments regroupés, appelés « enfants » (*children*) peuvent être de deux
+Les éléments regroupés, appelés « enfants » (*children*) peuvent être de deux
 types : conteneur ou extrait. La structure d'un conteneur obéit à certaines
 règles :
 
 * Un conteneur ne peut comporter un conteneur composé lui-même d'un conteneur ;
 * Un conteneur ne peut comporter d'enfants directs à la fois des conteneurs et des extraits.
 
-Au niveau de la terminologie, on désigne par « partie » tout conteneur de
+Au niveau de la terminologie, on désigne par « partie » tout conteneur de
 niveau 1, c'est-à-dire n'étant pas inclus dans un autre conteneur, et par
-« chapitre » tout conteneur enfant d'une partie.
+« chapitre » tout conteneur enfant d'une partie.
 
 Un contenu
 ----------
@@ -57,7 +57,7 @@ pas le cas d'un tutoriel.
 
 Les exemples suivants devraient éclairer ces notions.
 
-Communément appelé « mini-tutoriel » :
+Communément appelé « mini-tutoriel » :
 
 .. sourcecode:: none
 
@@ -66,7 +66,7 @@ Communément appelé « mini-tutoriel » :
         + Section
         + Section
 
-Communément appelé « moyen-tutoriel » :
+Communément appelé « moyen-tutoriel » :
 
 .. sourcecode:: none
 
@@ -77,7 +77,7 @@ Communément appelé « moyen-tutoriel » :
             + Section
             + Section
 
-Communément appelé « big-tutoriel » :
+Communément appelé « big-tutoriel » :
 
 .. sourcecode:: none
 
@@ -145,7 +145,7 @@ Tous les textes (introductions, conclusions et extraits) sont formatés en
 Markdown (dans la version étendue de ZdS).
 
 Conteneurs et extraits sont des **objets** (*object*). Dès lors, ils possèdent
-tous deux un *slug* (littéralement, « limace ») : il s'agit d'une chaîne de
+tous deux un *slug* (littéralement, « limace ») : il s'agit d'une chaîne de
 caractères générée à partir du titre de l'objet et qui, tout en restant lisible
 par un être humain, le simplifie considérablement. Un *slug* est uniquement
 composé de caractères alphanumériques minuscules et non-accentués
@@ -607,7 +607,7 @@ Ces paramètres sont à surcharger dans le dictionnaire ZDS_APP['content']
 - ``extra_content_generation_policy``: Contient la politique de génération des fichiers téléchargeable, 'SYNC', 'WATCHDOG' ou 'NOTHING'
 - ``extra_content_watchdog_dir``: dossier qui permet à l'observateur (si ``extra_content_generation_policy`` vaut ``"WATCHDOG"``) de savoir qu'un contenu a été publié
 - ``max_tree_depth``: Profondeur maximale de la hiérarchie des tutoriels : par défaut ``3`` pour partie/chapitre/extrait
-- ``default_licence_pk``: Clé primaire de la licence par défaut (« Tous droits réservés » en français), 7 si vous utilisez les fixtures
+- ``default_licence_pk``: Clé primaire de la licence par défaut (« Tous droits réservés » en français), 7 si vous utilisez les fixtures
 - ``content_per_page``: Nombre de contenus dans les listing (articles, tutoriels, billets)
 - ``notes_per_page``: Nombre de réactions nouvelles par page (donc sans compter la répétition de la dernière note de la page précédente)
 - ``helps_per_page`` : Nombre de contenus ayant besoin d'aide dans la page ZEP-03

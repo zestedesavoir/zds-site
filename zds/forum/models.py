@@ -1,6 +1,5 @@
 # coding: utf-8
 
-from django.utils.encoding import python_2_unicode_compatible
 import logging
 from datetime import datetime, timedelta
 from math import ceil
@@ -27,7 +26,6 @@ def sub_tag(tag):
     return '{0}'.format(start + end)
 
 
-@python_2_unicode_compatible
 class Category(models.Model):
     """
     A Category is a simple container for Forums.
@@ -73,7 +71,6 @@ class Category(models.Model):
         return forums_pub
 
 
-@python_2_unicode_compatible
 class Forum(models.Model):
     """
     A Forum, containing Topics. It can be public or restricted to some groups.
@@ -172,7 +169,6 @@ class Forum(models.Model):
         return self._nb_group > 0
 
 
-@python_2_unicode_compatible
 class Topic(AbstractESDjangoIndexable):
     """
     A Topic is a thread of posts.
@@ -468,7 +464,6 @@ def delete_topic_in_elasticsearch(sender, instance, **kwargs):
     return delete_document_in_elasticsearch(instance)
 
 
-@python_2_unicode_compatible
 class Post(Comment, AbstractESDjangoIndexable):
     """
     A forum post written by a user.
@@ -569,7 +564,6 @@ def delete_post_in_elasticsearch(sender, instance, **kwargs):
     return delete_document_in_elasticsearch(instance)
 
 
-@python_2_unicode_compatible
 class TopicRead(models.Model):
     """
     This model tracks the last post read in a topic by a user.

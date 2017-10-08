@@ -1019,9 +1019,9 @@ class WarnTypoForm(forms.Form):
             type_ = _('le billet')
 
         if targeted.get_tree_depth() == 0:
-            pm_title = _("J'ai trouvé une faute dans {} « {} ».").format(type_, targeted.title)
+            pm_title = _("J'ai trouvé une faute dans {} « {} ».").format(type_, targeted.title)
         else:
-            pm_title = _("J'ai trouvé une faute dans le chapitre « {} ».").format(targeted.title)
+            pm_title = _("J'ai trouvé une faute dans le chapitre « {} ».").format(targeted.title)
 
         usernames = ''
         num_of_authors = content.authors.count()

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-s
 
-from django.utils.encoding import python_2_unicode_compatible
 import logging
 from smtplib import SMTPException
 
@@ -24,7 +23,6 @@ from zds.utils.misc import convert_camel_to_underscore
 LOG = logging.getLogger(__name__)
 
 
-@python_2_unicode_compatible
 class Subscription(models.Model):
     """
     Model used to register the subscription of a user to a set of notifications (regarding a tutorial, a forum, ...)
@@ -81,13 +79,6 @@ class Subscription(models.Model):
             self.by_email = False
             self.save()
 
-    def set_last_notification(self, notification):
-        """
-        Replace last_notification by the one given
-        """
-        self.last_notification = notification
-        self.save()
-
     def send_email(self, notification):
         """
         Sends an email notification
@@ -139,7 +130,6 @@ class SingleNotificationMixin(object):
         :param send_email : whether an email must be sent if the subscription by email is active
         """
         assert hasattr(self, 'last_notification')
-        assert hasattr(self, 'set_last_notification')
         assert hasattr(self, 'get_notification_url')
         assert hasattr(self, 'get_notification_title')
         assert hasattr(self, 'send_email')
@@ -163,7 +153,7 @@ class SingleNotificationMixin(object):
                 notification.pubdate = content.pubdate
                 notification.is_read = False
                 notification.save()
-                self.set_last_notification(notification)
+                self.last_notification = notification
                 self.save()
 
                 if send_email and self.by_email:
@@ -205,7 +195,7 @@ class MultipleNotificationsMixin(object):
             notification.title = self.get_notification_title(content)
             notification.is_read = False
             notification.save()
-            self.set_last_notification(notification)
+            self.last_notification = notification
             self.save()
 
             if send_email and self.by_email:
@@ -242,7 +232,6 @@ class MultipleNotificationsMixin(object):
                 LOG.exception('Could not save %s', notification)
 
 
-@python_2_unicode_compatible
 class AnswerSubscription(Subscription):
     """
     Subscription to new answer, either in a topic, a article or a tutorial
@@ -259,7 +248,6 @@ class AnswerSubscription(Subscription):
         return self.content_object.title
 
 
-@python_2_unicode_compatible
 class TopicAnswerSubscription(AnswerSubscription, SingleNotificationMixin):
     """
     Subscription to new answer in a topic
@@ -272,7 +260,6 @@ class TopicAnswerSubscription(AnswerSubscription, SingleNotificationMixin):
             .format(self.user.username, self.object_id)
 
 
-@python_2_unicode_compatible
 class PrivateTopicAnswerSubscription(AnswerSubscription, SingleNotificationMixin):
     """
     Subscription to new answer in a private topic.
@@ -285,7 +272,6 @@ class PrivateTopicAnswerSubscription(AnswerSubscription, SingleNotificationMixin
             .format(self.user.username, self.object_id)
 
 
-@python_2_unicode_compatible
 class ContentReactionAnswerSubscription(AnswerSubscription, SingleNotificationMixin):
     """
     Subscription to new answer in a publishable content.
@@ -298,7 +284,6 @@ class ContentReactionAnswerSubscription(AnswerSubscription, SingleNotificationMi
             .format(self.user.username, self.object_id)
 
 
-@python_2_unicode_compatible
 class NewTopicSubscription(Subscription, MultipleNotificationsMixin):
     """
     Subscription to new topics in a forum or with a tag
@@ -317,7 +302,6 @@ class NewTopicSubscription(Subscription, MultipleNotificationsMixin):
         return topic.title
 
 
-@python_2_unicode_compatible
 class NewPublicationSubscription(Subscription, MultipleNotificationsMixin):
     """
     Subscription to new publications from a user.
@@ -336,7 +320,6 @@ class NewPublicationSubscription(Subscription, MultipleNotificationsMixin):
         return content.title
 
 
-@python_2_unicode_compatible
 class PingSubscription(AnswerSubscription, MultipleNotificationsMixin):
     """
     Subscription to ping of a user
@@ -361,7 +344,6 @@ def ping_url(user=None):
         pass
 
 
-@python_2_unicode_compatible
 class Notification(models.Model):
     """
     A notification
@@ -400,7 +382,6 @@ class Notification(models.Model):
         return Notification.has_read_permission(request) and self.subscription.user == request.user
 
 
-@python_2_unicode_compatible
 class TopicFollowed(models.Model):
     """
     This model tracks which user follows which topic.

@@ -46,7 +46,7 @@ class Command(BaseCommand):
                 notification.pubdate = content.pubdate
                 notification.save()
 
-                self.stdout.write('Migration about « {} » [OK]'.format(topic_never_read.topic.title))
+                self.stdout.write('Migration about « {} » [OK]'.format(topic_never_read.topic.title))
 
             # Private messages.
             self.stdout.write('Starting migration with private topics...')
@@ -89,7 +89,7 @@ class Command(BaseCommand):
                 notification.pubdate = answer.pubdate
                 notification.save()
 
-                self.stdout.write('Migration about « {} » [OK]'.format(private_topic_unread.title))
+                self.stdout.write('Migration about « {} » [OK]'.format(private_topic_unread.title))
 
             # Contents.
             self.stdout.write('Starting migration with contents...')
@@ -136,4 +136,4 @@ class Command(BaseCommand):
                 notification.pubdate = reaction.pubdate
                 notification.save()
 
-                self.stdout.write('Migration about « {} » [OK]'.format(content.title))
+                self.stdout.write('Migration about « {} » [OK]'.format(content.title))

@@ -131,7 +131,7 @@ Les casquettes peuvent être demandées dans les paramètres de son compte. Les 
 
 Les membres peuvent supprimer eux-mêmes leurs casquettes. Les utilisateurs ayant la permission ``utils.change_hat`` peuvent supprimer les casquettes de tout le monde.
 
-Attention : la casse est déterminée lors du premier ajout d'une casquette. Ainsi, si vous ajoutez une casquette « Staff » à un membre, ajouter une casquette « staff » à un autre membre par la suite lui ajoutera en réalité la casquette « Staff ». Si nécessaire, la casse d'une casquette peut être modifiée via l'administration de Django.
+Attention : la casse est déterminée lors du premier ajout d'une casquette. Ainsi, si vous ajoutez une casquette « Staff » à un membre, ajouter une casquette « staff » à un autre membre par la suite lui ajoutera en réalité la casquette « Staff ». Si nécessaire, la casse d'une casquette peut être modifiée via l'administration de Django.
 
 Il est également possible, depuis l'administration de Django, de lier une casquette à un groupe, ce qui l'accordera automatiquement à tous les membres du groupe. À noter que lier une casquette à un groupe empêche toute assignation individuelle de celle-ci à un membre. Ainsi, la dite casquette ne pourra plus être attribuée à un membre n'appartenant pas au groupe. De même, les membres du groupe ne pourront pas la supprimer sans quitter le groupe.
 

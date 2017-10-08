@@ -51,7 +51,7 @@
                         {% csrf_token %}
                         <p>
                             {% blocktrans with hat=hat.name %}
-                                Voulez-vous vraiment supprimer votre casquette « {{ hat }} » ?
+                                Voulez-vous vraiment supprimer votre casquette « {{ hat }} » ?
                             {% endblocktrans %}
                         </p>
                         <p>{% trans "Vous ne pourrez plus poster avec cette casquette et elle n'apparaîtra plus sur votre profil. Les messages ayant été postés avec le resteront. Notez toutefois que vous ne pourrez pas conserver la casquette si vous les éditez." %}
@@ -83,7 +83,7 @@
 
     <p>{% trans "Vous pouvez utiliser ce formulaire pour demander une casquette. Votre demande sera vérifiée par un membre de l'équipe du site qui pourra vous accorder la casquette." %}</p>
 
-    <p>{% trans "Veuillez indiquer dans votre demande pourquoi vous avez la légitimité de porter cette casquette. Vous pourriez par exemple donner votre adresse email au sein du projet en question (« votre.nom@entreprise-ou-projet.com »), une page de profil sur le site de l'entité en question, etc." %}</p>
+    <p>{% trans "Veuillez indiquer dans votre demande pourquoi vous avez la légitimité de porter cette casquette. Vous pourriez par exemple donner votre adresse email au sein du projet en question (« votre.nom@entreprise-ou-projet.com »), une page de profil sur le site de l'entité en question, etc." %}</p>
 
     <p>{% trans "Si la casquette vous est accordée, vous pourrez alors l'utiliser pour poster des messages pour lesquels montrer que vous avez ce rôle porte un intérêt." %}</p>
 

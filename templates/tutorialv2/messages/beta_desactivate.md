@@ -4,6 +4,6 @@
 
 Bonjour,
 
-La bêta du contenu « {{ title }} » a été désactivée.
+La bêta du contenu « {{ title }} » a été désactivée.
 
 {%  endblocktrans %}
