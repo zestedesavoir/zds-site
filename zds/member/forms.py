@@ -262,23 +262,10 @@ class ProfileForm(MiniProfileForm):
         initial = kwargs.get('initial', {})
         self.fields['options'].initial = ''
 
-        if 'show_sign' in initial and initial['show_sign']:
-            self.fields['options'].initial += 'show_sign'
-
-        if 'is_hover_enabled' in initial and initial['is_hover_enabled']:
-            self.fields['options'].initial += 'is_hover_enabled'
-
-        if 'allow_temp_visual_changes' in initial and initial['allow_temp_visual_changes']:
-            self.fields['options'].initial += 'allow_temp_visual_changes'
-
-        if 'use_old_smileys' in initial and initial['use_old_smileys']:
-            self.fields['options'].initial += 'use_old_smileys'
-
-        if 'show_markdown_help' in initial and initial['show_markdown_help']:
-            self.fields['options'].initial += 'show_markdown_help'
-
-        if 'email_for_answer' in initial and initial['email_for_answer']:
-            self.fields['options'].initial += 'email_for_answer'
+        for option in ['show_sign', 'is_hover_enabled', 'allow_temp_visual_changes',
+                       'use_old_smileys', 'show_markdown_help', 'email_for_answer']:
+            if option in initial and initial[option]:
+                self.field['options'].initial += option
 
         layout = Layout(
             Field('biography'),
