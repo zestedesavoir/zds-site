@@ -1,4 +1,4 @@
-# coding: utf-8
+  
 import codecs
 import copy
 import logging

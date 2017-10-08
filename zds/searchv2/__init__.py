@@ -1,4 +1,4 @@
-# coding: utf-8
+  
 from elasticsearch import TransportError
 from elasticsearch_dsl.connections import connections
 

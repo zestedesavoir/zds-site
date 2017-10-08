@@ -1,4 +1,4 @@
-# coding: utf-8
+  
 
 import factory
 from zds.forum.models import Category, Forum, Topic, Post

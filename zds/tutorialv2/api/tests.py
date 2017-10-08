@@ -1,4 +1,4 @@
-# coding: utf-8
+  
 from copy import deepcopy
 import os
 import shutil

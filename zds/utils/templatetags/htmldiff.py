@@ -1,4 +1,4 @@
-# coding: utf-8
+  
 
 from difflib import HtmlDiff
 from django import template

@@ -1,4 +1,4 @@
-# coding: utf-8
+  
 import collections
 import datetime
 from django.test import TestCase

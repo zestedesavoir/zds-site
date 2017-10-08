@@ -1,4 +1,4 @@
-# coding: utf-8
+  
 
 from django.utils.encoding import python_2_unicode_compatible
 from datetime import datetime

@@ -1,4 +1,4 @@
-# coding: utf-8
+  
 
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from zds.member.api.permissions import CanReadAndWriteNowOrReadOnly, IsNotOwnerOrReadOnly

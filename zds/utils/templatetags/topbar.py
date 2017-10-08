@@ -1,4 +1,4 @@
-# coding: utf-8
+  
 
 from collections import defaultdict, OrderedDict
 from django import template
