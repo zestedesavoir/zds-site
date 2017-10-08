@@ -1,4 +1,4 @@
-# coding: utf-8
+  
 from django.contrib.auth.models import Group
 from django.core import mail
 from django.core.urlresolvers import reverse

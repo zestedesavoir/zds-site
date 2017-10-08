@@ -1,4 +1,4 @@
-# coding: utf-8
+  
 
 # Based on default pluralize filter tests :
 # https://github.com/django/django/blob/master/tests/template_tests/filter_tests/test_pluralize.py

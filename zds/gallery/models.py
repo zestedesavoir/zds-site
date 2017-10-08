@@ -1,4 +1,4 @@
-# coding: utf-8
+  
 
 import os
 from uuid import uuid4

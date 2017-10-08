@@ -1,4 +1,4 @@
-# coding: utf-8
+  
 import hashlib
 import re
 from contextlib import contextmanager

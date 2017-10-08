@@ -1,4 +1,4 @@
-# coding: utf-8
+  
 
 from django.core.cache import caches
 from django.core.urlresolvers import reverse

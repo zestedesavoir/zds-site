@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+ 
 
 
 class Validator(object):

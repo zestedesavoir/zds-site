@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
+ 
 #
 # https://docs.djangoproject.com/en/dev/intro/reusable-apps/
 

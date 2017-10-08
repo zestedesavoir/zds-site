@@ -1,4 +1,4 @@
-# coding: utf-8
+  
 
 from social.apps.django_app.middleware import SocialAuthExceptionMiddleware
 from django.contrib import messages

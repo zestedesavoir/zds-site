@@ -1,4 +1,4 @@
-# coding: utf-8
+  
 from django.core.management import BaseCommand
 
 from zds.utils.models import Tag

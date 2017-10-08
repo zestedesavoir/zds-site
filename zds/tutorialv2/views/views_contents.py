@@ -1,4 +1,4 @@
-# coding: utf-8
+  
 import logging
 import json as json_reader
 import os

@@ -1,4 +1,4 @@
-# coding: utf-8
+  
 import shutil
 from collections import OrderedDict
 from datetime import datetime

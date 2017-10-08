@@ -1,4 +1,4 @@
-# coding: utf-8
+  
 
 from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings

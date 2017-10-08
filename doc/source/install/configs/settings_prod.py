@@ -1,4 +1,4 @@
-# coding: utf-8
+  
 
 # Zeste de Savoir settings file for production
 # WARNING: this file MUST be secret !!

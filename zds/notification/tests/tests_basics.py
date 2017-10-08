@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+ 
 import copy
 from datetime import datetime, timedelta
 from django.contrib.auth.models import Group

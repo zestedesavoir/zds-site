@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+ 
 #
 # Zeste de Savoir documentation build configuration file, created by
 # sphinx-quickstart on Sat Aug 30 12:10:30 2014.
