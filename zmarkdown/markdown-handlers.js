@@ -52,22 +52,22 @@ module.exports = function markdownHandlers (Raven) {
       processors[key] = zmarkdown(config, 'html')
     }
 
-    processors[key].renderString(String(markdown), (err, {content, metadata} = {}) => {
+    processors[key].renderString(String(markdown), (err, vfile = {}) => {
       if (err) {
         Raven.mergeContext({
           extra: {
             zmdConfig: makeSerializable(processors[key].config),
             markdown: markdown,
             zmdOutput: {
-              content,
-              metadata,
+              contents: vfile.contents,
+              metadata: vfile.data,
             }
           }
         })
         return callback(err, markdown)
       }
 
-      callback(null, [content, metadata])
+      callback(null, [vfile.contents, vfile.data])
     })
   }
 
@@ -89,33 +89,33 @@ module.exports = function markdownHandlers (Raven) {
       processors[key] = zmarkdown(config, 'latex')
     }
 
-    processors[key].renderString(String(markdown), (err, content) => {
+    processors[key].renderString(String(markdown), (err, contents) => {
       if (err) {
         Raven.mergeContext({
           extra: {
             zmdConfig: makeSerializable(processors[key].config),
             markdown: markdown,
             zmdOutput: {
-              content,
+              contents,
             }
           }
         })
         return callback(err, markdown)
       }
 
-      callback(null, [content, {}])
+      callback(null, [contents, {}])
     })
   }
 
   function toLatexDocument (markdown, opts = {}, callback) {
-    toLatex(markdown, opts, (err, [content, metadata] = []) => {
+    toLatex(markdown, opts, (err, [contents, metadata] = []) => {
       if (err) {
         Raven.mergeContext({
           extra: {
             zmdConfig: makeSerializable(opts),
             markdown: markdown,
             zmdOutput: {
-              content,
+              contents,
               metadata,
             }
           }
@@ -130,7 +130,7 @@ module.exports = function markdownHandlers (Raven) {
         license,
         smileysDirectory,
         disableToc,
-        latex = content,
+        latex = contents,
       } = opts
       try {
         const latexDocument = zmarkdown().latexDocumentTemplate({
