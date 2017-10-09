@@ -54,7 +54,8 @@ function controllerFactory (handler) {
     handler(req.body.md, req.body.opts, (err, result) => {
       if (err) {
         Raven.captureException(err, {req})
-        res.status(500).send(err)
+        res.status(500).json(null)
+        return
       }
 
       res.json(result)
