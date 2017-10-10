@@ -148,6 +148,12 @@ script:
     fi
 
   - |
+    # show zmarkdown logs
+    if [[ "$ZDS_TEST_JOB" == *"zds."* ]]; then
+      yarn run pm2 -- logs --nostream --raw --lines 1000
+    fi
+
+  - |
     # selenium tests
     if [[ "$ZDS_TEST_JOB" == *"selenium"* ]]; then
       yarn build
