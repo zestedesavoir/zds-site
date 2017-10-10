@@ -9,9 +9,7 @@ from django.db import models, IntegrityError, transaction
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist
 
-from zds.member.models import Profile
 from zds.forum.models import Topic
 from zds.notification.managers import NotificationManager, SubscriptionManager, TopicFollowedManager, \
     TopicAnswerSubscriptionManager, NewTopicSubscriptionManager

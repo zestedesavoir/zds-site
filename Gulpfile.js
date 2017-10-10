@@ -113,9 +113,10 @@ gulp.task('css:sprite', () =>
 
 // Optimizes the images
 gulp.task('images', ['css:sprite'], () =>
-    gulp.src('assets/{images,smileys}/**/*')
+    gulp.src('assets/{images,smileys,licenses}/**/*')
         .pipe(imagemin())
-        .pipe(gulp.dest('dist/')));
+        .pipe(gulp.dest('dist/'))
+);
 
 // Watch for file changes
 gulp.task('watch-runner', () => {
