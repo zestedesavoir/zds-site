@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="fr" xml:lang="fr">
+   <head>
+      <title>Navigation</title>
+      <meta charset="utf-8" />
+   </head>
+   <body>
+      <section>
+         <header>
+            <h1>Sommaire</h1>
+         </header>
+         <nav xmlns:epub="http://www.idpf.org/2007/ops" epub:type="toc" id="toc">
+            <ol>
+                {% for path, _, title in chapters %}
+                    <li>
+                        <a href="Text/{{ path }}">{{ title }}</a>
+                    </li>
+                {% endfor %}
+            </ol>
+         </nav>
+
+         <nav xmlns:epub="http://www.idpf.org/2007/ops" epub:type="landmarks" id="guide" hidden="hidden">
+            <h2>Guide</h2>
+             <ol>
+                 {% for path, _, title in chapters %}
+                     <li>
+                         <a epub:type="bodymatter" href="Text/{{ path }}">{{ title }}</a>
+                     </li>
+                 {% endfor %}
+             </ol>
+         </nav>
+      </section>
+   </body>
+</html>

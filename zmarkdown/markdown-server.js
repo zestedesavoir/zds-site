@@ -36,7 +36,7 @@ function serverStart () {
   app.use(Raven.requestHandler())
   app.use(Raven.errorHandler())
 
-  app.use(bodyParser.json())
+  app.use(bodyParser.json({limit: '5mb'}))
   app.post('/latex', controllerFactory(toLatex))
   app.post('/latex-document', controllerFactory(toLatexDocument))
   app.post('/html', controllerFactory(toHTML))

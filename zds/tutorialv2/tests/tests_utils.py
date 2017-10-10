@@ -2,6 +2,7 @@ import os
 import shutil
 import tempfile
 import datetime
+from pathlib import Path
 
 from django.conf import settings
 from django.test import TestCase
@@ -63,6 +64,14 @@ class UtilsTests(TestCase, TutorialTestMixin):
         self.part1 = ContainerFactory(parent=self.tuto_draft, db_object=self.tuto)
         self.chapter1 = ContainerFactory(parent=self.part1, db_object=self.tuto)
         self.old_registry = {key: value for key, value in PublicatorRegistry.get_all_registered()}
+
+        class TestPdfPublicator(Publicator):
+            def publish(self, md_file_path, base_name, **kwargs):
+                with Path(base_name + '.pdf').open('w') as f:
+                    f.write('bla')
+                shutil.copy2(str(Path(base_name + '.pdf')),
+                             str(Path(md_file_path.replace('__building', '')).parent))
+        PublicatorRegistery.registry['pdf'] = TestPdfPublicator()
 
     def test_get_target_tagged_tree_for_container(self):
         part2 = ContainerFactory(parent=self.tuto_draft, db_object=self.tuto, title='part2')
@@ -139,7 +148,9 @@ class UtilsTests(TestCase, TutorialTestMixin):
         # test creation of files:
         self.assertTrue(os.path.isdir(published.get_prod_path()))
         self.assertTrue(os.path.isfile(os.path.join(published.get_prod_path(), 'manifest.json')))
-        self.assertTrue(os.path.isfile(public.get_prod_path()))  # normally, an HTML file should exists
+        prod_path = public.get_prod_path()
+        self.assertTrue(prod_path.endswith('.html'), prod_path)
+        self.assertTrue(os.path.isfile(prod_path), prod_path)  # normally, an HTML file should exists
         self.assertIsNone(public.introduction)  # since all is in the HTML file, introduction does not exists anymore
         self.assertIsNone(public.conclusion)
         article.public_version = published
@@ -536,9 +547,10 @@ class UtilsTests(TestCase, TutorialTestMixin):
 
     def test_watchdog(self):
 
-        PublicatorRegistry.unregister('pdf')
-        PublicatorRegistry.unregister('epub')
-        PublicatorRegistry.unregister('html')
+        PublicatorRegistery.unregister('pdf')
+        PublicatorRegistery.unregister('printable-pdf')
+        PublicatorRegistery.unregister('epub')
+        PublicatorRegistery.unregister('html')
 
         with open('path', 'w') as f:
             f.write('my_content;/path/to/markdown.md')
