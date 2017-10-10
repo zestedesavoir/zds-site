@@ -2,6 +2,7 @@
 
 import os
 from os.path import join
+from pathlib import Path
 
 from django.contrib.messages import constants as message_constants
 from django.utils.http import urlquote
@@ -498,8 +499,8 @@ ZDS_APP = {
         'editorial_line_link':
         'https://zestedesavoir.com/articles/222/la-ligne-editoriale-officielle-de-zeste-de-savoir/',
         'epub_stylesheets': {
-            'toc': 'toc.css',
-            'full': os.path.join(BASE_DIR, 'dist', 'css', 'zmd.css'),
+            'toc': Path('toc.css'),
+            'full': Path(BASE_DIR, 'dist', 'css', 'zmd.css'),
         }
     },
     'forum': {
