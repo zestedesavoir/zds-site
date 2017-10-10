@@ -7,6 +7,7 @@ import subprocess
 import zipfile
 from datetime import datetime
 from os import makedirs, mkdir, path
+from pathlib import Path
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
@@ -403,13 +404,14 @@ class ZMarkdownEpubPublicator(Publicator):
     def publish(self, md_file_path, base_name, **kwargs):
         try:
             published_content_entity = self.get_published_content_entity(md_file_path)
+            epub_file_path = Path(path.splitext(md_file_path)[0] + '.epub')
             build_ebook(published_content_entity,
-                        path.dirname(md_file_path))
-            epub_file_path = path.splitext(md_file_path)[0] + '.epub'
+                        path.dirname(md_file_path),
+                        epub_file_path)
         except (IOError, OSError):
             raise FailureDuringPublication('Error while generating epub file.')
         else:
-            shutil.move(epub_file_path, published_content_entity.get_extra_contents_directory())
+            shutil.move(str(epub_file_path), published_content_entity.get_extra_contents_directory())
 
 
 @PublicatorRegistery.register('watchdog', settings.ZDS_APP['content']['extra_content_watchdog_dir'])

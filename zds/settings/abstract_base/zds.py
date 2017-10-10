@@ -1,4 +1,5 @@
 from os.path import join
+from pathlib import Path
 
 from django.utils.translation import gettext_lazy as _
 
@@ -182,8 +183,8 @@ ZDS_APP = {
         'editorial_line_link':
         'https://zestedesavoir.com/articles/222/la-ligne-editoriale-officielle-de-zeste-de-savoir/',
         'epub_stylesheets': {
-            'toc': 'toc.css',
-            'full': join(BASE_DIR, 'dist', 'css', 'zmd.css'),
+            'toc': Path('toc.css'),
+            'full': Path(BASE_DIR) / 'dist' / 'css' / 'zmd.css',
         }
     },
     'forum': {
