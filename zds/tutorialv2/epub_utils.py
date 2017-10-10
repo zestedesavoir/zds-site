@@ -1,9 +1,8 @@
-import os
-from codecs import open  # I just want to be sure I will never open a file without codecs facility
-from uuslug import slugify
-from os.path import join
+import contextlib
+import logging
+import shutil
+from pathlib import Path
 from shutil import copytree, copy
-from os import makedirs
 from django.template.loader import render_to_string
 from django.conf import settings
 from lxml import etree
@@ -36,9 +35,14 @@ def __traverse_chapter(html_code):
 
 
 def __traverse_and_identify_images(image_dir):
-    for _, _, files in os.walk(image_dir):
-        for image_filename in files:
-            yield join(image_dir, image_filename), str(uuid4())
+    """
+
+    :param image_dir:
+    :type image_dir: pathlib.Path
+    :return:
+    """
+    for image_file_path in image_dir.iterdir():
+        yield str(image_file_path.absolute()), str(uuid4())
 
 
 def build_html_chapter_file(publishable_object, versioned_object, working_dir, root_dir):
@@ -49,55 +53,78 @@ def build_html_chapter_file(publishable_object, versioned_object, working_dir, r
     :param full_html_file:
     :return: a generator of tuples composed as ``[plitted_html_file_relative_path,chapter_full_title]``
     """
-    path_to_title_dict = publish_container(publishable_object, working_dir, versioned_object,
+    path_to_title_dict = publish_container(publishable_object, str(working_dir), versioned_object,
                                            template='tutorialv2/export/ebook/chapter.html')
     for path, title in path_to_title_dict.items():
         # TODO: check if a function exists in the std lib to get rid of `root_dir + '/'`
-        yield path.replace(root_dir + '/', ''), title
+        yield path.replace(str(root_dir.absolute()) + '/', ''), title
 
 
 def build_toc_ncx(chapters, tutorial, working_dir):
-    with open(join(working_dir, 'toc.ncx'), mode='wb', encoding='utf-8') as f:
-        f.write(render_to_string('tutorialv2/export/ebook/toc.ncx.html',
-                                 context={
-                                     'chapters': chapters,
-                                     'title': tutorial.title,
-                                     'description': tutorial.description
-        }))
+    with Path(working_dir, 'toc.ncx').open('w', encoding='utf-8') as toc_ncx_path:
+        toc_ncx_path.write(render_to_string('tutorialv2/export/ebook/toc.ncx.html',
+                                            context={
+                                                'chapters': chapters,
+                                                'title': tutorial.title,
+                                                'description': tutorial.description
+                                            }))
 
 
 def build_content_opf(content, chapters, images, working_dir):
-    with open(join(working_dir, 'content.opf'), mode='wb', encoding='utf-8') as f:
-        f.write(render_to_string('tutorialv2/export/ebook/content.opf.xml',
-                                 context={
-                                     'content': content,
-                                     'chapters': chapters,
-                                     'images': images
-                                 }))
+    with Path(working_dir, 'content.opf').open('w', encoding='utf-8') as content_opf_path:
+        content_opf_path.write(render_to_string('tutorialv2/export/ebook/content.opf.xml',
+                                                context={
+                                                    'content': content,
+                                                    'chapters': chapters,
+                                                    'images': images
+                                                }))
 
 
 def build_container_xml(working_dir):
-    with open(join(working_dir, 'container.xml'), mode='wb', encoding='utf-8') as f:
-        f.write(render_to_string('tutorialv2/export/ebook/container.xml'))
+    Path(working_dir, 'container.xml').open('w', encoding='utf-8').write(
+        render_to_string('tutorialv2/export/ebook/container.xml'))
 
 
-def build_ebook(published_content_entity, working_dir):
-    makedirs(join(working_dir, 'ebook', 'OPS', 'Text'))
-    makedirs(join(working_dir, 'ebook', 'OPS', 'Style'))
-    makedirs(join(working_dir, 'ebook', 'OPS', 'Fonts'))
-    makedirs(join(working_dir, 'ebook', 'META-INF'))
-    copytree(join(working_dir, 'images'), join(working_dir, 'ebook', 'OPS', 'Images'))
+def build_ebook(published_content_entity, working_dir, final_file_path):
+    ops_dir = Path(working_dir, 'ebook', 'OPS')
+    text_dir_path = Path(ops_dir, 'Text')
+    style_dir_path = Path(ops_dir, 'Text')
+    font_dir_path = Path(ops_dir, 'Fonts')
+    meta_inf_dir_path = Path(working_dir, 'ebook', 'META-INF')
+    original_image_dir = Path(working_dir, 'images')
+    target_image_dir = Path(ops_dir, 'Images')
+    with contextlib.suppress(FileExistsError):  # Forced to use this until python 3.5 is used and ok_exist appears
+        text_dir_path.mkdir(parents=True)
+    with contextlib.suppress(FileExistsError):
+        style_dir_path.mkdir(parents=True)
+    with contextlib.suppress(FileExistsError):
+        font_dir_path.mkdir(parents=True)
+    with contextlib.suppress(FileExistsError):
+        meta_inf_dir_path.mkdir(parents=True)
+    copytree(str(original_image_dir), str(target_image_dir))
     mimetype_conf = __build_mime_type_conf()
-    with open(join(working_dir, 'ebook', mimetype_conf['filename']), mode="w", encoding='utf-8') as mimefile:
+    mime_path = Path(working_dir, 'ebook', mimetype_conf['filename'])
+    with mime_path.open(mode="w", encoding='utf-8') as mimefile:
         mimefile.write(mimetype_conf['content'])
     chapters = list(
         build_html_chapter_file(published_content_entity.content,
                                 published_content_entity.content.load_version(sha=published_content_entity.sha_public),
-                                working_dir=join(working_dir, 'ebook', 'OPS', 'Text'),
-                                root_dir=join(working_dir, 'ebook')))
-    build_toc_ncx(chapters, published_content_entity, join(working_dir, 'ebook', 'OPS'))
-    images = __traverse_and_identify_images(join(working_dir, 'ebook', 'OPS', 'Images'))
-    build_content_opf(published_content_entity, chapters, images, join(working_dir, 'ebook', 'OPS'))
-    build_container_xml(join(working_dir, 'ebook', 'META-INF'))
-    copy(settings.ZDS_APP['content']['epub_stylesheets']['toc'], join(working_dir, 'ebook', 'OPS', 'Style'))
-    copy(settings.ZDS_APP['content']['epub_stylesheets']['full'], join(working_dir, 'ebook', 'OPS', 'Style'))
+                                working_dir=text_dir_path,
+                                root_dir=Path(working_dir, 'ebook'))
+    )
+    build_toc_ncx(chapters, published_content_entity, ops_dir)
+    images = __traverse_and_identify_images(target_image_dir)
+    build_content_opf(published_content_entity, chapters, images, ops_dir)
+    build_container_xml(meta_inf_dir_path)
+    if settings.ZDS_APP['content']['epub_stylesheets']['toc'].exists():
+        copy(str(settings.ZDS_APP['content']['epub_stylesheets']['toc']), str(style_dir_path))
+    else:
+        Path(style_dir_path, 'toc.css').open('w', encoding='utf-8').write('')
+    if settings.ZDS_APP['content']['epub_stylesheets']['full'].exists():
+        copy(str(settings.ZDS_APP['content']['epub_stylesheets']['full']), str(style_dir_path))
+    else:
+        Path(style_dir_path, settings.ZDS_APP['content']['epub_stylesheets']['full'].name)\
+            .open('w', encoding='utf-8').write('')
+    shutil.make_archive(str(final_file_path), format="zip", root_dir=str(Path(working_dir, 'ebook')),
+                        base_dir=str(Path(working_dir, 'ebook')), logger=logging.getLogger(__name__))
+    shutil.move(str(final_file_path) + ".zip", str(final_file_path))
