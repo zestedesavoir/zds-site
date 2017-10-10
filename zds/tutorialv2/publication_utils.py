@@ -283,12 +283,13 @@ class ZmarkdownHtmlPublicator(Publicator):
 @PublicatorRegistery.register('pdf')
 class ZMarkdownRebberLatexPublicator(Publicator):
     """
-    use zmarkdown and rebber stringifyer to produce latex & pdf output.
+    use zmarkdown and rebber stringifier to produce latex & pdf output.
     """
     def publish(self, md_file_path, base_name, **kwargs):
         md_flat_content = _read_flat_markdown(md_file_path)
         published_content_entity = self.get_published_content_entity(md_file_path)
         depth_to_size_map = {
+            1: 'small',  # in fact this is an "empty" tutorial (i.e it is empty or has intro and/or conclusion)
             2: 'small',
             3: 'medium',
             4: 'big'
@@ -345,7 +346,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
         raise FailureDuringPublication(errors)
 
     def pdftex(self, texfile):
-        command = 'xelatex -shell-escape -interaction=nonstopmode {}'.format(texfile)
+        command = 'lualatex -shell-escape -interaction=nonstopmode {}'.format(texfile)
         # TODO zmd: make sure the shell spawned here has venv in its path, needed to shell-escape into Pygments
         command_process = subprocess.Popen(command,
                                            shell=True, cwd=path.dirname(texfile),
@@ -354,7 +355,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
 
         try:
             from raven import breadcrumbs
-            breadcrumbs.record(message="xelatex call",
+            breadcrumbs.record(message="lualatex call",
                                data=command,
                                type="cmd")
         except ImportError:
