@@ -91,6 +91,8 @@
                             {% elif alert.scope == 'CONTENT' %}
                                 <em>{% trans 'Sur le contenu : ' %} {{ alert.content.title }}</em> <br/>
                                 {{ alert.text }}
+                            {% endif %}
+                        </td>
                         <td class="wide">{{ alert.get_type }}</td>
                         <td><a href="{% url 'member-detail' alert.author.username %}">{{ alert.author.username }}</a></td>
                         <td class="wide">{{ alert.solved_date|format_date|capfirst }}</td>
