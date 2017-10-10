@@ -791,7 +791,7 @@ class PickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormViewMixin
         self.public_content_object.save()
         PickListOperation.objects.create(content=self.object, operation='PICK',
                                          staff_user=self.request.user, operation_date=datetime.now(),
-                                         version=db_object.sha_public)
+                                         version=db_object.sha_picked)
         msg = render_to_string(
             'tutorialv2/messages/validation_opinion.md',
             {
