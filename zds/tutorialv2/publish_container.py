@@ -1,7 +1,7 @@
 # coding: utf-8
 from __future__ import unicode_literals
-import codecs
 from os import path, makedirs
+from pathlib import Path
 
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
@@ -22,7 +22,7 @@ def publish_container(db_object, base_dir, container, template='tutorialv2/expor
     :raise FailureDuringPublication: if anything goes wrong
     """
 
-    from zds.tutorialv2.models.models_versioned import Container
+    from zds.tutorialv2.models.versioned import Container
     from zds.tutorialv2.publication_utils import FailureDuringPublication
     path_to_title_dict = {}
 
@@ -42,7 +42,7 @@ def publish_container(db_object, base_dir, container, template='tutorialv2/expor
     if container.has_extracts():  # the container can be rendered in one template
         parsed = render_to_string(template, {'container': container, 'is_js': is_js})
 
-        write_chapter_file(base_dir, container, 'index.html', parsed, path_to_title_dict)
+        write_chapter_file(base_dir, container, Path(container.get_prod_path(True)), parsed, path_to_title_dict)
         for extract in container.children:
             extract.text = None
 
@@ -57,23 +57,16 @@ def publish_container(db_object, base_dir, container, template='tutorialv2/expor
             makedirs(current_dir)
 
         if container.introduction:
-            part_path = path.join(container.get_prod_path(relative=True), 'introduction.html')
+            part_path = Path(container.get_prod_path(relative=True), 'introduction.html')
             parsed = emarkdown(container.get_introduction(), db_object.js_support)
-            container.introduction = part_path
+            container.introduction = str(part_path)
             write_chapter_file(base_dir, container, part_path, parsed, path_to_title_dict)
 
         if container.conclusion:
-            part_path = path.join(container.get_prod_path(relative=True), 'conclusion.html')
-            f = codecs.open(path.join(base_dir, part_path), 'w', encoding='utf-8')
-
-            try:
-                f.write(emarkdown(container.get_conclusion(), db_object.js_support))
-            except (UnicodeError, UnicodeEncodeError):
-                raise FailureDuringPublication(
-                    _(u'Une erreur est survenue durant la publication de la conclusion de « {} »,'
-                      u' vérifiez le code markdown').format(container.title))
-
-            container.conclusion = part_path
+            part_path = Path(container.get_prod_path(relative=True), 'conclusion.html')
+            parsed = emarkdown(container.get_introduction(), db_object.js_support)
+            container.conclusion = str(part_path)
+            write_chapter_file(base_dir, container, part_path, parsed, path_to_title_dict)
 
         for child in container.children:
             path_to_title_dict.update(publish_container(db_object, base_dir, child))
@@ -81,8 +74,19 @@ def publish_container(db_object, base_dir, container, template='tutorialv2/expor
 
 
 def write_chapter_file(base_dir, container, part_path, parsed, path_to_title_dict):
-    with codecs.open(path.join(base_dir, part_path),
-                     'w', encoding='utf-8') as chapter_file:
+    """
+    Takes a chapter (i.e a set of extract gathers in one html text) and write in into the right file.
+
+    :param base_dir: the directory into wich we will write the file
+    :param container: the container to publish
+    :type container: zds.tutorialv2.models.versioned.Container
+    :param part_path: the relative path of the part to publish as html file
+    :type part_path: pathlib.Path
+    :param parsed: the html code
+    :param path_to_title_dict: dictionary to write the data, usefull when dealing with epub.
+    """
+    full_path = Path(base_dir, part_path)
+    with full_path.open('w', encoding='utf-8') as chapter_file:
         try:
             chapter_file.write(parsed)
         except (UnicodeError, UnicodeEncodeError):
@@ -90,4 +94,4 @@ def write_chapter_file(base_dir, container, part_path, parsed, path_to_title_dic
             raise FailureDuringPublication(
                 _(u'Une erreur est survenue durant la publication de « {} », vérifiez le code markdown')
                 .format(container.title))
-    path_to_title_dict[path.join(base_dir, part_path)] = container.title
+    path_to_title_dict[str(part_path)] = container.title
