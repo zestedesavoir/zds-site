@@ -143,7 +143,9 @@ class UtilsTests(TestCase):
         # test creation of files:
         self.assertTrue(os.path.isdir(published.get_prod_path()))
         self.assertTrue(os.path.isfile(os.path.join(published.get_prod_path(), 'manifest.json')))
-        self.assertTrue(os.path.isfile(public.get_prod_path()))  # normally, an HTML file should exists
+        prod_path = public.get_prod_path()
+        self.assertTrue(prod_path.endswith('.html'), prod_path)
+        self.assertTrue(os.path.isfile(prod_path), prod_path)  # normally, an HTML file should exists
         self.assertIsNone(public.introduction)  # since all is in the HTML file, introduction does not exists anymore
         self.assertIsNone(public.conclusion)
         article.public_version = published

@@ -1,7 +1,6 @@
 # coding: utf-8
 
 import os
-import subprocess
 from django.core.management.base import BaseCommand
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
@@ -46,7 +45,7 @@ class Command(BaseCommand):
             # delete previous one
             if os.path.exists(base_name + '.pdf'):
                 os.remove(base_name + '.pdf')
-            PublicatorRegistery.get("pdf").publish(os.path.join(extra_content_dir, base_name + ".md"), base_name)
+            PublicatorRegistery.get('pdf').publish(os.path.join(extra_content_dir, base_name + '.md'), base_name)
 
             # check:
             if os.path.exists(base_name + '.pdf'):

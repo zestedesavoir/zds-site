@@ -1,4 +1,3 @@
-import timeit
 import textwrap
 from pprint import pprint
 from requests import post
