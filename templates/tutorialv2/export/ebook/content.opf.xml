@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <package xmlns="http://www.idpf.org/2007/opf" unique-identifier="BookId" version="3.0" xmlns:opf="http://www.idpf.org/2007/opf">
   <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
-    <dc:identifier id="BookId" opf:scheme="IMRID">184363</dc:identifier>
-    <dc:identifier opf:scheme="ISBN">9782814506510</dc:identifier>
-    <dc:title>Zonzon Pépette, fille de Londres</dc:title>
+    <dc:identifier id="{{ content.title }}" opf:scheme="IMRID">184363</dc:identifier>
+    <dc:title>{{ content.title }}</dc:title>
     <dc:language>fr</dc:language>
-    <dc:publisher>publie.net</dc:publisher>
+    <dc:publisher>Zeste de savoir</dc:publisher>
+    <dc:rights>{{ content.licence.title }}</dc:rights>
     {% for author in content.authors.all %}
       {% if loop.first %}
           <dc:creator opf:role="aut">{{ author.username }}</dc:creator>
@@ -14,21 +14,22 @@
       {% endif %}
     {% endfor %}
     <dc:type>text</dc:type>
-    <dc:date opf:event="creation">{{ content.publication_date }}</dc:date>
-    <dc:date opf:event="publication">{{ content.publication_date }}</dc:date>
+    <dc:date opf:event="creation">{{ content.publication_date|date:"Y-m-d" }}</dc:date>
+    <dc:date opf:event="publication">{{ content.publication_date|date:"Y-m-d" }}</dc:date>
     <dc:description>{{ content.description }}</dc:description>
+
     <meta content="0.5.3" name="Sigil version" />
     <meta name="cover" content="cover.png" />
   </metadata>
   <manifest>
       {% for path, title in chapters %}
         <item id="{{ path }}"
-              href="{{ path }}"
+              href="Text/{{ path }}"
               media-type="text/html"/>
       {% endfor %}
       {% for image_path, guid in images %}
         <item id="{{ guid }}"
-              href="{{ image_path }}"
+              href="Images/{{ image_path }}"
               media-type="image/png"/>
        {% endfor %}
         <item id="nav"

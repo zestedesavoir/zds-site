@@ -126,5 +126,5 @@ def build_ebook(published_content_entity, working_dir, final_file_path):
         Path(style_dir_path, settings.ZDS_APP['content']['epub_stylesheets']['full'].name)\
             .open('w', encoding='utf-8').write('')
     shutil.make_archive(str(final_file_path), format='zip', root_dir=str(Path(working_dir, 'ebook')),
-                        base_dir=str(Path(working_dir, 'ebook')), logger=logging.getLogger(__name__))
+                        logger=logging.getLogger(__name__))
     shutil.move(str(final_file_path) + '.zip', str(final_file_path))
