@@ -104,7 +104,7 @@ def build_ebook(published_content_entity, working_dir, final_file_path):
     copytree(str(original_image_dir), str(target_image_dir))
     mimetype_conf = __build_mime_type_conf()
     mime_path = Path(working_dir, 'ebook', mimetype_conf['filename'])
-    with mime_path.open(mode="w", encoding='utf-8') as mimefile:
+    with mime_path.open(mode='w', encoding='utf-8') as mimefile:
         mimefile.write(mimetype_conf['content'])
     chapters = list(
         build_html_chapter_file(published_content_entity.content,
@@ -125,6 +125,6 @@ def build_ebook(published_content_entity, working_dir, final_file_path):
     else:
         Path(style_dir_path, settings.ZDS_APP['content']['epub_stylesheets']['full'].name)\
             .open('w', encoding='utf-8').write('')
-    shutil.make_archive(str(final_file_path), format="zip", root_dir=str(Path(working_dir, 'ebook')),
+    shutil.make_archive(str(final_file_path), format='zip', root_dir=str(Path(working_dir, 'ebook')),
                         base_dir=str(Path(working_dir, 'ebook')), logger=logging.getLogger(__name__))
-    shutil.move(str(final_file_path) + ".zip", str(final_file_path))
+    shutil.move(str(final_file_path) + '.zip', str(final_file_path))
