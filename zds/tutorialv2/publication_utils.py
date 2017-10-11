@@ -321,8 +321,8 @@ class ZMarkdownRebberLatexPublicator(Publicator):
             toc=toc
         )
 
-        latex_file_path = path.splitext(md_file_path)[0] + '.tex'
-        pdf_file_path = path.splitext(md_file_path)[0] + '.pdf'
+        latex_file_path = base_name + '.tex'
+        pdf_file_path = base_name + '.pdf'
         with codecs.open(latex_file_path, mode='w', encoding='utf-8') as latex_file:
             latex_file.write(content)
 
@@ -334,8 +334,8 @@ class ZMarkdownRebberLatexPublicator(Publicator):
         except FailureDuringPublication:
             logging.getLogger(self.__class__.__name__).exception('could not publish %s', base_name)
         else:
-            shutil.move(latex_file_path, published_content_entity.get_extra_contents_directory())
-            shutil.move(pdf_file_path, published_content_entity.get_extra_contents_directory())
+            shutil.copy2(latex_file_path, published_content_entity.get_extra_contents_directory())
+            shutil.copy2(pdf_file_path, published_content_entity.get_extra_contents_directory())
             logging.info('published latex=%s, pdf=%s', published_content_entity.has_type('tex'),
                          published_content_entity.has_type('pdf'))
 
