@@ -38,7 +38,6 @@ class TutorialIsPublished(FileSystemEventHandler):
 
     def on_created(self, event):
         super(TutorialIsPublished, self).on_created(event)
-        pandoc_debug_str = ''
 
         if isinstance(event, FileCreatedEvent):
             with open(event.src_path, encoding='utf-8') as f:
@@ -48,8 +47,7 @@ class TutorialIsPublished(FileSystemEventHandler):
             extra_contents_path = dirname(md_file_path)
             self.prepare_generation(extra_contents_path)
             try:
-                generate_external_content(base_name, extra_contents_path, md_file_path,
-                                         pandoc_debug_str, overload_settings=True)
+                generate_external_content(base_name, extra_contents_path, md_file_path, overload_settings=True)
             finally:
                 self.finish_generation(extra_contents_path, event.src_path)
 

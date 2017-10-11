@@ -1,7 +1,6 @@
 # coding: utf-8
 
 import os
-from os.path import join
 from pathlib import Path
 
 from django.contrib.messages import constants as message_constants
