@@ -4,6 +4,8 @@ import tempfile
 import zipfile
 
 import os
+from pathlib import Path
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import Group
@@ -26,7 +28,7 @@ from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory
     SubCategoryFactory, PublishedContentFactory, tricky_text_content, BetaContentFactory
 from zds.tutorialv2.models.database import PublishableContent, Validation, PublishedContent, ContentReaction, \
     ContentRead
-from zds.tutorialv2.publication_utils import publish_content
+from zds.tutorialv2.publication_utils import publish_content, PublicatorRegistery, Publicator
 from zds.tutorialv2.tests import TutorialTestMixin
 from zds.utils.models import HelpWriting, Alert, Tag, Hat
 from zds.utils.factories import HelpWritingFactory, CategoryFactory
@@ -90,6 +92,15 @@ class ContentTests(TestCase, TutorialTestMixin):
         self.external = UserFactory(
             username=overridden_zds_app['member']['external_account'],
             password='anything')
+        self.old_registry = {key: value for key, value in PublicatorRegistery.get_all_registered()}
+
+        class TestPdfPublicator(Publicator):
+            def publish(self, md_file_path, base_name, **kwargs):
+                with Path(base_name + '.pdf').open('w') as f:
+                    f.write('bla')
+
+                shutil.copy2(str(Path(base_name + '.pdf')), str(Path(md_file_path.replace('__building', '')).parent))
+        PublicatorRegistery.registry['pdf'] = TestPdfPublicator()
 
     def test_ensure_access(self):
         """General access test for author, user, guest and staff"""

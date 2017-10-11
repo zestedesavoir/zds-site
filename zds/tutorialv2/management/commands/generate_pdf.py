@@ -1,6 +1,8 @@
 # coding: utf-8
 
 import os
+from pathlib import Path
+
 from django.core.management.base import BaseCommand
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
@@ -39,13 +41,16 @@ class Command(BaseCommand):
         for content in public_contents:
             self.stdout.write(_('- {}').format(content.content_public_slug), ending='')
             extra_content_dir = content.get_extra_contents_directory()
-
+            building_extra_content_path = Path(str(Path(extra_content_dir).parent) + '__building',
+                                               'extra_contents', content.content_public_slug)
+            if not building_extra_content_path.exists():
+                building_extra_content_path.mkdir(parents=True)
             base_name = os.path.join(extra_content_dir, content.content_public_slug)
 
             # delete previous one
             if os.path.exists(base_name + '.pdf'):
                 os.remove(base_name + '.pdf')
-            PublicatorRegistery.get('pdf').publish(os.path.join(extra_content_dir, base_name + '.md'), base_name)
+            PublicatorRegistery.get('pdf').publish(base_name + '.md', str(building_extra_content_path))
 
             # check:
             if os.path.exists(base_name + '.pdf'):

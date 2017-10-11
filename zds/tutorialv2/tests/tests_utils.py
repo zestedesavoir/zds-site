@@ -2,6 +2,7 @@ import os
 import shutil
 import tempfile
 import datetime
+from pathlib import Path
 
 from django.conf import settings
 from django.test import TestCase
@@ -61,6 +62,14 @@ class UtilsTests(TestCase, TutorialTestMixin):
         self.part1 = ContainerFactory(parent=self.tuto_draft, db_object=self.tuto)
         self.chapter1 = ContainerFactory(parent=self.part1, db_object=self.tuto)
         self.old_registry = {key: value for key, value in PublicatorRegistery.get_all_registered()}
+
+        class TestPdfPublicator(Publicator):
+            def publish(self, md_file_path, base_name, **kwargs):
+                with Path(base_name + '.pdf').open('w') as f:
+                    f.write('bla')
+                shutil.copy2(str(Path(base_name + '.pdf')),
+                             str(Path(md_file_path.replace('__building', '')).parent))
+        PublicatorRegistery.registry['pdf'] = TestPdfPublicator()
 
     def test_get_target_tagged_tree_for_container(self):
         part2 = ContainerFactory(parent=self.tuto_draft, db_object=self.tuto, title='part2')
