@@ -1,4 +1,3 @@
-import codecs
 import contextlib
 import copy
 import logging
@@ -85,7 +84,7 @@ def publish_content(db_object, versioned, is_major_update=True):
     parsed_with_local_images = retrieve_and_update_images_links(parsed, directory=build_extra_contents_path)
 
     md_file_path = base_name + '.md'
-    with codecs.open(md_file_path, 'w', encoding='utf-8')as md_file:
+    with open(md_file_path, 'w', encoding='utf-8')as md_file:
         try:
             md_file.write(parsed_with_local_images)
         except UnicodeError:
@@ -259,7 +258,7 @@ class Publicator:
 
 
 def _read_flat_markdown(md_file_path):
-    with codecs.open(md_file_path, encoding='utf-8') as md_file_handler:
+    with open(md_file_path, encoding='utf-8') as md_file_handler:
         md_flat_content = md_file_handler.read()
     return md_flat_content
 
@@ -273,8 +272,8 @@ class ZipPublicator(Publicator):
                 raise ValueError('published_content_entity is None')
             make_zip_file(published_content_entity)
             # for zip no need to move it because this is already dumped in the public directory
-        except (IOError, ValueError):
-            raise FailureDuringPublication('Zip could not be created')
+        except (IOError, ValueError) as e:
+            raise FailureDuringPublication('Zip could not be created', e)
 
 
 @PublicatorRegistery.register('html')
@@ -290,7 +289,7 @@ class ZmarkdownHtmlPublicator(Publicator):
             logging.getLogger(self.__class__.__name__).error('HTML was not rendered')
             return
         # TODO zmd: fix extension parsing
-        with codecs.open(html_file_path, mode='w', encoding='utf-8') as final_file:
+        with open(html_file_path, mode='w', encoding='utf-8') as final_file:
             final_file.write(html_flat_content)
         shutil.move(html_file_path, published_content_entity.get_extra_contents_directory())
 
@@ -334,7 +333,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
 
         latex_file_path = base_name + '.tex'
         pdf_file_path = base_name + '.pdf'
-        with codecs.open(latex_file_path, mode='w', encoding='utf-8') as latex_file:
+        with open(latex_file_path, mode='w', encoding='utf-8') as latex_file:
             latex_file.write(content)
 
         try:
@@ -356,7 +355,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
             handle_pdftex_error(latex_file)
 
     def handle_makeglossaries_error(self, latex_file):
-        with codecs.open(path.splitext(latex_file)[0] + '.log') as latex_log:
+        with open(path.splitext(latex_file)[0] + '.log') as latex_log:
             errors = '\n'.join(filter(line for line in latex_log if 'fatal' in line.lower() or 'error' in line.lower()))
         raise FailureDuringPublication(errors)
 
@@ -444,7 +443,7 @@ class WatchdogFilePublicator(Publicator):
         if silently_pass:
             return
         filename = base_name.replace(path.dirname(base_name), self.watched_directory)
-        with codecs.open(filename, 'w', encoding='utf-8') as w_file:
+        with open(filename, 'w', encoding='utf-8') as w_file:
             w_file.write(';'.join([base_name, md_file_path]))
         self.__logger.debug('Registered {} for generation'.format(md_file_path))
 
