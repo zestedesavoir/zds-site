@@ -1,37 +1,40 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<package xmlns="http://www.idpf.org/2007/opf" unique-identifier="BookId" version="3.0" xmlns:opf="http://www.idpf.org/2007/opf">
-  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
-    <dc:identifier id="{{ content.title }}" opf:scheme="IMRID">184363</dc:identifier>
-    <dc:title>{{ content.title }}</dc:title>
-    <dc:language>fr</dc:language>
-    <dc:publisher>Zeste de savoir</dc:publisher>
-    <dc:rights>{{ content.licence.title }}</dc:rights>
-    {% for author in content.authors.all %}
-      {% if loop.first %}
-          <dc:creator opf:role="aut">{{ author.username }}</dc:creator>
-      {% else %}
-        <dc:contributor opf:role="aut">{{ author.username }}</dc:contributor>
-      {% endif %}
-    {% endfor %}
-    <dc:type>text</dc:type>
-    <dc:date opf:event="creation">{{ content.publication_date|date:"Y-m-d" }}</dc:date>
-    <dc:date opf:event="publication">{{ content.publication_date|date:"Y-m-d" }}</dc:date>
-    <dc:description>{{ content.description }}</dc:description>
+<package xmlns="http://www.idpf.org/2007/opf" unique-identifier="BookId" version="3.0"
+         xmlns:opf="http://www.idpf.org/2007/opf">
+    <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+        <dc:identifier
+                id="dc-{{ content.content_public_slug }}">{{ content.pk }}-{{ content.sha_public }}</dc:identifier>
+        <meta property="dcterms:modified">{{ content.publication_date|date:"Y-m-d\Th:i:s\ZZ" }}</meta>
+        <dc:title>{{ content.title }}</dc:title>
+        <dc:language>fr</dc:language>
+        <dc:publisher>Zeste de savoir</dc:publisher>
+        <dc:rights>{{ content.content.licence.title }}</dc:rights>
+        {% for author in content.authors.all %}
+            <dc:creator id="creator-{{ author.username }}">{{ author.username }}</dc:creator>
+            <meta refines="#creator-{{ author.username }}" property="display-seq">{{ forloop.counter }}</meta>
+            <meta refines="#creator-{{ author.username }}" property="role">aut</meta>
+        {% endfor %}
+        <dc:type>text</dc:type>
+        {% for tag in content.tags %}
+            <dc:subject>{{ tag }}</dc:subject>
+        {% endfor %}
+        <dc:description>{{ content.description }}</dc:description>
 
-    <meta content="0.5.3" name="Sigil version" />
-    <meta name="cover" content="cover.png" />
-  </metadata>
-  <manifest>
-      {% for path, title in chapters %}
-        <item id="{{ path }}"
-              href="Text/{{ path }}"
-              media-type="text/html"/>
-      {% endfor %}
-      {% for image_path, guid in images %}
-        <item id="{{ guid }}"
-              href="Images/{{ image_path }}"
-              media-type="image/png"/>
-       {% endfor %}
+        <meta content="0.5.3" name="Sigil version"/>
+        <meta name="cover" content="cover.png"/>
+    </metadata>
+    <manifest>
+        <item id="{{ content.title }}" href="OPS/Text/{{ content.slug }}.html" media-type="application/xhtml+xml"/>
+        {% for path, title in chapters %}
+            <item id="{{ title }}"
+                  href="Text/{{ path }}"
+                  media-type="application/xhtml+xml"/>
+        {% endfor %}
+        {% for image_path, guid, media_type in images %}
+            <item id="{{ guid }}"
+                  href="Images/{{ image_path.name }}"
+                  media-type="{{ media_type }}"/>
+        {% endfor %}
         <item id="nav"
               href="nav.xhtml"
               media-type="application/xhtml+xml"
@@ -43,10 +46,10 @@
 
     <spine toc="ncx">
         {% for title, path in chapters %}
-        <itemref idref="{{ path }}"/>
-      {% endfor %}
-      {% for image_path, guid in images %}
-        <itemref idref="{{ guid }}"/>
-       {% endfor %}
+            <itemref idref="{{ path }}"/>
+        {% endfor %}
+        {% for image_path, guid in images %}
+            <itemref idref="{{ guid }}"/>
+        {% endfor %}
     </spine>
 </package>
