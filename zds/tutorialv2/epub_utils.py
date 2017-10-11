@@ -41,8 +41,18 @@ def __traverse_and_identify_images(image_dir):
     :type image_dir: pathlib.Path
     :return:
     """
+    media_type_map = {
+        'png': 'image/png',
+        'jpeg': 'image/jpeg',
+        'jpg': 'image/jpeg',
+        'gif': 'image/gif',
+        'svg': 'image/svg',
+    }
+
     for image_file_path in image_dir.iterdir():
-        yield str(image_file_path.absolute()), str(uuid4())
+        from os import path
+        ext = path.splitext(image_file_path.name)[1]
+        yield image_file_path.absolute(), str(uuid4()), media_type_map.get(ext.lower(), 'image/png')
 
 
 def build_html_chapter_file(publishable_object, versioned_object, working_dir, root_dir):
@@ -81,8 +91,15 @@ def build_content_opf(content, chapters, images, working_dir):
 
 
 def build_container_xml(working_dir):
-    Path(working_dir, 'container.xml').open('w', encoding='utf-8').write(
-        render_to_string('tutorialv2/export/ebook/container.xml'))
+    with Path(working_dir, 'container.xml').open('w', encoding='utf-8') as f:
+        f.write(render_to_string('tutorialv2/export/ebook/container.xml'))
+
+
+def build_nav_xhtml(working_dir, content):
+    with Path(working_dir, 'nav.xhtml').open('w', encoding='utf-8') as f:
+        f.write(
+            render_to_string('tutorialv2/export/ebook/nav.html', {'content': content})
+        )
 
 
 def build_ebook(published_content_entity, working_dir, final_file_path):
@@ -116,15 +133,19 @@ def build_ebook(published_content_entity, working_dir, final_file_path):
     images = __traverse_and_identify_images(target_image_dir)
     build_content_opf(published_content_entity, chapters, images, ops_dir)
     build_container_xml(meta_inf_dir_path)
+    build_nav_xhtml(ops_dir, published_content_entity)
     if settings.ZDS_APP['content']['epub_stylesheets']['toc'].exists():
         copy(str(settings.ZDS_APP['content']['epub_stylesheets']['toc']), str(style_dir_path))
     else:
-        Path(style_dir_path, 'toc.css').open('w', encoding='utf-8').write('')
-    if settings.ZDS_APP['content']['epub_stylesheets']['full'].exists():
+        with Path(style_dir_path, 'toc.css').open('w', encoding='utf-8') as f:
+            f.write('')
+    style_path = settings.ZDS_APP['content']['epub_stylesheets']['full']
+    if style_path.exists():
         copy(str(settings.ZDS_APP['content']['epub_stylesheets']['full']), str(style_dir_path))
     else:
-        Path(style_dir_path, settings.ZDS_APP['content']['epub_stylesheets']['full'].name)\
-            .open('w', encoding='utf-8').write('')
+
+        with Path(style_dir_path, style_path.name).open('w', encoding='utf-8') as f:
+            f.write('')
     shutil.make_archive(str(final_file_path), format='zip', root_dir=str(Path(working_dir, 'ebook')),
                         logger=logging.getLogger(__name__))
     shutil.move(str(final_file_path) + '.zip', str(final_file_path))
