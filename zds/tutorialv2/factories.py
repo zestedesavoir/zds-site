@@ -47,6 +47,12 @@ class PublishableContentFactory(factory.DjangoModelFactory):
         auths = []
         if 'author_list' in kwargs:
             auths = kwargs.pop('author_list')
+        given_licence = None
+        if 'licence' in kwargs:
+            given_licence = kwargs.pop('licence', None) or Licence.objects.first()
+        if isinstance(given_licence, str) and given_licence:
+            given_licence = Licence.objects.filter(title=given_licence).first() or Licence.objects.first()
+        licence = given_licence or LicenceFactory()
 
         light = True
         if 'light' in kwargs:
@@ -57,7 +63,7 @@ class PublishableContentFactory(factory.DjangoModelFactory):
 
         publishable_content = super(PublishableContentFactory, cls)._prepare(create, **kwargs)
         publishable_content.gallery = GalleryFactory()
-
+        publishable_content.licence = licence
         for auth in auths:
             publishable_content.authors.add(auth)
 
