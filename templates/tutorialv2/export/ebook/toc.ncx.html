@@ -12,7 +12,7 @@
             <h2>{{ description }}</h2>
             <ol>
                 {% for title, path in chapters %}
-                  <li id="np-313">
+                  <li id="{{ title }}-{{ path }}">
                       <a href="{{ path }}">{{ title }}</a>
                   </li>
                 {% endfor %}
