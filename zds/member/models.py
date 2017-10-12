@@ -82,8 +82,7 @@ class Profile(models.Model):
 
     def is_private(self):
         """can the user can display their stats"""
-        user_groups = self.user.groups.all()
-        return any(g.name == settings.ZDS_APP['member']['bot_group'] for g in user_groups)
+        return self.user.groups.filter(name=settings.ZDS_APP['member']['bot_group']).exists()
 
     def get_absolute_url(self):
         """Absolute URL to the profile page."""
@@ -321,11 +320,7 @@ class Profile(models.Model):
         return Post.objects.filter(author=self.user).all()
 
     def get_hidden_by_staff_posts_count(self):
-        return Post \
-            .objects \
-            .filter(is_visible=False, author=self.user) \
-            .exclude(editor=self.user) \
-            .count()
+        return Post.objects.filter(is_visible=False, author=self.user).exclude(editor=self.user).count()
 
     def get_active_alerts_count(self):
         """
@@ -334,8 +329,7 @@ class Profile(models.Model):
         return Alert.objects.filter(author=self.user, solved=False).count()
 
     def can_read_now(self):
-        return self.user.is_authenticated and \
-               self.user.is_active and \
+        return self.user.is_active and \
                (self.can_read or (self.end_ban_read and self.end_ban_read < datetime.now()))
 
     def can_write_now(self):
@@ -346,10 +340,7 @@ class Profile(models.Model):
         """
         :return: All forum topics followed by this user.
         """
-        return Topic \
-            .objects \
-            .filter(topicfollowed__user=self.user) \
-            .order_by('-last_message__pubdate')
+        return Topic.objects.filter(topicfollowed__user=self.user).order_by('-last_message__pubdate')
 
     def is_dev(self):
         """

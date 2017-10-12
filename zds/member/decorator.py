@@ -20,7 +20,7 @@ def can_write_and_read_now(func):
             # The user is a visitor
             profile = None
 
-        if profile is not None and (not profile.can_read_now() or not profile.can_write_now()):
+        if profile is not None and not (profile.can_read_now() and profile.can_write_now()):
             raise PermissionDenied
 
         return func(request, *args, **kwargs)

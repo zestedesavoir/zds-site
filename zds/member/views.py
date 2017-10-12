@@ -615,12 +615,11 @@ def settings_mini_profile(request, user_name):
 
         try:
             profile.save()
+            messages.success(request, _('Le profil a correctement été mis à jour.'))
         except:
             messages.error(request, _('Une erreur est survenue.'))
-            return redirect(reverse('member-settings-mini-profile'))
 
-        messages.success(request, _('Le profil a correctement été mis à jour.'))
-        return redirect(reverse('member-detail', args=[profile.user.username]))
+        return redirect(profile.get_absolute_url())
 
     form = MiniProfileForm(initial={
         'biography': profile.biography,
@@ -760,8 +759,8 @@ class HatDetail(DetailView):
         hat = context['hat']
 
         if self.request.user.is_authenticated:
-            context['is_required'] = any(h.lower() == hat.name.lower()
-                                         for h in self.request.user.requested_hats.values_list('hat', flat=True))
+            context['is_required'] = HatRequest.objects \
+                .filter(user=self.request.user, hat__iexact=hat.name).exists()
         if hat.group:
             context['users'] = hat.group.user_set.select_related('profile')
         else:
@@ -1307,7 +1306,7 @@ def modify_karma(request):
         if not note.note:
             raise ValueError('note cannot be empty')
 
-        if -100 < note.karma < 100:
+        if not -100 <= note.karma <= 100:
             raise ValueError('Max karma amount has to be between -100 and 100, you entered {}'.format(note.karma))
 
         note.save()
