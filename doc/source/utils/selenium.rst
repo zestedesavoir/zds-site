@@ -59,7 +59,7 @@ Voici le contenu d'un test :
           super(MySeleniumTests, cls).tearDownClass()
 
       def test_zestedesavoir_is_present(self):
-          self.selenium.get('%s%s' % (self.live_server_url, '/'))
+          self.selenium.get(self.live_server_url + '/')
 
 
 Lancement des tests
