@@ -4,10 +4,13 @@ from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.core.urlresolvers import reverse
 from django.test import tag
 from selenium.webdriver.firefox.webdriver import WebDriver
+from selenium.webdriver.support.ui import Select, WebDriverWait
+from selenium.webdriver.support import expected_conditions as ec
 
 from zds.member.factories import ProfileFactory
 from zds.utils.factories import CategoryFactory
-from zds.tutorialv2.factories import PublishableContentFactory, SubCategoryFactory
+from zds.tutorialv2.factories import PublishableContentFactory, SubCategoryFactory, \
+    LicenceFactory
 
 
 # NOTE In Django 1.11.4 there is a --selenium option for python manage.py test
@@ -116,6 +119,8 @@ class MemberFrontTests(StaticLiveServerTestCase):
         cat = CategoryFactory()
         SubCategoryFactory(category=cat)
 
+        LicenceFactory(code='CC BY')
+
         author = ProfileFactory()
 
         self.__login(author)
@@ -123,16 +128,20 @@ class MemberFrontTests(StaticLiveServerTestCase):
         new_article_url = self.live_server_url + reverse('content:create-article')
         selenium.get(new_article_url)
 
+        find_element('input[type=checkbox][name=subcategory]').click()
+        license_select = Select(find_element('#id_licence'))
+        license_select.options[-1].click()
+
         find_element('#id_title').send_keys('Oulipo')
 
         intro = find_element('.md-editor#id_introduction')
         intro.send_keys('Le cadavre exquis boira le vin nouveau.')
 
-        # Choose the first ones, we don't care
-        find_element('#id_licence option').click()
-        find_element('input[type=checkbox][name=subcategory]').click()
-
         find_element('.content-container button[type=submit]').click()
+
+        self.assertTrue(
+            WebDriverWait(selenium, 10).until(ec.title_contains(('Oulipo')))
+        )
 
         selenium.get(new_article_url)
 
