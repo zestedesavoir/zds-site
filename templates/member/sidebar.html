@@ -11,7 +11,7 @@
                     {% trans "Paramètres" %} <span class="wide">{% trans "de mon compte" %}</span>
                 </a>
             {% else %}
-                <a href="{% url "member-settings-mini-profile" profile.user.username %}"
+                <a href="{% url "member-moderation" profile.pk %}"
                    class="new-btn ico-after edit blue">
                     {% trans "Modifier le profil" %}
                 </a>

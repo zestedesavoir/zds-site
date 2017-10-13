@@ -59,19 +59,19 @@ class Profile(models.Model):
                                 verbose_name='Licence préférée',
                                 blank=True, null=True)
     github_token = models.TextField('GitHub', blank=True)
-    show_sign = models.BooleanField('Voir les signatures', default=True)
+    show_sign = models.BooleanField('Afficher les signatures', default=True)
     # do UI components open by hovering them, or is clicking on them required?
-    is_hover_enabled = models.BooleanField('Déroulement au survol ?', default=False)
+    is_hover_enabled = models.BooleanField('Activer le déroulement des menus au survol', default=False)
     allow_temp_visual_changes = models.BooleanField('Activer les changements visuels temporaires', default=True)
     show_markdown_help = models.BooleanField("Afficher l'aide Markdown dans l'éditeur", default=True)
-    email_for_answer = models.BooleanField('Envoyer pour les réponse MP', default=False)
+    email_for_answer = models.BooleanField("Recevoir un courriel lors d'une réponse à un message privé", default=False)
     hats = models.ManyToManyField(Hat, verbose_name='Casquettes', db_index=True, blank=True)
     can_read = models.BooleanField('Possibilité de lire', default=True)
     end_ban_read = models.DateTimeField("Fin d'interdiction de lecture", null=True, blank=True)
     can_write = models.BooleanField("Possibilité d'écrire", default=True)
     end_ban_write = models.DateTimeField("Fin d'interdiction d'écrire", null=True, blank=True)
     last_visit = models.DateTimeField('Date de dernière visite', null=True, blank=True)
-    use_old_smileys = models.BooleanField('Utilise les anciens smileys ?', default=False)
+    use_old_smileys = models.BooleanField('Ne pas utiliser les smileys Clem', default=False)
     _permissions = {}
     _groups = None
 

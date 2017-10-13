@@ -17,7 +17,7 @@ from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect, get_object_or_404, render
 from zds.gallery.forms import ArchiveImageForm, ImageForm, UpdateImageForm, \
-    GalleryForm, UpdateGalleryForm, UserGalleryForm, ImageAsAvatarForm
+    GalleryForm, UpdateGalleryForm, UserGalleryForm
 from zds.gallery.models import UserGallery, Image, Gallery
 from zds.member.decorator import can_write_and_read_now
 from zds.utils import slugify
@@ -343,13 +343,6 @@ class EditImage(GalleryMixin, UpdateView):
     def get_object(self, queryset=None):
         pkey = self.kwargs.pop('pk', None)
         return get_object_or_404(Image, pk=pkey)
-
-    def get_context_data(self, **kwargs):
-        context = super(EditImage, self).get_context_data(**kwargs)
-
-        context['as_avatar_form'] = ImageAsAvatarForm()
-
-        return context
 
     def form_valid(self, form):
         self.can_write = True  # only allowed users can change images

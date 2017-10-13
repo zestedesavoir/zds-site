@@ -28,13 +28,12 @@ from django.views.decorators.http import require_POST
 from django.views.generic import DetailView, UpdateView, CreateView, FormView
 
 from zds.forum.models import Topic, TopicRead
-from zds.gallery.forms import ImageAsAvatarForm
-from zds.gallery.models import UserGallery
+from zds.gallery.models import UserGallery, Image
 from zds.member import NEW_ACCOUNT, EMAIL_EDIT
 from zds.member.commons import ProfileCreate, TemporaryReadingOnlySanction, ReadingOnlySanction, \
     DeleteReadingOnlySanction, TemporaryBanSanction, BanSanction, DeleteBanSanction, TokenGenerator
 from zds.member.decorator import can_write_and_read_now, LoginRequiredMixin, PermissionRequiredMixin
-from zds.member.forms import LoginForm, MiniProfileForm, ProfileForm, RegisterForm, \
+from zds.member.forms import LoginForm, ProfileModerationForm, ProfileForm, RegisterForm, \
     ChangePasswordForm, ChangeUserForm, NewPasswordForm, \
     PromoteMemberForm, KarmaForm, UsernameAndEmailForm, GitHubTokenForm, \
     BannedEmailProviderForm, HatRequestForm
@@ -101,91 +100,6 @@ class MemberDetail(DetailView):
         return context
 
 
-class UpdateMember(UpdateView):
-    """Update a profile."""
-
-    form_class = ProfileForm
-    template_name = 'member/settings/profile.html'
-
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super(UpdateMember, self).dispatch(*args, **kwargs)
-
-    def get_object(self, queryset=None):
-        return get_object_or_404(Profile, user=self.request.user)
-
-    def get_form(self, form_class=ProfileForm):
-        profile = self.get_object()
-        form = form_class(initial={
-            'biography': profile.biography,
-            'site': profile.site,
-            'avatar_url': profile.avatar_url,
-            'show_sign': profile.show_sign,
-            'is_hover_enabled': profile.is_hover_enabled,
-            'use_old_smileys': profile.use_old_smileys,
-            'allow_temp_visual_changes': profile.allow_temp_visual_changes,
-            'show_markdown_help': profile.show_markdown_help,
-            'email_for_answer': profile.email_for_answer,
-            'sign': profile.sign,
-            'licence': profile.licence,
-        })
-
-        return form
-
-    def post(self, request, *args, **kwargs):
-        form = self.form_class(request.POST)
-
-        if 'preview' in request.POST and request.is_ajax():
-            content = render_to_response('misc/previsualization.part.html', {'text': request.POST.get('text')})
-            return StreamingHttpResponse(content)
-
-        if form.is_valid():
-            return self.form_valid(form)
-
-        return render(request, self.template_name, {'form': form})
-
-    def form_valid(self, form):
-        profile = self.get_object()
-        self.update_profile(profile, form)
-        self.save_profile(profile)
-
-        response = redirect(self.get_success_url())
-        set_old_smileys_cookie(response, profile)
-        return response
-
-    def update_profile(self, profile, form):
-        cleaned_data_options = form.cleaned_data.get('options')
-        profile.biography = form.data['biography']
-        profile.site = form.data['site']
-        profile.show_sign = 'show_sign' in cleaned_data_options
-        profile.is_hover_enabled = 'is_hover_enabled' in cleaned_data_options
-        profile.use_old_smileys = 'use_old_smileys' in cleaned_data_options
-        profile.allow_temp_visual_changes = 'allow_temp_visual_changes' in cleaned_data_options
-        profile.show_markdown_help = 'show_markdown_help' in cleaned_data_options
-        profile.email_for_answer = 'email_for_answer' in cleaned_data_options
-        profile.avatar_url = form.data['avatar_url']
-        profile.sign = form.data['sign']
-        profile.licence = form.cleaned_data['licence']
-
-    def get_success_url(self):
-        return reverse('update-member')
-
-    def save_profile(self, profile):
-        try:
-            profile.save()
-            profile.user.save()
-        except Profile.DoesNotExist:
-            messages.error(self.request, self.get_error_message())
-            return redirect(reverse('update-member'))
-        messages.success(self.request, self.get_success_message())
-
-    def get_success_message(self):
-        return _('Le profil a correctement été mis à jour.')
-
-    def get_error_message(self):
-        return _('Une erreur est survenue.')
-
-
 class UpdateGitHubToken(UpdateView):
     """Update the GitHub token."""
 
@@ -246,72 +160,48 @@ def remove_github_token(request):
     return redirect('update-github')
 
 
-class UpdateAvatarMember(UpdateMember):
-    """Update the avatar of a logged in user."""
+@login_required
+@require_POST
+def update_avatar(request, image_pk):
+    """Update the current user's avatar by using a gallery image."""
 
-    form_class = ImageAsAvatarForm
+    image = get_object_or_404(Image, pk=image_pk)
 
-    def get_success_url(self):
-        profile = self.get_object()
+    if not request.user in [u.user for u in image.gallery.get_linked_users()]:
+        raise PermissionDenied
 
-        return reverse('member-detail', args=[profile.user.username])
+    request.user.profile.avatar_url = image.physical.url
+    request.user.profile.save()
 
-    def get_form(self, form_class=ImageAsAvatarForm):
-        return form_class(self.request.POST)
-
-    def update_profile(self, profile, form):
-        profile.avatar_url = form.data['avatar_url']
-
-    def get_success_message(self):
-        return _('L\'avatar a correctement été mis à jour.')
+    messages.success(request, _('Votre avatar a été mis à jour.'))
+    return redirect(request.user.profile.get_absolute_url())
 
 
-class UpdatePasswordMember(UpdateMember):
+class UpdatePasswordMember(LoginRequiredMixin, FormView):
     """Password-related user settings."""
 
+    template_name = 'member/settings/password.html'
     form_class = ChangePasswordForm
-    template_name = 'member/settings/account.html'
 
-    def post(self, request, *args, **kwargs):
-        form = self.form_class(request.user, request.POST)
+    def form_valid(self, form):
+        self.request.user.set_password(form.cleaned_data['password_new'])
+        self.request.user.save()
+        messages.success(self.request, _('Mise à jour du mot de passe effectuée.'))
+        return super(UpdatePasswordMember, self).form_valid(form)
 
-        if form.is_valid():
-            return self.form_valid(form)
-
-        return render(request, self.template_name, {'form': form})
-
-    def get_form(self, form_class=ChangePasswordForm):
-        return form_class(self.request.user)
-
-    def update_profile(self, profile, form):
-        profile.user.set_password(form.data['password_new'])
-
-    def get_success_message(self):
-        return _('Le mot de passe a correctement été mis à jour.')
-
-    def get_success_url(self):
-        return reverse('update-password-member')
+    def get_success_url(self, *args, **kwargs):
+        return self.request.user.profile.get_absolute_url()
 
 
-class UpdateUsernameEmailMember(UpdateMember):
+class UpdateUsernameEmailMember(FormView):
     """Settings related to username and email."""
 
     form_class = ChangeUserForm
     template_name = 'member/settings/user.html'
 
-    def post(self, request, *args, **kwargs):
-        form = self.form_class(request.user, request.POST)
-
-        if form.is_valid():
-            return self.form_valid(form)
-
-        return render(request, self.template_name, {'form': form})
-
-    def get_form(self, form_class=ChangeUserForm):
-        return form_class(self.request.user)
-
-    def update_profile(self, profile, form):
-        profile.show_email = 'show_email' in form.cleaned_data.get('options')
+    def form_valid(self, form):
+        user = self.request.user
+        user.profile.show_email = 'show_email' in form.cleaned_data.get('options')
         new_username = form.cleaned_data.get('username')
         previous_username = form.cleaned_data.get('previous_username')
         new_email = form.cleaned_data.get('email')
@@ -319,25 +209,27 @@ class UpdateUsernameEmailMember(UpdateMember):
         if new_username and new_username != previous_username:
             # Add a karma message for the staff
             bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
-            KarmaNote(user=profile.user,
+            KarmaNote(user=user,
                       moderator=bot,
-                      note=_("{} s'est renommé {}").format(profile.user.username, new_username),
+                      note=_("{} s'est renommé {}").format(user.username, new_username),
                       karma=0).save()
             # Change the username
-            profile.user.username = new_username
+            user.username = new_username
         if new_email and new_email != previous_email:
-            profile.user.email = new_email
+            user.email = new_email
             # Create an alert for the staff if it's a new provider
-            provider = provider = new_email.split('@')[-1].lower()
+            provider = new_email.split('@')[-1].lower()
             if not NewEmailProvider.objects.filter(provider=provider).exists() \
                     and not User.objects.filter(email__iendswith='@{}'.format(provider)) \
-                    .exclude(pk=profile.user.pk).exists():
-                NewEmailProvider.objects.create(user=profile.user, provider=provider, use=EMAIL_EDIT)
+                    .exclude(pk=user.pk).exists():
+                NewEmailProvider.objects.create(user=user, provider=provider, use=EMAIL_EDIT)
+        user.save()
+        user.profile.save()
+        messages.success(self.request, _('Paramètres enregistrés.'))
+        return super(UpdateUsernameEmailMember, self).form_valid(form)
 
     def get_success_url(self):
-        profile = self.get_object()
-
-        return profile.get_absolute_url()
+        return self.request.user.profile.get_absolute_url()
 
 
 class RegisterView(CreateView, ProfileCreate, TokenGenerator):
@@ -571,50 +463,45 @@ def modify_profile(request, user_pk):
     return redirect(profile.get_absolute_url())
 
 
-# Settings for public profile
+class ProfileModeration(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    permissions = ['member.change_profile']
 
-@can_write_and_read_now
-@login_required
-@permission_required('member.change_profile', raise_exception=True)
-def settings_mini_profile(request, user_name):
-    """Minimal settings of users for staff."""
+    model = Profile
+    template_name = 'member/settings/profile.html'
+    form_class = ProfileModerationForm
+    context_object_name = 'profile'
 
-    # Extra information about the current user
-    profile = get_object_or_404(Profile, user__username=user_name)
-    if request.method == 'POST':
-        form = MiniProfileForm(request.POST)
-        data = {'form': form, 'profile': profile}
-        if form.is_valid():
-            profile.biography = form.data['biography']
-            profile.site = form.data['site']
-            profile.avatar_url = form.data['avatar_url']
-            profile.sign = form.data['sign']
+    def form_valid(self, form):
+        messages.success(self.request, _('Modifications enregistrées.'))
+        return super(ProfileModeration, self).form_valid(form)
 
-            # Save profile and redirect user to the settings page
-            # with a message indicating the operation state.
+    def get_success_url(self, *args, **kwargs):
+        return self.object.get_absolute_url()
 
-            try:
-                profile.save()
-            except:
-                messages.error(request, _('Une erreur est survenue.'))
-                return redirect(reverse('member-settings-mini-profile'))
 
-            messages.success(request, _('Le profil a correctement été mis à jour.'))
-            return redirect(reverse('member-detail', args=[profile.user.username]))
-        else:
-            return render(request, 'member/settings/profile.html', data)
-    else:
-        form = MiniProfileForm(initial={
-            'biography': profile.biography,
-            'site': profile.site,
-            'avatar_url': profile.avatar_url,
-            'sign': profile.sign,
-        })
-        data = {'form': form, 'profile': profile}
-        messages.warning(request, _(
-            'Le profil que vous éditez n\'est pas le vôtre. '
-            'Soyez encore plus prudent lors de l\'édition de celui-ci !'))
-        return render(request, 'member/settings/profile.html', data)
+class ProfileUpdate(LoginRequiredMixin, UpdateView):
+    model = Profile
+    template_name = 'member/settings/profile.html'
+    form_class = ProfileForm
+    context_object_name = 'profile'
+
+    def get_object(self):
+        return self.request.user.profile
+
+    def form_valid(self, form):
+        response = super(ProfileUpdate, self).form_valid(form)
+        set_old_smileys_cookie(response, self.object)
+        messages.success(self.request, _('Votre profil a bien été mis à jour.'))
+        return response
+
+    def get_success_url(self, *args, **kwargs):
+        return self.object.get_absolute_url()
+
+    def post(self, request, *args, **kwargs):
+        if 'preview' in request.POST and request.is_ajax():
+            content = render_to_response('misc/previsualization.part.html', {'text': request.POST.get('text')})
+            return StreamingHttpResponse(content)
+        return super(ProfileUpdate, self).post(request, *args, **kwargs)
 
 
 class NewEmailProvidersList(LoginRequiredMixin, PermissionRequiredMixin, ZdSPagingListView):

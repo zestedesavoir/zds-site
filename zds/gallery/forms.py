@@ -216,22 +216,3 @@ class ArchiveImageForm(forms.Form):
                 del cleaned_data['file']
 
         return cleaned_data
-
-
-class ImageAsAvatarForm(forms.Form):
-
-    """"Form to add current image as avatar"""
-
-    def __init__(self, *args, **kwargs):
-        super(ImageAsAvatarForm, self).__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.form_class = 'clearfix'
-        self.helper.form_action = reverse('update-avatar-member')
-        self.helper.form_method = 'post'
-
-        self.helper.layout = Layout(
-            Hidden('avatar_url', '{{ image.physical.url }}'),
-            ButtonHolder(
-                StrictButton(_('Utiliser comme avatar'), type='submit'),
-            ),
-        )

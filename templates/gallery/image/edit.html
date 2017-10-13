@@ -68,6 +68,9 @@
             <input type="text" value="[![{{ image.legend|default:image.title }}]({{ image.physical.gallery.url|remove_url_scheme }})]({{ image.physical.url|remove_url_scheme }})" readonly onclick="this.select()">
         </p>
 
-        {% crispy as_avatar_form %}
+        <form method="post" action="{% url 'update-avatar' image.pk %}">
+            {% csrf_token %}
+            <button type="submit">{% trans "Utiliser comme avatar" %}
+        </form>
     </div>
 {% endblock %}

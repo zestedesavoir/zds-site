@@ -146,56 +146,54 @@ class RegisterForm(forms.Form):
         self._errors[key] = self.error_class([message])
 
 
-class MiniProfileForm(forms.Form):
-    """
-    Updates some profile data: biography, website, avatar URL, signature.
-    """
-    biography = forms.CharField(
-        label=_('Biographie'),
-        required=False,
-        widget=forms.Textarea(
-            attrs={
-                'placeholder': _('Votre biographie au format Markdown.'),
-                'class': 'md-editor preview-source'
-            }
-        )
-    )
-
-    site = forms.CharField(
-        label='Site web',
-        required=False,
-        max_length=Profile._meta.get_field('site').max_length,
-        widget=forms.TextInput(
-            attrs={
-                'placeholder': _('Lien vers votre site web personnel (ne pas oublier le http:// ou https:// devant).')
-            }
-        )
-    )
-
-    avatar_url = forms.CharField(
-        label='Avatar',
-        required=False,
-        max_length=Profile._meta.get_field('avatar_url').max_length,
-        widget=forms.TextInput(
-            attrs={
-                'placeholder': _('Lien vers un avatar externe (laissez vide pour utiliser Gravatar).')
-            }
-        )
-    )
-
-    sign = forms.CharField(
-        label='Signature',
-        required=False,
-        max_length=Profile._meta.get_field('sign').max_length,
-        widget=forms.TextInput(
-            attrs={
-                'placeholder': _('Elle apparaitra dans les messages de forums. ')
-            }
-        )
-    )
+class BannedEmailProviderForm(forms.ModelForm):
+    class Meta:
+        model = BannedEmailProvider
+        fields = ('provider',)
+        widgets = {
+            'provider': forms.TextInput(attrs={
+                'autofocus': 'on',
+                'placeholder': _('Le nom de domaine à bannir.'),
+            }),
+        }
 
     def __init__(self, *args, **kwargs):
-        super(MiniProfileForm, self).__init__(*args, **kwargs)
+        super(BannedEmailProviderForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = 'content-wrapper'
+        self.helper.form_method = 'post'
+
+        self.helper.layout = Layout(
+            Field('provider'),
+            ButtonHolder(
+                StrictButton(_('Bannir ce fournisseur'), type='submit'),
+            ))
+
+    def clean_provider(self):
+        data = self.cleaned_data['provider']
+        return data.lower()
+
+
+class ProfileModerationForm(forms.ModelForm):
+    """
+    Form used by moderators to update a user profile.
+    """
+
+    class Meta:
+        model = Profile
+        fields = ('biography', 'site', 'avatar_url', 'sign')
+        widgets = {
+            'biography': forms.Textarea(attrs={
+                'placeholder': _("Modification de la biographie de l'utilisateur."),
+                'class': 'md-editor'
+            }),
+            'sign': forms.TextInput(attrs={
+                'placeholder': _('Modification de la signature.')
+            }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(ProfileModerationForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
@@ -210,75 +208,40 @@ class MiniProfileForm(forms.Form):
             ))
 
 
-class ProfileForm(MiniProfileForm):
+class ProfileForm(forms.ModelForm):
     """
-    Updates main profile rules:
-    - Display email address to everybody
-    - Display signatures
-    - Display menus on hover
-    - Receive an email when receiving a personal message
+    Form used by users to update their profile.
     """
 
-    multi_choices = [
-        ('show_sign', _('Afficher les signatures')),
-        ('is_hover_enabled', _('Dérouler les menus au survol')),
-        ('allow_temp_visual_changes', _('Activer les changements visuels temporaires')),
-        ('show_markdown_help', _("Afficher l'aide Markdown dans l'éditeur")),
-        ('email_for_answer', _("Recevoir un courriel lors d'une réponse à un message privé")),
-    ]
-
-    options = forms.MultipleChoiceField(
-        label='',
-        required=False,
-        choices=tuple(multi_choices),
-        widget=forms.CheckboxSelectMultiple,
-    )
-
-    licence = forms.ModelChoiceField(
-        label=(
-            _('Licence préférée pour vos publications '
-              '(<a href="{0}" alt="{1}">En savoir plus sur les licences et {2}</a>).')
-            .format(
-                settings.ZDS_APP['site']['licenses']['licence_info_title'],
-                settings.ZDS_APP['site']['licenses']['licence_info_link'],
-                settings.ZDS_APP['site']['literal_name'],
-            )
-        ),
-        queryset=Licence.objects.order_by('title').all(),
-        required=False,
-        empty_label=_('Choisir une licence')
-    )
+    class Meta:
+        model = Profile
+        fields = ('biography', 'site', 'avatar_url', 'sign', 'licence', 'show_sign', 'is_hover_enabled',
+                  'allow_temp_visual_changes', 'use_old_smileys', 'show_markdown_help', 'email_for_answer')
+        widgets = {
+            'biography': forms.Textarea(attrs={
+                'placeholder': _('Votre biographie au format Markdown.'),
+                'class': 'md-editor preview-source'
+            }),
+            'site': forms.TextInput(attrs={
+                'placeholder': _('Lien vers votre site web personnel (ne pas oublier le http:// ou https:// devant).'),
+            }),
+            'avatar_url': forms.TextInput(attrs={
+                'placeholder': _('Lien vers un avatar externe (laissez vide pour utiliser Gravatar).')
+            }),
+            'sign': forms.TextInput(attrs={
+                'placeholder': _('Elle apparaitra dans les messages de forums. ')
+            })
+        }
 
     def __init__(self, *args, **kwargs):
         super(ProfileForm, self).__init__(*args, **kwargs)
+
+        if not settings.ZDS_APP['member']['old_smileys_allowed']:
+            del self.fields['use_old_smileys']
+
         self.helper = FormHelper()
         self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
-
-        if settings.ZDS_APP['member']['old_smileys_allowed']:
-            self.fields['options'].choices.insert(3, ('use_old_smileys', _('Utiliser les anciens smileys')))
-
-        # to get initial value form checkbox show email
-        initial = kwargs.get('initial', {})
-        self.fields['options'].initial = ''
-
-        if 'show_sign' in initial and initial['show_sign']:
-            self.fields['options'].initial += 'show_sign'
-
-        if 'is_hover_enabled' in initial and initial['is_hover_enabled']:
-            self.fields['options'].initial += 'is_hover_enabled'
-
-        if 'allow_temp_visual_changes' in initial and initial['allow_temp_visual_changes']:
-            self.fields['options'].initial += 'allow_temp_visual_changes'
-
-        if 'use_old_smileys' in initial and initial['use_old_smileys']:
-            self.fields['options'].initial += 'use_old_smileys'
-
-        if 'show_markdown_help' in initial and initial['show_markdown_help']:
-            self.fields['options'].initial += 'show_markdown_help'
-
-        if 'email_for_answer' in initial and initial['email_for_answer']:
-            self.fields['options'].initial += 'email_for_answer'
 
         layout = Layout(
             Field('biography'),
@@ -300,9 +263,18 @@ class ProfileForm(MiniProfileForm):
             """)),
             Field('sign'),
             Field('licence'),
-            Field('options'),
-            ButtonHolder(StrictButton(_('Enregistrer'), type='submit'),)
-        )
+            Field('show_sign'),
+            Field('is_hover_enabled'),
+            Field('allow_temp_visual_changes'),
+            Field('show_markdown_help'),
+            Field('email_for_answer'),
+            ButtonHolder(
+                StrictButton(_('Enregistrer'), type='submit'),
+            ))
+
+        if settings.ZDS_APP['member']['old_smileys_allowed']:
+            layout.insert(13, 'use_old_smileys')
+
         self.helper.layout = layout
 
 
@@ -341,8 +313,6 @@ class ChangeUserForm(forms.Form):
     username = forms.CharField(
         label=_('Mon pseudo'),
         max_length=User._meta.get_field('username').max_length,
-        min_length=1,
-        required=False,
         widget=forms.TextInput(
             attrs={
                 'placeholder': _('Pseudo')
@@ -353,8 +323,7 @@ class ChangeUserForm(forms.Form):
     email = forms.EmailField(
         label=_('Mon adresse email'),
         max_length=User._meta.get_field('email').max_length,
-        required=False,
-        widget=forms.TextInput(
+        widget=forms.EmailInput(
             attrs={
                 'placeholder': _('Adresse email')
             }
@@ -370,8 +339,9 @@ class ChangeUserForm(forms.Form):
         widget=forms.CheckboxSelectMultiple,
     )
 
-    def __init__(self, user, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super(ChangeUserForm, self).__init__(*args, **kwargs)
+        user = get_current_user()
         self.helper = FormHelper()
         self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
@@ -379,7 +349,7 @@ class ChangeUserForm(forms.Form):
         self.previous_username = user.username
         self.fields['options'].initial = ''
 
-        if user.profile and user.profile.show_email:
+        if user.profile.show_email:
             self.fields['options'].initial += 'show_email'
 
         self.helper.layout = Layout(
@@ -397,7 +367,7 @@ class ChangeUserForm(forms.Form):
         cleaned_data['previous_email'] = self.previous_email
         username = cleaned_data.get('username')
         email = cleaned_data.get('email')
-        if username != self.previous_username:
+        if username.lower() != self.previous_username.lower():
             validate_not_empty(username)
             validate_zds_username(username)
         if email != self.previous_email:
@@ -410,8 +380,9 @@ class ChangeUserForm(forms.Form):
 class ChangePasswordForm(forms.Form):
 
     password_old = forms.CharField(
-        label=_('Mot de passe actuel'),
+        label=_('Mot de passe actuel (si défini)'),
         widget=forms.PasswordInput,
+        required=False,
     )
 
     password_new = forms.CharField(
@@ -430,13 +401,11 @@ class ChangePasswordForm(forms.Form):
         validators=[validate_zds_password],
     )
 
-    def __init__(self, user, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super(ChangePasswordForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
-
-        self.user = user
 
         self.helper.layout = Layout(
             Field('password_old'),
@@ -447,21 +416,17 @@ class ChangePasswordForm(forms.Form):
             )
         )
 
+    def clean_password_old(self):
+        old_password = self.cleaned_data.get('password_old')
+        if get_current_user().has_usable_password() and not get_current_user().check_password(old_password):
+            raise forms.ValidationError(_('Vous avez un mot de passe défini et votre saisie est incorrecte.'))
+        if not get_current_user().has_usable_password() and old_password:
+            raise forms.ValidationError(_("Aucun mot de passe n'est associé à votre compte."))
+
     def clean(self):
         cleaned_data = super(ChangePasswordForm, self).clean()
-
-        password_old = cleaned_data.get('password_old')
-
-        # Check if the actual password is not empty
-        if password_old:
-            user_exist = authenticate(username=self.user.username, password=password_old)
-            # Check if the user exist with old informations.
-            if not user_exist and password_old != '':
-                self._errors['password_old'] = self.error_class([_('Mot de passe incorrect.')])
-                if 'password_old' in cleaned_data:
-                    del cleaned_data['password_old']
-
-        return validate_passwords(cleaned_data, password_label='password_new', username=self.user.username)
+        return validate_passwords(cleaned_data, password_label='password_new',
+                                  username=get_current_user().username)
 
 
 class UsernameAndEmailForm(forms.Form):
