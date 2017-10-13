@@ -46,7 +46,7 @@ clean-back:
 	find . -name '*.pyc' -exec rm {} \;
 
 install-back:
-	pip install --upgrade -r requirements.txt -r requirements-dev.txt
+	pip install --upgrade -r requirements-dev.txt
 
 lint-back:
 	flake8 zds

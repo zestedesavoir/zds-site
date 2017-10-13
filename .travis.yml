@@ -120,7 +120,7 @@ install:
   - |
     # install backend dependencies
     if [[ "$ZDS_TEST_JOB" == *"zds."* ]] || [[ "$ZDS_TEST_JOB" == *"selenium"* ]] || [[ "$ZDS_TEST_JOB" == *"doc"* ]]; then
-      pip install -q -rrequirements.txt -rrequirements-dev.txt -rrequirements-prod.txt
+      pip install -q -r requirements-dev.txt -r requirements-prod.txt
     fi
 
 

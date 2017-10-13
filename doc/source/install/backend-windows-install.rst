@@ -62,7 +62,7 @@ Pour redémarrer virtualenv les fois suivantes : exécutez à nouveau le fichier
 
     (zdsenv)PS C:\dev\zestedesavoir\
 
-Lancez par la suite ``pip install -r requirements.txt -r requirements-dev.txt``.
+Lancez par la suite ``pip install --upgrade -r requirements-dev.txt``.
 
 Si l'erreur suivante apparaît :
 
@@ -97,7 +97,7 @@ Suite de l'installation
 
 - Dans la console PowerShell via l'environnement zdsenv installez les dépendances.
     - ``easy_install lxml``
-    - ``pip install -r requirements.txt -r requirements-dev.txt``
+    - ``pip install --upgrade -r requirements-dev.txt``
     - Cairo, disponible `ici <https://www.cairographics.org/download>`_
     - GTK+ (qui contient les DLL de Cairo) disponible `ici <http://downloads.sourceforge.net/gladewin32/gtk-2.12.9-win32-2.exe>`_
     - ``python manage.py migrate``
