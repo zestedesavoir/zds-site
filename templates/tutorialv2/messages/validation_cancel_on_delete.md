@@ -5,7 +5,7 @@
 
 Bonjour {{ validator }},
 
-Je t’informe que la validation du contenu « {{ title }} » que tu as réservé, a 
+Je t’informe que la validation du contenu « {{ title }} » que tu as réservé, a 
 été annulée, pour la simple et bonne raison 
 que le contenu en question a été supprimé par 
 [{{ user_name }}]({{ user_url }}), qui a fourni l’explication suivante :

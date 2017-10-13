@@ -4,12 +4,17 @@
 
 
 {% block title %}
-    {% trans "Demandes de casquettes" %}
+    {% trans "Demandes de casquettes" %} &bull; {% trans "Casquettes" %}
 {% endblock %}
 
 
 
 {% block breadcrumb %}
+    <li>
+        <a href="{% url 'hats-list' %}">
+            {% trans "Casquettes" %}
+        </a>
+    </li>
     <li>
         {% trans "Demandes de casquettes" %}
     </li>

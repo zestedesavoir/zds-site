@@ -3,7 +3,7 @@
 
 {% block content_from_staff %}
 {% blocktrans %}
-{{ author }} a publié un nouveau contenu « {{ title }} » sur {{ site_name }}.
+{{ author }} a publié un nouveau contenu « {{ title }} » sur {{ site_name }}.
 {% endblocktrans %}
 
 {% blocktrans %}

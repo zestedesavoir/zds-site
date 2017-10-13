@@ -3,7 +3,7 @@
 {% blocktrans with title=content.title|safe type=type|safe user=user|safe %}
 Bonjour {{ user }},
 
-Le contenu « {{ title }} » a été passé en bêta. La communauté pourra 
+Le contenu « {{ title }} » a été passé en bêta. La communauté pourra 
 consulter cette version et vous faire ses retours dessus. Elle vous 
 permettra ainsi de l’améliorer et de satisfaire aux critères de validation.
 

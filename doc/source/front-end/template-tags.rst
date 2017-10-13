@@ -132,7 +132,7 @@ Ce qui donnera :
 Identique sur le fonctionnement à ``obfuscate_mailto``, ce *templatetag* ajoute en plus un sujet (qui remplace le champ
 pouvant être inséré entre les balises ``<a>`` et ``</a>``) ainsi que ``target="_top"``.
 
-Il est utilisé sur la page « Contact ».
+Il est utilisé sur la page « Contact ».
 
 Exemple :
 

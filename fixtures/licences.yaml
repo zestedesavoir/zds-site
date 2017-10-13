@@ -3,7 +3,7 @@
     fields:
         code : Beerware
         title : Licence Beerware
-        description : Si l'utilisateur rencontre l'auteur et considère que le logiciel de ce dernier est utile, il est encouragé à lui offrir une bière « en retour ».
+        description : Si l'utilisateur rencontre l'auteur et considère que le logiciel de ce dernier est utile, il est encouragé à lui offrir une bière « en retour ».
 -   model: utils.Licence
     pk: 2
     fields:

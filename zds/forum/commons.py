@@ -47,9 +47,9 @@ class TopicEditMixin(object):
     def perform_lock(request, topic):
         topic.is_locked = request.POST.get('lock') == 'true'
         if topic.is_locked:
-            success_message = _('Le sujet « {0} » est désormais verrouillé.').format(topic.title)
+            success_message = _('Le sujet « {0} » est désormais verrouillé.').format(topic.title)
         else:
-            success_message = _('Le sujet « {0} » est désormais déverrouillé.').format(topic.title)
+            success_message = _('Le sujet « {0} » est désormais déverrouillé.').format(topic.title)
         messages.success(request, success_message)
 
     @staticmethod
@@ -57,9 +57,9 @@ class TopicEditMixin(object):
     def perform_sticky(request, topic):
         topic.is_sticky = request.POST.get('sticky') == 'true'
         if topic.is_sticky:
-            success_message = _('Le sujet « {0} » est désormais épinglé.').format(topic.title)
+            success_message = _('Le sujet « {0} » est désormais épinglé.').format(topic.title)
         else:
-            success_message = _("Le sujet « {0} » n'est désormais plus épinglé.").format(topic.title)
+            success_message = _("Le sujet « {0} » n'est désormais plus épinglé.").format(topic.title)
         messages.success(request, success_message)
 
     def perform_move(self):
@@ -75,7 +75,7 @@ class TopicEditMixin(object):
             self.object.save()
 
             signals.edit_content.send(sender=self.object.__class__, instance=self.object, action='move')
-            message = _('Le sujet « {0} » a bien été déplacé dans « {1} ».').format(self.object.title, forum.title)
+            message = _('Le sujet « {0} » a bien été déplacé dans « {1} ».').format(self.object.title, forum.title)
             messages.success(self.request, message)
         else:
             raise PermissionDenied()

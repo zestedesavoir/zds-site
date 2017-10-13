@@ -726,7 +726,7 @@ def fill_containers_from_json(json_sub, parent):
                 except InvalidOperationError as e:
                     raise BadManifestError(e.message)
             else:
-                raise BadManifestError(_("Type d'objet inconnu : « {} »").format(child['object']))
+                raise BadManifestError(_("Type d'objet inconnu : « {} »").format(child['object']))
 
 
 def init_new_repo(db_object, introduction_text, conclusion_text, commit_message='', do_commit=True):

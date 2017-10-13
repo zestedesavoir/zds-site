@@ -3,7 +3,7 @@
 
 {% block content_from_staff %}
 {% blocktrans %}
-{{ author }} a créé un nouveau sujet « {{ title }} » sur {{ site_name }}.
+{{ author }} a créé un nouveau sujet « {{ title }} » sur {{ site_name }}.
 {% endblocktrans %}
 
 {% blocktrans %}

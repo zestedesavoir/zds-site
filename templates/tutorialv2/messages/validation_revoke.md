@@ -2,7 +2,7 @@
 
 {% blocktrans with title=content.title|safe admin_name=admin.username|safe admin_url=admin.get_absolute_url message=message_reject|safe %}
 
-Désolé, « [{{ title }}]({{ url }}) » a malheureusement été dépublié par 
+Désolé, « [{{ title }}]({{ url }}) » a malheureusement été dépublié par 
 [{{ admin_name }}]({{ admin_url }}) pour la raison suivante :
 
 {{ message }}

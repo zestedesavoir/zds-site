@@ -45,7 +45,7 @@ class FormWithTitle(forms.Form):
             slugify_raise_on_invalid(title)
         except InvalidSlugError as e:
             self._errors['title'] = self.error_class(
-                [_("Ce titre n'est pas autorisé, son slug est invalide {}&nbsp;!").format(e)])
+                [_("Ce titre n'est pas autorisé, son slug est invalide {} !").format(e)])
 
         return cleaned_data
 
@@ -205,7 +205,7 @@ class ContentForm(ContainerForm):
 
     subcategory = forms.ModelMultipleChoiceField(
         label=_('Sous catégories de votre contenu. Si aucune catégorie ne convient '
-                "n'hésitez pas à en demander une nouvelle lors de la validation&nbsp;!"),
+                "n'hésitez pas à en demander une nouvelle lors de la validation !"),
         queryset=SubCategory.objects.order_by('title').all(),
         required=True,
         widget=forms.CheckboxSelectMultiple()
@@ -233,7 +233,7 @@ class ContentForm(ContainerForm):
     )
 
     def _create_layout(self, hide_help):
-        html_part = HTML(_("<p>Demander de l'aide à la communauté&nbsp;!<br>"
+        html_part = HTML(_("<p>Demander de l'aide à la communauté !<br>"
                            "Si vous avez besoin d'un coup de main, "
                            "sélectionnez une ou plusieurs catégories d'aide ci-dessous "
                            'et votre contenu apparaîtra alors sur <a href='
@@ -445,7 +445,7 @@ class ImportNewContentForm(ImportContentForm):
 
     subcategory = forms.ModelMultipleChoiceField(
         label=_('Sous catégories de votre contenu. Si aucune catégorie ne convient '
-                "n'hésitez pas à en demander une nouvelle lors de la validation&nbsp;!"),
+                "n'hésitez pas à en demander une nouvelle lors de la validation !"),
         queryset=SubCategory.objects.order_by('title').all(),
         required=True,
         widget=forms.SelectMultiple(
@@ -549,7 +549,7 @@ class NoteForm(forms.Form):
 
         if text is None or not text.strip():
             self._errors['text'] = self.error_class(
-                [_('Vous devez écrire une réponse&nbsp;!')])
+                [_('Vous devez écrire une réponse !')])
             if 'text' in cleaned_data:
                 del cleaned_data['text']
 
@@ -671,7 +671,7 @@ class AcceptValidationForm(forms.Form):
     )
 
     is_major = forms.BooleanField(
-        label=_('Version majeure&nbsp;?'),
+        label=_('Version majeure ?'),
         required=False,
         initial=True
     )
@@ -749,7 +749,7 @@ class CancelValidationForm(forms.Form):
         required=True,
         widget=forms.Textarea(
             attrs={
-                'placeholder': _('Pourquoi annuler la validation&nbsp;?'),
+                'placeholder': _('Pourquoi annuler la validation ?'),
                 'rows': '4'
             }
         )
@@ -773,7 +773,7 @@ class CancelValidationForm(forms.Form):
         self.helper.form_id = 'cancel-validation'
 
         self.helper.layout = Layout(
-            HTML('<p>Êtes-vous certain de vouloir annuler la validation de ce contenu&nbsp;?</p>'),
+            HTML('<p>Êtes-vous certain de vouloir annuler la validation de ce contenu ?</p>'),
             CommonLayoutModalText(),
             ButtonHolder(
                 StrictButton(
@@ -876,7 +876,7 @@ class RevokeValidationForm(forms.Form):
         required=True,
         widget=forms.Textarea(
             attrs={
-                'placeholder': _('Pourquoi dépublier ce contenu&nbsp;?'),
+                'placeholder': _('Pourquoi dépublier ce contenu ?'),
                 'rows': '6'
             }
         )
@@ -1019,9 +1019,9 @@ class WarnTypoForm(forms.Form):
             type_ = _('le billet')
 
         if targeted.get_tree_depth() == 0:
-            pm_title = _("J'ai trouvé une faute dans {} « {} ».").format(type_, targeted.title)
+            pm_title = _("J'ai trouvé une faute dans {} « {} ».").format(type_, targeted.title)
         else:
-            pm_title = _("J'ai trouvé une faute dans le chapitre « {} ».").format(targeted.title)
+            pm_title = _("J'ai trouvé une faute dans le chapitre « {} ».").format(targeted.title)
 
         usernames = ''
         num_of_authors = content.authors.count()
@@ -1030,7 +1030,7 @@ class WarnTypoForm(forms.Form):
                 usernames += '&'
             usernames += 'username=' + user.username
 
-        msg = _('<p>Pas assez de place&nbsp;? <a href="{}?title={}&{}">Envoyez un MP {}</a>&nbsp;!</a>').format(
+        msg = _('<p>Pas assez de place ? <a href="{}?title={}&{}">Envoyez un MP {}</a> !</a>').format(
             reverse('mp-new'), pm_title, usernames, _("à l'auteur") if num_of_authors == 1 else _('aux auteurs')
         )
 
@@ -1114,7 +1114,7 @@ class UnpublicationForm(forms.Form):
         required=True,
         widget=forms.Textarea(
             attrs={
-                'placeholder': _('Pourquoi dépublier ce contenu&nbsp;?'),
+                'placeholder': _('Pourquoi dépublier ce contenu ?'),
                 'rows': '6'
             }
         )
@@ -1160,7 +1160,7 @@ class PickOpinionForm(forms.Form):
         self.helper.form_id = 'pick-opinion'
 
         self.helper.layout = Layout(
-            HTML('<p>Êtes-vous certain(e) de vouloir valider ce billet&nbsp;? '
+            HTML('<p>Êtes-vous certain(e) de vouloir valider ce billet ? '
                  'Il pourra maintenant être présent sur la page d’accueil.</p>'),
             CommonLayoutModalText(),
             Field('version'),
@@ -1217,7 +1217,7 @@ class UnpickOpinionForm(forms.Form):
         required=True,
         widget=forms.Textarea(
             attrs={
-                'placeholder': _('Pourquoi retirer ce billet de la liste des billets choisis&nbsp;?'),
+                'placeholder': _('Pourquoi retirer ce billet de la liste des billets choisis ?'),
                 'rows': '6'
             }
         )
@@ -1261,7 +1261,7 @@ class PromoteOpinionToArticleForm(forms.Form):
         self.helper.form_id = 'convert-opinion'
 
         self.helper.layout = Layout(
-            HTML('<p>Êtes-vous certain(e) de vouloir promouvoir ce billet en article&nbsp;?</p>'),
+            HTML('<p>Êtes-vous certain(e) de vouloir promouvoir ce billet en article ?</p>'),
             CommonLayoutModalText(),
             Field('version'),
             StrictButton(

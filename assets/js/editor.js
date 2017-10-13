@@ -85,9 +85,9 @@
 
         chars: {
             Typo: {
-                char_g0: { title: "« »", start: "« ", end: " »" },
-                char_gl: { title: "«", start: "« ", end: "" },
-                char_gr: { title: "»", start: " »", end: "" },
+                char_g0: { title: "« »", start: "« ", end: " »" },
+                char_gl: { title: "« ", start: "« ", end: "" },
+                char_gr: { title: " »", start: " »", end: "" },
                 char_h0: { title: "“ ”", start: "“", end: "”" },
                 char_hl: { title: "“", start: "“", end: "" },
                 char_hr: { title: "”", start: "”", end: "" },

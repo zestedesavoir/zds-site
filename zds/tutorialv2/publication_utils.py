@@ -324,7 +324,7 @@ def publish_container(db_object, base_dir, container):
     from zds.tutorialv2.models.models_versioned import Container
 
     if not isinstance(container, Container):
-        raise FailureDuringPublication(_("Le conteneur n'en est pas un&nbsp;!"))
+        raise FailureDuringPublication(_("Le conteneur n'en est pas un !"))
 
     template = 'tutorialv2/export/chapter.html'
 
@@ -347,7 +347,7 @@ def publish_container(db_object, base_dir, container):
             f.write(parsed)
         except (UnicodeError, UnicodeEncodeError):
             raise FailureDuringPublication(
-                _('Une erreur est survenue durant la publication de « {} », vérifiez le code markdown')
+                _('Une erreur est survenue durant la publication de « {} », vérifiez le code markdown')
                 .format(container.title))
 
         f.close()
@@ -373,7 +373,7 @@ def publish_container(db_object, base_dir, container):
                 f.write(emarkdown(container.get_introduction(), db_object.js_support))
             except (UnicodeError, UnicodeEncodeError):
                 raise FailureDuringPublication(
-                    _("Une erreur est survenue durant la publication de l'introduction de « {} »,"
+                    _("Une erreur est survenue durant la publication de l'introduction de « {} »,"
                       ' vérifiez le code markdown').format(container.title))
 
             container.introduction = path
@@ -386,7 +386,7 @@ def publish_container(db_object, base_dir, container):
                 f.write(emarkdown(container.get_conclusion(), db_object.js_support))
             except (UnicodeError, UnicodeEncodeError):
                 raise FailureDuringPublication(
-                    _('Une erreur est survenue durant la publication de la conclusion de « {} »,'
+                    _('Une erreur est survenue durant la publication de la conclusion de « {} »,'
                       ' vérifiez le code markdown').format(container.title))
 
             container.conclusion = path
