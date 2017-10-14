@@ -7,6 +7,9 @@ from django.contrib.messages import constants as message_constants
 from django.utils.http import urlquote
 from django.utils.translation import gettext_lazy as _
 
+from colorlog import ColoredFormatter
+
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
@@ -276,34 +279,69 @@ CORS_EXPOSE_HEADERS = (
     'link'
 )
 
-# A sample logging configuration. The only tangible logging
-# performed by this configuration is to send an email to
-# the site admins on every HTTP 500 error when DEBUG=False.
-# See http://docs.djangoproject.com/en/dev/topics/logging for
-# more details on how to customize your logging configuration.
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
-    'filters': {
-        'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse'
-        }
-    },
-    'handlers': {
-        'mail_admins': {
-            'level': 'DEBUG',
-            'filters': ['require_debug_false'],
-            'class': 'django.utils.log.AdminEmailHandler'
-        }
-    },
-    'loggers': {
-        'django.request': {
-            'handlers': ['mail_admins'],
-            'level': 'DEBUG',
-            'propagate': True,
+
+    'formatters': {
+        'verbose': {
+            '()': ColoredFormatter,
+            'format': '%(log_color)s %(levelname)s %(reset)s %(bold_black)s%(name)s%(reset)s %(message)s',
+            'log_colors': {
+                'DEBUG': 'fg_white,bg_black',
+                'INFO': 'fg_black,bg_bold_white',
+                'WARNING': 'fg_black,bg_bold_yellow',
+                'ERROR': 'fg_bold_white,bg_bold_red',
+                'CRITICAL': 'fg_bold_white,bg_bold_red',
+            },
         },
-    }
+
+        'django.server': {
+            '()': ColoredFormatter,
+            'format': '%(log_color)s%(message)s',
+            'log_colors': {
+                'INFO': 'bold_black',
+                'WARNING': 'bold_yellow',
+                'ERROR': 'bold_red',
+                'CRITICAL': 'bold_red',
+            },
+        },
+    },
+
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+
+        'django.server': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'django.server',
+        },
+    },
+
+    'loggers': {
+        'django': {
+            'level': 'INFO',
+            'handlers': ['console'],
+        },
+
+        'django.server': {
+            'level': 'INFO',
+            'handlers': ['django.server'],
+            'propagate': False,
+        },
+
+        'zds': {
+            'level': 'DEBUG',  # Important because the default level is 'WARNING' or something like that
+            'handlers': ['console'],
+        },
+    },
 }
+
 
 CACHES = {
     'default': {
