@@ -69,7 +69,7 @@ class TagValidator(object):
     """
     def __init__(self):
         self.__errors = []
-        self.logger = logging.getLogger('zds.utils.forms')
+        self.logger = logging.getLogger(__name__)
         self.__clean = []
 
     def validate_raw_string(self, raw_string):

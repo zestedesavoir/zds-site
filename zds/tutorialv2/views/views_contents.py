@@ -53,6 +53,9 @@ from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView, make_pagination
 
 
+logger = logging.getLogger(__name__)
+
+
 class RedirectOldBetaTuto(RedirectView):
     """
     allows to redirect /tutoriels/beta/old_pk/slug to /contenus/beta/new_pk/slug
@@ -1294,7 +1297,7 @@ class DisplayDiff(LoggedWithReadWriteHability, SingleContentDetailViewMixin):
             # commit_to.diff raises GitErrorCommand if 00..00 SHA for instance
             tdiff = commit_to.diff(commit_from, R=True)
         except (GitCommandError, BadName, BadObject, ValueError) as git_error:
-            logging.getLogger('zds.tutorialv2').warn(git_error)
+            logger.warn(git_error)
             raise Http404('En traitant le contenu {} git a lancé une erreur de type {}:{}'.format(
                 self.object.title,
                 type(git_error),
@@ -1659,12 +1662,10 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
             child = parent.children_dict[child_slug]
             if form.data['moving_method'] == MoveElementForm.MOVE_UP:
                 parent.move_child_up(child_slug)
-                logging.getLogger('zds.tutorialv2').debug('{} was moved up in tutorial id:{}'.format(child_slug,
-                                                                                                     content.pk))
+                logger.debug('{} was moved up in tutorial id:{}'.format(child_slug, content.pk))
             elif form.data['moving_method'] == MoveElementForm.MOVE_DOWN:
                 parent.move_child_down(child_slug)
-                logging.getLogger('zds.tutorialv2').debug('{} was moved down in tutorial id:{}'.format(child_slug,
-                                                                                                       content.pk))
+                logger.debug('{} was moved down in tutorial id:{}'.format(child_slug, content.pk))
             elif form.data['moving_method'][0:len(MoveElementForm.MOVE_AFTER)] == MoveElementForm.MOVE_AFTER:
                 target = form.data['moving_method'][len(MoveElementForm.MOVE_AFTER) + 1:]
                 if not parent.has_child_with_path(target):
@@ -1683,9 +1684,7 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
                     child_slug = target_parent.children[-1].slug
                     parent = target_parent
                 parent.move_child_after(child_slug, target.split('/')[-1])
-                logging.getLogger('zds.tutorialv2').debug('{} was moved after {} in tutorial id:{}'.format(child_slug,
-                                                                                                           target,
-                                                                                                           content.pk))
+                logger.debug('{} was moved after {} in tutorial id:{}'.format(child_slug, target, content.pk))
             elif form.data['moving_method'][0:len(MoveElementForm.MOVE_BEFORE)] == MoveElementForm.MOVE_BEFORE:
                 target = form.data['moving_method'][len(MoveElementForm.MOVE_BEFORE) + 1:]
                 if not parent.has_child_with_path(target):
@@ -1703,9 +1702,7 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
                     child_slug = target_parent.children[-1].slug
                     parent = target_parent
                 parent.move_child_before(child_slug, target.split('/')[-1])
-                logging.getLogger('zds.tutorialv2').debug('{} was moved before {} in tutorial id:{}'.format(child_slug,
-                                                                                                            target,
-                                                                                                            content.pk))
+                logger.debug('{} was moved before {} in tutorial id:{}'.format(child_slug, target, content.pk))
             versioned.slug = content.slug  # we force not to change slug
             versioned.dump_json()
             parent.repo_update(parent.title,
@@ -1726,8 +1723,7 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
             raise Http404("L'arbre spécifié n'est pas valide." + str(e))
         except IndexError:
             messages.warning(self.request, _("L'élément se situe déjà à la place souhaitée."))
-            logging.getLogger('zds.tutorialv2').debug("L'élément {} se situe déjà à la place souhaitée."
-                                                      .format(child_slug))
+            logger.debug("L'élément {} se situe déjà à la place souhaitée".format(child_slug))
         except TypeError:
             messages.error(self.request, _("L'élément ne peut pas être déplacé à cet endroit."))
         if base_container_slug == versioned.slug:

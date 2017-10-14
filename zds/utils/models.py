@@ -29,7 +29,7 @@ from zds.utils.templatetags.emarkdown import get_markdown_instance, render_markd
 from model_utils.managers import InheritanceManager
 
 
-logger = logging.getLogger('zds.utils')
+logger = logging.getLogger(__name__)
 
 
 def image_path_category(instance, filename):

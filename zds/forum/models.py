@@ -271,7 +271,7 @@ class Topic(AbstractESDjangoIndexable):
                 current_tag, created = Tag.objects.get_or_create(title=tag.lower().strip())
                 self.tags.add(current_tag)
             except ValueError as e:
-                logging.getLogger('zds.forum').warn(e)
+                logging.getLogger(__name__).warn(e)
 
         self.save()
         signals.edit_content.send(sender=self.__class__, instance=self, action='edit_tags_and_title')
