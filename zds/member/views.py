@@ -1305,6 +1305,6 @@ def modify_karma(request):
             profile.karma += note.karma
             profile.save()
     except ValueError as e:
-        logging.getLogger('zds.member').warn('ValueError: modifying karma failed because {}'.format(e))
+        logging.getLogger(__name__).warn('ValueError: modifying karma failed because {}'.format(e))
 
     return redirect(reverse('member-detail', args=[profile.user.username]))

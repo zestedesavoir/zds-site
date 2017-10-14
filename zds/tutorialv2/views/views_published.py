@@ -35,7 +35,7 @@ from zds.utils.models import Alert, CommentVote, Tag, Category, CommentEdit, Sub
 from zds.utils.paginator import make_pagination, ZdSPagingListView
 from zds.utils.templatetags.topbar import top_categories_content
 
-logger = logging.getLogger('zds.tutorialv2')
+logger = logging.getLogger(__name__)
 
 
 class RedirectContentSEO(RedirectView):

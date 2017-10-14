@@ -31,6 +31,8 @@ from zds.tutorialv2.utils import clone_repo
 from zds.utils.forums import send_post, lock_topic
 from zds.utils.models import SubCategory, get_hat_from_settings
 from zds.utils.mps import send_mp
+
+
 logger = logging.getLogger(__name__)
 
 
@@ -95,9 +97,8 @@ class ValidationListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
             try:
                 validation.versioned_content = validation.content.load_version(sha=validation.content.sha_validation)
             except OSError:  # remember that load_version can raise OSError when path is not correct
-                logging.getLogger('zds.tutorialv2.validation')\
-                       .warn('A validation {} for content {} failed to load'.format(validation.pk,
-                                                                                    validation.content.title))
+                logger.warn('A validation {} for content {} failed to load'.format(validation.pk,
+                                                                                   validation.content.title))
                 removed_ids.append(validation.pk)
         context['validations'] = [_valid for _valid in context['validations'] if _valid.pk not in removed_ids]
         context['category'] = self.subcategory
