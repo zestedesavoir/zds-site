@@ -194,31 +194,45 @@
         }
     });
 
+    function getLineAt(string, index) {
+        var before = string.slice(0, index).split("\n").slice(-1)[0] || "";
+        var after = string.slice(index).split("\n")[0] || "";
+        return before + after;
+    }
+
+    function insertCitation(editor, citation) {
+        if (editor.selectionStart !== editor.selectionEnd ||
+            getLineAt(editor.value, editor.selectionStart).trim()) {
+            editor.value = editor.value + "\n\n" + citation;
+            return;
+        }
+
+        var before = editor.value.slice(0, editor.selectionStart);
+        var after = editor.value.slice(editor.selectionEnd);
+        editor.value = before + "\n" + citation + "\n" + after;
+    }
+
     /**
      * Cite a message
      */
     $(".message-actions").on("click", "[data-ajax-input='cite-message']", function(e){
-        var $act = $(this),
-            $editor = $(".md-editor");
+        e.stopPropagation();
+        e.preventDefault();
+
+        var $act = $(this);
+        var editor = document.querySelector(".md-editor");
 
         $.ajax({
             url: $act.attr("href"),
             dataType: "json",
             success: function(data){
-                var selStart = $editor[0].selectionStart;
-                var selEnd = $editor[0].selectionEnd;
-                $editor.val($editor.val().slice(0, selStart) + data.text + "\n\n" + $editor.val().slice(selEnd));
-                var caretPos = selEnd + data.text.length + 2;
-                $editor[0].setSelectionRange(caretPos, caretPos);
+                insertCitation(editor, data.text);
             }
         });
 
         // scroll to the textarea and focus the textarea
-        $("html, body").animate({ scrollTop: $editor.offset().top }, 500);
-        $editor.focus();
-
-        e.stopPropagation();
-        e.preventDefault();
+        $("html, body").animate({ scrollTop: $(editor).offset().top }, 500);
+        editor.focus();
     });
 
     /**
