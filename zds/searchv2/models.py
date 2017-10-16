@@ -272,7 +272,9 @@ class ESIndexManager(object):
         self.number_of_shards = shards
         self.number_of_replicas = replicas
 
-        self.logger = logging.getLogger('ESIndexManager:{}'.format(self.index))
+        self.logger = logging.getLogger(
+            '{}.{}:{}'.format(__name__, self.__class__.__name__, self.index)
+        )
 
         self.es = None
         self.connected_to_es = False

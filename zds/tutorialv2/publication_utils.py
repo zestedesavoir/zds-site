@@ -251,7 +251,7 @@ class PandocPublicator(Publicator):
         self.pandoc_loc = pandoc_loc
         self.pandoc_pdf_param = pandoc_pdf_param
         self.format = _format
-        self.__logger = logging.getLogger('zds.pandoc-publicator')
+        self.__logger = logging.getLogger(__name__ + '.' + self.__class__.__name__)
 
     def publish(self, md_file_path, base_name, change_dir='.', pandoc_debug_str='', **kwargs):
         """
@@ -290,7 +290,7 @@ class WatchdogFilePublicator(Publicator):
         self.watched_directory = watched_dir
         if not isdir(self.watched_directory):
             os.mkdir(self.watched_directory)
-        self.__logger = logging.getLogger('zds.watchdog-publicator')
+        self.__logger = logging.getLogger(__name__ + '.' + self.__class__.__name__)
 
     def publish(self, md_file_path, base_name, silently_pass=True, **kwargs):
         if silently_pass:

@@ -50,7 +50,7 @@ from zds.utils.tutorials import get_blob
 import logging
 
 ALLOWED_TYPES = ['pdf', 'md', 'html', 'epub', 'zip']
-logger = logging.getLogger('zds.tutorialv2')
+logger = logging.getLogger(__name__)
 
 
 class PublishableContent(models.Model, TemplatableContentModelMixin):
