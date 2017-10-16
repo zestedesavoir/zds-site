@@ -19,9 +19,9 @@ Histoire
 HTML
 Java
 Java EE
-Javascript
+JavaScript
 Langues
-LaTex
+LaTeX
 Linux
 Mathématiques
 Neurosciences
