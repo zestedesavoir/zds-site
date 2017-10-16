@@ -162,7 +162,7 @@
 
         <div id="cookies-eu-banner">
             <div>
-                {% trans "Ce site utilise Google Analytics. En poursuivant votre navigation sur ce site, vous nous autorisez à déposer des cookies à des fins de mesure d'audience. Pour s'opposer à ce dépôt vous pouvez cliquer" %}
+                {% trans "Ce site utilise Google Analytics. En poursuivant votre navigation sur ce site, vous nous autorisez à déposer des cookies à des fins de mesure d’audience. Pour s’opposer à ce dépôt vous pouvez cliquer" %}
                 <button id="cookies-eu-reject">{% trans "ici" %}</button>.
             </div>
             <a href="/pages/cookies" id="cookies-eu-more">{% trans "En savoir plus" %}</a>
@@ -521,7 +521,7 @@
                                         <a href="{% url "content:find-opinion" user.pk %}">{% trans "Mes billets" %}</a>
                                     </li>
                                     <li>
-                                        <a href="{% url "gallery-list" %}">{% trans "Galeries d'images" %}</a>
+                                        <a href="{% url "gallery-list" %}">{% trans "Galeries d’images" %}</a>
                                     </li>
                                     <li>
                                         <a href="{% url "update-member" %}">{% trans "Paramètres" %}</a>
@@ -635,7 +635,7 @@
                             {% for message in messages %}
                                 <div class="alert-box {{ message.tags }}">
                                     <span>{{ message }}</span>
-                                    <a href="#close-alert-box" class="close-alert-box ico-after cross white">{% trans "Masquer l'alerte" %}</a>
+                                    <a href="#close-alert-box" class="close-alert-box ico-after cross white">{% trans "Masquer l’alerte" %}</a>
                                 </div>
                             {% endfor %}
                         {% endif %}

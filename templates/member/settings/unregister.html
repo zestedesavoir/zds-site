@@ -23,7 +23,7 @@
 {% block content %}
     <p>
         {% blocktrans with username=user.username %}
-         Attention {{ username }}, vous êtes sur le point de vous désinscrire de Zeste de Savoir. Voici ce qu'implique cette action <strong>qui ne peut être annulée</strong>.
+         Attention {{ username }}, vous êtes sur le point de vous désinscrire de Zeste de Savoir. Voici ce qu’implique cette action <strong>qui ne peut être annulée</strong>.
         {% endblocktrans %}
     </p>
 
@@ -36,11 +36,11 @@
         </li>
         <li>
             {% blocktrans with username=user.username email=user.email %}
-                Votre compte et tout ses détails seront supprimés, cela signifie que l'adresse courriel ({{ email }}) sera effacée du système et votre pseudo ({{ username }}) sera libéré et utilisable par un autre membre.
+                Votre compte et tout ses détails seront supprimés, cela signifie que l’adresse courriel ({{ email }}) sera effacée du système et votre pseudo ({{ username }}) sera libéré et utilisable par un autre membre.
             {% endblocktrans %}
         </li>
         <li>
-            {% trans "Vos tutoriels, billets et articles non publiés (brouillon, bêta ou en cours de validation) seront supprimés sans possibilité de récuperation (sauf si d'autres auteurs sont présents lors de la rédaction" %}).
+            {% trans "Vos tutoriels, billets et articles non publiés (brouillon, bêta ou en cours de validation) seront supprimés sans possibilité de récuperation (sauf si d’autres auteurs sont présents lors de la rédaction" %}).
         </li>
         <li>
             {% trans "Vos tutoriels, articles et billets publiés subiront les modifications suivantes :" %}
@@ -56,7 +56,7 @@
             </ul>
         </li>
         <li>
-            {% trans "Vos galeries d'image subiront les modifications suivantes :" %}
+            {% trans "Vos galeries d’image subiront les modifications suivantes :" %}
             <ul>
                 <li>
                     {% blocktrans %}
@@ -82,7 +82,7 @@
 
     <p>
 
-        {% blocktrans %} Si vous souhaitez poursuivre votre désinscription, cliquez sur le bouton <kbd>Me désinscrire</kbd> ci-dessous. Sinon, il n'est pas encore trop tard{% endblocktrans %}...
+        {% blocktrans %} Si vous souhaitez poursuivre votre désinscription, cliquez sur le bouton <kbd>Me désinscrire</kbd> ci-dessous. Sinon, il n’est pas encore trop tard{% endblocktrans %}...
     </p>
 
     <p>
@@ -96,7 +96,7 @@
         class="modal modal-flex"
     >
         <p>
-            {% trans "C'est votre dernière chance de rester parmi nous" %}...
+            {% trans "C’est votre dernière chance de rester parmi nous" %}...
         </p>
 
         {% csrf_token %}
