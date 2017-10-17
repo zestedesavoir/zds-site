@@ -1,24 +1,30 @@
 {% load emarkdown %}
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>{{ container.title }}</title>
+        <meta charset="UTF-8"/>
+        <link rel="stylesheet" href="zmd.css" media="all" type="text/css"/>
+    </head>
+    <body>
+        {% if container.introduction %}
+            {{ container.get_introduction|emarkdown:is_js }}
+        {% endif %}
 
-{# this template will be used to generate the HTML file for each container ! #}
+        {% for extract in container.children %}
+            <h2 id="{{ extract.position_in_parent }}-{{ extract.slug }}">
+                <a href="#{{ extract.position_in_parent }}-{{ extract.slug }}">
+                    {{ extract.title }}
+                </a>
+            </h2>
+            {% if extract.text %}
+                {{ extract.get_text|emarkdown:is_js }}
+            {% endif %}
+        {% endfor %}
 
-{% if container.introduction %}
-    {{ container.get_introduction|emarkdown:is_js }}
-{% endif %}
+        <hr />
 
-{% for extract in container.children %}
-    <h2 id="{{ extract.position_in_parent }}-{{ extract.slug }}">
-        <a href="#{{ extract.position_in_parent }}-{{ extract.slug }}">
-            {{ extract.title }}
-        </a>
-    </h2>
-    {% if extract.text %}
-        {{ extract.get_text|emarkdown:is_js }}
-    {% endif %}
-{% endfor %}
-
-<hr />
-
-{% if container.conclusion %}
-    {{ container.get_conclusion|emarkdown:is_js }}
-{% endif %}
+        {% if container.conclusion %}
+            {{ container.get_conclusion|emarkdown:is_js }}
+        {% endif %}
+    </body>
+</html>
