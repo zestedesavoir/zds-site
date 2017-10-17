@@ -674,7 +674,7 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Load the production settings, overwrite the existing ones if needed
 try:
-    from settings_prod import *  # noqa
+    from .settings_prod import *  # noqa
 except ImportError:
     pass
 
