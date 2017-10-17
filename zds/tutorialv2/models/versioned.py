@@ -312,10 +312,12 @@ class Container:
             base = self.parent.get_path(relative=relative)
         return os.path.join(base, self.slug)
 
-    def get_prod_path(self, relative=False):
+    def get_prod_path(self, relative=False, file_ext='html'):
         """Get the physical path to the public version of the container. If the container have extracts, then it\
         returns the final HTML file.
 
+        :param file_ext: the dumped file extension
+        :return:
         :param relative: return a relative path instead of an absolute one
         :type relative: bool
         :return: physical path
@@ -327,7 +329,7 @@ class Container:
         path = os.path.join(base, self.slug)
 
         if self.has_extracts():
-            path += '.html'
+            path += '.' + file_ext
 
         return path
 
@@ -1154,7 +1156,7 @@ class VersionedContent(Container, TemplatableContentModelMixin):
                 slug = self.slug
             return os.path.join(settings.ZDS_APP['content']['repo_private_path'], slug)
 
-    def get_prod_path(self, relative=False):
+    def get_prod_path(self, relative=False, file_ext='html'):
         """Get the physical path to the public version of the content. If it
         has one or more extracts (if it is a mini-tutorial or an
         article), return the path of the HTML file.
@@ -1170,7 +1172,7 @@ class VersionedContent(Container, TemplatableContentModelMixin):
             path = os.path.join(settings.ZDS_APP['content']['repo_public_path'], self.slug)
 
         if self.has_extracts():
-            path = os.path.join(path, self.slug + '.html')
+            path = os.path.join(path, self.slug + '.' + file_ext)
 
         return path
 
