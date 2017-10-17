@@ -5,11 +5,9 @@ from pathlib import Path
 from shutil import copytree, copy
 from django.template.loader import render_to_string
 from django.conf import settings
-from lxml import etree
-from lxml.html import HTMLParser
-from uuid import uuid4
 
 from zds.tutorialv2.publish_container import publish_container
+from zds.utils import slugify
 
 
 def __build_mime_type_conf():
@@ -19,19 +17,6 @@ def __build_mime_type_conf():
         'filename': 'mimetype',
         'content': 'application/epub+zip'
     }
-
-
-def __traverse_chapter(html_code):
-    root = etree.fromstring(html_code, HTMLParser())
-    all_chapter_headings = root.cssselect('h3')  # header_shift = 2
-    for title_element in all_chapter_headings:
-        full_title = title_element.text_content()
-        stringified = etree.tostring(title_element)
-        current = title_element
-        while current.getnext() and current.getnext().tag.lower != 'h3':
-            current = current.getnext()
-            stringified += etree.tostring(current)
-        yield full_title, stringified
 
 
 def __traverse_and_identify_images(image_dir):
@@ -52,7 +37,8 @@ def __traverse_and_identify_images(image_dir):
     for image_file_path in image_dir.iterdir():
         from os import path
         ext = path.splitext(image_file_path.name)[1]
-        yield image_file_path.absolute(), str(uuid4()), media_type_map.get(ext.lower(), 'image/png')
+        identifier = str(image_file_path.absolute()).replace('/', '-')
+        yield image_file_path.absolute(), identifier, media_type_map.get(ext.lower(), 'image/png')
 
 
 def build_html_chapter_file(publishable_object, versioned_object, working_dir, root_dir):
@@ -61,13 +47,14 @@ def build_html_chapter_file(publishable_object, versioned_object, working_dir, r
     it yields all the produced files
 
     :param full_html_file:
-    :return: a generator of tuples composed as ``[plitted_html_file_relative_path,chapter_full_title]``
+    :return: a generator of tuples composed as ``[plitted_html_file_relative_path, chapter-identifier, chapter-title]``
     """
     path_to_title_dict = publish_container(publishable_object, str(working_dir), versioned_object,
-                                           template='tutorialv2/export/ebook/chapter.html')
+                                           template='tutorialv2/export/ebook/chapter.html',
+                                           file_ext='xhtml')
     for path, title in path_to_title_dict.items():
         # TODO: check if a function exists in the std lib to get rid of `root_dir + '/'`
-        yield path.replace(str(root_dir.absolute()) + '/', ''), title
+        yield path.replace(str(root_dir.absolute()) + '/', ''), 'chapter-' + slugify(title), title
 
 
 def build_toc_ncx(chapters, tutorial, working_dir):
@@ -76,7 +63,8 @@ def build_toc_ncx(chapters, tutorial, working_dir):
                                             context={
                                                 'chapters': chapters,
                                                 'title': tutorial.title,
-                                                'description': tutorial.description
+                                                'description': tutorial.description,
+                                                'content': tutorial
                                             }))
 
 
@@ -109,7 +97,7 @@ def build_ebook(published_content_entity, working_dir, final_file_path):
     font_dir_path = Path(ops_dir, 'Fonts')
     meta_inf_dir_path = Path(working_dir, 'ebook', 'META-INF')
     original_image_dir = Path(working_dir, 'images')
-    target_image_dir = Path(ops_dir, 'Images')
+    target_image_dir = Path(ops_dir, 'images')
     with contextlib.suppress(FileExistsError):  # Forced to use this until python 3.5 is used and ok_exist appears
         text_dir_path.mkdir(parents=True)
     with contextlib.suppress(FileExistsError):
@@ -134,18 +122,23 @@ def build_ebook(published_content_entity, working_dir, final_file_path):
     build_content_opf(published_content_entity, chapters, images, ops_dir)
     build_container_xml(meta_inf_dir_path)
     build_nav_xhtml(ops_dir, published_content_entity)
-    if settings.ZDS_APP['content']['epub_stylesheets']['toc'].exists():
-        copy(str(settings.ZDS_APP['content']['epub_stylesheets']['toc']), str(style_dir_path))
-    else:
-        with Path(style_dir_path, 'toc.css').open('w', encoding='utf-8') as f:
-            f.write('')
-    style_path = settings.ZDS_APP['content']['epub_stylesheets']['full']
-    if style_path.exists():
-        copy(str(settings.ZDS_APP['content']['epub_stylesheets']['full']), str(style_dir_path))
-    else:
-
-        with Path(style_dir_path, style_path.name).open('w', encoding='utf-8') as f:
-            f.write('')
+    copy_or_create_empty(settings.ZDS_APP['content']['epub_stylesheets']['toc'], style_dir_path, 'toc.css')
+    copy_or_create_empty(settings.ZDS_APP['content']['epub_stylesheets']['full'], style_dir_path, 'zmd.css')
+    style_images_path = Path(settings.BASE_DIR, 'dist', 'images')
+    if style_images_path.exists():
+        for img_path in style_images_path.iterdir():
+            if img_path.is_file():
+                shutil.copy2(str(img_path), str(target_image_dir))
+            else:
+                shutil.copytree(str(img_path), str(Path(target_image_dir, img_path.name)))
     shutil.make_archive(str(final_file_path), format='zip', root_dir=str(Path(working_dir, 'ebook')),
                         logger=logging.getLogger(__name__))
     shutil.move(str(final_file_path) + '.zip', str(final_file_path))
+
+
+def copy_or_create_empty(src_path, dst_path, default_name):
+    if src_path.exists():
+        copy(str(src_path), str(dst_path))
+    else:
+        with Path(dst_path, default_name).open('w', encoding='utf-8') as f:
+            f.write('')
