@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<package xmlns="http://www.idpf.org/2007/opf" unique-identifier="BookId" version="3.0"
+<package xmlns="http://www.idpf.org/2007/opf" unique-identifier="dc-{{ content.content_public_slug }}" version="3.0"
          xmlns:opf="http://www.idpf.org/2007/opf">
     <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
         <dc:identifier
@@ -24,15 +24,16 @@
         <meta name="cover" content="cover.png"/>
     </metadata>
     <manifest>
-        <item id="{{ content.title }}" href="OPS/Text/{{ content.slug }}.html" media-type="application/xhtml+xml"/>
-        {% for path, title in chapters %}
-            <item id="{{ title }}"
+        <item id="stylesheet-global" href="Text/zmd.css" media-type="text/css"/>
+        <item id="stylesheet-nav" href="Text/toc.css" media-type="text/css"/>
+        {% for path, identifier, _ in chapters %}
+            <item id="{{ identifier }}"
                   href="Text/{{ path }}"
                   media-type="application/xhtml+xml"/>
         {% endfor %}
         {% for image_path, guid, media_type in images %}
             <item id="{{ guid }}"
-                  href="Images/{{ image_path.name }}"
+                  href="images/{{ image_path.name }}"
                   media-type="{{ media_type }}"/>
         {% endfor %}
         <item id="nav"
@@ -45,8 +46,8 @@
     </manifest>
 
     <spine toc="ncx">
-        {% for title, path in chapters %}
-            <itemref idref="{{ path }}"/>
+        {% for path, identifier, _ in chapters %}
+            <itemref idref="{{ identifier }}"/>
         {% endfor %}
         {% for image_path, guid in images %}
             <itemref idref="{{ guid }}"/>

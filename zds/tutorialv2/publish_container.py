@@ -9,7 +9,8 @@ from django.utils.translation import ugettext_lazy as _
 from zds.utils.templatetags.emarkdown import emarkdown
 
 
-def publish_container(db_object, base_dir, container, template='tutorialv2/export/chapter.html'):
+def publish_container(db_object, base_dir, container, template='tutorialv2/export/chapter.html',
+                      file_ext='html', image_callback=None):
     """ 'Publish' a given container, in a recursive way
 
     :param db_object: database representation of the content
@@ -19,6 +20,7 @@ def publish_container(db_object, base_dir, container, template='tutorialv2/expor
     :param template: the django template we will use to produce chapter export to html.
     :param container: a given container
     :type container: Container
+    :param file_ext: output file extension
     :raise FailureDuringPublication: if anything goes wrong
     """
 
@@ -42,7 +44,8 @@ def publish_container(db_object, base_dir, container, template='tutorialv2/expor
     if container.has_extracts():  # the container can be rendered in one template
         parsed = render_to_string(template, {'container': container, 'is_js': is_js})
 
-        write_chapter_file(base_dir, container, Path(container.get_prod_path(True)), parsed, path_to_title_dict)
+        write_chapter_file(base_dir, container, Path(container.get_prod_path(True, file_ext)),
+                           parsed, path_to_title_dict)
         for extract in container.children:
             extract.text = None
 
@@ -50,20 +53,19 @@ def publish_container(db_object, base_dir, container, template='tutorialv2/expor
         container.conclusion = None
 
     else:  # separate render of introduction and conclusion
-        current_dir = path.join(base_dir, container.get_prod_path(relative=True))
 
         # create subdirectory
         if not path.isdir(current_dir):
             makedirs(current_dir)
 
         if container.introduction:
-            part_path = Path(container.get_prod_path(relative=True), 'introduction.html')
+            part_path = Path(container.get_prod_path(relative=True), 'introduction.' + file_ext)
             parsed = emarkdown(container.get_introduction(), db_object.js_support)
             container.introduction = str(part_path)
             write_chapter_file(base_dir, container, part_path, parsed, path_to_title_dict)
 
         if container.conclusion:
-            part_path = Path(container.get_prod_path(relative=True), 'conclusion.html')
+            part_path = Path(container.get_prod_path(relative=True), 'conclusion.' + file_ext)
             parsed = emarkdown(container.get_introduction(), db_object.js_support)
             container.conclusion = str(part_path)
             write_chapter_file(base_dir, container, part_path, parsed, path_to_title_dict)
