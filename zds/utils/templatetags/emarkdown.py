@@ -122,7 +122,7 @@ def emarkdown(md_input, use_jsfiddle='', **kwargs):
     disable_jsfiddle = (use_jsfiddle != 'js')
 
     content, _ = render_markdown(md_input, **dict(kwargs, disable_jsfiddle=disable_jsfiddle))
-    return content
+    return content or ''
 
 
 @register.filter(needs_autoescape=False)

@@ -214,7 +214,8 @@ class SingleContentFormViewMixin(SingleContentViewMixin, ModalFormView):
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
         self.versioned_object = self.get_versioned_object()
-        self.public_content_object = self.get_public_object()
+        if self.object.sha_public:
+            self.public_content_object = self.get_public_object()
 
         return super(SingleContentFormViewMixin, self).dispatch(request, *args, **kwargs)
 
@@ -250,7 +251,8 @@ class SingleContentDetailViewMixin(SingleContentViewMixin, DetailView):
                 self.sha = self.object.sha_draft
 
         self.versioned_object = self.get_versioned_object()
-        self.public_content_object = self.get_public_object()
+        if self.object.sha_public:
+            self.public_content_object = self.get_public_object()
 
         context = self.get_context_data(object=self.object)
         return self.render_to_response(context)
