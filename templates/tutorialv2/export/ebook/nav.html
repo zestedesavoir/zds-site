@@ -12,15 +12,23 @@
          </header>
          <nav xmlns:epub="http://www.idpf.org/2007/ops" epub:type="toc" id="toc">
             <ol>
-			   <li>
-                  <a href="Text/{{ content.content_public_slug }}.xhtml">Commencer la lecture</a>
-               </li>
-
+                {% for path, _, title in chapters %}
+                    <li>
+                        <a href="Text/{{ path }}">{{ title }}</a>
+                    </li>
+                {% endfor %}
             </ol>
          </nav>
 
          <nav xmlns:epub="http://www.idpf.org/2007/ops" epub:type="landmarks" id="guide" hidden="hidden">
             <h2>Guide</h2>
+             <ol>
+                 {% for path, _, title in chapters %}
+                     <li>
+                         <a epub:type="bodymatter" href="Text/{{ path }}">{{ title }}</a>
+                     </li>
+                 {% endfor %}
+             </ol>
          </nav>
       </section>
    </body>

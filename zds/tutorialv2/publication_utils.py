@@ -484,17 +484,11 @@ def unpublish_content(db_object, moderator=None):
     try:
         public_version = PublishedContent.objects.get(pk=db_object.public_version.pk)
 
-        # clean files
-        old_path = public_version.get_prod_path()
-
-        if path.exists(old_path):
-            shutil.rmtree(old_path)
-
-        list([
+        results = [
             content_unpublished.send(sender=reaction.__class__, instance=reaction)
             for reaction in [ContentReaction.objects.filter(related_content=db_object).all()]
-        ])
-
+        ]
+        logging.debug('Nb_messages=%d, messages=%s', len(results), results)
         # remove public_version:
         public_version.delete()
         update_params = {}
@@ -507,10 +501,14 @@ def unpublish_content(db_object, moderator=None):
 
         db_object.update(**update_params)
         content_unpublished.send(sender=db_object.__class__, instance=db_object)
-
+        # clean files
+        old_path = public_version.get_prod_path()
+        public_version.content.update(public_version=None, sha_public=None)
+        if path.exists(old_path):
+            shutil.rmtree(old_path)
         return True
 
-    except (ObjectDoesNotExist, OSError):
-        pass
+    except (ObjectDoesNotExist, OSError) as e:
+        logging.warning('Error while unpublishing %s', e)
 
     return False
