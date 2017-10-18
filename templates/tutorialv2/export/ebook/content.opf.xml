@@ -4,7 +4,7 @@
     <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
         <dc:identifier
                 id="dc-{{ content.content_public_slug }}">{{ content.pk }}-{{ content.sha_public }}</dc:identifier>
-        <meta property="dcterms:modified">{{ content.publication_date|date:"Y-m-d\Th:i:s\ZZ" }}</meta>
+        <meta property="dcterms:modified">{{ content.publication_date|date:"Y-m-d\Th:i:s\Z" }}</meta>
         <dc:title>{{ content.title }}</dc:title>
         <dc:language>fr</dc:language>
         <dc:publisher>Zeste de savoir</dc:publisher>
@@ -33,7 +33,7 @@
         {% endfor %}
         {% for image_path, guid, media_type in images %}
             <item id="{{ guid }}"
-                  href="images/{{ image_path.name }}"
+                  href="{{ image_path }}"
                   media-type="{{ media_type }}"/>
         {% endfor %}
         <item id="nav"
