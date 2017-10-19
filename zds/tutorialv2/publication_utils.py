@@ -1,4 +1,3 @@
-# coding: utf-8
 import contextlib
 import copy
 import logging
@@ -80,35 +79,12 @@ def publish_content(db_object, versioned, is_major_update=True):
     parsed_with_local_images = retrieve_and_update_images_links(parsed, directory=build_extra_contents_path)
 
     md_file_path = base_name + '.md'
-    with open(md_file_path, 'w', encoding='utf-8')as md_file:
-        try:
-            md_file.write(parsed_with_local_images)
-        except UnicodeError:
-            logger.error('Could not encode %s in UTF-8, publication aborted', versioned.title)
-            raise FailureDuringPublication(_('Une erreur est survenue durant la génération du fichier markdown '
-                                             'à télécharger, vérifiez le code markdown'))
+    write_md_file(md_file_path, parsed_with_local_images, versioned)
 
     is_update = False
 
     if db_object.public_version:
-        public_version = db_object.public_version
-        is_update = True
-
-        # the content have been published in the past, so clean old files !
-        old_path = public_version.get_prod_path()
-        logging.getLogger(__name__).debug('erase ' + old_path)
-        shutil.rmtree(old_path)
-
-        # if the slug change, instead of using the same object, a new one will be created
-        if versioned.slug != public_version.content_public_slug:
-            public_version.must_redirect = True  # set redirection
-            publication_date = public_version.publication_date
-            public_version.save()
-            db_object.public_version = PublishedContent()
-            public_version = db_object.public_version
-
-            # if content have already been published, keep publication date !
-            public_version.publication_date = publication_date
+        is_update, public_version = update_existing_publication(db_object, versioned)
 
     else:
         public_version = PublishedContent()
@@ -146,6 +122,36 @@ def publish_content(db_object, versioned, is_major_update=True):
         PublicatorRegistery.get('watchdog').publish(md_file_path, base_name, silently_pass=False)
     db_object.sha_public = versioned.current_version
     return public_version
+
+
+def update_existing_publication(db_object, versioned):
+    public_version = db_object.public_version
+    # the content has been published in the past, so clean up old files!
+    old_path = public_version.get_prod_path()
+    logging.getLogger(__name__).debug('erase ' + old_path)
+    shutil.rmtree(old_path)
+    # if the slug has changed, create a new object instead of reusing the old one
+    # this allows us to handle permanent redirection so that SEO is not impacted.
+    if versioned.slug != public_version.content_public_slug:
+        public_version.must_redirect = True  # set redirection
+        publication_date = public_version.publication_date
+        public_version.save()
+        db_object.public_version = PublishedContent()
+        public_version = db_object.public_version
+
+        # keep the same publication date if the content is already published
+        public_version.publication_date = publication_date
+    return True, public_version
+
+
+def write_md_file(md_file_path, parsed_with_local_images, versioned):
+    with open(md_file_path, 'w', encoding='utf-8') as md_file:
+        try:
+            md_file.write(parsed_with_local_images)
+        except UnicodeError:
+            logger.error('Could not encode %s in UTF-8, publication aborted', versioned.title)
+            raise FailureDuringPublication(_('Une erreur est survenue durant la génération du fichier markdown '
+                                             'à télécharger, vérifiez le code markdown'))
 
 
 def generate_external_content(base_name, extra_contents_path, md_file_path, overload_settings=False):
@@ -236,9 +242,17 @@ class Publicator:
         :param base_name: file name without extension
         :param kwargs: other publicator dependant options
         """
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def get_published_content_entity(self, md_file_path):
+        """
+        retrieve the db entity from mdfile path
+
+        :param md_file_path: mdfile path as string
+        :type md_file_path: str
+        :return: the db entity
+        :rtype: zds.tutorialv2.models.models_database.PublishedContent
+        """
         content_slug = PublishedContent.get_slug_from_file_path(md_file_path)
         published_content_entity = PublishedContent.objects \
             .filter(must_redirect=False, content_public_slug=content_slug) \
@@ -294,7 +308,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
         depth_to_size_map = {
             1: 'small',  # in fact this is an "empty" tutorial (i.e it is empty or has intro and/or conclusion)
             2: 'small',
-            3: 'medium',
+            3: 'middle',
             4: 'big'
         }
         public_versionned_source = published_content_entity.content\
@@ -321,6 +335,11 @@ class ZMarkdownRebberLatexPublicator(Publicator):
         )
 
         latex_file_path = base_name + '.tex'
+        logo_path = Path(Path(latex_file_path).parent, 'images', 'default_logo.png')
+        if not logo_path.exists() and published_content_entity.content.image:
+            gallery_path = Path(published_content_entity.content.gallery.get_gallery_path())
+            logo_name = published_content_entity.content.image.physical.name
+            shutil.copy(str(Path(gallery_path, logo_name)), str(logo_path))
         pdf_file_path = base_name + '.pdf'
         with open(latex_file_path, mode='w', encoding='utf-8') as latex_file:
             latex_file.write(content)
@@ -350,19 +369,16 @@ class ZMarkdownRebberLatexPublicator(Publicator):
 
     def pdftex(self, texfile):
         command = 'lualatex -shell-escape -interaction=nonstopmode {}'.format(texfile)
-        # TODO zmd: make sure the shell spawned here has venv in its path, needed to shell-escape into Pygments
         command_process = subprocess.Popen(command,
                                            shell=True, cwd=path.dirname(texfile),
                                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         command_process.communicate()
 
-        try:
+        with contextlib.suppress(ImportError):
             from raven import breadcrumbs
             breadcrumbs.record(message='lualatex call',
                                data=command,
                                type='cmd')
-        except ImportError:
-            pass
 
         pdf_file_path = path.splitext(texfile)[0] + '.pdf'
         return path.exists(pdf_file_path)
