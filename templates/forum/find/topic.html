@@ -64,7 +64,7 @@
                     </td>
                     <td>
                         {% if topic.first_post.is_visible %}
-                            {{ topic.first_post.text|truncatechars:200|emarkdown|striptags }}
+                            {{ topic.first_post.text|truncatechars:200 }}
                         {% else %}
                             {% if topic.first_post.text_hidden %}
                                 {% trans "Masqué par" %} {{ topic.first_post.editor }}
