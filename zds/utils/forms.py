@@ -4,6 +4,7 @@ import logging
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.layout import Layout, ButtonHolder, Field, Div, HTML
 from django.utils.translation import ugettext_lazy as _
+from django.template import defaultfilters
 from zds.utils.models import Tag
 from zds.utils.misc import contains_utf8mb4
 
@@ -108,8 +109,10 @@ class TagValidator(object):
         :return: ``True`` if ``v`` is fully valid, ``False`` if at least one error appears. See ``self.errors``
         to get all internationalized error.
         """
-        self.__clean = list(filter(self.validate_length, string_list))
-        self.__clean = list(filter(self.validate_utf8mb4, self.__clean))
+        string_list = list(filter(lambda s: s.strip(), string_list))  # needed to keep only real candidates
+        self.__clean = filter(self.validate_length, string_list)
+        self.__clean = filter(self.validate_utf8mb4, self.__clean)
+        self.__clean = list(filter(self.validate_no_empty_slug, self.__clean))
         return len(string_list) == len(self.__clean)
 
     def validate_utf8mb4(self, tag):
@@ -122,6 +125,19 @@ class TagValidator(object):
         if contains_utf8mb4(tag):
             self.errors.append(_('Le tag {} contient des caractères utf8mb4').format(tag))
             self.logger.warn('%s contains utf8mb4 char', tag)
+            return False
+        return True
+
+    def validate_no_empty_slug(self, tag):
+        """
+        Validate whether the tag slug is good
+
+        :param tag:
+        :return: ``True`` if the tag slug is good
+        """
+        if not defaultfilters.slugify(tag):
+            self.errors.append(_("Le tag {} n'est constitué que de caractères spéciaux et est donc incorrect"))
+            self.logger.warn('%s bad slug', tag)
             return False
         return True
 

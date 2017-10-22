@@ -26,7 +26,7 @@ class PublishedContentManager(models.Manager):
         if content_type is not None:
             if not isinstance(content_type, list):
                 content_type = [content_type]
-
+            content_type = filter(None, content_type)
             queryset = queryset.filter(content_type__in=list([c.upper() for c in content_type]))
 
         # prefetch:

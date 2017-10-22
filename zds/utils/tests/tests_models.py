@@ -71,6 +71,12 @@ class TagsTests(TestCase):
         self.assertEqual(validator.validate_raw_string(tag.title), True)
         self.assertEqual(validator.errors, [])
 
+    def test_validator_with_special_char_only(self):
+
+        validator = TagValidator()
+        self.assertFalse(validator.validate_raw_string('^'))
+        self.assertEqual(len(validator.errors), 1)
+
     def test_validator_with_utf8mb4(self):
 
         raw_string = '🐙☢,bla'
