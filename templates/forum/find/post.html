@@ -66,7 +66,7 @@
                     </td>
                     <td>
                         {% if post.is_visible %}
-                            {{ post.text|truncatechars:200|emarkdown|striptags }}
+                            {{ post.text|truncatechars:200 }}
                         {% else %}
                             {% if post.text_hidden %}
                                 {% trans "Masqué par" %} {{ post.editor }}
