@@ -49,7 +49,7 @@
             {% endfor %}
         </div>
     {% else %}
-        {% trans "Vous n'avez pas encore de notification." %}
+        {% trans "Vous n’avez pas encore de notification." %}
     {% endif %}
 
     {% include "misc/paginator.html" with position="bottom" %}
@@ -67,7 +67,7 @@
                         <form action="{% url 'mark-notifications-as-read' %}" method="post" id="mark-notifications-as-read" class="modal modal-flex">
                             {% csrf_token %}
                             <p>
-                                {% trans 'Voulez-vous vraiment marquer toutes vos notifications comme lues&nbsp;?' %}
+                                {% trans 'Voulez-vous vraiment marquer toutes vos notifications comme lues ?' %}
                             </p>
                             <button type="submit">{% trans 'Confirmer' %}</button>
                     </form>

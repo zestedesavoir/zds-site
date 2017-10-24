@@ -206,7 +206,7 @@ def modify_gallery(request):
                 elif v2_content.is_opinion:
                     _type = _('à la tribune')
 
-                error_message = _('La galerie « {} » ne peut pas être supprimée car elle est liée {} « {} ».')\
+                error_message = _('La galerie « {} » ne peut pas être supprimée car elle est liée {} « {} ».')\
                     .format(gallery.title, _type, v2_content.title)
                 messages.error(request, error_message)
             else:
@@ -465,7 +465,7 @@ class ImportImages(GalleryMixin, FormView):
             # if it's not an image, pass
             try:
                 ImagePIL.open(ph_temp)
-            except IOError:
+            except OSError:
                 continue
 
             # create picture in database:

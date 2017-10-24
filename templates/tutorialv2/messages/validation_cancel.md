@@ -5,8 +5,8 @@
 
 Bonjour {{ validator }},
 
-Je t'informe de l'annulation de la mise en validation du contenu 
-« [{{ title }}]({{ url }}) », que tu avais réservé. La raison suivante est 
+Je t’informe de l'annulation de la mise en validation du contenu 
+« [{{ title }}]({{ url }}) », que tu avais réservé. La raison suivante est 
 fournie par [{{ user_name }}]({{ user_url }}) :
 
 {{ message }}

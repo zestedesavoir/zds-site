@@ -119,9 +119,11 @@ $logo-width: 240px;
         background: url("../images/logo.png") no-repeat center center;
         background-size: $logo-width auto;
 
-        &:hover,
-        &:focus {
-            background-color: $color-header-hover;
+        @media only screen and #{$media-wide} {
+            &:hover,
+            &:focus {
+                background-color: $color-header-hover;
+            }
         }
     }
 

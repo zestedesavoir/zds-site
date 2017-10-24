@@ -1,7 +1,6 @@
 strictness: high
 max-line-length: 120
 requirements:
-    - requirements.txt
     - requirements-dev.txt
 ignore-paths:
     - doc

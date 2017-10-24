@@ -12,6 +12,7 @@ except ImportError as e:
 
 import os
 import logging
+from urllib.parse import urlsplit, urlunsplit, quote
 from PIL import Image as ImagePIL
 from django.contrib.auth.models import User
 from django.http import Http404
@@ -289,6 +290,27 @@ def get_target_tagged_tree_for_container(movable_child, root, bias=-1):
     return target_tagged_tree
 
 
+def normalize_unicode_url(unicode_url):
+    """Sometimes you get an URL by a user that just isn't a real URL
+    because it contains unsafe characters like 'β' and so on.  This
+    function can fix some of the problems in a similar way browsers
+    handle data entered by the user:
+
+    .. sourcecode:: python
+
+        normalize_unicode_url(u'http://de.wikipedia.org/wiki/Elf (Begriffsklärung)')
+        # 'http://de.wikipedia.org/wiki/Elf%20%28Begriffskl%C3%A4rung%29'
+
+
+    :param charset: The target charset for the URL if the url was
+                    given as unicode string.
+    """
+    scheme, netloc, path, querystring, anchor = urlsplit(unicode_url)
+    path = quote(path, '/%')
+    querystring = quote(querystring, ':&=')
+    return urlunsplit((scheme, netloc, path, querystring, anchor))
+
+
 def retrieve_image(url, directory):
     """For a given image, retrieve it, transform it into PNG (if needed) and store it
 
@@ -328,6 +350,7 @@ def retrieve_image(url, directory):
     try:
         if parsed_url.scheme in ['http', 'https', 'ftp'] \
                 or parsed_url.netloc[:3] == 'www' or parsed_url.path[:3] == 'www':
+            url = normalize_unicode_url(url)
             urlretrieve(url, store_path)  # download online image
         else:  # it's a local image, coming from a gallery
 
@@ -338,7 +361,7 @@ def retrieve_image(url, directory):
             if os.path.isfile(source_path):
                 shutil.copy(source_path, store_path)
             else:
-                raise IOError(source_path)  # ... will use the default image instead
+                raise OSError(source_path)  # ... will use the default image instead
 
         if img_extension == 'svg':  # if SVG, will transform it into PNG
             resize_svg(store_path)
@@ -357,7 +380,7 @@ def retrieve_image(url, directory):
                 except WindowsError:  # because windows can badly handle this one
                     logger.error('store path %s not removed', store_path)
 
-    except (IOError, KeyError):  # HTTP 404, image does not exists, or Pillow cannot read it !
+    except (OSError, KeyError):  # HTTP 404, image does not exists, or Pillow cannot read it !
 
         # will be overwritten anyway, so it's better to remove whatever it was, for security reasons :
         try:
@@ -726,7 +749,7 @@ def fill_containers_from_json(json_sub, parent):
                 except InvalidOperationError as e:
                     raise BadManifestError(e.message)
             else:
-                raise BadManifestError(_("Type d'objet inconnu : « {} »").format(child['object']))
+                raise BadManifestError(_("Type d'objet inconnu : « {} »").format(child['object']))
 
 
 def init_new_repo(db_object, introduction_text, conclusion_text, commit_message='', do_commit=True):
@@ -921,7 +944,7 @@ def get_blob(tree, path):
             if os.path.abspath(blob.path) == os.path.abspath(path):
                 data = blob.data_stream.read().decode()
                 return data
-        except (OSError, IOError):  # in case of deleted files, or the system cannot get the lock, juste return ""
+        except OSError:  # in case of deleted files, or the system cannot get the lock, juste return ""
             return ''
     # traverse directories when we are at root or in a part or chapter
     if len(tree.trees) > 0:

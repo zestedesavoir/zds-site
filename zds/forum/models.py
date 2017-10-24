@@ -1,6 +1,5 @@
 # coding: utf-8
 
-from django.utils.encoding import python_2_unicode_compatible
 import logging
 from datetime import datetime, timedelta
 from math import ceil
@@ -27,7 +26,6 @@ def sub_tag(tag):
     return '{0}'.format(start + end)
 
 
-@python_2_unicode_compatible
 class Category(models.Model):
     """
     A Category is a simple container for Forums.
@@ -73,7 +71,6 @@ class Category(models.Model):
         return forums_pub
 
 
-@python_2_unicode_compatible
 class Forum(models.Model):
     """
     A Forum, containing Topics. It can be public or restricted to some groups.
@@ -172,7 +169,6 @@ class Forum(models.Model):
         return self._nb_group > 0
 
 
-@python_2_unicode_compatible
 class Topic(AbstractESDjangoIndexable):
     """
     A Topic is a thread of posts.
@@ -275,7 +271,7 @@ class Topic(AbstractESDjangoIndexable):
                 current_tag, created = Tag.objects.get_or_create(title=tag.lower().strip())
                 self.tags.add(current_tag)
             except ValueError as e:
-                logging.getLogger('zds.forum').warn(e)
+                logging.getLogger(__name__).warn(e)
 
         self.save()
         signals.edit_content.send(sender=self.__class__, instance=self, action='edit_tags_and_title')
@@ -332,10 +328,12 @@ class Topic(AbstractESDjangoIndexable):
                           .latest('post__position')
         if t_read:
             return t_read.post.pk, t_read.post.position
-        return list(Post.objects\
-            .filter(topic__pk=self.pk)\
-            .order_by('position')\
-            .values('pk', 'position').first().values())
+        return list(
+            Post.objects
+            .filter(topic__pk=self.pk)
+            .order_by('position')
+            .values('pk', 'position').first().values()
+        )
 
     def first_unread_post(self, user=None):
         """
@@ -466,7 +464,6 @@ def delete_topic_in_elasticsearch(sender, instance, **kwargs):
     return delete_document_in_elasticsearch(instance)
 
 
-@python_2_unicode_compatible
 class Post(Comment, AbstractESDjangoIndexable):
     """
     A forum post written by a user.
@@ -567,7 +564,6 @@ def delete_post_in_elasticsearch(sender, instance, **kwargs):
     return delete_document_in_elasticsearch(instance)
 
 
-@python_2_unicode_compatible
 class TopicRead(models.Model):
     """
     This model tracks the last post read in a topic by a user.

@@ -53,7 +53,7 @@
 
     {% captureas meta_image %}
         {{ app.site.dns }}{% block meta_image %}{% spaceless %}
-            {% static "images/apple-touch-icon-144x144-precomposed.png" %}
+            {% static "images/favicons/512.png" %}
         {% endspaceless %}{% endblock %}
     {% endcaptureas %}
 
@@ -99,14 +99,20 @@
     {% endblock %}
 
     {# favicons #}
-    <link rel="shortcut icon" type="image/png" href="{% static "images/favicon.png" %}">
-    <link rel="apple-touch-icon" sizes="144x144" href="{% static "images/apple-touch-icon-144x144-precomposed.png" %}">
-    <link rel="apple-touch-icon" sizes="114x114" href="{% static "images/apple-touch-icon-114x114-precomposed.png" %}">
-    <link rel="apple-touch-icon" sizes="72x72" href="{% static "images/apple-touch-icon-72x72-precomposed.png" %}">
-    <link rel="apple-touch-icon" sizes="57x57" href="{% static "images/apple-touch-icon-57x57-precomposed.png" %}">
-    <link rel="apple-touch-icon" href="{% static "images/apple-touch-icon-precomposed.png" %}">
-    <link rel="apple-touch-icon" href="{% static "images/apple-touch-icon.png" %}">
-
+    <link rel="icon" sizes="16x16" type="image/png" href="{% static "images/favicons/16.png" %}">
+    <link rel="icon" sizes="32x32" type="image/png" href="{% static "images/favicons/32.png" %}">
+    <link rel="icon" sizes="64x64" type="image/png" href="{% static "images/favicons/64.png" %}">
+    <link rel="icon" sizes="96x96" type="image/png" href="{% static "images/favicons/96.png" %}">
+    <link rel="icon" sizes="128x128" type="image/png" href="{% static "images/favicons/128.png" %}">
+    <link rel="icon" sizes="256x256" type="image/png" href="{% static "images/favicons/256.png" %}">
+    {# old iOS devices, no `sizes` attribute #}
+    <link rel="apple-touch-icon" type="image/png" href="{% static "images/favicons/120.png" %}">
+    <link rel="apple-touch-icon" sizes="180x180" type="image/png" href="{% static "images/favicons/180.png" %}">
+    <link rel="apple-touch-icon" sizes="167x167" type="image/png" href="{% static "images/favicons/167.png" %}">
+    <link rel="apple-touch-icon" sizes="152x152" type="image/png" href="{% static "images/favicons/152.png" %}">
+    <link rel="apple-touch-icon" sizes="144x144" type="image/png" href="{% static "images/favicons/144.png" %}">
+    <link rel="apple-touch-icon" sizes="120x120" type="image/png" href="{% static "images/favicons/120.png" %}">
+    <link rel="apple-touch-icon" sizes="114x114" type="image/png" href="{% static "images/favicons/114.png" %}">
 
     {# RSS links #}
     <link rel="alternate" type="application/rss+xml" title="Forum" href="{% url "post-feed-rss" %}">
@@ -156,7 +162,7 @@
 
         <div id="cookies-eu-banner">
             <div>
-                {% trans "Ce site utilise Google Analytics. En poursuivant votre navigation sur ce site, vous nous autorisez à déposer des cookies à des fins de mesure d'audience. Pour s'opposer à ce dépôt vous pouvez cliquer" %}
+                {% trans "Ce site utilise Google Analytics. En poursuivant votre navigation sur ce site, vous nous autorisez à déposer des cookies à des fins de mesure d’audience. Pour s’opposer à ce dépôt vous pouvez cliquer" %}
                 <button id="cookies-eu-reject">{% trans "ici" %}</button>.
             </div>
             <a href="/pages/cookies" id="cookies-eu-more">{% trans "En savoir plus" %}</a>
@@ -515,7 +521,7 @@
                                         <a href="{% url "content:find-opinion" user.pk %}">{% trans "Mes billets" %}</a>
                                     </li>
                                     <li>
-                                        <a href="{% url "gallery-list" %}">{% trans "Galeries d'images" %}</a>
+                                        <a href="{% url "gallery-list" %}">{% trans "Galeries d’images" %}</a>
                                     </li>
                                     <li>
                                         <a href="{% url "update-member" %}">{% trans "Paramètres" %}</a>
@@ -629,7 +635,7 @@
                             {% for message in messages %}
                                 <div class="alert-box {{ message.tags }}">
                                     <span>{{ message }}</span>
-                                    <a href="#close-alert-box" class="close-alert-box ico-after cross white">{% trans "Masquer l'alerte" %}</a>
+                                    <a href="#close-alert-box" class="close-alert-box ico-after cross white">{% trans "Masquer l’alerte" %}</a>
                                 </div>
                             {% endfor %}
                         {% endif %}

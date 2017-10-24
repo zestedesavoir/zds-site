@@ -30,7 +30,7 @@ class FeaturedResourceForm(forms.ModelForm):
 
             'authors': forms.TextInput(
                 attrs={
-                    'placeholder': _('Des auteurs (ou pas)&nbsp;?')
+                    'placeholder': _('Des auteurs (ou pas) ?')
                 }
             ),
 
@@ -106,7 +106,7 @@ class FeaturedMessageForm(forms.ModelForm):
         widgets = {
             'hook': forms.TextInput(
                 attrs={
-                    'placeholder': _('Mot d\'accroche court ("Nouveau&nbsp;!")')
+                    'placeholder': _('Mot d\'accroche court ("Nouveau !")')
                 }
             ),
 

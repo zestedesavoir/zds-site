@@ -10,7 +10,7 @@ Vous pourrez également échanger avec les autres membres sur nos forums !
 {% endblocktrans %}
 
 {% blocktrans %}
-Il ne vous reste plus qu'à activer votre profil ! Pour ce faire, visitez le lien ci-dessous : {{ url }}
+Il ne vous reste plus qu’à activer votre profil ! Pour ce faire, visitez le lien ci-dessous : {{ url }}
 {% endblocktrans %}
 
 {% trans "A très bientôt !" %}

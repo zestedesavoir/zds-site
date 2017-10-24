@@ -31,7 +31,7 @@
         <p class="alert-box success">
             {% url "register-member" as url_register %}
             {% blocktrans %}
-                Si vous n'avez pas de compte, vous pouvez <a href="{{url_register}}" >vous inscrire</a>.
+                Si vous n’avez pas de compte, vous pouvez <a href="{{url_register}}" >vous inscrire</a>.
             {% endblocktrans %}
         </p>
 
@@ -41,12 +41,12 @@
                 {% crispy form %}
                 <p>
                     <a href="{% url "member-forgot-password" %}">
-                        {% trans "Mot de passe oublié&nbsp;?" %}
+                        {% trans "Mot de passe oublié ?" %}
                     </a>
                 </p>
                 <p>
                     <a href="{% url "send-validation-email" %}">
-                        {% trans "Vous n'avez pas reçu le courriel d'activation&nbsp;?" %}
+                        {% trans "Vous n’avez pas reçu le courriel d'activation ?" %}
                     </a>
                 </p>
             </div>

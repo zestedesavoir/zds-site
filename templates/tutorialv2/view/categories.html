@@ -49,7 +49,7 @@
             </h2>
             {% include 'tutorialv2/list_page_elements/list_of_online_contents.html' with public_contents=last_articles col_number=1 %}
             {% if last_articles and more_articles %}
-                <a href="{% url 'publication:list' %}?type=article" class="more-link">Plus d'articles</a>
+                <a href="{% url 'publication:list' %}?type=article" class="more-link">Plus d’articles</a>
             {% endif %}
         </section>
     </div>

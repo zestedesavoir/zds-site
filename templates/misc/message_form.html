@@ -12,7 +12,7 @@
         <a href="{% url "member-login" %}?next={{ request.path }}" class="alert-box-btn alert-box-btn-right">Connexion</a>
     </div>
     <div class="alert-box not-member alert-box-not-closable">
-        <h4 class="alert-box-title">Pas encore inscrit&nbsp;?</h4>
+        <h4 class="alert-box-title">Pas encore inscrit ?</h4>
         <p>
             {% trans "Créez un compte en une minute pour profiter pleinement de toutes les fonctionnalités de Zeste de Savoir. Ici, tout est gratuit et sans publicité" %}. <br>
             <a href="{% url "register-member" %}" class="alert-box-btn">{% trans "Créer un compte" %}</a>
@@ -31,7 +31,7 @@
         <div class="alert-box warning">
             <p>
                 {% blocktrans with old_post_limit_days=app.forum.old_post_limit_days %}
-                    Ce sujet est sans activité depuis plus de {{ old_post_limit_days }} jours. Êtes-vous certain de vouloir y contribuer&nbsp;?
+                    Ce sujet est sans activité depuis plus de {{ old_post_limit_days }} jours. Êtes-vous certain de vouloir y contribuer ?
                 {% endblocktrans %}
             </p>
         </div>
@@ -39,7 +39,7 @@
 
     {% if page_obj.has_next %}
         <div class="alert-box warning ico-after alert light">
-            {% trans "<strong>Attention</strong>, vous n'êtes pas sur la dernière page de ce sujet, assurez-vous de l'avoir lu dans son intégralité avant d'y répondre." %}
+            {% trans "<strong>Attention</strong>, vous n’êtes pas sur la dernière page de ce sujet, assurez-vous de l’avoir lu dans son intégralité avant d’y répondre." %}
         </div>
     {% endif %}
 

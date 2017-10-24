@@ -8,7 +8,7 @@ python:
 
 
 addons:
-  firefox: "latest"
+  firefox: "56.0"
   apt:
     packages:
       - mysql-server-5.6
@@ -89,9 +89,9 @@ install:
   - |
     # install webdriver for selenium.
     if [[ "$ZDS_TEST_JOB" == *"selenium"* ]]; then
-      wget https://github.com/mozilla/geckodriver/releases/download/v0.16.1/geckodriver-v0.16.1-linux64.tar.gz \
+      wget https://github.com/mozilla/geckodriver/releases/download/v0.19.0/geckodriver-v0.19.0-linux64.tar.gz \
       && mkdir geckodriver \
-      && tar -xzf geckodriver-v0.16.1-linux64.tar.gz -C geckodriver \
+      && tar -xzf geckodriver-v0.19.0-linux64.tar.gz -C geckodriver \
       && export PATH=$PATH:$PWD/geckodriver \
       && export DISPLAY=:99.0 \
       && sh -e /etc/init.d/xvfb start \
@@ -120,18 +120,17 @@ install:
   - |
     # install backend dependencies
     if [[ "$ZDS_TEST_JOB" == *"zds."* ]] || [[ "$ZDS_TEST_JOB" == *"selenium"* ]] || [[ "$ZDS_TEST_JOB" == *"doc"* ]]; then
-      pip install -q -rrequirements.txt -rrequirements-dev.txt -rrequirements-prod.txt
+      pip install -q -r requirements-dev.txt -r requirements-prod.txt
     fi
 
 
 script:
-# TODO: Re-enable flake8 as soon as possible
-# - |
-#   # lint backend
-#   if [[ "$ZDS_TEST_JOB" == *"zds.gallery"* ]]; then
-#     ./scripts/no_import_zds_settings.sh \
-#     && flake8
-#   fi
+  - |
+    # lint backend
+    if [[ "$ZDS_TEST_JOB" == *"zds.gallery"* ]]; then
+      ./scripts/no_import_zds_settings.sh \
+      && flake8
+    fi
 
   - |
     # test and build frontend

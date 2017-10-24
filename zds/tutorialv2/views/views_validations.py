@@ -31,6 +31,8 @@ from zds.tutorialv2.utils import clone_repo
 from zds.utils.forums import send_post, lock_topic
 from zds.utils.models import SubCategory, get_hat_from_settings
 from zds.utils.mps import send_mp
+
+
 logger = logging.getLogger(__name__)
 
 
@@ -94,10 +96,9 @@ class ValidationListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
         for validation in context['validations']:
             try:
                 validation.versioned_content = validation.content.load_version(sha=validation.content.sha_validation)
-            except IOError:  # remember that load_version can raise IOError when path is not correct
-                logging.getLogger('zds.tutorialv2.validation')\
-                       .warn('A validation {} for content {} failed to load'.format(validation.pk,
-                                                                                    validation.content.title))
+            except OSError:  # remember that load_version can raise OSError when path is not correct
+                logger.warn('A validation {} for content {} failed to load'.format(validation.pk,
+                                                                                   validation.content.title))
                 removed_ids.append(validation.pk)
         context['validations'] = [_valid for _valid in context['validations'] if _valid.pk not in removed_ids]
         context['category'] = self.subcategory
@@ -572,7 +573,7 @@ class PublishOpinion(LoggedWithReadWriteHability, NoValidationBeforeFormViewMixi
     authorized_for_staff = True
 
     def get(self, request, *args, **kwargs):
-        raise Http404(_("Publier un contenu n'est pas possible avec la méthode « GET »."))
+        raise Http404(_("Publier un contenu n'est pas possible avec la méthode « GET »."))
 
     def get_form_kwargs(self):
         kwargs = super(PublishOpinion, self).get_form_kwargs()
@@ -768,7 +769,7 @@ class PickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
     permissions = ['tutorialv2.change_validation']
 
     def get(self, request, *args, **kwargs):
-        raise Http404(_("Valider un contenu n'est pas possible avec la méthode « GET »."))
+        raise Http404(_("Valider un contenu n'est pas possible avec la méthode « GET »."))
 
     def get_form_kwargs(self):
         kwargs = super(PickOpinion, self).get_form_kwargs()
@@ -825,7 +826,7 @@ class UnpickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
     permissions = ['tutorialv2.change_validation']
 
     def get(self, request, *args, **kwargs):
-        raise Http404(_("Enlever un billet des billets choisis n'est pas possible avec la méthode « GET »."))
+        raise Http404(_("Enlever un billet des billets choisis n'est pas possible avec la méthode « GET »."))
 
     def get_form_kwargs(self):
         kwargs = super(UnpickOpinion, self).get_form_kwargs()
@@ -913,7 +914,7 @@ class PromoteOpinionToArticle(PermissionRequiredMixin, NoValidationBeforeFormVie
     permissions = ['tutorialv2.change_validation']
 
     def get(self, request, *args, **kwargs):
-        raise Http404(_("Promouvoir un billet en article n'est pas possible avec la méthode « GET »."))
+        raise Http404(_("Promouvoir un billet en article n'est pas possible avec la méthode « GET »."))
 
     def get_form_kwargs(self):
         kwargs = super(PromoteOpinionToArticle, self).get_form_kwargs()
@@ -972,7 +973,7 @@ class PromoteOpinionToArticle(PermissionRequiredMixin, NoValidationBeforeFormVie
         validation = Validation()
         validation.content = article
         validation.date_proposition = datetime.now()
-        validation.comment_authors = _('Promotion du billet « [{0}]({1}) » en article par [{2}]({3}).'.format(
+        validation.comment_authors = _('Promotion du billet « [{0}]({1}) » en article par [{2}]({3}).'.format(
             article.title,
             article.get_absolute_url_online(),
             self.request.user.username,

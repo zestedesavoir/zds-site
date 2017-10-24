@@ -295,7 +295,7 @@ class ProfileForm(MiniProfileForm):
                 <p>
                     <a href="{% url 'gallery-list' %}">Choisir un avatar dans une galerie</a><br/>
                     Naviguez vers l'image voulue et cliquez sur le bouton "<em>Choisir comme avatar</em>".<br/>
-                    Créez une galerie et importez votre avatar si ce n'est pas déjà fait&nbsp;!
+                    Créez une galerie et importez votre avatar si ce n'est pas déjà fait !
                 </p>
             """)),
             Field('sign'),
@@ -673,6 +673,7 @@ class HatRequestForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
+        self.helper.form_action = '{}#send-request'.format(reverse('hats-settings'))
 
         self.helper.layout = Layout(
             Field('hat'),

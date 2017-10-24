@@ -51,7 +51,7 @@
             {% if validation.version == content.current_version %}
                 {% if validation.is_pending %}
                     <p class="content-wrapper alert-box alert">
-                        {% trans "Ce contenu est en attente d'un validateur." %}
+                        {% trans "Ce contenu est en attente d’un validateur." %}
                     </p>
                 {% elif validation.is_pending_valid %}
                     <p class="content-wrapper alert-box info">
@@ -76,7 +76,7 @@
                         <a href="{{ object.get_absolute_url }}?version={{ validation.version }}">
                             {% trans "Une autre version de ce contenu" %}
                         </a>
-                        {% trans "est en attente d'un validateur" %}
+                        {% trans "est en attente d’un validateur" %}
                     </p>
                 {% elif validation.is_pending_valid %}
                     <p class="content-wrapper alert-box info">
@@ -95,7 +95,7 @@
         <div class="content-wrapper">
             <div class="alert-box warning">
                 {% blocktrans %}
-                    Cette version est en <strong>"BÊTA"</strong>&nbsp;!
+                    Cette version est en <strong>"BÊTA"</strong> !
                 {% endblocktrans %}
 
                 {% if beta_topic %}
@@ -112,14 +112,14 @@
                     {% if content.authors.count > 1 %}
                         {% trans "Les auteurs de ce contenu recherchent" %}
                     {% else %}
-                        {% trans "L'auteur de ce contenu recherche" %}
+                        {% trans "L’auteur de ce contenu recherche" %}
                     {% endif %}
 
                     {% for help in helps.all %}{% if not forloop.first %}{% if forloop.last %}{% trans ' et ' %}{% else %}{% trans ', ' %}{% endif %}{% endif %}un {{ help.title|lower }}{% if forloop.last %}{% trans '.' %}{% endif %}{% endfor %}
 
                     {% if not can_edit %}
                         {% blocktrans with plural=content.authors.count|pluralize_fr %}
-                            N'hésitez pas à <a href="{{ pm_link }}">le{{ plural }} contacter par MP</a> pour proposer votre aide&nbsp;!
+                            N’hésitez pas à <a href="{{ pm_link }}">le{{ plural }} contacter par MP</a> pour proposer votre aide !
                         {% endblocktrans %}
                     {% endif %}
                 </div>
@@ -134,7 +134,7 @@
         {{ content.get_introduction|emarkdown:is_js }}
     {% elif not content.is_beta %}
         <p class="ico-after warning">
-            {% trans "Il n'y a pas d'introduction" %}.
+            {% trans "Il n’y a pas d’introduction" %}.
         </p>
     {% endif %}
 
@@ -165,7 +165,7 @@
         {{ content.get_conclusion|emarkdown:is_js }}
     {% elif not content.is_beta %}
         <p class="ico-after warning">
-            {% trans "Il n'y a pas de conclusion" %}.
+            {% trans "Il n’y a pas de conclusion" %}.
         </p>
     {% endif %}
 
@@ -220,7 +220,7 @@
                 </a>
                 <form action="{% url "content:add-author" content.pk %}" method="post" class="modal modal-flex" id="add-author">
                     {% csrf_token %}
-                    <input type="text" name="username" placeholder="Pseudo de l'utilisateur à ajouter" data-autocomplete="{ 'type': 'single' }">
+                    <input type="text" name="username" placeholder="Pseudo de l’utilisateur à ajouter" data-autocomplete="{ 'type': 'single' }">
                     <button type="submit" name="add_author">
                         {% trans "Confirmer" %}
                     </button>
@@ -247,7 +247,7 @@
                                                 {% trans "Supprimer" %}
                                             </button>
                                         {% else %}
-                                            {% trans "Vous êtes seul" %}&nbsp;!
+                                            {% trans "Vous êtes seul" %} !
                                         {% endif %}
                                     </td>
                                 </tr>
@@ -274,7 +274,7 @@
                         <p>
                             {% blocktrans with content_title=content.title %}
                             Êtes-vous certain de vouloir <strong>activer</strong> la bêta de ce contenu
-                            "<em>{{ content_title }}</em>" dans la version que vous voyez actuellement&nbsp;?
+                            "<em>{{ content_title }}</em>" dans la version que vous voyez actuellement ?
                             {% endblocktrans %}
                         </p>
                         <button type="submit">
@@ -300,7 +300,7 @@
                             <p>
                                 {% blocktrans with content_title=content.title %}
                                 Êtes-vous certain de vouloir <strong>mettre à jour</strong> la bêta de ce contenu
-                                "<em>{{ content_title }}</em>" dans la version que vous voyez actuellement&nbsp;?
+                                "<em>{{ content_title }}</em>" dans la version que vous voyez actuellement ?
                                 {% endblocktrans %}
                             </p>
                             <p>
@@ -329,7 +329,7 @@
                         <input type="hidden" name="version" value="{% if version %}{{ version }}{% else %}{{ content.sha_draft }}{% endif %}">
                         <p>
                             {% blocktrans with content_title=content.title %}
-                            Êtes-vous certain de vouloir <strong>désactiver</strong> la bêta de ce contenu "<em>{{ content_title }}</em>"&nbsp;?
+                            Êtes-vous certain de vouloir <strong>désactiver</strong> la bêta de ce contenu "<em>{{ content_title }}</em>" ?
                             {% endblocktrans %}
                         </p>
                         <button type="submit">
@@ -478,7 +478,7 @@
                         {% if content.authors.all|length > 1 %}
                             {% trans "aux auteurs" %}
                         {% else %}
-                            à {% trans "l'auteur" %}
+                            à {% trans "l’auteur" %}
                         {% endif %}
                     </a>
                 </li>
@@ -546,7 +546,7 @@
                                     <p>
                                         {% trans "La validation de ce contenu est actuellement réservée par" %}
                                         {% include "misc/member_item.part.html" with member=validation.validator %}.
-                                        {% trans "Êtes-vous certain de vouloir le retirer" %}&nbsp;?
+                                        {% trans "Êtes-vous certain de vouloir le retirer" %} ?
                                     </p>
                                     <button type="submit">
                                         {% trans "Confirmer" %}
@@ -577,7 +577,7 @@
                                 {% csrf_token %}
                                 <p>
                                     {% blocktrans with content_title=content.title %}
-                                        Attention, vous vous apprêtez à <strong>supprimer définitivement</strong> « {{ content_title }} ». Cela aura pour effet de supprimer également la galerie associée.
+                                        Attention, vous vous apprêtez à <strong>supprimer définitivement</strong> « {{ content_title }} ». Cela aura pour effet de supprimer également la galerie associée.
                                     {% endblocktrans %}
                                     {%  if need_reason %}
                                         {% blocktrans with username=validation.validator.username %}

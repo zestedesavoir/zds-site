@@ -4,12 +4,17 @@
 
 
 {% block title %}
-    {% trans "Demandes de casquettes" %}
+    {% trans "Demandes de casquettes" %} &bull; {% trans "Casquettes" %}
 {% endblock %}
 
 
 
 {% block breadcrumb %}
+    <li>
+        <a href="{% url 'hats-list' %}">
+            {% trans "Casquettes" %}
+        </a>
+    </li>
     <li>
         {% trans "Demandes de casquettes" %}
     </li>
@@ -46,7 +51,7 @@
             </tbody>
         </table>
     {% else %}
-        <em>{% trans "Aucune demande n'est en cours." %}</em>
+        <em>{% trans "Aucune demande n’est en cours." %}</em>
     {% endif %}
 
     {% include "misc/paginator.html" with position="bottom" %}

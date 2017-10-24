@@ -47,7 +47,7 @@ Elles sont reportées essentiellement dans le [*bug tracker*](https://github.com
 Après avoir mis à jour votre dépôt, vous devez exécuter les commandes suivantes (depuis la racine de votre projet) pour mettre à jour les dépendances.
 
 ```console
-pip install --upgrade -r requirements.txt -r requirements-dev.txt
+pip install --upgrade -r requirements-dev.txt
 python manage.py migrate --fake-initial
 ```
 

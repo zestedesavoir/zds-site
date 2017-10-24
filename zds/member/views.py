@@ -531,7 +531,7 @@ def modify_profile(request, user_pk):
     if profile.is_private():
         raise PermissionDenied
     if request.user.profile == profile:
-        messages.error(request, _('Vous ne pouvez pas vous sanctionner vous-même&nbsp;!'))
+        messages.error(request, _('Vous ne pouvez pas vous sanctionner vous-même !'))
         raise PermissionDenied
 
     if 'ls' in request.POST:
@@ -613,7 +613,7 @@ def settings_mini_profile(request, user_name):
         data = {'form': form, 'profile': profile}
         messages.warning(request, _(
             'Le profil que vous éditez n\'est pas le vôtre. '
-            'Soyez encore plus prudent lors de l\'édition de celui-ci&nbsp;!'))
+            'Soyez encore plus prudent lors de l\'édition de celui-ci !'))
         return render(request, 'member/settings/profile.html', data)
 
 
@@ -712,8 +712,41 @@ def remove_banned_email_provider(request, provider_pk):
     provider = get_object_or_404(BannedEmailProvider, pk=provider_pk)
     provider.delete()
 
-    messages.success(request, _('Le fournisseur « {} » a été débanni.').format(provider.provider))
+    messages.success(request, _('Le fournisseur « {} » a été débanni.').format(provider.provider))
     return redirect('banned-email-providers')
+
+
+class HatsList(ZdSPagingListView):
+    """Display the list of hats."""
+
+    context_object_name = 'hats'
+    paginate_by = settings.ZDS_APP['member']['hats_per_page']
+    template_name = 'member/hats.html'
+    queryset = Hat.objects \
+                  .order_by('name') \
+                  .select_related('group') \
+                  .prefetch_related('group__user_set') \
+                  .prefetch_related('group__user_set__profile') \
+                  .prefetch_related('profile_set') \
+                  .prefetch_related('profile_set__user')
+
+
+class HatDetail(DetailView):
+    model = Hat
+    context_object_name = 'hat'
+    template_name = 'member/hat.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(HatDetail, self).get_context_data(**kwargs)
+        hat = context['hat']
+        if self.request.user.is_authenticated:
+            context['is_required'] = hat.name.lower() \
+                in [h.lower() for h in self.request.user.requested_hats.values_list('hat', flat=True)]
+        if hat.group:
+            context['users'] = hat.group.user_set.select_related('profile')
+        else:
+            context['users'] = [p.user for p in hat.profile_set.select_related('user')]
+        return context
 
 
 class HatsSettings(LoginRequiredMixin, CreateView):
@@ -721,6 +754,16 @@ class HatsSettings(LoginRequiredMixin, CreateView):
     template_name = 'member/settings/hats.html'
     form_class = HatRequestForm
     success_url = reverse_lazy('hats-settings')
+
+    def get_initial(self):
+        initial = super(HatsSettings, self).get_initial()
+        if 'ask' in self.request.GET:
+            try:
+                hat = Hat.objects.get(pk=int(self.request.GET['ask']))
+                initial['hat'] = hat.name
+            except (ValueError, Hat.DoesNotExist):
+                pass
+        return initial
 
     def form_valid(self, form):
         form.instance.user = self.request.user
@@ -763,12 +806,12 @@ def solve_hat_request(request, request_pk):
     if 'grant' in request.POST:  # hat is granted
         hat, created = Hat.objects.get_or_create(name__iexact=hat_request.hat, defaults={'name': hat_request.hat})
         if created:
-            messages.success(request, _('La casquette « {} » a été créée.').format(hat_request.hat))
+            messages.success(request, _('La casquette « {} » a été créée.').format(hat_request.hat))
         hat_request.user.profile.hats.add(hat)
-        messages.success(request, _('La casquette « {0} » a été accordée à {1}.').format(
+        messages.success(request, _('La casquette « {0} » a été accordée à {1}.').format(
             hat_request.hat, hat_request.user.username))
     else:
-        messages.success(request, _('La casquette « {0} » a été refusée à {1}.').format(
+        messages.success(request, _('La casquette « {0} » a été refusée à {1}.').format(
             hat_request.hat, hat_request.user.username))
 
     # send a PM to notify member about this decision
@@ -785,7 +828,7 @@ def solve_hat_request(request, request_pk):
     )
     send_mp(bot,
             [hat_request.user],
-            _('Casquette « {} »').format(hat_request.hat),
+            _('Casquette « {} »').format(hat_request.hat),
             '',
             msg,
             False,
@@ -820,7 +863,7 @@ def add_hat(request, user_pk):
     else:
         hat, created = Hat.objects.get_or_create(name__iexact=hat_name, defaults={'name': hat_name})
         if created:
-            messages.success(request, _('La casquette « {} » a été créée.').format(hat_name))
+            messages.success(request, _('La casquette « {} » a été créée.').format(hat_name))
         if hat.group:
             messages.error(request, _('Cette casquette est accordée aux membres d\'un groupe particulier. '
                                       'Elle ne peut pas être ajoutée individuellement.'))
@@ -1166,7 +1209,7 @@ def settings_promote(request, user_pk):
                     if isinstance(topic, Topic) and group in topic.forum.groups.all():
                         TopicAnswerSubscription.objects.toggle_follow(topic, user)
             user.groups.clear()
-            messages.warning(request, _('{0} n\'appartient (plus&nbsp;?) à aucun groupe.')
+            messages.warning(request, _('{0} n\'appartient (plus ?) à aucun groupe.')
                              .format(user.username))
 
         if 'activation' in data and 'on' in data['activation']:
@@ -1262,6 +1305,6 @@ def modify_karma(request):
             profile.karma += note.karma
             profile.save()
     except ValueError as e:
-        logging.getLogger('zds.member').warn('ValueError: modifying karma failed because {}'.format(e))
+        logging.getLogger(__name__).warn('ValueError: modifying karma failed because {}'.format(e))
 
     return redirect(reverse('member-detail', args=[profile.user.username]))

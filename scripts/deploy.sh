@@ -28,7 +28,7 @@ if [ "$(whoami)" != "zds" ]; then
 fi
 
 # Check if the git working directory is clean (excluding scripts/ folder)
-if ! git diff-index --quiet HEAD ':scripts/' --; then
+if ! git diff-index --quiet HEAD -- . ':!scripts/'; then
   echo "Git repo has uncommited changes. Make sure it's clean before trying again" >&2
   exit 1
 fi
@@ -44,11 +44,15 @@ fi
 cd $REPO_PATH
 
 # Enable maintenance mode
-sudo ln -s errors/maintenance.html $ENV_PATH/webroot/
+sudo ln -sf errors/maintenance.html $ENV_PATH/webroot/
 
 # Delete old branch if exists
-git checkout prod
-git branch -D $1
+git checkout refs/heads/prod
+
+if git rev-parse --verify "refs/heads/$1" > /dev/null; then
+  git branch -D $1
+fi
+
 # Removes dist/ folder to avoid conflicts
 rm -rf ./dist/
 # Switch to new tag
@@ -65,13 +69,12 @@ else
 fi
 
 # Checkout the tag
-git checkout $1-build
+git checkout refs/heads/$1-build
 # Create a branch with the same name - required to have version data in footer
 git checkout -b $1
 
 # Update application data
 source $ENV_PATH/bin/activate
-pip install --upgrade -r requirements.txt
 pip install --upgrade -r requirements-prod.txt
 python manage.py migrate
 python manage.py compilemessages

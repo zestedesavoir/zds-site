@@ -61,7 +61,7 @@
                     <p class="topic-last-answer">
                         {% trans "Liée" %}
                         {% if content.is_article %}
-                            {% trans "à l'article" %}
+                            {% trans "à l’article" %}
                         {% elif content.is_tutorial %}
                             {% trans "au tutoriel" %}
                         {% elif content.is_opinion %}
@@ -78,7 +78,7 @@
 
     {% if galleries|length == 0 %}
         <p>
-            {% trans "Vous n'avez pas encore de galerie" %}. <br>
+            {% trans "Vous n’avez pas encore de galerie" %}. <br>
             <a href="{% url "gallery-new" %}">{% trans "Créer une galerie" %}</a>.
         </p>
     {% endif %}

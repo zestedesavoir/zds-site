@@ -2,7 +2,6 @@
 
 
 from django.db.models import CASCADE
-from django.utils.encoding import python_2_unicode_compatible
 from datetime import datetime
 
 from zds.tutorialv2.models.mixins import TemplatableContentModelMixin, OnlineLinkableContentMixin
@@ -51,10 +50,9 @@ from zds.utils.tutorials import get_blob
 import logging
 
 ALLOWED_TYPES = ['pdf', 'md', 'html', 'epub', 'zip']
-logger = logging.getLogger('zds.tutorialv2')
+logger = logging.getLogger(__name__)
 
 
-@python_2_unicode_compatible
 class PublishableContent(models.Model, TemplatableContentModelMixin):
     """A publishable content.
 
@@ -319,7 +317,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         """
         try:
             return self.load_version(sha, public)
-        except (BadObject, BadName, IOError) as error:
+        except (BadObject, BadName, OSError) as error:
             raise Http404(
                 'Le code sha existe mais la version demandée ne peut pas être trouvée à cause de {}:{}'.format(
                     type(error), str(error)))
@@ -336,7 +334,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         :param public: if set with the right object, return the public version
         :type public: PublishedContent
         :raise BadObject: if sha is not None and related version could not be found
-        :raise IOError: if the path to the repository is wrong
+        :raise OSError: if the path to the repository is wrong
         :raise NotAPublicVersion: if the sha does not correspond to a public version
         :return: the versioned content
         :rtype: zds.tutorialv2.models.models_versioned.VersionedContent
@@ -354,21 +352,27 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
             slug = public.content_public_slug
 
             if not os.path.isdir(path):
-                raise IOError(path)
+                raise OSError(path)
 
             if sha != public.sha_public:
                 raise NotAPublicVersion
 
-            manifest = open(os.path.join(path, 'manifest.json'), 'r')
-            json = json_reader.loads(manifest.read())
-            versioned = get_content_from_json(
-                json, public.sha_public, slug, public=True, max_title_len=max_title_length, hint_licence=self.licence)
+            with open(os.path.join(path, 'manifest.json'), 'r', encoding='utf-8') as manifest:
+                json = json_reader.loads(manifest.read())
+                versioned = get_content_from_json(
+                    json,
+                    public.sha_public,
+                    slug,
+                    public=True,
+                    max_title_len=max_title_length,
+                    hint_licence=self.licence,
+                )
 
         else:  # draft version, use the repository (slower, but allows manipulation)
             path = self.get_repo_path()
 
             if not os.path.isdir(path):
-                raise IOError(path)
+                raise OSError(path)
 
             repo = Repo(path)
             data = get_blob(repo.commit(sha).tree, 'manifest.json')
@@ -376,7 +380,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
                 json = json_reader.loads(data)
             except ValueError:
                 raise BadManifestError(
-                    _('Une erreur est survenue lors de la lecture du manifest.json, est-ce du JSON&nbsp;?'))
+                    _('Une erreur est survenue lors de la lecture du manifest.json, est-ce du JSON ?'))
 
             versioned = get_content_from_json(json, sha, self.slug, max_title_len=max_title_length)
 
@@ -581,7 +585,6 @@ def delete_gallery(sender, instance, **kwargs):
         instance.gallery.delete()
 
 
-@python_2_unicode_compatible
 class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, OnlineLinkableContentMixin):
     """A class that contains information on the published version of a content.
 
@@ -865,7 +868,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
             current_content = PublishedContent.objects.filter(content_pk=self.content_pk, must_redirect=False).first()
             if current_content:
                 return len(content)
-        except IOError as e:
+        except OSError as e:
             logger.warning('could not get file %s to compute nb letters (error=%s)', md_file_path, e)
 
     @classmethod
@@ -1100,7 +1103,6 @@ class FakeChapter(AbstractESIndexable):
         return document
 
 
-@python_2_unicode_compatible
 class ContentReaction(Comment):
     """
     A comment written by any user about a PublishableContent they just read.
@@ -1128,7 +1130,6 @@ class ContentReaction(Comment):
         return self.related_content.title
 
 
-@python_2_unicode_compatible
 class ContentRead(models.Model):
     """
     Small model which keeps track of the user viewing tutorials.
@@ -1156,7 +1157,6 @@ class ContentRead(models.Model):
         return '<Contenu "{}" lu par {}, #{}>'.format(self.content, self.user, self.note.pk)
 
 
-@python_2_unicode_compatible
 class Validation(models.Model):
     """
     Content validation.
@@ -1187,7 +1187,7 @@ class Validation(models.Model):
         default='PENDING')
 
     def __str__(self):
-        return _('Validation de « {} »').format(self.content.title)
+        return _('Validation de « {} »').format(self.content.title)
 
     def is_pending(self):
         """Check if the validation is pending
@@ -1230,7 +1230,6 @@ class Validation(models.Model):
         return self.status == 'CANCEL'
 
 
-@python_2_unicode_compatible
 class PickListOperation(models.Model):
     class Meta:
         verbose_name = "Choix d'un billet"

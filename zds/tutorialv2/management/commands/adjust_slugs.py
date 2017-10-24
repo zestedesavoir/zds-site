@@ -21,7 +21,7 @@ class Command(BaseCommand):
                 if c.slug != good_slug:
                     if os.path.isdir(os.path.join(settings.ZDS_APP['content']['repo_private_path'], good_slug)):
                         # this content was created before v16 and is probably broken
-                        self.stdout.write('Fixing pre-v16 content #{} (« {} ») ... '.format(c.pk, c.title), ending='')
+                        self.stdout.write('Fixing pre-v16 content #{} (« {} ») ... '.format(c.pk, c.title), ending='')
                         c.save()
                         if os.path.isdir(c.get_repo_path()):
                             self.stdout.write('[OK]')
@@ -29,10 +29,10 @@ class Command(BaseCommand):
                             self.stdout.write('[KO]')
                     elif os.path.isdir(os.path.join(settings.ZDS_APP['content']['repo_private_path'], c.slug)):
                         # this content was created during v16 and will be broken if nothing is done
-                        self.stdout.write('Fixing in-v16 content #{} (« {} ») ... '.format(c.pk, c.title), ending='')
+                        self.stdout.write('Fixing in-v16 content #{} (« {} ») ... '.format(c.pk, c.title), ending='')
                         try:
                             versioned = c.load_version()
-                        except IOError:
+                        except OSError:
                             self.stdout.write('[KO]')
                         else:
                             c.sha_draft = versioned.repo_update_top_container(
@@ -50,5 +50,5 @@ class Command(BaseCommand):
                                 self.stdout.write('[KO]')
                     else:
                         self.stderr.write(
-                            'Content #{} (« {} ») is an orphan: there is no directory named "{}" or "{}".\n'.
+                            'Content #{} (« {} ») is an orphan: there is no directory named "{}" or "{}".\n'.
                             format(c.pk, c.title, good_slug, c.slug))
