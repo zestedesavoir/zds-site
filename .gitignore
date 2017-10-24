@@ -123,3 +123,9 @@ $RECYCLE.BIN/
 #############
 
 *.*~
+
+#############
+## Visual Studio Code
+#############
+
+.vscode/

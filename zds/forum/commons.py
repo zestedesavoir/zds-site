@@ -17,30 +17,22 @@ from zds.utils.models import Alert, CommentEdit, get_hat_from_request
 
 class ForumEditMixin(object):
     @staticmethod
-    def perform_follow(forum_or_tag, user):
-        return NewTopicSubscription.objects.toggle_follow(forum_or_tag, user).is_active
-
-    @staticmethod
-    def perform_follow_by_email(forum_or_tag, user):
-        return NewTopicSubscription.objects.toggle_follow(forum_or_tag, user, True).is_active
+    def perform_follow(forum_or_tag, user, follow_by_email=False):
+        return NewTopicSubscription.objects.toggle_follow(forum_or_tag, user, follow_by_email).is_active
 
 
 class TopicEditMixin(object):
     @staticmethod
-    def perform_follow(topic, user):
-        return TopicAnswerSubscription.objects.toggle_follow(topic, user)
+    def perform_follow(topic, user, follow_by_email=False):
+        return TopicAnswerSubscription.objects.toggle_follow(topic, user, follow_by_email)
 
     @staticmethod
-    def perform_follow_by_email(topic, user):
-        return TopicAnswerSubscription.objects.toggle_follow(topic, user, True)
-
-    @staticmethod
-    def perform_solve_or_unsolve(user, topic):
-        if user == topic.author or user.has_perm('forum.change_topic'):
-            topic.is_solved = not topic.is_solved
-            return topic.is_solved
-        else:
+    def toggle_solve(user, topic):
+        if user != topic.author and not user.has_perm('forum.change_topic'):
             raise PermissionDenied
+
+        topic.is_solved = not topic.is_solved
+        return topic.is_solved
 
     @staticmethod
     @permission_required('forum.change_topic', raise_exception=True)
@@ -57,28 +49,28 @@ class TopicEditMixin(object):
     def perform_sticky(request, topic):
         topic.is_sticky = request.POST.get('sticky') == 'true'
         if topic.is_sticky:
-            success_message = _('Le sujet « {0} » est désormais épinglé.').format(topic.title)
+            success_message = _('Le sujet « {0} » est désormais épinglé.').format(topic.title)
         else:
-            success_message = _("Le sujet « {0} » n'est désormais plus épinglé.").format(topic.title)
+            success_message = _("Le sujet « {0} » n'est désormais plus épinglé.").format(topic.title)
         messages.success(request, success_message)
 
     def perform_move(self):
-        if self.request.user.has_perm('forum.change_topic'):
-            try:
-                forum_pk = int(self.request.POST.get('forum'))
-            except (KeyError, ValueError, TypeError) as e:
-                raise Http404('Forum not found', e)
-            forum = get_object_or_404(Forum, pk=forum_pk)
-            self.object.forum = forum
-
-            # Save topic to update update_index_date
-            self.object.save()
-
-            signals.edit_content.send(sender=self.object.__class__, instance=self.object, action='move')
-            message = _('Le sujet « {0} » a bien été déplacé dans « {1} ».').format(self.object.title, forum.title)
-            messages.success(self.request, message)
-        else:
+        if not self.request.user.has_perm('forum.change_topic'):
             raise PermissionDenied()
+
+        try:
+            forum_pk = int(self.request.POST.get('forum'))
+        except (KeyError, ValueError, TypeError) as e:
+            raise Http404('Forum not found', e)
+
+        self.object.forum = forum = get_object_or_404(Forum, pk=forum_pk)
+
+        # Save topic to update update_index_date
+        self.object.save()
+
+        signals.edit_content.send(sender=self.object.__class__, instance=self.object, action='move')
+        message = _('Le sujet « {0} » a bien été déplacé dans « {1} ».').format(self.object.title, forum.title)
+        messages.success(self.request, message)
 
     @staticmethod
     def perform_edit_info(request, topic, data, editor):
@@ -100,20 +92,12 @@ class PostEditMixin(object):
     @staticmethod
     def perform_hide_message(request, post, user, data):
         is_staff = user.has_perm('forum.change_post')
-        if post.author == user or is_staff:
-            for alert in post.alerts_on_this_comment.all():
-                alert.solve(user, _('Le message a été masqué.'))
-            post.is_visible = False
-            post.editor = user
 
-            if is_staff:
-                post.text_hidden = data.get('text_hidden', '')
-
-            messages.success(request, _('Le message est désormais masqué.'))
-            for user in Notification.objects.get_users_for_unread_notification_on(post):
-                signals.content_read.send(sender=post.topic.__class__, instance=post.topic, user=user)
-        else:
+        if post.author != user and not is_staff:
             raise PermissionDenied
+
+        post.hide(user, data.get('text_hidden', '') if is_staff else '')
+        messages.success(request, _(u'Le message est désormais masqué.'))
 
     @staticmethod
     @permission_required('forum.change_post', raise_exception=True)
@@ -123,18 +107,17 @@ class PostEditMixin(object):
 
     @staticmethod
     def perform_alert_message(request, post, user, alert_text):
-        alert = Alert(
+        Alert.objects.create(
             author=user,
             comment=post,
             scope='FORUM',
             text=alert_text,
             pubdate=datetime.now())
-        alert.save()
 
         messages.success(request, _("Une alerte a été envoyée à l'équipe concernant ce message."))
 
     @staticmethod
-    def perform_useful(post):
+    def toggle_useful(post):
         post.is_useful = not post.is_useful
         post.save()
 
@@ -148,17 +131,15 @@ class PostEditMixin(object):
         # issue 3227 proves that you can have post.position==1 AND topic_read to None
         # it can happen whether on double click (the event "mark as not read" is therefore sent twice)
         # or if you have two tabs in your browser.
-        if topic_read is None and post.position > 1:
+        if post.position > 1:
             unread = Post.objects.filter(topic=post.topic, position=(post.position - 1)).first()
-            topic_read = TopicRead(post=unread, topic=unread.topic, user=user)
-            topic_read.save()
-        else:
-            if post.position > 1:
-                unread = Post.objects.filter(topic=post.topic, position=(post.position - 1)).first()
+            if topic_read is None:
+                TopicRead.objects.create(post=unread, topic=unread.topic, user=user)
+            else:
                 topic_read.post = unread
                 topic_read.save()
-            elif topic_read:
-                topic_read.delete()
+        elif topic_read:
+            topic_read.delete()
 
         signals.answer_unread.send(sender=post.topic.__class__, instance=post, user=user)
 

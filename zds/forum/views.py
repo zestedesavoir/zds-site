@@ -79,15 +79,21 @@ class ForumTopicsListView(FilterMixin, ForumEditMixin, ZdSPagingListView, Update
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
         response = {}
+
         if 'follow' in request.POST:
             response['follow'] = self.perform_follow(self.object, request.user)
-            response['subscriberCount'] = NewTopicSubscription.objects.get_subscriptions(self.object).count()
+            response['subscriberCount'] = NewTopicSubscription \
+                .objects \
+                .get_subscriptions(self.object) \
+                .count()
         elif 'email' in request.POST:
-            response['email'] = self.perform_follow_by_email(self.object, request.user)
+            response['email'] = self.perform_follow(self.object, request.user, True)
 
         self.object.save()
+
         if request.is_ajax():
             return HttpResponse(json.dumps(response), content_type='application/json')
+
         return redirect('{}?page={}'.format(self.object.get_absolute_url(), self.page))
 
     def get_context_data(self, **kwargs):
@@ -103,6 +109,7 @@ class ForumTopicsListView(FilterMixin, ForumEditMixin, ZdSPagingListView, Update
         # Add a topic.is_followed attribute
         followed_queryset = TopicAnswerSubscription.objects.get_objects_followed_by(self.request.user.id)
         followed_topics = list(set(followed_queryset) & set(context['topics'] + sticky))
+
         for topic in set(context['topics'] + sticky):
             topic.is_followed = topic in followed_topics
 
@@ -112,16 +119,21 @@ class ForumTopicsListView(FilterMixin, ForumEditMixin, ZdSPagingListView, Update
             'topic_read': TopicRead.objects.list_read_topic_pk(self.request.user, context['topics'] + sticky),
             'subscriber_count': NewTopicSubscription.objects.get_subscriptions(self.object).count(),
         })
+
         return context
 
     def get_object(self, queryset=None):
-        forum = Forum.objects\
-                     .select_related('category')\
-                     .filter(slug=self.kwargs.get('forum_slug'))\
-                     .first()
-        if forum is None:
-            raise Http404('Forum with slug {} was not found'.format(self.kwargs.get('forum_slug')))
-        return forum
+        forum = Forum \
+            .objects \
+            .select_related('category') \
+            .filter(slug=self.kwargs.get('forum_slug')) \
+            .first()
+
+        if forum is not None:
+            return forum
+
+        raise Http404('Forum with slug {} was not found' \
+            .format(self.kwargs.get('forum_slug')))
 
     def get_queryset(self):
         self.queryset = Topic.objects.get_all_topics_of_a_forum(self.object.pk)
@@ -129,12 +141,11 @@ class ForumTopicsListView(FilterMixin, ForumEditMixin, ZdSPagingListView, Update
 
     def filter_queryset(self, queryset, filter_param):
         if filter_param == 'solve':
-            queryset = queryset.filter(is_solved=True)
+            return queryset.filter(is_solved=True)
         elif filter_param == 'unsolve':
-            queryset = queryset.filter(is_solved=False)
+            return queryset.filter(is_solved=False)
         elif filter_param == 'noanswer':
-            queryset = queryset.filter(last_message__position=1)
-        return queryset
+            return queryset.filter(last_message__position=1)
 
 
 class TopicPostsListView(ZdSPagingListView, SingleObjectMixin):
@@ -146,16 +157,20 @@ class TopicPostsListView(ZdSPagingListView, SingleObjectMixin):
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
+
         if not self.object.forum.can_read(request.user):
             raise PermissionDenied
+
         if not self.kwargs.get('topic_slug') == slugify(self.object.title):
             return redirect(self.object.get_absolute_url())
+
         return super(TopicPostsListView, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(TopicPostsListView, self).get_context_data(**kwargs)
         form = PostForm(self.object, self.request.user)
-        form.helper.form_action = reverse('post-new') + '?sujet=' + str(self.object.pk)
+        form.helper.form_action = '{}?sujet={}' \
+            .format(reverse('post-new'), self.object.pk)
 
         posts = self.build_list_with_previous_item(context['object_list'])
         context.update({
@@ -167,11 +182,13 @@ class TopicPostsListView(ZdSPagingListView, SingleObjectMixin):
         })
 
         votes = CommentVote.objects.filter(user_id=self.request.user.pk, comment__in=context['posts']).all()
+
         context['user_like'] = [vote.comment_id for vote in votes if vote.positive]
         context['user_dislike'] = [vote.comment_id for vote in votes if not vote.positive]
         context['is_staff'] = self.request.user.has_perm('forum.change_topic')
         context['is_antispam'] = self.object.antispam()
         context['subscriber_count'] = TopicAnswerSubscription.objects.get_subscriptions(self.object).count()
+
         if hasattr(self.request.user, 'profile'):
             context['is_dev'] = self.request.user.profile.is_dev()
             context['tags'] = settings.ZDS_APP['site']['repository']['tags']
@@ -185,8 +202,10 @@ class TopicPostsListView(ZdSPagingListView, SingleObjectMixin):
         if self.request.user.is_authenticated():
             for post in posts:
                 signals.content_read.send(sender=post.__class__, instance=post, user=self.request.user)
+
             if not is_read(self.object):
                 mark_read(self.object)
+
         return context
 
     def get_object(self, queryset=None):
@@ -207,8 +226,10 @@ class TopicNew(CreateView, SingleObjectMixin):
     @method_decorator(transaction.atomic)
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
+
         if not self.object.can_read(request.user):
             raise PermissionDenied
+
         return super(TopicNew, self).dispatch(request, *args, **kwargs)
 
     def get_object(self, queryset=None):
@@ -216,28 +237,38 @@ class TopicNew(CreateView, SingleObjectMixin):
             forum_pk = int(self.request.GET.get('forum'))
         except (KeyError, ValueError, TypeError):
             raise Http404
+
         return get_object_or_404(Forum, pk=forum_pk)
 
     def get(self, request, *args, **kwargs):
-        return render(request, self.template_name, {'forum': self.object, 'form': self.form_class()})
+        return render(
+            request,
+            self.template_name,
+            {'forum': self.object, 'form': self.form_class()})
 
     def post(self, request, *args, **kwargs):
         form = self.get_form(self.form_class)
 
         if 'preview' in request.POST:
             if request.is_ajax():
-                content = render_to_response('misc/previsualization.part.html', {'text': request.POST['text']})
+                content = render_to_response(
+                    'misc/previsualization.part.html',
+                    {'text': request.POST['text']})
                 return StreamingHttpResponse(content)
-            else:
-                initial = {
-                    'title': request.POST['title'],
-                    'subtitle': request.POST['subtitle'],
-                    'text': request.POST['text']
-                }
-                form = self.form_class(initial=initial)
+
+            initial = {
+                'title': request.POST['title'],
+                'subtitle': request.POST['subtitle'],
+                'text': request.POST['text']
+            }
+            form = self.form_class(initial=initial)
         elif form.is_valid():
             return self.form_valid(form)
-        return render(request, self.template_name, {'forum': self.object, 'form': form})
+
+        return render(
+            request,
+            self.template_name,
+            {'forum': self.object, 'form': form})
 
     def get_form(self, form_class=TopicForm):
         return form_class(self.request.POST)
@@ -252,6 +283,7 @@ class TopicNew(CreateView, SingleObjectMixin):
             form.data['text'],
             tags=form.data['tags']
         )
+
         return redirect(topic.get_absolute_url())
 
 
@@ -267,62 +299,77 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
     @method_decorator(transaction.atomic)
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
+
         if not self.object.forum.can_read(request.user):
             return redirect(reverse('cats-forums-list'))
+
         if ('text' in request.POST or request.method == 'GET') \
                 and self.object.author != request.user and not request.user.has_perm('forum.change_topic'):
             raise PermissionDenied
+
         if ('text' in request.POST or request.method == 'GET') \
                 and not self.object.first_post().is_visible and not request.user.has_perm('forum.change_topic'):
             raise PermissionDenied
+
         if 'page' in request.POST:
             try:
                 self.page = int(request.POST.get('page'))
             except (KeyError, ValueError, TypeError):
                 self.page = 1
+
         return super(TopicEdit, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         is_staff = request.user.has_perm('forum.change_topic')
+
         if self.object.author != request.user and is_staff:
             messages.warning(request, _(
                 'Vous éditez ce sujet en tant que modérateur (auteur : {}). Soyez encore plus '
                 'prudent lors de l\'édition de celui-ci !').format(self.object.author.username))
+
         form = self.create_form(self.form_class, **{
             'title': self.object.title,
             'subtitle': self.object.subtitle,
             'text': self.object.first_post().text,
             'tags': ', '.join([tag['title'] for tag in self.object.tags.values('title')]) or ''
         })
+
         return render(request, self.template_name, {'topic': self.object, 'form': form, 'is_staff': is_staff})
 
     def post(self, request, *args, **kwargs):
         if 'text' in request.POST:
             form = self.get_form(self.form_class)
 
-            if 'preview' in request.POST:
-                if request.is_ajax():
-                    content = render_to_response('misc/previsualization.part.html', {'text': request.POST['text']})
-                    return StreamingHttpResponse(content)
-                else:
-                    form = self.create_form(self.form_class, **{
-                        'title': request.POST.get('title'),
-                        'subtitle': request.POST.get('subtitle'),
-                        'text': request.POST.get('text'),
-                        'tags': request.POST.get('tags')
-                    })
-            elif form.is_valid():
-                return self.form_valid(form)
+            if 'preview' not in request.POST:
+                if form.is_valid():
+                    return self.form_valid(form)
+
+                return render(request, self.template_name, {'topic': self.object, 'form': form})
+
+            if request.is_ajax():
+                content = render_to_response('misc/previsualization.part.html', {'text': request.POST['text']})
+                return StreamingHttpResponse(content)
+
+            form = self.create_form(self.form_class, **{
+                'title': request.POST.get('title'),
+                'subtitle': request.POST.get('subtitle'),
+                'text': request.POST.get('text'),
+                'tags': request.POST.get('tags')
+            })
+
             return render(request, self.template_name, {'topic': self.object, 'form': form})
 
         response = {}
         if 'follow' in request.POST:
             response['follow'] = self.perform_follow(self.object, request.user).is_active
-            response['subscriberCount'] = TopicAnswerSubscription.objects.get_subscriptions(self.object).count()
+            response['subscriberCount'] = TopicAnswerSubscription \
+                .objects \
+                .get_subscriptions(self.object) \
+                .count()
         elif 'email' in request.POST:
-            response['email'] = self.perform_follow_by_email(self.object, request.user).is_active
+            response['email'] = self.perform_follow(self.object, request.user, True).is_active
         elif 'solved' in request.POST:
-            response['solved'] = self.perform_solve_or_unsolve(self.request.user, self.object)
+            response['solved'] = self.toggle_solve(self.request.user, self.object)
         elif 'lock' in request.POST:
             self.perform_lock(request, self.object)
         elif 'sticky' in request.POST:
@@ -331,8 +378,10 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
             self.perform_move()
 
         self.object.save()
+
         if request.is_ajax():
             return HttpResponse(json.dumps(response), content_type='application/json')
+
         return redirect('{}?page={}'.format(self.object.get_absolute_url(), self.page))
 
     def get_object(self, queryset=None):
@@ -349,17 +398,20 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
 
     def create_form(self, form_class, **kwargs):
         form = form_class(initial=kwargs)
-        form.helper.form_action = reverse('topic-edit') + '?topic={}'.format(self.object.pk)
+        form.helper.form_action = '{}?topic={}' \
+            .format(reverse('topic-edit'), self.object.pk)
         return form
 
     def get_form(self, form_class=TopicForm):
         form = form_class(self.request.POST)
-        form.helper.form_action = reverse('topic-edit') + '?topic={}'.format(self.object.pk)
+        form.helper.form_action = '{}?topic={}' \
+            .format(reverse('topic-edit'), self.object.pk)
         return form
 
     def form_valid(self, form):
-        topic = self.perform_edit_info(self.request, self.object, self.request.POST, self.request.user)
-        return redirect(topic.get_absolute_url())
+        return redirect(self
+            .perform_edit_info(self.request, self.object, self.request.POST, self.request.user)
+            .get_absolute_url())
 
 
 class FindTopic(ZdSPagingListView, SingleObjectMixin):
@@ -407,16 +459,22 @@ class FindTopicByTag(FilterMixin, ForumEditMixin, ZdSPagingListView, SingleObjec
     @method_decorator(transaction.atomic)
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
+
         response = {}
         if 'follow' in request.POST:
             response['follow'] = self.perform_follow(self.object, request.user)
-            response['subscriberCount'] = NewTopicSubscription.objects.get_subscriptions(self.object).count(),
+            response['subscriberCount'] = NewTopicSubscription \
+                .objects \
+                .get_subscriptions(self.object) \
+                .count()
         elif 'email' in request.POST:
-            response['email'] = self.perform_follow_by_email(self.object, request.user)
+            response['email'] = self.perform_follow(self.object, request.user, True)
 
         self.object.save()
+
         if request.is_ajax():
             return HttpResponse(json.dumps(response), content_type='application/json')
+
         return redirect('{}?page={}'.format(self.object.get_absolute_url(), self.page))
 
     def get_context_data(self, *args, **kwargs):
@@ -440,12 +498,11 @@ class FindTopicByTag(FilterMixin, ForumEditMixin, ZdSPagingListView, SingleObjec
 
     def filter_queryset(self, queryset, filter_param):
         if filter_param == 'solve':
-            queryset = queryset.filter(is_solved=True)
+            return queryset.filter(is_solved=True)
         elif filter_param == 'unsolve':
-            queryset = queryset.filter(is_solved=False)
+            return queryset.filter(is_solved=False)
         elif filter_param == 'noanswer':
-            queryset = queryset.filter(last_message__position=1)
-        return queryset
+            return queryset.filter(last_message__position=1)
 
 
 class PostNew(CreatePostView):
@@ -461,36 +518,39 @@ class PostNew(CreatePostView):
     @method_decorator(transaction.atomic)
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
-        if not self.object.forum.can_read(request.user):
+
+        if not self.object.forum.can_read(request.user) \
+            or self.object.is_locked or self.object.antispam(request.user):
             raise PermissionDenied
-        if self.object.is_locked:
-            raise PermissionDenied
-        if self.object.antispam(request.user):
-            raise PermissionDenied
-        self.posts = Post.objects.filter(topic=self.object) \
-                         .prefetch_related() \
-                         .order_by('-position')[:settings.ZDS_APP['forum']['posts_per_page']]
+
+        self.posts = Post \
+            .objects \
+            .filter(topic=self.object) \
+            .prefetch_related() \
+            .order_by('-position')[:settings.ZDS_APP['forum']['posts_per_page']]
+
         return super(PostNew, self).dispatch(request, *args, **kwargs)
 
     def create_forum(self, form_class, **kwargs):
         form = form_class(self.object, self.request.user, initial=kwargs)
-        form.helper.form_action = reverse('post-new') + '?sujet=' + str(self.object.pk)
+        form.helper.form_action = '{}?sujet={}'.format(reverse('post-new'), self.object.pk)
         return form
 
     def get_form(self, form_class=PostForm):
         form = self.form_class(self.object, self.request.user, self.request.POST)
-        form.helper.form_action = reverse('post-new') + '?sujet=' + str(self.object.pk)
+        form.helper.form_action = '{}?sujet={}'.format(reverse('post-new'), self.object.pk)
         return form
 
     def form_valid(self, form):
-        topic = send_post(self.request, self.object, self.request.user, form.data.get('text'))
-        return redirect(topic.last_message.get_absolute_url())
+        return redirect(send_post(self.request, self.object, self.request.user, form.data.get('text'))
+            .last_message.get_absolute_url())
 
     def get_object(self, queryset=None):
         try:
             topic_pk = int(self.request.GET.get('sujet'))
         except (KeyError, ValueError, TypeError):
             raise Http404
+
         return get_object_or_404(Topic, pk=topic_pk)
 
 
@@ -504,12 +564,15 @@ class PostEdit(UpdateView, SinglePostObjectMixin, PostEditMixin):
     @method_decorator(transaction.atomic)
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
+
+        # TODO: couldn't this get refactored?
         if not self.object.topic.forum.can_read(request.user):
             raise PermissionDenied
         if self.object.author != request.user and not request.user.has_perm('forum.change_post'):
             raise PermissionDenied
         if not self.object.is_visible and not request.user.has_perm('forum.change_post'):
             raise PermissionDenied
+
         return super(PostEdit, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
@@ -532,16 +595,20 @@ class PostEdit(UpdateView, SinglePostObjectMixin, PostEditMixin):
         if 'text' in request.POST:
             form = self.get_form(self.form_class)
 
-            if 'preview' in request.POST:
+            if 'preview' not in request.POST:
+                if form.is_valid():
+                    return self.form_valid(form)
+            else:
                 if request.is_ajax():
-                    content = render_to_response('misc/previsualization.part.html', {'text': request.POST.get('text')})
+                    content = render_to_response(
+                        'misc/previsualization.part.html',
+                        {'text': request.POST.get('text')})
                     return StreamingHttpResponse(content)
-                else:
-                    form = self.create_form(self.form_class, **{
-                        'text': request.POST.get('text')
-                    })
-            elif form.is_valid():
-                return self.form_valid(form)
+
+                form = self.create_form(self.form_class, **{
+                    'text': request.POST.get('text')
+                })
+
             return render(request, self.template_name, {
                 'post': self.object,
                 'topic': self.object.topic,
@@ -561,17 +628,17 @@ class PostEdit(UpdateView, SinglePostObjectMixin, PostEditMixin):
 
     def create_form(self, form_class, **kwargs):
         form = form_class(self.object.topic, self.request.user, initial=kwargs)
-        form.helper.form_action = reverse('post-edit') + '?message=' + str(self.object.pk)
+        form.helper.form_action = '{}?message={}'.format(reverse('post-edit'), self.object.pk)
         return form
 
     def get_form(self, form_class=PostForm):
         form = self.form_class(self.object.topic, self.request.user, self.request.POST)
-        form.helper.form_action = reverse('post-edit') + '?message=' + str(self.object.pk)
+        form.helper.form_action = '{}?message={}'.format(reverse('post-edit'), self.object.pk)
         return form
 
     def form_valid(self, form):
-        post = self.perform_edit_post(self.request, self.object, self.request.user, self.request.POST.get('text'))
-        return redirect(post.get_absolute_url())
+        return redirect(self.perform_edit_post(self.request, self.object, self.request.user, self.request.POST.get('text')) \
+            .get_absolute_url())
 
 
 class PostSignal(UpdateView, SinglePostObjectMixin, PostEditMixin):
@@ -584,6 +651,7 @@ class PostSignal(UpdateView, SinglePostObjectMixin, PostEditMixin):
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
 
+        # TODO: couldn't this get refactored?
         if not self.object.topic.forum.can_read(request.user):
             raise PermissionDenied
         if not self.object.is_visible and not request.user.has_perm('forum.change_post'):
@@ -592,10 +660,10 @@ class PostSignal(UpdateView, SinglePostObjectMixin, PostEditMixin):
         return super(PostSignal, self).dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        if 'signal_message' in request.POST:
-            self.perform_alert_message(request, self.object, request.user, request.POST.get('signal_text'))
-        else:
+        if 'signal_message' not in request.POST:
             raise Http404('no signal_message in POST')
+
+        self.perform_alert_message(request, self.object, request.user, request.POST.get('signal_text'))
 
         self.object.save()
         return redirect(self.object.get_absolute_url())
@@ -608,20 +676,22 @@ class PostUseful(UpdateView, SinglePostObjectMixin, PostEditMixin):
     @method_decorator(can_write_and_read_now)
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
+
         if not self.object.topic.forum.can_read(request.user):
             raise PermissionDenied
-        if self.object.topic.author != request.user:
-            if not request.user.has_perm('forum.change_post'):
-                raise PermissionDenied
+
+        if self.object.topic.author != request.user and not request.user.has_perm('forum.change_post'):
+            raise PermissionDenied
+
         return super(PostUseful, self).dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        self.perform_useful(self.object)
+        self.toggle_useful(self.object)
 
-        if request.is_ajax():
-            return HttpResponse(json.dumps(self.object.is_useful), content_type='application/json')
+        if not request.is_ajax():
+            return redirect(self.object.get_absolute_url())
 
-        return redirect(self.object.get_absolute_url())
+        return HttpResponse(json.dumps(self.object.is_useful), content_type='application/json')
 
 
 class PostUnread(UpdateView, SinglePostObjectMixin, PostEditMixin):
@@ -631,8 +701,10 @@ class PostUnread(UpdateView, SinglePostObjectMixin, PostEditMixin):
     @method_decorator(can_write_and_read_now)
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
+
         if not self.object.topic.forum.can_read(request.user):
             raise PermissionDenied
+
         return super(PostUnread, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
@@ -690,6 +762,7 @@ def solve_alert(request):
     resolve_reason = ''
     msg_title = ''
     msg_content = ''
+
     if 'text' in request.POST and request.POST['text']:
         resolve_reason = request.POST['text']
         msg_title = _("Résolution d'alerte : {0}").format(post.topic.title)
@@ -716,11 +789,15 @@ class ManageGitHubIssue(UpdateView):
     def dispatch(self, request, *args, **kwargs):
         if not request.user.profile.is_dev():
             raise PermissionDenied
+
         return super(ManageGitHubIssue, self).dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
 
+        # TODO: this massive if-statement can be refactored
+        # raise Exception + catch to escape when finished?
+        # or return redirect(...) at each end, to remove the two else/else
         if 'unlink' in request.POST:
             self.object.github_issue = None
             self.object.save()
@@ -739,13 +816,11 @@ class ManageGitHubIssue(UpdateView):
         else:  # create
             if not request.POST.get('title') or not request.POST.get('body'):
                 messages.error(request, _('Le titre et le contenu sont obligatoires.'))
-
             elif not request.user.profile.github_token:
                 messages.error(request, _("Aucun token d'identification GitHub n'a été renseigné."))
-
             else:
                 tags = [value.strip() for key, value in list(request.POST.items()) if key.startswith('tag-')]
-                body = _('{}\n\nSujet : {}\n*Envoyé depuis {}*')\
+                body = _('{}\n\nSujet : {}\n*Envoyé depuis {}*') \
                     .format(request.POST['body'],
                             settings.ZDS_APP['site']['url'] + self.object.get_absolute_url(),
                             settings.ZDS_APP['site']['literal_name'])
