@@ -55,7 +55,7 @@ class ZdSEmailValidator(EmailValidator):
         if check_username_available and user_count > 0:
             raise ValidationError(_('Cette adresse courriel est déjà utilisée'), code=self.code)
         # check if email exists in database
-        elif not check_username_available and user_count == 0:
+        if not check_username_available and user_count == 0:
             raise ValidationError(_('Cette adresse courriel n\'existe pas'), code=self.code)
 
         if domain_part and not self.validate_domain_part(domain_part):
@@ -131,14 +131,13 @@ def validate_passwords(cleaned_data, password_label='password', password_confirm
         if password_confirm_label in cleaned_data:
             del cleaned_data[password_confirm_label]
 
-    if username is not None:
-        # Check that password != username
-        if password == username:
-            msg = _('Le mot de passe doit être différent du pseudo')
-            if password_label in cleaned_data:
-                del cleaned_data[password_label]
-            if password_confirm_label in cleaned_data:
-                del cleaned_data[password_confirm_label]
+    # Check that password != username
+    if username is not None and password == username:
+        msg = _('Le mot de passe doit être différent du pseudo')
+        if password_label in cleaned_data:
+            del cleaned_data[password_label]
+        if password_confirm_label in cleaned_data:
+            del cleaned_data[password_confirm_label]
 
     if msg is not None:
         raise ValidationError(msg)

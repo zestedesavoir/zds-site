@@ -78,9 +78,7 @@ class Profile(models.Model):
 
     def is_private(self):
         """can the user can display their stats"""
-        user_groups = self.user.groups.all()
-        user_group_names = [g.name for g in user_groups]
-        return settings.ZDS_APP['member']['bot_group'] in user_group_names
+        return self.user.groups.filter(name=settings.ZDS_APP['member']['bot_group']).exists()
 
     def get_absolute_url(self):
         """Absolute URL to the profile page."""
@@ -95,22 +93,15 @@ class Profile(models.Model):
         """
         # FIXME: this test to differentiate IPv4 and IPv6 addresses doesn't work, as IPv6 addresses may have length < 16
         # Example: localhost ("::1"). Real test: IPv4 addresses contains dots, IPv6 addresses contains columns.
-        if len(self.last_ip_address) <= 16:
-            gic = pygeoip.GeoIP(
-                os.path.join(
-                    settings.GEOIP_PATH,
-                    'GeoLiteCity.dat'))
-        else:
-            gic = pygeoip.GeoIP(
-                os.path.join(
-                    settings.GEOIP_PATH,
-                    'GeoLiteCityv6.dat'))
+        file_name = 'GeoLiteCity.dat' if len(self.last_ip_address) <= 16 else 'GeoLiteCityv6.dat'
+        gic = pygeoip.GeoIP(os.path.join(settings.GEOIP_PATH, file_name))
 
         geo = gic.record_by_addr(self.last_ip_address)
 
-        if geo is not None:
-            return '{0}, {1}'.format(geo['city'], geo['country_name'])
-        return ''
+        if geo is None:
+            return ''
+
+        return '{0}, {1}'.format(geo['city'], geo['country_name'])
 
     def get_avatar_url(self):
         """Get the avatar URL for this profile.
@@ -119,14 +110,16 @@ class Profile(models.Model):
         :return: The avatar URL for this profile
         :rtype: str
         """
-        if self.avatar_url:
-            if self.avatar_url.startswith(settings.MEDIA_URL):
-                return '{}{}'.format(settings.ZDS_APP['site']['url'], self.avatar_url)
-            else:
-                return self.avatar_url
-        else:
+        if not self.avatar_url:
             return 'https://secure.gravatar.com/avatar/{0}?d=identicon'.format(
                 md5(self.user.email.lower().encode('utf-8')).hexdigest())
+
+        if self.avatar_url.startswith(settings.MEDIA_URL):
+            return '{}{}'.format(settings.ZDS_APP['site']['url'], self.avatar_url)
+
+        return self.avatar_url
+
+
 
     def get_post_count(self):
         """
@@ -136,7 +129,6 @@ class Profile(models.Model):
 
     def get_post_count_as_staff(self):
         """Number of messages posted (view as staff)."""
-
         return Post.objects.filter(author__pk=self.user.pk).count()
 
     def get_topic_count(self):
@@ -150,33 +142,31 @@ class Profile(models.Model):
         :param _type: if provided, request a specific type of content
         :return: Queryset of contents with this user as author.
         """
-        queryset = PublishableContent.objects.filter(authors__in=[self.user])
+        qs = PublishableContent.objects.filter(authors__in=[self.user])
 
         if _type:
-            queryset = queryset.filter(type=_type)
+            qs = qs.filter(type=_type)
 
-        return queryset
+        return qs
 
     def get_user_public_contents_queryset(self, _type=None):
         """
         :param _type: if provided, request a specific type of content
         :return: Queryset of contents with this user as author.
         """
-        queryset = PublishedContent.objects.filter(authors__in=[self.user])
+        qs = PublishedContent.objects.filter(authors__in=[self.user])
 
         if _type:
-            queryset = queryset.filter(content_type=_type)
+            qs = qs.filter(content_type=_type)
 
-        return queryset
+        return qs
 
     def get_content_count(self, _type=None):
         """
         :param _type: if provided, request a specific type of content
         :return: the count of contents with this user as author. Count all contents no only published one.
         """
-        if self.is_private():
-            return 0
-        return self.get_user_contents_queryset(_type).count()
+        return 0 if self.is_private() else self.get_user_contents_queryset(_type).count()
 
     def get_contents(self, _type=None):
         """
@@ -335,26 +325,18 @@ class Profile(models.Model):
         return Alert.objects.filter(author=self.user, solved=False).count()
 
     def can_read_now(self):
-        if self.user.is_authenticated:
-            if self.user.is_active:
-                if self.end_ban_read:
-                    return self.can_read or (self.end_ban_read < datetime.now())
-                return self.can_read
-            return False
+        return self.user.is_active and \
+               (self.can_read or (self.end_ban_read and self.end_ban_read < datetime.now()))
 
     def can_write_now(self):
-        if self.user.is_active:
-            if self.end_ban_write:
-                return self.can_write or (self.end_ban_write < datetime.now())
-            return self.can_write
-        return False
+        return self.user.is_active and \
+               (self.can_write or (self.end_ban_write and self.end_ban_write < datetime.now()))
 
     def get_followed_topics(self):
         """
         :return: All forum topics followed by this user.
         """
-        return Topic.objects.filter(topicfollowed__user=self.user)\
-            .order_by('-last_message__pubdate')
+        return Topic.objects.filter(topicfollowed__user=self.user).order_by('-last_message__pubdate')
 
     def is_dev(self):
         """
@@ -406,6 +388,7 @@ class Profile(models.Model):
     def group_pks(self):
         if self._groups is None:
             self._groups = list(self.user.groups.all())
+
         return [g.pk for g in self._groups]
 
 
@@ -449,7 +432,6 @@ def remove_old_smileys_cookie(response):
     :param response: the HTTP response
     :type: django.http.response.HttpResponse
     """
-
     response.set_cookie(settings.ZDS_APP['member']['old_smileys_cookie_key'], '', expires=0)
 
 
@@ -461,7 +443,6 @@ def set_old_smileys_cookie(response, profile):
     :param profile: the profile
     :type profile: Profile
     """
-
     if settings.ZDS_APP['member']['old_smileys_allowed']:
         if profile.use_old_smileys:
             # TODO: set max_age, expires and so all (see https://stackoverflow.com/a/1623910)
@@ -512,7 +493,7 @@ class TokenRegister(models.Model):
         """
         :return: the absolute URL of the account validation page, including the token.
         """
-        return reverse('member-active-account') + '?token={0}'.format(self.token)
+        return '{0}?token={1}'.format(reverse('member-active-account'), self.token)
 
     def __str__(self):
         return '{0} - {1}'.format(self.user.username, self.date_end)

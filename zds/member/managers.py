@@ -17,11 +17,11 @@ class ProfileManager(models.Manager):
         """
         now = datetime.now()
         excluded_groups = [Group.objects.get(name=settings.ZDS_APP['member']['bot_group'])]
-        qs = self.get_queryset() \
+
+        return self \
+            .get_queryset() \
             .exclude(user__is_active=False) \
             .exclude(user__groups__in=excluded_groups) \
             .filter(Q(can_read=True) | Q(end_ban_read__lte=now)) \
             .order_by('-user__date_joined') \
             .select_related('user')
-
-        return qs
