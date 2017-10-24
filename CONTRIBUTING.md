@@ -16,7 +16,7 @@ Les contributions externes sont les bienvenues !
 2. Faites vos modifications.
 3. Ajoutez un test pour votre modification. Seules les modifications de documentation et les réusinages n'ont pas besoin de nouveaux tests.
 4. Assurez-vous que l'intégralité des tests passent : `python manage.py test`.
-5. Assurez-vous que le code suit la [PEP-8](http://legacy.python.org/dev/peps/pep-0008/) : `tox -e flake8`.
+5. Assurez-vous que le code suit la [PEP-8](http://legacy.python.org/dev/peps/pep-0008/) : `flake8`.
 6. Si vous avez fait des modifications du _frontend_, jouez les tests associés : `yarn test`.
 7. Si vous modifiez le modèle (les fichiers models.py), n'oubliez pas de créer les fichiers de migration : `python manage.py makemigrations`.
 8. Si votre travail nécessite des actions spécifiques lors du déploiement, précisez-les dans le fichier [update.md](update.md).

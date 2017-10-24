@@ -19,7 +19,6 @@ ZdS a besoin des dépendances suivantes, installables manuellement ou à l'aide 
 - python3 et python3-dev : ``apt-get install python3-dev``
 - setuptools : ``apt-get install python3-setuptools``
 - pip : ``apt-get install python3-pip``
-- tox : ``pip3 install tox``
 - libxml2-dev : ``apt-get install libxml2-dev``
 - python-lxml : ``apt-get install python3-lxml``
 - libxlst-dev (peut être appelée libxlst1-dev sur certains OS comme Ubuntu)

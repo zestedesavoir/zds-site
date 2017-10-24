@@ -52,7 +52,6 @@ pip-log.txt
 
 # Unit test / coverage reports
 .coverage
-.tox
 htmlcov/
 
 #Translations
@@ -60,10 +59,6 @@ htmlcov/
 
 #Mr Developer
 .mr.developer.cfg
-
-#tox
-.tox/
-
 
 #################
 ## Eclipse
