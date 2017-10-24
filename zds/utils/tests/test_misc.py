@@ -9,6 +9,7 @@ from zds.utils.misc import contains_utf8mb4
 from zds.utils.models import Alert
 from zds.utils.templatetags.interventions import alerts_list
 from zds.utils.templatetags.remove_url_scheme import remove_url_scheme
+from zds.utils.templatetags.joinby import joinby
 
 
 class Misc(TestCase):
@@ -55,4 +56,53 @@ class Misc(TestCase):
 
         for element in oracle:
             # as we are not in py3 we do not have subTest method. so we use a bare for loop.
+            self.assertEquals(remove_url_scheme(element.given), element.expected)
             self.assertEqual(remove_url_scheme(element.given), element.expected)
+
+
+class TemplateTagsTest(TestCase):
+    def test_joinby(self):
+        self.assertEqual(joinby([]), '')
+        self.assertEqual(joinby(()), '')
+
+        l = ['apple', 'banana', 'orange', 'clementine']
+        self.assertEqual(
+            joinby(l, final_separator=', '),
+            'apple, banana, orange, clementine'
+        )
+
+        l = ['apple', 'banana', 'orange', 'clementine']
+        self.assertEqual(
+            joinby(l, final_separator=' and '),
+            'apple, banana, orange and clementine'
+        )
+
+        l = ['apple', 'banana', 'orange', 'clementine']
+        self.assertEqual(
+            joinby(l, separator=';', final_separator=';'),
+            'apple;banana;orange;clementine'
+        )
+
+        l = [1, 2, 3, 4]
+        self.assertEqual(
+            joinby(l, separator=';', final_separator=';'),
+            '1;2;3;4'
+        )
+
+        l = ['Clem']
+        self.assertEqual(
+            joinby(l, final_separator=' and '),
+            'Clem'
+        )
+
+        l = ['Clem', 'Chuck Norris']
+        self.assertEqual(
+            joinby(l, final_separator=' and '),
+            'Clem and Chuck Norris'
+        )
+
+        l = ['Clem', 'Chuck Norris', 'Arnold Schwarzenegger']
+        self.assertEqual(
+            joinby(l, final_separator=' and '),
+            'Clem, Chuck Norris and Arnold Schwarzenegger'
+        )
