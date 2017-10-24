@@ -1854,7 +1854,7 @@ class ContentTests(TestCase, TutorialTestMixin):
         # check links:
         text = versioned.children[0].get_text()
         for img in Image.objects.filter(gallery=new_article.gallery).all():
-            self.assertTrue('![]({})'.format(overridden_zds_app['site']['secure_url'] + img.physical.url) in text)
+            self.assertTrue('![]({})'.format(overridden_zds_app['site']['url'] + img.physical.url) in text)
 
         # import into first article (that will only change the images)
         result = self.client.post(
@@ -1881,7 +1881,7 @@ class ContentTests(TestCase, TutorialTestMixin):
         # check links:
         text = versioned.children[0].get_text()
         for img in Image.objects.filter(gallery=new_version.gallery).all():
-            self.assertTrue('![]({})'.format(overridden_zds_app['site']['secure_url'] + img.physical.url) in text)
+            self.assertTrue('![]({})'.format(overridden_zds_app['site']['url'] + img.physical.url) in text)
 
         # clean up
         os.remove(draft_zip_path)

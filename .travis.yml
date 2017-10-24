@@ -129,7 +129,8 @@ script:
     # lint backend
     if [[ "$ZDS_TEST_JOB" == *"zds.gallery"* ]]; then
       ./scripts/no_import_zds_settings.sh \
-      && flake8
+      && flake8 \
+      && flake8 --config=zds/settings/.flake8 zds/settings
     fi
 
   - |
@@ -145,7 +146,7 @@ script:
       coverage run --source='.' manage.py \
         test \
         --keepdb \
-        --settings zds.settings_test_travis \
+        --settings zds.settings.ci_test \
         --exclude-tag=front \
         ${ZDS_TEST_JOB/front/}
     fi
@@ -157,7 +158,7 @@ script:
       python manage.py \
         test \
         --keepdb \
-        --settings zds.settings_test_travis \
+        --settings zds.settings.ci_test \
         --tag=front
     fi
 
