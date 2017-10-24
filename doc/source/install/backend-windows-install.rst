@@ -41,7 +41,7 @@ Prérequis
 - Installez setuptools : Démarrez Powershell en mode administrateur et lancez la commande suivante : ``(Invoke-WebRequest https://bootstrap.pypa.io/ez_setup.py).Content | python -``
 - Décompressez l'archive ``setuptools-*XX.X.X*.zip``.
 - Avec la commande ``cd setuptools-XX.X.X``, ouvrez le répertoire possèdant *easy_install.py*.
-- Installez pip et tox : ``python easy_install.py pip tox``.
+- Installez pip : ``python easy_install.py pip``.
 - Vous devriez avoir un nouveau répertoire ``C:\Python34\Scripts``, rajoutez le dans le *PATH, la variable d'environnement*.
 - Réinstallez easyinstall : ``python easy_install.py easyinstall``, ça vous permettra de l'utiliser partout, (supprimez l'ancien package).
 - Redémarrez Powershell (pour recharger *la variable d'environnement PATH*).

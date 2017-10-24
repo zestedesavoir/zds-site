@@ -1,0 +1,18 @@
+[flake8]
+
+max-line-length = 120
+
+exclude =
+    node_modules,
+    .venv,
+    build,
+    dist,
+    doc,
+    migrations,
+    settings_prod.py,
+    settings_test.py,
+    settings_test_local.py,
+    settings_test_travis.py
+
+# Ignore N802 (functions in lowercase) because the setUp() function in tests
+ignore = N802
