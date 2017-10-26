@@ -50,7 +50,8 @@
 {% endspaceless %}{% endblock %}
 
 
-{% block extra_link %}
+{% block head_extra %}
+    {{ block.super }}
     {% if content.converted_to.get_absolute_url_online %}
         <link rel="canonical" href="{{ content.converted_to.get_absolute_url_online }}" />
     {% endif %}
