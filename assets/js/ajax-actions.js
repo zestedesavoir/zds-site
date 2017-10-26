@@ -77,7 +77,7 @@
                 synchText();
             },
             complete: function(){
-              $email.prop("disabled", false);
+                $email.prop("disabled", false);
             }
         });
 
@@ -131,7 +131,7 @@
                 synchText();
             },
             complete: function(){
-              $follow.prop("disabled", false);
+                $follow.prop("disabled", false);
             }
         });
         e.stopPropagation();
@@ -246,11 +246,11 @@
         var $form = $btn.parents("form:first");
         var text = "";
         if ( $form.find(".preview-source").length ) {
-                var $textSource = $btn.parent().prev().find(".preview-source");
-                text = $textSource.val();
-            } else {
-                text = $form.find("textarea[name=text]").val();
-            }
+            var $textSource = $btn.parent().prev().find(".preview-source");
+            text = $textSource.val();
+        } else {
+            text = $form.find("textarea[name=text]").val();
+        }
 
         var csrfmiddlewaretoken = $form.find("input[name=csrfmiddlewaretoken]").val(),
             lastPost = $form.find("input[name=last_post]").val();
@@ -273,8 +273,10 @@
                     $(data).insertAfter($btn);
 
                 /* global MathJax */
-                if (data.indexOf("$") > 0)
+                // MathJax may be unavailable on some pages.
+                if (window.MathJax && data.indexOf("$") > 0) {
                     MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+                }
             }
         });
     });

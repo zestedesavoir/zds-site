@@ -123,7 +123,8 @@
     <link rel="alternate" type="application/atom+xml" title="Nouveaux billets (ATOM)" href="{% url "opinion:feed-atom" %}">
     {# OpenSearch plugin autodiscovery #}
     <link rel="search" type="application/opensearchdescription+xml" title="{{ app.site.literal_name }}" href="{% url "search:opensearch" %}">
-    {% block extra_link %}{% endblock %}
+
+    {% block head_extra %}{% endblock %}
 </head>
 
 {% if not user.is_authenticated or user.profile.allow_temp_visual_changes %}
@@ -702,23 +703,6 @@
 
 
 
-    {# MathJax #}
-    <script type="text/x-mathjax-config">
-        MathJax.Hub.Config({
-            tex2jax: {
-                inlineMath: [['$', '$']],
-                displayMath: [['$$','$$']],
-                processEscapes: true,
-                processClass: "message-content|article-content",
-                ignoreClass: "page-container"
-            },
-            TeX: { extensions: ["color.js", "cancel.js", "enclose.js", "bbox.js", "mathchoice.js", "newcommand.js", "verb.js", "unicode.js", "autobold.js", "mhchem.js"] },
-            messageStyle: "none",
-        });
-    </script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"
-        integrity="sha384-Ra6zh6uYMmH5ydwCqqMoykyf1T/+ZcnOQfFPhDrp2kI4OIxadnhsvvA2vv9A7xYv"
-        crossorigin="anonymous">
-    </script>
+    {% include "mathjax_config.html" %}
 </body>
 </html>

@@ -7,6 +7,14 @@
 {% load remove_url_scheme %}
 
 
+
+{% block head_extra %}
+    {{ block.super }}
+    {% include "mathjax.html" %}
+{% endblock %}
+
+
+
 {% block title_base %}
     &bull; {% trans "Forum" %}
 {% endblock %}
