@@ -12,12 +12,15 @@ Modèles (``models/``)
 Modèles de la base de donnée (``models_database.py``)
 -----------------------------------------------------
 
+.. autoclasstree:: zds.tutorialv2.models.models_database zds.tutorialv2.models
 .. automodule:: zds.tutorialv2.models.models_database
     :members:
 
 
 Modèles "versionnés" (``models_versioned.py``)
 ----------------------------------------------
+
+.. autoclasstree:: zds.tutorialv2.models.models_versioned zds.tutorialv2.models
 
 .. automodule:: zds.tutorialv2.models.models_versioned
     :members:
