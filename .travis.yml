@@ -119,8 +119,11 @@ install:
 
   - |
     # install backend dependencies
-    if [[ "$ZDS_TEST_JOB" == *"zds."* ]] || [[ "$ZDS_TEST_JOB" == *"selenium"* ]] || [[ "$ZDS_TEST_JOB" == *"doc"* ]]; then
-      pip install -q -r requirements-dev.txt -r requirements-prod.txt
+    if [[ "$ZDS_TEST_JOB" == *"zds."* ]] || [[ "$ZDS_TEST_JOB" == *"selenium"* ]]; then
+      pip install -q .[test]
+    fi
+    if [[ "$ZDS_TEST_JOB" == *"doc"* ]]; then
+      pip install -e .[doc] # use of -e because it's easier to create doc
     fi
 
 

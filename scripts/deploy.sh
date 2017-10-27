@@ -75,7 +75,7 @@ git checkout -b $1
 
 # Update application data
 source $ENV_PATH/bin/activate
-pip install --upgrade -r requirements-prod.txt
+pip install --upgrade .[prod]
 python manage.py migrate
 python manage.py compilemessages
 

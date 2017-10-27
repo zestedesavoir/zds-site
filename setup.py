@@ -44,5 +44,11 @@ setup(
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
     ],
     install_requires=pkgs,
+    extras_require={
+        'doc': ['Sphinx==1.6.5', 'sphinxcontrib-mermaid==0.3', 'sphinx_rtd_theme==0.2.4'],
+        'dev': ['coverage==4.4.1', 'PyYAML==3.12', 'django-debug-toolbar==1.8', 'flake8==3.4.1',
+                'flake8_quotes==0.11.0', 'autopep8==1.3.2', 'selenium==3.6.0', 'faker==0.8.3', 'mock==2.0.0'],
+        'prod': ['gunicorn==19.7.1', 'mysqlclient==1.3.7', 'raven==6.2.1', 'ujson==1.35']
+    },
     tests_require=[str(pkg.req) for pkg in parse_requirements('requirements-dev.txt', session=session)],
 )
