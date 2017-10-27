@@ -20,7 +20,7 @@ from zds.tutorialv2.publish_container import publish_container
 from zds.tutorialv2.signals import content_unpublished
 from zds.tutorialv2.utils import retrieve_and_update_images_links
 from zds.utils.templatetags.emarkdown import render_markdown, MD_PARSING_ERROR
-from zds.utils.templatetags.smileys_def import SMILEYS_BASE_PATH
+from zds.utils.templatetags.smileys_def import SMILEYS_BASE_PATH, LICENSES_BASE_PATH
 
 logger = logging.getLogger(__name__)
 
@@ -330,6 +330,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
             title=title,
             authors=authors,
             license=licence,
+            licenseDirectory=LICENSES_BASE_PATH,
             smileysDirectory=smileys_directory,
             toc=toc
         )
