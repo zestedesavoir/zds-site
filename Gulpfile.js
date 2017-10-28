@@ -51,7 +51,6 @@ gulp.task('js', () =>
         require.resolve('codemirror'),
         require.resolve('codemirror/addon/merge/merge'),
         // Used by other scripts, must be first
-        //'../node_modules/codemirror/addon/merge/merge.js',
         'assets/js/modal.js',
         'assets/js/tooltips.js',
 

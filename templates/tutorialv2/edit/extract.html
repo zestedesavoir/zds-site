@@ -2,6 +2,9 @@
 {% load crispy_forms_tags %}
 {% load i18n %}
 
+{% block extra_js %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/diff_match_patch/20121119/diff_match_patch.js"></script>
+{% endblock %}
 
 {% block title %}
     {% trans "Éditer la section" %}

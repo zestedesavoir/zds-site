@@ -179,9 +179,9 @@ class ContainerForm(FormWithTitle):
                 old_intro = ''
 
             self.helper.layout.append(Layout(Field('introduction', css_class='hidden')))
-            self.helper.layout.append(Layout(HTML('<div id = "your_introduction" class = "hidden" >' +
-                                                  old_intro + '</div>')))
-            self.helper.layout.append(Layout(HTML('<div id = "compare" class = "compare-introduction"></div>')))
+            self.helper.layout.append(Layout(HTML('<div id="your_introduction" class="hidden">{}</div>'
+						  .format(old_intro))))
+            self.helper.layout.append(Layout(HTML('<div id="compare" class="compare-introduction"></div>')))
 
             self.helper.layout.append(Layout(
                 ButtonHolder(StrictButton(_(u'Valider cette version'), type='merge', name='merge',
@@ -192,9 +192,9 @@ class ContainerForm(FormWithTitle):
                 old_conclusion = ''
 
             self.helper.layout.append(Layout(Field('conclusion', css_class='hidden')))
-            self.helper.layout.append(Layout(HTML('<div id = "your_conclusion" class = "hidden" >' + old_conclusion +
-                                                  '</div>')))
-            self.helper.layout.append(Layout(HTML('<div id = "compare" class="compare-conclusion"></div>')))
+            self.helper.layout.append(Layout(HTML('<div id="your_conclusion" class="hidden">{}</div>'
+						  .format(old_conclusion))))
+            self.helper.layout.append(Layout(HTML('<div id="compare" class="compare-conclusion"></div>')))
 
             self.helper.layout.append(Layout(
                 ButtonHolder(StrictButton(_(u'Valider cette version'), type='merge', name='merge',
