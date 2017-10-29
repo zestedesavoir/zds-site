@@ -1,12 +1,25 @@
 # coding: utf-8
+import os
+import shutil
+from copy import deepcopy
+from datetime import datetime, date
 from django.core.urlresolvers import reverse
-
+from django.conf import settings
 from django.test import TestCase
+from django.test.utils import override_settings
+from django.utils.translation import ugettext as _
 
 from zds.member.factories import StaffProfileFactory, ProfileFactory
 from zds.featured.factories import FeaturedResourceFactory
 from zds.featured.models import FeaturedResource, FeaturedMessage
-from datetime import datetime, date
+from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory
+from zds.gallery.factories import GalleryFactory, ImageFactory
+from zds.tutorialv2.factories import PublishedContentFactory
+
+
+overridden_zds_app = deepcopy(settings.ZDS_APP)
+overridden_zds_app['content']['repo_private_path'] = os.path.join(settings.BASE_DIR, 'contents-private-test')
+overridden_zds_app['content']['repo_public_path'] = os.path.join(settings.BASE_DIR, 'contents-public-test')
 
 
 stringof2001chars = 'http://url.com/'
@@ -46,7 +59,14 @@ class FeaturedResourceListViewTest(TestCase):
         self.assertEqual(403, response.status_code)
 
 
+@override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'media-test'))
+@override_settings(ZDS_APP=overridden_zds_app)
+@override_settings(ES_ENABLED=False)
 class FeaturedResourceCreateViewTest(TestCase):
+    def setUp(self):
+        # don't build PDF to speed up the tests
+        overridden_zds_app['content']['build_pdf_when_published'] = False
+
     def test_success_create_featured(self):
         staff = StaffProfileFactory()
         login_check = self.client.login(
@@ -146,6 +166,68 @@ class FeaturedResourceCreateViewTest(TestCase):
 
         self.assertEqual(200, response.status_code)
         self.assertEqual(0, FeaturedResource.objects.all().count())
+
+    def test_success_initial_content(self):
+        author = ProfileFactory().user
+        author2 = ProfileFactory().user
+        tutorial = PublishedContentFactory(author_list=[author, author2])
+        gallery = GalleryFactory()
+        image = ImageFactory(gallery=gallery)
+        tutorial.image = image
+        tutorial.save()
+        staff = StaffProfileFactory()
+        login_check = self.client.login(
+            username=staff.user.username,
+            password='hostel77'
+        )
+        self.assertTrue(login_check)
+        response = self.client.get('{}{}'.format(reverse('featured-resource-create'),
+                                                 '?content_type=published_content&content_id=1'))
+        initial_dict = response.context['form'].initial
+        self.assertEqual(initial_dict['title'], tutorial.title)
+        self.assertEqual(initial_dict['authors'], 'firm1, firm2')
+        self.assertEqual(initial_dict['type'], _('Un tutoriel'))
+        self.assertEqual(initial_dict['url'], 'http://testserver/tutoriels/1/mon-contenu-no0/')
+        self.assertEqual(initial_dict['image_url'], image.physical.url)
+
+    def test_success_initial_content_topic(self):
+        author = ProfileFactory().user
+        category = CategoryFactory(position=1)
+        forum = ForumFactory(category=category, position_in_category=1)
+        topic = TopicFactory(forum=forum, author=author)
+        staff = StaffProfileFactory()
+        login_check = self.client.login(
+            username=staff.user.username,
+            password='hostel77')
+        self.assertTrue(login_check)
+        response = self.client.get('{}{}'.format(reverse('featured-resource-create'),
+                                                 '?content_type=topic&content_id=1'))
+        initial_dict = response.context['form'].initial
+        self.assertEqual(initial_dict['title'], topic.title)
+        self.assertEqual(initial_dict['authors'], 'firm3')
+        self.assertEqual(initial_dict['type'], _('Un sujet'))
+        self.assertEqual(initial_dict['url'], 'http://testserver/forums/sujet/1/mon-sujet-no0/')
+
+    def test_failure_initial_content_not_found(self):
+        staff = StaffProfileFactory()
+        login_check = self.client.login(
+            username=staff.user.username,
+            password='hostel77'
+        )
+        self.assertTrue(login_check)
+
+        response = self.client.get('{}{}'.format(reverse('featured-resource-create'),
+                                         '?content_type=published_content&content_id=42'))
+        self.assertContains(response, _(u'Le contenu est introuvable'))
+
+    def tearDown(self):
+
+        if os.path.isdir(overridden_zds_app['content']['repo_private_path']):
+            shutil.rmtree(overridden_zds_app['content']['repo_private_path'])
+        if os.path.isdir(overridden_zds_app['content']['repo_public_path']):
+            shutil.rmtree(overridden_zds_app['content']['repo_public_path'])
+        if os.path.isdir(settings.MEDIA_ROOT):
+            shutil.rmtree(settings.MEDIA_ROOT)
 
 
 class FeaturedResourceUpdateViewTest(TestCase):

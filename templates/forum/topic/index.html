@@ -6,7 +6,7 @@
 {% load crispy_forms_tags %}
 {% load i18n %}
 {% load interventions %}
-
+{% load append_query_params %}
 
 {% block title %}
     {% if topic.is_solved %}[{% trans "Résolu" %}]{% endif %} {{ topic.title }}
@@ -359,7 +359,14 @@
                     <a href="#move-topic" class="ico-after arrow-right blue open-modal">{% trans "Déplacer le sujet" %}</a>
                     {% crispy form_move %}
                 </li>
-            </ul>
+                {% if perms.featured.change_featuredresource %}
+                    <li>
+                        <a href="{% url "featured-resource-create" %}?content_type=topic&content_id={{ topic.pk }}" class="ico-after star blue">
+                        {% trans "Ajouter en une" %}
+                        </a>
+                    </li>
+                {% endif %}
+	    </ul>
         </div>
     {% endif %}
 {% endblock %}

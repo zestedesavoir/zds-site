@@ -14,8 +14,9 @@ from django.views.generic.list import MultipleObjectMixin
 from django.conf import settings
 from zds.featured.forms import FeaturedResourceForm, FeaturedMessageForm
 from zds.featured.models import FeaturedResource, FeaturedMessage
+from zds.forum.models import Topic
+from zds.tutorialv2.models.models_database import PublishedContent
 from zds.utils.paginator import ZdSPagingListView
-
 
 class FeaturedResourceList(ZdSPagingListView):
     """
@@ -41,11 +42,60 @@ class FeaturedResourceCreate(CreateView):
     form_class = FeaturedResourceForm
     template_name = 'featured/resource/create.html'
     context_object_name = 'featured_resource'
+    get_initial_error_message = _(u'Le contenu est introuvable')
+    displayed_content_type = {'TUTORIAL': _('Un tutoriel'),
+                              'ARTICLE': _('Un article'),
+                              'OPINION': _('Un billet'),
+                              'TOPIC': _('Un sujet')}
 
     @method_decorator(login_required)
     @method_decorator(permission_required('featured.change_featuredresource', raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(FeaturedResourceCreate, self).dispatch(request, *args, **kwargs)
+
+    def get_inital_topic_data(self, topic_id):
+        content_data = None
+        try:
+            content = Topic.objects.get(id=topic_id)
+            content_data = {'title': content.title,
+                            'type': self.displayed_content_type['TOPIC'],
+                            'authors': content.author.__str__(),
+                            'url': self.request.build_absolute_uri(content.get_absolute_url())}
+        except Topic.DoesNotExist:
+            messages.error(self.request, self.get_initial_error_message)
+        return content_data
+
+    def get_inital_content_data(self, content_id):
+        content_data = None
+        try:
+            content = PublishedContent.objects.get(id=content_id)
+            displayed_authors = ', '.join([x.__str__() for x in content.authors.all()])
+            if content.content.image:
+                image_url = content.content.image.physical.url
+            else:
+                image_url = None
+            print(image_url)
+            content_data = {'title': content.title(),
+                            'type': self.displayed_content_type[content.content_type],
+                            'authors': displayed_authors,
+                            'url': self.request.build_absolute_uri(content.content.get_absolute_url_online()),
+                            'image_url': image_url}
+        except PublishedContent.DoesNotExist:
+            messages.error(self.request, self.get_initial_error_message)
+        return content_data or None
+
+    def get_initial(self):
+        initial = super(FeaturedResourceCreate, self).get_initial()
+        content_type = self.request.GET.get('content_type', None)
+        content_id = self.request.GET.get('content_id', None)
+        content_data = None
+        if content_type == 'topic' and content_id:
+            content_data = self.get_inital_topic_data(content_id)
+        elif content_type == 'published_content' and content_id:
+            content_data = self.get_inital_content_data(content_id)
+        if not initial and content_data:
+            initial.update(**content_data)
+        return initial
 
     def get_form_kwargs(self):
         kw = super(FeaturedResourceCreate, self).get_form_kwargs()
