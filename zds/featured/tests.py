@@ -217,7 +217,7 @@ class FeaturedResourceCreateViewTest(TestCase):
         self.assertTrue(login_check)
 
         response = self.client.get('{}{}'.format(reverse('featured-resource-create'),
-                                         '?content_type=published_content&content_id=42'))
+                                                 '?content_type=published_content&content_id=42'))
         self.assertContains(response, _(u'Le contenu est introuvable'))
 
     def tearDown(self):

@@ -18,6 +18,7 @@ from zds.forum.models import Topic
 from zds.tutorialv2.models.models_database import PublishedContent
 from zds.utils.paginator import ZdSPagingListView
 
+
 class FeaturedResourceList(ZdSPagingListView):
     """
     Displays the list of featured resources.
