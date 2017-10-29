@@ -74,7 +74,6 @@ class FeaturedResourceCreate(CreateView):
                 image_url = content.content.image.physical.url
             else:
                 image_url = None
-            print(image_url)
             content_data = {'title': content.title(),
                             'type': self.displayed_content_type[content.content_type],
                             'authors': displayed_authors,

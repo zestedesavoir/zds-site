@@ -204,7 +204,7 @@ class FeaturedResourceCreateViewTest(TestCase):
                                                  '?content_type=topic&content_id=1'))
         initial_dict = response.context['form'].initial
         self.assertEqual(initial_dict['title'], topic.title)
-        self.assertEqual(initial_dict['authors'], 'firm3')
+        self.assertEqual(initial_dict['authors'], author.__str__())
         self.assertEqual(initial_dict['type'], _('Un sujet'))
         self.assertEqual(initial_dict['url'], 'http://testserver/forums/sujet/1/mon-sujet-no0/')
 
