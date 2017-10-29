@@ -185,7 +185,7 @@ class FeaturedResourceCreateViewTest(TestCase):
                                                  '?content_type=published_content&content_id=1'))
         initial_dict = response.context['form'].initial
         self.assertEqual(initial_dict['title'], tutorial.title)
-        self.assertEqual(initial_dict['authors'], 'firm1, firm2')
+        self.assertEqual(initial_dict['authors'], '{}, {}'.format(author.__str__(), author2.__str__()))
         self.assertEqual(initial_dict['type'], _('Un tutoriel'))
         self.assertEqual(initial_dict['url'], 'http://testserver/tutoriels/1/mon-contenu-no0/')
         self.assertEqual(initial_dict['image_url'], image.physical.url)
