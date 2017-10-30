@@ -8,10 +8,10 @@ from django.utils.translation import ugettext_lazy as _
 
 from zds.forum.models import Post, is_read as topic_is_read
 from zds.mp.models import PrivateTopic
-from zds.tutorialv2.models.models_database import Validation
+from zds.tutorialv2.models.database import Validation
 from zds.notification.models import Notification, TopicAnswerSubscription, ContentReactionAnswerSubscription, \
     NewTopicSubscription, NewPublicationSubscription
-from zds.tutorialv2.models.models_database import ContentReaction, PublishableContent
+from zds.tutorialv2.models.database import ContentReaction, PublishableContent
 from zds.utils import get_current_user
 from zds.utils.models import Alert, HatRequest
 from django.conf import settings

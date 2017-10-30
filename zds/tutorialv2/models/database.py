@@ -645,7 +645,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
     def load_public_version_or_404(self):
         """
         :return: the public content
-        :rtype: zds.tutorialv2.models.models_database.PublicContent
+        :rtype: zds.tutorialv2.models.database.PublicContent
         :raise Http404: if the version is not available
         """
         with ignore(AttributeError):
@@ -656,7 +656,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
 
     def load_public_version(self):
         """
-        :rtype: zds.tutorialv2.models.models_database.PublicContent
+        :rtype: zds.tutorialv2.models.database.PublicContent
         :return: the public content
         """
         with ignore(AttributeError):

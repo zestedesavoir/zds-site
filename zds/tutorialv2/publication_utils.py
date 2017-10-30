@@ -15,7 +15,7 @@ from django.template.loader import render_to_string
 from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
 
-from zds.tutorialv2.models.models_database import ContentReaction
+from zds.tutorialv2.models.database import ContentReaction
 from zds.tutorialv2.signals import content_unpublished
 from zds.tutorialv2.utils import retrieve_and_update_images_links
 from zds.utils.templatetags.emarkdown import emarkdown
@@ -37,10 +37,10 @@ def publish_content(db_object, versioned, is_major_update=True):
     :type is_major_update: bool
     :raise FailureDuringPublication: if something goes wrong
     :return: the published representation
-    :rtype: zds.tutorialv2.models.models_database.PublishedContent
+    :rtype: zds.tutorialv2.models.database.PublishedContent
     """
 
-    from zds.tutorialv2.models.models_database import PublishedContent
+    from zds.tutorialv2.models.database import PublishedContent
 
     if is_major_update:
         versioned.pubdate = datetime.now()
@@ -426,7 +426,7 @@ def unpublish_content(db_object, moderator=None):
     :rtype: bool
     """
 
-    from zds.tutorialv2.models.models_database import PublishedContent
+    from zds.tutorialv2.models.database import PublishedContent
 
     try:
         public_version = PublishedContent.objects.get(pk=db_object.public_version.pk)

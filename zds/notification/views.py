@@ -13,7 +13,7 @@ from zds.mp.models import PrivateTopic
 from zds.notification.models import Notification
 from zds.utils.paginator import ZdSPagingListView
 from zds.forum.models import Post
-from zds.tutorialv2.models.models_database import ContentReaction
+from zds.tutorialv2.models.database import ContentReaction
 from zds.forum.models import mark_read as mark_topic_read
 from zds.tutorialv2.utils import mark_read as mark_content_read
 

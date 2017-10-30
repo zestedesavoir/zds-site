@@ -22,7 +22,7 @@ from zds.member.models import Profile, KarmaNote, TokenForgotPassword
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.member.models import TokenRegister, Ban, NewEmailProvider, BannedEmailProvider
 from zds.tutorialv2.factories import PublishableContentFactory, PublishedContentFactory, BetaContentFactory
-from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent
+from zds.tutorialv2.models.database import PublishableContent, PublishedContent
 from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory, PostFactory
 from zds.forum.models import Topic, Post
 from zds.gallery.factories import GalleryFactory, UserGalleryFactory

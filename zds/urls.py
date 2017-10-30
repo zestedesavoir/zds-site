@@ -9,7 +9,7 @@ from django.core.urlresolvers import get_resolver, reverse
 
 from zds.forum.models import Category, Forum, Topic, Tag
 from zds.pages.views import home as home_view
-from zds.tutorialv2.models.models_database import PublishedContent
+from zds.tutorialv2.models.database import PublishedContent
 
 from django.conf import settings
 

@@ -6,7 +6,7 @@ from zds.member.models import Profile
 from zds.mp.models import PrivateTopicRead, PrivateTopic
 from zds.notification.models import TopicFollowed, TopicAnswerSubscription, ContentReactionAnswerSubscription, \
     PrivateTopicAnswerSubscription
-from zds.tutorialv2.models.models_database import ContentReaction, ContentRead, PublishableContent
+from zds.tutorialv2.models.database import ContentReaction, ContentRead, PublishableContent
 
 
 class Command(BaseCommand):

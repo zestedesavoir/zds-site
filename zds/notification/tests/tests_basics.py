@@ -19,7 +19,7 @@ from zds.notification.models import Notification, TopicAnswerSubscription, Conte
     PrivateTopicAnswerSubscription, NewTopicSubscription, NewPublicationSubscription
 from zds.tutorialv2.factories import PublishableContentFactory, LicenceFactory, ContentReactionFactory, \
     SubCategoryFactory, PublishedContentFactory
-from zds.tutorialv2.models.models_database import ContentReaction, PublishableContent
+from zds.tutorialv2.models.database import ContentReaction, PublishableContent
 from zds.tutorialv2.publication_utils import publish_content
 from zds.utils import slugify
 from zds.utils.mps import send_mp, send_message_mp

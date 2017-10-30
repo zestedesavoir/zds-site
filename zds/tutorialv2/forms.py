@@ -12,7 +12,7 @@ from zds.utils.forms import CommonLayoutModalText, CommonLayoutEditor, CommonLay
 from zds.utils.models import SubCategory, Licence
 from zds.tutorialv2.models import TYPE_CHOICES
 from zds.utils.models import HelpWriting
-from zds.tutorialv2.models.models_database import PublishableContent
+from zds.tutorialv2.models.database import PublishableContent
 from django.utils.translation import ugettext_lazy as _
 from zds.member.models import Profile
 from zds.tutorialv2.utils import slugify_raise_on_invalid, InvalidSlugError
@@ -498,9 +498,9 @@ class NoteForm(forms.Form):
     def __init__(self, content, reaction, *args, **kwargs):
         """initialize the form, handle antispam GUI
         :param content: the parent content
-        :type content: zds.tutorialv2.models.models_database.PublishableContent
+        :type content: zds.tutorialv2.models.database.PublishableContent
         :param reaction: the initial reaction if we edit, ``Ǹone```otherwise
-        :type reaction: zds.tutorialv2.models.models_database.ContentReaction
+        :type reaction: zds.tutorialv2.models.database.ContentReaction
         :param args:
         :param kwargs:
         """
@@ -610,7 +610,7 @@ class AskValidationForm(forms.Form):
         """
 
         :param content: the parent content
-        :type content: zds.tutorialv2.models.models_database.PublishableContent
+        :type content: zds.tutorialv2.models.database.PublishableContent
         :param args:
         :param kwargs:
         :return:
@@ -690,7 +690,7 @@ class AcceptValidationForm(forms.Form):
         """
 
         :param validation: the linked validation request object
-        :type validation: zds.tutorialv2.models.models_database.Validation
+        :type validation: zds.tutorialv2.models.database.Validation
         :param args:
         :param kwargs:
         :return:
@@ -818,7 +818,7 @@ class RejectValidationForm(forms.Form):
         """
 
         :param validation: the linked validation request object
-        :type validation: zds.tutorialv2.models.models_database.Validation
+        :type validation: zds.tutorialv2.models.database.Validation
         :param args:
         :param kwargs:
         :return:
