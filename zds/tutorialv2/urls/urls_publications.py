@@ -2,7 +2,7 @@
 
 from django.conf.urls import url
 
-from zds.tutorialv2.views.views_published import ViewPublications
+from zds.tutorialv2.views.published import ViewPublications
 from zds.tutorialv2.feeds import LastContentFeedRSS, LastContentFeedATOM
 
 urlpatterns = [

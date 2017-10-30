@@ -9,7 +9,7 @@ from zds.tutorialv2.views.contents import DisplayContent, CreateContent, EditCon
     DownloadContent, UpdateContentWithArchive, CreateContentFromArchive, ContentsWithHelps, AddAuthorToContent, \
     RemoveAuthorFromContent, WarnTypo, DisplayBetaContent, DisplayBetaContainer, ContentOfAuthor
 
-from zds.tutorialv2.views.views_published import SendNoteFormView, UpdateNoteView, \
+from zds.tutorialv2.views.published import SendNoteFormView, UpdateNoteView, \
     HideReaction, ShowReaction, SendNoteAlert, SolveNoteAlert, TagsListView, \
     FollowContentReaction, FollowNewContent, SendContentAlert, SolveContentAlert
 

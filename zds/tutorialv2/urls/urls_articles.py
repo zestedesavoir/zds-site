@@ -3,7 +3,7 @@
 from django.conf.urls import url
 from django.views.generic.base import RedirectView
 
-from zds.tutorialv2.views.views_published import DisplayOnlineArticle, DownloadOnlineArticle, \
+from zds.tutorialv2.views.published import DisplayOnlineArticle, DownloadOnlineArticle, \
     TagsListView
 from zds.tutorialv2.feeds import LastArticlesFeedRSS, LastArticlesFeedATOM
 
