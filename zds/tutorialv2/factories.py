@@ -6,7 +6,7 @@ import factory
 from zds.forum.factories import PostFactory, TopicFactory
 
 from zds.tutorialv2.models.database import PublishableContent, Validation, ContentReaction
-from zds.tutorialv2.models.models_versioned import Container, Extract
+from zds.tutorialv2.models.versioned import Container, Extract
 from zds.utils.models import SubCategory, Licence, CategorySubCategory
 from zds.gallery.factories import GalleryFactory, UserGalleryFactory
 from zds.tutorialv2.utils import init_new_repo

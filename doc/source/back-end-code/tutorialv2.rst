@@ -16,10 +16,10 @@ Modèles de la base de donnée (``database.py``)
     :members:
 
 
-Modèles "versionnés" (``models_versioned.py``)
+Modèles "versionnés" (``versioned.py``)
 ----------------------------------------------
 
-.. automodule:: zds.tutorialv2.models.models_versioned
+.. automodule:: zds.tutorialv2.models.versioned
     :members:
 
 Les managers (``managers.py``)
@@ -80,4 +80,3 @@ Les receveurs d'évènement bdd (``receivers.py``)
 
 .. automodule:: zds.tutorialv2.receivers
     :members:
-
