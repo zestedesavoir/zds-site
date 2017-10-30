@@ -2,7 +2,7 @@
 
 from django.conf.urls import url
 
-from zds.tutorialv2.views.views_validations import AskValidationForContent, ReserveValidation, \
+from zds.tutorialv2.views.validations import AskValidationForContent, ReserveValidation, \
     ValidationHistoryView, AcceptValidation, RejectValidation, RevokeValidation, CancelValidation, \
     ValidationListView, PublishOpinion, UnpublishOpinion, PickOpinion, PromoteOpinionToArticle, \
     ValidationOpinionListView, UnpickOpinion, MarkObsolete, DoNotPickOpinion, RevokePickOperation

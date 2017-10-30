@@ -408,7 +408,7 @@ def make_zip_file(published_content):
                         published_content.content_public_slug + '.zip')
     zip_file = zipfile.ZipFile(path, 'w')
     versioned = publishable.load_version(None, True)
-    from zds.tutorialv2.views.views_contents import DownloadContent
+    from zds.tutorialv2.views.contents import DownloadContent
     DownloadContent.insert_into_zip(zip_file, versioned.repository.commit(versioned.current_version).tree)
     zip_file.close()
 
