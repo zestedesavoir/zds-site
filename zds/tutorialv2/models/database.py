@@ -39,7 +39,7 @@ from zds.forum.models import Topic
 from zds.gallery.models import Image, Gallery, UserGallery, GALLERY_WRITE
 from zds.tutorialv2.managers import PublishedContentManager, PublishableContentManager
 from zds.tutorialv2.models import TYPE_CHOICES, STATUS_CHOICES, CONTENT_TYPES_VALIDATION_BEFORE, PICK_OPERATIONS
-from zds.tutorialv2.models.models_versioned import NotAPublicVersion
+from zds.tutorialv2.models.versioned import NotAPublicVersion
 from zds.tutorialv2.utils import get_content_from_json, BadManifestError
 from zds.utils import get_current_user
 from zds.utils.models import SubCategory, Licence, HelpWriting, Comment, Tag
@@ -313,7 +313,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         :type public: PublishedContent
         :raise Http404: if sha is not None and related version could not be found
         :return: the versioned content
-        :rtype: zds.tutorialv2.models.models_versioned.ViersionedContent
+        :rtype: zds.tutorialv2.models.versioned.ViersionedContent
         """
         try:
             return self.load_version(sha, public)
@@ -337,7 +337,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         :raise OSError: if the path to the repository is wrong
         :raise NotAPublicVersion: if the sha does not correspond to a public version
         :return: the versioned content
-        :rtype: zds.tutorialv2.models.models_versioned.VersionedContent
+        :rtype: zds.tutorialv2.models.versioned.VersionedContent
         """
 
         # load the good manifest.json

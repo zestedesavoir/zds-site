@@ -1,4 +1,4 @@
-from zds.tutorialv2.models.models_versioned import Extract, VersionedContent, Container
+from zds.tutorialv2.models.versioned import Extract, VersionedContent, Container
 from django.core.management.base import BaseCommand
 from zds.utils.models import Licence
 from uuslug import slugify

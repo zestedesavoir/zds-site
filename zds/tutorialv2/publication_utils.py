@@ -321,7 +321,7 @@ def publish_container(db_object, base_dir, container):
     :raise FailureDuringPublication: if anything goes wrong
     """
 
-    from zds.tutorialv2.models.models_versioned import Container
+    from zds.tutorialv2.models.versioned import Container
 
     if not isinstance(container, Container):
         raise FailureDuringPublication(_("Le conteneur n'en est pas un !"))

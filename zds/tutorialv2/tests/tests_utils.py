@@ -14,7 +14,7 @@ from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, LicenceFactory, ExtractFactory, \
     PublishedContentFactory
 from zds.gallery.factories import UserGalleryFactory
-from zds.tutorialv2.models.models_versioned import Container
+from zds.tutorialv2.models.versioned import Container
 from zds.tutorialv2.utils import get_target_tagged_tree_for_container, \
     get_target_tagged_tree_for_extract, retrieve_and_update_images_links, last_participation_is_old, \
     InvalidSlugError, BadManifestError, get_content_from_json, get_commit_author, slugify_raise_on_invalid, check_slug

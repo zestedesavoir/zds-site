@@ -42,7 +42,7 @@ from zds.tutorialv2.mixins import SingleContentDetailViewMixin, SingleContentFor
     SingleContentDownloadViewMixin, SingleContentPostMixin, FormWithPreview
 from zds.tutorialv2.models import TYPE_CHOICES_DICT
 from zds.tutorialv2.models.database import PublishableContent, Validation
-from zds.tutorialv2.models.models_versioned import Container, Extract
+from zds.tutorialv2.models.versioned import Container, Extract
 from zds.tutorialv2.utils import search_container_or_404, get_target_tagged_tree, search_extract_or_404, \
     try_adopt_new_child, TooDeepContainerError, BadManifestError, get_content_from_json, init_new_repo, \
     default_slug_pool, BadArchiveError, InvalidSlugError
