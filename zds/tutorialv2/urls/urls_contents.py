@@ -3,7 +3,7 @@
 from django.conf.urls import url
 from django.views.generic.base import RedirectView
 
-from zds.tutorialv2.views.views_contents import DisplayContent, CreateContent, EditContent, \
+from zds.tutorialv2.views.contents import DisplayContent, CreateContent, EditContent, \
     DeleteContent, CreateContainer, DisplayContainer, EditContainer, CreateExtract, EditExtract, \
     DeleteContainerOrExtract, ManageBetaContent, DisplayHistory, DisplayDiff, ActivateJSFiddleInContent, MoveChild, \
     DownloadContent, UpdateContentWithArchive, CreateContentFromArchive, ContentsWithHelps, AddAuthorToContent, \

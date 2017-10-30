@@ -2,7 +2,7 @@
 
 from django.conf.urls import url
 from django.views.generic.base import RedirectView
-from zds.tutorialv2.views.views_contents import RedirectOldBetaTuto
+from zds.tutorialv2.views.contents import RedirectOldBetaTuto
 
 from zds.tutorialv2.views.views_published import DisplayOnlineTutorial, DisplayOnlineContainer, \
     DownloadOnlineTutorial, RedirectContentSEO, TagsListView
