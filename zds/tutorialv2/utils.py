@@ -119,14 +119,14 @@ def never_read(content, user=None):
     """Check if a content note feed has been read by a user since its last post was added.
 
     :param content: the content to check
-    :type content: zds.tutorialv2.models.models_database.PublishableContent
+    :type content: zds.tutorialv2.models.database.PublishableContent
     :param user: the user to test, if None, gets the current request user
     :type user: zds.member.models.User
     :return: ``True`` if the user never read this content's reactions, ``False`` otherwise
     :rtype: bool
     """
 
-    from zds.tutorialv2.models.models_database import ContentRead
+    from zds.tutorialv2.models.database import ContentRead
 
     if not user:
         user = get_current_user()
@@ -141,7 +141,7 @@ def never_read(content, user=None):
 
 
 def last_participation_is_old(content, user):
-    from zds.tutorialv2.models.models_database import ContentRead, ContentReaction
+    from zds.tutorialv2.models.database import ContentRead, ContentReaction
     if user is None or not user.is_authenticated():
         return False
     if ContentReaction.objects.filter(author__pk=user.pk, related_content__pk=content.pk).count() == 0:
@@ -158,8 +158,8 @@ def mark_read(content, user=None):
     :param user: user that read the content, if ``None`` will use currrent user
     """
 
-    from zds.tutorialv2.models.models_database import ContentRead
-    from zds.tutorialv2.models.models_database import ContentReaction
+    from zds.tutorialv2.models.database import ContentRead
+    from zds.tutorialv2.models.database import ContentReaction
 
     if not user:
         user = get_current_user()
@@ -492,7 +492,7 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
     :param public: the function will fill a PublicContent instead of a VersionedContent if `True`
     :param hint_licence: avoid loading the licence if it is already the same as the one loaded
     :return: a Public/VersionedContent with all the information retrieved from JSON
-    :rtype: models.models_versioned.VersionedContent|models.models_database.PublishedContent
+    :rtype: zds.tutorialv2.models.models_versioned.VersionedContent|zds.tutorialv2.models.database.PublishedContent
     """
 
     from zds.tutorialv2.models.models_versioned import Container, Extract, VersionedContent, PublicContent

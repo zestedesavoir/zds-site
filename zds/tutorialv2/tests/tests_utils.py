@@ -19,7 +19,7 @@ from zds.tutorialv2.utils import get_target_tagged_tree_for_container, \
     get_target_tagged_tree_for_extract, retrieve_and_update_images_links, last_participation_is_old, \
     InvalidSlugError, BadManifestError, get_content_from_json, get_commit_author, slugify_raise_on_invalid, check_slug
 from zds.tutorialv2.publication_utils import publish_content, unpublish_content
-from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction, ContentRead
+from zds.tutorialv2.models.database import PublishableContent, PublishedContent, ContentReaction, ContentRead
 from django.core.management import call_command
 from zds.tutorialv2.publication_utils import Publicator, PublicatorRegistery
 from watchdog.events import FileCreatedEvent

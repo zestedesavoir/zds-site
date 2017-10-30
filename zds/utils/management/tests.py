@@ -13,7 +13,7 @@ from zds.forum.models import Forum, Topic, Category as FCategory
 from zds.utils.models import Tag, Category as TCategory, CategorySubCategory, SubCategory, \
     HelpWriting, Licence
 from zds.member.factories import ProfileFactory
-from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction, \
+from zds.tutorialv2.models.database import PublishableContent, PublishedContent, ContentReaction, \
     Validation as CValidation
 from zds.gallery.models import Gallery, UserGallery
 from zds.utils.management.commands.load_fixtures import Command as FixtureCommand

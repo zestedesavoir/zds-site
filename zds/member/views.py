@@ -42,7 +42,7 @@ from zds.member.models import Profile, TokenForgotPassword, TokenRegister, Karma
     BannedEmailProvider, NewEmailProvider, set_old_smileys_cookie, remove_old_smileys_cookie
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.notification.models import TopicAnswerSubscription, NewPublicationSubscription
-from zds.tutorialv2.models.models_database import PublishedContent, PickListOperation
+from zds.tutorialv2.models.database import PublishedContent, PickListOperation
 from zds.utils.misc import contains_utf8mb4
 from zds.utils.models import Comment, CommentVote, Alert, CommentEdit, Hat, HatRequest, get_hat_from_settings
 from zds.utils.mps import send_mp
@@ -449,7 +449,7 @@ def unregister(request):
     anonymous = get_object_or_404(User, username=settings.ZDS_APP['member']['anonymous_account'])
     external = get_object_or_404(User, username=settings.ZDS_APP['member']['external_account'])
     current = request.user
-    # Nota : as of v21 all about content paternity is held by a proper receiver in zds.tutorialv2.models.models_database
+    # Nota : as of v21 all about content paternity is held by a proper receiver in zds.tutorialv2.models.database
     PickListOperation.objects.filter(staff_user=current).update(staff_user=anonymous)
     PickListOperation.objects.filter(canceler_user=current).update(canceler_user=anonymous)
     # Comments likes / dislikes

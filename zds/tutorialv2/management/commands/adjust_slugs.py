@@ -5,7 +5,7 @@ from uuslug import slugify
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
-from zds.tutorialv2.models.models_database import PublishableContent
+from zds.tutorialv2.models.database import PublishableContent
 
 
 class Command(BaseCommand):

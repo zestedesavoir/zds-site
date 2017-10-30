@@ -9,10 +9,10 @@ Module situé dans ``zds/tutorialv2/``.
 Modèles (``models/``)
 =====================
 
-Modèles de la base de donnée (``models_database.py``)
+Modèles de la base de donnée (``database.py``)
 -----------------------------------------------------
 
-.. automodule:: zds.tutorialv2.models.models_database
+.. automodule:: zds.tutorialv2.models.database
     :members:
 
 
