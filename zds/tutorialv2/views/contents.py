@@ -198,7 +198,7 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
         context['validation'] = validation
         context['formJs'] = form_js
 
-        if self.versioned_object.requires_validation_before:
+        if self.versioned_object.requires_validation:
             context['formPublication'] = PublicationForm(self.versioned_object, initial={'source': self.object.source})
         else:
             context['formPublication'] = None
@@ -345,7 +345,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
         publishable.add_tags(form.cleaned_data['tags'].split(','))
 
         # help can only be obtained on contents requiring validation before publication
-        if versioned.requires_validation_before():
+        if versioned.requires_validation():
             publishable.helps.clear()
             for help_ in form.cleaned_data['helps']:
                 publishable.helps.add(help_)
@@ -1619,7 +1619,7 @@ class ActivateJSFiddleInContent(LoginRequiredMixin, PermissionRequiredMixin, For
 
         content = get_object_or_404(PublishableContent, pk=form.cleaned_data['pk'])
         # forbidden for content without a validation before publication
-        if not content.load_version().requires_validation_before():
+        if not content.load_version().requires_validation():
             raise PermissionDenied
         content.update(js_support=form.cleaned_data['js_support'])
         return redirect(content.load_version().get_absolute_url())
