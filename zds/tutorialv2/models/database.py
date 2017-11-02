@@ -5,14 +5,7 @@ from django.db.models import CASCADE
 from datetime import datetime
 
 from zds.tutorialv2.models.mixins import TemplatableContentModelMixin, OnlineLinkableContentMixin
-
-try:
-    import ujson as json_reader
-except ImportError:
-    try:
-        import simplejson as json_reader
-    except:
-        import json as json_reader
+from zds import json_handler
 
 from math import ceil
 import shutil
@@ -358,7 +351,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
                 raise NotAPublicVersion
 
             with open(os.path.join(path, 'manifest.json'), 'r', encoding='utf-8') as manifest:
-                json = json_reader.loads(manifest.read())
+                json = json_handler.loads(manifest.read())
                 versioned = get_content_from_json(
                     json,
                     public.sha_public,
@@ -377,7 +370,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
             repo = Repo(path)
             data = get_blob(repo.commit(sha).tree, 'manifest.json')
             try:
-                json = json_reader.loads(data)
+                json = json_handler.loads(data)
             except ValueError:
                 raise BadManifestError(
                     _('Une erreur est survenue lors de la lecture du manifest.json, est-ce du JSON ?'))

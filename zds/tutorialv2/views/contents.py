@@ -1,6 +1,6 @@
 # coding: utf-8
 import logging
-import json as json_reader
+from zds import json_handler
 import os
 import re
 import shutil
@@ -535,7 +535,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
 
         # is the manifest ok ?
         try:
-            json_ = json_reader.loads(manifest)
+            json_ = json_handler.loads(manifest)
         except ValueError:
             raise BadArchiveError(
                 _('Une erreur est survenue durant la lecture du manifest, '
@@ -731,7 +731,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
             else:
 
                 # warn user if licence have changed:
-                manifest = json_reader.loads(str(zfile.read('manifest.json'), 'utf-8'))
+                manifest = json_handler.loads(str(zfile.read('manifest.json'), 'utf-8'))
                 if 'licence' not in manifest or manifest['licence'] != new_version.licence.code:
                     messages.info(
                         self.request, _('la licence « {} » a été appliquée.').format(new_version.licence.code))
@@ -842,7 +842,7 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
             else:
 
                 # warn user if licence have changed:
-                manifest = json_reader.loads(str(zfile.read('manifest.json'), 'utf-8'))
+                manifest = json_handler.loads(str(zfile.read('manifest.json'), 'utf-8'))
                 if 'licence' not in manifest or manifest['licence'] != new_content.licence.code:
                     messages.info(
                         self.request, _('la licence « {} » a été appliquée.'.format(new_content.licence.code)))

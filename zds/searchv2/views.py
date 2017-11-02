@@ -1,5 +1,5 @@
 # coding: utf-8
-import json
+from zds import json_handler
 import operator
 
 from elasticsearch_dsl import Search
@@ -68,7 +68,7 @@ class SimilarSubjectsView(CreateView, SingleObjectMixin):
                 results.append(result)
 
         data = {'results': results}
-        return HttpResponse(json.dumps(data), content_type='application/json')
+        return HttpResponse(json_handler.dumps(data), content_type='application/json')
 
 
 class SearchView(ZdSPagingListView):

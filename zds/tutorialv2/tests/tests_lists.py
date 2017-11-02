@@ -1,8 +1,6 @@
-# coding: utf-8
 from django.contrib.auth.models import Group
 
 import os
-import shutil
 import datetime
 from django.conf import settings
 from django.test import TestCase
@@ -12,6 +10,7 @@ from django.core.urlresolvers import reverse
 from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory, \
     SubCategoryFactory, PublishedContentFactory, ValidationFactory
+from zds.tutorialv2.tests import TutorialTestMixin
 from zds.gallery.factories import UserGalleryFactory
 from zds.forum.factories import ForumFactory, CategoryFactory
 from copy import deepcopy
@@ -24,9 +23,9 @@ overridden_zds_app['content']['repo_public_path'] = os.path.join(settings.BASE_D
 @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'media-test'))
 @override_settings(ZDS_APP=overridden_zds_app)
 @override_settings(ES_ENABLED=False)
-class ContentTests(TestCase):
+class ContentTests(TestCase, TutorialTestMixin):
     def setUp(self):
-
+        self.overridden_zds_app = overridden_zds_app
         # don't build PDF to speed up the tests
         overridden_zds_app['content']['build_pdf_when_published'] = False
 
@@ -202,12 +201,3 @@ class ContentTests(TestCase):
         self.assertEqual(len(validations), 1)  # 1 content with this category
 
         self.assertEqual(validations[0].content, article_reserved)  # the right content
-
-    def tearDown(self):
-
-        if os.path.isdir(overridden_zds_app['content']['repo_private_path']):
-            shutil.rmtree(overridden_zds_app['content']['repo_private_path'])
-        if os.path.isdir(overridden_zds_app['content']['repo_public_path']):
-            shutil.rmtree(overridden_zds_app['content']['repo_public_path'])
-        if os.path.isdir(settings.MEDIA_ROOT):
-            shutil.rmtree(settings.MEDIA_ROOT)

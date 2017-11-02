@@ -1,4 +1,3 @@
-# coding: utf-8
 import datetime
 import shutil
 import tempfile
@@ -28,22 +27,15 @@ from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory
 from zds.tutorialv2.models.database import PublishableContent, Validation, PublishedContent, ContentReaction, \
     ContentRead
 from zds.tutorialv2.publication_utils import publish_content, Publicator, PublicatorRegistery
+from zds.tutorialv2.tests import TutorialTestMixin
 from zds.utils.models import HelpWriting, Alert, Tag, Hat
 from zds.utils.factories import HelpWritingFactory, CategoryFactory
 from zds.utils.templatetags.interventions import interventions_topics
 from copy import deepcopy
+from zds import json_handler
 
 
 BASE_DIR = settings.BASE_DIR
-
-
-try:
-    import ujson as json_reader
-except ImportError:
-    try:
-        import simplejson as json_reader
-    except:
-        import json as json_reader
 
 
 overridden_zds_app = deepcopy(settings.ZDS_APP)
@@ -62,9 +54,10 @@ class FakePDFPublicator(Publicator):
 @override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
 @override_settings(ZDS_APP=overridden_zds_app)
 @override_settings(ES_ENABLED=False)
-class ContentTests(TestCase):
+class ContentTests(TestCase, TutorialTestMixin):
 
     def setUp(self):
+        self.overridden_zds_app = overridden_zds_app
         overridden_zds_app['content']['default_licence_pk'] = LicenceFactory().pk
         # don't build PDF to speed up the tests
         overridden_zds_app['content']['build_pdf_when_published'] = False
@@ -3588,7 +3581,7 @@ class ContentTests(TestCase):
                 follow=False
             )
             manifest = open(os.path.join(old_path, 'manifest.json'), 'rb')
-            json = json_reader.loads(manifest.read())
+            json = json_handler.loads(manifest.read())
             manifest.close()
             self.assertEqual(result.status_code, 302)
             self.assertEqual(json['title'], PublishableContent.objects.last().title)
@@ -4091,21 +4084,13 @@ class ContentTests(TestCase):
             self.assertNotEqual(PublishableContent.objects.all().count(), prev_count)
             prev_count += 1
 
-    def tearDown(self):
-
-        if os.path.isdir(overridden_zds_app['content']['repo_private_path']):
-            shutil.rmtree(overridden_zds_app['content']['repo_private_path'])
-        if os.path.isdir(overridden_zds_app['content']['repo_public_path']):
-            shutil.rmtree(overridden_zds_app['content']['repo_public_path'])
-        if os.path.isdir(settings.MEDIA_ROOT):
-            shutil.rmtree(settings.MEDIA_ROOT)
-
 
 @override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
 @override_settings(ZDS_APP=overridden_zds_app)
 @override_settings(ES_ENABLED=False)
-class PublishedContentTests(TestCase):
+class PublishedContentTests(TestCase, TutorialTestMixin):
     def setUp(self):
+        self.overridden_zds_app = overridden_zds_app
         overridden_zds_app['content']['default_licence_pk'] = LicenceFactory().pk
         # don't build PDF to speed up the tests
         overridden_zds_app['content']['build_pdf_when_published'] = False
@@ -4717,7 +4702,7 @@ class PublishedContentTests(TestCase):
         json = {}
 
         try:
-            json = json_reader.loads(''.join(a.decode() for a in result.streaming_content))
+            json = json_handler.loads(''.join(a.decode() for a in result.streaming_content))
         except Exception as e:  # broad exception on purpose
             self.assertEqual(e, '')
 
@@ -6170,11 +6155,3 @@ class PublishedContentTests(TestCase):
 
         for url in wrong_urls:
             self.assertEqual(self.client.get(url).status_code, 404, msg=url)
-
-    def tearDown(self):
-        if os.path.isdir(overridden_zds_app['content']['repo_private_path']):
-            shutil.rmtree(overridden_zds_app['content']['repo_private_path'])
-        if os.path.isdir(overridden_zds_app['content']['repo_public_path']):
-            shutil.rmtree(overridden_zds_app['content']['repo_public_path'])
-        if os.path.isdir(settings.MEDIA_ROOT):
-            shutil.rmtree(settings.MEDIA_ROOT)

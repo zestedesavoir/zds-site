@@ -548,7 +548,7 @@ Si vous souhaitez implémenter votre propre convertisseur, voici l'algorithme ut
 .. sourcecode:: python
 
     with open(_file, "r") as json_file:
-        data = json_reader.load(json_file)
+        data = json_handler.load(json_file)
     _type = "TUTORIAL"
     if "type" not in data:
         _type = "ARTICLE"

@@ -1,5 +1,3 @@
-# coding: utf-8
-
 import os
 import shutil
 import tempfile
@@ -24,15 +22,10 @@ from django.core.management import call_command
 from zds.tutorialv2.publication_utils import Publicator, PublicatorRegistery
 from watchdog.events import FileCreatedEvent
 from zds.tutorialv2.management.commands.publication_watchdog import TutorialIsPublished
+from zds.tutorialv2.tests import TutorialTestMixin
 from mock import Mock
 from copy import deepcopy
-try:
-    import ujson as json_reader
-except ImportError:
-    try:
-        import simplejson as json_reader
-    except:
-        import json as json_reader
+from zds import json_handler
 
 BASE_DIR = settings.BASE_DIR
 
@@ -46,9 +39,10 @@ overridden_zds_app['content']['build_pdf_when_published'] = False
 @override_settings(ZDS_APP=overridden_zds_app)
 @override_settings(ES_ENABLED=False)
 @override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
-class UtilsTests(TestCase):
+class UtilsTests(TestCase, TutorialTestMixin):
 
     def setUp(self):
+        self.overridden_zds_app = overridden_zds_app
         self.mas = ProfileFactory().user
         overridden_zds_app['member']['bot_account'] = self.mas.username
 
@@ -278,7 +272,7 @@ class UtilsTests(TestCase):
         args = [os.path.join(BASE_DIR, 'fixtures', 'tuto', 'balise_audio', 'manifest2.json')]
         call_command('upgrade_manifest_to_v2', *args, **opts)
         manifest = open(os.path.join(BASE_DIR, 'fixtures', 'tuto', 'balise_audio', 'manifest2.json'), 'r')
-        json = json_reader.loads(manifest.read())
+        json = json_handler.loads(manifest.read())
 
         self.assertTrue('version' in json)
         self.assertTrue('licence' in json)
@@ -293,7 +287,7 @@ class UtilsTests(TestCase):
         )
         call_command('upgrade_manifest_to_v2', *args, **opts)
         manifest = open(os.path.join(BASE_DIR, 'fixtures', 'tuto', 'big_tuto_v1', 'manifest2.json'), 'r')
-        json = json_reader.loads(manifest.read())
+        json = json_handler.loads(manifest.read())
         os.unlink(args[0])
         self.assertTrue('version' in json)
         self.assertTrue('licence' in json)
@@ -309,7 +303,7 @@ class UtilsTests(TestCase):
         )
         call_command('upgrade_manifest_to_v2', *args, **opts)
         manifest = open(os.path.join(BASE_DIR, 'fixtures', 'tuto', 'article_v1', 'manifest2.json'), 'r')
-        json = json_reader.loads(manifest.read())
+        json = json_handler.loads(manifest.read())
 
         self.assertTrue('version' in json)
         self.assertTrue('licence' in json)
@@ -446,7 +440,7 @@ class UtilsTests(TestCase):
         versioned.add_container(Container('un peu plus près de 42'))
         versioned.dump_json()
         manifest = os.path.join(versioned.get_path(), 'manifest.json')
-        dictionary = json_reader.load(open(manifest))
+        dictionary = json_handler.load(open(manifest))
 
         old_title = dictionary['title']
 
@@ -589,12 +583,5 @@ class UtilsTests(TestCase):
         self.assertTrue(PublishedContent.objects.filter(content_id=article.pk).exists())
 
     def tearDown(self):
-        if os.path.isdir(overridden_zds_app['content']['repo_private_path']):
-            shutil.rmtree(overridden_zds_app['content']['repo_private_path'])
-        if os.path.isdir(overridden_zds_app['content']['repo_public_path']):
-            shutil.rmtree(overridden_zds_app['content']['repo_public_path'])
-        if os.path.isdir(settings.MEDIA_ROOT):
-            shutil.rmtree(settings.MEDIA_ROOT)
-        if os.path.isdir(overridden_zds_app['content']['extra_content_watchdog_dir']):
-            shutil.rmtree(overridden_zds_app['content']['extra_content_watchdog_dir'])
+        super().tearDown()
         PublicatorRegistery.registry = self.old_registry
