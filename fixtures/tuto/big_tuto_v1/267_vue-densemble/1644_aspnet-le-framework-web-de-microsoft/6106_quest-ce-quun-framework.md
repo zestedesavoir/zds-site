@@ -4,7 +4,7 @@ Un framework est très utilisé dans le domaine de la programmation et nous allo
 [[question]]
 | Qu’est-ce que ça va m’apporter d’utiliser un framework ?
 
-Tout d’abord, décortiquons le mot : framework vient de l'anglais et se traduit littéralement par « **cadre de travail** ». Pour simplifier la chose, nous pouvons dire qu’un framework est une grosse boîte à fonctionnalités et de règles de codage qui va nous permettre de réaliser nos applications informatiques.  
+Tout d’abord, décortiquons le mot : framework vient de l'anglais et se traduit littéralement par « **cadre de travail** ». Pour simplifier la chose, nous pouvons dire qu’un framework est une grosse boîte à fonctionnalités et de règles de codage qui va nous permettre de réaliser nos applications informatiques.  
 Il est entre autres destiné au développement d’une application Web, ce qui nous intéresse.
 
 Lors du développement d’une application (Web ou autre) le développeur utilise un langage de programmation, prenons le **C#**.

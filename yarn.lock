@@ -645,9 +645,9 @@ convert-source-map@1.X, convert-source-map@^1.1.1:
   version "1.5.0"
   resolved "https://registry.yarnpkg.com/convert-source-map/-/convert-source-map-1.5.0.tgz#9acd70851c6d5dfdd93d9282e5edf94a03ff46b5"
 
-cookies-eu-banner@1.2.8:
-  version "1.2.8"
-  resolved "https://registry.yarnpkg.com/cookies-eu-banner/-/cookies-eu-banner-1.2.8.tgz#f56da63e3d4cfb865fc4d1fb33395a52df33dbd6"
+cookies-eu-banner@^1.2.10:
+  version "1.2.10"
+  resolved "https://registry.yarnpkg.com/cookies-eu-banner/-/cookies-eu-banner-1.2.10.tgz#4f97a651644b65ec770f57363b93f3f9af078db0"
 
 core-util-is@1.0.2, core-util-is@~1.0.0:
   version "1.0.2"

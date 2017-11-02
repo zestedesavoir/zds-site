@@ -75,7 +75,7 @@ class FeaturedResourceCreateViewTest(TestCase):
 
         featured = FeaturedResource.objects.first()
 
-        for field, value in fields.items():
+        for field, value in list(fields.items()):
             if field != 'pubdate':
                 self.assertEqual(value, getattr(featured, field), msg='Error on {}'.format(field))
             else:
@@ -180,7 +180,7 @@ class FeaturedResourceUpdateViewTest(TestCase):
 
         featured = FeaturedResource.objects.first()
 
-        for field, value in fields.items():
+        for field, value in list(fields.items()):
             self.assertNotEqual(getattr(featured, field), getattr(old_featured, field))
 
             if field != 'pubdate':

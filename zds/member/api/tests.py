@@ -176,7 +176,7 @@ class MemberListAPITest(APITestCase):
 
     def test_register_new_user_without_username(self):
         """
-        Tries to register a new user in the database without an username.
+        Tries to register a new user in the database without a username.
         """
         data = {
             'email': 'clem@zestedesavoir.com',
@@ -188,7 +188,7 @@ class MemberListAPITest(APITestCase):
 
     def test_register_new_user_with_username_empty(self):
         """
-        Tries to register a new user in the database with an username empty.
+        Tries to register a new user in the database with a username empty.
         """
         data = {
             'username': '',
@@ -293,7 +293,7 @@ class MemberListAPITest(APITestCase):
         response = self.client.post(reverse('api:member:list'), data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        self.assertEquals(len(mail.outbox), 1)
+        self.assertEqual(len(mail.outbox), 1)
 
     def test_register_new_user_create_a_token(self):
         """
@@ -327,7 +327,7 @@ class MemberListAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def create_multiple_users(self, number_of_users=REST_PAGE_SIZE):
-        for user in xrange(0, number_of_users):
+        for user in range(0, number_of_users):
             ProfileFactory()
 
 
@@ -356,7 +356,7 @@ class MemberExistsAPITest(APITestCase):
         self.create_multiple_users()
         StaffProfileFactory()
 
-        # get an username
+        # get a username
         response = self.client.get(reverse('api:member:list') + '?search=firmstaff')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         username = response.data['results'][0]['username']
@@ -400,7 +400,7 @@ class MemberExistsAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def create_multiple_users(self, number_of_users=REST_PAGE_SIZE):
-        for user in xrange(0, number_of_users):
+        for user in range(0, number_of_users):
             ProfileFactory()
 
 

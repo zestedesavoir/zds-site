@@ -4,15 +4,17 @@ sudo: required
 
 
 python:
-  - 2.7
+  - 3.4
 
 
 addons:
+  firefox: "56.0"
   apt:
     packages:
       - mysql-server-5.6
       - mysql-client-core-5.6
       - mysql-client-5.6
+      - libmysqlclient-dev
       - language-pack-fr
       - unzip
       - oracle-java8-set-default
@@ -33,7 +35,8 @@ env:
     - ZDS_TEST_JOB="zds.tutorialv2"
     - ZDS_TEST_JOB="zds.member zds.utils zds.forum"
     - ZDS_TEST_JOB="front zds.mp zds.gallery zds.pages zds.featured zds.notification zds.searchv2"
-
+    - ZDS_TEST_JOB="selenium"
+    - ZDS_TEST_JOB="doc"
 
 notifications:
   webhooks:
@@ -77,15 +80,27 @@ before_install:
 
   - |
     # setup mysql
-    if [[ "$ZDS_TEST_JOB" == *"zds."* ]]; then
+    if [[ "$ZDS_TEST_JOB" == *"zds."* ]] || [[ "$ZDS_TEST_JOB" == *"selenium"* ]]; then
       # MySQL config
       ./scripts/ci_mysql_setup.sh
     fi
 
 install:
   - |
+    # install webdriver for selenium.
+    if [[ "$ZDS_TEST_JOB" == *"selenium"* ]]; then
+      wget https://github.com/mozilla/geckodriver/releases/download/v0.19.0/geckodriver-v0.19.0-linux64.tar.gz \
+      && mkdir geckodriver \
+      && tar -xzf geckodriver-v0.19.0-linux64.tar.gz -C geckodriver \
+      && export PATH=$PATH:$PWD/geckodriver \
+      && export DISPLAY=:99.0 \
+      && sh -e /etc/init.d/xvfb start \
+      && sleep 3 # give xvfb some time to start
+    fi
+
+  - |
     # install frontend dependencies
-    if [[ "$ZDS_TEST_JOB" == *"front"* ]]; then
+    if [[ "$ZDS_TEST_JOB" == *"front"* ]] || [[ "$ZDS_TEST_JOB" == *"selenium"* ]]; then
       nvm install 8 \
       && nvm use 8 \
       && npm i -g yarn \
@@ -104,8 +119,8 @@ install:
 
   - |
     # install backend dependencies
-    if [[ "$ZDS_TEST_JOB" == *"zds."* ]]; then
-      pip install -q -rrequirements.txt -rrequirements-dev.txt -rrequirements-prod.txt
+    if [[ "$ZDS_TEST_JOB" == *"zds."* ]] || [[ "$ZDS_TEST_JOB" == *"selenium"* ]] || [[ "$ZDS_TEST_JOB" == *"doc"* ]]; then
+      pip install -q -r requirements-dev.txt -r requirements-prod.txt
     fi
 
 
@@ -120,8 +135,8 @@ script:
   - |
     # test and build frontend
     if [[ "$ZDS_TEST_JOB" == *"front"* ]]; then
-      yarn test
-      yarn build # we need to upload the assets later
+      yarn test \
+      && yarn build # we need to upload the assets later
     fi
 
   - |
@@ -131,9 +146,26 @@ script:
         test \
         --keepdb \
         --settings zds.settings_test_travis \
+        --exclude-tag=front \
         ${ZDS_TEST_JOB/front/}
     fi
 
+  - |
+    # selenium tests
+    if [[ "$ZDS_TEST_JOB" == *"selenium"* ]]; then
+      yarn build
+      python manage.py \
+        test \
+        --keepdb \
+        --settings zds.settings_test_travis \
+        --tag=front
+    fi
+
+  - |
+    # test and build frontend
+    if [[ "$ZDS_TEST_JOB" == *"doc"* ]]; then
+      make --directory doc html
+    fi
 
 after_success:
   - du -sh $HOME/.texlive 2>/dev/null | true
@@ -158,4 +190,16 @@ after_success:
 
       # Run script
       ./scripts/push_front.sh $TRAVIS_TAG
+    fi
+
+  - |
+    # upload built documentation to GitHub Pages
+    if [[ "$ZDS_TEST_JOB" == *"doc"* ]] && [[ "$TRAVIS_BRANCH" == "dev" ]]; then
+      # Adding GitHub OAuth token to login
+      echo -e "machine github.com login $BOT_LOGIN\n password $BOT_PASSWORD" > $HOME/.netrc \
+      && git config --global url."https://".insteadOf git:// \
+      && git config --global user.name "Build bot" \
+      && git config --global user.email "zestedesavoir@gmail.com" \
+      && git config --global push.default simple \
+      && ./scripts/push_doc.sh
     fi

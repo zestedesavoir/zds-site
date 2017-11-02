@@ -4,13 +4,9 @@ import logging
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.layout import Layout, ButtonHolder, Field, Div, HTML
 from django.utils.translation import ugettext_lazy as _
+from django.template import defaultfilters
 from zds.utils.models import Tag
 from zds.utils.misc import contains_utf8mb4
-# for compat with py3
-try:
-    assert isinstance('', basestring)
-except (NameError, AssertionError):
-    basestring = str
 
 
 class CommonLayoutEditor(Layout):
@@ -21,11 +17,11 @@ class CommonLayoutEditor(Layout):
             HTML("<div class='message-bottom'>"),
             HTML("<div class='message-submit'>"),
             StrictButton(
-                _(u'Envoyer'),
+                _('Envoyer'),
                 type='submit',
                 name='answer'),
             StrictButton(
-                _(u'Aperçu'),
+                _('Aperçu'),
                 type='submit',
                 name='preview',
                 css_class='btn-grey',
@@ -59,11 +55,11 @@ class CommonLayoutVersionEditor(Layout):
                 Field('msg_commit'),
                 ButtonHolder(
                     StrictButton(
-                        _(u'Envoyer'),
+                        _('Envoyer'),
                         type='submit',
                         name='answer'),
                     StrictButton(
-                        _(u'Aperçu'),
+                        _('Aperçu'),
                         type='submit',
                         name='preview',
                         css_class='btn-grey preview-btn'),
@@ -88,7 +84,7 @@ class TagValidator(object):
     """
     def __init__(self):
         self.__errors = []
-        self.logger = logging.getLogger('zds.utils.forms')
+        self.logger = logging.getLogger(__name__)
         self.__clean = []
 
     def validate_raw_string(self, raw_string):
@@ -100,7 +96,7 @@ class TagValidator(object):
         :return: ``True`` if ``raw_string`` is fully valid, ``False`` if at least one error appears. \
         See ``self.errors`` to get all internationalized error.
         """
-        if raw_string is None or not isinstance(raw_string, basestring):
+        if raw_string is None or not isinstance(raw_string, str):
             return self.validate_string_list([])
         return self.validate_string_list(raw_string.split(','))
 
@@ -112,7 +108,7 @@ class TagValidator(object):
         :return: ``True`` if length is valid
         """
         if len(tag) > Tag._meta.get_field('title').max_length:
-            self.errors.append(_(u'Le tag {} est trop long (maximum {} caractères)'.format(
+            self.errors.append(_('Le tag {} est trop long (maximum {} caractères)'.format(
                 tag, Tag._meta.get_field('title').max_length)))
             self.logger.debug('%s est trop long expected=%d got=%d', tag,
                               Tag._meta.get_field('title').max_length, len(tag))
@@ -127,8 +123,10 @@ class TagValidator(object):
         :return: ``True`` if ``v`` is fully valid, ``False`` if at least one error appears. See ``self.errors``
         to get all internationalized error.
         """
-        self.__clean = list(filter(self.validate_length, string_list))
-        self.__clean = list(filter(self.validate_utf8mb4, self.__clean))
+        string_list = list(filter(lambda s: s.strip(), string_list))  # needed to keep only real candidates
+        self.__clean = filter(self.validate_length, string_list)
+        self.__clean = filter(self.validate_utf8mb4, self.__clean)
+        self.__clean = list(filter(self.validate_no_empty_slug, self.__clean))
         return len(string_list) == len(self.__clean)
 
     def validate_utf8mb4(self, tag):
@@ -139,8 +137,21 @@ class TagValidator(object):
         :return: ``True`` if no utf8mb4 string is found
         """
         if contains_utf8mb4(tag):
-            self.errors.append(_(u'Le tag {} contient des caractères utf8mb4').format(tag))
+            self.errors.append(_('Le tag {} contient des caractères utf8mb4').format(tag))
             self.logger.warn('%s contains utf8mb4 char', tag)
+            return False
+        return True
+
+    def validate_no_empty_slug(self, tag):
+        """
+        Validate whether the tag slug is good
+
+        :param tag:
+        :return: ``True`` if the tag slug is good
+        """
+        if not defaultfilters.slugify(tag):
+            self.errors.append(_("Le tag {} n'est constitué que de caractères spéciaux et est donc incorrect"))
+            self.logger.warn('%s bad slug', tag)
             return False
         return True
 

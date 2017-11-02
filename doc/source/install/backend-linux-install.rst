@@ -16,21 +16,17 @@ Certaines des commandes d'installation (débutant par ``apt-get``) sont données
 ZdS a besoin des dépendances suivantes, installables manuellement ou à l'aide d'un Makefile (voir plus bas) :
 
 - git : ``apt-get install git``
-- python2.7
-- python-dev : ``apt-get install python-dev``
-- easy_install : ``apt-get install python-setuptools``
-- pip : ``easy_install pip``
-- tox : ``pip install tox``
+- python3 et python3-dev : ``apt-get install python3-dev``
+- setuptools : ``apt-get install python3-setuptools``
+- pip : ``apt-get install python3-pip``
 - libxml2-dev : ``apt-get install libxml2-dev``
-- python-lxml : ``apt-get install python-lxml``
+- python-lxml : ``apt-get install python3-lxml``
 - libxlst-dev (peut être appelée libxlst1-dev sur certains OS comme Ubuntu)
 - libz-dev (peut être libz1g-dev sur système 64bits)
-- python-sqlparse
+- python-sqlparse : ``apt-get install python3-sqlparse``
 - libffi : ``apt-get install libffi-dev``
 - libjpeg62-turbo libjpeg62-turbo-dev libfreetype6 libfreetype6-dev : ``apt-get install libjpeg62-turbo libjpeg62-turbo-dev libfreetype6 libfreetype6-dev`` (peut être appelée libjpeg8 et libjpeg8-dev sur  certains OS comme Ubuntu)
 - gcc : ``apt-get install build-essential``
-
-**NB** : pour les utilisateurs d'Archlinux, les outils python doivent être ceux de python 2, généralement sous la forme ``python2-smth``
 
 Ou à l'aide du Makefile (``sudo`` sera appelé automatiquement, ne l'ajoutez jamais si on ne le précise pas) :
 
@@ -55,7 +51,7 @@ Pour Fedora.
 Pour Archlinux.
 
 .. sourcecode:: bash
-                
+
    make install-archlinux
 
 Installation et configuration de `virtualenv`
@@ -65,8 +61,8 @@ Installation et configuration de `virtualenv`
 
 .. sourcecode:: bash
 
-    pip install --user virtualenv # Ajout du module virtualenv
-    virtualenv zdsenv --python=python2 # Création du répertoire "zdsenv"
+    pip3 install --user virtualenv # Ajout du module virtualenv
+    virtualenv zdsenv --python=python3 # Création du répertoire "zdsenv"
 
 
 **À chaque fois** que vous souhaitez travailler dans votre environnement, activez-le via la commande suivante :
@@ -96,6 +92,8 @@ Une fois dans votre environnement python (``source ../bin/activate`` si vous uti
     make install-back # Dépendances Python
     make migrate # Cf. "migrate" de Django
     make run-back # Démarre l'instance de ZdS
+
+**NB** : Vérifiez bien que votre interpréteur par défaut utilise Python 3 et non une version 2.x.
 
 
 Aller plus loin

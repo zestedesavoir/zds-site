@@ -1,20 +1,15 @@
 # coding: utf-8
-from __future__ import unicode_literals
-from django.utils.encoding import python_2_unicode_compatible
+
 from datetime import datetime
 from hashlib import md5
-from importlib import import_module
 import os
 import pygeoip
 
 from django.conf import settings
-from django.contrib.auth import logout
 from django.contrib.auth.models import User
-from django.contrib.sessions.models import Session
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.dispatch import receiver
-from django.http import HttpRequest
 from django.utils.translation import ugettext_lazy as _
 
 from zds.forum.models import Post, Topic
@@ -24,7 +19,6 @@ from zds.tutorialv2.models.models_database import PublishableContent, PublishedC
 from zds.utils.models import Alert, Licence, Hat
 
 
-@python_2_unicode_compatible
 class Profile(models.Model):
     """
     A user profile. Complementary data of standard Django `auth.user`.
@@ -34,8 +28,8 @@ class Profile(models.Model):
         verbose_name = 'Profil'
         verbose_name_plural = 'Profils'
         permissions = (
-            ('moderation', _(u'Modérer un membre')),
-            ('show_ip', _(u"Afficher les IP d'un membre")),
+            ('moderation', _('Modérer un membre')),
+            ('show_ip', _("Afficher les IP d'un membre")),
         )
 
     # Link with standard user is a simple one-to-one link, as recommended in official documentation.
@@ -63,17 +57,17 @@ class Profile(models.Model):
     github_token = models.TextField('GitHub', blank=True)
     show_sign = models.BooleanField('Voir les signatures', default=True)
     # do UI components open by hovering them, or is clicking on them required?
-    is_hover_enabled = models.BooleanField('Déroulement au survol ?', default=False)
+    is_hover_enabled = models.BooleanField('Déroulement au survol ?', default=False)
     allow_temp_visual_changes = models.BooleanField('Activer les changements visuels temporaires', default=True)
     show_markdown_help = models.BooleanField("Afficher l'aide Markdown dans l'éditeur", default=True)
     email_for_answer = models.BooleanField('Envoyer pour les réponse MP', default=False)
-    hats = models.ManyToManyField(Hat, verbose_name='Casquettes', db_index=True)
+    hats = models.ManyToManyField(Hat, verbose_name='Casquettes', db_index=True, blank=True)
     can_read = models.BooleanField('Possibilité de lire', default=True)
     end_ban_read = models.DateTimeField("Fin d'interdiction de lecture", null=True, blank=True)
     can_write = models.BooleanField("Possibilité d'écrire", default=True)
     end_ban_write = models.DateTimeField("Fin d'interdiction d'écrire", null=True, blank=True)
     last_visit = models.DateTimeField('Date de dernière visite', null=True, blank=True)
-    use_old_smileys = models.BooleanField('Utilise les anciens smileys ?', default=False)
+    use_old_smileys = models.BooleanField('Utilise les anciens smileys ?', default=False)
     _permissions = {}
     _groups = None
 
@@ -115,7 +109,7 @@ class Profile(models.Model):
         geo = gic.record_by_addr(self.last_ip_address)
 
         if geo is not None:
-            return u'{0}, {1}'.format(geo['city'], geo['country_name'])
+            return '{0}, {1}'.format(geo['city'], geo['country_name'])
         return ''
 
     def get_avatar_url(self):
@@ -127,7 +121,7 @@ class Profile(models.Model):
         """
         if self.avatar_url:
             if self.avatar_url.startswith(settings.MEDIA_URL):
-                return u'{}{}'.format(settings.ZDS_APP['site']['url'], self.avatar_url)
+                return '{}{}'.format(settings.ZDS_APP['site']['url'], self.avatar_url)
             else:
                 return self.avatar_url
         else:
@@ -372,7 +366,17 @@ class Profile(models.Model):
         """
         Checks if this user can at least use one hat.
         """
-        return self.hats.count() >= 1
+        return len(self.get_hats()) >= 1
+
+    def get_hats(self):
+        """
+        Return all hats the user is allowed to use.
+        """
+        profile_hats = list(self.hats.all())
+        groups_hats = list(Hat.objects.filter(group__in=self.user.groups.all()))
+        hats = profile_hats + groups_hats
+        hats.sort(key=lambda hat: hat.name)
+        return hats
 
     @staticmethod
     def has_read_permission(request):
@@ -417,7 +421,7 @@ def auto_delete_token_on_unregistering(sender, instance, **kwargs):
 @receiver(models.signals.post_save, sender=User)
 def remove_token_github_on_removing_from_dev_group(sender, instance, **kwargs):
     """
-    This signal receiver removes the GitHub token of an user if he's not in the dev group
+    This signal receiver removes the GitHub token of a user if he's not in the dev group
     """
     try:
         profile = instance.profile
@@ -426,6 +430,17 @@ def remove_token_github_on_removing_from_dev_group(sender, instance, **kwargs):
             profile.save()
     except Profile.DoesNotExist:
         pass
+
+
+@receiver(models.signals.post_save, sender=Profile)
+def remove_hats_linked_to_group(sender, instance, **kwargs):
+    """
+    When a user is saved, their hats are checked to be sure that none of them is
+    linked to a group. In this case, the relevant hat will be removed from the user.
+    """
+    for hat in instance.hats.all():
+        if hat.group:
+            instance.hats.remove(hat)
 
 
 def remove_old_smileys_cookie(response):
@@ -455,7 +470,6 @@ def set_old_smileys_cookie(response, profile):
             remove_old_smileys_cookie(response)
 
 
-@python_2_unicode_compatible
 class TokenForgotPassword(models.Model):
     """
     When a user forgot its password, the website sends it an email with a token (embedded in a URL).
@@ -480,7 +494,6 @@ class TokenForgotPassword(models.Model):
         return '{0} - {1}'.format(self.user.username, self.date_end)
 
 
-@python_2_unicode_compatible
 class TokenRegister(models.Model):
     """
     On registration, a token is send by mail to the user. It must use this token (by clicking on a link) to activate its
@@ -514,7 +527,6 @@ def save_profile(backend, user, response, *args, **kwargs):
         profile.save()
 
 
-@python_2_unicode_compatible
 class NewEmailProvider(models.Model):
     """A new-used email provider which should be checked by a staff member."""
 
@@ -533,7 +545,6 @@ class NewEmailProvider(models.Model):
         return 'Alert about the new provider {}'.format(self.provider)
 
 
-@python_2_unicode_compatible
 class BannedEmailProvider(models.Model):
     """
     A email provider which has been banned by a staff member.
@@ -554,7 +565,6 @@ class BannedEmailProvider(models.Model):
         return 'Ban of the {} provider'.format(self.provider)
 
 
-@python_2_unicode_compatible
 class Ban(models.Model):
     """
     This model stores all sanctions (not only bans).
@@ -576,7 +586,6 @@ class Ban(models.Model):
         return '{0} - ban : {1} ({2}) '.format(self.user.username, self.note, self.pubdate)
 
 
-@python_2_unicode_compatible
 class KarmaNote(models.Model):
     """
     Karma notes are a way of annotating members profiles. They are only visible
@@ -599,23 +608,3 @@ class KarmaNote(models.Model):
 
     def __str__(self):
         return '{0} - note : {1} ({2}) '.format(self.user.username, self.note, self.pubdate)
-
-
-def logout_user(username):
-    """
-    Logout the member.
-    :param username: the name of the user to logout.
-    """
-    now = datetime.now()
-    request = HttpRequest()
-
-    sessions = Session.objects.filter(expire_date__gt=now)
-    user = User.objects.get(username=username)
-
-    for session in sessions:
-        user_id = session.get_decoded().get('_auth_user_id')
-        if user.id == user_id:
-            engine = import_module(settings.SESSION_ENGINE)
-            request.session = engine.SessionStore(session.session_key)
-            logout(request)
-            break

@@ -20,11 +20,13 @@
 {% block DCMI_cards %}
     <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/" />
     <meta name="DC.publisher" lang="fr" content="{{ app.site.literal_name }}" />
-    <meta name="DC.creator" content="{% joinby publishablecontent|displayable_authors:True %}" />
+    {% for author in publishablecontent|displayable_authors:True %}
+    <meta name="DC.creator" content="{{ author.username }}" />
+    {% endfor %}
     <meta name="DC.type" content="text" />
     <meta name="DC.title" content="{{ content.title }}" />
-    <meta name="DC.abstract" content="{{ content.type.title }} : {{ content.title }}{% if content.description %} – {{ content.description }}{% endif %}" />
-    <meta name="DC.subject" lang="fr" content="{% joinby content.subcategory.all %}{% if content.tags.all %} – {% joinby content.tags.all separator=' ; ' same_final_separator=True %}{% endif %}" />
+    <meta name="DC.abstract" content="{{ content.title }}{% if content.description %} – {{ content.description }}{% endif %}" />
+    <meta name="DC.subject" lang="fr" content="{% joinby content.subcategory.all %}{% if content.tags.all %} – {% joinby content.tags.all separator=' ; ' final_separator=' ; ' %}{% endif %}" />
     {% if content.description %}<meta name="DC.description" lang="fr" content="{{ content.description }}" />{% endif %}
     <meta name="DC.date" content="{% if content.pubdate %}{{ content.pubdate|date:'Y/m/d' }}{% else %}{{ content.update_date|date:'Y/m/d' }}{% endif %}" />
     <meta name="DC.format" content="text/html" />
@@ -118,11 +120,11 @@
                     {% else %}
                         <a href="#solve-content-{{ alert.pk }}" class="open-modal close-alert-box close-alert-box-text">{% trans "Résoudre" %}</a>
                         <form id="solve-content-{{ alert.pk }}" method="post" action="{% url 'content:resolve-content' alert.pk %}" class="modal modal-flex">
-                            <textarea name="text" class="input" placeholder="{% trans "Message à envoyer au membre ayant lancé l'alerte" %}"></textarea>
+                            <textarea name="text" class="input" placeholder="{% trans "Message à envoyer au membre ayant lancé l’alerte" %}"></textarea>
                             <input type="hidden" name="alert_pk" value="{{ alert.pk }}">
 
                             {% csrf_token %}
-                            <button type="submit" name="delete-post" class="button expand alert tiny">{% trans "Résoudre l'alerte" %}</button>
+                            <button type="submit" name="delete-post" class="button expand alert tiny">{% trans "Résoudre l’alerte" %}</button>
                         </form>
                     {% endif %}
                 </div>
@@ -141,7 +143,7 @@
             {% elif is_staff %}
                 <div class="alert-box info">
                     {% blocktrans with url_article=content.converted_to.get_absolute_url %}
-                        Ce billet a fait l'objet d'une demande de publication <a href="{{ url_article }}">en tant qu'article</a>. Il est donc présent dans la zone de validation en attente de prise en charge par un validateur.
+                        Ce billet a fait l’objet d’une demande de publication <a href="{{ url_article }}">en tant qu’article</a>. Il est donc présent dans la zone de validation en attente de prise en charge par un validateur.
                     {% endblocktrans %}
                 </div>
             {% endif %}
@@ -215,7 +217,7 @@
     <li>
         <a href="{{ pm_link }}" class="ico-after cite blue">
         {% blocktrans count counter=content.authors.all|length %}
-            Contacter l'auteur par MP
+            Contacter l’auteur par MP
         {% plural %}
             Contacter les auteurs par MP
         {% endblocktrans %}
@@ -390,5 +392,5 @@
         {% endcaptureas %}
     {% endif %}
 
-    {% include "misc/message_form.html" with member=user topic=content isantispam=isantispam %}
+    {% include "misc/message_form.html" with member=user topic=content is_antispam=is_antispam %}
 {% endblock %}

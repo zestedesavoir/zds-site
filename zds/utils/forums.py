@@ -29,28 +29,28 @@ def get_tag_by_title(title):
     :return: A tuple: (the tag list, the title without the tags).
     """
     nb_bracket = 0
-    current_tag = u''
-    current_title = u''
+    current_tag = ''
+    current_title = ''
     tags = []
     continue_parsing_tags = True
     original_title = title
 
     for char in title:
-        if char == u'[' and nb_bracket == 0 and continue_parsing_tags:
+        if char == '[' and nb_bracket == 0 and continue_parsing_tags:
             nb_bracket += 1
-        elif nb_bracket > 0 and char != u']' and continue_parsing_tags:
+        elif nb_bracket > 0 and char != ']' and continue_parsing_tags:
             current_tag = current_tag + char
-            if char == u'[':
+            if char == '[':
                 nb_bracket += 1
-        elif char == u']' and nb_bracket > 0 and continue_parsing_tags:
+        elif char == ']' and nb_bracket > 0 and continue_parsing_tags:
             nb_bracket -= 1
-            if nb_bracket == 0 and current_tag.strip() != u'':
+            if nb_bracket == 0 and current_tag.strip() != '':
                 tags.append(current_tag.strip())
-                current_tag = u''
-            elif current_tag.strip() != u'' and nb_bracket > 0:
+                current_tag = ''
+            elif current_tag.strip() != '' and nb_bracket > 0:
                 current_tag = current_tag + char
 
-        elif (char != u'[' and char.strip() != '') or not continue_parsing_tags:
+        elif (char != '[' and char.strip() != '') or not continue_parsing_tags:
             continue_parsing_tags = False
             current_title = current_title + char
 
@@ -59,7 +59,7 @@ def get_tag_by_title(title):
     if nb_bracket != 0:
         return [], original_title
 
-    tags = filter(lambda tag: not contains_utf8mb4(tag), tags)
+    tags = [tag for tag in tags if not contains_utf8mb4(tag)]
 
     return tags, title.strip()
 
@@ -108,7 +108,7 @@ def send_post(request, topic, author, text,):
         post.position = 1
     post.update_content(text)
     post.ip_address = get_client_ip(request)
-    post.with_hat = get_hat_from_request(request)
+    post.hat = get_hat_from_request(request)
     post.save()
 
     topic.last_message = post
@@ -156,7 +156,7 @@ class CreatePostView(CreateView, SingleObjectMixin, QuoteMixin):
         context['is_staff'] = self.request.user.has_perm('forum.change_topic')
 
         if hasattr(self.object, 'antispam'):
-            context['isantispam'] = self.object.antispam()
+            context['is_antispam'] = self.object.antispam()
 
         if self.request.user.has_perm('forum.change_topic'):
             context['user_can_modify'] = [post.pk for post in context['posts']]

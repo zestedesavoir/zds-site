@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from django.db import migrations, models
 from zds.forum.models import TopicRead
@@ -14,7 +14,7 @@ def force_unicity(*args, **kwargs):
                                    .filter(count_id__gt=1))
 
     for duplicate in duplicates:
-        print 'deleting a duplicate'
+        print('deleting a duplicate')
         (TopicRead.objects.filter(**{x: duplicate[x] for x in unique_fields})
                           .exclude(id=duplicate['max_id'])
                           .delete())

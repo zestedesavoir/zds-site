@@ -16,7 +16,7 @@ Les contributions externes sont les bienvenues !
 2. Faites vos modifications.
 3. Ajoutez un test pour votre modification. Seules les modifications de documentation et les réusinages n'ont pas besoin de nouveaux tests.
 4. Assurez-vous que l'intégralité des tests passent : `python manage.py test`.
-5. Assurez-vous que le code suit la [PEP-8](http://legacy.python.org/dev/peps/pep-0008/) : `tox -e flake8`.
+5. Assurez-vous que le code suit la [PEP-8](http://legacy.python.org/dev/peps/pep-0008/) : `flake8`.
 6. Si vous avez fait des modifications du _frontend_, jouez les tests associés : `yarn test`.
 7. Si vous modifiez le modèle (les fichiers models.py), n'oubliez pas de créer les fichiers de migration : `python manage.py makemigrations`.
 8. Si votre travail nécessite des actions spécifiques lors du déploiement, précisez-les dans le fichier [update.md](update.md).
@@ -33,7 +33,7 @@ Les contributions externes sont les bienvenues !
     * Pensez à préfixer vos branches selon l'objet de votre PR : `hotfix-XXX`, `feature-XXX`, etc.
     * La branche `prod` (appelée `master` dans le git flow standard) contient exclusivement le code en production, pas la peine d'essayer de faire le moindre _commit_ dessus !
 
-Tous les détails sur le workflow se trouvent [sur la page dédiée](http://zds-site.readthedocs.org/fr/latest/workflow.html).
+Tous les détails sur le workflow se trouvent [sur la page dédiée](http://docs.zestedesavoir.com/workflow.html).
 
 * Votre test doit échouer sans votre modification, et réussir avec.
 * Faites des messages de _commit_ clairs et en français.

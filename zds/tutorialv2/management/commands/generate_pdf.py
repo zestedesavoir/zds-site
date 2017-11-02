@@ -34,14 +34,14 @@ class Command(BaseCommand):
         num_of_contents = len(public_contents)
 
         if num_of_contents == 0:
-            self.stdout.write(_(u"Aucun contenu n'a été sélectionné, aucun PDF ne sera généré"))
+            self.stdout.write(_("Aucun contenu n'a été sélectionné, aucun PDF ne sera généré"))
             return
 
-        self.stdout.write(_(u'Génération de PDF pour {} contenu{}').format(
+        self.stdout.write(_('Génération de PDF pour {} contenu{}').format(
             num_of_contents, 's' if num_of_contents > 1 else ''))
 
         for content in public_contents:
-            self.stdout.write(_(u'- {}').format(content.content_public_slug), ending='')
+            self.stdout.write(_('- {}').format(content.content_public_slug), ending='')
             extra_content_dir = content.get_extra_contents_directory()
 
             base_name = os.path.join(extra_content_dir, content.content_public_slug)

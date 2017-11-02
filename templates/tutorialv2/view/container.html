@@ -60,7 +60,7 @@
         <div class="content-wrapper">
             <div class="alert-box warning">
                 {% blocktrans %}
-                    Cette version est en <strong>BÊTA</strong> !
+                    Cette version est en <strong>BÊTA</strong> !
                 {% endblocktrans %}
 
                 {% if beta_topic %}
@@ -78,14 +78,14 @@
                 {% if content.authors.count > 1 %}
                     {% trans "Les auteurs de ce contenu recherchent" %}
                 {% else %}
-                    {% trans "L'auteur de ce contenu recherche" %}
+                    {% trans "L’auteur de ce contenu recherche" %}
                 {% endif %}
 
                 {% for help in helps.all %}{% if not forloop.first %}{% if forloop.last %}{% trans ' et ' %}{% else %}{% trans ', ' %}{% endif %}{% endif %}un {{ help.title|lower }}{% if forloop.last %}{% trans '.' %}{% endif %}{% endfor %}
 
                 {% if not can_edit %}
                     {% blocktrans with plural=content.authors.count|pluralize_fr %}
-                        N'hésitez pas à <a href="{{ pm_link }}">le{{ plural }} contacter par MP</a> pour proposer votre aide !
+                        N’hésitez pas à <a href="{{ pm_link }}">le{{ plural }} contacter par MP</a> pour proposer votre aide !
                     {% endblocktrans %}
                 {% endif %}
             </div>
@@ -102,7 +102,7 @@
         {{ container.get_introduction|emarkdown:is_js }}
     {% elif not content.is_beta %}
         <p class="ico-after warning">
-            {% trans "Il n'y a pas d'introduction" %}.
+            {% trans "Il n’y a pas d’introduction" %}.
         </p>
     {% endif %}
 
@@ -132,7 +132,7 @@
         {{ container.get_conclusion|emarkdown:is_js }}
     {% elif not content.is_beta %}
         <p class="ico-after warning">
-            {% trans "Il n'y a pas de conclusion" %}.
+            {% trans "Il n’y a pas de conclusion" %}.
         </p>
     {% endif %}
 

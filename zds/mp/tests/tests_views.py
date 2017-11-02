@@ -390,7 +390,7 @@ class NewTopicViewTest(TestCase):
         response = self.client.post(
             reverse('mp-new'),
             {
-                'participants': u'{}'.format(profile_inactive.user.username),
+                'participants': '{}'.format(profile_inactive.user.username),
                 'title': 'title',
                 'subtitle': 'subtitle',
                 'text': 'text'
@@ -425,13 +425,13 @@ class NewTopicViewTest(TestCase):
                 'title': 'title',
                 'subtitle': 'subtitle',
                 'text': 'text',
-                'hat': self.hat.pk,
+                'with_hat': self.hat.pk,
             },
             follow=True
         )
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual(PrivatePost.objects.latest('pubdate').with_hat, self.hat.name)
+        self.assertEqual(PrivatePost.objects.latest('pubdate').hat, self.hat)
 
     def test_fail_new_topic_user_add_only_himself(self):
 
@@ -592,13 +592,13 @@ class AnswerViewTest(TestCase):
             {
                 'text': 'Luc !?',
                 'last_post': self.topic1.last_message.pk,
-                'hat': self.hat.pk,
+                'with_hat': self.hat.pk,
             },
             follow=False
         )
 
         self.assertEqual(302, response.status_code)
-        self.assertEqual(PrivatePost.objects.latest('pubdate').with_hat, self.hat.name)
+        self.assertEqual(PrivatePost.objects.latest('pubdate').hat, self.hat)
 
     def test_fail_answer_with_no_right(self):
 
@@ -625,7 +625,7 @@ class AnswerViewTest(TestCase):
     def test_unicode_title_answer(self):
         """To test unicode title."""
 
-        unicode_topic = PrivateTopicFactory(author=self.profile1.user, title=u'Title with accent àéè')
+        unicode_topic = PrivateTopicFactory(author=self.profile1.user, title='Title with accent àéè')
         unicode_topic.participants.add(self.profile2.user)
         unicode_post = PrivatePostFactory(
             privatetopic=unicode_topic,
@@ -645,7 +645,7 @@ class AnswerViewTest(TestCase):
     def test_unicode_subtitle_answer(self):
         """To test unicode subtitle."""
 
-        unicode_topic = PrivateTopicFactory(author=self.profile1.user, subtitle=u'Subtitle with accent àéè')
+        unicode_topic = PrivateTopicFactory(author=self.profile1.user, subtitle='Subtitle with accent àéè')
         unicode_topic.participants.add(self.profile2.user)
         unicode_post = PrivatePostFactory(
             privatetopic=unicode_topic,

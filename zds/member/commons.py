@@ -12,6 +12,7 @@ from django.template.defaultfilters import pluralize
 from django.utils.translation import ugettext_lazy as _
 
 from zds.member.models import Profile, TokenRegister, Ban
+from zds.utils.models import get_hat_from_settings
 from zds.utils.mps import send_mp
 
 
@@ -20,7 +21,7 @@ class ProfileCreate(object):
         """
         Creates an inactive profile in the database.
 
-        :param data: Array about an user.
+        :param data: Array about a user.
         :type data: array
         :return: instance of a profile inactive
         :rtype: Profile object
@@ -53,7 +54,7 @@ class TokenGenerator(object):
         """
         Generates a token for member registration.
 
-        :param user: An User object.
+        :param user: A User object.
         :type user: User object
         :return: A token object
         :rtype: Token object
@@ -75,9 +76,9 @@ class TokenGenerator(object):
         :return: nothing
         :rtype: None
         """
-        subject = _(u'{} - Confirmation d\'inscription').format(settings.ZDS_APP['site']['literal_name'])
-        from_email = u'{} <{}>'.format(settings.ZDS_APP['site']['literal_name'],
-                                       settings.ZDS_APP['site']['email_noreply'])
+        subject = _('{} - Confirmation d\'inscription').format(settings.ZDS_APP['site']['literal_name'])
+        from_email = '{} <{}>'.format(settings.ZDS_APP['site']['literal_name'],
+                                      settings.ZDS_APP['site']['email_noreply'])
         context = {
             'username': user.username,
             'url': settings.ZDS_APP['site']['url'] + token.get_absolute_url(),
@@ -173,13 +174,13 @@ class MemberSanctionState(object):
         :return: message of the un-sanction.
         :rtype: ugettext_lazy
         """
-        return _(u'Bonjour **{0}**,\n\n'
-                 u'**Bonne nouvelle**, la sanction qui '
-                 u'pesait sur vous a été levée par **{1}**.\n\n'
-                 u'Ce qui signifie que {3}\n\n'
-                 u'Le motif est :\n\n'
-                 u'> {4}\n\n'
-                 u'Cordialement, \n\n L\'équipe {5}.')
+        return _('Bonjour **{0}**,\n\n'
+                 '**Bonne nouvelle**, la sanction qui '
+                 'pesait sur vous a été levée par **{1}**.\n\n'
+                 'Ce qui signifie que {3}\n\n'
+                 'Le motif est :\n\n'
+                 '> {4}\n\n'
+                 'Cordialement, \n\n L\'équipe {5}.')
 
     def get_message_sanction(self):
         """
@@ -188,12 +189,12 @@ class MemberSanctionState(object):
         :return: message of the sanction.
         :rtype: ugettext_lazy
         """
-        return _(u'Bonjour **{0}**,\n\n'
-                 u'Vous avez été santionné par **{1}**.\n\n'
-                 u'La sanction est de type *{2}*, ce qui signifie que {3}\n\n'
-                 u'Le motif de votre sanction est :\n\n'
-                 u'> {4}\n\n'
-                 u'Cordialement, \n\nL\'équipe {5}.')
+        return _('Bonjour **{0}**,\n\n'
+                 'Vous avez été santionné par **{1}**.\n\n'
+                 'La sanction est de type *{2}*, ce qui signifie que {3}\n\n'
+                 'Le motif de votre sanction est :\n\n'
+                 '> {4}\n\n'
+                 'Cordialement, \n\nL\'équipe {5}.')
 
     def notify_member(self, ban, msg):
         """
@@ -215,7 +216,7 @@ class MemberSanctionState(object):
             msg,
             True,
             direct=True,
-            with_hat=settings.ZDS_APP['member']['moderation_hat'],
+            hat=get_hat_from_settings('moderation'),
         )
 
 
@@ -225,14 +226,14 @@ class ReadingOnlySanction(MemberSanctionState):
     """
 
     def get_type(self):
-        return _(u'Lecture Seule')
+        return _('Lecture Seule')
 
     def get_text(self):
         return self.array_infos.get('ls-text', '')
 
     def get_detail(self):
-        return (_(u'vous ne pouvez plus poster dans les forums, ni dans les '
-                  u'commentaires d\'articles et de tutoriels.'))
+        return (_('vous ne pouvez plus poster dans les forums, ni dans les '
+                  'commentaires d\'articles et de tutoriels.'))
 
     def apply_sanction(self, profile, ban):
         profile.end_ban_write = None
@@ -247,15 +248,15 @@ class TemporaryReadingOnlySanction(MemberSanctionState):
     """
 
     def get_type(self):
-        return _(u'Lecture Seule Temporaire')
+        return _('Lecture Seule Temporaire')
 
     def get_text(self):
         return self.array_infos.get('ls-text', '')
 
     def get_detail(self):
         jrs = int(self.array_infos.get('ls-jrs'))
-        return (_(u'vous ne pouvez plus poster dans les forums, ni dans les '
-                  u'commentaires d\'articles et de tutoriels pendant {0} jour{1}.')
+        return (_('vous ne pouvez plus poster dans les forums, ni dans les '
+                  'commentaires d\'articles et de tutoriels pendant {0} jour{1}.')
                 .format(jrs, pluralize(jrs)))
 
     def apply_sanction(self, profile, ban):
@@ -272,14 +273,14 @@ class DeleteReadingOnlySanction(MemberSanctionState):
     """
 
     def get_type(self):
-        return _(u"Autorisation d'écrire")
+        return _("Autorisation d'écrire")
 
     def get_text(self):
         return self.array_infos.get('unls-text', '')
 
     def get_detail(self):
-        return (_(u'vous pouvez désormais poster sur les forums, dans les '
-                  u'commentaires d\'articles et tutoriels.'))
+        return (_('vous pouvez désormais poster sur les forums, dans les '
+                  'commentaires d\'articles et tutoriels.'))
 
     def apply_sanction(self, profile, ban):
         profile.can_write = True
@@ -294,13 +295,13 @@ class BanSanction(MemberSanctionState):
     """
 
     def get_type(self):
-        return _(u'Ban définitif')
+        return _('Ban définitif')
 
     def get_text(self):
         return self.array_infos.get('ban-text', '')
 
     def get_detail(self):
-        return _(u'vous ne pouvez plus vous connecter sur {0}.') \
+        return _('vous ne pouvez plus vous connecter sur {0}.') \
             .format(settings.ZDS_APP['site']['literal_name'])
 
     def apply_sanction(self, profile, ban):
@@ -316,14 +317,14 @@ class TemporaryBanSanction(MemberSanctionState):
     """
 
     def get_type(self):
-        return _(u'Ban Temporaire')
+        return _('Ban Temporaire')
 
     def get_text(self):
         return self.array_infos.get('ban-text', '')
 
     def get_detail(self):
         jrs = int(self.array_infos.get('ban-jrs'))
-        return (_(u'vous ne pouvez plus vous connecter sur {0} pendant {1} jour{2}.')
+        return (_('vous ne pouvez plus vous connecter sur {0} pendant {1} jour{2}.')
                 .format(settings.ZDS_APP['site']['literal_name'],
                         jrs,
                         pluralize(jrs)))
@@ -342,13 +343,13 @@ class DeleteBanSanction(MemberSanctionState):
     """
 
     def get_type(self):
-        return _(u'Autorisation de se connecter')
+        return _('Autorisation de se connecter')
 
     def get_text(self):
         return self.array_infos.get('unban-text', '')
 
     def get_detail(self):
-        return _(u'vous pouvez désormais vous connecter sur le site.')
+        return _('vous pouvez désormais vous connecter sur le site.')
 
     def apply_sanction(self, profile, ban):
         profile.can_read = True

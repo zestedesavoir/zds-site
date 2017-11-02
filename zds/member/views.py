@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from __future__ import unicode_literals
+
 import uuid
 from datetime import datetime, timedelta
 
@@ -43,7 +43,8 @@ from zds.member.models import Profile, TokenForgotPassword, TokenRegister, Karma
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.notification.models import TopicAnswerSubscription, NewPublicationSubscription
 from zds.tutorialv2.models.models_database import PublishedContent, PickListOperation
-from zds.utils.models import Comment, CommentVote, Alert, CommentEdit, Hat, HatRequest
+from zds.utils.misc import contains_utf8mb4
+from zds.utils.models import Comment, CommentVote, Alert, CommentEdit, Hat, HatRequest, get_hat_from_settings
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView
 from zds.utils.tokens import generate_token
@@ -51,7 +52,7 @@ import logging
 
 
 class MemberList(ZdSPagingListView):
-    """Displays the list of registered users."""
+    """Display the list of registered users."""
 
     context_object_name = 'members'
     paginate_by = settings.ZDS_APP['member']['members_per_page']
@@ -63,15 +64,15 @@ class MemberList(ZdSPagingListView):
 
 
 class MemberDetail(DetailView):
-    """Displays details about a profile."""
+    """Display details about a profile."""
 
     context_object_name = 'usr'
     model = User
     template_name = 'member/profile.html'
 
     def get_object(self, queryset=None):
-        # Use urlunquote to accept quoted twice URLs (for instance in MPs send
-        # through emarkdown parser)
+        # Use urlunquote to accept twicely quoted URLs (for instance in MPs
+        # sent through emarkdown parser).
         return get_object_or_404(User, username=urlunquote(self.kwargs['user_name']))
 
     def get_context_data(self, **kwargs):
@@ -101,7 +102,7 @@ class MemberDetail(DetailView):
 
 
 class UpdateMember(UpdateView):
-    """Updates a profile."""
+    """Update a profile."""
 
     form_class = ProfileForm
     template_name = 'member/settings/profile.html'
@@ -179,14 +180,14 @@ class UpdateMember(UpdateView):
         messages.success(self.request, self.get_success_message())
 
     def get_success_message(self):
-        return _(u'Le profil a correctement été mis à jour.')
+        return _('Le profil a correctement été mis à jour.')
 
     def get_error_message(self):
-        return _(u'Une erreur est survenue.')
+        return _('Une erreur est survenue.')
 
 
 class UpdateGitHubToken(UpdateView):
-    """Updates the GitHub token."""
+    """Update the GitHub token."""
 
     form_class = GitHubTokenForm
     template_name = 'member/settings/github.html'
@@ -223,18 +224,16 @@ class UpdateGitHubToken(UpdateView):
         return reverse('update-github')
 
     def get_success_message(self):
-        return _(u'Votre token GitHub a été mis à jour.')
+        return _('Votre token GitHub a été mis à jour.')
 
     def get_error_message(self):
-        return _(u'Une erreur est survenue.')
+        return _('Une erreur est survenue.')
 
 
 @require_POST
 @login_required
 def remove_github_token(request):
-    """
-    Removes the current user's token
-    """
+    """Remove the current user token."""
 
     profile = get_object_or_404(Profile, user=request.user)
     if not profile.is_dev():
@@ -243,12 +242,12 @@ def remove_github_token(request):
     profile.github_token = ''
     profile.save()
 
-    messages.success(request, _(u'Votre token GitHub a été supprimé.'))
+    messages.success(request, _('Votre token GitHub a été supprimé.'))
     return redirect('update-github')
 
 
 class UpdateAvatarMember(UpdateMember):
-    """Update avatar of a user logged."""
+    """Update the avatar of a logged in user."""
 
     form_class = ImageAsAvatarForm
 
@@ -264,11 +263,11 @@ class UpdateAvatarMember(UpdateMember):
         profile.avatar_url = form.data['avatar_url']
 
     def get_success_message(self):
-        return _(u'L\'avatar a correctement été mis à jour.')
+        return _('L\'avatar a correctement été mis à jour.')
 
 
 class UpdatePasswordMember(UpdateMember):
-    """User's settings about his password."""
+    """Password-related user settings."""
 
     form_class = ChangePasswordForm
     template_name = 'member/settings/account.html'
@@ -288,14 +287,14 @@ class UpdatePasswordMember(UpdateMember):
         profile.user.set_password(form.data['password_new'])
 
     def get_success_message(self):
-        return _(u'Le mot de passe a correctement été mis à jour.')
+        return _('Le mot de passe a correctement été mis à jour.')
 
     def get_success_url(self):
         return reverse('update-password-member')
 
 
 class UpdateUsernameEmailMember(UpdateMember):
-    """User's settings about his username and email."""
+    """Settings related to username and email."""
 
     form_class = ChangeUserForm
     template_name = 'member/settings/user.html'
@@ -322,13 +321,13 @@ class UpdateUsernameEmailMember(UpdateMember):
             bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
             KarmaNote(user=profile.user,
                       moderator=bot,
-                      note=_(u"{} s'est renommé {}").format(profile.user.username, new_username),
+                      note=_("{} s'est renommé {}").format(profile.user.username, new_username),
                       karma=0).save()
-            # Change the pseudo
+            # Change the username
             profile.user.username = new_username
         if new_email and new_email != previous_email:
             profile.user.email = new_email
-            # create an alert for the staff if it's a new provider
+            # Create an alert for the staff if it's a new provider
             provider = provider = new_email.split('@')[-1].lower()
             if not NewEmailProvider.objects.filter(provider=provider).exists() \
                     and not User.objects.filter(email__iendswith='@{}'.format(provider)) \
@@ -377,7 +376,7 @@ class RegisterView(CreateView, ProfileCreate, TokenGenerator):
 
 
 class SendValidationEmailView(FormView, TokenGenerator):
-    """Send a validation email on demand. """
+    """Send a validation email on demand."""
 
     form_class = UsernameAndEmailForm
     template_name = 'member/register/send_validation_email.html'
@@ -402,7 +401,7 @@ class SendValidationEmailView(FormView, TokenGenerator):
             # Fetch the user
             self.get_user(form.data['username'], form.data['email'])
 
-            # User should not be already active
+            # User should not already be active
             if not self.usr.is_active:
                 return self.form_valid(form)
             else:
@@ -435,7 +434,8 @@ class SendValidationEmailView(FormView, TokenGenerator):
 @login_required
 def warning_unregister(request):
     """
-    Displays a warning page showing what will happen when user unregisters.
+    Display a warning page showing what will happen when the user
+    unregisters.
     """
     return render(request, 'member/settings/unregister.html', {'user': request.user})
 
@@ -444,7 +444,7 @@ def warning_unregister(request):
 @require_POST
 @transaction.atomic
 def unregister(request):
-    """allow members to unregister"""
+    """Allow members to unregister."""
 
     anonymous = get_object_or_404(User, username=settings.ZDS_APP['member']['anonymous_account'])
     external = get_object_or_404(User, username=settings.ZDS_APP['member']['external_account'])
@@ -452,7 +452,7 @@ def unregister(request):
     # Nota : as of v21 all about content paternity is held by a proper receiver in zds.tutorialv2.models.models_database
     PickListOperation.objects.filter(staff_user=current).update(staff_user=anonymous)
     PickListOperation.objects.filter(canceler_user=current).update(canceler_user=anonymous)
-    # comments likes / dislikes
+    # Comments likes / dislikes
     votes = CommentVote.objects.filter(user=current)
     for vote in votes:
         if vote.positive:
@@ -461,18 +461,18 @@ def unregister(request):
             vote.comment.dislike -= 1
         vote.comment.save()
     votes.delete()
-    # all messages anonymisation (forum, article and tutorial posts)
+    # All contents anonymization
     Comment.objects.filter(author=current).update(author=anonymous)
     PrivatePost.objects.filter(author=current).update(author=anonymous)
     CommentEdit.objects.filter(editor=current).update(editor=anonymous)
     CommentEdit.objects.filter(deleted_by=current).update(deleted_by=anonymous)
-    # karma notes, alerts and sanctions anonymisation (to keep them)
+    # Karma notes, alerts and sanctions anonymization (to keep them)
     KarmaNote.objects.filter(moderator=current).update(moderator=anonymous)
     Ban.objects.filter(moderator=current).update(moderator=anonymous)
     Alert.objects.filter(author=current).update(author=anonymous)
     Alert.objects.filter(moderator=current).update(moderator=anonymous)
     BannedEmailProvider.objects.filter(moderator=current).update(moderator=anonymous)
-    # in case current has been moderator in his old day
+    # In case current user has been moderator in the past
     Comment.objects.filter(editor=current).update(editor=anonymous)
     for topic in PrivateTopic.objects.filter(author=current):
         topic.participants.remove(current)
@@ -486,18 +486,22 @@ def unregister(request):
         topic.participants.remove(current)
         topic.save()
     Topic.objects.filter(author=current).update(author=anonymous)
-    # Before deleting gallery let's summurize what we deleted
-    # - unpublished tutorials with only the unregistering member as an author
-    # - unpublished articles with only the unregistering member as an author
-    # - all category associated with those entites (have a look on article.delete_entity_and_tree
-    # and tutorial.delete_entity_and_tree
-    # So concerning galleries, we just have for us
-    # - "personnal galleries" with only one owner (unregistering user)
-    # - "personnal galleries" with more than one owner
-    # so we will just delete the unretistering user ownership and give it to anonymous in the only case
-    # he was alone so that gallery is not lost
+
+    # Any content exclusively owned by the unregistering member will
+    # be deleted just before the User object (using a pre_delete
+    # receiver).
+    #
+    # Regarding galleries, there are two cases:
+    #
+    # - "personal galleries" with one owner (the unregistering
+    #   user). The user's ownership is removed and replaced by an
+    #   anonymous user in order not to lost the gallery.
+    #
+    # - "personal galleries" with many other owners. It is safe to
+    #   remove the user's ownership, the gallery won't be lost.
+
     galleries = UserGallery.objects.filter(user=current)
-    for gallery in UserGallery.objects.filter(user=current):
+    for gallery in galleries:
         if gallery.gallery.get_linked_users().count() == 1:
             anonymous_gallery = UserGallery()
             anonymous_gallery.user = external
@@ -506,7 +510,7 @@ def unregister(request):
             anonymous_gallery.save()
     galleries.delete()
 
-    # remove API access (tokens + applications)
+    # Remove API access (tokens + applications)
     for token in AccessToken.objects.filter(user=current):
         token.revoke()
 
@@ -521,13 +525,13 @@ def unregister(request):
 @permission_required('member.change_profile', raise_exception=True)
 @transaction.atomic
 def modify_profile(request, user_pk):
-    """Modifies sanction of a user if there is a POST request."""
+    """Modify the sanction of a user if there is a POST request."""
 
     profile = get_object_or_404(Profile, user__pk=user_pk)
     if profile.is_private():
         raise PermissionDenied
     if request.user.profile == profile:
-        messages.error(request, _(u'Vous ne pouvez pas vous sanctionner vous-même !'))
+        messages.error(request, _('Vous ne pouvez pas vous sanctionner vous-même !'))
         raise PermissionDenied
 
     if 'ls' in request.POST:
@@ -567,7 +571,7 @@ def modify_profile(request, user_pk):
     return redirect(profile.get_absolute_url())
 
 
-# settings for public profile
+# Settings for public profile
 
 @can_write_and_read_now
 @login_required
@@ -575,7 +579,7 @@ def modify_profile(request, user_pk):
 def settings_mini_profile(request, user_name):
     """Minimal settings of users for staff."""
 
-    # extra information about the current user
+    # Extra information about the current user
     profile = get_object_or_404(Profile, user__username=user_name)
     if request.method == 'POST':
         form = MiniProfileForm(request.POST)
@@ -586,16 +590,16 @@ def settings_mini_profile(request, user_name):
             profile.avatar_url = form.data['avatar_url']
             profile.sign = form.data['sign']
 
-            # Save the profile and redirect the user to the configuration space
-            # with message indicate the state of the operation
+            # Save profile and redirect user to the settings page
+            # with a message indicating the operation state.
 
             try:
                 profile.save()
             except:
-                messages.error(request, _(u'Une erreur est survenue.'))
+                messages.error(request, _('Une erreur est survenue.'))
                 return redirect(reverse('member-settings-mini-profile'))
 
-            messages.success(request, _(u'Le profil a correctement été mis à jour.'))
+            messages.success(request, _('Le profil a correctement été mis à jour.'))
             return redirect(reverse('member-detail', args=[profile.user.username]))
         else:
             return render(request, 'member/settings/profile.html', data)
@@ -608,8 +612,8 @@ def settings_mini_profile(request, user_name):
         })
         data = {'form': form, 'profile': profile}
         messages.warning(request, _(
-            u'Le profil que vous éditez n\'est pas le vôtre. '
-            u'Soyez encore plus prudent lors de l\'édition de celui-ci !'))
+            'Le profil que vous éditez n\'est pas le vôtre. '
+            'Soyez encore plus prudent lors de l\'édition de celui-ci !'))
         return render(request, 'member/settings/profile.html', data)
 
 
@@ -630,7 +634,7 @@ class NewEmailProvidersList(LoginRequiredMixin, PermissionRequiredMixin, ZdSPagi
 @login_required
 @permission_required('member.change_bannedemailprovider', raise_exception=True)
 def check_new_email_provider(request, provider_pk):
-    """Remove an alert about a new provider"""
+    """Remove an alert about a new provider."""
 
     provider = get_object_or_404(NewEmailProvider, pk=provider_pk)
     if 'ban' in request.POST \
@@ -638,11 +642,13 @@ def check_new_email_provider(request, provider_pk):
         BannedEmailProvider.objects.create(provider=provider.provider, moderator=request.user)
     provider.delete()
 
-    messages.success(request, _(u'Action effectuée.'))
+    messages.success(request, _('Action effectuée.'))
     return redirect('new-email-providers')
 
 
 class BannedEmailProvidersList(LoginRequiredMixin, PermissionRequiredMixin, ZdSPagingListView):
+    """List the banned email providers."""
+
     permissions = ['member.change_bannedemailprovider']
     paginate_by = settings.ZDS_APP['member']['providers_per_page']
 
@@ -656,6 +662,8 @@ class BannedEmailProvidersList(LoginRequiredMixin, PermissionRequiredMixin, ZdSP
 
 
 class MembersWithProviderList(LoginRequiredMixin, PermissionRequiredMixin, ZdSPagingListView):
+    """List users using a banned email provider."""
+
     permissions = ['member.change_bannedemailprovider']
     paginate_by = settings.ZDS_APP['member']['members_per_page']
 
@@ -680,6 +688,8 @@ class MembersWithProviderList(LoginRequiredMixin, PermissionRequiredMixin, ZdSPa
 
 
 class AddBannedEmailProvider(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    """Add an email provider to the banned list."""
+
     permissions = ['member.change_bannedemailprovider']
 
     model = BannedEmailProvider
@@ -689,7 +699,7 @@ class AddBannedEmailProvider(LoginRequiredMixin, PermissionRequiredMixin, Create
 
     def form_valid(self, form):
         form.instance.moderator = self.request.user
-        messages.success(self.request, _(u'Le fournisseur a été banni.'))
+        messages.success(self.request, _('Le fournisseur a été banni.'))
         return super(AddBannedEmailProvider, self).form_valid(form)
 
 
@@ -697,13 +707,46 @@ class AddBannedEmailProvider(LoginRequiredMixin, PermissionRequiredMixin, Create
 @login_required
 @permission_required('member.change_bannedemailprovider', raise_exception=True)
 def remove_banned_email_provider(request, provider_pk):
-    """Used to unban an email provider"""
+    """Unban an email provider."""
 
     provider = get_object_or_404(BannedEmailProvider, pk=provider_pk)
     provider.delete()
 
-    messages.success(request, _(u'Le fournisseur « {} » a été débanni.').format(provider.provider))
+    messages.success(request, _('Le fournisseur « {} » a été débanni.').format(provider.provider))
     return redirect('banned-email-providers')
+
+
+class HatsList(ZdSPagingListView):
+    """Display the list of hats."""
+
+    context_object_name = 'hats'
+    paginate_by = settings.ZDS_APP['member']['hats_per_page']
+    template_name = 'member/hats.html'
+    queryset = Hat.objects \
+                  .order_by('name') \
+                  .select_related('group') \
+                  .prefetch_related('group__user_set') \
+                  .prefetch_related('group__user_set__profile') \
+                  .prefetch_related('profile_set') \
+                  .prefetch_related('profile_set__user')
+
+
+class HatDetail(DetailView):
+    model = Hat
+    context_object_name = 'hat'
+    template_name = 'member/hat.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(HatDetail, self).get_context_data(**kwargs)
+        hat = context['hat']
+        if self.request.user.is_authenticated:
+            context['is_required'] = hat.name.lower() \
+                in [h.lower() for h in self.request.user.requested_hats.values_list('hat', flat=True)]
+        if hat.group:
+            context['users'] = hat.group.user_set.select_related('profile')
+        else:
+            context['users'] = [p.user for p in hat.profile_set.select_related('user')]
+        return context
 
 
 class HatsSettings(LoginRequiredMixin, CreateView):
@@ -711,6 +754,16 @@ class HatsSettings(LoginRequiredMixin, CreateView):
     template_name = 'member/settings/hats.html'
     form_class = HatRequestForm
     success_url = reverse_lazy('hats-settings')
+
+    def get_initial(self):
+        initial = super(HatsSettings, self).get_initial()
+        if 'ask' in self.request.GET:
+            try:
+                hat = Hat.objects.get(pk=int(self.request.GET['ask']))
+                initial['hat'] = hat.name
+            except (ValueError, Hat.DoesNotExist):
+                pass
+        return initial
 
     def form_valid(self, form):
         form.instance.user = self.request.user
@@ -744,8 +797,8 @@ class HatRequestDetail(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
 @transaction.atomic
 def solve_hat_request(request, request_pk):
     """
-    Solves a hat request by granting or denying
-    the requested hat according to moderator's decision.
+    Solve a hat request by granting or denying the requested hat
+    according to moderator's decision.
     """
 
     hat_request = get_object_or_404(HatRequest, pk=request_pk)
@@ -753,12 +806,12 @@ def solve_hat_request(request, request_pk):
     if 'grant' in request.POST:  # hat is granted
         hat, created = Hat.objects.get_or_create(name__iexact=hat_request.hat, defaults={'name': hat_request.hat})
         if created:
-            messages.success(request, _('La casquette « {} » a été créée.').format(hat_request.hat))
+            messages.success(request, _('La casquette « {} » a été créée.').format(hat_request.hat))
         hat_request.user.profile.hats.add(hat)
-        messages.success(request, _('La casquette « {0} » a été accordée à {1}.').format(
+        messages.success(request, _('La casquette « {0} » a été accordée à {1}.').format(
             hat_request.hat, hat_request.user.username))
     else:
-        messages.success(request, _('La casquette « {0} » a été refusée à {1}.').format(
+        messages.success(request, _('La casquette « {0} » a été refusée à {1}.').format(
             hat_request.hat, hat_request.user.username))
 
     # send a PM to notify member about this decision
@@ -775,13 +828,13 @@ def solve_hat_request(request, request_pk):
     )
     send_mp(bot,
             [hat_request.user],
-            _('Casquette « {} »').format(hat_request.hat),
+            _('Casquette « {} »').format(hat_request.hat),
             '',
             msg,
             False,
             True,
             False,
-            with_hat=settings.ZDS_APP['member']['moderation_hat'])
+            hat=get_hat_from_settings('hats_management'))
 
     hat_request.delete()
 
@@ -794,23 +847,29 @@ def solve_hat_request(request, request_pk):
 @transaction.atomic
 def add_hat(request, user_pk):
     """
-    Used to add a hat to a user.
+    Add a hat to a user.
     Creates the hat if it doesn't exist.
     """
 
     user = get_object_or_404(User, pk=user_pk)
 
-    hat_name = request.POST.get('hat', None)
+    hat_name = request.POST.get('hat', '').strip()
     if not hat_name:
-        messages.error(request, _(u'Aucune casquette saisie.'))
+        messages.error(request, _('Aucune casquette saisie.'))
+    if contains_utf8mb4(hat_name):
+        messages.error(request, _('Les caractères utf8mb4 ne sont pas autorisés dans les casquettes.'))
     elif len(hat_name) > 40:
-        messages.error(request, _(u'Une casquette ne peut dépasser 40 caractères.'))
+        messages.error(request, _('Une casquette ne peut dépasser 40 caractères.'))
     else:
         hat, created = Hat.objects.get_or_create(name__iexact=hat_name, defaults={'name': hat_name})
         if created:
-            messages.success(request, _(u'La casquette « {} » a été créée.').format(hat_name))
-        user.profile.hats.add(hat)
-        messages.success(request, _(u'La casquette a bien été ajoutée.'))
+            messages.success(request, _('La casquette « {} » a été créée.').format(hat_name))
+        if hat.group:
+            messages.error(request, _('Cette casquette est accordée aux membres d\'un groupe particulier. '
+                                      'Elle ne peut pas être ajoutée individuellement.'))
+        else:
+            user.profile.hats.add(hat)
+            messages.success(request, _('La casquette a bien été ajoutée.'))
 
         # if hat was asked, remove request
         HatRequest.objects.filter(user=user, hat__iexact=hat_name).delete()
@@ -822,9 +881,7 @@ def add_hat(request, user_pk):
 @login_required
 @transaction.atomic
 def remove_hat(request, user_pk, hat_pk):
-    """
-    Used to remove a hat from a user.
-    """
+    """Remove a hat from a user."""
 
     user = get_object_or_404(User, pk=user_pk)
     hat = get_object_or_404(Hat, pk=hat_pk)
@@ -835,12 +892,12 @@ def remove_hat(request, user_pk, hat_pk):
 
     user.profile.hats.remove(hat)
 
-    messages.success(request, _(u'La casquette a bien été retirée.'))
+    messages.success(request, _('La casquette a bien été retirée.'))
     return redirect(user.profile.get_absolute_url())
 
 
 def login_view(request):
-    """Log in user."""
+    """Log user in."""
 
     csrf_tk = {}
     csrf_tk.update(csrf(request))
@@ -868,9 +925,10 @@ def login_view(request):
                         request.session.set_expiry(0)
                     profile.last_ip_address = get_client_ip(request)
                     profile.save()
-                    # redirect the user if needed
-                    # set the cookie for Clem smileys
-                    # (for people switching account or clearing cookies after a browser session)
+                    # Redirect the user if needed.
+                    # Set the cookie for Clem smileys.
+                    # (For people switching account or clearing cookies
+                    # after a browser session.)
                     try:
                         response = redirect(next_page)
                         set_old_smileys_cookie(response, profile)
@@ -881,18 +939,18 @@ def login_view(request):
                         return response
                 else:
                     messages.error(request,
-                                   _(u'Vous n\'êtes pas autorisé à vous connecter '
-                                     u'sur le site, vous avez été banni par un '
-                                     u'modérateur.'))
+                                   _('Vous n\'êtes pas autorisé à vous connecter '
+                                     'sur le site, vous avez été banni par un '
+                                     'modérateur.'))
             else:
                 messages.error(request,
-                               _(u'Vous n\'avez pas encore activé votre compte, '
-                                 u'vous devez le faire pour pouvoir vous '
-                                 u'connecter sur le site. Regardez dans vos '
-                                 u'mails : {}.').format(user.email))
+                               _('Vous n\'avez pas encore activé votre compte, '
+                                 'vous devez le faire pour pouvoir vous '
+                                 'connecter sur le site. Regardez dans vos '
+                                 'mails : {}.').format(user.email))
         else:
             messages.error(request,
-                           _(u'Les identifiants fournis ne sont pas valides.'))
+                           _('Les identifiants fournis ne sont pas valides.'))
             initial = {'username': username}
 
     form = LoginForm(initial=initial)
@@ -910,7 +968,7 @@ def login_view(request):
 @login_required
 @require_POST
 def logout_view(request):
-    """Log out user."""
+    """Log user out."""
 
     logout(request)
     request.session.clear()
@@ -921,7 +979,7 @@ def logout_view(request):
 
 
 def forgot_password(request):
-    """If the user forgot his password, he can have a new one."""
+    """If the user has forgotten his password, they can get a new one."""
 
     if request.method == 'POST':
         form = UsernameAndEmailForm(request.POST)
@@ -940,7 +998,7 @@ def forgot_password(request):
             if email:
                 usr = get_object_or_404(User, Q(email=email))
 
-            # Generate a valid token during one hour.
+            # Generate a valid token during one hour
             uuid_token = str(uuid.uuid4())
             date_end = datetime.now() + timedelta(days=0, hours=1, minutes=0,
                                                   seconds=0)
@@ -948,8 +1006,8 @@ def forgot_password(request):
                                         date_end=date_end)
             token.save()
 
-            # send email
-            subject = _(u'{} - Mot de passe oublié').format(settings.ZDS_APP['site']['literal_name'])
+            # Send email
+            subject = _('{} - Mot de passe oublié').format(settings.ZDS_APP['site']['literal_name'])
             from_email = '{} <{}>'.format(settings.ZDS_APP['site']['literal_name'],
                                           settings.ZDS_APP['site']['email_noreply'])
             context = {
@@ -985,7 +1043,7 @@ def new_password(request):
         if form.is_valid():
             data = form.data
             password = data['password']
-            # User can't confirm his request if it is too late.
+            # User can't confirm his request if it is too late
 
             if datetime.now() > token.date_end:
                 return render(request, 'member/new_password/failed.html')
@@ -1000,7 +1058,7 @@ def new_password(request):
 
 
 def activate_account(request):
-    """Active token for a user."""
+    """Activate an account with a token."""
     try:
         token = request.GET['token']
     except KeyError:
@@ -1012,14 +1070,14 @@ def activate_account(request):
     if usr.is_active:
         return render(request, 'member/register/token_already_used.html')
 
-    # User can't confirm their request if it is too late.
+    # User can't confirm their request if it is too late
     if datetime.now() > token.date_end:
         return render(request, 'member/register/token_failed.html',
                       {'token': token})
     usr.is_active = True
     usr.save()
 
-    # send welcome message
+    # Send welcome message
     bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
     msg = render_to_string(
         'member/messages/account_activated.md',
@@ -1036,16 +1094,16 @@ def activate_account(request):
 
     send_mp(bot,
             [usr],
-            _(u'Bienvenue sur {}').format(settings.ZDS_APP['site']['literal_name']),
-            _(u'Le manuel du nouveau membre'),
+            _('Bienvenue sur {}').format(settings.ZDS_APP['site']['literal_name']),
+            _('Le manuel du nouveau membre'),
             msg,
             False,
             True,
             False,
-            with_hat=settings.ZDS_APP['member']['moderation_hat'])
+            hat=get_hat_from_settings('moderation'))
     token.delete()
 
-    # create an alert for the staff if it's a new provider
+    # Create an alert for the staff if it's a new provider
     if usr.email:
         provider = usr.email.split('@')[-1].lower()
         if not NewEmailProvider.objects.filter(provider=provider).exists() \
@@ -1058,7 +1116,7 @@ def activate_account(request):
 
 
 def generate_token_account(request):
-    """Generate token for account."""
+    """Generate a token for an account."""
 
     try:
         token = request.GET['token']
@@ -1066,15 +1124,15 @@ def generate_token_account(request):
         return redirect(reverse('homepage'))
     token = get_object_or_404(TokenRegister, token=token)
 
-    # push date
+    # Push date
 
     date_end = datetime.now() + timedelta(days=0, hours=1, minutes=0,
                                           seconds=0)
     token.date_end = date_end
     token.save()
 
-    # send email
-    subject = _(u"{} - Confirmation d'inscription").format(settings.ZDS_APP['site']['literal_name'])
+    # Send email
+    subject = _("{} - Confirmation d'inscription").format(settings.ZDS_APP['site']['literal_name'])
     from_email = '{} <{}>'.format(settings.ZDS_APP['site']['literal_name'],
                                   settings.ZDS_APP['site']['email_noreply'])
     context = {
@@ -1104,13 +1162,16 @@ def get_client_ip(request):
         # other
         return request.META.get('REMOTE_ADDR')
     else:
-        # should never happend
+        # Should never happen
         return '0.0.0.0'
 
 
 @login_required
 def settings_promote(request, user_pk):
-    """ Manage the admin right of user. Only super user can access """
+    """
+    Manage groups and activation status of a user.
+    Only superusers are allowed to use this.
+    """
 
     if not request.user.is_superuser:
         raise PermissionDenied
@@ -1120,22 +1181,22 @@ def settings_promote(request, user_pk):
 
     if request.method == 'POST':
         form = PromoteMemberForm(request.POST)
-        data = dict(form.data.iterlists())
+        data = dict(form.data)
 
         groups = Group.objects.all()
         usergroups = user.groups.all()
 
         if 'groups' in data:
             for group in groups:
-                if unicode(group.id) in data['groups']:
+                if str(group.id) in data['groups']:
                     if group not in usergroups:
                         user.groups.add(group)
-                        messages.success(request, _(u'{0} appartient maintenant au groupe {1}.')
+                        messages.success(request, _('{0} appartient maintenant au groupe {1}.')
                                          .format(user.username, group.name))
                 else:
                     if group in usergroups:
                         user.groups.remove(group)
-                        messages.warning(request, _(u'{0} n\'appartient maintenant plus au groupe {1}.')
+                        messages.warning(request, _('{0} n\'appartient maintenant plus au groupe {1}.')
                                          .format(user.username, group.name))
                         topics_followed = TopicAnswerSubscription.objects.get_objects_followed_by(user)
                         for topic in topics_followed:
@@ -1148,40 +1209,40 @@ def settings_promote(request, user_pk):
                     if isinstance(topic, Topic) and group in topic.forum.groups.all():
                         TopicAnswerSubscription.objects.toggle_follow(topic, user)
             user.groups.clear()
-            messages.warning(request, _(u'{0} n\'appartient (plus ?) à aucun groupe.')
+            messages.warning(request, _('{0} n\'appartient (plus ?) à aucun groupe.')
                              .format(user.username))
 
-        if 'activation' in data and u'on' in data['activation']:
+        if 'activation' in data and 'on' in data['activation']:
             user.is_active = True
-            messages.success(request, _(u'{0} est maintenant activé.')
+            messages.success(request, _('{0} est maintenant activé.')
                              .format(user.username))
         else:
             user.is_active = False
-            messages.warning(request, _(u'{0} est désactivé.')
+            messages.warning(request, _('{0} est désactivé.')
                              .format(user.username))
 
         user.save()
 
         usergroups = user.groups.all()
         bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
-        msg = _(u'Bonjour {0},\n\n'
-                u'Un administrateur vient de modifier les groupes '
-                u'auxquels vous appartenez.  \n').format(user.username)
+        msg = _('Bonjour {0},\n\n'
+                'Un administrateur vient de modifier les groupes '
+                'auxquels vous appartenez.  \n').format(user.username)
         if len(usergroups) > 0:
-            msg = string_concat(msg, _(u'Voici la liste des groupes dont vous faites dorénavant partie :\n\n'))
+            msg = string_concat(msg, _('Voici la liste des groupes dont vous faites dorénavant partie :\n\n'))
             for group in usergroups:
-                msg += u'* {0}\n'.format(group.name)
+                msg += '* {0}\n'.format(group.name)
         else:
-            msg = string_concat(msg, _(u'* Vous ne faites partie d\'aucun groupe'))
+            msg = string_concat(msg, _('* Vous ne faites partie d\'aucun groupe'))
         send_mp(
             bot,
             [user],
-            _(u'Modification des groupes'),
-            u'',
+            _('Modification des groupes'),
+            '',
             msg,
             True,
             True,
-            with_hat=settings.ZDS_APP['member']['moderation_hat'],
+            hat=get_hat_from_settings('moderation'),
         )
 
         return redirect(profile.get_absolute_url())
@@ -1200,7 +1261,7 @@ def settings_promote(request, user_pk):
 @login_required
 @permission_required('member.change_profile', raise_exception=True)
 def member_from_ip(request, ip_address):
-    """ Get list of user connected from a particular ip """
+    """List users connected from a particular IP."""
 
     members = Profile.objects.filter(last_ip_address=ip_address).order_by('-last_visit')
     return render(request, 'member/settings/memberip.html', {
@@ -1213,7 +1274,7 @@ def member_from_ip(request, ip_address):
 @permission_required('member.change_profile', raise_exception=True)
 @require_POST
 def modify_karma(request):
-    """ Add a Karma note to the user profile """
+    """Add a Karma note to a user profile."""
 
     try:
         profile_pk = int(request.POST['profile_pk'])
@@ -1244,6 +1305,6 @@ def modify_karma(request):
             profile.karma += note.karma
             profile.save()
     except ValueError as e:
-        logging.getLogger('zds.member').warn('ValueError: modifying karma failed because {}'.format(e))
+        logging.getLogger(__name__).warn('ValueError: modifying karma failed because {}'.format(e))
 
     return redirect(reverse('member-detail', args=[profile.user.username]))

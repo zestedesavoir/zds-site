@@ -1,9 +1,12 @@
 # coding: utf-8
 from django.test import TestCase
 from django.db import IntegrityError, transaction
+from django.contrib.auth.models import Group
 
+from zds.member.models import Profile
+from zds.member.factories import ProfileFactory
 from zds.utils.forms import TagValidator
-from zds.utils.models import Tag
+from zds.utils.models import Tag, Hat
 
 
 class TagsTests(TestCase):
@@ -45,7 +48,7 @@ class TagsTests(TestCase):
                          'all tags are "{}"'.format('","'.join(Tag.objects.values_list('title', flat=True))))
 
         # test tags title stripping
-        tags = ['foo bar', '  azerty', u'\u00A0qwerty ', ' another tag ']
+        tags = ['foo bar', '  azerty', '\u00A0qwerty ', ' another tag ']
         insert_valid_tags(tags)
 
         all_titles = Tag.objects.values_list('title', flat=True)
@@ -68,9 +71,30 @@ class TagsTests(TestCase):
         self.assertEqual(validator.validate_raw_string(tag.title), True)
         self.assertEqual(validator.errors, [])
 
+    def test_validator_with_special_char_only(self):
+
+        validator = TagValidator()
+        self.assertFalse(validator.validate_raw_string('^'))
+        self.assertEqual(len(validator.errors), 1)
+
     def test_validator_with_utf8mb4(self):
 
-        raw_string = u'🐙☢,bla'
+        raw_string = '🐙☢,bla'
         validator = TagValidator()
         self.assertFalse(validator.validate_raw_string(raw_string))
         self.assertEqual(1, len(validator.errors))
+
+    def test_prevent_users_getting_hat_linked_to_group(self):
+        # Create a hat and add it to a user
+        hat_name = 'Test hat'
+        profile = ProfileFactory()
+        hat, _ = Hat.objects.get_or_create(name__iexact=hat_name, defaults={'name': hat_name})
+        profile.hats.add(hat)
+        self.assertIn(hat_name, [h.name for h in profile.hats.all()])
+        # Now, link a group to this hat
+        group, _ = Group.objects.get_or_create(name='test_hat')
+        hat.group = group
+        hat.save()
+        # The user shoudn't have the hat through their profile anymore
+        profile = Profile.objects.get(pk=profile.pk)  # reload
+        self.assertNotIn(hat, profile.hats.all())

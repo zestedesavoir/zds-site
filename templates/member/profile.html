@@ -47,12 +47,12 @@
                             {% if profile.last_visit %}
                                 {{ profile.last_visit|format_date:True }}
                             {% else %}
-                                {% trans "ne s'est jamais connecté(e)" %}
+                                {% trans "ne s’est jamais connecté(e)" %}
                             {% endif %}
                     </li>
                 {% else %}
                     <li>
-                        {% trans "Ce membre est un compte d'administration" %}
+                        {% trans "Ce membre est un compte d’administration" %}
                     </li>
                 {% endif %}
                 {% if perms.member.show_ip %}
@@ -92,11 +92,14 @@
         {% if profile.has_hat or perms.utils.change_hat %}
             <h2 id="casquettes">{% trans "Casquettes" %}</h2>
             <ul>
-                {% for hat in profile.hats.all %}
+                {% for hat in profile.get_hats %}
                     <li>
-                        {{ hat.name }}
-                        {% if perms.utils.change_hat %}
-                            <a href="#remove-hat-{{ hat.pk }}" class="open-modal">{% trans "Retirer" %}</a>
+                        <a href="{{ hat.get_absolute_url }}">{{ hat.name }}</a>
+                        {% if hat.is_staff %}
+                            <em>({{ app.site.literal_name }})</em>
+                        {% endif %}
+                        {% if perms.utils.change_hat and not hat.group %}
+                            – <a href="#remove-hat-{{ hat.pk }}" class="open-modal">{% trans "Retirer" %}</a>
                         {% endif %}
                     </li>
                     {% if perms.utils.change_hat %}
@@ -104,7 +107,7 @@
                             {% csrf_token %}
                             <p>
                                 {% blocktrans with hat=hat.name username=usr.username %}
-                                    Voulez-vous vraiment retirer la casquette « {{ hat }} » à {{ username }} ?
+                                    Voulez-vous vraiment retirer la casquette « {{ hat }} » à {{ username }} ?
                                 {% endblocktrans %}
                             </p>
                             <button type="submit">{% trans 'Confirmer' %}</button>
@@ -125,7 +128,7 @@
                         <li>{% trans "Le membre aura la possibilité pour chaque message de poster avec ou sans sa casquette." %}</li>
                         <li>{% trans "Il sera possible de retirer la casquette au membre par la suite. Les messages ayant été postés avec le resteront." %}</li>
                     </ul>
-                    <p>{% trans "La casquette sera créée si elle n'existe pas." %}</p>
+                    <p>{% trans "La casquette sera créée si elle n’existe pas." %}</p>
                     <input type="text" name="hat" maxlength="40" placeholder="{% trans 'Casquette à attribuer.' %}" required>
                     <button type="submit">{% trans 'Valider' %}</button>
                 </form>

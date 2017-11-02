@@ -118,7 +118,7 @@ TEMPLATES = [
 # Sentry (+ raven, the Python Client)
 # https://docs.getsentry.com/hosted/clients/python/integrations/django/
 RAVEN_CONFIG = {
-    'dsn': 'to-fill'
+    'dsn': 'to-fill',
     'release': get_git_version()['name'],
 }
 

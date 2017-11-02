@@ -1,17 +1,14 @@
 # coding: utf-8
 
 import os
-import sys
 from os.path import join
 
 from django.contrib.messages import constants as message_constants
 from django.utils.http import urlquote
 from django.utils.translation import gettext_lazy as _
 
-# Changes the default encoding of python to UTF-8.
-# Theses instructions don't change encoding python outside Zeste de Savoir.
-reload(sys)
-sys.setdefaultencoding('UTF8')
+from colorlog import ColoredFormatter
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
@@ -111,7 +108,6 @@ MIDDLEWARE_CLASSES = (
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'zds.utils.ThreadLocals',
     'zds.middlewares.setlastvisitmiddleware.SetLastVisitMiddleware',
-    'zds.middlewares.profile.ProfileMiddleware',
     'zds.member.utils.ZDSCustomizeSocialAuthExceptionMiddleware',
 )
 
@@ -212,7 +208,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'zds.api.pagination.DefaultPagination',
     # Active OAuth2 authentication.
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'oauth2_provider.ext.rest_framework.OAuth2Authentication',
+        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
         'rest_framework.authentication.SessionAuthentication',
     ),
     'DEFAULT_PARSER_CLASSES': (
@@ -282,34 +278,69 @@ CORS_EXPOSE_HEADERS = (
     'link'
 )
 
-# A sample logging configuration. The only tangible logging
-# performed by this configuration is to send an email to
-# the site admins on every HTTP 500 error when DEBUG=False.
-# See http://docs.djangoproject.com/en/dev/topics/logging for
-# more details on how to customize your logging configuration.
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
-    'filters': {
-        'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse'
-        }
-    },
-    'handlers': {
-        'mail_admins': {
-            'level': 'DEBUG',
-            'filters': ['require_debug_false'],
-            'class': 'django.utils.log.AdminEmailHandler'
-        }
-    },
-    'loggers': {
-        'django.request': {
-            'handlers': ['mail_admins'],
-            'level': 'DEBUG',
-            'propagate': True,
+
+    'formatters': {
+        'verbose': {
+            '()': ColoredFormatter,
+            'format': '%(log_color)s %(levelname)s %(reset)s %(bold_black)s%(name)s%(reset)s %(message)s',
+            'log_colors': {
+                'DEBUG': 'fg_white,bg_black',
+                'INFO': 'fg_black,bg_bold_white',
+                'WARNING': 'fg_black,bg_bold_yellow',
+                'ERROR': 'fg_bold_white,bg_bold_red',
+                'CRITICAL': 'fg_bold_white,bg_bold_red',
+            },
         },
-    }
+
+        'django.server': {
+            '()': ColoredFormatter,
+            'format': '%(log_color)s%(message)s',
+            'log_colors': {
+                'INFO': 'bold_black',
+                'WARNING': 'bold_yellow',
+                'ERROR': 'bold_red',
+                'CRITICAL': 'bold_red',
+            },
+        },
+    },
+
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+
+        'django.server': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'django.server',
+        },
+    },
+
+    'loggers': {
+        'django': {
+            'level': 'INFO',
+            'handlers': ['console'],
+        },
+
+        'django.server': {
+            'level': 'INFO',
+            'handlers': ['django.server'],
+            'propagate': False,
+        },
+
+        'zds': {
+            'level': 'DEBUG',  # Important because the default level is 'WARNING' or something like that
+            'handlers': ['console'],
+        },
+    },
 }
+
 
 CACHES = {
     'default': {
@@ -384,90 +415,95 @@ THUMBNAIL_PRESERVE_EXTENSIONS = None
 
 ZDS_APP = {
     'site': {
-        'name': u'ZesteDeSavoir',
-        'literal_name': u'Zeste de Savoir',
-        'slogan': u'Zeste de Savoir, la connaissance pour tous et sans pépins',
-        'abbr': u'zds',
-        'url': u'http://127.0.0.1:8000',
-        'secure_url': u'https://127.0.0.1:8000',
-        'dns': u'zestedesavoir.com',
-        'email_contact': u'zestedesavoir@gmail.com',
-        'email_noreply': u'noreply@zestedesavoir.com',
-        'forum_feedback_users': u'/forums/communaute/bug-suggestions/',
-        'contribute_link': u'https://github.com/zestedesavoir/zds-site/blob/dev/CONTRIBUTING.md',
-        'short_description': u'',
-        'long_description': u'Zeste de Savoir est un site de partage de connaissances '
-                            u'sur lequel vous trouverez des tutoriels de tous niveaux, '
-                            u'des articles et des forums d’entraide animés par et pour '
-                            u'la communauté.',
+        'name': 'ZesteDeSavoir',
+        'literal_name': 'Zeste de Savoir',
+        'slogan': 'Zeste de Savoir, la connaissance pour tous et sans pépins',
+        'abbr': 'zds',
+        'url': 'http://127.0.0.1:8000',
+        'secure_url': 'https://127.0.0.1:8000',
+        'dns': 'zestedesavoir.com',
+        'email_contact': 'zestedesavoir@gmail.com',
+        'email_noreply': 'noreply@zestedesavoir.com',
+        'forum_feedback_users': '/forums/communaute/bug-suggestions/',
+        'contribute_link': 'https://github.com/zestedesavoir/zds-site/blob/dev/CONTRIBUTING.md',
+        'short_description': '',
+        'long_description': 'Zeste de Savoir est un site de partage de connaissances '
+                            'sur lequel vous trouverez des tutoriels de tous niveaux, '
+                            'des articles et des forums d’entraide animés par et pour '
+                            'la communauté.',
         'association': {
-            'name': u'Zeste de Savoir',
-            'fee': u'20 €',
-            'email': u'zestedesavoir@gmail.com',
-            'email_ca': u'ca-zeste-de-savoir@googlegroups.com',
+            'name': 'Zeste de Savoir',
+            'fee': '20 €',
+            'email': 'zestedesavoir@gmail.com',
+            'email_ca': 'ca-zeste-de-savoir@googlegroups.com',
             'forum_ca_pk': 25
         },
         'repository': {
-            'url': u'https://github.com/zestedesavoir/zds-site',
-            'bugtracker': u'https://github.com/zestedesavoir/zds-site/issues',
-            'api': u'https://api.github.com/repos/zestedesavoir/zds-site',
+            'url': 'https://github.com/zestedesavoir/zds-site',
+            'bugtracker': 'https://github.com/zestedesavoir/zds-site/issues',
+            'api': 'https://api.github.com/repos/zestedesavoir/zds-site',
             'tags': [
-                u'C-Back', u'C-Front', u'C-API', u'C-Documentation', u'C-Infra', u'S-Bug', u'S-Régression',
-                u'S-Évolution'
+                'C-Back', 'C-Front', 'C-API', 'C-Documentation', 'C-Infra', 'S-Bug', 'S-Régression',
+                'S-Évolution'
             ]
         },
         'licenses': {
             'logo': {
-                'code': u'CC-BY',
-                'title': u'Creative Commons License',
-                'description': u'Licence Creative Commons Attribution - Pas d’Utilisation Commerciale - '
-                               u'Partage dans les Mêmes Conditions 4.0 International.',
-                'url_image': u'http://i.creativecommons.org/l/by-nc-sa/4.0/80x15.png',
-                'url_license': u'http://creativecommons.org/licenses/by-nc-sa/4.0/',
-                'author': u'MaxRoyo'
+                'code': 'CC-BY',
+                'title': 'Creative Commons License',
+                'description': 'Licence Creative Commons Attribution - Pas d’Utilisation Commerciale - '
+                               'Partage dans les Mêmes Conditions 4.0 International.',
+                'url_image': 'http://i.creativecommons.org/l/by-nc-sa/4.0/80x15.png',
+                'url_license': 'http://creativecommons.org/licenses/by-nc-sa/4.0/',
+                'author': 'MaxRoyo'
             },
             'cookies': {
-                'code': u'CC-BY',
-                'title': u'Licence Creative Commons',
-                'description': u'licence Creative Commons Attribution 4.0 International',
-                'url_image': u'http://i.creativecommons.org/l/by-nc-sa/4.0/80x15.png',
-                'url_license': u'http://creativecommons.org/licenses/by-nc-sa/4.0/'
+                'code': 'CC-BY',
+                'title': 'Licence Creative Commons',
+                'description': 'licence Creative Commons Attribution 4.0 International',
+                'url_image': 'http://i.creativecommons.org/l/by-nc-sa/4.0/80x15.png',
+                'url_license': 'http://creativecommons.org/licenses/by-nc-sa/4.0/'
             },
             'source': {
-                'code': u'GPL v3',
-                'url_license': u'http://www.gnu.org/licenses/gpl-3.0.html',
-                'provider_name': u'Progdupeupl',
-                'provider_url': u'http://pdp.microjoe.org',
+                'code': 'GPL v3',
+                'url_license': 'http://www.gnu.org/licenses/gpl-3.0.html',
+                'provider_name': 'Progdupeupl',
+                'provider_url': 'http://pdp.microjoe.org',
             },
-            'licence_info_title': u'http://zestedesavoir.com/tutoriels/281/le-droit-dauteur-creative-commons-et-les-lic'
-                                  u'ences-sur-zeste-de-savoir/',
-            'licence_info_link': u'Le droit d\'auteur, Creative Commons et les licences sur Zeste de Savoir'
+            'licence_info_title': 'http://zestedesavoir.com/tutoriels/281/le-droit-dauteur-creative-commons-et-les-lic'
+                                  'ences-sur-zeste-de-savoir/',
+            'licence_info_link': 'Le droit d\'auteur, Creative Commons et les licences sur Zeste de Savoir'
         },
         'hosting': {
-            'name': u'GANDI SAS',
-            'address': u'63-65 boulevard Massena - 75013 Paris - France'
+            'name': 'GANDI SAS',
+            'address': '63-65 boulevard Massena - 75013 Paris - France'
         },
         'social': {
-            'facebook': u'https://www.facebook.com/ZesteDeSavoir',
-            'twitter': u'https://twitter.com/ZesteDeSavoir',
-            'googleplus': u'https://plus.google.com/u/0/107033688356682807298'
+            'facebook': 'https://www.facebook.com/ZesteDeSavoir',
+            'twitter': 'https://twitter.com/ZesteDeSavoir',
+            'googleplus': 'https://plus.google.com/u/0/107033688356682807298'
         },
-        'cnil': u'1771020',
+        'cnil': '1771020',
     },
     'member': {
-        'bot_account': u'admin',
-        'anonymous_account': u'anonymous',
-        'external_account': u'external',
-        'bot_group': u'bot',
-        'dev_group': u'devs',
+        'bot_account': 'admin',
+        'anonymous_account': 'anonymous',
+        'external_account': 'external',
+        'bot_group': 'bot',
+        'dev_group': 'devs',
         'members_per_page': 100,
         'providers_per_page': 100,
+        'hats_per_page': 50,
+        'users_in_hats_list': 5,
         'requested_hats_per_page': 100,
         'update_last_visit_interval': 600,  # seconds
-        'validation_hat': 'Staff',
-        'moderation_hat': 'Staff',
         'old_smileys_allowed': False,
         'old_smileys_cookie_key': 'use_old_smileys',
+    },
+    'hats': {
+        'moderation': 'Staff',
+        'validation': 'Staff',
+        'hats_management': 'Staff',
     },
     'gallery': {
         'image_max_size': 1024 * 1024,
@@ -508,7 +544,7 @@ ZDS_APP = {
         'maximum_slug_size': 150,
         'characters_per_minute': 1500,
         'editorial_line_link':
-        u'https://zestedesavoir.com/articles/222/la-ligne-editoriale-officielle-de-zeste-de-savoir/',
+        'https://zestedesavoir.com/articles/222/la-ligne-editoriale-officielle-de-zeste-de-savoir/',
     },
     'forum': {
         'posts_per_page': 21,
@@ -546,13 +582,13 @@ ZDS_APP = {
         'results_per_page': 20,
         'search_groups': {
             'content': (
-                _(u'Contenus publiés'), ['publishedcontent', 'chapter']
+                _('Contenus publiés'), ['publishedcontent', 'chapter']
             ),
             'topic': (
-                _(u'Sujets du forum'), ['topic']
+                _('Sujets du forum'), ['topic']
             ),
             'post': (
-                _(u'Messages du forum'), ['post']
+                _('Messages du forum'), ['post']
             ),
         },
         'boosts': {
@@ -637,7 +673,7 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Load the production settings, overwrite the existing ones if needed
 try:
-    from settings_prod import *  # noqa
+    from .settings_prod import *  # noqa
 except ImportError:
     pass
 

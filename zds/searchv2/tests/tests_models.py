@@ -110,7 +110,7 @@ class ESIndexManagerTests(TestCase):
             # keep "c" intact:
             ('apprendre à programmer en C', ['aprendr', 'program', 'langage_c']),
             # remove HTML and some special characters:
-            ('<p>&laquo;&nbsp;test&#x202F;!&nbsp;&raquo;, en hurlant &hellip;</p>', ['test', 'hurlant']),
+            ('<p>&laquo; test&#x202F;! &raquo;, en hurlant &hellip;</p>', ['test', 'hurlant']),
             # keep "c++" and "linux" intact:
             ('écrire un programme en C++ avec Linux', ['ecrir', 'program', 'c++', 'linux']),
             # elision:
@@ -327,10 +327,10 @@ class ESIndexManagerTests(TestCase):
         tuto = PublishableContent.objects.get(pk=tuto.pk)
         versioned = tuto.load_version(sha=tuto.sha_draft)
 
-        tuto.title = u'un titre complètement différent!'
+        tuto.title = 'un titre complètement différent!'
         tuto.save()
 
-        versioned.repo_update_top_container(tuto.title, tuto.slug, u'osef', u'osef')
+        versioned.repo_update_top_container(tuto.title, tuto.slug, 'osef', 'osef')
         second_publication = publish_content(tuto, versioned, True)
 
         tuto.sha_public = versioned.current_version

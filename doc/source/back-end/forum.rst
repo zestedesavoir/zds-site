@@ -2,7 +2,7 @@
 Les forums
 ==========
 
-Il y a sur Zeste de Savoir un espace communautaire permettant aux membres d'échanger entre eux sur divers sujets. Cet espace est communément appelé « forums ».
+Il y a sur Zeste de Savoir un espace communautaire permettant aux membres d'échanger entre eux sur divers sujets. Cet espace est communément appelé « forums ».
 L'URL permettant d'accéder à ce service est simplement : ``/forums``.
 
 Le découpage des forums

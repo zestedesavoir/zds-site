@@ -93,6 +93,11 @@
         var $toggleLink = $container.find("> a");
         var closingTimer;
 
+        $dropdown.on("click", function (event) {
+            // Don't close
+            event.stopPropagation();
+        });
+
         function open() {
             cancelClosingTimer();
 

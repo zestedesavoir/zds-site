@@ -1,5 +1,5 @@
 {% load captureas %}
-{% load append_to_get %}
+{% load append_query_params %}
 {% load i18n %}
 
 {% if paginator.num_pages > 1 %}
@@ -12,7 +12,7 @@
     <ul class="pagination pagination-{{ position }}">
         {% if page_obj.has_previous %}
             <li class="prev">
-                <a href="{% append_to_get page=page_obj.previous_page_number %}{{ full_anchor }}" class="ico-after arrow-left blue">
+                <a href="{% append_query_params page=page_obj.previous_page_number %}{{ full_anchor }}" class="ico-after arrow-left blue">
                     <span>
                         {% trans "Précédente" %}
                     </span>
@@ -24,7 +24,7 @@
             {% if page_nb %}
                 <li>
                     <a  {% ifnotequal page_nb page_obj.number %}
-                            href="{% append_to_get page=page_nb %}{{ full_anchor }}"
+                            href="{% append_query_params page=page_nb %}{{ full_anchor }}"
                         {% else %}
                             class="current"
                         {% endifnotequal %}
@@ -57,7 +57,7 @@
 
         {% if page_obj.has_next %}
             <li class="next">
-                <a href="{% append_to_get page=page_obj.next_page_number %}{{ full_anchor }}" class="ico-after arrow-right blue">
+                <a href="{% append_query_params page=page_obj.next_page_number %}{{ full_anchor }}" class="ico-after arrow-right blue">
                     <span>
                         {% trans "Suivante" %}
                     </span>

@@ -6,7 +6,7 @@ from math import ceil
 
 from zds.member.factories import ProfileFactory
 from zds.mp.factories import PrivateTopicFactory, PrivatePostFactory
-from zds.mp.models import mark_read, is_privatetopic_unread, PrivateTopicRead
+from zds.mp.models import mark_read, is_privatetopic_unread
 from django.conf import settings
 
 # by moment, i wrote the scenario to be simpler
@@ -32,9 +32,6 @@ class PrivateTopicTest(TestCase):
             privatetopic=self.topic1,
             author=self.profile2.user,
             position_in_topic=2)
-
-    def test_unicode(self):
-        self.assertEqual(self.topic1.__unicode__(), self.topic1.title)
 
     def test_absolute_url(self):
         url = reverse('private-posts-list', args=[self.topic1.pk, self.topic1.slug()])
@@ -169,12 +166,6 @@ class PrivatePostTest(TestCase):
             author=self.profile2.user,
             position_in_topic=2)
 
-    def test_unicode(self):
-        title = u'<Post pour « {0} », #{1}>'.format(
-            self.post1.privatetopic,
-            self.post1.pk)
-        self.assertEqual(title, self.post1.__unicode__())
-
     def test_absolute_url(self):
         page = int(
             ceil(
@@ -210,14 +201,6 @@ class PrivateTopicReadTest(TestCase):
             privatetopic=self.topic1,
             author=self.profile2.user,
             position_in_topic=2)
-
-    def test_unicode(self):
-        """ test the unicode return """
-
-        ref = u'<Sujet « {0} » lu par {1}, #{2}>'.format(self.topic1, self.profile2.user, self.post2.pk)
-        mark_read(self.topic1, self.profile2.user)
-        private_topic = PrivateTopicRead.objects.filter(privatetopic=self.topic1, user=self.profile2.user).first()
-        self.assertEqual(private_topic.__unicode__(), ref)
 
 
 class FunctionTest(TestCase):

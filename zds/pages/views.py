@@ -26,7 +26,7 @@ from zds.pages.models import GroupContact
 from zds.searchv2.forms import SearchForm
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent
 from zds.utils.forums import create_topic
-from zds.utils.models import Alert, CommentEdit, Comment, Hat
+from zds.utils.models import Alert, CommentEdit, Comment
 
 
 def home(request):
@@ -37,9 +37,9 @@ def home(request):
     opinions = PublishableContent.objects.get_last_opinions()
 
     try:
-        with open(os.path.join(settings.BASE_DIR, 'quotes.txt'), 'r') as quotes_file:
+        with open(os.path.join(settings.BASE_DIR, 'quotes.txt'), 'r', encoding='utf-8') as quotes_file:
             quote = random.choice(quotes_file.readlines())
-    except IOError:
+    except OSError:
         quote = settings.ZDS_APP['site']['slogan']
 
     return render(request, 'home.html', {
@@ -79,9 +79,9 @@ class AssocSubscribeView(FormView):
         forum = get_object_or_404(Forum, pk=site['association']['forum_ca_pk'])
 
         # create the topic
-        title = _(u'Demande d\'adhésion de {}').format(user.username)
-        subtitle = _(u'Sujet créé automatiquement pour la demande d\'adhésion à l\'association du membre {} via le form'
-                     u'ulaire du site').format(user.username)
+        title = _('Demande d\'adhésion de {}').format(user.username)
+        subtitle = _('Sujet créé automatiquement pour la demande d\'adhésion à l\'association du membre {} via le form'
+                     'ulaire du site').format(user.username)
         context = {
             'full_name': data['full_name'],
             'email': data['email'],
@@ -95,7 +95,7 @@ class AssocSubscribeView(FormView):
         text = render_to_string('pages/messages/association_subscribre.md', context)
         create_topic(self.request, bot, forum, title, subtitle, text)
 
-        messages.success(self.request, _(u'Votre demande d\'adhésion a bien été envoyée et va être étudiée.'))
+        messages.success(self.request, _('Votre demande d\'adhésion a bien été envoyée et va être étudiée.'))
 
         return super(AssocSubscribeView, self).form_valid(form)
 
@@ -138,7 +138,7 @@ def cookies(request):
 @permission_required('forum.change_post', raise_exception=True)
 def alerts(request):
     outstanding = Alert.objects.filter(solved=False).order_by('-pubdate')
-    solved = Alert.objects.filter(solved=True).order_by('-pubdate')[:15]
+    solved = Alert.objects.filter(solved=True).order_by('-solved_date')[:15]
 
     return render(request, 'pages/alerts.html', {
         'alerts': outstanding,
@@ -230,14 +230,9 @@ def restore_edit(request, edit_pk):
     comment.update = datetime.now()
     comment.editor = request.user
     comment.update_content(edit.original_text)
-    # remove hat if the author hasn't it anymore
-    if comment.with_hat:
-        try:
-            hat = Hat.objects.get(name=comment.with_hat)
-            if hat not in comment.author.profile.hats.all():
-                raise ValueError
-        except (Hat.DoesNotExist, ValueError):
-            comment.with_hat = ''
+    # remove hat if the author doesn't have it anymore
+    if comment.hat and comment.hat not in comment.author.profile.get_hats():
+        comment.hat = None
     comment.save()
 
     return redirect(comment.get_absolute_url())

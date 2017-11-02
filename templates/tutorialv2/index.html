@@ -1,5 +1,5 @@
 {% extends "tutorialv2/base.html" %}
-{% load append_to_get %}
+{% load append_query_params %}
 {% load date %}
 {% load i18n %}
 {% load captureas %}
@@ -18,13 +18,8 @@
     {% endif %}
 {% endblock %}
 
-{% block menu_tutorial %}
-    {% if tutorials != None %}
-        current
-    {% endif %}
-{% endblock %}
-{% block menu_article%}
-    {% if articles != None  %}
+{% block menu_publications %}
+    {% if tutorials != None or articles != None %}
         current
     {% endif %}
 {% endblock %}
@@ -112,7 +107,7 @@
         {% endif %}
 
         {% if not articles and not tutorials and not opinions and not contents %}
-            <p>{% trans "Il n'y a aucun contenu pour cet utilisateur." %}</p>
+            <p>{% trans "Il n’y a aucun contenu pour cet utilisateur." %}</p>
         {% endif %}
 
         {% include "misc/paginator.html" with position="bottom" %}
@@ -195,7 +190,7 @@
             <h3>Trier</h3>
             <ul>
                 {% for current_sort in sorts %}
-                    <li><a href="{% append_to_get sort=current_sort.key %}" class="ico-after gear {% if sort == current_sort.key %}selected{% endif %}">{{ current_sort.text }}</a></li>
+                    <li><a href="{% append_query_params sort=current_sort.key %}" class="ico-after gear {% if sort == current_sort.key %}selected{% endif %}">{{ current_sort.text }}</a></li>
                 {% endfor %}
             </ul>
         </div>

@@ -10,4 +10,4 @@ Vous avez demandé la casquette **{{ hat }}** pour votre compte. Votre demande a
 > {{ comment|safe }}
 {% endif %}
 
-{% trans "L'équipe" %} {{ site_name|safe }}
+{% trans "L’équipe" %} {{ site_name|safe }}

@@ -35,7 +35,7 @@ from zds.utils.models import Alert, CommentVote, Tag, Category, CommentEdit, Sub
 from zds.utils.paginator import make_pagination, ZdSPagingListView
 from zds.utils.templatetags.topbar import top_categories_content
 
-logger = logging.getLogger('zds.tutorialv2')
+logger = logging.getLogger(__name__)
 
 
 class RedirectContentSEO(RedirectView):
@@ -45,7 +45,7 @@ class RedirectContentSEO(RedirectView):
         """Redirects the user to the new url"""
         obj = get_object_or_404(PublishableContent, old_pk=int(kwargs.get('pk')), type='TUTORIAL')
         if not obj.in_public():
-            raise Http404(u"Aucun contenu public n'est disponible avec cet identifiant.")
+            raise Http404("Aucun contenu public n'est disponible avec cet identifiant.")
         kwargs['parent_container_slug'] = str(kwargs['p2']) + '_' + kwargs['parent_container_slug']
         kwargs['container_slug'] = str(kwargs['p3']) + '_' + kwargs['container_slug']
         obj = search_container_or_404(obj.load_version(public=True), kwargs)
@@ -60,8 +60,8 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
     template_name = 'tutorialv2/view/content_online.html'
 
     current_content_type = ''
-    verbose_type_name = _(u'contenu')
-    verbose_type_name_plural = _(u'contenus')
+    verbose_type_name = _('contenu')
+    verbose_type_name_plural = _('contenus')
 
     def get_context_data(self, **kwargs):
         """Show the given tutorial if exists."""
@@ -80,6 +80,7 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
         queryset_reactions = ContentReaction.objects\
             .select_related('author') \
             .select_related('author__profile') \
+            .select_related('hat') \
             .select_related('editor') \
             .prefetch_related('alerts_on_this_comment') \
             .prefetch_related('alerts_on_this_comment__author') \
@@ -144,8 +145,8 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
             context['user_can_modify'] = [reaction.pk for reaction in queryset_reactions
                                           if reaction.author == self.request.user]
 
-        context['isantispam'] = self.object.antispam()
-        context['pm_link'] = self.object.get_absolute_contact_url(_(u'À propos de'))
+        context['is_antispam'] = self.object.antispam()
+        context['pm_link'] = self.object.get_absolute_contact_url(_('À propos de'))
         context['subscriber_count'] = ContentReactionAnswerSubscription.objects.get_subscriptions(self.object).count()
         # We need reading time expressed in minutes
         try:
@@ -169,24 +170,24 @@ class DisplayOnlineArticle(DisplayOnlineContent):
     """Displays the list of published articles"""
 
     current_content_type = 'ARTICLE'
-    verbose_type_name = _(u'article')
-    verbose_type_name_plural = _(u'articles')
+    verbose_type_name = _('article')
+    verbose_type_name_plural = _('articles')
 
 
 class DisplayOnlineTutorial(DisplayOnlineContent):
     """Displays the list of published tutorials"""
 
     current_content_type = 'TUTORIAL'
-    verbose_type_name = _(u'tutoriel')
-    verbose_type_name_plural = _(u'tutoriels')
+    verbose_type_name = _('tutoriel')
+    verbose_type_name_plural = _('tutoriels')
 
 
 class DisplayOnlineOpinion(DisplayOnlineContent):
     """Displays the list of published articles"""
 
     current_content_type = 'OPINION'
-    verbose_type_name = _(u'billet')
-    verbose_type_name_plural = _(u'billets')
+    verbose_type_name = _('billet')
+    verbose_type_name_plural = _('billets')
 
 
 class DownloadOnlineContent(SingleOnlineContentViewMixin, DownloadViewMixin):
@@ -218,15 +219,15 @@ class DownloadOnlineContent(SingleOnlineContentViewMixin, DownloadViewMixin):
 
         # check that type is ok
         if self.requested_file not in self.allowed_types:
-            raise Http404(u"Le type du fichier n'est pas permis.")
+            raise Http404("Le type du fichier n'est pas permis.")
 
         # check existence
         if not self.public_content_object.have_type(self.requested_file):
-            raise Http404(u"Le type n'existe pas.")
+            raise Http404("Le type n'existe pas.")
 
         if self.requested_file == 'md' and not self.is_author and not self.is_staff:
             # download markdown is only for staff and author
-            raise Http404(u"Seul le staff et l'auteur peuvent télécharger la version Markdown du contenu.")
+            raise Http404("Seul le staff et l'auteur peuvent télécharger la version Markdown du contenu.")
 
         # set mimetype accordingly
         self.mimetype = self.mimetypes[self.requested_file]
@@ -244,8 +245,8 @@ class DownloadOnlineContent(SingleOnlineContentViewMixin, DownloadViewMixin):
         path = os.path.join(self.public_content_object.get_extra_contents_directory(), self.get_filename())
         try:
             response = open(path, 'rb').read()
-        except IOError:
-            raise Http404(u"Le fichier n'existe pas.")
+        except OSError:
+            raise Http404("Le fichier n'existe pas.")
 
         return response
 
@@ -276,7 +277,7 @@ class DisplayOnlineContainer(SingleOnlineContentDetailViewMixin):
         container = search_container_or_404(self.versioned_object, self.kwargs)
 
         context['container'] = container
-        context['pm_link'] = self.object.get_absolute_contact_url(_(u'À propos de'))
+        context['pm_link'] = self.object.get_absolute_contact_url(_('À propos de'))
 
         context['formWarnTypo'] = WarnTypoForm(
             self.versioned_object, container, initial={'target': container.get_path(relative=True)})
@@ -430,7 +431,7 @@ class ViewPublications(TemplateView):
             .objects\
             .prefetch_related('subcategory', 'category')\
             .filter(is_main=True)\
-            .order_by('category__id')\
+            .order_by('category__id', 'subcategory__title')\
             .all()
 
         subcategories_sorted = {}
@@ -470,6 +471,7 @@ class ViewPublications(TemplateView):
         queryset = CategorySubCategory.objects \
             .filter(is_main=True, category=category) \
             .prefetch_related('subcategory')\
+            .order_by('subcategory__title')\
             .extra(select={'contents_count': sub_query})
 
         subcategories = []
@@ -520,7 +522,7 @@ class ViewPublications(TemplateView):
             context['category'] = subcategory.get_parent_category()
 
             if context['category'].slug != self.kwargs.get('slug_category'):
-                raise Http404('wrong slug for category ({} != {})'.format(
+                raise Http404('wrong slug for category ({} != {})'.format(
                     context['category'].slug, self.kwargs.get('slug_category')))
 
             context['subcategory'] = subcategory
@@ -569,12 +571,15 @@ class ViewPublications(TemplateView):
                 with_previous_item=False)
 
         if self.level < 4:
-            context['last_articles'] = PublishedContent.objects.last_contents(
-                **dict(content_type='ARTICLE', **recent_kwargs)
-            )[:self.max_last_contents]
-            context['last_tutorials'] = PublishedContent.objects.last_contents(
-                **dict(content_type='TUTORIAL', **recent_kwargs)
-            )[:self.max_last_contents]
+            last_articles = PublishedContent.objects.last_contents(
+                **dict(content_type='ARTICLE', **recent_kwargs))
+            context['last_articles'] = last_articles[:self.max_last_contents]
+            context['more_articles'] = last_articles.count() > self.max_last_contents
+
+            last_tutorials = PublishedContent.objects.last_contents(
+                **dict(content_type='TUTORIAL', **recent_kwargs))
+            context['last_tutorials'] = last_tutorials[:self.max_last_contents]
+            context['more_tutorials'] = last_tutorials.count() > self.max_last_contents
 
             context['beta_forum'] = Forum.objects\
                 .prefetch_related('category')\
@@ -633,6 +638,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
         context['notes'] = ContentReaction.objects\
             .select_related('author') \
             .select_related('author__profile') \
+            .select_related('hat') \
             .select_related('editor') \
             .prefetch_related('alerts_on_this_comment') \
             .prefetch_related('alerts_on_this_comment__author') \
@@ -648,7 +654,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
             try:
                 cited_pk = int(self.request.GET['cite'])
             except ValueError:
-                raise Http404(u'L\'argument `cite` doit être un entier.')
+                raise Http404('L\'argument `cite` doit être un entier.')
 
             reaction = ContentReaction.objects.filter(pk=cited_pk).first()
 
@@ -668,7 +674,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
         except MustRedirect:
             # if someone changed the pk argument, and reached a 'must redirect' public object
             raise Http404(
-                u"Aucun contenu public trouvé avec l'identifiant {}".format(str(self.request.GET.get('pk', 0))))
+                "Aucun contenu public trouvé avec l'identifiant {}".format(str(self.request.GET.get('pk', 0))))
 
     def post(self, request, *args, **kwargs):
 
@@ -697,7 +703,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
 
             self.reaction.update = datetime.now()
             self.reaction.editor = self.request.user
-            self.reaction.with_hat = get_hat_from_request(self.request, self.reaction.author)
+            self.reaction.hat = get_hat_from_request(self.request, self.reaction.author)
 
         else:
             self.reaction = ContentReaction()
@@ -705,7 +711,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
             self.reaction.author = self.request.user
             self.reaction.position = self.object.get_note_count() + 1
             self.reaction.related_content = self.object
-            self.reaction.with_hat = get_hat_from_request(self.request)
+            self.reaction.hat = get_hat_from_request(self.request)
 
             is_new = True
 
@@ -713,7 +719,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
         if self.request.user != self.reaction.author and not is_new:
             alerts = Alert.objects.filter(comment__pk=self.reaction.pk, solved=False)
             for alert in alerts:
-                alert.solve(self.request.user, _(u'Le message a été modéré.'))
+                alert.solve(self.request.user, _('Le message a été modéré.'))
 
         self.reaction.update_content(form.cleaned_data['text'])
         self.reaction.ip_address = get_client_ip(self.request)
@@ -740,13 +746,13 @@ class UpdateNoteView(SendNoteFormView):
                 .filter(pk=int(self.request.GET['message'])) \
                 .first()
             if not self.reaction:
-                raise Http404(u'Aucun commentaire : ' + self.request.GET['message'])
+                raise Http404('Aucun commentaire : ' + self.request.GET['message'])
             if self.reaction.author.pk != self.request.user.pk and not self.is_staff:
                 raise PermissionDenied()
 
             kwargs['reaction'] = self.reaction
         else:
-            raise Http404(u"Le paramètre 'message' doit être un nombre entier positif.")
+            raise Http404("Le paramètre 'message' doit être un nombre entier positif.")
         return kwargs
 
     def get_context_data(self, **kwargs):
@@ -758,17 +764,17 @@ class UpdateNoteView(SendNoteFormView):
             if self.reaction.author != self.request.user:
                 messages.add_message(
                     self.request, messages.WARNING,
-                    _(u'Vous éditez ce message en tant que modérateur (auteur : {}).'
-                      u' Ne faites pas de bêtise !')
+                    _('Vous éditez ce message en tant que modérateur (auteur : {}).'
+                      ' Ne faites pas de bêtise !')
                     .format(self.reaction.author.username))
 
                 # show alert, if any
                 alerts = Alert.objects.filter(comment__pk=self.reaction.pk, solved=False)
                 if alerts.count():
-                    msg_alert = _(u'Attention, en éditant ce message vous résolvez également '
-                                  u'les alertes suivantes : {}') \
+                    msg_alert = _('Attention, en éditant ce message vous résolvez également '
+                                  'les alertes suivantes : {}') \
                         .format(', '.join(
-                            [u'« {} » (signalé par {})'.format(a.text, a.author.username) for a in alerts]
+                            ['« {} » (signalé par {})'.format(a.text, a.author.username) for a in alerts]
                         ))
                     messages.warning(self.request, msg_alert)
 
@@ -781,12 +787,12 @@ class UpdateNoteView(SendNoteFormView):
                 .prefetch_related('author') \
                 .first()
             if self.reaction is None:
-                raise Http404(u"Il n'y a aucun commentaire.")
+                raise Http404("Il n'y a aucun commentaire.")
             if self.reaction.author != self.request.user:
                 if not self.request.user.has_perm('tutorialv2.change_contentreaction'):
                     raise PermissionDenied
         else:
-            messages.error(self.request, _(u'Oh non ! Une erreur est survenue dans la requête !'))
+            messages.error(self.request, _('Oh non ! Une erreur est survenue dans la requête !'))
             return self.form_invalid(form)
 
         return super(UpdateNoteView, self).form_valid(form)
@@ -812,7 +818,7 @@ class HideReaction(FormView, LoginRequiredMixin):
             reaction.hide_comment_by_user(self.request.user, text)
             return redirect(reaction.get_absolute_url())
         except (IndexError, ValueError, MultiValueDictKeyError):
-            raise Http404(u'Vous ne pouvez pas cacher cette réaction.')
+            raise Http404('Vous ne pouvez pas cacher cette réaction.')
 
 
 class ShowReaction(FormView, LoggedWithReadWriteHability, PermissionRequiredMixin):
@@ -834,7 +840,7 @@ class ShowReaction(FormView, LoggedWithReadWriteHability, PermissionRequiredMixi
             return redirect(reaction.get_absolute_url())
 
         except (IndexError, ValueError, MultiValueDictKeyError):
-            raise Http404(u'Aucune réaction trouvée.')
+            raise Http404('Aucune réaction trouvée.')
 
 
 class SendContentAlert(FormView, LoginRequiredMixin):
@@ -848,7 +854,7 @@ class SendContentAlert(FormView, LoginRequiredMixin):
         try:
             content_pk = int(self.kwargs['pk'])
         except (KeyError, ValueError):
-            raise Http404(u'Identifiant manquant ou conversion en entier impossible.')
+            raise Http404('Identifiant manquant ou conversion en entier impossible.')
         content = get_object_or_404(PublishableContent, pk=content_pk)
 
         alert = Alert(
@@ -862,7 +868,7 @@ class SendContentAlert(FormView, LoginRequiredMixin):
         human_content_type = TYPE_CHOICES_DICT[content.type].lower()
         messages.success(
             self.request,
-            _(u'Ce {} a bien été signalé aux modérateurs.').format(human_content_type))
+            _('Ce {} a bien été signalé aux modérateurs.').format(human_content_type))
         return redirect(content.get_absolute_url_online())
 
 
@@ -879,7 +885,7 @@ class SolveContentAlert(FormView, LoginRequiredMixin):
             alert = get_object_or_404(Alert, pk=int(request.POST['alert_pk']))
             content = PublishableContent.objects.get(pk=alert.content.id)
         except (KeyError, ValueError):
-            raise Http404(u"L'alerte n'existe pas.")
+            raise Http404("L'alerte n'existe pas.")
 
         resolve_reason = ''
         msg_title = ''
@@ -888,7 +894,7 @@ class SolveContentAlert(FormView, LoginRequiredMixin):
             resolve_reason = request.POST['text']
             authors = alert.content.authors.values_list('username', flat=True)
             authors = ', '.join(authors)
-            msg_title = _(u"Résolution d'alerte : {0}").format(content.title)
+            msg_title = _("Résolution d'alerte : {0}").format(content.title)
             msg_content = render_to_string(
                 'tutorialv2/messages/resolve_alert.md', {
                     'content': content,
@@ -901,7 +907,7 @@ class SolveContentAlert(FormView, LoginRequiredMixin):
                 })
         alert.solve(request.user, resolve_reason, msg_title, msg_content)
 
-        messages.success(self.request, _(u"L'alerte a bien été résolue."))
+        messages.success(self.request, _("L'alerte a bien été résolue."))
         return redirect(content.get_absolute_url_online())
 
 
@@ -916,7 +922,7 @@ class SendNoteAlert(FormView, LoginRequiredMixin):
         try:
             reaction_pk = int(self.kwargs['pk'])
         except (KeyError, ValueError):
-            raise Http404(u"Impossible de convertir l'identifiant en entier.")
+            raise Http404("Impossible de convertir l'identifiant en entier.")
         reaction = get_object_or_404(ContentReaction, pk=reaction_pk)
 
         alert = Alert(
@@ -927,7 +933,7 @@ class SendNoteAlert(FormView, LoginRequiredMixin):
             pubdate=datetime.now())
         alert.save()
 
-        messages.success(self.request, _(u'Ce commentaire a bien été signalé aux modérateurs.'))
+        messages.success(self.request, _('Ce commentaire a bien été signalé aux modérateurs.'))
         return redirect(reaction.get_absolute_url())
 
 
@@ -944,14 +950,14 @@ class SolveNoteAlert(FormView, LoginRequiredMixin):
             alert = get_object_or_404(Alert, pk=int(request.POST['alert_pk']))
             note = ContentReaction.objects.get(pk=alert.comment.id)
         except (KeyError, ValueError):
-            raise Http404(u"L'alerte n'existe pas.")
+            raise Http404("L'alerte n'existe pas.")
 
         resolve_reason = ''
         msg_title = ''
         msg_content = ''
         if 'text' in request.POST and request.POST['text']:
             resolve_reason = request.POST['text']
-            msg_title = _(u"Résolution d'alerte : {0}").format(note.related_content.title)
+            msg_title = _("Résolution d'alerte : {0}").format(note.related_content.title)
             msg_content = render_to_string(
                 'tutorialv2/messages/resolve_alert.md', {
                     'content': note.related_content,
@@ -964,7 +970,7 @@ class SolveNoteAlert(FormView, LoginRequiredMixin):
                 })
         alert.solve(request.user, resolve_reason, msg_title, msg_content)
 
-        messages.success(self.request, _(u"L'alerte a bien été résolue."))
+        messages.success(self.request, _("L'alerte a bien été résolue."))
         return redirect(note.get_absolute_url())
 
 
@@ -1037,3 +1043,13 @@ class TagsListView(ListView):
             self.displayed_types = [t]
 
         return PublishedContent.objects.get_top_tags(self.displayed_types)
+
+    def get_context_data(self, **kwargs):
+        context = super(TagsListView, self).get_context_data(**kwargs)
+
+        context['tags_to_display'] = 'publications'
+
+        if len(self.displayed_types) == 1:
+            context['tags_to_display'] = self.displayed_types[0]
+
+        return context

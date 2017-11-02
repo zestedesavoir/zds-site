@@ -102,7 +102,7 @@
                 {% url "gallery-image-new" gallery.pk as new_img_url %}
                 {% url "gallery-image-import" gallery.pk as import_archive %}
                 {% blocktrans %}
-                    Vous pouvez <a href="{{new_img_url}}">ajouter une image</a> à cette galerie dès à présent, ou <a href="{{ import_archive }}">importer une archive</a> !
+                    Vous pouvez <a href="{{new_img_url}}">ajouter une image</a> à cette galerie dès à présent, ou <a href="{{ import_archive }}">importer une archive</a> !
                 {% endblocktrans %}
             {% endif %}
         </p>

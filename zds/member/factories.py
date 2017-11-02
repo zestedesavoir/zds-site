@@ -1,10 +1,12 @@
 # coding: utf-8
 
-from django.contrib.auth.models import User, Permission, Group
 import factory
 
-from zds.member.models import Profile
+from django.contrib.auth.models import User, Permission, Group
 from django.conf import settings
+
+from zds.member.models import Profile
+from zds.utils.models import Hat
 
 
 class UserFactory(factory.DjangoModelFactory):
@@ -60,6 +62,9 @@ class StaffFactory(factory.DjangoModelFactory):
         if group_staff is None:
             group_staff = Group(name='staff')
             group_staff.save()
+            hat, _ = Hat.objects.get_or_create(name__iexact='Staff', defaults={'name': 'Staff'})
+            hat.group = group_staff
+            hat.save()
 
         perms = Permission.objects.filter(codename__startswith='change_').all()
         group_staff.permissions = perms
@@ -117,7 +122,7 @@ class ProfileFactory(factory.DjangoModelFactory):
 
     @factory.lazy_attribute
     def biography(self):
-        return u'My name is {0} and I i\'m the guy who kill the bad guys '.format(self.user.username.lower())
+        return 'My name is {0} and I i\'m the guy who kill the bad guys '.format(self.user.username.lower())
 
     sign = 'Please look my flavour'
 
@@ -143,7 +148,7 @@ class StaffProfileFactory(factory.DjangoModelFactory):
 
     @factory.lazy_attribute
     def biography(self):
-        return u'My name is {0} and I i\'m the guy who kill the bad guys '.format(self.user.username.lower())
+        return 'My name is {0} and I i\'m the guy who kill the bad guys '.format(self.user.username.lower())
 
     sign = 'Please look my flavour'
 
@@ -162,7 +167,7 @@ class DevProfileFactory(factory.DjangoModelFactory):
 
     @factory.lazy_attribute
     def biography(self):
-        return u'My name is {0} and I i\'m the guy who kill the bad guys '.format(self.user.username.lower())
+        return 'My name is {0} and I i\'m the guy who kill the bad guys '.format(self.user.username.lower())
 
     sign = 'Please look my flavour'
 
@@ -176,7 +181,7 @@ class NonAsciiUserFactory(UserFactory):
     class Meta:
         model = User
 
-    username = factory.Sequence(u'ïéàçÊÀ{0}'.format)
+    username = factory.Sequence('ïéàçÊÀ{0}'.format)
 
 
 class NonAsciiProfileFactory(ProfileFactory):

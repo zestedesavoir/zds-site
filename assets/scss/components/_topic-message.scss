@@ -206,11 +206,21 @@
             .with-hat {
                 color: #FFF;
                 background-color: $color-hat;
-                border-radius: 4px;
                 display: inline-block;
-                padding: 0 5px;
+                padding: 0;
                 margin-top: 5px;
-                margin-bottom: 0;
+                margin-bottom: 5px;
+
+                & > a {
+                    color: #FFF;
+                    text-decoration: none;
+                    display: inline-block;
+                    padding: 0 6px;
+                }
+            }
+
+            .staff-hat {
+                background-color: $color-staff-hat;
             }
 
             .message-edited,

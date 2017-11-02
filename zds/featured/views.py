@@ -67,7 +67,7 @@ class FeaturedResourceCreate(CreateView):
 
         featured_resource.save()
 
-        messages.success(self.request, _(u'La une a été créée.'))
+        messages.success(self.request, _('La une a été créée.'))
         return redirect(reverse('featured-resource-list'))
 
 
@@ -111,7 +111,7 @@ class FeaturedResourceUpdate(UpdateView):
         else:
             self.object.pubdate = form.cleaned_data.get('pubdate')
 
-        messages.success(self.request, _(u'La une a été mise à jour.'))
+        messages.success(self.request, _('La une a été mise à jour.'))
         self.success_url = reverse('featured-resource-list')
         return super(FeaturedResourceUpdate, self).form_valid(form)
 
@@ -137,7 +137,7 @@ class FeaturedResourceDeleteDetail(DeleteView):
 
     def post(self, request, *args, **kwargs):
         r = super(FeaturedResourceDeleteDetail, self).post(request, *args, **kwargs)
-        messages.success(request, _(u'La une a été supprimée avec succès.'))
+        messages.success(request, _('La une a été supprimée avec succès.'))
         return r
 
 
@@ -160,7 +160,7 @@ class FeaturedResourceDeleteList(MultipleObjectMixin, RedirectView):
         for featured_resource in self.get_queryset():
             featured_resource.delete()
 
-        messages.success(request, _(u'Les unes ont été supprimées avec succès.'))
+        messages.success(request, _('Les unes ont été supprimées avec succès.'))
 
         return redirect(reverse('featured-resource-list'))
 
@@ -202,5 +202,5 @@ class FeaturedMessageCreateUpdate(FormView):
         featured_message.url = form.data.get('url')
         featured_message.save()
 
-        messages.success(self.request, _(u'Le message a été changé'))
+        messages.success(self.request, _('Le message a été changé'))
         return redirect(reverse('featured-resource-list'))

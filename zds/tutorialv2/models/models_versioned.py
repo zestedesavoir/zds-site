@@ -26,7 +26,7 @@ class Container:
     A Container has a title, a introduction and a conclusion, a parent (which can be None) and a position into this
     parent (which is 1 by default).
 
-    It has also a tree depth.
+    It also has a tree depth.
 
     A container could be either a tutorial/article/opinion, a part or a chapter.
     """
@@ -42,7 +42,7 @@ class Container:
     slug_pool = {}
 
     def __init__(self, title, slug='', parent=None, position_in_parent=1):
-        """Initialize the data model that will handle the dialog with raw versionned data at level container
+        """Initialize the data model that will handle the dialog with raw versionned data at level container.
 
         :param title: container title (str)
         :param slug: container slug (basicaly slugify(title))
@@ -61,12 +61,14 @@ class Container:
         self.slug_pool = default_slug_pool()
 
     def __unicode__(self):
-        return u"<Conteneur '{}'>".format(self.title)
+        return "<Conteneur '{}'>".format(self.title)
 
     def has_extracts(self):
-        """Note : this function rely on the fact that the children can only be of one type.
+        """Note: This function relies on the fact that every child has the
+        same type.
 
-        :return: `True` if the container has extract as children, `False` otherwise.
+        :return: ``True`` if the container contains extracts, ``False``
+        otherwise.
         :rtype: bool
         """
         if len(self.children) == 0:
@@ -74,9 +76,10 @@ class Container:
         return isinstance(self.children[0], Extract)
 
     def has_sub_containers(self):
-        """Note : this function rely on the fact that the children can only be of one type.
+        """Note: this function relies on the fact that every child has the
+        same type.
 
-        :return: ``True`` if the container has containers as children, ``False`` otherwise.
+        :return: ``True`` if the container contains other containers, ``False`` otherwise.
         :rtype: bool
         """
         if len(self.children) == 0:
@@ -91,16 +94,15 @@ class Container:
         return len(self.children)
 
     def get_tree_depth(self):
-        """Represent the depth where this container is found
-        Tree depth is no more than 2, because there is 3 levels for Containers :
+        """Return the depth where this container is found.
 
-        - PublishableContent (0),
-        - Part (1),
-        - Chapter (2)
+        The tree depth of a container is the number of parents of that
+        container. It is always lower that 3 because a nested
+        container can have at most two parents.
 
-        .. attention::
-
-            that ``max_tree_depth`` is ``2`` to ensure that there is no more than 3 levels
+        Keep in mind that extracts can reach a depth of 3 in the
+        document tree since there are leaves. Containers are not
+        leaves.
 
         :return: Tree depth
         :rtype: int
@@ -113,7 +115,7 @@ class Container:
         return depth
 
     def get_tree_level(self):
-        """Represent the level in the tree of this container, i.e the depth of its deepest child
+        """Return the level in the tree of this container, i.e the depth of its deepest child.
 
         :return: tree level
         :rtype: int
@@ -127,12 +129,13 @@ class Container:
             return 1 + max([i.get_tree_level() for i in self.children])
 
     def has_child_with_path(self, child_path):
-        """Check that the given path represent the full path
-        of a child of this container.
+        """Return ``True`` if this container has a child matching the given
+        full path.
 
         :param child_path: the full path (/maincontainer/subc1/subc2/childslug) we want to check
-        :return: ``True`` if child is found, ``False`` otherwise
+        :return: ``True`` if the child is found, ``False`` otherwise
         :rtype: bool
+
         """
         if self.get_path(True) not in child_path:
             return False
@@ -149,11 +152,13 @@ class Container:
         return current
 
     def get_unique_slug(self, title):
-        """Generate a slug from title, and check if it is already in slug pool. If it is the case, recursively add a
-        "-x" to the end, where "x" is a number starting from 1. When generated, it is added to the slug pool.
+        """Generate a slug from the title and check if it is already in slug
+        pool. If true, add a "-x" to the end, where "x" is a number
+        starting from 1. When generated, it is added to the slug pool.
 
-        Note that the slug cannot be larger than `settings.ZDS_APP['content']['max_slug_size']`, due to maximum file
-        size limitation.
+        Note that the slug cannot be larger than
+        ``settings.ZDS_APP['content']['max_slug_size']``, due to maximum
+        file size limitation.
 
         :param title: title from which the slug is generated (with ``slugify()``)
         :return: the unique slug
@@ -164,45 +169,45 @@ class Container:
         if not check_slug(base):
             raise InvalidSlugError(base, source=title)
 
-        if len(base) > settings.ZDS_APP['content']['maximum_slug_size'] - 5:
-            # "-5" gives possibility to add "-xxxx" (up to 9999 possibility should be enough !)
-            base = base[:settings.ZDS_APP['content']['maximum_slug_size']] - 5
+        max_slug_size = settings.ZDS_APP['content']['maximum_slug_size']
 
-        find_slug = False
-        new_slug = base
+        # Slugs may look like `some-article-title-1234`.
+        max_suffix_digit_count = 4
 
-        while not find_slug:  # will run until a new slug is found !
-            try:
-                n = self.slug_pool[base]
-            except KeyError:
-                self.slug_pool[base] = 1
-                find_slug = True
-            else:
-                new_slug = base + '-' + str(n)
-                self.slug_pool[base] += 1
-                if new_slug not in self.slug_pool:
-                    self.slug_pool[new_slug] = 1
-                    find_slug = True
+        if len(base) > max_slug_size - 1 - max_suffix_digit_count:
+            # There is a `- 1` because of the dash between the slug
+            # itself and the numeric suffix.
+            base = base[:max_slug_size] - 1 - max_suffix_digit_count
 
-        return new_slug
+        if base not in self.slug_pool:
+            self.slug_pool[base] = 1
+            return base
 
-    def add_slug_to_pool(self, slug):
-        """Add a slug to the slug pool to be taken into account when generate a unique slug
+        n = self.slug_pool[base]
+        while True:
+            new_slug = base + '-' + str(n)
+            self.slug_pool[base] += 1
+            if new_slug not in self.slug_pool:
+                self.slug_pool[new_slug] = 1
+                return new_slug
+            n = self.slug_pool[base]
+
+    def __add_slug_to_pool(self, slug):
+        """Add a slug to the slug pool to be taken into account when
+        generating a unique slug.
 
         :param slug: the slug to add
         :raise InvalidOperationErrpr: if the slug already exists
+
         """
-        try:
-            self.slug_pool[slug]  # test access
-        except KeyError:
-            self.slug_pool[slug] = 1
-        else:
+        if slug in self.slug_pool:
             raise InvalidOperationError(
-                _(u'Le slug « {} » est déjà présent dans le conteneur « {} »').format(slug, self.title))
+                _('Le slug « {} » est déjà présent dans le conteneur « {} »').format(slug, self.title))
+        self.slug_pool[slug] = 1
 
     def long_slug(self):
         """
-        :return: a long slug that embed slugs of parents
+        :return: a long slug which embeds parent slugs
         :rtype: str
         """
         long_slug = ''
@@ -212,7 +217,7 @@ class Container:
 
     def can_add_container(self):
         """
-        :return: ``True`` if this container accept child container, ``False`` otherwise
+        :return: ``True`` if this container accepts child containers, ``False`` otherwise
         :rtype: bool
         """
         if not self.has_extracts():
@@ -222,7 +227,9 @@ class Container:
         return False
 
     def can_add_extract(self):
-        """ check that this container can get extract, i.e has no container and is not too deep
+        """Return ``True`` if this container can contain extracts, i.e doesn't
+        contain any container (only zero or more extracts) and is not
+        too deeply nested.
 
         :return: ``True`` if this container accept child extract, ``False`` otherwise
         :rtype: bool
@@ -233,53 +240,56 @@ class Container:
         return False
 
     def add_container(self, container, generate_slug=False):
-        """Add a child Container, but only if no extract were previously added and tree depth is < 2.
+        """Add a child Container, but only if no extract were previously added
+        and tree depth is lower than 2.
 
         .. attention::
 
-            this function will also raise an Exception if article, because it cannot contain child container
+            This function will raise an Exception if the publication
+            is an article
 
         :param container: the new container
-        :param generate_slug: if ``True``, ask the top container an unique slug for this object
-        :raises InvalidOperationError: if cannot add container to this one. Please use ``can_add_container`` to check\
-        this before calling ``add_container``.
+        :param generate_slug: if ``True``, asks the top container a unique slug for this object
+        :raises InvalidOperationError: if the new container cannot be added. Please use\
+        ``can_add_container`` first to make sure you can use ``add_container``.
         """
         if self.can_add_container():
             if generate_slug:
                 container.slug = self.get_unique_slug(container.title)
             else:
-                self.add_slug_to_pool(container.slug)
+                self.__add_slug_to_pool(container.slug)
             container.parent = self
             container.position_in_parent = self.get_last_child_position() + 1
             self.children.append(container)
             self.children_dict[container.slug] = container
         else:
-            raise InvalidOperationError(_(u"Impossible d'ajouter un conteneur au conteneur « {} »").format(self.title))
+            raise InvalidOperationError(_("Impossible d'ajouter un conteneur au conteneur « {} »").format(self.title))
 
     def add_extract(self, extract, generate_slug=False):
         """Add a child container, but only if no container were previously added
 
         :param extract: the new extract
-        :param generate_slug: if `True`, ask the top container an unique slug for this object
-        :raise InvalidOperationError: if cannot add extract to this container.
+        :param generate_slug: if ``True``, ask the top container a unique slug for this object
+        :raise InvalidOperationError: if the extract can't be added to this container.
         """
         if self.can_add_extract():
             if generate_slug:
                 extract.slug = self.get_unique_slug(extract.title)
             else:
-                self.add_slug_to_pool(extract.slug)
+                self.__add_slug_to_pool(extract.slug)
             extract.container = self
             extract.position_in_parent = self.get_last_child_position() + 1
             self.children.append(extract)
             self.children_dict[extract.slug] = extract
         else:
-            raise InvalidOperationError(_(u"Impossible d'ajouter un extrait au conteneur « {} »").format(self.title))
+            raise InvalidOperationError(_("Impossible d'ajouter un extrait au conteneur « {} »").format(self.title))
 
     def update_children(self):
         """Update the path for introduction and conclusion for the container and all its children. If the children is an
-        extract, update the path to the text instead. This function is useful when `self.slug` has
+        extract, update the path to the text instead. This function is useful when ``self.slug`` has
         changed.
-        Note : this function does not account for a different arrangement of the files.
+
+        Note: this function does not account for a different arrangement of the files.
         """
         # TODO : path comparison instead of pure rewritring ?
         self.introduction = os.path.join(self.get_path(relative=True), 'introduction.md')
@@ -394,7 +404,7 @@ class Container:
 
     def get_introduction(self):
         """
-        :return: the introduction from the file in `self.introduction`
+        :return: the introduction from the file in ``self.introduction``
         :rtype: str
         """
         if self.introduction:
@@ -403,7 +413,7 @@ class Container:
 
     def get_conclusion(self):
         """
-        :return: the conclusion from the file in `self.conclusion`
+        :return: the conclusion from the file in ``self.conclusion``
         :rtype: str
         """
         if self.conclusion:
@@ -524,7 +534,7 @@ class Container:
         repo.index.add(['manifest.json'])
 
         if not commit_message:
-            commit_message = _(u'Mise à jour de « {} »').format(self.title)
+            commit_message = _('Mise à jour de « {} »').format(self.title)
 
         if do_commit:
             return self.top_container().commit_changes(commit_message)
@@ -559,7 +569,7 @@ class Container:
 
         # make it
         if not commit_message:
-            commit_message = _(u'Création du conteneur « {} »').format(title)
+            commit_message = _('Création du conteneur « {} »').format(title)
 
         return subcontainer.repo_update(
             title, introduction, conclusion, commit_message=commit_message, do_commit=do_commit)
@@ -586,21 +596,21 @@ class Container:
 
         # make it
         if not commit_message:
-            commit_message = _(u"Création de l'extrait « {} »").format(title)
+            commit_message = _("Création de l'extrait « {} »").format(title)
 
         return extract.repo_update(title, text, commit_message=commit_message, do_commit=do_commit)
 
     def repo_delete(self, commit_message='', do_commit=True):
         """
         :param commit_message: commit message used instead of default one if provided
-        :param do_commit: tells if we have to commit the change now or let the outter program do it
+        :param do_commit: tells if we have to commit the change now or let the outer program do it
         :return: commit sha
         :rtype: str
         """
         path = self.get_path(relative=True)
         repo = self.top_container().repository
         repo.index.remove([path], r=True)
-        shutil.rmtree(self.get_path())  # looks like removing from git is not enough !!
+        shutil.rmtree(self.get_path())  # looks like removing from git is not enough!!
 
         # now, remove from manifest
         # work only if slug is correct
@@ -613,14 +623,14 @@ class Container:
         repo.index.add(['manifest.json'])
 
         if not commit_message:
-            commit_message = _(u'Suppression du conteneur « {} »').format(self.title)
+            commit_message = _('Suppression du conteneur « {} »').format(self.title)
 
         if do_commit:
             return self.top_container().commit_changes(commit_message)
 
     def move_child_up(self, child_slug):
         """Change the child's ordering by moving up the child whose slug equals child_slug.
-        This method **does not** automaticaly update the repo
+        This method **does not** automaticaly update the repo.
 
         :param child_slug: the child's slug
         :raise ValueError: if the slug does not refer to an existing child
@@ -637,7 +647,7 @@ class Container:
 
     def move_child_down(self, child_slug):
         """Change the child's ordering by moving down the child whose slug equals child_slug.
-        This method **does not** automaticaly update the repo
+        This method **does not** automaticaly update the repo.
 
         :param child_slug: the child's slug
         :raise ValueError: if the slug does not refer to an existing child
@@ -677,8 +687,8 @@ class Container:
                 self.move_child_up(child_slug)
 
     def move_child_before(self, child_slug, refer_slug):
-        """Change the child's ordering by moving the child to be just above the reference child. .
-        This method **does not** automaticaly update the repo
+        """Change the child's ordering by moving the child to be just above the reference child.
+        This method **does not** automaticaly update the repo.
 
         :param child_slug: the child's slug
         :param refer_slug: the referent child's slug.
@@ -701,7 +711,7 @@ class Container:
                 self.move_child_up(child_slug)
 
     def traverse(self, only_container=True):
-        """Traverse the container
+        """Traverse the container.
 
         :param only_container: if we only want container's paths, not extract
         :return: a generator that traverse all the container recursively (depth traversal)
@@ -714,13 +724,6 @@ class Container:
                     yield _y
             elif not only_container:
                 yield child
-
-    def is_part(self):
-        """determin if this container is a part (i.e a first level container or container with extract
-        when we are in midsize tutorial
-        :return:
-        """
-        return self.get_tree_depth() == 1
 
     def get_level_as_string(self):
         """Get a word (Part/Chapter/Section) for the container level
@@ -735,10 +738,10 @@ class Container:
         if self.get_tree_depth() == 0:
             return self.type
         elif self.get_tree_depth() == 1:
-            return _(u'Partie')
+            return _('Partie')
         elif self.get_tree_depth() == 2:
-            return _(u'Chapitre')
-        return _(u'Sous-chapitre')
+            return _('Chapitre')
+        return _('Sous-chapitre')
 
     def get_next_level_as_string(self):
         """Same as ``self.get_level_as_string()`` but try to guess the level of this container's children
@@ -747,11 +750,11 @@ class Container:
         :rtype: str
         """
         if self.get_tree_depth() == 0 and self.can_add_container():
-            return _(u'Partie')
+            return _('Partie')
         elif self.get_tree_depth() == 1 and self.can_add_container():
-            return _(u'Chapitre')
+            return _('Chapitre')
         else:
-            return _(u'Section')
+            return _('Section')
 
     def can_be_in_beta(self):
         """
@@ -793,7 +796,7 @@ class Extract:
         self.position_in_parent = position_in_parent
 
     def __unicode__(self):
-        return u"<Extrait '{}'>".format(self.title)
+        return "<Extrait '{}'>".format(self.title)
 
     def get_absolute_url(self):
         """Find the url that point to the offline version of this extract
@@ -846,19 +849,21 @@ class Extract:
         return reverse('content:edit-extract', args=args)
 
     def get_full_slug(self):
-        """
-        get the slug of curent extract with its full path (part1/chapter1/slug_of_extract)
-        this method is an alias to extract.get_path(True)[:-3] (remove .md extension)
+        """Get the slug of curent extract with its full path (part1/chapter1/slug_of_extract).
+
+        This method is an alias to ``extract.get_path(True)[:-3]``
+        (removes the ``.md`` file extension).
+
         :rtype: str
+
         """
         return self.get_path(True)[:-3]
 
     def get_first_level_slug(self):
         """
-        :return: the first_level_slug, if (and only) the parent container is a chapter
+        :return: the ``first_level_slug``, if (and only if) the parent container is a chapter
         :rtype: str
         """
-
         if self.container.get_tree_depth() == 2:
             return self.container.parent.slug
 
@@ -866,7 +871,7 @@ class Extract:
 
     def get_delete_url(self):
         """
-        :return: url to delete the extract
+        :return: URL to delete the extract
         :rtype: str
         """
         slugs = [self.slug]
@@ -964,7 +969,7 @@ class Extract:
         repo.index.add(['manifest.json'])
 
         if not commit_message:
-            commit_message = _(u"Modification de l'extrait « {} », situé dans le conteneur « {} »")\
+            commit_message = _("Modification de l'extrait « {} », situé dans le conteneur « {} »")\
                 .format(self.title, self.container.title)
 
         if do_commit:
@@ -973,7 +978,7 @@ class Extract:
     def repo_delete(self, commit_message='', do_commit=True):
         """
         :param commit_message: commit message used instead of default one if provided
-        :param do_commit: tells if we have to commit the change now or let the outter program do it
+        :param do_commit: tells if we have to commit the change now or let the outer program do it
         :return: commit sha, None if no commit is done
         :rtype: str
         """
@@ -994,20 +999,20 @@ class Extract:
         repo.index.add(['manifest.json'])
 
         if not commit_message:
-            commit_message = _(u"Suppression de l'extrait « {} »").format(self.title)
+            commit_message = _("Suppression de l'extrait « {} »").format(self.title)
 
         if do_commit:
             return self.container.top_container().commit_changes(commit_message)
 
     def get_tree_depth(self):
-        """Represent the depth where this exrtact is found
-        Tree depth is no more than 3, because there is 3 levels for Containers +1 for extract :
+        """Return the depth where this extract is found.
 
-        - PublishableContent (0),
-        - Part (1),
-        - Chapter (2)
+        The tree depth of an extract is the number of parents of that
+        extract. It is always lower that 4 because an extract can have
+        at most three parents.
 
-        Note that `'max_tree_depth` is `2` to ensure that there is no more than 3 levels
+        Keep in mind that containers can't reach a depth of 3 in the
+        document tree since there are not leaves.
 
         :return: Tree depth
         :rtype: int
@@ -1073,7 +1078,7 @@ class VersionedContent(Container, TemplatableContentModelMixin):
         :param title: title of the content
         :param slug: slug of the content
         :param slug_repository: slug of the directory that contains the repository, named after database slug.
-            if not provided, use `self.slug` instead.
+            if not provided, use ``self.slug`` instead.
         """
 
         Container.__init__(self, title, slug)
@@ -1095,19 +1100,19 @@ class VersionedContent(Container, TemplatableContentModelMixin):
         return TemplatableContentModelMixin.get_absolute_url(self, version)
 
     def textual_type(self):
-        """Create a internationalized string with the human readable type of this content e.g The Article
+        """Create a internationalized string with the human readable type of this content e.g “The Article”
 
         :return: internationalized string
         :rtype: str
         """
         if self.is_article:
-            return _(u"L'Article")
+            return _('L’Article')
         elif self.is_tutorial:
-            return _(u'Le Tutoriel')
+            return _('Le Tutoriel')
         elif self.is_opinion:
-            return _(u'Le Billet')
+            return _('Le Billet')
         else:
-            return _(u'Le Contenu')
+            return _('Le Contenu')
 
     def get_absolute_url_online(self):
         """
@@ -1127,7 +1132,6 @@ class VersionedContent(Container, TemplatableContentModelMixin):
 
     def get_absolute_url_beta(self):
         """
-
         :return: the url to access the tutorial when in beta
         :rtype: str
         """
@@ -1139,8 +1143,8 @@ class VersionedContent(Container, TemplatableContentModelMixin):
     def get_path(self, relative=False, use_current_slug=False):
         """Get the physical path to the draft version of the Content.
 
-        :param relative: if `True`, the path will be relative, absolute otherwise.
-        :param use_current_slug: if `True`, use `self.slug` instead of `self.slug_last_draft`
+        :param relative: if ``True``, the path will be relative, absolute otherwise.
+        :param use_current_slug: if ``True``, use ``self.slug`` instead of ``self.slug_last_draft``
         :return: physical path
         :rtype: str
         """
@@ -1153,12 +1157,14 @@ class VersionedContent(Container, TemplatableContentModelMixin):
             return os.path.join(settings.ZDS_APP['content']['repo_private_path'], slug)
 
     def get_prod_path(self, relative=False):
-        """Get the physical path to the public version of the content. If it has extract (so, if its a mini-tutorial or
-        an article), return the HTML file.
+        """Get the physical path to the public version of the content. If it
+        has one or more extracts (if it is a mini-tutorial or an
+        article), return the path of the HTML file.
 
         :param relative: return the relative path instead of the absolute one
         :return: physical path
         :rtype: str
+
         """
         path = ''
 
@@ -1172,13 +1178,12 @@ class VersionedContent(Container, TemplatableContentModelMixin):
 
     def get_list_of_chapters(self):
         """
-
         :return: a list of chapters (Container which contains Extracts) in the reading order
         :rtype: list[Container]
         """
         continuous_list = []
         if self.type not in SINGLE_CONTAINER:  # cannot be paginated
-            if len(self.children) != 0 and isinstance(self.children[0], Container):  # children must be Containers !
+            if len(self.children) != 0 and isinstance(self.children[0], Container):  # children must be Containers!
                 for child in self.children:
                     if len(child.children) != 0:
                         if isinstance(child.children[0], Extract):
@@ -1200,7 +1205,7 @@ class VersionedContent(Container, TemplatableContentModelMixin):
     def dump_json(self, path=None):
         """Write the JSON into file
 
-        :param path: path to the file. If `None`, write in 'manifest.json'
+        :param path: path to the file. If ``None``, write in 'manifest.json'
         """
         if path is None:
             man_path = os.path.join(self.get_path(), 'manifest.json')
@@ -1212,14 +1217,14 @@ class VersionedContent(Container, TemplatableContentModelMixin):
 
     def repo_update_top_container(self, title, slug, introduction, conclusion, commit_message='', do_commit=True):
         """Update the top container information and commit them into the repository.
-        Note that this is slightly different from the `repo_update()` function, because slug is generated using DB
+        Note that this is slightly different from the ``repo_update()`` function, because slug is generated using DB
 
         :param title: the new title
         :param slug: the new slug, according to title (choose using DB!!)
         :param introduction: the new introduction text
         :param conclusion: the new conclusion text
         :param commit_message: commit message that will be used instead of the default one
-        :param do_commit: if `True`, also commit change
+        :param do_commit: if ``True``, also commit change
         :return: commit sha
         :rtype: str
         """

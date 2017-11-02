@@ -9,4 +9,4 @@ CACHES = {
     }
 }
 
-ZDS_APP['site']['secure_url'] = u'http://127.0.0.1:8000'
+ZDS_APP['site']['secure_url'] = 'http://127.0.0.1:8000'

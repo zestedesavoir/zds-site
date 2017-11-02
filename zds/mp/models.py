@@ -1,35 +1,34 @@
 # coding: utf-8
-from __future__ import unicode_literals
-from django.utils.encoding import python_2_unicode_compatible
+
 from math import ceil
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db import models
+
 from zds.mp.managers import PrivateTopicManager, PrivatePostManager
 from zds.notification import signals
-
 from zds.utils import get_current_user, slugify
 
 
-@python_2_unicode_compatible
 class PrivateTopic(models.Model):
     """
     Topic private, containing private posts.
     """
 
     class Meta:
-        verbose_name = u'Message privé'
-        verbose_name_plural = u'Messages privés'
+        verbose_name = 'Message privé'
+        verbose_name_plural = 'Messages privés'
 
-    title = models.CharField(u'Titre', max_length=130)
-    subtitle = models.CharField(u'Sous-titre', max_length=200, blank=True)
-    author = models.ForeignKey(User, verbose_name=u'Auteur', related_name='author', db_index=True)
-    participants = models.ManyToManyField(User, verbose_name=u'Participants', related_name='participants',
+    title = models.CharField('Titre', max_length=130)
+    subtitle = models.CharField('Sous-titre', max_length=200, blank=True)
+    author = models.ForeignKey(User, verbose_name='Auteur', related_name='author', db_index=True)
+    participants = models.ManyToManyField(User, verbose_name='Participants', related_name='participants',
                                           db_index=True)
     last_message = models.ForeignKey('PrivatePost', null=True, related_name='last_message',
-                                     verbose_name=u'Dernier message')
-    pubdate = models.DateTimeField(u'Date de création', auto_now_add=True, db_index=True)
+                                     verbose_name='Dernier message')
+    pubdate = models.DateTimeField('Date de création', auto_now_add=True, db_index=True)
     objects = PrivateTopicManager()
 
     def __str__(self):
@@ -159,9 +158,9 @@ class PrivateTopic(models.Model):
 
     def is_unread(self, user=None):
         """
-        Check if an user has never read the current PrivateTopic.
+        Check if a user has never read the current PrivateTopic.
 
-        :param user: an user as Django User object. If None, the current user is used.
+        :param user: a user as Django User object. If None, the current user is used.
         :type user: User object
         :return: True if the PrivateTopic was never read
         :rtype: bool
@@ -208,22 +207,22 @@ class PrivateTopic(models.Model):
         return PrivateTopic.has_write_permission(request) and self.is_author(request.user)
 
 
-@python_2_unicode_compatible
 class PrivatePost(models.Model):
-    """A private post written by an user."""
+    """A private post written by a user."""
 
     class Meta:
-        verbose_name = u'Réponse à un message privé'
-        verbose_name_plural = u'Réponses à un message privé'
+        verbose_name = 'Réponse à un message privé'
+        verbose_name_plural = 'Réponses à un message privé'
 
-    privatetopic = models.ForeignKey(PrivateTopic, verbose_name=u'Message privé', db_index=True)
+    privatetopic = models.ForeignKey(PrivateTopic, verbose_name='Message privé', db_index=True)
     author = models.ForeignKey(User, verbose_name='Auteur', related_name='privateposts', db_index=True)
-    text = models.TextField(u'Texte')
-    text_html = models.TextField(u'Texte en HTML')
-    pubdate = models.DateTimeField(u'Date de publication', auto_now_add=True, db_index=True)
-    update = models.DateTimeField(u'Date d\'édition', null=True, blank=True)
-    position_in_topic = models.IntegerField(u'Position dans le sujet', db_index=True)
-    with_hat = models.CharField('Casquette', max_length=40, blank=True)
+    text = models.TextField('Texte')
+    text_html = models.TextField('Texte en HTML')
+    pubdate = models.DateTimeField('Date de publication', auto_now_add=True, db_index=True)
+    update = models.DateTimeField('Date d\'édition', null=True, blank=True)
+    position_in_topic = models.IntegerField('Position dans le sujet', db_index=True)
+    hat = models.ForeignKey('utils.Hat', on_delete=models.SET_NULL, verbose_name='Casquette',
+                            related_name='privateposts', blank=True, null=True)
     objects = PrivatePostManager()
 
     def __str__(self):
@@ -233,7 +232,7 @@ class PrivatePost(models.Model):
         :return: PrivatePost description
         :rtype: unicode
         """
-        return '<Post pour « {0} », #{1}>'.format(self.privatetopic, self.pk)
+        return '<Post pour « {0} », #{1}>'.format(self.privatetopic, self.pk)
 
     def get_absolute_url(self):
         """
@@ -286,7 +285,6 @@ class PrivatePost(models.Model):
         return PrivateTopic.has_write_permission(request) and self.is_last_message() and self.is_author(request.user)
 
 
-@python_2_unicode_compatible
 class PrivateTopicRead(models.Model):
     """
     Small model which keeps track of the user viewing private topics.
@@ -295,8 +293,8 @@ class PrivateTopicRead(models.Model):
     """
 
     class Meta:
-        verbose_name = u'Message privé lu'
-        verbose_name_plural = u'Messages privés lus'
+        verbose_name = 'Message privé lu'
+        verbose_name_plural = 'Messages privés lus'
 
     privatetopic = models.ForeignKey(PrivateTopic, db_index=True)
     privatepost = models.ForeignKey(PrivatePost, db_index=True)
@@ -309,16 +307,16 @@ class PrivateTopicRead(models.Model):
         :return: PrivateTopicRead description
         :rtype: unicode
         """
-        return '<Sujet « {0} » lu par {1}, #{2}>'.format(self.privatetopic, self.user, self.privatepost.pk)
+        return '<Sujet « {0} » lu par {1}, #{2}>'.format(self.privatetopic, self.user, self.privatepost.pk)
 
 
 def is_privatetopic_unread(privatetopic, user=None):
     """
-    Check if a private topic has been read by an user since it last post was added.
+    Check if a private topic has been read by a user since it last post was added.
 
     :param privatetopic: a PrivateTopic to check
     :type privatetopic: PrivateTopic object
-    :param user: an user as Django User object. If None, the current user is used
+    :param user: a user as Django User object. If None, the current user is used
     :type user: User object
     :return: True if the PrivateTopic was never read
     :rtype: bool
@@ -338,7 +336,7 @@ def mark_read(privatetopic, user=None):
 
     :param privatetopic: a PrivateTopic to check
     :type privatetopic: PrivateTopic object
-    :param user: an user as Django User object. If None, the current user is used
+    :param user: a user as Django User object. If None, the current user is used
     :type user: User object
     :return: nothing is returned
     :rtype: None

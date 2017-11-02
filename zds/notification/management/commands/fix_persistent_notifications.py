@@ -19,6 +19,6 @@ class Command(BaseCommand):
                 notification.is_read = True
                 notification.is_dead = True
                 notification.save()
-                print notification
+                print(notification)
                 count += 1
-        print '{} notifications have been fixed'.format(count)
+        print('{} notifications have been fixed'.format(count))

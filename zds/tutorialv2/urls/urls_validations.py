@@ -3,12 +3,12 @@
 from django.conf.urls import url
 
 from zds.tutorialv2.views.views_validations import AskValidationForContent, ReserveValidation, \
-    HistoryOfValidationDisplay, AcceptValidation, RejectValidation, RevokeValidation, CancelValidation, \
+    ValidationHistoryView, AcceptValidation, RejectValidation, RevokeValidation, CancelValidation, \
     ValidationListView, PublishOpinion, UnpublishOpinion, PickOpinion, PromoteOpinionToArticle, \
     ValidationOpinionListView, UnpickOpinion, MarkObsolete, DoNotPickOpinion, RevokePickOperation
 
 urlpatterns = [
-    url(r'^historique/(?P<pk>\d+)/(?P<slug>.+)/$', HistoryOfValidationDisplay.as_view(), name='history'),
+    url(r'^historique/(?P<pk>\d+)/(?P<slug>.+)/$', ValidationHistoryView.as_view(), name='history'),
 
     # VALIDATION BEFORE PUBLICATION
 

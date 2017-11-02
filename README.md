@@ -1,12 +1,10 @@
 [![Build Status](https://travis-ci.org/zestedesavoir/zds-site.svg?branch=dev)](https://travis-ci.org/zestedesavoir/zds-site)
 [![Coverage Status](https://coveralls.io/repos/github/zestedesavoir/zds-site/badge.svg?branch=dev)](https://coveralls.io/github/zestedesavoir/zds-site?branch=dev)
-[![Code Health](https://landscape.io/github/zestedesavoir/zds-site/dev/landscape.svg)](https://landscape.io/github/zestedesavoir/zds-site/dev)
 
 [![Requirements Status](https://requires.io/github/zestedesavoir/zds-site/requirements.svg?branch=dev)](https://requires.io/github/zestedesavoir/zds-site/requirements/?branch=dev)
 [![Dependency Status](https://david-dm.org/zestedesavoir/zds-site.svg)](https://david-dm.org/zestedesavoir/zds-site)
 
 [![Licence GPL](http://img.shields.io/badge/license-GPL-yellow.svg)](http://www.gnu.org/licenses/quick-guide-gplv3.fr.html)
-[![Documentation Status](https://readthedocs.org/projects/zds-site/badge/?version=latest)](https://readthedocs.org/projects/zds-site/?badge=latest)
 
 # Zeste de Savoir
 
@@ -36,11 +34,11 @@ Elles sont reportées essentiellement dans le [*bug tracker*](https://github.com
 
 ### Installation d'une version locale de ZdS
 
-- [Installation du backend sur Windows](http://zds-site.readthedocs.org/fr/latest/install/backend-windows-install.html)
-- [Installation du backend sur Linux](http://zds-site.readthedocs.org/fr/latest/install/backend-linux-install.html)
-- [Installation du backend sur OS X](http://zds-site.readthedocs.org/fr/latest/install/backend-os-x-install.html)
-- [Installation du frontend](http://zds-site.readthedocs.org/fr/latest/install/frontend-install.html)
-- [Installation de Elasticsearch](http://zds-site.readthedocs.io/fr/latest/install/install-es.html) pour gérer la recherche
+- [Installation du backend sur Windows](http://docs.zestedesavoir.com/install/backend-windows-install.html)
+- [Installation du backend sur Linux](http://docs.zestedesavoir.com/install/backend-linux-install.html)
+- [Installation du backend sur OS X](http://docs.zestedesavoir.com/install/backend-os-x-install.html)
+- [Installation du frontend](http://docs.zestedesavoir.com/install/frontend-install.html)
+- [Installation de Elasticsearch](http://docs.zestedesavoir.com/install/install-es.html) pour gérer la recherche
 
 
 ### Mettre à jour votre version locale de ZdS
@@ -48,7 +46,7 @@ Elles sont reportées essentiellement dans le [*bug tracker*](https://github.com
 Après avoir mis à jour votre dépôt, vous devez exécuter les commandes suivantes (depuis la racine de votre projet) pour mettre à jour les dépendances.
 
 ```console
-pip install --upgrade -r requirements.txt -r requirements-dev.txt
+pip install --upgrade -r requirements-dev.txt
 python manage.py migrate --fake-initial
 ```
 
@@ -88,11 +86,11 @@ Cela va créer plusieurs entitées :
 * 4 aides pour l'écriture des tutoriels ;
 * 5 unes mises en avant sur la page d'accueil.
 
-Pour en savoir plus sur cette commande, [consulter la documentation](http://zds-site.readthedocs.org/fr/latest/utils/fixture_loaders.html).
+Pour en savoir plus sur cette commande, [consulter la documentation](http://docs.zestedesavoir.com/utils/fixture_loaders.html).
 
 ### La documentation complète
 
-[Voir la documentation en ligne](http://zds-site.readthedocs.org).
+[Voir la documentation en ligne](http://docs.zestedesavoir.com/).
 
 La documentation de ZdS est générée par Sphinx, et elle doit être mise à jour à chaque modification ou ajout d'une fonctionnalité du site. Les sources se trouvent [ici](doc/source/).
 
@@ -110,9 +108,9 @@ En contribuant, vous vous engagez à respecter le [Code de Conduite Contributeur
 
 ## En savoir plus
 
-- [Comment déployer ZDS sur un serveur de production ?](http://zds-site.readthedocs.org/fr/latest/install/deploy-in-production.html)
+- [Comment déployer ZDS sur un serveur de production ?](http://docs.zestedesavoir.com/install/deploy-in-production.html)
 - [Comment contribuer et conseils de développement](CONTRIBUTING.md)
 - [Comment contribuer : comprendre comment suivre le workflow (sur zds)](http://zestedesavoir.com/forums/sujet/324/comment-contribuer-comprendre-comment-suivre-le-workflow/)
-- [Les détails du workflow utilisé sur Zeste de Savoir](http://zds-site.readthedocs.org/fr/latest/workflow.html)
+- [Les détails du workflow utilisé sur Zeste de Savoir](http://docs.zestedesavoir.com/workflow.html)
 
 Zeste de Savoir est basé sur un fork de [Progdupeupl](https://pdp.microjoe.org) ([voir le dépôt Git](https://github.com/progdupeupl/pdp_website)).

@@ -127,7 +127,7 @@ class UtilsTests(TestCase):
 
         public = article.load_version(sha=published.sha_public, public=published)
         self.assertIsNotNone(public)
-        self.assertTrue(public.PUBLIC)  # its a PublicContent object !
+        self.assertTrue(public.PUBLIC)  # it's a PublicContent object
         self.assertEqual(public.type, published.content_type)
         self.assertEqual(public.current_version, published.sha_public)
 
@@ -182,7 +182,7 @@ class UtilsTests(TestCase):
 
         public = midsize_tuto.load_version(sha=published.sha_public, public=published)
         self.assertIsNotNone(public)
-        self.assertTrue(public.PUBLIC)  # its a PublicContent object
+        self.assertTrue(public.PUBLIC)  # it's a PublicContent object
         self.assertEqual(public.type, published.content_type)
         self.assertEqual(public.current_version, published.sha_public)
 
@@ -228,7 +228,7 @@ class UtilsTests(TestCase):
 
         public = bigtuto.load_version(sha=published.sha_public, public=published)
         self.assertIsNotNone(public)
-        self.assertTrue(public.PUBLIC)  # its a PublicContent object
+        self.assertTrue(public.PUBLIC)  # it's a PublicContent object
         self.assertEqual(public.type, published.content_type)
         self.assertEqual(public.current_version, published.sha_public)
 
@@ -280,11 +280,11 @@ class UtilsTests(TestCase):
         manifest = open(os.path.join(BASE_DIR, 'fixtures', 'tuto', 'balise_audio', 'manifest2.json'), 'r')
         json = json_reader.loads(manifest.read())
 
-        self.assertTrue(u'version' in json)
-        self.assertTrue(u'licence' in json)
-        self.assertTrue(u'children' in json)
-        self.assertEqual(len(json[u'children']), 3)
-        self.assertEqual(json[u'children'][0][u'object'], u'extract')
+        self.assertTrue('version' in json)
+        self.assertTrue('licence' in json)
+        self.assertTrue('children' in json)
+        self.assertEqual(len(json['children']), 3)
+        self.assertEqual(json['children'][0]['object'], 'extract')
         os.unlink(args[0])
         args = [os.path.join(BASE_DIR, 'fixtures', 'tuto', 'big_tuto_v1', 'manifest2.json')]
         shutil.copy(
@@ -295,13 +295,13 @@ class UtilsTests(TestCase):
         manifest = open(os.path.join(BASE_DIR, 'fixtures', 'tuto', 'big_tuto_v1', 'manifest2.json'), 'r')
         json = json_reader.loads(manifest.read())
         os.unlink(args[0])
-        self.assertTrue(u'version' in json)
-        self.assertTrue(u'licence' in json)
-        self.assertTrue(u'children' in json)
-        self.assertEqual(len(json[u'children']), 5)
-        self.assertEqual(json[u'children'][0][u'object'], u'container')
-        self.assertEqual(len(json[u'children'][0][u'children']), 3)
-        self.assertEqual(len(json[u'children'][0][u'children'][0][u'children']), 3)
+        self.assertTrue('version' in json)
+        self.assertTrue('licence' in json)
+        self.assertTrue('children' in json)
+        self.assertEqual(len(json['children']), 5)
+        self.assertEqual(json['children'][0]['object'], 'container')
+        self.assertEqual(len(json['children'][0]['children']), 3)
+        self.assertEqual(len(json['children'][0]['children'][0]['children']), 3)
         args = [os.path.join(BASE_DIR, 'fixtures', 'tuto', 'article_v1', 'manifest2.json')]
         shutil.copy(
             os.path.join(BASE_DIR, 'fixtures', 'tuto', 'article_v1', 'manifest.json'),
@@ -311,10 +311,10 @@ class UtilsTests(TestCase):
         manifest = open(os.path.join(BASE_DIR, 'fixtures', 'tuto', 'article_v1', 'manifest2.json'), 'r')
         json = json_reader.loads(manifest.read())
 
-        self.assertTrue(u'version' in json)
-        self.assertTrue(u'licence' in json)
-        self.assertTrue(u'children' in json)
-        self.assertEqual(len(json[u'children']), 1)
+        self.assertTrue('version' in json)
+        self.assertTrue('licence' in json)
+        self.assertTrue('children' in json)
+        self.assertEqual(len(json['children']), 1)
         os.unlink(args[0])
 
     def test_retrieve_images(self):
@@ -443,7 +443,7 @@ class UtilsTests(TestCase):
     def testParseBadManifest(self):
         base_content = PublishableContentFactory(author_list=[self.user_author])
         versioned = base_content.load_version()
-        versioned.add_container(Container(u'un peu plus près de 42'))
+        versioned.add_container(Container('un peu plus près de 42'))
         versioned.dump_json()
         manifest = os.path.join(versioned.get_path(), 'manifest.json')
         dictionary = json_reader.load(open(manifest))
@@ -514,21 +514,21 @@ class UtilsTests(TestCase):
         """ensure that an exception is raised when it should"""
 
         # exception are raised when title are invalid
-        invalid_titles = [u'-', u'_', u'__', u'-_-', u'$', u'@', u'&', u'{}', u'    ', u'...']
+        invalid_titles = ['-', '_', '__', '-_-', '$', '@', '&', '{}', '    ', '...']
 
         for t in invalid_titles:
             self.assertRaises(InvalidSlugError, slugify_raise_on_invalid, t)
 
         # Those slugs are recognized as wrong slug
         invalid_slugs = [
-            u'',  # empty
-            u'----',  # empty
-            u'___',  # empty
-            u'-_-',  # empty (!)
-            u'&;',  # invalid characters
-            u'!{',  # invalid characters
-            u'@',  # invalid character
-            u'a '  # space !
+            '',  # empty
+            '----',  # empty
+            '___',  # empty
+            '-_-',  # empty (!)
+            '&;',  # invalid characters
+            '!{',  # invalid characters
+            '@',  # invalid character
+            'a '  # space !
         ]
 
         for s in invalid_slugs:
@@ -576,6 +576,17 @@ class UtilsTests(TestCase):
 
         published = PublishedContent.objects.get(pk=published.pk)
         self.assertEqual(published.char_count, published.get_char_count())
+
+    def test_image_with_non_ascii_chars(self):
+        """seen on #4144"""
+        article = PublishableContentFactory(type='article', author_list=[self.user_author])
+        image_string = '![Portrait de Richard Stallman en 2014. [Source](https://commons.wikimedia.org/wiki/' \
+                       'File:Richard_Stallman_-_Fête_de_l%27Humanité_2014_-_010.jpg).]' \
+                       '(/media/galleries/4410/c1016bf1-a1de-48a1-9ef1-144308e8725d.jpg)'
+        article.sha_draft = article.load_version().repo_update(article.title, image_string, '', update_slug=False)
+        article.save(force_slug_update=False)
+        publish_content(article, article.load_version())
+        self.assertTrue(PublishedContent.objects.filter(content_id=article.pk).exists())
 
     def tearDown(self):
         if os.path.isdir(overridden_zds_app['content']['repo_private_path']):

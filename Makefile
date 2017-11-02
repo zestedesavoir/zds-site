@@ -5,16 +5,16 @@ all: help
 # install
 ## linux
 install-debian:
-	sudo apt-get install git python-dev python-setuptools libxml2-dev python-lxml libxslt-dev libz-dev python-sqlparse libjpeg62-turbo libjpeg62-turbo-dev libfreetype6 libfreetype6-dev libffi-dev python-pip python-tox build-essential
+	sudo apt-get install git python3-dev python3-setuptools libxml2-dev python3-lxml libxslt-dev libz-dev python3-sqlparse libjpeg62-turbo libjpeg62-turbo-dev libfreetype6 libfreetype6-dev libffi-dev python3-pip build-essential
 
 install-ubuntu:
-	sudo apt-get install git python-dev python-setuptools libxml2-dev python-lxml libxslt1-dev libz-dev python-sqlparse libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev libffi-dev python-pip python-tox build-essential
+	sudo apt-get install git python3-dev python3-setuptools libxml2-dev python3-lxml libxslt1-dev libz-dev python3-sqlparse libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev libffi-dev python3-pip build-essential
 
 install-fedora:
-	sudo dnf install git python-devel python-setuptools libxml2-devel python-lxml libxslt-devel zlib-devel python-sqlparse libjpeg-turbo-devel libjpeg-turbo-devel freetype freetype-devel libffi-devel python-pip python-tox gcc redhat-rpm-config
+	sudo dnf install git python3-devel python3-setuptools libxml2-devel python3-lxml libxslt-devel zlib-devel python3-sqlparse libjpeg-turbo-devel libjpeg-turbo-devel freetype freetype-devel libffi-devel python3-pip gcc redhat-rpm-config
 
 install-archlinux:
-	sudo pacman -Sy git python2 python2-setuptools python2-pip libxml2 python2-lxml libxslt zlib python2-sqlparse libffi libjpeg-turbo freetype2 python2-tox base-devel
+	sudo pacman -Sy git python python-setuptools python-pip libxml2 python-lxml libxslt zlib python-sqlparse libffi libjpeg-turbo freetype2 base-devel
 
 install-osx:
 	brew install gettext cairo --without-x11 py2cairo node && \
@@ -46,7 +46,7 @@ clean-back:
 	find . -name '*.pyc' -exec rm {} \;
 
 install-back:
-	pip install --upgrade -r requirements.txt -r requirements-dev.txt
+	pip install --upgrade -r requirements-dev.txt
 
 lint-back:
 	flake8 zds
@@ -57,9 +57,12 @@ report-release-back:
 run-back:
 	python manage.py runserver 0.0.0.0:8000
 
+test-front:
+		python manage.py test --settings zds.settings_test_local --tag=front
+
 test-back:
 	make clean-back && \
-	python manage.py test --settings zds.settings_test_local
+	python manage.py test --settings zds.settings_test_local --exclude-tag=front
 
 # front
 ## front-utils
@@ -97,7 +100,7 @@ fixtures:
 	python manage.py load_factory_data fixtures/advanced/aide_tuto_media.yaml
 
 restart_db: wipe migrate fixtures
-	python manage.py load_fixtures size=low
+	python manage.py load_fixtures --size=low --all
 
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
@@ -139,7 +142,4 @@ lint: lint-back lint-front
 run:
 	make -j2 watch-front run-back
 
-test: test-back
-
-travis:
-	tox $TEST_APP # set by travis, see .travis.yml
+test: test-back test-front

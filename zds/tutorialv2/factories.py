@@ -12,25 +12,25 @@ from zds.gallery.factories import GalleryFactory, UserGalleryFactory
 from zds.tutorialv2.utils import init_new_repo
 from zds.tutorialv2.publication_utils import publish_content
 
-text_content = u'Ceci est un texte bidon, **avec markown**'
+text_content = 'Ceci est un texte bidon, **avec markown**'
 
 tricky_text_content = \
-    u"Ceci est un texte contenant plein d'images, pour la publication. Le modifier affectera le test !\n\n" \
-    u'# Les images\n\n' \
-    u'Image: ![PNG qui existe](http://upload.wikimedia.org/wikipedia/en/9/9d/Commons-logo-31px.png)\n\n' \
-    u'Image: ![PNG qui existe pas](example.com/test.png)\n\n' \
-    u'Image: ![SVG qui existe](http://upload.wikimedia.org/wikipedia/commons/f/f9/10DF.svg)\n\n' \
-    u'Image: ![SVG qui existe pas](example.com/test.svg)\n\n' \
-    u'Image: ![GIF qui existe](http://upload.wikimedia.org/wikipedia/commons/2/27/AnimatedStar.gif)\n\n' \
-    u'Image: ![GIF qui existe pas](example.com/test.gif)\n\n' \
-    u'Image: ![Image locale qui existe](fixtures/image_test.jpg)\n\n' \
-    u'Image: ![Image locale qui existe pas](does-not-exist/test.png)\n\n' \
-    u'Image: ![Bonus: image bizarre](https://s.qwant.com/thumbr/?u=http%3A%2F%2Fwww.blogoergosum.com%2Fwp-content%2F' \
-    u'uploads%2F2010%2F02%2Fwikipedia-logo.jpg&h=338&w=600)\n\n' \
-    u'Image: ![Bonus: le serveur existe pas !](http://unknown.image.zds/test.png)\n\n' \
-    u'Image: ![Bonus: juste du texte](URL invalide)\n\n' \
-    u'# Et donc ...\n\n'\
-    u'Voilà :)'
+    "Ceci est un texte contenant plein d'images, pour la publication. Le modifier affectera le test !\n\n" \
+    '# Les images\n\n' \
+    'Image: ![PNG qui existe](http://upload.wikimedia.org/wikipedia/en/9/9d/Commons-logo-31px.png)\n\n' \
+    'Image: ![PNG qui existe pas](example.com/test.png)\n\n' \
+    'Image: ![SVG qui existe](http://upload.wikimedia.org/wikipedia/commons/f/f9/10DF.svg)\n\n' \
+    'Image: ![SVG qui existe pas](example.com/test.svg)\n\n' \
+    'Image: ![GIF qui existe](http://upload.wikimedia.org/wikipedia/commons/2/27/AnimatedStar.gif)\n\n' \
+    'Image: ![GIF qui existe pas](example.com/test.gif)\n\n' \
+    'Image: ![Image locale qui existe](fixtures/image_test.jpg)\n\n' \
+    'Image: ![Image locale qui existe pas](does-not-exist/test.png)\n\n' \
+    'Image: ![Bonus: image bizarre](https://s.qwant.com/thumbr/?u=http%3A%2F%2Fwww.blogoergosum.com%2Fwp-content%2F' \
+    'uploads%2F2010%2F02%2Fwikipedia-logo.jpg&h=338&w=600)\n\n' \
+    'Image: ![Bonus: le serveur existe pas !](http://unknown.image.zds/test.png)\n\n' \
+    'Image: ![Bonus: juste du texte](URL invalide)\n\n' \
+    '# Et donc ...\n\n'\
+    'Voilà :)'
 
 
 class PublishableContentFactory(factory.DjangoModelFactory):
