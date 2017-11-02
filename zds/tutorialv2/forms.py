@@ -313,10 +313,12 @@ class ContentForm(ContainerForm, MergeableFieldMixin):
                 ButtonHolder(StrictButton(_(u'Aperçu'), type='preview', name='preview',
                                           css_class='btn btn-grey preview-btn'),
                 HTML('{% if form.conclusion.value %}{% include "misc/previsualization.part.html" \
-                    with text=form.conclusion.value %}{% endif %}'),
-                Field('last_hash'),
-                Field('licence'),
-                Field('subcategory', template='crispy/checkboxselectmultiple.html'))))
+                    with text=form.conclusion.value %}{% endif %}'))))
+
+        self.helper.layout.append(Layout(
+              Field('last_hash'),
+              Field('licence'),
+              Field('subcategory', template='crispy/checkboxselectmultiple.html')))
 
         if not hide_help:
             self.helper.layout.append(html_part)
