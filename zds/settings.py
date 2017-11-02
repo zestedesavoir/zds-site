@@ -14,6 +14,7 @@ from colorlog import ColoredFormatter
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 DEBUG = True
+
 INTERNAL_IPS = ('127.0.0.1',)  # debug toolbar
 
 DATABASES = {
