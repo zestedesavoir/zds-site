@@ -25,7 +25,7 @@ from zds.notification.models import TopicAnswerSubscription, ContentReactionAnsw
     NewPublicationSubscription, Notification, Subscription
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory, \
     SubCategoryFactory, PublishedContentFactory, tricky_text_content, BetaContentFactory
-from zds.tutorialv2.models.models_database import PublishableContent, Validation, PublishedContent, ContentReaction, \
+from zds.tutorialv2.models.database import PublishableContent, Validation, PublishedContent, ContentReaction, \
     ContentRead
 from zds.tutorialv2.publication_utils import publish_content, Publicator, PublicatorRegistery
 from zds.utils.models import HelpWriting, Alert, Tag, Hat

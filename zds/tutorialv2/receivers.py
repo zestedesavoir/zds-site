@@ -8,7 +8,7 @@ from django.dispatch.dispatcher import receiver
 from django.utils.translation import ugettext_lazy as _
 from django.db import models
 
-from zds.tutorialv2.models.models_database import PublishableContent
+from zds.tutorialv2.models.database import PublishableContent
 from zds.tutorialv2.signals import content_unpublished
 from zds.gallery.models import Gallery
 from zds.utils import get_current_user

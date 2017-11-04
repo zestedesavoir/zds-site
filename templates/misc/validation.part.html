@@ -9,7 +9,7 @@
 
 {% if validation.is_pending %}
     <form action="{{ reservation_url }}" method="post">
-    	{% csrf_token %}
+        {% csrf_token %}
         <button type="submit">
             {% trans "Réserver" %}
         </button>
@@ -21,7 +21,7 @@
         {% if validation.date_reserve %}
             {{ validation.date_reserve|format_date:True }}
             {% if validation.date_proposition > validation.date_reserve  %}
-                ({% trans 'contenu mis à jour depuis la réservation' %})
+                ({% trans "Contenu mis à jour depuis la réservation." %})
             {% endif %}
             <br>
         {% endif %}
@@ -32,7 +32,7 @@
             {% trans "Annuler la réservation" %}
         </a>
         <form action="{{ reservation_url }}" method="post" class="modal modal-flex" id="unreservation-{{ validation.pk }}">
-        	{% csrf_token %}
+            {% csrf_token %}
             <p>
                 {% trans "Actuellement réservé par" %} {% include "misc/member_item.part.html" with member=validation.validator %}. <br>
                 {% blocktrans %}

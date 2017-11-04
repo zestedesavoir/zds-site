@@ -110,7 +110,7 @@
             {% for alert in alerts %}
                 <div class="alert-box{% if not alert.solved %} error{% endif %}">
                     {{ alert.pubdate|format_date|capfirst }} {% trans "par" %}
-                    {% include "misc/member_item.part.html" with member=alert.author %} :
+                    {% include "misc/member_item.part.html" with member=alert.author %} :
                     <em class="alert-box-text">{{ alert.text }}</em>
                     {% if alert.solved %}
                         <span class="close-alert-box close-alert-box-text">

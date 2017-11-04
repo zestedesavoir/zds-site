@@ -29,14 +29,14 @@
 {% block content %}
     <div class="gallery-col-image">
         <p>
-            {% trans "Image" %} :
+            {% trans "Image :" %}
         </p>
         <a href="{{ image.physical.url|remove_url_scheme }}">
             <img src="{{ image.physical.gallery_illu.url|remove_url_scheme }}" alt="{{ image.legend|default:image.title }}">
         </a>
 
         <p>
-            {% trans "Miniature" %} :
+            {% trans "Miniature :" %}
         </p>
         <a href="{{ image.physical.gallery.url|remove_url_scheme }}">
             <img src="{{ image.physical.gallery.url|remove_url_scheme }}" alt="{{ image.legend|default:image.title }}">
@@ -44,7 +44,7 @@
 
         {% if perms.featured.change_featuredresource %}
         <p>
-            {% trans "Lien pour utiliser cette image en une" %} : <br>
+            {% trans "Lien pour utiliser cette image en une :" %}<br>
             <input type="text" value="{{ app.site.url }}{{ image.physical.featured.url }}" readonly onclick="this.select()">
         </p>
         {% endif %}
@@ -56,15 +56,15 @@
         {% endif %}
 
         <p>
-            {% trans "Code markdown pour insérer cette image" %} : <br>
+            {% trans "Code markdown pour insérer cette image :" %}<br>
 
-            {% trans "Taille normale" %} :
+            {% trans "Taille normale : " %}
             <input type="text" value="![{{ image.legend|default:image.title }}]({{ image.physical.url|remove_url_scheme }})" readonly onclick="this.select()"> <br>
 
-            {% trans "Miniature" %} :
+            {% trans "Miniature : " %}
             <input type="text" value="![{{ image.legend|default:image.title }}]({{ image.physical.gallery.url|remove_url_scheme }})" readonly onclick="this.select()"> <br>
 
-            {% trans "Miniature + lien vers taille normale" %} :
+            {% trans "Miniature + lien vers taille normale : " %}
             <input type="text" value="[![{{ image.legend|default:image.title }}]({{ image.physical.gallery.url|remove_url_scheme }})]({{ image.physical.url|remove_url_scheme }})" readonly onclick="this.select()">
         </p>
 

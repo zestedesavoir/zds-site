@@ -47,11 +47,11 @@ def search_container_or_404(base_content, kwargs_array):
     :param kwargs_array: an array that may contain `parent_container_slug` and `container_slug` keys\
     or the string representation
     :return: the Container object we were searching for
-    :rtype: zds.tutorialv2.models.models_versioned.Container
+    :rtype: zds.tutorialv2.models.versioned.Container
     :raise Http404: if no suitable container is found
     """
 
-    from zds.tutorialv2.models.models_versioned import Container
+    from zds.tutorialv2.models.versioned import Container
 
     if isinstance(kwargs_array, str):
         dic = {}
@@ -94,11 +94,11 @@ def search_extract_or_404(base_content, kwargs_array):
     :param kwargs_array: an array that may contain `parent_container_slug` and `container_slug` and MUST contains\
     ``extract_slug``
     :return: the Extract object
-    :rtype: zds.tutorialv2.models.models_versioned.Extract
+    :rtype: zds.tutorialv2.models.versioned.Extract
     :raise: Http404 if not found
     """
 
-    from zds.tutorialv2.models.models_versioned import Extract
+    from zds.tutorialv2.models.versioned import Extract
 
     # if the extract is at a depth of 3 we get the first parent container
     container = search_container_or_404(base_content, kwargs_array)
@@ -119,14 +119,14 @@ def never_read(content, user=None):
     """Check if a content note feed has been read by a user since its last post was added.
 
     :param content: the content to check
-    :type content: zds.tutorialv2.models.models_database.PublishableContent
+    :type content: zds.tutorialv2.models.database.PublishableContent
     :param user: the user to test, if None, gets the current request user
     :type user: zds.member.models.User
     :return: ``True`` if the user never read this content's reactions, ``False`` otherwise
     :rtype: bool
     """
 
-    from zds.tutorialv2.models.models_database import ContentRead
+    from zds.tutorialv2.models.database import ContentRead
 
     if not user:
         user = get_current_user()
@@ -141,7 +141,7 @@ def never_read(content, user=None):
 
 
 def last_participation_is_old(content, user):
-    from zds.tutorialv2.models.models_database import ContentRead, ContentReaction
+    from zds.tutorialv2.models.database import ContentRead, ContentReaction
     if user is None or not user.is_authenticated():
         return False
     if ContentReaction.objects.filter(author__pk=user.pk, related_content__pk=content.pk).count() == 0:
@@ -158,8 +158,8 @@ def mark_read(content, user=None):
     :param user: user that read the content, if ``None`` will use currrent user
     """
 
-    from zds.tutorialv2.models.models_database import ContentRead
-    from zds.tutorialv2.models.models_database import ContentReaction
+    from zds.tutorialv2.models.database import ContentRead
+    from zds.tutorialv2.models.database import ContentReaction
 
     if not user:
         user = get_current_user()
@@ -195,7 +195,7 @@ def try_adopt_new_child(adoptive_parent, child):
     :raise TooDeepContainerError: if the child is a container that is too deep to be adopted by the proposed parent
     """
 
-    from zds.tutorialv2.models.models_versioned import Container, Extract
+    from zds.tutorialv2.models.versioned import Container, Extract
 
     if isinstance(child, Extract):
         if not adoptive_parent.can_add_extract():
@@ -222,7 +222,7 @@ def get_target_tagged_tree(movable_child, root):
     check get_target_tagged_tree_for_extract and get_target_tagged_tree_for_container for format
     """
 
-    from zds.tutorialv2.models.models_versioned import Extract
+    from zds.tutorialv2.models.versioned import Extract
 
     if isinstance(movable_child, Extract):
         return get_target_tagged_tree_for_extract(movable_child, root)
@@ -240,7 +240,7 @@ def get_target_tagged_tree_for_extract(movable_child, root):
     tuples are ``(relative_path, title, level, can_be_a_target)``
     """
 
-    from zds.tutorialv2.models.models_versioned import Extract
+    from zds.tutorialv2.models.versioned import Extract
 
     target_tagged_tree = []
     for child in root.traverse(False):
@@ -492,10 +492,10 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
     :param public: the function will fill a PublicContent instead of a VersionedContent if `True`
     :param hint_licence: avoid loading the licence if it is already the same as the one loaded
     :return: a Public/VersionedContent with all the information retrieved from JSON
-    :rtype: models.models_versioned.VersionedContent|models.models_database.PublishedContent
+    :rtype: zds.tutorialv2.models.versioned.VersionedContent|zds.tutorialv2.models.database.PublishedContent
     """
 
-    from zds.tutorialv2.models.models_versioned import Container, Extract, VersionedContent, PublicContent
+    from zds.tutorialv2.models.versioned import Container, Extract, VersionedContent, PublicContent
 
     if 'version' in json and json['version'] == 2:
         json['version'] = '2'
@@ -705,7 +705,7 @@ def fill_containers_from_json(json_sub, parent):
     :raise KeyError: if one mandatory key is missing
     """
 
-    from zds.tutorialv2.models.models_versioned import Container, Extract
+    from zds.tutorialv2.models.versioned import Container, Extract
 
     if 'children' in json_sub:
 
@@ -762,10 +762,10 @@ def init_new_repo(db_object, introduction_text, conclusion_text, commit_message=
     :param commit_message: set a commit message instead of the default one
     :param do_commit: perform commit if ``True``
     :return: ``VersionedContent`` object
-    :rtype: zds.tutorialv2.models.models_versioned.VersionedContent
+    :rtype: zds.tutorialv2.models.versioned.VersionedContent
     """
 
-    from zds.tutorialv2.models.models_versioned import VersionedContent
+    from zds.tutorialv2.models.versioned import VersionedContent
 
     # create directory
     path = db_object.get_repo_path()

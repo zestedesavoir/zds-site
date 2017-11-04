@@ -28,7 +28,7 @@ from zds.tutorialv2.forms import RevokeValidationForm, WarnTypoForm, NoteForm, N
 from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin, SingleOnlineContentViewMixin, DownloadViewMixin, \
     ContentTypeMixin, SingleOnlineContentFormViewMixin, MustRedirect
 from zds.tutorialv2.models import TYPE_CHOICES_DICT, CONTENT_TYPE_LIST
-from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction
+from zds.tutorialv2.models.database import PublishableContent, PublishedContent, ContentReaction
 from zds.tutorialv2.utils import search_container_or_404, last_participation_is_old, mark_read
 from zds.utils.models import Alert, CommentVote, Tag, Category, CommentEdit, SubCategory, get_hat_from_request, \
     CategorySubCategory
@@ -326,7 +326,7 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
         """Filter the contents to obtain the list of contents of given type.
         If category parameter is provided, only contents which have this category will be listed.
         :return: list of contents with the right type
-        :rtype: list of zds.tutorialv2.models.models_database.PublishedContent
+        :rtype: list of zds.tutorialv2.models.database.PublishedContent
         """
         sub_query = 'SELECT COUNT(*) FROM {} WHERE {}={}'.format(
             'tutorialv2_contentreaction',
