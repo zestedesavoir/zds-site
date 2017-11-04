@@ -201,7 +201,7 @@ class FeaturedResourceCreateViewTest(TestCase):
             password='hostel77')
         self.assertTrue(login_check)
         response = self.client.get('{}?content_type=topic&content_id={}'
-                                  .format(reverse('featured-resource-create'), topic.id))
+                                   .format(reverse('featured-resource-create'), topic.id))
         initial_dict = response.context['form'].initial
         self.assertEqual(initial_dict['title'], topic.title)
         self.assertEqual(initial_dict['authors'], str(author))

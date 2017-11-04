@@ -63,9 +63,9 @@ class FeaturedResourceCreate(CreateView):
             content_data = None
         if content:
             content_data = {'title': content.title,
-                'type': self.displayed_content_type['TOPIC'],
-                'authors': str(content.author),
-                'url': self.request.build_absolute_uri(content.get_absolute_url())}
+                            'type': self.displayed_content_type['TOPIC'],
+                            'authors': str(content.author),
+                            'url': self.request.build_absolute_uri(content.get_absolute_url())}
         return content_data
 
     def get_inital_content_data(self, content_id):
