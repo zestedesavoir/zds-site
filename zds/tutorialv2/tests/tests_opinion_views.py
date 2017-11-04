@@ -13,6 +13,7 @@ from zds.gallery.factories import UserGalleryFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.factories import (PublishableContentFactory, ExtractFactory, LicenceFactory,
                                       PublishedContentFactory, SubCategoryFactory)
+from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, PickListOperation
 from zds.utils.models import Alert
 from copy import deepcopy
 
@@ -86,8 +87,8 @@ class PublishedContentTests(TestCase):
             True)
         resp = self.client.get(reverse('opinion:view', kwargs={'pk': opinion.pk, 'slug': opinion.slug}))
         self.assertContains(resp, 'Version brouillon', msg_prefix='Author must access their draft directly')
-        self.assertNotContains(resp, '{}{}'.format(reverse('publication:list'), '?subcategory='))
-        self.assertContains(resp, '{}{}'.format(reverse('opinion:list'), '?category='))
+        self.assertNotContains(resp, '{}?subcategory='.format(reverse('publication:list')))
+        self.assertContains(resp, '{}?category='.format(reverse('opinion:list')))
 
     def test_no_help_for_tribune(self):
         self.assertEqual(
