@@ -54,7 +54,7 @@ class FeaturedResourceCreate(CreateView):
     def dispatch(self, request, *args, **kwargs):
         return super(FeaturedResourceCreate, self).dispatch(request, *args, **kwargs)
 
-    def get_inital_topic_data(self, topic_id):
+    def get_initial_topic_data(self, topic_id):
         try:
             content = Topic.objects.get(id=topic_id)
         except Topic.DoesNotExist:
@@ -68,7 +68,7 @@ class FeaturedResourceCreate(CreateView):
                             'url': self.request.build_absolute_uri(content.get_absolute_url())}
         return content_data
 
-    def get_inital_content_data(self, content_id):
+    def get_initial_content_data(self, content_id):
         try:
             content = PublishedContent.objects.get(id=content_id)
         except PublishedContent.DoesNotExist:
@@ -94,9 +94,9 @@ class FeaturedResourceCreate(CreateView):
         content_id = self.request.GET.get('content_id', None)
         content_data = None
         if content_type == 'topic' and content_id:
-            content_data = self.get_inital_topic_data(content_id)
+            content_data = self.get_initial_topic_data(content_id)
         elif content_type == 'published_content' and content_id:
-            content_data = self.get_inital_content_data(content_id)
+            content_data = self.get_initial_content_data(content_id)
         if not initial and content_data:
             initial.update(**content_data)
         return initial
