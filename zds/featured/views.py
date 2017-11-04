@@ -55,22 +55,28 @@ class FeaturedResourceCreate(CreateView):
         return super(FeaturedResourceCreate, self).dispatch(request, *args, **kwargs)
 
     def get_inital_topic_data(self, topic_id):
-        content_data = None
         try:
             content = Topic.objects.get(id=topic_id)
-            content_data = {'title': content.title,
-                            'type': self.displayed_content_type['TOPIC'],
-                            'authors': content.author.__str__(),
-                            'url': self.request.build_absolute_uri(content.get_absolute_url())}
         except Topic.DoesNotExist:
             messages.error(self.request, self.get_initial_error_message)
+            content = None
+            content_data = None
+        if content:
+            content_data = {'title': content.title,
+                'type': self.displayed_content_type['TOPIC'],
+                'authors': str(content.author),
+                'url': self.request.build_absolute_uri(content.get_absolute_url())}
         return content_data
 
     def get_inital_content_data(self, content_id):
-        content_data = None
         try:
             content = PublishedContent.objects.get(id=content_id)
-            displayed_authors = ', '.join([x.__str__() for x in content.authors.all()])
+        except PublishedContent.DoesNotExist:
+            messages.error(self.request, self.get_initial_error_message)
+            content = None
+            content_data = None
+        if content:
+            displayed_authors = ', '.join([str(x) for x in content.authors.all()])
             if content.content.image:
                 image_url = content.content.image.physical.url
             else:
@@ -80,9 +86,7 @@ class FeaturedResourceCreate(CreateView):
                             'authors': displayed_authors,
                             'url': self.request.build_absolute_uri(content.content.get_absolute_url_online()),
                             'image_url': image_url}
-        except PublishedContent.DoesNotExist:
-            messages.error(self.request, self.get_initial_error_message)
-        return content_data or None
+        return content_data
 
     def get_initial(self):
         initial = super(FeaturedResourceCreate, self).get_initial()
