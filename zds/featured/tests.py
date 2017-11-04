@@ -206,7 +206,7 @@ class FeaturedResourceCreateViewTest(TestCase):
         self.assertEqual(initial_dict['title'], topic.title)
         self.assertEqual(initial_dict['authors'], author.__str__())
         self.assertEqual(initial_dict['type'], _('Un sujet'))
-        self.assertEqual(initial_dict['url'], 'http://testserver/forums/sujet/1/mon-sujet-no0/')
+        self.assertEqual(initial_dict['url'], 'http://testserver/forums/sujet/1/{}/'.format(topic.slug()))
 
     def test_failure_initial_content_not_found(self):
         staff = StaffProfileFactory()
