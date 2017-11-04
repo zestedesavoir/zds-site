@@ -61,7 +61,7 @@
                                         {% csrf_token %}
                                         {% if perms_change %}
                                             <p>
-                                                {% trans "Pour quelle raison souhaitez vous masquer ce message" %} ?
+                                                {% trans "Pour quelle raison souhaitez-vous masquer ce message ?" %}
                                             </p>
                                             <input type="text" name="text_hidden" placeholder="Flood, Troll, Hors sujet, ..." >
                                         {% else %}
@@ -127,7 +127,7 @@
                             <form action="{{ alert_link|safe }}" method="post" id="signal-message-{{ message.id }}" class="modal modal-flex">
                                 {% csrf_token %}
                                 <label for="signal-message-{{ message.id }}-field">
-                                    {% trans "Pour quelle raison signalez-vous ce message" %} ?
+                                    {% trans "Pour quelle raison signalez-vous ce message ?" %}
                                 </label>
                                 <textarea type="text" name="signal_text" id="signal-message-{{ message.id }}-field" placeholder="Flood, Troll, Hors sujet, …" pattern=".{3,}" required title='{% trans "Minimum 3 caractères pour signaler" %}' rows="4"></textarea>
 
@@ -191,7 +191,7 @@
                 <p class="message-hidden">
                     {% trans "Masqué par" %} {{ message.editor }}
                     {% if message.text_hidden %}
-                        : {{ message.text_hidden }}
+                        : {{ message.text_hidden }}
                     {% endif %}
                 </p>
             {% elif message.update %}
@@ -217,7 +217,7 @@
             {% for alert in message.alerts_on_this_comment.all %}
                 <div class="alert-box{% if not alert.solved %} error{% endif %}">
                     {{ alert.pubdate|format_date|capfirst }} {% trans "par" %}
-                    {% include "misc/member_item.part.html" with member=alert.author %} :
+                    {% include "misc/member_item.part.html" with member=alert.author %} :
                     <em class="alert-box-text">{{ alert.text }}</em>
                     {% if alert.solved %}
                         <span class="close-alert-box close-alert-box-text">

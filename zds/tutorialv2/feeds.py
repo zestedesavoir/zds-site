@@ -7,7 +7,7 @@ from django.utils.feedgenerator import Atom1Feed
 from django.utils.translation import ugettext_lazy as _
 
 from zds.utils.models import Category, SubCategory
-from zds.tutorialv2.models.models_database import PublishedContent
+from zds.tutorialv2.models.database import PublishedContent
 
 
 class LastContentFeedRSS(Feed):

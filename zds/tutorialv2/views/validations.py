@@ -25,7 +25,7 @@ from zds.tutorialv2.forms import AskValidationForm, RejectValidationForm, Accept
     DoNotPickOpinionForm
 from zds.tutorialv2.mixins import SingleContentFormViewMixin, ModalFormView, \
     SingleOnlineContentFormViewMixin, ValidationBeforeViewMixin, NoValidationBeforeFormViewMixin
-from zds.tutorialv2.models.models_database import Validation, PublishableContent, PickListOperation
+from zds.tutorialv2.models.database import Validation, PublishableContent, PickListOperation
 from zds.tutorialv2.publication_utils import publish_content, FailureDuringPublication, unpublish_content
 from zds.tutorialv2.utils import clone_repo
 from zds.utils.forums import send_post, lock_topic

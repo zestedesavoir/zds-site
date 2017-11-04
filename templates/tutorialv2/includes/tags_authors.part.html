@@ -31,12 +31,12 @@
 {% if update_date %}
     <span class="pubdate">
     {% if online and update_date == public_object.publication_date %}
-        {% trans "Publié" %} :
+        {% trans "Publié" %} :
         <time datetime="{{ update_date|date:"c" }}" pubdate="pubdate" itemprop="dateModified">
             {{ update_date|format_date }}
         </time>
     {% else %}
-        {% trans "Dernière mise à jour" %} :
+        {% trans "Dernière mise à jour" %} :
         <time datetime="{{ update_date|date:"c" }}" pubdate="pubdate" itemprop="dateModified">
             {{ update_date|format_date }}
         </time>
@@ -48,7 +48,7 @@
 
 <div class="authors">
     <span class="authors-label">
-        {% trans "Auteur" %}{{ publishablecontent|displayable_authors:online|pluralize }} :
+        {% trans "Auteur" %}{{ publishablecontent|displayable_authors:online|pluralize }} :
     </span>
     <ul>
         {% for member in publishablecontent|displayable_authors:online %}
@@ -67,7 +67,7 @@
     </ul>
     <br/>
     <span class="authors-label">
-        {% trans "Catégorie" %}{{ content.subcategory.all|pluralize }} :
+        {% trans "Catégorie" %}{{ content.subcategory.all|pluralize }} :
     </span>
     <ul>
         {% for category in content.subcategory.all %}
@@ -82,7 +82,7 @@
     <br/>
     <span>
         {% if online and reading_time and not is_part_or_chapter %}
-            {% trans "Temps de lecture estimé : " %}{{ reading_time | minute_to_duration:"long"}}
+            {% trans "Temps de lecture estimé : " %}{{ reading_time | minute_to_duration:"long"}}
         {% elif online and not is_part_or_chapter %}
             {% trans "Temps de lecture estimé à moins d’une minute." %}
         {% endif %}

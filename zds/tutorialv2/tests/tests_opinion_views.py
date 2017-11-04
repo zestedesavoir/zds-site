@@ -13,8 +13,6 @@ from zds.gallery.factories import UserGalleryFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.factories import (PublishableContentFactory, ExtractFactory, LicenceFactory,
                                       PublishedContentFactory, SubCategoryFactory)
-from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, PickListOperation
-
 from zds.utils.models import Alert
 from copy import deepcopy
 

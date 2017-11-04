@@ -32,7 +32,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from django.views.generic import CreateView, UpdateView, DeleteView, FormView
 from django.utils.decorators import method_decorator
-from zds.tutorialv2.models.models_database import PublishableContent
+from zds.tutorialv2.models.database import PublishableContent
 
 
 class ListGallery(ZdSPagingListView):

@@ -15,7 +15,7 @@ from django.utils.translation import ugettext_lazy as _
 from zds.forum.models import Post, Topic
 from zds.member import NEW_PROVIDER_USES
 from zds.member.managers import ProfileManager
-from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent
+from zds.tutorialv2.models.database import PublishableContent, PublishedContent
 from zds.utils.models import Alert, Licence, Hat
 
 

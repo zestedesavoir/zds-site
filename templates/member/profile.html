@@ -43,7 +43,7 @@
                         {% trans "Inscrit" %} {{ usr.date_joined|format_date:True }}
                     </li>
                     <li>
-                        {% trans "Dernière visite sur le site" %} :
+                        {% trans "Dernière visite sur le site" %} :
                             {% if profile.last_visit %}
                                 {{ profile.last_visit|format_date:True }}
                             {% else %}
@@ -57,7 +57,7 @@
                 {% endif %}
                 {% if perms.member.show_ip %}
                     <li>
-                        {% trans "Dernière IP" %} : <a href="{% url "member-from-ip" profile.last_ip_address %}">{{ profile.last_ip_address }}</a>
+                        {% trans "Dernière IP" %} : <a href="{% url "member-from-ip" profile.last_ip_address %}">{{ profile.last_ip_address }}</a>
                     </li>
                     <li>
                         {{ profile.get_city }}
@@ -73,13 +73,13 @@
         <ul class="member-social">
             {% if profile.show_email and user.is_authenticated %}
                 <li>
-                    {% trans "E-mail" %} : {{ usr.email|obfuscate_mailto }}
+                    {% trans "E-mail" %} : {{ usr.email|obfuscate_mailto }}
                 </li>
             {% endif %}
 
             {% if profile.site %}
                 <li>
-                    {% trans "Site web" %} : <a href="{{ profile.site }}">{{ profile.site }}</a>
+                    {% trans "Site web" %} : <a href="{{ profile.site }}">{{ profile.site }}</a>
                 </li>
             {% endif %}
         </ul>
@@ -122,7 +122,7 @@
                 <form action="{% url 'add-hat' usr.pk %}" method="post" id="add-hat" class="modal modal-flex">
                     {% csrf_token %}
                     <p>
-                        {% blocktrans with username=usr.username %}Vous allez ajouter une casquette à {{ username }} :{% endblocktrans %}
+                        {% blocktrans with username=usr.username %}Vous allez ajouter une casquette à {{ username }} :{% endblocktrans %}
                     </p>
                     <ul>
                         <li>{% trans "Le membre aura la possibilité pour chaque message de poster avec ou sans sa casquette." %}</li>
@@ -212,7 +212,7 @@
                                 {% if action.type %}
                                     {{ action.type }}
                                 {% elif action.karma %}
-                                    {% trans "Modification du karma" %} : {{ action.karma }}
+                                    {% trans "Modification du karma" %} : {{ action.karma }}
                                 {% else %}
                                     –
                                 {% endif %}

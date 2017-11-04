@@ -15,7 +15,7 @@ from django.template.loader import render_to_string
 from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
 
-from zds.tutorialv2.models.models_database import ContentReaction
+from zds.tutorialv2.models.database import ContentReaction
 from zds.tutorialv2.signals import content_unpublished
 from zds.tutorialv2.utils import retrieve_and_update_images_links
 from zds.utils.templatetags.emarkdown import emarkdown
@@ -37,10 +37,10 @@ def publish_content(db_object, versioned, is_major_update=True):
     :type is_major_update: bool
     :raise FailureDuringPublication: if something goes wrong
     :return: the published representation
-    :rtype: zds.tutorialv2.models.models_database.PublishedContent
+    :rtype: zds.tutorialv2.models.database.PublishedContent
     """
 
-    from zds.tutorialv2.models.models_database import PublishedContent
+    from zds.tutorialv2.models.database import PublishedContent
 
     if is_major_update:
         versioned.pubdate = datetime.now()
@@ -321,7 +321,7 @@ def publish_container(db_object, base_dir, container):
     :raise FailureDuringPublication: if anything goes wrong
     """
 
-    from zds.tutorialv2.models.models_versioned import Container
+    from zds.tutorialv2.models.versioned import Container
 
     if not isinstance(container, Container):
         raise FailureDuringPublication(_("Le conteneur n'en est pas un !"))
@@ -408,7 +408,7 @@ def make_zip_file(published_content):
                         published_content.content_public_slug + '.zip')
     zip_file = zipfile.ZipFile(path, 'w')
     versioned = publishable.load_version(None, True)
-    from zds.tutorialv2.views.views_contents import DownloadContent
+    from zds.tutorialv2.views.contents import DownloadContent
     DownloadContent.insert_into_zip(zip_file, versioned.repository.commit(versioned.current_version).tree)
     zip_file.close()
 
@@ -426,7 +426,7 @@ def unpublish_content(db_object, moderator=None):
     :rtype: bool
     """
 
-    from zds.tutorialv2.models.models_database import PublishedContent
+    from zds.tutorialv2.models.database import PublishedContent
 
     try:
         public_version = PublishedContent.objects.get(pk=db_object.public_version.pk)

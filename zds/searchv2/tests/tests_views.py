@@ -19,7 +19,7 @@ from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.searchv2.models import ESIndexManager
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, publish_content, \
     PublishedContentFactory, SubCategoryFactory
-from zds.tutorialv2.models.models_database import PublishedContent, FakeChapter, PublishableContent
+from zds.tutorialv2.models.database import PublishedContent, FakeChapter, PublishableContent
 from copy import deepcopy
 
 overridden_zds_app = deepcopy(settings.ZDS_APP)
