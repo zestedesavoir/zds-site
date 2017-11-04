@@ -15,7 +15,7 @@ from django.conf import settings
 from zds.featured.forms import FeaturedResourceForm, FeaturedMessageForm
 from zds.featured.models import FeaturedResource, FeaturedMessage
 from zds.forum.models import Topic
-from zds.tutorialv2.models.models_database import PublishedContent
+from zds.tutorialv2.models.database import PublishedContent
 from zds.utils.paginator import ZdSPagingListView
 
 
