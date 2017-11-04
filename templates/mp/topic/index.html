@@ -33,7 +33,7 @@
 
 {% block content %}
     <div class="authors">
-        <span class="authors-label">{% trans "Participant" %}{{ topic.participants.all|length|add:"1"|pluralize }} : </span>
+        <span class="authors-label">{% trans "Participant" %}{{ topic.participants.all|length|add:"1"|pluralize }} : </span>
         <ul>
             <li>
                 {% include 'misc/member_item.part.html' with member=topic.author avatar=True %}
@@ -101,7 +101,7 @@
                     </a>
                     <form action="{% url "mp-edit-participant" topic.pk topic.slug %}" method="post" id="add-participant" class="modal modal-flex">
                         <p>
-                            {% trans "Vous allez rajouter un nouveau membre dans la conversation privée" %}.
+                            {% trans "Vous allez rajouter un nouveau membre dans la conversation privée." %}
                         </p>
                         <input
                             type="text" class="input" name="username"
@@ -127,7 +127,7 @@
                 </a>
                 <form action="{% url "mp-delete" topic.pk topic.slug %}" method="post" id="leave-conversation" class="modal modal-flex">
                     <p>
-                        {% trans "Attention, vous vous apprêtez à quitter définitivement cette conversation" %}.
+                        {% trans "Attention, vous vous apprêtez à quitter définitivement cette conversation." %}
                     </p>
 
                     {% csrf_token %}

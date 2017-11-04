@@ -5,14 +5,14 @@
 Bonjour {{ name }},
 
 Ce message fait suite à votre alerte concernant les propos de {{ username }}
-dans {{ type_content }} [{{ title }}]({{ url }}) :
+dans {{ type_content }} [{{ title }}]({{ url }}) :
 
 {{ alert_text }}
 
-{{ modo_name }} s’est occupé du signalement et vous a déposé un petit mot :
+{{ modo_name }} s’est occupé du signalement et vous a déposé un petit mot :
 
 {{ message }}
 
-Toute l’équipe de modération vous remercie et vous offre un smoothie !
+Toute l’équipe de modération vous remercie et vous offre un smoothie !
 
 {%  endblocktrans %}
