@@ -200,8 +200,8 @@ class FeaturedResourceCreateViewTest(TestCase):
             username=staff.user.username,
             password='hostel77')
         self.assertTrue(login_check)
-        response = self.client.get('{}{}'.format(reverse('featured-resource-create'),
-                                                 '?content_type=topic&content_id=1'))
+        response = self.client.get('{}?content_type=topic&content_id={}'
+                                  .format(reverse('featured-resource-create'), topic.id))
         initial_dict = response.context['form'].initial
         self.assertEqual(initial_dict['title'], topic.title)
         self.assertEqual(initial_dict['authors'], author.__str__())
@@ -216,12 +216,11 @@ class FeaturedResourceCreateViewTest(TestCase):
         )
         self.assertTrue(login_check)
 
-        response = self.client.get('{}{}'.format(reverse('featured-resource-create'),
-                                                 '?content_type=published_content&content_id=42'))
+        response = self.client.get('{}?content_type=published_content&content_id=42'
+                                   .format(reverse('featured-resource-create')))
         self.assertContains(response, _(u'Le contenu est introuvable'))
 
     def tearDown(self):
-
         if os.path.isdir(overridden_zds_app['content']['repo_private_path']):
             shutil.rmtree(overridden_zds_app['content']['repo_private_path'])
         if os.path.isdir(overridden_zds_app['content']['repo_public_path']):
