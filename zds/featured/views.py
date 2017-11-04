@@ -43,7 +43,7 @@ class FeaturedResourceCreate(CreateView):
     form_class = FeaturedResourceForm
     template_name = 'featured/resource/create.html'
     context_object_name = 'featured_resource'
-    get_initial_error_message = _(u'Le contenu est introuvable')
+    get_initial_error_message = _('Le contenu est introuvable')
     displayed_content_type = {'TUTORIAL': _('Un tutoriel'),
                               'ARTICLE': _('Un article'),
                               'OPINION': _('Un billet'),

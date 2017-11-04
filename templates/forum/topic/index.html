@@ -6,7 +6,6 @@
 {% load crispy_forms_tags %}
 {% load i18n %}
 {% load interventions %}
-{% load append_query_params %}
 
 {% block title %}
     {% if topic.is_solved %}[{% trans "Résolu" %}]{% endif %} {{ topic.title }}

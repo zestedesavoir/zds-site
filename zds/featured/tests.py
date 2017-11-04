@@ -218,7 +218,7 @@ class FeaturedResourceCreateViewTest(TestCase):
 
         response = self.client.get('{}?content_type=published_content&content_id=42'
                                    .format(reverse('featured-resource-create')))
-        self.assertContains(response, _(u'Le contenu est introuvable'))
+        self.assertContains(response, _('Le contenu est introuvable'))
 
     def tearDown(self):
         if os.path.isdir(overridden_zds_app['content']['repo_private_path']):
