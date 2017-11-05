@@ -5,7 +5,7 @@ import subprocess
 from django.core.management.base import BaseCommand
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
-from zds.tutorialv2.models.models_database import PublishedContent
+from zds.tutorialv2.models.database import PublishedContent
 
 
 class Command(BaseCommand):

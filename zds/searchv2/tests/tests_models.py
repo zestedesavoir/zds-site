@@ -15,7 +15,7 @@ from zds.forum.tests.tests_views import create_category
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.searchv2.models import ESIndexManager
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, publish_content
-from zds.tutorialv2.models.models_database import PublishedContent, FakeChapter, PublishableContent
+from zds.tutorialv2.models.database import PublishedContent, FakeChapter, PublishableContent
 from copy import deepcopy
 
 

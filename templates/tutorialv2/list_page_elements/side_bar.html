@@ -1,6 +1,6 @@
 {% comment %}
 This template is purely backported from v21/v22. It is just a part of the template refactoring project
-Expected variables are :
+Expected variables are :
     - current_content_type => None if no filter, else can be one of the AVAILABLE_CONTENT_TYPES value (ARTICLE, TUTORIAL, OPINION...)
     - verbose_type_name_plural => basically "contents", "tutorials", "articles"
     - top_categories
@@ -68,7 +68,7 @@ Expected variables are :
             {% for subcat,slug in subcats %}
                 <li>
                     <a href="{{ content_list_url }}?category={{ slug }}" class="mobile-menu-link mobile-menu-sublink">
-                        {{  subcat }}
+                        {{ subcat }}
                     </a>
                 </li>
             {% endfor %}
@@ -96,7 +96,7 @@ Expected variables are :
                         href="{% url "content:feed-rss" %}"
                     {% endif %}
                 class="ico-after rss blue">
-                    {% blocktrans %} Nouveaux {{ verbose_type_name_plural }} (RSS) {% endblocktrans %}
+                    {% blocktrans %}Nouveaux {{ verbose_type_name_plural }} (RSS){% endblocktrans %}
                 </a>
             </li>
             <li>
@@ -111,7 +111,7 @@ Expected variables are :
                         href="{% url "content:feed-atom" %}"
                     {% endif %}
                 class="ico-after rss blue">
-                    {% blocktrans %} Nouveaux {{ verbose_type_name_plural }} (ATOM) {% endblocktrans %}
+                    {% blocktrans %}Nouveaux {{ verbose_type_name_plural }} (ATOM){% endblocktrans %}
                 </a>
             </li>
         </ul>

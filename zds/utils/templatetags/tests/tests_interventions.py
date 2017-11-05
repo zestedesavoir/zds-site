@@ -7,7 +7,7 @@ from django.template import Context, Template
 from django.test import TestCase
 
 from zds.forum.factories import CategoryFactory, ForumFactory, PostFactory, TopicFactory
-from zds.tutorialv2.models.models_database import Validation
+from zds.tutorialv2.models.database import Validation
 from zds.tutorialv2.factories import PublishableContentFactory, LicenceFactory, SubCategoryFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory, StaffFactory
 from zds.utils.models import Alert

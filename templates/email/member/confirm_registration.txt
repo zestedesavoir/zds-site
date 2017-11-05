@@ -6,12 +6,12 @@
 Vous vous êtes inscrit sur {{ site_name }} ({{ site_url }}) et nous vous en remercions.
 En étant membre de notre communauté, vous aurez la possibilité de rédiger des tutoriels et des articles
 que vous pourrez ensuite publier et ainsi rendre votre savoir accessible au plus grand nombre.
-Vous pourrez également échanger avec les autres membres sur nos forums !
+Vous pourrez également échanger avec les autres membres sur nos forums !
 {% endblocktrans %}
 
 {% blocktrans %}
-Il ne vous reste plus qu’à activer votre profil ! Pour ce faire, visitez le lien ci-dessous : {{ url }}
+Il ne vous reste plus qu’à activer votre profil ! Pour ce faire, visitez le lien ci-dessous : {{ url }}
 {% endblocktrans %}
 
-{% trans "A très bientôt !" %}
+{% trans "A très bientôt !" %}
 {% endblock %}

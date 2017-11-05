@@ -6,7 +6,7 @@
     <div class="flexpage-column">
         <section>
             <h2 itemprop="name">
-                Derniers tutoriels
+                {% trans "Derniers tutoriels" %}
                 <a href="{% url "tutorial:feed-rss" %}?subcategory={{ subcategory.slug }}" class="btn btn-grey">RSS</a>
                 <a href="{% url "tutorial:feed-atom" %}?subcategory={{ subcategory.slug }}" class="btn btn-grey">Atom</a>
             </h2>
@@ -18,7 +18,7 @@
 
             <section>
                 <h2 itemprop="name">
-                    Derniers articles
+                    {% trans "Derniers articles" %}
                     <a href="{% url "article:feed-rss" %}?subcategory={{ subcategory.slug }}" class="btn btn-grey">RSS</a>
                     <a href="{% url "article:feed-atom" %}?subcategory={{ subcategory.slug }}" class="btn btn-grey">Atom</a>
                 </h2>
