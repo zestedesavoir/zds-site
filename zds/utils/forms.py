@@ -9,21 +9,21 @@ from zds.utils.misc import contains_utf8mb4
 
 
 class MergeableFieldMixin():
-	def add_merge_interface_to_field(self, field_name, **kwargs):
-		field_old_content = kwargs.get('data').get(field_name)
-		if field_old_content is None:
-			field_old_content = ''
-		self.helper.layout.append(Layout(Field(field_name, css_class='hidden')))
+    def add_merge_interface_to_field(self, field_name, **kwargs):
+        field_old_content = kwargs.get('data').get(field_name)
+        if field_old_content is None:
+            field_old_content = ''
+        self.helper.layout.append(Layout(Field(field_name, css_class='hidden')))
 
-		self.helper.layout.append(
-			  Layout(HTML('<div id="your_{0}" class="hidden" >{1}</div>'
-			  .format(field_name, field_old_content))))
-		self.helper.layout.append(
-			  Layout(HTML('<div id="compare" class="compare-{0}"></div>'
-			  .format(field_name))))
-		self.helper.layout.append(Layout(
-			ButtonHolder(StrictButton(_('Valider cette version'), type='merge', name='merge',
-									  css_class='btn btn-submit merge-btn need-to-merge-{0}'.format(field_name)))))
+        self.helper.layout.append(
+            Layout(HTML('<div id="your_{0}" class="hidden" >{1}</div>'
+                        .format(field_name, field_old_content))))
+        self.helper.layout.append(
+            Layout(HTML('<div id="compare" class="compare-{0}"></div>'
+                        .format(field_name))))
+        self.helper.layout.append(Layout(
+            ButtonHolder(StrictButton(_('Valider cette version'), type='merge', name='merge',
+                                      css_class='btn btn-submit merge-btn need-to-merge-{0}'.format(field_name)))))
 
 
 class CommonLayoutEditor(Layout):
@@ -54,7 +54,7 @@ class CommonLayoutVersionEditor(Layout, MergeableFieldMixin):
     def __init__(self, *args, **kwargs):
 
         if kwargs.get('data', None) is not None:
-            add_merge_interface_to_field('text', **kwargs)
+            self.add_merge_interface_to_field('text', **kwargs)
         else:
             text_field = Field('text', css_class='md-editor')
 
