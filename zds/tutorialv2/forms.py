@@ -172,7 +172,7 @@ class ContainerForm(FormWithTitle, MergeableFieldMixin):
             Field('last_hash'),
             ButtonHolder(
                 StrictButton(
-                    _(u'Valider'),
+                    _('Valider'),
                     type='submit'),
             )
         ))

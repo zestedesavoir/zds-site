@@ -46,7 +46,7 @@
             Array.from(this.classList).forEach(function(element){
                 if (element.indexOf("need-to-merge-") >= 0) {
                     var substring = element.substring(14);
-                       var toMerge = mergeInterfaceList[substring].editor().getValue();
+                    var toMerge = mergeInterfaceList[substring].editor().getValue();
                     $("#id_" + substring).text(toMerge);
 
                     // Confirmation message
