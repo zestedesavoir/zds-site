@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from django import forms
 from django.conf import settings
 
@@ -16,7 +14,7 @@ from zds.tutorialv2.models.models_database import PublishableContent
 from django.utils.translation import ugettext_lazy as _
 from zds.member.models import Profile
 from zds.tutorialv2.utils import slugify_raise_on_invalid, InvalidSlugError
-from zds.utils.forms import TagValidator
+from zds.utils.forms import TagValidator, MergeableFieldMixin
 
 
 class FormWithTitle(forms.Form):
@@ -48,26 +46,6 @@ class FormWithTitle(forms.Form):
                 [_("Ce titre n'est pas autorisé, son slug est invalide {} !").format(e)])
 
         return cleaned_data
-
-
-class MergeableFieldMixin():
-    # TODO: utiliser ce mixin à d'autres endroits ?
-	def add_merge_interface_to_field(self, field_name, **kwargs):
-
-		field_old_content = kwargs.get('data').get(field_name)
-		if field_old_content is None:
-			field_old_content = ''
-		self.helper.layout.append(Layout(Field(field_name, css_class='hidden')))
-
-		self.helper.layout.append(
-			  Layout(HTML('<div id="your_{0}" class="hidden" >{1}</div>'
-			  .format(field_name, field_old_content))))
-		self.helper.layout.append(
-			  Layout(HTML('<div id="compare" class="compare-{0}"></div>'
-			  .format(field_name))))
-		self.helper.layout.append(Layout(
-			ButtonHolder(StrictButton(_(u'Valider cette version'), type='merge', name='merge',
-									  css_class='btn btn-submit merge-btn need-to-merge-{0}'.format(field_name)))))
 
 
 class AuthorForm(forms.Form):
@@ -129,7 +107,7 @@ class RemoveAuthorForm(AuthorForm):
         return cleaned_data
 
 
-class ContainerForm(FormWithTitle):
+class ContainerForm(FormWithTitle, MergeableFieldMixin):
 
     introduction = forms.CharField(
         label=_('Introduction'),
@@ -174,33 +152,9 @@ class ContainerForm(FormWithTitle):
         self.helper.layout = Layout(Field('title'))
 
         if kwargs.get('data', None) is not None:
-            old_intro = kwargs.get('data').get('introduction')
-            if old_intro is None:
-                old_intro = ''
-
-            self.helper.layout.append(Layout(Field('introduction', css_class='hidden')))
-            self.helper.layout.append(Layout(HTML('<div id="your_introduction" class="hidden">{}</div>'
-						  .format(old_intro))))
-            self.helper.layout.append(Layout(HTML('<div id="compare" class="compare-introduction"></div>')))
-
-            self.helper.layout.append(Layout(
-                ButtonHolder(StrictButton(_(u'Valider cette version'), type='merge', name='merge',
-                                          css_class='btn btn-submit merge-btn need-to-merge-introduction'))))
-
-            old_conclusion = kwargs.get('data').get('conclusion')
-            if old_conclusion is None:
-                old_conclusion = ''
-
-            self.helper.layout.append(Layout(Field('conclusion', css_class='hidden')))
-            self.helper.layout.append(Layout(HTML('<div id="your_conclusion" class="hidden">{}</div>'
-						  .format(old_conclusion))))
-            self.helper.layout.append(Layout(HTML('<div id="compare" class="compare-conclusion"></div>')))
-
-            self.helper.layout.append(Layout(
-                ButtonHolder(StrictButton(_(u'Valider cette version'), type='merge', name='merge',
-                                          css_class='btn btn-submit merge-btn need-to-merge-conclusion'))))
+            self.add_merge_interface_to_field('introduction', **kwargs)
+            self.add_merge_interface_to_field('conclusion', **kwargs)
         else:
-
             self.helper.layout.append(Layout(
                 Field('introduction', css_class='md-editor preview-source'),
                 ButtonHolder(StrictButton(_(u'Aperçu'), type='preview', name='preview',
