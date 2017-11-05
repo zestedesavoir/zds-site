@@ -12,7 +12,7 @@ from django.core.urlresolvers import reverse
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory, \
     SubCategoryFactory
-from zds.tutorialv2.models.models_database import PublishableContent
+from zds.tutorialv2.models.database import PublishableContent
 from zds.gallery.factories import UserGalleryFactory
 from zds.forum.factories import ForumFactory, CategoryFactory
 from zds.tutorialv2.publication_utils import publish_content

@@ -24,7 +24,7 @@ from zds.member.decorator import can_write_and_read_now
 from zds.pages.forms import AssocSubscribeForm
 from zds.pages.models import GroupContact
 from zds.searchv2.forms import SearchForm
-from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent
+from zds.tutorialv2.models.database import PublishableContent, PublishedContent
 from zds.utils.forums import create_topic
 from zds.utils.models import Alert, CommentEdit, Comment
 

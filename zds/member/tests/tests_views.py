@@ -22,7 +22,7 @@ from zds.member.models import Profile, KarmaNote, TokenForgotPassword
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.member.models import TokenRegister, Ban, NewEmailProvider, BannedEmailProvider
 from zds.tutorialv2.factories import PublishableContentFactory, PublishedContentFactory, BetaContentFactory
-from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent
+from zds.tutorialv2.models.database import PublishableContent, PublishedContent
 from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory, PostFactory
 from zds.forum.models import Topic, Post
 from zds.gallery.factories import GalleryFactory, UserGalleryFactory
@@ -93,7 +93,7 @@ class MemberTests(TestCase):
             'note': 'warn'
         }, follow=True)
         self.assertEqual(200, r.status_code)
-        self.assertIn('{} : 42'.format(_('Modification du karma')), r.content.decode('utf-8'))
+        self.assertIn('{} : 42'.format(_('Modification du karma')), r.content.decode('utf-8'))
         # more than 100 karma must unvalidate the karma
         r = self.client.post(reverse('member-modify-karma'), {
             'profile_pk': user.pk,
@@ -101,7 +101,7 @@ class MemberTests(TestCase):
             'note': 'warn'
         }, follow=True)
         self.assertEqual(200, r.status_code)
-        self.assertNotIn('{} : 420'.format(_('Modification du karma')), r.content.decode('utf-8'))
+        self.assertNotIn('{} : 420'.format(_('Modification du karma')), r.content.decode('utf-8'))
         # empty warning must unvalidate the karma
         r = self.client.post(reverse('member-modify-karma'), {
             'profile_pk': user.pk,
@@ -109,7 +109,7 @@ class MemberTests(TestCase):
             'note': ''
         }, follow=True)
         self.assertEqual(200, r.status_code)
-        self.assertNotIn('{} : 41'.format(_('Modification du karma')), r.content.decode('utf-8'))
+        self.assertNotIn('{} : 41'.format(_('Modification du karma')), r.content.decode('utf-8'))
 
     def test_list_members(self):
         """

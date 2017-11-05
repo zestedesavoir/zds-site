@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 
-from zds.tutorialv2.models.models_database import PublishableContent, Validation, ContentReaction, PublishedContent, \
+from zds.tutorialv2.models.database import PublishableContent, Validation, ContentReaction, PublishedContent, \
     PickListOperation, ContentRead
 
 

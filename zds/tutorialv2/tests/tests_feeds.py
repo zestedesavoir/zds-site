@@ -11,7 +11,7 @@ from django.contrib.auth.models import Group
 from zds.gallery.factories import UserGalleryFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.forum.factories import ForumFactory, CategoryFactory
-from zds.tutorialv2.models.models_database import PublishedContent
+from zds.tutorialv2.models.database import PublishedContent
 from zds.tutorialv2.feeds import LastTutorialsFeedRSS, LastTutorialsFeedATOM, LastArticlesFeedRSS, LastArticlesFeedATOM
 from zds.tutorialv2.factories import LicenceFactory, SubCategoryFactory, PublishableContentFactory, ContainerFactory, \
     ExtractFactory

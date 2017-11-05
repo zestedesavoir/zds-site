@@ -52,11 +52,11 @@
         <h1 class="ico-after ico-{% if current_content_type == "TUTORIAL" %}tutorials{% elif current_content_type == "ARTICLE" %}articles{% elif current_content_type == "OPINION" %}opinions{% else %}articles{% endif %}" itemprop="name">
             {% block headline %}
                 {% if tag %}
-                    {{ verbose_type_name_plural|title }} : {{ tag.title }}
+                    {{ verbose_type_name_plural|title }} : {{ tag.title }}
                 {% elif category %}
-                    {{ verbose_type_name_plural|title }} : {{ category }}
+                    {{ verbose_type_name_plural|title }} : {{ category }}
                 {% elif subcategory %}
-                    {{ verbose_type_name_plural|title }} : {{ subcategory }}
+                    {{ verbose_type_name_plural|title }} : {{ subcategory }}
                 {% else %}
                     {% trans "Tous les" %} {{ verbose_type_name_plural }}
                 {% endif %}

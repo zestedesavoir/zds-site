@@ -25,7 +25,7 @@ from django.conf import settings
 from django.db import transaction
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, \
     Validation as CValidation, ContentReactionFactory
-from zds.tutorialv2.models.models_database import PublishableContent
+from zds.tutorialv2.models.database import PublishableContent
 from zds.tutorialv2.publication_utils import publish_content
 
 

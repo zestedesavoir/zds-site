@@ -45,7 +45,8 @@
     {% endif %}
 {% endcaptureas %}
 
-{# Authors (by X, Y and Z) ; can't have multiple whitespaces because of the title ! #}
+{# Authors (by X, Y and Z); can't have multiple whitespaces because of the title! #}
+
 {% captureas authors_text %}
     {% for author in content|displayable_authors:online %}{% if forloop.first %}{% trans "par" %}{% elif forloop.last %} {% trans "et" %}{% else %},{% endif %} {% if author == user %}{% trans "vous" %}{% else %}<a href="{{ author.get_absolute_url }}">{{ author.username }}</a>{% endif %}{% endfor %}
 {% endcaptureas %}

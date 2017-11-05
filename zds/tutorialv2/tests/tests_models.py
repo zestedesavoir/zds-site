@@ -16,7 +16,7 @@ from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory, \
     PublishedContentFactory, SubCategoryFactory
 from zds.gallery.factories import UserGalleryFactory
-from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent
+from zds.tutorialv2.models.database import PublishableContent, PublishedContent
 from zds.tutorialv2.publication_utils import publish_content
 from zds.utils.models import Tag
 from django.template.defaultfilters import date

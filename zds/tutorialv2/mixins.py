@@ -11,7 +11,7 @@ from django.views.generic import DetailView, FormView
 from django.views.generic import View
 
 from zds.forum.models import Topic
-from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentRead
+from zds.tutorialv2.models.database import PublishableContent, PublishedContent, ContentRead
 from zds.tutorialv2.utils import mark_read
 
 

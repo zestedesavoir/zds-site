@@ -39,7 +39,7 @@
             {% else %}
                 <li>
                     <a href="#pagination-{{ position }}" class="open-modal">...</a>
-                    <form action="." method="get" class="modal modal-flex" id="pagination-{{ position }}" data-modal-title='{% trans "Aller à la page" %}...'>
+                    <form action="." method="get" class="modal modal-flex" id="pagination-{{ position }}" data-modal-title='{% trans "Aller à la page…" %}'>
                         {% for key,val in request.GET.iterlists %}
                             {% if key != "page" %}
                                 {% for v in val %}
@@ -48,7 +48,7 @@
                             {% endif %}
                         {% endfor %}
                         <p>
-                            {% trans "Indiquez la page à laquelle vous souhaitez vous rendre" %}.
+                            {% trans "Indiquez la page à laquelle vous souhaitez vous rendre." %}
                         </p>
                         <input type="number" name="page" min="1" max="{{ pages|last }}">
                         <button type="submit">

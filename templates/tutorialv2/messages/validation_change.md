@@ -7,7 +7,7 @@
 
 {% blocktrans with title=content.title|safe validator=validator|safe %}
 
-Ça pulpe {{ validator }} ?
+Ça pulpe {{ validator }} ?
 
 Je suis là pour t’informer que le contenu « [{{ title }}]({{ url }}) » que tu 
 as réservé a fait l'objet d'une mise à jour puis d'une mise en validation. La 

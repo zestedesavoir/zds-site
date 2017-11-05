@@ -5,7 +5,7 @@ from django import template
 from django.conf import settings
 
 from zds.forum.models import Forum
-from zds.tutorialv2.models.models_database import PublishedContent
+from zds.tutorialv2.models.database import PublishedContent
 from zds.utils.models import CategorySubCategory, Tag
 from django.db.models import Count
 
