@@ -15,7 +15,7 @@
             var target = document.getElementsByClassName(selector)[0]; // TODO remplacer par ID ou objet
             if (target) {
                 target.innerHTML = "";
-                 var merge = CodeMirror.MergeView(target, {
+                 var merge = window.CodeMirror.MergeView(target, {
                    value: $left.html(),
                    orig: $right.html(),
                    lineNumbers: true,
