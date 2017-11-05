@@ -54,9 +54,9 @@
         {% for tag in search_result.tags|slice:":3" %}
             <li>
 	      {% if search_result.is_opinion %}
-                <a href="{% url 'opinion:list' %}?tag={{ tag|urlencode }}">{{ tag }}</a>
+                  <a href="{% url 'opinion:list' %}?tag={{ tag|urlencode }}">{{ tag }}</a>
 	      {% else %}
-                <a href="{% url 'content:list' %}?tag={{ tag|urlencode }}">{{ tag }}</a>
+                  <a href="{% url 'content:list' %}?tag={{ tag|urlencode }}">{{ tag }}</a>
               {% endif %}
 	    </li>
         {% endfor %}
