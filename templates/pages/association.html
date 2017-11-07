@@ -5,65 +5,65 @@
 
 
 {% block title %}
-    {% blocktrans with asso_name=app.site.association.name %}L'association {{ asso_name }}{% endblocktrans %}
+    {% blocktrans with asso_name=app.site.association.name %}L’association {{ asso_name }}{% endblocktrans %}
 {% endblock %}
 
 
 
 {% block breadcrumb %}
-    <li>{% blocktrans with asso_name=app.site.association.name %}L'association {{ asso_name }}{% endblocktrans %}</li>
+    <li>{% blocktrans with asso_name=app.site.association.name %}L’association {{ asso_name }}{% endblocktrans %}</li>
 {% endblock %}
 
 
 
 {% block headline %}
-    <h1>{% blocktrans with asso_name=app.site.association.name %}L'association {{ asso_name }}{% endblocktrans %}</h1>
+    <h1>{% blocktrans with asso_name=app.site.association.name %}L’association {{ asso_name }}{% endblocktrans %}</h1>
 {% endblock %}
 
 
 
 {% block content %}
     {% set app.site.association.name as asso_name %}
-    <h3>{% trans "Présentation de l'association" %}</h3>
+    <h3>{% trans "Présentation de l’association" %}</h3>
     <p>
         {% blocktrans with site_url=app.site.url %}
             {{ asso_name }} est une association loi 1901 (association à but non lucratif) et joue le rôle de structure
             légale du site <a href="{{ site_url }}">{{ site_url }}</a>, dont le but est de promouvoir le partage de connaissances à travers des
             ressources pédagogiques gratuites et de préférence sous licence libre.
             <a href="http://www.journal-officiel.gouv.fr/publications/assoc/pdf/2014/0016/JOAFE_PDF_Unitaire_20140016_01712.pdf">
-                Parue au Journal officiel le 19 avril 2014</a>, l'association a tenu sa première assemblée générale le 15 mars
-            2014, au cours de laquelle ont été élus le bureau et le conseil d'administration en présence des <strong>quatorze</strong> membres fondateurs.
+                Parue au Journal officiel le 19 avril 2014</a>, l’association a tenu sa première assemblée générale le 15 mars
+            2014, au cours de laquelle ont été élus le bureau et le conseil d’administration en présence des <strong>quatorze</strong> membres fondateurs.
         {% endblocktrans %}
     </p>
     <p>
-        {% trans "Ces membres fondateurs sont tous des anciens membres très actifs du feu siteduzero, un site de diffusion de connaissances et d'entraide. À la suite du changement de politique de ce dernier, ils ont décidé de recréer une plateforme sur laquelle ils pourraient à nouveau s'entraider et partager convenablement leurs connaissances et surtout retrouver l'esprit communautaire qu'ils aimaient tant." %}
+        {% trans "Ces membres fondateurs sont tous des anciens membres très actifs du feu siteduzero, un site de diffusion de connaissances et d’entraide. À la suite du changement de politique de ce dernier, ils ont décidé de recréer une plateforme sur laquelle ils pourraient à nouveau s’entraider et partager convenablement leurs connaissances et surtout retrouver l’esprit communautaire qu’ils aimaient tant." %}
     </p>
     <p>
         {% blocktrans %}
-            Voilà l'histoire de {{ asso_name }}.
+            Voilà l’histoire de {{ asso_name }}.
         {% endblocktrans %}
     </p>
 
-    <h3>{% trans "L'association et le site" %}</h3>
+    <h3>{% trans "L’association et le site" %}</h3>
     <p>
         {% blocktrans %}
-            <strong>Adhérer à l'association ne vous apporte rien sur le site</strong>. L'adhésion n'est là que pour soutenir
+            <strong>Adhérer à l’association ne vous apporte rien sur le site</strong>. L’adhésion n’est là que pour soutenir
             le projet, et ne donne droit à aucun pouvoir ou badge supplémentaire. Elle ne donne même pas accès à un forum
-            secret, puisque le forum de l'association est public !
+            secret, puisque le forum de l’association est public !
         {% endblocktrans %}
     </p>
     <p>
-        {% trans "De même, toutes les fonctionnalités du site sont disponibles à tous : aucune n'est conditionnée à l'adhésion à l'association." %}
+        {% trans "De même, toutes les fonctionnalités du site sont disponibles à tous : aucune n’est conditionnée à l’adhésion à l’association." %}
     </p>
     <p>
         {% trans "Notez que vous devez être inscrit pour pouvoir adhérer." %}
     </p>
     <p>
         {% blocktrans %}
-        Les documents officiels et publics de l'association (statuts, règlement intérieur, …) sont disponibles
+        Les documents officiels et publics de l’association (statuts, règlement intérieur, …) sont disponibles
         <a href="https://github.com/zestedesavoir/documents-association">sur le dépôt Git dédié</a>. Vous pouvez même
-        en proposer l'amélioration en soumettant des <em>pull request</em> (l'acceptation ou le refus définitif se fera
-        lors de l'Assemblée Générale).
+        en proposer l’amélioration en soumettant des <em>pull request</em> (l’acceptation ou le refus définitif se fera
+        lors de l’Assemblée Générale).
         {% endblocktrans %}
     </p>
 {% endblock %}
