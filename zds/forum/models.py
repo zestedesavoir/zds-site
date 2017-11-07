@@ -200,7 +200,7 @@ class Topic(AbstractESDjangoIndexable):
         db_index=True)
     is_solved = models.BooleanField('Est résolu', default=False, db_index=True)
     solved_by =  models.ForeignKey(User, verbose_name='Utilisateur ayant noté le sujet comme résolu',
-                                   db_index=True, default=None, null=True) # TODO update_admin
+                                   db_index=True, default=None, null=True)
     is_locked = models.BooleanField('Est verrouillé', default=False, db_index=True)
     is_sticky = models.BooleanField('Est en post-it', default=False, db_index=True)
 
