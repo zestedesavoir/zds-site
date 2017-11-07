@@ -38,6 +38,7 @@ class TopicEditMixin(object):
     def perform_solve_or_unsolve(user, topic):
         if user == topic.author or user.has_perm('forum.change_topic'):
             topic.is_solved = not topic.is_solved
+            topic.solved_by = user
             return topic.is_solved
         else:
             raise PermissionDenied

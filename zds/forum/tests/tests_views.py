@@ -550,7 +550,9 @@ class TopicEditTest(TestCase):
         response = self.client.post(reverse('topic-edit'), data, follow=False)
 
         self.assertEqual(302, response.status_code)
-        self.assertTrue(Topic.objects.get(pk=topic.pk).is_solved)
+        topic = Topic.objects.get(pk=topic.pk)
+        self.assertTrue(topic.is_solved)
+        self.assertEquals(topic.solved_by, profile.user)
 
     def test_success_edit_topic_solved_by_staff(self):
         staff = StaffProfileFactory()
@@ -567,7 +569,10 @@ class TopicEditTest(TestCase):
         response = self.client.post(reverse('topic-edit'), data, follow=False)
 
         self.assertEqual(302, response.status_code)
-        self.assertTrue(Topic.objects.get(pk=topic.pk).is_solved)
+        topic = Topic.objects.get(pk=topic.pk)
+        self.assertTrue(topic.is_solved)
+        self.assertEquals(topic.solved_by, staff.user)
+
 
     def test_failure_edit_topic_lock_by_user(self):
         profile = ProfileFactory()

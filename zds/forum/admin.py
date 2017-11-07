@@ -15,7 +15,7 @@ class TopicAdmin(admin.ModelAdmin):
 
 class TopicReadAdmin(admin.ModelAdmin):
     list_display = ('topic', 'user')
-    raw_id_fields = ('topic', 'post', 'user')
+    raw_id_fields = ('topic', 'post', 'user', 'solved_by')
     search_fields = ('topic__title', 'user__username')
 
 

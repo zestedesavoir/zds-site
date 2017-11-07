@@ -67,7 +67,14 @@
             class="alert-box success ico-after tick light {% if not topic.is_solved %}empty{% endif %}"
             data-ajax-output="solve-topic"
         >
-            {% trans "L’auteur de ce sujet a trouvé une solution à son problème." %}
+            {% if topic.solved_by == topic.author.pk %}
+                {% trans "L’auteur de ce sujet a trouvé une solution à son problème." %}
+            {% else %}
+                {% url "member-detail" topic.solved_by.username as url_member_detail %}
+                {% blocktrans with username=topic.solved_by.username %}
+                    Ce sujet a été résolu par <a href="{{ url_member_detail }}">{{ author_username }}</a>
+                {% endblocktrans %}
+            {% endif %}
         </div>
 
 
