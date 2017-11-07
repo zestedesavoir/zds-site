@@ -573,7 +573,6 @@ class TopicEditTest(TestCase):
         self.assertTrue(topic.is_solved)
         self.assertEquals(topic.solved_by, staff.user)
 
-
     def test_failure_edit_topic_lock_by_user(self):
         profile = ProfileFactory()
 
