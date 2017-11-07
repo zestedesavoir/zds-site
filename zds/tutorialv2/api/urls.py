@@ -1,7 +1,7 @@
 from django.urls import re_path
 
 from zds.tutorialv2.api.views import ContentReactionKarmaView, ContainerPublicationReadinessView, ExportView,\
-    RedactionChildrenListView
+    RedactionChildrenListView, AuthorContentListCreateAPIView
 
 urlpatterns = [
     re_path(r'^reactions/(?P<pk>\d+)/karma/?$',
@@ -20,4 +20,11 @@ urlpatterns = [
     re_path(r'^children-content/(?P<pk>\d+)/(?P<slug>[a-zA-Z0-9_-]+)/$',
             RedactionChildrenListView.as_view(public_is_prioritary=False),
             name='children-content'),
+    re_path(r'^(?P<user>\d+)/$',
+            AuthorContentListCreateAPIView.as_view(),
+            name='api-author-contents'),
+    re_path(r'^(?P<pk>\d+)/(?P<slug>[a-zA-Z0-9_-]+)/$',
+            AuthorContentListCreateAPIView.as_view(),
+            name='api-author-contents'),
+
 ]

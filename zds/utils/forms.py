@@ -114,6 +114,10 @@ class TagValidator(object):
         self.__clean = list(filter(self.validate_no_empty_slug, self.__clean))
         return len(string_list) == len(self.__clean)
 
+    def validate_one_element(self, element):
+        tag = element.strip()
+        return self.validate_no_empty_slug(tag) and self.validate_length(tag) and self.validate_length(tag)
+
     def validate_utf8mb4(self, tag):
         """
         Checks the tag does not contain utf8mb4 chars.

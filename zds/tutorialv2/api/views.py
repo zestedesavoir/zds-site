@@ -9,13 +9,16 @@ from rest_framework.fields import empty
 from rest_framework.generics import UpdateAPIView, ListCreateAPIView, get_object_or_404
 from rest_framework.response import Response
 from rest_framework.serializers import Serializer, CharField, BooleanField
+from rest_framework.generics import RetrieveUpdateAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.exceptions import ValidationError
-from rest_framework.generics import RetrieveUpdateAPIView
 
-from zds.member.api.permissions import CanReadAndWriteNowOrReadOnly, IsNotOwnerOrReadOnly, IsAuthorOrStaff
 from zds.tutorialv2.publication_utils import PublicatorRegistry
-from zds.tutorialv2.api.serializers import ChildrenListSerializer, ChildrenListModifySerializer
+from zds.member.api.permissions import IsAuthorOrStaff
+from zds.member.api.permissions import CanReadAndWriteNowOrReadOnly, IsNotOwnerOrReadOnly
+from zds.tutorialv2.api.permissions import IsOwner, CanModerate
+from zds.tutorialv2.api.serializers import ChildrenListSerializer, ChildrenListModifySerializer, \
+    PublishableMetaDataSerializer
 from zds.tutorialv2.api.view_models import ChildrenListViewModel, ChildrenViewModel
 from zds.tutorialv2.mixins import SingleContentDetailViewMixin
 from zds.tutorialv2.models.versioned import Extract, Container
@@ -185,3 +188,19 @@ class RedactionChildrenListView(SingleContentDetailViewMixin, RetrieveUpdateAPIV
 
     def get_permissions(self):
         return [IsAuthenticatedOrReadOnly()]
+
+
+class AuthorContentListCreateAPIView(ListCreateAPIView):
+    permission_classes = (IsOwner, CanModerate)
+    serializer_class = PublishableMetaDataSerializer
+
+    def get_queryset(self):
+        return PublishableContent.objects.filter(authors__pk__in=[self.kwargs.get('user')])
+
+
+class InRedactionContentRetrieveUpdateDeleteAPIView(RetrieveUpdateDestroyAPIView):
+    permission_classes = (IsOwner, CanModerate)
+    serializer_class = PublishableMetaDataSerializer
+
+    def get_object(self):
+        return get_object_or_404(PublishableContent, pk=self.kwargs.get('pk'))

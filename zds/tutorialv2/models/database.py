@@ -555,18 +555,22 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
     def add_tags(self, tag_collection):
         """
         Add all tags contained in `tag_collection` to this content.
-        If a tag is unknown, it is added to the system.
+        If a tag_as_text is unknown, it is added to the system.
         :param tag_collection: A collection of tags.
         :type tag_collection: list
         """
-        for tag in filter(None, tag_collection):
+        for tag_as_text in filter(None, tag_collection):
             try:
-                current_tag, created = Tag.objects.get_or_create(title=tag.lower().strip())
+                current_tag, created = Tag.objects.get_or_create(title=tag_as_text.lower().strip())
                 self.tags.add(current_tag)
             except ValueError as e:
                 logger.warning(e)
         logger.debug('Initial number of tags=%s, after filtering=%s', len(tag_collection), len(self.tags.all()))
         self.save(force_slug_update=False)
+
+    def replace_tags(self, tag_collection):
+        self.tags.clear()
+        self.add_tags(tag_collection)
 
     def requires_validation(self):
         """

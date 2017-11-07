@@ -125,14 +125,16 @@ class SingleContentViewMixin(object):
         # check slug, if any:
         if 'slug' in self.kwargs:
             slug = self.kwargs['slug']
-            if versioned.slug != slug:
-                if slug != self.object.slug:  # retro-compatibility, but should raise permanent redirect instead
-                    raise Http404("Ce slug n'existe pas pour ce contenu.{} vs {}".format(slug, versioned.slug))
+            if versioned.slug != slug and slug != self.object.slug:
+                raise Http404("Ce slug n'existe pas pour ce contenu: obtenu={}, attendu={}".format(slug,
+                                                                                                   versioned.slug))
 
         return versioned
 
     def get_public_object(self):
         """Get the published version, if any
+
+        :rtype: zds.tutorialv2.models.database.PublishedContent
         """
 
         object = PublishedContent.objects.filter(content_pk=self.object.pk, must_redirect=False).last()

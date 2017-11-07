@@ -3,6 +3,7 @@ import copy
 from pathlib import Path
 
 from zds import json_handler
+from pathlib import Path
 from git import Repo
 import os
 import shutil
@@ -496,6 +497,31 @@ class Container:
 
         repo = self.top_container().repository
 
+        self.update_title_if_needed(repo, title, update_slug)
+
+        # update introduction and conclusion (if any)
+        path = self.top_container().get_path()
+        rel_path = self.get_path(relative=True)
+
+        self._update_documents(introduction, path, rel_path, repo, 'introduction')
+        self._update_documents(conclusion, path, rel_path, repo, 'conclusion')
+        # saving manifest is necesary to :
+        # - update title and slug inside the json file
+        # - add or remove introduction/conclusion
+        # - add or remove element
+        # - change content type
+        self._update_manifest(repo)
+
+        if not commit_message:
+            commit_message = _('Mise à jour de « {} »').format(self.title)
+
+        if do_commit:
+            return self.top_container().commit_changes(commit_message)
+
+    def update_title_if_needed(self, repo, title, update_slug):
+        """
+        If title changes, we need to see if we need to change the slug. Then we probably need to move the repo
+        """
         # update title
         if title != self.title:
             self.title = title
@@ -516,46 +542,22 @@ class Container:
                 self.parent.children_dict.pop(old_slug)
                 self.parent.children_dict[self.slug] = self
 
-        # update introduction and conclusion (if any)
-        path = self.top_container().get_path()
-        rel_path = self.get_path(relative=True)
-
-        if introduction is not None:
-            if self.introduction is None:
-                self.introduction = os.path.join(rel_path, 'introduction.md')
-
-            f = codecs.open(os.path.join(path, self.introduction), 'w', encoding='utf-8')
-            f.write(introduction)
-            f.close()
-            repo.index.add([self.introduction])
-
-        elif self.introduction:
-            repo.index.remove([self.introduction])
-            os.remove(os.path.join(path, self.introduction))
-            self.introduction = None
-
-        if conclusion is not None:
-            if self.conclusion is None:
-                self.conclusion = os.path.join(rel_path, 'conclusion.md')
-
-            f = codecs.open(os.path.join(path, self.conclusion), 'w', encoding='utf-8')
-            f.write(conclusion)
-            f.close()
-            repo.index.add([self.conclusion])
-
-        elif self.conclusion:
-            repo.index.remove([self.conclusion])
-            os.remove(os.path.join(path, self.conclusion))
-            self.conclusion = None
-
+    def _update_manifest(self, repo):
         self.top_container().dump_json()
         repo.index.add(['manifest.json'])
 
-        if not commit_message:
-            commit_message = _('Mise à jour de « {} »').format(self.title)
+    def _update_documents(self, document_text, path, rel_path, repo, updated_doc_name):
+        if document_text is not None:
+            if getattr(self, updated_doc_name, None) is None:
+                setattr(self, updated_doc_name, os.path.join(rel_path, updated_doc_name + '.md'))
 
-        if do_commit:
-            return self.top_container().commit_changes(commit_message)
+            with Path(path, getattr(self, updated_doc_name)).open('w', encoding='utf-8') as f:
+                f.write(document_text)
+            repo.index.add([getattr(self, updated_doc_name)])
+        elif getattr(self, updated_doc_name):
+            repo.index.remove([getattr(self, updated_doc_name)])
+            os.remove(os.path.join(path, getattr(self, updated_doc_name)))
+            setattr(self, updated_doc_name, None)
 
     def repo_add_container(self, title, introduction, conclusion, commit_message='', do_commit=True, slug=None):
         """
@@ -564,6 +566,7 @@ class Container:
         :param conclusion: text of its conclusion
         :param commit_message: commit message that will be used instead of the default one
         :param do_commit: perform the commit in repository if ``True``
+        :param slug: the new slug if needed to be customized.
         :return: commit sha
         :rtype: str
         """
