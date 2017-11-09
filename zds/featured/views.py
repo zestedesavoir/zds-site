@@ -82,7 +82,6 @@ class FeaturedResourceCreate(CreateView):
                 'url': self.request.build_absolute_uri(content.content.get_absolute_url_online()),
                 'image_url': image_url}
 
-
     def get_initial(self):
         initial = super(FeaturedResourceCreate, self).get_initial()
         content_type = self.request.GET.get('content_type', None)
