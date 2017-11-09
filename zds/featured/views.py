@@ -43,7 +43,7 @@ class FeaturedResourceCreate(CreateView):
     form_class = FeaturedResourceForm
     template_name = 'featured/resource/create.html'
     context_object_name = 'featured_resource'
-    get_initial_error_message = _('Le contenu est introuvable')
+    initial_error_message = _('Le contenu est introuvable')
     displayed_content_type = {'TUTORIAL': _('Un tutoriel'),
                               'ARTICLE': _('Un article'),
                               'OPINION': _('Un billet'),
@@ -56,12 +56,11 @@ class FeaturedResourceCreate(CreateView):
 
     def get_initial_topic_data(self, topic_id):
         try:
-            content = Topic.objects.get(id=topic_id)
-        except Topic.DoesNotExist:
-            messages.error(self.request, self.get_initial_error_message)
-            content = None
+            content = Topic.objects.get(pk=int(topic_id))
+        except (Topic.DoesNotExist, ValueError):
+            messages.error(self.request, self.initial_error_message)
             content_data = None
-        if content:
+        else:
             content_data = {'title': content.title,
                             'type': self.displayed_content_type['TOPIC'],
                             'authors': str(content.author),
@@ -70,12 +69,11 @@ class FeaturedResourceCreate(CreateView):
 
     def get_initial_content_data(self, content_id):
         try:
-            content = PublishedContent.objects.get(id=content_id)
-        except PublishedContent.DoesNotExist:
-            messages.error(self.request, self.get_initial_error_message)
-            content = None
+            content = PublishedContent.objects.get(pk=int(content_id))
+        except (Topic.DoesNotExist, ValueError):
+            messages.error(self.request, self.initial_error_message)
             content_data = None
-        if content:
+        else:
             displayed_authors = ', '.join([str(x) for x in content.authors.all()])
             if content.content.image:
                 image_url = content.content.image.physical.url
