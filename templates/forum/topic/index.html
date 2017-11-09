@@ -170,36 +170,11 @@
 
 
 {% block sidebar_actions %}
-    {% if topic.author.pk == user.pk or is_staff %}
+    {% if topic.author.pk == user.pk %}
         <li>
-            <form action="{% url 'topic-edit' %}" method="post">
-                <input type="hidden" name="topic" value="{{ topic.pk }}">
-                <input type="hidden" name="nb" value="{{ nb }}">
-                <input type="hidden" name="page" value="{{ nb }}">
-                <input type="hidden" name="solved" value="1">
-                {% csrf_token %}
-
-                <button
-                    class="ico-after tick {% if topic.is_solved %}blue{% else %}green{% endif %}"
-                    type="submit" data-ajax-input="solve-topic"
-                    data-content-on-click="
-                        {% if topic.is_solved %}
-                            {% trans "Marquer comme résolu" %}
-                        {% else %}
-                            {% trans "Marquer comme non résolu" %}
-                        {% endif %}
-                    "
-                >
-                    {% if topic.is_solved %}
-                        {% trans "Marquer comme non résolu" %}
-                    {% else %}
-                        {% trans "Marquer comme résolu" %}
-                    {% endif %}
-                </button>
-            </form>
+            {% include "forum/includes/topic_solve_form.part.html" %}
         </li>
     {% endif %}
-
     <li>
         {% with topic_is_followed=topic|is_followed %}
             {% url 'topic-edit' as link_follow_without_parameter %}
@@ -311,6 +286,11 @@
         <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Modération">
             <h3>{% trans "Modération" %}</h3>
             <ul>
+                {% if topic.author.pk != user.pk %}
+                    <li>
+                        {% include "forum/includes/topic_solve_form.part.html" %}
+                    </li>
+                {% endif %}
                 <li>
                     <a href="#lock-open-topic-{{ topic.pk }}" class="open-modal ico-after lock {% if not topic.is_locked %}blue{% endif %}">
                         {% if topic.is_locked %}
