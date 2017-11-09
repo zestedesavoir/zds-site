@@ -59,32 +59,29 @@ class FeaturedResourceCreate(CreateView):
             content = Topic.objects.get(pk=int(topic_id))
         except (Topic.DoesNotExist, ValueError):
             messages.error(self.request, self.initial_error_message)
-            content_data = None
-        else:
-            content_data = {'title': content.title,
-                            'type': self.displayed_content_type['TOPIC'],
-                            'authors': str(content.author),
-                            'url': self.request.build_absolute_uri(content.get_absolute_url())}
-        return content_data
+            return None
+        return {'title': content.title,
+                'type': self.displayed_content_type['TOPIC'],
+                'authors': str(content.author),
+                'url': self.request.build_absolute_uri(content.get_absolute_url())}
 
     def get_initial_content_data(self, content_id):
         try:
             content = PublishedContent.objects.get(pk=int(content_id))
         except (PublishedContent.DoesNotExist, ValueError):
             messages.error(self.request, self.initial_error_message)
-            content_data = None
+            return None
+        displayed_authors = ', '.join([str(x) for x in content.authors.all()])
+        if content.content.image:
+            image_url = content.content.image.physical.url
         else:
-            displayed_authors = ', '.join([str(x) for x in content.authors.all()])
-            if content.content.image:
-                image_url = content.content.image.physical.url
-            else:
-                image_url = None
-            content_data = {'title': content.title(),
-                            'type': self.displayed_content_type[content.content_type],
-                            'authors': displayed_authors,
-                            'url': self.request.build_absolute_uri(content.content.get_absolute_url_online()),
-                            'image_url': image_url}
-        return content_data
+            image_url = None
+        return {'title': content.title(),
+                'type': self.displayed_content_type[content.content_type],
+                'authors': displayed_authors,
+                'url': self.request.build_absolute_uri(content.content.get_absolute_url_online()),
+                'image_url': image_url}
+
 
     def get_initial(self):
         initial = super(FeaturedResourceCreate, self).get_initial()
