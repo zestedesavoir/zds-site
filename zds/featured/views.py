@@ -70,7 +70,7 @@ class FeaturedResourceCreate(CreateView):
     def get_initial_content_data(self, content_id):
         try:
             content = PublishedContent.objects.get(pk=int(content_id))
-        except (Topic.DoesNotExist, ValueError):
+        except (PublishedContent.DoesNotExist, ValueError):
             messages.error(self.request, self.initial_error_message)
             content_data = None
         else:
