@@ -34,7 +34,7 @@ from zds.tutorialv2.managers import PublishedContentManager, PublishableContentM
 from zds.tutorialv2.models.versioned import NotAPublicVersion
 from zds.tutorialv2.models import TYPE_CHOICES, STATUS_CHOICES, CONTENT_TYPES_REQUIRING_VALIDATION, PICK_OPERATIONS
 from zds.tutorialv2.utils import get_content_from_json, BadManifestError
-from zds.utils import get_current_user
+from zds.utils import get_current_user, slugify
 from zds.utils.models import SubCategory, Licence, HelpWriting, Comment, Tag
 from zds.searchv2.models import AbstractESDjangoIndexable, AbstractESIndexable, delete_document_in_elasticsearch, \
     ESIndexManager
@@ -146,6 +146,26 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
 
     def __str__(self):
         return self.title
+
+    def create_gallery(self):
+        """
+        Generates a new gallery for contents.
+        """
+        gal = Gallery.objects.create(
+            title=self.title,
+            slug=self.slug or slugify(self.title),
+            pubdate=datetime.now())
+        self.gallery = gal
+
+    def set_icon(self, icon_file):
+        img = Image()
+        img.physical = icon_file
+        img.gallery = self.gallery
+        img.title = icon_file
+        img.slug = slugify(icon_file.name)
+        img.pubdate = datetime.now()
+        img.save()
+        self.image = img
 
     def update(self, **fields):
         """

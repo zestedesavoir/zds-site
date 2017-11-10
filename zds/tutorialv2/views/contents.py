@@ -111,25 +111,9 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
         self.content.creation_date = datetime.now()
 
         # Creating the gallery
-        gal = Gallery()
-        gal.title = form.cleaned_data['title']
-        gal.slug = slugify(form.cleaned_data['title'])
-        gal.pubdate = datetime.now()
-        gal.save()
-
-        self.content.gallery = gal
-        self.content.save()
-        # create image:
+        self.content.create_gallery()
         if 'image' in self.request.FILES:
-            img = Image()
-            img.physical = self.request.FILES['image']
-            img.gallery = gal
-            img.title = self.request.FILES['image']
-            img.slug = slugify(self.request.FILES['image'].name)
-            img.pubdate = datetime.now()
-            img.save()
-            self.content.image = img
-
+            self.content.set_icon(self.request.FILES['image'])
         self.content.save()
 
         # We need to save the content before changing its author list since it's a many-to-many relationship

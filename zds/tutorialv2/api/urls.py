@@ -1,7 +1,11 @@
 from django.urls import re_path
+from rest_framework.generics import ListAPIView
 
-from zds.tutorialv2.api.views import ContentReactionKarmaView, ContainerPublicationReadinessView, ExportView,\
-    RedactionChildrenListView, AuthorContentListCreateAPIView
+from zds.member.api.permissions import CanReadAndWriteNowOrReadOnly
+from zds.tutorialv2.api.serializers import ContentCategorySerializer
+from zds.tutorialv2.api.views import ContentReactionKarmaView, RedactionChildrenListView, ExportView, \
+    AuthorContentListCreateAPIView, InRedactionContentRetrieveUpdateDeleteAPIView, ContainerPublicationReadinessView
+from zds.utils.models import SubCategory
 
 urlpatterns = [
     re_path(r'^reactions/(?P<pk>\d+)/karma/?$',
@@ -26,5 +30,11 @@ urlpatterns = [
     re_path(r'^(?P<pk>\d+)/(?P<slug>[a-zA-Z0-9_-]+)/$',
             AuthorContentListCreateAPIView.as_view(),
             name='api-author-contents'),
+    re_path(r'^(?P<pk>\d+)/(?P<slug>[a-zA-Z0-9_-]+)/$',
+            InRedactionContentRetrieveUpdateDeleteAPIView.as_view(),
+            name='api-author-contents'),
+    re_path('categories/', ListAPIView.as_view(permission_classes=(CanReadAndWriteNowOrReadOnly,),
+                                               serializer_class=ContentCategorySerializer,
+                                               queryset=SubCategory.objects.all()))
 
 ]

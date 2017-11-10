@@ -1,4 +1,5 @@
 import copy
+import datetime
 import logging
 from collections import Counter
 
@@ -7,13 +8,13 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import CharField, empty
 
-from zds.api.serializers import ZdSModelSerializer
 from zds.tutorialv2.api.view_models import ChildrenViewModel, ChildrenListViewModel, UpdateChildrenListViewModel
-from gettext import gettext as _
+from django.utils.translation import ugettext as _
 
 from zds.tutorialv2.models.database import PublishableContent
 from zds.tutorialv2.utils import init_new_repo
 from zds.utils.forms import TagValidator
+from zds.utils.models import SubCategory
 
 logger = logging.getLogger(__name__)
 
@@ -25,6 +26,14 @@ class CommaSeparatedCharField(CharField):
     def __init__(self, *, filter_function=None, **kwargs):
         super().__init__(**kwargs)
         self.filter_method = filter_function
+
+    def __deepcopy__(self, memodict):
+        args = []
+        kwargs = {
+            key: (copy.deepcopy(value) if (key not in ('validators', 'regex', 'filter_function')) else value)
+            for key, value in self._kwargs.items()
+        }
+        return self.__class__(*args, **kwargs)
 
     def to_internal_value(self, data):
         if isinstance(data, (list, tuple)):
@@ -54,7 +63,7 @@ def transform(exception1, exception2, message):
             try:
                 return func(*args, **kwargs)
             except exception1:
-                logger.warning('Error translated fril %s to %s', exception1, exception2(message))
+                logger.warning('Error translated from %s to %s', exception1, exception2(message))
                 raise exception2(message)
         return decorated
     return wrapper
@@ -72,9 +81,6 @@ class ChildrenListSerializer(serializers.Serializer):
     """
     Serialize children list so that api can handle them
     """
-
-    def update(self, instance, validated_data):
-        pass
 
     extracts = serializers.ListField(child=ChildrenSerializer(), source='extracts')
     containers = serializers.ListField(child=ChildrenSerializer(), source='containers')
@@ -118,25 +124,10 @@ class ChildrenListSerializer(serializers.Serializer):
                 self._validated_data[field_name] = value
         if self._validated_data.get('extracts', None):
             self._validated_data['extracts'] = [ChildrenViewModel(**v) for v in self._validated_data['extracts']]
+            has_error = self.validate_extracts_structure(has_error, messages)
         if self.initial_data.get('containers', None):
             self._validated_data['containers'] = [ChildrenViewModel(**v) for v in self._validated_data['containers']]
-        if not all(c.child_type.lower() == 'extract' for c in self._validated_data.get('extracts', [])):
-            has_error = True
-            messages['extracts'] = _('un extrait est mal configuré')
-        if len(self._validated_data['extracts']) != len(set(e.title for e in self._validated_data['extracts'])):
-            has_error = True
-            titles = Counter(list(e.title for e in self._validated_data['extracts']))
-            doubly = [key for key, v in titles.items() if v > 1]
-            messages['extracts'] = _('Certains titres sont en double : {}').format(','.join(doubly))
-        if len(self._validated_data['containers']) != len(set(e.title for e in self._validated_data['containers'])):
-            has_error = True
-            titles = Counter(list(e.title for e in self._validated_data['containers']))
-            doubly = [key for key, v in titles.items() if v > 1]
-            messages['containers'] = _('Certaines parties ou chapitres sont en double : {}').format(','.join(doubly))
-        if not all(c.child_type.lower() == 'container' for c in self._validated_data.get('containers', [])):
-            has_error = True
-            messages['containers'] = _('Un conteneur est mal configuré')
-        self._validated_data['introduction'] = self.initial_data.get('introduction', '')
+            has_error = self.validate_container_structure(has_error, messages)
         self._validated_data['conclusion'] = self.initial_data.get('conclusion', '')
         if not self._validated_data['extracts'] and not self._validated_data['containers']:
             has_error = True
@@ -146,6 +137,29 @@ class ChildrenListSerializer(serializers.Serializer):
             raise ValidationError(self.errors)
 
         return not has_error
+
+    def validate_container_structure(self, has_error, messages):
+        if len(self._validated_data['containers']) != len(set(e.title for e in self._validated_data['containers'])):
+            has_error = True
+            titles = Counter(list(e.title for e in self._validated_data['containers']))
+            doubly = [key for key, v in titles.items() if v > 1]
+            messages['containers'] = _('Certaines parties ou chapitres sont en double : {}').format(','.join(doubly))
+        if not all(c.child_type.lower() == 'container' for c in self._validated_data.get('containers', [])):
+            has_error = True
+            messages['containers'] = _('Un conteneur est mal configuré')
+        self._validated_data['introduction'] = self.initial_data.get('introduction', '')
+        return has_error
+
+    def validate_extracts_structure(self, has_error, messages):
+        if not all(c.child_type.lower() == 'extract' for c in self._validated_data.get('extracts', [])):
+            has_error = True
+            messages['extracts'] = _('un extrait est mal configuré')
+        if len(self._validated_data['extracts']) != len(set(e.title for e in self._validated_data['extracts'])):
+            has_error = True
+            titles = Counter(list(e.title for e in self._validated_data['extracts']))
+            doubly = [key for key, v in titles.items() if v > 1]
+            messages['extracts'] = _('Certains titres sont en double : {}').format(','.join(doubly))
+        return has_error
 
     def to_representation(self, instance):
         dic_repr = {}
@@ -176,7 +190,7 @@ class ChildrenListModifySerializer(ChildrenListSerializer):
                   'introduction', 'conclusion', 'original_sha')
 
     def is_valid(self, raise_exception=False):
-        error = not super(ChildrenListModifySerializer, self).is_valid(raise_exception)
+        error = not super().is_valid(raise_exception)
         messages = {}
         if not self._validated_data['original_sha']:
             messages['original_sha'] = _("Vous n'avez pas fourni de marqueur de version")
@@ -193,27 +207,32 @@ class ChildrenListModifySerializer(ChildrenListSerializer):
         return UpdateChildrenListViewModel(**validated_data)
 
 
-class PublishableMetaDataSerializer(ZdSModelSerializer):
-    tags = CommaSeparatedCharField(source='tags', required=False, filter_function=TagValidator().validate_one_element)
+class PublishableMetaDataSerializer(serializers.ModelSerializer):
+    tags = CommaSeparatedCharField(required=False, filter_function=TagValidator().validate_one_element)
 
     class Meta:
         model = PublishableContent
-        exclude = ('is_obsolete', 'must_reindex', 'last_note', 'helps', 'beta_topic', 'image', 'content_type_attribute')
-        read_only_fields = ('authors', 'gallery', 'public_version', 'js_support', 'is_locked', 'relative_images_path',
+        exclude = ('is_obsolete', 'must_reindex', 'last_note', 'helps', 'beta_topic', 'image')
+        read_only_fields = ('authors', 'gallery', 'public_version', 'is_locked', 'relative_images_path',
                             'sha_picked', 'sha_draft', 'sha_validation', 'sha_beta', 'sha_public', 'picked_date',
                             'update_date', 'pubdate', 'creation_date', 'slug')
         depth = 2
 
     def create(self, validated_data):
         # default db values
-        validated_data['is_js'] = False  # Always false when we create
+        validated_data['js_support'] = False  # Always false when we create
+        validated_data['creation_date'] = datetime.datetime.now()
 
         # links to other entities
         tags = validated_data.pop('tags', '')
         content = super().create(validated_data)
+        content.save()
         content.add_tags(tags)
-        content.add_author(self.context['author'])
         init_new_repo(content, '', '', _('Création de {}').format(content.title), do_commit=True)
+        content.authors.add(self.context['author'])
+        content.create_gallery()
+        content.save()
+        content.ensure_author_gallery()
         return content
 
     def update(self, instance, validated_data):
@@ -240,3 +259,9 @@ class PublishableMetaDataSerializer(ZdSModelSerializer):
                 do_commit=True
             )
         return super.update(instance, working_dictionary)
+
+
+class ContentCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubCategory
+        depth = 1

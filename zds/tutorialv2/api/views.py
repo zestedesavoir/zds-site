@@ -15,8 +15,9 @@ from rest_framework.exceptions import ValidationError
 
 from zds.tutorialv2.publication_utils import PublicatorRegistry
 from zds.member.api.permissions import IsAuthorOrStaff
+from zds.member.models import User
 from zds.member.api.permissions import CanReadAndWriteNowOrReadOnly, IsNotOwnerOrReadOnly
-from zds.tutorialv2.api.permissions import IsOwner, CanModerate
+from zds.tutorialv2.api.permissions import CanModerateOrIsOwner
 from zds.tutorialv2.api.serializers import ChildrenListSerializer, ChildrenListModifySerializer, \
     PublishableMetaDataSerializer
 from zds.tutorialv2.api.view_models import ChildrenListViewModel, ChildrenViewModel
@@ -191,15 +192,19 @@ class RedactionChildrenListView(SingleContentDetailViewMixin, RetrieveUpdateAPIV
 
 
 class AuthorContentListCreateAPIView(ListCreateAPIView):
-    permission_classes = (IsOwner, CanModerate)
+    permission_classes = (CanModerateOrIsOwner,)
     serializer_class = PublishableMetaDataSerializer
 
     def get_queryset(self):
         return PublishableContent.objects.filter(authors__pk__in=[self.kwargs.get('user')])
 
+    def perform_create(self, serializer):
+        serializer.context['author'] = get_object_or_404(User, pk=self.kwargs.get('user'))
+        super().perform_create(serializer)
+
 
 class InRedactionContentRetrieveUpdateDeleteAPIView(RetrieveUpdateDestroyAPIView):
-    permission_classes = (IsOwner, CanModerate)
+    permission_classes = (CanModerateOrIsOwner,)
     serializer_class = PublishableMetaDataSerializer
 
     def get_object(self):

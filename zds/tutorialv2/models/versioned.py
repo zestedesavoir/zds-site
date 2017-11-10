@@ -3,7 +3,6 @@ import copy
 from pathlib import Path
 
 from zds import json_handler
-from pathlib import Path
 from git import Repo
 import os
 import shutil

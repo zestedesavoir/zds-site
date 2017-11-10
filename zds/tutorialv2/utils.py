@@ -595,7 +595,7 @@ def init_new_repo(db_object, introduction_text, conclusion_text, commit_message=
         os.makedirs(path, mode=0o777)
 
     # init repo:
-    Repo.init(path, bare=False, template='')
+    repo = Repo.init(path, bare=False, template='')
 
     # create object
     versioned_content = VersionedContent(None, db_object.type, db_object.title, db_object.slug)
@@ -603,7 +603,7 @@ def init_new_repo(db_object, introduction_text, conclusion_text, commit_message=
     # fill some information that are missing :
     versioned_content.licence = db_object.licence
     versioned_content.description = db_object.description
-
+    versioned_content.repository = repo
     # perform changes:
     if not commit_message:
         commit_message = 'Création du contenu'
