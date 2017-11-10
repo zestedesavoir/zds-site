@@ -1877,7 +1877,8 @@ def create_category(group=None):
 def add_topic_in_a_forum(forum, profile, is_sticky=False, is_solved=False, is_locked=False):
     topic = TopicFactory(forum=forum, author=profile.user)
     topic.is_sticky = is_sticky
-    topic.is_solved = is_solved
+    if is_solved:
+        topic.solved_by = profile.user
     topic.is_locked = is_locked
     topic.save()
     PostFactory(topic=topic, author=profile.user, position=1)
