@@ -19,7 +19,7 @@
 
 
 {% block headline %}
-   {% trans "Liste des conversations" %}
+    {% trans "Liste des conversations" %}
 {% endblock %}
 
 
@@ -33,11 +33,11 @@
                 </div>
                 {% with profile=topic.author|profile %}
                     <div class="topic-description">
-                        <a href="{{ topic.get_absolute_url }}" class="topic-title-link navigable-link">{% spaceless %}
+                        <a href="{{ topic.get_absolute_url }}" class="topic-title-link navigable-link">
                             {% if topic.is_unread %}<span class="a11y">{% trans "Non-lu" %} :</span>{% endif %}
                             <span class="topic-title">{{ topic.title }}</span>
                             <span class="topic-subtitle">{{ topic.subtitle }}</span>
-                        {% endspaceless %}</a>
+                        </a>
 
                         <p class="topic-members">
                             <span class="topic-members-label">
@@ -47,9 +47,9 @@
                             </span>
                             <em>
                                 {% include "misc/member_item.part.html" with member=topic.author avatar=True %}
-                            </em>{% spaceless %}
+                            </em>
 
-                            {% endspaceless %}{% for member in topic.participants.all %}
+                            {% for member in topic.participants.all %}
                                 {% include "misc/member_item.part.html" with avatar=True %}
                             {% endfor %}
                         </p>
@@ -58,7 +58,7 @@
                 {% with post_count=topic.get_post_count %}
                     <p class="topic-answers {% if post_count <= 1 %}topic-no-answer{% endif %}">
                         {% blocktrans with plural=post_count|pluralize_fr %}
-                           {{ post_count }} message{{ plural }}
+                            {{ post_count }} message{{ plural }}
                         {% endblocktrans %}
                     </p>
                 {% endwith %}
@@ -67,7 +67,8 @@
                         {% if answer %}
                             <a href="{{ answer.get_absolute_url }}">
                                 <span class="topic-last-answer-long-date">
-                                    {% trans "Dernière réponse" %} <br>
+                                    {% trans "Dernière réponse" %}
+                                    <br>
                                     {{ answer.pubdate|format_date }}
                                 </span>
                                 <span class="topic-last-answer-short-date">

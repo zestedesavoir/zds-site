@@ -103,11 +103,12 @@
                         <p>
                             {% trans "Vous allez rajouter un nouveau membre dans la conversation privée." %}
                         </p>
-                        <input
-                            type="text" class="input" name="username"
-                            placeholder="Pseudo du membre"
-                            data-autocomplete="{'type':'single'}"
-                        >
+
+                        <input type="text"
+                               class="input"
+                               name="username"
+                               placeholder="Pseudo du membre"
+                               data-autocomplete="{'type':'single'}">
 
                         {% csrf_token %}
                         <button type="submit">{% trans "Ajouter" %}</button>
