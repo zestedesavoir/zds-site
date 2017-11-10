@@ -24,7 +24,7 @@ from zds.tutorialv2.forms import AskValidationForm, RejectValidationForm, Accept
     CancelValidationForm, PublicationForm, PickOpinionForm, PromoteOpinionToArticleForm, UnpickOpinionForm, \
     DoNotPickOpinionForm
 from zds.tutorialv2.mixins import SingleContentFormViewMixin, ModalFormView, \
-    SingleOnlineContentFormViewMixin, ValidationBeforeViewMixin, NoValidationBeforeFormViewMixin
+    SingleOnlineContentFormViewMixin, RequiresValidationViewMixin, DoesNotRequireValidationFormViewMixin
 from zds.tutorialv2.models.database import Validation, PublishableContent, PickListOperation
 from zds.tutorialv2.publication_utils import publish_content, FailureDuringPublication, unpublish_content
 from zds.tutorialv2.utils import clone_repo
@@ -135,7 +135,7 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
     modal_form = True
 
     def get_form_kwargs(self):
-        if not self.versioned_object.requires_validation_before():
+        if not self.versioned_object.requires_validation():
             raise PermissionDenied
         kwargs = super(AskValidationForContent, self).get_form_kwargs()
         kwargs['content'] = self.versioned_object
@@ -330,7 +330,7 @@ class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
             )
 
 
-class ValidationHistoryView(LoginRequiredMixin, PermissionRequiredMixin, ValidationBeforeViewMixin):
+class ValidationHistoryView(LoginRequiredMixin, PermissionRequiredMixin, RequiresValidationViewMixin):
 
     model = PublishableContent
     permissions = ['tutorialv2.change_validation']
@@ -562,7 +562,7 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleOnline
         return super(RevokeValidation, self).form_valid(form)
 
 
-class PublishOpinion(LoggedWithReadWriteHability, NoValidationBeforeFormViewMixin):
+class PublishOpinion(LoggedWithReadWriteHability, DoesNotRequireValidationFormViewMixin):
     """Publish the content (only content without preliminary validation)"""
 
     form_class = PublicationForm
@@ -611,7 +611,7 @@ class PublishOpinion(LoggedWithReadWriteHability, NoValidationBeforeFormViewMixi
         return super(PublishOpinion, self).form_valid(form)
 
 
-class UnpublishOpinion(LoginRequiredMixin, SingleOnlineContentFormViewMixin, NoValidationBeforeFormViewMixin):
+class UnpublishOpinion(LoginRequiredMixin, SingleOnlineContentFormViewMixin, DoesNotRequireValidationFormViewMixin):
     """Unpublish an opinion"""
 
     form_class = RevokeValidationForm
@@ -665,7 +665,7 @@ class UnpublishOpinion(LoginRequiredMixin, SingleOnlineContentFormViewMixin, NoV
         return super(UnpublishOpinion, self).form_valid(form)
 
 
-class DoNotPickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
+class DoNotPickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormViewMixin):
     """Remove"""
 
     form_class = DoNotPickOpinionForm
@@ -759,7 +759,7 @@ class RevokePickOperation(PermissionRequiredMixin, FormView):
         return HttpResponse(json.dumps({'result': 'OK'}))
 
 
-class PickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
+class PickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormViewMixin):
     """Approve and add an opinion in the picked list."""
 
     form_class = PickOpinionForm
@@ -816,7 +816,7 @@ class PickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
         return super(PickOpinion, self).form_valid(form)
 
 
-class UnpickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
+class UnpickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormViewMixin):
     """Remove an opinion from the picked list."""
 
     form_class = UnpickOpinionForm
@@ -901,7 +901,7 @@ class MarkObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
         return redirect(content.get_absolute_url_online())
 
 
-class PromoteOpinionToArticle(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
+class PromoteOpinionToArticle(PermissionRequiredMixin, DoesNotRequireValidationFormViewMixin):
     """
     Promote an opinion to an article.
     This duplicates the opinion and declares the clone as an article.
