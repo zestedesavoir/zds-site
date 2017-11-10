@@ -485,6 +485,7 @@ def unregister(request):
     for topic in PrivateTopic.objects.filter(participants__in=[current]):
         topic.participants.remove(current)
         topic.save()
+    Topic.objects.filter(solved_by=current).update(solved_by=anonymous)
     Topic.objects.filter(author=current).update(author=anonymous)
 
     # Any content exclusively owned by the unregistering member will

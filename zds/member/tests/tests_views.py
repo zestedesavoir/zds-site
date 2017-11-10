@@ -476,7 +476,7 @@ class MemberTests(TestCase):
         beta_content = BetaContentFactory(author_list=[user.user], forum=beta_forum)
         beta_content_2 = BetaContentFactory(author_list=[user.user, user2.user], forum=beta_forum)
         # about posts and topics
-        authored_topic = TopicFactory(author=user.user, forum=self.forum11)
+        authored_topic = TopicFactory(author=user.user, forum=self.forum11, solved_by=user.user)
         answered_topic = TopicFactory(author=user2.user, forum=self.forum11)
         PostFactory(topic=answered_topic, author=user.user, position=2)
         edited_answer = PostFactory(topic=answered_topic, author=user.user, position=3)
@@ -597,6 +597,8 @@ class MemberTests(TestCase):
 
         # topics, gallery and PMs:
         self.assertEqual(Topic.objects.filter(author__username=user.user.username).count(), 0)
+        self.assertEqual(Topic.objects.filter(solved_by=user.user).count(), 0)
+        self.assertEqual(Topic.objects.filter(solved_by=self.anonymous).count(), 1)
         self.assertEqual(Post.objects.filter(author__username=user.user.username).count(), 0)
         self.assertEqual(Post.objects.filter(editor__username=user.user.username).count(), 0)
         self.assertEqual(PrivatePost.objects.filter(author__username=user.user.username).count(), 0)

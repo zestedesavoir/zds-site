@@ -198,12 +198,10 @@ class Topic(AbstractESDjangoIndexable):
         'Date de dernière modification pour la réindexation partielle',
         auto_now=True,
         db_index=True)
-    is_solved = models.BooleanField('Est résolu', default=False, db_index=True)
     solved_by = models.ForeignKey(User, verbose_name='Utilisateur ayant noté le sujet comme résolu',
-                                   db_index=True, default=None, null=True)
+                                  db_index=True, default=None, null=True)
     is_locked = models.BooleanField('Est verrouillé', default=False, db_index=True)
     is_sticky = models.BooleanField('Est en post-it', default=False, db_index=True)
-
     github_issue = models.PositiveIntegerField('Ticket GitHub', null=True, blank=True)
 
     tags = models.ManyToManyField(
@@ -216,6 +214,10 @@ class Topic(AbstractESDjangoIndexable):
 
     def __str__(self):
         return self.title
+
+    @property
+    def is_solved(self):
+        return self.solved_by is not None
 
     def get_absolute_url(self):
         return reverse('topic-posts-list', args=[self.pk, self.slug()])

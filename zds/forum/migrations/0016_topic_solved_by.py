@@ -5,6 +5,20 @@ from __future__ import unicode_literals
 from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
+from zds.forum.models import Topic
+
+
+def forward(apps, schema_editor):
+    Topic = apps.get_model('forum', 'Topic')
+    solved_topics = Topic.objects.filter(is_solved=True)
+    for topic in solved_topics:
+        topic.solved_by = topic.author
+        topic.save()
+
+
+def backward(apps, schema_editor):
+    pass
+
 
 
 class Migration(migrations.Migration):
@@ -20,4 +34,10 @@ class Migration(migrations.Migration):
             name='solved_by',
             field=models.ForeignKey(default=None, null=True, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='Utilisateur ayant noté le sujet comme résolu'),
         ),
+        migrations.RunPython(forward, backward),
+        migrations.RemoveField(
+            model_name='topic',
+            name='is_solved',
+        ),
     ]
+
