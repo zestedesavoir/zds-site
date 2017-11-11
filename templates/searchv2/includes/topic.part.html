@@ -20,6 +20,7 @@
         <p>
             {% trans "Sujet du forum" %}
             <a href="{{ search_result.forum_get_absolute_url }}">{{ search_result.forum_title }}</a> &bullet;
+
             <time class="content-pubdate" pubdate="{{ search_result.pubdate|from_elasticsearch_date }}">
                 <span class="long">{{ search_result.pubdate|from_elasticsearch_date|format_date|capfirst }}</span>
                 <span class="short">{{ search_result.pubdate|from_elasticsearch_date|format_date:True|capfirst }}</span>
