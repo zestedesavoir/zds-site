@@ -59,7 +59,7 @@ class FeaturedResourceCreate(CreateView):
             content = Topic.objects.get(pk=int(topic_id))
         except (Topic.DoesNotExist, ValueError):
             messages.error(self.request, self.initial_error_message)
-            return None
+            return {}
         return {'title': content.title,
                 'type': self.displayed_content_type['TOPIC'],
                 'authors': str(content.author),
@@ -70,7 +70,7 @@ class FeaturedResourceCreate(CreateView):
             content = PublishedContent.objects.get(pk=int(content_id))
         except (PublishedContent.DoesNotExist, ValueError):
             messages.error(self.request, self.initial_error_message)
-            return None
+            return {}
         displayed_authors = ', '.join([str(x) for x in content.authors.all()])
         if content.content.image:
             image_url = content.content.image.physical.url
@@ -86,13 +86,10 @@ class FeaturedResourceCreate(CreateView):
         initial = super(FeaturedResourceCreate, self).get_initial()
         content_type = self.request.GET.get('content_type', None)
         content_id = self.request.GET.get('content_id', None)
-        content_data = None
         if content_type == 'topic' and content_id:
-            content_data = self.get_initial_topic_data(content_id)
+            initial.update(**self.get_initial_topic_data(content_id))
         elif content_type == 'published_content' and content_id:
-            content_data = self.get_initial_content_data(content_id)
-        if not initial and content_data:
-            initial.update(**content_data)
+            initial.update(**self.get_initial_content_data(content_id))
         return initial
 
     def get_form_kwargs(self):
