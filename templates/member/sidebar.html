@@ -25,7 +25,7 @@
 
                 {% if user.is_staff %}
                     <a href="{% url 'admin:auth_user_change' profile.user.pk %}"
-                        class="new-btn ico-after edit gear blue">
+                       class="new-btn ico-after edit gear blue">
                         {% trans "Administration de Django" %}
                     </a>
                 {% endif %}
@@ -298,7 +298,7 @@
                                 {% trans "En rédaction" %}
                             </a>
                         </li>
-                     {% endif %}
+                    {% endif %}
                 {% else %}
                     {% if articles_validation_count > 0 %}
                         <li class="inactive mobile-menu-link mobile-menu-sublink">
@@ -371,10 +371,10 @@
     {# TODO: XXX: Ambiguous `and` / `or` #}
     {% if perms.member.change_post and profile.get_post_count_as_staff > 0 or profile.get_post_count > 0 %}
 
-       <h4 class="mobile-menu-link"
-           data-title="{% trans 'Forums' %}">
-           {% trans "Forums" %}
-       </h4>
+        <h4 class="mobile-menu-link"
+            data-title="{% trans 'Forums' %}">
+            {% trans "Forums" %}
+        </h4>
         <ul>
             <li>
                 <a href="{% url 'topic-find' usr.pk %}"
@@ -518,7 +518,7 @@
                               class="modal modal-flex">
                             <p>
                                 {% blocktrans %}
-                                Pour quelle raison souhaitez-vous <strong>lever la sanction</strong> de ce membre ?
+                                    Pour quelle raison souhaitez-vous <strong>lever la sanction</strong> de ce membre ?
                                 {% endblocktrans %}
                             </p>
                             <input type="text"
