@@ -121,19 +121,21 @@ Elle est ensuite visible via le template `member/settings/promote.html`.
 Le profil de chaque membre contient également un lien vers l'administration de Django si l'utilisateur connecté y a accès et est super-utilisateur. Cela permet de nommer un membre super-utilisateur ou de lui donner l'accès à l'administration.
 
 Les casquettes
---------------------
+--------------
 
 Les casquettes sont un moyen de certifier qu'un utilisateur a un rôle particulier (comme membre du staff, développeur, etc). Les casquettes d'un membre sont listées sur son profil et il est également possible lors de l'envoi d'un message de le poster avec une casquette particulière, qui sera mise en avant sur le message.
 
 Il est possible de modifier la casquette d'un message en l'éditant. Seules les casquettes possédées par le membre lors de l'édition peuvent être sélectionnés. Lorsqu'une casquette est retirée à un membre, les messages ayant été postés avec cette casquette la conservent. Cependant, il est obligatoire de modifier (ou de supprimer) la casquette d'un message s'il est édité alors que le membre ne la possède plus.
 
-Les casquettes peuvent être demandées dans les paramètres de son compte. Les demandes sont vérifiées par les modérateurs ayant la permission ``utils.change_hat`` qui peuvent décider de les accepter ou de les refuser. Les membres ayant cette permission peuvent également ajouter une casquette sans passer par le système de demande.
+Les casquettes peuvent être accordées de trois manières :
 
-Les membres peuvent supprimer eux-mêmes leurs casquettes. Les utilisateurs ayant la permission ``utils.change_hat`` peuvent supprimer les casquettes de tout le monde.
+- Par ajout direct depuis le profil du membre. Cette opération peut être accomplie par les utilisateurs ayant la permission ``utils.change_hat``.
+- Sur demande de l'utilisateur : il est possible pour un membre d'envoyer une demande depuis les paramètres de son compte en spécifiant la casquette demandée et une justification écrite en Markdown. Les demandes peuvent être acceptées ou refusées par les membres ayant la permission `utils.change_hat`.
+- Par ajout à un groupe dont fait partie le membre : il est possible, depuis l'administration de Django, de lier une casquette à un groupe, ce qui l'accordera automatiquement à tous ses membres. À noter que lier une casquette à un groupe empêche toute assignation individuelle de celle-ci à un membre. Ainsi, la dite casquette ne pourra plus être attribuée à un membre n'appartenant pas au groupe. De même, les membres du groupe ne pourront pas la supprimer sans quitter le groupe.
+
+Les membres peuvent supprimer eux-mêmes leurs casquettes. Les utilisateurs ayant la permission ``utils.change_hat`` peuvent supprimer les casquettes de tout le monde, à condition qu'elles n'aient pas été accordées à un groupe.
 
 Attention : la casse est déterminée lors du premier ajout d'une casquette. Ainsi, si vous ajoutez une casquette « Staff » à un membre, ajouter une casquette « staff » à un autre membre par la suite lui ajoutera en réalité la casquette « Staff ». Si nécessaire, la casse d'une casquette peut être modifiée via l'administration de Django.
-
-Il est également possible, depuis l'administration de Django, de lier une casquette à un groupe, ce qui l'accordera automatiquement à tous les membres du groupe. À noter que lier une casquette à un groupe empêche toute assignation individuelle de celle-ci à un membre. Ainsi, la dite casquette ne pourra plus être attribuée à un membre n'appartenant pas au groupe. De même, les membres du groupe ne pourront pas la supprimer sans quitter le groupe.
 
 Les casquettes sont ajoutées aux MP automatiques en fonction des paramètres ``ZDS_APP['hats']`` renseignés dans le fichier ``settings.py``.
 

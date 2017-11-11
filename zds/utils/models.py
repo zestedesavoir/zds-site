@@ -16,6 +16,7 @@ from django.db import models
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 from django.dispatch import receiver
+from django.template.loader import render_to_string
 
 from easy_thumbnails.fields import ThumbnailerImageField
 
@@ -25,6 +26,7 @@ from zds.tutorialv2.models import TYPE_CHOICES, TYPE_CHOICES_DICT
 from zds.utils.mps import send_mp
 from zds.utils import slugify
 from zds.utils.templatetags.emarkdown import get_markdown_instance, render_markdown
+from zds.utils.misc import contains_utf8mb4
 
 from model_utils.managers import InheritanceManager
 
@@ -202,6 +204,10 @@ class HatRequest(models.Model):
     reason = models.TextField('Raison de la demande', max_length=3000)
     date = models.DateTimeField(auto_now_add=True, db_index=True,
                                 verbose_name='Date de la demande', db_column='request_date')
+    is_granted = models.NullBooleanField('Est acceptée')
+    solved_at = models.DateTimeField('Date de résolution', blank=True, null=True)
+    moderator = models.ForeignKey(User, verbose_name='Modérateur', blank=True, null=True)
+    comment = models.TextField('Commentaire', max_length=1000, blank=True)
 
     class Meta:
         verbose_name = 'Demande de casquette'
@@ -214,6 +220,64 @@ class HatRequest(models.Model):
     def get_absolute_url(self):
         return reverse('hat-request', args=[self.pk])
 
+    def get_hat(self, create=False):
+        """
+        Get hat that matches this request. If it doesn't exist, it is created
+        or `None` is returned according to the `create` parameter.
+        """
+
+        try:
+            return Hat.objects.get(name__iexact=self.hat)
+        except Hat.DoesNotExist:
+            if create:
+                return Hat.objects.create(name=self.hat)
+            else:
+                return None
+
+    def solve(self, is_granted, moderator=None, comment='', hat_name=None):
+        """
+        Solve a hat request by granting or denying the requested hat according
+        to the `is_granted` parameter.
+        """
+
+        if self.is_granted is not None:
+            raise Exception('This request is already solved.')
+
+        if moderator is None:
+            moderator = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+
+        if is_granted:
+            if self.get_hat() is None and hat_name:
+                self.hat = get_hat_to_add(hat_name, self.user).name
+            self.user.profile.hats.add(self.get_hat(create=True))
+        self.is_granted = is_granted
+        self.moderator = moderator
+        self.comment = comment[:1000]
+        self.solved_at = datetime.now()
+        self.save()
+        self.notify_member()
+
+    def notify_member(self):
+        """
+        Notify the request author about the decision that has been made.
+        """
+
+        if self.is_granted is None:
+            raise Exception('The request must have been solved to use this method.')
+
+        solved_by_bot = self.moderator == get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+
+        message = render_to_string(
+            'member/messages/hat_request_decision.md', {
+                'is_granted': self.is_granted,
+                'hat': self.hat,
+                'comment': self.comment,
+                'solved_by_bot': solved_by_bot,
+            }
+        )
+        send_mp(self.moderator, [self.user], _('Casquette « {} »').format(self.hat), '', message,
+                leave=solved_by_bot, mark_as_read=True, hat=get_hat_from_settings('hats_management'))
+
 
 @receiver(models.signals.post_save, sender=Hat)
 def prevent_users_getting_hat_linked_to_group(sender, instance, **kwargs):
@@ -224,10 +288,19 @@ def prevent_users_getting_hat_linked_to_group(sender, instance, **kwargs):
     """
     if instance.group:
         instance.profile_set.clear()
-        HatRequest.objects.filter(hat__iexact=instance.name).delete()
+        for request in HatRequest.objects.filter(hat__iexact=instance.name, is_granted__isnull=True):
+            request.solve(is_granted=False,
+                          comment=_('La demande a été automatiquement annulée car la casquette est désormais accordée '
+                                    'aux membres d’un groupe particulier. Vous l’avez reçue si '
+                                    'vous en êtes membre.'))
 
 
 def get_hat_from_request(request, author=None):
+    """
+    Return a hat that will be used for a post.
+    This checks that the user is allowed to use this hat.
+    """
+
     if author is None:
         author = request.user
     if not request.POST.get('with_hat', None):
@@ -245,6 +318,32 @@ def get_hat_from_request(request, author=None):
 def get_hat_from_settings(key):
     hat_name = settings.ZDS_APP['hats'][key]
     hat, _ = Hat.objects.get_or_create(name__iexact=hat_name, defaults={'name': hat_name})
+    return hat
+
+
+def get_hat_to_add(hat_name, user):
+    """
+    Return a hat that will be added to a user.
+    This function creates the hat if it does not exist,
+    so be sure you will need it!
+    """
+
+    hat_name = hat_name.strip()
+    if not hat_name:
+        raise ValueError(_('Veuillez saisir une casquette.'))
+    if contains_utf8mb4(hat_name):
+        raise ValueError(_('La casquette saisie contient des caractères utf8mb4, '
+                           'ceux-ci ne peuvent pas être utilisés.'))
+    if len(hat_name) > 40:
+        raise ValueError(_('La longueur des casquettes est limitée à 40 caractères.'))
+    hat, created = Hat.objects.get_or_create(name__iexact=hat_name, defaults={'name': hat_name})
+    if created:
+        logger.info('Hat #{0} "{1}" has been created.'.format(hat.pk, hat.name))
+    if hat in user.profile.get_hats():
+        raise ValueError(_('{0} possède déjà la casquette « {1} ».'.format(user.username, hat.name)))
+    if hat.group:
+        raise ValueError(_('La casquette « {} » est accordée automatiquement aux membres d\'un groupe particulier '
+                           'et ne peut donc pas être ajoutée à un membre externe à ce groupe.'.format(hat.name)))
     return hat
 
 
@@ -384,10 +483,10 @@ class CommentEdit(models.Model):
 
 class Alert(models.Model):
     """Alerts on all kinds of Comments and PublishedContents."""
-    SCOPE_CHOICES = (
+    SCOPE_CHOICES = [
         ('FORUM', _('Forum')),
         ('CONTENT', _('Contenu')),
-    ) + TYPE_CHOICES
+    ] + TYPE_CHOICES
 
     SCOPE_CHOICES_DICT = dict(SCOPE_CHOICES)
 

@@ -2,10 +2,10 @@
 
 {% blocktrans with title=content.title|safe %}
 
-Bonjour les agrumes !
+Bonjour les agrumes !
 
 La bêta a été mise à jour et décante sa pulpe 
-à l’adresse suivante :
+à l’adresse suivante :
 
 -> [{{ title}}]({{ url }}) <-
 

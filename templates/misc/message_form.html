@@ -4,27 +4,27 @@
 
 {% if topic.is_locked %}
     <div class="alert-box ico-after lock light">
-        {% trans "Ce sujet est verrouillé" %}.
+        {% trans "Ce sujet est verrouillé." %}
     </div>
 {% elif not user.is_authenticated %}
     <div class="alert-box info alert-box-not-closable">
-        {% trans "Vous devez être connecté pour pouvoir poster un message" %}. <br>
+        {% trans "Vous devez être connecté pour pouvoir poster un message." %}<br>
         <a href="{% url "member-login" %}?next={{ request.path }}" class="alert-box-btn alert-box-btn-right">Connexion</a>
     </div>
     <div class="alert-box not-member alert-box-not-closable">
         <h4 class="alert-box-title">Pas encore inscrit ?</h4>
         <p>
-            {% trans "Créez un compte en une minute pour profiter pleinement de toutes les fonctionnalités de Zeste de Savoir. Ici, tout est gratuit et sans publicité" %}. <br>
+            {% trans "Créez un compte en une minute pour profiter pleinement de toutes les fonctionnalités de Zeste de Savoir. Ici, tout est gratuit et sans publicité." %}<br>
             <a href="{% url "register-member" %}" class="alert-box-btn">{% trans "Créer un compte" %}</a>
         </p>
     </div>
 {% elif topic.antispam or is_antispam %}
     <div class="alert-box ico-after ico-alert light">
-        {% trans "Vous venez de poster. Merci de patienter au moins 15 minutes entre deux messages consécutifs afin de limiter le flood" %}.
+        {% trans "Vous venez de poster. Merci de patienter au moins 15 minutes entre deux messages consécutifs afin de limiter le flood." %}
     </div>
 {% elif topic.alone %}
     <div class="alert-box info cross light">
-        {% trans "Vous êtes seul dans cette conversation" %}.
+        {% trans "Vous êtes seul dans cette conversation." %}
     </div>
 {% else %}
     {% if topic.old_post_warning %}

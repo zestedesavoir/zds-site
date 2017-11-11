@@ -62,7 +62,7 @@
                 {% if validation.comment_authors %}
                     <div class="content-wrapper comment-author">
                         <p>
-                            {% trans "Le message suivant a été laissé à destination des validateurs" %} :
+                            {% trans "Le message suivant a été laissé à destination des validateurs" %} :
                         </p>
 
                         <blockquote>
@@ -134,7 +134,7 @@
         {{ content.get_introduction|emarkdown:is_js }}
     {% elif not content.is_beta %}
         <p class="ico-after warning">
-            {% trans "Il n’y a pas d’introduction" %}.
+            {% trans "Il n’y a pas d’introduction." %}
         </p>
     {% endif %}
 
@@ -154,7 +154,7 @@
         {%  include "tutorialv2/includes/child.part.html" with child=child %}
     {% empty %}
         <p class="ico-after warning">
-            {% trans "Ce contenu est actuellement vide" %}.
+            {% trans "Ce contenu est actuellement vide." %}
         </p>
     {% endfor %}
 
@@ -165,7 +165,7 @@
         {{ content.get_conclusion|emarkdown:is_js }}
     {% elif not content.is_beta %}
         <p class="ico-after warning">
-            {% trans "Il n’y a pas de conclusion" %}.
+            {% trans "Il n’y a pas de conclusion." %}
         </p>
     {% endif %}
 
@@ -383,7 +383,7 @@
         {# END HISTORY #}
 
         {# VALIDATION OR PUBLICATION (NO VALIDATION BEFORE) #}
-        {% if content.requires_validation_before %}
+        {% if content.requires_validation %}
             {# Validation (require validation before publication) #}
             {% if not content.in_validation %}
                 {% if content.current_version != content.sha_public %}
@@ -482,7 +482,7 @@
                         {% endif %}
                     </a>
                 </li>
-                {% if content.requires_validation_before %}
+                {% if content.requires_validation %}
                     <li>
                         {% if is_js %}
                             <a href="#js-activation" class="open-modal ico-after cross red">
@@ -497,7 +497,7 @@
                     {% crispy formJs %}
                 {% endif %}
 
-                {% if content.is_public and content.requires_validation_before %}
+                {% if content.is_public and content.requires_validation %}
                     <li>
                         <a href="#unpublish" class="ico-after open-modal cross blue">
                             {% trans "Dépublier" %}
@@ -581,7 +581,7 @@
                                     {% endblocktrans %}
                                     {%  if need_reason %}
                                         {% blocktrans with username=validation.validator.username %}
-                                            Il est en cours de validation par <strong>{{ username }}</strong>, qui appréciera de savoir pourquoi vous souhaitez le supprimer :
+                                            Il est en cours de validation par <strong>{{ username }}</strong>, qui appréciera de savoir pourquoi vous souhaitez le supprimer :
                                         {% endblocktrans %}
                                     {% endif %}
                                 </p>

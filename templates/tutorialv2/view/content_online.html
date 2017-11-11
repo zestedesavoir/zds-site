@@ -110,7 +110,7 @@
             {% for alert in alerts %}
                 <div class="alert-box{% if not alert.solved %} error{% endif %}">
                     {{ alert.pubdate|format_date|capfirst }} {% trans "par" %}
-                    {% include "misc/member_item.part.html" with member=alert.author %} :
+                    {% include "misc/member_item.part.html" with member=alert.author %} :
                     <em class="alert-box-text">{{ alert.text }}</em>
                     {% if alert.solved %}
                         <span class="close-alert-box close-alert-box-text">
@@ -158,7 +158,7 @@
             {{ content.get_introduction_online|safe }}
         {% endif %}
 
-        {%  if not content.has_sub_containers %}
+        {% if not content.has_sub_containers %}
             <ol class="summary-part">
         {% endif %}
 
@@ -166,7 +166,7 @@
             {%  include "tutorialv2/includes/child_online.part.html" with child=child %}
         {% endfor %}
 
-        {%  if not content.has_sub_containers %}
+        {% if not content.has_sub_containers %}
             </ol>
         {% endif %}
 
@@ -251,7 +251,7 @@
                     </a>
                 </li>
                 {% if is_staff %}
-                    {% if content.requires_validation_before %}
+                    {% if content.requires_validation %}
                         <li>
                             <a href="{% url "validation:history" content.pk content.slug %}" class="ico-after history blue">
                                 {% trans "Historique validation" %}

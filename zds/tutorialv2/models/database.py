@@ -31,8 +31,8 @@ from elasticsearch_dsl.field import Text, Keyword, Date, Boolean
 from zds.forum.models import Topic
 from zds.gallery.models import Image, Gallery, UserGallery, GALLERY_WRITE
 from zds.tutorialv2.managers import PublishedContentManager, PublishableContentManager
-from zds.tutorialv2.models import TYPE_CHOICES, STATUS_CHOICES, CONTENT_TYPES_VALIDATION_BEFORE, PICK_OPERATIONS
 from zds.tutorialv2.models.versioned import NotAPublicVersion
+from zds.tutorialv2.models import TYPE_CHOICES, STATUS_CHOICES, CONTENT_TYPES_REQUIRING_VALIDATION, PICK_OPERATIONS
 from zds.tutorialv2.utils import get_content_from_json, BadManifestError
 from zds.utils import get_current_user
 from zds.utils.models import SubCategory, Licence, HelpWriting, Comment, Tag
@@ -554,7 +554,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
 
         self.save()
 
-    def requires_validation_before(self):
+    def requires_validation(self):
         """
         Check if content required a validation before publication.
         Used to check if JsFiddle is available too.
@@ -562,7 +562,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         :return: Whether validation is required before publication.
         :rtype: bool
         """
-        return self.type in CONTENT_TYPES_VALIDATION_BEFORE
+        return self.type in CONTENT_TYPES_REQUIRING_VALIDATION
 
 
 @receiver(pre_delete, sender=PublishableContent)

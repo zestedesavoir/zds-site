@@ -93,7 +93,7 @@ class MemberTests(TestCase):
             'note': 'warn'
         }, follow=True)
         self.assertEqual(200, r.status_code)
-        self.assertIn('{} : 42'.format(_('Modification du karma')), r.content.decode('utf-8'))
+        self.assertIn('{} : 42'.format(_('Modification du karma')), r.content.decode('utf-8'))
         # more than 100 karma must unvalidate the karma
         r = self.client.post(reverse('member-modify-karma'), {
             'profile_pk': user.pk,
@@ -101,7 +101,7 @@ class MemberTests(TestCase):
             'note': 'warn'
         }, follow=True)
         self.assertEqual(200, r.status_code)
-        self.assertNotIn('{} : 420'.format(_('Modification du karma')), r.content.decode('utf-8'))
+        self.assertNotIn('{} : 420'.format(_('Modification du karma')), r.content.decode('utf-8'))
         # empty warning must unvalidate the karma
         r = self.client.post(reverse('member-modify-karma'), {
             'profile_pk': user.pk,
@@ -109,7 +109,7 @@ class MemberTests(TestCase):
             'note': ''
         }, follow=True)
         self.assertEqual(200, r.status_code)
-        self.assertNotIn('{} : 41'.format(_('Modification du karma')), r.content.decode('utf-8'))
+        self.assertNotIn('{} : 41'.format(_('Modification du karma')), r.content.decode('utf-8'))
 
     def test_list_members(self):
         """
@@ -1619,7 +1619,12 @@ class MemberTests(TestCase):
         }, follow=False)
         self.assertEqual(result.status_code, 302)
         request = HatRequest.objects.latest('date')
-        # test this page is only available for staff
+        # test this page is available for the request author
+        result = self.client.get(request.get_absolute_url())
+        self.assertEqual(result.status_code, 200)
+        # test it's not available for another user
+        other_user = ProfileFactory().user
+        self.client.login(username=other_user.username, password='hostel77')
         result = self.client.get(request.get_absolute_url())
         self.assertEqual(result.status_code, 403)
         # login as staff
@@ -1642,7 +1647,6 @@ class MemberTests(TestCase):
         }, follow=False)
         self.assertEqual(result.status_code, 302)
         request = HatRequest.objects.latest('date')
-        requests_count = HatRequest.objects.count()
         # test this page is only available for staff
         result = self.client.post(reverse('solve-hat-request', args=[request.pk]), follow=False)
         self.assertEqual(result.status_code, 403)
@@ -1651,16 +1655,17 @@ class MemberTests(TestCase):
         result = self.client.post(reverse('solve-hat-request', args=[request.pk]), follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertNotIn(hat_name, [h.name for h in profile.hats.all()])
-        self.assertEqual(requests_count - 1, HatRequest.objects.count())
+        request = HatRequest.objects.get(pk=request.pk)  # reload
+        self.assertEqual(request.is_granted, False)
         # add a new request and test granting
         HatRequest.objects.create(user=profile.user, hat=hat_name, reason='test')
         request = HatRequest.objects.latest('date')
-        requests_count = HatRequest.objects.count()
         result = self.client.post(reverse('solve-hat-request', args=[request.pk]),
                                   {'grant': 'on'}, follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertIn(hat_name, [h.name for h in profile.hats.all()])
-        self.assertEqual(requests_count - 1, HatRequest.objects.count())
+        request = HatRequest.objects.get(pk=request.pk)  # reload
+        self.assertEqual(request.is_granted, True)
 
     def test_hats_list(self):
         # test the page is accessible without being authenticated
