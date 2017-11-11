@@ -26,7 +26,8 @@
         {% block sidebar_actions %}
             {% if gallery_mode.can_write or content_linked %}
                 <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">
-                <h3>{% trans "Actions" %}</h3>
+                    <h3>{% trans "Actions" %}</h3>
+
                     <ul>
                         {% if gallery_mode.can_write %}
                             <li>
@@ -60,7 +61,7 @@
                                     {% if content_linked.type == "ARTICLE" %}
                                         {% trans "à l’article" %}
                                     {% elif content_linked.type == "TUTORIAL" %}
-                                         {% trans "au tutoriel" %}
+                                        {% trans "au tutoriel" %}
                                     {% endif %}
                                     {% trans "lié à cette galerie" %}
                                 </a>

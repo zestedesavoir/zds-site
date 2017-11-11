@@ -43,10 +43,14 @@
         </a>
 
         {% if perms.featured.change_featuredresource %}
-        <p>
-            {% trans "Lien pour utiliser cette image en une :" %}<br>
-            <input type="text" value="{{ app.site.url }}{{ image.physical.featured.url }}" readonly onclick="this.select()">
-        </p>
+            <p>
+                {% trans "Lien pour utiliser cette image en une :" %}
+                <br>
+                <input type="text"
+                       value="{{ app.site.url }}{{ image.physical.featured.url }}"
+                       readonly
+                       onclick="this.select()">
+            </p>
         {% endif %}
     </div>
     <div class="gallery-col-edit">
@@ -56,16 +60,27 @@
         {% endif %}
 
         <p>
-            {% trans "Code markdown pour insérer cette image :" %}<br>
+            {% trans "Code markdown pour insérer cette image :" %}
+            <br>
 
             {% trans "Taille normale : " %}
-            <input type="text" value="![{{ image.legend|default:image.title }}]({{ image.physical.url|remove_url_scheme }})" readonly onclick="this.select()"> <br>
+            <input type="text"
+                   value="![{{ image.legend|default:image.title }}]({{ image.physical.url|remove_url_scheme }})"
+                   readonly
+                   onclick="this.select()">
+            <br>
 
             {% trans "Miniature : " %}
-            <input type="text" value="![{{ image.legend|default:image.title }}]({{ image.physical.gallery.url|remove_url_scheme }})" readonly onclick="this.select()"> <br>
+            <input type="text"
+                   value="![{{ image.legend|default:image.title }}]({{ image.physical.gallery.url|remove_url_scheme }})" readonly
+                   onclick="this.select()">
+            <br>
 
             {% trans "Miniature + lien vers taille normale : " %}
-            <input type="text" value="[![{{ image.legend|default:image.title }}]({{ image.physical.gallery.url|remove_url_scheme }})]({{ image.physical.url|remove_url_scheme }})" readonly onclick="this.select()">
+            <input type="text"
+                   value="[![{{ image.legend|default:image.title }}]({{ image.physical.gallery.url|remove_url_scheme }})]({{ image.physical.url|remove_url_scheme }})"
+                   readonly
+                   onclick="this.select()">
         </p>
 
         {% crispy as_avatar_form %}

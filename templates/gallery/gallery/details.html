@@ -97,7 +97,9 @@
         </div>
     {% else %}
         <p>
-            {% trans "Aucune image." %} <br>
+            {% trans "Aucune image." %}
+            <br>
+
             {% if gallery_mode.can_write %}
                 {% url "gallery-image-new" gallery.pk as new_img_url %}
                 {% url "gallery-image-import" gallery.pk as import_archive %}
@@ -113,8 +115,8 @@
 
 {% block new_btn %}
     {% if gallery_mode.can_write %}
-            <a href="{% url "gallery-edit" gallery.pk gallery.slug %}" class="new-btn ico-after edit blue">
-                {% trans "Éditer la galerie" %}
-            </a>
+        <a href="{% url "gallery-edit" gallery.pk gallery.slug %}" class="new-btn ico-after edit blue">
+            {% trans "Éditer la galerie" %}
+        </a>
     {% endif %}
 {% endblock %}
