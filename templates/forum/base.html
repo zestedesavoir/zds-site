@@ -100,38 +100,40 @@
                                     </form>
 
                                     <a href="{% spaceless %}
-                                            {% with first_unread=topic.first_unread_post %}
-                                                {% if first_unread %}
-                                                    {{ first_unread.get_absolute_url }}
-                                                {% else %}
-                                                    {{ topic.resolve_last_read_post_absolute_url }}
-                                                {% endif %}
-                                            {% endwith %}
-                                            {% endspaceless %}"
-                                        class="{% if not topic|is_read %}unread{% endif %}
-                                            ico-after
+                                                 {% with first_unread=topic.first_unread_post %}
+                                                     {% if first_unread %}
+                                                         {{ first_unread.get_absolute_url }}
+                                                     {% else %}
+                                                         {{ topic.resolve_last_read_post_absolute_url }}
+                                                     {% endif %}
+                                                 {% endwith %}
+                                             {% endspaceless %}"
 
-                                            {% if topic.is_solved %}
-                                                tick green
-                                            {% elif topic.is_locked %}
-                                                lock
-                                            {% else %}
-                                                star yellow
-                                            {% endif %}
-                                        "
-                                        {% if topic.is_solved or topic.is_locked %}
-                                            data-prefix="{% spaceless %}
-                                                {% if topic.is_solved %}
-                                                    Résolu
-                                                {% endif %}
-                                                {% if topic.is_locked %}
-                                                    Fermé
-                                                {% endif %}
-                                            {% endspaceless %}"
-                                        {% endif %}
-                                    >
+                                       class="{% if not topic|is_read %}unread{% endif %}
+
+                                              ico-after
+
+                                              {% if topic.is_solved %}
+                                                  tick green
+                                              {% elif topic.is_locked %}
+                                                  lock
+                                              {% else %}
+                                                  star yellow
+                                              {% endif %}"
+
+                                       {% if topic.is_solved or topic.is_locked %}
+                                           data-prefix="{% spaceless %}
+                                                            {% if topic.is_solved %}
+                                                                Résolu
+                                                            {% endif %}
+                                                            {% if topic.is_locked %}
+                                                                Fermé
+                                                            {% endif %}
+                                                        {% endspaceless %}"
+                                       {% endif %}>
+
                                         {% if not topic|is_read %}
-                                            <span class="a11y">{% trans "Non-lu" %} :</span>
+                                            <span class="a11y">{% trans "Non-lu" %} :</span>
                                         {% endif %}
                                         {{ topic.title }}
                                     </a>
