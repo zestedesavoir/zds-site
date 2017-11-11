@@ -8,10 +8,12 @@
 {% load remove_url_scheme %}
 
 
+
 {% block head_extra %}
     {{ block.super }}
     {% include "mathjax.html" %}
 {% endblock %}
+
 
 
 {% block title %}
@@ -50,11 +52,12 @@
                     </li>
                     <li>
                         {% trans "Dernière visite sur le site" %} :
-                            {% if profile.last_visit %}
-                                {{ profile.last_visit|format_date:True }}
-                            {% else %}
-                                {% trans "ne s’est jamais connecté(e)" %}
-                            {% endif %}
+
+                        {% if profile.last_visit %}
+                            {{ profile.last_visit|format_date:True }}
+                        {% else %}
+                            {% trans "ne s’est jamais connecté(e)" %}
+                        {% endif %}
                     </li>
                 {% else %}
                     <li>
