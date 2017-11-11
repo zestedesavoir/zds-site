@@ -22,9 +22,9 @@
 
             {% for hat in hats_owner.profile.get_hats %}
                 <option value="{{ hat.pk }}"
-                    {% if request.POST.with_hat|add:0 == hat.pk or not request.POST.with_hat and edited_message.hat == hat %}
-                        selected
-                    {% endif %}
+                        {% if request.POST.with_hat|add:0 == hat.pk or not request.POST.with_hat and edited_message.hat == hat %}
+                            selected
+                        {% endif %}
                 >
                     {{ hat.name }}
                 </option>

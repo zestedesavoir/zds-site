@@ -15,13 +15,14 @@
             <div class="user-metadata">
                 <a href="{{ member.get_absolute_url }}#historique-moderation"
                    class="user-karma
+
                           {% if profile.karma < 0 %}
                               negative
                           {% elif profile.karma > 0 %}
                               positive
                           {% endif %}"
                 >
-                   {{ profile.karma }}
+                    {{ profile.karma }}
                 </a>
             </div>
         {% endif %}

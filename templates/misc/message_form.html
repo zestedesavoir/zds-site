@@ -8,13 +8,15 @@
     </div>
 {% elif not user.is_authenticated %}
     <div class="alert-box info alert-box-not-closable">
-        {% trans "Vous devez être connecté pour pouvoir poster un message." %}<br>
+        {% trans "Vous devez être connecté pour pouvoir poster un message." %}
+        <br>
         <a href="{% url "member-login" %}?next={{ request.path }}" class="alert-box-btn alert-box-btn-right">Connexion</a>
     </div>
     <div class="alert-box not-member alert-box-not-closable">
         <h4 class="alert-box-title">Pas encore inscrit ?</h4>
         <p>
-            {% trans "Créez un compte en une minute pour profiter pleinement de toutes les fonctionnalités de Zeste de Savoir. Ici, tout est gratuit et sans publicité." %}<br>
+            {% trans "Créez un compte en une minute pour profiter pleinement de toutes les fonctionnalités de Zeste de Savoir. Ici, tout est gratuit et sans publicité." %}
+            <br>
             <a href="{% url "register-member" %}" class="alert-box-btn">{% trans "Créer un compte" %}</a>
         </p>
     </div>

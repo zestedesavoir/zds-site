@@ -3,23 +3,24 @@
 {% load remove_url_scheme %}
 
 {% with profile=member|profile %}
-    <a
-        href="{{ profile.get_absolute_url }}"
-        class="member-item"
-        itemscope
-        itemtype="http://schema.org/Person"
-        {% if author %}
-            itemprop="author"
-        {% endif %}
-    >{% spaceless %}
-        {% if avatar %}
-            <img src="{{ profile.get_avatar_url|remove_url_scheme }}" alt="" class="avatar" itemprop="image">
-        {% endif %}
+    {% spaceless %}
+        <a href="{{ profile.get_absolute_url }}"
+           class="member-item"
+           itemscope
+           itemtype="http://schema.org/Person"
+           {% if author %}
+               itemprop="author"
+           {% endif %}>
 
-        <span itemprop="name">{% if member.username %}{{ member.username }}{% else %}{{ member.user.username }}{% endif %}</span>
+            {% if avatar %}
+                <img src="{{ profile.get_avatar_url|remove_url_scheme }}" alt="" class="avatar" itemprop="image">
+            {% endif %}
 
-        {% if info %}
-            <span class="info">({{ info }})</span>
-        {% endif %}
-    {% endspaceless %}</a>
+            <span itemprop="name">{% if member.username %}{{ member.username }}{% else %}{{ member.user.username }}{% endif %}</span>
+
+            {% if info %}
+                <span class="info">({{ info }})</span>
+            {% endif %}
+        </a>
+    {% endspaceless %}
 {% endwith %}
