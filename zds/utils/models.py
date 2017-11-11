@@ -384,10 +384,10 @@ class CommentEdit(models.Model):
 
 class Alert(models.Model):
     """Alerts on all kinds of Comments and PublishedContents."""
-    SCOPE_CHOICES = (
+    SCOPE_CHOICES = [
         ('FORUM', _('Forum')),
         ('CONTENT', _('Contenu')),
-    ) + TYPE_CHOICES
+    ] + TYPE_CHOICES
 
     SCOPE_CHOICES_DICT = dict(SCOPE_CHOICES)
 
