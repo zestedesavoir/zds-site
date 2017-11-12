@@ -1,21 +1,20 @@
-{% extends "base.html" %}
+{% extends "member/base.html" %}
 {% load crispy_forms_tags %}
 {% load i18n %}
+
+
 
 {% block title %}
     {% trans "Confirmation d’inscription réussie" %}
 {% endblock %}
 
 
-{# No sidebar on this page #}
-{% block body_class %}{% trans "no-sidebar" %}{% endblock %}
-{% block sidebar %}{% endblock %}
-
 
 {% block breadcrumb %}
     <li><a href="{% url "register-member" %}">{% trans "Inscription" %}</a></li>
     <li>{% trans "Confirmation" %}</li>
 {% endblock %}
+
 
 
 {% block content_out %}
@@ -30,4 +29,12 @@
             {% crispy form %}
         </p>
     </section>
+{% endblock %}
+
+
+
+{% block sidebar_actions %}
+    <a href="{% url 'member-login' %}" class="new-btn ico-after arrow-left blue">
+        {% trans "Retour" %} <span class="wide">{% trans "à la page de connexion" %}</span>
+    </a>
 {% endblock %}

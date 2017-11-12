@@ -1,5 +1,6 @@
-{% extends "member/register/base.html" %}
+{% extends "member/base.html" %}
 {% load i18n %}
+
 
 
 {% block title %}
@@ -28,4 +29,12 @@
             Votre compte a déjà été activé. Si vous avez oublié votre mot de passe, vous pouvez le retrouver <a href="{{url_forgot}}">ici</a>.
         {% endblocktrans %}
     </p>
+{% endblock %}
+
+
+
+{% block sidebar_actions %}
+    <a href="{% url 'member-login' %}" class="new-btn ico-after arrow-left blue">
+        {% trans "Retour" %} <span class="wide">{% trans "à la page de connexion" %}</span>
+    </a>
 {% endblock %}
