@@ -2,6 +2,7 @@
 {% load i18n %}
 
 
+
 {% block title %}
     {% trans "La modification du mot de passe a été effectuée" %}
 {% endblock %}
@@ -25,3 +26,9 @@
         {% trans "Votre mot de passe a bien été modifié, vous pouvez dès maintenant" %} <a href="{% url "member-login" %}">{% trans "vous connecter" %}</a>.
     </p>
 {% endblock %}
+
+
+
+{# No sidebar on this page #}
+{% block body_class %}{% trans "no-sidebar" %}{% endblock %}
+{% block sidebar %}{% endblock %}

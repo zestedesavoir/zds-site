@@ -3,6 +3,7 @@
 {% load i18n %}
 
 
+
 {% block title %}
     {% trans "Envoi du courriel de confirmation" %}
 {% endblock %}
@@ -29,7 +30,9 @@
 
     {% if not user.is_authenticated %}
         {% if error %}
-            {{ error }}
+            <p class="alert-box warning">
+                {{ error }}
+            </p>
         {% endif %}
 
         <p>
@@ -51,6 +54,16 @@
 
         {% crispy form %}
     {% else %}
-        <p>{% trans "Vous êtes connecté" %}</p>
+        <p class="alert-box error">
+            {% trans "Vous êtes déjà connecté." %}
+        </p>
     {% endif %}
+{% endblock %}
+
+
+
+{% block sidebar_actions %}
+    <a href="{% url 'member-login' %}" class="new-btn ico-after arrow-left blue">
+        {% trans "Retour" %} <span class="wide">{% trans "à la page de connexion" %}</span>
+    </a>
 {% endblock %}
