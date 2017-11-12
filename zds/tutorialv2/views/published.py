@@ -86,31 +86,40 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
             .filter(related_content__pk=self.object.pk) \
             .order_by('pubdate')
 
-        # pagination of articles
-        context['paginate_articles'] = False
+        # pagination of articles and opinions
+        context['previous_content'] = None
+        context['next_content'] = None
 
-        if self.object.type == 'ARTICLE':
-            # fetch all articles in order to find the previous and the next one
-            all_articles = \
-                [a for a in PublishedContent.objects
-                    .filter(content_type='ARTICLE', must_redirect=False)
-                    .order_by('publication_date')
-                    .all()]
-            articles_count = len(all_articles)
+        if self.current_content_type in ('ARTICLE', 'OPINION'):
+            # fetch all articles or opinions in order to find the previous and the next one
+            queryset_pagination = PublishedContent.objects
+
+            if self.current_content_type == 'OPINION':
+                # filter opinions only from the same author
+                queryset_pagination = queryset_pagination.filter(content_type=self.current_content_type,
+                                                                 must_redirect=False,
+                                                                 authors__in=self.object.authors.all())
+            else:
+                queryset_pagination = queryset_pagination.filter(content_type=self.current_content_type,
+                                                                 must_redirect=False)
+
+            all_content = []
+            for c in queryset_pagination.order_by('publication_date').all():
+                if c not in all_content:
+                    # we don't like duplicated entries
+                    all_content.append(c)
+
+            contents_count = len(all_content)
 
             try:
-                position = all_articles.index(self.public_content_object)
+                position = all_content.index(self.public_content_object)
             except ValueError:
-                pass  # for an unknown reason, the article is not in the list. This should not happen
+                pass  # for an unknown reason, the article or opinion is not in the list. This should not happen
             else:
-                context['paginate_articles'] = True
-                context['previous_article'] = None
-                context['next_article'] = None
-
                 if position > 0:
-                    context['previous_article'] = all_articles[position - 1]
-                if position < articles_count - 1:
-                    context['next_article'] = all_articles[position + 1]
+                    context['previous_content'] = all_content[position - 1]
+                if position < contents_count - 1:
+                    context['next_content'] = all_content[position + 1]
 
         if self.versioned_object.type == 'OPINION':
             context['formPickOpinion'] = PickOpinionForm(

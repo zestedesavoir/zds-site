@@ -5522,14 +5522,14 @@ class PublishedContentTests(TestCase, TutorialTestMixin):
         # visit article 1 (so article2 is next)
         result = self.client.get(reverse('article:view', kwargs={'pk': article1.pk, 'slug': article1.slug}))
         self.assertEqual(result.status_code, 200)
-        self.assertEqual(result.context['next_article'].pk, article2.public_version.pk)
-        self.assertIsNone(result.context['previous_article'])
+        self.assertEqual(result.context['next_content'].pk, article2.public_version.pk)
+        self.assertIsNone(result.context['previous_content'])
 
         # visit article 2 (so article1 is previous)
         result = self.client.get(reverse('article:view', kwargs={'pk': article2.pk, 'slug': article2.slug}))
         self.assertEqual(result.status_code, 200)
-        self.assertEqual(result.context['previous_article'].pk, article1.public_version.pk)
-        self.assertIsNone(result.context['next_article'])
+        self.assertEqual(result.context['previous_content'].pk, article1.public_version.pk)
+        self.assertIsNone(result.context['next_content'])
 
     def test_validation_list_has_good_title(self):
         # aka fix 3172
