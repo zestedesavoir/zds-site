@@ -587,6 +587,11 @@ form.topic-message {
     }
 }
 
+.message-content .message-hat-choice {
+    display: inline-block;
+    margin: 10px;
+}
+
 @media only screen and #{$media-wide} {
     .topic-message {
         margin: 25px 0;
