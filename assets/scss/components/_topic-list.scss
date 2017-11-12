@@ -156,7 +156,7 @@
 
         .topic-title,
         .topic-subtitle {
-            display: block;
+            display: inline-block;
             margin: 0 !important;
             padding: 0;
         }
@@ -221,6 +221,7 @@
         padding-left: 1.5%;
 
         .topic-title {
+            display: block;
             font-weight: normal;
             margin-top: 2px;
         }
