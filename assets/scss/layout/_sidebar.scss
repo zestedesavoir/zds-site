@@ -17,7 +17,7 @@
         font-size: 1.6rem;
         position: relative;
         color: lighten($color-primary, 20%);
-        transition: all $transition-duration ease;
+        transition: background-color $transition-duration ease;
 
         &:first-child {
             margin-top: 31px;
@@ -25,7 +25,7 @@
 
         &:hover,
         &:focus {
-            background: $color-sidebar-hover;
+            background-color: $color-sidebar-hover;
         }
 
         &:after {
@@ -306,7 +306,9 @@
                 a {
                     position: relative;
                     color: $color-primary;
-                    transition: all $transition-duration ease;
+                    transition-property: color, background, margin;
+                    transition-timing-function: ease;
+                    transition-duration: $transition-duration;
 
                     &:hover,
                     &:focus {

@@ -77,7 +77,7 @@
                 line-height: 26px;
                 width: 58px;
                 color: #777;
-                transition: all $transition-duration ease;
+                transition: border $transition-duration ease, background $transition-duration ease;
 
                 &:hover,
                 &:focus {
@@ -149,7 +149,9 @@
                 line-height: 30px;
                 padding: 0 5px;
                 border-bottom: 1px solid #D2D5D6;
-                transition: all $transition-duration ease;
+                transition-property: color, outline, border;
+                transition-timing-function: ease;
+                transition-duration: $transition-duration;
 
                 &:hover,
                 &:focus {
@@ -288,7 +290,7 @@
 
                 a {
                     color: #999;
-                    transition: all $transition-duration ease;
+                    transition: color $transition-duration ease, text-decoration $transition-duration ease;
 
                     &:hover,
                     &:focus {
@@ -428,7 +430,6 @@
                 display: block;
                 float: left;
                 margin-left: 3px;
-                transition: all $transition-duration ease;
 
                 &.ico-after {
                     padding-left: 30px !important;
@@ -437,7 +438,6 @@
                 &:after {
                     top: 7px;
                     left: 7px;
-                    transition: all $transition-duration ease;
                     opacity: .5;
                     margin: 0;
                 }
@@ -462,6 +462,9 @@
                     border-bottom-color: lighten($color-primary, 15%);
                     outline: none;
                     background: none;
+                    transition-property: background, border, outline, opacity;
+                    transition-timing-function: ease;
+                    transition-duration: $transition-duration;
 
                     &:after {
                         opacity: 1;
