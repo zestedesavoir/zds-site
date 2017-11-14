@@ -87,7 +87,7 @@
     button,
     .btn {
         -webkit-appearance: none;
-        transition: all $transition-duration ease;
+        transition: color $transition-duration ease, background $transition-duration ease;
     }
 
     input:not([type=submit]):not([type=reset]):not([type=radio]):not([type=checkbox]) {
