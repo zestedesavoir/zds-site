@@ -16,7 +16,7 @@ except ImportError:
 import inspect
 from django.db.models.signals import post_save, m2m_changed, pre_delete
 from django.dispatch import receiver
-from zds.forum.models import Topic, Post
+from zds.forum.models import Topic, Post, Forum
 from zds.mp.models import PrivateTopic, PrivatePost
 from zds.notification.models import TopicAnswerSubscription, ContentReactionAnswerSubscription, \
     PrivateTopicAnswerSubscription, Subscription, Notification, NewTopicSubscription, NewPublicationSubscription, \
@@ -26,6 +26,26 @@ from zds.tutorialv2.models.database import PublishableContent, ContentReaction
 import zds.tutorialv2.signals
 
 logger = logging.getLogger(__name__)
+
+
+@receiver(m2m_changed, sender=User.groups.through)
+def remove_group_subscription_on_quitting_groups(*, sender, instance, action, pk_set, **_):
+    if action not in ('pre_clear', 'pre_remove'):  # only on updating
+        return
+    if action == 'pre_clear':
+
+        remove_group_subscription_on_quitting_groups(sender=sender, instance=instance, action='pre_remove',
+                                                     pk_set=set(instance.groups.values_list('pk', flat=True)))
+        return
+
+    for forum in Forum.objects.filter(groups__pk__in=list(pk_set)):
+        subscription = NewTopicSubscription.objects.get_existing(instance, forum, True)
+        if subscription:
+            subscription.is_active = False
+            if subscription.last_notification:
+                subscription.last_notification.is_read = True
+                subscription.last_notification.save()
+            subscription.save()
 
 
 def disable_for_loaddata(signal_handler):
@@ -279,7 +299,7 @@ def answer_content_reaction_event(sender, **kwargs):
 
 @receiver(new_content, sender=PublishableContent)
 @disable_for_loaddata
-def content_published_event(sender, **kwargs):
+def content_published_event(*_, **kwargs):
     """
     :param kwargs:  contains
         - instance: the new content.

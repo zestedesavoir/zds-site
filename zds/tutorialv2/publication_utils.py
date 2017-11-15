@@ -14,10 +14,17 @@ from django.template.loader import render_to_string
 from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
 
+from zds.notification import signals
 from zds.tutorialv2.models.database import ContentReaction
 from zds.tutorialv2.signals import content_unpublished
 from zds.tutorialv2.utils import retrieve_and_update_images_links
 from zds.utils.templatetags.emarkdown import emarkdown
+
+
+def notify_update(db_object, is_update, is_major):
+    if not is_update or is_major:
+        # Follow
+        signals.new_content.send(sender=db_object.__class__, instance=db_object, by_email=False)
 
 
 def publish_content(db_object, versioned, is_major_update=True):
