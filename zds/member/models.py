@@ -378,6 +378,18 @@ class Profile(models.Model):
         hats.sort(key=lambda hat: hat.name)
         return hats
 
+    def get_requested_hats(self):
+        """
+        Return all current hats requested by this user.
+        """
+        return self.user.requested_hats.filter(is_granted__isnull=True).order_by('-date')
+
+    def get_solved_hat_requests(self):
+        """
+        Return old hats requested by this user.
+        """
+        return self.user.requested_hats.filter(is_granted__isnull=False).order_by('-solved_at')
+
     @staticmethod
     def has_read_permission(request):
         return True

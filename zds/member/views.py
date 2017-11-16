@@ -43,8 +43,8 @@ from zds.member.models import Profile, TokenForgotPassword, TokenRegister, Karma
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.notification.models import TopicAnswerSubscription, NewPublicationSubscription
 from zds.tutorialv2.models.database import PublishedContent, PickListOperation
-from zds.utils.misc import contains_utf8mb4
-from zds.utils.models import Comment, CommentVote, Alert, CommentEdit, Hat, HatRequest, get_hat_from_settings
+from zds.utils.models import Comment, CommentVote, Alert, CommentEdit, Hat, HatRequest, get_hat_from_settings, \
+    get_hat_to_add
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView
 from zds.utils.tokens import generate_token
@@ -472,6 +472,8 @@ def unregister(request):
     Alert.objects.filter(author=current).update(author=anonymous)
     Alert.objects.filter(moderator=current).update(moderator=anonymous)
     BannedEmailProvider.objects.filter(moderator=current).update(moderator=anonymous)
+    # Solved hat requests anonymization
+    HatRequest.objects.filter(moderator=current).update(moderator=anonymous)
     # In case current user has been moderator in the past
     Comment.objects.filter(editor=current).update(editor=anonymous)
     for topic in PrivateTopic.objects.filter(author=current):
@@ -741,8 +743,8 @@ class HatDetail(DetailView):
         context = super(HatDetail, self).get_context_data(**kwargs)
         hat = context['hat']
         if self.request.user.is_authenticated:
-            context['is_required'] = hat.name.lower() \
-                in [h.lower() for h in self.request.user.requested_hats.values_list('hat', flat=True)]
+            context['is_required'] = HatRequest.objects \
+                .filter(user=self.request.user, hat__iexact=hat.name, is_granted__isnull=True).exists()
         if hat.group:
             context['users'] = hat.group.user_set.select_related('profile')
         else:
@@ -754,7 +756,6 @@ class HatsSettings(LoginRequiredMixin, CreateView):
     model = HatRequest
     template_name = 'member/settings/hats.html'
     form_class = HatRequestForm
-    success_url = reverse_lazy('hats-settings')
 
     def get_initial(self):
         initial = super(HatsSettings, self).get_initial()
@@ -766,10 +767,21 @@ class HatsSettings(LoginRequiredMixin, CreateView):
                 pass
         return initial
 
+    def post(self, request, *args, **kwargs):
+        if 'preview' in request.POST and request.is_ajax():
+            content = render_to_response('misc/previsualization.part.html', {'text': request.POST.get('text')})
+            return StreamingHttpResponse(content)
+
+        return super(HatsSettings, self).post(request, *args, **kwargs)
+
     def form_valid(self, form):
         form.instance.user = self.request.user
         messages.success(self.request, _('Votre demande a bien été envoyée.'))
         return super(HatsSettings, self).form_valid(form)
+
+    def get_success_url(self):
+        # To remove #send-request HTML-anchor.
+        return '{}#'.format(reverse('hats-settings'))
 
 
 class RequestedHatsList(LoginRequiredMixin, PermissionRequiredMixin, ZdSPagingListView):
@@ -780,16 +792,39 @@ class RequestedHatsList(LoginRequiredMixin, PermissionRequiredMixin, ZdSPagingLi
     context_object_name = 'requests'
     template_name = 'member/settings/requested_hats.html'
     queryset = HatRequest.objects \
+        .filter(is_granted__isnull=True) \
         .select_related('user') \
+        .select_related('user__profile') \
         .order_by('-date')
 
 
-class HatRequestDetail(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
+class SolvedHatRequestsList(LoginRequiredMixin, PermissionRequiredMixin, ZdSPagingListView):
     permissions = ['utils.change_hat']
+    paginate_by = settings.ZDS_APP['member']['requested_hats_per_page']
 
+    model = HatRequest
+    context_object_name = 'requests'
+    template_name = 'member/settings/solved_hat_requests.html'
+    queryset = (HatRequest.objects
+                .filter(is_granted__isnull=False)
+                .select_related('user')
+                .select_related('user__profile')
+                .select_related('moderator')
+                .select_related('moderator__profile')
+                .order_by('-solved_at'))
+
+
+class HatRequestDetail(LoginRequiredMixin, DetailView):
     model = HatRequest
     context_object_name = 'hat_request'
     template_name = 'member/settings/hat_request.html'
+
+    def get_object(self, queryset=None):
+        request = super(HatRequestDetail, self).get_object()
+        if request.user != self.request.user \
+                and not self.request.user.has_perm('utils.change_hat'):
+            raise PermissionDenied
+        return request
 
 
 @require_POST
@@ -804,42 +839,17 @@ def solve_hat_request(request, request_pk):
 
     hat_request = get_object_or_404(HatRequest, pk=request_pk)
 
-    if 'grant' in request.POST:  # hat is granted
-        hat, created = Hat.objects.get_or_create(name__iexact=hat_request.hat, defaults={'name': hat_request.hat})
-        if created:
-            messages.success(request, _('La casquette « {} » a été créée.').format(hat_request.hat))
-        hat_request.user.profile.hats.add(hat)
-        messages.success(request, _('La casquette « {0} » a été accordée à {1}.').format(
-            hat_request.hat, hat_request.user.username))
-    else:
-        messages.success(request, _('La casquette « {0} » a été refusée à {1}.').format(
-            hat_request.hat, hat_request.user.username))
+    if hat_request.is_granted is not None:
+        raise PermissionDenied
 
-    # send a PM to notify member about this decision
-    bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
-    msg = render_to_string(
-        'member/messages/hat_request_decision.md',
-        {
-            'is_granted': 'grant' in request.POST,
-            'moderator': request.user,
-            'hat': hat_request.hat,
-            'site_name': settings.ZDS_APP['site']['literal_name'],
-            'comment': request.POST.get('comment', '')[:1000]
-        }
-    )
-    send_mp(bot,
-            [hat_request.user],
-            _('Casquette « {} »').format(hat_request.hat),
-            '',
-            msg,
-            False,
-            True,
-            False,
-            hat=get_hat_from_settings('hats_management'))
-
-    hat_request.delete()
-
-    return redirect('requested-hats')
+    try:
+        hat_request.solve('grant' in request.POST, request.user,
+                          request.POST.get('comment', ''), request.POST.get('hat', None))
+        messages.success(request, _('La demande a été résolue.'))
+        return redirect('requested-hats')
+    except ValueError as e:
+        messages.error(request, str(e))
+        return redirect(hat_request.get_absolute_url())
 
 
 @require_POST
@@ -854,26 +864,21 @@ def add_hat(request, user_pk):
 
     user = get_object_or_404(User, pk=user_pk)
 
-    hat_name = request.POST.get('hat', '').strip()
-    if not hat_name:
-        messages.error(request, _('Aucune casquette saisie.'))
-    if contains_utf8mb4(hat_name):
-        messages.error(request, _('Les caractères utf8mb4 ne sont pas autorisés dans les casquettes.'))
-    elif len(hat_name) > 40:
-        messages.error(request, _('Une casquette ne peut dépasser 40 caractères.'))
-    else:
-        hat, created = Hat.objects.get_or_create(name__iexact=hat_name, defaults={'name': hat_name})
-        if created:
-            messages.success(request, _('La casquette « {} » a été créée.').format(hat_name))
-        if hat.group:
-            messages.error(request, _('Cette casquette est accordée aux membres d\'un groupe particulier. '
-                                      'Elle ne peut pas être ajoutée individuellement.'))
-        else:
-            user.profile.hats.add(hat)
-            messages.success(request, _('La casquette a bien été ajoutée.'))
+    hat_name = request.POST.get('hat', '')
 
-        # if hat was asked, remove request
-        HatRequest.objects.filter(user=user, hat__iexact=hat_name).delete()
+    try:
+        hat = get_hat_to_add(hat_name, user)
+        user.profile.hats.add(hat)
+        try:  # if hat was requested, remove the relevant request
+            hat_request = HatRequest.objects.get(user=user, hat__iexact=hat.name, is_granted__isnull=True)
+            hat_request.solve(is_granted=False,
+                              comment=_('La demande a été automatiquement annulée car '
+                                        'la casquette vous a été accordée manuellement.'))
+        except HatRequest.DoesNotExist:
+            pass
+        messages.success(request, _('La casquette a bien été ajoutée.'))
+    except ValueError as e:
+        messages.error(request, str(e))
 
     return redirect(user.profile.get_absolute_url())
 
