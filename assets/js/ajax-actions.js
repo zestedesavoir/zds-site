@@ -169,6 +169,7 @@
 
                 $act.toggleText("content-on-click");
                 $act.toggleClass("green blue");
+                $("[data-ajax-output='solve-topic']").html("Vous venez de marquer ce sujet comme résolu.");
                 $("[data-ajax-output='solve-topic']").toggleClass("empty");
 
                 synchText();
