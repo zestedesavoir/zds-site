@@ -281,7 +281,7 @@ class ViewsTests(TestCase):
         topic_1_solved_sticky = TopicFactory(forum=self.forum, author=self.user)
         topic_1_solved_sticky.title = text
         topic_1_solved_sticky.subtitle = ''
-        topic_1_solved_sticky.is_solved = True
+        topic_1_solved_sticky.solved_by = self.user
         topic_1_solved_sticky.is_sticky = True
         topic_1_solved_sticky.save()
 

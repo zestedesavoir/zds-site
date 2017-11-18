@@ -63,11 +63,18 @@
 
     {% include "misc/paginator.html" with position="top" %}
 
-        <div
+        <div    
             class="alert-box success ico-after tick light {% if not topic.is_solved %}empty{% endif %}"
             data-ajax-output="solve-topic"
         >
-            {% trans "L’auteur de ce sujet a trouvé une solution à son problème." %}
+            {% if topic.solved_by == topic.author %}
+                {% trans "L’auteur de ce sujet a trouvé une solution à son problème." %}
+            {% else %}
+                {% url "member-detail" topic.solved_by.username as url_member_detail %}
+                {% blocktrans with username=topic.solved_by.username %}
+                    <a href="{{ url_member_detail }}">{{ username }}</a> a marqué ce sujet comme résolu.
+                {% endblocktrans %}
+            {% endif %}
         </div>
 
 
