@@ -2,7 +2,6 @@
 from django.contrib.auth.models import Group
 
 import os
-import shutil
 from os.path import isdir, isfile, join, dirname
 from django.conf import settings
 from django.test import TestCase
@@ -16,6 +15,7 @@ from zds.tutorialv2.models.database import PublishableContent
 from zds.gallery.factories import UserGalleryFactory
 from zds.forum.factories import ForumFactory, CategoryFactory
 from zds.tutorialv2.publication_utils import publish_content
+from zds.tutorialv2.tests import TutorialTestMixin
 from copy import deepcopy
 
 overridden_zds_app = deepcopy(settings.ZDS_APP)
@@ -26,10 +26,10 @@ overridden_zds_app['content']['repo_public_path'] = os.path.join(settings.BASE_D
 @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'media-test'))
 @override_settings(ZDS_APP=overridden_zds_app)
 @override_settings(ES_ENABLED=False)
-class ContentMoveTests(TestCase):
+class ContentMoveTests(TestCase, TutorialTestMixin):
 
     def setUp(self):
-
+        self.overridden_zds_app = overridden_zds_app
         # don't build PDF to speed up the tests
         overridden_zds_app['content']['build_pdf_when_published'] = False
 
@@ -559,11 +559,3 @@ class ContentMoveTests(TestCase):
             follow=True)
         self.assertEqual(200, result.status_code)
         self.assertTrue(isdir(tuto.get_repo_path()))
-
-    def tearDown(self):
-        if os.path.isdir(overridden_zds_app['content']['repo_private_path']):
-            shutil.rmtree(overridden_zds_app['content']['repo_private_path'])
-        if os.path.isdir(overridden_zds_app['content']['repo_public_path']):
-            shutil.rmtree(overridden_zds_app['content']['repo_public_path'])
-        if os.path.isdir(settings.MEDIA_ROOT):
-            shutil.rmtree(settings.MEDIA_ROOT)

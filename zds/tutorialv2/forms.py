@@ -456,7 +456,7 @@ class ImportNewContentForm(ImportContentForm):
     )
 
     def __init__(self, *args, **kwargs):
-        super(ImportContentForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.helper = FormHelper()
         self.helper.form_class = 'content-wrapper'

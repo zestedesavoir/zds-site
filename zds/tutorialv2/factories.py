@@ -23,7 +23,6 @@ tricky_text_content = \
     'Image: ![SVG qui existe pas](example.com/test.svg)\n\n' \
     'Image: ![GIF qui existe](http://upload.wikimedia.org/wikipedia/commons/2/27/AnimatedStar.gif)\n\n' \
     'Image: ![GIF qui existe pas](example.com/test.gif)\n\n' \
-    'Image: ![Image locale qui existe](fixtures/image_test.jpg)\n\n' \
     'Image: ![Image locale qui existe pas](does-not-exist/test.png)\n\n' \
     'Image: ![Bonus: image bizarre](https://s.qwant.com/thumbr/?u=http%3A%2F%2Fwww.blogoergosum.com%2Fwp-content%2F' \
     'uploads%2F2010%2F02%2Fwikipedia-logo.jpg&h=338&w=600)\n\n' \
@@ -37,8 +36,8 @@ class PublishableContentFactory(factory.DjangoModelFactory):
     class Meta:
         model = PublishableContent
 
-    title = factory.Sequence(lambda n: 'Mon contenu No{0}'.format(n))
-    description = factory.Sequence(lambda n: 'Description du contenu No{0}'.format(n))
+    title = factory.Sequence('Mon contenu No{0}'.format)
+    description = factory.Sequence('Description du contenu No{0}'.format)
     type = 'TUTORIAL'
     creation_date = datetime.now()
     pubdate = datetime.now()

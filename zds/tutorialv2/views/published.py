@@ -1,6 +1,5 @@
-# coding: utf-8
 from datetime import datetime
-import json as json_writer
+from zds import json_handler
 import logging
 import os
 
@@ -666,7 +665,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
                 text += '\nSource: [{}]({})'.format(reaction.author.username, reaction.get_absolute_url())
 
                 if self.request.is_ajax():
-                    return StreamingHttpResponse(json_writer.dumps({'text': text}, ensure_ascii=False))
+                    return StreamingHttpResponse(json_handler.dumps({'text': text}, ensure_ascii=False))
                 else:
                     self.quoted_reaction_text = text
         try:
@@ -989,7 +988,7 @@ class FollowContentReaction(LoggedWithReadWriteHability, SingleOnlineContentView
             response['follow'] = ContentReactionAnswerSubscription.objects\
                 .toggle_follow(self.get_object(), self.request.user, True).is_active
         if self.request.is_ajax():
-            return HttpResponse(json_writer.dumps(response), content_type='application/json')
+            return HttpResponse(json_handler.dumps(response), content_type='application/json')
         return redirect(self.get_object().get_absolute_url())
 
 
@@ -1024,7 +1023,7 @@ class FollowNewContent(LoggedWithReadWriteHability, FormView):
             response['email'] = self.perform_follow_by_email(user_to_follow, request.user)
 
         if request.is_ajax():
-            return HttpResponse(json_writer.dumps(response), content_type='application/json')
+            return HttpResponse(json_handler.dumps(response), content_type='application/json')
         return redirect(request.META.get('HTTP_REFERER'))
 
 

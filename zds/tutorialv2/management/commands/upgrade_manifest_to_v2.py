@@ -3,14 +3,7 @@ from django.core.management.base import BaseCommand
 from zds.utils.models import Licence
 from uuslug import slugify
 import os
-
-try:
-    import ujson as json_reader
-except ImportError:
-    try:
-        import simplejson as json_reader
-    except ImportError:
-        import json as json_reader
+from zds import json_handler
 
 
 class Command(BaseCommand):
@@ -23,7 +16,7 @@ class Command(BaseCommand):
         _file = options['manifest_path']
         if os.path.isfile(_file) and _file[-5:] == '.json':
             with open(_file, 'r') as json_file:
-                data = json_reader.load(json_file)
+                data = json_handler.load(json_file)
             _type = 'TUTORIAL'
             if data['type'].lower() == 'article':
                 _type = 'ARTICLE'

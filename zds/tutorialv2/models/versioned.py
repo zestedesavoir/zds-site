@@ -1,6 +1,4 @@
-# coding: utf-8
-
-import json as json_writer
+from zds import json_handler
 from git import Repo
 import os
 import shutil
@@ -1199,7 +1197,7 @@ class VersionedContent(Container, TemplatableContentModelMixin):
         :rtype: str
         """
         dct = export_content(self)
-        data = json_writer.dumps(dct, indent=4, ensure_ascii=False)
+        data = json_handler.dumps(dct, indent=4, ensure_ascii=False)
         return data
 
     def dump_json(self, path=None):
@@ -1290,7 +1288,7 @@ class PublicContent(VersionedContent):
         :param slug: slug of the content
         """
 
-        Container.__init__(self, title, slug)
+        super().__init__(current_version, _type, title, slug)
         self.current_version = current_version
         self.type = _type
         self.PUBLIC = True  # this is a public version

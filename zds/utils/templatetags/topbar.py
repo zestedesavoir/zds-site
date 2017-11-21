@@ -64,7 +64,7 @@ def top_categories_content(_type):
     """
     # get subcategories from PublishedContent
     if _type:
-        if type(_type) is not list:
+        if not isinstance(_type, list):
             _type = [_type]
 
         subcategories_contents = PublishedContent.objects\
