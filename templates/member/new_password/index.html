@@ -3,6 +3,7 @@
 {% load i18n %}
 
 
+
 {% block title %}
     {% trans "Nouveau mot de passe" %}
 {% endblock %}
@@ -24,13 +25,23 @@
 {% block content %}
     {% if not user.is_authenticated %}
         {% if error %}
-            {{ error }}
+            <p class="alert-box warning">
+                {{ error }}
+            </p>
         {% endif %}
         <p>
             {% trans "Renseignez votre nouveau mot de passe" %}.
         </p>
         {% crispy form %}
     {% else %}
-        <p>{% trans "Vous êtes connecté." %}</p>
+        <p class="alert-box error">
+            {% trans "Vous êtes connecté." %}
+        </p>
     {% endif %}
 {% endblock %}
+
+
+
+{# No sidebar on this page #}
+{% block body_class %}{% trans "no-sidebar" %}{% endblock %}
+{% block sidebar %}{% endblock %}
