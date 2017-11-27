@@ -1,5 +1,5 @@
-from zds.settings import *
-from zds.settings_test import *
+from .abstract_base import *
+from .abstract_test import *
 
 DATABASES = {
     'default': {

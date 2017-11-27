@@ -31,7 +31,7 @@ if __name__ == '__main__':
     # http://blog.lotech.org/fix-djangos-runserver-when-run-under-docker-or-pycharm.html
     signal.signal(signal.SIGTERM, sighandler)
 
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'zds.settings')
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'zds.settings.dev')
 
     if len(sys.argv) > 1 and sys.argv[1] in ['migrate', 'test']:
 
