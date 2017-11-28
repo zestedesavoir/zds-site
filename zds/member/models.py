@@ -89,7 +89,7 @@ class Profile(models.Model):
     def get_city(self):
         """
         Uses geo-localization to get physical localization of a profile through its last IP address.
-        This works relatively good with IPv4 addresses (~city level), but is very imprecise with IPv6 or exotic internet
+        This works relatively well with IPv4 addresses (~city level), but is very imprecise with IPv6 or exotic internet
         providers.
         :return: The city and the country name of this profile.
         """
@@ -108,9 +108,12 @@ class Profile(models.Model):
 
         geo = gic.record_by_addr(self.last_ip_address)
 
-        if geo is not None:
-            return '{0}, {1}'.format(geo['city'], geo['country_name'])
-        return ''
+        if geo is None:
+            return ''
+
+        city = geo['city']
+        country = geo['country_name']
+        return ', '.join(i for i in [city, country] if i)
 
     def get_avatar_url(self):
         """Get the avatar URL for this profile.
