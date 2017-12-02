@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from django.core.management.base import BaseCommand
 from zds.tutorial.models import Tutorial
 from django.conf import settings

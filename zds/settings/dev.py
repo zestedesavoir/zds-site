@@ -1,4 +1,3 @@
-
 from colorlog import ColoredFormatter
 
 from .abstract_base import *

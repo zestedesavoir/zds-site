@@ -1,4 +1,3 @@
-# coding: utf-8
 from zds import json_handler
 import operator
 
