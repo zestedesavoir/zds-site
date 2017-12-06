@@ -1,5 +1,3 @@
-s
-
 import logging
 from smtplib import SMTPException
 
