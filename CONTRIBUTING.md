@@ -1,26 +1,26 @@
 Les contributions externes sont les bienvenues !
 
-# Avant de réaliser...
+# Avant de commencer...
 
 1. Vérifiez que vous avez [un compte Github](https://github.com/signup/free).
-2. Créez votre _issue_ si elle n'existe pas.
+2. Créez le _ticket_ correspondant à votre travail s'il n'existe pas. (Cette étape peut être omise pour des corrections mineures.)
     * Vérifiez que vous avez la dernière version du code.
     * Décrivez clairement votre problème, avec toutes les étapes pour le reproduire.
-3. **Attribuez-vous** votre _issue_. C'est important pour éviter de se marcher dessus. Si vous n'êtes pas dans l'organisation et donc que vous ne pouvez pas vous attribuer directement l'_issue_, il vous suffit d'ajouter un commentaire clair dans celle-ci (comme _"Je prends"_), et elle sera marquée comme "en cours").
+3. **Attribuez-vous** votre _ticket_. C'est important pour éviter de se marcher dessus. Si vous n'êtes pas dans l'organisation et donc que vous ne pouvez pas vous attribuer directement le _ticket_, ajoutez simplement un commentaire clair dans celui-ci (tel que _"Je prends"_).
 4. _Forkez_ le dépôt.
-5. Installez l'environnement. Tout est dans le fichier [README.md](README.md).
+5. Installez l'environnement. Les liens vers la documentation adéquate sont dans le [README.md](README.md).
 
 # Contribuer à Zeste De Savoir
 
 1. Créez une branche pour contenir votre travail.
 2. Faites vos modifications.
 3. Ajoutez un test pour votre modification. Seules les modifications de documentation et les réusinages n'ont pas besoin de nouveaux tests.
-4. Assurez-vous que l'intégralité des tests passent : `python manage.py test`.
+4. Assurez-vous que vos tests passent en utilisant la commande `python manage.py test` ([voir la documentation](https://docs.djangoproject.com/fr/1.10/topics/testing/overview/#running-tests)). Lancer la commande sur tous les tests du site risque de prendre un certain temps et n'est pas nécessaire : les tests seront de toute manière lancés de manière automatisée sur votre _pull request_.
 5. Assurez-vous que le code suit la [PEP-8](http://legacy.python.org/dev/peps/pep-0008/) : `flake8`.
 6. Si vous avez fait des modifications du _frontend_, jouez les tests associés : `yarn test`.
-7. Si vous modifiez le modèle (les fichiers models.py), n'oubliez pas de créer les fichiers de migration : `python manage.py makemigrations`.
-8. Si votre travail nécessite des actions spécifiques lors du déploiement, précisez-les dans le fichier [update.md](update.md).
-9. Poussez votre travail et faites une _pull request_.
+7. Si vous modifiez les modèles (les fichiers `models.py`), n'oubliez pas de créer les fichiers de migration : `python manage.py makemigrations`.
+8. Poussez votre travail et faites une _pull request_.
+9. Si votre travail nécessite des actions spécifiques lors du déploiement, précisez-les dans le corps de votre _pull request_. Elles seront ajoutées au _changelog_ par le mainteneur qui effectuera le *merge*.
 
 # Quelques bonnes pratiques
 
@@ -40,17 +40,9 @@ Tous les détails sur le workflow se trouvent [sur la page dédiée](http://docs
 * Il n'y a aucune chance que votre _pull request_ soit acceptée sans son test associé.
 
 # Les bonnes pratiques pour les PR et les commits
-## Les Pull-Requests
+## Les pull requests
 
-* Lors de l'ouverture d'une PR, respectez le template suivant :
-
-    ```markdown
-    | Q                             | R
-    | ----------------------------- | -------------------------------------------
-    | Correction de bugs ?          | [oui|non]
-    | Nouvelle Fonctionnalité ?     | [oui|non]
-    | Tickets (_issues_) concernés  | [Liste de tickets séparés par des virgules]
-    ```
+* Lors de l'ouverture d'une PR, la zone de texte sera pré-complété avec les informations essentielles à apporter à votre PR. Utilisez ce gabarit pour rédiger votre message.
 * Ajoutez des notes de QA (Quality Assurance). Ces notes doivent permettent à un testeur de comprendre ce que vous avez modifié, ce qu'il faut tester en priorité et les pièges auxquels il doit s'attendre et donc sur lesquels porter une attention particulière. Précisez tout particulièrement s'il est nécessaire d'effectuer une action de gestion préalable, comme `python manage.py migrate --fake-initial`, `python manage.py loaddata fixture/*.yaml` ou `yarn run build`.
 
 ## Les commits
@@ -63,6 +55,6 @@ Tous les détails sur le workflow se trouvent [sur la page dédiée](http://docs
     * Un commit doit être atomique ; il fixe / implémente **une** chose et le fait **bien**.
 
 * Essayez d'éviter les commits dits inutiles (`fix previous commit`, ...). Si vous en avez dans votre pull-request,
-  on vous demandera probablement de faire un `squash` de vos commits.
+  un _squash_ sera effectué lors du _merge_.
 
 N'hésitez pas à demander de l'aide, et bon courage !
