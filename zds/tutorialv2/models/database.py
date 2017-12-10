@@ -1,6 +1,3 @@
-# coding: utf-8
-
-
 from django.db.models import CASCADE
 from datetime import datetime
 

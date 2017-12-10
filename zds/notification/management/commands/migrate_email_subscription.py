@@ -1,4 +1,3 @@
-# coding: utf-8
 from django.core.management import BaseCommand
 
 from zds.member.models import Profile

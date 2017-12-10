@@ -1,4 +1,3 @@
-# coding: utf-8
 from django.core.management import BaseCommand
 from django.contrib.contenttypes.models import ContentType
 

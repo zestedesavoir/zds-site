@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from datetime import datetime, timedelta
 
 from django.conf import settings
