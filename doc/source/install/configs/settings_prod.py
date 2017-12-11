@@ -292,7 +292,7 @@ FORCE_HTTPS_FOR_MEMBERS = True
 ENABLE_HTTPS_DECORATOR = True
 
 # visual changes
-#ZDS_APP['visual_changes'] = ['snow', 'clem-christmas']
+ZDS_APP['visual_changes'] = ['snow', 'clem-christmas']
 #ZDS_APP['visual_changes'] = ['clem-halloween']
 
 ES_SEARCH_INDEX['shards'] = 3
