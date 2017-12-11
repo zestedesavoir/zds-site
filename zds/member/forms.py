@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from django import forms
 from django.conf import settings
 from django.contrib.auth import authenticate
@@ -665,6 +663,7 @@ class HatRequestForm(forms.ModelForm):
             }),
             'reason': forms.Textarea(attrs={
                 'placeholder': _('Expliquez pourquoi vous devriez porter cette casquette (3000 caractères maximum).'),
+                'class': 'md-editor preview-source'
             }),
         }
 
@@ -679,7 +678,9 @@ class HatRequestForm(forms.ModelForm):
             Field('hat'),
             Field('reason'),
             ButtonHolder(
-                StrictButton(_('Envoyer la demande'), type='submit'),
+                StrictButton(_('Envoyer'), type='submit'),
+                StrictButton(_('Aperçu'), type='preview', name='preview',
+                             css_class='btn btn-grey preview-btn')
             ))
 
     def clean_hat(self):
@@ -687,12 +688,12 @@ class HatRequestForm(forms.ModelForm):
         user = get_current_user()
         if contains_utf8mb4(data):
             raise forms.ValidationError(_('Les caractères utf8mb4 ne sont pas autorisés dans les casquettes.'))
-        if data.lower() in [hat.name.lower() for hat in user.profile.get_hats()]:
-            raise forms.ValidationError(_('Vous possédez déjà cette casquette.'))
-        if data.lower() in [hat.lower() for hat in user.requested_hats.values_list('hat', flat=True)]:
-            raise forms.ValidationError(_('Vous avez déjà demandé cette casquette.'))
+        if HatRequest.objects.filter(user=user, hat__iexact=data, is_granted__isnull=True).exists():
+            raise forms.ValidationError(_('Vous avez déjà une demande en cours pour cette casquette.'))
         try:
             hat = Hat.objects.get(name__iexact=data)
+            if hat in user.profile.get_hats():
+                raise forms.ValidationError(_('Vous possédez déjà cette casquette.'))
             if hat.group:
                 raise forms.ValidationError(_('Cette casquette n\'est accordée qu\'aux membres '
                                               'd\'un groupe particulier. Vous ne pouvez pas '

@@ -20,7 +20,7 @@
             min-width: 45px;
             height: 40px;
             line-height: 40px;
-            transition: all $transition-duration ease;
+            transition: background $transition-duration ease;
 
             &.current {
                 height: 38px;

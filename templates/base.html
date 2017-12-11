@@ -32,7 +32,6 @@
     </title>
 
     <meta name="language" content="fr">
-    <meta http-equiv="content-language" content="fr">
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0">
 
     {# Color the browser elements. See https://developers.google.com/web/fundamentals/design-and-ui/browser-customization/theme-color?hl=en #}
@@ -552,12 +551,12 @@
                                     {% endif %}
 
                                     {% if perms.utils.change_hat %}
-                                        {% with request_hats_count=user|request_hats_count %}
+                                        {% with requested_hats_count=user|requested_hats_count %}
                                             <li class="staff-only">
                                                 <a href="{% url "requested-hats" %}">
                                                     {% trans "Demandes de casquettes" %}
-                                                    {% if request_hats_count > 0 %}
-                                                        ({{ request_hats_count }})
+                                                    {% if requested_hats_count > 0 %}
+                                                        ({{ requested_hats_count }})
                                                     {% endif %}
                                                 </a>
                                             </li>

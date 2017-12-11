@@ -1,5 +1,3 @@
-# coding: utf-8
-
 import collections
 import logging
 import random
@@ -222,7 +220,7 @@ def load_topics(cli, size, fake, *_, **__):
         return
     for i in range(0, nb_topics):
         topic = TopicFactory(forum=forums[i % nb_forums], author=profiles[i % nb_users].user)
-        topic.is_solved = i % 5 == 0
+        topic.solved_by = profiles[i % nb_users].user if i % 5 else None
         topic.is_locked = i % 10 == 0
         topic.is_sticky = i % 15 == 0
         nb_rand_tags = random.randint(0, 5)

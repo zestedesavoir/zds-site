@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import datetime
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache

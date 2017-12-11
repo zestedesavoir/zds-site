@@ -11,3 +11,4 @@ selenium==3.6.0
 sphinx_rtd_theme==0.2.4
 faker==0.8.3
 mock==2.0.0
+colorlog==3.1.0

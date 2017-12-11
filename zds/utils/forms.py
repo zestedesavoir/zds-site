@@ -1,4 +1,3 @@
-# coding: utf-8
 import logging
 
 from crispy_forms.bootstrap import StrictButton

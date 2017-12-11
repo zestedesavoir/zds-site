@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from django.conf import settings
 from django.views.generic import ListView
 from django.views.generic.list import MultipleObjectMixin

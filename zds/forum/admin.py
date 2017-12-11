@@ -1,14 +1,12 @@
-# coding: utf-8
-
 from django.contrib import admin
 
 from zds.forum.models import Category, Forum, Post, Topic, TopicRead
 
 
 class TopicAdmin(admin.ModelAdmin):
-    list_display = ('title', 'author', 'forum', 'pubdate', 'is_solved')
-    list_filter = ('is_solved', 'is_locked', 'is_sticky')
-    raw_id_fields = ('forum', 'author', 'last_message', 'tags')
+    list_display = ('title', 'author', 'forum', 'pubdate')
+    list_filter = ('is_locked', 'is_sticky')
+    raw_id_fields = ('forum', 'author', 'last_message', 'tags', 'solved_by')
     ordering = ('-pubdate',)
     search_fields = ('author__username', 'title', 'subtitle', 'github_issue')
 

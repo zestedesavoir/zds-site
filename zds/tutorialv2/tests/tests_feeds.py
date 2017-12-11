@@ -1,7 +1,4 @@
-# coding: utf-8
-
 import os
-import shutil
 
 from django.conf import settings
 from django.test import TestCase
@@ -16,6 +13,7 @@ from zds.tutorialv2.feeds import LastTutorialsFeedRSS, LastTutorialsFeedATOM, La
 from zds.tutorialv2.factories import LicenceFactory, SubCategoryFactory, PublishableContentFactory, ContainerFactory, \
     ExtractFactory
 from zds.tutorialv2.publication_utils import publish_content
+from zds.tutorialv2.tests import TutorialTestMixin
 from copy import deepcopy
 
 overridden_zds_app = deepcopy(settings.ZDS_APP)
@@ -25,10 +23,10 @@ overridden_zds_app['content']['repo_public_path'] = os.path.join(settings.BASE_D
 
 @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'media-test'))
 @override_settings(ZDS_APP=overridden_zds_app)
-class LastTutorialsFeedRSSTest(TestCase):
+class LastTutorialsFeedRSSTest(TestCase, TutorialTestMixin):
 
     def setUp(self):
-
+        settings.overridden_zds_app = overridden_zds_app
         # don't build PDF to speed up the tests
         overridden_zds_app['content']['build_pdf_when_published'] = False
 
@@ -139,20 +137,12 @@ class LastTutorialsFeedRSSTest(TestCase):
         ret = self.tutofeed.item_link(item=tuto)
         self.assertEqual(ret, ref)
 
-    def tearDown(self):
-        if os.path.isdir(overridden_zds_app['content']['repo_private_path']):
-            shutil.rmtree(overridden_zds_app['content']['repo_private_path'])
-        if os.path.isdir(overridden_zds_app['content']['repo_public_path']):
-            shutil.rmtree(overridden_zds_app['content']['repo_public_path'])
-        if os.path.isdir(settings.MEDIA_ROOT):
-            shutil.rmtree(settings.MEDIA_ROOT)
-
 
 @override_settings(ZDS_APP=overridden_zds_app)
-class LastArticlesFeedRSSTest(TestCase):
+class LastArticlesFeedRSSTest(TestCase, TutorialTestMixin):
 
     def setUp(self):
-
+        settings.overridden_zds_app = overridden_zds_app
         # don't build PDF to speed up the tests
         overridden_zds_app['content']['build_pdf_when_published'] = False
 
@@ -260,11 +250,3 @@ class LastArticlesFeedRSSTest(TestCase):
         article = list(self.articlefeed.items())[0]
         ret = self.articlefeed.item_link(item=article)
         self.assertEqual(ret, ref)
-
-    def tearDown(self):
-        if os.path.isdir(overridden_zds_app['content']['repo_private_path']):
-            shutil.rmtree(overridden_zds_app['content']['repo_private_path'])
-        if os.path.isdir(overridden_zds_app['content']['repo_public_path']):
-            shutil.rmtree(overridden_zds_app['content']['repo_public_path'])
-        if os.path.isdir(settings.MEDIA_ROOT):
-            shutil.rmtree(settings.MEDIA_ROOT)

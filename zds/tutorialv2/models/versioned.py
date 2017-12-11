@@ -1,6 +1,4 @@
-# coding: utf-8
-
-import json as json_writer
+from zds import json_handler
 from git import Repo
 import os
 import shutil
@@ -15,7 +13,7 @@ from django.utils.translation import ugettext_lazy as _
 from zds.tutorialv2.models.mixins import TemplatableContentModelMixin
 from zds.tutorialv2.utils import default_slug_pool, export_content, get_commit_author, InvalidOperationError
 from zds.utils.misc import compute_hash
-from zds.tutorialv2.models import SINGLE_CONTAINER, CONTENT_TYPES_BETA, CONTENT_TYPES_VALIDATION_BEFORE
+from zds.tutorialv2.models import SINGLE_CONTAINER_CONTENT_TYPES, CONTENT_TYPES_BETA, CONTENT_TYPES_REQUIRING_VALIDATION
 from zds.tutorialv2.utils import get_blob, InvalidSlugError, check_slug
 
 
@@ -222,7 +220,7 @@ class Container:
         """
         if not self.has_extracts():
             if self.get_tree_depth() < settings.ZDS_APP['content']['max_tree_depth'] - 1:
-                if not self.top_container().type in SINGLE_CONTAINER:
+                if not self.top_container().type in SINGLE_CONTAINER_CONTENT_TYPES:
                     return True
         return False
 
@@ -765,7 +763,7 @@ class Container:
         """
         return self.type in CONTENT_TYPES_BETA
 
-    def requires_validation_before(self):
+    def requires_validation(self):
         """
         Check if content required a validation before publication.
         Used to check if JsFiddle is available too.
@@ -773,7 +771,7 @@ class Container:
         :return: Whether validation is required before publication.
         :rtype: bool
         """
-        return self.type in CONTENT_TYPES_VALIDATION_BEFORE
+        return self.type in CONTENT_TYPES_REQUIRING_VALIDATION
 
 
 class Extract:
@@ -1182,7 +1180,7 @@ class VersionedContent(Container, TemplatableContentModelMixin):
         :rtype: list[Container]
         """
         continuous_list = []
-        if self.type not in SINGLE_CONTAINER:  # cannot be paginated
+        if self.type not in SINGLE_CONTAINER_CONTENT_TYPES:  # cannot be paginated
             if len(self.children) != 0 and isinstance(self.children[0], Container):  # children must be Containers!
                 for child in self.children:
                     if len(child.children) != 0:
@@ -1199,7 +1197,7 @@ class VersionedContent(Container, TemplatableContentModelMixin):
         :rtype: str
         """
         dct = export_content(self)
-        data = json_writer.dumps(dct, indent=4, ensure_ascii=False)
+        data = json_handler.dumps(dct, indent=4, ensure_ascii=False)
         return data
 
     def dump_json(self, path=None):
@@ -1290,7 +1288,7 @@ class PublicContent(VersionedContent):
         :param slug: slug of the content
         """
 
-        Container.__init__(self, title, slug)
+        super().__init__(current_version, _type, title, slug)
         self.current_version = current_version
         self.type = _type
         self.PUBLIC = True  # this is a public version

@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from datetime import datetime
 import os
 import shutil
@@ -476,7 +474,7 @@ class MemberTests(TestCase):
         beta_content = BetaContentFactory(author_list=[user.user], forum=beta_forum)
         beta_content_2 = BetaContentFactory(author_list=[user.user, user2.user], forum=beta_forum)
         # about posts and topics
-        authored_topic = TopicFactory(author=user.user, forum=self.forum11)
+        authored_topic = TopicFactory(author=user.user, forum=self.forum11, solved_by=user.user)
         answered_topic = TopicFactory(author=user2.user, forum=self.forum11)
         PostFactory(topic=answered_topic, author=user.user, position=2)
         edited_answer = PostFactory(topic=answered_topic, author=user.user, position=3)
@@ -597,6 +595,8 @@ class MemberTests(TestCase):
 
         # topics, gallery and PMs:
         self.assertEqual(Topic.objects.filter(author__username=user.user.username).count(), 0)
+        self.assertEqual(Topic.objects.filter(solved_by=user.user).count(), 0)
+        self.assertEqual(Topic.objects.filter(solved_by=self.anonymous).count(), 1)
         self.assertEqual(Post.objects.filter(author__username=user.user.username).count(), 0)
         self.assertEqual(Post.objects.filter(editor__username=user.user.username).count(), 0)
         self.assertEqual(PrivatePost.objects.filter(author__username=user.user.username).count(), 0)
@@ -1619,7 +1619,12 @@ class MemberTests(TestCase):
         }, follow=False)
         self.assertEqual(result.status_code, 302)
         request = HatRequest.objects.latest('date')
-        # test this page is only available for staff
+        # test this page is available for the request author
+        result = self.client.get(request.get_absolute_url())
+        self.assertEqual(result.status_code, 200)
+        # test it's not available for another user
+        other_user = ProfileFactory().user
+        self.client.login(username=other_user.username, password='hostel77')
         result = self.client.get(request.get_absolute_url())
         self.assertEqual(result.status_code, 403)
         # login as staff
@@ -1642,7 +1647,6 @@ class MemberTests(TestCase):
         }, follow=False)
         self.assertEqual(result.status_code, 302)
         request = HatRequest.objects.latest('date')
-        requests_count = HatRequest.objects.count()
         # test this page is only available for staff
         result = self.client.post(reverse('solve-hat-request', args=[request.pk]), follow=False)
         self.assertEqual(result.status_code, 403)
@@ -1651,16 +1655,17 @@ class MemberTests(TestCase):
         result = self.client.post(reverse('solve-hat-request', args=[request.pk]), follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertNotIn(hat_name, [h.name for h in profile.hats.all()])
-        self.assertEqual(requests_count - 1, HatRequest.objects.count())
+        request = HatRequest.objects.get(pk=request.pk)  # reload
+        self.assertEqual(request.is_granted, False)
         # add a new request and test granting
         HatRequest.objects.create(user=profile.user, hat=hat_name, reason='test')
         request = HatRequest.objects.latest('date')
-        requests_count = HatRequest.objects.count()
         result = self.client.post(reverse('solve-hat-request', args=[request.pk]),
                                   {'grant': 'on'}, follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertIn(hat_name, [h.name for h in profile.hats.all()])
-        self.assertEqual(requests_count - 1, HatRequest.objects.count())
+        request = HatRequest.objects.get(pk=request.pk)  # reload
+        self.assertEqual(request.is_granted, True)
 
     def test_hats_list(self):
         # test the page is accessible without being authenticated

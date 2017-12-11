@@ -68,6 +68,7 @@
                                     <button class="btn btn-grey ico-after hide unpick-action" data-url="{% url 'validation:revoke-ignore-opinion' operation.pk %}" {% if not operation.is_effective %}disabled{% endif %}>
                                         {% trans 'Révoquer la décision' %}
                                     </button>
+                                </td>
                             </tr>
                         {% endfor %}
                     </tbody>

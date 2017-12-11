@@ -1,7 +1,5 @@
-# coding: utf-8
-
 import os
-import json
+from zds import json_handler
 import shutil
 import datetime
 
@@ -152,7 +150,7 @@ class ViewsTests(TestCase):
         # 1. Should not get any result
         result = self.client.get(reverse('search:similar') + '?q=est', follow=False)
         self.assertEqual(result.status_code, 200)
-        content = json.loads(result.content.decode('utf-8'))
+        content = json_handler.loads(result.content.decode('utf-8'))
         self.assertEqual(len(content['results']), 0)
 
         # index
@@ -165,13 +163,13 @@ class ViewsTests(TestCase):
         # 2. Should get exactly one result
         result = self.client.get(reverse('search:similar') + '?q=mange', follow=False)
         self.assertEqual(result.status_code, 200)
-        content = json.loads(result.content.decode('utf-8'))
+        content = json_handler.loads(result.content.decode('utf-8'))
         self.assertEqual(len(content['results']), 1)
 
         # 2. Should get exactly two results
         result = self.client.get(reverse('search:similar') + '?q=Clem', follow=False)
         self.assertEqual(result.status_code, 200)
-        content = json.loads(result.content.decode('utf-8'))
+        content = json_handler.loads(result.content.decode('utf-8'))
         self.assertEqual(len(content['results']), 2)
 
     def test_hidden_post_are_not_result(self):
@@ -281,7 +279,7 @@ class ViewsTests(TestCase):
         topic_1_solved_sticky = TopicFactory(forum=self.forum, author=self.user)
         topic_1_solved_sticky.title = text
         topic_1_solved_sticky.subtitle = ''
-        topic_1_solved_sticky.is_solved = True
+        topic_1_solved_sticky.solved_by = self.user
         topic_1_solved_sticky.is_sticky = True
         topic_1_solved_sticky.save()
 

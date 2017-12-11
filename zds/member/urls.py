@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from django.conf.urls import url
 
 from zds.member.views import MemberList, MemberDetail, UpdateMember, UpdateGitHubToken, remove_github_token, \
@@ -8,7 +6,8 @@ from zds.member.views import MemberList, MemberDetail, UpdateMember, UpdateGitHu
     settings_promote, login_view, logout_view, forgot_password, new_password, activate_account, \
     generate_token_account, unregister, warning_unregister, BannedEmailProvidersList, NewEmailProvidersList, \
     AddBannedEmailProvider, remove_banned_email_provider, check_new_email_provider, MembersWithProviderList, \
-    HatsSettings, RequestedHatsList, HatRequestDetail, add_hat, remove_hat, solve_hat_request, HatsList, HatDetail
+    HatsSettings, RequestedHatsList, HatRequestDetail, add_hat, remove_hat, solve_hat_request, HatsList, HatDetail, \
+    SolvedHatRequestsList
 
 urlpatterns = [
     # list
@@ -50,6 +49,7 @@ urlpatterns = [
     url(r'^casquettes/(?P<pk>\d+)/$', HatDetail.as_view(), name='hat-detail'),
     url(r'^parametres/casquettes/$', HatsSettings.as_view(), name='hats-settings'),
     url(r'^casquettes/demandes/$', RequestedHatsList.as_view(), name='requested-hats'),
+    url(r'^casquettes/demandes/archives/$', SolvedHatRequestsList.as_view(), name='solved-hat-requests'),
     url(r'^casquettes/demandes/(?P<pk>\d+)/$', HatRequestDetail.as_view(), name='hat-request'),
     url(r'^casquettes/demandes/(?P<request_pk>\d+)/resoudre/$', solve_hat_request, name='solve-hat-request'),
     url(r'^casquettes/ajouter/(?P<user_pk>\d+)/$', add_hat, name='add-hat'),

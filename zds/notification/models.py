@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-s
-
 import logging
 from smtplib import SMTPException
 

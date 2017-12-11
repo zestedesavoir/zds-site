@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from zds.member.api.permissions import CanReadAndWriteNowOrReadOnly, IsNotOwnerOrReadOnly
 from zds.utils.api.views import KarmaView

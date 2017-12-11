@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from datetime import datetime, timedelta
 
 from django.conf import settings
@@ -1127,16 +1125,16 @@ class ForumGuestTests(TestCase):
 
         ProfileFactory().user
 
-        topic = TopicFactory(forum=self.forum11, author=self.user, is_solved=False, is_sticky=False)
+        topic = TopicFactory(forum=self.forum11, author=self.user, is_sticky=False)
         PostFactory(topic=topic, author=self.user, position=1)
 
-        topic_solved = TopicFactory(forum=self.forum11, author=self.user, is_solved=True, is_sticky=False)
+        topic_solved = TopicFactory(forum=self.forum11, author=self.user, solved_by=self.user, is_sticky=False)
         PostFactory(topic=topic_solved, author=self.user, position=1)
 
-        topic_sticky = TopicFactory(forum=self.forum11, author=self.user, is_solved=False, is_sticky=True)
+        topic_sticky = TopicFactory(forum=self.forum11, author=self.user, is_sticky=True)
         PostFactory(topic=topic_sticky, author=self.user, position=1)
 
-        topic_solved_sticky = TopicFactory(forum=self.forum11, author=self.user, is_solved=True, is_sticky=True)
+        topic_solved_sticky = TopicFactory(forum=self.forum11, author=self.user, solved_by=self.user, is_sticky=True)
         PostFactory(topic=topic_solved_sticky, author=self.user, position=1)
 
         # no filter
@@ -1175,13 +1173,13 @@ class ForumGuestTests(TestCase):
         user1 = ProfileFactory().user
 
         # create a new topic with answers
-        topic1 = TopicFactory(forum=self.forum11, author=self.user, is_solved=False, is_sticky=False)
+        topic1 = TopicFactory(forum=self.forum11, author=self.user, is_sticky=False)
         PostFactory(topic=topic1, author=self.user, position=1)
         PostFactory(topic=topic1, author=user1, position=2)
         PostFactory(topic=topic1, author=self.user, position=3)
 
         # create a new sticky topic with answers
-        topic2 = TopicFactory(forum=self.forum11, author=self.user, is_solved=False, is_sticky=True)
+        topic2 = TopicFactory(forum=self.forum11, author=self.user, is_sticky=True)
         PostFactory(topic=topic2, author=self.user, position=1)
         PostFactory(topic=topic2, author=user1, position=2)
         PostFactory(topic=topic2, author=self.user, position=3)
@@ -1206,7 +1204,7 @@ class ForumGuestTests(TestCase):
         )
 
     def test_old_post_limit(self):
-        topic = TopicFactory(forum=self.forum11, author=self.user, is_solved=False, is_sticky=False)
+        topic = TopicFactory(forum=self.forum11, author=self.user, is_sticky=False)
 
         # Create a post published just now
         PostFactory(topic=topic, author=self.user, position=1)
@@ -1230,9 +1228,9 @@ def get_topics(forum_pk, is_sticky, filter=None):
     """
 
     if filter == 'solve':
-        topics = Topic.objects.filter(forum__pk=forum_pk, is_sticky=is_sticky, is_solved=True)
+        topics = Topic.objects.filter(forum__pk=forum_pk, is_sticky=is_sticky, solved_by__isnull=False)
     elif filter == 'unsolve':
-        topics = Topic.objects.filter(forum__pk=forum_pk, is_sticky=is_sticky, is_solved=False)
+        topics = Topic.objects.filter(forum__pk=forum_pk, is_sticky=is_sticky, solved_by__isnull=True)
     elif filter == 'noanswer':
         topics = Topic.objects.filter(forum__pk=forum_pk, is_sticky=is_sticky, last_message__position=1)
     else:
