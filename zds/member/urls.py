@@ -19,7 +19,7 @@ urlpatterns = [
 
     # settings
     url(r'^parametres/$', UpdateMainSettings.as_view(), name='update-main-settings'),
-    url(r'^parametres/(?P<user_name>.+)/$', ModerateProfile.as_view(), name='moderate-profile'),
+    url(r'^parametres/moderer/(?P<user_name>.+)/$', ModerateProfile.as_view(), name='moderate-profile'),
     # TODO: rename this url when removing the old one
     url(r'^parametres/new-profil/$', UpdateProfileSettings.as_view(), name='update-profile-settings'),
     url(r'^parametres/profil/maj_avatar/$', UpdateAvatarMember.as_view(), name='update-avatar-member'),

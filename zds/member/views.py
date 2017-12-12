@@ -30,7 +30,8 @@ from zds.gallery.models import UserGallery
 from zds.member import NEW_ACCOUNT, EMAIL_EDIT
 from zds.member.commons import ProfileCreate, TemporaryReadingOnlySanction, ReadingOnlySanction, \
     DeleteReadingOnlySanction, TemporaryBanSanction, BanSanction, DeleteBanSanction, TokenGenerator
-from zds.member.decorator import can_write_and_read_now, LoginRequiredMixin, PermissionRequiredMixin
+from zds.member.decorator import can_write_and_read_now, LoginRequiredMixin, PermissionRequiredMixin, \
+    LoggedWithReadWriteHability
 from zds.member.forms import LoginForm, MiniProfileForm, ProfileForm, RegisterForm, \
     ChangePasswordForm, ChangeUserForm, NewPasswordForm, \
     PromoteMemberForm, KarmaForm, UsernameAndEmailForm, GitHubTokenForm, \
@@ -99,23 +100,198 @@ class MemberDetail(DetailView):
         return context
 
 
-class UpdateMainSettings(UpdateView):
-    pass
+class UpdateSettings(UpdateView, LoginRequiredMixin):
+    """
+    Base view for settings views
+    """
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(Profile, user=self.request.user)
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.user, request.POST)
+
+        if 'preview' in request.POST and request.is_ajax():
+            content = render_to_response('misc/previsualization.part.html', {'text': request.POST.get('text')})
+            return StreamingHttpResponse(content)
+
+        if form.is_valid():
+            return self.form_valid(form)
+
+        return render(request, self.template_name, {'form': form})
+
+    def form_valid(self, form):
+        profile = self.get_object()
+        self.update_profile(profile, form)
+        self.save_profile(profile)
+
+        response = redirect(self.get_success_url())
+        set_old_smileys_cookie(response, profile)
+        return response
+
+    def save_profile(self, profile):
+        try:
+            profile.save()
+            profile.user.save()
+        except Profile.DoesNotExist:
+            messages.error(self.request, self.get_error_message())
+            return redirect(self.get_success_url())
+        messages.success(self.request, self.get_success_message())
+
+    def get_error_message(self):
+        return _('Une erreur est survenue.')
 
 
-class UpdateProfileSettings(UpdateView):
-    pass
+class UpdateMainSettings(UpdateSettings):
+    """Update user's main settings"""
+
+    form_class = MainSettingsForm
+    template_name = 'member/settings/new/main.html'
+
+    def get_form(self, form_class=MainSettingsForm):
+        profile = self.get_object()
+        form = form_class(initial={
+            'allow_temp_visual_changes': profile.allow_temp_visual_changes,
+            'is_hover_enabled': profile.is_hover_enabled,
+            'show_markdown_help': profile.show_markdown_help,
+            'show_signatures': profile.show_sign,
+            'use_old_smileys': profile.use_old_smileys,
+            'licence': profile.licence,
+        })
+
+        return form
+
+    def update_profile(self, profile, form):
+        cleaned_data_options = form.cleaned_data.get('options')
+
+        profile.allow_temp_visual_changes = 'allow_temp_visual_changes' in cleaned_data_options
+        profile.is_hover_enabled = 'is_hover_enabled' in cleaned_data_options
+        profile.show_sign = 'show_signatures' in cleaned_data_options
+        profile.show_markdown_help = 'show_markdown_help' in cleaned_data_options
+        profile.use_old_smileys = 'use_old_smileys' in cleaned_data_options
+
+        profile.licence = form.cleaned_data['licence']
+
+    def get_success_message(self):
+        return _('Les paramètres généraux ont correctement été mis à jour.')
+
+    def get_success_url(self):
+        return reverse('update-main-settings')
 
 
-class ModerateProfile(UpdateProfileSettings):
-    pass
+class UpdateProfileSettings(UpdateSettings):
+    """Update user's profile settings"""
 
-class UpdateAccountSettings(UpdateView):
-    pass
+    form_class = ProfileSettingsForm
+    template_name = 'member/settings/new/profile.html'
+
+    def get_form(self, form_class=ProfileSettingsForm):
+        profile = self.get_object()
+        form = form_class(initial={
+            'avatar_url': profile.avatar_url,
+            'biography': profile.biography,
+            'signature': profile.sign,
+            'website': profile.site,
+        })
+
+        return form
+
+    def update_profile(self, profile, form):
+        cleaned_data_options = form.cleaned_data.get('options')
+
+        profile.avatar_url = form.data['avatar_url']
+        profile.biography = form.data['biography']
+        profile.sign = form.data['signature']
+        profile.site = form.data['website']
+
+    def get_success_message(self):
+        return _('Les paramètres du profil ont correctement été mis à jour.')
+
+    def get_success_url(self):
+        return reverse('update-profile-settings')
 
 
-class UpdateEmailSettings(UpdateView):
-    pass
+class ModerateProfile(UpdateProfileSettings, PermissionRequiredMixin, LoggedWithReadWriteHability):
+    """Moderate a user's profile"""
+
+    permissions = ['member.change_profile']
+
+    def get_object(self, queryset=None):
+        self.user = get_object_or_404(User, username=self.kwargs['user_name'])
+        return get_object_or_404(Profile, user=self.user)
+
+    def get_success_url(self):
+        return reverse('moderate-profile', args=[self.user.username])
+
+
+class UpdateAccountSettings(UpdateSettings):
+    """Update user's account settings"""
+
+    form_class = AccountSettingsForm
+    template_name = 'member/settings/new/account.html'
+
+    def get_form(self, form_class=AccountSettingsForm):
+        return form_class(self.request.user)
+
+    def update_profile(self, profile, form):
+        profile.user.set_password(form.data['password_new'])
+
+        new_username = form.cleaned_data.get('username')
+        previous_username = form.cleaned_data.get('previous_username')
+
+        if new_username and new_username != previous_username:
+            # Add a karma message for the staff
+            bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+            KarmaNote(user=profile.user,
+                      moderator=bot,
+                      note=_("{} s'est renommé {}").format(profile.user.username, new_username),
+                      karma=0).save()
+            # Change the username
+            profile.user.username = new_username
+
+    def get_success_message(self):
+        return _('Les paramètres du compte ont correctement été mis à jour.')
+
+    def get_success_url(self):
+        return reverse('update-account-settings')
+
+
+class UpdateEmailSettings(UpdateSettings):
+    """Update user's email settings"""
+
+    form_class = EmailSettingsForm
+    template_name = 'member/settings/new/email.html'
+
+    def get_form(self, form_class=EmailSettingsForm):
+        profile = self.get_object()
+        form = form_class(self.request.user, initial={
+            'show_email': profile.show_email,
+            'email_for_answer': profile.email_for_answer,
+        })
+
+        return form
+
+    def update_profile(self, profile, form):
+        profile.show_email = 'show_email' in form.cleaned_data.get('options')
+        profile.email_for_answer = 'email_for_answer' in form.cleaned_data.get('options')
+
+        new_email = form.cleaned_data.get('email')
+        previous_email = form.cleaned_data.get('previous_email')
+
+        if new_email and new_email != previous_email:
+            profile.user.email = new_email
+            # Create an alert for the staff if it's a new provider
+            provider = provider = new_email.split('@')[-1].lower()
+            if not NewEmailProvider.objects.filter(provider=provider).exists() \
+                    and not User.objects.filter(email__iendswith='@{}'.format(provider)) \
+                    .exclude(pk=profile.user.pk).exists():
+                NewEmailProvider.objects.create(user=profile.user, provider=provider, use=EMAIL_EDIT)
+
+    def get_success_message(self):
+        return _('Les paramètres liés au courriel ont correctement été mis à jour.')
+
+    def get_success_url(self):
+        return reverse('update-email-settings')
 
 
 # TODO; old view to be remove

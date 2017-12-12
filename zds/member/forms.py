@@ -143,20 +143,301 @@ class RegisterForm(forms.Form):
     def throw_error(self, key=None, message=None):
         self._errors[key] = self.error_class([message])
 
+
 class MainSettingsForm(forms.Form):
-    pass
+    """
+    Form to update main settings
+    """
+
+    multi_choices = [
+        ('allow_temp_visual_changes', _('Activer les changements visuels temporaires')),
+        ('is_hover_enabled', _('Dérouler les menus au survol')),
+        ('show_markdown_help', _("Afficher l'aide Markdown dans l'éditeur")),
+        ('show_signatures', _('Afficher les signatures')),
+    ]
+
+    options = forms.MultipleChoiceField(
+        label='',
+        required=False,
+        choices=tuple(multi_choices),
+        widget=forms.CheckboxSelectMultiple,
+    )
+
+    licence = forms.ModelChoiceField(
+        label=(
+            _('Licence préférée pour vos publications '
+              '(<a href="{0}" alt="{1}">En savoir plus sur les licences et {2}</a>).')
+            .format(
+                settings.ZDS_APP['site']['licenses']['licence_info_title'],
+                settings.ZDS_APP['site']['licenses']['licence_info_link'],
+                settings.ZDS_APP['site']['literal_name'],
+            )
+        ),
+        queryset=Licence.objects.order_by('title').all(),
+        required=False,
+        empty_label=_('Choisir une licence')
+    )
+
+    def __init__(self, user=None, *args, **kwargs):
+        super(MainSettingsForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = 'content-wrapper'
+        self.helper.form_method = 'post'
+
+        if settings.ZDS_APP['member']['old_smileys_allowed']:
+            self.fields['options'].choices.insert(3, ('use_old_smileys', _('Utiliser les anciens smileys')))
+
+        initial = kwargs.get('initial', {})
+        self.fields['options'].initial = ''
+
+        if 'allow_temp_visual_changes' in initial and initial['allow_temp_visual_changes']:
+            self.fields['options'].initial += 'allow_temp_visual_changes'
+
+        if 'is_hover_enabled' in initial and initial['is_hover_enabled']:
+            self.fields['options'].initial += 'is_hover_enabled'
+
+        if 'show_markdown_help' in initial and initial['show_markdown_help']:
+            self.fields['options'].initial += 'show_markdown_help'
+
+        if 'show_signatures' in initial and initial['show_signatures']:
+            self.fields['options'].initial += 'show_signatures'
+
+        if 'use_old_smileys' in initial and initial['use_old_smileys']:
+            self.fields['options'].initial += 'use_old_smileys'
+
+        self.helper.layout = Layout(
+            Field('licence'),
+            Field('options'),
+            ButtonHolder(StrictButton(_('Enregistrer'), type='submit'),)
+        )
 
 
 class ProfileSettingsForm(forms.Form):
-    pass
+    """
+    Form to update profile settings
+    """
+
+    avatar_url = forms.CharField(
+        label='Avatar',
+        required=False,
+        max_length=Profile._meta.get_field('avatar_url').max_length,
+        widget=forms.TextInput(
+            attrs={
+                'placeholder': _('Lien vers un avatar externe (laissez vide pour utiliser Gravatar).')
+            }
+        )
+    )
+
+    biography = forms.CharField(
+        label=_('Biographie'),
+        required=False,
+        widget=forms.Textarea(
+            attrs={
+                'placeholder': _('Votre biographie au format Markdown.'),
+                'class': 'md-editor preview-source'
+            }
+        )
+    )
+
+    signature = forms.CharField(
+        label='Signature',
+        required=False,
+        max_length=Profile._meta.get_field('sign').max_length,
+        widget=forms.TextInput(
+            attrs={
+                'placeholder': _('Elle apparaitra dans les messages de forums. ')
+            }
+        )
+    )
+
+    website = forms.CharField(
+        label=_('Site web'),
+        required=False,
+        max_length=Profile._meta.get_field('site').max_length,
+        widget=forms.TextInput(
+            attrs={
+                'placeholder': _('Lien vers votre site web personnel (ne pas oublier le http:// ou https:// devant).')
+            }
+        )
+    )
+
+    def __init__(self, user=None, *args, **kwargs):
+        super(ProfileSettingsForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = 'content-wrapper'
+        self.helper.form_method = 'post'
+
+        self.helper.layout = Layout(
+            Field('avatar_url'),
+            HTML(_("""
+                <p>
+                    <a href="{% url 'gallery-list' %}">Choisir un avatar dans une galerie</a><br/>
+                    Naviguez vers l'image voulue et cliquez sur le bouton "<em>Choisir comme avatar</em>".<br/>
+                    Créez une galerie et importez votre avatar si ce n'est pas déjà fait !
+                </p>
+            """)),
+
+            Field('biography'),
+            ButtonHolder(StrictButton(_('Aperçu'), type='preview', name='preview',
+                                      css_class='btn btn-grey preview-btn'),),
+            HTML("""
+                {% if form.biography.value %}
+                    {% include "misc/previsualization.part.html" with text=form.biography.value %}
+                {% endif %}
+            """),
+
+            Field('signature'),
+            Field('website'),
+            ButtonHolder(
+                StrictButton(_('Enregistrer'), type='submit'),
+            )
+        )
 
 
 class AccountSettingsForm(forms.Form):
-    pass
+    """
+    Form to update account settings
+    """
+
+    username = forms.CharField(
+        label=_('Mon pseudo'),
+        max_length=User._meta.get_field('username').max_length,
+        min_length=1,
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                'placeholder': _('Pseudo')
+            }
+        ),
+    )
+
+    password_old = forms.CharField(
+        label=_('Mot de passe actuel'),
+        required=False,
+        widget=forms.PasswordInput,
+    )
+
+    password_new = forms.CharField(
+        label=_('Nouveau mot de passe'),
+        max_length=MAX_PASSWORD_LENGTH,
+        min_length=MIN_PASSWORD_LENGTH,
+        required=False,
+        widget=forms.PasswordInput,
+        validators=[validate_zds_password],
+    )
+
+    password_confirm = forms.CharField(
+        label=_('Confirmer le nouveau mot de passe'),
+        max_length=MAX_PASSWORD_LENGTH,
+        min_length=MIN_PASSWORD_LENGTH,
+        required=False,
+        widget=forms.PasswordInput,
+        validators=[validate_zds_password],
+    )
+
+    def __init__(self, user, *args, **kwargs):
+        super(AccountSettingsForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = 'content-wrapper'
+        self.helper.form_method = 'post'
+
+        self.user = user
+        self.previous_username = user.username
+
+        self.helper.layout = Layout(
+            Field('username', value=user.username),
+            Field('password_old'),
+            Field('password_new'),
+            Field('password_confirm'),
+
+            ButtonHolder(
+                StrictButton(_('Enregistrer'), type='submit'),
+            ),
+        )
+
+    def clean(self):
+        cleaned_data = super(AccountSettingsForm, self).clean()
+
+        cleaned_data['previous_username'] = self.previous_username
+        username = cleaned_data.get('username')
+        if username != self.previous_username:
+            validate_not_empty(username)
+            validate_zds_username(username)
+
+        password_old = cleaned_data.get('password_old')
+        # Check if the actual password is not empty
+        if password_old:
+            user_exist = authenticate(username=self.user.username, password=password_old)
+            # Check if the user exist with old informations.
+            if not user_exist and password_old != '':
+                self._errors['password_old'] = self.error_class([_('Mot de passe incorrect.')])
+                if 'password_old' in cleaned_data:
+                    del cleaned_data['password_old']
+
+        return validate_passwords(cleaned_data, password_label='password_new', username=self.user.username)
 
 
 class EmailSettingsForm(forms.Form):
-    pass
+    """
+    Form to update email settings
+    """
+
+    email = forms.EmailField(
+        label=_('Mon adresse email'),
+        max_length=User._meta.get_field('email').max_length,
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                'placeholder': _('Adresse email')
+            }
+        ),
+    )
+
+    options = forms.MultipleChoiceField(
+        label='',
+        required=False,
+        choices=(
+            ('show_email', _('Afficher mon adresse courriel publiquement')),
+            ('email_for_answer', _("Recevoir un courriel lors d'une réponse à un message privé")),
+        ),
+        widget=forms.CheckboxSelectMultiple,
+    )
+
+    def __init__(self, user, *args, **kwargs):
+        super(EmailSettingsForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = 'content-wrapper'
+        self.helper.form_method = 'post'
+
+        self.previous_email = user.email
+
+        initial = kwargs.get('initial', {})
+        self.fields['options'].initial = ''
+
+        if user.profile and user.profile.show_email:
+            self.fields['options'].initial += 'show_email'
+
+        if 'email_for_answer' in initial and initial['email_for_answer']:
+            self.fields['options'].initial += 'email_for_answer'
+
+        self.helper.layout = Layout(
+            Field('email', value=user.email),
+            Field('options'),
+            ButtonHolder(
+                StrictButton(_('Enregistrer'), type='submit'),
+            ),
+        )
+
+    def clean(self):
+        cleaned_data = super(EmailSettingsForm, self).clean()
+
+        cleaned_data['previous_email'] = self.previous_email
+        email = cleaned_data.get('email')
+        if email != self.previous_email:
+            validate_not_empty(email)
+            validate_zds_email(email)
+
+        return cleaned_data
 
 
 # TODO; old form to be remove

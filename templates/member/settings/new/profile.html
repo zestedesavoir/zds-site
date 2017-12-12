@@ -1,3 +1,51 @@
 {% extends "member/settings/base.html" %}
 {% load crispy_forms_tags %}
 {% load i18n %}
+
+
+{% block title %}
+    {% if user.profile == profile %}
+        {% trans "Modifier mon profil" %}
+    {% else %}
+        {% trans "Modérer le profil de" %} {{ profile.user.username }}
+    {% endif %}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>
+        {% if user.profile == profile %}
+            {% trans "Modifier mon profil" %}
+        {% else %}
+            {% trans "Modérer le profil de" %} {{ profile.user.username }}
+        {% endif %}
+    </li>
+{% endblock %}
+
+
+
+{% block headline %}
+    {% if user.profile == profile %}
+        {% trans "Modifier mon profil" %}
+    {% else %}
+        {% trans "Modérer le profil de" %} {{ profile.user.username }}
+    {% endif %}
+{% endblock %}
+
+
+
+{% if user.profile != profile %}
+{% block sidebar %}{% endblock sidebar %}
+{% endif %}
+
+
+{% block content %}
+    {% if user.profile != profile %}
+        <p class="alert-box warning">
+            {% trans "Le profil que vous éditez n'est pas le votre, soyez prudent lors de l'édition de celui-ci !" %}
+        </p>
+    {% endif %}
+
+    {% crispy form %}
+{% endblock %}

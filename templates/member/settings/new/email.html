@@ -1,3 +1,26 @@
 {% extends "member/settings/base.html" %}
 {% load crispy_forms_tags %}
 {% load i18n %}
+
+
+{% block title %}
+   {% trans "Modifier mon courriel" %}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>{% trans "Modifier mon courriel" %}</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    {% trans "Mon courriel" %}
+{% endblock %}
+
+
+
+{% block content %}
+    {% crispy form %}
+{% endblock %}

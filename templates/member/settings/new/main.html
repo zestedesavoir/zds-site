@@ -1,3 +1,26 @@
 {% extends "member/settings/base.html" %}
 {% load crispy_forms_tags %}
 {% load i18n %}
+
+
+{% block title %}
+   {% trans "Paramètres généraux" %}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>{% trans "Paramètres généraux" %}</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    {% trans "Paramètres généraux" %}
+{% endblock %}
+
+
+
+{% block content %}
+    {% crispy form %}
+{% endblock %}
