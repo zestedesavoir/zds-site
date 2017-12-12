@@ -7,7 +7,8 @@ from zds.member.views import MemberList, MemberDetail, UpdateMember, UpdateGitHu
     generate_token_account, unregister, warning_unregister, BannedEmailProvidersList, NewEmailProvidersList, \
     AddBannedEmailProvider, remove_banned_email_provider, check_new_email_provider, MembersWithProviderList, \
     HatsSettings, RequestedHatsList, HatRequestDetail, add_hat, remove_hat, solve_hat_request, HatsList, HatDetail, \
-    SolvedHatRequestsList
+    SolvedHatRequestsList, \
+    UpdateMainSettings, UpdateProfileSettings, UpdateAccountSettings, UpdateEmailSettings, ModerateProfile
 
 urlpatterns = [
     # list
@@ -16,17 +17,28 @@ urlpatterns = [
     # details
     url(r'^voir/(?P<user_name>.+)/$', MemberDetail.as_view(), name='member-detail'),
 
-    # modification
-    url(r'^parametres/profil/$', UpdateMember.as_view(), name='update-member'),
+    # settings
+    url(r'^parametres/$', UpdateMainSettings.as_view(), name='update-main-settings'),
+    url(r'^parametres/(?P<user_name>.+)/$', ModerateProfile.as_view(), name='moderate-profile'),
+    # TODO: rename this url when removing the old one
+    url(r'^parametres/new-profil/$', UpdateProfileSettings.as_view(), name='update-profile-settings'),
+    url(r'^parametres/profil/maj_avatar/$', UpdateAvatarMember.as_view(), name='update-avatar-member'),
+    # TODO: rename this url when removing the old one
+    url(r'^parametres/new-compte/$', UpdateAccountSettings.as_view(), name='update-account-settings'),
+    url(r'^parametres/courriel/$', UpdateEmailSettings.as_view(), name='update-email-settings'),
     url(r'^parametres/github/$', UpdateGitHubToken.as_view(), name='update-github'),
     url(r'^parametres/github/supprimer/$', remove_github_token, name='remove-github'),
-    url(r'^parametres/profil/maj_avatar/$', UpdateAvatarMember.as_view(), name='update-avatar-member'),
+    url(r'^parametres/casquettes/$', HatsSettings.as_view(), name='hats-settings'),
+
+    # TODO: old settings to be removed
+    url(r'^parametres/profil/$', UpdateMember.as_view(), name='update-member'),
     url(r'^parametres/compte/$', UpdatePasswordMember.as_view(), name='update-password-member'),
     url(r'^parametres/user/$', UpdateUsernameEmailMember.as_view(), name='update-username-email-member'),
 
     # moderation
     url(r'^profil/karmatiser/$', modify_karma, name='member-modify-karma'),
     url(r'^profil/modifier/(?P<user_pk>\d+)/$', modify_profile, name='member-modify-profile'),
+    # TODO: old setting to be removed
     url(r'^parametres/mini_profil/(?P<user_name>.+)/$', settings_mini_profile, name='member-settings-mini-profile'),
     url(r'^profil/multi/(?P<ip_address>.+)/$', member_from_ip, name='member-from-ip'),
 
@@ -47,7 +59,6 @@ urlpatterns = [
     # hats
     url(r'^casquettes/$', HatsList.as_view(), name='hats-list'),
     url(r'^casquettes/(?P<pk>\d+)/$', HatDetail.as_view(), name='hat-detail'),
-    url(r'^parametres/casquettes/$', HatsSettings.as_view(), name='hats-settings'),
     url(r'^casquettes/demandes/$', RequestedHatsList.as_view(), name='requested-hats'),
     url(r'^casquettes/demandes/archives/$', SolvedHatRequestsList.as_view(), name='solved-hat-requests'),
     url(r'^casquettes/demandes/(?P<pk>\d+)/$', HatRequestDetail.as_view(), name='hat-request'),

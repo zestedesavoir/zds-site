@@ -32,7 +32,20 @@
                 {% if user.profile.is_dev %}
                     <li><a href="{% url "update-github" %}">{% trans "Token GitHub" %}</a></li>
                 {% endif %}
-				<li><a href="{% url "member-warning-unregister" %}">{% trans "Se désinscrire" %}</a></li>
+                <li><a href="{% url "member-warning-unregister" %}">{% trans "Se désinscrire" %}</a></li>
+            </ul>
+
+            <h3>{% trans "Nouvelle navigation" %}</h3>
+            <ul>
+                <li><a href="{% url "update-main-settings" %}">{% trans "Paramètres généraux" %}</a></li>
+                <li><a href="{% url "update-profile-settings" %}">{% trans "Modifier mon profil" %}</a></li>
+                <li><a href="{% url "update-account-settings" %}">{% trans "Modifier mon compte" %}</a></li>
+                <li><a href="{% url "update-email-settings" %}">{% trans "Modifier mon courriel" %}</a></li>
+                <li><a href="{% url "hats-settings" %}">{% trans "Gérer mes casquettes" %}</a></li>
+                {% if user.profile.is_dev %}
+                    <li><a href="{% url "update-github" %}">{% trans "Gérer mon token GitHub" %}</a></li>
+                {% endif %}
+                <li><a href="{% url "member-warning-unregister" %}">{% trans "Se désinscrire" %}</a></li>
             </ul>
         </div>
     </aside>

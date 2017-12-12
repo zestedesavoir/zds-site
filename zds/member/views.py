@@ -34,7 +34,8 @@ from zds.member.decorator import can_write_and_read_now, LoginRequiredMixin, Per
 from zds.member.forms import LoginForm, MiniProfileForm, ProfileForm, RegisterForm, \
     ChangePasswordForm, ChangeUserForm, NewPasswordForm, \
     PromoteMemberForm, KarmaForm, UsernameAndEmailForm, GitHubTokenForm, \
-    BannedEmailProviderForm, HatRequestForm
+    BannedEmailProviderForm, HatRequestForm, \
+    MainSettingsForm, ProfileSettingsForm, AccountSettingsForm, EmailSettingsForm
 from zds.member.models import Profile, TokenForgotPassword, TokenRegister, KarmaNote, Ban, \
     BannedEmailProvider, NewEmailProvider, set_old_smileys_cookie, remove_old_smileys_cookie
 from zds.mp.models import PrivatePost, PrivateTopic
@@ -98,6 +99,26 @@ class MemberDetail(DetailView):
         return context
 
 
+class UpdateMainSettings(UpdateView):
+    pass
+
+
+class UpdateProfileSettings(UpdateView):
+    pass
+
+
+class ModerateProfile(UpdateProfileSettings):
+    pass
+
+class UpdateAccountSettings(UpdateView):
+    pass
+
+
+class UpdateEmailSettings(UpdateView):
+    pass
+
+
+# TODO; old view to be remove
 class UpdateMember(UpdateView):
     """Update a profile."""
 
@@ -263,6 +284,7 @@ class UpdateAvatarMember(UpdateMember):
         return _('L\'avatar a correctement été mis à jour.')
 
 
+# TODO; old view to be remove
 class UpdatePasswordMember(UpdateMember):
     """Password-related user settings."""
 
@@ -290,6 +312,7 @@ class UpdatePasswordMember(UpdateMember):
         return reverse('update-password-member')
 
 
+# TODO; old view to be remove
 class UpdateUsernameEmailMember(UpdateMember):
     """Settings related to username and email."""
 
@@ -573,6 +596,7 @@ def modify_profile(request, user_pk):
 
 # Settings for public profile
 
+# TODO; old view to be remove
 @can_write_and_read_now
 @login_required
 @permission_required('member.change_profile', raise_exception=True)

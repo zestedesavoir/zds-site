@@ -143,7 +143,23 @@ class RegisterForm(forms.Form):
     def throw_error(self, key=None, message=None):
         self._errors[key] = self.error_class([message])
 
+class MainSettingsForm(forms.Form):
+    pass
 
+
+class ProfileSettingsForm(forms.Form):
+    pass
+
+
+class AccountSettingsForm(forms.Form):
+    pass
+
+
+class EmailSettingsForm(forms.Form):
+    pass
+
+
+# TODO; old form to be remove
 class MiniProfileForm(forms.Form):
     """
     Updates some profile data: biography, website, avatar URL, signature.
@@ -208,6 +224,7 @@ class MiniProfileForm(forms.Form):
             ))
 
 
+# TODO; old form to be remove
 class ProfileForm(MiniProfileForm):
     """
     Updates main profile rules:
@@ -304,6 +321,7 @@ class ProfileForm(MiniProfileForm):
         self.helper.layout = layout
 
 
+# TODO; old form to be remove
 class GitHubTokenForm(forms.Form):
     """
     Updates the GitHub token.
@@ -332,6 +350,7 @@ class GitHubTokenForm(forms.Form):
             ))
 
 
+# TODO; old form to be remove
 class ChangeUserForm(forms.Form):
     """
     Update username and email
@@ -404,6 +423,7 @@ class ChangeUserForm(forms.Form):
         return cleaned_data
 
 
+# TODO; old form to be remove
 # TODO: Updates the password --> requires a better name
 class ChangePasswordForm(forms.Form):
 
@@ -462,6 +482,7 @@ class ChangePasswordForm(forms.Form):
         return validate_passwords(cleaned_data, password_label='password_new', username=self.user.username)
 
 
+# TODO; old form to be remove
 class UsernameAndEmailForm(forms.Form):
     username = forms.CharField(
         label=_('Nom d\'utilisateur'),
