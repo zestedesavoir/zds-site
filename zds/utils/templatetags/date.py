@@ -4,7 +4,7 @@ from django import template
 from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.template.defaultfilters import date
 from django.utils.datetime_safe import datetime
-from django.utils.timezone import LocalTimezone
+from django.utils.timezone import get_current_timezone
 
 register = template.Library()
 
@@ -29,15 +29,11 @@ def date_formatter(value, tooltip, small):
     :param bool small: if `True`, create a shorter string.
     :return:
     """
-    try:
-        value = datetime(value.year, value.month, value.day,
-                         value.hour, value.minute, value.second)
-    except (AttributeError, ValueError):
-        # todo : Check why not raise template.TemplateSyntaxError() ?
+    if not isinstance(value, datetime):
         return value
-
+    
     if getattr(value, 'tzinfo', None):
-        now = datetime.now(LocalTimezone(value))
+        now = datetime.now(get_current_timezone())
     else:
         now = datetime.now()
     now = now - timedelta(microseconds=now.microsecond)
