@@ -1,4 +1,5 @@
 import codecs
+import contextlib
 import copy
 import logging
 import os
@@ -434,7 +435,7 @@ def unpublish_content(db_object, moderator=None):
 
     from zds.tutorialv2.models.database import PublishedContent
 
-    try:
+    with contextlib.suppress(ObjectDoesNotExist, OSError):
         public_version = PublishedContent.objects.get(pk=db_object.public_version.pk)
 
         # clean files
@@ -444,7 +445,8 @@ def unpublish_content(db_object, moderator=None):
             shutil.rmtree(old_path)
 
         list([
-            content_unpublished.send(sender=reaction.__class__, instance=reaction)
+            content_unpublished.send(sender=reaction.__class__, instance=db_object, target=ContentReaction,
+                                     moderator=moderator, user=None)
             for reaction in [ContentReaction.objects.filter(related_content=db_object).all()]
         ])
 
@@ -459,11 +461,9 @@ def unpublish_content(db_object, moderator=None):
             update_params['pubdate'] = None
 
         db_object.update(**update_params)
-        content_unpublished.send(sender=db_object.__class__, instance=db_object)
+        content_unpublished.send(sender=db_object.__class__, instance=db_object, target=db_object.__class__,
+                                 moderator=moderator)
 
         return True
-
-    except (ObjectDoesNotExist, OSError):
-        pass
 
     return False

@@ -9,10 +9,11 @@ from zds.forum.factories import CategoryFactory, ForumFactory
 from zds.forum.models import Topic
 from zds.gallery.factories import UserGalleryFactory
 from zds.member.factories import StaffProfileFactory, ProfileFactory
-from zds.notification.models import NewTopicSubscription, Notification, NewPublicationSubscription
+from zds.notification.models import NewTopicSubscription, Notification, NewPublicationSubscription, \
+    ContentReactionAnswerSubscription
 from zds.notification import signals as notif_signals
 from zds.tutorialv2.factories import PublishableContentFactory, LicenceFactory, SubCategoryFactory, \
-    PublishedContentFactory
+    PublishedContentFactory, ContentReactionFactory
 from zds.tutorialv2.publication_utils import publish_content, notify_update
 from zds.tutorialv2.tests import TutorialTestMixin
 from copy import deepcopy
@@ -158,6 +159,15 @@ class ContentNotification(TestCase, TutorialTestMixin):
         self.assertEqual(1, len(Notification.objects.get_notifications_of(self.user1)))
         unpublish_content(content)
         self.assertEqual(0, len(Notification.objects.get_notifications_of(self.user1)))
+
+    def test_no_persistant_comment_notif_on_revoke(self):
+        from zds.tutorialv2.publication_utils import unpublish_content
+        content = PublishedContentFactory(author_list=[self.user2])
+        ContentReactionAnswerSubscription.objects.get_or_create_active(self.user1, content)
+        ContentReactionFactory(related_content=content, author=self.user2, position=1)
+        self.assertEqual(1, len(Notification.objects.get_unread_notifications_of(self.user1)))
+        unpublish_content(content, moderator=self.user2)
+        self.assertEqual(0, len(Notification.objects.get_unread_notifications_of(self.user1)))
 
     def test_only_one_notif_on_update(self):
         NewPublicationSubscription.objects.get_or_create_active(self.user1, self.user2)
