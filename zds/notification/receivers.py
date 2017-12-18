@@ -5,6 +5,7 @@ import logging
 from django.db import DatabaseError
 
 import zds
+from zds.tutorialv2.signals import content_unpublished
 
 from zds.utils.models import Tag
 
@@ -118,30 +119,35 @@ def mark_topic_notifications_read(sender, **kwargs):
 
 
 @receiver(content_read, sender=PublishableContent)
-def mark_content_reactions_read(sender, **kwargs):
+@receiver(content_unpublished)
+def mark_content_reactions_read(sender, *, instance, user=None, target, **_):
     """
-    :param kwargs:  contains
-        - instance: the content marked as read
-        - user: the user reading the content
-        - target: the published content or the content reaction.
     Marks as read the notifications of the AnswerSubscription of the user to the publishable content.
+
+    :param instance: the content marked as read
+    :param user: the user reading the content
+    :param target: the published content or the content reaction.
+
     """
-    content = kwargs.get('instance')
-    user = kwargs.get('user')
-    target = kwargs.get('target')
 
     if target == ContentReaction:
-        subscription = ContentReactionAnswerSubscription.objects.get_existing(user, content, is_active=True)
-        if subscription:
-            subscription.mark_notification_read()
+        # if we marked a "user" it means we want to remove a peculiar subscription,
+        # if not, all subscription related to instance are marked as read.
+        if not user:
+            for subscription in ContentReactionAnswerSubscription.objects.get_subscriptions(instance, True):
+                subscription.mark_notification_read()
+        else:
+            subscription = ContentReactionAnswerSubscription.objects.get_existing(user, instance, is_active=True)
+            if subscription:
+                subscription.mark_notification_read()
     elif target == PublishableContent:
-        authors = list(content.authors.all())
+        authors = list(instance.authors.all())
         for author in authors:
             subscription = NewPublicationSubscription.objects.get_existing(user, author)
             # a subscription has to be handled only if it is active OR if it was triggered from the publication
             # event that creates an "autosubscribe" which is immediately deactivated.
             if subscription and (subscription.is_active or subscription.user in authors):
-                subscription.mark_notification_read(content=content)
+                subscription.mark_notification_read(content=instance)
 
 
 @receiver(content_read, sender=PrivateTopic)
