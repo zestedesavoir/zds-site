@@ -91,35 +91,19 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
         context['next_content'] = None
 
         if self.current_content_type in ('ARTICLE', 'OPINION'):
-            # fetch all articles or opinions in order to find the previous and the next one
-            queryset_pagination = PublishedContent.objects
+            queryset_pagination = PublishedContent.objects.filter(content_type=self.current_content_type,
+                                                                  must_redirect=False)
 
             if self.current_content_type == 'OPINION':
                 # filter opinions only from the same author
-                queryset_pagination = queryset_pagination.filter(content_type=self.current_content_type,
-                                                                 must_redirect=False,
-                                                                 authors__in=self.object.authors.all())
-            else:
-                queryset_pagination = queryset_pagination.filter(content_type=self.current_content_type,
-                                                                 must_redirect=False)
+                queryset_pagination = queryset_pagination.filter(authors__in=self.object.authors.all())
 
-            all_content = []
-            for c in queryset_pagination.order_by('publication_date').all():
-                if c not in all_content:
-                    # we don't like duplicated entries
-                    all_content.append(c)
-
-            contents_count = len(all_content)
-
-            try:
-                position = all_content.index(self.public_content_object)
-            except ValueError:
-                pass  # for an unknown reason, the article or opinion is not in the list. This should not happen
-            else:
-                if position > 0:
-                    context['previous_content'] = all_content[position - 1]
-                if position < contents_count - 1:
-                    context['next_content'] = all_content[position + 1]
+            context['previous_content'] = queryset_pagination \
+                .filter(publication_date__lt=self.public_content_object.publication_date) \
+                .order_by('publication_date').first()
+            context['next_content'] = queryset_pagination \
+                .filter(publication_date__gt=self.public_content_object.publication_date) \
+                .order_by('publication_date').first()
 
         if self.versioned_object.type == 'OPINION':
             context['formPickOpinion'] = PickOpinionForm(
