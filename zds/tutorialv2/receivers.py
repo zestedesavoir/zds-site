@@ -13,7 +13,7 @@ from zds.utils.models import Alert
 
 
 @receiver(content_unpublished, sender=PublishableContent)
-def cleanup_validation_alerts(sender, instance, *, moderator=None, **_):
+def cleanup_validation_alerts(sender, instance, *, moderator=None, **__):
     """
     When opinions are unpublished (probably permanently), we must be sure all alerts are handled. For now we just \
     resolve them.
@@ -32,7 +32,7 @@ def cleanup_validation_alerts(sender, instance, *, moderator=None, **_):
 
 @receiver(models.signals.post_delete, sender=Gallery)
 @receiver(models.signals.post_delete, sender=PublishableContent)
-def log_content_deletion(sender, instance, **kwargs):
+def log_content_deletion(sender, instance, **__):
     """
     When a content or gallery is deleted, this action is logged.
     """
