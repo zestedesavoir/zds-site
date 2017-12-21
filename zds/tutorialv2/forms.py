@@ -663,7 +663,8 @@ class AcceptValidationForm(forms.Form):
         widget=forms.Textarea(
             attrs={
                 'placeholder': _('Commentaire de publication.'),
-                'rows': '2'
+                'rows': '2',
+                'minlength': '3'
             }
         )
     )
