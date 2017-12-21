@@ -19,7 +19,7 @@ from zds.tutorialv2.utils import get_target_tagged_tree_for_container, \
 from zds.tutorialv2.publication_utils import publish_content, unpublish_content
 from zds.tutorialv2.models.database import PublishableContent, PublishedContent, ContentReaction, ContentRead
 from django.core.management import call_command
-from zds.tutorialv2.publication_utils import Publicator, PublicatorRegistery
+from zds.tutorialv2.publication_utils import Publicator, PublicatorRegistry
 from watchdog.events import FileCreatedEvent
 from zds.tutorialv2.management.commands.publication_watchdog import TutorialIsPublished
 from zds.tutorialv2.tests import TutorialTestMixin
@@ -60,7 +60,7 @@ class UtilsTests(TestCase, TutorialTestMixin):
         self.tuto_draft = self.tuto.load_version()
         self.part1 = ContainerFactory(parent=self.tuto_draft, db_object=self.tuto)
         self.chapter1 = ContainerFactory(parent=self.part1, db_object=self.tuto)
-        self.old_registry = {key: value for key, value in PublicatorRegistery.get_all_registered()}
+        self.old_registry = {key: value for key, value in PublicatorRegistry.get_all_registered()}
 
     def test_get_target_tagged_tree_for_container(self):
         part2 = ContainerFactory(parent=self.tuto_draft, db_object=self.tuto, title='part2')
@@ -534,26 +534,26 @@ class UtilsTests(TestCase, TutorialTestMixin):
 
     def test_watchdog(self):
 
-        PublicatorRegistery.unregister('pdf')
-        PublicatorRegistery.unregister('epub')
-        PublicatorRegistery.unregister('html')
+        PublicatorRegistry.unregister('pdf')
+        PublicatorRegistry.unregister('epub')
+        PublicatorRegistry.unregister('html')
 
         with open('path', 'w') as f:
             f.write('my_content;/path/to/markdown.md')
 
-        @PublicatorRegistery.register('test', '', '')
+        @PublicatorRegistry.register('test', '', '')
         class TestPublicator(Publicator):
             def __init__(self, *__):
                 pass
 
-        PublicatorRegistery.get('test').publish = Mock()
+        PublicatorRegistry.get('test').publish = Mock()
         event = FileCreatedEvent('path')
         handler = TutorialIsPublished()
         handler.prepare_generation = Mock()
         handler.finish_generation = Mock()
         handler.on_created(event)
 
-        self.assertTrue(PublicatorRegistery.get('test').publish.called)
+        self.assertTrue(PublicatorRegistry.get('test').publish.called)
         handler.finish_generation.assert_called_with('/path/to', 'path')
         handler.prepare_generation.assert_called_with('/path/to')
         os.remove('path')
@@ -584,4 +584,4 @@ class UtilsTests(TestCase, TutorialTestMixin):
 
     def tearDown(self):
         super().tearDown()
-        PublicatorRegistery.registry = self.old_registry
+        PublicatorRegistry.registry = self.old_registry
