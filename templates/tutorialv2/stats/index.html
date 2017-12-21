@@ -1,9 +1,9 @@
 {% extends "tutorialv2/base.html" %}
 {% load i18n %}
-
+{% load append_query_params %}
 
 {% block title %}
-    TODO
+    {% trans "Statistiques du contenu" %}
 {% endblock %}
 
 {% block breadcrumb %}
@@ -16,7 +16,7 @@
         <h2 class="ico-after ico-tutorials">
             {% block headline %}
                 {% blocktrans with content_title=content.title %}
-                    Statistiques de {{content_title}}
+                    Statistiques du contenu : {{content_title}}
                 {% endblocktrans %}
             {% endblock %}
         </h2>
@@ -38,10 +38,40 @@
                     {% endfor %}
                 </tbody>
             </table>
+
+            {% for url in urls %}
+                {{url}}<br>
+            {% endfor %}
+
     </section>
 {% endblock %}
 
-
 {% block sidebar_actions %}
-<!--TODO add here change of time frame (past week, past 30 days, past year)-->
+<div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">
+    <h3>{% trans "Échelle de temps" %}</h3>
+    <ul>
+        <li>
+            <a href="{% append_query_params days=7 %}">
+                <span>
+                    {% trans "7 derniers jours" %}
+                </span>
+            </a>
+        </li>
+        <li>
+            <a href="{% append_query_params days=30 %}">
+                <span>
+                    {% trans "30 derniers jours" %}
+                </span>
+            </a>
+        </li>
+        <li>
+            <a href="{% append_query_params days=365 %}">
+                <span>
+                    {% trans "La dernière année" %}
+                </span>
+            </a>
+        </li>
+    </ul>
+</div>
+<!--TODO missing style for default and active filter-->
 {% endblock sidebar_actions %}

@@ -1038,6 +1038,7 @@ class TagsListView(ListView):
         return context
 
 
+from datetime import date, timedelta
 class ContentStatisticsView(SingleOnlineContentDetailViewMixin, TemplateView):
     template_name = 'tutorialv2/stats/index.html'
 
@@ -1046,10 +1047,46 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, TemplateView):
                 {'url': '/arduino/hello-world', 'pageviews': 1000, 'avgTimeOnPage': 500},
                 {'url': '/arduino/very-hard','pageviews': 80, 'avgTimeOnPage': 1500}]
 
+    def get_content_urls(self, content):
+        urls = [content.get_absolute_url_online()]
+        if content.has_extracts():
+            return urls
+
+        for child in content.children:
+            urls.append(child.get_absolute_url_online())
+            if not child.has_extracts():
+                for subchild in child.children:
+                    urls.append(subchild.get_absolute_url_online())
+        return urls
+
+    def get_pageviews_for_time_range(self, start, end):
+        # Eskimon's magic here !
+        api_raw = [
+            {'date': '2017-12-14', 'pageviews': 2463},
+            {'date': '2017-12-15', 'pageviews': 2400},
+            {'date': '2017-12-16', 'pageviews': 2800},
+            {'date': '2017-12-16', 'pageviews': 3200}
+        ]
+        return api_raw
+
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        content = context['public_object']
+        public_version =  content.load_public_version()
+        urls = self.get_content_urls(public_version)
+
+        nb_days = int(self.request.GET.get('days', 7)) # TODO this could raise typerror
+        yesterday = date.today() - timedelta(1)
+        start_time_frame = yesterday - timedelta(nb_days)
+        print('time frame {} {}'.format(start_time_frame, yesterday)) # TODO remove me
+
+        pageviews_for_time_range = self.get_pageviews_for_time_range(start_time_frame, yesterday)
+
         context.update({
-                'content': self.get_public_object(),
-                'url_stats': self.get_stats()
+                'content': content,
+                'urls': urls, # Example, not really needed normaly
+                'pageviews': pageviews_for_time_range,
+                'url_stats': self.get_stats() # GLobal stats with no duration taken in account ?
             })
         return context
