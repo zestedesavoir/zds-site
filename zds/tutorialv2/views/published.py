@@ -1036,3 +1036,20 @@ class TagsListView(ListView):
             context['tags_to_display'] = self.displayed_types[0]
 
         return context
+
+
+class ContentStatisticsView(SingleOnlineContentDetailViewMixin, TemplateView):
+    template_name = 'tutorialv2/stats/index.html'
+
+    def get_stats(self):
+        return [{'url': '/arduino', 'pageviews': 1800, 'avgTimeOnPage': 150},
+                {'url': '/arduino/hello-world', 'pageviews': 1000, 'avgTimeOnPage': 500},
+                {'url': '/arduino/very-hard','pageviews': 80, 'avgTimeOnPage': 1500}]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+                'content': self.get_public_object(),
+                'url_stats': self.get_stats()
+            })
+        return context

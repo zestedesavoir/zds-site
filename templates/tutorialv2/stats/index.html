@@ -1,0 +1,47 @@
+{% extends "tutorialv2/base.html" %}
+{% load i18n %}
+
+
+{% block title %}
+    TODO
+{% endblock %}
+
+{% block breadcrumb %}
+    <li>{{ content.title }}</li>
+{% endblock %}
+
+
+{% block content_out %}
+    <section class="full-content-wrapper">
+        <h2 class="ico-after ico-tutorials">
+            {% block headline %}
+                {% blocktrans with content_title=content.title %}
+                    Statistiques de {{content_title}}
+                {% endblocktrans %}
+            {% endblock %}
+        </h2>
+        <!--TODO check that a leat one stats is available, else display error msg-->
+        <table class="fullwidth">
+                <thead>
+                    <th>{% trans "URL" %}</th>
+                    <th>{% trans "Vues" %}</th>
+                    <th class="wide">{% trans "Temps moyen sur la page" %}</th>
+                </thead>
+                <tbody>
+                    {% for view in url_stats %}
+                        <tr>
+                            <!--   TODO this could be a link to the online version/part/chapter -->
+                            <td>{{ view.url }}</td>
+                            <td>{{ view.pageviews}}</td>
+                            <td class="wide">{{ view.avgTimeOnPage}}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+    </section>
+{% endblock %}
+
+
+{% block sidebar_actions %}
+<!--TODO add here change of time frame (past week, past 30 days, past year)-->
+{% endblock sidebar_actions %}
