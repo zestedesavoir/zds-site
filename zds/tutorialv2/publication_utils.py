@@ -98,7 +98,7 @@ def publish_content(db_object, versioned, is_major_update=True):
         # ok, now we can really publish the thing !
         generate_exernal_content(base_name, extra_contents_path, md_file_path, pandoc_debug_str)
     elif settings.ZDS_APP['content']['extra_content_generation_policy'] == 'WATCHDOG':
-        PublicatorRegistery.get('watchdog').publish(md_file_path, base_name, silently_pass=False)
+        PublicatorRegistry.get('watchdog').publish(md_file_path, base_name, silently_pass=False)
 
     is_update = False
 
@@ -173,12 +173,12 @@ def generate_exernal_content(base_name, extra_contents_path, md_file_path, pando
     excluded = []
     if not settings.ZDS_APP['content']['build_pdf_when_published'] and not overload_settings:
         excluded.append('pdf')
-    for __, publicator in PublicatorRegistery.get_all_registered(excluded):
+    for __, publicator in PublicatorRegistry.get_all_registered(excluded):
 
         publicator.publish(md_file_path, base_name, change_dir=extra_contents_path, pandoc_debug_str=pandoc_debug_str)
 
 
-class PublicatorRegistery:
+class PublicatorRegistry:
     """
     Register all publicator as a 'human-readable name/publicator' instance key/value list
     """
@@ -245,9 +245,9 @@ class Publicator:
         raise NotImplemented()
 
 
-@PublicatorRegistery.register('pdf', settings.PANDOC_LOC, 'pdf', settings.PANDOC_PDF_PARAM)
-@PublicatorRegistery.register('epub', settings.PANDOC_LOC, 'epub')
-@PublicatorRegistery.register('html', settings.PANDOC_LOC, 'html')
+@PublicatorRegistry.register('pdf', settings.PANDOC_LOC, 'pdf', settings.PANDOC_PDF_PARAM)
+@PublicatorRegistry.register('epub', settings.PANDOC_LOC, 'epub')
+@PublicatorRegistry.register('html', settings.PANDOC_LOC, 'html')
 class PandocPublicator(Publicator):
 
     """
@@ -287,7 +287,7 @@ class PandocPublicator(Publicator):
             self.__logger.info('Finished {} generation'.format(base_name + '.' + self.format))
 
 
-@PublicatorRegistery.register('watchdog', settings.ZDS_APP['content']['extra_content_watchdog_dir'])
+@PublicatorRegistry.register('watchdog', settings.ZDS_APP['content']['extra_content_watchdog_dir'])
 class WatchdogFilePublicator(Publicator):
     """
     Just create a meta data file for watchdog
