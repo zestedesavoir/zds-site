@@ -918,10 +918,34 @@ def login_view(request):
         username = request.POST['username']
         password = request.POST['password']
         user = authenticate(username=username, password=password)
-        if user is not None:
+
+        if user is None:
+            initial = {'username': username}
+            if User.objects.filter(username=username).exists():
+                messages.error(request, _('Mot de passe incorrect.'))
+            else:
+                messages.error(request, _('Nom d\'utilisateur inconnu.'))
+        else:
             profile = get_object_or_404(Profile, user=user)
-            if user.is_active:
-                if profile.can_read_now():
+            if not user.is_active:
+                messages.error(request,
+                    _(
+                        'Vous n\'avez pas encore activé votre compte, '
+                        'vous devez le faire pour pouvoir vous '
+                        'connecter sur le site. Regardez dans vos '
+                        'mails : {}.'
+                    ).format(user.email)
+                )
+            else:
+                if not profile.can_read_now():
+                    messages.error(request,
+                        _(
+                            'Vous n\'êtes pas autorisé à vous connecter '
+                            'sur le site, vous avez été banni par un '
+                            'modérateur.'
+                        )
+                    )
+                else:
                     login(request, user)
                     request.session['get_token'] = generate_token()
                     if 'remember' not in request.POST:
@@ -940,21 +964,6 @@ def login_view(request):
                         response = redirect(reverse('homepage'))
                         set_old_smileys_cookie(response, profile)
                         return response
-                else:
-                    messages.error(request,
-                                   _('Vous n\'êtes pas autorisé à vous connecter '
-                                     'sur le site, vous avez été banni par un '
-                                     'modérateur.'))
-            else:
-                messages.error(request,
-                               _('Vous n\'avez pas encore activé votre compte, '
-                                 'vous devez le faire pour pouvoir vous '
-                                 'connecter sur le site. Regardez dans vos '
-                                 'mails : {}.').format(user.email))
-        else:
-            messages.error(request,
-                           _('Les identifiants fournis ne sont pas valides.'))
-            initial = {'username': username}
 
     form = LoginForm(initial=initial)
     if next_page is not None:
