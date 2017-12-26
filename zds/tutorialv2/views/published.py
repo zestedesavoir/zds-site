@@ -1039,13 +1039,9 @@ class TagsListView(ListView):
 
 
 from datetime import date, timedelta
+from random import randint
 class ContentStatisticsView(SingleOnlineContentDetailViewMixin, TemplateView):
     template_name = 'tutorialv2/stats/index.html'
-
-    def get_stats(self):
-        return [{'url': '/arduino', 'pageviews': 1800, 'avgTimeOnPage': 150},
-                {'url': '/arduino/hello-world', 'pageviews': 1000, 'avgTimeOnPage': 500},
-                {'url': '/arduino/very-hard','pageviews': 80, 'avgTimeOnPage': 1500}]
 
     def get_content_urls(self, content):
         urls = [content.get_absolute_url_online()]
@@ -1059,16 +1055,25 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, TemplateView):
                     urls.append(subchild.get_absolute_url_online())
         return urls
 
-    def get_pageviews_for_time_range(self, start, end):
+    def get_cumulative_stats_by_url(self, urls):
+        # TODO some Eskimon's magic here
+        return [{'url': url, 'pageviews': 1800, 'avgTimeOnPage': 150} for url in urls]
+
+    def get_pageviews_for_time_range(self, urls, start, end):
         # Eskimon's magic here !
-        api_raw = [
-            {'date': '2017-12-14', 'pageviews': 2463},
-            {'date': '2017-12-15', 'pageviews': 2400},
-            {'date': '2017-12-16', 'pageviews': 2800},
-            {'date': '2017-12-16', 'pageviews': 3200}
-        ]
+        # Following is just for test purpose
+        nb_days = (end - start).days
+        api_raw = [{'date': (start + timedelta(i)).strftime("%Y-%m-%d"),
+                    'pageviews': randint(100, 1500)} for i in range(nb_days)]
         return api_raw
 
+    def get_pagetime_for_time_range(self, urls, start, end):
+        # Eskimon's magic here !
+        # Following is just for test purpose
+        nb_days = (end - start).days
+        api_raw = [{'date': (start + timedelta(i)).strftime("%Y-%m-%d"),
+                    'time': randint(0, 150)} for i in range(nb_days)]
+        return api_raw
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1081,12 +1086,14 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, TemplateView):
         start_time_frame = yesterday - timedelta(nb_days)
         print('time frame {} {}'.format(start_time_frame, yesterday)) # TODO remove me
 
-        pageviews_for_time_range = self.get_pageviews_for_time_range(start_time_frame, yesterday)
+        pageviews_for_time_range = self.get_pageviews_for_time_range(urls, start_time_frame, yesterday)
+        pagetime_for_time_range = self.get_pagetime_for_time_range(urls, start_time_frame, yesterday)
 
         context.update({
                 'content': content,
                 'urls': urls, # Example, not really needed normaly
                 'pageviews': pageviews_for_time_range,
-                'url_stats': self.get_stats() # GLobal stats with no duration taken in account ?
+                'pagetime': pagetime_for_time_range,
+                'cumulative_stats_by_url': self.get_cumulative_stats_by_url(urls)
             })
         return context
