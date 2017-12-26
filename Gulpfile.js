@@ -66,6 +66,7 @@ gulp.task('js', () =>
         'assets/js/index.js',
         'assets/js/jquery-tabbable.js',
         'assets/js/karma.js',
+        'assets/js/charts.js',
         'assets/js/keyboard-navigation.js',
         'assets/js/markdown-help.js',
         'assets/js/message-hidden.js',

@@ -12,6 +12,10 @@
 
 
 {% block content_out %}
+    <!--TODO those should not be needed -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
+
     <section class="full-content-wrapper">
         <h2 class="ico-after ico-tutorials">
             {% block headline %}
@@ -20,34 +24,50 @@
                 {% endblocktrans %}
             {% endblock %}
         </h2>
+
+        <div class="stat-graph-container">
+            <div class="stat-graph">
+                <canvas id="view-graph"
+                        data-time='[{% for view in pageviews %}"{{view.date}}"{% if not forloop.last %},{% endif %}{% endfor %}]'
+                        data-views="[{% for view in pageviews %}{{view.pageviews}} {% if not forloop.last %},{% endif %}{% endfor %}]"
+                        data-label="{% trans 'Évolution du nombre de pages vues' %}">
+                </canvas>
+            </div>
+
+            <div class="stat-graph">
+                <canvas id="visit-time-graph"
+                        data-time='[{% for view in pagetime %}"{{view.date}}"{% if not forloop.last %},{% endif %}{% endfor %}]'
+                        data-views="[{% for view in pagetime %}{{view.time}} {% if not forloop.last %},{% endif %}{% endfor %}]"
+                        data-label="{% trans 'Évolution du temps moyen de lecture' %}">
+                </canvas>
+            </div>
+        </div>
+
         <!--TODO check that a leat one stats is available, else display error msg-->
         <table class="fullwidth">
-                <thead>
-                    <th>{% trans "URL" %}</th>
-                    <th>{% trans "Vues" %}</th>
-                    <th class="wide">{% trans "Temps moyen sur la page" %}</th>
-                </thead>
-                <tbody>
-                    {% for view in url_stats %}
-                        <tr>
-                            <!--   TODO this could be a link to the online version/part/chapter -->
-                            <td>{{ view.url }}</td>
-                            <td>{{ view.pageviews}}</td>
-                            <td class="wide">{{ view.avgTimeOnPage}}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-
-            {% for url in urls %}
-                {{url}}<br>
-            {% endfor %}
-
+            <thead>
+                <th>{% trans "URL" %}</th>
+                <th>{% trans "Vues" %}</th>
+                <th class="wide">{% trans "Temps moyen sur la page" %}</th>
+            </thead>
+            <tbody>
+                {% for view in cumulative_stats_by_url %}
+                    <tr>
+                        <!-- TODO this could be a link to the online version/part/chapter -->
+                        <td>{{ view.url }}</td>
+                        <td>{{ view.pageviews}}</td>
+                        <td class="wide">{{ view.avgTimeOnPage}}</td>
+                        <!-- TODO convert me from seconds to hh:mm:ss if needed --->
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </section>
 {% endblock %}
 
 {% block sidebar_actions %}
 <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">
+    <!--TODO missing style for default and active filter-->
     <h3>{% trans "Échelle de temps" %}</h3>
     <ul>
         <li>
@@ -73,5 +93,4 @@
         </li>
     </ul>
 </div>
-<!--TODO missing style for default and active filter-->
 {% endblock sidebar_actions %}

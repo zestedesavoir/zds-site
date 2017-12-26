@@ -28,6 +28,7 @@
   "dependencies": {
     "autoprefixer": "^7.2.6",
     "body-parser": "^1.18.2",
+    "chart.js": "^2.7.1",
     "cookies-eu-banner": "^1.2.10",
     "cssnano": "3.10.0",
     "del": "3.0.0",
@@ -43,6 +44,7 @@
     "highlight.js": "^9.12.0",
     "jquery": "3.2.1",
     "katex": "^0.9.0",
+    "moment": "^2.20.1",
     "normalize.css": "7.0.0"
   },
   "devDependencies": {
