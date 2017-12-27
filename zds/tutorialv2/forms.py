@@ -1256,3 +1256,28 @@ class PromoteOpinionToArticleForm(forms.Form):
                 _('Valider'),
                 type='submit')
         )
+
+class ContentCompareStatsURLForm(forms.Form):
+    # TODO add validation, urls must be differents
+    url_1 = forms.ChoiceField(required=True)
+    url_2 = forms.ChoiceField(required=True)
+
+    def __init__(self, urls, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['url_1'].choices = urls
+        self.fields['url_2'].choices = urls
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Field('url_1'),
+            Field('url_2'),
+            StrictButton(_('Comparer'), type='submit')
+        )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        url_1 = cleaned_data.get('url_1')
+        url_2 = cleaned_data.get('url_2')
+        if url_1 == url_2:
+            raise forms.ValidationError(_('Les deux URL doivent être différentes'))
+
