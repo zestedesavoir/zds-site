@@ -1258,26 +1258,23 @@ class PromoteOpinionToArticleForm(forms.Form):
         )
 
 class ContentCompareStatsURLForm(forms.Form):
-    # TODO add validation, urls must be differents
-    url_1 = forms.ChoiceField(required=True)
-    url_2 = forms.ChoiceField(required=True)
+    urls = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple(), required=True)
 
     def __init__(self, urls, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['url_1'].choices = urls
-        self.fields['url_2'].choices = urls
+        self.fields['urls'].choices = urls
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            Field('url_1'),
-            Field('url_2'),
+            Field('urls'),
             StrictButton(_('Comparer'), type='submit')
         )
 
     def clean(self):
         cleaned_data = super().clean()
-        url_1 = cleaned_data.get('url_1')
-        url_2 = cleaned_data.get('url_2')
-        if url_1 == url_2:
-            raise forms.ValidationError(_('Les deux URL doivent être différentes'))
+        urls = cleaned_data.get('urls')
+        if not urls:
+            raise forms.ValidationError(_('Vous devez choisir des URL a comparer'))
+        if len(urls) < 2:
+            raise forms.ValidationError(_('Il faut au minium 2 urls à comparer'))
 
