@@ -1,5 +1,6 @@
 {% extends "tutorialv2/base.html" %}
 {% load i18n %}
+{% load crispy_forms_tags %}
 {% load append_query_params %}
 
 {% block title %}
@@ -62,6 +63,13 @@
                 {% endfor %}
             </tbody>
         </table>
+
+        <h2>{% trans "Comparer deux pages entres-elles" %}</h2>
+        {% crispy form %}
+        <!-- TODO add submit btn -->
+        <!-- TODO put the select side by side -->
+
+
     </section>
 {% endblock %}
 

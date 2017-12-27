@@ -1039,9 +1039,32 @@ class TagsListView(ListView):
 
 
 from datetime import date, timedelta
+from zds.tutorialv2.forms import ContentCompareStatsURLForm
 from random import randint
-class ContentStatisticsView(SingleOnlineContentDetailViewMixin, TemplateView):
+class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
     template_name = 'tutorialv2/stats/index.html'
+    form_class = ContentCompareStatsURLForm
+
+    def post(self, *args, **kwargs):
+        # TODO not super dry with mixin
+        try:
+            self.public_content_object = self.get_public_object()
+        except MustRedirect as redirection_url:
+            return HttpResponsePermanentRedirect(redirection_url)
+
+        self.object = self.get_object()
+        self.versioned_object = self.get_versioned_object()
+        return super().post(*args, **kwargs)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        urls = self.get_content_urls(self.versioned_object)
+        kwargs['urls'] = [(url, url) for url in urls]
+        return kwargs
+
+    def form_valid(self, form):
+        return HttpResponse("TOTO")
+        # TODO, redirect to another view ?
 
     def get_content_urls(self, content):
         urls = [content.get_absolute_url_online()]
@@ -1084,7 +1107,6 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, TemplateView):
         nb_days = int(self.request.GET.get('days', 7)) # TODO this could raise typerror
         yesterday = date.today() - timedelta(1)
         start_time_frame = yesterday - timedelta(nb_days)
-        print('time frame {} {}'.format(start_time_frame, yesterday)) # TODO remove me
 
         pageviews_for_time_range = self.get_pageviews_for_time_range(urls, start_time_frame, yesterday)
         pagetime_for_time_range = self.get_pagetime_for_time_range(urls, start_time_frame, yesterday)
