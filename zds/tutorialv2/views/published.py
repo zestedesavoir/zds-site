@@ -1044,6 +1044,8 @@ from random import randint
 class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
     template_name = 'tutorialv2/stats/index.html'
     form_class = ContentCompareStatsURLForm
+    display = 'global'
+    urls = []
 
     def post(self, *args, **kwargs):
         # TODO not super dry with mixin
@@ -1063,10 +1065,14 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         return kwargs
 
     def form_valid(self, form):
-        return HttpResponse("TOTO")
-        # TODO, redirect to another view ?
+        self.urls = form.cleaned_data['urls']
+        self.display = 'comparison'
+        return super().get(self.request)
 
     def get_content_urls(self, content):
+        if self.urls:
+            return self.urls
+
         urls = [content.get_absolute_url_online()]
         if content.has_extracts():
             return urls
@@ -1082,7 +1088,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         # TODO some Eskimon's magic here
         return [{'url': url, 'pageviews': 1800, 'avgTimeOnPage': 150} for url in urls]
 
-    def get_pageviews_for_time_range(self, urls, start, end):
+    def get_global_pageviews_for_time_range(self, urls, start, end):
         # Eskimon's magic here !
         # Following is just for test purpose
         nb_days = (end - start).days
@@ -1090,12 +1096,23 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
                     'pageviews': randint(100, 1500)} for i in range(nb_days)]
         return api_raw
 
-    def get_pagetime_for_time_range(self, urls, start, end):
+    def get_global_pagetime_for_time_range(self, urls, start, end):
         # Eskimon's magic here !
         # Following is just for test purpose
         nb_days = (end - start).days
         api_raw = [{'date': (start + timedelta(i)).strftime("%Y-%m-%d"),
                     'time': randint(0, 150)} for i in range(nb_days)]
+        return api_raw
+
+    def get_pageviews_for_time_range(self, urls, start, end):
+        # Eskimon's magic here !
+        # Following is just for test purpose
+        nb_days = (end - start).days
+        api_raw = []
+        for url in urls:
+            stats = [{'date': (start + timedelta(i)).strftime("%Y-%m-%d"),'pageviews': randint(0, 150)} for i in range(nb_days)]
+            element = {'url': url, 'stats': stats}
+            api_raw.append(element)
         return api_raw
 
     def get_context_data(self, **kwargs):
@@ -1108,14 +1125,19 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         yesterday = date.today() - timedelta(1)
         start_time_frame = yesterday - timedelta(nb_days)
 
-        pageviews_for_time_range = self.get_pageviews_for_time_range(urls, start_time_frame, yesterday)
-        pagetime_for_time_range = self.get_pagetime_for_time_range(urls, start_time_frame, yesterday)
+        pageviews_for_time_range = self.get_global_pageviews_for_time_range(urls, start_time_frame, yesterday)
+        pagetime_for_time_range = self.get_global_pagetime_for_time_range(urls, start_time_frame, yesterday)
 
         context.update({
                 'content': content,
+                'display': self.display,
                 'urls': urls, # Example, not really needed normaly
                 'pageviews': pageviews_for_time_range,
                 'pagetime': pagetime_for_time_range,
                 'cumulative_stats_by_url': self.get_cumulative_stats_by_url(urls)
             })
+
+
+        if self.display == 'comparison':
+            context.update({'comparison_of_pageviews': self.get_pageviews_for_time_range(urls, start_time_frame, yesterday)})
         return context
