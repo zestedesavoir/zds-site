@@ -30,16 +30,17 @@
                 <div class="stat-graph">
                     <canvas id="view-graph"
                             data-time='[{% for view in pageviews %}"{{view.date}}"{% if not forloop.last %},{% endif %}{% endfor %}]'
-                            data-views="[{% for view in pageviews %}{{view.pageviews}} {% if not forloop.last %},{% endif %}{% endfor %}]"
-                            data-label="{% trans 'Évolution du nombre de pages vues' %}">
+                            data-views-0="[{% for view in pageviews %}{{view.pageviews}} {% if not forloop.last %},{% endif %}{% endfor %}]"
+                            data-label-views-0="{% trans 'Évolution du nombre de pages vues' %}">
                     </canvas>
+
                 </div>
 
                 <div class="stat-graph">
                     <canvas id="visit-time-graph"
                             data-time='[{% for view in pagetime %}"{{view.date}}"{% if not forloop.last %},{% endif %}{% endfor %}]'
-                            data-views="[{% for view in pagetime %}{{view.time}} {% if not forloop.last %},{% endif %}{% endfor %}]"
-                            data-label="{% trans 'Évolution du temps moyen de lecture' %}">
+                            data-views-0="[{% for view in pagetime %}{{view.time}} {% if not forloop.last %},{% endif %}{% endfor %}]"
+                            data-label-views-0="{% trans 'Évolution du temps moyen de lecture' %}">
                     </canvas>
                 </div>
             </div>
@@ -58,8 +59,7 @@
                                 data-views-{{ forloop.counter0 }}="[{% for view in url.stats %}{{view.pageviews}} {% if not forloop.last %},{% endif %}{% endfor %}]"
                                 data-label-views-{{ forloop.counter0 }}="{{url.url}}"
                             {% endfor %}
-                            data-time='[{% for view in comparison_of_pageviews.0.stats %}"{{view.date}}"{% if not forloop.last %},{% endif %} {% endfor %}]'
-                            data-label="{% trans 'Évolution du nombre de pages vues' %}">
+                            data-time='[{% for view in comparison_of_pageviews.0.stats %}"{{view.date}}"{% if not forloop.last %},{% endif %} {% endfor %}]'">
                     </canvas>
                 </div>
 
