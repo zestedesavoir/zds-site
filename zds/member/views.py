@@ -928,7 +928,8 @@ def login_view(request):
         else:
             profile = get_object_or_404(Profile, user=user)
             if not user.is_active:
-                messages.error(request,
+                messages.error(
+                    request,
                     _(
                         'Vous n\'avez pas encore activé votre compte, '
                         'vous devez le faire pour pouvoir vous '
@@ -938,7 +939,8 @@ def login_view(request):
                 )
             else:
                 if not profile.can_read_now():
-                    messages.error(request,
+                    messages.error(
+                        request,
                         _(
                             'Vous n\'êtes pas autorisé à vous connecter '
                             'sur le site, vous avez été banni par un '
