@@ -68,7 +68,7 @@
                 {% for view in cumulative_stats_by_url %}
                     <tr>
                         <!-- TODO this could be a link to see the details of one url + link to the online version/part/chapter -->
-                        <td>{{ view.url }}</td>
+                        <td>{{ view.url.name }}</td>
                         <td>{{ view.pageviews}}</td>
                         <td class="wide">{{ view.avgTimeOnPage}}</td>
                         <!-- TODO convert me from seconds to hh:mm:ss if needed --->
@@ -91,12 +91,11 @@
 {% block sidebar %}
     <aside class="sidebar summary mobile-menu-hide">
         <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">
-            <!--TODO avoid to have so many get parameters when changing 2 times the time scale-->
             <h3>{% trans "Échelle de temps" %}</h3>
             <ul>
                 <li>
                     <a class="ico-after gear {% if request.GET.days == '7' or request.GET.days is none %}selected{% endif %}"
-                       href="{% append_query_params days=7 %}{% if display != 'global' %}{% for url in urls %}&urls={{url}}{% endfor %}{% endif %}">
+                       href="{% append_query_params days=7 %}{% if display != 'global' %}{% for url in urls %}&urls={{url.url}}{% endfor %}{% endif %}">
                         <span>
                             {% trans "7 derniers jours" %}
                         </span>
@@ -104,7 +103,7 @@
                 </li>
                 <li>
                     <a class="ico-after gear {% if request.GET.days == '30' %}selected{% endif %}"
-                       href="{% append_query_params days=30 %}{% if display != 'global' %}{% for url in urls %}&urls={{url}}{% endfor %}{% endif %}">
+                       href="{% append_query_params days=30 %}{% if display != 'global' %}{% for url in urls %}&urls={{url.url}}{% endfor %}{% endif %}">
                         <span>
                             {% trans "30 derniers jours" %}
                         </span>
@@ -112,7 +111,7 @@
                 </li>
                 <li>
                     <a class="ico-after gear {% if request.GET.days == '365' %}selected{% endif %}"
-                       href="{% append_query_params days=365 %}{% if display != 'global' %}{% for url in urls %}&urls={{url}}{% endfor %}{% endif %}">
+                       href="{% append_query_params days=365 %}{% if display != 'global' %}{% for url in urls %}&urls={{url.url}}{% endfor %}{% endif %}">
                         <span>
                             {% trans "La dernière année" %}
                         </span>
