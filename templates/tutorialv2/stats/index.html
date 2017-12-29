@@ -44,12 +44,13 @@
             </div>
 
             <div class="stat-graph">
-                <!-- TODO when API is refactored -->
-                <!--<canvas id="visit-time-graph"-->
-                        <!--data-time='[{% for view in pagetime %}"{{view.date}}"{% if not forloop.last %},{% endif %}{% endfor %}]'-->
-                        <!--data-views-0="[{% for view in pagetime %}{{view.time}} {% if not forloop.last %},{% endif %}{% endfor %}]"-->
-                        <!--data-label-views-0="{% trans 'Évolution du temps moyen de lecture' %}">-->
-                <!--</canvas>-->
+                <canvas id="visit-time-graph"
+                        {% for url in pagetime %}
+                            data-views-{{ forloop.counter0 }}="[{% for view in url.stats %}{{view.time}} {% if not forloop.last %},{% endif %}{% endfor %}]"
+                            data-label-views-{{ forloop.counter0 }}="{{url.label}}"
+                        {% endfor %}
+                        data-time='[{% for view in pagetime.0.stats %}"{{view.date}}"{% if not forloop.last %},{% endif %} {% endfor %}]'">
+                </canvas>
             </div>
         </div>
 
