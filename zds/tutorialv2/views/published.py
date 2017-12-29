@@ -1044,7 +1044,6 @@ from random import randint
 class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
     template_name = 'tutorialv2/stats/index.html'
     form_class = ContentCompareStatsURLForm
-    display = 'global' # meh, TODO make an enum
     urls = []
 
     def post(self, *args, **kwargs):
@@ -1060,23 +1059,23 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        urls = self.get_urls_to_render(self.versioned_object)
-        kwargs['urls'] = [(url, url) for url in urls]
+        kwargs['urls'] = [(url, url) for url in self.get_urls_to_render()]
         return kwargs
 
     def form_valid(self, form):
         self.urls = form.cleaned_data['urls']
-        self.display = 'comparison'
         return super().get(self.request)
 
-    # TODO maybe we could remove content from those signatures using class/mixin attributes
-    def get_urls_to_render(self, content):
+    def get_urls_to_render(self):
+        if self.request.GET.getlist('urls', None):
+            return self.request.GET.getlist('urls') # TODO test they are in content to avoid hack ?
         if self.urls:
             return self.urls
         else:
-            return self.get_content_urls(content)
+            return self.get_content_urls()
 
-    def get_content_urls(self, content):
+    def get_content_urls(self):
+        content = self.versioned_object
         urls = [content.get_absolute_url_online()]
         if content.has_extracts():
             return urls
@@ -1088,28 +1087,18 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
                     urls.append(subchild.get_absolute_url_online())
         return urls
 
-    # TODO a refacto avec nouveau style API
-    def get_global_pagetime_for_time_range(self, urls, start, end):
-        # Eskimon's magic here !
-        # Following is just for test purpose
-        nb_days = (end - start).days
-        api_raw = [{'date': (start + timedelta(i)).strftime("%Y-%m-%d"),
-                    'time': randint(0, 150)} for i in range(nb_days)]
-        return api_raw
-
-    # Utilisé dans le tableau
     def get_cumulative_stats_by_url(self, urls):
         # TODO some Eskimon's magic here
         return [{'url': url, 'pageviews': 1800, 'avgTimeOnPage': 150} for url in urls]
 
-    def get_pageviews(self, urls, start, end, property, global_stats=True):
+    def get_stat(self, urls, start, end, property, global_stats=True):
         nb_days = (end - start).days
         api_raw = []
 
-        # TODO, meh, maybe a method or dict
-        label = 'Évolutions des pages vues sur le contenu'
+        # TODO, meh, maybe a method or dict or put that in template
+        label = 'Évolution des pages vues sur le contenu'
         if property == 'time':
-            label = 'Évolutions du temps de lecture'
+            label = 'Évolution du temps de lecture'
 
         if global_stats:
             stats = [{'date': (start + timedelta(i)).strftime("%Y-%m-%d"),
@@ -1125,21 +1114,20 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        content = context['public_object'] # TODO we should be able to access content more directly
-        public_version =  content.load_public_version()
-        urls = self.get_urls_to_render(public_version)
+        urls = self.get_urls_to_render()
 
         nb_days = int(self.request.GET.get('days', 7)) # TODO this could raise typerror
         yesterday = date.today() - timedelta(1)
         start_time_frame = yesterday - timedelta(nb_days)
 
-        global_stats = self.display == 'global'
-        pageviews = self.get_pageviews(urls, start_time_frame, yesterday, 'pageviews', global_stats=global_stats)
-        pagetime = self.get_pageviews(urls, start_time_frame, yesterday, 'time', global_stats=global_stats)
+        display_mode = 'global' if len(urls) == len(self.get_content_urls()) else 'comparison'
+        global_stats = display_mode == 'global' # TODO we dont really need thiss anymore
+        pageviews = self.get_stat(urls, start_time_frame, yesterday, 'pageviews', global_stats=global_stats)
+        pagetime = self.get_stat(urls, start_time_frame, yesterday, 'time', global_stats=global_stats)
 
         context.update({
-                'content': content, # Used only for page title ? Overkilled ?
-                'display': self.display, # Display mode
+                'display': display_mode,
+                'urls': urls,
                 'pageviews': pageviews, # Graph
                 'pagetime': pagetime, # Graph
                 'cumulative_stats_by_url': self.get_cumulative_stats_by_url(urls) # Table data
