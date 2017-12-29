@@ -34,7 +34,7 @@
         var allObjectData = $object.data();
         var data = [];
         for (var i in allObjectData) {
-            if (i.indexOf('views') > -1) {
+            if (i.indexOf("views") > -1) {
                 var label = $object.data("label-" + i);
                 data.push({
                     label: label,
@@ -54,14 +54,12 @@
         new window.Chart($object, config);
     }
 
-    if ($('#view-graph').length) {
+    if ($("#view-graph").length) {
         setupChart($("#view-graph"));
     }
-    if ($('#visit-time-graph').length) {
+    if ($("#visit-time-graph").length) {
         setupChart($("#visit-time-graph"));
     }
-    if ($('#view-graph-comparison').length) {
-        setupChart($("#view-graph-comparison"));
-    }
+
 
 })(jQuery);

@@ -16,58 +16,44 @@
     <!--TODO those should not be needed -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
-
     <section class="full-content-wrapper">
-
         {% if display == 'global' %}
             <h2 class="ico-after ico-tutorials">
                 {% blocktrans with content_title=content.title %}
                         Statistiques du contenu : {{content_title}}
                 {% endblocktrans %}
             </h2>
-
-            <div class="stat-graph-container">
-                <div class="stat-graph">
-                    <canvas id="view-graph"
-                            data-time='[{% for view in pageviews %}"{{view.date}}"{% if not forloop.last %},{% endif %}{% endfor %}]'
-                            data-views-0="[{% for view in pageviews %}{{view.pageviews}} {% if not forloop.last %},{% endif %}{% endfor %}]"
-                            data-label-views-0="{% trans 'Évolution du nombre de pages vues' %}">
-                    </canvas>
-
-                </div>
-
-                <div class="stat-graph">
-                    <canvas id="visit-time-graph"
-                            data-time='[{% for view in pagetime %}"{{view.date}}"{% if not forloop.last %},{% endif %}{% endfor %}]'
-                            data-views-0="[{% for view in pagetime %}{{view.time}} {% if not forloop.last %},{% endif %}{% endfor %}]"
-                            data-label-views-0="{% trans 'Évolution du temps moyen de lecture' %}">
-                    </canvas>
-                </div>
-            </div>
-
         {% elif display == 'comparison' %}
             <h2 class="ico-after ico-tutorials">
                 {% blocktrans with content_title=content.title %}
                         Comparaison de plusieurs urls du contenu : {{content_title}}
                 {% endblocktrans %}
             </h2>
+        {% endif %}
 
-            <div class="stat-graph-container">
-                <div class="stat-graph">
-                    <canvas id="view-graph-comparison"
-                            {% for url in comparison_of_pageviews %}
-                                data-views-{{ forloop.counter0 }}="[{% for view in url.stats %}{{view.pageviews}} {% if not forloop.last %},{% endif %}{% endfor %}]"
-                                data-label-views-{{ forloop.counter0 }}="{{url.url}}"
-                            {% endfor %}
-                            data-time='[{% for view in comparison_of_pageviews.0.stats %}"{{view.date}}"{% if not forloop.last %},{% endif %} {% endfor %}]'">
-                    </canvas>
-                </div>
+        <div class="stat-graph-container">
+            <div class="stat-graph">
+                <canvas id="view-graph"
+                        {% for url in pageviews %}
+                            data-views-{{ forloop.counter0 }}="[{% for view in url.stats %}{{view.pageviews}} {% if not forloop.last %},{% endif %}{% endfor %}]"
+                            data-label-views-{{ forloop.counter0 }}="{{url.label}}"
+                        {% endfor %}
+                        data-time='[{% for view in pageviews.0.stats %}"{{view.date}}"{% if not forloop.last %},{% endif %} {% endfor %}]'">
+                </canvas>
 
             </div>
 
-        {% endif %}
+            <div class="stat-graph">
+                <!-- TODO when API is refactored -->
+                <!--<canvas id="visit-time-graph"-->
+                        <!--data-time='[{% for view in pagetime %}"{{view.date}}"{% if not forloop.last %},{% endif %}{% endfor %}]'-->
+                        <!--data-views-0="[{% for view in pagetime %}{{view.time}} {% if not forloop.last %},{% endif %}{% endfor %}]"-->
+                        <!--data-label-views-0="{% trans 'Évolution du temps moyen de lecture' %}">-->
+                <!--</canvas>-->
+            </div>
+        </div>
 
-        <!--TODO check that a leat one stats is available, else display error msg-->
+        <!--TODO check that a least one stats is available, else display error msg-->
         <table class="fullwidth">
             <thead>
                 <th>{% trans "URL" %}</th>
@@ -77,7 +63,6 @@
             <tbody>
                 {% for view in cumulative_stats_by_url %}
                     <tr>
-
                         <!-- TODO this could be a link to see the details of one url + link to the online version/part/chapter -->
                         <td>{{ view.url }}</td>
                         <td>{{ view.pageviews}}</td>
@@ -91,7 +76,7 @@
         {% if display == 'comparison' %}
             TODO bouton retourner au mode global
         {% else %}
-            <h2>{% trans "Comparer deux pages entres-elles" %}</h2>
+            <h2>{% trans "Comparer plusieurs pages entres-elles" %}</h2>
             {% crispy form %}
             <!-- TODO better display -->
         {% endif %}
