@@ -255,20 +255,8 @@
                     {% if content.requires_validation %}
                         <li>
                             <a href="{% url "validation:history" content.pk content.slug %}" class="ico-after history blue">
-                                {% trans "Historique validation" %}
+                                {% trans "Historique de validation" %}
                             </a>
-                        </li>
-                        <li>
-                            <form action="{% url 'validation:mark-obsolete' content.pk %}" method="post">
-                                {% csrf_token %}
-                                <button type="submit" class="ico-after alert blue">
-                                    {% if is_obsolete %}
-                                        {% trans "Marquer comme non obsolète" %}
-                                    {% else %}
-                                        {% trans "Marquer comme obsolète" %}
-                                    {% endif %}
-                                </button>
-                            </form>
                         </li>
                         <li>
                             <a href="#unpublish" class="ico-after open-modal cross blue">
@@ -277,31 +265,29 @@
                             {% crispy formRevokeValidation %}
                         </li>
                     {% else %}
-                        {% if is_staff %}
-                            {% if content.sha_public != content.sha_picked  %}
-                                <li>
-                                    <a href="#pick-opinion" class="ico-after open-modal tick green">
-                                        {% trans "Choisir le billet" %}
-                                    </a>
-                                    {% crispy formPickOpinion %}
-                                </li>
-                            {% endif %}
-                            {% if not content.converted_to %}
-                                <li>
-                                    <a href="#convert-opinion" class="ico-after open-modal tick green">
-                                        {% trans "Convertir en article" %}
-                                    </a>
-                                    {% crispy formConvertOpinion %}
-                                </li>
-                            {% endif %}
-                            {% if content.sha_public == content.sha_picked  %}
-                                <li>
-                                    <a href="#unpick-opinion" class="ico-after open-modal cross blue">
-                                        {% trans "Retirer des billets choisis" %}
-                                    </a>
-                                    {% crispy formUnpickOpinion %}
-                                </li>
-                            {% endif %}
+                        {% if content.sha_public != content.sha_picked  %}
+                            <li>
+                                <a href="#pick-opinion" class="ico-after open-modal tick green">
+                                    {% trans "Choisir le billet" %}
+                                </a>
+                                {% crispy formPickOpinion %}
+                            </li>
+                        {% endif %}
+                        {% if not content.converted_to %}
+                            <li>
+                                <a href="#convert-opinion" class="ico-after open-modal tick green">
+                                    {% trans "Convertir en article" %}
+                                </a>
+                                {% crispy formConvertOpinion %}
+                            </li>
+                        {% endif %}
+                        {% if content.sha_public == content.sha_picked  %}
+                            <li>
+                                <a href="#unpick-opinion" class="ico-after open-modal cross blue">
+                                    {% trans "Retirer des billets choisis" %}
+                                </a>
+                                {% crispy formUnpickOpinion %}
+                            </li>
                         {% endif %}
                         <li>
                             <a href="#unpublish" class="ico-after open-modal cross blue">
@@ -309,7 +295,29 @@
                             </a>
                             {% crispy formUnpublication %}
                         </li>
+                        <li>
+                            <button class="ico-after cross red unpublish-opinion" data-url="{% url 'validation:ignore-opinion' content.pk content.slug %}" data-confirm="{% trans "Voulez-vous vraiment modérer ce billet ? Il sera dépublié et ne pourra pas être republié." %}" data-done="{% trans "Le billet a été modéré." %}" data-redirect-url="{{ object.get_absolute_url }}">
+                                {% trans "Modérer" %}
+                            </button>
+                        </li>
+                        <li>
+                            <a href="{% url "validation:ignore-opinion" content.pk content.slug %}" class="ico-after history blue">
+                                {% trans "Historique de modération" %}
+                            </a>
+                        </li>
                     {% endif %}
+                    <li>
+                        <form action="{% url 'validation:mark-obsolete' content.pk %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="ico-after alert blue">
+                                {% if is_obsolete %}
+                                    {% trans "Marquer comme non obsolète" %}
+                                {% else %}
+                                    {% trans "Marquer comme obsolète" %}
+                                {% endif %}
+                            </button>
+                        </form>
+                    </li>
                 {% endif %}
             </ul>
         </div>

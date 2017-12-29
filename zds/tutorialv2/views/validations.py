@@ -690,9 +690,12 @@ class DoNotPickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormView
         self.success_url = versioned.get_absolute_url_online()
         if not db_object.in_public():
             raise Http404('This opinion is not published.')
-        elif PickListOperation.objects.filter(content=self.object, is_effective=True).exists():
+        elif PickListOperation.objects.filter(content=self.object, is_effective=True).exists() \
+                and form.cleaned_data['operation'] != 'REMOVE_PUB':
             raise PermissionDenied('There is already an effective operation for this content.')
         try:
+            PickListOperation.objects.filter(content=self.object).update(is_effective=False,
+                                                                         canceler_user=self.request.user)
             PickListOperation.objects.create(content=self.object, operation=form.cleaned_data['operation'],
                                              staff_user=self.request.user, operation_date=datetime.now(),
                                              version=db_object.sha_public)
@@ -712,7 +715,7 @@ class DoNotPickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormView
                 send_mp(
                     bot,
                     versioned.authors.all(),
-                    _('Dépublication'),
+                    _('Billet modéré'),
                     versioned.title,
                     msg,
                     True,

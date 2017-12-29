@@ -126,6 +126,14 @@
             </div>
         {% endif %}
     {% endif %}
+
+    {% if not can_publish %}
+        <div class="content-wrapper">
+            <div class="alert-box warning">
+                {% trans "Ce contenu a été modéré. Il ne peut pas faire l'objet d'une nouvelle publication." %}
+            </div>
+        </div>
+    {% endif %}
 {% endblock %}
 
 
@@ -456,7 +464,7 @@
     {% if is_staff %}
 
         <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Validation">
-            <h3>{% trans "Validation" %}</h3>
+            <h3>{{ content.is_opinion|yesno:_("Modération,Validation") }}</h3>
             <ul>
                 {% if not content.is_opinion %}
                     <li>

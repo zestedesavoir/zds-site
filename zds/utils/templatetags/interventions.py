@@ -3,13 +3,14 @@ from datetime import datetime, timedelta
 from django import template
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
+from django.db.models import F
 
 from zds.forum.models import Post, is_read as topic_is_read
 from zds.mp.models import PrivateTopic
 from zds.tutorialv2.models.database import Validation
 from zds.notification.models import Notification, TopicAnswerSubscription, ContentReactionAnswerSubscription, \
     NewTopicSubscription, NewPublicationSubscription
-from zds.tutorialv2.models.database import ContentReaction, PublishableContent
+from zds.tutorialv2.models.database import ContentReaction, PublishableContent, PickListOperation
 from zds.utils import get_current_user
 from zds.utils.models import Alert, HatRequest
 from django.conf import settings
@@ -199,6 +200,13 @@ def waiting_count(content_type):
     """
     if content_type not in TYPE_CHOICES_DICT:
         raise template.TemplateSyntaxError("'content_type' must be in 'zds.tutorialv2.models.TYPE_CHOICES_DICT'")
+
+    if content_type == 'OPINION':
+        return PublishableContent.objects \
+            .filter(type='OPINION', sha_public__isnull=False) \
+            .exclude(sha_picked=F('sha_public')) \
+            .exclude(pk__in=PickListOperation.objects.filter(is_effective=True).values_list('content__pk', flat=True)) \
+            .count()
 
     return Validation.objects.filter(
         validator__isnull=True,
