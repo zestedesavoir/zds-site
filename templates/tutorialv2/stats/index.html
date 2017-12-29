@@ -28,11 +28,14 @@
                 {% blocktrans with content_title=content.title %}
                         Comparaison de plusieurs urls du contenu : {{content_title}}
                 {% endblocktrans %}
+
+
             </h2>
         {% endif %}
 
         <div class="stat-graph-container">
             <div class="stat-graph">
+                <!-- TODO nice to have, template tag to serialize those array, use built-in template tag ??? --->
                 <canvas id="view-graph"
                         {% for url in pageviews %}
                             data-views-{{ forloop.counter0 }}="[{% for view in url.stats %}{{view.pageviews}} {% if not forloop.last %},{% endif %}{% endfor %}]"
@@ -75,7 +78,7 @@
         </table>
 
         {% if display == 'comparison' %}
-            TODO bouton retourner au mode global
+            <!-- TODO bouton retourner au mode global -->
         {% else %}
             <h2>{% trans "Comparer plusieurs pages entres-elles" %}</h2>
             {% crispy form %}
@@ -88,25 +91,28 @@
 {% block sidebar %}
     <aside class="sidebar summary mobile-menu-hide">
         <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">
-            <!--TODO add get parameter so that comparison is keep when changing time scale ??? -->
+            <!--TODO avoid to have so many get parameters when changing 2 times the time scale-->
             <h3>{% trans "Échelle de temps" %}</h3>
             <ul>
                 <li>
-                    <a class="ico-after gear {% if request.GET.days == '7' or request.GET.days is none %}selected{% endif %}" href="{% append_query_params days=7 %}">
+                    <a class="ico-after gear {% if request.GET.days == '7' or request.GET.days is none %}selected{% endif %}"
+                       href="{% append_query_params days=7 %}{% if display != 'global' %}{% for url in urls %}&urls={{url}}{% endfor %}{% endif %}">
                         <span>
                             {% trans "7 derniers jours" %}
                         </span>
                     </a>
                 </li>
                 <li>
-                    <a class="ico-after gear {% if request.GET.days == '30' %}selected{% endif %}" href="{% append_query_params days=30 %}">
+                    <a class="ico-after gear {% if request.GET.days == '30' %}selected{% endif %}"
+                       href="{% append_query_params days=30 %}{% if display != 'global' %}{% for url in urls %}&urls={{url}}{% endfor %}{% endif %}">
                         <span>
                             {% trans "30 derniers jours" %}
                         </span>
                     </a>
                 </li>
                 <li>
-                    <a class="ico-after gear {% if request.GET.days == '365' %}selected{% endif %}" href="{% append_query_params days=365 %}">
+                    <a class="ico-after gear {% if request.GET.days == '365' %}selected{% endif %}"
+                       href="{% append_query_params days=365 %}{% if display != 'global' %}{% for url in urls %}&urls={{url}}{% endfor %}{% endif %}">
                         <span>
                             {% trans "La dernière année" %}
                         </span>
