@@ -22,6 +22,6 @@ COPY requirements.txt requirements-dev.txt Makefile ./
 
 RUN make install-back
 
-ENV DISPLAY=":99.0" PYTHONIOENCODING="utf-8"
+ENV DISPLAY=":99.0" PYTHONIOENCODING="utf-8" DJANGO_SETTINGS_MODULE="zds.settings.docker_dev"
 
 CMD ["./scripts/docker_dev_entrypoint.sh"]

@@ -67,7 +67,7 @@ def test_back():
         'python',
         'manage.py',
         'test',
-        '--settings', 'zds.settings_docker_test',
+        '--settings', 'zds.settings.docker_test',
     ] + cli_args.ARG
 
     return run('back', cmd)
@@ -93,7 +93,6 @@ def fixture():
         'python',
         'manage.py',
         'loaddata',
-        '--settings', 'zds.settings_docker_dev',
     ] + files
 
     return compose(['exec', 'back'] + cmd)
@@ -166,7 +165,6 @@ def es():
         'python',
         'manage.py',
         'es_manager',
-        '--settings', 'zds.settings_docker_dev',
     ] + cli_args.ARG
 
     env = {
