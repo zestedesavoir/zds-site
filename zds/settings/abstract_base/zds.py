@@ -43,7 +43,7 @@ ES_SEARCH_INDEX = {
 
 
 # Anonymous [Dis]Likes. Authors of [dis]likes before those pk will never be shown
-VOTES_ID_LIMIT = zds_config.get('VOTES_ID_LIMIT', 0)
+VOTES_ID_LIMIT = zds_config.get('votes_id_limit', 0)
 
 
 THUMBNAIL_ALIASES = {

@@ -199,7 +199,7 @@ PANDOC_PDF_PARAM = (
 ).format(tex_template_path)
 
 
-ES_SEARCH_INDEX['shards'] = config['elasticsearch'].get('shards', 3),
+ES_SEARCH_INDEX['shards'] = config['elasticsearch'].get('shards', 3)
 
 
 ZDS_APP['site']['association']['email'] = 'communication@zestedesavoir.com'
