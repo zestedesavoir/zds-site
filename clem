@@ -137,7 +137,7 @@ def down():
 
 def rm_freshly_started_services():
     if len(freshly_started_services):
-        return compose(['rm', '--stop'] + freshly_started_services)
+        return compose(['rm', '-f', '--stop'] + freshly_started_services)
     return 0
 
 
