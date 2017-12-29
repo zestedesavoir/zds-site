@@ -1037,7 +1037,12 @@ class TagsListView(ListView):
 
         return context
 
+# TODO move me
+from collections import namedtuple
+NamedUrl = namedtuple('NamedUrl', ['name', 'url'])
 
+
+# TODO move imports
 from datetime import date, timedelta
 from zds.tutorialv2.forms import ContentCompareStatsURLForm
 from random import randint
@@ -1059,7 +1064,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['urls'] = [(url, url) for url in self.get_urls_to_render()]
+        kwargs['urls'] = [(named_url.url, named_url.name) for named_url in self.get_urls_to_render()]
         return kwargs
 
     def form_valid(self, form):
@@ -1067,24 +1072,23 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         return super().get(self.request)
 
     def get_urls_to_render(self):
-        if self.request.GET.getlist('urls', None):
-            return self.request.GET.getlist('urls') # TODO test they are in content to avoid hack ?
-        if self.urls:
-            return self.urls
+        all_named_urls = self.get_content_urls()
+        base_list = self.request.GET.getlist('urls', None) or self.urls
+        if base_list:
+            return [named_url for named_url in all_named_urls if named_url.url in base_list]
         else:
-            return self.get_content_urls()
+            return all_named_urls
 
     def get_content_urls(self):
         content = self.versioned_object
-        urls = [content.get_absolute_url_online()]
+        urls = [NamedUrl(content.title, content.get_absolute_url_online())]
         if content.has_extracts():
             return urls
-
         for child in content.children:
-            urls.append(child.get_absolute_url_online())
+            urls.append(NamedUrl(child.title, child.get_absolute_url_online()))
             if not child.has_extracts():
                 for subchild in child.children:
-                    urls.append(subchild.get_absolute_url_online())
+                    urls.append(NamedUrl(subchild.title, subchild.get_absolute_url_online()))
         return urls
 
     def get_cumulative_stats_by_url(self, urls):
@@ -1108,7 +1112,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
             for url in urls:
                 stats = [{'date': (start + timedelta(i)).strftime("%Y-%m-%d"),
                           property: randint(0, 150)} for i in range(nb_days)]
-                element = {'label': url, 'stats': stats}
+                element = {'label': url.name, 'stats': stats}
                 api_raw.append(element)
         return  api_raw
 
@@ -1116,12 +1120,12 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         context = super().get_context_data(**kwargs)
         urls = self.get_urls_to_render()
 
-        nb_days = int(self.request.GET.get('days', 7)) # TODO this could raise typerror
+        nb_days = int(self.request.GET.get('days', 7)) # TODO this could raise ValueError
         yesterday = date.today() - timedelta(1)
         start_time_frame = yesterday - timedelta(nb_days)
 
         display_mode = 'global' if len(urls) == len(self.get_content_urls()) else 'comparison'
-        global_stats = display_mode == 'global' # TODO we dont really need thiss anymore
+        global_stats = display_mode == 'global' # TODO we dont really need this anymore
         pageviews = self.get_stat(urls, start_time_frame, yesterday, 'pageviews', global_stats=global_stats)
         pagetime = self.get_stat(urls, start_time_frame, yesterday, 'time', global_stats=global_stats)
 
