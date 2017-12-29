@@ -1044,7 +1044,7 @@ from random import randint
 class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
     template_name = 'tutorialv2/stats/index.html'
     form_class = ContentCompareStatsURLForm
-    display = 'global'
+    display = 'global' # meh, TODO make an enum
     urls = []
 
     def post(self, *args, **kwargs):
@@ -1102,22 +1102,26 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         # TODO some Eskimon's magic here
         return [{'url': url, 'pageviews': 1800, 'avgTimeOnPage': 150} for url in urls]
 
-    def get_pageviews(self, urls, start, end, global_stats=True):
+    def get_pageviews(self, urls, start, end, property, global_stats=True):
         nb_days = (end - start).days
         api_raw = []
 
+        # TODO, meh, maybe a method or dict
+        label = 'Évolutions des pages vues sur le contenu'
+        if property == 'time':
+            label = 'Évolutions du temps de lecture'
+
         if global_stats:
             stats = [{'date': (start + timedelta(i)).strftime("%Y-%m-%d"),
-                      'pageviews': randint(100, 1500)} for i in range(nb_days)]
-            api_raw = [{'label': 'Évolutions des pages vues sur le contenu', 'stats': stats}]
+                      property: randint(100, 1500)} for i in range(nb_days)]
+            api_raw = [{'label': label, 'stats': stats}]
         else:
             for url in urls:
                 stats = [{'date': (start + timedelta(i)).strftime("%Y-%m-%d"),
-                          'pageviews': randint(0, 150)} for i in range(nb_days)]
+                          property: randint(0, 150)} for i in range(nb_days)]
                 element = {'label': url, 'stats': stats}
                 api_raw.append(element)
         return  api_raw
-
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1129,18 +1133,15 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         yesterday = date.today() - timedelta(1)
         start_time_frame = yesterday - timedelta(nb_days)
 
-        if self.display == 'comparison':
-            pageviews_for_time_range = self.get_pageviews(urls, start_time_frame, yesterday, global_stats=False)
-        else:
-            pageviews_for_time_range = self.get_pageviews(urls, start_time_frame, yesterday, global_stats=True)
-
-        pagetime_for_time_range = self.get_global_pagetime_for_time_range(urls, start_time_frame, yesterday)
+        global_stats = self.display == 'global'
+        pageviews = self.get_pageviews(urls, start_time_frame, yesterday, 'pageviews', global_stats=global_stats)
+        pagetime = self.get_pageviews(urls, start_time_frame, yesterday, 'time', global_stats=global_stats)
 
         context.update({
                 'content': content, # Used only for page title ? Overkilled ?
                 'display': self.display, # Display mode
-                'pageviews': pageviews_for_time_range, # Graph
-                'pagetime': pagetime_for_time_range, # Graph
+                'pageviews': pageviews, # Graph
+                'pagetime': pagetime, # Graph
                 'cumulative_stats_by_url': self.get_cumulative_stats_by_url(urls) # Table data
             })
         return context
