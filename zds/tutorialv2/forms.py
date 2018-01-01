@@ -202,7 +202,7 @@ class ContentForm(ContainerForm):
     )
 
     subcategory = forms.ModelMultipleChoiceField(
-        label=_('Sous catégories de votre contenu.'),
+        label=_('Sélectionnez les catégories qui correspondent à votre contenu.'),
         queryset=SubCategory.objects.order_by('title').all(),
         required=True,
         widget=forms.CheckboxSelectMultiple()
