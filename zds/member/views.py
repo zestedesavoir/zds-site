@@ -923,9 +923,21 @@ def login_view(request):
         if user is None:
             initial = {'username': username}
             if User.objects.filter(username=username).exists():
-                messages.error(request, _('Le mot de passe saisi est incorrect. Cliquez sur le lien « Mot de passe oublié ? » si vous ne vous en souvenez plus.'))
+                messages.error(
+                    request, _(
+                        'Le mot de passe saisi est incorrect. '
+                        'Cliquez sur le lien « Mot de passe oublié ? » '
+                        'si vous ne vous en souvenez plus.'
+                    )
+                )
             else:
-                messages.error(request, _('Ce nom d’utilisateur est inconnu. Si vous ne possédez pas de compte, vous pouvez vous inscrire.'))
+                messages.error(
+                    request, _(
+                        'Ce nom d’utilisateur est inconnu. '
+                        'Si vous ne possédez pas de compte, vous '
+                        'pouvez vous inscrire.'
+                    )
+                )
 
             form = LoginForm(initial=initial)
             if next_page is not None:
@@ -935,12 +947,10 @@ def login_view(request):
             csrf_tk['form'] = form
             csrf_tk['next_page'] = next_page
 
-            return render(request, 'member/login.html',
-                {
-                    'form': form,
-                    'csrf_tk': csrf_tk
-                }
-            )
+            return render(request, 'member/login.html', {
+                'form': form,
+                'csrf_tk': csrf_tk
+            })
 
         profile = get_object_or_404(Profile, user=user)
         if not user.is_active:
@@ -991,12 +1001,10 @@ def login_view(request):
     csrf_tk['form'] = form
     csrf_tk['next_page'] = next_page
 
-    return render(request, 'member/login.html',
-        {
-            'form': form,
-            'csrf_tk': csrf_tk
-        }
-    )
+    return render(request, 'member/login.html', {
+        'form': form,
+        'csrf_tk': csrf_tk
+    })
 
 
 @login_required
