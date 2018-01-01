@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from django.conf import settings
 from dry_rest_permissions.generics import DRYPermissions
 from rest_framework import status

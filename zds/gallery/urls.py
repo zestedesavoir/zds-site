@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from django.conf.urls import url
 
 from zds.gallery.views import NewGallery, NewImage, DeleteImages, EditImage, ImportImages, GalleryDetails, \

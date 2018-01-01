@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from django.contrib import admin
 
 from zds.tutorialv2.models.database import PublishableContent, Validation, ContentReaction, PublishedContent, \

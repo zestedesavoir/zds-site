@@ -53,9 +53,9 @@
     <ul class="content-tags" itemprop="keywords">
         {% for tag in search_result.tags|slice:":3" %}
             <li>
-              <a href="{% url 'content:list' %}?tag={{ tag|urlencode }}">
-                {{ tag }}
-              </a>
+                <a href="{% url 'content:list' %}?tag={{ tag|urlencode }}">
+                    {{ tag }}
+                </a>
             </li>
         {% endfor %}
     </ul>

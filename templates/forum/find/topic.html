@@ -52,27 +52,29 @@
             </thead>
             <tbody>
                 {% for topic in topics %}
-                <tr>
-                    <td>
-                        <div class="forum-entry-title {% if user.is_authenticated %} {% if topic.is_unread %} unread {% endif %} {% endif %}">
-                        <a href="{{ topic.get_absolute_url }}">{{ topic.title }} </a>
-                            {% if topic.subtitle %} <p> {{ topic.subtitle }} </p> {% endif %}
-                        </div>
-                    </td>
-                    <td>
-                        {{ topic.pubdate|format_date }}
-                    </td>
-                    <td>
-                        {% if topic.first_post.is_visible %}
-                            {{ topic.first_post.text|truncatechars:200 }}
-                        {% else %}
-                            {% if topic.first_post.text_hidden %}
-                                {% trans "Masqué par" %} {{ topic.first_post.editor }}
-                                : {{ topic.first_post.text_hidden }}
+                    <tr>
+                        <td>
+                            <div class="forum-entry-title {% if user.is_authenticated %} {% if topic.is_unread %} unread {% endif %} {% endif %}">
+                                <a href="{{ topic.get_absolute_url }}">{{ topic.title }} </a>
+                                {% if topic.subtitle %}
+                                    <p> {{ topic.subtitle }} </p>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            {{ topic.pubdate|format_date }}
+                        </td>
+                        <td>
+                            {% if topic.first_post.is_visible %}
+                                {{ topic.first_post.text|truncatechars:200 }}
+                            {% else %}
+                                {% if topic.first_post.text_hidden %}
+                                    {% trans "Masqué par" %} {{ topic.first_post.editor }} :
+                                    {{ topic.first_post.text_hidden }}
+                                {% endif %}
                             {% endif %}
-                        {% endif %}
-                    </td>
-                </tr>
+                        </td>
+                    </tr>
                 {% endfor %}
             </tbody>
         </table>

@@ -1,5 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
 import json
 
 import requests
@@ -129,9 +127,9 @@ class ForumTopicsListView(FilterMixin, ForumEditMixin, ZdSPagingListView, Update
 
     def filter_queryset(self, queryset, filter_param):
         if filter_param == 'solve':
-            queryset = queryset.filter(is_solved=True)
+            queryset = queryset.filter(solved_by__isnull=False)
         elif filter_param == 'unsolve':
-            queryset = queryset.filter(is_solved=False)
+            queryset = queryset.filter(solved_by__isnull=True)
         elif filter_param == 'noanswer':
             queryset = queryset.filter(last_message__position=1)
         return queryset
@@ -440,9 +438,9 @@ class FindTopicByTag(FilterMixin, ForumEditMixin, ZdSPagingListView, SingleObjec
 
     def filter_queryset(self, queryset, filter_param):
         if filter_param == 'solve':
-            queryset = queryset.filter(is_solved=True)
+            queryset = queryset.filter(solved_by__isnull=False)
         elif filter_param == 'unsolve':
-            queryset = queryset.filter(is_solved=False)
+            queryset = queryset.filter(solved_by__isnull=True)
         elif filter_param == 'noanswer':
             queryset = queryset.filter(last_message__position=1)
         return queryset

@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 from django.test import TestCase, RequestFactory
 from django.template.base import TemplateSyntaxError, Token, TOKEN_TEXT, Context, VariableDoesNotExist, Template
 

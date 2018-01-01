@@ -55,14 +55,14 @@ report-release-back:
 	python scripts/release_generator.py
 
 run-back:
-	python manage.py runserver 0.0.0.0:8000
+	python manage.py runserver localhost:8000
 
 test-front:
-		python manage.py test --settings zds.settings_test_local --tag=front
+		python manage.py test --settings zds.settings.test --tag=front
 
 test-back:
 	make clean-back && \
-	python manage.py test --settings zds.settings_test_local --exclude-tag=front
+	python manage.py test --settings zds.settings.test --exclude-tag=front
 
 # front
 ## front-utils

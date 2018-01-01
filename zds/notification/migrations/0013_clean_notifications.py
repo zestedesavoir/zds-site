@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 from django.db import migrations
 
 from zds.notification.models import TopicAnswerSubscription
