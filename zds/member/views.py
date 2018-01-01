@@ -923,9 +923,9 @@ def login_view(request):
         if user is None:
             initial = {'username': username}
             if User.objects.filter(username=username).exists():
-                messages.error(request, _('Mot de passe incorrect.'))
+                messages.error(request, _('Le mot de passe saisi est incorrect. Cliquez sur le lien « Mot de passe oublié ? » si vous ne vous en souvenez plus.'))
             else:
-                messages.error(request, _('Nom d’utilisateur inconnu.'))
+                messages.error(request, _('Ce nom d’utilisateur est inconnu. Si vous ne possédez pas de compte, vous pouvez vous inscrire.'))
 
             form = LoginForm(initial=initial)
             if next_page is not None:
