@@ -8,30 +8,26 @@
 {% endblock %}
 
 {% block breadcrumb %}
+    <li>{% trans "Statistiques" %}</li>
     <li>{{ content.title }}</li>
 {% endblock %}
-
 
 {% block content_out %}
     <!--TODO those should not be needed -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
     <section class="full-content-wrapper">
-        {% if display == 'global' %}
-            <h2 class="ico-after ico-tutorials">
-                {% blocktrans with content_title=content.title %}
-                        Statistiques du contenu : {{content_title}}
-                {% endblocktrans %}
-            </h2>
-        {% elif display == 'comparison' %}
-            <h2 class="ico-after ico-tutorials">
-                {% blocktrans with content_title=content.title %}
-                        Comparaison de plusieurs urls du contenu : {{content_title}}
-                {% endblocktrans %}
-
-
-            </h2>
-        {% endif %}
+        <h2 class="ico-after ico-tutorials">
+            {% if display == 'global' %}
+                    {% blocktrans with content_title=content.title %}
+                            Statistiques du contenu : {{content_title}}
+                    {% endblocktrans %}
+            {% elif display == 'comparison' %}
+                    {% blocktrans with content_title=content.title %}
+                            Comparaison de plusieurs urls du contenu : {{content_title}}
+                    {% endblocktrans %}
+            {% endif %}
+        </h2>
 
         <div class="stat-graph-container">
             <div class="stat-graph">
@@ -45,7 +41,6 @@
                 </canvas>
 
             </div>
-
             <div class="stat-graph">
                 <canvas id="visit-time-graph"
                         {% for url in pagetime %}
@@ -60,17 +55,17 @@
         <!--TODO check that a least one stats is available, else display error msg-->
         <table class="fullwidth">
             <thead>
-                <th>{% trans "URL" %}</th>
+                <th>{% trans "Partie" %}</th>
                 <th>{% trans "Vues" %}</th>
                 <th class="wide">{% trans "Temps moyen sur la page" %}</th>
             </thead>
             <tbody>
                 {% for view in cumulative_stats_by_url %}
                     <tr>
-                        <!-- TODO this could be a link to see the details of one url + link to the online version/part/chapter -->
-                        <td>{{ view.url.name }}</td>
-                        <td>{{ view.pageviews}}</td>
-                        <td class="wide">{{ view.avgTimeOnPage}}</td>
+                        <!-- TODO this could be a link to see the details of one url -->
+                        <td><a href="{{ view.url.url }}">{{ view.url.name }}</a> - Voir le détails de cette partie</td>
+                        <td>{{ view.pageviews }}</td>
+                        <td class="wide">{{ view.avgTimeOnPage }}</td>
                         <!-- TODO convert me from seconds to hh:mm:ss if needed --->
                     </tr>
                 {% endfor %}
