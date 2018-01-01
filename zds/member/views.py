@@ -913,6 +913,7 @@ def login_view(request):
         next_page = request.GET['next']
     else:
         next_page = None
+
     if request.method == 'POST':
         form = LoginForm(request.POST)
         username = request.POST['username']
@@ -924,48 +925,63 @@ def login_view(request):
             if User.objects.filter(username=username).exists():
                 messages.error(request, _('Mot de passe incorrect.'))
             else:
-                messages.error(request, _('Nom d\'utilisateur inconnu.'))
+                messages.error(request, _('Nom d’utilisateur inconnu.'))
+
+            form = LoginForm(initial=initial)
+            if next_page is not None:
+                form.helper.form_action += '?next=' + next_page
+
+            csrf_tk['error'] = error
+            csrf_tk['form'] = form
+            csrf_tk['next_page'] = next_page
+
+            return render(request, 'member/login.html',
+                {
+                    'form': form,
+                    'csrf_tk': csrf_tk
+                }
+            )
+
+        profile = get_object_or_404(Profile, user=user)
+        if not user.is_active:
+            messages.error(
+                request,
+                _(
+                    'Vous n\'avez pas encore activé votre compte, '
+                    'vous devez le faire pour pouvoir vous '
+                    'connecter sur le site. Regardez dans vos '
+                    'mails : {}.'
+                ).format(user.email)
+            )
         else:
-            profile = get_object_or_404(Profile, user=user)
-            if not user.is_active:
+            if not profile.can_read_now():
                 messages.error(
                     request,
                     _(
-                        'Vous n\'avez pas encore activé votre compte, '
-                        'vous devez le faire pour pouvoir vous '
-                        'connecter sur le site. Regardez dans vos '
-                        'mails : {}.'
-                    ).format(user.email)
+                        'Vous n\'êtes pas autorisé à vous connecter '
+                        'sur le site, vous avez été banni par un '
+                        'modérateur.'
+                    )
                 )
             else:
-                if not profile.can_read_now():
-                    messages.error(
-                        request,
-                        _(
-                            'Vous n\'êtes pas autorisé à vous connecter '
-                            'sur le site, vous avez été banni par un '
-                            'modérateur.'
-                        )
-                    )
-                else:
-                    login(request, user)
-                    request.session['get_token'] = generate_token()
-                    if 'remember' not in request.POST:
-                        request.session.set_expiry(0)
-                    profile.last_ip_address = get_client_ip(request)
-                    profile.save()
-                    # Redirect the user if needed.
-                    # Set the cookie for Clem smileys.
-                    # (For people switching account or clearing cookies
-                    # after a browser session.)
-                    try:
-                        response = redirect(next_page)
-                        set_old_smileys_cookie(response, profile)
-                        return response
-                    except:
-                        response = redirect(reverse('homepage'))
-                        set_old_smileys_cookie(response, profile)
-                        return response
+                login(request, user)
+                request.session['get_token'] = generate_token()
+                if 'remember' not in request.POST:
+                    request.session.set_expiry(0)
+                profile.last_ip_address = get_client_ip(request)
+                profile.save()
+                # Redirect the user if needed.
+                # Set the cookie for Clem smileys.
+                # (For people switching account or clearing cookies
+                # after a browser session.)
+                try:
+                    response = redirect(next_page)
+                    set_old_smileys_cookie(response, profile)
+                    return response
+                except:
+                    response = redirect(reverse('homepage'))
+                    set_old_smileys_cookie(response, profile)
+                    return response
 
     form = LoginForm(initial=initial)
     if next_page is not None:
@@ -974,9 +990,13 @@ def login_view(request):
     csrf_tk['error'] = error
     csrf_tk['form'] = form
     csrf_tk['next_page'] = next_page
+
     return render(request, 'member/login.html',
-                  {'form': form,
-                   'csrf_tk': csrf_tk})
+        {
+            'form': form,
+            'csrf_tk': csrf_tk
+        }
+    )
 
 
 @login_required
