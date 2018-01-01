@@ -1052,13 +1052,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
     urls = []
 
     def post(self, *args, **kwargs):
-        # TODO not super dry with mixin
-        try:
-            self.public_content_object = self.get_public_object()
-        except MustRedirect as redirection_url:
-            return HttpResponsePermanentRedirect(redirection_url)
-
-        self.object = self.get_object()
+        self.public_content_object = self.get_public_object()
         self.versioned_object = self.get_versioned_object()
         return super().post(*args, **kwargs)
 
@@ -1095,7 +1089,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         # TODO some Eskimon's magic here
         return [{'url': url, 'pageviews': 1800, 'avgTimeOnPage': 150} for url in urls]
 
-    def get_stat(self, urls, start, end, property, global_stats=True):
+    def get_stats(self, urls, start, end, property, display_mode):
         nb_days = (end - start).days
         api_raw = []
 
@@ -1104,7 +1098,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         if property == 'time':
             label = 'Évolution du temps de lecture'
 
-        if global_stats:
+        if display_mode == 'global':
             stats = [{'date': (start + timedelta(i)).strftime("%Y-%m-%d"),
                       property: randint(100, 1500)} for i in range(nb_days)]
             api_raw = [{'label': label, 'stats': stats}]
@@ -1124,10 +1118,9 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         yesterday = date.today() - timedelta(1)
         start_time_frame = yesterday - timedelta(nb_days)
 
-        display_mode = 'global' if len(urls) == len(self.get_content_urls()) else 'comparison'
-        global_stats = display_mode == 'global' # TODO we dont really need this anymore
-        pageviews = self.get_stat(urls, start_time_frame, yesterday, 'pageviews', global_stats=global_stats)
-        pagetime = self.get_stat(urls, start_time_frame, yesterday, 'time', global_stats=global_stats)
+        display_mode = 'global' if len(urls) == len(self.get_content_urls()) else 'comparison' # TODO make display_mode an enum ?
+        pageviews = self.get_stats(urls, start_time_frame, yesterday, 'pageviews', display_mode=display_mode)
+        pagetime = self.get_stats(urls, start_time_frame, yesterday, 'time', display_mode=display_mode)
 
         context.update({
                 'display': display_mode,
