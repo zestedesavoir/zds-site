@@ -66,7 +66,7 @@ class FeaturedResourceCreate(CreateView):
 
     def get_initial_content_data(self, content_id):
         try:
-            content = PublishedContent.objects.get(pk=int(content_id))
+            content = PublishedContent.objects.get(content__pk=int(content_id))
         except (PublishedContent.DoesNotExist, ValueError):
             messages.error(self.request, self.initial_error_message)
             return {}
