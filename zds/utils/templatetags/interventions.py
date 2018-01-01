@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from datetime import datetime, timedelta
 
 from django import template
@@ -213,6 +211,6 @@ def new_providers_count(user):
     return NewEmailProvider.objects.count()
 
 
-@register.filter(name='request_hats_count')
-def request_hats_count(user):
-    return HatRequest.objects.count()
+@register.filter(name='requested_hats_count')
+def requested_hats_count(user):
+    return HatRequest.objects.filter(is_granted__isnull=True).count()

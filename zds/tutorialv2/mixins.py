@@ -1,5 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
@@ -546,23 +544,23 @@ class SingleContentDownloadViewMixin(SingleContentViewMixin, DownloadViewMixin):
         return super(SingleContentDownloadViewMixin, self).get(context, **response_kwargs)
 
 
-class ValidationBeforeViewMixin(SingleContentDetailViewMixin):
+class RequiresValidationViewMixin(SingleContentDetailViewMixin):
     """
     Ensure the content require validation before publication.
     """
 
     def get(self, request, *args, **kwargs):
-        if not self.get_object().requires_validation_before():
+        if not self.get_object().requires_validation():
             raise PermissionDenied
-        return super(ValidationBeforeViewMixin, self).get(request, *args, **kwargs)
+        return super(RequiresValidationViewMixin, self).get(request, *args, **kwargs)
 
 
-class NoValidationBeforeFormViewMixin(SingleContentFormViewMixin):
+class DoesNotRequireValidationFormViewMixin(SingleContentFormViewMixin):
     """
     Ensure the content do not require validation before publication.
     """
 
     def get_form_kwargs(self):
-        if self.versioned_object.requires_validation_before():
+        if self.versioned_object.requires_validation():
             raise PermissionDenied
-        return super(NoValidationBeforeFormViewMixin, self).get_form_kwargs()
+        return super(DoesNotRequireValidationFormViewMixin, self).get_form_kwargs()

@@ -1,18 +1,8 @@
-# coding: utf-8
-
-
 from django.db.models import CASCADE
 from datetime import datetime
 
 from zds.tutorialv2.models.mixins import TemplatableContentModelMixin, OnlineLinkableContentMixin
-
-try:
-    import ujson as json_reader
-except ImportError:
-    try:
-        import simplejson as json_reader
-    except:
-        import json as json_reader
+from zds import json_handler
 
 from math import ceil
 import shutil
@@ -38,8 +28,8 @@ from elasticsearch_dsl.field import Text, Keyword, Date, Boolean
 from zds.forum.models import Topic
 from zds.gallery.models import Image, Gallery, UserGallery, GALLERY_WRITE
 from zds.tutorialv2.managers import PublishedContentManager, PublishableContentManager
-from zds.tutorialv2.models import TYPE_CHOICES, STATUS_CHOICES, CONTENT_TYPES_VALIDATION_BEFORE, PICK_OPERATIONS
 from zds.tutorialv2.models.versioned import NotAPublicVersion
+from zds.tutorialv2.models import TYPE_CHOICES, STATUS_CHOICES, CONTENT_TYPES_REQUIRING_VALIDATION, PICK_OPERATIONS
 from zds.tutorialv2.utils import get_content_from_json, BadManifestError
 from zds.utils import get_current_user
 from zds.utils.models import SubCategory, Licence, HelpWriting, Comment, Tag
@@ -358,7 +348,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
                 raise NotAPublicVersion
 
             with open(os.path.join(path, 'manifest.json'), 'r', encoding='utf-8') as manifest:
-                json = json_reader.loads(manifest.read())
+                json = json_handler.loads(manifest.read())
                 versioned = get_content_from_json(
                     json,
                     public.sha_public,
@@ -377,7 +367,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
             repo = Repo(path)
             data = get_blob(repo.commit(sha).tree, 'manifest.json')
             try:
-                json = json_reader.loads(data)
+                json = json_handler.loads(data)
             except ValueError:
                 raise BadManifestError(
                     _('Une erreur est survenue lors de la lecture du manifest.json, est-ce du JSON ?'))
@@ -561,7 +551,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
 
         self.save()
 
-    def requires_validation_before(self):
+    def requires_validation(self):
         """
         Check if content required a validation before publication.
         Used to check if JsFiddle is available too.
@@ -569,7 +559,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         :return: Whether validation is required before publication.
         :rtype: bool
         """
-        return self.type in CONTENT_TYPES_VALIDATION_BEFORE
+        return self.type in CONTENT_TYPES_REQUIRING_VALIDATION
 
 
 @receiver(pre_delete, sender=PublishableContent)

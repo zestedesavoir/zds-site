@@ -2,6 +2,7 @@
 {% load i18n %}
 
 
+
 {% block title %}
     {% trans "Mot de passe oublié" %}
 {% endblock %}
@@ -25,3 +26,9 @@
         {% trans "Un courriel contenant de plus amples instructions d’activation a été envoyé. Ce courriel se trouve peut-être dans vos spams" %}.
     </p>
 {% endblock %}
+
+
+
+{# No sidebar on this page #}
+{% block body_class %}{% trans "no-sidebar" %}{% endblock %}
+{% block sidebar %}{% endblock %}

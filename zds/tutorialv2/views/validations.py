@@ -1,5 +1,3 @@
-# coding: utf-8
-
 import json
 import logging
 from datetime import datetime
@@ -19,14 +17,13 @@ from django.views.generic import ListView, FormView
 
 from zds.member.decorator import LoginRequiredMixin, PermissionRequiredMixin, LoggedWithReadWriteHability
 from zds.gallery.models import Gallery
-from zds.notification import signals
 from zds.tutorialv2.forms import AskValidationForm, RejectValidationForm, AcceptValidationForm, RevokeValidationForm, \
     CancelValidationForm, PublicationForm, PickOpinionForm, PromoteOpinionToArticleForm, UnpickOpinionForm, \
     DoNotPickOpinionForm
 from zds.tutorialv2.mixins import SingleContentFormViewMixin, ModalFormView, \
-    SingleOnlineContentFormViewMixin, ValidationBeforeViewMixin, NoValidationBeforeFormViewMixin
+    SingleOnlineContentFormViewMixin, RequiresValidationViewMixin, DoesNotRequireValidationFormViewMixin
 from zds.tutorialv2.models.database import Validation, PublishableContent, PickListOperation
-from zds.tutorialv2.publication_utils import publish_content, FailureDuringPublication, unpublish_content
+from zds.tutorialv2.publication_utils import publish_content, FailureDuringPublication, unpublish_content, notify_update
 from zds.tutorialv2.utils import clone_repo
 from zds.utils.forums import send_post, lock_topic
 from zds.utils.models import SubCategory, get_hat_from_settings
@@ -135,7 +132,7 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
     modal_form = True
 
     def get_form_kwargs(self):
-        if not self.versioned_object.requires_validation_before():
+        if not self.versioned_object.requires_validation():
             raise PermissionDenied
         kwargs = super(AskValidationForContent, self).get_form_kwargs()
         kwargs['content'] = self.versioned_object
@@ -330,7 +327,7 @@ class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
             )
 
 
-class ValidationHistoryView(LoginRequiredMixin, PermissionRequiredMixin, ValidationBeforeViewMixin):
+class ValidationHistoryView(LoginRequiredMixin, PermissionRequiredMixin, RequiresValidationViewMixin):
 
     model = PublishableContent
     permissions = ['tutorialv2.change_validation']
@@ -453,44 +450,40 @@ class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
         except FailureDuringPublication as e:
             messages.error(self.request, e.message)
         else:
-            # save in database
-
-            db_object.sha_public = validation.version
-            db_object.source = form.cleaned_data['source']
-            db_object.sha_validation = None
-
-            db_object.public_version = published
-
-            if form.cleaned_data['is_major'] or not is_update or db_object.pubdate is None:
-                db_object.pubdate = datetime.now()
-                db_object.is_obsolete = False
-
-            # close beta if is an article
-            if db_object.type == 'ARTICLE':
-                db_object.sha_beta = None
-                topic = db_object.beta_topic
-                if topic is not None and not topic.is_locked:
-                    msg_post = render_to_string(
-                        'tutorialv2/messages/beta_desactivate.md', {'content': versioned}
-                    )
-                    send_post(self.request, topic, self.request.user, msg_post)
-                    lock_topic(topic)
-
-            db_object.save()
-
-            # save validation object
-            validation.comment_validator = form.cleaned_data['text']
-            validation.status = 'ACCEPT'
-            validation.date_validation = datetime.now()
-            validation.save()
-
-            # Follow
-            signals.new_content.send(sender=db_object.__class__, instance=db_object, by_email=False)
+            self.save_validation_state(db_object, form, is_update, published, validation, versioned)
+            notify_update(db_object, is_update, form.cleaned_data['is_major'])
 
             messages.success(self.request, _('Le contenu a bien été validé.'))
             self.success_url = published.get_absolute_url_online()
 
         return super(AcceptValidation, self).form_valid(form)
+
+    def save_validation_state(self, db_object, form, is_update, published, validation, versioned):
+        # save in database
+        db_object.sha_public = validation.version
+        db_object.source = form.cleaned_data['source']
+        db_object.sha_validation = None
+        db_object.public_version = published
+        if form.cleaned_data['is_major'] or not is_update or db_object.pubdate is None:
+            db_object.pubdate = datetime.now()
+            db_object.is_obsolete = False
+
+        # close beta if is an article
+        if db_object.type == 'ARTICLE':
+            db_object.sha_beta = None
+            topic = db_object.beta_topic
+            if topic is not None and not topic.is_locked:
+                msg_post = render_to_string(
+                    'tutorialv2/messages/beta_desactivate.md', {'content': versioned}
+                )
+                send_post(self.request, topic, self.request.user, msg_post)
+                lock_topic(topic)
+        db_object.save()
+        # save validation object
+        validation.comment_validator = form.cleaned_data['text']
+        validation.status = 'ACCEPT'
+        validation.date_validation = datetime.now()
+        validation.save()
 
 
 class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleOnlineContentFormViewMixin):
@@ -562,7 +555,7 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleOnline
         return super(RevokeValidation, self).form_valid(form)
 
 
-class PublishOpinion(LoggedWithReadWriteHability, NoValidationBeforeFormViewMixin):
+class PublishOpinion(LoggedWithReadWriteHability, DoesNotRequireValidationFormViewMixin):
     """Publish the content (only content without preliminary validation)"""
 
     form_class = PublicationForm
@@ -583,6 +576,7 @@ class PublishOpinion(LoggedWithReadWriteHability, NoValidationBeforeFormViewMixi
     def form_valid(self, form):
         # get database representation
         db_object = self.object
+        is_update = bool(db_object.sha_public)
         if self.object.is_permanently_unpublished():
             raise PermissionDenied
         versioned = self.versioned_object
@@ -602,8 +596,7 @@ class PublishOpinion(LoggedWithReadWriteHability, NoValidationBeforeFormViewMixi
             # if only ignore, we remove it from history
             PickListOperation.objects.filter(content=db_object,
                                              operation__in=['NO_PICK', 'PICK']).update(is_effective=False)
-            # Follow
-            signals.new_content.send(sender=db_object.__class__, instance=db_object, by_email=False)
+            notify_update(db_object, is_update, form.cleaned_data.get('is_major', False))
 
             messages.success(self.request, _('Le contenu a bien été publié.'))
             self.success_url = published.get_absolute_url_online()
@@ -611,7 +604,7 @@ class PublishOpinion(LoggedWithReadWriteHability, NoValidationBeforeFormViewMixi
         return super(PublishOpinion, self).form_valid(form)
 
 
-class UnpublishOpinion(LoginRequiredMixin, SingleOnlineContentFormViewMixin, NoValidationBeforeFormViewMixin):
+class UnpublishOpinion(LoginRequiredMixin, SingleOnlineContentFormViewMixin, DoesNotRequireValidationFormViewMixin):
     """Unpublish an opinion"""
 
     form_class = RevokeValidationForm
@@ -665,7 +658,7 @@ class UnpublishOpinion(LoginRequiredMixin, SingleOnlineContentFormViewMixin, NoV
         return super(UnpublishOpinion, self).form_valid(form)
 
 
-class DoNotPickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
+class DoNotPickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormViewMixin):
     """Remove"""
 
     form_class = DoNotPickOpinionForm
@@ -759,7 +752,7 @@ class RevokePickOperation(PermissionRequiredMixin, FormView):
         return HttpResponse(json.dumps({'result': 'OK'}))
 
 
-class PickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
+class PickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormViewMixin):
     """Approve and add an opinion in the picked list."""
 
     form_class = PickOpinionForm
@@ -816,7 +809,7 @@ class PickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
         return super(PickOpinion, self).form_valid(form)
 
 
-class UnpickOpinion(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
+class UnpickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormViewMixin):
     """Remove an opinion from the picked list."""
 
     form_class = UnpickOpinionForm
@@ -901,7 +894,7 @@ class MarkObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
         return redirect(content.get_absolute_url_online())
 
 
-class PromoteOpinionToArticle(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
+class PromoteOpinionToArticle(PermissionRequiredMixin, DoesNotRequireValidationFormViewMixin):
     """
     Promote an opinion to an article.
     This duplicates the opinion and declares the clone as an article.

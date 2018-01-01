@@ -15,7 +15,9 @@
             background: $color-header-hover;
             color: #FFF;
             margin-left: 1px;
-            transition: all $transition-duration ease;
+            transition-property: color, background, border;
+            transition-timing-function: ease;
+            transition-duration: $transition-duration;
 
             &:hover,
             &:focus {
@@ -51,7 +53,9 @@
         padding: 8px 15px;
         text-decoration: none;
         background-color: #EEE;
-        transition: all $transition-duration ease;
+        transition-property: color, background, border, outline;
+        transition-timing-function: ease;
+        transition-duration: $transition-duration;
         border: solid 1px #CCC;
 
         &:hover, &:focus {

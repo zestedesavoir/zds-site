@@ -1,6 +1,5 @@
-# coding: utf-8
 import logging
-import json as json_reader
+from zds import json_handler
 import os
 import re
 import shutil
@@ -198,7 +197,7 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
         context['validation'] = validation
         context['formJs'] = form_js
 
-        if self.versioned_object.requires_validation_before:
+        if self.versioned_object.requires_validation:
             context['formPublication'] = PublicationForm(self.versioned_object, initial={'source': self.object.source})
         else:
             context['formPublication'] = None
@@ -345,7 +344,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
         publishable.add_tags(form.cleaned_data['tags'].split(','))
 
         # help can only be obtained on contents requiring validation before publication
-        if versioned.requires_validation_before():
+        if versioned.requires_validation():
             publishable.helps.clear()
             for help_ in form.cleaned_data['helps']:
                 publishable.helps.add(help_)
@@ -535,7 +534,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
 
         # is the manifest ok ?
         try:
-            json_ = json_reader.loads(manifest)
+            json_ = json_handler.loads(manifest)
         except ValueError:
             raise BadArchiveError(
                 _('Une erreur est survenue durant la lecture du manifest, '
@@ -664,7 +663,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
             pic.pubdate = datetime.now()
             pic.save()
 
-            translation_dic[image_path] = settings.ZDS_APP['site']['secure_url'] + pic.physical.url
+            translation_dic[image_path] = settings.ZDS_APP['site']['url'] + pic.physical.url
 
             # finally, remove image
             if os.path.exists(temp_image_path):
@@ -731,7 +730,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
             else:
 
                 # warn user if licence have changed:
-                manifest = json_reader.loads(str(zfile.read('manifest.json'), 'utf-8'))
+                manifest = json_handler.loads(str(zfile.read('manifest.json'), 'utf-8'))
                 if 'licence' not in manifest or manifest['licence'] != new_version.licence.code:
                     messages.info(
                         self.request, _('la licence « {} » a été appliquée.').format(new_version.licence.code))
@@ -842,7 +841,7 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
             else:
 
                 # warn user if licence have changed:
-                manifest = json_reader.loads(str(zfile.read('manifest.json'), 'utf-8'))
+                manifest = json_handler.loads(str(zfile.read('manifest.json'), 'utf-8'))
                 if 'licence' not in manifest or manifest['licence'] != new_content.licence.code:
                     messages.info(
                         self.request, _('la licence « {} » a été appliquée.'.format(new_content.licence.code)))
@@ -1619,7 +1618,7 @@ class ActivateJSFiddleInContent(LoginRequiredMixin, PermissionRequiredMixin, For
 
         content = get_object_or_404(PublishableContent, pk=form.cleaned_data['pk'])
         # forbidden for content without a validation before publication
-        if not content.load_version().requires_validation_before():
+        if not content.load_version().requires_validation():
             raise PermissionDenied
         content.update(js_support=form.cleaned_data['js_support'])
         return redirect(content.load_version().get_absolute_url())

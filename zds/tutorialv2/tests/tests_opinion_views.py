@@ -1,5 +1,3 @@
-# coding: utf-8
-import shutil
 import os
 
 import datetime
@@ -13,6 +11,7 @@ from zds.gallery.factories import UserGalleryFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.factories import PublishableContentFactory, ExtractFactory, LicenceFactory, PublishedContentFactory
 from zds.tutorialv2.models.database import PublishableContent, PublishedContent, PickListOperation
+from zds.tutorialv2.tests import TutorialTestMixin
 from zds.utils.models import Alert
 from copy import deepcopy
 
@@ -25,8 +24,9 @@ overridden_zds_app['content']['extra_content_generation_policy'] = 'NONE'
 @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'media-test'))
 @override_settings(ZDS_APP=overridden_zds_app)
 @override_settings(ES_ENABLED=False)
-class PublishedContentTests(TestCase):
+class PublishedContentTests(TestCase, TutorialTestMixin):
     def setUp(self):
+        self.overridden_zds_app = overridden_zds_app
         overridden_zds_app['member']['bot_account'] = ProfileFactory().user.username
         self.licence = LicenceFactory()
         overridden_zds_app['content']['default_licence_pk'] = LicenceFactory().pk
@@ -944,12 +944,3 @@ class PublishedContentTests(TestCase):
 
         alert = Alert.objects.get(pk=alert.pk)
         self.assertTrue(alert.solved)
-
-    def tearDown(self):
-
-        if os.path.isdir(overridden_zds_app['content']['repo_private_path']):
-            shutil.rmtree(overridden_zds_app['content']['repo_private_path'])
-        if os.path.isdir(overridden_zds_app['content']['repo_public_path']):
-            shutil.rmtree(overridden_zds_app['content']['repo_public_path'])
-        if os.path.isdir(settings.MEDIA_ROOT):
-            shutil.rmtree(settings.MEDIA_ROOT)
