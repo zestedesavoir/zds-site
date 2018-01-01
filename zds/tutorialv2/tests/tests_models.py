@@ -1,10 +1,8 @@
-# coding: utf-8
 import unittest
 
 from django.core.urlresolvers import reverse
 from datetime import datetime, timedelta
 import os
-import shutil
 
 from django.conf import settings
 from django.test import TestCase
@@ -18,6 +16,7 @@ from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory
 from zds.gallery.factories import UserGalleryFactory
 from zds.tutorialv2.models.database import PublishableContent, PublishedContent
 from zds.tutorialv2.publication_utils import publish_content
+from zds.tutorialv2.tests import TutorialTestMixin
 from zds.utils.models import Tag
 from django.template.defaultfilters import date
 from copy import deepcopy
@@ -30,10 +29,10 @@ overridden_zds_app['content']['repo_public_path'] = os.path.join(settings.BASE_D
 @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'media-test'))
 @override_settings(ZDS_APP=overridden_zds_app)
 @override_settings(ES_ENABLED=False)
-class ContentTests(TestCase):
+class ContentTests(TestCase, TutorialTestMixin):
 
     def setUp(self):
-
+        self.overridden_zds_app = overridden_zds_app
         # don't build PDF to speed up the tests
         overridden_zds_app['content']['build_pdf_when_published'] = False
 
@@ -125,13 +124,14 @@ class ContentTests(TestCase):
         slugs = [new_version.children[-1].slug]
 
         for i in range(0, 2):  # will add 3 new container
-            version = versioned.repo_add_container(title, random, random)
-            new_version = self.tuto.load_version(sha=version)
-            self.assertEqual(new_version.children[-1].slug, versioned.children[-1].slug)
-            self.assertTrue(new_version.children[-1].slug not in slugs)  # slug is different
-            self.assertTrue(versioned.children[-1].slug not in slugs)
+            with self.subTest('subcontainer {}'.format(i)):
+                version = versioned.repo_add_container(title, random, random)
+                new_version = self.tuto.load_version(sha=version)
+                self.assertEqual(new_version.children[-1].slug, versioned.children[-1].slug)
+                self.assertTrue(new_version.children[-1].slug not in slugs)  # slug is different
+                self.assertTrue(versioned.children[-1].slug not in slugs)
 
-            slugs.append(new_version.children[-1].slug)
+                slugs.append(new_version.children[-1].slug)
 
         # add extracts
         extract_title = "On va changer de titre (parce qu'on sais jamais) !"
@@ -577,11 +577,3 @@ class ContentTests(TestCase):
         content.save()
         content.ensure_author_gallery()
         self.assertEqual(UserGallery.objects.filter(gallery__pk=content.gallery.pk).count(), content.authors.count())
-
-    def tearDown(self):
-        if os.path.isdir(overridden_zds_app['content']['repo_private_path']):
-            shutil.rmtree(overridden_zds_app['content']['repo_private_path'])
-        if os.path.isdir(overridden_zds_app['content']['repo_public_path']):
-            shutil.rmtree(overridden_zds_app['content']['repo_public_path'])
-        if os.path.isdir(settings.MEDIA_ROOT):
-            shutil.rmtree(settings.MEDIA_ROOT)

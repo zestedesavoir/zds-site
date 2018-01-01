@@ -1,5 +1,4 @@
 import os
-import shutil
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -14,14 +13,18 @@ from zds.notification.models import NewTopicSubscription, Notification, NewPubli
 from zds.notification import signals as notif_signals
 from zds.tutorialv2.factories import PublishableContentFactory, LicenceFactory, SubCategoryFactory, \
     PublishedContentFactory
-from zds.tutorialv2.publication_utils import publish_content
+from zds.tutorialv2.publication_utils import publish_content, notify_update
+from zds.tutorialv2.tests import TutorialTestMixin
 from copy import deepcopy
+
+from zds.utils.templatetags.interventions import interventions_topics
 
 
 class ForumNotification(TestCase):
     def setUp(self):
         self.user1 = ProfileFactory().user
         self.user2 = ProfileFactory().user
+        self.to_be_changed_staff = StaffProfileFactory().user
         self.staff = StaffProfileFactory().user
         self.assertTrue(self.staff.has_perm('forum.change_topic'))
         self.category1 = CategoryFactory(position=1)
@@ -67,6 +70,46 @@ class ForumNotification(TestCase):
                          Notification.objects.filter(sender=self.user2).first())
         self.assertTrue(subscription.last_notification.is_read, 'As forum is not reachable, notification is read')
 
+    def test_no_more_notif_on_losing_all_groups(self):
+        NewTopicSubscription.objects.get_or_create_active(self.to_be_changed_staff, self.forum12)
+        self.assertTrue(self.client.login(username=self.staff.username, password='hostel77'))
+        self.client.post(
+            reverse('topic-new') + '?forum={0}'.format(self.forum12.pk),
+            {
+                'title': 'Super sujet',
+                'subtitle': 'Pour tester les notifs',
+                'text': "En tout cas l'un abonnement",
+                'tags': ''
+            },
+            follow=False)
+        subscription = NewTopicSubscription.objects.get_existing(self.to_be_changed_staff, self.forum12, True)
+        self.assertIsNotNone(subscription, 'There must be an active subscription for now')
+        self.to_be_changed_staff.groups.clear()
+        self.to_be_changed_staff.save()
+        subscription = NewTopicSubscription.objects.get_existing(self.to_be_changed_staff, self.forum12, False)
+        self.assertIsNotNone(subscription, 'There must be an active subscription for now')
+        self.assertFalse(subscription.is_active)
+
+    def test_no_more_notif_on_losing_one_group(self):
+        NewTopicSubscription.objects.get_or_create_active(self.to_be_changed_staff, self.forum12)
+        self.assertTrue(self.client.login(username=self.staff.username, password='hostel77'))
+        self.client.post(
+            reverse('topic-new') + '?forum={0}'.format(self.forum12.pk),
+            {
+                'title': 'Super sujet',
+                'subtitle': 'Pour tester les notifs',
+                'text': "En tout cas l'un abonnement",
+                'tags': ''
+            },
+            follow=False)
+        subscription = NewTopicSubscription.objects.get_existing(self.to_be_changed_staff, self.forum12, True)
+        self.assertIsNotNone(subscription, 'There must be an active subscription for now')
+        self.to_be_changed_staff.groups.remove(list(self.to_be_changed_staff.groups.all())[0])
+        self.to_be_changed_staff.save()
+        subscription = NewTopicSubscription.objects.get_existing(self.to_be_changed_staff, self.forum12, False)
+        self.assertIsNotNone(subscription, 'There must be an active subscription for now')
+        self.assertFalse(subscription.is_active)
+
 
 overridden_zds_app = deepcopy(settings.ZDS_APP)
 overridden_zds_app['content']['repo_private_path'] = os.path.join(settings.BASE_DIR, 'contents-private-test')
@@ -77,12 +120,12 @@ overridden_zds_app['content']['extra_content_generation_policy'] = 'SYNC'
 @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'media-test'))
 @override_settings(ZDS_APP=overridden_zds_app)
 @override_settings(ES_ENABLED=False)
-class ContentNotification(TestCase):
+class ContentNotification(TestCase, TutorialTestMixin):
     def setUp(self):
 
         # don't build PDF to speed up the tests
         overridden_zds_app['content']['build_pdf_when_published'] = False
-
+        self.overridden_zds_app = overridden_zds_app
         self.user1 = ProfileFactory().user
         self.user2 = ProfileFactory().user
 
@@ -116,11 +159,28 @@ class ContentNotification(TestCase):
         unpublish_content(content)
         self.assertEqual(0, len(Notification.objects.get_notifications_of(self.user1)))
 
-    def tearDown(self):
+    def test_only_one_notif_on_update(self):
+        NewPublicationSubscription.objects.get_or_create_active(self.user1, self.user2)
+        content = PublishedContentFactory(author_list=[self.user2])
+        notify_update(content, False, True)
+        versioned = content.load_version()
+        content.sha_draft = versioned.repo_update(introduction='new intro', conclusion='new conclusion',
+                                                  title=versioned.title)
+        content.save(force_slug_update=False)
+        publish_content(content, content.load_version(), True)
+        notify_update(content, True, False)
+        notifs = interventions_topics(self.user1)
+        self.assertEqual(1, len(notifs), str(notifs))
 
-        if os.path.isdir(overridden_zds_app['content']['repo_private_path']):
-            shutil.rmtree(overridden_zds_app['content']['repo_private_path'])
-        if os.path.isdir(overridden_zds_app['content']['repo_public_path']):
-            shutil.rmtree(overridden_zds_app['content']['repo_public_path'])
-        if os.path.isdir(settings.MEDIA_ROOT):
-            shutil.rmtree(settings.MEDIA_ROOT)
+    def test_only_one_notif_on_major_update(self):
+        NewPublicationSubscription.objects.get_or_create_active(self.user1, self.user2)
+        content = PublishedContentFactory(author_list=[self.user2])
+        notify_update(content, False, True)
+        versioned = content.load_version()
+        content.sha_draft = versioned.repo_update(introduction='new intro', conclusion='new conclusion',
+                                                  title=versioned.title)
+        content.save(force_slug_update=False)
+        publish_content(content, content.load_version(), True)
+        notify_update(content, True, True)
+        notifs = interventions_topics(self.user1)
+        self.assertEqual(1, len(notifs), str(notifs))

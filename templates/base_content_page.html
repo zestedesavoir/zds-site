@@ -2,6 +2,12 @@
 {% load i18n %}
 
 
+{% block head_extra %}
+    {{ block.super }}
+    {% include "mathjax.html" %}
+{% endblock %}
+
+
 {% block content_out %}
     <article class="content-wrapper" {% block article_schema %}{% endblock %}>
         <header>

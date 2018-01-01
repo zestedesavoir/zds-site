@@ -1,5 +1,3 @@
-# coding: utf-8
-
 import os.path
 import random
 from datetime import datetime
@@ -101,8 +99,8 @@ class AssocSubscribeView(FormView):
 
     @method_decorator(login_required)
     @method_decorator(can_write_and_read_now)
-    def dispatch(self, *args, **kwargs):
-        return super(AssocSubscribeView, self).dispatch(*args, **kwargs)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
 
     def get_success_url(self):
         return reverse('pages-assoc-subscribe')

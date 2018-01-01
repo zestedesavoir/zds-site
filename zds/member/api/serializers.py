@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from django.contrib.auth.models import User
 from dry_rest_permissions.generics import DRYPermissionsField
 from rest_framework import serializers

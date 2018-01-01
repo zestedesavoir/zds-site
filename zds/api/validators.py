@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 class Validator(object):
     """
     Super class must be extend by classes which wants validate a model field.

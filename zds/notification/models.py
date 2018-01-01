@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-s
-
 import logging
 from smtplib import SMTPException
 
@@ -187,6 +185,9 @@ class MultipleNotificationsMixin(object):
         assert hasattr(self, 'get_notification_url')
         assert hasattr(self, 'get_notification_title')
         assert hasattr(self, 'send_email')
+        if self.last_notification and not self.last_notification.is_read:
+            return
+
         with transaction.atomic():
             notification = Notification(subscription=self, content_object=content, sender=sender)
             notification.content_object = content

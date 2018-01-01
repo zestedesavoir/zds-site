@@ -20,7 +20,7 @@ hr {
 a,
 .link {
     color: lighten($color-primary, 20%);
-    transition: all $transition-duration ease;
+    transition: color $transition-duration ease, text-decoration $transition-duration ease;
 
     &:hover {
         color: darken($color-secondary, 15%);
