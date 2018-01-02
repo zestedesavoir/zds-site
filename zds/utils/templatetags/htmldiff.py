@@ -10,8 +10,17 @@ register = template.Library()
 
 @register.simple_tag
 def htmldiff(string1, string2):
-    txt1 = string1.decode('utf-8').splitlines()
-    txt2 = string2.decode('utf-8').splitlines()
+
+    try:
+        txt1 = string1.decode('utf-8').splitlines()
+    # string1 is an empty SafeText from template
+    except AttributeError:
+        txt1 = string1.splitlines()
+
+    try:
+        txt2 = string2.decode('utf-8').splitlines()
+    except AttributeError:
+        txt2 = string2.splitlines()
 
     diff = HtmlDiff(tabsize=4, wrapcolumn=80)
     result = diff.make_table(txt1, txt2, context=True, numlines=2)
