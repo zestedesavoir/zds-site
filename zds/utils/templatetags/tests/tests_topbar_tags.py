@@ -9,9 +9,13 @@ from django.conf import settings
 
 from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory
-from zds.tutorialv2.factories import PublishedContentFactory
+from zds.tutorialv2.factories import PublishedContentFactory, PublishableContentFactory, SubCategoryFactory
+from zds.tutorialv2.models.database import PublishableContent, PublishedContent, ContentRead
+from zds.tutorialv2.publication_utils import publish_content
+from zds.utils.factories import CategoryFactory as ContentCategoryFactory
 from zds.utils.templatetags.topbar import top_categories, top_categories_content
 from copy import deepcopy
+
 
 overridden_zds_app = deepcopy(settings.ZDS_APP)
 overridden_zds_app['content']['repo_private_path'] = os.path.join(settings.BASE_DIR, 'contents-private-test')
@@ -123,6 +127,50 @@ class TopBarTests(TestCase):
 
         self.assertEqual(list(top_tags_tuto), list(tags_tuto))
         self.assertEqual(list(top_tags_article), list(tags_article))
+
+    def test_content_ordering(self):
+        category_1 = ContentCategoryFactory()
+        category_2 = ContentCategoryFactory()
+        subcategory_1 = SubCategoryFactory(category=category_1)
+        subcategory_1.position = 5
+        subcategory_1.save()
+        subcategory_2 = SubCategoryFactory(category=category_1)
+        subcategory_2.position = 1
+        subcategory_2.save()
+        subcategory_3 = SubCategoryFactory(category=category_2)
+
+        tuto_1 = PublishableContentFactory(type='TUTORIAL')
+        tuto_1.subcategory.add(subcategory_1)
+        tuto_1_draft = tuto_1.load_version()
+        publish_content(tuto_1, tuto_1_draft, is_major_update=True)
+
+        top_categories_tuto = top_categories_content('TUTORIAL').get('categories')
+        expected = [(subcategory_1.title, subcategory_1.slug, category_1.slug)]
+        self.assertEqual(top_categories_tuto[category_1.title], expected)
+
+        tuto_2 = PublishableContentFactory(type='TUTORIAL')
+        tuto_2.subcategory.add(subcategory_2)
+        tuto_2_draft = tuto_2.load_version()
+        publish_content(tuto_2, tuto_2_draft, is_major_update=True)
+
+        top_categories_tuto = top_categories_content('TUTORIAL').get('categories')
+        # New subcategory is now first is the list
+        expected.insert(0, (subcategory_2.title, subcategory_2.slug, category_1.slug))
+        self.assertEqual(top_categories_tuto[category_1.title], expected)
+
+        article_1 = PublishableContentFactory(type='TUTORIAL')
+        article_1.subcategory.add(subcategory_3)
+        article_1_draft = tuto_2.load_version()
+        publish_content(article_1, article_1_draft, is_major_update=True)
+
+        # New article has no impact
+        top_categories_tuto = top_categories_content('TUTORIAL').get('categories')
+        self.assertEqual(top_categories_tuto[category_1.title], expected)
+
+        top_categories_contents = top_categories_content(['TUTORIAL', 'ARTICLE']).get('categories')
+        expected_2 = [(subcategory_3.title, subcategory_3.slug, category_2.slug)]
+        self.assertEqual(top_categories_contents[category_1.title], expected)
+        self.assertEqual(top_categories_contents[category_2.title], expected_2)
 
     def tearDown(self):
 
