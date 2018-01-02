@@ -79,6 +79,7 @@ class SubCategory(models.Model):
 
     title = models.CharField('Titre', max_length=80, unique=True)
     subtitle = models.CharField('Sous-titre', max_length=200)
+    position = models.IntegerField('Position', db_index=True, default=0)
 
     image = models.ImageField(upload_to=image_path_category, blank=True, null=True)
 
