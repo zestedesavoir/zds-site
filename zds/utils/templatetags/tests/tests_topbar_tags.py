@@ -10,7 +10,6 @@ from django.conf import settings
 from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.factories import PublishedContentFactory, PublishableContentFactory, SubCategoryFactory
-from zds.tutorialv2.models.database import PublishableContent, PublishedContent, ContentRead
 from zds.tutorialv2.publication_utils import publish_content
 from zds.utils.factories import CategoryFactory as ContentCategoryFactory
 from zds.utils.templatetags.topbar import top_categories, top_categories_content
