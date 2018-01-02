@@ -1093,15 +1093,10 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         nb_days = (end - start).days
         api_raw = []
 
-        # TODO, meh, maybe a method or dict or put that in template
-        label = 'Évolution des pages vues sur le contenu'
-        if property == 'time':
-            label = 'Évolution du temps de lecture'
-
         if display_mode == 'global':
             stats = [{'date': (start + timedelta(i)).strftime("%Y-%m-%d"),
                       property: randint(100, 1500)} for i in range(nb_days)]
-            api_raw = [{'label': label, 'stats': stats}]
+            api_raw = [{'label': _('Global'), 'stats': stats}]
         else:
             for url in urls:
                 stats = [{'date': (start + timedelta(i)).strftime("%Y-%m-%d"),

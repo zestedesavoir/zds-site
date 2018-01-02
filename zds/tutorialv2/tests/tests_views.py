@@ -6299,3 +6299,26 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
             follow=False)
 
         self.assertEqual(tutorial.public_version.authors.count(), 1)
+
+@override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
+@override_settings(ZDS_APP=overridden_zds_app)
+@override_settings(ES_ENABLED=False)
+class StatTests(TestCase, TutorialTestMixin):
+
+    def test_access_right(self):
+        # Test author success
+        # Test admin success
+        # Test other member failure
+        # Test anon failure
+        pass
+
+    def test_post_form(self):
+        pass
+
+    def test_query_parameter_duration(self):
+        # Test 7 days, 365 days and non int value
+        pass
+
+    def test_query_parameter_url(self):
+        # Test multiple URLS, test fake URL
+        pass

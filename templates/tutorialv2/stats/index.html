@@ -32,6 +32,7 @@
         <div class="stat-graph-container">
             <div class="stat-graph">
                 <!-- TODO nice to have, template tag to serialize those array, use built-in template tag ??? --->
+                <p>{% trans "Évolution des pages vues sur le contenu" %}</p>
                 <canvas id="view-graph"
                         {% for url in pageviews %}
                             data-views-{{ forloop.counter0 }}="[{% for view in url.stats %}{{view.pageviews}} {% if not forloop.last %},{% endif %}{% endfor %}]"
@@ -42,6 +43,7 @@
 
             </div>
             <div class="stat-graph">
+                <p>{% trans "Évolution du temps de lecture" %}</p>
                 <canvas id="visit-time-graph"
                         {% for url in pagetime %}
                             data-views-{{ forloop.counter0 }}="[{% for view in url.stats %}{{view.time}} {% if not forloop.last %},{% endif %}{% endfor %}]"
