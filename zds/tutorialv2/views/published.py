@@ -409,19 +409,18 @@ class ViewPublications(TemplateView):
     def categories_with_contents_count(handle_types):
         """Select categories with subcategories and contents count in two queries"""
 
-        queryset_category = (Category.objects.order_by('position')
-                             .filter(categorysubcategory__subcategory__publishablecontent__publishedcontent__must_redirect=False)
-                             .filter(categorysubcategory__subcategory__publishablecontent__type__in=handle_types)
-                             .annotate(contents_count=Count('categorysubcategory__subcategory__publishablecontent__publishedcontent', distinct=True))
-                             ).distinct()
+        queryset_category = Category.objects.order_by('position')\
+            .filter(categorysubcategory__subcategory__publishablecontent__publishedcontent__must_redirect=False)\
+            .filter(categorysubcategory__subcategory__publishablecontent__type__in=handle_types)\
+            .annotate(contents_count=Count('categorysubcategory__subcategory__publishablecontent__publishedcontent',
+                                           distinct=True))\
+            .distinct()
 
-        queryset_subcategory = (CategorySubCategory.objects
-                                .prefetch_related('subcategory', 'category')
-                                .filter(is_main=True)
-                                .order_by('category__id', 'subcategory__title')
-                                .annotate(sub_contents_count=Count('subcategory__publishablecontent__publishedcontent',
-                                                                   distinct=True))
-                                .all())
+        queryset_subcategory = CategorySubCategory.objects.prefetch_related('subcategory', 'category')\
+            .filter(is_main=True)\
+            .order_by('category__id', 'subcategory__title')\
+            .annotate(sub_contents_count=Count('subcategory__publishablecontent__publishedcontent', distinct=True))\
+            .all()
 
         subcategories_sorted = defaultdict(list)
         for category_to_sub_category in queryset_subcategory:
