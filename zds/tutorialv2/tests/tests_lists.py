@@ -103,7 +103,8 @@ class ContentTests(TestCase, TutorialTestMixin):
         category_1 = ContentCategoryFactory()
         subcategory_1 = SubCategoryFactory(category=category_1)
         subcategory_2 = SubCategoryFactory(category=category_1)
-        SubCategoryFactory(category=category_1) # Not in context if nothing published inside this subcategory
+        # Not in context if nothing published inside this subcategory
+        SubCategoryFactory(category=category_1)
 
         for _ in range(5):
             self._create_and_publish_type_in_subcategory('TUTORIAL', subcategory_1)
