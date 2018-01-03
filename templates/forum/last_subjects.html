@@ -1,0 +1,67 @@
+{% extends "forum/base.html" %}
+{% load i18n %}
+
+{% block title %}
+Derniers sujets
+{% endblock %}
+
+{% block feeds_rss %}
+    {% include "forum/includes/feed.part.html" %}
+{% endblock %}
+
+{% block breadcrumb %}
+Test
+    <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+        <a href="{{ forum.category.get_absolute_url }}" itemprop="url">
+            <span itemprop="title">{{ forum.category.title }}</span>
+        </a>
+    </li>
+
+    {% if request.GET.filter %}
+        <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+            <a href="{{ forum.get_absolute_url }}" itemprop="url">
+                <span itemprop="title">{{ forum.title }}</span>
+            </a>
+        </li>
+    {% else %}
+        <li>{{ forum.title }}</li>
+    {% endif %}
+
+    {% if request.GET.filter == "solve" %}
+        <li>{% trans "Sujets résolus" %}</li>
+    {% elif request.GET.filter == "unsolve" %}
+        <li>{% trans "Sujets non-résolus" %}</li>
+    {% elif request.GET.filter == "noanswer" %}
+        <li>{% trans "Sujets sans réponse" %}</li>
+    {% endif %}
+{% endblock %}
+
+
+
+{% block headline %}
+    Derniers sujets
+    {{ forum.title }}
+    {% if request.GET.filter == "solve" %}
+        / {% trans "Sujets résolus" %}
+    {% elif request.GET.filter == "unsolve" %}
+        / {% trans "Sujets non-résolus" %}
+    {% elif request.GET.filter == "noanswer" %}
+        / {% trans "Sujets sans réponse" %}
+    {% endif %}
+{% endblock %}
+
+
+
+{% block content %}
+    {% if topics %}
+        <div class="topic-list navigable-list" itemscope itemtype="http://schema.org/ItemList">
+            {% for topic in topics %}
+                {% include "forum/includes/topic_row.part.html" with display_category=1 %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>
+            {% trans "Aucun sujet trouvé." %}
+        </p>
+    {% endif %}
+{% endblock %}

@@ -55,6 +55,17 @@ class CategoryForumsDetailView(DetailView):
         return context
 
 
+class LastSubjectsView(ListView):
+
+    context_object_name = 'topics'
+    template_name = 'forum/last_subjects.html'
+    queryset = Topic.objects.all().order_by('-pubdate')[:settings.ZDS_APP['forum']['topics_per_page']]
+
+    def get_context_data(self, **kwargs):
+        context = super(LastSubjectsView, self).get_context_data(**kwargs)
+        return context
+
+
 class ForumTopicsListView(FilterMixin, ForumEditMixin, ZdSPagingListView, UpdateView, SingleObjectMixin):
 
     context_object_name = 'topics'
