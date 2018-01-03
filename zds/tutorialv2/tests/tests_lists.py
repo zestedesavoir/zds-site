@@ -10,9 +10,11 @@ from django.core.urlresolvers import reverse
 from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory, \
     SubCategoryFactory, PublishedContentFactory, ValidationFactory
+from zds.tutorialv2.publication_utils import publish_content
 from zds.tutorialv2.tests import TutorialTestMixin
 from zds.gallery.factories import UserGalleryFactory
 from zds.forum.factories import ForumFactory, CategoryFactory
+from zds.utils.factories import CategoryFactory as ContentCategoryFactory
 from copy import deepcopy
 
 overridden_zds_app = deepcopy(settings.ZDS_APP)
@@ -89,6 +91,31 @@ class ContentTests(TestCase, TutorialTestMixin):
         self.assertEqual(resp.status_code, 403)
         resp = self.client.get(reverse('content:find-article', args=[self.user_author.pk]) + '?filter=chuck-norris')
         self.assertEqual(resp.status_code, 404)
+
+    def _create_and_publish_type_in_subcategory(self, type, subcategory):
+        tuto_1 = PublishableContentFactory(type=type, author_list=[self.user_author])
+        tuto_1.subcategory.add(subcategory)
+        tuto_1.save()
+        tuto_1_draft = tuto_1.load_version()
+        publish_content(tuto_1, tuto_1_draft, is_major_update=True)
+
+    def test_list_categories(self):
+        category_1 = ContentCategoryFactory()
+        subcategory_1 = SubCategoryFactory(category=category_1)
+        subcategory_2 = SubCategoryFactory(category=category_1)
+        SubCategoryFactory(category=category_1) # Not in context if nothing published inside this subcategory
+
+        for _ in range(5):
+            self._create_and_publish_type_in_subcategory('TUTORIAL', subcategory_1)
+            self._create_and_publish_type_in_subcategory('ARTICLE', subcategory_2)
+
+        self.client.logout()
+        resp = self.client.get(reverse('publication:list'))
+
+        context_categories = list(resp.context_data['categories'])
+        self.assertEqual(context_categories[0].contents_count, 10)
+        self.assertEqual(context_categories[0].subcategories, [subcategory_1, subcategory_2])
+        self.assertEqual(context_categories, [category_1])
 
     def test_private_lists(self):
         tutorial = PublishedContentFactory(author_list=[self.user_author])

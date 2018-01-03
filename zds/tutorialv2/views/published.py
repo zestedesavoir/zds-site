@@ -1,4 +1,5 @@
 from datetime import datetime
+from collections import defaultdict
 from zds import json_handler
 import logging
 import os
@@ -8,6 +9,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
+from django.db.models import Count
 from django.http import Http404, HttpResponsePermanentRedirect, StreamingHttpResponse, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template.loader import render_to_string
@@ -405,46 +407,30 @@ class ViewPublications(TemplateView):
 
     @staticmethod
     def categories_with_contents_count(handle_types):
-        """Rewritten to select categories with subcategories and contents count in two queries"""
+        """Select categories with subcategories and contents count in two queries"""
 
-        # TODO: check if we can use ORM to do that
-        sub_query = """
-          SELECT COUNT(*) FROM `tutorialv2_publishedcontent`
-          INNER JOIN `tutorialv2_publishablecontent`
-            ON (`tutorialv2_publishedcontent`.`content_id` = `tutorialv2_publishablecontent`.`id`)
-          INNER JOIN `tutorialv2_publishablecontent_subcategory`
-            ON (`tutorialv2_publishablecontent`.`id` =
-              `tutorialv2_publishablecontent_subcategory`.`publishablecontent_id`)
-          LEFT JOIN  `utils_categorysubcategory`
-            ON ( `utils_categorysubcategory`.`subcategory_id` =
-              `tutorialv2_publishablecontent_subcategory`.`subcategory_id`)
-          WHERE (
-            `tutorialv2_publishedcontent`.`must_redirect` = 0
-            AND `tutorialv2_publishablecontent`.`type` IN ({})
-            AND `utils_categorysubcategory`.`category_id` = `utils_category`.`id`)
-        """.format(', '.join('\'{}\''.format(t) for t in handle_types))
+        queryset_category = (Category.objects.order_by('position')
+                             .filter(categorysubcategory__subcategory__publishablecontent__publishedcontent__must_redirect=False)
+                             .filter(categorysubcategory__subcategory__publishablecontent__type__in=handle_types)
+                             .annotate(contents_count=Count('categorysubcategory__subcategory__publishablecontent__publishedcontent', distinct=True))
+                             ).distinct()
 
-        queryset_category = Category.objects.order_by('position').extra(select={'contents_count': sub_query})
+        queryset_subcategory = (CategorySubCategory.objects
+                                .prefetch_related('subcategory', 'category')
+                                .filter(is_main=True)
+                                .order_by('category__id', 'subcategory__title')
+                                .annotate(sub_contents_count=Count('subcategory__publishablecontent__publishedcontent',
+                                                                   distinct=True))
+                                .all())
 
-        queryset_subcategory = CategorySubCategory\
-            .objects\
-            .prefetch_related('subcategory', 'category')\
-            .filter(is_main=True)\
-            .order_by('category__id', 'subcategory__title')\
-            .all()
-
-        subcategories_sorted = {}
-
+        subcategories_sorted = defaultdict(list)
         for category_to_sub_category in queryset_subcategory:
-            if category_to_sub_category.category.id not in subcategories_sorted:
-                subcategories_sorted[category_to_sub_category.category.id] = []
-            subcategories_sorted[category_to_sub_category.category.id].append(category_to_sub_category.subcategory)
+            if category_to_sub_category.sub_contents_count:
+                subcategories_sorted[category_to_sub_category.category.id].append(category_to_sub_category.subcategory)
 
-        categories = []
-
-        for category in queryset_category:
+        categories = queryset_category
+        for category in categories:
             category.subcategories = subcategories_sorted[category.id]
-            categories.append(category)
 
         return categories
 
