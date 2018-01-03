@@ -92,8 +92,8 @@ class ContentTests(TestCase, TutorialTestMixin):
         resp = self.client.get(reverse('content:find-article', args=[self.user_author.pk]) + '?filter=chuck-norris')
         self.assertEqual(resp.status_code, 404)
 
-    def _create_and_publish_type_in_subcategory(self, type, subcategory):
-        tuto_1 = PublishableContentFactory(type=type, author_list=[self.user_author])
+    def _create_and_publish_type_in_subcategory(self, content_type, subcategory):
+        tuto_1 = PublishableContentFactory(type=content_type, author_list=[self.user_author])
         tuto_1.subcategory.add(subcategory)
         tuto_1.save()
         tuto_1_draft = tuto_1.load_version()
