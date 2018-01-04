@@ -3,7 +3,7 @@ from django.views.generic.base import RedirectView
 from zds.tutorialv2.views.contents import RedirectOldBetaTuto
 
 from zds.tutorialv2.views.published import DisplayOnlineTutorial, DisplayOnlineContainer, \
-    DownloadOnlineTutorial, RedirectContentSEO, TagsListView, ContentStatisticsView
+    DownloadOnlineTutorial, RedirectContentSEO, TagsListView
 from zds.tutorialv2.feeds import LastTutorialsFeedRSS, LastTutorialsFeedATOM
 
 
@@ -37,8 +37,6 @@ urlpatterns = [
         DownloadOnlineTutorial.as_view(requested_file='zip'), name='download-zip'),
     url(r'^tex/(?P<pk>\d+)/(?P<slug>.+)\.tex$', DownloadOnlineTutorial.as_view(requested_file='tex'),
         name='download-tex'),
-    url(r'^stats/(?P<pk>\d+)/(?P<slug>.+)/$', ContentStatisticsView.as_view(),
-        name='stats-content'),
 
     #  Old beta url compatibility
     url('^beta/(?P<pk>\d+)/(?P<slug>.+)', RedirectOldBetaTuto.as_view(), name='old-beta-url'),

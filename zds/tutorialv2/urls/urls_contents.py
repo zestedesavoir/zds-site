@@ -9,7 +9,7 @@ from zds.tutorialv2.views.contents import DisplayContent, CreateContent, EditCon
 
 from zds.tutorialv2.views.published import SendNoteFormView, UpdateNoteView, \
     HideReaction, ShowReaction, SendNoteAlert, SolveNoteAlert, TagsListView, \
-    FollowContentReaction, FollowNewContent, SendContentAlert, SolveContentAlert
+    FollowContentReaction, FollowNewContent, SendContentAlert, SolveContentAlert, ContentStatisticsView
 
 urlpatterns = [
     # Flux
@@ -124,6 +124,8 @@ urlpatterns = [
         name='set-beta'),
     url(r'^desactiver-beta/(?P<pk>\d+)/(?P<slug>.+)/$', ManageBetaContent.as_view(action='inactive'),
         name='inactive-beta'),
+    url(r'^stats/(?P<pk>\d+)/(?P<slug>.+)/$', ContentStatisticsView.as_view(),
+        name='stats-content'),
 
     # jsfiddle support:
     url(r'activer-js/', ActivateJSFiddleInContent.as_view(), name='activate-jsfiddle'),
