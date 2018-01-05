@@ -101,6 +101,7 @@ class ContentTests(TestCase, TutorialTestMixin):
 
                 shutil.copy2(str(Path(base_name + '.pdf')), str(Path(md_file_path.replace('__building', '')).parent))
         PublicatorRegistery.registry['pdf'] = TestPdfPublicator()
+        PublicatorRegistery.registry['printable-pdf'] = TestPdfPublicator()
 
     def test_ensure_access(self):
         """General access test for author, user, guest and staff"""
