@@ -298,10 +298,16 @@ class ZmarkdownHtmlPublicator(Publicator):
 
 
 @PublicatorRegistery.register('pdf')
+@PublicatorRegistery.register('printable-pdf', '.printable.pdf', 'print, nocolor')
 class ZMarkdownRebberLatexPublicator(Publicator):
     """
     use zmarkdown and rebber stringifier to produce latex & pdf output.
     """
+    def __init__(self, extension='.pdf', latex_classes=''):
+        self.extension = extension
+        self.doc_type = extension[1:]
+        self.latex_classes = latex_classes
+
     def publish(self, md_file_path, base_name, **kwargs):
         md_flat_content = _read_flat_markdown(md_file_path)
         published_content_entity = self.get_published_content_entity(md_file_path)
@@ -314,10 +320,12 @@ class ZMarkdownRebberLatexPublicator(Publicator):
         public_versionned_source = published_content_entity.content\
             .load_version(sha=published_content_entity.sha_public)
         content_type = depth_to_size_map[public_versionned_source.get_tree_level()]
+        if self.latex_classes:
+            content_type += ', ' + self.latex_classes
         title = published_content_entity.title()
         authors = [a.username for a in published_content_entity.authors.all()]
         smileys_directory = SMILEYS_BASE_PATH
-        licence = published_content_entity.content.licence.title
+        licence = published_content_entity.content.licence.title.replace('CC-', '')
         toc = True
 
         content, _ = render_markdown(
@@ -334,14 +342,16 @@ class ZMarkdownRebberLatexPublicator(Publicator):
             smileysDirectory=smileys_directory,
             toc=toc
         )
-
-        latex_file_path = base_name + '.tex'
-        logo_path = Path(Path(latex_file_path).parent, 'images', 'default_logo.png')
+        true_latex_extension = '.'.join(self.extension.split('.')[:-1]) + '.tex'
+        latex_file_path = base_name + true_latex_extension
+        logo_path = Path(latex_file_path).parent / 'images' / 'default_logo.png'
         if not logo_path.exists() and published_content_entity.content.image:
             gallery_path = Path(published_content_entity.content.gallery.get_gallery_path())
             logo_name = published_content_entity.content.image.physical.name
-            shutil.copy(str(Path(gallery_path, logo_name)), str(logo_path))
-        pdf_file_path = base_name + '.pdf'
+            shutil.copy(str(gallery_path / logo_name), str(logo_path))
+        pdf_file_path = base_name + self.extension
+        default_logo_original_path = Path(__file__).parent / '..' / '..' / 'assets' / 'images' / 'logo.png'
+        shutil.copy(str(default_logo_original_path), str(Path(base_name).parent / 'default_logo.png'))
         with open(latex_file_path, mode='w', encoding='utf-8') as latex_file:
             latex_file.write(content)
 
@@ -356,7 +366,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
             shutil.copy2(latex_file_path, published_content_entity.get_extra_contents_directory())
             shutil.copy2(pdf_file_path, published_content_entity.get_extra_contents_directory())
             logging.info('published latex=%s, pdf=%s', published_content_entity.has_type('tex'),
-                         published_content_entity.has_type('pdf'))
+                         published_content_entity.has_type(self.doc_type))
 
     def full_pdftex_call(self, latex_file):
         success_flag = self.pdftex(latex_file)
@@ -381,7 +391,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
                                data=command,
                                type='cmd')
 
-        pdf_file_path = path.splitext(texfile)[0] + '.pdf'
+        pdf_file_path = path.splitext(texfile)[0] + self.extension
         return path.exists(pdf_file_path)
 
     def make_glossary(self, basename, texfile):
@@ -407,7 +417,7 @@ def handle_pdftex_error(latex_file_path):
     # TODO zmd: fix extension parsing
     log_file_path = latex_file_path[:-3] + 'log'
     errors = ['Error occured, log file {} not found.'.format(log_file_path)]
-    with contextlib.suppress(FileNotFoundError):
+    with contextlib.suppress(FileNotFoundError, UnicodeDecodeError):
         with Path(log_file_path).open(encoding='utf-8') as latex_log:
             # TODO zmd: see if the lines we extract here contain enough info for debugging purpose
             errors = '\n'.join([line for line in latex_log if 'fatal' in line.lower() or 'error' in line.lower()])
@@ -421,6 +431,7 @@ def handle_pdftex_error(latex_file_path):
 
 @PublicatorRegistery.register('epub')
 class ZMarkdownEpubPublicator(Publicator):
+
     def publish(self, md_file_path, base_name, **kwargs):
         try:
             published_content_entity = self.get_published_content_entity(md_file_path)

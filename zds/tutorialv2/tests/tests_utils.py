@@ -546,6 +546,7 @@ class UtilsTests(TestCase, TutorialTestMixin):
     def test_watchdog(self):
 
         PublicatorRegistery.unregister('pdf')
+        PublicatorRegistery.unregister('printable-pdf')
         PublicatorRegistery.unregister('epub')
         PublicatorRegistery.unregister('html')
 
