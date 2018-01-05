@@ -545,9 +545,10 @@ class UtilsTests(TestCase, TutorialTestMixin):
 
     def test_watchdog(self):
 
-        PublicatorRegistry.unregister('pdf')
-        PublicatorRegistry.unregister('epub')
-        PublicatorRegistry.unregister('html')
+        PublicatorRegistery.unregister('pdf')
+        PublicatorRegistery.unregister('printable-pdf')
+        PublicatorRegistery.unregister('epub')
+        PublicatorRegistery.unregister('html')
 
         with open('path', 'w') as f:
             f.write('my_content;/path/to/markdown.md')
