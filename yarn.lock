@@ -1966,7 +1966,7 @@ gulp-uglify@3.0.0:
     uglify-js "^3.0.5"
     vinyl-sourcemaps-apply "^0.2.0"
 
-gulp-util@^3.0, gulp-util@^3.0.0, gulp-util@^3.0.1, gulp-util@^3.0.2, gulp-util@~3.0.8:
+gulp-util@^3.0, gulp-util@^3.0.0, gulp-util@^3.0.1, gulp-util@^3.0.2:
   version "3.0.8"
   resolved "https://registry.yarnpkg.com/gulp-util/-/gulp-util-3.0.8.tgz#0054e1e744502e27c04c187c3ecc505dd54bbb4f"
   dependencies:
@@ -1989,18 +1989,18 @@ gulp-util@^3.0, gulp-util@^3.0.0, gulp-util@^3.0.1, gulp-util@^3.0.2, gulp-util@
     through2 "^2.0.0"
     vinyl "^0.5.0"
 
-gulp.spritesmith@6.5.1:
-  version "6.5.1"
-  resolved "https://registry.yarnpkg.com/gulp.spritesmith/-/gulp.spritesmith-6.5.1.tgz#e009f8b5da142ed0c7c8943c3e46e9fce2c31982"
+gulp.spritesmith@6.9.0:
+  version "6.9.0"
+  resolved "https://registry.yarnpkg.com/gulp.spritesmith/-/gulp.spritesmith-6.9.0.tgz#28f81ee3a425c7f88c6dde56ba920d995f9d0419"
   dependencies:
     async "~2.1.5"
-    gulp-util "~3.0.8"
     minimatch "~3.0.3"
     spritesheet-templates "~10.2.0"
-    spritesmith "~3.1.0"
+    spritesmith "~3.3.0"
     through2 "~2.0.3"
     underscore "~1.8.3"
     url2 "~1.0.4"
+    vinyl "~2.1.0"
 
 gulp@3.9.1:
   version "3.9.1"
@@ -3640,9 +3640,9 @@ pinkie@^2.0.0:
   version "2.0.4"
   resolved "https://registry.yarnpkg.com/pinkie/-/pinkie-2.0.4.tgz#72556b80cfa0d48a974e80e77248e80ed4f7f870"
 
-pixelsmith@~2.1.0:
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/pixelsmith/-/pixelsmith-2.1.1.tgz#dd5653c87bac9a88c0e687ea4ff3ab5fcb0fd6e5"
+pixelsmith@~2.2.0:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/pixelsmith/-/pixelsmith-2.2.1.tgz#313f7930029c65d0b28fe1ce29c06b8e2cbb3807"
   dependencies:
     async "~0.9.0"
     concat-stream "~1.5.1"
@@ -4437,13 +4437,13 @@ spritesheet-templates@~10.2.0:
     underscore "~1.4.2"
     underscore.string "~3.0.3"
 
-spritesmith@~3.1.0:
-  version "3.1.1"
-  resolved "https://registry.yarnpkg.com/spritesmith/-/spritesmith-3.1.1.tgz#4e5364eb9bfd987daf6c1b48a58d2be5b6a0f8d7"
+spritesmith@~3.3.0:
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/spritesmith/-/spritesmith-3.3.0.tgz#338d2d686295f504093165811f2b3836a4d57344"
   dependencies:
     concat-stream "~1.5.1"
     layout "~2.2.0"
-    pixelsmith "~2.1.0"
+    pixelsmith "~2.2.0"
     semver "~5.0.3"
     through2 "~2.0.0"
 
@@ -5173,7 +5173,7 @@ vinyl@^1.0.0, vinyl@^1.1.0:
     clone-stats "^0.0.1"
     replace-ext "0.0.1"
 
-vinyl@^2.0.0:
+vinyl@^2.0.0, vinyl@~2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/vinyl/-/vinyl-2.1.0.tgz#021f9c2cf951d6b939943c89eb5ee5add4fd924c"
   dependencies:
