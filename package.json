@@ -42,7 +42,7 @@
     "normalize.css": "7.0.0"
   },
   "devDependencies": {
-    "gulp-jshint": "2.0.4",
+    "gulp-jshint": "2.1.0",
     "gulp-livereload": "3.8.1",
     "jshint": "2.9.5",
     "jshint-stylish": "2.2.1"
