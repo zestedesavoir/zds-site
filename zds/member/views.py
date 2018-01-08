@@ -901,27 +901,16 @@ def remove_hat(request, user_pk, hat_pk):
 
 def login_view(request):
     """Logs user in."""
-    csrf_tk = {}
+    next_page = request.GET.get('next')
+    csrf_tk = {'next_page': next_page}
     csrf_tk.update(csrf(request))
     error = False
 
-    next_page = request.GET.get('next')
-    csrf_tk['next_page'] = next_page
-
     if request.method != 'POST':
         form = LoginForm()
-        csrf_tk['error'] = error
-        csrf_tk['form'] = form
-        return render(request, 'member/login.html', {
-            'form': form,
-            'csrf_tk': csrf_tk
-        })
-
-    # Now, we are sure that the request is POST.
-    form = LoginForm(data=request.POST)
+    else:
+        form = LoginForm(data=request.POST)
     if form.is_valid():
-        if next_page is not None:
-            form.helper.form_action += '?next=' + next_page
         username = form.cleaned_data['username']
         password = form.cleaned_data['password']
         user = authenticate(username=username, password=password)
@@ -936,17 +925,16 @@ def login_view(request):
                     )
                 )
             else:
-                registration_url = reverse('register-member')
                 messages.error(
                     request, _(
                         'Ce nom d’utilisateur est inconnu. '
-                        'Si vous ne possédez pas de compte, vous pouvez '
-                        '<a href="{url}">vous inscrire</a>.'.format(
-                            url=registration_url
-                        )
+                        'Si vous ne possédez pas de compte, '
+                        'vous pouvez vous inscrire.'
                     )
                 )
             form = LoginForm(initial=initial)
+            if next_page is not None:
+                form.helper.form_action += '?next=' + next_page
             csrf_tk['error'] = error
             csrf_tk['form'] = form
             return render(request, 'member/login.html', {
@@ -993,6 +981,8 @@ def login_view(request):
                 set_old_smileys_cookie(response, profile)
                 return response
 
+    if next_page is not None:
+        form.helper.form_action += '?next=' + next_page
     csrf_tk['error'] = error
     csrf_tk['form'] = form
     return render(request, 'member/login.html', {
