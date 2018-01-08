@@ -341,7 +341,8 @@ class MemberTests(TestCase):
              'remember': 'remember'},
             follow=False)
         self.assertEqual(result.status_code, 200)
-        self.assertContains(result, _(
+        self.assertContains(
+            result, _(
                 'Le mot de passe saisi est incorrect. '
                 'Cliquez sur le lien « Mot de passe oublié ? » '
                 'si vous ne vous en souvenez plus.'
@@ -357,7 +358,8 @@ class MemberTests(TestCase):
              'remember': 'remember'},
             follow=False)
         self.assertEqual(result.status_code, 200)
-        self.assertContains(result, _(
+        self.assertContains(
+            result, _(
                 'Ce nom d’utilisateur est inconnu. '
                 'Si vous ne possédez pas de compte, '
                 'vous pouvez vous inscrire.'
