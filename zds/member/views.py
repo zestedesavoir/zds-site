@@ -938,11 +938,12 @@ def login_view(request):
                     )
                 )
             else:
+                registration_url = reverse('register-member')
                 messages.error(
                     request, _(
                         'Ce nom d’utilisateur est inconnu. '
-                        'Si vous ne possédez pas de compte, vous '
-                        'pouvez vous inscrire.'
+                        'Si vous ne possédez pas de compte, vous pouvez '
+                        '<a href="{url}">vous inscrire</a>.'.format(url=url)
                     )
                 )
             form = LoginForm(initial=initial)
