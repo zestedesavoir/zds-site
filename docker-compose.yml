@@ -6,27 +6,27 @@ services:
       context: .
       dockerfile: Dockerfile_front
     volumes:
-      - ./assets:/zds/assets:ro
-      - ./Gulpfile.js:/zds/Gulpfile.js:ro
-      - dist:/zds/dist
+      - ./assets:/zds/assets:ro,Z
+      - ./Gulpfile.js:/zds/Gulpfile.js:ro,Z
+      - dist:/zds/dist:z
 
   back:
     build:
       context: .
       dockerfile: Dockerfile_back
     volumes:
-      - db:/zds/db
-      - ./.git:/zds/.git:ro
-      - dist:/zds/dist:ro
-      - ./export-assets:/zds/export-assets:ro
-      - ./fixtures:/zds/fixtures:ro
-      - ./geodata:/zds/geodata:ro
-      - ./manage.py:/zds/manage.py:ro
-      - ./quotes.txt:/zds/quotes.txt:ro
-      - ./scripts:/zds/scripts:ro
-      - ./templates:/zds/templates:ro
-      - ./tox.ini:/zds/tox.ini:ro
-      - ./zds:/zds/zds:ro
+      - db:/zds/db:Z
+      - ./.git:/zds/.git:ro,Z
+      - dist:/zds/dist:ro,z
+      - ./export-assets:/zds/export-assets:ro,Z
+      - ./fixtures:/zds/fixtures:ro,Z
+      - ./geodata:/zds/geodata:ro,Z
+      - ./manage.py:/zds/manage.py:ro,Z
+      - ./quotes.txt:/zds/quotes.txt:ro,Z
+      - ./scripts:/zds/scripts:ro,Z
+      - ./templates:/zds/templates:ro,Z
+      - ./tox.ini:/zds/tox.ini:ro,Z
+      - ./zds:/zds/zds:ro,Z
     ports:
       - "${ZDS_ADDRESS:-127.0.0.1}:${ZDS_PORT:-8000}:8000"
     environment:
