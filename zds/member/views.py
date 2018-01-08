@@ -918,7 +918,7 @@ def login_view(request):
         })
 
     # Now, we are sure that the request is POST.
-    form = LoginForm(request.POST)
+    form = LoginForm(data=request.POST)
     print('Errors:', repr(form.errors))  # À supprimer.
     if form.is_valid():
         print('Valid')  # À supprimer.
