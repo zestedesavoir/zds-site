@@ -14,7 +14,7 @@ from zds.tutorialv2.models.database import PublishableContent
 from django.utils.translation import ugettext_lazy as _
 from zds.member.models import Profile
 from zds.tutorialv2.utils import slugify_raise_on_invalid, InvalidSlugError
-from zds.utils.forms import TagValidator
+from zds.utils.forms import TagValidator, MergeableFieldMixin
 
 
 class FormWithTitle(forms.Form):
@@ -107,7 +107,7 @@ class RemoveAuthorForm(AuthorForm):
         return cleaned_data
 
 
-class ContainerForm(FormWithTitle):
+class ContainerForm(FormWithTitle, MergeableFieldMixin):
 
     introduction = forms.CharField(
         label=_('Introduction'),
@@ -149,18 +149,25 @@ class ContainerForm(FormWithTitle):
         self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
 
-        self.helper.layout = Layout(
-            Field('title'),
-            Field('introduction', css_class='md-editor preview-source'),
-            ButtonHolder(StrictButton(_('Aperçu'), type='preview', name='preview',
-                                      css_class='btn btn-grey preview-btn'),),
-            HTML('{% if form.introduction.value %}{% include "misc/previsualization.part.html" \
-            with text=form.introduction.value %}{% endif %}'),
-            Field('conclusion', css_class='md-editor preview-source'),
-            ButtonHolder(StrictButton(_('Aperçu'), type='preview', name='preview',
-                                      css_class='btn btn-grey preview-btn'),),
-            HTML('{% if form.conclusion.value %}{% include "misc/previsualization.part.html" \
-            with text=form.conclusion.value %}{% endif %}'),
+        self.helper.layout = Layout(Field('title'))
+
+        if kwargs.get('data', None) is not None:
+            self.add_merge_interface_to_field('introduction', **kwargs)
+            self.add_merge_interface_to_field('conclusion', **kwargs)
+        else:
+            self.helper.layout.append(Layout(
+                Field('introduction', css_class='md-editor preview-source'),
+                ButtonHolder(StrictButton(_('Aperçu'), type='preview', name='preview',
+                                          css_class='btn btn-grey preview-btn'),),
+                HTML('{% if form.introduction.value %}{% include "misc/previsualization.part.html" \
+                with text=form.introduction.value %}{% endif %}'),
+                Field('conclusion', css_class='md-editor preview-source'),
+                ButtonHolder(StrictButton(_('Aperçu'), type='preview', name='preview',
+                                          css_class='btn btn-grey preview-btn'),
+                             HTML('{% if form.conclusion.value %}{% include "misc/previsualization.part.html" \
+                                  with text=form.conclusion.value %}{% endif %}'))))
+
+        self.helper.layout.append(Layout(
             Field('msg_commit'),
             Field('last_hash'),
             ButtonHolder(
@@ -168,10 +175,10 @@ class ContainerForm(FormWithTitle):
                     _('Valider'),
                     type='submit'),
             )
-        )
+        ))
 
 
-class ContentForm(ContainerForm):
+class ContentForm(ContainerForm, MergeableFieldMixin):
 
     description = forms.CharField(
         label=_('Description'),
@@ -230,7 +237,7 @@ class ContentForm(ContainerForm):
         widget=forms.CheckboxSelectMultiple()
     )
 
-    def _create_layout(self, hide_help):
+    def _create_layout(self, hide_help, **kwargs):
         html_part = HTML(_("<p>Demander de l'aide à la communauté !<br>"
                            "Si vous avez besoin d'un coup de main, "
                            "sélectionnez une ou plusieurs catégories d'aide ci-dessous "
@@ -243,21 +250,28 @@ class ContentForm(ContainerForm):
             Field('description'),
             Field('tags'),
             Field('type'),
-            Field('image'),
-            Field('introduction', css_class='md-editor preview-source'),
-            ButtonHolder(StrictButton(_('Aperçu'), type='preview', name='preview',
-                                      css_class='btn btn-grey preview-btn'),),
-            HTML('{% if form.introduction.value %}{% include "misc/previsualization.part.html" \
-            with text=form.introduction.value %}{% endif %}'),
-            Field('conclusion', css_class='md-editor preview-source'),
-            ButtonHolder(StrictButton(_('Aperçu'), type='preview', name='preview',
-                                      css_class='btn btn-grey preview-btn'),),
-            HTML('{% if form.conclusion.value %}{% include "misc/previsualization.part.html" \
-            with text=form.conclusion.value %}{% endif %}'),
+            Field('image'))
+
+        if kwargs.get('data') is not None:
+            self.add_merge_interface_to_field('introduction', **kwargs)
+            self.add_merge_interface_to_field('conclusion', **kwargs)
+        else:
+            self.helper.layout.append(Layout(
+                Field('introduction', css_class='md-editor preview-source'),
+                ButtonHolder(StrictButton(_('Aperçu'), type='preview', name='preview',
+                                          css_class='btn btn-grey preview-btn'),),
+                HTML('{% if form.introduction.value %}{% include "misc/previsualization.part.html" \
+                                          with text=form.introduction.value %}{% endif %}'),
+                Field('conclusion', css_class='md-editor preview-source'),
+                ButtonHolder(StrictButton(_('Aperçu'), type='preview', name='preview',
+                                          css_class='btn btn-grey preview-btn'),
+                             HTML('{% if form.conclusion.value %}{% include "misc/previsualization.part.html" \
+                                  with text=form.conclusion.value %}{% endif %}'))))
+
+        self.helper.layout.append(Layout(
             Field('last_hash'),
             Field('licence'),
-            Field('subcategory', template='crispy/checkboxselectmultiple.html'),
-        )
+            Field('subcategory', template='crispy/checkboxselectmultiple.html')))
 
         if not hide_help:
             self.helper.layout.append(html_part)
@@ -271,9 +285,10 @@ class ContentForm(ContainerForm):
         super(ContentForm, self).__init__(*args, **kwargs)
 
         self.helper = FormHelper()
+        self.helper = FormHelper()
         self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
-        self._create_layout(for_tribune)
+        self._create_layout(for_tribune, **kwargs)
 
         if 'type' in self.initial:
             self.helper['type'].wrap(

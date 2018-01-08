@@ -48,6 +48,8 @@ gulp.task('js', () =>
     gulp.src([
         require.resolve('jquery'),
         require.resolve('cookies-eu-banner'),
+        require.resolve('codemirror'),
+        require.resolve('codemirror/addon/merge/merge'),
         // Used by other scripts, must be first
         'assets/js/modal.js',
         'assets/js/tooltips.js',
@@ -56,6 +58,7 @@ gulp.task('js', () =>
         'assets/js/accordeon.js',
         'assets/js/ajax-actions.js',
         'assets/js/autocompletion.js',
+        'assets/js/auto-merge.js',
         'assets/js/close-alert-box.js',
         'assets/js/compare-commits.js',
         'assets/js/dropdown-menu.js',

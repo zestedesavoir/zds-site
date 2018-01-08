@@ -27,10 +27,12 @@
   "homepage": "https://github.com/zestedesavoir/zds-site",
   "dependencies": {
     "autoprefixer": "7.1.2",
+    "codemirror": "^5.28.0",
     "cookies-eu-banner": "^1.2.10",
     "cssnano": "3.10.0",
     "del": "3.0.0",
-    "gulp": "3.9.1",
+    "diff-merge-patch": "^0.6.0",
+    "gulp": "^3.9.1",
     "gulp-concat": "2.6.1",
     "gulp-imagemin": "3.3.0",
     "gulp-postcss": "7.0.0",

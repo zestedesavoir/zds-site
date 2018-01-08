@@ -3,6 +3,10 @@
 {% load i18n %}
 {% load feminize %}
 
+{% block extra_js %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/diff_match_patch/20121119/diff_match_patch.js"></script>
+{% endblock %}
+
 {% block title %}
     {% trans "Éditer " %}{{ "un"|feminize:container.get_level_as_string }} {{ container.get_level_as_string|lower }}
 {% endblock %}
