@@ -6305,12 +6305,33 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
 @override_settings(ES_ENABLED=False)
 class StatTests(TestCase, TutorialTestMixin):
 
+    def setUp(self):
+        self.user_author = ProfileFactory().user
+        self.user_staff = StaffProfileFactory().user
+        self.user_guest = ProfileFactory().user
+        published = PublishedContentFactory(author_list=[self.user_author])
+
     def test_access_right(self):
-        # Test author success
-        # Test admin success
-        # Test other member failure
-        # Test anon failure
-        pass
+
+        # Anonymous cannot access stats
+        url = reverse('content:stats-content', kwargs={'pk': published.pk, 'slug': published.slug})
+        resp = self.client.get(url)
+        print (resp) # TODO Anon should not be able to access stats
+
+        # Guest cannot access stats
+        self.client.login(username=self.user_guest.username, password='hostel77')
+        resp = self.client.get(url)
+        print (resp) # TODO Guest should not be able to access stats
+
+        # Author
+        self.client.login(username=self.user_author.username, password='hostel77')
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.context_data['display'], 'global')
+        self.assertEqual(resp.context_data['urls'][0].name, published.title)
+        # TODO self.assertEqual(resp.context_data['urls'][0].url, published.get_absolute_url())
+        # TODO test with more complex URLS ?
+        # TODO test same thing with admin
 
     def test_post_form(self):
         pass
