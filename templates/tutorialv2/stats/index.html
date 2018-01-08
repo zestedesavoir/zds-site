@@ -2,6 +2,7 @@
 {% load i18n %}
 {% load crispy_forms_tags %}
 {% load append_query_params %}
+{% load date_from_day_number %}
 
 {% block title %}
     {% trans "Statistiques du contenu" %}
@@ -86,29 +87,33 @@
 {% endblock %}
 
 {% block sidebar %}
+    <!-- TODO fix selected class -->
     <aside class="sidebar summary mobile-menu-hide">
         <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">
             <h3>{% trans "Échelle de temps" %}</h3>
             <ul>
                 <li>
+                    {% date_from_day_number 7 as start_date %}
                     <a class="ico-after gear {% if request.GET.days == '7' or request.GET.days is none %}selected{% endif %}"
-                       href="{% append_query_params days=7 %}{% if display != 'global' %}{% for url in urls %}&urls={{url.url}}{% endfor %}{% endif %}">
+                       href="{% append_query_params start_date=start_date %}{% if display != 'global' %}{% for url in urls %}&urls={{url.url}}{% endfor %}{% endif %}">
                         <span>
                             {% trans "7 derniers jours" %}
                         </span>
                     </a>
                 </li>
                 <li>
+                    {% date_from_day_number 30 as start_date %}
                     <a class="ico-after gear {% if request.GET.days == '30' %}selected{% endif %}"
-                       href="{% append_query_params days=30 %}{% if display != 'global' %}{% for url in urls %}&urls={{url.url}}{% endfor %}{% endif %}">
+                       href="{% append_query_params start_date=start_date %}{% if display != 'global' %}{% for url in urls %}&urls={{url.url}}{% endfor %}{% endif %}">
                         <span>
                             {% trans "30 derniers jours" %}
                         </span>
                     </a>
                 </li>
                 <li>
+                    {% date_from_day_number 365 as start_date %}
                     <a class="ico-after gear {% if request.GET.days == '365' %}selected{% endif %}"
-                       href="{% append_query_params days=365 %}{% if display != 'global' %}{% for url in urls %}&urls={{url.url}}{% endfor %}{% endif %}">
+                       href="{% append_query_params start_date=start_date %}{% if display != 'global' %}{% for url in urls %}&urls={{url.url}}{% endfor %}{% endif %}">
                         <span>
                             {% trans "La dernière année" %}
                         </span>

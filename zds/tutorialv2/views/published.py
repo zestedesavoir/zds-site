@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date, timedelta
 from collections import defaultdict
 from zds import json_handler
 from uuslug import slugify
@@ -26,12 +26,12 @@ from zds.member.views import get_client_ip
 from zds.notification import signals
 from zds.notification.models import ContentReactionAnswerSubscription, NewPublicationSubscription
 from zds.tutorialv2.forms import RevokeValidationForm, WarnTypoForm, NoteForm, NoteEditForm, UnpublicationForm, \
-    PickOpinionForm, PromoteOpinionToArticleForm, UnpickOpinionForm
+    PickOpinionForm, PromoteOpinionToArticleForm, UnpickOpinionForm, ContentCompareStatsURLForm
 from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin, SingleOnlineContentViewMixin, DownloadViewMixin, \
     ContentTypeMixin, SingleOnlineContentFormViewMixin, MustRedirect
 from zds.tutorialv2.models import TYPE_CHOICES_DICT, CONTENT_TYPE_LIST
 from zds.tutorialv2.models.database import PublishableContent, PublishedContent, ContentReaction
-from zds.tutorialv2.utils import search_container_or_404, last_participation_is_old, mark_read
+from zds.tutorialv2.utils import search_container_or_404, last_participation_is_old, mark_read, NamedUrl
 from zds.utils.models import Alert, CommentVote, Tag, Category, CommentEdit, SubCategory, get_hat_from_request, \
     CategorySubCategory
 from zds.utils.paginator import make_pagination, ZdSPagingListView
@@ -1037,15 +1037,8 @@ class TagsListView(ListView):
 
         return context
 
-# TODO move me
-from collections import namedtuple
-NamedUrl = namedtuple('NamedUrl', ['name', 'url'])
 
-
-# TODO move imports
-from datetime import date, timedelta
-from zds.tutorialv2.forms import ContentCompareStatsURLForm
-from random import randint
+from random import randint # TODO only for dev, remove me !
 class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
     template_name = 'tutorialv2/stats/index.html'
     form_class = ContentCompareStatsURLForm
@@ -1054,6 +1047,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
     def post(self, *args, **kwargs):
         self.public_content_object = self.get_public_object()
         self.versioned_object = self.get_versioned_object()
+        # TODO missing self.objec here !
         return super().post(*args, **kwargs)
 
     def get_form_kwargs(self):
@@ -1105,17 +1099,32 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
                 api_raw.append(element)
         return  api_raw
 
+    def get_start_and_end_dates(self):
+        start_date = self.request.GET.get('start_date', None)
+        try:
+            start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+        except (TypeError, ValueError):
+            start_date = date.today() - timedelta(days=7)
+
+        end_date = self.request.GET.get('end_date', None)
+        try:
+            end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+        except (TypeError, ValueError):
+            end_date = date.today()
+        # TODO do something more when we have a value error ?
+        # Maybe give a warning message to user ?
+        return start_date, end_date
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         urls = self.get_urls_to_render()
+        start_date, end_date = self.get_start_and_end_dates()
 
-        nb_days = int(self.request.GET.get('days', 7)) # TODO this could raise ValueError
-        yesterday = date.today() - timedelta(1)
-        start_time_frame = yesterday - timedelta(nb_days)
-
+        # TODO masquer les choses qui n'ont pas de sens quand il n'y a pas de sous parties
+        # Par exemple sur un article --> une seule url, donc pas possible de poster le form
         display_mode = 'global' if len(urls) == len(self.get_content_urls()) else 'comparison' # TODO make display_mode an enum ?
-        pageviews = self.get_stats(urls, start_time_frame, yesterday, 'pageviews', display_mode=display_mode)
-        pagetime = self.get_stats(urls, start_time_frame, yesterday, 'time', display_mode=display_mode)
+        pageviews = self.get_stats(urls, start_date, end_date, 'pageviews', display_mode=display_mode)
+        pagetime = self.get_stats(urls, start_date, end_date, 'time', display_mode=display_mode)
 
         context.update({
                 'display': display_mode,

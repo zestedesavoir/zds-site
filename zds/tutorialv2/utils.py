@@ -1,4 +1,4 @@
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
 import os
 import logging
 from urllib.parse import urlsplit, urlunsplit, quote
@@ -794,3 +794,6 @@ class FailureDuringPublication(Exception):
 
     def __init__(self, *args, **kwargs):
         super(FailureDuringPublication, self).__init__(*args, **kwargs)
+
+
+NamedUrl = namedtuple('NamedUrl', ['name', 'url'])
