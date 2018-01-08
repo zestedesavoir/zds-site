@@ -6309,12 +6309,12 @@ class StatTests(TestCase, TutorialTestMixin):
         self.user_author = ProfileFactory().user
         self.user_staff = StaffProfileFactory().user
         self.user_guest = ProfileFactory().user
-        published = PublishedContentFactory(author_list=[self.user_author])
+        self.published = PublishedContentFactory(author_list=[self.user_author])
 
     def test_access_right(self):
 
         # Anonymous cannot access stats
-        url = reverse('content:stats-content', kwargs={'pk': published.pk, 'slug': published.slug})
+        url = reverse('content:stats-content', kwargs={'pk': self.published.pk, 'slug': self.published.slug})
         resp = self.client.get(url)
         print (resp) # TODO Anon should not be able to access stats
 
@@ -6328,7 +6328,7 @@ class StatTests(TestCase, TutorialTestMixin):
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.context_data['display'], 'global')
-        self.assertEqual(resp.context_data['urls'][0].name, published.title)
+        self.assertEqual(resp.context_data['urls'][0].name, self.published.title)
         # TODO self.assertEqual(resp.context_data['urls'][0].url, published.get_absolute_url())
         # TODO test with more complex URLS ?
         # TODO test same thing with admin
@@ -6337,8 +6337,32 @@ class StatTests(TestCase, TutorialTestMixin):
         pass
 
     def test_query_parameter_duration(self):
-        # Test 7 days, 365 days and non int value
-        pass
+
+        # By default we only have the last 7 days
+        self.client.login(username=self.user_author.username, password='hostel77')
+        url = reverse('content:stats-content', kwargs={'pk': self.published.pk, 'slug': self.published.slug})
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.context_data['pagetime'][0]['stats']), 7)
+        self.assertEqual(resp.context_data['pagetime'][0]['stats'][6]['date'],
+                        datetime.date.today().strftime("%Y-%m-%d"))
+        start_date = (datetime.date.today - datetime.timedelta(days=7)).strftime("%Y-%m-%d")
+        self.assertEqual(resp.context_data['pagetime'][0]['stats'][0]['date'], start_date)
+
+        # If a weird value is given, we fallback on default case
+        resp = self.client.get(url + '?start_date=weird')
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.context_data['pagetime'][0]['stats']), 7)
+        self.assertEqual(resp.context_data['pagetime'][0]['stats'][6]['date'],
+                        datetime.date.today().strftime("%Y-%m-%d"))
+        start_date = (datetime.date.today - datetime.timedelta(days=7)).strftime("%Y-%m-%d")
+        self.assertEqual(resp.context_data['pagetime'][0]['stats'][0]['date'], start_date)
+
+        # TODO same with start date is 30 days before
+
+        # TODO same with start date is 365 days before
+
+
 
     def test_query_parameter_url(self):
         # Test multiple URLS, test fake URL
