@@ -919,9 +919,7 @@ def login_view(request):
 
     # Now, we are sure that the request is POST.
     form = LoginForm(data=request.POST)
-    print('Errors:', repr(form.errors))  # À supprimer.
     if form.is_valid():
-        print('Valid')  # À supprimer.
         if next_page is not None:
             form.helper.form_action += '?next=' + next_page
         username = form.cleaned_data['username']
