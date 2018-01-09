@@ -20,6 +20,8 @@ base.db
 /contents-private-test
 /contents-public-test
 
+api_analytics_secrets.json
+
 /apache-solr
 
 /.tmp
