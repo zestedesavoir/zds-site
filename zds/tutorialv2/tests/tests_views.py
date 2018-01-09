@@ -26,7 +26,7 @@ from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory
     SubCategoryFactory, PublishedContentFactory, tricky_text_content, BetaContentFactory
 from zds.tutorialv2.models.database import PublishableContent, Validation, PublishedContent, ContentReaction, \
     ContentRead
-from zds.tutorialv2.publication_utils import publish_content, Publicator, PublicatorRegistery
+from zds.tutorialv2.publication_utils import publish_content, Publicator, PublicatorRegistry
 from zds.tutorialv2.tests import TutorialTestMixin
 from zds.utils.models import HelpWriting, Alert, Tag, Hat
 from zds.utils.factories import HelpWritingFactory, CategoryFactory
@@ -44,7 +44,7 @@ overridden_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'cont
 overridden_zds_app['content']['extra_content_generation_policy'] = 'SYNC'
 
 
-@PublicatorRegistery.register('pdf')
+@PublicatorRegistry.register('pdf')
 class FakePDFPublicator(Publicator):
     def publish(self, md_file_path, base_name, **kwargs):
         with open(md_file_path[:-2] + 'pdf', 'w') as f:
