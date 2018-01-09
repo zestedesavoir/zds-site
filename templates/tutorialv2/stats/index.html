@@ -39,22 +39,22 @@
                 <!-- TODO nice to have, template tag to serialize those array, use built-in template tag ??? --->
                 <p>{% trans "Évolution des pages vues sur le contenu" %}</p>
                 <canvas id="view-graph"
-                        {% for url in pageviews %}
-                            data-views-{{ forloop.counter0 }}="[{% for view in url.stats %}{{view.pageviews}} {% if not forloop.last %},{% endif %}{% endfor %}]"
-                            data-label-views-{{ forloop.counter0 }}="{{url.label}}"
-                        {% endfor %}
-                        data-time='[{% for view in pageviews.0.stats %}"{{view.date}}"{% if not forloop.last %},{% endif %} {% endfor %}]'">
+                    {% for url in stats %}
+                        data-views-{{ forloop.counter0 }}="[{% for view in stats.0.pageviews %}{{view.pageviews}} {% if not forloop.last %},{% endif %}{% endfor %}]"
+                        data-label-views-{{ forloop.counter0 }}="{{url.label}}"
+                    {% endfor %}
+                    data-time='[{% for view in stats.0.pageviews %}"{{view.date}}"{% if not forloop.last %},{% endif %} {% endfor %}]'">
                 </canvas>
 
             </div>
             <div class="stat-graph">
                 <p>{% trans "Évolution du temps de lecture" %}</p>
                 <canvas id="visit-time-graph"
-                        {% for url in pagetime %}
-                            data-views-{{ forloop.counter0 }}="[{% for view in url.stats %}{{view.time}} {% if not forloop.last %},{% endif %}{% endfor %}]"
-                            data-label-views-{{ forloop.counter0 }}="{{url.label}}"
-                        {% endfor %}
-                        data-time='[{% for view in pagetime.0.stats %}"{{view.date}}"{% if not forloop.last %},{% endif %} {% endfor %}]'">
+                    {% for url in stats %}
+                        data-views-{{ forloop.counter0 }}="[{% for view in stats.0.avgTimeOnPage %}{{view.avgTimeOnPage}} {% if not forloop.last %},{% endif %}{% endfor %}]"
+                        data-label-views-{{ forloop.counter0 }}="{{url.label}}"
+                    {% endfor %}
+                    data-time='[{% for view in stats.0.avgTimeOnPage %}"{{view.date}}"{% if not forloop.last %},{% endif %} {% endfor %}]'">
                 </canvas>
             </div>
         </div>
