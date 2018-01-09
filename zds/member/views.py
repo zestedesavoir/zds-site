@@ -909,7 +909,7 @@ def login_view(request):
     if request.method != 'POST':
         form = LoginForm()
     else:
-        form = LoginForm(data=request.POST)
+        form = LoginForm(request.POST)
     if form.is_valid():
         username = form.cleaned_data['username']
         password = form.cleaned_data['password']
