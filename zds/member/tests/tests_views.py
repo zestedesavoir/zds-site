@@ -377,6 +377,17 @@ class MemberTests(TestCase):
             follow=False)
         self.assertRedirects(result, reverse('gallery-list'))
 
+        # check the user is redirected to the home page if
+        # the "next" parameter points to a non-existing page.
+        result = self.client.post(
+            reverse('member-login') +
+            '?next=/foobar',
+            {'username': user.user.username,
+             'password': 'hostel77',
+             'remember': 'remember'},
+            follow=False)
+        self.assertRedirects(result, reverse('gallery-list'))
+
         # check if the login form will redirect if there is
         # a next parameter.
         self.client.logout()
