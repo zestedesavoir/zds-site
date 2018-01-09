@@ -9,6 +9,7 @@
 {% load staticfiles %}
 {% load thumbnail %}
 {% load topbar %}
+{% load messages %}
 
 
 <!DOCTYPE html>
@@ -631,14 +632,15 @@
             {% block doc_api %}
                 <div class="main wrapper clearfix">
                     <main class="content-container" role="main" id="content">
-                        {% if messages %}
+                        {% comment %}{% if messages %}
                             {% for message in messages %}
                                 <div class="alert-box {{ message.tags }}">
                                     <span>{{ message }}</span>
                                     <a href="#close-alert-box" class="close-alert-box ico-after cross white">{% trans "Masquer l’alerte" %}</a>
                                 </div>
                             {% endfor %}
-                        {% endif %}
+                        {% endif %}{% endcomment %}
+                        {% messages messages %}
 
                         {% block content_out %}
                             {% captureas schema %}
