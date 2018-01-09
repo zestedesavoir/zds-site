@@ -1038,11 +1038,27 @@ class TagsListView(ListView):
         return context
 
 
-from random import randint # TODO only for dev, remove me !
+# TODO move imports
+from datetime import date, timedelta
+from zds.tutorialv2.forms import ContentCompareStatsURLForm
+from random import randint
+
+from oauth2client.service_account import ServiceAccountCredentials
+from apiclient.discovery import build
+import httplib2
+from httplib2 import Http
+from oauth2client import client
+from oauth2client import file
+from oauth2client import tools
+
 class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
     template_name = 'tutorialv2/stats/index.html'
     form_class = ContentCompareStatsURLForm
     urls = []
+    SCOPES = ['https://www.googleapis.com/auth/analytics.readonly']
+    DISCOVERY_URI = 'https://analyticsreporting.googleapis.com/$discovery/rest'
+    CLIENT_SECRETS_PATH = os.path.join(settings.BASE_DIR, 'api_analytics_secrets.json')  # Path to client_secrets.json file.
+    VIEW_ID = 'ga:86962671'
 
     def post(self, *args, **kwargs):
         self.public_content_object = self.get_public_object()
@@ -1081,6 +1097,41 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
 
     def get_cumulative_stats_by_url(self, urls):
         # TODO some Eskimon's magic here
+
+        credentials = ServiceAccountCredentials.from_json_keyfile_name(self.CLIENT_SECRETS_PATH, self.SCOPES)
+        http = credentials.authorize(Http())
+        # Build the service object.
+        analytics = build('analytics', 'v4', http=http, discoveryServiceUrl=self.DISCOVERY_URI)
+
+        start_date = '7daysAgo'
+        end_date = 'yesterday'
+
+        response = analytics.reports().batchGet(
+            body={
+                'reportRequests': [
+                    {
+                        'viewId': self.VIEW_ID,
+                        'dateRanges': [{'startDate': start_date, 'endDate': end_date}],
+                        'metrics': [{'expression': 'ga:sessions'}],
+                        'dimensions': [{'name': 'ga:keyword'}, {'name': 'ga:fullReferrer'}]
+                    }, {
+                        'viewId': self.VIEW_ID,
+                        'dateRanges': [{'startDate': '7daysAgo', 'endDate': 'yesterday'}],
+                        'metrics': [
+                            {'expression': 'ga:pageviews'},
+                            {'expression': 'ga:avgTimeOnPage'},
+                            {'expression': 'ga:users'},
+                            {'expression': 'ga:newUsers'},
+                            {'expression': 'ga:sessions'}
+                        ],
+                        'dimensions': [{'name': 'ga:date'}, {'name': 'ga:pagePath'}],
+                    }
+                ]
+            }
+        ).execute()
+        from pprint import pprint
+        pprint(response)
+
         return [{'url': url, 'pageviews': 1800, 'avgTimeOnPage': 150} for url in urls]
 
     def get_stats(self, urls, start, end, property, display_mode):
@@ -1097,7 +1148,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
                           property: randint(0, 150)} for i in range(nb_days)]
                 element = {'label': url.name, 'stats': stats}
                 api_raw.append(element)
-        return  api_raw
+        return api_raw
 
     def get_start_and_end_dates(self):
         start_date = self.request.GET.get('start_date', None)
