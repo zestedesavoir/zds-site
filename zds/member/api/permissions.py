@@ -24,6 +24,19 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
         return author == request.user
 
 
+class IsOwner(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        # Write permissions are not allowed to the owner of the snippet
+        if hasattr(obj, 'user'):
+            owners = [obj.user]
+        elif hasattr(obj, 'author'):
+            owners = [obj.author]
+        elif hasattr(obj, 'authors'):
+            owners = list(obj.authors)
+
+        return request.user in owners
+
+
 class IsNotOwnerOrReadOnly(permissions.BasePermission):
     """
     Custom permission to prevent owner to vote on their objects

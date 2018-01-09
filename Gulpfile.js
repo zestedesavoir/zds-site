@@ -58,6 +58,7 @@ gulp.task('js', () =>
         'assets/js/autocompletion.js',
         'assets/js/close-alert-box.js',
         'assets/js/compare-commits.js',
+        'assets/js/content-publication-readiness.js',
         'assets/js/dropdown-menu.js',
         'assets/js/editor.js',
         'assets/js/featured-resource-preview.js',

@@ -551,7 +551,7 @@ def fill_containers_from_json(json_sub, parent):
                     parent.add_container(new_container, generate_slug=(slug == ''))
                 except InvalidOperationError as e:
                     raise BadManifestError(e.message)
-                new_container.ready_to_publish = json_sub.get('ready_to_publish', True)
+                new_container.ready_to_publish = child.get('ready_to_publish', True)
                 if 'children' in child:
                     fill_containers_from_json(child, new_container)
             elif child['object'] == 'extract':
