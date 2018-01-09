@@ -23,6 +23,7 @@ from django.utils.translation import string_concat
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST
 from django.views.generic import DetailView, UpdateView, CreateView, FormView
+from django.urls import NoReverseMatch
 
 from zds.forum.models import Topic, TopicRead
 from zds.gallery.forms import ImageAsAvatarForm
@@ -974,12 +975,10 @@ def login_view(request):
             # after a browser session.)
             try:
                 response = redirect(next_page)
-                set_old_smileys_cookie(response, profile)
-                return response
-            except:
+            except NoReverseMatch:
                 response = redirect(reverse('homepage'))
-                set_old_smileys_cookie(response, profile)
-                return response
+            set_old_smileys_cookie(response, profile)
+            return response
 
     if next_page is not None:
         form.helper.form_action += '?next=' + next_page
