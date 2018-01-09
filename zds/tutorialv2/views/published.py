@@ -1047,7 +1047,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
     def post(self, *args, **kwargs):
         self.public_content_object = self.get_public_object()
         self.versioned_object = self.get_versioned_object()
-        # TODO missing self.objec here !
+        # TODO missing self.object here !
         return super().post(*args, **kwargs)
 
     def get_form_kwargs(self):
@@ -1115,14 +1115,19 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         # Maybe give a warning message to user ?
         return start_date, end_date
 
+    def get_display_mode(self, urls):
+        # TODO make display_mode an enum ?
+        if len(urls) == 1:
+            return 'details'
+        if len(urls) == len(self.get_content_urls()):
+            return 'global'
+        return 'comparison'
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         urls = self.get_urls_to_render()
         start_date, end_date = self.get_start_and_end_dates()
-
-        # TODO masquer les choses qui n'ont pas de sens quand il n'y a pas de sous parties
-        # Par exemple sur un article --> une seule url, donc pas possible de poster le form
-        display_mode = 'global' if len(urls) == len(self.get_content_urls()) else 'comparison' # TODO make display_mode an enum ?
+        display_mode = self.get_display_mode(urls)
         pageviews = self.get_stats(urls, start_date, end_date, 'pageviews', display_mode=display_mode)
         pagetime = self.get_stats(urls, start_date, end_date, 'time', display_mode=display_mode)
 
