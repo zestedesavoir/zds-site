@@ -796,4 +796,4 @@ class FailureDuringPublication(Exception):
         super(FailureDuringPublication, self).__init__(*args, **kwargs)
 
 
-NamedUrl = namedtuple('NamedUrl', ['name', 'url'])
+NamedUrl = namedtuple('NamedUrl', ['name', 'url', 'level'])

@@ -36,7 +36,7 @@
 
         <div class="stat-graph-container">
             <div class="stat-graph">
-                <!-- TODO nice to have, template tag to serialize those array, use built-in template tag ??? --->
+                <!-- TODO nice to have, template tag to serialize those array, use built-in template tag ??? -->
                 <p>{% trans "Évolution des pages vues sur le contenu" %}</p>
                 <canvas id="view-graph"
                     {% for url in stats %}
@@ -59,25 +59,33 @@
             </div>
         </div>
 
-        <!--TODO check that a least one stats is available, else display error msg-->
-        <table class="fullwidth">
-            <thead>
-                <th>{% trans "Partie" %}</th>
-                <th>{% trans "Vues" %}</th>
-                <th class="wide">{% trans "Temps moyen sur la page (s)" %}</th>
-            </thead>
-            <tbody>
-                {% for view in cumulative_stats_by_url %}
-                    <tr>
-                        <!-- TODO this could be a link to see the details of one url -->
-                        <td><a href="{{ view.url.url }}">{{ view.url.name }}</a></td>
-                        <td>{{ view.pageviews }}</td>
-                        <td class="wide">{{ view.avgTimeOnPage }}</td>
-                        <!-- TODO convert me from seconds to hh:mm:ss if needed --->
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        {% if cumulative_stats_by_url %}
+            <table class="stat-table fullwidth">
+                <thead>
+                    <th>{% trans "Partie" %}</th>
+                    <th>{% trans "Vues" %}</th>
+                    <th class="wide">{% trans "Temps moyen sur la page" %}</th>
+                </thead>
+                <tbody>
+                    {% for view in cumulative_stats_by_url %}
+                        <tr>
+                            <td class="level-{{view.url.level}}">
+                                <a href="{{ view.url.url }}">{{ view.url.name }}</a>
+                                {% if display != 'details' %}
+                                    - Voir le détails de cette partie
+                                    <!-- TODO this could be a link to see the details of one url -->
+                                {% endif %}
+                            </td>
+                            <td>{{ view.pageviews }}</td>
+                            <td class="wide">{{ view.avgTimeOnPage }}</td>
+                            <!-- TODO convert me from seconds to hh:mm:ss if needed -->
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            {% trans "Aucune statistique a afficher" %}
+        {% endif %}
 
         {% if display == 'comparison' %}
             <!-- TODO bouton retourner au mode global -->

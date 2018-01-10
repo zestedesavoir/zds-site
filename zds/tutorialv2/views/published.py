@@ -1086,14 +1086,14 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
 
     def get_content_urls(self):
         content = self.versioned_object
-        urls = [NamedUrl(content.title, content.get_absolute_url_online())]
+        urls = [NamedUrl(content.title, content.get_absolute_url_online(), 0)]
         if content.has_extracts():
             return urls
         for child in content.children:
-            urls.append(NamedUrl(child.title, child.get_absolute_url_online()))
+            urls.append(NamedUrl(child.title, child.get_absolute_url_online(), 1))
             if not child.has_extracts():
                 for subchild in child.children:
-                    urls.append(NamedUrl(subchild.title, subchild.get_absolute_url_online()))
+                    urls.append(NamedUrl(subchild.title, subchild.get_absolute_url_online(), 2))
         return urls
 
     def get_cumulative_stats_by_url(self, urls, start, end):
