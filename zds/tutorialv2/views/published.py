@@ -1095,10 +1095,41 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
                     urls.append(NamedUrl(subchild.title, subchild.get_absolute_url_online()))
         return urls
 
-    def get_cumulative_stats_by_url(self, urls):
-        # TODO some Eskimon's magic here
+    def get_cumulative_stats_by_url(self, urls, start, end):
+        paths = [u.url for u in urls]
+        credentials = ServiceAccountCredentials.from_json_keyfile_name(self.CLIENT_SECRETS_PATH, self.SCOPES)
+        http = credentials.authorize(Http())
+        analytics = build('analytics', 'v4', http=http, discoveryServiceUrl=self.DISCOVERY_URI)
+        response = analytics.reports().batchGet(
+            body={'reportRequests': [{
+                'viewId': self.VIEW_ID,
+                'dateRanges': [{'startDate': start.strftime("%Y-%m-%d"), 'endDate': end.strftime("%Y-%m-%d")}],
+                'metrics': [{'expression': 'ga:pageviews'},
+                            {'expression': 'ga:avgTimeOnPage'}],
+                'dimensions': [{'name': 'ga:pagePath'}],
+                'dimensionFilterClauses': [{'filters':
+                    [{
+                        'dimensionName': 'ga:pagePath',
+                        'expressions': paths
+                    }]}],
+            }]
+            }
+        ).execute()
 
-        return [{'url': url, 'pageviews': 1800, 'avgTimeOnPage': 150} for url in urls]
+        # Build an array of type arr[url] = {'pageviews': X, 'avgTimeOnPage': y}
+        response = response['reports'][0]['data']['rows']
+        data = {}
+        for r in response:
+            # Cleanup array (remove url not in 'paths', like '/membres/connexion/?next=/tutoriels/686/arduino-...'
+            url = r['dimensions'][0]
+            metrics = r['metrics'][0]['values']
+            if url not in paths:
+                continue
+            # avgTimeOnPage is convert to float then int to remove useless decimal part
+            data[url] = {'pageviews': metrics[0], 'avgTimeOnPage': int(float(metrics[1]))}
+
+        # Build the response array
+        return [{'url': url, 'pageviews': data[url.url]['pageviews'], 'avgTimeOnPage': data[url.url]['avgTimeOnPage']} for url in urls]
 
     def get_stats(self, urls, start, end, display_mode):
         nb_days = (end - start).days
@@ -1106,14 +1137,9 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
 
         credentials = ServiceAccountCredentials.from_json_keyfile_name(self.CLIENT_SECRETS_PATH, self.SCOPES)
         http = credentials.authorize(Http())
-        # Build the service object.
         analytics = build('analytics', 'v4', http=http, discoveryServiceUrl=self.DISCOVERY_URI)
 
         if display_mode == 'global':
-
-            # TODO remove that line, just for Eskimon's debug purpose...
-            urls = '/tutoriels/686/arduino-premiers-pas-en-informatique-embarquee/'
-
             response = analytics.reports().batchGet(
                 body={'reportRequests': [{
                     'viewId': self.VIEW_ID,
@@ -1126,7 +1152,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
                         [{
                             'operator': 'EXACT',
                             'dimensionName': 'ga:pagePath',
-                            'expressions': [urls]
+                            'expressions': [urls[0].url]
                         }]}],
                 }]
                 }
@@ -1142,8 +1168,6 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
                 data_avgtimeonpage = d['metrics'][0]['values'][1]
                 stat_pageviews.append({'date': data_date, 'pageviews': data_pageviews})
                 stat_avgtimeonpage.append({'date': data_date, 'avgTimeOnPage': data_avgtimeonpage})
-            print(stat_pageviews)
-            print(stat_avgtimeonpage)
 
             api_raw = [{'label': _('Global'),
                         'pageviews': stat_pageviews,
@@ -1193,7 +1217,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         context.update({
                 'display': display_mode,
                 'urls': urls,
-                'stats': stats, # Graph
-                'cumulative_stats_by_url': self.get_cumulative_stats_by_url(urls) # Table data
+                'stats': stats,  # Graph
+                'cumulative_stats_by_url': self.get_cumulative_stats_by_url(urls, start_date, end_date)  # Table data
             })
         return context
