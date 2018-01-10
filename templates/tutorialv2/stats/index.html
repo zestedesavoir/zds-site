@@ -64,18 +64,13 @@
             <thead>
                 <th>{% trans "Partie" %}</th>
                 <th>{% trans "Vues" %}</th>
-                <th class="wide">{% trans "Temps moyen sur la page" %}</th>
+                <th class="wide">{% trans "Temps moyen sur la page (s)" %}</th>
             </thead>
             <tbody>
                 {% for view in cumulative_stats_by_url %}
                     <tr>
-                        <td>
-                            <a href="{{ view.url.url }}">{{ view.url.name }}</a>
-                            {% if display != 'details' %}
-                                - Voir le détails de cette partie
-                                <!-- TODO this could be a link to see the details of one url -->
-                            {% endif %}
-                        </td>
+                        <!-- TODO this could be a link to see the details of one url -->
+                        <td><a href="{{ view.url.url }}">{{ view.url.name }}</a></td>
                         <td>{{ view.pageviews }}</td>
                         <td class="wide">{{ view.avgTimeOnPage }}</td>
                         <!-- TODO convert me from seconds to hh:mm:ss if needed --->
