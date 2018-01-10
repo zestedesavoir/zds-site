@@ -1055,6 +1055,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
     template_name = 'tutorialv2/stats/index.html'
     form_class = ContentCompareStatsURLForm
     urls = []
+    CACHE_PATH = os.path.join(settings.BASE_DIR, '.ga-api-cache')
     SCOPES = ['https://www.googleapis.com/auth/analytics.readonly']
     DISCOVERY_URI = 'https://analyticsreporting.googleapis.com/$discovery/rest'
     CLIENT_SECRETS_PATH = os.path.join(settings.BASE_DIR, 'api_analytics_secrets.json')  # Path to client_secrets.json file.
@@ -1098,7 +1099,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
     def get_cumulative_stats_by_url(self, urls, start, end):
         paths = [u.url for u in urls]
         credentials = ServiceAccountCredentials.from_json_keyfile_name(self.CLIENT_SECRETS_PATH, self.SCOPES)
-        http = credentials.authorize(Http())
+        http = credentials.authorize(Http(cache=self.CACHE_PATH))
         analytics = build('analytics', 'v4', http=http, discoveryServiceUrl=self.DISCOVERY_URI)
         response = analytics.reports().batchGet(
             body={'reportRequests': [{
@@ -1136,7 +1137,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         api_raw = []
 
         credentials = ServiceAccountCredentials.from_json_keyfile_name(self.CLIENT_SECRETS_PATH, self.SCOPES)
-        http = credentials.authorize(Http())
+        http = credentials.authorize(Http(cache=self.CACHE_PATH))
         analytics = build('analytics', 'v4', http=http, discoveryServiceUrl=self.DISCOVERY_URI)
 
         if display_mode == 'global':
