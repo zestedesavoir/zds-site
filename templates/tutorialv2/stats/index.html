@@ -72,8 +72,7 @@
                             <td class="level-{{view.url.level}}">
                                 <a href="{{ view.url.url }}">{{ view.url.name }}</a>
                                 {% if display != 'details' %}
-                                    - Voir le détails de cette partie
-                                    <!-- TODO this could be a link to see the details of one url -->
+                                    - <a href="?urls={{view.url.url }}" >Voir le détails de cette partie</a>
                                 {% endif %}
                             </td>
                             <td>{{ view.pageviews }}</td>

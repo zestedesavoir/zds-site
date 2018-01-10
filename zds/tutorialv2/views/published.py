@@ -1140,7 +1140,11 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         http = credentials.authorize(Http(cache=self.CACHE_PATH))
         analytics = build('analytics', 'v4', http=http, discoveryServiceUrl=self.DISCOVERY_URI)
 
-        if display_mode == 'global':
+        if display_mode in ('global', 'details'):
+    
+            # TODO remove that line, just for Eskimon's debug purpose...
+            urls = '/tutoriels/686/arduino-premiers-pas-en-informatique-embarquee/'
+
             response = analytics.reports().batchGet(
                 body={'reportRequests': [{
                     'viewId': self.VIEW_ID,
