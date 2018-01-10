@@ -1085,6 +1085,13 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
             return all_named_urls
 
     def get_content_urls(self):
+        debug_urls = [
+        NamedUrl('Découverte de l Arduino', '/tutoriels/686/arduino-premiers-pas-en-informatique-embarquee/742_decouverte-de-larduino/', 1),
+        NamedUrl('Présentation', '/tutoriels/686/arduino-premiers-pas-en-informatique-embarquee/742_decouverte-de-larduino/3414_presentation-darduino/', 2),
+        NamedUrl('Quelques bases', '/tutoriels/686/arduino-premiers-pas-en-informatique-embarquee/742_decouverte-de-larduino/3415_quelques-bases-elementaires/', 2)
+        ]
+        # return debug_urls
+
         content = self.versioned_object
         urls = [NamedUrl(content.title, content.get_absolute_url_online(), 0)]
         if content.has_extracts():
@@ -1096,11 +1103,16 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
                     urls.append(NamedUrl(subchild.title, subchild.get_absolute_url_online(), 2))
         return urls
 
-    def get_cumulative_stats_by_url(self, urls, start, end):
-        paths = [u.url for u in urls]
+    def config_ga_credential(self):
+        # TODO Could raise JSONDecodeError is file is not properly formated
         credentials = ServiceAccountCredentials.from_json_keyfile_name(self.CLIENT_SECRETS_PATH, self.SCOPES)
         http = credentials.authorize(Http(cache=self.CACHE_PATH))
         analytics = build('analytics', 'v4', http=http, discoveryServiceUrl=self.DISCOVERY_URI)
+        return analytics
+
+    def get_cumulative_stats_by_url(self, urls, start, end):
+        paths = [u.url for u in urls]
+        analytics = self.config_ga_credential()
         response = analytics.reports().batchGet(
             body={'reportRequests': [{
                 'viewId': self.VIEW_ID,
@@ -1126,7 +1138,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
             metrics = r['metrics'][0]['values']
             if url not in paths:
                 continue
-            # avgTimeOnPage is convert to float then int to remove useless decimal part
+            # avgTimeOnPage is converted to float then int to remove useless decimal part
             data[url] = {'pageviews': metrics[0], 'avgTimeOnPage': int(float(metrics[1]))}
 
         # Build the response array
@@ -1135,10 +1147,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
     def get_stats(self, urls, start, end, display_mode):
         nb_days = (end - start).days
         api_raw = []
-
-        credentials = ServiceAccountCredentials.from_json_keyfile_name(self.CLIENT_SECRETS_PATH, self.SCOPES)
-        http = credentials.authorize(Http(cache=self.CACHE_PATH))
-        analytics = build('analytics', 'v4', http=http, discoveryServiceUrl=self.DISCOVERY_URI)
+        analytics = analytics = self.config_ga_credential()
 
         if display_mode in ('global', 'details'):
     
@@ -1163,6 +1172,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
                 }
             ).execute()
 
+            # TODO if nothing is found ['rows'] will raise a KeyError
             data = response['reports'][0]['data']['rows']
             stat_pageviews = []
             stat_avgtimeonpage = []
