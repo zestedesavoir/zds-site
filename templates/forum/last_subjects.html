@@ -10,44 +10,42 @@ Derniers sujets
 {% endblock %}
 
 {% block breadcrumb %}
-Test
     <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
         <a href="{{ forum.category.get_absolute_url }}" itemprop="url">
-            <span itemprop="title">{{ forum.category.title }}</span>
+            <span itemprop="title">Derniers sujets</span>
         </a>
     </li>
-
-    {% if request.GET.filter %}
-        <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
-            <a href="{{ forum.get_absolute_url }}" itemprop="url">
-                <span itemprop="title">{{ forum.title }}</span>
-            </a>
-        </li>
-    {% else %}
-        <li>{{ forum.title }}</li>
-    {% endif %}
-
-    {% if request.GET.filter == "solve" %}
-        <li>{% trans "Sujets résolus" %}</li>
-    {% elif request.GET.filter == "unsolve" %}
-        <li>{% trans "Sujets non-résolus" %}</li>
-    {% elif request.GET.filter == "noanswer" %}
-        <li>{% trans "Sujets sans réponse" %}</li>
-    {% endif %}
 {% endblock %}
 
 
 
 {% block headline %}
     Derniers sujets
-    {{ forum.title }}
-    {% if request.GET.filter == "solve" %}
-        / {% trans "Sujets résolus" %}
-    {% elif request.GET.filter == "unsolve" %}
-        / {% trans "Sujets non-résolus" %}
-    {% elif request.GET.filter == "noanswer" %}
-        / {% trans "Sujets sans réponse" %}
-    {% endif %}
+{% endblock %}
+
+
+
+{% block sidebar_blocks %}
+    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Tous les forums">
+        <h3>{% trans "Tous les forums" %}</h3>
+        <ul>
+            <li>
+                <a href="{% url 'cats-forums-list' %}" class="ico-after view">
+                    {% trans "Tous les forums" %}
+                </a>
+            </li>
+        </ul>
+    </div>
+    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Filtres">
+        <h3>{% trans "Ordre de tri" %}</h3>
+        <ul>
+            <li>
+                <a href="" class="ico-after view">
+                    {% trans "***TODO***" %}
+                </a>
+            </li>
+        </ul>
+    </div>
 {% endblock %}
 
 
@@ -56,7 +54,7 @@ Test
     {% if topics %}
         <div class="topic-list navigable-list" itemscope itemtype="http://schema.org/ItemList">
             {% for topic in topics %}
-                {% include "forum/includes/topic_row.part.html" with display_category=1 %}
+                {% include "forum/includes/topic_row.part.html" with display_category=true %}
             {% endfor %}
         </div>
     {% else %}
