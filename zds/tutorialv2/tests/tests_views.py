@@ -6316,12 +6316,12 @@ class StatTests(TestCase, TutorialTestMixin):
         # Anonymous cannot access stats
         url = reverse('content:stats-content', kwargs={'pk': self.published.pk, 'slug': self.published.slug})
         resp = self.client.get(url)
-        print (resp) # TODO Anon should not be able to access stats
+        self.assertEqual(resp.status_code, 403)
 
         # Guest cannot access stats
         self.client.login(username=self.user_guest.username, password='hostel77')
         resp = self.client.get(url)
-        print (resp) # TODO Guest should not be able to access stats
+        self.assertEqual(resp.status_code, 403)
 
         # Author
         self.client.login(username=self.user_author.username, password='hostel77')
