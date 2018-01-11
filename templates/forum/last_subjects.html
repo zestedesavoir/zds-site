@@ -25,17 +25,15 @@ Derniers sujets
 
 
 
+{% block new_btn %}
+    <a href="{% url 'cats-forums-list' %}" class="new-btn ico-after view blue">
+        {% trans "Tous les forums" %}
+    </a>
+{% endblock %}
+
+
+
 {% block sidebar_blocks %}
-    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Tous les forums">
-        <h3>{% trans "Tous les forums" %}</h3>
-        <ul>
-            <li>
-                <a href="{% url 'cats-forums-list' %}" class="ico-after view">
-                    {% trans "Tous les forums" %}
-                </a>
-            </li>
-        </ul>
-    </div>
     <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Filtres">
         <h3>{% trans "Ordre de tri" %}</h3>
         <ul>
