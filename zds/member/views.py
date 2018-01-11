@@ -902,7 +902,7 @@ def remove_hat(request, user_pk, hat_pk):
 
 def login_view(request):
     """Logs user in."""
-    next_page = request.GET.get('next')
+    next_page = request.GET.get('next', '/')
     csrf_tk = {'next_page': next_page}
     csrf_tk.update(csrf(request))
     error = False
