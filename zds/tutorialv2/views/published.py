@@ -1063,8 +1063,8 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
 
     def post(self, *args, **kwargs):
         self.public_content_object = self.get_public_object()
+        self.object = self.get_object()
         self.versioned_object = self.get_versioned_object()
-        # TODO missing self.object here !
         return super().post(*args, **kwargs)
 
     def get_form_kwargs(self):
@@ -1221,6 +1221,9 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        if not (self.is_author or self.is_staff):
+            raise PermissionDenied
+
         urls = self.get_urls_to_render()
         start_date, end_date = self.get_start_and_end_dates()
 
