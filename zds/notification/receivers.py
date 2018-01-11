@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 import logging
 
-from django.db.backends.dummy.base import DatabaseError
+from django.db import DatabaseError
 
 import zds
 
