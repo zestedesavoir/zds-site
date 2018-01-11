@@ -209,7 +209,7 @@
 
                                     <ul class="dropdown-list">
                                         {% set 'TUTORIAL ARTICLE' as content_types %}
-                                        {% with categories=content_types.split|top_categories_content %}
+                                        {% with categories=content_types.split|topbar_publication_categories %}
                                             {% for title, subcats in categories.categories.items %}
                                                 <li>
                                                     <ul>
@@ -264,7 +264,7 @@
                                     </a>
 
                                     <ul class="dropdown-list">
-                                        {% with categories='OPINION'|top_categories_content %}
+                                        {% with categories='OPINION'|topbar_publication_categories %}
                                             {% for title, subcats in categories.categories.items %}
                                                 <li>
                                                     <ul>
@@ -319,7 +319,7 @@
                                     </a>
 
                                     <ul class="dropdown-list">
-                                        {% with top=user|top_categories %}
+                                        {% with top=user|topbar_forum_categories %}
                                             {% for title, forums in top.categories %}
                                                 <li>
                                                     <ul>
