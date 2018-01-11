@@ -11,7 +11,7 @@ from django.contrib.auth.models import User, Group
 from django.template.context_processors import csrf
 from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMultiAlternatives
-from django.urls import reverse, reverse_lazy, NoReverseMatch
+from django.urls import reverse, reverse_lazy, resolve, Resolver404
 from django.db import transaction
 from django.db.models import Q
 from django.http import Http404, HttpResponseBadRequest, StreamingHttpResponse
@@ -973,8 +973,8 @@ def login_view(request):
             # (For people switching account or clearing cookies
             # after a browser session.)
             try:
-                response = redirect(next_page)
-            except NoReverseMatch:
+                response = redirect(resolve(next_page).url_name)
+            except Resolver404:
                 response = redirect(reverse('homepage'))
             set_old_smileys_cookie(response, profile)
             return response
