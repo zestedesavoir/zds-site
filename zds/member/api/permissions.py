@@ -25,16 +25,25 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
 
 
 class IsOwner(permissions.BasePermission):
-    def has_object_permission(self, request, view, obj):
-        # Write permissions are not allowed to the owner of the snippet
-        if hasattr(obj, 'user'):
-            owners = [obj.user]
-        elif hasattr(obj, 'author'):
-            owners = [obj.author]
-        elif hasattr(obj, 'authors'):
-            owners = list(obj.authors)
 
-        return request.user in owners
+    def has_permission(self, request, view):
+        return request.user and self.has_object_permission(request, view, view.get_object())
+
+    def has_object_permission(self, request, view, obj):
+        if hasattr(obj, 'user'):
+            owners = [obj.user.pk]
+        elif hasattr(obj, 'author'):
+            owners = [obj.author.pk]
+        elif hasattr(obj, 'authors'):
+            owners = list(obj.authors.values_list('pk', flat=True))
+
+        return request.user.pk in owners
+
+
+class IsAuthorOrStaff(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return IsStaffUser().has_permission(request, view) or IsOwner().has_object_permission(request, view,
+                                                                                              view.get_object())
 
 
 class IsNotOwnerOrReadOnly(permissions.BasePermission):

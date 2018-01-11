@@ -243,17 +243,17 @@
                 </form>
             </li>
         {% endif %}
-        {% if container.ready_to_publish %}
             <li>
-                <a data-url="{% url 'api:content:readiness' content.pk %}" class="readiness" data-is-ready="true" data-container-slug="{{ container.slug }}"
-                    {% if container.parent.parent %}data-parent-container-slug="{{ container.parent.slug }}"{% endif %}>
-                    <span class="glyphicon-remove-sign"></span>{% trans "Marquer comme à ne pas valider." %}
+                <a data-url="{% url 'api:content:readiness' content.pk %}" class="readiness" data-is-ready="{{ container.ready_to_publish|yesno:"true,false" }}"
+                   data-container-slug="{{ container.slug }}"
+                    {% if container.parent.parent %}data-parent-container-slug="{{ container.parent.slug }}"{% endif %}
+                    data-is-ready-false="{% trans "Marquer comme prêt à valider." %}" data-is-ready-true="{% trans "Marquer comme à ne pas valider." %}">
+                    {% if container.ready_to_publish %}
+                        {% trans "Marquer comme à ne pas valider." %}
+                    {% else %}
+                        {% trans "Marquer comme prêt à valider." %}
+                    {% endif %}
                 </a></li>
-        {% else %}
-            <li><a data-url="{% url 'api:content:readiness' content.pk %}" class="readiness" data-is-ready="false"
-            {% if container.parent.parent %}data-parent-container-slug="{{ container.parent.slug }}"{% endif %}>
-                <span class="glyphicon-ok-sign"></span>{% trans "Marquer comme prêt à valider." %}</a></li>
-        {% endif %}
     {% endif %}
 {% endblock %}
 
