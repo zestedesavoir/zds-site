@@ -386,7 +386,7 @@ class MemberTests(TestCase):
              'password': 'hostel77',
              'remember': 'remember'},
             follow=False)
-        self.assertRedirects(result, reverse('home'))
+        self.assertRedirects(result, reverse('homepage'))
 
         # check if the login form will redirect if there is
         # a next parameter.
