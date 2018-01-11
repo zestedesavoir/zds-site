@@ -789,7 +789,7 @@ class BadArchiveError(Exception):
 
 
 class FailureDuringPublication(Exception):
-    """Exception raised if something goes wrong during publication process
+    """Exception raised if something goes wrong during the publication process
     """
 
     def __init__(self, *args, **kwargs):

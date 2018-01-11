@@ -1,19 +1,18 @@
-(function ($, undefined) {
-   $("li").on("click", ".readiness", function (e) {
+(function ($) {
+   $(".readiness").on("click", function (e) {
        var url = $(e.target).data("url");
-       var readiness = $(e.target).data("is-ready") === "true";
+       var readiness = $(e.target).data("is-ready").toString() === "true";
        var csrf = $("input[name=csrfmiddlewaretoken]").val();
-
+       var toggledReadiness = !readiness;
        $.ajax(url, {method: "PUT", data: {
-           "ready_to_publish": readiness,
+           "ready_to_publish": toggledReadiness,
            "container_slug": $(e.target).data("container-slug"),
            "parent_container_slug": $(e.target).data("parent-container-slug") || ""
        }, success: function () {
-           $(e.target).data("is-ready", readiness?"false":"true")
-               .children("span")
-               .removeClass("glyphicon-remove-sign")
-               .removeClass("glyphicon-ok-sign")
-               .addClass(readiness?"glyphicon-remove-sign":"glyphicon-ok-sign");
+           var readinessAsString = String(toggledReadiness);
+           var newDisplayedText = $(e.target).data("is-ready-" + readinessAsString);
+           $(e.target).attr("data-is-ready", readinessAsString)
+               .text(newDisplayedText);
        }, headers: {
            "X-CSRFToken": csrf
        }});

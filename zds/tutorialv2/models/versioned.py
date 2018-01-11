@@ -794,6 +794,14 @@ class Container:
         """
         return self.type in CONTENT_TYPES_REQUIRING_VALIDATION
 
+    def remove_children(self, children_slugs):
+        for slug in children_slugs:
+            if slug not in self.children_dict:
+                continue
+            to_be_remove = self.children_dict[slug]
+            self.children.remove(to_be_remove)
+            del self.children_dict[slug]
+
     def _dump_html(self, file_path, content, db_object):
         try:
             with file_path.open('w', encoding='utf-8') as f:

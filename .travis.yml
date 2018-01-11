@@ -91,9 +91,7 @@ install:
       && mkdir geckodriver \
       && tar -xzf geckodriver-v0.19.1-linux64.tar.gz -C geckodriver \
       && export PATH=$PATH:$PWD/geckodriver \
-      && export DISPLAY=:99.0 \
-      && sh -e /etc/init.d/xvfb start \
-      && sleep 3 # give xvfb some time to start
+      && export DISPLAY=:99.0
     fi
 
   - |
@@ -163,11 +161,11 @@ script:
     # selenium tests
     if [[ "$ZDS_TEST_JOB" == *"selenium"* ]]; then
       yarn build
-      python manage.py \
+      xvfb-run --server-args="-screen 0 1280x720x8" python manage.py \
         test \
-        --keepdb \
         --settings zds.settings.ci_test \
-        --tag=front
+        --tag=front \
+        --keepdb
     fi
 
   - |

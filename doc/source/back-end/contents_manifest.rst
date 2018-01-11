@@ -38,10 +38,10 @@ Les 0 non significatifs sont optionnels ainsi ``{version: "1"}`` est strictement
 Version 2.1
 -----------
 
-La version 2.1 est la version actuelement utilisée.
-Le manifest voit l'arrivée d'un nouvel élément non obligatoire ``ready_to_publish`` qui sera utilisé sur tous les éléments de type `Container`.
+La version 2.1 est la version actuellement utilisée.
+Le manifest voit l'arrivée d'un nouvel élément non obligatoire ``ready_to_publish`` qui sera utilisé sur tous les éléments de type ``Container``.
 Cet élément permet de marquer qu'une partie ou un chapitre est prêt à être publié. Lorsque la valeur est à ``False``, la partie ou le chapitre
-sont simplement ignoré du processus de publication.
+sont simplement ignorés du processus de publication.
 
 Lorsque l'attribut n'est pas renseigné, il est supposé *truthy*.
 

@@ -41,7 +41,7 @@ class PublishableContentFactory(factory.DjangoModelFactory):
     pubdate = datetime.now()
 
     @classmethod
-    def _prepare(cls, create, **kwargs):
+    def _prepare(cls, create, *, light=True, **kwargs):
         auths = []
         if 'author_list' in kwargs:
             auths = kwargs.pop('author_list')
@@ -52,9 +52,6 @@ class PublishableContentFactory(factory.DjangoModelFactory):
             given_licence = Licence.objects.filter(title=given_licence).first() or Licence.objects.first()
         licence = given_licence or LicenceFactory()
 
-        light = True
-        if 'light' in kwargs:
-            light = kwargs.pop('light')
         text = text_content
         if not light:
             text = tricky_text_content
@@ -82,13 +79,9 @@ class ContainerFactory(factory.Factory):
     title = factory.Sequence(lambda n: 'Mon container No{0}'.format(n + 1))
 
     @classmethod
-    def _prepare(cls, create, **kwargs):
-        db_object = kwargs.pop('db_object', None)
+    def _prepare(cls, create, *, db_object=None, light=True, **kwargs):
         parent = kwargs.pop('parent', None)
 
-        light = True
-        if 'light' in kwargs:
-            light = kwargs.pop('light')
         text = text_content
         if not light:
             text = tricky_text_content
@@ -109,13 +102,9 @@ class ExtractFactory(factory.Factory):
     title = factory.Sequence(lambda n: 'Mon extrait No{0}'.format(n + 1))
 
     @classmethod
-    def _prepare(cls, create, **kwargs):
+    def _prepare(cls, create, *, light=True, container=None, **kwargs):
         db_object = kwargs.pop('db_object', None)
-        parent = kwargs.pop('container', None)
-
-        light = True
-        if 'light' in kwargs:
-            light = kwargs.pop('light')
+        parent = container
         text = text_content
         if not light:
             text = tricky_text_content

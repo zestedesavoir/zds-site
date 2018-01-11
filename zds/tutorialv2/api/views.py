@@ -4,14 +4,14 @@ from rest_framework.fields import empty
 from rest_framework.generics import UpdateAPIView
 from rest_framework.serializers import Serializer, CharField, BooleanField
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
-from zds.member.api.permissions import CanReadAndWriteNowOrReadOnly, IsNotOwnerOrReadOnly, IsStaffUser, IsOwner
+from zds.member.api.permissions import CanReadAndWriteNowOrReadOnly, IsNotOwnerOrReadOnly, IsAuthorOrStaff
 from zds.tutorialv2.utils import search_container_or_404
 from zds.utils.api.views import KarmaView
 from zds.tutorialv2.models.database import ContentReaction, PublishableContent
 
 
 class ContainerReadinessSerializer(Serializer):
-    parent_container_slug = CharField()
+    parent_container_slug = CharField(allow_blank=True, allow_null=True, required=False)
     container_slug = CharField(required=True)
     ready_to_publish = BooleanField(required=True)
 
@@ -45,7 +45,7 @@ class ContentReactionKarmaView(KarmaView):
 
 
 class ContainerPublicationReadinessView(UpdateAPIView):
-    permission_classes = (IsStaffUser, IsOwner)
+    permission_classes = (IsAuthorOrStaff, )
     serializer_class = ContainerReadinessSerializer
 
     def get_object(self):
@@ -54,4 +54,5 @@ class ContainerPublicationReadinessView(UpdateAPIView):
             .first()
         if not content:
             raise Http404()
+        self.check_object_permissions(self.request, object)
         return content
