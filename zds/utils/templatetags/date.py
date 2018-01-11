@@ -4,7 +4,7 @@ from django import template
 from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.template.defaultfilters import date
 from django.utils.datetime_safe import datetime
-from django.utils.timezone import get_current_timezone
+from django.utils.timezone import get_default_timezone
 
 register = template.Library()
 
@@ -31,9 +31,9 @@ def date_formatter(value, tooltip, small):
     """
     if not isinstance(value, datetime):
         return value
-    
+
     if getattr(value, 'tzinfo', None):
-        now = datetime.now(get_current_timezone())
+        now = datetime.now(get_default_timezone())
     else:
         now = datetime.now()
     now = now - timedelta(microseconds=now.microsecond)
@@ -74,5 +74,4 @@ def from_elasticsearch_date(value):
         date = datetime.strptime(value, '%Y-%m-%dT%H:%M:%S.%f')
     except ValueError:
         date = datetime.strptime(value, '%Y-%m-%dT%H:%M:%S')
-
     return date
