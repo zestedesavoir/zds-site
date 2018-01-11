@@ -56,7 +56,14 @@ class CategoryForumsDetailView(DetailView):
 
 
 def last_subjects_view(request):
-    topics = Topic.objects.all().order_by('-pubdate').select_related('forum')
+    filter = request.GET.get('order')
+    if filter not in ('creation', 'last_post'):
+        filter = 'creation'
+    order = {
+        'creation': '-pubdate',
+        'last_post': '-last_message__pubdate'
+    }.get(filter)
+    topics = Topic.objects.all().order_by(order).select_related('forum')
     topics = [topic for topic in topics if topic.forum.can_read(request.user)]
     topics = topics[:settings.ZDS_APP['forum']['topics_per_page']]
     return render(request, 'forum/last_subjects.html', {'topics': topics})

@@ -38,8 +38,17 @@ Derniers sujets
         <h3>{% trans "Ordre de tri" %}</h3>
         <ul>
             <li>
-                <a href="" class="ico-after view">
-                    {% trans "***TODO***" %}
+                <a href="{% url 'last-subjects' %}?order=creation"
+                    class="ico-after view {% if request.GET.order == 'creation' %}selected{% endif %}"
+                >
+                    Date de création
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'last-subjects' %}?order=last_post"
+                    class="ico-after view {% if request.GET.order == 'last_post' %}selected{% endif %}"
+                >
+                    Date de la dernière réponse
                 </a>
             </li>
         </ul>
