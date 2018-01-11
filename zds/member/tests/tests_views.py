@@ -7,7 +7,7 @@ from oauth2_provider.models import AccessToken, Application
 from django.conf import settings
 from django.contrib.auth.models import User, Group
 from django.core import mail
-from django.core.urls import reverse
+from django.urls import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.utils.translation import ugettext_lazy as _
