@@ -34,19 +34,19 @@ Derniers sujets
 
 
 {% block sidebar_blocks %}
-    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Filtres">
+    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Ordre de tri">
         <h3>{% trans "Ordre de tri" %}</h3>
         <ul>
             <li>
                 <a href="{% url 'last-subjects' %}?order=creation"
-                    class="ico-after view {% if request.GET.order == 'creation' %}selected{% endif %}"
+                    class="ico-after move {% if request.GET.order == 'creation' %}selected{% endif %}"
                 >
                     Date de création
                 </a>
             </li>
             <li>
                 <a href="{% url 'last-subjects' %}?order=last_post"
-                    class="ico-after view {% if request.GET.order == 'last_post' %}selected{% endif %}"
+                    class="ico-after history {% if request.GET.order == 'last_post' %}selected{% endif %}"
                 >
                     Date de la dernière réponse
                 </a>
