@@ -97,10 +97,17 @@ install:
     fi
 
   - |
-    # install frontend+zmarkdown dependencies
+    # install and run zmarkdown
     nvm install 8 \
     && nvm use 8 \
-    && npm i -g yarn pm2 \
+    && npm i -g pm2 zmarkdown \
+    && cd "$(nvm which current | sed s/bin/lib/)_modules/zmarkdown/" \
+    && npm run server \
+    && cd $TRAVIS_BUILD_DIR
+
+  - |
+    # install frontend+zmarkdown dependencies
+    npm i -g yarn \
     && yarn --silent
 
   - |
