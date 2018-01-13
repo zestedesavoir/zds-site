@@ -58,13 +58,22 @@
                 </canvas>
             </div>
         </div>
-
         {% if cumulative_stats_by_url %}
+            {% if display == 'global' %}
+                {% if form.non_field_errors %}
+                    <p class="content-wrapper alert-box warning">
+                        {{ form.non_field_errors.as_text }}
+                    </p>
+                {% endif %}
+                <form method="post">
+                    {% csrf_token %}
+            {% endif %}
             <table class="stat-table fullwidth">
                 <thead>
                     <th>{% trans "Partie" %}</th>
                     <th>{% trans "Vues" %}</th>
-                    <th class="wide">{% trans "Temps moyen sur la page" %}</th>
+                    <th class="wide">{% trans "Temps moyen sur la page (s)" %}</th>
+                    {% if display == 'global' %}<th></th>{% endif %}
                 </thead>
                 <tbody>
                     {% for view in cumulative_stats_by_url %}
@@ -72,26 +81,29 @@
                             <td class="level-{{view.url.level}}">
                                 <a href="{{ view.url.url }}">{{ view.url.name }}</a>
                                 {% if display != 'details' %}
-                                    - <a href="?urls={{view.url.url }}" >Voir le détails de cette partie</a>
+                                - <a href="?urls={{view.url.url }}" >(détails)</a>
                                 {% endif %}
                             </td>
                             <td>{{ view.pageviews }}</td>
                             <td class="wide">{{ view.avgTimeOnPage }}</td>
-                            <!-- TODO convert me from seconds to hh:mm:ss if needed -->
+                            <!-- TODO convert me from seconds to hh:mm:ss if needed --->
+                            {% if display == 'global' %}
+                                <td><input name="urls" id="id_urls_{{forloop.counter1}}" value="{{ view.url.url }}" type="checkbox"></td>
+                            {% endif %}
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
+            {% if display == 'global' %}
+                <button type="submit" class="btn">Comparer</button>
+                </form>
+            {% endif %}
         {% else %}
             {% trans "Aucune statistique a afficher" %}
         {% endif %}
 
         {% if display == 'comparison' %}
             <!-- TODO bouton retourner au mode global -->
-        {% elif display == 'global'  %}
-            <h2>{% trans "Comparer plusieurs pages entres-elles" %}</h2>
-            {% crispy form %}
-            <!-- TODO better display -->
         {% endif %}
 
     </section>
