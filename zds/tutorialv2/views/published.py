@@ -1051,8 +1051,6 @@ from oauth2client import client
 from oauth2client import file
 from oauth2client import tools
 
-from pprint import pprint
-
 class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
     template_name = 'tutorialv2/stats/index.html'
     form_class = ContentCompareStatsURLForm
@@ -1177,15 +1175,14 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
                 }]}
             ).execute()
 
-            # TODO if nothing is found ['rows'] will raise a KeyError
-            data = response['reports'][0]['data']['rows']
+            rows = response['reports'][0]['data']['rows']
             stat_pageviews = []
             stat_avgtimeonpage = []
-            for d in data:
-                data_date = d['dimensions'][0]
+            for r in rows:
+                data_date = r['dimensions'][0]
                 data_date = '{}-{}-{}'.format(data_date[0:4], data_date[4:6], data_date[6:8])
-                data_pageviews = d['metrics'][0]['values'][0]
-                data_avgtimeonpage = d['metrics'][0]['values'][1]
+                data_pageviews = r['metrics'][0]['values'][0]
+                data_avgtimeonpage = r['metrics'][0]['values'][1]
                 stat_pageviews.append({'date': data_date, 'pageviews': data_pageviews})
                 stat_avgtimeonpage.append({'date': data_date, 'avgTimeOnPage': data_avgtimeonpage})
 
@@ -1215,26 +1212,32 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
                 }]}
             ).execute()
 
-            pprint(response)
-
             # Build an array of type arr[url] = [{'pageviews': X, 'avgTimeOnPage': y}]
-            response = response['reports'][0]['data']['rows']
+            rows = response['reports'][0]['data']['rows']
             data = {}
-            for r in response:
-                url = r['dimensions'][1]
-                # avgTimeOnPage is convert to float then int to remove useless decimal part
-                # data[url] = {'pageviews': r['metrics'][0]['values'][0],
-                #              'avgTimeOnPage': int(float(r['metrics'][0]['values'][1]))}
-
-
-            api_raw = [] # TODO REMOVE THAT
             for url in urls:
-                stats = [{'date': (start + timedelta(i)).strftime("%Y-%m-%d"),
-                          property: randint(0, 150)} for i in range(nb_days)]
-                element = {'label': url.name, 'stats': stats}
+                data[url.url] = {'stats': {'pageviews': [], 'avgTimeOnPage': []}}
+
+            for r in rows:
+                url = r['dimensions'][1]
+                data_date = r['dimensions'][0]
+                data_date = '{}-{}-{}'.format(data_date[0:4], data_date[4:6], data_date[6:8])
+                data_pageviews = r['metrics'][0]['values'][0]
+                data_avgtimeonpage = int(float(r['metrics'][0]['values'][1]))
+                data[url]['stats']['avgTimeOnPage'].append({
+                    'date': data_date,
+                    'avgTimeOnPage': data_avgtimeonpage
+                })
+                data[url]['stats']['pageviews'].append({
+                    'date': data_date,
+                    'pageviews': data_pageviews
+                })
+
+            api_raw = []
+            for url in urls:
+                element = {'label': url.name, 'stats': data[url.url]['stats']}
                 api_raw.append(element)
 
-        pprint(api_raw)
         return api_raw
 
     def get_start_and_end_dates(self):
