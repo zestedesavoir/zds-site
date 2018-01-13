@@ -380,6 +380,10 @@ class ZMarkdownRebberLatexPublicator(Publicator):
 
     def pdftex(self, texfile):
         command = 'lualatex -shell-escape -interaction=nonstopmode {}'.format(texfile)
+
+        for file in ['utf8.lua' / 'utf8.lua', 'zmdocument.cls', 'zmdocument.lua']:
+            shutil.copy2(Path(__file__).parent / '..' / '..' / 'latex-template' / file, path.dirname(texfile))
+
         command_process = subprocess.Popen(command,
                                            shell=True, cwd=path.dirname(texfile),
                                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)

@@ -1,0 +1,3 @@
+[submodule "latex-template"]
+	path = latex-template
+	url = https://github.com/zestedesavoir/latex-template.git

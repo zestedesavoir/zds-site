@@ -63,6 +63,10 @@ cache:
 
 
 before_install:
+  - |
+    git submodule update --init --recursive
+    git submodule foreach git pull origin master
+
   - . ./scripts/ci_turbo.sh # This script exports environment variables, it must be sourced
 
   - travis_retry pip install -q coveralls
@@ -145,7 +149,6 @@ script:
   - |
     # test backend
     if [[ "$ZDS_TEST_JOB" == *"zds."* ]]; then
-      npm run zmd-start
       coverage run --source='.' manage.py \
         test \
         --keepdb \
@@ -157,7 +160,7 @@ script:
   - |
     # show zmarkdown logs
     if [[ "$ZDS_TEST_JOB" == *"zds."* ]]; then
-      yarn run pm2 -- logs --nostream --raw --lines 1000
+      pm2 logs --nostream --raw --lines 1000
     fi
 
   - |
