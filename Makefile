@@ -40,18 +40,6 @@ index-all:
 index-flagged:
 	python manage.py es_manager index_flagged
 
-## zmd utils
-zmd-start: zmd-stop
-	npm run zmd-start
-
-zmd-stop:
-	npm run zmd-stop
-
-zmd-test:
-	npm run zmd-stop;
-	npm run zmd-start && sleep 5 && \
-	python zmd-server-test.py
-
 ## back-utils
 clean-back:
 	find . -name '*.pyc' -exec rm {} \;
