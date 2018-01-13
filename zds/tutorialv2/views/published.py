@@ -1051,6 +1051,8 @@ from oauth2client import client
 from oauth2client import file
 from oauth2client import tools
 
+from pprint import pprint
+
 class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
     template_name = 'tutorialv2/stats/index.html'
     form_class = ContentCompareStatsURLForm
@@ -1106,13 +1108,16 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
     def config_ga_credential(self):
         # TODO Could raise JSONDecodeError is file is not properly formated
         credentials = ServiceAccountCredentials.from_json_keyfile_name(self.CLIENT_SECRETS_PATH, self.SCOPES)
-        http = credentials.authorize(Http(cache=self.CACHE_PATH))
+        http = credentials.authorize(Http())
         analytics = build('analytics', 'v4', http=http, discoveryServiceUrl=self.DISCOVERY_URI)
-        return analytics
-
-    def get_cumulative_stats_by_url(self, urls, start, end):
-        paths = [u.url for u in urls]
-        analytics = self.config_ga_credential()
+        filters = []
+        # Prepare filter to get all needed pages only
+        for p in paths:
+            filters.append({
+                'operator': 'EXACT',
+                'dimensionName': 'ga:pagePath',
+                'expressions': p
+            })
         response = analytics.reports().batchGet(
             body={'reportRequests': [{
                 'viewId': self.VIEW_ID,
@@ -1120,39 +1125,41 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
                 'metrics': [{'expression': 'ga:pageviews'},
                             {'expression': 'ga:avgTimeOnPage'}],
                 'dimensions': [{'name': 'ga:pagePath'}],
-                'dimensionFilterClauses': [{'filters':
-                    [{
-                        'dimensionName': 'ga:pagePath',
-                        'expressions': paths
-                    }]}],
-            }]
-            }
+                'dimensionFilterClauses': [{'filters': filters}],
+            }]}
         ).execute()
 
         # Build an array of type arr[url] = {'pageviews': X, 'avgTimeOnPage': y}
         response = response['reports'][0]['data']['rows']
         data = {}
         for r in response:
-            # Cleanup array (remove url not in 'paths', like '/membres/connexion/?next=/tutoriels/686/arduino-...'
             url = r['dimensions'][0]
-            metrics = r['metrics'][0]['values']
-            if url not in paths:
-                continue
-            # avgTimeOnPage is converted to float then int to remove useless decimal part
-            data[url] = {'pageviews': metrics[0], 'avgTimeOnPage': int(float(metrics[1]))}
+            # avgTimeOnPage is convert to float then int to remove useless decimal part
+            data[url] = {'pageviews': r['metrics'][0]['values'][0],
+                         'avgTimeOnPage': int(float(r['metrics'][0]['values'][1]))}
 
-        # Build the response array
-        return [{'url': url, 'pageviews': data[url.url]['pageviews'], 'avgTimeOnPage': data[url.url]['avgTimeOnPage']} for url in urls]
+        # Build the response array by matching NamedUrl and data[url]
+        api_raw = []
+        for url in urls:
+            api_raw.append({
+                'url': url,
+                'pageviews': data[url.url]['pageviews'],
+                'avgTimeOnPage': data[url.url]['avgTimeOnPage']
+            })
+        return api_raw
 
     def get_stats(self, urls, start, end, display_mode):
         nb_days = (end - start).days
         api_raw = []
-        analytics = analytics = self.config_ga_credential()
+
+        # Could raise JSONDecodeError is file is not properly formated
+        credentials = ServiceAccountCredentials.from_json_keyfile_name(self.CLIENT_SECRETS_PATH, self.SCOPES)
+        http = credentials.authorize(Http())
+        analytics = build('analytics', 'v4', http=http, discoveryServiceUrl=self.DISCOVERY_URI)
 
         if display_mode in ('global', 'details'):
-    
-            # TODO remove that line, just for Eskimon's debug purpose...
-            urls = '/tutoriels/686/arduino-premiers-pas-en-informatique-embarquee/'
+            # Find level 0 url
+            root_url = [u.url for u in urls if u.level == 0]
 
             response = analytics.reports().batchGet(
                 body={'reportRequests': [{
@@ -1162,14 +1169,12 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
                                 {'expression': 'ga:avgTimeOnPage'}],
                     'dimensions': [{'name': 'ga:date'},
                                    {'name': 'ga:pagePath'}],
-                    'dimensionFilterClauses': [{'filters':
-                        [{
-                            'operator': 'EXACT',
-                            'dimensionName': 'ga:pagePath',
-                            'expressions': [urls[0].url]
-                        }]}],
-                }]
-                }
+                    'dimensionFilterClauses': [{'filters': [{
+                        'operator': 'EXACT',
+                        'dimensionName': 'ga:pagePath',
+                        'expressions': root_url
+                    }]}]
+                }]}
             ).execute()
 
             # TODO if nothing is found ['rows'] will raise a KeyError
@@ -1185,14 +1190,51 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
                 stat_avgtimeonpage.append({'date': data_date, 'avgTimeOnPage': data_avgtimeonpage})
 
             api_raw = [{'label': _('Global'),
-                        'pageviews': stat_pageviews,
-                        'avgTimeOnPage': stat_avgtimeonpage}]
+                        'stats': {
+                            'pageviews': stat_pageviews,
+                            'avgTimeOnPage': stat_avgtimeonpage}}]
+
         else:
+            filters = []
+            # Prepare filter to get all needed pages only
+            for u in urls:
+                filters.append({
+                    'operator': 'EXACT',
+                    'dimensionName': 'ga:pagePath',
+                    'expressions': u.url
+                })
+            response = analytics.reports().batchGet(
+                body={'reportRequests': [{
+                    'viewId': self.VIEW_ID,
+                    'dateRanges': [{'startDate': start.strftime("%Y-%m-%d"), 'endDate': end.strftime("%Y-%m-%d")}],
+                    'metrics': [{'expression': 'ga:pageviews'},
+                                {'expression': 'ga:avgTimeOnPage'}],
+                    'dimensions': [{'name': 'ga:date'},
+                                   {'name': 'ga:pagePath'}],
+                    'dimensionFilterClauses': [{'filters': filters}],
+                }]}
+            ).execute()
+
+            pprint(response)
+
+            # Build an array of type arr[url] = [{'pageviews': X, 'avgTimeOnPage': y}]
+            response = response['reports'][0]['data']['rows']
+            data = {}
+            for r in response:
+                url = r['dimensions'][1]
+                # avgTimeOnPage is convert to float then int to remove useless decimal part
+                # data[url] = {'pageviews': r['metrics'][0]['values'][0],
+                #              'avgTimeOnPage': int(float(r['metrics'][0]['values'][1]))}
+
+
+            api_raw = [] # TODO REMOVE THAT
             for url in urls:
                 stats = [{'date': (start + timedelta(i)).strftime("%Y-%m-%d"),
                           property: randint(0, 150)} for i in range(nb_days)]
                 element = {'label': url.name, 'stats': stats}
                 api_raw.append(element)
+
+        pprint(api_raw)
         return api_raw
 
     def get_start_and_end_dates(self):
@@ -1233,9 +1275,9 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         stats = self.get_stats(urls, start_date, end_date, display_mode=display_mode)
 
         context.update({
-                'display': display_mode,
-                'urls': urls,
-                'stats': stats,  # Graph
-                'cumulative_stats_by_url': self.get_cumulative_stats_by_url(urls, start_date, end_date)  # Table data
-            })
+            'display': display_mode,
+            'urls': urls,
+            'stats': stats,  # Graph
+            'cumulative_stats_by_url': self.get_cumulative_stats_by_url(urls, start_date, end_date)  # Table data
+        })
         return context
