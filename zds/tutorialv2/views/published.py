@@ -1157,7 +1157,10 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
 
         if display_mode in ('global', 'details'):
             # Find level 0 url
-            root_url = [u.url for u in urls if u.level == 0]
+            if display_mode == 'global':
+                target_url = [u.url for u in urls if u.level == 0]
+            else:
+                target_url = urls[0].url
 
             response = analytics.reports().batchGet(
                 body={'reportRequests': [{
@@ -1170,7 +1173,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
                     'dimensionFilterClauses': [{'filters': [{
                         'operator': 'EXACT',
                         'dimensionName': 'ga:pagePath',
-                        'expressions': root_url
+                        'expressions': target_url
                     }]}]
                 }]}
             ).execute()
