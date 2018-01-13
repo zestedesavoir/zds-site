@@ -54,7 +54,7 @@ class LoginForm(forms.Form):
         required=False,
     )
 
-    def __init__(self, next=None, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super(LoginForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_action = reverse('member-login')
