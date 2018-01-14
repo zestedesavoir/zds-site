@@ -61,7 +61,7 @@ Derniers sujets
     {% if topics %}
         <div class="topic-list navigable-list" itemscope itemtype="http://schema.org/ItemList">
             {% for topic in topics %}
-                {% include "forum/includes/topic_row.part.html" with display_category=true %}
+                {% include "forum/includes/topic_row.part.html" with display_category=True %}
             {% endfor %}
         </div>
     {% else %}
