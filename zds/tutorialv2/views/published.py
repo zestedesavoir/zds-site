@@ -1103,7 +1103,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         # TODO Could raise JSONDecodeError is file is not properly formated
         # TODO Could raise ValueError if no key is found
         credentials = ServiceAccountCredentials.from_json_keyfile_name(self.CLIENT_SECRETS_PATH, self.SCOPES)
-        http = credentials.authorize(Http())
+        http = credentials.authorize(Http(cache=self.CACHE_PATH))
         analytics = build('analytics', 'v4', http=http, discoveryServiceUrl=self.DISCOVERY_URI)
         return analytics
 
