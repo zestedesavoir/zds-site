@@ -72,7 +72,7 @@
                 <thead>
                     <th>{% trans "Partie" %}</th>
                     <th>{% trans "Vues" %}</th>
-                    <th class="wide">{% trans "Temps moyen sur la page (s)" %}</th>
+                    <th>{% trans "Temps moyen sur la page (s)" %}</th>
                     {% if display == 'global' %}<th></th>{% endif %}
                 </thead>
                 <tbody>
@@ -85,7 +85,7 @@
                                 {% endif %}
                             </td>
                             <td>{{ view.pageviews }}</td>
-                            <td class="wide">{{ view.avgTimeOnPage }}</td>
+                            <td>{{ view.avgTimeOnPage }}</td>
                             <!-- TODO convert me from seconds to hh:mm:ss if needed --->
                             {% if display == 'global' %}
                                 <td><input name="urls" id="id_urls_{{forloop.counter1}}" value="{{ view.url.url }}" type="checkbox"></td>
@@ -95,7 +95,7 @@
                 </tbody>
             </table>
             {% if display == 'global' %}
-                <button type="submit" class="btn">Comparer</button>
+                <button type="submit" class="btn">{% trans "Comparer" %}</button>
                 </form>
             {% endif %}
         {% else %}
