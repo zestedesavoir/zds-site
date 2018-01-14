@@ -3,7 +3,7 @@ from django.conf.urls import url
 from zds.forum import feeds
 from zds.forum.views import CategoriesForumsListView, CategoryForumsDetailView, ForumTopicsListView, \
     TopicPostsListView, TopicNew, TopicEdit, FindTopic, FindTopicByTag, PostNew, PostEdit, PostSignal, \
-    PostUseful, PostUnread, FindPost, solve_alert, ManageGitHubIssue, last_subjects_view
+    PostUseful, PostUnread, FindPost, solve_alert, ManageGitHubIssue, LastSubjectsView
 
 urlpatterns = [
 
@@ -37,7 +37,7 @@ urlpatterns = [
     url(r'^messages/(?P<user_pk>\d+)/$', FindPost.as_view(), name='post-find'),
 
     # Last subjects.
-    url(r'^derniers-sujets/$', last_subjects_view, name='last-subjects'),
+    url(r'^derniers-sujets/$', LastSubjectsView.as_view(), name='last-subjects'),
 
     # Categories and forums list.
     url(r'^$', CategoriesForumsListView.as_view(), name='cats-forums-list'),

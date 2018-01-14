@@ -55,18 +55,23 @@ class CategoryForumsDetailView(DetailView):
         return context
 
 
-def last_subjects_view(request):
-    ordering = request.GET.get('order')
-    if ordering not in ('creation', 'last_post'):
-        ordering = 'creation'
-    query_order = {
-        'creation': '-pubdate',
-        'last_post': '-last_message__pubdate'
-    }.get(ordering)
-    topics = Topic.objects.select_related('forum') \
-        .filter(forum__in=request.user.profile.readable_forums()) \
-        .order_by(query_order)[:settings.ZDS_APP['forum']['topics_per_page']]
-    return render(request, 'forum/last_subjects.html', {'topics': topics})
+class LastSubjectsView(ListView):
+
+    context_object_name = 'topics'
+    template_name = 'forum/last_subjects.html'
+    
+    def get_queryset(self):
+        ordering = self.request.GET.get('order')
+        if ordering not in ('creation', 'last_post'):
+            ordering = 'creation'
+        query_order = {
+            'creation': '-pubdate',
+            'last_post': '-last_message__pubdate'
+        }.get(ordering)
+        topics = Topic.objects.select_related('forum') \
+            .filter(forum__in=self.request.user.profile.readable_forums()) \
+            .order_by(query_order)[:settings.ZDS_APP['forum']['topics_per_page']]
+        return topics
 
 
 class ForumTopicsListView(FilterMixin, ForumEditMixin, ZdSPagingListView, UpdateView, SingleObjectMixin):
