@@ -1228,7 +1228,6 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
             self.get_cumulative_stats_by_url(urls, response['reports'][1])
         )
 
-
     def get_start_and_end_dates(self):
         start_date = self.request.GET.get('start_date', None)
         try:
