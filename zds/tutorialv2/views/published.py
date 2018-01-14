@@ -1039,10 +1039,6 @@ class TagsListView(ListView):
 
 
 # TODO move imports
-from datetime import date, timedelta
-from zds.tutorialv2.forms import ContentCompareStatsURLForm
-from random import randint
-
 from oauth2client.service_account import ServiceAccountCredentials
 from apiclient.discovery import build
 import httplib2
@@ -1085,11 +1081,11 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
             return all_named_urls
 
     def get_content_urls(self):
-        debug_urls = [
-        NamedUrl('Découverte de l Arduino', '/tutoriels/686/arduino-premiers-pas-en-informatique-embarquee/742_decouverte-de-larduino/', 1),
-        NamedUrl('Présentation', '/tutoriels/686/arduino-premiers-pas-en-informatique-embarquee/742_decouverte-de-larduino/3414_presentation-darduino/', 2),
-        NamedUrl('Quelques bases', '/tutoriels/686/arduino-premiers-pas-en-informatique-embarquee/742_decouverte-de-larduino/3415_quelques-bases-elementaires/', 2)
-        ]
+        # debug_urls = [
+        #     NamedUrl('Découverte de l Arduino', '/tutoriels/686/arduino-premiers-pas-en-informatique-embarquee/742_decouverte-de-larduino/', 0),
+        #     NamedUrl('Présentation', '/tutoriels/686/arduino-premiers-pas-en-informatique-embarquee/742_decouverte-de-larduino/3414_presentation-darduino/', 2),
+        #     NamedUrl('Quelques bases', '/tutoriels/686/arduino-premiers-pas-en-informatique-embarquee/742_decouverte-de-larduino/3415_quelques-bases-elementaires/', 2)
+        # ]
         # return debug_urls
 
         content = self.versioned_object
@@ -1105,21 +1101,27 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
 
     def config_ga_credential(self):
         # TODO Could raise JSONDecodeError is file is not properly formated
+        # TODO Could raise ValueError if no key is found
         credentials = ServiceAccountCredentials.from_json_keyfile_name(self.CLIENT_SECRETS_PATH, self.SCOPES)
         http = credentials.authorize(Http())
         analytics = build('analytics', 'v4', http=http, discoveryServiceUrl=self.DISCOVERY_URI)
-        filters = []
-        # Prepare filter to get all needed pages only
-        for p in paths:
-            filters.append({
-                'operator': 'EXACT',
-                'dimensionName': 'ga:pagePath',
-                'expressions': p
-            })
+        return analytics
+
+    def get_ga_filters_from_urls(self, urls):
+        filters = [{'operator': 'EXACT',
+                    'dimensionName': 'ga:pagePath',
+                    'expressions': u.url}
+                    for u in urls]
+        return filters
+
+    def get_cumulative_stats_by_url(self, urls, start, end):
+        analytics = self.config_ga_credentials()
+        filters = self.get_ga_filters_from_urls(urls)
+
         response = analytics.reports().batchGet(
             body={'reportRequests': [{
                 'viewId': self.VIEW_ID,
-                'dateRanges': [{'startDate': start.strftime("%Y-%m-%d"), 'endDate': end.strftime("%Y-%m-%d")}],
+                'dateRanges': [{'startDate': start.strftime('%Y-%m-%d'), 'endDate': end.strftime('%Y-%m-%d')}],
                 'metrics': [{'expression': 'ga:pageviews'},
                             {'expression': 'ga:avgTimeOnPage'}],
                 'dimensions': [{'name': 'ga:pagePath'}],
@@ -1137,17 +1139,13 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
                          'avgTimeOnPage': int(float(r['metrics'][0]['values'][1]))}
 
         # Build the response array by matching NamedUrl and data[url]
-        api_raw = []
-        for url in urls:
-            api_raw.append({
-                'url': url,
-                'pageviews': data[url.url]['pageviews'],
-                'avgTimeOnPage': data[url.url]['avgTimeOnPage']
-            })
+        api_raw = [{'url': url,
+                    'pageviews': data[url.url]['pageviews'],
+                    'avgTimeOnPage': data[url.url]['avgTimeOnPage']} for url in urls]
         return api_raw
 
     def get_stats(self, urls, start, end, display_mode):
-        nb_days = (end - start).days
+        # nb_days = (end - start).days TODO could be used for agregation of data
         api_raw = []
 
         # Could raise JSONDecodeError is file is not properly formated
@@ -1158,14 +1156,14 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         if display_mode in ('global', 'details'):
             # Find level 0 url
             if display_mode == 'global':
-                target_url = [u.url for u in urls if u.level == 0]
+                target_url = next(u.url for u in urls if u.level == 0)
             else:
                 target_url = urls[0].url
 
             response = analytics.reports().batchGet(
                 body={'reportRequests': [{
                     'viewId': self.VIEW_ID,
-                    'dateRanges': [{'startDate': start.strftime("%Y-%m-%d"), 'endDate': end.strftime("%Y-%m-%d")}],
+                    'dateRanges': [{'startDate': start.strftime('%Y-%m-%d'), 'endDate': end.strftime('%Y-%m-%d')}],
                     'metrics': [{'expression': 'ga:pageviews'},
                                 {'expression': 'ga:avgTimeOnPage'}],
                     'dimensions': [{'name': 'ga:date'},
@@ -1194,19 +1192,14 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
                             'pageviews': stat_pageviews,
                             'avgTimeOnPage': stat_avgtimeonpage}}]
 
+        # Comparison mode
         else:
-            filters = []
             # Prepare filter to get all needed pages only
-            for u in urls:
-                filters.append({
-                    'operator': 'EXACT',
-                    'dimensionName': 'ga:pagePath',
-                    'expressions': u.url
-                })
+            filters = self.get_ga_filters_from_urls(urls)
             response = analytics.reports().batchGet(
                 body={'reportRequests': [{
                     'viewId': self.VIEW_ID,
-                    'dateRanges': [{'startDate': start.strftime("%Y-%m-%d"), 'endDate': end.strftime("%Y-%m-%d")}],
+                    'dateRanges': [{'startDate': start.strftime('%Y-%m-%d'), 'endDate': end.strftime('%Y-%m-%d')}],
                     'metrics': [{'expression': 'ga:pageviews'},
                                 {'expression': 'ga:avgTimeOnPage'}],
                     'dimensions': [{'name': 'ga:date'},
@@ -1236,10 +1229,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
                     'pageviews': data_pageviews
                 })
 
-            api_raw = []
-            for url in urls:
-                element = {'label': url.name, 'stats': data[url.url]['stats']}
-                api_raw.append(element)
+            api_raw = [{'label': url.name, 'stats': data[url.url]['stats']} for url in urls]
 
         return api_raw
 
