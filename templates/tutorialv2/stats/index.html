@@ -3,6 +3,7 @@
 {% load crispy_forms_tags %}
 {% load append_query_params %}
 {% load date_from_day_number %}
+{% load seconds_to_duration %}
 
 {% block title %}
     {% trans "Statistiques du contenu" %}
@@ -72,7 +73,7 @@
                 <thead>
                     <th>{% trans "Partie" %}</th>
                     <th>{% trans "Vues" %}</th>
-                    <th>{% trans "Temps moyen sur la page (s)" %}</th>
+                    <th>{% trans "Temps moyen sur la page" %}</th>
                     {% if display == 'global' %}<th></th>{% endif %}
                 </thead>
                 <tbody>
@@ -85,8 +86,7 @@
                                 {% endif %}
                             </td>
                             <td>{{ view.pageviews }}</td>
-                            <td>{{ view.avgTimeOnPage }}</td>
-                            <!-- TODO convert me from seconds to hh:mm:ss if needed --->
+                            <td>{{ view.avgTimeOnPage|seconds_to_duration }}</td>
                             {% if display == 'global' %}
                                 <td><input name="urls" id="id_urls_{{forloop.counter1}}" value="{{ view.url.url }}" type="checkbox"></td>
                             {% endif %}

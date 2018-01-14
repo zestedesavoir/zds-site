@@ -1177,22 +1177,17 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         nb_days = (end - start).days
         analytics = self.config_ga_credentials()
 
-        filters = []
-        # Prepare filter to get all needed pages only
-        for u in urls:
-            filters.append({
-                'operator': 'EXACT',
-                'dimensionName': 'ga:pagePath',
-                'expressions': u.url
-            })
-
+        # Filters to get all needed pages only
+        filters = self.get_ga_filters_from_urls(urls)
+        data_ranges = [{'startDate': start.strftime("%Y-%m-%d"),
+                        'endDate': end.strftime("%Y-%m-%d")}]
+        metrics = [{'expression': 'ga:pageviews'}, {'expression': 'ga:avgTimeOnPage'}]
         reports = []
 
         table_data_report = {
             'viewId': self.VIEW_ID,
-            'dateRanges': [{'startDate': start.strftime("%Y-%m-%d"), 'endDate': end.strftime("%Y-%m-%d")}],
-            'metrics': [{'expression': 'ga:pageviews'},
-                        {'expression': 'ga:avgTimeOnPage'}],
+            'dateRanges': data_ranges,
+            'metrics': metrics,
             'dimensions': [{'name': 'ga:pagePath'}],
             'dimensionFilterClauses': [{'filters': filters}],
         }
@@ -1200,20 +1195,15 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         if display_mode in ('global', 'details'):
             # Find level 0 url
             if display_mode == 'global':
-                target_url = [u.url for u in urls if u.level == 0]
+                target_url = [u for u in urls if u.level == 0]
             else:
-                target_url = urls[0].url
-            filters = {
-                'operator': 'EXACT',
-                'dimensionName': 'ga:pagePath',
-                'expressions': target_url
-            }
+                target_url = [urls[0]]
+            filters = self.get_ga_filters_from_urls(target_url)
 
         graphs_data_report = {
             'viewId': self.VIEW_ID,
-            'dateRanges': [{'startDate': start.strftime("%Y-%m-%d"), 'endDate': end.strftime("%Y-%m-%d")}],
-            'metrics': [{'expression': 'ga:pageviews'},
-                        {'expression': 'ga:avgTimeOnPage'}],
+            'dateRanges': data_ranges,
+            'metrics': metrics,
             'dimensions': [{'name': 'ga:date'},
                            {'name': 'ga:pagePath'}],
             'dimensionFilterClauses': [{'filters': filters}]
