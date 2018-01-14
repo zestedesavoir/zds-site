@@ -16,6 +16,8 @@ from zds.member.managers import ProfileManager
 from zds.tutorialv2.models.database import PublishableContent, PublishedContent
 from zds.utils.models import Alert, Licence, Hat
 
+from zds.forum.models import Forum
+
 
 class Profile(models.Model):
     """
@@ -74,8 +76,12 @@ class Profile(models.Model):
     def __str__(self):
         return self.user.username
 
+    def readable_forums(self):
+        """Returns a list of forums to which the user can access."""
+        return [f for f in Forum.objects.all() if f.can_read(self)]
+
     def is_private(self):
-        """can the user can display their stats"""
+        """Can the user display their stats?"""
         user_groups = self.user.groups.all()
         user_group_names = [g.name for g in user_groups]
         return settings.ZDS_APP['member']['bot_group'] in user_group_names
