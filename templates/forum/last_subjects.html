@@ -2,7 +2,7 @@
 {% load i18n %}
 
 {% block title %}
-Derniers sujets
+{% trans "Derniers sujets" %}
 {% endblock %}
 
 {% block feeds_rss %}
@@ -20,7 +20,7 @@ Derniers sujets
 
 
 {% block headline %}
-    Derniers sujets
+    {% trans "Derniers sujets" %}
 {% endblock %}
 
 
@@ -41,14 +41,14 @@ Derniers sujets
                 <a href="{% url 'last-subjects' %}?order=creation"
                     class="ico-after move {% if request.GET.order == 'creation' %}selected{% endif %}"
                 >
-                    Date de création
+                    {% trans "Date de création" %}
                 </a>
             </li>
             <li>
                 <a href="{% url 'last-subjects' %}?order=last_post"
                     class="ico-after history {% if request.GET.order == 'last_post' %}selected{% endif %}"
                 >
-                    Date de la dernière réponse
+                    {% trans "Date de la dernière réponse" %}
                 </a>
             </li>
         </ul>

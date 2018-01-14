@@ -57,7 +57,7 @@
                     </span>
                 </span>
                 {% if display_category %}
-                    dans
+                    {% trans "dans" %}
                     <a href="{{ topic.forum.get_absolute_url }}" title="{{ topic.forum.title }}">
                         {{ topic.forum.title }}
                     </a>
