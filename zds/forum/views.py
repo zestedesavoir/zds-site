@@ -63,9 +63,9 @@ def last_subjects_view(request):
         'creation': '-pubdate',
         'last_post': '-last_message__pubdate'
     }.get(ordering)
-    topics = Topic.objects.all().order_by(query_order).select_related('forum')
-    topics = [topic for topic in topics if topic.forum.can_read(request.user)]
-    topics = topics[:settings.ZDS_APP['forum']['topics_per_page']]
+    topics = Topic.objects.select_related('forum') \
+        .filter(forum__in=request.user.profile.readable_forums()) \
+        .order_by(query_order)[:settings.ZDS_APP['forum']['topics_per_page']]
     return render(request, 'forum/last_subjects.html', {'topics': topics})
 
 
