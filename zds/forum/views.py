@@ -59,7 +59,7 @@ class LastSubjectsView(ListView):
 
     context_object_name = 'topics'
     template_name = 'forum/last_subjects.html'
-    
+
     def get_queryset(self):
         ordering = self.request.GET.get('order')
         if ordering not in ('creation', 'last_post'):
