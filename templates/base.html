@@ -631,14 +631,6 @@
             {% block doc_api %}
                 <div class="main wrapper clearfix">
                     <main class="content-container" role="main" id="content">
-                        {% comment %}{% if messages %}
-                            {% for message in messages %}
-                                <div class="alert-box {{ message.tags }}">
-                                    <span>{{ message }}</span>
-                                    <a href="#close-alert-box" class="close-alert-box ico-after cross white">{% trans "Masquer l’alerte" %}</a>
-                                </div>
-                            {% endfor %}
-                        {% endif %}{% endcomment %}
                         {% messages messages %}
 
                         {% block content_out %}
