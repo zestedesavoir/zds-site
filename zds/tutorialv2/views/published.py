@@ -1042,6 +1042,7 @@ class TagsListView(ListView):
 from oauth2client.service_account import ServiceAccountCredentials
 from apiclient.discovery import build
 from httplib2 import Http
+from collections import OrderedDict
 
 class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
     template_name = 'tutorialv2/stats/index.html'
@@ -1102,16 +1103,23 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
             analytics = build('analytics', 'v4', http=http, discoveryServiceUrl=self.DISCOVERY_URI)
             return analytics
         except (ValueError, FileNotFoundError) as e:
-            messages.error(self.request, _("Erreur de configuration de l'API Analytics. " \
+            messages.error(self.request, _("Erreur de configuration de l'API Analytics. "
                                            "Merci de contacter l'équipe des développeurs. {}".format(type(e))))
             return None
+
+    def get_ga_filters_from_urls(self, urls):
+        filters = [{'operator': 'EXACT',
+                    'dimensionName': 'ga:pagePath',
+                    'expressions': u.url}
+                   for u in urls]
+        return filters
 
     def get_cumulative_stats_by_url(self, urls, report):
         # Build an array of type arr[url] = {'pageviews': X, 'avgTimeOnPage': y}
         try:
             rows = report['data']['rows']
         except KeyError:
-            messages.error(self.request, _("Aucune données de statistiques cumulées disponibles"))
+            messages.error(self.request, _("Aucune donnée de statistiques cumulées n'est disponible"))
             return []
 
         data = {}
@@ -1131,7 +1139,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         try:
             rows = report['data']['rows']
         except KeyError:
-            messages.error(self.request, _("Aucune données de statistiques détaillées disponibles"))
+            messages.error(self.request, _("Aucune donnée de statistiques détaillées n'est disponible"))
             return []
 
         api_raw = []
@@ -1177,6 +1185,23 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
 
         return api_raw
 
+    def get_simple_stat(self, report, info):
+        try:
+            rows = report['data']['rows']
+        except KeyError:
+            messages.error(self.request, _("Aucune donnée n'est disponible (metrique {})".format(info)))
+            return []
+        api_raw = OrderedDict()
+        for r in rows:
+            api_raw[r['dimensions'][0]] = r['metrics'][0]['values'][0]
+        return api_raw
+
+    def get_referrer_stats(self, report):
+        return self.get_simple_stat(report, 'referrer')
+
+    def get_keyword_stats(self, report):
+        return self.get_simple_stat(report, 'keyword')
+
     def get_all_stats(self, urls, start, end, display_mode):
         # nb_days = (end - start).days
         analytics = self.config_ga_credentials()
@@ -1198,6 +1223,24 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
             'dimensionFilterClauses': [{'filters': filters}],
         }
 
+        referrer_report = {
+            'viewId': self.VIEW_ID,
+            'dateRanges': date_ranges,
+            'metrics': [{'expression': 'ga:visits'}],
+            'dimensions': [{'name': 'ga:fullReferrer'}],
+            "orderBys": [{"fieldName": "ga:visits", "sortOrder": "DESCENDING"}],
+            'dimensionFilterClauses': [{'filters': filters}],
+        }
+
+        keyword_report = {
+            'viewId': self.VIEW_ID,
+            'dateRanges': date_ranges,
+            'metrics': [{'expression': 'ga:visits'}],
+            'dimensions': [{'name': 'ga:keyword'}],
+            "orderBys": [{"fieldName": "ga:visits", "sortOrder": "DESCENDING"}],
+            'dimensionFilterClauses': [{'filters': filters}],
+        }
+
         if display_mode in ('global', 'details'):
             # Find level 0 url
             if display_mode == 'global':
@@ -1216,12 +1259,14 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         }
 
         response = analytics.reports().batchGet(
-            body={'reportRequests': [graphs_data_report, table_data_report]}
+            body={'reportRequests': [graphs_data_report, table_data_report, referrer_report, keyword_report]}
         ).execute()
 
         return (
             self.get_stats(urls, response['reports'][0], display_mode),
-            self.get_cumulative_stats_by_url(urls, response['reports'][1])
+            self.get_cumulative_stats_by_url(urls, response['reports'][1]),
+            self.get_referrer_stats(response['reports'][2]),
+            self.get_keyword_stats(response['reports'][3])
         )
 
     def get_start_and_end_dates(self):
@@ -1263,5 +1308,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
             'urls': urls,
             'stats': all_stats[0],  # Graph
             'cumulative_stats_by_url': all_stats[1],  # Table data
+            'referrers': all_stats[2],
+            'keywords': all_stats[3],
         })
         return context

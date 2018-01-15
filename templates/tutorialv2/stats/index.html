@@ -105,6 +105,43 @@
         {% if display == 'comparison' %}
             <!-- TODO bouton retourner au mode global -->
         {% endif %}
+        <hr class="clearfix">
+        <div>
+            <section class="content-col-2">
+                <h2>Liens entrants vers ces pages</h2>
+                <table class="stat-table fullwidth">
+                    <thead>
+                        <th>{% trans "Liens" %}</th>
+                        <th>{% trans "Visites" %}</th>
+                    </thead>
+                    <tbody>
+                    {% for referrer, visits in referrers.items %}
+                        <tr>
+                            <td>{{ referrer }}</td>
+                            <td>{{ visits }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+            <section class="content-col-2">
+                <h2>Mots-clés des moteurs de recherche vers ces pages</h2>
+                <table class="stat-table fullwidth">
+                        <thead>
+                            <th>{% trans "Liens" %}</th>
+                            <th>{% trans "Visites" %}</th>
+                        </thead>
+                        <tbody>
+                        {% for keyword, visits in keywords.items %}
+                            <tr>
+                                <td>{{ keyword }}</td>
+                                <td>{{ visits }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+            </section>
+        </div>
 
     </section>
 {% endblock %}
