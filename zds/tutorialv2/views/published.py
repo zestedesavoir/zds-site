@@ -1149,55 +1149,43 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
             return []
 
         api_raw = []
+        metrics = [r['name'][3:] for r in report['columnHeader']['metricHeader']['metricHeaderEntries']]
 
         if display_mode in ('global', 'details'):
-            stat_pageviews = []
-            stat_avgtimeonpage = []
-            stat_users = []
-            stat_newUsers = []
-            stat_sessions = []
+            data = [[] for n in range(len(metrics))]
             for r in rows:
                 data_date = r['dimensions'][0]
                 data_date = '{}-{}-{}'.format(data_date[0:4], data_date[4:6], data_date[6:8])
 
-                data_pageviews = r['metrics'][0]['values'][0]
-                data_avgtimeonpage = int(float(r['metrics'][0]['values'][1]))
-                data_users = r['metrics'][0]['values'][2]
-                data_newUsers = r['metrics'][0]['values'][3]
-                data_sessions = r['metrics'][0]['values'][4]
+                for i, m in enumerate(metrics):
+                    data[i].append({'date': data_date, m: r['metrics'][0]['values'][i]})
 
-                stat_pageviews.append({'date': data_date, 'pageviews': data_pageviews})
-                stat_avgtimeonpage.append({'date': data_date, 'avgTimeOnPage': data_avgtimeonpage})
-                stat_users.append({'date': data_date, 'users': data_users})
-                stat_newUsers.append({'date': data_date, 'newUsers': data_newUsers})
-                stat_sessions.append({'date': data_date, 'sessions': data_sessions})
-
+            stats = {}
+            for i, m in enumerate(metrics):
+                stats[m] = data[i]
             api_raw = [{'label': _('Global'),
-                        'stats': {
-                            'pageviews': stat_pageviews,
-                            'avgTimeOnPage': stat_avgtimeonpage,
-                            'users': stat_users,
-                            'newUsers': stat_newUsers,
-                            'sessions': stat_sessions}}]
+                        'stats': stats}]
         else:
             data = {}
             for url in urls:
-                data[url.url] = {'stats': {'pageviews': [], 'avgTimeOnPage': []}}
+                data[url.url] = {'stats': {'pageviews': [],
+                                           'avgTimeOnPage': [],
+                                           'users': [],
+                                           'newUsers': [],
+                                           'sessions': []}}
 
+            data_metric = [0 for n in range(len(metrics))]
             for r in rows:
                 url = r['dimensions'][1]
                 data_date = r['dimensions'][0]
                 data_date = '{}-{}-{}'.format(data_date[0:4], data_date[4:6], data_date[6:8])
-                data_pageviews = r['metrics'][0]['values'][0]
-                data_avgtimeonpage = int(float(r['metrics'][0]['values'][1]))
-                data[url]['stats']['avgTimeOnPage'].append({
-                    'date': data_date,
-                    'avgTimeOnPage': data_avgtimeonpage
-                })
-                data[url]['stats']['pageviews'].append({
-                    'date': data_date,
-                    'pageviews': data_pageviews
-                })
+
+                for i, m in enumerate(metrics):
+                    data_metric[i] = r['metrics'][0]['values'][i]
+                    data[url]['stats'][m].append({
+                        'date': data_date,
+                        m: data_metric[i]
+                    })
 
             for url in urls:
                 element = {'label': url.name, 'stats': data[url.url]['stats']}
