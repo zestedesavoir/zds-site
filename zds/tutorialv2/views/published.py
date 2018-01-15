@@ -1125,7 +1125,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
 
     def get_stats(self, urls, report, display_mode):
         api_raw = []
-        # TODO if nothing is found ['rows'] will raise a KeyError
+        # if nothing is found ['rows'] will raise a KeyError and will be catched later on
         rows = report['data']['rows']
 
         if display_mode in ('global', 'details'):
@@ -1163,18 +1163,14 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
                     'pageviews': data_pageviews
                 })
 
-<<<<<<< 5e9d60689eacb7c97ebf885f4970a83d1b5c7605
-            api_raw = [{'label': url.name, 'stats': data[url.url]['stats']} for url in urls]
-=======
             for url in urls:
                 element = {'label': url.name, 'stats': data[url.url]['stats']}
                 api_raw.append(element)
->>>>>>> Invert for more coherence
 
         return api_raw
 
     def get_all_stats(self, urls, start, end, display_mode):
-        nb_days = (end - start).days
+        # nb_days = (end - start).days
         analytics = self.config_ga_credentials()
 
         # Filters to get all needed pages only
@@ -1250,10 +1246,15 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         urls = self.get_urls_to_render()
         start_date, end_date = self.get_start_and_end_dates()
         display_mode = self.get_display_mode(urls)
+        all_stats = [None, None]
+        try:
+            all_stats = self.get_all_stats(urls, start_date, end_date, display_mode)
+        except KeyError:
+            messages.error(self.request, _("Aucune données de statistiques disponibles"))
         context.update({
             'display': display_mode,
             'urls': urls,
-            'stats': self.get_all_stats(urls, start_date, end_date, display_mode)[0],  # Graph
-            'cumulative_stats_by_url': self.get_all_stats(urls, start_date, end_date, display_mode)[1]  # Table data
+            'stats': all_stats[0],  # Graph
+            'cumulative_stats_by_url': all_stats[1],  # Table data
         })
         return context
