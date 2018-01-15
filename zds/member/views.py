@@ -412,7 +412,7 @@ class SendValidationEmailView(FormView, TokenGenerator):
     def form_valid(self, form):
         # Delete old token
         token = TokenRegister.objects.filter(user=self.usr)
-        if token.count >= 1:
+        if token.count() >= 1:
             token.all().delete()
 
         # Generate new token and send email
