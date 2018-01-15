@@ -364,6 +364,11 @@
                     {% trans "Voir la version en ligne" %}
                 </a>
             </li>
+            <li>
+                <a href="{% url "content:stats-content" content.pk content.slug %}" class="ico-after online blue">
+                    {% trans "Voir les statistiques" %}
+                </a>
+            </li>
         {% endif %}
         {# END ONLINE VERSION #}
 
