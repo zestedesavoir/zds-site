@@ -60,6 +60,7 @@
                     source: 'labels'
                 },
                 time: {
+                    format: 'DD/MM/YYYY',
                     displayFormats: {
                         "millisecond": "MMM DD",
                         "second": "MMM DD",
@@ -82,7 +83,7 @@
         var $dataX = $object.data("time");
         var times = [];
         $dataX.forEach(function (element) {
-            times.push(window.moment(element));
+            times.push(window.moment(element).format('DD/MM/YYYY'));
         });
 
         var allObjectData = $object.data();
@@ -103,8 +104,8 @@
                     label: label,
                     data: allObjectData[i],
                     fill: false,
-                    backgroundColor: "rgba("+ color.join(',')+ ",0.70)",
-                    borderColor: "rgba("+ color.join(',')+ ",0.70)",
+                    backgroundColor: "rgba("+ color.join(',')+ ", 1)",
+                    borderColor: "rgba("+ color.join(',')+ ", 0.70)",
                 });
                 n += 360 / nbColors;
             }
