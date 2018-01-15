@@ -56,6 +56,9 @@
         scales: {
             xAxes: [{
                 type: "time",
+                ticks: {
+                    source: 'labels'
+                },
                 time: {
                     displayFormats: {
                         "millisecond": "MMM DD",
