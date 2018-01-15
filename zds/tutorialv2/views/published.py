@@ -1127,12 +1127,18 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
             url = r['dimensions'][0]
             # avgTimeOnPage is convert to float then int to remove useless decimal part
             data[url] = {'pageviews': r['metrics'][0]['values'][0],
-                         'avgTimeOnPage': int(float(r['metrics'][0]['values'][1]))}
+                         'avgTimeOnPage': int(float(r['metrics'][0]['values'][1])),
+                         'users': r['metrics'][0]['values'][2],
+                         'newUsers': r['metrics'][0]['values'][3],
+                         'sessions': r['metrics'][0]['values'][4]}
 
         # Build the response array by matching NamedUrl and data[url]
         api_raw = [{'url': url,
                     'pageviews': data[url.url]['pageviews'],
-                    'avgTimeOnPage': data[url.url]['avgTimeOnPage']} for url in urls]
+                    'avgTimeOnPage': data[url.url]['avgTimeOnPage'],
+                    'users': data[url.url]['users'],
+                    'newUsers': data[url.url]['newUsers'],
+                    'sessions': data[url.url]['sessions']} for url in urls]
         return api_raw
 
     def get_stats(self, urls, report, display_mode):
@@ -1147,18 +1153,32 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         if display_mode in ('global', 'details'):
             stat_pageviews = []
             stat_avgtimeonpage = []
+            stat_users = []
+            stat_newUsers = []
+            stat_sessions = []
             for r in rows:
                 data_date = r['dimensions'][0]
                 data_date = '{}-{}-{}'.format(data_date[0:4], data_date[4:6], data_date[6:8])
+
                 data_pageviews = r['metrics'][0]['values'][0]
-                data_avgtimeonpage = r['metrics'][0]['values'][1]
+                data_avgtimeonpage = int(float(r['metrics'][0]['values'][1]))
+                data_users = r['metrics'][0]['values'][2]
+                data_newUsers = r['metrics'][0]['values'][3]
+                data_sessions = r['metrics'][0]['values'][4]
+
                 stat_pageviews.append({'date': data_date, 'pageviews': data_pageviews})
                 stat_avgtimeonpage.append({'date': data_date, 'avgTimeOnPage': data_avgtimeonpage})
+                stat_users.append({'date': data_date, 'users': data_users})
+                stat_newUsers.append({'date': data_date, 'newUsers': data_newUsers})
+                stat_sessions.append({'date': data_date, 'sessions': data_sessions})
 
             api_raw = [{'label': _('Global'),
                         'stats': {
                             'pageviews': stat_pageviews,
-                            'avgTimeOnPage': stat_avgtimeonpage}}]
+                            'avgTimeOnPage': stat_avgtimeonpage,
+                            'users': stat_users,
+                            'newUsers': stat_newUsers,
+                            'sessions': stat_sessions}}]
         else:
             data = {}
             for url in urls:
@@ -1212,8 +1232,12 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         filters = self.get_ga_filters_from_urls(urls)
         data_ranges = [{'startDate': start.strftime("%Y-%m-%d"),
                         'endDate': end.strftime("%Y-%m-%d")}]
-        metrics = [{'expression': 'ga:pageviews'}, {'expression': 'ga:avgTimeOnPage'}]
-        reports = []
+
+        metrics = [{'expression': 'ga:pageviews'},
+                   {'expression': 'ga:avgTimeOnPage'},
+                   {'expression': 'ga:users'},
+                   {'expression': 'ga:newUsers'},
+                   {'expression': 'ga:sessions'},]
 
         table_data_report = {
             'viewId': self.VIEW_ID,

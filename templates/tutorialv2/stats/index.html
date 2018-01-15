@@ -74,6 +74,8 @@
                     <th>{% trans "Partie" %}</th>
                     <th>{% trans "Vues" %}</th>
                     <th>{% trans "Temps moyen sur la page" %}</th>
+                    <th>{% trans "Visiteurs (Nouveaux)" %}</th>
+                    <th>{% trans "Sessions" %}</th>
                     {% if display == 'global' %}<th></th>{% endif %}
                 </thead>
                 <tbody>
@@ -87,6 +89,8 @@
                             </td>
                             <td>{{ view.pageviews }}</td>
                             <td>{{ view.avgTimeOnPage|seconds_to_duration }}</td>
+                            <td>{{ view.users }} ({{ view.newUsers }})</td>
+                            <td>{{ view.sessions }}</td>
                             {% if display == 'global' %}
                                 <td><input name="urls" id="id_urls_{{forloop.counter1}}" value="{{ view.url.url }}" type="checkbox"></td>
                             {% endif %}
