@@ -58,7 +58,10 @@ def _render_markdown_once(md_input, **kwargs):
         return None
 
     try:
-        content, metadata = response.json()
+        content, metadata, messages = response.json()
+        logger.debug('Result %s, %s, %s', content, metadata, messages)
+        if messages:
+            logger.error('Markdown errors %s', str(messages))
         content = content.strip()
         if inline:
             content = content.replace('</p>\n', '\n\n').replace('\n<p>', '\n')

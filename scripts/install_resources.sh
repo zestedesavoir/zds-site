@@ -26,6 +26,13 @@ else
   # Install extra latex packages
   $HOME/.texlive/bin/x86_64-linux/tlmgr install $EXTRA_PACKAGES
   $HOME/.texlive/bin/x86_64-linux/tlmgr update --self
+  # install latex-template
+  # always refresh font cache because $HOME/.fonts has been added either here or via the cache
+  fc-cache -f -v
+  mkdir -p "$HOME/texmf/tex/latex/utf8.lua"
+  cd "$HOME/texmf/tex/latex/" && wget https://github.com/zestedesavoir/latex-template/archive/master.zip -O zmd.zip && unzip zmd
+  wget https://raw.githubusercontent.com/Stepets/utf8.lua/e698ef9621d95263838d33de5200cc855fc3f688/utf8.lua -O utf8.lua/utf8.lua
+  cd "$HOME" && sudo texhash
 
   echo "Installation complete !"
 fi
