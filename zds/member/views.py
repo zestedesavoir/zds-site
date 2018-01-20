@@ -1107,12 +1107,10 @@ def activate_account(request):
         'member/messages/account_activated.md',
         {
             'username': usr.username,
-            'tutorials_url': settings.ZDS_APP['site']['url'] + reverse('publication:list') + '?type=tutorial',
-            'articles_url': settings.ZDS_APP['site']['url'] + reverse('publication:list') + '?type=article',
+            'site_name': settings.ZDS_APP['site']['literal_name'],
+            'library_url': settings.ZDS_APP['site']['url'] + reverse('publication:list'),
             'opinions_url': settings.ZDS_APP['site']['url'] + reverse('opinion:list'),
-            'members_url': settings.ZDS_APP['site']['url'] + reverse('member-list'),
-            'forums_url': settings.ZDS_APP['site']['url'] + reverse('cats-forums-list'),
-            'site_name': settings.ZDS_APP['site']['literal_name']
+            'forums_url': settings.ZDS_APP['site']['url'] + reverse('cats-forums-list')
         }
     )
 
