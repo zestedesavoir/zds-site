@@ -10,6 +10,44 @@ from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.utils.models import CommentEdit, Hat
 
 
+class LastSubjectsViewTests(TestCase):
+    def test_logged_user(self):
+        profile = ProfileFactory()
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        category, forum = create_category()
+        add_topic_in_a_forum(forum, profile)
+        response = self.client.get(reverse('last-subjects'))
+        self.assertEqual(200, response.status_code)
+        self.assertTrue(Topic.objects.last() in response.context['topics'])
+    
+    def test_anonymous_user(self):
+        profile = ProfileFactory()
+        category, forum = create_category()
+        add_topic_in_a_forum(forum, profile)
+        response = self.client.get(reverse('last-subjects'))
+        self.assertEqual(200, response.status_code)
+        self.assertTrue(Topic.objects.last() in response.context['topics'])
+    
+    def test_private_topic(self):
+        author_profile = ProfileFactory()
+        group = Group.objects.create(name='DummyGroup_1')
+        category, forum = create_category(group)
+        add_topic_in_a_forum(forum, author_profile)
+        # Tests with a user who cannot read the last topic.
+        profile = ProfileFactory()
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.get(reverse('last-subjects'))
+        self.assertEqual(200, response.status_code)
+        self.assertTrue(Topic.objects.last() not in response.context['topics'])
+        # Adds to the user the right to read the last topic, and test again.
+        profile.user.groups.add(group)
+        profile.user.save()
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.get(reverse('last-subjects'))
+        self.assertEqual(200, response.status_code)
+        self.assertTrue(Topic.objects.last() in response.context['topics'])
+
+
 class CategoriesForumsListViewTests(TestCase):
     def test_success_list_all_forums(self):
         profile = ProfileFactory()
