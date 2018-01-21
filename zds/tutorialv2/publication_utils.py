@@ -19,7 +19,6 @@ from zds.tutorialv2.epub_utils import build_ebook
 from zds.tutorialv2.models.database import ContentReaction, PublishedContent
 from zds.tutorialv2.publish_container import publish_container
 from zds.tutorialv2.signals import content_unpublished
-from zds.tutorialv2.utils import retrieve_and_update_images_links
 from zds.utils.templatetags.emarkdown import render_markdown, MD_PARSING_ERROR
 from zds.utils.templatetags.smileys_def import SMILEYS_BASE_PATH, LICENSES_BASE_PATH
 
@@ -83,11 +82,10 @@ def publish_content(db_object, versioned, is_major_update=True):
     finally:
         translation.activate(cur_language)
 
-    parsed_with_local_images = retrieve_and_update_images_links(parsed, directory=build_extra_contents_path)
-
     md_file_path = base_name + '.md'
-    write_md_file(md_file_path, parsed_with_local_images, versioned)
-
+    write_md_file(md_file_path, parsed, versioned)
+    with contextlib.suppress(OSError):
+        Path(Path(md_file_path).parent, 'images').mkdir()
     is_update = False
 
     if db_object.public_version:
@@ -348,7 +346,8 @@ class ZMarkdownRebberLatexPublicator(Publicator):
             license=licence,
             licenseDirectory=LICENSES_BASE_PATH,
             smileysDirectory=smileys_directory,
-            toc=toc
+            toc=toc,
+            images_download_dir=str(base_directory / 'images')
         )
         zmd_class_dir_path = Path(os.environ.get('HOME', '~')) / 'texmf' / 'tex' / 'latex'
         if zmd_class_dir_path.exists() and zmd_class_dir_path.is_dir():
