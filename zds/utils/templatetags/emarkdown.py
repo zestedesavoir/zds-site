@@ -20,7 +20,7 @@ MAX_ATTEMPTS = 3
 MD_PARSING_ERROR = _('Une erreur est survenue dans la génération de texte Markdown. Veuillez rapporter le bug.')
 
 
-def _render_markdown_once(md_input, **kwargs):
+def _render_markdown_once(md_input, *, to_latex_document=False, to_epub=False, **kwargs):
     """
     Returns None on error (error details are logged). No retry mechanism.
 
@@ -30,18 +30,15 @@ def _render_markdown_once(md_input, **kwargs):
         logger.error('kwargs: {!r}'.format(kwargs))
 
     inline = kwargs.get('inline', False) is True
-    to_latex = kwargs.get('to_latex', False) is True
-    to_latex_document = kwargs.get('to_latex_document', False) is True
 
     if settings.ZDS_APP['zmd']['disable_pings'] is True:
         kwargs['disable_ping'] = True
 
     endpoint = '/html'
-    if to_latex:
-        endpoint = '/latex'
     if to_latex_document:
         endpoint = '/latex-document'
-
+    if to_epub:
+        endpoint = '/epub'
     try:
         response = post('{}{}'.format(settings.ZDS_APP['zmd']['server'], endpoint), json={
             'opts': kwargs,
@@ -72,7 +69,7 @@ def _render_markdown_once(md_input, **kwargs):
         return '', {}, []
 
 
-def render_markdown(md_input, **kwargs):
+def render_markdown(md_input, to_latex_document=False, to_epub=False, **kwargs):
     """Render a markdown string.
 
     Returns a tuple ``(rendered_content, metadata)``, where
@@ -83,7 +80,9 @@ def render_markdown(md_input, **kwargs):
     (without any technical details).
 
     """
-    content, metadata, messages = _render_markdown_once(md_input, **kwargs)
+    content, metadata, messages = _render_markdown_once(md_input,
+                                                        to_latex_document=to_latex_document, to_epub=to_epub,
+                                                        **kwargs)
     if content is not None:
         # Success!
         return content, metadata, messages
@@ -107,6 +106,12 @@ def render_markdown(md_input, **kwargs):
         return mark_safe('<p>{}</p>'.format(messages)), metadata, []
     else:
         return mark_safe('<div class="error ico-after"><p>{}</p></div>'.format(messages)), metadata, []
+
+
+@register.filter(name='epub_markdown', needs_autoescape=False)
+def epub_markdown(md_input, image_directory):
+    return emarkdown(md_input, is_epub=True, images_download_dir=image_directory,
+                     local_url_to_local_path=[settings.MEDIA_URL + '/galleries/[0-9]+', image_directory])
 
 
 @register.filter(needs_autoescape=False)

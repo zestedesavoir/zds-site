@@ -1,28 +1,16 @@
-import shutil
 from collections import OrderedDict
-from datetime import datetime
-from urllib.request import urlretrieve
-from urllib.parse import urlparse
-try:
-    import cairosvg
-except ImportError as e:
-    cairosvg = None  # no cairo on win.
-    print('no cairo imported')
-
 import os
 import logging
 from urllib.parse import urlsplit, urlunsplit, quote
-from PIL import Image as ImagePIL
 from django.contrib.auth.models import User
 from django.http import Http404
 from django.utils.translation import ugettext_lazy as _
 from git import Repo, Actor
-from lxml import etree
 from uuslug import slugify
 
 from django.conf import settings
 from zds.notification import signals
-from zds.tutorialv2 import REPLACE_IMAGE_PATTERN, VALID_SLUG
+from zds.tutorialv2 import VALID_SLUG
 from zds.tutorialv2.models import CONTENT_TYPE_LIST
 from zds.utils import get_current_user
 from zds.utils import slugify as old_slugify
@@ -308,170 +296,6 @@ def normalize_unicode_url(unicode_url):
     path = quote(path, '/%')
     querystring = quote(querystring, ':&=')
     return urlunsplit((scheme, netloc, path, querystring, anchor))
-
-
-def retrieve_image(url, directory):
-    """For a given image, retrieve it, transform it into PNG (if needed) and store it
-
-    :param url: URL of the image (either local or online)
-    :type url: str
-    :param directory: place where the image will be stored
-    :type directory: str
-    :return: the 'transformed' path to the image
-    :rtype: str
-    """
-
-    # parse URL
-    parsed_url = urlparse(url)
-
-    img_directory, img_basename = os.path.split(parsed_url.path)
-    img_basename_splitted = img_basename.split('.')
-
-    if len(img_basename_splitted) > 1:
-        img_extension = img_basename_splitted[-1].lower()
-        img_filename = '.'.join(img_basename_splitted[:-1])
-    else:
-        img_extension = ''
-        img_filename = img_basename
-
-    new_url = os.path.join('images', img_basename.replace(' ', '_'))
-    new_url_as_png = os.path.join('images', img_filename.replace(' ', '_') + '.png')
-
-    store_path = os.path.abspath(os.path.join(directory, new_url))  # destination
-
-    if not img_basename or os.path.exists(store_path) or os.path.exists(os.path.join(directory, new_url_as_png)):
-        # another image with the same name already exists (but assume the two are different)
-        img_filename += '_' + str(datetime.now().microsecond)
-        new_url = os.path.join('images', img_filename.replace(' ', '_') + '.' + img_extension)
-        new_url_as_png = os.path.join('images', img_filename.replace(' ', '_') + '.png')
-        store_path = os.path.abspath(os.path.join(directory, new_url))
-
-    try:
-        if parsed_url.scheme in ['http', 'https', 'ftp'] \
-                or parsed_url.netloc[:3] == 'www' or parsed_url.path[:3] == 'www':
-            url = normalize_unicode_url(url)
-            urlretrieve(url, store_path)  # download online image
-        else:  # it's a local image, coming from a gallery
-
-            if url[0] == '/':  # because `os.path.join()` think it's an absolute path if it start with `/`
-                url = url[1:]
-
-            source_path = os.path.join(settings.BASE_DIR, url)
-            if os.path.isfile(source_path):
-                shutil.copy(source_path, store_path)
-            else:
-                raise OSError(source_path)  # ... will use the default image instead
-
-        if img_extension == 'svg':  # if SVG, will transform it into PNG
-            resize_svg(store_path)
-            new_url = new_url_as_png
-            if cairosvg:
-                cairosvg.svg2png(url=store_path, write_to=os.path.join(directory, new_url))
-            os.remove(store_path)
-        else:
-            img = ImagePIL.open(store_path)
-            if img_extension == 'gif' or not img_extension.strip():
-                # if no extension or gif, will transform it into PNG !
-                new_url = new_url_as_png
-                img.save(os.path.join(directory, new_url))
-                try:
-                    os.remove(store_path)
-                except WindowsError:  # because windows can badly handle this one
-                    logger.error('store path %s not removed', store_path)
-
-    except (OSError, KeyError):  # HTTP 404, image does not exists, or Pillow cannot read it !
-
-        # will be overwritten anyway, so it's better to remove whatever it was, for security reasons :
-        try:
-            os.remove(store_path)
-        except OSError:
-            logger.warn('could not remove store path %s', store_path)
-        img = ImagePIL.open(settings.ZDS_APP['content']['default_image'])
-        new_url = new_url_as_png
-        img.save(os.path.join(directory, new_url))
-
-    return new_url
-
-
-def resize_svg(source):
-    """modify the SVG XML tree in order to resize the URL, to fit the maximum size allowed
-
-    :param source: content (not parsed) of the SVG file
-    :type source: str
-    """
-
-    max_size = int(settings.THUMBNAIL_ALIASES['']['content']['size'][0])
-    tree = etree.parse(source)
-    svg = tree.getroot()
-    try:
-        width = float(svg.attrib['width'])
-        height = float(svg.attrib['height'])
-    except (KeyError, ValueError):
-        width = max_size
-        height = max_size
-    end_height = height
-    end_width = width
-    if width > max_size or height > max_size:
-        if width > height:
-            end_height = (height / width) * max_size
-            end_width = max_size
-        else:
-            end_height = max_size
-            end_width = (width / height) * max_size
-    svg.attrib['width'] = str(end_width)
-    svg.attrib['height'] = str(end_height)
-    tree.write(source)
-
-
-def retrieve_image_and_update_link(group, previous_urls, directory='.'):
-    """For each image link, update it (if possible)
-
-    :param group: matching object
-    :type group: re.MatchObject
-    :param previous_urls: dictionary containing the previous urls and the transformed ones (in order to avoid treating\
-    the same image two times !)
-    :param directory: place where all image will be stored
-    :type directory: str
-    :type previous_urls: dict
-    :return: updated link
-    :rtype: str
-    """
-
-    # retrieve groups:
-    start = group.group('start')
-    url = group.group('url')
-    txt = group.group('text')
-    end = group.group('end')
-
-    # look for image URL, and make it if needed
-    if url not in previous_urls:
-        new_url = retrieve_image(url, directory=directory)
-        previous_urls[url] = new_url
-
-    return start + txt + previous_urls[url] + end
-
-
-def retrieve_and_update_images_links(md_text, directory='.'):
-    """Find every image links and update them with `update_image_link()`.
-
-    :param md_text: markdown text
-    :type md_text: str
-    :param directory: place where all image will be stored
-    :type directory: str
-    :return: the markdown with the good links
-    :rtype: str
-    """
-
-    image_directory_path = os.path.join(directory, 'images')  # directory where the images will be stored
-
-    if not os.path.isdir(image_directory_path):
-        os.makedirs(image_directory_path)  # make the directory if needed
-
-    previous_urls = {}
-    new_text = REPLACE_IMAGE_PATTERN.sub(
-        lambda g: retrieve_image_and_update_link(g, previous_urls, directory), md_text)
-
-    return new_text
 
 
 class BadManifestError(Exception):

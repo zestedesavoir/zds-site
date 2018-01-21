@@ -1,7 +1,5 @@
 import os
 import shutil
-import tempfile
-import datetime
 from pathlib import Path
 
 from django.conf import settings
@@ -15,7 +13,7 @@ from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory
 from zds.gallery.factories import UserGalleryFactory
 from zds.tutorialv2.models.versioned import Container
 from zds.tutorialv2.utils import get_target_tagged_tree_for_container, \
-    get_target_tagged_tree_for_extract, retrieve_and_update_images_links, last_participation_is_old, \
+    get_target_tagged_tree_for_extract, last_participation_is_old, \
     InvalidSlugError, BadManifestError, get_content_from_json, get_commit_author, slugify_raise_on_invalid, check_slug
 from zds.tutorialv2.publication_utils import publish_content, unpublish_content
 from zds.tutorialv2.models.database import PublishableContent, PublishedContent, ContentReaction, ContentRead
@@ -71,7 +69,7 @@ class UtilsTests(TestCase, TutorialTestMixin):
                     f.write('bla')
                 shutil.copy2(str(Path(base_name + '.pdf')),
                              str(Path(md_file_path.replace('__building', '')).parent))
-        PublicatorRegistery.registry['pdf'] = TestPdfPublicator()
+        PublicatorRegistry.registry['pdf'] = TestPdfPublicator()
 
     def test_get_target_tagged_tree_for_container(self):
         part2 = ContainerFactory(parent=self.tuto_draft, db_object=self.tuto, title='part2')
@@ -324,63 +322,6 @@ class UtilsTests(TestCase, TutorialTestMixin):
         self.assertEqual(len(json['children']), 1)
         os.unlink(args[0])
 
-    def test_retrieve_images(self):
-        """test the ``retrieve_and_update_images_links()`` function.
-
-        NOTE: this test require an working internet connection to succeed
-        Also, it was implemented with small images on highly responsive server(s), to make it quick !
-        """
-
-        tempdir = os.path.join(tempfile.gettempdir(), 'test_retrieve_imgs')
-        os.makedirs(tempdir)
-
-        # image which exists, or not
-        test_images = [
-            # PNG:
-            ('http://upload.wikimedia.org/wikipedia/en/9/9d/Commons-logo-31px.png', 'Commons-logo-31px.png'),
-            # JPEG:
-            ('http://upload.wikimedia.org/wikipedia/commons/6/6b/01Aso.jpg', '01Aso.jpg'),
-            # Image which does not exists:
-            ('http://test.com/test idiot.png', 'test_idiot.png'),  # NOTE: space changed into `_` !
-            # SVG (will be converted to png):
-            ('http://upload.wikimedia.org/wikipedia/commons/f/f9/10DF.svg', '10DF.png'),
-            # GIF (will be converted to png):
-            ('http://upload.wikimedia.org/wikipedia/commons/2/27/AnimatedStar.gif', 'AnimatedStar.png'),
-            # local image:
-            ('fixtures/image_test.jpg', 'image_test.jpg')
-        ]
-
-        # for each of these images, test that the url (and only that) is changed
-        for url, filename in test_images:
-            random_thing = str(datetime.datetime.now())  # will be used as legend, to ensure that this part remains
-            an_image_link = '![{}]({})'.format(random_thing, url)
-            new_image_url = 'images/{}'.format(filename)
-            new_image_link = '![{}]({})'.format(random_thing, new_image_url)
-
-            new_md = retrieve_and_update_images_links(an_image_link, tempdir)
-            self.assertTrue(os.path.isfile(os.path.join(tempdir, new_image_url)))  # image was retrieved
-            self.assertEqual(new_image_link, new_md)  # link was updated
-
-        # then, ensure that 3 times the same images link make the code use three times the same image !
-        link = '![{}](http://upload.wikimedia.org/wikipedia/commons/5/56/Asteroid_icon.jpg)'
-        new_link = '![{}](images/Asteroid_icon.jpg)'
-        three_times = ' '.join([link.format(i) for i in range(0, 2)])
-        three_times_updated = ' '.join([new_link.format(i) for i in range(0, 2)])
-
-        new_md = retrieve_and_update_images_links(three_times, tempdir)
-        self.assertEqual(three_times_updated, new_md)
-
-        # ensure that the original file is deleted if any
-        another_svg = '![](http://upload.wikimedia.org/wikipedia/commons/3/32/Arrow.svg)'
-        new_md = retrieve_and_update_images_links(another_svg, tempdir)
-        self.assertEqual('![](images/Arrow.png)', new_md)
-
-        self.assertTrue(os.path.isfile(os.path.join(tempdir, 'images/Arrow.png')))  # image was converted in PNG
-        self.assertFalse(os.path.isfile(os.path.join(tempdir, 'images/Arrow.svg')))  # and the original SVG was deleted
-
-        # finally, clean up:
-        shutil.rmtree(tempdir)
-
     def test_generate_pdf(self):
         """ensure the behavior of the `python manage.py generate_pdf` commmand"""
 
@@ -547,10 +488,10 @@ class UtilsTests(TestCase, TutorialTestMixin):
 
     def test_watchdog(self):
 
-        PublicatorRegistery.unregister('pdf')
-        PublicatorRegistery.unregister('printable-pdf')
-        PublicatorRegistery.unregister('epub')
-        PublicatorRegistery.unregister('html')
+        PublicatorRegistry.unregister('pdf')
+        PublicatorRegistry.unregister('printable-pdf')
+        PublicatorRegistry.unregister('epub')
+        PublicatorRegistry.unregister('html')
 
         with open('path', 'w') as f:
             f.write('my_content;/path/to/markdown.md')

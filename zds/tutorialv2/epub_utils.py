@@ -61,7 +61,8 @@ def build_html_chapter_file(published_object, versioned_object, working_dir, roo
     """
     path_to_title_dict = publish_container(published_object, str(working_dir), versioned_object,
                                            template='tutorialv2/export/ebook/chapter.html',
-                                           file_ext='xhtml', image_callback=handle_images)
+                                           file_ext='xhtml', image_callback=handle_images,
+                                           image_directory=str(working_dir / 'images'))
     for container_path, title in path_to_title_dict.items():
         # TODO: check if a function exists in the std lib to get rid of `root_dir + '/'`
         yield container_path.replace(str(root_dir.absolute()) + '/', ''), 'chapter-' + slugify(title), title
@@ -107,7 +108,6 @@ def build_ebook(published_content_entity, working_dir, final_file_path):
     style_dir_path = Path(ops_dir, 'Text')
     font_dir_path = Path(ops_dir, 'Fonts')
     meta_inf_dir_path = Path(working_dir, 'ebook', 'META-INF')
-    original_image_dir = Path(working_dir, 'images')
     target_image_dir = Path(ops_dir, 'images')
     with contextlib.suppress(FileExistsError):  # Forced to use this until python 3.5 is used and ok_exist appears
         text_dir_path.mkdir(parents=True)
@@ -117,9 +117,9 @@ def build_ebook(published_content_entity, working_dir, final_file_path):
         font_dir_path.mkdir(parents=True)
     with contextlib.suppress(FileExistsError):
         meta_inf_dir_path.mkdir(parents=True)
-    copytree(str(original_image_dir), str(target_image_dir))
     mimetype_conf = __build_mime_type_conf()
     mime_path = Path(working_dir, 'ebook', mimetype_conf['filename'])
+    copytree(published_content_entity.content.gallery.get_gallery_path(), str(target_image_dir))
     with mime_path.open(mode='w', encoding='utf-8') as mimefile:
         mimefile.write(mimetype_conf['content'])
     chapters = list(
