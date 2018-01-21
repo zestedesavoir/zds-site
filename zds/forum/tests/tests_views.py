@@ -19,7 +19,7 @@ class LastSubjectsViewTests(TestCase):
         response = self.client.get(reverse('last-subjects'))
         self.assertEqual(200, response.status_code)
         self.assertTrue(Topic.objects.last() in response.context['topics'])
-    
+
     def test_anonymous_user(self):
         profile = ProfileFactory()
         category, forum = create_category()
@@ -27,7 +27,7 @@ class LastSubjectsViewTests(TestCase):
         response = self.client.get(reverse('last-subjects'))
         self.assertEqual(200, response.status_code)
         self.assertTrue(Topic.objects.last() in response.context['topics'])
-    
+
     def test_private_topic(self):
         author_profile = ProfileFactory()
         group = Group.objects.create(name='DummyGroup_1')
