@@ -21,6 +21,7 @@ from zds.forum.commons import TopicEditMixin, PostEditMixin, SinglePostObjectMix
 from zds.forum.forms import TopicForm, PostForm, MoveTopicForm
 from zds.forum.models import Category, Forum, Topic, Post, is_read, mark_read, TopicRead
 from zds.member.decorator import can_write_and_read_now
+from zds.member.models import user_readable_forums
 from zds.notification import signals
 from zds.notification.models import NewTopicSubscription, TopicAnswerSubscription
 from zds.utils import slugify
@@ -69,7 +70,7 @@ class LastSubjectsView(ListView):
             'last_post': '-last_message__pubdate'
         }.get(ordering)
         topics = Topic.objects.select_related('forum') \
-            .filter(forum__in=self.request.user.profile.readable_forums()) \
+            .filter(forum__in=user_readable_forums(self.request.user)) \
             .order_by(query_order)[:settings.ZDS_APP['forum']['topics_per_page']]
         return topics
 
