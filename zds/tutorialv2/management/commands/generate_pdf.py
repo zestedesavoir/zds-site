@@ -5,7 +5,7 @@ from django.core.management.base import BaseCommand
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 from zds.tutorialv2.models.database import PublishedContent
-from zds.tutorialv2.publication_utils import PublicatorRegistery
+from zds.tutorialv2.publication_utils import PublicatorRegistry
 
 
 class Command(BaseCommand):
@@ -48,7 +48,7 @@ class Command(BaseCommand):
             # delete previous one
             if os.path.exists(base_name + '.pdf'):
                 os.remove(base_name + '.pdf')
-            PublicatorRegistery.get('pdf').publish(base_name + '.md', str(building_extra_content_path))
+            PublicatorRegistry.get('pdf').publish(base_name + '.md', str(building_extra_content_path))
 
             # check:
             if os.path.exists(base_name + '.pdf'):

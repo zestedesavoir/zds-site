@@ -1,6 +1,7 @@
 import contextlib
 import copy
 import logging
+import os
 import shutil
 import subprocess
 import zipfile
@@ -23,6 +24,7 @@ from zds.utils.templatetags.emarkdown import render_markdown, MD_PARSING_ERROR
 from zds.utils.templatetags.smileys_def import SMILEYS_BASE_PATH, LICENSES_BASE_PATH
 
 logger = logging.getLogger(__name__)
+
 
 def notify_update(db_object, is_update, is_major):
     if not is_update or is_major:
@@ -86,13 +88,6 @@ def publish_content(db_object, versioned, is_major_update=True):
     md_file_path = base_name + '.md'
     write_md_file(md_file_path, parsed_with_local_images, versioned)
 
-    pandoc_debug_str = ''
-    if settings.ZDS_APP['content']['extra_content_generation_policy'] == 'SYNC':
-        # ok, now we can really publish the thing !
-        generate_exernal_content(base_name, extra_contents_path, md_file_path, pandoc_debug_str)
-    elif settings.ZDS_APP['content']['extra_content_generation_policy'] == 'WATCHDOG':
-        PublicatorRegistry.get('watchdog').publish(md_file_path, base_name, silently_pass=False)
-
     is_update = False
 
     if db_object.public_version:
@@ -131,7 +126,7 @@ def publish_content(db_object, versioned, is_major_update=True):
         # ok, now we can really publish the thing!
         generate_external_content(base_name, build_extra_contents_path, md_file_path)
     elif settings.ZDS_APP['content']['extra_content_generation_policy'] == 'WATCHDOG':
-        PublicatorRegistery.get('watchdog').publish(md_file_path, base_name, silently_pass=False)
+        PublicatorRegistry.get('watchdog').publish(md_file_path, base_name, silently_pass=False)
     db_object.sha_public = versioned.current_version
     return public_version
 
@@ -182,7 +177,7 @@ def generate_external_content(base_name, extra_contents_path, md_file_path, over
     if not settings.ZDS_APP['content']['build_pdf_when_published'] and not overload_settings:
         excluded.append('pdf')
     # TODO: exclude watchdog
-    for publicator_name, publicator in PublicatorRegistery.get_all_registered(excluded):
+    for publicator_name, publicator in PublicatorRegistry.get_all_registered(excluded):
         try:
             publicator.publish(md_file_path, base_name, change_dir=extra_contents_path)
         except FailureDuringPublication:
@@ -267,7 +262,7 @@ class Publicator:
         """
         content_slug = PublishedContent.get_slug_from_file_path(md_file_path)
         published_content_entity = PublishedContent.objects \
-            .filter(must_redirect=False, content_public_slug=content_slug) \
+            .filter(content_public_slug=content_slug) \
             .first()
         return published_content_entity
 
@@ -278,7 +273,7 @@ def _read_flat_markdown(md_file_path):
     return md_flat_content
 
 
-@PublicatorRegistery.register('zip')
+@PublicatorRegistry.register('zip')
 class ZipPublicator(Publicator):
     def publish(self, md_file_path, base_name, **kwargs):
         try:
@@ -291,14 +286,14 @@ class ZipPublicator(Publicator):
             raise FailureDuringPublication('Zip could not be created', e)
 
 
-@PublicatorRegistery.register('html')
+@PublicatorRegistry.register('html')
 class ZmarkdownHtmlPublicator(Publicator):
 
     def publish(self, md_file_path, base_name, **kwargs):
         md_flat_content = _read_flat_markdown(md_file_path)
         published_content_entity = self.get_published_content_entity(md_file_path)
-        html_flat_content, _ = render_markdown(md_flat_content, disable_ping=True,
-                                               disable_js=True)
+        html_flat_content, *_ = render_markdown(md_flat_content, disable_ping=True,
+                                                disable_js=True)
         html_file_path = path.splitext(md_file_path)[0] + '.html'
         if str(MD_PARSING_ERROR) in html_flat_content:
             logging.getLogger(self.__class__.__name__).error('HTML was not rendered')
@@ -309,8 +304,8 @@ class ZmarkdownHtmlPublicator(Publicator):
         shutil.move(html_file_path, published_content_entity.get_extra_contents_directory())
 
 
-@PublicatorRegistery.register('pdf')
-@PublicatorRegistery.register('printable-pdf', '.printable.pdf', 'print, nocolor')
+@PublicatorRegistry.register('pdf')
+@PublicatorRegistry.register('printable-pdf', '.printable.pdf', 'print, nocolor')
 class ZMarkdownRebberLatexPublicator(Publicator):
     """
     use zmarkdown and rebber stringifier to produce latex & pdf output.
@@ -331,6 +326,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
         }
         public_versionned_source = published_content_entity.content\
             .load_version(sha=published_content_entity.sha_public)
+        base_directory = Path(base_name).parent
         content_type = depth_to_size_map[public_versionned_source.get_tree_level()]
         if self.latex_classes:
             content_type += ', ' + self.latex_classes
@@ -340,7 +336,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
         licence = published_content_entity.content.licence.title.replace('CC-', '')
         toc = True
 
-        content, = render_markdown(
+        content, *_ = render_markdown(
             md_flat_content,
             disable_ping=True,
             disable_js=True,
@@ -354,6 +350,12 @@ class ZMarkdownRebberLatexPublicator(Publicator):
             smileysDirectory=smileys_directory,
             toc=toc
         )
+        zmd_class_dir_path = Path(os.environ.get('HOME', '~')) / 'texmf' / 'tex' / 'latex'
+        if zmd_class_dir_path.exists() and zmd_class_dir_path.is_dir():
+            zmd_class_link = base_directory / 'zmdocument.cls'
+            zmd_class_link.symlink_to(zmd_class_dir_path / 'zmdocument.cls')
+            luatex_dir_link = base_directory / 'utf8.lua'
+            luatex_dir_link.symlink_to(zmd_class_dir_path / 'utf8.lua', target_is_directory=True)
         true_latex_extension = '.'.join(self.extension.split('.')[:-1]) + '.tex'
         latex_file_path = base_name + true_latex_extension
         logo_path = Path(latex_file_path).parent / 'images' / 'default_logo.png'
@@ -441,7 +443,7 @@ def handle_pdftex_error(latex_file_path):
     raise FailureDuringPublication(errors)
 
 
-@PublicatorRegistery.register('epub')
+@PublicatorRegistry.register('epub')
 class ZMarkdownEpubPublicator(Publicator):
 
     def publish(self, md_file_path, base_name, **kwargs):
@@ -457,7 +459,7 @@ class ZMarkdownEpubPublicator(Publicator):
             shutil.move(str(epub_file_path), published_content_entity.get_extra_contents_directory())
 
 
-@PublicatorRegistery.register('watchdog', settings.ZDS_APP['content']['extra_content_watchdog_dir'])
+@PublicatorRegistry.register('watchdog', settings.ZDS_APP['content']['extra_content_watchdog_dir'])
 class WatchdogFilePublicator(Publicator):
     """
     Just create a meta data file for watchdog
