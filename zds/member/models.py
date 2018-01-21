@@ -5,6 +5,7 @@ import pygeoip
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.contrib import auth
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.dispatch import receiver
@@ -75,10 +76,6 @@ class Profile(models.Model):
 
     def __str__(self):
         return self.user.username
-
-    def readable_forums(self):
-        """Returns a list of forums to which the user can access."""
-        return [f for f in Forum.objects.all() if f.can_read(self)]
 
     def is_private(self):
         """Can the user display their stats?"""
@@ -544,6 +541,11 @@ def save_profile(backend, user, response, *args, **kwargs):
         profile = Profile(user=user)
         profile.last_ip_address = '0.0.0.0'
         profile.save()
+
+
+def user_readable_forums(user):
+    """Returns a set of forums to which a user can access."""
+    return set([f for f in Forum.objects.all() if f.can_read(user)])
 
 
 class NewEmailProvider(models.Model):
