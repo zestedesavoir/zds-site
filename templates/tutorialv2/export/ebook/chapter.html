@@ -7,7 +7,7 @@
     </head>
     <body>
         {% if container.introduction %}
-            {{ container.get_introduction|emarkdown:is_js }}
+            {{ container.get_introduction|epub_markdown:image_directory }}
         {% endif %}
 
         {% for extract in container.children %}
@@ -17,14 +17,14 @@
                 </a>
             </h2>
             {% if extract.text %}
-                {{ extract.get_text|emarkdown:is_js }}
+                {{ extract.get_text|epub_markdown:image_directory }}
             {% endif %}
         {% endfor %}
 
         <hr />
 
         {% if container.conclusion %}
-            {{ container.get_conclusion|emarkdown:is_js }}
+            {{ container.get_conclusion|epub_markdown:image_directory }}
         {% endif %}
     </body>
 </html>
