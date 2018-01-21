@@ -53,19 +53,30 @@ lint-back:
 report-release-back:
 	python scripts/release_generator.py
 
-run-back: zmd-runs
+run-back: zmd-check
 	python manage.py runserver
 
 test-front:
 	python manage.py test --settings zds.settings.test --tag=front
 
-test-back: clean-back
+test-back: clean-back zmd-start
 	python manage.py test --settings zds.settings.test --exclude-tag=front
+	make zmd-stop
 
 # zmd
 
-zmd-runs:
-	curl http://localhost:27272
+zmd-install:
+	cd zmd && yarn
+
+zmd-start:
+	cd zmd/node_modules/zmarkdown && npm run server
+
+zmd-stop:
+	pm2 kill
+
+zmd-check:
+	@curl -s http://localhost:27272 || echo 'Use `make zmd-start` to start zmarkdown server'
+
 
 # front
 ## front-utils

@@ -1,0 +1,18 @@
+{
+  "name": "zmd",
+  "version": "1.0.0",
+  "description": "",
+  "main": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "pm2": "^2.9.1",
+    "zmarkdown": "^3.0.5"
+  },
+  "engines": {
+    "node": ">=8.0.0"
+  }
+}

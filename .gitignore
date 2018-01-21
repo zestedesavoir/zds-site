@@ -25,7 +25,7 @@ base.db
 /scripts/release_summary.md
 
 # Front files
-/node_modules
+node_modules
 /dist
 /npm-debug.log
 /geckodriver.log
