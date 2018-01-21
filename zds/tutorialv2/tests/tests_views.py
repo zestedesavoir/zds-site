@@ -3639,7 +3639,7 @@ class ContentTests(TestCase, TutorialTestMixin):
         while using a text containing images, and accessible !
 
         NOTE: this test will take time !"""
-
+        PublicatorRegistry.registry['pdf'] = self.old_registry['pdf']
         overridden_zds_app['content']['build_pdf_when_published'] = True  # obviously, PDF builds have to be enabled
 
         title = "C'est pas le plus important ici !"
