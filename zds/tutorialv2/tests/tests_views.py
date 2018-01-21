@@ -28,7 +28,7 @@ from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory
     SubCategoryFactory, PublishedContentFactory, tricky_text_content, BetaContentFactory
 from zds.tutorialv2.models.database import PublishableContent, Validation, PublishedContent, ContentReaction, \
     ContentRead
-from zds.tutorialv2.publication_utils import publish_content, PublicatorRegistery, Publicator
+from zds.tutorialv2.publication_utils import publish_content, PublicatorRegistry, Publicator
 from zds.tutorialv2.tests import TutorialTestMixin
 from zds.utils.models import HelpWriting, Alert, Tag, Hat
 from zds.utils.factories import HelpWritingFactory, CategoryFactory
@@ -92,7 +92,7 @@ class ContentTests(TestCase, TutorialTestMixin):
         self.external = UserFactory(
             username=overridden_zds_app['member']['external_account'],
             password='anything')
-        self.old_registry = {key: value for key, value in PublicatorRegistery.get_all_registered()}
+        self.old_registry = {key: value for key, value in PublicatorRegistry.get_all_registered()}
 
         class TestPdfPublicator(Publicator):
             def publish(self, md_file_path, base_name, **kwargs):
@@ -100,8 +100,8 @@ class ContentTests(TestCase, TutorialTestMixin):
                     f.write('bla')
 
                 shutil.copy2(str(Path(base_name + '.pdf')), str(Path(md_file_path.replace('__building', '')).parent))
-        PublicatorRegistery.registry['pdf'] = TestPdfPublicator()
-        PublicatorRegistery.registry['printable-pdf'] = TestPdfPublicator()
+        PublicatorRegistry.registry['pdf'] = TestPdfPublicator()
+        PublicatorRegistry.registry['printable-pdf'] = TestPdfPublicator()
 
     def test_ensure_access(self):
         """General access test for author, user, guest and staff"""

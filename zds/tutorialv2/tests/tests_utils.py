@@ -69,7 +69,7 @@ class UtilsTests(TestCase, TutorialTestMixin):
                     f.write('bla')
                 shutil.copy2(str(Path(base_name + '.pdf')),
                              str(Path(md_file_path.replace('__building', '')).parent))
-        PublicatorRegistery.registry['pdf'] = TestPdfPublicator()
+        PublicatorRegistry.registry['pdf'] = TestPdfPublicator()
 
     def test_get_target_tagged_tree_for_container(self):
         part2 = ContainerFactory(parent=self.tuto_draft, db_object=self.tuto, title='part2')
@@ -545,10 +545,10 @@ class UtilsTests(TestCase, TutorialTestMixin):
 
     def test_watchdog(self):
 
-        PublicatorRegistery.unregister('pdf')
-        PublicatorRegistery.unregister('printable-pdf')
-        PublicatorRegistery.unregister('epub')
-        PublicatorRegistery.unregister('html')
+        PublicatorRegistry.unregister('pdf')
+        PublicatorRegistry.unregister('printable-pdf')
+        PublicatorRegistry.unregister('epub')
+        PublicatorRegistry.unregister('html')
 
         with open('path', 'w') as f:
             f.write('my_content;/path/to/markdown.md')
