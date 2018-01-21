@@ -28,24 +28,26 @@ Pré-requis
 .. sourcecode:: bash
 
   wget https://bootstrap.pypa.io/get-pip.py
-  python get-pip.py
+  python3 get-pip.py
 
 - Installer toutes les dépendances systèmes nécessaires :
 
 .. sourcecode:: bash
 
-  make install-osx
+  make install-macos
 
 Une fois les pré-requis terminés, vous pouvez vous lancer dans l'installaton de l'environnement de zds.
 
 Configuration de virtualenv
 ===========================
 
+(Si vous n'utilisez pas bash mais un autre shell, par exemple zsh, remplacez ``~/.bash_profile`` par le fichier rc de votre shell, par exemple ``~/.zshrc``.)
+
 .. sourcecode:: bash
 
   mkdir ~/.virtualenvs
   echo "export WORKON_HOME=$HOME/.virtualenvs" >> ~/.bash_profile
-  echo "source /usr/local/bin/virtualenvwrapper.sh" >> ~/.bash_profile
+  echo "source /usr/local/Cellar/python3/3*/Frameworks/Python.framework/Versions/3.*/bin/virtualenvwrapper.sh" >> ~/.bash_profile
   source ~/.bash_profile
 
 Usage de virtualenv
@@ -55,7 +57,7 @@ Création d'un virtualenv :
 
 .. sourcecode:: bash
 
-  mkvirtualenv zdsenv
+  mkvirtualenv -p python3 zdsenv
 
 Lancer un virtualenv :
 
@@ -103,12 +105,6 @@ Pour faire fonctionner ZdS dans son ensemble vous devez installer les outils Lat
 .. sourcecode:: bash
 
   brew install texlive-basic
-
-- Téléchargez et installez `Pandoc <https://github.com/jgm/pandoc/releases>`_
-
-.. sourcecode:: bash
-
-  brew install pandoc
 
 
 Vous pouvez également `indiquer à Git de ne pas effectuer de commit s'il y a des erreurs de formatage dans le code <../utils/git-pre-hook.html>`__.

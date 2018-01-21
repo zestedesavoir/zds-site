@@ -50,12 +50,12 @@ def _render_markdown_once(md_input, **kwargs):
     except requests.HTTPError:
         logger.exception('An HTTP error happened, markdown rendering failed')
         log_args()
-        return None
+        return '', {}, []
 
     if response.status_code != 200:
         logger.error('The markdown server replied with status {} (expected 200)'.format(response.status_code))
         log_args()
-        return None
+        return '', {}, []
 
     try:
         content, metadata, messages = response.json()
@@ -65,11 +65,11 @@ def _render_markdown_once(md_input, **kwargs):
         content = content.strip()
         if inline:
             content = content.replace('</p>\n', '\n\n').replace('\n<p>', '\n')
-        return mark_safe(content), metadata
+        return mark_safe(content), metadata, messages
     except:  # noqa
         logger.exception('Unexpected exception raised')
         log_args()
-        return None
+        return '', {}, []
 
 
 def render_markdown(md_input, **kwargs):
@@ -83,10 +83,10 @@ def render_markdown(md_input, **kwargs):
     (without any technical details).
 
     """
-    result = _render_markdown_once(md_input, **kwargs)
-    if result is not None:
+    content, metadata, messages = _render_markdown_once(md_input, **kwargs)
+    if content is not None:
         # Success!
-        return result
+        return content, metadata, messages
 
     # Oops, something went wrong
 
@@ -104,9 +104,9 @@ def render_markdown(md_input, **kwargs):
 
     # FIXME: This cannot work with LaTeX.
     if inline:
-        return mark_safe('<p>{}</p>'.format(MD_PARSING_ERROR)), {}
+        return mark_safe('<p>{}</p>'.format(messages)), metadata, []
     else:
-        return mark_safe('<div class="error ico-after"><p>{}</p></div>'.format(MD_PARSING_ERROR)), {}
+        return mark_safe('<div class="error ico-after"><p>{}</p></div>'.format(messages)), metadata, []
 
 
 @register.filter(needs_autoescape=False)
@@ -121,7 +121,11 @@ def emarkdown(md_input, use_jsfiddle='', **kwargs):
     """
     disable_jsfiddle = (use_jsfiddle != 'js')
 
-    content, _ = render_markdown(md_input, **dict(kwargs, disable_jsfiddle=disable_jsfiddle))
+    content, metadata, messages = render_markdown(md_input, **dict(kwargs, disable_jsfiddle=disable_jsfiddle))
+
+    if messages:
+        logger.error('Markdown errors %s', str(messages))
+
     return content or ''
 
 
@@ -136,7 +140,8 @@ def emarkdown_inline(text):
     :return: HTML string.
     :rtype: str
     """
-    return emarkdown(text, inline=True)
+    rendered = emarkdown(text, inline=True)
+    return rendered
 
 
 def sub_hd(match, count):

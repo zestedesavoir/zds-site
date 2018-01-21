@@ -387,7 +387,7 @@ class Comment(models.Model):
                             related_name='comments', blank=True, null=True)
 
     def update_content(self, text):
-        html, metadata = render_markdown(self.text)
+        html, metadata, messages = render_markdown(text)
         self.text = text
         self.text_html = html
         self.save()
