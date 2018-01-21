@@ -340,7 +340,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
         licence = published_content_entity.content.licence.title.replace('CC-', '')
         toc = True
 
-        content, _ = render_markdown(
+        content, = render_markdown(
             md_flat_content,
             disable_ping=True,
             disable_js=True,
