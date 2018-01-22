@@ -13,7 +13,7 @@ from zds.utils.templatetags.emarkdown import emarkdown
 
 
 def publish_container(db_object, base_dir, container, template='tutorialv2/export/chapter.html',
-                      file_ext='html', image_callback=None):
+                      file_ext='html', image_callback=None, **ctx):
     """ 'Publish' a given container, in a recursive way
 
     :param image_callback: callback used to change images tags on the created html
@@ -47,7 +47,9 @@ def publish_container(db_object, base_dir, container, template='tutorialv2/expor
         makedirs(current_dir)
 
     if container.has_extracts():  # the container can be rendered in one template
-        parsed = render_to_string(template, {'container': container, 'is_js': is_js})
+        args = {'container': container, 'is_js': is_js}
+        args.update(ctx)
+        parsed = render_to_string(template, args)
         write_chapter_file(base_dir, container, Path(container.get_prod_path(True, file_ext)),
                            parsed, path_to_title_dict, image_callback)
         for extract in container.children:

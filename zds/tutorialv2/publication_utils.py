@@ -347,7 +347,8 @@ class ZMarkdownRebberLatexPublicator(Publicator):
             licenseDirectory=LICENSES_BASE_PATH,
             smileysDirectory=smileys_directory,
             toc=toc,
-            images_download_dir=str(base_directory / 'images')
+            images_download_dir=str(base_directory / 'images'),
+            local_url_to_local_path=[settings.MEDIA_URL, settings.MEDIA_ROOT]
         )
         zmd_class_dir_path = Path(os.environ.get('HOME', '~')) / 'texmf' / 'tex' / 'latex'
         if zmd_class_dir_path.exists() and zmd_class_dir_path.is_dir():
@@ -384,7 +385,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
     def full_pdftex_call(self, latex_file):
         success_flag = self.pdftex(latex_file)
         if not success_flag:
-            handle_pdftex_error(latex_file)
+            handle_pdftex_error(latex_file, self.extension)
 
     def handle_makeglossaries_error(self, latex_file):
         with open(path.splitext(latex_file)[0] + '.log') as latex_log:
@@ -426,7 +427,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
         self.handle_makeglossaries_error(texfile)
 
 
-def handle_pdftex_error(latex_file_path):
+def handle_pdftex_error(latex_file_path, ext):
     # TODO zmd: fix extension parsing
     log_file_path = latex_file_path[:-3] + 'log'
     errors = ['Error occured, log file {} not found.'.format(log_file_path)]
@@ -434,7 +435,7 @@ def handle_pdftex_error(latex_file_path):
         with Path(log_file_path).open(encoding='utf-8') as latex_log:
             # TODO zmd: see if the lines we extract here contain enough info for debugging purpose
             errors = '\n'.join([line for line in latex_log if 'fatal' in line.lower() or 'error' in line.lower()])
-    logger.debug('%s', errors)
+    logger.debug('%s ext=%s', errors, ext)
     with contextlib.suppress(ImportError):
         from raven import breadcrumbs
         breadcrumbs.record(message='luatex call', data=errors, type='cmd')
@@ -541,7 +542,7 @@ def unpublish_content(db_object, moderator=None):
             update_params['pubdate'] = None
 
         db_object.update(**update_params)
-        content_unpublished.send(sender=db_object.__class__, instance=db_object)
+        content_unpublished.send(sender=db_object.__class__, instance=db_object, moderator=moderator)
         # clean files
         old_path = public_version.get_prod_path()
         public_version.content.update(public_version=None, sha_public=None)
