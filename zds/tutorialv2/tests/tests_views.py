@@ -28,7 +28,8 @@ from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory
     SubCategoryFactory, PublishedContentFactory, tricky_text_content, BetaContentFactory
 from zds.tutorialv2.models.database import PublishableContent, Validation, PublishedContent, ContentReaction, \
     ContentRead
-from zds.tutorialv2.publication_utils import publish_content, PublicatorRegistry, Publicator
+from zds.tutorialv2.publication_utils import publish_content, PublicatorRegistry, Publicator, \
+    ZMarkdownRebberLatexPublicator, ZMarkdownEpubPublicator
 from zds.tutorialv2.tests import TutorialTestMixin
 from zds.utils.models import HelpWriting, Alert, Tag, Hat
 from zds.utils.factories import HelpWritingFactory, CategoryFactory
@@ -3639,7 +3640,8 @@ class ContentTests(TestCase, TutorialTestMixin):
         while using a text containing images, and accessible !
 
         NOTE: this test will take time !"""
-        PublicatorRegistry.registry['pdf'] = self.old_registry['pdf']
+        PublicatorRegistry.registry['pdf'] = ZMarkdownRebberLatexPublicator('.pdf')
+        PublicatorRegistry.registry['epub'] = ZMarkdownEpubPublicator()
         overridden_zds_app['content']['build_pdf_when_published'] = True  # obviously, PDF builds have to be enabled
 
         title = "C'est pas le plus important ici !"
@@ -3723,6 +3725,9 @@ class ContentTests(TestCase, TutorialTestMixin):
             self.assertTrue(published.has_type(extra), 'no extra content of format "{}" was found'.format(extra))
             result = self.client.get(published.get_absolute_url_to_extra_content(extra))
             self.assertEqual(result.status_code, 200)
+
+        self.assertNotEqual(0, published.get_size_file_type('pdf'), 'pdf must have content')
+        self.assertNotEqual(0, published.get_size_file_type('epub'), 'epub must have content')
 
         # test that deletion give a 404
         markdown_url = published.get_absolute_url_md()

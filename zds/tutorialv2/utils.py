@@ -1,28 +1,16 @@
-import shutil
 from collections import OrderedDict
-from datetime import datetime
-from urllib.request import urlretrieve
-from urllib.parse import urlparse
-try:
-    import cairosvg
-except ImportError as e:
-    cairosvg = None  # no cairo on win.
-    print('no cairo imported')
-
 import os
 import logging
 from urllib.parse import urlsplit, urlunsplit, quote
-from PIL import Image as ImagePIL
 from django.contrib.auth.models import User
 from django.http import Http404
 from django.utils.translation import ugettext_lazy as _
 from git import Repo, Actor
-from lxml import etree
 from uuslug import slugify
 
 from django.conf import settings
 from zds.notification import signals
-from zds.tutorialv2 import REPLACE_IMAGE_PATTERN, VALID_SLUG
+from zds.tutorialv2 import VALID_SLUG
 from zds.tutorialv2.models import CONTENT_TYPE_LIST
 from zds.utils import get_current_user
 from zds.utils import slugify as old_slugify
