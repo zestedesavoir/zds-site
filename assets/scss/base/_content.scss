@@ -238,9 +238,40 @@ samp {
     font-family: $font-monospace;
 }
 
-pre {
+// code
+.hljs-code-div {
+  font-family: $font-monospace;
+  background-color: #fff;
+  margin: 0 auto;
+  padding: 0.5em;
+  border-radius: .25em;
+  display: flex;
+
+  line-height: 18px;
+  font-family: $font-monospace;
+  font-style: normal;
+  font-size: 14px;
+
+  .hljs-line-numbers {
+    counter-reset: line;
+    border-right: 1px solid #ddd;
     margin: 0;
+    padding: .5em;
+    color: #888;
+    text-align: right;
+
+    span::before {
+      counter-increment: line;
+      content: counter(line);
+      display: block;
+    }
+  }
+  pre {
+    width: 100%;
+    margin: 0;
+  }
 }
+
 
 // touche
 kbd {
