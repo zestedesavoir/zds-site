@@ -56,7 +56,7 @@
                 {% if search_result.is_opinion %}
                     <a href="{% url 'opinion:list' %}?tag={{ tag|urlencode }}">{{ tag }}</a>
                 {% else %}
-                    <a href="{% url 'content:list' %}?tag={{ tag|urlencode }}">{{ tag }}</a>
+                    <a href="{% url 'publication:list' %}?tag={{ tag|urlencode }}">{{ tag }}</a>
                 {% endif %}
             </li>
         {% endfor %}
