@@ -1,0 +1,14 @@
+{% load date %}
+{% load i18n %}
+
+
+
+{% if message.editor %}
+    {% blocktrans with editor=message.editor %}Édité par {{ editor }}{% endblocktrans %}
+{% else %}
+    {% blocktrans %}Édité{% endblocktrans %}
+{% endif %}
+
+<time itemprop="dateModified" datetime="{{ message.update|date:"c" }}">
+    {{ message.update|format_date }}
+</time>

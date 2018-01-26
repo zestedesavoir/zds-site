@@ -138,6 +138,7 @@ class ContentReactionKarmaAPITest(APITestCase):
         equal_reaction.like += 1
         equal_reaction.dislike += 1
         equal_reaction.save()
+
         CommentVote.objects.create(user=profile.user, comment=equal_reaction, positive=True)
         CommentVote.objects.create(user=profile2.user, comment=equal_reaction, positive=False)
 
