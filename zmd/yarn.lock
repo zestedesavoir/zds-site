@@ -843,6 +843,10 @@ hoek@4.x.x:
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/hoek/-/hoek-4.2.0.tgz#72d9d0754f7fe25ca2d01ad8f8f9a9449a89526d"
 
+html-comment-regex@^1.1.0:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/html-comment-regex/-/html-comment-regex-1.1.1.tgz#668b93776eaae55ebde8f3ad464b307a4963625e"
+
 html-void-elements@^1.0.0:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/html-void-elements/-/html-void-elements-1.0.2.tgz#9d22e0ca32acc95b3f45b8d5b4f6fbdc05affd55"
@@ -985,6 +989,12 @@ is-posix-bracket@^0.1.0:
 is-primitive@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/is-primitive/-/is-primitive-2.0.0.tgz#207bab91638499c07b2adf240a41a87210034575"
+
+is-svg@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/is-svg/-/is-svg-2.1.0.tgz#cf61090da0d9efbcab8722deba6f032208dbb0e9"
+  dependencies:
+    html-comment-regex "^1.1.0"
 
 is-typedarray@~1.0.0:
   version "1.0.0"
@@ -1385,6 +1395,10 @@ pidusage@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/pidusage/-/pidusage-1.2.0.tgz#65ee96ace4e08a4cd3f9240996c85b367171ee92"
 
+pify@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/pify/-/pify-3.0.0.tgz#e5a4acd2c101fdf3d9a4d07f0dbc4db49dd28176"
+
 pm2-axon-rpc@0.5.0:
   version "0.5.0"
   resolved "https://registry.yarnpkg.com/pm2-axon-rpc/-/pm2-axon-rpc-0.5.0.tgz#ad08d6a27f580d5c7be4d7bf9dddff398f868994"
@@ -1533,6 +1547,13 @@ rc@^1.1.7:
     ini "~1.3.0"
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
+
+read-chunk@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/read-chunk/-/read-chunk-2.1.0.tgz#6a04c0928005ed9d42e1a6ac5600e19cbc7ff655"
+  dependencies:
+    pify "^3.0.0"
+    safe-buffer "^5.1.1"
 
 read@^1.0.4:
   version "1.0.7"
@@ -1714,12 +1735,14 @@ remark-iframes@^2.0.3:
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/remark-iframes/-/remark-iframes-2.0.3.tgz#618720d3b7fbbe57f1155dd10750fedd267d4797"
 
-remark-images-download@^2.2.0:
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/remark-images-download/-/remark-images-download-2.2.0.tgz#05900bb059e4874aa7605e9bc383d794567efd7a"
+remark-images-download@^2.4.2:
+  version "2.4.2"
+  resolved "https://registry.yarnpkg.com/remark-images-download/-/remark-images-download-2.4.2.tgz#e71171248034be964edd1ad1d324091a69a9c534"
   dependencies:
     clone "^2.1.1"
     file-type "^7.4.0"
+    is-svg "^2.1.0"
+    read-chunk "^2.1.0"
     request "^2.81.0"
     shortid "^2.2.8"
     unist-util-visit "^1.1.3"
@@ -2354,9 +2377,9 @@ yamljs@^0.3.0:
     argparse "^1.0.7"
     glob "^7.0.5"
 
-zmarkdown@^3.0.5:
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/zmarkdown/-/zmarkdown-3.2.0.tgz#9c919f03892d18f2fbdc5673d3fb395139026007"
+zmarkdown@^4.0.0:
+  version "4.0.3"
+  resolved "https://registry.yarnpkg.com/zmarkdown/-/zmarkdown-4.0.3.tgz#9ecdb3933dfc9b75629739dba07e1baf67dd6276"
   dependencies:
     body-parser "^1.18.2"
     clone "^2.1.1"
@@ -2385,7 +2408,7 @@ zmarkdown@^3.0.5:
     remark-heading-shift "^1.0.6"
     remark-heading-trailing-spaces "^0.0.21"
     remark-iframes "^2.0.3"
-    remark-images-download "^2.2.0"
+    remark-images-download "^2.4.2"
     remark-kbd "^1.0.9"
     remark-math "^1.0.1"
     remark-numbered-footnotes "^1.0.4"

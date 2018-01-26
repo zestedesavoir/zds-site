@@ -14,7 +14,7 @@ from zds.utils import slugify
 
 
 def __build_mime_type_conf():
-    # this is just a way to make the "mime" more mockable. For now I'm compatible with
+    # this is just a way to make the "mime" more mockable. For now it's compatible with
     # EPUB 3 standard (https://fr.flossmanuals.net/creer-un-epub/epub-3/ (fr))
     return {
         'filename': 'mimetype',
@@ -24,7 +24,6 @@ def __build_mime_type_conf():
 
 def __traverse_and_identify_images(image_dir):
     """
-
     :param image_dir:
     :type image_dir: pathlib.Path
     :return:
@@ -46,8 +45,8 @@ def __traverse_and_identify_images(image_dir):
 
 def build_html_chapter_file(published_object, versioned_object, working_dir, root_dir):
     """
-    parses an the full html file, extracts the ``<hX>`` tags and split their content into new files.
-    it yields all the produced files
+    Parses the full html file, extracts the ``<hX>`` tags and splits their content into new files.
+    Yields all the produced files.
 
     :param root_dir: the root directory into which dump the ebook
     :type root_dir: pathlib.Path
@@ -98,8 +97,7 @@ def build_nav_xhtml(working_dir, content, chapters):
     with Path(working_dir, 'nav.xhtml').open('w', encoding='utf-8') as f:
         f.write(
             render_to_string('tutorialv2/export/ebook/nav.html', {'content': content,
-                                                                  'chapters': chapters})
-        )
+                                                                  'chapters': chapters}))
 
 
 def build_ebook(published_content_entity, working_dir, final_file_path):
@@ -109,6 +107,7 @@ def build_ebook(published_content_entity, working_dir, final_file_path):
     font_dir_path = Path(ops_dir, 'Fonts')
     meta_inf_dir_path = Path(working_dir, 'ebook', 'META-INF')
     target_image_dir = Path(ops_dir, 'images')
+
     with contextlib.suppress(FileExistsError):  # Forced to use this until python 3.5 is used and ok_exist appears
         text_dir_path.mkdir(parents=True)
     with contextlib.suppress(FileExistsError):
@@ -117,17 +116,19 @@ def build_ebook(published_content_entity, working_dir, final_file_path):
         font_dir_path.mkdir(parents=True)
     with contextlib.suppress(FileExistsError):
         meta_inf_dir_path.mkdir(parents=True)
+
     mimetype_conf = __build_mime_type_conf()
     mime_path = Path(working_dir, 'ebook', mimetype_conf['filename'])
     copytree(published_content_entity.content.gallery.get_gallery_path(), str(target_image_dir))
+
     with mime_path.open(mode='w', encoding='utf-8') as mimefile:
         mimefile.write(mimetype_conf['content'])
+
     chapters = list(
         build_html_chapter_file(published_content_entity.content,
                                 published_content_entity.content.load_version(sha=published_content_entity.sha_public),
                                 working_dir=text_dir_path,
-                                root_dir=Path(working_dir, 'ebook'))
-    )
+                                root_dir=Path(working_dir, 'ebook')))
     build_toc_ncx(chapters, published_content_entity, ops_dir)
     copy_or_create_empty(settings.ZDS_APP['content']['epub_stylesheets']['toc'], style_dir_path, 'toc.css')
     copy_or_create_empty(settings.ZDS_APP['content']['epub_stylesheets']['full'], style_dir_path, 'zmd.css')
