@@ -7,7 +7,7 @@
         <meta property="dcterms:modified">{{ content.publication_date|date:"Y-m-d\Th:i:s\Z" }}</meta>
         <dc:title>{{ content.title }}</dc:title>
         <dc:language>fr</dc:language>
-        <dc:publisher>Zeste de savoir</dc:publisher>
+        <dc:publisher>Zeste de Savoir</dc:publisher>
         <dc:rights>{{ content.content.licence.title }}</dc:rights>
         {% for author in content.authors.all %}
             <dc:creator id="creator-{{ author.username }}">{{ author.username }}</dc:creator>

@@ -56,7 +56,7 @@ Voici un aperçu du dossier :
     │   ├── variables/  # Variables SCSS
     │   │
     │   ├── main.scss  # Fichier de configuation
-    │   ├── zmd.scss  # Feuille de style avec uniquement le style du contenu
+    │   ├── zmd.scss  # Feuille de style pour EPUB
     │   ├── _sprite.scss.hbs  # Template Handlebars pour la création du sprite
     │   ...
     │
@@ -77,7 +77,7 @@ Voilà à peu près ce qui est généré lors du "build" :
     ├── css/
     │   ├── main.css  # Tout le CSS compilé et minifié
     │   ├── main.map # SourceMap associé
-    │   ├── zmd.css  # Feuille de style pour le ZMarkdown
+    │   ├── zmd.css  # Feuille de style pour EPUB
     │   └── zmd.map # SourceMap associé
     │
     ├── images/

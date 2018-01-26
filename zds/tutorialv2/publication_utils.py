@@ -100,22 +100,20 @@ def publish_content(db_object, versioned, is_major_update=True):
     public_version.content_pk = db_object.pk
     public_version.content = db_object
     public_version.must_reindex = True
-    # TODO: use update instead of save !
     public_version.save()
-    public_version.char_count = public_version.get_char_count(md_file_path)
 
-    for author in db_object.authors.all():
-        public_version.authors.add(author)
-    public_version.save()
-    # save public version
+    public_version.char_count = public_version.get_char_count(md_file_path)
     if is_major_update or not is_update:
         public_version.publication_date = datetime.now()
     elif is_update:
         public_version.update_date = datetime.now()
-
     public_version.sha_public = versioned.current_version
-    # TODO: use update
-    public_version.save()
+
+    public_version.save(
+        update_fields=['char_count', 'publication_date', 'update_date', 'sha_public'])
+
+    for author in db_object.authors.all():
+        public_version.authors.add(author)
 
     # this puts the manifest.json and base json file on the prod path.
     shutil.rmtree(public_version.get_prod_path(), ignore_errors=True)
@@ -139,8 +137,8 @@ def update_existing_publication(db_object, versioned):
     # this allows us to handle permanent redirection so that SEO is not impacted.
     if versioned.slug != public_version.content_public_slug:
         public_version.must_redirect = True  # set redirection
+        public_version.save(update_fields=['must_redirect'])
         publication_date = public_version.publication_date
-        public_version.save()
         db_object.public_version = PublishedContent()
         public_version = db_object.public_version
 
@@ -199,12 +197,10 @@ class PublicatorRegistry:
     @classmethod
     def get_all_registered(cls, exclude=None):
         """
-
         Args:
             exclude: A list of excluded publicator
 
         Returns:
-
         """
         if exclude is None:
             exclude = []
@@ -215,7 +211,7 @@ class PublicatorRegistry:
     @classmethod
     def unregister(cls, name):
         """
-        Remove Publicator registered at name if exists, run silently otherwise.
+        Remove registered Publicator named 'name' if present
 
         :param name: publicator name.
         """
@@ -225,12 +221,12 @@ class PublicatorRegistry:
     @classmethod
     def get(cls, name):
         """
-        get publicator with required name.
+        Get publicator named 'name'.
 
         :param name:
         :return: the wanted publicator
         :rtype: Publicator
-        :raise KeyError: if name is not registered
+        :raise KeyError: if publicator is not registered
         """
         return cls.registry[name]
 
@@ -241,17 +237,18 @@ class Publicator:
     """
 
     def publish(self, md_file_path, base_name, **kwargs):
-        """called function to generate a content export
+        """
+        Function called to generate a content export
 
         :param md_file_path: base markdown file path
         :param base_name: file name without extension
-        :param kwargs: other publicator dependant options
+        :param kwargs: other publicator dependent options
         """
         raise NotImplementedError()
 
     def get_published_content_entity(self, md_file_path):
         """
-        retrieve the db entity from mdfile path
+        Retrieve the db entity from mdfile path
 
         :param md_file_path: mdfile path as string
         :type md_file_path: str
@@ -279,7 +276,7 @@ class ZipPublicator(Publicator):
             if published_content_entity is None:
                 raise ValueError('published_content_entity is None')
             make_zip_file(published_content_entity)
-            # for zip no need to move it because this is already dumped in the public directory
+            # no need to move zip file because it is already dumped to the public directory
         except (IOError, ValueError) as e:
             raise FailureDuringPublication('Zip could not be created', e)
 
@@ -294,9 +291,9 @@ class ZmarkdownHtmlPublicator(Publicator):
                                                 disable_js=True)
         html_file_path = path.splitext(md_file_path)[0] + '.html'
         if str(MD_PARSING_ERROR) in html_flat_content:
-            logging.getLogger(self.__class__.__name__).error('HTML was not rendered')
+            logging.getLogger(self.__class__.__name__).error('HTML could not be rendered')
             return
-        # TODO zmd: fix extension parsing
+
         with open(html_file_path, mode='w', encoding='utf-8') as final_file:
             final_file.write(html_flat_content)
         shutil.move(html_file_path, published_content_entity.get_extra_contents_directory())
@@ -306,7 +303,7 @@ class ZmarkdownHtmlPublicator(Publicator):
 @PublicatorRegistry.register('printable-pdf', '.printable.pdf', 'print, nocolor')
 class ZMarkdownRebberLatexPublicator(Publicator):
     """
-    use zmarkdown and rebber stringifier to produce latex & pdf output.
+    Use zmarkdown and rebber stringifier to produce latex & pdf output.
     """
     def __init__(self, extension='.pdf', latex_classes=''):
         self.extension = extension
@@ -332,24 +329,22 @@ class ZMarkdownRebberLatexPublicator(Publicator):
         authors = [a.username for a in published_content_entity.authors.all()]
         smileys_directory = SMILEYS_BASE_PATH
         licence = published_content_entity.content.licence.title.replace('CC-', '')
-        toc = True
 
-        content, *_ = render_markdown(
+        content, _, messages = render_markdown(
             md_flat_content,
-            disable_ping=True,
-            disable_js=True,
-            to_latex_document=True,
+            output_format='texfile',
             # latex template arguments
-            contentType=content_type,
+            content_type=content_type,
             title=title,
             authors=authors,
             license=licence,
-            licenseDirectory=LICENSES_BASE_PATH,
-            smileysDirectory=smileys_directory,
-            toc=toc,
+            license_directory=LICENSES_BASE_PATH,
+            smileys_directory=smileys_directory,
             images_download_dir=str(base_directory / 'images'),
             local_url_to_local_path=[settings.MEDIA_URL, settings.MEDIA_ROOT]
         )
+        if content == '' and messages:
+            raise FailureDuringPublication('Markdown was not parsed due to {}'.format(messages))
         zmd_class_dir_path = Path(os.environ.get('HOME', '~')) / 'texmf' / 'tex' / 'latex'
         if zmd_class_dir_path.exists() and zmd_class_dir_path.is_dir():
             zmd_class_link = base_directory / 'zmdocument.cls'
@@ -370,29 +365,29 @@ class ZMarkdownRebberLatexPublicator(Publicator):
             latex_file.write(content)
 
         try:
-            self.full_pdftex_call(latex_file_path)
-            self.full_pdftex_call(latex_file_path)
+            self.full_tex_compiler_call(latex_file_path)
+            self.full_tex_compiler_call(latex_file_path)
             self.make_glossary(base_name.split('/')[-1], latex_file_path)
-            self.full_pdftex_call(latex_file_path)
+            self.full_tex_compiler_call(latex_file_path)
         except FailureDuringPublication:
-            logging.getLogger(self.__class__.__name__).exception('could not publish %s', base_name)
+            logging.getLogger(self.__class__.__name__).exception('could not publish %s', base_name + self.extension)
         else:
             shutil.copy2(latex_file_path, published_content_entity.get_extra_contents_directory())
             shutil.copy2(pdf_file_path, published_content_entity.get_extra_contents_directory())
             logging.info('published latex=%s, pdf=%s', published_content_entity.has_type('tex'),
                          published_content_entity.has_type(self.doc_type))
 
-    def full_pdftex_call(self, latex_file):
-        success_flag = self.pdftex(latex_file)
+    def full_tex_compiler_call(self, latex_file):
+        success_flag = self.tex_compiler(latex_file)
         if not success_flag:
-            handle_pdftex_error(latex_file, self.extension)
+            handle_tex_compiler_error(latex_file, self.extension)
 
     def handle_makeglossaries_error(self, latex_file):
         with open(path.splitext(latex_file)[0] + '.log') as latex_log:
             errors = '\n'.join(filter(line for line in latex_log if 'fatal' in line.lower() or 'error' in line.lower()))
         raise FailureDuringPublication(errors)
 
-    def pdftex(self, texfile):
+    def tex_compiler(self, texfile):
         command = 'lualatex -shell-escape -interaction=nonstopmode {}'.format(texfile)
         command_process = subprocess.Popen(command,
                                            shell=True, cwd=path.dirname(texfile),
@@ -427,7 +422,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
         self.handle_makeglossaries_error(texfile)
 
 
-def handle_pdftex_error(latex_file_path, ext):
+def handle_tex_compiler_error(latex_file_path, ext):
     # TODO zmd: fix extension parsing
     log_file_path = latex_file_path[:-3] + 'log'
     errors = ['Error occured, log file {} not found.'.format(log_file_path)]
@@ -497,7 +492,6 @@ def make_zip_file(published_content):
     publishable = published_content.content
     # update SHA so that archive gets updated too
     publishable.sha_public = publishable.sha_draft
-    # TODO zmd: fix extension parsing
     file_path = path.join(published_content.get_extra_contents_directory(),
                           published_content.content_public_slug + '.zip')
     zip_file = zipfile.ZipFile(file_path, 'w')
@@ -517,6 +511,8 @@ def unpublish_content(db_object, moderator=None):
 
     :param db_object: Database representation of the content
     :type db_object: PublishableContent
+    :param moderator: the staff user who triggered the unpublish action.
+    :type moderator: django.contrib.auth.models.User
     :return: ``True`` if unpublished, ``False`` otherwise
     :rtype: bool
     """
@@ -527,14 +523,14 @@ def unpublish_content(db_object, moderator=None):
         public_version = PublishedContent.objects.get(pk=db_object.public_version.pk)
 
         results = [
-            content_unpublished.send(sender=reaction.__class__, instance=reaction)
+            content_unpublished.send(sender=reaction.__class__, instance=db_object, target=ContentReaction,
+                                     moderator=moderator, user=None)
             for reaction in [ContentReaction.objects.filter(related_content=db_object).all()]
         ]
         logging.debug('Nb_messages=%d, messages=%s', len(results), results)
         # remove public_version:
         public_version.delete()
-        update_params = {}
-        update_params['public_version'] = None
+        update_params = {'public_version': None}
 
         if db_object.is_opinion:
             update_params['sha_public'] = None
@@ -542,15 +538,13 @@ def unpublish_content(db_object, moderator=None):
             update_params['pubdate'] = None
 
         db_object.update(**update_params)
-        content_unpublished.send(sender=db_object.__class__, instance=db_object, moderator=moderator)
+        content_unpublished.send(sender=db_object.__class__, instance=db_object, target=db_object.__class__,
+                                 moderator=moderator)
         # clean files
         old_path = public_version.get_prod_path()
         public_version.content.update(public_version=None, sha_public=None)
         if path.exists(old_path):
             shutil.rmtree(old_path)
         return True
-
-    except (ObjectDoesNotExist, OSError) as e:
-        logging.warning('Error while unpublishing %s', e)
 
     return False

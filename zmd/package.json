@@ -10,7 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "pm2": "^2.9.1",
-    "zmarkdown": "^3.1.0"
+    "zmarkdown": "^4.0.0"
   },
   "engines": {
     "node": ">=8.0.0"
