@@ -16,3 +16,5 @@ DATABASES = {
         },
     }
 }
+
+LOGGING['handlers']['console']['level'] = 'ERROR'
