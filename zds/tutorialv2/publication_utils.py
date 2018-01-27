@@ -429,7 +429,17 @@ def handle_tex_compiler_error(latex_file_path, ext):
     with contextlib.suppress(FileNotFoundError, UnicodeDecodeError):
         with Path(log_file_path).open(encoding='utf-8') as latex_log:
             # TODO zmd: see if the lines we extract here contain enough info for debugging purpose
-            errors = '\n'.join([line for line in latex_log if 'fatal' in line.lower() or 'error' in line.lower()])
+            print_context = 25
+            lines = []
+            relevant_line = -print_context
+            for idx, line in enumerate(latex_log):
+                if 'fatal' in line.lower() or 'error' in line.lower():
+                    relevant_line = idx
+                    lines.append(line)
+                elif idx - relevant_line < print_context:
+                    lines.append(line)
+
+            errors = '\n'.join(lines)
     logger.debug('%s ext=%s', errors, ext)
     with contextlib.suppress(ImportError):
         from raven import breadcrumbs
