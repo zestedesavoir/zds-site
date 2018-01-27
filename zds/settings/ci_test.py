@@ -18,8 +18,4 @@ DATABASES = {
     }
 }
 
-LOGGING['handlers']['console']['level'] = 'ERROR'
-LOGGING['disable_existing_loggers'] = False
-
-logger = logging.getLogger('console')
-logger.setLevel(logging.ERROR)
+[logger.setLevel(logging.ERROR) for logger in logging.Logger.manager.loggerDict.keys()]
