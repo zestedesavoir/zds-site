@@ -294,6 +294,11 @@ LOGGING = {
             'handlers': ['console'],
             'level': 'WARNING',
         },
+
+        'root': {
+            'handlers': ['console'],
+            'level': 'WARNING',
+        },
     }
 }
 

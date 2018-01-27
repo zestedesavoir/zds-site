@@ -16,3 +16,6 @@ DATABASES = {
         },
     }
 }
+
+for logger in LOGGING['loggers'].values():
+    logger['level'] = 'ERROR'
