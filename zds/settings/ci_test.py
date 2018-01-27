@@ -1,5 +1,6 @@
 from .abstract_base import *
 from .abstract_test import *
+import logging
 
 DATABASES = {
     'default': {
@@ -16,3 +17,5 @@ DATABASES = {
         },
     }
 }
+
+[logger.setLevel(logging.ERROR) for logger in logging.Logger.manager.loggerDict.keys()]
