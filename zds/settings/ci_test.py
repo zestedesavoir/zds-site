@@ -1,5 +1,6 @@
 from .abstract_base import *
 from .abstract_test import *
+import logging
 
 DATABASES = {
     'default': {
@@ -18,3 +19,7 @@ DATABASES = {
 }
 
 LOGGING['handlers']['console']['level'] = 'ERROR'
+LOGGING['disable_existing_loggers'] = False
+
+logger = logging.getLogger('console')
+logger.setLevel(logging.ERROR)
