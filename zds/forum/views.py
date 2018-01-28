@@ -56,7 +56,7 @@ class CategoryForumsDetailView(DetailView):
         return context
 
 
-class LastSubjectsView(ListView):
+class LastTopicsViewTests(ListView):
 
     context_object_name = 'topics'
     template_name = 'forum/last_subjects.html'

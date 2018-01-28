@@ -10,7 +10,7 @@ from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.utils.models import CommentEdit, Hat
 
 
-class LastSubjectsViewTests(TestCase):
+class LastTopicsViewTests(TestCase):
     def test_logged_user(self):
         profile = ProfileFactory()
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
