@@ -59,7 +59,7 @@ class CategoryForumsDetailView(DetailView):
 class LastTopicsViewTests(ListView):
 
     context_object_name = 'topics'
-    template_name = 'forum/last_subjects.html'
+    template_name = 'forum/last_topics.html'
 
     def get_queryset(self):
         ordering = self.request.GET.get('order')
