@@ -202,7 +202,7 @@
     }
 
     function insertCitation(editor, citation) {
-        if (editor.value === '') {
+        if (editor.value === "") {
             editor.value = citation + "\n\n";
             return;
         }
