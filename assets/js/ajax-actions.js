@@ -202,6 +202,10 @@
     }
 
     function insertCitation(editor, citation) {
+        if (editor.value === '') {
+            editor.value = citation + "\n\n";
+            return;
+        }
         if (editor.selectionStart !== editor.selectionEnd ||
             getLineAt(editor.value, editor.selectionStart).trim()) {
             editor.value = editor.value + "\n\n" + citation;
