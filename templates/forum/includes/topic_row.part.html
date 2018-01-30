@@ -56,6 +56,12 @@
                         {{ topic.pubdate|format_date:True|capfirst }}
                     </span>
                 </span>
+                {% if display_category %}
+                    {% trans "dans" %}
+                    <a href="{{ topic.forum.get_absolute_url }}" title="{{ topic.forum.title }}">
+                        {{ topic.forum.title }}
+                    </a>
+                {% endif %}
             </span>
         </div>
     {% endwith %}

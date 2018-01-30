@@ -3,7 +3,7 @@ from django.conf.urls import url
 from zds.forum import feeds
 from zds.forum.views import CategoriesForumsListView, CategoryForumsDetailView, ForumTopicsListView, \
     TopicPostsListView, TopicNew, TopicEdit, FindTopic, FindTopicByTag, PostNew, PostEdit, PostSignal, \
-    PostUseful, PostUnread, FindPost, solve_alert, ManageGitHubIssue
+    PostUseful, PostUnread, FindPost, solve_alert, ManageGitHubIssue, LastTopicsViewTests
 
 urlpatterns = [
 
@@ -35,6 +35,9 @@ urlpatterns = [
     url(r'^message/signaler/$', PostSignal.as_view(), name='post-create-alert'),
     url(r'^message/nonlu/$', PostUnread.as_view(), name='post-unread'),
     url(r'^messages/(?P<user_pk>\d+)/$', FindPost.as_view(), name='post-find'),
+
+    # Last subjects.
+    url(r'^derniers-sujets/$', LastTopicsViewTests.as_view(), name='last-subjects'),
 
     # Categories and forums list.
     url(r'^$', CategoriesForumsListView.as_view(), name='cats-forums-list'),
