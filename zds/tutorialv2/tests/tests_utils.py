@@ -10,7 +10,7 @@ from django.core.urlresolvers import reverse
 
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, LicenceFactory, ExtractFactory, \
-    PublishedContentFactory
+    PublishedContentFactory, ContentReactionFactory
 from zds.gallery.factories import UserGalleryFactory
 from zds.tutorialv2.models.versioned import Container
 from zds.tutorialv2.utils import get_target_tagged_tree_for_container, \
@@ -26,6 +26,8 @@ from zds.tutorialv2.tests import TutorialTestMixin
 from mock import Mock
 from copy import deepcopy
 from zds import json_handler
+from zds.utils.models import Alert
+from zds.utils.templatetags.interventions import alerts_list
 
 BASE_DIR = settings.BASE_DIR
 
@@ -581,6 +583,18 @@ class UtilsTests(TestCase, TutorialTestMixin):
         article.save(force_slug_update=False)
         publish_content(article, article.load_version())
         self.assertTrue(PublishedContent.objects.filter(content_id=article.pk).exists())
+
+    def test_no_alert_on_unpublish(self):
+        """related to #4860"""
+        published = PublishedContentFactory(type='OPINION', author_list=[self.user_author])
+        reaction = ContentReactionFactory(related_content=published, author=ProfileFactory().user, position=1,
+                                          pubdate=datetime.datetime.now())
+        Alert.objects.create(scope='CONTENT', comment=reaction, text='a text', author=ProfileFactory().user,
+                             pubdate=datetime.datetime.now(), content=published)
+        staff = StaffProfileFactory().user
+        self.assertEqual(1, alerts_list(staff)['nb_alerts'])
+        unpublish_content(published, staff)
+        self.assertEqual(0, alerts_list(staff)['nb_alerts'])
 
     def tearDown(self):
         super().tearDown()
