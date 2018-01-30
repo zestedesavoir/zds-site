@@ -136,10 +136,8 @@ class ContentReactionFactory(factory.DjangoModelFactory):
         note = super(ContentReactionFactory, cls)._prepare(create, **kwargs)
         note.pubdate = datetime.now()
         note.save()
-        content = kwargs.pop('tutorial', None)
-        if content:
-            content.last_note = note
-            content.save()
+        note.related_content.last_note = note
+        note.related_content.save()
         return note
 
 

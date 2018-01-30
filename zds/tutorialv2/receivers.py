@@ -5,7 +5,7 @@ from django.dispatch.dispatcher import receiver
 from django.utils.translation import ugettext_lazy as _
 from django.db import models
 
-from zds.tutorialv2.models.database import PublishableContent
+from zds.tutorialv2.models.database import PublishableContent, ContentReaction
 from zds.tutorialv2.signals import content_unpublished
 from zds.gallery.models import Gallery
 from zds.utils import get_current_user
@@ -28,6 +28,12 @@ def cleanup_validation_alerts(sender, instance, *, moderator=None, **__):
                                                                        resolve_reason=_('Le billet a été dépublié.'),
                                                                        solved_date=datetime.datetime.now(),
                                                                        solved=True)
+        reactions = ContentReaction.objects.filter(related_content=instance).values_list('pk', flat=True)
+        Alert.objects.filter(comment__in=reactions).update(moderator=moderator,
+                                                           resolve_reason=_('Le billet a'
+                                                                            ' été dépublié.'),
+                                                           solved_date=datetime.datetime.now(),
+                                                           solved=True)
 
 
 @receiver(models.signals.post_delete, sender=Gallery)
