@@ -1,5 +1,6 @@
 from django.db.models import CASCADE
 from datetime import datetime
+import contextlib
 
 from zds.tutorialv2.models.mixins import TemplatableContentModelMixin, OnlineLinkableContentMixin
 from zds import json_handler
@@ -33,7 +34,6 @@ from zds.tutorialv2.models import TYPE_CHOICES, STATUS_CHOICES, CONTENT_TYPES_RE
 from zds.tutorialv2.utils import get_content_from_json, BadManifestError
 from zds.utils import get_current_user
 from zds.utils.models import SubCategory, Licence, HelpWriting, Comment, Tag
-from zds.utils.misc import ignore
 from zds.searchv2.models import AbstractESDjangoIndexable, AbstractESIndexable, delete_document_in_elasticsearch, \
     ESIndexManager
 from zds.utils.tutorials import get_blob
@@ -638,7 +638,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         :rtype: zds.tutorialv2.models.database.PublicContent
         :raise Http404: if the version is not available
         """
-        with ignore(AttributeError):
+        with contextlib.suppress(AttributeError):
             self.content.count_note = self.count_note
 
         self.versioned_model = self.content.load_version_or_404(sha=self.sha_public, public=self)
@@ -649,7 +649,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         :rtype: zds.tutorialv2.models.database.PublicContent
         :return: the public content
         """
-        with ignore(AttributeError):
+        with contextlib.suppress(AttributeError):
             self.content.count_note = self.count_note
 
         self.versioned_model = self.content.load_version(sha=self.sha_public, public=self)
