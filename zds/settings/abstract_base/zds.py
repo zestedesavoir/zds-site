@@ -2,7 +2,7 @@ from os.path import join
 from pathlib import Path
 
 from django.utils.translation import gettext_lazy as _
-from django.contrib.auth import User
+from django.contrib.auth.models import User
 
 from .config import config
 from .base_dir import BASE_DIR
