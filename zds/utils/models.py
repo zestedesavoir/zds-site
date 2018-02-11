@@ -11,7 +11,6 @@ from django.contrib.auth.models import User, Group
 from django.urls import reverse
 from django.utils.encoding import smart_text
 from django.db import models
-from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 from django.dispatch import receiver
 from django.template.loader import render_to_string
@@ -244,7 +243,7 @@ class HatRequest(models.Model):
             raise Exception('This request is already solved.')
 
         if moderator is None:
-            moderator = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+            moderator = User.objects.get(username=settings.ZDS_APP['member']['bot_account'])
 
         if is_granted:
             if self.get_hat() is None and hat_name:
@@ -265,7 +264,7 @@ class HatRequest(models.Model):
         if self.is_granted is None:
             raise Exception('The request must have been solved to use this method.')
 
-        solved_by_bot = self.moderator == get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+        solved_by_bot = self.moderator == User.objects.get(username=settings.ZDS_APP['member']['bot_account'])
 
         message = render_to_string(
             'member/messages/hat_request_decision.md', {
@@ -567,7 +566,7 @@ class Alert(models.Model):
         """
         self.resolve_reason = resolve_reason or None
         if msg_title and msg_content:
-            bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+            bot = User.objects.get(username=settings.ZDS_APP['member']['bot_account'])
             privatetopic = send_mp(
                 bot,
                 [self.author],

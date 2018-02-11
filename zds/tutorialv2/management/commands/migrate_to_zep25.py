@@ -1,7 +1,6 @@
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
 from django.db import transaction
-from django.shortcuts import get_object_or_404
 from django.utils.text import slugify
 
 from django.conf import settings
@@ -130,12 +129,12 @@ class Command(BaseCommand):
 
         :return: None
         """
-        bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
         bots = [
-            get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account']),
-            get_object_or_404(User, username=settings.ZDS_APP['member']['anonymous_account']),
-            get_object_or_404(User, username=settings.ZDS_APP['member']['external_account'])
+            User.objects.get(username=settings.ZDS_APP['member']['bot_account']),
+            User.objects.get(username=settings.ZDS_APP['member']['anonymous_account']),
+            User.objects.get(username=settings.ZDS_APP['member']['external_account'])
         ]
+        bot = bots[0]
         users = []
         contents = PublishableContent.objects.all()
         for content in contents:

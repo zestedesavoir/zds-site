@@ -318,7 +318,7 @@ class UpdateUsernameEmailMember(UpdateMember):
         previous_email = form.cleaned_data.get('previous_email')
         if new_username and new_username != previous_username:
             # Add a karma message for the staff
-            bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+            bot = User.objects.get(username=settings.ZDS_APP['member']['bot_account'])
             KarmaNote(user=profile.user,
                       moderator=bot,
                       note=_("{} s'est renommé {}").format(profile.user.username, new_username),
@@ -446,8 +446,8 @@ def warning_unregister(request):
 def unregister(request):
     """Allow members to unregister."""
 
-    anonymous = get_object_or_404(User, username=settings.ZDS_APP['member']['anonymous_account'])
-    external = get_object_or_404(User, username=settings.ZDS_APP['member']['external_account'])
+    anonymous = User.objects.get(username=settings.ZDS_APP['member']['anonymous_account'])
+    external = User.objects.get(username=settings.ZDS_APP['member']['external_account'])
     current = request.user
     # Nota : as of v21 all about content paternity is held by a proper receiver in zds.tutorialv2.models.database
     PickListOperation.objects.filter(staff_user=current).update(staff_user=anonymous)
@@ -1113,7 +1113,7 @@ def activate_account(request):
     usr.save()
 
     # Send welcome message
-    bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+    bot = User.objects.get(username=settings.ZDS_APP['member']['bot_account'])
     msg = render_to_string(
         'member/messages/account_activated.md',
         {
@@ -1257,7 +1257,7 @@ def settings_promote(request, user_pk):
         user.save()
 
         usergroups = user.groups.all()
-        bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+        bot = User.objects.get(username=settings.ZDS_APP['member']['bot_account'])
         msg = _('Bonjour {0},\n\n'
                 'Un administrateur vient de modifier les groupes '
                 'auxquels vous appartenez.  \n').format(user.username)

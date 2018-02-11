@@ -2,6 +2,7 @@ from os.path import join
 from pathlib import Path
 
 from django.utils.translation import gettext_lazy as _
+from django.contrib.auth import User
 
 from .config import config
 from .base_dir import BASE_DIR
@@ -273,3 +274,13 @@ ZDS_APP = {
     },
     'stats_ga_viewid': 'ga:86962671'
 }
+
+for user in ('bot_account', 'anonymous_account', 'external_account'):
+    username = ZDS_APP['member'][user]
+    try:
+        User.objects.get(username=username)
+    except User.DoesNotExist:
+        raise Exception(
+            'The {username!r} user does not exist. '
+            'You must create it to run the server.'.format(username=username)
+        )

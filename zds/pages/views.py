@@ -75,7 +75,7 @@ class AssocSubscribeView(FormView):
 
         site = settings.ZDS_APP['site']
 
-        bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+        bot = User.objects.get(username=settings.ZDS_APP['member']['bot_account'])
         forum = get_object_or_404(Forum, pk=site['association']['forum_ca_pk'])
 
         # create the topic

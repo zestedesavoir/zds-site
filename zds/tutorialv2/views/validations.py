@@ -165,7 +165,7 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
 
         # warn the former validator that an update has been made, if any
         if old_validator:
-            bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+            bot = User.objects.get(username=settings.ZDS_APP['member']['bot_account'])
             msg = render_to_string(
                 'tutorialv2/messages/validation_change.md',
                 {
@@ -245,7 +245,7 @@ class CancelValidation(LoginRequiredMixin, ModalFormView):
 
         # warn the former validator that the all thing have been canceled
         if validation.validator:
-            bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+            bot = User.objects.get(username=settings.ZDS_APP['member']['bot_account'])
             msg = render_to_string(
                 'tutorialv2/messages/validation_cancel.md',
                 {
@@ -393,7 +393,7 @@ class RejectValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
                 'message_reject': '\n'.join(['> ' + a for a in form.cleaned_data['text'].split('\n')])
             })
 
-        bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+        bot = User.objects.get(username=settings.ZDS_APP['member']['bot_account'])
         send_mp(
             bot,
             validation.content.authors.all(),
@@ -537,7 +537,7 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleOnline
                 'message_reject': '\n'.join(['> ' + a for a in form.cleaned_data['text'].split('\n')])
             })
 
-        bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+        bot = User.objects.get(username=settings.ZDS_APP['member']['bot_account'])
         send_mp(
             bot,
             validation.content.authors.all(),
@@ -713,7 +713,7 @@ class DoNotPickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormView
                         'moderator': self.request.user,
                     })
 
-                bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+                bot = User.objects.get(username=settings.ZDS_APP['member']['bot_account'])
                 send_mp(
                     bot,
                     versioned.authors.all(),
@@ -802,7 +802,7 @@ class PickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormViewMixin
                 'url': versioned.get_absolute_url(),
             })
 
-        bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+        bot = User.objects.get(username=settings.ZDS_APP['member']['bot_account'])
         send_mp(
             bot,
             versioned.authors.all(),
@@ -865,7 +865,7 @@ class UnpickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormViewMix
                 'message_reject': '\n'.join(['> ' + a for a in form.cleaned_data['text'].split('\n')])
             })
 
-        bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+        bot = User.objects.get(username=settings.ZDS_APP['member']['bot_account'])
         send_mp(
             bot,
             versioned.authors.all(),
@@ -1002,7 +1002,7 @@ class PromoteOpinionToArticle(PermissionRequiredMixin, DoesNotRequireValidationF
                 'url': opinion_url,
             })
 
-        bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+        bot = User.objects.get(username=settings.ZDS_APP['member']['bot_account'])
         send_mp(
             bot,
             article.authors.all(),

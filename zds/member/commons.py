@@ -4,7 +4,6 @@ import uuid
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.mail import EmailMultiAlternatives
-from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from django.template.defaultfilters import pluralize
 from django.utils.translation import ugettext_lazy as _
@@ -205,7 +204,7 @@ class MemberSanctionState(object):
         :return: nothing
         :rtype: None
         """
-        bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+        bot = User.objects.get(username=settings.ZDS_APP['member']['bot_account'])
         send_mp(
             bot,
             [ban.user],

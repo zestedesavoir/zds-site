@@ -392,7 +392,7 @@ class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteV
                     messages.error(self.request, _('Merci de fournir une raison à la suppression.'))
                     return redirect(self.object.get_absolute_url())
                 else:
-                    bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+                    bot = User.objects.get(username=settings.ZDS_APP['member']['bot_account'])
                     msg = render_to_string(
                         'tutorialv2/messages/validation_cancel_on_delete.md',
                         {
@@ -1414,7 +1414,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                     all_tags = self._get_all_tags()
                     topic = self._create_beta_topic(msg, beta_version, _type, all_tags)
 
-                    bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+                    bot = User.objects.get(username=settings.ZDS_APP['member']['bot_account'])
                     msg_pm = render_to_string(
                         'tutorialv2/messages/beta_activate_pm.md',
                         {
@@ -1753,7 +1753,7 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
         elif self.object.is_opinion:
             _type = _('du billet')
 
-        bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+        bot = User.objects.get(username=settings.ZDS_APP['member']['bot_account'])
         all_authors_pk = [author.pk for author in self.object.authors.all()]
         for user in form.cleaned_data['users']:
             if user.pk not in all_authors_pk and user != self.request.user:
