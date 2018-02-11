@@ -1,6 +1,5 @@
 import hashlib
 import re
-from contextlib import contextmanager
 
 THUMB_MAX_WIDTH = 80
 THUMB_MAX_HEIGHT = 80
