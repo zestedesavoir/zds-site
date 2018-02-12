@@ -1,4 +1,3 @@
-from django.contrib.auth.models import User
 from django.conf import settings
 
 try:
@@ -25,7 +24,8 @@ try:
 except ImportError:
     __version__ = 'dev'
     git_version = None
-=======
+
+# Check essentiel accounts exist.
 for user in ('bot_account', 'anonymous_account', 'external_account'):
     username = settings.ZDS_APP['member'][user]
     try:
