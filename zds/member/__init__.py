@@ -5,3 +5,5 @@ NEW_PROVIDER_USES = [('NEW_ACCOUNT', _('Nouveau compte')), ('EMAIL_EDIT', _("Éd
 
 NEW_ACCOUNT = 'NEW_ACCOUNT'
 EMAIL_EDIT = 'EMAIL_EDIT'
+
+default_app_config = 'zds.member.apps.MemberConfig'
