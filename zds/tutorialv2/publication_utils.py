@@ -529,8 +529,8 @@ class WatchdogFilePublicator(Publicator):
     """
     def __init__(self, watched_dir):
         self.watched_directory = watched_dir
-        if not path.isdir(self.watched_directory):
-            mkdir(self.watched_directory)
+        if not path.isdir(str(self.watched_directory)):
+            mkdir(str(self.watched_directory))
         self.__logger = logging.getLogger(__name__ + '.' + self.__class__.__name__)
 
     def publish(self, md_file_path, base_name, silently_pass=True, **kwargs):

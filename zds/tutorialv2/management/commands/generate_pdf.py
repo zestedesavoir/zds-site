@@ -59,4 +59,4 @@ class Command(BaseCommand):
             else:
                 self.stdout.write(' [ERREUR]')
 
-        os.chdir(settings.BASE_DIR)
+        os.chdir(str(settings.BASE_DIR))

@@ -3557,7 +3557,7 @@ class ContentTests(TutorialTestMixin, TestCase):
                 username=self.user_author.username,
                 password='hostel77'),
             True)
-        base = os.path.join(settings.BASE_DIR, 'fixtures', 'tuto')
+        base = str(BASE_DIR / 'fixtures' / 'tuto')
         old_contents = [
             os.path.join(base, 'article_v1'),
             os.path.join(base, 'balise_audio'),
@@ -3587,7 +3587,7 @@ class ContentTests(TutorialTestMixin, TestCase):
                 username=self.user_author.username,
                 password='hostel77'),
             True)
-        base = os.path.join(settings.BASE_DIR, 'fixtures', 'tuto')
+        base = str(BASE_DIR / 'fixtures' / 'tuto')
         old_path = os.path.join(base, 'article_v1')
 
         shutil.move(os.path.join(old_path, 'text.md'), os.path.join(old_path, 'text2.md'))

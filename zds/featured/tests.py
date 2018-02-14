@@ -12,6 +12,9 @@ from zds.tutorialv2.factories import PublishedContentFactory
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 
 
+overridden_zds_app = deepcopy(settings.ZDS_APP)
+
+
 stringof2001chars = 'http://url.com/'
 for i in range(198):
     stringof2001chars += '0123456789'
@@ -51,6 +54,9 @@ class FeaturedResourceListViewTest(TestCase):
 
 @override_for_contents()
 class FeaturedResourceCreateViewTest(TutorialTestMixin, TestCase):
+    def setUp(self):
+        # don't build PDF to speed up the tests
+        overridden_zds_app['content']['build_pdf_when_published'] = False
 
     def test_success_create_featured(self):
         staff = StaffProfileFactory()

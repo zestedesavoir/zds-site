@@ -23,7 +23,7 @@ class HelpWritingFactory(factory.DjangoModelFactory):
         fixture_image_path = kwargs.pop('fixture_image_path', None)
 
         if fixture_image_path is not None:
-            image_path = join(settings.BASE_DIR, 'fixtures', fixture_image_path)
+            image_path = str(settings.BASE_DIR / 'fixtures' / fixture_image_path)
 
         if image_path is not None:
             copyfile(image_path, join(settings.MEDIA_ROOT, basename(image_path)))

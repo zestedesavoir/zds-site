@@ -10,7 +10,22 @@ from .base_dir import BASE_DIR
 zds_config = config.get('zds', {})
 
 
-GEOIP_PATH = join(BASE_DIR, 'geodata')
+GEOIP_PATH = str(BASE_DIR / 'geodata')
+
+
+tex_template_path = str(BASE_DIR / 'assets' / 'tex' / 'template.tex')
+
+PANDOC_LOC = ''
+PANDOC_PDF_PARAM = (
+    '--latex-engine=xelatex '
+    '--template={} -s -S -N '
+    '--toc -V documentclass=scrbook -V lang=francais '
+    '-V mainfont=Merriweather -V monofont="SourceCodePro-Regular" '
+    '-V fontsize=12pt -V geometry:margin=1in '.format(tex_template_path)
+)
+# LOG PATH FOR PANDOC LOGGING
+PANDOC_LOG = './pandoc.log'
+PANDOC_LOG_STATE = False
 
 
 ES_ENABLED = True
@@ -160,13 +175,13 @@ ZDS_APP = {
         'home_number': 5
     },
     'content': {
-        'repo_private_path': join(BASE_DIR, 'contents-private'),
-        'repo_public_path': join(BASE_DIR, 'contents-public'),
+        'repo_private_path': str(BASE_DIR / 'contents-private'),
+        'repo_public_path': str(BASE_DIR / 'contents-public'),
         'extra_contents_dirname': 'extra_contents',
         # can also be 'extra_content_generation_policy': 'WATCHDOG'
         # or 'extra_content_generation_policy': 'NOTHING'
         'extra_content_generation_policy': 'SYNC',
-        'extra_content_watchdog_dir': join(BASE_DIR, 'watchdog-build'),
+        'extra_content_watchdog_dir': BASE_DIR / 'watchdog-build',
         'max_tree_depth': 3,
         'default_licence_pk': 7,
         'content_per_page': 42,
@@ -178,7 +193,7 @@ ZDS_APP = {
         'commits_per_page': 20,
         'feed_length': 5,
         'user_page_number': 5,
-        'default_image': join(BASE_DIR, 'fixtures', 'noir_black.png'),
+        'default_image': BASE_DIR / 'fixtures' / 'noir_black.png',
         'import_image_prefix': 'archive',
         'build_pdf_when_published': True,
         'maximum_slug_size': 150,

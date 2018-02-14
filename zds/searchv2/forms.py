@@ -1,4 +1,3 @@
-import os
 import random
 
 from django import forms
@@ -56,7 +55,7 @@ class SearchForm(forms.Form):
         self.helper.form_action = reverse('search:query')
 
         try:
-            with open(os.path.join(settings.BASE_DIR, 'suggestions.txt'), 'r') as suggestions_file:
+            with open(str(settings.BASE_DIR / 'suggestions.txt'), 'r') as suggestions_file:
                 suggestions = ', '.join(random.sample(suggestions_file.readlines(), 5)) + '…'
         except OSError:
             suggestions = _('Mathématiques, Droit, UDK, Langues, Python…')

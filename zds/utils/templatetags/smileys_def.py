@@ -1,8 +1,8 @@
 import os
 from django.conf import settings
 
-SMILEYS_BASE_PATH = os.path.join(settings.BASE_DIR, 'dist/smileys')
-LICENSES_BASE_PATH = os.path.join(settings.BASE_DIR, 'dist/licenses')
+SMILEYS_BASE_PATH = str(settings.BASE_DIR / 'dist/smileys')
+LICENSES_BASE_PATH = str(settings.BASE_DIR / 'dist/licenses')
 SMILEYS_BASE_URL = os.path.join(settings.STATIC_URL, 'smileys')
 
 SMILEYS_BASE = {

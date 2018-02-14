@@ -1,6 +1,6 @@
-import os.path
 import random
 from datetime import datetime
+from pathlib import Path
 
 from django.conf import settings
 from django.contrib import messages
@@ -28,8 +28,8 @@ from zds.utils.models import Alert, CommentEdit, Comment
 
 
 try:
-    with open(os.path.join(settings.BASE_DIR, 'quotes.txt'), 'r', encoding='utf-8') as quotes_file:
-            QUOTES = quotes_file.readlines()
+    with Path(settings.BASE_DIR / 'quotes.txt').open('r', encoding='utf-8') as quotes_file:
+        QUOTES = quotes_file.readlines()
 except OSError:
     QUOTES = [settings.ZDS_APP['site']['slogan']]
 

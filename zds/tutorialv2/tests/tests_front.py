@@ -22,16 +22,12 @@ from zds.tutorialv2.models.database import PublishedContent, PublishableContent
 from zds.tutorialv2.tests import TutorialTestMixin, TutorialFrontMixin
 from copy import deepcopy
 from django.conf import settings
-import os
 
 from zds.utils.factories import CategoryFactory
 
 overridden_zds_app = deepcopy(settings.ZDS_APP)
-overridden_zds_app['content']['repo_private_path'] = os.path.join(settings.BASE_DIR, 'contents-private-test')
-overridden_zds_app['content']['repo_public_path'] = os.path.join(settings.BASE_DIR, 'contents-public-test')
 
 
-@override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'media-test'))
 @override_settings(ZDS_APP=overridden_zds_app)
 @override_settings(ES_ENABLED=False)
 @tag('front')
