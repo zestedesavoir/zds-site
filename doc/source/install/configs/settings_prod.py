@@ -5,14 +5,25 @@
 
 import os
 
-from settings import ZDS_APP, INSTALLED_APPS, BASE_DIR
 from raven import Client
+from zds.utils.context_processor import get_git_version
+
+from settings import ABSOLUTE_URL_OVERRIDES, AUTHENTICATION_BACKENDS, BASE_DIR
+from settings import CORS_ALLOW_HEADERS, CORS_ALLOW_METHODS, CORS_EXPOSE_HEADERS
+from settings import CORS_ORIGIN_ALLOW_ALL, CRISPY_TEMPLATE_PACK, FILE_UPLOAD_HANDLERS
+from settings import GEOIP_PATH
+from settings import INSTALLED_APPS, LANGUAGES, LANGUAGE_CODE, LOCALE_PATHS
+from settings import LOGIN_REDIRECT_URL, LOGIN_URL, MEDIA_URL, MESSAGE_TAGS
+from settings import MIDDLEWARE_CLASSES, OAUTH2_PROVIDER, REST_FRAMEWORK
+from settings import REST_FRAMEWORK_EXTENSIONS, ROOT_URLCONF, SERVE, SITE_ID
+from settings import STATICFILES_DIRS, STATICFILES_FINDERS, STATIC_URL, SWAGGER_SETTINGS
+from settings import THUMBNAIL_ALIASES, THUMBNAIL_PRESERVE_EXTENSIONS, THUMBNAIL_QUALITY
+from settings import TIME_ZONE, USE_I18N, USE_TZ, WSGI_APPLICATION, ZDS_APP
+from settings import ES_ENABLED, ES_CONNECTIONS, ES_SEARCH_INDEX
 
 ##### Django settings #####
 
 # NEVER set this True !!
-from zds.utils.context_processor import get_git_version
-
 DEBUG = False
 
 USE_L10N = True
@@ -107,11 +118,9 @@ TEMPLATES = [
 # Sentry (+ raven, the Python Client)
 # https://docs.getsentry.com/hosted/clients/python/integrations/django/
 RAVEN_CONFIG = {
-#    'dsn': 'to-fill'
     'dsn': 'to-fill',
-    'release': get_git_version()
+    'release': get_git_version()['name'],
 }
-
 
 LOGGING = {
    'version': 1,
@@ -150,7 +159,7 @@ LOGGING = {
        'sentry': {
             'level': 'ERROR',  # For beta purpose it can be lowered to WARNING
             'class': 'raven.handlers.logging.SentryHandler',
-            'dsn': RAVEN_CONFIG['dsn'],
+            'dsn': 'to-fill'
         },
    },
    'loggers': {
@@ -241,6 +250,9 @@ RECAPTCHA_RIVATE_KEY = 'to-fill'
 # added in v20
 ZDS_APP['site']['secure_url'] = 'https://zestedesavoir.com'
 
+# added in v21
+ZDS_APP['display_search_bar'] = True
+
 # forum
 ZDS_APP['forum']['beta_forum_id'] = 23
 
@@ -263,6 +275,9 @@ ZDS_APP['content']['repo_private_path'] = '/opt/zds/data/contents-private'
 ZDS_APP['content']['repo_public_path'] = '/opt/zds/data/contents-public'
 ZDS_APP['content']['extra_content_generation_policy'] = 'WATCHDOG'
 
+# enable ping!
+ZDS_APP['comment']['enable_pings'] = False
+
 # Vote anonymisation - cf v18 : https://goo.gl/L6X4hw
 VOTES_ID_LIMIT = 131319
 
@@ -279,3 +294,5 @@ ENABLE_HTTPS_DECORATOR = True
 # visual changes
 #ZDS_APP['visual_changes'] = ['snow', 'clem-christmas']
 #ZDS_APP['visual_changes'] = ['clem-halloween']
+
+ES_SEARCH_INDEX['shards'] = 3

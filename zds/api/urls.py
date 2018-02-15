@@ -1,9 +1,12 @@
-# coding: utf-8
+from django.conf.urls import url, include
 
-from django.conf.urls import include, url
+from rest_framework_swagger.views import get_swagger_view
+
+
+schema_view = get_swagger_view()
 
 urlpatterns = [
-    url(r'^', include('rest_framework_swagger.urls', namespace='docs')),
+    url(r'^$', schema_view, name='docs'),
     url(r'^contenus/', include('zds.tutorialv2.api.urls', namespace='content')),
     url(r'^forums/', include('zds.forum.api.urls', namespace='forum')),
     url(r'^membres/', include('zds.member.api.urls', namespace='member')),

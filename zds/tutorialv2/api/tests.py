@@ -1,4 +1,5 @@
-# coding: utf-8
+import datetime
+from copy import deepcopy
 import os
 import shutil
 
@@ -6,25 +7,25 @@ from django.conf import settings
 from django.core.cache import caches
 from django.core.urlresolvers import reverse
 from django.test.utils import override_settings
+
 from rest_framework import status
 from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
 from rest_framework_extensions.settings import extensions_api_settings
 
 from zds.member.factories import ProfileFactory
-from zds.settings import BASE_DIR
 from zds.tutorialv2.factories import ContentReactionFactory, PublishedContentFactory
 from zds.utils.models import CommentVote
 
-overrided_zds_app = settings.ZDS_APP
-overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
-overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
-overrided_zds_app['content']['extra_content_generation_policy'] = 'SYNC'
-overrided_zds_app['content']['build_pdf_when_published'] = False
+overridden_zds_app = deepcopy(settings.ZDS_APP)
+overridden_zds_app['content']['repo_private_path'] = os.path.join(settings.BASE_DIR, 'contents-private-test')
+overridden_zds_app['content']['repo_public_path'] = os.path.join(settings.BASE_DIR, 'contents-public-test')
+overridden_zds_app['content']['extra_content_generation_policy'] = 'SYNC'
+overridden_zds_app['content']['build_pdf_when_published'] = False
 
 
-@override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
-@override_settings(ZDS_APP=overrided_zds_app)
+@override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'media-test'))
+@override_settings(ZDS_APP=overridden_zds_app)
 class ContentReactionKarmaAPITest(APITestCase):
     def setUp(self):
         self.client = APIClient()
@@ -34,7 +35,8 @@ class ContentReactionKarmaAPITest(APITestCase):
 
     def test_failure_reaction_karma_with_client_unauthenticated(self):
         author = ProfileFactory()
-        reaction = ContentReactionFactory(author=author.user, position=1, related_content=self.content)
+        reaction = ContentReactionFactory(author=author.user, position=1, related_content=self.content,
+                                          pubdate=datetime.datetime.now())
 
         response = self.client.put(reverse('api:content:reaction-karma', args=(reaction.pk,)))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
@@ -138,6 +140,7 @@ class ContentReactionKarmaAPITest(APITestCase):
         equal_reaction.like += 1
         equal_reaction.dislike += 1
         equal_reaction.save()
+
         CommentVote.objects.create(user=profile.user, comment=equal_reaction, positive=True)
         CommentVote.objects.create(user=profile2.user, comment=equal_reaction, positive=False)
 

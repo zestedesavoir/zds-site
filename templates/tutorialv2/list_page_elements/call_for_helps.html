@@ -1,0 +1,56 @@
+{% load i18n %}
+
+<section>
+    <h2 class="inline">{% trans "Envie de s’investir ?" %}</h2>
+
+    <div class="content-linkbox-list">
+        <div class="linkbox-item secondary">
+            <div class="head">
+                <h3>{% trans 'Donnez votre avis' %}</h3>
+            </div>
+
+            <div class="body">
+                <p>{% trans "Aidez à peaufiner le fond et la forme des contenus presque terminés." %}</p>
+            </div>
+
+            <a href="{{ beta_forum.get_absolute_url }}" class="tail">
+                <p>{% trans "Consulter les contenus en bêta" %}</p>
+            </a>
+        </div>
+
+        <div class="linkbox-item secondary">
+            <div class="head">
+                <h3>{% trans 'Partagez votre savoir' %}</h3>
+            </div>
+
+            <div class="body">
+                <p>{% trans "Vous avez un savoir à partager ? Vous vous sentez pédagogue ? Commencez donc l’écriture d’un contenu !" %}</p>
+            </div>
+
+            <a href="{% url "content:create-tutorial" %}" class="tail">
+                <p>{% trans 'Écrire un tutoriel' %}</p>
+            </a>
+
+            <a href="{% url "content:create-article" %}" class="tail">
+                <p>{% trans 'Écrire un article' %}</p>
+            </a>
+        </div>
+
+        <div class="linkbox-item secondary">
+            <div class="head">
+                <h3>{% trans 'Aidez les auteurs' %}</h3>
+            </div>
+
+            <div class="body">
+                {% blocktrans %}
+                    <p>Donnez aux auteur un coup de pouce apprécié pour la publication ! Comment ?</p>
+                    <p>Vous pouvez dessiner (icônes, illustrations…), corriger un texte ou même devenir coauteur !</p>
+                {% endblocktrans %}
+            </div>
+
+            <a href="{% url 'content:helps' %}" class="tail">
+                <p>{% trans "Parcourir les demandes d’aides" %}</p>
+            </a>
+        </div>
+    </div>
+</section>

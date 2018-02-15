@@ -52,57 +52,48 @@ Pour avoir une vue d'ensemble des modifications inclues ou à inclure dans chaqu
 
 Les *milestones* sont également utilisées par le script de génération de rapport de release, rapport contenant quelques détails sur la release en question.
 
-Toute PR se voit attribuer une *milestone*. Elle est attribuée au plus tôt par le DTC à l'ouverture de la PR si cette PR doit impérativement passer dans la prochaine release, au plus tard par la personne qui merge la PR lors de son merge. Bien qu'une PR doit généralement être atomique, il arrive - notamment dans le cas des ZEP - qu'elle ait pour effet secondaire de régler plusieurs bugs, d'introduire plusieurs fonctionnalités. Dans ces rares cas, chaque ticket fermé par effet secondaire d'une PR peut également recevoir une *milestone*.
+Toute PR se voit attribuer une *milestone*. Elle est attribuée au plus tôt par le *Maintainer* ou le *Release Manager* à l'ouverture de la PR si cette PR doit impérativement passer dans la prochaine release, au plus tard par la personne qui merge la PR lors de son merge. Bien qu'une PR doit généralement être atomique, il arrive - notamment dans le cas des ZEP - qu'elle ait pour effet secondaire de régler plusieurs bugs, d'introduire plusieurs fonctionnalités. Dans ces rares cas, chaque ticket fermé par effet secondaire d'une PR peut également recevoir une *milestone*.
 
-* Toute PR mergée dans dev doit porter la *milestone* « Version de développement »
-* Toute PR mergée ailleurs (la branche de release si c'est une correction de bêta, prod en cas de hotfix) doit porter la *milestone* « Version N »
+* Toute PR mergée dans dev doit porter la *milestone* « Version de développement »
+* Toute PR mergée ailleurs (la branche de release si c'est une correction de bêta, prod en cas de hotfix) doit porter la *milestone* « Version N »
 
-La *milestone* « Version de développement » s'appelle comme ça parce qu'elle contient les modifications apportées depuis la dernière release. Cette *milestone* étant largement la plus utilisée, son nom a l'avantage qu'on voit immédiatement si on attribue ou non la bonne *milestone*, sans avoir à réfléchir au numéro de version.
+La *milestone* « Version de développement » s'appelle comme ça parce qu'elle contient les modifications apportées depuis la dernière release. Cette *milestone* étant largement la plus utilisée, son nom a l'avantage qu'on voit immédiatement si on attribue ou non la bonne *milestone*, sans avoir à réfléchir au numéro de version.
 
-Lors de la clôture de chaque release, la *milestone* « Version de développement » est renommée « Version N » et une nouvelle *milestone* « Version de développement » est créée.
+Lors de la clôture de chaque release, la *milestone* « Version de développement » est renommée « Version N » et une nouvelle *milestone* « Version de développement » est créée.
 
 
 Stratégie de *tagging* des tickets
 ==================================
 
-Les étiquettes (ou *labels* ou *tags*) utilisées pour classifier les tickets sont classées en 4 catégories (seuls les niveaux 2 représentent les tags utilisables) :
+Les étiquettes (ou *labels* ou *tags*) utilisées pour classifier les tickets sont réparties dans des catégories :
 
--  C: Compétence
+-  Quelles sont les **Compétences** requises ?
 
-   -  C-Back
-   -  C-Front
-   -  C-API
-   -  C-Documentation
-   -  C-Infra
+   -  **C-Back**, pour le *backend*
+   -  **C-Front**, pour le *frontend*
+   -  **C-API**, pour les *API* du *backend*
+   -  **C-Docs**, pour la documentation
+   -  **C-Infra**, pour l'infrastucture des serveurs
+   -  **C-Search**, pour le moteur de recherche du *backend*
 
--  P: Priorité
+-  Quel est le **Statut** de ce ticket, cette PR ?
 
-   -  P-Bloquant
-   -  P-Haute
-   -  P-Basse
+   -  **S-BUG**, pour les bugs (par exemple, une fonctionnalité qui vient d'être introduite et qui fonctionne anormalement)
+   -  **S-Régression**, pour les retours en arrière en terme de qualité (par exemple, une fonctionnalité qui fonctionnait bien juqu'à maintenant mais qui ne fonctionne plus)
+   -  **S-Refactorisation**, pour les réorganisations et nettoyages du code
+   -  **S-Zombie**, pour les tickets à faible priorité qui ne donnent plus signe de vie mais ne sont pas résolus pour autant
 
--  S: Statut
+-  Quelle est la **Priorité** de ce ticket, cette PR ?
 
-   -  S-Evolution
-   -  S-Bug
-   -  S-Régression
-   -  S-Zombie
+   -  **Bloquant**, pour tout ce qui empêche une utilisation correcte du site (impossible de rédiger un contenu, forte atteinte aux performances...)
+   -  *D'une manière générale, chacun·e est invité·e à choisir ce sur quoi concentrer ses efforts en fonction de ses intérêts.*
 
 -  Autres
 
-   -  Facile
-   -  Feedback
+   -  **Facile**, pour les tickets avec une proposition de solution accessible aux débutant·e·s
+   -  **Feedback**, pour les tickets sur lesquels l'auteur·e souhaite recevoir un retour, discuter une approche, proposer quelque chose ou ouvrir le débat
+   -  *Pour signaler que le contenu d'une PR est succeptible de changer, il est conseillé d'éditer le titre de celle-ci pour y ajouter "[WIP]" au début (cela signifie *Work In Progress*, soit Travail En Cours en français.*
 
-Explications
-------------
-
--  Compétence : Quelle(s) partie(s) du système est/sont impactée(s) ? Permet notamment aux développeurs de choisir de se concentrer uniquement sur le front, aux admins de s'occuper de l'infra, …
--  Priorité : Un **bug** ou une **régression** est **bloquant**e si ça empêche une utilisation correcte du site (impossible de rédiger un article, forte atteinte aux performances, etc). Il s'agit d'un problème critique. Les autres tickets ou PR peuvent être de **Haute** ou **Basse** priorité, ces étiquettes étant facultatives. Par exemple, une ZEP aura rarement une priorité attribuée, par contre si elle touche à sa fin mais nécessite une petite évolution pour pouvoir être mergée, la PR de cette petite évolution pourrait à l'approche de la release se voir attribuer une haute priorité.
--  Statut : **Régression** ou **Bug** ? : Une régression est un retour en arrière en terme de qualité. Il s'agit d'un bug, mais on le différencie parce que ce bug vient d'être introduit dans une partie du code qui auparavant fonctionnait comme voulu. Un problème qui n'est pas une régression est indiqué *Bug*. Il s'agit par exemple d'un problème impactant une nouvelle fonctionnalité. Les tickets sous le tag **Zombie** sont des bugs mineurs n'ayant pas donnés signe de vie depuis longtemps. Ils sont donc non-résolus mais fermés et placés sous cette étiquette pour garder propre la pile des tickets actifs. Dans l'idéal il faudrait les rouvrir pour les résoudre un jour…
--  Le tag **Facile** : Ce tag est là uniquement pour guider les nouveaux contributeurs vers des tâches accessibles. Pour pouvoir utiliser cette étiquette, une proposition de solution doit être écrite dans le ticket.
--  Le tag **Feedback** : Ce tag indique les tickets sur lesquels l'auteur souhaite recevoir un retour, discuter une approche, proposer quelque chose, ouvrir le débat.
-
-La priorité est mise sur ce qui est Bloquant, puis Haut. Les autres tickets ou PRs n'ont pas de priorité particulière. La basse priorité vient en dernier. Chacun est invité à choisir ce sur quoi concentrer ses efforts en fonction de ces priorités ou de ses intérêts.
 
 *Workflow* de mise en production
 ================================
@@ -153,33 +144,30 @@ Rôles et Responsabilités
 ========================
 
 Le projet Zeste de Savoir est dirigé par sa communauté. Ensuite les développeurs prennent en main l'aspect technique.
-On distingue cependant trois rôles particuliers au sein de l'équipe de développement.
+On distingue cependant deux rôles particuliers au sein de l'équipe de développement.
 Voici leurs noms ainsi que leurs tâches :
 
-Le DTC (Directeur Technique)
-----------------------------
+Le Maintainer (M)
+-----------------
 
-  - Faire les déploiements
+  - Suivi des éventuels bugs et suggestions remontés sur le forum
+  - Écriture d'un *changelog* incluant les instructions de déploiement et les tests à effectuer en bêta
   - Confirmer les choix techniques
   - Trancher les choix techniques qui ne sont pas évidents
-  - Le DTC marque les tickets bloquants et le CdP donne les coups de fouet pour qu'ils soient fermés
-
-Le CdP (Chef de Projet)
------------------------
-
-  - S'assurer que les tickets vivent leur vie (tag par exemple)
+  - S'assurer que les tickets vivent leur vie (tags par exemple)
+  - Marquer les tickets comme bloquants et donner des coups de fouet pour qu'ils soient fermés
   - S'assurer que les PR s'écoulent et se débloquent
-  - Faire un suivi des développements en cours
   - Gérer les tensions entre devs/membres si nécessaire
   - Gérer la "vie de l'équipe" et sa logistique (droits github…)
 
-Le Sysadmin (administrateur système et réseau)
-----------------------------------------------
+Le Release Manager (RM)
+-----------------------
 
   - Roles
 
+    - Gestion de la branche de production du dépôt
+    - Mise en bêta puis mise en production
     - Gérer et monitorer l'infra (configuration des logiciels, logs, sécurité) [pré]prod'
-    - Assister/remplacer le DTC sur les histoires de migration prod -> préprod quand nécessaire
     - Donner un avis sur les contraintes de changement de serveur (ou prévenir sur les limites de l'actuel quand nécessaire, cf. premier point)
     - Suivre les tickets "infra" sur GH et faire les actions nécessaires
     - Gérer les personnes ayant accès au serveur [pré]prod'
@@ -190,6 +178,7 @@ Le Sysadmin (administrateur système et réseau)
     - **Confidentialité** vis-a-vis des données privées présente sur les serveurs (email, contenu de MP…)
     - Si possible, toujours tester en preprod' avant de reproduire en prod'
     - **Professionnalisme**, "si on sait pas on fait pas" pour ne pas mettre la production en péril (sauf en preprod entre les releases)
+  
 
 Chacun de ces postes est occupé par une personne différente (idéalement) qui aura été choisi parmi les développeurs et pour qui l'association Zeste de Savoir a donné son approbation (en raison du caractère confidentiel de certaines données).
 

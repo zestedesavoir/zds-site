@@ -3,7 +3,7 @@
 
 
 {% block title %}
-   {% trans "Liste des galeries" %}
+    {% trans "Liste des galeries" %}
 {% endblock %}
 
 
@@ -15,7 +15,7 @@
 
 
 {% block headline %}
-   {% trans "Liste des galeries" %}
+    {% trans "Liste des galeries" %}
 {% endblock %}
 
 
@@ -26,7 +26,7 @@
             <div class="topic navigable-elem">
                 <div class="topic-infos">
                     <input
-                        name="items"
+                        name="g_items"
                         type="checkbox"
                         {% if not user_gallery.can_write %}
                             disabled="true"
@@ -60,10 +60,14 @@
                 {% if content %}
                     <p class="topic-last-answer">
                         {% trans "Liée" %}
-                        {% if content.type == "ARTICLE" %}
-                            {% trans "à l'article" %}
-                        {% elif content.type == "TUTORIAL" %}
+                        {% if content.is_article %}
+                            {% trans "à l’article" %}
+                        {% elif content.is_tutorial %}
                             {% trans "au tutoriel" %}
+                        {% elif content.is_opinion %}
+                            {% trans "au billet" %}
+                        {% else %}
+                            {% trans "au contenu" %}
                         {% endif %}
                         «&NonBreakingSpace;<a href="{{ content.get_absolute_url }}">{{ content.title }}</a>&NonBreakingSpace;».
                     </p>
@@ -74,7 +78,7 @@
 
     {% if galleries|length == 0 %}
         <p>
-            {% trans "Vous n'avez pas encore de galerie" %}. <br>
+            {% trans "Vous n’avez pas encore de galerie" %}. <br>
             <a href="{% url "gallery-new" %}">{% trans "Créer une galerie" %}</a>.
         </p>
     {% endif %}
@@ -96,7 +100,7 @@
 
                     <form action="{% url "gallery-modify" %}" method="post" id="delete-galleries" class="modal modal-flex">
                         <p>
-                            {% trans "Attention, vous vous appretez à supprimer toutes les galeries sélectionnées" %}.
+                            {% trans "Attention, vous vous apprêtez à supprimer toutes les galeries sélectionnées" %}.
                         </p>
 
                         {% csrf_token %}

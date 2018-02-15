@@ -13,6 +13,9 @@ User-agent: *
 Disallow: /articles/html/
 Disallow: /articles/md/
 Disallow: /articles/zip/
+Disallow: /billets/html/
+Disallow: /billets/md/
+Disallow: /billets/zip/
 Disallow: /contenus/
 Disallow: /mp/
 Disallow: /oldarticles/

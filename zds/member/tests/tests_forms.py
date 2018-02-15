@@ -1,16 +1,17 @@
-# coding: utf-8
 from django.test import TestCase
 
 from zds.member.factories import ProfileFactory, NonAsciiProfileFactory
 from zds.member.forms import LoginForm, RegisterForm, MiniProfileForm, ProfileForm, ChangeUserForm, ChangePasswordForm,\
     NewPasswordForm, KarmaForm, UsernameAndEmailForm
+from zds.member.models import BannedEmailProvider
+from zds.member.factories import StaffProfileFactory
 
 stringof77chars = 'abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789-----'
-stringof251chars = u'abcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxy' \
-                   u'abcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxy' \
-                   u'abcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxy' \
-                   u'abcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxy' \
-                   u'abcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxy0'
+stringof251chars = 'abcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxy' \
+                   'abcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxy' \
+                   'abcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxy' \
+                   'abcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxy' \
+                   'abcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxy0'
 stringof501chars = ['1' for n in range(501)]
 stringof2001chars = 'http://url.com/'
 for i in range(198):
@@ -109,7 +110,10 @@ class RegisterFormTest(TestCase):
         form = RegisterForm(data=data)
         self.assertFalse(form.is_valid())
 
-    def test_forbiden_email_provider_register_form(self):
+    def test_forbidden_email_provider_register_form(self):
+        moderator = StaffProfileFactory().user
+        if not BannedEmailProvider.objects.filter(provider='yopmail.com').exists():
+            BannedEmailProvider.objects.create(provider='yopmail.com', moderator=moderator)
         data = {
             'email': 'test@yopmail.com',
             'username': 'ZeTester',
@@ -182,6 +186,7 @@ class RegisterFormTest(TestCase):
         self.assertFalse(form.is_valid())
 
     def test_username_spaces_register_form(self):
+        # since Django 1.9, models.CharField is striped by default
         ProfileFactory()
         data = {
             'email': 'test@gmail.com',
@@ -190,7 +195,7 @@ class RegisterFormTest(TestCase):
             'password_confirm': 'ZePassword'
         }
         form = RegisterForm(data=data)
-        self.assertFalse(form.is_valid())
+        self.assertTrue(form.is_valid())
 
     def test_username_coma_register_form(self):
         ProfileFactory()
@@ -308,6 +313,9 @@ class ChangeUserFormTest(TestCase):
         self.assertFalse(form.is_valid())
 
     def test_forbidden_email_provider_user_form(self):
+        moderator = StaffProfileFactory().user
+        if not BannedEmailProvider.objects.filter(provider='yopmail.com').exists():
+            BannedEmailProvider.objects.create(provider='yopmail.com', moderator=moderator)
         data = {
             'username': self.user1.user.username,
             'email': 'test@yopmail.com'
@@ -352,13 +360,14 @@ class ChangeUserFormTest(TestCase):
         self.assertFalse(form.is_valid())
 
     def test_username_spaces_register_form(self):
+        # since Django 1.9, models.CharField is striped by default
         ProfileFactory()
         data = {
             'username': '  ZeTester  ',
             'email': self.user1.user.email,
         }
         form = ChangeUserForm(data=data, user=self.user1.user)
-        self.assertFalse(form.is_valid())
+        self.assertTrue(form.is_valid())
 
     def test_username_coma_register_form(self):
         ProfileFactory()

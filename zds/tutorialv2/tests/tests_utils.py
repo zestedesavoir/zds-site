@@ -1,5 +1,3 @@
-# coding: utf-8
-
 import os
 import shutil
 import tempfile
@@ -8,53 +6,47 @@ import datetime
 from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings
-from zds.settings import BASE_DIR
 from django.core.urlresolvers import reverse
 
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, LicenceFactory, ExtractFactory, \
-    PublishedContentFactory
+    PublishedContentFactory, ContentReactionFactory
 from zds.gallery.factories import UserGalleryFactory
-from zds.tutorialv2.models.models_versioned import Container
+from zds.tutorialv2.models.versioned import Container
 from zds.tutorialv2.utils import get_target_tagged_tree_for_container, \
     get_target_tagged_tree_for_extract, retrieve_and_update_images_links, last_participation_is_old, \
     InvalidSlugError, BadManifestError, get_content_from_json, get_commit_author, slugify_raise_on_invalid, check_slug
 from zds.tutorialv2.publication_utils import publish_content, unpublish_content
-from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction, ContentRead
+from zds.tutorialv2.models.database import PublishableContent, PublishedContent, ContentReaction, ContentRead
 from django.core.management import call_command
-from zds.tutorialv2.publication_utils import Publicator, PublicatorRegistery
+from zds.tutorialv2.publication_utils import Publicator, PublicatorRegistry
 from watchdog.events import FileCreatedEvent
 from zds.tutorialv2.management.commands.publication_watchdog import TutorialIsPublished
+from zds.tutorialv2.tests import TutorialTestMixin
 from mock import Mock
-try:
-    import ujson as json_reader
-except ImportError:
-    try:
-        import simplejson as json_reader
-    except:
-        import json as json_reader
+from copy import deepcopy
+from zds import json_handler
+from zds.utils.models import Alert
+from zds.utils.templatetags.interventions import alerts_list
 
-overrided_zds_app = settings.ZDS_APP
-overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
-overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
-overrided_zds_app['tutorial']['repo_path'] = os.path.join(BASE_DIR, 'tutoriels-private-test')
-overrided_zds_app['tutorial']['repo_public_path'] = os.path.join(BASE_DIR, 'tutoriels-public-test')
-overrided_zds_app['article']['repo_path'] = os.path.join(BASE_DIR, 'article-data-test')
+BASE_DIR = settings.BASE_DIR
+
+overridden_zds_app = deepcopy(settings.ZDS_APP)
+overridden_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
+overridden_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
+overridden_zds_app['content']['build_pdf_when_published'] = False
 
 
 @override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
-@override_settings(ZDS_APP=overrided_zds_app)
+@override_settings(ZDS_APP=overridden_zds_app)
 @override_settings(ES_ENABLED=False)
-class UtilsTests(TestCase):
+@override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
+class UtilsTests(TestCase, TutorialTestMixin):
 
     def setUp(self):
-
-        # don't build PDF to speed up the tests
-        settings.ZDS_APP['content']['build_pdf_when_published'] = False
-
-        settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+        self.overridden_zds_app = overridden_zds_app
         self.mas = ProfileFactory().user
-        settings.ZDS_APP['member']['bot_account'] = self.mas.username
+        overridden_zds_app['member']['bot_account'] = self.mas.username
 
         self.licence = LicenceFactory()
 
@@ -70,7 +62,7 @@ class UtilsTests(TestCase):
         self.tuto_draft = self.tuto.load_version()
         self.part1 = ContainerFactory(parent=self.tuto_draft, db_object=self.tuto)
         self.chapter1 = ContainerFactory(parent=self.part1, db_object=self.tuto)
-        self.old_registry = {key: value for key, value in PublicatorRegistery.get_all_registered()}
+        self.old_registry = {key: value for key, value in PublicatorRegistry.get_all_registered()}
 
     def test_get_target_tagged_tree_for_container(self):
         part2 = ContainerFactory(parent=self.tuto_draft, db_object=self.tuto, title='part2')
@@ -131,7 +123,7 @@ class UtilsTests(TestCase):
 
         public = article.load_version(sha=published.sha_public, public=published)
         self.assertIsNotNone(public)
-        self.assertTrue(public.PUBLIC)  # its a PublicContent object !
+        self.assertTrue(public.PUBLIC)  # it's a PublicContent object
         self.assertEqual(public.type, published.content_type)
         self.assertEqual(public.current_version, published.sha_public)
 
@@ -186,7 +178,7 @@ class UtilsTests(TestCase):
 
         public = midsize_tuto.load_version(sha=published.sha_public, public=published)
         self.assertIsNotNone(public)
-        self.assertTrue(public.PUBLIC)  # its a PublicContent object
+        self.assertTrue(public.PUBLIC)  # it's a PublicContent object
         self.assertEqual(public.type, published.content_type)
         self.assertEqual(public.current_version, published.sha_public)
 
@@ -232,7 +224,7 @@ class UtilsTests(TestCase):
 
         public = bigtuto.load_version(sha=published.sha_public, public=published)
         self.assertIsNotNone(public)
-        self.assertTrue(public.PUBLIC)  # its a PublicContent object
+        self.assertTrue(public.PUBLIC)  # it's a PublicContent object
         self.assertEqual(public.type, published.content_type)
         self.assertEqual(public.current_version, published.sha_public)
 
@@ -282,13 +274,13 @@ class UtilsTests(TestCase):
         args = [os.path.join(BASE_DIR, 'fixtures', 'tuto', 'balise_audio', 'manifest2.json')]
         call_command('upgrade_manifest_to_v2', *args, **opts)
         manifest = open(os.path.join(BASE_DIR, 'fixtures', 'tuto', 'balise_audio', 'manifest2.json'), 'r')
-        json = json_reader.loads(manifest.read())
+        json = json_handler.loads(manifest.read())
 
-        self.assertTrue(u'version' in json)
-        self.assertTrue(u'licence' in json)
-        self.assertTrue(u'children' in json)
-        self.assertEqual(len(json[u'children']), 3)
-        self.assertEqual(json[u'children'][0][u'object'], u'extract')
+        self.assertTrue('version' in json)
+        self.assertTrue('licence' in json)
+        self.assertTrue('children' in json)
+        self.assertEqual(len(json['children']), 3)
+        self.assertEqual(json['children'][0]['object'], 'extract')
         os.unlink(args[0])
         args = [os.path.join(BASE_DIR, 'fixtures', 'tuto', 'big_tuto_v1', 'manifest2.json')]
         shutil.copy(
@@ -297,15 +289,15 @@ class UtilsTests(TestCase):
         )
         call_command('upgrade_manifest_to_v2', *args, **opts)
         manifest = open(os.path.join(BASE_DIR, 'fixtures', 'tuto', 'big_tuto_v1', 'manifest2.json'), 'r')
-        json = json_reader.loads(manifest.read())
+        json = json_handler.loads(manifest.read())
         os.unlink(args[0])
-        self.assertTrue(u'version' in json)
-        self.assertTrue(u'licence' in json)
-        self.assertTrue(u'children' in json)
-        self.assertEqual(len(json[u'children']), 5)
-        self.assertEqual(json[u'children'][0][u'object'], u'container')
-        self.assertEqual(len(json[u'children'][0][u'children']), 3)
-        self.assertEqual(len(json[u'children'][0][u'children'][0][u'children']), 3)
+        self.assertTrue('version' in json)
+        self.assertTrue('licence' in json)
+        self.assertTrue('children' in json)
+        self.assertEqual(len(json['children']), 5)
+        self.assertEqual(json['children'][0]['object'], 'container')
+        self.assertEqual(len(json['children'][0]['children']), 3)
+        self.assertEqual(len(json['children'][0]['children'][0]['children']), 3)
         args = [os.path.join(BASE_DIR, 'fixtures', 'tuto', 'article_v1', 'manifest2.json')]
         shutil.copy(
             os.path.join(BASE_DIR, 'fixtures', 'tuto', 'article_v1', 'manifest.json'),
@@ -313,12 +305,12 @@ class UtilsTests(TestCase):
         )
         call_command('upgrade_manifest_to_v2', *args, **opts)
         manifest = open(os.path.join(BASE_DIR, 'fixtures', 'tuto', 'article_v1', 'manifest2.json'), 'r')
-        json = json_reader.loads(manifest.read())
+        json = json_handler.loads(manifest.read())
 
-        self.assertTrue(u'version' in json)
-        self.assertTrue(u'licence' in json)
-        self.assertTrue(u'children' in json)
-        self.assertEqual(len(json[u'children']), 1)
+        self.assertTrue('version' in json)
+        self.assertTrue('licence' in json)
+        self.assertTrue('children' in json)
+        self.assertEqual(len(json['children']), 1)
         os.unlink(args[0])
 
     def test_retrieve_images(self):
@@ -381,7 +373,7 @@ class UtilsTests(TestCase):
     def test_generate_pdf(self):
         """ensure the behavior of the `python manage.py generate_pdf` commmand"""
 
-        settings.ZDS_APP['content']['build_pdf_when_published'] = True  # this test need PDF build, if any
+        overridden_zds_app['content']['build_pdf_when_published'] = True  # this test need PDF build, if any
 
         tuto = PublishedContentFactory(type='TUTORIAL')  # generate and publish a tutorial
         published = PublishedContent.objects.get(content_pk=tuto.pk)
@@ -447,10 +439,10 @@ class UtilsTests(TestCase):
     def testParseBadManifest(self):
         base_content = PublishableContentFactory(author_list=[self.user_author])
         versioned = base_content.load_version()
-        versioned.add_container(Container(u'un peu plus près de 42'))
+        versioned.add_container(Container('un peu plus près de 42'))
         versioned.dump_json()
         manifest = os.path.join(versioned.get_path(), 'manifest.json')
-        dictionary = json_reader.load(open(manifest))
+        dictionary = json_handler.load(open(manifest))
 
         old_title = dictionary['title']
 
@@ -497,7 +489,7 @@ class UtilsTests(TestCase):
             True)
 
         # go to whatever page, if not, `get_current_user()` does not work at all
-        result = self.client.get(reverse('zds.pages.views.index'))
+        result = self.client.get(reverse('pages-index'))
         self.assertEqual(result.status_code, 200)
 
         actor = get_commit_author()
@@ -506,11 +498,8 @@ class UtilsTests(TestCase):
         self.assertEqual(actor['committer'].email, self.user_author.email)
         self.assertEqual(actor['author'].email, self.user_author.email)
 
-        # 2. Without connected user
-        self.client.logout()
-
-        # as above ...
-        result = self.client.get(reverse('zds.pages.views.index'))
+    def test_get_commit_author_not_auth(self):
+        result = self.client.get(reverse('pages-index'))
         self.assertEqual(result.status_code, 200)
 
         actor = get_commit_author()
@@ -521,52 +510,52 @@ class UtilsTests(TestCase):
         """ensure that an exception is raised when it should"""
 
         # exception are raised when title are invalid
-        invalid_titles = [u'-', u'_', u'__', u'-_-', u'$', u'@', u'&', u'{}', u'    ', u'...']
+        invalid_titles = ['-', '_', '__', '-_-', '$', '@', '&', '{}', '    ', '...']
 
         for t in invalid_titles:
             self.assertRaises(InvalidSlugError, slugify_raise_on_invalid, t)
 
         # Those slugs are recognized as wrong slug
         invalid_slugs = [
-            u'',  # empty
-            u'----',  # empty
-            u'___',  # empty
-            u'-_-',  # empty (!)
-            u'&;',  # invalid characters
-            u'!{',  # invalid characters
-            u'@',  # invalid character
-            u'a '  # space !
+            '',  # empty
+            '----',  # empty
+            '___',  # empty
+            '-_-',  # empty (!)
+            '&;',  # invalid characters
+            '!{',  # invalid characters
+            '@',  # invalid character
+            'a '  # space !
         ]
 
         for s in invalid_slugs:
             self.assertFalse(check_slug(s))
 
         # too long slugs are forbidden :
-        too_damn_long_slug = 'a' * (settings.ZDS_APP['content']['maximum_slug_size'] + 1)
+        too_damn_long_slug = 'a' * (overridden_zds_app['content']['maximum_slug_size'] + 1)
         self.assertFalse(check_slug(too_damn_long_slug))
 
     def test_watchdog(self):
 
-        PublicatorRegistery.unregister('pdf')
-        PublicatorRegistery.unregister('epub')
-        PublicatorRegistery.unregister('html')
+        PublicatorRegistry.unregister('pdf')
+        PublicatorRegistry.unregister('epub')
+        PublicatorRegistry.unregister('html')
 
         with open('path', 'w') as f:
             f.write('my_content;/path/to/markdown.md')
 
-        @PublicatorRegistery.register('test', '', '')
+        @PublicatorRegistry.register('test', '', '')
         class TestPublicator(Publicator):
             def __init__(self, *__):
                 pass
 
-        PublicatorRegistery.get('test').publish = Mock()
+        PublicatorRegistry.get('test').publish = Mock()
         event = FileCreatedEvent('path')
         handler = TutorialIsPublished()
         handler.prepare_generation = Mock()
         handler.finish_generation = Mock()
         handler.on_created(event)
 
-        self.assertTrue(PublicatorRegistery.get('test').publish.called)
+        self.assertTrue(PublicatorRegistry.get('test').publish.called)
         handler.finish_generation.assert_called_with('/path/to', 'path')
         handler.prepare_generation.assert_called_with('/path/to')
         os.remove('path')
@@ -584,15 +573,29 @@ class UtilsTests(TestCase):
         published = PublishedContent.objects.get(pk=published.pk)
         self.assertEqual(published.char_count, published.get_char_count())
 
+    def test_image_with_non_ascii_chars(self):
+        """seen on #4144"""
+        article = PublishableContentFactory(type='article', author_list=[self.user_author])
+        image_string = '![Portrait de Richard Stallman en 2014. [Source](https://commons.wikimedia.org/wiki/' \
+                       'File:Richard_Stallman_-_Fête_de_l%27Humanité_2014_-_010.jpg).]' \
+                       '(/media/galleries/4410/c1016bf1-a1de-48a1-9ef1-144308e8725d.jpg)'
+        article.sha_draft = article.load_version().repo_update(article.title, image_string, '', update_slug=False)
+        article.save(force_slug_update=False)
+        publish_content(article, article.load_version())
+        self.assertTrue(PublishedContent.objects.filter(content_id=article.pk).exists())
+
+    def test_no_alert_on_unpublish(self):
+        """related to #4860"""
+        published = PublishedContentFactory(type='OPINION', author_list=[self.user_author])
+        reaction = ContentReactionFactory(related_content=published, author=ProfileFactory().user, position=1,
+                                          pubdate=datetime.datetime.now())
+        Alert.objects.create(scope='CONTENT', comment=reaction, text='a text', author=ProfileFactory().user,
+                             pubdate=datetime.datetime.now(), content=published)
+        staff = StaffProfileFactory().user
+        self.assertEqual(1, alerts_list(staff)['nb_alerts'])
+        unpublish_content(published, staff)
+        self.assertEqual(0, alerts_list(staff)['nb_alerts'])
+
     def tearDown(self):
-        if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
-            shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
-        if os.path.isdir(settings.ZDS_APP['content']['repo_public_path']):
-            shutil.rmtree(settings.ZDS_APP['content']['repo_public_path'])
-        if os.path.isdir(settings.MEDIA_ROOT):
-            shutil.rmtree(settings.MEDIA_ROOT)
-        if os.path.isdir(settings.ZDS_APP['content']['extra_content_watchdog_dir']):
-            shutil.rmtree(settings.ZDS_APP['content']['extra_content_watchdog_dir'])
-        # re-active PDF build
-        settings.ZDS_APP['content']['build_pdf_when_published'] = True
-        PublicatorRegistery.registry = self.old_registry
+        super().tearDown()
+        PublicatorRegistry.registry = self.old_registry

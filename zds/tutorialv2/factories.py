@@ -1,44 +1,41 @@
-# coding: utf-8
-
 from datetime import datetime
 
 import factory
 from zds.forum.factories import PostFactory, TopicFactory
 
-from zds.tutorialv2.models.models_database import PublishableContent, Validation, ContentReaction
-from zds.tutorialv2.models.models_versioned import Container, Extract
-from zds.utils.models import SubCategory, Licence
+from zds.tutorialv2.models.database import PublishableContent, Validation, ContentReaction
+from zds.tutorialv2.models.versioned import Container, Extract
+from zds.utils.models import SubCategory, Licence, CategorySubCategory
 from zds.gallery.factories import GalleryFactory, UserGalleryFactory
 from zds.tutorialv2.utils import init_new_repo
 from zds.tutorialv2.publication_utils import publish_content
 
-text_content = u'Ceci est un texte bidon, **avec markown**'
+text_content = 'Ceci est un texte bidon, **avec markown**'
 
 tricky_text_content = \
-    u"Ceci est un texte contenant plein d'images, pour la publication. Le modifier affectera le test !\n\n" \
-    u'# Les images\n\n' \
-    u'Image: ![PNG qui existe](http://upload.wikimedia.org/wikipedia/en/9/9d/Commons-logo-31px.png)\n\n' \
-    u'Image: ![PNG qui existe pas](example.com/test.png)\n\n' \
-    u'Image: ![SVG qui existe](http://upload.wikimedia.org/wikipedia/commons/f/f9/10DF.svg)\n\n' \
-    u'Image: ![SVG qui existe pas](example.com/test.svg)\n\n' \
-    u'Image: ![GIF qui existe](http://upload.wikimedia.org/wikipedia/commons/2/27/AnimatedStar.gif)\n\n' \
-    u'Image: ![GIF qui existe pas](example.com/test.gif)\n\n' \
-    u'Image: ![Image locale qui existe](fixtures/image_test.jpg)\n\n' \
-    u'Image: ![Image locale qui existe pas](does-not-exist/test.png)\n\n' \
-    u'Image: ![Bonus: image bizarre](https://s.qwant.com/thumbr/?u=http%3A%2F%2Fwww.blogoergosum.com%2Fwp-content%2F' \
-    u'uploads%2F2010%2F02%2Fwikipedia-logo.jpg&h=338&w=600)\n\n' \
-    u'Image: ![Bonus: le serveur existe pas !](http://unknown.image.zds/test.png)\n\n' \
-    u'Image: ![Bonus: juste du texte](URL invalide)\n\n' \
-    u'# Et donc ...\n\n'\
-    u'Voilà :)'
+    "Ceci est un texte contenant plein d'images, pour la publication. Le modifier affectera le test !\n\n" \
+    '# Les images\n\n' \
+    'Image: ![PNG qui existe](http://upload.wikimedia.org/wikipedia/en/9/9d/Commons-logo-31px.png)\n\n' \
+    'Image: ![PNG qui existe pas](example.com/test.png)\n\n' \
+    'Image: ![SVG qui existe](http://upload.wikimedia.org/wikipedia/commons/f/f9/10DF.svg)\n\n' \
+    'Image: ![SVG qui existe pas](example.com/test.svg)\n\n' \
+    'Image: ![GIF qui existe](http://upload.wikimedia.org/wikipedia/commons/2/27/AnimatedStar.gif)\n\n' \
+    'Image: ![GIF qui existe pas](example.com/test.gif)\n\n' \
+    'Image: ![Image locale qui existe pas](does-not-exist/test.png)\n\n' \
+    'Image: ![Bonus: image bizarre](https://s.qwant.com/thumbr/?u=http%3A%2F%2Fwww.blogoergosum.com%2Fwp-content%2F' \
+    'uploads%2F2010%2F02%2Fwikipedia-logo.jpg&h=338&w=600)\n\n' \
+    'Image: ![Bonus: le serveur existe pas !](http://unknown.image.zds/test.png)\n\n' \
+    'Image: ![Bonus: juste du texte](URL invalide)\n\n' \
+    '# Et donc ...\n\n'\
+    'Voilà :)'
 
 
 class PublishableContentFactory(factory.DjangoModelFactory):
     class Meta:
         model = PublishableContent
 
-    title = factory.Sequence(lambda n: 'Mon contenu No{0}'.format(n))
-    description = factory.Sequence(lambda n: 'Description du contenu No{0}'.format(n))
+    title = factory.Sequence('Mon contenu No{0}'.format)
+    description = factory.Sequence('Description du contenu No{0}'.format)
     type = 'TUTORIAL'
     creation_date = datetime.now()
     pubdate = datetime.now()
@@ -61,6 +58,8 @@ class PublishableContentFactory(factory.DjangoModelFactory):
 
         for auth in auths:
             publishable_content.authors.add(auth)
+
+        publishable_content.save()
 
         for author in publishable_content.authors.all():
             UserGalleryFactory(user=author, gallery=publishable_content.gallery, mode='W')
@@ -137,10 +136,8 @@ class ContentReactionFactory(factory.DjangoModelFactory):
         note = super(ContentReactionFactory, cls)._prepare(create, **kwargs)
         note.pubdate = datetime.now()
         note.save()
-        content = kwargs.pop('tutorial', None)
-        if content:
-            content.last_note = note
-            content.save()
+        note.related_content.last_note = note
+        note.related_content.save()
         return note
 
 
@@ -174,6 +171,7 @@ class PublishedContentFactory(PublishableContentFactory):
         published = publish_content(content, content.load_version(), is_major_update)
         content.sha_public = content.sha_draft
         content.public_version = published
+
         content.save()
 
         return content
@@ -186,6 +184,19 @@ class SubCategoryFactory(factory.DjangoModelFactory):
     title = factory.Sequence(lambda n: 'Sous-Categorie {0} pour Tuto'.format(n))
     subtitle = factory.Sequence(lambda n: 'Sous titre de Sous-Categorie {0} pour Tuto'.format(n))
     slug = factory.Sequence(lambda n: 'sous-categorie-{0}'.format(n))
+
+    @classmethod
+    def _prepare(cls, create, **kwargs):
+
+        category = kwargs.pop('category', None)
+
+        subcategory = super(SubCategoryFactory, cls)._prepare(create, **kwargs)
+
+        if category is not None:
+            relation = CategorySubCategory(category=category, subcategory=subcategory)
+            relation.save()
+
+        return subcategory
 
 
 class ValidationFactory(factory.DjangoModelFactory):

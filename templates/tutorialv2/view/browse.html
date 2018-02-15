@@ -1,0 +1,8 @@
+{% extends 'tutorialv2/view/base_categories.html' %}
+{% load i18n %}
+
+{% block content_category %}
+    <section>
+        {% include 'tutorialv2/list_page_elements/list_of_online_contents.html' with public_contents=filtered_contents col_number=2 paginated_top=True paginated_bottom=True %}
+    </section>
+{% endblock %}

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from django import template
 from django.utils.translation import ugettext_lazy as _
 
@@ -12,10 +10,10 @@ articles = {
 }
 
 words = {
-    u'commentaire': False,
-    u'partie': True,
-    u'chapitre': False,
-    u'section': True
+    'commentaire': False,
+    'partie': True,
+    'chapitre': False,
+    'section': True
 }
 
 

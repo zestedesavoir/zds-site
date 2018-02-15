@@ -1,36 +1,46 @@
-# coding: utf-8
-
-from django.contrib.syndication.views import Feed
 from django.conf import settings
-
+from django.contrib.syndication.views import Feed
+from django.shortcuts import get_object_or_404
 from django.utils.feedgenerator import Atom1Feed
+from django.utils.translation import ugettext_lazy as _
 
-from zds.tutorialv2.models.models_database import PublishedContent
-from zds.settings import ZDS_APP
+from zds.utils.models import Category, SubCategory
+from zds.tutorialv2.models.database import PublishedContent
 
 
 class LastContentFeedRSS(Feed):
     """
     RSS feed for any type of content.
     """
-    title = u'Contenus sur {}'.format(settings.ZDS_APP['site']['litteral_name'])
-    description = u'Les derniers contenus parus sur {}.'.format(settings.ZDS_APP['site']['litteral_name'])
+    title = _('Contenus sur {}').format(settings.ZDS_APP['site']['literal_name'])
+    description = _('Les derniers contenus parus sur {}.').format(settings.ZDS_APP['site']['literal_name'])
     link = ''
     content_type = None
+    query_params = {}
+
+    def get_object(self, request, *args, **kwargs):
+        self.query_params = request.GET
+        return super(LastContentFeedRSS, self).get_object(request, *args, **kwargs)
 
     def items(self):
         """
         :return: The last (typically 5) contents (sorted by publication date).
-        If `self.type` is not `None`, the contents will only be of this type.
         """
-        contents = PublishedContent.objects\
-            .prefetch_related('content')\
-            .prefetch_related('content__authors')
+        subcategories = None
+        if 'category' in self.query_params:
+            category = get_object_or_404(Category, slug=self.query_params.get('category'))
+            subcategories = category.get_subcategories()
+        if 'subcategory' in self.query_params:
+            subcategories = [get_object_or_404(SubCategory, slug=self.query_params.get('subcategory'))]
 
-        if self.content_type is not None:
-            contents = contents.filter(content_type=self.content_type)
+        feed_length = settings.ZDS_APP['content']['feed_length']
 
-        return contents.order_by('-publication_date')[:ZDS_APP['content']['feed_length']]
+        contents = PublishedContent.objects.last_contents(
+            content_type=[self.content_type],
+            subcategories=subcategories
+        )[:feed_length]
+
+        return contents
 
     def item_title(self, item):
         return item.content.title
@@ -64,8 +74,8 @@ class LastTutorialsFeedRSS(LastContentFeedRSS):
     """
     content_type = 'TUTORIAL'
     link = '/tutoriels/'
-    title = u'Tutoriels sur {}'.format(settings.ZDS_APP['site']['litteral_name'])
-    description = u'Les derniers tutoriels parus sur {}.'.format(settings.ZDS_APP['site']['litteral_name'])
+    title = _('Tutoriels sur {}').format(settings.ZDS_APP['site']['literal_name'])
+    description = _('Les derniers tutoriels parus sur {}.').format(settings.ZDS_APP['site']['literal_name'])
 
 
 class LastTutorialsFeedATOM(LastTutorialsFeedRSS):
@@ -79,10 +89,26 @@ class LastArticlesFeedRSS(LastContentFeedRSS):
     """
     content_type = 'ARTICLE'
     link = '/articles/'
-    title = u'Articles sur {}'.format(settings.ZDS_APP['site']['litteral_name'])
-    description = u'Les derniers articles parus sur {}.'.format(settings.ZDS_APP['site']['litteral_name'])
+    title = _('Articles sur {}').format(settings.ZDS_APP['site']['literal_name'])
+    description = _('Les derniers articles parus sur {}.').format(settings.ZDS_APP['site']['literal_name'])
 
 
 class LastArticlesFeedATOM(LastArticlesFeedRSS):
     feed_type = Atom1Feed
     subtitle = LastArticlesFeedRSS.description
+
+
+class LastOpinionsFeedRSS(LastContentFeedRSS):
+    """
+    Redefinition of `LastContentFeedRSS` for opinions only
+    """
+    content_type = 'OPINION'
+    link = '/tribunes/'
+    title = _('Tribunes sur {}').format(settings.ZDS_APP['site']['literal_name'])
+    description = _('Les derniers billets des tribunes parus sur {}.').format(
+        settings.ZDS_APP['site']['literal_name'])
+
+
+class LastOpinionsFeedATOM(LastOpinionsFeedRSS):
+    feed_type = Atom1Feed
+    subtitle = LastOpinionsFeedRSS.description

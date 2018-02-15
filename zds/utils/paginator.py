@@ -1,11 +1,8 @@
-# coding: utf-8
-
+from django.conf import settings
 from django.views.generic import ListView
 from django.views.generic.list import MultipleObjectMixin
 from django.core.paginator import Paginator, EmptyPage
 from django.http import Http404
-
-from zds.settings import ZDS_APP
 
 
 class ZdSPagingListView(ListView):
@@ -52,10 +49,10 @@ class ZdSPagingListView(ListView):
         # If necessary, add the last item in the previous page.
         if self.page.number != 1:
             last_page = self.paginator.page(self.page.number - 1).object_list
-            last_item = (last_page)[len(last_page) - 1]
+            last_item = last_page[len(last_page) - 1]
             items_list.append(last_item)
         # Adds all items of the list paginated.
-        for item in original_list:
+        for item in original_list:  # TODO: refacto
             items_list.append(item)
         return items_list
 
@@ -64,8 +61,8 @@ def paginator_range(current, stop, start=1):
     assert current <= stop
 
     # Basic case when no folding
-    if stop - start <= ZDS_APP['paginator']['folding_limit']:
-        return range(start, stop + 1)
+    if stop - start <= settings.ZDS_APP['paginator']['folding_limit']:
+        return list(range(start, stop + 1))
 
     # Complex case when folding
     lst = []

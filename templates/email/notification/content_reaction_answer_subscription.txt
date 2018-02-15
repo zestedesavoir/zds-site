@@ -3,10 +3,10 @@
 
 {% block content_from_staff %}
 {% blocktrans %}
-{{ author }} a réagi au contenu « {{ title }} » que vous suivez sur {{ site_name }}.
+{{ author }} a réagi au contenu « {{ title }} » que vous suivez sur {{ site_name }}.
 {% endblocktrans %}
 
 {% blocktrans %}
-Pour le lire, cliquez ou recopiez l'url suivante : {{ url }}
+Pour le lire, cliquez ou recopiez l’url suivante : {{ url }}
 {% endblocktrans %}
 {% endblock %}

@@ -24,10 +24,10 @@
 
 
 {% block content %}
-    {% set app.site.litteral_name as site_name %}
+    {% set app.site.literal_name as site_name %}
     <p>
         {% blocktrans with repository=app.site.repository.url %}
-            Si vous vous intéressez à tout cela, vous devriez songer à <a href="{{ repository }}">contribuer au développement du site</a> !
+            Si vous vous intéressez à tout cela, vous devriez songer à <a href="{{ repository }}">contribuer au développement du site</a> !
         {% endblocktrans %}
     </p>
 
@@ -60,13 +60,13 @@
         <div class="content-col-3">
             <h3>{% trans "Système / Back-end" %}</h3>
             <p>
-                {% trans "Le back-end est propulsé par les outils suivants :" %}
+                {% trans "Le back-end est propulsé par les outils suivants :" %}
             </p>
 
             <h4>{% trans "Site" %}</h4>
             <ul>
-                <li><a href="http://www.python.org/">Python 2.7</a></li>
-                <li><a href="https://www.djangoproject.com/">Django 1.8</a></li>
+                <li><a href="http://www.python.org/">Python 3</a></li>
+                <li><a href="https://www.djangoproject.com/">Django 1.10</a></li>
             </ul>
 
             <h4>HTTP(S) + WSGI</h4>
@@ -92,7 +92,7 @@
         <div class="content-col-3">
             <h3>{% trans "Front-end" %}</h3>
             <p>
-                {% trans "Le front-end utilise les outils suivants :" %}
+                {% trans "Le front-end utilise les outils suivants :" %}
             </p>
 
             <h4>{% trans "Feuilles de style" %}</h4>
@@ -103,7 +103,6 @@
 
             <h4>Javascript</h4>
             <ul>
-                <li><a href="http://modernizr.com/">Modernizr</a></li>
                 <li><a href="http://jquery.com/">jQuery 2.x</a></li>
             </ul>
         </div>

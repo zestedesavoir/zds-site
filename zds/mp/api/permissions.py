@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from rest_framework import permissions
 from rest_framework.generics import get_object_or_404
 from zds.mp.models import PrivateTopic

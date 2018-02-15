@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from django.db import models
 from django.db.models import Q
 
@@ -24,6 +22,7 @@ class PrivateTopicManager(models.Manager):
 class PrivatePostManager(models.Manager):
     def get_message_of_a_private_topic(self, private_topic_id):
         return super(PrivatePostManager, self).get_queryset() \
+            .select_related('hat')\
             .filter(privatetopic__pk=private_topic_id) \
             .order_by('position_in_topic') \
             .all()

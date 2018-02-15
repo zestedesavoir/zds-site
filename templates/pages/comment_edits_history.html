@@ -1,0 +1,69 @@
+{% extends "pages/base.html" %}
+{% load date %}
+{% load i18n %}
+
+
+
+{% block title %}
+    {% trans "Historique des éditions du message" %}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>
+        <a href="{{ comment.get_absolute_url }}">
+            {% trans "Message de" %} {{ comment.author.username }}
+        </a>
+    </li>
+    <li>{% trans "Historique des éditions" %}</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    <h1>{% trans "Historique des éditions du message" %}</h1>
+{% endblock %}
+
+
+
+{% block content_page %}
+    {% if edits %}
+        <table class="fullwidth">
+            <thead>
+                <th class="wide">{% trans "Date" %}</th>
+                <th>{% trans "Éditeur" %}</th>
+                <th>{% trans "Version avant édition" %}</th>
+            </thead>
+            <tbody>
+                {% for edit in edits %}
+                    <tr>
+                        <td class="wide">{{ edit.date|format_date|capfirst }}</td>
+                        <td>{% include 'misc/member_item.part.html' with member=edit.editor avatar=True %}</td>
+                        <td>
+                            {% if edit.deleted_by %}
+                                {% trans "Supprimée par" %} {% include 'misc/member_item.part.html' with member=edit.deleted_by avatar=True %} ({{ edit.deleted_at|format_date }})
+                            {% else %}
+                                {% if is_staff %}
+                                    <form method="post" action="{% url 'delete-edit-content' edit.pk %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-grey ico-after red cross">{% trans "Supprimer" %}</button>
+                                    </form>
+                                {% endif %}
+                                {% if comment.is_visible %}
+                                    <form method="post" action="{% url 'restore-edit' edit.pk %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-grey ico-after blue history">{% trans "Restaurer" %}</button>
+                                    </form>
+                                {% endif %}
+                                <a href="{% url 'edit-detail' edit.pk %}" class="btn btn-grey ico-after hide">{% trans "Voir" %}</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <em>{% trans "Ce message n’a jamais été édité." %}</em>
+    {% endif %}
+{% endblock %}

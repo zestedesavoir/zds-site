@@ -1,0 +1,72 @@
+{% extends "forum/base.html" %}
+{% load i18n %}
+
+{% block title %}
+    {% trans "Derniers sujets" %}
+{% endblock %}
+
+{% block feeds_rss %}
+    {% include "forum/includes/feed.part.html" %}
+{% endblock %}
+
+{% block breadcrumb %}
+    <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+        <a href="{{ forum.category.get_absolute_url }}" itemprop="url">
+            <span itemprop="title">{% trans "Derniers sujets" %}</span>
+        </a>
+    </li>
+{% endblock %}
+
+
+
+{% block headline %}
+    {% trans "Derniers sujets" %}
+{% endblock %}
+
+
+
+{% block new_btn %}
+    <a href="{% url 'cats-forums-list' %}" class="new-btn ico-after view blue">
+        {% trans "Tous les forums" %}
+    </a>
+{% endblock %}
+
+
+
+{% block sidebar_blocks %}
+    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Ordre de tri">
+        <h3>{% trans "Ordre de tri" %}</h3>
+        <ul>
+            <li>
+                <a href="{% url 'last-subjects' %}?order=creation"
+                    class="ico-after move {% if request.GET.order == 'creation' %}selected{% endif %}"
+                >
+                    {% trans "Date de création" %}
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'last-subjects' %}?order=last_post"
+                    class="ico-after history {% if request.GET.order == 'last_post' %}selected{% endif %}"
+                >
+                    {% trans "Date de la dernière réponse" %}
+                </a>
+            </li>
+        </ul>
+    </div>
+{% endblock %}
+
+
+
+{% block content %}
+    {% if topics %}
+        <div class="topic-list navigable-list" itemscope itemtype="http://schema.org/ItemList">
+            {% for topic in topics %}
+                {% include "forum/includes/topic_row.part.html" with display_category=True %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>
+            {% trans "Aucun sujet trouvé." %}
+        </p>
+    {% endif %}
+{% endblock %}

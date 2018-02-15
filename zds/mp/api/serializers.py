@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from dry_rest_permissions.generics import DRYPermissionsField
@@ -90,7 +89,7 @@ class PrivateTopicUpdateSerializer(serializers.ModelSerializer, TitleValidator, 
         read_only_fields = ('id', 'permissions',)
 
     def update(self, instance, validated_data):
-        for attr, value in validated_data.items():
+        for attr, value in list(validated_data.items()):
             if attr == 'participants':
                 [instance.participants.add(participant) for participant in value]
             elif value:

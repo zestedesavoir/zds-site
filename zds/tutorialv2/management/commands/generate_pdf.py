@@ -1,11 +1,9 @@
-# coding: utf-8
-
 import os
 import subprocess
 from django.core.management.base import BaseCommand
 from django.utils.translation import ugettext_lazy as _
-from zds import settings
-from zds.tutorialv2.models.models_database import PublishedContent
+from django.conf import settings
+from zds.tutorialv2.models.database import PublishedContent
 
 
 class Command(BaseCommand):
@@ -13,16 +11,14 @@ class Command(BaseCommand):
     help = 'Generate pdfs of published contents'
     # python manage.py generate_pdf id=3
 
-    def handle(self, *args, **options):
-        ids = []
+    def add_arguments(self, parser):
+        parser.add_argument('id', nargs='*', type=str)
 
-        for arg in args:
-            param = arg.split('=')
-            if len(param) < 2:
-                continue
-            elif len(param) > 1:
-                if param[0] in ['id', 'ids']:
-                    ids = param[1].split(',')
+    def handle(self, *args, **options):
+        try:
+            ids = list(set(options.get('id')[0].replace('id=', '').split(',')))
+        except IndexError:
+            ids = []
 
         pandoc_debug_str = ''
         if settings.PANDOC_LOG_STATE:
@@ -36,14 +32,14 @@ class Command(BaseCommand):
         num_of_contents = len(public_contents)
 
         if num_of_contents == 0:
-            self.stdout.write(_(u"Aucun contenu n'a été sélectionné, aucun PDF ne sera généré"))
+            self.stdout.write(_("Aucun contenu n'a été sélectionné, aucun PDF ne sera généré"))
             return
 
-        self.stdout.write(_(u'Génération de PDF pour {} contenu{}').format(
+        self.stdout.write(_('Génération de PDF pour {} contenu{}').format(
             num_of_contents, 's' if num_of_contents > 1 else ''))
 
         for content in public_contents:
-            self.stdout.write(_(u'- {}').format(content.content_public_slug), ending='')
+            self.stdout.write(_('- {}').format(content.content_public_slug), ending='')
             extra_content_dir = content.get_extra_contents_directory()
 
             base_name = os.path.join(extra_content_dir, content.content_public_slug)

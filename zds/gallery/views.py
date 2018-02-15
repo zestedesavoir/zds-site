@@ -1,6 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
-
 import tempfile
 
 from datetime import datetime
@@ -32,7 +29,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from django.views.generic import CreateView, UpdateView, DeleteView, FormView
 from django.utils.decorators import method_decorator
-from zds.tutorialv2.models.models_database import PublishableContent
+from zds.tutorialv2.models.database import PublishableContent
 
 
 class ListGallery(ZdSPagingListView):
@@ -188,7 +185,7 @@ def modify_gallery(request):
     # Global actions
 
     if 'delete_multi' in request.POST:
-        list_items = request.POST.getlist('items')
+        list_items = request.POST.getlist('g_items')
 
         # Don't delete gallery when it's link to tutorial
         free_galleries = []
@@ -199,10 +196,14 @@ def modify_gallery(request):
             has_v2_content = v2_content is not None
             if has_v2_content:
                 gallery = Gallery.objects.get(pk=g_pk)
-                _type = _(u'au tutoriel')
-                if v2_content.type == 'ARTICLE':
-                    _type = _(u"à l'article")
-                error_message = _(u'La galerie « {} » ne peut pas être supprimée car elle est liée {} « {} ».')\
+
+                _type = _('au tutoriel')
+                if v2_content.is_article:
+                    _type = _('à l\'article')
+                elif v2_content.is_opinion:
+                    _type = _('à la tribune')
+
+                error_message = _('La galerie « {} » ne peut pas être supprimée car elle est liée {} « {} ».')\
                     .format(gallery.title, _type, v2_content.title)
                 messages.error(request, error_message)
             else:
@@ -227,8 +228,8 @@ def modify_gallery(request):
 
         Gallery.objects.filter(pk__in=free_galleries).delete()
         return redirect(reverse('gallery-list'))
-    elif 'adduser' in request.POST:
 
+    elif 'adduser' in request.POST:
         # Gallery-specific actions
 
         try:
@@ -362,8 +363,8 @@ class EditImage(GalleryMixin, UpdateView):
             if self.request.FILES['physical'].size > settings.ZDS_APP['gallery']['image_max_size']:
                 messages.error(
                     self.request,
-                    _(u'Votre image est beaucoup trop lourde, réduisez sa taille à moins de {:.0f} '
-                      u'<abbr title="kibioctet">Kio</abbr> avant de l\'envoyer.').format(
+                    _('Votre image est beaucoup trop lourde, réduisez sa taille à moins de {:.0f} '
+                      '<abbr title="kibioctet">Kio</abbr> avant de l\'envoyer.').format(
                         settings.ZDS_APP['gallery']['image_max_size'] / 1024))
 
                 can_change = False
@@ -398,7 +399,7 @@ class DeleteImages(DeleteView):
         ensure_user_access(gallery, request.user, can_write=True)
 
         if 'delete_multi' in request.POST:
-            list_items = request.POST.getlist('items')
+            list_items = request.POST.getlist('g_items')
             Image.objects.filter(pk__in=list_items, gallery=gallery).delete()
         elif 'delete' in request.POST:
             pkey = self.request.POST['image']
@@ -453,15 +454,15 @@ class ImportImages(GalleryMixin, FormView):
             # if size is too large, don't save
             if os.stat(ph_temp).st_size > settings.ZDS_APP['gallery']['image_max_size']:
                 messages.error(
-                    self.request, _(u'Votre image "{}" est beaucoup trop lourde, réduisez sa taille à moins de {:.0f}'
-                                    u"Kio avant de l'envoyer.").format(
+                    self.request, _('Votre image "{}" est beaucoup trop lourde, réduisez sa taille à moins de {:.0f}'
+                                    "Kio avant de l'envoyer.").format(
                                         title, settings.ZDS_APP['gallery']['image_max_size'] / 1024))
                 continue
 
             # if it's not an image, pass
             try:
                 ImagePIL.open(ph_temp)
-            except IOError:
+            except OSError:
                 continue
 
             # create picture in database:

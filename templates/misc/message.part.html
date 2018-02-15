@@ -6,6 +6,7 @@
 {% load pluralize_fr %}
 
 
+
 {% if topic.author == message.author and helpful_link %}
     {% set True as is_author %}
 {% else %}
@@ -15,11 +16,11 @@
 
 
 <article
-    class="
-        topic-message
-        {% if message.is_useful %}helpful{% endif %}
-        {% if is_repeated_message %}repeated{% endif %}
-    "
+    class="topic-message
+
+           {% if message.is_useful %}helpful{% endif %}
+           {% if is_repeated_message %}repeated{% endif %}"
+
     {% if comment_schema %}
         itemscope
         itemtype="http://schema.org/Comment"
@@ -32,6 +33,7 @@
         {% endif %}
     {% endif %}
 >
+
     {% include "misc/message_user.html" with member=message.author push_badge=is_author %}
 
 
@@ -47,7 +49,7 @@
                         {% if can_unread == True %}
                             <li>
                                 <a class="ico-after unread" href="{{ unread_link|safe }}">
-                                    {% trans "Non-lu" %}
+                                    {% trans "Non lu" %}
                                 </a>
                             </li>
                         {% endif %}
@@ -61,12 +63,12 @@
                                         {% csrf_token %}
                                         {% if perms_change %}
                                             <p>
-                                                {% trans "Pour quelle raison souhaitez vous masquer ce message" %} ?
+                                                {% trans "Pour quelle raison souhaitez-vous masquer ce message ?" %}
                                             </p>
                                             <input type="text" name="text_hidden" placeholder="Flood, Troll, Hors sujet, ..." >
                                         {% else %}
                                             <p>
-                                                {% trans "Attention, en masquant ce message, vous ne pourrez plus l'afficher vous même. Êtes vous certains de vouloir le faire" %} ?
+                                                {% trans "Attention, en masquant ce message, vous ne pourrez plus l’afficher vous-même. Êtes-vous certain de vouloir le faire ?" %}
                                             </p>
                                         {% endif %}
 
@@ -85,7 +87,7 @@
                         {% endif %}
                     {% endif %}
 
-                    {% if cite_link and not topic.is_locked and not isantispam %}
+                    {% if cite_link and not topic.is_locked and not is_antispam %}
                         <li>
                             <a href="{{ cite_link|safe }}" class="ico-after cite" data-ajax-input="cite-message">
                                 {% trans "Citer" %}
@@ -107,7 +109,7 @@
                                 {% csrf_token %}
                                 <p>
                                     {% blocktrans with editor=message.editor %}
-                                    Ce message a été masqué par <strong>{{ editor }}</strong>, êtes vous certains de vouloir le ré-afficher ?
+                                        Ce message a été masqué par <strong>{{ editor }}</strong>, êtes-vous certain de vouloir le ré-afficher ?
                                     {% endblocktrans %}
                                 </p>
 
@@ -119,22 +121,24 @@
                     {% endif %}
                 {% endif %}
                 {% if not is_mp %}
-                <li>
-                    <a href="#signal-message-{{ message.id }}" class="ico-after alert open-modal">
-                        {% trans "Signaler" %}
-                    </a>
-                    <form action="{{ alert_link|safe }}" method="post" id="signal-message-{{ message.id }}" class="modal modal-flex">
-                        {% csrf_token %}
-                        <label for="signal-message-{{ message.id }}-field">
-                            {% trans "Pour quelle raison signalez-vous ce message" %} ?
-                        </label>
-                        <textarea type="text" name="signal_text" id="signal-message-{{ message.id }}-field" placeholder="Flood, Troll, Hors sujet, ..." pattern=".{3,}" required title='{% trans "Minimum 3 caractères pour signaler" %}' rows="4"></textarea>
+                    {% if message.is_visible != False or perms_change %}
+                        <li>
+                            <a href="#signal-message-{{ message.id }}" class="ico-after alert open-modal">
+                                {% trans "Signaler" %}
+                            </a>
+                            <form action="{{ alert_link|safe }}" method="post" id="signal-message-{{ message.id }}" class="modal modal-flex">
+                                {% csrf_token %}
+                                <label for="signal-message-{{ message.id }}-field">
+                                    {% trans "Pour quelle raison signalez-vous ce message ?" %}
+                                </label>
+                                <textarea type="text" name="signal_text" id="signal-message-{{ message.id }}-field" placeholder="Flood, Troll, Hors sujet, …" pattern=".{3,}" required title='{% trans "Minimum 3 caractères pour signaler" %}' rows="4"></textarea>
 
-                        <button type="submit" name="signal_message">
-                            {% trans "Signaler" %}
-                        </button>
-                    </form>
-                </li>
+                                <button type="submit" name="signal_message">
+                                    {% trans "Signaler" %}
+                                </button>
+                            </form>
+                        </li>
+                    {% endif %}
                 {% endif %}
             </ul>
         {% endif %}
@@ -147,26 +151,30 @@
             <a href="#p{{ message.pk }}" id="p{{ message.id }}" class="date" title="{{ message.pubdate|tooltip_date|capfirst }}">
                 <time itemprop="dateCreated" datetime="{{ message.pubdate|date:"c" }}">
                     <span class="long-date">
-                    {{ message.pubdate|format_date|capfirst }}
+                        {{ message.pubdate|format_date|capfirst }}
                     </span>
                     <span class="short-date">
-                    {{ message.pubdate|format_date:True|capfirst }}
+                        {{ message.pubdate|format_date:True|capfirst }}
                     </span>
                 </time>
             </a>
         </div>
 
         <div class="message-content">
+            {% if message.hat and message.is_visible != False %}
+                <p class="with-hat {% if message.hat.is_staff %}staff-hat{% endif %}" title="{% blocktrans with hat=message.hat.name %}Posté avec la casquette « {{ hat }} »{% endblocktrans %}">
+                    <a href="{{ message.hat.get_absolute_url }}">{{ message.hat.name }}</a>
+                </p>
+            {% endif %}
+
             {% if is_repeated_message %}
                 <p class="message-repeated">
                     {% trans "Reprise du dernier message de la page précédente" %}
                 </p>
             {% endif %}
-             <p
-                class="message-helpful tick ico-after green {% if not message.is_useful or is_creator %}hidden{% endif %}"
-                data-ajax-output="mark-message-as-useful"
-             >
-                {% trans "Cette réponse a aidé l'auteur du sujet" %}
+            <p class="message-helpful tick ico-after green {% if not message.is_useful or is_creator %}hidden{% endif %}"
+               data-ajax-output="mark-message-as-useful">
+                {% trans "Cette réponse a aidé l’auteur du sujet" %}
             </p>
 
             {% if message.is_visible != False %}
@@ -182,29 +190,31 @@
             {% if message.is_visible == False %}
                 <p class="message-hidden">
                     {% trans "Masqué par" %} {{ message.editor }}
+
                     {% if message.text_hidden %}
-                        : {{ message.text_hidden }}
+                        {# nbsp #} : {{ message.text_hidden }}
                     {% endif %}
                 </p>
             {% elif message.update %}
                 <p class="message-edited ico-after edit">
-                    {% trans "Édité" %}
-                    {% if message.editor %}
-                        {% trans "par" %} {{ message.editor }}
+                    {% if can_view_history %}
+                        <a href="{% url 'comment-edits-history' message.pk %}">
+                            {% include "misc/message_edited_by.part.html" with message=message %}
+                        </a>
+                    {% else %}
+                        {% include "misc/message_edited_by.part.html" with message=message %}
                     {% endif %}
-                    <time itemprop="dateModified" datetime="{{ message.update|date:"c" }}">
-                        {{ message.update|format_date }}
-                    </time>
                 </p>
             {% endif %}
         </div>
 
         {% if perms_change %}
-            {% for alert in message.alerts.all %}
+            {% for alert in message.alerts_on_this_comment.all %}
                 <div class="alert-box{% if not alert.solved %} error{% endif %}">
                     {{ alert.pubdate|format_date|capfirst }} {% trans "par" %}
-                    {% include "misc/member_item.part.html" with member=alert.author %} :
+                    {% include "misc/member_item.part.html" with member=alert.author %} :
                     <em class="alert-box-text">{{ alert.text }}</em>
+
                     {% if alert.solved %}
                         <span class="close-alert-box close-alert-box-text">
                             {% trans "Résolu par" %}
@@ -213,11 +223,11 @@
                     {% else %}
                         <a href="#solve-alert-{{ alert.pk }}" class="open-modal close-alert-box close-alert-box-text">{% trans "Résoudre" %}</a>
                         <form id="solve-alert-{{ alert.pk }}" method="post" action="{{ alert_solve_link }}" class="modal modal-flex">
-                            <textarea name="text" class="input" placeholder="{% trans "Message à envoyer au membre ayant lancé l'alerte" %}"></textarea>
+                            <textarea name="text" class="input" placeholder="{% trans "Message à envoyer au membre ayant lancé l’alerte" %}"></textarea>
                             <input type="hidden" name="alert_pk" value="{{ alert.pk }}">
 
                             {% csrf_token %}
-                            <button type="submit" name="delete-post" class="button expand alert tiny">{% trans "Résoudre l'alerte" %}</button>
+                            <button type="submit" name="delete-post" class="button expand alert tiny">{% trans "Résoudre l’alerte" %}</button>
                         </form>
                     {% endif %}
                 </div>
@@ -249,22 +259,22 @@
                         {% if user.is_authenticated and helpful_link %}
                             {% if topic.author == user or perms_change %}
                                 <form action="{{ helpful_link }}" method="post">
-                                  {% csrf_token %}
+                                    {% csrf_token %}
+
                                     <button
                                         type="submit"
                                         class="tick ico-after {% if message.is_useful %}green{% endif %}"
                                         data-ajax-input="mark-message-as-useful"
-                                        data-content-on-click="
-                                            {% if message.is_useful %}
-                                                {% trans "Cette réponse m'a aidé" %}
-                                            {% else %}
-                                                {% trans "Cette réponse ne m'a pas aidé" %}
-                                            {% endif %}"
-                                    >
+                                        data-content-on-click="{% if message.is_useful %}
+                                                                   {% trans "Cette réponse m’a aidé" %}
+                                                               {% else %}
+                                                                   {% trans "Cette réponse ne m’a pas aidé" %}
+                                                               {% endif %}">
+
                                         {% if message.is_useful %}
-                                            {% trans "Cette réponse ne m'a pas aidé" %}
+                                            {% trans "Cette réponse ne m’a pas aidé" %}
                                         {% else %}
-                                            {% trans "Cette réponse m'a aidé" %}
+                                            {% trans "Cette réponse m’a aidé" %}
                                         {% endif %}
                                     </button>
                                 </form>
@@ -286,7 +296,7 @@
 
                             <button
                                 value="{% if message.pk in user_dislike %}neutral{% else %}dislike{% endif %}"
-                                title="{% trans "Ce message n'est pas utile" %}{% if message.dislike > 0 %}{% blocktrans with dislike_count=message.dislike plural=message.dislike|pluralize_fr plural_word=message.dislike|pluralize_fr:"a,ont" %}({{ dislike_count }} personne{{ plural }} n'{{ plural_word }} pas trouvé ce message utile){% endblocktrans %}{% endif %}"
+                                title="{% trans "Ce message n’est pas utile" %}{% if message.dislike > 0 %}{% blocktrans with dislike_count=message.dislike plural=message.dislike|pluralize_fr plural_word=message.dislike|pluralize_fr:"a,ont" %}({{ dislike_count }} personne{{ plural }} n'{{ plural_word }} pas trouvé ce message utile){% endblocktrans %}{% endif %}"
                                 class="downvote
                                        ico-after
                                        {% if message.like < message.dislike %}more-voted{% endif %}

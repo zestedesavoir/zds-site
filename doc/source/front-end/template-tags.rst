@@ -8,16 +8,16 @@ Le dossier ``zds/utils/templatetags/`` contient un ensemble de tags et filtres p
 La majorité de ces modules proposent aussi des fonctions proposant les même fonctionnalités depuis le reste du code
 Python.
 
-append_to_get
+append_query_params
 =============
 
-L'élément ``append_to_get`` permet de rajouter des paramètres à la requête ``GET`` courante. Par exemple, sur une page
+L'élément ``append_query_params`` permet de rajouter des paramètres à la requête ``GET`` courante. Par exemple, sur une page
 ``module/toto``, le code de template suivant :
 
 .. sourcecode:: html
 
-    {% load append_to_get %}
-    <a href="{% append_to_get key1=var1,key2=var2 %}">Mon lien</a>
+    {% load append_query_params %}
+    <a href="{% append_query_params key1=var1,key2=var2 %}">Mon lien</a>
 
 produira le code suivant :
 
@@ -132,7 +132,7 @@ Ce qui donnera :
 Identique sur le fonctionnement à ``obfuscate_mailto``, ce *templatetag* ajoute en plus un sujet (qui remplace le champ
 pouvant être inséré entre les balises ``<a>`` et ``</a>``) ainsi que ``target="_top"``.
 
-Il est utilisé sur la page « Contact ».
+Il est utilisé sur la page « Contact ».
 
 Exemple :
 
@@ -302,6 +302,20 @@ Récupère la liste des alertes (si l'utilisateur possède les droits pour le fa
 - ``alert.pubdate`` donne la date à laquelle l'alerte à été faite ;
 - ``alert.topic`` donne le texte d'alerte.
 
+``waiting_count``
+-----------------
+
+Récupère le nombre de tutoriels ou d'articles dans la zone de validation n'ayant pas été réservés par un validateur.
+
+.. sourcecode:: html
+
+    {% load interventions %}
+    {% with waiting_tutorials_count="TUTORIAL"|waiting_count waiting_articles_count="ARTICLE"|waiting_count %}
+        ...
+    {% endwith %}
+
+Le filtre doit être appelé sur ``"TUTORIAL"`` pour récupérer le nombre de tutoriels en attente et sur ``"ARTICLE"`` pour le nombre d'articles.
+
 ``humane_delta``
 ----------------
 
@@ -439,8 +453,7 @@ Ce filtre récupère les forums, classés par catégorie.
 où,
 
 - ``top.categories`` est un dictionaire contenant le nom de la catégorie (ici ``title``) et la liste des forums situés dans cette catégorie (ici ``forums``), c'est-à-dire une liste d'objets de type ``Forum`` (`voir le détail de l'implémentation de cet objet ici <../back-end-code/forum.html#zds.forum.models.Forum>`__).
-- ``top.tags`` contient une liste des 5 *tags* les plus utilisés, qui sont des objets de type
-``Tag`` (`voir le détail de l'implémentation de cet objet ici <../back-end-code/utils.html#zds.utils.models.Tag>`__). Certains tags peuvent être exclus de cette liste. Pour exclure un tag, vous devez l'ajouter dans la configuration (top_tag_exclu dans le settings.py).
+- ``top.tags`` contient une liste des 5 *tags* les plus utilisés, qui sont des objets de type ``Tag`` (`voir le détail de l'implémentation de cet objet ici <../back-end-code/utils.html#zds.utils.models.Tag>`__). Certains tags peuvent être exclus de cette liste. Pour exclure un tag, vous devez l'ajouter dans la configuration (top_tag_exclu dans le settings.py).
 
 
 ``top_categories_content``
@@ -526,7 +539,7 @@ Exemple :
             </option>
     {% endfor %}
 
-le module ``url_category``
+Le module ``url_category``
 ==========================
 
 Ce module défini un *templatetag* permetant d'accéder à l'url des listes de tutoriels et articles filtrés par tag. Il est employé pour l'affichage des *tags* des tutoriels et articles.
@@ -560,3 +573,35 @@ Exemple :
     {% for authors in content|displayable_authors:False %}
        <!-- here display all author for draft version -->
     {% endfor %}
+
+Le module ``elasticsearch``
+===========================
+
+``highlight``
+
+Permet de mettre en surbrillance les résultats d'une recherche.
+
+Exemple :
+
+.. sourcecode:: html
+
+    {% if search_result.text %}
+        {% highlight search_result "text" %}
+    {% endif %}
+
+Le module ``joinby``
+===========================
+
+Ce module permet de lister le contenu d'un itérable en une seule ligne. C'est un équivalent un peu plus flexible de la fonction ``str.join`` en Python. Le séparateur peut être modifié et une option permet d'utiliser le même séparateur pour le dernier élément. Par défaut, le mot "et" est utilisé pour précéder le dernier élément.
+
+Exemple :
+
+.. sourcecode:: html
+
+    {% joinby fruits %}
+    {% joinby fruits ';' final_separator=';' %}
+
+.. sourcecode:: text
+
+    Clémentine, Orange et Citron
+    Clémentine;Orange;Citron

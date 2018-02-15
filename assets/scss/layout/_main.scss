@@ -1,3 +1,9 @@
+
+.main {
+    flex: 1;
+    min-width: 0;
+}
+
 .main .content-container {
     padding-top: 30px;
 
@@ -21,12 +27,11 @@
         }
 
         &.ico-after {
-            padding-left: 80px;
+            padding-left: 50px;
 
             &:after {
                 @include sprite-width($articles);
                 @include sprite-height($articles);
-                margin-left: 21px;
             }
         }
         &.ico-articles:after {
@@ -51,6 +56,16 @@
             border: 1px solid #cdd0d1;
             width: 50px;
             height: 50px;
+        }
+
+        &.inline {
+            display: inline-block;
+        }
+
+        .btn {
+            font-size: 15px;
+            line-height: 38px;
+            height: 38px;
         }
     }
 
@@ -145,11 +160,11 @@
     }
 
     .main {
-        @include display(flex);
-        @include flex-direction(row-reverse);
-        height: 100%;
+        display: flex;
+        flex-direction: row-reverse;
         margin-left: 0;
         padding-left: 2.5%;
+        min-width: 0;
 
         .content-container {
             width: 80%;
@@ -177,6 +192,7 @@
                 .comments-title,
                 .pagination:not(.pagination-chapter),
                 .topic-message,
+                .sidebar,
                 .alert-box {
                     display: none;
                 }

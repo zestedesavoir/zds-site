@@ -24,6 +24,10 @@
             this.$form.on("submit", this.handleSubmit.bind(this));
         }
 
+        if(this.options.clickable) {
+          this.$dropdown.css("font-weight","bold");
+        }
+
         this.selected = -1;
 
         this._lastInput = "";
@@ -85,16 +89,18 @@
             if (!search || search === this._lastAutocomplete) {
                 this.hideDropdown();
             } else {
-                this.fetchData(search)
-                    .done(function(data) {
-                        self.updateCache(data.results);
-                        self.updateDropdown(self.sortList(data.results, search));
-                    })
-                    .fail(function() {
-                        console.error("[Autocompletition] Something went wrong...");
-                    });
-                this.updateDropdown(this.sortList(this.searchCache(search), search));
-                this.showDropdown();
+                if (!this.options.minLength || search.length >= this.options.minLength) {
+                  this.fetchData(search)
+                  .done(function(data) {
+                    self.updateCache(data.results);
+                    self.updateDropdown(self.sortList(data.results, search));
+                  })
+                  .fail(function() {
+                    console.error("[Autocompletition] Something went wrong...");
+                  });
+                  this.updateDropdown(this.sortList(this.searchCache(search), search));
+                  this.showDropdown();
+                }
             }
         },
 
@@ -147,6 +153,10 @@
             this._lastAutocomplete = completion[this.options.fieldname];
             this.selected = -1; // Deselect properly
             this.$input.trigger("input");
+
+            if(this.options.clickable) {
+              window.open(completion.url, "_blank");
+            }
         },
 
         updateCache: function(data) {
@@ -236,6 +246,9 @@
                 $list.append($el);
             }
             this.$dropdown.children().remove();
+            if(this.options.header && $list[0].childElementCount) {
+              this.$dropdown.append("<div class=\"autocomplete-dropdown-header\">" + this.options.header + "</div>");
+            }
             this.$dropdown.append($list);
 
             if (!selected)
@@ -307,11 +320,9 @@
     };
 
     $(document).ready(function() {
-        $("[data-autocomplete]").autocomplete();
-        $("#content").on("DOMNodeInserted", "input", function(e) {
-            var $input = $(e.target);
-            if ($input.is("[data-autocomplete]"))
-                $input.autocomplete();
+        $("[data-autocomplete]").each(function () {
+          if ($(this).data)
+              $(this).autocomplete();
         });
     });
 })(jQuery);

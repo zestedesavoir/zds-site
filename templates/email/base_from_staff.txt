@@ -5,4 +5,4 @@
 
 {% trans "Cordialement," %}
 
-{% trans "L'équipe de" %} {{ site_name }}
+{% trans "L’équipe de" %} {{ site_name }}

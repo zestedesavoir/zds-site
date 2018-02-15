@@ -1,5 +1,3 @@
-# coding: utf-8
-
 import re
 
 from django.conf import settings
@@ -7,10 +5,10 @@ from django import template
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
-from markdown import Markdown
-from markdown.extensions.zds import ZdsExtension
+from zmarkdown import ZMarkdown
+from zmarkdown.extensions.zds import ZdsExtension
 
-from zds.utils.templatetags.smileysDef import smileys
+from zds.utils.templatetags.smileys_def import smileys
 
 register = template.Library()
 
@@ -19,7 +17,7 @@ Markdown related filters.
 """
 
 # Constant strings
-__MD_ERROR_PARSING = _(u'Une erreur est survenue dans la génération de texte Markdown. Veuillez rapporter le bug.')
+__MD_ERROR_PARSING = _('Une erreur est survenue dans la génération de texte Markdown. Veuillez rapporter le bug.')
 
 
 def get_markdown_instance(inline=False, js_support=False, ping_url=None):
@@ -33,7 +31,7 @@ def get_markdown_instance(inline=False, js_support=False, ping_url=None):
         ping_url = None
     zdsext = ZdsExtension(inline=inline, emoticons=smileys, js_support=js_support, ping_url=ping_url)
     # Generate parser
-    markdown = Markdown(
+    markdown = ZMarkdown(
         extensions=(zdsext,),
         inline=inline,            # Parse only inline content.
     )
@@ -52,12 +50,12 @@ def render_markdown(markdown, text, inline=False):
     :rtype: str
     """
     try:
-        return mark_safe(markdown.convert(text).encode('utf-8').strip())
+        return mark_safe(markdown.convert(text).strip())
     except:
         if inline:
-            return mark_safe(u'<p>{}</p>'.format(__MD_ERROR_PARSING))
+            return mark_safe('<p>{}</p>'.format(__MD_ERROR_PARSING))
         else:
-            return mark_safe(u'<div class="error ico-after"><p>{}</p></div>'.format(__MD_ERROR_PARSING))
+            return mark_safe('<div class="error ico-after"><p>{}</p></div>'.format(__MD_ERROR_PARSING))
 
 
 @register.filter(needs_autoescape=False)
@@ -106,7 +104,7 @@ def decale_header(text, count):
     :return: Filtered text.
     :rtype: str
     """
-    return re.sub(r'(^|\n)(?P<level>#{1,4})(?P<header>.*?)#*(\n|$)', lambda t: sub_hd(t, count), text.encode('utf-8'))
+    return re.sub(r'(^|\n)(?P<level>#{1,4})(?P<header>.*?)#*(\n|$)', lambda t: sub_hd(t, count), text)
 
 
 @register.filter('decale_header_1')

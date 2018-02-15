@@ -1,0 +1,58 @@
+{% extends "tutorialv2/view/base_categories.html" %}
+{% load i18n %}
+
+
+{% block content_category %}
+    {% comment %}
+        First level page
+        - 2 featured tutorials
+        - all 4 knownledge domains presentation
+        - 1 column with last 6 contents
+        - 1 column with 6 most commented contents
+        - self investment block
+
+    <section>
+        <h2 itemprop="name">{%  trans  'À la une' %}</h2>
+        <div class="featured-resource-row">
+            {% for featured_content in featured_contents %}
+                {% include "featured/includes/featured_resource_item.part.html" with featured_resource=featured_content %}
+            {% endfor %}
+        </div>
+    </section>
+    {% endcomment %}
+
+    <section>
+        <h2 class="inline" itemprop="name">{% trans 'Domaines de savoir' %}</h2>
+        <div class="content-linkbox-list">
+            {% include 'tutorialv2/list_page_elements/list_categories.html' %}
+        </div>
+    </section>
+
+    <div class="flexpage-column">
+        <section>
+            <h2 itemprop="name">
+              {% trans 'Derniers tutoriels' %}
+                <a href="{% url "tutorial:feed-rss" %}" class="btn btn-grey">RSS</a>
+                <a href="{% url "tutorial:feed-atom" %}" class="btn btn-grey">Atom</a>
+            </h2>
+            {% include 'tutorialv2/list_page_elements/list_of_online_contents.html' with public_contents=last_tutorials col_number=1 %}
+            {% if last_tutorials and more_tutorials %}
+                <a href="{% url 'publication:list' %}?type=tutorial" class="more-link">Plus de tutoriels</a>
+            {% endif %}
+        </section>
+
+        <section>
+            <h2 itemprop="name">
+                {% trans 'Derniers articles' %}
+                <a href="{% url "article:feed-rss" %}" class="btn btn-grey">RSS</a>
+                <a href="{% url "article:feed-atom" %}" class="btn btn-grey">Atom</a>
+            </h2>
+            {% include 'tutorialv2/list_page_elements/list_of_online_contents.html' with public_contents=last_articles col_number=1 %}
+            {% if last_articles and more_articles %}
+                <a href="{% url 'publication:list' %}?type=article" class="more-link">Plus d’articles</a>
+            {% endif %}
+        </section>
+    </div>
+
+    {% include 'tutorialv2/list_page_elements/call_for_helps.html' %}
+{% endblock %}

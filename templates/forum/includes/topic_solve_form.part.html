@@ -1,0 +1,25 @@
+{% load i18n %}
+<form action="{% url 'topic-edit' %}" method="post">
+    <input type="hidden" name="topic" value="{{ topic.pk }}">
+    <input type="hidden" name="nb" value="{{ nb }}">
+    <input type="hidden" name="page" value="{{ nb }}">
+    <input type="hidden" name="solved" value="1">
+    {% csrf_token %}
+
+    <button
+        class="ico-after tick {% if topic.is_solved %}blue{% else %}green{% endif %}"
+        type="submit"
+        data-ajax-input="solve-topic"
+        data-content-on-click="{% if topic.is_solved %}
+                                   {% trans "Marquer comme résolu" %}
+                               {% else %}
+                                   {% trans "Marquer comme non résolu" %}
+                               {% endif %}">
+
+        {% if topic.is_solved %}
+            {% trans "Marquer comme non résolu" %}
+        {% else %}
+            {% trans "Marquer comme résolu" %}
+        {% endif %}
+    </button>
+</form>

@@ -1,6 +1,3 @@
-# coding: utf-8
-
-import time
 from datetime import datetime, timedelta
 
 from django import template
@@ -9,11 +6,15 @@ from django.utils.translation import ugettext_lazy as _
 
 from zds.forum.models import Post, is_read as topic_is_read
 from zds.mp.models import PrivateTopic
+from zds.tutorialv2.models.database import Validation
 from zds.notification.models import Notification, TopicAnswerSubscription, ContentReactionAnswerSubscription, \
     NewTopicSubscription, NewPublicationSubscription
-from zds.tutorialv2.models.models_database import ContentReaction
+from zds.tutorialv2.models.database import ContentReaction, PublishableContent
 from zds.utils import get_current_user
-from zds.utils.models import Alert
+from zds.utils.models import Alert, HatRequest
+from django.conf import settings
+from zds.tutorialv2.models import TYPE_CHOICES_DICT
+from zds.member.models import NewEmailProvider
 
 register = template.Library()
 
@@ -35,16 +36,16 @@ def is_email_followed(topic):
     return TopicAnswerSubscription.objects.does_exist(user, topic, is_active=True, by_email=True)
 
 
-@register.filter('is_forum_followed')
-def is_forum_followed(forum):
+@register.filter('is_followed_for_new_topic')
+def is_followed_for_new_topic(forum_or_tag):
     user = get_current_user()
-    return NewTopicSubscription.objects.does_exist(user, forum, is_active=True)
+    return NewTopicSubscription.objects.does_exist(user, forum_or_tag, is_active=True)
 
 
-@register.filter('is_forum_email_followed')
-def is_forum_email_followed(forum):
+@register.filter('is_email_followed_for_new_topic')
+def is_email_followed_for_new_topic(forum_or_tag):
     user = get_current_user()
-    return NewTopicSubscription.objects.does_exist(user, forum, is_active=True, by_email=True)
+    return NewTopicSubscription.objects.does_exist(user, forum_or_tag, is_active=True, by_email=True)
 
 
 @register.filter('is_content_followed')
@@ -115,15 +116,15 @@ def followed_topics(user):
     return topics
 
 
-def comp(dated_element1, dated_element2):
-    version1 = int(time.mktime(dated_element1['pubdate'].timetuple()))
-    version2 = int(time.mktime(dated_element2['pubdate'].timetuple()))
-    if version1 > version2:
-        return -1
-    elif version1 < version2:
-        return 1
+@register.filter('get_github_issue_url')
+def get_github_issue_url(topic):
+    if not topic.github_issue:
+        return None
     else:
-        return 0
+        return '{0}/{1}'.format(
+            settings.ZDS_APP['site']['repository']['bugtracker'],
+            topic.github_issue
+        )
 
 
 @register.filter('interventions_topics')
@@ -142,7 +143,7 @@ def interventions_topics(user):
                              'title': notification.title,
                              'url': notification.url})
 
-    posts_unread.sort(cmp=comp)
+    posts_unread.sort(key=lambda post: post['pubdate'].timetuple())
 
     return posts_unread
 
@@ -163,7 +164,7 @@ def interventions_privatetopics(user):
 @register.filter(name='alerts_list')
 def alerts_list(user):
     total = []
-    alerts = Alert.objects.filter(solved=False).select_related('author', 'comment').order_by('-pubdate')[:10]
+    alerts = Alert.objects.filter(solved=False).select_related('author', 'comment', 'content').order_by('-pubdate')[:10]
     nb_alerts = Alert.objects.filter(solved=False).count()
     for alert in alerts:
         if alert.scope == 'FORUM':
@@ -173,12 +174,43 @@ def alerts_list(user):
                           'pubdate': alert.pubdate,
                           'author': alert.author,
                           'text': alert.text})
+        elif alert.scope == 'CONTENT':
+            published = PublishableContent.objects.select_related('public_version').get(pk=alert.content.pk)
+            total.append({'title': published.public_version.title if published.public_version else published.title,
+                          'url': published.get_absolute_url_online() if published.public_version else '',
+                          'pubdate': alert.pubdate,
+                          'author': alert.author,
+                          'text': alert.text})
         else:
-            note = ContentReaction.objects.select_related('related_content').get(pk=alert.comment.pk)
-            total.append({'title': note.related_content.title,
-                          'url': note.get_absolute_url(),
+            comment = ContentReaction.objects.select_related('related_content').get(pk=alert.comment.pk)
+            total.append({'title': comment.related_content.title,
+                          'url': comment.get_absolute_url(),
                           'pubdate': alert.pubdate,
                           'author': alert.author,
                           'text': alert.text})
 
     return {'alerts': total, 'nb_alerts': nb_alerts}
+
+
+@register.filter(name='waiting_count')
+def waiting_count(content_type):
+    """
+    Gets the number of waiting contents of the specified type (without validator).
+    """
+    if content_type not in TYPE_CHOICES_DICT:
+        raise template.TemplateSyntaxError("'content_type' must be in 'zds.tutorialv2.models.TYPE_CHOICES_DICT'")
+
+    return Validation.objects.filter(
+        validator__isnull=True,
+        status='PENDING',
+        content__type=content_type).count()
+
+
+@register.filter(name='new_providers_count')
+def new_providers_count(user):
+    return NewEmailProvider.objects.count()
+
+
+@register.filter(name='requested_hats_count')
+def requested_hats_count(user):
+    return HatRequest.objects.filter(is_granted__isnull=True).count()

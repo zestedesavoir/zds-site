@@ -1,5 +1,3 @@
-# coding: utf-8
-
 import os
 import shutil
 
@@ -9,23 +7,23 @@ from elasticsearch_dsl.query import MatchAll
 from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings
-from zds.settings import BASE_DIR
 
 from zds.forum.factories import TopicFactory, PostFactory, Topic, Post
 from zds.forum.tests.tests_views import create_category
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.searchv2.models import ESIndexManager
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, publish_content
-from zds.tutorialv2.models.models_database import PublishedContent, FakeChapter, PublishableContent
+from zds.tutorialv2.models.database import PublishedContent, FakeChapter, PublishableContent
+from copy import deepcopy
 
 
-overrided_zds_app = settings.ZDS_APP
-overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
-overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
+overridden_zds_app = deepcopy(settings.ZDS_APP)
+overridden_zds_app['content']['repo_private_path'] = os.path.join(settings.BASE_DIR, 'contents-private-test')
+overridden_zds_app['content']['repo_public_path'] = os.path.join(settings.BASE_DIR, 'contents-public-test')
 
 
-@override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
-@override_settings(ZDS_APP=overrided_zds_app)
+@override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'media-test'))
+@override_settings(ZDS_APP=overridden_zds_app)
 @override_settings(ES_SEARCH_INDEX={'name': 'zds_search_test', 'shards': 5, 'replicas': 0})
 class ESIndexManagerTests(TestCase):
     def setUp(self):
@@ -110,7 +108,7 @@ class ESIndexManagerTests(TestCase):
             # keep "c" intact:
             ('apprendre à programmer en C', ['aprendr', 'program', 'langage_c']),
             # remove HTML and some special characters:
-            ('<p>&laquo;&nbsp;test&#x202F;!&nbsp;&raquo;, en hurlant &hellip;</p>', ['test', 'hurlant']),
+            ('<p>&laquo; test&#x202F;! &raquo;, en hurlant &hellip;</p>', ['test', 'hurlant']),
             # keep "c++" and "linux" intact:
             ('écrire un programme en C++ avec Linux', ['ecrir', 'program', 'c++', 'linux']),
             # elision:
@@ -327,10 +325,10 @@ class ESIndexManagerTests(TestCase):
         tuto = PublishableContent.objects.get(pk=tuto.pk)
         versioned = tuto.load_version(sha=tuto.sha_draft)
 
-        tuto.title = u'un titre complètement différent!'
+        tuto.title = 'un titre complètement différent!'
         tuto.save()
 
-        versioned.repo_update_top_container(tuto.title, tuto.slug, u'osef', u'osef')
+        versioned.repo_update_top_container(tuto.title, tuto.slug, 'osef', 'osef')
         second_publication = publish_content(tuto, versioned, True)
 
         tuto.sha_public = versioned.current_version

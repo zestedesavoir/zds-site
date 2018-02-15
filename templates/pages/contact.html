@@ -38,8 +38,18 @@
                 {% endblocktrans %}
             </p>
         {% endif %}
-        {% if contact_group.person_in_charge %}
-            <p>{% trans "La personne responsable du groupe est" %} : {% include "misc/member_item.part.html" with avatar=True member=contact_group.person_in_charge %}.</p>
+        {% if contact_group.persons_in_charge.count >= 1 %}
+            <p>
+                {% if contact_group.persons_in_charge.count >= 2 %}
+                    {% trans "Les personnes responsables du groupe sont :" %}
+                {% else %}
+                    {% trans "La personne responsable du groupe est :" %}
+                {% endif %}
+                {% for person in contact_group.persons_in_charge.all %}
+                    {% include "misc/member_item.part.html" with avatar=True member=person %}
+                {% endfor %}
+                .
+            </p>
         {% endif %}
         {% with users=contact_group.group.user_set.all %}
             {% if users %}

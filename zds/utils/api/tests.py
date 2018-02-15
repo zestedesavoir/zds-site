@@ -1,5 +1,3 @@
-# coding: utf-8
-
 import shutil
 import os
 from django.conf import settings
@@ -142,7 +140,7 @@ class TagListAPITest(APITestCase):
 
     def create_multiple_tags(self, number_of_tags=REST_PAGE_SIZE):
         tags = []
-        for tag in xrange(0, number_of_tags):
+        for tag in range(0, number_of_tags):
             tags.append('number' + str(tag))
 
         # Prepare content containing all the tags
@@ -163,5 +161,5 @@ class TagListAPITest(APITestCase):
         if os.path.isdir(settings.MEDIA_ROOT):
             shutil.rmtree(settings.MEDIA_ROOT)
 
-        # re-active PDF build
+        # re-activate PDF build
         settings.ZDS_APP['content']['build_pdf_when_published'] = True

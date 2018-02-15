@@ -1,0 +1,83 @@
+{% extends "tutorialv2/base_online.html" %}
+{% load date %}
+{% load captureas %}
+{% load i18n %}
+
+{% block title_base %}
+    {% trans "Historique de modération du billet" %}
+{% endblock %}
+
+
+
+{% block breadcrumb_base %}
+    <li><a href="{{ content.get_absolute_url }}">{{ content.title }}</a></li>
+    <li>{% trans "Historique de modération" %}</li>
+{% endblock %}
+
+
+
+{% block content_out %}
+    <section class="full-content-wrapper">
+        <h1>
+            {% block headline %}
+                {% trans "Historique de modération du billet" %}
+            {% endblock %}
+        </h1>
+
+        {% captureas headlinesub %}
+            {% block headline_sub %}{% endblock %}
+        {% endcaptureas %}
+
+        {% block content %}
+            {% if operations %}
+                <table class="fullwidth">
+                    <thead>
+                        <tr>
+                            <th>{% trans "Date" %}</th>
+                            <th>{% trans "Modérateur" %}</th>
+                            <th>{% trans "Décision prise" %}</th>
+                            <th>{% trans "Décision encore active" %}</th>
+                            <th>{% trans "Révoquer" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for operation in operations %}
+                            <tr class="opinion">
+                                <td>
+                                     {{ operation.operation_date|format_date|capfirst }}
+                                </td>
+                                <td>
+                                    {% include 'misc/member_item.part.html' with member=operation.staff_user avatar=True %}
+                                </td>
+                                <td>
+                                    {{ operation.get_operation_display }}
+                                </td>
+                                <td class="state" data-toggle="{% trans 'Non, vous venez de la révoquer' %}">
+                                    {% if operation.is_effective %}
+                                        {% trans 'Oui' %}
+                                    {% else %}
+                                        {% if operation.canceler_user %}
+                                            {% trans 'Non, révoquée par' %}
+                                            {% include 'misc/member_item.part.html' with member=operation.canceler_user avatar=True %}
+                                        {% else %}
+                                            {% trans 'Non' %}
+                                        {% endif %}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <button class="btn btn-grey ico-after hide unpick-action" data-url="{% url 'validation:revoke-ignore-opinion' operation.pk %}" {% if not operation.is_effective %}disabled{% endif %}>
+                                        {% trans 'Révoquer la décision' %}
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>
+                    {% trans "Aucune action dans l’historique de modération." %}
+                </p>
+            {% endif %}
+        {% endblock %}
+    </section>
+{% endblock %}

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import datetime
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
@@ -316,6 +315,8 @@ class PrivateTopicDetailAPI(LeavePrivateTopic, RetrieveUpdateDestroyAPIView):
             return PrivateTopicSerializer
         elif self.request.method == 'PUT':
             return PrivateTopicUpdateSerializer
+        else:  # used only for API documentation
+            return PrivateTopicSerializer
 
     def get_permissions(self):
         permission_classes = [IsAuthenticated, IsParticipant, ]

@@ -1,21 +1,16 @@
-# coding: utf-8
-from __future__ import unicode_literals
-from django.utils.encoding import python_2_unicode_compatible
 import os
-from string import lower
 from uuid import uuid4
 from shutil import rmtree
 
 from easy_thumbnails.fields import ThumbnailerImageField
 from easy_thumbnails.files import get_thumbnailer
 
+from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.db import models
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
-
-from zds.settings import MEDIA_ROOT, MEDIA_URL
 
 
 # Models settings
@@ -34,27 +29,26 @@ def image_path(instance, filename):
     :return: local filesystem path of the uploaded image
     :rtype: unicode
     """
-    ext = filename.split('.')[-1]
-    filename = u'{0}.{1}'.format(str(uuid4()), lower(ext))
+    ext = filename.split('.')[-1].lower()
+    filename = '{0}.{1}'.format(str(uuid4()), ext)
 
     return os.path.join('galleries', str(instance.gallery.pk), filename)
 
 
-@python_2_unicode_compatible
 class UserGallery(models.Model):
     """A gallery of images created by a user."""
 
     class Meta:
-        verbose_name = _(u'Galeries de l\'utilisateur')
-        verbose_name_plural = _(u'Galeries de l\'utilisateur')
+        verbose_name = _('Galeries de l\'utilisateur')
+        verbose_name_plural = _('Galeries de l\'utilisateur')
 
     MODE_CHOICES = (
-        (GALLERY_READ, _(u'Lecture')),
-        (GALLERY_WRITE, _(u'Écriture'))
+        (GALLERY_READ, _('Lecture')),
+        (GALLERY_WRITE, _('Écriture'))
     )
 
-    user = models.ForeignKey(User, verbose_name=_(u'Membre'), db_index=True)
-    gallery = models.ForeignKey('Gallery', verbose_name=_(u'Galerie'), db_index=True)
+    user = models.ForeignKey(User, verbose_name=_('Membre'), db_index=True)
+    gallery = models.ForeignKey('Gallery', verbose_name=_('Galerie'), db_index=True)
     mode = models.CharField(max_length=1, choices=MODE_CHOICES, default=GALLERY_READ)
 
     def __str__(self):
@@ -63,7 +57,7 @@ class UserGallery(models.Model):
         :return: UserGalley description
         :rtype: unicode
         """
-        return _('Galerie « {0} » de {1}').format(self.gallery, self.user)
+        return _('Galerie « {0} » de {1}').format(self.gallery, self.user)
 
     def can_write(self):
         """Check if user can write in the gallery.
@@ -90,21 +84,20 @@ class UserGallery(models.Model):
         return Image.objects.filter(gallery=self.gallery).order_by('update').all()
 
 
-@python_2_unicode_compatible
 class Image(models.Model):
     """Represent an image in database"""
 
     class Meta:
-        verbose_name = _(u'Image')
-        verbose_name_plural = _(u'Images')
+        verbose_name = _('Image')
+        verbose_name_plural = _('Images')
 
-    gallery = models.ForeignKey('Gallery', verbose_name=_(u'Galerie'), db_index=True)
-    title = models.CharField(_(u'Titre'), max_length=80)
+    gallery = models.ForeignKey('Gallery', verbose_name=_('Galerie'), db_index=True)
+    title = models.CharField(_('Titre'), max_length=80)
     slug = models.SlugField(max_length=80)
     physical = ThumbnailerImageField(upload_to=image_path, max_length=200)
     legend = models.CharField(_('Légende'), max_length=80, null=True, blank=True)
-    pubdate = models.DateTimeField(_(u'Date de création'), auto_now_add=True, db_index=True)
-    update = models.DateTimeField(_(u'Date de modification'), null=True, blank=True)
+    pubdate = models.DateTimeField(_('Date de création'), auto_now_add=True, db_index=True)
+    update = models.DateTimeField(_('Date de modification'), null=True, blank=True)
 
     def __init__(self, *args, **kwargs):
         super(Image, self).__init__(*args, **kwargs)
@@ -123,7 +116,7 @@ class Image(models.Model):
         :return: Image object URL
         :rtype: str
         """
-        return '{0}/{1}'.format(MEDIA_URL, self.physical)
+        return '{0}/{1}'.format(settings.MEDIA_URL, self.physical)
 
     def get_extension(self):
         """Get the extension of an image (used in tests).
@@ -146,18 +139,17 @@ def auto_delete_file_on_delete(sender, instance, **kwargs):
         thumbmanager.delete(save=False)
 
 
-@python_2_unicode_compatible
 class Gallery(models.Model):
 
     class Meta:
-        verbose_name = _(u'Galerie')
-        verbose_name_plural = _(u'Galeries')
+        verbose_name = _('Galerie')
+        verbose_name_plural = _('Galeries')
 
-    title = models.CharField(_(u'Titre'), max_length=80)
-    subtitle = models.CharField(_(u'Sous titre'), max_length=200, blank=True)
+    title = models.CharField(_('Titre'), max_length=80)
+    subtitle = models.CharField(_('Sous titre'), max_length=200, blank=True)
     slug = models.SlugField(max_length=80)
-    pubdate = models.DateTimeField(_(u'Date de création'), auto_now_add=True, db_index=True)
-    update = models.DateTimeField(_(u'Date de modification'), null=True, blank=True)
+    pubdate = models.DateTimeField(_('Date de création'), auto_now_add=True, db_index=True)
+    update = models.DateTimeField(_('Date de modification'), null=True, blank=True)
 
     def __str__(self):
         """Human-readable representation of the Gallery model.
@@ -181,7 +173,7 @@ class Gallery(models.Model):
         :return: filesystem path to this gallery root
         :rtype: unicode
         """
-        return os.path.join(MEDIA_ROOT, 'galleries', str(self.pk))
+        return os.path.join(settings.MEDIA_ROOT, 'galleries', str(self.pk))
 
     def get_linked_users(self):
         """Get all the linked users for this gallery whatever their rights

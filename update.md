@@ -261,7 +261,7 @@ Issues #2718, #2658 et #2615
 ----------------------------
 
 1. **Sauvegarder** le fichiers de configuration Nginx `zestedesavoir` et `zds-maintenance`.
-2. Les **remplacer** par ceux [présents dans la documentation](http://zds-site.readthedocs.org/fr/latest/install/deploy-in-production.html).
+2. Les **remplacer** par ceux [présents dans la documentation](http://docs.zestedesavoir.com/install/deploy-in-production.html).
 
 Si le fichier `zds-maintenance` n'est pas dans la doc, c'est que vous n'êtes pas sur la bonne version.
 
@@ -842,6 +842,22 @@ A propos du logging:
 Mettre à jour le `settings_prod.py` en suivant `doc/source/install/configs/settings_prod.py`.
 
 
+Actions faites sur la prod avant la v22
+=======================================
+
+Mettre à jour nginx
+-------------------
+
+* Supprimer `/etc/apt/sources.list.d/nginx.list`
+* `apt update`
+* `systemctl stop nginx`
+* `apt remove 'nginx-*'`
+* `apt-get -t jessie-backports install nginx-full`
+    - `N or O  : keep your currently-installed version`
+    - `rm /etc/nginx/sites-available/default`
+    - `dpkg --configure -a`
+* `systemctl restart nginx`
+
 Actions à faire pour l'upgrade v22
 ==================================
 
@@ -852,21 +868,28 @@ Lancer la commande de calcul du nombre de caractères des contenus publiés : `p
 
 Maj de Raven + releases
 -----------------------
-Avant de faire le tag des différentes RC, s'assurer qu'un githook a été ajouté comme le propose sentry.
+
 Mettre à jour le `settings_prod.py` :
 
 ```diff
 +from raven import Client
 +from zds.utils.context_processor import get_git_version
+```
 
-# NEVER set this True !!
-DEBUG = False
-
+```diff
 # https://docs.getsentry.com/hosted/clients/python/integrations/django/
 RAVEN_CONFIG = {
   'dsn': 'to-fill',
-+  'release': get_git_version()
++ 'release': get_git_version()['name'],
 }
+```
+
+```diff
+       'sentry': {
+            'level': 'ERROR',  # For beta purpose it can be lowered to WARNING
+            'class': 'raven.handlers.logging.SentryHandler',
++           'dsn': RAVEN_CONFIG['dsn'],
+        },
 ```
 
 Elasticsearch (PR #4096)
@@ -874,23 +897,23 @@ Elasticsearch (PR #4096)
 
 Pour installer Elasticsearch, les commandes suivantes sont à effectuer (en *root*):
 
-+ Ajouter `deb http://ftp.fr.debian.org/debian jessie-backports` main dans `/etc/apt/sources.list`
-+ Installer Java 8 : 
-    * `apt-get update && apt-get install openjdk-8-jdk`. 
++ S'assurer que `jessie-backports` est disponible dans `/etc/apt/sources.list`
++ S'assurer que Java 8 est disponible par défaut: `java -version`, sinon l'installer :
+    * `apt-get update && apt-get install openjdk-8-jdk`.
     * Une fois installé, passer de Java 7 à Java 8 en le sélectionnant grâce à `update-alternatives --config java`.
 + Installer Elasticsearch ([informations issues de la documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/deb.html)):
     * Ajouter la clé publique du dépôt : `wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | apt-key add -`
     * Installer apt-transport-https `apt-get install apt-transport-https`
     * Ajouter le dépôt pour Elasticsearch 5 : `echo "deb https://artifacts.elastic.co/packages/5.x/apt stable main" | tee -a /etc/apt/sources.list.d/elastic-5.x.list`
     * Installer Elasticsearch 5 : `apt-get update && apt-get install elasticsearch`
-+ Configurer la mémoire utilisée par Elastisearch: 
++ Configurer la mémoire utilisée par Elastisearch:
     Remplacer les options `-Xms2g` et `-Xmx2g` par
-    
+
     ```
     -Xms512m
     -Xmx512m
     ```
-    
+
     Dans `/etc/elasticsearch/jvm.options` (**Peut évoluer dans le futur**).
 + Lancer Elasticsearch:
 
@@ -899,20 +922,21 @@ Pour installer Elasticsearch, les commandes suivantes sont à effectuer (en *roo
     systemctl enable elasticsearch.service
     systemctl start elasticsearch.service
     ```
-    
+
 + Vérifier que le port 9200 n'est pas accessible de l'extérieur (sinon, configurer le firewall en conséquence)
 + Ajouter [ce plugin](https://github.com/y-ken/munin-plugin-elasticsearch) à Munin:
-    
+
     * Installer la dépendance manquante:
-    
+
         ```bash
         apt install libjson-perl
         ```
     * Suivre les instructions du [README.md](https://github.com/y-ken/munin-plugin-elasticsearch/blob/master/README.md)
-    
+    * Penser à enlever le(s) plugin(s) Solr et relancer `munin-node`
+
 Une fois Elasticsearch configuré et lancé,
 
-+ Passer à 3 *shards* ([conseillé par Firm1](https://github.com/zestedesavoir/zds-site/pull/4096#issuecomment-269861811)): `ES_SEARCH_INDEX['shards'] = 3` dans `settings_prod.py`. 
++ Passer à 3 *shards* ([conseillé par Firm1](https://github.com/zestedesavoir/zds-site/pull/4096#issuecomment-269861811)): `ES_SEARCH_INDEX['shards'] = 3` dans `settings_prod.py`.
 + Indexer les données (**ça peut être long**):
 
     ```
@@ -922,54 +946,203 @@ Une fois Elasticsearch configuré et lancé,
 Une fois que tout est indexé,
 
 + Repasser `ZDS_APP['display_search_bar'] = True` dans `settings_prod.py`.
-    
+
 + Configurer *systemd*:
 
     * `zds-es-index.service` :
-    
+
         ```
         [Unit]
         Description=Reindex SOLR Service
-        
+
         [Service]
         Type=oneshot
         User=zds
         Group=zds
         ExecStart=/opt/zds/zdsenv/bin/python /opt/zds/zds-site/manage.py es_manager index_flagged
         ```
-    
+
     * `zds-es-index.timer`:
-    
+
         ```
         [Unit]
         Description=ES reindex flagged contents
-        
+
         [Timer]
         OnCalendar=*:30:00
         Persistent=true
-        
+
         [Install]
         WantedBy=timers.target
         ```
+
     * Supprimer Solr et ajouter Elasticsearch:
-    
+
         ```bash
         systemctl stop zds-index-solr.timer
         systemctl disable zds-index-solr.timer
-        
+
         systemctl enable zds-es-index.timer
         systemctl start zds-es-index.timer
         ```
-        
-+ Désinstaller Solr : 
-    * `pip uninstall pysolr django-haystack`
-    * Supprimer la base de données de Solr
-+ Supprimer les tables suivantes de MySQL:
 
-    * `search_searchindexextract`
-    * `search_searchindexcontainer`
-    * `search_searchindexcontent_authors`
-    * `search_searchindexcontent_tags`
-    * `search_searchindextag`
-    * `search_searchindexauthors`
-    * `search_searchindexcontent`
++ Désinstaller Solr :
+    * `pip uninstall pysolr django-haystack`
+
++ Supprimer Solr
+    * `rm -rf /opt/zds/solr-*`
+
++ Supprimer les tables devenues inutiles dans MySQL:
+
+    * `mysql -u zds -p -B zdsdb`
+
+    ```sql
+    DROP TABLE search_searchindexextract;
+    DROP TABLE search_searchindexcontainer;
+    DROP TABLE search_searchindexcontent_authors;
+    DROP TABLE search_searchindexcontent_tags;
+    DROP TABLE search_searchindextag;
+    DROP TABLE search_searchindexauthors;
+    DROP TABLE search_searchindexcontent;
+    ```
+
+Actions à faire pour mettre en prod la version : v23
+====================================================
+
+Tribunes
+--------
+
++ Ajouter à la fin de `/etc/munin/plugin-conf.d/zds.conf`
+
+```
+    [zds_total_tribunes]
+    env.url https://zestedesavoir.com/munin/total_opinions/
+    env.graph_category zds
+```
+
++ Créer le symlink nécessaire dans `/etc/munin/plugins` (`ln -s /usr/share/munin/plugins/django.py zds_total_tribunes`)
+
++ Réindexer les données (un champ a été rajouté):
+
+    ```
+    python manage.py es_manager index_all
+    ```
+
+A propos de social auth:
+------------------------
+
+Ne pas oublier de mettre le middleware `'zds.member.utils.ZDSCustomizeSocialAuthExceptionMiddleware'`.
+
+Forcer le paramètre `SOCIAL_AUTH_RAISE_EXCEPTIONS = False`.
+
+
+Mise à jour d'ElasticSearch
+---------------------------
+
+1. `sudo apt update`
+2. `sudo apt upgrade elasticsearch`
+2. `systemctl restart elasticsearch.service`
+
+
+Actions à faire pour mettre en prod la version : v24
+====================================================
+
+Ticket #4313
+------------
+
++ Via l'admin Django, ajouter la permission `member.change_bannedemailprovider` aux groupes autorisés à gérer les fournisseurs e-mail bannis.
+
+Actions à faire pour mettre en prod la version : v25
+====================================================
+
+Avant le déploiement:
+---------------------
+
+Node.js, yarn et npm
+--------------------
+
+En root: Installer node 8 et Yarn:
+
+```
+curl -sL https://deb.nodesource.com/setup_8.x | bash -
+curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
+echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
+apt-get update && apt-get install build-essential nodejs yarn
+```
+
+Mise à jour d'ElasticSearch (#420)
+----------------------------------
+
+```
+sudo apt update
+sudo apt upgrade elasticsearch # Ne pas remplacer jvm.options
+systemctl restart elasticsearch.service
+```
+
+Mise à jour des settings
+------------------------
+
+* Dans les `settings*.py`, renommer `sec_per_minute` en `characters_per_minute` si présent
+* Dans les `settings*.py`, renommer `litteral_name` en `literal_name`
+
+Smileys Clem (#4408)
+--------------------
+
++ Ajouter `ZDS_APP['member']['old_smileys_allowed'] = True` au `settings_prod.py`.
++ Télécharger le fichier [`clem_smileys.conf`](https://raw.githubusercontent.com/zestedesavoir/zds-site/f11a1346c80741046fc02c5a9e68e001da3e4c6b/doc/source/install/configs/nginx/snippets/clem_smileys.conf) dans `/etc/nginx/snippets/`.
++ Éditer `/etc/nginx/sites-available/zestedesavoir` et ajouter `include snippets/clem_smileys.conf;` dans le bloc `location ~* ^/(static|media|errors)/ {`
++ Tester la configuration : `nginx -t`
+
+Script de déploiement
+---------------------
+
+Le script de mise à jour du script de déploiement ayant changé, il faut d'abord récupérer la nouvelle version en faisant dans /opt/zds/zds-site
+
+```sh
+git fetch origin
+git checkout origin/dev scripts/update_and_deploy.sh
+```
+
+
+Lancer le script de déploiement
+-------------------------------
+
+Casquettes
+----------
+
+Par défaut, les casquettes ne sont modifiables que par les super-utilisateurs. Pour autoriser un groupe à le faire, il faut lui ajouter la permission `utils.change_hat` via l'admin Django.
+
+Il faut ensuite créer des casquettes. Une commande est disponible pour ajouter une casquette à tous les membres d'un groupe. Lancez donc les commandes suivantes :
+
+1. Activer le venv
+
+```
+python manage.py add_hat_to_group 'CA' "Conseil d'Administration"
+python manage.py add_hat_to_group 'devs' 'Équipe technique'
+python manage.py add_hat_to_group 'staffs' 'Staff'
+python manage.py add_hat_to_group 'Communication' 'Communication'
+python manage.py add_hat_to_group 'dtc' 'DTC'
+```
+
+Menu au survol (#4454)
+----------------------
+
+Les menus s’ouvrent désormais au survol lorsque l’option est activée. Étant donné que cette option est activée par défaut, désactiver cette option pour tous les utilisateurs existants via le shell de Django afin de ne pas troubler la communauté :
+
+1. Toujours dans le venv, `python manage.py shell`
+
+```python
+from zds.member.models import Profile
+Profile.objects.update(is_hover_enabled=False)
+```
+
+Responsables de groupe (#4600)
+------------------------------
+
+Il faut réassigner les responsables de chaque groupe dans l'admin django post-déploiement.
+
+
+Versions supérieures à la v25
+=============================
+
+Ce fichier n'est plus utilisé après la v25. Il a été remplacé par un *changelog* disponible sur le [wiki GitHub](https://github.com/zestedesavoir/zds-site/wiki).

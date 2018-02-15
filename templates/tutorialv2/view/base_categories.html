@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% load date %}
+{% load i18n %}
+{% load captureas %}
+{% load pluralize_fr %}
+{% load set %}
+
+
+{% block title_base %}
+    &bull; {% trans "Bibliothèque" %}
+{% endblock %}
+
+
+
+{% block mobile_title %}
+    {% trans "Bibliothèque" %}
+{% endblock %}
+
+
+{% block title %}
+    {% if category %}
+        {% if subcategory %}
+            {% trans "Publications dans" %} {{ subcategory.title }}
+        {% else %}
+            {% trans "Publications dans" %} {{ category.title }}
+        {% endif %}
+    {% else %}
+        {% trans "Toutes les publications" %}
+    {% endif %}
+{% endblock %}
+
+{% block menu_publications %}current{% endblock %}
+
+{% block description %}
+    {% if category %}
+        {% set category.title as name %}
+        {% if subcategory %}
+            {% set subcategory.title as name %}
+        {% endif %}
+
+        {% blocktrans %}
+            Découvrez tous nos publications dans {{ name }}. Vous pourrez également découvrir divers sujets tous plus intéressants les uns que les autres !
+        {% endblocktrans %}
+    {% else %}
+        {% blocktrans %}
+            Les publications vous permettent d’apprendre divers sujets tous plus intéressants les uns que les autres.
+        {% endblocktrans %}
+    {% endif %}
+{% endblock %}
+
+
+
+{% block body_class %}flexpage{% endblock %}
+
+
+
+{% block content_out %}
+    <section class="flexpage-header">
+        <div class="flexpage-wrapper">
+            <div class="flexpage-title-tool">
+                <div class="picto">
+                    <img src="/static/images/logo-library.png">
+                </div>
+
+                <div class="title">
+                    <h1><a href="{% url 'publication:list' %}">{% trans 'Bibliothèque' %}</a></h1>
+
+                    {% if level == 1 %}
+                        <div class="line">
+                            {% if content_count %}
+                                {{ content_count }} {% trans 'publication' %}{{ content_count|pluralize_fr }}
+                            {% endif %}
+                        </div>
+                    {% elif level == 2 %}
+                        <div class="line">
+                            <div class="line-item">
+                                <h2 class="has-separator"><a href="{% url 'publication:category' slug=category.slug %}">{{ category.title }}</a></h2>
+                            </div>
+                        </div>
+                    {% elif level == 3 %}
+                        <div class="line">
+                            <div class="line-item">
+                                <h2 class="has-separator"><a href="{% url 'publication:category' slug=category.slug %}">{{ category.title }}</a></h2>
+                            </div>
+                            <div class="line-item">
+                                <h2 class="has-separator"><a href="{% url 'publication:subcategory' slug_category=category.slug slug=subcategory.slug %}">{{ subcategory.title }}</a></h2>
+                            </div>
+                        </div>
+                    {% elif level == 4 %}
+                        <div class="line">
+                            <div class="line-item">
+                                <h2 class="has-separator">Parcourir</h2>
+                            </div>
+                        </div>
+
+                        <div class="line">
+                            <div class="line-item">
+                                {% if category %}
+                                    <span class="has-separator option">{% trans 'Domaine de savoir :' %} <strong><a href="{% url 'publication:category' slug=category.slug %}">{{category}}</a></strong></span>
+                                {% endif %}
+                                {% if subcategory %}
+                                    <span class="has-separator option">{% trans 'Catégorie :' %} <strong><a href="{% url 'publication:subcategory' slug_category=category.slug slug=subcategory.slug %}">{{subcategory}}</a></strong></span>
+                                {% endif %}
+                                {% if type %}
+                                    <span class="has-separator option">{% trans 'Type :' %} <strong>{{type}}</strong></span>
+                                {% endif %}
+                                {% if tag %}
+                                    <span class="has-separator option">{% trans 'Tag :' %} <strong>{{tag}}</strong></span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+
+                {% if level < 4 %}
+                    <div class="aside">
+                        <form action="{% url 'search:query' %}" id="search-form" class="search" method="get">
+                            <label for="id_q" class="control-label">{% trans 'Recherche' %}</label>
+                            <input id="id_q" maxlength="150" name="q" required="required" type="search" placeholder="{% trans 'dans' %} {% if subcategory %}{{ subcategory.title }}{% elif category %}{{ category.title }}{% else %}{% trans 'la bibliothèque' %}{% endif %}">
+                            <input type="hidden" name="models" value="content">
+                            <input type="hidden" name="from_library" value="on">
+                            {% if category %}
+                                <input type="hidden" name="category" value="{{ category.slug }}">
+                                {% if subcategory %}
+                                    <input type="hidden" name="subcategory" value="{{ subcategory.slug }}">
+                                {% endif %}
+                            {% endif %}
+                            <button class="btn ico-after ico-search" type="submit" title="Rechercher"></button>
+                        </form>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <div class="flexpage-wrapper">
+        {% block content_category %}{% endblock %}
+    </div>
+{% endblock %}

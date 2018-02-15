@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from datetime import datetime
 
 from zds.utils.templatetags.emarkdown import emarkdown
@@ -30,7 +29,8 @@ class UpdatePrivatePost(object):
     Updates a private topic.
     """
 
-    def perform_update(self, instance, data):
+    def perform_update(self, instance, data, hat=None):
+        instance.hat = hat
         instance.text = data.get('text')
         instance.text_html = emarkdown(data.get('text'))
         instance.update = datetime.now()

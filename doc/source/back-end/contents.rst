@@ -8,6 +8,8 @@ Vocabulaire et définitions
 - **Contenu** (*content*): désigne, de manière générale, tout ce qui peut être produit et édité sur Zeste de Savoir, c'est-à-dire, à l'heure actuelle, un article ou un tutoriel. Tout contenu est rattaché à un dossier qui lui est propre et dont l'organisation est explicitée plus bas. Ce dossier comporte des informations sur le contenu lui-même (*metadata* : un auteur, une description, une licence...) ainsi que des textes, agencés dans une arborescence bien précise.
 - **Article** : contenu, généralement court, visant à faire découvrir un sujet plus qu'à l'expliquer au lecteur (introduit sans rentrer dans les détails) ou à fournir un état des lieux sur un point donné de manière concise (rapports de *release*, actualité...).
 - **Tutoriel** : contenu, en général plus long, ayant pour objectif d'enseigner un savoir-faire au lecteur.
+- **Tribune libre** : ensemble de billets associés à un utilisateur.
+- **Billet** : contenu, généralement court dont l'objectif est de donner un retour d'expérience, de donner son opinion quant à une actualité, de donner un lien intéressant… La validation (ou modération) d'un billet se fait après publication, publication étant directement faite par l'auteur.
 - **git**: système de gestion de versions employé (entre autres) par ZdS. Il permet de faire coexister différentes versions d'un contenu de manière simple et transparente pour l'auteur.
 - **Version** : état du contenu à un moment donné. Toute mise à jour du contenu (ou d'une de ses composantes) génère une nouvelle version de ce dernier, laquelle est désignée par un *hash*, c'est-à-dire par une chaîne de 40 caractères de long (aussi appelée *sha*, en référence à l'algorithme employé pour les générer). Ce *hash* permet d'identifier de manière unique cette version parmi toutes celles du contenu. Certaines versions, en plus du *sha*, sont désignées par un nom. On distingue ainsi la version brouillon (*draft*), la version en bêta (*beta*), la version en validation (*validation*) et la version publiée (*public*). Pour ce faire, les *hash* correspondant à ces versions sont simplement mis de côté.
 - Fichier **manifest.json** : fichier à la racine de tout contenu dont l'objectif est de décrire ce dernier. Un tel fichier comporte deux types d'informations : à propos du contenu en lui-même (les métadonnées mentionnées plus haut) et à propos de son arborescence. La spécification de ce fichier est détaillée plus loin. On retiendra qu'à chaque version correspond un fichier ``manifest.json`` et que le contenu de ce dernier peut fortement varier d'une version à l'autre.
@@ -22,7 +24,7 @@ Des extraits
 
 Un **extrait** est une unité de texte. Il possède un titre (*title*) et du
 texte (*text*). Dans l'interface d'édition d'un tutoriel, un extrait est
-désigné par le terme « section ».
+désigné par le terme « section ».
 
 Des conteneurs
 --------------
@@ -32,16 +34,16 @@ sémantiquement proches. Il est caractérisé par son titre (*title*) et possèd
 une introduction (*introduction*) ainsi qu'une conclusion (*conclusion*),
 possiblement vides.
 
-Les éléments regroupés, appelés « enfants » (*children*) peuvent être de deux
+Les éléments regroupés, appelés « enfants » (*children*) peuvent être de deux
 types : conteneur ou extrait. La structure d'un conteneur obéit à certaines
 règles :
 
 * Un conteneur ne peut comporter un conteneur composé lui-même d'un conteneur ;
 * Un conteneur ne peut comporter d'enfants directs à la fois des conteneurs et des extraits.
 
-Au niveau de la terminologie, on désigne par « partie » tout conteneur de
+Au niveau de la terminologie, on désigne par « partie » tout conteneur de
 niveau 1, c'est-à-dire n'étant pas inclus dans un autre conteneur, et par
-« chapitre » tout conteneur enfant d'une partie.
+« chapitre » tout conteneur enfant d'une partie.
 
 Un contenu
 ----------
@@ -55,7 +57,7 @@ pas le cas d'un tutoriel.
 
 Les exemples suivants devraient éclairer ces notions.
 
-Communément appelé « mini-tutoriel » :
+Communément appelé « mini-tutoriel » :
 
 .. sourcecode:: none
 
@@ -64,7 +66,7 @@ Communément appelé « mini-tutoriel » :
         + Section
         + Section
 
-Communément appelé « moyen-tutoriel » :
+Communément appelé « moyen-tutoriel » :
 
 .. sourcecode:: none
 
@@ -75,7 +77,7 @@ Communément appelé « moyen-tutoriel » :
             + Section
             + Section
 
-Communément appelé « big-tutoriel » :
+Communément appelé « big-tutoriel » :
 
 .. sourcecode:: none
 
@@ -143,7 +145,7 @@ Tous les textes (introductions, conclusions et extraits) sont formatés en
 Markdown (dans la version étendue de ZdS).
 
 Conteneurs et extraits sont des **objets** (*object*). Dès lors, ils possèdent
-tous deux un *slug* (littéralement, « limace ») : il s'agit d'une chaîne de
+tous deux un *slug* (littéralement, « limace ») : il s'agit d'une chaîne de
 caractères générée à partir du titre de l'objet et qui, tout en restant lisible
 par un être humain, le simplifie considérablement. Un *slug* est uniquement
 composé de caractères alphanumériques minuscules et non-accentués
@@ -546,7 +548,7 @@ Si vous souhaitez implémenter votre propre convertisseur, voici l'algorithme ut
 .. sourcecode:: python
 
     with open(_file, "r") as json_file:
-        data = json_reader.load(json_file)
+        data = json_handler.load(json_file)
     _type = "TUTORIAL"
     if "type" not in data:
         _type = "ARTICLE"
@@ -605,8 +607,8 @@ Ces paramètres sont à surcharger dans le dictionnaire ZDS_APP['content']
 - ``extra_content_generation_policy``: Contient la politique de génération des fichiers téléchargeable, 'SYNC', 'WATCHDOG' ou 'NOTHING'
 - ``extra_content_watchdog_dir``: dossier qui permet à l'observateur (si ``extra_content_generation_policy`` vaut ``"WATCHDOG"``) de savoir qu'un contenu a été publié
 - ``max_tree_depth``: Profondeur maximale de la hiérarchie des tutoriels : par défaut ``3`` pour partie/chapitre/extrait
-- ``default_licence_pk``: Clé primaire de la licence par défaut (« Tous droits réservés » en français), 7 si vous utilisez les fixtures
-- ``content_per_page``: Nombre de contenus dans les listing (articles, tutoriels)
+- ``default_licence_pk``: Clé primaire de la licence par défaut (« Tous droits réservés » en français), 7 si vous utilisez les fixtures
+- ``content_per_page``: Nombre de contenus dans les listing (articles, tutoriels, billets)
 - ``notes_per_page``: Nombre de réactions nouvelles par page (donc sans compter la répétition de la dernière note de la page précédente)
 - ``helps_per_page`` : Nombre de contenus ayant besoin d'aide dans la page ZEP-03
 - ``feed_length``: Nombre de contenus affiché dans un flux RSS ou ATOM,

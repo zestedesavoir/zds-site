@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from django.db import models
 from django.conf import settings
 from datetime import datetime
@@ -22,6 +20,6 @@ class ProfileManager(models.Manager):
             .exclude(user__groups__in=excluded_groups) \
             .filter(Q(can_read=True) | Q(end_ban_read__lte=now)) \
             .order_by('-user__date_joined') \
-            .select_related('user__username')
+            .select_related('user')
 
         return qs

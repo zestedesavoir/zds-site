@@ -1,15 +1,17 @@
-# coding: utf-8
 import shutil
 from collections import OrderedDict
 from datetime import datetime
-from urllib import urlretrieve
-from urlparse import urlparse
+from urllib.request import urlretrieve
+from urllib.parse import urlparse
 try:
     import cairosvg
-except ImportError:
+except ImportError as e:
+    cairosvg = None  # no cairo on win.
     print('no cairo imported')
 
 import os
+import logging
+from urllib.parse import urlsplit, urlunsplit, quote
 from PIL import Image as ImagePIL
 from django.contrib.auth.models import User
 from django.http import Http404
@@ -18,12 +20,14 @@ from git import Repo, Actor
 from lxml import etree
 from uuslug import slugify
 
-from zds import settings
+from django.conf import settings
 from zds.notification import signals
 from zds.tutorialv2 import REPLACE_IMAGE_PATTERN, VALID_SLUG
+from zds.tutorialv2.models import CONTENT_TYPE_LIST
 from zds.utils import get_current_user
 from zds.utils import slugify as old_slugify
 from zds.utils.models import Licence
+logger = logging.getLogger(__name__)
 
 
 def all_is_string_appart_from_children(dict_representation):
@@ -33,7 +37,7 @@ def all_is_string_appart_from_children(dict_representation):
     :return:
     :rtype: bool
     """
-    return all([isinstance(value, basestring) for key, value in dict_representation.items() if key != 'children'])
+    return all([isinstance(value, str) for key, value in list(dict_representation.items()) if key != 'children'])
 
 
 def search_container_or_404(base_content, kwargs_array):
@@ -42,13 +46,13 @@ def search_container_or_404(base_content, kwargs_array):
     :param kwargs_array: an array that may contain `parent_container_slug` and `container_slug` keys\
     or the string representation
     :return: the Container object we were searching for
-    :rtype: zds.tutorialv2.models.models_versioned.Container
+    :rtype: zds.tutorialv2.models.versioned.Container
     :raise Http404: if no suitable container is found
     """
 
-    from zds.tutorialv2.models.models_versioned import Container
+    from zds.tutorialv2.models.versioned import Container
 
-    if isinstance(kwargs_array, basestring):
+    if isinstance(kwargs_array, str):
         dic = {}
         dic['parent_container_slug'] = kwargs_array.split('/')[0]
         if len(kwargs_array.split('/')) >= 2:
@@ -59,10 +63,10 @@ def search_container_or_404(base_content, kwargs_array):
             try:
                 container = base_content.children_dict[kwargs_array['parent_container_slug']]
             except KeyError:
-                raise Http404(u'Aucun conteneur trouvé.')
+                raise Http404('Aucun conteneur trouvé.')
             else:
                 if not isinstance(container, Container):
-                    raise Http404(u'Aucun conteneur trouvé.')
+                    raise Http404('Aucun conteneur trouvé.')
     else:
         container = base_content
 
@@ -71,15 +75,15 @@ def search_container_or_404(base_content, kwargs_array):
         try:
             container = container.children_dict[kwargs_array['container_slug']]
         except KeyError:
-            raise Http404(u'Aucun conteneur trouvé.')
+            raise Http404('Aucun conteneur trouvé.')
         else:
             if not isinstance(container, Container):
-                raise Http404(u'Aucun conteneur trouvé.')
+                raise Http404('Aucun conteneur trouvé.')
     elif container == base_content:
         # if we have no subcontainer, there is neither 'container_slug' nor "parent_container_slug
         return base_content
     if container is None:
-        raise Http404(u'Aucun conteneur trouvé.')
+        raise Http404('Aucun conteneur trouvé.')
     return container
 
 
@@ -89,11 +93,11 @@ def search_extract_or_404(base_content, kwargs_array):
     :param kwargs_array: an array that may contain `parent_container_slug` and `container_slug` and MUST contains\
     ``extract_slug``
     :return: the Extract object
-    :rtype: zds.tutorialv2.models.models_versioned.Extract
+    :rtype: zds.tutorialv2.models.versioned.Extract
     :raise: Http404 if not found
     """
 
-    from zds.tutorialv2.models.models_versioned import Extract
+    from zds.tutorialv2.models.versioned import Extract
 
     # if the extract is at a depth of 3 we get the first parent container
     container = search_container_or_404(base_content, kwargs_array)
@@ -103,25 +107,25 @@ def search_extract_or_404(base_content, kwargs_array):
         try:
             extract = container.children_dict[kwargs_array['extract_slug']]
         except KeyError:
-            raise Http404(u'Aucun extrait trouvé.')
+            raise Http404('Aucun extrait trouvé.')
         else:
             if not isinstance(extract, Extract):
-                raise Http404(u'Aucun extrait trouvé.')
+                raise Http404('Aucun extrait trouvé.')
     return extract
 
 
 def never_read(content, user=None):
-    """Check if a content note feed has been read by an user since its last post was added.
+    """Check if a content note feed has been read by a user since its last post was added.
 
     :param content: the content to check
-    :type content: zds.tutorialv2.models.models_database.PublishableContent
+    :type content: zds.tutorialv2.models.database.PublishableContent
     :param user: the user to test, if None, gets the current request user
     :type user: zds.member.models.User
     :return: ``True`` if the user never read this content's reactions, ``False`` otherwise
     :rtype: bool
     """
 
-    from zds.tutorialv2.models.models_database import ContentRead
+    from zds.tutorialv2.models.database import ContentRead
 
     if not user:
         user = get_current_user()
@@ -136,7 +140,7 @@ def never_read(content, user=None):
 
 
 def last_participation_is_old(content, user):
-    from zds.tutorialv2.models.models_database import ContentRead, ContentReaction
+    from zds.tutorialv2.models.database import ContentRead, ContentReaction
     if user is None or not user.is_authenticated():
         return False
     if ContentReaction.objects.filter(author__pk=user.pk, related_content__pk=content.pk).count() == 0:
@@ -153,8 +157,8 @@ def mark_read(content, user=None):
     :param user: user that read the content, if ``None`` will use currrent user
     """
 
-    from zds.tutorialv2.models.models_database import ContentRead
-    from zds.tutorialv2.models.models_database import ContentReaction
+    from zds.tutorialv2.models.database import ContentRead
+    from zds.tutorialv2.models.database import ContentReaction
 
     if not user:
         user = get_current_user()
@@ -190,7 +194,7 @@ def try_adopt_new_child(adoptive_parent, child):
     :raise TooDeepContainerError: if the child is a container that is too deep to be adopted by the proposed parent
     """
 
-    from zds.tutorialv2.models.models_versioned import Container, Extract
+    from zds.tutorialv2.models.versioned import Container, Extract
 
     if isinstance(child, Extract):
         if not adoptive_parent.can_add_extract():
@@ -211,13 +215,13 @@ def get_target_tagged_tree(movable_child, root):
     """Gets the tagged tree with deplacement availability
 
     :param movable_child: the extract we want to move
-    :param root: the VersionnedContent we use as root
+    :param root: the VersionedContent we use as root
     :rtype: tuple
     :return: an array of tuples that represent the capacity of movable_child to be moved near another child\
     check get_target_tagged_tree_for_extract and get_target_tagged_tree_for_container for format
     """
 
-    from zds.tutorialv2.models.models_versioned import Extract
+    from zds.tutorialv2.models.versioned import Extract
 
     if isinstance(movable_child, Extract):
         return get_target_tagged_tree_for_extract(movable_child, root)
@@ -229,13 +233,13 @@ def get_target_tagged_tree_for_extract(movable_child, root):
     """Gets the tagged tree with displacement availability when movable_child is an extract
 
     :param movable_child: the extract we want to move
-    :param root: the VersionnedContent we use as root
+    :param root: the VersionedContent we use as root
     :rtype: tuple
     :return: an array of tuples that represent the capacity of movable_child to be moved near another child\
     tuples are ``(relative_path, title, level, can_be_a_target)``
     """
 
-    from zds.tutorialv2.models.models_versioned import Extract
+    from zds.tutorialv2.models.versioned import Extract
 
     target_tagged_tree = []
     for child in root.traverse(False):
@@ -252,7 +256,7 @@ def get_target_tagged_tree_for_container(movable_child, root, bias=-1):
     """Gets the tagged tree with displacement availability when movable_child is an extract
 
     :param movable_child: the container we want to move
-    :param root: the VersionnedContent we use as root
+    :param root: the VersionedContent we use as root
     :param bias: a negative or zero integer that represent the level bias. A value of -1 (default) represent\
     the fact that we want to make the *movable_child* **a sibling** of the tagged child, a value of 0 that we want\
     to make it a sub child.
@@ -285,6 +289,27 @@ def get_target_tagged_tree_for_container(movable_child, root, bias=-1):
     return target_tagged_tree
 
 
+def normalize_unicode_url(unicode_url):
+    """Sometimes you get an URL by a user that just isn't a real URL
+    because it contains unsafe characters like 'β' and so on.  This
+    function can fix some of the problems in a similar way browsers
+    handle data entered by the user:
+
+    .. sourcecode:: python
+
+        normalize_unicode_url(u'http://de.wikipedia.org/wiki/Elf (Begriffsklärung)')
+        # 'http://de.wikipedia.org/wiki/Elf%20%28Begriffskl%C3%A4rung%29'
+
+
+    :param charset: The target charset for the URL if the url was
+                    given as unicode string.
+    """
+    scheme, netloc, path, querystring, anchor = urlsplit(unicode_url)
+    path = quote(path, '/%')
+    querystring = quote(querystring, ':&=')
+    return urlunsplit((scheme, netloc, path, querystring, anchor))
+
+
 def retrieve_image(url, directory):
     """For a given image, retrieve it, transform it into PNG (if needed) and store it
 
@@ -300,7 +325,6 @@ def retrieve_image(url, directory):
     parsed_url = urlparse(url)
 
     img_directory, img_basename = os.path.split(parsed_url.path)
-    img_basename = img_basename.decode('utf-8')
     img_basename_splitted = img_basename.split('.')
 
     if len(img_basename_splitted) > 1:
@@ -325,6 +349,7 @@ def retrieve_image(url, directory):
     try:
         if parsed_url.scheme in ['http', 'https', 'ftp'] \
                 or parsed_url.netloc[:3] == 'www' or parsed_url.path[:3] == 'www':
+            url = normalize_unicode_url(url)
             urlretrieve(url, store_path)  # download online image
         else:  # it's a local image, coming from a gallery
 
@@ -335,12 +360,13 @@ def retrieve_image(url, directory):
             if os.path.isfile(source_path):
                 shutil.copy(source_path, store_path)
             else:
-                raise IOError(source_path)  # ... will use the default image instead
+                raise OSError(source_path)  # ... will use the default image instead
 
         if img_extension == 'svg':  # if SVG, will transform it into PNG
             resize_svg(store_path)
             new_url = new_url_as_png
-            cairosvg.svg2png(url=store_path, write_to=os.path.join(directory, new_url))
+            if cairosvg:
+                cairosvg.svg2png(url=store_path, write_to=os.path.join(directory, new_url))
             os.remove(store_path)
         else:
             img = ImagePIL.open(store_path)
@@ -348,14 +374,18 @@ def retrieve_image(url, directory):
                 # if no extension or gif, will transform it into PNG !
                 new_url = new_url_as_png
                 img.save(os.path.join(directory, new_url))
-                os.remove(store_path)
+                try:
+                    os.remove(store_path)
+                except WindowsError:  # because windows can badly handle this one
+                    logger.error('store path %s not removed', store_path)
 
-    except (IOError, KeyError):  # HTTP 404, image does not exists, or Pillow cannot read it !
+    except (OSError, KeyError):  # HTTP 404, image does not exists, or Pillow cannot read it !
 
         # will be overwritten anyway, so it's better to remove whatever it was, for security reasons :
-        if os.path.exists(store_path):
+        try:
             os.remove(store_path)
-
+        except OSError:
+            logger.warn('could not remove store path %s', store_path)
         img = ImagePIL.open(settings.ZDS_APP['content']['default_image'])
         new_url = new_url_as_png
         img.save(os.path.join(directory, new_url))
@@ -451,7 +481,7 @@ class BadManifestError(Exception):
         super(BadManifestError, self).__init__(*args, **kwargs)
 
 
-def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_len=80):
+def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_len=80, hint_licence=None):
     """Transform the JSON formated data into ``VersionedContent``
 
     :param json: JSON data from a `manifest.json` file
@@ -459,22 +489,23 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
     :param slug_last_draft: the slug for draft marked version
     :param max_title_len: max str length for title
     :param public: the function will fill a PublicContent instead of a VersionedContent if `True`
+    :param hint_licence: avoid loading the licence if it is already the same as the one loaded
     :return: a Public/VersionedContent with all the information retrieved from JSON
-    :rtype: models.models_versioned.VersionedContent|models.models_database.PublishedContent
+    :rtype: zds.tutorialv2.models.versioned.VersionedContent|zds.tutorialv2.models.database.PublishedContent
     """
 
-    from zds.tutorialv2.models.models_versioned import Container, Extract, VersionedContent, PublicContent
+    from zds.tutorialv2.models.versioned import Container, Extract, VersionedContent, PublicContent
 
     if 'version' in json and json['version'] == 2:
         json['version'] = '2'
         if not all_is_string_appart_from_children(json):
             json['version'] = 2
-            raise BadManifestError(_(u"Le fichier manifest n'est pas bien formaté."))
+            raise BadManifestError(_("Le fichier manifest n'est pas bien formaté."))
         json['version'] = 2
         # create and fill the container
         if len(json['title']) > max_title_len:
             raise BadManifestError(
-                _(u'Le titre doit être une chaîne de caractères de moins de {} caractères.').format(max_title_len))
+                _('Le titre doit être une chaîne de caractères de moins de {} caractères.').format(max_title_len))
 
         # check that title gives correct slug
         slugify_raise_on_invalid(json['title'])
@@ -494,11 +525,14 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
             versioned.description = json['description']
 
         if 'type' in json:
-            if json['type'] == 'ARTICLE' or json['type'] == 'TUTORIAL':
+            if json['type'] in CONTENT_TYPE_LIST:
                 versioned.type = json['type']
 
         if 'licence' in json:
-            versioned.licence = Licence.objects.filter(code=json['licence']).first()
+            if hint_licence is not None and hint_licence.code == json['licence']:
+                versioned.licence = hint_licence
+            else:
+                versioned.licence = Licence.objects.filter(code=json['licence']).first()
 
         if 'licence' not in json or not versioned.licence:
             versioned.licence = Licence.objects.filter(pk=settings.ZDS_APP['content']['default_licence_pk']).first()
@@ -511,7 +545,8 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
         # then, fill container with children
         fill_containers_from_json(json, versioned)
     else:
-        # MINIMUM (!) fallback for version 1.0
+        # minimal support for deprecated manifest version 1
+        # supported content types are exclusively ARTICLE and TUTORIAL
 
         if 'type' in json:
             if json['type'] == 'article':
@@ -647,7 +682,7 @@ def slugify_raise_on_invalid(title, use_old_slugify=False):
     :rtype: str
     """
 
-    if not isinstance(title, basestring):
+    if not isinstance(title, str):
         raise InvalidSlugError('', source=title)
     if not use_old_slugify:
         slug = slugify(title)
@@ -669,14 +704,14 @@ def fill_containers_from_json(json_sub, parent):
     :raise KeyError: if one mandatory key is missing
     """
 
-    from zds.tutorialv2.models.models_versioned import Container, Extract
+    from zds.tutorialv2.models.versioned import Container, Extract
 
     if 'children' in json_sub:
 
         for child in json_sub['children']:
             if not all_is_string_appart_from_children(child):
                 raise BadManifestError(
-                    _(u"Le fichier manifest n'est pas bien formaté dans le conteneur " + str(json_sub['title'])))
+                    _("Le fichier manifest n'est pas bien formaté dans le conteneur " + str(json_sub['title'])))
             if child['object'] == 'container':
                 slug = ''
                 try:
@@ -713,7 +748,7 @@ def fill_containers_from_json(json_sub, parent):
                 except InvalidOperationError as e:
                     raise BadManifestError(e.message)
             else:
-                raise BadManifestError(_(u"Type d'objet inconnu : « {} »").format(child['object']))
+                raise BadManifestError(_("Type d'objet inconnu : « {} »").format(child['object']))
 
 
 def init_new_repo(db_object, introduction_text, conclusion_text, commit_message='', do_commit=True):
@@ -726,10 +761,10 @@ def init_new_repo(db_object, introduction_text, conclusion_text, commit_message=
     :param commit_message: set a commit message instead of the default one
     :param do_commit: perform commit if ``True``
     :return: ``VersionedContent`` object
-    :rtype: zds.tutorialv2.models.models_versioned.VersionedContent
+    :rtype: zds.tutorialv2.models.versioned.VersionedContent
     """
 
-    from zds.tutorialv2.models.models_versioned import VersionedContent
+    from zds.tutorialv2.models.versioned import VersionedContent
 
     # create directory
     path = db_object.get_repo_path()
@@ -748,7 +783,7 @@ def init_new_repo(db_object, introduction_text, conclusion_text, commit_message=
 
     # perform changes:
     if not commit_message:
-        commit_message = u'Création du contenu'
+        commit_message = 'Création du contenu'
 
     sha = versioned_content.repo_update(
         db_object.title, introduction_text, conclusion_text, commit_message=commit_message, do_commit=do_commit)
@@ -763,6 +798,22 @@ def init_new_repo(db_object, introduction_text, conclusion_text, commit_message=
         db_object.save()
 
     return versioned_content
+
+
+def clone_repo(old_path, new_path):
+    """
+    Proxy to ``git clone command``. Ensure directory are properly created
+
+    :param old_path: path of the repo to be cloned
+    :param new_path: path of the target repo
+    :return: the target repository encapsulated in a ``GitPython`` object.
+    :rtype: Repo
+    """
+    if not os.path.isdir(new_path):
+        os.makedirs(new_path, mode=0o777)
+    old_repo = Repo(old_path)
+    new_repo = old_repo.clone(new_path)
+    return new_repo
 
 
 def get_commit_author():
@@ -784,13 +835,13 @@ def get_commit_author():
     else:
         try:
             aut_user = str(User.objects.filter(username=settings.ZDS_APP['member']['bot_account']).first().pk)
-        except AttributeError:
+        except AttributeError:  # if nothing is found, `first` returns None, which does not have attribute pk
             aut_user = '0'
 
         aut_email = None
 
     if aut_email is None or not aut_email.strip():
-        aut_email = _(u'inconnu@{}').format(settings.ZDS_APP['site']['dns'])
+        aut_email = _('inconnu@{}').format(settings.ZDS_APP['site']['dns'])
 
     return {'author': Actor(aut_user, aut_email), 'committer': Actor(aut_user, aut_email)}
 
@@ -890,9 +941,9 @@ def get_blob(tree, path):
     for blob in tree.blobs:
         try:
             if os.path.abspath(blob.path) == os.path.abspath(path):
-                data = blob.data_stream.read()
+                data = blob.data_stream.read().decode()
                 return data
-        except (OSError, IOError):  # in case of deleted files, or the system cannot get the lock, juste return ""
+        except OSError:  # in case of deleted files, or the system cannot get the lock, juste return ""
             return ''
     # traverse directories when we are at root or in a part or chapter
     if len(tree.trees) > 0:
@@ -907,7 +958,7 @@ def get_blob(tree, path):
 
 class BadArchiveError(Exception):
     """ The exception that is raised when a bad archive is sent """
-    message = u''
+    message = ''
 
     def __init__(self, reason):
         self.message = reason

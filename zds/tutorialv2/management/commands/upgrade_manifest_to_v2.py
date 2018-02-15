@@ -1,29 +1,22 @@
-from zds.tutorialv2.models.models_versioned import Extract, VersionedContent, Container
+from zds.tutorialv2.models.versioned import Extract, VersionedContent, Container
 from django.core.management.base import BaseCommand
 from zds.utils.models import Licence
 from uuslug import slugify
 import os
-
-try:
-    import ujson as json_reader
-except ImportError:
-    try:
-        import simplejson as json_reader
-    except ImportError:
-        import json as json_reader
+from zds import json_handler
 
 
 class Command(BaseCommand):
     help = 'Create a v2.0 manifest from a 1.0 manifest.json'
-    args = 'manifest_path'
+
+    def add_arguments(self, parser):
+        parser.add_argument('manifest_path', type=str)
 
     def handle(self, *args, **options):
-        if len(args) == 0:
-            exit()
-        _file = args[0]
+        _file = options['manifest_path']
         if os.path.isfile(_file) and _file[-5:] == '.json':
             with open(_file, 'r') as json_file:
-                data = json_reader.load(json_file)
+                data = json_handler.load(json_file)
             _type = 'TUTORIAL'
             if data['type'].lower() == 'article':
                 _type = 'ARTICLE'
@@ -74,4 +67,4 @@ class Command(BaseCommand):
                 extract.text = extract.get_path(True)
 
             with open(_file, 'w') as json_file:
-                json_file.write(versioned.get_json().encode('utf-8'))
+                json_file.write(versioned.get_json())

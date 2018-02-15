@@ -8,37 +8,44 @@
 (function(document ,$, undefined){
     "use strict";
 
+    var linkToMathsTutorial = "//zestedesavoir.com/tutoriels/244/comment-rediger-des-maths-sur-zeste-de-savoir/";
+    var linkToMarkdownHelp = "//zestedesavoir.com/tutoriels/221/rediger-sur-zds/";
+    var linkToPygments = "http://pygments.org/languages";
+
+    var tips = [
+        "Les simples retours à la ligne ne sont pas pris en compte. Pour créer un nouveau paragraphe, pensez à <em>sauter une ligne</em> !",
+        "Encadrez votre texte par une astérisque pour écrire en italique ou deux pour du gras.",
+        "Pour écrire un lien, utilisez la syntaxe <code>[texte de lien](url du lien)</code>",
+        "Les blocs de code sont délimités par trois accents graves <code>```</code>.",
+        "Pour créer une liste à puces, sautez une ligne et commencez chaque élément de la liste par <code>+</code>, <code>-</code> ou <code>*</code>.",
+        "Pour citer quelqu'un, utilisez le symbole <code>></code>.",
+        "Pour tracer une ligne, utilisez <code>---</code>, <code>+++</code> ou <code>***</code>.",
+        "Pour aller à la ligne sans changer de paragraphe, finissez votre première ligne par deux espaces.",
+        "Pour écrire un bout de code au milieu d’une phrase, utilisez la syntaxe <code>`un bout de code`</code>.",
+        "Le langage d’un bloc de code peut être spécifié après les <code>```</code> ouvrants. La liste des langages supportés <a href=\"" + linkToPygments + "\">est disponible ici</a>.",
+        "Vous pouvez <a href=\"" + linkToMathsTutorial + "\">écrire des formules mathématiques</a> en encadrant ces dernières du signe dollar <code>$</code>."
+    ];
+    
     function addDocMD($elem){
         $elem.each(function(){
             var $help = $("<div/>", {
                 "class": "markdown-help",
-                "html": "<div class=\"markdown-help-more\">" +
-                        "<p>Les simples retours à la ligne ne sont pas pris en compte. Pour créer un nouveau paragraphe, pensez à <em>sauter une ligne</em> !</p>" +
-                        "<pre><code>**gras** \n*italique* \n[texte de lien](url du lien) \n> citation \n+ liste à puces </code></pre>" +
-                        "<a href=\"//zestedesavoir.com/tutoriels/221/rediger-sur-zds/\">Voir la documentation complète du markdown</a>" +
-                        "<p>Vous pouvez également <a href=\"//zestedesavoir.com/tutoriels/202/comment-rediger-des-maths-sur-zeste-de-savoir/\">écrire des formules mathématiques</a> en encadrant ces dernières du signe dollar ($) !</p></div>"+
-                        "<a href=\"#open-markdown-help\" class=\"open-markdown-help btn btn-grey ico-after help\">"+
-                            "<span class=\"close-markdown-help-text\">Masquer</span>" +
-                            "<span class=\"open-markdown-help-text\">Afficher</span> l'aide Markdown" +
-                        "</a>"
+                "html": "<strong>Astuce :</strong> " + tips[Math.floor(Math.random() * tips.length)] + " <a href=\"" + linkToMarkdownHelp + "\">Envie d'en savoir plus ?</a>"
             });
             $(this).after($help);
-            $(".open-markdown-help, .close-markdown-help", $help).click(function(e){
-                $(".markdown-help-more", $help).toggleClass("show-markdown-help");
-                e.preventDefault();
-                e.stopPropagation();
-            });
         });
     }
     
 
     $(document).ready(function(){
-        addDocMD($(".md-editor"));
-        $("#content").on("DOMNodeInserted", ".md-editor", function(e){
-            var $editor = $(e.target);
-            if($editor.next().hasClass("markdown-help") === false) {
-                addDocMD($editor);
-            }
-        });
+        if ($("body").data("show-markdown-help")) {
+            addDocMD($(".md-editor"));
+            $("#content").on("DOMNodeInserted", ".md-editor", function(e){
+                var $editor = $(e.target);
+                if($editor.next().hasClass("markdown-help") === false) {
+                    addDocMD($editor);
+                }
+            });
+        }
     });
 })(document, jQuery);

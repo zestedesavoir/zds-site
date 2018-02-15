@@ -24,12 +24,17 @@
         {% endif %}
     </p>
 
-    <div class="content-meta inline" title="Contenu publié">
+    <div class="content-meta inline" title="{% trans "Contenu publié" %}">
         <p>
             {% if search_result.content_type == 'ARTICLE' %}
                 {% trans "Article publié" %}
             {% elif search_result.content_type == 'TUTORIAL' %}
                 {% trans "Tutoriel publié" %}
+            {% elif search_result.content_type == 'OPINION' %}
+                {% trans "Billet" %}
+                {% if search_result.picked %}
+                    {% trans "mis en avant" %}
+                {% endif %}
             {% else %}
                 {% trans "Contenu publié" %}
             {% endif %}
@@ -48,9 +53,11 @@
     <ul class="content-tags" itemprop="keywords">
         {% for tag in search_result.tags|slice:":3" %}
             <li>
-              <a href="{% url 'content:list' %}?tag={{ tag|urlencode }}">
-                {{ tag }}
-              </a>
+                {% if search_result.is_opinion %}
+                    <a href="{% url 'opinion:list' %}?tag={{ tag|urlencode }}">{{ tag }}</a>
+                {% else %}
+                    <a href="{% url 'publication:list' %}?tag={{ tag|urlencode }}">{{ tag }}</a>
+                {% endif %}
             </li>
         {% endfor %}
     </ul>

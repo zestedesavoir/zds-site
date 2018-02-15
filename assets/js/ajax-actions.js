@@ -77,7 +77,7 @@
                 synchText();
             },
             complete: function(){
-              $email.prop("disabled", false);
+                $email.prop("disabled", false);
             }
         });
 
@@ -131,7 +131,7 @@
                 synchText();
             },
             complete: function(){
-              $follow.prop("disabled", false);
+                $follow.prop("disabled", false);
             }
         });
         e.stopPropagation();
@@ -169,6 +169,7 @@
 
                 $act.toggleText("content-on-click");
                 $act.toggleClass("green blue");
+                $("[data-ajax-output='solve-topic']").html("Vous venez de marquer ce sujet comme résolu.");
                 $("[data-ajax-output='solve-topic']").toggleClass("empty");
 
                 synchText();
@@ -194,27 +195,49 @@
         }
     });
 
+    function getLineAt(string, index) {
+        var before = string.slice(0, index).split("\n").slice(-1)[0] || "";
+        var after = string.slice(index).split("\n")[0] || "";
+        return before + after;
+    }
+
+    function insertCitation(editor, citation) {
+        if (editor.value === "") {
+            editor.value = citation + "\n\n";
+            return;
+        }
+        if (editor.selectionStart !== editor.selectionEnd ||
+            getLineAt(editor.value, editor.selectionStart).trim()) {
+            editor.value = editor.value + "\n\n" + citation;
+            return;
+        }
+
+        var before = editor.value.slice(0, editor.selectionStart);
+        var after = editor.value.slice(editor.selectionEnd);
+        editor.value = before + "\n" + citation + "\n" + after;
+    }
+
     /**
      * Cite a message
      */
     $(".message-actions").on("click", "[data-ajax-input='cite-message']", function(e){
-        var $act = $(this),
-            $editor = $(".md-editor");
+        e.stopPropagation();
+        e.preventDefault();
+
+        var $act = $(this);
+        var editor = document.querySelector(".md-editor");
 
         $.ajax({
             url: $act.attr("href"),
             dataType: "json",
             success: function(data){
-                $editor.val($editor.val() + data.text + "\n\n");
+                insertCitation(editor, data.text);
             }
         });
 
         // scroll to the textarea and focus the textarea
-        $("html, body").animate({ scrollTop: $editor.offset().top }, 500);
-        $editor.focus();
-
-        e.stopPropagation();
-        e.preventDefault();
+        $("html, body").animate({ scrollTop: $(editor).offset().top }, 500);
+        editor.focus();
     });
 
     /**
@@ -227,11 +250,11 @@
         var $form = $btn.parents("form:first");
         var text = "";
         if ( $form.find(".preview-source").length ) {
-                var $textSource = $btn.parent().prev().find(".preview-source");
-                text = $textSource.val();
-            } else {
-                text = $form.find("textarea[name=text]").val();
-            }
+            var $textSource = $btn.parent().prev().find(".preview-source");
+            text = $textSource.val();
+        } else {
+            text = $form.find("textarea[name=text]").val();
+        }
 
         var csrfmiddlewaretoken = $form.find("input[name=csrfmiddlewaretoken]").val(),
             lastPost = $form.find("input[name=last_post]").val();
@@ -254,8 +277,10 @@
                     $(data).insertAfter($btn);
 
                 /* global MathJax */
-                if (data.indexOf("$") > 0)
+                // MathJax may be unavailable on some pages.
+                if (window.MathJax && data.indexOf("$") > 0) {
                     MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+                }
             }
         });
     });

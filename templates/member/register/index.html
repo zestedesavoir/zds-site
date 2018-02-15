@@ -1,6 +1,7 @@
-{% extends "member/register/base.html" %}
+{% extends "member/base.html" %}
 {% load crispy_forms_tags %}
 {% load i18n %}
+
 
 
 {% block title %}
@@ -13,6 +14,8 @@
     {% trans "Inscription" %}
 {% endblock %}
 
+
+
 {% block breadcrumb %}
     <li>{% trans "Inscription" %}</li>
 {% endblock %}
@@ -23,14 +26,16 @@
     <div class="content-wrapper">
         {% if not user.is_authenticated %}
             {% if error %}
-                {{ error }}
+                <p class="alert-box warning">
+                    {{ error }}
+                </p>
             {% endif %}
 
             <p class="alert-box warning">
                 {% url "member-login" as url_login %}
-                {% blocktrans with app_name=app.site.litteral_name %}
-                <strong>Vous êtes sur le point de vous inscrire sur {{app_name}}</strong>. Si vous
-                possédez déjà un compte, veuillez <a href="{{url_login }}">vous connecter</a>.
+                {% blocktrans with app_name=app.site.literal_name %}
+                    <strong>Vous êtes sur le point de vous inscrire sur {{app_name}}</strong>. Si vous
+                    possédez déjà un compte, veuillez <a href="{{url_login }}">vous connecter</a>.
                 {% endblocktrans %}
             </p>
 
@@ -58,12 +63,18 @@
             </div>
         {% else %}
             <div>
-                <p class="alert-box warning">
+                <p class="alert-box error">
                     <strong>
                         {% trans "Vous êtes déjà inscrit." %}
                     </strong>
                 </p>
             </div>
         {% endif %}
-</div>
+    </div>
 {% endblock %}
+
+
+
+{# No sidebar on this page #}
+{% block body_class %}no-sidebar{% endblock %}
+{% block sidebar %}{% endblock %}

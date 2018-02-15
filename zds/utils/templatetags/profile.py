@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from django import template
 from django.contrib.auth.models import User
 from django.core.cache import cache
@@ -8,8 +6,6 @@ from zds.member.models import Profile
 
 
 register = template.Library()
-
-perms = {'forum.change_post': {}}
 
 
 @register.filter('profile')
@@ -69,13 +65,6 @@ def state(current_user):
             user_state = 'BAN'
         elif not user_profile.can_write_now():
             user_state = 'LS'
-        elif current_user.pk in perms['forum.change_post'] and perms['forum.change_post'][current_user.pk]:
-            user_state = 'STAFF'
-        elif current_user.pk not in perms['forum.change_post']:
-            perms['forum.change_post'][current_user.pk] = current_user.has_perm('forum.change_post')
-            user_state = None
-            if perms['forum.change_post'][current_user.pk]:
-                user_state = 'STAFF'
         else:
             user_state = None
     except Profile.DoesNotExist:

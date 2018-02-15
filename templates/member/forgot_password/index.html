@@ -3,6 +3,7 @@
 {% load i18n %}
 
 
+
 {% block title %}
     {% trans "Mot de passe oublié" %}
 {% endblock %}
@@ -29,40 +30,56 @@
 
     {% if not user.is_authenticated %}
         {% if error %}
-            {{ error }}
+            <p class="alert-box warning">
+                {{ error }}
+            </p>
         {% endif %}
 
         <p>
             {% blocktrans %}
-            Si vous avez perdu votre mot de passe, vous pouvez utiliser ce formulaire pour le réinitialiser.
-            Saisissez votre nom d'utilisateur ou votre adresse de courriel dans les champs ci-dessous.
+                Si vous avez perdu votre mot de passe, vous pouvez utiliser ce formulaire pour le réinitialiser.
+                Saisissez votre nom d’utilisateur ou votre adresse de courriel dans les champs ci-dessous.
             {% endblocktrans %}
         </p>
 
         <p>
             {% blocktrans %}
-            Une fois le formulaire envoyé, vous recevrez un courriel demandant la validation de cette
-            requête pour s'assurer qu'aucune tentative d'abus n'a eu lieu.
-            Ce courriel contiendra également un lien sur
-            lequel vous devrez cliquer pour avoir plus d'instructions.
+                Une fois le formulaire envoyé, vous recevrez un courriel demandant la validation de cette
+                requête pour s’assurer qu’aucune tentative d’abus n’a eu lieu.
+                Ce courriel contiendra également un lien sur lequel vous devrez
+                cliquer pour avoir plus d’instructions.
             {% endblocktrans %}
         </p>
 
         <p>
-            {% trans "Comment souhaitez vous retrouvez votre mot de passe ?" %}
+            {% trans "Comment souhaitez vous retrouvez votre mot de passe ?" %}
         </p>
 
         <ul>
             <li>
-                <button class="link" data-form-email-username-button="email">{% trans "En saisissant votre adresse de courriel" %}</button>
+                <button class="link" data-form-email-username-button="email">
+                    {% trans "En saisissant votre adresse de courriel" %}
+                </button>
             </li>
             <li>
-                <button class="link" data-form-email-username-button="username">{% trans "En saisissant votre nom d'utilisateur" %}</button>
+                <button class="link" data-form-email-username-button="username">
+                    {% trans "En saisissant votre nom d’utilisateur" %}
+                </button>
             </li>
         </ul>
 
         {% crispy form %}
     {% else %}
-        <p>{% trans "Vous êtes connecté" %}</p>
+        <p class="alert-box error">
+            {% trans "Vous êtes connecté." %}
+        </p>
     {% endif %}
+{% endblock %}
+
+
+
+{% block sidebar_actions %}
+    <a href="{% url 'member-login' %}" class="new-btn ico-after arrow-left blue">
+        {% trans "Retour" %} <span class="wide">{% trans "à la page de connexion" %}</span>
+    </a>
 {% endblock %}

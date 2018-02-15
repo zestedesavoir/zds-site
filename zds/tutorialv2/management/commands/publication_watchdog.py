@@ -1,4 +1,3 @@
-# coding: utf-8
 from os.path import dirname, join
 import os
 import time
@@ -8,7 +7,7 @@ from django.core.management import BaseCommand
 from pathtools.path import listdir
 from watchdog.observers import Observer
 from watchdog.events import FileCreatedEvent, FileSystemEventHandler, LoggingEventHandler
-from zds import settings
+from django.conf import settings
 from zds.tutorialv2.publication_utils import generate_exernal_content
 from codecs import open
 

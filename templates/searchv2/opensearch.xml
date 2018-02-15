@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+{% load static %}
+
+<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/"
+                       xmlns:moz="http://www.mozilla.org/2006/browser/search/">
+    <ShortName>{{ site_name }}</ShortName>
+    <Description>Rechercher sur {{ site_name}}</Description>
+    <InputEncoding>UTF-8</InputEncoding>
+    <OutputEncoding>UTF-8</OutputEncoding>
+    <AdultContent>false</AdultContent>
+    <Language>{{ language }}</Language>
+    <Contact>{{ email_contact }}</Contact>
+    <Image height="64" width="64" type="image/png">{{ site_url }}{% static "images/favicons/64.png" %}</Image>
+    <Url type="text/html" method="GET" template="{{ search_url }}">
+        <Param name="q" value="{searchTerms}"/>
+    </Url>
+    <Url type="application/opensearchdescription+xml" rel="self" template="{{ site_url }}{% url "search:opensearch" %}" />
+</OpenSearchDescription>

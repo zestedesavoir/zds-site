@@ -4,12 +4,9 @@
 
 
 
-
-
-
 {% if validation.is_pending %}
     <form action="{{ reservation_url }}" method="post">
-    	{% csrf_token %}
+        {% csrf_token %}
         <button type="submit">
             {% trans "Réserver" %}
         </button>
@@ -20,6 +17,9 @@
 
         {% if validation.date_reserve %}
             {{ validation.date_reserve|format_date:True }}
+            {% if validation.date_proposition > validation.date_reserve  %}
+                ({% trans "Contenu mis à jour depuis la réservation." %})
+            {% endif %}
             <br>
         {% endif %}
     {% endif %}
@@ -29,11 +29,13 @@
             {% trans "Annuler la réservation" %}
         </a>
         <form action="{{ reservation_url }}" method="post" class="modal modal-flex" id="unreservation-{{ validation.pk }}">
-        	{% csrf_token %}
+            {% csrf_token %}
             <p>
-                {% trans "Actuellement réservé par" %} {% include "misc/member_item.part.html" with member=validation.validator %}. <br>
+                {% trans "Actuellement réservé par" %} {% include "misc/member_item.part.html" with member=validation.validator %}.
+                <br>
+
                 {% blocktrans %}
-                    Êtes-vous certains de vouloir <strong>annuler la réservation</strong> ?
+                    Êtes-vous certains de vouloir <strong>annuler la réservation</strong> ?
                 {% endblocktrans %}
             </p>
             <button type="submit">
@@ -42,8 +44,10 @@
         </form>
     {% elif validation.is_accept %}
         {% trans "Accepté" %} {{ validation.date_validation|format_date:True }}
+
         {% if validation.comment_validator %}
             -
+
             <a href="#view-comment-validator-{{ validation.pk }}" class="open-modal">
                 {% trans "Commentaire du validateur" %}
             </a>
@@ -55,8 +59,10 @@
         {% endif %}
     {% elif validation.is_reject %}
         {% trans "Rejeté" %} {{ validation.date_validation|format_date:True }}
+
         {% if validation.comment_validator %}
             -
+
             <a href="#view-comment-validator-{{ validation.pk }}" class="open-modal">
                 {% trans "Motif du rejet" %}
             </a>

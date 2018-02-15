@@ -1,4 +1,4 @@
-{% extends "member/register/base.html" %}
+{% extends "member/base.html" %}
 {% load i18n %}
 
 
@@ -22,6 +22,12 @@
 
 {% block content %}
     <p>
-        {% trans "Vous allez recevoir un courriel contenant le lien d'activation. Veuillez cliquer sur celui-ci avant toute tentative de connexion." %}.
+        {% trans "Vous allez recevoir un courriel contenant le lien d’activation. Veuillez cliquer sur celui-ci avant toute tentative de connexion." %}.
     </p>
 {% endblock %}
+
+
+
+{# No sidebar on this page #}
+{% block body_class %}{% trans "no-sidebar" %}{% endblock %}
+{% block sidebar %}{% endblock %}

@@ -1,0 +1,56 @@
+{% extends "member/settings/base.html" %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+
+{% block title %}
+    {% trans "Token GitHub" %}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>
+        {% trans "Token GitHub" %}
+    </li>
+{% endblock %}
+
+
+
+{% block headline %}
+    {% trans "Token GitHub" %}
+{% endblock %}
+
+
+
+{% block content %}
+    {% if user.profile.github_token %}
+        <div class="content-wrapper">
+            <div class="alert-box warning">
+                {% trans "Vous avez déjà un token GitHub enregistré. Remplir le formulaire le remplacera." %}
+                <a href="#remove-token" class="open-modal">
+                    {% trans "Supprimer le token" %}
+                </a>
+            </div>
+        </div>
+
+        <form action="{% url 'remove-github' %}" method="post" id="remove-token" class="modal modal-flex">
+            {% csrf_token %}
+
+            <p>
+                {% trans "Voulez-vous vraiment supprimer votre token GitHub ?" %}
+            </p>
+
+            <button type="submit">{% trans "Confirmer" %}</button>
+        </form>
+    {% endif %}
+
+    <p>
+        {% trans "Remplissez le formulaire suivant pour enregistrer votre token GitHub afin de pouvoir créer des tickets pour les sujets. Vous pouvez créer un token sur" %}
+        <a href="https://github.com/settings/tokens">{% trans "cette page" %}</a>.
+    </p>
+
+    <div class="content-wrapper">
+        {% crispy form %}
+    </div>
+{% endblock %}

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import copy
 from datetime import datetime, timedelta
 from django.contrib.auth.models import Group
@@ -8,9 +7,9 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.db import IntegrityError
 
-from zds import settings
-from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory, PostFactory
-from zds.forum.models import Topic
+from django.conf import settings
+from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory, PostFactory, TagFactory
+from zds.forum.models import Topic, is_read
 from zds.gallery.factories import UserGalleryFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.mp.models import mark_read
@@ -19,7 +18,7 @@ from zds.notification.models import Notification, TopicAnswerSubscription, Conte
     PrivateTopicAnswerSubscription, NewTopicSubscription, NewPublicationSubscription
 from zds.tutorialv2.factories import PublishableContentFactory, LicenceFactory, ContentReactionFactory, \
     SubCategoryFactory, PublishedContentFactory
-from zds.tutorialv2.models.models_database import ContentReaction, PublishableContent
+from zds.tutorialv2.models.database import ContentReaction, PublishableContent
 from zds.tutorialv2.publication_utils import publish_content
 from zds.utils import slugify
 from zds.utils.mps import send_mp, send_message_mp
@@ -34,6 +33,9 @@ class NotificationForumTest(TestCase):
         self.forum11 = ForumFactory(category=self.category1, position_in_category=1)
         self.forum12 = ForumFactory(category=self.category1, position_in_category=2)
 
+        self.tag1 = TagFactory(title='Linux')
+        self.tag2 = TagFactory(title='Windows')
+
         self.assertTrue(self.client.login(username=self.user1.username, password='hostel77'))
 
     def test_creation_topic(self):
@@ -43,15 +45,15 @@ class NotificationForumTest(TestCase):
         result = self.client.post(
             reverse('topic-new') + '?forum={0}'.format(self.forum12.pk),
             {
-                'title': u'Super sujet',
-                'subtitle': u'Pour tester les notifs',
-                'text': u'En tout cas l\'un abonnement',
+                'title': 'Super sujet',
+                'subtitle': 'Pour tester les notifs',
+                'text': 'En tout cas l\'un abonnement',
                 'tags': ''
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
 
-        topic = Topic.objects.filter(title=u'Super sujet').first()
+        topic = Topic.objects.filter(title='Super sujet').first()
         content_type = ContentType.objects.get_for_model(topic)
 
         subscription = TopicAnswerSubscription.objects.get(object_id=topic.pk,
@@ -101,7 +103,7 @@ class NotificationForumTest(TestCase):
             reverse('post-new') + '?sujet={0}'.format(topic1.pk),
             {
                 'last_post': topic1.last_message.pk,
-                'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
+                'text': 'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
             },
             follow=False)
 
@@ -133,7 +135,7 @@ class NotificationForumTest(TestCase):
             reverse('post-new') + '?sujet={0}'.format(topic1.pk),
             {
                 'last_post': topic1.last_message.pk,
-                'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
+                'text': 'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
             },
             follow=False)
 
@@ -166,7 +168,7 @@ class NotificationForumTest(TestCase):
         self.assertIsNotNone(Notification.objects.get(subscription__user=self.user1, is_read=False))
 
         forum_not_read = ForumFactory(category=self.category1, position_in_category=2)
-        forum_not_read.group.add(Group.objects.create(name='DummyGroup_1'))
+        forum_not_read.groups.add(Group.objects.create(name='DummyGroup_1'))
 
         self.assertTrue(self.client.login(username=StaffProfileFactory().user.username, password='hostel77'))
         data = {
@@ -372,6 +374,92 @@ class NotificationForumTest(TestCase):
 
         self.assertEqual(1, len(Notification.objects.filter(object_id=topic.pk, is_read=True, is_dead=False).all()))
 
+    def test_notifications_on_a_tag_subscribed(self):
+        """
+        When a user subscribes to a tag, they receive a notification for each topic created.
+        """
+        # Subscribe.
+        NewTopicSubscription.objects.toggle_follow(self.tag1, self.user1)
+
+        topic1 = TopicFactory(forum=self.forum11, author=self.user2)
+        topic1.add_tags(['Linux'])
+
+        notifications = Notification.objects.filter(object_id=topic1.pk, is_read=False).all()
+        self.assertEqual(1, len(notifications))
+
+        # Unsubscribe.
+        NewTopicSubscription.objects.toggle_follow(self.tag1, self.user1)
+
+        topic2 = TopicFactory(forum=self.forum11, author=self.user2)
+        topic2.add_tags(['Linux'])
+        notifications = Notification.objects.filter(object_id=topic2.pk, is_read=False).all()
+        self.assertEqual(0, len(notifications))
+
+    def test_mark_read_a_topic_of_a_tag_subscribed(self):
+        """
+        When a user has a notification on a topic, the notification should be marked as read.
+        """
+        NewTopicSubscription.objects.toggle_follow(self.tag1, self.user1)
+
+        topic = TopicFactory(forum=self.forum11, author=self.user2)
+        topic.add_tags(['Linux'])
+
+        PostFactory(topic=topic, author=self.user2, position=1)
+        notifications = Notification.objects.filter(object_id=topic.pk, is_read=False).all()
+        self.assertEqual(1, len(notifications))
+
+        response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
+        self.assertEqual(response.status_code, 200)
+
+        notifications = Notification.objects.filter(object_id=topic.pk, is_read=False).all()
+        self.assertEqual(0, len(notifications))
+
+    def test_add_subscribed_tag(self):
+        """
+            When the topic is edited and a tag is added to which the user has subscribed
+        """
+        NewTopicSubscription.objects.toggle_follow(self.tag1, self.user2)
+
+        topic = TopicFactory(forum=self.forum11, author=self.user1)
+        PostFactory(topic=topic, author=self.user1, position=1)
+
+        self.client.post(
+            reverse('topic-edit') + '?topic={0}'.format(topic.pk),
+            {
+                'title': 'Un autre sujet',
+                'subtitle': 'Encore ces lombards en plein ete',
+                'text': 'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter ',
+                'tags': 'Linux'
+            }, follow=False)
+
+        notifications = Notification.objects.filter(object_id=topic.pk, is_read=False).all()
+        self.assertEqual(1, len(notifications))
+
+    def test_remove_subscribed_tag(self):
+        """
+            When the topic is edited and a tag is added to which the user has subscribed
+        """
+        NewTopicSubscription.objects.toggle_follow(self.tag1, self.user2)
+
+        topic = TopicFactory(forum=self.forum11, author=self.user1)
+        topic.add_tags(['Linux'])
+        PostFactory(topic=topic, author=self.user1, position=1)
+
+        notifications = Notification.objects.filter(object_id=topic.pk, is_read=False).all()
+        self.assertEqual(1, len(notifications))
+
+        self.client.post(
+            reverse('topic-edit') + '?topic={0}'.format(topic.pk),
+            {
+                'title': 'Un autre sujet',
+                'subtitle': 'Encore ces lombards en plein été',
+                'text': 'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter ',
+                'tags': 'Windows'
+            },
+            follow=False)
+
+        self.assertEqual(1, len(Notification.objects.filter(object_id=topic.pk, is_read=False, is_dead=True).all()))
+
 
 class NotificationPublishableContentTest(TestCase):
     def setUp(self):
@@ -431,8 +519,8 @@ class NotificationPublishableContentTest(TestCase):
         subscription = ContentReactionAnswerSubscription.objects.get_existing(user=self.user1, content_object=self.tuto)
         self.assertIsNone(subscription)
 
-        result = self.client.post(reverse('content:add-reaction') + u'?pk={}'.format(self.tuto.pk), {
-            'text': u'message',
+        result = self.client.post(reverse('content:add-reaction') + '?pk={}'.format(self.tuto.pk), {
+            'text': 'message',
             'last_note': '0'
         }, follow=True)
         self.assertEqual(result.status_code, 200)
@@ -676,13 +764,13 @@ class NotificationPrivateTopicTest(TestCase):
         when a topic is created.
         """
         settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
-        self.assertEquals(0, len(mail.outbox))
+        self.assertEqual(0, len(mail.outbox))
 
         topic = send_mp(author=self.user1, users=[self.user2],
                         title='Testing', subtitle='', text='',
                         send_by_mail=True, leave=False)
 
-        self.assertEquals(1, len(mail.outbox))
+        self.assertEqual(1, len(mail.outbox))
 
         self.user1.profile.email_for_answer = True
         self.user1.profile.save()
@@ -693,14 +781,14 @@ class NotificationPrivateTopicTest(TestCase):
         subscriptions = PrivateTopicAnswerSubscription.objects.filter(user=self.user2)
         self.assertTrue(subscriptions.last().by_email)
 
-        self.assertEquals(2, len(mail.outbox))
+        self.assertEqual(2, len(mail.outbox))
 
         self.user1.profile.email_for_answer = False
         self.user1.profile.save()
 
         send_message_mp(self.user2, topic, '', send_by_mail=True)
 
-        self.assertEquals(2, len(mail.outbox))
+        self.assertEqual(2, len(mail.outbox))
 
 
 class NotificationTest(TestCase):
@@ -781,8 +869,12 @@ class NotificationTest(TestCase):
         PostFactory(topic=topic, author=self.user1, position=1)
         PostFactory(topic=topic, author=self.user2, position=2)
 
+        self.assertTrue(self.client.login(username=self.user1.username, password='hostel77'))
+
         notifications = Notification.objects.get_unread_notifications_of(self.user1)
         self.assertEqual(1, len(notifications))
+
+        self.assertFalse(is_read(topic, self.user1))
 
         result = self.client.post(
             reverse('mark-notifications-as-read'),
@@ -791,3 +883,5 @@ class NotificationTest(TestCase):
 
         notifications = Notification.objects.get_unread_notifications_of(self.user1)
         self.assertEqual(0, len(notifications))
+
+        self.assertTrue(is_read(topic, self.user1))

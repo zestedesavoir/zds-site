@@ -1,4 +1,3 @@
-# coding: utf-8
 from functools import partial
 import logging
 import time
@@ -156,7 +155,7 @@ class AbstractESDjangoIndexable(AbstractESIndexable, models.Model):
 
     - Already include ``pk`` in mapping ;
     - Match ES ``_id`` field and ``pk`` ;
-    - Overide ``es_already_indexed`` to a database field.
+    - Override ``es_already_indexed`` to a database field.
     - Define a ``es_flagged`` field to restrict the number of object to be indexed ;
     - Override ``save()`` to manage the field ;
     - Define a ``get_es_django_indexable()`` method that can be overridden to change the queryset to fetch object.
@@ -234,13 +233,20 @@ def delete_document_in_elasticsearch(instance):
     """
 
     index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
-    index_manager.delete_document(instance)
-    index_manager.refresh_index()
+
+    if index_manager.index_exists:
+        index_manager.delete_document(instance)
+        index_manager.refresh_index()
 
 
 def get_django_indexable_objects():
     """Return all indexable objects registered in Django"""
     return [model for model in apps.get_models() if issubclass(model, AbstractESDjangoIndexable)]
+
+
+class NeedIndex(Exception):
+    """Raised when an action requires an index, but it is not created (yet)."""
+    pass
 
 
 class ESIndexManager(object):
@@ -260,11 +266,14 @@ class ESIndexManager(object):
         """
 
         self.index = name
+        self.index_exists = False
 
         self.number_of_shards = shards
         self.number_of_replicas = replicas
 
-        self.logger = logging.getLogger('ESIndexManager:{}'.format(self.index))
+        self.logger = logging.getLogger(
+            '{}.{}:{}'.format(__name__, self.__class__.__name__, self.index)
+        )
 
         self.es = None
         self.connected_to_es = False
@@ -282,6 +291,9 @@ class ESIndexManager(object):
             else:
                 self.logger.info('connected to ES cluster')
 
+            if self.connected_to_es:
+                self.index_exists = self.es.indices.exists(self.index)
+
     def clear_es_index(self):
         """Clear index
         """
@@ -292,6 +304,8 @@ class ESIndexManager(object):
         if self.es.indices.exists(self.index):
             self.es.indices.delete(self.index)
             self.logger.info('index cleared')
+
+            self.index_exists = False
 
     def reset_es_index(self, models):
         """Delete old index and create an new one (with the same name). Setup the number of shards and replicas.
@@ -327,6 +341,8 @@ class ESIndexManager(object):
             }
         )
 
+        self.index_exists = True
+
         self.logger.info('index created')
 
     def setup_custom_analyzer(self):
@@ -350,6 +366,9 @@ class ESIndexManager(object):
 
         if not self.connected_to_es:
             return
+
+        if not self.index_exists:
+            raise NeedIndex()
 
         self.es.indices.close(self.index)
 
@@ -386,7 +405,7 @@ class ESIndexManager(object):
                 'tokenizer': {
                     'custom_tokenizer': {
                         'type': 'pattern',
-                        'pattern': u'[ .,!?%\u2026\u00AB\u00A0\u00BB\u202F\uFEFF\u2013\u2014\n]'
+                        'pattern': '[ .,!?%\u2026\u00AB\u00A0\u00BB\u202F\uFEFF\u2013\u2014\n]'
                     }
                 },
                 'analyzer': {
@@ -422,9 +441,6 @@ class ESIndexManager(object):
         :type model: class
         """
 
-        if not self.connected_to_es:
-            return
-
         if issubclass(model, AbstractESDjangoIndexable):  # use a global update with Django
             objs = model.get_es_django_indexable(force_reindexing=True)
             objs.update(es_flagged=True, es_already_indexed=False)
@@ -455,6 +471,9 @@ class ESIndexManager(object):
 
         if not self.connected_to_es:
             return
+
+        if not self.index_exists:
+            raise NeedIndex()
 
         # better safe than sorry
         if model.__name__ == 'FakeChapter':
@@ -490,7 +509,7 @@ class ESIndexManager(object):
                         chunk_size=objects_per_batch,
                         request_timeout=30
                     ):
-                        action = hit.keys()[0]
+                        action = list(hit.keys())[0]
                         self.logger.info('{} {} with id {}'.format(action, hit[action]['_type'], hit[action]['_id']))
 
                     # mark all these objects as indexed at once
@@ -520,7 +539,7 @@ class ESIndexManager(object):
                         request_timeout=30
                     ):
                         if self.logger.getEffectiveLevel() <= logging.INFO:
-                            action = hit.keys()[0]
+                            action = list(hit.keys())[0]
                             self.logger.info('{} {} with id {}'.format(
                                 action, hit[action]['_type'], hit[action]['_id']))
 
@@ -535,8 +554,8 @@ class ESIndexManager(object):
                     then = now
                     obj_per_sec = round(float(objects_per_batch) / last_batch_duration, 2)
                     if force_reindexing:
-                        print '    {} so far ({} obj/s, batch size: {})'.format(
-                              indexed_counter, obj_per_sec, objects_per_batch)
+                        print('    {} so far ({} obj/s, batch size: {})'.format(
+                              indexed_counter, obj_per_sec, objects_per_batch))
 
                     if prev_obj_per_sec is False:
                         prev_obj_per_sec = obj_per_sec
@@ -547,7 +566,7 @@ class ESIndexManager(object):
                         if abs(1 - ratio) > 0.1:
                             objects_per_batch = int(objects_per_batch * ratio)
                             if force_reindexing:
-                                print '     {}x, new batch size: {}'.format(round(ratio, 2), objects_per_batch)
+                                print('     {}x, new batch size: {}'.format(round(ratio, 2), objects_per_batch))
                         prev_obj_per_sec = obj_per_sec
 
                     # fetch next batch
@@ -568,6 +587,9 @@ class ESIndexManager(object):
         if not self.connected_to_es:
             return
 
+        if not self.index_exists:
+            raise NeedIndex()
+
         self.es.indices.refresh(self.index)
 
     def update_single_document(self, document, doc):
@@ -584,6 +606,9 @@ class ESIndexManager(object):
         if not self.connected_to_es:
             return
 
+        if not self.index_exists:
+            raise NeedIndex()
+
         arguments = {'index': self.index, 'doc_type': document.get_es_document_type(), 'id': document.es_id}
         if self.es.exists(**arguments):
             self.es.update(body={'doc': doc}, **arguments)
@@ -598,6 +623,9 @@ class ESIndexManager(object):
 
         if not self.connected_to_es:
             return
+
+        if not self.index_exists:
+            raise NeedIndex()
 
         arguments = {'index': self.index, 'doc_type': document.get_es_document_type(), 'id': document.es_id}
         if self.es.exists(**arguments):
@@ -621,6 +649,9 @@ class ESIndexManager(object):
         if not self.connected_to_es:
             return
 
+        if not self.index_exists:
+            raise NeedIndex()
+
         response = self.es.delete_by_query(index=self.index, doc_type=doc_type, body={'query': query})
 
         self.logger.info('delete_by_query {}s ({})'.format(doc_type, response['deleted']))
@@ -641,6 +672,9 @@ class ESIndexManager(object):
         if not self.connected_to_es:
             return
 
+        if not self.index_exists:
+            raise NeedIndex()
+
         document = {'text': request}
         tokens = []
         for token in self.es.indices.analyze(index=self.index, body=document)['tokens']:
@@ -659,5 +693,8 @@ class ESIndexManager(object):
 
         if not self.connected_to_es:
             return
+
+        if not self.index_exists:
+            raise NeedIndex()
 
         return request.index(self.index).using(self.es)

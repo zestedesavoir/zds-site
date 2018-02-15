@@ -8,7 +8,7 @@
     {% if request.GET.filter == "solve" %}
         / {% trans "Sujets résolus" %}
     {% elif request.GET.filter == "unsolve" %}
-        / {% trans "Sujets non-résolus" %}
+        / {% trans "Sujets non résolus" %}
     {% elif request.GET.filter == "noanswer" %}
         / {% trans "Sujets sans réponse" %}
     {% endif %}
@@ -94,7 +94,7 @@
 
     {% if not sticky_topics and not topics %}
         <p>
-            {% trans "Aucun sujet trouvé" %}.
+            {% trans "Aucun sujet trouvé." %}
         </p>
     {% endif %}
 
@@ -104,30 +104,31 @@
 
 {% block sidebar_actions %}
     <li>
-    {% with forum_is_followed=forum|is_forum_followed %}
-        {% url 'forum-topics-list' forum.category.slug forum.slug as link_follow %}
-        {% if forum_is_followed %}
-            {% trans "Suivre ce forum" as data_onclick %}
-            {% trans "Ne plus suivre ce forum" as button_text %}
-        {% else %}
-            {% trans "Suivre ce forum" as button_text %}
-            {% trans "Ne plus suivre ce forum" as data_onclick %}
-        {% endif %}
-        {% include 'notification/follow_template.html' with link=link_follow is_followed=forum_is_followed data_onclick=data_onclick button_text=button_text subscriber_count=subscriber_count %}
-    {% endwith %}
+        {% with forum_is_followed=forum|is_followed_for_new_topic %}
+            {% url 'forum-topics-list' forum.category.slug forum.slug as link_follow %}
+            {% if forum_is_followed %}
+                {% trans "Suivre ce forum" as data_onclick %}
+                {% trans "Ne plus suivre ce forum" as button_text %}
+            {% else %}
+                {% trans "Suivre ce forum" as button_text %}
+                {% trans "Ne plus suivre ce forum" as data_onclick %}
+            {% endif %}
+            {% include 'notification/follow_template.html' with link=link_follow is_followed=forum_is_followed data_onclick=data_onclick button_text=button_text subscriber_count=subscriber_count %}
+        {% endwith %}
     </li>
+
     <li>
-    {% with forum_is_email_followed=forum|is_forum_email_followed %}
-        {% url 'forum-topics-list' forum.category.slug forum.slug as link_follow %}
-        {% if forum_is_email_followed %}
-            {% trans "Être notifié par courriel" as data_onclick %}
-            {% trans "Ne plus être notifié par courriel" as button_text %}
-        {% else %}
-            {% trans "Être notifié par courriel" as button_text %}
-            {% trans "Ne plus être notifié par courriel" as data_onclick %}
-        {% endif %}
-        {% include 'notification/follow_by_email_template.html' with link=link_follow is_followed=forum_is_email_followed data_onclick=data_onclick button_text=button_text %}
-    {% endwith %}
+        {% with forum_is_email_followed=forum|is_email_followed_for_new_topic %}
+            {% url 'forum-topics-list' forum.category.slug forum.slug as link_follow %}
+            {% if forum_is_email_followed %}
+                {% trans "Être notifié par courriel" as data_onclick %}
+                {% trans "Ne plus être notifié par courriel" as button_text %}
+            {% else %}
+                {% trans "Être notifié par courriel" as button_text %}
+                {% trans "Ne plus être notifié par courriel" as data_onclick %}
+            {% endif %}
+            {% include 'notification/follow_by_email_template.html' with link=link_follow is_followed=forum_is_email_followed data_onclick=data_onclick button_text=button_text %}
+        {% endwith %}
     </li>
 {% endblock %}
 
