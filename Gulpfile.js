@@ -60,6 +60,7 @@ gulp.task('js', () =>
         'assets/js/compare-commits.js',
         'assets/js/dropdown-menu.js',
         'assets/js/editor.js',
+        'assets/js/editor-persistence.js',
         'assets/js/featured-resource-preview.js',
         'assets/js/form-email-username.js',
         'assets/js/gallery.js',
