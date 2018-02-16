@@ -100,31 +100,24 @@
 
     {# favicons #}
     {% if user.is_authenticated and user|interventions_topics|length > 0 %}
-        {% with sizes="16 32 64 96 128 256" %}
-            {% for size in sizes.split %}
-                <link rel="icon" sizes="{{size}}x{{size}}" type="image/png" href="{% static 'images/favicons/'|add:size|add:'-notif.png' %}">
-            {% endfor %}
-                {# old iOS devices, no `sizes` attribute #}
-        {% endwith %}
-        {% with sizes="114 120 144 152 167 180" %}
-            {% for size in sizes.split %}
-                <link rel="apple-touch-icon" type="image/png" href="{% static 'images/favicons/'|add:size|add:'-notif.png' %}">
-            {% endfor %}
-        {% endwith %}
+        {% set "-notif.png" as favicon_extension %}
     {% else %}
-        {% with sizes="16 32 64 96 128 256" %}
-            {% for size in sizes.split %}
-                <link rel="icon" sizes="{{size}}x{{size}}" type="image/png" href="{% static 'images/favicons/'|add:size|add:'.png' %}">
-            {% endfor %}
-                {# old iOS devices, no `sizes` attribute #}
-        {% endwith %}
-        {% with sizes="114 120 144 152 167 180" %}
-            {% for size in sizes.split %}
-                <link rel="apple-touch-icon" type="image/png" href="{% static 'images/favicons/'|add:size|add:'.png' %}">
-            {% endfor %}
-        {% endwith %}
+        {% set ".png" as favicon_extension %}
     {% endif %}
-    
+
+    {% with sizes="16 32 64 96 128 256" %}
+        {% for size in sizes.split %}
+            <link rel="icon" sizes="{{size}}x{{size}}" type="image/png" href="{% static 'images/favicons/'|add:size|add:favicon_extension %}">
+        {% endfor %}
+    {% endwith %}
+
+    {# old iOS devices, no `sizes` attribute #}
+    {% with sizes="114 120 144 152 167 180" %}
+        {% for size in sizes.split %}
+            <link rel="apple-touch-icon" type="image/png" href="{% static 'images/favicons/'|add:size|add:favicon_extension %}">
+        {% endfor %}
+    {% endwith %}
+
     {# RSS links #}
     <link rel="alternate" type="application/rss+xml" title="Forum" href="{% url "post-feed-rss" %}">
     <link rel="alternate" type="application/rss+xml" title="Nouveaux tutoriels (RSS)" href="{% url "tutorial:feed-rss" %}">
