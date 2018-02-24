@@ -386,12 +386,14 @@ class Comment(models.Model):
     hat = models.ForeignKey(Hat, verbose_name='Casquette', on_delete=models.SET_NULL,
                             related_name='comments', blank=True, null=True)
 
-    def update_content(self, text, on_error=None):
-        html, metadata, messages = render_markdown(text, on_error=on_error)
+    def update_content(self, text):
+        _, old_metadata, _ = render_markdown(self.text)
+        html, metadata, messages = render_markdown(text)
         self.text = text
         self.text_html = html
         self.save()
         all_the_pings = list(filter(lambda user_name: user_name != self.author.username, metadata.get('ping', [])))
+        all_the_pings = list(set(all_the_pings) - set(old_metadata))
         max_ping_count = settings.ZDS_APP['comment']['max_pings']
         first_pings = all_the_pings[:max_ping_count]
         for username in first_pings:
