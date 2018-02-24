@@ -220,7 +220,9 @@ class MultipleNotificationsMixin(object):
                     LOG.debug('nothing to mark as read')
                     return
                 elif len(notifications) > 1:
-                    LOG.warning('%s notifications found for %s/%s', len(notifications), content.type, content.title)
+                    content_type = getattr(content, 'type', 'forum')
+                    content_title = getattr(content, 'title', 'message')
+                    LOG.warning('%s notifications found for %s/%s', len(notifications), content_type, content_title)
                     for notif in notifications[1:]:
                         notif.delete()
 
