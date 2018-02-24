@@ -47,7 +47,7 @@
         <ul class="content-tags" itemprop="keywords">
             {% for tag in topic.tags.all|slice:":3" %}
                 <li>
-                    <a href="{% url 'topic-tag-find' tag.pk tag.slug %}" title="Tag {{ tag.title }}">
+                    <a href="{% url 'topic-tag-find' tag.slug %}" title="Tag {{ tag.title }}">
                         {{ tag.title }}
                     </a>
                 </li>

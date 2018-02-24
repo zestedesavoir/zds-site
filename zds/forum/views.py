@@ -417,6 +417,8 @@ class FindTopicByTag(FilterMixin, ForumEditMixin, ZdSPagingListView, SingleObjec
     object = None
 
     def get(self, request, *args, **kwargs):
+        if self.kwargs.get('tag_pk'):
+            return redirect('topic-tag-find', tag_slug=self.kwargs.get('tag_slug'), permanent=True)
         self.object = self.get_object()
         return super(FindTopicByTag, self).get(request, *args, **kwargs)
 
@@ -450,7 +452,7 @@ class FindTopicByTag(FilterMixin, ForumEditMixin, ZdSPagingListView, SingleObjec
         return context
 
     def get_object(self, queryset=None):
-        return get_object_or_404(Tag, pk=self.kwargs.get('tag_pk'), slug=self.kwargs.get('tag_slug'))
+        return get_object_or_404(Tag, slug=self.kwargs.get('tag_slug'))
 
     def get_queryset(self):
         self.queryset = Topic.objects.get_all_topics_of_a_tag(self.object, self.request.user)
