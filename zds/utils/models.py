@@ -391,7 +391,7 @@ class Comment(models.Model):
         self.text = text
         self.text_html = html
         self.save()
-        all_the_pings = list(metadata.get('ping', []))
+        all_the_pings = list(filter(lambda user_name: user_name != self.author.username, metadata.get('ping', [])))
         max_ping_count = settings.ZDS_APP['comment']['max_pings']
         first_pings = all_the_pings[:max_ping_count]
         for username in first_pings:
