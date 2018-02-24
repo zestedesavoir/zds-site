@@ -10,7 +10,7 @@ from zds.forum.models import Topic
 from zds.gallery.factories import UserGalleryFactory
 from zds.member.factories import StaffProfileFactory, ProfileFactory
 from zds.notification.models import NewTopicSubscription, Notification, NewPublicationSubscription, \
-    ContentReactionAnswerSubscription
+    ContentReactionAnswerSubscription, PingSubscription
 from zds.notification import signals as notif_signals
 from zds.tutorialv2.factories import PublishableContentFactory, LicenceFactory, SubCategoryFactory, \
     PublishedContentFactory, ContentReactionFactory
@@ -20,7 +20,10 @@ from copy import deepcopy
 
 from zds.utils.templatetags.interventions import interventions_topics
 
+overridden_zds_app = deepcopy(settings.ZDS_APP)
 
+
+@override_settings(ZDS_APP=overridden_zds_app)
 class ForumNotification(TestCase):
     def setUp(self):
         self.user1 = ProfileFactory().user
@@ -34,6 +37,22 @@ class ForumNotification(TestCase):
         for group in self.staff.groups.all():
             self.forum12.groups.add(group)
         self.forum12.save()
+
+    def test_no_auto_ping(self):
+        overridden_zds_app['comment']['enable_pings'] = True
+        self.assertTrue(self.client.login(username=self.user2.username, password='hostel77'))
+        result = self.client.post(
+            reverse('topic-new') + '?forum={0}'.format(self.forum11.pk),
+            {
+                'title': 'Super sujet',
+                'subtitle': 'Pour tester les notifs',
+                'text': "@{} is pinged, not @{}".format(self.user1.username, self.user2.username),
+                'tags': ''
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(1, PingSubscription.objects.count(),
+                         'As one user is pinged, only one subscription is created.')
 
     def test_no_dead_notif_on_moving(self):
         NewTopicSubscription.objects.get_or_create_active(self.user1, self.forum11)
