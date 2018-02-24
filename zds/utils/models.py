@@ -624,7 +624,7 @@ class Tag(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        return reverse('topic-tag-find', kwargs={'tag_pk': self.pk, 'tag_slug': self.slug})
+        return reverse('topic-tag-find', kwargs={'tag_slug': self.slug})
 
     def save(self, *args, **kwargs):
         self.title = self.title.strip()

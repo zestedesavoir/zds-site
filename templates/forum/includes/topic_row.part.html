@@ -31,7 +31,7 @@
                 <ul class="topic-tags">
                     {% for tag in topic.tags.all %}
                         <li>
-                            <a href="{% url 'topic-tag-find' tag.pk tag.slug %}" class="topic-tag" title="Tag {{ tag.title }}">
+                            <a href="{% url 'topic-tag-find' tag.slug %}" class="topic-tag" title="Tag {{ tag.title }}">
                                 {{ tag.title }}
                             </a>
                         </li>
