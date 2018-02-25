@@ -162,7 +162,7 @@
     {% else %}
 
         {% if content.introduction %}
-            {{ content.get_introduction_online|safe }}
+            {{ content.get_introduction_online|default:""|safe }}
         {% endif %}
 
         {% if not content.has_sub_containers %}
@@ -181,7 +181,7 @@
         <hr />
 
         {% if content.conclusion %}
-            {{ content.get_conclusion_online|safe }}
+            {{ content.get_conclusion_online|default:""|safe }}
         {% endif %}
 
     {% endif %}
