@@ -12,7 +12,7 @@ class MemberConfig(AppConfig):
         for user in ('bot_account', 'anonymous_account', 'external_account'):
             username = settings.ZDS_APP['member'][user]
             try:
-                test = User.objects.get(username=username)
+                _ = User.objects.get(username=username)
             except User.DoesNotExist:
                 raise Exception(
                     'The {username!r} user does not exist. '
