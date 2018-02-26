@@ -386,18 +386,22 @@ class Comment(models.Model):
     hat = models.ForeignKey(Hat, verbose_name='Casquette', on_delete=models.SET_NULL,
                             related_name='comments', blank=True, null=True)
 
-    def update_content(self, text):
+    def update_content(self, text, on_error=None):
         _, old_metadata, _ = render_markdown(self.text)
-        html, metadata, messages = render_markdown(text)
+        html, metadata, messages = render_markdown(text, on_error=on_error)
         self.text = text
         self.text_html = html
         self.save()
         all_the_pings = list(filter(lambda user_name: user_name != self.author.username, metadata.get('ping', [])))
-        all_the_pings = list(set(all_the_pings) - set(old_metadata))
+        all_the_pings = list(set(all_the_pings) - set(old_metadata.get('ping', [])))
         max_ping_count = settings.ZDS_APP['comment']['max_pings']
         first_pings = all_the_pings[:max_ping_count]
         for username in first_pings:
             signals.new_content.send(sender=self.__class__, instance=self, user=User.objects.get(username=username))
+        unpinged_usernames = set(old_metadata.get('ping', [])) - set(all_the_pings)
+        unpinged_users = User.objects.filter(username__in=list(unpinged_usernames))
+        for unpinged_user in unpinged_users:
+            signals.unsubscribe.send(self.author, instance=self, user=unpinged_user)
 
     def hide_comment_by_user(self, user, text_hidden):
         """Hide a comment and save it
