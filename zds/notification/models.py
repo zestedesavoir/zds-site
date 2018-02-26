@@ -10,7 +10,7 @@ from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 
-from zds.forum.models import Topic
+from zds.forum.models import Topic, Post
 from zds.notification.managers import NotificationManager, SubscriptionManager, TopicFollowedManager, \
     TopicAnswerSubscriptionManager, NewTopicSubscriptionManager
 from zds.utils.misc import convert_camel_to_underscore
@@ -332,6 +332,16 @@ class PingSubscription(AnswerSubscription, MultipleNotificationsMixin):
 
     def __str__(self):
         return _('<Abonnement du membre "{0}" aux mentions>').format(self.profile, self.object_id)
+
+    @staticmethod
+    def mark_inaccessible_ping_as_read_for_topic(topic):
+        for post in Post.objects.filter(topic=topic):
+            for notification in Notification.objects.filter(content_type__pk=ContentType.objects.get_for_model(post).pk,
+                                                            object_id=post.pk):
+                if not topic.forum.can_read(notification.subscription.user):
+                    notification.is_read = True
+                    notification.is_dead = True
+                    notification.save(update_fields=['is_read'])
 
     def get_notification_title(self, answer):
         assert hasattr(answer, 'author')

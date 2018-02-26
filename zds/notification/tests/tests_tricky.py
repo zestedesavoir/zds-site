@@ -6,7 +6,7 @@ from django.test import TestCase
 from django.test.utils import override_settings
 
 from zds.forum.factories import CategoryFactory, ForumFactory
-from zds.forum.models import Topic, Post
+from zds.forum.models import Topic
 from zds.gallery.factories import UserGalleryFactory
 from zds.member.factories import StaffProfileFactory, ProfileFactory
 from zds.notification.models import NewTopicSubscription, Notification, NewPublicationSubscription, \
@@ -65,7 +65,7 @@ class ForumNotification(TestCase):
             {
                 'title': 'Super sujet',
                 'subtitle': 'Pour tester les notifs',
-                'text': "@{} is pinged".format(self.user1.username),
+                'text': '@{} is pinged'.format(self.user1.username),
                 'tags': ''
             },
             follow=False)
@@ -131,6 +131,58 @@ class ForumNotification(TestCase):
         response = self.client.post(reverse('topic-edit'), data, follow=False)
         self.assertEqual(302, response.status_code)
         subscription = NewTopicSubscription.objects.get_existing(self.user1, self.forum11, True)
+        self.assertIsNotNone(subscription, 'There must still be an active subscription')
+        self.assertIsNotNone(subscription.last_notification,
+                             'There must still be a notification as object is not removed.')
+        self.assertEqual(subscription.last_notification,
+                         Notification.objects.filter(sender=self.user2).first())
+        self.assertTrue(subscription.last_notification.is_read, 'As forum is not reachable, notification is read')
+
+    def test_no_ping_on_private_forum(self):
+        self.assertTrue(self.client.login(username=self.staff.username, password='hostel77'))
+        result = self.client.post(
+            reverse('topic-new') + '?forum={0}'.format(self.forum12.pk),
+            {
+                'title': 'Super sujet',
+                'subtitle': 'Pour tester les notifs',
+                'text': 'ping @{}'.format(self.user1.username),
+                'tags': ''
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        topic = Topic.objects.filter(title='Super sujet').first()
+        subscription = PingSubscription.objects.get_existing(self.user1, topic.last_message, True)
+        self.assertIsNone(subscription, 'There must be no active subscription for now')
+
+    def test_no_dead_ping_notif_on_moving_to_private_forum(self):
+        self.assertTrue(self.client.login(username=self.user2.username, password='hostel77'))
+        result = self.client.post(
+            reverse('topic-new') + '?forum={0}'.format(self.forum11.pk),
+            {
+                'title': 'Super sujet',
+                'subtitle': 'Pour tester les notifs',
+                'text': 'ping @{}'.format(self.user1.username),
+                'tags': ''
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        topic = Topic.objects.filter(title='Super sujet').first()
+        subscription = PingSubscription.objects.get_existing(self.user1, topic.last_message, True)
+        self.assertIsNotNone(subscription, 'There must be an active subscription for now')
+        self.assertIsNotNone(subscription.last_notification, 'There must be a notification for now')
+        self.assertFalse(subscription.last_notification.is_read)
+        self.client.logout()
+        self.assertTrue(self.client.login(username=self.staff.username, password='hostel77'))
+        data = {
+            'move': '',
+            'forum': self.forum12.pk,
+            'topic': topic.pk
+        }
+        response = self.client.post(reverse('topic-edit'), data, follow=False)
+        self.assertEqual(302, response.status_code)
+        subscription = PingSubscription.objects.get_existing(self.user1, topic.last_message, True)
         self.assertIsNotNone(subscription, 'There must still be an active subscription')
         self.assertIsNotNone(subscription.last_notification,
                              'There must still be a notification as object is not removed.')

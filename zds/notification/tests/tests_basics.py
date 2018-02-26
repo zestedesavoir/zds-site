@@ -334,14 +334,14 @@ class NotificationForumTest(TestCase):
 
         topic = Topic.objects.get(pk=topic.pk)
         self.assertEqual(self.forum12, topic.forum)
-        self.assertEqual(1, len(Notification.objects.filter(object_id=topic.pk, is_read=False, is_dead=True).all()))
+        self.assertEqual(1, len(Notification.objects.filter(object_id=topic.pk, is_read=False).all()))
 
         self.client.logout()
         self.assertTrue(self.client.login(username=self.user1.username, password='hostel77'))
         response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
         self.assertEqual(200, response.status_code)
 
-        self.assertEqual(1, len(Notification.objects.filter(object_id=topic.pk, is_read=True, is_dead=True).all()))
+        self.assertEqual(1, len(Notification.objects.filter(object_id=topic.pk, is_read=True).all()))
 
     def test_move_topic_from_forum_followed_to_forum_followed_too(self):
         NewTopicSubscription.objects.toggle_follow(self.forum11, self.user1)
