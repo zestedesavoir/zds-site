@@ -72,7 +72,7 @@ def _render_markdown_once(md_input, *, output_format='html', **kwargs):
         return '', {}, []
 
 
-def render_markdown(md_input, **kwargs):
+def render_markdown(md_input, *, on_error=None, **kwargs):
     """Render a markdown string.
 
     Returns a tuple ``(rendered_content, metadata)``, where
@@ -84,6 +84,8 @@ def render_markdown(md_input, **kwargs):
 
     """
     content, metadata, messages = _render_markdown_once(md_input, **kwargs)
+    if messages and on_error:
+        on_error(messages)
     if content is not None:
         # Success!
         return content, metadata, messages
@@ -127,10 +129,9 @@ def emarkdown(md_input, use_jsfiddle='', **kwargs):
     """
     disable_jsfiddle = (use_jsfiddle != 'js')
 
-    content, metadata, messages = render_markdown(md_input, **dict(kwargs, disable_jsfiddle=disable_jsfiddle))
-
-    if messages:
-        logger.error('Markdown errors %s', str(messages))
+    content, metadata, messages = render_markdown(md_input,
+                                                  on_error=lambda m: logger.error('Markdown errors %s', str(m)),
+                                                  **dict(kwargs, disable_jsfiddle=disable_jsfiddle))
 
     return content or ''
 

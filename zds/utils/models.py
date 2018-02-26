@@ -386,8 +386,8 @@ class Comment(models.Model):
     hat = models.ForeignKey(Hat, verbose_name='Casquette', on_delete=models.SET_NULL,
                             related_name='comments', blank=True, null=True)
 
-    def update_content(self, text):
-        html, metadata, messages = render_markdown(text)
+    def update_content(self, text, on_error=None):
+        html, metadata, messages = render_markdown(text, on_error=on_error)
         self.text = text
         self.text_html = html
         self.save()

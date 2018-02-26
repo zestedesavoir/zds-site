@@ -227,7 +227,10 @@ def restore_edit(request, edit_pk):
 
     comment.update = datetime.now()
     comment.editor = request.user
-    comment.update_content(edit.original_text)
+    comment.update_content(edit.original_text, lambda m: messages.error(request,
+                                                                        _('Erreurs dans le markdown: {}').format(
+                                                                            '\n- '.join(m)
+                                                                        )))
     # remove hat if the author doesn't have it anymore
     if comment.hat and comment.hat not in comment.author.profile.get_hats():
         comment.hat = None
