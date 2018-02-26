@@ -279,6 +279,11 @@ LOGGING = {
     },
 
     'loggers': {
+        '': {  # catch all logger
+            'handlers': ['console'],
+            'level': 'WARNING',
+        },
+
         'django': {
             'handlers': ['console'],
             'level': 'WARNING',
