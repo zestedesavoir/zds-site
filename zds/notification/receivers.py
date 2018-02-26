@@ -4,7 +4,6 @@ import logging
 
 from django.db import DatabaseError
 
-import zds
 from zds.tutorialv2.signals import content_unpublished
 
 from zds.utils.models import Tag
@@ -22,7 +21,7 @@ from zds.mp.models import PrivateTopic, PrivatePost
 from zds.notification.models import TopicAnswerSubscription, ContentReactionAnswerSubscription, \
     PrivateTopicAnswerSubscription, Subscription, Notification, NewTopicSubscription, NewPublicationSubscription, \
     PingSubscription
-from zds.notification.signals import answer_unread, content_read, new_content, edit_content
+from zds.notification.signals import answer_unread, content_read, new_content, edit_content, unsubscribe
 from zds.tutorialv2.models.database import PublishableContent, ContentReaction
 import zds.tutorialv2.signals
 
@@ -469,3 +468,9 @@ def cleanup_notification_for_unpublished_content(sender, instance, **__):
         logger.debug('Nothing went wrong.')
     except DatabaseError as e:
         logger.exception('Error while saving %s, %s', instance, e)
+
+
+@receiver(unsubscribe)
+def unsubscripte_unpinged_user(sender, instance, user, **_):
+    if user:
+        PingSubscription.objects.deactivate_subscriptions(user, instance)

@@ -102,6 +102,42 @@ class ForumNotification(TestCase):
         self.assertEqual(2, PingSubscription.objects.count())
         self.assertEqual(2, Notification.objects.count())
 
+    def test_loose_ping_on_edition(self):
+        """
+        to be more accurate : on edition, only ping **new** members
+        """
+        overridden_zds_app['comment']['enable_pings'] = True
+        self.assertTrue(self.client.login(username=self.user2.username, password='hostel77'))
+        result = self.client.post(
+            reverse('topic-new') + '?forum={0}'.format(self.forum11.pk),
+            {
+                'title': 'Super sujet',
+                'subtitle': 'Pour tester les notifs',
+                'text': '@{} is pinged'.format(self.user1.username),
+                'tags': ''
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(1, PingSubscription.objects.count(),
+                         'As one user is pinged, only one subscription is created.')
+        self.assertEqual(1, Notification.objects.count())
+        post = Topic.objects.last().last_message
+        result = self.client.post(
+            reverse('post-edit') + '?message={0}'.format(post.pk),
+            {
+                'title': 'Super sujet',
+                'subtitle': 'Pour tester les notifs',
+                'text': '@ {} is no more pinged '.format(self.user1.username),
+                'tags': ''
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(1, PingSubscription.objects.count(),
+                         'No added subscription.')
+        self.assertFalse(PingSubscription.objects.first().is_active)
+        self.assertEqual(1, Notification.objects.count())
+        self.assertTrue(Notification.objects.first().is_read)
+
     def test_no_dead_notif_on_moving(self):
         NewTopicSubscription.objects.get_or_create_active(self.user1, self.forum11)
         self.assertTrue(self.client.login(username=self.user2.username, password='hostel77'))
