@@ -104,12 +104,12 @@ def mark_topic_notifications_read(sender, *, instance, user, **__):
             subscription.mark_notification_read(content=instance)
 
     content_type = ContentType.objects.get_for_model(instance)
-    notifications = Notification.objects.filter(subscription__user=user, object_id=instance.pk,
-                                                content_type__pk=content_type.pk, is_read=False,
-                                                is_dead=True)
+    notifications = list(Notification.objects.filter(subscription__user=user, object_id=instance.pk,
+                                                     content_type__pk=content_type.pk, is_read=False))
+
     for notification in notifications:
         notification.is_read = True
-        notification.save()
+        notification.save(update_fields=['is_read'])
 
 
 @receiver(content_read, sender=PublishableContent)
@@ -181,7 +181,7 @@ def edit_topic_event(sender, *, action, instance, **kwargs):
 
     if action == 'move':
 
-        _handle_private_forum_moving(topic, topic_content_type)
+        _handle_private_forum_moving(topic, topic_content_type, ContentType.objects.get_for_model(topic.last_message))
 
     elif action == 'edit_tags_and_title':
         topic = instance
@@ -226,24 +226,24 @@ def _handle_deleted_tags(topic, topic_content_type):
     return tag_content_type
 
 
-def _handle_private_forum_moving(topic, topic_content_type):
+def _handle_private_forum_moving(topic, topic_content_type, post_content_type):
     # If the topic is moved to a restricted forum, users who cannot read this topic any more unfollow it.
     # This avoids unreachable notifications.
     TopicAnswerSubscription.objects.unfollow_and_mark_read_everybody_at(topic)
     NewTopicSubscription.objects.mark_read_everybody_at(topic)
+    PingSubscription.mark_inaccessible_ping_as_read_for_topic(topic)
     # If the topic is moved to a forum followed by the user, we update the subscription of the notification.
     # Otherwise, we update the notification as dead.
-    notifications = Notification.objects \
-        .filter(object_id=topic.pk, content_type__pk=topic_content_type.pk, is_read=False).all()
+    notifications = list(Notification.objects
+                         .filter(object_id=topic.pk, content_type__pk=topic_content_type.pk, is_read=False).all())
     for notification in notifications:
-        subscription = NewTopicSubscription.objects \
-            .get_existing(notification.subscription.user, topic.forum, is_active=True)
-        if subscription:
+        subscription = notification.subscription
+        if subscription.is_active:
             notification.subscription = subscription
             notification.save()
         elif notification.subscription.content_object != notification.content_object.forum:
             notification.is_dead = True
-            notification.save()
+            notification.save(update_fields=['is_dead', 'is_read'])
 
 
 @receiver(post_save, sender=Topic)
@@ -347,7 +347,8 @@ def answer_comment_event(sender, *, instance, user, **__):
 
     assert comment is not None
     assert user is not None
-
+    if not instance.topic.forum.can_read(user):
+        return
     subscription = PingSubscription.objects.get_or_create_active(user, comment)
     subscription.send_notification(content=comment, sender=comment.author, send_email=False)
 
