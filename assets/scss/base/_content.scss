@@ -322,3 +322,29 @@ li code {
         padding-left: 25px;
     }
 }
+
+.video-container {
+    margin: 0 auto;
+    max-width: 560px;
+    max-height: 315px;
+
+    .video-wrapper {
+        position: relative;
+        padding-bottom: 56.25%;
+
+        iframe {
+            position:absolute;
+            width: 100%;
+            height: 100%;
+        }
+    }
+}
+
+.inlineMathDouble  .katex {
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+.iframe-wrapper {
+    overflow-x: auto;
+}
