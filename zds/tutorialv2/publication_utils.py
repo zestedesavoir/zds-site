@@ -332,7 +332,11 @@ class ZMarkdownRebberLatexPublicator(Publicator):
         authors = [a.username for a in published_content_entity.authors.all()]
         smileys_directory = SMILEYS_BASE_PATH
         licence = published_content_entity.content.licence.title.replace('CC-', '')
-
+        replacement_image_url = settings.MEDIA_ROOT
+        if not replacement_image_url.endswith('/') and settings.MEDIA_URL.endswith('/'):
+            replacement_image_url += '/'
+        elif replacement_image_url.endswith('/') and not settings.MEDIA_URL.endswith('/'):
+            replacement_image_url = replacement_image_url[:-1]
         content, _, messages = render_markdown(
             md_flat_content,
             output_format='texfile',
@@ -344,7 +348,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
             license_directory=LICENSES_BASE_PATH,
             smileys_directory=smileys_directory,
             images_download_dir=str(base_directory / 'images'),
-            local_url_to_local_path=[settings.MEDIA_URL, settings.MEDIA_ROOT]
+            local_url_to_local_path=[settings.MEDIA_URL, replacement_image_url]
         )
         if content == '' and messages:
             raise FailureDuringPublication('Markdown was not parsed due to {}'.format(messages))
