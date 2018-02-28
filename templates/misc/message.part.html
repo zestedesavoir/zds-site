@@ -4,6 +4,7 @@
 {% load set %}
 {% load i18n %}
 {% load pluralize_fr %}
+{% load cache %}
 
 
 
@@ -242,13 +243,17 @@
                             {% with profile_user=user|profile %}
                                 {% if profile_user.show_sign %}
                                     <div class="signature">
-                                        {{ profile.sign|emarkdown_inline }}
+                                        {% cache 300 message profile.sign %}
+                                            {{ profile.sign|emarkdown_inline }}
+                                        {% endcache %}
                                     </div>
                                 {% endif %}
                             {% endwith %}
                         {% else %}
                             <div class="signature">
-                                {{ profile.sign|emarkdown_inline }}
+                                {% cache 300 message profile.sign %}
+                                    {{ profile.sign|emarkdown_inline }}
+                                {% endcache %}
                             </div>
                         {% endif %}
                     {% endif %}
