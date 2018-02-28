@@ -9,7 +9,7 @@ graph_vlabel topics""")
 def total_topics(request):
     topics = Topic.objects.all()
     return [('topics', topics.count()),
-            ('solved', topics.filter(is_solved=True).count())]
+            ('solved', topics.filter(solved_by__isnull=False).count())]
 
 
 @muninview(config="""graph_title Total Posts
