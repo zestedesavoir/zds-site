@@ -286,7 +286,8 @@ kbd {
 
 // Code inline
 p code,
-li code {
+li code,
+td code {
     color: #A00;
     background: #EEE;
     border: 1px solid #CCC;
@@ -347,4 +348,14 @@ li code {
 
 .iframe-wrapper {
     overflow-x: auto;
+}
+
+div.align-center {
+    text-align: center;
+}
+div.align-right {
+    text-align: right;
+}
+div.align-left, figure pre code.hljs {
+    text-align: left;
 }
