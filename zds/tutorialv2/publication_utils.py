@@ -354,17 +354,17 @@ class ZMarkdownRebberLatexPublicator(Publicator):
             raise FailureDuringPublication('Markdown was not parsed due to {}'.format(messages))
         zmd_class_dir_path = Path(os.environ.get('HOME', '~')) / 'texmf' / 'tex' / 'latex'
         if zmd_class_dir_path.exists() and zmd_class_dir_path.is_dir():
-            zmd_class_link = base_directory / 'zmdocument.cls'
-            zmd_class_link.symlink_to(zmd_class_dir_path / 'zmdocument.cls')
-            luatex_dir_link = base_directory / 'utf8.lua'
-            luatex_dir_link.symlink_to(zmd_class_dir_path / 'utf8.lua', target_is_directory=True)
+            with contextlib.suppress(FileExistsError):
+                zmd_class_link = base_directory / 'zmdocument.cls'
+                zmd_class_link.symlink_to(zmd_class_dir_path / 'zmdocument.cls')
+                luatex_dir_link = base_directory / 'utf8.lua'
+                luatex_dir_link.symlink_to(zmd_class_dir_path / 'utf8.lua', target_is_directory=True)
         true_latex_extension = '.'.join(self.extension.split('.')[:-1]) + '.tex'
         latex_file_path = base_name + true_latex_extension
         logo_path = Path(latex_file_path).parent / 'images' / 'default_logo.png'
         if not logo_path.exists() and published_content_entity.content.image:
-            gallery_path = Path(published_content_entity.content.gallery.get_gallery_path())
             logo_name = published_content_entity.content.image.physical.name
-            shutil.copy(str(gallery_path / logo_name), str(logo_path))
+            shutil.copy(str(settings.MEDIA_ROOT / logo_name), str(logo_path))
         pdf_file_path = base_name + self.extension
         default_logo_original_path = Path(__file__).parent / '..' / '..' / 'assets' / 'images' / 'logo.png'
         shutil.copy(str(default_logo_original_path), str(Path(base_name).parent / 'default_logo.png'))
