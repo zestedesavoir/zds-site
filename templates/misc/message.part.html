@@ -243,7 +243,7 @@
                             {% with profile_user=user|profile %}
                                 {% if profile_user.show_sign %}
                                     <div class="signature">
-                                        {% cache 300 message profile.sign %}
+                                        {% cache 300 profile.user.username profile.sign %}
                                             {{ profile.sign|emarkdown_inline }}
                                         {% endcache %}
                                     </div>
@@ -251,7 +251,7 @@
                             {% endwith %}
                         {% else %}
                             <div class="signature">
-                                {% cache 300 message profile.sign %}
+                                {% cache 300 profile.user.username profile.sign %}
                                     {{ profile.sign|emarkdown_inline }}
                                 {% endcache %}
                             </div>
