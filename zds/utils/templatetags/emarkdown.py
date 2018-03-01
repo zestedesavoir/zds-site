@@ -85,7 +85,7 @@ def render_markdown(md_input, *, on_error=None, **kwargs):
     """
     content, metadata, messages = _render_markdown_once(md_input, **kwargs)
     if messages and on_error:
-        on_error(messages)
+        on_error([m['message'] for m in messages])
     if content is not None:
         # Success!
         return content, metadata, messages
@@ -129,9 +129,10 @@ def emarkdown(md_input, use_jsfiddle='', **kwargs):
     """
     disable_jsfiddle = (use_jsfiddle != 'js')
 
-    content, metadata, messages = render_markdown(md_input,
-                                                  on_error=lambda m: logger.error('Markdown errors %s', str(m)),
-                                                  **dict(kwargs, disable_jsfiddle=disable_jsfiddle))
+    content, metadata, messages = render_markdown(
+        md_input,
+        on_error=lambda m: logger.error('Markdown errors %s', str(m)),
+        **dict(kwargs, disable_jsfiddle=disable_jsfiddle))
 
     return content or ''
 
