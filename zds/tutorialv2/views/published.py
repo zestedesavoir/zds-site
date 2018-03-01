@@ -699,11 +699,12 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
             for alert in alerts:
                 alert.solve(self.request.user, _('Le message a été modéré.'))
 
-        self.reaction.update_content(form.cleaned_data['text'],
-                                     on_error=lambda m: messages.error(self.request,
-                                                                       _('Erreurs dans le Markdown: {}').format(
-                                                                           '\n- '.join(m)
-                                                                       )))
+        self.reaction.update_content(
+            form.cleaned_data['text'],
+            on_error=lambda m: messages.error(
+                self.request,
+                _('Erreur du serveur Markdown: {}').format(
+                    '\n- '.join(m))))
         self.reaction.ip_address = get_client_ip(self.request)
         self.reaction.save()
 
