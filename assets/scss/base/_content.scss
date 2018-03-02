@@ -82,11 +82,17 @@ h6 {
     &.question,
     &.error,
     &.warning,
-    &.spoiler {
+    &.spoiler,
+    &.custom-block-question,
+    &.custom-block-error,
+    &.custom-block-warning,
+    &.custom-block-information,
+    &.custom-block-neutral,
+    &.custom-block-spoiler {
         margin: 25px 0;
         padding: 7px 15px 7px 45px;
 
-        &.ico-after:after {
+        &:after{
             position: absolute;
             top: 50%;
             left: 23px;
@@ -96,40 +102,43 @@ h6 {
         }
     }
 
-    &.information {
+    &.information,
+    &.custom-block-information {
         background: #daeaee;
-
-        &.ico-after:after {
+        &:after {
             @include sprite-position($information);
         }
     }
 
-    &.question {
+    &.question,
+    &.custom-block-question {
         background: #e2daee;
-
-        &.ico-after:after {
+        &:after{
             @include sprite-position($question);
         }
     }
 
-    &.error {
+    &.error,
+    &.custom-block-error {
         background: #eedada;
 
-        &.ico-after:after {
+        &:after {
             @include sprite-position($error);
         }
     }
 
-    &.warning {
+    &.warning,
+    &.custom-block-warning {
         background: #eee7da;
 
-        &.ico-after:after {
+        &:after {
             @include sprite-position($warning);
         }
     }
 }
 
-.spoiler {
+.spoiler,
+.custom-block-spoiler{
     margin-top: 0;
     padding-left: 15px;
     background: #EEE;
@@ -144,7 +153,7 @@ h6 {
     border-bottom: 1px solid #DDD;
     color: #555;
 
-    &.ico-after:after {
+    &.ico-after:after{
         margin: 8px 0 0 10px;
     }
 
