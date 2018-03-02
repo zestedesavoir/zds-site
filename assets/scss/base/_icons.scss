@@ -2,7 +2,8 @@
     background-repeat: no-repeat;
     @include sprite();
 }
-.ico-after {
+.ico-after,
+.custom-block {
     position: relative;
 
     &:after {
