@@ -178,7 +178,7 @@ class CreatePostView(CreateView, SingleObjectMixin, QuoteMixin):
 
         if 'preview' in request.POST or new_post:
             if request.is_ajax():
-                content = render_to_response('misc/previsualization.part.html', {'text': request.POST.get('text')})
+                content = render_to_response('misc/preview.part.html', {'text': request.POST.get('text')})
                 return StreamingHttpResponse(content)
             else:
                 form = self.create_forum(self.form_class, **{'text': request.POST.get('text')})

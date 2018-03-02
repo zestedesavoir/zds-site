@@ -244,7 +244,7 @@ class TopicNew(CreateView, SingleObjectMixin):
 
         if 'preview' in request.POST:
             if request.is_ajax():
-                content = render_to_response('misc/previsualization.part.html', {'text': request.POST['text']})
+                content = render_to_response('misc/preview.part.html', {'text': request.POST['text']})
                 return StreamingHttpResponse(content)
             else:
                 initial = {
@@ -320,7 +320,7 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
 
             if 'preview' in request.POST:
                 if request.is_ajax():
-                    content = render_to_response('misc/previsualization.part.html', {'text': request.POST['text']})
+                    content = render_to_response('misc/preview.part.html', {'text': request.POST['text']})
                     return StreamingHttpResponse(content)
                 else:
                     form = self.create_form(self.form_class, **{
@@ -550,7 +550,7 @@ class PostEdit(UpdateView, SinglePostObjectMixin, PostEditMixin):
 
             if 'preview' in request.POST:
                 if request.is_ajax():
-                    content = render_to_response('misc/previsualization.part.html', {'text': request.POST.get('text')})
+                    content = render_to_response('misc/preview.part.html', {'text': request.POST.get('text')})
                     return StreamingHttpResponse(content)
                 else:
                     form = self.create_form(self.form_class, **{

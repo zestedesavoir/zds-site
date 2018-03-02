@@ -192,7 +192,7 @@ class FormWithPreview(FormView):
         if 'preview' in request.POST:
             self.form_invalid(form)
             if request.is_ajax():
-                content = render_to_string('misc/previsualization.part.html', {'text': request.POST.get('text')})
+                content = render_to_string('misc/preview.part.html', {'text': request.POST.get('text')})
                 return StreamingHttpResponse(content)
 
         return super(FormWithPreview, self).post(request, *args, **kwargs)

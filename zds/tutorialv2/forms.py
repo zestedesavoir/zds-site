@@ -154,12 +154,12 @@ class ContainerForm(FormWithTitle):
             Field('introduction', css_class='md-editor preview-source'),
             ButtonHolder(StrictButton(_('Aperçu'), type='preview', name='preview',
                                       css_class='btn btn-grey preview-btn'),),
-            HTML('{% if form.introduction.value %}{% include "misc/previsualization.part.html" \
+            HTML('{% if form.introduction.value %}{% include "misc/preview.part.html" \
             with text=form.introduction.value %}{% endif %}'),
             Field('conclusion', css_class='md-editor preview-source'),
             ButtonHolder(StrictButton(_('Aperçu'), type='preview', name='preview',
                                       css_class='btn btn-grey preview-btn'),),
-            HTML('{% if form.conclusion.value %}{% include "misc/previsualization.part.html" \
+            HTML('{% if form.conclusion.value %}{% include "misc/preview.part.html" \
             with text=form.conclusion.value %}{% endif %}'),
             Field('msg_commit'),
             Field('last_hash'),
@@ -246,12 +246,12 @@ class ContentForm(ContainerForm):
             Field('introduction', css_class='md-editor preview-source'),
             ButtonHolder(StrictButton(_('Aperçu'), type='preview', name='preview',
                                       css_class='btn btn-grey preview-btn'),),
-            HTML('{% if form.introduction.value %}{% include "misc/previsualization.part.html" \
+            HTML('{% if form.introduction.value %}{% include "misc/preview.part.html" \
             with text=form.introduction.value %}{% endif %}'),
             Field('conclusion', css_class='md-editor preview-source'),
             ButtonHolder(StrictButton(_('Aperçu'), type='preview', name='preview',
                                       css_class='btn btn-grey preview-btn'),),
-            HTML('{% if form.conclusion.value %}{% include "misc/previsualization.part.html" \
+            HTML('{% if form.conclusion.value %}{% include "misc/preview.part.html" \
             with text=form.conclusion.value %}{% endif %}'),
             Field('last_hash'),
             Field('licence'),
