@@ -66,7 +66,7 @@ test-back: clean-back zmd-start
 # zmd
 
 zmd-install:
-	cd zmd && yarn
+	cd zmd && yarn --non-interactive --frozen-lockfile --production
 
 zmd-start:
 	cd zmd/node_modules/zmarkdown && npm run server
