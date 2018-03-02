@@ -133,7 +133,7 @@ class UpdateMember(UpdateView):
         form = self.form_class(request.POST)
 
         if 'preview' in request.POST and request.is_ajax():
-            content = render_to_response('misc/previsualization.part.html', {'text': request.POST.get('text')})
+            content = render_to_response('misc/preview.part.html', {'text': request.POST.get('text')})
             return StreamingHttpResponse(content)
 
         if form.is_valid():
@@ -766,7 +766,7 @@ class HatsSettings(LoginRequiredMixin, CreateView):
 
     def post(self, request, *args, **kwargs):
         if 'preview' in request.POST and request.is_ajax():
-            content = render_to_response('misc/previsualization.part.html', {'text': request.POST.get('text')})
+            content = render_to_response('misc/preview.part.html', {'text': request.POST.get('text')})
             return StreamingHttpResponse(content)
 
         return super(HatsSettings, self).post(request, *args, **kwargs)

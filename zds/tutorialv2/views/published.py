@@ -657,7 +657,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
     def post(self, request, *args, **kwargs):
 
         if 'preview' in request.POST and request.is_ajax():
-            content = render_to_response('misc/previsualization.part.html', {'text': request.POST['text']})
+            content = render_to_response('misc/preview.part.html', {'text': request.POST['text']})
             return StreamingHttpResponse(content)
         else:
             return super(SendNoteFormView, self).post(request, *args, **kwargs)

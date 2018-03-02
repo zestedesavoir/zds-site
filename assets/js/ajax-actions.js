@@ -21,8 +21,6 @@
     function synchText() {
         $("#mobile-menu [data-ajax-input]").each(function () {
             var dataAjaxInput = $(this).data("ajax-input");
-            console.log($(this).text(), $(".sidebar").find("button[data-ajax-input='" + dataAjaxInput + "']").text(), dataAjaxInput);
-
             $(this).text($(".sidebar").find("button[data-ajax-input='" + dataAjaxInput + "']").text());
         });
     }
@@ -243,48 +241,71 @@
     /**
      * Preview the message
      */
-    $(".message-bottom [data-ajax-input='preview-message'], .preview-btn").on("click", function(e) {
+    var previewTimeout;
+    var previewInput;
+    var previewContent;
+    var previewDelay = 10000;
+    var previewTime;
+    $(".message-bottom [data-ajax-input='preview-message'], .preview-btn").on("mouseover click", function(e){
         e.stopPropagation();
         e.preventDefault();
         var $btn = $(this);
         var $form = $btn.parents("form:first");
+        var isForm = !!$form.find(".preview-source").length;
+        var $insertTarget = isForm ? $btn : $form;
         var text = "";
-        if ( $form.find(".preview-source").length ) {
-            var $textSource = $btn.parent().prev().find(".preview-source");
-            text = $textSource.val();
+        if (isForm) {
+            text = $btn.parent().prev().find(".preview-source").val();
         } else {
             text = $form.find("textarea[name=text]").val();
+        }
+        if (!previewInput) {
+            previewInput = text;
         }
 
         var csrfmiddlewaretoken = $form.find("input[name=csrfmiddlewaretoken]").val(),
             lastPost = $form.find("input[name=last_post]").val();
 
-        $.ajax({
-            url: $form.attr("action"),
-            type: "POST",
-            data: {
-                "csrfmiddlewaretoken": csrfmiddlewaretoken,
-                "text": text,
-                "last_post": lastPost,
-                "preview": "preview"
-            },
-            success: function(data){
-                $(".previsualisation").remove();
+        if (previewInput === text && e.type === "click" && previewContent && (Date.now() - previewTime) < previewDelay) {
+            return showPreview();
+        }
 
-                if (typeof $textSource === "undefined")
-                    $(data).insertAfter($form);
-                else
-                    $(data).insertAfter($btn);
+        var later = function() {
+            previewTimeout = null;
+        };
 
-                /* global MathJax */
-                // MathJax may be unavailable on some pages.
-                if (window.MathJax && data.indexOf("$") > 0) {
-                    MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+        var callNow = previewInput !== text || !previewTimeout;
+        clearTimeout(previewTimeout);
+        previewTimeout = setTimeout(later, previewDelay);
+
+        if (callNow) {
+            $.ajax({
+                url: $form.attr("action"),
+                type: "POST",
+                data: {
+                    "csrfmiddlewaretoken": csrfmiddlewaretoken,
+                    "text": text,
+                    "last_post": lastPost,
+                    "preview": "preview"
                 }
-            }
-        });
-    });
+            }).done(function(preview){
+                previewContent = preview;
+            }).fail(function(j, textStatus, err) {
+                console.error(err);
+            }).always(function() {
+                previewTime = Date.now();
+                previewInput = text;
+                if (e.type === "click") {
+                    showPreview();
+                }
+            });
+        }
 
+        function showPreview () {
+            $(".previsualisation").remove();
+            $(previewContent).insertAfter($insertTarget);
+        }
+    });
 
     /*
      * Mark a message useful

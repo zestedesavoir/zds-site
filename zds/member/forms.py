@@ -284,7 +284,7 @@ class ProfileForm(MiniProfileForm):
                                       css_class='btn btn-grey preview-btn'),),
             HTML("""
                 {% if form.biographie.value %}
-                    {% include "misc/previsualization.part.html" with text=form.biographie.value %}
+                    {% include "misc/preview.part.html" with text=form.biographie.value %}
                 {% endif %}
             """),
             Field('site'),

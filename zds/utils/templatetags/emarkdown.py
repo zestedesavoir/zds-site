@@ -1,8 +1,8 @@
 import re
-
+import json
 import logging
-from requests import post
-import requests
+from requests import post, HTTPError
+
 from django import template
 from django.conf import settings
 from django.template.defaultfilters import stringfilter
@@ -47,10 +47,13 @@ def _render_markdown_once(md_input, *, output_format='html', **kwargs):
             'opts': kwargs,
             'md': str(md_input),
         }, timeout=10)
-    except requests.HTTPError:
+    except HTTPError:
         logger.exception('An HTTP error happened, markdown rendering failed')
         log_args()
         return '', {}, []
+
+    if response.status_code == 413:
+        return '', {}, [{'message': str(_('Texte trop volumineux.'))}]
 
     if response.status_code != 200:
         logger.error('The markdown server replied with status {} (expected 200)'.format(response.status_code))
@@ -61,7 +64,7 @@ def _render_markdown_once(md_input, *, output_format='html', **kwargs):
         content, metadata, messages = response.json()
         logger.debug('Result %s, %s, %s', content, metadata, messages)
         if messages:
-            logger.error('Markdown errors %s', str(messages))
+            logger.error('Markdown errors %s', json.dumps(messages))
         content = content.strip()
         if inline:
             content = content.replace('</p>\n', '\n\n').replace('\n<p>', '\n')
@@ -106,9 +109,9 @@ def render_markdown(md_input, *, on_error=None, **kwargs):
 
     # FIXME: This cannot work with LaTeX.
     if inline:
-        return mark_safe('<p>{}</p>'.format(messages)), metadata, []
+        return mark_safe('<p>{}</p>'.format(json.dumps(messages))), metadata, []
     else:
-        return mark_safe('<div class="error ico-after"><p>{}</p></div>'.format(messages)), metadata, []
+        return mark_safe('<div class="error ico-after"><p>{}</p></div>'.format(json.dumps(messages))), metadata, []
 
 
 @register.filter(name='epub_markdown', needs_autoescape=False)
@@ -121,8 +124,6 @@ def epub_markdown(md_input, image_directory):
 @stringfilter
 def emarkdown(md_input, use_jsfiddle='', **kwargs):
     """
-    Filter markdown string and render it to html.
-
     :param str md_input: Markdown string.
     :return: HTML string.
     :rtype: str
@@ -135,6 +136,30 @@ def emarkdown(md_input, use_jsfiddle='', **kwargs):
         **dict(kwargs, disable_jsfiddle=disable_jsfiddle))
 
     return content or ''
+
+
+@register.filter(needs_autoescape=False)
+@stringfilter
+def emarkdown_preview(md_input, use_jsfiddle='', **kwargs):
+    """
+    Filter markdown string and render it to html.
+
+    :param str md_input: Markdown string.
+    :return: HTML string.
+    :rtype: str
+    """
+    disable_jsfiddle = (use_jsfiddle != 'js')
+
+    content, metadata, messages = render_markdown(
+        md_input,
+        **dict(kwargs, disable_jsfiddle=disable_jsfiddle))
+
+    if messages:
+        content = _('</div><div class="preview-error"><strong>Erreur du serveur Markdown:</strong>\n{}'
+                    .format('<br>- '.join([m['message'] for m in messages])))
+        content = mark_safe(content)
+
+    return content
 
 
 @register.filter(needs_autoescape=False)
