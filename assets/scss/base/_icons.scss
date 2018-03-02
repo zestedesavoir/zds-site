@@ -3,7 +3,7 @@
     @include sprite();
 }
 .ico-after,
-.custom-block {
+.custom-block:not(.custom-block-spoiler) {
     position: relative;
 
     &:after {

@@ -135,10 +135,15 @@ h6 {
             @include sprite-position($warning);
         }
     }
+
+    .js .spoiler, .custom-block-spoiler {
+        display: none;
+    }
+
 }
 
 .spoiler,
-.custom-block-spoiler{
+.custom-block-spoiler {
     margin-top: 0;
     padding-left: 15px;
     background: #EEE;
