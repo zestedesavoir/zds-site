@@ -98,19 +98,25 @@ LOGGING = {
     'handlers': {
         'django_log': {
             'level': 'WARNING',
-            'class': 'logging.FileHandler',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'maxBytes': 1024 * 1024 * 10,  # rotate when it reaches 10 MB
+            'backupCount': 50,  # only keep the last 50 rotated files, 10M*50 -> 500M
             'filename': '/var/log/zds/logging.django.log',
             'formatter': 'verbose'
         },
         'debug_log': {
             'level': 'DEBUG',
-            'class': 'logging.FileHandler',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'maxBytes': 1024 * 1024 * 10,  # rotate when it reaches 10 MB
+            'backupCount': 50,  # only keep the last 50 rotated files, 10M*50 -> 500M
             'filename': '/var/log/zds/debug.django.log',
             'formatter': 'verbose'
         },
         'generator_log': {
             'level': 'WARNING',
-            'class': 'logging.FileHandler',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'maxBytes': 1024 * 1024 * 10,  # rotate when it reaches 10 MB
+            'backupCount': 50,  # only keep the last 50 rotated files, 10M*50 -> 500M
             'filename': '/var/log/zds/generator.log',
             'formatter': 'verbose'
         },
