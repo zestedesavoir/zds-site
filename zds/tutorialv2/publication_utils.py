@@ -364,7 +364,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
         logo_path = Path(latex_file_path).parent / 'images' / 'default_logo.png'
         if not logo_path.exists() and published_content_entity.content.image:
             logo_name = published_content_entity.content.image.physical.name
-            shutil.copy(str(settings.MEDIA_ROOT / logo_name), str(logo_path))
+            shutil.copy(str(Path(settings.MEDIA_ROOT) / logo_name), str(logo_path))
         pdf_file_path = base_name + self.extension
         default_logo_original_path = Path(__file__).parent / '..' / '..' / 'assets' / 'images' / 'logo.png'
         shutil.copy(str(default_logo_original_path), str(Path(base_name).parent / 'default_logo.png'))
