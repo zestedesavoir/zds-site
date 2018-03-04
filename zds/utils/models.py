@@ -397,7 +397,10 @@ class Comment(models.Model):
         max_ping_count = settings.ZDS_APP['comment']['max_pings']
         first_pings = all_the_pings[:max_ping_count]
         for username in first_pings:
-            signals.new_content.send(sender=self.__class__, instance=self, user=User.objects.get(username=username))
+            pinged_user = User.objects.filter(username=username).first()
+            if not pinged_user:
+                continue
+            signals.new_content.send(sender=self.__class__, instance=self, user=pinged_user)
         unpinged_usernames = set(old_metadata.get('ping', [])) - set(all_the_pings)
         unpinged_users = User.objects.filter(username__in=list(unpinged_usernames))
         for unpinged_user in unpinged_users:
