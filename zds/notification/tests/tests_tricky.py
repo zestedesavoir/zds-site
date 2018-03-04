@@ -38,6 +38,22 @@ class ForumNotification(TestCase):
             self.forum12.groups.add(group)
         self.forum12.save()
 
+    def test_ping_unknown(self):
+        overridden_zds_app['comment']['enable_pings'] = True
+        self.assertTrue(self.client.login(username=self.user2.username, password='hostel77'))
+        result = self.client.post(
+            reverse('topic-new') + '?forum={0}'.format(self.forum11.pk),
+            {
+                'title': 'Super sujet',
+                'subtitle': 'Pour tester les notifs',
+                'text': '@anUnExistingUser is pinged, also a special chars user @{}',
+                'tags': ''
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302, 'Request must succeed')
+        self.assertEqual(0, PingSubscription.objects.count(),
+                         'As one user is pinged, only one subscription is created.')
+
     def test_no_auto_ping(self):
         overridden_zds_app['comment']['enable_pings'] = True
         self.assertTrue(self.client.login(username=self.user2.username, password='hostel77'))
