@@ -27,18 +27,20 @@ from zds.utils.forums import create_topic
 from zds.utils.models import Alert, CommentEdit, Comment
 
 
+try:
+    with open(os.path.join(settings.BASE_DIR, 'quotes.txt'), 'r', encoding='utf-8') as quotes_file:
+            QUOTES = quotes_file.readlines()
+except OSError:
+    QUOTES = [settings.ZDS_APP['site']['slogan']]
+
+
 def home(request):
     """Display the home page with last topics added."""
 
     tutos = PublishableContent.objects.get_last_tutorials()
     articles = PublishableContent.objects.get_last_articles()
     opinions = PublishableContent.objects.get_last_opinions()
-
-    try:
-        with open(os.path.join(settings.BASE_DIR, 'quotes.txt'), 'r', encoding='utf-8') as quotes_file:
-            quote = random.choice(quotes_file.readlines())
-    except OSError:
-        quote = settings.ZDS_APP['site']['slogan']
+    quote = random.choice(QUOTES)
 
     return render(request, 'home.html', {
         'featured_message': FeaturedMessage.objects.get_last_message(),
