@@ -179,7 +179,7 @@ def handle_images(html_code):
             final_path += '.png'
         if final_path.endswith('svg') or final_path.endswith('gif'):
             final_path = final_path[:-3] + 'png'
-        image_path_in_ebook = Path('..', 'images', Path(final_path).name.replace('%20', '_'))
+        image_path_in_ebook = '#image_' + Path(final_path).name.replace('%20', '_')
         image['src'] = str(image_path_in_ebook)
     ids = {}
     for element in soup_parser.find_all(name=None, attrs={'id': (lambda s: True)}):
