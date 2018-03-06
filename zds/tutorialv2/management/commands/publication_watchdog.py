@@ -46,7 +46,8 @@ class TutorialIsPublished(FileSystemEventHandler):
             extra_contents_path = dirname(md_file_path)
             self.prepare_generation(extra_contents_path)
             try:
-                generate_external_content(base_name, extra_contents_path, md_file_path, overload_settings=True)
+                generate_external_content(base_name, extra_contents_path, md_file_path, overload_settings=True,
+                                          excluded=['watchdog'])
             finally:
                 self.finish_generation(extra_contents_path, event.src_path)
 

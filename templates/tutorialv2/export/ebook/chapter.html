@@ -3,9 +3,9 @@
     <head>
         <title>{{ container.title }}</title>
         <meta charset="UTF-8"/>
-        <link rel="stylesheet" href="zmd.css" media="all" type="text/css"/>
+        <link rel="stylesheet" href="./zmd.css" media="all" type="text/css"/>
     </head>
-    <body>
+    <body class="zmarkdown">
         {% if container.introduction %}
             {{ container.get_introduction|epub_markdown:image_directory }}
         {% endif %}

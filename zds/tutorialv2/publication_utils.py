@@ -160,7 +160,7 @@ def write_md_file(md_file_path, parsed_with_local_images, versioned):
                                              'à télécharger, vérifiez le code markdown'))
 
 
-def generate_external_content(base_name, extra_contents_path, md_file_path, overload_settings=False):
+def generate_external_content(base_name, extra_contents_path, md_file_path, overload_settings=False, excluded=None):
     """
     generate all static file that allow offline access to content
 
@@ -172,14 +172,14 @@ def generate_external_content(base_name, extra_contents_path, md_file_path, over
     ask for PDF not to be published
     :return:
     """
-    excluded = []
+    excluded = excluded or []
     if not settings.ZDS_APP['content']['build_pdf_when_published'] and not overload_settings:
         excluded.append('pdf')
     # TODO: exclude watchdog
     for publicator_name, publicator in PublicatorRegistry.get_all_registered(excluded):
         try:
             publicator.publish(md_file_path, base_name, change_dir=extra_contents_path)
-        except FailureDuringPublication:
+        except (FailureDuringPublication, OSError):
             logging.getLogger(__name__).exception('Could not publish %s format from %s base.',
                                                   publicator_name, md_file_path)
 
@@ -316,6 +316,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
     def publish(self, md_file_path, base_name, **kwargs):
         md_flat_content = _read_flat_markdown(md_file_path)
         published_content_entity = self.get_published_content_entity(md_file_path)
+        gallery_pk = published_content_entity.content.gallery.pk
         depth_to_size_map = {
             1: 'small',  # in fact this is an "empty" tutorial (i.e it is empty or has intro and/or conclusion)
             2: 'small',
@@ -325,6 +326,12 @@ class ZMarkdownRebberLatexPublicator(Publicator):
         public_versionned_source = published_content_entity.content\
             .load_version(sha=published_content_entity.sha_public)
         base_directory = Path(base_name).parent
+        image_dir = base_directory / 'images'
+        with contextlib.suppress(FileExistsError):
+            image_dir.mkdir(parents=True)
+        for image in Path(settings.MEDIA_ROOT, 'galleries', str(gallery_pk)).iterdir():
+            with contextlib.suppress(FileExistsError):
+                shutil.copy2(str(image.absolute()), str(image_dir))
         content_type = depth_to_size_map[public_versionned_source.get_tree_level()]
         if self.latex_classes:
             content_type += ', ' + self.latex_classes
@@ -332,6 +339,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
         authors = [a.username for a in published_content_entity.authors.all()]
         smileys_directory = SMILEYS_BASE_PATH
         licence = published_content_entity.content.licence.title.replace('CC-', '')
+
         replacement_image_url = settings.MEDIA_ROOT
         if not replacement_image_url.endswith('/') and settings.MEDIA_URL.endswith('/'):
             replacement_image_url += '/'
@@ -361,13 +369,10 @@ class ZMarkdownRebberLatexPublicator(Publicator):
                 luatex_dir_link.symlink_to(zmd_class_dir_path / 'utf8.lua', target_is_directory=True)
         true_latex_extension = '.'.join(self.extension.split('.')[:-1]) + '.tex'
         latex_file_path = base_name + true_latex_extension
-        logo_path = Path(latex_file_path).parent / 'images' / 'default_logo.png'
-        if not logo_path.exists() and published_content_entity.content.image:
-            logo_name = published_content_entity.content.image.physical.name
-            shutil.copy(str(Path(settings.MEDIA_ROOT) / logo_name), str(logo_path))
         pdf_file_path = base_name + self.extension
         default_logo_original_path = Path(__file__).parent / '..' / '..' / 'assets' / 'images' / 'logo.png'
-        shutil.copy(str(default_logo_original_path), str(Path(base_name).parent / 'default_logo.png'))
+        with contextlib.suppress(FileExistsError):
+            shutil.copy(str(default_logo_original_path), str(base_directory / 'default_logo.png'))
         with open(latex_file_path, mode='w', encoding='utf-8') as latex_file:
             latex_file.write(content)
 
