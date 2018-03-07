@@ -303,7 +303,6 @@ class ZmarkdownHtmlPublicator(Publicator):
 
 
 @PublicatorRegistry.register('pdf')
-@PublicatorRegistry.register('printable-pdf', '.printable.pdf', 'print, nocolor')
 class ZMarkdownRebberLatexPublicator(Publicator):
     """
     Use zmarkdown and rebber stringifier to produce latex & pdf output.
@@ -330,7 +329,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
         with contextlib.suppress(FileExistsError):
             image_dir.mkdir(parents=True)
         for image in Path(settings.MEDIA_ROOT, 'galleries', str(gallery_pk)).iterdir():
-            with contextlib.suppress(FileExistsError):
+            with contextlib.suppress(OSError):
                 shutil.copy2(str(image.absolute()), str(image_dir))
         content_type = depth_to_size_map[public_versionned_source.get_tree_level()]
         if self.latex_classes:
