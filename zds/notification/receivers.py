@@ -346,7 +346,7 @@ def answer_comment_event(sender, *, instance, user, **__):
 
     assert comment is not None
     assert user is not None
-    if not instance.topic.forum.can_read(user):
+    if sender == Post and not instance.topic.forum.can_read(user):
         return
     subscription = PingSubscription.objects.get_or_create_active(user, comment)
     subscription.send_notification(content=comment, sender=comment.author, send_email=False)
