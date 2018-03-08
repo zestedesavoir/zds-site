@@ -343,6 +343,19 @@ class NotificationForumTest(TestCase):
 
         self.assertEqual(1, len(Notification.objects.filter(object_id=topic.pk, is_read=True).all()))
 
+    def test_ping_on_tuto(self):
+        """Error from #4904"""
+        content = PublishedContentFactory(author_list=[self.user1])
+        self.assertTrue(self.client.login(username=self.user2.username, password='hostel77'))
+        result = self.client.post(
+            reverse('content:add-reaction') + '?pk={}'.format(content.pk),
+            {
+                'text': '@{}'.format(self.user1.username),
+                'last_note': 0,
+            }, follow=True)
+        self.assertEqual(200, result.status_code)
+        self.assertEqual(1, len(Notification.objects.filter(is_read=False).all()))
+
     def test_move_topic_from_forum_followed_to_forum_followed_too(self):
         NewTopicSubscription.objects.toggle_follow(self.forum11, self.user1)
         NewTopicSubscription.objects.toggle_follow(self.forum12, self.user1)
