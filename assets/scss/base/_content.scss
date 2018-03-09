@@ -311,12 +311,14 @@ td code {
 // @ping
 .ping {
     color: inherit;
-    font-weight: bold;
     text-decoration: none;
 
     &:hover,
     &:focus {
         text-decoration: underline;
+    }
+    .ping-username {
+      font-weight: bold;
     }
 }
 
