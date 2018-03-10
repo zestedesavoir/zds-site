@@ -431,7 +431,10 @@ td code {
     }
 }
 
-.inlineMathDouble  .katex {
+.katex-display > .katex {
+    display: contents;  /* overrides katex.css that creates display:inline-block and generate bad box */
+}
+.inlineMathDouble .katex {
     max-width: 100%;
     overflow-x: auto;
 }

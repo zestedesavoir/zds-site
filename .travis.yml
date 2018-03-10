@@ -139,7 +139,6 @@ script:
       yarn test \
       && yarn build # we need to upload the assets later
     fi
-
   - |
     # test backend
     if [[ "$ZDS_TEST_JOB" == *"zds."* ]]; then
