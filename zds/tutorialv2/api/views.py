@@ -50,7 +50,7 @@ class ContainerPublicationReadinessView(UpdateAPIView):
 
     def get_object(self):
         content = PublishableContent.objects.prefetch_related('authors')\
-            .filter(pk=int(self.kwargs['pk']))\
+            .filter(pk=int(self.kwargs.get('pk', 0)))\
             .first()
         if not content:
             raise Http404()
