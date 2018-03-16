@@ -3,7 +3,9 @@
     <head>
         <title>{{ container.title }}</title>
         <meta charset="UTF-8"/>
-        <link rel="stylesheet" href="./zmd.css" media="all" type="text/css"/>
+        <link rel="stylesheet" href="{{ relative }}/Text/styles/zmd.css" media="all" type="text/css"/>
+        <link rel="stylesheet" href="{{ relative }}/Text/styles/code.css" media="all" type="text/css"/>
+        <link rel="stylesheet" href="{{ relative }}/Text/styles/katex.min.css" media="all" type="text/css"/>
     </head>
     <body class="zmarkdown">
         {% if container.introduction %}

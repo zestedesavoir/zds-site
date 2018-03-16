@@ -10,14 +10,14 @@ const sourcemaps = require('gulp-sourcemaps');
 const spritesmith = require('gulp.spritesmith');
 const uglify = require('gulp-uglify');
 const jshint = require('gulp-jshint');
-
 const autoprefixer = require('autoprefixer');
 const cssnano = require('cssnano');
+const download = require('gulp-download2')
 
 // PostCSS plugins used
 const postcssPlugins = [
     autoprefixer({ browsers: ['last 2 versions', '> 1%', 'ie >= 9'] }),
-    cssnano(),
+    cssnano()
 ];
 
 const customSass = () => sass({
@@ -91,6 +91,12 @@ gulp.task('js', () =>
         .pipe(sourcemaps.write('.', { includeContent: true, sourceRoot: '../../' }))
         .pipe(gulp.dest('dist/js/')));
 
+gulp.task('prepare-zmd', ['css:sprite'], () =>
+    download(
+        ["http://jmblog.github.com/color-themes-for-highlightjs/css/themes/tomorrow.css",
+         "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0/katex.min.css"]).pipe(
+            gulp.dest('dist/css/')
+        ));
 // Compiles the SCSS files to CSS
 gulp.task('css', ['css:sprite'], () =>
     gulp.src(['assets/scss/main.scss', 'assets/scss/zmd.scss'])
@@ -168,5 +174,5 @@ gulp.task('errors', () =>
         .pipe(gulp.dest('errors/css/')));
 
 gulp.task('test', ['js:lint']);
-gulp.task('build', ['css', 'js', 'images']);
+gulp.task('build', ['prepare-zmd', 'css', 'js', 'images']);
 gulp.task('default', ['watch', 'test']);

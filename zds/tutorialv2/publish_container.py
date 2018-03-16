@@ -32,7 +32,7 @@ def publish_container(db_object, base_dir, container, template='tutorialv2/expor
     from zds.tutorialv2.models.versioned import Container
     from zds.tutorialv2.publication_utils import FailureDuringPublication
     path_to_title_dict = collections.OrderedDict()
-
+    ctx['relative'] = ctx.get('relative', '.')
     if not isinstance(container, Container):
         raise FailureDuringPublication(_(u"Le conteneur n'en est pas un !"))
 
@@ -47,11 +47,12 @@ def publish_container(db_object, base_dir, container, template='tutorialv2/expor
         makedirs(current_dir)
 
     if container.has_extracts():  # the container can be rendered in one template
+        wrapped_image_callback = image_callback(ctx['relative']) if image_callback else image_callback
         args = {'container': container, 'is_js': is_js}
         args.update(ctx)
         parsed = render_to_string(template, args)
         write_chapter_file(base_dir, container, Path(container.get_prod_path(True, file_ext)),
-                           parsed, path_to_title_dict, image_callback)
+                           parsed, path_to_title_dict, wrapped_image_callback)
         for extract in container.children:
             extract.text = None
 
@@ -59,31 +60,33 @@ def publish_container(db_object, base_dir, container, template='tutorialv2/expor
         container.conclusion = None
 
     else:  # separate render of introduction and conclusion
-
+        wrapped_image_callback = image_callback(ctx['relative']) if image_callback else image_callback
         # create subdirectory
         if not path.isdir(current_dir):
             makedirs(current_dir)
-
+        ctx['relative'] = '../' + ctx['relative']
         if container.introduction and container.get_introduction():
             part_path = Path(container.get_prod_path(relative=True), 'introduction.' + file_ext)
             parsed = emarkdown(container.get_introduction(), db_object.js_support)
             container.introduction = str(part_path)
-            write_chapter_file(base_dir, container, part_path, parsed, path_to_title_dict, image_callback)
+            write_chapter_file(base_dir, container, part_path, parsed, path_to_title_dict,
+                               wrapped_image_callback)
         children = copy.copy(container.children)
         container.children = []
         container.children_dict = {}
         for child in filter(lambda c: c.ready_to_publish, children):
+
             altered_version = copy.copy(child)
             container.children.append(altered_version)
             container.children_dict[altered_version.slug] = altered_version
             result = publish_container(db_object, base_dir, altered_version, file_ext=file_ext,
-                                       image_callback=image_callback)
+                                       image_callback=image_callback, template=template, **ctx)
             path_to_title_dict.update(result)
         if container.conclusion and container.get_conclusion():
             part_path = Path(container.get_prod_path(relative=True), 'conclusion.' + file_ext)
             parsed = emarkdown(container.get_conclusion(), db_object.js_support)
             container.conclusion = str(part_path)
-            write_chapter_file(base_dir, container, part_path, parsed, path_to_title_dict, image_callback)
+            write_chapter_file(base_dir, container, part_path, parsed, path_to_title_dict, wrapped_image_callback)
 
     return path_to_title_dict
 
