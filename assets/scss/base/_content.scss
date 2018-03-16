@@ -286,6 +286,9 @@ samp {
   font-style: normal;
   font-size: 14px;
 
+  max-width: 100%;
+  overflow-x: auto;
+
   .hljs-line-numbers {
     counter-reset: line;
     border-right: 1px solid #ddd;
@@ -301,7 +304,6 @@ samp {
     }
   }
   pre {
-    width: 100%;
     margin: 0;
   }
 }
