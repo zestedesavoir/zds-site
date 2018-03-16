@@ -38,7 +38,7 @@ def __traverse_and_identify_images(image_dir):
 
     for image_file_path in image_dir.iterdir():
         ext = path.splitext(image_file_path.name)[1]
-        identifier = 'image_{}'.format(image_file_path.name).lower()
+        identifier = 'image_{}'.format(image_file_path.name).lower().replace('.', '-')
         ebook_image_path = Path('images', image_file_path.name)
         yield ebook_image_path, identifier, media_type_map.get(ext.lower(), 'image/png')
 
@@ -61,7 +61,8 @@ def build_html_chapter_file(published_object, versioned_object, working_dir, roo
     path_to_title_dict = publish_container(published_object, str(working_dir), versioned_object,
                                            template='tutorialv2/export/ebook/chapter.html',
                                            file_ext='xhtml', image_callback=handle_images,
-                                           image_directory=str(working_dir / 'images'))
+                                           image_directory=str(working_dir / 'images'),
+                                           relative='.')
     for container_path, title in path_to_title_dict.items():
         # TODO: check if a function exists in the std lib to get rid of `root_dir + '/'`
         yield container_path.replace(str(root_dir.absolute()) + '/', ''), 'chapter-' + slugify(title), title
@@ -103,7 +104,7 @@ def build_nav_xhtml(working_dir, content, chapters):
 def build_ebook(published_content_entity, working_dir, final_file_path):
     ops_dir = Path(working_dir, 'ebook', 'OPS')
     text_dir_path = Path(ops_dir, 'Text')
-    style_dir_path = Path(ops_dir, 'Text')
+    style_dir_path = Path(ops_dir, 'Text', 'styles')
     font_dir_path = Path(ops_dir, 'Fonts')
     meta_inf_dir_path = Path(working_dir, 'ebook', 'META-INF')
     target_image_dir = Path(ops_dir, 'images')
@@ -119,7 +120,8 @@ def build_ebook(published_content_entity, working_dir, final_file_path):
 
     mimetype_conf = __build_mime_type_conf()
     mime_path = Path(working_dir, 'ebook', mimetype_conf['filename'])
-    copytree(published_content_entity.content.gallery.get_gallery_path(), str(target_image_dir))
+    with contextlib.suppress(FileExistsError):
+        copytree(published_content_entity.content.gallery.get_gallery_path(), str(target_image_dir))
 
     with mime_path.open(mode='w', encoding='utf-8') as mimefile:
         mimefile.write(mimetype_conf['content'])
@@ -132,6 +134,8 @@ def build_ebook(published_content_entity, working_dir, final_file_path):
     build_toc_ncx(chapters, published_content_entity, ops_dir)
     copy_or_create_empty(settings.ZDS_APP['content']['epub_stylesheets']['toc'], style_dir_path, 'toc.css')
     copy_or_create_empty(settings.ZDS_APP['content']['epub_stylesheets']['full'], style_dir_path, 'zmd.css')
+    copy_or_create_empty(settings.ZDS_APP['content']['epub_stylesheets']['katex'], style_dir_path, 'katex.css')
+    copy_or_create_empty(settings.ZDS_APP['content']['epub_stylesheets']['code'], style_dir_path, 'code.css')
     style_images_path = Path(settings.BASE_DIR, 'dist', 'images')
     smyley_images_path = Path(settings.BASE_DIR, 'dist', 'smileys')
     if style_images_path.exists():
@@ -164,27 +168,29 @@ def copy_or_create_empty(src_path, dst_path, default_name):
             f.write('')
 
 
-def handle_images(html_code):
-    soup_parser = BeautifulSoup(html_code, 'lxml')
-    for image in soup_parser.find_all('img'):
-        if not image.get('src', ''):
-            continue
-        image_url = image['src']
-        if image_url.startswith('http://') or image_url.startswith('https://'):
-            splitted = parse.urlsplit(image_url)
-            final_path = splitted.path
-        else:
-            final_path = image_url
-        if not path.splitext(final_path)[1]:
-            final_path += '.png'
-        if final_path.endswith('svg') or final_path.endswith('gif'):
-            final_path = final_path[:-3] + 'png'
-        image_path_in_ebook = '#image_' + Path(final_path).name.replace('%20', '_')
-        image['src'] = str(image_path_in_ebook)
-    ids = {}
-    for element in soup_parser.find_all(name=None, attrs={'id': (lambda s: True)}):
-        while element.get('id', None) and element['id'] in ids:
-            element['id'] += '-1'
-        if element.get('id', None):
-            ids[element['id']] = True
-    return soup_parser.prettify('utf-8').decode('utf-8')
+def handle_images(relative_path):
+    def _(html_code):
+        soup_parser = BeautifulSoup(html_code, 'lxml')
+        for image in soup_parser.find_all('img'):
+            if not image.get('src', ''):
+                continue
+            image_url = image['src']
+            if image_url.startswith('http://') or image_url.startswith('https://'):
+                splitted = parse.urlsplit(image_url)
+                final_path = splitted.path
+            else:
+                final_path = image_url
+            if not path.splitext(final_path)[1]:
+                final_path += '.png'
+            if final_path.endswith('svg') or final_path.endswith('gif'):
+                final_path = final_path[:-3] + 'png'
+            image_path_in_ebook = relative_path + '/images/' + Path(final_path).name.replace('%20', '_')
+            image['src'] = str(image_path_in_ebook)
+        ids = {}
+        for element in soup_parser.find_all(name=None, attrs={'id': (lambda s: True)}):
+            while element.get('id', None) and element['id'] in ids:
+                element['id'] += '-1'
+            if element.get('id', None):
+                ids[element['id']] = True
+        return soup_parser.prettify('utf-8').decode('utf-8')
+    return _

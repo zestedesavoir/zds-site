@@ -465,13 +465,19 @@ class ZMarkdownEpubPublicator(Publicator):
     def publish(self, md_file_path, base_name, **kwargs):
         try:
             published_content_entity = self.get_published_content_entity(md_file_path)
-            epub_file_path = Path(path.splitext(md_file_path)[0] + '.epub')
+            epub_file_path = Path(base_name + '.epub')
             build_ebook(published_content_entity,
                         path.dirname(md_file_path),
                         epub_file_path)
         except (IOError, OSError):
             raise FailureDuringPublication('Error while generating epub file.')
         else:
+            print(epub_file_path)
+            epub_path = Path(published_content_entity.get_extra_contents_directory(), Path(epub_file_path.name))
+            if epub_path.exists():
+                os.remove(str(epub_path))
+            if not epub_path.parent.exists():
+                epub_path.parent.mkdir(parents=True)
             shutil.move(str(epub_file_path), published_content_entity.get_extra_contents_directory())
 
 
