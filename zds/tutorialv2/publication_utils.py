@@ -23,6 +23,15 @@ from zds.utils.templatetags.emarkdown import render_markdown, MD_PARSING_ERROR
 from zds.utils.templatetags.smileys_def import SMILEYS_BASE_PATH, LICENSES_BASE_PATH
 
 logger = logging.getLogger(__name__)
+licences = {
+    'by-nc-nd': 'by-nc-nd.svg',
+    'by-nc-sa': 'by-nc-sa.svg',
+    'by-nc': 'by-nc.svg',
+    'by-nd': 'by-nd.svg',
+    'by-sa': 'by-sa.svg',
+    'by': 'by.svg',
+    'copyright': 'copyright.svg'
+}
 
 
 def notify_update(db_object, is_update, is_major):
@@ -337,14 +346,23 @@ class ZMarkdownRebberLatexPublicator(Publicator):
         title = published_content_entity.title()
         authors = [a.username for a in published_content_entity.authors.all()]
         smileys_directory = SMILEYS_BASE_PATH
-        licence = published_content_entity.content.licence.title.replace('CC-', '')
+
+        licence = published_content_entity.content.licence.title
+        licence_short = licence.replace('CC-', '').lower()
+        licence_logo = licences.get(licence_short, False)
+        if licence_logo:
+            licence_url = 'https://creativecommons.org/licenses/{}/4.0/legalcode'.format(licence_short)
+        else:
+            licence = str(_('Tous droits réservés'))
+            licence_logo = licences['copyright']
+            licence_url = ''
 
         replacement_image_url = settings.MEDIA_ROOT
         if not replacement_image_url.endswith('/') and settings.MEDIA_URL.endswith('/'):
             replacement_image_url += '/'
         elif replacement_image_url.endswith('/') and not settings.MEDIA_URL.endswith('/'):
             replacement_image_url = replacement_image_url[:-1]
-        content, _, messages = render_markdown(
+        content, __, messages = render_markdown(
             md_flat_content,
             output_format='texfile',
             # latex template arguments
@@ -353,6 +371,8 @@ class ZMarkdownRebberLatexPublicator(Publicator):
             authors=authors,
             license=licence,
             license_directory=LICENSES_BASE_PATH,
+            license_logo=licence_logo,
+            license_url=licence_url,
             smileys_directory=smileys_directory,
             images_download_dir=str(base_directory / 'images'),
             local_url_to_local_path=[settings.MEDIA_URL, replacement_image_url]
