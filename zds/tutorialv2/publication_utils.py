@@ -403,7 +403,13 @@ class ZMarkdownRebberLatexPublicator(Publicator):
         command_process = subprocess.Popen(command,
                                            shell=True, cwd=path.dirname(texfile),
                                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        command_process.communicate()
+        stdout, stderr = command_process.communicate()
+        stdout = stdout.decode('utf-8')
+        stderr = stderr.decode('utf-8')
+        if 'Fatal error occurred' in stdout:
+            logging.debug('stdout:' + '\n'.join(stdout.split()[0:11]))
+        if 'Fatal error occurred' in stderr:
+            logging.debug('stderr:' + '\n'.join(stdout.split()[0:11]))
 
         with contextlib.suppress(ImportError):
             from raven import breadcrumbs
@@ -420,14 +426,14 @@ class ZMarkdownRebberLatexPublicator(Publicator):
                                            shell=True, cwd=path.dirname(texfile),
                                            stdout=subprocess.PIPE,
                                            stderr=subprocess.PIPE)
-        std_out, std_err = command_process.communicate()
+        stdout, stderr = command_process.communicate()
         with contextlib.suppress(ImportError):
             from raven import breadcrumbs
             breadcrumbs.record(message='makeglossaries call',
                                data=command,
                                type='cmd')
         # TODO: check makeglossary exit codes to see if we can enhance error detection
-        if 'fatal' not in std_out.decode('utf-8').lower() and 'fatal' not in std_err.decode('utf-8').lower():
+        if 'fatal' not in stdout.decode('utf-8').lower() and 'fatal' not in stderr.decode('utf-8').lower():
             return True
 
         self.handle_makeglossaries_error(texfile)
