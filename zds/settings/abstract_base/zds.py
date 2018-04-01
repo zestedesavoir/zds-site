@@ -185,8 +185,7 @@ ZDS_APP = {
         'epub_stylesheets': {
             'toc': Path('toc.css'),
             'full': Path(BASE_DIR) / 'dist' / 'css' / 'zmd.css',
-            'katex': Path(BASE_DIR) / 'dist' / 'css' / 'katex.css',
-            'code': Path(BASE_DIR) / 'dist' / 'css' / 'tomorrow.css'
+            'katex': Path(BASE_DIR) / 'dist' / 'css' / 'katex.min.css'
         }
     },
     'forum': {

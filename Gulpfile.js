@@ -12,7 +12,6 @@ const uglify = require('gulp-uglify');
 const jshint = require('gulp-jshint');
 const autoprefixer = require('autoprefixer');
 const cssnano = require('cssnano');
-const download = require('gulp-download2')
 
 // PostCSS plugins used
 const postcssPlugins = [
@@ -91,12 +90,10 @@ gulp.task('js', () =>
         .pipe(sourcemaps.write('.', { includeContent: true, sourceRoot: '../../' }))
         .pipe(gulp.dest('dist/js/')));
 
-gulp.task('prepare-zmd', ['css:sprite'], () =>
-    download(
-        ["http://jmblog.github.com/color-themes-for-highlightjs/css/themes/tomorrow.css",
-         "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0/katex.min.css"]).pipe(
-            gulp.dest('dist/css/')
-        ));
+gulp.task('prepare-zmd', () =>
+    gulp.src(['node_modules/katex/dist/{katex.min.css,fonts/*}'])
+        .pipe(gulp.dest('dist/css/')));
+
 // Compiles the SCSS files to CSS
 gulp.task('css', ['css:sprite'], () =>
     gulp.src(['assets/scss/main.scss', 'assets/scss/zmd.scss'])
