@@ -117,6 +117,8 @@ def build_ebook(published_content_entity, working_dir, final_file_path):
         font_dir_path.mkdir(parents=True)
     with contextlib.suppress(FileExistsError):
         meta_inf_dir_path.mkdir(parents=True)
+    with contextlib.suppress(FileExistsError):
+        target_image_dir.mkdir(parents=True)
 
     mimetype_conf = __build_mime_type_conf()
     mime_path = Path(working_dir, 'ebook', mimetype_conf['filename'])
@@ -137,11 +139,11 @@ def build_ebook(published_content_entity, working_dir, final_file_path):
     copy_or_create_empty(settings.ZDS_APP['content']['epub_stylesheets']['katex'], style_dir_path, 'katex.css')
     copy_or_create_empty(settings.ZDS_APP['content']['epub_stylesheets']['code'], style_dir_path, 'code.css')
     style_images_path = Path(settings.BASE_DIR, 'dist', 'images')
-    smyley_images_path = Path(settings.BASE_DIR, 'dist', 'smileys')
+    smiley_images_path = Path(settings.BASE_DIR, 'dist', 'smileys')
     if style_images_path.exists():
         import_asset(style_images_path, target_image_dir)
-    if smyley_images_path.exists():
-        import_asset(smyley_images_path, target_image_dir)
+    if smiley_images_path.exists():
+        import_asset(smiley_images_path, target_image_dir)
     images = __traverse_and_identify_images(target_image_dir)
     build_content_opf(published_content_entity, chapters, images, ops_dir)
     build_container_xml(meta_inf_dir_path)
