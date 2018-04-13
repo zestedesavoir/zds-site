@@ -61,7 +61,7 @@ def build_html_chapter_file(published_object, versioned_object, working_dir, roo
     path_to_title_dict = publish_container(published_object, str(working_dir), versioned_object,
                                            template='tutorialv2/export/ebook/chapter.html',
                                            file_ext='xhtml', image_callback=handle_images,
-                                           image_directory=str(working_dir / 'images'),
+                                           image_directory=str(working_dir / '..' / 'images'),
                                            relative='.')
     for container_path, title in path_to_title_dict.items():
         # TODO: check if a function exists in the std lib to get rid of `root_dir + '/'`
