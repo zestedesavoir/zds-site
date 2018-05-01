@@ -3,7 +3,7 @@ from copy import deepcopy
 from django.conf import settings
 from django.core.cache import cache
 
-from git import Repo
+from git import Repo, exc
 
 
 def get_git_version():
@@ -21,7 +21,7 @@ def get_git_version():
         commit = repo.head.commit.hexsha
         name = '{0}/{1}'.format(branch, commit[:7])
         return {'name': name, 'url': '{}/tree/{}'.format(settings.ZDS_APP['site']['repository']['url'], commit)}
-    except (KeyError, TypeError):
+    except (KeyError, TypeError, exc.InvalidGitRepositoryError):
         return {'name': '', 'url': ''}
 
 
