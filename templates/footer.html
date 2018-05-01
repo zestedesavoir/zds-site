@@ -5,7 +5,12 @@
         <p class="copyright">
             {{app.site.literal_name}}
             <span class="version">
-                &bull; {% trans "Version :" %} <a href="{{git_version.url}}">{{git_version.name}}</a>
+                &bull; {% trans "Version :" %}
+                {% if version.url %}
+                    <a href="{{version.url}}">{{version.name}}</a>
+                {% else %}
+                    {{ version.name }}
+                {% endif %}
             </span>
         </p>
 

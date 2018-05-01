@@ -1,4 +1,4 @@
-from zds.utils.context_processor import get_git_version
+from zds.utils.context_processor import get_version
 
 from .abstract_base import *
 
@@ -80,7 +80,7 @@ django_template_engine['OPTIONS']['loaders'] = [
 # https://docs.getsentry.com/hosted/clients/python/integrations/django/
 RAVEN_CONFIG = {
     'dsn': config['raven']['dsn'],
-    'release': get_git_version()['name'],
+    'release': get_version()['name'],
 }
 
 LOGGING = {
