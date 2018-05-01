@@ -217,7 +217,7 @@
                     <em class="alert-box-text">{{ alert.text }}</em>
 
                     {% if alert.solved %}
-                        <span class="close-alert-box close-alert-box-text">
+                        <span class="view-alert-box close-alert-box-text">
                             {% trans "Résolu par" %}
                             {% include "misc/member_item.part.html" with member=alert.moderator %}
                         </span>
