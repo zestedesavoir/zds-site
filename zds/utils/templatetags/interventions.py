@@ -144,7 +144,7 @@ def interventions_topics(user):
                              'url': notification.url})
 
     # Descending order (newest first, oldest last)
-    posts_unread.sort(key=lambda post: post['pubdate'].timetuple(), reverse=True)
+    posts_unread.sort(key=lambda post: post['pubdate'], reverse=True)
 
     return posts_unread
 

@@ -5,12 +5,13 @@ from django.template import Context, Template
 from django.test import TestCase
 
 from zds.forum.factories import CategoryFactory, ForumFactory, PostFactory, TopicFactory
+from zds.forum.tests.tests_views import create_category, add_topic_in_a_forum
 from zds.tutorialv2.models.database import Validation
 from zds.tutorialv2.factories import PublishableContentFactory, LicenceFactory, SubCategoryFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory, StaffFactory
 from zds.utils.models import Alert
 from zds.utils.mps import send_message_mp, send_mp
-from zds.utils.templatetags.interventions import alerts_list
+from zds.utils.templatetags.interventions import alerts_list, interventions_topics
 
 
 class InterventionsTest(TestCase):
@@ -149,6 +150,25 @@ class InterventionsTest(TestCase):
                       '{{ date_last_year|humane_delta }}'
                       ).render(self.context)
         self.assertEqual('Plus ancien', tr)
+
+    def test_order_interventions(self):
+        category, forum = create_category()
+        N = 3
+        new_users = []
+        for i in range(N):
+            topic = add_topic_in_a_forum(forum, self.user)
+            new_user = ProfileFactory()
+            new_user.user.username = 'User_{}'.format(i)
+            new_user.user.save()
+            PostFactory(topic=topic,
+                        author=new_user.user,
+                        position=2)
+            new_users.append(new_user)
+
+        interventions = interventions_topics(self.user.user)
+        new_users = list(reversed(new_users))
+        for i in range(N):
+             self.assertEqual(new_users[i].user, interventions[i]['author'])
 
 
 class AlertsTest(TestCase):
