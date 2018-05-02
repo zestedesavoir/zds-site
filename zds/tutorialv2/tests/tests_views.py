@@ -121,7 +121,11 @@ class ContentTests(TestCase, TutorialTestMixin):
             reverse('content:view', args=[tuto.pk, tuto.slug]),
             follow=False)
         self.assertEqual(result.status_code, 200)
-
+        self.assertIn(reverse('content:edit-container', kwargs={
+            'pk': tuto.pk,
+            'slug': tuto.slug,
+            'container_slug': self.part1.slug
+        }), result.content.decode('utf-8'))
         result = self.client.get(
             reverse('content:view-container',
                     kwargs={
