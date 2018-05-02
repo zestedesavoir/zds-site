@@ -6,10 +6,10 @@
             {{app.site.literal_name}}
             <span class="version">
                 &bull; {% trans "Version :" %}
-                {% if version.url %}
-                    <a href="{{version.url}}">{{version.name}}</a>
+                {% if zds_version.url %}
+                    <a href="{{zds_version.url}}">{{zds_version.name}}</a>
                 {% else %}
-                    {{ version.name }}
+                    {{ zds_version.name }}
                 {% endif %}
             </span>
         </p>

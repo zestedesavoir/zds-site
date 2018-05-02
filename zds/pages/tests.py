@@ -232,7 +232,7 @@ class PagesGuestTests(TestCase):
             reverse('homepage'),
         )
 
-        self.assertTrue('version' in result.context)
+        self.assertTrue('zds_version' in result.context)
 
 
 class CommentEditsHistoryTests(TestCase):

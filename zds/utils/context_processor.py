@@ -21,7 +21,7 @@ def version(request):
     """
     A context processor to include the app version on all pages.
     """
-    return {'version': get_version()}
+    return {'zds_version': get_version()}
 
 
 def app_settings(request):
