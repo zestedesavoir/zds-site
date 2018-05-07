@@ -1,6 +1,7 @@
 from datetime import datetime
 from collections import defaultdict
 from zds import json_handler
+from uuslug import slugify
 import logging
 import os
 
@@ -534,7 +535,7 @@ class ViewPublications(TemplateView):
             tag = self.request.GET.get('tag', None)
             tags = None
             if tag is not None:
-                tags = [get_object_or_404(Tag, slug=tag)]
+                tags = [get_object_or_404(Tag, slug=slugify(tag))]
                 context['tag'] = tags[0]
 
             contents_queryset = PublishedContent.objects.last_contents(
