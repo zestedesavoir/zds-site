@@ -44,7 +44,7 @@
                         data-views-{{ forloop.counter0 }}="[{% for view in url.stats.pageviews %}{{view.pageviews}} {% if not forloop.last %},{% endif %}{% endfor %}]"
                         data-label-views-{{ forloop.counter0 }}="{{url.label}}"
                     {% endfor %}
-                    data-time='[{% for view in stats.0.stats.pageviews %}"{{view.date}}"{% if not forloop.last %},{% endif %} {% endfor %}]'">
+                    data-time='[{% for view in stats.0.stats.pageviews %}"{{view.date}}"{% if not forloop.last %},{% endif %} {% endfor %}]'>
                 </canvas>
 
             </div>
@@ -55,7 +55,7 @@
                         data-views-{{ forloop.counter0 }}="[{% for view in url.stats.avgTimeOnPage %}{{view.avgTimeOnPage}} {% if not forloop.last %},{% endif %}{% endfor %}]"
                         data-label-views-{{ forloop.counter0 }}="{{url.label}}"
                     {% endfor %}
-                    data-time='[{% for view in stats.0.stats.avgTimeOnPage %}"{{view.date}}"{% if not forloop.last %},{% endif %} {% endfor %}]'">
+                    data-time='[{% for view in stats.0.stats.avgTimeOnPage %}"{{view.date}}"{% if not forloop.last %},{% endif %} {% endfor %}]'>
                 </canvas>
             </div>
         </div>

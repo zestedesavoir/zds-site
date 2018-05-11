@@ -1123,7 +1123,8 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
             return []
 
         data = {}
-        for r in response:
+        print(report)
+        for r in rows:
             url = r['dimensions'][0]
             # avgTimeOnPage is convert to float then int to remove useless decimal part
             data[url] = {'pageviews': r['metrics'][0]['values'][0],
@@ -1214,11 +1215,11 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         # nb_days = (end - start).days
         analytics = self.config_ga_credentials()
         if not analytics:
-            return [[], []]
+            return ([], [], [], [])
 
         # Filters to get all needed pages only
         filters = self.get_ga_filters_from_urls(urls)
-        data_ranges = [{'startDate': start.strftime("%Y-%m-%d"),
+        date_ranges = [{'startDate': start.strftime("%Y-%m-%d"),
                         'endDate': end.strftime("%Y-%m-%d")}]
 
         metrics = [{'expression': 'ga:pageviews'},
@@ -1229,7 +1230,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
 
         table_data_report = {
             'viewId': self.VIEW_ID,
-            'dateRanges': data_ranges,
+            'dateRanges': date_ranges,
             'metrics': metrics,
             'dimensions': [{'name': 'ga:pagePath'}],
             'dimensionFilterClauses': [{'filters': filters}],
@@ -1263,7 +1264,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
 
         graphs_data_report = {
             'viewId': self.VIEW_ID,
-            'dateRanges': data_ranges,
+            'dateRanges': date_ranges,
             'metrics': metrics,
             'dimensions': [{'name': 'ga:date'},
                            {'name': 'ga:pagePath'}],
