@@ -1,5 +1,5 @@
 from datetime import datetime, date, timedelta
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 from zds import json_handler
 from uuslug import slugify
 import logging
@@ -19,6 +19,10 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import RedirectView, FormView, ListView, TemplateView
 from django.db.models import F, Q
+
+from apiclient.discovery import build
+from httplib2 import Http
+from oauth2client.service_account import ServiceAccountCredentials
 
 from zds.forum.models import Forum
 from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin, PermissionRequiredMixin
@@ -1038,12 +1042,6 @@ class TagsListView(ListView):
         return context
 
 
-# TODO move imports
-from oauth2client.service_account import ServiceAccountCredentials
-from apiclient.discovery import build
-from httplib2 import Http
-from collections import OrderedDict
-
 class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
     template_name = 'tutorialv2/stats/index.html'
     form_class = ContentCompareStatsURLForm
@@ -1054,11 +1052,11 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
     CLIENT_SECRETS_PATH = os.path.join(settings.BASE_DIR, 'api_analytics_secrets.json')
     VIEW_ID = 'ga:86962671'
 
-    def post(self, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         self.public_content_object = self.get_public_object()
         self.object = self.get_object()
         self.versioned_object = self.get_versioned_object()
-        return super().post(*args, **kwargs)
+        return super().post(request, *args, **kwargs)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -1079,9 +1077,9 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
 
     def get_content_urls(self):
         # debug_urls = [
-        #     NamedUrl('Découverte de l Arduino', '/tutoriels/686/arduino-premiers-pas-en-informatique-embarquee/742_decouverte-de-larduino/', 0),
-        #     NamedUrl('Présentation', '/tutoriels/686/arduino-premiers-pas-en-informatique-embarquee/742_decouverte-de-larduino/3414_presentation-darduino/', 2),
-        #     NamedUrl('Quelques bases', '/tutoriels/686/arduino-premiers-pas-en-informatique-embarquee/742_decouverte-de-larduino/3415_quelques-bases-elementaires/', 2)
+        #     NamedUrl('Découverte de l Arduino', '/tutoriels/686/arduino-premiers-pas-en-informatique-embarquee/742_decouverte-de-larduino/', 0),  # noqa
+        #     NamedUrl('Présentation', '/tutoriels/686/arduino-premiers-pas-en-informatique-embarquee/742_decouverte-de-larduino/3414_presentation-darduino/', 2),  # noqa
+        #     NamedUrl('Quelques bases', '/tutoriels/686/arduino-premiers-pas-en-informatique-embarquee/742_decouverte-de-larduino/3415_quelques-bases-elementaires/', 2)  # noqa
         # ]
         # return debug_urls
 
@@ -1107,7 +1105,8 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
                                            "Merci de contacter l'équipe des développeurs. {}".format(type(e))))
             return None
 
-    def get_ga_filters_from_urls(self, urls):
+    @staticmethod
+    def get_ga_filters_from_urls(urls):
         filters = [{'operator': 'EXACT',
                     'dimensionName': 'ga:pagePath',
                     'expressions': u.url}
@@ -1219,14 +1218,14 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
 
         # Filters to get all needed pages only
         filters = self.get_ga_filters_from_urls(urls)
-        date_ranges = [{'startDate': start.strftime("%Y-%m-%d"),
-                        'endDate': end.strftime("%Y-%m-%d")}]
+        date_ranges = [{'startDate': start.strftime('%Y-%m-%d'),
+                        'endDate': end.strftime('%Y-%m-%d')}]
 
         metrics = [{'expression': 'ga:pageviews'},
                    {'expression': 'ga:avgTimeOnPage'},
                    {'expression': 'ga:users'},
                    {'expression': 'ga:newUsers'},
-                   {'expression': 'ga:sessions'},]
+                   {'expression': 'ga:sessions'}]
 
         table_data_report = {
             'viewId': self.VIEW_ID,
@@ -1241,7 +1240,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
             'dateRanges': date_ranges,
             'metrics': [{'expression': 'ga:visits'}],
             'dimensions': [{'name': 'ga:fullReferrer'}],
-            "orderBys": [{"fieldName": "ga:visits", "sortOrder": "DESCENDING"}],
+            'orderBys': [{'fieldName': 'ga:visits', 'sortOrder': 'DESCENDING'}],
             'dimensionFilterClauses': [{'filters': filters}],
         }
 
@@ -1250,7 +1249,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
             'dateRanges': date_ranges,
             'metrics': [{'expression': 'ga:visits'}],
             'dimensions': [{'name': 'ga:keyword'}],
-            "orderBys": [{"fieldName": "ga:visits", "sortOrder": "DESCENDING"}],
+            'orderBys': [{'fieldName': 'ga:visits', 'sortOrder': 'DESCENDING'}],
             'dimensionFilterClauses': [{'filters': filters}],
         }
 

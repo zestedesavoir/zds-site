@@ -6345,8 +6345,8 @@ class StatTests(TestCase, TutorialTestMixin):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(resp.context_data['pagetime'][0]['stats']), 7)
         self.assertEqual(resp.context_data['pagetime'][0]['stats'][6]['date'],
-                        datetime.date.today().strftime("%Y-%m-%d"))
-        start_date = (datetime.date.today - datetime.timedelta(days=7)).strftime("%Y-%m-%d")
+                         datetime.date.today().strftime('%Y-%m-%d'))
+        start_date = (datetime.date.today - datetime.timedelta(days=7)).strftime('%Y-%m-%d')
         self.assertEqual(resp.context_data['pagetime'][0]['stats'][0]['date'], start_date)
 
         # If a weird value is given, we fallback on default case
@@ -6354,15 +6354,13 @@ class StatTests(TestCase, TutorialTestMixin):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(resp.context_data['pagetime'][0]['stats']), 7)
         self.assertEqual(resp.context_data['pagetime'][0]['stats'][6]['date'],
-                        datetime.date.today().strftime("%Y-%m-%d"))
-        start_date = (datetime.date.today - datetime.timedelta(days=7)).strftime("%Y-%m-%d")
+                         datetime.date.today().strftime('%Y-%m-%d'))
+        start_date = (datetime.date.today - datetime.timedelta(days=7)).strftime('%Y-%m-%d')
         self.assertEqual(resp.context_data['pagetime'][0]['stats'][0]['date'], start_date)
 
         # TODO same with start date is 30 days before
 
         # TODO same with start date is 365 days before
-
-
 
     def test_query_parameter_url(self):
         # Test multiple URLS, test fake URL
