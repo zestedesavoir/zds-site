@@ -1,5 +1,5 @@
 (function ($, undefined) {
-    // "use strict";
+    "use strict";
 
     /**
      * HSV to RGB color conversion
@@ -11,45 +11,45 @@
      * http://www.cs.rit.edu/~ncs/color/t_convert.html
      */
     function hsvToRgb(h, s, v) {
-    	var r, g, b;
-    	var i;
-    	var f, p, q, t;
+        var r, g, b;
+        var i;
+        var f, p, q, t;
 
-    	// Make sure our arguments stay in-range
-    	h = Math.max(0, Math.min(360, h));
-    	s = Math.max(0, Math.min(100, s));
-    	v = Math.max(0, Math.min(100, v));
+        // Make sure our arguments stay in-range
+        h = Math.max(0, Math.min(360, h));
+        s = Math.max(0, Math.min(100, s));
+        v = Math.max(0, Math.min(100, v));
 
-    	// We accept saturation and value arguments from 0 to 100 because that's
-    	// how Photoshop represents those values. Internally, however, the
-    	// saturation and value are calculated from a range of 0 to 1. We make
-    	// That conversion here.
-    	s /= 100;
-    	v /= 100;
+        // We accept saturation and value arguments from 0 to 100 because that's
+        // how Photoshop represents those values. Internally, however, the
+        // saturation and value are calculated from a range of 0 to 1. We make
+        // That conversion here.
+        s /= 100;
+        v /= 100;
 
-    	if(s == 0) {
-    		// Achromatic (grey)
-    		r = g = b = v;
-    		return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
-    	}
-
-    	h /= 60; // sector 0 to 5
-    	i = Math.floor(h);
-    	f = h - i; // factorial part of h
-    	p = v * (1 - s);
-    	q = v * (1 - s * f);
-    	t = v * (1 - s * (1 - f));
-
-    	switch(i) {
-    		case 0:r = v;g = t;b = p;break;
-    		case 1:r = q;g = v;b = p;break;
-    		case 2:r = p;g = v;b = t;break;
-    		case 3:r = p;g = q;b = v;break;
-    		case 4:r = t;g = p;b = v;break;
-    		default:r = v;g = p;b = q;
+        if (s === 0) {
+            // Achromatic (grey)
+            r = g = b = v;
+            return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
         }
 
-    	return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+        h /= 60; // sector 0 to 5
+        i = Math.floor(h);
+        f = h - i; // factorial part of h
+        p = v * (1 - s);
+        q = v * (1 - s * f);
+        t = v * (1 - s * (1 - f));
+
+        switch (i) {
+            case 0: r = v; g = t; b = p; break;
+            case 1: r = q; g = v; b = p; break;
+            case 2: r = p; g = v; b = t; break;
+            case 3: r = p; g = q; b = v; break;
+            case 4: r = t; g = p; b = v; break;
+            default: r = v; g = p; b = q;
+        }
+
+        return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
     }
 
     var basicOptions = {
@@ -57,10 +57,10 @@
             xAxes: [{
                 type: "time",
                 ticks: {
-                    source: 'labels'
+                    source: "labels"
                 },
                 time: {
-                    format: 'DD/MM/YYYY',
+                    format: "DD/MM/YYYY",
                     displayFormats: {
                         "millisecond": "MMM DD",
                         "second": "MMM DD",
@@ -83,7 +83,7 @@
         var $dataX = $object.data("time");
         var times = [];
         $dataX.forEach(function (element) {
-            times.push(window.moment(element).format('DD/MM/YYYY'));
+            times.push(window.moment(element).format("DD/MM/YYYY"));
         });
 
         var allObjectData = $object.data();
@@ -96,16 +96,16 @@
             }
         }
         var n = 0;
-        for (var i in allObjectData) {
-            if (i.indexOf("views") > -1) {
-                var label = $object.data("label-" + i);
+        for (var o in allObjectData) {
+            if (o.indexOf("views") > -1) {
+                var label = $object.data("label-" + o);
                 var color = hsvToRgb(n, 100, 80);
                 data.push({
                     label: label,
-                    data: allObjectData[i],
+                    data: allObjectData[o],
                     fill: false,
-                    backgroundColor: "rgba("+ color.join(',')+ ", 1)",
-                    borderColor: "rgba("+ color.join(',')+ ", 0.70)",
+                    backgroundColor: "rgba(" + color.join(",") + ", 1)",
+                    borderColor: "rgba(" + color.join(",") + ", 0.70)",
                 });
                 n += 360 / nbColors;
             }
