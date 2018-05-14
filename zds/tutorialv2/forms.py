@@ -1257,6 +1257,7 @@ class PromoteOpinionToArticleForm(forms.Form):
                 type='submit')
         )
 
+
 class ContentCompareStatsURLForm(forms.Form):
     urls = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple(), required=True)
 
@@ -1277,4 +1278,3 @@ class ContentCompareStatsURLForm(forms.Form):
             raise forms.ValidationError(_('Vous devez choisir des URL a comparer'))
         if len(urls) < 2:
             raise forms.ValidationError(_('Il faut au minimum 2 urls à comparer'))
-
