@@ -128,6 +128,14 @@
     if ($("#visit-time-graph").length) {
         setupChart($("#visit-time-graph"));
     }
-
+    if ($("#users-graph").length) {
+        setupChart($("#users-graph"));
+    }
+    if ($("#new-users-graph").length) {
+        setupChart($("#new-users-graph"));
+    }
+    if ($("#sessions-graph").length) {
+        setupChart($("#sessions-graph"));
+    }
 
 })(jQuery);
