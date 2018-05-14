@@ -58,6 +58,36 @@
                     data-time='[{% for view in stats.0.stats.avgTimeOnPage %}"{{view.date}}"{% if not forloop.last %},{% endif %} {% endfor %}]'>
                 </canvas>
             </div>
+            <div class="stat-graph">
+                <p>{% trans "Évolution du nombre de visiteurs" %}</p>
+                <canvas id="users-graph"
+                    {% for url in stats %}
+                        data-views-{{ forloop.counter0 }}="[{% for view in url.stats.users %}{{view.users}} {% if not forloop.last %},{% endif %}{% endfor %}]"
+                        data-label-views-{{ forloop.counter0 }}="{{url.label}}"
+                    {% endfor %}
+                    data-time='[{% for view in stats.0.stats.users %}"{{view.date}}"{% if not forloop.last %},{% endif %} {% endfor %}]'>
+                </canvas>
+            </div>
+            <div class="stat-graph">
+                <p>{% trans "Évolution du nombre de visiteurs" %}</p>
+                <canvas id="new-users-graph"
+                    {% for url in stats %}
+                        data-views-{{ forloop.counter0 }}="[{% for view in url.stats.newUsers %}{{view.newUsers}} {% if not forloop.last %},{% endif %}{% endfor %}]"
+                        data-label-views-{{ forloop.counter0 }}="{{url.label}}"
+                    {% endfor %}
+                    data-time='[{% for view in stats.0.stats.newUsers %}"{{view.date}}"{% if not forloop.last %},{% endif %} {% endfor %}]'>
+                </canvas>
+            </div>
+            <div class="stat-graph">
+                <p>{% trans "Évolution du nombre de sessions" %}</p>
+                <canvas id="sessions-graph"
+                    {% for url in stats %}
+                        data-views-{{ forloop.counter0 }}="[{% for view in url.stats.sessions %}{{view.sessions}} {% if not forloop.last %},{% endif %}{% endfor %}]"
+                        data-label-views-{{ forloop.counter0 }}="{{url.label}}"
+                    {% endfor %}
+                    data-time='[{% for view in stats.0.stats.sessions %}"{{view.date}}"{% if not forloop.last %},{% endif %} {% endfor %}]'>
+                </canvas>
+            </div>
         </div>
         {% if cumulative_stats_by_url %}
             {% if display == 'global' %}
