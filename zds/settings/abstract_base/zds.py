@@ -186,7 +186,8 @@ ZDS_APP = {
             'toc': Path('toc.css'),
             'full': Path(BASE_DIR) / 'dist' / 'css' / 'zmd.css',
             'katex': Path(BASE_DIR) / 'dist' / 'css' / 'katex.min.css'
-        }
+        },
+        'latex_template_repo': 'NOT_EXISTING_DIR'
     },
     'forum': {
         'posts_per_page': 21,
