@@ -1,5 +1,3 @@
-from zds.utils.context_processor import get_git_version
-
 from .abstract_base import *
 
 # For secrets, prefer `config[key]` over `config.get(key)` in this
@@ -76,11 +74,20 @@ django_template_engine['OPTIONS']['loaders'] = [
     ]),
 ]
 
+
+def _get_version():
+    from zds import __version__, git_version
+    if git_version is None:
+        return __version__
+    else:
+        return '{0}/{1}'.format(__version__, git_version[:7])
+
+
 # Sentry (+ raven, the Python Client)
 # https://docs.getsentry.com/hosted/clients/python/integrations/django/
 RAVEN_CONFIG = {
     'dsn': config['raven']['dsn'],
-    'release': get_git_version()['name'],
+    'release': _get_version(),
 }
 
 LOGGING = {
@@ -189,7 +196,7 @@ SOCIAL_AUTH_PIPELINE = (
 # ZESTE DE SAVOIR SETTINGS
 
 
-ES_SEARCH_INDEX['shards'] = config['elasticsearch'].get('shards', 3),
+ES_SEARCH_INDEX['shards'] = config['elasticsearch'].get('shards', 3)
 
 
 ZDS_APP['site']['association']['email'] = 'communication@zestedesavoir.com'

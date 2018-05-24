@@ -226,13 +226,13 @@ class PagesGuestTests(TestCase):
         self.assertEqual(result.status_code, 200)
 
     def test_render_template(self):
-        """Test: render_template() works and git_version is in template."""
+        """Test: render_template() works and version is in template."""
 
         result = self.client.get(
             reverse('homepage'),
         )
 
-        self.assertTrue('git_version' in result.context)
+        self.assertTrue('zds_version' in result.context)
 
 
 class CommentEditsHistoryTests(TestCase):
