@@ -1,5 +1,3 @@
-# coding: utf-8
-
 import os
 import shutil
 
@@ -17,17 +15,18 @@ from zds.member.factories import ProfileFactory, StaffProfileFactory, DevProfile
 from zds.member.models import TokenForgotPassword, TokenRegister, Profile
 from zds.tutorialv2.factories import PublishableContentFactory, PublishedContentFactory
 from zds.gallery.factories import GalleryFactory, ImageFactory
-from zds.utils.models import Alert
-from zds.settings import BASE_DIR
+from zds.utils.models import Alert, Hat
+from copy import deepcopy
+
+overridden_zds_app = deepcopy(settings.ZDS_APP)
+overridden_zds_app['content']['repo_private_path'] = os.path.join(settings.BASE_DIR, 'contents-private-test')
+overridden_zds_app['content']['repo_public_path'] = os.path.join(settings.BASE_DIR, 'contents-public-test')
+overridden_zds_app['content']['extra_content_generation_policy'] = 'SYNC'
+overridden_zds_app['content']['build_pdf_when_published'] = False
 
 
-overrided_zds_app = settings.ZDS_APP
-overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
-overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
-
-
-@override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
-@override_settings(ZDS_APP=overrided_zds_app)
+@override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'media-test'))
+@override_settings(ZDS_APP=overridden_zds_app)
 class MemberModelsTest(TestCase):
 
     def setUp(self):
@@ -39,9 +38,6 @@ class MemberModelsTest(TestCase):
         self.forum = ForumFactory(category=self.forumcat)
         self.forumtopic = TopicFactory(forum=self.forum, author=self.staff.user)
 
-    def test_unicode_of_username(self):
-        self.assertEqual(self.user1.__unicode__(), self.user1.user.username)
-
     def test_get_absolute_url_for_details_of_member(self):
         self.assertEqual(self.user1.get_absolute_url(), '/membres/voir/{0}/'.format(self.user1.user.username))
 
@@ -49,7 +45,7 @@ class MemberModelsTest(TestCase):
         # if no url was specified -> gravatar !
         self.assertEqual(self.user1.get_avatar_url(),
                          'https://secure.gravatar.com/avatar/{0}?d=identicon'.
-                         format(md5(self.user1.user.email.lower()).hexdigest()))
+                         format(md5(self.user1.user.email.lower().encode()).hexdigest()))
         # if an url is specified -> take it !
         user2 = ProfileFactory()
         testurl = 'http://test.com/avatar.jpg'
@@ -192,7 +188,7 @@ class MemberModelsTest(TestCase):
         articles = self.user1.get_public_articles()
         self.assertEqual(len(articles), 0)
         # Should be 1
-        PublishedContentFactory(author_list=[self.user1.user], type='Article')
+        PublishedContentFactory(author_list=[self.user1.user], type='ARTICLE')
         self.assertEqual(len(self.user1.get_public_articles()), 1)
         self.assertEqual(len(self.user1.get_public_tutos()), 0)
 
@@ -428,6 +424,19 @@ class MemberModelsTest(TestCase):
         self.assertIn(profile_ls_def, profiles_reacheable)
         self.assertIn(profile_ls_temp, profiles_reacheable)
 
+    def test_remove_hats_linked_to_group(self):
+        # create a hat linked to a group
+        hat_name = 'Test hat'
+        hat, _ = Hat.objects.get_or_create(name__iexact=hat_name, defaults={'name': hat_name})
+        group, _ = Group.objects.get_or_create(name='test_hat')
+        hat.group = group
+        hat.save()
+        # add it to a user
+        self.user1.hats.add(hat)
+        self.user1.save()
+        # the user shound't have the hat through their profile
+        self.assertNotIn(hat, self.user1.hats.all())
+
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
             shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
@@ -459,6 +468,3 @@ class TestTokenRegister(TestCase):
 
     def test_get_absolute_url(self):
         self.assertEqual(self.token.get_absolute_url(), '/membres/activation/?token={0}'.format(self.token.token))
-
-    def test_unicode(self):
-        self.assertEqual(self.token.__unicode__(), '{0} - {1}'.format(self.user1.user.username, self.token.date_end))

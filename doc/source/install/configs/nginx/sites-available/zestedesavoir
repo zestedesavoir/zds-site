@@ -65,6 +65,7 @@ server {
 	# Cache headers on static resources
 	location ~* ^/(static|media|errors)/ {
 		include snippets/static-cache.conf;
+		include snippets/clem_smileys.conf;
 	}
 
 	# Error pages

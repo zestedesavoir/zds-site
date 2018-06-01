@@ -10,13 +10,30 @@
 {% load interventions %}
 {% load pluralize_fr %}
 {% load displayable_authors %}
+{% load joinby %}
 
 
 {% block title %}
     {{ content.title }}
 {% endblock %}
 
-
+{% block DCMI_cards %}
+    <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/" />
+    <meta name="DC.publisher" lang="fr" content="{{ app.site.literal_name }}" />
+    {% for author in publishablecontent|displayable_authors:True %}
+    <meta name="DC.creator" content="{{ author.username }}" />
+    {% endfor %}
+    <meta name="DC.type" content="text" />
+    <meta name="DC.title" content="{{ content.title }}" />
+    <meta name="DC.abstract" content="{{ content.title }}{% if content.description %} – {{ content.description }}{% endif %}" />
+    <meta name="DC.subject" lang="fr" content="{% joinby content.subcategory.all %}{% if content.tags.all %} – {% joinby content.tags.all separator=' ; ' final_separator=' ; ' %}{% endif %}" />
+    {% if content.description %}<meta name="DC.description" lang="fr" content="{{ content.description }}" />{% endif %}
+    <meta name="DC.date" content="{% if content.pubdate %}{{ content.pubdate|date:'Y/m/d' }}{% else %}{{ content.update_date|date:'Y/m/d' }}{% endif %}" />
+    <meta name="DC.format" content="text/html" />
+    {% if content.source %}<meta name="DC.source" content="{{ content.source }}" />{% endif %}
+    <meta name="DC.language" content="fr" />
+    <meta name="DC.rights" content="{{ content.licence }}" />
+{% endblock %}
 
 {% block description %}
     {{ content.description }}
@@ -33,7 +50,8 @@
 {% endspaceless %}{% endblock %}
 
 
-{% block extra_link %}
+{% block head_extra %}
+    {{ block.super }}
     {% if content.converted_to.get_absolute_url_online %}
         <link rel="canonical" href="{{ content.converted_to.get_absolute_url_online }}" />
     {% endif %}
@@ -93,7 +111,7 @@
             {% for alert in alerts %}
                 <div class="alert-box{% if not alert.solved %} error{% endif %}">
                     {{ alert.pubdate|format_date|capfirst }} {% trans "par" %}
-                    {% include "misc/member_item.part.html" with member=alert.author %} :
+                    {% include "misc/member_item.part.html" with member=alert.author %} :
                     <em class="alert-box-text">{{ alert.text }}</em>
                     {% if alert.solved %}
                         <span class="close-alert-box close-alert-box-text">
@@ -103,11 +121,11 @@
                     {% else %}
                         <a href="#solve-content-{{ alert.pk }}" class="open-modal close-alert-box close-alert-box-text">{% trans "Résoudre" %}</a>
                         <form id="solve-content-{{ alert.pk }}" method="post" action="{% url 'content:resolve-content' alert.pk %}" class="modal modal-flex">
-                            <textarea name="text" class="input" placeholder="{% trans "Message à envoyer au membre ayant lancé l'alerte" %}"></textarea>
+                            <textarea name="text" class="input" placeholder="{% trans "Message à envoyer au membre ayant lancé l’alerte" %}"></textarea>
                             <input type="hidden" name="alert_pk" value="{{ alert.pk }}">
 
                             {% csrf_token %}
-                            <button type="submit" name="delete-post" class="button expand alert tiny">{% trans "Résoudre l'alerte" %}</button>
+                            <button type="submit" name="delete-post" class="button expand alert tiny">{% trans "Résoudre l’alerte" %}</button>
                         </form>
                     {% endif %}
                 </div>
@@ -126,22 +144,28 @@
             {% elif is_staff %}
                 <div class="alert-box info">
                     {% blocktrans with url_article=content.converted_to.get_absolute_url %}
-                        Ce billet a fait l'objet d'une demande de publication <a href="{{ url_article }}">en tant qu'article</a>. Il est donc présent dans la zone de validation en attente de prise en charge par un validateur.
+                        Ce billet a fait l’objet d’une demande de publication <a href="{{ url_article }}">en tant qu’article</a>. Il est donc présent dans la zone de validation en attente de prise en charge par un validateur.
                     {% endblocktrans %}
                 </div>
             {% endif %}
         {% endif %}
     {% endif %}
 
+    {% captureas content_pager %}
+        {% include "tutorialv2/includes/content_pager.part.html" with content=content %}
+    {% endcaptureas %}
+
+    {{ content_pager }}
+
     {% if content.has_extracts %}
         {{ content.get_content_online|safe }}
     {% else %}
 
         {% if content.introduction %}
-            {{ content.get_introduction_online|safe }}
+            {{ content.get_introduction_online|default:""|safe }}
         {% endif %}
 
-        {%  if not content.has_sub_containers %}
+        {% if not content.has_sub_containers %}
             <ol class="summary-part">
         {% endif %}
 
@@ -149,7 +173,7 @@
             {%  include "tutorialv2/includes/child_online.part.html" with child=child %}
         {% endfor %}
 
-        {%  if not content.has_sub_containers %}
+        {% if not content.has_sub_containers %}
             </ol>
         {% endif %}
 
@@ -157,12 +181,12 @@
         <hr />
 
         {% if content.conclusion %}
-            {{ content.get_conclusion_online|safe }}
+            {{ content.get_conclusion_online|default:""|safe }}
         {% endif %}
 
     {% endif %}
 
-    {% include "tutorialv2/includes/article_pager.part.html" with content=content %}
+    {{ content_pager }}
     {% include "tutorialv2/includes/alert.html" with content=content current_content_type=current_content_type %}
     {% include "tutorialv2/includes/warn_typo.part.html" with content=content %}
 
@@ -200,7 +224,7 @@
     <li>
         <a href="{{ pm_link }}" class="ico-after cite blue">
         {% blocktrans count counter=content.authors.all|length %}
-            Contacter l'auteur par MP
+            Contacter l’auteur par MP
         {% plural %}
             Contacter les auteurs par MP
         {% endblocktrans %}
@@ -234,7 +258,7 @@
                     </a>
                 </li>
                 {% if is_staff %}
-                    {% if content.requires_validation_before %}
+                    {% if content.requires_validation %}
                         <li>
                             <a href="{% url "validation:history" content.pk content.slug %}" class="ico-after history blue">
                                 {% trans "Historique validation" %}
@@ -290,6 +314,14 @@
                                 {% trans "Dépublier" %}
                             </a>
                             {% crispy formUnpublication %}
+                        </li>
+                    {% endif %}
+                    {% if perms.featured.change_featuredresource %}
+                        <li>
+                            <a href="{% url "featured-resource-create" %}?content_type=published_content&amp;content_id={{ content.pk }}"
+                               class="ico-after star blue">
+                                {% trans "Ajouter en une" %}
+                            </a>
                         </li>
                     {% endif %}
                 {% endif %}
@@ -375,5 +407,5 @@
         {% endcaptureas %}
     {% endif %}
 
-    {% include "misc/message_form.html" with member=user topic=content isantispam=isantispam %}
+    {% include "misc/message_form.html" with member=user topic=content is_antispam=is_antispam %}
 {% endblock %}

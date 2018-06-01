@@ -1,16 +1,12 @@
-# coding: utf-8
-
-import urllib
-
 from django.conf import settings
 from django.test import TestCase
 from django.core.urlresolvers import reverse
+from django.contrib.auth.models import Group
 
 from zds.member.factories import ProfileFactory, UserFactory
 from zds.mp.factories import PrivateTopicFactory, PrivatePostFactory
 from zds.mp.models import PrivateTopic, PrivatePost
-from zds.settings import ZDS_APP
-from django.contrib.auth.models import Group
+from zds.utils.models import Hat
 
 
 class IndexViewTest(TestCase):
@@ -271,6 +267,9 @@ class NewTopicViewTest(TestCase):
         bot = Group(name=settings.ZDS_APP['member']['bot_group'])
         bot.save()
 
+        self.hat, _ = Hat.objects.get_or_create(name__iexact='A hat', defaults={'name': 'A hat'})
+        self.profile1.hats.add(self.hat)
+
         login_check = self.client.login(
             username=self.profile1.user.username,
             password='hostel77'
@@ -285,7 +284,7 @@ class NewTopicViewTest(TestCase):
         self.assertRedirects(
             response,
             reverse('member-login') +
-            '?next=' + urllib.quote(reverse('mp-new'), ''))
+            '?next=' + reverse('mp-new'))
 
     def test_success_get_with_and_without_username(self):
 
@@ -389,7 +388,7 @@ class NewTopicViewTest(TestCase):
         response = self.client.post(
             reverse('mp-new'),
             {
-                'participants': u'{}'.format(profile_inactive.user.username),
+                'participants': '{}'.format(profile_inactive.user.username),
                 'title': 'title',
                 'subtitle': 'subtitle',
                 'text': 'text'
@@ -415,6 +414,22 @@ class NewTopicViewTest(TestCase):
 
         self.assertEqual(200, response.status_code)
         self.assertEqual(1, PrivateTopic.objects.all().count())
+
+    def test_new_topic_with_hat(self):
+        response = self.client.post(
+            reverse('mp-new'),
+            {
+                'participants': self.profile2.user.username,
+                'title': 'title',
+                'subtitle': 'subtitle',
+                'text': 'text',
+                'with_hat': self.hat.pk,
+            },
+            follow=True
+        )
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(PrivatePost.objects.latest('pubdate').hat, self.hat)
 
     def test_fail_new_topic_user_add_only_himself(self):
 
@@ -465,6 +480,9 @@ class AnswerViewTest(TestCase):
         self.profile2 = ProfileFactory()
         self.profile3 = ProfileFactory()
 
+        self.hat, _ = Hat.objects.get_or_create(name__iexact='A hat', defaults={'name': 'A hat'})
+        self.profile1.hats.add(self.hat)
+
         self.topic1 = PrivateTopicFactory(author=self.profile1.user)
         self.topic1.participants.add(self.profile2.user)
         self.post1 = PrivatePostFactory(
@@ -492,7 +510,7 @@ class AnswerViewTest(TestCase):
         self.assertRedirects(
             response,
             reverse('member-login') +
-            '?next=' + urllib.quote(reverse('private-posts-new', args=[1, 'private-topic']), ''))
+            '?next=' + reverse('private-posts-new', args=[1, 'private-topic']))
 
     def test_fail_answer_not_send_topic_pk(self):
 
@@ -556,7 +574,7 @@ class AnswerViewTest(TestCase):
         response = self.client.post(
             reverse('private-posts-new', args=[self.topic1.pk, self.topic1.slug]),
             {
-                'text': 'Luc !?',
+                'text': 'Bonjour Luc',
                 'last_post': self.topic1.last_message.pk
             },
             follow=True
@@ -564,7 +582,21 @@ class AnswerViewTest(TestCase):
 
         self.assertEqual(200, response.status_code)
         self.assertEqual(3, PrivatePost.objects.all().count())
-        self.assertContains(response, 'Luc&#x202F;!?')
+        self.assertContains(response, 'Bonjour Luc')
+
+    def test_answer_with_hat(self):
+        response = self.client.post(
+            reverse('private-posts-new', args=[self.topic1.pk, self.topic1.slug]),
+            {
+                'text': 'Luc !?',
+                'last_post': self.topic1.last_message.pk,
+                'with_hat': self.hat.pk,
+            },
+            follow=False
+        )
+
+        self.assertEqual(302, response.status_code)
+        self.assertEqual(PrivatePost.objects.latest('pubdate').hat, self.hat)
 
     def test_fail_answer_with_no_right(self):
 
@@ -591,7 +623,7 @@ class AnswerViewTest(TestCase):
     def test_unicode_title_answer(self):
         """To test unicode title."""
 
-        unicode_topic = PrivateTopicFactory(author=self.profile1.user, title=u'Title with accent àéè')
+        unicode_topic = PrivateTopicFactory(author=self.profile1.user, title='Title with accent àéè')
         unicode_topic.participants.add(self.profile2.user)
         unicode_post = PrivatePostFactory(
             privatetopic=unicode_topic,
@@ -611,7 +643,7 @@ class AnswerViewTest(TestCase):
     def test_unicode_subtitle_answer(self):
         """To test unicode subtitle."""
 
-        unicode_topic = PrivateTopicFactory(author=self.profile1.user, subtitle=u'Subtitle with accent àéè')
+        unicode_topic = PrivateTopicFactory(author=self.profile1.user, subtitle='Subtitle with accent àéè')
         unicode_topic.participants.add(self.profile2.user)
         unicode_post = PrivatePostFactory(
             privatetopic=unicode_topic,
@@ -662,7 +694,7 @@ class EditPostViewTest(TestCase):
         self.assertRedirects(
             response,
             reverse('member-login') +
-            '?next=' + urllib.quote(reverse('private-posts-edit', args=[1, 'private-topic', 1]), ''))
+            '?next=' + reverse('private-posts-edit', args=[1, 'private-topic', 1]))
 
     def test_succes_get_edit_post_page(self):
         self.client.logout()
@@ -752,9 +784,9 @@ class LeaveViewTest(TestCase):
         self.profile1 = ProfileFactory()
         self.profile2 = ProfileFactory()
 
-        self.anonymous_account = UserFactory(username=ZDS_APP['member']['anonymous_account'])
+        self.anonymous_account = UserFactory(username=settings.ZDS_APP['member']['anonymous_account'])
         self.bot_group = Group()
-        self.bot_group.name = ZDS_APP['member']['bot_group']
+        self.bot_group.name = settings.ZDS_APP['member']['bot_group']
         self.bot_group.save()
         self.anonymous_account.groups.add(self.bot_group)
         self.anonymous_account.save()
@@ -786,7 +818,7 @@ class LeaveViewTest(TestCase):
         self.assertRedirects(
             response,
             reverse('member-login') +
-            '?next=' + urllib.quote(reverse('mp-delete', args=[1, 'private-topic']), ''))
+            '?next=' + reverse('mp-delete', args=[1, 'private-topic']))
 
     def test_fail_leave_topic_no_exist(self):
 
@@ -852,9 +884,9 @@ class AddParticipantViewTest(TestCase):
     def setUp(self):
         self.profile1 = ProfileFactory()
         self.profile2 = ProfileFactory()
-        self.anonymous_account = UserFactory(username=ZDS_APP['member']['anonymous_account'])
+        self.anonymous_account = UserFactory(username=settings.ZDS_APP['member']['anonymous_account'])
         self.bot_group = Group()
-        self.bot_group.name = ZDS_APP['member']['bot_group']
+        self.bot_group.name = settings.ZDS_APP['member']['bot_group']
         self.bot_group.save()
         self.anonymous_account.groups.add(self.bot_group)
         self.anonymous_account.save()
@@ -888,7 +920,7 @@ class AddParticipantViewTest(TestCase):
         self.assertRedirects(
             response,
             reverse('member-login') +
-            '?next=' + urllib.quote(reverse('mp-edit-participant', args=[1, 'private-topic']), ''))
+            '?next=' + reverse('mp-edit-participant', args=[1, 'private-topic']))
 
     def test_fail_add_participant_topic_no_exist(self):
 
@@ -1016,7 +1048,7 @@ class PrivateTopicEditTest(TestCase):
         self.assertRedirects(
             response,
             reverse('member-login') +
-            '?next=' + urllib.quote(reverse('mp-edit-topic', args=[self.topic1.pk, 'private-topic']), ''))
+            '?next=' + reverse('mp-edit-topic', args=[self.topic1.pk, 'private-topic']))
 
         # post
         response = self.client.post(reverse('mp-edit-topic', args=[self.topic1.pk, 'private-topic']), {
@@ -1027,7 +1059,7 @@ class PrivateTopicEditTest(TestCase):
         self.assertRedirects(
             response,
             reverse('member-login') +
-            '?next=' + urllib.quote(reverse('mp-edit-topic', args=[self.topic1.pk, 'private-topic']), ''))
+            '?next=' + reverse('mp-edit-topic', args=[self.topic1.pk, 'private-topic']))
 
         topic = PrivateTopic.objects.get(pk=self.topic1.pk)
         self.assertEqual('super title', topic.title)

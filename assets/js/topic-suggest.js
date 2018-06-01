@@ -33,7 +33,7 @@
           $title = $("<a></a>").attr("target", "_blank");
           $title.text(topic.title).attr("href", topic.url).attr("title", topic.subtitle);
           var $topicDate = new Date(topic.pubdate).toLocaleDateString();
-          var $forumLink = $("<a></a>").text(topic.forumTitle).attr("href", topic.forumUrl);
+          var $forumLink = $("<a></a>").text(topic.forumTitle).attr("href", topic.forumUrl).attr("target", "_blank");
           $("<li></li>").text(" dans le forum ").append($forumLink).append(" le " + $topicDate).prepend($title).appendTo($ul);
           count++;
           if (count === 5) return;

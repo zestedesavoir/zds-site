@@ -11,7 +11,7 @@
     <AdultContent>false</AdultContent>
     <Language>{{ language }}</Language>
     <Contact>{{ email_contact }}</Contact>
-    <Image height="57" width="57" type="image/png">{{ site_url }}{% static "images/favicon.png" %}</Image>
+    <Image height="64" width="64" type="image/png">{{ site_url }}{% static "images/favicons/64.png" %}</Image>
     <Url type="text/html" method="GET" template="{{ search_url }}">
         <Param name="q" value="{searchTerms}"/>
     </Url>

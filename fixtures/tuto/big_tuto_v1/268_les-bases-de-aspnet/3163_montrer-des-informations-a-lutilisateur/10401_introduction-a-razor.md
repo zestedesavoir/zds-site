@@ -4,7 +4,7 @@ Evidemment, nous ne vous conseillons pas de mettre de côté l’architecture et
 
 # Bonjour Razor !
 
-ASP.NET MVC utilise un moteur de vues appelé Razor. Comme son nom l’indique, un moteur de vues permet la création de vues (de pages HTML). Le moteur de vues va communiquer avec le code « serveur » afin de générer une réponse au format HTML. Le moteur de templates Razor est apparu avec le version 3 de ASP.NET MVC, c’est le moteur de templates par défaut avec ASP.NET MVC. Razor utilise sa propre syntaxe, l’avantage c’est que celle-ci a pour vocation d’être simple et de faciliter la lecture des pages de vues pour le développeur. Nous retrouvons une fluidification entre code HTML et code exécutable.
+ASP.NET MVC utilise un moteur de vues appelé Razor. Comme son nom l’indique, un moteur de vues permet la création de vues (de pages HTML). Le moteur de vues va communiquer avec le code « serveur » afin de générer une réponse au format HTML. Le moteur de templates Razor est apparu avec le version 3 de ASP.NET MVC, c’est le moteur de templates par défaut avec ASP.NET MVC. Razor utilise sa propre syntaxe, l’avantage c’est que celle-ci a pour vocation d’être simple et de faciliter la lecture des pages de vues pour le développeur. Nous retrouvons une fluidification entre code HTML et code exécutable.
 Pour une application utilisant le C#, les vues Razor porterons l’extension **.cshtml**, mais si vous utilisez VB.NET, l’extension **.vbhtml** sera utilisée.
 
 Nous considèrerons même cela comme un moteur de conception et de composition de gabarits (**Template** en anglais).

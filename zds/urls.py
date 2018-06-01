@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
@@ -9,9 +7,9 @@ from django.core.urlresolvers import get_resolver, reverse
 
 from zds.forum.models import Category, Forum, Topic, Tag
 from zds.pages.views import home as home_view
-from zds.tutorialv2.models.models_database import PublishedContent
+from zds.tutorialv2.models.database import PublishedContent
 
-from . import settings
+from django.conf import settings
 
 
 # SiteMap data
@@ -50,7 +48,7 @@ class PageSitemap(Sitemap):
     priority = 0.5
 
     def items(self):
-        urls = get_resolver(None).reverse_dict.keys()
+        urls = list(get_resolver(None).reverse_dict.keys())
         return [url for url in urls if 'pages-' in str(url)]
 
     def location(self, item):
@@ -102,7 +100,6 @@ urlpatterns = [
     url(r'^mise-en-avant/', include('zds.featured.urls')),
     url(r'^notifications/', include('zds.notification.urls')),
     url('', include('social.apps.django_app.urls', namespace='social')),
-    url('', include('django.contrib.auth.urls', namespace='auth')),
 
     url(r'^munin/', include('munin.urls')),
 
@@ -116,7 +113,8 @@ urlpatterns = [
 # SiteMap URLs
 urlpatterns += [
     url(r'^sitemap\.xml$', index_view, {'sitemaps': sitemaps}),
-    url(r'^sitemap-(?P<section>.+)\.xml$', sitemap_view, {'sitemaps': sitemaps}),
+    url(r'^sitemap-(?P<section>.+)\.xml$', sitemap_view, {'sitemaps': sitemaps},
+        name='django.contrib.sitemaps.views.sitemap'),
 ]
 
 if settings.SERVE:

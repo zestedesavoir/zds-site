@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from rest_framework import permissions
 from django.contrib.auth.models import AnonymousUser
 
@@ -24,6 +22,28 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
             author = AnonymousUser()
 
         return author == request.user
+
+
+class IsOwner(permissions.BasePermission):
+
+    def has_permission(self, request, view):
+        return request.user and self.has_object_permission(request, view, view.get_object())
+
+    def has_object_permission(self, request, view, obj):
+        if hasattr(obj, 'user'):
+            owners = [obj.user.pk]
+        elif hasattr(obj, 'author'):
+            owners = [obj.author.pk]
+        elif hasattr(obj, 'authors'):
+            owners = list(obj.authors.values_list('pk', flat=True))
+
+        return request.user.pk in owners
+
+
+class IsAuthorOrStaff(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return IsStaffUser().has_permission(request, view) or IsOwner().has_object_permission(request, view,
+                                                                                              view.get_object())
 
 
 class IsNotOwnerOrReadOnly(permissions.BasePermission):

@@ -1,0 +1,21 @@
+<script type="application/javascript">
+    $(".message-content span,.article-content span").each(function () {
+        var text = $(this).text();
+        if (text && text[0] == "$" && text[text.length - 1] == "$") {
+            $(this).addClass("mathjax-span");
+        }
+    });
+</script>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [['$', '$']],
+            displayMath: [['$$','$$']],
+            processEscapes: true,
+            processClass: "mathjax-wrapper|mathjax-span",
+            ignoreClass: "page-container"
+        },
+        TeX: { extensions: ["color.js", "cancel.js", "enclose.js", "bbox.js", "mathchoice.js", "newcommand.js", "verb.js", "unicode.js", "autobold.js", "mhchem.js"] },
+        messageStyle: "none",
+    });
+</script>

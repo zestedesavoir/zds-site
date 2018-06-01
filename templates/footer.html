@@ -1,0 +1,56 @@
+{% load i18n %}
+
+<footer class="page-footer">
+    <div class="wrapper">
+        <p class="copyright">
+            {{app.site.literal_name}}
+            <span class="version">
+                &bull; {% trans "Version :" %}
+                {% if zds_version.url %}
+                    <a href="{{zds_version.url}}">{{zds_version.name}}</a>
+                {% else %}
+                    {{ zds_version.name }}
+                {% endif %}
+            </span>
+        </p>
+
+        <ul class="social">
+            {% if app.site.social.facebook %}
+                <li>
+                    <a href="{{app.site.social.facebook}}"
+                       title="Aimez notre page Facebook"
+                       class="btn ico-after facebook light btn-facebook btn-holder"></a>
+                </li>
+            {% endif %}
+
+            {% if app.site.social.twitter %}
+                <li>
+                    <a href="{{app.site.social.twitter}}"
+                       title="Suivez-nous sur Twitter"
+                       class="btn ico-after twitter light btn-twitter btn-holder"></a>
+                </li>
+            {% endif %}
+
+            {% if app.site.social.googleplus %}
+                <li>
+                    <a href="{{app.site.social.googleplus}}"
+                       title="Retrouvez-nous sur Google+"
+                       class="btn ico-after google-plus light btn-google-plus btn-holder"></a>
+                </li>
+            {% endif %}
+        </ul>
+
+        <ul class="links">
+            <li><a href="{% url "api:docs" %}">{% trans "API" %}</a></li>
+            <li><a href="{% url "pages-eula" %}">{% trans "CGU" %}</a></li>
+            <li><a href="{% url "pages-about" %}">{% trans "À propos" %}</a></li>
+            {% if app.site.association %}
+                <li><a href="{% url "pages-association" %}">{% trans "L’association" %}</a></li>
+                {% if user.is_authenticated %}
+                    <li><a href="{% url "pages-assoc-subscribe" %}">{% trans "Adhérer" %}</a></li>
+                {% endif %}
+            {% endif %}
+            <li><a href="{% url "pages-contact" %}">{% trans "Contact" %}</a></li>
+        </ul>
+    </div>
+</footer>

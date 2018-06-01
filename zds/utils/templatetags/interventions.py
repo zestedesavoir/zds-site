@@ -1,6 +1,3 @@
-# coding: utf-8
-
-import time
 from datetime import datetime, timedelta
 
 from django import template
@@ -9,13 +6,13 @@ from django.utils.translation import ugettext_lazy as _
 
 from zds.forum.models import Post, is_read as topic_is_read
 from zds.mp.models import PrivateTopic
-from zds.tutorialv2.models.models_database import Validation
+from zds.tutorialv2.models.database import Validation
 from zds.notification.models import Notification, TopicAnswerSubscription, ContentReactionAnswerSubscription, \
     NewTopicSubscription, NewPublicationSubscription
-from zds.tutorialv2.models.models_database import ContentReaction, PublishableContent
+from zds.tutorialv2.models.database import ContentReaction, PublishableContent
 from zds.utils import get_current_user
-from zds.utils.models import Alert
-from zds import settings
+from zds.utils.models import Alert, HatRequest
+from django.conf import settings
 from zds.tutorialv2.models import TYPE_CHOICES_DICT
 from zds.member.models import NewEmailProvider
 
@@ -130,17 +127,6 @@ def get_github_issue_url(topic):
         )
 
 
-def comp(dated_element1, dated_element2):
-    version1 = int(time.mktime(dated_element1['pubdate'].timetuple()))
-    version2 = int(time.mktime(dated_element2['pubdate'].timetuple()))
-    if version1 > version2:
-        return -1
-    elif version1 < version2:
-        return 1
-    else:
-        return 0
-
-
 @register.filter('interventions_topics')
 def interventions_topics(user):
     """
@@ -157,7 +143,7 @@ def interventions_topics(user):
                              'title': notification.title,
                              'url': notification.url})
 
-    posts_unread.sort(cmp=comp)
+    posts_unread.sort(key=lambda post: post['pubdate'].timetuple())
 
     return posts_unread
 
@@ -190,8 +176,8 @@ def alerts_list(user):
                           'text': alert.text})
         elif alert.scope == 'CONTENT':
             published = PublishableContent.objects.select_related('public_version').get(pk=alert.content.pk)
-            total.append({'title': published.public_version.title,
-                          'url': published.get_absolute_url_online(),
+            total.append({'title': published.public_version.title if published.public_version else published.title,
+                          'url': published.get_absolute_url_online() if published.public_version else '',
                           'pubdate': alert.pubdate,
                           'author': alert.author,
                           'text': alert.text})
@@ -223,3 +209,8 @@ def waiting_count(content_type):
 @register.filter(name='new_providers_count')
 def new_providers_count(user):
     return NewEmailProvider.objects.count()
+
+
+@register.filter(name='requested_hats_count')
+def requested_hats_count(user):
+    return HatRequest.objects.filter(is_granted__isnull=True).count()

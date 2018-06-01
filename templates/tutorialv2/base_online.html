@@ -8,13 +8,8 @@
 {% endblock %}
 
 
-{% block menu_tutorial %}
-    {% if current_content_type == "TUTORIAL" %}
-        current
-    {% endif %}
-{% endblock %}
-{% block menu_article %}
-    {% if current_content_type == "ARTICLE" %}
+{% block menu_publications %}
+    {% if current_content_type and current_content_type != "OPINION" %}
         current
     {% endif %}
 {% endblock %}
@@ -28,7 +23,7 @@
 
 {% block canonical %}
     {% if content.source and content.source != "" %}
-    	<link rel="canonical" href="{{ content.source }}">
+        <link rel="canonical" href="{{ content.source }}">
     {% endif %}
 {% endblock %}
 
@@ -38,13 +33,13 @@
     <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
         <a
             {% if current_content_type == "ARTICLE" %}
-                href="{% url "article:list" %}"
+                href="{% url "publication:list" %}?type=article"
             {% elif current_content_type == "TUTORIAL" %}
-                href="{% url "tutorial:list" %}"
+                href="{% url "publication:list" %}?type=tutorial"
             {% elif current_content_type == "OPINION" %}
                 href="{% url "opinion:list" %}"
             {% else %}
-                href="{% url "content:list" %}"
+                href="{% url "publication:list" %}"
             {% endif %}
             itemprop="url">
             <span itemprop="title">{{ verbose_type_name_plural|title }}</span>

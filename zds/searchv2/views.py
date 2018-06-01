@@ -1,5 +1,4 @@
-# coding: utf-8
-import json
+from zds import json_handler
 import operator
 
 from elasticsearch_dsl import Search
@@ -19,18 +18,18 @@ from zds.searchv2.forms import SearchForm
 from zds.searchv2.models import ESIndexManager
 from zds.utils.paginator import ZdSPagingListView
 from zds.utils.templatetags.authorized_forums import get_authorized_forums
+from functools import reduce
 
 
-class SimilarSubjectsView(CreateView, SingleObjectMixin):
+class SimilarTopicsView(CreateView, SingleObjectMixin):
     search_query = None
     authorized_forums = ''
     index_manager = None
 
     def __init__(self, **kwargs):
-        """Overridden because index manager must NOT be initialized elsewhere
-        """
+        """Overridden because the index manager must NOT be initialized elsewhere."""
 
-        super(SimilarSubjectsView, self).__init__(**kwargs)
+        super(SimilarTopicsView, self).__init__(**kwargs)
         self.index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
 
     def get(self, request, *args, **kwargs):
@@ -68,12 +67,11 @@ class SimilarSubjectsView(CreateView, SingleObjectMixin):
                 results.append(result)
 
         data = {'results': results}
-        return HttpResponse(json.dumps(data), content_type='application/json')
+        return HttpResponse(json_handler.dumps(data), content_type='application/json')
 
 
 class SearchView(ZdSPagingListView):
-    """Research view
-    """
+    """Search view."""
 
     template_name = 'searchv2/search.html'
     paginate_by = settings.ZDS_APP['search']['results_per_page']
@@ -81,21 +79,21 @@ class SearchView(ZdSPagingListView):
     search_form_class = SearchForm
     search_form = None
     search_query = None
+    content_category = None
+    content_subcategory = None
 
     authorized_forums = ''
 
     index_manager = None
 
     def __init__(self, **kwargs):
-        """Overridden because index manager must NOT be initialized elsewhere
-        """
+        """Overridden because the index manager must NOT be initialized elsewhere."""
 
         super(SearchView, self).__init__(**kwargs)
         self.index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
 
     def get(self, request, *args, **kwargs):
-        """Overridden to catch the request and fill the form.
-        """
+        """Overridden to catch the request and fill the form."""
 
         if 'q' in request.GET:
             self.search_query = ''.join(request.GET['q'])
@@ -109,17 +107,28 @@ class SearchView(ZdSPagingListView):
 
     def get_queryset(self):
         if not self.index_manager.connected_to_es:
-            messages.warning(self.request, _(u'Impossible de se connecter à Elasticsearch'))
+            messages.warning(self.request, _('Impossible de se connecter à Elasticsearch'))
             return []
 
         if self.search_query:
 
-            # find forums the user is allowed to visit
+            # Searches forums the user is allowed to visit
             self.authorized_forums = get_authorized_forums(self.request.user)
 
             search_queryset = Search()
 
-            # setting the different querysets (according to the selected models, if any)
+            # Restrict (sub)category if any
+            if self.search_form.cleaned_data['category']:
+                self.content_category = self.search_form.cleaned_data['category']
+            if self.search_form.cleaned_data['subcategory']:
+                self.content_subcategory = self.search_form.cleaned_data['subcategory']
+
+            # Mark that contents must come from library if required
+            self.from_library = False
+            if self.search_form.cleaned_data['from_library'] == 'on':
+                self.from_library = True
+
+            # Setting the different querysets (according to the selected models, if any)
             part_querysets = []
             chosen_groups = self.search_form.cleaned_data['models']
 
@@ -129,7 +138,7 @@ class SearchView(ZdSPagingListView):
                     if group in settings.ZDS_APP['search']['search_groups']:
                         models.append(settings.ZDS_APP['search']['search_groups'][group][1])
             else:
-                models = [v[1] for k, v in settings.ZDS_APP['search']['search_groups'].iteritems()]
+                models = [v[1] for k, v in settings.ZDS_APP['search']['search_groups'].items()]
 
             models = reduce(operator.concat, models)
 
@@ -140,31 +149,41 @@ class SearchView(ZdSPagingListView):
             for query in part_querysets[1:]:
                 queryset |= query
 
-            # weighting:
+            # Weighting:
             weight_functions = []
-            for _type, weights in settings.ZDS_APP['search']['boosts'].items():
+            for _type, weights in list(settings.ZDS_APP['search']['boosts'].items()):
                 if _type in models:
                     weight_functions.append({'filter': Match(_type=_type), 'weight': weights['global']})
 
             scored_queryset = FunctionScore(query=queryset, boost_mode='multiply', functions=weight_functions)
             search_queryset = search_queryset.query(scored_queryset)
 
-            # highlighting:
+            # Highlighting:
             search_queryset = search_queryset.highlight_options(
                 fragment_size=150, number_of_fragments=5, pre_tags=['[hl]'], post_tags=['[/hl]'])
             search_queryset = search_queryset.highlight('text').highlight('text_html')
 
-            # executing:
+            # Executing:
             return self.index_manager.setup_search(search_queryset)
 
         return []
 
     def get_queryset_publishedcontents(self):
-        """Find in PublishedContents.
-        """
+        """Search in PublishedContent objects."""
 
         query = Match(_type='publishedcontent') \
-            & MultiMatch(query=self.search_query, fields=['title', 'description', 'categories', 'tags', 'text'])
+            & MultiMatch(
+            query=self.search_query,
+            fields=['title', 'description', 'categories', 'subcategories', 'tags', 'text'])
+
+        if self.from_library:
+            query &= Match(content_type='TUTORIAL') | Match(content_type='ARTICLE')
+
+        if self.content_category:
+            query &= Match(categories=self.content_category)
+
+        if self.content_subcategory:
+            query &= Match(subcategories=self.content_subcategory)
 
         functions_score = [
             {
@@ -194,23 +213,27 @@ class SearchView(ZdSPagingListView):
         return scored_query
 
     def get_queryset_chapters(self):
-        """Find in chapters.
-        """
+        """Search in content chapters."""
 
         query = Match(_type='chapter') \
             & MultiMatch(query=self.search_query, fields=['title', 'text'])
 
+        if self.content_category:
+            query &= Match(categories=self.content_category)
+
+        if self.content_subcategory:
+            query &= Match(subcategories=self.content_subcategory)
+
         return query
 
     def get_queryset_topics(self):
-        """Find in topics, and remove result if the forum is not allowed for the user.
+        """Search in topics, and remove the result if the forum is not allowed for the user.
 
-        Score is modified if :
+        Score is modified if:
 
-        + topic is solved ;
-        + Topic is sticky ;
-        + Topic is locked.
-
+        + topic is solved;
+        + topic is sticky;
+        + topic is locked.
         """
 
         query = Match(_type='topic') \
@@ -228,13 +251,13 @@ class SearchView(ZdSPagingListView):
         return scored_query
 
     def get_queryset_posts(self):
-        """Find in posts, and remove result if the forum is not allowed for the user or if the message is invisible.
+        """Search in posts, and remove result if the forum is not allowed for the user or if the message is invisible.
 
-        Score is modified if :
+        Score is modified if:
 
-        + Post is the first one in a topic ;
-        + Post is marked as "useful" ;
-        + Post has a like/dislike ratio above (more like than dislike) or below (the other way around) 1.0.
+        + post is the first one in a topic;
+        + post is marked as "useful";
+        + post has a like/dislike ratio above (has more likes than dislikes) or below (the other way around) 1.0.
         """
 
         query = Match(_type='post') \
@@ -268,10 +291,10 @@ class SearchView(ZdSPagingListView):
 
 
 def opensearch(request):
-    """Generate OpenSearch Description file"""
+    """Generate OpenSearch Description file."""
 
     return render(request, 'searchv2/opensearch.xml', {
-        'site_name': settings.ZDS_APP['site']['litteral_name'],
+        'site_name': settings.ZDS_APP['site']['literal_name'],
         'site_url': settings.ZDS_APP['site']['url'],
         'email_contact': settings.ZDS_APP['site']['email_contact'],
         'language': settings.LANGUAGE_CODE,

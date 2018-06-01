@@ -6,19 +6,19 @@
 
 
 {% block title %}
-    {% trans "Tag" %} : {{ tag.title }}
+    {% trans "Tag :" %} {{ tag.title }}
 {% endblock %}
 
 
 
 {% block breadcrumb %}
-    <li>{% trans "Tag" %} : {{ tag.title }}</li>
+    <li>{% trans "Tag :" %} {{ tag.title }}</li>
 {% endblock %}
 
 
 
 {% block headline %}
-    {% trans "Tag" %} : {{ tag.title }}
+    {% trans "Tag :" %} {{ tag.title }}
 {% endblock %}
 
 {% block feeds_rss %}
@@ -40,30 +40,30 @@
 
 {% block sidebar_actions %}
     <li>
-    {% with tag_is_followed=tag|is_followed_for_new_topic %}
-        {% url 'topic-tag-find' tag.slug as link_follow %}
-        {% if tag_is_followed %}
-            {% trans "Suivre ce tag" as data_onclick %}
-            {% trans "Ne plus suivre ce tag" as button_text %}
-        {% else %}
-            {% trans "Suivre ce tag" as button_text %}
-            {% trans "Ne plus suivre ce tag" as data_onclick %}
-        {% endif %}
-        {% include 'notification/follow_template.html' with link=link_follow is_followed=tag_is_followed data_onclick=data_onclick button_text=button_text subscriber_count=subscriber_count %}
-    {% endwith %}
+        {% with tag_is_followed=tag|is_followed_for_new_topic %}
+            {% url 'topic-tag-find' tag.slug as link_follow %}
+            {% if tag_is_followed %}
+                {% trans "Suivre ce tag" as data_onclick %}
+                {% trans "Ne plus suivre ce tag" as button_text %}
+            {% else %}
+                {% trans "Suivre ce tag" as button_text %}
+                {% trans "Ne plus suivre ce tag" as data_onclick %}
+            {% endif %}
+            {% include 'notification/follow_template.html' with link=link_follow is_followed=tag_is_followed data_onclick=data_onclick button_text=button_text subscriber_count=subscriber_count %}
+        {% endwith %}
     </li>
     <li>
-    {% with tag_is_email_followed=tag|is_email_followed_for_new_topic %}
-        {% url 'topic-tag-find' tag.slug as link_follow %}
-        {% if tag_is_email_followed %}
-            {% trans "Être notifié par courriel" as data_onclick %}
-            {% trans "Ne plus être notifié par courriel" as button_text %}
-        {% else %}
-            {% trans "Être notifié par courriel" as button_text %}
-            {% trans "Ne plus être notifié par courriel" as data_onclick %}
-        {% endif %}
-        {% include 'notification/follow_by_email_template.html' with link=link_follow is_followed=tag_is_email_followed data_onclick=data_onclick button_text=button_text %}
-    {% endwith %}
+        {% with tag_is_email_followed=tag|is_email_followed_for_new_topic %}
+            {% url 'topic-tag-find' tag.slug as link_follow %}
+            {% if tag_is_email_followed %}
+                {% trans "Être notifié par courriel" as data_onclick %}
+                {% trans "Ne plus être notifié par courriel" as button_text %}
+            {% else %}
+                {% trans "Être notifié par courriel" as button_text %}
+                {% trans "Ne plus être notifié par courriel" as data_onclick %}
+            {% endif %}
+            {% include 'notification/follow_by_email_template.html' with link=link_follow is_followed=tag_is_email_followed data_onclick=data_onclick button_text=button_text %}
+        {% endwith %}
     </li>
 {% endblock %}
 
@@ -73,21 +73,21 @@
         <h3>{% trans "Filtres" %}</h3>
         <ul>
             <li>
-                <a href="{% url 'topic-tag-find' tag.pk tag.slug %}?filter=solve"
+                <a href="{% url 'topic-tag-find' tag.slug %}?filter=solve"
                    class="ico-after tick green {% if request.GET.filter == "solve" %}selected{% endif %}"
                 >
                     {% trans "Sujets résolus" %}
                 </a>
             </li>
             <li>
-                <a href="{% url 'topic-tag-find' tag.pk tag.slug %}?filter=unsolve"
+                <a href="{% url 'topic-tag-find' tag.slug %}?filter=unsolve"
                    class="ico-after tick blue {% if request.GET.filter == "unsolve" %}selected{% endif %}"
                 >
                     {% trans "Sujets non résolus" %}
                 </a>
             </li>
             <li>
-                <a href="{% url 'topic-tag-find' tag.pk tag.slug %}?filter=noanswer"
+                <a href="{% url 'topic-tag-find' tag.slug %}?filter=noanswer"
                    class="ico-after view {% if request.GET.filter == "noanswer" %}selected{% endif %}"
                 >
                     {% trans "Sujets sans réponse" %}
@@ -95,7 +95,7 @@
             </li>
             {% if request.GET.filter %}
                 <li>
-                    <a href="{% url 'topic-tag-find' tag.pk tag.slug %}"
+                    <a href="{% url 'topic-tag-find' tag.slug %}"
                        class="ico-after cross blue"
                     >
                         {% trans "Annuler le filtre" %}

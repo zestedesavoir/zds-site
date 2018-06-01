@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from datetime import datetime
 import os
 import shutil
@@ -9,12 +7,11 @@ from oauth2_provider.models import AccessToken, Application
 from django.conf import settings
 from django.contrib.auth.models import User, Group
 from django.core import mail
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.utils.translation import ugettext_lazy as _
 
-from zds.settings import BASE_DIR
 from zds.notification.models import TopicAnswerSubscription
 from zds.member.factories import ProfileFactory, StaffProfileFactory, NonAsciiProfileFactory, UserFactory, \
     DevProfileFactory
@@ -23,21 +20,23 @@ from zds.member.models import Profile, KarmaNote, TokenForgotPassword
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.member.models import TokenRegister, Ban, NewEmailProvider, BannedEmailProvider
 from zds.tutorialv2.factories import PublishableContentFactory, PublishedContentFactory, BetaContentFactory
-from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent
+from zds.tutorialv2.models.database import PublishableContent, PublishedContent
 from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory, PostFactory
 from zds.forum.models import Topic, Post
 from zds.gallery.factories import GalleryFactory, UserGalleryFactory
 from zds.gallery.models import Gallery, UserGallery
-from zds.utils.models import CommentVote
+from zds.utils.models import CommentVote, Hat, HatRequest
+from copy import deepcopy
+
+overridden_zds_app = deepcopy(settings.ZDS_APP)
+overridden_zds_app['content']['repo_private_path'] = os.path.join(settings.BASE_DIR, 'contents-private-test')
+overridden_zds_app['content']['repo_public_path'] = os.path.join(settings.BASE_DIR, 'contents-public-test')
+overridden_zds_app['content']['extra_content_generation_policy'] = 'SYNC'
+overridden_zds_app['content']['build_pdf_when_published'] = False
 
 
-overrided_zds_app = settings.ZDS_APP
-overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
-overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
-
-
-@override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
-@override_settings(ZDS_APP=overrided_zds_app)
+@override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'media-test'))
+@override_settings(ZDS_APP=overridden_zds_app)
 class MemberTests(TestCase):
 
     def setUp(self):
@@ -92,7 +91,7 @@ class MemberTests(TestCase):
             'note': 'warn'
         }, follow=True)
         self.assertEqual(200, r.status_code)
-        self.assertIn('{} : 42'.format(_('Modification du karma')), r.content.decode('utf-8'))
+        self.assertIn('{} : 42'.format(_('Modification du karma')), r.content.decode('utf-8'))
         # more than 100 karma must unvalidate the karma
         r = self.client.post(reverse('member-modify-karma'), {
             'profile_pk': user.pk,
@@ -100,7 +99,7 @@ class MemberTests(TestCase):
             'note': 'warn'
         }, follow=True)
         self.assertEqual(200, r.status_code)
-        self.assertNotIn('{} : 420'.format(_('Modification du karma')), r.content.decode('utf-8'))
+        self.assertNotIn('{} : 420'.format(_('Modification du karma')), r.content.decode('utf-8'))
         # empty warning must unvalidate the karma
         r = self.client.post(reverse('member-modify-karma'), {
             'profile_pk': user.pk,
@@ -108,7 +107,7 @@ class MemberTests(TestCase):
             'note': ''
         }, follow=True)
         self.assertEqual(200, r.status_code)
-        self.assertNotIn('{} : 41'.format(_('Modification du karma')), r.content.decode('utf-8'))
+        self.assertNotIn('{} : 41'.format(_('Modification du karma')), r.content.decode('utf-8'))
 
     def test_list_members(self):
         """
@@ -117,8 +116,8 @@ class MemberTests(TestCase):
 
         # create strange member
         weird = ProfileFactory()
-        weird.user.username = u'ïtrema718'
-        weird.user.email = u'foo@\xfbgmail.com'
+        weird.user.username = 'ïtrema718'
+        weird.user.email = 'foo@\xfbgmail.com'
         weird.user.save()
 
         # list of members.
@@ -154,7 +153,7 @@ class MemberTests(TestCase):
 
         # list of members with page parameter.
         result = self.client.get(
-            reverse('member-list') + u'?page=1',
+            reverse('member-list') + '?page=1',
             follow=False
         )
         self.assertEqual(result.status_code, 200)
@@ -162,7 +161,7 @@ class MemberTests(TestCase):
         # page which doesn't exist.
         result = self.client.get(
             reverse('member-list') +
-            u'?page=1534',
+            '?page=1534',
             follow=False
         )
         self.assertEqual(result.status_code, 404)
@@ -170,7 +169,7 @@ class MemberTests(TestCase):
         # page parameter isn't an integer.
         result = self.client.get(
             reverse('member-list') +
-            u'?page=abcd',
+            '?page=abcd',
             follow=False
         )
         self.assertEqual(result.status_code, 404)
@@ -246,11 +245,11 @@ class MemberTests(TestCase):
         user_1 = ProfileFactory()
         user_2 = ProfileFactory()
         user_3 = ProfileFactory()
-        user_1.user.username = u'ïtrema'
+        user_1.user.username = 'ïtrema'
         user_1.user.save()
-        user_2.user.username = u'&#34;a'
+        user_2.user.username = '&#34;a'
         user_2.user.save()
-        user_3.user.username = u'_`_`_`_'
+        user_3.user.username = '_`_`_`_'
         user_3.user.save()
 
         # profile pages of weird users.
@@ -315,7 +314,7 @@ class MemberTests(TestCase):
                 'preview': '',
             }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 
-        result_string = ''.join(response.streaming_content)
+        result_string = ''.join(a.decode() for a in response.streaming_content)
         self.assertIn('<strong>my</strong>', result_string, 'We need the biography to be properly formatted')
 
     def test_login(self):
@@ -342,6 +341,30 @@ class MemberTests(TestCase):
              'remember': 'remember'},
             follow=False)
         self.assertEqual(result.status_code, 200)
+        self.assertContains(
+            result, _(
+                'Le mot de passe saisi est incorrect. '
+                'Cliquez sur le lien « Mot de passe oublié ? » '
+                'si vous ne vous en souvenez plus.'
+            )
+        )
+
+        # login failed with bad username then no redirection
+        # (status_code equals 200 and not 302).
+        result = self.client.post(
+            reverse('member-login'),
+            {'username': 'clem',
+             'password': 'hostel77',
+             'remember': 'remember'},
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+        self.assertContains(
+            result, _(
+                'Ce nom d’utilisateur est inconnu. '
+                'Si vous ne possédez pas de compte, '
+                'vous pouvez vous inscrire.'
+            )
+        )
 
         # login a user. Good password and next parameter then
         # redirection to the "next" page.
@@ -353,6 +376,17 @@ class MemberTests(TestCase):
              'remember': 'remember'},
             follow=False)
         self.assertRedirects(result, reverse('gallery-list'))
+
+        # check the user is redirected to the home page if
+        # the "next" parameter points to a non-existing page.
+        result = self.client.post(
+            reverse('member-login') +
+            '?next=/foobar',
+            {'username': user.user.username,
+             'password': 'hostel77',
+             'remember': 'remember'},
+            follow=False)
+        self.assertRedirects(result, reverse('homepage'))
 
         # check if the login form will redirect if there is
         # a next parameter.
@@ -382,7 +416,7 @@ class MemberTests(TestCase):
         self.assertEqual(result.status_code, 200)
 
         # check email has been sent.
-        self.assertEquals(len(mail.outbox), 1)
+        self.assertEqual(len(mail.outbox), 1)
 
         # check if the new user is well inactive.
         user = User.objects.get(username='firm1')
@@ -397,7 +431,7 @@ class MemberTests(TestCase):
         self.assertEqual(result.status_code, 200)
 
         # check a new email hasn't been sent at the new user.
-        self.assertEquals(len(mail.outbox), 1)
+        self.assertEqual(len(mail.outbox), 1)
 
         # check if the new user is active.
         self.assertTrue(User.objects.get(username='firm1').is_active)
@@ -475,7 +509,7 @@ class MemberTests(TestCase):
         beta_content = BetaContentFactory(author_list=[user.user], forum=beta_forum)
         beta_content_2 = BetaContentFactory(author_list=[user.user, user2.user], forum=beta_forum)
         # about posts and topics
-        authored_topic = TopicFactory(author=user.user, forum=self.forum11)
+        authored_topic = TopicFactory(author=user.user, forum=self.forum11, solved_by=user.user)
         answered_topic = TopicFactory(author=user2.user, forum=self.forum11)
         PostFactory(topic=answered_topic, author=user.user, position=2)
         edited_answer = PostFactory(topic=answered_topic, author=user.user, position=3)
@@ -596,6 +630,8 @@ class MemberTests(TestCase):
 
         # topics, gallery and PMs:
         self.assertEqual(Topic.objects.filter(author__username=user.user.username).count(), 0)
+        self.assertEqual(Topic.objects.filter(solved_by=user.user).count(), 0)
+        self.assertEqual(Topic.objects.filter(solved_by=self.anonymous).count(), 1)
         self.assertEqual(Post.objects.filter(author__username=user.user.username).count(), 0)
         self.assertEqual(Post.objects.filter(editor__username=user.user.username).count(), 0)
         self.assertEqual(PrivatePost.objects.filter(author__username=user.user.username).count(), 0)
@@ -604,11 +640,11 @@ class MemberTests(TestCase):
         self.assertIsNotNone(Topic.objects.get(pk=authored_topic.pk))
         self.assertIsNotNone(PrivateTopic.objects.get(pk=private_topic.pk))
         self.assertIsNotNone(Gallery.objects.get(pk=alone_gallery.pk))
-        self.assertEquals(alone_gallery.get_linked_users().count(), 1)
-        self.assertEquals(shared_gallery.get_linked_users().count(), 1)
-        self.assertEquals(UserGallery.objects.filter(user=user.user).count(), 0)
-        self.assertEquals(CommentVote.objects.filter(user=user.user, positive=True).count(), 0)
-        self.assertEquals(Post.objects.filter(pk=upvoted_answer.id).first().like, 0)
+        self.assertEqual(alone_gallery.get_linked_users().count(), 1)
+        self.assertEqual(shared_gallery.get_linked_users().count(), 1)
+        self.assertEqual(UserGallery.objects.filter(user=user.user).count(), 0)
+        self.assertEqual(CommentVote.objects.filter(user=user.user, positive=True).count(), 0)
+        self.assertEqual(Post.objects.filter(pk=upvoted_answer.id).first().like, 0)
 
         # zep 12, published contents and beta
         self.assertIsNotNone(PublishedContent.objects.filter(content__pk=published_tutorial_alone.pk).first())
@@ -641,7 +677,7 @@ class MemberTests(TestCase):
         self.assertEqual(result.status_code, 200)
 
         # check email has been sent
-        self.assertEquals(len(mail.outbox), 1)
+        self.assertEqual(len(mail.outbox), 1)
 
         # clic on the link which has been sent in mail
         user = User.objects.get(username=self.mas.user.username)
@@ -685,11 +721,11 @@ class MemberTests(TestCase):
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-pubdate')[0]
         self.assertEqual(ban.type, 'Lecture Seule')
         self.assertEqual(ban.note, 'Texte de test pour LS')
-        self.assertEquals(len(mail.outbox), 1)
+        self.assertEqual(len(mail.outbox), 1)
 
         result = self.client.get(reverse('member-list'), follow=False)
         self.assertEqual(result.status_code, 200)
-        self.assertEquals(nb_users + 1, len(result.context['members']))  # LS guy still shows up, good
+        self.assertEqual(nb_users + 1, len(result.context['members']))  # LS guy still shows up, good
 
         # Test: Un-LS
         result = self.client.post(
@@ -705,13 +741,13 @@ class MemberTests(TestCase):
         self.assertIsNone(user.end_ban_write)
         self.assertIsNone(user.end_ban_read)
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-id')[0]
-        self.assertEqual(ban.type, u'Autorisation d\'écrire')
+        self.assertEqual(ban.type, 'Autorisation d\'écrire')
         self.assertEqual(ban.note, 'Texte de test pour un-LS')
-        self.assertEquals(len(mail.outbox), 2)
+        self.assertEqual(len(mail.outbox), 2)
 
         result = self.client.get(reverse('member-list'), follow=False)
         self.assertEqual(result.status_code, 200)
-        self.assertEquals(nb_users + 1, len(result.context['members']))  # LS guy still shows up, good
+        self.assertEqual(nb_users + 1, len(result.context['members']))  # LS guy still shows up, good
 
         # Test: LS temp
         user_ls_temp = ProfileFactory()
@@ -720,7 +756,7 @@ class MemberTests(TestCase):
                 'member-modify-profile', kwargs={
                     'user_pk': user_ls_temp.user.id}), {
                 'ls-temp': '', 'ls-jrs': 10,
-                'ls-text': u'Texte de test pour LS TEMP'},
+                'ls-text': 'Texte de test pour LS TEMP'},
             follow=False)
         user = Profile.objects.get(id=user_ls_temp.id)   # Refresh profile from DB
         self.assertEqual(result.status_code, 302)
@@ -729,9 +765,9 @@ class MemberTests(TestCase):
         self.assertIsNotNone(user.end_ban_write)
         self.assertIsNone(user.end_ban_read)
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-id')[0]
-        self.assertEqual(ban.type, u'Lecture Seule Temporaire')
-        self.assertEqual(ban.note, u'Texte de test pour LS TEMP')
-        self.assertEquals(len(mail.outbox), 3)
+        self.assertEqual(ban.type, 'Lecture Seule Temporaire')
+        self.assertEqual(ban.note, 'Texte de test pour LS TEMP')
+        self.assertEqual(len(mail.outbox), 3)
 
         # reset nb_users
         result = self.client.get(reverse('member-list'), follow=False)
@@ -744,7 +780,7 @@ class MemberTests(TestCase):
             reverse(
                 'member-modify-profile', kwargs={
                     'user_pk': user_ban.user.id}), {
-                'ban': '', 'ban-text': u'Texte de test pour BAN'}, follow=False)
+                'ban': '', 'ban-text': 'Texte de test pour BAN'}, follow=False)
         user = Profile.objects.get(id=user_ban.id)    # Refresh profile from DB
         self.assertEqual(result.status_code, 302)
         self.assertTrue(user.can_write)
@@ -752,13 +788,13 @@ class MemberTests(TestCase):
         self.assertIsNone(user.end_ban_write)
         self.assertIsNone(user.end_ban_read)
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-id')[0]
-        self.assertEqual(ban.type, u'Ban définitif')
-        self.assertEqual(ban.note, u'Texte de test pour BAN')
-        self.assertEquals(len(mail.outbox), 4)
+        self.assertEqual(ban.type, 'Ban définitif')
+        self.assertEqual(ban.note, 'Texte de test pour BAN')
+        self.assertEqual(len(mail.outbox), 4)
 
         result = self.client.get(reverse('member-list'), follow=False)
         self.assertEqual(result.status_code, 200)
-        self.assertEquals(nb_users, len(result.context['members']))  # Banned guy doesn't show up, good
+        self.assertEqual(nb_users, len(result.context['members']))  # Banned guy doesn't show up, good
 
         # Test: un-BAN
         result = self.client.post(
@@ -766,7 +802,7 @@ class MemberTests(TestCase):
                 'member-modify-profile', kwargs={
                     'user_pk': user_ban.user.id}),
             {'un-ban': '',
-             'unban-text': u'Texte de test pour BAN'},
+             'unban-text': 'Texte de test pour BAN'},
             follow=False)
         user = Profile.objects.get(id=user_ban.id)    # Refresh profile from DB
         self.assertEqual(result.status_code, 302)
@@ -775,13 +811,13 @@ class MemberTests(TestCase):
         self.assertIsNone(user.end_ban_write)
         self.assertIsNone(user.end_ban_read)
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-id')[0]
-        self.assertEqual(ban.type, u'Autorisation de se connecter')
-        self.assertEqual(ban.note, u'Texte de test pour BAN')
-        self.assertEquals(len(mail.outbox), 5)
+        self.assertEqual(ban.type, 'Autorisation de se connecter')
+        self.assertEqual(ban.note, 'Texte de test pour BAN')
+        self.assertEqual(len(mail.outbox), 5)
 
         result = self.client.get(reverse('member-list'), follow=False)
         self.assertEqual(result.status_code, 200)
-        self.assertEquals(nb_users + 1, len(result.context['members']))  # UnBanned guy shows up, good
+        self.assertEqual(nb_users + 1, len(result.context['members']))  # UnBanned guy shows up, good
 
         # Test: BAN temp
         user_ban_temp = ProfileFactory()
@@ -789,7 +825,7 @@ class MemberTests(TestCase):
             reverse('member-modify-profile',
                     kwargs={'user_pk': user_ban_temp.user.id}),
             {'ban-temp': '', 'ban-jrs': 10,
-             'ban-text': u'Texte de test pour BAN TEMP'},
+             'ban-text': 'Texte de test pour BAN TEMP'},
             follow=False)
         user = Profile.objects.get(
             id=user_ban_temp.id)    # Refresh profile from DB
@@ -799,14 +835,14 @@ class MemberTests(TestCase):
         self.assertIsNone(user.end_ban_write)
         self.assertIsNotNone(user.end_ban_read)
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-id')[0]
-        self.assertEqual(ban.type, u'Ban Temporaire')
-        self.assertEqual(ban.note, u'Texte de test pour BAN TEMP')
-        self.assertEquals(len(mail.outbox), 6)
+        self.assertEqual(ban.type, 'Ban Temporaire')
+        self.assertEqual(ban.note, 'Texte de test pour BAN TEMP')
+        self.assertEqual(len(mail.outbox), 6)
 
     def test_sanctions_with_not_staff_user(self):
         user = ProfileFactory().user
 
-        # we need staff right for update the sanction of an user, so a member who is not staff can't access to the page
+        # we need staff right for update the sanction of a user, so a member who is not staff can't access to the page
         self.client.logout()
         self.client.login(username=user.username, password='hostel77')
 
@@ -819,7 +855,7 @@ class MemberTests(TestCase):
 
         self.assertEqual(result.status_code, 403)
 
-        # if the user is staff, he can update the sanction of an user
+        # if the user is staff, he can update the sanction of a user
         self.client.logout()
         self.client.login(username=self.staff.username, password='hostel77')
 
@@ -1361,6 +1397,341 @@ class MemberTests(TestCase):
         result = self.client.post(reverse('remove-banned-email-provider', args=[provider.pk]), follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertFalse(BannedEmailProvider.objects.filter(pk=provider.pk).exists())
+
+    def test_hats_on_profile(self):
+        hat_name = 'A hat'
+
+        profile = ProfileFactory()
+        user = profile.user
+        # Test that hats doesn't appear if there are not hats and if the current user is not staff member
+        self.client.login(username=user.username, password='hostel77')
+        result = self.client.get(profile.get_absolute_url())
+        self.assertEqual(result.status_code, 200)
+        self.assertNotContains(result, _('Casquettes'))
+        # Test that they appear with a staff member
+        self.client.login(username=self.staff.username, password='hostel77')
+        result = self.client.get(profile.get_absolute_url())
+        self.assertEqual(result.status_code, 200)
+        self.assertContains(result, _('Casquettes'))
+        # Add a hat and check that it appears
+        self.client.post(reverse('add-hat', args=[user.pk]),
+                         {'hat': hat_name}, follow=False)
+        self.assertIn(hat_name, profile.hats.values_list('name', flat=True))
+        result = self.client.get(profile.get_absolute_url())
+        self.assertEqual(result.status_code, 200)
+        self.assertContains(result, hat_name)
+        # And also for a member that is not staff
+        self.client.login(username=user.username, password='hostel77')
+        result = self.client.get(profile.get_absolute_url())
+        self.assertEqual(result.status_code, 200)
+        self.assertContains(result, _('Casquettes'))
+        self.assertContains(result, hat_name)
+        # Test that a hat linked to a group appears
+        result = self.client.get(self.staff.profile.get_absolute_url())
+        self.assertEqual(result.status_code, 200)
+        self.assertContains(result, _('Casquettes'))
+        self.assertContains(result, 'Staff')
+
+    def test_add_hat(self):
+        short_hat = 'A new hat'
+        long_hat = 'A very long hat' * 3
+
+        profile = ProfileFactory()
+        user = profile.user
+        # check that this option is only available for a staff member
+        self.client.login(username=user.username, password='hostel77')
+        result = self.client.post(reverse('add-hat', args=[user.pk]),
+                                  {'hat': short_hat}, follow=False)
+        self.assertEqual(result.status_code, 403)
+        # login as staff
+        self.client.login(username=self.staff.username, password='hostel77')
+        # test that it doesn't work with a too long hat (> 40 characters)
+        result = self.client.post(reverse('add-hat', args=[user.pk]),
+                                  {'hat': long_hat}, follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertNotIn(long_hat, profile.hats.values_list('name', flat=True))
+        # test that it doesn't work with a hat using utf8mb4 characters
+        result = self.client.post(reverse('add-hat', args=[user.pk]),
+                                  {'hat': '🍊'}, follow=False)
+        # test that it doesn't work with a hat linked to a group
+        result = self.client.post(reverse('add-hat', args=[user.pk]),
+                                  {'hat': 'Staff'}, follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertNotIn(long_hat, profile.hats.values_list('name', flat=True))
+        # test that it works with a short hat (<= 40 characters)
+        result = self.client.post(reverse('add-hat', args=[user.pk]),
+                                  {'hat': short_hat}, follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertIn(short_hat, profile.hats.values_list('name', flat=True))
+        # test that if the hat already exists, it is used
+        result = self.client.post(reverse('add-hat', args=[self.staff.pk]),
+                                  {'hat': short_hat}, follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertIn(short_hat, self.staff.profile.hats.values_list('name', flat=True))
+        self.assertEqual(Hat.objects.filter(name=short_hat).count(), 1)
+
+    def test_remove_hat(self):
+        hat_name = 'A hat'
+
+        profile = ProfileFactory()
+        user = profile.user
+        # add a hat with a staff member
+        self.client.login(username=self.staff.username, password='hostel77')
+        self.client.post(reverse('add-hat', args=[user.pk]),
+                         {'hat': hat_name}, follow=False)
+        self.assertIn(hat_name, profile.hats.values_list('name', flat=True))
+        hat = Hat.objects.get(name=hat_name)
+        # test that this option is not available for an other user
+        self.client.login(username=ProfileFactory().user.username, password='hostel77')
+        result = self.client.post(reverse('remove-hat', args=[user.pk, hat.pk]), follow=False)
+        self.assertEqual(result.status_code, 403)
+        self.assertIn(hat, profile.hats.all())
+        # but check that it works for the user having the hat
+        self.client.login(username=user.username, password='hostel77')
+        result = self.client.post(reverse('remove-hat', args=[user.pk, hat.pk]), follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertNotIn(hat, profile.hats.all())
+        # test that it works for a staff member
+        profile.hats.add(hat)  # we have to add the hat again for this test
+        self.client.login(username=self.staff.username, password='hostel77')
+        result = self.client.post(reverse('remove-hat', args=[user.pk, hat.pk]), follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertNotIn(hat, profile.hats.all())
+        # but check that the hat still exists in database
+        self.assertTrue(Hat.objects.filter(name=hat_name).exists())
+
+    def test_old_smileys(self):
+        """Test the cookie"""
+
+        # NOTE: we have to use the "real" login and logout pages here
+        cookie_key = settings.ZDS_APP['member']['old_smileys_cookie_key']
+
+        profile_without_clem = ProfileFactory()
+        profile_without_clem = Profile.objects.get(pk=profile_without_clem.pk)
+        self.assertFalse(profile_without_clem.use_old_smileys)
+
+        user_without_clem = profile_without_clem.user
+        profile_with_clem = ProfileFactory()
+        profile_with_clem.use_old_smileys = True
+        profile_with_clem.save()
+        user_with_clem = profile_with_clem.user
+
+        settings.ZDS_APP['member']['old_smileys_allowed'] = True
+
+        # test that the cookie is set when connection
+        result = self.client.post(reverse('member-login'), {
+            'username': user_with_clem.username,
+            'password': 'hostel77',
+            'remember': 'remember'
+        }, follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.client.get(reverse('homepage'))
+
+        self.assertIn(cookie_key, self.client.cookies)
+        self.assertNotEqual(self.client.cookies[cookie_key]['expires'], 0)
+
+        # test that logout set the cookies expiration to 0 (= no more cookie)
+        self.client.post(reverse('member-logout'), follow=True)
+        self.client.get(reverse('homepage'))
+        self.assertEqual(self.client.cookies[cookie_key]['expires'], 0)
+
+        # test that user without the setting have the cookie with expiration 0 (= no cookie)
+        result = self.client.post(reverse('member-login'), {
+            'username': user_without_clem.username,
+            'password': 'hostel77',
+            'remember': 'remember'
+        }, follow=False)
+
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(self.client.cookies[cookie_key]['expires'], 0)
+
+        # setting use_smileys sets the cookie
+        self.client.post(reverse('update-member'), {
+            'biography': '',
+            'site': '',
+            'avatar_url': '',
+            'sign': '',
+            'options': ['use_old_smileys']
+        })
+        self.client.get(reverse('homepage'))
+
+        profile_without_clem = Profile.objects.get(pk=profile_without_clem.pk)
+        self.assertTrue(profile_without_clem.use_old_smileys)
+        self.assertNotEqual(self.client.cookies[cookie_key]['expires'], 0)
+
+        # ... and that not setting it removes the cookie
+        self.client.post(reverse('update-member'), {
+            'biography': '',
+            'site': '',
+            'avatar_url': '',
+            'sign': '',
+            'options': []
+        })
+        self.client.get(reverse('homepage'))
+
+        profile_without_clem = Profile.objects.get(pk=profile_without_clem.pk)
+        self.assertFalse(profile_without_clem.use_old_smileys)
+        self.assertEqual(self.client.cookies[cookie_key]['expires'], 0)
+
+    def test_hats_settings(self):
+        hat_name = 'A hat'
+        other_hat_name = 'Another hat'
+        hat, _ = Hat.objects.get_or_create(name__iexact=hat_name, defaults={'name': hat_name})
+        requests_count = HatRequest.objects.count()
+        profile = ProfileFactory()
+        profile.hats.add(hat)
+        # login and check that the hat appears
+        self.client.login(username=profile.user.username, password='hostel77')
+        result = self.client.get(reverse('hats-settings'))
+        self.assertEqual(result.status_code, 200)
+        self.assertContains(result, hat_name)
+        # check that it's impossible to ask for a hat the user already has
+        result = self.client.post(reverse('hats-settings'), {
+            'hat': hat_name,
+            'reason': 'test',
+        }, follow=False)
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(HatRequest.objects.count(), requests_count)  # request wasn't sent
+        # ask for another hat
+        result = self.client.post(reverse('hats-settings'), {
+            'hat': other_hat_name,
+            'reason': 'test',
+        }, follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(HatRequest.objects.count(), requests_count + 1)  # request was sent!
+        # check the request appears
+        result = self.client.get(reverse('hats-settings'))
+        self.assertEqual(result.status_code, 200)
+        self.assertContains(result, other_hat_name)
+        # and check it's impossible to ask for it again
+        result = self.client.post(reverse('hats-settings'), {
+            'hat': other_hat_name,
+            'reason': 'test',
+        }, follow=False)
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(HatRequest.objects.count(), requests_count + 1)  # request wasn't sent
+        # check that it's impossible to ask for a hat linked to a group
+        result = self.client.post(reverse('hats-settings'), {
+            'hat': 'Staff',
+            'reason': 'test',
+        }, follow=False)
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(HatRequest.objects.count(), requests_count + 1)  # request wasn't sent
+
+    def test_requested_hats(self):
+        hat_name = 'A hat'
+        # ask for a hat
+        profile = ProfileFactory()
+        self.client.login(username=profile.user.username, password='hostel77')
+        result = self.client.post(reverse('hats-settings'), {
+            'hat': hat_name,
+            'reason': 'test',
+        }, follow=False)
+        self.assertEqual(result.status_code, 302)
+        # test this page is only available for staff
+        result = self.client.get(reverse('requested-hats'))
+        self.assertEqual(result.status_code, 403)
+        # login as staff
+        self.client.login(username=self.staff.username, password='hostel77')
+        # test the count displayed on the user menu is right
+        requests_count = HatRequest.objects.count()
+        result = self.client.get(reverse('pages-index'))
+        self.assertEqual(result.status_code, 200)
+        self.assertContains(result, '({})'.format(requests_count))
+        # test that the hat asked appears on the requested hats page
+        result = self.client.get(reverse('requested-hats'))
+        self.assertEqual(result.status_code, 200)
+        self.assertContains(result, hat_name)
+
+    def test_hat_request_detail(self):
+        hat_name = 'A hat'
+        # ask for a hat
+        profile = ProfileFactory()
+        self.client.login(username=profile.user.username, password='hostel77')
+        result = self.client.post(reverse('hats-settings'), {
+            'hat': hat_name,
+            'reason': 'test',
+        }, follow=False)
+        self.assertEqual(result.status_code, 302)
+        request = HatRequest.objects.latest('date')
+        # test this page is available for the request author
+        result = self.client.get(request.get_absolute_url())
+        self.assertEqual(result.status_code, 200)
+        # test it's not available for another user
+        other_user = ProfileFactory().user
+        self.client.login(username=other_user.username, password='hostel77')
+        result = self.client.get(request.get_absolute_url())
+        self.assertEqual(result.status_code, 403)
+        # login as staff
+        self.client.login(username=self.staff.username, password='hostel77')
+        # test the page works
+        result = self.client.get(request.get_absolute_url())
+        self.assertEqual(result.status_code, 200)
+        self.assertContains(result, hat_name)
+        self.assertContains(result, profile.user.username)
+        self.assertContains(result, request.reason)
+
+    def test_solve_hat_request(self):
+        hat_name = 'A hat'
+        # ask for a hat
+        profile = ProfileFactory()
+        self.client.login(username=profile.user.username, password='hostel77')
+        result = self.client.post(reverse('hats-settings'), {
+            'hat': hat_name,
+            'reason': 'test',
+        }, follow=False)
+        self.assertEqual(result.status_code, 302)
+        request = HatRequest.objects.latest('date')
+        # test this page is only available for staff
+        result = self.client.post(reverse('solve-hat-request', args=[request.pk]), follow=False)
+        self.assertEqual(result.status_code, 403)
+        # test denying as staff
+        self.client.login(username=self.staff.username, password='hostel77')
+        result = self.client.post(reverse('solve-hat-request', args=[request.pk]), follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertNotIn(hat_name, [h.name for h in profile.hats.all()])
+        request = HatRequest.objects.get(pk=request.pk)  # reload
+        self.assertEqual(request.is_granted, False)
+        # add a new request and test granting
+        HatRequest.objects.create(user=profile.user, hat=hat_name, reason='test')
+        request = HatRequest.objects.latest('date')
+        result = self.client.post(reverse('solve-hat-request', args=[request.pk]),
+                                  {'grant': 'on'}, follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertIn(hat_name, [h.name for h in profile.hats.all()])
+        request = HatRequest.objects.get(pk=request.pk)  # reload
+        self.assertEqual(request.is_granted, True)
+
+    def test_hats_list(self):
+        # test the page is accessible without being authenticated
+        self.client.logout()
+        result = self.client.get(reverse('hats-list'))
+        self.assertEqual(result.status_code, 200)
+        # and while being authenticated
+        self.client.login(username=self.staff.username, password='hostel77')
+        result = self.client.get(reverse('hats-list'))
+        self.assertEqual(result.status_code, 200)
+        # test that it does contain the name of a hat
+        self.assertContains(result, 'Staff')  # this hat hat was created with the staff user
+
+    def test_hat_detail(self):
+        # we will use the staff hat, created with the staff user
+        hat = Hat.objects.get(name='Staff')
+        # test the page is accessible without being authenticated
+        self.client.logout()
+        result = self.client.get(hat.get_absolute_url())
+        self.assertEqual(result.status_code, 200)
+        # and while being authenticated
+        self.client.login(username=self.staff.username, password='hostel77')
+        result = self.client.get(hat.get_absolute_url())
+        self.assertEqual(result.status_code, 200)
+        # test that it does contain the name of a hat
+        self.assertContains(result, hat.name)
+        # and the name of a user having it
+        self.client.logout()  # to prevent the username from being shown in topbar
+        result = self.client.get(hat.get_absolute_url())
+        self.assertEqual(result.status_code, 200)
+        self.assertContains(result, self.staff.username)
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):

@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from django import template
 from django.contrib.auth.models import User
 from django.core.cache import cache
@@ -67,8 +65,6 @@ def state(current_user):
             user_state = 'BAN'
         elif not user_profile.can_write_now():
             user_state = 'LS'
-        elif user_profile.show_staff_badge:
-            user_state = 'STAFF'
         else:
             user_state = None
     except Profile.DoesNotExist:

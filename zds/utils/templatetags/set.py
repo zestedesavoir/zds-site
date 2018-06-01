@@ -15,7 +15,7 @@ class SetVarNode(template.Node):
         except template.VariableDoesNotExist:
             value = ''
         context[self.var_name] = value
-        return u''
+        return ''
 
 
 @register.tag

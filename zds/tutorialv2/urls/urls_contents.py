@@ -1,23 +1,20 @@
-# coding: utf-8
-
 from django.conf.urls import url
+from django.views.generic.base import RedirectView
 
-from zds.tutorialv2.views.views_contents import DisplayContent, CreateContent, EditContent, \
+from zds.tutorialv2.views.contents import DisplayContent, CreateContent, EditContent, \
     DeleteContent, CreateContainer, DisplayContainer, EditContainer, CreateExtract, EditExtract, \
     DeleteContainerOrExtract, ManageBetaContent, DisplayHistory, DisplayDiff, ActivateJSFiddleInContent, MoveChild, \
     DownloadContent, UpdateContentWithArchive, CreateContentFromArchive, ContentsWithHelps, AddAuthorToContent, \
     RemoveAuthorFromContent, WarnTypo, DisplayBetaContent, DisplayBetaContainer, ContentOfAuthor
 
-from zds.tutorialv2.views.views_published import SendNoteFormView, UpdateNoteView, \
-    HideReaction, ShowReaction, SendNoteAlert, SolveNoteAlert, TagsListView, ListOnlineContents, \
+from zds.tutorialv2.views.published import SendNoteFormView, UpdateNoteView, \
+    HideReaction, ShowReaction, SendNoteAlert, SolveNoteAlert, TagsListView, \
     FollowContentReaction, FollowNewContent, SendContentAlert, SolveContentAlert
-
-from zds.tutorialv2.feeds import LastContentFeedRSS, LastContentFeedATOM
 
 urlpatterns = [
     # Flux
-    url(r'^flux/rss/$', LastContentFeedRSS(), name='feed-rss'),
-    url(r'^flux/atom/$', LastContentFeedATOM(), name='feed-atom'),
+    url(r'^flux/rss/$', RedirectView.as_view(pattern_name='publication:feed-rss', permanent=True), name='feed-rss'),
+    url(r'^flux/atom/$', RedirectView.as_view(pattern_name='publication:feed-atom', permanent=True), name='feed-atom'),
 
     url(r'^tutoriels/(?P<pk>\d+)/$',
         ContentOfAuthor.as_view(type='TUTORIAL', context_object_name='tutorials'),
@@ -26,7 +23,7 @@ urlpatterns = [
         ContentOfAuthor.as_view(type='ARTICLE', context_object_name='articles'),
         name='find-article'),
     url(r'^tribunes/(?P<pk>\d+)/$',
-        ContentOfAuthor.as_view(type='OPINION', context_object_name='opinions'),
+        ContentOfAuthor.as_view(type='OPINION', context_object_name='opinions', sort='creation'),
         name='find-opinion'),
     url(r'^aides/$', ContentsWithHelps.as_view(), name='helps'),
     url(r'^(?P<pk>\d+)/(?P<slug>.+)/(?P<parent_container_slug>.+)/(?P<container_slug>.+)/$',
@@ -84,7 +81,6 @@ urlpatterns = [
     url(r'^nouveau-conteneur/(?P<pk>\d+)/(?P<slug>.+)/$',
         CreateContainer.as_view(),
         name='create-container'),
-
 
     url(r'^nouvelle-section/(?P<pk>\d+)/(?P<slug>.+)/(?P<parent_container_slug>.+)/(?P<container_slug>.+)/$',
         CreateExtract.as_view(),
@@ -153,5 +149,5 @@ urlpatterns = [
     # tags
     url(r'^tags/$', TagsListView.as_view(), name='tags'),
 
-    url(r'^$', ListOnlineContents.as_view(), name='list'),
+    url(r'^$', RedirectView.as_view(pattern_name='publication:list', permanent=True), name='list'),
 ]

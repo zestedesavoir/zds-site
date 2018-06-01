@@ -1,7 +1,6 @@
-# coding: utf-8
-import shutil
 import os
 
+import datetime
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.test import TestCase
@@ -10,25 +9,28 @@ from django.utils.translation import ugettext_lazy as _
 
 from zds.gallery.factories import UserGalleryFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory
-from zds.settings import BASE_DIR
-from zds.tutorialv2.factories import PublishableContentFactory, ExtractFactory, LicenceFactory, PublishedContentFactory
-from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, PickListOperation
+from zds.tutorialv2.factories import (PublishableContentFactory, ExtractFactory, LicenceFactory,
+                                      PublishedContentFactory, SubCategoryFactory)
+from zds.tutorialv2.models.database import PublishableContent, PublishedContent, PickListOperation
+from zds.tutorialv2.tests import TutorialTestMixin
 from zds.utils.models import Alert
+from copy import deepcopy
 
-overrided_zds_app = settings.ZDS_APP
-overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
-overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
-overrided_zds_app['content']['extra_content_generation_policy'] = 'NONE'
+overridden_zds_app = deepcopy(settings.ZDS_APP)
+overridden_zds_app['content']['repo_private_path'] = os.path.join(settings.BASE_DIR, 'contents-private-test')
+overridden_zds_app['content']['repo_public_path'] = os.path.join(settings.BASE_DIR, 'contents-public-test')
+overridden_zds_app['content']['extra_content_generation_policy'] = 'NONE'
 
 
-@override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
-@override_settings(ZDS_APP=overrided_zds_app)
+@override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'media-test'))
+@override_settings(ZDS_APP=overridden_zds_app)
 @override_settings(ES_ENABLED=False)
-class PublishedContentTests(TestCase):
+class PublishedContentTests(TestCase, TutorialTestMixin):
     def setUp(self):
-        overrided_zds_app['member']['bot_account'] = ProfileFactory().user.username
+        self.overridden_zds_app = overridden_zds_app
+        overridden_zds_app['member']['bot_account'] = ProfileFactory().user.username
         self.licence = LicenceFactory()
-        overrided_zds_app['content']['default_licence_pk'] = LicenceFactory().pk
+        overridden_zds_app['content']['default_licence_pk'] = LicenceFactory().pk
         self.user_author = ProfileFactory().user
         self.user_staff = StaffProfileFactory().user
         self.user_guest = ProfileFactory().user
@@ -38,7 +40,7 @@ class PublishedContentTests(TestCase):
         Test the publication of PublishableContent where type is OPINION (with author).
         """
 
-        text_publication = u'Aussi tôt dit, aussi tôt fait !'
+        text_publication = 'Aussi tôt dit, aussi tôt fait !'
 
         opinion = PublishableContentFactory(type='OPINION')
 
@@ -75,13 +77,16 @@ class PublishedContentTests(TestCase):
 
     def test_accessible_ui_for_author(self):
         opinion = PublishedContentFactory(author_list=[self.user_author], type='OPINION')
+        subcategory = SubCategoryFactory()
+        opinion.subcategory.add(subcategory)
+        opinion.save()
         self.assertEqual(
-            self.client.login(
-                username=self.user_author.username,
-                password='hostel77'),
+            self.client.login(username=self.user_author.username, password='hostel77'),
             True)
         resp = self.client.get(reverse('opinion:view', kwargs={'pk': opinion.pk, 'slug': opinion.slug}))
         self.assertContains(resp, 'Version brouillon', msg_prefix='Author must access their draft directly')
+        self.assertNotContains(resp, '{}?subcategory='.format(reverse('publication:list')))
+        self.assertContains(resp, '{}?category='.format(reverse('opinion:list')))
 
     def test_no_help_for_tribune(self):
         self.assertEqual(
@@ -107,7 +112,7 @@ class PublishedContentTests(TestCase):
         Test the publication of PublishableContent where type is OPINION (with staff).
         """
 
-        text_publication = u'Aussi tôt dit, aussi tôt fait !'
+        text_publication = 'Aussi tôt dit, aussi tôt fait !'
 
         opinion = PublishableContentFactory(type='OPINION')
 
@@ -147,7 +152,7 @@ class PublishedContentTests(TestCase):
         Test the publication of PublishableContent where type is OPINION (with guest => 403).
         """
 
-        text_publication = u'Aussi tôt dit, aussi tôt fait !'
+        text_publication = 'Aussi tôt dit, aussi tôt fait !'
 
         opinion = PublishableContentFactory(type='OPINION')
 
@@ -183,8 +188,8 @@ class PublishedContentTests(TestCase):
         Test the unpublication of PublishableContent where type is OPINION (with author).
         """
 
-        text_publication = u'Aussi tôt dit, aussi tôt fait !'
-        text_unpublication = u'Au revoir !'
+        text_publication = 'Aussi tôt dit, aussi tôt fait !'
+        text_unpublication = 'Au revoir !'
 
         opinion = PublishableContentFactory(type='OPINION')
 
@@ -328,7 +333,7 @@ class PublishedContentTests(TestCase):
         Test the validation of PublishableContent where type is OPINION.
         """
 
-        text_publication = u'Aussi tôt dit, aussi tôt fait !'
+        text_publication = 'Aussi tôt dit, aussi tôt fait !'
 
         opinion = PublishableContentFactory(type='OPINION')
 
@@ -411,7 +416,7 @@ class PublishedContentTests(TestCase):
         result = self.client.post(
             reverse('validation:unpick-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
             {
-                'text': u'Parce que je veux',
+                'text': 'Parce que je veux',
                 'version': opinion_draft.current_version
             },
             follow=False)
@@ -430,7 +435,7 @@ class PublishedContentTests(TestCase):
         result = self.client.post(
             reverse('validation:unpick-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
             {
-                'text': u'Parce que je peux !',
+                'text': 'Parce que je peux !',
                 'version': opinion_draft.current_version
             },
             follow=False)
@@ -443,7 +448,7 @@ class PublishedContentTests(TestCase):
         result = self.client.post(
             reverse('validation:unpick-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
             {
-                'text': u'Parce que je peux toujours ...',
+                'text': 'Parce que je peux toujours ...',
                 'version': opinion_draft.current_version
             },
             follow=False)
@@ -599,7 +604,7 @@ class PublishedContentTests(TestCase):
 
         # check that it's impossible to publish the opinion again
         result = self.client.get(opinion.get_absolute_url())
-        self.assertContains(result, _(u'Billet modéré'))  # front
+        self.assertContains(result, _('Billet modéré'))  # front
 
         result = self.client.post(
             reverse('validation:publish-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
@@ -609,6 +614,77 @@ class PublishedContentTests(TestCase):
             },
             follow=False)
         self.assertEqual(result.status_code, 403)  # back
+
+    def test_defenitely_unpublish_alerted_opinion(self):
+        opinion = PublishableContentFactory(type='OPINION')
+
+        opinion.authors.add(self.user_author)
+        UserGalleryFactory(gallery=opinion.gallery, user=self.user_author, mode='W')
+        opinion.licence = self.licence
+        opinion.save()
+
+        opinion_draft = opinion.load_version()
+        ExtractFactory(container=opinion_draft, db_object=opinion)
+        ExtractFactory(container=opinion_draft, db_object=opinion)
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # publish
+        result = self.client.post(
+            reverse('validation:publish-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            {
+                'source': '',
+                'version': opinion_draft.current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # login as staff
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+        alerter = ProfileFactory().user
+        Alert.objects.create(author=alerter, scope='CONTENT', content=opinion, pubdate=datetime.datetime.now(),
+                             text="J'ai un probleme avec cette opinion : c'est pas la mienne.")
+        # unpublish opinion
+        result = self.client.post(
+            reverse('validation:ignore-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            {
+                'operation': 'REMOVE_PUB',
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        # refresh
+        opinion = PublishableContent.objects.get(pk=opinion.pk)
+
+        # check that the opinion is not published
+        self.assertFalse(opinion.in_public())
+
+        # check that it's impossible to publish the opinion again
+        result = self.client.get(opinion.get_absolute_url())
+        self.assertContains(result, _('Billet modéré'))  # front
+
+        result = self.client.post(
+            reverse('validation:publish-opinion', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            {
+                'source': '',
+                'version': opinion_draft.current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 403)  # back
+        self.assertTrue(Alert.objects.filter(content=opinion).last().solved)
+        # check alert page is still accessible and our alert is well displayed
+        resp = self.client.get(reverse('pages-alerts'))
+        self.assertEqual(200, resp.status_code)
+        self.assertEqual(0, len(resp.context['alerts']))
+        self.assertEqual(1, len(resp.context['solved']))
 
     def test_cancel_pick_operation(self):
         opinion = PublishableContentFactory(type='OPINION')
@@ -721,7 +797,7 @@ class PublishedContentTests(TestCase):
         to PublishableContent with type=ARTICLE
         """
 
-        text_publication = u'Aussi tôt dit, aussi tôt fait !'
+        text_publication = 'Aussi tôt dit, aussi tôt fait !'
 
         opinion = PublishableContentFactory(type='OPINION')
 
@@ -786,7 +862,7 @@ class PublishedContentTests(TestCase):
     def test_opinion_alert(self):
         """Test content alert"""
 
-        text_publication = u'Aussi tôt dit, aussi tôt fait !'
+        text_publication = 'Aussi tôt dit, aussi tôt fait !'
 
         opinion = PublishableContentFactory(type='OPINION')
 
@@ -833,7 +909,7 @@ class PublishedContentTests(TestCase):
         result = self.client.post(
             reverse('content:alert-content', kwargs={'pk': opinion.pk}),
             {
-                'signal_text': u'Yeurk !'
+                'signal_text': 'Yeurk !'
             }, follow=False
         )
 
@@ -847,7 +923,7 @@ class PublishedContentTests(TestCase):
             reverse('content:resolve-content', kwargs={'pk': opinion.pk}),
             {
                 'alert_pk': alert.pk,
-                'text': u'Je peux ?'
+                'text': 'Je peux ?'
             }, follow=False
         )
         self.assertEqual(result.status_code, 403)  # solving the alert by yourself wont work
@@ -865,22 +941,10 @@ class PublishedContentTests(TestCase):
             reverse('content:resolve-content', kwargs={'pk': opinion.pk}),
             {
                 'alert_pk': alert.pk,
-                'text': u'Anéfé!'
+                'text': 'Anéfé!'
             }, follow=False
         )
         self.assertEqual(result.status_code, 302)
 
         alert = Alert.objects.get(pk=alert.pk)
         self.assertTrue(alert.solved)
-
-    def tearDown(self):
-
-        if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
-            shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
-        if os.path.isdir(settings.ZDS_APP['content']['repo_public_path']):
-            shutil.rmtree(settings.ZDS_APP['content']['repo_public_path'])
-        if os.path.isdir(settings.MEDIA_ROOT):
-            shutil.rmtree(settings.MEDIA_ROOT)
-
-        # re-activate PDF build
-        settings.ZDS_APP['content']['build_pdf_when_published'] = True

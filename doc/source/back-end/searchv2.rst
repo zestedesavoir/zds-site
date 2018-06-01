@@ -316,7 +316,7 @@ Les avantages de cette décision sont multiples :
 + Pas besoin d'utiliser Git durant le processus d'indexation ;
 
 
-L'indexation des chapitres (représentés par la classe ``FakeChapter``, `voir ici <../back-end-code/tutorialv2.html#zds.tutorialv2.models.models_database.FakeChapter>`_) est effectuée en même temps que l'indexation des contenus publiés (``PublishedContent``).
+L'indexation des chapitres (représentés par la classe ``FakeChapter``, `voir ici <../back-end-code/tutorialv2.html#zds.tutorialv2.models.database.FakeChapter>`_) est effectuée en même temps que l'indexation des contenus publiés (``PublishedContent``).
 En particulier, c'est la méthode ``get_es_indexable()`` qui est surchargée, profitant du fait que cette méthode peut renvoyer n'importe quel type de document à indexer.
 
 .. sourcecode:: python

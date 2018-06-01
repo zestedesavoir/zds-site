@@ -7,6 +7,6 @@
 {% endblocktrans %}
 
 {% blocktrans %}
-Pour le lire, cliquez ou recopiez l'url suivante : {{ url }}
+Pour le lire, cliquez ou recopiez l’url suivante : {{ url }}
 {% endblocktrans %}
 {% endblock %}

@@ -1,6 +1,3 @@
-# coding: utf-8
-from __future__ import unicode_literals
-from django.utils.encoding import python_2_unicode_compatible
 import logging
 from datetime import datetime, timedelta
 from math import ceil
@@ -16,7 +13,6 @@ from elasticsearch_dsl.field import Text, Keyword, Integer, Boolean, Float, Date
 
 from zds.forum.managers import TopicManager, ForumManager, PostManager, TopicReadManager
 from zds.notification import signals
-from zds.settings import ZDS_APP
 from zds.searchv2.models import AbstractESDjangoIndexable, delete_document_in_elasticsearch, ESIndexManager
 from zds.utils import get_current_user, slugify
 from zds.utils.models import Comment, Tag
@@ -25,10 +21,9 @@ from zds.utils.models import Comment, Tag
 def sub_tag(tag):
     start = tag.group('start')
     end = tag.group('end')
-    return u'{0}'.format(start + end)
+    return '{0}'.format(start + end)
 
 
-@python_2_unicode_compatible
 class Category(models.Model):
     """
     A Category is a simple container for Forums.
@@ -74,7 +69,6 @@ class Category(models.Model):
         return forums_pub
 
 
-@python_2_unicode_compatible
 class Forum(models.Model):
     """
     A Forum, containing Topics. It can be public or restricted to some groups.
@@ -108,8 +102,8 @@ class Forum(models.Model):
         return reverse('forum-topics-list', kwargs={'cat_slug': self.category.slug, 'forum_slug': self.slug})
 
     def get_topic_count(self):
-        """Retrieve or agregate the number of threads in this forum. If this number already exists, it must be stored \
-        in thread_count. Otherwise it will process a SQL query
+        """Retrieve or aggregate the number of threads in this forum. If this number already exists, it must be stored \
+        in thread_count. Otherwise it will process a SQL query.
 
         :return: the number of threads in the forum.
         """
@@ -119,8 +113,8 @@ class Forum(models.Model):
             return Topic.objects.filter(forum=self).count()
 
     def get_post_count(self):
-        """Retrieve or agregate the number of posts in this forum. If this number already exists, it must be stored \
-        in post_count. Otherwise it will process a SQL query
+        """Retrieve or aggregate the number of posts in this forum. If this number already exists, it must be stored \
+        in post_count. Otherwise it will process a SQL query.
 
         :return: the number of posts for a forum.
         """
@@ -140,7 +134,7 @@ class Forum(models.Model):
 
     def can_read(self, user):
         """
-        Checks if an user can read current forum.
+        Checks if a user can read current forum.
         The forum can be read if:
         - The forum has no access restriction (= no group), or
         - the user is in our database and is part of the restricted group which is needed to access this forum
@@ -173,7 +167,6 @@ class Forum(models.Model):
         return self._nb_group > 0
 
 
-@python_2_unicode_compatible
 class Topic(AbstractESDjangoIndexable):
     """
     A Topic is a thread of posts.
@@ -203,11 +196,10 @@ class Topic(AbstractESDjangoIndexable):
         'Date de dernière modification pour la réindexation partielle',
         auto_now=True,
         db_index=True)
-
-    is_solved = models.BooleanField('Est résolu', default=False, db_index=True)
+    solved_by = models.ForeignKey(User, verbose_name='Utilisateur ayant noté le sujet comme résolu',
+                                  db_index=True, default=None, null=True)
     is_locked = models.BooleanField('Est verrouillé', default=False, db_index=True)
     is_sticky = models.BooleanField('Est en post-it', default=False, db_index=True)
-
     github_issue = models.PositiveIntegerField('Ticket GitHub', null=True, blank=True)
 
     tags = models.ManyToManyField(
@@ -220,6 +212,10 @@ class Topic(AbstractESDjangoIndexable):
 
     def __str__(self):
         return self.title
+
+    @property
+    def is_solved(self):
+        return self.solved_by is not None
 
     def get_absolute_url(self):
         return reverse('topic-posts-list', args=[self.pk, self.slug()])
@@ -276,7 +272,7 @@ class Topic(AbstractESDjangoIndexable):
                 current_tag, created = Tag.objects.get_or_create(title=tag.lower().strip())
                 self.tags.add(current_tag)
             except ValueError as e:
-                logging.getLogger('zds.forum').warn(e)
+                logging.getLogger(__name__).warn(e)
 
         self.save()
         signals.edit_content.send(sender=self.__class__, instance=self, action='edit_tags_and_title')
@@ -311,8 +307,8 @@ class Topic(AbstractESDjangoIndexable):
             try:
                 pk, pos = self.resolve_last_post_pk_and_pos_read_by_user(user)
                 page_nb = 1
-                if pos > ZDS_APP['forum']['posts_per_page']:
-                    page_nb += (pos - 1) // ZDS_APP['forum']['posts_per_page']
+                if pos > settings.ZDS_APP['forum']['posts_per_page']:
+                    page_nb += (pos - 1) // settings.ZDS_APP['forum']['posts_per_page']
                 return '{}?page={}#p{}'.format(
                     self.get_absolute_url(), page_nb, pk)
             except TopicRead.DoesNotExist:
@@ -333,10 +329,12 @@ class Topic(AbstractESDjangoIndexable):
                           .latest('post__position')
         if t_read:
             return t_read.post.pk, t_read.post.position
-        return Post.objects\
-            .filter(topic__pk=self.pk)\
-            .order_by('position')\
+        return list(
+            Post.objects
+            .filter(topic__pk=self.pk)
+            .order_by('position')
             .values('pk', 'position').first().values()
+        )
 
     def first_unread_post(self, user=None):
         """
@@ -368,7 +366,7 @@ class Topic(AbstractESDjangoIndexable):
         The user can always post if someone else has posted last.
         If the user is the last poster and there is less than `ZDS_APP['forum']['spam_limit_seconds']` since the last
         post, the anti-spam is active and the user cannot post.
-        :param user: An user. If undefined, the current user is used.
+        :param user: A user. If undefined, the current user is used.
         :return: `True` if the anti-spam is active (user can't post), `False` otherwise.
         """
         if user is None:
@@ -467,10 +465,9 @@ def delete_topic_in_elasticsearch(sender, instance, **kwargs):
     return delete_document_in_elasticsearch(instance)
 
 
-@python_2_unicode_compatible
 class Post(Comment, AbstractESDjangoIndexable):
     """
-    A forum post written by an user.
+    A forum post written by a user.
     A post can be marked as useful: topic's author (or admin) can declare any topic as "useful", and this post is
     displayed as is on front.
     """
@@ -568,7 +565,6 @@ def delete_post_in_elasticsearch(sender, instance, **kwargs):
     return delete_document_in_elasticsearch(instance)
 
 
-@python_2_unicode_compatible
 class TopicRead(models.Model):
     """
     This model tracks the last post read in a topic by a user.

@@ -19,7 +19,7 @@
 
 
 {% block headline %}
-    <h1>{% trans "Ajouter un commentaire à" %} : {{ content.title }}</h1>
+    <h1>{% trans "Ajouter un commentaire à :" %} {{ content.title }}</h1>
 {% endblock %}
 
 
@@ -42,7 +42,7 @@
     {% crispy form %}
 
     {% if form.text.value %}
-        {% include "misc/previsualization.part.html" with text=form.text.value %}
+        {% include "misc/preview.part.html" with text=form.text.value %}
     {% endif %}
 
     <hr />

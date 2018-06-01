@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from datetime import datetime, timedelta
 
 from django.core.urlresolvers import reverse
@@ -7,7 +5,7 @@ from django.template import Context, Template
 from django.test import TestCase
 
 from zds.forum.factories import CategoryFactory, ForumFactory, PostFactory, TopicFactory
-from zds.tutorialv2.models.models_database import Validation
+from zds.tutorialv2.models.database import Validation
 from zds.tutorialv2.factories import PublishableContentFactory, LicenceFactory, SubCategoryFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory, StaffFactory
 from zds.utils.models import Alert
@@ -130,27 +128,27 @@ class InterventionsTest(TestCase):
         tr = Template('{% load interventions %}'
                       '{{ date_today|humane_delta }}'
                       ).render(self.context)
-        self.assertEqual(u'Aujourd&#39;hui', tr)
+        self.assertEqual('Aujourd&#39;hui', tr)
 
         tr = Template('{% load interventions %}'
                       '{{ date_yesterday|humane_delta }}'
                       ).render(self.context)
-        self.assertEqual(u'Hier', tr)
+        self.assertEqual('Hier', tr)
 
         tr = Template('{% load interventions %}'
                       '{{ date_last_week|humane_delta }}'
                       ).render(self.context)
-        self.assertEqual(u'Les 7 derniers jours', tr)
+        self.assertEqual('Les 7 derniers jours', tr)
 
         tr = Template('{% load interventions %}'
                       '{{ date_last_month|humane_delta }}'
                       ).render(self.context)
-        self.assertEqual(u'Les 30 derniers jours', tr)
+        self.assertEqual('Les 30 derniers jours', tr)
 
         tr = Template('{% load interventions %}'
                       '{{ date_last_year|humane_delta }}'
                       ).render(self.context)
-        self.assertEqual(u'Plus ancien', tr)
+        self.assertEqual('Plus ancien', tr)
 
 
 class AlertsTest(TestCase):
@@ -172,7 +170,7 @@ class AlertsTest(TestCase):
             alert = Alert(author=self.dummy_author.user,
                           comment=self.post,
                           scope='FORUM',
-                          text=u'pouet-{}'.format(i),
+                          text='pouet-{}'.format(i),
                           pubdate=(datetime.now() + timedelta(minutes=i)))
             alert.save()
             self.alerts.append(alert)

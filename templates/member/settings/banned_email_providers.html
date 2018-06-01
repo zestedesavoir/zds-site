@@ -23,7 +23,7 @@
 
 {% block content %}
     <p>
-        {% trans "Vous pouvez ici gérer les fournisseurs d'adresses e-mail bannis. Il n'est pas possible d'utiliser d'adresse e-mail venant de ces fournisseurs." %}
+        {% trans "Vous pouvez ici gérer les fournisseurs d’adresses e-mail bannis. Il n’est pas possible d’utiliser d’adresse e-mail venant de ces fournisseurs." %}
     </p>
 
     {% include "misc/paginator.html" with position="top" %}
@@ -54,7 +54,7 @@
             </tbody>
         </table>
     {% else %}
-        <em>{% trans "Aucun fournisseur n'est banni." %}</em>
+        <em>{% trans "Aucun fournisseur n’est banni." %}</em>
     {% endif %}
 
     {% include "misc/paginator.html" with position="bottom" %}

@@ -1,0 +1,115 @@
+{% extends "member/base.html" %}
+{% load i18n %}
+
+
+{% block title %}
+    {{ hat.name }} &bull; {% trans "Casquettes" %}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>
+        <a href="{% url 'hats-list' %}">
+            {% trans "Casquettes" %}
+        </a>
+    </li>
+    <li>{{ hat.name }}</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    {% trans "Casquette" %} « {{ hat.name }} »
+
+    {% if hat.is_staff %}
+        <em>({{ app.site.literal_name }})</em>
+    {% endif %}
+{% endblock %}
+
+
+
+{% block content %}
+    {% if users %}
+        <p>{% trans "Les personnes possédant cette casquette sont :" %}</p>
+        <div class="authors">
+            <ul>
+                {% for member in users %}
+                    <li>{% include "misc/member_item.part.html" with avatar=True %}</li>
+                {% endfor %}
+            </ul>
+            <p>
+                {% trans "Remarque : cette liste correspond aux membres possédant actuellement la casquette. Si vous voyez un message avec cette casquette mais que son auteur n'apparaît pas ici, cela signifie qu'il l'avait en postant. Des messages privés automatiques peuvent également être envoyés avec une casquette." %}
+            </p>
+        </div>
+    {% else %}
+        <p>{% trans "Aucun membre ne possède cette casquette." %}</p>
+    {% endif %}
+{% endblock %}
+
+
+
+{% block sidebar %}
+    <aside class="sidebar mobile-menu-hide">
+        <div>
+            <a href="{% url "hats-list" %}" class="new-btn ico-after arrow-left blue">
+                {% blocktrans %}
+                    Retour <span class="wide">aux casquettes</span>
+                {% endblocktrans %}
+            </a>
+        </div>
+
+        {% if user.is_authenticated %}
+            <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">
+                <h3>{% trans "Actions" %}</h3>
+                <ul>
+                    {% if hat in user.profile.get_hats %}
+                        {% if hat.group %}
+                            <li class="inactive">
+                                <span class="ico-after cross disabled">
+                                    {% trans "Suppression impossible" %}
+                                </span>
+                            </li>
+                        {% else %}
+                            <li>
+                                <a href="#remove-hat" class="open-modal ico-after cross red">
+                                    {% trans "Supprimer ma casquette" %}
+                                </a>
+                                <form action="{% url 'remove-hat' user.pk hat.pk %}" method="post" id="remove-hat" class="modal modal-flex">
+                                    {% csrf_token %}
+                                    <p>
+                                        {% blocktrans with hat=hat.name %}
+                                            Voulez-vous vraiment supprimer votre casquette « {{ hat }} »&nbsp;?
+                                        {% endblocktrans %}
+                                    </p>
+                                    <p>{% trans "Vous ne pourrez plus poster avec cette casquette et elle n'apparaîtra plus sur votre profil. Les messages ayant été postés avec le resteront. Notez toutefois que vous ne pourrez pas conserver la casquette si vous les éditez." %}</p>
+                                    <button type="submit">{% trans 'Confirmer' %}</button>
+                                </form>
+                            </li>
+                        {% endif %}
+                    {% else %}
+                        {% if hat.group %}
+                            <li class="inactive">
+                                <span class="ico-after cross disabled">
+                                    {% trans "Demande impossible" %}
+                                </span>
+                            </li>
+                        {% elif is_required %}
+                            <li class="inactive">
+                                <span class="ico-after tick disabled">
+                                    {% trans "Demande envoyée" %}
+                                </span>
+                            </li>
+                        {% else %}
+                            <li>
+                                <a href="{% url 'hats-settings' %}?ask={{ hat.pk }}#send-request" class="ico-after tick green">
+                                    {% trans "Demander la casquette" %}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endif %}
+                </ul>
+            </div>
+        {% endif %}
+    </aside>
+{% endblock %}

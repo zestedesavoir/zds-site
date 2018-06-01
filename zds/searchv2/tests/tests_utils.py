@@ -1,5 +1,3 @@
-# coding: utf-8
-
 import os
 import shutil
 
@@ -9,23 +7,24 @@ from elasticsearch_dsl.query import MatchAll
 from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings
-from zds.settings import BASE_DIR
 from django.core.management import call_command
 
 from zds.member.factories import ProfileFactory, StaffProfileFactory
-from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, publish_content
-from zds.tutorialv2.models.models_database import PublishedContent
+from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory
+from zds.tutorialv2.models.database import PublishedContent
+from zds.tutorialv2.publication_utils import publish_content
 from zds.forum.factories import TopicFactory, PostFactory, Topic, Post
 from zds.forum.tests.tests_views import create_category
 from zds.searchv2.models import ESIndexManager
+from copy import deepcopy
 
-overrided_zds_app = settings.ZDS_APP
-overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
-overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
+overridden_zds_app = deepcopy(settings.ZDS_APP)
+overridden_zds_app['content']['repo_private_path'] = os.path.join(settings.BASE_DIR, 'contents-private-test')
+overridden_zds_app['content']['repo_public_path'] = os.path.join(settings.BASE_DIR, 'contents-public-test')
 
 
-@override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
-@override_settings(ZDS_APP=overrided_zds_app)
+@override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'media-test'))
+@override_settings(ZDS_APP=overridden_zds_app)
 @override_settings(ES_SEARCH_INDEX={'name': 'zds_search_test', 'shards': 5, 'replicas': 0})
 class UtilsTests(TestCase):
     def setUp(self):
@@ -52,7 +51,7 @@ class UtilsTests(TestCase):
         # in the beginning: the void
         self.assertTrue(self.index_manager.index not in self.index_manager.es.cat.indices())
 
-        text = u'Ceci est un texte de test'
+        text = 'Ceci est un texte de test'
 
         # create a topic with a post
         topic = TopicFactory(forum=self.forum, author=self.user, title=text)

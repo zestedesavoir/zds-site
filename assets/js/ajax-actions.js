@@ -21,8 +21,6 @@
     function synchText() {
         $("#mobile-menu [data-ajax-input]").each(function () {
             var dataAjaxInput = $(this).data("ajax-input");
-            console.log($(this).text(), $(".sidebar").find("button[data-ajax-input='" + dataAjaxInput + "']").text(), dataAjaxInput);
-
             $(this).text($(".sidebar").find("button[data-ajax-input='" + dataAjaxInput + "']").text());
         });
     }
@@ -77,7 +75,7 @@
                 synchText();
             },
             complete: function(){
-              $email.prop("disabled", false);
+                $email.prop("disabled", false);
             }
         });
 
@@ -131,7 +129,7 @@
                 synchText();
             },
             complete: function(){
-              $follow.prop("disabled", false);
+                $follow.prop("disabled", false);
             }
         });
         e.stopPropagation();
@@ -169,6 +167,7 @@
 
                 $act.toggleText("content-on-click");
                 $act.toggleClass("green blue");
+                $("[data-ajax-output='solve-topic']").html("Vous venez de marquer ce sujet comme résolu.");
                 $("[data-ajax-output='solve-topic']").toggleClass("empty");
 
                 synchText();
@@ -194,72 +193,119 @@
         }
     });
 
+    function getLineAt(string, index) {
+        var before = string.slice(0, index).split("\n").slice(-1)[0] || "";
+        var after = string.slice(index).split("\n")[0] || "";
+        return before + after;
+    }
+
+    function insertCitation(editor, citation) {
+        if (editor.value === "") {
+            editor.value = citation + "\n\n";
+            return;
+        }
+        if (editor.selectionStart !== editor.selectionEnd ||
+            getLineAt(editor.value, editor.selectionStart).trim()) {
+            editor.value = editor.value + "\n\n" + citation;
+            return;
+        }
+
+        var before = editor.value.slice(0, editor.selectionStart);
+        var after = editor.value.slice(editor.selectionEnd);
+        editor.value = before + "\n" + citation + "\n" + after;
+    }
+
     /**
      * Cite a message
      */
     $(".message-actions").on("click", "[data-ajax-input='cite-message']", function(e){
-        var $act = $(this),
-            $editor = $(".md-editor");
+        e.stopPropagation();
+        e.preventDefault();
+
+        var $act = $(this);
+        var editor = document.querySelector(".md-editor");
 
         $.ajax({
             url: $act.attr("href"),
             dataType: "json",
             success: function(data){
-                $editor.val($editor.val() + data.text + "\n\n");
+                insertCitation(editor, data.text);
             }
         });
 
         // scroll to the textarea and focus the textarea
-        $("html, body").animate({ scrollTop: $editor.offset().top }, 500);
-        $editor.focus();
-
-        e.stopPropagation();
-        e.preventDefault();
+        $("html, body").animate({ scrollTop: $(editor).offset().top }, 500);
+        editor.focus();
     });
 
     /**
      * Preview the message
      */
-    $(".message-bottom [data-ajax-input='preview-message'], .preview-btn").on("click", function(e) {
+    var previewTimeout;
+    var previewInput;
+    var previewContent;
+    var previewDelay = 10000;
+    var previewTime;
+    $(".message-bottom [data-ajax-input='preview-message'], .preview-btn").on("mouseover click", function(e){
         e.stopPropagation();
         e.preventDefault();
         var $btn = $(this);
         var $form = $btn.parents("form:first");
+        var isForm = !!$form.find(".preview-source").length;
+        var $insertTarget = isForm ? $btn : $form;
         var text = "";
-        if ( $form.find(".preview-source").length ) {
-                var $textSource = $btn.parent().prev().find(".preview-source");
-                text = $textSource.val();
-            } else {
-                text = $form.find("textarea[name=text]").val();
-            }
+        if (isForm) {
+            text = $btn.parent().prev().find(".preview-source").val();
+        } else {
+            text = $form.find("textarea[name=text]").val();
+        }
+        if (!previewInput) {
+            previewInput = text;
+        }
 
         var csrfmiddlewaretoken = $form.find("input[name=csrfmiddlewaretoken]").val(),
             lastPost = $form.find("input[name=last_post]").val();
 
-        $.ajax({
-            url: $form.attr("action"),
-            type: "POST",
-            data: {
-                "csrfmiddlewaretoken": csrfmiddlewaretoken,
-                "text": text,
-                "last_post": lastPost,
-                "preview": "preview"
-            },
-            success: function(data){
-                $(".previsualisation").remove();
+        if (previewInput === text && e.type === "click" && previewContent && (Date.now() - previewTime) < previewDelay) {
+            return showPreview();
+        }
 
-                if (typeof $textSource === "undefined")
-                    $(data).insertAfter($form);
-                else
-                    $(data).insertAfter($btn);
+        var later = function() {
+            previewTimeout = null;
+        };
 
-                /* global MathJax */
-                if (data.indexOf("$") > 0)
-                    MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
-            }
-        });
+        var callNow = previewInput !== text || !previewTimeout;
+        clearTimeout(previewTimeout);
+        previewTimeout = setTimeout(later, previewDelay);
+
+        if (callNow) {
+            $.ajax({
+                url: $form.attr("action"),
+                type: "POST",
+                data: {
+                    "csrfmiddlewaretoken": csrfmiddlewaretoken,
+                    "text": text,
+                    "last_post": lastPost,
+                    "preview": "preview"
+                }
+            }).done(function(preview){
+                previewContent = preview;
+            }).fail(function(j, textStatus, err) {
+                console.error(err);
+            }).always(function() {
+                previewTime = Date.now();
+                previewInput = text;
+                if (e.type === "click") {
+                    showPreview();
+                }
+            });
+        }
+
+        function showPreview () {
+            $(".previsualisation").remove();
+            $(previewContent).insertAfter($insertTarget);
+        }
     });
-
 
     /*
      * Mark a message useful

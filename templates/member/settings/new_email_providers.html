@@ -30,7 +30,7 @@
 
 {% block content %}
     <p>
-        {% trans "Vous pouvez ici vérifier les nouveaux fournisseurs d'adresses e-mail afin de s'assurer qu'ils ne génèrent pas d'adresses e-mail jetables. Bannir un fournisseur empêchera de futures inscriptions avec une de ses adresses e-mail, mais le compte concerné restera actif (sauf action contraire)." %}
+        {% trans "Vous pouvez ici vérifier les nouveaux fournisseurs d’adresses e-mail afin de s’assurer qu’ils ne génèrent pas d’adresses e-mail jetables. Bannir un fournisseur empêchera de futures inscriptions avec une de ses adresses e-mail, mais le compte concerné restera actif (sauf action contraire)." %}
     </p>
 
     {% include "misc/paginator.html" with position="top" %}
@@ -41,7 +41,7 @@
                 <th>{% trans "Fournisseur" %}</th>
                 <th class="wide">{% trans "Utilisation" %}</th>
                 <th class="wide">{% trans "Compte concerné" %}</th>
-                <th class="wide">{% trans "Date d'utilisation" %}</th>
+                <th class="wide">{% trans "Date d’utilisation" %}</th>
                 <th>{% trans "Actions" %}</th>
             </thead>
             <tbody>
@@ -63,7 +63,7 @@
             </tbody>
         </table>
     {% else %}
-        <em>{% trans "Aucun fournisseur n'est actuellement en attente de vérification." %}</em>
+        <em>{% trans "Aucun fournisseur n’est actuellement en attente de vérification." %}</em>
     {% endif %}
 
     {% include "misc/paginator.html" with position="bottom" %}

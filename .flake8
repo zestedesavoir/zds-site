@@ -1,0 +1,15 @@
+[flake8]
+
+max-line-length = 120
+
+exclude =
+    node_modules,
+    .venv,
+    build,
+    dist,
+    doc,
+    migrations,
+    zds/settings
+
+# Ignore N802 (functions in lowercase) because the setUp() function in tests
+ignore = N802,E722

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.utils.decorators import method_decorator
@@ -8,12 +7,12 @@ from django.utils.translation import ugettext_lazy as _
 from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
 
-from zds import settings
+from django.conf import settings
 from zds.mp.models import PrivateTopic
 from zds.notification.models import Notification
 from zds.utils.paginator import ZdSPagingListView
 from zds.forum.models import Post
-from zds.tutorialv2.models.models_database import ContentReaction
+from zds.tutorialv2.models.database import ContentReaction
 from zds.forum.models import mark_read as mark_topic_read
 from zds.tutorialv2.utils import mark_read as mark_content_read
 
@@ -61,6 +60,6 @@ def mark_notifications_as_read(request):
 
     notifications.update(is_read=True)
 
-    messages.success(request, _(u'Vos notifications ont bien été marquées comme lues.'))
+    messages.success(request, _('Vos notifications ont bien été marquées comme lues.'))
 
     return redirect(reverse('notification-list'))

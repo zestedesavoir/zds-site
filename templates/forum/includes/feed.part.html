@@ -1,7 +1,7 @@
 {% load i18n %}
 <div class="mobile-menu-bloc mobile-all-links" data-title="Flux">
     <h3>{% trans "Flux" %}</h3>
-    <ul>    
+    <ul>
         <li><a href="{% url "post-feed-rss" %}{{param}}{{value}}" class="ico-after rss blue">{% trans "Nouveaux messages (RSS)" %}</a></li>
         <li><a href="{% url "post-feed-atom" %}{{param}}{{value}}" class="ico-after rss blue">{% trans "Nouveaux messages (ATOM)" %}</a></li>
         <li><a href="{% url "topic-feed-rss" %}{{param}}{{value}}" class="ico-after rss blue">{% trans "Nouveaux sujets (RSS)" %}</a></li>

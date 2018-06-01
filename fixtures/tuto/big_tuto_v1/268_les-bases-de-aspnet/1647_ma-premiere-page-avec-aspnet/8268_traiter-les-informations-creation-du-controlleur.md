@@ -44,7 +44,7 @@ La méthode de classe du contrôleur va renvoyer une **vue** par défaut, grâce
 
 Si nous exécutons l'application maintenant et que nous envoyons une requête vers la méthode Index du contrôleur Salutation à cette adresse http://localhost:votre_numero_de_port/Salutation/Index, le serveur ASP.NET nous affiche l'erreur suivante :
 
-> La vue « Index » ou son maître est introuvable
+> La vue « Index » ou son maître est introuvable
 
 Le méthode Index cherche à retourner une vue du même nom dans un répertoire similaire du répertoire **Views**. Comme nous n'avons pas encore crée de vue, il est normal que la méthode renvoie une exception.
 

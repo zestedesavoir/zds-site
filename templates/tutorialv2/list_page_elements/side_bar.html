@@ -1,0 +1,119 @@
+{% comment %}
+This template is purely backported from v21/v22. It is just a part of the template refactoring project
+Expected variables are :
+    - current_content_type => None if no filter, else can be one of the AVAILABLE_CONTENT_TYPES value (ARTICLE, TUTORIAL, OPINION...)
+    - verbose_type_name_plural => basically "contents", "tutorials", "articles"
+    - top_categories
+
+{% endcomment %}
+{% load i18n %}
+{% load captureas %}
+
+<aside class="sidebar accordeon mobile-menu-bloc" data-title="{% trans "Catégories des" %} {{ verbose_type_name_plural }}">
+    {% if current_content_type == "TUTORIAL" %}
+        <a href="{% url "content:create-tutorial" %}" class="new-btn ico-after more blue">
+            {% trans "Nouveau tutoriel" %}
+        </a>
+
+        <a href="{% url 'content:helps' %}?type=tuto" class="new-btn ico-after help blue">
+            {% trans "Aider les auteurs" %}
+        </a>
+    {% elif current_content_type == "ARTICLE" %}
+        <a href="{% url "content:create-article" %}" class="new-btn ico-after more blue">
+            {% trans "Nouvel article" %}
+        </a>
+
+        <a href="{% url 'content:helps' %}?type=article" class="new-btn ico-after help blue">
+            {% trans "Aider les auteurs" %}
+        </a>
+    {% elif current_content_type == "OPINION" %}
+        <a href="{% url "content:create-opinion" %}" class="new-btn ico-after more blue">
+            {% trans "Nouveau billet" %}
+        </a>
+    {% elif not current_content_type %}
+        <a href="{% url "content:create-article" %}" class="new-btn ico-after more blue">
+            {% trans "Nouvel article" %}
+        </a>
+
+        <a href="{% url "content:create-tutorial" %}" class="new-btn ico-after more blue">
+            {% trans "Nouveau tutoriel" %}
+        </a>
+
+        <a href="{% url "content:create-opinion" %}" class="new-btn ico-after more blue">
+            {% trans "Nouveau billet" %}
+        </a>
+
+        <a href="{% url 'content:helps' %}" class="new-btn ico-after help blue">
+            {% trans "Aider les auteurs" %}
+        </a>
+    {% endif %}
+
+    <h3>{% blocktrans %} Catégories <span class="wide">des {{ verbose_type_name_plural }}</span> {% endblocktrans %}</h3>
+
+        {% captureas content_list_url %}
+            {% if current_content_type == "ARTICLE" %}
+                {% url "publication:list" %}?type=article
+            {% elif current_content_type == "TUTORIAL" %}
+                {% url "publication:list" %}?type=tutorial
+            {% elif current_content_type == "OPINION" %}
+                {% url "opinion:list" %}
+            {% elif not current_content_type %}
+                {% url "publication:list" %}
+            {% endif %}
+        {% endcaptureas %}
+
+    {% for title, subcats in top_categories.categories.items %}
+        <h4 class="mobile-menu-link">{{ title }}</h4>
+        <ul>
+            {% for subcat,slug in subcats %}
+                <li>
+                    <a href="{{ content_list_url }}?category={{ slug }}" class="mobile-menu-link mobile-menu-sublink">
+                        {{ subcat }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% empty %}
+        <ul>
+            <li>
+                {% trans "Aucune catégorie disponible." %}
+            </li>
+        </ul>
+    {% endfor %}
+
+    <div class="mobile-menu-bloc mobile-all-links" data-title="Flux">
+        <h3>{% trans "Flux" %}</h3>
+        <ul>
+            <li>
+                <a
+                    {% if current_content_type == "ARTICLE" %}
+                        href="{% url "article:feed-rss" %}"
+                    {% elif current_content_type == "TUTORIAL" %}
+                        href="{% url "tutorial:feed-rss" %}"
+                    {% elif current_content_type == "OPINION" %}
+                        href="{% url "opinion:feed-rss" %}"
+                    {% elif not current_content_type %}
+                        href="{% url "content:feed-rss" %}"
+                    {% endif %}
+                class="ico-after rss blue">
+                    {% blocktrans %}Nouveaux {{ verbose_type_name_plural }} (RSS){% endblocktrans %}
+                </a>
+            </li>
+            <li>
+                <a
+                    {% if current_content_type == "ARTICLE" %}
+                        href="{% url "article:feed-atom" %}"
+                    {% elif current_content_type == "TUTORIAL" %}
+                        href="{% url "tutorial:feed-atom" %}"
+                    {% elif current_content_type == "OPINION" %}
+                        href="{% url "opinion:feed-atom" %}"
+                    {% elif not current_content_type %}
+                        href="{% url "content:feed-atom" %}"
+                    {% endif %}
+                class="ico-after rss blue">
+                    {% blocktrans %}Nouveaux {{ verbose_type_name_plural }} (ATOM){% endblocktrans %}
+                </a>
+            </li>
+        </ul>
+    </div>
+</aside>

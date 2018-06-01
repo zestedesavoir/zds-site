@@ -3,16 +3,19 @@
 {% load i18n %}
 {% load pluralize_fr %}
 
-<div class="topic navigable-elem
-    {% if user.is_authenticated and topic.pk not in topic_read %}
-        unread
-    {% endif %}">
+<div class="topic
+            navigable-elem
+
+            {% if user.is_authenticated and topic.pk not in topic_read %}
+                unread
+            {% endif %}">
+
     <div class="topic-infos">
         {% if topic.is_sticky %}
             <span class="ico-after pin blue" title="{% trans 'Sujet épinglé' %}">[{% trans "Épinglé" %}]</span>
         {% endif %}
         {% if topic.is_solved %}
-            <span class="ico-after tick green" title="{% blocktrans %} L'auteur a trouvé une solution à son problème {% endblocktrans %}">[{% trans "Résolu" %}]</span>
+            <span class="ico-after tick green" title="{% blocktrans %} L’auteur a trouvé une solution à son problème {% endblocktrans %}">[{% trans "Résolu" %}]</span>
         {% endif %}
         {% if topic.is_locked %}
             <span class="ico-after lock blue" title="{% trans 'Sujet fermé' %}">[{% trans "Fermé" %}]</span>
@@ -21,13 +24,14 @@
             <span class="ico-after star blue" title="{% trans 'Sujet suivi' %}">[{% trans "Suivi" %}]</span>
         {% endif %}
     </div>
+
     {% with profile=topic.author|profile %}
         <div class="topic-description">
             {% if topic.tags.all %}
                 <ul class="topic-tags">
                     {% for tag in topic.tags.all %}
                         <li>
-                            <a href="{% url 'topic-tag-find' tag.pk tag.slug %}" class="topic-tag" title="Tag {{ tag.title }}">
+                            <a href="{% url 'topic-tag-find' tag.slug %}" class="topic-tag" title="Tag {{ tag.title }}">
                                 {{ tag.title }}
                             </a>
                         </li>
@@ -52,9 +56,16 @@
                         {{ topic.pubdate|format_date:True|capfirst }}
                     </span>
                 </span>
+                {% if display_category %}
+                    {% trans "dans" %}
+                    <a href="{{ topic.forum.get_absolute_url }}" title="{{ topic.forum.title }}">
+                        {{ topic.forum.title }}
+                    </a>
+                {% endif %}
             </span>
         </div>
     {% endwith %}
+
     {% with nb_post=topic.get_post_count %}
         <p class="topic-answers {% if nb_post <= 1 %}topic-no-answer{% endif %}">
             {% blocktrans with plural=nb_post|pluralize_fr %}
@@ -62,12 +73,14 @@
             {% endblocktrans %}
         </p>
     {% endwith %}
+
     <p class="topic-last-answer">
         {% with answer=topic.get_last_answer last_read_url=topic.resolve_last_read_post_absolute_url %}
             {% if answer %}
                 <a href="{{ last_read_url }}">
                     <span class="topic-last-answer-long-date">
-                        {% trans "Dernière réponse" %} <br>
+                        {% trans "Dernière réponse" %}
+                        <br>
                         {{ answer.pubdate|format_date|capfirst }}
                     </span>
                     <span class="topic-last-answer-short-date">

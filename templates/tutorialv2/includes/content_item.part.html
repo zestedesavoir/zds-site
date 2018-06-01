@@ -15,7 +15,7 @@
     {% if public_content.is_opinion %}
         {% url 'opinion:list' %}
     {% else %}
-        {% url 'content:list' %}
+        {% url 'publication:list' %}
     {% endif %}
 {% endcaptureas %}
 
@@ -45,19 +45,27 @@
     {% endif %}
 {% endcaptureas %}
 
-{# Authors (by X, Y and Z) ; can't have multiple whitespaces because of the title ! #}
+{# Authors (by X, Y and Z); can't have multiple whitespaces because of the title! #}
+
 {% captureas authors_text %}
     {% for author in content|displayable_authors:online %}{% if forloop.first %}{% trans "par" %}{% elif forloop.last %} {% trans "et" %}{% else %},{% endif %} {% if author == user %}{% trans "vous" %}{% else %}<a href="{{ author.get_absolute_url }}">{{ author.username }}</a>{% endif %}{% endfor %}
 {% endcaptureas %}
 
 {# Categories (in X, Y and Z) #}
 {% captureas categories_text %}
-    {% for category in content.subcategory.all %}{% if forloop.first %}{% trans "dans" %}{% elif forloop.last %} {% trans "et" %}{% else %},{% endif %} <a href="{% url 'content:list' %}?category={{ category.slug }}">{{ category.title }}</a>{% endfor %}
+    {% for cat in content.subcategory.all %}
+        {% if forloop.first %}{% trans "dans" %}{% elif forloop.last %} {% trans "et" %}{% else %},{% endif %}
+        {% if content.is_opinion %}
+            <a href="{% url 'opinion:list' %}?category={{ cat.slug }}">{{ cat.title }}</a>
+        {% else %}
+            <a href="{% url 'publication:list' %}?subcategory={{ cat.slug }}">{{ cat.title }}</a>
+        {% endif %}
+    {% endfor %}
 {% endcaptureas %}
 
 <article class="content-item{% if online and show_reactions %} has-reactions{% endif %}{{ item_class }}">
 
-    <a href="{{ link }}" tabindex="-1" class="content-illu">
+    <a href="{{ link }}" tabindex="-1" class="content-illu {{ content.type|lower }}-illu">
         {% if content.image %}
             <img src="{{ content.image.physical.content_thumb.url }}" alt="">
         {% endif %}
@@ -129,7 +137,7 @@
         <ul class="content-tags" itemprop="keywords">
             {% for tag in content.tags.all|slice:":3" %}
                 <li>
-                  <a href="{{ taglist }}?tag={{ tag.title|urlencode }}">
+                  <a href="{{ taglist }}?tag={% if content.is_opinion %}{{ tag.title|urlencode }}{% else %}{{ tag.slug }}{% endif %}">
                     {{ tag.title }}
                   </a>
                 </li>

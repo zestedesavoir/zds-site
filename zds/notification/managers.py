@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
@@ -156,6 +155,16 @@ class SubscriptionManager(models.Manager):
         else:
             existing.deactivate()
         return existing
+
+    def deactivate_subscriptions(self, user, _object):
+        subscription = self.get_existing(user, _object)
+        if subscription:
+            subscription.is_active = False
+            notification = subscription.last_notification
+            notification.is_read = True
+            notification.is_dead = True
+            notification.save(update_fields=['is_read', 'is_dead'])
+            subscription.save(update_fields=['is_active'])
 
 
 class NewTopicSubscriptionManager(SubscriptionManager):

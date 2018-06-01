@@ -1,0 +1,185 @@
+$color-linkbox-default: #777;
+
+.content-linkbox-list {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+
+    margin: 0 0 0 -20px;
+
+    .linkbox-item {
+        flex: 0 0 auto;
+
+        width: 33.33%;
+        width: calc(33.33% - 20px);
+
+        margin: 0 0 20px 20px;
+
+        color: white;
+
+        a {
+            position: relative;
+            color: white;
+            text-decoration: none;
+            
+            &:after {
+                content: '';
+                position: absolute;
+                top: 15px; right: 15px;
+
+                width: 10px; height: 10px;
+                transform: rotate(45deg);
+
+                border-color: white;
+                border-style: solid;
+                border-width: 2px 2px 0 0;
+                opacity: .5;
+            }
+
+            &:hover:after, &:focus:after {
+                opacity: 1;
+            }
+        }
+        .icon {
+            width: 25px;
+            background: white;
+        }
+
+        .head {
+            display: flex;
+            padding: 10px;
+
+            h3 {
+                font-size: 2.2rem;
+                line-height: 32px;
+                font-weight: normal;
+                margin: 0; padding: 0;
+                width: 100%;
+
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+        }
+
+        .body {
+            display: block;
+            padding: 10px 10px 5px 10px;
+            font-size: 1.3rem;
+            line-height: 1.7rem;
+
+            border-top: solid 1px rgba(0, 0, 0, .25);
+
+            p {
+                margin: 0 0 5px 0; padding: 0;
+
+                &.right {
+                    text-align: right;
+                }
+            }
+        }
+
+        .tail {
+            display: flex;
+            padding: 10px;
+            
+            border-top: solid 1px rgba(255, 255, 255, .2);
+
+            p {
+                margin: 0; padding: 0;
+                line-height: 2.2rem;
+                width: 100%;
+
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+        }
+
+        // onlink transformation
+        a {
+            position: relative;
+            color: white;
+            text-decoration: none;
+
+            &:after {
+                content: '';
+                position: absolute;
+                top: 15px; right: 15px;
+
+                width: 10px; height: 10px;
+                transform: rotate(45deg);
+
+                border-color: white;
+                border-style: solid;
+                border-width: 2px 2px 0 0;
+                opacity: .5;
+            }
+
+            &:hover:after, &:focus:after {
+                opacity: 1;
+            }
+
+            &.head { padding-right: 30px; }
+            &.head:after { top: 20px; }
+            &.body:after { display: none; }
+            &.tail { padding-right: 30px; }
+        }
+
+        // color management
+        .head { background: darken($color-linkbox-default, 10%); }
+        .body { background: $color-linkbox-default; }
+        .tail { background: lighten($color-linkbox-default, 5%); }
+
+        a:hover, a:focus {
+            &.head { background: darken($color-linkbox-default, 15%); }
+            &.body { background: darken($color-linkbox-default, 5%); }
+            &.tail { background: darken($color-linkbox-default, 0%); }
+        }
+
+        &.primary {
+            .head { background: darken($color-primary, 5%); }
+            .body { background: lighten($color-primary, 5%); }
+            .tail { background: lighten($color-primary, 15%); }
+
+            a:hover, a:focus {
+                &.head { background: darken($color-primary, 10%); }
+                &.body { background: $color-primary; }
+                &.tail { background: lighten($color-primary, 10%); }
+            }
+        }
+
+        &.secondary {
+            .head { background: darken($color-secondary, 15%); }
+            .body { background: darken($color-secondary, 5%); }
+            .tail { background: $color-secondary; }
+
+            a:hover, a:focus {
+                &.head { background: darken($color-secondary, 20%); }
+                &.body { background: darken($color-secondary, 10%); }
+                &.tail { background: darken($color-secondary, 5%); }
+            }
+        }
+    }
+}
+
+@media only screen and #{$media-extra-wide} {
+    .content-linkbox-list .linkbox-item {
+        width: 25%;
+        width: calc(25% - 20px);
+    }
+}
+
+@media only screen and #{$media-mobile-tablet} {
+    .content-linkbox-list .linkbox-item {
+        width: 50%;
+        width: calc(50% - 20px);
+    }
+}
+
+@media only screen and #{$media-mobile} {
+    .content-linkbox-list .linkbox-item {
+        width: 100%;
+        width: calc(100% - 20px);
+    }
+}

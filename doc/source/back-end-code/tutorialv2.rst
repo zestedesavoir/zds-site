@@ -9,17 +9,17 @@ Module situé dans ``zds/tutorialv2/``.
 Modèles (``models/``)
 =====================
 
-Modèles de la base de donnée (``models_database.py``)
+Modèles de la base de donnée (``database.py``)
 -----------------------------------------------------
 
-.. automodule:: zds.tutorialv2.models.models_database
+.. automodule:: zds.tutorialv2.models.database
     :members:
 
 
-Modèles "versionnés" (``models_versioned.py``)
+Modèles "versionnés" (``versioned.py``)
 ----------------------------------------------
 
-.. automodule:: zds.tutorialv2.models.models_versioned
+.. automodule:: zds.tutorialv2.models.versioned
     :members:
 
 Les managers (``managers.py``)
@@ -56,7 +56,7 @@ Mixins (``mixins.py``)
 .. automodule:: zds.tutorialv2.mixins
     :members:
 
-Les forumulaires (``forms.py``)
+Les formulaires (``forms.py``)
 ===============================
 
 .. automodule:: zds.tutorialv2.forms
@@ -73,4 +73,10 @@ Les utilitaires de publication (``publication_utils.py``)
 =========================================================
 
 .. automodule:: zds.tutorialv2.publication_utils
+    :members:
+
+Les receveurs d'évènement bdd (``receivers.py``)
+================================================
+
+.. automodule:: zds.tutorialv2.receivers
     :members:

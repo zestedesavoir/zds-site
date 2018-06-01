@@ -1,0 +1,619 @@
+{% load i18n %}
+{% load interventions %}
+{% load crispy_forms_tags %}
+
+{% if user.is_authenticated %}
+    {% if profile.user == user or perms.member.change_profile %}
+        <div>
+            {% if profile.user == user %}
+                <a href="{% url "update-member" %}"
+                   class="new-btn ico-after gear blue">
+                    {% trans "Paramètres" %} <span class="wide">{% trans "de mon compte" %}</span>
+                </a>
+            {% else %}
+                <a href="{% url "member-settings-mini-profile" profile.user.username %}"
+                   class="new-btn ico-after edit blue">
+                    {% trans "Modifier le profil" %}
+                </a>
+            {% endif %}
+
+            {% if user.is_superuser %}
+                <a href="{% url "member-settings-promote" profile.user.pk %}"
+                   class="new-btn ico-after edit gear blue">
+                    {% trans "Gestion des groupes" %}
+                </a>
+
+                {% if user.is_staff %}
+                    <a href="{% url 'admin:auth_user_change' profile.user.pk %}"
+                       class="new-btn ico-after edit gear blue">
+                        {% trans "Administration de Django" %}
+                    </a>
+                {% endif %}
+            {% endif %}
+        </div>
+    {% endif %}
+
+    <div class="mobile-menu-bloc mobile-all-links"
+         data-title='{% trans "Informations" %}'>
+
+        <h3>{% trans "Informations" %}</h3>
+        <ul>
+            <li class="inactive">
+                {% if profile.user == user %}
+                    {% include 'notification/subscription_count_template.html' with subscriber_count=subscriber_count own_profile=True %}
+                {% else %}
+                    {% include 'notification/subscription_count_template.html' with subscriber_count=subscriber_count own_profile=False %}
+                {% endif %}
+            </li>
+        </ul>
+    </div>
+
+    {% if perms.member.change_profile or usr != user %}
+        <div class="mobile-menu-bloc mobile-all-links"
+             data-title='{% trans "Actions" %}'>
+
+            <h3>{% trans "Actions" %}</h3>
+            <ul>
+                {% if usr != user and not profile.is_private and profile.can_read_now %}
+                    <li>
+                        <a href="{% url 'mp-new' %}?username={{ usr.username }}" class="ico-after cite blue">
+                            {% trans "Envoyer un message privé" %}
+                        </a>
+                    </li>
+                {% endif %}
+                {% if usr != user and not profile.is_private %}
+                    <li>
+                        {% with content_is_followed=usr|is_new_publication_followed %}
+                            {% url 'content:follow' usr.pk as link_follow %}
+                            {% if content_is_followed %}
+                                {% trans "Suivre ses publications" as data_onclick %}
+                                {% trans "Désinscription à ses publications" as button_text %}
+                            {% else %}
+                                {% trans "Suivre ses publications" as button_text %}
+                                {% trans "Désinscription à ses publications" as data_onclick %}
+                            {% endif %}
+
+                            {% include 'notification/follow_template.html' with link=link_follow is_followed=content_is_followed data_onclick=data_onclick button_text=button_text %}
+                        {% endwith %}
+                    </li>
+                    <li>
+                        {% with content_is_followed=usr|is_new_publication_email_followed %}
+                            {% url 'content:follow' usr.pk as link_follow %}
+                            {% if content_is_followed %}
+                                {% trans "Suivre ses publications par courriel" as data_onclick %}
+                                {% trans "Ne plus être notifié par courriel" as button_text %}
+                            {% else %}
+                                {% trans "Suivre ses publications par courriel" as button_text %}
+                                {% trans "Ne plus être notifié par courriel" as data_onclick %}
+                            {% endif %}
+
+                            {% include 'notification/follow_by_email_template.html' with link=link_follow is_followed=content_is_followed data_onclick=data_onclick button_text=button_text %}
+                        {% endwith %}
+                    </li>
+                {% endif %}
+                {% if usr == user or not perms.member.change_profile and profile.is_private %}
+                    <li class="inactive mobile-menu-link">
+                        <span>{% trans "Aucune action possible" %}</span>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    {% endif %}
+{% endif %}
+
+<div class="mobile-menu-bloc mobile-all-links" data-title='{% trans "Accès rapide" %}'>
+    <h3>{% trans "Accès rapide" %}</h3>
+    <ul>
+        <li>
+            <a href="#infos-generales">
+                {% trans "Informations générales" %}
+            </a>
+        </li>
+        {% if profile.sign %}
+            <li>
+                <a href="#signature">
+                    {% trans "Signature" %}
+                </a>
+            </li>
+        {% endif %}
+        {% if profile.has_hat or perms.utils.change_hat %}
+            <li>
+                <a href="#casquettes">
+                    {% trans "Casquettes" %}
+                </a>
+            </li>
+        {% endif %}
+        {% if topics %}
+            <li>
+                <a href="#derniers-sujets">
+                    {% trans "Derniers sujets" %}
+                </a>
+            </li>
+        {% endif %}
+        {% if tutorials %}
+            <li>
+                <a href="#derniers-tutoriels">
+                    {% trans "Derniers tutoriels" %}
+                </a>
+            </li>
+        {% endif %}
+        {% if articles %}
+            <li>
+                <a href="#derniers-articles">
+                    {% trans "Derniers articles" %}
+                </a>
+            </li>
+        {% endif %}
+        {% if opinions %}
+            <li>
+                <a href="#derniers-billets">
+                    {% trans "Derniers billets" %}
+                </a>
+            </li>
+        {% endif %}
+        {% if profile.biography %}
+            <li>
+                <a href="#biographie">
+                    {% trans "Biographie" %}
+                </a>
+            </li>
+        {% endif %}
+        {% if perms.member.change_profile and actions %}
+            <li>
+                <a href="#historique-moderation">
+                    {% trans "Historique de modération" %}
+                </a>
+            </li>
+        {% endif %}
+    </ul>
+</div>
+
+<div class="mobile-menu-bloc" data-title='{% trans "Activité" %}'>
+    <h3>{% trans "Activité" %}</h3>
+
+    {% with draft_tutos_count=profile.get_draft_tutos.count %}
+    {% with public_tutos_count=profile.get_public_tutos.count %}
+    {% with beta_tutos_count=profile.get_beta_tutos.count %}
+    {% with validate_tutos_count=profile.get_validate_tutos.count %}
+
+        {% if public_tutos_count > 0 or beta_tutos_count > 0 or validate_tutos_count > 0 or draft_tutos_count > 0 %}
+            <h4 class="mobile-menu-link" data-title="{% trans 'Tutoriels' %}">{% trans "Tutoriels" %}</h4>
+            <ul>
+                {% if public_tutos_count > 0 %}
+                    <li>
+                        <a href="{% url "content:find-tutorial" usr.pk %}?filter=public"
+                           class="mobile-menu-link mobile-menu-sublink"
+                        >
+                            <span class="count">{{ public_tutos_count }}</span>
+                            {% trans "En ligne" %}
+                        </a>
+                    </li>
+                {% endif %}
+                {% if beta_tutos_count > 0 %}
+                    <li>
+                        <a href="{% url "content:find-tutorial" usr.pk %}?filter=beta"
+                           class="mobile-menu-link mobile-menu-sublink"
+                        >
+                            <span class="count">{{ beta_tutos_count }}</span>
+                            {% trans "En version bêta" %}
+                        </a>
+                    </li>
+                {% endif %}
+                {% if profile.user == user %}
+                    {% if validate_tutos_count > 0 %}
+                        <li>
+                            <a href="{% url "content:find-tutorial" usr.pk %}?filter=validation"
+                               class="mobile-menu-link mobile-menu-sublink"
+                            >
+                                <span class="count">{{ validate_tutos_count }}</span>
+                                {% trans "En validation" %}
+                            </a>
+                        </li>
+                    {% endif %}
+                    {% if draft_tutos_count > 0 %}
+                        <li>
+                            <a href="{% url "content:find-tutorial" usr.pk %}?filter=redaction"
+                               class="mobile-menu-link mobile-menu-sublink"
+                            >
+                                <span class="count">{{ draft_tutos_count }}</span>
+                                {% trans "En rédaction" %}
+                            </a>
+                        </li>
+                    {% endif %}
+                {% else %}
+                    {% if validate_tutos_count > 0 %}
+                        <li class="inactive mobile-menu-link mobile-menu-sublink">
+                            <span>
+                                <span class="count">{{ validate_tutos_count }}</span>
+                                {% trans "En validation" %}
+                            </span>
+                        </li>
+                    {% endif %}
+                    {% if draft_tutos_count > 0 %}
+                        <li class="inactive mobile-menu-link mobile-menu-sublink">
+                            <span>
+                                <span class="count">{{ draft_tutos_count }}</span>
+                                {% trans "En rédaction" %}
+                            </span>
+                        </li>
+                    {% endif %}
+                {% endif %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+    {% endwith %}
+    {% endwith %}
+    {% endwith %}
+
+    {% with articles_draft_count=profile.get_draft_articles.count %}
+    {% with articles_validation_count=profile.get_validate_articles.count %}
+    {% with articles_public_count=profile.get_public_articles.count %}
+    {% with articles_beta_count=profile.get_beta_articles.count %}
+
+        {% if articles_draft_count > 0 or articles_validation_count > 0 or articles_public_count > 0 or articles_beta_count > 0 %}
+
+            <h4 class="mobile-menu-link"
+                data-title="{% trans 'Articles' %}">
+                {% trans 'Articles' %}
+            </h4>
+
+            <ul>
+                {% if articles_public_count > 0 %}
+                    <li>
+                        <a href="{% url "content:find-article" usr.pk %}?filter=public"
+                           class="mobile-menu-link mobile-menu-sublink"
+                        >
+                            <span class="count">{{ articles_public_count }}</span>
+                            {% trans "En ligne" %}
+                        </a>
+                    </li>
+                {% endif %}
+                {% if articles_beta_count > 0 %}
+                    <li>
+                        <a href="{% url "content:find-article" usr.pk %}?filter=beta"
+                           class="mobile-menu-link mobile-menu-sublink"
+                        >
+                            <span class="count">{{ articles_beta_count }}</span>
+                            {% trans "En béta" %}
+                        </a>
+                    </li>
+                {% endif %}
+                {% if profile.user == user %}
+                    {% if articles_validation_count > 0 %}
+                        <li>
+                            <a href="{% url "content:find-article" usr.pk %}?filter=validation"
+                               class="mobile-menu-link mobile-menu-sublink"
+                            >
+                                <span class="count">{{ articles_validation_count }}</span>
+                                {% trans "En validation" %}
+                            </a>
+                        </li>
+                    {% endif %}
+                    {% if articles_draft_count > 0 %}
+                        <li>
+                            <a href="{% url "content:find-article" usr.pk %}?filter=redaction"
+                               class="mobile-menu-link mobile-menu-sublink"
+                            >
+                                <span class="count">{{ articles_draft_count }}</span>
+                                {% trans "En rédaction" %}
+                            </a>
+                        </li>
+                    {% endif %}
+                {% else %}
+                    {% if articles_validation_count > 0 %}
+                        <li class="inactive mobile-menu-link mobile-menu-sublink">
+                            <span>
+                                <span class="count">{{ articles_validation_count }}</span>
+                                {% trans "En validation" %}
+                            </span>
+                        </li>
+                    {% endif %}
+                    {% if articles_draft_count > 0 %}
+                        <li class="inactive mobile-menu-link mobile-menu-sublink">
+                            <span>
+                                <span class="count">{{ articles_draft_count }}</span>
+                                {% trans "En rédaction" %}
+                            </span>
+                        </li>
+                    {% endif %}
+                {% endif %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+    {% endwith %}
+    {% endwith %}
+    {% endwith %}
+
+    {% with opinions_draft_count=profile.get_draft_opinions.count %}
+    {% with opinions_public_count=profile.get_public_opinions.count %}
+
+        {% if opinions_draft_count > 0 or opinions_public_count > 0 %}
+            <h4 class="mobile-menu-link"
+                data-title="{% trans 'Billets' %}">
+                {% trans 'Billets' %}
+            </h4>
+
+            <ul>
+                {% if opinions_public_count > 0 %}
+                    <li>
+                        <a href="{% url "content:find-opinion" usr.pk %}?filter=public"
+                           class="mobile-menu-link mobile-menu-sublink"
+                        >
+                            <span class="count">{{ opinions_public_count }}</span>
+                            {% trans "En ligne" %}
+                        </a>
+                    </li>
+                {% endif %}
+                {% if opinions_draft_count > 0 %}
+                    {% if profile.user == user %}
+                        <li>
+                            <a href="{% url "content:find-opinion" usr.pk %}?filter=redaction"
+                               class="mobile-menu-link mobile-menu-sublink"
+                            >
+                                <span class="count">{{ opinions_draft_count }}</span>
+                                {% trans "En rédaction" %}
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="inactive mobile-menu-link mobile-menu-sublink">
+                            <span>
+                                <span class="count">{{ opinions_draft_count }}</span>
+                                {% trans "En rédaction" %}
+                            </span>
+                        </li>
+                    {% endif %}
+                {% endif %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+    {% endwith %}
+
+    {# TODO: XXX: Ambiguous `and` / `or` #}
+    {% if perms.member.change_post and profile.get_post_count_as_staff > 0 or profile.get_post_count > 0 %}
+
+        <h4 class="mobile-menu-link"
+            data-title="{% trans 'Forums' %}">
+            {% trans "Forums" %}
+        </h4>
+        <ul>
+            <li>
+                <a href="{% url 'topic-find' usr.pk %}"
+                   class="mobile-menu-link mobile-menu-sublink"
+                >
+                    <span class="count">{{ profile.get_topic_count }}</span>
+                    {% trans "Sujets créés" %}
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'post-find' usr.pk %}"
+                   class="mobile-menu-link mobile-menu-sublink"
+                >
+                    <span class="count">
+                        {% if perms.member.change_post %}
+                            {{ profile.get_post_count_as_staff }}
+                        {% else %}
+                            {{ profile.get_post_count }}
+                        {% endif %}
+                    </span>
+                    {% trans "Messages postés" %}
+                </a>
+            </li>
+        </ul>
+    {% endif %}
+
+    {% if profile.get_draft_tutos.count == 0 and profile.get_draft_articles.count == 0 and profile.get_post_count == 0 %}
+        <ul>
+            <li class="inactive mobile-menu-link">
+                <span>{% trans "Aucune activité" %}</span>
+            </li>
+        </ul>
+    {% endif %}
+</div>
+
+{% if perms.member.change_profile and profile.user.is_active %}
+    <div class="mobile-menu-bloc mobile-all-links"
+         data-title='{% trans "Modération" %}'>
+        <h3>{% trans "Modération" %}</h3>
+
+        <h4>{% trans "Statistiques" %}</h4>
+        <ul>
+            <li class="inactive">
+                <span>
+                    {% trans "Messages modérés" %}
+                    <span class="count">{{ profile.get_hidden_by_staff_posts_count }}</span>
+                </span>
+            </li>
+            <li class="inactive">
+                <span>
+                    {% trans "Alertes actives" %}
+                    <span class="count">{{ profile.get_active_alerts_count }}</span>
+                </span>
+            </li>
+        </ul>
+
+        {% if not profile.is_private %}
+            <h4>{% trans "Karma" %}</h4>
+            <ul>
+                <li class="inactive">
+                    <span>
+                        {% trans "Valeur actuelle" %}
+                        <span class="count">{{ profile.karma }}</span>
+                    </span>
+                </li>
+                <li>
+                    <a href="#karmatiser-modal" class="open-modal">
+                        {% trans "Ajouter une remarque" %}
+                    </a>
+                    {% crispy karmaform %}
+                </li>
+            </ul>
+        {% endif %}
+
+        {% if not profile.is_private and usr != user %}
+            <h4>{% trans "Sanctions" %}</h4>
+            <ul>
+                {% if profile.can_write_now %}
+                    <li>
+                        <a href="#ls-temp-{{ profile.pk }}"
+                           class="open-modal">
+                            {% trans "Lecture seule temporaire" %}
+                        </a>
+                        <form action="{% url "member-modify-profile" profile.user.pk %}"
+                              method="post"
+                              id="ls-temp-{{ profile.pk }}"
+                              class="modal modal-flex">
+                            <p>
+                                {% blocktrans %}
+                                    Pour quelle raison souhaitez-vous mettre ce membre en lecture seule <em>temporairement</em> ?
+                                {% endblocktrans %}
+                            </p>
+                            <input type="text"
+                                   name="ls-text"
+                                   class="expand"
+                                   placeholder="Spam, Troll, etc.">
+                            <input type="number"
+                                   name="ls-jrs"
+                                   class="expand"
+                                   placeholder="Durée de la lecture seule, en jours"
+                                   min="1">
+                            {% csrf_token %}
+                            <button type="submit"
+                                    name="ls-temp">
+                                {% trans "Confirmer" %}
+                            </button>
+                        </form>
+                    </li>
+                    <li>
+                        <a href="#ls-{{ profile.pk }}"
+                           class="open-modal">
+                            {% trans "Lecture seule" %}
+                        </a>
+                        <form action="{% url "member-modify-profile" profile.user.pk %}"
+                              method="post"
+                              id="ls-{{ profile.pk }}"
+                              class="modal modal-flex">
+                            <p>
+                                {% trans "Pour quelle raison souhaitez-vous mettre ce membre en lecture seule" %} ?
+                            </p>
+                            <input type="text"
+                                   name="ls-text"
+                                   class="expand"
+                                   placeholder="Spam, Troll, etc.">
+                            {% csrf_token %}
+                            <button type="submit"
+                                    name="ls">
+                                {% trans "Confirmer" %}
+                            </button>
+                        </form>
+                    </li>
+                {% else %}
+                    <li>
+                        <a href="#ls-temp-{{ profile.pk }}"
+                           class="open-modal">
+                            {% trans "Ôter la lecture seule" %}
+                        </a>
+                        <form action="{% url "member-modify-profile" profile.user.pk %}"
+                              method="post"
+                              id="ls-temp-{{ profile.pk }}"
+                              class="modal modal-flex">
+                            <p>
+                                {% blocktrans %}
+                                    Pour quelle raison souhaitez-vous <strong>lever la sanction</strong> de ce membre ?
+                                {% endblocktrans %}
+                            </p>
+                            <input type="text"
+                                   name="unls-text"
+                                   class="expand"
+                                   placeholder="Bonne action ?">
+                            {% csrf_token %}
+                            <button type="submit"
+                                    name="un-ls">
+                                {% trans "Confirmer" %}
+                            </button>
+                        </form>
+                    </li>
+                {% endif %}
+
+                {% if profile.can_read_now %}
+                    <li>
+                        <a href="#ban-temp-{{ profile.pk }}"
+                           class="open-modal">
+                            {% trans "Bannir temporairement" %}
+                        </a>
+                        <form action="{% url "member-modify-profile" profile.user.pk %}"
+                              method="post"
+                              id="ban-temp-{{ profile.pk }}"
+                              class="modal modal-flex">
+                            <p>
+                                {% blocktrans %}
+                                    Pour quelle raison souhaitez-vous bannir ce membre <em>temporairement</em> ?
+                                {% endblocktrans %}
+                            </p>
+                            <input type="text"
+                                   name="ban-text"
+                                   class="expand"
+                                   placeholder="Spam, Troll, etc.">
+                            <input type="number"
+                                   name="ban-jrs"
+                                   class="expand"
+                                   placeholder="Durée du bannissement, en jours"
+                                   min="1">
+                            {% csrf_token %}
+                            <button type="submit"
+                                    name="ban-temp">
+                                {% trans "Confirmer" %}
+                            </button>
+                        </form>
+                    </li>
+                    <li>
+                        <a href="#ban-{{ profile.pk }}"
+                           class="open-modal">
+                            {% trans "Bannir définitivement" %}
+                        </a>
+                        <form action="{% url "member-modify-profile" profile.user.pk %}"
+                              method="post"
+                              id="ban-{{ profile.pk }}"
+                              class="modal modal-flex">
+                            <p>
+                                {% trans "Pour quelle raison souhaitez-vous bannir ce membre" %} ?
+                            </p>
+                            <input type="text"
+                                   name="ban-text"
+                                   class="expand"
+                                   placeholder="Spam, Troll, etc.">
+                            {% csrf_token %}
+                            <button type="submit"
+                                    name="ban">
+                                {% trans "Confirmer" %}
+                            </button>
+                        </form>
+                    </li>
+                {% else %}
+                    <li>
+                        <a href="#unban-{{ profile.pk }}"
+                           class="open-modal">
+                            {% trans "Ôter le bannissement" %}
+                        </a>
+                        <form action="{% url "member-modify-profile" profile.user.pk %}"
+                              method="post"
+                              id="unban-{{ profile.pk }}"
+                              class="modal modal-flex">
+                            <p>
+                                {% trans "Pour quelle raison souhaitez vous lever la sanction de ce membre" %} ?
+                            </p>
+                            <input type="text"
+                                   name="unban-text"
+                                   class="expand"
+                                   placeholder="Bonne action ?">
+                            {% csrf_token %}
+                            <button type="submit"
+                                    name="un-ban">
+                                {% trans "Confirmer" %}
+                            </button>
+                        </form>
+                    </li>
+                {% endif %}
+            </ul>
+        {% endif %}
+    </div>
+{% endif %}

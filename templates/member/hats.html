@@ -1,0 +1,74 @@
+{% extends "member/base.html" %}
+{% load i18n %}
+
+
+{% block title %}
+    {% trans "Casquettes" %}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>{% trans "Casquettes" %}</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    {% trans "Liste des casquettes" %}
+{% endblock %}
+
+
+
+{% block content %}
+    <p>
+        {% trans "Cette page liste toutes les casquettes existant sur le site." %}
+    </p>
+
+
+    {% include "misc/paginator.html" with position="top" %}
+
+    {% if hats %}
+        <table class="fullwidth">
+            <thead>
+                <th>{% trans "Casquette" %}</th>
+                <th class="wide">{% trans "Membres" %}</th>
+            </thead>
+            <tbody>
+                {% for hat in hats %}
+                    <tr>
+                        <td>
+                            <a href="{{ hat.get_absolute_url }}">{{ hat.name }}</a>
+                            {% if hat.is_staff %}
+                                <em>({{ app.site.literal_name }})</em>
+                            {% endif %}
+                        </td>
+                        <td class="wide">
+                            {% if hat.get_users %}
+                                {% for user in hat.get_users_preview %}
+                                    {% include 'misc/member_item.part.html' with member=user avatar=True %}
+                                {% endfor %}
+
+                                {% if hat.get_users_count > app.member.users_in_hats_list %}
+                                    –
+
+                                    <a href="{{ hat.get_absolute_url }}">
+                                        {% blocktrans with users_count=hat.get_users_count %}
+                                            Voir les {{ users_count }} membres
+                                        {% endblocktrans %}
+                                    </a>
+                                {% endif %}
+                            {% else %}
+                                <em>{% trans "Aucun membre" %}</em>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <em>{% trans "Il n'y a aucune casquette sur le site." %}</em>
+    {% endif %}
+
+    {% include "misc/paginator.html" with position="bottom" %}
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends 'tutorialv2/view/base_categories.html' %}
+{% load i18n %}
+
+{% block content_category %}
+
+    <div class="flexpage-column">
+        <section>
+            <h2 itemprop="name">
+                {% trans "Derniers tutoriels" %}
+                <a href="{% url "tutorial:feed-rss" %}?subcategory={{ subcategory.slug }}" class="btn btn-grey">RSS</a>
+                <a href="{% url "tutorial:feed-atom" %}?subcategory={{ subcategory.slug }}" class="btn btn-grey">Atom</a>
+            </h2>
+            {% include 'tutorialv2/list_page_elements/list_of_online_contents.html' with public_contents=last_tutorials col_number=1 %}
+            {% if last_tutorials and more_tutorials %}
+                <a href="{% url 'publication:list' %}?subcategory={{ subcategory.slug }}&amp;type=tutorial" class="more-link">Plus de tutoriels dans {{ subcategory.title }}</a>
+            {% endif %}
+        </section>
+
+            <section>
+                <h2 itemprop="name">
+                    {% trans "Derniers articles" %}
+                    <a href="{% url "article:feed-rss" %}?subcategory={{ subcategory.slug }}" class="btn btn-grey">RSS</a>
+                    <a href="{% url "article:feed-atom" %}?subcategory={{ subcategory.slug }}" class="btn btn-grey">Atom</a>
+                </h2>
+                {% include 'tutorialv2/list_page_elements/list_of_online_contents.html' with public_contents=last_articles col_number=1 %}
+                {% if last_articles and more_articles %}
+                    <a href="{% url 'publication:list' %}?subcategory={{ subcategory.slug }}&amp;type=article" class="more-link">Plus d’articles dans {{ subcategory.title }}</a>
+                {% endif %}
+            </section>
+    </div>
+{% endblock %}

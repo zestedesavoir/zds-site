@@ -1,8 +1,6 @@
-# coding: utf-8
-
 from django.conf.urls import url
 
-from zds.tutorialv2.views.views_published import ListOpinions, DisplayOnlineOpinion, DownloadOnlineOpinion
+from zds.tutorialv2.views.published import ListOpinions, DisplayOnlineOpinion, DownloadOnlineOpinion
 from zds.tutorialv2.feeds import LastOpinionsFeedRSS, LastOpinionsFeedATOM
 
 urlpatterns = [

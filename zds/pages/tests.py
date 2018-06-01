@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.test import TestCase
@@ -11,7 +9,7 @@ from zds.forum.factories import CategoryFactory, ForumFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.forum.tests.tests_views import create_category, add_topic_in_a_forum
 from zds.utils.models import CommentEdit
-from zds.utils.templatetags.emarkdown import get_markdown_instance, render_markdown
+from zds.utils.templatetags.emarkdown import render_markdown
 
 
 @override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
@@ -80,9 +78,9 @@ class PagesMemberTests(TestCase):
         settings.ZDS_APP['site']['association']['forum_ca_pk'] = forum.pk
 
         # send form
-        long_str = u''
+        long_str = ''
         for i in range(3100):
-            long_str += u'A'
+            long_str += 'A'
 
         result = self.client.post(
             reverse('pages-assoc-subscribe'),
@@ -228,13 +226,13 @@ class PagesGuestTests(TestCase):
         self.assertEqual(result.status_code, 200)
 
     def test_render_template(self):
-        """Test: render_template() works and git_version is in template."""
+        """Test: render_template() works and version is in template."""
 
         result = self.client.get(
             reverse('homepage'),
         )
 
-        self.assertTrue('git_version' in result.context)
+        self.assertTrue('zds_version' in result.context)
 
 
 class CommentEditsHistoryTests(TestCase):
@@ -298,17 +296,17 @@ class CommentEditsHistoryTests(TestCase):
 
         # Check that there is a row on the history
         response = self.client.get(reverse('comment-edits-history', args=[self.post.pk]))
-        self.assertContains(response, _(u'Voir'))
+        self.assertContains(response, _('Voir'))
         self.assertIn(self.edit, response.context['edits'])
 
         # Check that there is a button to delete the edit content
-        self.assertContains(response, _(u'Supprimer'))
+        self.assertContains(response, _('Supprimer'))
 
         # And not when we're logged as author
         self.client.logout()
         self.assertTrue(self.client.login(username=self.user.username, password='hostel77'))
         response = self.client.get(reverse('comment-edits-history', args=[self.post.pk]))
-        self.assertNotContains(response, _(u'Supprimer'))
+        self.assertNotContains(response, _('Supprimer'))
 
     def test_edit_detail(self):
         # Login as staff
@@ -316,8 +314,7 @@ class CommentEditsHistoryTests(TestCase):
 
         # Check that the original content is displayed
         response = self.client.get(reverse('edit-detail', args=[self.edit.pk]))
-        md_instance = get_markdown_instance(ping_url=None)
-        original_text_html = render_markdown(md_instance, self.edit.original_text)
+        original_text_html, *_ = render_markdown(self.edit.original_text, disable_ping=True)
         self.assertContains(response, original_text_html)
 
     def test_restore_original_content(self):

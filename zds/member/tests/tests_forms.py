@@ -1,4 +1,3 @@
-# coding: utf-8
 from django.test import TestCase
 
 from zds.member.factories import ProfileFactory, NonAsciiProfileFactory
@@ -8,11 +7,11 @@ from zds.member.models import BannedEmailProvider
 from zds.member.factories import StaffProfileFactory
 
 stringof77chars = 'abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789-----'
-stringof251chars = u'abcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxy' \
-                   u'abcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxy' \
-                   u'abcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxy' \
-                   u'abcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxy' \
-                   u'abcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxy0'
+stringof251chars = 'abcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxy' \
+                   'abcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxy' \
+                   'abcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxy' \
+                   'abcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxy' \
+                   'abcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxy0'
 stringof501chars = ['1' for n in range(501)]
 stringof2001chars = 'http://url.com/'
 for i in range(198):

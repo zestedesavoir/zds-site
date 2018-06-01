@@ -87,7 +87,7 @@
     button,
     .btn {
         -webkit-appearance: none;
-        transition: all $transition-duration ease;
+        transition: color $transition-duration ease, background $transition-duration ease;
     }
 
     input:not([type=submit]):not([type=reset]):not([type=radio]):not([type=checkbox]) {
@@ -98,6 +98,7 @@
         width: calc(98% - 2px);
         padding: 10px 1%;
         font-family: $font-monospace;
+        line-height: normal;
     }
 
     input,
@@ -253,15 +254,6 @@
     .buttonHolder /* specifix for crispy */ {
         margin-top: 25px;
         min-height: 40px;
-    }
-}
-
-.wf-active {
-    .content-container,
-    .modals-container {
-        textarea {
-            font-family: $font-monospace-active;
-        }
     }
 }
 

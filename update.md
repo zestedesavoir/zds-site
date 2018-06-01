@@ -261,7 +261,7 @@ Issues #2718, #2658 et #2615
 ----------------------------
 
 1. **Sauvegarder** le fichiers de configuration Nginx `zestedesavoir` et `zds-maintenance`.
-2. Les **remplacer** par ceux [présents dans la documentation](http://zds-site.readthedocs.org/fr/latest/install/deploy-in-production.html).
+2. Les **remplacer** par ceux [présents dans la documentation](http://docs.zestedesavoir.com/install/deploy-in-production.html).
 
 Si le fichier `zds-maintenance` n'est pas dans la doc, c'est que vous n'êtes pas sur la bonne version.
 
@@ -1051,3 +1051,98 @@ Ticket #4313
 ------------
 
 + Via l'admin Django, ajouter la permission `member.change_bannedemailprovider` aux groupes autorisés à gérer les fournisseurs e-mail bannis.
+
+Actions à faire pour mettre en prod la version : v25
+====================================================
+
+Avant le déploiement:
+---------------------
+
+Node.js, yarn et npm
+--------------------
+
+En root: Installer node 8 et Yarn:
+
+```
+curl -sL https://deb.nodesource.com/setup_8.x | bash -
+curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
+echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
+apt-get update && apt-get install build-essential nodejs yarn
+```
+
+Mise à jour d'ElasticSearch (#420)
+----------------------------------
+
+```
+sudo apt update
+sudo apt upgrade elasticsearch # Ne pas remplacer jvm.options
+systemctl restart elasticsearch.service
+```
+
+Mise à jour des settings
+------------------------
+
+* Dans les `settings*.py`, renommer `sec_per_minute` en `characters_per_minute` si présent
+* Dans les `settings*.py`, renommer `litteral_name` en `literal_name`
+
+Smileys Clem (#4408)
+--------------------
+
++ Ajouter `ZDS_APP['member']['old_smileys_allowed'] = True` au `settings_prod.py`.
++ Télécharger le fichier [`clem_smileys.conf`](https://raw.githubusercontent.com/zestedesavoir/zds-site/f11a1346c80741046fc02c5a9e68e001da3e4c6b/doc/source/install/configs/nginx/snippets/clem_smileys.conf) dans `/etc/nginx/snippets/`.
++ Éditer `/etc/nginx/sites-available/zestedesavoir` et ajouter `include snippets/clem_smileys.conf;` dans le bloc `location ~* ^/(static|media|errors)/ {`
++ Tester la configuration : `nginx -t`
+
+Script de déploiement
+---------------------
+
+Le script de mise à jour du script de déploiement ayant changé, il faut d'abord récupérer la nouvelle version en faisant dans /opt/zds/zds-site
+
+```sh
+git fetch origin
+git checkout origin/dev scripts/update_and_deploy.sh
+```
+
+
+Lancer le script de déploiement
+-------------------------------
+
+Casquettes
+----------
+
+Par défaut, les casquettes ne sont modifiables que par les super-utilisateurs. Pour autoriser un groupe à le faire, il faut lui ajouter la permission `utils.change_hat` via l'admin Django.
+
+Il faut ensuite créer des casquettes. Une commande est disponible pour ajouter une casquette à tous les membres d'un groupe. Lancez donc les commandes suivantes :
+
+1. Activer le venv
+
+```
+python manage.py add_hat_to_group 'CA' "Conseil d'Administration"
+python manage.py add_hat_to_group 'devs' 'Équipe technique'
+python manage.py add_hat_to_group 'staffs' 'Staff'
+python manage.py add_hat_to_group 'Communication' 'Communication'
+python manage.py add_hat_to_group 'dtc' 'DTC'
+```
+
+Menu au survol (#4454)
+----------------------
+
+Les menus s’ouvrent désormais au survol lorsque l’option est activée. Étant donné que cette option est activée par défaut, désactiver cette option pour tous les utilisateurs existants via le shell de Django afin de ne pas troubler la communauté :
+
+1. Toujours dans le venv, `python manage.py shell`
+
+```python
+from zds.member.models import Profile
+Profile.objects.update(is_hover_enabled=False)
+```
+
+Responsables de groupe (#4600)
+------------------------------
+
+Il faut réassigner les responsables de chaque groupe dans l'admin django post-déploiement.
+
+
+Versions supérieures à la v25
+=============================
+
+Ce fichier n'est plus utilisé après la v25. Il a été remplacé par un *changelog* disponible sur le [wiki GitHub](https://github.com/zestedesavoir/zds-site/wiki).

@@ -1,40 +1,41 @@
-# coding: utf-8
 from django.contrib.auth.models import Group
 
 import os
-import shutil
 import datetime
 from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.core.urlresolvers import reverse
 
-from zds.settings import BASE_DIR
 from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory, \
     SubCategoryFactory, PublishedContentFactory, ValidationFactory
+from zds.tutorialv2.publication_utils import publish_content
+from zds.tutorialv2.tests import TutorialTestMixin
 from zds.gallery.factories import UserGalleryFactory
 from zds.forum.factories import ForumFactory, CategoryFactory
+from zds.utils.factories import CategoryFactory as ContentCategoryFactory
+from copy import deepcopy
 
-overrided_zds_app = settings.ZDS_APP
-overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
-overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
+overridden_zds_app = deepcopy(settings.ZDS_APP)
+overridden_zds_app['content']['repo_private_path'] = os.path.join(settings.BASE_DIR, 'contents-private-test')
+overridden_zds_app['content']['repo_public_path'] = os.path.join(settings.BASE_DIR, 'contents-public-test')
 
 
-@override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
-@override_settings(ZDS_APP=overrided_zds_app)
+@override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'media-test'))
+@override_settings(ZDS_APP=overridden_zds_app)
 @override_settings(ES_ENABLED=False)
-class ContentTests(TestCase):
+class ContentTests(TestCase, TutorialTestMixin):
     def setUp(self):
-
+        self.overridden_zds_app = overridden_zds_app
         # don't build PDF to speed up the tests
-        settings.ZDS_APP['content']['build_pdf_when_published'] = False
+        overridden_zds_app['content']['build_pdf_when_published'] = False
 
         self.staff = StaffProfileFactory().user
 
         settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
         self.mas = ProfileFactory().user
-        settings.ZDS_APP['member']['bot_account'] = self.mas.username
+        overridden_zds_app['member']['bot_account'] = self.mas.username
 
         self.licence = LicenceFactory()
         self.subcategory = SubCategoryFactory()
@@ -51,7 +52,7 @@ class ContentTests(TestCase):
         self.tuto.save()
 
         self.beta_forum = ForumFactory(
-            pk=settings.ZDS_APP['forum']['beta_forum_id'],
+            pk=overridden_zds_app['forum']['beta_forum_id'],
             category=CategoryFactory(position=1),
             position_in_category=1)  # ensure that the forum, for the beta versions, is created
 
@@ -60,10 +61,10 @@ class ContentTests(TestCase):
         self.chapter1 = ContainerFactory(parent=self.part1, db_object=self.tuto)
 
         self.extract1 = ExtractFactory(container=self.chapter1, db_object=self.tuto)
-        bot = Group(name=settings.ZDS_APP['member']['bot_group'])
+        bot = Group(name=overridden_zds_app['member']['bot_group'])
         bot.save()
         self.external = UserFactory(
-            username=settings.ZDS_APP['member']['external_account'],
+            username=overridden_zds_app['member']['external_account'],
             password='anything')
 
     def test_public_lists(self):
@@ -72,10 +73,10 @@ class ContentTests(TestCase):
         article = PublishedContentFactory(author_list=[self.user_author], type='ARTICLE')
         article_unpublished = PublishableContentFactory(author_list=[self.user_author], type='ARTICLE')
         self.client.logout()
-        resp = self.client.get(reverse('tutorial:list'))
+        resp = self.client.get(reverse('publication:list') + '?type=tutorial')
         self.assertContains(resp, tutorial.title)
         self.assertNotContains(resp, tutorial_unpublished.title)
-        resp = self.client.get(reverse('article:list'))
+        resp = self.client.get(reverse('publication:list') + '?type=article')
         self.assertContains(resp, article.title)
         self.assertNotContains(resp, article_unpublished.title)
         resp = self.client.get(reverse('content:find-tutorial', args=[self.user_author.pk]) + '?filter=public')
@@ -90,6 +91,32 @@ class ContentTests(TestCase):
         self.assertEqual(resp.status_code, 403)
         resp = self.client.get(reverse('content:find-article', args=[self.user_author.pk]) + '?filter=chuck-norris')
         self.assertEqual(resp.status_code, 404)
+
+    def _create_and_publish_type_in_subcategory(self, content_type, subcategory):
+        tuto_1 = PublishableContentFactory(type=content_type, author_list=[self.user_author])
+        tuto_1.subcategory.add(subcategory)
+        tuto_1.save()
+        tuto_1_draft = tuto_1.load_version()
+        publish_content(tuto_1, tuto_1_draft, is_major_update=True)
+
+    def test_list_categories(self):
+        category_1 = ContentCategoryFactory()
+        subcategory_1 = SubCategoryFactory(category=category_1)
+        subcategory_2 = SubCategoryFactory(category=category_1)
+        # Not in context if nothing published inside this subcategory
+        SubCategoryFactory(category=category_1)
+
+        for _ in range(5):
+            self._create_and_publish_type_in_subcategory('TUTORIAL', subcategory_1)
+            self._create_and_publish_type_in_subcategory('ARTICLE', subcategory_2)
+
+        self.client.logout()
+        resp = self.client.get(reverse('publication:list'))
+
+        context_categories = list(resp.context_data['categories'])
+        self.assertEqual(context_categories[0].contents_count, 10)
+        self.assertEqual(context_categories[0].subcategories, [subcategory_1, subcategory_2])
+        self.assertEqual(context_categories, [category_1])
 
     def test_private_lists(self):
         tutorial = PublishedContentFactory(author_list=[self.user_author])
@@ -111,7 +138,7 @@ class ContentTests(TestCase):
     def test_validation_list(self):
         """ensure the behavior of the `validation:list` page (with filters)"""
 
-        text = u'Ceci est un éléphant'
+        text = 'Ceci est un éléphant'
 
         tuto_not_reserved = PublishableContentFactory(type='TUTORIAL', author_list=[self.user_author])
         tuto_reserved = PublishableContentFactory(type='TUTORIAL', author_list=[self.user_author])
@@ -202,15 +229,3 @@ class ContentTests(TestCase):
         self.assertEqual(len(validations), 1)  # 1 content with this category
 
         self.assertEqual(validations[0].content, article_reserved)  # the right content
-
-    def tearDown(self):
-
-        if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
-            shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
-        if os.path.isdir(settings.ZDS_APP['content']['repo_public_path']):
-            shutil.rmtree(settings.ZDS_APP['content']['repo_public_path'])
-        if os.path.isdir(settings.MEDIA_ROOT):
-            shutil.rmtree(settings.MEDIA_ROOT)
-
-        # re-activate PDF build
-        settings.ZDS_APP['content']['build_pdf_when_published'] = True

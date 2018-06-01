@@ -1,3 +1,6 @@
+import contextlib
+from pathlib import Path
+
 import factory
 
 from zds.gallery.models import Image, Gallery, UserGallery
@@ -10,9 +13,9 @@ class ImageFactory(factory.DjangoModelFactory):
     class Meta:
         model = Image
 
-    title = factory.Sequence(u"titre de l'image {0}".format)
+    title = factory.Sequence("titre de l'image {0}".format)
     slug = factory.LazyAttribute(lambda o: '{0}'.format(slugify(o.title)))
-    legend = factory.Sequence(u"legende de l'image {0}".format)
+    legend = factory.Sequence("legende de l'image {0}".format)
     physical = factory.django.ImageField(color='blue')
 
     @classmethod
@@ -29,9 +32,16 @@ class GalleryFactory(factory.DjangoModelFactory):
     class Meta:
         model = Gallery
 
-    title = factory.Sequence(u'titre de la gallerie {0}'.format)
-    subtitle = factory.Sequence(u'Sous-titre de la gallerie {0}'.format)
+    title = factory.Sequence('titre de la gallerie {0}'.format)
+    subtitle = factory.Sequence('Sous-titre de la gallerie {0}'.format)
     slug = factory.LazyAttribute(lambda o: '{0}'.format(slugify(o.title)))
+
+    @classmethod
+    def _prepare(cls, create, **kwargs):
+        gal = super(GalleryFactory, cls)._prepare(create, **kwargs)
+        with contextlib.suppress(OSError):
+            Path(gal.get_gallery_path()).mkdir(parents=True)
+        return gal
 
 
 class UserGalleryFactory(factory.DjangoModelFactory):

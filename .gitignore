@@ -10,6 +10,7 @@ base.db
 /contents-public
 /media
 /articles-data
+/zds/_version.py
 
 /tutoriels-private-test
 /tutoriels-public-test
@@ -25,14 +26,10 @@ base.db
 /scripts/release_summary.md
 
 # Front files
-/node_modules
+node_modules
 /dist
 /npm-debug.log
-/assets/scss/_sprite.scss
-/assets/scss/vendors
-/assets/js/vendors
-/assets/images/sprite.png
-/assets/images/sprite@2x.png
+/geckodriver.log
 
 #############
 ## Python
@@ -56,7 +53,6 @@ pip-log.txt
 
 # Unit test / coverage reports
 .coverage
-.tox
 htmlcov/
 
 #Translations
@@ -64,10 +60,6 @@ htmlcov/
 
 #Mr Developer
 .mr.developer.cfg
-
-#tox
-.tox/
-
 
 #################
 ## Eclipse

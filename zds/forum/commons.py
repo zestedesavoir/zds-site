@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from datetime import datetime
 
 from django.contrib import messages
@@ -12,7 +11,7 @@ from django.contrib.auth.decorators import permission_required
 from zds.forum.models import Forum, Post, TopicRead
 from zds.notification import signals
 from zds.notification.models import TopicAnswerSubscription, Notification, NewTopicSubscription
-from zds.utils.models import Alert, CommentEdit
+from zds.utils.models import Alert, CommentEdit, get_hat_from_request
 
 
 class ForumEditMixin(object):
@@ -37,7 +36,7 @@ class TopicEditMixin(object):
     @staticmethod
     def perform_solve_or_unsolve(user, topic):
         if user == topic.author or user.has_perm('forum.change_topic'):
-            topic.is_solved = not topic.is_solved
+            topic.solved_by = None if topic.solved_by else user
             return topic.is_solved
         else:
             raise PermissionDenied
@@ -47,9 +46,9 @@ class TopicEditMixin(object):
     def perform_lock(request, topic):
         topic.is_locked = request.POST.get('lock') == 'true'
         if topic.is_locked:
-            success_message = _(u'Le sujet « {0} » est désormais verrouillé.').format(topic.title)
+            success_message = _('Le sujet « {0} » est désormais verrouillé.').format(topic.title)
         else:
-            success_message = _(u'Le sujet « {0} » est désormais déverrouillé.').format(topic.title)
+            success_message = _('Le sujet « {0} » est désormais déverrouillé.').format(topic.title)
         messages.success(request, success_message)
 
     @staticmethod
@@ -57,9 +56,9 @@ class TopicEditMixin(object):
     def perform_sticky(request, topic):
         topic.is_sticky = request.POST.get('sticky') == 'true'
         if topic.is_sticky:
-            success_message = _(u'Le sujet « {0} » est désormais épinglé.').format(topic.title)
+            success_message = _('Le sujet « {0} » est désormais épinglé.').format(topic.title)
         else:
-            success_message = _(u"Le sujet « {0} » n'est désormais plus épinglé.").format(topic.title)
+            success_message = _("Le sujet « {0} » n'est désormais plus épinglé.").format(topic.title)
         messages.success(request, success_message)
 
     def perform_move(self):
@@ -75,18 +74,18 @@ class TopicEditMixin(object):
             self.object.save()
 
             signals.edit_content.send(sender=self.object.__class__, instance=self.object, action='move')
-            message = _(u'Le sujet « {0} » a bien été déplacé dans « {1} ».').format(self.object.title, forum.title)
+            message = _('Le sujet « {0} » a bien été déplacé dans « {1} ».').format(self.object.title, forum.title)
             messages.success(self.request, message)
         else:
             raise PermissionDenied()
 
     @staticmethod
-    def perform_edit_info(topic, data, editor):
+    def perform_edit_info(request, topic, data, editor):
         topic.title = data.get('title')
         topic.subtitle = data.get('subtitle')
         topic.save()
 
-        PostEditMixin.perform_edit_post(topic.first_post(), editor, data.get('text'))
+        PostEditMixin.perform_edit_post(request, topic.first_post(), editor, data.get('text'))
 
         # add tags
         topic.tags.clear()
@@ -102,14 +101,14 @@ class PostEditMixin(object):
         is_staff = user.has_perm('forum.change_post')
         if post.author == user or is_staff:
             for alert in post.alerts_on_this_comment.all():
-                alert.solve(user, _(u'Le message a été masqué.'))
+                alert.solve(user, _('Le message a été masqué.'))
             post.is_visible = False
             post.editor = user
 
             if is_staff:
                 post.text_hidden = data.get('text_hidden', '')
 
-            messages.success(request, _(u'Le message est désormais masqué.'))
+            messages.success(request, _('Le message est désormais masqué.'))
             for user in Notification.objects.get_users_for_unread_notification_on(post):
                 signals.content_read.send(sender=post.topic.__class__, instance=post.topic, user=user)
         else:
@@ -131,7 +130,7 @@ class PostEditMixin(object):
             pubdate=datetime.now())
         alert.save()
 
-        messages.success(request, _(u"Une alerte a été envoyée à l'équipe concernant ce message."))
+        messages.success(request, _("Une alerte a été envoyée à l'équipe concernant ce message."))
 
     @staticmethod
     def perform_useful(post):
@@ -163,7 +162,7 @@ class PostEditMixin(object):
         signals.answer_unread.send(sender=post.topic.__class__, instance=post, user=user)
 
     @staticmethod
-    def perform_edit_post(post, user, text):
+    def perform_edit_post(request, post, user, text):
         # create an archive
         edit = CommentEdit()
         edit.comment = post
@@ -171,7 +170,12 @@ class PostEditMixin(object):
         edit.original_text = post.text
         edit.save()
 
-        post.update_content(text)
+        post.update_content(
+            text,
+            on_error=lambda m: messages.error(
+                request,
+                _('Erreur du serveur Markdown:\n{}').format('\n- '.join(m))))
+        post.hat = get_hat_from_request(request, post.author)
         post.update = datetime.now()
         post.editor = user
         post.save()

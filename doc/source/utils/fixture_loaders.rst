@@ -2,7 +2,7 @@
 Le chargement de jeux de données (fixtures)
 ===========================================
 
-Zeste de savoir étant un projet très complet il est nécessaire de pouvoir charger un ensemble de jeux de données
+Zeste de Savoir étant un projet très complet il est nécessaire de pouvoir charger un ensemble de jeux de données
 de manière automatique pour créer une nouvelle instance à des fins de test ou pour forker le site.
 
 Pour faciliter la tâche, trois outils sont mis à disposition des développeurs, testeurs et utilisateurs.
@@ -22,7 +22,7 @@ Nous possédons un ensemble de données sérialisées dans le dossier fixtures:
 - ``topics.yaml``: **nécessite le chargement des users**, contient la création de plusieurs topics dans les forums dont un résolu
 - ``users.yaml``: Crée 6 utilisateurs:
     - admin/admin avec les droits d'administration
-    - staff/admin faisant partie du groupe staff
+    - staff/staff faisant partie du groupe staff
     - user/user un utilisateur normal et sans problème
     - ïtrema/ïtrema un utilisateur normal, sans problème mais qui aime l'utf8
     - Anonymous/anonymous : le compte d'anonymisation
@@ -83,12 +83,13 @@ Afin de tester avec un jeu de données qui se rapproche le plus possible de ce q
 trouver une variété suffisante pour être confiant en vos tests, nous avons développé une commande qui génère une immense
 quantité de données.
 
-Pour l'utiliser il suffit de lancer ``python manage.py load_fixtures size=SIZE type=LIST_OF_TYPE``.
+Pour l'utiliser il suffit de lancer ``python manage.py load_fixtures --size=SIZE --all``.
 
 .. note::
-    Vous pouvez remplacer ``size`` par ``sizes``, ``taille`` ou ``level``.
-    Vous pouvez remplacer ``type`` par ``types``.
-    Vous pouvez ajouter ``racine`` qui permet de changer la base pour le nommage des utilisateurs (« user » par défaut).
+
+    Vous pouvez ajouter ``--racine`` qui permet de changer la base pour le nommage des utilisateurs (« user » par défaut).
+    Vous pouvez ne créer les éléments que d'un module précis (ou de quelques-uns) via des options telles que ``--forum``.
+    Ces options ne sont pas utilisables quand ``--all`` est ajouté.
 
 Les types à charger sont en fait les modèles de données qui seront créés.
 

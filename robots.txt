@@ -13,6 +13,9 @@ User-agent: *
 Disallow: /articles/html/
 Disallow: /articles/md/
 Disallow: /articles/zip/
+Disallow: /billets/html/
+Disallow: /billets/md/
+Disallow: /billets/zip/
 Disallow: /contenus/
 Disallow: /mp/
 Disallow: /oldarticles/
@@ -21,6 +24,3 @@ Disallow: /rechercher/
 Disallow: /tutoriels/html/
 Disallow: /tutoriels/md/
 Disallow: /tutoriels/zip/
-Disallow: /tribunes/html/
-Disallow: /tribunes/md/
-Disallow: /tribunes/zip/
