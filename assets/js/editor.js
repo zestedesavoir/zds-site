@@ -115,7 +115,8 @@
                 smiley_ri: { title: ":lol:",      start: ":lol:",      end: "", image: "/static/smileys/rire.gif" },
                 smiley_un: { title: ":euh:",      start: ":euh:",      end: "", image: "/static/smileys/unsure.gif" },
                 smiley_tr: { title: ":(",         start: ":(",         end: "", image: "/static/smileys/triste.png" },
-                smiley_hu: { title: ":o",         start: ":o",         end: "", image: "/static/smileys/huh.png" }
+                smiley_hu: { title: ":o",         start: ":o",         end: "", image: "/static/smileys/huh.png" },
+                smiley_8B: { title: ":B",         start: ":B",         end: "", image: "/static/smileys/b.png" }
             },
             1: {
                 smiley_c1: { title: ":colere2:",  start: ":colere2:",  end: "", image: "/static/smileys/mechant.png" },
@@ -125,7 +126,8 @@
                 smiley_an: { title: ":ange:",     start: ":ange:",     end: "", image: "/static/smileys/ange.png" },
                 smiley_c2: { title: ":colere:",   start: ":colere:",   end: "", image: "/static/smileys/angry.gif" },
                 smiley_di: { title: ":diable:",   start: ":diable:",   end: "", image: "/static/smileys/diable.png" },
-                smiley_ma: { title: ":magicien:", start: ":magicien:", end: "", image: "/static/smileys/magicien.png" }
+                smiley_ma: { title: ":magicien:", start: ":magicien:", end: "", image: "/static/smileys/magicien.png" },
+                smiley_th: { title: "^(;,;)^",    start: "^(;,;)^",    end: "", image: "/static/smileys/cthulhu.png" }
             },
             2: {
                 smiley_ni: { title: ":ninja:",    start: ":ninja:",    end: "", image: "/static/smileys/ninja.gif" },
