@@ -9,6 +9,7 @@ SMILEYS_BASE = {
     'smile.png': (':)', ':-)', ),
     'heureux.png': (':D', ':-D', ),
     'clin.png': (';)', ';-)', ),
+    'b.png': (':B', ),
     'langue.png': (':p', ':P', ':-p', ':-P', ),
     'rire.gif': (':lol:', ),
     'unsure.gif': (':euh:', ),
