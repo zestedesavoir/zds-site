@@ -60,7 +60,7 @@
                     source: "labels"
                 },
                 time: {
-                    format: "DD/MM/YYYY",
+                    parser: "DD/MM/YYYY",
                     displayFormats: {
                         "millisecond": "MMM DD",
                         "second": "MMM DD",
