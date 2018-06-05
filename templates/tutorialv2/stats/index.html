@@ -48,44 +48,40 @@
         <div id="tab-view-graph-content" class="tabcontent">
             <div class="stat-graph">
                 <!-- TODO nice to have, template tag to serialize those array, use built-in template tag ??? -->
-                <p>{% trans "Évolution des pages vues sur le contenu" %}</p>
+                <h3>{% trans "Évolution des pages vues sur le contenu" %}</h3>
                 <canvas id="view-graph" {% for url in stats %} data-views-{{ forloop.counter0 }}="[{% for view in url.stats.pageviews %}{{view.pageviews}} {% if not forloop.last %},{% endif %}{% endfor %}]"
                     data-label-views-{{ forloop.counter0 }}="{{url.label}}" {% endfor %} data-time='[{% for view in stats.0.stats.pageviews %}"{{view.date}}"{% if not forloop.last %},{% endif %} {% endfor %}]'>
                 </canvas>
 
             </div>
         </div>
-
         <div id="tab-visit-time-graph-content" class="tabcontent">
             <div class="stat-graph">
-                <p>{% trans "Évolution du temps de lecture" %}</p>
+                <h3>{% trans "Évolution du temps de lecture" %}</h3>
                 <canvas id="visit-time-graph" {% for url in stats %} data-views-{{ forloop.counter0 }}="[{% for view in url.stats.avgTimeOnPage %}{{view.avgTimeOnPage}} {% if not forloop.last %},{% endif %}{% endfor %}]"
                     data-label-views-{{ forloop.counter0 }}="{{url.label}}" {% endfor %} data-time='[{% for view in stats.0.stats.avgTimeOnPage %}"{{view.date}}"{% if not forloop.last %},{% endif %} {% endfor %}]'>
                 </canvas>
             </div>
         </div>
-
         <div id="tab-users-graph-content" class="tabcontent">
             <div class="stat-graph">
-                <p>{% trans "Évolution du nombre de visiteurs" %}</p>
+                <h3>{% trans "Évolution du nombre de visiteurs" %}</h3>
                 <canvas id="users-graph" {% for url in stats %} data-views-{{ forloop.counter0 }}="[{% for view in url.stats.users %}{{view.users}} {% if not forloop.last %},{% endif %}{% endfor %}]"
                     data-label-views-{{ forloop.counter0 }}="{{url.label}}" {% endfor %} data-time='[{% for view in stats.0.stats.users %}"{{view.date}}"{% if not forloop.last %},{% endif %} {% endfor %}]'>
                 </canvas>
             </div>
         </div>
-
         <div id="tab-new-users-graph-content" class="tabcontent">
             <div class="stat-graph">
-                <p>{% trans "Évolution du nombre de nouveaux visiteurs" %}</p>
+                <h3>{% trans "Évolution du nombre de nouveaux visiteurs" %}</h3>
                 <canvas id="new-users-graph" {% for url in stats %} data-views-{{ forloop.counter0 }}="[{% for view in url.stats.newUsers %}{{view.newUsers}} {% if not forloop.last %},{% endif %}{% endfor %}]"
                     data-label-views-{{ forloop.counter0 }}="{{url.label}}" {% endfor %} data-time='[{% for view in stats.0.stats.newUsers %}"{{view.date}}"{% if not forloop.last %},{% endif %} {% endfor %}]'>
                 </canvas>
             </div>
         </div>
-
         <div id="tab-sessions-graph-content" class="tabcontent">
             <div class="stat-graph">
-                <p>{% trans "Évolution du nombre de sessions" %}</p>
+                <h3>{% trans "Évolution du nombre de sessions" %}</h3>
                 <canvas id="sessions-graph" {% for url in stats %} data-views-{{ forloop.counter0 }}="[{% for view in url.stats.sessions %}{{view.sessions}} {% if not forloop.last %},{% endif %}{% endfor %}]"
                     data-label-views-{{ forloop.counter0 }}="{{url.label}}" {% endfor %} data-time='[{% for view in stats.0.stats.sessions %}"{{view.date}}"{% if not forloop.last %},{% endif %} {% endfor %}]'>
                 </canvas>
