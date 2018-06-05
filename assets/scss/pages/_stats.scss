@@ -1,16 +1,3 @@
-.stat-graph-container {
-  display: flex;
-
-  .stat-graph {
-    width: 50%;
-    margin: 0 0 20px 20px;
-  }
-
-  p {
-    text-align: center;
-  }
-}
-
 .stat-table {
   .level-1 {
     padding-left: 20px;
@@ -20,3 +7,42 @@
     padding-left: 40px;
   }
 }
+
+ /* Style the tab */
+.tab {
+    color: $color-primary;
+    background-color: #DDD;
+    border: 1px solid #DDD;
+    border-bottom: none;
+}
+
+/* Style the buttons that are used to open the tab content */
+.tab span {
+    display: inline-block;
+    cursor: pointer;
+    padding: 7px 15px;
+}
+
+/* Change background color of buttons on hover */
+.tab span:hover {
+    background-color: #F7F7F7;
+}
+
+/* Create an active/current tablink class */
+.tab span.active {
+    background-color: #F7F7F7;
+    font-weight: bold;
+}
+
+/* Style the tab content */
+.tabcontent {
+    display: none;
+    padding: 6px 12px;
+    border: 1px solid #DDD;
+    border-top: none;
+
+    .stat-graph {
+      width: 60%;
+      margin: 0 auto;
+    }
+} 
