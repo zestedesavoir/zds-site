@@ -138,4 +138,26 @@
         setupChart($("#sessions-graph"));
     }
 
+    // Tab management
+    function displayTab(tab) {
+        // Hide all the tabs
+        $(".tabcontent").each(function () {
+            $(this).hide();
+        });
+        // Remove "active" info from links
+        $(".tablinks").each(function () {
+            $(this).removeClass("active");
+        });
+        // Show current tab and add "active" class to the link
+        $("#" + $(tab).attr('id') + '-content').show();
+        $(tab).addClass("active");
+    }
+
+    $(".tablinks").each(function () {
+        $(this).click(function () {
+            displayTab($(this));
+        });
+    });
+    displayTab($(".tablinks").first());
+
 })(jQuery);
