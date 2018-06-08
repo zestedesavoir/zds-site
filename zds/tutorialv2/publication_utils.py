@@ -379,7 +379,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
         )
         if content == '' and messages:
             raise FailureDuringPublication('Markdown was not parsed due to {}'.format(messages))
-        zmd_class_dir_path = Path(os.environ.get('HOME', '~')) / 'texmf' / 'tex' / 'latex'
+        zmd_class_dir_path = Path(settings.ZDS_APP['content']['latex_template_repo'])
         if zmd_class_dir_path.exists() and zmd_class_dir_path.is_dir():
             with contextlib.suppress(FileExistsError):
                 zmd_class_link = base_directory / 'zmdocument.cls'
