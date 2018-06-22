@@ -57,7 +57,7 @@
         </div>
         <div id="tab-visit-time-graph-content" class="tabcontent">
             <div class="stat-graph">
-                <h3>{% trans "Évolution du temps de lecture" %}</h3>
+                <h3>{% trans "Évolution du temps de lecture (en secondes)" %}</h3>
                 <canvas id="visit-time-graph" {% for url in stats %} data-views-{{ forloop.counter0 }}="[{% for view in url.stats.avgTimeOnPage %}{{view.avgTimeOnPage}} {% if not forloop.last %},{% endif %}{% endfor %}]"
                     data-label-views-{{ forloop.counter0 }}="{{url.label}}" {% endfor %} data-time='[{% for view in stats.0.stats.avgTimeOnPage %}"{{view.date}}"{% if not forloop.last %},{% endif %} {% endfor %}]'>
                 </canvas>
