@@ -78,7 +78,7 @@
         responsive: true,
     };
 
-    function setupChart($object) {
+    function setupChart($object, formatter) {
 
         var $dataX = $object.data("time");
         var times = [];
@@ -102,7 +102,7 @@
                 var color = hsvToRgb(n, 100, 80);
                 data.push({
                     label: label,
-                    data: allObjectData[o],
+                    data: formatter ? allObjectData[o].map(formatter) : allObjectData[o],
                     fill: false,
                     backgroundColor: "rgba(" + color.join(",") + ", 1)",
                     borderColor: "rgba(" + color.join(",") + ", 0.70)",
@@ -126,7 +126,7 @@
         setupChart($("#view-graph"));
     }
     if ($("#visit-time-graph").length) {
-        setupChart($("#visit-time-graph"));
+        setupChart($("#visit-time-graph"), Math.round);
     }
     if ($("#users-graph").length) {
         setupChart($("#users-graph"));
