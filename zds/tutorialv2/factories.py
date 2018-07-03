@@ -22,8 +22,11 @@ tricky_text_content = \
     'Image: ![GIF qui existe](http://upload.wikimedia.org/wikipedia/commons/2/27/AnimatedStar.gif)\n\n' \
     'Image: ![GIF qui existe pas](example.com/test.gif)\n\n' \
     'Image: ![Image locale qui existe pas](does-not-exist/test.png)\n\n' \
-    'Image: ![Bonus: image bizarre](https://s.qwant.com/thumbr/?u=http%3A%2F%2Fwww.blogoergosum.com%2Fwp-content%2F' \
-    'uploads%2F2010%2F02%2Fwikipedia-logo.jpg&h=338&w=600)\n\n' \
+    'Image: ![Bonus: image bizarre](https://s2.qwant.com/thumbr/300x0/e/7/' \
+    '56e2a2bdcd656d0b8a29c650116e29e893239089f71adf128d5f06330703b1/1024px-' \
+    'Oh_my_darling.jpg?u=https%3A%2F%2Fupload' \
+    '.wikimedia.org%2Fwikipedia%2Fcommons%2Fthumb%2Fa%2Fa9%2FOh_my_darling.jpg%2F1024px-' \
+    'Oh_my_darling.jpg&q=0&b=0&p=0&a=0)\n\n' \
     'Image: ![Bonus: le serveur existe pas !](http://unknown.image.zds/test.png)\n\n' \
     'Image: ![Bonus: juste du texte](URL invalide)\n\n' \
     '# Et donc ...\n\n'\
