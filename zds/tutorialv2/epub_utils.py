@@ -189,13 +189,11 @@ def handle_images(relative_path):
                 final_path = splitted.path
             elif image_url.startswith(settings.MEDIA_URL):
                 final_path = Path(image_url).name
-            elif Path(image_url).is_absolute():
+            elif Path(image_url).is_absolute() and 'images' in image_url:
                 root = Path(image_url)
                 while root.name != 'images':
                     root = root.parent
                 final_path = str(Path(image_url).relative_to(root))
-            if final_path.endswith('svg') or final_path.endswith('gif'):
-                final_path = final_path[:-3] + 'png'
             image_path_in_ebook = relative_path + '/images/' + str(final_path).replace('%20', '_')
             image['src'] = str(image_path_in_ebook)
         ids = {}
