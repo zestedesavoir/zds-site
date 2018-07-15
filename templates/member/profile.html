@@ -82,20 +82,32 @@
         <ul class="member-social">
             {% if profile.show_email and user.is_authenticated %}
                 <li>
-                    {% trans "E-mail" %} : {{ usr.email|obfuscate_mailto }}
+                    {% if not profile.end_ban_read and not profile.can_read %}
+                        <em>{% trans "L'e-mail de ce membre est masqué car il a été banni définitivement." %}</em>
+                    {% else %}
+                        {% trans "E-mail" %} : {{ usr.email|obfuscate_mailto }}
+                    {% endif %}
                 </li>
             {% endif %}
 
             {% if profile.site %}
                 <li>
-                    {% trans "Site web" %} : <a href="{{ profile.site }}">{{ profile.site }}</a>
+                    {% if not profile.end_ban_read and not profile.can_read %}
+                        <em>{% trans "Le site web de ce membre est masqué car il a été banni définitivement." %}</em>
+                    {% else %}
+                        {% trans "Site web" %} : <a href="{{ profile.site }}">{{ profile.site }}</a>
+                    {% endif %}
                 </li>
             {% endif %}
         </ul>
 
         {% if profile.sign %}
             <h2 id="signature">{% trans "Signature" %}</h2>
-            {{ profile.sign|emarkdown_inline }}
+            {% if not profile.end_ban_read and not profile.can_read %}
+                <em>{% trans "La signature de ce membre est masquée car il a été banni définitivement." %}</em>
+            {% else %}
+                {{ profile.sign|emarkdown_inline }}
+            {% endif %}
         {% endif %}
 
         {% if profile.has_hat or perms.utils.change_hat %}
