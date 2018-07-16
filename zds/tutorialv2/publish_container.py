@@ -47,7 +47,8 @@ def publish_container(db_object, base_dir, container, template='tutorialv2/expor
         makedirs(current_dir)
 
     if container.has_extracts():  # the container can be rendered in one template
-        wrapped_image_callback = image_callback(ctx['relative']) if image_callback else image_callback
+        img_relative_path = '..' if ctx['relative'] == '.' else '../' + ctx['relative']
+        wrapped_image_callback = image_callback(img_relative_path) if image_callback else image_callback
         args = {'container': container, 'is_js': is_js}
         args.update(ctx)
         parsed = render_to_string(template, args)
