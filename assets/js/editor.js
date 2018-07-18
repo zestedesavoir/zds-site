@@ -126,8 +126,7 @@
                 smiley_an: { title: ":ange:",     start: ":ange:",     end: "", image: "/static/smileys/ange.png" },
                 smiley_c2: { title: ":colere:",   start: ":colere:",   end: "", image: "/static/smileys/angry.gif" },
                 smiley_di: { title: ":diable:",   start: ":diable:",   end: "", image: "/static/smileys/diable.png" },
-                smiley_ma: { title: ":magicien:", start: ":magicien:", end: "", image: "/static/smileys/magicien.png" },
-                smiley_th: { title: "^(;,;)^",    start: "^(;,;)^",    end: "", image: "/static/smileys/cthulhu.png" }
+                smiley_ma: { title: ":magicien:", start: ":magicien:", end: "", image: "/static/smileys/magicien.png" }
             },
             2: {
                 smiley_ni: { title: ":ninja:",    start: ":ninja:",    end: "", image: "/static/smileys/ninja.gif" },
