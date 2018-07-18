@@ -145,7 +145,7 @@
         {% endif %}
 
         <div class="message-metadata">
-            <a href="{{ message.author.get_absolute_url }}" class="username" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            <a contextmenu="ping-menu" oncontextmenu="setContextualMenuElement(event);" href="{{ message.author.get_absolute_url }}" class="username" itemprop="author" itemscope itemtype="http://schema.org/Person">
                 <span itemprop="name">{{ message.author.username }}</span>
             </a>
 
