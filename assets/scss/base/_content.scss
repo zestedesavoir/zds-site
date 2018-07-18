@@ -407,11 +407,14 @@ td code {
     }
 }
 
-.footnote {
+.footnote, .footnotes{
     opacity: .7;
 
     ol {
         padding-left: 25px;
+        p {
+            display: inline;
+        }
     }
 }
 
