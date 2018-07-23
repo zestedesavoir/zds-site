@@ -83,7 +83,7 @@
             {% if profile.show_email and user.is_authenticated %}
                 <li>
                     {% if not profile.end_ban_read and not profile.can_read %}
-                        <em>{% trans "L'adresse e-mail de ce membre est masqué car il a été banni définitivement." %}</em>
+                        <em>{% trans "Le courriel de ce membre est masqué car il a été banni définitivement." %}</em>
                     {% else %}
                         {% trans "E-mail" %} : {{ usr.email|obfuscate_mailto }}
                     {% endif %}
