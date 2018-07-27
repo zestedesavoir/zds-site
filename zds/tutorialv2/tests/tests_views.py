@@ -6176,11 +6176,13 @@ class PublishedContentTests(TestCase, TutorialTestMixin):
         article_1 = PublishedContentFactory(author_list=[self.user_author], type='ARTICLE')
         article_2 = PublishedContentFactory(author_list=[self.user_author], type='ARTICLE')
         article_3 = PublishedContentFactory(author_list=[self.user_author], type='ARTICLE')
+        article_1.save()
+        article_2.save()
+        article_3.save()
 
-        result = self.client.get(reverse('content:view', args=[article_3.pk, article_3.slug]))
+        result = self.client.get(reverse('article:view', kwargs={'pk': article_3.pk, 'slug': article_3.slug}))
 
-        self.assertContains(result, article_2.get_absolute_url_online())
-        self.assertNotContains(result, article_1.get_absolute_url_online())
+        self.assertEqual(result.context['previous_content'].pk, article2.public_version.pk)
 
     def test_opinion_link_is_not_related_to_the_author(self):
         """
@@ -6191,13 +6193,15 @@ class PublishedContentTests(TestCase, TutorialTestMixin):
         user_1_opinion_1 = PublishedContentFactory(author_list=[self.user_author], type='OPINION')
         user_2_opinion_1 = PublishedContentFactory(author_list=[self.user_guest], type='OPINION')
         user_1_opinion_2 = PublishedContentFactory(author_list=[self.user_author], type='OPINION')
+        user_1_opinion_1.save()
+        user_2_opinion_1.save()
+        user_1_opinion_2.save()
 
-        result = self.client.get(reverse('content:view', args=[user_1_opinion_2.pk, user_1_opinion_2.slug]))
+        result = self.client.get(reverse('opinion:view', kwargs={'pk': user_1_opinion_2.pk, 'slug': user_1_opinion_2.slug}))
 
-        self.assertContains(result, user_2_opinion_1.get_absolute_url_online())
-        self.assertNotContains(result, user_1_opinion_1.get_absolute_url_online())
+        self.assertEqual(result.context['previous_content'].pk, user_2_opinion_1.public_version.pk)
 
-        result = self.client.get(reverse('content:view', args=[user_2_opinion_1.pk, user_2_opinion_1.slug]))
+        result = self.client.get(reverse('opinion:view', kwargs={'pk': user_2_opinion_1.pk, 'slug': user_2_opinion_1.slug}))
 
-        self.assertContains(result, user_1_opinion_1.get_absolute_url_online())
-        self.assertContains(result, user_1_opinion_2.get_absolute_url_online())
+        self.assertEqual(result.context['previous_content'].pk, user_1_opinion_1.public_version.pk)
+        self.assertEqual(result.context['next_content'].pk, user_1_opinion_2.public_version.pk)
