@@ -6169,3 +6169,35 @@ class PublishedContentTests(TestCase, TutorialTestMixin):
 
         for url in wrong_urls:
             self.assertEqual(self.client.get(url).status_code, 404, msg=url)
+
+    def test_article_previous_link(self):
+        """Test the behaviour of the article previous link."""
+
+        article_1 = PublishedContentFactory(author_list=[self.user_author], type='ARTICLE')
+        article_2 = PublishedContentFactory(author_list=[self.user_author], type='ARTICLE')
+        article_3 = PublishedContentFactory(author_list=[self.user_author], type='ARTICLE')
+
+        result = self.client.get(reverse('content:view', args=[article_3.pk, article_3.slug]))
+
+        self.assertContains(result, article_2.get_absolute_url_online())
+        self.assertNotContains(result, article_1.get_absolute_url_online())
+
+    def test_opinion_link_is_not_related_to_the_author(self):
+        """
+        Test that the next and previous link in the opinion page take all the opinions
+        into accounts and not only the ones of the author.
+        """
+
+        user_1_opinion_1 = PublishedContentFactory(author_list=[self.user_author], type='OPINION')
+        user_2_opinion_1 = PublishedContentFactory(author_list=[self.user_guest], type='OPINION')
+        user_1_opinion_2 = PublishedContentFactory(author_list=[self.user_author], type='OPINION')
+
+        result = self.client.get(reverse('content:view', args=[user_1_opinion_2.pk, user_1_opinion_2.slug]))
+
+        self.assertContains(result, user_2_opinion_1.get_absolute_url_online())
+        self.assertNotContains(result, user_1_opinion_1.get_absolute_url_online())
+
+        result = self.client.get(reverse('content:view', args=[user_2_opinion_1.pk, user_2_opinion_1.slug]))
+
+        self.assertContains(result, user_1_opinion_1.get_absolute_url_online())
+        self.assertContains(result, user_1_opinion_2.get_absolute_url_online())
