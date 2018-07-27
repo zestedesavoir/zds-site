@@ -98,7 +98,7 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
 
             context['previous_content'] = queryset_pagination \
                 .filter(publication_date__lt=self.public_content_object.publication_date) \
-                .order_by('publication_date').last()
+                .order_by('-publication_date').first()
             context['next_content'] = queryset_pagination \
                 .filter(publication_date__gt=self.public_content_object.publication_date) \
                 .order_by('publication_date').first()
