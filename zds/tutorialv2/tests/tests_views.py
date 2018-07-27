@@ -6182,7 +6182,7 @@ class PublishedContentTests(TestCase, TutorialTestMixin):
 
         result = self.client.get(reverse('article:view', kwargs={'pk': article_3.pk, 'slug': article_3.slug}))
 
-        self.assertEqual(result.context['previous_content'].pk, article2.public_version.pk)
+        self.assertEqual(result.context['previous_content'].pk, article_2.public_version.pk)
 
     def test_opinion_link_is_not_related_to_the_author(self):
         """
