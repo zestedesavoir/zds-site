@@ -6197,11 +6197,21 @@ class PublishedContentTests(TestCase, TutorialTestMixin):
         user_2_opinion_1.save()
         user_1_opinion_2.save()
 
-        result = self.client.get(reverse('opinion:view', kwargs={'pk': user_1_opinion_2.pk, 'slug': user_1_opinion_2.slug}))
+        result = self.client.get(
+            reverse('opinion:view',
+                    kwargs={
+                        'pk': user_1_opinion_2.pk,
+                        'slug': user_1_opinion_2.slug
+                    }))
 
         self.assertEqual(result.context['previous_content'].pk, user_2_opinion_1.public_version.pk)
 
-        result = self.client.get(reverse('opinion:view', kwargs={'pk': user_2_opinion_1.pk, 'slug': user_2_opinion_1.slug}))
+        result = self.client.get(
+            reverse('opinion:view',
+                    kwargs={
+                        'pk': user_2_opinion_1.pk,
+                        'slug': user_2_opinion_1.slug
+                    }))
 
         self.assertEqual(result.context['previous_content'].pk, user_1_opinion_1.public_version.pk)
         self.assertEqual(result.context['next_content'].pk, user_1_opinion_2.public_version.pk)
