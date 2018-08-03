@@ -113,6 +113,7 @@ class ForumMemberTests(TestCase):
 
         # check topic and post
         self.assertEqual(post.topic, topic)
+        self.assertEqual(topic.forum.pk, self.forum12.pk)
 
         # check position
         self.assertEqual(post.position, 1)
