@@ -6,7 +6,7 @@ from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.factories import PublishedContentFactory
 from zds.utils.misc import contains_utf8mb4
 from zds.utils.models import Alert
-from zds.utils.templatetags.interventions import alerts_list
+from zds.utils.context_processor import get_header_notifications
 from zds.utils.templatetags.remove_url_scheme import remove_url_scheme
 
 
@@ -31,9 +31,9 @@ class Misc(TestCase):
         alert.pubdate = datetime.datetime.now()
         alert.text = 'Something to say.'
         alert.save()
-        filter_result = alerts_list(staff.user)
-        self.assertEqual(1, filter_result['nb_alerts'])
-        self.assertEqual(alert.text, filter_result['alerts'][0]['text'])
+        filter_result = get_header_notifications(staff.user)['alerts']
+        self.assertEqual(1, filter_result['total'])
+        self.assertEqual(alert.text, filter_result['list'][0]['text'])
 
     def test_remove_url_scheme(self):
         Element = collections.namedtuple('element', ['name', 'given', 'expected'])

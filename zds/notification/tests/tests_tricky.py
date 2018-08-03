@@ -18,7 +18,7 @@ from zds.tutorialv2.publication_utils import publish_content, notify_update
 from zds.tutorialv2.tests import TutorialTestMixin
 from copy import deepcopy
 
-from zds.utils.templatetags.interventions import interventions_topics
+from zds.utils.header_notifications import get_header_notifications
 
 overridden_zds_app = deepcopy(settings.ZDS_APP)
 
@@ -350,7 +350,7 @@ class ContentNotification(TestCase, TutorialTestMixin):
         content.save(force_slug_update=False)
         publish_content(content, content.load_version(), True)
         notify_update(content, True, False)
-        notifs = interventions_topics(self.user1)
+        notifs = get_header_notifications(self.user1)['general_notifications']['list']
         self.assertEqual(1, len(notifs), str(notifs))
 
     def test_only_one_notif_on_major_update(self):
@@ -363,5 +363,5 @@ class ContentNotification(TestCase, TutorialTestMixin):
         content.save(force_slug_update=False)
         publish_content(content, content.load_version(), True)
         notify_update(content, True, True)
-        notifs = interventions_topics(self.user1)
+        notifs = get_header_notifications(self.user1)['general_notifications']['list']
         self.assertEqual(1, len(notifs), str(notifs))
