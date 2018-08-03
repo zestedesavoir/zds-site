@@ -95,7 +95,7 @@
     {% endblock %}
 
     {# favicons #}
-    {% if user.is_authenticated and user|interventions_topics|length > 0 %}
+    {% if user.is_authenticated and header_general_notifications.total > 0 %}
         {% set "-notif.png" as favicon_extension %}
     {% else %}
         {% set ".png" as favicon_extension %}

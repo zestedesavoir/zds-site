@@ -207,121 +207,111 @@
             <div class="notifs-links">
                 {# MESSAGERIE PRIVEE #}
                 <div>
-                    {% with topics=user|interventions_privatetopics %}
-                    {% with notifications=topics.notifications %}
-                    {% with total_notifications=topics.total %}
-                        <a href="{% url "mp-list" %}" class="ico-link" title="{% trans 'Messagerie privée' %}">
-                            {% if total_notifications > 0 %}
-                                <span class="notif-count">{{ total_notifications }}</span>
+                    <a href="{% url "mp-list" %}" class="ico-link" title="{% trans 'Messagerie privée' %}">
+                        {% if header_private_topic_notifications.total > 0 %}
+                            <span class="notif-count">{{ header_private_topic_notifications.total }}</span>
+                        {% endif %}
+                        <span class="notif-text ico ico-messages">{% trans "Messagerie privée" %}</span>
+                    </a>
+
+                    <div class="dropdown">
+                        <span class="dropdown-title dropdown-pm">
+                            {% trans "Messagerie privée" %}
+                            <a href="{% url "mp-new" %}" class="ico-after pm-new white" title="{% trans 'Envoyer un nouveau message privé' %}"></a>
+                       </span>
+
+                        <ul class="dropdown-list">
+                            {% for notification in header_private_topic_notifications.list %}
+                            <li>
+                                <a href="{{ notification.url }}">
+                                    <img src="{{ notification.sender.profile.get_avatar_url|remove_url_scheme }}" alt="" class="avatar">
+                                    <span class="username">{{ notification.sender.username }}</span>
+                                    <span class="date">{{ notification.pubdate|format_date:True|capfirst }}</span>
+                                    <span class="topic">{{ notification.title }}</span>
+                                </a>
+                            </li>
+                            {% endfor %}
+
+                            {% if header_private_topic_notifications.total == 0 %}
+                            <li class="dropdown-empty-message">
+                                {% trans "Aucun nouveau message" %}
+                            </li>
                             {% endif %}
-                            <span class="notif-text ico ico-messages">{% trans "Messagerie privée" %}</span>
+                        </ul>
+                        <a href="{% url "mp-list" %}" class="dropdown-link-all">
+                            {% trans "Toutes les conversations" %}
                         </a>
-
-                        <div class="dropdown">
-                            <span class="dropdown-title dropdown-pm">
-                                {% trans "Messagerie privée" %}
-                                <a href="{% url "mp-new" %}" class="ico-after pm-new white" title="{% trans 'Envoyer un nouveau message privé' %}"></a>
-                           </span>
-
-                            <ul class="dropdown-list">
-                                {% for notification in notifications %}
-                                <li>
-                                    <a href="{{ notification.url }}">
-                                        <img src="{{ notification.sender.profile.get_avatar_url|remove_url_scheme }}" alt="" class="avatar">
-                                        <span class="username">{{ notification.sender.username }}</span>
-                                        <span class="date">{{ notification.pubdate|format_date:True|capfirst }}</span>
-                                        <span class="topic">{{ notification.title }}</span>
-                                    </a>
-                                </li>
-                                {% endfor %}
-
-                                {% if total_notifications == 0 %}
-                                <li class="dropdown-empty-message">
-                                    {% trans "Aucun nouveau message" %}
-                                </li>
-                                {% endif %}
-                            </ul>
-                            <a href="{% url "mp-list" %}" class="dropdown-link-all">
-                                {% trans "Toutes les conversations" %}
-                            </a>
-                        </div>
-                        {% endwith %}
-                    {% endwith %}
-                    {% endwith %}
+                    </div>
                 </div>
 
                 {# NOTIFICATIONS #}
                 <div>
-                    {% with unread_posts=user|interventions_topics %}
-                        <a href="{% url 'notification-list' %}" class="ico-link" title="{% trans 'Notifications' %}">
-                            {% if unread_posts|length > 0 %}
-                                <span class="notif-count">{{ unread_posts|length }}</span>
+                    <a href="{% url 'notification-list' %}" class="ico-link" title="{% trans 'Notifications' %}">
+                        {% if header_general_notifications.total > 0 %}
+                            <span class="notif-count">{{ header_general_notifications.total }}</span>
+                        {% endif %}
+                        <span class="notif-text ico ico-notifs">{% trans "Notifications" %}</span>
+                    </a>
+
+                    <div class="dropdown">
+                        <span class="dropdown-title">{% trans "Notifications" %}</span>
+
+                        <ul class="dropdown-list">
+                            {% for first_unread in header_general_notifications.list %}
+                                <li>
+                                    <a href="{{ first_unread.url }}">
+                                        <img src="{{ first_unread.author.profile.get_avatar_url|remove_url_scheme }}" alt="" class="avatar">
+                                        <span class="username">{{ first_unread.author.username }}</span>
+                                        <span class="date">{{ first_unread.pubdate|format_date:True|capfirst }}</span>
+                                        <span class="topic">{{ first_unread.title }}</span>
+                                    </a>
+                                </li>
+                            {% endfor %}
+
+                            {% if header_general_notifications.total == 0 %}
+                                <li class="dropdown-empty-message">
+                                    {% trans "Aucune notification" %}
+                                </li>
                             {% endif %}
-                            <span class="notif-text ico ico-notifs">{% trans "Notifications" %}</span>
+                        </ul>
+                        <a href="{% url 'notification-list' %}" class="dropdown-link-all">
+                            {% trans "Toutes les notifications" %}
                         </a>
-
-                        <div class="dropdown">
-                            <span class="dropdown-title">{% trans "Notifications" %}</span>
-
-                            <ul class="dropdown-list">
-                                {% for first_unread in unread_posts %}
-                                    <li>
-                                        <a href="{{ first_unread.url }}">
-                                            <img src="{{ first_unread.author.profile.get_avatar_url|remove_url_scheme }}" alt="" class="avatar">
-                                            <span class="username">{{ first_unread.author.username }}</span>
-                                            <span class="date">{{ first_unread.pubdate|format_date:True|capfirst }}</span>
-                                            <span class="topic">{{ first_unread.title }}</span>
-                                        </a>
-                                    </li>
-                                {% endfor %}
-
-                                {% if unread_posts|length == 0 %}
-                                    <li class="dropdown-empty-message">
-                                        {% trans "Aucune notification" %}
-                                    </li>
-                                {% endif %}
-                            </ul>
-                            <a href="{% url 'notification-list' %}" class="dropdown-link-all">
-                                {% trans "Toutes les notifications" %}
-                            </a>
-                        </div>
-                    {% endwith %}
+                    </div>
                 </div>
 
                 {# ALERTES MODERATION #}
                 {% if perms.forum.change_post %}
-                    {% with alerts_list=user|alerts_list %}
-                        <div>
-                            <a href="{% url "pages-alerts" %}" class="ico-link" title="{% trans 'Alertes de modération' %}">
-                                <span class="notif-text ico ico-alerts">{% trans "Alertes de modération" %}</span>
-                                {% if alerts_list.nb_alerts > 0 %}
-                                    <span class="notif-count">{{ alerts_list.nb_alerts }}</span>
-                                {% endif %}
-                            </a>
+                    <div>
+                        <a href="{% url "pages-alerts" %}" class="ico-link" title="{% trans 'Alertes de modération' %}">
+                            <span class="notif-text ico ico-alerts">{% trans "Alertes de modération" %}</span>
+                            {% if header_alerts.total > 0 %}
+                                <span class="notif-count">{{ header_alerts.total }}</span>
+                            {% endif %}
+                        </a>
 
-                            <div class="dropdown staff-only">
-                                <span class="dropdown-title">{% trans "Alertes de modération" %}</span>
-                                <ul class="dropdown-list">
-                                    {% for alert in alerts_list.alerts %}
-                                        <li>
-                                            <a href="{{ alert.url }}">
-                                                <span class="username">{{ alert.title }}</span>
-                                                <span class="date">{{ alert.pubdate|format_date:True|capfirst }}</span>
-                                                <span class="topic">{{ alert.text }}</span>
-                                            </a>
-                                        </li>
-                                    {% empty %}
-                                        <li class="dropdown-empty-message">
-                                            {% trans "Aucune alerte" %}
-                                        </li>
-                                    {% endfor %}
-                                </ul>
-                                <a href="{% url "pages-alerts" %}" class="dropdown-link-all">
-                                    {% trans "Toutes les alertes" %}
-                                </a>
-                            </div>
+                        <div class="dropdown staff-only">
+                            <span class="dropdown-title">{% trans "Alertes de modération" %}</span>
+                            <ul class="dropdown-list">
+                                {% for alert in header_alerts.list %}
+                                    <li>
+                                        <a href="{{ alert.url }}">
+                                            <span class="username">{{ alert.title }}</span>
+                                            <span class="date">{{ alert.pubdate|format_date:True|capfirst }}</span>
+                                            <span class="topic">{{ alert.text }}</span>
+                                        </a>
+                                    </li>
+                                {% empty %}
+                                    <li class="dropdown-empty-message">
+                                        {% trans "Aucune alerte" %}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                            <a href="{% url "pages-alerts" %}" class="dropdown-link-all">
+                                {% trans "Toutes les alertes" %}
+                            </a>
                         </div>
-                    {% endwith %}
+                    </div>
                 {% endif %}
             </div>
 
