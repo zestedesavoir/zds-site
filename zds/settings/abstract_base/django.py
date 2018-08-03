@@ -136,6 +136,7 @@ django_template_engine = {
             # ZDS context processors
             'zds.utils.context_processor.app_settings',
             'zds.utils.context_processor.version',
+            'zds.utils.context_processor.header_notifications'
         ],
     },
 }

@@ -4,6 +4,8 @@ from django.conf import settings
 
 from zds import __version__, git_version
 
+from .header_notifications import get_header_notifications
+
 
 def get_version():
     """
@@ -22,6 +24,16 @@ def version(request):
     A context processor to include the app version on all pages.
     """
     return {'zds_version': get_version()}
+
+
+def header_notifications(request):
+    user = request.user
+    results = get_header_notifications(user)
+    if results is None:
+        # Unauthorized
+        return {}
+    # Prefix every key with `header_`
+    return {'header_' + k: v for k, v in results.items()}
 
 
 def app_settings(request):
