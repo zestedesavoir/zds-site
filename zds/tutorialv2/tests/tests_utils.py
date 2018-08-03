@@ -27,7 +27,7 @@ from mock import Mock
 from copy import deepcopy
 from zds import json_handler
 from zds.utils.models import Alert
-from zds.utils.templatetags.interventions import alerts_list
+from zds.utils.header_notifications import get_header_notifications
 
 BASE_DIR = settings.BASE_DIR
 
@@ -547,9 +547,9 @@ class UtilsTests(TestCase, TutorialTestMixin):
         Alert.objects.create(scope='CONTENT', comment=reaction, text='a text', author=ProfileFactory().user,
                              pubdate=datetime.datetime.now(), content=published)
         staff = StaffProfileFactory().user
-        self.assertEqual(1, alerts_list(staff)['nb_alerts'])
+        self.assertEqual(1, get_header_notifications(staff)['alerts']['total'])
         unpublish_content(published, staff)
-        self.assertEqual(0, alerts_list(staff)['nb_alerts'])
+        self.assertEqual(0, get_header_notifications(staff)['alerts']['total'])
 
     def tearDown(self):
         super().tearDown()

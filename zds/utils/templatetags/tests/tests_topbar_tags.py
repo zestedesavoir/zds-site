@@ -12,7 +12,7 @@ from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.factories import PublishedContentFactory, PublishableContentFactory, SubCategoryFactory
 from zds.tutorialv2.publication_utils import publish_content
 from zds.utils.factories import CategoryFactory as ContentCategoryFactory
-from zds.utils.templatetags.topbar import top_categories, top_categories_content
+from zds.utils.templatetags.topbar import topbar_forum_categories, topbar_publication_categories
 from copy import deepcopy
 
 
@@ -26,7 +26,6 @@ overridden_zds_app['content']['build_pdf_when_published'] = False
 class TopBarTests(TestCase):
 
     def setUp(self):
-
         # Create some forum's category
         self.category1 = CategoryFactory(position=1)
         self.category2 = CategoryFactory(position=2)
@@ -44,8 +43,6 @@ class TopBarTests(TestCase):
         # don't build PDF to speed up the tests
 
     def test_top_tags(self):
-        """Unit testing top_categories method """
-
         user = ProfileFactory().user
 
         # Create 7 topics and give them tags on both public and staff topics
@@ -80,7 +77,7 @@ class TopBarTests(TestCase):
         topic.add_tags({'tag-4-4'})
 
         # Now call the function, should be "tag-4-4", "tag-3-5"
-        top_tags = top_categories(user).get('tags')
+        top_tags = topbar_forum_categories(user).get('tags')
 
         # tag-X-Y : X should be decreasing
         self.assertEqual(top_tags[0].title, 'tag-4-4')
@@ -88,7 +85,7 @@ class TopBarTests(TestCase):
         self.assertEqual(len(top_tags), 2)
 
         # Admin should see theirs specifics tags
-        top_tags = top_categories(self.staff1.user).get('tags')
+        top_tags = topbar_forum_categories(self.staff1.user).get('tags')
 
         # tag-X-Y : Y should be decreasing
         self.assertEqual(top_tags[0].title, 'tag-3-5')
@@ -101,13 +98,11 @@ class TopBarTests(TestCase):
         overridden_zds_app['forum']['top_tag_exclu'] = {'tag-4-4'}
 
         # User only sees the only 'public' tag left
-        top_tags = top_categories(user).get('tags')
+        top_tags = topbar_forum_categories(user).get('tags')
         self.assertEqual(top_tags[0].title, 'tag-3-5')
         self.assertEqual(len(top_tags), 1)
 
     def test_top_tags_content(self):
-        """Unit testing top_categories_content method """
-
         tags_tuto = ['a', 'b', 'c']
         tags_article = ['a', 'd', 'e']
 
@@ -121,8 +116,8 @@ class TopBarTests(TestCase):
         content.save()
         tags_article = content.tags.all()
 
-        top_tags_tuto = top_categories_content('TUTORIAL').get('tags')
-        top_tags_article = top_categories_content('ARTICLE').get('tags')
+        top_tags_tuto = topbar_publication_categories('TUTORIAL').get('tags')
+        top_tags_article = topbar_publication_categories('ARTICLE').get('tags')
 
         self.assertEqual(list(top_tags_tuto), list(tags_tuto))
         self.assertEqual(list(top_tags_article), list(tags_article))
@@ -143,7 +138,7 @@ class TopBarTests(TestCase):
         tuto_1_draft = tuto_1.load_version()
         publish_content(tuto_1, tuto_1_draft, is_major_update=True)
 
-        top_categories_tuto = top_categories_content('TUTORIAL').get('categories')
+        top_categories_tuto = topbar_publication_categories('TUTORIAL').get('categories')
         expected = [(subcategory_1.title, subcategory_1.slug, category_1.slug)]
         self.assertEqual(top_categories_tuto[category_1.title], expected)
 
@@ -152,7 +147,7 @@ class TopBarTests(TestCase):
         tuto_2_draft = tuto_2.load_version()
         publish_content(tuto_2, tuto_2_draft, is_major_update=True)
 
-        top_categories_tuto = top_categories_content('TUTORIAL').get('categories')
+        top_categories_tuto = topbar_publication_categories('TUTORIAL').get('categories')
         # New subcategory is now first is the list
         expected.insert(0, (subcategory_2.title, subcategory_2.slug, category_1.slug))
         self.assertEqual(top_categories_tuto[category_1.title], expected)
@@ -163,16 +158,15 @@ class TopBarTests(TestCase):
         publish_content(article_1, article_1_draft, is_major_update=True)
 
         # New article has no impact
-        top_categories_tuto = top_categories_content('TUTORIAL').get('categories')
+        top_categories_tuto = topbar_publication_categories('TUTORIAL').get('categories')
         self.assertEqual(top_categories_tuto[category_1.title], expected)
 
-        top_categories_contents = top_categories_content(['TUTORIAL', 'ARTICLE']).get('categories')
+        top_categories_contents = topbar_publication_categories(['TUTORIAL', 'ARTICLE']).get('categories')
         expected_2 = [(subcategory_3.title, subcategory_3.slug, category_2.slug)]
         self.assertEqual(top_categories_contents[category_1.title], expected)
         self.assertEqual(top_categories_contents[category_2.title], expected_2)
 
     def tearDown(self):
-
         if os.path.isdir(overridden_zds_app['content']['repo_private_path']):
             shutil.rmtree(overridden_zds_app['content']['repo_private_path'])
         if os.path.isdir(overridden_zds_app['content']['repo_public_path']):
