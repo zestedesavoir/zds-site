@@ -50,7 +50,8 @@ class AlertsTest(TestCase):
         return self.__notifications(user)['header_alerts']
 
     def __notifications(self, user):
-        class Request(): pass
+        class Request:
+            pass
         r = Request()
         r.user = user
         return notifications_processor(r)

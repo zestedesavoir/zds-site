@@ -10,9 +10,7 @@ from zds.utils.models import Alert
 
 def _notifications_to_list(notifications_query):
     query = (
-        notifications_query
-            .select_related('sender__profile')
-            .order_by('-pubdate')[:10]
+        notifications_query.select_related('sender__profile').order_by('-pubdate')[:10]
     )
 
     return [
@@ -51,8 +49,8 @@ def _alert_to_dict(alert):
 
 
 def _alerts_to_list(alerts_query):
-    query = alerts_query \
-        .select_related('author', 'comment', 'content') \
+    query = alerts_query\
+        .select_related('author', 'comment', 'content')\
         .order_by('-pubdate')[:10]
 
     return [_alert_to_dict(a) for a in query]
