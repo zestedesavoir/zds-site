@@ -9,10 +9,8 @@ from django.db import models, IntegrityError, transaction
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist
 
-from zds.member.models import Profile
-from zds.forum.models import Topic
+from zds.forum.models import Topic, Post
 from zds.notification.managers import NotificationManager, SubscriptionManager, TopicFollowedManager, \
     TopicAnswerSubscriptionManager, NewTopicSubscriptionManager
 from zds.utils.misc import convert_camel_to_underscore
@@ -222,7 +220,9 @@ class MultipleNotificationsMixin(object):
                     LOG.debug('nothing to mark as read')
                     return
                 elif len(notifications) > 1:
-                    LOG.warning('%s notifications found for %s/%s', len(notifications), content.type, content.title)
+                    content_type = getattr(content, 'type', 'forum')
+                    content_title = getattr(content, 'title', 'message')
+                    LOG.warning('%s notifications found for %s/%s', len(notifications), content_type, content_title)
                     for notif in notifications[1:]:
                         notif.delete()
 
@@ -333,18 +333,21 @@ class PingSubscription(AnswerSubscription, MultipleNotificationsMixin):
     def __str__(self):
         return _('<Abonnement du membre "{0}" aux mentions>').format(self.profile, self.object_id)
 
+    @staticmethod
+    def mark_inaccessible_ping_as_read_for_topic(topic):
+        for post in Post.objects.filter(topic=topic):
+            for notification in Notification.objects.filter(content_type__pk=ContentType.objects.get_for_model(post).pk,
+                                                            object_id=post.pk):
+                if not topic.forum.can_read(notification.subscription.user):
+                    notification.is_read = True
+                    notification.is_dead = True
+                    notification.save(update_fields=['is_read'])
+
     def get_notification_title(self, answer):
         assert hasattr(answer, 'author')
         assert hasattr(answer, 'get_notification_title')
 
         return _('{0} vous a mentionné sur {1}.').format(answer.author, answer.get_notification_title())
-
-
-def ping_url(user=None):
-    try:
-        return Profile.objects.get(user__username=user).get_absolute_url()
-    except ObjectDoesNotExist:
-        pass
 
 
 class Notification(models.Model):

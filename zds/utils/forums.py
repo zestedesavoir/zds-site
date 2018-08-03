@@ -1,11 +1,12 @@
 import json
 from datetime import datetime
 
+from django.contrib import messages
 from django.http import HttpResponse, StreamingHttpResponse
 from django.shortcuts import render, render_to_response
 from django.views.generic import CreateView
 from django.views.generic.detail import SingleObjectMixin
-
+from django.utils.translation import gettext as _
 from zds.forum.models import Topic, Post
 from zds.member.views import get_client_ip
 from zds.utils.misc import contains_utf8mb4
@@ -104,7 +105,13 @@ def send_post(request, topic, author, text,):
         post.position = topic.last_message.position + 1
     else:
         post.position = 1
-    post.update_content(text)
+
+    post.update_content(
+        text,
+        on_error=lambda m: messages.error(
+            request,
+            _('Erreur du serveur Markdown:\n{}').format('\n- '.join(m))))
+
     post.ip_address = get_client_ip(request)
     post.hat = get_hat_from_request(request)
     post.save()
@@ -171,7 +178,7 @@ class CreatePostView(CreateView, SingleObjectMixin, QuoteMixin):
 
         if 'preview' in request.POST or new_post:
             if request.is_ajax():
-                content = render_to_response('misc/previsualization.part.html', {'text': request.POST.get('text')})
+                content = render_to_response('misc/preview.part.html', {'text': request.POST.get('text')})
                 return StreamingHttpResponse(content)
             else:
                 form = self.create_forum(self.form_class, **{'text': request.POST.get('text')})

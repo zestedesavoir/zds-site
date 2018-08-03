@@ -11,7 +11,7 @@ from django.contrib.auth.models import User, Group
 from django.template.context_processors import csrf
 from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMultiAlternatives
-from django.urls import reverse, reverse_lazy, resolve, Resolver404
+from django.urls import reverse, reverse_lazy, resolve, Resolver404, NoReverseMatch
 from django.db import transaction
 from django.db.models import Q
 from django.http import Http404, HttpResponseBadRequest, StreamingHttpResponse
@@ -133,7 +133,7 @@ class UpdateMember(UpdateView):
         form = self.form_class(request.POST)
 
         if 'preview' in request.POST and request.is_ajax():
-            content = render_to_response('misc/previsualization.part.html', {'text': request.POST.get('text')})
+            content = render_to_response('misc/preview.part.html', {'text': request.POST.get('text')})
             return StreamingHttpResponse(content)
 
         if form.is_valid():
@@ -766,7 +766,7 @@ class HatsSettings(LoginRequiredMixin, CreateView):
 
     def post(self, request, *args, **kwargs):
         if 'preview' in request.POST and request.is_ajax():
-            content = render_to_response('misc/previsualization.part.html', {'text': request.POST.get('text')})
+            content = render_to_response('misc/preview.part.html', {'text': request.POST.get('text')})
             return StreamingHttpResponse(content)
 
         return super(HatsSettings, self).post(request, *args, **kwargs)
@@ -974,6 +974,8 @@ def login_view(request):
             # after a browser session.)
             try:
                 response = redirect(resolve(next_page).url_name)
+            except NoReverseMatch:
+                response = redirect(next_page)
             except Resolver404:
                 response = redirect(reverse('homepage'))
             set_old_smileys_cookie(response, profile)

@@ -8,7 +8,7 @@ from pathtools.path import listdir
 from watchdog.observers import Observer
 from watchdog.events import FileCreatedEvent, FileSystemEventHandler, LoggingEventHandler
 from django.conf import settings
-from zds.tutorialv2.publication_utils import generate_exernal_content
+from zds.tutorialv2.publication_utils import generate_external_content
 from codecs import open
 
 
@@ -37,10 +37,7 @@ class TutorialIsPublished(FileSystemEventHandler):
 
     def on_created(self, event):
         super(TutorialIsPublished, self).on_created(event)
-        pandoc_debug_str = ''
 
-        if settings.PANDOC_LOG_STATE:
-            pandoc_debug_str = ' 2>&1 | tee -a ' + settings.PANDOC_LOG
         if isinstance(event, FileCreatedEvent):
             with open(event.src_path, encoding='utf-8') as f:
                 infos = f.read().strip().split(';')
@@ -49,8 +46,8 @@ class TutorialIsPublished(FileSystemEventHandler):
             extra_contents_path = dirname(md_file_path)
             self.prepare_generation(extra_contents_path)
             try:
-                generate_exernal_content(base_name, extra_contents_path, md_file_path,
-                                         pandoc_debug_str, overload_settings=True)
+                generate_external_content(base_name, extra_contents_path, md_file_path, overload_settings=True,
+                                          excluded=['watchdog'])
             finally:
                 self.finish_generation(extra_contents_path, event.src_path)
 

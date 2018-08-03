@@ -12,8 +12,8 @@ class SubCategoryAdmin(admin.ModelAdmin):
     parent_category.admin_order_field = 'categorysubcategory__category'
     parent_category.short_description = 'Parent category'
 
-    list_display = ('parent_category', 'title', 'subtitle')
-    ordering = ('categorysubcategory__category', 'title')
+    list_display = ('parent_category', 'title', 'subtitle', 'position')
+    ordering = ('categorysubcategory__category', 'position', 'title')
 
 
 class AlertAdmin(admin.ModelAdmin):

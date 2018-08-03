@@ -31,7 +31,7 @@
     {# Color the browser elements. See https://developers.google.com/web/fundamentals/design-and-ui/browser-customization/theme-color?hl=en #}
     <meta name="theme-color" content="#084561">
     <meta name="msapplication-navbutton-color" content="#084561">
-    {# Fullsceen on iOS and enable bar customisation #}
+    {# Fullscreen on iOS and enable bar customisation #}
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
@@ -79,6 +79,7 @@
 
 
     {# Stylesheets #}
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0/katex.min.css" crossorigin="anonymous">
     <link rel="stylesheet" href="{% static "css/main.css" %}">
     {% if not debug %}
         {% block canonical %}{% endblock %}
@@ -92,20 +93,24 @@
     {% endblock %}
 
     {# favicons #}
-    <link rel="icon" sizes="16x16" type="image/png" href="{% static "images/favicons/16.png" %}">
-    <link rel="icon" sizes="32x32" type="image/png" href="{% static "images/favicons/32.png" %}">
-    <link rel="icon" sizes="64x64" type="image/png" href="{% static "images/favicons/64.png" %}">
-    <link rel="icon" sizes="96x96" type="image/png" href="{% static "images/favicons/96.png" %}">
-    <link rel="icon" sizes="128x128" type="image/png" href="{% static "images/favicons/128.png" %}">
-    <link rel="icon" sizes="256x256" type="image/png" href="{% static "images/favicons/256.png" %}">
+    {% if user.is_authenticated and user|interventions_topics|length > 0 %}
+        {% set "-notif.png" as favicon_extension %}
+    {% else %}
+        {% set ".png" as favicon_extension %}
+    {% endif %}
+
+    {% with sizes="16 32 64 96 128 256" %}
+        {% for size in sizes.split %}
+            <link rel="icon" sizes="{{size}}x{{size}}" type="image/png" href="{% static 'images/favicons/'|add:size|add:favicon_extension %}">
+        {% endfor %}
+    {% endwith %}
+
     {# old iOS devices, no `sizes` attribute #}
-    <link rel="apple-touch-icon" type="image/png" href="{% static "images/favicons/120.png" %}">
-    <link rel="apple-touch-icon" sizes="180x180" type="image/png" href="{% static "images/favicons/180.png" %}">
-    <link rel="apple-touch-icon" sizes="167x167" type="image/png" href="{% static "images/favicons/167.png" %}">
-    <link rel="apple-touch-icon" sizes="152x152" type="image/png" href="{% static "images/favicons/152.png" %}">
-    <link rel="apple-touch-icon" sizes="144x144" type="image/png" href="{% static "images/favicons/144.png" %}">
-    <link rel="apple-touch-icon" sizes="120x120" type="image/png" href="{% static "images/favicons/120.png" %}">
-    <link rel="apple-touch-icon" sizes="114x114" type="image/png" href="{% static "images/favicons/114.png" %}">
+    {% with sizes="114 120 144 152 167 180" %}
+        {% for size in sizes.split %}
+            <link rel="apple-touch-icon" type="image/png" href="{% static 'images/favicons/'|add:size|add:favicon_extension %}">
+        {% endfor %}
+    {% endwith %}
 
     {# RSS links #}
     <link rel="alternate" type="application/rss+xml" title="Forum" href="{% url "post-feed-rss" %}">

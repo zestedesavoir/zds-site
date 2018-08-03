@@ -35,7 +35,7 @@
                     <div class="topic-description">
                         <a href="{{ topic.get_absolute_url }}" class="topic-title-link navigable-link">
                             {% if topic.is_unread %}<span class="a11y">{% trans "Non-lu" %} :</span>{% endif %}
-                            <span class="topic-title">{{ topic.title }}</span>
+                            <span class="topic-title">{{ topic.title }}</span>&nbsp;
                             <span class="topic-subtitle">{{ topic.subtitle }}</span>
                         </a>
 

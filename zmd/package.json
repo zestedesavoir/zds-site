@@ -1,0 +1,17 @@
+{
+  "name": "zmd-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "zmarkdown": "^5.4.4"
+  },
+  "engines": {
+    "node": ">=8.0.0"
+  }
+}

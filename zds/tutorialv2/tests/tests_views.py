@@ -4,6 +4,8 @@ import tempfile
 import zipfile
 
 import os
+from pathlib import Path
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import Group
@@ -26,7 +28,8 @@ from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory
     SubCategoryFactory, PublishedContentFactory, tricky_text_content, BetaContentFactory
 from zds.tutorialv2.models.database import PublishableContent, Validation, PublishedContent, ContentReaction, \
     ContentRead
-from zds.tutorialv2.publication_utils import publish_content, Publicator, PublicatorRegistry
+from zds.tutorialv2.publication_utils import publish_content, PublicatorRegistry, Publicator, \
+    ZMarkdownRebberLatexPublicator, ZMarkdownEpubPublicator
 from zds.tutorialv2.tests import TutorialTestMixin
 from zds.utils.models import HelpWriting, Alert, Tag, Hat
 from zds.utils.factories import HelpWritingFactory, CategoryFactory
@@ -42,13 +45,6 @@ overridden_zds_app = deepcopy(settings.ZDS_APP)
 overridden_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
 overridden_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
 overridden_zds_app['content']['extra_content_generation_policy'] = 'SYNC'
-
-
-@PublicatorRegistry.register('pdf')
-class FakePDFPublicator(Publicator):
-    def publish(self, md_file_path, base_name, **kwargs):
-        with open(md_file_path[:-2] + 'pdf', 'w') as f:
-            f.write('plouf')
 
 
 @override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
@@ -97,6 +93,16 @@ class ContentTests(TestCase, TutorialTestMixin):
         self.external = UserFactory(
             username=overridden_zds_app['member']['external_account'],
             password='anything')
+        self.old_registry = {key: value for key, value in PublicatorRegistry.get_all_registered()}
+
+        class TestPdfPublicator(Publicator):
+            def publish(self, md_file_path, base_name, **kwargs):
+                with Path(base_name + '.pdf').open('w') as f:
+                    f.write('bla')
+
+                shutil.copy2(str(Path(base_name + '.pdf')), str(Path(md_file_path.replace('__building', '')).parent))
+        PublicatorRegistry.registry['pdf'] = TestPdfPublicator()
+        PublicatorRegistry.registry['printable-pdf'] = TestPdfPublicator()
 
     def test_ensure_access(self):
         """General access test for author, user, guest and staff"""
@@ -115,7 +121,11 @@ class ContentTests(TestCase, TutorialTestMixin):
             reverse('content:view', args=[tuto.pk, tuto.slug]),
             follow=False)
         self.assertEqual(result.status_code, 200)
-
+        self.assertIn(reverse('content:edit-container', kwargs={
+            'pk': tuto.pk,
+            'slug': tuto.slug,
+            'container_slug': self.part1.slug
+        }), result.content.decode('utf-8'))
         result = self.client.get(
             reverse('content:view-container',
                     kwargs={
@@ -3634,7 +3644,8 @@ class ContentTests(TestCase, TutorialTestMixin):
         while using a text containing images, and accessible !
 
         NOTE: this test will take time !"""
-
+        PublicatorRegistry.registry['pdf'] = ZMarkdownRebberLatexPublicator('.pdf')
+        PublicatorRegistry.registry['epub'] = ZMarkdownEpubPublicator()
         overridden_zds_app['content']['build_pdf_when_published'] = True  # obviously, PDF builds have to be enabled
 
         title = "C'est pas le plus important ici !"
@@ -3715,9 +3726,12 @@ class ContentTests(TestCase, TutorialTestMixin):
 
         # test existence and access for admin
         for extra in avail_extra:
-            self.assertTrue(published.have_type(extra), 'no extra content of format "{}" was found'.format(extra))
+            self.assertTrue(published.has_type(extra), 'no extra content of format "{}" was found'.format(extra))
             result = self.client.get(published.get_absolute_url_to_extra_content(extra))
             self.assertEqual(result.status_code, 200)
+
+        self.assertNotEqual(0, published.get_size_file_type('pdf'), 'pdf must have content')
+        self.assertNotEqual(0, published.get_size_file_type('epub'), 'epub must have content')
 
         # test that deletion give a 404
         markdown_url = published.get_absolute_url_md()
@@ -5522,14 +5536,14 @@ class PublishedContentTests(TestCase, TutorialTestMixin):
         # visit article 1 (so article2 is next)
         result = self.client.get(reverse('article:view', kwargs={'pk': article1.pk, 'slug': article1.slug}))
         self.assertEqual(result.status_code, 200)
-        self.assertEqual(result.context['next_article'].pk, article2.public_version.pk)
-        self.assertIsNone(result.context['previous_article'])
+        self.assertEqual(result.context['next_content'].pk, article2.public_version.pk)
+        self.assertIsNone(result.context['previous_content'])
 
         # visit article 2 (so article1 is previous)
         result = self.client.get(reverse('article:view', kwargs={'pk': article2.pk, 'slug': article2.slug}))
         self.assertEqual(result.status_code, 200)
-        self.assertEqual(result.context['previous_article'].pk, article1.public_version.pk)
-        self.assertIsNone(result.context['next_article'])
+        self.assertEqual(result.context['previous_content'].pk, article1.public_version.pk)
+        self.assertIsNone(result.context['next_content'])
 
     def test_validation_list_has_good_title(self):
         # aka fix 3172

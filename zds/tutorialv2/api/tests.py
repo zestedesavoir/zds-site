@@ -1,3 +1,4 @@
+import datetime
 from copy import deepcopy
 import os
 import shutil
@@ -34,7 +35,8 @@ class ContentReactionKarmaAPITest(APITestCase):
 
     def test_failure_reaction_karma_with_client_unauthenticated(self):
         author = ProfileFactory()
-        reaction = ContentReactionFactory(author=author.user, position=1, related_content=self.content)
+        reaction = ContentReactionFactory(author=author.user, position=1, related_content=self.content,
+                                          pubdate=datetime.datetime.now())
 
         response = self.client.put(reverse('api:content:reaction-karma', args=(reaction.pk,)))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)

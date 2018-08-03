@@ -10,6 +10,44 @@ from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.utils.models import CommentEdit, Hat
 
 
+class LastTopicsViewTests(TestCase):
+    def test_logged_user(self):
+        profile = ProfileFactory()
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        category, forum = create_category()
+        add_topic_in_a_forum(forum, profile)
+        response = self.client.get(reverse('last-subjects'))
+        self.assertEqual(200, response.status_code)
+        self.assertTrue(Topic.objects.last() in response.context['topics'])
+
+    def test_anonymous_user(self):
+        profile = ProfileFactory()
+        category, forum = create_category()
+        add_topic_in_a_forum(forum, profile)
+        response = self.client.get(reverse('last-subjects'))
+        self.assertEqual(200, response.status_code)
+        self.assertTrue(Topic.objects.last() in response.context['topics'])
+
+    def test_private_topic(self):
+        author_profile = ProfileFactory()
+        group = Group.objects.create(name='DummyGroup_1')
+        category, forum = create_category(group)
+        add_topic_in_a_forum(forum, author_profile)
+        # Tests with a user who cannot read the last topic.
+        profile = ProfileFactory()
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.get(reverse('last-subjects'))
+        self.assertEqual(200, response.status_code)
+        self.assertTrue(Topic.objects.last() not in response.context['topics'])
+        # Adds to the user the right to read the last topic, and test again.
+        profile.user.groups.add(group)
+        profile.user.save()
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.get(reverse('last-subjects'))
+        self.assertEqual(200, response.status_code)
+        self.assertTrue(Topic.objects.last() in response.context['topics'])
+
+
 class CategoriesForumsListViewTests(TestCase):
     def test_success_list_all_forums(self):
         profile = ProfileFactory()
@@ -868,7 +906,7 @@ class FindTopicTest(TestCase):
 
 class FindTopicByTagTest(TestCase):
     def test_failure_find_topics_of_a_tag_not_found(self):
-        response = self.client.get(reverse('topic-tag-find', args=[9999, 'x']), follow=False)
+        response = self.client.get(reverse('topic-tag-find', args=['x']), follow=False)
 
         self.assertEqual(404, response.status_code)
 
@@ -880,7 +918,7 @@ class FindTopicByTagTest(TestCase):
         topic.add_tags([tag.title])
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.get(reverse('topic-tag-find', args=[tag.pk, tag.slug]), follow=False)
+        response = self.client.get(reverse('topic-tag-find', args=[tag.slug]), follow=False)
 
         self.assertEqual(200, response.status_code)
         self.assertEqual(1, len(response.context['topics']))
@@ -909,7 +947,7 @@ class FindTopicByTagTest(TestCase):
         topic.add_tags([tag.title])
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.get(reverse('topic-tag-find', args=[tag.pk, tag.slug]), follow=False)
+        response = self.client.get(reverse('topic-tag-find', args=[tag.slug]), follow=False)
 
         self.assertEqual(200, response.status_code)
         self.assertEqual(1, len(response.context['topics']))
@@ -924,7 +962,7 @@ class FindTopicByTagTest(TestCase):
         tag = TagFactory()
         topic_solved.add_tags([tag.title])
 
-        response = self.client.get(reverse('topic-tag-find', args=[tag.pk, tag.slug]) + '?filter=solve')
+        response = self.client.get(reverse('topic-tag-find', args=[tag.slug]) + '?filter=solve')
 
         self.assertEqual(200, response.status_code)
         self.assertEqual(1, len(response.context['topics']))
@@ -939,7 +977,7 @@ class FindTopicByTagTest(TestCase):
         tag = TagFactory()
         topic_unsolved.add_tags([tag.title])
 
-        response = self.client.get(reverse('topic-tag-find', args=[tag.pk, tag.slug]) + '?filter=unsolve')
+        response = self.client.get(reverse('topic-tag-find', args=[tag.slug]) + '?filter=unsolve')
 
         self.assertEqual(200, response.status_code)
         self.assertEqual(1, len(response.context['topics']))
@@ -955,10 +993,25 @@ class FindTopicByTagTest(TestCase):
         topic.add_tags([tag.title])
         another_topic.add_tags([tag.title])
 
-        response = self.client.get(reverse('topic-tag-find', args=[tag.pk, tag.slug]) + '?filter=noanswer')
+        response = self.client.get(reverse('topic-tag-find', args=[tag.slug]) + '?filter=noanswer')
 
         self.assertEqual(200, response.status_code)
         self.assertEqual(2, len(response.context['topics']))
+        self.assertEqual(tag, response.context['tag'])
+
+    def test_redirection(self):
+        profile = ProfileFactory()
+        category, forum = create_category()
+        add_topic_in_a_forum(forum, profile)
+        topic_solved = add_topic_in_a_forum(forum, profile, is_solved=True)
+        tag = TagFactory()
+        topic_solved.add_tags([tag.title])
+
+        response = self.client.get(reverse('old-topic-tag-find', args=[tag.pk, tag.slug]))
+        self.assertEqual(301, response.status_code)
+
+        response = self.client.get(reverse('old-topic-tag-find', args=[tag.pk, tag.slug]), follow=True)
+        self.assertEqual(1, len(response.context['topics']))
         self.assertEqual(tag, response.context['tag'])
 
 

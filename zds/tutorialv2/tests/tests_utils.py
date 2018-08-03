@@ -1,6 +1,6 @@
 import os
 import shutil
-import tempfile
+from pathlib import Path
 import datetime
 
 from django.conf import settings
@@ -10,11 +10,11 @@ from django.core.urlresolvers import reverse
 
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, LicenceFactory, ExtractFactory, \
-    PublishedContentFactory
+    PublishedContentFactory, ContentReactionFactory
 from zds.gallery.factories import UserGalleryFactory
 from zds.tutorialv2.models.versioned import Container
 from zds.tutorialv2.utils import get_target_tagged_tree_for_container, \
-    get_target_tagged_tree_for_extract, retrieve_and_update_images_links, last_participation_is_old, \
+    get_target_tagged_tree_for_extract, last_participation_is_old, \
     InvalidSlugError, BadManifestError, get_content_from_json, get_commit_author, slugify_raise_on_invalid, check_slug
 from zds.tutorialv2.publication_utils import publish_content, unpublish_content
 from zds.tutorialv2.models.database import PublishableContent, PublishedContent, ContentReaction, ContentRead
@@ -26,6 +26,8 @@ from zds.tutorialv2.tests import TutorialTestMixin
 from mock import Mock
 from copy import deepcopy
 from zds import json_handler
+from zds.utils.models import Alert
+from zds.utils.templatetags.interventions import alerts_list
 
 BASE_DIR = settings.BASE_DIR
 
@@ -62,6 +64,14 @@ class UtilsTests(TestCase, TutorialTestMixin):
         self.chapter1 = ContainerFactory(parent=self.part1, db_object=self.tuto)
         self.old_registry = {key: value for key, value in PublicatorRegistry.get_all_registered()}
 
+        class TestPdfPublicator(Publicator):
+            def publish(self, md_file_path, base_name, **kwargs):
+                with Path(base_name + '.pdf').open('w') as f:
+                    f.write('bla')
+                shutil.copy2(str(Path(base_name + '.pdf')),
+                             str(Path(md_file_path.replace('__building', '')).parent))
+        PublicatorRegistry.registry['pdf'] = TestPdfPublicator()
+
     def test_get_target_tagged_tree_for_container(self):
         part2 = ContainerFactory(parent=self.tuto_draft, db_object=self.tuto, title='part2')
         part3 = ContainerFactory(parent=self.tuto_draft, db_object=self.tuto, title='part3')
@@ -91,7 +101,7 @@ class UtilsTests(TestCase, TutorialTestMixin):
         self.assertTrue(paths[part2.get_path(True)], 'can be moved after or before part2')
         self.assertFalse(paths[part3.get_path(True)], 'can be moved after or before part3')
 
-    def test_publish_content(self):
+    def test_publish_content_article(self):
         """test and ensure the behavior of ``publish_content()`` and ``unpublish_content()``"""
 
         # 1. Article:
@@ -137,7 +147,9 @@ class UtilsTests(TestCase, TutorialTestMixin):
         # test creation of files:
         self.assertTrue(os.path.isdir(published.get_prod_path()))
         self.assertTrue(os.path.isfile(os.path.join(published.get_prod_path(), 'manifest.json')))
-        self.assertTrue(os.path.isfile(public.get_prod_path()))  # normally, an HTML file should exists
+        prod_path = public.get_prod_path()
+        self.assertTrue(prod_path.endswith('.html'), prod_path)
+        self.assertTrue(os.path.isfile(prod_path), prod_path)  # normally, an HTML file should exists
         self.assertIsNone(public.introduction)  # since all is in the HTML file, introduction does not exists anymore
         self.assertIsNone(public.conclusion)
         article.public_version = published
@@ -148,7 +160,7 @@ class UtilsTests(TestCase, TutorialTestMixin):
         self.assertFalse(os.path.exists(public.get_prod_path()))  # article was removed
         # ... For the next tests, I will assume that the unpublication works.
 
-        # 2. Mini-tutorial → Not tested, because at this point, it's the same as an article (with a different metadata)
+    def test_publish_content_medium_tuto(self):
         # 3. Medium-size tutorial
         midsize_tuto = PublishableContentFactory(type='TUTORIAL')
 
@@ -181,11 +193,11 @@ class UtilsTests(TestCase, TutorialTestMixin):
         self.assertEqual(public.current_version, published.sha_public)
 
         # test creation of files:
-        self.assertTrue(os.path.isdir(published.get_prod_path()))
-        self.assertTrue(os.path.isfile(os.path.join(published.get_prod_path(), 'manifest.json')))
+        self.assertTrue(Path(published.get_prod_path()).is_dir())
+        self.assertTrue(Path(published.get_prod_path(), 'manifest.json').is_file())
 
-        self.assertTrue(os.path.isfile(os.path.join(public.get_prod_path(), public.introduction)))
-        self.assertTrue(os.path.isfile(os.path.join(public.get_prod_path(), public.conclusion)))
+        self.assertTrue(Path(public.get_prod_path(), public.introduction).is_file())
+        self.assertTrue(Path(public.get_prod_path(), public.conclusion).is_file())
 
         self.assertEqual(len(public.children), 2)
         for child in public.children:
@@ -193,6 +205,7 @@ class UtilsTests(TestCase, TutorialTestMixin):
             self.assertIsNone(child.introduction)
             self.assertIsNone(child.conclusion)
 
+    def test_publish_content_big_tuto(self):
         # 4. Big tutorial:
         bigtuto = PublishableContentFactory(type='TUTORIAL')
 
@@ -311,63 +324,6 @@ class UtilsTests(TestCase, TutorialTestMixin):
         self.assertEqual(len(json['children']), 1)
         os.unlink(args[0])
 
-    def test_retrieve_images(self):
-        """test the ``retrieve_and_update_images_links()`` function.
-
-        NOTE: this test require an working internet connection to succeed
-        Also, it was implemented with small images on highly responsive server(s), to make it quick !
-        """
-
-        tempdir = os.path.join(tempfile.gettempdir(), 'test_retrieve_imgs')
-        os.makedirs(tempdir)
-
-        # image which exists, or not
-        test_images = [
-            # PNG:
-            ('http://upload.wikimedia.org/wikipedia/en/9/9d/Commons-logo-31px.png', 'Commons-logo-31px.png'),
-            # JPEG:
-            ('http://upload.wikimedia.org/wikipedia/commons/6/6b/01Aso.jpg', '01Aso.jpg'),
-            # Image which does not exists:
-            ('http://test.com/test idiot.png', 'test_idiot.png'),  # NOTE: space changed into `_` !
-            # SVG (will be converted to png):
-            ('http://upload.wikimedia.org/wikipedia/commons/f/f9/10DF.svg', '10DF.png'),
-            # GIF (will be converted to png):
-            ('http://upload.wikimedia.org/wikipedia/commons/2/27/AnimatedStar.gif', 'AnimatedStar.png'),
-            # local image:
-            ('fixtures/image_test.jpg', 'image_test.jpg')
-        ]
-
-        # for each of these images, test that the url (and only that) is changed
-        for url, filename in test_images:
-            random_thing = str(datetime.datetime.now())  # will be used as legend, to ensure that this part remains
-            an_image_link = '![{}]({})'.format(random_thing, url)
-            new_image_url = 'images/{}'.format(filename)
-            new_image_link = '![{}]({})'.format(random_thing, new_image_url)
-
-            new_md = retrieve_and_update_images_links(an_image_link, tempdir)
-            self.assertTrue(os.path.isfile(os.path.join(tempdir, new_image_url)))  # image was retrieved
-            self.assertEqual(new_image_link, new_md)  # link was updated
-
-        # then, ensure that 3 times the same images link make the code use three times the same image !
-        link = '![{}](http://upload.wikimedia.org/wikipedia/commons/5/56/Asteroid_icon.jpg)'
-        new_link = '![{}](images/Asteroid_icon.jpg)'
-        three_times = ' '.join([link.format(i) for i in range(0, 2)])
-        three_times_updated = ' '.join([new_link.format(i) for i in range(0, 2)])
-
-        new_md = retrieve_and_update_images_links(three_times, tempdir)
-        self.assertEqual(three_times_updated, new_md)
-
-        # ensure that the original file is deleted if any
-        another_svg = '![](http://upload.wikimedia.org/wikipedia/commons/3/32/Arrow.svg)'
-        new_md = retrieve_and_update_images_links(another_svg, tempdir)
-        self.assertEqual('![](images/Arrow.png)', new_md)
-
-        self.assertTrue(os.path.isfile(os.path.join(tempdir, 'images/Arrow.png')))  # image was converted in PNG
-        self.assertFalse(os.path.isfile(os.path.join(tempdir, 'images/Arrow.svg')))  # and the original SVG was deleted
-
-        # finally, clean up:
-        shutil.rmtree(tempdir)
-
     def test_generate_pdf(self):
         """ensure the behavior of the `python manage.py generate_pdf` commmand"""
 
@@ -380,8 +336,8 @@ class UtilsTests(TestCase, TutorialTestMixin):
         published2 = PublishedContent.objects.get(content_pk=tuto2.pk)
 
         # ensure that PDF exists in the first place
-        self.assertTrue(published.have_pdf())
-        self.assertTrue(published2.have_pdf())
+        self.assertTrue(published.has_pdf())
+        self.assertTrue(published2.has_pdf())
 
         pdf_path = os.path.join(published.get_extra_contents_directory(), published.content_public_slug + '.pdf')
         pdf_path2 = os.path.join(published2.get_extra_contents_directory(), published2.content_public_slug + '.pdf')
@@ -535,6 +491,7 @@ class UtilsTests(TestCase, TutorialTestMixin):
     def test_watchdog(self):
 
         PublicatorRegistry.unregister('pdf')
+        PublicatorRegistry.unregister('printable-pdf')
         PublicatorRegistry.unregister('epub')
         PublicatorRegistry.unregister('html')
 
@@ -581,6 +538,18 @@ class UtilsTests(TestCase, TutorialTestMixin):
         article.save(force_slug_update=False)
         publish_content(article, article.load_version())
         self.assertTrue(PublishedContent.objects.filter(content_id=article.pk).exists())
+
+    def test_no_alert_on_unpublish(self):
+        """related to #4860"""
+        published = PublishedContentFactory(type='OPINION', author_list=[self.user_author])
+        reaction = ContentReactionFactory(related_content=published, author=ProfileFactory().user, position=1,
+                                          pubdate=datetime.datetime.now())
+        Alert.objects.create(scope='CONTENT', comment=reaction, text='a text', author=ProfileFactory().user,
+                             pubdate=datetime.datetime.now(), content=published)
+        staff = StaffProfileFactory().user
+        self.assertEqual(1, alerts_list(staff)['nb_alerts'])
+        unpublish_content(published, staff)
+        self.assertEqual(0, alerts_list(staff)['nb_alerts'])
 
     def tearDown(self):
         super().tearDown()

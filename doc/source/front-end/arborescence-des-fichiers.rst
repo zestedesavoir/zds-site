@@ -56,6 +56,7 @@ Voici un aperçu du dossier :
     │   ├── variables/  # Variables SCSS
     │   │
     │   ├── main.scss  # Fichier de configuation
+    │   ├── zmd.scss  # Feuille de style pour EPUB
     │   ├── _sprite.scss.hbs  # Template Handlebars pour la création du sprite
     │   ...
     │
@@ -75,7 +76,9 @@ Voilà à peu près ce qui est généré lors du "build" :
     dist/
     ├── css/
     │   ├── main.css  # Tout le CSS compilé et minifié
-    │   └── main.min.map # SourceMap associé
+    │   ├── main.map # SourceMap associé
+    │   ├── zmd.css  # Feuille de style pour EPUB
+    │   └── zmd.map # SourceMap associé
     │
     ├── images/
     │   ├── sprite@2x.png  # Sprite haute résolution
@@ -125,7 +128,7 @@ Voici un extrait du dossier contenant les gabaris :
     │   ...
     │
     ├── misc/  # Dossier contenant des fichiers utilisés dans plusieurs modules
-    │   ├── previsualization.part.html  # Ex : la prévisualtion des messages...
+    │   ├── preview.part.html  # Ex : la prévisualisation des messages...
     │   ├── zen_button.part.html  # ... ou le bouton de lecture zen
     │   ...
     ...

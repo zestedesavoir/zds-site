@@ -156,6 +156,16 @@ class SubscriptionManager(models.Manager):
             existing.deactivate()
         return existing
 
+    def deactivate_subscriptions(self, user, _object):
+        subscription = self.get_existing(user, _object)
+        if subscription:
+            subscription.is_active = False
+            notification = subscription.last_notification
+            notification.is_read = True
+            notification.is_dead = True
+            notification.save(update_fields=['is_read', 'is_dead'])
+            subscription.save(update_fields=['is_active'])
+
 
 class NewTopicSubscriptionManager(SubscriptionManager):
     def mark_read_everybody_at(self, topic):

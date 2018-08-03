@@ -81,9 +81,7 @@ class PublishedContentTests(TestCase, TutorialTestMixin):
         opinion.subcategory.add(subcategory)
         opinion.save()
         self.assertEqual(
-            self.client.login(
-                username=self.user_author.username,
-                password='hostel77'),
+            self.client.login(username=self.user_author.username, password='hostel77'),
             True)
         resp = self.client.get(reverse('opinion:view', kwargs={'pk': opinion.pk, 'slug': opinion.slug}))
         self.assertContains(resp, 'Version brouillon', msg_prefix='Author must access their draft directly')

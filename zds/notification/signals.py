@@ -12,3 +12,5 @@ edit_content = Signal(providing_args=['instance', 'action'])
 
 # is sent when a content is read (topic, article or tutorial)
 content_read = Signal(providing_args=['instance', 'user', 'target'])
+
+unsubscribe = Signal(providing_args=['instance', 'user'])
