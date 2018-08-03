@@ -17,7 +17,7 @@ Jetez donc un coup d’œil à notre [feuille de route](https://github.com/zeste
 
 - [Installation du backend sur Windows](http://docs.zestedesavoir.com/install/backend-windows-install.html)
 - [Installation du backend sur Linux](http://docs.zestedesavoir.com/install/backend-linux-install.html)
-- [Installation du backend sur OS X](http://docs.zestedesavoir.com/install/backend-os-x-install.html)
+- [Installation du backend sur macOS](http://docs.zestedesavoir.com/install/backend-macos-install.html)
 - [Installation du frontend](http://docs.zestedesavoir.com/install/frontend-install.html)
 - [Installation de Elasticsearch](http://docs.zestedesavoir.com/install/install-es.html) pour gérer la recherche
 

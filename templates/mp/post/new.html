@@ -47,7 +47,7 @@
     {% include "misc/message_form.html" with member=user text=form.text.value %}
 
     {% if form.text.value %}
-        {% include "misc/previsualization.part.html" with text=form.text.value %}
+        {% include "misc/preview.part.html" with text=form.text.value %}
     {% endif %}
 
     <hr />

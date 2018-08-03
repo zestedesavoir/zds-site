@@ -170,7 +170,11 @@ class PostEditMixin(object):
         edit.original_text = post.text
         edit.save()
 
-        post.update_content(text)
+        post.update_content(
+            text,
+            on_error=lambda m: messages.error(
+                request,
+                _('Erreur du serveur Markdown:\n{}').format('\n- '.join(m))))
         post.hat = get_hat_from_request(request, post.author)
         post.update = datetime.now()
         post.editor = user

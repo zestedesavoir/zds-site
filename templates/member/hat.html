@@ -20,7 +20,8 @@
 
 
 {% block headline %}
-    {% trans "Casquette" %} « {{ hat.name }} »
+    {% trans "Casquette" %} « {{ hat.name }} »
+
     {% if hat.is_staff %}
         <em>({{ app.site.literal_name }})</em>
     {% endif %}

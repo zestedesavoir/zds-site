@@ -1,4 +1,5 @@
 from os.path import join
+from pathlib import Path
 
 from django.utils.translation import gettext_lazy as _
 
@@ -10,21 +11,6 @@ zds_config = config.get('zds', {})
 
 
 GEOIP_PATH = join(BASE_DIR, 'geodata')
-
-
-tex_template_path = join(BASE_DIR, 'assets', 'tex', 'template.tex')
-
-PANDOC_LOC = ''
-PANDOC_PDF_PARAM = (
-    '--latex-engine=xelatex '
-    '--template={} -s -S -N '
-    '--toc -V documentclass=scrbook -V lang=francais '
-    '-V mainfont=Merriweather -V monofont="SourceCodePro-Regular" '
-    '-V fontsize=12pt -V geometry:margin=1in '.format(tex_template_path)
-)
-# LOG PATH FOR PANDOC LOGGING
-PANDOC_LOG = './pandoc.log'
-PANDOC_LOG_STATE = False
 
 
 ES_ENABLED = True
@@ -196,6 +182,12 @@ ZDS_APP = {
         'characters_per_minute': 1500,
         'editorial_line_link':
         'https://zestedesavoir.com/articles/222/la-ligne-editoriale-officielle-de-zeste-de-savoir/',
+        'epub_stylesheets': {
+            'toc': Path('toc.css'),
+            'full': Path(BASE_DIR) / 'dist' / 'css' / 'zmd.css',
+            'katex': Path(BASE_DIR) / 'dist' / 'css' / 'katex.min.css'
+        },
+        'latex_template_repo': 'NOT_EXISTING_DIR'
     },
     'forum': {
         'posts_per_page': 21,
@@ -271,5 +263,9 @@ ZDS_APP = {
         }
     },
     'visual_changes': [],
-    'display_search_bar': True
+    'display_search_bar': True,
+    'zmd': {
+        'server': 'http://127.0.0.1:27272',
+        'disable_pings': False
+    }
 }

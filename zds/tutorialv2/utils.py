@@ -1,28 +1,16 @@
-import shutil
 from collections import OrderedDict
-from datetime import datetime
-from urllib.request import urlretrieve
-from urllib.parse import urlparse
-try:
-    import cairosvg
-except ImportError as e:
-    cairosvg = None  # no cairo on win.
-    print('no cairo imported')
-
 import os
 import logging
 from urllib.parse import urlsplit, urlunsplit, quote
-from PIL import Image as ImagePIL
 from django.contrib.auth.models import User
 from django.http import Http404
 from django.utils.translation import ugettext_lazy as _
 from git import Repo, Actor
-from lxml import etree
 from uuslug import slugify
 
 from django.conf import settings
 from zds.notification import signals
-from zds.tutorialv2 import REPLACE_IMAGE_PATTERN, VALID_SLUG
+from zds.tutorialv2 import VALID_SLUG
 from zds.tutorialv2.models import CONTENT_TYPE_LIST
 from zds.utils import get_current_user
 from zds.utils import slugify as old_slugify
@@ -30,14 +18,15 @@ from zds.utils.models import Licence
 logger = logging.getLogger(__name__)
 
 
-def all_is_string_appart_from_children(dict_representation):
+def all_is_string_appart_from_given_keys(dict_representation, keys=('children',)):
     """check all keys are string appart from the children key
     :param dict_representation: the json decoded dictionary
+    :param keys: keys that do not need to be string
     :type dict_representation: dict
     :return:
     :rtype: bool
     """
-    return all([isinstance(value, str) for key, value in list(dict_representation.items()) if key != 'children'])
+    return all([isinstance(value, str) for key, value in list(dict_representation.items()) if key not in keys])
 
 
 def search_container_or_404(base_content, kwargs_array):
@@ -310,170 +299,6 @@ def normalize_unicode_url(unicode_url):
     return urlunsplit((scheme, netloc, path, querystring, anchor))
 
 
-def retrieve_image(url, directory):
-    """For a given image, retrieve it, transform it into PNG (if needed) and store it
-
-    :param url: URL of the image (either local or online)
-    :type url: str
-    :param directory: place where the image will be stored
-    :type directory: str
-    :return: the 'transformed' path to the image
-    :rtype: str
-    """
-
-    # parse URL
-    parsed_url = urlparse(url)
-
-    img_directory, img_basename = os.path.split(parsed_url.path)
-    img_basename_splitted = img_basename.split('.')
-
-    if len(img_basename_splitted) > 1:
-        img_extension = img_basename_splitted[-1].lower()
-        img_filename = '.'.join(img_basename_splitted[:-1])
-    else:
-        img_extension = ''
-        img_filename = img_basename
-
-    new_url = os.path.join('images', img_basename.replace(' ', '_'))
-    new_url_as_png = os.path.join('images', img_filename.replace(' ', '_') + '.png')
-
-    store_path = os.path.abspath(os.path.join(directory, new_url))  # destination
-
-    if not img_basename or os.path.exists(store_path) or os.path.exists(os.path.join(directory, new_url_as_png)):
-        # another image with the same name already exists (but assume the two are different)
-        img_filename += '_' + str(datetime.now().microsecond)
-        new_url = os.path.join('images', img_filename.replace(' ', '_') + '.' + img_extension)
-        new_url_as_png = os.path.join('images', img_filename.replace(' ', '_') + '.png')
-        store_path = os.path.abspath(os.path.join(directory, new_url))
-
-    try:
-        if parsed_url.scheme in ['http', 'https', 'ftp'] \
-                or parsed_url.netloc[:3] == 'www' or parsed_url.path[:3] == 'www':
-            url = normalize_unicode_url(url)
-            urlretrieve(url, store_path)  # download online image
-        else:  # it's a local image, coming from a gallery
-
-            if url[0] == '/':  # because `os.path.join()` think it's an absolute path if it start with `/`
-                url = url[1:]
-
-            source_path = os.path.join(settings.BASE_DIR, url)
-            if os.path.isfile(source_path):
-                shutil.copy(source_path, store_path)
-            else:
-                raise OSError(source_path)  # ... will use the default image instead
-
-        if img_extension == 'svg':  # if SVG, will transform it into PNG
-            resize_svg(store_path)
-            new_url = new_url_as_png
-            if cairosvg:
-                cairosvg.svg2png(url=store_path, write_to=os.path.join(directory, new_url))
-            os.remove(store_path)
-        else:
-            img = ImagePIL.open(store_path)
-            if img_extension == 'gif' or not img_extension.strip():
-                # if no extension or gif, will transform it into PNG !
-                new_url = new_url_as_png
-                img.save(os.path.join(directory, new_url))
-                try:
-                    os.remove(store_path)
-                except WindowsError:  # because windows can badly handle this one
-                    logger.error('store path %s not removed', store_path)
-
-    except (OSError, KeyError):  # HTTP 404, image does not exists, or Pillow cannot read it !
-
-        # will be overwritten anyway, so it's better to remove whatever it was, for security reasons :
-        try:
-            os.remove(store_path)
-        except OSError:
-            logger.warn('could not remove store path %s', store_path)
-        img = ImagePIL.open(settings.ZDS_APP['content']['default_image'])
-        new_url = new_url_as_png
-        img.save(os.path.join(directory, new_url))
-
-    return new_url
-
-
-def resize_svg(source):
-    """modify the SVG XML tree in order to resize the URL, to fit the maximum size allowed
-
-    :param source: content (not parsed) of the SVG file
-    :type source: str
-    """
-
-    max_size = int(settings.THUMBNAIL_ALIASES['']['content']['size'][0])
-    tree = etree.parse(source)
-    svg = tree.getroot()
-    try:
-        width = float(svg.attrib['width'])
-        height = float(svg.attrib['height'])
-    except (KeyError, ValueError):
-        width = max_size
-        height = max_size
-    end_height = height
-    end_width = width
-    if width > max_size or height > max_size:
-        if width > height:
-            end_height = (height / width) * max_size
-            end_width = max_size
-        else:
-            end_height = max_size
-            end_width = (width / height) * max_size
-    svg.attrib['width'] = str(end_width)
-    svg.attrib['height'] = str(end_height)
-    tree.write(source)
-
-
-def retrieve_image_and_update_link(group, previous_urls, directory='.'):
-    """For each image link, update it (if possible)
-
-    :param group: matching object
-    :type group: re.MatchObject
-    :param previous_urls: dictionary containing the previous urls and the transformed ones (in order to avoid treating\
-    the same image two times !)
-    :param directory: place where all image will be stored
-    :type directory: str
-    :type previous_urls: dict
-    :return: updated link
-    :rtype: str
-    """
-
-    # retrieve groups:
-    start = group.group('start')
-    url = group.group('url')
-    txt = group.group('text')
-    end = group.group('end')
-
-    # look for image URL, and make it if needed
-    if url not in previous_urls:
-        new_url = retrieve_image(url, directory=directory)
-        previous_urls[url] = new_url
-
-    return start + txt + previous_urls[url] + end
-
-
-def retrieve_and_update_images_links(md_text, directory='.'):
-    """Find every image links and update them with `update_image_link()`.
-
-    :param md_text: markdown text
-    :type md_text: str
-    :param directory: place where all image will be stored
-    :type directory: str
-    :return: the markdown with the good links
-    :rtype: str
-    """
-
-    image_directory_path = os.path.join(directory, 'images')  # directory where the images will be stored
-
-    if not os.path.isdir(image_directory_path):
-        os.makedirs(image_directory_path)  # make the directory if needed
-
-    previous_urls = {}
-    new_text = REPLACE_IMAGE_PATTERN.sub(
-        lambda g: retrieve_image_and_update_link(g, previous_urls, directory), md_text)
-
-    return new_text
-
-
 class BadManifestError(Exception):
     """ The exception that is raised when the manifest.json contains errors """
 
@@ -496,12 +321,9 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
 
     from zds.tutorialv2.models.versioned import Container, Extract, VersionedContent, PublicContent
 
-    if 'version' in json and json['version'] == 2:
-        json['version'] = '2'
-        if not all_is_string_appart_from_children(json):
-            json['version'] = 2
+    if 'version' in json and json['version'] in (2, 2.1):  # add newest version of manifest
+        if not all_is_string_appart_from_given_keys(json, ('children', 'ready_to_publish', 'version')):
             raise BadManifestError(_("Le fichier manifest n'est pas bien formaté."))
-        json['version'] = 2
         # create and fill the container
         if len(json['title']) > max_title_len:
             raise BadManifestError(
@@ -572,7 +394,7 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
 
         if 'licence' not in json or not versioned.licence:
             versioned.licence = Licence.objects.filter(pk=settings.ZDS_APP['content']['default_licence_pk']).first()
-
+        versioned.ready_to_publish = True  # the parent is always ready to publish
         if _type == 'ARTICLE':
             extract = Extract('text', '')
             if 'text' in json:
@@ -709,7 +531,7 @@ def fill_containers_from_json(json_sub, parent):
     if 'children' in json_sub:
 
         for child in json_sub['children']:
-            if not all_is_string_appart_from_children(child):
+            if not all_is_string_appart_from_given_keys(child, ('children', 'ready_to_publish')):
                 raise BadManifestError(
                     _("Le fichier manifest n'est pas bien formaté dans le conteneur " + str(json_sub['title'])))
             if child['object'] == 'container':
@@ -729,6 +551,7 @@ def fill_containers_from_json(json_sub, parent):
                     parent.add_container(new_container, generate_slug=(slug == ''))
                 except InvalidOperationError as e:
                     raise BadManifestError(e.message)
+                new_container.ready_to_publish = child.get('ready_to_publish', True)
                 if 'children' in child:
                     fill_containers_from_json(child, new_container)
             elif child['object'] == 'extract':
@@ -868,6 +691,7 @@ def export_container(container):
     """Export a container to a dictionary
 
     :param container: the container
+    :type container: zds.tutorialv2.models.models_versioned.Container
     :return: dictionary containing the information
     :rtype: dict
     """
@@ -877,13 +701,13 @@ def export_container(container):
     dct['title'] = container.title
 
     if container.introduction:
-        dct['introduction'] = container.introduction
+        dct['introduction'] = str(container.introduction)
 
     if container.conclusion:
-        dct['conclusion'] = container.conclusion
+        dct['conclusion'] = str(container.conclusion)
 
     dct['children'] = []
-
+    dct['ready_to_publish'] = container.ready_to_publish
     if container.has_sub_containers():
         for child in container.children:
             dct['children'].append(export_container(child))
@@ -904,7 +728,7 @@ def export_content(content):
     dct = export_container(content)
 
     # append metadata :
-    dct['version'] = 2  # to recognize old and new version of the content
+    dct['version'] = 2.1
     dct['description'] = content.description
     dct['type'] = content.type
     if content.licence:
@@ -962,3 +786,11 @@ class BadArchiveError(Exception):
 
     def __init__(self, reason):
         self.message = reason
+
+
+class FailureDuringPublication(Exception):
+    """Exception raised if something goes wrong during the publication process
+    """
+
+    def __init__(self, *args, **kwargs):
+        super(FailureDuringPublication, self).__init__(*args, **kwargs)

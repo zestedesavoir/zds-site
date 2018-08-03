@@ -7,7 +7,7 @@ from oauth2_provider.models import AccessToken, Application
 from django.conf import settings
 from django.contrib.auth.models import User, Group
 from django.core import mail
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.utils.translation import ugettext_lazy as _
@@ -341,6 +341,30 @@ class MemberTests(TestCase):
              'remember': 'remember'},
             follow=False)
         self.assertEqual(result.status_code, 200)
+        self.assertContains(
+            result, _(
+                'Le mot de passe saisi est incorrect. '
+                'Cliquez sur le lien « Mot de passe oublié ? » '
+                'si vous ne vous en souvenez plus.'
+            )
+        )
+
+        # login failed with bad username then no redirection
+        # (status_code equals 200 and not 302).
+        result = self.client.post(
+            reverse('member-login'),
+            {'username': 'clem',
+             'password': 'hostel77',
+             'remember': 'remember'},
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+        self.assertContains(
+            result, _(
+                'Ce nom d’utilisateur est inconnu. '
+                'Si vous ne possédez pas de compte, '
+                'vous pouvez vous inscrire.'
+            )
+        )
 
         # login a user. Good password and next parameter then
         # redirection to the "next" page.
@@ -352,6 +376,17 @@ class MemberTests(TestCase):
              'remember': 'remember'},
             follow=False)
         self.assertRedirects(result, reverse('gallery-list'))
+
+        # check the user is redirected to the home page if
+        # the "next" parameter points to a non-existing page.
+        result = self.client.post(
+            reverse('member-login') +
+            '?next=/foobar',
+            {'username': user.user.username,
+             'password': 'hostel77',
+             'remember': 'remember'},
+            follow=False)
+        self.assertRedirects(result, reverse('homepage'))
 
         # check if the login form will redirect if there is
         # a next parameter.

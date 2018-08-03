@@ -1,9 +1,13 @@
+import contextlib
 import os
-import subprocess
+from pathlib import Path
+
 from django.core.management.base import BaseCommand
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 from zds.tutorialv2.models.database import PublishedContent
+from zds.tutorialv2.models.versioned import NotAPublicVersion
+from zds.tutorialv2.publication_utils import PublicatorRegistry
 
 
 class Command(BaseCommand):
@@ -20,10 +24,6 @@ class Command(BaseCommand):
         except IndexError:
             ids = []
 
-        pandoc_debug_str = ''
-        if settings.PANDOC_LOG_STATE:
-            pandoc_debug_str = ' 2>&1 | tee -a ' + settings.PANDOC_LOG
-
         if len(ids) > 0:
             public_contents = PublishedContent.objects.filter(content_pk__in=ids, must_redirect=False).all()
         else:
@@ -39,21 +39,19 @@ class Command(BaseCommand):
             num_of_contents, 's' if num_of_contents > 1 else ''))
 
         for content in public_contents:
-            self.stdout.write(_('- {}').format(content.content_public_slug), ending='')
-            extra_content_dir = content.get_extra_contents_directory()
+            with contextlib.suppress(NotAPublicVersion):
+                self.stdout.write(_('- {}').format(content.content_public_slug), ending='')
+                extra_content_dir = content.get_extra_contents_directory()
+                building_extra_content_path = Path(str(Path(extra_content_dir).parent) + '__building',
+                                                   'extra_contents', content.content_public_slug)
+                if not building_extra_content_path.exists():
+                    building_extra_content_path.mkdir(parents=True)
+                base_name = os.path.join(extra_content_dir, content.content_public_slug)
 
-            base_name = os.path.join(extra_content_dir, content.content_public_slug)
-
-            # delete previous one
-            if os.path.exists(base_name + '.pdf'):
-                os.remove(base_name + '.pdf')
-
-            # generate PDF (assume images)
-            subprocess.call(
-                settings.PANDOC_LOC + 'pandoc ' + settings.PANDOC_PDF_PARAM + ' ' +
-                base_name + '.md -o ' + base_name + '.pdf' + pandoc_debug_str,
-                shell=True,
-                cwd=extra_content_dir)
+                # delete previous one
+                if os.path.exists(base_name + '.pdf'):
+                    os.remove(base_name + '.pdf')
+                PublicatorRegistry.get('pdf').publish(base_name + '.md', str(building_extra_content_path))
 
             # check:
             if os.path.exists(base_name + '.pdf'):

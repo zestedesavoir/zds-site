@@ -52,7 +52,7 @@
         <ul class="taglist" itemprop="keywords">
             {% for tag in topic.tags.all %}
                 <li>
-                    <a href="{% url 'topic-tag-find' tag.pk tag.slug %}">
+                    <a href="{% url 'topic-tag-find' tag.slug %}">
                         {{ tag.title }}
                     </a>
                 </li>

@@ -2,7 +2,7 @@
 Le chargement de jeux de données (fixtures)
 ===========================================
 
-Zeste de savoir étant un projet très complet il est nécessaire de pouvoir charger un ensemble de jeux de données
+Zeste de Savoir étant un projet très complet il est nécessaire de pouvoir charger un ensemble de jeux de données
 de manière automatique pour créer une nouvelle instance à des fins de test ou pour forker le site.
 
 Pour faciliter la tâche, trois outils sont mis à disposition des développeurs, testeurs et utilisateurs.

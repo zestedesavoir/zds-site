@@ -22,8 +22,11 @@ tricky_text_content = \
     'Image: ![GIF qui existe](http://upload.wikimedia.org/wikipedia/commons/2/27/AnimatedStar.gif)\n\n' \
     'Image: ![GIF qui existe pas](example.com/test.gif)\n\n' \
     'Image: ![Image locale qui existe pas](does-not-exist/test.png)\n\n' \
-    'Image: ![Bonus: image bizarre](https://s.qwant.com/thumbr/?u=http%3A%2F%2Fwww.blogoergosum.com%2Fwp-content%2F' \
-    'uploads%2F2010%2F02%2Fwikipedia-logo.jpg&h=338&w=600)\n\n' \
+    'Image: ![Bonus: image bizarre](https://s2.qwant.com/thumbr/300x0/e/7/' \
+    '56e2a2bdcd656d0b8a29c650116e29e893239089f71adf128d5f06330703b1/1024px-' \
+    'Oh_my_darling.jpg?u=https%3A%2F%2Fupload' \
+    '.wikimedia.org%2Fwikipedia%2Fcommons%2Fthumb%2Fa%2Fa9%2FOh_my_darling.jpg%2F1024px-' \
+    'Oh_my_darling.jpg&q=0&b=0&p=0&a=0)\n\n' \
     'Image: ![Bonus: le serveur existe pas !](http://unknown.image.zds/test.png)\n\n' \
     'Image: ![Bonus: juste du texte](URL invalide)\n\n' \
     '# Et donc ...\n\n'\
@@ -41,21 +44,24 @@ class PublishableContentFactory(factory.DjangoModelFactory):
     pubdate = datetime.now()
 
     @classmethod
-    def _prepare(cls, create, **kwargs):
+    def _prepare(cls, create, *, light=True, **kwargs):
         auths = []
         if 'author_list' in kwargs:
             auths = kwargs.pop('author_list')
+        given_licence = None
+        if 'licence' in kwargs:
+            given_licence = kwargs.pop('licence', None) or Licence.objects.first()
+        if isinstance(given_licence, str) and given_licence:
+            given_licence = Licence.objects.filter(title=given_licence).first() or Licence.objects.first()
+        licence = given_licence or LicenceFactory()
 
-        light = True
-        if 'light' in kwargs:
-            light = kwargs.pop('light')
         text = text_content
         if not light:
             text = tricky_text_content
 
         publishable_content = super(PublishableContentFactory, cls)._prepare(create, **kwargs)
         publishable_content.gallery = GalleryFactory()
-
+        publishable_content.licence = licence
         for auth in auths:
             publishable_content.authors.add(auth)
 
@@ -76,13 +82,9 @@ class ContainerFactory(factory.Factory):
     title = factory.Sequence(lambda n: 'Mon container No{0}'.format(n + 1))
 
     @classmethod
-    def _prepare(cls, create, **kwargs):
-        db_object = kwargs.pop('db_object', None)
+    def _prepare(cls, create, *, db_object=None, light=True, **kwargs):
         parent = kwargs.pop('parent', None)
 
-        light = True
-        if 'light' in kwargs:
-            light = kwargs.pop('light')
         text = text_content
         if not light:
             text = tricky_text_content
@@ -103,13 +105,9 @@ class ExtractFactory(factory.Factory):
     title = factory.Sequence(lambda n: 'Mon extrait No{0}'.format(n + 1))
 
     @classmethod
-    def _prepare(cls, create, **kwargs):
+    def _prepare(cls, create, *, light=True, container=None, **kwargs):
         db_object = kwargs.pop('db_object', None)
-        parent = kwargs.pop('container', None)
-
-        light = True
-        if 'light' in kwargs:
-            light = kwargs.pop('light')
+        parent = container
         text = text_content
         if not light:
             text = tricky_text_content
@@ -136,10 +134,8 @@ class ContentReactionFactory(factory.DjangoModelFactory):
         note = super(ContentReactionFactory, cls)._prepare(create, **kwargs)
         note.pubdate = datetime.now()
         note.save()
-        content = kwargs.pop('tutorial', None)
-        if content:
-            content.last_note = note
-            content.save()
+        note.related_content.last_note = note
+        note.related_content.save()
         return note
 
 

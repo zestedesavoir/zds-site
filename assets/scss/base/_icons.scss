@@ -2,7 +2,8 @@
     background-repeat: no-repeat;
     @include sprite();
 }
-.ico-after {
+.ico-after,
+.custom-block-body {
     position: relative;
 
     &:after {
@@ -389,5 +390,19 @@
         &.light:after {
             @include sprite-position($view-light);
         }
+    }
+}
+
+h3,
+h4,
+h5,
+h6 {
+    &:hover span.icon-link:after {
+        content: ' ';
+        display: inline-block;
+        @include sprite();
+        @include sprite-position($zform-link);
+        width: 16px;
+        height: 16px;
     }
 }

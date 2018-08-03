@@ -135,7 +135,7 @@ django_template_engine = {
             'social.apps.django_app.context_processors.login_redirect',
             # ZDS context processors
             'zds.utils.context_processor.app_settings',
-            'zds.utils.context_processor.git_version',
+            'zds.utils.context_processor.version',
         ],
     },
 }
@@ -145,8 +145,8 @@ TEMPLATES = [django_template_engine]
 CRISPY_TEMPLATE_PACK = 'bootstrap'
 
 INSTALLED_APPS = (
-    'django.contrib.auth',
     'django.contrib.contenttypes',
+    'django.contrib.auth',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
@@ -291,6 +291,11 @@ LOGGING = {
         },
 
         'zds': {
+            'handlers': ['console'],
+            'level': 'WARNING',
+        },
+
+        'root': {
             'handlers': ['console'],
             'level': 'WARNING',
         },

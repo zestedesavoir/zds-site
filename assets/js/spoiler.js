@@ -17,7 +17,7 @@
                     class: "spoiler-title ico-after view",
                     href: "#",
                     click: function(e) {
-                        $(this).next(".spoiler").toggle();
+                        $(this).next(".custom-block-spoiler").toggle();
                         e.preventDefault();
                     }
                 }));
@@ -28,9 +28,9 @@
 
     $(document).ready(function() {
         var $content = $("#content");
-        buildSpoilers($content.find(".spoiler"));
+        buildSpoilers($content.find(".custom-block-spoiler"));
         $content.on("DOMNodeInserted", function(e) {
-            var $spoilers = $(e.target).find(".spoiler");
+            var $spoilers = $(e.target).find(".custom-block-spoiler");
             return buildSpoilers($spoilers);
         });
     });

@@ -10,14 +10,13 @@ const sourcemaps = require('gulp-sourcemaps');
 const spritesmith = require('gulp.spritesmith');
 const uglify = require('gulp-uglify');
 const jshint = require('gulp-jshint');
-
 const autoprefixer = require('autoprefixer');
 const cssnano = require('cssnano');
 
 // PostCSS plugins used
 const postcssPlugins = [
     autoprefixer({ browsers: ['last 2 versions', '> 1%', 'ie >= 9'] }),
-    cssnano(),
+    cssnano()
 ];
 
 const customSass = () => sass({
@@ -58,6 +57,7 @@ gulp.task('js', () =>
         'assets/js/autocompletion.js',
         'assets/js/close-alert-box.js',
         'assets/js/compare-commits.js',
+        'assets/js/content-publication-readiness.js',
         'assets/js/dropdown-menu.js',
         'assets/js/editor.js',
         'assets/js/featured-resource-preview.js',
@@ -90,9 +90,13 @@ gulp.task('js', () =>
         .pipe(sourcemaps.write('.', { includeContent: true, sourceRoot: '../../' }))
         .pipe(gulp.dest('dist/js/')));
 
+gulp.task('prepare-zmd', () =>
+    gulp.src(['node_modules/katex/dist/{katex.min.css,fonts/*}'])
+        .pipe(gulp.dest('dist/css/')));
+
 // Compiles the SCSS files to CSS
 gulp.task('css', ['css:sprite'], () =>
-    gulp.src('assets/scss/main.scss')
+    gulp.src(['assets/scss/main.scss', 'assets/scss/zmd.scss'])
         .pipe(sourcemaps.init())
         .pipe(customSass())
         .pipe(postcss(postcssPlugins))
@@ -113,9 +117,10 @@ gulp.task('css:sprite', () =>
 
 // Optimizes the images
 gulp.task('images', ['css:sprite'], () =>
-    gulp.src('assets/{images,smileys}/**/*')
+    gulp.src('assets/{images,smileys,licenses}/**/*')
         .pipe(imagemin())
-        .pipe(gulp.dest('dist/')));
+        .pipe(gulp.dest('dist/'))
+);
 
 // Watch for file changes
 gulp.task('watch-runner', () => {
@@ -166,5 +171,5 @@ gulp.task('errors', () =>
         .pipe(gulp.dest('errors/css/')));
 
 gulp.task('test', ['js:lint']);
-gulp.task('build', ['css', 'js', 'images']);
+gulp.task('build', ['prepare-zmd', 'css', 'js', 'images']);
 gulp.task('default', ['watch', 'test']);
