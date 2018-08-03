@@ -524,6 +524,10 @@ class NotificationPublishableContentTest(TestCase):
 
         subscription = ContentReactionAnswerSubscription.objects.get_existing(user=self.user1, content_object=self.tuto)
         self.assertTrue(subscription.is_active)
+        result = self.client.post(reverse('content:follow-reactions', args=[self.tuto.pk]), {'follow': 0})
+        self.assertEqual(result.status_code, 302)
+        subscription = ContentReactionAnswerSubscription.objects.get_existing(user=self.user1, content_object=self.tuto)
+        self.assertFalse(subscription.is_active)
 
     def test_answer_subscription(self):
         """

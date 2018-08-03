@@ -130,7 +130,7 @@
             },
             2: {
                 smiley_ni: { title: ":ninja:",    start: ":ninja:",    end: "", image: "/static/smileys/ninja.gif" },
-                smiley_gd: { title: "&gt;_&lt;",  start: "&gt;_&lt;",  end: "", image: "/static/smileys/pinch.png" },
+                smiley_gd: { title: "X/",         start: "X/",         end: "", image: "/static/smileys/pinch.png" },
                 smiley_pi: { title: ":pirate:",   start: ":pirate:",   end: "", image: "/static/smileys/pirate.png" },
                 smiley_pl: { title: ":'(",        start: ":'(",        end: "", image: "/static/smileys/pleure.png" },
                 smiley_ro: { title: ":honte:",    start: ":honte:",    end: "", image: "/static/smileys/rouge.png" },

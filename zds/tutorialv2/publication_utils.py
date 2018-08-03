@@ -30,6 +30,7 @@ licences = {
     'by-nd': 'by-nd.svg',
     'by-sa': 'by-sa.svg',
     'by': 'by.svg',
+    '0': '0.svg',
     'copyright': 'copyright.svg'
 }
 
@@ -379,7 +380,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
         )
         if content == '' and messages:
             raise FailureDuringPublication('Markdown was not parsed due to {}'.format(messages))
-        zmd_class_dir_path = Path(os.environ.get('HOME', '~')) / 'texmf' / 'tex' / 'latex'
+        zmd_class_dir_path = Path(settings.ZDS_APP['content']['latex_template_repo'])
         if zmd_class_dir_path.exists() and zmd_class_dir_path.is_dir():
             with contextlib.suppress(FileExistsError):
                 zmd_class_link = base_directory / 'zmdocument.cls'
@@ -486,13 +487,14 @@ class ZMarkdownEpubPublicator(Publicator):
         try:
             published_content_entity = self.get_published_content_entity(md_file_path)
             epub_file_path = Path(base_name + '.epub')
+            logger.info('Start generating epub')
             build_ebook(published_content_entity,
                         path.dirname(md_file_path),
                         epub_file_path)
         except (IOError, OSError):
             raise FailureDuringPublication('Error while generating epub file.')
         else:
-            print(epub_file_path)
+            logger.info(epub_file_path)
             epub_path = Path(published_content_entity.get_extra_contents_directory(), Path(epub_file_path.name))
             if epub_path.exists():
                 os.remove(str(epub_path))
