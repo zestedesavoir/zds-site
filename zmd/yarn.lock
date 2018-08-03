@@ -1829,9 +1829,9 @@ readdirp@^2.0.0:
     readable-stream "^2.0.2"
     set-immediate-shim "^1.0.1"
 
-rebber-plugins@^1.4.0:
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/rebber-plugins/-/rebber-plugins-1.4.0.tgz#5bd971524de45af6696791f5157c7e3a2d2851e0"
+rebber-plugins@^1.4.1:
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/rebber-plugins/-/rebber-plugins-1.4.1.tgz#53323917f3310aa145293c33c77c181c7de25e3d"
   dependencies:
     has "^1.0.1"
     xtend "^4.0.1"
@@ -1943,9 +1943,9 @@ remark-comments@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/remark-comments/-/remark-comments-1.2.0.tgz#185baf88c290a7c0f87d1b695300975ea31a2d77"
 
-remark-custom-blocks@^2.1.1:
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/remark-custom-blocks/-/remark-custom-blocks-2.1.1.tgz#7968516a7f52d08b31dd37012e56b9685787fa96"
+remark-custom-blocks@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/remark-custom-blocks/-/remark-custom-blocks-2.2.0.tgz#44a809818537482d3a89a4bcb41c978867653836"
   dependencies:
     space-separated-tokens "^1.1.1"
 
@@ -1963,9 +1963,9 @@ remark-escape-escaped@^0.0.26:
   version "0.0.26"
   resolved "https://registry.yarnpkg.com/remark-escape-escaped/-/remark-escape-escaped-0.0.26.tgz#a161ed16a59c3325698315b4dc768807a9f2b238"
 
-remark-grid-tables@^1.0.12:
-  version "1.0.12"
-  resolved "https://registry.yarnpkg.com/remark-grid-tables/-/remark-grid-tables-1.0.12.tgz#25d31901280294eefa5ad88e15be67c1d9abed03"
+remark-grid-tables@^1.0.13:
+  version "1.0.13"
+  resolved "https://registry.yarnpkg.com/remark-grid-tables/-/remark-grid-tables-1.0.13.tgz#af9fc7f784c37d788f170125ae2170d5ca3a3ce9"
   dependencies:
     unist-util-visit "^1.1.3"
 
@@ -1996,9 +1996,9 @@ remark-images-download@^2.7.2:
     shortid "^2.2.8"
     unist-util-visit "^1.1.3"
 
-remark-kbd@^1.0.10:
-  version "1.0.10"
-  resolved "https://registry.yarnpkg.com/remark-kbd/-/remark-kbd-1.0.10.tgz#262b234d25346ea580bce74f3b03b1ec3d8deae0"
+remark-kbd@^1.0.12:
+  version "1.0.12"
+  resolved "https://registry.yarnpkg.com/remark-kbd/-/remark-kbd-1.0.12.tgz#daf7294c48f8c4ed752e0a5e5b59c7fea64de408"
   dependencies:
     is-whitespace-character "^1.0.0"
 
@@ -2034,9 +2034,9 @@ remark-parse@^5.0.0:
     vfile-location "^2.0.0"
     xtend "^4.0.1"
 
-remark-ping@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/remark-ping/-/remark-ping-2.0.0.tgz#b2f40ece57565188bcdf14c03fba3a02d5aab503"
+remark-ping@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/remark-ping/-/remark-ping-2.1.0.tgz#8148edc1d91a03d3538bc7eaffc57c0a32f54b8b"
   dependencies:
     unist-util-visit "^1.1.3"
 
@@ -2773,9 +2773,9 @@ yamljs@^0.3.0:
     argparse "^1.0.7"
     glob "^7.0.5"
 
-zmarkdown@^5.4.3:
-  version "5.4.4"
-  resolved "https://registry.yarnpkg.com/zmarkdown/-/zmarkdown-5.4.4.tgz#9356bb8b509c03ce067a74a7e6a75f732db2c561"
+zmarkdown@^5.4.4:
+  version "5.4.9"
+  resolved "https://registry.yarnpkg.com/zmarkdown/-/zmarkdown-5.4.9.tgz#c7c244f3553bc2a3c52166384cbefbb382cf567a"
   dependencies:
     body-parser "^1.18.2"
     clone "^2.1.1"
@@ -2786,7 +2786,7 @@ zmarkdown@^5.4.3:
     pmx "^1.5.6"
     raven "^2.1.2"
     rebber "^2.2.2"
-    rebber-plugins "^1.4.0"
+    rebber-plugins "^1.4.1"
     rehype-autolink-headings "^2.0.1"
     rehype-footnotes-title "^0.0.23"
     rehype-highlight "^2.0.1"
@@ -2798,20 +2798,20 @@ zmarkdown@^5.4.3:
     remark-align "^1.2.0"
     remark-captions "^2.0.1"
     remark-comments "^1.2.0"
-    remark-custom-blocks "^2.1.1"
+    remark-custom-blocks "^2.2.0"
     remark-disable-tokenizers "^1.0.14"
     remark-emoticons "^1.1.1"
     remark-escape-escaped "^0.0.26"
-    remark-grid-tables "^1.0.12"
+    remark-grid-tables "^1.0.13"
     remark-heading-shift "^1.0.8"
     remark-heading-trailing-spaces "^0.0.22"
     remark-iframes "^3.0.1"
     remark-images-download "^2.7.2"
-    remark-kbd "^1.0.10"
+    remark-kbd "^1.0.12"
     remark-math "^1.0.1"
     remark-numbered-footnotes "^1.0.5"
     remark-parse "^5.0.0"
-    remark-ping "^2.0.0"
+    remark-ping "^2.1.0"
     remark-rehype "^3.0.0"
     remark-sub-super "^1.0.11"
     textr "^0.3.0"
