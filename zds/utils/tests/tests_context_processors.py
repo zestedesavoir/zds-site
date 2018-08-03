@@ -30,26 +30,28 @@ class AlertsTest(TestCase):
             self.alerts.append(alert)
 
     def test_anonymous_user(self):
-        self.assertEqual({}, self.__notifications(AnonymousUser()))
+        self.assertEqual({}, AlertsTest.__notifications(AnonymousUser()))
 
     def test_regular_user(self):
-        self.assertEqual(False, self.__alerts(self.dummy_author.user))
+        self.assertEqual(False, AlertsTest.__alerts(self.dummy_author.user))
 
     def test_staff(self):
-        alerts = self.__alerts(self.staff.user)
+        alerts = AlertsTest.__alerts(self.staff.user)
         self.assertEqual(20, alerts['total'])
         self.assertEqual(10, len(alerts['list']))
         self.assertEqual(self.alerts[-1].text, alerts['list'][0]['text'])
 
         self.alerts[5].delete()
-        alerts = self.__alerts(self.staff.user)
+        alerts = AlertsTest.__alerts(self.staff.user)
         self.assertEqual(19, alerts['total'])
         self.assertEqual(10, len(alerts['list']))
 
-    def __alerts(self, user):
-        return self.__notifications(user)['header_alerts']
+    @staticmethod
+    def __alerts(user):
+        return AlertsTest.__notifications(user)['header_alerts']
 
-    def __notifications(self, user):
+    @staticmethod
+    def __notifications(user):
         class Request:
             pass
         r = Request()
