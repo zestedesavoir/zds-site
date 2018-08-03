@@ -171,6 +171,27 @@
 
         <div class="header-container">
             {% include "header.html" %}
+
+            <div class="clearfix sub-header">
+                <div class="breadcrumb" itemprop="breadcrumb">
+                    <ol>
+                        <li>
+                            <a href="{% url "homepage" %}" rel="home" itemprop="url">
+                                <span itemprop="title">{% trans "Accueil" %}</span>
+                            </a>
+                        </li>
+                        {% block breadcrumb_base %}{% endblock %}
+                        {% block breadcrumb %}{% endblock %}
+                    </ol>
+                </div>
+                <div class="search header-right" id="search">
+                    <form action="{% url "search:query" %}">
+                        <input type="text" name="q" placeholder="{% trans "Rechercher" %}" title="{% trans "Contenu de la recherche" %}">
+                        <button type="submit" class="ico-after search-submit" title="{% trans "Lancer la recherche" %}">{% trans "OK" %}</button>
+                    </form>
+                    <a href="{% url "search:query" %}" title="{% trans "Recherche avancée" %}" class="search-more"></a>
+                </div>
+            </div>
         </div>
 
 
