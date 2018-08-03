@@ -407,11 +407,14 @@ td code {
     }
 }
 
-.footnote {
+.footnote, .footnotes{
     opacity: .7;
 
     ol {
         padding-left: 25px;
+        p {
+            display: inline;
+        }
     }
 }
 
@@ -425,9 +428,7 @@ td code {
         padding-bottom: 56.25%;
 
         iframe {
-            position:absolute;
             width: 100%;
-            height: 100%;
         }
     }
 }

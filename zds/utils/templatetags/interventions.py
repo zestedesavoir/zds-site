@@ -1,17 +1,14 @@
 from datetime import datetime, timedelta
 
 from django import template
-from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 
-from zds.forum.models import Post, is_read as topic_is_read
-from zds.mp.models import PrivateTopic
+from zds.forum.models import is_read as topic_is_read
 from zds.tutorialv2.models.database import Validation
-from zds.notification.models import Notification, TopicAnswerSubscription, ContentReactionAnswerSubscription, \
+from zds.notification.models import TopicAnswerSubscription, ContentReactionAnswerSubscription, \
     NewTopicSubscription, NewPublicationSubscription
-from zds.tutorialv2.models.database import ContentReaction, PublishableContent
 from zds.utils import get_current_user
-from zds.utils.models import Alert, HatRequest
+from zds.utils.models import HatRequest
 from django.conf import settings
 from zds.tutorialv2.models import TYPE_CHOICES_DICT
 from zds.member.models import NewEmailProvider
@@ -125,71 +122,6 @@ def get_github_issue_url(topic):
             settings.ZDS_APP['site']['repository']['bugtracker'],
             topic.github_issue
         )
-
-
-@register.filter('interventions_topics')
-def interventions_topics(user):
-    """
-    Gets all notifications related to all notifiable models excluding private topics.
-    """
-    posts_unread = []
-
-    private_topic = ContentType.objects.get_for_model(PrivateTopic)
-    for notification in Notification.objects \
-            .get_unread_notifications_of(user) \
-            .exclude(subscription__content_type=private_topic):
-        posts_unread.append({'pubdate': notification.pubdate,
-                             'author': notification.sender,
-                             'title': notification.title,
-                             'url': notification.url})
-
-    posts_unread.sort(key=lambda post: post['pubdate'].timetuple())
-
-    return posts_unread
-
-
-@register.filter('interventions_privatetopics')
-def interventions_privatetopics(user):
-    """
-    Gets all unread messages in the user's inbox.
-    """
-    private_topic = ContentType.objects.get_for_model(PrivateTopic)
-    notifications = list(Notification.objects
-                         .get_unread_notifications_of(user)
-                         .filter(subscription__content_type=private_topic)
-                         .order_by('-pubdate'))
-    return {'notifications': notifications, 'total': len(notifications)}
-
-
-@register.filter(name='alerts_list')
-def alerts_list(user):
-    total = []
-    alerts = Alert.objects.filter(solved=False).select_related('author', 'comment', 'content').order_by('-pubdate')[:10]
-    nb_alerts = Alert.objects.filter(solved=False).count()
-    for alert in alerts:
-        if alert.scope == 'FORUM':
-            post = Post.objects.select_related('topic').get(pk=alert.comment.pk)
-            total.append({'title': post.topic.title,
-                          'url': post.get_absolute_url(),
-                          'pubdate': alert.pubdate,
-                          'author': alert.author,
-                          'text': alert.text})
-        elif alert.scope == 'CONTENT':
-            published = PublishableContent.objects.select_related('public_version').get(pk=alert.content.pk)
-            total.append({'title': published.public_version.title if published.public_version else published.title,
-                          'url': published.get_absolute_url_online() if published.public_version else '',
-                          'pubdate': alert.pubdate,
-                          'author': alert.author,
-                          'text': alert.text})
-        else:
-            comment = ContentReaction.objects.select_related('related_content').get(pk=alert.comment.pk)
-            total.append({'title': comment.related_content.title,
-                          'url': comment.get_absolute_url(),
-                          'pubdate': alert.pubdate,
-                          'author': alert.author,
-                          'text': alert.text})
-
-    return {'alerts': total, 'nb_alerts': nb_alerts}
 
 
 @register.filter(name='waiting_count')
