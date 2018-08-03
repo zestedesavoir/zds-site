@@ -217,7 +217,7 @@
                     <em class="alert-box-text">{{ alert.text }}</em>
 
                     {% if alert.solved %}
-                        <span class="close-alert-box close-alert-box-text">
+                        <span class="view-alert-box close-alert-box-text">
                             {% trans "Résolu par" %}
                             {% include "misc/member_item.part.html" with member=alert.moderator %}
                         </span>
@@ -239,22 +239,24 @@
             <div class="message-bottom">
                 {% with profile=message.author|profile %}
                     {% if profile.sign %}
-                        {% if user.is_authenticated %}
-                            {% with profile_user=user|profile %}
-                                {% if profile_user.show_sign %}
-                                    <div class="signature">
-                                        {% cache 300 profile.user.username profile.sign %}
-                                            {{ profile.sign|emarkdown_inline }}
-                                        {% endcache %}
-                                    </div>
-                                {% endif %}
-                            {% endwith %}
-                        {% else %}
-                            <div class="signature">
-                                {% cache 300 profile.user.username profile.sign %}
-                                    {{ profile.sign|emarkdown_inline }}
-                                {% endcache %}
-                            </div>
+                        {% if profile.end_ban_read or profile.can_read %}
+                            {% if user.is_authenticated %}
+                                {% with profile_user=user|profile %}
+                                    {% if profile_user.show_sign %}
+                                        <div class="signature">
+                                            {% cache 300 profile.user.username profile.sign %}
+                                                {{ profile.sign|emarkdown_inline }}
+                                            {% endcache %}
+                                        </div>
+                                    {% endif %}
+                                {% endwith %}
+                            {% else %}
+                                <div class="signature">
+                                    {% cache 300 profile.user.username profile.sign %}
+                                        {{ profile.sign|emarkdown_inline }}
+                                    {% endcache %}
+                                </div>
+                            {% endif %}
                         {% endif %}
                     {% endif %}
                 {% endwith %}

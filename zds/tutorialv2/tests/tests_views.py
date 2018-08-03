@@ -33,7 +33,7 @@ from zds.tutorialv2.publication_utils import publish_content, PublicatorRegistry
 from zds.tutorialv2.tests import TutorialTestMixin
 from zds.utils.models import HelpWriting, Alert, Tag, Hat
 from zds.utils.factories import HelpWritingFactory, CategoryFactory
-from zds.utils.templatetags.interventions import interventions_topics
+from zds.utils.header_notifications import get_header_notifications
 from copy import deepcopy
 from zds import json_handler
 
@@ -121,7 +121,11 @@ class ContentTests(TestCase, TutorialTestMixin):
             reverse('content:view', args=[tuto.pk, tuto.slug]),
             follow=False)
         self.assertEqual(result.status_code, 200)
-
+        self.assertIn(reverse('content:edit-container', kwargs={
+            'pk': tuto.pk,
+            'slug': tuto.slug,
+            'container_slug': self.part1.slug
+        }), result.content.decode('utf-8'))
         result = self.client.get(
             reverse('content:view-container',
                     kwargs={
@@ -4657,7 +4661,8 @@ class PublishedContentTests(TestCase, TutorialTestMixin):
         reads = ContentRead.objects.filter(user=self.user_staff).all()
         # simple visit does not trigger follow but remembers reading
         self.assertEqual(len(reads), 1)
-        interventions = [post['url'] for post in interventions_topics(self.user_staff)]
+        interventions = [
+            post['url'] for post in get_header_notifications(self.user_staff)['general_notifications']['list']]
         self.assertTrue(reads.first().note.get_absolute_url() not in interventions)
 
         # login with author

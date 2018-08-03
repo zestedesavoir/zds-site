@@ -10,6 +10,7 @@ base.db
 /contents-public
 /media
 /articles-data
+/zds/_version.py
 
 /tutoriels-private-test
 /tutoriels-public-test

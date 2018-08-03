@@ -5,13 +5,21 @@
 
 
 {% block title_base %}
-    &bull; {% trans "Bibliothèque" %}
+    {% if current_content_type == "OPINION" %}
+        &bull; {% trans "Tribune" %}
+    {% else %}
+        &bull; {% trans "Bibliothèque" %}
+    {% endif %}
 {% endblock %}
 
 
 
 {% block mobile_title %}
-    {% trans "Bibliothèque" %}
+    {% if current_content_type == "OPINION" %}
+        {% trans "Tribune" %}
+    {% else %}
+        {% trans "Bibliothèque" %}
+    {% endif %}
 {% endblock %}
 
 
