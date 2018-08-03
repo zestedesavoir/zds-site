@@ -116,7 +116,7 @@
                 smiley_un: { title: ":euh:",      start: ":euh:",      end: "", image: "/static/smileys/unsure.gif" },
                 smiley_tr: { title: ":(",         start: ":(",         end: "", image: "/static/smileys/triste.png" },
                 smiley_hu: { title: ":o",         start: ":o",         end: "", image: "/static/smileys/huh.png" },
-                smiley_8b: { title: ":B",         start: ":B",         end: "", image: "/static/smileys/b.png" }
+                smiley_ib: { title: ":B",         start: ":B",         end: "", image: "/static/smileys/b.png" }
             },
             1: {
                 smiley_c1: { title: ":colere2:",  start: ":colere2:",  end: "", image: "/static/smileys/mechant.png" },
