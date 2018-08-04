@@ -1,13 +1,17 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.contenttypes.models import ContentType
 
-from zds.featured.managers import FeaturedResourceManager, FeaturedMessageManager
+from django.contrib.contenttypes.fields import GenericForeignKey
+from zds.featured.managers import FeaturedResourceManager, FeaturedMessageManager, FeaturedRequestedManager
+
+from zds.member.models import User
 
 
 class FeaturedResource(models.Model):
     """
         A FeaturedResource is a link to a resource that is featured by the Staff
-        It displays 3 main informations:
+        It displays 3 main information:
             - A background picture
             - A title
             - The author(s) of the resource
@@ -34,6 +38,46 @@ class FeaturedResource(models.Model):
     def __str__(self):
         """Textual form of a featured resource."""
         return self.title
+
+
+class FeaturedRequested(models.Model):
+    """
+    This class hold votes for a topic or content to be featured.
+    """
+
+    class Meta:
+        verbose_name = _('Mise en avant souhaitée')
+        verbose_name_plural = _('Mises en avant souhaitées')
+
+    content_type = models.ForeignKey(ContentType)
+    object_id = models.PositiveIntegerField(db_index=True)
+    content_object = GenericForeignKey('content_type', 'object_id')
+
+    users_voted = models.ManyToManyField(User, verbose_name='Auteurs', db_index=True, blank=True)
+
+    type = models.CharField(max_length=10, choices=(('CONTENT', _('Contenu')), ('TOPIC', _('Topic'))), db_index=True)
+
+    rejected = models.BooleanField(default=False)
+    featured = models.ForeignKey(FeaturedResource, blank=True, null=True, on_delete=models.SET_NULL)
+
+    objects = FeaturedRequestedManager()
+
+    def toggle(self, user):
+        new_value = False
+        new_count = self.users_voted.count()
+
+        if self.users_voted.filter(pk=user.pk).exists():
+            self.users_voted.remove(user)
+            new_count -= 1
+        else:
+            self.users_voted.add(user)
+            new_count += 1
+            new_value = True
+
+        return new_value, new_count
+
+    def __str__(self):
+        return '<RequestFeatured for "{}">'.format(self.content_object.title)
 
 
 class FeaturedMessage(models.Model):

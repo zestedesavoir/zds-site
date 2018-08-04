@@ -214,6 +214,7 @@ ZDS_APP = {
     'featured_resource': {
         'featured_per_page': 100,
         'home_number': 5,
+        'request_per_page': 50,
     },
     'notification': {
         'per_page': 50,

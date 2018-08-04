@@ -213,6 +213,23 @@
         {% endwith %}
         {% endwith %}
     </li>
+
+    <li>
+        {% url 'topic-edit' as link_request_without_parameter %}
+
+        {% with topic_id=topic.pk|stringformat:"s" %}
+        {% with link_request=link_request_without_parameter|add:'?topic='|add:topic_id %}
+            {% if is_requesting %}
+                {% trans "Demander la mise en une" as data_onclick %}
+                {% trans "Ne plus demander la mise en une" as button_text %}
+            {% else %}
+                {% trans "Demander la mise en une" as button_text %}
+                {% trans "Ne plus demander la mise en une" as data_onclick %}
+            {% endif %}
+            {% include 'featured/includes/featured_request.part.html' with link=link_request is_requesting=is_requesting data_onclick=data_onclick button_text=button_text featured_request_count=featured_request_count %}
+        {% endwith %}
+        {% endwith %}
+    </li>
 {% endblock %}
 
 

@@ -21,6 +21,7 @@ from django.views.generic import RedirectView, FormView, ListView, TemplateView
 from django.db.models import F, Q
 
 from zds.forum.models import Forum
+from zds.featured.mixins import Featureable
 from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin, PermissionRequiredMixin
 from zds.member.views import get_client_ip
 from zds.notification import signals
@@ -55,7 +56,7 @@ class RedirectContentSEO(RedirectView):
         return obj.get_absolute_url_online()
 
 
-class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
+class DisplayOnlineContent(Featureable, SingleOnlineContentDetailViewMixin):
     """Base class that can show any online content"""
 
     model = PublishedContent
@@ -977,6 +978,20 @@ class FollowContentReaction(LoggedWithReadWriteHability, SingleOnlineContentView
         if self.request.is_ajax():
             return HttpResponse(json_handler.dumps(response), content_type='application/json')
         return redirect(self.get_object().get_absolute_url())
+
+
+class RequestFeaturedContent(LoggedWithReadWriteHability, Featureable, SingleOnlineContentViewMixin, FormView):
+    redirection_is_needed = False
+
+    def post(self, request, *args, **kwargs):
+        self.public_content_object = self.get_public_object()
+        self.object = self.get_object()
+
+        response = dict()
+        response['requesting'], response['newCount'] = self.toogle_featured_request(request.user)
+        if self.request.is_ajax():
+            return HttpResponse(json_handler.dumps(response), content_type='application/json')
+        return redirect(self.public_content_object.get_absolute_url_online())
 
 
 class FollowNewContent(LoggedWithReadWriteHability, FormView):

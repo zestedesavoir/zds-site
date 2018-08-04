@@ -24,6 +24,7 @@ from zds.member.decorator import can_write_and_read_now
 from zds.member.models import user_readable_forums
 from zds.notification import signals
 from zds.notification.models import NewTopicSubscription, TopicAnswerSubscription
+from zds.featured.mixins import Featureable
 from zds.utils import slugify
 from zds.utils.forums import create_topic, send_post, CreatePostView
 from zds.utils.mixins import FilterMixin
@@ -155,7 +156,7 @@ class ForumTopicsListView(FilterMixin, ForumEditMixin, ZdSPagingListView, Update
         return queryset
 
 
-class TopicPostsListView(ZdSPagingListView, SingleObjectMixin):
+class TopicPostsListView(ZdSPagingListView, Featureable, SingleObjectMixin):
 
     context_object_name = 'posts'
     paginate_by = settings.ZDS_APP['forum']['posts_per_page']
@@ -273,7 +274,7 @@ class TopicNew(CreateView, SingleObjectMixin):
         return redirect(topic.get_absolute_url())
 
 
-class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
+class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin, Featureable):
 
     template_name = 'forum/topic/edit.html'
     form_class = TopicForm
@@ -347,6 +348,8 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
             self.perform_sticky(request, self.object)
         elif 'move' in request.POST:
             self.perform_move()
+        elif 'request_featured' in request.POST:
+            response['requesting'], response['newCount'] = self.toogle_featured_request(request.user)
 
         self.object.save()
         if request.is_ajax():

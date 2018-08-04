@@ -28,6 +28,9 @@
         <a href="{% url 'featured-resource-create' %}" class="new-btn ico-after more blue">
             {% trans "Nouvelle une" %}
         </a>
+        <a href="{% url 'featured-resource-requests' %}" class="new-btn ico-after star blue">
+            {% trans "Liste des requêtes pour les unes" %}
+        </a>
 
         {% block sidebar_actions %}{% endblock %}
     </aside>

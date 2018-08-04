@@ -137,6 +137,41 @@
     });
 
     /**
+     * Featured request
+     */
+    $(".sidebar").on("click", "[data-ajax-input='request-featured']", function(e){
+        var $act = $(this),
+            $form = $(this).parents("form:first"),
+            $requestText = $act.find("span#request_text"),
+            $count = $form.find("span#featured_request_count"),
+            $plural = $act.find("span#featured_request_plural");
+
+        var csrfmiddlewaretoken = $form.find("input[name=csrfmiddlewaretoken]").val(),
+            request_featured = $form.find("input[name=request_featured]").val();
+
+        $.ajax({
+            url: $form.attr("action"),
+            type: "POST",
+            dataType: "json",
+            data: {
+                "csrfmiddlewaretoken": csrfmiddlewaretoken,
+                "request_featured": request_featured
+            },
+            success: function(data){
+                $requestText.toggleText("content-on-click");
+                $count.text(data.newCount);
+                $plural.text(data.newCount > 1 ? "s" : "");
+                $act.toggleClass("blue yellow");
+
+                synchText();
+            }
+        });
+
+        e.stopPropagation();
+        e.preventDefault();
+    });
+
+    /**
      * Mark a topic solved
      */
     $(".sidebar").on("click", "[data-ajax-input='solve-topic']", function(e){

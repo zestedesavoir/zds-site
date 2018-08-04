@@ -4,15 +4,18 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.urlresolvers import reverse
 from django.db import transaction
+from django.db.models import Count
 from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext as _
 from django.views.generic import CreateView, RedirectView, UpdateView, FormView, DeleteView
 from django.views.generic.list import MultipleObjectMixin
+from django.http import HttpResponse
 
 from django.conf import settings
+from zds import json_handler
 from zds.featured.forms import FeaturedResourceForm, FeaturedMessageForm
-from zds.featured.models import FeaturedResource, FeaturedMessage
+from zds.featured.models import FeaturedResource, FeaturedMessage, FeaturedRequested
 from zds.forum.models import Topic
 from zds.tutorialv2.models.database import PublishedContent
 from zds.utils.paginator import ZdSPagingListView
@@ -59,10 +62,18 @@ class FeaturedResourceCreate(CreateView):
         except (Topic.DoesNotExist, ValueError):
             messages.error(self.request, self.initial_error_message)
             return {}
-        return {'title': content.title,
-                'type': self.displayed_content_type['TOPIC'],
-                'authors': str(content.author),
-                'url': self.request.build_absolute_uri(content.get_absolute_url())}
+        initial = {
+            'title': content.title,
+            'type': self.displayed_content_type['TOPIC'],
+            'authors': str(content.author),
+            'url': self.request.build_absolute_uri(content.get_absolute_url())
+        }
+
+        request = FeaturedRequested.objects.get_existing(content)
+        if request is not None:
+            initial.update({'request': request.pk})
+
+        return initial
 
     def get_initial_content_data(self, content_id):
         try:
@@ -75,11 +86,19 @@ class FeaturedResourceCreate(CreateView):
             image_url = content.content.image.physical.url
         else:
             image_url = None
-        return {'title': content.title(),
-                'type': self.displayed_content_type[content.content_type],
-                'authors': displayed_authors,
-                'url': self.request.build_absolute_uri(content.content.get_absolute_url_online()),
-                'image_url': image_url}
+        initial = {
+            'title': content.title(),
+            'type': self.displayed_content_type[content.content_type],
+            'authors': displayed_authors,
+            'url': self.request.build_absolute_uri(content.content.get_absolute_url_online()),
+            'image_url': image_url
+        }
+
+        request = FeaturedRequested.objects.get_existing(content.content)
+        if request is not None:
+            initial.update({'request': request.pk})
+
+        return initial
 
     def get_initial(self):
         initial = super(FeaturedResourceCreate, self).get_initial()
@@ -110,6 +129,14 @@ class FeaturedResourceCreate(CreateView):
             featured_resource.pubdate = form.cleaned_data.get('pubdate')
 
         featured_resource.save()
+
+        if form.cleaned_data['request'] > -1:
+            try:
+                request = FeaturedRequested.objects.get(pk=form.cleaned_data['request'])
+                request.featured = featured_resource
+                request.save()
+            except FeaturedRequested.DoesNotExist:
+                pass
 
         messages.success(self.request, _('La une a été créée.'))
         return redirect(reverse('featured-resource-list'))
@@ -207,6 +234,52 @@ class FeaturedResourceDeleteList(MultipleObjectMixin, RedirectView):
         messages.success(request, _('Les unes ont été supprimées avec succès.'))
 
         return redirect(reverse('featured-resource-list'))
+
+
+class FeaturedRequestedList(ZdSPagingListView):
+    """
+    Displays the list of featured resources.
+    """
+
+    context_object_name = 'featured_request_list'
+    paginate_by = settings.ZDS_APP['featured_resource']['request_per_page']
+    template_name = 'featured/list_requests.html'
+
+    def get_queryset(self):
+        queryset = FeaturedRequested.objects\
+            .filter(rejected=False)\
+            .filter(featured__isnull=True)\
+            .prefetch_related('content_object')\
+            .annotate(num_vote=Count('users_voted'))\
+            .order_by('-num_vote')
+
+        return queryset
+
+    @method_decorator(login_required)
+    @method_decorator(permission_required('featured.change_featuredresource', raise_exception=True))
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+
+class FeaturedRequestedUpdate(UpdateView):
+    model = FeaturedRequested
+    http_method_names = ['post']
+
+    def post(self, request, *args, **kwargs):
+        obj = self.get_object()
+        result = {'result': 'FAIL'}
+
+        if 'operation' in request.POST:
+            if 'REJECT' in request.POST['operation']:
+                obj.rejected = True
+                obj.save()
+                result = {'result': 'OK'}
+            elif 'CONSIDER' in request.POST['operation']:
+                obj.rejected = False
+                obj.save()
+                result = {'result': 'OK'}
+
+        return HttpResponse(json_handler.dumps(result), content_type='application/json')
 
 
 class FeaturedMessageCreateUpdate(FormView):

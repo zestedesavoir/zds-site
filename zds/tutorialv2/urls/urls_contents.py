@@ -9,7 +9,7 @@ from zds.tutorialv2.views.contents import DisplayContent, CreateContent, EditCon
 
 from zds.tutorialv2.views.published import SendNoteFormView, UpdateNoteView, \
     HideReaction, ShowReaction, SendNoteAlert, SolveNoteAlert, TagsListView, \
-    FollowContentReaction, FollowNewContent, SendContentAlert, SolveContentAlert
+    FollowContentReaction, FollowNewContent, SendContentAlert, SolveContentAlert, RequestFeaturedContent
 
 urlpatterns = [
     # Flux
@@ -60,6 +60,9 @@ urlpatterns = [
     # follow:
     url(r'^suivre/(?P<pk>\d+)/reactions/$', FollowContentReaction.as_view(), name='follow-reactions'),
     url(r'^suivre/membres/(?P<pk>\d+)/$', FollowNewContent.as_view(), name='follow'),
+
+    # request
+    url(r'^requete/(?P<pk>\d+)/$', RequestFeaturedContent.as_view(), name='request-featured'),
 
     # content alerts:
     url(r'^alerter/(?P<pk>\d+)/$', SendContentAlert.as_view(), name='alert-content'),

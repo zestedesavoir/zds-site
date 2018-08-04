@@ -220,6 +220,18 @@
         {% include 'notification/follow_by_email_template.html' with link=link_follow is_followed=content_is_followed data_onclick=data_onclick button_text=button_text %}
     {% endwith %}
     </li>
+    <li>
+        {% url 'content:request-featured' object.pk as link_request %}
+        {% if is_requesting %}
+            {% trans "Demander la mise en une" as data_onclick %}
+            {% trans "Ne plus demander la mise en une" as button_text %}
+        {% else %}
+            {% trans "Demander la mise en une" as button_text %}
+            {% trans "Ne plus demander la mise en une" as data_onclick %}
+        {% endif %}
+        {% include 'featured/includes/featured_request.part.html' with link=link_request is_requesting=is_requesting data_onclick=data_onclick button_text=button_text featured_request_count=featured_request_count %}
+
+    </li>
     {% if not user in content.authors.all %}
     <li>
         <a href="{{ pm_link }}" class="ico-after cite blue">
