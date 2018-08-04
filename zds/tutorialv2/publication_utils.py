@@ -30,6 +30,7 @@ licences = {
     'by-nd': 'by-nd.svg',
     'by-sa': 'by-sa.svg',
     'by': 'by.svg',
+    '0': '0.svg',
     'copyright': 'copyright.svg'
 }
 

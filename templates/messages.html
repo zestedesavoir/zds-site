@@ -1,0 +1,8 @@
+{% load i18n %}
+
+{% for message in messages %}
+    <div class="alert-box {{ message.tags }}">
+        <span>{{ message.text }}</span>
+        <a href="#close-alert-box" class="close-alert-box ico-after cross white">{% trans "Masquer l’alerte" %}</a>
+    </div>
+{% endfor %}

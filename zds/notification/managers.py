@@ -149,7 +149,8 @@ class SubscriptionManager(models.Manager):
             if by_email:
                 subscription.activate_email()
             return subscription
-        signals.content_read.send(sender=content_object.__class__, instance=content_object, user=user)
+        signals.content_read.send(sender=content_object.__class__, instance=content_object, user=user,
+                                  target=content_object.__class__)
         if by_email:
             existing.deactivate_email()
         else:

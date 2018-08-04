@@ -1,6 +1,7 @@
 from datetime import datetime
 from collections import defaultdict
 from zds import json_handler
+from uuslug import slugify
 import logging
 import os
 
@@ -34,7 +35,7 @@ from zds.tutorialv2.utils import search_container_or_404, last_participation_is_
 from zds.utils.models import Alert, CommentVote, Tag, Category, CommentEdit, SubCategory, get_hat_from_request, \
     CategorySubCategory
 from zds.utils.paginator import make_pagination, ZdSPagingListView
-from zds.utils.templatetags.topbar import top_categories_content
+from zds.utils.templatetags.topbar import topbar_publication_categories
 
 logger = logging.getLogger(__name__)
 
@@ -373,7 +374,7 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
         context['category'] = self.category
         context['subcategory'] = self.subcategory
         context['tag'] = self.tag
-        context['top_categories'] = top_categories_content(self.current_content_type)
+        context['topbar_publication_categories'] = topbar_publication_categories(self.current_content_type)
 
         return context
 
@@ -530,7 +531,7 @@ class ViewPublications(TemplateView):
             tag = self.request.GET.get('tag', None)
             tags = None
             if tag is not None:
-                tags = [get_object_or_404(Tag, slug=tag)]
+                tags = [get_object_or_404(Tag, slug=slugify(tag))]
                 context['tag'] = tags[0]
 
             contents_queryset = PublishedContent.objects.last_contents(
