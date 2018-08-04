@@ -6216,3 +6216,66 @@ class PublishedContentTests(TestCase, TutorialTestMixin):
 
         self.assertEqual(result.context['previous_content'].pk, user_1_opinion_1.public_version.pk)
         self.assertEqual(result.context['next_content'].pk, user_1_opinion_2.public_version.pk)
+
+
+    def test_author_update(self):
+        "Check that the author list of a content is updated when this content is updated."
+        
+        text_validation = 'Valide moi ce truc, please !'
+        text_publication = 'Validation faite !'
+
+        tutorial = PublishableContentFactory(type='TUTORIAL')
+        tutorial.authors.add(self.user_author)
+        tutorial.save()
+        tutorial_draft = tutorial.load_version()
+
+        # ask validation
+        self.client.login(username=self.user_author.username, password='hostel77')    
+        self.client.post(
+            reverse('validation:ask', kwargs={'pk': turorial.pk, 'slug': tutorial.slug}),
+            {
+                'text': text_validation,
+                'source': '',
+                'version': tutorial_draft.current_version
+            },
+            follow=False)
+
+        # publish the content
+        self.client.login(username=self.user_staff.username,password='hostel77')
+        validation = Validation.objects.filter(content=tutorial).last()        
+        self.client.post(
+            reverse('validation:accept', kwargs={'pk': validation.pk}),
+            {
+                'text': text_publication,
+                'is_major': True,
+                'source': ''
+            },
+            follow=False)
+
+        tutorial.authors.add(self.user_guest)
+        tutorial_draft = tutorial.load_version()
+
+        # ask second validation
+        self.client.login(username=self.user_author.username, password='hostel77')
+        self.client.post(
+            reverse('validation:ask', kwargs={'pk': tutorial.pk, 'slug': tutorial.slug}),
+            {
+                'text': text_validation,
+                'source': '',
+                'version': tutorial_draft.current_version
+            },
+            follow=False)
+
+        self.client.login(username=self.user_staff.username,password='hostel77')
+        validation = Validation.objects.filter(content=tutorial).last()        
+        self.client.post(
+            reverse('validation:accept', kwargs={'pk': validation.pk}),
+            {
+                'text': text_publication,
+                'is_major': True,
+                'source': ''
+            },
+            follow=False)
+
+        published = PublishedContent.objects.filter(content__pk=tutorial.pk).first()
+        self.assertEqual(published.authors.count(), 2)
