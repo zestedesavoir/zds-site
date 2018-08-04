@@ -6252,5 +6252,5 @@ class PublishedContentTests(TestCase, TutorialTestMixin):
             },
             follow=False)
 
-        published = PublishedContent.objects.filter(content__pk=tutorial.pk).first()
+        published = tutorial.public_version
         self.assertEqual(published.authors.count(), 1)
