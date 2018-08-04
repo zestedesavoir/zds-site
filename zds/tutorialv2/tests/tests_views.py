@@ -6224,39 +6224,13 @@ class PublishedContentTests(TestCase, TutorialTestMixin):
         text_validation = 'Valide moi ce truc, please !'
         text_publication = 'Validation faite !'
 
-        tutorial = PublishableContentFactory(type='TUTORIAL')
-        tutorial.authors.add(self.user_author)
-        tutorial.authors.add(self.user_guest)
+        tutorial = PublishedContentFactory(type='TUTORIAL', author_list=[self.user_author, self.user_guest])
         tutorial.save()
-        tutorial_draft = tutorial.load_version()
-
-        # ask validation
-        self.client.login(username=self.user_author.username, password='hostel77')    
-        self.client.post(
-            reverse('validation:ask', kwargs={'pk': turorial.pk, 'slug': tutorial.slug}),
-            {
-                'text': text_validation,
-                'source': '',
-                'version': tutorial_draft.current_version
-            },
-            follow=False)
-
-        # publish the content
-        self.client.login(username=self.user_staff.username,password='hostel77')
-        validation = Validation.objects.filter(content=tutorial).last()        
-        self.client.post(
-            reverse('validation:accept', kwargs={'pk': validation.pk}),
-            {
-                'text': text_publication,
-                'is_major': True,
-                'source': ''
-            },
-            follow=False)
 
         tutorial.authors.remove(self.user_guest)
         tutorial_draft = tutorial.load_version()
 
-        # ask second validation
+        # ask validation
         self.client.login(username=self.user_author.username, password='hostel77')
         self.client.post(
             reverse('validation:ask', kwargs={'pk': tutorial.pk, 'slug': tutorial.slug}),
