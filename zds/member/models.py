@@ -16,6 +16,8 @@ from zds.member.managers import ProfileManager
 from zds.tutorialv2.models.database import PublishableContent, PublishedContent
 from zds.utils.models import Alert, Licence, Hat
 
+from zds.forum.models import Forum
+
 
 class Profile(models.Model):
     """
@@ -75,7 +77,7 @@ class Profile(models.Model):
         return self.user.username
 
     def is_private(self):
-        """can the user can display their stats"""
+        """Can the user display their stats?"""
         user_groups = self.user.groups.all()
         user_group_names = [g.name for g in user_groups]
         return settings.ZDS_APP['member']['bot_group'] in user_group_names
@@ -538,6 +540,11 @@ def save_profile(backend, user, response, *args, **kwargs):
         profile = Profile(user=user)
         profile.last_ip_address = '0.0.0.0'
         profile.save()
+
+
+def user_readable_forums(user):
+    """Returns a set of forums to which a user can access."""
+    return set([f for f in Forum.objects.all() if f.can_read(user)])
 
 
 class NewEmailProvider(models.Model):

@@ -93,6 +93,11 @@ sudo service memcached restart
 # Disable maintenance mode
 sudo rm $ENV_PATH/webroot/maintenance.html
 
+# update latex
+mkdir -p $HOME/texmf/tex/latex/
+wget "https://raw.githubusercontent.com/zestedesavoir/latex-template/${1-build}/zmdocument.cls"
+mv zmdocument.cls $HOME/texmf/tex/latex/
+sudo texhash
 # Display current branch and commit
 git status
 echo "Deployed commit: `git rev-parse HEAD`"

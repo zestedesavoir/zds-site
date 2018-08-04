@@ -54,7 +54,7 @@ class LoginForm(forms.Form):
         required=False,
     )
 
-    def __init__(self, next=None, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super(LoginForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_action = reverse('member-login')
@@ -284,7 +284,7 @@ class ProfileForm(MiniProfileForm):
                                       css_class='btn btn-grey preview-btn'),),
             HTML("""
                 {% if form.biographie.value %}
-                    {% include "misc/previsualization.part.html" with text=form.biographie.value %}
+                    {% include "misc/preview.part.html" with text=form.biographie.value %}
                 {% endif %}
             """),
             Field('site'),

@@ -9,7 +9,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from zds.gallery.factories import UserGalleryFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory
-from zds.tutorialv2.factories import PublishableContentFactory, ExtractFactory, LicenceFactory, PublishedContentFactory
+from zds.tutorialv2.factories import (PublishableContentFactory, ExtractFactory, LicenceFactory,
+                                      PublishedContentFactory, SubCategoryFactory)
 from zds.tutorialv2.models.database import PublishableContent, PublishedContent, PickListOperation
 from zds.tutorialv2.tests import TutorialTestMixin
 from zds.utils.models import Alert
@@ -76,13 +77,16 @@ class PublishedContentTests(TestCase, TutorialTestMixin):
 
     def test_accessible_ui_for_author(self):
         opinion = PublishedContentFactory(author_list=[self.user_author], type='OPINION')
+        subcategory = SubCategoryFactory()
+        opinion.subcategory.add(subcategory)
+        opinion.save()
         self.assertEqual(
-            self.client.login(
-                username=self.user_author.username,
-                password='hostel77'),
+            self.client.login(username=self.user_author.username, password='hostel77'),
             True)
         resp = self.client.get(reverse('opinion:view', kwargs={'pk': opinion.pk, 'slug': opinion.slug}))
         self.assertContains(resp, 'Version brouillon', msg_prefix='Author must access their draft directly')
+        self.assertNotContains(resp, '{}?subcategory='.format(reverse('publication:list')))
+        self.assertContains(resp, '{}?category='.format(reverse('opinion:list')))
 
     def test_no_help_for_tribune(self):
         self.assertEqual(

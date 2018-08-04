@@ -1,5 +1,7 @@
 from datetime import datetime
+from collections import defaultdict
 from zds import json_handler
+from uuslug import slugify
 import logging
 import os
 
@@ -8,6 +10,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
+from django.db.models import Count
 from django.http import Http404, HttpResponsePermanentRedirect, StreamingHttpResponse, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template.loader import render_to_string
@@ -32,7 +35,7 @@ from zds.tutorialv2.utils import search_container_or_404, last_participation_is_
 from zds.utils.models import Alert, CommentVote, Tag, Category, CommentEdit, SubCategory, get_hat_from_request, \
     CategorySubCategory
 from zds.utils.paginator import make_pagination, ZdSPagingListView
-from zds.utils.templatetags.topbar import top_categories_content
+from zds.utils.templatetags.topbar import topbar_publication_categories
 
 logger = logging.getLogger(__name__)
 
@@ -86,31 +89,24 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
             .filter(related_content__pk=self.object.pk) \
             .order_by('pubdate')
 
-        # pagination of articles
-        context['paginate_articles'] = False
+        # pagination of articles and opinions
+        context['previous_content'] = None
+        context['next_content'] = None
 
-        if self.object.type == 'ARTICLE':
-            # fetch all articles in order to find the previous and the next one
-            all_articles = \
-                [a for a in PublishedContent.objects
-                    .filter(content_type='ARTICLE', must_redirect=False)
-                    .order_by('publication_date')
-                    .all()]
-            articles_count = len(all_articles)
+        if self.current_content_type in ('ARTICLE', 'OPINION'):
+            queryset_pagination = PublishedContent.objects.filter(content_type=self.current_content_type,
+                                                                  must_redirect=False)
 
-            try:
-                position = all_articles.index(self.public_content_object)
-            except ValueError:
-                pass  # for an unknown reason, the article is not in the list. This should not happen
-            else:
-                context['paginate_articles'] = True
-                context['previous_article'] = None
-                context['next_article'] = None
+            if self.current_content_type == 'OPINION':
+                # filter opinions only from the same author
+                queryset_pagination = queryset_pagination.filter(authors__in=self.object.authors.all())
 
-                if position > 0:
-                    context['previous_article'] = all_articles[position - 1]
-                if position < articles_count - 1:
-                    context['next_article'] = all_articles[position + 1]
+            context['previous_content'] = queryset_pagination \
+                .filter(publication_date__lt=self.public_content_object.publication_date) \
+                .order_by('publication_date').first()
+            context['next_content'] = queryset_pagination \
+                .filter(publication_date__gt=self.public_content_object.publication_date) \
+                .order_by('publication_date').first()
 
         if self.versioned_object.type == 'OPINION':
             context['formPickOpinion'] = PickOpinionForm(
@@ -149,8 +145,10 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
         context['subscriber_count'] = ContentReactionAnswerSubscription.objects.get_subscriptions(self.object).count()
         # We need reading time expressed in minutes
         try:
-            context['reading_time'] = (self.versioned_object.get_tree_level() * self.object.public_version.char_count /
-                                       settings.ZDS_APP['content']['characters_per_minute'])
+            context['reading_time'] = int(
+                self.versioned_object.get_tree_level() * self.object.public_version.char_count /
+                settings.ZDS_APP['content']['characters_per_minute']
+            )
         except ZeroDivisionError as e:
             logger.warning('could not compute reading time: setting characters_per_minute is set to zero (error=%s)', e)
 
@@ -194,13 +192,14 @@ class DownloadOnlineContent(SingleOnlineContentViewMixin, DownloadViewMixin):
     """
 
     requested_file = None
-    allowed_types = ['md', 'html', 'pdf', 'epub', 'zip']
+    allowed_types = ['md', 'html', 'pdf', 'epub', 'zip', 'tex']
 
     mimetypes = {'html': 'text/html',
                  'md': 'text/plain',
                  'pdf': 'application/pdf',
                  'epub': 'application/epub+zip',
-                 'zip': 'application/zip'}
+                 'zip': 'application/zip',
+                 'tex': 'application/x-latex'}
 
     def get_redirect_url(self, public_version):
         return public_version.content.public_version.get_absolute_url_to_extra_content(self.requested_file)
@@ -221,7 +220,7 @@ class DownloadOnlineContent(SingleOnlineContentViewMixin, DownloadViewMixin):
             raise Http404("Le type du fichier n'est pas permis.")
 
         # check existence
-        if not self.public_content_object.have_type(self.requested_file):
+        if not self.public_content_object.has_type(self.requested_file):
             raise Http404("Le type n'existe pas.")
 
         if self.requested_file == 'md' and not self.is_author and not self.is_staff:
@@ -379,7 +378,7 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
         context['category'] = self.category
         context['subcategory'] = self.subcategory
         context['tag'] = self.tag
-        context['top_categories'] = top_categories_content(self.current_content_type)
+        context['topbar_publication_categories'] = topbar_publication_categories(self.current_content_type)
 
         return context
 
@@ -405,46 +404,29 @@ class ViewPublications(TemplateView):
 
     @staticmethod
     def categories_with_contents_count(handle_types):
-        """Rewritten to select categories with subcategories and contents count in two queries"""
+        """Select categories with subcategories and contents count in two queries"""
 
-        # TODO: check if we can use ORM to do that
-        sub_query = """
-          SELECT COUNT(*) FROM `tutorialv2_publishedcontent`
-          INNER JOIN `tutorialv2_publishablecontent`
-            ON (`tutorialv2_publishedcontent`.`content_id` = `tutorialv2_publishablecontent`.`id`)
-          INNER JOIN `tutorialv2_publishablecontent_subcategory`
-            ON (`tutorialv2_publishablecontent`.`id` =
-              `tutorialv2_publishablecontent_subcategory`.`publishablecontent_id`)
-          LEFT JOIN  `utils_categorysubcategory`
-            ON ( `utils_categorysubcategory`.`subcategory_id` =
-              `tutorialv2_publishablecontent_subcategory`.`subcategory_id`)
-          WHERE (
-            `tutorialv2_publishedcontent`.`must_redirect` = 0
-            AND `tutorialv2_publishablecontent`.`type` IN ({})
-            AND `utils_categorysubcategory`.`category_id` = `utils_category`.`id`)
-        """.format(', '.join('\'{}\''.format(t) for t in handle_types))
+        queryset_category = Category.objects.order_by('position')\
+            .filter(categorysubcategory__subcategory__publishablecontent__publishedcontent__must_redirect=False)\
+            .filter(categorysubcategory__subcategory__publishablecontent__type__in=handle_types)\
+            .annotate(contents_count=Count('categorysubcategory__subcategory__publishablecontent__publishedcontent',
+                                           distinct=True))\
+            .distinct()
 
-        queryset_category = Category.objects.order_by('position').extra(select={'contents_count': sub_query})
-
-        queryset_subcategory = CategorySubCategory\
-            .objects\
-            .prefetch_related('subcategory', 'category')\
+        queryset_subcategory = CategorySubCategory.objects.prefetch_related('subcategory', 'category')\
             .filter(is_main=True)\
             .order_by('category__id', 'subcategory__title')\
+            .annotate(sub_contents_count=Count('subcategory__publishablecontent__publishedcontent', distinct=True))\
             .all()
 
-        subcategories_sorted = {}
-
+        subcategories_sorted = defaultdict(list)
         for category_to_sub_category in queryset_subcategory:
-            if category_to_sub_category.category.id not in subcategories_sorted:
-                subcategories_sorted[category_to_sub_category.category.id] = []
-            subcategories_sorted[category_to_sub_category.category.id].append(category_to_sub_category.subcategory)
+            if category_to_sub_category.sub_contents_count:
+                subcategories_sorted[category_to_sub_category.category.id].append(category_to_sub_category.subcategory)
 
-        categories = []
-
-        for category in queryset_category:
+        categories = queryset_category
+        for category in categories:
             category.subcategories = subcategories_sorted[category.id]
-            categories.append(category)
 
         return categories
 
@@ -553,7 +535,7 @@ class ViewPublications(TemplateView):
             tag = self.request.GET.get('tag', None)
             tags = None
             if tag is not None:
-                tags = [get_object_or_404(Tag, slug=tag)]
+                tags = [get_object_or_404(Tag, slug=slugify(tag))]
                 context['tag'] = tags[0]
 
             contents_queryset = PublishedContent.objects.last_contents(
@@ -678,7 +660,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
     def post(self, request, *args, **kwargs):
 
         if 'preview' in request.POST and request.is_ajax():
-            content = render_to_response('misc/previsualization.part.html', {'text': request.POST['text']})
+            content = render_to_response('misc/preview.part.html', {'text': request.POST['text']})
             return StreamingHttpResponse(content)
         else:
             return super(SendNoteFormView, self).post(request, *args, **kwargs)
@@ -720,13 +702,18 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
             for alert in alerts:
                 alert.solve(self.request.user, _('Le message a été modéré.'))
 
-        self.reaction.update_content(form.cleaned_data['text'])
+        self.reaction.update_content(
+            form.cleaned_data['text'],
+            on_error=lambda m: messages.error(
+                self.request,
+                _('Erreur du serveur Markdown: {}').format(
+                    '\n- '.join(m))))
         self.reaction.ip_address = get_client_ip(self.request)
         self.reaction.save()
 
         if is_new:  # we first need to save the reaction
             self.object.last_note = self.reaction
-            self.object.save(update_date=False)
+            self.object.save(update_date=False, force_slug_update=False)
 
         self.success_url = self.reaction.get_absolute_url()
         return super(SendNoteFormView, self).form_valid(form)
@@ -1002,7 +989,6 @@ class FollowNewContent(LoggedWithReadWriteHability, FormView):
     def perform_follow_by_email(user_to_follow, user):
         return NewPublicationSubscription.objects.toggle_follow(user_to_follow, user, True).is_active
 
-    @method_decorator(transaction.atomic)
     def post(self, request, *args, **kwargs):
         response = {}
 
@@ -1016,11 +1002,13 @@ class FollowNewContent(LoggedWithReadWriteHability, FormView):
         if user_to_follow == request.user:
             raise PermissionDenied
 
-        if 'follow' in request.POST:
-            response['follow'] = self.perform_follow(user_to_follow, request.user)
-            response['subscriberCount'] = NewPublicationSubscription.objects.get_subscriptions(user_to_follow).count()
-        elif 'email' in request.POST:
-            response['email'] = self.perform_follow_by_email(user_to_follow, request.user)
+        with transaction.atomic():
+            if 'follow' in request.POST:
+                response['follow'] = self.perform_follow(user_to_follow, request.user)
+                response['subscriberCount'] = NewPublicationSubscription.objects \
+                    .get_subscriptions(user_to_follow).count()
+            elif 'email' in request.POST:
+                response['email'] = self.perform_follow_by_email(user_to_follow, request.user)
 
         if request.is_ajax():
             return HttpResponse(json_handler.dumps(response), content_type='application/json')

@@ -14,6 +14,7 @@
 
 
 {% block breadcrumb %}
+
     {%  if container.parent.parent %}
         <li>
             <a
@@ -96,6 +97,11 @@
 
 
 {% block content %}
+    {% if not container.ready_to_publish %}
+        <div class="alert-box ico-alerts">
+            {% trans "Cette partie n'est pas prête à la publication. En cas de validation, elle ne sera pas publiée." %}
+        </div>
+    {% endif %}
     {% include "tutorialv2/includes/chapter_pager.part.html" with position="top" %}
 
     {% if container.introduction and container.get_introduction %}
@@ -237,6 +243,17 @@
                 </form>
             </li>
         {% endif %}
+            <li>
+                <a data-url="{% url 'api:content:readiness' content.pk %}" class="readiness" data-is-ready="{{ container.ready_to_publish|yesno:"true,false" }}"
+                   data-container-slug="{{ container.slug }}"
+                    {% if container.parent.parent %}data-parent-container-slug="{{ container.parent.slug }}"{% endif %}
+                    data-is-ready-false="{% trans "Marquer comme prêt à valider." %}" data-is-ready-true="{% trans "Marquer comme à ne pas valider." %}">
+                    {% if container.ready_to_publish %}
+                        {% trans "Marquer comme à ne pas valider." %}
+                    {% else %}
+                        {% trans "Marquer comme prêt à valider." %}
+                    {% endif %}
+                </a></li>
     {% endif %}
 {% endblock %}
 

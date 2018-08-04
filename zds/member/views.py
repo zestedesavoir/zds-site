@@ -11,7 +11,7 @@ from django.contrib.auth.models import User, Group
 from django.template.context_processors import csrf
 from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMultiAlternatives
-from django.core.urlresolvers import reverse, reverse_lazy
+from django.urls import reverse, reverse_lazy, resolve, Resolver404, NoReverseMatch
 from django.db import transaction
 from django.db.models import Q
 from django.http import Http404, HttpResponseBadRequest, StreamingHttpResponse
@@ -133,7 +133,7 @@ class UpdateMember(UpdateView):
         form = self.form_class(request.POST)
 
         if 'preview' in request.POST and request.is_ajax():
-            content = render_to_response('misc/previsualization.part.html', {'text': request.POST.get('text')})
+            content = render_to_response('misc/preview.part.html', {'text': request.POST.get('text')})
             return StreamingHttpResponse(content)
 
         if form.is_valid():
@@ -412,7 +412,7 @@ class SendValidationEmailView(FormView, TokenGenerator):
     def form_valid(self, form):
         # Delete old token
         token = TokenRegister.objects.filter(user=self.usr)
-        if token.count >= 1:
+        if token.count() >= 1:
             token.all().delete()
 
         # Generate new token and send email
@@ -766,7 +766,7 @@ class HatsSettings(LoginRequiredMixin, CreateView):
 
     def post(self, request, *args, **kwargs):
         if 'preview' in request.POST and request.is_ajax():
-            content = render_to_response('misc/previsualization.part.html', {'text': request.POST.get('text')})
+            content = render_to_response('misc/preview.part.html', {'text': request.POST.get('text')})
             return StreamingHttpResponse(content)
 
         return super(HatsSettings, self).post(request, *args, **kwargs)
@@ -900,72 +900,95 @@ def remove_hat(request, user_pk, hat_pk):
 
 
 def login_view(request):
-    """Log user in."""
-
-    csrf_tk = {}
+    """Logs user in."""
+    next_page = request.GET.get('next', '/')
+    csrf_tk = {'next_page': next_page}
     csrf_tk.update(csrf(request))
     error = False
-    initial = {}
 
-    # Redirecting user once logged in?
-
-    if 'next' in request.GET:
-        next_page = request.GET['next']
+    if request.method != 'POST':
+        form = LoginForm()
     else:
-        next_page = None
-    if request.method == 'POST':
         form = LoginForm(request.POST)
-        username = request.POST['username']
-        password = request.POST['password']
+    if form.is_valid():
+        username = form.cleaned_data['username']
+        password = form.cleaned_data['password']
         user = authenticate(username=username, password=password)
-        if user is not None:
-            profile = get_object_or_404(Profile, user=user)
-            if user.is_active:
-                if profile.can_read_now():
-                    login(request, user)
-                    request.session['get_token'] = generate_token()
-                    if 'remember' not in request.POST:
-                        request.session.set_expiry(0)
-                    profile.last_ip_address = get_client_ip(request)
-                    profile.save()
-                    # Redirect the user if needed.
-                    # Set the cookie for Clem smileys.
-                    # (For people switching account or clearing cookies
-                    # after a browser session.)
-                    try:
-                        response = redirect(next_page)
-                        set_old_smileys_cookie(response, profile)
-                        return response
-                    except:
-                        response = redirect(reverse('homepage'))
-                        set_old_smileys_cookie(response, profile)
-                        return response
-                else:
-                    messages.error(request,
-                                   _('Vous n\'êtes pas autorisé à vous connecter '
-                                     'sur le site, vous avez été banni par un '
-                                     'modérateur.'))
-            else:
-                messages.error(request,
-                               _('Vous n\'avez pas encore activé votre compte, '
-                                 'vous devez le faire pour pouvoir vous '
-                                 'connecter sur le site. Regardez dans vos '
-                                 'mails : {}.').format(user.email))
-        else:
-            messages.error(request,
-                           _('Les identifiants fournis ne sont pas valides.'))
+        if user is None:
             initial = {'username': username}
+            if User.objects.filter(username=username).exists():
+                messages.error(
+                    request, _(
+                        'Le mot de passe saisi est incorrect. '
+                        'Cliquez sur le lien « Mot de passe oublié ? » '
+                        'si vous ne vous en souvenez plus.'
+                    )
+                )
+            else:
+                messages.error(
+                    request, _(
+                        'Ce nom d’utilisateur est inconnu. '
+                        'Si vous ne possédez pas de compte, '
+                        'vous pouvez vous inscrire.'
+                    )
+                )
+            form = LoginForm(initial=initial)
+            if next_page is not None:
+                form.helper.form_action += '?next=' + next_page
+            csrf_tk['error'] = error
+            csrf_tk['form'] = form
+            return render(request, 'member/login.html', {
+                'form': form,
+                'csrf_tk': csrf_tk
+            })
+        profile = get_object_or_404(Profile, user=user)
+        if not user.is_active:
+            messages.error(
+                request,
+                _(
+                    'Vous n\'avez pas encore activé votre compte, '
+                    'vous devez le faire pour pouvoir vous '
+                    'connecter sur le site. Regardez dans vos '
+                    'mails : {}.'
+                ).format(user.email)
+            )
+        elif not profile.can_read_now():
+            messages.error(
+                request,
+                _(
+                    'Vous n\'êtes pas autorisé à vous connecter '
+                    'sur le site, vous avez été banni par un '
+                    'modérateur.'
+                )
+            )
+        else:
+            login(request, user)
+            request.session['get_token'] = generate_token()
+            if 'remember' not in request.POST:
+                request.session.set_expiry(0)
+            profile.last_ip_address = get_client_ip(request)
+            profile.save()
+            # Redirect the user if needed.
+            # Set the cookie for Clem smileys.
+            # (For people switching account or clearing cookies
+            # after a browser session.)
+            try:
+                response = redirect(resolve(next_page).url_name)
+            except NoReverseMatch:
+                response = redirect(next_page)
+            except Resolver404:
+                response = redirect(reverse('homepage'))
+            set_old_smileys_cookie(response, profile)
+            return response
 
-    form = LoginForm(initial=initial)
     if next_page is not None:
         form.helper.form_action += '?next=' + next_page
-
     csrf_tk['error'] = error
     csrf_tk['form'] = form
-    csrf_tk['next_page'] = next_page
-    return render(request, 'member/login.html',
-                  {'form': form,
-                   'csrf_tk': csrf_tk})
+    return render(request, 'member/login.html', {
+        'form': form,
+        'csrf_tk': csrf_tk
+    })
 
 
 @login_required
@@ -1086,12 +1109,10 @@ def activate_account(request):
         'member/messages/account_activated.md',
         {
             'username': usr.username,
-            'tutorials_url': settings.ZDS_APP['site']['url'] + reverse('publication:list') + '?type=tutorial',
-            'articles_url': settings.ZDS_APP['site']['url'] + reverse('publication:list') + '?type=article',
+            'site_name': settings.ZDS_APP['site']['literal_name'],
+            'library_url': settings.ZDS_APP['site']['url'] + reverse('publication:list'),
             'opinions_url': settings.ZDS_APP['site']['url'] + reverse('opinion:list'),
-            'members_url': settings.ZDS_APP['site']['url'] + reverse('member-list'),
-            'forums_url': settings.ZDS_APP['site']['url'] + reverse('cats-forums-list'),
-            'site_name': settings.ZDS_APP['site']['literal_name']
+            'forums_url': settings.ZDS_APP['site']['url'] + reverse('cats-forums-list')
         }
     )
 

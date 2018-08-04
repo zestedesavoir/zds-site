@@ -151,12 +151,18 @@
         {% endif %}
     {% endif %}
 
+    {% captureas content_pager %}
+        {% include "tutorialv2/includes/content_pager.part.html" with content=content %}
+    {% endcaptureas %}
+
+    {{ content_pager }}
+
     {% if content.has_extracts %}
         {{ content.get_content_online|safe }}
     {% else %}
 
         {% if content.introduction %}
-            {{ content.get_introduction_online|safe }}
+            {{ content.get_introduction_online|default:""|safe }}
         {% endif %}
 
         {% if not content.has_sub_containers %}
@@ -175,12 +181,12 @@
         <hr />
 
         {% if content.conclusion %}
-            {{ content.get_conclusion_online|safe }}
+            {{ content.get_conclusion_online|default:""|safe }}
         {% endif %}
 
     {% endif %}
 
-    {% include "tutorialv2/includes/article_pager.part.html" with content=content %}
+    {{ content_pager }}
     {% include "tutorialv2/includes/alert.html" with content=content current_content_type=current_content_type %}
     {% include "tutorialv2/includes/warn_typo.part.html" with content=content %}
 
@@ -318,6 +324,14 @@
                             </button>
                         </form>
                     </li>
+                    {% if perms.featured.change_featuredresource %}
+                        <li>
+                            <a href="{% url "featured-resource-create" %}?content_type=published_content&amp;content_id={{ content.pk }}"
+                               class="ico-after star blue">
+                                {% trans "Ajouter en une" %}
+                            </a>
+                        </li>
+                    {% endif %}
                 {% endif %}
             </ul>
         </div>

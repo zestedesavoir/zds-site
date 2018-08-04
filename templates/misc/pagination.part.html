@@ -15,9 +15,9 @@
             <li class="prev">
                 {% with prev=nb|add:-1 %}
                     <a href="{% append_query_params page=prev %}{{ full_anchor }}" class="ico-after arrow-left blue">
-                    <span>
-                        {% trans "Précédente" %}
-                    </span>
+                        <span>
+                            {% trans "Précédente" %}
+                        </span>
                     </a>
                 {% endwith %}
             </li>
@@ -64,7 +64,7 @@
                 {% with next=nb|add:1 %}
                     <a href="{% append_query_params page=next %}{{ full_anchor }}" class="ico-after arrow-right blue">
                         <span>
-                        {% trans "Suivante" %}
+                            {% trans "Suivante" %}
                         </span>
                     </a>
                 {% endwith %}

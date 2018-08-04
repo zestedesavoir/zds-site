@@ -1,5 +1,3 @@
-from zds.utils.context_processor import get_git_version
-
 from .abstract_base import *
 
 # For secrets, prefer `config[key]` over `config.get(key)` in this
@@ -76,11 +74,20 @@ django_template_engine['OPTIONS']['loaders'] = [
     ]),
 ]
 
+
+def _get_version():
+    from zds import __version__, git_version
+    if git_version is None:
+        return __version__
+    else:
+        return '{0}/{1}'.format(__version__, git_version[:7])
+
+
 # Sentry (+ raven, the Python Client)
 # https://docs.getsentry.com/hosted/clients/python/integrations/django/
 RAVEN_CONFIG = {
     'dsn': config['raven']['dsn'],
-    'release': get_git_version()['name'],
+    'release': _get_version(),
 }
 
 LOGGING = {
@@ -98,19 +105,25 @@ LOGGING = {
     'handlers': {
         'django_log': {
             'level': 'WARNING',
-            'class': 'logging.FileHandler',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'maxBytes': 1024 * 1024 * 10,  # rotate when it reaches 10 MB
+            'backupCount': 50,  # only keep the last 50 rotated files, 10M*50 -> 500M
             'filename': '/var/log/zds/logging.django.log',
             'formatter': 'verbose'
         },
         'debug_log': {
             'level': 'DEBUG',
-            'class': 'logging.FileHandler',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'maxBytes': 1024 * 1024 * 10,  # rotate when it reaches 10 MB
+            'backupCount': 50,  # only keep the last 50 rotated files, 10M*50 -> 500M
             'filename': '/var/log/zds/debug.django.log',
             'formatter': 'verbose'
         },
         'generator_log': {
             'level': 'WARNING',
-            'class': 'logging.FileHandler',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'maxBytes': 1024 * 1024 * 10,  # rotate when it reaches 10 MB
+            'backupCount': 50,  # only keep the last 50 rotated files, 10M*50 -> 500M
             'filename': '/var/log/zds/generator.log',
             'formatter': 'verbose'
         },
@@ -183,23 +196,7 @@ SOCIAL_AUTH_PIPELINE = (
 # ZESTE DE SAVOIR SETTINGS
 
 
-tex_template_path = '/opt/zds/zds-site/assets/tex/template.tex'
-
-# Pandoc settings
-PANDOC_LOC = '/usr/local/bin/'
-PANDOC_LOG = '/var/log/zds/pandoc.log'
-PANDOC_LOG_STATE = True
-# fix for Gandi
-PANDOC_PDF_PARAM = (
-    '--latex-engine=xelatex '
-    '--template={} -s -S -N '
-    '--toc -V documentclass=scrbook -V lang=francais '
-    '-V mainfont=Merriweather -V monofont="SourceCodePro-Regular" '
-    '-V fontsize=12pt -V geometry:margin=1in '
-).format(tex_template_path)
-
-
-ES_SEARCH_INDEX['shards'] = config['elasticsearch'].get('shards', 3),
+ES_SEARCH_INDEX['shards'] = config['elasticsearch'].get('shards', 3)
 
 
 ZDS_APP['site']['association']['email'] = 'communication@zestedesavoir.com'

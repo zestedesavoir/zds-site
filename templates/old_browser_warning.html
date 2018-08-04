@@ -1,0 +1,27 @@
+
+<div id="old-browser-warning-container"></div>
+
+{# The main JavaScript files may cause parse errors on old browsers in the    #}
+{# future (ES6, ES7, …). It is probably better to keep this script separated. #}
+
+<script>
+
+(function () {
+    var container = document.getElementById("old-browser-warning-container");
+
+    if (window.ActiveXObject || 'ActiveXObject' in window) {
+        var more = document.createElement('A');
+        more.innerText = 'En savoir plus';
+        more.setAttribute('href', 'https://browsehappy.com/?locale=fr');
+
+        var div = document.createElement('DIV');
+        div.className = 'old-browser-warning';
+        div.innerText = 'Le bon fonctionnement du site avec Internet Explorer n’est pas garanti  •  ';
+        div.appendChild(more);
+        container.appendChild(div);
+
+        document.body.classList.add('old-browser-warning-shown');
+    }
+})();
+
+</script>

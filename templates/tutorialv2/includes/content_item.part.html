@@ -53,7 +53,14 @@
 
 {# Categories (in X, Y and Z) #}
 {% captureas categories_text %}
-    {% for cat in content.subcategory.all %}{% if forloop.first %}{% trans "dans" %}{% elif forloop.last %} {% trans "et" %}{% else %},{% endif %} <a href="{% url 'publication:list' %}?subcategory={{ cat.slug }}">{{ cat.title }}</a>{% endfor %}
+    {% for cat in content.subcategory.all %}
+        {% if forloop.first %}{% trans "dans" %}{% elif forloop.last %} {% trans "et" %}{% else %},{% endif %}
+        {% if content.is_opinion %}
+            <a href="{% url 'opinion:list' %}?category={{ cat.slug }}">{{ cat.title }}</a>
+        {% else %}
+            <a href="{% url 'publication:list' %}?subcategory={{ cat.slug }}">{{ cat.title }}</a>
+        {% endif %}
+    {% endfor %}
 {% endcaptureas %}
 
 <article class="content-item{% if online and show_reactions %} has-reactions{% endif %}{{ item_class }}">

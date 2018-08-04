@@ -156,16 +156,17 @@
 
         .topic-title,
         .topic-subtitle {
-            display: inline-block;
             margin: 0 !important;
             padding: 0;
         }
         .topic-title {
+            display: inline-block;
             font-size: 16px;
             font-size: 1.6rem;
             font-weight: normal;
         }
         .topic-subtitle {
+            display: block;
             min-height: 24px;
             line-height: 1.5em;
             color: #777;

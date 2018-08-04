@@ -7,7 +7,6 @@
 {% load i18n %}
 {% load interventions %}
 
-
 {% block title %}
     {% if topic.is_solved %}[{% trans "Résolu" %}]{% endif %} {{ topic.title }}
 {% endblock %}
@@ -53,7 +52,7 @@
         <ul class="taglist" itemprop="keywords">
             {% for tag in topic.tags.all %}
                 <li>
-                    <a href="{% url 'topic-tag-find' tag.pk tag.slug %}">
+                    <a href="{% url 'topic-tag-find' tag.slug %}">
                         {{ tag.title }}
                     </a>
                 </li>
@@ -352,6 +351,13 @@
                     <a href="#move-topic" class="ico-after arrow-right blue open-modal">{% trans "Déplacer le sujet" %}</a>
                     {% crispy form_move %}
                 </li>
+                {% if perms.featured.change_featuredresource %}
+                    <li>
+                        <a href="{% url "featured-resource-create" %}?content_type=topic&amp;content_id={{ topic.pk }}" class="ico-after star blue">
+                            {% trans "Ajouter en une" %}
+                        </a>
+                    </li>
+                {% endif %}
             </ul>
         </div>
     {% endif %}

@@ -170,9 +170,9 @@ Markdown vers Markdown
 Ces élements sont utilisés dans le cadre de la transformation du markdown avant d'être traité par ``Pandoc`` lors de la
 génération des fichiers PDF et EPUB des tutos :
 
-- ``decale_header_1`` : Décale les titres de 1 niveau (un titre de niveau 1 devient un titre de niveau 2, etc.)
-- ``decale_header_2`` : Décale les titres de 2 niveaux (un titre de niveau 1 devient un titre de niveau 3, etc.)
-- ``decale_header_3`` : Décale les titres de 3 niveaux (un titre de niveau 1 devient un titre de niveau 4, etc.)
+- ``shift_heading_1`` : Décale les titres de 1 niveau (un titre de niveau 1 devient un titre de niveau 2, etc.)
+- ``shift_heading_2`` : Décale les titres de 2 niveaux (un titre de niveau 1 devient un titre de niveau 3, etc.)
+- ``shift_heading_3`` : Décale les titres de 3 niveaux (un titre de niveau 1 devient un titre de niveau 4, etc.)
 
 Le module ``htmldiff``
 =========================
@@ -434,14 +434,14 @@ Le module ``topbar``
 
 Ce module est utilisé pour récupéré les catégories dans le but de les afficher dans `le menu <structure-du-site.html#le-menu>`__ et dans la liste des tutoriels et articles.
 
-``top_categories``
+``topbar_forum_categories``
 ------------------
 
 Ce filtre récupère les forums, classés par catégorie.
 
 .. sourcecode:: html
 
-    {% with top=user|top_categories %}
+    {% with top=user|topbar_forum_categories %}
         {% for title, forums in top.categories.items %}
         ...
         {% endfor %}
@@ -456,7 +456,7 @@ où,
 - ``top.tags`` contient une liste des 5 *tags* les plus utilisés, qui sont des objets de type ``Tag`` (`voir le détail de l'implémentation de cet objet ici <../back-end-code/utils.html#zds.utils.models.Tag>`__). Certains tags peuvent être exclus de cette liste. Pour exclure un tag, vous devez l'ajouter dans la configuration (top_tag_exclu dans le settings.py).
 
 
-``top_categories_content``
+``topbar_publication_categories``
 --------------------------
 
 Ce filtres renvoit une liste des catégories utilisées dans les articles/tutoriels publiés.
@@ -465,26 +465,13 @@ Par exemple, pour les tutoriels, on retrouvera le code suivant:
 
 .. sourcecode:: html
 
-    {% with categories="TUTORIAL"|top_categories_tuto %}
+    {% with categories="TUTORIAL"|topbar_publication_categories %}
         {% for title, subcats in categories.items %}
             ...
         {% endfor %}
     {% endwith %}
 
 où ``categories`` est un dictionnaire contenant le nom de la catégorie (ici ``title``) et une liste des sous-catégories correspondantes (ici ``subcats``), c'est-à-dire un *tuple* de la forme ``titre, slug``
-
-``auth_forum``
---------------
-
-Ce filtre renvoit si un forum donné, c'est-à-dire un objet de type ``Forum`` (`voir le détail de l'implémentation de cet objet ici <../back-end-code/forum.html#zds.forum.models.Forum>`__), est accessible pour un utilisateur donné.
-
-Par exemple, le code suivant affichera le lien vers le forum uniquement si celui-ci est accessible pour l'utilisateur ``user`` :
-
-.. sourcecode:: html
-
-    {% if forum|auth_forum:user %}
-        <a href="{{ forum.get_absolute_url }}">{{ forum.title }}</a>
-    {% endif %}
 
 Le module ``feminize``
 ======================

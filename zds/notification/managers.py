@@ -149,12 +149,23 @@ class SubscriptionManager(models.Manager):
             if by_email:
                 subscription.activate_email()
             return subscription
-        signals.content_read.send(sender=content_object.__class__, instance=content_object, user=user)
+        signals.content_read.send(sender=content_object.__class__, instance=content_object, user=user,
+                                  target=content_object.__class__)
         if by_email:
             existing.deactivate_email()
         else:
             existing.deactivate()
         return existing
+
+    def deactivate_subscriptions(self, user, _object):
+        subscription = self.get_existing(user, _object)
+        if subscription:
+            subscription.is_active = False
+            notification = subscription.last_notification
+            notification.is_read = True
+            notification.is_dead = True
+            notification.save(update_fields=['is_read', 'is_dead'])
+            subscription.save(update_fields=['is_active'])
 
 
 class NewTopicSubscriptionManager(SubscriptionManager):

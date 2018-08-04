@@ -42,6 +42,7 @@
             {% for hat in user.profile.get_hats %}
                 <li>
                     {{ hat.name }} –
+
                     {% if hat.group %}
                         <a href="#group-hat" class="open-modal">{% trans "Liée à un groupe" %}</a>
                     {% else %}
