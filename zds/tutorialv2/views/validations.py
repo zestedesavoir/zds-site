@@ -630,27 +630,29 @@ class UnpublishOpinion(LoginRequiredMixin, SingleOnlineContentFormViewMixin, Doe
 
         unpublish_content(self.object, moderator=self.request.user)
 
-        # send PM
-        msg = render_to_string(
-            'tutorialv2/messages/validation_revoke.md',
-            {
-                'content': versioned,
-                'url': versioned.get_absolute_url(),
-                'admin': user,
-                'message_reject': '\n'.join(['> ' + a for a in form.cleaned_data['text'].split('\n')])
-            })
+        if [self.request.user] != list(self.object.authors.all()):
+            # Sends PM if the deleter is not the author
+            # (or is not the only one) of the opinion.
+            msg = render_to_string(
+                'tutorialv2/messages/validation_revoke.md',
+                {
+                    'content': versioned,
+                    'url': versioned.get_absolute_url(),
+                    'admin': user,
+                    'message_reject': '\n'.join(['> ' + a for a in form.cleaned_data['text'].split('\n')])
+                })
 
-        bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
-        send_mp(
-            bot,
-            versioned.authors.all(),
-            _('Dépublication'),
-            versioned.title,
-            msg,
-            True,
-            direct=False,
-            hat=get_hat_from_settings('moderation'),
-        )
+            bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+            send_mp(
+                bot,
+                versioned.authors.all(),
+                _('Dépublication'),
+                versioned.title,
+                msg,
+                True,
+                direct=False,
+                hat=get_hat_from_settings('moderation'),
+            )
 
         messages.success(self.request, _('Le contenu a bien été dépublié.'))
         self.success_url = self.versioned_object.get_absolute_url()
