@@ -725,8 +725,13 @@ class DoNotPickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormView
         except ValueError:
             logger.exception('Could not %s the opinion %s', form.cleaned_data['operation'], str(self.object))
             return HttpResponse(json.dumps({'result': 'FAIL', 'reason': str(_('Mauvaise opération'))}), status=400)
-        self.success_url = self.object.get_absolute_url_online()
-        return HttpResponse(json.dumps({'result': 'OK'}))
+
+        if not form.cleaned_data['redirect']:
+            return HttpResponse(json.dumps({'result': 'OK'}))
+        else:
+            self.success_url = reverse('opinion:list')
+            messages.success(self.request, _('Le billet a bien été modéré.'))
+            return super().form_valid(form)
 
 
 class RevokePickOperation(PermissionRequiredMixin, FormView):
@@ -807,7 +812,7 @@ class PickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormViewMixin
             hat=get_hat_from_settings('moderation'),
         )
 
-        messages.success(self.request, _('Le contenu a bien été validé.'))
+        messages.success(self.request, _('Le billet a bien été choisi.'))
 
         return super(PickOpinion, self).form_valid(form)
 
