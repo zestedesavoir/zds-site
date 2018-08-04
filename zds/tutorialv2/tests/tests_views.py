@@ -6225,9 +6225,9 @@ class PublishedContentTests(TestCase, TutorialTestMixin):
         text_publication = 'Validation faite !'
 
         tutorial = PublishedContentFactory(type='TUTORIAL', author_list=[self.user_author, self.user_guest])
-        tutorial.save()
 
         tutorial.authors.remove(self.user_guest)
+        tutorial.save()
         tutorial_draft = tutorial.load_version()
 
         # ask validation
