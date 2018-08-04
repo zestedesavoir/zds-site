@@ -6226,6 +6226,7 @@ class PublishedContentTests(TestCase, TutorialTestMixin):
 
         tutorial = PublishableContentFactory(type='TUTORIAL')
         tutorial.authors.add(self.user_author)
+        tutorial.authors.add(self.user_guest)
         tutorial.save()
         tutorial_draft = tutorial.load_version()
 
@@ -6252,7 +6253,7 @@ class PublishedContentTests(TestCase, TutorialTestMixin):
             },
             follow=False)
 
-        tutorial.authors.add(self.user_guest)
+        tutorial.authors.remove(self.user_guest)
         tutorial_draft = tutorial.load_version()
 
         # ask second validation
@@ -6278,4 +6279,4 @@ class PublishedContentTests(TestCase, TutorialTestMixin):
             follow=False)
 
         published = PublishedContent.objects.filter(content__pk=tutorial.pk).first()
-        self.assertEqual(published.authors.count(), 2)
+        self.assertEqual(published.authors.count(), 1)
