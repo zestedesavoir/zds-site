@@ -147,7 +147,7 @@
             $plural = $act.find("span#featured_request_plural");
 
         var csrfmiddlewaretoken = $form.find("input[name=csrfmiddlewaretoken]").val(),
-            request_featured = $form.find("input[name=request_featured]").val();
+            requestFeatured = $form.find("input[name=request_featured]").val();
 
         $.ajax({
             url: $form.attr("action"),
@@ -155,7 +155,7 @@
             dataType: "json",
             data: {
                 "csrfmiddlewaretoken": csrfmiddlewaretoken,
-                "request_featured": request_featured
+                "request_featured": requestFeatured
             },
             success: function(data){
                 $requestText.toggleText("content-on-click");
