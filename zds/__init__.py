@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.contrib.auth import get_user_model
 
 try:
     import ujson as json_handler
@@ -26,11 +27,12 @@ except ImportError:
     git_version = None
 
 # Check essentiel accounts exist.
+user_model = get_user_model()
 for user in ('bot_account', 'anonymous_account', 'external_account'):
     username = settings.ZDS_APP['member'][user]
     try:
-        test = User.objects.get(username=username)
-    except User.DoesNotExist:
+        test = user_model.objects.get(username=username)
+    except user_model.DoesNotExist:
         raise Exception(
             'The {username!r} user does not exist. '
             'You must create it to run the server.'.format(username=username)
