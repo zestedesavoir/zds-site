@@ -66,7 +66,7 @@ class FeaturedResourceForm(forms.ModelForm):
         )
     )
 
-    request = forms.IntegerField(widget=forms.HiddenInput())
+    request = forms.IntegerField(widget=forms.HiddenInput(), required=False)
 
     def __init__(self, *args, **kwargs):
         hide_major_update_field = kwargs.pop('hide_major_update_field', False)

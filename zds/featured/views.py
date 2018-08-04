@@ -130,7 +130,7 @@ class FeaturedResourceCreate(CreateView):
 
         featured_resource.save()
 
-        if form.cleaned_data['request'] > -1:
+        if form.cleaned_data['request'] is not None:
             try:
                 request = FeaturedRequested.objects.get(pk=form.cleaned_data['request'])
                 request.featured = featured_resource
