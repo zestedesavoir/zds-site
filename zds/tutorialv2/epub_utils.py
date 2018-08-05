@@ -42,7 +42,7 @@ def __traverse_and_identify_images(image_dir):
             yield from __traverse_and_identify_images(image_file_path)
             continue
         ext = path.splitext(image_file_path.name)[1]
-        identifier = 'image_{}'.format(image_file_path.name).lower().replace('.', '-')
+        identifier = 'image_{}'.format(image_file_path.name).lower().replace('.', '-').replace('@', '-')
         ebook_image_path = Path('images', image_file_path.name)
         yield ebook_image_path, identifier, media_type_map.get(ext.lower(), 'image/png')
 
@@ -194,6 +194,8 @@ def handle_images(relative_path):
                 while root.name != 'images':
                     root = root.parent
                 final_path = str(Path(image_url).relative_to(root))
+            else:
+                final_path = Path(image_url).name
             image_path_in_ebook = relative_path + '/images/' + str(final_path).replace('%20', '_')
             image['src'] = str(image_path_in_ebook)
         ids = {}

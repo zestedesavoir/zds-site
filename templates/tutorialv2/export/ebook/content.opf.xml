@@ -18,16 +18,16 @@
         {% for tag in content.tags %}
             <dc:subject>{{ tag }}</dc:subject>
         {% endfor %}
-        <dc:description>{{ content.description }}</dc:description>
-
+        {% if content.description %}
+            <dc:description>{{ content.description }}</dc:description>
+        {% endif %}
         <meta content="0.5.3" name="Sigil version"/>
         <meta name="cover" content="cover.png"/>
     </metadata>
     <manifest>
         <item id="stylesheet-global" href="Text/styles/zmd.css" media-type="text/css"/>
         <item id="stylesheet-nav" href="Text/styles/toc.css" media-type="text/css"/>
-        <item id="stylesheet-code" href="Text/styles/code.css" media-type="text/css"/>
-        <item id="stylesheet-katex" href="Text/styles/katex.css" media-type="text/css"/>
+        <item id="stylesheet-katex" href="Text/styles/katex.min.css" media-type="text/css"/>
         {% for path, identifier, _ in chapters %}
             <item id="{{ identifier }}"
                   href="Text/{{ path }}"
