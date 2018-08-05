@@ -113,7 +113,7 @@ install:
     && cd $TRAVIS_BUILD_DIR
 
   - |
-    # install frontend+zmarkdown dependencies
+    # install frontend dependencies
     npm i -g yarn \
     && yarn --silent
 
