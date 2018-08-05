@@ -877,7 +877,7 @@ class NewImageViewTest(TestCase):
         login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
         self.assertTrue(login_check)
 
-        with Path(settings.BASE_DIR / 'fixtures' / 'archive-gallery.zip').open('rb') as fp:
+        with Path(settings.BASE_DIR / 'fixtures' / 'archive-gallery.zip').open('rb'):
             response = self.client.post(
                 reverse(
                     'gallery-image-import',
