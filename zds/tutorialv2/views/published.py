@@ -161,6 +161,9 @@ class DisplayOnlineContent(Featureable, SingleOnlineContentDetailViewMixin):
         if last_participation_is_old(self.object, self.request.user):
             mark_read(self.object, self.request.user)
 
+        # request featured
+        context['show_featured_requested'] = self.object.type != 'OPINION' and not self.object.is_obsolete
+
         return context
 
 
@@ -986,6 +989,9 @@ class RequestFeaturedContent(LoggedWithReadWriteHability, Featureable, SingleOnl
     def post(self, request, *args, **kwargs):
         self.public_content_object = self.get_public_object()
         self.object = self.get_object()
+
+        if self.object.type == 'OPINION' or self.object.is_obsolete:
+            raise PermissionDenied("Interdit sur une tribune ou un contenu obsolete")
 
         response = dict()
         response['requesting'], response['newCount'] = self.toogle_featured_request(request.user)

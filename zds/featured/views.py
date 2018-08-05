@@ -251,9 +251,9 @@ class FeaturedRequestedList(ZdSPagingListView):
             .filter(featured__isnull=True)\
             .prefetch_related('content_object')\
             .annotate(num_vote=Count('users_voted'))\
-            .order_by('-num_vote')
+            .order_by('-num_vote').all()
 
-        return queryset
+        return [q for q in queryset if isinstance(q.content_object, Topic) or not q.content_object.is_obsolete]
 
     @method_decorator(login_required)
     @method_decorator(permission_required('featured.change_featuredresource', raise_exception=True))

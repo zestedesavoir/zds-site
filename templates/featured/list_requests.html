@@ -43,7 +43,17 @@
                             {{ featured_request.content_object.title }}
                         </a>
                     </td>
-                    <td>{% if featured_request.type == 'TOPIC' %}{% trans "Topic" %}{% else %}{% trans "Contenu" %}{% endif %}</td>
+                    <td>
+                        {% if featured_request.type == 'TOPIC' %}
+                            {% trans "Topic" %}
+                        {% else %}
+                            {% if  featured_request.content_object.type == 'ARTICLE' %}
+                                {% trans "Article" %}
+                            {% else %}
+                                {% trans "Tutoriel" %}
+                            {% endif %}
+                        {% endif %}
+                    </td>
                     <td>{{ featured_request.num_vote }}</td>
                     <td>
                         {%  if featured_request.rejected %}

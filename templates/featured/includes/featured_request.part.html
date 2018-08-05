@@ -1,3 +1,4 @@
+{% if show_featured_requested %}
 <form action="{{ link }}" method="post">
     <input type="hidden" name="request_featured" value="1">
     {% csrf_token %}
@@ -9,3 +10,4 @@
         {% include 'featured/includes/featured_request_count.part.html' with featured_request_count=featured_request_count %}
     </button>
 </form>
+{% endif %}

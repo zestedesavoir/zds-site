@@ -12,6 +12,7 @@ class Featureable:
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['show_featured_requested'] = True
         context['is_requesting'], context['featured_request_count'] = FeaturedRequested.objects.requested_and_count(
             self.object, self.request.user)
 
