@@ -6233,6 +6233,12 @@ class PublishedContentTests(TestCase, TutorialTestMixin):
         # ask validation
         self.client.login(username=self.user_author.username, password='hostel77')
         self.client.post(
+            reverse('content:edit', kwargs={'pk': tutorial.pk, 'slug': tutorial.slug}),
+            {
+                'description': 'description'
+            },
+            follow=False)
+        self.client.post(
             reverse('validation:ask', kwargs={'pk': tutorial.pk, 'slug': tutorial.slug}),
             {
                 'text': text_validation,
