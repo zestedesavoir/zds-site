@@ -7,10 +7,11 @@ from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.utils.translation import ugettext as _
+from django.contrib.contenttypes.models import ContentType
 
 from zds.member.factories import StaffProfileFactory, ProfileFactory
 from zds.featured.factories import FeaturedResourceFactory
-from zds.featured.models import FeaturedResource, FeaturedMessage
+from zds.featured.models import FeaturedResource, FeaturedMessage, FeaturedRequested
 from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory
 from zds.gallery.factories import GalleryFactory, ImageFactory
 from zds.tutorialv2.factories import PublishedContentFactory
@@ -429,3 +430,262 @@ class FeaturedMessageCreateUpdateViewTest(TestCase):
 
         self.assertEqual(200, response.status_code)
         self.assertEqual(1, FeaturedMessage.objects.count())
+
+
+@override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'media-test'))
+@override_settings(ZDS_APP=overridden_zds_app)
+@override_settings(ES_ENABLED=False)
+class FeaturedRequestListViewTest(TestCase):
+    def setUp(self):
+        # don't build PDF to speed up the tests
+        overridden_zds_app['content']['build_pdf_when_published'] = False
+
+    def test_success_list(self):
+        staff = StaffProfileFactory()
+        login_check = self.client.login(
+            username=staff.user.username,
+            password='hostel77'
+        )
+        self.assertTrue(login_check)
+
+        response = self.client.get(reverse('featured-resource-requests'))
+
+        self.assertEqual(200, response.status_code)
+
+    def test_failure_list_with_unauthenticated_user(self):
+        response = self.client.get(reverse('featured-resource-requests'))
+
+        self.assertEqual(302, response.status_code)
+
+    def test_failure_list_with_user_not_staff(self):
+        profile = ProfileFactory()
+        login_check = self.client.login(
+            username=profile.user.username,
+            password='hostel77'
+        )
+        self.assertTrue(login_check)
+
+        response = self.client.get(reverse('featured-resource-requests'))
+
+        self.assertEqual(403, response.status_code)
+
+    def test_filters(self):
+        # create topic and content and toggle request
+        author = ProfileFactory().user
+        category = CategoryFactory(position=1)
+        forum = ForumFactory(category=category, position_in_category=1)
+        topic = TopicFactory(forum=forum, author=author)
+
+        FeaturedRequested.objects.toogle_request(topic, author)
+
+        tutorial = PublishedContentFactory(author_list=[author])
+        gallery = GalleryFactory()
+        image = ImageFactory(gallery=gallery)
+        tutorial.image = image
+        tutorial.save()
+
+        FeaturedRequested.objects.toogle_request(tutorial, author)
+
+        # without filter
+        staff = StaffProfileFactory()
+        login_check = self.client.login(
+            username=staff.user.username,
+            password='hostel77'
+        )
+        self.assertTrue(login_check)
+
+        response = self.client.get(reverse('featured-resource-requests'))
+        self.assertEqual(200, response.status_code)
+
+        self.assertEqual(len(response.context['featured_request_list']), 2)
+        self.assertTrue(any(r.content_object == topic for r in response.context['featured_request_list']))
+        self.assertTrue(any(r.content_object == tutorial for r in response.context['featured_request_list']))
+
+        # filter topic
+        response = self.client.get(reverse('featured-resource-requests') + '?type=topic')
+        self.assertEqual(200, response.status_code)
+
+        self.assertEqual(len(response.context['featured_request_list']), 1)
+        self.assertTrue(any(r.content_object == topic for r in response.context['featured_request_list']))
+        self.assertFalse(any(r.content_object == tutorial for r in response.context['featured_request_list']))
+
+        # filter tuto
+        response = self.client.get(reverse('featured-resource-requests') + '?type=content')
+        self.assertEqual(200, response.status_code)
+
+        self.assertEqual(len(response.context['featured_request_list']), 1)
+        self.assertFalse(any(r.content_object == topic for r in response.context['featured_request_list']))
+        self.assertTrue(any(r.content_object == tutorial for r in response.context['featured_request_list']))
+
+        # reject topic
+        content_type = ContentType.objects.get_for_model(topic)
+        q = FeaturedRequested.objects.get(object_id=topic.pk, content_type__pk=content_type.pk)
+        q.rejected = True
+        q.save()
+
+        response = self.client.get(reverse('featured-resource-requests') + '?type=topic')
+        self.assertEqual(200, response.status_code)
+
+        self.assertEqual(len(response.context['featured_request_list']), 0)
+
+        # filter ignored
+        response = self.client.get(reverse('featured-resource-requests') + '?type=ignored')
+        self.assertEqual(200, response.status_code)
+
+        self.assertEqual(len(response.context['featured_request_list']), 1)
+        self.assertTrue(any(r.content_object == topic for r in response.context['featured_request_list']))
+
+    def tearDown(self):
+        if os.path.isdir(overridden_zds_app['content']['repo_private_path']):
+            shutil.rmtree(overridden_zds_app['content']['repo_private_path'])
+        if os.path.isdir(overridden_zds_app['content']['repo_public_path']):
+            shutil.rmtree(overridden_zds_app['content']['repo_public_path'])
+        if os.path.isdir(settings.MEDIA_ROOT):
+            shutil.rmtree(settings.MEDIA_ROOT)
+
+
+class FeaturedRequestUpdateViewTest(TestCase):
+
+    def test_update(self):
+        # create topic and content and toggle request
+        author = ProfileFactory().user
+        category = CategoryFactory(position=1)
+        forum = ForumFactory(category=category, position_in_category=1)
+        topic = TopicFactory(forum=forum, author=author)
+
+        FeaturedRequested.objects.toogle_request(topic, author)
+
+        # ignore
+        staff = StaffProfileFactory()
+        login_check = self.client.login(
+            username=staff.user.username,
+            password='hostel77'
+        )
+        self.assertTrue(login_check)
+
+        content_type = ContentType.objects.get_for_model(topic)
+        q = FeaturedRequested.objects.get(object_id=topic.pk, content_type__pk=content_type.pk)
+        self.assertFalse(q.rejected)
+
+        response = self.client.post(
+            reverse('featured-resource-request-update', kwargs={'pk': q.pk}),
+            {
+                'operation': 'REJECT'
+            },
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+
+        q = FeaturedRequested.objects.get(pk=q.pk)
+        self.assertTrue(q.rejected)
+
+        response = self.client.post(
+            reverse('featured-resource-request-update', kwargs={'pk': q.pk}),
+            {
+                'operation': 'CONSIDER'
+            },
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+
+        q = FeaturedRequested.objects.get(pk=q.pk)
+        self.assertFalse(q.rejected)
+
+
+@override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'media-test'))
+@override_settings(ZDS_APP=overridden_zds_app)
+@override_settings(ES_ENABLED=False)
+class FeaturedRequestToggleTest(TestCase):
+    def setUp(self):
+        # don't build PDF to speed up the tests
+        overridden_zds_app['content']['build_pdf_when_published'] = False
+
+    def test_toggle(self):
+        author = ProfileFactory()
+        login_check = self.client.login(
+            username=author.user.username,
+            password='hostel77'
+        )
+        self.assertTrue(login_check)
+
+        # create topic and toggle request
+        category = CategoryFactory(position=1)
+        forum = ForumFactory(category=category, position_in_category=1)
+        topic = TopicFactory(forum=forum, author=author.user)
+
+        response = self.client.post(
+            reverse('topic-edit') + '?topic={}'.format(topic.pk),
+            {
+                'request_featured': 1
+            },
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+        )
+        self.assertEqual(200, response.status_code)
+
+        self.assertEqual(FeaturedRequested.objects.count(), 1)
+        r = FeaturedRequested.objects.last()
+        self.assertEqual(r.content_object, topic)
+        self.assertIn(author.user, r.users_voted.all())
+
+        # create tutorial and toggle request
+        tutorial = PublishedContentFactory(author_list=[author.user])
+        gallery = GalleryFactory()
+        image = ImageFactory(gallery=gallery)
+        tutorial.image = image
+        tutorial.save()
+
+        response = self.client.post(
+            reverse('content:request-featured', kwargs={'pk': tutorial.pk}),
+            {
+                'request_featured': 1
+            },
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+        )
+        self.assertEqual(200, response.status_code)
+
+        self.assertEqual(FeaturedRequested.objects.count(), 2)
+        r = FeaturedRequested.objects.last()
+        self.assertEqual(r.content_object, tutorial)
+        self.assertIn(author.user, r.users_voted.all())
+
+        # create opinion: cannot toggle request!
+        opinion = PublishedContentFactory(type='OPINION', author_list=[author.user])
+        gallery = GalleryFactory()
+        image = ImageFactory(gallery=gallery)
+        opinion.image = image
+        opinion.save()
+
+        response = self.client.post(
+            reverse('content:request-featured', kwargs={'pk': opinion.pk}),
+            {
+                'request_featured': 1
+            },
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+        )
+        self.assertEqual(403, response.status_code)
+        self.assertEqual(FeaturedRequested.objects.count(), 2)
+
+        # set tutorial as obsolete: cannot toggle
+        tutorial.is_obsolete = True
+        tutorial.save()
+
+        response = self.client.post(
+            reverse('content:request-featured', kwargs={'pk': tutorial.pk}),
+            {
+                'request_featured': 1
+            },
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+        )
+        self.assertEqual(403, response.status_code)
+
+        r = FeaturedRequested.objects.get(pk=r.pk)
+        self.assertEqual(r.content_object, tutorial)
+        self.assertIn(author.user, r.users_voted.all())
+
+    def tearDown(self):
+        if os.path.isdir(overridden_zds_app['content']['repo_private_path']):
+            shutil.rmtree(overridden_zds_app['content']['repo_private_path'])
+        if os.path.isdir(overridden_zds_app['content']['repo_public_path']):
+            shutil.rmtree(overridden_zds_app['content']['repo_public_path'])
+        if os.path.isdir(settings.MEDIA_ROOT):
+            shutil.rmtree(settings.MEDIA_ROOT)

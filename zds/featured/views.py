@@ -281,6 +281,11 @@ class FeaturedRequestedUpdate(UpdateView):
     model = FeaturedRequested
     http_method_names = ['post']
 
+    @method_decorator(login_required)
+    @method_decorator(permission_required('featured.change_featuredresource', raise_exception=True))
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
     def post(self, request, *args, **kwargs):
         obj = self.get_object()
         result = {'result': 'FAIL'}
