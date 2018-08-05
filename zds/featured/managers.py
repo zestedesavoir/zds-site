@@ -51,7 +51,7 @@ class FeaturedRequestedManager(models.Manager):
         if request is None:
             request = self.model(
                 content_object=content_object,
-                type='TOPIC' if type(content_object) is Topic else 'CONTENT')
+                type='TOPIC' if isinstance(content_object, Topic) else 'CONTENT')
             request.save()
 
         return request
