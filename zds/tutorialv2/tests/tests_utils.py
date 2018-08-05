@@ -271,7 +271,7 @@ class UtilsTests(TutorialTestMixin, TestCase):
         LicenceFactory(code='CC BY')
         args = [str(settings.BASE_DIR / 'fixtures' / 'tuto' / 'balise_audio' / 'manifest2.json')]
         call_command('upgrade_manifest_to_v2', *args, **opts)
-        manifest = open(str(settings.BASE_DIR / 'fixtures' / 'tuto' / 'balise_audio' / 'manifest2.json'), 'r')
+        manifest = Path(settings.BASE_DIR / 'fixtures' / 'tuto' / 'balise_audio' / 'manifest2.json').open('r')
         json = json_handler.loads(manifest.read())
 
         self.assertTrue('version' in json)
@@ -286,7 +286,7 @@ class UtilsTests(TutorialTestMixin, TestCase):
             str(settings.BASE_DIR / 'fixtures' / 'tuto' / 'big_tuto_v1' / 'manifest2.json')
         )
         call_command('upgrade_manifest_to_v2', *args, **opts)
-        manifest = open(str(settings.BASE_DIR / 'fixtures' / 'tuto' / 'big_tuto_v1' / 'manifest2.json'), 'r')
+        manifest = Path(settings.BASE_DIR / 'fixtures' / 'tuto' / 'big_tuto_v1' / 'manifest2.json').open('r')
         json = json_handler.loads(manifest.read())
         os.unlink(args[0])
         self.assertTrue('version' in json)
@@ -302,7 +302,7 @@ class UtilsTests(TutorialTestMixin, TestCase):
             str(settings.BASE_DIR / 'fixtures' / 'tuto' / 'article_v1' / 'manifest2.json')
         )
         call_command('upgrade_manifest_to_v2', *args, **opts)
-        manifest = open(str(settings.BASE_DIR / 'fixtures' / 'tuto' / 'article_v1' / 'manifest2.json'), 'r')
+        manifest = Path(settings.BASE_DIR / 'fixtures' / 'tuto' / 'article_v1' / 'manifest2.json').open('r')
         json = json_handler.loads(manifest.read())
 
         self.assertTrue('version' in json)

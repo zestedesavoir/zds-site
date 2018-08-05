@@ -23,9 +23,6 @@ PANDOC_PDF_PARAM = (
     '-V mainfont=Merriweather -V monofont="SourceCodePro-Regular" '
     '-V fontsize=12pt -V geometry:margin=1in '.format(tex_template_path)
 )
-# LOG PATH FOR PANDOC LOGGING
-PANDOC_LOG = './pandoc.log'
-PANDOC_LOG_STATE = False
 
 
 ES_ENABLED = True

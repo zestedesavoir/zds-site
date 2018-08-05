@@ -68,7 +68,7 @@ class UserGalleryFormTest(TestCase):
 class ImageFormTest(TestCase):
 
     def test_valid_image_form(self):
-        upload_file = open(str(settings.BASE_DIR / 'fixtures' / 'logo.png'), 'rb')
+        upload_file = Path(settings.BASE_DIR / 'fixtures' / 'logo.png').open('rb')
 
         data = {
             'title': 'Test Image',
@@ -84,7 +84,7 @@ class ImageFormTest(TestCase):
         upload_file.close()
 
     def test_valid_archive_image_form(self):
-        upload_file = open(str(settings.BASE_DIR / 'fixtures' / 'archive-gallery.zip'), 'rb')
+        upload_file = Path(settings.BASE_DIR / 'fixtures' / 'archive-gallery.zip').open('rb')
 
         data = {}
         files = {
@@ -96,7 +96,7 @@ class ImageFormTest(TestCase):
         upload_file.close()
 
     def test_empty_title_image_form(self):
-        upload_file = open(str(settings.BASE_DIR / 'fixtures' / 'logo.png'), 'rb')
+        upload_file = Path(settings.BASE_DIR / 'fixtures' / 'logo.png'), 'rb').open('rb')
 
         data = {
             'title': '',
@@ -126,7 +126,7 @@ class ImageFormTest(TestCase):
         self.assertFalse(form.is_valid())
 
     def test_too_big_pic_image_form(self):
-        upload_file = open(str(settings.BASE_DIR / 'fixtures' / 'image_test.jpg'), 'rb')
+        upload_file = Path(settings.BASE_DIR / 'fixtures' / 'image_test.jpg').open('rb')
 
         data = {
             'title': 'Test Title',
@@ -142,7 +142,7 @@ class ImageFormTest(TestCase):
         upload_file.close()
 
     def test_bot_a_pic_image_form(self):
-        upload_file = open(str(settings.BASE_DIR / 'fixtures' / 'forums.yaml'), 'rb')
+        upload_file = Path(settings.BASE_DIR / 'fixtures' / 'forums.yaml').open('rb')
 
         data = {
             'title': 'Test Title',
@@ -158,7 +158,7 @@ class ImageFormTest(TestCase):
         upload_file.close()
 
     def test_too_long_title_image_form(self):
-        upload_file = open(str(settings.BASE_DIR / 'fixtures' / 'logo.png'), 'rb')
+        upload_file = Path(settings.BASE_DIR / 'fixtures' / 'logo.png').open('rb')
 
         data = {
             'title': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam condimentum enim amet.',
@@ -172,7 +172,7 @@ class ImageFormTest(TestCase):
         upload_file.close()
 
     def test_too_long_legend_image_form(self):
-        upload_file = open(str(settings.BASE_DIR / 'fixtures' / 'logo.png'), 'rb')
+        upload_file = Path(settings.BASE_DIR / 'fixtures' / 'logo.png').open('rb')
 
         data = {
             'title': 'Test Title',
