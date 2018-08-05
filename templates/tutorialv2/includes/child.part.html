@@ -4,7 +4,10 @@
 {% load target_tree %}
 {% load feminize %}
 
-<h2 id="{{ child.position_in_parent }}-{{ child.slug }}">
+<h2 id="{{ child.position_in_parent }}-{{ child.slug }}"
+{% if not child.ready_to_publish %}
+    class="not-ready"
+{% endif %}>
     <a
     {% if content.is_beta %}
         href="{{ child.get_absolute_url_beta }}"
