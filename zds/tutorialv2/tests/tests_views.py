@@ -6217,9 +6217,8 @@ class PublishedContentTests(TestCase, TutorialTestMixin):
         self.assertEqual(result.context['previous_content'].pk, user_1_opinion_1.public_version.pk)
         self.assertEqual(result.context['next_content'].pk, user_1_opinion_2.public_version.pk)
 
-
     def test_author_update(self):
-        "Check that the author list of a content is updated when this content is updated."
+        """Check that the author list of a content is updated when this content is updated."""
 
         text_validation = 'Valide moi ce truc, please !'
         text_publication = 'Validation faite !'
