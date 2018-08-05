@@ -6170,3 +6170,49 @@ class PublishedContentTests(TestCase, TutorialTestMixin):
 
         for url in wrong_urls:
             self.assertEqual(self.client.get(url).status_code, 404, msg=url)
+
+    def test_article_previous_link(self):
+        """Test the behaviour of the article previous link."""
+
+        article_1 = PublishedContentFactory(author_list=[self.user_author], type='ARTICLE')
+        article_2 = PublishedContentFactory(author_list=[self.user_author], type='ARTICLE')
+        article_3 = PublishedContentFactory(author_list=[self.user_author], type='ARTICLE')
+        article_1.save()
+        article_2.save()
+        article_3.save()
+
+        result = self.client.get(reverse('article:view', kwargs={'pk': article_3.pk, 'slug': article_3.slug}))
+
+        self.assertEqual(result.context['previous_content'].pk, article_2.public_version.pk)
+
+    def test_opinion_link_is_not_related_to_the_author(self):
+        """
+        Test that the next and previous link in the opinion page take all the opinions
+        into accounts and not only the ones of the author.
+        """
+
+        user_1_opinion_1 = PublishedContentFactory(author_list=[self.user_author], type='OPINION')
+        user_2_opinion_1 = PublishedContentFactory(author_list=[self.user_guest], type='OPINION')
+        user_1_opinion_2 = PublishedContentFactory(author_list=[self.user_author], type='OPINION')
+        user_1_opinion_1.save()
+        user_2_opinion_1.save()
+        user_1_opinion_2.save()
+
+        result = self.client.get(
+            reverse('opinion:view',
+                    kwargs={
+                        'pk': user_1_opinion_2.pk,
+                        'slug': user_1_opinion_2.slug
+                    }))
+
+        self.assertEqual(result.context['previous_content'].pk, user_2_opinion_1.public_version.pk)
+
+        result = self.client.get(
+            reverse('opinion:view',
+                    kwargs={
+                        'pk': user_2_opinion_1.pk,
+                        'slug': user_2_opinion_1.slug
+                    }))
+
+        self.assertEqual(result.context['previous_content'].pk, user_1_opinion_1.public_version.pk)
+        self.assertEqual(result.context['next_content'].pk, user_1_opinion_2.public_version.pk)

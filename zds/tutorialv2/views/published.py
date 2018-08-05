@@ -98,13 +98,9 @@ class DisplayOnlineContent(Featureable, SingleOnlineContentDetailViewMixin):
             queryset_pagination = PublishedContent.objects.filter(content_type=self.current_content_type,
                                                                   must_redirect=False)
 
-            if self.current_content_type == 'OPINION':
-                # filter opinions only from the same author
-                queryset_pagination = queryset_pagination.filter(authors__in=self.object.authors.all())
-
             context['previous_content'] = queryset_pagination \
                 .filter(publication_date__lt=self.public_content_object.publication_date) \
-                .order_by('publication_date').first()
+                .order_by('-publication_date').first()
             context['next_content'] = queryset_pagination \
                 .filter(publication_date__gt=self.public_content_object.publication_date) \
                 .order_by('publication_date').first()
