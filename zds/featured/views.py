@@ -247,11 +247,27 @@ class FeaturedRequestedList(ZdSPagingListView):
 
     def get_queryset(self):
         queryset = FeaturedRequested.objects\
-            .filter(rejected=False)\
-            .filter(featured__isnull=True)\
             .prefetch_related('content_object')\
             .annotate(num_vote=Count('users_voted'))\
-            .order_by('-num_vote').all()
+            .order_by('-num_vote')
+
+        if 'type' in self.request.GET:
+            if self.request.GET['type'] == 'topic':
+                queryset = queryset.filter(type='TOPIC')
+            elif self.request.GET['type'] == 'content':
+                queryset = queryset.filter(type='CONTENT')
+
+        if 'type' in self.request.GET and self.request.GET['type'] == 'ignored':
+            queryset = queryset.filter(rejected=True)
+        else:
+            queryset = queryset.filter(rejected=False)
+
+        if 'type' in self.request.GET and self.request.GET['type'] == 'accepted':
+            queryset = queryset.filter(featured__isnull=False)
+        else:
+            queryset = queryset.filter(featured__isnull=True)
+
+        queryset = queryset.all()
 
         return [q for q in queryset if isinstance(q.content_object, Topic) or not q.content_object.is_obsolete]
 

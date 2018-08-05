@@ -30,7 +30,7 @@
             <thead>
                 <tr>
                     <th>{% trans "Titre" %}</th>
-                    <th width="5%">{% trans "Type" %}</th>
+                    <th width="15%">{% trans "Type" %}</th>
                     <th width="10%">{% trans "Votes" %}</th>
                     <th>{% trans "Actions" %}</th>
                 </tr>
@@ -52,6 +52,10 @@
                             {% else %}
                                 {% trans "Tutoriel" %}
                             {% endif %}
+                        {% endif %}
+
+                        {% if featured_request.featured %}
+                            {% trans "(accepté)" %}
                         {% endif %}
                     </td>
                     <td>{{ featured_request.num_vote }}</td>
@@ -83,3 +87,37 @@
     {% endif %}
 {% endblock %}
 
+{% block sidebar_actions %}
+    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="{% trans "Actions" %}">
+        <h3>{% trans "Filtres" %}</h3>
+        <ul>
+            <li>
+                <a href="{% url "featured-resource-requests" %}?type=topic" class="ico-after view {% if request.GET.type == "topic" %}selected{% endif %}">
+                    {% trans "Topics proposés" %}
+                </a>
+            </li>
+            <li>
+                <a href="{% url "featured-resource-requests" %}?type=content" class="ico-after view {% if request.GET.type == "content" %}selected{% endif %}">
+                    {% trans "Contenus proposés" %}
+                </a>
+            </li>
+            <li>
+                <a href="{% url "featured-resource-requests" %}?type=ignored" class="ico-after view {% if request.GET.type == "ignored" %}selected{% endif %}">
+                    {% trans "Requêtes ignorées" %}
+                </a>
+            </li>
+            <li>
+                <a href="{% url "featured-resource-requests" %}?type=accepted" class="ico-after view {% if request.GET.type == "accepted" %}selected{% endif %}">
+                    {% trans "Requêtes acceptées" %}
+                </a>
+            </li>
+            {% if request.GET.type %}
+                <li>
+                    <a href="{% url "featured-resource-requests" %}" class="ico-after cross red">
+                        {% trans "Annuler le filtre" %}
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+{% endblock %}
