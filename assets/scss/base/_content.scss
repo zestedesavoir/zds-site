@@ -29,6 +29,10 @@ h2 {
     border-top: 1px solid #e0e4e5;
     padding-left: 1%;
     font-weight: 400;
+
+    &.not-ready {
+        background: #DDD;
+    }
 }
 
 h3 {
