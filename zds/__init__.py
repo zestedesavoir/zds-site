@@ -1,7 +1,3 @@
-from django.dispatch import receiver
-from django.db.backends.signals import connection_created
-from django.contrib.auth import get_user_model
-
 try:
     import ujson as json_handler
 except ImportError:
@@ -26,24 +22,3 @@ try:
 except ImportError:
     __version__ = 'dev'
     git_version = None
-
-
-# Ensures essentials accounts are present in the database.
-@receiver(connection_created)
-def my_receiver(connection, **kwargs):
-    with connection.cursor() as cursor:
-        from django.conf import settings
-        User = get_user_model()
-        
-        for user in ('bot_account', 'anonymous_account', 'external_account'):
-            username = settings.ZDS_APP['member'][user]
-            try:
-                _ = User.objects.get(username=username)
-            except User.DoesNotExist:
-                raise Exception(
-                    'The {username!r} user does not exist. '
-                    'You must create it to run the server.'.format(
-                        username=username
-                    )
-                )
-        

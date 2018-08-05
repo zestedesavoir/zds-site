@@ -1,3 +1,5 @@
+from django.contrib.auth import get_user_model
+
 import hashlib
 import re
 
@@ -54,3 +56,21 @@ def contains_utf8mb4(s):
         s = str(s, 'utf-8')
     re_pattern = re.compile('[^\u0000-\uD7FF\uE000-\uFFFF]', re.UNICODE)
     return s != re_pattern.sub('\uFFFD', s)
+
+
+# Ensures essentials accounts are present in the database.
+def check_essential_accounts():
+    from django.conf import settings
+    User = get_user_model()
+    
+    for user in ('bot_account', 'anonymous_account', 'external_account'):
+        username = settings.ZDS_APP['member'][user]
+        try:
+            _ = User.objects.get(username=username)
+        except User.DoesNotExist:
+            raise Exception(
+                'The {username!r} user does not exist. '
+                'You must create it to run the server.'.format(
+                    username=username
+                )
+            )
