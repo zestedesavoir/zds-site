@@ -6267,7 +6267,7 @@ class PublishedContentTests(TestCase, TutorialTestMixin):
         tutorial.save()
         tutorial_draft = tutorial.load_version()
 
-        # ask validation 
+        # ask validation
         self.client.login(username=self.user_staff.username, password='hostel77')
         self.client.post(
             reverse('validation:ask', kwargs={'pk': tutorial.pk, 'slug': tutorial.slug}),
@@ -6285,7 +6285,7 @@ class PublishedContentTests(TestCase, TutorialTestMixin):
             {
                 'version': validation.version
             },
-            follow=False)  
+            follow=False)
         self.client.post(
             reverse('validation:accept', kwargs={'pk': validation.pk}),
             {
