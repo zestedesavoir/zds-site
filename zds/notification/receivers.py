@@ -380,7 +380,8 @@ def answer_private_topic_event(sender, *, instance, by_email, **__):
     subscription_list = PrivateTopicAnswerSubscription.objects.get_subscriptions(post.privatetopic)
     for subscription in subscription_list:
         if subscription.user != post.author:
-            send_email = by_email and (subscription.user.profile.email_for_answer or (post.position_in_topic == 1 and not subscription.user.profile.email_for_new_mp))
+            send_email = by_email and (subscription.user.profile.email_for_answer or (post.position_in_topic == 1 
+                                                            and subscription.user.profile.email_for_new_mp))
             subscription.send_notification(content=post, sender=post.author, send_email=send_email)
 
 
