@@ -4,17 +4,11 @@ all: help
 
 # install
 ## linux
-install-debian:
-	sudo apt-get install git python3-dev python3-setuptools libxml2-dev python3-lxml libxslt-dev libz-dev python3-sqlparse libjpeg62-turbo libjpeg62-turbo-dev libfreetype6 libfreetype6-dev libffi-dev python3-pip build-essential
+install-linux:
+	./scripts/install_zds.sh +base
 
-install-ubuntu:
-	sudo apt-get install git python3-dev python3-setuptools libxml2-dev python3-lxml libxslt1-dev libz-dev python3-sqlparse libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev libffi-dev python3-pip build-essential
-
-install-fedora:
-	sudo dnf install git python3-devel python3-setuptools libxml2-devel python3-lxml libxslt-devel zlib-devel python3-sqlparse libjpeg-turbo-devel libjpeg-turbo-devel freetype freetype-devel libffi-devel python3-pip gcc redhat-rpm-config
-
-install-archlinux:
-	sudo pacman -Sy git python python-setuptools python-pip libxml2 python-lxml libxslt zlib python-sqlparse libffi libjpeg-turbo freetype2 base-devel
+install-linux-full:
+	./scripts/install_zds.sh +full
 
 install-macos:
 	brew install gettext cairo --without-x11 py2cairo node && \
@@ -45,7 +39,7 @@ clean-back:
 	find . -name '*.pyc' -exec rm {} \;
 
 install-back:
-	pip3 install --upgrade -r requirements-dev.txt
+	./scripts/install_zds.sh +back
 
 lint-back:
 	flake8 zds
@@ -63,10 +57,14 @@ test-back: clean-back zmd-start
 	python manage.py test --settings zds.settings.test --exclude-tag=front
 	make zmd-stop
 
+# elasticsearch
+run-elastic:
+	elasticsearch || echo 'No elasticsearch installed (you can add it locally with `./scripts/install_zds.sh +elasticsearch`)'
+
 # zmd
 
 zmd-install:
-	cd zmd && npm install zmarkdown --production
+	./scripts/install_zds.sh +zmd
 
 zmd-start:
 	cd zmd/node_modules/zmarkdown && npm run server
@@ -88,7 +86,7 @@ clean-front:
 	yarn run clean
 
 install-front:
-	yarn
+	./scripts/install_zds.sh +front
 
 lint-front:
 	yarn run lint
@@ -143,13 +141,12 @@ help:
 	@echo "  report-release-back  to generate release report"
 	@echo "  run               to run the project locally"
 	@echo "  run-back          to only run the backend"
+	@echo "  run-elastic       to run elasticsearch"
 	@echo "  shell             to get django shell"
 	@echo "  test              to run django tests"
 	@echo "Open this Makefile to see what each target does."
 	@echo "When a target uses an env variable (eg. $$(VAR)), you can do"
 	@echo "  make VAR=my_var cible"
-
-install: install-back install-front
 
 lint: lint-back lint-front
 
