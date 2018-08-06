@@ -125,6 +125,7 @@ def publish_content(db_object, versioned, is_major_update=True):
     public_version.save(
         update_fields=['char_count', 'publication_date', 'update_date', 'sha_public'])
 
+    public_version.authors.clear()
     for author in db_object.authors.all():
         public_version.authors.add(author)
 
