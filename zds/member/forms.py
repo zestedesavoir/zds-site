@@ -223,6 +223,7 @@ class ProfileForm(MiniProfileForm):
         ('allow_temp_visual_changes', _('Activer les changements visuels temporaires')),
         ('show_markdown_help', _("Afficher l'aide Markdown dans l'éditeur")),
         ('email_for_answer', _("Recevoir un courriel lors d'une réponse à un message privé")),
+        ('email_for_new_mp', _("Recevoir un courriel lors de la réception d'un nouveau message privé")),
     ]
 
     options = forms.MultipleChoiceField(
