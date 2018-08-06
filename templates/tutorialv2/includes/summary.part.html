@@ -30,7 +30,9 @@
         </ol>
     {% else %}
         {% for child in content.children %}
-             <h4 data-num="{{ child.position_in_parent|roman }}">
+             <h4 data-num="{{ child.position_in_parent|roman }}"
+                 {% if not child.ready_to_publish %} class="not-ready" {% endif %}
+             >
                 <a class="mobile-menu-link"
                     {% if online %}
                         href="{{ child.get_absolute_url_online }}"
@@ -64,7 +66,9 @@
             {% else %}
                 <ol>
                     {% for subchild in child.children %}
-                        <li {% if current_container.long_slug == subchild.long_slug %}class="current"{% endif %}>
+                        <li class="{% if current_container.long_slug == subchild.long_slug %}current{% endif %}
+                            {% if not child.ready_to_publish %} not-ready{% endif %}"
+                        >
                             <a data-num="{{ subchild.position_in_parent }}"
                                 {% if online %}
                                     href="{{ subchild.get_absolute_url_online }}"
@@ -85,7 +89,7 @@
                             {% if current_container.long_slug == subchild.long_slug %}
                                 <ol class="mobile-menu-bloc mobile-all-links" data-title="Sommaire du chapitre">
                                     {% for extract in subchild.children %}
-                                        <li>
+                                        <li {% if not child.ready_to_publish %} class="not-ready" {% endif %}>
                                             <a
                                                 {% if online %}
                                                     href="{{ extract.get_absolute_url_online }}"
