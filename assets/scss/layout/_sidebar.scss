@@ -39,6 +39,10 @@
         font-weight: normal;
         margin: 0;
         padding: 0;
+
+        &.not-ready {
+            background: $color-not-ready-content;
+        }
     }
     h3 {
         font-size: 18px;
