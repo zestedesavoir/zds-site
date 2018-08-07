@@ -96,7 +96,7 @@ class ImageFormTest(TestCase):
         upload_file.close()
 
     def test_empty_title_image_form(self):
-        upload_file = Path(settings.BASE_DIR / 'fixtures' / 'logo.png'), 'rb').open('rb')
+        upload_file = Path(settings.BASE_DIR / 'fixtures' / 'logo.png').open('rb')
 
         data = {
             'title': '',
