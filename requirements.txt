@@ -1,5 +1,4 @@
 # Implicit dependencies (optional dependencies of dependencies)
-pygments==2.2.0
 python-social-auth==0.2.21
 elasticsearch==5.5.2
 elasticsearch-dsl==5.4.0

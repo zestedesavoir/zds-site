@@ -108,8 +108,7 @@ doc:
 	make html
 
 fixtures:
-	python manage.py loaddata fixtures/*.yaml
-	python manage.py load_factory_data fixtures/advanced/aide_tuto_media.yaml
+	./scripts/install_zds.sh +data
 
 restart_db: wipe migrate fixtures
 	python manage.py load_fixtures --size=low --all
