@@ -5,7 +5,7 @@
 {% load feminize %}
 
 <h2 id="{{ child.position_in_parent }}-{{ child.slug }}"
-{% if not child.ready_to_publish %}
+{% if not child.ready_to_publish and not child.text %}
     class="not-ready"
 {% endif %}>
     <a
