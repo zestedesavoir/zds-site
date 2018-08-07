@@ -19,6 +19,10 @@ if [[ $ZDS_NODE_VERSION == "" ]]; then
     ZDS_NODE_VERSION="10.8.0"
 fi
 
+if [[ $ZDS_NVM_VERSION == "" ]]; then
+    ZDS_NVM_VERSION="0.33.11"
+fi
+
 
 if [[ $ZDS_ELASTIC_VERSION == "" ]]; then
     ZDS_ELASTIC_VERSION="5.5.2"
@@ -66,8 +70,36 @@ if [[ $VIRTUAL_ENV == "" ]]; then
     fi
 fi
 
+# nvm node & yarn
+if  ! $(_in "-node" $@) && ( $(_in "+node" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
+    echo "* installing nvm (v$ZDS_NVM_VERSION) & node (v$ZDS_NODE_VERSION) & yarn"
+
+    wget -qO- https://raw.githubusercontent.com/creationix/nvm/v${ZDS_NVM_VERSION}/install.sh | bash
+    if [[ $? == 0 ]]; then
+
+        export NVM_DIR="$HOME/.nvm"
+        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+
+        # install node & yarn
+        nvm install ${ZDS_NODE_VERSION}
+        echo ${ZDS_NODE_VERSION} > .nvmrc
+        nvm use
+
+        npm -g add yarn
+
+        # add nvm to venv activate scripts:
+        ACTIVATE_NVM="nvm use  # activate nvm (from install_zds.sh)"
+        echo $ACTIVATE_NVM >> $ZDS_VENV/bin/activate
+        echo $ACTIVATE_NVM >> $ZDS_VENV/bin/activate.csh
+        echo $ACTIVATE_NVM >> $ZDS_VENV/bin/activate.fish
+    else
+        echo "!! Cannot obtain nvm"
+        exit 1
+    fi
+fi
+
 # local node & yarn
-if  ! $(_in "-node-local" $@) && ( $(_in "+node-local" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
+if  ! $(_in "-node-local" $@) && $(_in "+node-local" $@) && ! $(_in "+node" $@) ; then
     echo "* installing a local version of node (v$ZDS_NODE_VERSION) & yarn"
     mkdir -p .local
     cd .local
@@ -76,7 +108,7 @@ if  ! $(_in "-node-local" $@) && ( $(_in "+node-local" $@) || $(_in "+base" $@) 
         rm -R node
     fi
 
-    wget https://nodejs.org/dist/v${ZDS_NODE_VERSION}/node-v${ZDS_NODE_VERSION}-linux-x64.tar.xz
+    wget -qO https://nodejs.org/dist/v${ZDS_NODE_VERSION}/node-v${ZDS_NODE_VERSION}-linux-x64.tar.xz
     if [[ $? == 0 ]]; then
         tar -xJf node-v${ZDS_NODE_VERSION}-linux-x64.tar.xz
         rm node-v${ZDS_NODE_VERSION}-linux-x64.tar.xz
@@ -109,14 +141,14 @@ if  ! $(_in "-elasticsearch" $@) && ( $(_in "+elasticsearch" $@) || $(_in "+full
         rm -R elasticsearch
     fi
 
-    wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${ZDS_ELASTIC_VERSION}.zip
+    wget -q0 https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${ZDS_ELASTIC_VERSION}.zip
     if [[ $? == 0 ]]; then
         unzip elasticsearch-${ZDS_ELASTIC_VERSION}.zip
         rm elasticsearch-${ZDS_ELASTIC_VERSION}.zip
         mv elasticsearch-${ZDS_ELASTIC_VERSION} elasticsearch
 
         # add options to reduce memory consumption
-        echo "#Options added by zds-install.sh" >> elasticsearch/config/jvm.options
+        echo "#Options added by install_zds.sh" >> elasticsearch/config/jvm.options
         echo "-Xms512m" >> elasticsearch/config/jvm.options
         echo "-Xmx512m" >> elasticsearch/config/jvm.options
 
@@ -188,7 +220,7 @@ fi
 
 # install front
 if  ! $(_in "-front" $@) && ( $(_in "+front" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
-    echo "* install yarn & front dependencies & build front"
+    echo "* install front dependencies & build front"
     if [ -d node_modules ]; then # delete previous modules
         rm -R node_modules
     fi;
@@ -212,4 +244,4 @@ fi
 
 echo -n 'Done. You can now run instance with `'
 echo -n "source $ZDS_VENV/bin/activate"
-echo '`, and then, `make zmd-start && make run-back`'
+echo '`, `and then, `make zmd-start && make run-back`'
