@@ -10,6 +10,12 @@ function _in {
   return 1
 }
 
+
+function _nvm {
+        export NVM_DIR="$HOME/.nvm"
+        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+}
+
 # variables
 if [[ $ZDS_VENV == "" ]]; then
     ZDS_VENV="zdsenv"
@@ -42,7 +48,7 @@ if  ! $(_in "-packages" $@) && ( $(_in "+packages" $@) || $(_in "+base" $@) || $
     elif [[ "$version" =~ "debian" ]]; then
         sudo apt-get -y install git python3-dev python3-setuptools libxml2-dev python3-lxml libxslt-dev libz-dev python3-sqlparse libjpeg62-turbo libjpeg62-turbo-dev libfreetype6 libfreetype6-dev libffi-dev python3-pip virtualenv build-essential curl
     elif [[ "$version" =~ "fedora" ]]; then
-        sudo dnf install git python3-devel python3-setuptools libxml2-devel python3-lxml libxslt-devel zlib-devel python3-sqlparse libjpeg-turbo-devel libjpeg-turbo-devel freetype freetype-devel libffi-devel python3-pip gcc redhat-rpm-config
+        sudo dnf -y install git python3-devel python3-setuptools libxml2-devel python3-lxml libxslt-devel zlib-devel python3-sqlparse libjpeg-turbo-devel libjpeg-turbo-devel freetype freetype-devel libffi-devel python3-pip python-virtualenv gcc redhat-rpm-config
     elif [[ "$version" =~ "archlinux" ]]; then
         sudo pacman -Sy git python python-setuptools python-pip libxml2 python-lxml libxslt zlib python-sqlparse libffi libjpeg-turbo freetype2 base-devel
     else
@@ -62,7 +68,12 @@ fi
 
 if [[ $VIRTUAL_ENV == "" ]]; then
     echo "* activating venv"
-    . ./$ZDS_VENV/bin/activate &> /dev/null
+
+    if [ -d $HOME/.nvm ]; then # force nvm activation
+        _nvm
+    fi
+
+    . ./$ZDS_VENV/bin/activate
 
     if [[ $? != "0" ]]; then
         echo "!! no virtualenv, cannot continue"
@@ -77,8 +88,7 @@ if  ! $(_in "-node" $@) && ! $(_in "+node-local" $@) &&( $(_in "+node" $@) || $(
     wget -qO- https://raw.githubusercontent.com/creationix/nvm/v${ZDS_NVM_VERSION}/install.sh | bash
     if [[ $? == 0 ]]; then
 
-        export NVM_DIR="$HOME/.nvm"
-        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+        _nvm
 
         # install node & yarn
         nvm install ${ZDS_NODE_VERSION}
@@ -87,11 +97,13 @@ if  ! $(_in "-node" $@) && ! $(_in "+node-local" $@) &&( $(_in "+node" $@) || $(
 
         npm -g add yarn
 
-        # add nvm to venv activate scripts:
-        ACTIVATE_NVM="nvm use  # activate nvm (from install_zds.sh)"
-        echo $ACTIVATE_NVM >> $ZDS_VENV/bin/activate
-        echo $ACTIVATE_NVM >> $ZDS_VENV/bin/activate.csh
-        echo $ACTIVATE_NVM >> $ZDS_VENV/bin/activate.fish
+        if [[ $(grep -c -i "nvm use" $ZDS_VENV/bin/activate) == "0" ]]; then # add nvm activation to venv activate's
+            ACTIVATE_NVM="nvm use  # activate nvm (from install_zds.sh)"
+
+            echo $ACTIVATE_NVM >> $ZDS_VENV/bin/activate
+            echo $ACTIVATE_NVM >> $ZDS_VENV/bin/activate.csh
+            echo $ACTIVATE_NVM >> $ZDS_VENV/bin/activate.fish
+        fi
     else
         echo "!! Cannot obtain nvm v${ZDS_NVM_VERSION}"
         exit 1
@@ -241,7 +253,11 @@ fi
 # zmd
 if  ! $(_in "-zmd" $@) && ( $(_in "+zmd" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
     echo "* [+zmd] install zmarkdown dependencies"
-    cd zmd && npm install zmarkdown --production
+    CURRENT=$(pwd)
+    cd zmd
+    npm -g install pm2
+    npm install zmarkdown --production
+    cd $CURRENT
 fi
 
 # fixtures
