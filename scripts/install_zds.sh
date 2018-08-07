@@ -47,7 +47,7 @@ if  ! $(_in "-packages" $@) && ( $(_in "+packages" $@) || $(_in "+base" $@) || $
         sudo pacman -Sy git python python-setuptools python-pip libxml2 python-lxml libxslt zlib python-sqlparse libffi libjpeg-turbo freetype2 base-devel
     else
         echo "!! I did not detect your linux version"
-        echo '!! Please manually install the packages and run again with `-packages`'
+        echo "!! Please manually install the packages and run again with \`-packages\`"
         exit 1
     fi
 fi
@@ -192,7 +192,7 @@ if  ! $(_in "-tex" $@) && ( $(_in "+tex" $@) || $(_in "+full" $@) ); then
 
         # install texlive
         sed -i 's@.texlive@texlive@' texlive.profile  # change directory
-        sed -i 's@\$HOME@'"$LOCAL"'@' texlive.profile  # change destination
+        sed -i "s@\$HOME@$LOCAL@" texlive.profile  # change destination
 
         wget -q -O install-tl.tar.gz http://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz
         if [[ $? == 0 ]]; then
@@ -204,7 +204,6 @@ if  ! $(_in "-tex" $@) && ( $(_in "+tex" $@) || $(_in "+full" $@) ); then
 
             # Symlink the binaries to bin of venv
             for i in $BASE_TEXLIVE/bin/x86_64-linux/*; do
-              echo $i
               ln -sf $i ../../$ZDS_VENV/bin/
             done
 
@@ -252,6 +251,4 @@ if  ! $(_in "-data" $@) && ( $(_in "+data" $@) || $(_in "+base" $@) || $(_in "+f
 	python manage.py load_factory_data fixtures/advanced/aide_tuto_media.yaml
 fi
 
-echo -n 'Done. You can now run instance with `'
-echo -n "source $ZDS_VENV/bin/activate"
-echo '`, `and then, `make zmd-start && make run-back`'
+echo "Done. You can now run instance with \`source $ZDS_VENV/bin/activate\`, and then, \`make zmd-start && make run-back\`"
