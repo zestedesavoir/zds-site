@@ -35,12 +35,12 @@ fi
 
 # os-specific package install
 if  ! $(_in "-packages" $@) && ( $(_in "+packages" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
-    echo "* installing packages (require sudo)"
+    echo "* [+packages] installing packages (require sudo)"
     version=$(cat /proc/version)
     if [[ "$version" =~ "ubuntu" ]]; then
-        sudo apt-get install git python3-dev python3-setuptools libxml2-dev python3-lxml libxslt1-dev libz-dev python3-sqlparse libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev libffi-dev python3-pip build-essential curl
+        sudo apt-get -y install git python3-dev python3-setuptools libxml2-dev python3-lxml libxslt1-dev libz-dev python3-sqlparse libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev libffi-dev python3-pip build-essential curl
     elif [[ "$version" =~ "debian" ]]; then
-        sudo apt-get install git python3-dev python3-setuptools libxml2-dev python3-lxml libxslt-dev libz-dev python3-sqlparse libjpeg62-turbo libjpeg62-turbo-dev libfreetype6 libfreetype6-dev libffi-dev python3-pip virtualenv build-essential curl
+        sudo apt-get -y install git python3-dev python3-setuptools libxml2-dev python3-lxml libxslt-dev libz-dev python3-sqlparse libjpeg62-turbo libjpeg62-turbo-dev libfreetype6 libfreetype6-dev libffi-dev python3-pip virtualenv build-essential curl
     elif [[ "$version" =~ "fedora" ]]; then
         sudo dnf install git python3-devel python3-setuptools libxml2-devel python3-lxml libxslt-devel zlib-devel python3-sqlparse libjpeg-turbo-devel libjpeg-turbo-devel freetype freetype-devel libffi-devel python3-pip gcc redhat-rpm-config
     elif [[ "$version" =~ "archlinux" ]]; then
@@ -55,7 +55,7 @@ fi
 # virtualenv
 if  ! $(_in "-virtualenv" $@) && ( $(_in "+virtualenv" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
     if [ ! -d $ZDS_VENV ]; then
-        echo "* creating virtualenv"
+        echo "* [+virtualenv] creating virtualenv"
         virtualenv $ZDS_VENV --python=python3
     fi
 fi
@@ -71,8 +71,8 @@ if [[ $VIRTUAL_ENV == "" ]]; then
 fi
 
 # nvm node & yarn
-if  ! $(_in "-node" $@) && ( $(_in "+node" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
-    echo "* installing nvm (v$ZDS_NVM_VERSION) & node (v$ZDS_NODE_VERSION) & yarn"
+if  ! $(_in "-node" $@) && ! $(_in "+node-local" $@) &&( $(_in "+node" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
+    echo "* [+node] installing nvm (v$ZDS_NVM_VERSION) & node (v$ZDS_NODE_VERSION) & yarn"
 
     wget -qO- https://raw.githubusercontent.com/creationix/nvm/v${ZDS_NVM_VERSION}/install.sh | bash
     if [[ $? == 0 ]]; then
@@ -93,14 +93,14 @@ if  ! $(_in "-node" $@) && ( $(_in "+node" $@) || $(_in "+base" $@) || $(_in "+f
         echo $ACTIVATE_NVM >> $ZDS_VENV/bin/activate.csh
         echo $ACTIVATE_NVM >> $ZDS_VENV/bin/activate.fish
     else
-        echo "!! Cannot obtain nvm"
+        echo "!! Cannot obtain nvm v${ZDS_NVM_VERSION}"
         exit 1
     fi
 fi
 
 # local node & yarn
 if  ! $(_in "-node-local" $@) && $(_in "+node-local" $@) && ! $(_in "+node" $@) ; then
-    echo "* installing a local version of node (v$ZDS_NODE_VERSION) & yarn"
+    echo "* [+node-local] installing a local version of node (v$ZDS_NODE_VERSION) & yarn"
     mkdir -p .local
     cd .local
 
@@ -108,7 +108,7 @@ if  ! $(_in "-node-local" $@) && $(_in "+node-local" $@) && ! $(_in "+node" $@) 
         rm -R node
     fi
 
-    wget -qO https://nodejs.org/dist/v${ZDS_NODE_VERSION}/node-v${ZDS_NODE_VERSION}-linux-x64.tar.xz
+    wget -q https://nodejs.org/dist/v${ZDS_NODE_VERSION}/node-v${ZDS_NODE_VERSION}-linux-x64.tar.xz
     if [[ $? == 0 ]]; then
         tar -xJf node-v${ZDS_NODE_VERSION}-linux-x64.tar.xz
         rm node-v${ZDS_NODE_VERSION}-linux-x64.tar.xz
@@ -125,15 +125,15 @@ if  ! $(_in "-node-local" $@) && $(_in "+node-local" $@) && ! $(_in "+node" $@) 
         npm -g add yarn
         ln -s $(realpath ./node/bin/yarn) ../$ZDS_VENV/bin/yarn
     else
-        echo "!! Cannot find this version of node"
+        echo "!! Cannot get node v${ZDS_NODE_VERSION}"
         exit 1;
     fi;
     cd ..
 fi
 
 # local elasticsearch
-if  ! $(_in "-elasticsearch" $@) && ( $(_in "+elasticsearch" $@) || $(_in "+full" $@) ); then
-    echo "* installing a local version of elasticsearch (v$ZDS_ELASTIC_VERSION)"
+if  ! $(_in "-elastic" $@) && ( $(_in "+elastic" $@) || $(_in "+full" $@) ); then
+    echo "* [+elastic] installing a local version of elasticsearch (v$ZDS_ELASTIC_VERSION)"
     mkdir -p .local
     cd .local
 
@@ -141,7 +141,7 @@ if  ! $(_in "-elasticsearch" $@) && ( $(_in "+elasticsearch" $@) || $(_in "+full
         rm -R elasticsearch
     fi
 
-    wget -q0 https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${ZDS_ELASTIC_VERSION}.zip
+    wget -q https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${ZDS_ELASTIC_VERSION}.zip
     if [[ $? == 0 ]]; then
         unzip elasticsearch-${ZDS_ELASTIC_VERSION}.zip
         rm elasticsearch-${ZDS_ELASTIC_VERSION}.zip
@@ -155,7 +155,7 @@ if  ! $(_in "-elasticsearch" $@) && ( $(_in "+elasticsearch" $@) || $(_in "+full
         # symbolic link to elastic start script
         ln -s $(realpath elasticsearch/bin/elasticsearch) ../$ZDS_VENV/bin/
     else
-        echo "!! Cannot find this version of elasticsearch"
+        echo "!! Cannot get elasticsearch ${ZDS_ELASTIC_VERSION}"
         exit 1;
     fi;
     cd ..
@@ -163,7 +163,7 @@ fi
 
 # local texlive
 if  ! $(_in "-tex" $@) && ( $(_in "+tex" $@) || $(_in "+full" $@) ); then
-    echo "* install template & texlive"
+    echo "* [+tex] install template & texlive"
 
     CURRENT=$(pwd)
     mkdir -p .local
@@ -179,48 +179,58 @@ if  ! $(_in "-tex" $@) && ( $(_in "+tex" $@) || $(_in "+full" $@) ); then
     BASE_REPO=$BASE_TEXLIVE/texmf-local/tex/latex
     mkdir -p $BASE_REPO
     cd $BASE_REPO
+
     git clone $ZDS_LATEX_REPO
+     if [[ $? == 0 ]]; then
+        # copy scripts
+        cd $BASE_TEXLIVE
+        REPO=$BASE_REPO/latex-template
+        cp $REPO/scripts/texlive.profile $REPO/scripts/packages $REPO/scripts/install_font.sh .
 
-    # copy scripts
-    cd $BASE_TEXLIVE
-    REPO=$BASE_REPO/latex-template
-    cp $REPO/scripts/texlive.profile $REPO/scripts/packages $REPO/scripts/install_font.sh .
+        # install fonts
+        ./install_font.sh
 
-    # install fonts
-    ./install_font.sh
+        # install texlive
+        sed -i 's@.texlive@texlive@' texlive.profile  # change directory
+        sed -i 's@\$HOME@'"$LOCAL"'@' texlive.profile  # change destination
 
-    # install texlive
-    sed -i 's@.texlive@texlive@' texlive.profile  # change directory
-    sed -i 's@\$HOME@'"$LOCAL"'@' texlive.profile  # change destination
+        wget -q -O install-tl.tar.gz http://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz
+        if [[ $? == 0 ]]; then
+            tar xzf install-tl.tar.gz
+            ./install-tl*/install-tl -profile texlive.profile
 
-    wget -O install-tl.tar.gz http://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz
-    tar xzf install-tl.tar.gz
-    ./install-tl*/install-tl -profile texlive.profile
+            ./bin/x86_64-linux/tlmgr install $(cat packages)  # extra packages
+            ./bin/x86_64-linux/tlmgr update --self
 
-    ./bin/x86_64-linux/tlmgr install $(cat packages)  # extra packages
-    ./bin/x86_64-linux/tlmgr update --self
+            # Symlink the binaries to bin of venv
+            for i in $BASE_TEXLIVE/bin/x86_64-linux/*; do
+              echo $i
+              ln -sf $i ../../$ZDS_VENV/bin/
+            done
 
-    # Symlink the binaries to bin of venv
-    for i in $BASE_TEXLIVE/bin/x86_64-linux/*; do
-      echo $i
-      ln -sf $i ../../$ZDS_VENV/bin/
-    done
-
-    texhash  # register template
+            texhash  # register template
+        else
+            echo "!! Cannot download texlive"
+            exit 1
+        fi
+     else
+        echo "!! cannot clone repository $ZDS_LATEX_REPO"
+        exit 1
+     fi
 
     cd $CURRENT
 fi
 
 # install back
 if  ! $(_in "-back" $@) && ( $(_in "+back" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
-    echo "* install back dependencies & migration"
+    echo "* [+back] install back dependencies & migration"
     pip3 install --upgrade -r requirements-dev.txt
     make migrate # migration are required for the instance to run properly
 fi
 
 # install front
 if  ! $(_in "-front" $@) && ( $(_in "+front" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
-    echo "* install front dependencies & build front"
+    echo "* [+front] install front dependencies & build front"
     if [ -d node_modules ]; then # delete previous modules
         rm -R node_modules
     fi;
@@ -231,13 +241,13 @@ fi
 
 # zmd
 if  ! $(_in "-zmd" $@) && ( $(_in "+zmd" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
-    echo "* install zmarkdown dependencies"
+    echo "* [+zmd] install zmarkdown dependencies"
     cd zmd && npm install zmarkdown --production
 fi
 
 # fixtures
 if  ! $(_in "-data" $@) && ( $(_in "+data" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
-    echo "* fixtures"
+    echo "* [+data] fixtures"
     python manage.py loaddata fixtures/*.yaml
 	python manage.py load_factory_data fixtures/advanced/aide_tuto_media.yaml
 fi
