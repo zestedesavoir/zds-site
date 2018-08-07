@@ -635,6 +635,12 @@ class NotificationPrivateTopicTest(TestCase):
         self.user1 = ProfileFactory().user
         self.user2 = ProfileFactory().user
         self.user3 = ProfileFactory().user
+        self.user1.profile.email_for_new_mp = True
+        self.user2.profile.email_for_new_mp = True
+        self.user3.profile.email_for_new_mp = False
+        self.user1.profile.save()
+        self.user2.profile.save()
+        self.user3.profile.save()
 
         self.assertTrue(self.client.login(username=self.user1.username, password='hostel77'))
 
@@ -783,7 +789,7 @@ class NotificationPrivateTopicTest(TestCase):
         settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
         self.assertEqual(0, len(mail.outbox))
 
-        topic = send_mp(author=self.user1, users=[self.user2],
+        topic = send_mp(author=self.user1, users=[self.user2, self.user3],
                         title='Testing', subtitle='', text='',
                         send_by_mail=True, leave=False)
 
@@ -793,6 +799,8 @@ class NotificationPrivateTopicTest(TestCase):
         self.user1.profile.save()
         self.user2.profile.email_for_answer = True
         self.user2.profile.save()
+        self.user3.profile.email_for_answer = False
+        self.user3.profile.save()
 
         send_message_mp(self.user2, topic, '', send_by_mail=True)
         subscriptions = PrivateTopicAnswerSubscription.objects.filter(user=self.user2)
