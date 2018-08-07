@@ -22,9 +22,9 @@
 
 {% block content %}
     <p>
-        {% blocktrans %}
+        {% blocktrans with member_count=paginator.count %}
             Sur cette page vous pourrez trouver la liste des membres
-            inscrits au site (actuellement {{ paginator.count }} membres).
+            inscrits au site (actuellement {{ member_count }} membres).
         {% endblocktrans %}
     </p>
 
