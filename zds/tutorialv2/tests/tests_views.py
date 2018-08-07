@@ -6216,3 +6216,82 @@ class PublishedContentTests(TestCase, TutorialTestMixin):
 
         self.assertEqual(result.context['previous_content'].pk, user_1_opinion_1.public_version.pk)
         self.assertEqual(result.context['next_content'].pk, user_1_opinion_2.public_version.pk)
+
+    def test_author_update(self):
+        """Check that the author list of a content is updated when this content is updated."""
+
+        text_validation = 'Valide moi ce truc, please !'
+        text_publication = 'Validation faite !'
+
+        tutorial = PublishedContentFactory(
+            type='TUTORIAL',
+            author_list=[self.user_author, self.user_guest, self.user_staff])
+
+        # Remove author to check if it's correct after major update
+        tutorial.authors.remove(self.user_guest)
+        tutorial.save()
+        tutorial_draft = tutorial.load_version()
+
+        # ask validation
+        self.client.login(username=self.user_staff.username, password='hostel77')
+        self.client.post(
+            reverse('validation:ask', kwargs={'pk': tutorial.pk, 'slug': tutorial.slug}),
+            {
+                'text': text_validation,
+                'source': '',
+                'version': tutorial_draft.current_version
+            },
+            follow=False)
+
+        # major update
+        validation = Validation.objects.filter(content=tutorial).last()
+        self.client.post(
+            reverse('validation:reserve', kwargs={'pk': validation.pk}),
+            {
+                'version': validation.version
+            },
+            follow=False)
+        self.client.post(
+            reverse('validation:accept', kwargs={'pk': validation.pk}),
+            {
+                'text': text_publication,
+                'is_major': True,
+                'source': ''
+            },
+            follow=False)
+        self.assertEqual(tutorial.public_version.authors.count(), 2)
+
+        # Remove author to check if it's correct after minor update
+        tutorial.authors.remove(self.user_author)
+        tutorial.save()
+        tutorial_draft = tutorial.load_version()
+
+        # ask validation
+        self.client.login(username=self.user_staff.username, password='hostel77')
+        self.client.post(
+            reverse('validation:ask', kwargs={'pk': tutorial.pk, 'slug': tutorial.slug}),
+            {
+                'text': text_validation,
+                'source': '',
+                'version': tutorial_draft.current_version
+            },
+            follow=False)
+
+        # minor update
+        validation = Validation.objects.filter(content=tutorial).last()
+        self.client.post(
+            reverse('validation:reserve', kwargs={'pk': validation.pk}),
+            {
+                'version': validation.version
+            },
+            follow=False)
+        self.client.post(
+            reverse('validation:accept', kwargs={'pk': validation.pk}),
+            {
+                'text': text_publication,
+                'is_major': False,
+                'source': ''
+            },
+            follow=False)
+
+        self.assertEqual(tutorial.public_version.authors.count(), 1)
