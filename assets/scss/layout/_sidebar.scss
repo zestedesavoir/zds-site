@@ -39,10 +39,6 @@
         font-weight: normal;
         margin: 0;
         padding: 0;
-
-        &.not-ready {
-            background: $color-not-ready-content;
-        }
     }
     h3 {
         font-size: 18px;
@@ -345,6 +341,16 @@
                     margin-top: 5px;
                 }
             }
+            
+            &.not-ready {
+                background: $color-not-ready-content;
+            }
+        }
+        
+        li {
+            &.not-ready {
+                background: $color-not-ready-content;
+            }   
         }
 
         ol li.current {
