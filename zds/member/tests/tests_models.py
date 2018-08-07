@@ -1,3 +1,7 @@
+import os
+import shutil
+from pathlib import Path
+
 from datetime import datetime, timedelta
 
 from django.conf import settings
@@ -425,6 +429,14 @@ class MemberModelsTest(TutorialTestMixin, TestCase):
         self.user1.save()
         # the user shound't have the hat through their profile
         self.assertNotIn(hat, self.user1.hats.all())
+
+    def tearDown(self):
+        if os.path.isdir(str(settings.ZDS_APP['content']['repo_private_path'])):
+            shutil.rmtree(str(settings.ZDS_APP['content']['repo_private_path']))
+        if os.path.isdir(str(settings.ZDS_APP['content']['repo_public_path'])):
+            shutil.rmtree(str(settings.ZDS_APP['content']['repo_public_path']))
+        if os.path.isdir(settings.MEDIA_ROOT):
+            shutil.rmtree(settings.MEDIA_ROOT)
 
 
 class TestTokenForgotPassword(TestCase):
