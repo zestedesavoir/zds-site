@@ -1736,7 +1736,6 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
     must_be_author = True
     form_class = AuthorForm
     authorized_for_staff = True
-    already_finished = False
 
     def get(self, request, *args, **kwargs):
         content = self.get_object()
@@ -1777,8 +1776,7 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
                 )
                 UserGallery(gallery=self.object.gallery, user=user, mode=GALLERY_WRITE).save()
         self.object.save()
-        if not self.already_finished:
-            self.success_url = self.object.get_absolute_url()
+        self.success_url = self.object.get_absolute_url()
 
         return super(AddAuthorToContent, self).form_valid(form)
 
@@ -1788,9 +1786,12 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
         return super(AddAuthorToContent, self).form_valid(form)
 
 
-class RemoveAuthorFromContent(AddAuthorToContent):
+class RemoveAuthorFromContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
 
     form_class = RemoveAuthorForm
+    only_draft_version = True
+    must_be_author = True
+    authorized_for_staff = True
 
     @staticmethod
     def remove_author(content, user):
@@ -1854,9 +1855,11 @@ class RemoveAuthorFromContent(AddAuthorToContent):
         else:  # if current user is leaving the content's redaction, redirect him to a more suitable page
             messages.success(self.request, _('Vous avez bien quitté la rédaction de {}.').format(_type))
             self.success_url = reverse('content:find-' + self.object.type.lower(), args=[self.request.user.pk])
-        self.already_finished = True  # this one is kind of tricky : because of inheritance we used to force redirection
-        # to the content itself. This does not please me but I think it is better to do that like that instead of
-        # super(FormView, self).form_valid(form). I find it so hard to understand.
+        return super(RemoveAuthorFromContent, self).form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, _("Les auteurs sélectionnés n'existent pas."))
+        self.success_url = self.object.get_absolute_url()
         return super(RemoveAuthorFromContent, self).form_valid(form)
 
 
