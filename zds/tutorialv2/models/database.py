@@ -217,7 +217,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
             return ''
         else:
             # get the full path (with tutorial/article before it)
-            return os.path.join(settings.ZDS_APP['content']['repo_private_path'], self.slug)
+            return str(settings.ZDS_APP['content']['repo_private_path'] / self.slug)
 
     def ensure_author_gallery(self):
         """
@@ -637,7 +637,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
 
     def get_prod_path(self, relative=False):
         if not relative:
-            return str(Path(settings.ZDS_APP['content']['repo_public_path'], self.content_public_slug).absolute())
+            return str((settings.ZDS_APP['content']['repo_public_path'] / self.content_public_slug).absolute())
         else:
             return ''
 
