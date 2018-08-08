@@ -23,10 +23,10 @@ overridden_zds_app['content']['repo_public_path'] = os.path.join(settings.BASE_D
 
 @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'media-test'))
 @override_settings(ZDS_APP=overridden_zds_app)
-class LastTutorialsFeedRSSTest(TestCase, TutorialTestMixin):
+class LastTutorialsFeedRSSTest(TutorialTestMixin, TestCase):
 
     def setUp(self):
-        settings.overridden_zds_app = overridden_zds_app
+        self.overridden_zds_app = overridden_zds_app
         # don't build PDF to speed up the tests
         overridden_zds_app['content']['build_pdf_when_published'] = False
 
@@ -139,10 +139,10 @@ class LastTutorialsFeedRSSTest(TestCase, TutorialTestMixin):
 
 
 @override_settings(ZDS_APP=overridden_zds_app)
-class LastArticlesFeedRSSTest(TestCase, TutorialTestMixin):
+class LastArticlesFeedRSSTest(TutorialTestMixin, TestCase):
 
     def setUp(self):
-        settings.overridden_zds_app = overridden_zds_app
+        self.overridden_zds_app = overridden_zds_app
         # don't build PDF to speed up the tests
         overridden_zds_app['content']['build_pdf_when_published'] = False
 
