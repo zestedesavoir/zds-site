@@ -58,7 +58,6 @@ cache:
   directories:
     - $HOME/.fonts
     - $HOME/.texlive
-    - $HOME/bin
     - node_modules
 
 
@@ -97,10 +96,12 @@ install:
   - |
     if [[ "$ZDS_TEST_JOB" == *"zds.tutorialv2"* ]]; then
       # install latex
-      mkdir -p $HOME/bin \
-      && ./scripts/install_resources.sh && ./scripts/install_fonts.sh \
+      git clone https://github.com/zestedesavoir/latex-template.git
+      TEMPLATEDIR=$HOME/.texlive/texmf-local/tex/latex/
+      ./latex-template/scripts/install_font.sh \
+      && ./latex-template/scripts/install_texlive.sh \
       && export PATH=$HOME/.texlive/bin/x86_64-linux:$PATH \
-      && export PATH=$PATH:$HOME/bin
+      && mkdir -p $TEMPLATEDIR && cp -r ./latex-template $TEMPLATEDIR && texhash
     fi
 
   - |
