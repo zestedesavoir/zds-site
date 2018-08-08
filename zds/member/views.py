@@ -328,7 +328,7 @@ class UpdateUsernameEmailMember(UpdateMember):
         if new_email and new_email != previous_email:
             profile.user.email = new_email
             # Create an alert for the staff if it's a new provider
-            provider = provider = new_email.split('@')[-1].lower()
+            provider = new_email.split('@')[-1].lower()
             if not NewEmailProvider.objects.filter(provider=provider).exists() \
                     and not User.objects.filter(email__iendswith='@{}'.format(provider)) \
                     .exclude(pk=profile.user.pk).exists():
