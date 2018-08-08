@@ -67,7 +67,7 @@
                 <ol>
                     {% for subchild in child.children %}
                         <li class="{% if current_container.long_slug == subchild.long_slug %}current{% endif %}
-                            {% if not child.ready_to_publish and not child.text %} not-ready{% endif %}"
+                            {% if not subchild.ready_to_publish and not subchild.text %} not-ready{% endif %}"
                         >
                             <a data-num="{{ subchild.position_in_parent }}"
                                 {% if online %}
