@@ -78,8 +78,6 @@ def validate_zds_username(value, check_username_available=True):
     """
     msg = None
     user_count = User.objects.filter(username=value).count()
-    if check_username_available and not user_count:
-        return
     if ',' in value:
         msg = _('Le nom d\'utilisateur ne peut contenir de virgules')
     elif value != value.strip():
