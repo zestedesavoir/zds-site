@@ -69,7 +69,7 @@ class ZdSEmailValidator(EmailValidator):
 validate_zds_email = ZdSEmailValidator()
 
 
-def validate_zds_username(value):
+def validate_zds_username(value, check_username_available=True):
     """
     Check if username is used by another user
 
@@ -78,7 +78,7 @@ def validate_zds_username(value):
     """
     msg = None
     user_count = User.objects.filter(username=value).count()
-    if not user_count:
+    if check_username_available and not user_count:
         return
     if ',' in value:
         msg = _('Le nom d\'utilisateur ne peut contenir de virgules')
@@ -86,7 +86,7 @@ def validate_zds_username(value):
         msg = _('Le nom d\'utilisateur ne peut commencer ou finir par des espaces')
     elif contains_utf8mb4(value):
         msg = _('Le nom d\'utilisateur ne peut pas contenir des caractères utf8mb4')
-    elif user_count > 0:
+    elif check_username_available and user_count > 0:
         msg = _('Ce nom d\'utilisateur est déjà utilisé')
     if msg is not None:
         raise ValidationError(msg)
