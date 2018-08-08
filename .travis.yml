@@ -101,7 +101,8 @@ install:
       ./latex-template/scripts/install_font.sh \
       && ./latex-template/scripts/install_texlive.sh \
       && export PATH=$HOME/.texlive/bin/x86_64-linux:$PATH \
-      && mkdir -p $TEMPLATEDIR && cp -r ./latex-template $TEMPLATEDIR && texhash
+      && rm -rf $TEMPLATEDIR/latex-template \
+      && mkdir -p $TEMPLATEDIR  && cp -r ./latex-template $TEMPLATEDIR && texhash
     fi
 
   - |
