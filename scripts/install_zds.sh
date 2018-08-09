@@ -66,10 +66,10 @@ if  ! $(_in "-virtualenv" $@) && ( $(_in "+virtualenv" $@) || $(_in "+base" $@) 
     fi
 fi
 
-if [[ $VIRTUAL_ENV == "" ]]; then
-    echo "* activating venv"
+if [[ $VIRTUAL_ENV == "" || $(basename $VIRTUAL_ENV) != $ZDS_VENV ]]; then
+    echo "* activating venv \`$ZDS_VENV\`"
 
-    if [ -d $HOME/.nvm ]; then # force nvm activation
+    if [ -d $HOME/.nvm ]; then # force nvm activation, in case of
         _nvm
     fi
 
@@ -97,12 +97,12 @@ if  ! $(_in "-node" $@) && ! $(_in "+node-local" $@) &&( $(_in "+node" $@) || $(
 
         npm -g add yarn
 
-        if [[ $(grep -c -i "nvm use" $ZDS_VENV/bin/activate) == "0" ]]; then # add nvm activation to venv activate's
+        if [[ $(grep -c -i "nvm use" $VIRTUAL_ENV/bin/activate) == "0" ]]; then # add nvm activation to venv activate's
             ACTIVATE_NVM="nvm use  # activate nvm (from install_zds.sh)"
 
-            echo $ACTIVATE_NVM >> $ZDS_VENV/bin/activate
-            echo $ACTIVATE_NVM >> $ZDS_VENV/bin/activate.csh
-            echo $ACTIVATE_NVM >> $ZDS_VENV/bin/activate.fish
+            echo $ACTIVATE_NVM >> $VIRTUAL_ENV/bin/activate
+            echo $ACTIVATE_NVM >> $VIRTUAL_ENV/bin/activate.csh
+            echo $ACTIVATE_NVM >> $VIRTUAL_ENV/bin/activate.fish
         fi
     else
         echo "!! Cannot obtain nvm v${ZDS_NVM_VERSION}"
@@ -127,15 +127,15 @@ if  ! $(_in "-node-local" $@) && $(_in "+node-local" $@) && ! $(_in "+node" $@) 
         mv node-v${ZDS_NODE_VERSION}-linux-x64 node
 
         # symbolic links to node stuffs in venv
-        ln -s $(realpath node/bin/node) ../$ZDS_VENV/bin/
-        ln -s $(realpath node/bin/npm) ../$ZDS_VENV/bin/npm
-        ln -s $(realpath node/bin/npx) ../$ZDS_VENV/bin/npx
-        ln -s $(realpath node/include/node) ../$ZDS_VENV/include/
-        ln -s $(realpath node/lib/node_modules) ../$ZDS_VENV/lib/
-        ln -s $(realpath node/share/systemtap) ../$ZDS_VENV/share/
+        ln -s $(realpath node/bin/node) $VIRTUAL_ENV/bin/
+        ln -s $(realpath node/bin/npm) $VIRTUAL_ENV/bin/npm
+        ln -s $(realpath node/bin/npx) $VIRTUAL_ENV/bin/npx
+        ln -s $(realpath node/include/node) $VIRTUAL_ENV/include/
+        ln -s $(realpath node/lib/node_modules) $VIRTUAL_ENV/lib/
+        ln -s $(realpath node/share/systemtap) $VIRTUAL_ENV/share/
 
         npm -g add yarn
-        ln -s $(realpath ./node/bin/yarn) ../$ZDS_VENV/bin/yarn
+        ln -s $(realpath ./node/bin/yarn) $VIRTUAL_ENV/bin/yarn
     else
         echo "!! Cannot get node v${ZDS_NODE_VERSION}"
         exit 1;
@@ -165,7 +165,7 @@ if  ! $(_in "-elastic-local" $@) && ( $(_in "+elastic-local" $@) || $(_in "+full
         echo "-Xmx512m" >> elasticsearch/config/jvm.options
 
         # symbolic link to elastic start script
-        ln -s $(realpath elasticsearch/bin/elasticsearch) ../$ZDS_VENV/bin/
+        ln -s $(realpath elasticsearch/bin/elasticsearch) $VIRTUAL_ENV/bin/
     else
         echo "!! Cannot get elasticsearch ${ZDS_ELASTIC_VERSION}"
         exit 1;
@@ -215,7 +215,7 @@ if  ! $(_in "-tex-local" $@) && ( $(_in "+tex-local" $@) || $(_in "+full" $@) );
 
                 # Symlink the binaries to bin of venv
                 for i in $BASE_TEXLIVE/bin/x86_64-linux/*; do
-                  ln -sf $i ../../$ZDS_VENV/bin/
+                  ln -sf $i $VIRTUAL_ENV/bin/
                 done
             fi
 
