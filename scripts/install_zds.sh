@@ -44,9 +44,9 @@ if  ! $(_in "-packages" $@) && ( $(_in "+packages" $@) || $(_in "+base" $@) || $
     echo "* [+packages] installing packages (require sudo)"
     version=$(cat /proc/version)
     if [[ "$version" =~ "ubuntu" ]]; then
-        sudo apt-get -y install git python3-dev python3-setuptools libxml2-dev python3-lxml libxslt1-dev libz-dev python3-sqlparse libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev libffi-dev python3-pip build-essential curl realpath
+        sudo apt-get -y install git python3-dev python3-setuptools libxml2-dev python3-lxml libxslt1-dev libz-dev python3-sqlparse libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev libffi-dev python3-pip build-essential curl realpath librsvg2-bin imagemagick xzdec
     elif [[ "$version" =~ "debian" ]]; then
-        sudo apt-get -y install git python3-dev python3-setuptools libxml2-dev python3-lxml libxslt-dev libz-dev python3-sqlparse libjpeg62-turbo libjpeg62-turbo-dev libfreetype6 libfreetype6-dev libffi-dev python3-pip virtualenv build-essential curl
+        sudo apt-get -y install git python3-dev python3-setuptools libxml2-dev python3-lxml libxslt-dev libz-dev python3-sqlparse libjpeg62-turbo libjpeg62-turbo-dev libfreetype6 libfreetype6-dev libffi-dev python3-pip virtualenv build-essential curl librsvg2-bin imagemagick xzdec
     elif [[ "$version" =~ "fedora" ]]; then
         sudo dnf -y install git python3-devel python3-setuptools libxml2-devel python3-lxml libxslt-devel zlib-devel python3-sqlparse libjpeg-turbo-devel libjpeg-turbo-devel freetype freetype-devel libffi-devel python3-pip python-virtualenv gcc redhat-rpm-config
     elif [[ "$version" =~ "arch" ]]; then
@@ -235,8 +235,8 @@ fi
 # install back
 if  ! $(_in "-back" $@) && ( $(_in "+back" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
     echo "* [+back] install back dependencies & migration"
-    pip3 install --upgrade -r requirements-dev.txt
-    make migrate # migration are required for the instance to run properly
+    make install-back
+    make migrate # migration are required for the instance to run properly anyway
 fi
 
 # install front
@@ -246,25 +246,20 @@ if  ! $(_in "-front" $@) && ( $(_in "+front" $@) || $(_in "+base" $@) || $(_in "
         rm -R node_modules
     fi;
 
-    yarn
-    yarn run build
+    make install-front
+    make build-front
 fi
 
 # zmd
 if  ! $(_in "-zmd" $@) && ( $(_in "+zmd" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
     echo "* [+zmd] install zmarkdown dependencies"
-    CURRENT=$(pwd)
-    cd zmd
-    npm -g install pm2
-    npm install zmarkdown --production
-    cd $CURRENT
+    make zmd-install
 fi
 
 # fixtures
 if  ! $(_in "-data" $@) && ( $(_in "+data" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
     echo "* [+data] fixtures"
-    python manage.py loaddata fixtures/*.yaml
-	python manage.py load_factory_data fixtures/advanced/aide_tuto_media.yaml
+    make fixtures
 fi
 
 echo "Done. You can now run instance with \`source $ZDS_VENV/bin/activate\`, and then, \`make zmd-start && make run-back\`"

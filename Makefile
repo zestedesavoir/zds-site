@@ -1,4 +1,4 @@
-.PHONY: fixtures
+.PHONY: fixtures doc
 
 all: help
 
@@ -39,7 +39,7 @@ clean-back:
 	find . -name '*.pyc' -exec rm {} \;
 
 install-back:
-	./scripts/install_zds.sh +back
+	pip3 install --upgrade -r requirements-dev.txt
 
 lint-back:
 	flake8 zds
@@ -64,7 +64,7 @@ run-elastic:
 # zmd
 
 zmd-install:
-	./scripts/install_zds.sh +zmd
+	cd zmd && npm -g install pm2 && npm install zmarkdown --production
 
 zmd-start:
 	cd zmd/node_modules/zmarkdown && npm run server
@@ -86,7 +86,7 @@ clean-front:
 	yarn run clean
 
 install-front:
-	./scripts/install_zds.sh +front
+	yarn
 
 lint-front:
 	yarn run lint
@@ -108,7 +108,8 @@ doc:
 	make html
 
 fixtures:
-	./scripts/install_zds.sh +data
+	python manage.py loaddata fixtures/*.yaml
+	python manage.py load_factory_data fixtures/advanced/aide_tuto_media.yaml
 
 restart_db: wipe migrate fixtures
 	python manage.py load_fixtures --size=low --all

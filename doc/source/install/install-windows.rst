@@ -1,6 +1,6 @@
-====================================
-Installation du backend sous Windows
-====================================
+=========================
+Installation sous Windows
+=========================
 
 -----------
 
@@ -90,7 +90,7 @@ se trouve le virtualenv et son accessibilité par PyCharm. PyCharm vous notifier
 Installation des outils front-end
 =================================
 
-Il vous faut installer les outils du front-end. Pour cela, rendez-vous sur `la documentation dédiée <frontend-install.html>`_.
+Il vous faut installer les outils du front-end. Pour cela, rendez-vous sur `la documentation dédiée <extra-install-frontend.html>`_.
 
 Suite de l'installation
 =======================
@@ -103,7 +103,13 @@ Suite de l'installation
     - ``python manage.py migrate``
     - ``python manage.py runserver``
 
-Pour faire fonctionner ZdS dans son ensemble vous devez installer les outils LateX et Pandoc.
 
-- Téléchargez et installez `MikTex <http://miktex.org/download>`_
-- Téléchargez et installez `Pandoc <https://github.com/jgm/pandoc/releases>`_
+Aller plus loin
+===============
+
+Pour faire fonctionner ZdS dans son ensemble vous devez installer les outils LateX et Elasticsearch:
+
+- `Installez Elasticsearch <extra-install-es.html>`_ ;
+- `Installez LaTeX <extra-install-latex.html>`_.
+
+Vous pouvez également `indiquer à Git de ne pas effectuer de commit s'il y a des erreurs de formatage dans le code <../utils/git-pre-hook.html>`__.
