@@ -2,14 +2,12 @@
 Installation sous Windows
 =========================
 
------------
-
 .. Attention::
 
     Cette partie de la documentation n'est probablement pas à jour faute de contributeur utilisant Windows. Il se peut que l'installation et les tests unitaires fonctionnent correctement, partiellement ou pas du tout. Bref, en cas de problème n'hésitez pas à venir demander de l'aide sur le `forum des Devs' de Zeste de Savoir <https://zestedesavoir.com/forums/communaute/dev-zone/>`_ !
     Notons que le support des SVG est désactivé sur windows.
 
------------
+
 
 
 Pour installer une version locale de ZdS sur Windows, veuillez suivre les instructions suivantes.
@@ -21,13 +19,11 @@ Il est conseillé de lancer à chaque fois PowerShell en administrateur pour les
 
     cd C:\dev\zestedesavoir
 
------------
 
 .. Attention::
 
     Il est fortement recommandé (pour des raisons de compatibilité), que tous les programmes à installer soient en 32 bits ou en 64 bits. Il est conseillé de ne pas mélanger les deux.
 
------------
 
 Prérequis
 =========
