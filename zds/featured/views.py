@@ -254,7 +254,7 @@ class FeaturedRequestedList(ZdSPagingListView):
         type_featured_request = self.request.GET.get('type', None)
         if type_featured_request == 'topic':
             queryset = queryset.filter(type='TOPIC')
-        elif type_featured_request== 'content':
+        elif type_featured_request == 'content':
             queryset = queryset.filter(type='CONTENT')
 
         if type_featured_request == 'ignored':

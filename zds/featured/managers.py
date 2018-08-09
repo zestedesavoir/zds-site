@@ -96,6 +96,7 @@ class FeaturedRequestedManager(models.Manager):
         :return: tuple of the form (user has voted, number of votes)
         :rtype: (bool, int)
         """
+
         if user is None:
             user = get_current_user()
         if user is None:
