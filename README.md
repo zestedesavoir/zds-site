@@ -6,7 +6,7 @@
 
 # [Zeste de Savoir](https://zestedesavoir.com)
 
-Site internet communautaire propulsé par le framework [Django](https://www.djangoproject.com/) 1.10 et [Python](https://www.python.org/) 3.
+Site internet communautaire propulsé par le framework [Django](https://www.djangoproject.com/) 1.11 et [Python](https://www.python.org/) 3.
 
 Jetez donc un coup d’œil à notre [feuille de route](https://github.com/zestedesavoir/zds-site/wiki/Feuille-de-route).
 

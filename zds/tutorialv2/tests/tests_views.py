@@ -50,7 +50,7 @@ overridden_zds_app['content']['extra_content_generation_policy'] = 'SYNC'
 @override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
 @override_settings(ZDS_APP=overridden_zds_app)
 @override_settings(ES_ENABLED=False)
-class ContentTests(TestCase, TutorialTestMixin):
+class ContentTests(TutorialTestMixin, TestCase):
 
     def setUp(self):
         self.overridden_zds_app = overridden_zds_app
@@ -4102,7 +4102,7 @@ class ContentTests(TestCase, TutorialTestMixin):
 @override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
 @override_settings(ZDS_APP=overridden_zds_app)
 @override_settings(ES_ENABLED=False)
-class PublishedContentTests(TestCase, TutorialTestMixin):
+class PublishedContentTests(TutorialTestMixin, TestCase):
     def setUp(self):
         self.overridden_zds_app = overridden_zds_app
         overridden_zds_app['content']['default_licence_pk'] = LicenceFactory().pk

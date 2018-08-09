@@ -41,7 +41,7 @@ overridden_zds_app['content']['build_pdf_when_published'] = False
 @override_settings(ZDS_APP=overridden_zds_app)
 @override_settings(ES_ENABLED=False)
 @override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
-class UtilsTests(TestCase, TutorialTestMixin):
+class UtilsTests(TutorialTestMixin, TestCase):
 
     def setUp(self):
         self.overridden_zds_app = overridden_zds_app
