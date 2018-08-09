@@ -86,6 +86,8 @@ def validate_zds_username(value, check_username_available=True):
         msg = _('Le nom d\'utilisateur ne peut pas contenir des caractères utf8mb4')
     elif check_username_available and user_count > 0:
         msg = _('Ce nom d\'utilisateur est déjà utilisé')
+    elif not check_username_available and user_count == 0:
+        msg = _('Ce nom d\'utilisateur n\'existe pas')
     if msg is not None:
         raise ValidationError(msg)
 
