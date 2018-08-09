@@ -72,6 +72,13 @@ class FeaturedRequested(models.Model):
     objects = FeaturedRequestedManager()
 
     def toggle(self, user):
+        """Toogle featured request for user
+
+        :param user: the user
+        :type user: User
+        :return: tuple of the form (user has voted, number of votes)
+        :rtype: (bool, int)
+        """
         new_value = False
         new_count = self.users_voted.count()
 

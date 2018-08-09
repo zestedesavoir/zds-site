@@ -35,6 +35,12 @@ class FeaturedRequestedManager(models.Manager):
     """
 
     def get_existing(self, content_object):
+        """Get existing object for ``content_object``
+
+        :param content_object: object on which the request is done
+        :type content_object: zds.forum.models.Topic|zds.tutorialv2.models.database.PublishableContent
+        :rtype: zds.featured.models.FeaturedRequested|None
+        """
         content_type = ContentType.objects.get_for_model(content_object)
 
         try:
@@ -47,6 +53,12 @@ class FeaturedRequestedManager(models.Manager):
         return featured_request
 
     def get_or_create(self, content_object):
+        """Get or create object for ``content_object``
+
+        :param content_object: object on which the request is done
+        :type content_object: zds.forum.models.Topic|zds.tutorialv2.models.database.PublishableContent
+        :rtype: zds.featured.models.FeaturedRequested
+        """
         featured_request = self.get_existing(content_object)
         if featured_request is None:
             featured_request = self.model(
@@ -57,6 +69,15 @@ class FeaturedRequestedManager(models.Manager):
         return featured_request
 
     def requested_and_count(self, content_object, user):
+        """Count number of vote on ``content_object``
+
+        :param content_object: object on which the request is done
+        :type content_object: zds.forum.models.Topic|zds.tutorialv2.models.database.PublishableContent
+        :param user: the user
+        :type user: User
+        :return: tuple of the form (user has voted, number of votes)
+        :rtype: (bool, int)
+        """
         featured_request = self.get_existing(content_object)
 
         if featured_request is None:
@@ -66,8 +87,19 @@ class FeaturedRequestedManager(models.Manager):
             return user in users, len(users)
 
     def toogle_request(self, content_object, user=None):
-        if not user:
+        """Toogle featured request for user on ``content_object`
+
+        :param content_object: object on which the request is done
+        :type content_object: zds.forum.models.Topic|zds.tutorialv2.models.database.PublishableContent
+        :param user: the user
+        :type user: User
+        :return: tuple of the form (user has voted, number of votes)
+        :rtype: (bool, int)
+        """
+        if user is None:
             user = get_current_user()
+        if user is None:
+            raise Exception('cannot toggle without connected user')
 
         featured_request = self.get_or_create(content_object)
         return featured_request.toggle(user)
