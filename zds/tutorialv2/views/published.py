@@ -21,7 +21,7 @@ from django.views.generic import RedirectView, FormView, ListView, TemplateView
 from django.db.models import F, Q
 
 from zds.forum.models import Forum
-from zds.featured.mixins import Featureable
+from zds.featured.mixins import FeatureableMixin
 from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin, PermissionRequiredMixin
 from zds.member.views import get_client_ip
 from zds.notification import signals
@@ -56,7 +56,7 @@ class RedirectContentSEO(RedirectView):
         return obj.get_absolute_url_online()
 
 
-class DisplayOnlineContent(Featureable, SingleOnlineContentDetailViewMixin):
+class DisplayOnlineContent(FeatureableMixin, SingleOnlineContentDetailViewMixin):
     """Base class that can show any online content"""
 
     model = PublishedContent
@@ -979,7 +979,7 @@ class FollowContentReaction(LoggedWithReadWriteHability, SingleOnlineContentView
         return redirect(self.get_object().get_absolute_url())
 
 
-class RequestFeaturedContent(LoggedWithReadWriteHability, Featureable, SingleOnlineContentViewMixin, FormView):
+class RequestFeaturedContent(LoggedWithReadWriteHability, FeatureableMixin, SingleOnlineContentViewMixin, FormView):
     redirection_is_needed = False
 
     def post(self, request, *args, **kwargs):
@@ -987,7 +987,7 @@ class RequestFeaturedContent(LoggedWithReadWriteHability, Featureable, SingleOnl
         self.object = self.get_object()
 
         if self.object.type == 'OPINION' or self.object.is_obsolete:
-            raise PermissionDenied('Interdit sur une tribune ou un contenu obsolete')
+            raise PermissionDenied('Interdit sur une tribune ou un contenu obsolète')
 
         response = dict()
         response['requesting'], response['newCount'] = self.toogle_featured_request(request.user)

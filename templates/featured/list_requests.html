@@ -55,7 +55,7 @@
                         {% endif %}
 
                         {% if featured_request.featured %}
-                            {% trans "(accepté)" %}
+                            {% trans "(acceptée)" %}
                         {% endif %}
                     </td>
                     <td>{{ featured_request.num_vote }}</td>
@@ -93,7 +93,7 @@
         <ul>
             <li>
                 <a href="{% url "featured-resource-requests" %}?type=topic" class="ico-after view {% if request.GET.type == "topic" %}selected{% endif %}">
-                    {% trans "Topics proposés" %}
+                    {% trans "Sujets proposés" %}
                 </a>
             </li>
             <li>

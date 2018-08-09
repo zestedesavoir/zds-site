@@ -1,13 +1,13 @@
 {% if show_featured_requested %}
-<form action="{{ link }}" method="post">
-    <input type="hidden" name="request_featured" value="1">
-    {% csrf_token %}
+    <form action="{{ link }}" method="post">
+        <input type="hidden" name="request_featured" value="1">
+        {% csrf_token %}
 
-    <button
+        <button
             class="requesting ico-after star {% if is_requesting %}yellow{% else %}blue{% endif %}"
             type="submit" data-ajax-input="request-featured">
-        <span id="request_text" data-content-on-click="{{ data_onclick }}">{{ button_text }}</span>
-        {% include 'featured/includes/featured_request_count.part.html' with featured_request_count=featured_request_count %}
-    </button>
-</form>
+                <span id="request_text" data-content-on-click="{{ data_onclick }}">{{ button_text }}</span>
+                {% include 'featured/includes/featured_request_count.part.html' with featured_request_count=featured_request_count %}
+        </button>
+    </form>
 {% endif %}

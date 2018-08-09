@@ -40,6 +40,12 @@ class FeaturedResource(models.Model):
         return self.title
 
 
+FEATUREABLE_TYPES = (
+    ('CONTENT', _('Contenu')),
+    ('TOPIC', _('Sujet'))
+)
+
+
 class FeaturedRequested(models.Model):
     """
     This class hold votes for a topic or content to be featured.
@@ -49,16 +55,19 @@ class FeaturedRequested(models.Model):
         verbose_name = _('Mise en avant souhaitée')
         verbose_name_plural = _('Mises en avant souhaitées')
 
-    content_type = models.ForeignKey(ContentType)
-    object_id = models.PositiveIntegerField(db_index=True)
+    content_type = models.ForeignKey(ContentType, verbose_name=_('Type de l\'objet'))
+    object_id = models.PositiveIntegerField(db_index=True, verbose_name=_('Id de l\'objet'))
     content_object = GenericForeignKey('content_type', 'object_id')
 
-    users_voted = models.ManyToManyField(User, verbose_name='Auteurs', db_index=True, blank=True)
+    users_voted = models.ManyToManyField(
+        User, verbose_name=_('Auteur(s)'), db_index=True, blank=True)
 
-    type = models.CharField(max_length=10, choices=(('CONTENT', _('Contenu')), ('TOPIC', _('Topic'))), db_index=True)
+    type = models.CharField(
+        max_length=10, choices=FEATUREABLE_TYPES, verbose_name=_('Type de l\'objet'), db_index=True)
 
-    rejected = models.BooleanField(default=False)
-    featured = models.ForeignKey(FeaturedResource, blank=True, null=True, on_delete=models.SET_NULL)
+    rejected = models.BooleanField(default=False, verbose_name=_('Est rejeté'))
+    featured = models.ForeignKey(
+        FeaturedResource, verbose_name=_('Une'), blank=True, null=True, on_delete=models.SET_NULL)
 
     objects = FeaturedRequestedManager()
 

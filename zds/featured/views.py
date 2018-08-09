@@ -130,11 +130,11 @@ class FeaturedResourceCreate(CreateView):
 
         featured_resource.save()
 
-        if form.cleaned_data['request'] is not None:
+        if form.cleaned_data.get('request') is not None:
             try:
-                request = FeaturedRequested.objects.get(pk=form.cleaned_data['request'])
-                request.featured = featured_resource
-                request.save()
+                featured_request = FeaturedRequested.objects.get(pk=form.cleaned_data['request'])
+                featured_request.featured = featured_resource
+                featured_request.save()
             except FeaturedRequested.DoesNotExist:
                 pass
 
@@ -251,18 +251,18 @@ class FeaturedRequestedList(ZdSPagingListView):
             .annotate(num_vote=Count('users_voted'))\
             .order_by('-num_vote')
 
-        if 'type' in self.request.GET:
-            if self.request.GET['type'] == 'topic':
-                queryset = queryset.filter(type='TOPIC')
-            elif self.request.GET['type'] == 'content':
-                queryset = queryset.filter(type='CONTENT')
+        type_featured_request = self.request.GET.get('type', None)
+        if type_featured_request == 'topic':
+            queryset = queryset.filter(type='TOPIC')
+        elif type_featured_request== 'content':
+            queryset = queryset.filter(type='CONTENT')
 
-        if 'type' in self.request.GET and self.request.GET['type'] == 'ignored':
+        if type_featured_request == 'ignored':
             queryset = queryset.filter(rejected=True)
         else:
             queryset = queryset.filter(rejected=False)
 
-        if 'type' in self.request.GET and self.request.GET['type'] == 'accepted':
+        if type_featured_request == 'accepted':
             queryset = queryset.filter(featured__isnull=False)
         else:
             queryset = queryset.filter(featured__isnull=True)

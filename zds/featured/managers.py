@@ -38,36 +38,36 @@ class FeaturedRequestedManager(models.Manager):
         content_type = ContentType.objects.get_for_model(content_object)
 
         try:
-            request = self.filter(
+            featured_request = self.filter(
                 object_id=content_object.pk,
                 content_type__pk=content_type.pk).prefetch_related('users_voted').last()
         except ObjectDoesNotExist:
-            request = None
+            featured_request = None
 
-        return request
+        return featured_request
 
     def get_or_create(self, content_object):
-        request = self.get_existing(content_object)
-        if request is None:
-            request = self.model(
+        featured_request = self.get_existing(content_object)
+        if featured_request is None:
+            featured_request = self.model(
                 content_object=content_object,
                 type='TOPIC' if isinstance(content_object, Topic) else 'CONTENT')
-            request.save()
+            featured_request.save()
 
-        return request
+        return featured_request
 
     def requested_and_count(self, content_object, user):
-        request = self.get_existing(content_object)
+        featured_request = self.get_existing(content_object)
 
-        if request is None:
+        if featured_request is None:
             return False, 0
         else:
-            users = [u for u in request.users_voted.all()]
+            users = [u for u in featured_request.users_voted.all()]
             return user in users, len(users)
 
     def toogle_request(self, content_object, user=None):
         if not user:
             user = get_current_user()
 
-        request = self.get_or_create(content_object)
-        return request.toggle(user)
+        featured_request = self.get_or_create(content_object)
+        return featured_request.toggle(user)

@@ -1,7 +1,8 @@
 from zds.featured.models import FeaturedRequested
+from django.views.generic.base import ContextMixin, View
 
 
-class Featureable:
+class FeatureableMixin(ContextMixin,View):
     """Mixin for object that may be featured
 
     To be used with ``SingleObjectMixin`` or derived.
