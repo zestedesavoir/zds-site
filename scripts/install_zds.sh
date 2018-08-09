@@ -82,7 +82,7 @@ if [[ $VIRTUAL_ENV == "" || $(basename $VIRTUAL_ENV) != $ZDS_VENV ]]; then
 fi
 
 # nvm node & yarn
-if  ! $(_in "-node" $@) && ! $(_in "+node-local" $@) &&( $(_in "+node" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
+if  ! $(_in "-node" $@) && ( $(_in "+node" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
     echo "* [+node] installing nvm (v$ZDS_NVM_VERSION) & node (v$ZDS_NODE_VERSION) & yarn"
 
     wget -qO- https://raw.githubusercontent.com/creationix/nvm/v${ZDS_NVM_VERSION}/install.sh | bash
@@ -108,39 +108,6 @@ if  ! $(_in "-node" $@) && ! $(_in "+node-local" $@) &&( $(_in "+node" $@) || $(
         echo "!! Cannot obtain nvm v${ZDS_NVM_VERSION}"
         exit 1
     fi
-fi
-
-# local node & yarn
-if  ! $(_in "-node-local" $@) && $(_in "+node-local" $@) && ! $(_in "+node" $@) ; then
-    echo "* [+node-local] installing a local version of node (v$ZDS_NODE_VERSION) & yarn"
-    mkdir -p .local
-    cd .local
-
-    if [ -d node ]; then # remove previous install
-        rm -R node
-    fi
-
-    wget -q https://nodejs.org/dist/v${ZDS_NODE_VERSION}/node-v${ZDS_NODE_VERSION}-linux-x64.tar.xz
-    if [[ $? == 0 ]]; then
-        tar -xJf node-v${ZDS_NODE_VERSION}-linux-x64.tar.xz
-        rm node-v${ZDS_NODE_VERSION}-linux-x64.tar.xz
-        mv node-v${ZDS_NODE_VERSION}-linux-x64 node
-
-        # symbolic links to node stuffs in venv
-        ln -s $(realpath node/bin/node) $VIRTUAL_ENV/bin/
-        ln -s $(realpath node/bin/npm) $VIRTUAL_ENV/bin/npm
-        ln -s $(realpath node/bin/npx) $VIRTUAL_ENV/bin/npx
-        ln -s $(realpath node/include/node) $VIRTUAL_ENV/include/
-        ln -s $(realpath node/lib/node_modules) $VIRTUAL_ENV/lib/
-        ln -s $(realpath node/share/systemtap) $VIRTUAL_ENV/share/
-
-        npm -g add yarn
-        ln -s $(realpath ./node/bin/yarn) $VIRTUAL_ENV/bin/yarn
-    else
-        echo "!! Cannot get node v${ZDS_NODE_VERSION}"
-        exit 1;
-    fi;
-    cd ..
 fi
 
 # local elasticsearch
@@ -234,7 +201,7 @@ if  ! $(_in "-tex-local" $@) && ( $(_in "+tex-local" $@) || $(_in "+full" $@) );
     cd $CURRENT
 fi
 
-# latex-template
+# latex-template in TEXMFHOME.
 if  ! $(_in "-latex-template" $@) && ( $(_in "+latex-template" $@) || $(_in "+full" $@) ); then
     echo "* [+latex-template] install latex-template (from $ZDS_LATEX_REPO)"
 
