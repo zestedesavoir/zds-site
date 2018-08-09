@@ -44,7 +44,7 @@ if  ! $(_in "-packages" $@) && ( $(_in "+packages" $@) || $(_in "+base" $@) || $
     echo "* [+packages] installing packages (require sudo)"
     version=$(cat /proc/version)
     if [[ "$version" =~ "ubuntu" ]]; then
-        sudo apt-get -y install git python3-dev python3-setuptools libxml2-dev python3-lxml libxslt1-dev libz-dev python3-sqlparse libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev libffi-dev python3-pip build-essential curl
+        sudo apt-get -y install git python3-dev python3-setuptools libxml2-dev python3-lxml libxslt1-dev libz-dev python3-sqlparse libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev libffi-dev python3-pip build-essential curl realpath
     elif [[ "$version" =~ "debian" ]]; then
         sudo apt-get -y install git python3-dev python3-setuptools libxml2-dev python3-lxml libxslt-dev libz-dev python3-sqlparse libjpeg62-turbo libjpeg62-turbo-dev libfreetype6 libfreetype6-dev libffi-dev python3-pip virtualenv build-essential curl
     elif [[ "$version" =~ "fedora" ]]; then
@@ -144,8 +144,8 @@ if  ! $(_in "-node-local" $@) && $(_in "+node-local" $@) && ! $(_in "+node" $@) 
 fi
 
 # local elasticsearch
-if  ! $(_in "-elastic" $@) && ( $(_in "+elastic" $@) || $(_in "+full" $@) ); then
-    echo "* [+elastic] installing a local version of elasticsearch (v$ZDS_ELASTIC_VERSION)"
+if  ! $(_in "-elastic-local" $@) && ( $(_in "+elastic-local" $@) || $(_in "+full" $@) ); then
+    echo "* [+elastic-local] installing a local version of elasticsearch (v$ZDS_ELASTIC_VERSION)"
     mkdir -p .local
     cd .local
 
@@ -174,29 +174,30 @@ if  ! $(_in "-elastic" $@) && ( $(_in "+elastic" $@) || $(_in "+full" $@) ); the
 fi
 
 # local texlive
-if  ! $(_in "-tex" $@) && ( $(_in "+tex" $@) || $(_in "+full" $@) ); then
-    echo "* [+tex] install template & texlive"
+if  ! $(_in "-tex-local" $@) && ( $(_in "+tex-local" $@) || $(_in "+full" $@) ); then
+    echo "* [+tex-local] install texlive"
 
     CURRENT=$(pwd)
     mkdir -p .local
     cd .local
     LOCAL=$CURRENT/.local
 
-    if [ -d texlive ]; then # remove previous install
-        rm -Rf texlive
-    fi
-
     # clone
     BASE_TEXLIVE=$LOCAL/texlive
-    BASE_REPO=$BASE_TEXLIVE/texmf-local/tex/latex
+    BASE_REPO=$BASE_TEXLIVE
+    REPO=$BASE_REPO/latex-template
+
     mkdir -p $BASE_REPO
     cd $BASE_REPO
 
+    if [ -d $REPO ]; then # remove previous version of the template
+        rm -Rf $REPO
+    fi
+
     git clone $ZDS_LATEX_REPO
-     if [[ $? == 0 ]]; then
+    if [[ $? == 0 ]]; then
         # copy scripts
         cd $BASE_TEXLIVE
-        REPO=$BASE_REPO/latex-template
         cp $REPO/scripts/texlive.profile $REPO/scripts/packages $REPO/scripts/install_font.sh .
 
         # install fonts
@@ -208,26 +209,58 @@ if  ! $(_in "-tex" $@) && ( $(_in "+tex" $@) || $(_in "+full" $@) ); then
 
         wget -q -O install-tl.tar.gz http://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz
         if [[ $? == 0 ]]; then
-            tar xzf install-tl.tar.gz
-            ./install-tl*/install-tl -profile texlive.profile
+            if [[ ! -f ./bin/x86_64-linux/tlmgr ]]; then # install texlive
+                tar xzf install-tl.tar.gz
+                ./install-tl*/install-tl -profile texlive.profile
+
+                # Symlink the binaries to bin of venv
+                for i in $BASE_TEXLIVE/bin/x86_64-linux/*; do
+                  ln -sf $i ../../$ZDS_VENV/bin/
+                done
+            fi
 
             ./bin/x86_64-linux/tlmgr install $(cat packages)  # extra packages
             ./bin/x86_64-linux/tlmgr update --self
-
-            # Symlink the binaries to bin of venv
-            for i in $BASE_TEXLIVE/bin/x86_64-linux/*; do
-              ln -sf $i ../../$ZDS_VENV/bin/
-            done
-
-            texhash  # register template
+            rm -Rf $REPO
         else
             echo "!! Cannot download texlive"
             exit 1
         fi
-     else
+    else
         echo "!! cannot clone repository $ZDS_LATEX_REPO"
         exit 1
-     fi
+    fi
+
+    cd $CURRENT
+fi
+
+# latex-template
+if  ! $(_in "-latex-template" $@) && ( $(_in "+latex-template" $@) || $(_in "+full" $@) ); then
+    echo "* [+latex-template] install latex-template (from $ZDS_LATEX_REPO)"
+
+    CURRENT=$(pwd)
+
+    if [[ $(which kpsewhich) == "" ]]; then # no texlive ?
+        echo "!! Cannot find kpsewhich, do you have texlive?"
+        exit 1;
+    fi
+
+    # clone
+    BASE_REPO=$(kpsewhich -var-value TEXMFHOME)/tex/latex
+    REPO=$BASE_REPO/latex-template
+
+    if [ -d $REPO ]; then # remove previous version of the template
+        rm -Rf $REPO
+    fi
+
+    mkdir -p $BASE_REPO
+    cd $BASE_REPO
+
+    git clone $ZDS_LATEX_REPO
+    if [[ $? != 0 ]]; then
+        echo "!! cannot clone repository $ZDS_LATEX_REPO"
+        exit 1
+    fi
 
     cd $CURRENT
 fi

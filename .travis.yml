@@ -56,7 +56,7 @@ cache:
   pip: true
   yarn: true
   directories:
-    - $HOME/.fonts
+    - $HOME/.local/share/fonts
     - $HOME/.texlive
     - node_modules
 
