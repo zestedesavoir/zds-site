@@ -72,7 +72,6 @@ validate_zds_email = ZdSEmailValidator()
 def validate_zds_username(value, check_username_available=True):
     """
     Check if username is used by another user
-
     :param value: value to validate (str or None)
     :return:
     """

@@ -1147,6 +1147,32 @@ class MemberTests(TestCase):
         result = self.client.get(reverse('member-modify-karma'), follow=False)
         self.assertEqual(result.status_code, 405)
 
+    def test_pseudo_case_change(self):
+        tester = ProfileFactory()
+        old_pseudo = tester.user.username
+        self.client.login(username=tester.user.username, password='hostel77')
+
+        data = {
+            'username': 'Dummy',
+            'email': tester.user.email
+        }
+        result = self.client.post(reverse('update-username-email-member'), data, follow=False)
+
+        self.assertEqual(tester.user.username, 'Dummy')
+
+    def test_pseudo_change(self):
+        tester = ProfileFactory()
+        old_pseudo = tester.user.username
+        self.client.login(username=tester.user.username, password='hostel77')
+
+        data = {
+            'username': 'dummy-two',
+            'email': tester.user.email
+        }
+        result = self.client.post(reverse('update-username-email-member'), data, follow=False)
+
+        self.assertEqual(tester.user.username, 'dummy-two')
+
     def test_karma_and_pseudo_change(self):
         """
         To test that a karma note is added when a member change its pseudo
