@@ -305,20 +305,21 @@ class ProfileForm(MiniProfileForm):
         self.helper.layout = layout
 
 
-class GitHubTokenForm(forms.Form):
+class GitHubTokenForm(forms.ModelForm):
     """
     Updates the GitHub token.
     """
-    github_token = forms.CharField(
-        label='Token GitHub',
-        required=True,
-        widget=forms.TextInput(
-            attrs={
-                'placeholder': _('Token qui permet de communiquer avec la plateforme GitHub.'),
-                'autocomplete': 'off'
-            }
-        )
-    )
+    class Meta:
+        model = Profile
+        fields = ('github_token',)
+        widgets = {
+            'github_token': forms.TextInput(
+                attrs={
+                    'placeholder': _('Token qui permet de communiquer avec la plateforme GitHub.'),
+                    'autocomplete': 'off'
+                }
+            )
+        }
 
     def __init__(self, *args, **kwargs):
         super(GitHubTokenForm, self).__init__(*args, **kwargs)
