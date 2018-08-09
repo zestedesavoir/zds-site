@@ -8,7 +8,7 @@ Les contributions externes sont les bienvenues !
     * Décrivez clairement votre problème, avec toutes les étapes pour le reproduire.
 3. **Attribuez-vous** votre _ticket_. C'est important pour éviter de se marcher dessus. Si vous n'êtes pas dans l'organisation et donc que vous ne pouvez pas vous attribuer directement le _ticket_, ajoutez simplement un commentaire clair dans celui-ci (tel que _"Je prends"_).
 4. _Forkez_ le dépôt.
-5. Installez l'environnement. Les liens vers la documentation adéquate sont dans le [README.md](README.md).
+5. Installez l'environnement, [comme décrit ici](http://docs.zestedesavoir.com/install.html).
 
 # Contribuer à Zeste De Savoir
 
@@ -24,7 +24,7 @@ Les contributions externes sont les bienvenues !
 
 # Quelques bonnes pratiques
 
-* Respectez [les conventions de code de Django](https://docs.djangoproject.com/en/1.10/internals/contributing/writing-code/coding-style/), ce qui inclut la [PEP 8 de Python](http://legacy.python.org/dev/peps/pep-0008/).
+* Respectez [les conventions de code de Django](https://docs.djangoproject.com/en/1.11/internals/contributing/writing-code/coding-style/), ce qui inclut la [PEP 8 de Python](http://legacy.python.org/dev/peps/pep-0008/).
 * Le code et les commentaires sont en anglais.
 * Le _workflow_ Git utilisé est le [Git flow](http://nvie.com/posts/a-successful-git-branching-model/). En détail :
     * Les arrivées fonctionnalités et corrections de gros bugs hors release se font via des PR.
