@@ -22,6 +22,30 @@ En contribuant, vous vous engagez à respecter le [Code de Conduite Contributeur
 
 La procédure d'installation [est détaillée ici](http://docs.zestedesavoir.com/install.html).
 
+### Données de test
+
+Pour bénéficier de données de test, exécutez la commande suivante:
+
+```console
+make fixtures
+```
+
+Si vous êtes sur Windows, préférez ceci :
+
+```console
+python .\manage.py loaddata (dir .\fixtures\*.yaml)
+python .\manage.py load_factory_data .\fixtures\advanced\aide_tuto_media.yaml
+```
+
+Cela va créer plusieurs entitées [détaillées ici](https://docs.zestedesavoir.com/utils/fixture_loaders.html#les-donnees-serialisables-pour-une-base-fonctionnelle).
+Différents utilisateurs vont être créés, parmis lesquels:
+
+* user/user : Utilisateur normal ;
+* ïtrema/ïtrema : Utilisateur de test supplémentaire sans droits ;
+* admin/admin : Utilisateur avec les droits d’un staff et d’un admin ;
+* dev/dev : Utilisateur dans le groupe des développeurs ;
+* decal/decal : le compte qui possède un identifiant ``Profile`` différent de l’identifiant ``user`` pour permettre de tester des cas ou ces id sont différents (voir [#2711](https://github.com/zestedesavoir/zds-site/issues/2711)).
+
 ### La documentation complète
 
 [Voir la documentation en ligne](http://docs.zestedesavoir.com/).
