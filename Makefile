@@ -64,7 +64,7 @@ run-elastic:
 # zmd
 
 zmd-install:
-	cd zmd && npm -g install pm2 && npm install zmarkdown --production
+	cd zmd && npm -g install pm2 && npm install --production
 
 zmd-start:
 	cd zmd/node_modules/zmarkdown && npm run server

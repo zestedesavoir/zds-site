@@ -133,7 +133,8 @@ Strictement équivalent à la commande suivantes:
 
     make install-zmd
 
-Si vous ne souhaitez pas utiliser ce composant, il vous faut tout de même installer zmarkdown manuellement. Pour cela, rendez-vous sur `la documentation dédiée <extra-install-frontend.html#installation-de-zmarkdown>`_.
+Si vous ne souhaitez pas utiliser ce composant, il vous faut tout de même installer zmarkdown manuellement.
+Pour cela, rendez-vous sur `la documentation dédiée <extra-zmd.html>`_.
 
 Composant ``data``
 ==================

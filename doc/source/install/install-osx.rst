@@ -75,21 +75,34 @@ Quitter un virtualenv :
 Installation des des dépendances front et back
 ==============================================
 
+On installe `les outils du front-end <extra-install-frontend.html>`_, `zmarkdown <extra-zmd.html>`_ puis les packages python:
+
 .. sourcecode:: bash
 
   make install-front
   make build-front
+  make zmd-install
   make install-back
 
 Lancer ZdS
 ==========
 
-Une fois dans votre environnement python et toutes les dépendances installées, lançons ZdS :
+Une fois dans votre environnement python et toutes les dépendances installées, lançons ZdS.
+On crée d'abord la base de donnée, puis le `jeu de données utile au dévellopement <../utils/fixture_loaders.html>`_:
 
 .. sourcecode:: bash
 
     make migrate
+    make fixtures
+
+On peut finalement lancer zmarkdown, puis ZdS:
+
+.. sourcecode:: bash
+
+    make zmd-run
     make run-back
+
+
 
 Aller plus loin
 ===============
