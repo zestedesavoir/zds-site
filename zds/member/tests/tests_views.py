@@ -1156,7 +1156,7 @@ class MemberTests(TestCase):
             'username': 'Dummy',
             'email': tester.user.email
         }
-        result = self.client.post(reverse('update-username-email-member'), data, follow=False)
+        self.client.post(reverse('update-username-email-member'), data, follow=False)
 
         self.assertEqual(tester.user.username, 'Dummy')
 
@@ -1169,7 +1169,7 @@ class MemberTests(TestCase):
             'username': 'dummy-two',
             'email': tester.user.email
         }
-        result = self.client.post(reverse('update-username-email-member'), data, follow=False)
+        self.client.post(reverse('update-username-email-member'), data, follow=False)
 
         self.assertEqual(tester.user.username, 'dummy-two')
 
