@@ -1,10 +1,9 @@
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
-
 from django.contrib.contenttypes.fields import GenericForeignKey
-from zds.featured.managers import FeaturedResourceManager, FeaturedMessageManager, FeaturedRequestedManager
+from django.utils.translation import ugettext_lazy as _
 
+from zds.featured.managers import FeaturedResourceManager, FeaturedMessageManager, FeaturedRequestedManager
 from zds.member.models import User
 
 
@@ -40,10 +39,12 @@ class FeaturedResource(models.Model):
         return self.title
 
 
-FEATUREABLE_TYPES = (
-    ('CONTENT', _('Contenu')),
-    ('TOPIC', _('Sujet'))
-)
+FEATUREABLES = {
+    'content': {'name': 'CONTENT', 'verbose_name': _('Contenu')},
+    'topic': {'name': 'TOPIC', 'verbose_name': _('Sujet')},
+}
+
+FEATUREABLE_TYPE_CHOICES = [(a['name'], a['verbose_name']) for a in FEATUREABLES.values()]
 
 
 class FeaturedRequested(models.Model):
@@ -63,7 +64,7 @@ class FeaturedRequested(models.Model):
         User, verbose_name=_('Auteur(s)'), db_index=True, blank=True)
 
     type = models.CharField(
-        max_length=10, choices=FEATUREABLE_TYPES, verbose_name=_('Type de l\'objet'), db_index=True)
+        max_length=10, choices=FEATUREABLE_TYPE_CHOICES, verbose_name=_('Type de l\'objet'), db_index=True)
 
     rejected = models.BooleanField(default=False, verbose_name=_('Est rejeté'))
     featured = models.ForeignKey(

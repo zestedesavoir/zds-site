@@ -4,10 +4,10 @@ from copy import deepcopy
 from datetime import datetime, date
 from django.core.urlresolvers import reverse
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.utils.translation import ugettext as _
-from django.contrib.contenttypes.models import ContentType
 
 from zds.member.factories import StaffProfileFactory, ProfileFactory
 from zds.featured.factories import FeaturedResourceFactory
@@ -44,7 +44,7 @@ class FeaturedResourceListViewTest(TestCase):
     def test_failure_list_of_featured_with_unauthenticated_user(self):
         response = self.client.get(reverse('featured-resource-list'))
 
-        self.assertEqual(302, response.status_code)
+        self.assertEqual(403, response.status_code)
 
     def test_failure_list_of_featured_with_user_not_staff(self):
         profile = ProfileFactory()
@@ -114,7 +114,7 @@ class FeaturedResourceCreateViewTest(TestCase):
     def test_failure_create_featured_with_unauthenticated_user(self):
         response = self.client.get(reverse('featured-resource-create'))
 
-        self.assertEqual(302, response.status_code)
+        self.assertEqual(403, response.status_code)
 
     def test_failure_create_featured_with_user_not_staff(self):
         profile = ProfileFactory()
@@ -182,7 +182,7 @@ class FeaturedResourceCreateViewTest(TestCase):
         )
         self.assertTrue(login_check)
         response = self.client.get('{}{}'.format(reverse('featured-resource-create'),
-                                                 '?content_type=published_content&content_id={}'.format(tutorial.id)))
+                                                 '?content_type=published_content&content_id={}'.format(tutorial.pk)))
         initial_dict = response.context['form'].initial
         self.assertEqual(initial_dict['title'], tutorial.title)
         self.assertEqual(initial_dict['authors'], '{}, {}'.format(author, author2))
@@ -282,7 +282,7 @@ class FeaturedResourceUpdateViewTest(TestCase):
     def test_failure_create_featured_with_unauthenticated_user(self):
         response = self.client.get(reverse('featured-resource-update', args=[42]))
 
-        self.assertEqual(302, response.status_code)
+        self.assertEqual(403, response.status_code)
 
     def test_failure_create_featured_with_user_not_staff(self):
         profile = ProfileFactory()
@@ -320,7 +320,7 @@ class FeaturedResourceDeleteViewTest(TestCase):
         news = FeaturedResourceFactory()
         response = self.client.get(reverse('featured-resource-delete', args=[news.pk]))
 
-        self.assertEqual(302, response.status_code)
+        self.assertEqual(403, response.status_code)
 
     def test_failure_delete_featured_with_user_not_staff(self):
         profile = ProfileFactory()
@@ -363,7 +363,7 @@ class FeaturedResourceListDeleteViewTest(TestCase):
     def test_failure_list_delete_featured_with_unauthenticated_user(self):
         response = self.client.get(reverse('featured-resource-list-delete'))
 
-        self.assertEqual(302, response.status_code)
+        self.assertEqual(403, response.status_code)
 
     def test_failure_list_delete_featured_with_user_not_staff(self):
         profile = ProfileFactory()
@@ -455,7 +455,7 @@ class FeaturedRequestListViewTest(TestCase):
     def test_failure_list_with_unauthenticated_user(self):
         response = self.client.get(reverse('featured-resource-requests'))
 
-        self.assertEqual(302, response.status_code)
+        self.assertEqual(403, response.status_code)
 
     def test_failure_list_with_user_not_staff(self):
         profile = ProfileFactory()

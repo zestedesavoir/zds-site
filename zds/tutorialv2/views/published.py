@@ -987,7 +987,7 @@ class RequestFeaturedContent(LoggedWithReadWriteHability, FeatureableMixin, Sing
         self.object = self.get_object()
 
         if self.object.type == 'OPINION' or self.object.is_obsolete:
-            raise PermissionDenied('Interdit sur une tribune ou un contenu obsolète')
+            raise PermissionDenied('Not allowed on obsolete content or opinion')
 
         response = dict()
         response['requesting'], response['newCount'] = self.toogle_featured_request(request.user)

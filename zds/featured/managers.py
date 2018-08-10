@@ -6,7 +6,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 
 from zds.forum.models import Topic
-
 from zds.utils import get_current_user
 
 
@@ -28,6 +27,10 @@ class FeaturedMessageManager(models.Manager):
 
     def get_last_message(self):
         return self.last()
+
+
+class FeaturedRequestedException(Exception):
+    pass
 
 
 class FeaturedRequestedManager(models.Manager):
@@ -83,7 +86,7 @@ class FeaturedRequestedManager(models.Manager):
         if featured_request is None:
             return False, 0
         else:
-            users = [u for u in featured_request.users_voted.all()]
+            users = list(u for u in featured_request.users_voted.all())
             return user in users, len(users)
 
     def toogle_request(self, content_object, user=None):
@@ -100,7 +103,7 @@ class FeaturedRequestedManager(models.Manager):
         if user is None:
             user = get_current_user()
         if user is None:
-            raise Exception('cannot toggle without connected user')
+            raise FeaturedRequestedException('cannot toggle without connected user')
 
         featured_request = self.get_or_create(content_object)
         return featured_request.toggle(user)
