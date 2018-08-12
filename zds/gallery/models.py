@@ -1,3 +1,4 @@
+import datetime
 import os
 from uuid import uuid4
 from shutil import rmtree
@@ -184,7 +185,25 @@ class Gallery(models.Model):
         :return: all the linked users for this gallery
         :rtype: QuerySet
         """
-        return UserGallery.objects.filter(gallery=self).all()
+        return UserGallery.objects.filter(gallery=self).prefetch_related('user').all()
+
+    def get_users_and_permissions(self):
+        """Get all the linked users for this gallery, and their rights
+
+        :return: all the linked users for this gallery, with their permissions
+        :rtype: dict
+        """
+
+        participants = {}
+
+        for user_gallery in self.get_linked_users():
+            permissions = {'read': True, 'write': False}
+            if user_gallery.mode == GALLERY_WRITE:
+                permissions['write'] = True
+
+            participants[user_gallery.user.pk] = permissions
+
+        return participants
 
     def get_images(self):
         """Get all images in the gallery, ordered by publication date.
@@ -201,6 +220,10 @@ class Gallery(models.Model):
         :rtype: Image object
         """
         return Image.objects.filter(gallery=self).last()
+
+    def save(self, *args, **kwargs):
+        self.update = datetime.datetime.now()
+        super().save(*args, **kwargs)
 
 
 @receiver(models.signals.post_delete, sender=Gallery)

@@ -47,7 +47,7 @@
                 </li>
             {% endfor %}
 
-            {% if gallery_mode.can_write %}
+            {% if permissions.write %}
                 <li>
                     <a href="#add-user-modal" class="open-modal ico-after more blue">{% trans "Ajouter un utilisateur" %}</a>
                     {% crispy form %}
@@ -56,12 +56,12 @@
         </ul>
     </div>
 
-    {% if gallery.get_images %}
-        {% if gallery_mode.can_write %}
+    {% if images %}
+        {% if permissions.write %}
             <!-- Delete images -->
             <a class="btn btn-cancel open-modal" href="#form-delete-images">{% trans "Supprimer la sélection" %}</a>
             <!-- Confirmation modal -->
-            <form id="form-delete-images" name="form" method="post" action="{% url "gallery-image-delete" %}" class="modal modal-flex">
+            <form id="form-delete-images" name="form" method="post" action="{% url "gallery-image-delete" gallery.pk %}" class="modal modal-flex">
                 <input type="hidden" name="gallery" value="{{ gallery.pk }}">
                 {% csrf_token %}
                 <p>{% trans "Attention, vous vous appretez à supprimer toutes les images sélectionnées." %}</p>
@@ -100,7 +100,7 @@
             {% trans "Aucune image." %}
             <br>
 
-            {% if gallery_mode.can_write %}
+            {% if permissions.write %}
                 {% url "gallery-image-new" gallery.pk as new_img_url %}
                 {% url "gallery-image-import" gallery.pk as import_archive %}
                 {% blocktrans %}
@@ -113,10 +113,3 @@
     {% include "misc/paginator.html" with position="bottom" %}
 {% endblock %}
 
-{% block new_btn %}
-    {% if gallery_mode.can_write %}
-        <a href="{% url "gallery-edit" gallery.pk gallery.slug %}" class="new-btn ico-after edit blue">
-            {% trans "Éditer la galerie" %}
-        </a>
-    {% endif %}
-{% endblock %}
