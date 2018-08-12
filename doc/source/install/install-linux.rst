@@ -69,7 +69,7 @@ Installe les packages nécessaire à l'utilisation et au dévellopement de Zeste
 La liste des packages vous est donnée ci-dessous (pour Debian), si vous utilisez une distribution différente, le nom des paquets à installer devrait être fort semblable, n'hésitez dès lors pas à employer la fonction "recherche" de votre gestionnaire de paquet préféré.
 
 - python3 et dérivés : ``python3-dev python3-setuptools python3-pip`` ;
-- realpath : ``realpath`` (mais peut également se trouver dans le package ``coreutils``) ;
+- realpath : ``realpath`` (se trouve dans le package ``coreutils`` sous Ubuntu 18.04) ;
 - gcc et make (pour compilation et utilisation du  ``Makefile``): ``apt-get install build-essential`` ;
 - Pour ``lxml``: ``libxml2-dev`` ;
 - ``libxlst-dev`` (peut être appelée ``libxlst1-dev`` sur certains OS comme Ubuntu) ;
