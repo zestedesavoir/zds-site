@@ -68,13 +68,14 @@ Installe les packages nécessaire à l'utilisation et au dévellopement de Zeste
 
 La liste des packages vous est donnée ci-dessous (pour Debian), si vous utilisez une distribution différente, le nom des paquets à installer devrait être fort semblable, n'hésitez dès lors pas à employer la fonction "recherche" de votre gestionnaire de paquet préféré.
 
-- python3 et dérivés : ``python3-dev python3-setuptools python3-pip``
-- gcc et make (pour compilation et utilisation du  ``Makefile``): ``apt-get install build-essential``
-- Pour ``lxml``: ``libxml2-dev``
-- ``libxlst-dev`` (peut être appelée ``libxlst1-dev`` sur certains OS comme Ubuntu)
-- ``libz-dev`` (peut être ``libz1g-dev`` sur système 64bits)
-- libffi : ``apt-get install libffi-dev``
-- Dépendances de `Pillow <https://pillow.readthedocs.io/en/3.1.x/index.html>`_ : ``libjpeg62-turbo libjpeg62-turbo-dev libfreetype6 libfreetype6-dev`` (peut être appelée ``libjpeg8`` et ``libjpeg8-dev``).
+- python3 et dérivés : ``python3-dev python3-setuptools python3-pip`` ;
+- realpath : ``realpath`` (mais peut également se trouver dans le package ``coreutils``) ;
+- gcc et make (pour compilation et utilisation du  ``Makefile``): ``apt-get install build-essential`` ;
+- Pour ``lxml``: ``libxml2-dev`` ;
+- ``libxlst-dev`` (peut être appelée ``libxlst1-dev`` sur certains OS comme Ubuntu) ;
+- ``libz-dev`` (peut être ``libz1g-dev`` sur système 64bits) ;
+- libffi : ``apt-get install libffi-dev`` ;
+- Dépendances de `Pillow <https://pillow.readthedocs.io/en/3.1.x/index.html>`_ : ``libjpeg62-turbo libjpeg62-turbo-dev libfreetype6 libfreetype6-dev`` (peut être appelée ``libjpeg8`` et ``libjpeg8-dev``) ;
 - Dépendances de la *template* LaTeX: ``xzdec``, ``librsvg2-bin`` et ``imagemagick``.
 
 Composant ``virtualenv``

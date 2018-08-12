@@ -44,11 +44,16 @@ if  ! $(_in "-packages" $@) && ( $(_in "+packages" $@) || $(_in "+base" $@) || $
     echo "* [+packages] installing packages (require sudo)"
     version=$(cat /proc/version)
     if [[ "$version" =~ "ubuntu" ]]; then
-        sudo apt-get -y install git python3-dev python3-setuptools libxml2-dev python3-lxml libxslt1-dev libz-dev python3-sqlparse libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev libffi-dev python3-pip build-essential curl realpath librsvg2-bin imagemagick xzdec
+		REALPATH="realpath"
+		release=$(lsb_release -c)
+		if [[ "$release" =~ "bionic" ]]; then
+			REALPATH="coreutils"
+		fi
+        sudo apt-get -y install git python-virtualenv python3-dev python3-setuptools libxml2-dev python3-lxml libxslt1-dev zlib1g-dev python3-sqlparse libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev libffi-dev python3-pip build-essential curl $REALPATH librsvg2-bin imagemagick xzdec
     elif [[ "$version" =~ "debian" ]]; then
-        sudo apt-get -y install git python3-dev python3-setuptools libxml2-dev python3-lxml libxslt-dev libz-dev python3-sqlparse libjpeg62-turbo libjpeg62-turbo-dev libfreetype6 libfreetype6-dev libffi-dev python3-pip virtualenv build-essential curl librsvg2-bin imagemagick xzdec
+        sudo apt-get -y install git python-virtualenv python3-dev python3-setuptools libxml2-dev python3-lxml libxslt-dev libz-dev python3-sqlparse libjpeg62-turbo libjpeg62-turbo-dev libfreetype6 libfreetype6-dev libffi-dev python3-pip virtualenv build-essential curl librsvg2-bin imagemagick xzdec
     elif [[ "$version" =~ "fedora" ]]; then
-        sudo dnf -y install git python3-devel python3-setuptools libxml2-devel python3-lxml libxslt-devel zlib-devel python3-sqlparse libjpeg-turbo-devel libjpeg-turbo-devel freetype freetype-devel libffi-devel python3-pip python-virtualenv gcc redhat-rpm-config
+        sudo dnf -y install git python3-devel python3-virtualenv python3-setuptools libxml2-devel python3-lxml libxslt-devel zlib-devel python3-sqlparse libjpeg-turbo-devel libjpeg-turbo-devel freetype freetype-devel libffi-devel python3-pip python-virtualenv gcc redhat-rpm-config
     elif [[ "$version" =~ "arch" ]]; then
         sudo pacman -Sy git wget python python-setuptools python-pip python-virtualenv libxml2 python-lxml libxslt zlib python-sqlparse libffi libjpeg-turbo freetype2 base-devel unzip
     else
