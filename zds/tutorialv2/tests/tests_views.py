@@ -3971,22 +3971,43 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         # try to delete gallery
         result = self.client.post(
-            reverse('gallery-modify'),
+            reverse('galleries-delete'),
             {
-                'delete_multi': '',
-                'g_items': [gallery.pk]
+                'delete': '',
+                'gallery': gallery.pk
             },
             follow=True
         )
 
+        self.assertEqual(result.status_code, 403)
         self.assertEqual(1, Gallery.objects.filter(pk=self.tuto.gallery.pk).count())  # gallery not deleted
 
-        # check that we get an error
-        msgs = result.context['messages']
-        last = None
-        for msg in msgs:
-            last = msg
-        self.assertEqual(last.level, messages.ERROR)
+        # try to add to gallery
+        result = self.client.post(
+            reverse('gallery-members', kwargs={'pk': gallery.pk}),
+            {
+                'action': 'add',
+                'user': self.user_staff.username,
+                'mode': 'R'
+            },
+            follow=True
+        )
+
+        self.assertEqual(result.status_code, 403)
+        self.assertEqual(1, UserGallery.objects.filter(pk=self.tuto.gallery.pk).count())  # user not added
+
+        # try to leave gallery
+        result = self.client.post(
+            reverse('gallery-members', kwargs={'pk': gallery.pk}),
+            {
+                'action': 'leave',
+                'user': self.user_author.username,
+            },
+            follow=True
+        )
+
+        self.assertEqual(result.status_code, 403)
+        self.assertEqual(1, UserGallery.objects.filter(pk=self.tuto.gallery.pk).count())  # user not deleted
 
     def test_delete_with_multiple_authors(self):
         """ensure that if more than one author, the user is just removed from list and the content is not deleted"""
