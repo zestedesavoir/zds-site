@@ -1,0 +1,363 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# This script must be compatible with Python 2 and Python 3.
+#
+# Ce script doit être compatible avec Python 2 et Python 3. Étant
+# conçu pour lancer docker-compose et étant exécuté en dehors de
+# Docker, on ne peut pas être certain de la version de Python
+# disponible, vu que docker-compose est aussi compatible avec Python 2
+# et Python 3.
+
+import argparse
+import glob
+import os
+import subprocess
+import sys
+
+
+# Quick and dirty global variable. Mutated only once.
+cli_args = None
+
+# Another quick and dirty global variable. Contains the names of the
+# services started by the process of this script (we don't care about
+# already running services).
+#
+# This list is used when a KeyboardInterrupt is received in order to
+# stop and remove freshly started services.
+freshly_started_services = []
+
+
+def compose(args, env=None):
+    """
+    Runs docker-compose with some additional args and environment
+    variables. Waits until the docker-compose process exits.
+
+    Returns the exit status code of the spawned process.
+    """
+    if env is None:
+        env = {}
+    merged_env = os.environ.copy()
+    merged_env.update(env)
+
+    project_name = cli_args.project_name
+    if project_name:
+        args = ['--project-name', project_name] + args
+
+    final_args = ['docker-compose'] + args
+    # Print the command like `sh +x` does. It could be helpful.
+    print('+ ' + ' '.join(final_args))
+
+    p = subprocess.Popen(
+        final_args,
+        env=merged_env,
+    )
+    return p.wait()
+
+
+def run(service, args):
+    global freshly_started_services
+    freshly_started_services += [service]
+    return compose(['run', '--rm', '--no-deps', service] + args)
+
+
+def test_back():
+    cmd = [
+        './scripts/docker_start_xvfb.sh',
+        'python',
+        'manage.py',
+        'test',
+        '--settings', 'zds.settings.docker_test',
+    ] + cli_args.ARG
+
+    return run('back', cmd)
+
+
+def test_front():
+    cmd = [
+        'yarn',
+        'test',
+        '--'
+    ] + cli_args.ARG
+
+    return run('front', cmd)
+
+
+def fixture():
+    if not len(cli_args.FILE):
+        files = glob.glob('fixtures/*.yaml')
+    else:
+        files = cli_args.FILE
+
+    cmd = [
+        'python',
+        'manage.py',
+        'loaddata',
+    ] + files
+
+    return compose(['exec', 'back'] + cmd)
+
+
+def up():
+    global freshly_started_services
+
+    services = [
+        'front',
+        'back',
+    ]
+
+    if cli_args.allow_host:
+        allowed_hosts = ','.join(cli_args.allow_host)
+    else:
+        allowed_hosts = ''
+
+    if cli_args.es:
+        elasticsearch = 'enabled'
+        services += ['elasticsearch']
+    else:
+        elasticsearch = ''
+
+    freshly_started_services += services
+
+    return compose(
+        ['up', '--build', '--no-deps'] + services,
+        {
+            # Use str() to convert from unicode
+            'ZDS_PORT': str(cli_args.port),
+            'ZDS_ADDRESS': str(cli_args.address),
+            'ZDS_ALLOWED_HOSTS': str(allowed_hosts),
+            'ZDS_ELASTICSEARCH': str(elasticsearch),
+        },
+    )
+
+
+def down():
+    return compose(['down'])
+
+
+def rm_freshly_started_services():
+    if len(freshly_started_services):
+        return compose(['rm', '-f', '--stop'] + freshly_started_services)
+    return 0
+
+
+def wipe():
+    return run('back', ['rm', 'db/base.db'])
+
+
+def lint_front():
+    return run('front', ['yarn', 'run', 'lint', '--'] + cli_args.ARG)
+
+
+def lint_back():
+    return run('back', ['make', 'lint-back'])
+
+
+def lint():
+    status_code = lint_back()
+    if status_code:
+        return status_code
+    return lint_front()
+
+
+def es():
+    cmd = [
+        'python',
+        'manage.py',
+        'es_manager',
+    ] + cli_args.ARG
+
+    env = {
+        'ZDS_ELASTICSEARCH': 'enabled',
+    }
+
+    return compose(['exec', 'back'] + cmd, env)
+
+
+parser = argparse.ArgumentParser(
+    description='''
+    Utilitaire pour utiliser facilement ZdS avec docker-compose.
+    ''',
+    usage='%(prog)s [options] COMMAND [ARGS...]',
+)
+parser.add_argument(
+    '-p', '--project-name',
+    action='store',
+    help='Spécifie un nom de projet alternatif (nom de dossier par défaut)',
+)
+subparsers = parser.add_subparsers()
+
+
+# Python doesn't support block scoping. Let's create functions.
+
+def create_test_parser():
+    parser = subparsers.add_parser(
+        'test',
+        description='Lance les tests.',
+    )
+
+    test_subparsers = parser.add_subparsers()
+
+    def create_back_parser():
+        back_parser = test_subparsers.add_parser(
+            'back',
+            description='Lance les tests du backend.',
+        )
+        back_parser.add_argument(
+            'ARG',
+            nargs='*',
+            help='Arguments à passer au framework de test sous-jacent.'
+        )
+        back_parser.set_defaults(func=test_back)
+
+    def create_front_parser():
+        front_parser = test_subparsers.add_parser(
+            'front',
+            description='Lance les tests du frontend.',
+        )
+        front_parser.add_argument(
+            'ARG',
+            nargs='*',
+            help='Arguments à passer au framework de test sous-jacent.'
+        )
+        front_parser.set_defaults(func=test_front)
+
+    create_back_parser()
+    create_front_parser()
+
+
+def create_up_parser():
+    parser = subparsers.add_parser(
+        'up',
+        description='Démarre ZdS.',
+    )
+    parser.add_argument(
+        '--es', '--elastic', '--elasticsearch',
+        action='store_true',
+        help='Lancer Elasticsearch (attention, prévoyez un bon Gio ' +
+        'de mémoire vive)',
+    )
+    parser.add_argument(
+        '-a', '--address',
+        action='store',
+        help='L’adresse sur laquelle ZdS sera accessible',
+        default="127.0.0.1",
+    )
+    parser.add_argument(
+        '-p', '--port',
+        action='store',
+        help='Le port sur lequel ZdS sera accessible',
+        default=8000,
+    )
+    parser.add_argument(
+        '--allow-host',
+        metavar='HOSTNAME',
+        action='append',
+        help='Rajoute un hôte à la liste ALLOWED_HOSTS dans la ' +
+        'configuration de Django',
+    )
+    parser.set_defaults(func=up)
+
+
+def create_down_parser():
+    parser = subparsers.add_parser(
+        'down',
+        description='''
+        Arrête ZdS. Normalement, vous n’avez pas trop à vous servir de
+        cette commande sauf pour nettoyer des conteneurs arrêtés.
+        ''',
+    )
+    parser.set_defaults(func=down)
+
+
+def create_fixture_parser():
+    parser = subparsers.add_parser(
+        'fixture',
+        description='Applique des fixtures.',
+    )
+    parser.add_argument(
+        'FILE',
+        nargs='*',
+        help='''
+        Noms de fichier des fixtures (par exemple : fixtures/users.yaml).
+        Par défault, toutes les fixtures sont appliquées.
+        À utiliser pendant que le backend tourne.
+        ''',
+    )
+    parser.set_defaults(func=fixture)
+
+
+def create_wipe_parser():
+    parser = subparsers.add_parser(
+        'wipe',
+        description='Supprime la base de données.',
+    )
+    parser.set_defaults(func=wipe)
+
+
+def create_lint_parser():
+    parser = subparsers.add_parser(
+        'lint',
+        description='Vérifie que vous avez pondu du code sw4g.',
+    )
+
+    lint_subparsers = parser.add_subparsers(dest='lint_cmd')
+
+    def create_front_parser():
+        front_parser = lint_subparsers.add_parser(
+            'front',
+            description='Lint le frontend.',
+        )
+        front_parser.add_argument(
+            'ARG',
+            nargs='*',
+            help='Arguments à passer au linter sous-jacent.'
+        )
+        front_parser.set_defaults(func=lint_front)
+
+    def create_all_parser():
+        all_parser = lint_subparsers.add_parser(
+            'all',
+            description='Lint le frontend et le backend.',
+        )
+        all_parser.set_defaults(func=lint)
+
+    create_front_parser()
+    create_all_parser()
+
+
+def create_es_parser():
+    parser = subparsers.add_parser(
+        'es',
+        description='Lancer des commandes de `manage.py es_manager` ' +
+        '(pour Elasticsearch). À utiliser pendant que le backend et ' +
+        'Elasticsearch tournent.',
+    )
+    parser.add_argument(
+        'ARG',
+        nargs='*',
+        help='Arguments à passer à `manage.py es_manager` ' +
+        '(typiquement `setup`, `clear`, index_flagged` ou `index_all`)',
+    )
+    parser.set_defaults(func=es)
+
+
+create_test_parser()
+create_up_parser()
+create_down_parser()
+create_fixture_parser()
+create_wipe_parser()
+create_lint_parser()
+create_es_parser()
+
+cli_args = parser.parse_args()
+
+try:
+    status_code = cli_args.func()
+except KeyboardInterrupt:
+    try:
+        status_code = rm_freshly_started_services()
+    except KeyboardInterrupt:
+        status_code = 1
+
+sys.exit(status_code or 0)
