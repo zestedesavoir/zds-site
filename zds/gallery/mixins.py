@@ -80,22 +80,19 @@ class GalleryUpdateOrDeleteMixin(GalleryMixin):
         self.gallery.delete()
 
     def perform_leave(self, user):
-        """Remove user. If that user was the last with write permissions, delete gallery"""
+        """Remove user. If that user was the last, delete gallery
+        Return True if the gallery was deleted, False otherwise
+        """
         if user.pk in self.users_and_permissions:
             user_gallery = UserGallery.objects.filter(user=user, gallery=self.gallery).get()
             user_gallery.delete()
             del self.users_and_permissions[user.pk]
 
-        still_user_can_write = False
-        for user_and_perm in self.users_and_permissions.values():
-            if user_and_perm['write']:
-                still_user_can_write = True
-                break
-
-        if not still_user_can_write:
+        if len(self.users_and_permissions) == 0:
             self.perform_delete()
+            return True
 
-        return not still_user_can_write
+        return False
 
 
 class ImageMixin(GalleryMixin):

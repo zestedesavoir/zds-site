@@ -238,8 +238,11 @@ class EditGalleryMembers(LoggedWithReadWriteHability, GalleryUpdateOrDeleteMixin
         can_write = form.cleaned_data['mode'] == GALLERY_WRITE
         has_deleted = False
 
-        current_user_leave = action == 'leave' and user.pk == self.request.user.pk
-        if not self.has_access_to_gallery(self.request.user, not current_user_leave):
+        modify_self = user.pk == self.request.user.pk
+
+        if modify_self and action != 'leave':
+            raise PermissionDenied()
+        elif not self.has_access_to_gallery(self.request.user, not modify_self):
             raise PermissionDenied()
 
         if action == 'add':
@@ -257,12 +260,12 @@ class EditGalleryMembers(LoggedWithReadWriteHability, GalleryUpdateOrDeleteMixin
                 has_deleted = self.perform_leave(user)
                 if has_deleted:
                     messages.info(self.request, _('La galerie a été supprimée par manque d\'utilisateur'))
-                elif current_user_leave:
+                elif modify_self:
                     messages.info(self.request, _('Vous avez bien quitté la galerie'))
             else:
                 messages.error(self.request, _('Impossible de supprimer un utilisateur non ajouté'))
 
-        if not has_deleted and not current_user_leave:
+        if not has_deleted and not modify_self:
             self.success_url = self.gallery.get_absolute_url()
         else:
             self.success_url = reverse('gallery-list')

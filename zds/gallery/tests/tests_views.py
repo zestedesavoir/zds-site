@@ -379,6 +379,24 @@ class ModifyGalleryViewTest(TestCase):
         self.assertEqual(1, len(permissions))
         self.assertEqual('R', permissions[0].mode)
 
+    def test_fail_user_modify_self(self):
+        login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
+        self.assertTrue(login_check)
+
+        response = self.client.post(
+            reverse('gallery-members', kwargs={'pk': self.gallery1.pk}),
+            {
+                'action': 'edit',
+                'user': self.profile1.user.username,
+                'mode': 'R',
+            },
+            follow=True
+        )
+        self.assertEqual(403, response.status_code)
+        permissions = UserGallery.objects.filter(user=self.profile1.user, gallery=self.gallery1)
+        self.assertEqual(1, len(permissions))
+        self.assertEqual('W', permissions[0].mode)
+
     def test_success_user_leave_gallery(self):
         login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
         self.assertTrue(login_check)
