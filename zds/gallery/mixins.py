@@ -228,7 +228,7 @@ class ImageCreateMixin(ImageMixin):
         for i in zfile.namelist():
             info = zfile.getinfo(i)
 
-            if info.is_dir():
+            if info.filename[-1] == '/':  # is_dir() in python 3.6
                 continue
 
             basename = os.path.basename(i)
