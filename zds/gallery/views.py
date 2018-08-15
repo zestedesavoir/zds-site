@@ -1,30 +1,20 @@
-import tempfile
-from datetime import datetime
-import time
-import zipfile
-import shutil
-import os
-
-from PIL import Image as ImagePIL
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponseRedirect
-from django.views.generic import CreateView, UpdateView, DeleteView, FormView, View
+from django.views.generic import DeleteView, FormView, View
 from django.shortcuts import redirect, get_object_or_404
-from django.core.files import File
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from zds.gallery.forms import ArchiveImageForm, ImageForm, UpdateImageForm, \
     GalleryForm, UpdateGalleryForm, UserGalleryForm, ImageAsAvatarForm
 from zds.gallery.models import UserGallery, Image, Gallery, GALLERY_WRITE
-from zds.gallery.mixins import GalleryCreateMixin, GalleryMixin, GalleryUpdateOrDeleteMixin, ImageMixin,\
-    NoMoreUserWithWriteIfLeave
+from zds.gallery.mixins import GalleryCreateMixin, GalleryMixin, GalleryUpdateOrDeleteMixin,\
+    NoMoreUserWithWriteIfLeave, ImageUpdateOrDeleteMixin, ImageTooLarge, ImageCreateMixin
 from zds.member.decorator import LoggedWithReadWriteHability
-from zds.utils import slugify
 from zds.utils.paginator import ZdSPagingListView
 from zds.tutorialv2.models.database import PublishableContent
 
@@ -159,39 +149,38 @@ class DeleteGalleries(LoggedWithReadWriteHability, GalleryUpdateOrDeleteMixin, V
 
     def post(self, request, *args, **kwargs):
         if 'g_items' in request.POST:
-            list_items = request.POST.getlist('g_items')
+            list_galleries = request.POST.getlist('g_items')
 
-            # Don't delete gallery when it's link to a content
-            free_galleries = []
-            for g_pk in list_items:
+            contents = PublishableContent.objects\
+                .filter(gallery__pk__in=list_galleries)\
+                .prefetch_related('gallery')\
+                .all()
 
-                # check if the gallery is not linked to a content
-                v2_content = PublishableContent.objects.filter(gallery__pk=g_pk).first()
-                has_v2_content = v2_content is not None
-                if has_v2_content:
-                    gallery = Gallery.objects.get(pk=g_pk)
+            # Don't delete gallery when it's linked to a content
+            if len(contents) > 0:
+                wrong_galleries = []
+                for content in contents:
+                    gallery = content.gallery
 
                     _type = _('au tutoriel')
-                    if v2_content.is_article:
+                    if content.is_article:
                         _type = _('à l\'article')
-                    elif v2_content.is_opinion:
+                    elif content.is_opinion:
                         _type = _('à la tribune')
 
-                    error_message = _('La galerie « {} » ne peut pas être supprimée car elle est liée {} « {} ».') \
-                        .format(gallery.title, _type, v2_content.title)
-                    messages.error(request, error_message)
+                    wrong_galleries.append(
+                        _('la galerie "{}" est liée {} "{}"').format(gallery.title, _type, content.title))
+
+                messages.error(request, _('Impossible de supprimer: {}').format(', '.join(wrong_galleries)))
+            else:
+                # Check that the user has the RW right on each gallery
+                queryset = UserGallery.objects.filter(gallery__pk__in=list_galleries)
+                if queryset.filter(user=request.user, mode='W').count() < len(list_galleries):
+                    messages.error(request, _('Vous n\'avez pas le droit d\'écriture sur certaine de ces galeries'))
                 else:
-                    free_galleries.append(g_pk)
-
-            # Check that the user has the RW right on each gallery
-            perms = UserGallery.objects.filter(gallery__pk__in=free_galleries, user=request.user, mode='W').count()
-            if perms < len(free_galleries):
-                raise PermissionDenied
-
-            # Delete all
-            UserGallery.objects.filter(gallery__pk__in=free_galleries).delete()
-            Gallery.objects.filter(pk__in=free_galleries).delete()
-            messages.success(request, _('Tout a été supprimé !'))
+                    queryset.delete()
+                    Gallery.objects.filter(pk__in=list_galleries).delete()
+                    messages.success(request, _('Tout a été supprimé !'))
 
         elif 'delete' in request.POST:
             try:
@@ -311,7 +300,7 @@ class ImageFromGalleryContextViewMixin(ImageFromGalleryViewMixin):
         return context
 
 
-class NewImage(ImageFromGalleryContextViewMixin, LoggedWithReadWriteHability, CreateView):
+class NewImage(ImageFromGalleryContextViewMixin, ImageCreateMixin, LoggedWithReadWriteHability, FormView):
     """Creates a new image."""
 
     form_class = ImageForm
@@ -320,77 +309,80 @@ class NewImage(ImageFromGalleryContextViewMixin, LoggedWithReadWriteHability, Cr
 
     def form_valid(self, form):
 
-        context = self.get_context_data(**self.kwargs)
+        self.perform_create(
+            form.cleaned_data.get('title'),
+            self.request.FILES.get('physical'),
+            form.cleaned_data.get('title'))
 
-        img = Image()
-        img.gallery = context['gallery']
-        img.title = form.cleaned_data['title']
+        self.success_url = reverse(
+            'gallery-image-edit',
+            kwargs={'pk_gallery': self.gallery.pk, 'pk': self.image.pk})
 
-        if form.cleaned_data['legend'] and form.cleaned_data['legend'] != '':
-            img.legend = form.cleaned_data['legend']
-        else:
-            img.legend = img.title
-
-        img.physical = self.request.FILES['physical']
-        img.pubdate = datetime.now()
-        img.save()
-
-        return redirect(reverse('gallery-image-edit', args=[img.gallery.pk, img.pk]))
+        return super().form_valid(form)
 
 
-class EditImage(ImageFromGalleryContextViewMixin, ImageMixin, LoggedWithReadWriteHability, UpdateView):
+class EditImage(ImageFromGalleryContextViewMixin, ImageUpdateOrDeleteMixin, LoggedWithReadWriteHability, FormView):
     """Edit or view an existing image."""
 
-    model = Image
     form_class = UpdateImageForm
     template_name = 'gallery/image/edit.html'
 
-    def get_object(self, queryset=None):
+    def get(self, request, *args, **kwargs):
         try:
-            return self.get_image(self.kwargs.get('pk'))
+            self.get_image(self.kwargs.get('pk'))
         except Image.DoesNotExist:
-            raise Http404()
+            raise Http404
+
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(EditImage, self).get_context_data(**kwargs)
 
         context['as_avatar_form'] = ImageAsAvatarForm()
+        context['image'] = self.image
         return context
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs.update({'instance': self.image})
+        return kwargs
 
     def form_valid(self, form):
         if not self.has_access_to_gallery(self.request.user, True):
             raise PermissionDenied()
 
-        img = self.object
+        try:
+            self.get_image(self.kwargs.get('pk'))
+        except Image.DoesNotExist:
+            raise Http404
 
-        if img.gallery != self.gallery:
-            raise PermissionDenied
-
-        can_change = True
+        data = {}
 
         if 'physical' in self.request.FILES:  # the user request to change the image
-            if self.request.FILES['physical'].size > settings.ZDS_APP['gallery']['image_max_size']:
-                messages.error(
-                    self.request,
-                    _('Votre image est beaucoup trop lourde, réduisez sa taille à moins de {:.0f} '
-                      '<abbr title="kibioctet">Kio</abbr> avant de l\'envoyer.').format(
-                        settings.ZDS_APP['gallery']['image_max_size'] / 1024))
+            data['physical'] = self.request.FILES.get('physical')
 
-                can_change = False
-            else:
-                img.physical = self.request.FILES['physical']
-                img.slug = slugify(self.request.FILES['physical'])
+        data['title'] = form.cleaned_data.get('title')
+        data['legend'] = form.cleaned_data.get('legend')
 
-        if can_change:
-            img.title = form.cleaned_data['title']
-            img.legend = form.cleaned_data['legend']
-            img.update = datetime.now()
-            img.save()
+        try:
+            self.perform_update(data)
+        except ImageTooLarge as e:
+            messages.error(
+                self.request,
+                _('Votre image est beaucoup trop lourde ({} Kio), réduisez sa taille à moins de {:.0f} '
+                  '<abbr title="kibioctet">Kio</abbr> avant de l\'envoyer.').format(
+                    e.size / 1024,
+                    settings.ZDS_APP['gallery']['image_max_size'] / 1024)
+            )
 
-        return redirect(reverse('gallery-image-edit', args=[img.gallery.pk, img.pk]))
+        self.success_url = reverse(
+            'gallery-image-edit',
+            kwargs={'pk_gallery': self.gallery.pk, 'pk': self.image.pk})
+
+        return super().form_valid(form)
 
 
-class DeleteImages(ImageFromGalleryViewMixin, ImageMixin, LoggedWithReadWriteHability, DeleteView):
+class DeleteImages(ImageFromGalleryViewMixin, ImageUpdateOrDeleteMixin, LoggedWithReadWriteHability, DeleteView):
     """Delete a given image"""
 
     model = Image
@@ -404,77 +396,31 @@ class DeleteImages(ImageFromGalleryViewMixin, ImageMixin, LoggedWithReadWriteHab
             Image.objects.filter(pk__in=list_items, gallery=self.gallery).delete()
         elif 'delete' in request.POST:
             try:
-                self.get_image(self.request.POST.get('image')).delete()
+                self.get_image(self.request.POST.get('image'))
+                self.perform_delete()
             except Image.DoesNotExist:
                 raise Http404()
 
         return redirect(self.gallery.get_absolute_url())
 
 
-class ImportImages(ImageFromGalleryContextViewMixin, LoggedWithReadWriteHability, FormView):
+class ImportImages(ImageFromGalleryContextViewMixin, ImageCreateMixin, LoggedWithReadWriteHability, FormView):
     """Create images from zip archive."""
 
     form_class = ArchiveImageForm
-    http_method_names = ['get', 'post', 'put']
     template_name = 'gallery/image/import.html'
     must_write = True  # only allowed user can import new images
 
     def form_valid(self, form):
         archive = self.request.FILES['file']
-        temp = os.path.join(tempfile.gettempdir(), str(time.time()))
 
-        if not os.path.exists(temp):
-            os.makedirs(temp)
-        zfile = zipfile.ZipFile(archive, 'a')
+        error_files = self.perform_create_multi(archive)
 
-        for i in zfile.namelist():
-            filename = os.path.split(i)[1]
-
-            ph_temp = os.path.abspath(os.path.join(temp, os.path.basename(i)))
-
-            if not filename.strip():  # don't deal with directory
-                continue
-
-            # create file for image
-            f_im = open(ph_temp, 'wb')
-            f_im.write(zfile.read(i))
-            f_im.close()
-            (title, ext) = os.path.splitext(os.path.basename(i))
-
-            # if size is too large, don't save
-            if os.stat(ph_temp).st_size > settings.ZDS_APP['gallery']['image_max_size']:
-                messages.error(
-                    self.request, _('Votre image "{}" est beaucoup trop lourde, réduisez sa taille à moins de {:.0f}'
-                                    "Kio avant de l'envoyer.").format(
-                                        title, settings.ZDS_APP['gallery']['image_max_size'] / 1024))
-                continue
-
-            # if it's not an image, pass
-            try:
-                ImagePIL.open(ph_temp)
-            except OSError:
-                continue
-
-            # create picture in database:
-            f_im = File(open(ph_temp, 'rb'))
-            f_im.name = title + ext
-
-            pic = Image()
-            pic.gallery = self.gallery
-            pic.title = title
-            pic.legend = ''
-            pic.pubdate = datetime.now()
-            pic.physical = f_im
-            pic.save()
-            f_im.close()
-
-            if os.path.exists(ph_temp):
-                os.remove(ph_temp)
-
-        zfile.close()
-
-        if os.path.exists(temp):
-            shutil.rmtree(temp)
+        if len(error_files) > 0:
+            messages.error(
+                self.request,
+                _('Les fichiers suivants n\'ont pas été importés: "{}"').format('", "'.join(error_files))
+            )
 
         self.success_url = self.gallery.get_absolute_url()
         return super().form_valid(form)

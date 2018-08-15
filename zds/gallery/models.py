@@ -130,6 +130,10 @@ class Image(models.Model):
         """
         return os.path.splitext(self.physical.name)[1][1:]
 
+    def save(self, *args, **kwargs):
+        self.update = datetime.datetime.now()
+        super().save(*args, **kwargs)
+
 
 @receiver(models.signals.post_delete, sender=Image)
 def auto_delete_file_on_delete(sender, instance, **kwargs):

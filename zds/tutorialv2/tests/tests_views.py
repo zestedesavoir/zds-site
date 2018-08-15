@@ -3994,7 +3994,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         )
 
         self.assertEqual(result.status_code, 403)
-        self.assertEqual(1, UserGallery.objects.filter(pk=self.tuto.gallery.pk).count())  # user not added
+        self.assertEqual(1, UserGallery.objects.filter(gallery=self.tuto.gallery).count())  # user not added
 
         # try to leave gallery
         result = self.client.post(
@@ -4007,7 +4007,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         )
 
         self.assertEqual(result.status_code, 403)
-        self.assertEqual(1, UserGallery.objects.filter(pk=self.tuto.gallery.pk).count())  # user not deleted
+        self.assertEqual(1, UserGallery.objects.filter(gallery=self.tuto.gallery).count())  # user not deleted
 
     def test_delete_with_multiple_authors(self):
         """ensure that if more than one author, the user is just removed from list and the content is not deleted"""

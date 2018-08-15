@@ -181,7 +181,7 @@ class ModifyGalleryViewTest(TestCase):
             },
             follow=True
         )
-        self.assertEqual(403, response.status_code)
+        self.assertEqual(200, response.status_code)
 
         self.assertEqual(2, Gallery.objects.all().count())
         self.assertEqual(3, UserGallery.objects.all().count())
@@ -888,7 +888,6 @@ class NewImageViewTest(TestCase):
         response = self.client.post(
             reverse('gallery-image-delete', kwargs={'pk_gallery': self.gallery.pk}),
             {
-                'gallery': self.gallery.pk,
                 'delete': '',
                 'image': img.pk
             },
