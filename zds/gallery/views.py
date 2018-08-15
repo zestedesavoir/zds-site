@@ -24,30 +24,24 @@ class ListGallery(LoginRequiredMixin, ZdSPagingListView):
 
     object = UserGallery
     template_name = 'gallery/gallery/list.html'
-    context_object_name = 'user_galleries'
+    context_object_name = 'galleries'
     paginate_by = settings.ZDS_APP['gallery']['gallery_per_page']
 
     def get_queryset(self):
-        return UserGallery.objects.filter(user=self.request.user).prefetch_related('gallery').all()
+        return Gallery.objects.galleries_of_user(self.request.user).order_by('pk')
 
     def get_context_data(self, **kwargs):
         context = super(ListGallery, self).get_context_data(**kwargs)
 
         # fetch content linked to galleries:
-        pk_list = [g.gallery.pk for g in context['user_galleries']]
-        contents_linked = {}
-        contents = PublishableContent.objects.prefetch_related('gallery').filter(gallery__pk__in=pk_list).all()
+        linked_contents = {}
+        pk_list = [g.linked_content for g in self.object_list if g.linked_content is not None]
+        contents = PublishableContent.objects.filter(pk__in=pk_list).all()
 
         for content in contents:
-            contents_linked[content.gallery.pk] = content
+            linked_contents[content.pk] = content
 
-        # link galleries to contents
-        galleries = []
-        for g in context['user_galleries']:
-            content = None if g.gallery.pk not in contents_linked else contents_linked[g.gallery.pk]
-            galleries.append((g, g.gallery, content))
-
-        context['galleries'] = galleries
+        context['linked_contents'] = linked_contents
 
         return context
 

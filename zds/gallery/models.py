@@ -13,7 +13,7 @@ from django.db import models
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 
-from zds.gallery.managers import UserGalleryManager
+from zds.gallery.managers import GalleryManager
 
 # Models settings
 GALLERY_WRITE = 'W'
@@ -52,8 +52,6 @@ class UserGallery(models.Model):
     user = models.ForeignKey(User, verbose_name=_('Membre'), db_index=True)
     gallery = models.ForeignKey('Gallery', verbose_name=_('Galerie'), db_index=True)
     mode = models.CharField(max_length=1, choices=MODE_CHOICES, default=GALLERY_READ)
-
-    objects = UserGalleryManager()
 
     def __str__(self):
         """Human-readable representation of the UserGallery model.
@@ -159,6 +157,13 @@ class Gallery(models.Model):
     pubdate = models.DateTimeField(_('Date de création'), auto_now_add=True, db_index=True)
     update = models.DateTimeField(_('Date de modification'), null=True, blank=True)
 
+    objects = GalleryManager()
+
+    # extra useful variables
+    user_mode = None
+    linked_content = None
+    image_count = 0
+
     def __str__(self):
         """Human-readable representation of the Gallery model.
 
@@ -224,6 +229,26 @@ class Gallery(models.Model):
         :rtype: Image object
         """
         return Image.objects.filter(gallery=self).last()
+
+    @staticmethod
+    def has_read_permission(request):
+        return request.user.is_authenticated()
+
+    def has_object_read_permission(self, request):
+        if self.user_mode is not None:
+            return True
+        else:
+            return UserGallery.objects.filter(gallery=self, user=request.user).count() == 1
+
+    @staticmethod
+    def has_write_permission(request):
+        return request.user.is_authenticated()
+
+    def has_object_write_permission(self, request):
+        if self.user_mode is not None:
+            return self.user_mode == 'W'
+        else:
+            return UserGallery.objects.filter(gallery=self, user=request.user, mode='W').count() == 1
 
     def save(self, *args, **kwargs):
         self.update = datetime.datetime.now()

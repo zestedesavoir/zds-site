@@ -1,6 +1,7 @@
 {% extends "gallery/base.html" %}
 {% load i18n %}
-
+{% load pluralize_fr %}
+{% load get_item %}
 
 {% block title %}
     {% trans "Liste des galeries" %}
@@ -22,13 +23,13 @@
 
 {% block content %}
     <div class="topic-list topic-list-small navigable-list">
-        {% for user_gallery,gallery,content in galleries %}
+        {% for gallery in galleries %}
             <div class="topic navigable-elem">
                 <div class="topic-infos">
                     <input
                         name="g_items"
                         type="checkbox"
-                        {% if not user_gallery.can_write %}
+                        {% if not gallery.user_mode == 'W' %}
                             disabled="true"
                         {% endif %}
                         value="{{ gallery.pk }}"
@@ -46,31 +47,31 @@
                     </a>
                 </div>
                 <p class="topic-answers">
-                    {% with img_count=gallery.get_images.count %}
-                        {% if img_count == 0 %}
+                    {% with img_count=gallery.image_count %}
+                        {% if img_count == 0 or img_count is None %}
                             {% trans "Aucune image" %}
-                        {% elif img_count == 1 %}
-                            {% trans "1 image" %}
                         {% else %}
-                            {{ img_count }} {% trans "images" %}
+                            {{ img_count }} {% trans "image" %}{{ img_count|pluralize_fr }}
                         {% endif %}
                     {% endwith %}
                 </p>
 
-                {% if content %}
-                    <p class="topic-last-answer">
-                        {% trans "Liée" %}
-                        {% if content.is_article %}
-                            {% trans "à l’article" %}
-                        {% elif content.is_tutorial %}
-                            {% trans "au tutoriel" %}
-                        {% elif content.is_opinion %}
-                            {% trans "au billet" %}
-                        {% else %}
-                            {% trans "au contenu" %}
-                        {% endif %}
-                        «&NonBreakingSpace;<a href="{{ content.get_absolute_url }}">{{ content.title }}</a>&NonBreakingSpace;».
-                    </p>
+                {% if gallery.linked_content in linked_contents %}
+                    {% with content=linked_contents|get_item:gallery.linked_content %}
+                        <p class="topic-last-answer">
+                            {% trans "Liée" %}
+                            {% if content.is_article %}
+                                {% trans "à l’article" %}
+                            {% elif content.is_tutorial %}
+                                {% trans "au tutoriel" %}
+                            {% elif content.is_opinion %}
+                                {% trans "au billet" %}
+                            {% else %}
+                                {% trans "au contenu" %}
+                            {% endif %}
+                            «&NonBreakingSpace;<a href="{{ content.get_absolute_url }}">{{ content.title }}</a>&NonBreakingSpace;».
+                        </p>
+                    {% endwith %}
                 {% endif %}
             </div>
         {% endfor %}

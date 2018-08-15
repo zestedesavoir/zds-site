@@ -26,7 +26,7 @@ class GalleryMixin:
         :param slug: slug (optional)
         :type slug: str
         """
-        queryset = Gallery.objects.filter(pk=pk)
+        queryset = Gallery.objects.annotated_gallery().filter(pk=pk)
         if slug is not None:
             queryset = queryset.filter(slug=slug)
 
@@ -53,8 +53,11 @@ class GalleryMixin:
 
         :rtype: zds.tutorialv2.models.database.PublishableContent
         """
+        if self.gallery.linked_content is None:
+            return None
+
         try:
-            return PublishableContent.objects.filter(gallery=self.gallery).get()
+            return PublishableContent.objects.filter(pk=self.gallery.linked_content).get()
         except PublishableContent.DoesNotExist:
             return None
 
@@ -228,7 +231,7 @@ class ImageCreateMixin(ImageMixin):
         for i in zfile.namelist():
             info = zfile.getinfo(i)
 
-            if info.filename[-1] == '/':  # is_dir() in python 3.6
+            if info.filename[-1] == '/':  # .is_dir() in python 3.6
                 continue
 
             basename = os.path.basename(i)
