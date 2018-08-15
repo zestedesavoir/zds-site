@@ -32,9 +32,10 @@
 
 {% block content %}
     <div class="authors">
+    {% with users=gallery.get_linked_users %}
         <span class="authors-label">{% trans "Galerie partagée avec" %} : </span>
         <ul>
-            {% for u in gallery.get_linked_users %}
+            {% for u in users %}
                 {% captureas info %}
                     {% if u.mode == 'R' %}
                         {% trans "Lecture" %}
@@ -47,13 +48,72 @@
                 </li>
             {% endfor %}
 
-            {% if permissions.write %}
+            {% if permissions.write and not content_linked %}
                 <li>
                     <a href="#add-user-modal" class="open-modal ico-after more blue">{% trans "Ajouter un utilisateur" %}</a>
                     {% crispy form %}
                 </li>
+                <li>
+                    <a href="#edit-user-modal" class="open-modal ico-after edit blue">{% trans "Gérer les utilisateurs" %}</a>
+                    <div id="edit-user-modal" class="modal" data-modal-close="Fermer">
+                        {% if users|length > 1 %}
+                            <table>
+                                <thead>
+                                    <th>{% trans "Auteur" %}</th>
+                                    <th width="180px">{% trans "Droit" %}</th>
+                                    <th>{% trans "Suppression" %}</th>
+                                </thead>
+                                <tbody>
+                                    {% for u in users %}
+                                        <tr>
+                                            <td>{% include "misc/member_item.part.html" with member=u.user %}</td>
+                                            <td>
+                                                {# droits #}
+                                                {% if u.user != current_user %}
+                                                    <form action="{% url "gallery-members" gallery.pk %}" method="post">
+                                                        {% csrf_token %}
+                                                        <input type="hidden" name="action" value="edit">
+                                                        <input type="hidden" name="user" value="{{ u.user.username }}">
+                                                        <select name="mode">
+                                                            <option value="W"{% if u.mode == "W" %} selected{% endif %}>{% trans "Écriture" %}</option>
+                                                            <option value="R"{% if u.mode == "R" %} selected{% endif %}>{% trans "Lecture" %}</option>
+                                                        </select>
+                                                        <button type="submit" value="Modifier" class="modal-inner btn">{% trans "Modifier" %}</button>
+                                                    </form>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {# suppression #}
+                                                <form action="{% url "gallery-members" gallery.pk %}" method="post">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="action" value="leave">
+                                                    <input type="hidden" name="user" value="{{ u.user.username }}">
+                                                    <button type="submit" class="modal-inner btn btn-cancel">
+                                                        {% if u.user != current_user %}
+                                                            {% trans "Supprimer" %}
+                                                        {% else %}
+                                                            {% trans "Quitter" %}
+                                                        {% endif %}
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        {% else %}
+                            <p>{% trans "Vous êtes seul." %}</p>
+                        {% endif %}
+                        <p>
+                            <button type="submit" href="#add-user-modal" class="open-modal">
+                                {% trans "Ajouter un utilisateur" %}
+                            </button>
+                        </p>
+                    </div>
+                </li>
             {% endif %}
         </ul>
+    {% endwith %}
     </div>
 
     {% if images %}

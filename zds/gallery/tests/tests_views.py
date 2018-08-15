@@ -418,7 +418,14 @@ class ModifyGalleryViewTest(TestCase):
         self.assertEqual(user_galleries.count(), 1)
         self.assertEqual(user_galleries.last().user, self.profile1.user)
 
-        # quit
+    def test_error_last_user_with_write_leave_gallery(self):
+        login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
+        self.assertTrue(login_check)
+
+        user_gallery = UserGallery.objects.filter(gallery=self.gallery1, user=self.profile1.user)
+        self.assertEqual(user_gallery.count(), 1)
+
+        # try to quit
         response = self.client.post(
             reverse('gallery-members', kwargs={'pk': self.gallery1.pk}),
             {
@@ -429,8 +436,7 @@ class ModifyGalleryViewTest(TestCase):
         )
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual(user_galleries.count(), 0)
-        self.assertEqual(Gallery.objects.filter(pk=self.gallery1.pk).count(), 0)  # it is gone
+        self.assertEqual(user_gallery.count(), 1)  # not gone
 
     def test_success_user_with_read_permission_leave_gallery(self):
         login_check = self.client.login(username=self.profile2.user.username, password='hostel77')

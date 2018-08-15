@@ -21,7 +21,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from zds.gallery.forms import ArchiveImageForm, ImageForm, UpdateImageForm, \
     GalleryForm, UpdateGalleryForm, UserGalleryForm, ImageAsAvatarForm
 from zds.gallery.models import UserGallery, Image, Gallery, GALLERY_WRITE
-from zds.gallery.mixins import GalleryCreateMixin, GalleryMixin, GalleryUpdateOrDeleteMixin, ImageMixin
+from zds.gallery.mixins import GalleryCreateMixin, GalleryMixin, GalleryUpdateOrDeleteMixin, ImageMixin,\
+    NoMoreUserWithWriteIfLeave
 from zds.member.decorator import LoggedWithReadWriteHability
 from zds.utils import slugify
 from zds.utils.paginator import ZdSPagingListView
@@ -103,6 +104,7 @@ class GalleryDetails(LoginRequiredMixin, GalleryMixin, ZdSPagingListView):
         context['form'] = UserGalleryForm(gallery=self.gallery)
         context['gallery'] = self.gallery
         context['content_linked'] = self.linked_content()
+        context['current_user'] = self.request.user
 
         return context
 
@@ -257,11 +259,18 @@ class EditGalleryMembers(LoggedWithReadWriteHability, GalleryUpdateOrDeleteMixin
                 messages.error(self.request, _('Impossible de modifier un utilisateur non ajouté'))
         elif action == 'leave':
             if user.pk in self.users_and_permissions:
-                has_deleted = self.perform_leave(user)
-                if has_deleted:
-                    messages.info(self.request, _('La galerie a été supprimée par manque d\'utilisateur'))
-                elif modify_self:
-                    messages.info(self.request, _('Vous avez bien quitté la galerie'))
+                try:
+                    has_deleted = self.perform_leave(user)
+                    if has_deleted:
+                        messages.info(self.request, _('La galerie a été supprimée par manque d\'utilisateur'))
+                    elif modify_self:
+                        messages.info(self.request, _('Vous avez bien quitté la galerie'))
+                except NoMoreUserWithWriteIfLeave:
+                    modify_self = False
+                    messages.error(
+                        self.request,
+                        _('Vous ne pouvez pas quitter la galerie, '
+                          'car plus aucun autre utilisateur n\'a les droits d\'écriture'))
             else:
                 messages.error(self.request, _('Impossible de supprimer un utilisateur non ajouté'))
 
