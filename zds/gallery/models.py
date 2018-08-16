@@ -45,8 +45,8 @@ class UserGallery(models.Model):
         verbose_name_plural = _('Galeries de l\'utilisateur')
 
     MODE_CHOICES = (
-        (GALLERY_READ, _('Lecture')),
-        (GALLERY_WRITE, _('Écriture'))
+        (GALLERY_READ, _('Affichage')),
+        (GALLERY_WRITE, _('Affichage et modification'))
     )
 
     user = models.ForeignKey(User, verbose_name=_('Membre'), db_index=True)

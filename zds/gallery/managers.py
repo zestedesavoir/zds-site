@@ -9,7 +9,7 @@ class GalleryManager(models.Manager):
         """Annotate gallery with
 
         - ``linked_content``, which contains the pk of the associated content if any ;
-        - ``image_count``, which contains the number of image.
+        - ``image_count``, which contains the number of images.
 
         :rtype: QuerySet
         """

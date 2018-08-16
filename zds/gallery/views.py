@@ -89,6 +89,7 @@ class GalleryDetails(LoginRequiredMixin, GalleryMixin, ZdSPagingListView):
         context['gallery'] = self.gallery
         context['content_linked'] = self.linked_content()
         context['current_user'] = self.request.user
+        context['mode_choices'] = UserGallery.MODE_CHOICES
 
         return context
 

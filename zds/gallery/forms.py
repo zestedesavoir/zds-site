@@ -9,7 +9,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
-from zds.gallery.models import Gallery, Image
+from zds.gallery.models import Gallery, Image, UserGallery
 
 
 class GalleryForm(forms.ModelForm):
@@ -80,10 +80,7 @@ class UserGalleryForm(forms.Form):
     mode = forms.ChoiceField(
         label='',
         required=False,
-        choices=(
-            ('W', 'En mode écriture'),
-            ('R', 'En mode lecture'),
-        ),
+        choices=UserGallery.MODE_CHOICES,
         widget=forms.Select,
     )
 
