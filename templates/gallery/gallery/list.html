@@ -48,7 +48,7 @@
                 </div>
                 <p class="topic-answers">
                     {% with img_count=gallery.image_count %}
-                        {% if img_count == 0 or img_count is None %}
+                        {% if img_count == 0 %}
                             {% trans "Aucune image" %}
                         {% else %}
                             {{ img_count }} {% trans "image" %}{{ img_count|pluralize_fr }}

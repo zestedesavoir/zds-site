@@ -1,18 +1,22 @@
 from django.db import models
 from django.db.models import OuterRef, Subquery, Count
+from django.db.models.functions.base import Coalesce
 
 
 class GalleryManager(models.Manager):
 
     def annotated_gallery(self):
-        """Annotate gallery with ``linked_content``, which contains the pk of the associated content if any.
+        """Annotate gallery with
+
+        - ``linked_content``, which contains the pk of the associated content if any ;
+        - ``image_count``, which contains the number of image.
 
         :rtype: QuerySet
         """
         from zds.tutorialv2.models.database import PublishableContent
         from zds.gallery.models import Image
 
-        linked_content = PublishableContent.objects.filter(gallery__pk=OuterRef('pk'))
+        linked_content = PublishableContent.objects.filter(gallery__pk=OuterRef('pk')).values('pk')
 
         images = Image.objects\
             .filter(gallery__pk=OuterRef('pk'))\
@@ -21,8 +25,8 @@ class GalleryManager(models.Manager):
             .values('count')
 
         return self\
-            .annotate(linked_content=Subquery(linked_content.values('pk')))\
-            .annotate(image_count=Subquery(images))
+            .annotate(linked_content=Subquery(linked_content))\
+            .annotate(image_count=Coalesce(Subquery(images), 0))
 
     def galleries_of_user(self, user):
         """Get galleries of user, and annotate with an extra field ``user_mode`` (which contains R or W)
