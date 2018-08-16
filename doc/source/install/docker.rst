@@ -3,7 +3,11 @@ Docker
 ======
 
 Il est possible de faire tourner facilement ZdS avec Docker et
-docker-compose. Notez que c’est encore un peu expérimental.
+docker-compose.
+
+.. note::
+
+   Notez que c’est encore un peu expérimental.
 
 
 Démarrage rapide
@@ -23,64 +27,55 @@ Installez et démarrer le site :
 
 .. code-block:: sh
 
-   $ ./clem up
+   $ ./make docker-back-start
 
-Ce script ``clem`` va se charger de télécharger toutes les
+Ce script va se charger de télécharger toutes les
 dépendances, de démarrer les conteneurs Docker et de tout installer
-automatiquement. Ceci peut prendre un certain temps.
+automatiquement.
+
+.. warning::
+
+   Ceci peut prendre un certain temps la première fois que vous lancer cette commande, puisqu'il faut télécharger
+   les containers.
 
 À la fin, les migrations sont appliquées et vous pourrez accéder au
 site à l’addresses http://localhost:8000.
 
 Appuyez sur Ctrl+C pour tout arrêter.
 
+Des données de test
+-------------------
 
-Commandes principales de ``clem``
----------------------------------
+Pour avoir un jeu de données qui vous permette de travailler, vous pouvez lancer la commande suivante:
 
-``./clem --help``
-   Affiche une courte aide et liste les commandes disponibles. Vous
-   pouvez aussi utiliser cette option sur une commande spécifique.
+.. code-block:: sh
 
-``./clem up``
-   Démarre ZdS. Écoute par défaut sur le port 8000. Vous pouvez
-   utiliser un autre port avec ``--port 1234``.
+   $ make docker-fixtures
 
-``./clem test back``
-   Lance les tests du backend. Tous les arguments suivants sont passés
-   au framework de test de Django. Par
-   exemple, ``./clem test back zds.member`` lance uniquement les tests
-   des membres.
+.. warning::
 
-``./clem test front``
-   Lance les tests du frontend. Tous les arguments suivants sont aussi
-   passés à Gulp (mais comme il n’y a pas de tests, pour l’instant
-   ce n’est pas très utile).
+   Cette commande peut prendre aussi un certain temps.
 
-``./clem fixture``
-   Applique des fixtures. Par défaut, toutes les fixtures sont appliquées
-   mais vous pouvez spécifier un nom de
-   fichier : ``./clem fixture fixtures/users.yaml``.
-   À utiliser pendant que le backend tourne.
+A la fin, vous disposerez des utilisateurs de test listés sur `cette page`_.
 
-``./clem wipe``
-   Supprime la base de données.
+.. _cette page: ../utils/fixture_loaders.html#le-chargement-de-jeux-de-donnees-fixtures
 
-``./clem lint back``
-   Lint le backend.
+Commandes principales
+---------------------
 
-``./clem lint frontend``
-   Lint le frontend.
+Installer le site via docker vous oblige a passer uniquement par des commandes docker pour
+le reste de vos actions. Donc dans le Makefile, vous ne pourrez utiliser que les commandes ``make docker-*``.
 
-``./clem lint all``
-   Lint le backend et le frontend.
-
-``./clem es``
-   Lance des commandes de `manage.py es_manager` (pour Elasticsearch).
-   À utiliser pendant que le backend et Elasticsearch tournent.
+- ``make docker-back-start`` : Démarre ZdS. Écoute par défaut sur le port 8000.
+- ``make docker-back-test`` : Lance les tests du backend.
+- ``make docker-front-test``: Lance les tests du frontend.
+- ``make docker-fixture`` : Applique des fixtures et indexe les données dans elasticsearch. À utiliser pendant que le backend tourne.
+- ``make docker-wipe`` : Supprime la base de données et les contenus.
+- ``make docker-back-lint`` : Lint le backend.
+- ``make docker-front-lint`` : Lint le frontend.
 
 
-Notez que ces commandes ne sont pas toutes conçues pour être lancées
-en parallèle. Mais en pratique, vous pouvez par exemple lancer
-``./clem up`` dans un terminal et pendant ce temps lancer ``./clem
-test back`` dans un autre.
+.. note::
+
+   Notez que ces commandes ne sont pas toutes conçues pour être lancées
+   en parallèle.

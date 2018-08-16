@@ -1,0 +1,10 @@
+FROM node:8-slim
+
+RUN mkdir -p /zds/zmd
+WORKDIR /zds/zmd
+
+COPY zmd/* ./scripts/docker_zmd_entrypoint.sh ./
+
+RUN npm -g install pm2
+
+RUN npm install --production

@@ -4,20 +4,20 @@
 base.db
 .sass-cache/
 /static
-/tutoriels-private
-/tutoriels-public
-/contents-private
-/contents-public
+tutoriels-private
+tutoriels-public
+contents-private
+contents-public
 /media
-/articles-data
+articles-data
 /zds/_version.py
 
-/tutoriels-private-test
-/tutoriels-public-test
-/media-test
-/articles-data-test
-/contents-private-test
-/contents-public-test
+tutoriels-private-test
+tutoriels-public-test
+media-test
+articles-data-test
+contents-private-test
+contents-public-test
 
 /apache-solr
 

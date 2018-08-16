@@ -18,10 +18,10 @@ RUN apt-get update \
 RUN mkdir -p /zds
 WORKDIR /zds
 
-COPY requirements.txt requirements-dev.txt Makefile ./
+COPY requirements.txt requirements-dev.txt requirements-prod.txt Makefile ./scripts/docker_dev_entrypoint.sh ./scripts/wait-for-it.sh /zds/
 
-RUN make install-back
+RUN pip install --upgrade -r requirements-dev.txt
 
-ENV DISPLAY=":99.0" PYTHONIOENCODING="utf-8" DJANGO_SETTINGS_MODULE="zds.settings.docker_dev"
+RUN pip install --upgrade -r requirements-prod.txt
 
-CMD ["./scripts/docker_dev_entrypoint.sh"]
+ENV DISPLAY=":99.0" PYTHONIOENCODING="utf-8" DJANGO_SETTINGS_MODULE="zds.settings.docker"

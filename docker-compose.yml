@@ -6,49 +6,68 @@ services:
       context: .
       dockerfile: Dockerfile_front
     volumes:
-      - ./assets:/zds/assets:ro,Z
-      - ./Gulpfile.js:/zds/Gulpfile.js:ro,Z
-      - dist:/zds/dist:z
+      - .:/zds
+  zmarkdown:
+    build:
+      context: .
+      dockerfile: Dockerfile_zmd
+    working_dir: /zds/zmd/
+    command: ["./docker_zmd_entrypoint.sh"]
+    ports:
+      - "27272:27272"
+    expose:
+      - "27272"
+  db:
+    image: "mysql:5"
+    restart: always
+    ports:
+      - "3306:3306"
+    expose:
+      - "3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+      - rundb:/var/run/mysqld
+    environment:
+      MYSQL_DATABASE: "zdsdb"
+      MYSQL_USER: "zds"
+      MYSQL_PASSWORD: "zds"
+      MYSQL_ROOT_PASSWORD: "root"
 
   back:
     build:
       context: .
       dockerfile: Dockerfile_back
+    working_dir: /zds
+    command: ["./scripts/wait-for-it.sh", "-t", "90", "-s", "db:3306", "--", "./scripts/docker_dev_entrypoint.sh"]
+    depends_on:
+      - db
+      - front
+      - zmarkdown
+      - elasticsearch
     volumes:
-      - db:/zds/db:Z
-      - ./.git:/zds/.git:ro,Z
-      - dist:/zds/dist:ro,z
-      - ./export-assets:/zds/export-assets:ro,Z
-      - ./fixtures:/zds/fixtures:ro,Z
-      - ./geodata:/zds/geodata:ro,Z
-      - ./manage.py:/zds/manage.py:ro,Z
-      - ./quotes.txt:/zds/quotes.txt:ro,Z
-      - ./scripts:/zds/scripts:ro,Z
-      - ./templates:/zds/templates:ro,Z
-      - ./tox.ini:/zds/tox.ini:ro,Z
-      - ./zds:/zds/zds:ro,Z
+      - .:/zds
+      - rundb:/var/run/mysqld:ro
     ports:
       - "${ZDS_ADDRESS:-127.0.0.1}:${ZDS_PORT:-8000}:8000"
     environment:
       # An optional comma-separated list of the hostnames to allow.
       # Sets Django’s ALLOWED_HOSTS configuration variable.
-      - "ZDS_ALLOWED_HOSTS=${ZDS_ALLOWED_HOSTS}"
+      - "ZDS_ALLOWED_HOSTS=${ZDS_ALLOWED_HOSTS:-*}"
       # Elasticsearch is enabled if this variable is nonempty
       - "ZDS_ELASTICSEARCH=${ZDS_ELASTICSEARCH}"
-    links:
-      - elasticsearch
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:5.5.2
+    image: "docker.elastic.co/elasticsearch/elasticsearch:5.5.2"
     environment:
       - "http.host=0.0.0.0"
       - "transport.host=127.0.0.1"
       - "xpack.security.enabled=false"
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     volumes:
-      - elasticsearch:/usr/share/elasticsearch/data
+      - esdata:/usr/share/elasticsearch/data
 
 volumes:
-  dist:
   db:
-  elasticsearch:
+  esdata:
+  dbdata:
+  rundb:

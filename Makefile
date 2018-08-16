@@ -20,6 +20,47 @@ install-macos:
 	brew install gettext cairo --without-x11 py2cairo node && \
 	pip3 install virtualenv virtualenvwrapper
 
+## docker
+### back
+docker-back-start:
+	docker-compose up back
+docker-back-stop:
+	docker-compose stop back
+docker-back-test:
+	docker-compose exec back ./scripts/docker_start_xvfb.sh python manage.py test --settings zds.settings.docker_test
+docker-back-lint:
+	docker-compose exec back flake8 zds
+
+### zmd
+docker-zmd-start:
+	docker-compose up zmarkdown
+docker-zmd-stop:
+	docker-compose stop zmarkdown
+
+### tools
+docker-wipe:
+	docker-compose exec back python manage.py flush --noinput && \
+	docker-compose exec back rm -rf contents-private/* && \
+	docker-compose exec back rm -rf contents-public/*
+docker-fixtures:
+	make docker-wipe && \
+	docker-compose exec back python manage.py loaddata ./fixtures/*.yaml && \
+	docker-compose exec back python manage.py load_fixtures --size=medium --all && \
+	docker-compose exec back python manage.py es_manager index_all
+docker-doc:
+	docker-compose exec back bash -c 'cd doc && make html'
+docker-generate-pdf:
+	docker-compose exec back python manage.py generate_pdf
+### front
+docker-front-clean:
+	docker-compose exec front yarn run clean
+docker-front-build:
+	docker-compose exec front yarn run build
+docker-front-lint:
+	docker-compose exec front yarn run lint
+docker-front-test:
+	docker-compose exec front yarn test
+
 # dev back
 ## django
 generate-pdf:
@@ -118,20 +159,31 @@ restart_db: wipe migrate fixtures
 
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
-	@echo "  build-front       to build frontend code"
-	@echo "  doc               to generate the html documentation"
-	@echo "  fixtures          to load every fixtures"
-	@echo "  generate-pdf      to regenerate all PDFs"
-	@echo "  index-all         to setup and (re)index all things for search"
-	@echo "  index-flagged     to index flagged things for search"
-	@echo "  help              to get this help"
-	@echo "  install-back      to install backend dependencies"
-	@echo "  install-front     to install frontend dependencies"
-	@echo "  install-debian    to install debian dependencies"
-	@echo "  install-ubuntu    to install ubuntu dependencies"
-	@echo "  install-fedora    to install fedora dependencies"
-	@echo "  install-archlinux to install archlinux dependencies"
-	@echo "  install-macos       to install os x dependencies"
+	@echo "  build-front                         to build frontend code"
+	@echo "  doc                                 to generate the html documentation"
+	@echo "  fixtures                            to load every fixtures"
+	@echo "  generate-pdf                        to regenerate all PDFs"
+	@echo "  index-all                           to setup and (re)index all things for search"
+	@echo "  index-flagged                       to get this help"
+	@echo "  install-back                        to install backend dependencies"
+	@echo "  install-front                       to install frontend dependencies"
+	@echo "  install-debian                      to install debian dependencies"
+	@echo "  install-ubuntu                      to install ubuntu dependencies"
+	@echo "  install-fedora                      to install fedora dependencies"
+	@echo "  install-archlinux                   to install archlinux dependencies"
+	@echo "  install-macos                       to install os x dependencies"
+	@echo "  docker-back-start                   to install and start web site from docker"
+	@echo "  docker-back-stop                    to stop all docker containers from docker"
+	@echo "  docker-back-test                    to test back end web site from docker"
+	@echo "  docker-back-lint                    to lint back end web site from docker"
+	@echo "  docker-fixtures                     to generate data from docker"
+	@echo "  docker-wipe                         to wipe data and contents files from docker"
+	@echo "  docker-front-clean                  to clean front from docker"
+	@echo "  docker-front-build                  to build front from docker"
+	@echo "  docker-front-lint                   to lint front from docker"
+	@echo "  docker-front-test                   to test front from docker"
+	@echo "  docker-doc                          to generate documentation from docker"
+	@echo "  docker-docker-generate-pdf          to regenerate all pdf from docker"
 	@echo "  lint-back         to lint backend code (flake8)"
 	@echo "  lint-front        to lint frontend code (jshint)"
 	@echo "  clean-back        to clean *.pyc"
