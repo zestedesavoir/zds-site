@@ -12,8 +12,9 @@ from rest_framework.response import Response
 from rest_framework_extensions.cache.decorators import cache_response
 from rest_framework_extensions.etag.decorators import etag
 from rest_framework_extensions.key_constructor import bits
+from rest_framework_extensions.key_constructor.constructors import DefaultKeyConstructor
 
-from zds.api.bits import UpdatedAtKeyBit
+from zds.api.bits import DJRF3xPaginationKeyBit, UpdatedAtKeyBit
 from zds.api.key_constructor import PagingListKeyConstructor, DetailKeyConstructor
 from zds.mp.api.permissions import IsParticipant, IsParticipantFromPrivatePost, IsLastPrivatePostOfCurrentUser, \
     IsAuthor, IsNotAloneInPrivatePost
@@ -36,7 +37,9 @@ class PagingPrivatePostListKeyConstructor(PagingListKeyConstructor):
     updated_at = UpdatedAtKeyBit('api_updated_post')
 
 
-class PagingNotificationListKeyConstructor(PagingListKeyConstructor):
+class PagingNotificationListKeyConstructor(DefaultKeyConstructor):
+    pagination = DJRF3xPaginationKeyBit()
+    unique_view_id = bits.UniqueViewIdKeyBit()
     user = bits.UserKeyBit()
     updated_at = UpdatedAtKeyBit('api_updated_notification')
 

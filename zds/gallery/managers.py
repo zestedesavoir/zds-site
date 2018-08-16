@@ -38,4 +38,4 @@ class GalleryManager(models.Manager):
         user_mode = UserGallery.objects.filter(user=user, gallery__pk=OuterRef('pk'))
         return self.annotated_gallery()\
             .filter(pk__in=user_galleries)\
-            .annotate(user_mode=Subquery(user_mode.values('mode')))\
+            .annotate(user_mode=Subquery(user_mode.values('mode')))
