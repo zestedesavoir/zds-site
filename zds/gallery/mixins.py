@@ -86,6 +86,8 @@ class GalleryCreateMixin(GalleryMixin):
         self.gallery = gallery
         self.users_and_permissions = {user.pk: {'read': True, 'write': True}}
 
+        return self.gallery
+
 
 class NoMoreUserWithWriteIfLeave(Exception):
     pass

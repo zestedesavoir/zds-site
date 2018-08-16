@@ -1,5 +1,5 @@
 from rest_framework import filters
-from rest_framework.generics import ListCreateAPIView, RetrieveAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_extensions.cache.decorators import cache_response
 from rest_framework_extensions.etag.decorators import etag
@@ -9,6 +9,7 @@ from dry_rest_permissions.generics import DRYPermissions
 from zds.api.bits import UpdatedAtKeyBit
 from zds.api.key_constructor import PagingListKeyConstructor, DetailKeyConstructor
 from zds.gallery.models import Gallery
+from zds.gallery.mixins import GalleryUpdateOrDeleteMixin
 
 from .serializers import GallerySerializer
 
@@ -59,6 +60,27 @@ class GalleryListView(ListCreateAPIView):
         """
         return self.list(request, *args, **kwargs)
 
+    def post(self, request, *args, **kwargs):
+        """
+        Create a new gallery
+        ---
+
+        parameters:
+            - name: Authorization
+              description: Bearer token to make an authenticated request.
+              required: true
+              paramType: header
+            - name: title
+              description: Private topic title.
+              required: true
+              paramType: form
+            - name: subtitle
+              description: Private topic subtitle.
+              required: false
+              paramType: form
+        """
+        return self.create(request, *args, **kwargs)
+
     def get_current_user(self):
         return self.request.user
 
@@ -72,16 +94,13 @@ class GalleryListView(ListCreateAPIView):
     def get_queryset(self):
         return Gallery.objects.galleries_of_user(self.get_current_user()).order_by('pk')
 
-    def post(self, request, *args, **kwargs):
-        raise NotImplementedError()
-
 
 class GalleryDetailKeyConstructor(DetailKeyConstructor):
     user = bits.UserKeyBit()
     updated_at = UpdatedAtKeyBit('api_updated_gallery')
 
 
-class GalleryDetailView(RetrieveAPIView):
+class GalleryDetailView(RetrieveUpdateDestroyAPIView, GalleryUpdateOrDeleteMixin):
 
     queryset = Gallery.objects.annotated_gallery()
     list_key_func = DetailKeyConstructor()
@@ -112,6 +131,51 @@ class GalleryDetailView(RetrieveAPIView):
         """
 
         return self.retrieve(request, *args, **kwargs)
+
+    def put(self, request, *args, **kwargs):
+        """
+        Update the gallery
+        ---
+
+        parameters:
+            - name: Authorization
+              description: Bearer token to make an authenticated request.
+              required: true
+              paramType: header
+            - name: title
+              description: Private topic title.
+              required: true
+              paramType: form
+            - name: subtitle
+              description: Private topic subtitle.
+              required: false
+              paramType: form
+        """
+        return self.update(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        """
+        Deletes a gallery
+        ---
+
+        parameters:
+            - name: Authorization
+              description: Bearer token to make an authenticated request.
+              required: true
+              paramType: header
+        responseMessages:
+            - code: 401
+              message: Not Authenticated
+            - code: 403
+              message: Permission Denied
+            - code: 404
+              message: Not Found
+        """
+        return self.destroy(request, *args, **kwargs)
+
+    def perform_destroy(self, instance):
+        self.gallery = instance
+        self.perform_delete()
 
     def get_current_user(self):
         return self.request.user
