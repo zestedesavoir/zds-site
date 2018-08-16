@@ -150,6 +150,13 @@ class GalleryDetailView(RetrieveUpdateDestroyAPIView, GalleryUpdateOrDeleteMixin
               description: Private topic subtitle.
               required: false
               paramType: form
+        responseMessages:
+            - code: 401
+              message: Not Authenticated
+            - code: 403
+              message: Permission Denied
+            - code: 404
+              message: Not Found
         """
         return self.update(request, *args, **kwargs)
 
