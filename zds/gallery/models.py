@@ -120,6 +120,9 @@ class Image(models.Model):
         """
         return '{0}/{1}'.format(settings.MEDIA_URL, self.physical)
 
+    def get_thumbnail_url(self):
+        return self.physical['gallery'].url
+
     def get_extension(self):
         """Get the extension of an image (used in tests).
 
@@ -127,6 +130,20 @@ class Image(models.Model):
         :rtype: unicode
         """
         return os.path.splitext(self.physical.name)[1][1:]
+
+    @staticmethod
+    def has_read_permission(request):
+        return request.user.is_authenticated()
+
+    def has_object_read_permission(self, request):
+        return UserGallery.objects.filter(gallery=self.gallery, user=request.user).count() == 1
+
+    @staticmethod
+    def has_write_permission(request):
+        return request.user.is_authenticated()
+
+    def has_object_write_permission(self, request):
+        return UserGallery.objects.filter(gallery=self.gallery, user=request.user, mode='W').count() == 1
 
     def save(self, *args, **kwargs):
         self.update = datetime.datetime.now()

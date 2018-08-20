@@ -8,10 +8,11 @@ from dry_rest_permissions.generics import DRYPermissions
 
 from zds.api.bits import UpdatedAtKeyBit
 from zds.api.key_constructor import PagingListKeyConstructor, DetailKeyConstructor
-from zds.gallery.models import Gallery
+from zds.gallery.models import Gallery, Image
 from zds.gallery.mixins import GalleryUpdateOrDeleteMixin
 
-from .serializers import GallerySerializer
+from .serializers import GallerySerializer, ImageSerializer
+from .permissions import AccessToGallery
 
 
 class PagingGalleryListKeyConstructor(PagingListKeyConstructor):
@@ -193,3 +194,76 @@ class GalleryDetailView(RetrieveUpdateDestroyAPIView, GalleryUpdateOrDeleteMixin
     def get_permissions(self):
         permission_classes = [IsAuthenticated, DRYPermissions]
         return [permission() for permission in permission_classes]
+
+
+class PagingImageListKeyConstructor(PagingListKeyConstructor):
+    search = bits.QueryParamsKeyBit(['search', 'ordering'])
+    user = bits.UserKeyBit()
+    updated_at = UpdatedAtKeyBit('api_updated_image')
+
+
+class ImageListView(ListCreateAPIView):
+
+    filter_backends = (filters.SearchFilter, filters.OrderingFilter)
+    search_fields = ('title',)
+    ordering_fields = ('title', 'update', 'pubdate')
+    list_key_func = PagingGalleryListKeyConstructor()
+
+    @etag(list_key_func)
+    @cache_response(key_func=list_key_func)
+    def get(self, request, *args, **kwargs):
+        """
+        Lists an authenticated member's galleries
+        ---
+
+        parameters:
+            - name: Authorization
+              description: Bearer token to make an authenticated request.
+              required: true
+              paramType: header
+            - name: page
+              description: Restricts output to the given page number.
+              required: false
+              paramType: query
+            - name: page_size
+              description: Sets the number of private topics per page.
+              required: false
+              paramType: query
+            - name: search
+              description: Filters by title.
+              required: false
+              paramType: query
+            - name: ordering
+              description: Sorts the results. You can order by (-)title, (-)update, (-)pubdate.
+              paramType: query
+        responseMessages:
+            - code: 401
+              message: Not Authenticated
+        """
+        return self.list(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        """
+        Upload a new image
+        ---
+
+        parameters:
+            - name: Authorization
+              description: Bearer token to make an authenticated request.
+              required: true
+              paramType: header
+        """
+        raise NotImplementedError()
+
+    def get_current_user(self):
+        return self.request.user
+
+    def get_serializer_class(self):
+        return ImageSerializer
+
+    def get_permissions(self):
+        permission_classes = [IsAuthenticated, AccessToGallery]
+        return [permission() for permission in permission_classes]
+
+    def get_queryset(self):
+        return Image.objects.filter(gallery__pk=self.kwargs.get('pk_gallery'))

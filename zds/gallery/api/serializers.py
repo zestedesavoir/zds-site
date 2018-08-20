@@ -2,9 +2,8 @@ from rest_framework import serializers
 from dry_rest_permissions.generics import DRYPermissionsField
 
 from zds.api.serializers import ZdSModelSerializer
-from zds.gallery.models import Gallery
-from zds.gallery.mixins import GalleryCreateMixin, GalleryUpdateOrDeleteMixin
-from zds.member.api.serializers import UserListSerializer
+from zds.gallery.models import Gallery, Image
+from zds.gallery.mixins import GalleryCreateMixin, GalleryUpdateOrDeleteMixin, ImageCreateMixin
 
 
 class CustomParticipantField(serializers.Field):
@@ -32,7 +31,6 @@ class GallerySerializer(ZdSModelSerializer, GalleryCreateMixin, GalleryUpdateOrD
     class Meta:
         model = Gallery
         fields = '__all__'
-        serializers = (UserListSerializer,)
         read_only_fields = ('id', 'permissions', 'pubdate', 'update', 'slug')
 
     def create(self, validated_data):
@@ -45,3 +43,19 @@ class GallerySerializer(ZdSModelSerializer, GalleryCreateMixin, GalleryUpdateOrD
     def update(self, instance, validated_data):
         self.gallery = instance
         return self.perform_update(validated_data)
+
+
+class ImageSerializer(ZdSModelSerializer, ImageCreateMixin):
+    """
+    Serializer of an image
+    """
+
+    permissions = DRYPermissionsField()
+    thumbnail = serializers.CharField(source='get_thumbnail_url', read_only=True)
+    url = serializers.CharField(source='get_absolute_url', read_only=True)
+
+    class Meta:
+        model = Image
+        fields = (
+            'id', 'slug', 'permissions', 'gallery', 'title', 'legend', 'url', 'thumbnail', 'pubdate', 'update')
+        read_only_fields = ('id', 'permissions', 'pubdate', 'update', 'slug', 'gallery')

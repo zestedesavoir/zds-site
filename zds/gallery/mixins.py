@@ -6,9 +6,9 @@ import zipfile
 from uuslug import slugify
 
 from PIL import Image as ImagePIL
+from easy_thumbnails.files import get_thumbnailer
 
 from django.conf import settings
-from django.core.files import File
 
 from zds.gallery.models import Gallery, UserGallery, GALLERY_WRITE, GALLERY_READ, Image
 from zds.tutorialv2.models.database import PublishableContent
@@ -222,6 +222,8 @@ class ImageCreateMixin(ImageMixin):
 
         self.image = image
 
+        return self.image
+
     def perform_create_multi(self, archive):
         """Create multiple image out of an archive
 
@@ -261,7 +263,7 @@ class ImageCreateMixin(ImageMixin):
                 continue
 
             # create picture:
-            f_im = File(open(ph_temp, 'rb'))
+            f_im = get_thumbnailer(open(ph_temp, 'rb'), relative_name=ph_temp)
             f_im.name = basename
             self.perform_create(name, f_im)
             f_im.close()
@@ -300,6 +302,8 @@ class ImageUpdateOrDeleteMixin(ImageMixin):
             self.image.legend = data.get('legend')
 
         self.image.save()
+
+        return self.image
 
     def perform_delete(self):
         """Delete image"""
