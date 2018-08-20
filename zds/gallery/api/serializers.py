@@ -1,9 +1,11 @@
-from rest_framework import serializers
+from rest_framework import serializers, exceptions
 from dry_rest_permissions.generics import DRYPermissionsField
+
+from django.conf import settings
 
 from zds.api.serializers import ZdSModelSerializer
 from zds.gallery.models import Gallery, Image
-from zds.gallery.mixins import GalleryCreateMixin, GalleryUpdateOrDeleteMixin, ImageCreateMixin
+from zds.gallery.mixins import GalleryCreateMixin, GalleryUpdateOrDeleteMixin, ImageCreateMixin, ImageTooLarge
 
 
 class CustomParticipantField(serializers.Field):
@@ -56,6 +58,23 @@ class ImageSerializer(ZdSModelSerializer, ImageCreateMixin):
 
     class Meta:
         model = Image
-        fields = (
-            'id', 'slug', 'permissions', 'gallery', 'title', 'legend', 'url', 'thumbnail', 'pubdate', 'update')
-        read_only_fields = ('id', 'permissions', 'pubdate', 'update', 'slug', 'gallery')
+        read_only_fields = ('id', 'slug', 'permissions', 'gallery', 'pubdate', 'update', 'url', 'thumbnail')
+        fields = read_only_fields + ('title', 'legend', 'physical')
+        extra_kwargs = {'physical': {'write_only': True}}
+
+    def create(self, validated_data):
+        try:
+            self.gallery = Gallery.objects.get(pk=self.context['view'].kwargs.get('pk_gallery'))
+        except Gallery.DoesNotExist:
+            raise exceptions.NotFound(detail='gallery not found')
+
+        try:
+            return self.perform_create(
+                title=validated_data.get('title'),
+                physical=validated_data.get('physical'),
+                legend=validated_data.get('legend', '')
+            )
+        except ImageTooLarge as e:
+            raise exceptions.ValidationError(
+                detail='Your image is too large ({} Kio). Maximum size is {} Kio'.format(
+                    e.size / 1024, settings.ZDS_APP['gallery']['image_max_size'] / 1024))

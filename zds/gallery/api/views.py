@@ -45,7 +45,7 @@ class GalleryListView(ListCreateAPIView):
               required: false
               paramType: query
             - name: page_size
-              description: Sets the number of private topics per page.
+              description: Sets the number of galleries per page.
               required: false
               paramType: query
             - name: search
@@ -72,11 +72,11 @@ class GalleryListView(ListCreateAPIView):
               required: true
               paramType: header
             - name: title
-              description: Private topic title.
+              description: Gallery title.
               required: true
               paramType: form
             - name: subtitle
-              description: Private topic subtitle.
+              description: Gallery subtitle.
               required: false
               paramType: form
         """
@@ -144,11 +144,11 @@ class GalleryDetailView(RetrieveUpdateDestroyAPIView, GalleryUpdateOrDeleteMixin
               required: true
               paramType: header
             - name: title
-              description: Private topic title.
+              description: Gallery title.
               required: true
               paramType: form
             - name: subtitle
-              description: Private topic subtitle.
+              description: Gallery subtitle.
               required: false
               paramType: form
         responseMessages:
@@ -207,13 +207,13 @@ class ImageListView(ListCreateAPIView):
     filter_backends = (filters.SearchFilter, filters.OrderingFilter)
     search_fields = ('title',)
     ordering_fields = ('title', 'update', 'pubdate')
-    list_key_func = PagingGalleryListKeyConstructor()
+    list_key_func = PagingImageListKeyConstructor()
 
     @etag(list_key_func)
     @cache_response(key_func=list_key_func)
     def get(self, request, *args, **kwargs):
         """
-        Lists an authenticated member's galleries
+        Lists images from a given gallery
         ---
 
         parameters:
@@ -226,7 +226,7 @@ class ImageListView(ListCreateAPIView):
               required: false
               paramType: query
             - name: page_size
-              description: Sets the number of private topics per page.
+              description: Sets the number of galleries per page.
               required: false
               paramType: query
             - name: search
@@ -239,6 +239,10 @@ class ImageListView(ListCreateAPIView):
         responseMessages:
             - code: 401
               message: Not Authenticated
+            - code: 403
+              message: Permission Denied
+            - code: 404
+              message: Not Found
         """
         return self.list(request, *args, **kwargs)
 
@@ -252,8 +256,28 @@ class ImageListView(ListCreateAPIView):
               description: Bearer token to make an authenticated request.
               required: true
               paramType: header
+            - name: title
+              description: Image title
+              required: true
+              paramType: form
+            - name: legend
+              description: Image small legend (one line)
+              required: false
+              paramType: form
+            - name: physical
+              description: Image data
+              required: true
+              consumes: multipart/form-data
+              paramType: form
+        responseMessages:
+            - code: 401
+              message: Not Authenticated
+            - code: 403
+              message: Permission Denied
+            - code: 404
+              message: Not Found
         """
-        raise NotImplementedError()
+        return self.create(request, *args, **kwargs)
 
     def get_current_user(self):
         return self.request.user
@@ -262,7 +286,10 @@ class ImageListView(ListCreateAPIView):
         return ImageSerializer
 
     def get_permissions(self):
-        permission_classes = [IsAuthenticated, AccessToGallery]
+        permission_classes = [IsAuthenticated]
+        if self.request.method in ['GET', 'POST']:
+            permission_classes.append(AccessToGallery)
+
         return [permission() for permission in permission_classes]
 
     def get_queryset(self):
