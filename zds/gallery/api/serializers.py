@@ -3,7 +3,7 @@ from dry_rest_permissions.generics import DRYPermissionsField
 
 from zds.api.serializers import ZdSModelSerializer
 from zds.gallery.models import Gallery
-from zds.gallery.mixins import GalleryCreateMixin
+from zds.gallery.mixins import GalleryCreateMixin, GalleryUpdateOrDeleteMixin
 from zds.member.api.serializers import UserListSerializer
 
 
@@ -19,7 +19,7 @@ class CustomParticipantField(serializers.Field):
         return participants
 
 
-class GallerySerializer(ZdSModelSerializer, GalleryCreateMixin):
+class GallerySerializer(ZdSModelSerializer, GalleryCreateMixin, GalleryUpdateOrDeleteMixin):
     """
     Serializer of a gallery
     """
@@ -41,3 +41,7 @@ class GallerySerializer(ZdSModelSerializer, GalleryCreateMixin):
             self.context.get('request').user,
             validated_data.get('subtitle')
         )
+
+    def update(self, instance, validated_data):
+        self.gallery = instance
+        return self.perform_update(validated_data)

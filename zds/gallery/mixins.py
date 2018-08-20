@@ -73,6 +73,7 @@ class GalleryCreateMixin(GalleryMixin):
         :type user: zds.member.models.User
         :param subtitle: subtitle
         :type subtitle: str
+        :rtype: Gallery
         """
         gallery = Gallery(title=title)
         gallery.subtitle = subtitle
@@ -99,6 +100,7 @@ class GalleryUpdateOrDeleteMixin(GalleryMixin):
 
         :param data: things to update
         :type data: dict
+        :rtype: Gallery
         """
         if 'title' in data:
             self.gallery.title = data.get('title')
@@ -107,6 +109,7 @@ class GalleryUpdateOrDeleteMixin(GalleryMixin):
             self.gallery.subtitle = data.get('subtitle')
 
         self.gallery.save()
+        return self.gallery
 
     def perform_update_user(self, user, can_write=False, allow_modify=True):
         """Add user to gallery or update its permissions
