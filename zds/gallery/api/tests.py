@@ -1,12 +1,13 @@
 from django.core.cache import caches
 from django.core.urlresolvers import reverse
+from django.conf import settings
 
 from rest_framework import status
 from rest_framework.test import APITestCase, APIClient
 from rest_framework_extensions.settings import extensions_api_settings
 
 from zds.gallery.factories import UserGalleryFactory, GalleryFactory, ImageFactory
-from zds.gallery.models import Gallery, UserGallery, GALLERY_WRITE
+from zds.gallery.models import Gallery, UserGallery, GALLERY_WRITE, Image
 from zds.member.factories import ProfileFactory
 from zds.member.api.tests import create_oauth2_client, authenticate_client
 
@@ -196,3 +197,41 @@ class ImageListAPITest(APITestCase):
     def test_get_list_fail_no_permissions(self):
         response = self.client.get(reverse('api:gallery:list-images', kwargs={'pk_gallery': self.gallery_other.pk}))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_post_add_image(self):
+        title = 'un super titre pour une image'
+        legend = 'une super legende aussi'
+
+        response = self.client.post(
+            reverse('api:gallery:list-images', kwargs={'pk_gallery': self.gallery.pk}),
+            {
+                'title': title,
+                'legend': legend,
+                'physical': open('{}/fixtures/noir_black.png'.format(settings.BASE_DIR), 'rb')
+            },
+            format='multipart'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Image.objects.filter(gallery=self.gallery).count(), 2)
+
+        image = Image.objects.filter(gallery=self.gallery).order_by('pk').last()
+        self.assertEqual(image.title, title)
+        self.assertEqual(image.legend, legend)
+
+    def test_post_fail_add_image_no_permissions(self):
+        title = 'un super titre pour une image'
+        legend = 'une super legende aussi'
+
+        response = self.client.post(
+            reverse('api:gallery:list-images', kwargs={'pk_gallery': self.gallery_other.pk}),
+            {
+                'title': title,
+                'legend': legend,
+                'physical': open('{}/fixtures/noir_black.png'.format(settings.BASE_DIR), 'rb')
+            },
+            format='multipart'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(Image.objects.filter(gallery=self.gallery).count(), 1)
