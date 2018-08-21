@@ -904,6 +904,8 @@ def remove_hat(request, user_pk, hat_pk):
 def login_view(request):
     """Logs user in."""
     next_page = request.GET.get('next', '/')
+    if next_page in [reverse('member-login'), reverse('register-member'), reverse('member-logout')]:
+        next_page = '/'
     csrf_tk = {'next_page': next_page}
     csrf_tk.update(csrf(request))
     error = False
