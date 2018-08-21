@@ -25,7 +25,7 @@ overridden_zds_app['content']['extra_content_generation_policy'] = 'NONE'
 @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'media-test'))
 @override_settings(ZDS_APP=overridden_zds_app)
 @override_settings(ES_ENABLED=False)
-class PublishedContentTests(TestCase, TutorialTestMixin):
+class PublishedContentTests(TutorialTestMixin, TestCase):
     def setUp(self):
         self.overridden_zds_app = overridden_zds_app
         overridden_zds_app['member']['bot_account'] = ProfileFactory().user.username

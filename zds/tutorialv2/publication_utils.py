@@ -125,6 +125,7 @@ def publish_content(db_object, versioned, is_major_update=True):
     public_version.save(
         update_fields=['char_count', 'publication_date', 'update_date', 'sha_public'])
 
+    public_version.authors.clear()
     for author in db_object.authors.all():
         public_version.authors.add(author)
 
@@ -338,9 +339,10 @@ class ZMarkdownRebberLatexPublicator(Publicator):
         image_dir = base_directory / 'images'
         with contextlib.suppress(FileExistsError):
             image_dir.mkdir(parents=True)
-        for image in Path(settings.MEDIA_ROOT, 'galleries', str(gallery_pk)).iterdir():
-            with contextlib.suppress(OSError):
-                shutil.copy2(str(image.absolute()), str(image_dir))
+        if Path(settings.MEDIA_ROOT, 'galleries', str(gallery_pk)).exists():
+            for image in Path(settings.MEDIA_ROOT, 'galleries', str(gallery_pk)).iterdir():
+                with contextlib.suppress(OSError):
+                    shutil.copy2(str(image.absolute()), str(image_dir))
         content_type = depth_to_size_map[public_versionned_source.get_tree_level()]
         if self.latex_classes:
             content_type += ', ' + self.latex_classes

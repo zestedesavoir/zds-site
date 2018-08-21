@@ -123,6 +123,7 @@ class UpdateMember(UpdateView):
             'allow_temp_visual_changes': profile.allow_temp_visual_changes,
             'show_markdown_help': profile.show_markdown_help,
             'email_for_answer': profile.email_for_answer,
+            'email_for_new_mp': profile.email_for_new_mp,
             'sign': profile.sign,
             'licence': profile.licence,
         })
@@ -160,6 +161,7 @@ class UpdateMember(UpdateView):
         profile.allow_temp_visual_changes = 'allow_temp_visual_changes' in cleaned_data_options
         profile.show_markdown_help = 'show_markdown_help' in cleaned_data_options
         profile.email_for_answer = 'email_for_answer' in cleaned_data_options
+        profile.email_for_new_mp = 'email_for_new_mp' in cleaned_data_options
         profile.avatar_url = form.data['avatar_url']
         profile.sign = form.data['sign']
         profile.licence = form.cleaned_data['licence']
@@ -902,6 +904,8 @@ def remove_hat(request, user_pk, hat_pk):
 def login_view(request):
     """Logs user in."""
     next_page = request.GET.get('next', '/')
+    if next_page in [reverse('member-login'), reverse('register-member'), reverse('member-logout')]:
+        next_page = '/'
     csrf_tk = {'next_page': next_page}
     csrf_tk.update(csrf(request))
     error = False
