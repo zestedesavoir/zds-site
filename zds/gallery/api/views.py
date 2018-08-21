@@ -9,10 +9,10 @@ from dry_rest_permissions.generics import DRYPermissions
 from zds.api.bits import UpdatedAtKeyBit
 from zds.api.key_constructor import PagingListKeyConstructor, DetailKeyConstructor
 from zds.gallery.models import Gallery, Image
-from zds.gallery.mixins import GalleryUpdateOrDeleteMixin
+from zds.gallery.mixins import GalleryUpdateOrDeleteMixin, ImageUpdateOrDeleteMixin
 
 from .serializers import GallerySerializer, ImageSerializer
-from .permissions import AccessToGallery
+from .permissions import AccessToGallery, WriteAccessToGallery
 
 
 class PagingGalleryListKeyConstructor(PagingListKeyConstructor):
@@ -104,7 +104,7 @@ class GalleryDetailKeyConstructor(DetailKeyConstructor):
 class GalleryDetailView(RetrieveUpdateDestroyAPIView, GalleryUpdateOrDeleteMixin):
 
     queryset = Gallery.objects.annotated_gallery()
-    list_key_func = DetailKeyConstructor()
+    list_key_func = GalleryDetailKeyConstructor()
 
     @etag(list_key_func)
     @cache_response(key_func=list_key_func)
@@ -286,11 +286,115 @@ class ImageListView(ListCreateAPIView):
         return ImageSerializer
 
     def get_permissions(self):
-        permission_classes = [IsAuthenticated]
-        if self.request.method in ['GET', 'POST']:
-            permission_classes.append(AccessToGallery)
-
+        permission_classes = [IsAuthenticated, AccessToGallery]
+        if self.request.method == 'POST':
+            permission_classes.append(WriteAccessToGallery)
         return [permission() for permission in permission_classes]
 
     def get_queryset(self):
         return Image.objects.filter(gallery__pk=self.kwargs.get('pk_gallery'))
+
+
+class ImageDetailKeyConstructor(DetailKeyConstructor):
+    user = bits.UserKeyBit()
+    updated_at = UpdatedAtKeyBit('api_updated_image')
+
+
+class ImageDetailView(RetrieveUpdateDestroyAPIView, ImageUpdateOrDeleteMixin):
+
+    queryset = Image.objects
+    list_key_func = ImageDetailKeyConstructor()
+
+    @etag(list_key_func)
+    @cache_response(key_func=list_key_func)
+    def get(self, request, *args, **kwargs):
+        """
+        Gets an image by identifier.
+        ---
+
+        parameters:
+            - name: Authorization
+              description: Bearer token to make an authenticated request.
+              required: true
+              paramType: header
+            - name: expand
+              description: Returns an object instead of an identifier representing the given field.
+              required: false
+              paramType: query
+        responseMessages:
+            - code: 401
+              message: Not Authenticated
+            - code: 403
+              message: Permission Denied
+            - code: 404
+              message: Not Found
+        """
+
+        return self.retrieve(request, *args, **kwargs)
+
+    def put(self, request, *args, **kwargs):
+        """
+        Update an image
+        ---
+
+        parameters:
+            - name: Authorization
+              description: Bearer token to make an authenticated request.
+              required: true
+              paramType: header
+            - name: title
+              description: Image title.
+              required: true
+              paramType: form
+            - name: legend
+              description: Image small legend (one line)
+              required: false
+              paramType: form
+            - name: physical
+              description: Image data
+              required: true
+              consumes: multipart/form-data
+              paramType: form
+        responseMessages:
+            - code: 401
+              message: Not Authenticated
+            - code: 403
+              message: Permission Denied
+            - code: 404
+              message: Not Found
+        """
+        return self.update(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        """
+        Delete an image
+        ---
+
+        parameters:
+            - name: Authorization
+              description: Bearer token to make an authenticated request.
+              required: true
+              paramType: header
+        responseMessages:
+            - code: 401
+              message: Not Authenticated
+            - code: 403
+              message: Permission Denied
+            - code: 404
+              message: Not Found
+        """
+        return self.destroy(request, *args, **kwargs)
+
+    def get_current_user(self):
+        return self.request.user
+
+    def perform_destroy(self, instance):
+        self.image = instance
+        self.perform_delete()
+
+    def get_serializer_class(self):
+        return ImageSerializer
+
+    def get_permissions(self):
+        permission_classes = [IsAuthenticated, DRYPermissions]
+        return [permission() for permission in permission_classes]

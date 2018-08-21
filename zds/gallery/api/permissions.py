@@ -10,3 +10,13 @@ class AccessToGallery(permissions.BasePermission):
 
     def has_permission(self, request, view):
         return UserGallery.objects.filter(user=request.user, gallery__pk=view.kwargs.get('pk_gallery')).count() == 1
+
+
+class WriteAccessToGallery(permissions.BasePermission):
+    """
+    Custom permission to know if a member has write access to gallery
+    """
+
+    def has_permission(self, request, view):
+        return UserGallery.objects.filter(
+            user=request.user, gallery__pk=view.kwargs.get('pk_gallery'), mode='W').count() == 1
