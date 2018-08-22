@@ -87,6 +87,11 @@ class Subscription(models.Model):
                                          settings.ZDS_APP['site']['email_noreply'])
 
         receiver = self.user
+
+        # This can happen when an user subscribes via social networks without providing an e-mail adress
+        if not receiver.email:
+            return
+
         context = {
             'username': receiver.username,
             'title': notification.title,
