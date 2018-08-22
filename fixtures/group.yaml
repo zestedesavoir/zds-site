@@ -1,0 +1,28 @@
+- model: pages.groupcontact
+  pk: 1
+  fields:
+    group: 1
+    name: Le staff
+    description: "Le staff est constitu\xE9 de certains membres du site dont le but\
+      \ est de contr\xF4ler le contenu publi\xE9 sur Zeste de Savoir. Ils sont en\
+      \ charge de la mod\xE9ration des messages sur les forums et commentaires, ainsi\
+      \ que de la validation et publication d\u2019articles et/ou de tutoriels de\
+      \ Zeste de Savoir."
+    email: null
+    position: 3
+    persons_in_charge: [2]
+- model: pages.groupcontact
+  pk: 2
+  fields:
+    group: 3
+    name: "L'\xE9quipe technique"
+    description: "L\u2019\xE9quipe technique est constitu\xE9e de certains membres\
+      \ du site dont le but est d\u2019une part de s\u2019assurer que le site reste\
+      \ toujours disponible en ligne, et d\u2019autre part de corriger les bogues\
+      \ rencontr\xE9s sur le site ainsi que d\u2019ajouter de nouvelles fonctionnalit\xE9\
+      s. Des administrateurs syst\xE8mes jusqu\u2019aux designers, en passant par\
+      \ les d\xE9veloppeurs back-end et int\xE9grateurs front-end, ils s\u2019occupent\
+      \ aussi de la maintenance du d\xE9p\xF4t officiel du projet."
+    email: zestedesavoir@gmail.com
+    position: 4
+    persons_in_charge: [8]
