@@ -1,7 +1,9 @@
+from copy import deepcopy
 import os
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.core import mail
 from django.test import TestCase
 from django.test.utils import override_settings
 
@@ -16,8 +18,7 @@ from zds.tutorialv2.factories import PublishableContentFactory, LicenceFactory, 
     PublishedContentFactory, ContentReactionFactory
 from zds.tutorialv2.publication_utils import publish_content, notify_update
 from zds.tutorialv2.tests import TutorialTestMixin
-from copy import deepcopy
-
+from zds.utils.mps import send_mp, send_message_mp
 from zds.utils.header_notifications import get_header_notifications
 
 overridden_zds_app = deepcopy(settings.ZDS_APP)
@@ -365,3 +366,36 @@ class ContentNotification(TestCase, TutorialTestMixin):
         notify_update(content, True, True)
         notifs = get_header_notifications(self.user1)['general_notifications']['list']
         self.assertEqual(1, len(notifs), str(notifs))
+
+
+@override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
+class SubscriptionsTest(TestCase):
+    def setUp(self):
+        self.userStandard1 = ProfileFactory().user
+        self.userOAuth1 = ProfileFactory().user
+
+        self.userStandard1.profile.email_for_answer = True
+        self.userOAuth1.profile.email_for_answer = True
+        self.userStandard1.profile.email_for_new_mp = True
+        self.userOAuth1.profile.email_for_new_mp = True
+
+        self.userOAuth1.email = ''
+
+        self.userStandard1.save()
+        self.userOAuth1.save()
+
+    def test_no_emails_for_those_who_have_none(self):
+        """
+        Test that we do not try to send e-mails to those who have not registered one.
+        """
+        self.assertEqual(0, len(mail.outbox))
+
+        topic = send_mp(author=self.userStandard1, users=[self.userOAuth1],
+                        title='Testing', subtitle='', text='',
+                        send_by_mail=True, leave=False)
+
+        self.assertEqual(0, len(mail.outbox))
+
+        send_message_mp(self.userOAuth1, topic, '', send_by_mail=True)
+
+        self.assertEqual(1, len(mail.outbox))
