@@ -8,10 +8,10 @@ from dry_rest_permissions.generics import DRYPermissions
 
 from zds.api.bits import UpdatedAtKeyBit
 from zds.api.key_constructor import PagingListKeyConstructor, DetailKeyConstructor
-from zds.gallery.models import Gallery, Image
+from zds.gallery.models import Gallery, Image, UserGallery
 from zds.gallery.mixins import GalleryUpdateOrDeleteMixin, ImageUpdateOrDeleteMixin
 
-from .serializers import GallerySerializer, ImageSerializer
+from .serializers import GallerySerializer, ImageSerializer, ParticipantSerializer
 from .permissions import AccessToGallery, WriteAccessToGallery
 
 
@@ -398,3 +398,85 @@ class ImageDetailView(RetrieveUpdateDestroyAPIView, ImageUpdateOrDeleteMixin):
     def get_permissions(self):
         permission_classes = [IsAuthenticated, DRYPermissions]
         return [permission() for permission in permission_classes]
+
+
+class PagingParticipantListKeyConstructor(PagingListKeyConstructor):
+    search = bits.QueryParamsKeyBit(['ordering'])
+    user = bits.UserKeyBit()
+    updated_at = UpdatedAtKeyBit('api_updated_gallery')
+
+
+class ParticipantListView(ListCreateAPIView):
+
+    filter_backends = (filters.OrderingFilter, )
+    ordering_fields = ('pk', )
+    list_key_func = PagingParticipantListKeyConstructor()
+
+    @etag(list_key_func)
+    @cache_response(key_func=list_key_func)
+    def get(self, request, *args, **kwargs):
+        """
+        Lists participants of a given gallery
+        ---
+
+        parameters:
+            - name: Authorization
+              description: Bearer token to make an authenticated request.
+              required: true
+              paramType: header
+            - name: page
+              description: Restricts output to the given page number.
+              required: false
+              paramType: query
+            - name: page_size
+              description: Sets the number of galleries per page.
+              required: false
+              paramType: query
+            - name: ordering
+              description: Sorts the results. You can order by (-)title, (-)update, (-)pubdate.
+              paramType: query
+        responseMessages:
+            - code: 401
+              message: Not Authenticated
+            - code: 403
+              message: Permission Denied
+            - code: 404
+              message: Not Found
+        """
+        return self.list(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        """
+        Add participant
+        ---
+
+        parameters:
+            - name: Authorization
+              description: Bearer token to make an authenticated request.
+              required: true
+              paramType: header
+            - name: id
+              description: Valid user id
+              required: true
+              paramType: form
+            - name: can_write
+              description: does the user have write access to the gallery ?
+              required: true
+              paramType: form
+        """
+        return self.create(request, *args, **kwargs)
+
+    def get_current_user(self):
+        return self.request.user
+
+    def get_serializer_class(self):
+        return ParticipantSerializer
+
+    def get_permissions(self):
+        permission_classes = [IsAuthenticated, AccessToGallery]
+        if self.request.method in ['POST', 'PUT', 'DELETE']:
+            permission_classes.append(WriteAccessToGallery)
+        return [permission() for permission in permission_classes]
+
+    def get_queryset(self):
+        return UserGallery.objects.filter(gallery__pk=self.kwargs.get('pk_gallery'))

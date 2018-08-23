@@ -5,9 +5,10 @@ from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 from zds.api.serializers import ZdSModelSerializer
-from zds.gallery.models import Gallery, Image
+from zds.gallery.models import Gallery, Image, UserGallery
 from zds.gallery.mixins import GalleryCreateMixin, GalleryUpdateOrDeleteMixin, ImageCreateMixin, ImageTooLarge,\
     ImageUpdateOrDeleteMixin
+from zds.member.models import User
 
 
 class CustomParticipantField(serializers.Field):
@@ -15,7 +16,7 @@ class CustomParticipantField(serializers.Field):
         participants = []
         for user_pk, user_perms in value.items():
             participants.append({
-                'pk': user_pk,
+                'id': user_pk,
                 'permissions': user_perms
             })
 
@@ -25,7 +26,7 @@ class CustomParticipantField(serializers.Field):
 class ImageTooLargeError(exceptions.ValidationError):
     def __init__(self, e):
         super().__init__(
-            detail=_('Votre image est trop grosse ({} Kio). La taille maximum est {} Kio !'.format(
+            detail=_(_('Votre image est trop grosse ({} Kio). La taille maximum est {} Kio !').format(
                 e.size / 1024, settings.ZDS_APP['gallery']['image_max_size'] / 1024)))
 
 
@@ -92,3 +93,39 @@ class ImageSerializer(ZdSModelSerializer, ImageCreateMixin, ImageUpdateOrDeleteM
             return self.perform_update(validated_data)
         except ImageTooLarge as e:
             raise ImageTooLargeError(e)
+
+
+class CustomPermissionField(serializers.Field):
+    def to_representation(self, value):
+        return {'read': True, 'write': value}
+
+
+class ParticipantSerializer(ZdSModelSerializer, GalleryUpdateOrDeleteMixin):
+
+    permissions = CustomPermissionField(source='can_write', read_only=True)
+    id = serializers.IntegerField(source='user.pk')
+    can_write = serializers.BooleanField(write_only=True)
+
+    class Meta:
+        model = UserGallery
+        fields = ('id', 'permissions', 'can_write')
+
+    def get_permissions(self, obj):
+        return {'read': True, 'write': obj.can_write()}
+
+    def create(self, validated_data):
+        try:
+            self.gallery = Gallery.objects.get(pk=self.context['view'].kwargs.get('pk_gallery'))
+            self.users_and_permissions = self.gallery.get_users_and_permissions()
+        except Gallery.DoesNotExist:
+            raise exceptions.NotFound(detail=_('Gallerie introuvable'))
+
+        try:
+            user = User.objects.get(**validated_data.get('user'))
+        except User.DoesNotExist:
+            raise exceptions.ValidationError(detail=_('L\'utilisateur n\'existe pas'))
+
+        if UserGallery.objects.filter(gallery=self.gallery, user=user).exists():
+            raise exceptions.ValidationError(detail=_('L\'utilisateur est déjà un participant'))
+
+        return self.perform_update_user(user, can_write=validated_data.get('can_write', False))

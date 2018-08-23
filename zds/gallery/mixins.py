@@ -127,12 +127,16 @@ class GalleryUpdateOrDeleteMixin(GalleryMixin):
                 user=user, gallery=self.gallery, mode=mode)
             user_gallery.save()
             self.users_and_permissions[user.pk] = {'read': True, 'write': can_write}
+            return user_gallery
         elif allow_modify:
             if self.users_and_permissions[user.pk]['write'] != can_write:
                 user_gallery = UserGallery.objects.filter(user=user, gallery=self.gallery).get()
                 user_gallery.mode = mode
                 user_gallery.save()
                 self.users_and_permissions[user.pk]['write'] = can_write
+                return user_gallery
+
+        return None
 
     def perform_delete(self):
         """Delete gallery
