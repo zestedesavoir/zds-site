@@ -39,6 +39,7 @@ from zds.member.models import Profile, TokenForgotPassword, TokenRegister, Karma
     BannedEmailProvider, NewEmailProvider, set_old_smileys_cookie, remove_old_smileys_cookie
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.notification.models import TopicAnswerSubscription, NewPublicationSubscription
+from zds.pages.models import GroupContact
 from zds.tutorialv2.models.database import PublishedContent, PickListOperation
 from zds.utils.models import Comment, CommentVote, Alert, CommentEdit, Hat, HatRequest, get_hat_from_settings, \
     get_hat_to_add
@@ -746,6 +747,10 @@ class HatDetail(DetailView):
                 .filter(user=self.request.user, hat__iexact=hat.name, is_granted__isnull=True).exists()
         if hat.group:
             context['users'] = hat.group.user_set.select_related('profile')
+            try:
+                context['groupcontact'] = hat.group.groupcontact
+            except GroupContact.DoesNotExist:
+                context['groupcontact'] = None  # group not displayed on contact page
         else:
             context['users'] = [p.user for p in hat.profile_set.select_related('user')]
         return context
