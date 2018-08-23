@@ -88,7 +88,7 @@ class Subscription(models.Model):
 
         receiver = self.user
 
-        # This can happen when an user subscribes via social networks without providing an e-mail adress
+        # This can happen when a user subscribes via social networks without providing an e-mail address
         if not receiver.email:
             return
 
