@@ -19,7 +19,7 @@
 <article
     class="topic-message
 
-           {% if message.is_useful %}helpful{% endif %}
+           {% if message.is_useful and message.is_visible %}helpful{% endif %}
            {% if is_repeated_message %}repeated{% endif %}"
 
     {% if comment_schema %}
@@ -173,7 +173,7 @@
                     {% trans "Reprise du dernier message de la page précédente" %}
                 </p>
             {% endif %}
-            <p class="message-helpful tick ico-after green {% if not message.is_useful or is_creator %}hidden{% endif %}"
+            <p class="message-helpful tick ico-after green {% if not message.is_useful or not message.is_visible %}hidden{% endif %}"
                data-ajax-output="mark-message-as-useful">
                 {% trans "Cette réponse a aidé l’auteur du sujet" %}
             </p>
