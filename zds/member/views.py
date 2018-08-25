@@ -86,6 +86,7 @@ class MemberDetail(DetailView):
         context['articles'] = PublishedContent.objects.last_articles_of_a_member_loaded(usr)
         context['opinions'] = PublishedContent.objects.last_opinions_of_a_member_loaded(usr)
         context['tutorials'] = PublishedContent.objects.last_tutorials_of_a_member_loaded(usr)
+        context['articles_and_tutorials'] = PublishedContent.objects.last_tutorials_and_articles_of_a_member_loaded(usr)
         context['topic_read'] = TopicRead.objects.list_read_topic_pk(self.request.user, context['topics'])
         context['subscriber_count'] = NewPublicationSubscription.objects.get_subscriptions(self.object).count()
         if self.request.user.has_perm('member.change_profile'):

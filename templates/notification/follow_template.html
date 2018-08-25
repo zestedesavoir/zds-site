@@ -4,7 +4,8 @@
     <input type="hidden" name="follow" value="1">
     {% csrf_token %}
 
-    <button class="follow ico-after star {% if is_followed %}yellow{% else %}blue{% endif %}"
+    <button
+            class="follow ico-after star {% if is_followed %}yellow btn-grey{% else %}blue{% endif %}"
             type="submit"
             data-ajax-input="follow-topic">
         <span id="follow_text" data-content-on-click="{{ data_onclick }}">{{ button_text }}</span>
