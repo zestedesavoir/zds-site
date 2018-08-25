@@ -3,8 +3,7 @@
 <form action="{{ link }}" method="post">
     <input type="hidden" name="email" value="1">
     {% csrf_token %}
-
-    <button class="email ico-after {% if not is_followed %}blue{% endif %}"
+    <button class="email ico-after {% if not is_followed %}blue{% else %}btn-grey{% endif %}"
             type="submit"
             data-ajax-input="follow-topic-by-email"
             data-content-on-click="{{ data_onclick }}">

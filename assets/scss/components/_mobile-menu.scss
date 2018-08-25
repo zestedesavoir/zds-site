@@ -3,6 +3,12 @@
     display: none;
 }
 
+@media only screen and #{$media-wide} {
+    .mobile-menu-only {
+        display: none;
+    }
+}
+
 @media only screen and #{$media-mobile-tablet} {
     .js .page-container {
         position: relative;
