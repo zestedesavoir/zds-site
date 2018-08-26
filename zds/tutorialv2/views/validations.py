@@ -27,8 +27,7 @@ from zds.tutorialv2.publication_utils import publish_content, unpublish_content,
     FailureDuringPublication, save_validation_state
 from zds.tutorialv2.utils import clone_repo
 from zds.utils.models import SubCategory, get_hat_from_settings
-from zds.utils.mps import send_mp
-
+from zds.utils.mps import send_mp, send_message_mp
 
 logger = logging.getLogger(__name__)
 
@@ -174,16 +173,20 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
                     'url': self.versioned_object.get_absolute_url() + '?version=' + form.cleaned_data['version'],
                     'url_history': reverse('content:history', args=[self.object.pk, self.object.slug])
                 })
-
-            send_mp(
-                bot,
-                [old_validator],
-                _('Une nouvelle version a été envoyée en validation.'),
-                self.versioned_object.title,
-                msg,
-                False,
-                hat=get_hat_from_settings('validation'),
-            )
+            if not self.object.validation_private_message:
+                self.object.validation_private_message = send_mp(
+                    bot,
+                    [old_validator],
+                    _('Une nouvelle version a été envoyée en validation.'),
+                    self.versioned_object.title,
+                    msg,
+                    False,
+                    hat=get_hat_from_settings('validation'),
+                )
+            else:
+                send_message_mp(bot,
+                                self.object.validation_private_message,
+                                msg)
 
         # update the content with the source and the version of the validation
         self.object.source = form.cleaned_data['source']
@@ -255,16 +258,21 @@ class CancelValidation(LoginRequiredMixin, ModalFormView):
                     'user': self.request.user,
                     'message': quote
                 })
-
-            send_mp(
-                bot,
-                [validation.validator],
-                _('Demande de validation annulée').format(),
-                versioned.title,
-                msg,
-                False,
-                hat=get_hat_from_settings('validation'),
-            )
+            if not validation.content.validation_private_message:
+                validation.content.validation_private_message = send_mp(
+                    bot,
+                    [validation.validator],
+                    _('Demande de validation annulée').format(),
+                    versioned.title,
+                    msg,
+                    False,
+                    hat=get_hat_from_settings('validation'),
+                )
+                validation.content.save(force_slug_update=False)
+            else:
+                send_message_mp(bot,
+                                validation.content.validation_private_message,
+                                msg)
 
         messages.info(self.request, _('La validation de ce contenu a bien été annulée.'))
 
@@ -306,18 +314,24 @@ class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
             if validation.validator in authors:
                 authors.remove(validation.validator)
             if len(authors) > 0:
-                send_mp(
-                    validation.validator,
-                    authors,
-                    _('Contenu réservé - {0}').format(validation.content.title),
-                    validation.content.title,
-                    msg,
-                    True,
-                    leave=False,
-                    direct=False,
-                    mark_as_read=True,
-                    hat=get_hat_from_settings('validation'),
-                )
+                if not validation.content.validation_private_message:
+                    validation.content.validation_private_message = send_mp(
+                        validation.validator,
+                        authors,
+                        _('Contenu réservé - {0}').format(validation.content.title),
+                        validation.content.title,
+                        msg,
+                        True,
+                        leave=False,
+                        direct=False,
+                        mark_as_read=True,
+                        hat=get_hat_from_settings('validation'),
+                    )
+                    validation.content.save(force_slug_update=False)
+                else:
+                    send_message_mp(validation.validator,
+                                    validation.content.validation_private_message,
+                                    msg)
 
             messages.info(request, _('Ce contenu a bien été réservé par {0}.').format(request.user.username))
 
@@ -394,16 +408,22 @@ class RejectValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
             })
 
         bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
-        send_mp(
-            bot,
-            validation.content.authors.all(),
-            _('Rejet de la demande de publication').format(),
-            validation.content.title,
-            msg,
-            True,
-            direct=False,
-            hat=get_hat_from_settings('validation'),
-        )
+        if not validation.content.validation_private_message:
+            validation.content.validation_private_message = send_mp(
+                bot,
+                validation.content.authors.all(),
+                _('Rejet de la demande de publication').format(),
+                validation.content.title,
+                msg,
+                True,
+                direct=False,
+                hat=get_hat_from_settings('validation'),
+            )
+            validation.content.save(force_slug_update=False)
+        else:
+            send_message_mp(bot,
+                            validation.content.validation_private_message,
+                            msg)
 
         messages.info(self.request, _('Le contenu a bien été refusé.'))
         self.success_url = reverse('validation:list')
@@ -513,16 +533,24 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleOnline
             })
 
         bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
-        send_mp(
-            bot,
-            validation.content.authors.all(),
-            _('Dépublication'),
-            validation.content.title,
-            msg,
-            True,
-            direct=False,
-            hat=get_hat_from_settings('validation'),
-        )
+        if not validation.content.validation_private_message:
+            validation.content.validation_private_message = send_mp(
+                bot,
+                validation.content.authors.all(),
+                _('Dépublication'),
+                validation.content.title,
+                msg,
+                True,
+                direct=False,
+                hat=get_hat_from_settings('validation'),
+            )
+            self.object.save(force_slug_update=False)
+        else:
+            send_message_mp(
+                bot,
+                validation.content.validation_private_message,
+                msg
+            )
 
         messages.success(self.request, _('Le contenu a bien été dépublié.'))
         self.success_url = self.versioned_object.get_absolute_url() + '?version=' + validation.version
@@ -618,16 +646,23 @@ class UnpublishOpinion(LoginRequiredMixin, SingleOnlineContentFormViewMixin, Doe
                 })
 
             bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
-            send_mp(
-                bot,
-                versioned.authors.all(),
-                _('Dépublication'),
-                versioned.title,
-                msg,
-                True,
-                direct=False,
-                hat=get_hat_from_settings('moderation'),
-            )
+            if not self.object.validation_private_message:
+                self.object.validation_private_message = send_mp(
+                    bot,
+                    versioned.authors.all(),
+                    _('Dépublication'),
+                    versioned.title,
+                    msg,
+                    True,
+                    direct=False,
+                    hat=get_hat_from_settings('moderation'),
+                )
+                self.object.save(force_slug_update=False)
+            else:
+                send_message_mp(bot,
+                                self.object.validation_private_message,
+                                msg,
+                                hat=get_hat_from_settings('moderation'))
 
         messages.success(self.request, _('Le contenu a bien été dépublié.'))
         self.success_url = self.versioned_object.get_absolute_url()
@@ -689,16 +724,23 @@ class DoNotPickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormView
                     })
 
                 bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
-                send_mp(
-                    bot,
-                    versioned.authors.all(),
-                    _('Billet modéré'),
-                    versioned.title,
-                    msg,
-                    True,
-                    direct=False,
-                    hat=get_hat_from_settings('moderation'),
-                )
+                if not self.object.validation_private_message:
+                    self.object.validation_private_message = send_mp(
+                        bot,
+                        versioned.authors.all(),
+                        _('Billet modéré'),
+                        versioned.title,
+                        msg,
+                        True,
+                        direct=False,
+                        hat=get_hat_from_settings('moderation'),
+                    )
+                    self.object.save(force_slug_update=False)
+                else:
+                    send_message_mp(bot,
+                                    self.object.validation_private_message,
+                                    msg,
+                                    hat=get_hat_from_settings('moderation'))
         except ValueError:
             logger.exception('Could not %s the opinion %s', form.cleaned_data['operation'], str(self.object))
             return HttpResponse(json.dumps({'result': 'FAIL', 'reason': str(_('Mauvaise opération'))}), status=400)
@@ -778,16 +820,23 @@ class PickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormViewMixin
             })
 
         bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
-        send_mp(
-            bot,
-            versioned.authors.all(),
-            _('Billet approuvé'),
-            versioned.title,
-            msg,
-            True,
-            direct=False,
-            hat=get_hat_from_settings('moderation'),
-        )
+        if not self.object.validation_private_message:
+            self.object.validation_private_message = send_mp(
+                bot,
+                versioned.authors.all(),
+                _('Billet approuvé'),
+                versioned.title,
+                msg,
+                True,
+                direct=False,
+                hat=get_hat_from_settings('moderation'),
+            )
+            self.object.save(force_slug_update=False)
+        else:
+            send_message_mp(bot,
+                            self.object.validation_private_message,
+                            msg,
+                            hat=get_hat_from_settings('moderation'))
 
         messages.success(self.request, _('Le billet a bien été choisi.'))
 
@@ -841,16 +890,22 @@ class UnpickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormViewMix
             })
 
         bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
-        send_mp(
-            bot,
-            versioned.authors.all(),
-            _('Billet retiré de la liste des billets choisis'),
-            versioned.title,
-            msg,
-            True,
-            direct=False,
-            hat=get_hat_from_settings('moderation'),
-        )
+        if not self.object.validation_private_message:
+            self.object.validation_private_message = send_mp(
+                bot,
+                versioned.authors.all(),
+                _('Billet retiré de la liste des billets choisis'),
+                versioned.title,
+                msg,
+                True,
+                direct=False,
+                hat=get_hat_from_settings('moderation'),
+            )
+            self.object.save(force_slug_update=False)
+        else:
+            send_message_mp(bot,
+                            self.object.validation_private_message,
+                            msg)
 
         messages.success(self.request, _('Le contenu a bien été enlevé de la liste des billets choisis.'))
 
@@ -978,7 +1033,8 @@ class PromoteOpinionToArticle(PermissionRequiredMixin, DoesNotRequireValidationF
             })
 
         bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
-        send_mp(
+
+        article.validation_private_message = send_mp(
             bot,
             article.authors.all(),
             _('Billet promu en article'),
@@ -988,6 +1044,7 @@ class PromoteOpinionToArticle(PermissionRequiredMixin, DoesNotRequireValidationF
             direct=False,
             hat=get_hat_from_settings('validation'),
         )
+        article.save(force_slug_update=False)
 
         self.success_url = db_object.get_absolute_url()
 

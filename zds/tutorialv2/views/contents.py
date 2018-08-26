@@ -49,7 +49,7 @@ from zds.tutorialv2.utils import search_container_or_404, get_target_tagged_tree
 from zds.utils.forums import send_post, lock_topic, create_topic, unlock_topic
 
 from zds.utils.models import HelpWriting, get_hat_from_settings
-from zds.utils.mps import send_mp
+from zds.utils.mps import send_mp, send_message_mp
 from zds.utils.paginator import ZdSPagingListView, make_pagination
 
 
@@ -401,16 +401,24 @@ class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteV
                             'user': self.request.user,
                             'message': '\n'.join(['> ' + line for line in self.request.POST['text'].split('\n')])
                         })
-
-                    send_mp(
-                        bot,
-                        [validation.validator],
-                        _('Demande de validation annulée').format(),
-                        self.object.title,
-                        msg,
-                        False,
-                        hat=get_hat_from_settings('validation'),
-                    )
+                    if not validation.content.validation_private_message:
+                        validation.content.validation_private_message = send_mp(
+                            bot,
+                            [validation.validator],
+                            _('Demande de validation annulée').format(),
+                            self.object.title,
+                            msg,
+                            False,
+                            hat=get_hat_from_settings('validation'),
+                        )
+                        validation.content.save(force_slug_update=False)
+                    else:
+                        send_message_mp(
+                            bot,
+                            validation.content.validation_private_message,
+                            msg,
+                            hat=get_hat_from_settings('validation')
+                        )
             if self.object.beta_topic is not None:
                 beta_topic = self.object.beta_topic
                 beta_topic.is_locked = True
@@ -1424,13 +1432,20 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                             'user': self.request.user
                         }
                     )
-                    send_mp(bot,
-                            self.object.authors.all(),
-                            _(_type[0].upper() + _type[1:].lower() + ' en bêta'),
-                            beta_version.title,
-                            msg_pm,
-                            False,
-                            hat=get_hat_from_settings('validation'))
+                    if not self.object.validation_private_message:
+                        self.object.validation_private_message = send_mp(bot,
+                                self.object.authors.all(),
+                                _(_type[0].upper() + _type[1:].lower() + ' en bêta'),
+                                beta_version.title,
+                                msg_pm,
+                                False,
+                                hat=get_hat_from_settings('validation'))
+                        self.object.save(force_slug_update=False)
+                    else:
+                        send_message_mp(bot,
+                                        self.object.validation_private_message,
+                                        msg,
+                                        hat=get_hat_from_settings('validation'))
                 else:
                     all_tags = self._get_all_tags()
                     if not already_in_beta:

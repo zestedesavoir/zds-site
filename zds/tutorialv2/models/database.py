@@ -4,6 +4,7 @@ from django.db.models import CASCADE
 from datetime import datetime
 import contextlib
 
+from zds.mp.models import PrivateTopic
 from zds.tutorialv2.models.mixins import TemplatableContentModelMixin, OnlineLinkableContentMixin
 from zds import json_handler
 
@@ -105,6 +106,10 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
                                   blank=True, null=True, max_length=80, db_index=True)
     beta_topic = models.ForeignKey(Topic, verbose_name='Sujet beta associé', default=None, blank=True, null=True,
                                    on_delete=models.SET_NULL)
+    beta_topic = models.ForeignKey(Topic, verbose_name='Sujet beta associé', default=None, blank=True, null=True)
+    validation_private_message = models.ForeignKey(PrivateTopic, verbose_name='Message de suivi staff',
+                                                   default=None, blank=True, null=True,
+                                                   on_delete=models.SET_NULL)
     licence = models.ForeignKey(Licence,
                                 verbose_name='Licence',
                                 blank=True, null=True, db_index=True, on_delete=models.SET_NULL)

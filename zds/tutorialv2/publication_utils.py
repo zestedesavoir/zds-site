@@ -585,6 +585,7 @@ def unpublish_content(db_object, moderator=None):
 
     with contextlib.suppress(ObjectDoesNotExist, OSError):
         public_version = PublishedContent.objects.get(pk=db_object.public_version.pk)
+        public_version.content.update(public_version=None, sha_public=None, )
 
         results = [
             content_unpublished.send(sender=reaction.__class__, instance=db_object, target=ContentReaction,
@@ -606,7 +607,6 @@ def unpublish_content(db_object, moderator=None):
                                  moderator=moderator)
         # clean files
         old_path = public_version.get_prod_path()
-        public_version.content.update(public_version=None, sha_public=None)
         if path.exists(old_path):
             shutil.rmtree(old_path)
         return True

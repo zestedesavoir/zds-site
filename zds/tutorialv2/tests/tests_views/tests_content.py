@@ -5857,7 +5857,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
 
         # Check that the staff user doesn't have a notification for their reservation and their private topic is read.
         self.assertEqual(0, len(Notification.objects.get_unread_notifications_of(self.user_staff)))
-        last_pm = PrivateTopic.objects.get_private_topics_of_user(self.user_staff.pk).last()
+        last_pm = PublishableContent.objects.get(pk=article.pk).validation_private_message
         self.assertFalse(is_privatetopic_unread(last_pm, self.user_staff))
 
         # publish the article
