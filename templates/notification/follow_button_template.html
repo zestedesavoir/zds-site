@@ -1,4 +1,5 @@
 {% load interventions %}
+{% load pluralize_fr %}
 
 <form action="{{ link }}" method="post">
     <input type="hidden" name="follow" value="1">
@@ -6,10 +7,10 @@
 
     <button
             class="follow ico-after star {% if is_followed %}yellow btn-grey{% else %}blue{% endif %}"
-            type="submit"
-            data-ajax-input="follow-topic">
+            type="submit" data-ajax-input="follow-topic">
         <span id="follow_text" data-content-on-click="{{ data_onclick }}">{{ button_text }}</span>
-        {% include 'notification/subscription_count_template.html' with subscriber_count=subscriber_count %}
+        <span id="subscriber_count">{{ subscriber_count }}</span>
+
     </button>
 
 </form>
