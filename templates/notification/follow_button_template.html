@@ -6,7 +6,7 @@
     {% csrf_token %}
 
     <button
-            class="follow ico-after star {% if is_followed %}yellow btn-grey{% else %}blue{% endif %}"
+            class="follow ico-after star {% if is_followed %}yellow btn-grey{% else %}light{% endif %}"
             type="submit" data-ajax-input="follow-topic">
         <span id="follow_text" data-content-on-click="{{ data_onclick }}">{{ button_text }}</span>
         <span id="subscriber_count">{{ subscriber_count }}</span>

@@ -72,7 +72,7 @@
                                     {% trans "Abonné par courriel" as data_onclick %}
                                 {% endif %}
 
-                                {% include 'notification/follow_by_email_template.html' with link=link_follow is_followed=content_is_followed data_onclick=data_onclick button_text=button_text %}
+                                {% include 'notification/follow_button_by_email_template.html' with link=link_follow is_followed=content_is_followed data_onclick=data_onclick button_text=button_text %}
                             {% endwith %}
                         {% endif %}
                     </div>
