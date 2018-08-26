@@ -45,6 +45,7 @@ from zds.utils.models import Comment, CommentVote, Alert, CommentEdit, Hat, HatR
     get_hat_to_add
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView
+from zds.utils.templatetags.pluralize_fr import pluralize_fr
 from zds.utils.tokens import generate_token
 import logging
 
@@ -73,6 +74,33 @@ class MemberDetail(DetailView):
         # sent through emarkdown parser).
         return get_object_or_404(User, username=urlunquote(self.kwargs['user_name']))
 
+    def get_summary(self, profile):
+        summary = []
+        if self.request.user.has_perm('member.change_post'):
+            count_post = profile.get_post_count_as_staff()
+        else:
+            count_post = profile.get_post_count()
+        count_tutorials = profile.get_public_tutos().count()
+        count_articles = profile.get_public_articles().count()
+        count_opinions = profile.get_public_opinions().count()
+        count_draft = profile.get_draft_articles().count() + profile.get_draft_tutos().count()
+
+        if count_post > 0:
+            summary.append('{} message{}'.format(count_post, pluralize_fr(count_post)))
+        else:
+            summary.append('Aucun message')
+
+        if count_tutorials > 0:
+            summary.append('{} tutoriel{}'.format(count_tutorials, pluralize_fr(count_tutorials)))
+        if count_articles > 0:
+            summary.append('{} article{}'.format(count_articles, pluralize_fr(count_articles)))
+        if count_opinions > 0:
+            summary.append('{} billet{}'.format(count_opinions, pluralize_fr(count_opinions)))
+        if count_draft > 0:
+            summary.append('{} contenu{} en rédaction'.format(count_draft, pluralize_fr(count_draft)))
+
+        return ' et '.join([', '.join(summary[:-1]), summary[-1]] if len(summary) > 2 else summary)
+
     def get_context_data(self, **kwargs):
         context = super(MemberDetail, self).get_context_data(**kwargs)
         usr = context['usr']
@@ -98,6 +126,8 @@ class MemberDetail(DetailView):
             context['actions'] = actions
             context['karmaform'] = KarmaForm(profile)
             context['alerts'] = profile.alerts_on_this_profile.all()
+
+        context['summary'] = self.get_summary(profile)
         return context
 
 
