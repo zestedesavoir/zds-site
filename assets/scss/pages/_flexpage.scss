@@ -47,7 +47,7 @@ $content-width: 1145px;
 
     .flexpage-title-tool {
         position: relative;
-        padding: 50px 50px 50px 200px;
+        padding: 50px 50px 50px 250px;
         font-size: 2rem;
         font-weight: 100;
 
@@ -108,9 +108,6 @@ $content-width: 1145px;
             position: absolute;
             left: 50px;
             top: 50px;
-            width: 80px;
-            height: 60.04px;
-            margin: 30.02px 50px 30.02px 0;
 
             &:before, &:after {
                 z-index: 0;
@@ -123,7 +120,8 @@ $content-width: 1145px;
 
             img {
                 position: absolute;
-                top: -20px;
+                width: 145px;
+                height: 145px;
             }
         }
 
@@ -144,6 +142,7 @@ $content-width: 1145px;
             }
             button {
                 text-transform: uppercase;
+                background-color: saturate($color-primary, 5%);
                 width: 100%;
                 font-size: 0.7em;
                 margin-bottom: 5px;
@@ -270,7 +269,7 @@ $content-width: 1145px;
             }
         }
         .aside-center {
-            margin-right: 300px;
+            margin-right: 250px;
             @include block-center;
         }
 
