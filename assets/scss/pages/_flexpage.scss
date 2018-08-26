@@ -224,11 +224,9 @@ $content-width: 1145px;
                 }
             }
         }
-
-        .aside {
+        @mixin block-center {
             display: flex;
             margin-top: 10px;
-            margin-right: 300px;
             height: 50px;
 
             .search {
@@ -271,6 +269,15 @@ $content-width: 1145px;
                     }
                 }
             }
+        }
+        .aside-center {
+            margin-right: 300px;
+            @include block-center;
+        }
+
+        .aside {
+            margin-right: 150px;
+            @include block-center;
         }
     }
 }

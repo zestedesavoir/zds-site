@@ -30,13 +30,7 @@
 {% endblock %}
 
 {% block content_out %}
-    {% with draft_tutos_count=profile.get_draft_tutos.count %}
-    {% with public_tutos_count=profile.get_public_tutos.count %}
-    {% with articles_draft_count=profile.get_draft_articles.count %}
-    {% with articles_public_count=profile.get_public_articles.count %}
-    {% with opinions_public_count=profile.get_public_opinions.count %}
-    {% with opinions_draft_count=profile.get_draft_opinions.count %}
-    {% with draft_content_count=draft_tutos_count|add:articles_draft_count %}
+    {% with public_tutos_count=profile.get_public_tutos.count articles_public_count=profile.get_public_articles.count opinions_public_count=profile.get_public_opinions.count opinions_draft_count=profile.get_draft_opinions.count draft_content_count=profile.get_draft_tutos.count|add:profile.get_draft_articles.count %}
     <section class="flexpage-header">
         <div class="flexpage-wrapper">
             <div class="flexpage-title-tool">
@@ -65,7 +59,7 @@
                                     {% trans "Abonné" as data_onclick %}
                                 {% endif %}
 
-                                {% include 'notification/follow_template.html' with link=link_follow is_followed=content_is_followed data_onclick=data_onclick button_text=button_text %}
+                                {% include 'notification/follow_button_template.html' with link=link_follow is_followed=content_is_followed data_onclick=data_onclick button_text=button_text %}
                             {% endwith %}
                             {% with content_is_followed=usr|is_new_publication_email_followed %}
                                 {% url 'content:follow' usr.pk as link_follow %}
@@ -89,14 +83,10 @@
                         {{ usr.username }}
                     </h1>
                     <div class="line">
-                        {% if perms.member.change_post %}{{ profile.get_post_count_as_staff }} message{{profile.get_post_count|pluralize_fr }}{% else %} {{ profile.get_post_count }} message{{profile.get_post_count|pluralize_fr }}{% endif %}
-                        {% if public_tutos_count > 0 %}, {{ public_tutos_count }} tutoriel{{public_tutos_count|pluralize_fr }}{% endif%}
-                        {% if articles_public_count > 0 %}, {{ articles_public_count }} article{{articles_public_count|pluralize_fr }}{% endif%}
-                        {% if opinions_public_count > 0 %}, {{ opinions_public_count }} billet{{opinions_public_count|pluralize_fr }}{% endif%}
-                        {% if draft_content_count > 0 %}, {{draft_content_count}} contenu{{draft_content_count|pluralize_fr }} en rédaction{% endif%}.
+                        {{summary}}
                     </div>
                 </div>
-                <div class="aside">
+                <div class="aside-center">
                     <form action="{% url 'search:query' %}" id="search-form" class="search" method="get">
                         <label for="id_q" class="control-label">{% trans 'Recherche' %}</label>
                         <input id="id_q" maxlength="150" name="q" required="required" type="search" placeholder="dans l'activité du membre">
@@ -115,154 +105,7 @@
         </div>
     </section>
 
-
     <div class="flexpage-wrapper">
-        <section>
-            <h2 itemprop="name">{% trans 'Biographie' %}</h2>
-            <div>
-                {% if not profile.end_ban_read and not profile.can_read %}
-                    <em>{% trans "La biographie de ce membre est masquée car il a été banni définitivement." %}</em>
-                {% else %}
-                    {{ profile.biography|emarkdown }}
-                {% endif %}
-            </div>
-        </section>
-
-       <div class="flexpage-column">
-            <section>
-                <h2 itemprop="name">
-                  {% trans 'Derniers contenus publiés' %}
-                </h2>
-                <div class="content-item-list">
-                    {% for public_content in articles_and_tutorials %}
-                        {% include 'tutorialv2/includes/content_item.part.html' with show_description=True public_content=public_content %}
-                    {% empty %}
-                            <p>{% trans "Aucun contenu crée." %}</p>
-                    {% endfor %}
-                </div>
-            </section>
-            <section>
-                <h2 itemprop="name">
-                  {% trans 'Derniers billets publiés' %}
-                    <a href="{% url "content:find-opinion" usr.pk %}?filter=public" class="btn btn-grey">En voir plus</a>
-                </h2>
-
-                <div class="content-item-list">
-                    {% for public_opinion in opinions %}
-                        {% include 'tutorialv2/includes/content_item.part.html' with show_description=True public_content=public_opinion show_reactions=True %}
-                    {% empty %}
-                        <p>{% trans "Aucun billet crée." %}</p>
-                    {% endfor %}
-                </div>
-
-            </section>
-        </div>
-
-        <section>
-            <h2 itemprop="name">
-              {% trans 'Derniers sujets crées' %}
-                <a href="{% url 'topic-find' usr.pk %}" class="btn btn-grey">En voir plus</a>
-            </h2>
-
-            <div class="content-item-list">
-              {% for topic in topics %}
-                  {% include 'forum/includes/topic_item.part.html' %}
-              {% empty %}
-                  <p>{% trans "Aucun sujet crée." %}</p>
-              {% endfor %}
-            </div>
-
-        </section>
-
-        <section>
-            <h2>{% trans "Activité" %}</h2>
-
-            <div class="content-linkbox-list">
-                <div class="linkbox-item primary">
-                    <div class="head">
-                        <h3>{% trans 'Bibliothèque' %}</h3>
-                    </div>
-
-                    <div class="body">
-                        <p>{% blocktrans with username=usr.username %} Cette catégorie est composée des contenus validés que {{ username }} a écrit{% endblocktrans %}</p>
-                    </div>
-
-                    <a href="{% url "content:find-tutorial" usr.pk %}?filter=public" class="tail">
-                        <p>{% trans "Tutoriels publiés" %} ({{ public_tutos_count }})</p>
-                    </a>
-                    <a href="{% url "content:find-article" usr.pk %}?filter=public" class="tail">
-                        <p>{% trans "Articles publiés" %} ({{ articles_public_count }})</p>
-                    </a>
-                    <a href="#" class="tail">
-                        <p>{% trans "En rédaction" %} ({{draft_content_count}})</p>
-                    </a>
-                </div>
-
-                <div class="linkbox-item primary">
-                    <div class="head">
-                        <h3>{% trans 'Tribune' %}</h3>
-                    </div>
-
-                    <div class="body">
-                        <p>{% blocktrans with username=usr.username %} Cette catégorie est composée des billets que {{ username }} a écrit{% endblocktrans %}</p>
-                    </div>
-
-                    <a href="{% url "content:find-opinion" usr.pk %}?filter=public" class="tail">
-                        <p>{% trans "Billets publiés" %} ({{opinions_public_count}})</p>
-                    </a>
-                    {% if profile.user == user %}
-                        <a href="{% url "content:find-opinion" usr.pk %}?filter=redaction" class="tail">
-                            <p>{% trans "En rédaction" %} ({{ opinions_draft_count }})</p>
-                        </a>
-                    {% else %}
-                        <span class="tail">
-                            <p>{% trans "En rédaction" %} ({{ opinions_draft_count }})</p>
-                        </span>
-                    {% endif %}
-
-                </div>
-
-                <div class="linkbox-item primary">
-                    <div class="head">
-                        <h3>{% trans 'Forum' %}</h3>
-                    </div>
-
-                    <div class="body">
-                        <p>{% blocktrans with username=usr.username %} Cette catégorie est composée des publications que {{ username }} a posté sur le forum {% endblocktrans %}</p>
-                    </div>
-
-                    <a href="{% url 'topic-find' usr.pk %}" class="tail">
-                        <p>{% trans "Sujet crées" %} ({{profile.get_topic_count}})</p>
-                    </a>
-                    <a href="{% url 'post-find' usr.pk %}" class="tail">
-                        <p>{% trans "Messages postés" %} ({% if perms.member.change_post %}{{ profile.get_post_count_as_staff }}{% else %}{{ profile.get_post_count }}{% endif %})</p>
-                    </a>
-                </div>
-
-                <div class="linkbox-item secondary">
-                    <div class="head">
-                        <h3>{% trans 'Profil' %}</h3>
-                    </div>
-
-                    <div class="body">
-                        {% if not profile.is_private %}
-                            <p>{% trans "Inscrit" %} {{ usr.date_joined|format_date:True }} </p>
-                            <p>{% trans "Dernière visite sur le site" %} : {% if profile.last_visit %} {{ profile.last_visit|format_date:True }} {% else %} {% trans "ne s’est jamais connecté(e)" %} {% endif %}</p>
-                        {% else %}
-                            <p>{% trans "Ce membre est un compte d’administration" %}</p>
-                        {% endif %}
-                    </div>
-                    {% if usr != user and not profile.is_private and profile.can_read_now %}
-                    <a href="{% url 'mp-new' %}?username={{ usr.username }}" class="tail">
-                        <p>{% trans "Envoyer un message privé" %}</p>
-                    </a>
-                    {% endif %}
-                </div>
-            </div>
-        </section>
-
-
-
         <div class="flexpage-column">
             <section>
                 <h2 itemprop="name">{% trans 'Informations' %}</h2>
@@ -309,9 +152,11 @@
                     <li>
                         {% trans "Dernière IP" %} : <a href="{% url "member-from-ip" profile.last_ip_address %}">{{ profile.last_ip_address }}</a>
                     </li>
+                    {% if profile.get_city %}
                     <li>
                         {{ profile.get_city }}
                     </li>
+                    {% endif %}
                 {% endif %}
 
                 </ul>
@@ -362,6 +207,153 @@
                     {% endif %}
             </section>
         </div>
+        {% if profile.biography %}
+        <section>
+            <h2 itemprop="name">{% trans 'Biographie' %}</h2>
+            <div>
+                {% if not profile.end_ban_read and not profile.can_read %}
+                    <em>{% trans "La biographie de ce membre est masquée car il a été banni définitivement." %}</em>
+                {% else %}
+                    {{ profile.biography|emarkdown }}
+                {% endif %}
+            </div>
+        </section>
+        {% endif %}
+
+        {% if profile.sign %}
+        <section>
+            <h2 itemprop="name">{% trans 'Signature' %}</h2>
+            {% if profile.sign %}
+                {% if not profile.end_ban_read and not profile.can_read %}
+                    <em>{% trans "La signature de ce membre est masquée car il a été banni définitivement." %}</em>
+                {% else %}
+                    {{ profile.sign|emarkdown_inline }}
+                {% endif %}
+            {% endif %}
+        </section>
+        {% endif %}
+
+        <div class="flexpage-column">
+            <section>
+                <h2 itemprop="name">
+                  {% trans 'Dernières publications' %}
+                </h2>
+                <div class="content-item-list">
+                    {% for public_content in articles_and_tutorials %}
+                        {% include 'tutorialv2/includes/content_item.part.html' with show_description=True public_content=public_content %}
+                    {% empty %}
+                            <p>{% trans "Aucune publication." %}</p>
+                    {% endfor %}
+                </div>
+            </section>
+            <section>
+                <h2 itemprop="name">
+                  {% trans 'Derniers billets publiés' %}
+                    <a href="{% url "content:find-opinion" usr.pk %}?filter=public" class="btn btn-grey">En voir plus</a>
+                </h2>
+
+                <div class="content-item-list">
+                    {% for public_opinion in opinions %}
+                        {% include 'tutorialv2/includes/content_item.part.html' with show_description=True public_content=public_opinion show_reactions=True %}
+                    {% empty %}
+                        <p>{% trans "Aucun billet créé." %}</p>
+                    {% endfor %}
+                </div>
+
+            </section>
+        </div>
+
+        <section>
+            <h2 itemprop="name">
+              {% trans 'Derniers sujets crées' %}
+                <a href="{% url 'topic-find' usr.pk %}" class="btn btn-grey">En voir plus</a>
+            </h2>
+
+            <div class="content-item-list">
+              {% for topic in topics %}
+                  {% include 'forum/includes/topic_item.part.html' %}
+              {% empty %}
+                  <p>{% trans "Aucun sujet créé." %}</p>
+              {% endfor %}
+            </div>
+
+        </section>
+
+        <section>
+            <h2>{% trans "Activité" %}</h2>
+
+            <div class="content-linkbox-list">
+                <div class="linkbox-item primary">
+                    <div class="head">
+                        <h3>{% trans 'Bibliothèque' %}</h3>
+                    </div>
+
+                    <a href="{% url "content:find-tutorial" usr.pk %}?filter=public" class="tail">
+                        <p>{% trans "Tutoriels publiés" %} ({{ public_tutos_count }})</p>
+                    </a>
+                    <a href="{% url "content:find-article" usr.pk %}?filter=public" class="tail">
+                        <p>{% trans "Articles publiés" %} ({{ articles_public_count }})</p>
+                    </a>
+                    <span class="tail">
+                        <p>{% trans "En rédaction" %} ({{draft_content_count}})</p>
+                    </span>
+                </div>
+
+                <div class="linkbox-item primary">
+                    <div class="head">
+                        <h3>{% trans 'Tribune' %}</h3>
+                    </div>
+
+                    <a href="{% url "content:find-opinion" usr.pk %}?filter=public" class="tail">
+                        <p>{% trans "Billets publiés" %} ({{opinions_public_count}})</p>
+                    </a>
+                    {% if profile.user == user %}
+                        <a href="{% url "content:find-opinion" usr.pk %}?filter=redaction" class="tail">
+                            <p>{% trans "En rédaction" %} ({{ opinions_draft_count }})</p>
+                        </a>
+                    {% else %}
+                        <span class="tail">
+                            <p>{% trans "En rédaction" %} ({{ opinions_draft_count }})</p>
+                        </span>
+                    {% endif %}
+
+                </div>
+
+                <div class="linkbox-item primary">
+                    <div class="head">
+                        <h3>{% trans 'Forum' %}</h3>
+                    </div>
+
+                    <a href="{% url 'topic-find' usr.pk %}" class="tail">
+                        <p>{% trans "Sujet crées" %} ({{profile.get_topic_count}})</p>
+                    </a>
+                    <a href="{% url 'post-find' usr.pk %}" class="tail">
+                        <p>{% trans "Messages postés" %} ({% if perms.member.change_post %}{{ profile.get_post_count_as_staff }}{% else %}{{ profile.get_post_count }}{% endif %})</p>
+                    </a>
+                </div>
+
+                <div class="linkbox-item secondary">
+                    <div class="head">
+                        <h3>{% trans 'Profil' %}</h3>
+                    </div>
+
+                    <div class="body">
+                        {% if not profile.is_private %}
+                            <p>{% trans "Inscrit" %} {{ usr.date_joined|format_date:True }} </p>
+                            <p>{% trans "Dernière visite sur le site" %} : {% if profile.last_visit %} {{ profile.last_visit|format_date:True }} {% else %} {% trans "ne s’est jamais connecté(e)" %} {% endif %}</p>
+                        {% else %}
+                            <p>{% trans "Ce membre est un compte d’administration" %}</p>
+                        {% endif %}
+                    </div>
+                    {% if usr != user and not profile.is_private and profile.can_read_now %}
+                    <a href="{% url 'mp-new' %}?username={{ usr.username }}" class="tail">
+                        <p>{% trans "Envoyer un message privé" %}</p>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+
         {% if user.is_superuser %}
         <section>
             <h2 itemprop="name">{% trans 'Administration ' %}</h2>
@@ -370,10 +362,7 @@
                 <div class="linkbox-item">
 
                     <div class="head">
-                        <h3>{% trans 'Actions super utilisateur' %}</h3>
-                    </div>
-                    <div class="body">
-                        <p>{% blocktrans with username=usr.username %}Les actions réalisables par un super utilisateurs Django{% endblocktrans %}</p>
+                        <h3>{% trans 'Actions super-utilisateur' %}</h3>
                     </div>
                     <a href="{% url "member-settings-promote" profile.user.pk %}" class="tail">
                         <p>{% trans "Gestion des groupes" %}</p>
@@ -387,7 +376,7 @@
             </div>
         </section>
         {% endif %}
-        {% if perms.member.change_profile and actions %}
+        {% if perms.member.change_profile and profile.user.is_active %}
         <section>
             <h2 itemprop="name">{% trans 'Modération' %}</h2>
 
@@ -612,24 +601,6 @@
             </table>
         </section>
         {% endif %}
-
-        <section>
-            <h2 itemprop="name">{% trans 'Signature' %}</h2>
-            {% if profile.sign %}
-                {% if not profile.end_ban_read and not profile.can_read %}
-                    <em>{% trans "La signature de ce membre est masquée car il a été banni définitivement." %}</em>
-                {% else %}
-                    {{ profile.sign|emarkdown_inline }}
-                {% endif %}
-            {% endif %}
-        </section>
     </div>
-
-    {% endwith %}
-    {% endwith %}
-    {% endwith %}
-    {% endwith %}
-    {% endwith %}
-    {% endwith %}
     {% endwith %}
 {% endblock %}
