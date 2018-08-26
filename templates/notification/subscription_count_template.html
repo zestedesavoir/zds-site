@@ -11,6 +11,6 @@
     {% endblocktrans %}
 {% else %}
     {% blocktrans with plural=subscriber_count|pluralize_fr %}
-        <span id="subscriber_count">{{ subscriber_count }}</span>
+        (<span id="subscriber_count">{{ subscriber_count }}</span> abonné<span id="subscriber_plural">{{ plural }}</span>)
     {% endblocktrans %}
 {% endif %}
