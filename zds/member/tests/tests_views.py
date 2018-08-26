@@ -24,7 +24,7 @@ from zds.forum.models import Topic, Post
 from zds.gallery.factories import GalleryFactory, UserGalleryFactory
 from zds.gallery.models import Gallery, UserGallery
 from zds.pages.models import GroupContact
-from zds.utils.models import CommentVote, Hat, HatRequest
+from zds.utils.models import CommentVote, Hat, HatRequest, Alert
 
 
 @override_for_contents()
@@ -1729,3 +1729,29 @@ class MemberTests(TutorialTestMixin, TestCase):
         result = self.client.get(hat.get_absolute_url())
         self.assertEqual(result.status_code, 200)
         self.assertContains(result, 'group description')
+
+    def test_profile_report(self):
+        profile = ProfileFactory()
+        self.client.logout()
+        alerts_count = Alert.objects.count()
+        # test that authentication is required to report a profile
+        result = self.client.post(reverse('report-profile', args=[profile.pk]), {'reason': 'test'}, follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(alerts_count, Alert.objects.count())
+        # login and check it doesn't work without reason
+        self.client.login(username=self.staff.username, password='hostel77')
+        result = self.client.post(reverse('report-profile', args=[profile.pk]), {'reason': ''}, follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(alerts_count, Alert.objects.count())
+        # add a reason and check it works
+        result = self.client.post(reverse('report-profile', args=[profile.pk]), {'reason': 'test'}, follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(alerts_count + 1, Alert.objects.count())
+        # test alert solving
+        alert = Alert.objects.latest('pubdate')
+        pm_count = PrivateTopic.objects.count()
+        result = self.client.post(reverse('solve-profile-alert', args=[alert.pk]), {'text': 'ok'}, follow=False)
+        self.assertEqual(result.status_code, 302)
+        alert = Alert.objects.get(pk=alert.pk)  # refresh
+        self.assertTrue(alert.solved)
+        self.assertEqual(pm_count + 1, PrivateTopic.objects.count())
