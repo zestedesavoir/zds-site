@@ -1169,7 +1169,7 @@ class MemberTests(TutorialTestMixin, TestCase):
         phrase = 'Envoyer un message privé'
 
         result = self.client.get(reverse('member-detail', args=[user_1.user.username]), follow=False)
-        self.assertNotContains(result, phrase)
+        self.assertContains(result, phrase)
 
         result = self.client.get(reverse('member-detail', args=[user_ban.user.username]), follow=False)
         self.assertNotContains(result, phrase)
