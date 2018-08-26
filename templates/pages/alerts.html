@@ -44,12 +44,14 @@
                             {% elif alert.scope == 'CONTENT' %}
                                 <em>{% trans 'Sur le contenu : ' %} {{ alert.content.title }}</em> <br/>
                                 {{ alert.text }}
+                            {% elif alert.scope == 'PROFILE' %}
+                                <a href="{{ alert.profile.get_absolute_url }}">{{ alert.text }}</a>
                             {% else %}
                                 <a href="{{ alert.get_comment_subclass.get_absolute_url }}">{{ alert.text }}</a>
                             {% endif %}
                         </td>
                         <td>
-                            {% if alert.scope == 'CONTENT' %}
+                            {% if alert.scope == 'CONTENT' or alert.scope == 'PROFILE' %}
                                 –
                             {% else %}
                                 {% url "member-detail" alert.comment.author.username as url_member_detail %}
@@ -89,6 +91,8 @@
                             {% elif alert.scope == 'CONTENT' %}
                                 <em>{% trans 'Sur le contenu : ' %} {{ alert.content.title }}</em> <br/>
                                 {{ alert.text }}
+                            {% elif alert.scope == 'PROFILE' %}
+                                <a href="{{ alert.profile.get_absolute_url }}">{{ alert.text }}</a>
                             {% else %}
                                 {% url "member-detail" alert.comment.author.username as url_member_detail %}
                                 <a href="{{ alert.get_comment_subclass.get_absolute_url }}">{{ alert.text }}</a> par

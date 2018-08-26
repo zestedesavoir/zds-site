@@ -22,7 +22,7 @@ from django.utils.http import urlunquote
 from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST
-from django.views.generic import DetailView, UpdateView, CreateView, FormView
+from django.views.generic import DetailView, UpdateView, CreateView, FormView, View
 
 from zds.forum.models import Topic, TopicRead
 from zds.gallery.forms import ImageAsAvatarForm
@@ -96,6 +96,7 @@ class MemberDetail(DetailView):
             actions.reverse()
             context['actions'] = actions
             context['karmaform'] = KarmaForm(profile)
+            context['alerts'] = profile.alerts_on_this_profile.all()
         return context
 
 
@@ -1341,3 +1342,43 @@ def modify_karma(request):
         logging.getLogger(__name__).warn('ValueError: modifying karma failed because {}'.format(e))
 
     return redirect(reverse('member-detail', args=[profile.user.username]))
+
+
+class CreateProfileReportView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        profile = get_object_or_404(Profile, pk=kwargs['profile_pk'])
+        reason = request.POST.get('reason', '')
+        if reason == '':
+            messages.warning(request, _('Veuillez saisir une raison.'))
+        else:
+            alert = Alert(
+                author=request.user,
+                profile=profile,
+                scope='PROFILE',
+                text=reason,
+                pubdate=datetime.now())
+            alert.save()
+            messages.success(request, _('Votre signalement a été transmis à l\'équipe de modération. '
+                                        'Merci de votre aide !'))
+        return redirect(profile.get_absolute_url())
+
+
+class SolveProfileReportView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    permissions = ['member.change_profile']
+
+    def post(self, request, *args, **kwargs):
+        alert = get_object_or_404(Alert, pk=kwargs['alert_pk'], solved=False, scope='PROFILE')
+        text = request.POST.get('text', '')
+        if text:
+            msg_title = _('Signalement traité : profil de {}').format(alert.profile.user.username)
+            msg_content = render_to_string('member/messages/alert_solved.md', {
+                'alert_author': alert.author.username,
+                'reported_user': alert.profile.user.username,
+                'moderator': request.user.username,
+                'staff_message': text,
+            })
+            alert.solve(request.user, text, msg_title, msg_content)
+        else:
+            alert.solve(request.user)
+        messages.success(request, _("Merci, l'alerte a bien été résolue."))
+        return redirect(alert.profile.get_absolute_url())
