@@ -36,6 +36,7 @@
             <div class="flexpage-title-tool">
                 <div class="member-avatar">
                     <img src="{{ profile.get_avatar_url|remove_url_scheme }}">
+                    {% include 'misc/badge.part.html' with member=usr %}
                 </div>
                 {% if not profile.is_private %}
                     <div class="member-follow">
@@ -161,6 +162,7 @@
 
                 </ul>
             </section>
+            {% if profile.has_hat or perms.utils.change_hat %}
             <section>
                 <h2 itemprop="name">{% trans 'Casquettes' %}</h2>
                     <ul>
@@ -172,19 +174,17 @@
                                 {% endif %}
                                 {% if perms.utils.change_hat and not hat.group %}
                                     – <a href="#remove-hat-{{ hat.pk }}" class="open-modal">{% trans "Retirer" %}</a>
+                                    <form action="{% url 'remove-hat' usr.pk hat.pk %}" method="post" id="remove-hat-{{ hat.pk }}" class="modal modal-flex">
+                                        {% csrf_token %}
+                                        <p>
+                                            {% blocktrans with hat=hat.name username=usr.username %}
+                                                Voulez-vous vraiment retirer la casquette « {{ hat }} » à {{ username }} ?
+                                            {% endblocktrans %}
+                                        </p>
+                                        <button type="submit">{% trans 'Confirmer' %}</button>
+                                    </form>
                                 {% endif %}
                             </li>
-                            {% if perms.utils.change_hat %}
-                                <form action="{% url 'remove-hat' usr.pk hat.pk %}" method="post" id="remove-hat-{{ hat.pk }}" class="modal modal-flex">
-                                    {% csrf_token %}
-                                    <p>
-                                        {% blocktrans with hat=hat.name username=usr.username %}
-                                            Voulez-vous vraiment retirer la casquette « {{ hat }} » à {{ username }} ?
-                                        {% endblocktrans %}
-                                    </p>
-                                    <button type="submit">{% trans 'Confirmer' %}</button>
-                                </form>
-                            {% endif %}
                         {% empty %}
                             <li>{% trans "Aucune casquette" %}</li>
                         {% endfor %}
@@ -206,6 +206,7 @@
                         </form>
                     {% endif %}
             </section>
+            {% endif %}
         </div>
         {% if profile.biography %}
         <section>
