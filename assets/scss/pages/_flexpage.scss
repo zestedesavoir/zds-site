@@ -89,21 +89,6 @@ $content-width: 1145px;
             }
         }
 
-        .ico-params {
-            @include sprite-position($params);
-
-            display: block;
-            position: relative;
-            text-indent: -9999px;
-            height: 22px;
-            width: 22px;
-            top: 50%;
-            left: 50%;
-            margin-left: -11px;
-            margin-bottom: 10px;
-            margin-top: 10px;
-        }
-
         .member-avatar {
             position: absolute;
             left: 50px;
@@ -130,7 +115,6 @@ $content-width: 1145px;
             right: 50px;
             top: 50px;
             width: 230px;
-            height: 80px;
 
             &:before, &:after {
                 z-index: 0;
@@ -140,7 +124,7 @@ $content-width: 1145px;
                 border-left: 52px solid transparent;
                 border-right: 52px solid transparent;
             }
-            button {
+            button, .btn-ico {
                 text-transform: uppercase;
                 background-color: saturate($color-primary, 5%);
                 width: 100%;
@@ -149,6 +133,15 @@ $content-width: 1145px;
                 margin-top: 5px;
                 #subscriber_count {
                     margin-left: 10px;
+                }
+            }
+
+            a.btn-ico {
+                @extend .btn;
+                padding: 0px;
+                span {
+                    text-align: center;
+                    display: block;
                 }
             }
         }
@@ -271,6 +264,11 @@ $content-width: 1145px;
         .aside-center {
             margin-right: 250px;
             @include block-center;
+        }
+
+        .title-center {
+            margin-right: 250px;
+            @extend .title;
         }
 
         .aside {
