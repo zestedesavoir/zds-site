@@ -73,6 +73,9 @@ class ImageSerializer(ZdSModelSerializer, ImageCreateMixin, ImageUpdateOrDeleteM
         fields = read_only_fields + ('title', 'legend', 'physical')
 
     def create(self, validated_data):
+        if 'physical' not in validated_data:
+            raise exceptions.ValidationError(detail=_('Le champ `physical` est requis pour créer une image'))
+
         try:
             self.gallery = Gallery.objects.get(pk=self.context['view'].kwargs.get('pk_gallery'))
         except Gallery.DoesNotExist:

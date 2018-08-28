@@ -7,6 +7,7 @@ from easy_thumbnails.fields import ThumbnailerImageField
 from easy_thumbnails.files import get_thumbnailer
 
 from django.conf import settings
+from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.db import models
@@ -86,6 +87,14 @@ class UserGallery(models.Model):
         return Image.objects.filter(gallery=self.gallery).order_by('update').all()
 
 
+def change_api_updated_user_gallery_at(sender=None, instance=None, *args, **kwargs):
+    cache.set('api_updated_user_gallery', datetime.datetime.utcnow())
+
+
+models.signals.post_save.connect(receiver=change_api_updated_user_gallery_at, sender=UserGallery)
+models.signals.post_delete.connect(receiver=change_api_updated_user_gallery_at, sender=UserGallery)
+
+
 class Image(models.Model):
     """Represent an image in database"""
 
@@ -160,6 +169,14 @@ def auto_delete_file_on_delete(sender, instance, **kwargs):
     if instance.physical:
         thumbmanager = get_thumbnailer(instance.physical)
         thumbmanager.delete(save=False)
+
+
+def change_api_updated_image_at(sender=None, instance=None, *args, **kwargs):
+    cache.set('api_updated_image', datetime.datetime.utcnow())
+
+
+models.signals.post_save.connect(receiver=change_api_updated_image_at, sender=Image)
+models.signals.post_delete.connect(receiver=change_api_updated_image_at, sender=Image)
 
 
 class Gallery(models.Model):
@@ -285,3 +302,11 @@ def auto_delete_image_on_delete(sender, instance, **kwargs):
     # Remove the folder of the gallery if it exists
     if os.path.isdir(instance.get_gallery_path()):
         rmtree(instance.get_gallery_path())
+
+
+def change_api_updated_gallery_at(sender=None, instance=None, *args, **kwargs):
+    cache.set('api_updated_gallery', datetime.datetime.utcnow())
+
+
+models.signals.post_save.connect(receiver=change_api_updated_gallery_at, sender=Gallery)
+models.signals.post_delete.connect(receiver=change_api_updated_gallery_at, sender=Gallery)
