@@ -86,20 +86,20 @@ class MemberDetail(DetailView):
         count_draft = profile.get_draft_articles().count() + profile.get_draft_tutos().count()
 
         if count_post > 0:
-            summary.append('{} message{}'.format(count_post, pluralize_fr(count_post)))
+            summary.append(_('{} message{}').format(count_post, pluralize_fr(count_post)))
         else:
-            summary.append('Aucun message')
+            summary.append(_('Aucun message'))
 
         if count_tutorials > 0:
-            summary.append('{} tutoriel{}'.format(count_tutorials, pluralize_fr(count_tutorials)))
+            summary.append(_('{} tutoriel{}').format(count_tutorials, pluralize_fr(count_tutorials)))
         if count_articles > 0:
-            summary.append('{} article{}'.format(count_articles, pluralize_fr(count_articles)))
+            summary.append(_('{} article{}').format(count_articles, pluralize_fr(count_articles)))
         if count_opinions > 0:
-            summary.append('{} billet{}'.format(count_opinions, pluralize_fr(count_opinions)))
+            summary.append(_('{} billet{}').format(count_opinions, pluralize_fr(count_opinions)))
         if count_draft > 0:
-            summary.append('{} contenu{} en rédaction'.format(count_draft, pluralize_fr(count_draft)))
+            summary.append(_('{} contenu{} en rédaction').format(count_draft, pluralize_fr(count_draft)))
 
-        return ' et '.join([', '.join(summary[:-1]), summary[-1]] if len(summary) > 2 else summary)
+        return _(' et ').join([', '.join(summary[:-1]), summary[-1]] if len(summary) > 2 else summary)
 
     def get_context_data(self, **kwargs):
         context = super(MemberDetail, self).get_context_data(**kwargs)
