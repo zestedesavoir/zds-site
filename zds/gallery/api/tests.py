@@ -530,7 +530,7 @@ class ParticipantListAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         self.assertEqual(response.data.get('count'), 1)
-        self.assertEqual(response.data.get('results')[0].get('id'), self.profile.pk)
+        self.assertEqual(response.data.get('results')[0].get('id'), self.profile.user.pk)
 
     def test_get_list_linked_content(self):
         response = self.client.get(
@@ -538,7 +538,7 @@ class ParticipantListAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         self.assertEqual(response.data.get('count'), 1)
-        self.assertEqual(response.data.get('results')[0].get('id'), self.profile.pk)
+        self.assertEqual(response.data.get('results')[0].get('id'), self.profile.user.pk)
 
     def test_get_list_read_permissions(self):
         response = self.client.get(

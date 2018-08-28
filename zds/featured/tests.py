@@ -181,12 +181,12 @@ class FeaturedResourceCreateViewTest(TestCase):
         )
         self.assertTrue(login_check)
         response = self.client.get('{}{}'.format(reverse('featured-resource-create'),
-                                                 '?content_type=published_content&content_id=1'))
+                                                 '?content_type=published_content&content_id={}'.format(tutorial.pk)))
         initial_dict = response.context['form'].initial
         self.assertEqual(initial_dict['title'], tutorial.title)
         self.assertEqual(initial_dict['authors'], '{}, {}'.format(author, author2))
         self.assertEqual(initial_dict['type'], _('Un tutoriel'))
-        self.assertEqual(initial_dict['url'], 'http://testserver/tutoriels/1/mon-contenu-no0/')
+        self.assertEqual(initial_dict['url'], 'http://testserver{}'.format(tutorial.get_absolute_url_online()))
         self.assertEqual(initial_dict['image_url'], image.physical.url)
 
     def test_success_initial_content_topic(self):
