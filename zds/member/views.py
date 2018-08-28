@@ -21,6 +21,7 @@ from django.utils.decorators import method_decorator
 from django.utils.http import urlunquote
 from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext as __
 from django.views.decorators.http import require_POST
 from django.views.generic import DetailView, UpdateView, CreateView, FormView
 
@@ -86,20 +87,20 @@ class MemberDetail(DetailView):
         count_draft = profile.get_draft_articles().count() + profile.get_draft_tutos().count()
 
         if count_post > 0:
-            summary.append(_('{} message{}').format(count_post, pluralize_fr(count_post)))
+            summary.append(__('{} message{}').format(count_post, pluralize_fr(count_post)))
         else:
-            summary.append(_('Aucun message'))
+            summary.append(__('Aucun message'))
 
         if count_tutorials > 0:
-            summary.append(_('{} tutoriel{}').format(count_tutorials, pluralize_fr(count_tutorials)))
+            summary.append(__('{} tutoriel{}').format(count_tutorials, pluralize_fr(count_tutorials)))
         if count_articles > 0:
-            summary.append(_('{} article{}').format(count_articles, pluralize_fr(count_articles)))
+            summary.append(__('{} article{}').format(count_articles, pluralize_fr(count_articles)))
         if count_opinions > 0:
-            summary.append(_('{} billet{}').format(count_opinions, pluralize_fr(count_opinions)))
+            summary.append(__('{} billet{}').format(count_opinions, pluralize_fr(count_opinions)))
         if count_draft > 0:
-            summary.append(_('{} contenu{} en rédaction').format(count_draft, pluralize_fr(count_draft)))
+            summary.append(__('{} contenu{} en rédaction').format(count_draft, pluralize_fr(count_draft)))
 
-        return _(' et ').join([', '.join(summary[:-1]), summary[-1]] if len(summary) > 2 else summary)
+        return __(' et ').join([', '.join(summary[:-1]), summary[-1]] if len(summary) > 2 else summary)
 
     def get_context_data(self, **kwargs):
         context = super(MemberDetail, self).get_context_data(**kwargs)
