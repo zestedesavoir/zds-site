@@ -300,6 +300,23 @@ class ImageListAPITest(APITestCase):
         self.assertEqual(image.title, title)
         self.assertEqual(image.legend, legend)
 
+    def test_post_fail_add_image_not_an_image(self):
+        title = 'un super titre pour une image'
+        legend = 'une super legende aussi'
+
+        response = self.client.post(
+            reverse('api:gallery:list-images', kwargs={'pk_gallery': self.gallery.pk}),
+            {
+                'title': title,
+                'legend': legend,
+                'physical': open('{}/fixtures/users.yaml'.format(settings.BASE_DIR), 'rb')
+            },
+            format='multipart'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(Image.objects.filter(gallery=self.gallery).count(), 1)
+
     def test_post_fail_add_image_no_permissions(self):
         title = 'un super titre pour une image'
         legend = 'une super legende aussi'
@@ -407,6 +424,26 @@ class ImageDetailAPITest(APITestCase):
         self.assertEqual(image.title, title)
         self.assertEqual(image.legend, legend)
 
+    def test_put_fail_modify_image_not_an_image(self):
+        title = 'un super titre pour une super image'
+        legend = 'en vrai je peux pas'
+
+        response = self.client.put(
+            reverse(
+                'api:gallery:detail-image', kwargs={'pk_gallery': self.gallery.pk, 'pk': self.image.pk}),
+            {
+                'title': title,
+                'legend': legend,
+                'physical': open('{}/fixtures/users.yaml'.format(settings.BASE_DIR), 'rb')
+            }
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        image = Image.objects.get(pk=self.image.pk)
+        self.assertNotEqual(image.title, title)
+        self.assertNotEqual(image.legend, legend)
+
     def test_put_fail_modify_image_no_permissions(self):
         title = 'un super titre pour une super image'
         legend = 'en vrai je peux pas'
@@ -507,10 +544,7 @@ class ParticipantListAPITest(APITestCase):
         response = self.client.get(
             reverse('api:gallery:list-participants', kwargs={'pk_gallery': self.gallery_shared.pk}))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-
         self.assertEqual(response.data.get('count'), 2)
-        self.assertEqual(response.data.get('results')[0].get('id'), self.other.pk)
-        self.assertEqual(response.data.get('results')[1].get('id'), self.profile.pk)
 
     def test_get_list_fail_no_permissions(self):
         response = self.client.get(

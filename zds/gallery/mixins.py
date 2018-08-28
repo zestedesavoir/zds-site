@@ -218,6 +218,10 @@ class ImageTooLarge(Exception):
         self.size = size
 
 
+class NotAnImage(Exception):
+    pass
+
+
 class ImageCreateMixin(ImageMixin):
     def perform_create(self, title, physical, legend=''):
         """Create a new image
@@ -231,6 +235,11 @@ class ImageCreateMixin(ImageMixin):
         """
         if physical.size > settings.ZDS_APP['gallery']['image_max_size']:
             raise ImageTooLarge(title, physical.size)
+
+        try:
+            ImagePIL.open(physical)
+        except OSError:
+            raise NotAnImage(physical)
 
         image = Image()
         image.gallery = self.gallery

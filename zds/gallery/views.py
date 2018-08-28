@@ -13,8 +13,7 @@ from zds.gallery.forms import ArchiveImageForm, ImageForm, UpdateImageForm, \
     GalleryForm, UpdateGalleryForm, UserGalleryForm, ImageAsAvatarForm
 from zds.gallery.models import UserGallery, Image, Gallery, GALLERY_WRITE
 from zds.gallery.mixins import GalleryCreateMixin, GalleryMixin, GalleryUpdateOrDeleteMixin,\
-    NoMoreUserWithWriteIfLeave, ImageUpdateOrDeleteMixin, ImageTooLarge, ImageCreateMixin, UserAlreadyInGallery, \
-    UserNotInGallery
+    NoMoreUserWithWriteIfLeave, ImageUpdateOrDeleteMixin, ImageCreateMixin, UserAlreadyInGallery, UserNotInGallery
 from zds.member.decorator import LoggedWithReadWriteHability
 from zds.utils.paginator import ZdSPagingListView
 from zds.tutorialv2.models.database import PublishableContent
@@ -337,6 +336,17 @@ class EditImage(ImageFromGalleryContextViewMixin, ImageUpdateOrDeleteMixin, Logg
 
         return super().get(request, *args, **kwargs)
 
+    def post(self, request, *args, **kwargs):
+        if not self.has_access_to_gallery(self.request.user, True):
+            raise PermissionDenied()
+
+        try:
+            self.get_image(self.kwargs.get('pk'))
+        except Image.DoesNotExist:
+            raise Http404
+
+        return super().post(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super(EditImage, self).get_context_data(**kwargs)
 
@@ -350,14 +360,6 @@ class EditImage(ImageFromGalleryContextViewMixin, ImageUpdateOrDeleteMixin, Logg
         return kwargs
 
     def form_valid(self, form):
-        if not self.has_access_to_gallery(self.request.user, True):
-            raise PermissionDenied()
-
-        try:
-            self.get_image(self.kwargs.get('pk'))
-        except Image.DoesNotExist:
-            raise Http404
-
         data = {}
 
         if 'physical' in self.request.FILES:  # the user request to change the image
@@ -366,16 +368,7 @@ class EditImage(ImageFromGalleryContextViewMixin, ImageUpdateOrDeleteMixin, Logg
         data['title'] = form.cleaned_data.get('title')
         data['legend'] = form.cleaned_data.get('legend')
 
-        try:
-            self.perform_update(data)
-        except ImageTooLarge as e:
-            messages.error(
-                self.request,
-                _('Votre image est beaucoup trop lourde ({} Kio), réduisez sa taille à moins de {:.0f} '
-                  '<abbr title="kibioctet">Kio</abbr> avant de l\'envoyer.').format(
-                    e.size / 1024,
-                    settings.ZDS_APP['gallery']['image_max_size'] / 1024)
-            )
+        self.perform_update(data)
 
         self.success_url = reverse(
             'gallery-image-edit',

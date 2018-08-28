@@ -7,7 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 from zds.api.serializers import ZdSModelSerializer
 from zds.gallery.models import Gallery, Image, UserGallery
 from zds.gallery.mixins import GalleryCreateMixin, GalleryUpdateOrDeleteMixin, ImageCreateMixin, ImageTooLarge,\
-    ImageUpdateOrDeleteMixin, UserNotInGallery
+    ImageUpdateOrDeleteMixin, UserNotInGallery, NotAnImage
 from zds.member.models import User
 
 
@@ -26,8 +26,14 @@ class CustomParticipantField(serializers.Field):
 class ImageTooLargeError(exceptions.ValidationError):
     def __init__(self, e):
         super().__init__(
-            detail=_(_('Votre image est trop grosse ({} Kio). La taille maximum est {} Kio !').format(
-                e.size / 1024, settings.ZDS_APP['gallery']['image_max_size'] / 1024)))
+            detail=_('Votre image est trop grosse ({} Kio). La taille maximum est de {} Kio !').format(
+                e.size / 1024, settings.ZDS_APP['gallery']['image_max_size'] / 1024))
+
+
+class NotAnImageError(exceptions.ValidationError):
+    def __init__(self):
+        super().__init__(
+            detail=_('Format d\'image inconnu'))
 
 
 class GallerySerializer(ZdSModelSerializer, GalleryCreateMixin, GalleryUpdateOrDeleteMixin):
@@ -74,12 +80,12 @@ class ImageSerializer(ZdSModelSerializer, ImageCreateMixin, ImageUpdateOrDeleteM
 
     def create(self, validated_data):
         if 'physical' not in validated_data:
-            raise exceptions.ValidationError(detail=_('Le champ `physical` est requis pour créer une image'))
+            raise exceptions.ValidationError(detail=_('Le champ `physical` est requis pour ajouter une image'))
 
         try:
             self.gallery = Gallery.objects.get(pk=self.context['view'].kwargs.get('pk_gallery'))
         except Gallery.DoesNotExist:
-            raise exceptions.NotFound(detail=_('Gallerie introuvable'))
+            raise exceptions.NotFound(detail=_('Galerie introuvable'))
 
         try:
             return self.perform_create(
@@ -89,6 +95,8 @@ class ImageSerializer(ZdSModelSerializer, ImageCreateMixin, ImageUpdateOrDeleteM
             )
         except ImageTooLarge as e:
             raise ImageTooLargeError(e)
+        except NotAnImage:
+            raise NotAnImageError()
 
     def update(self, instance, validated_data):
         self.image = instance
@@ -96,6 +104,8 @@ class ImageSerializer(ZdSModelSerializer, ImageCreateMixin, ImageUpdateOrDeleteM
             return self.perform_update(validated_data)
         except ImageTooLarge as e:
             raise ImageTooLargeError(e)
+        except NotAnImage:
+            raise NotAnImageError()
 
 
 class CustomPermissionField(serializers.Field):

@@ -1,4 +1,4 @@
-from rest_framework import permissions
+from rest_framework import permissions, exceptions
 
 from zds.gallery.models import UserGallery, Gallery
 from zds.tutorialv2.models.database import PublishableContent
@@ -6,10 +6,15 @@ from zds.tutorialv2.models.database import PublishableContent
 
 class AccessToGallery(permissions.BasePermission):
     """
-    Custom permission to know if a member has access to gallery
+    Custom permission to know if a gallery exists and if a member has access to gallery
     """
 
     def has_permission(self, request, view):
+        try:
+            Gallery.objects.get(pk=view.kwargs.get('pk_gallery'))
+        except Gallery.DoesNotExist:
+            raise exceptions.NotFound()
+
         return UserGallery.objects.filter(user=request.user, gallery__pk=view.kwargs.get('pk_gallery')).exists()
 
 
