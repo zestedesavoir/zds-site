@@ -94,6 +94,14 @@ class NoMoreUserWithWriteIfLeave(Exception):
     pass
 
 
+class UserAlreadyInGallery(Exception):
+    pass
+
+
+class UserNotInGallery(Exception):
+    pass
+
+
 class GalleryUpdateOrDeleteMixin(GalleryMixin):
     def perform_update(self, data):
         """Update gallery information
@@ -111,16 +119,15 @@ class GalleryUpdateOrDeleteMixin(GalleryMixin):
         self.gallery.save()
         return self.gallery
 
-    def perform_update_user(self, user, can_write=False, allow_modify=True):
-        """Add user to gallery or update its permissions
+    def perform_add_user(self, user, can_write=False):
+        """Add user to gallery
 
         :param user:  the user
         :type user: zds.member.models.User
         :param can_write: write permission ?
         :type can_write: bool
-        :param allow_modify: is the function allowed to modify user if it already exists ?
-        :type allow_modify: bool
         """
+
         mode = GALLERY_WRITE if can_write else GALLERY_READ
         if user.pk not in self.users_and_permissions:
             user_gallery = UserGallery(
@@ -128,15 +135,30 @@ class GalleryUpdateOrDeleteMixin(GalleryMixin):
             user_gallery.save()
             self.users_and_permissions[user.pk] = {'read': True, 'write': can_write}
             return user_gallery
-        elif allow_modify:
-            if self.users_and_permissions[user.pk]['write'] != can_write:
-                user_gallery = UserGallery.objects.filter(user=user, gallery=self.gallery).get()
-                user_gallery.mode = mode
-                user_gallery.save()
-                self.users_and_permissions[user.pk]['write'] = can_write
-                return user_gallery
+        else:
+            raise UserAlreadyInGallery()
 
-        return None
+    def perform_update_user(self, user, can_write=False):
+        """Update its permissions
+
+        :param user:  the user
+        :type user: zds.member.models.User
+        :param can_write: write permission ?
+        :type can_write: bool
+        """
+
+        mode = GALLERY_WRITE if can_write else GALLERY_READ
+        try:
+            user_gallery = UserGallery.objects.filter(user=user, gallery=self.gallery).get()
+        except UserGallery.DoesNotExist:
+            raise UserNotInGallery()
+
+        if user_gallery.mode != mode:
+            user_gallery.mode = mode
+            user_gallery.save()
+            self.users_and_permissions[user.pk]['write'] = can_write
+
+        return user_gallery
 
     def perform_delete(self):
         """Delete gallery

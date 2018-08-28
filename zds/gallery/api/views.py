@@ -1,4 +1,4 @@
-from rest_framework import filters
+from rest_framework import filters, exceptions
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_extensions.cache.decorators import cache_response
@@ -6,10 +6,12 @@ from rest_framework_extensions.etag.decorators import etag
 from rest_framework_extensions.key_constructor import bits
 from dry_rest_permissions.generics import DRYPermissions
 
+from django.utils.translation import ugettext_lazy as _
+
 from zds.api.bits import UpdatedAtKeyBit
 from zds.api.key_constructor import PagingListKeyConstructor, DetailKeyConstructor
 from zds.gallery.models import Gallery, Image, UserGallery
-from zds.gallery.mixins import GalleryUpdateOrDeleteMixin, ImageUpdateOrDeleteMixin
+from zds.gallery.mixins import GalleryUpdateOrDeleteMixin, ImageUpdateOrDeleteMixin, NoMoreUserWithWriteIfLeave
 
 from .serializers import GallerySerializer, ImageSerializer, ParticipantSerializer
 from .permissions import AccessToGallery, WriteAccessToGallery
@@ -403,13 +405,13 @@ class ImageDetailView(RetrieveUpdateDestroyAPIView, ImageUpdateOrDeleteMixin):
 class PagingParticipantListKeyConstructor(PagingListKeyConstructor):
     search = bits.QueryParamsKeyBit(['ordering'])
     user = bits.UserKeyBit()
-    updated_at = UpdatedAtKeyBit('api_updated_gallery')
+    updated_at = UpdatedAtKeyBit('api_updated_user_gallery')
 
 
 class ParticipantListView(ListCreateAPIView):
 
     filter_backends = (filters.OrderingFilter, )
-    ordering_fields = ('pk', )
+    ordering_fields = ('id', )
     list_key_func = PagingParticipantListKeyConstructor()
 
     @etag(list_key_func)
@@ -474,7 +476,111 @@ class ParticipantListView(ListCreateAPIView):
 
     def get_permissions(self):
         permission_classes = [IsAuthenticated, AccessToGallery]
-        if self.request.method in ['POST', 'PUT', 'DELETE']:
+        if self.request.method == 'POST':
+            permission_classes.append(WriteAccessToGallery)
+        return [permission() for permission in permission_classes]
+
+    def get_queryset(self):
+        return UserGallery.objects.filter(gallery__pk=self.kwargs.get('pk_gallery'))
+
+
+class ParticipantDetailKeyConstructor(DetailKeyConstructor):
+    user = bits.UserKeyBit()
+    updated_at = UpdatedAtKeyBit('api_updated_user_gallery')
+
+
+class ParticipantDetailView(RetrieveUpdateDestroyAPIView, GalleryUpdateOrDeleteMixin):
+
+    list_key_func = ParticipantDetailKeyConstructor()
+    lookup_field = 'user__pk'
+
+    @etag(list_key_func)
+    @cache_response(key_func=list_key_func)
+    def get(self, request, *args, **kwargs):
+        """
+        Get a participant by its id
+        ---
+
+        parameters:
+            - name: Authorization
+              description: Bearer token to make an authenticated request.
+              required: true
+              paramType: header
+        responseMessages:
+            - code: 401
+              message: Not Authenticated
+            - code: 403
+              message: Permission Denied
+            - code: 404
+              message: Not Found
+        """
+
+        return self.retrieve(request, *args, **kwargs)
+
+    def put(self, request, *args, **kwargs):
+        """
+        Update a participant
+        ---
+
+        parameters:
+            - name: Authorization
+              description: Bearer token to make an authenticated request.
+              required: true
+              paramType: header
+            - name: can_write
+              description: does the user have write access to the gallery ?
+              required: true
+              paramType: form
+        responseMessages:
+            - code: 401
+              message: Not Authenticated
+            - code: 403
+              message: Permission Denied
+            - code: 404
+              message: Not Found
+        """
+        return self.update(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        """
+        Remove participant
+        ---
+
+        parameters:
+            - name: Authorization
+              description: Bearer token to make an authenticated request.
+              required: true
+              paramType: header
+        responseMessages:
+            - code: 401
+              message: Not Authenticated
+            - code: 403
+              message: Permission Denied
+            - code: 404
+              message: Not Found
+        """
+        return self.destroy(request, *args, **kwargs)
+
+    def perform_destroy(self, instance):
+        self.gallery = instance.gallery
+        self.users_and_permissions = self.gallery.get_users_and_permissions()
+
+        try:
+            self.perform_leave(instance.user)
+        except NoMoreUserWithWriteIfLeave:
+            raise exceptions.PermissionDenied(
+                detail=_('Vous ne pouvez pas quitter la galerie, '
+                         'car plus aucun autre participant n\'a les droits d\'écriture'))
+
+    def get_current_user(self):
+        return self.request.user
+
+    def get_serializer_class(self):
+        return ParticipantSerializer
+
+    def get_permissions(self):
+        permission_classes = [IsAuthenticated, AccessToGallery]
+        if self.request.method in ['PUT', 'DELETE']:
             permission_classes.append(WriteAccessToGallery)
         return [permission() for permission in permission_classes]
 

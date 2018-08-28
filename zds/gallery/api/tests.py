@@ -402,3 +402,255 @@ class ImageDetailAPITest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(Image.objects.filter(gallery=self.gallery_shared).count(), 1)
+
+
+class ParticipantListAPITest(APITestCase):
+    def setUp(self):
+        self.profile = ProfileFactory()
+        self.other = ProfileFactory()
+        self.client = APIClient()
+        self.new_participant = ProfileFactory()
+        client_oauth2 = create_oauth2_client(self.profile.user)
+        authenticate_client(self.client, client_oauth2, self.profile.user.username, 'hostel77')
+
+        self.gallery = GalleryFactory()
+        UserGalleryFactory(user=self.profile.user, gallery=self.gallery)
+        self.image = ImageFactory(gallery=self.gallery)
+
+        self.gallery_other = GalleryFactory()
+        UserGalleryFactory(user=self.other.user, gallery=self.gallery_other)
+        self.image_other = ImageFactory(gallery=self.gallery_other)
+
+        self.gallery_shared = GalleryFactory()
+        UserGalleryFactory(user=self.other.user, gallery=self.gallery_shared)
+        UserGalleryFactory(user=self.profile.user, gallery=self.gallery_shared, mode=GALLERY_READ)
+        self.image_shared = ImageFactory(gallery=self.gallery_shared)
+
+    def test_get_list(self):
+        response = self.client.get(reverse('api:gallery:list-participants', kwargs={'pk_gallery': self.gallery.pk}))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(response.data.get('count'), 1)
+        self.assertEqual(response.data.get('results')[0].get('id'), self.profile.pk)
+
+    def test_get_list_read_permissions(self):
+        response = self.client.get(
+            reverse('api:gallery:list-participants', kwargs={'pk_gallery': self.gallery_shared.pk}))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(response.data.get('count'), 2)
+        self.assertEqual(response.data.get('results')[0].get('id'), self.other.pk)
+        self.assertEqual(response.data.get('results')[1].get('id'), self.profile.pk)
+
+    def test_get_list_fail_no_permissions(self):
+        response = self.client.get(
+            reverse('api:gallery:list-participants', kwargs={'pk_gallery': self.gallery_other.pk}))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_post_add_participant(self):
+        response = self.client.post(
+            reverse('api:gallery:list-participants', kwargs={'pk_gallery': self.gallery.pk}),
+            {
+                'id': self.new_participant.user.pk,
+                'can_write': False
+            }
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(UserGallery.objects.filter(gallery=self.gallery).count(), 2)
+
+        user_gallery = UserGallery.objects.filter(gallery=self.gallery, user=self.new_participant.user).get()
+        self.assertEqual(user_gallery.mode, GALLERY_READ)
+
+    def test_post_fail_add_participant_already_in(self):
+        user_gallery = UserGalleryFactory(user=self.new_participant.user, gallery=self.gallery, mode=GALLERY_READ)
+
+        response = self.client.post(
+            reverse('api:gallery:list-participants', kwargs={'pk_gallery': self.gallery.pk}),
+            {
+                'id': self.new_participant.user.pk,
+                'can_write': True
+            }
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        user_gallery = UserGallery.objects.get(pk=user_gallery.pk)
+        self.assertEqual(user_gallery.mode, GALLERY_READ)
+
+    def test_post_fail_add_participant_no_permissions(self):
+        response = self.client.post(
+            reverse('api:gallery:list-participants', kwargs={'pk_gallery': self.gallery_other.pk}),
+            {
+                'id': self.new_participant.user.pk,
+                'can_write': False
+            }
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(
+            UserGallery.objects.filter(gallery=self.gallery_other, user=self.new_participant.user).count(), 0)
+
+    def test_post_fail_add_participant_read_permissions(self):
+        response = self.client.post(
+            reverse('api:gallery:list-participants', kwargs={'pk_gallery': self.gallery_shared.pk}),
+            {
+                'id': self.new_participant.user.pk,
+                'can_write': False
+            }
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(
+            UserGallery.objects.filter(gallery=self.gallery_shared, user=self.new_participant.user).count(), 0)
+
+
+class ParticipantDetailAPITest(APITestCase):
+    def setUp(self):
+        self.profile = ProfileFactory()
+        self.other = ProfileFactory()
+        self.new_participant = ProfileFactory()
+        self.client = APIClient()
+        client_oauth2 = create_oauth2_client(self.profile.user)
+        authenticate_client(self.client, client_oauth2, self.profile.user.username, 'hostel77')
+
+        self.gallery = GalleryFactory()
+        UserGalleryFactory(user=self.profile.user, gallery=self.gallery)
+        self.image = ImageFactory(gallery=self.gallery)
+
+        self.gallery_other = GalleryFactory()
+        UserGalleryFactory(user=self.other.user, gallery=self.gallery_other)
+        self.image_other = ImageFactory(gallery=self.gallery_other)
+
+        self.gallery_shared = GalleryFactory()
+        UserGalleryFactory(user=self.other.user, gallery=self.gallery_shared)
+        UserGalleryFactory(user=self.profile.user, gallery=self.gallery_shared, mode=GALLERY_READ)
+        self.image_shared = ImageFactory(gallery=self.gallery_shared)
+
+    def test_get_participant(self):
+        response = self.client.get(reverse(
+            'api:gallery:detail-participant',
+            kwargs={'pk_gallery': self.gallery.pk, 'user__pk': self.profile.user.pk}))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(response.data.get('id'), self.profile.user.pk)
+        self.assertEqual(response.data.get('permissions'), {'read': True, 'write': True})
+
+    def test_get_participant_read_permissions(self):
+        response = self.client.get(
+            reverse(
+                'api:gallery:detail-participant',
+                kwargs={'pk_gallery': self.gallery_shared.pk, 'user__pk': self.profile.user.pk}))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(response.data.get('id'), self.profile.user.pk)
+        self.assertEqual(response.data.get('permissions'), {'read': True, 'write': False})
+
+    def test_get_participant_fail_permissions(self):
+        response = self.client.get(
+            reverse(
+                'api:gallery:detail-participant',
+                kwargs={'pk_gallery': self.gallery_other.pk, 'user__pk': self.other.user.pk}))
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_put_modify_participant(self):
+        user_gallery = UserGalleryFactory(user=self.new_participant.user, gallery=self.gallery, mode=GALLERY_READ)
+
+        response = self.client.put(
+            reverse(
+                'api:gallery:detail-participant',
+                kwargs={'pk_gallery': self.gallery.pk, 'user__pk': self.new_participant.user.pk}),
+            {
+                'can_write': True
+            }
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        user_gallery = UserGallery.objects.get(pk=user_gallery.pk)
+        self.assertEqual(user_gallery.mode, GALLERY_WRITE)
+
+    def test_put_fail_modify_participant_not_participant(self):
+        response = self.client.put(
+            reverse(
+                'api:gallery:detail-participant',
+                kwargs={'pk_gallery': self.gallery.pk, 'user__pk': self.new_participant.user.pk}),
+            {
+                'can_write': True
+            }
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_put_fail_modify_participant_no_permissions(self):
+        user_gallery = UserGalleryFactory(
+            user=self.new_participant.user, gallery=self.gallery_other, mode=GALLERY_READ)
+
+        response = self.client.put(
+            reverse(
+                'api:gallery:detail-participant',
+                kwargs={'pk_gallery': self.gallery_other.pk, 'user__pk': self.new_participant.user.pk}),
+            {
+                'can_write': True
+            }
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        user_gallery = UserGallery.objects.get(pk=user_gallery.pk)
+        self.assertEqual(user_gallery.mode, GALLERY_READ)
+
+    def test_put_fail_modify_participant_read_permissions(self):
+        user_gallery = UserGalleryFactory(
+            user=self.new_participant.user, gallery=self.gallery_shared, mode=GALLERY_READ)
+
+        response = self.client.put(
+            reverse(
+                'api:gallery:detail-participant',
+                kwargs={'pk_gallery': self.gallery_shared.pk, 'user__pk': self.new_participant.user.pk}),
+            {
+                'can_write': True
+            }
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        user_gallery = UserGallery.objects.get(pk=user_gallery.pk)
+        self.assertEqual(user_gallery.mode, GALLERY_READ)
+
+    def test_delete_participant(self):
+        UserGalleryFactory(user=self.new_participant.user, gallery=self.gallery)
+
+        response = self.client.delete(
+            reverse(
+                'api:gallery:detail-participant',
+                kwargs={'pk_gallery': self.gallery.pk, 'user__pk': self.new_participant.user.pk}))
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(UserGallery.objects.filter(gallery=self.gallery, user=self.new_participant.user).count(), 0)
+
+    def test_delete_participant_fail_no_permissions(self):
+        UserGalleryFactory(user=self.new_participant.user, gallery=self.gallery_other)
+
+        response = self.client.delete(
+            reverse(
+                'api:gallery:detail-participant',
+                kwargs={'pk_gallery': self.gallery_other.pk, 'user__pk': self.new_participant.user.pk}))
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(UserGallery.objects.filter(
+            gallery=self.gallery_other, user=self.new_participant.user).count(), 1)
+
+    def test_delete_participant_fail_read_permissions(self):
+        UserGalleryFactory(user=self.new_participant.user, gallery=self.gallery_shared)
+
+        response = self.client.delete(
+            reverse(
+                'api:gallery:detail-participant',
+                kwargs={'pk_gallery': self.gallery_shared.pk, 'user__pk': self.new_participant.user.pk}))
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(UserGallery.objects.filter(
+            gallery=self.gallery_shared, user=self.new_participant.user).count(), 1)

@@ -7,7 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 from zds.api.serializers import ZdSModelSerializer
 from zds.gallery.models import Gallery, Image, UserGallery
 from zds.gallery.mixins import GalleryCreateMixin, GalleryUpdateOrDeleteMixin, ImageCreateMixin, ImageTooLarge,\
-    ImageUpdateOrDeleteMixin
+    ImageUpdateOrDeleteMixin, UserNotInGallery
 from zds.member.models import User
 
 
@@ -103,7 +103,7 @@ class CustomPermissionField(serializers.Field):
 class ParticipantSerializer(ZdSModelSerializer, GalleryUpdateOrDeleteMixin):
 
     permissions = CustomPermissionField(source='can_write', read_only=True)
-    id = serializers.IntegerField(source='user.pk')
+    id = serializers.IntegerField(source='user.pk', required=False)
     can_write = serializers.BooleanField(write_only=True)
 
     class Meta:
@@ -114,6 +114,10 @@ class ParticipantSerializer(ZdSModelSerializer, GalleryUpdateOrDeleteMixin):
         return {'read': True, 'write': obj.can_write()}
 
     def create(self, validated_data):
+
+        if 'user' not in validated_data:
+            raise exceptions.ValidationError(_('Le champ `id` est obligatoire pour l\'ajout d\'un participant'))
+
         try:
             self.gallery = Gallery.objects.get(pk=self.context['view'].kwargs.get('pk_gallery'))
             self.users_and_permissions = self.gallery.get_users_and_permissions()
@@ -128,4 +132,13 @@ class ParticipantSerializer(ZdSModelSerializer, GalleryUpdateOrDeleteMixin):
         if UserGallery.objects.filter(gallery=self.gallery, user=user).exists():
             raise exceptions.ValidationError(detail=_('L\'utilisateur est déjà un participant'))
 
-        return self.perform_update_user(user, can_write=validated_data.get('can_write', False))
+        return self.perform_add_user(user, can_write=validated_data.get('can_write', False))
+
+    def update(self, instance, validated_data):
+        self.gallery = instance.gallery
+        self.users_and_permissions = self.gallery.get_users_and_permissions()
+
+        try:
+            return self.perform_update_user(instance.user, can_write=validated_data.get('can_write', False))
+        except UserNotInGallery:
+            raise exceptions.ValidationError(detail=_('L\'utilisateur n\'est pas/plus un participant!'))

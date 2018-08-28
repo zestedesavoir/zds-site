@@ -13,7 +13,8 @@ from zds.gallery.forms import ArchiveImageForm, ImageForm, UpdateImageForm, \
     GalleryForm, UpdateGalleryForm, UserGalleryForm, ImageAsAvatarForm
 from zds.gallery.models import UserGallery, Image, Gallery, GALLERY_WRITE
 from zds.gallery.mixins import GalleryCreateMixin, GalleryMixin, GalleryUpdateOrDeleteMixin,\
-    NoMoreUserWithWriteIfLeave, ImageUpdateOrDeleteMixin, ImageTooLarge, ImageCreateMixin
+    NoMoreUserWithWriteIfLeave, ImageUpdateOrDeleteMixin, ImageTooLarge, ImageCreateMixin, UserAlreadyInGallery, \
+    UserNotInGallery
 from zds.member.decorator import LoggedWithReadWriteHability
 from zds.utils.paginator import ZdSPagingListView
 from zds.tutorialv2.models.database import PublishableContent
@@ -232,14 +233,20 @@ class EditGalleryMembers(LoggedWithReadWriteHability, GalleryUpdateOrDeleteMixin
             raise PermissionDenied()
 
         if action == 'add':
-            if user.pk not in self.users_and_permissions:
-                self.perform_update_user(user, can_write, allow_modify=False)
-            else:
+            try:
+                if user.pk not in self.users_and_permissions:
+                    self.perform_add_user(user, can_write)
+                else:
+                    raise UserAlreadyInGallery()
+            except UserAlreadyInGallery:
                 messages.error(self.request, _('Impossible d\'ajouter un utilisateur qui l\'est déjà'))
         elif action == 'edit':
-            if user.pk in self.users_and_permissions:
-                self.perform_update_user(user, can_write, allow_modify=True)
-            else:
+            try:
+                if user.pk in self.users_and_permissions:
+                    self.perform_update_user(user, can_write)
+                else:
+                    raise UserNotInGallery()
+            except UserNotInGallery:
                 messages.error(self.request, _('Impossible de modifier un utilisateur non ajouté'))
         elif action == 'leave':
             if user.pk in self.users_and_permissions:
