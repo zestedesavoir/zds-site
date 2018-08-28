@@ -10,6 +10,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from zds.api.bits import UpdatedAtKeyBit
 from zds.api.key_constructor import PagingListKeyConstructor, DetailKeyConstructor
+from zds.api.views import NoPatchView
 from zds.gallery.models import Gallery, Image, UserGallery
 from zds.gallery.mixins import GalleryUpdateOrDeleteMixin, ImageUpdateOrDeleteMixin, NoMoreUserWithWriteIfLeave
 
@@ -103,7 +104,7 @@ class GalleryDetailKeyConstructor(DetailKeyConstructor):
     updated_at = UpdatedAtKeyBit('api_updated_gallery')
 
 
-class GalleryDetailView(RetrieveUpdateDestroyAPIView, GalleryUpdateOrDeleteMixin):
+class GalleryDetailView(RetrieveUpdateDestroyAPIView, NoPatchView, GalleryUpdateOrDeleteMixin):
 
     queryset = Gallery.objects.annotated_gallery()
     list_key_func = GalleryDetailKeyConstructor()
@@ -305,7 +306,7 @@ class ImageDetailKeyConstructor(DetailKeyConstructor):
     updated_at = UpdatedAtKeyBit('api_updated_image')
 
 
-class ImageDetailView(RetrieveUpdateDestroyAPIView, ImageUpdateOrDeleteMixin):
+class ImageDetailView(RetrieveUpdateDestroyAPIView, NoPatchView, ImageUpdateOrDeleteMixin):
 
     queryset = Image.objects
     list_key_func = ImageDetailKeyConstructor()
@@ -494,7 +495,7 @@ class ParticipantDetailKeyConstructor(DetailKeyConstructor):
     updated_at = UpdatedAtKeyBit('api_updated_user_gallery')
 
 
-class ParticipantDetailView(RetrieveUpdateDestroyAPIView, GalleryUpdateOrDeleteMixin):
+class ParticipantDetailView(RetrieveUpdateDestroyAPIView, NoPatchView, GalleryUpdateOrDeleteMixin):
 
     list_key_func = ParticipantDetailKeyConstructor()
     lookup_field = 'user__pk'
