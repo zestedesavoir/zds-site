@@ -49,7 +49,7 @@ class GallerySerializer(ZdSModelSerializer, GalleryCreateMixin, GalleryUpdateOrD
         return self.perform_create(
             validated_data.get('title'),
             self.context.get('request').user,
-            validated_data.get('subtitle')
+            validated_data.get('subtitle', '')
         )
 
     def update(self, instance, validated_data):

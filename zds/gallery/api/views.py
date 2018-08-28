@@ -14,7 +14,7 @@ from zds.gallery.models import Gallery, Image, UserGallery
 from zds.gallery.mixins import GalleryUpdateOrDeleteMixin, ImageUpdateOrDeleteMixin, NoMoreUserWithWriteIfLeave
 
 from .serializers import GallerySerializer, ImageSerializer, ParticipantSerializer
-from .permissions import AccessToGallery, WriteAccessToGallery
+from .permissions import AccessToGallery, WriteAccessToGallery, NotLinkedToContent
 
 
 class PagingGalleryListKeyConstructor(PagingListKeyConstructor):
@@ -195,6 +195,8 @@ class GalleryDetailView(RetrieveUpdateDestroyAPIView, GalleryUpdateOrDeleteMixin
 
     def get_permissions(self):
         permission_classes = [IsAuthenticated, DRYPermissions]
+        if self.request.method in ['PUT', 'DELETE']:
+            permission_classes.append(NotLinkedToContent)
         return [permission() for permission in permission_classes]
 
 
@@ -478,6 +480,8 @@ class ParticipantListView(ListCreateAPIView):
         permission_classes = [IsAuthenticated, AccessToGallery]
         if self.request.method == 'POST':
             permission_classes.append(WriteAccessToGallery)
+            permission_classes.append(NotLinkedToContent)
+
         return [permission() for permission in permission_classes]
 
     def get_queryset(self):
@@ -582,6 +586,8 @@ class ParticipantDetailView(RetrieveUpdateDestroyAPIView, GalleryUpdateOrDeleteM
         permission_classes = [IsAuthenticated, AccessToGallery]
         if self.request.method in ['PUT', 'DELETE']:
             permission_classes.append(WriteAccessToGallery)
+            permission_classes.append(NotLinkedToContent)
+
         return [permission() for permission in permission_classes]
 
     def get_queryset(self):

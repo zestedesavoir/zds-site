@@ -10,6 +10,7 @@ from zds.gallery.factories import UserGalleryFactory, GalleryFactory, ImageFacto
 from zds.gallery.models import Gallery, UserGallery, GALLERY_WRITE, Image, GALLERY_READ
 from zds.member.factories import ProfileFactory
 from zds.member.api.tests import create_oauth2_client, authenticate_client
+from zds.tutorialv2.factories import PublishableContentFactory
 
 
 class GalleryListAPITest(APITestCase):
@@ -71,6 +72,27 @@ class GalleryListAPITest(APITestCase):
         self.assertIsNone(response.data.get('linked_content'))
         self.assertEqual(response.data.get('image_count'), 0)
 
+    def test_post_create_gallery_no_subtitle(self):
+        title = 'Ma super galerie'
+
+        response = self.client.post(
+            reverse('api:gallery:list'),
+            {
+                'title': title
+            }
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Gallery.objects.count(), 1)
+        self.assertEqual(UserGallery.objects.count(), 1)
+
+        gallery = Gallery.objects.first()
+        self.assertEqual(gallery.title, title)
+        self.assertEqual(gallery.subtitle, '')
+
+        self.assertEqual(response.data.get('title'), gallery.title)
+        self.assertEqual(response.data.get('subtitle'), '')
+
 
 class GalleryDetailAPITest(APITestCase):
     def setUp(self):
@@ -81,6 +103,9 @@ class GalleryDetailAPITest(APITestCase):
         authenticate_client(self.client, client_oauth2, self.profile.user.username, 'hostel77')
 
         self.gallery = GalleryFactory()
+
+        tuto = PublishableContentFactory(type='TUTORIAL', author_list=[self.profile.user])
+        self.gallery_tuto = tuto.gallery
 
         caches[extensions_api_settings.DEFAULT_USE_CACHE].clear()
 
@@ -104,6 +129,12 @@ class GalleryDetailAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('id'), self.gallery.pk)
         self.assertEqual(response.data.get('permissions'), {'read': True, 'write': False})
+
+    def test_get_gallery_linked_content(self):
+        response = self.client.get(reverse('api:gallery:detail', kwargs={'pk': self.gallery_tuto.pk}))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('id'), self.gallery_tuto.pk)
+        self.assertEqual(response.data.get('permissions'), {'read': True, 'write': True})
 
     def test_get_fail_non_existing(self):
         response = self.client.get(reverse('api:gallery:detail', kwargs={'pk': 99999}))
@@ -138,6 +169,24 @@ class GalleryDetailAPITest(APITestCase):
         self.assertEqual(response.data.get('title'), gallery.title)
         self.assertEqual(response.data.get('subtitle'), gallery.subtitle)
 
+    def test_put_fail_linked_content(self):
+        title = 'Ma super galerie?'
+        subtitle = '... Appartient à un tuto'
+
+        response = self.client.put(
+            reverse('api:gallery:detail', kwargs={'pk': self.gallery_tuto.pk}),
+            {
+                'title': title,
+                'subtitle': subtitle
+            }
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        gallery = Gallery.objects.get(pk=self.gallery_tuto.pk)
+        self.assertNotEqual(gallery.title, title)
+        self.assertNotEqual(gallery.subtitle, subtitle)
+
     def test_put_fail_no_right(self):
         title = 'Ma super galerie'
         subtitle = '... A été mise à jour !'
@@ -166,8 +215,8 @@ class GalleryDetailAPITest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
-        self.assertEqual(Gallery.objects.count(), 0)
-        self.assertEqual(UserGallery.objects.count(), 0)
+        self.assertEqual(Gallery.objects.filter(pk=self.gallery.pk).count(), 0)
+        self.assertEqual(UserGallery.objects.filter(gallery=self.gallery).count(), 0)
 
     def test_delete_fail_no_right(self):
         UserGalleryFactory(user=self.other.user, gallery=self.gallery)
@@ -177,8 +226,18 @@ class GalleryDetailAPITest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-        self.assertEqual(Gallery.objects.count(), 1)
-        self.assertEqual(UserGallery.objects.count(), 1)
+        self.assertEqual(Gallery.objects.filter(pk=self.gallery.pk).count(), 1)
+        self.assertEqual(UserGallery.objects.filter(gallery=self.gallery).count(), 1)
+
+    def test_delete_fail_linked_content(self):
+
+        response = self.client.delete(
+            reverse('api:gallery:detail', kwargs={'pk': self.gallery_tuto.pk}))
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        self.assertEqual(Gallery.objects.filter(pk=self.gallery_tuto.pk).count(), 1)
+        self.assertEqual(UserGallery.objects.filter(gallery=self.gallery_tuto).count(), 1)
 
 
 class ImageListAPITest(APITestCase):
@@ -426,8 +485,19 @@ class ParticipantListAPITest(APITestCase):
         UserGalleryFactory(user=self.profile.user, gallery=self.gallery_shared, mode=GALLERY_READ)
         self.image_shared = ImageFactory(gallery=self.gallery_shared)
 
+        tuto = PublishableContentFactory(type='TUTORIAL', author_list=[self.profile.user])
+        self.gallery_tuto = tuto.gallery
+
     def test_get_list(self):
         response = self.client.get(reverse('api:gallery:list-participants', kwargs={'pk_gallery': self.gallery.pk}))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(response.data.get('count'), 1)
+        self.assertEqual(response.data.get('results')[0].get('id'), self.profile.pk)
+
+    def test_get_list_linked_content(self):
+        response = self.client.get(
+            reverse('api:gallery:list-participants', kwargs={'pk_gallery': self.gallery_tuto.pk}))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         self.assertEqual(response.data.get('count'), 1)
@@ -478,6 +548,19 @@ class ParticipantListAPITest(APITestCase):
         user_gallery = UserGallery.objects.get(pk=user_gallery.pk)
         self.assertEqual(user_gallery.mode, GALLERY_READ)
 
+    def test_post_fail_add_participant_linked_content(self):
+        response = self.client.post(
+            reverse('api:gallery:list-participants', kwargs={'pk_gallery': self.gallery_tuto.pk}),
+            {
+                'id': self.new_participant.user.pk,
+                'can_write': False
+            }
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(
+            UserGallery.objects.filter(gallery=self.gallery_tuto, user=self.new_participant.user).count(), 0)
+
     def test_post_fail_add_participant_no_permissions(self):
         response = self.client.post(
             reverse('api:gallery:list-participants', kwargs={'pk_gallery': self.gallery_other.pk}),
@@ -527,6 +610,9 @@ class ParticipantDetailAPITest(APITestCase):
         UserGalleryFactory(user=self.profile.user, gallery=self.gallery_shared, mode=GALLERY_READ)
         self.image_shared = ImageFactory(gallery=self.gallery_shared)
 
+        tuto = PublishableContentFactory(type='TUTORIAL', author_list=[self.profile.user, self.new_participant.user])
+        self.gallery_tuto = tuto.gallery
+
     def test_get_participant(self):
         response = self.client.get(reverse(
             'api:gallery:detail-participant',
@@ -534,6 +620,15 @@ class ParticipantDetailAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         self.assertEqual(response.data.get('id'), self.profile.user.pk)
+        self.assertEqual(response.data.get('permissions'), {'read': True, 'write': True})
+
+    def test_get_participant_linked_content(self):
+        response = self.client.get(reverse(
+            'api:gallery:detail-participant',
+            kwargs={'pk_gallery': self.gallery_tuto.pk, 'user__pk': self.new_participant.user.pk}))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(response.data.get('id'), self.new_participant.user.pk)
         self.assertEqual(response.data.get('permissions'), {'read': True, 'write': True})
 
     def test_get_participant_read_permissions(self):
@@ -584,6 +679,21 @@ class ParticipantDetailAPITest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
+    def test_put_fail_modify_participant_linked_content(self):
+        response = self.client.put(
+            reverse(
+                'api:gallery:detail-participant',
+                kwargs={'pk_gallery': self.gallery_tuto.pk, 'user__pk': self.new_participant.user.pk}),
+            {
+                'can_write': False
+            }
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        user_gallery = UserGallery.objects.get(gallery=self.gallery_tuto, user=self.new_participant.user)
+        self.assertEqual(user_gallery.mode, GALLERY_WRITE)
+
     def test_put_fail_modify_participant_no_permissions(self):
         user_gallery = UserGalleryFactory(
             user=self.new_participant.user, gallery=self.gallery_other, mode=GALLERY_READ)
@@ -630,6 +740,17 @@ class ParticipantDetailAPITest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(UserGallery.objects.filter(gallery=self.gallery, user=self.new_participant.user).count(), 0)
+
+    def test_delete_participant_fail_linked_content(self):
+        response = self.client.delete(
+            reverse(
+                'api:gallery:detail-participant',
+                kwargs={'pk_gallery': self.gallery_tuto.pk, 'user__pk': self.new_participant.user.pk}))
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        user_gallery = UserGallery.objects.get(gallery=self.gallery_tuto, user=self.new_participant.user)
+        self.assertEqual(user_gallery.mode, GALLERY_WRITE)
 
     def test_delete_participant_fail_no_permissions(self):
         UserGalleryFactory(user=self.new_participant.user, gallery=self.gallery_other)
