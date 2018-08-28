@@ -1412,6 +1412,25 @@ class PostEditTest(TestCase):
         self.assertEqual(staff.user, post.editor)
         self.assertEqual(text_hidden_expected, post.text_hidden)
 
+    def test_hide_helpful_message(self):
+        profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, profile)
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.post(reverse('post-useful') + '?message={}'.format(topic.last_message.pk), follow=False)
+        self.assertEqual(302, response.status_code)
+
+        response = self.client.get(topic.get_absolute_url(), follow=False)
+        self.assertNotContains(response, 'green hidden')
+
+        response = self.client.post(
+            reverse('post-edit') + '?message={}'.format(topic.last_message.pk), {'delete_message': ''}, follow=False)
+        self.assertEqual(302, response.status_code)
+
+        response = self.client.get(topic.get_absolute_url(), follow=False)
+        self.assertContains(response, 'green hidden')
+
     def test_failure_edit_post_show_message_by_user(self):
         another_profile = ProfileFactory()
         category, forum = create_category()

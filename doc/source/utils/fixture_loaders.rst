@@ -31,6 +31,7 @@ Nous possédons un ensemble de données sérialisées dans le dossier fixtures:
 - ``oauth_applications.yaml``: crée une application de test `pour l'API <../api.html>`_:
     - ``client_id``: ``w14aIFqE7z90ti1rXE8hCRMRUOPBP4rXpfLZIKmT`` ;
     - ``client_secret``: ``0q4ee800NWs8cSHa0FIbkTLwEncMqYHOCAxNkt9zRmd10bRk1J18TkbviO5QHy2b66ggzyLADm79tJw5BQf2XfApPnk0nogcFaYhtNO33uNlzzT8sXfxu3zzBFu5Wejv``.
+- ``group.yaml``: crée les descriptions de deux groupes de la page d'accueil (staff et groupe technique)
 
 De ce fait, le moyen le plus simple de charger l'ensemble des données de base est la commande ``make fixtures``.
 

@@ -25,6 +25,7 @@ from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory, Pos
 from zds.forum.models import Topic, Post
 from zds.gallery.factories import GalleryFactory, UserGalleryFactory
 from zds.gallery.models import Gallery, UserGallery
+from zds.pages.models import GroupContact
 from zds.utils.models import CommentVote, Hat, HatRequest
 from copy import deepcopy
 
@@ -1732,6 +1733,12 @@ class MemberTests(TestCase):
         result = self.client.get(hat.get_absolute_url())
         self.assertEqual(result.status_code, 200)
         self.assertContains(result, self.staff.username)
+        # if we display this group on the contact page...
+        GroupContact.objects.create(group=Group.objects.get(name='staff'), description='group description', position=1)
+        # the description should be shown on this page too
+        result = self.client.get(hat.get_absolute_url())
+        self.assertEqual(result.status_code, 200)
+        self.assertContains(result, 'group description')
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
