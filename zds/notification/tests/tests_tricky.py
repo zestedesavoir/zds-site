@@ -1,5 +1,3 @@
-import os
-
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.test import TestCase
@@ -15,7 +13,7 @@ from zds.notification import signals as notif_signals
 from zds.tutorialv2.factories import PublishableContentFactory, LicenceFactory, SubCategoryFactory, \
     PublishedContentFactory, ContentReactionFactory
 from zds.tutorialv2.publication_utils import publish_content, notify_update
-from zds.tutorialv2.tests import TutorialTestMixin
+from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from copy import deepcopy
 
 from zds.utils.header_notifications import get_header_notifications
@@ -283,21 +281,11 @@ class ForumNotification(TestCase):
         self.assertFalse(subscription.is_active)
 
 
-overridden_zds_app = deepcopy(settings.ZDS_APP)
-overridden_zds_app['content']['repo_private_path'] = os.path.join(settings.BASE_DIR, 'contents-private-test')
-overridden_zds_app['content']['repo_public_path'] = os.path.join(settings.BASE_DIR, 'contents-public-test')
-overridden_zds_app['content']['extra_content_generation_policy'] = 'SYNC'
-
-
-@override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'media-test'))
-@override_settings(ZDS_APP=overridden_zds_app)
-@override_settings(ES_ENABLED=False)
+@override_for_contents()
 class ContentNotification(TestCase, TutorialTestMixin):
     def setUp(self):
 
         # don't build PDF to speed up the tests
-        overridden_zds_app['content']['build_pdf_when_published'] = False
-        self.overridden_zds_app = overridden_zds_app
         self.user1 = ProfileFactory().user
         self.user2 = ProfileFactory().user
 

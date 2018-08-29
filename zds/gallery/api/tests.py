@@ -11,6 +11,7 @@ from zds.gallery.models import Gallery, UserGallery, GALLERY_WRITE, Image, GALLE
 from zds.member.factories import ProfileFactory
 from zds.member.api.tests import create_oauth2_client, authenticate_client
 from zds.tutorialv2.factories import PublishableContentFactory
+from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 
 
 class GalleryListAPITest(APITestCase):
@@ -94,7 +95,8 @@ class GalleryListAPITest(APITestCase):
         self.assertEqual(response.data.get('subtitle'), '')
 
 
-class GalleryDetailAPITest(APITestCase):
+@override_for_contents()
+class GalleryDetailAPITest(TutorialTestMixin, APITestCase):
     def setUp(self):
         self.profile = ProfileFactory()
         self.other = ProfileFactory()
@@ -500,7 +502,8 @@ class ImageDetailAPITest(APITestCase):
         self.assertEqual(Image.objects.filter(gallery=self.gallery_shared).count(), 1)
 
 
-class ParticipantListAPITest(APITestCase):
+@override_for_contents()
+class ParticipantListAPITest(TutorialTestMixin, APITestCase):
     def setUp(self):
         self.profile = ProfileFactory()
         self.other = ProfileFactory()
@@ -622,7 +625,8 @@ class ParticipantListAPITest(APITestCase):
             UserGallery.objects.filter(gallery=self.gallery_shared, user=self.new_participant.user).count(), 0)
 
 
-class ParticipantDetailAPITest(APITestCase):
+@override_for_contents()
+class ParticipantDetailAPITest(TutorialTestMixin, APITestCase):
     def setUp(self):
         self.profile = ProfileFactory()
         self.other = ProfileFactory()
