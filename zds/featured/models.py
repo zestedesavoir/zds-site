@@ -39,12 +39,14 @@ class FeaturedResource(models.Model):
         return self.title
 
 
+FEATUREABLES_TYPES = ['content', 'topic']  # keep order!
+
 FEATUREABLES = {
     'content': {'name': 'CONTENT', 'verbose_name': _('Contenu')},
     'topic': {'name': 'TOPIC', 'verbose_name': _('Sujet')},
 }
 
-FEATUREABLE_TYPE_CHOICES = [(a['name'], a['verbose_name']) for a in FEATUREABLES.values()]
+FEATUREABLE_TYPE_CHOICES = [(FEATUREABLES[a]['name'], FEATUREABLES[a]['verbose_name']) for a in FEATUREABLES_TYPES]
 
 
 class FeaturedRequested(models.Model):
