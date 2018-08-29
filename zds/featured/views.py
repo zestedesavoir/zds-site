@@ -243,6 +243,7 @@ class FeaturedRequestedList(FeaturedViewMixin, ZdSPagingListView):
         queryset = FeaturedRequested.objects\
             .prefetch_related('content_object')\
             .annotate(num_vote=Count('users_voted'))\
+            .filter(num_vote__gt=0)\
             .order_by('-num_vote')\
             .filter(rejected=type_featured_request == 'ignored')\
             .filter(featured__isnull=type_featured_request != 'accepted')

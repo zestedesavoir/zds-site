@@ -535,6 +535,13 @@ class FeaturedRequestListViewTest(TestCase):
         self.assertEqual(len(response.context['featured_request_list']), 1)
         self.assertTrue(any(r.content_object == topic for r in response.context['featured_request_list']))
 
+        # put back vote count to 0 for tutorial
+        FeaturedRequested.objects.toogle_request(tutorial, author)
+        response = self.client.get(reverse('featured-resource-requests') + '?type=content')
+        self.assertEqual(200, response.status_code)
+
+        self.assertEqual(len(response.context['featured_request_list']), 0)  # does not appear with no votes
+
     def tearDown(self):
         if os.path.isdir(overridden_zds_app['content']['repo_private_path']):
             shutil.rmtree(overridden_zds_app['content']['repo_private_path'])
