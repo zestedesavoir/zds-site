@@ -27,13 +27,6 @@
             {% endblock %}
         </h1>
 
-        {% captureas headlinesub %}
-            {% block headline_sub %}{% endblock %}
-        {% endcaptureas %}
-        {% if headlinesub %}
-            <h2 class="subtitle">{{ headlinesub|safe }}</h2>
-        {% endif %}
-
         {% block content %}
             {% if contents %}
                 <table class="fullwidth">
@@ -63,12 +56,17 @@
                                     <span>{{ content.update_date|format_date:True|capfirst }}</span>
                                 </td>
                                 <td>
-                                    <button type="button" class="btn btn-grey ico-after hide unpick-action" data-url="{% url 'validation:ignore-opinion' content.pk content.slug %}"
-                                            data-operation="NO_PICK">{% trans "Ignorer pour l’instant" %}</button>
                                     <button type="button" class="btn btn-grey ico-after cross red unpick-action" data-url="{% url 'validation:ignore-opinion' content.pk content.slug %}"
-                                            data-operation="REJECT">{% trans "Ignorer définitivement" %}</button>
+                                            data-operation="REMOVE_PUB">{% trans "Modérer" %}</button>
                                     <button type="button" class="btn btn-grey ico-after hide unpick-action" data-url="{% url 'validation:ignore-opinion' content.pk content.slug %}"
-                                            data-operation="REMOVE_PUB">{% trans "Dépublier définitivement" %}</button>
+                                            data-operation="NO_PICK">{% trans "Ignorer cette version" %}</button>
+                                    <button type="button" class="btn btn-grey ico-after cross unpick-action" data-url="{% url 'validation:ignore-opinion' content.pk content.slug %}"
+                                            data-operation="REJECT">{% trans "Ne pas choisir" %}</button>
+                                    <form method="post" action="{% url 'validation:pick-opinion' content.pk content.slug %}">
+                                        {% csrf_token %}
+                                        <input name="version" type="hidden" value="{{ content.sha_public }}" />
+                                        <button type="submit" class="btn btn-grey ico-after tick green">{% trans "Choisir" %}</button>
+                                    </form>
                                 </td>
                                 <td>
                                     {% if content.sha_picked %}
@@ -83,7 +81,7 @@
                 </table>
             {% else %}
                 <p>
-                    {% trans "Aucun billet" %}
+                    {% trans "Aucun billet." %}
                 </p>
             {% endif %}
         {% endblock %}
