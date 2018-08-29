@@ -67,13 +67,15 @@ class FeaturedRequested(models.Model):
         max_length=10, choices=FEATUREABLE_TYPE_CHOICES, verbose_name=_('Type de l\'objet'), db_index=True)
 
     rejected = models.BooleanField(default=False, verbose_name=_('Est rejeté'))
+    rejected_for_good = models.BooleanField(default=False, verbose_name=_('Est rejeté pour de bon'))
+
     featured = models.ForeignKey(
         FeaturedResource, verbose_name=_('Une'), blank=True, null=True, on_delete=models.SET_NULL)
 
     objects = FeaturedRequestedManager()
 
     def toggle(self, user):
-        """Toogle featured request for user
+        """Toogle featured request for user. Do not reject the vote anymore.
 
         :param user: the user
         :type user: User
@@ -90,6 +92,10 @@ class FeaturedRequested(models.Model):
             self.users_voted.add(user)
             new_count += 1
             new_value = True
+
+        if self.rejected:
+            self.rejected = False
+            self.save()
 
         return new_value, new_count
 

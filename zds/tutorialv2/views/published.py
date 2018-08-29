@@ -158,7 +158,8 @@ class DisplayOnlineContent(FeatureableMixin, SingleOnlineContentDetailViewMixin)
             mark_read(self.object, self.request.user)
 
         # request featured
-        context['show_featured_requested'] = self.object.type != 'OPINION' and not self.object.is_obsolete
+        context['show_featured_requested'] = context['show_featured_requested'] and \
+            self.object.type != 'OPINION' and not self.object.is_obsolete
 
         return context
 

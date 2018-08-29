@@ -1,5 +1,8 @@
-from zds.featured.models import FeaturedRequested
 from django.views.generic.base import ContextMixin, View
+from django.core.exceptions import PermissionDenied
+
+from zds.featured.models import FeaturedRequested
+from zds.featured.managers import FeaturedRequestedException
 
 
 class FeatureableMixin(ContextMixin, View):
@@ -15,7 +18,11 @@ class FeatureableMixin(ContextMixin, View):
         :type user: User
         :rtype: (bool, int)
         """
-        return FeaturedRequested.objects.toogle_request(self.object, user)
+
+        try:
+            return FeaturedRequested.objects.toogle_request(self.object, user)
+        except FeaturedRequestedException as e:
+            raise PermissionDenied(e)
 
     def get_context_data(self, **kwargs):
         """ Adds variables to template:
@@ -25,8 +32,7 @@ class FeatureableMixin(ContextMixin, View):
         - ``featured_request_count``: number of votes ?
         """
         context = super().get_context_data(**kwargs)
-        context['show_featured_requested'] = True
-        context['is_requesting'], context['featured_request_count'] = FeaturedRequested.objects.requested_and_count(
-            self.object, self.request.user)
+        context['show_featured_requested'], context['is_requesting'], context['featured_request_count'] = \
+            FeaturedRequested.objects.requested_and_count(self.object, self.request.user)
 
         return context

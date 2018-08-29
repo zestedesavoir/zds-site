@@ -30,9 +30,9 @@
             <thead>
                 <tr>
                     <th>{% trans "Titre" %}</th>
-                    <th width="15%">{% trans "Type" %}</th>
+                    <th width="10%">{% trans "Type" %}</th>
                     <th width="10%">{% trans "Votes" %}</th>
-                    <th>{% trans "Actions" %}</th>
+                    <th width="45%">{% trans "Actions" %}</th>
                 </tr>
             </thead>
             <tbody>
@@ -67,6 +67,9 @@
                             <button type="button" class="btn btn-grey ico-after hide unpick-action" data-url="{% url 'featured-resource-request-update' featured_request.pk %}"
                                     data-operation="REJECT">{% trans "Ignorer" %}</button>
                         {% endif %}
+
+                        <button type="button" class="btn btn-grey ico-after hide unpick-action" data-url="{% url 'featured-resource-request-update' featured_request.pk %}"
+                                data-operation="REJECT_FOR_GOOD">{% trans "Ignorer définitivement" %}</button>
 
                         <a href="{% url "featured-resource-create" %}?content_type={% if featured_request.type == 'TOPIC' %}topic{% else %}published_content{% endif %}&amp;content_id={{ featured_request.content_object.pk }}">
                             <button type="button" class="btn btn-grey ico-after star">{% trans "Nouvelle une" %}</button>

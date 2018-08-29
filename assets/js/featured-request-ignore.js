@@ -14,7 +14,7 @@
         }
         $.post($button.attr("data-url"), data).done(function (result) {
             if (result.result === "OK") {
-                if (operation === "REJECT") {
+                if (operation === "REJECT" || operation === "REJECT_FOR_GOOD") {
                     $row.remove();
                     if ($table.find("tr").length === 0) {
                         $table.append("<tr><td colspan=\"4\"><i>Plus rien à afficher pour le moment !</i></td></tr>");

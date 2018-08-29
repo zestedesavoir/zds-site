@@ -78,16 +78,16 @@ class FeaturedRequestedManager(models.Manager):
         :type content_object: zds.forum.models.Topic|zds.tutorialv2.models.database.PublishableContent
         :param user: the user
         :type user: User
-        :return: tuple of the form (user has voted, number of votes)
-        :rtype: (bool, int)
+        :return: tuple of the form (show, user has voted, number of votes)
+        :rtype: (bool, bool, int)
         """
         featured_request = self.get_existing(content_object)
 
         if featured_request is None:
-            return False, 0
+            return True, False, 0
         else:
             users = list(u for u in featured_request.users_voted.all())
-            return user in users, len(users)
+            return not featured_request.rejected_for_good, user in users, len(users)
 
     def toogle_request(self, content_object, user=None):
         """Toogle featured request for user on ``content_object`
@@ -106,4 +106,7 @@ class FeaturedRequestedManager(models.Manager):
             raise FeaturedRequestedException('cannot toggle without connected user')
 
         featured_request = self.get_or_create(content_object)
+        if featured_request.rejected_for_good:
+            raise FeaturedRequestedException('cannot toogle request rejected for good!')
+
         return featured_request.toggle(user)

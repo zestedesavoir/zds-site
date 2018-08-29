@@ -542,6 +542,15 @@ class FeaturedRequestListViewTest(TestCase):
 
         self.assertEqual(len(response.context['featured_request_list']), 0)  # does not appear with no votes
 
+        # upvote topic
+        other = ProfileFactory().user
+        FeaturedRequested.objects.toogle_request(topic, other)
+
+        response = self.client.get(reverse('featured-resource-requests') + '?type=topic')
+        self.assertEqual(200, response.status_code)
+
+        self.assertEqual(len(response.context['featured_request_list']), 1)  # it is back!
+
     def tearDown(self):
         if os.path.isdir(overridden_zds_app['content']['repo_private_path']):
             shutil.rmtree(overridden_zds_app['content']['repo_private_path'])
@@ -585,6 +594,7 @@ class FeaturedRequestUpdateViewTest(TestCase):
 
         q = FeaturedRequested.objects.get(pk=q.pk)
         self.assertTrue(q.rejected)
+        self.assertFalse(q.rejected_for_good)
 
         response = self.client.post(
             reverse('featured-resource-request-update', kwargs={'pk': q.pk}),
@@ -597,6 +607,19 @@ class FeaturedRequestUpdateViewTest(TestCase):
 
         q = FeaturedRequested.objects.get(pk=q.pk)
         self.assertFalse(q.rejected)
+
+        response = self.client.post(
+            reverse('featured-resource-request-update', kwargs={'pk': q.pk}),
+            {
+                'operation': 'REJECT_FOR_GOOD'
+            },
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+
+        q = FeaturedRequested.objects.get(pk=q.pk)
+        self.assertTrue(q.rejected)
+        self.assertTrue(q.rejected_for_good)
 
 
 @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'media-test'))
@@ -688,6 +711,51 @@ class FeaturedRequestToggleTest(TestCase):
         r = FeaturedRequested.objects.get(pk=r.pk)
         self.assertEqual(r.content_object, tutorial)
         self.assertIn(author.user, r.users_voted.all())
+
+        # reject tutorial proposition
+        tutorial.is_obsolete = False  # can vote again
+        tutorial.save()
+
+        r = FeaturedRequested.objects.get(pk=r.pk)
+        r.rejected = True
+        r.save()
+
+        # upvote with other user
+        other = ProfileFactory()
+        login_check = self.client.login(
+            username=other.user.username,
+            password='hostel77'
+        )
+        self.assertTrue(login_check)
+
+        response = self.client.post(
+            reverse('content:request-featured', kwargs={'pk': tutorial.pk}),
+            {
+                'request_featured': 1
+            },
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+        )
+        self.assertEqual(200, response.status_code)
+
+        r = FeaturedRequested.objects.get(pk=r.pk)
+        self.assertIn(other.user, r.users_voted.all())
+        self.assertFalse(r.rejected)  # not rejected anymore
+
+        # reject for good, cannot vote anymore!
+        r.rejected_for_good = True
+        r.save()
+
+        response = self.client.post(
+            reverse('content:request-featured', kwargs={'pk': tutorial.pk}),
+            {
+                'request_featured': 1
+            },
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+        )
+        self.assertEqual(403, response.status_code)
+
+        r = FeaturedRequested.objects.get(pk=r.pk)
+        self.assertIn(other.user, r.users_voted.all())
 
     def tearDown(self):
         if os.path.isdir(overridden_zds_app['content']['repo_private_path']):

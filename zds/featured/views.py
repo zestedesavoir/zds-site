@@ -242,6 +242,7 @@ class FeaturedRequestedList(FeaturedViewMixin, ZdSPagingListView):
 
         queryset = FeaturedRequested.objects\
             .prefetch_related('content_object')\
+            .filter(rejected_for_good=False)\
             .annotate(num_vote=Count('users_voted'))\
             .filter(num_vote__gt=0)\
             .order_by('-num_vote')\
@@ -271,6 +272,11 @@ class FeaturedRequestedUpdate(UpdateView):
         if 'operation' in request.POST:
             if 'REJECT' in request.POST['operation']:
                 obj.rejected = True
+                obj.save()
+                result = {'result': 'OK'}
+            if 'REJECT_FOR_GOOD' in request.POST['operation']:
+                obj.rejected = True
+                obj.rejected_for_good = True
                 obj.save()
                 result = {'result': 'OK'}
             elif 'CONSIDER' in request.POST['operation']:
