@@ -1150,15 +1150,16 @@ class MemberTests(TestCase):
     def test_pseudo_case_change(self):
         tester = ProfileFactory()
         old_pseudo = tester.user.username
+        new_pseudo = tester.user.username.upper()
         self.client.login(username=tester.user.username, password='hostel77')
 
         data = {
-            'username': 'Dummy',
+            'username': new_pseudo,
             'email': tester.user.email
         }
         self.client.post(reverse('update-username-email-member'), data, follow=False)
 
-        self.assertEqual(tester.user.username, 'Dummy')
+        self.assertEqual(tester.user.username, new_pseudo)
 
     def test_pseudo_change(self):
         tester = ProfileFactory()
