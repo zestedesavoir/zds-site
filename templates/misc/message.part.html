@@ -38,7 +38,7 @@
     {% include "misc/message_user.html" with member=message.author push_badge=is_author %}
 
 
-    <div class="message">
+    <div class="message" id="p{{ message.id }}">
         {% if is_author %}
             <span class="is-author">{% trans "Auteur du sujet" %}</span>
         {% endif %}
@@ -149,7 +149,7 @@
                 <span itemprop="name">{{ message.author.username }}</span>
             </a>
 
-            <a href="#p{{ message.pk }}" id="p{{ message.id }}" class="date" title="{{ message.pubdate|tooltip_date|capfirst }}">
+            <a href="#p{{ message.pk }}" class="date" title="{{ message.pubdate|tooltip_date|capfirst }}">
                 <time itemprop="dateCreated" datetime="{{ message.pubdate|date:"c" }}">
                     <span class="long-date">
                         {{ message.pubdate|format_date|capfirst }}

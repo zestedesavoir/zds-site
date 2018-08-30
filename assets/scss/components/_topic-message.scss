@@ -105,6 +105,10 @@
         border-bottom-width: 3px;
         min-height: 75px;
 
+        &:target {
+            box-shadow: 0 0 6px #1c5b78;
+        }
+
         .is-author {
             position: absolute;
             top: -16px;
