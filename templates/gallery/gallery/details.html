@@ -55,7 +55,7 @@
                 </li>
                 <li>
                     <a href="#edit-user-modal" class="open-modal ico-after edit blue">{% trans "Gérer les utilisateurs" %}</a>
-                    <div id="edit-user-modal" class="modal" data-modal-close="Fermer">
+                    <div id="edit-user-modal" class="modal" data-modal-close="{% trans "Fermer" %}">
                         {% if users|length > 1 %}
                             <table>
                                 <thead>
@@ -79,7 +79,7 @@
                                                                 <option value="{{ mode.0 }}"{% if u.mode == mode.0 %} selected{% endif %}>{{ mode.1 }}</option>
                                                             {% endfor %}
                                                         </select>
-                                                        <button type="submit" value="Modifier" class="modal-inner btn">{% trans "Modifier" %}</button>
+                                                        <button type="submit" value="{% trans "Modifier" %}" class="modal-inner btn">{% trans "Modifier" %}</button>
                                                     </form>
                                                 {% endif %}
                                             </td>

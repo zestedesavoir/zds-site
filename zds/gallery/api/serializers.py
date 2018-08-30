@@ -26,7 +26,7 @@ class CustomParticipantField(serializers.Field):
 class ImageTooLargeError(exceptions.ValidationError):
     def __init__(self, e):
         super().__init__(
-            detail=_('Votre image est trop grosse ({} Kio). La taille maximum est de {} Kio !').format(
+            detail=_('Votre image est trop lourde ({} Kio). La taille maximum est de {} Kio !').format(
                 e.size / 1024, settings.ZDS_APP['gallery']['image_max_size'] / 1024))
 
 
