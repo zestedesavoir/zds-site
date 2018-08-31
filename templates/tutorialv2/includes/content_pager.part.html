@@ -3,7 +3,7 @@
     <ul class="pagination pagination-{{ position }} pagination-chapter">
         {% if previous_content %}
             <li class="prev">
-                <a href="{{ previous_content.get_absolute_url_online }}" class="ico-after arrow-left">
+                <a href="{{ previous_content.get_absolute_url_online }}" class="ico-after arrow-left" rel="prev">
                     {{ previous_content.content.title }}
                 </a>
             </li>
@@ -11,7 +11,7 @@
 
         {% if next_content %}
             <li class="next">
-                <a href="{{ next_content.get_absolute_url_online }}" class="ico-after arrow-right" >
+                <a href="{{ next_content.get_absolute_url_online }}" class="ico-after arrow-right" rel="next">
                     {{ next_content.content.title }}
                 </a>
             </li>
