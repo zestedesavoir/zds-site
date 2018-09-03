@@ -419,16 +419,23 @@ td code {
 }
 
 .video-container {
+    // Center the video and set a maximum size
     margin: 0 auto;
     max-width: 560px;
     max-height: 315px;
+    
+    // Needed in case .video-container is wrapped with <div class="align-center"> or with <figure>
+    text-align: left;
 
+    // Adjust the video to fit the screen size
     .video-wrapper {
         position: relative;
-        padding-bottom: 56.25%;
+        padding-bottom: 56.25%; // height / width * 100
 
         iframe {
+            position: absolute;
             width: 100%;
+            height: 100%;
         }
     }
 }
