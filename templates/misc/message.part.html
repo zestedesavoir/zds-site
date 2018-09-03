@@ -19,7 +19,7 @@
 <article
     class="topic-message
 
-           {% if message.is_useful %}helpful{% endif %}
+           {% if message.is_useful and message.is_visible %}helpful{% endif %}
            {% if is_repeated_message %}repeated{% endif %}"
 
     {% if comment_schema %}
@@ -173,7 +173,7 @@
                     {% trans "Reprise du dernier message de la page précédente" %}
                 </p>
             {% endif %}
-            <p class="message-helpful tick ico-after green {% if not message.is_useful or is_creator %}hidden{% endif %}"
+            <p class="message-helpful tick ico-after green {% if not message.is_useful or not message.is_visible %}hidden{% endif %}"
                data-ajax-output="mark-message-as-useful">
                 {% trans "Cette réponse a aidé l’auteur du sujet" %}
             </p>
@@ -217,7 +217,7 @@
                     <em class="alert-box-text">{{ alert.text }}</em>
 
                     {% if alert.solved %}
-                        <span class="close-alert-box close-alert-box-text">
+                        <span class="view-alert-box close-alert-box-text">
                             {% trans "Résolu par" %}
                             {% include "misc/member_item.part.html" with member=alert.moderator %}
                         </span>
@@ -239,22 +239,24 @@
             <div class="message-bottom">
                 {% with profile=message.author|profile %}
                     {% if profile.sign %}
-                        {% if user.is_authenticated %}
-                            {% with profile_user=user|profile %}
-                                {% if profile_user.show_sign %}
-                                    <div class="signature">
-                                        {% cache 300 profile.user.username profile.sign %}
-                                            {{ profile.sign|emarkdown_inline }}
-                                        {% endcache %}
-                                    </div>
-                                {% endif %}
-                            {% endwith %}
-                        {% else %}
-                            <div class="signature">
-                                {% cache 300 profile.user.username profile.sign %}
-                                    {{ profile.sign|emarkdown_inline }}
-                                {% endcache %}
-                            </div>
+                        {% if profile.end_ban_read or profile.can_read %}
+                            {% if user.is_authenticated %}
+                                {% with profile_user=user|profile %}
+                                    {% if profile_user.show_sign %}
+                                        <div class="signature">
+                                            {% cache 300 profile.user.username profile.sign %}
+                                                {{ profile.sign|emarkdown_inline }}
+                                            {% endcache %}
+                                        </div>
+                                    {% endif %}
+                                {% endwith %}
+                            {% else %}
+                                <div class="signature">
+                                    {% cache 300 profile.user.username profile.sign %}
+                                        {{ profile.sign|emarkdown_inline }}
+                                    {% endcache %}
+                                </div>
+                            {% endif %}
                         {% endif %}
                     {% endif %}
                 {% endwith %}

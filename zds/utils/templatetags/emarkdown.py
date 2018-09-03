@@ -116,8 +116,8 @@ def render_markdown(md_input, *, on_error=None, **kwargs):
 
 @register.filter(name='epub_markdown', needs_autoescape=False)
 def epub_markdown(md_input, image_directory):
-    return emarkdown(md_input, output_format='epub', images_download_dir=image_directory,
-                     local_url_to_local_path=[settings.MEDIA_URL + '/galleries/[0-9]+', image_directory])
+    return emarkdown(md_input, output_format='epub', images_download_dir=image_directory.absolute,
+                     local_url_to_local_path=[settings.MEDIA_URL + 'galleries/[0-9]+', image_directory.relative])
 
 
 @register.filter(needs_autoescape=False)

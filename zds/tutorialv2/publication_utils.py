@@ -30,6 +30,7 @@ licences = {
     'by-nd': 'by-nd.svg',
     'by-sa': 'by-sa.svg',
     'by': 'by.svg',
+    '0': '0.svg',
     'copyright': 'copyright.svg'
 }
 
@@ -124,6 +125,7 @@ def publish_content(db_object, versioned, is_major_update=True):
     public_version.save(
         update_fields=['char_count', 'publication_date', 'update_date', 'sha_public'])
 
+    public_version.authors.clear()
     for author in db_object.authors.all():
         public_version.authors.add(author)
 
@@ -337,9 +339,10 @@ class ZMarkdownRebberLatexPublicator(Publicator):
         image_dir = base_directory / 'images'
         with contextlib.suppress(FileExistsError):
             image_dir.mkdir(parents=True)
-        for image in Path(settings.MEDIA_ROOT, 'galleries', str(gallery_pk)).iterdir():
-            with contextlib.suppress(OSError):
-                shutil.copy2(str(image.absolute()), str(image_dir))
+        if Path(settings.MEDIA_ROOT, 'galleries', str(gallery_pk)).exists():
+            for image in Path(settings.MEDIA_ROOT, 'galleries', str(gallery_pk)).iterdir():
+                with contextlib.suppress(OSError):
+                    shutil.copy2(str(image.absolute()), str(image_dir))
         content_type = depth_to_size_map[public_versionned_source.get_tree_level()]
         if self.latex_classes:
             content_type += ', ' + self.latex_classes
@@ -379,7 +382,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
         )
         if content == '' and messages:
             raise FailureDuringPublication('Markdown was not parsed due to {}'.format(messages))
-        zmd_class_dir_path = Path(os.environ.get('HOME', '~')) / 'texmf' / 'tex' / 'latex'
+        zmd_class_dir_path = Path(settings.ZDS_APP['content']['latex_template_repo'])
         if zmd_class_dir_path.exists() and zmd_class_dir_path.is_dir():
             with contextlib.suppress(FileExistsError):
                 zmd_class_link = base_directory / 'zmdocument.cls'
@@ -486,13 +489,14 @@ class ZMarkdownEpubPublicator(Publicator):
         try:
             published_content_entity = self.get_published_content_entity(md_file_path)
             epub_file_path = Path(base_name + '.epub')
+            logger.info('Start generating epub')
             build_ebook(published_content_entity,
                         path.dirname(md_file_path),
                         epub_file_path)
         except (IOError, OSError):
             raise FailureDuringPublication('Error while generating epub file.')
         else:
-            print(epub_file_path)
+            logger.info(epub_file_path)
             epub_path = Path(published_content_entity.get_extra_contents_directory(), Path(epub_file_path.name))
             if epub_path.exists():
                 os.remove(str(epub_path))

@@ -113,7 +113,7 @@ install:
     && cd $TRAVIS_BUILD_DIR
 
   - |
-    # install frontend+zmarkdown dependencies
+    # install frontend dependencies
     npm i -g yarn \
     && yarn --silent
 
@@ -144,7 +144,7 @@ script:
     if [[ "$ZDS_TEST_JOB" == *"zds."* ]]; then
       python manage.py makemigrations --dry-run --check \
       && coverage run --source='.' manage.py \
-        test \
+        test -v=2\
         --keepdb \
         --settings zds.settings.ci_test \
         --exclude-tag=front \
@@ -162,7 +162,7 @@ script:
     if [[ "$ZDS_TEST_JOB" == *"selenium"* ]]; then
       yarn build
       xvfb-run --server-args="-screen 0 1280x720x8" python manage.py \
-        test \
+        test -v=2\
         --settings zds.settings.ci_test \
         --tag=front \
         --keepdb

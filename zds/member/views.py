@@ -39,6 +39,7 @@ from zds.member.models import Profile, TokenForgotPassword, TokenRegister, Karma
     BannedEmailProvider, NewEmailProvider, set_old_smileys_cookie, remove_old_smileys_cookie
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.notification.models import TopicAnswerSubscription, NewPublicationSubscription
+from zds.pages.models import GroupContact
 from zds.tutorialv2.models.database import PublishedContent, PickListOperation
 from zds.utils.models import Comment, CommentVote, Alert, CommentEdit, Hat, HatRequest, get_hat_from_settings, \
     get_hat_to_add
@@ -123,6 +124,7 @@ class UpdateMember(UpdateView):
             'allow_temp_visual_changes': profile.allow_temp_visual_changes,
             'show_markdown_help': profile.show_markdown_help,
             'email_for_answer': profile.email_for_answer,
+            'email_for_new_mp': profile.email_for_new_mp,
             'sign': profile.sign,
             'licence': profile.licence,
         })
@@ -160,6 +162,7 @@ class UpdateMember(UpdateView):
         profile.allow_temp_visual_changes = 'allow_temp_visual_changes' in cleaned_data_options
         profile.show_markdown_help = 'show_markdown_help' in cleaned_data_options
         profile.email_for_answer = 'email_for_answer' in cleaned_data_options
+        profile.email_for_new_mp = 'email_for_new_mp' in cleaned_data_options
         profile.avatar_url = form.data['avatar_url']
         profile.sign = form.data['sign']
         profile.licence = form.cleaned_data['licence']
@@ -744,6 +747,10 @@ class HatDetail(DetailView):
                 .filter(user=self.request.user, hat__iexact=hat.name, is_granted__isnull=True).exists()
         if hat.group:
             context['users'] = hat.group.user_set.select_related('profile')
+            try:
+                context['groupcontact'] = hat.group.groupcontact
+            except GroupContact.DoesNotExist:
+                context['groupcontact'] = None  # group not displayed on contact page
         else:
             context['users'] = [p.user for p in hat.profile_set.select_related('user')]
         return context
@@ -902,6 +909,8 @@ def remove_hat(request, user_pk, hat_pk):
 def login_view(request):
     """Logs user in."""
     next_page = request.GET.get('next', '/')
+    if next_page in [reverse('member-login'), reverse('register-member'), reverse('member-logout')]:
+        next_page = '/'
     csrf_tk = {'next_page': next_page}
     csrf_tk.update(csrf(request))
     error = False

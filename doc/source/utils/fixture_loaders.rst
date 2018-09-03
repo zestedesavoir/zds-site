@@ -28,6 +28,7 @@ Nous possédons un ensemble de données sérialisées dans le dossier fixtures:
     - Anonymous/anonymous : le compte d'anonymisation
     - External/external: le compte pour accueillir les cours externes des auteurs ne voulant pas devenir membre ou quittant le site
     - decal/decal: le compte qui possède un identifiant ``Profile`` différent de l'identifiant ``user`` pour permettre de tester des cas ou ces id sont différents
+- ``group.yaml``: crée les descriptions de deux groupes de la page d'accueil (staff et groupe technique)
 
 De ce fait, le moyen le plus simple de charger l'ensemble des données de base est la commande ``make fixtures``.
 

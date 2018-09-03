@@ -33,7 +33,7 @@ from zds.tutorialv2.publication_utils import publish_content, PublicatorRegistry
 from zds.tutorialv2.tests import TutorialTestMixin
 from zds.utils.models import HelpWriting, Alert, Tag, Hat
 from zds.utils.factories import HelpWritingFactory, CategoryFactory
-from zds.utils.templatetags.interventions import interventions_topics
+from zds.utils.header_notifications import get_header_notifications
 from copy import deepcopy
 from zds import json_handler
 
@@ -50,7 +50,7 @@ overridden_zds_app['content']['extra_content_generation_policy'] = 'SYNC'
 @override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
 @override_settings(ZDS_APP=overridden_zds_app)
 @override_settings(ES_ENABLED=False)
-class ContentTests(TestCase, TutorialTestMixin):
+class ContentTests(TutorialTestMixin, TestCase):
 
     def setUp(self):
         self.overridden_zds_app = overridden_zds_app
@@ -4102,7 +4102,7 @@ class ContentTests(TestCase, TutorialTestMixin):
 @override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
 @override_settings(ZDS_APP=overridden_zds_app)
 @override_settings(ES_ENABLED=False)
-class PublishedContentTests(TestCase, TutorialTestMixin):
+class PublishedContentTests(TutorialTestMixin, TestCase):
     def setUp(self):
         self.overridden_zds_app = overridden_zds_app
         overridden_zds_app['content']['default_licence_pk'] = LicenceFactory().pk
@@ -4661,7 +4661,8 @@ class PublishedContentTests(TestCase, TutorialTestMixin):
         reads = ContentRead.objects.filter(user=self.user_staff).all()
         # simple visit does not trigger follow but remembers reading
         self.assertEqual(len(reads), 1)
-        interventions = [post['url'] for post in interventions_topics(self.user_staff)]
+        interventions = [
+            post['url'] for post in get_header_notifications(self.user_staff)['general_notifications']['list']]
         self.assertTrue(reads.first().note.get_absolute_url() not in interventions)
 
         # login with author
@@ -6169,3 +6170,128 @@ class PublishedContentTests(TestCase, TutorialTestMixin):
 
         for url in wrong_urls:
             self.assertEqual(self.client.get(url).status_code, 404, msg=url)
+
+    def test_article_previous_link(self):
+        """Test the behaviour of the article previous link."""
+
+        article_1 = PublishedContentFactory(author_list=[self.user_author], type='ARTICLE')
+        article_2 = PublishedContentFactory(author_list=[self.user_author], type='ARTICLE')
+        article_3 = PublishedContentFactory(author_list=[self.user_author], type='ARTICLE')
+        article_1.save()
+        article_2.save()
+        article_3.save()
+
+        result = self.client.get(reverse('article:view', kwargs={'pk': article_3.pk, 'slug': article_3.slug}))
+
+        self.assertEqual(result.context['previous_content'].pk, article_2.public_version.pk)
+
+    def test_opinion_link_is_not_related_to_the_author(self):
+        """
+        Test that the next and previous link in the opinion page take all the opinions
+        into accounts and not only the ones of the author.
+        """
+
+        user_1_opinion_1 = PublishedContentFactory(author_list=[self.user_author], type='OPINION')
+        user_2_opinion_1 = PublishedContentFactory(author_list=[self.user_guest], type='OPINION')
+        user_1_opinion_2 = PublishedContentFactory(author_list=[self.user_author], type='OPINION')
+        user_1_opinion_1.save()
+        user_2_opinion_1.save()
+        user_1_opinion_2.save()
+
+        result = self.client.get(
+            reverse('opinion:view',
+                    kwargs={
+                        'pk': user_1_opinion_2.pk,
+                        'slug': user_1_opinion_2.slug
+                    }))
+
+        self.assertEqual(result.context['previous_content'].pk, user_2_opinion_1.public_version.pk)
+
+        result = self.client.get(
+            reverse('opinion:view',
+                    kwargs={
+                        'pk': user_2_opinion_1.pk,
+                        'slug': user_2_opinion_1.slug
+                    }))
+
+        self.assertEqual(result.context['previous_content'].pk, user_1_opinion_1.public_version.pk)
+        self.assertEqual(result.context['next_content'].pk, user_1_opinion_2.public_version.pk)
+
+    def test_author_update(self):
+        """Check that the author list of a content is updated when this content is updated."""
+
+        text_validation = 'Valide moi ce truc, please !'
+        text_publication = 'Validation faite !'
+
+        tutorial = PublishedContentFactory(
+            type='TUTORIAL',
+            author_list=[self.user_author, self.user_guest, self.user_staff])
+
+        # Remove author to check if it's correct after major update
+        tutorial.authors.remove(self.user_guest)
+        tutorial.save()
+        tutorial_draft = tutorial.load_version()
+
+        # ask validation
+        self.client.login(username=self.user_staff.username, password='hostel77')
+        self.client.post(
+            reverse('validation:ask', kwargs={'pk': tutorial.pk, 'slug': tutorial.slug}),
+            {
+                'text': text_validation,
+                'source': '',
+                'version': tutorial_draft.current_version
+            },
+            follow=False)
+
+        # major update
+        validation = Validation.objects.filter(content=tutorial).last()
+        self.client.post(
+            reverse('validation:reserve', kwargs={'pk': validation.pk}),
+            {
+                'version': validation.version
+            },
+            follow=False)
+        self.client.post(
+            reverse('validation:accept', kwargs={'pk': validation.pk}),
+            {
+                'text': text_publication,
+                'is_major': True,
+                'source': ''
+            },
+            follow=False)
+        self.assertEqual(tutorial.public_version.authors.count(), 2)
+
+        # Remove author to check if it's correct after minor update
+        tutorial.authors.remove(self.user_author)
+        tutorial.save()
+        tutorial_draft = tutorial.load_version()
+
+        # ask validation
+        self.client.login(username=self.user_staff.username, password='hostel77')
+        self.client.post(
+            reverse('validation:ask', kwargs={'pk': tutorial.pk, 'slug': tutorial.slug}),
+            {
+                'text': text_validation,
+                'source': '',
+                'version': tutorial_draft.current_version
+            },
+            follow=False)
+
+        # minor update
+        validation = Validation.objects.filter(content=tutorial).last()
+        self.client.post(
+            reverse('validation:reserve', kwargs={'pk': validation.pk}),
+            {
+                'version': validation.version
+            },
+            follow=False)
+        self.client.post(
+            reverse('validation:accept', kwargs={'pk': validation.pk}),
+            {
+                'text': text_publication,
+                'is_major': False,
+                'source': ''
+            },
+            follow=False)
+
+        self.assertEqual(tutorial.public_version.authors.count(), 1)

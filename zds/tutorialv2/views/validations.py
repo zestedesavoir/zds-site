@@ -630,27 +630,29 @@ class UnpublishOpinion(LoginRequiredMixin, SingleOnlineContentFormViewMixin, Doe
 
         unpublish_content(self.object, moderator=self.request.user)
 
-        # send PM
-        msg = render_to_string(
-            'tutorialv2/messages/validation_revoke.md',
-            {
-                'content': versioned,
-                'url': versioned.get_absolute_url(),
-                'admin': user,
-                'message_reject': '\n'.join(['> ' + a for a in form.cleaned_data['text'].split('\n')])
-            })
+        if [self.request.user] != list(self.object.authors.all()):
+            # Sends PM if the deleter is not the author
+            # (or is not the only one) of the opinion.
+            msg = render_to_string(
+                'tutorialv2/messages/validation_revoke.md',
+                {
+                    'content': versioned,
+                    'url': versioned.get_absolute_url(),
+                    'admin': user,
+                    'message_reject': '\n'.join(['> ' + a for a in form.cleaned_data['text'].split('\n')])
+                })
 
-        bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
-        send_mp(
-            bot,
-            versioned.authors.all(),
-            _('Dépublication'),
-            versioned.title,
-            msg,
-            True,
-            direct=False,
-            hat=get_hat_from_settings('moderation'),
-        )
+            bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+            send_mp(
+                bot,
+                versioned.authors.all(),
+                _('Dépublication'),
+                versioned.title,
+                msg,
+                True,
+                direct=False,
+                hat=get_hat_from_settings('moderation'),
+            )
 
         messages.success(self.request, _('Le contenu a bien été dépublié.'))
         self.success_url = self.versioned_object.get_absolute_url()
@@ -690,9 +692,12 @@ class DoNotPickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormView
         self.success_url = versioned.get_absolute_url_online()
         if not db_object.in_public():
             raise Http404('This opinion is not published.')
-        elif PickListOperation.objects.filter(content=self.object, is_effective=True).exists():
+        elif PickListOperation.objects.filter(content=self.object, is_effective=True).exists() \
+                and form.cleaned_data['operation'] != 'REMOVE_PUB':
             raise PermissionDenied('There is already an effective operation for this content.')
         try:
+            PickListOperation.objects.filter(content=self.object).update(is_effective=False,
+                                                                         canceler_user=self.request.user)
             PickListOperation.objects.create(content=self.object, operation=form.cleaned_data['operation'],
                                              staff_user=self.request.user, operation_date=datetime.now(),
                                              version=db_object.sha_public)
@@ -712,7 +717,7 @@ class DoNotPickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormView
                 send_mp(
                     bot,
                     versioned.authors.all(),
-                    _('Dépublication'),
+                    _('Billet modéré'),
                     versioned.title,
                     msg,
                     True,
@@ -722,8 +727,13 @@ class DoNotPickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormView
         except ValueError:
             logger.exception('Could not %s the opinion %s', form.cleaned_data['operation'], str(self.object))
             return HttpResponse(json.dumps({'result': 'FAIL', 'reason': str(_('Mauvaise opération'))}), status=400)
-        self.success_url = self.object.get_absolute_url_online()
-        return HttpResponse(json.dumps({'result': 'OK'}))
+
+        if not form.cleaned_data['redirect']:
+            return HttpResponse(json.dumps({'result': 'OK'}))
+        else:
+            self.success_url = reverse('opinion:list')
+            messages.success(self.request, _('Le billet a bien été modéré.'))
+            return super().form_valid(form)
 
 
 class RevokePickOperation(PermissionRequiredMixin, FormView):
@@ -804,7 +814,7 @@ class PickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormViewMixin
             hat=get_hat_from_settings('moderation'),
         )
 
-        messages.success(self.request, _('Le contenu a bien été validé.'))
+        messages.success(self.request, _('Le billet a bien été choisi.'))
 
         return super(PickOpinion, self).form_valid(form)
 
