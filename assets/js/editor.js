@@ -303,14 +303,14 @@
                         //>> align
                         var contentX = document.getElementById("content").offsetWidth,
                             posLeftSide = elemPopup.offsetParent.offsetLeft + elemPopup.offsetWidth,
-                            isOut = (posLeftSide <= contentX);
+                            isNotOut = (posLeftSide <= contentX);
 
-                        elemPopup.style.left = (isOut) ? "0" : "inherit";
-                        elemPopup.style.right = (isOut) ? "inherit" : "0";
+                        elemPopup.style.left = (isNotOut) ? "0" : "inherit";
+                        elemPopup.style.right = (isNotOut) ? "inherit" : "0";
 
                         var parentLeft = elemPopup.offsetParent.offsetLeft,
                             posRightSide = parentLeft - elemPopup.offsetWidth;
-                        if (posRightSide < 0) {
+                        if (!isNotOut && posRightSide < 0) {
                             elemPopup.style.right = "inherit";
                             var left = -parentLeft;
                             left += Math.max((contentX - elemPopup.offsetWidth) / 2, 0);
