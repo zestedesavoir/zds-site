@@ -237,13 +237,13 @@ h6 {
         }
     }
 }
-.spoiler {
-    margin-top: 0;
+
+.spoiler,
+.custom-block-spoiler  {
+    margin-top: 0 ;
     padding-left: 15px;
     background: #EEE;
 }
-
-
 
 img {
     max-width: 100%;
