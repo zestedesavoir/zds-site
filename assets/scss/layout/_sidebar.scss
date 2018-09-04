@@ -280,6 +280,7 @@
                     & + .last-answer {
                         visibility: visible;
                         left: 100%;
+                        left: calc(100% + 1px); /*Fix #5020 : Clignotement de la Tooltip*/
                         opacity: 1;
                         transition: visibility 0s linear 0, opacity $transition-duration, left $transition-duration;
                     }
