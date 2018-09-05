@@ -81,12 +81,12 @@ gulp.task('js', () =>
         'assets/js/zen-mode.js',
     ], { base: '.' })
         .pipe(sourcemaps.init({ loadMaps: true }))
-        /*.pipe(concat('script.js', { newline: ';\r\n' }))
+        .pipe(concat('script.js', { newline: ';\r\n' }))
         .pipe(uglify())
         .on('error', function (err) {
             // gulp-uglify sucks
             console.log(err.toString());
-        })*/
+        })
         .pipe(sourcemaps.write('.', { includeContent: true, sourceRoot: '../../' }))
         .pipe(gulp.dest('dist/js/')));
 
@@ -99,7 +99,7 @@ gulp.task('css', ['css:sprite'], () =>
     gulp.src(['assets/scss/main.scss', 'assets/scss/zmd.scss'])
         .pipe(sourcemaps.init())
         .pipe(customSass())
-        //.pipe(postcss(postcssPlugins))
+        .pipe(postcss(postcssPlugins))
         .pipe(sourcemaps.write('.', { includeContent: true, sourceRoot: '../../assets/scss/' }))
         .pipe(gulp.dest('dist/css/')));
 
@@ -118,7 +118,7 @@ gulp.task('css:sprite', () =>
 // Optimizes the images
 gulp.task('images', ['css:sprite'], () =>
     gulp.src('assets/{images,smileys,licenses}/**/*')
-        //.pipe(imagemin())
+        .pipe(imagemin())
         .pipe(gulp.dest('dist/'))
 );
 
