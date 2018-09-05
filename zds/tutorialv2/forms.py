@@ -1158,6 +1158,7 @@ class PickOpinionForm(forms.Form):
 
 class DoNotPickOpinionForm(forms.Form):
     operation = forms.CharField(widget=forms.HiddenInput())
+    redirect = forms.CharField(widget=forms.HiddenInput(), required=False)
 
     def __init__(self, content, *args, **kwargs):
         super(DoNotPickOpinionForm, self).__init__(*args, **kwargs)
@@ -1184,6 +1185,7 @@ class DoNotPickOpinionForm(forms.Form):
         cleaned = super(DoNotPickOpinionForm, self).clean()
         cleaned['operation'] = self.data['operation'] \
             if self.data['operation'] in ['NO_PICK', 'REJECT', 'REMOVE_PUB'] else None
+        cleaned['redirect'] = self.data['redirect'] == 'true' if 'redirect' in self.data else False
         return cleaned
 
     def is_valid(self):

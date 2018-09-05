@@ -1,4 +1,7 @@
 {% extends "member/base.html" %}
+
+
+{% load emarkdown %}
 {% load i18n %}
 
 
@@ -30,6 +33,10 @@
 
 
 {% block content %}
+    {% if groupcontact.description %}
+        <p>{{ groupcontact.description|emarkdown }}</p>
+    {% endif %}
+
     {% if users %}
         <p>{% trans "Les personnes possédant cette casquette sont :" %}</p>
         <div class="authors">
