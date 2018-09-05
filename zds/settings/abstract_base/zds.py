@@ -60,7 +60,7 @@ ZDS_APP = {
         'email_contact': 'zestedesavoir@gmail.com',
         'email_noreply': 'noreply@zestedesavoir.com',
         'forum_feedback_users': '/forums/communaute/bug-suggestions/',
-        'contribute_link': 'https://github.com/zestedesavoir/zds-site/blob/dev/CONTRIBUTING.md',
+        'contribute_link': 'https://docs.zestedesavoir.com/contributing.html',
         'short_description': '',
         'long_description': 'Zeste de Savoir est un site de partage de connaissances '
                             'sur lequel vous trouverez des tutoriels de tous niveaux, '

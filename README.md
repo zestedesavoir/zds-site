@@ -14,7 +14,7 @@ Jetez donc un coup d’œil à notre [feuille de route](https://github.com/zeste
 ## Contribuer à Zeste de Savoir
 ### Conseils de développement
 
-Pour bien démarrer, rendez vous sur [la page dédiée](CONTRIBUTING.md). Les détails du *workflow* [sont détaillés ici](http://docs.zestedesavoir.com/workflow.html) (ou [sur ce sujet](http://zestedesavoir.com/forums/sujet/324/comment-contribuer-comprendre-comment-suivre-le-workflow/)).
+Pour bien démarrer, rendez vous sur [la page dédiée](http://docs.zestedesavoir.com/contributing.html). Les détails du *workflow* [sont détaillés ici](http://docs.zestedesavoir.com/workflow.html) (ou [sur ce sujet](http://zestedesavoir.com/forums/sujet/324/comment-contribuer-comprendre-comment-suivre-le-workflow/)).
 
 En contribuant, vous vous engagez à respecter le [Code de Conduite Contributeurs](CODE_OF_CONDUCT.md).
 

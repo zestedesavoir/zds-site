@@ -15,6 +15,7 @@ Sommaire
    :maxdepth: 2
 
    install
+   contributing
    workflow
    back-end
    back-end-code
