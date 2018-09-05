@@ -68,7 +68,7 @@ Installe les packages nécessaire à l'utilisation et au dévellopement de Zeste
 
 La liste des packages vous est donnée ci-dessous (pour Debian), si vous utilisez une distribution différente, le nom des paquets à installer devrait être fort semblable, n'hésitez dès lors pas à employer la fonction "recherche" de votre gestionnaire de paquet préféré.
 
-- python3 et dérivés : ``python3-dev python3-setuptools python3-pip`` ;
+- python3 et dérivés : ``python3-dev python3-setuptools python3-pip python3-venv`` ;
 - realpath : ``realpath`` (se trouve dans le package ``coreutils`` sous Ubuntu 18.04) ;
 - gcc et make (pour compilation et utilisation du  ``Makefile``): ``apt-get install build-essential`` ;
 - Pour ``lxml``: ``libxml2-dev`` ;
@@ -86,7 +86,7 @@ Ce que fait ce composant est tout simplement:
 
 .. sourcecode:: bash
 
-    virtualenv $ZDS_VENV --python=python3
+    python3 -m venv $ZDS_VENV
 
 Le nom du *virtualenv* est donc controlé par la variable d'environement ``ZDS_VENV`` (dont la valeur est par défaut ``zdsenv``).
 
