@@ -311,7 +311,7 @@ class ImageListAPITest(APITestCase):
             {
                 'title': title,
                 'legend': legend,
-                'physical': open('{}/fixtures/users.yaml'.format(settings.BASE_DIR), 'rb')
+                'physical': open('{}/assets/licenses/0.svg'.format(settings.BASE_DIR), 'rb')
             },
             format='multipart'
         )
@@ -436,7 +436,7 @@ class ImageDetailAPITest(APITestCase):
             {
                 'title': title,
                 'legend': legend,
-                'physical': open('{}/fixtures/users.yaml'.format(settings.BASE_DIR), 'rb')
+                'physical': open('{}/assets/licenses/0.svg'.format(settings.BASE_DIR), 'rb')
             }
         )
 

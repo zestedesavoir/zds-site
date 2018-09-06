@@ -173,6 +173,7 @@ def auto_delete_file_on_delete(sender, instance, **kwargs):
 
 def change_api_updated_image_at(sender=None, instance=None, *args, **kwargs):
     cache.set('api_updated_image', datetime.datetime.utcnow())
+    cache.set('api_updated_gallery', datetime.datetime.utcnow())
 
 
 models.signals.post_save.connect(receiver=change_api_updated_image_at, sender=Image)

@@ -327,6 +327,11 @@ class ImageUpdateOrDeleteMixin(ImageMixin):
             if physical.size > settings.ZDS_APP['gallery']['image_max_size']:
                 raise ImageTooLarge(self.image.title, physical.size)
 
+            try:
+                ImagePIL.open(physical)
+            except OSError:
+                raise NotAnImage(self.image.title)
+
             self.image.physical = physical
 
         if 'title' in data:
