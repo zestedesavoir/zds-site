@@ -31,6 +31,7 @@ SMILEYS_BASE = {
     'waw.png': (':waw:', ),
     'zorro.png': (':zorro:', ),
     'cthulhu.png': ('^(;,;)^', ),
+    'popcorn.png': (':popcorn:', ),
 }
 
 smileys = {}
