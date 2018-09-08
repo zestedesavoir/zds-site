@@ -115,7 +115,8 @@
                 smiley_ri: { title: ":lol:",      start: ":lol:",      end: "", image: "/static/smileys/rire.gif" },
                 smiley_un: { title: ":euh:",      start: ":euh:",      end: "", image: "/static/smileys/unsure.gif" },
                 smiley_tr: { title: ":(",         start: ":(",         end: "", image: "/static/smileys/triste.png" },
-                smiley_hu: { title: ":o",         start: ":o",         end: "", image: "/static/smileys/huh.png" }
+                smiley_hu: { title: ":o",         start: ":o",         end: "", image: "/static/smileys/huh.png" },
+                smiley_ib: { title: ":B",         start: ":B",         end: "", image: "/static/smileys/b.png" }
             },
             1: {
                 smiley_c1: { title: ":colere2:",  start: ":colere2:",  end: "", image: "/static/smileys/mechant.png" },
@@ -129,7 +130,7 @@
             },
             2: {
                 smiley_ni: { title: ":ninja:",    start: ":ninja:",    end: "", image: "/static/smileys/ninja.gif" },
-                smiley_gd: { title: "&gt;_&lt;",  start: "&gt;_&lt;",  end: "", image: "/static/smileys/pinch.png" },
+                smiley_gd: { title: "X/",         start: "X/",         end: "", image: "/static/smileys/pinch.png" },
                 smiley_pi: { title: ":pirate:",   start: ":pirate:",   end: "", image: "/static/smileys/pirate.png" },
                 smiley_pl: { title: ":'(",        start: ":'(",        end: "", image: "/static/smileys/pleure.png" },
                 smiley_ro: { title: ":honte:",    start: ":honte:",    end: "", image: "/static/smileys/rouge.png" },

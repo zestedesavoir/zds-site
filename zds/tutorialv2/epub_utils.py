@@ -1,11 +1,12 @@
 import contextlib
 import logging
 import shutil
+from collections import namedtuple
 from urllib import parse
 from os import path
 from bs4 import BeautifulSoup
 from pathlib import Path
-from shutil import copytree, copy
+from shutil import copy
 from django.template.loader import render_to_string
 from django.conf import settings
 
@@ -37,8 +38,11 @@ def __traverse_and_identify_images(image_dir):
     }
 
     for image_file_path in image_dir.iterdir():
+        if image_file_path.is_dir():
+            yield from __traverse_and_identify_images(image_file_path)
+            continue
         ext = path.splitext(image_file_path.name)[1]
-        identifier = 'image_{}'.format(image_file_path.name).lower().replace('.', '-')
+        identifier = 'image_{}'.format(image_file_path.name).lower().replace('.', '-').replace('@', '-')
         ebook_image_path = Path('images', image_file_path.name)
         yield ebook_image_path, identifier, media_type_map.get(ext.lower(), 'image/png')
 
@@ -58,10 +62,13 @@ def build_html_chapter_file(published_object, versioned_object, working_dir, roo
     :type published_object: zds.tutorialv2.models.models_database.PublishedContent
     :return: a generator of tuples composed as ``[splitted_html_file_relative_path, chapter-identifier, chapter-title]``
     """
+    DirTuple = namedtuple('DirTuple', ['absolute', 'relative'])
+    img_dir = working_dir.parent / 'images'
     path_to_title_dict = publish_container(published_object, str(working_dir), versioned_object,
                                            template='tutorialv2/export/ebook/chapter.html',
                                            file_ext='xhtml', image_callback=handle_images,
-                                           image_directory=str(working_dir / '..' / 'images'),
+                                           image_directory=DirTuple(str(img_dir.absolute()),
+                                                                    str(img_dir.relative_to(root_dir))),
                                            relative='.')
     for container_path, title in path_to_title_dict.items():
         # TODO: check if a function exists in the std lib to get rid of `root_dir + '/'`
@@ -122,8 +129,9 @@ def build_ebook(published_content_entity, working_dir, final_file_path):
 
     mimetype_conf = __build_mime_type_conf()
     mime_path = Path(working_dir, 'ebook', mimetype_conf['filename'])
-    with contextlib.suppress(FileExistsError):
-        copytree(published_content_entity.content.gallery.get_gallery_path(), str(target_image_dir))
+    with contextlib.suppress(FileExistsError, FileNotFoundError):
+        for img in Path(published_content_entity.content.gallery.get_gallery_path()).iterdir():
+            shutil.copy(str(img), str(target_image_dir))
 
     with mime_path.open(mode='w', encoding='utf-8') as mimefile:
         mimefile.write(mimetype_conf['content'])
@@ -179,13 +187,16 @@ def handle_images(relative_path):
             if image_url.startswith('http://') or image_url.startswith('https://'):
                 splitted = parse.urlsplit(image_url)
                 final_path = splitted.path
+            elif image_url.startswith(settings.MEDIA_URL):
+                final_path = Path(image_url).name
+            elif Path(image_url).is_absolute() and 'images' in image_url:
+                root = Path(image_url)
+                while root.name != 'images':
+                    root = root.parent
+                final_path = str(Path(image_url).relative_to(root))
             else:
-                final_path = image_url
-            if not path.splitext(final_path)[1]:
-                final_path += '.png'
-            if final_path.endswith('svg') or final_path.endswith('gif'):
-                final_path = final_path[:-3] + 'png'
-            image_path_in_ebook = relative_path + '/images/' + Path(final_path).name.replace('%20', '_')
+                final_path = Path(image_url).name
+            image_path_in_ebook = relative_path + '/images/' + str(final_path).replace('%20', '_')
             image['src'] = str(image_path_in_ebook)
         ids = {}
         for element in soup_parser.find_all(name=None, attrs={'id': (lambda s: True)}):

@@ -5,6 +5,7 @@ from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import HTML, Layout, Submit, Field, ButtonHolder, Hidden
 from django.core.urlresolvers import reverse
+from django.core.validators import MinLengthValidator
 
 from zds.utils.forms import CommonLayoutModalText, CommonLayoutEditor, CommonLayoutVersionEditor
 from zds.utils.models import SubCategory, Licence
@@ -659,12 +660,19 @@ class AcceptValidationForm(forms.Form):
     text = forms.CharField(
         label='',
         required=True,
+        error_messages={
+            'required': _('Vous devez fournir un commentaire aux validateurs.')
+        },
         widget=forms.Textarea(
             attrs={
                 'placeholder': _('Commentaire de publication.'),
-                'rows': '2'
+                'rows': '2',
+                'minlength': '3'
             }
-        )
+        ),
+        validators=[
+            MinLengthValidator(3, _('Votre commentaire doit faire au moins 3 caractères.'))
+        ]
     )
 
     is_major = forms.BooleanField(
@@ -718,25 +726,6 @@ class AcceptValidationForm(forms.Form):
             Field('is_major'),
             StrictButton(_('Publier'), type='submit')
         )
-
-    def clean(self):
-        cleaned_data = super(AcceptValidationForm, self).clean()
-
-        text = cleaned_data.get('text')
-
-        if text is None or not text.strip():
-            self._errors['text'] = self.error_class(
-                [_('Vous devez fournir un commentaire aux validateurs.')])
-            if 'text' in cleaned_data:
-                del cleaned_data['text']
-
-        elif len(text) < 3:
-            self._errors['text'] = self.error_class(
-                [_('Votre commentaire doit faire au moins 3 caractères.')])
-            if 'text' in cleaned_data:
-                del cleaned_data['text']
-
-        return cleaned_data
 
 
 class CancelValidationForm(forms.Form):
@@ -1169,6 +1158,7 @@ class PickOpinionForm(forms.Form):
 
 class DoNotPickOpinionForm(forms.Form):
     operation = forms.CharField(widget=forms.HiddenInput())
+    redirect = forms.CharField(widget=forms.HiddenInput(), required=False)
 
     def __init__(self, content, *args, **kwargs):
         super(DoNotPickOpinionForm, self).__init__(*args, **kwargs)
@@ -1195,6 +1185,7 @@ class DoNotPickOpinionForm(forms.Form):
         cleaned = super(DoNotPickOpinionForm, self).clean()
         cleaned['operation'] = self.data['operation'] \
             if self.data['operation'] in ['NO_PICK', 'REJECT', 'REMOVE_PUB'] else None
+        cleaned['redirect'] = self.data['redirect'] == 'true' if 'redirect' in self.data else False
         return cleaned
 
     def is_valid(self):
