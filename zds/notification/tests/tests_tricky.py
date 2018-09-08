@@ -371,17 +371,16 @@ class ContentNotification(TestCase, TutorialTestMixin):
 @override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
 class SubscriptionsTest(TestCase):
     def setUp(self):
-        self.userStandard1 = ProfileFactory().user
-        self.userOAuth1 = ProfileFactory().user
-
-        self.userStandard1.profile.email_for_answer = True
-        self.userOAuth1.profile.email_for_answer = True
-        self.userStandard1.profile.email_for_new_mp = True
-        self.userOAuth1.profile.email_for_new_mp = True
+        self.userStandard1 = ProfileFactory(
+            email_for_answer=True,
+            email_for_new_mp=True
+        ).user
+        self.userOAuth1 = ProfileFactory(
+            email_for_answer=True,
+            email_for_new_mp=True).user
 
         self.userOAuth1.email = ''
 
-        self.userStandard1.save()
         self.userOAuth1.save()
 
     def test_no_emails_for_those_who_have_none(self):
@@ -389,7 +388,6 @@ class SubscriptionsTest(TestCase):
         Test that we do not try to send e-mails to those who have not registered one.
         """
         self.assertEqual(0, len(mail.outbox))
-
         topic = send_mp(author=self.userStandard1, users=[self.userOAuth1],
                         title='Testing', subtitle='', text='',
                         send_by_mail=True, leave=False)
