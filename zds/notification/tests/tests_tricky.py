@@ -378,10 +378,15 @@ class SubscriptionsTest(TestCase):
         self.userOAuth1 = ProfileFactory(
             email_for_answer=True,
             email_for_new_mp=True).user
+        self.userOAuth2 = ProfileFactory(
+            email_for_answer=True,
+            email_for_new_mp=True).user
 
         self.userOAuth1.email = ''
+        self.userOAuth2.email = 'this is not an email'
 
         self.userOAuth1.save()
+        self.userOAuth2.save()
 
     def test_no_emails_for_those_who_have_none(self):
         """
@@ -395,5 +400,20 @@ class SubscriptionsTest(TestCase):
         self.assertEqual(0, len(mail.outbox))
 
         send_message_mp(self.userOAuth1, topic, '', send_by_mail=True)
+
+        self.assertEqual(1, len(mail.outbox))
+
+    def test_no_emails_for_those_who_have_other_things_in_that_place(self):
+        """
+        Test that we do not try to send e-mails to those who have not registered a valid one.
+        """
+        self.assertEqual(0, len(mail.outbox))
+        topic = send_mp(author=self.userStandard1, users=[self.userOAuth2],
+                        title='Testing', subtitle='', text='',
+                        send_by_mail=True, leave=False)
+
+        self.assertEqual(0, len(mail.outbox))
+
+        send_message_mp(self.userOAuth2, topic, '', send_by_mail=True)
 
         self.assertEqual(1, len(mail.outbox))
