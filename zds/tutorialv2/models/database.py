@@ -163,15 +163,15 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         self.refresh_from_db(fields=list(fields.keys()))
         return self
 
-    def save(self, *args, force_slug_update=True, **kwargs):
+    def save(self, *args, force_slug_update=True, update_date=True, **kwargs):
         """
-        Rewrite the ``save()`` function to handle slug uniqueness
+        Rewrite the ``save()``  function to handle slug uniqueness
 
+        :param update_date: if ``True`` will assign "update_date" property to now
         :param force_slug_update: if set to ``False`` do not try to update the slug
         """
         if force_slug_update:
             self.slug = uuslug(self.title, instance=self, max_length=80)
-        update_date = kwargs.pop('update_date', True)
         if update_date:
             self.update_date = datetime.now()
         super(PublishableContent, self).save(*args, **kwargs)
