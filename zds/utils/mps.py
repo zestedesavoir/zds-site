@@ -109,5 +109,9 @@ def send_message_mp(
                 msg.send()
             except Exception as e:
                 logger.exception('Message was not sent to %s due to %s', recipient, e)
-
+    if no_notification_for:
+        if not isinstance(no_notification_for, list):
+            no_notification_for = [no_notification_for]
+        for not_notified_user in no_notification_for:
+            mark_read(n_topic, not_notified_user)
     return n_topic

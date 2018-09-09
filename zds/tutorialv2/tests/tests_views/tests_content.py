@@ -2529,9 +2529,6 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(PublishedContent.objects.filter(content=tuto).count(), 0)
         self.assertFalse(os.path.exists(published.get_prod_path()))
 
-        self.assertEqual(PrivateTopic.objects.filter(author=self.user_author).count(), 2)
-        self.assertEqual(PrivateTopic.objects.last().author, self.user_author)  # author has received another PM
-
         # so, reserve it
         result = self.client.post(
             reverse('validation:reserve', kwargs={'pk': validation.pk}),
@@ -2547,6 +2544,8 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         # ... and cancel reservation with author
         text_cancel = "Nan, mais j'ai plus envie, en fait"
+        nb_messages = PrivatePost.objects\
+            .filter(privatetopic__pk=validation.content.validation_private_message.pk).count()
         self.assertEqual(
             self.client.login(
                 username=self.user_author.username,
@@ -2564,8 +2563,9 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         validation = Validation.objects.filter(content=tuto).last()
         self.assertEqual(validation.status, 'CANCEL')  # the validation got canceled
-
-        self.assertEqual(PrivateTopic.objects.filter(author=self.user_staff).count(), 6)
+        new_nb_message_mp = PrivatePost.objects \
+            .filter(privatetopic__pk=validation.content.validation_private_message.pk).count()
+        self.assertEqual(nb_messages + 1, new_nb_message_mp)
         self.assertEqual(PrivateTopic.objects.last().author, self.user_staff)  # admin has received another PM
 
     def test_auto_validation(self):
@@ -2673,10 +2673,12 @@ class ContentTests(TutorialTestMixin, TestCase):
             reverse('content:delete', args=[tuto.pk, tuto.slug]),
             follow=False)
         self.assertEqual(result.status_code, 302)
-
-        self.assertEqual(PublishableContent.objects.filter(pk=tuto.pk).count(), 1)  # not deleted
+        tuto_qs = PublishableContent.objects.filter(pk=tuto.pk)
+        self.assertEqual(tuto_qs.count(), 1)  # not deleted
         self.assertEqual(Validation.objects.count(), 1)
-
+        nb_of_messages = PrivatePost.objects\
+            .filter(privatetopic__pk=tuto_qs.first().validation_private_message.pk)\
+            .count()
         # now, will work
         result = self.client.post(
             reverse('content:delete', args=[tuto.pk, tuto.slug]),
@@ -2688,8 +2690,12 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         self.assertEqual(PublishableContent.objects.filter(pk=tuto.pk).count(), 0)  # BOOM, deleted !
         self.assertEqual(Validation.objects.count(), 0)  # no more validation objects
+        self.assertEqual(PrivateTopic.objects.filter(author=self.user_staff).count(), 1)
+        new_nb_of_message = PrivatePost.objects\
+            .filter(privatetopic__pk=tuto_qs.first().validation_private_topic.pk)\
+            .count()
+        self.assertEqual(nb_of_messages + 1, new_nb_of_message)
 
-        self.assertEqual(PrivateTopic.objects.filter(author=self.user_staff).count(), 2)
         self.assertEqual(PrivateTopic.objects.last().author, self.user_staff)  # admin has received a PM
 
     def test_js_fiddle_activation(self):
