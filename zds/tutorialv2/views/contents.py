@@ -417,7 +417,8 @@ class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteV
                             bot,
                             validation.content.validation_private_message,
                             msg,
-                            hat=get_hat_from_settings('validation')
+                            hat=get_hat_from_settings('validation'),
+                            no_notification_for=self.request.user
                         )
             if self.object.beta_topic is not None:
                 beta_topic = self.object.beta_topic
@@ -1434,12 +1435,13 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                     )
                     if not self.object.validation_private_message:
                         self.object.validation_private_message = send_mp(bot,
-                                self.object.authors.all(),
-                                _(_type[0].upper() + _type[1:].lower() + ' en bêta'),
-                                beta_version.title,
-                                msg_pm,
-                                False,
-                                hat=get_hat_from_settings('validation'))
+                                                                         self.object.authors.all(),
+                                                                         _(_type[0].upper() + _type[1:].lower()
+                                                                           + ' en bêta'),
+                                                                         beta_version.title,
+                                                                         msg_pm,
+                                                                         False,
+                                                                         hat=get_hat_from_settings('validation'))
                         self.object.save(force_slug_update=False)
                     else:
                         send_message_mp(bot,

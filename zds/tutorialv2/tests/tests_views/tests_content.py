@@ -5860,9 +5860,9 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         # Check that the staff user doesn't have a notification for their reservation and their private topic is read.
         self.assertEqual(0, len(Notification.objects.get_unread_notifications_of(self.user_staff)))
         last_pm = PublishableContent.objects.get(pk=article.pk).validation_private_message
-        self.assertFalse(is_privatetopic_unread(
-            PublishableContent.objects.get(pk=article.pk).validation_private_message, self.user_staff))
-
+        # as staff decided the action, he does not need to be notified of the new mp
+        self.assertFalse(is_privatetopic_unread(last_pm, self.user_staff))
+        self.assertTrue(is_privatetopic_unread(last_pm, self.user_author))
         # publish the article
         result = self.client.post(
             reverse('validation:accept', kwargs={'pk': validation.pk}),

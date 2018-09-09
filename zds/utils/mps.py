@@ -62,7 +62,8 @@ def send_message_mp(
         text,
         send_by_mail=True,
         direct=False,
-        hat=None):
+        hat=None,
+        no_notification_for=None):
     """
     Send a post in an MP.
     Most of the param are obvious, excepted :
@@ -91,7 +92,8 @@ def send_message_mp(
     n_topic.save()
 
     if not direct:
-        signals.new_content.send(sender=post.__class__, instance=post, by_email=send_by_mail)
+        signals.new_content.send(sender=post.__class__, instance=post, by_email=send_by_mail,
+                                 no_notification_for=no_notification_for)
 
     if send_by_mail and direct:
         subject = '{} : {}'.format(settings.ZDS_APP['site']['literal_name'], n_topic.title)

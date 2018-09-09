@@ -423,7 +423,8 @@ class RejectValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
         else:
             send_message_mp(bot,
                             validation.content.validation_private_message,
-                            msg)
+                            msg,
+                            no_notification_for=self.request.user)
 
         messages.info(self.request, _('Le contenu a bien été refusé.'))
         self.success_url = reverse('validation:list')
@@ -549,7 +550,8 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleOnline
             send_message_mp(
                 bot,
                 validation.content.validation_private_message,
-                msg
+                msg,
+                no_notification_for=self.request.user
             )
 
         messages.success(self.request, _('Le contenu a bien été dépublié.'))
@@ -662,7 +664,9 @@ class UnpublishOpinion(LoginRequiredMixin, SingleOnlineContentFormViewMixin, Doe
                 send_message_mp(bot,
                                 self.object.validation_private_message,
                                 msg,
-                                hat=get_hat_from_settings('moderation'))
+                                hat=get_hat_from_settings('moderation'),
+                                no_notification_for=self.request.user
+                                )
 
         messages.success(self.request, _('Le contenu a bien été dépublié.'))
         self.success_url = self.versioned_object.get_absolute_url()
@@ -740,7 +744,8 @@ class DoNotPickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormView
                     send_message_mp(bot,
                                     self.object.validation_private_message,
                                     msg,
-                                    hat=get_hat_from_settings('moderation'))
+                                    hat=get_hat_from_settings('moderation'),
+                                    no_notification_for=self.request.user)
         except ValueError:
             logger.exception('Could not %s the opinion %s', form.cleaned_data['operation'], str(self.object))
             return HttpResponse(json.dumps({'result': 'FAIL', 'reason': str(_('Mauvaise opération'))}), status=400)
@@ -836,7 +841,8 @@ class PickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormViewMixin
             send_message_mp(bot,
                             self.object.validation_private_message,
                             msg,
-                            hat=get_hat_from_settings('moderation'))
+                            hat=get_hat_from_settings('moderation'),
+                            no_notification_for=self.request.user)
 
         messages.success(self.request, _('Le billet a bien été choisi.'))
 
