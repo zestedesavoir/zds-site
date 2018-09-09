@@ -21,6 +21,12 @@ Forums (``forums.py``)
 Messages privés (``mps.py``)
 ============================
 
+Ce module ajoute des fonctions utiles permettant de gérer l'ajout et la réponse à des messages privés.
+
+Il est important d'utiliser ces méthodes pour réaliser ces actions sous peine d'oublier des actions.
+
+Ces méthodes permettent un lien direct avec le module "notifications".
+
 .. automodule:: zds.utils.mps
     :members:
 

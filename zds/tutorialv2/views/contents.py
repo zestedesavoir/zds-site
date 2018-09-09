@@ -1442,8 +1442,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                                                                          beta_version.title,
                                                                          msg_pm,
                                                                          False,
-                                                                         hat=get_hat_from_settings('validation'),
-                                                                         automaticaly_read=validation.validator)
+                                                                         hat=get_hat_from_settings('validation'))
                         self.object.save(force_slug_update=False)
                     else:
                         send_message_mp(bot,

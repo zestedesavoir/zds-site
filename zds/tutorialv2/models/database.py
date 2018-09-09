@@ -106,7 +106,6 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
                                   blank=True, null=True, max_length=80, db_index=True)
     beta_topic = models.ForeignKey(Topic, verbose_name='Sujet beta associé', default=None, blank=True, null=True,
                                    on_delete=models.SET_NULL)
-    beta_topic = models.ForeignKey(Topic, verbose_name='Sujet beta associé', default=None, blank=True, null=True)
     validation_private_message = models.ForeignKey(PrivateTopic, verbose_name='Message de suivi staff',
                                                    default=None, blank=True, null=True,
                                                    on_delete=models.SET_NULL)
