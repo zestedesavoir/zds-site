@@ -20,7 +20,7 @@ from zds.gallery.factories import UserGalleryFactory
 from zds.gallery.models import GALLERY_WRITE, UserGallery, Gallery
 from zds.gallery.models import Image
 from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
-from zds.mp.models import PrivateTopic, is_privatetopic_unread
+from zds.mp.models import PrivateTopic, is_privatetopic_unread, PrivatePost
 from zds.notification.models import TopicAnswerSubscription, ContentReactionAnswerSubscription, \
     NewPublicationSubscription, Notification, Subscription
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory, \
@@ -2375,7 +2375,8 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         validation = Validation.objects.filter(pk=validation.pk).last()
         self.assertEqual(validation.status, 'PENDING_V')  # rejection is impossible without text
-
+        private_topic_messages_count = PrivatePost.objects.filter(
+            privatetopic__pk=validation.content.validation_private_message.pk).count()
         result = self.client.post(
             reverse('validation:reject', kwargs={'pk': validation.pk}),
             {
@@ -2389,8 +2390,9 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(validation.comment_validator, text_reject)
 
         self.assertIsNone(PublishableContent.objects.get(pk=tuto.pk).sha_validation)
-
-        self.assertEqual(PrivateTopic.objects.last().author, self.user_author)  # author has received a PM
+        new_mp_message_nb = PrivatePost.objects.filter(
+            privatetopic__pk=validation.content.validation_private_message.pk).count()
+        self.assertEqual(private_topic_messages_count + 1, new_mp_message_nb)  # author has received a PM
 
         # re-ask for validation
         result = self.client.post(
@@ -5858,7 +5860,8 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         # Check that the staff user doesn't have a notification for their reservation and their private topic is read.
         self.assertEqual(0, len(Notification.objects.get_unread_notifications_of(self.user_staff)))
         last_pm = PublishableContent.objects.get(pk=article.pk).validation_private_message
-        self.assertFalse(is_privatetopic_unread(last_pm, self.user_staff))
+        self.assertFalse(is_privatetopic_unread(
+            PublishableContent.objects.get(pk=article.pk).validation_private_message, self.user_staff))
 
         # publish the article
         result = self.client.post(
