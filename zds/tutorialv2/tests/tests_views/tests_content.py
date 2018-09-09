@@ -2692,7 +2692,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(Validation.objects.count(), 0)  # no more validation objects
         self.assertEqual(PrivateTopic.objects.filter(author=self.user_staff).count(), 1)
         new_nb_of_message = PrivatePost.objects\
-            .filter(privatetopic__pk=tuto_qs.first().validation_private_topic.pk)\
+            .filter(privatetopic__pk=tuto_qs.first().validation_private_message.pk)\
             .count()
         self.assertEqual(nb_of_messages + 1, new_nb_of_message)
 

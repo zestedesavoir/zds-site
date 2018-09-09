@@ -22,12 +22,16 @@ def send_mp(
         leave=True,
         direct=False,
         mark_as_read=False,
-        hat=None):
+        hat=None,
+        automaticaly_read=None):
     """
     Send MP at members.
     Most of the param are obvious, excepted :
-    * direct : send a mail directly without mp (ex : ban members who wont connect again)
-    * leave : the author leave the conversation (usefull for the bot : it wont read the response a member could send)
+
+    :param direct: send a mail directly without mp (ex : ban members who wont connect again)
+    :param leave: the author leave the conversation (usefull for the bot : it wont read the response a member could
+    send)
+    :param automaticaly_read: a user or a list of users that will automatically be marked as reader of the mp
     """
 
     # Creating the thread
@@ -46,7 +50,11 @@ def send_mp(
     topic = send_message_mp(author, n_topic, text, send_by_mail, direct, hat)
     if mark_as_read:
         mark_read(topic, author)
-
+    if automaticaly_read:
+        if not isinstance(automaticaly_read, list):
+            automaticaly_read = [automaticaly_read]
+        for not_notified_user in automaticaly_read:
+            mark_read(n_topic, not_notified_user)
     if leave:
         move = topic.participants.first()
         topic.author = move

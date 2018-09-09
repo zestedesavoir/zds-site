@@ -410,6 +410,7 @@ class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteV
                             msg,
                             False,
                             hat=get_hat_from_settings('validation'),
+                            automaticaly_read=[validation.validator]
                         )
                         validation.content.save(force_slug_update=False)
                     else:
@@ -1436,12 +1437,13 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                     if not self.object.validation_private_message:
                         self.object.validation_private_message = send_mp(bot,
                                                                          self.object.authors.all(),
-                                                                         _(_type[0].upper() + _type[1:].lower()
-                                                                           + ' en bêta'),
+                                                                         _(_type[0].upper() + _type[1:].lower() +
+                                                                           ' en bêta'),
                                                                          beta_version.title,
                                                                          msg_pm,
                                                                          False,
-                                                                         hat=get_hat_from_settings('validation'))
+                                                                         hat=get_hat_from_settings('validation'),
+                                                                         automaticaly_read=validation.validator)
                         self.object.save(force_slug_update=False)
                     else:
                         send_message_mp(bot,

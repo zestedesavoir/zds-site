@@ -181,7 +181,7 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
                     self.versioned_object.title,
                     msg,
                     False,
-                    hat=get_hat_from_settings('validation'),
+                    hat=get_hat_from_settings('validation')
                 )
             else:
                 send_message_mp(bot,
