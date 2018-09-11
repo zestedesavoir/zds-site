@@ -40,50 +40,13 @@
             <span class="tablinks" id="tab-new-users-graph">{% trans "Nombre de nouveaux visiteurs" %}</span>
             <span class="tablinks" id="tab-sessions-graph">{% trans "Nombre de sessions" %}</span>
         </div>
-
         <!-- Tab content -->
-        <div id="tab-view-graph-content" class="tabcontent">
-            <div class="stat-graph">
-                <!-- TODO nice to have, template tag to serialize those array, use built-in template tag ??? -->
-                <h3>{% trans "Évolution des pages vues sur le contenu" %}</h3>
-                <canvas id="view-graph" {% for url in stats %} data-views-{{ forloop.counter0 }}="[{% for view in url.stats.pageviews %}{{view.pageviews}} {% if not forloop.last %},{% endif %}{% endfor %}]"
-                    data-label-views-{{ forloop.counter0 }}="{{url.label}}" {% endfor %} data-time='[{% for view in stats.0.stats.pageviews %}"{{view.date}}"{% if not forloop.last %},{% endif %} {% endfor %}]'>
-                </canvas>
+        {% include "misc/graph.part.html" with tab_name="tab-view-graph-content" graph_title="Évolution des pages vues sur le contenu" canvas_id="view-graph" metric="pageviews" %}
+        {% include "misc/graph.part.html" with tab_name="tab-visit-time-graph-content" graph_title="Évolution du temps de lecture (en secondes)" canvas_id="visit-time-graph" metric="avgTimeOnPage" %}
+        {% include "misc/graph.part.html" with tab_name="tab-users-graph-content" graph_title="Évolution du nombre de visiteurs" canvas_id="users-graph" metric="users" %}
+        {% include "misc/graph.part.html" with tab_name="tab-new-users-graph-content" graph_title="Évolution du nombre de nouveaux visiteurs" canvas_id="new-users-graph" metric="newUsers" %}
+        {% include "misc/graph.part.html" with tab_name="tab-sessions-graph-content" graph_title="Évolution du nombre de sessions" canvas_id="sessions-graph" metric="sessions" %}
 
-            </div>
-        </div>
-        <div id="tab-visit-time-graph-content" class="tabcontent">
-            <div class="stat-graph">
-                <h3>{% trans "Évolution du temps de lecture (en secondes)" %}</h3>
-                <canvas id="visit-time-graph" {% for url in stats %} data-views-{{ forloop.counter0 }}="[{% for view in url.stats.avgTimeOnPage %}{{view.avgTimeOnPage}} {% if not forloop.last %},{% endif %}{% endfor %}]"
-                    data-label-views-{{ forloop.counter0 }}="{{url.label}}" {% endfor %} data-time='[{% for view in stats.0.stats.avgTimeOnPage %}"{{view.date}}"{% if not forloop.last %},{% endif %} {% endfor %}]'>
-                </canvas>
-            </div>
-        </div>
-        <div id="tab-users-graph-content" class="tabcontent">
-            <div class="stat-graph">
-                <h3>{% trans "Évolution du nombre de visiteurs" %}</h3>
-                <canvas id="users-graph" {% for url in stats %} data-views-{{ forloop.counter0 }}="[{% for view in url.stats.users %}{{view.users}} {% if not forloop.last %},{% endif %}{% endfor %}]"
-                    data-label-views-{{ forloop.counter0 }}="{{url.label}}" {% endfor %} data-time='[{% for view in stats.0.stats.users %}"{{view.date}}"{% if not forloop.last %},{% endif %} {% endfor %}]'>
-                </canvas>
-            </div>
-        </div>
-        <div id="tab-new-users-graph-content" class="tabcontent">
-            <div class="stat-graph">
-                <h3>{% trans "Évolution du nombre de nouveaux visiteurs" %}</h3>
-                <canvas id="new-users-graph" {% for url in stats %} data-views-{{ forloop.counter0 }}="[{% for view in url.stats.newUsers %}{{view.newUsers}} {% if not forloop.last %},{% endif %}{% endfor %}]"
-                    data-label-views-{{ forloop.counter0 }}="{{url.label}}" {% endfor %} data-time='[{% for view in stats.0.stats.newUsers %}"{{view.date}}"{% if not forloop.last %},{% endif %} {% endfor %}]'>
-                </canvas>
-            </div>
-        </div>
-        <div id="tab-sessions-graph-content" class="tabcontent">
-            <div class="stat-graph">
-                <h3>{% trans "Évolution du nombre de sessions" %}</h3>
-                <canvas id="sessions-graph" {% for url in stats %} data-views-{{ forloop.counter0 }}="[{% for view in url.stats.sessions %}{{view.sessions}} {% if not forloop.last %},{% endif %}{% endfor %}]"
-                    data-label-views-{{ forloop.counter0 }}="{{url.label}}" {% endfor %} data-time='[{% for view in stats.0.stats.sessions %}"{{view.date}}"{% if not forloop.last %},{% endif %} {% endfor %}]'>
-                </canvas>
-            </div>
-        </div>
 
         {% if cumulative_stats_by_url %}
             {% if display == 'global' %}
