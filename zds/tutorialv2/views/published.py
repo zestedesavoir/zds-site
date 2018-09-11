@@ -1285,20 +1285,25 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         start_date = self.request.GET.get('start_date', None)
         try:
             start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
-        except (TypeError, ValueError):
+        except TypeError:
             start_date = date.today() - timedelta(days=7)
+        except ValueError:
+            start_date = date.today() - timedelta(days=7)
+            messages.error(self.request, _("La date de début fournie est invalide."))
 
         end_date = self.request.GET.get('end_date', None)
         try:
             end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
-        except (TypeError, ValueError):
+        except TypeError:
             end_date = date.today()
-        # TODO do something more when we have a value error ?
-        # Maybe give a warning message to user ?
+        except ValueError:
+            end_date = date.today()
+            messages.error(self.request, _("La date de fin fournie est invalide."))
         return start_date, end_date
 
     def get_display_mode(self, urls):
         # TODO make display_mode an enum ?
+        # Good idea, but not straightforward for the template integration
         if len(urls) == 1:
             return 'details'
         if len(urls) == len(self.get_content_urls()):
