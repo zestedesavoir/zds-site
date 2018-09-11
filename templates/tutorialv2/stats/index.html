@@ -96,7 +96,7 @@
         {% endif %}
 
         {% if display == 'comparison' %}
-            <!-- TODO bouton retourner au mode global -->
+            <a href="{% url "content:stats-content" content.pk content.slug %}" class="btn btn-submit">{% trans "Revenir à la vue globale" %}</a>
         {% endif %}
         <hr class="clearfix">
         <div>
