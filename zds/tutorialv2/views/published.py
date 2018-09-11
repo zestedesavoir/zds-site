@@ -1050,7 +1050,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
     SCOPES = ['https://www.googleapis.com/auth/analytics.readonly']
     DISCOVERY_URI = 'https://analyticsreporting.googleapis.com/$discovery/rest'
     CLIENT_SECRETS_PATH = os.path.join(settings.BASE_DIR, 'api_analytics_secrets.json')
-    VIEW_ID = 'ga:86962671'
+    VIEW_ID = settings.ZDS_APP['stats_ga_viewid']
 
     def post(self, request, *args, **kwargs):
         self.public_content_object = self.get_public_object()

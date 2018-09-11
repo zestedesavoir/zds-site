@@ -267,5 +267,6 @@ ZDS_APP = {
     'zmd': {
         'server': 'http://127.0.0.1:27272',
         'disable_pings': False
-    }
+    },
+    'stats_ga_viewid': 'ga:86962671'
 }
