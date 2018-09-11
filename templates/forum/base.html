@@ -11,6 +11,7 @@
 {% block head_extra %}
     {{ block.super }}
     {% include "mathjax.html" %}
+    {% load static %}
 {% endblock %}
 
 
@@ -175,4 +176,11 @@
 
         {% block feeds_rss %} {% endblock %}
     </aside>
+
+    <menu type="context" id="ping-menu">
+        <menuitem label="[ZdS] Ping" onclick="pingUser()"/>
+    </menu>
+    <menu type="context" id="markdown-menu">
+        <menuitem label="[ZdS] Lien Markdown" onclick="markdownLink()"/>
+    </menu>
 {% endblock %}

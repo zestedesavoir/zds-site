@@ -79,6 +79,7 @@ gulp.task('js', () =>
         'assets/js/topic-suggest.js',
         'assets/js/tribune-pick.js',
         'assets/js/zen-mode.js',
+        'assets/js/contextual-menus.js',
     ], { base: '.' })
         .pipe(sourcemaps.init({ loadMaps: true }))
         .pipe(concat('script.js', { newline: ';\r\n' }))
