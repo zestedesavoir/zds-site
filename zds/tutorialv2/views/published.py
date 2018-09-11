@@ -1122,7 +1122,6 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
             return []
 
         data = {}
-        print(report)
         for r in rows:
             url = r['dimensions'][0]
             # avgTimeOnPage is convert to float then int to remove useless decimal part
