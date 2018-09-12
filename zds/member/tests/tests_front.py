@@ -22,16 +22,11 @@ class MemberFrontTests(StaticLiveServerTestCase):
 
     def test_zestedesavoir_is_present(self):
         self.selenium.get(self.live_server_url + '/')
-        self.assertEqual(
-            'Zeste de Savoir',
-            self.selenium.find_element_by_css_selector('p.copyright').text[:15]
-        )
+        self.assertEqual('Zeste de Savoir', self.selenium.find_element_by_css_selector('p.copyright').text[:15])
         self.assertEqual('Zeste de Savoir', self.selenium.title)
 
     def test_trigger_remember(self):
         self.selenium.get(self.live_server_url + reverse('member-login'))
         is_checked = self.selenium.find_element_by_id('id_remember').is_selected()
         self.selenium.find_element_by_id('id_remember').click()
-        self.assertNotEqual(is_checked,
-                            self.selenium
-                            .find_element_by_id('id_remember').is_selected())
+        self.assertNotEqual(is_checked, self.selenium.find_element_by_id('id_remember').is_selected())
