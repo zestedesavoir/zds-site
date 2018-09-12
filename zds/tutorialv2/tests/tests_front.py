@@ -149,11 +149,11 @@ class PublicationFronttest(StaticLiveServerTestCase, TutorialTestMixin, Tutorial
         author = ProfileFactory()
 
         self.login(author)
-
         new_article_url = self.live_server_url + reverse('content:create-article')
         selenium.get(new_article_url)
-
-        find_element('input[type=checkbox][name=subcategory]').click()
+        WebDriverWait(self.selenium, 10).until(ec.element_to_be_clickable(
+            (By.CSS_SELECTOR, 'input[type=checkbox][name=subcategory]')
+        )).click()
         license_select = Select(find_element('#id_licence'))
         license_select.select_by_index(len(license_select.options) - 1)
 
