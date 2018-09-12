@@ -11,8 +11,13 @@ from selenium.webdriver.support import expected_conditions as ec
 
 
 from zds.member.factories import StaffProfileFactory, ProfileFactory
-from zds.tutorialv2.factories import LicenceFactory, SubCategoryFactory, PublishableContentFactory, ContainerFactory, \
-    ExtractFactory
+from zds.tutorialv2.factories import (
+    LicenceFactory,
+    SubCategoryFactory,
+    PublishableContentFactory,
+    ContainerFactory,
+    ExtractFactory,
+)
 from zds.tutorialv2.models.database import PublishedContent, PublishableContent
 from zds.tutorialv2.tests import TutorialTestMixin, TutorialFrontMixin
 from copy import deepcopy
@@ -71,8 +76,9 @@ class PublicationFronttest(StaticLiveServerTestCase, TutorialTestMixin, Tutorial
         self.login_author()
         self.selenium.get(self.live_server_url + self.ignored_part.get_absolute_url())
         find_element = self.selenium.find_element_by_css_selector
-        button = WebDriverWait(self.selenium, 20)\
-            .until(expected_conditions.element_to_be_clickable((By.CSS_SELECTOR, '.readiness')))
+        button = WebDriverWait(self.selenium, 20).until(
+            expected_conditions.element_to_be_clickable((By.CSS_SELECTOR, '.readiness'))
+        )
         readiness = button.get_attribute('data-is-ready')
         button.click()
         self.wait_element_attribute_change((By.CSS_SELECTOR, '.readiness'), 'data-is-ready', readiness, 20)
@@ -82,8 +88,9 @@ class PublicationFronttest(StaticLiveServerTestCase, TutorialTestMixin, Tutorial
         self.selenium.get(self.live_server_url + self.content.get_absolute_url())
         self.selenium.get(self.live_server_url + self.ignored_part.get_absolute_url())
         button = find_element('.readiness')
-        self.assertNotEqual(readiness, button.get_attribute('data-is-ready'),
-                            'part should be marked as not ready to publish')
+        self.assertNotEqual(
+            readiness, button.get_attribute('data-is-ready'), 'part should be marked as not ready to publish'
+        )
         self.selenium.get(self.live_server_url + self.content.get_absolute_url())
         self.ask_validation()
         self.logout()
@@ -92,12 +99,16 @@ class PublicationFronttest(StaticLiveServerTestCase, TutorialTestMixin, Tutorial
         self.validate()
         url = PublishedContent.objects.get(content__pk=self.content.pk).get_absolute_url_online()
         self.selenium.get(self.live_server_url + url)
-        self.assertRaises(WebDriverException, find_element, 'a[href="{}"]'.format(
-            reverse('tutorial:view-container', kwargs={
-                'slug': self.content.slug,
-                'pk': self.content.pk,
-                'container_slug': self.ignored_part.slug
-            })))
+        self.assertRaises(
+            WebDriverException,
+            find_element,
+            'a[href="{}"]'.format(
+                reverse(
+                    'tutorial:view-container',
+                    kwargs={'slug': self.content.slug, 'pk': self.content.pk, 'container_slug': self.ignored_part.slug},
+                )
+            ),
+        )
 
     def test_collaborative_article_edition_and_editor_persistence(self):
         selenium = self.selenium
@@ -108,14 +119,10 @@ class PublicationFronttest(StaticLiveServerTestCase, TutorialTestMixin, Tutorial
         article = PublishableContentFactory(type='ARTICLE', author_list=[author.user])
 
         versioned_article = article.load_version()
-        article.sha_draft = versioned_article.repo_update(
-            'article', '', '', update_slug=False)
+        article.sha_draft = versioned_article.repo_update('article', '', '', update_slug=False)
         article.save()
 
-        article_edit_url = reverse('content:edit', args=[
-            article.pk,
-            article.slug,
-        ])
+        article_edit_url = reverse('content:edit', args=[article.pk, article.slug])
 
         self.login(author)
 
@@ -126,21 +133,14 @@ class PublicationFronttest(StaticLiveServerTestCase, TutorialTestMixin, Tutorial
 
         selenium.refresh()
 
-        self.assertEqual(
-            'intro',
-            find_element('.md-editor#id_introduction').get_attribute('value'),
-        )
+        self.assertEqual('intro', find_element('.md-editor#id_introduction').get_attribute('value'))
 
-        article.sha_draft = versioned_article.repo_update(
-            'article', 'new intro', '', update_slug=False)
+        article.sha_draft = versioned_article.repo_update('article', 'new intro', '', update_slug=False)
         article.save()
 
         selenium.refresh()
 
-        self.assertEqual(
-            'new intro',
-            find_element('.md-editor#id_introduction').get_attribute('value'),
-        )
+        self.assertEqual('new intro', find_element('.md-editor#id_introduction').get_attribute('value'))
 
     def test_the_editor_forgets_its_content_on_form_submission(self):
         selenium = self.selenium
@@ -164,13 +164,8 @@ class PublicationFronttest(StaticLiveServerTestCase, TutorialTestMixin, Tutorial
 
         find_element('.content-container button[type=submit]').click()
 
-        self.assertTrue(
-            WebDriverWait(selenium, 10).until(ec.title_contains(('Oulipo')))
-        )
+        self.assertTrue(WebDriverWait(selenium, 10).until(ec.title_contains(('Oulipo'))))
 
         selenium.get(new_article_url)
 
-        self.assertEqual(
-            '',
-            find_element('.md-editor#id_introduction').get_attribute('value'),
-        )
+        self.assertEqual('', find_element('.md-editor#id_introduction').get_attribute('value'))
