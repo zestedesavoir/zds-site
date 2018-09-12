@@ -6,7 +6,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.webdriver import WebDriver
 from django.test import tag
 from selenium.webdriver.support import expected_conditions
-from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support.ui import Select, WebDriverWait
+from selenium.webdriver.support import expected_conditions as ec
+
 
 from zds.member.factories import StaffProfileFactory, ProfileFactory
 from zds.tutorialv2.factories import LicenceFactory, SubCategoryFactory, PublishableContentFactory, ContainerFactory, \
@@ -96,3 +98,79 @@ class PublicationFronttest(StaticLiveServerTestCase, TutorialTestMixin, Tutorial
                 'pk': self.content.pk,
                 'container_slug': self.ignored_part.slug
             })))
+
+    def test_collaborative_article_edition_and_editor_persistence(self):
+        selenium = self.selenium
+        find_element = selenium.find_element_by_css_selector
+
+        author = ProfileFactory()
+
+        article = PublishableContentFactory(type='ARTICLE', author_list=[author.user])
+
+        versioned_article = article.load_version()
+        article.sha_draft = versioned_article.repo_update(
+            'article', '', '', update_slug=False)
+        article.save()
+
+        article_edit_url = reverse('content:edit', args=[
+            article.pk,
+            article.slug,
+        ])
+
+        self.login(author)
+
+        selenium.get(self.live_server_url + article_edit_url)
+
+        intro = find_element('.md-editor#id_introduction')
+        intro.send_keys('intro')
+
+        selenium.refresh()
+
+        self.assertEqual(
+            'intro',
+            find_element('.md-editor#id_introduction').get_attribute('value'),
+        )
+
+        article.sha_draft = versioned_article.repo_update(
+            'article', 'new intro', '', update_slug=False)
+        article.save()
+
+        selenium.refresh()
+
+        self.assertEqual(
+            'new intro',
+            find_element('.md-editor#id_introduction').get_attribute('value'),
+        )
+
+    def test_the_editor_forgets_its_content_on_form_submission(self):
+        selenium = self.selenium
+        find_element = selenium.find_element_by_css_selector
+
+        author = ProfileFactory()
+
+        self.login(author)
+
+        new_article_url = self.live_server_url + reverse('content:create-article')
+        selenium.get(new_article_url)
+
+        find_element('input[type=checkbox][name=subcategory]').click()
+        license_select = Select(find_element('#id_licence'))
+        license_select.select_by_index(len(license_select.options) - 1)
+
+        find_element('#id_title').send_keys('Oulipo')
+
+        intro = find_element('.md-editor#id_introduction')
+        intro.send_keys('Le cadavre exquis boira le vin nouveau.')
+
+        find_element('.content-container button[type=submit]').click()
+
+        self.assertTrue(
+            WebDriverWait(selenium, 10).until(ec.title_contains(('Oulipo')))
+        )
+
+        selenium.get(new_article_url)
+
+        self.assertEqual(
+            '',
+            find_element('.md-editor#id_introduction').get_attribute('value'),
+        )
