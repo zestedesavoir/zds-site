@@ -1115,6 +1115,13 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
             return []
 
         data = {}
+        # Backfill with zeroes
+        for url in urls:
+            data[url.url] = {'pageviews': 0,
+                             'avgTimeOnPage': 0,
+                             'users': 0,
+                             'newUsers': 0,
+                             'sessions': 0}
         for r in rows:
             url = r['dimensions'][0]
             # avgTimeOnPage is convert to float then int to remove useless decimal part
