@@ -1150,51 +1150,54 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         api_raw = []
         metrics = [r['name'][3:] for r in report['columnHeader']['metricHeader']['metricHeaderEntries']]
         
-        # Prepare empty val list (backfill with zeros for missing dates)
-        data_dico = {}
         period = (end - start).days
-        for i in range(period + 1):
-            day = (start + timedelta(days=i)).strftime('%Y-%m-%d')
-            data_dico[day] = {m: 0 for m in metrics}
 
+        data = {}
         if display_mode in ('global', 'details'):
+            # Prepare empty val list (backfill with zeros for missing dates)
+            for i in range(period + 1):
+                day = (start + timedelta(days=i)).strftime('%Y-%m-%d')
+                data[day] = {m: 0 for m in metrics}
+            # Fill in data
             for r in rows:
                 data_date = r['dimensions'][0]
                 data_date = '{}-{}-{}'.format(data_date[0:4], data_date[4:6], data_date[6:8])
                 for i, m in enumerate(metrics):
-                    data_dico[data_date][m] = r['metrics'][0]['values'][i]
+                    data[data_date][m] = r['metrics'][0]['values'][i]
 
             stats = {}
             for i, m in enumerate(metrics):
                 stats[m] = []
-                for d in data_dico:
-                    stats[m].append({'date': d, m: data_dico[d][m]})
+                for d in data:
+                    stats[m].append({'date': d, m: data[d][m]})
             api_raw = [{'label': _('Global'),
                         'stats': stats}]
         else:
-            data = {}
-            for url in urls:
-                data[url.url] = {'stats': {'pageviews': [],
-                                           'avgTimeOnPage': [],
-                                           'users': [],
-                                           'newUsers': [],
-                                           'sessions': []}}
 
-            data_metric = [0 for n in range(len(metrics))]
+            data = {}
+
+            for url in urls:
+                data[url.url] = {'stats': {}}
+                # Prepare empty val list (backfill with zeros for missing dates)
+                for i in range(period + 1):
+                    day = (start + timedelta(days=i)).strftime('%Y-%m-%d')
+                    data[url.url]['stats'][day] = {m: 0 for m in metrics}
+
             for r in rows:
                 url = r['dimensions'][1]
                 data_date = r['dimensions'][0]
                 data_date = '{}-{}-{}'.format(data_date[0:4], data_date[4:6], data_date[6:8])
 
-                for i, m in enumerate(metrics):
-                    data_metric[i] = r['metrics'][0]['values'][i]
-                    data[url]['stats'][m].append({
-                        'date': data_date,
-                        m: data_metric[i]
-                    })
+                for i, m in enumerate(metrics):                  
+                    data[url]['stats'][data_date][m] = r['metrics'][0]['values'][i]
 
             for url in urls:
-                element = {'label': url.name, 'stats': data[url.url]['stats']}
+                stats = {}
+                for i, m in enumerate(metrics):
+                    stats[m] = []
+                    for d in data[url.url]['stats']:
+                        stats[m].append({'date': d, m: data[url.url]['stats'][d][m]})
+                element = {'label': url.name, 'stats': stats}
                 api_raw.append(element)
 
         return api_raw
