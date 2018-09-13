@@ -95,7 +95,7 @@
             {% trans "Aucune statistique a afficher" %}
         {% endif %}
 
-        {% if display == 'comparison' %}
+        {% if not display == 'global' %}
             <a href="{% url "content:stats-content" content.pk content.slug %}" class="btn btn-submit">{% trans "Revenir à la vue globale" %}</a>
         {% endif %}
         <hr class="clearfix">
