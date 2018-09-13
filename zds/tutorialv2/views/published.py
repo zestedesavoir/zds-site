@@ -1140,7 +1140,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
                     'sessions': data[url.url]['sessions']} for url in urls]
         return api_raw
 
-    def get_stats(self, urls, report, display_mode):
+    def get_stats(self, urls, report, display_mode, start, end):
         try:
             rows = report['data']['rows']
         except KeyError:
@@ -1149,19 +1149,26 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
 
         api_raw = []
         metrics = [r['name'][3:] for r in report['columnHeader']['metricHeader']['metricHeaderEntries']]
+        
+        # Prepare empty val list (backfill with zeros for missing dates)
+        data_dico = {}
+        period = (end - start).days
+        for i in range(period + 1):
+            day = (start + timedelta(days=i)).strftime('%Y-%m-%d')
+            data_dico[day] = {m: 0 for m in metrics}
 
         if display_mode in ('global', 'details'):
-            data = [[] for n in range(len(metrics))]
             for r in rows:
                 data_date = r['dimensions'][0]
                 data_date = '{}-{}-{}'.format(data_date[0:4], data_date[4:6], data_date[6:8])
-
                 for i, m in enumerate(metrics):
-                    data[i].append({'date': data_date, m: r['metrics'][0]['values'][i]})
+                    data_dico[data_date][m] = r['metrics'][0]['values'][i]
 
             stats = {}
             for i, m in enumerate(metrics):
-                stats[m] = data[i]
+                stats[m] = []
+                for d in data_dico:
+                    stats[m].append({'date': d, m: data_dico[d][m]})
             api_raw = [{'label': _('Global'),
                         'stats': stats}]
         else:
@@ -1217,8 +1224,8 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
 
         # Filters to get all needed pages only
         filters = self.get_ga_filters_from_urls(urls)
-        date_ranges = [{'startDate': start.strftime('%Y-%m-%d'),
-                        'endDate': end.strftime('%Y-%m-%d')}]
+        date_ranges = {'startDate': start.strftime('%Y-%m-%d'),
+                       'endDate': end.strftime('%Y-%m-%d')}
 
         metrics = [{'expression': 'ga:pageviews'},
                    {'expression': 'ga:avgTimeOnPage'},
@@ -1230,6 +1237,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
             'viewId': self.VIEW_ID,
             'dateRanges': date_ranges,
             'metrics': metrics,
+            'includeEmptyRows': 'true',
             'dimensions': [{'name': 'ga:pagePath'}],
             'dimensionFilterClauses': [{'filters': filters}],
         }
@@ -1237,6 +1245,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         referrer_report = {
             'viewId': self.VIEW_ID,
             'dateRanges': date_ranges,
+            'includeEmptyRows': 'true',
             'metrics': [{'expression': 'ga:visits'}],
             'dimensions': [{'name': 'ga:fullReferrer'}],
             'orderBys': [{'fieldName': 'ga:visits', 'sortOrder': 'DESCENDING'}],
@@ -1246,6 +1255,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         keyword_report = {
             'viewId': self.VIEW_ID,
             'dateRanges': date_ranges,
+            'includeEmptyRows': 'true',
             'metrics': [{'expression': 'ga:visits'}],
             'dimensions': [{'name': 'ga:keyword'}],
             'orderBys': [{'fieldName': 'ga:visits', 'sortOrder': 'DESCENDING'}],
@@ -1264,6 +1274,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
             'viewId': self.VIEW_ID,
             'dateRanges': date_ranges,
             'metrics': metrics,
+            'includeEmptyRows': 'true',
             'dimensions': [{'name': 'ga:date'},
                            {'name': 'ga:pagePath'}],
             'dimensionFilterClauses': [{'filters': filters}]
@@ -1274,7 +1285,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         ).execute()
 
         return (
-            self.get_stats(urls, response['reports'][0], display_mode),
+            self.get_stats(urls, response['reports'][0], display_mode, start, end),
             self.get_cumulative_stats_by_url(urls, response['reports'][1]),
             self.get_referrer_stats(response['reports'][2]),
             self.get_keyword_stats(response['reports'][3])
