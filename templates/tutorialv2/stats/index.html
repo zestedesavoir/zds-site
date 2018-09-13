@@ -2,7 +2,7 @@
 {% load i18n %}
 {% load crispy_forms_tags %}
 {% load append_query_params %}
-{% load date_from_day_number %}
+{% load datedelta_from_day %}
 {% load seconds_to_duration %}
 
 {% block title %}
@@ -151,7 +151,6 @@
                 {% trans "C’est simplement le nombre de fois qu’une page a été chargée." %}
             </p>
         </div>
-
     </section>
 {% endblock %}
 
@@ -161,33 +160,49 @@
             <h3>{% trans "Échelle de temps" %}</h3>
             <ul>
                 <li>
-                    {% date_from_day_number 7 as start_date %}
+                    {% with start_date=-7|datedelta_from_day %}
                     <a class="ico-after gear {% if request.GET.start_date == start_date|date:'Y-m-d' or request.GET.start_date is none %}selected{% endif %}"
                        href="{% append_query_params start_date=start_date %}{% if display == 'comparison' %}{% for url in urls %}&urls={{url.url}}{% endfor %}{% endif %}">
                         <span>
                             {% trans "7 derniers jours" %}
                         </span>
                     </a>
+                    {% endwith %}
                 </li>
                 <li>
-                    {% date_from_day_number 30 as start_date %}
+                    {% with start_date=-30|datedelta_from_day %}
                     <a class="ico-after gear {% if request.GET.start_date == start_date|date:'Y-m-d' %}selected{% endif %}"
                        href="{% append_query_params start_date=start_date %}{% if display == 'comparison' %}{% for url in urls %}&urls={{url.url}}{% endfor %}{% endif %}">
                         <span>
                             {% trans "30 derniers jours" %}
                         </span>
                     </a>
+                    {% endwith %}
                 </li>
                 <li>
-                    {% date_from_day_number 365 as start_date %}
+                    {% with start_date=-365|datedelta_from_day %}
                     <a class="ico-after gear {% if request.GET.start_date == start_date|date:'Y-m-d' %}selected{% endif %}"
                        href="{% append_query_params start_date=start_date %}{% if display == 'comparison' %}{% for url in urls %}&urls={{url.url}}{% endfor %}{% endif %}">
                         <span>
                             {% trans "La dernière année" %}
                         </span>
                     </a>
+                    {% endwith %}
                 </li>
             </ul>
+            <h3>{% trans "Échelle personnalisée" %}</h3>
+            <form method="GET" action="#">
+                <ul>
+                {% if request.GET.end_date %}
+                    <li>{% trans "Du" %} <input type="date" value="{% if request.GET.start_date %}{{request.GET.start_date}}{% else %}{{ -7|datedelta_from_day:request.GET.end_date|date:'Y-m-d' }}{% endif %}" name="start_date" max="{% now 'Y-m-d' %}"></li>
+                    <li>{% trans "au" %} <input type="date" value="{{request.GET.end_date}}" name="end_date" max="{% now 'Y-m-d' %}"></li>
+                {% else %}
+                    <li>{% trans "Du" %} <input type="date" value="{% if request.GET.start_date %}{{request.GET.start_date}}{% else %}{{ -7|datedelta_from_day|date:'Y-m-d' }}{% endif %}" name="start_date" max="{% now 'Y-m-d' %}"></li>
+                    <li>{% trans "au" %} <input type="date" value="{% now 'Y-m-d' %}" name="end_date" max="{% now 'Y-m-d' %}"></li>
+                {% endif %}
+                    <button type="submit" class="btn">{% trans "Actualiser" %}</button>
+                </ul>
+            </form>
         </div>
     </aside>
 {% endblock sidebar %}

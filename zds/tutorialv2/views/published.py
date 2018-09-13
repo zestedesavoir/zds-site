@@ -23,6 +23,7 @@ from django.db.models import F, Q
 from apiclient.discovery import build
 from httplib2 import Http
 from oauth2client.service_account import ServiceAccountCredentials
+import googleapiclient
 
 from zds.forum.models import Forum
 from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin, PermissionRequiredMixin
@@ -1132,6 +1133,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
                          'sessions': r['metrics'][0]['values'][4]}
 
         # Build the response array by matching NamedUrl and data[url]
+        api_raw = []
         api_raw = [{'url': url,
                     'pageviews': data[url.url]['pageviews'],
                     'avgTimeOnPage': data[url.url]['avgTimeOnPage'],
@@ -1284,9 +1286,13 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
             'dimensionFilterClauses': [{'filters': filters}]
         }
 
-        response = analytics.reports().batchGet(
-            body={'reportRequests': [graphs_data_report, table_data_report, referrer_report, keyword_report]}
-        ).execute()
+        try:
+            response = analytics.reports().batchGet(
+                body={'reportRequests': [graphs_data_report, table_data_report, referrer_report, keyword_report]}
+            ).execute()
+        except googleapiclient.errors.HttpError as e:
+            messages.error(self.request, _("Un problème a eu lieu lors de la requète vers l'API GA. {}".format(e)))
+            return ([], [], [], [])
 
         return (
             self.get_stats(urls, response['reports'][0], display_mode, start, end),
@@ -1296,15 +1302,6 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         )
 
     def get_start_and_end_dates(self):
-        start_date = self.request.GET.get('start_date', None)
-        try:
-            start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
-        except TypeError:
-            start_date = date.today() - timedelta(days=7)
-        except ValueError:
-            start_date = date.today() - timedelta(days=7)
-            messages.error(self.request, _("La date de début fournie est invalide."))
-
         end_date = self.request.GET.get('end_date', None)
         try:
             end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
@@ -1312,7 +1309,20 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
             end_date = date.today()
         except ValueError:
             end_date = date.today()
-            messages.error(self.request, _("La date de fin fournie est invalide."))
+            messages.error(self.request, _('La date de fin fournie est invalide.'))
+        
+        start_date = self.request.GET.get('start_date', None)
+        try:
+            start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+        except TypeError:
+            start_date = end_date - timedelta(days=7)
+        except ValueError:
+            start_date = end_date - timedelta(days=7)
+            messages.error(self.request, _('La date de début fournie est invalide.'))
+
+        if start_date > end_date:
+            end_date, start_date = start_date, end_date
+            
         return start_date, end_date
 
     def get_display_mode(self, urls):
