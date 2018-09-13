@@ -1240,7 +1240,6 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
             'viewId': self.VIEW_ID,
             'dateRanges': date_ranges,
             'metrics': metrics,
-            'includeEmptyRows': 'true',
             'dimensions': [{'name': 'ga:pagePath'}],
             'dimensionFilterClauses': [{'filters': filters}],
         }
@@ -1248,7 +1247,6 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         referrer_report = {
             'viewId': self.VIEW_ID,
             'dateRanges': date_ranges,
-            'includeEmptyRows': 'true',
             'metrics': [{'expression': 'ga:visits'}],
             'dimensions': [{'name': 'ga:fullReferrer'}],
             'orderBys': [{'fieldName': 'ga:visits', 'sortOrder': 'DESCENDING'}],
@@ -1258,7 +1256,6 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         keyword_report = {
             'viewId': self.VIEW_ID,
             'dateRanges': date_ranges,
-            'includeEmptyRows': 'true',
             'metrics': [{'expression': 'ga:visits'}],
             'dimensions': [{'name': 'ga:keyword'}],
             'orderBys': [{'fieldName': 'ga:visits', 'sortOrder': 'DESCENDING'}],
@@ -1269,17 +1266,21 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
             # Find level 0 url
             if display_mode == 'global':
                 target_url = [u for u in urls if u.level == 0]
+                filters = [{'operator': 'BEGINS_WITH',
+                            'dimensionName': 'ga:pagePath',
+                            'expressions': target_url[0].url}]
             else:
                 target_url = [urls[0]]
-            filters = self.get_ga_filters_from_urls(target_url)
+                filters = self.get_ga_filters_from_urls(target_url)
 
+        dimensions = [{'name': 'ga:date'}]
+        if display_mode == 'comparison':
+            dimensions.append({'name': 'ga:pagePath'})
         graphs_data_report = {
             'viewId': self.VIEW_ID,
             'dateRanges': date_ranges,
             'metrics': metrics,
-            'includeEmptyRows': 'true',
-            'dimensions': [{'name': 'ga:date'},
-                           {'name': 'ga:pagePath'}],
+            'dimensions': dimensions,
             'dimensionFilterClauses': [{'filters': filters}]
         }
 
