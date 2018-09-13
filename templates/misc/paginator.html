@@ -28,8 +28,14 @@
                         {% else %}
                             class="current"
                         {% endifnotequal %}
-                        {% if page_nb == 1 %}
+                        {% if page_nb|add:-1 == page_obj.number %}
+                            rel="next"
+                        {% elif page_nb|add:1 == page_obj.number %}
+                            rel="prev"
+                        {% elif page_nb == 1 %}
                             rel="first"
+                        {% elif page_nb == pages|length %}
+                            rel="last"
                         {% endif %}
                     >
                         {{ page_nb }}

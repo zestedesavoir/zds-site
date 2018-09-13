@@ -32,8 +32,14 @@
                         {% else %}
                             class="current"
                         {% endifnotequal %}
-                        {% if page == 1 %}
+                        {% if page|add:-1 == nb %}
+                            rel="next"
+                        {% elif page|add:1 == nb %}
+                            rel="prev"
+                        {% elif page == 1 %}
                             rel="first"
+                        {% elif page_nb == pages|length %}
+                            rel="last"
                         {% endif %}
                     >
                         {{ page }}
