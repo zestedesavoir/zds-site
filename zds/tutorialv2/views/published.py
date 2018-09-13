@@ -1076,13 +1076,6 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
             return all_named_urls
 
     def get_content_urls(self):
-        # debug_urls = [
-        #     NamedUrl('Découverte de l Arduino', '/tutoriels/686/arduino-premiers-pas-en-informatique-embarquee/742_decouverte-de-larduino/', 0),  # noqa
-        #     NamedUrl('Présentation', '/tutoriels/686/arduino-premiers-pas-en-informatique-embarquee/742_decouverte-de-larduino/3414_presentation-darduino/', 2),  # noqa
-        #     NamedUrl('Quelques bases', '/tutoriels/686/arduino-premiers-pas-en-informatique-embarquee/742_decouverte-de-larduino/3415_quelques-bases-elementaires/', 2)  # noqa
-        # ]
-        # return debug_urls
-
         content = self.versioned_object
         urls = [NamedUrl(content.title, content.get_absolute_url_online(), 0)]
         if content.has_extracts():
