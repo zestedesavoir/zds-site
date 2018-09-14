@@ -73,7 +73,7 @@
                             <td class="level-{{view.url.level}}">
                                 <a href="{{ view.url.url }}">{{ view.url.name }}</a>
                                 {% if display != 'details' %}
-                                - <a href="?urls={{view.url.url }}" >{% trans "(détails)" %}</a>
+                                - <a href="?urls={{ view.url.url }}{% if request.GET.start_date %}&start_date={{request.GET.start_date}}{% endif %}{% if request.GET.end_date %}&end_date={{request.GET.end_date}}{% endif %}" >{% trans "(détails)" %}</a>
                                 {% endif %}
                             </td>
                             <td>{{ view.pageviews }}</td>
