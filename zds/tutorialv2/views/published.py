@@ -1115,14 +1115,8 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
             messages.error(self.request, _("Aucune donnée de statistiques cumulées n'est disponible"))
             return []
 
-        data = {}
-        # Backfill with zeroes
-        for url in urls:
-            data[url.url] = {'pageviews': 0,
-                             'avgTimeOnPage': 0,
-                             'users': 0,
-                             'newUsers': 0,
-                             'sessions': 0}
+        # Backfill data with zeroes
+        data = {url.url:defaultdict(int) for url in urls}
         for r in rows:
             url = r['dimensions'][0]
             # avgTimeOnPage is convert to float then int to remove useless decimal part
@@ -1133,13 +1127,12 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
                          'sessions': r['metrics'][0]['values'][4]}
 
         # Build the response array by matching NamedUrl and data[url]
-        api_raw = []
         api_raw = [{'url': url,
-                    'pageviews': data[url.url]['pageviews'],
-                    'avgTimeOnPage': data[url.url]['avgTimeOnPage'],
-                    'users': data[url.url]['users'],
-                    'newUsers': data[url.url]['newUsers'],
-                    'sessions': data[url.url]['sessions']} for url in urls]
+                    'pageviews': data[url.url].get('pageviews', 0),
+                    'avgTimeOnPage': data[url.url].get('avgTimeOnPage', 0),
+                    'users': data[url.url].get('users', 0),
+                    'newUsers': data[url.url].get('newUsers', 0),
+                    'sessions': data[url.url].get('sessions', 0)} for url in urls]
         return api_raw
 
     def get_stats(self, urls, report, display_mode, start, end):
@@ -1183,7 +1176,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
                 # Prepare empty val list (backfill with zeros for missing dates)
                 for i in range(period + 1):
                     day = (start + timedelta(days=i)).strftime('%Y-%m-%d')
-                    data[url.url]['stats'][day] = {m: 0 for m in metrics}
+                    data[url.url]['stats'][day] = defaultdict(0)
 
             for r in rows:
                 url = r['dimensions'][1]
@@ -1198,7 +1191,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
                 for i, m in enumerate(metrics):
                     stats[m] = []
                     for d in data[url.url]['stats']:
-                        stats[m].append({'date': d, m: data[url.url]['stats'][d][m]})
+                        stats[m].append({'date': d, m: data[url.url]['stats'][d].get(m, 0)})
                 element = {'label': url.name, 'stats': stats}
                 api_raw.append(element)
 
