@@ -191,17 +191,21 @@
                 </li>
             </ul>
             <h3>{% trans "Échelle personnalisée" %}</h3>
-            <form method="GET" action="#">
-                <ul>
+            <ul>
+                <form method="GET">
                 {% if request.GET.end_date %}
-                    <li>{% trans "Du" %} <input type="date" value="{% if request.GET.start_date %}{{request.GET.start_date}}{% else %}{{ -7|datedelta_from_day:request.GET.end_date|date:'Y-m-d' }}{% endif %}" name="start_date" max="{% now 'Y-m-d' %}"></li>
-                    <li>{% trans "au" %} <input type="date" value="{{request.GET.end_date}}" name="end_date" max="{% now 'Y-m-d' %}"></li>
+                    <li>
+                        {% trans "Du" %} <input type="date" value="{% if request.GET.start_date %}{{request.GET.start_date}}{% else %}{{ -7|datedelta_from_day:request.GET.end_date|date:'Y-m-d' }}{% endif %}" name="start_date" id="start_date" max="{% now 'Y-m-d' %}">
+                        {% trans "au" %} <input type="date" value="{{request.GET.end_date}}" name="end_date" id="end_date" max="{% now 'Y-m-d' %}">
+                    </li>
                 {% else %}
-                    <li>{% trans "Du" %} <input type="date" value="{% if request.GET.start_date %}{{request.GET.start_date}}{% else %}{{ -7|datedelta_from_day|date:'Y-m-d' }}{% endif %}" name="start_date" max="{% now 'Y-m-d' %}"></li>
-                    <li>{% trans "au" %} <input type="date" value="{% now 'Y-m-d' %}" name="end_date" max="{% now 'Y-m-d' %}"></li>
+                    <li>
+                        {% trans "Du" %} <input type="date" value="{% if request.GET.start_date %}{{request.GET.start_date}}{% else %}{{ -7|datedelta_from_day|date:'Y-m-d' }}{% endif %}" name="start_date" id="start_date" max="{% now 'Y-m-d' %}">
+                        {% trans "au" %} <input type="date" value="{% now 'Y-m-d' %}" name="end_date" id="end_date" max="{% now 'Y-m-d' %}">
+                    </li>
                 {% endif %}
                     <button type="submit" class="btn">{% trans "Actualiser" %}</button>
-                </ul>
+            </ul>
             </form>
         </div>
     </aside>
