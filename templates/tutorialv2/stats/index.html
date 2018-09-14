@@ -160,9 +160,9 @@
             <h3>{% trans "Échelle de temps" %}</h3>
             <ul>
                 <li>
-                    {% with start_date=-7|datedelta_from_day %}
+                    {% with start_date=-7|datedelta_from_day end_date=0|datedelta_from_day %}
                     <a class="ico-after gear {% if request.GET.start_date == start_date|date:'Y-m-d' or request.GET.start_date is none %}selected{% endif %}"
-                       href="{% append_query_params start_date=start_date %}{% if display == 'comparison' %}{% for url in urls %}&urls={{url.url}}{% endfor %}{% endif %}">
+                       href="{% append_query_params start_date=start_date,end_date=end_date %}{% if display == 'comparison' %}{% for url in urls %}&urls={{url.url}}{% endfor %}{% endif %}">
                         <span>
                             {% trans "7 derniers jours" %}
                         </span>
@@ -170,9 +170,9 @@
                     {% endwith %}
                 </li>
                 <li>
-                    {% with start_date=-30|datedelta_from_day %}
+                    {% with start_date=-30|datedelta_from_day end_date=0|datedelta_from_day %}
                     <a class="ico-after gear {% if request.GET.start_date == start_date|date:'Y-m-d' %}selected{% endif %}"
-                       href="{% append_query_params start_date=start_date %}{% if display == 'comparison' %}{% for url in urls %}&urls={{url.url}}{% endfor %}{% endif %}">
+                       href="{% append_query_params start_date=start_date,end_date=end_date %}{% if display == 'comparison' %}{% for url in urls %}&urls={{url.url}}{% endfor %}{% endif %}">
                         <span>
                             {% trans "30 derniers jours" %}
                         </span>
@@ -180,9 +180,9 @@
                     {% endwith %}
                 </li>
                 <li>
-                    {% with start_date=-365|datedelta_from_day %}
+                    {% with start_date=-365|datedelta_from_day end_date=0|datedelta_from_day %}
                     <a class="ico-after gear {% if request.GET.start_date == start_date|date:'Y-m-d' %}selected{% endif %}"
-                       href="{% append_query_params start_date=start_date %}{% if display == 'comparison' %}{% for url in urls %}&urls={{url.url}}{% endfor %}{% endif %}">
+                       href="{% append_query_params start_date=start_date,end_date=end_date %}{% if display == 'comparison' %}{% for url in urls %}&urls={{url.url}}{% endfor %}{% endif %}">
                         <span>
                             {% trans "La dernière année" %}
                         </span>
