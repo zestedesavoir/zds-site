@@ -53,6 +53,7 @@ class UserGallery(models.Model):
     user = models.ForeignKey(User, verbose_name=_('Membre'), db_index=True)
     gallery = models.ForeignKey('Gallery', verbose_name=_('Galerie'), db_index=True)
     mode = models.CharField(max_length=1, choices=MODE_CHOICES, default=GALLERY_READ)
+    is_default = models.BooleanField(_("Galerie par défaut de l'utilisateur"), default=False, null=False)
 
     def __str__(self):
         """Human-readable representation of the UserGallery model.
