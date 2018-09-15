@@ -9,6 +9,7 @@ from datetime import datetime
 from os import makedirs, mkdir, path
 from pathlib import Path
 
+import requests
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from django.utils import translation
@@ -86,14 +87,9 @@ def publish_content(db_object, versioned, is_major_update=True):
     # If we come from a command line, we need to activate i18n, to have the date in the french language.
     cur_language = translation.get_language()
     altered_version.pubdate = datetime.now()
-    try:
-        translation.activate(settings.LANGUAGE_CODE)
-        parsed = render_to_string('tutorialv2/export/content.md', {'content': versioned})
-    finally:
-        translation.activate(cur_language)
 
     md_file_path = base_name + '.md'
-    write_md_file(md_file_path, parsed, versioned)
+    PublicatorRegistry.get('md').publish(md_file_path, base_name, versioned=versioned, cur_language=cur_language)
     with contextlib.suppress(OSError):
         Path(Path(md_file_path).parent, 'images').mkdir()
     is_update = False
@@ -184,6 +180,7 @@ def generate_external_content(base_name, extra_contents_path, md_file_path, over
     :return:
     """
     excluded = excluded or []
+    excluded.append('md')
     if not settings.ZDS_APP['content']['build_pdf_when_published'] and not overload_settings:
         excluded.append('pdf')
     # TODO: exclude watchdog
@@ -274,6 +271,20 @@ class Publicator:
             .filter(content_public_slug=content_slug) \
             .first()
         return published_content_entity
+
+
+@PublicatorRegistry.register('md')
+class MarkdownPublicator(Publicator):
+    def publish(self, md_file_path, base_name, *, cur_language, versioned, **kwargs):
+        try:
+            translation.activate(settings.LANGUAGE_CODE)
+            parsed = render_to_string('tutorialv2/export/content.md', {'content': versioned})
+        except requests.exceptions.HTTPError:
+            raise FailureDuringPublication('Could not publish flat markdown')
+        finally:
+            translation.activate(cur_language)
+        write_md_file(md_file_path, parsed, versioned)
+        hutil.copy2(md_file_path, md_file_path.replace('__building', ''))
 
 
 def _read_flat_markdown(md_file_path):
@@ -493,7 +504,7 @@ class ZMarkdownEpubPublicator(Publicator):
             build_ebook(published_content_entity,
                         path.dirname(md_file_path),
                         epub_file_path)
-        except (IOError, OSError):
+        except (IOError, OSError, requests.exceptions.HTTPError):
             raise FailureDuringPublication('Error while generating epub file.')
         else:
             logger.info(epub_file_path)
