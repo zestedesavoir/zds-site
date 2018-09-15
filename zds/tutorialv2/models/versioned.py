@@ -849,7 +849,15 @@ class Container:
         # as introduction and conclusion are published in the full file, we remove reference to them
         self.introduction = None
         self.conclusion = None
-
+        
+    def is_validable(self):
+        """
+        Return ``true`` if the container can be validate ie. (would be in the public version if
+        the content is validate.
+        """
+        if self.parent is not None and not self.parent.is_validable():
+            return False
+        return self.ready_to_publish
 
 class Extract:
     """
@@ -1099,6 +1107,8 @@ class Extract:
             depth += 1
         return depth
 
+    def is_validable(self):
+        return self.container.is_validable()
 
 class VersionedContent(Container, TemplatableContentModelMixin):
     """
