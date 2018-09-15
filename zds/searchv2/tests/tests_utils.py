@@ -1,12 +1,8 @@
-import os
-import shutil
-
 from elasticsearch_dsl import Search
 from elasticsearch_dsl.query import MatchAll
 
 from django.conf import settings
 from django.test import TestCase
-from django.test.utils import override_settings
 from django.core.management import call_command
 
 from zds.member.factories import ProfileFactory, StaffProfileFactory
@@ -16,20 +12,13 @@ from zds.tutorialv2.publication_utils import publish_content
 from zds.forum.factories import TopicFactory, PostFactory, Topic, Post
 from zds.forum.tests.tests_views import create_category
 from zds.searchv2.models import ESIndexManager
-from copy import deepcopy
-
-overridden_zds_app = deepcopy(settings.ZDS_APP)
-overridden_zds_app['content']['repo_private_path'] = os.path.join(settings.BASE_DIR, 'contents-private-test')
-overridden_zds_app['content']['repo_public_path'] = os.path.join(settings.BASE_DIR, 'contents-public-test')
+from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 
 
-@override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'media-test'))
-@override_settings(ZDS_APP=overridden_zds_app)
-@override_settings(ES_SEARCH_INDEX={'name': 'zds_search_test', 'shards': 5, 'replicas': 0})
-class UtilsTests(TestCase):
+@override_for_contents(
+    ES_ENABLED=True, ES_SEARCH_INDEX={'name': 'zds_search_test', 'shards': 5, 'replicas': 0})
+class UtilsTests(TutorialTestMixin, TestCase):
     def setUp(self):
-        # don't build PDF to speed up the tests
-        settings.ZDS_APP['content']['build_pdf_when_published'] = False
 
         settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
         self.mas = ProfileFactory().user
@@ -184,15 +173,7 @@ class UtilsTests(TestCase):
         self.assertEqual(len(results), 4)  # get the 4 results back
 
     def tearDown(self):
-        if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
-            shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
-        if os.path.isdir(settings.ZDS_APP['content']['repo_public_path']):
-            shutil.rmtree(settings.ZDS_APP['content']['repo_public_path'])
-        if os.path.isdir(settings.MEDIA_ROOT):
-            shutil.rmtree(settings.MEDIA_ROOT)
-
-        # re-active PDF build
-        settings.ZDS_APP['content']['build_pdf_when_published'] = True
+        super().tearDown()
 
         # delete index:
         self.index_manager.clear_es_index()

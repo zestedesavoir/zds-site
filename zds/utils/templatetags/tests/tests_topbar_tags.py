@@ -1,29 +1,18 @@
-import os
-import shutil
-
 from django.contrib.auth.models import Group
 
 from django.test import TestCase
-from django.test.utils import override_settings
-from django.conf import settings
 
 from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.factories import PublishedContentFactory, PublishableContentFactory, SubCategoryFactory
 from zds.tutorialv2.publication_utils import publish_content
+from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.utils.factories import CategoryFactory as ContentCategoryFactory
 from zds.utils.templatetags.topbar import topbar_forum_categories, topbar_publication_categories
-from copy import deepcopy
 
 
-overridden_zds_app = deepcopy(settings.ZDS_APP)
-overridden_zds_app['content']['repo_private_path'] = os.path.join(settings.BASE_DIR, 'contents-private-test')
-overridden_zds_app['content']['repo_public_path'] = os.path.join(settings.BASE_DIR, 'contents-public-test')
-overridden_zds_app['content']['build_pdf_when_published'] = False
-
-
-@override_settings(ZDS_APP=overridden_zds_app)
-class TopBarTests(TestCase):
+@override_for_contents()
+class TopBarTests(TutorialTestMixin, TestCase):
 
     def setUp(self):
         # Create some forum's category
@@ -95,7 +84,7 @@ class TopBarTests(TestCase):
         self.assertEqual(len(top_tags), 4)
 
         # Now we want to exclude a tag
-        overridden_zds_app['forum']['top_tag_exclu'] = {'tag-4-4'}
+        self.overridden_zds_app['forum']['top_tag_exclu'] = {'tag-4-4'}
 
         # User only sees the only 'public' tag left
         top_tags = topbar_forum_categories(user).get('tags')
@@ -165,11 +154,3 @@ class TopBarTests(TestCase):
         expected_2 = [(subcategory_3.title, subcategory_3.slug, category_2.slug)]
         self.assertEqual(top_categories_contents[category_1.title], expected)
         self.assertEqual(top_categories_contents[category_2.title], expected_2)
-
-    def tearDown(self):
-        if os.path.isdir(overridden_zds_app['content']['repo_private_path']):
-            shutil.rmtree(overridden_zds_app['content']['repo_private_path'])
-        if os.path.isdir(overridden_zds_app['content']['repo_public_path']):
-            shutil.rmtree(overridden_zds_app['content']['repo_public_path'])
-        if os.path.isdir(settings.MEDIA_ROOT):
-            shutil.rmtree(settings.MEDIA_ROOT)
