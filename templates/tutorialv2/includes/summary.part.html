@@ -31,7 +31,7 @@
     {% else %}
         {% for child in content.children %}
              <h4 data-num="{{ child.position_in_parent|roman }}"
-                 {% if not child.ready_to_publish and not child.text %} class="not-ready" {% endif %}
+                 {% if not child.is_validable %} class="not-ready" {% endif %}
              >
                 <a class="mobile-menu-link"
                     {% if online %}
@@ -67,7 +67,7 @@
                 <ol>
                     {% for subchild in child.children %}
                         <li class="{% if current_container.long_slug == subchild.long_slug %}current{% endif %}
-                            {% if not subchild.ready_to_publish and not subchild.text %} not-ready{% endif %}"
+                            {% if not subchild.is_validable %} not-ready{% endif %}"
                         >
                             <a data-num="{{ subchild.position_in_parent }}"
                                 {% if online %}
@@ -89,7 +89,7 @@
                             {% if current_container.long_slug == subchild.long_slug %}
                                 <ol class="mobile-menu-bloc mobile-all-links" data-title="Sommaire du chapitre">
                                     {% for extract in subchild.children %}
-                                        <li {% if not child.ready_to_publish %} class="not-ready" {% endif %}>
+                                        <li {% if not extract.is_validable %} class="not-ready" {% endif %}>
                                             <a
                                                 {% if online %}
                                                     href="{{ extract.get_absolute_url_online }}"
