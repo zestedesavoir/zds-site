@@ -366,8 +366,8 @@ class ZMarkdownRebberLatexPublicator(Publicator):
         authors = [a.username for a in published_content_entity.authors.all()]
         smileys_directory = SMILEYS_BASE_PATH
 
-        licence = published_content_entity.content.licence.title
-        licence_short = licence.replace('CC-', '').lower()
+        licence = published_content_entity.content.licence.code
+        licence_short = licence.replace('CC', '').strip().lower()
         licence_logo = licences.get(licence_short, False)
         if licence_logo:
             licence_url = 'https://creativecommons.org/licenses/{}/4.0/legalcode'.format(licence_short)
