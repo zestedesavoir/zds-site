@@ -633,7 +633,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
 
     def get_prod_path(self, relative=False):
         if not relative:
-            return os.path.join(settings.ZDS_APP['content']['repo_public_path'], self.content_public_slug)
+            return str(Path(settings.ZDS_APP['content']['repo_public_path'], self.content_public_slug).absolute())
         else:
             return ''
 

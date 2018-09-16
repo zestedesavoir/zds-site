@@ -80,7 +80,6 @@ def publish_content(db_object, versioned, is_major_update=True):
     # make room for 'extra contents'
     build_extra_contents_path = path.join(tmp_path, settings.ZDS_APP['content']['extra_contents_dirname'])
     makedirs(build_extra_contents_path)
-
     base_name = path.join(build_extra_contents_path, versioned.slug)
 
     # 1. markdown file (base for the others) :
@@ -89,14 +88,12 @@ def publish_content(db_object, versioned, is_major_update=True):
     altered_version.pubdate = datetime.now()
 
     md_file_path = base_name + '.md'
-    PublicatorRegistry.get('md').publish(md_file_path, base_name, versioned=versioned, cur_language=cur_language)
     with contextlib.suppress(OSError):
         Path(Path(md_file_path).parent, 'images').mkdir()
     is_update = False
 
     if db_object.public_version:
         is_update, public_version = update_existing_publication(db_object, versioned)
-
     else:
         public_version = PublishedContent()
 
@@ -107,7 +104,9 @@ def publish_content(db_object, versioned, is_major_update=True):
     public_version.content = db_object
     public_version.must_reindex = True
     public_version.save()
-
+    with contextlib.suppress(FileExistsError):
+        makedirs(public_version.get_extra_contents_directory())
+    PublicatorRegistry.get('md').publish(md_file_path, base_name, versioned=versioned, cur_language=cur_language)
     public_version.char_count = public_version.get_char_count(md_file_path)
     if is_major_update or not is_update:
         public_version.publication_date = datetime.now()
@@ -215,7 +214,13 @@ class PublicatorRegistry:
         """
         if exclude is None:
             exclude = []
-        for key, value in list(cls.registry.items()):
+        order_key = {
+            'zip': 1,
+            'html': 2,
+            'epub': 3,
+            'pdf': 4,
+        }
+        for key, value in sorted(cls.registry.items(), key=lambda k: order_key.get(k[0], 42)):
             if key not in exclude:
                 yield key, value
 
@@ -284,7 +289,7 @@ class MarkdownPublicator(Publicator):
         finally:
             translation.activate(cur_language)
         write_md_file(md_file_path, parsed, versioned)
-        hutil.copy2(md_file_path, md_file_path.replace('__building', ''))
+        shutil.copy2(md_file_path, md_file_path.replace('__building', ''))
 
 
 def _read_flat_markdown(md_file_path):
