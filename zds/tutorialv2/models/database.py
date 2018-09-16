@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from django.db.models import CASCADE
 from datetime import datetime
 import contextlib
@@ -675,10 +677,15 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         """
 
         if type_ in ALLOWED_TYPES:
-            return os.path.isfile(
-                os.path.join(self.get_extra_contents_directory(), self.content_public_slug + '.' + type_))
+            return Path(self.get_extra_contents_directory(), self.content_public_slug + '.' + type_).is_file()
 
         return False
+
+    def is_exported(self):
+        """
+        If the content has at least one export, it returns ``True``
+        """
+        return any(self.has_type(t) for t in ALLOWED_TYPES)
 
     def has_md(self):
         """Check if the flat markdown version of the content is available
@@ -719,6 +726,14 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         :rtype: bool
         """
         return self.has_type('zip')
+
+    def has_tex(self):
+        """Check if the latex version of the content is available
+
+        :return: ``True`` if available, ``False`` otherwise
+        :rtype: bool
+        """
+        return self.has_type('tex')
 
     def get_size_file_type(self, type_):
         """
@@ -765,6 +780,14 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         :rtype: int
         """
         return self.get_size_file_type('pdf')
+
+    def get_size_tex(self):
+        """Get the size of LaTeX file
+
+        :return: size of file
+        :rtype: int
+        """
+        return self.get_size_file_type('tex')
 
     def get_size_epub(self):
         """Get the size of epub
