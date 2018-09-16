@@ -126,7 +126,7 @@ class NewGalleryViewTest(TestCase):
             'subtitle': 'test'})
         self.assertEqual(200, response.status_code)
         self.assertTrue(response.context['form'].errors)
-        self.assertEqual(0, Gallery.objects.count())
+        self.assertEqual(0, Gallery.objects.filter(subtitle='test').count())
 
     def test_success_new_gallery(self):
         login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
@@ -137,10 +137,10 @@ class NewGalleryViewTest(TestCase):
             'title': 'test title', 'subtitle': 'test subtitle'}, follow=True)
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual(1, Gallery.objects.count())
+        self.assertEqual(2, Gallery.objects.count())
 
         user_gallery = UserGallery.objects.filter(user=self.profile1.user)
-        self.assertEqual(1, user_gallery.count())
+        self.assertEqual(2, user_gallery.count())
         self.assertEqual('test title', user_gallery[0].gallery.title)
         self.assertEqual('test subtitle', user_gallery[0].gallery.subtitle)
         self.assertEqual('W', user_gallery[0].mode)
@@ -160,6 +160,10 @@ class ModifyGalleryViewTest(TestCase):
         self.user_gallery1 = UserGalleryFactory(user=self.profile1.user, gallery=self.gallery1)
         self.user_gallery2 = UserGalleryFactory(user=self.profile1.user, gallery=self.gallery2)
         self.user_gallery3 = UserGalleryFactory(user=self.profile2.user, gallery=self.gallery1, mode='R')
+        default_gallery_u1 = GalleryFactory(title='default', slug='default', subtitle='bla')
+        UserGalleryFactory(user=self.profile1.user, gallery=default_gallery_u1, is_default=True)
+        default_gallery_u2 = GalleryFactory(title='default', slug='default', subtitle='bla')
+        UserGalleryFactory(user=self.profile2.user, gallery=default_gallery_u2, is_default=True)
 
     def tearDown(self):
         self.image1.delete()
@@ -171,8 +175,8 @@ class ModifyGalleryViewTest(TestCase):
         login_check = self.client.login(username=self.profile2.user.username, password='hostel77')
         self.assertTrue(login_check)
 
-        self.assertEqual(2, Gallery.objects.all().count())
-        self.assertEqual(3, UserGallery.objects.all().count())
+        self.assertEqual(4, Gallery.objects.all().count())
+        self.assertEqual(5, UserGallery.objects.all().count())
         self.assertEqual(3, Image.objects.all().count())
 
         response = self.client.post(
@@ -185,16 +189,16 @@ class ModifyGalleryViewTest(TestCase):
         )
         self.assertEqual(200, response.status_code)
 
-        self.assertEqual(2, Gallery.objects.all().count())
-        self.assertEqual(3, UserGallery.objects.all().count())
+        self.assertEqual(4, Gallery.objects.all().count())
+        self.assertEqual(5, UserGallery.objects.all().count())
         self.assertEqual(3, Image.objects.all().count())
 
     def test_success_delete_multi_write_permission(self):
         login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
         self.assertTrue(login_check)
 
-        self.assertEqual(2, Gallery.objects.all().count())
-        self.assertEqual(3, UserGallery.objects.all().count())
+        self.assertEqual(4, Gallery.objects.all().count())
+        self.assertEqual(5, UserGallery.objects.all().count())
         self.assertEqual(3, Image.objects.all().count())
 
         response = self.client.post(
@@ -206,8 +210,8 @@ class ModifyGalleryViewTest(TestCase):
             follow=True
         )
         self.assertEqual(200, response.status_code)
-        self.assertEqual(0, Gallery.objects.all().count())
-        self.assertEqual(0, UserGallery.objects.all().count())
+        self.assertEqual(2, Gallery.objects.all().count())
+        self.assertEqual(2, UserGallery.objects.all().count())
         self.assertEqual(0, Image.objects.all().count())
 
     def test_fail_delete_read_permission(self):
@@ -215,8 +219,8 @@ class ModifyGalleryViewTest(TestCase):
         login_check = self.client.login(username=self.profile2.user.username, password='hostel77')
         self.assertTrue(login_check)
 
-        self.assertEqual(2, Gallery.objects.all().count())
-        self.assertEqual(3, UserGallery.objects.all().count())
+        self.assertEqual(4, Gallery.objects.all().count())
+        self.assertEqual(5, UserGallery.objects.all().count())
         self.assertEqual(3, Image.objects.all().count())
 
         response = self.client.post(
@@ -229,16 +233,16 @@ class ModifyGalleryViewTest(TestCase):
         )
         self.assertEqual(403, response.status_code)
 
-        self.assertEqual(2, Gallery.objects.all().count())
-        self.assertEqual(3, UserGallery.objects.all().count())
+        self.assertEqual(4, Gallery.objects.all().count())
+        self.assertEqual(5, UserGallery.objects.all().count())
         self.assertEqual(3, Image.objects.all().count())
 
     def test_success_delete_write_permission(self):
         login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
         self.assertTrue(login_check)
 
-        self.assertEqual(2, Gallery.objects.all().count())
-        self.assertEqual(3, UserGallery.objects.all().count())
+        self.assertEqual(4, Gallery.objects.all().count())
+        self.assertEqual(5, UserGallery.objects.all().count())
         self.assertEqual(3, Image.objects.all().count())
 
         response = self.client.post(
