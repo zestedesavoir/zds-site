@@ -311,6 +311,29 @@ class UtilsTests(TutorialTestMixin, TestCase):
         self.assertEqual(len(json['children']), 1)
         os.unlink(args[0])
 
+    def test_generate_markdown(self):
+        tuto = PublishedContentFactory(type='TUTORIAL')  # generate and publish a tutorial
+        published = PublishedContent.objects.get(content_pk=tuto.pk)
+
+        tuto2 = PublishedContentFactory(type='TUTORIAL')  # generate and publish a second tutorial
+        published2 = PublishedContent.objects.get(content_pk=tuto2.pk)
+
+        self.assertTrue(published.has_md())
+        self.assertTrue(published2.has_md())
+        os.remove(str(Path(published.get_extra_contents_directory(), published.content_public_slug + '.md')))
+        os.remove(str(Path(published2.get_extra_contents_directory(), published2.content_public_slug + '.md')))
+        self.assertFalse(published.has_md())
+        self.assertFalse(published2.has_md())
+        # test command with param
+        call_command('generate_markdown', published.content.pk)
+        self.assertTrue(published.has_md())
+        self.assertFalse(published2.has_md())
+        os.remove(str(Path(published.get_extra_contents_directory(), published.content_public_slug + '.md')))
+        # test command without param
+        call_command('generate_markdown')
+        self.assertTrue(published.has_md())
+        self.assertTrue(published2.has_md())
+
     def test_generate_pdf(self):
         """ensure the behavior of the `python manage.py generate_pdf` commmand"""
 

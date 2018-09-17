@@ -3,6 +3,7 @@ from pathlib import Path
 
 from django.core.management import BaseCommand
 from django.utils import translation
+from django.utils.translation import ugettext_lazy as _
 
 from zds.tutorialv2.models.database import PublishedContent
 from zds.tutorialv2.models.versioned import NotAPublicVersion
@@ -17,7 +18,7 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('id', nargs='*', type=str)
 
-    def handle(self, *_, **options):
+    def handle(self, *__, **options):
         try:
             ids = list(set(options.get('id')[0].replace('id=', '').split(',')))
         except IndexError:
