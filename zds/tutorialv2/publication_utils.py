@@ -289,7 +289,8 @@ class MarkdownPublicator(Publicator):
         finally:
             translation.activate(cur_language)
         write_md_file(md_file_path, parsed, versioned)
-        shutil.copy2(md_file_path, md_file_path.replace('__building', ''))
+        if '__building' in md_file_path:
+            shutil.copy2(md_file_path, md_file_path.replace('__building', ''))
 
 
 def _read_flat_markdown(md_file_path):
