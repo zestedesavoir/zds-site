@@ -299,6 +299,25 @@
 
                     if (elemPopup = this.getElementsByTagName("div")[0]) {
                         elemPopup.style.display = "block";
+
+                        //>> align
+                        var contentX = document.getElementById("content").offsetWidth,
+                            posLeftSide = elemPopup.offsetParent.offsetLeft + elemPopup.offsetWidth,
+                            isNotOut = (posLeftSide <= contentX);
+
+                        elemPopup.style.left = (isNotOut) ? "0" : "inherit";
+                        elemPopup.style.right = (isNotOut) ? "inherit" : "0";
+
+                        var parentLeft = elemPopup.offsetParent.offsetLeft,
+                            posRightSide = parentLeft - elemPopup.offsetWidth;
+                        if (!isNotOut && posRightSide < 0) {
+                            elemPopup.style.right = "inherit";
+                            var left = -parentLeft;
+                            left += Math.max((contentX - elemPopup.offsetWidth) / 2, 0);
+                            elemPopup.style.left = left + "px";
+                        }
+                        //<<
+
                         if(self.currentElemPopup){
                             self.currentElemPopup.style.display = "none";
                         }

@@ -12,7 +12,7 @@
     <ul class="pagination pagination-{{ position }}">
         {% if page_obj.has_previous %}
             <li class="prev">
-                <a href="{% append_query_params page=page_obj.previous_page_number %}{{ full_anchor }}" class="ico-after arrow-left blue">
+                <a href="{% append_query_params page=page_obj.previous_page_number %}{{ full_anchor }}" class="ico-after arrow-left blue" rel="prev">
                     <span>
                         {% trans "Précédente" %}
                     </span>
@@ -28,6 +28,15 @@
                         {% else %}
                             class="current"
                         {% endifnotequal %}
+                        {% if page_nb|add:-1 == page_obj.number %}
+                            rel="next"
+                        {% elif page_nb|add:1 == page_obj.number %}
+                            rel="prev"
+                        {% elif page_nb == 1 %}
+                            rel="first"
+                        {% elif page_nb == pages|length %}
+                            rel="last"
+                        {% endif %}
                     >
                         {{ page_nb }}
                     </a>
@@ -57,7 +66,7 @@
 
         {% if page_obj.has_next %}
             <li class="next">
-                <a href="{% append_query_params page=page_obj.next_page_number %}{{ full_anchor }}" class="ico-after arrow-right blue">
+                <a href="{% append_query_params page=page_obj.next_page_number %}{{ full_anchor }}" class="ico-after arrow-right blue" rel="next">
                     <span>
                         {% trans "Suivante" %}
                     </span>

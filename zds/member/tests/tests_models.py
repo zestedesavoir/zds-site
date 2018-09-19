@@ -1,11 +1,7 @@
-import os
-import shutil
-
 from datetime import datetime, timedelta
 
 from django.conf import settings
 from django.test import TestCase
-from django.test.utils import override_settings
 from django.contrib.auth.models import Group
 from hashlib import md5
 
@@ -14,20 +10,13 @@ from zds.notification.models import TopicAnswerSubscription
 from zds.member.factories import ProfileFactory, StaffProfileFactory, DevProfileFactory
 from zds.member.models import TokenForgotPassword, TokenRegister, Profile
 from zds.tutorialv2.factories import PublishableContentFactory, PublishedContentFactory
+from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.gallery.factories import GalleryFactory, ImageFactory
 from zds.utils.models import Alert, Hat
-from copy import deepcopy
-
-overridden_zds_app = deepcopy(settings.ZDS_APP)
-overridden_zds_app['content']['repo_private_path'] = os.path.join(settings.BASE_DIR, 'contents-private-test')
-overridden_zds_app['content']['repo_public_path'] = os.path.join(settings.BASE_DIR, 'contents-public-test')
-overridden_zds_app['content']['extra_content_generation_policy'] = 'SYNC'
-overridden_zds_app['content']['build_pdf_when_published'] = False
 
 
-@override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'media-test'))
-@override_settings(ZDS_APP=overridden_zds_app)
-class MemberModelsTest(TestCase):
+@override_for_contents()
+class MemberModelsTest(TutorialTestMixin, TestCase):
 
     def setUp(self):
         self.user1 = ProfileFactory()
@@ -436,14 +425,6 @@ class MemberModelsTest(TestCase):
         self.user1.save()
         # the user shound't have the hat through their profile
         self.assertNotIn(hat, self.user1.hats.all())
-
-    def tearDown(self):
-        if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
-            shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
-        if os.path.isdir(settings.ZDS_APP['content']['repo_public_path']):
-            shutil.rmtree(settings.ZDS_APP['content']['repo_public_path'])
-        if os.path.isdir(settings.MEDIA_ROOT):
-            shutil.rmtree(settings.MEDIA_ROOT)
 
 
 class TestTokenForgotPassword(TestCase):

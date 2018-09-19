@@ -54,7 +54,7 @@
         {% endif %}
     </div>
     <div class="gallery-col-edit">
-        {% if gallery_mode.can_write %}
+        {% if permissions.write %}
             {% crispy form %}
             <hr class="clearfix">
         {% endif %}
