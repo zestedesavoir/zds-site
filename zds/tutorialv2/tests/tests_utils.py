@@ -5,7 +5,6 @@ import datetime
 
 from django.conf import settings
 from django.test import TestCase
-from django.test.utils import override_settings
 from django.core.urlresolvers import reverse
 
 from zds.member.factories import ProfileFactory, StaffProfileFactory
@@ -22,31 +21,19 @@ from django.core.management import call_command
 from zds.tutorialv2.publication_utils import Publicator, PublicatorRegistry
 from watchdog.events import FileCreatedEvent
 from zds.tutorialv2.management.commands.publication_watchdog import TutorialIsPublished
-from zds.tutorialv2.tests import TutorialTestMixin
+from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from mock import Mock
-from copy import deepcopy
 from zds import json_handler
 from zds.utils.models import Alert
 from zds.utils.header_notifications import get_header_notifications
 
-BASE_DIR = settings.BASE_DIR
 
-overridden_zds_app = deepcopy(settings.ZDS_APP)
-overridden_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
-overridden_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
-overridden_zds_app['content']['build_pdf_when_published'] = False
-
-
-@override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
-@override_settings(ZDS_APP=overridden_zds_app)
-@override_settings(ES_ENABLED=False)
-@override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
+@override_for_contents()
 class UtilsTests(TutorialTestMixin, TestCase):
 
     def setUp(self):
-        self.overridden_zds_app = overridden_zds_app
         self.mas = ProfileFactory().user
-        overridden_zds_app['member']['bot_account'] = self.mas.username
+        self.overridden_zds_app['member']['bot_account'] = self.mas.username
 
         self.licence = LicenceFactory()
 
@@ -278,13 +265,13 @@ class UtilsTests(TutorialTestMixin, TestCase):
     def test_update_manifest(self):
         opts = {}
         shutil.copy(
-            os.path.join(BASE_DIR, 'fixtures', 'tuto', 'balise_audio', 'manifest.json'),
-            os.path.join(BASE_DIR, 'fixtures', 'tuto', 'balise_audio', 'manifest2.json')
+            os.path.join(settings.BASE_DIR, 'fixtures', 'tuto', 'balise_audio', 'manifest.json'),
+            os.path.join(settings.BASE_DIR, 'fixtures', 'tuto', 'balise_audio', 'manifest2.json')
         )
         LicenceFactory(code='CC BY')
-        args = [os.path.join(BASE_DIR, 'fixtures', 'tuto', 'balise_audio', 'manifest2.json')]
+        args = [os.path.join(settings.BASE_DIR, 'fixtures', 'tuto', 'balise_audio', 'manifest2.json')]
         call_command('upgrade_manifest_to_v2', *args, **opts)
-        manifest = open(os.path.join(BASE_DIR, 'fixtures', 'tuto', 'balise_audio', 'manifest2.json'), 'r')
+        manifest = open(os.path.join(settings.BASE_DIR, 'fixtures', 'tuto', 'balise_audio', 'manifest2.json'), 'r')
         json = json_handler.loads(manifest.read())
 
         self.assertTrue('version' in json)
@@ -293,13 +280,13 @@ class UtilsTests(TutorialTestMixin, TestCase):
         self.assertEqual(len(json['children']), 3)
         self.assertEqual(json['children'][0]['object'], 'extract')
         os.unlink(args[0])
-        args = [os.path.join(BASE_DIR, 'fixtures', 'tuto', 'big_tuto_v1', 'manifest2.json')]
+        args = [os.path.join(settings.BASE_DIR, 'fixtures', 'tuto', 'big_tuto_v1', 'manifest2.json')]
         shutil.copy(
-            os.path.join(BASE_DIR, 'fixtures', 'tuto', 'big_tuto_v1', 'manifest.json'),
-            os.path.join(BASE_DIR, 'fixtures', 'tuto', 'big_tuto_v1', 'manifest2.json')
+            os.path.join(settings.BASE_DIR, 'fixtures', 'tuto', 'big_tuto_v1', 'manifest.json'),
+            os.path.join(settings.BASE_DIR, 'fixtures', 'tuto', 'big_tuto_v1', 'manifest2.json')
         )
         call_command('upgrade_manifest_to_v2', *args, **opts)
-        manifest = open(os.path.join(BASE_DIR, 'fixtures', 'tuto', 'big_tuto_v1', 'manifest2.json'), 'r')
+        manifest = open(os.path.join(settings.BASE_DIR, 'fixtures', 'tuto', 'big_tuto_v1', 'manifest2.json'), 'r')
         json = json_handler.loads(manifest.read())
         os.unlink(args[0])
         self.assertTrue('version' in json)
@@ -309,13 +296,13 @@ class UtilsTests(TutorialTestMixin, TestCase):
         self.assertEqual(json['children'][0]['object'], 'container')
         self.assertEqual(len(json['children'][0]['children']), 3)
         self.assertEqual(len(json['children'][0]['children'][0]['children']), 3)
-        args = [os.path.join(BASE_DIR, 'fixtures', 'tuto', 'article_v1', 'manifest2.json')]
+        args = [os.path.join(settings.BASE_DIR, 'fixtures', 'tuto', 'article_v1', 'manifest2.json')]
         shutil.copy(
-            os.path.join(BASE_DIR, 'fixtures', 'tuto', 'article_v1', 'manifest.json'),
-            os.path.join(BASE_DIR, 'fixtures', 'tuto', 'article_v1', 'manifest2.json')
+            os.path.join(settings.BASE_DIR, 'fixtures', 'tuto', 'article_v1', 'manifest.json'),
+            os.path.join(settings.BASE_DIR, 'fixtures', 'tuto', 'article_v1', 'manifest2.json')
         )
         call_command('upgrade_manifest_to_v2', *args, **opts)
-        manifest = open(os.path.join(BASE_DIR, 'fixtures', 'tuto', 'article_v1', 'manifest2.json'), 'r')
+        manifest = open(os.path.join(settings.BASE_DIR, 'fixtures', 'tuto', 'article_v1', 'manifest2.json'), 'r')
         json = json_handler.loads(manifest.read())
 
         self.assertTrue('version' in json)
@@ -327,7 +314,7 @@ class UtilsTests(TutorialTestMixin, TestCase):
     def test_generate_pdf(self):
         """ensure the behavior of the `python manage.py generate_pdf` commmand"""
 
-        overridden_zds_app['content']['build_pdf_when_published'] = True  # this test need PDF build, if any
+        self.overridden_zds_app['content']['build_pdf_when_published'] = True  # this test need PDF build, if any
 
         tuto = PublishedContentFactory(type='TUTORIAL')  # generate and publish a tutorial
         published = PublishedContent.objects.get(content_pk=tuto.pk)
@@ -485,7 +472,7 @@ class UtilsTests(TutorialTestMixin, TestCase):
             self.assertFalse(check_slug(s))
 
         # too long slugs are forbidden :
-        too_damn_long_slug = 'a' * (overridden_zds_app['content']['maximum_slug_size'] + 1)
+        too_damn_long_slug = 'a' * (self.overridden_zds_app['content']['maximum_slug_size'] + 1)
         self.assertFalse(check_slug(too_damn_long_slug))
 
     def test_watchdog(self):

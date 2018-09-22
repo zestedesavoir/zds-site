@@ -14,6 +14,7 @@
                         href="{{ previous.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}"
                     {% endif %}
                     class="ico-after arrow-left"
+                    rel="prev"
                 >
                     {{ previous.title }}
                 </a>
@@ -47,6 +48,7 @@
                         href="{{ next.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}"
                     {% endif %}
                     class="ico-after arrow-right"
+                    rel="next"
                 >
                     {{ next.title }}
                 </a>

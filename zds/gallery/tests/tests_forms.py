@@ -3,6 +3,7 @@ import os
 from django.test import TestCase
 from django.core.files.uploadedfile import SimpleUploadedFile
 
+from zds.gallery.factories import GalleryFactory
 from zds.gallery.forms import GalleryForm, UserGalleryForm, ImageForm, ImageAsAvatarForm, ArchiveImageForm
 from zds.member.factories import ProfileFactory
 from django.conf import settings
@@ -44,20 +45,24 @@ class UserGalleryFormTest(TestCase):
         self.profile = ProfileFactory()
 
     def test_valid_user_gallery_form(self):
+        gallery = GalleryFactory()
         data = {
+            'action': 'add',
             'user': self.profile,
             'mode': 'R'
         }
-        form = UserGalleryForm(data=data)
+        form = UserGalleryForm(gallery=gallery, data=data)
 
         self.assertTrue(form.is_valid())
 
     def test_invalid_user_gallery_form_noexist_user(self):
+        gallery = GalleryFactory()
         data = {
+            'action': 'add',
             'user': 'hello',
             'mode': 'W'
         }
-        form = UserGalleryForm(data=data)
+        form = UserGalleryForm(gallery=gallery, data=data)
 
         self.assertFalse(form.is_valid())
 

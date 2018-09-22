@@ -1,6 +1,4 @@
-import os
 from zds import json_handler
-import shutil
 import datetime
 
 from elasticsearch_dsl import Search
@@ -8,7 +6,6 @@ from elasticsearch_dsl.query import MatchAll
 
 from django.conf import settings
 from django.test import TestCase
-from django.test.utils import override_settings
 from django.core.urlresolvers import reverse
 
 from zds.forum.factories import TopicFactory, PostFactory, Topic, Post, TagFactory
@@ -18,21 +15,13 @@ from zds.searchv2.models import ESIndexManager
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, publish_content, \
     PublishedContentFactory, SubCategoryFactory
 from zds.tutorialv2.models.database import PublishedContent, FakeChapter, PublishableContent
-from copy import deepcopy
-
-overridden_zds_app = deepcopy(settings.ZDS_APP)
-overridden_zds_app['content']['repo_private_path'] = os.path.join(settings.BASE_DIR, 'contents-private-test')
-overridden_zds_app['content']['repo_public_path'] = os.path.join(settings.BASE_DIR, 'contents-public-test')
+from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 
 
-@override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'media-test'))
-@override_settings(ZDS_APP=overridden_zds_app)
-# 1 shard is not a recommended setting, but since document on different shards may have different scores, it is ok here
-@override_settings(ES_SEARCH_INDEX={'name': 'zds_search_test', 'shards': 1, 'replicas': 0})
-class ViewsTests(TestCase):
+@override_for_contents(
+    ES_ENABLED=True, ES_SEARCH_INDEX={'name': 'zds_search_test', 'shards': 1, 'replicas': 0})
+class ViewsTests(TutorialTestMixin, TestCase):
     def setUp(self):
-        # don't build PDF to speed up the tests
-        settings.ZDS_APP['content']['build_pdf_when_published'] = False
 
         settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
         self.mas = ProfileFactory().user
@@ -960,15 +949,7 @@ class ViewsTests(TestCase):
             tuto_2.slug + '__' + chapter_2.slug)
 
     def tearDown(self):
-        if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
-            shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
-        if os.path.isdir(settings.ZDS_APP['content']['repo_public_path']):
-            shutil.rmtree(settings.ZDS_APP['content']['repo_public_path'])
-        if os.path.isdir(settings.MEDIA_ROOT):
-            shutil.rmtree(settings.MEDIA_ROOT)
-
-        # re-active PDF build
-        settings.ZDS_APP['content']['build_pdf_when_published'] = True
+        super().tearDown()
 
         # delete index:
         self.manager.clear_es_index()

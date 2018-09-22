@@ -27,7 +27,10 @@ Nous possédons un ensemble de données sérialisées dans le dossier fixtures:
     - ïtrema/ïtrema un utilisateur normal, sans problème mais qui aime l'utf8
     - Anonymous/anonymous : le compte d'anonymisation
     - External/external: le compte pour accueillir les cours externes des auteurs ne voulant pas devenir membre ou quittant le site
-    - decal/decal: le compte qui possède un identifiant ``Profile`` différent de l'identifiant ``user`` pour permettre de tester des cas ou ces id sont différents (voir  `#2711 <https://github.com/zestedesavoir/zds-site/issues/2711>`_)
+    - decal/decal: le compte qui possède un identifiant ``Profile`` différent de l'identifiant ``user`` pour permettre de tester des cas ou ces id sont différents
+- ``oauth_applications.yaml``: crée une application de test `pour l'API <../api.html>`_:
+    - ``client_id``: ``w14aIFqE7z90ti1rXE8hCRMRUOPBP4rXpfLZIKmT`` ;
+    - ``client_secret``: ``0q4ee800NWs8cSHa0FIbkTLwEncMqYHOCAxNkt9zRmd10bRk1J18TkbviO5QHy2b66ggzyLADm79tJw5BQf2XfApPnk0nogcFaYhtNO33uNlzzT8sXfxu3zzBFu5Wejv``.
 - ``group.yaml``: crée les descriptions de deux groupes de la page d'accueil (staff et groupe technique)
 
 De ce fait, le moyen le plus simple de charger l'ensemble des données de base est la commande ``make fixtures``.
