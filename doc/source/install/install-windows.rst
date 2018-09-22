@@ -1,16 +1,11 @@
-====================================
-Installation du backend sous Windows
-====================================
-
------------
+=========================
+Installation sous Windows
+=========================
 
 .. Attention::
 
     Cette partie de la documentation n'est probablement pas à jour faute de contributeur utilisant Windows. Il se peut que l'installation et les tests unitaires fonctionnent correctement, partiellement ou pas du tout. Bref, en cas de problème n'hésitez pas à venir demander de l'aide sur le `forum des Devs' de Zeste de Savoir <https://zestedesavoir.com/forums/communaute/dev-zone/>`_ !
     Notons que le support des SVG est désactivé sur windows.
-
------------
-
 
 Pour installer une version locale de ZdS sur Windows, veuillez suivre les instructions suivantes.
 Si une commande ne passe pas, essayez de savoir pourquoi avant de continuer.
@@ -21,13 +16,11 @@ Il est conseillé de lancer à chaque fois PowerShell en administrateur pour les
 
     cd C:\dev\zestedesavoir
 
------------
 
 .. Attention::
 
     Il est fortement recommandé (pour des raisons de compatibilité), que tous les programmes à installer soient en 32 bits ou en 64 bits. Il est conseillé de ne pas mélanger les deux.
 
------------
 
 Prérequis
 =========
@@ -87,23 +80,37 @@ se trouve le virtualenv et son accessibilité par PyCharm. PyCharm vous notifier
     Vous pouvez installer les dépendances depuis PowerShell ou bien aller dans l'onglet Tools des settings puis dans la partie "Python Integration" pour y changer temporairement le chemin vers le fichier de dépendances.
 
 
-Installation des outils front-end
-=================================
+Installation des outils front-end et de zmarkdown
+=================================================
 
-Il vous faut installer les outils du front-end. Pour cela, rendez-vous sur `la documentation dédiée <frontend-install.html>`_.
+Il vous faut installer les outils du front-end.
+Pour cela, rendez-vous sur `la documentation dédiée <extra-install-frontend.html>`_.
+Ensuite, `installez zmarkdown <extra-zmd.html>`_
 
-Suite de l'installation
-=======================
+Suite et fin de l'installation
+==============================
 
-- Dans la console PowerShell via l'environnement zdsenv installez les dépendances.
-    - ``easy_install lxml``
-    - ``pip install --upgrade -r requirements-dev.txt``
-    - Cairo, disponible `ici <https://www.cairographics.org/download>`_
-    - GTK+ (qui contient les DLL de Cairo) disponible `ici <http://downloads.sourceforge.net/gladewin32/gtk-2.12.9-win32-2.exe>`_
-    - ``python manage.py migrate``
-    - ``python manage.py runserver``
+Dans la console PowerShell via l'environnement zdsenv installez les dépendances:
 
-Pour faire fonctionner ZdS dans son ensemble vous devez installer les outils LateX et Pandoc.
+- ``easy_install lxml`` ;
+- ``pip install --upgrade -r requirements-dev.txt``
+- Cairo, disponible `ici <https://www.cairographics.org/download>`_ ;
+- GTK+ (qui contient les DLL de Cairo) disponible `ici <http://downloads.sourceforge.net/gladewin32/gtk-2.12.9-win32-2.exe>`_ ;
+- ``python .\manage.py migrate`` ;
+- ``python .\manage.py loaddata (dir .\fixtures\*.yaml)``, puis ``python .\manage.py load_factory_data .\fixtures\advanced\aide_tuto_media.yaml``, afin de créer `le jeu de données utile au dévellopement <../utils/fixture_loaders.html>`_.
 
-- Téléchargez et installez `MikTex <http://miktex.org/download>`_
-- Téléchargez et installez `Pandoc <https://github.com/jgm/pandoc/releases>`_
+On peut finalement lancer ZdS:
+
+- ``cd zmd/node_modules/zmarkdown && npm run server`` `pour zmarkdown <extra-zmd.html#utilisation>`_ ;
+- ``python manage.py runserver``
+
+
+Aller plus loin
+===============
+
+Pour faire fonctionner ZdS dans son ensemble vous devez installer les outils LateX et Elasticsearch:
+
+- `Installez Elasticsearch <extra-install-es.html>`_ ;
+- `Installez LaTeX <extra-install-latex.html>`_.
+
+Vous pouvez également `indiquer à Git de ne pas effectuer de commit s'il y a des erreurs de formatage dans le code <../utils/git-pre-hook.html>`__.

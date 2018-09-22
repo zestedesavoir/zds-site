@@ -3,6 +3,7 @@
 #############
 base.db
 .sass-cache/
+.local/
 /static
 /tutoriels-private
 /tutoriels-public
