@@ -1,10 +1,6 @@
-import os
-
 import datetime
-from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.test import TestCase
-from django.test.utils import override_settings
 from django.utils.translation import ugettext_lazy as _
 
 from zds.gallery.factories import UserGalleryFactory
@@ -12,25 +8,17 @@ from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.factories import (PublishableContentFactory, ExtractFactory, LicenceFactory,
                                       PublishedContentFactory, SubCategoryFactory)
 from zds.tutorialv2.models.database import PublishableContent, PublishedContent, PickListOperation
-from zds.tutorialv2.tests import TutorialTestMixin
+from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.utils.models import Alert
-from copy import deepcopy
-
-overridden_zds_app = deepcopy(settings.ZDS_APP)
-overridden_zds_app['content']['repo_private_path'] = os.path.join(settings.BASE_DIR, 'contents-private-test')
-overridden_zds_app['content']['repo_public_path'] = os.path.join(settings.BASE_DIR, 'contents-public-test')
-overridden_zds_app['content']['extra_content_generation_policy'] = 'NONE'
 
 
-@override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'media-test'))
-@override_settings(ZDS_APP=overridden_zds_app)
-@override_settings(ES_ENABLED=False)
+@override_for_contents()
 class PublishedContentTests(TutorialTestMixin, TestCase):
     def setUp(self):
-        self.overridden_zds_app = overridden_zds_app
-        overridden_zds_app['member']['bot_account'] = ProfileFactory().user.username
+
+        self.overridden_zds_app['member']['bot_account'] = ProfileFactory().user.username
         self.licence = LicenceFactory()
-        overridden_zds_app['content']['default_licence_pk'] = LicenceFactory().pk
+
         self.user_author = ProfileFactory().user
         self.user_staff = StaffProfileFactory().user
         self.user_guest = ProfileFactory().user

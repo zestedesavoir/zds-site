@@ -1,11 +1,6 @@
-import os
-import shutil
-from copy import deepcopy
 from datetime import datetime, date
 from django.core.urlresolvers import reverse
-from django.conf import settings
 from django.test import TestCase
-from django.test.utils import override_settings
 from django.utils.translation import ugettext as _
 
 from zds.member.factories import StaffProfileFactory, ProfileFactory
@@ -14,11 +9,7 @@ from zds.featured.models import FeaturedResource, FeaturedMessage
 from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory
 from zds.gallery.factories import GalleryFactory, ImageFactory
 from zds.tutorialv2.factories import PublishedContentFactory
-
-
-overridden_zds_app = deepcopy(settings.ZDS_APP)
-overridden_zds_app['content']['repo_private_path'] = os.path.join(settings.BASE_DIR, 'contents-private-test')
-overridden_zds_app['content']['repo_public_path'] = os.path.join(settings.BASE_DIR, 'contents-public-test')
+from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 
 
 stringof2001chars = 'http://url.com/'
@@ -58,13 +49,8 @@ class FeaturedResourceListViewTest(TestCase):
         self.assertEqual(403, response.status_code)
 
 
-@override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'media-test'))
-@override_settings(ZDS_APP=overridden_zds_app)
-@override_settings(ES_ENABLED=False)
-class FeaturedResourceCreateViewTest(TestCase):
-    def setUp(self):
-        # don't build PDF to speed up the tests
-        overridden_zds_app['content']['build_pdf_when_published'] = False
+@override_for_contents()
+class FeaturedResourceCreateViewTest(TutorialTestMixin, TestCase):
 
     def test_success_create_featured(self):
         staff = StaffProfileFactory()
@@ -181,12 +167,12 @@ class FeaturedResourceCreateViewTest(TestCase):
         )
         self.assertTrue(login_check)
         response = self.client.get('{}{}'.format(reverse('featured-resource-create'),
-                                                 '?content_type=published_content&content_id=1'))
+                                                 '?content_type=published_content&content_id={}'.format(tutorial.pk)))
         initial_dict = response.context['form'].initial
         self.assertEqual(initial_dict['title'], tutorial.title)
         self.assertEqual(initial_dict['authors'], '{}, {}'.format(author, author2))
         self.assertEqual(initial_dict['type'], _('Un tutoriel'))
-        self.assertEqual(initial_dict['url'], 'http://testserver/tutoriels/1/mon-contenu-no0/')
+        self.assertEqual(initial_dict['url'], 'http://testserver{}'.format(tutorial.get_absolute_url_online()))
         self.assertEqual(initial_dict['image_url'], image.physical.url)
 
     def test_success_initial_content_topic(self):
@@ -218,14 +204,6 @@ class FeaturedResourceCreateViewTest(TestCase):
         response = self.client.get('{}?content_type=published_content&content_id=42'
                                    .format(reverse('featured-resource-create')))
         self.assertContains(response, _('Le contenu est introuvable'))
-
-    def tearDown(self):
-        if os.path.isdir(overridden_zds_app['content']['repo_private_path']):
-            shutil.rmtree(overridden_zds_app['content']['repo_private_path'])
-        if os.path.isdir(overridden_zds_app['content']['repo_public_path']):
-            shutil.rmtree(overridden_zds_app['content']['repo_public_path'])
-        if os.path.isdir(settings.MEDIA_ROOT):
-            shutil.rmtree(settings.MEDIA_ROOT)
 
 
 class FeaturedResourceUpdateViewTest(TestCase):

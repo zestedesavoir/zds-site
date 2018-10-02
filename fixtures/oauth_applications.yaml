@@ -1,0 +1,11 @@
+-   model: oauth2_provider.application
+    pk: 1
+    fields:
+        client_id: w14aIFqE7z90ti1rXE8hCRMRUOPBP4rXpfLZIKmT
+        user: 1
+        client_type: confidential
+        authorization_grant_type: password
+        client_secret: 0q4ee800NWs8cSHa0FIbkTLwEncMqYHOCAxNkt9zRmd10bRk1J18TkbviO5QHy2b66ggzyLADm79tJw5BQf2XfApPnk0nogcFaYhtNO33uNlzzT8sXfxu3zzBFu5Wejv
+        name: ZdS API test
+        created: 2018-08-12 12:00
+        updated: 2018-08-12 12:00
