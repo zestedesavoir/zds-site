@@ -52,7 +52,7 @@
                 </div>
             {% endfor %}
         </div>
-        {% include "misc/paginator.html" with position="bottom" %}
+        
 
         <a href="#form-delete-featured" class="btn btn-cancel open-modal">
             {% trans "Supprimer la sélection" %}
@@ -61,6 +61,7 @@
         <button class="toggle-gallery-view btn btn-grey" type="button" title="{% trans 'Alterner entre les modes de vue grille et liste' %}">
             {% trans "Vue grille" %}
         </button>
+        {% include "misc/paginator.html" with position="bottom" %}
 
         <!-- Confirmation modal for deleting featured -->
         <form id="form-delete-featured" name="form" method="post" action="{% url "featured-resource-list-delete" %}" class="modal modal-flex">
