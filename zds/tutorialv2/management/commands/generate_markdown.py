@@ -13,7 +13,7 @@ from zds.tutorialv2.publication_utils import PublicatorRegistry, FailureDuringPu
 class Command(BaseCommand):
     args = '[id=1,2,3,4,5]'
     help = 'Generate markdown of published contents'
-    # python manage.py generate_pdf id=3
+    # python manage.py generate_markdown id=3
 
     def add_arguments(self, parser):
         parser.add_argument('id', nargs='*', type=str)
