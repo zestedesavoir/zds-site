@@ -666,6 +666,7 @@
 
 
 (function($, undefined){
+    var csrf = $("input[name=csrfmiddlewaretoken]").val();
     $(".md-editor").on("keydown", function(e){
         // the message is submitted if the user is pressing Ctrl or Cmd with Enter and isn't pressing Alt or Shift
         if((e.ctrlKey || e.metaKey) && e.which === 13 && !e.altKey && !e.shiftKey){
@@ -675,31 +676,43 @@
         }
     }).on('dragenter', function(e) {
         e.preventDefault();
-        $(e.target).addClass('selected')
+        $(e.target).addClass('selected');
     }).on('dragover', function(e) {
         e.preventDefault();
     }).on('dragleave', function(e) {
         e.preventDefault();
-        $(e.target).removeClass('selected')
+        $(e.target).removeClass('selected');
     }).on('drop', function (e) {
         e.preventDefault();
-        const editor = $(e.target);
-        const files = e.dataTransfer.files;
-        const galleryUrl = `/api/gallery/${document.body.getAttribute('data-gallery')}/images/`
-        files.each(function (f) {
-            const mdWaitingCode = `![${f.name} en cours de téléchargement]()`;
-            editor.val(`${editor.val()}\n${mdWaitingCode}` );
-            const formData = new FormData();
+        var editor = $(e.target);
+        var files = e.originalEvent.dataTransfer.files;
+        var galleryUrl = '/api/galeries/'+ document.body.getAttribute('data-gallery') + '/images/';
+        Object.values(files).forEach(function (f) {
+            var mdWaitingCode = '![' + f.name + ' en cours de téléchargement]()';
+            var mdWaitingRegexp = mdWaitingCode.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+            editor.val(editor.val() + '\n' + mdWaitingCode );
+            var formData = new FormData();
             formData.append('physical', f);
             formData.append('title', f.name);
-            $.post(galleryUrl, {}).done(function (result) {
-                const mdFinalCode = `![${result.legend}](/media/${result.physical}`;
+            // TODO : fix multi file handler
+            $.ajax(
+                {url: galleryUrl,
+                    data: formData, type: 'POST',
+                    processData: false,
+                    contentType: false,
+                    headers: {
+                        "X-CSRFToken": csrf
+                    },
+                    dataType: 'json'
+                }).done(function (result) {
+                var mdFinalCode = '![' + result.legend + '](' + result.url +')';
 
-                editor.val(editor.val().replace(new RegExp(mdWaitingCode), mdFinalCode));
+                editor.val(editor.val().replace(new RegExp(mdWaitingRegexp), mdFinalCode));
             }).fail(function () {
-                editor.val(editor.val().replace(new RegExp(mdWaitingCode), ''));
+                editor.val(editor.val().replace(new RegExp(mdWaitingRegexp), ''));
             });
         });
+        $(e.target).removeClass('selected');
     });
 
     "use strict";
