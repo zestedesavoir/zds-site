@@ -666,8 +666,6 @@
 
 
 (function($, undefined){
-    "use strict";
-
     $(".md-editor").on("keydown", function(e){
         // the message is submitted if the user is pressing Ctrl or Cmd with Enter and isn't pressing Alt or Shift
         if((e.ctrlKey || e.metaKey) && e.which === 13 && !e.altKey && !e.shiftKey){
@@ -675,5 +673,34 @@
 
             $(".message-submit > button[name=answer]").click();
         }
+    }).on('dragenter', function(e) {
+        e.preventDefault();
+        $(e.target).addClass('selected')
+    }).on('dragover', function(e) {
+        e.preventDefault();
+    }).on('dragleave', function(e) {
+        e.preventDefault();
+        $(e.target).removeClass('selected')
+    }).on('drop', function (e) {
+        e.preventDefault();
+        const editor = $(e.target);
+        const files = e.dataTransfer.files;
+        const galleryUrl = `/api/gallery/${document.body.getAttribute('data-gallery')}/images/`
+        files.each(function (f) {
+            const mdWaitingCode = `![${f.name} en cours de téléchargement]()`;
+            editor.val(`${editor.val()}\n${mdWaitingCode}` );
+            const formData = new FormData();
+            formData.append('physical', f);
+            formData.append('title', f.name);
+            $.post(galleryUrl, {}).done(function (result) {
+                const mdFinalCode = `![${result.legend}](/media/${result.physical}`;
+
+                editor.val(editor.val().replace(new RegExp(mdWaitingCode), mdFinalCode));
+            }).fail(function () {
+                editor.val(editor.val().replace(new RegExp(mdWaitingCode), ''));
+            });
+        });
     });
+
+    "use strict";
 })(jQuery);
