@@ -664,8 +664,44 @@
     }) (zForm));
 })(window, document);
 
+function uploadImage (e, dataTransferAttr, csrf){
+    var editor = $(e.target);
+    // need to use window[dataTransferAttr for IE-11
+    var dataTransfert = e.originalEvent[dataTransferAttr] || window[dataTransferAttr];
+    var files = dataTransfert.files;
+    if (!files) {
+        return true;
+    }
+    var galleryUrl = '/api/galeries/'+ document.body.getAttribute('data-gallery') + '/images/';
+    Object.values(files).forEach(function (f) {
+        var mdWaitingCode = '![' + f.name + ' en cours de téléchargement]()';
+        var mdWaitingRegexp = mdWaitingCode.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+        editor.val(editor.val() + '\n' + mdWaitingCode );
+        var formData = new FormData();
+        formData.append('physical', f);
+        formData.append('title', f.name);
+        // WARN: if you test zds with sqlite, you can't upload multiple files at a time
+        $.ajax(
+            {url: galleryUrl,
+                data: formData, type: 'POST',
+                processData: false,
+                contentType: false,
+                headers: {
+                    "X-CSRFToken": csrf
+                },
+                dataType: 'json'
+            }).done(function (result) {
+            var mdFinalCode = '![' + result.legend + '](' + result.url +')';
+
+            editor.val(editor.val().replace(new RegExp(mdWaitingRegexp), mdFinalCode));
+        }).fail(function () {
+            editor.val(editor.val().replace(new RegExp(mdWaitingRegexp), ''));
+        });
+    });
+}
 
 (function($, undefined){
+
     var csrf = $("input[name=csrfmiddlewaretoken]").val();
     $(".md-editor").on("keydown", function(e){
         // the message is submitted if the user is pressing Ctrl or Cmd with Enter and isn't pressing Alt or Shift
@@ -684,35 +720,14 @@
         $(e.target).removeClass('selected');
     }).on('drop', function (e) {
         e.preventDefault();
-        var editor = $(e.target);
-        var files = e.originalEvent.dataTransfer.files;
-        var galleryUrl = '/api/galeries/'+ document.body.getAttribute('data-gallery') + '/images/';
-        Object.values(files).forEach(function (f) {
-            var mdWaitingCode = '![' + f.name + ' en cours de téléchargement]()';
-            var mdWaitingRegexp = mdWaitingCode.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-            editor.val(editor.val() + '\n' + mdWaitingCode );
-            var formData = new FormData();
-            formData.append('physical', f);
-            formData.append('title', f.name);
-            // TODO : fix multi file handler
-            $.ajax(
-                {url: galleryUrl,
-                    data: formData, type: 'POST',
-                    processData: false,
-                    contentType: false,
-                    headers: {
-                        "X-CSRFToken": csrf
-                    },
-                    dataType: 'json'
-                }).done(function (result) {
-                var mdFinalCode = '![' + result.legend + '](' + result.url +')';
-
-                editor.val(editor.val().replace(new RegExp(mdWaitingRegexp), mdFinalCode));
-            }).fail(function () {
-                editor.val(editor.val().replace(new RegExp(mdWaitingRegexp), ''));
-            });
-        });
+        uploadImage(e, "dataTransfer", csrf);
         $(e.target).removeClass('selected');
+    }).on("paste", function(e) {
+        if (!e.originalEvent.clipboardData || !e.originalEvent.clipboardData.files.length) {
+            return;
+        }
+        e.preventDefault();
+        uploadImage(e, "clipboardData", csrf);
     });
 
     "use strict";
