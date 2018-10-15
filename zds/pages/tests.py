@@ -5,9 +5,8 @@ from django.test.utils import override_settings
 from django.utils.translation import ugettext_lazy as _
 
 from zds.forum.models import Post
-from zds.forum.factories import CategoryFactory, ForumFactory
+from zds.forum.factories import create_category_and_forum, create_topic_in_forum
 from zds.member.factories import ProfileFactory, StaffProfileFactory
-from zds.forum.tests.tests_views import create_category, add_topic_in_a_forum
 from zds.utils.models import CommentEdit
 from zds.utils.templatetags.emarkdown import render_markdown
 
@@ -71,8 +70,7 @@ class PagesMemberTests(TestCase):
         """
         To test the "subscription to the association" form.
         """
-        forum_category = CategoryFactory(position=1)
-        forum = ForumFactory(category=forum_category, position_in_category=1)
+        _, forum = create_category_and_forum()
 
         # overrides the settings to avoid 404 if forum does not exist
         settings.ZDS_APP['site']['association']['forum_ca_pk'] = forum.pk
@@ -241,8 +239,8 @@ class CommentEditsHistoryTests(TestCase):
         self.user = ProfileFactory().user
         self.staff = StaffProfileFactory().user
 
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, self.user.profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, self.user.profile)
 
         self.assertTrue(self.client.login(username=self.user.username, password='hostel77'))
         data = {
