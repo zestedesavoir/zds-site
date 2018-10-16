@@ -1,4 +1,5 @@
 from django.http.request import HttpRequest
+from django.utils.translation import ugettext as _
 from zds.gallery.models import Gallery, UserGallery, GALLERY_WRITE
 from zds.tutorialv2.models.database import PublishableContent
 
@@ -23,7 +24,7 @@ def _get_default_gallery(user):
 
     user_default_gallery = UserGallery.objects.filter(user=user, is_default=True).first()
     if not user_default_gallery:
-        gallery = Gallery(title='Gallerie par défaut', subtitle='', slug='gallerie-default')
+        gallery = Gallery(title=_('Galerie par défaut'), subtitle='', slug=_('galerie-par-default'))
         gallery.save()
         UserGallery(user=user, is_default=True, gallery=gallery, mode=GALLERY_WRITE).save()
     else:
