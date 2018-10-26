@@ -43,10 +43,13 @@ def _render_markdown_once(md_input, *, output_format='html', **kwargs):
     endpoint = FORMAT_ENDPOINTS[output_format]
 
     try:
+        timeout = 10
+        if output_format.startswith('tex'):
+            timeout = 30
         response = post('{}{}'.format(settings.ZDS_APP['zmd']['server'], endpoint), json={
             'opts': kwargs,
             'md': str(md_input),
-        }, timeout=10)
+        }, timeout=timeout)
     except HTTPError:
         logger.exception('An HTTP error happened, markdown rendering failed')
         log_args()

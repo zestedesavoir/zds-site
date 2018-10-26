@@ -1,10 +1,10 @@
 import contextlib
-import os
 from pathlib import Path
 
-from django.core.management.base import BaseCommand
+from django.core.management import BaseCommand
+from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
-from django.conf import settings
+
 from zds.tutorialv2.models.database import PublishedContent
 from zds.tutorialv2.models.versioned import NotAPublicVersion
 from zds.tutorialv2.publication_utils import PublicatorRegistry, FailureDuringPublication
@@ -12,13 +12,13 @@ from zds.tutorialv2.publication_utils import PublicatorRegistry, FailureDuringPu
 
 class Command(BaseCommand):
     args = '[id=1,2,3,4,5]'
-    help = 'Generate epub of published contents'
-    # python manage.py generate_pdf id=3
+    help = 'Generate markdown of published contents'
+    # python manage.py generate_markdown id=3
 
     def add_arguments(self, parser):
         parser.add_argument('id', nargs='*', type=str)
 
-    def handle(self, *args, **options):
+    def handle(self, *__, **options):
         try:
             ids = list(set(options.get('id')[0].replace('id=', '').split(',')))
         except IndexError:
@@ -32,7 +32,7 @@ class Command(BaseCommand):
         num_of_contents = len(public_contents)
 
         if num_of_contents == 0:
-            self.stdout.write(_("Aucun contenu n'a été sélectionné, aucun PDF ne sera généré"))
+            self.stdout.write(_("Aucun contenu n'a été sélectionné, aucun markdown ne sera généré"))
             return
 
         self.stdout.write(_('Génération de epub pour {} contenu {}').format(
@@ -46,17 +46,14 @@ class Command(BaseCommand):
                                                    'extra_contents', content.content_public_slug)
                 if not building_extra_content_path.exists():
                     building_extra_content_path.mkdir(parents=True)
-                base_name = os.path.join(str(extra_content_dir), content.content_public_slug)
+                base_name = str(Path(str(extra_content_dir), content.content_public_slug))
 
-                # delete previous one
-                if os.path.exists(base_name + '.epub'):
-                    os.remove(base_name + '.epub')
-                PublicatorRegistry.get('epub').publish(base_name + '.md', str(building_extra_content_path))
+                PublicatorRegistry.get('md').publish(base_name + '.md', str(building_extra_content_path),
+                                                     cur_language=translation.get_language(),
+                                                     versioned=content.content.load_version(public=True))
 
             # check:
-            if os.path.exists(base_name + '.epub'):
+            if Path(base_name + '.md').exists():
                 self.stdout.write(' [OK]')
             else:
                 self.stdout.write(' [ERREUR]')
-
-        os.chdir(settings.BASE_DIR)

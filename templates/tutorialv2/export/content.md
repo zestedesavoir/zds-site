@@ -14,14 +14,14 @@
 # {{ child.title|safe }}
 {% if content.has_extracts %} {#  minituto or article #}
 {% if child.text %}{{ child.get_text|safe|shift_heading_1 }}{% endif %}
-{% else %}{# midsize or bigtuto #}
+{% elif child.ready_to_publish %}{# midsize or bigtuto #}
 {% if child.introduction %}{{ child.get_introduction|safe|shift_heading_1 }}{% endif %}
 {% for subchild in child.children %}
 ## {{ subchild.title|safe }}
 
 {% if child.has_extracts %} {# midsize tuto #}
 {% if subchild.text %}{{ subchild.get_text|safe|shift_heading_2 }}{% endif %}
-{% else %}
+{% elif subchild.ready_to_publish %}
 {% if subchild.introduction %}{{ subchild.get_introduction|safe|shift_heading_2 }}{% endif %}
 {% for extract in subchild.children %}
 

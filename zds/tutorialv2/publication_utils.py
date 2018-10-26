@@ -9,6 +9,7 @@ from datetime import datetime
 from os import makedirs, mkdir, path
 from pathlib import Path
 
+import requests
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from django.utils import translation
@@ -79,28 +80,20 @@ def publish_content(db_object, versioned, is_major_update=True):
     # make room for 'extra contents'
     build_extra_contents_path = path.join(tmp_path, settings.ZDS_APP['content']['extra_contents_dirname'])
     makedirs(build_extra_contents_path)
-
     base_name = path.join(build_extra_contents_path, versioned.slug)
 
     # 1. markdown file (base for the others) :
     # If we come from a command line, we need to activate i18n, to have the date in the french language.
     cur_language = translation.get_language()
     altered_version.pubdate = datetime.now()
-    try:
-        translation.activate(settings.LANGUAGE_CODE)
-        parsed = render_to_string('tutorialv2/export/content.md', {'content': versioned})
-    finally:
-        translation.activate(cur_language)
 
     md_file_path = base_name + '.md'
-    write_md_file(md_file_path, parsed, versioned)
     with contextlib.suppress(OSError):
         Path(Path(md_file_path).parent, 'images').mkdir()
     is_update = False
 
     if db_object.public_version:
         is_update, public_version = update_existing_publication(db_object, versioned)
-
     else:
         public_version = PublishedContent()
 
@@ -111,7 +104,9 @@ def publish_content(db_object, versioned, is_major_update=True):
     public_version.content = db_object
     public_version.must_reindex = True
     public_version.save()
-
+    with contextlib.suppress(FileExistsError):
+        makedirs(public_version.get_extra_contents_directory())
+    PublicatorRegistry.get('md').publish(md_file_path, base_name, versioned=versioned, cur_language=cur_language)
     public_version.char_count = public_version.get_char_count(md_file_path)
     if is_major_update or not is_update:
         public_version.publication_date = datetime.now()
@@ -184,6 +179,7 @@ def generate_external_content(base_name, extra_contents_path, md_file_path, over
     :return:
     """
     excluded = excluded or []
+    excluded.append('md')
     if not settings.ZDS_APP['content']['build_pdf_when_published'] and not overload_settings:
         excluded.append('pdf')
     # TODO: exclude watchdog
@@ -218,7 +214,13 @@ class PublicatorRegistry:
         """
         if exclude is None:
             exclude = []
-        for key, value in list(cls.registry.items()):
+        order_key = {
+            'zip': 1,
+            'html': 2,
+            'epub': 3,
+            'pdf': 4,
+        }
+        for key, value in sorted(cls.registry.items(), key=lambda k: order_key.get(k[0], 42)):
             if key not in exclude:
                 yield key, value
 
@@ -274,6 +276,21 @@ class Publicator:
             .filter(content_public_slug=content_slug) \
             .first()
         return published_content_entity
+
+
+@PublicatorRegistry.register('md')
+class MarkdownPublicator(Publicator):
+    def publish(self, md_file_path, base_name, *, cur_language, versioned, **kwargs):
+        try:
+            translation.activate(settings.LANGUAGE_CODE)
+            parsed = render_to_string('tutorialv2/export/content.md', {'content': versioned})
+        except requests.exceptions.HTTPError:
+            raise FailureDuringPublication('Could not publish flat markdown')
+        finally:
+            translation.activate(cur_language)
+        write_md_file(md_file_path, parsed, versioned)
+        if '__building' in md_file_path:
+            shutil.copy2(md_file_path, md_file_path.replace('__building', ''))
 
 
 def _read_flat_markdown(md_file_path):
@@ -350,8 +367,8 @@ class ZMarkdownRebberLatexPublicator(Publicator):
         authors = [a.username for a in published_content_entity.authors.all()]
         smileys_directory = SMILEYS_BASE_PATH
 
-        licence = published_content_entity.content.licence.title
-        licence_short = licence.replace('CC-', '').lower()
+        licence = published_content_entity.content.licence.code
+        licence_short = licence.replace('CC', '').strip().lower()
         licence_logo = licences.get(licence_short, False)
         if licence_logo:
             licence_url = 'https://creativecommons.org/licenses/{}/4.0/legalcode'.format(licence_short)
@@ -493,7 +510,7 @@ class ZMarkdownEpubPublicator(Publicator):
             build_ebook(published_content_entity,
                         path.dirname(md_file_path),
                         epub_file_path)
-        except (IOError, OSError):
+        except (IOError, OSError, requests.exceptions.HTTPError):
             raise FailureDuringPublication('Error while generating epub file.')
         else:
             logger.info(epub_file_path)
