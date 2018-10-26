@@ -26,6 +26,10 @@ base.db
 
 /scripts/release_summary.md
 
+.nvmrc
+venv
+zdsenv/
+
 # Front files
 node_modules
 /dist
