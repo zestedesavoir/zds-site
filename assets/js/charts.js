@@ -56,21 +56,15 @@
         scales: {
             xAxes: [{
                 type: "time",
-                ticks: {
-                    source: "labels"
-                },
                 time: {
                     parser: "DD/MM/YYYY",
                     displayFormats: {
-                        "millisecond": "MMM DD",
-                        "second": "MMM DD",
-                        "minute": "MMM DD",
-                        "hour": "MMM DD",
-                        "day": "MMM DD",
-                        "week": "MMM DD",
-                        "month": "MMM DD",
-                        "quarter": "MMM DD",
-                        "year": "MMM DD",
+                        "hour": "DD MMM",
+                        "day": "DD MMM",
+                        "week": "DD MMM",
+                        "month": "MMM YYYY",
+                        "quarter": "MMM YYYY",
+                        "year": "YYYY",
                     }
                 }
             }],
@@ -112,7 +106,7 @@
         }
 
         var config = {
-            type: "line",
+            type: "bar",
             data: {
                 labels: times,
                 datasets: data
@@ -149,7 +143,7 @@
             $(this).removeClass("active");
         });
         // Show current tab and add "active" class to the link
-        $("#" + $(tab).attr('id') + '-content').show();
+        $("#" + $(tab).attr("id") + "-content").show();
         $(tab).addClass("active");
     }
 
