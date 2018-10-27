@@ -161,52 +161,48 @@
             <ul>
                 <li>
                     {% with start_date=-7|datedelta_from_day end_date=0|datedelta_from_day %}
-                    <a class="ico-after gear {% if request.GET.start_date == start_date|date:'Y-m-d' or request.GET.start_date is none %}selected{% endif %}"
+                    <a class="{% if request.GET.start_date == start_date|date:'Y-m-d' or request.GET.start_date is none %}selected{% endif %}"
                        href="{% append_query_params start_date=start_date,end_date=end_date %}{% if display == 'comparison' %}{% for url in urls %}&urls={{url.url}}{% endfor %}{% endif %}">
-                        <span>
-                            {% trans "7 derniers jours" %}
-                        </span>
+                        {% trans "7 derniers jours" %}
                     </a>
                     {% endwith %}
                 </li>
                 <li>
                     {% with start_date=-30|datedelta_from_day end_date=0|datedelta_from_day %}
-                    <a class="ico-after gear {% if request.GET.start_date == start_date|date:'Y-m-d' %}selected{% endif %}"
+                    <a class="{% if request.GET.start_date == start_date|date:'Y-m-d' %}selected{% endif %}"
                        href="{% append_query_params start_date=start_date,end_date=end_date %}{% if display == 'comparison' %}{% for url in urls %}&urls={{url.url}}{% endfor %}{% endif %}">
-                        <span>
-                            {% trans "30 derniers jours" %}
-                        </span>
+                        {% trans "30 derniers jours" %}
                     </a>
                     {% endwith %}
                 </li>
                 <li>
                     {% with start_date=-365|datedelta_from_day end_date=0|datedelta_from_day %}
-                    <a class="ico-after gear {% if request.GET.start_date == start_date|date:'Y-m-d' %}selected{% endif %}"
+                    <a class="{% if request.GET.start_date == start_date|date:'Y-m-d' %}selected{% endif %}"
                        href="{% append_query_params start_date=start_date,end_date=end_date %}{% if display == 'comparison' %}{% for url in urls %}&urls={{url.url}}{% endfor %}{% endif %}">
-                        <span>
-                            {% trans "La dernière année" %}
-                        </span>
+                        {% trans "La dernière année" %}
                     </a>
                     {% endwith %}
                 </li>
+                <li>
+                    <a href="#custom-dates" class="open-modal">{% trans "Échelle personnalisée" %}</a>
+                    <form method="GET" class="modal modal-flex" id="custom-dates">
+                        {% if request.GET.end_date %}
+                            <label for="start_date">{% trans "Du" %}</label>
+                            <input type="date" value="{% if request.GET.start_date %}{{request.GET.start_date}}{% else %}{{ -7|datedelta_from_day:request.GET.end_date|date:'Y-m-d' }}{% endif %}" name="start_date" id="start_date" max="{% now 'Y-m-d' %}">
+                            <label for="end_date">{% trans "au" %}</label>
+                            <input type="date" value="{{request.GET.end_date}}" name="end_date" id="end_date" max="{% now 'Y-m-d' %}">
+                        {% else %}
+                            <label for="start_date">{% trans "Du" %}</label>
+                            <input type="date" value="{% if request.GET.start_date %}{{request.GET.start_date}}{% else %}{{ -7|datedelta_from_day|date:'Y-m-d' }}{% endif %}" name="start_date" id="start_date" max="{% now 'Y-m-d' %}">
+                            <label for="end_date">{% trans "au" %}</label>
+                            <input type="date" value="{% now 'Y-m-d' %}" name="end_date" id="end_date" max="{% now 'Y-m-d' %}">
+                        {% endif %}
+                        <button type="submit">
+                            {% trans "Actualiser" %}
+                        </button>
+                    </form>
+                </li>
             </ul>
-            <h3>{% trans "Échelle personnalisée" %}</h3>
-            <ul>
-                <form method="GET">
-                {% if request.GET.end_date %}
-                    <li>
-                        {% trans "Du" %} <input type="date" value="{% if request.GET.start_date %}{{request.GET.start_date}}{% else %}{{ -7|datedelta_from_day:request.GET.end_date|date:'Y-m-d' }}{% endif %}" name="start_date" id="start_date" max="{% now 'Y-m-d' %}">
-                        {% trans "au" %} <input type="date" value="{{request.GET.end_date}}" name="end_date" id="end_date" max="{% now 'Y-m-d' %}">
-                    </li>
-                {% else %}
-                    <li>
-                        {% trans "Du" %} <input type="date" value="{% if request.GET.start_date %}{{request.GET.start_date}}{% else %}{{ -7|datedelta_from_day|date:'Y-m-d' }}{% endif %}" name="start_date" id="start_date" max="{% now 'Y-m-d' %}">
-                        {% trans "au" %} <input type="date" value="{% now 'Y-m-d' %}" name="end_date" id="end_date" max="{% now 'Y-m-d' %}">
-                    </li>
-                {% endif %}
-                    <button type="submit" class="btn">{% trans "Actualiser" %}</button>
-            </ul>
-            </form>
         </div>
     </aside>
 {% endblock sidebar %}
