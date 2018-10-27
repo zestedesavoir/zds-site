@@ -21,7 +21,7 @@ from django.views.generic import RedirectView, FormView, ListView, TemplateView
 from django.db.models import F, Q
 
 from apiclient.discovery import build
-from httplib2 import Http
+from httplib2 import Http, ServerNotFoundError
 from oauth2client.service_account import ServiceAccountCredentials
 import googleapiclient
 
@@ -1094,9 +1094,9 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
             http = credentials.authorize(Http(cache=self.CACHE_PATH))
             analytics = build('analytics', 'v4', http=http, discoveryServiceUrl=self.DISCOVERY_URI, cache_discovery=False)
             return analytics
-        except (ValueError, FileNotFoundError) as e:
+        except (ValueError, FileNotFoundError, ServerNotFoundError) as e:
             messages.error(self.request, _("Erreur de configuration de l'API Analytics. "
-                                           "Merci de contacter l'équipe des développeurs. {}".format(type(e))))
+                                           "Merci de contacter l'équipe des développeurs. {}".format(str(e))))
             return None
 
     @staticmethod
