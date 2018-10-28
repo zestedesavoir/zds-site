@@ -120,7 +120,7 @@ class MockGAService():
         return rows
 
     def gen_full_referrer_row(self, entry):
-        ref_src=['google', 'stackoverflow.com', '(direct)', '', None]
+        ref_src = ['google', 'stackoverflow.com', '(direct)', '', None]
         shuffle(ref_src)
         nb_src = randint(0, len(ref_src))
         rows = []
@@ -134,7 +134,7 @@ class MockGAService():
         return rows
 
     def gen_keyword_row(self, entry):
-        key_src=['(not set)', '(not provided)', 'apprendre', '', None]
+        key_src = ['(not set)', '(not provided)', 'apprendre', '', None]
         shuffle(key_src)
         nb_src = randint(0, len(key_src))
         rows = []
@@ -203,7 +203,11 @@ class StatTests(TestCase, TutorialTestMixin):
         self.user_author = ProfileFactory().user
         self.user_staff = StaffProfileFactory().user
         self.user_guest = ProfileFactory().user
-        self.published = self.get_published_content(self.user_author, self.user_staff, self.nb_part, self.nb_chapter, self.nb_section)
+        self.published = self.get_published_content(self.user_author,
+                                                    self.user_staff,
+                                                    self.nb_part,
+                                                    self.nb_chapter,
+                                                    self.nb_section)
 
     def test_access_for_anonymous(self):
         # anonymous can't access to stats
@@ -274,7 +278,7 @@ class StatTests(TestCase, TutorialTestMixin):
             self.assertEqual(cum_stat['newUsers'] >= 0, True)
             self.assertEqual(cum_stat['sessions'] >= 0, True)
 
-    @mock.patch("zds.tutorialv2.views.published.ContentStatisticsView.config_ga_credentials",
+    @mock.patch('zds.tutorialv2.views.published.ContentStatisticsView.config_ga_credentials',
                 fake_config_ga_credentials)
     def test_query_date_parameter_duration(self):
         self.client.login(username=self.user_author.username, password='hostel77')
@@ -286,7 +290,7 @@ class StatTests(TestCase, TutorialTestMixin):
         self.check_success_result_by_duration(30)
         self.check_success_result_by_duration(365)
 
-    @mock.patch("zds.tutorialv2.views.published.ContentStatisticsView.config_ga_credentials",
+    @mock.patch('zds.tutorialv2.views.published.ContentStatisticsView.config_ga_credentials',
                 fake_config_ga_credentials)
     def test_query_string_parameter_duration(self):
 
@@ -301,7 +305,7 @@ class StatTests(TestCase, TutorialTestMixin):
         for k, v in resp.context_data['stats'][0]['stats'].items():
             self.assertEqual(len(v), default_duration + 1)
 
-    @mock.patch("zds.tutorialv2.views.published.ContentStatisticsView.config_ga_credentials",
+    @mock.patch('zds.tutorialv2.views.published.ContentStatisticsView.config_ga_credentials',
                 fake_config_ga_credentials)
     def test_end_before_start_date_parameter_duration(self):
         today = datetime.datetime.today()
@@ -334,7 +338,7 @@ class StatTests(TestCase, TutorialTestMixin):
         self.client.login(username=author, password='hostel77')
 
         # ask validation
-        result = self.client.post(
+        self.client.post(
             reverse('validation:ask', kwargs={'pk': bigtuto.pk, 'slug': bigtuto.slug}),
             {
                 'text': 'ask for validation',
@@ -348,7 +352,7 @@ class StatTests(TestCase, TutorialTestMixin):
 
         validation = Validation.objects.filter(content=bigtuto).last()
 
-        result = self.client.post(
+        self.client.post(
             reverse('validation:reserve', kwargs={'pk': validation.pk}),
             {
                 'version': validation.version
@@ -356,7 +360,7 @@ class StatTests(TestCase, TutorialTestMixin):
             follow=False)
 
         # accept
-        result = self.client.post(
+        self.client.post(
             reverse('validation:accept', kwargs={'pk': validation.pk}),
             {
                 'text': 'accept validation',
