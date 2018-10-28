@@ -1144,7 +1144,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
 
         api_raw = []
         metrics = [r['name'][3:] for r in report['columnHeader']['metricHeader']['metricHeaderEntries']]
-        
+
         period = (end - start).days
 
         data = {}
@@ -1176,14 +1176,14 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
                 # Prepare empty val list (backfill with zeros for missing dates)
                 for i in range(period + 1):
                     day = (start + timedelta(days=i)).strftime('%Y-%m-%d')
-                    data[url.url]['stats'][day] = defaultdict(0)
+                    data[url.url]['stats'][day] = defaultdict(int)
 
             for r in rows:
                 url = r['dimensions'][1]
                 data_date = r['dimensions'][0]
                 data_date = '{}-{}-{}'.format(data_date[0:4], data_date[4:6], data_date[6:8])
 
-                for i, m in enumerate(metrics):                  
+                for i, m in enumerate(metrics):
                     data[url]['stats'][data_date][m] = r['metrics'][0]['values'][i]
 
             for url in urls:
@@ -1303,7 +1303,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         except ValueError:
             end_date = date.today()
             messages.error(self.request, _('La date de fin fournie est invalide.'))
-        
+
         start_date = self.request.GET.get('start_date', None)
         try:
             start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
@@ -1315,7 +1315,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
 
         if start_date > end_date:
             end_date, start_date = start_date, end_date
-            
+
         return start_date, end_date
 
     def get_display_mode(self, urls):
