@@ -68,6 +68,11 @@
                     }
                 }
             }],
+            yAxes: [{
+                ticks: {
+                    beginAtZero: true,
+                },
+            }],
         },
         responsive: true,
     };
@@ -100,6 +105,7 @@
                     fill: false,
                     backgroundColor: "rgba(" + color.join(",") + ", 1)",
                     borderColor: "rgba(" + color.join(",") + ", 0.70)",
+                    lineTension: 0,
                 });
                 n += 360 / nbColors;
             }
