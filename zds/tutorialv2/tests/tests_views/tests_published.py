@@ -1,13 +1,8 @@
 import datetime
-import shutil
-import tempfile
-import zipfile
 
 import os
-from pathlib import Path
 
 from django.conf import settings
-from django.contrib import messages
 from django.contrib.auth.models import Group
 from django.core import mail
 from django.core.urlresolvers import reverse
@@ -16,23 +11,18 @@ from django.test.utils import override_settings
 from django.utils.translation import ugettext_lazy as _
 
 from zds.forum.factories import ForumFactory, CategoryFactory as ForumCategoryFactory
-from zds.forum.models import Topic, Post, TopicRead
 from zds.gallery.factories import UserGalleryFactory
-from zds.gallery.models import GALLERY_WRITE, UserGallery, Gallery
-from zds.gallery.models import Image
 from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.mp.models import PrivateTopic, is_privatetopic_unread
-from zds.notification.models import TopicAnswerSubscription, ContentReactionAnswerSubscription, \
-    NewPublicationSubscription, Notification, Subscription
+from zds.notification.models import ContentReactionAnswerSubscription, Notification, Subscription
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory, \
-    SubCategoryFactory, PublishedContentFactory, tricky_text_content, BetaContentFactory
+    SubCategoryFactory, PublishedContentFactory
 from zds.tutorialv2.models.database import PublishableContent, Validation, PublishedContent, ContentReaction, \
     ContentRead
-from zds.tutorialv2.publication_utils import publish_content, PublicatorRegistry, Publicator, \
-    ZMarkdownRebberLatexPublicator, ZMarkdownEpubPublicator
+from zds.tutorialv2.publication_utils import publish_content
 from zds.tutorialv2.tests import TutorialTestMixin
-from zds.utils.models import HelpWriting, Alert, Tag, Hat
-from zds.utils.factories import HelpWritingFactory, CategoryFactory
+from zds.utils.models import Alert, Tag, Hat
+from zds.utils.factories import CategoryFactory
 from zds.utils.header_notifications import get_header_notifications
 from copy import deepcopy
 from zds import json_handler
