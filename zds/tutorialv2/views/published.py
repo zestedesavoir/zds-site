@@ -1092,7 +1092,11 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         try:
             credentials = ServiceAccountCredentials.from_json_keyfile_name(self.CLIENT_SECRETS_PATH, self.SCOPES)
             http = credentials.authorize(Http(cache=self.CACHE_PATH))
-            analytics = build('analytics', 'v4', http=http, discoveryServiceUrl=self.DISCOVERY_URI, cache_discovery=False)
+            analytics = build('analytics',
+                              'v4',
+                              http=http,
+                              discoveryServiceUrl=self.DISCOVERY_URI,
+                              cache_discovery=False)
             return analytics
         except (ValueError, FileNotFoundError, ServerNotFoundError) as e:
             messages.error(self.request, _("Erreur de configuration de l'API Analytics. "
@@ -1116,7 +1120,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
             return []
 
         # Backfill data with zeroes
-        data = {url.url:defaultdict(int) for url in urls}
+        data = {url.url: defaultdict(int) for url in urls}
         for r in rows:
             url = r['dimensions'][0]
             # avgTimeOnPage is convert to float then int to remove useless decimal part

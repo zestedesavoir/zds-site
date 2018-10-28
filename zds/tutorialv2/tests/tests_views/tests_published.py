@@ -46,6 +46,7 @@ overridden_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'con
 overridden_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
 overridden_zds_app['content']['extra_content_generation_policy'] = 'SYNC'
 
+
 @override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
 @override_settings(ZDS_APP=overridden_zds_app)
 @override_settings(ES_ENABLED=False)
