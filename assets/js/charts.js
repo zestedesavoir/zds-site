@@ -77,6 +77,7 @@
         responsive: true,
     };
 
+    var charts = new Array();
     function setupChart($object, formatter) {
 
         var $dataX = $object.data("time");
@@ -112,31 +113,64 @@
         }
 
         var config = {
-            type: "bar",
+            type: localStorage.getItem("graphType"),
             data: {
                 labels: times,
                 datasets: data
             },
             options: basicOptions
         };
-        new window.Chart($object, config);
+        charts.push(new Chart($object, config));
     }
 
-    if ($("#view-graph").length) {
-        setupChart($("#view-graph"));
+    // Switching between a graph with lines and a graph with bars
+    var switch_to_bar = "Afficher un histogramme";
+    var switch_to_line = "Afficher une courbe";
+
+    if(!localStorage.getItem("graphType")) {
+        localStorage.setItem("graphType", "line"); // default value
     }
-    if ($("#visit-time-graph").length) {
-        setupChart($("#visit-time-graph"), Math.round);
+
+    $("#graph_type_toogle").click(function() {
+        if(localStorage.getItem("graphType") === "line") {
+            localStorage.setItem("graphType", "bar");
+            $(this).text(switch_to_line);
+        }
+        else {
+            localStorage.setItem("graphType", "line");
+            $(this).text(switch_to_bar);
+        }
+        clearCharts();
+        drawCharts();
+    });
+    $("#graph_type_toogle").text(localStorage.getItem("graphType") === "line" ? switch_to_bar : switch_to_line);
+
+    // Clearing charts
+    function clearCharts() {
+        charts.forEach(function(chart) {
+            chart.destroy();
+        });
     }
-    if ($("#users-graph").length) {
-        setupChart($("#users-graph"));
+
+    // Drawing charts
+    function drawCharts() {
+        if ($("#view-graph").length) {
+            setupChart($("#view-graph"));
+        }
+        if ($("#visit-time-graph").length) {
+            setupChart($("#visit-time-graph"), Math.round);
+        }
+        if ($("#users-graph").length) {
+            setupChart($("#users-graph"));
+        }
+        if ($("#new-users-graph").length) {
+            setupChart($("#new-users-graph"));
+        }
+        if ($("#sessions-graph").length) {
+            setupChart($("#sessions-graph"));
+        }
     }
-    if ($("#new-users-graph").length) {
-        setupChart($("#new-users-graph"));
-    }
-    if ($("#sessions-graph").length) {
-        setupChart($("#sessions-graph"));
-    }
+    drawCharts();
 
     // Tab management
     function displayTab(tab) {
