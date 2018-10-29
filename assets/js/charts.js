@@ -77,7 +77,7 @@
         responsive: true,
     };
 
-    var charts = new Array();
+    var charts = [];
     function setupChart($object, formatter) {
 
         var $dataX = $object.data("time");
@@ -124,8 +124,8 @@
     }
 
     // Switching between a graph with lines and a graph with bars
-    var switch_to_bar = "Afficher un histogramme";
-    var switch_to_line = "Afficher une courbe";
+    var switchToBar = "Afficher un histogramme";
+    var switchToLine = "Afficher une courbe";
 
     if(!localStorage.getItem("graphType")) {
         localStorage.setItem("graphType", "line"); // default value
@@ -134,16 +134,16 @@
     $("#graph_type_toogle").click(function() {
         if(localStorage.getItem("graphType") === "line") {
             localStorage.setItem("graphType", "bar");
-            $(this).text(switch_to_line);
+            $(this).text(switchToLine);
         }
         else {
             localStorage.setItem("graphType", "line");
-            $(this).text(switch_to_bar);
+            $(this).text(switchToBar);
         }
         clearCharts();
         drawCharts();
     });
-    $("#graph_type_toogle").text(localStorage.getItem("graphType") === "line" ? switch_to_bar : switch_to_line);
+    $("#graph_type_toogle").text(localStorage.getItem("graphType") === "line" ? switchToBar : switchToLine);
 
     // Clearing charts
     function clearCharts() {
