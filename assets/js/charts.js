@@ -120,7 +120,7 @@
             },
             options: basicOptions
         };
-        charts.push(new Chart($object, config));
+        charts.push(new window.Chart($object, config));
     }
 
     // Switching between a graph with lines and a graph with bars
