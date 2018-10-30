@@ -53,7 +53,7 @@ class ImageTest(TestCase):
         self.gallery.delete()
 
     def test_get_absolute_url(self):
-        absolute_url = '{0}/{1}'.format(settings.MEDIA_URL, self.image.physical)
+        absolute_url = '{0}/{1}'.format(settings.MEDIA_URL, self.image.physical).replace('//', '/')
 
         self.assertEqual(absolute_url, self.image.get_absolute_url())
 
