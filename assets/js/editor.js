@@ -681,16 +681,16 @@ function uploadImage (e, dataTransferAttr, csrf){
         formData.append('physical', f);
         formData.append('title', f.name);
         // WARN: if you test zds with sqlite, you can't upload multiple files at a time
-        $.ajax(
-            {url: galleryUrl,
-                data: formData, type: 'POST',
-                processData: false,
-                contentType: false,
-                headers: {
-                    "X-CSRFToken": csrf
-                },
-                dataType: 'json'
-            }).done(function (result) {
+        $.ajax({
+            url: galleryUrl,
+            data: formData, type: 'POST',
+            processData: false,
+            contentType: false,
+            headers: {
+                "X-CSRFToken": csrf
+            },
+            dataType: 'json'
+        }).done(function (result) {
             var mdFinalCode = '![' + result.legend + '](' + result.url +')';
 
             editor.val(editor.val().replace(new RegExp(mdWaitingRegexp), mdFinalCode));
@@ -701,7 +701,7 @@ function uploadImage (e, dataTransferAttr, csrf){
 }
 
 (function($, undefined){
-
+    "use strict";
     var csrf = $("input[name=csrfmiddlewaretoken]").val();
     $(".md-editor").on("keydown", function(e){
         // the message is submitted if the user is pressing Ctrl or Cmd with Enter and isn't pressing Alt or Shift
@@ -710,18 +710,18 @@ function uploadImage (e, dataTransferAttr, csrf){
 
             $(".message-submit > button[name=answer]").click();
         }
-    }).on('dragenter', function(e) {
+    }).on("dragenter", function(e) {
         e.preventDefault();
-        $(e.target).addClass('selected');
-    }).on('dragover', function(e) {
+        $(e.target).addClass("selected");
+    }).on("dragover", function(e) {
         e.preventDefault();
-    }).on('dragleave', function(e) {
+    }).on("dragleave", function(e) {
         e.preventDefault();
-        $(e.target).removeClass('selected');
-    }).on('drop', function (e) {
+        $(e.target).removeClass("selected");
+    }).on("drop", function (e) {
         e.preventDefault();
         uploadImage(e, "dataTransfer", csrf);
-        $(e.target).removeClass('selected');
+        $(e.target).removeClass("selected");
     }).on("paste", function(e) {
         if (!e.originalEvent.clipboardData || !e.originalEvent.clipboardData.files.length) {
             return;
@@ -729,6 +729,4 @@ function uploadImage (e, dataTransferAttr, csrf){
         e.preventDefault();
         uploadImage(e, "clipboardData", csrf);
     });
-
-    "use strict";
 })(jQuery);
