@@ -128,7 +128,7 @@ class Image(models.Model):
         :return: Image object URL
         :rtype: str
         """
-        return '{0}/{1}'.format(settings.MEDIA_URL, self.physical)
+        return '{0}/{1}'.format(settings.MEDIA_URL, self.physical).replace('//', '/')
 
     def get_thumbnail_url(self):
         return self.physical['gallery'].url
