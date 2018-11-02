@@ -703,6 +703,7 @@ function uploadImage (e, dataTransferAttr, csrf){
 (function($, undefined){
     "use strict";
     var csrf = $("input[name=csrfmiddlewaretoken]").val();
+    var dragEventNumber = 0;
     $(".md-editor").on("keydown", function(e){
         // the message is submitted if the user is pressing Ctrl or Cmd with Enter and isn't pressing Alt or Shift
         if((e.ctrlKey || e.metaKey) && e.which === 13 && !e.altKey && !e.shiftKey){
@@ -711,17 +712,24 @@ function uploadImage (e, dataTransferAttr, csrf){
             $(".message-submit > button[name=answer]").click();
         }
     }).on("dragenter", function(e) {
+        dragEventNumber++;
         e.preventDefault();
-        $(e.target).addClass("selected");
+        if (dragEventNumber === 1) {
+            $(e.target).addClass("selected");
+        }
     }).on("dragover", function(e) {
         e.preventDefault();
     }).on("dragleave", function(e) {
+        dragEventNumber--;
         e.preventDefault();
-        $(e.target).removeClass("selected");
+        if (dragEventNumber === 0) {
+            $(e.target).removeClass("selected");
+        }
     }).on("drop", function (e) {
         e.preventDefault();
         uploadImage(e, "dataTransfer", csrf);
         $(e.target).removeClass("selected");
+        dragEventNumber = 0;
     }).on("paste", function(e) {
         if (!e.originalEvent.clipboardData || !e.originalEvent.clipboardData.files.length) {
             return;
