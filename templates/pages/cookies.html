@@ -101,15 +101,15 @@
     {% if app.site.licenses.cookies %}
         <p>
             {% blocktrans with url_license=app.site.licenses.cookies.url_license cook_descr=app.site.licenses.cookies.description cook_title=app.site.licenses.cookies.title cook_img=app.site.licenses.cookies.url_image %}
-            <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="{{ cook_title }}" style="border-width:0" src="{{ cook_img }}" /></a>
-            <span xmlns:dct="http://purl.org/dc/terms/" href="http://purl.org/dc/dcmitype/Text" property="dct:title" rel="dct:type">À propos des cookies</span> de <a href="{{ cook_url }}">{{ site_name }}</a> est mis à disposition selon les termes de la <a rel="license" href="{{ url_license }}">{{ cook_descr }}</a>.
+                <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="{{ cook_title }}" style="border-width:0" src="{{ cook_img }}" /></a>
+                <span xmlns:dct="http://purl.org/dc/terms/" href="http://purl.org/dc/dcmitype/Text" property="dct:title" rel="dct:type">À propos des cookies</span> de <a href="{{ cook_url }}">{{ site_name }}</a> est mis à disposition selon les termes de la <a rel="license" href="{{ url_license }}">{{ cook_descr }}</a>.
             {% endblocktrans %}
         </p>
     {% else %}
         <p>
             {% blocktrans %}
-            <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Licence Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/80x15.png" /></a>
-            <span xmlns:dct="http://purl.org/dc/terms/" href="http://purl.org/dc/dcmitype/Text" property="dct:title" rel="dct:type">À propos des cookies</span> de <a xmlns:cc="http://creativecommons.org/ns#" href="{{ cook_url }}" property="cc:attributionName" rel="cc:attributionURL">Zeste de Savoir</a> est mis à disposition selon les termes de la <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">licence Creative Commons Attribution 4.0 International</a>.
+                <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Licence Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/80x15.png" /></a>
+                <span xmlns:dct="http://purl.org/dc/terms/" href="http://purl.org/dc/dcmitype/Text" property="dct:title" rel="dct:type">À propos des cookies</span> de <a xmlns:cc="http://creativecommons.org/ns#" href="{{ cook_url }}" property="cc:attributionName" rel="cc:attributionURL">Zeste de Savoir</a> est mis à disposition selon les termes de la <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">licence Creative Commons Attribution 4.0 International</a>.
             {% endblocktrans %}
         </p>
     {% endif %}

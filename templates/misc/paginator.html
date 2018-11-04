@@ -23,7 +23,8 @@
         {% for page_nb in pages %}
             {% if page_nb %}
                 <li>
-                    <a  {% ifnotequal page_nb page_obj.number %}
+                    <a
+                        {% ifnotequal page_nb page_obj.number %}
                             href="{% append_query_params page=page_nb %}{{ full_anchor }}"
                         {% else %}
                             class="current"

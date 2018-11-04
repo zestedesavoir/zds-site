@@ -13,17 +13,17 @@
     <{% if tag %}{{ tag }}{% else %}div{% endif %}
         id="div_{{ field.auto_id }}"
         class="control-group
-            {% if wrapper_class %}
-                {{ wrapper_class }}
-            {% endif %}
+               {% if wrapper_class %}
+                   {{ wrapper_class }}
+               {% endif %}
 
-            {% if form_show_errors and field.errors%}
-                error
-            {% endif %}
+               {% if form_show_errors and field.errors%}
+                   error
+               {% endif %}
 
-            {% if field.css_classes %}
-                {{ field.css_classes }}
-            {% endif %}">
+               {% if field.css_classes %}
+                   {{ field.css_classes }}
+               {% endif %}">
 
         {% if field.label and not field|is_checkbox and form_show_labels %}
             <label for="{{ field.id_for_label }}"
