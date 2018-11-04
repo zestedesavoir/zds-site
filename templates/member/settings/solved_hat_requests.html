@@ -53,7 +53,7 @@
                         </td>
                         <td>{% include 'misc/member_item.part.html' with member=request.user avatar=True %}</td>
                         <td>{{ request.is_granted|yesno:_('Acceptée,Refusée') }}</td>
-                        <td class="wide">{% include 'misc/member_item.part.html' with member=request.moderator avatar=True %}
+                        <td class="wide">{% include 'misc/member_item.part.html' with member=request.moderator avatar=True %}</td>
                         <td class="wide">{{ request.solved_at|format_date:True|capfirst }}</td>
                     </tr>
                 {% endfor %}
