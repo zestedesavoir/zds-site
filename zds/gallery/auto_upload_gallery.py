@@ -6,7 +6,7 @@ from zds.tutorialv2.models.database import PublishableContent
 
 def _get_content_gallery(content_pk, user):
     content = PublishableContent.objects.filter(pk=content_pk).first()
-    if not content or user not in [content.authors.all()]:
+    if not content or user not in content.authors.all():
         return {}
     content_gallery = content.gallery
     if not content_gallery:
@@ -33,7 +33,14 @@ def _get_default_gallery(user):
 
 
 def get_auto_upload_gallery(request: HttpRequest):
+    """
+    This context processor adds ``auto_update_gallery`` to context.
+    The gallery is the "default gallery" on  forums and comments. On publishable content edition, it's the
+    content-specific gallery.
+    :param request: the http request to use
+    :return: a dictionary with ``auto_update_gallery`` key
+    """
     is_url_of_content = request.resolver_match and request.resolver_match.namespace == 'content'
-    if request.user.is_authenticated() and is_url_of_content and 'pk' in request.resolver_match:
+    if request.user.is_authenticated() and is_url_of_content and 'pk' in request.resolver_match.kwargs:
         return _get_content_gallery(request.resolver_match.kwargs['pk'], request.user)
     return _get_default_gallery(request.user)

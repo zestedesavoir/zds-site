@@ -18,3 +18,9 @@ Vues (``views.py``)
 
 .. automodule:: zds.gallery.views
     :members:
+
+Le context processor pour trouver la gallerie automatique (``auto_upload_gallery.py``)
+======================================================================================
+
+.. automodule:: zds.gallery.auto_upload_gallery
+    :members:
