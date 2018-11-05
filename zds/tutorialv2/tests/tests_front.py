@@ -24,6 +24,8 @@ from copy import deepcopy
 from django.conf import settings
 import os
 
+from zds.utils.factories import CategoryFactory
+
 overridden_zds_app = deepcopy(settings.ZDS_APP)
 overridden_zds_app['content']['repo_private_path'] = os.path.join(settings.BASE_DIR, 'contents-private-test')
 overridden_zds_app['content']['repo_public_path'] = os.path.join(settings.BASE_DIR, 'contents-public-test')
@@ -61,7 +63,7 @@ class PublicationFronttest(StaticLiveServerTestCase, TutorialTestMixin, Tutorial
         overridden_zds_app['member']['bot_account'] = self.mas.username
 
         self.licence = LicenceFactory()
-        self.subcategory = SubCategoryFactory()
+        self.subcategory = SubCategoryFactory(category=CategoryFactory())
 
         self.user_author = ProfileFactory().user
         self.user_staff = StaffProfileFactory().user
