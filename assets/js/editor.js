@@ -694,7 +694,19 @@ function uploadImage (e, dataTransferAttr, csrf){
             var mdFinalCode = '![' + result.legend + '](' + result.url +')';
 
             editor.val(editor.val().replace(new RegExp(mdWaitingRegexp), mdFinalCode));
-        }).fail(function () {
+        }).fail(function (resp) {
+            if (resp.status === 400) {
+                $('<div/>').text(resp.responseJSON[0])
+                    .addClass("error")
+                    .addClass("alert-box")
+                    .insertAfter(editor);
+            } else if (resp.statusText === "error") {
+                // this one only appears when the image is so big, django rejects it before routing it to the API
+                $('<div/>').text("L'image est trop lourde.")
+                    .addClass("error")
+                    .addClass("alert-box")
+                    .insertAfter(editor);
+            }
             editor.val(editor.val().replace(new RegExp(mdWaitingRegexp), ''));
         });
     });
