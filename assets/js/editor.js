@@ -695,18 +695,22 @@ function uploadImage (e, dataTransferAttr, csrf){
 
             editor.val(editor.val().replace(new RegExp(mdWaitingRegexp), mdFinalCode));
         }).fail(function (resp) {
-            if (resp.status === 400) {
-                $('<div/>').text(resp.responseJSON[0])
-                    .addClass("error")
-                    .addClass("alert-box")
-                    .insertAfter(editor);
-            } else if (resp.statusText === "error") {
-                // this one only appears when the image is so big, django rejects it before routing it to the API
-                $('<div/>').text("L'image est trop lourde.")
-                    .addClass("error")
-                    .addClass("alert-box")
-                    .insertAfter(editor);
+            var error = "Erreur inconnue";
+            if(resp.responseText !== undefined && resp.responseText.indexOf("RequestDataTooBig") !== -1) {
+                error = "L'image est trop lourde.";
+            } else if(resp.responseJSON !== undefined) {
+                error = resp.responseJSON[0];
+            } else if(resp.responseText !== undefined) {
+                error = "Erreur " + resp.status + " " + resp.statusText + " : " + '"' + resp.responseText.split("\n")[0] + '"';
+            } else if(resp.readyState === 0 && resp.statusText === "error") {
+                error = "Oups ! Impossible de se connecter au serveur.";
             }
+
+            $("<div>", {
+                text: error,
+                class: "alert-box error",
+            }).insertAfter(editor);
+
             editor.val(editor.val().replace(new RegExp(mdWaitingRegexp), ''));
         });
     });
