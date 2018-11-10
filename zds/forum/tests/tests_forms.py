@@ -22,6 +22,17 @@ class TopicFormTest(TestCase):
 
         self.assertTrue(form.is_valid())
 
+    def test_valid_topic_form_empty_tags(self):
+        data = {
+            'title': 'Test Topic Title',
+            'subtitle': 'Test Topic Subtitle',
+            'tags': '',
+            'text': 'Test Topic Text'
+        }
+        form = TopicForm(data=data)
+
+        self.assertTrue(form.is_valid())
+
     def test_invalid_topic_form_missing_title(self):
         """ Test when title is missing """
         data = {
