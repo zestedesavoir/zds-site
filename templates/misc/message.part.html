@@ -33,12 +33,13 @@
             itemprop="{% if message.is_useful %}acceptedAnswer{% endif %} {% if message.like > message.dislike %}suggestedAnswer{% endif %}"
         {% endif %}
     {% endif %}
+    id="p{{ message.id }}"
 >
 
     {% include "misc/message_user.html" with member=message.author push_badge=is_author %}
 
 
-    <div class="message" id="p{{ message.id }}">
+    <div class="message">
         {% if is_author %}
             <span class="is-author">{% trans "Auteur du sujet" %}</span>
         {% endif %}

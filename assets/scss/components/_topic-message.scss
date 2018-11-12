@@ -105,10 +105,6 @@
         border-bottom-width: 3px;
         min-height: 75px;
 
-        &:target {
-            box-shadow: 0 0 6px #1c5b78;
-        }
-
         .is-author {
             position: absolute;
             top: -16px;
@@ -488,6 +484,27 @@
 
         .alert-box .alert-box-text {
             float: none;
+        }
+    }
+
+
+    &:target {
+        .message {
+            border-color: $color-message-emphasis;
+
+            .is-author {
+                border-top-color: $color-message-emphasis;
+
+                &::after {
+                    border-right: $color-message-emphasis 1px solid;
+                }
+                &::before {
+                    border-left: $color-message-emphasis 1px solid;
+                }
+            }
+        }
+        .user::after {
+            border-right-color: $color-message-emphasis;
         }
     }
 }
