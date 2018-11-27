@@ -416,8 +416,8 @@ class ZMarkdownRebberLatexPublicator(Publicator):
             latex_file.write(content)
 
         try:
-            self.full_tex_compiler_call(latex_file_path)
-            self.full_tex_compiler_call(latex_file_path)
+            self.full_tex_compiler_call(latex_file_path, draftmode='-draftmode')
+            self.full_tex_compiler_call(latex_file_path, draftmode='-draftmode')
             self.make_glossary(base_name.split('/')[-1], latex_file_path)
             self.full_tex_compiler_call(latex_file_path)
         except FailureDuringPublication:
@@ -428,8 +428,8 @@ class ZMarkdownRebberLatexPublicator(Publicator):
             logging.info('published latex=%s, pdf=%s', published_content_entity.has_type('tex'),
                          published_content_entity.has_type(self.doc_type))
 
-    def full_tex_compiler_call(self, latex_file):
-        success_flag = self.tex_compiler(latex_file)
+    def full_tex_compiler_call(self, latex_file, draftmode: str=''):
+        success_flag = self.tex_compiler(latex_file, draftmode)
         if not success_flag:
             handle_tex_compiler_error(latex_file, self.extension)
 
@@ -438,8 +438,8 @@ class ZMarkdownRebberLatexPublicator(Publicator):
             errors = '\n'.join(filter(line for line in latex_log if 'fatal' in line.lower() or 'error' in line.lower()))
         raise FailureDuringPublication(errors)
 
-    def tex_compiler(self, texfile):
-        command = 'lualatex -shell-escape -interaction=nonstopmode {}'.format(texfile)
+    def tex_compiler(self, texfile, draftmode: str=''):
+        command = 'lualatex -shell-escape -interaction=nonstopmode {} {}'.format(draftmode, texfile)
         command_process = subprocess.Popen(command,
                                            shell=True, cwd=path.dirname(texfile),
                                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
