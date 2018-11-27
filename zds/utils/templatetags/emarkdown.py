@@ -201,7 +201,18 @@ def shift_heading(text, count):
     :return: Filtered text.
     :rtype: str
     """
-    return re.sub(r'(^|\n)(?P<level>#{1,4})(?P<header>.*?)#*(\n|$)', lambda t: sub_hd(t, count), text)
+    text_by_code = re.split('(```|~~~)', text)
+    starting_code = None
+    for i, element in enumerate(text_by_code):
+        if element in ['```', '~~~'] and not starting_code:
+            starting_code = element
+        elif element == starting_code:
+            starting_code = None
+        elif starting_code is None:
+            text_by_code[i] = re.sub(r'(^|\n)(?P<level>#{1,4})(?P<header>.*?)#*(\n|$)',
+                                     lambda t: sub_hd(t, count), text_by_code[i])
+
+    return ''.join(text_by_code)
 
 
 @register.filter('shift_heading_1')
