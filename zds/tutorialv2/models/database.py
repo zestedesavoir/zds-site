@@ -847,6 +847,15 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
 
         return self.get_absolute_url_to_extra_content('pdf')
 
+    def get_absolute_url_tex(self):
+        """wrapper around ``self.get_absolute_url_to_extra_content('tex')``
+
+        :return: URL to the tex version of the published content
+        :rtype: str
+        """
+
+        return self.get_absolute_url_to_extra_content('tex')
+
     def get_absolute_url_epub(self):
         """wrapper around ``self.get_absolute_url_to_extra_content('epub')``
 
