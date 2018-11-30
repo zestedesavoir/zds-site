@@ -27,16 +27,7 @@
                 {% for radio in form.models %}
                     <li>
 
-                        <input id="{{ radio.id_for_label }}"
-                               form="search-form"
-                               name="models"
-                               type="checkbox"
-                               value="{{ radio.choice_value }}"
-
-                               {% if radio.choice_value in form.cleaned_data.models %}
-                                   checked
-                               {% endif %}
-                                >
+                        {{ radio.tag }}
 
                         <label for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
                     </li>
