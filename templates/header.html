@@ -226,8 +226,8 @@
                             {% for notification in header_private_topic_notifications.list %}
                                 <li>
                                     <a href="{{ notification.url }}">
-                                        <img src="{{ notification.sender.profile.get_avatar_url|remove_url_scheme }}" alt="" class="avatar">
-                                        <span class="username">{{ notification.sender.username }}</span>
+                                        <img src="{{ notification.author.profile.get_avatar_url|remove_url_scheme }}" alt="" class="avatar">
+                                        <span class="username">{{ notification.author.username }}</span>
                                         <span class="date">{{ notification.pubdate|format_date:True|capfirst }}</span>
                                         <span class="topic">{{ notification.title }}</span>
                                     </a>
