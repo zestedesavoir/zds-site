@@ -1,9 +1,3 @@
-.PHONY: fixtures doc
-
-all: help
-
-# install
-## linux
 install-linux:
 	./scripts/install_zds.sh +base
 
@@ -14,8 +8,6 @@ install-macos:
 	brew install gettext cairo --without-x11 py2cairo node && \
 	pip3 install virtualenv virtualenvwrapper
 
-# dev back
-## django
 generate-pdf:
 	python manage.py generate_pdf
 
@@ -34,7 +26,6 @@ index-all:
 index-flagged:
 	python manage.py es_manager index_flagged
 
-## back-utils
 clean-back:
 	find . -name '*.pyc' -exec rm {} \;
 
@@ -57,11 +48,8 @@ test-back: clean-back zmd-start
 	python manage.py test --settings zds.settings.test --exclude-tag=front
 	make zmd-stop
 
-# elasticsearch
 run-elastic:
 	elasticsearch || echo 'No elasticsearch installed (you can add it locally with `./scripts/install_zds.sh +elasticsearch`)'
-
-# zmd
 
 zmd-install:
 	cd zmd && npm -g install pm2 && npm install --production
@@ -74,10 +62,6 @@ zmd-stop:
 
 zmd-check:
 	@curl -s http://localhost:27272 || echo 'Use `make zmd-start` to start zmarkdown server'
-
-
-# front
-## front-utils
 
 build-front:
 	yarn run build
@@ -94,8 +78,6 @@ lint-front:
 watch-front:
 	yarn run gulp
 
-# generic utils
-
 clean: clean-back clean-front
 
 wipe:
@@ -103,10 +85,12 @@ wipe:
 	rm -rf contents-private/*
 	rm -rf contents-public/*
 
+.PHONY: doc
 doc:
 	cd doc && \
 	make html
 
+.PHONY: fixtures
 fixtures:
 	python manage.py loaddata fixtures/*.yaml
 	python manage.py load_factory_data fixtures/advanced/aide_tuto_media.yaml
@@ -114,43 +98,19 @@ fixtures:
 restart_db: wipe migrate fixtures
 	python manage.py load_fixtures --size=low --all
 
-help:
-	@echo "Please use \`make <target>' where <target> is one of"
-	@echo "  build-front       to build frontend code"
-	@echo "  doc               to generate the html documentation"
-	@echo "  fixtures          to load every fixtures"
-	@echo "  generate-pdf      to regenerate all PDFs"
-	@echo "  index-all         to setup and (re)index all things for search"
-	@echo "  index-flagged     to index flagged things for search"
-	@echo "  help              to get this help"
-	@echo "  install-back      to install backend dependencies"
-	@echo "  install-front     to install frontend dependencies"
-	@echo "  install-debian    to install debian dependencies"
-	@echo "  install-ubuntu    to install ubuntu dependencies"
-	@echo "  install-fedora    to install fedora dependencies"
-	@echo "  install-archlinux to install archlinux dependencies"
-	@echo "  install-macos       to install os x dependencies"
-	@echo "  lint-back         to lint backend code (flake8)"
-	@echo "  lint-front        to lint frontend code (jshint)"
-	@echo "  clean-back        to clean *.pyc"
-	@echo "  clean-front       to clean frontend builds"
-	@echo "  clean             to clean everything"
-	@echo "  wipe              to clean data (database and contents)"
-	@echo "  watch-front       to watch frontend code"
-	@echo "  migrate           to migrate the project"
-	@echo "  report-release-back  to generate release report"
-	@echo "  run               to run the project locally"
-	@echo "  run-back          to only run the backend"
-	@echo "  run-elastic       to run elasticsearch"
-	@echo "  shell             to get django shell"
-	@echo "  test              to run django tests"
-	@echo "Open this Makefile to see what each target does."
-	@echo "When a target uses an env variable (eg. $$(VAR)), you can do"
-	@echo "  make VAR=my_var cible"
-
 lint: lint-back lint-front
 
 run:
 	make -j2 watch-front run-back
 
 test: test-back test-front
+
+# inspired from https://gist.github.com/sjparkinson/f0413d429b12877ecb087c6fc30c1f0a
+
+.DEFAULT_GOAL := help
+help:
+	@echo "Use 'make [command]' to run one of these commands:"
+	@echo ""
+	@fgrep --no-filename "##" ${MAKEFILE_LIST} | head -n '-1' | sed 's/\:.*\#/\: \#/g' | column -s ':#' -t -c 2
+	@echo ""
+	@echo "Open this Makefile to see what each command does."
