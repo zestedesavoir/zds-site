@@ -3,6 +3,7 @@ const livereload = require('gulp-livereload');
 const concat = require('gulp-concat');
 const del = require('del');
 const gulp = require('gulp');
+const gulpif = require('gulp-if');
 const imagemin = require('gulp-imagemin');
 const postcss = require('gulp-postcss');
 const sass = require('gulp-sass');
@@ -10,14 +11,23 @@ const sourcemaps = require('gulp-sourcemaps');
 const spritesmith = require('gulp.spritesmith');
 const uglify = require('gulp-uglify');
 const jshint = require('gulp-jshint');
+const options = require('gulp-options');
 const autoprefixer = require('autoprefixer');
 const cssnano = require('cssnano');
 
-// PostCSS plugins used
+const fast = options.has("speed");
+
+//>> PostCSS plugins used
 const postcssPlugins = [
-    autoprefixer({ browsers: ['last 2 versions', '> 1%', 'ie >= 9'] }),
-    cssnano()
+    autoprefixer({ browsers: ['last 2 versions', '> 1%', 'ie >= 9'] })
 ];
+
+if (!fast) {
+    postcssPlugins.push(cssnano());
+} else {
+    console.log("The speed mode is enabled.");
+}
+//<<
 
 const customSass = () => sass({
     sourceMapContents: true,
@@ -86,7 +96,7 @@ gulp.task('js', () =>
     ], { base: '.' })
         .pipe(sourcemaps.init({ loadMaps: true }))
         .pipe(concat('script.js', { newline: ';\r\n' }))
-        .pipe(uglify())
+        .pipe(gulpif(!fast, uglify()))
         .on('error', function (err) {
             // gulp-uglify sucks
             console.log(err.toString());
@@ -103,7 +113,7 @@ gulp.task('css', ['css:sprite'], () =>
     gulp.src(['assets/scss/main.scss', 'assets/scss/zmd.scss'])
         .pipe(sourcemaps.init())
         .pipe(customSass())
-        .pipe(postcss(postcssPlugins))
+        .pipe(gulpif(!fast, postcss(postcssPlugins)))
         .pipe(sourcemaps.write('.', { includeContent: true, sourceRoot: '../../assets/scss/' }))
         .pipe(gulp.dest('dist/css/')));
 
@@ -122,7 +132,7 @@ gulp.task('css:sprite', () =>
 // Optimizes the images
 gulp.task('images', ['css:sprite'], () =>
     gulp.src('assets/{images,smileys,licenses}/**/*')
-        .pipe(imagemin())
+        .pipe(gulpif(!fast, imagemin()))
         .pipe(gulp.dest('dist/'))
 );
 
@@ -170,7 +180,7 @@ gulp.task('errors', () =>
     gulp.src('errors/scss/main.scss')
         .pipe(sourcemaps.init())
         .pipe(customSass())
-        .pipe(postcss(postcssPlugins))
+        .pipe(gulpif(!fast, postcss(postcssPlugins)))
         .pipe(sourcemaps.write('.', { includeContent: true, sourceRoot: '../scss/' }))
         .pipe(gulp.dest('errors/css/')));
 
