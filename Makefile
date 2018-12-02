@@ -34,7 +34,7 @@ test-back: clean-back zmd-start ## Run backend unit tests
 	make zmd-stop
 
 test-back-selenium: ## Run backend Selenium tests
-	python manage.py test --settings zds.settings.test --tag=front
+	xvfb-run --server-args="-screen 0 1280x720x8" python manage.py test --settings zds.settings.test --tag=front
 
 clean-back: ## Remove Python bytecode files (*.pyc)
 	find . -name '*.pyc' -exec rm {} \;
