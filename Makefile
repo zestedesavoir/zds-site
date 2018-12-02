@@ -16,25 +16,25 @@ index-all: ## Index the database in a new Elastic Search index
 index-flagged: ## Index the database in the current Elastic Search index
 	python manage.py es_manager index_flagged
 
-clean-back:
+clean-back: ## Remove Python bytecode files (*.pyc)
 	find . -name '*.pyc' -exec rm {} \;
 
-install-back:
+install-back: ## Install the Python packages for the backend
 	pip3 install --upgrade -r requirements-dev.txt
 
-lint-back:
+lint-back: ## Lint Python code
 	flake8 zds
 
 generate-release-summary: ## Generate a release summary from Github's issues and PRs
 	@python scripts/generate_release_summary.py
 
-run-back: zmd-check
+run-back: zmd-check ## Run the backend server
 	python manage.py runserver
 
-test-front:
+test-back-selenium: ## Run backend Selenium tests
 	python manage.py test --settings zds.settings.test --tag=front
 
-test-back: clean-back zmd-start
+test-back: clean-back zmd-start ## Run backend unit tests
 	python manage.py test --settings zds.settings.test --exclude-tag=front
 	make zmd-stop
 
@@ -92,7 +92,7 @@ lint: lint-back lint-front
 run:
 	make -j2 watch-front run-back
 
-test: test-back test-front
+test: test-back test-back-selenium
 
 # inspired from https://gist.github.com/sjparkinson/f0413d429b12877ecb087c6fc30c1f0a
 
