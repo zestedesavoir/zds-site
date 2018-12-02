@@ -2,6 +2,10 @@
 Installation sous macOS
 =======================
 
+.. Attention::
+
+    Cette partie de la documentation n'est probablement pas à jour faute de contributeur utilisant MacOS. Il se peut que l'installation et les tests unitaires fonctionnent correctement, partiellement ou pas du tout. Bref, en cas de problème n'hésitez pas à venir demander de l'aide sur le `forum des Devs' de Zeste de Savoir <https://zestedesavoir.com/forums/communaute/dev-zone/>`_ !
+
 Pour installer une version locale de ZdS sur macOS, veuillez suivre les instructions suivantes.
 Si une commande ne passe pas, essayez de savoir pourquoi avant de continuer.
 
@@ -34,7 +38,8 @@ Pré-requis
 
 .. sourcecode:: bash
 
-  make install-macos
+  brew install gettext cairo --without-x11 py2cairo node && \
+  pip3 install virtualenv virtualenvwrapper
 
 Une fois les pré-requis terminés, vous pouvez vous lancer dans l'installaton de l'environnement de zds.
 
