@@ -75,10 +75,10 @@ wipe-db: ## Remove the database and the contents directories
 	rm -rf contents-private/*
 	rm -rf contents-public/*
 
-.PHONY: doc
-doc:
-	cd doc && \
-	make html
+generate-doc: ## Generate the project's documentation
+	cd doc && make html
+	@echo ""
+	@echo "Open 'doc/build/html/index.html' to read the documentation'"
 
 generate-fixtures: ## Generate fixtures (users, tutorials, articles, opinions, topics...)
 	python manage.py loaddata fixtures/*.yaml
