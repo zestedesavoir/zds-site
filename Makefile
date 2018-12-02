@@ -10,12 +10,6 @@ generate-pdf:
 migrate:
 	python manage.py migrate
 
-reset:
-	python manage.py reset
-
-shell:
-	python manage.py shell
-
 index-all:
 	python manage.py es_manager index_all
 
