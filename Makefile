@@ -10,10 +10,10 @@ generate-pdf:
 migrate-db: ## Create or update database schema
 	python manage.py migrate
 
-index-all:
+index-all: ## Index the database in a new Elastic Search index
 	python manage.py es_manager index_all
 
-index-flagged:
+index-flagged: ## Index the database in the current Elastic Search index
 	python manage.py es_manager index_flagged
 
 clean-back:
@@ -38,8 +38,8 @@ test-back: clean-back zmd-start
 	python manage.py test --settings zds.settings.test --exclude-tag=front
 	make zmd-stop
 
-run-elastic:
-	elasticsearch || echo 'No elasticsearch installed (you can add it locally with `./scripts/install_zds.sh +elasticsearch`)'
+run-elasticsearch: ## Run the Elastic Search server
+	elasticsearch || echo 'No Elastic Search installed (you can add it locally with `./scripts/install_zds.sh +elasticsearch`)'
 
 zmd-install:
 	cd zmd && npm -g install pm2 && npm install --production
