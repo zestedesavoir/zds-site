@@ -4,10 +4,6 @@ install-linux:
 install-linux-full:
 	./scripts/install_zds.sh +full
 
-install-macos:
-	brew install gettext cairo --without-x11 py2cairo node && \
-	pip3 install virtualenv virtualenvwrapper
-
 generate-pdf:
 	python manage.py generate_pdf
 
