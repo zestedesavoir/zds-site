@@ -7,7 +7,7 @@ install-linux-full:
 generate-pdf:
 	python manage.py generate_pdf
 
-migrate:
+migrate-db: ## Create or update database schema
 	python manage.py migrate
 
 index-all:
@@ -70,7 +70,7 @@ watch-front:
 
 clean: clean-back clean-front
 
-wipe:
+wipe-db: ## Remove the database and the contents directories
 	rm base.db
 	rm -rf contents-private/*
 	rm -rf contents-public/*
@@ -80,13 +80,12 @@ doc:
 	cd doc && \
 	make html
 
-.PHONY: fixtures
-fixtures:
+generate-fixtures: ## Generate fixtures (users, tutorials, articles, opinions, topics...)
 	python manage.py loaddata fixtures/*.yaml
 	python manage.py load_factory_data fixtures/advanced/aide_tuto_media.yaml
-
-restart_db: wipe migrate fixtures
 	python manage.py load_fixtures --size=low --all
+
+new-db: wipe-db migrate-db generate-fixtures ## Create a new full database (`wipe-db` & `migrate-db` & `generate-fixtures`)
 
 lint: lint-back lint-front
 

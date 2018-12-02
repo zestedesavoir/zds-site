@@ -97,16 +97,15 @@ On crée d'abord la base de donnée, puis le `jeu de données utile au dévellop
 
 .. sourcecode:: bash
 
-    make migrate
-    make fixtures
+    make migrate-db
+    make generate-fixtures
 
 On peut finalement lancer zmarkdown, puis ZdS:
 
 .. sourcecode:: bash
 
-    make zmd-run
+    make zmd-start
     make run-back
-
 
 
 Aller plus loin
