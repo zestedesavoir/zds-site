@@ -25,8 +25,8 @@ install-back:
 lint-back:
 	flake8 zds
 
-report-release-back:
-	python scripts/release_generator.py
+generate-release-summary: ## Generate a release summary from Github's issues and PRs
+	@python scripts/generate_release_summary.py
 
 run-back: zmd-check
 	python manage.py runserver
