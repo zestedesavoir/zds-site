@@ -162,12 +162,12 @@
         </ul>
 
         <div id="cookies-eu-banner">
-            <div>
-                {% trans "Ce site utilise Google Analytics. En poursuivant votre navigation sur ce site, vous nous autorisez à déposer des cookies à des fins de mesure d’audience. Pour s’opposer à ce dépôt vous pouvez cliquer" %}
-                <button id="cookies-eu-reject">{% trans "ici" %}</button>.
-            </div>
+            <p>
+                {% trans "Nous souhaitons déposer des cookies à des fins de mesure d'audience avec Google Analytics. Vous êtes libre d'accepter ou de refuser. En poursuivant votre navigation sur ce site sans exprimer votre choix, vous autorisez la mesure d'audience." %}
+            </p>
             <a href="/pages/cookies" id="cookies-eu-more">{% trans "En savoir plus" %}</a>
-            <button id="cookies-eu-accept">{% trans "OK" %}</button>
+            <button id="cookies-eu-accept">{% trans "Accepter" %}</button>
+            <button id="cookies-eu-reject">{% trans "Refuser" %}</button>
         </div>
 
         <div class="header-container">
