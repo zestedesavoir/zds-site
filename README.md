@@ -30,13 +30,6 @@ Pour bénéficier de données de test, exécutez la commande suivante:
 make fixtures
 ```
 
-Si vous êtes sur Windows, préférez ceci :
-
-```console
-python .\manage.py loaddata (dir .\fixtures\*.yaml)
-python .\manage.py load_factory_data .\fixtures\advanced\aide_tuto_media.yaml
-```
-
 Cela va créer plusieurs entitées [détaillées ici](https://docs.zestedesavoir.com/utils/fixture_loaders.html#les-donnees-serialisables-pour-une-base-fonctionnelle).
 Différents utilisateurs vont être créés, parmis lesquels:
 
