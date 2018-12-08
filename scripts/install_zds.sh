@@ -42,7 +42,8 @@ fi
 # os-specific package install
 if  ! $(_in "-packages" $@) && ( $(_in "+packages" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
     echo "* [+packages] installing packages (require sudo)"
-    version=$(cat /proc/version)
+    version="$(cat /proc/version) $(cat /etc/issue)"
+    version=${version,,}
     if [[ "$version" =~ "ubuntu" ]]; then
 		REALPATH="realpath"
 		release=$(lsb_release -c)
