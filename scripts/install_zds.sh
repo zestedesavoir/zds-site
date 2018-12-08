@@ -41,7 +41,7 @@ fi
 
 # os-specific package install
 if  ! $(_in "-packages" $@) && ( $(_in "+packages" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
-    echo "* [+packages] installing packages (require sudo)"
+    echo "* [+packages] installing packages (this subcommand will be run as super-user)"
     version=$(cat /proc/version)
     if [[ "$version" =~ "ubuntu" ]]; then
 		REALPATH="realpath"
