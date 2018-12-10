@@ -93,6 +93,7 @@
     input:not([type=submit]):not([type=reset]):not([type=radio]):not([type=checkbox]) {
         width: calc(98% - 2px);
         padding: 0 1%;
+        background: #e0e0e0;
     }
     textarea {
         width: calc(98% - 2px);
