@@ -313,7 +313,7 @@ class NewImage(ImageFromGalleryContextViewMixin, ImageCreateMixin, LoggedWithRea
         self.perform_create(
             form.cleaned_data.get('title'),
             self.request.FILES.get('physical'),
-            form.cleaned_data.get('title'))
+            form.cleaned_data.get('legend'))
 
         self.success_url = reverse(
             'gallery-image-edit',
