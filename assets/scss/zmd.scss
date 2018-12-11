@@ -3,15 +3,15 @@
  */
 
 // FIXME: high-dpi support for icons?
-@import "variables/variables";
-@import "sprite";
-@import "highlight.js/styles/idea";
-@import "components/alert-box";
-@import "base/icons";
+@import url("variables/variables");
+@import url("sprite");
+@import url("highlight.js/styles/idea");
+@import url("components/alert-box");
+@import url("base/icons");
 
 .zmarkdown {
     color: #424242;
 
-    @import "base/content";
-    @import "base/tables";
+    @import url("base/content");
+    @import url("base/tables");
 }
