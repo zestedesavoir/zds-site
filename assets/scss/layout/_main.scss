@@ -18,6 +18,11 @@
         border-bottom: 1px solid $color-secondary;
         margin: 1px 0 15px;
 
+        &.blue, 
+        &.blue a {
+            color:#1088bf !important;
+        }
+
         &.illu {
             padding-left: 60px;
 

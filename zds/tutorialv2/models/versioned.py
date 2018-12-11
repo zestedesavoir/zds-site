@@ -775,6 +775,27 @@ class Container:
         else:
             return _('Section')
 
+    def is_chapter(self):
+        """
+        Check if the container level is Chapter
+
+        :return: True if the container level is Chapter
+        :rtype: bool
+        """
+        if self.get_tree_depth() == 2:
+                return True
+        return False
+
+    def next_level_is_chapter(self):
+        """Same as ``self.is_chapter()`` but check the container's children
+
+        :return: True if the container next level is Chapter
+        :rtype: bool
+        """
+        if self.get_tree_depth() == 1 and self.can_add_container():
+                return True
+        return False
+
     def can_be_in_beta(self):
         """
         Check if content can be in beta.
