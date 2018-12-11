@@ -4,93 +4,93 @@
  * @file main.scss
  */
 
-@import "variables/variables";
-@import "sprite";
+@import url("variables/variables");
+@import url("sprite");
 
 /*------------------------
 1. External dependencies
 ------------------------*/
-@import "normalize.css/normalize";
-@import "highlight.js/styles/idea";
+@import url("normalize.css/normalize");
+@import url("highlight.js/styles/idea");
 
 /*------------------------
 2. Base
 ------------------------*/
-@import "base/base";
-@import "base/tables";
-@import "base/forms";
+@import url("base/base");
+@import url("base/tables");
+@import url("base/forms");
 
 /*------------------------
 3. Typography
 ------------------------*/
-@import "base/typography";
+@import url("base/typography");
 
 /*------------------------
 4. Icons
 ------------------------*/
-@import "base/icons";
+@import url("base/icons");
 
 /*------------------------
 5. Helpers
 ------------------------*/
-@import "base/helpers";
+@import url("base/helpers");
 
 /*------------------------
 6. Header
 ------------------------*/
-@import "layout/header";
-@import "components/header-dropdown";
-@import "components/header-search";
-@import "components/accessibility-bar";
-@import "components/cookies-banner";
+@import url("layout/header");
+@import url("components/header-dropdown");
+@import url("components/header-search");
+@import url("components/accessibility-bar");
+@import url("components/cookies-banner");
 
 /*------------------------
 7. Layout
 ------------------------*/
-@import "layout/sidebar";
-@import "layout/main";
-@import "layout/content";
-@import "layout/footer";
+@import url("layout/sidebar");
+@import url("layout/main");
+@import url("layout/content");
+@import url("layout/footer");
 
 /*------------------------
 8. Components
 ------------------------*/
-@import "components/alert-box";
-@import "components/authors";
-@import "components/autocomplete";
-@import "components/breadcrumb";
-@import "components/content-item";
-@import "components/editor";
-@import "components/featured-item";
-@import "components/markdown-help";
-@import "components/mobile-menu";
-@import "components/modals";
-@import "components/pagination";
-@import "components/pygments";
-@import "components/search-box";
-@import "components/tags";
-@import "components/tooltips";
-@import "components/topic-list";
-@import "components/notification-list";
-@import "components/topic-message";
-@import "components/topic-new";
-@import "components/user-profile";
-@import "components/linkbox";
-@import "components/more-link";
+@import url("components/alert-box");
+@import url("components/authors");
+@import url("components/autocomplete");
+@import url("components/breadcrumb");
+@import url("components/content-item");
+@import url("components/editor");
+@import url("components/featured-item");
+@import url("components/markdown-help");
+@import url("components/mobile-menu");
+@import url("components/modals");
+@import url("components/pagination");
+@import url("components/pygments");
+@import url("components/search-box");
+@import url("components/tags");
+@import url("components/tooltips");
+@import url("components/topic-list");
+@import url("components/notification-list");
+@import url("components/topic-message");
+@import url("components/topic-new");
+@import url("components/user-profile");
+@import url("components/linkbox");
+@import url("components/more-link");
 
 /*------------------------
 9. Pages
 ------------------------*/
-@import "pages/flexpage";
-@import "pages/home";
-@import "pages/gallery";
-@import "pages/api";
-@import "pages/search";
-@import "pages/stats";
-@import "pages/tutorial-help";
-@import "pages/tutorial-history";
+@import url("pages/flexpage");
+@import url("pages/home");
+@import url("pages/gallery");
+@import url("pages/api");
+@import url("pages/search");
+@import url("pages/stats");
+@import url("pages/tutorial-help");
+@import url("pages/tutorial-history");
 
 /*-------------------------
 10. High pixel ratio (retina)
 -------------------------*/
-@import "base/high-pixel-ratio";
+@import url("base/high-pixel-ratio");
