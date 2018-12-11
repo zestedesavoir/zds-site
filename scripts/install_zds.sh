@@ -10,10 +10,21 @@ function _in {
   return 1
 }
 
-
 function _nvm {
         export NVM_DIR="$HOME/.nvm"
         [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+}
+
+function info {
+    echo -n -e "\033[0;36m";
+    echo "$1";
+    echo -n -e "\033[00m";
+}
+
+function error {
+    echo -n -e "\033[0;31m";
+    echo "$1";
+    echo -n -e "\033[00m";
 }
 
 # variables
@@ -41,14 +52,14 @@ fi
 
 # os-specific package install
 if  ! $(_in "-packages" $@) && ( $(_in "+packages" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
-    echo "* [+packages] installing packages (this subcommand will be run as super-user)"
+    info "* [+packages] installing packages (this subcommand will be run as super-user)"
     version=$(cat /proc/version)
     if [[ "$version" =~ "ubuntu" ]]; then
-		REALPATH="realpath"
-		release=$(lsb_release -c)
-		if [[ "$release" =~ "bionic" ]]; then
-			REALPATH="coreutils"
-		fi
+        REALPATH="realpath"
+        release=$(lsb_release -c)
+        if [[ "$release" =~ "bionic" ]]; then
+            REALPATH="coreutils"
+        fi
         sudo apt-get -y install git python3-dev python3-venv python3-setuptools libxml2-dev python3-lxml libxslt1-dev zlib1g-dev python3-sqlparse libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev libffi-dev python3-pip build-essential curl $REALPATH librsvg2-bin imagemagick xzdec
     elif [[ "$version" =~ "debian" ]]; then
         sudo apt-get -y install git python3-dev python3-venv python3-setuptools libxml2-dev python3-lxml libxslt-dev libz-dev python3-sqlparse libjpeg62-turbo libjpeg62-turbo-dev libfreetype6 libfreetype6-dev libffi-dev python3-pip virtualenv build-essential curl librsvg2-bin imagemagick xzdec
@@ -57,8 +68,8 @@ if  ! $(_in "-packages" $@) && ( $(_in "+packages" $@) || $(_in "+base" $@) || $
     elif [[ "$version" =~ "arch" ]]; then
         sudo pacman -Syu git wget python python-setuptools python-pip libxml2 python-lxml libxslt zlib python-sqlparse libffi libjpeg-turbo freetype2 base-devel unzip
     else
-        echo "!! I did not detect your linux version"
-        echo "!! Please manually install the packages and run again with \`-packages\`"
+        error "!! I did not detect your linux version"
+        error "!! Please manually install the packages and run again with \`-packages\`"
         exit 1
     fi
 fi
@@ -66,13 +77,13 @@ fi
 # virtualenv
 if  ! $(_in "-virtualenv" $@) && ( $(_in "+virtualenv" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
     if [ ! -d $ZDS_VENV ]; then
-        echo "* [+virtualenv] creating virtualenv"
+        info "* [+virtualenv] creating virtualenv"
         python3 -m venv $ZDS_VENV
     fi
 fi
 
 if [[ $VIRTUAL_ENV == "" || $(basename $VIRTUAL_ENV) != $ZDS_VENV ]]; then
-    echo "* activating venv \`$ZDS_VENV\`"
+    info "* activating venv \`$ZDS_VENV\`"
 
     if [ -d $HOME/.nvm ]; then # force nvm activation, in case of
         _nvm
@@ -81,14 +92,14 @@ if [[ $VIRTUAL_ENV == "" || $(basename $VIRTUAL_ENV) != $ZDS_VENV ]]; then
     . ./$ZDS_VENV/bin/activate
 
     if [[ $? != "0" ]]; then
-        echo "!! no virtualenv, cannot continue"
+        error "!! no virtualenv, cannot continue"
         exit 1
     fi
 fi
 
 # nvm node & yarn
 if  ! $(_in "-node" $@) && ( $(_in "+node" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
-    echo "* [+node] installing nvm (v$ZDS_NVM_VERSION) & node (v$ZDS_NODE_VERSION) & yarn"
+    info "* [+node] installing nvm (v$ZDS_NVM_VERSION) & node (v$ZDS_NODE_VERSION) & yarn"
 
     wget -qO- https://raw.githubusercontent.com/creationix/nvm/v${ZDS_NVM_VERSION}/install.sh | bash
     if [[ $? == 0 ]]; then
@@ -110,14 +121,14 @@ if  ! $(_in "-node" $@) && ( $(_in "+node" $@) || $(_in "+base" $@) || $(_in "+f
             echo $ACTIVATE_NVM >> $VIRTUAL_ENV/bin/activate.fish
         fi
     else
-        echo "!! Cannot obtain nvm v${ZDS_NVM_VERSION}"
+        error "!! Cannot obtain nvm v${ZDS_NVM_VERSION}"
         exit 1
     fi
 fi
 
 # local elasticsearch
 if  ! $(_in "-elastic-local" $@) && ( $(_in "+elastic-local" $@) || $(_in "+full" $@) ); then
-    echo "* [+elastic-local] installing a local version of elasticsearch (v$ZDS_ELASTIC_VERSION)"
+    info "* [+elastic-local] installing a local version of elasticsearch (v$ZDS_ELASTIC_VERSION)"
     mkdir -p .local
     cd .local
 
@@ -132,14 +143,14 @@ if  ! $(_in "-elastic-local" $@) && ( $(_in "+elastic-local" $@) || $(_in "+full
         mv elasticsearch-${ZDS_ELASTIC_VERSION} elasticsearch
 
         # add options to reduce memory consumption
-        echo "#Options added by install_zds.sh" >> elasticsearch/config/jvm.options
-        echo "-Xms512m" >> elasticsearch/config/jvm.options
-        echo "-Xmx512m" >> elasticsearch/config/jvm.options
+        info "#Options added by install_zds.sh" >> elasticsearch/config/jvm.options
+        info "-Xms512m" >> elasticsearch/config/jvm.options
+        info "-Xmx512m" >> elasticsearch/config/jvm.options
 
         # symbolic link to elastic start script
         ln -s $(realpath elasticsearch/bin/elasticsearch) $VIRTUAL_ENV/bin/
     else
-        echo "!! Cannot get elasticsearch ${ZDS_ELASTIC_VERSION}"
+        error "!! Cannot get elasticsearch ${ZDS_ELASTIC_VERSION}"
         exit 1;
     fi;
     cd ..
@@ -147,7 +158,7 @@ fi
 
 # local texlive
 if  ! $(_in "-tex-local" $@) && ( $(_in "+tex-local" $@) || $(_in "+full" $@) ); then
-    echo "* [+tex-local] install texlive"
+    info "* [+tex-local] install texlive"
 
     CURRENT=$(pwd)
     mkdir -p .local
@@ -195,11 +206,11 @@ if  ! $(_in "-tex-local" $@) && ( $(_in "+tex-local" $@) || $(_in "+full" $@) );
             ./bin/x86_64-linux/tlmgr update --self
             rm -Rf $REPO
         else
-            echo "!! Cannot download texlive"
+            error "!! Cannot download texlive"
             exit 1
         fi
     else
-        echo "!! cannot clone repository $ZDS_LATEX_REPO"
+        error "!! cannot clone repository $ZDS_LATEX_REPO"
         exit 1
     fi
 
@@ -208,12 +219,12 @@ fi
 
 # latex-template in TEXMFHOME.
 if  ! $(_in "-latex-template" $@) && ( $(_in "+latex-template" $@) || $(_in "+full" $@) ); then
-    echo "* [+latex-template] install latex-template (from $ZDS_LATEX_REPO)"
+    info "* [+latex-template] install latex-template (from $ZDS_LATEX_REPO)"
 
     CURRENT=$(pwd)
 
     if [[ $(which kpsewhich) == "" ]]; then # no texlive ?
-        echo "!! Cannot find kpsewhich, do you have texlive?"
+        error "!! Cannot find kpsewhich, do you have texlive?"
         exit 1;
     fi
 
@@ -230,7 +241,7 @@ if  ! $(_in "-latex-template" $@) && ( $(_in "+latex-template" $@) || $(_in "+fu
 
     git clone $ZDS_LATEX_REPO
     if [[ $? != 0 ]]; then
-        echo "!! cannot clone repository $ZDS_LATEX_REPO"
+        error "!! cannot clone repository $ZDS_LATEX_REPO"
         exit 1
     fi
 
@@ -239,14 +250,14 @@ fi
 
 # install back
 if  ! $(_in "-back" $@) && ( $(_in "+back" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
-    echo "* [+back] install back dependencies & migration"
+    info "* [+back] install back dependencies & migration"
     make install-back
     make migrate # migration are required for the instance to run properly anyway
 fi
 
 # install front
 if  ! $(_in "-front" $@) && ( $(_in "+front" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
-    echo "* [+front] install front dependencies & build front"
+    info "* [+front] install front dependencies & build front"
     if [ -d node_modules ]; then # delete previous modules
         rm -R node_modules
     fi;
@@ -257,14 +268,13 @@ fi
 
 # zmd
 if  ! $(_in "-zmd" $@) && ( $(_in "+zmd" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
-    echo "* [+zmd] install zmarkdown dependencies"
+    info "* [+zmd] install zmarkdown dependencies"
     make zmd-install
 fi
 
 # fixtures
 if  ! $(_in "-data" $@) && ( $(_in "+data" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
-    echo "* [+data] fixtures"
+    info "* [+data] fixtures"
     make fixtures
 fi
-
-echo "Done. You can now run instance with \`source $ZDS_VENV/bin/activate\`, and then, \`make zmd-start && make run-back\`"
+info "Done. You can now run instance with \`source $ZDS_VENV/bin/activate\`, and then, \`make zmd-start && make run-back\`"
