@@ -4,7 +4,6 @@
 {% if content.introduction %}
 {% captureas intro %}{{ content.get_introduction|safe }}{% endcaptureas %}
 {% if intro.strip != '' %}
-# Introduction
 
 {{ intro }}
 {% endif %}
@@ -45,7 +44,8 @@
 {% if content.conclusion %}
 {% captureas conclu %}{{ content.get_conclusion|safe }}{% endcaptureas %}
 {% if conclu.strip != '' %}
-# Conclusion
+
+---------
 
 {{ conclu }}
 {% endif %}

@@ -374,13 +374,15 @@ kbd {
 }
 
 // Code inline
-p code,
-li code,
-td code {
-    color: #A00;
-    background: #EEE;
-    border: 1px solid #CCC;
-    padding: 0 5px;
+p,
+li,
+td {
+    code:not(.hljs) {
+        color: #A00;
+        background: #EEE;
+        border: 1px solid #CCC;
+        padding: 0 5px;
+    }
 }
 
 // @ping
