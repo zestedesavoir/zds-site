@@ -266,7 +266,9 @@ class SingleContentDetailViewMixin(SingleContentViewMixin, DetailView):
         if self.sha != self.object.sha_draft:
             context['version'] = self.sha
 
-        context['can_add_something'] = (self.is_author or self.is_staff) and (not self.sha or self.sha == self.object.sha_draft)
+        is_allowed = (self.is_author or self.is_staff)
+        is_same_version = (not self.sha or self.sha == self.object.sha_draft)
+        context['can_add_something'] = is_allowed and is_same_version
 
         if self.object.beta_topic:
             beta_topic = Topic.objects.get(pk=self.object.beta_topic.pk)
