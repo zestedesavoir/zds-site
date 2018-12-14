@@ -121,8 +121,8 @@ que vous devez corriger.
 .. note::
    L'outil d'intégration continue que nous utilisons, Travis CI, fait cette vérification à la création de chaque *pull
    request* et sortira la liste des erreurs et des avertissements. Pour éviter d'attendre qu'il ait fini, il est plus
-   pratique pour vous (et nous) que vous lanciez cette commande en amont avec ``make lint-front`` ou ``yarn run test`` (ou
-   ``yarn test``).
+   pratique pour vous (et nous) que vous lanciez cette commande en amont avec ``make lint-front`` ou ``yarn run lint`` (ou
+   ``yarn lint``).
 
 Coder plus simplement avec ``watch``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

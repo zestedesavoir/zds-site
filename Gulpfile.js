@@ -188,6 +188,5 @@ gulp.task('errors', () =>
         .pipe(sourcemaps.write('.', { includeContent: true, sourceRoot: '../scss/' }))
         .pipe(gulp.dest('errors/css/')));
 
-gulp.task('test', ['js:lint']);
 gulp.task('build', ['prepare-zmd', 'css', 'js', 'images']);
-gulp.task('default', ['watch', 'test']);
+gulp.task('default', ['watch', 'js:lint']);
