@@ -53,20 +53,20 @@ zmd-stop:
 zmd-check:
 	@curl -s http://localhost:27272 || echo 'Use `make zmd-start` to start zmarkdown server'
 
-build-front:
+build-front: ## Build the frontend assets (CSS, JS, images)
 	yarn run build
 
-clean-front:
+clean-front: ## Clean the frontend builds
 	yarn run clean
 
-install-front:
-	yarn
+install-front: ## Install the Node.js packages for the frontend
+	yarn install
 
-lint-front:
+lint-front: ## Lint the frontend's Javascript
 	yarn run lint
 
-watch-front:
-	yarn run gulp
+watch-front: ## Build the frontend assets when they are modified
+	yarn run watch --speed
 
 clean: clean-back clean-front
 

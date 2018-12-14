@@ -10,10 +10,9 @@
   },
   "scripts": {
     "gulp": "gulp",
-    "lint": "gulp js:lint",
-    "travis": "gulp test && gulp build",
-    "test": "gulp test",
     "build": "gulp build",
+    "watch": "gulp watch",
+    "lint": "gulp js:lint",
     "clean": "gulp clean"
   },
   "repository": {
