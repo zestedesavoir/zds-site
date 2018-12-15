@@ -1100,7 +1100,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
             return analytics
         except (ValueError, FileNotFoundError, ServerNotFoundError) as e:
             messages.error(self.request, _("Erreur de configuration de l'API Analytics. "
-                                           "Merci de contacter l'équipe des développeurs. {}".format(str(e))))
+                                           "Merci de contacter l'équipe des développeurs. « {} »").format(str(e)))
             return None
 
     @staticmethod
@@ -1205,7 +1205,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         try:
             rows = report['data']['rows']
         except KeyError:
-            messages.error(self.request, _("Aucune donnée n'est disponible (metrique {})".format(info)))
+            messages.error(self.request, _("Aucune donnée n'est disponible (métrique « {} »)").format(info))
             return []
         api_raw = OrderedDict()
         for r in rows:
@@ -1288,7 +1288,8 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
                 body={'reportRequests': [graphs_data_report, table_data_report, referrer_report, keyword_report]}
             ).execute()
         except googleapiclient.errors.HttpError as e:
-            messages.error(self.request, _("Un problème a eu lieu lors de la requète vers l'API GA. {}".format(e)))
+            messages.error(self.request,
+                           _("Un problème a eu lieu lors de la requête vers l'API Google Analytics. « {} »").format(e))
             return ([], [], [], [])
 
         return (
