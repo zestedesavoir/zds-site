@@ -34,11 +34,11 @@
 
         <!-- Tab links -->
         <div class="tab">
-            <span class="tablinks" id="tab-view-graph">{% trans "Pages vues" %}</span>
-            <span class="tablinks" id="tab-visit-time-graph">{% trans "Temps de lecture" %}</span>
-            <span class="tablinks" id="tab-users-graph">{% trans "Nombre de visiteurs" %}</span>
-            <span class="tablinks" id="tab-new-users-graph">{% trans "Nombre de nouveaux visiteurs" %}</span>
-            <span class="tablinks" id="tab-sessions-graph">{% trans "Nombre de sessions" %}</span>
+            <span class="tablinks" tabindex="0" id="tab-view-graph">{% trans "Pages vues" %}</span>
+            <span class="tablinks" tabindex="0" id="tab-visit-time-graph">{% trans "Temps de lecture" %}</span>
+            <span class="tablinks" tabindex="0" id="tab-users-graph">{% trans "Nombre de visiteurs" %}</span>
+            <span class="tablinks" tabindex="0" id="tab-new-users-graph">{% trans "Nombre de nouveaux visiteurs" %}</span>
+            <span class="tablinks" tabindex="0" id="tab-sessions-graph">{% trans "Nombre de sessions" %}</span>
         </div>
         <!-- Tab content -->
         {% include "misc/graph.part.html" with tab_name="tab-view-graph-content" graph_title="Évolution des pages vues sur le contenu" canvas_id="view-graph" metric="pageviews" %}
