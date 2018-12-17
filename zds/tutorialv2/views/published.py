@@ -1169,6 +1169,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
                 stats[m] = []
                 for d in data:
                     stats[m].append({'date': d, m: data[d][m]})
+                stats[m] = sorted(stats[m], key=lambda k: k['date'])
             api_raw = [{'label': _('Global'),
                         'stats': stats}]
         else:
@@ -1196,6 +1197,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
                     stats[m] = []
                     for d in data[url.url]['stats']:
                         stats[m].append({'date': d, m: data[url.url]['stats'][d].get(m, 0)})
+                    stats[m] = sorted(stats[m], key=lambda k: k['date'])
                 element = {'label': url.name, 'stats': stats}
                 api_raw.append(element)
 
