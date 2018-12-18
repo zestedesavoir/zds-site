@@ -24,6 +24,7 @@ const postcssPlugins = [
 
 if (!fast) {
     postcssPlugins.push(cssnano());
+    console.log("The speed mode is not enabled.");
 } else {
     console.log("The speed mode is enabled.");
 }
@@ -154,6 +155,8 @@ gulp.task('watch-runner', () => {
 // https://github.com/gulpjs/gulp/issues/259#issuecomment-152177973
 gulp.task('watch', cb => {
     function spawnGulp(args) {
+        if (fast)
+            args.push("--speed");
         return require('child_process')
             .spawn(
                 'node_modules/.bin/gulp',
