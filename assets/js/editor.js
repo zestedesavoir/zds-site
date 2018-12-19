@@ -683,6 +683,13 @@ function uploadImage (e, dataTransferAttr, csrf){
     }
     var galleryUrl = '/api/galeries/'+ document.body.getAttribute('data-gallery') + '/images/';
     Object.values(files).forEach(function (f) {
+        if (f.type.indexOf("image") !== 0) {
+            return $("<div>", {
+                text: "Format d'image invalide",
+                class: "alert-box error",
+            }).insertAfter(editor).delay(3000).hide(1000);
+        }
+
         var mdWaitingCode = '![' + f.name + ' en cours de téléchargement]()';
         var mdWaitingRegexp = mdWaitingCode.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
         editor.val(editor.val() + '\n' + mdWaitingCode );
@@ -718,7 +725,7 @@ function uploadImage (e, dataTransferAttr, csrf){
             $("<div>", {
                 text: error,
                 class: "alert-box error",
-            }).insertAfter(editor);
+            }).insertAfter(editor).delay(3000).hide(1000);
 
             editor.val(editor.val().replace(new RegExp(mdWaitingRegexp), ''));
         });
