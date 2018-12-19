@@ -96,7 +96,9 @@
         {% endif %}
 
         {% if not display == 'global' %}
-            <a href="{% url "content:stats-content" content.pk content.slug %}" class="btn btn-submit">{% trans "Revenir à la vue globale" %}</a>
+            {%if container.is_chapter or container.is_part  %}
+                <a href="{% url "content:stats-content" content.pk content.slug %}" class="btn btn-submit">{% trans "Revenir à la vue globale" %}</a>
+            {% endif %}
         {% endif %}
         <hr class="clearfix">
         <div>
