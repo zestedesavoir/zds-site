@@ -129,6 +129,10 @@ Coder plus simplement avec ``watch``
 
 ``watch`` surveille les fichiers SCSS et Javascript lance la tâche ``build`` dès qu'ils sont modifiés. C'est très utile pour le développement car ça permet de ne pas avoir à relancer ``build`` manuellement. Pour lancer cette commande, faites ``make watch-front`` ou ``yarn run watch``. Pour arrêter cette commande, il suffit de presser ``Ctrl+C``.
 
+Si votre ordinateur n'est pas très puissant ou la commande ``watch`` est lente. Vous aurez besoin de l'option ``--speed``. Cette option permet de désactiver les fonctions de parsing pour la prod. Ainsi ``watch`` a besoin de moins de CPU.
+
+``npm run gulp -- --speed``
+
 -----
 
 .. seealso::
