@@ -158,11 +158,11 @@
                 <ul>
                     <li>
                         <a href="{% url "content:create-container" content.pk content.slug child.slug %}">{% trans "Ajouter un chapitre" %}</a>
-                        {% trans " pour adopter le format bigtuto et ajouter des sections ;" %}
+                        {% trans " pour adopter le format big-tuto et ajouter des sections ;" %}
                     </li>
                     <li>
                         <a href="{% url "content:create-extract" content.pk content.slug child.slug %}">{% trans "Ajouter une section" %}</a>
-                        {% trans " pour adopter le format normal composé uniquement de section." %}
+                        {% trans " pour adopter le format moyen-tuto composé uniquement de section." %}
                     </li>
                 </ul>
             {% endif %}
