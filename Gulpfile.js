@@ -21,6 +21,7 @@ const color = require('ansi-colors');
 // <<
 
 const fast = options.has("speed");
+const fixSFTP = options.has("fixsftp");
 
 // PostCSS plugins used
 const postcssPlugins = [
@@ -141,14 +142,62 @@ gulp.task('images', ['css:sprite'], () =>
         .pipe(gulp.dest('dist/'))
 );
 
+// >> fixSFTP
+const denyRules = {};
+let showMsgNextTime = false;
+function onChangeTimeout(taskName, path) {
+    timeout = denyRules[taskName][path];
+
+    if (timeout) {
+        showMsgNextTime && log(`Waiting file for '${color.cyan(taskName)}' ${color.magenta(path)}`);
+
+        process.stdout.write(".");
+        clearTimeout(timeout);
+        
+        showMsgNextTime = false;
+    } else {
+        showMsgNextTime = true;
+    }
+
+    startWithTimeout(taskName, path);
+}
+
+function startWithTimeout(taskName, path) {
+    denyRules[taskName][path] = setTimeout((taskName) => {
+        process.stdout.write(".\n");
+        gulp.start(taskName);
+        denyRules[taskName][path] = false;
+    }, 1500, taskName);  
+}   // ^^^^-> 1.5 sec
+// << 
+
 // Watch for file changes
 gulp.task('watch-runner', () => {
-    gulp.watch('assets/js/*.js', ['js']);
-    gulp.watch(['assets/{images,smileys}/**/*', '!assets/images/sprite*.png'], ['images']);
-    gulp.watch(['assets/scss/**/*.scss', '!assets/scss/_sprite.scss'], ['css']);
+    const watchlist = {
+        js: 'assets/js/*.js',
+        images: ['assets/{images,smileys}/**/*', '!assets/images/sprite*.png'],
+        css: ['assets/scss/**/*.scss', '!assets/scss/_sprite.scss']
+    };
+
+    fixSFTP && log(color.green("The fixSFTP is enabled."));
+
+    Object.keys(watchlist).forEach((taskName) => {
+        let src = watchlist[taskName];
+        if (fixSFTP) {
+            let watcher = gulp.watch(src);
+            watcher.on("change", (event) => onChangeTimeout(taskName, event.path));
+            /*                    ^^^^^
+                WARNING: In Gulp 4.0, `(event)` will be replaced by `(path, stats)`
+                current doc : https://github.com/gulpjs/gulp/blob/v3.9.1/docs/API.md#tasks
+            */
+            denyRules[taskName] = {};
+        } else {
+            gulp.watch(src, [ taskName ])
+        }
+    });
 
     gulp.watch('dist/**/*', file =>
-         livereload.changed(
+        livereload.changed(
             path.join('static/', path.relative(path.join(__dirname, 'dist/'), file.path))
         )
     );
@@ -161,6 +210,8 @@ gulp.task('watch', cb => {
     function spawnGulp(args) {
         if (fast)
             args.push("--speed");
+        if (fixSFTP)
+            args.push("--fixsftp");
         return require('child_process')
             .spawn(
                 'node_modules/.bin/gulp',
