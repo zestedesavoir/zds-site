@@ -129,6 +129,10 @@ Coder plus simplement avec ``watch``
 
 ``watch`` surveille les fichiers SCSS et Javascript lance la tâche ``build`` dès qu'ils sont modifiés. C'est très utile pour le développement car ça permet de ne pas avoir à relancer ``build`` manuellement. Pour lancer cette commande, faites ``make watch-front`` ou ``yarn run watch``. Pour arrêter cette commande, il suffit de presser ``Ctrl+C``.
 
+Si vous utilisez un client FTP/SFTP pour modifier vos fichiers en utilisant en même temps ``watch`` vous aurez besoin de l'option ``--fixsftp``. Cette option permet d'indiquer à la tâche ``watch`` qu'elle doit attendre que toutes les parties du fichier soient uploadées par le client FTP/SFTP.
+
+``npm run gulp -- --fixsftp``
+
 -----
 
 .. seealso::
