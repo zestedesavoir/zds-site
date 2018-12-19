@@ -15,20 +15,24 @@ const options = require('gulp-options');
 const autoprefixer = require('autoprefixer');
 const cssnano = require('cssnano');
 
+// >> gulp dependencies
+const log = require('fancy-log');
+const color = require('ansi-colors');
+// <<
+
 const fast = options.has("speed");
 
-//>> PostCSS plugins used
+// PostCSS plugins used
 const postcssPlugins = [
     autoprefixer({ browsers: ['last 2 versions', '> 1%', 'ie >= 9'] })
 ];
 
 if (!fast) {
     postcssPlugins.push(cssnano());
-    console.log("The speed mode is not enabled.");
+    log(color.green("The speed mode is not enabled."));
 } else {
-    console.log("The speed mode is enabled.");
+    log(color.green("The speed mode is enabled."));
 }
-//<<
 
 const customSass = () => sass({
     sourceMapContents: true,
@@ -100,7 +104,7 @@ gulp.task('js', () =>
         .pipe(gulpif(!fast, uglify()))
         .on('error', function (err) {
             // gulp-uglify sucks
-            console.log(err.toString());
+            log(color.red(err.toString()));
         })
         .pipe(sourcemaps.write('.', { includeContent: true, sourceRoot: '../../' }))
         .pipe(gulp.dest('dist/js/')));
