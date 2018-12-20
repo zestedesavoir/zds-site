@@ -116,6 +116,7 @@ ZDS_APP = {
             'address': '63-65 boulevard Massena - 75013 Paris - France'
         },
         'social': {
+            'mastodon': 'https://framapiaf.org/@ZesteDeSavoir',
             'facebook': 'https://www.facebook.com/ZesteDeSavoir',
             'twitter': 'https://twitter.com/ZesteDeSavoir',
             'googleplus': 'https://plus.google.com/u/0/107033688356682807298'

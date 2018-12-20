@@ -376,6 +376,18 @@
         }
     }
 
+    &.mastodon {
+        &:after {
+            @include sprite-position($mastodon);
+        }
+        &.blue:after {
+            @include sprite-position($mastodon-blue);
+        }
+        &.light:after {
+            @include sprite-position($mastodon-light);
+        }
+    }
+
     &.unread {
         &:after {
             @include sprite-position($unread);
