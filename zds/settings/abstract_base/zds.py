@@ -45,6 +45,9 @@ THUMBNAIL_ALIASES = {
         'featured': {'size': (228, 228), 'crop': True},
         'gallery_illu': {'size': (480, 270), 'crop': True},
         'content': {'size': (960, 960), 'crop': False},
+        'social_network': {'size': (144, 144), 'crop': True},
+        #                           ^^^  ^^^ -> minimum dimensions of 144x144
+        # https://developer.twitter.com/en/docs/tweets/optimize-with-cards/overview/summary
     },
 }
 
