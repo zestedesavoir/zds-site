@@ -66,6 +66,35 @@ une variable. Ainsi le code suivant :
 ne produit rien en sortie mais affecte le résultat du bloc entre les éléments ``{% captureas var2 %}`` et
 ``{% endcaptureas %}``, soit ``0123456789``, dans la variable de gabarit ``var2``
 
+Le module ``sibling``
+=======================
+
+Cette fonction permet d'attribuer l’élément sélectionné, suivant ou précédent de `{list}` à une variable `{ouput_name}`.
+
+    sibling {list} {dir} [as {ouput_name}]
+
+ - `{list}` : Variable/Point d'entrée.
+ - `{dir}` : `next`/`prev` ou une valeur numérique représentant l'index de l'élément voulu dans `{list}`.
+ - `{ouput_name}` : Optionnel. S'il n'est pas défini, il prend la valeur de : 
+           - `current` si `{dir}` est numérique ;
+           - `next` ou `prev` si `{dir}` vaut `next`/`prev`.
+
+Pour trouver la position actuelle dans le tableau et ainsi procéder aux instructions `next`/`prev`, le code va vérifier dans l'ordre du code : 
+
+ - Si `{dir}` est numérique, la fonction utilise cette valeur comme position finale ;
+ - Si vous avez défini la variable `siblingStep` avant d'appeler la fonction, cette valeur est utilisée comme position d'entrée avant d’appliquer -1 ou +1 en fonction de la valeur de `{dir}` (-> `next`/`prev`) ;
+ - Usage recommandé : Automatiquement dans une [boucle for](https://docs.djangoproject.com/fr/2.1/ref/templates/builtins/#for) grâce à la variable `forloop.counter0` ;
+ - Si aucun des deux cas précédent est rempli : 
+        - avec `{dir}` == `next` on obtient le deuxième élément (index = 1) ;
+        - avec `{dir}` == `prev` on obtient l'avant dernier élément (index = len(list) - 1).
+
+Si l'élément existe, l'élément est renvoyé sinon une liste vide est retourné '{}'.
+
+Ces deux lignes font donc la même chose : 
+
+    {% sibling edits 0 as current %}
+    {% sibling edits 0 %}
+
 Le module ``date``
 ==================
 
