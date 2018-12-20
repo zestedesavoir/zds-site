@@ -10,17 +10,23 @@ Sitemap: https://zestedesavoir.com/sitemap-topics.xml
 Sitemap: https://zestedesavoir.com/sitemap-tutos.xml
 
 User-agent: *
+Disallow: /articles/epub/
 Disallow: /articles/html/
 Disallow: /articles/md/
+Disallow: /articles/tex/
 Disallow: /articles/zip/
+Disallow: /billets/epub/
 Disallow: /billets/html/
 Disallow: /billets/md/
+Disallow: /billets/tex/
 Disallow: /billets/zip/
 Disallow: /contenus/
 Disallow: /mp/
 Disallow: /oldarticles/
 Disallow: /oldtutoriels/
 Disallow: /rechercher/
+Disallow: /tutoriels/epub/
 Disallow: /tutoriels/html/
 Disallow: /tutoriels/md/
+Disallow: /tutoriels/tex/
 Disallow: /tutoriels/zip/
