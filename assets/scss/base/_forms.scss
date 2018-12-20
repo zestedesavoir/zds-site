@@ -11,6 +11,11 @@
         p {
             position: relative;
         }
+
+        &.btn-inline {
+            width: auto;
+            vertical-align: middle;
+        }
     }
 
     .search-form {
@@ -213,6 +218,10 @@
     }
     .btn-inline {
         display: inline-block;
+    }
+    .btn-no-float {
+        float: none !important;
+        vertical-align: middle;
     }
     [disabled],
     .disabled {
