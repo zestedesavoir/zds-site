@@ -64,14 +64,16 @@ cache:
 before_install:
   - . ./scripts/ci_turbo.sh # This script exports environment variables, it must be sourced
 
+  - source ./scripts/define_variable.sh
+
   - travis_retry pip install -q coveralls
 
   - |
     # install elasticsearch
     if [[ "$ZDS_TEST_JOB" == *"zds.searchv2"* ]]; then
       # see https://docs.travis-ci.com/user/database-setup/#Installing-specific-versions-of-ElasticSearch
-      curl -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.5.2.deb \
-      && sudo dpkg -i --force-confnew elasticsearch-5.5.2.deb \
+      curl -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-$ZDS_ELASTIC_VERSION.deb \
+      && sudo dpkg -i --force-confnew elasticsearch-$ZDS_ELASTIC_VERSION.deb \
       && sudo service elasticsearch start
     fi
 
@@ -96,7 +98,7 @@ install:
   - |
     if [[ "$ZDS_TEST_JOB" == *"zds.tutorialv2"* ]]; then
       # install latex
-      git clone https://github.com/zestedesavoir/latex-template.git
+      git clone $ZDS_LATEX_REPO
       TEMPLATEDIR=$HOME/.texlive/texmf-local/tex/latex/
       ./latex-template/scripts/install_font.sh \
       && ./latex-template/scripts/install_texlive.sh \
@@ -107,8 +109,8 @@ install:
 
   - |
     # install and run zmarkdown
-    nvm install 8 \
-    && nvm use 8 \
+    nvm install $ZDS_NODE_VERSION \
+    && nvm use $ZDS_NODE_VERSION \
     && npm i -g pm2 zmarkdown \
     && cd "$(nvm which current | sed s/bin/lib/)_modules/zmarkdown/" \
     && npm run server \
