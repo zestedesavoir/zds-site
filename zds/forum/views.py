@@ -171,6 +171,9 @@ class TopicPostsListView(ZdSPagingListView, FeatureableMixin, SingleObjectMixin)
             return redirect(self.object.get_absolute_url())
         return super(TopicPostsListView, self).get(request, *args, **kwargs)
 
+    def featured_request_allowed(self):
+        return not self.object.is_locked
+
     def get_context_data(self, **kwargs):
         context = super(TopicPostsListView, self).get_context_data(**kwargs)
         form = PostForm(self.object, self.request.user)
@@ -314,6 +317,9 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin, FeatureableMixin)
             'tags': ', '.join([tag['title'] for tag in self.object.tags.values('title')]) or ''
         })
         return render(request, self.template_name, {'topic': self.object, 'form': form, 'is_staff': is_staff})
+
+    def featured_request_allowed(self):
+        return not self.object.is_locked
 
     def post(self, request, *args, **kwargs):
         if 'text' in request.POST:

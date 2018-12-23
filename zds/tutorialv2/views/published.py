@@ -71,6 +71,11 @@ class DisplayOnlineContent(FeatureableMixin, SingleOnlineContentDetailViewMixin)
     verbose_type_name = _('contenu')
     verbose_type_name_plural = _('contenus')
 
+    def featured_request_allowed(self):
+        """Featured request is not allowed on obsolete content and opinions
+        """
+        return self.object.type != 'OPINION' and not self.object.is_obsolete
+
     def get_context_data(self, **kwargs):
         """Show the given tutorial if exists."""
         context = super(DisplayOnlineContent, self).get_context_data(**kwargs)
@@ -161,10 +166,6 @@ class DisplayOnlineContent(FeatureableMixin, SingleOnlineContentDetailViewMixin)
                 sender=self.object.__class__, instance=self.object, user=self.request.user, target=PublishableContent)
         if last_participation_is_old(self.object, self.request.user):
             mark_read(self.object, self.request.user)
-
-        # request featured
-        context['show_featured_requested'] = context['show_featured_requested'] and \
-            self.object.type != 'OPINION' and not self.object.is_obsolete
 
         return context
 
@@ -988,12 +989,14 @@ class FollowContentReaction(LoggedWithReadWriteHability, SingleOnlineContentView
 class RequestFeaturedContent(LoggedWithReadWriteHability, FeatureableMixin, SingleOnlineContentViewMixin, FormView):
     redirection_is_needed = False
 
+    def featured_request_allowed(self):
+        """Featured request is not allowed on obsolete content and opinions
+        """
+        return self.object.type != 'OPINION' and not self.object.is_obsolete
+
     def post(self, request, *args, **kwargs):
         self.public_content_object = self.get_public_object()
         self.object = self.get_object()
-
-        if self.object.type == 'OPINION' or self.object.is_obsolete:
-            raise PermissionDenied('Not allowed on obsolete content or opinion')
 
         response = dict()
         response['requesting'], response['newCount'] = self.toogle_featured_request(request.user)

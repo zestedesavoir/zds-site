@@ -1,8 +1,8 @@
-from django.views.generic.base import ContextMixin, View
 from django.core.exceptions import PermissionDenied
+from django.views.generic.base import ContextMixin, View
 
-from zds.featured.models import FeaturedRequested
 from zds.featured.managers import FeaturedRequestedException
+from zds.featured.models import FeaturedRequested
 
 
 class FeatureableMixin(ContextMixin, View):
@@ -18,6 +18,9 @@ class FeatureableMixin(ContextMixin, View):
         :type user: User
         :rtype: (bool, int)
         """
+
+        if not self.featured_request_allowed():
+            raise PermissionDenied('request not allowed on this object')
 
         try:
             return FeaturedRequested.objects.toogle_request(self.object, user)
@@ -35,4 +38,14 @@ class FeatureableMixin(ContextMixin, View):
         context['show_featured_requested'], context['is_requesting'], context['featured_request_count'] = \
             FeaturedRequested.objects.requested_and_count(self.object, self.request.user)
 
+        context['show_featured_requested'] &= self.featured_request_allowed()
+
         return context
+
+    def featured_request_allowed(self):
+        """override this function if you want to add extra condition for a request to be allowed (or not)
+
+        :rtype: bool
+        """
+
+        return True

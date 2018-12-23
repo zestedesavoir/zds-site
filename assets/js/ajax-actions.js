@@ -142,9 +142,9 @@
     $(".sidebar").on("click", "[data-ajax-input='request-featured']", function(e){
         var $act = $(this),
             $form = $(this).parents("form:first"),
-            $requestText = $act.find("span#request_text"),
-            $count = $form.find("span#featured_request_count"),
-            $plural = $act.find("span#featured_request_plural");
+            $requestText = $act.find("#request_text"),
+            $count = $form.find("#featured_request_count"),
+            $plural = $act.find("#featured_request_plural");
 
         var csrfmiddlewaretoken = $form.find("input[name=csrfmiddlewaretoken]").val(),
             requestFeatured = $form.find("input[name=request_featured]").val();

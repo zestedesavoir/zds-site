@@ -615,6 +615,20 @@ class FeaturedRequestToggleTest(TutorialTestMixin, TestCase):
         self.assertEqual(r.content_object, topic)
         self.assertIn(author.user, r.users_voted.all())
 
+        # lock topic: cannot vote anymore
+        topic.is_locked = True
+        topic.save()
+
+        response = self.client.post(
+            reverse('topic-edit') + '?topic={}'.format(topic.pk),
+            {
+                'request_featured': 1
+            },
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+        )
+        self.assertEqual(403, response.status_code)
+        self.assertEqual(FeaturedRequested.objects.count(), 1)
+
         # create tutorial and toggle request
         tutorial = PublishedContentFactory(author_list=[author.user])
         gallery = GalleryFactory()
