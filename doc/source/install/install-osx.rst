@@ -1,6 +1,6 @@
-==================================
-Installation du backend sous macOS
-==================================
+=======================
+Installation sous macOS
+=======================
 
 Pour installer une version locale de ZdS sur macOS, veuillez suivre les instructions suivantes.
 Si une commande ne passe pas, essayez de savoir pourquoi avant de continuer.
@@ -75,36 +75,41 @@ Quitter un virtualenv :
 Installation des des dépendances front et back
 ==============================================
 
+On installe `les outils du front-end <extra-install-frontend.html>`_, `zmarkdown <extra-zmd.html>`_ puis les packages python:
+
 .. sourcecode:: bash
 
   make install-front
   make build-front
+  make zmd-install
   make install-back
 
 Lancer ZdS
 ==========
 
-Une fois dans votre environnement python et toutes les dépendances installées, lançons ZdS :
+Une fois dans votre environnement python et toutes les dépendances installées, lançons ZdS.
+On crée d'abord la base de donnée, puis le `jeu de données utile au dévellopement <../utils/fixture_loaders.html>`_:
 
 .. sourcecode:: bash
 
     make migrate
+    make fixtures
+
+On peut finalement lancer zmarkdown, puis ZdS:
+
+.. sourcecode:: bash
+
+    make zmd-run
     make run-back
+
+
 
 Aller plus loin
 ===============
 
-.. Attention::
+Pour faire fonctionner ZdS dans son ensemble vous devez installer les outils LateX et Elasticsearch:
 
-    Cette section n'a jamais été testée. Si vous êtes parvenu à installer Latex et Pandoc et à les faire fonctionner avec ZdS, toute contribution à cette documentation est largement la bienvenue !
-
-Pour faire fonctionner ZdS dans son ensemble vous devez installer les outils LateX et Pandoc.
-
-- Téléchagez et installez `BasicTex <http://www.tug.org/mactex/morepackages.html>`_
-
-.. sourcecode:: bash
-
-  brew install texlive-basic
-
+- `Installez Elasticsearch <extra-install-es.html>`_ ;
+- `Installez LaTeX <extra-install-latex.html>`_.
 
 Vous pouvez également `indiquer à Git de ne pas effectuer de commit s'il y a des erreurs de formatage dans le code <../utils/git-pre-hook.html>`__.

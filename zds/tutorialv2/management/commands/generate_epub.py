@@ -7,7 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 from zds.tutorialv2.models.database import PublishedContent
 from zds.tutorialv2.models.versioned import NotAPublicVersion
-from zds.tutorialv2.publication_utils import PublicatorRegistry
+from zds.tutorialv2.publication_utils import PublicatorRegistry, FailureDuringPublication
 
 
 class Command(BaseCommand):
@@ -39,7 +39,7 @@ class Command(BaseCommand):
             num_of_contents, 's' if num_of_contents > 1 else ''))
 
         for content in public_contents:
-            with contextlib.suppress(NotAPublicVersion):
+            with contextlib.suppress(NotAPublicVersion, FailureDuringPublication):
                 self.stdout.write(_('- {}').format(content.content_public_slug), ending='')
                 extra_content_dir = content.get_extra_contents_directory()
                 building_extra_content_path = Path(str(Path(extra_content_dir).parent) + '__building',

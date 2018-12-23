@@ -9,7 +9,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
-from zds.gallery.models import Gallery, Image
+from zds.gallery.models import Gallery, Image, UserGallery
 
 
 class GalleryForm(forms.ModelForm):
@@ -69,7 +69,6 @@ class UserGalleryForm(forms.Form):
     user = forms.CharField(
         label='',
         max_length=User._meta.get_field('username').max_length,
-        required=True,
         widget=forms.TextInput(
             attrs={
                 'placeholder': _("Nom de l'utilisateur"),
@@ -80,27 +79,30 @@ class UserGalleryForm(forms.Form):
 
     mode = forms.ChoiceField(
         label='',
-        choices=(
-            ('R', 'En mode lecture'),
-            ('W', 'En mode écriture'),
-        ),
+        required=False,
+        choices=UserGallery.MODE_CHOICES,
+        widget=forms.Select,
+    )
+
+    action = forms.CharField(
         required=True,
-        widget=forms.RadioSelect,
+        widget=forms.HiddenInput(attrs={'default': 'add'})
     )
 
     def __init__(self, *args, **kwargs):
+        gallery = kwargs.pop('gallery')
+
         super(UserGalleryForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = 'modal modal-flex'
         self.helper.form_id = 'add-user-modal'
-        self.helper.form_action = reverse('gallery-modify')
+        self.helper.form_action = reverse('gallery-members', kwargs={'pk': gallery.pk})
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
             Field('user', autocomplete='off'),
             Field('mode'),
-            Hidden('gallery', '{{ gallery.pk }}'),
-            Hidden('adduser', 'True'),
+            Field('action', value='add'),
             StrictButton(_('Ajouter'), type='submit'),
         )
 

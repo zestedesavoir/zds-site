@@ -6,7 +6,6 @@ import os
 
 from django.conf import settings
 from django.test import TestCase
-from django.test.utils import override_settings
 
 from zds.gallery.models import UserGallery
 
@@ -16,29 +15,17 @@ from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory
 from zds.gallery.factories import UserGalleryFactory
 from zds.tutorialv2.models.database import PublishableContent, PublishedContent
 from zds.tutorialv2.publication_utils import publish_content
-from zds.tutorialv2.tests import TutorialTestMixin
+from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.utils.models import Tag
 from django.template.defaultfilters import date
-from copy import deepcopy
-
-overridden_zds_app = deepcopy(settings.ZDS_APP)
-overridden_zds_app['content']['repo_private_path'] = os.path.join(settings.BASE_DIR, 'contents-private-test')
-overridden_zds_app['content']['repo_public_path'] = os.path.join(settings.BASE_DIR, 'contents-public-test')
 
 
-@override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'media-test'))
-@override_settings(ZDS_APP=overridden_zds_app)
-@override_settings(ES_ENABLED=False)
+@override_for_contents()
 class ContentTests(TutorialTestMixin, TestCase):
-
     def setUp(self):
-        self.overridden_zds_app = overridden_zds_app
-        # don't build PDF to speed up the tests
-        overridden_zds_app['content']['build_pdf_when_published'] = False
-
         settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
         self.mas = ProfileFactory().user
-        overridden_zds_app['member']['bot_account'] = self.mas.username
+        self.overridden_zds_app['member']['bot_account'] = self.mas.username
 
         self.licence = LicenceFactory()
 

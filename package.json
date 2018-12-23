@@ -28,13 +28,16 @@
   "dependencies": {
     "autoprefixer": "^7.2.6",
     "body-parser": "^1.18.2",
+    "chart.js": "^2.7.1",
     "cookies-eu-banner": "^1.2.10",
     "cssnano": "3.10.0",
     "del": "3.0.0",
     "git-rev": "^0.2.1",
-    "gulp": "3.9.1",
+    "gulp": "^3.9.1",
     "gulp-concat": "2.6.1",
+    "gulp-if": "^2.0.2",
     "gulp-imagemin": "4.1.0",
+    "gulp-options": "^1.1.1",
     "gulp-postcss": "7.0.1",
     "gulp-sass": "4.0.1",
     "gulp-sourcemaps": "^2.6.4",
@@ -42,7 +45,8 @@
     "gulp.spritesmith": "6.5.1",
     "highlight.js": "^9.12.0",
     "jquery": "3.2.1",
-    "katex": "^0.9.0",
+    "katex": "^0.10.0",
+    "moment": "^2.20.1",
     "normalize.css": "7.0.0"
   },
   "devDependencies": {

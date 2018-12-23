@@ -23,7 +23,8 @@
         "Pour aller à la ligne sans changer de paragraphe, finissez votre première ligne par deux espaces.",
         "Pour écrire un bout de code au milieu d’une phrase, utilisez la syntaxe <code>`un bout de code`</code>.",
         "Le langage d’un bloc de code peut être spécifié après les <code>```</code> ouvrants. La liste des langages supportés <a href=\"" + linkToPygments + "\">est disponible ici</a>.",
-        "Vous pouvez <a href=\"" + linkToMathsTutorial + "\">écrire des formules mathématiques</a> en encadrant ces dernières du signe dollar <code>$</code>."
+        "Vous pouvez <a href=\"" + linkToMathsTutorial + "\">écrire des formules mathématiques</a> en encadrant ces dernières du signe dollar <code>$</code>.",
+        "Pour ajouter une image, vous pouvez simplement la glisser-déposer depuis votre explorateur."
     ];
     
     function addDocMD($elem){

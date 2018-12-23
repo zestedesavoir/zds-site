@@ -2,7 +2,7 @@
 *Workflow* et détails pratiques
 ===============================
 
-Cette page détaille le *workflow* utilisé lors du développement de Zeste de Savoir. La `page de contribution <https://github.com/zestedesavoir/zds-site/blob/dev/CONTRIBUTING.md>`__ devrait répondre à vos questions quant au processus de développement. Ici seront aussi décrit quelques détails sur la gestion des tickets sur Github (*tagging* et priorité).
+Cette page détaille le *workflow* utilisé lors du développement de Zeste de Savoir. La `page de contribution <./contributing.html>`_ devrait répondre à vos questions quant au processus de développement. Ici seront aussi décrit quelques détails sur la gestion des tickets sur Github (*tagging* et priorité).
 
 Ce *workflow* est très fortement basé sur le `Git flow <http://nvie.com/posts/a-successful-git-branching-model/>`__.
 
@@ -35,7 +35,7 @@ Quelques précisions
 
 **Où peut-on trouver les détails pratiques ?**
 
-Tous ces détails sont `dans la page de contribution <https://github.com/zestedesavoir/zds-site/blob/dev/CONTRIBUTING.md>`__. On y trouve entre autres les recommendations en terme de PR ou de messages de commits.
+Tous ces détails sont `dans la page de contribution <./contributing.html>`_. On y trouve entre autres les recommendations en terme de PR ou de messages de commits.
 
 **Qu'est-ce qu'une "QA légère"** ?
 

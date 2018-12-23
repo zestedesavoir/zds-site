@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.mail import EmailMultiAlternatives
+from django.core.validators import validate_email, ValidationError
 from django.db import models, IntegrityError, transaction
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
@@ -87,6 +88,13 @@ class Subscription(models.Model):
                                          settings.ZDS_APP['site']['email_noreply'])
 
         receiver = self.user
+
+        # This can happen when a user subscribes via social networks without providing an e-mail address
+        try:
+            validate_email(receiver.email)
+        except ValidationError:
+            return
+
         context = {
             'username': receiver.username,
             'title': notification.title,

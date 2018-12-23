@@ -127,7 +127,7 @@
         {% endif %}
     {% endif %}
 
-    {% if not can_publish %}
+    {% if not can_publish and content.is_opinion %}
         <div class="content-wrapper">
             <div class="alert-box warning">
                 {% trans "Ce contenu a été modéré. Il ne peut pas faire l'objet d'une nouvelle publication." %}
@@ -362,6 +362,11 @@
             <li>
                 <a href="{{ public_content_object.get_absolute_url_online }}" class="ico-after online blue">
                     {% trans "Voir la version en ligne" %}
+                </a>
+            </li>
+            <li>
+                <a href="{% url "content:stats-content" content.pk content.slug %}" class="ico-after stats blue">
+                    {% trans "Voir les statistiques" %}
                 </a>
             </li>
         {% endif %}

@@ -9,7 +9,7 @@ import logging
 logging.debug('json is loaded, module is %s', json_handler.__name__)  # this allows to know which one we loaded
 # and avoid pep8 warning.
 
-# Try to load the version informations from `zds/_version.py` and fallback to
+# Try to load the version information from `zds/_version.py` and fallback to
 # a default `dev` version.
 #
 # `zds/_version.py` should look like this:

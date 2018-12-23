@@ -98,11 +98,11 @@ dans le fichier ci-dessus.
 Installation de l'application de base
 -------------------------------------
 
-Suivre `l'installation complète sous Linux <backend-linux-install.html>`_ en tenant compte des subtilités suivantes :
+Suivre `l'installation sous Linux <linux-install.html>`_ en tenant compte des subtilités suivantes :
 
 -  Installer `les outils front <frontend-install.html>`__ n'est pas nécessaire, le front étant packagé par Travis.
--  Ne pas lancer le serveur à la fin de l'étape *"Lancer ZdS"*
--  Installer toutes les dépendances requises à l'étape *"Aller plus loin"*
+- `Installez Elasticsearch <extra-install-es.html>`_ ;
+- `Installez LaTeX <extra-install-latex.html>`_.
 -  Installer MySQL5.6 depuis backports: ``sudo apt -t jessie-backports install mysql-server mysql-client libmysqlclient-dev``
 -  Installer les dépendances de production avec ``pip install --upgrade -r requirements-prod.txt``
 

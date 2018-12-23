@@ -33,7 +33,9 @@ class GalleryListViewTest(TestCase):
         self.assertEqual(200, response.status_code)
 
         self.assertEqual(1, len(response.context['galleries']))
-        self.assertEqual(UserGallery.objects.filter(user=profile.user)[0], response.context['galleries'][0][0])
+        self.assertEqual(
+            UserGallery.objects.filter(user=profile.user).first().gallery,
+            response.context['galleries'].first())
 
 
 class GalleryDetailViewTest(TestCase):
@@ -124,7 +126,7 @@ class NewGalleryViewTest(TestCase):
             'subtitle': 'test'})
         self.assertEqual(200, response.status_code)
         self.assertTrue(response.context['form'].errors)
-        self.assertEqual(0, Gallery.objects.count())
+        self.assertEqual(0, Gallery.objects.filter(subtitle='test').count())
 
     def test_success_new_gallery(self):
         login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
@@ -135,10 +137,10 @@ class NewGalleryViewTest(TestCase):
             'title': 'test title', 'subtitle': 'test subtitle'}, follow=True)
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual(1, Gallery.objects.count())
+        self.assertEqual(2, Gallery.objects.count())
 
         user_gallery = UserGallery.objects.filter(user=self.profile1.user)
-        self.assertEqual(1, user_gallery.count())
+        self.assertEqual(2, user_gallery.count())
         self.assertEqual('test title', user_gallery[0].gallery.title)
         self.assertEqual('test subtitle', user_gallery[0].gallery.subtitle)
         self.assertEqual('W', user_gallery[0].mode)
@@ -158,6 +160,10 @@ class ModifyGalleryViewTest(TestCase):
         self.user_gallery1 = UserGalleryFactory(user=self.profile1.user, gallery=self.gallery1)
         self.user_gallery2 = UserGalleryFactory(user=self.profile1.user, gallery=self.gallery2)
         self.user_gallery3 = UserGalleryFactory(user=self.profile2.user, gallery=self.gallery1, mode='R')
+        default_gallery_u1 = GalleryFactory(title='default', slug='default', subtitle='bla')
+        UserGalleryFactory(user=self.profile1.user, gallery=default_gallery_u1, is_default=True)
+        default_gallery_u2 = GalleryFactory(title='default', slug='default', subtitle='bla')
+        UserGalleryFactory(user=self.profile2.user, gallery=default_gallery_u2, is_default=True)
 
     def tearDown(self):
         self.image1.delete()
@@ -169,34 +175,34 @@ class ModifyGalleryViewTest(TestCase):
         login_check = self.client.login(username=self.profile2.user.username, password='hostel77')
         self.assertTrue(login_check)
 
-        self.assertEqual(2, Gallery.objects.all().count())
-        self.assertEqual(3, UserGallery.objects.all().count())
+        self.assertEqual(4, Gallery.objects.all().count())
+        self.assertEqual(5, UserGallery.objects.all().count())
         self.assertEqual(3, Image.objects.all().count())
 
         response = self.client.post(
-            reverse('gallery-modify'),
+            reverse('galleries-delete'),
             {
                 'delete_multi': '',
                 'g_items': [self.gallery1.pk]
             },
             follow=True
         )
-        self.assertEqual(403, response.status_code)
+        self.assertEqual(200, response.status_code)
 
-        self.assertEqual(2, Gallery.objects.all().count())
-        self.assertEqual(3, UserGallery.objects.all().count())
+        self.assertEqual(4, Gallery.objects.all().count())
+        self.assertEqual(5, UserGallery.objects.all().count())
         self.assertEqual(3, Image.objects.all().count())
 
     def test_success_delete_multi_write_permission(self):
         login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
         self.assertTrue(login_check)
 
-        self.assertEqual(2, Gallery.objects.all().count())
-        self.assertEqual(3, UserGallery.objects.all().count())
+        self.assertEqual(4, Gallery.objects.all().count())
+        self.assertEqual(5, UserGallery.objects.all().count())
         self.assertEqual(3, Image.objects.all().count())
 
         response = self.client.post(
-            reverse('gallery-modify'),
+            reverse('galleries-delete'),
             {
                 'delete_multi': '',
                 'g_items': [self.gallery1.pk, self.gallery2.pk]
@@ -204,9 +210,53 @@ class ModifyGalleryViewTest(TestCase):
             follow=True
         )
         self.assertEqual(200, response.status_code)
-        self.assertEqual(0, Gallery.objects.all().count())
-        self.assertEqual(0, UserGallery.objects.all().count())
+        self.assertEqual(2, Gallery.objects.all().count())
+        self.assertEqual(2, UserGallery.objects.all().count())
         self.assertEqual(0, Image.objects.all().count())
+
+    def test_fail_delete_read_permission(self):
+        """ when user wants to delete a gallery just with a read permission """
+        login_check = self.client.login(username=self.profile2.user.username, password='hostel77')
+        self.assertTrue(login_check)
+
+        self.assertEqual(4, Gallery.objects.all().count())
+        self.assertEqual(5, UserGallery.objects.all().count())
+        self.assertEqual(3, Image.objects.all().count())
+
+        response = self.client.post(
+            reverse('galleries-delete'),
+            {
+                'delete': '',
+                'gallery': self.gallery1.pk
+            },
+            follow=True
+        )
+        self.assertEqual(403, response.status_code)
+
+        self.assertEqual(4, Gallery.objects.all().count())
+        self.assertEqual(5, UserGallery.objects.all().count())
+        self.assertEqual(3, Image.objects.all().count())
+
+    def test_success_delete_write_permission(self):
+        login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
+        self.assertTrue(login_check)
+
+        self.assertEqual(4, Gallery.objects.all().count())
+        self.assertEqual(5, UserGallery.objects.all().count())
+        self.assertEqual(3, Image.objects.all().count())
+
+        response = self.client.post(
+            reverse('galleries-delete'),
+            {
+                'delete': '',
+                'gallery': self.gallery1.pk
+            },
+            follow=True
+        )
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(0, Gallery.objects.filter(pk=self.gallery1.pk).count())
+        self.assertEqual(0, UserGallery.objects.filter(gallery=self.gallery1).count())
+        self.assertEqual(0, Image.objects.filter(gallery=self.gallery1).count())
 
     def test_fail_add_user_with_read_permission(self):
         login_check = self.client.login(username=self.profile2.user.username, password='hostel77')
@@ -214,20 +264,18 @@ class ModifyGalleryViewTest(TestCase):
 
         # gallery nonexistent
         response = self.client.post(
-            reverse('gallery-modify'),
+            reverse('gallery-members', kwargs={'pk': 99999}),
             {
-                'adduser': '',
-                'gallery': 89,
+                'action': 'add',
             }
         )
         self.assertEqual(404, response.status_code)
 
         # try to add a user with write permission
         response = self.client.post(
-            reverse('gallery-modify'),
+            reverse('gallery-members', kwargs={'pk': self.gallery1.pk}),
             {
-                'adduser': '',
-                'gallery': self.gallery1.pk,
+                'action': 'add',
                 'user': self.profile2.user.username,
                 'mode': 'W',
             }
@@ -240,10 +288,9 @@ class ModifyGalleryViewTest(TestCase):
 
         # Same permission : read
         response = self.client.post(
-            reverse('gallery-modify'),
+            reverse('gallery-members', kwargs={'pk': self.gallery1.pk}),
             {
-                'adduser': '',
-                'gallery': self.gallery1.pk,
+                'action': 'add',
                 'user': self.profile2.user.username,
                 'mode': 'R',
             },
@@ -257,10 +304,9 @@ class ModifyGalleryViewTest(TestCase):
         # try to add write permission to a user
         # who has already an read permission
         response = self.client.post(
-            reverse('gallery-modify'),
+            reverse('gallery-members', kwargs={'pk': self.gallery1.pk}),
             {
-                'adduser': '',
-                'gallery': self.gallery1.pk,
+                'action': 'add',
                 'user': self.profile2.user.username,
                 'mode': 'W',
             },
@@ -276,10 +322,9 @@ class ModifyGalleryViewTest(TestCase):
         self.assertTrue(login_check)
 
         response = self.client.post(
-            reverse('gallery-modify'),
+            reverse('gallery-members', kwargs={'pk': self.gallery1.pk}),
             {
-                'adduser': '',
-                'gallery': self.gallery1.pk,
+                'action': 'add',
                 'user': self.profile3.user.username,
                 'mode': 'R',
             },
@@ -295,10 +340,9 @@ class ModifyGalleryViewTest(TestCase):
         self.assertTrue(login_check)
 
         response = self.client.post(
-            reverse('gallery-modify'),
+            reverse('gallery-members', kwargs={'pk': self.gallery1.pk}),
             {
-                'adduser': '',
-                'gallery': self.gallery1.pk,
+                'action': 'add',
                 'user': self.profile3.user.username,
                 'mode': 'W',
             },
@@ -308,6 +352,153 @@ class ModifyGalleryViewTest(TestCase):
         permissions = UserGallery.objects.filter(user=self.profile3.user, gallery=self.gallery1)
         self.assertEqual(1, len(permissions))
         self.assertEqual('W', permissions[0].mode)
+
+    def test_success_modify_user_write_permission(self):
+        login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
+        self.assertTrue(login_check)
+
+        response = self.client.post(
+            reverse('gallery-members', kwargs={'pk': self.gallery1.pk}),
+            {
+                'action': 'add',
+                'user': self.profile3.user.username,
+                'mode': 'W',
+            },
+            follow=True
+        )
+        self.assertEqual(200, response.status_code)
+        permissions = UserGallery.objects.filter(user=self.profile3.user, gallery=self.gallery1)
+        self.assertEqual(1, len(permissions))
+        self.assertEqual('W', permissions[0].mode)
+
+        response = self.client.post(
+            reverse('gallery-members', kwargs={'pk': self.gallery1.pk}),
+            {
+                'action': 'edit',
+                'user': self.profile3.user.username,
+                'mode': 'R',
+            },
+            follow=True
+        )
+        self.assertEqual(200, response.status_code)
+        permissions = UserGallery.objects.filter(user=self.profile3.user, gallery=self.gallery1)
+        self.assertEqual(1, len(permissions))
+        self.assertEqual('R', permissions[0].mode)
+
+    def test_fail_user_modify_self(self):
+        login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
+        self.assertTrue(login_check)
+
+        response = self.client.post(
+            reverse('gallery-members', kwargs={'pk': self.gallery1.pk}),
+            {
+                'action': 'edit',
+                'user': self.profile1.user.username,
+                'mode': 'R',
+            },
+            follow=True
+        )
+        self.assertEqual(403, response.status_code)
+        permissions = UserGallery.objects.filter(user=self.profile1.user, gallery=self.gallery1)
+        self.assertEqual(1, len(permissions))
+        self.assertEqual('W', permissions[0].mode)
+
+    def test_success_user_leave_gallery(self):
+        login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
+        self.assertTrue(login_check)
+
+        user_galleries = UserGallery.objects.filter(gallery=self.gallery1)
+        self.assertEqual(user_galleries.count(), 2)
+
+        # kick the other
+        response = self.client.post(
+            reverse('gallery-members', kwargs={'pk': self.gallery1.pk}),
+            {
+                'action': 'leave',
+                'user': self.profile2.user.username,
+            },
+            follow=True
+        )
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(user_galleries.count(), 1)
+        self.assertEqual(user_galleries.last().user, self.profile1.user)
+
+    def test_error_last_user_with_write_leave_gallery(self):
+        login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
+        self.assertTrue(login_check)
+
+        user_gallery = UserGallery.objects.filter(gallery=self.gallery1, user=self.profile1.user)
+        self.assertEqual(user_gallery.count(), 1)
+
+        # try to quit
+        response = self.client.post(
+            reverse('gallery-members', kwargs={'pk': self.gallery1.pk}),
+            {
+                'action': 'leave',
+                'user': self.profile1.user.username,
+            },
+            follow=True
+        )
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(user_gallery.count(), 1)  # not gone
+
+    def test_success_user_with_read_permission_leave_gallery(self):
+        login_check = self.client.login(username=self.profile2.user.username, password='hostel77')
+        self.assertTrue(login_check)
+
+        user_galleries = UserGallery.objects.filter(gallery=self.gallery1)
+        self.assertEqual(user_galleries.count(), 2)
+
+        # leave
+        response = self.client.post(
+            reverse('gallery-members', kwargs={'pk': self.gallery1.pk}),
+            {
+                'action': 'leave',
+                'user': self.profile2.user.username,
+            },
+            follow=True
+        )
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(user_galleries.count(), 1)
+        self.assertEqual(user_galleries.last().user, self.profile1.user)
+
+    def test_fail_user_modify_user_has_permission(self):
+        login_check = self.client.login(username=self.profile2.user.username, password='hostel77')
+        self.assertTrue(login_check)
+
+        user_galleries = UserGallery.objects.filter(gallery=self.gallery1)
+        self.assertEqual(user_galleries.count(), 2)
+
+        # set W
+        response = self.client.post(
+            reverse('gallery-members', kwargs={'pk': self.gallery1.pk}),
+            {
+                'action': 'edit',
+                'user': self.profile2.user.username,
+                'mode': 'W',
+            },
+            follow=True
+        )
+        self.assertEqual(403, response.status_code)
+        permissions = UserGallery.objects.filter(user=self.profile2.user, gallery=self.gallery1)
+        self.assertEqual(1, len(permissions))
+        self.assertEqual('R', permissions[0].mode)
+
+        # kick other
+        response = self.client.post(
+            reverse('gallery-members', kwargs={'pk': self.gallery1.pk}),
+            {
+                'action': 'leave',
+                'user': self.profile1.user.username,
+            },
+            follow=True
+        )
+
+        self.assertEqual(403, response.status_code)
+        self.assertEqual(user_galleries.count(), 2)
 
 
 class EditGalleryTestView(TestCase):
@@ -403,18 +594,6 @@ class EditImageViewTest(TestCase):
     def tearDown(self):
         self.image.delete()
 
-    def test_denies_anonymous(self):
-        response = self.client.get(
-            reverse(
-                'gallery-image-edit',
-                args=[15, 156]
-            ),
-            follow=True
-        )
-        self.assertRedirects(response,
-                             reverse('member-login') +
-                             '?next=' + reverse('gallery-image-edit', args=[15, 156]))
-
     def test_fail_member_no_permission_can_edit_image(self):
         login_check = self.client.login(username=self.profile3.user.username, password='hostel77')
         self.assertTrue(login_check)
@@ -501,18 +680,12 @@ class ModifyImageTest(TestCase):
         self.image2.delete()
         self.image3.delete()
 
-    def test_denies_anonymous(self):
-        response = self.client.get(reverse('gallery-image-delete'), follow=True)
-        self.assertRedirects(response,
-                             reverse('member-login') +
-                             '?next=' + reverse('gallery-image-delete'))
-
     def test_fail_modify_image_with_no_permission(self):
         login_check = self.client.login(username=self.profile3.user.username, password='hostel77')
         self.assertTrue(login_check)
 
         response = self.client.post(
-            reverse('gallery-image-delete'),
+            reverse('gallery-image-delete', kwargs={'pk_gallery': self.gallery1.pk}),
             {
                 'gallery': self.gallery1.pk,
             },
@@ -532,7 +705,7 @@ class ModifyImageTest(TestCase):
         self.assertTrue(login_check)
 
         self.client.post(
-            reverse('gallery-image-delete'),
+            reverse('gallery-image-delete', kwargs={'pk_gallery': self.gallery1.pk}),
             {
                 'gallery': self.gallery1.pk,
                 'delete': '',
@@ -549,7 +722,7 @@ class ModifyImageTest(TestCase):
         self.assertTrue(login_check)
 
         response = self.client.post(
-            reverse('gallery-image-delete'),
+            reverse('gallery-image-delete', kwargs={'pk_gallery': self.gallery1.pk}),
             {
                 'gallery': self.gallery1.pk,
                 'delete': '',
@@ -566,7 +739,7 @@ class ModifyImageTest(TestCase):
         self.assertTrue(login_check)
 
         response = self.client.post(
-            reverse('gallery-image-delete'),
+            reverse('gallery-image-delete', kwargs={'pk_gallery': self.gallery1.pk}),
             {
                 'gallery': self.gallery1.pk,
                 'delete_multi': '',
@@ -584,7 +757,7 @@ class ModifyImageTest(TestCase):
         self.assertTrue(login_check)
 
         response = self.client.post(
-            reverse('gallery-image-delete'),
+            reverse('gallery-image-delete', kwargs={'pk_gallery': self.gallery1.pk}),
             {
                 'gallery': self.gallery1.pk,
                 'delete': '',
@@ -606,12 +779,6 @@ class NewImageViewTest(TestCase):
         self.profile3 = ProfileFactory()
         self.user_gallery1 = UserGalleryFactory(user=self.profile1.user, gallery=self.gallery, mode='W')
         self.user_gallery2 = UserGalleryFactory(user=self.profile2.user, gallery=self.gallery, mode='R')
-
-    def test_denies_anonymous(self):
-        response = self.client.get(reverse('gallery-image-new', args=[1]), follow=True)
-        self.assertRedirects(response,
-                             reverse('member-login') +
-                             '?next=' + reverse('gallery-image-new', args=[1]))
 
     def test_success_new_image_write_permission(self):
         login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
@@ -725,9 +892,8 @@ class NewImageViewTest(TestCase):
         self.assertEqual(Image.objects.filter(gallery=self.gallery).count(), 1)
         self.assertEqual('jpg', img.get_extension())
         response = self.client.post(
-            reverse('gallery-image-delete'),
+            reverse('gallery-image-delete', kwargs={'pk_gallery': self.gallery.pk}),
             {
-                'gallery': self.gallery.pk,
                 'delete': '',
                 'image': img.pk
             },

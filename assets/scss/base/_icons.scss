@@ -340,6 +340,18 @@
         }
     }
 
+    &.stats {
+        &:after {
+            @include sprite-position($stats);
+        }
+        &.blue:after {
+            @include sprite-position($stats-blue);
+        }
+        &.light:after {
+            @include sprite-position($stats-light);
+        }
+    }
+
     &.tick {
         &:after {
             @include sprite-position($tick);

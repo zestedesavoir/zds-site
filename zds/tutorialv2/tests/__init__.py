@@ -1,21 +1,48 @@
+import copy
+import os
+
 from django.conf import settings
 import shutil
 
 from django.urls import reverse
+from django.test.utils import override_settings
 from selenium.webdriver.support.wait import WebDriverWait
 
 from zds.tutorialv2.models.database import Validation
 
+BASE_DIR = settings.BASE_DIR
+
+overridden_zds_app = copy.deepcopy(settings.ZDS_APP)
+overridden_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
+overridden_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
+overridden_zds_app['content']['extra_content_generation_policy'] = 'SYNC'
+overridden_zds_app['content']['build_pdf_when_published'] = False
+
+
+class override_for_contents(override_settings):
+    def __init__(self, **kwargs):
+        kwargs.update(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'), ZDS_APP=overridden_zds_app)
+
+        if 'ES_ENABLED' not in kwargs:
+            kwargs.update(ES_ENABLED=False)
+
+        super().__init__(**kwargs)
+
 
 class TutorialTestMixin:
+
+    overridden_zds_app = overridden_zds_app
+
     def clean_media_dir(self):
         shutil.rmtree(self.overridden_zds_app['content']['repo_private_path'], ignore_errors=True)
         shutil.rmtree(self.overridden_zds_app['content']['repo_public_path'], ignore_errors=True)
         shutil.rmtree(self.overridden_zds_app['content']['extra_content_watchdog_dir'], ignore_errors=True)
+
         shutil.rmtree(settings.MEDIA_ROOT, ignore_errors=True)
 
     def tearDown(self):
         self.clean_media_dir()
+        self.client.logout()
 
 
 class TutorialFrontMixin:

@@ -299,6 +299,25 @@
 
                     if (elemPopup = this.getElementsByTagName("div")[0]) {
                         elemPopup.style.display = "block";
+
+                        //>> align
+                        var contentX = document.getElementById("content").offsetWidth,
+                            posLeftSide = elemPopup.offsetParent.offsetLeft + elemPopup.offsetWidth,
+                            isNotOut = (posLeftSide <= contentX);
+
+                        elemPopup.style.left = (isNotOut) ? "0" : "inherit";
+                        elemPopup.style.right = (isNotOut) ? "inherit" : "0";
+
+                        var parentLeft = elemPopup.offsetParent.offsetLeft,
+                            posRightSide = parentLeft - elemPopup.offsetWidth;
+                        if (!isNotOut && posRightSide < 0) {
+                            elemPopup.style.right = "inherit";
+                            var left = -parentLeft;
+                            left += Math.max((contentX - elemPopup.offsetWidth) / 2, 0);
+                            elemPopup.style.left = left + "px";
+                        }
+                        //<<
+
                         if(self.currentElemPopup){
                             self.currentElemPopup.style.display = "none";
                         }
@@ -645,16 +664,106 @@
     }) (zForm));
 })(window, document);
 
+function uploadImage (e, dataTransferAttr, csrf){
+    var editor = $(e.target);
+    // need to use window[dataTransferAttr for IE-11
+    var dataTransfert = e.originalEvent[dataTransferAttr] || window[dataTransferAttr];
+    var files = [];
+    if (dataTransfert.files) {
+        files = dataTransfert.files;
+    } else if (dataTransfert.items) {
+        for (var i = 0; i < dataTransfert.items.length; i++) {
+            if (dataTransfert.types[i].indexOf("Files") === 0) {
+                files.push(dataTransfert.items[i].getAsFile())
+            }
+        }
+    }
+    if (!files.length) {
+        return false;
+    }
+    var galleryUrl = '/api/galeries/'+ document.body.getAttribute('data-gallery') + '/images/';
+    Object.values(files).forEach(function (f) {
+        var mdWaitingCode = '![' + f.name + ' en cours de téléchargement]()';
+        var mdWaitingRegexp = mdWaitingCode.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+        editor.val(editor.val() + '\n' + mdWaitingCode );
+        var formData = new FormData();
+        formData.append('physical', f);
+        formData.append('title', f.name);
+        // WARN: if you test zds with sqlite, you can't upload multiple files at a time
+        $.ajax({
+            url: galleryUrl,
+            data: formData, type: 'POST',
+            processData: false,
+            contentType: false,
+            headers: {
+                "X-CSRFToken": csrf
+            },
+            dataType: 'json'
+        }).done(function (result) {
+            var mdFinalCode = '![' + result.legend + '](' + result.url +')';
+
+            editor.val(editor.val().replace(new RegExp(mdWaitingRegexp), mdFinalCode));
+        }).fail(function (resp) {
+            var error = "Erreur inconnue";
+            if(resp.responseText !== undefined && resp.responseText.indexOf("RequestDataTooBig") !== -1) {
+                error = "L'image est trop lourde.";
+            } else if(resp.responseJSON !== undefined) {
+                error = resp.responseJSON[0];
+            } else if(resp.responseText !== undefined) {
+                error = "Erreur " + resp.status + " " + resp.statusText + " : " + '"' + resp.responseText.split("\n")[0] + '"';
+            } else if(resp.readyState === 0 && resp.statusText === "error") {
+                error = "Oups ! Impossible de se connecter au serveur.";
+            }
+
+            $("<div>", {
+                text: error,
+                class: "alert-box error",
+            }).insertAfter(editor);
+
+            editor.val(editor.val().replace(new RegExp(mdWaitingRegexp), ''));
+        });
+    });
+    return true;
+}
 
 (function($, undefined){
     "use strict";
-
+    var csrf = $("input[name=csrfmiddlewaretoken]").val();
+    var dragEventNumber = 0;
     $(".md-editor").on("keydown", function(e){
         // the message is submitted if the user is pressing Ctrl or Cmd with Enter and isn't pressing Alt or Shift
         if((e.ctrlKey || e.metaKey) && e.which === 13 && !e.altKey && !e.shiftKey){
             e.preventDefault();
 
             $(".message-submit > button[name=answer]").click();
+        }
+    }).on("dragenter", function(e) {
+        dragEventNumber++;
+        e.preventDefault();
+        if (dragEventNumber === 1) {
+            $(e.target).addClass("selected");
+        }
+    }).on("dragover", function(e) {
+        e.preventDefault();
+    }).on("dragleave", function(e) {
+        dragEventNumber--;
+        e.preventDefault();
+        if (dragEventNumber === 0) {
+            $(e.target).removeClass("selected");
+        }
+    }).on("drop", function (e) {
+        e.preventDefault();
+        uploadImage(e, "dataTransfer", csrf);
+        $(e.target).removeClass("selected");
+        dragEventNumber = 0;
+    }).on("paste", function(e) {
+        var clipboard = e.originalEvent.clipboardData;
+        var data = clipboard.files || clipboard.items;
+        if (!data.length) { //                  ^^^^^ Edge
+            return;
+        }
+        if (uploadImage(e, "clipboardData", csrf)) {
+            e.preventDefault();
         }
     });
 })(jQuery);
