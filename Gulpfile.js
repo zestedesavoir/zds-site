@@ -75,6 +75,7 @@ gulp.task('js', () =>
         'assets/js/content-publication-readiness.js',
         'assets/js/dropdown-menu.js',
         'assets/js/editor.js',
+        'assets/js/featured-request-ignore.js',
         'assets/js/featured-resource-preview.js',
         'assets/js/form-email-username.js',
         'assets/js/gallery.js',
@@ -93,7 +94,6 @@ gulp.task('js', () =>
         'assets/js/tab-modalize.js',
         'assets/js/topic-suggest.js',
         'assets/js/tribune-pick.js',
-        'assets/js/featured-request-ignore.js',
         'assets/js/zen-mode.js',
     ], { base: '.' })
         .pipe(sourcemaps.init({ loadMaps: true }))
