@@ -90,14 +90,13 @@
             {% if display == 'global' %}
                 <button type="submit" class="btn">{% trans "Comparer" %}</button>
                 </form>
+            {% elif not content.has_extracts %}
+                <a href="{% url "content:stats-content" content.pk content.slug %}" class="btn btn-submit">{% trans "Revenir à la vue globale" %}</a>
             {% endif %}
         {% else %}
-            {% trans "Aucune statistique a afficher" %}
+            {% trans "Aucune statistique à afficher" %}
         {% endif %}
 
-        {% if not display == 'global' %}
-            <a href="{% url "content:stats-content" content.pk content.slug %}" class="btn btn-submit">{% trans "Revenir à la vue globale" %}</a>
-        {% endif %}
         <hr class="clearfix">
         <div>
             <section class="content-col-2">
