@@ -156,8 +156,6 @@ h6 {
     }
 
     .custom-block-body {
-        padding-left: 15px;
-
         &:after {
             display: none;
         }
@@ -237,13 +235,14 @@ h6 {
         }
     }
 }
-.spoiler {
+
+.spoiler,
+.custom-block-spoiler {
     margin-top: 0;
-    padding-left: 15px;
     background: #EEE;
 }
 
-
+ 
 
 img {
     max-width: 100%;

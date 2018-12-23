@@ -7,6 +7,7 @@ import tempfile
 import time
 import zipfile
 from datetime import datetime
+from collections import OrderedDict
 
 from PIL import Image as ImagePIL
 
@@ -1870,19 +1871,19 @@ class ContentOfAuthor(ZdSPagingListView):
     template_name = 'tutorialv2/index.html'
     model = PublishableContent
 
-    authorized_filters = {
-        'public': [lambda q: q.filter(sha_public__isnull=False), _('Publiés'), True, 'tick green'],
-        'validation': [lambda q: q.filter(sha_validation__isnull=False), _('En validation'), False, 'tick'],
-        'beta': [lambda q: q.filter(sha_beta__isnull=False), _('En bêta'), True, 'beta'],
-        'redaction': [
+    authorized_filters = OrderedDict([
+        ('public', [lambda q: q.filter(sha_public__isnull=False), _('Publiés'), True, 'tick green']),
+        ('validation', [lambda q: q.filter(sha_validation__isnull=False), _('En validation'), False, 'tick']),
+        ('beta', [lambda q: q.filter(sha_beta__isnull=False), _('En bêta'), True, 'beta']),
+        ('redaction', [
             lambda q: q.filter(sha_validation__isnull=True, sha_public__isnull=True, sha_beta__isnull=True),
-            _('Brouillons'), False, 'edit'],
-    }
-    sorts = {
-        'creation': [lambda q: q.order_by('creation_date'), _('Par date de création')],
-        'abc': [lambda q: q.order_by('title'), _('Par ordre alphabétique')],
-        'modification': [lambda q: q.order_by('-update_date'), _('Par date de dernière modification')]
-    }
+            _('Brouillons'), False, 'edit']),
+    ])
+    sorts = OrderedDict([
+        ('creation', [lambda q: q.order_by('creation_date'), _('Par date de création')]),
+        ('abc', [lambda q: q.order_by('title'), _('Par ordre alphabétique')]),
+        ('modification', [lambda q: q.order_by('-update_date'), _('Par date de dernière modification')])
+    ])
     sort = ''
     filter = ''
     user = None
