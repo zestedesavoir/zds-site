@@ -879,6 +879,7 @@ class Container:
             return False
         return self.ready_to_publish
 
+
 class Extract:
     """
     A content extract from a Container.
@@ -1129,6 +1130,7 @@ class Extract:
 
     def is_validable(self):
         return self.container.is_validable()
+
 
 class VersionedContent(Container, TemplatableContentModelMixin):
     """
