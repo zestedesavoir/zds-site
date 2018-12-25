@@ -6,38 +6,46 @@ from django.conf import settings
 from .models import Post, Topic
 
 
-class LastPostsFeedRSS(Feed):
+class ItemMixin:
+    def item_pubdate(self, item):
+        return item.pubdate
+
+    def item_author_name(self, item):
+        return item.author.username
+
+    def item_author_link(self, item):
+        return item.author.get_absolute_url()
+
+    def item_link(self, item):
+        return item.get_absolute_url()
+
+
+def request_object(request):
+    obj = {}
+    if 'forum' in request.GET:
+        obj['forum'] = request.GET['forum']
+    if 'tag' in request.GET:
+        obj['tag'] = request.GET['tag']
+    return obj
+
+
+class LastPostsFeedRSS(Feed, ItemMixin):
     title = 'Derniers messages sur {}'.format(settings.ZDS_APP['site']['literal_name'])
     link = '/forums/'
     description = ('Les derniers messages '
                    'parus sur le forum de {}.'.format(settings.ZDS_APP['site']['literal_name']))
 
     def get_object(self, request):
-        obj = {}
-        if 'forum' in request.GET:
-            obj['forum'] = request.GET['forum']
-        if 'tag' in request.GET:
-            obj['tag'] = request.GET['tag']
-        return obj
+        return request_object(request)
 
     def items(self, obj):
         try:
-            if 'forum' in obj and 'tag' in obj:
-                posts = Post.objects.filter(topic__forum__groups__isnull=True,
-                                            topic__forum__pk=int(obj['forum']),
-                                            topic__tags__pk__in=[obj['tag']]) \
-                                    .order_by('-pubdate')[:settings.ZDS_APP['forum']['posts_per_page']]
-            elif 'forum' in obj and 'tag' not in obj:
-                posts = Post.objects.filter(topic__forum__groups__isnull=True,
-                                            topic__forum__pk=int(obj['forum'])) \
-                                    .order_by('-pubdate')[:settings.ZDS_APP['forum']['posts_per_page']]
-            elif 'forum' not in obj and 'tag' in obj:
-                posts = Post.objects.filter(topic__forum__groups__isnull=True,
-                                            topic__tags__pk__in=[obj['tag']]) \
-                                    .order_by('-pubdate')[:settings.ZDS_APP['forum']['posts_per_page']]
-            else:
-                posts = Post.objects.filter(topic__forum__groups__isnull=True)\
-                                    .order_by('-pubdate')[:settings.ZDS_APP['forum']['posts_per_page']]
+            posts = Post.objects.filter(topic__forum__groups__isnull=True)
+            if 'forum' in obj:
+                posts = posts.filter(topic__forum__pk=int(obj['forum']))
+            if 'tag' in obj:
+                posts = posts.filter(topic__tags__pk__in=[obj['tag']])
+            posts = posts.order_by('-pubdate')[:settings.ZDS_APP['forum']['posts_per_page']]
         except (Post.DoesNotExist, ValueError):
             posts = []
         return posts
@@ -45,20 +53,8 @@ class LastPostsFeedRSS(Feed):
     def item_title(self, item):
         return '{}, message #{}'.format(item.topic.title, item.pk)
 
-    def item_pubdate(self, item):
-        return item.pubdate
-
     def item_description(self, item):
         return item.text_html
-
-    def item_author_name(self, item):
-        return item.author.username
-
-    def item_author_link(self, item):
-        return item.author.get_absolute_url()
-
-    def item_link(self, item):
-        return item.get_absolute_url()
 
 
 class LastPostsFeedATOM(LastPostsFeedRSS):
@@ -66,58 +62,31 @@ class LastPostsFeedATOM(LastPostsFeedRSS):
     subtitle = LastPostsFeedRSS.description
 
 
-class LastTopicsFeedRSS(Feed):
+class LastTopicsFeedRSS(Feed, ItemMixin):
     title = 'Derniers sujets sur {}'.format(settings.ZDS_APP['site']['literal_name'])
     link = '/forums/'
     description = 'Les derniers sujets créés sur le forum de {}.'.format(settings.ZDS_APP['site']['literal_name'])
 
     def get_object(self, request):
-        obj = {}
-        if 'forum' in request.GET:
-            obj['forum'] = request.GET['forum']
-        if 'tag' in request.GET:
-            obj['tag'] = request.GET['tag']
-        return obj
+        return request_object(request)
 
     def items(self, obj):
         try:
-            if 'forum' in obj and 'tag' in obj:
-                topics = Topic.objects.filter(forum__groups__isnull=True,
-                                              forum__pk=int(obj['forum']),
-                                              tags__pk__in=[obj['tag']])\
-                    .order_by('-pubdate')[:settings.ZDS_APP['forum']['posts_per_page']]
-            elif 'forum' in obj and 'tag' not in obj:
-                topics = Topic.objects.filter(forum__groups__isnull=True,
-                                              forum__pk=int(obj['forum']))\
-                    .order_by('-pubdate')[:settings.ZDS_APP['forum']['posts_per_page']]
-            elif 'forum' not in obj and 'tag' in obj:
-                topics = Topic.objects.filter(forum__groups__isnull=True,
-                                              tags__pk__in=[obj['tag']])\
-                    .order_by('-pubdate')[:settings.ZDS_APP['forum']['posts_per_page']]
-            if 'forum' not in obj and 'tag' not in obj:
-                topics = Topic.objects.filter(forum__groups__isnull=True)\
-                    .order_by('-pubdate')[:settings.ZDS_APP['forum']['posts_per_page']]
+            topics = Topic.objects.filter(forum__groups__isnull=True)
+            if 'forum' in obj:
+                topics = topics.filter(forum__pk=int(obj['forum']))
+            if 'tag' in obj:
+                topics = topics.filter(tags__pk__in=[obj['tag']])
+            topics = topics.order_by('-pubdate')[:settings.ZDS_APP['forum']['posts_per_page']]
         except (Topic.DoesNotExist, ValueError):
             topics = []
         return topics
-
-    def item_pubdate(self, item):
-        return item.pubdate
 
     def item_title(self, item):
         return '{} dans {}'.format(item.title, item.forum.title)
 
     def item_description(self, item):
         return item.subtitle
-
-    def item_author_name(self, item):
-        return item.author.username
-
-    def item_author_link(self, item):
-        return item.author.get_absolute_url()
-
-    def item_link(self, item):
-        return item.get_absolute_url()
 
 
 class LastTopicsFeedATOM(LastTopicsFeedRSS):

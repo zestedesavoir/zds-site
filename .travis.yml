@@ -56,9 +56,8 @@ cache:
   pip: true
   yarn: true
   directories:
-    - $HOME/.fonts
+    - $HOME/.local/share/fonts
     - $HOME/.texlive
-    - $HOME/bin
     - node_modules
 
 
@@ -87,9 +86,9 @@ install:
   - |
     # install webdriver for selenium.
     if [[ "$ZDS_TEST_JOB" == *"selenium"* ]]; then
-      wget https://github.com/mozilla/geckodriver/releases/download/v0.19.1/geckodriver-v0.19.1-linux64.tar.gz \
+      wget https://github.com/mozilla/geckodriver/releases/download/v0.23.0/geckodriver-v0.23.0-linux64.tar.gz \
       && mkdir geckodriver \
-      && tar -xzf geckodriver-v0.19.1-linux64.tar.gz -C geckodriver \
+      && tar -xzf geckodriver-v0.23.0-linux64.tar.gz -C geckodriver \
       && export PATH=$PATH:$PWD/geckodriver \
       && export DISPLAY=:99.0
     fi
@@ -97,10 +96,13 @@ install:
   - |
     if [[ "$ZDS_TEST_JOB" == *"zds.tutorialv2"* ]]; then
       # install latex
-      mkdir -p $HOME/bin \
-      && ./scripts/install_resources.sh && ./scripts/install_fonts.sh \
+      git clone https://github.com/zestedesavoir/latex-template.git
+      TEMPLATEDIR=$HOME/.texlive/texmf-local/tex/latex/
+      ./latex-template/scripts/install_font.sh \
+      && ./latex-template/scripts/install_texlive.sh \
       && export PATH=$HOME/.texlive/bin/x86_64-linux:$PATH \
-      && export PATH=$PATH:$HOME/bin
+      && rm -rf $TEMPLATEDIR/latex-template \
+      && mkdir -p $TEMPLATEDIR  && cp -r ./latex-template $TEMPLATEDIR && texhash
     fi
 
   - |

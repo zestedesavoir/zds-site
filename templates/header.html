@@ -25,7 +25,10 @@
     </div>
 
     {# Menu #}
-    <nav class="header-menu" id="menu" data-title="Menu"
+    <nav
+        class="header-menu"
+        id="menu"
+        data-title="Menu"
         {% if user.is_authenticated and user.profile.is_hover_enabled %}
             data-hovering-mode
         {% endif %}
@@ -39,10 +42,10 @@
                     <span class="arrow"></span>
                 </a>
 
-                    {% cache 1800 menu_publications user|groups %}
+                {% cache 1800 menu_publications user|groups %}
                     <div class="dropdown header-menu-dropdown">
-                            <a href="{% url "publication:list" %}" class="dropdown-link-all">
-                                {% trans "Accéder à tous les contenus de la bibliothèque" %}
+                        <a href="{% url "publication:list" %}" class="dropdown-link-all">
+                            {% trans "Accéder à tous les contenus de la bibliothèque" %}
                         </a>
 
                         <ul class="dropdown-list">
@@ -54,9 +57,9 @@
                                             <li class="dropdown-title">
                                                 {{ title }}
                                             </li>
-                                                {% for subcat, slug, parent_slug in subcats %}
+                                            {% for subcat, slug, parent_slug in subcats %}
                                                 <li>
-                                                        <a href="{% url 'publication:subcategory' slug_category=parent_slug slug=slug %}">
+                                                    <a href="{% url 'publication:subcategory' slug_category=parent_slug slug=slug %}">
                                                         {{ subcat }}
                                                     </a>
                                                 </li>
@@ -109,7 +112,7 @@
                                             <li class="dropdown-title">
                                                 {{ title }}
                                             </li>
-                                                {% for subcat, slug, parent_slug in subcats %}
+                                            {% for subcat, slug, parent_slug in subcats %}
                                                 <li>
                                                     <a href="{% url "opinion:list" %}?category={{ slug }}">
                                                         {{ subcat }}
@@ -217,24 +220,24 @@
                         <span class="dropdown-title dropdown-pm">
                             {% trans "Messagerie privée" %}
                             <a href="{% url "mp-new" %}" class="ico-after pm-new white" title="{% trans 'Envoyer un nouveau message privé' %}"></a>
-                       </span>
+                        </span>
 
                         <ul class="dropdown-list">
                             {% for notification in header_private_topic_notifications.list %}
-                            <li>
-                                <a href="{{ notification.url }}">
-                                    <img src="{{ notification.sender.profile.get_avatar_url|remove_url_scheme }}" alt="" class="avatar">
-                                    <span class="username">{{ notification.sender.username }}</span>
-                                    <span class="date">{{ notification.pubdate|format_date:True|capfirst }}</span>
-                                    <span class="topic">{{ notification.title }}</span>
-                                </a>
-                            </li>
+                                <li>
+                                    <a href="{{ notification.url }}">
+                                        <img src="{{ notification.author.profile.get_avatar_url|remove_url_scheme }}" alt="" class="avatar">
+                                        <span class="username">{{ notification.author.username }}</span>
+                                        <span class="date">{{ notification.pubdate|format_date:True|capfirst }}</span>
+                                        <span class="topic">{{ notification.title }}</span>
+                                    </a>
+                                </li>
                             {% endfor %}
 
                             {% if header_private_topic_notifications.total == 0 %}
-                            <li class="dropdown-empty-message">
-                                {% trans "Aucun nouveau message" %}
-                            </li>
+                                <li class="dropdown-empty-message">
+                                    {% trans "Aucun nouveau message" %}
+                                </li>
                             {% endif %}
                         </ul>
                         <a href="{% url "mp-list" %}" class="dropdown-link-all">
@@ -421,7 +424,7 @@
                             >
                                 {% csrf_token %}
                                 <button type="submit">{% trans "Déconnexion" %}</button>
-                             </form>
+                            </form>
                         </li>
 
                     </ul>

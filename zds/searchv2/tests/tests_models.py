@@ -5,7 +5,7 @@ from django.conf import settings
 from django.test import TestCase
 
 from zds.forum.factories import TopicFactory, PostFactory, Topic, Post
-from zds.forum.tests.tests_views import create_category
+from zds.forum.factories import create_category_and_forum
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.searchv2.models import ESIndexManager
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, publish_content
@@ -22,7 +22,7 @@ class ESIndexManagerTests(TutorialTestMixin, TestCase):
         self.mas = ProfileFactory().user
         settings.ZDS_APP['member']['bot_account'] = self.mas.username
 
-        self.category, self.forum = create_category()
+        self.category, self.forum = create_category_and_forum()
 
         self.user = ProfileFactory().user
         self.staff = StaffProfileFactory().user

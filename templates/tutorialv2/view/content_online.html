@@ -257,6 +257,11 @@
                         {% trans "Version brouillon" %}
                     </a>
                 </li>
+                <li>
+                    <a href="{% url "content:stats-content" content.pk content.slug %}" class="ico-after stats blue">
+                        {% trans "Voir les statistiques" %}
+                    </a>
+                </li>
                 {% if is_staff %}
                     {% if content.requires_validation %}
                         <li>

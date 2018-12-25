@@ -1,5 +1,9 @@
+from textwrap import dedent
+
 from django.test import TestCase
 from django.template import Context, Template
+
+from zds.utils.templatetags.emarkdown import shift_heading
 
 
 class EMarkdownTest(TestCase):
@@ -22,7 +26,7 @@ class EMarkdownTest(TestCase):
         )
         self.assertEqual(tr, expected)
 
-        # Todo: Found a way to force parsing crash or simulate it.
+        # Todo: Find a way to force parsing crash or simulate it.
 
     def test_emarkdown_inline(self):
         # The goal is not to test zmarkdown but test that template tag correctly call it
@@ -36,7 +40,7 @@ class EMarkdownTest(TestCase):
 
         self.assertEqual(tr, expected)
 
-        # Todo: Found a way to force parsing crash or simulate it.
+        # Todo: Find a way to force parsing crash or simulate it.
 
     def test_shift_heading(self):
         tr = Template('{% load emarkdown %}{{ content | shift_heading_1}}').render(self.context)
@@ -56,3 +60,38 @@ class EMarkdownTest(TestCase):
                          '##### Titre **2**\n\n'
                          '###### Titre 3\n\n'
                          '&gt; test', tr)
+
+    def test_special_shift_heading(self):
+        sharp_in_code = dedent("""
+        # title
+        ```
+        # comment
+        ```
+        # another title
+        """)
+        result_sharp_in_code = dedent("""
+        ## title
+        ```
+        # comment
+        ```
+        ## another title
+        """)
+        self.assertEqual(shift_heading(sharp_in_code, 1), result_sharp_in_code)
+
+        sharp_in_code_with_antiquotes = dedent("""
+        # title
+        ~~~
+        ```
+        # comment
+        ~~~
+        # another title
+        """)
+        result_sharp_in_code_with_antiquotes = dedent("""
+        ## title
+        ~~~
+        ```
+        # comment
+        ~~~
+        ## another title
+        """)
+        self.assertEqual(shift_heading(sharp_in_code_with_antiquotes, 1), result_sharp_in_code_with_antiquotes)

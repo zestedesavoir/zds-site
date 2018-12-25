@@ -1256,3 +1256,25 @@ class PromoteOpinionToArticleForm(forms.Form):
                 _('Valider'),
                 type='submit')
         )
+
+
+class ContentCompareStatsURLForm(forms.Form):
+    urls = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple(), required=True)
+
+    def __init__(self, urls, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['urls'].choices = urls
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Field('urls'),
+            StrictButton(_('Comparer'), type='submit')
+        )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        urls = cleaned_data.get('urls')
+        if not urls:
+            raise forms.ValidationError(_('Vous devez choisir des URL a comparer'))
+        if len(urls) < 2:
+            raise forms.ValidationError(_('Il faut au minimum 2 urls à comparer'))

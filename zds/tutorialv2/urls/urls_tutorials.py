@@ -35,6 +35,8 @@ urlpatterns = [
         DownloadOnlineTutorial.as_view(requested_file='epub'), name='download-epub'),
     url(r'^zip/(?P<pk>\d+)/(?P<slug>.+)\.zip$',
         DownloadOnlineTutorial.as_view(requested_file='zip'), name='download-zip'),
+    url(r'^tex/(?P<pk>\d+)/(?P<slug>.+)\.tex$', DownloadOnlineTutorial.as_view(requested_file='tex'),
+        name='download-tex'),
 
     #  Old beta url compatibility
     url('^beta/(?P<pk>\d+)/(?P<slug>.+)', RedirectOldBetaTuto.as_view(), name='old-beta-url'),

@@ -136,7 +136,8 @@ django_template_engine = {
             # ZDS context processors
             'zds.utils.context_processor.app_settings',
             'zds.utils.context_processor.version',
-            'zds.utils.context_processor.header_notifications'
+            'zds.utils.context_processor.header_notifications',
+            'zds.gallery.auto_upload_gallery.get_auto_upload_gallery'
         ],
     },
 }

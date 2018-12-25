@@ -39,14 +39,14 @@
         <ul>
             <li>
                 <a href="{% url 'last-subjects' %}?order=creation"
-                    class="ico-after move {% if request.GET.order == 'creation' %}selected{% endif %}"
+                   class="ico-after move {% if request.GET.order == 'creation' %}selected{% endif %}"
                 >
                     {% trans "Date de création" %}
                 </a>
             </li>
             <li>
                 <a href="{% url 'last-subjects' %}?order=last_post"
-                    class="ico-after history {% if request.GET.order == 'last_post' %}selected{% endif %}"
+                   class="ico-after history {% if request.GET.order == 'last_post' %}selected{% endif %}"
                 >
                     {% trans "Date de la dernière réponse" %}
                 </a>

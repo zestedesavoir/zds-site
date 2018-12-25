@@ -42,6 +42,7 @@ class TutorialTestMixin:
 
     def tearDown(self):
         self.clean_media_dir()
+        self.client.logout()
 
 
 class TutorialFrontMixin:

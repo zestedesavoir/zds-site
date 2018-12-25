@@ -10,7 +10,7 @@ from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory
 from zds.tutorialv2.models.database import PublishedContent
 from zds.tutorialv2.publication_utils import publish_content
 from zds.forum.factories import TopicFactory, PostFactory, Topic, Post
-from zds.forum.tests.tests_views import create_category
+from zds.forum.factories import create_category_and_forum
 from zds.searchv2.models import ESIndexManager
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 
@@ -24,7 +24,7 @@ class UtilsTests(TutorialTestMixin, TestCase):
         self.mas = ProfileFactory().user
         settings.ZDS_APP['member']['bot_account'] = self.mas.username
 
-        self.category, self.forum = create_category()
+        self.category, self.forum = create_category_and_forum()
 
         self.user = ProfileFactory().user
         self.staff = StaffProfileFactory().user
