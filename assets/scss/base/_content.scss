@@ -31,7 +31,7 @@ h2 {
     font-weight: 400;
 
     &.not-ready {
-        background: $color-not-ready-content;
+        color: $color-not-ready-content;
     }
 }
 
