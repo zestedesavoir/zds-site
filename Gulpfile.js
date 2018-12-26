@@ -75,6 +75,7 @@ gulp.task('js', () =>
         'assets/js/content-publication-readiness.js',
         'assets/js/dropdown-menu.js',
         'assets/js/editor.js',
+        'assets/js/editor-persistence.js',
         'assets/js/featured-request-ignore.js',
         'assets/js/featured-resource-preview.js',
         'assets/js/form-email-username.js',
