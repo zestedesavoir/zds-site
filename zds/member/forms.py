@@ -279,6 +279,9 @@ class ProfileForm(MiniProfileForm):
         if 'email_for_answer' in initial and initial['email_for_answer']:
             self.fields['options'].initial += 'email_for_answer'
 
+        if 'email_for_new_mp' in initial and initial['email_for_new_mp']:
+            self.fields['options'].initial += 'email_for_new_mp'
+
         layout = Layout(
             Field('biography'),
             ButtonHolder(StrictButton(_('Aperçu'), type='preview', name='preview',
