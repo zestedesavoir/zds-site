@@ -252,7 +252,7 @@ fi
 if  ! $(_in "-back" $@) && ( $(_in "+back" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
     info "* [+back] install back dependencies & migration"
     make install-back
-    make migrate # migration are required for the instance to run properly anyway
+    make migrate-db # migration are required for the instance to run properly anyway
 fi
 
 # install front
@@ -275,6 +275,6 @@ fi
 # fixtures
 if  ! $(_in "-data" $@) && ( $(_in "+data" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
     info "* [+data] fixtures"
-    make fixtures
+    make generate-fixtures
 fi
 info "Done. You can now run instance with \`source $ZDS_VENV/bin/activate\`, and then, \`make zmd-start && make run-back\`"

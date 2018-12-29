@@ -27,7 +27,7 @@ La procédure d'installation [est détaillée ici](http://docs.zestedesavoir.com
 Pour bénéficier de données de test, exécutez la commande suivante:
 
 ```console
-make fixtures
+make generate-fixtures
 ```
 
 Si vous êtes sur Windows, préférez ceci :
