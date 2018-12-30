@@ -15,6 +15,14 @@
         </p>
 
         <ul class="social">
+            {% if app.site.social.mastodon %}
+                <li>
+                    <a href="{{app.site.social.mastodon}}"
+                       title="Suivez-nous sur Mastodon"
+                       class="btn ico-after mastodon light btn-mastodon btn-holder"></a>
+                </li>
+            {% endif %}
+
             {% if app.site.social.facebook %}
                 <li>
                     <a href="{{app.site.social.facebook}}"
@@ -28,14 +36,6 @@
                     <a href="{{app.site.social.twitter}}"
                        title="Suivez-nous sur Twitter"
                        class="btn ico-after twitter light btn-twitter btn-holder"></a>
-                </li>
-            {% endif %}
-
-            {% if app.site.social.googleplus %}
-                <li>
-                    <a href="{{app.site.social.googleplus}}"
-                       title="Retrouvez-nous sur Google+"
-                       class="btn ico-after google-plus light btn-google-plus btn-holder"></a>
                 </li>
             {% endif %}
         </ul>
