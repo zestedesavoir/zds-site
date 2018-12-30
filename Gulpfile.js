@@ -75,6 +75,7 @@ gulp.task('js', () =>
         'assets/js/content-publication-readiness.js',
         'assets/js/dropdown-menu.js',
         'assets/js/editor.js',
+        'assets/js/editor-persistence.js',
         'assets/js/featured-resource-preview.js',
         'assets/js/form-email-username.js',
         'assets/js/gallery.js',
@@ -187,6 +188,5 @@ gulp.task('errors', () =>
         .pipe(sourcemaps.write('.', { includeContent: true, sourceRoot: '../scss/' }))
         .pipe(gulp.dest('errors/css/')));
 
-gulp.task('test', ['js:lint']);
 gulp.task('build', ['prepare-zmd', 'css', 'js', 'images']);
-gulp.task('default', ['watch', 'test']);
+gulp.task('default', ['watch', 'js:lint']);
