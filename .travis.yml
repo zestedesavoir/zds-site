@@ -138,8 +138,7 @@ script:
   - |
     # test and build frontend
     if [[ "$ZDS_TEST_JOB" == *"front"* ]]; then
-      yarn test \
-      && yarn build # we need to upload the assets later
+      yarn run lint && yarn run build # we need to upload the assets later
     fi
   - |
     # test backend
@@ -162,7 +161,7 @@ script:
   - |
     # selenium tests
     if [[ "$ZDS_TEST_JOB" == *"selenium"* ]]; then
-      yarn build
+      yarn run build
       xvfb-run --server-args="-screen 0 1280x720x8" python manage.py \
         test -v=2\
         --settings zds.settings.ci_test \
@@ -171,7 +170,7 @@ script:
     fi
 
   - |
-    # test and build frontend
+    # build documentation
     if [[ "$ZDS_TEST_JOB" == *"doc"* ]]; then
       make --directory doc html
     fi

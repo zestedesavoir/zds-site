@@ -108,7 +108,7 @@ Strictement équivalent au commande suivantes:
 .. sourcecode:: bash
 
     make install-back # Dépendances Python
-    make migrate # Cf. "migrate" de Django
+    make migrate-db # Cf. "migrate" de Django
 
 Composant ``front``
 ===================
@@ -145,7 +145,7 @@ Strictement équivalent à la commande suivantes:
 
 .. sourcecode:: bash
 
-    make fixtures
+    make generate-fixtures
 
 Plus d'info sur cette fonctionalité `sur la page dédiée <../utils/fixture_loaders.html>`_.
 

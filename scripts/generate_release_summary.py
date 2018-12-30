@@ -120,6 +120,7 @@ def dump_issues(milestone, openissues, closed_bug, closed_evo, closed_unk):
         out.write(mdarray(closed_evo))
         out.write('## Non défini\n\n')
         out.write(mdarray(closed_unk))
+    print('==> Vous pouvez trouver le rapport dans', OUTPUT_PATH)
 
 
 def mdarray(tableau):
