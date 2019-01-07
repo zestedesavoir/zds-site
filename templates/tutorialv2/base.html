@@ -86,7 +86,7 @@
         {% if content %}
             {% if content.is_public or content.in_beta or can_edit or is_staff %}
                 <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Télécharger">
-                    {% if public_object.is_exported %}
+                    {% if not public_object or public_object.is_exported %}
                         {% include "tutorialv2/includes/list_of_exports.html" %}
                     {% endif %}
                 </div>
