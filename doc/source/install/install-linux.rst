@@ -132,7 +132,7 @@ Strictement équivalent à la commande suivantes:
 
 .. sourcecode:: bash
 
-    make install-zmd
+    make zmd-install
 
 Si vous ne souhaitez pas utiliser ce composant, il vous faut tout de même installer zmarkdown manuellement.
 Pour cela, rendez-vous sur `la documentation dédiée <extra-zmd.html>`_.
