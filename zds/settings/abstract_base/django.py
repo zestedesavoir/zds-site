@@ -94,7 +94,7 @@ FILE_UPLOAD_HANDLERS = (
     'django.core.files.uploadhandler.TemporaryFileUploadHandler',
 )
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     # CorsMiddleware needs to be before CommonMiddleware.
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -131,8 +131,8 @@ django_template_engine = {
             'django.template.context_processors.request',
             'django.template.context_processors.tz',
             'django.contrib.messages.context_processors.messages',
-            'social.apps.django_app.context_processors.backends',
-            'social.apps.django_app.context_processors.login_redirect',
+            'social_django.context_processors.backends',
+            'social_django.context_processors.login_redirect',
             # ZDS context processors
             'zds.utils.context_processor.app_settings',
             'zds.utils.context_processor.version',
@@ -159,7 +159,7 @@ INSTALLED_APPS = (
     'easy_thumbnails.optimize',
     'crispy_forms',
     'munin',
-    'social.apps.django_app.default',
+    'social_django',
     'rest_framework',
     'rest_framework_swagger',
     'dry_rest_permissions',
@@ -327,8 +327,8 @@ MESSAGE_TAGS = {
     message_constants.ERROR: 'alert',
 }
 
-AUTHENTICATION_BACKENDS = ('social.backends.facebook.FacebookOAuth2',
-                           'social.backends.google.GoogleOAuth2',
+AUTHENTICATION_BACKENDS = ('social_core.backends.facebook.FacebookOAuth2',
+                           'social_core.backends.google.GoogleOAuth2',
                            'django.contrib.auth.backends.ModelBackend')
 
 # To remove a useless warning in Django 1.7.

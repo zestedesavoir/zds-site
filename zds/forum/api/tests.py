@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.core.cache import caches
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.contrib.auth.models import Group
 from rest_framework import status
 from rest_framework.test import APIClient

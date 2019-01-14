@@ -12,7 +12,7 @@ class GroupContact(models.Model):
         verbose_name = _('Groupe de la page de contact')
         verbose_name_plural = _('Groupes de la page de contact')
 
-    group = models.OneToOneField(Group, verbose_name=_('Groupe d\'utilisateur'))
+    group = models.OneToOneField(Group, verbose_name=_('Groupe d\'utilisateur'), on_delete=models.CASCADE)
     name = models.CharField(_('Nom (ex: Le staff)'), max_length=32, unique=True)
     description = models.TextField(_('Description (en markdown)'), blank=True, null=True)
     email = models.EmailField(_('Adresse mail du groupe'), blank=True, null=True)

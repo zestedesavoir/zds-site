@@ -1,6 +1,6 @@
 from django.db import models
 from django.db.models import OuterRef, Subquery, Count
-from django.db.models.functions.base import Coalesce
+from django.db.models.functions import Coalesce
 
 
 class GalleryManager(models.Manager):

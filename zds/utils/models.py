@@ -8,7 +8,7 @@ from uuslug import uuslug
 from django.conf import settings
 
 from django.contrib.auth.models import User, Group
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.encoding import smart_text
 from django.db import models
 from django.shortcuts import get_object_or_404
@@ -119,8 +119,9 @@ class CategorySubCategory(models.Model):
         verbose_name = 'Hierarchie catégorie'
         verbose_name_plural = 'Hierarchies catégories'
 
-    category = models.ForeignKey(Category, verbose_name='Catégorie', db_index=True)
-    subcategory = models.ForeignKey(SubCategory, verbose_name='Sous-Catégorie', db_index=True)
+    category = models.ForeignKey(Category, verbose_name='Catégorie', db_index=True, on_delete=models.CASCADE)
+    subcategory = models.ForeignKey(SubCategory, verbose_name='Sous-Catégorie', db_index=True,
+                                    on_delete=models.CASCADE)
     is_main = models.BooleanField('Est la catégorie principale', default=True, db_index=True)
 
     def __str__(self):
@@ -205,7 +206,7 @@ class HatRequest(models.Model):
                                 verbose_name='Date de la demande', db_column='request_date')
     is_granted = models.NullBooleanField('Est acceptée')
     solved_at = models.DateTimeField('Date de résolution', blank=True, null=True)
-    moderator = models.ForeignKey(User, verbose_name='Modérateur', blank=True, null=True)
+    moderator = models.ForeignKey(User, verbose_name='Modérateur', blank=True, null=True, on_delete=models.SET_NULL)
     comment = models.TextField('Commentaire', max_length=1000, blank=True)
 
     class Meta:
@@ -356,10 +357,11 @@ class Comment(models.Model):
     objects = InheritanceManager()
 
     author = models.ForeignKey(User, verbose_name='Auteur',
-                               related_name='comments', db_index=True)
+                               # better on_delete with "set anonymous?"
+                               related_name='comments', db_index=True, on_delete=models.CASCADE)
     editor = models.ForeignKey(User, verbose_name='Editeur',
                                related_name='comments-editor+',
-                               null=True, blank=True)
+                               null=True, blank=True, on_delete=models.SET_NULL)
     ip_address = models.CharField('Adresse IP de l\'auteur ', max_length=39)
 
     position = models.IntegerField('Position', db_index=True)
@@ -502,20 +504,20 @@ class Alert(models.Model):
     author = models.ForeignKey(User,
                                verbose_name='Auteur',
                                related_name='alerts',
-                               db_index=True)
+                               db_index=True, on_delete=models.CASCADE)
     comment = models.ForeignKey(Comment,
                                 verbose_name='Commentaire',
                                 related_name='alerts_on_this_comment',
                                 db_index=True,
                                 null=True,
-                                blank=True)
+                                blank=True, on_delete=models.SET_NULL)
     # use of string definition of pk to avoid circular import.
     content = models.ForeignKey('tutorialv2.PublishableContent',
                                 verbose_name='Contenu',
                                 related_name='alerts_on_this_content',
                                 db_index=True,
                                 null=True,
-                                blank=True)
+                                blank=True, on_delete=models.SET_NULL)
     scope = models.CharField(max_length=10, choices=SCOPE_CHOICES, db_index=True)
     text = models.TextField("Texte d'alerte")
     pubdate = models.DateTimeField('Date de création', db_index=True)
@@ -525,7 +527,7 @@ class Alert(models.Model):
                                   related_name='solved_alerts',
                                   db_index=True,
                                   null=True,
-                                  blank=True)
+                                  blank=True, on_delete=models.SET_NULL)
     # sent to the alert creator
     resolve_reason = models.TextField('Texte de résolution',
                                       null=True,
@@ -600,8 +602,8 @@ class CommentVote(models.Model):
         verbose_name_plural = 'Votes'
         unique_together = ('user', 'comment')
 
-    comment = models.ForeignKey(Comment, db_index=True)
-    user = models.ForeignKey(User, db_index=True)
+    comment = models.ForeignKey(Comment, db_index=True, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, db_index=True, on_delete=models.CASCADE)
     positive = models.BooleanField('Est un vote positif', default=True)
 
     def __str__(self):

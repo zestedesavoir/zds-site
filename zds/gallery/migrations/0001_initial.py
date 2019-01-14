@@ -37,7 +37,7 @@ class Migration(migrations.Migration):
                 ('legend', models.CharField(max_length=80, null=True, verbose_name=b'L\xc3\xa9gende', blank=True)),
                 ('pubdate', models.DateTimeField(auto_now_add=True, verbose_name=b'Date de cr\xc3\xa9ation', db_index=True)),
                 ('update', models.DateTimeField(null=True, verbose_name=b'Date de modification', blank=True)),
-                ('gallery', models.ForeignKey(verbose_name=b'Galerie', to='gallery.Gallery')),
+                ('gallery', models.ForeignKey(verbose_name=b'Galerie', to='gallery.Gallery', on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'Image',
@@ -50,8 +50,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('mode', models.CharField(default=b'R', max_length=1, choices=[(b'R', b'Lecture'), (b'W', b'Ecriture')])),
-                ('gallery', models.ForeignKey(verbose_name=b'Galerie', to='gallery.Gallery')),
-                ('user', models.ForeignKey(verbose_name=b'Membre', to=settings.AUTH_USER_MODEL)),
+                ('gallery', models.ForeignKey(verbose_name=b'Galerie', to='gallery.Gallery', on_delete=models.CASCADE)),
+                ('user', models.ForeignKey(verbose_name=b'Membre', to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': "Galeries de l'utilisateur",

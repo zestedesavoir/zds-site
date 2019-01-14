@@ -10,7 +10,7 @@ from django.contrib import messages
 from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
 from django.shortcuts import render
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.views.generic import CreateView
 from django.views.generic.detail import SingleObjectMixin
 

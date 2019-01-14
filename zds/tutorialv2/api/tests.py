@@ -4,7 +4,7 @@ import shutil
 
 from django.conf import settings
 from django.core.cache import caches
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from rest_framework import status
 from rest_framework.test import APIClient
