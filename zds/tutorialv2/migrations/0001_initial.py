@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ContentReaction',
             fields=[
-                ('comment_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='utils.Comment')),
+                ('comment_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='utils.Comment', on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'note sur un contenu',
@@ -56,12 +56,12 @@ class Migration(migrations.Migration):
                 ('is_locked', models.BooleanField(default=False, verbose_name=b'Est verrouill\xc3\xa9')),
                 ('js_support', models.BooleanField(default=False, verbose_name=b'Support du Javascript')),
                 ('authors', models.ManyToManyField(to=settings.AUTH_USER_MODEL, verbose_name=b'Auteurs', db_index=True)),
-                ('beta_topic', models.ForeignKey(default=None, verbose_name=b'Contenu associ\xc3\xa9', to='forum.Topic', null=True)),
-                ('gallery', models.ForeignKey(verbose_name=b"Galerie d'images", blank=True, to='gallery.Gallery', null=True)),
+                ('beta_topic', models.ForeignKey(default=None, verbose_name=b'Contenu associ\xc3\xa9', to='forum.Topic', null=True, on_delete=models.CASCADE)),
+                ('gallery', models.ForeignKey(verbose_name=b"Galerie d'images", blank=True, to='gallery.Gallery', null=True, on_delete=models.CASCADE)),
                 ('helps', models.ManyToManyField(to='utils.HelpWriting', verbose_name=b'Aides', db_index=True)),
                 ('image', models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, verbose_name=b'Image du tutoriel', blank=True, to='gallery.Image', null=True)),
-                ('last_note', models.ForeignKey(related_name='last_note', verbose_name=b'Derniere note', blank=True, to='tutorialv2.ContentReaction', null=True)),
-                ('licence', models.ForeignKey(verbose_name=b'Licence', blank=True, to='utils.Licence', null=True)),
+                ('last_note', models.ForeignKey(related_name='last_note', verbose_name=b'Derniere note', blank=True, to='tutorialv2.ContentReaction', null=True, on_delete=models.CASCADE)),
+                ('licence', models.ForeignKey(verbose_name=b'Licence', blank=True, to='utils.Licence', null=True, on_delete=models.CASCADE)),
                 ('subcategory', models.ManyToManyField(db_index=True, to='utils.SubCategory', null=True, verbose_name=b'Sous-Cat\xc3\xa9gorie', blank=True)),
             ],
             options={
@@ -81,8 +81,8 @@ class Migration(migrations.Migration):
                 ('date_validation', models.DateTimeField(null=True, verbose_name=b'Date de validation', blank=True)),
                 ('comment_validator', models.TextField(null=True, verbose_name=b'Commentaire du validateur', blank=True)),
                 ('status', models.CharField(default=b'PENDING', max_length=10, choices=[(b'PENDING', b"En attente d'un validateur"), (b'PENDING_V', b'En cours de validation'), (b'ACCEPT', b'Publi\xc3\xa9'), (b'REJECT', b'Rejet\xc3\xa9')])),
-                ('content', models.ForeignKey(verbose_name=b'Contenu propos\xc3\xa9', blank=True, to='tutorialv2.PublishableContent', null=True)),
-                ('validator', models.ForeignKey(related_name='author_content_validations', verbose_name=b'Validateur', blank=True, to=settings.AUTH_USER_MODEL, null=True)),
+                ('content', models.ForeignKey(verbose_name=b'Contenu propos\xc3\xa9', blank=True, to='tutorialv2.PublishableContent', null=True, on_delete=models.CASCADE)),
+                ('validator', models.ForeignKey(related_name='author_content_validations', verbose_name=b'Validateur', blank=True, to=settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'Validation',
@@ -93,25 +93,25 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='contentread',
             name='content',
-            field=models.ForeignKey(to='tutorialv2.PublishableContent'),
+            field=models.ForeignKey(to='tutorialv2.PublishableContent', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='contentread',
             name='note',
-            field=models.ForeignKey(to='tutorialv2.ContentReaction'),
+            field=models.ForeignKey(to='tutorialv2.ContentReaction', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='contentread',
             name='user',
-            field=models.ForeignKey(related_name='content_notes_read', to=settings.AUTH_USER_MODEL),
+            field=models.ForeignKey(related_name='content_notes_read', to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='contentreaction',
             name='related_content',
-            field=models.ForeignKey(related_name='related_content_note', verbose_name=b'Contenu', to='tutorialv2.PublishableContent'),
+            field=models.ForeignKey(related_name='related_content_note', verbose_name=b'Contenu', to='tutorialv2.PublishableContent', on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]

@@ -30,14 +30,15 @@ class Subscription(models.Model):
         verbose_name_plural = _('Abonnements')
         unique_together = (('user', 'content_type', 'object_id'),)
 
-    user = models.ForeignKey(User, related_name='subscriber', db_index=True)
+    user = models.ForeignKey(User, related_name='subscriber', db_index=True, on_delete=models.CASCADE)
     pubdate = models.DateTimeField(_('Date de création'), auto_now_add=True, db_index=True)
     is_active = models.BooleanField(_('Actif'), default=True, db_index=True)
     by_email = models.BooleanField(_('Recevoir un email'), default=False)
-    content_type = models.ForeignKey(ContentType)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField(db_index=True)
     content_object = GenericForeignKey('content_type', 'object_id')
-    last_notification = models.ForeignKey('Notification', related_name='last_notification', null=True, default=None)
+    last_notification = models.ForeignKey('Notification', related_name='last_notification', null=True, default=None,
+                                          on_delete=models.SET_NULL)
 
     def __str__(self):
         return _('<Abonnement du membre "{0}" aux notifications pour le {1}, #{2}>')\
@@ -366,15 +367,15 @@ class Notification(models.Model):
         verbose_name = _('Notification')
         verbose_name_plural = _('Notifications')
 
-    subscription = models.ForeignKey(Subscription, related_name='subscription', db_index=True)
+    subscription = models.ForeignKey(Subscription, related_name='subscription', db_index=True, on_delete=models.CASCADE)
     pubdate = models.DateTimeField(_('Date de création'), auto_now_add=True, db_index=True)
-    content_type = models.ForeignKey(ContentType)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField(db_index=True)
     content_object = GenericForeignKey('content_type', 'object_id')
     is_read = models.BooleanField(_('Lue'), default=False, db_index=True)
     is_dead = models.BooleanField(_('Morte'), default=False)
     url = models.CharField('URL', max_length=255)
-    sender = models.ForeignKey(User, related_name='sender', db_index=True)
+    sender = models.ForeignKey(User, related_name='sender', db_index=True, on_delete=models.CASCADE)
     title = models.CharField('Titre', max_length=200)
     objects = NotificationManager()
 
@@ -407,8 +408,8 @@ class TopicFollowed(models.Model):
         verbose_name = 'Sujet suivi'
         verbose_name_plural = 'Sujets suivis'
 
-    topic = models.ForeignKey(Topic, db_index=True)
-    user = models.ForeignKey(User, related_name='topics_followed', db_index=True)
+    topic = models.ForeignKey(Topic, db_index=True, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, related_name='topics_followed', db_index=True, on_delete=models.CASCADE)
     email = models.BooleanField('Notification par courriel', default=False, db_index=True)
     objects = TopicFollowedManager()
 

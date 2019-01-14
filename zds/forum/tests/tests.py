@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.core import mail
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.test import TestCase
 
 from zds.forum.commons import PostEditMixin

@@ -4,7 +4,7 @@ from django.conf import settings
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import HTML, Layout, Submit, Field, ButtonHolder, Hidden
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.core.validators import MinLengthValidator
 
 from zds.utils.forms import CommonLayoutModalText, CommonLayoutEditor, CommonLayoutVersionEditor

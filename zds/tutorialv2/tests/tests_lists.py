@@ -3,7 +3,7 @@ from django.contrib.auth.models import Group
 import datetime
 from django.conf import settings
 from django.test import TestCase
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory, \

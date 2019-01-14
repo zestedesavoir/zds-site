@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='PingSubscription',
             fields=[
-                ('answersubscription_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='notification.AnswerSubscription')),
+                ('answersubscription_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='notification.AnswerSubscription', on_delete=models.CASCADE)),
             ],
             bases=('notification.answersubscription', zds.notification.models.MultipleNotificationsMixin),
         ),

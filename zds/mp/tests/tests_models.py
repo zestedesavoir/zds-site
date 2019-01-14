@@ -1,5 +1,5 @@
 from django.test import TestCase
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from math import ceil
 
 from zds.member.factories import ProfileFactory

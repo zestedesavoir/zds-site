@@ -18,7 +18,8 @@ class Migration(migrations.Migration):
                 ('scope', models.CharField(db_index=True, max_length=1, choices=[(b'A', b"Commentaire d'article"), (b'F', b'Forum'), (b'T', b'Commentaire de tuto')])),
                 ('text', models.TextField(verbose_name=b"Texte d'alerte")),
                 ('pubdate', models.DateTimeField(verbose_name=b'Date de publication', db_index=True)),
-                ('author', models.ForeignKey(related_name='alerts', verbose_name=b'Auteur', to=settings.AUTH_USER_MODEL)),
+                ('author', models.ForeignKey(related_name='alerts', verbose_name=b'Auteur', to=settings.AUTH_USER_MODEL,
+                                             on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'Alerte',
@@ -46,7 +47,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('is_main', models.BooleanField(default=True, db_index=True, verbose_name=b'Est la cat\xc3\xa9gorie principale')),
-                ('category', models.ForeignKey(verbose_name=b'Cat\xc3\xa9gorie', to='utils.Category')),
+                ('category', models.ForeignKey(verbose_name=b'Cat\xc3\xa9gorie', to='utils.Category',
+                                               on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'Hierarchie cat\xe9gorie',
@@ -68,8 +70,10 @@ class Migration(migrations.Migration):
                 ('update', models.DateTimeField(null=True, verbose_name=b"Date d'\xc3\xa9dition", blank=True)),
                 ('is_visible', models.BooleanField(default=True, verbose_name=b'Est visible')),
                 ('text_hidden', models.CharField(default=b'', max_length=80, verbose_name=b'Texte de masquage ')),
-                ('author', models.ForeignKey(related_name='comments', verbose_name=b'Auteur', to=settings.AUTH_USER_MODEL)),
-                ('editor', models.ForeignKey(related_name='comments-editor', verbose_name=b'Editeur', blank=True, to=settings.AUTH_USER_MODEL, null=True)),
+                ('author', models.ForeignKey(related_name='comments', verbose_name=b'Auteur',
+                                             to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
+                ('editor', models.ForeignKey(related_name='comments-editor', verbose_name=b'Editeur', blank=True,
+                                             to=settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'Commentaire',
@@ -81,8 +85,9 @@ class Migration(migrations.Migration):
             name='CommentDislike',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('comments', models.ForeignKey(to='utils.Comment')),
-                ('user', models.ForeignKey(related_name='post_disliked', to=settings.AUTH_USER_MODEL)),
+                ('comments', models.ForeignKey(to='utils.Comment', on_delete=models.CASCADE)),
+                ('user', models.ForeignKey(related_name='post_disliked', to=settings.AUTH_USER_MODEL,
+                                           on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'Ce message est inutile',
@@ -94,8 +99,9 @@ class Migration(migrations.Migration):
             name='CommentLike',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('comments', models.ForeignKey(to='utils.Comment')),
-                ('user', models.ForeignKey(related_name='post_liked', to=settings.AUTH_USER_MODEL)),
+                ('comments', models.ForeignKey(to='utils.Comment', on_delete=models.CASCADE)),
+                ('user', models.ForeignKey(related_name='post_liked', to=settings.AUTH_USER_MODEL,
+                                           on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'Ce message est utile',
@@ -163,13 +169,15 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='categorysubcategory',
             name='subcategory',
-            field=models.ForeignKey(verbose_name=b'Sous-Cat\xc3\xa9gorie', to='utils.SubCategory'),
+            field=models.ForeignKey(verbose_name=b'Sous-Cat\xc3\xa9gorie', to='utils.SubCategory',
+                                    on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='alert',
             name='comment',
-            field=models.ForeignKey(related_name='alerts', verbose_name=b'Commentaire', to='utils.Comment'),
+            field=models.ForeignKey(related_name='alerts', verbose_name=b'Commentaire', to='utils.Comment',
+                                    on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]

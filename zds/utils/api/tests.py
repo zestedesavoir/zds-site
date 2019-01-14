@@ -1,7 +1,7 @@
 import shutil
 import os
 from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 from rest_framework.test import APIClient

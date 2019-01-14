@@ -2,7 +2,7 @@ from math import ceil
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import models
 
 from zds.mp.managers import PrivateTopicManager, PrivatePostManager
@@ -21,11 +21,12 @@ class PrivateTopic(models.Model):
 
     title = models.CharField('Titre', max_length=130)
     subtitle = models.CharField('Sous-titre', max_length=200, blank=True)
-    author = models.ForeignKey(User, verbose_name='Auteur', related_name='author', db_index=True)
+    author = models.ForeignKey(User, verbose_name='Auteur', related_name='author', db_index=True,
+                               on_delete=models.SET_NULL, null=True)
     participants = models.ManyToManyField(User, verbose_name='Participants', related_name='participants',
                                           db_index=True)
     last_message = models.ForeignKey('PrivatePost', null=True, related_name='last_message',
-                                     verbose_name='Dernier message')
+                                     verbose_name='Dernier message', on_delete=models.SET_NULL)
     pubdate = models.DateTimeField('Date de création', auto_now_add=True, db_index=True)
     objects = PrivateTopicManager()
 
@@ -212,8 +213,10 @@ class PrivatePost(models.Model):
         verbose_name = 'Réponse à un message privé'
         verbose_name_plural = 'Réponses à un message privé'
 
-    privatetopic = models.ForeignKey(PrivateTopic, verbose_name='Message privé', db_index=True)
-    author = models.ForeignKey(User, verbose_name='Auteur', related_name='privateposts', db_index=True)
+    privatetopic = models.ForeignKey(PrivateTopic, verbose_name='Message privé', db_index=True,
+                                     on_delete=models.CASCADE)
+    author = models.ForeignKey(User, verbose_name='Auteur', related_name='privateposts', db_index=True, null=True,
+                               on_delete=models.SET_NULL)
     text = models.TextField('Texte')
     text_html = models.TextField('Texte en HTML')
     pubdate = models.DateTimeField('Date de publication', auto_now_add=True, db_index=True)
@@ -294,9 +297,9 @@ class PrivateTopicRead(models.Model):
         verbose_name = 'Message privé lu'
         verbose_name_plural = 'Messages privés lus'
 
-    privatetopic = models.ForeignKey(PrivateTopic, db_index=True)
-    privatepost = models.ForeignKey(PrivatePost, db_index=True)
-    user = models.ForeignKey(User, related_name='privatetopics_read', db_index=True)
+    privatetopic = models.ForeignKey(PrivateTopic, db_index=True, on_delete=models.CASCADE)
+    privatepost = models.ForeignKey(PrivatePost, db_index=True, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, related_name='privatetopics_read', db_index=True, on_delete=models.CASCADE)
 
     def __str__(self):
         """

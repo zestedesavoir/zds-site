@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from django.contrib.auth.models import Group
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.test import TestCase
 from zds.forum.factories import create_category_and_forum, create_topic_in_forum
 from zds.forum.factories import PostFactory, TagFactory

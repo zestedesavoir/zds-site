@@ -15,14 +15,14 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import transaction
 from django.db.models import Count, Q
 from django.http import Http404
 from django.shortcuts import redirect, get_object_or_404
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
-from django.utils.translation import string_concat
+from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import FormView, DeleteView, RedirectView
 from easy_thumbnails.files import get_thumbnailer
@@ -1762,7 +1762,7 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
                 send_mp(
                     bot,
                     [user],
-                    string_concat(_('Ajout à la rédaction '), _type),
+                    format_lazy('{}{}', _('Ajout à la rédaction '), _type),
                     self.versioned_object.title,
                     render_to_string('tutorialv2/messages/add_author_pm.md', {
                         'content': self.object,

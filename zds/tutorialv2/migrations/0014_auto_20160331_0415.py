@@ -11,7 +11,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='publishablecontent',
             name='beta_topic',
-            field=models.ForeignKey(default=None, blank=True, to='forum.Topic', null=True, verbose_name=b'Sujet beta associ\xc3\xa9'),
+            field=models.ForeignKey(default=None, blank=True, to='forum.Topic', null=True, verbose_name=b'Sujet beta associ\xc3\xa9', on_delete=models.CASCADE),
         ),
         migrations.AlterField(
             model_name='publishablecontent',

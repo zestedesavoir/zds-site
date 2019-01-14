@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.contrib.auth.models import User, Group
 from django.core import mail
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from oauth2_provider.models import Application, AccessToken
 from rest_framework import status
 from rest_framework.test import APITestCase
