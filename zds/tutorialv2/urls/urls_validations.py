@@ -1,4 +1,4 @@
-from django.conf.urls import url
+from django.urls import re_path
 
 from zds.tutorialv2.views.validations import AskValidationForContent, ReserveValidation, \
     ValidationHistoryView, AcceptValidation, RejectValidation, RevokeValidation, CancelValidation, \
@@ -6,34 +6,45 @@ from zds.tutorialv2.views.validations import AskValidationForContent, ReserveVal
     ValidationOpinionListView, UnpickOpinion, MarkObsolete, DoNotPickOpinion, RevokePickOperation
 
 urlpatterns = [
-    url(r'^historique/(?P<pk>\d+)/(?P<slug>.+)/$', ValidationHistoryView.as_view(), name='history'),
+    re_path(r'^historique/(?P<pk>\d+)/(?P<slug>.+)/$',
+        ValidationHistoryView.as_view(), name='history'),
 
     # VALIDATION BEFORE PUBLICATION
 
     # 1. ask validation
-    url(r'^proposer/(?P<pk>\d+)/(?P<slug>.+)/$', AskValidationForContent.as_view(), name='ask'),
+    re_path(r'^proposer/(?P<pk>\d+)/(?P<slug>.+)/$',
+        AskValidationForContent.as_view(), name='ask'),
     # 2. take (or cancel) validation
-    url(r'^reserver/(?P<pk>\d+)/$', ReserveValidation.as_view(), name='reserve'),
-    url(r'^annuler/(?P<pk>\d+)/$', CancelValidation.as_view(), name='cancel'),
+    re_path(r'^reserver/(?P<pk>\d+)/$', ReserveValidation.as_view(), name='reserve'),
+    re_path(r'^annuler/(?P<pk>\d+)/$', CancelValidation.as_view(), name='cancel'),
     # 3. accept or reject validation
-    url(r'^refuser/(?P<pk>\d+)/$', RejectValidation.as_view(), name='reject'),
-    url(r'^accepter/(?P<pk>\d+)/$', AcceptValidation.as_view(), name='accept'),
+    re_path(r'^refuser/(?P<pk>\d+)/$', RejectValidation.as_view(), name='reject'),
+    re_path(r'^accepter/(?P<pk>\d+)/$', AcceptValidation.as_view(), name='accept'),
     # 4. cancel validation after publication
-    url(r'^revoquer/(?P<pk>\d+)/(?P<slug>.+)/$', RevokeValidation.as_view(), name='revoke'),
+    re_path(r'^revoquer/(?P<pk>\d+)/(?P<slug>.+)/$',
+        RevokeValidation.as_view(), name='revoke'),
 
     # NO VALIDATION BEFORE PUBLICATION
 
-    url(r'^publier/(?P<pk>\d+)/(?P<slug>.+)/$', PublishOpinion.as_view(), name='publish-opinion'),
-    url(r'^depublier/(?P<pk>\d+)/(?P<slug>.+)/$', UnpublishOpinion.as_view(), name='unpublish-opinion'),
-    url(r'^choisir/(?P<pk>\d+)/(?P<slug>.+)/$', PickOpinion.as_view(), name='pick-opinion'),
-    url(r'^ignorer/(?P<pk>\d+)/(?P<slug>.+)/$', DoNotPickOpinion.as_view(), name='ignore-opinion'),
-    url(r'^operation/annuler/(?P<pk>\d+)/$', RevokePickOperation.as_view(), name='revoke-ignore-opinion'),
-    url(r'^retirer/(?P<pk>\d+)/(?P<slug>.+)/$', UnpickOpinion.as_view(), name='unpick-opinion'),
-    url(r'^promouvoir/(?P<pk>\d+)/(?P<slug>.+)/$', PromoteOpinionToArticle.as_view(), name='promote-opinion'),
+    re_path(r'^publier/(?P<pk>\d+)/(?P<slug>.+)/$',
+        PublishOpinion.as_view(), name='publish-opinion'),
+    re_path(r'^depublier/(?P<pk>\d+)/(?P<slug>.+)/$',
+        UnpublishOpinion.as_view(), name='unpublish-opinion'),
+    re_path(r'^choisir/(?P<pk>\d+)/(?P<slug>.+)/$',
+        PickOpinion.as_view(), name='pick-opinion'),
+    re_path(r'^ignorer/(?P<pk>\d+)/(?P<slug>.+)/$',
+        DoNotPickOpinion.as_view(), name='ignore-opinion'),
+    re_path(r'^operation/annuler/(?P<pk>\d+)/$',
+        RevokePickOperation.as_view(), name='revoke-ignore-opinion'),
+    re_path(r'^retirer/(?P<pk>\d+)/(?P<slug>.+)/$',
+        UnpickOpinion.as_view(), name='unpick-opinion'),
+    re_path(r'^promouvoir/(?P<pk>\d+)/(?P<slug>.+)/$',
+        PromoteOpinionToArticle.as_view(), name='promote-opinion'),
 
-    url(r'^marquer-obsolete/(?P<pk>\d+)/$', MarkObsolete.as_view(), name='mark-obsolete'),
+    re_path(r'^marquer-obsolete/(?P<pk>\d+)/$',
+        MarkObsolete.as_view(), name='mark-obsolete'),
     # VALIDATION VIEWS FOR STAFF
 
-    url(r'^billets/$', ValidationOpinionListView.as_view(), name='list-opinion'),
-    url(r'^$', ValidationListView.as_view(), name='list')
+    re_path(r'^billets/$', ValidationOpinionListView.as_view(), name='list-opinion'),
+    re_path(r'^$', ValidationListView.as_view(), name='list')
 ]
