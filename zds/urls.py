@@ -1,4 +1,4 @@
-from django.conf.urls import include, re_path
+from django.urls import include, re_path
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.sitemaps import GenericSitemap, Sitemap
@@ -65,14 +65,15 @@ sitemaps = {
         priority=0.7
     ),
     'forums': GenericSitemap(
-        {'queryset': Forum.objects.filter(groups__isnull=True).exclude(pk=settings.ZDS_APP['forum']['beta_forum_id'])},
+        {'queryset': Forum.objects.filter(groups__isnull=True).exclude(
+            pk=settings.ZDS_APP['forum']['beta_forum_id'])},
         changefreq='yearly',
         priority=0.7
     ),
     'topics': GenericSitemap(
         {'queryset': Topic.objects.filter(is_locked=False,
                                           forum__groups__isnull=True)
-                                  .exclude(forum__pk=settings.ZDS_APP['forum']['beta_forum_id']),
+         .exclude(forum__pk=settings.ZDS_APP['forum']['beta_forum_id']),
          'date_field': 'pubdate'},
         changefreq='hourly',
         priority=0.7
@@ -95,10 +96,12 @@ urlpatterns = [
     re_path(r'^admin/', admin.site.urls),
     re_path(r'^pages/', include(('zds.pages.urls', 'zds.pages'))),
     re_path(r'^galerie/', include(('zds.gallery.urls', 'zds.gallery'))),
-    re_path(r'^rechercher/', include(('zds.searchv2.urls', 'zds.searchv2'), namespace='search')),
+    re_path(r'^rechercher/', include(('zds.searchv2.urls',
+                                      'zds.searchv2'), namespace='search')),
     re_path(r'^munin/', include(('zds.munin.urls', 'zds.munin'))),
     re_path(r'^mise-en-avant/', include(('zds.featured.urls', 'zds.featured'))),
-    re_path(r'^notifications/', include(('zds.notification.urls', 'zds.notification'))),
+    re_path(r'^notifications/',
+            include(('zds.notification.urls', 'zds.notification'))),
     re_path('', include(('social_django.urls', 'social_django'), namespace='social')),
 
     re_path(r'^munin/', include(('munin.urls', 'munin'))),
@@ -106,7 +109,8 @@ urlpatterns = [
     re_path(r'^$', home_view, name='homepage'),
 
     re_path(r'^api/', include(('zds.api.urls', 'zds.api'), namespace='api')),
-    re_path(r'^oauth2/', include(('oauth2_provider.urls', 'oauth2_provider'), namespace='oauth2_provider')),
+    re_path(r'^oauth2/', include(('oauth2_provider.urls',
+                                  'oauth2_provider'), namespace='oauth2_provider')),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
@@ -120,8 +124,10 @@ urlpatterns += [
 if settings.SERVE:
     from django.views.static import serve
     urlpatterns += [
-        re_path(r'^static/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT}),
-        re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+        re_path(r'^static/(?P<path>.*)$', serve,
+                {'document_root': settings.STATIC_ROOT}),
+        re_path(r'^media/(?P<path>.*)$', serve,
+                {'document_root': settings.MEDIA_ROOT}),
     ]
 
 if settings.DEBUG:
