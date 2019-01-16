@@ -1,8 +1,8 @@
-from django.conf.urls import url
+from django.urls import re_path
 
-from .views import PostKarmaView
+from zds.forum.api.views import PostKarmaView
 
 urlpatterns = [
-    url(r'^message/(?P<pk>\d+)/karma/?$',
-        PostKarmaView.as_view(), name='post-karma'),
+    re_path(r'^message/(?P<pk>\d+)/karma/?$',
+            PostKarmaView.as_view(), name='post-karma'),
 ]

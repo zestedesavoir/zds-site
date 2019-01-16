@@ -17,7 +17,14 @@ def get_current_request():
     return getattr(_thread_locals, 'request', None)
 
 
-class ThreadLocals(object):
+class ThreadLocals:
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request, *args, **kwargs):
+        self.process_request(request)
+        return self.get_response(request)
 
     def process_request(self, request):
         _thread_locals.user = getattr(request, 'user', None)
