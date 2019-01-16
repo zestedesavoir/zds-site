@@ -117,7 +117,7 @@ class Subscription(models.Model):
 
     @staticmethod
     def has_read_permission(request):
-        return request.user.is_authenticated()
+        return request.user.is_authenticated
 
     def has_object_read_permission(self, request):
         return Subscription.has_read_permission(request) and self.user == request.user
@@ -391,7 +391,7 @@ class Notification(models.Model):
 
     @staticmethod
     def has_read_permission(request):
-        return request.user.is_authenticated()
+        return request.user.is_authenticated
 
     def has_object_read_permission(self, request):
         return Notification.has_read_permission(request) and self.subscription.user == request.user

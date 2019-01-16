@@ -57,7 +57,7 @@ def _alerts_to_list(alerts_query):
 
 
 def get_header_notifications(user):
-    if not user.is_authenticated():
+    if not user.is_authenticated:
         return None
 
     private_topic = ContentType.objects.get_for_model(PrivateTopic)

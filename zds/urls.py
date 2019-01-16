@@ -88,19 +88,19 @@ admin.autodiscover()
 
 
 urlpatterns = [
-    re_path(r'^', include(('zds.tutorialv2.urls', 'zds.tutorialv2'))),
-    re_path(r'^forums/', include(('zds.forum.urls', 'zds.forum'))),
-    re_path(r'^mp/', include(('zds.mp.urls', 'zds.mp'))),
-    re_path(r'^membres/', include(('zds.member.urls', 'zds.member'))),
+    re_path(r'^', include(('zds.tutorialv2.urls', ''))),
+    re_path(r'^forums/', include(('zds.forum.urls', ''))),
+    re_path(r'^mp/', include(('zds.mp.urls', ''))),
+    re_path(r'^membres/', include(('zds.member.urls', ''))),
     re_path(r'^admin/', admin.site.urls),
-    re_path(r'^pages/', include(('zds.pages.urls', 'zds.pages'))),
-    re_path(r'^galerie/', include(('zds.gallery.urls', 'zds.gallery'))),
+    re_path(r'^pages/', include(('zds.pages.urls', ''))),
+    re_path(r'^galerie/', include(('zds.gallery.urls', ''))),
     re_path(r'^rechercher/', include(('zds.searchv2.urls',
                                       'zds.searchv2'), namespace='search')),
-    re_path(r'^munin/', include(('zds.munin.urls', 'zds.munin'))),
-    re_path(r'^mise-en-avant/', include(('zds.featured.urls', 'zds.featured'))),
+    re_path(r'^munin/', include(('zds.munin.urls', ''))),
+    re_path(r'^mise-en-avant/', include(('zds.featured.urls', ''))),
     re_path(r'^notifications/',
-            include(('zds.notification.urls', 'zds.notification'))),
+            include(('zds.notification.urls', ''))),
     path('', include(('social_django.urls', 'social_django'), namespace='social')),
 
     re_path(r'^munin/', include(('munin.urls', 'munin'))),

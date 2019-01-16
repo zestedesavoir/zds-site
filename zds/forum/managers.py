@@ -46,7 +46,7 @@ class TopicManager(models.Manager):
         :param current_user:
         :return:
         """
-        if current_user.is_authenticated():
+        if current_user.is_authenticated:
             return Q(forum__groups__isnull=True) | Q(forum__groups__pk__in=current_user.profile.group_pks)
         else:
             return Q(forum__groups__isnull=True)
@@ -110,7 +110,7 @@ class PostManager(InheritanceManager):
         :param current_user:
         :return:
         """
-        if current_user.is_authenticated():
+        if current_user.is_authenticated:
             return Q(topic__forum__groups__isnull=True) | Q(topic__forum__groups__pk__in=current_user.profile.group_pks)
         return Q(topic__forum__groups__isnull=True)
 

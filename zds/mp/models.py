@@ -190,14 +190,14 @@ class PrivateTopic(models.Model):
 
     @staticmethod
     def has_read_permission(request):
-        return request.user.is_authenticated()
+        return request.user.is_authenticated
 
     def has_object_read_permission(self, request):
         return PrivateTopic.has_read_permission(request) and self.is_participant(request.user)
 
     @staticmethod
     def has_write_permission(request):
-        return request.user.is_authenticated()
+        return request.user.is_authenticated
 
     def has_object_write_permission(self, request):
         return PrivateTopic.has_write_permission(request) and self.is_participant(request.user)
@@ -270,14 +270,14 @@ class PrivatePost(models.Model):
 
     @staticmethod
     def has_read_permission(request):
-        return request.user.is_authenticated()
+        return request.user.is_authenticated
 
     def has_object_read_permission(self, request):
         return PrivateTopic.has_read_permission(request) and self.privatetopic.is_participant(request.user)
 
     @staticmethod
     def has_write_permission(request):
-        return request.user.is_authenticated()
+        return request.user.is_authenticated
 
     def has_object_write_permission(self, request):
         return PrivateTopic.has_write_permission(request) and self.privatetopic.is_participant(request.user)
