@@ -453,7 +453,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         """
         user = get_current_user()
 
-        if user and user.is_authenticated():
+        if user and user.is_authenticated:
             try:
                 read = ContentRead.objects\
                     .select_related('note')\
@@ -478,7 +478,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         if user is None:
             user = get_current_user()
 
-        if user and user.is_authenticated():
+        if user and user.is_authenticated:
             try:
                 read = ContentRead.objects\
                     .filter(content=self, user__pk=user.pk)\
@@ -515,7 +515,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         if user is None:
             user = get_current_user()
 
-        if user and user.is_authenticated():
+        if user and user.is_authenticated:
             last_user_notes = ContentReaction.objects\
                 .filter(related_content=self)\
                 .filter(author=user.pk)\

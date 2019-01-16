@@ -63,7 +63,7 @@ class Category(models.Model):
         :rtype: list[Forum]
         """
         forums_pub = Forum.objects.get_public_forums_of_category(self, with_count=with_count)
-        if user is not None and user.is_authenticated():
+        if user is not None and user.is_authenticated:
             forums_private = Forum.objects.get_private_forums_of_category(self, user)
             return list(forums_pub | forums_private)
         return forums_pub
@@ -304,7 +304,7 @@ class Topic(AbstractESDjangoIndexable):
         :rtype: str
         """
         user = get_current_user()
-        if user is None or not user.is_authenticated():
+        if user is None or not user.is_authenticated:
             return self.first_unread_post().get_absolute_url()
         else:
             try:
@@ -613,7 +613,7 @@ def mark_read(topic, user=None):
     if not user:
         user = get_current_user()
 
-    if user and user.is_authenticated():
+    if user and user.is_authenticated:
         current_topic_read = TopicRead.objects.filter(topic=topic, user=user).first()
         if current_topic_read is None:
             current_topic_read = TopicRead(post=topic.last_message, topic=topic, user=user)

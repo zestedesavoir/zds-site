@@ -409,7 +409,7 @@ class Profile(models.Model):
         return self.has_object_update_permission(request) or request.user.has_perm('member.change_profile')
 
     def has_object_update_permission(self, request):
-        return request.user.is_authenticated() and request.user == self.user
+        return request.user.is_authenticated and request.user == self.user
 
     @staticmethod
     def has_ban_permission(request):

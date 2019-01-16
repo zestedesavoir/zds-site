@@ -200,7 +200,7 @@ class TopicPostsListView(ZdSPagingListView, SingleObjectMixin):
         else:
             context['user_can_modify'] = [post.pk for post in context['posts'] if post.author == self.request.user]
 
-        if self.request.user.is_authenticated():
+        if self.request.user.is_authenticated:
             for post in posts:
                 signals.content_read.send(sender=post.__class__, instance=post, user=self.request.user)
             if not is_read(self.object):

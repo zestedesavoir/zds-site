@@ -144,14 +144,14 @@ class Image(models.Model):
 
     @staticmethod
     def has_read_permission(request):
-        return request.user.is_authenticated()
+        return request.user.is_authenticated
 
     def has_object_read_permission(self, request):
         return UserGallery.objects.filter(gallery=self.gallery, user=request.user).count() == 1
 
     @staticmethod
     def has_write_permission(request):
-        return request.user.is_authenticated()
+        return request.user.is_authenticated
 
     def has_object_write_permission(self, request):
         return UserGallery.objects.filter(gallery=self.gallery, user=request.user, mode='W').count() == 1
@@ -269,7 +269,7 @@ class Gallery(models.Model):
 
     @staticmethod
     def has_read_permission(request):
-        return request.user.is_authenticated()
+        return request.user.is_authenticated
 
     def has_object_read_permission(self, request):
         if self.user_mode is not None:
@@ -279,7 +279,7 @@ class Gallery(models.Model):
 
     @staticmethod
     def has_write_permission(request):
-        return request.user.is_authenticated()
+        return request.user.is_authenticated
 
     def has_object_write_permission(self, request):
         if self.user_mode is not None:
