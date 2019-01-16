@@ -6,12 +6,18 @@ from django.conf import settings
 from zds.member.views import get_client_ip
 
 
-class SetLastVisitMiddleware(object):
+class SetLastVisitMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        return self.process_response(request, self.get_response(request))
+
     def process_response(self, request, response):
         # Update last visit time after request finished processing.
         user = None
         try:
-            if request.user.is_authenticated():
+            if request.user.is_authenticated:
                 user = request.user
         except:
             pass

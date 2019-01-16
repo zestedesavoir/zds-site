@@ -1,9 +1,8 @@
-from django.urls import include, re_path
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.sitemaps import GenericSitemap, Sitemap
 from django.contrib.sitemaps.views import index as index_view, sitemap as sitemap_view
-from django.urls import get_resolver, reverse
+from django.urls import include, re_path, path, get_resolver, reverse
 
 from zds.forum.models import Category, Forum, Topic, Tag
 from zds.pages.views import home as home_view
@@ -102,7 +101,7 @@ urlpatterns = [
     re_path(r'^mise-en-avant/', include(('zds.featured.urls', 'zds.featured'))),
     re_path(r'^notifications/',
             include(('zds.notification.urls', 'zds.notification'))),
-    re_path('', include(('social_django.urls', 'social_django'), namespace='social')),
+    path('', include(('social_django.urls', 'social_django'), namespace='social')),
 
     re_path(r'^munin/', include(('munin.urls', 'munin'))),
 
