@@ -103,8 +103,7 @@ class Image(models.Model):
         verbose_name = _('Image')
         verbose_name_plural = _('Images')
 
-    gallery = models.ForeignKey('Gallery', verbose_name=_('Galerie'), db_index=True, on_delete=models.SET_NULL,
-                                null=True)
+    gallery = models.ForeignKey('Gallery', verbose_name=_('Galerie'), db_index=True, on_delete=models.CASCADE)
     title = models.CharField(_('Titre'), max_length=80)
     slug = models.SlugField(max_length=80)
     physical = ThumbnailerImageField(upload_to=image_path, max_length=200)
