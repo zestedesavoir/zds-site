@@ -135,7 +135,7 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
         # We need to save the content before changing its author list since it's a many-to-many relationship
         self.content.authors.add(self.request.user)
         self.content.ensure_author_gallery()
-        self.content.save()
+        self.content.save(force_slug_update=False)
         # Add subcategories on tutorial
         for subcat in form.cleaned_data['subcategory']:
             self.content.subcategory.add(subcat)
@@ -147,7 +147,7 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
         # Add tags
         self.content.add_tags(form.cleaned_data['tags'].split(','))
 
-        self.content.save()
+        self.content.save(force_slug_update=False)
 
         # create a new repo :
         init_new_repo(self.content,
@@ -300,6 +300,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
             return self.form_invalid(form)
 
         # first, update DB (in order to get a new slug if needed)
+        title_is_changed = publishable.title != form.cleaned_data['title']
         publishable.title = form.cleaned_data['title']
         publishable.description = form.cleaned_data['description']
         publishable.licence = form.cleaned_data['licence']
@@ -322,7 +323,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
             img.save()
             publishable.image = img
 
-        publishable.save()
+        publishable.save(force_slug_update=title_is_changed)
 
         # now, update the versioned information
         versioned.description = form.cleaned_data['description']
@@ -350,7 +351,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
             for help_ in form.cleaned_data['helps']:
                 publishable.helps.add(help_)
 
-        publishable.save()
+        publishable.save(force_slug_update=False)
 
         self.success_url = reverse('content:view', args=[publishable.pk, publishable.slug])
         return super(EditContent, self).form_valid(form)

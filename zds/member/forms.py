@@ -617,7 +617,8 @@ class KarmaForm(forms.Form):
         self.helper.form_class = 'modal modal-flex'
         self.helper.form_id = 'karmatiser-modal'
         self.helper.form_method = 'post'
-
+        # TODO : see how to fix the "commonlayoutmodaltext" issue that generates some
+        # useless exceptions. (field 'text' does not exists the choices are 'note' and 'karma')
         self.helper.layout = Layout(
             CommonLayoutModalText(),
             Field('note'),

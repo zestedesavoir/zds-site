@@ -84,7 +84,8 @@ class ContentTests(TutorialTestMixin, TestCase):
         tuto_1.subcategory.add(subcategory)
         tuto_1.save()
         tuto_1_draft = tuto_1.load_version()
-        publish_content(tuto_1, tuto_1_draft, is_major_update=True)
+        tuto_1.public_version = publish_content(tuto_1, tuto_1_draft, is_major_update=True)
+        tuto_1.save(force_slug_update=False)
 
     def test_list_categories(self):
         category_1 = ContentCategoryFactory()
