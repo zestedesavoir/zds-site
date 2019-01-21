@@ -14,38 +14,38 @@ urlpatterns = [
 
     # view
     re_path(r'^(?P<pk>\d+)/(?P<slug>.+)/(?P<p2>\d+)/(?P<parent_container_slug>.+)/(?P<p3>\d+)/(?P<container_slug>.+)/$',
-        RedirectContentSEO.as_view(), name='redirect_old_tuto'),
+            RedirectContentSEO.as_view(), name='redirect_old_tuto'),
     re_path(r'^(?P<pk>\d+)/(?P<slug>.+)/(?P<parent_container_slug>.+)/(?P<container_slug>.+)/$',
-        DisplayOnlineContainer.as_view(),
-        name='view-container'),
+            DisplayOnlineContainer.as_view(),
+            name='view-container'),
     re_path(r'^(?P<pk>\d+)/(?P<slug>.+)/(?P<container_slug>.+)/$',
-        DisplayOnlineContainer.as_view(),
-        name='view-container'),
+            DisplayOnlineContainer.as_view(),
+            name='view-container'),
 
     re_path(r'^(?P<pk>\d+)/(?P<slug>.+)/$',
-        DisplayOnlineTutorial.as_view(), name='view'),
+            DisplayOnlineTutorial.as_view(), name='view'),
 
     # downloads:
     re_path(r'^md/(?P<pk>\d+)/(?P<slug>.+)\.md$',
-        DownloadOnlineTutorial.as_view(requested_file='md'), name='download-md'),
+            DownloadOnlineTutorial.as_view(requested_file='md'), name='download-md'),
     re_path(r'^html/(?P<pk>\d+)/(?P<slug>.+)\.html$',
-        DownloadOnlineTutorial.as_view(requested_file='html'), name='download-html'),
+            DownloadOnlineTutorial.as_view(requested_file='html'), name='download-html'),
     re_path(r'^pdf/(?P<pk>\d+)/(?P<slug>.+)\.pdf$',
-        DownloadOnlineTutorial.as_view(requested_file='pdf'), name='download-pdf'),
+            DownloadOnlineTutorial.as_view(requested_file='pdf'), name='download-pdf'),
     re_path(r'^epub/(?P<pk>\d+)/(?P<slug>.+)\.epub$',
-        DownloadOnlineTutorial.as_view(requested_file='epub'), name='download-epub'),
+            DownloadOnlineTutorial.as_view(requested_file='epub'), name='download-epub'),
     re_path(r'^zip/(?P<pk>\d+)/(?P<slug>.+)\.zip$',
-        DownloadOnlineTutorial.as_view(requested_file='zip'), name='download-zip'),
+            DownloadOnlineTutorial.as_view(requested_file='zip'), name='download-zip'),
     re_path(r'^tex/(?P<pk>\d+)/(?P<slug>.+)\.tex$', DownloadOnlineTutorial.as_view(requested_file='tex'),
-        name='download-tex'),
+            name='download-tex'),
 
     #  Old beta url compatibility
     re_path('^beta/(?P<pk>\d+)/(?P<slug>.+)',
-        RedirectOldBetaTuto.as_view(), name='old-beta-url'),
+            RedirectOldBetaTuto.as_view(), name='old-beta-url'),
 
     # Listing
     re_path(r'^$', RedirectView.as_view(
-        pattern_name='publication:list', permanent=True)),
+            pattern_name='publication:list', permanent=True)),
     re_path(r'tags/$',
-        TagsListView.as_view(displayed_types=['TUTORIAL']), name='tags')
+            TagsListView.as_view(displayed_types=['TUTORIAL']), name='tags')
 ]

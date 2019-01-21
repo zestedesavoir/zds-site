@@ -531,7 +531,8 @@ class PrivateTopicDetailAPITest(APITestCase):
         }
         response = self.client.put(reverse('api:mp:detail', args=[self.private_topic.id]), data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertNotEqual(response.data.get('participants')[0], data.get('participants'))
+        self.assertNotEqual(str(response.data.get('participants')[0]), str(data.get('participants')[0]))
+        self.assertIn(anonymous_user.username, str(response.data.get('participants')[0]))
 
     def test_update_private_topic_with_user_not_author(self):
         """
