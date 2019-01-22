@@ -318,6 +318,16 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
                 'Le code sha existe mais la version demandée ne peut pas être trouvée à cause de {}:{}'.format(
                     type(error), str(error)))
 
+    @property
+    def first_publication_date(self):
+        """
+        traverse PublishedContent instances to find the first ever published and get its date
+        :return: the first publication date
+        :rtype: datetime
+        """
+        return PublishedContent.objects.filter(content=self).order_by('publication_date')\
+            .values_list('publication_date', flat=True)[0]
+
     def load_version(self, sha=None, public=None):
         """Using git, load a specific version of the content. if ``sha`` is ``None``,
         the draft/public version is used (if ``public`` is ``True``).
