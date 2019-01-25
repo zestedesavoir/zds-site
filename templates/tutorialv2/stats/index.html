@@ -183,14 +183,14 @@
                     {% endwith %}
                 </li>
                 <li>
-                    {% with start_date=db_content.public_version.publication_date.date end_date=0|datedelta_from_day %}
+                    {% with start_date=db_content.public_version.last_publication_date.date end_date=0|datedelta_from_day %}
                     <a class="{% if request.GET.start_date == start_date|date:'Y-m-d' %}selected{% endif %}"
                        href="{% append_query_params start_date=start_date,end_date=end_date %}{% if display == 'comparison' %}{% for url in urls %}&urls={{url.url}}{% endfor %}{% endif %}">
                         {% trans "Depuis la dernière publication" %}
                     </a>
                     {% endwith %}
                 </li>
-                {% if db_content.first_publication_date.date != public_version.publication_date.date %}
+                {% if db_content.first_publication_date.date != db_content.public_version.last_publication_date.date %}
                     <li>
                         {% with start_date=db_content.first_publication_date.date end_date=0|datedelta_from_day %}
                         <a class="{% if request.GET.start_date == start_date|date:'Y-m-d' %}selected{% endif %}"
