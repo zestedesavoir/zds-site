@@ -325,8 +325,8 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         :return: the first publication date
         :rtype: datetime
         """
-        return PublishedContent.objects.filter(content=self).order_by('publication_date')\
-            .values_list('publication_date', flat=True)[0]
+        return Validation.objects.filter(content=self, status='ACCEPT').order_by('date_validation')\
+            .values_list('date_validation', flat=True)[0]
 
     def load_version(self, sha=None, public=None):
         """Using git, load a specific version of the content. if ``sha`` is ``None``,
@@ -910,6 +910,10 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
                 return len(content)
         except OSError as e:
             logger.warning('could not get file %s to compute nb letters (error=%s)', md_file_path, e)
+
+    @property
+    def last_publication_date(self):
+        return max(self.publication_date, self.update_date or datetime.min)
 
     @classmethod
     def get_es_mapping(cls):
