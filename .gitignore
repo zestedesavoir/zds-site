@@ -3,6 +3,7 @@
 #############
 base.db
 .sass-cache/
+.local/
 /static
 /tutoriels-private
 /tutoriels-public
@@ -10,6 +11,7 @@ base.db
 /contents-public
 /media
 /articles-data
+/zds/_version.py
 
 /tutoriels-private-test
 /tutoriels-public-test
@@ -18,14 +20,21 @@ base.db
 /contents-private-test
 /contents-public-test
 
+api_analytics_secrets.json
+.ga-api-cache/
+
 /apache-solr
 
 /.tmp
 
 /scripts/release_summary.md
 
+.nvmrc
+venv
+zdsenv/
+
 # Front files
-/node_modules
+node_modules
 /dist
 /npm-debug.log
 /geckodriver.log

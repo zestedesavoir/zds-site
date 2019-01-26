@@ -2,7 +2,7 @@
 *Workflow* et détails pratiques
 ===============================
 
-Cette page détaille le *workflow* utilisé lors du développement de Zeste de Savoir. La `page de contribution <https://github.com/zestedesavoir/zds-site/blob/dev/CONTRIBUTING.md>`__ devrait répondre à vos questions quant au processus de développement. Ici seront aussi décrit quelques détails sur la gestion des tickets sur Github (*tagging* et priorité).
+Cette page détaille le *workflow* utilisé lors du développement de Zeste de Savoir. La `page de contribution <./contributing.html>`_ devrait répondre à vos questions quant au processus de développement. Ici seront aussi décrit quelques détails sur la gestion des tickets sur GitHub (*tagging* et priorité).
 
 Ce *workflow* est très fortement basé sur le `Git flow <http://nvie.com/posts/a-successful-git-branching-model/>`__.
 
@@ -12,9 +12,9 @@ Ce *workflow* est très fortement basé sur le `Git flow <http://nvie.com/posts/
 L'idée générale est très simple :
 
 -  Le développement se fait sur la branche ``dev``;
--  La branche ``prod`` contient la version en production;
 -  Lorsqu'on juge qu'on a assez de matière pour un nouveau déploiement, on crée une branche dédiée (par exemple ``release-v1.7``) que l'on teste en pré-production (les bugs trouvés seront corrigés sur cette branche);
 -  En cas de bug ultra-urgent à corriger en production, on crée une branche spéciale (`hotfix <http://nvie.com/posts/a-successful-git-branching-model/#hotfix-branches>`__).
+-  Lorsqu'une release est en test sur la bêta, les contributions sont à faire sur dev, le "Maintainer" s'occupant alors de porter les commits dans la branche de release.
 
 La pré-production (ou bêta) est disponible sur `beta.zestedesavoir.com <https://beta.zestedesavoir.com>`_.
 
@@ -35,7 +35,7 @@ Quelques précisions
 
 **Où peut-on trouver les détails pratiques ?**
 
-Tous ces détails sont `dans la page de contribution <https://github.com/zestedesavoir/zds-site/blob/dev/CONTRIBUTING.md>`__. On y trouve entre autres les recommendations en terme de PR ou de messages de commits.
+Tous ces détails sont `dans la page de contribution <./contributing.html>`_. On y trouve entre autres les recommendations en terme de PR ou de messages de commits.
 
 **Qu'est-ce qu'une "QA légère"** ?
 
@@ -48,61 +48,48 @@ C'est s'assurer que le code fait ce qu'il devrait sans passer des heures à re-t
 Milestones
 ==========
 
-Pour avoir une vue d'ensemble des modifications inclues ou à inclure dans chaque release, nous utilisons des *milestones*. Il existe une *milestone* par release majeure (e.g. une pour v19, aucune pour v19.1), les PRs mergées dans une version mineure appartenant à la *milestone* de la version majeure correspondante.
+Les releases de zeste de savoir soit basées sur les priorités de la communauté et sont organisées ainsi :
 
-Les *milestones* sont également utilisées par le script de génération de rapport de release, rapport contenant quelques détails sur la release en question.
-
-Toute PR se voit attribuer une *milestone*. Elle est attribuée au plus tôt par le *Maintainer* ou le *Release Manager* à l'ouverture de la PR si cette PR doit impérativement passer dans la prochaine release, au plus tard par la personne qui merge la PR lors de son merge. Bien qu'une PR doit généralement être atomique, il arrive - notamment dans le cas des ZEP - qu'elle ait pour effet secondaire de régler plusieurs bugs, d'introduire plusieurs fonctionnalités. Dans ces rares cas, chaque ticket fermé par effet secondaire d'une PR peut également recevoir une *milestone*.
-
-* Toute PR mergée dans dev doit porter la *milestone* « Version de développement »
-* Toute PR mergée ailleurs (la branche de release si c'est une correction de bêta, prod en cas de hotfix) doit porter la *milestone* « Version N »
-
-La *milestone* « Version de développement » s'appelle comme ça parce qu'elle contient les modifications apportées depuis la dernière release. Cette *milestone* étant largement la plus utilisée, son nom a l'avantage qu'on voit immédiatement si on attribue ou non la bonne *milestone*, sans avoir à réfléchir au numéro de version.
-
-Lors de la clôture de chaque release, la *milestone* « Version de développement » est renommée « Version N » et une nouvelle *milestone* « Version de développement » est créée.
+- vMAJEUR : la communauté est appelée à voter pour deux fonctionnalités majeures, ce n'est que lorsque ces deux fonctionnalités seront implémentées que le numéro de MAJEUR changera
+- vMAJEUR.MINEUR : les versions mineures rassemblent les tickets qu'il est prioritaire de traiter (par exemple un bug sur le rendu des contenus sur mobile) ainsi que les fix et fonctionnalités que les développeurs
+  ont eu le temps de développer. Elles intègrent les améliorations des fonctionnalités majeures.
+  Les tickets prioritaires sont rassemblés dans les `"projets" GitHub <https://github.com/zestedesavoir/zds-site/projects>` dont les noms sont par exemple ``objectif v28.1``.
 
 
 Stratégie de *tagging* des tickets
 ==================================
 
-Les étiquettes (ou *labels* ou *tags*) utilisées pour classifier les tickets sont classées en 4 catégories (seuls les niveaux 2 représentent les tags utilisables) :
+Les étiquettes (ou *labels* ou *tags*) utilisées pour classifier les tickets sont réparties dans des catégories :
 
--  C: Compétence
+-  Quelles sont les **Compétences** requises ?
 
-   -  C-Back
-   -  C-Front
-   -  C-API
-   -  C-Documentation
-   -  C-Infra
+   -  **C-Back**, pour le *backend*
+   -  **C-Front**, pour le *frontend*
+   -  **C-API**, pour les *API* du *backend*
+   -  **C-Docs**, pour la documentation
+   -  **C-DevelopmentEnv**, pour améliorer les outils de développement
+   -  **C-Infra**, pour l'infrastucture des serveurs
+   -  **C-Search**, pour le moteur de recherche du *backend*
 
--  P: Priorité
+-  Quel est le **Statut** de ce ticket, cette PR ?
 
-   -  P-Bloquant
-   -  P-Haute
-   -  P-Basse
+   -  **S-BUG**, pour les bugs (par exemple, une fonctionnalité qui vient d'être introduite et qui fonctionne anormalement)
+   -  **S-Régression**, pour les retours en arrière en terme de qualité (par exemple, une fonctionnalité qui fonctionnait bien juqu'à maintenant mais qui ne fonctionne plus)
+   -  **S-Refactorisation**, pour les réorganisations et nettoyages du code
+   -  **S-Evolution**, pour les ajouts de fonctionnalités ou les changements de présentation dans la fonctionnalité
+   -  **S-Zombie**, pour les tickets et PR qui ne donnent plus signe de vie mais ne sont pas résolus pour autant
 
--  S: Statut
+-  Quelle est la **Priorité** de ce ticket, cette PR ?
 
-   -  S-Evolution
-   -  S-Bug
-   -  S-Régression
-   -  S-Zombie
+   -  **Bloquant**, pour tout ce qui empêche une utilisation correcte du site (impossible de rédiger un contenu, forte atteinte aux performances...)
+   -  *D'une manière générale, chacun·e est invité·e à choisir ce sur quoi concentrer ses efforts en fonction de ses intérêts.*
 
 -  Autres
 
-   -  Facile
-   -  Feedback
+   -  **Facile**, pour les tickets avec une proposition de solution accessible aux débutant·e·s et nouve·au·elle·s arrivé·e·s
+   -  **Feedback**, pour les tickets sur lesquels l'auteur·e souhaite recevoir un retour, discuter une approche, proposer quelque chose ou ouvrir le débat
+   -  *Pour signaler que le contenu d'une PR est succeptible de changer, il est conseillé d'éditer le titre de celle-ci pour y ajouter "[WIP]" au début (cela signifie *Work In Progress*, soit Travail En Cours en français.*
 
-Explications
-------------
-
--  Compétence : Quelle(s) partie(s) du système est/sont impactée(s) ? Permet notamment aux développeurs de choisir de se concentrer uniquement sur le front, aux admins de s'occuper de l'infra, …
--  Priorité : Un **bug** ou une **régression** est **bloquant**e si ça empêche une utilisation correcte du site (impossible de rédiger un article, forte atteinte aux performances, etc). Il s'agit d'un problème critique. Les autres tickets ou PR peuvent être de **Haute** ou **Basse** priorité, ces étiquettes étant facultatives. Par exemple, une ZEP aura rarement une priorité attribuée, par contre si elle touche à sa fin mais nécessite une petite évolution pour pouvoir être mergée, la PR de cette petite évolution pourrait à l'approche de la release se voir attribuer une haute priorité.
--  Statut : **Régression** ou **Bug** ? : Une régression est un retour en arrière en terme de qualité. Il s'agit d'un bug, mais on le différencie parce que ce bug vient d'être introduit dans une partie du code qui auparavant fonctionnait comme voulu. Un problème qui n'est pas une régression est indiqué *Bug*. Il s'agit par exemple d'un problème impactant une nouvelle fonctionnalité. Les tickets sous le tag **Zombie** sont des bugs mineurs n'ayant pas donnés signe de vie depuis longtemps. Ils sont donc non-résolus mais fermés et placés sous cette étiquette pour garder propre la pile des tickets actifs. Dans l'idéal il faudrait les rouvrir pour les résoudre un jour…
--  Le tag **Facile** : Ce tag est là uniquement pour guider les nouveaux contributeurs vers des tâches accessibles. Pour pouvoir utiliser cette étiquette, une proposition de solution doit être écrite dans le ticket.
--  Le tag **Feedback** : Ce tag indique les tickets sur lesquels l'auteur souhaite recevoir un retour, discuter une approche, proposer quelque chose, ouvrir le débat.
-
-La priorité est mise sur ce qui est Bloquant, puis Haut. Les autres tickets ou PRs n'ont pas de priorité particulière. La basse priorité vient en dernier. Chacun est invité à choisir ce sur quoi concentrer ses efforts en fonction de ces priorités ou de ses intérêts.
 
 *Workflow* de mise en production
 ================================
@@ -115,39 +102,18 @@ Description
 1. Quand on a assez de nouveautés dans ``dev`` (mais pas trop), on décide de faire une *release*. L'idée est de pouvoir vérifier et corriger les problèmes de cette *release* rapidement, en moins de 2 semaines entre le lancement de la release et sa MEP.
 
    1. Création d'une **nouvelle branche de release** du nom de la version (par exemple ``release-v1.7``)
-   2. Déploiement de cette branche sur l'environnement de pré-production, avec un *dump* de données de production
+   2. Déploiement de cette branche sur l'environnement de pré-production, avec un *dump* de données de production, grâce au `script ansible <https://github.com/zestedesavoir/ansible-zestedesavoir>`
    3. Tests les plus complets possibles sur ce nouvel environnement
-   4. Corrections éventuelles sur cette branche de *release*. Les corrections **ne sont pas remontées sur ``dev``** au fur et à mesure. Cf ci-dessous pour les détails.
+   4. Corrections éventuelles sont à faire sur dev, le "Maintainer" s'occupant de porter les fix dans la branche de release.
 
 2. Lorsqu'on a bien testé cette branche, on la met en production :
 
-   1. Merge de la branche de *release* dans ``dev``
-   2. Merge de la branche de *release* dans ``prod``
-   3. Tag avec la nouvelle version
-   4. Mise en production sur le serveur
-   5. Suppression de la branche de *release*, devenue inutile
+   1. Tag avec la nouvelle version
+   2. Mise en production sur le serveur
+   3. Suppression de la branche de *release*, devenue inutile
 
 Pour éviter d'installer les outils front en production pour des questions de fiabilité, le front est automatiquement généré par Travis CI et poussé sur le dépot dès qu'un tag (qui correspond à une release) est poussé sur GitHub. `scripts/push_front.sh <https://github.com/zestedesavoir/zds-site/tree/dev/scripts/push_front.sh>`__ est donc lancé avec l'utilisateur `ZDS-Bot <https://github.com/zds-bot>`__ dès qu'un tag est poussé sur le dépot. Ce script crée un nouveau tag avec *-build* en suffixe, contenant un commit avec le front généré, qui sera déployé en (pré-)production.
 
-Le temps maximum entre la création d'une branche de *release* et sa mise en production est de **deux semaines**. Au-delà on considère qu'il y a trop de problèmes et qu'ils risquent de bloquer le développement :
-
-1. Merge des corrections de la branche de *release* dans ``dev``
-2. Pas de mise en production
-3. Suppression de la branche de *release*, devenue inutile
-
-En cas de problèmes sur la release
-----------------------------------
-
-Vous l'avez lu : les corrections de ``master`` **ne sont pas remontées sur** ``dev`` au fur et à mesure. La raison est que ça prends du temps, de l'énergie et que ça fait beaucoup de merges croisés. Donc toutes les corrections sont remontées en même temps lors de la mise en production. Conséquences :
-
--  Si vous bossez sur ``dev`` pendant qu'une *release* est en cours, pas la peine de corriger un bug déjà corrigé sur la *release* : la PR serait refusée (pour cause de doublon).
--  Si un *gros* problème est détecté sur la *release* et qu'il est correctible en un temps raisonnable :
-
-   1. Il est corrigé sur la branche de *release*.
-   2. Les merges de PR sur ``dev`` qui impliquent un risque même vague de conflit sont bloqués.
-   3. S'il y a quand même un conflit (à cause d'une PR mergée sur ``dev`` avant la détection du problème), la personne qui règle le problème fournit 2 correctifs : un pour la branche de *release* et un pour la branche de de ``dev``.
-
-Ceci fonctionne bien si les développements sont de bonne qualité, donc avec peu de correctifs sur la branche de *release* (idéalement aucun !)… les codes approximatifs et non testés seront donc refusés.
 
 Rôles et Responsabilités
 ========================
@@ -167,7 +133,7 @@ Le Maintainer (M)
   - Marquer les tickets comme bloquants et donner des coups de fouet pour qu'ils soient fermés
   - S'assurer que les PR s'écoulent et se débloquent
   - Gérer les tensions entre devs/membres si nécessaire
-  - Gérer la "vie de l'équipe" et sa logistique (droits github…)
+  - Gérer la "vie de l'équipe" et sa logistique (droits GitHub…)
 
 Le Release Manager (RM)
 -----------------------

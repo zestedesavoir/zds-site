@@ -1,4 +1,3 @@
-# coding: utf-8
 import os
 import random
 
@@ -32,7 +31,12 @@ class SearchForm(forms.Form):
 
     models = forms.MultipleChoiceField(
         label='',
-        widget=forms.CheckboxSelectMultiple,
+        widget=forms.CheckboxSelectMultiple(
+            attrs={
+                'class': 'search-filters',
+                'form': 'search-form'
+            }
+        ),
         required=False,
         choices=choices
     )

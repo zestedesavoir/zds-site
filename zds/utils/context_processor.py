@@ -1,51 +1,39 @@
-# coding: utf-8
-
 from copy import deepcopy
 
 from django.conf import settings
-from django.core.cache import cache
 
-from git import Repo
+from zds import __version__, git_version
+
+from .header_notifications import get_header_notifications
 
 
-def get_git_version():
+def get_version():
     """
-    Get Git version information.
-
-    Since retrieving the Git version can be rather slow (due to I/O on
-    the filesystem and, most importantly, forced garbage collections
-    triggered by GitPython), you must consider using
-    ``get_cached_git_version()`` (which behaves similarly).
+    Retrieve version informations from `zds/_version.py`.
     """
-    try:
-        repo = Repo(settings.BASE_DIR)
-        branch = repo.active_branch
-        commit = repo.head.commit.hexsha
-        name = '{0}/{1}'.format(branch, commit[:7])
-        return {'name': name, 'url': '{}/tree/{}'.format(settings.ZDS_APP['site']['repository']['url'], commit)}
-    except (KeyError, TypeError):
-        return {'name': '', 'url': ''}
+    if git_version is not None:
+        name = '{0}/{1}'.format(__version__, git_version[:7])
+        url = settings.ZDS_APP['site']['repository']['url']
+        return {'name': name, 'url': '{}/tree/{}'.format(url, git_version)}
+    else:
+        return {'name': __version__, 'url': None}
 
 
-def get_cached_git_version():
+def version(request):
     """
-    Get Git version information.
-
-    Same as ``get_git_version()``, but cached with a simple timeout of
-    one hour.
+    A context processor to include the app version on all pages.
     """
-    version = cache.get('git_version')
-    if version is None:
-        version = get_git_version()
-        cache.set('git_version', version, 60 * 60)
-    return version
+    return {'zds_version': get_version()}
 
 
-def git_version(request):
-    """
-    A context processor to include the git version on all pages.
-    """
-    return {'git_version': get_cached_git_version()}
+def header_notifications(request):
+    user = request.user
+    results = get_header_notifications(user)
+    if results is None:
+        # Unauthorized
+        return {}
+    # Prefix every key with `header_`
+    return {'header_' + k: v for k, v in results.items()}
 
 
 def app_settings(request):

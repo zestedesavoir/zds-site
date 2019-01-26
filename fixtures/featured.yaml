@@ -4,7 +4,7 @@
         title: Première une
         type: sujet
         authors: Machin
-        image_url: http://placehold.it/228/00618a/FFFFFF&text=One
+        image_url: https://placehold.it/228/00618a/FFFFFF&text=One
         url: https://zestedesavoir.com
         pubdate: 2013-12-21T13:20:30+00:00
 -   model: featured.FeaturedResource
@@ -13,7 +13,7 @@
         title: Seconde une
         type: tutoriel
         authors: Bidule
-        image_url: http://placehold.it/228/00618a/FFFFFF&text=Two
+        image_url: https://placehold.it/228/00618a/FFFFFF&text=Two
         url: https://zestedesavoir.com
         pubdate: 2013-12-21T13:20:30+00:00
 -   model: featured.FeaturedResource
@@ -21,7 +21,7 @@
     fields:
         title: Troisième une
         type: article
-        image_url: http://placehold.it/228/00618a/FFFFFF&text=Three
+        image_url: https://placehold.it/228/00618a/FFFFFF&text=Three
         url: https://zestedesavoir.com
         pubdate: 2013-12-21T13:20:30+00:00
 -   model: featured.FeaturedResource
@@ -30,7 +30,7 @@
         title: Quatrième une
         type: projet
         authors: Truc
-        image_url: http://placehold.it/228/00618a/FFFFFF&text=Four
+        image_url: https://placehold.it/228/00618a/FFFFFF&text=Four
         url: https://zestedesavoir.com
         pubdate: 2013-12-21T13:20:30+00:00
 -   model: featured.FeaturedResource
@@ -39,6 +39,6 @@
         title: Cinquième une
         type: tutoriel
         authors: L'idiot du village
-        image_url: http://placehold.it/228/00618a/FFFFFF&text=Five
+        image_url: https://placehold.it/228/00618a/FFFFFF&text=Five
         url: https://zestedesavoir.com
         pubdate: 2013-12-21T13:20:30+00:00

@@ -1,20 +1,17 @@
-# -*- coding: utf-8 -*-s
-
 import logging
 from smtplib import SMTPException
 
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.core.mail import EmailMultiAlternatives
+from django.core.validators import validate_email, ValidationError
 from django.db import models, IntegrityError, transaction
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
-
 from django.conf import settings
-from zds.forum.models import Topic
-from zds.member.models import Profile
+
+from zds.forum.models import Topic, Post
 from zds.notification.managers import NotificationManager, SubscriptionManager, TopicFollowedManager, \
     TopicAnswerSubscriptionManager, NewTopicSubscriptionManager
 from zds.utils.misc import convert_camel_to_underscore
@@ -91,6 +88,13 @@ class Subscription(models.Model):
                                          settings.ZDS_APP['site']['email_noreply'])
 
         receiver = self.user
+
+        # This can happen when a user subscribes via social networks without providing an e-mail address
+        try:
+            validate_email(receiver.email)
+        except ValidationError:
+            return
+
         context = {
             'username': receiver.username,
             'title': notification.title,
@@ -108,7 +112,7 @@ class Subscription(models.Model):
         try:
             msg.send()
         except SMTPException:
-            pass
+            LOG.error('Failed sending mail for %s', self, exc_info=True)
 
     @staticmethod
     def has_read_permission(request):
@@ -133,19 +137,20 @@ class SingleNotificationMixin(object):
         assert hasattr(self, 'get_notification_url')
         assert hasattr(self, 'get_notification_title')
         assert hasattr(self, 'send_email')
-        with transaction.atomic():
-            if self.last_notification is None or self.last_notification.is_read:
+
+        if self.last_notification is None or self.last_notification.is_read:
+            with transaction.atomic():
+                notifications = list(Notification.objects.filter(subscription=self))
+                if len(notifications) > 1:
+                    LOG.error('Found %s notifications for %s', len(notifications), self, exc_info=True)
+                    Notification.objects.filter(pk__in=[n.pk for n in notifications[1:]]).delete()
+                    LOG.info('Duplicates deleted.')
+
                 # If there isn't a notification yet or the last one is read, we generate a new one.
                 try:
                     notification = Notification.objects.get(subscription=self)
                 except Notification.DoesNotExist:
                     notification = Notification(subscription=self, content_object=content, sender=sender)
-                except MultipleObjectsReturned:
-                    notifications = list(Notification.objects.filter(subscription=self))
-                    LOG.error('found %s notifications for %s', len(notifications), self, exc_info=True)
-                    Notification.objects.filter(pk__in=[n.pk for n in notifications[1:]]).delete()
-                    LOG.info('removed doubly.')
-                    notification = notifications[0]
                 notification.content_object = content
                 notification.sender = sender
                 notification.url = self.get_notification_url(content)
@@ -158,11 +163,11 @@ class SingleNotificationMixin(object):
 
                 if send_email and self.by_email:
                     self.send_email(notification)
-            elif self.last_notification is not None:
-                # Update last notification if the new content is older (case of unreading answer)
-                if not self.last_notification.is_read and self.last_notification.pubdate > content.pubdate:
-                    self.last_notification.content_object = content
-                    self.last_notification.save()
+        elif self.last_notification is not None and not self.last_notification.is_read:
+            # Update last notification if the new content is older (marking answer as unread)
+            if self.last_notification.pubdate > content.pubdate:
+                self.last_notification.content_object = content
+                self.last_notification.save()
 
     def mark_notification_read(self):
         """
@@ -187,6 +192,9 @@ class MultipleNotificationsMixin(object):
         assert hasattr(self, 'get_notification_url')
         assert hasattr(self, 'get_notification_title')
         assert hasattr(self, 'send_email')
+        if self.last_notification and not self.last_notification.is_read:
+            return
+
         with transaction.atomic():
             notification = Notification(subscription=self, content_object=content, sender=sender)
             notification.content_object = content
@@ -209,27 +217,30 @@ class MultipleNotificationsMixin(object):
         if content is None:
             raise ValueError('Object content of notification must be defined')
 
-        with transaction.atomic():
-            content_notification_type = ContentType.objects.get_for_model(content)
-            notifications = list(Notification.objects.filter(subscription=self,
-                                                             content_type__pk=content_notification_type.pk,
-                                                             object_id=content.pk, is_read=False))
-            # handles cases where a same subscription lead to several notifications
-            if not notifications:
-                LOG.debug('nothing to mark as read')
-                return
-            elif len(notifications) > 1:
-                LOG.warning('%s notifications were find for %s/%s', len(notifications), content.type, content.title)
-                for notif in notifications[1:]:
-                    notif.delete()
+        try:
+            with transaction.atomic():
+                content_notification_type = ContentType.objects.get_for_model(content)
+                notifications = list(Notification.objects.filter(subscription=self,
+                                                                 content_type__pk=content_notification_type.pk,
+                                                                 object_id=content.pk, is_read=False))
+                # handles cases where a same subscription lead to several notifications
+                if not notifications:
+                    LOG.debug('nothing to mark as read')
+                    return
+                elif len(notifications) > 1:
+                    content_type = getattr(content, 'type', 'forum')
+                    content_title = getattr(content, 'title', 'message')
+                    LOG.warning('%s notifications found for %s/%s', len(notifications), content_type, content_title)
+                    for notif in notifications[1:]:
+                        notif.delete()
 
-            notification = notifications[0]
-            notification.subscription = self
-            notification.is_read = True
-            try:
+                notification = notifications[0]
+                notification.subscription = self
+                notification.is_read = True
+
                 notification.save()
-            except IntegrityError:
-                LOG.exception('Could not save %s', notification)
+        except IntegrityError:
+            LOG.exception('Could not save %s', notification)
 
 
 class AnswerSubscription(Subscription):
@@ -330,18 +341,21 @@ class PingSubscription(AnswerSubscription, MultipleNotificationsMixin):
     def __str__(self):
         return _('<Abonnement du membre "{0}" aux mentions>').format(self.profile, self.object_id)
 
+    @staticmethod
+    def mark_inaccessible_ping_as_read_for_topic(topic):
+        for post in Post.objects.filter(topic=topic):
+            for notification in Notification.objects.filter(content_type__pk=ContentType.objects.get_for_model(post).pk,
+                                                            object_id=post.pk):
+                if not topic.forum.can_read(notification.subscription.user):
+                    notification.is_read = True
+                    notification.is_dead = True
+                    notification.save(update_fields=['is_read'])
+
     def get_notification_title(self, answer):
         assert hasattr(answer, 'author')
         assert hasattr(answer, 'get_notification_title')
 
         return _('{0} vous a mentionné sur {1}.').format(answer.author, answer.get_notification_title())
-
-
-def ping_url(user=None):
-    try:
-        return Profile.objects.get(user__username=user).get_absolute_url()
-    except ObjectDoesNotExist:
-        pass
 
 
 class Notification(models.Model):

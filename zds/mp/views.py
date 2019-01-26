@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -83,7 +81,7 @@ class PrivateTopicNew(CreateView):
 
         if 'preview' in request.POST:
             if request.is_ajax():
-                content = render_to_response('misc/previsualization.part.html', {'text': request.POST['text']})
+                content = render_to_response('misc/preview.part.html', {'text': request.POST['text']})
                 return StreamingHttpResponse(content)
             else:
                 form = self.form_class(request.user.username,
@@ -340,7 +338,7 @@ class PrivatePostEdit(UpdateView, UpdatePrivatePost):
 
         if 'preview' in request.POST:
             if request.is_ajax():
-                content = render_to_response('misc/previsualization.part.html', {'text': request.POST['text']})
+                content = render_to_response('misc/preview.part.html', {'text': request.POST['text']})
                 return StreamingHttpResponse(content)
         elif form.is_valid():
             return self.form_valid(form)

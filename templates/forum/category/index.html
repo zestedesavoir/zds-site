@@ -21,9 +21,11 @@
 
 
 {% block content %}
-	<div class="content-wrapper topic-list topic-list-small forum-list navigable-list" itemscope itemtype="http://schema.org/ItemList">
-	    {% include "forum/includes/forums.part.html" %}
-	</div>
+    <div class="content-wrapper topic-list topic-list-small forum-list navigable-list"
+         itemscope
+         itemtype="http://schema.org/ItemList">
+        {% include "forum/includes/forums.part.html" %}
+    </div>
 {% endblock %}
 
 {% block feeds_rss %}

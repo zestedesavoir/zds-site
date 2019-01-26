@@ -1,21 +1,58 @@
-# -*- coding: utf-8 -*-
-
 from datetime import datetime
 
 from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from django.test import TestCase
-from zds.forum.factories import CategoryFactory, ForumFactory, PostFactory, TopicFactory, TagFactory
+from zds.forum.factories import create_category_and_forum, create_topic_in_forum
+from zds.forum.factories import PostFactory, TagFactory
 from zds.forum.models import Topic, Post
 from zds.notification.models import TopicAnswerSubscription
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.utils.models import CommentEdit, Hat
 
 
+class LastTopicsViewTests(TestCase):
+    def test_logged_user(self):
+        profile = ProfileFactory()
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        _, forum = create_category_and_forum()
+        create_topic_in_forum(forum, profile)
+        response = self.client.get(reverse('last-subjects'))
+        self.assertEqual(200, response.status_code)
+        self.assertTrue(Topic.objects.last() in response.context['topics'])
+
+    def test_anonymous_user(self):
+        profile = ProfileFactory()
+        _, forum = create_category_and_forum()
+        create_topic_in_forum(forum, profile)
+        response = self.client.get(reverse('last-subjects'))
+        self.assertEqual(200, response.status_code)
+        self.assertTrue(Topic.objects.last() in response.context['topics'])
+
+    def test_private_topic(self):
+        author_profile = ProfileFactory()
+        group = Group.objects.create(name='DummyGroup_1')
+        _, forum = create_category_and_forum(group)
+        create_topic_in_forum(forum, author_profile)
+        # Tests with a user who cannot read the last topic.
+        profile = ProfileFactory()
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.get(reverse('last-subjects'))
+        self.assertEqual(200, response.status_code)
+        self.assertTrue(Topic.objects.last() not in response.context['topics'])
+        # Adds to the user the right to read the last topic, and test again.
+        profile.user.groups.add(group)
+        profile.user.save()
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.get(reverse('last-subjects'))
+        self.assertEqual(200, response.status_code)
+        self.assertTrue(Topic.objects.last() in response.context['topics'])
+
+
 class CategoriesForumsListViewTests(TestCase):
     def test_success_list_all_forums(self):
         profile = ProfileFactory()
-        category, forum = create_category()
+        category, forum = create_category_and_forum()
 
         response = self.client.get(reverse('cats-forums-list'))
 
@@ -28,7 +65,7 @@ class CategoriesForumsListViewTests(TestCase):
         group = Group.objects.create(name='DummyGroup_1')
 
         profile = ProfileFactory()
-        category, forum = create_category(group)
+        category, forum = create_category_and_forum(group)
 
         response = self.client.get(reverse('cats-forums-list'))
 
@@ -52,8 +89,8 @@ class CategoriesForumsListViewTests(TestCase):
         staff = StaffProfileFactory()
 
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
 
         topics_nb = len(Topic.objects.get_last_topics())
 
@@ -73,7 +110,7 @@ class CategoriesForumsListViewTests(TestCase):
 class CategoryForumsDetailViewTest(TestCase):
     def test_success_list_all_forums_of_a_category(self):
         profile = ProfileFactory()
-        category, forum = create_category()
+        category, forum = create_category_and_forum()
 
         response = self.client.get(reverse('cat-forums-list', args=[category.slug]))
 
@@ -87,7 +124,7 @@ class CategoryForumsDetailViewTest(TestCase):
         group = Group.objects.create(name='DummyGroup_1')
 
         profile = ProfileFactory()
-        category, forum = create_category(group)
+        category, forum = create_category_and_forum(group)
 
         response = self.client.get(reverse('cat-forums-list', args=[category.slug]))
 
@@ -117,7 +154,7 @@ class ForumTopicsListViewTest(TestCase):
 
     def test_failure_list_all_topics_of_a_forum_we_cannot_read(self):
         group = Group.objects.create(name='DummyGroup_1')
-        category, forum = create_category(group)
+        category, forum = create_category_and_forum(group)
 
         response = self.client.get(reverse('forum-topics-list', args=[category.slug, forum.slug]))
 
@@ -125,8 +162,8 @@ class ForumTopicsListViewTest(TestCase):
 
     def test_success_list_all_topics_of_a_forum(self):
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
+        category, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
 
         response = self.client.get(reverse('forum-topics-list', args=[category.slug, forum.slug]))
 
@@ -138,9 +175,9 @@ class ForumTopicsListViewTest(TestCase):
 
     def test_success_list_all_topics_of_a_forum_with_sticky_topics(self):
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
-        topic_sticky = add_topic_in_a_forum(forum, profile, is_sticky=True)
+        category, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
+        topic_sticky = create_topic_in_forum(forum, profile, is_sticky=True)
 
         response = self.client.get(reverse('forum-topics-list', args=[category.slug, forum.slug]))
 
@@ -153,9 +190,9 @@ class ForumTopicsListViewTest(TestCase):
 
     def test_success_filter_list_all_topics_solved_of_a_forum(self):
         profile = ProfileFactory()
-        category, forum = create_category()
-        add_topic_in_a_forum(forum, profile)
-        topic_solved = add_topic_in_a_forum(forum, profile, is_solved=True)
+        category, forum = create_category_and_forum()
+        create_topic_in_forum(forum, profile)
+        topic_solved = create_topic_in_forum(forum, profile, is_solved=True)
 
         response = self.client.get(reverse('forum-topics-list', args=[category.slug, forum.slug]) + '?filter=solve')
 
@@ -166,9 +203,9 @@ class ForumTopicsListViewTest(TestCase):
 
     def test_success_filter_list_all_topics_unsolved_of_a_forum(self):
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic_unsolved = add_topic_in_a_forum(forum, profile)
-        add_topic_in_a_forum(forum, profile, is_solved=True)
+        category, forum = create_category_and_forum()
+        topic_unsolved = create_topic_in_forum(forum, profile)
+        create_topic_in_forum(forum, profile, is_solved=True)
 
         response = self.client.get(reverse('forum-topics-list', args=[category.slug, forum.slug]) + '?filter=unsolve')
 
@@ -179,9 +216,9 @@ class ForumTopicsListViewTest(TestCase):
 
     def test_success_filter_list_all_topics_noanswer_of_a_forum(self):
         profile = ProfileFactory()
-        category, forum = create_category()
-        add_topic_in_a_forum(forum, profile)
-        add_topic_in_a_forum(forum, profile, is_solved=True)
+        category, forum = create_category_and_forum()
+        create_topic_in_forum(forum, profile)
+        create_topic_in_forum(forum, profile, is_solved=True)
 
         response = self.client.get(reverse('forum-topics-list', args=[category.slug, forum.slug]) + '?filter=noanswer')
 
@@ -194,8 +231,8 @@ class TopicPostsListViewTest(TestCase):
     def test_failure_list_all_posts_of_a_topic_of_a_forum_we_cannot_read(self):
         group = Group.objects.create(name='DummyGroup_1')
         profile = ProfileFactory()
-        category, forum = create_category(group)
-        topic = add_topic_in_a_forum(forum, profile)
+        category, forum = create_category_and_forum(group)
+        topic = create_topic_in_forum(forum, profile)
 
         response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
 
@@ -203,8 +240,8 @@ class TopicPostsListViewTest(TestCase):
 
     def test_failure_list_all_posts_of_a_topic_with_wrong_slug(self):
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
+        category, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
 
         response = self.client.get(reverse('topic-posts-list', args=[topic.pk, 'x']))
 
@@ -212,8 +249,8 @@ class TopicPostsListViewTest(TestCase):
 
     def test_success_list_all_posts_of_a_topic(self):
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
 
         response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
 
@@ -227,8 +264,8 @@ class TopicPostsListViewTest(TestCase):
 
     def test_subscriber_count_of_a_topic(self):
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
 
         response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
 
@@ -238,7 +275,7 @@ class TopicPostsListViewTest(TestCase):
 
 class TopicNewTest(TestCase):
     def test_failure_create_topic_with_a_post_with_client_unauthenticated(self):
-        category, forum = create_category()
+        _, forum = create_category_and_forum()
 
         response = self.client.post(reverse('topic-new') + '?forum={}'.format(forum.pk))
 
@@ -249,7 +286,7 @@ class TopicNewTest(TestCase):
         profile.can_read = False
         profile.can_write = False
         profile.save()
-        category, forum = create_category()
+        _, forum = create_category_and_forum()
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
         response = self.client.post(reverse('topic-new') + '?forum={}'.format(forum.pk))
@@ -259,7 +296,7 @@ class TopicNewTest(TestCase):
     def test_failure_create_topics_with_a_post_in_a_forum_we_cannot_read(self):
         group = Group.objects.create(name='DummyGroup_1')
         profile = ProfileFactory()
-        category, forum = create_category(group)
+        _, forum = create_category_and_forum(group)
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
         response = self.client.post(reverse('topic-new') + '?forum={}'.format(forum.pk))
@@ -276,7 +313,7 @@ class TopicNewTest(TestCase):
 
     def test_success_create_topic_with_a_post_in_get_method(self):
         profile = ProfileFactory()
-        category, forum = create_category()
+        _, forum = create_category_and_forum()
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
         response = self.client.get(reverse('topic-new') + '?forum={}'.format(forum.pk))
@@ -289,7 +326,7 @@ class TopicNewTest(TestCase):
         profile = ProfileFactory()
         profile2 = ProfileFactory()
         notvisited = ProfileFactory()
-        category, forum = create_category()
+        _, forum = create_category_and_forum()
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
         data = {
             'title': 'Title of the topic',
@@ -324,7 +361,7 @@ class TopicNewTest(TestCase):
 
     def test_success_create_topic_with_post_in_preview_in_ajax(self):
         profile = ProfileFactory()
-        category, forum = create_category()
+        _, forum = create_category_and_forum()
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
         data = {
@@ -342,7 +379,7 @@ class TopicNewTest(TestCase):
 
     def test_success_create_topic_with_post_in_preview(self):
         profile = ProfileFactory()
-        category, forum = create_category()
+        _, forum = create_category_and_forum()
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
         data = {
@@ -357,7 +394,7 @@ class TopicNewTest(TestCase):
 
     def test_success_create_topic_with_post(self):
         profile = ProfileFactory()
-        category, forum = create_category()
+        _, forum = create_category_and_forum()
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
         data = {
@@ -372,7 +409,7 @@ class TopicNewTest(TestCase):
 
     def test_create_topic_with_hat(self):
         profile = ProfileFactory()
-        category, forum = create_category()
+        _, forum = create_category_and_forum()
 
         hat, _ = Hat.objects.get_or_create(name__iexact='A hat', defaults={'name': 'A hat'})
         profile.hats.add(hat)
@@ -434,8 +471,8 @@ class TopicEditTest(TestCase):
 
     def test_success_edit_topic_in_ajax(self):
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
         data = {
@@ -447,8 +484,8 @@ class TopicEditTest(TestCase):
 
     def test_success_edit_topic(self):
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
         data = {
@@ -460,8 +497,8 @@ class TopicEditTest(TestCase):
 
     def test_success_edit_topic_follow(self):
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
         data = {
@@ -479,8 +516,8 @@ class TopicEditTest(TestCase):
 
     def test_success_edit_topic_follow_with_hidden_post(self):
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
 
         first_post = topic.first_post()
         first_post.is_visible = False
@@ -502,8 +539,8 @@ class TopicEditTest(TestCase):
 
     def test_success_edit_topic_follow_email(self):
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
         data = {
@@ -525,8 +562,8 @@ class TopicEditTest(TestCase):
         profile = ProfileFactory()
 
         another_profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, another_profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, another_profile)
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
         data = {
@@ -539,8 +576,8 @@ class TopicEditTest(TestCase):
 
     def test_success_edit_topic_solved_by_author(self):
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
         data = {
@@ -550,14 +587,16 @@ class TopicEditTest(TestCase):
         response = self.client.post(reverse('topic-edit'), data, follow=False)
 
         self.assertEqual(302, response.status_code)
-        self.assertTrue(Topic.objects.get(pk=topic.pk).is_solved)
+        topic = Topic.objects.get(pk=topic.pk)
+        self.assertTrue(topic.is_solved)
+        self.assertEquals(topic.solved_by, profile.user)
 
     def test_success_edit_topic_solved_by_staff(self):
         staff = StaffProfileFactory()
 
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
 
         self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
         data = {
@@ -567,14 +606,16 @@ class TopicEditTest(TestCase):
         response = self.client.post(reverse('topic-edit'), data, follow=False)
 
         self.assertEqual(302, response.status_code)
-        self.assertTrue(Topic.objects.get(pk=topic.pk).is_solved)
+        topic = Topic.objects.get(pk=topic.pk)
+        self.assertTrue(topic.is_solved)
+        self.assertEquals(topic.solved_by, staff.user)
 
     def test_failure_edit_topic_lock_by_user(self):
         profile = ProfileFactory()
 
         another_profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, another_profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, another_profile)
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
         data = {
@@ -589,8 +630,8 @@ class TopicEditTest(TestCase):
         staff = StaffProfileFactory()
 
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
 
         self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
         data = {
@@ -615,8 +656,8 @@ class TopicEditTest(TestCase):
         profile = ProfileFactory()
 
         another_profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, another_profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, another_profile)
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
         data = {
@@ -631,8 +672,8 @@ class TopicEditTest(TestCase):
         staff = StaffProfileFactory()
 
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
 
         self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
         data = {
@@ -657,8 +698,8 @@ class TopicEditTest(TestCase):
         profile = ProfileFactory()
 
         another_profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, another_profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, another_profile)
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
         data = {
@@ -673,8 +714,8 @@ class TopicEditTest(TestCase):
         staff = StaffProfileFactory()
 
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
 
         self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
         data = {
@@ -690,8 +731,8 @@ class TopicEditTest(TestCase):
         staff = StaffProfileFactory()
 
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
 
         self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
         data = {
@@ -707,10 +748,10 @@ class TopicEditTest(TestCase):
         staff = StaffProfileFactory()
 
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
 
-        another_category, another_forum = create_category()
+        _, another_forum = create_category_and_forum()
 
         self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
         data = {
@@ -724,8 +765,8 @@ class TopicEditTest(TestCase):
 
     def test_failure_edit_topic_not_author_and_not_staff(self):
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
 
         another_profile = ProfileFactory()
         self.assertTrue(self.client.login(username=another_profile.user.username, password='hostel77'))
@@ -742,8 +783,8 @@ class TopicEditTest(TestCase):
         staff = StaffProfileFactory()
 
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
 
         self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
         response = self.client.get(reverse('topic-edit') + '?topic={}'.format(topic.pk), follow=False)
@@ -752,8 +793,8 @@ class TopicEditTest(TestCase):
 
     def test_success_edit_topic_author_in_get_method(self):
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
         response = self.client.get(reverse('topic-edit') + '?topic={}'.format(topic.pk), follow=False)
@@ -762,8 +803,8 @@ class TopicEditTest(TestCase):
 
     def test_success_edit_topic_in_preview(self):
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
         data = {
@@ -780,8 +821,8 @@ class TopicEditTest(TestCase):
 
     def test_success_edit_topic_in_preview_in_ajax(self):
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
         data = {
@@ -801,8 +842,8 @@ class TopicEditTest(TestCase):
 
     def test_success_edit_topic_information(self):
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
         data = {
@@ -828,8 +869,8 @@ class FindTopicTest(TestCase):
 
     def test_success_find_topics_of_a_member(self):
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
 
         response = self.client.get(reverse('topic-find', args=[profile.user.pk]), follow=False)
 
@@ -845,7 +886,7 @@ class FindTopicTest(TestCase):
         profile = ProfileFactory()
         group = Group.objects.create(name='DummyGroup_1')
         another_group = Group.objects.create(name='DummyGroup_2')
-        category, forum = create_category(group)
+        _, forum = create_category_and_forum(group)
 
         forum.groups.add(another_group)
         forum.save()
@@ -854,7 +895,7 @@ class FindTopicTest(TestCase):
         profile.user.groups.add(another_group)
         profile.user.save()
 
-        topic = add_topic_in_a_forum(forum, profile)
+        topic = create_topic_in_forum(forum, profile)
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
         response = self.client.get(reverse('topic-find', args=[profile.user.pk]), follow=False)
@@ -866,19 +907,19 @@ class FindTopicTest(TestCase):
 
 class FindTopicByTagTest(TestCase):
     def test_failure_find_topics_of_a_tag_not_found(self):
-        response = self.client.get(reverse('topic-tag-find', args=[9999, 'x']), follow=False)
+        response = self.client.get(reverse('topic-tag-find', args=['x']), follow=False)
 
         self.assertEqual(404, response.status_code)
 
     def test_success_find_topics_of_a_tag(self):
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
         tag = TagFactory()
         topic.add_tags([tag.title])
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.get(reverse('topic-tag-find', args=[tag.pk, tag.slug]), follow=False)
+        response = self.client.get(reverse('topic-tag-find', args=[tag.slug]), follow=False)
 
         self.assertEqual(200, response.status_code)
         self.assertEqual(1, len(response.context['topics']))
@@ -893,7 +934,7 @@ class FindTopicByTagTest(TestCase):
         profile = ProfileFactory()
         group = Group.objects.create(name='DummyGroup_1')
         another_group = Group.objects.create(name='DummyGroup_2')
-        category, forum = create_category(group)
+        _, forum = create_category_and_forum(group)
 
         forum.groups.add(another_group)
         forum.save()
@@ -902,12 +943,12 @@ class FindTopicByTagTest(TestCase):
         profile.user.groups.add(another_group)
         profile.user.save()
 
-        topic = add_topic_in_a_forum(forum, profile)
+        topic = create_topic_in_forum(forum, profile)
         tag = TagFactory()
         topic.add_tags([tag.title])
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.get(reverse('topic-tag-find', args=[tag.pk, tag.slug]), follow=False)
+        response = self.client.get(reverse('topic-tag-find', args=[tag.slug]), follow=False)
 
         self.assertEqual(200, response.status_code)
         self.assertEqual(1, len(response.context['topics']))
@@ -916,13 +957,13 @@ class FindTopicByTagTest(TestCase):
 
     def test_success_find_topics_of_a_tag_solved(self):
         profile = ProfileFactory()
-        category, forum = create_category()
-        add_topic_in_a_forum(forum, profile)
-        topic_solved = add_topic_in_a_forum(forum, profile, is_solved=True)
+        _, forum = create_category_and_forum()
+        create_topic_in_forum(forum, profile)
+        topic_solved = create_topic_in_forum(forum, profile, is_solved=True)
         tag = TagFactory()
         topic_solved.add_tags([tag.title])
 
-        response = self.client.get(reverse('topic-tag-find', args=[tag.pk, tag.slug]) + '?filter=solve')
+        response = self.client.get(reverse('topic-tag-find', args=[tag.slug]) + '?filter=solve')
 
         self.assertEqual(200, response.status_code)
         self.assertEqual(1, len(response.context['topics']))
@@ -931,13 +972,13 @@ class FindTopicByTagTest(TestCase):
 
     def test_success_filter_find_topics_of_a_tag_unsolved(self):
         profile = ProfileFactory()
-        category, forum = create_category()
-        add_topic_in_a_forum(forum, profile, is_solved=True)
-        topic_unsolved = add_topic_in_a_forum(forum, profile)
+        _, forum = create_category_and_forum()
+        create_topic_in_forum(forum, profile, is_solved=True)
+        topic_unsolved = create_topic_in_forum(forum, profile)
         tag = TagFactory()
         topic_unsolved.add_tags([tag.title])
 
-        response = self.client.get(reverse('topic-tag-find', args=[tag.pk, tag.slug]) + '?filter=unsolve')
+        response = self.client.get(reverse('topic-tag-find', args=[tag.slug]) + '?filter=unsolve')
 
         self.assertEqual(200, response.status_code)
         self.assertEqual(1, len(response.context['topics']))
@@ -946,17 +987,32 @@ class FindTopicByTagTest(TestCase):
 
     def test_success_filter_find_topics_of_a_tag_noanswer(self):
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
-        another_topic = add_topic_in_a_forum(forum, profile, is_solved=True)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
+        another_topic = create_topic_in_forum(forum, profile, is_solved=True)
         tag = TagFactory()
         topic.add_tags([tag.title])
         another_topic.add_tags([tag.title])
 
-        response = self.client.get(reverse('topic-tag-find', args=[tag.pk, tag.slug]) + '?filter=noanswer')
+        response = self.client.get(reverse('topic-tag-find', args=[tag.slug]) + '?filter=noanswer')
 
         self.assertEqual(200, response.status_code)
         self.assertEqual(2, len(response.context['topics']))
+        self.assertEqual(tag, response.context['tag'])
+
+    def test_redirection(self):
+        profile = ProfileFactory()
+        _, forum = create_category_and_forum()
+        create_topic_in_forum(forum, profile)
+        topic_solved = create_topic_in_forum(forum, profile, is_solved=True)
+        tag = TagFactory()
+        topic_solved.add_tags([tag.title])
+
+        response = self.client.get(reverse('old-topic-tag-find', args=[tag.pk, tag.slug]))
+        self.assertEqual(301, response.status_code)
+
+        response = self.client.get(reverse('old-topic-tag-find', args=[tag.pk, tag.slug]), follow=True)
+        self.assertEqual(1, len(response.context['topics']))
         self.assertEqual(tag, response.context['tag'])
 
 
@@ -996,8 +1052,8 @@ class PostNewTest(TestCase):
     def test_failure_new_post_in_a_forum_we_cannot_read(self):
         profile = ProfileFactory()
         group = Group.objects.create(name='DummyGroup_1')
-        category, forum = create_category(group)
-        topic = add_topic_in_a_forum(forum, profile)
+        _, forum = create_category_and_forum(group)
+        topic = create_topic_in_forum(forum, profile)
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
         response = self.client.get(reverse('post-new') + '?sujet={}'.format(topic.pk))
@@ -1006,8 +1062,8 @@ class PostNewTest(TestCase):
 
     def test_failure_new_post_on_a_locked_topic(self):
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile, is_locked=True)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile, is_locked=True)
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
         response = self.client.get(reverse('post-new') + '?sujet={}'.format(topic.pk))
@@ -1016,8 +1072,8 @@ class PostNewTest(TestCase):
 
     def test_failure_new_post_stopped_by_anti_spam(self):
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
         topic.last_message.pubdate = datetime.now()
         topic.last_message.save()
 
@@ -1028,8 +1084,8 @@ class PostNewTest(TestCase):
 
     def test_success_new_post_method_get(self):
         another_profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, another_profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, another_profile)
 
         profile = ProfileFactory()
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
@@ -1043,8 +1099,8 @@ class PostNewTest(TestCase):
 
     def test_success_new_post_with_quote_in_ajax(self):
         another_profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, another_profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, another_profile)
 
         profile = ProfileFactory()
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
@@ -1058,8 +1114,8 @@ class PostNewTest(TestCase):
 
     def test_success_new_post_in_preview(self):
         another_profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, another_profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, another_profile)
 
         profile = ProfileFactory()
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
@@ -1078,8 +1134,8 @@ class PostNewTest(TestCase):
 
     def test_success_new_post_in_preview_in_ajax(self):
         another_profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, another_profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, another_profile)
 
         profile = ProfileFactory()
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
@@ -1099,8 +1155,8 @@ class PostNewTest(TestCase):
 
     def test_success_new_post(self):
         another_profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, another_profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, another_profile)
 
         profile = ProfileFactory()
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
@@ -1115,7 +1171,7 @@ class PostNewTest(TestCase):
 
     def test_new_post_with_hat(self):
         another_profile = ProfileFactory()
-        category, forum = create_category()
+        _, forum = create_category_and_forum()
 
         profile = ProfileFactory()
 
@@ -1128,7 +1184,7 @@ class PostNewTest(TestCase):
         profile.hats.add(hat)
 
         # Post with a wrong hat pk
-        topic = add_topic_in_a_forum(forum, another_profile)
+        topic = create_topic_in_forum(forum, another_profile)
         data = {
             'text': 'A new post!',
             'last_post': topic.last_message.pk,
@@ -1141,7 +1197,7 @@ class PostNewTest(TestCase):
         self.assertEqual(topic.last_message.hat, None)  # Hat wasn't used
 
         # Post with a hat that doesn't exist
-        topic = add_topic_in_a_forum(forum, another_profile)
+        topic = create_topic_in_forum(forum, another_profile)
         data = {
             'text': 'A new post!',
             'last_post': topic.last_message.pk,
@@ -1154,7 +1210,7 @@ class PostNewTest(TestCase):
         self.assertEqual(topic.last_message.hat, None)  # Hat wasn't used
 
         # Post with a hat the user hasn't
-        topic = add_topic_in_a_forum(forum, another_profile)
+        topic = create_topic_in_forum(forum, another_profile)
         data = {
             'text': 'A new post!',
             'last_post': topic.last_message.pk,
@@ -1167,7 +1223,7 @@ class PostNewTest(TestCase):
         self.assertEqual(topic.last_message.hat, None)  # Hat wasn't used
 
         # Post with a hat the user has
-        topic = add_topic_in_a_forum(forum, another_profile)
+        topic = create_topic_in_forum(forum, another_profile)
         data = {
             'text': 'A new post!',
             'last_post': topic.last_message.pk,
@@ -1216,8 +1272,8 @@ class PostEditTest(TestCase):
     def test_failure_edit_post_in_a_forum_we_cannot_read(self):
         profile = ProfileFactory()
         group = Group.objects.create(name='DummyGroup_1')
-        category, forum = create_category(group)
-        topic = add_topic_in_a_forum(forum, profile)
+        _, forum = create_category_and_forum(group)
+        topic = create_topic_in_forum(forum, profile)
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
         response = self.client.get(reverse('post-edit') + '?message={}'.format(topic.last_message.pk))
@@ -1226,8 +1282,8 @@ class PostEditTest(TestCase):
 
     def test_failure_edit_post_not_author_not_staff_and_not_alert_message(self):
         another_profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, another_profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, another_profile)
 
         profile = ProfileFactory()
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
@@ -1237,8 +1293,8 @@ class PostEditTest(TestCase):
 
     def test_success_edit_post_method_get(self):
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
         response = self.client.get(reverse('post-edit') + '?message={}'.format(topic.last_message.pk), follow=False)
@@ -1251,8 +1307,8 @@ class PostEditTest(TestCase):
 
     def test_success_new_post_in_preview(self):
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
         data = {
@@ -1266,8 +1322,8 @@ class PostEditTest(TestCase):
 
     def test_success_edit_post_in_preview_in_ajax(self):
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
         data = {
@@ -1285,8 +1341,8 @@ class PostEditTest(TestCase):
 
     def test_success_edit_post(self):
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
         data = {
@@ -1302,8 +1358,8 @@ class PostEditTest(TestCase):
 
     def test_failure_edit_post_hide_message_not_author_and_not_staff(self):
         another_profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, another_profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, another_profile)
 
         profile = ProfileFactory()
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
@@ -1317,8 +1373,8 @@ class PostEditTest(TestCase):
 
     def test_success_edit_post_hide_message_by_author(self):
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
         # WARNING : if author is not staff he can't send a delete message.
@@ -1337,8 +1393,8 @@ class PostEditTest(TestCase):
 
     def test_success_edit_post_hide_message_by_staff(self):
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
 
         staff = StaffProfileFactory()
         self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
@@ -1357,10 +1413,29 @@ class PostEditTest(TestCase):
         self.assertEqual(staff.user, post.editor)
         self.assertEqual(text_hidden_expected, post.text_hidden)
 
+    def test_hide_helpful_message(self):
+        profile = ProfileFactory()
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.post(reverse('post-useful') + '?message={}'.format(topic.last_message.pk), follow=False)
+        self.assertEqual(302, response.status_code)
+
+        response = self.client.get(topic.get_absolute_url(), follow=False)
+        self.assertNotContains(response, 'green hidden')
+
+        response = self.client.post(
+            reverse('post-edit') + '?message={}'.format(topic.last_message.pk), {'delete_message': ''}, follow=False)
+        self.assertEqual(302, response.status_code)
+
+        response = self.client.get(topic.get_absolute_url(), follow=False)
+        self.assertContains(response, 'green hidden')
+
     def test_failure_edit_post_show_message_by_user(self):
         another_profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, another_profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, another_profile)
 
         profile = ProfileFactory()
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
@@ -1374,8 +1449,8 @@ class PostEditTest(TestCase):
 
     def test_failure_edit_post_show_message_by_author(self):
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
         data = {
@@ -1388,8 +1463,8 @@ class PostEditTest(TestCase):
 
     def test_success_edit_post_show_message_by_staff(self):
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
 
         topic.last_message.is_visible = False
         topic.last_message.text_hidden = 'Bad guy!'
@@ -1410,8 +1485,8 @@ class PostEditTest(TestCase):
 
     def test_success_edit_post_alert_message(self):
         another_profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, another_profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, another_profile)
 
         profile = ProfileFactory()
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
@@ -1432,8 +1507,8 @@ class PostEditTest(TestCase):
         """Test that a non staff cannot access the page to edit a hidden message"""
 
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
         data = {
@@ -1457,8 +1532,8 @@ class PostEditTest(TestCase):
         profile.hats.add(hat)
 
         # add a new thread
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, ProfileFactory())
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, ProfileFactory())
 
         # post a message with a hat
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
@@ -1503,8 +1578,8 @@ class PostEditTest(TestCase):
 
     def test_creation_archive_on_edit(self):
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
         post_before_edit = Post.objects.get(pk=topic.last_message.pk)
 
         edits_count = CommentEdit.objects.count()
@@ -1570,8 +1645,8 @@ class PostUsefulTest(TestCase):
         group = Group.objects.create(name='DummyGroup_1')
 
         profile = ProfileFactory()
-        category, forum = create_category(group)
-        topic = add_topic_in_a_forum(forum, profile)
+        _, forum = create_category_and_forum(group)
+        topic = create_topic_in_forum(forum, profile)
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
         response = self.client.post(reverse('post-useful') + '?message={}'.format(topic.last_message.pk))
@@ -1580,8 +1655,8 @@ class PostUsefulTest(TestCase):
 
     def test_failure_post_useful_its_post(self):
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
         response = self.client.post(reverse('post-useful') + '?message={}'.format(topic.last_message.pk))
@@ -1590,8 +1665,8 @@ class PostUsefulTest(TestCase):
 
     def test_failure_post_useful_when_not_author_of_topic(self):
         another_profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, another_profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, another_profile)
 
         profile = ProfileFactory()
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
@@ -1601,8 +1676,8 @@ class PostUsefulTest(TestCase):
 
     def test_success_post_useful_in_ajax(self):
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
         another_profile = ProfileFactory()
         post = PostFactory(topic=topic, author=another_profile.user, position=2)
 
@@ -1618,8 +1693,8 @@ class PostUsefulTest(TestCase):
 
     def test_success_post_useful(self):
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
         another_profile = ProfileFactory()
         post = PostFactory(topic=topic, author=another_profile.user, position=2)
 
@@ -1631,8 +1706,8 @@ class PostUsefulTest(TestCase):
 
     def test_success_post_useful_by_staff(self):
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
 
         staff = StaffProfileFactory()
         self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
@@ -1645,8 +1720,8 @@ class PostUsefulTest(TestCase):
 class MessageActionTest(TestCase):
     def test_alert(self):
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
         another_profile = ProfileFactory()
         PostFactory(topic=topic, author=another_profile.user, position=2)
 
@@ -1685,8 +1760,8 @@ class MessageActionTest(TestCase):
 
     def test_hide(self):
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
         another_profile = ProfileFactory()
         PostFactory(topic=topic, author=another_profile.user, position=2)
 
@@ -1796,8 +1871,8 @@ class PostUnreadTest(TestCase):
         group = Group.objects.create(name='DummyGroup_1')
 
         profile = ProfileFactory()
-        category, forum = create_category(group)
-        topic = add_topic_in_a_forum(forum, profile)
+        _, forum = create_category_and_forum(group)
+        topic = create_topic_in_forum(forum, profile)
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
         response = self.client.get(reverse('post-unread') + '?message={}'.format(topic.last_message.pk))
@@ -1806,8 +1881,8 @@ class PostUnreadTest(TestCase):
 
     def test_success_post_unread(self):
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
         another_profile = ProfileFactory()
         post = PostFactory(topic=topic, author=another_profile.user, position=2)
 
@@ -1825,8 +1900,8 @@ class FindPostTest(TestCase):
 
     def test_success_find_topics_of_a_member(self):
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
 
         response = self.client.get(reverse('post-find', args=[profile.user.pk]), follow=False)
 
@@ -1842,7 +1917,7 @@ class FindPostTest(TestCase):
         profile = ProfileFactory()
         group = Group.objects.create(name='DummyGroup_1')
         another_group = Group.objects.create(name='DummyGroup_2')
-        category, forum = create_category(group)
+        _, forum = create_category_and_forum(group)
 
         forum.groups.add(another_group)
         forum.save()
@@ -1851,7 +1926,7 @@ class FindPostTest(TestCase):
         profile.user.groups.add(another_group)
         profile.user.save()
 
-        topic = add_topic_in_a_forum(forum, profile)
+        topic = create_topic_in_forum(forum, profile)
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
         response = self.client.get(reverse('post-find', args=[profile.user.pk]), follow=False)
@@ -1859,22 +1934,3 @@ class FindPostTest(TestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual(1, len(response.context['posts']))
         self.assertEqual(topic.last_message, response.context['posts'][0])
-
-
-def create_category(group=None):
-    category = CategoryFactory(position=1)
-    forum = ForumFactory(category=category, position_in_category=1)
-    if group is not None:
-        forum.groups.add(group)
-        forum.save()
-    return category, forum
-
-
-def add_topic_in_a_forum(forum, profile, is_sticky=False, is_solved=False, is_locked=False):
-    topic = TopicFactory(forum=forum, author=profile.user)
-    topic.is_sticky = is_sticky
-    topic.is_solved = is_solved
-    topic.is_locked = is_locked
-    topic.save()
-    PostFactory(topic=topic, author=profile.user, position=1)
-    return topic

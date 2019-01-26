@@ -13,17 +13,17 @@
     <{% if tag %}{{ tag }}{% else %}div{% endif %}
         id="div_{{ field.auto_id }}"
         class="control-group
-            {% if wrapper_class %}
-                {{ wrapper_class }}
-            {% endif %}
+               {% if wrapper_class %}
+                   {{ wrapper_class }}
+               {% endif %}
 
-            {% if form_show_errors and field.errors%}
-                error
-            {% endif %}
+               {% if form_show_errors and field.errors%}
+                   error
+               {% endif %}
 
-            {% if field.css_classes %}
-                {{ field.css_classes }}
-            {% endif %}">
+               {% if field.css_classes %}
+                   {{ field.css_classes }}
+               {% endif %}">
 
         {% if field.label and not field|is_checkbox and form_show_labels %}
             <label for="{{ field.id_for_label }}"
@@ -40,20 +40,21 @@
 
                 {% for category in categories_list %}
                     <strong>{{ category.grouper }}</strong>
-                        {% for item in category.list %}
-                            <label class="checkbox {% if inline_class %}{{ inline_class }}{% endif %} checkbox-new-content">
-                                <input type="checkbox"
-                                       {% if item.choice.0 in field.value or item.choice.0|stringformat:"s" in field.value or item.choice.0|stringformat:"s" == field.value|stringformat:"s" %}
-                                           checked="checked"
-                                       {% endif %}
-                                       name="{{ field.html_name }}"
-                                       id="id_{{ field.html_name }}_{{ item.choice.0|unlocalize }}"
-                                       value="{{ item.choice.0|unlocalize }}"
-                                       {{ field.field.widget.attrs|flatatt }}>
 
-                                {{ item.choice.1|unlocalize }}
-                            </label>
-                        {% endfor %}
+                    {% for item in category.list %}
+                        <label class="checkbox {% if inline_class %}{{ inline_class }}{% endif %} checkbox-new-content">
+                            <input type="checkbox"
+                                   {% if item.choice.0 in field.value or item.choice.0|stringformat:"s" in field.value or item.choice.0|stringformat:"s" == field.value|stringformat:"s" %}
+                                       checked="checked"
+                                   {% endif %}
+                                   name="{{ field.html_name }}"
+                                   id="id_{{ field.html_name }}_{{ item.choice.0|unlocalize }}"
+                                   value="{{ item.choice.0|unlocalize }}"
+                                   {{ field.field.widget.attrs|flatatt }}>
+
+                            {{ item.choice.1|unlocalize }}
+                        </label>
+                    {% endfor %}
                 {% endfor %}
 
                 {% include 'bootstrap/layout/help_text.html' %}

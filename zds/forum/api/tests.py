@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from django.conf import settings
 from django.core.cache import caches
 from django.core.urlresolvers import reverse
@@ -9,8 +7,7 @@ from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
 from rest_framework_extensions.settings import extensions_api_settings
 
-from zds.forum.factories import PostFactory
-from zds.forum.tests.tests_views import create_category, add_topic_in_a_forum
+from zds.forum.factories import PostFactory, create_category_and_forum, create_topic_in_forum
 from zds.member.factories import ProfileFactory
 from zds.utils.models import CommentVote
 
@@ -22,8 +19,8 @@ class ForumPostKarmaAPITest(APITestCase):
 
     def test_failure_post_karma_with_client_unauthenticated(self):
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
+        category, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
         post = PostFactory(topic=topic, author=profile.user, position=2)
 
         response = self.client.put(reverse('api:forum:post-karma', args=(post.pk,)))
@@ -31,8 +28,8 @@ class ForumPostKarmaAPITest(APITestCase):
 
     def test_failure_post_karma_with_sanctioned_user(self):
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
+        category, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
         another_profile = ProfileFactory()
         post = PostFactory(topic=topic, author=another_profile.user, position=2)
 
@@ -53,8 +50,8 @@ class ForumPostKarmaAPITest(APITestCase):
         group = Group.objects.create(name='DummyGroup_1')
 
         profile = ProfileFactory()
-        category, forum = create_category(group)
-        topic = add_topic_in_a_forum(forum, profile)
+        category, forum = create_category_and_forum(group)
+        topic = create_topic_in_forum(forum, profile)
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
         response = self.client.put(reverse('api:forum:post-karma', args=(topic.last_message.pk,)), {'vote': 'like'})
@@ -62,8 +59,8 @@ class ForumPostKarmaAPITest(APITestCase):
 
     def test_success_post_karma_like(self):
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
+        category, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
         another_profile = ProfileFactory()
         post = PostFactory(topic=topic, author=another_profile.user, position=2)
 
@@ -74,8 +71,8 @@ class ForumPostKarmaAPITest(APITestCase):
 
     def test_success_post_karma_dislike(self):
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
+        category, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
         another_profile = ProfileFactory()
         post = PostFactory(topic=topic, author=another_profile.user, position=2)
 
@@ -86,8 +83,8 @@ class ForumPostKarmaAPITest(APITestCase):
 
     def test_success_post_karma_neutral(self):
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
+        category, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
         another_profile = ProfileFactory()
         post = PostFactory(topic=topic, author=another_profile.user, position=2)
 
@@ -102,8 +99,8 @@ class ForumPostKarmaAPITest(APITestCase):
 
     def test_success_post_karma_like_already_disliked(self):
         profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
+        category, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
         another_profile = ProfileFactory()
         post = PostFactory(topic=topic, author=another_profile.user, position=2)
 
@@ -120,8 +117,8 @@ class ForumPostKarmaAPITest(APITestCase):
     def test_get_post_voters(self):
         profile = ProfileFactory()
         profile2 = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
+        category, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
         another_profile = ProfileFactory()
 
         upvoted_answer = PostFactory(topic=topic, author=another_profile.user, position=2)

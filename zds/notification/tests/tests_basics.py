@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import copy
 from datetime import datetime, timedelta
 from django.contrib.auth.models import Group
@@ -335,14 +334,27 @@ class NotificationForumTest(TestCase):
 
         topic = Topic.objects.get(pk=topic.pk)
         self.assertEqual(self.forum12, topic.forum)
-        self.assertEqual(1, len(Notification.objects.filter(object_id=topic.pk, is_read=False, is_dead=True).all()))
+        self.assertEqual(1, len(Notification.objects.filter(object_id=topic.pk, is_read=False).all()))
 
         self.client.logout()
         self.assertTrue(self.client.login(username=self.user1.username, password='hostel77'))
         response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
         self.assertEqual(200, response.status_code)
 
-        self.assertEqual(1, len(Notification.objects.filter(object_id=topic.pk, is_read=True, is_dead=True).all()))
+        self.assertEqual(1, len(Notification.objects.filter(object_id=topic.pk, is_read=True).all()))
+
+    def test_ping_on_tuto(self):
+        """Error from #4904"""
+        content = PublishedContentFactory(author_list=[self.user1])
+        self.assertTrue(self.client.login(username=self.user2.username, password='hostel77'))
+        result = self.client.post(
+            reverse('content:add-reaction') + '?pk={}'.format(content.pk),
+            {
+                'text': '@{}'.format(self.user1.username),
+                'last_note': 0,
+            }, follow=True)
+        self.assertEqual(200, result.status_code)
+        self.assertEqual(1, len(Notification.objects.filter(is_read=False).all()))
 
     def test_move_topic_from_forum_followed_to_forum_followed_too(self):
         NewTopicSubscription.objects.toggle_follow(self.forum11, self.user1)
@@ -512,6 +524,10 @@ class NotificationPublishableContentTest(TestCase):
 
         subscription = ContentReactionAnswerSubscription.objects.get_existing(user=self.user1, content_object=self.tuto)
         self.assertTrue(subscription.is_active)
+        result = self.client.post(reverse('content:follow-reactions', args=[self.tuto.pk]), {'follow': 0})
+        self.assertEqual(result.status_code, 302)
+        subscription = ContentReactionAnswerSubscription.objects.get_existing(user=self.user1, content_object=self.tuto)
+        self.assertFalse(subscription.is_active)
 
     def test_answer_subscription(self):
         """
@@ -619,6 +635,12 @@ class NotificationPrivateTopicTest(TestCase):
         self.user1 = ProfileFactory().user
         self.user2 = ProfileFactory().user
         self.user3 = ProfileFactory().user
+        self.user1.profile.email_for_new_mp = True
+        self.user2.profile.email_for_new_mp = True
+        self.user3.profile.email_for_new_mp = False
+        self.user1.profile.save()
+        self.user2.profile.save()
+        self.user3.profile.save()
 
         self.assertTrue(self.client.login(username=self.user1.username, password='hostel77'))
 
@@ -767,7 +789,7 @@ class NotificationPrivateTopicTest(TestCase):
         settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
         self.assertEqual(0, len(mail.outbox))
 
-        topic = send_mp(author=self.user1, users=[self.user2],
+        topic = send_mp(author=self.user1, users=[self.user2, self.user3],
                         title='Testing', subtitle='', text='',
                         send_by_mail=True, leave=False)
 
@@ -777,6 +799,8 @@ class NotificationPrivateTopicTest(TestCase):
         self.user1.profile.save()
         self.user2.profile.email_for_answer = True
         self.user2.profile.save()
+        self.user3.profile.email_for_answer = False
+        self.user3.profile.save()
 
         send_message_mp(self.user2, topic, '', send_by_mail=True)
         subscriptions = PrivateTopicAnswerSubscription.objects.filter(user=self.user2)

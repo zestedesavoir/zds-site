@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from django.conf.urls import url
 
 from zds.tutorialv2.views.published import ListOpinions, DisplayOnlineOpinion, DownloadOnlineOpinion
@@ -24,7 +22,8 @@ urlpatterns = [
         DownloadOnlineOpinion.as_view(requested_file='epub'), name='download-epub'),
     url(r'^zip/(?P<pk>\d+)/(?P<slug>.+)\.zip$',
         DownloadOnlineOpinion.as_view(requested_file='zip'), name='download-zip'),
-
+    url(r'^tex/(?P<pk>\d+)/(?P<slug>.+)\.tex$', DownloadOnlineOpinion.as_view(requested_file='tex'),
+        name='download-tex'),
     # Listing
     url(r'^$', ListOpinions.as_view(), name='list')
 ]

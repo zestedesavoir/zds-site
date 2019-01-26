@@ -1,145 +1,128 @@
-.PHONY: fixtures
+## ~ General
 
-all: help
+install-linux: ## Install the minimal components needed
+	./scripts/install_zds.sh +base
 
-# install
-## linux
-install-debian:
-	sudo apt-get install git python3-dev python3-setuptools libxml2-dev python3-lxml libxslt-dev libz-dev python3-sqlparse libjpeg62-turbo libjpeg62-turbo-dev libfreetype6 libfreetype6-dev libffi-dev python3-pip build-essential
+install-linux-full: ## Install all the components needed
+	./scripts/install_zds.sh +full
 
-install-ubuntu:
-	sudo apt-get install git python3-dev python3-setuptools libxml2-dev python3-lxml libxslt1-dev libz-dev python3-sqlparse libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev libffi-dev python3-pip build-essential
+new-db: wipe-db migrate-db generate-fixtures ## Create a new full database (`wipe-db` & `migrate-db` & `generate-fixtures`)
 
-install-fedora:
-	sudo dnf install git python3-devel python3-setuptools libxml2-devel python3-lxml libxslt-devel zlib-devel python3-sqlparse libjpeg-turbo-devel libjpeg-turbo-devel freetype freetype-devel libffi-devel python3-pip gcc redhat-rpm-config
+run: ## Run the backend server and watch the frontend (`watch-front` in parallel with `run-back`)
+	make -j2 watch-front run-back
 
-install-archlinux:
-	sudo pacman -Sy git python python-setuptools python-pip libxml2 python-lxml libxslt zlib python-sqlparse libffi libjpeg-turbo freetype2 base-devel
+lint: lint-back lint-front ## Lint everything (`lint-back` & `lint-front`)
 
-install-osx:
-	brew install gettext cairo --without-x11 py2cairo node && \
-	pip install virtualenv virtualenvwrapper
+test: test-back test-back-selenium ## Test everything (`test-back` & `test-back-selenium`)
 
-# dev back
-## django
-generate-pdf:
-	python manage.py generate_pdf
+clean: clean-back clean-front ## Clean everything (`clean-back` & `clean-front`)
 
-migrate:
-	python manage.py migrate
+##
+## ~ Backend
 
-reset:
-	python manage.py reset
+install-back: ## Install the Python packages for the backend
+	pip3 install --upgrade -r requirements-dev.txt
 
-shell:
-	python manage.py shell
+run-back: zmd-check ## Run the backend server
+	python manage.py runserver
 
-index-all:
-	python manage.py es_manager index_all
-
-index-flagged:
-	python manage.py es_manager index_flagged
-
-
-## back-utils
-clean-back:
-	find . -name '*.pyc' -exec rm {} \;
-
-install-back:
-	pip install --upgrade -r requirements-dev.txt
-
-lint-back:
+lint-back: ## Lint Python code
 	flake8 zds
 
-report-release-back:
-	python scripts/release_generator.py
+test-back: clean-back zmd-start ## Run backend unit tests
+	python manage.py test --settings zds.settings.test --exclude-tag=front
+	make zmd-stop
 
-run-back:
-	python manage.py runserver 0.0.0.0:8000
+test-back-selenium: ## Run backend Selenium tests
+	xvfb-run --server-args="-screen 0 1280x720x8" python manage.py test --settings zds.settings.test --tag=front
 
-test-front:
-		python manage.py test --settings zds.settings_test_local --tag=front
+clean-back: ## Remove Python bytecode files (*.pyc)
+	find . -name '*.pyc' -exec rm {} \;
 
-test-back:
-	make clean-back && \
-	python manage.py test --settings zds.settings_test_local --exclude-tag=front
+##
+## ~ Frontend
 
-# front
-## front-utils
+install-front: ## Install the Node.js packages for the frontend
+	yarn install
 
-build-front:
+build-front: ## Build the frontend assets (CSS, JS, images)
 	yarn run build
 
-clean-front:
-	yarn run clean
+watch-front: ## Build the frontend assets when they are modified
+	yarn run watch --speed
 
-install-front:
-	yarn
-
-lint-front:
+lint-front: ## Lint the frontend's Javascript
 	yarn run lint
 
-watch-front:
-	yarn run gulp
+clean-front: ## Clean the frontend builds
+	yarn run clean
 
-# generic utils
+##
+## ~ zmarkdown
 
-clean: clean-back clean-front
+zmd-install: ## Install the Node.js packages for zmarkdown
+	cd zmd && npm -g install pm2 && npm install --production
 
-wipe:
+zmd-start: ## Start the zmarkdown server
+	cd zmd/node_modules/zmarkdown && npm run server
+
+zmd-check: ## Check if the zmarkdown server is running
+	@curl -s http://localhost:27272 || echo 'Use `make zmd-start` to start zmarkdown server'
+
+zmd-stop: ## Stop the zmarkdown server
+	pm2 kill
+
+##
+## ~ Elastic Search
+
+run-elasticsearch: ## Run the Elastic Search server
+	elasticsearch || echo 'No Elastic Search installed (you can add it locally with `./scripts/install_zds.sh +elasticsearch`)'
+
+index-all: ## Index the database in a new Elastic Search index
+	python manage.py es_manager index_all
+
+index-flagged: ## Index the database in the current Elastic Search index
+	python manage.py es_manager index_flagged
+
+##
+## ~ PDF
+
+generate-pdf: ## Generate PDFs of published contents
+	python manage.py generate_pdf
+
+##
+## ~ Database
+
+migrate-db: ## Create or update database schema
+	python manage.py migrate
+
+generate-fixtures: ## Generate fixtures (users, tutorials, articles, opinions, topics...)
+	python manage.py loaddata fixtures/*.yaml
+	python manage.py load_factory_data fixtures/advanced/aide_tuto_media.yaml
+	python manage.py load_fixtures --size=low --all
+
+wipe-db: ## Remove the database and the contents directories
 	rm base.db
 	rm -rf contents-private/*
 	rm -rf contents-public/*
 
-doc:
-	cd doc && \
-	make html
+##
+## ~ Tools
 
-fixtures:
-	python manage.py loaddata fixtures/*.yaml
-	python manage.py load_factory_data fixtures/advanced/aide_tuto_media.yaml
+generate-doc: ## Generate the project's documentation
+	cd doc && make html
+	@echo ""
+	@echo "Open 'doc/build/html/index.html' to read the documentation'"
 
-restart_db: wipe migrate fixtures
-	python manage.py load_fixtures --size=low --all
+generate-release-summary: ## Generate a release summary from Github's issues and PRs
+	@python scripts/generate_release_summary.py
 
-help:
-	@echo "Please use \`make <target>' where <target> is one of"
-	@echo "  build-front       to build frontend code"
-	@echo "  doc               to generate the html documentation"
-	@echo "  fixtures          to load every fixtures"
-	@echo "  generate-pdf      to regenerate all PDFs"
-	@echo "  index-all         to setup and (re)index all things for search"
-	@echo "  index-flagged     to index flagged things for search"
-	@echo "  help              to get this help"
-	@echo "  install-back      to install backend dependencies"
-	@echo "  install-front     to install frontend dependencies"
-	@echo "  install-debian    to install debian dependencies"
-	@echo "  install-ubuntu    to install ubuntu dependencies"
-	@echo "  install-fedora    to install fedora dependencies"
-	@echo "  install-archlinux to install archlinux dependencies"
-	@echo "  install-osx       to install os x dependencies"
-	@echo "  lint-back         to lint backend code (flake8)"
-	@echo "  lint-front        to lint frontend code (jshint)"
-	@echo "  clean-back        to clean *.pyc"
-	@echo "  clean-front       to clean frontend builds"
-	@echo "  clean             to clean everything"
-	@echo "  wipe              to clean data (database and contents)"
-	@echo "  watch-front       to watch frontend code"
-	@echo "  migrate           to migrate the project"
-	@echo "  report-release-back  to generate release report"
-	@echo "  run               to run the project locally"
-	@echo "  run-back          to only run the backend"
-	@echo "  shell             to get django shell"
-	@echo "  test              to run django tests"
-	@echo "Open this Makefile to see what each target does."
-	@echo "When a target uses an env variable (eg. $$(VAR)), you can do"
-	@echo "  make VAR=my_var cible"
+# inspired from https://gist.github.com/sjparkinson/f0413d429b12877ecb087c6fc30c1f0a
 
-install: install-back install-front
-
-lint: lint-back lint-front
-
-run:
-	make -j2 watch-front run-back
-
-test: test-back test-front
+.DEFAULT_GOAL := help
+help: ## Show this help
+	@echo "Use 'make [command]' to run one of these commands:"
+	@echo ""
+	@fgrep --no-filename "##" ${MAKEFILE_LIST} | head -n '-1' | sed 's/\:.*\#/\: \#/g' | column -s ':#' -t -c 2
+	@echo ""
+	@echo "Open this Makefile to see what each command does."

@@ -2,8 +2,16 @@
 {% load i18n %}
 
 
+
+{% block head_extra %}
+    {{ block.super }}
+    {% include "mathjax.html" %}
+{% endblock %}
+
+
+
 {% block title_base %}
-   &bull; {% trans "Paramètres" %}
+    &bull; {% trans "Paramètres" %}
 {% endblock %}
 
 
@@ -22,17 +30,17 @@
 
 {% block sidebar %}
     <aside class="sidebar mobile-menu-hide">
-        <div class="mobile-menu-bloc mobile-all-links" data-title="Navigation">
-            <h3>{% trans "Navigation" %}</h3>
+        <div class="mobile-menu-bloc mobile-all-links" data-title="{% trans "Paramètres" %}">
+            <h3>{% trans "Paramètres" %}</h3>
             <ul>
-                <li><a href="{% url "update-member" %}">{% trans "Mon profil" %}</a></li>
+                <li><a href="{% url "update-member" %}">{% trans "Modification de mon profil" %}</a></li>
                 <li><a href="{% url "update-password-member" %}">{% trans "Mot de passe" %}</a></li>
                 <li><a href="{% url "update-username-email-member" %}">{% trans "Pseudo et courriel" %}</a></li>
                 <li><a href="{% url "hats-settings" %}">{% trans "Casquettes" %}</a></li>
                 {% if user.profile.is_dev %}
                     <li><a href="{% url "update-github" %}">{% trans "Token GitHub" %}</a></li>
                 {% endif %}
-				<li><a href="{% url "member-warning-unregister" %}">{% trans "Se désinscrire" %}</a></li>
+                <li><a href="{% url "member-warning-unregister" %}">{% trans "Désinscription" %}</a></li>
             </ul>
         </div>
     </aside>

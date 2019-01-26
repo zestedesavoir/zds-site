@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from difflib import HtmlDiff
 from django import template
 from django.utils.html import format_html
@@ -12,13 +10,22 @@ register = template.Library()
 
 @register.simple_tag
 def htmldiff(string1, string2):
-    txt1 = str(string1).splitlines()
-    txt2 = str(string2).splitlines()
+
+    try:
+        txt1 = string1.decode('utf-8').splitlines()
+    # string1 is an empty SafeText from template
+    except AttributeError:
+        txt1 = string1.splitlines()
+
+    try:
+        txt2 = string2.decode('utf-8').splitlines()
+    except AttributeError:
+        txt2 = string2.splitlines()
 
     diff = HtmlDiff(tabsize=4, wrapcolumn=80)
     result = diff.make_table(txt1, txt2, context=True, numlines=2)
 
-    if '<td> No Differences Found </td>' in result:
-        return _('<p>Pas de changements.</p>')
+    if 'No Differences Found' in result:
+        return format_html('<p>{}</p>', _('Pas de changements.'))
     else:
         return format_html('<div class="diff_delta">{}</div>', mark_safe(result))

@@ -1,5 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
 import json
 
 import requests
@@ -23,6 +21,7 @@ from zds.forum.commons import TopicEditMixin, PostEditMixin, SinglePostObjectMix
 from zds.forum.forms import TopicForm, PostForm, MoveTopicForm
 from zds.forum.models import Category, Forum, Topic, Post, is_read, mark_read, TopicRead
 from zds.member.decorator import can_write_and_read_now
+from zds.member.models import user_readable_forums
 from zds.notification import signals
 from zds.notification.models import NewTopicSubscription, TopicAnswerSubscription
 from zds.utils import slugify
@@ -55,6 +54,25 @@ class CategoryForumsDetailView(DetailView):
         context = super(CategoryForumsDetailView, self).get_context_data(**kwargs)
         context['forums'] = context.get('category').get_forums(self.request.user)
         return context
+
+
+class LastTopicsViewTests(ListView):
+
+    context_object_name = 'topics'
+    template_name = 'forum/last_topics.html'
+
+    def get_queryset(self):
+        ordering = self.request.GET.get('order')
+        if ordering not in ('creation', 'last_post'):
+            ordering = 'creation'
+        query_order = {
+            'creation': '-pubdate',
+            'last_post': '-last_message__pubdate'
+        }.get(ordering)
+        topics = Topic.objects.select_related('forum') \
+            .filter(forum__in=user_readable_forums(self.request.user)) \
+            .order_by(query_order)[:settings.ZDS_APP['forum']['topics_per_page']]
+        return topics
 
 
 class ForumTopicsListView(FilterMixin, ForumEditMixin, ZdSPagingListView, UpdateView, SingleObjectMixin):
@@ -129,9 +147,9 @@ class ForumTopicsListView(FilterMixin, ForumEditMixin, ZdSPagingListView, Update
 
     def filter_queryset(self, queryset, filter_param):
         if filter_param == 'solve':
-            queryset = queryset.filter(is_solved=True)
+            queryset = queryset.filter(solved_by__isnull=False)
         elif filter_param == 'unsolve':
-            queryset = queryset.filter(is_solved=False)
+            queryset = queryset.filter(solved_by__isnull=True)
         elif filter_param == 'noanswer':
             queryset = queryset.filter(last_message__position=1)
         return queryset
@@ -204,12 +222,12 @@ class TopicNew(CreateView, SingleObjectMixin):
 
     @method_decorator(login_required)
     @method_decorator(can_write_and_read_now)
-    @method_decorator(transaction.atomic)
     def dispatch(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        if not self.object.can_read(request.user):
-            raise PermissionDenied
-        return super(TopicNew, self).dispatch(request, *args, **kwargs)
+        with transaction.atomic():
+            self.object = self.get_object()
+            if self.object.can_read(request.user):
+                return super(TopicNew, self).dispatch(request, *args, **kwargs)
+        raise PermissionDenied
 
     def get_object(self, queryset=None):
         try:
@@ -226,7 +244,7 @@ class TopicNew(CreateView, SingleObjectMixin):
 
         if 'preview' in request.POST:
             if request.is_ajax():
-                content = render_to_response('misc/previsualization.part.html', {'text': request.POST['text']})
+                content = render_to_response('misc/preview.part.html', {'text': request.POST['text']})
                 return StreamingHttpResponse(content)
             else:
                 initial = {
@@ -302,7 +320,7 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
 
             if 'preview' in request.POST:
                 if request.is_ajax():
-                    content = render_to_response('misc/previsualization.part.html', {'text': request.POST['text']})
+                    content = render_to_response('misc/preview.part.html', {'text': request.POST['text']})
                     return StreamingHttpResponse(content)
                 else:
                     form = self.create_form(self.form_class, **{
@@ -399,6 +417,8 @@ class FindTopicByTag(FilterMixin, ForumEditMixin, ZdSPagingListView, SingleObjec
     object = None
 
     def get(self, request, *args, **kwargs):
+        if self.kwargs.get('tag_pk'):
+            return redirect('topic-tag-find', tag_slug=self.kwargs.get('tag_slug'), permanent=True)
         self.object = self.get_object()
         return super(FindTopicByTag, self).get(request, *args, **kwargs)
 
@@ -432,7 +452,7 @@ class FindTopicByTag(FilterMixin, ForumEditMixin, ZdSPagingListView, SingleObjec
         return context
 
     def get_object(self, queryset=None):
-        return get_object_or_404(Tag, pk=self.kwargs.get('tag_pk'), slug=self.kwargs.get('tag_slug'))
+        return get_object_or_404(Tag, slug=self.kwargs.get('tag_slug'))
 
     def get_queryset(self):
         self.queryset = Topic.objects.get_all_topics_of_a_tag(self.object, self.request.user)
@@ -440,9 +460,9 @@ class FindTopicByTag(FilterMixin, ForumEditMixin, ZdSPagingListView, SingleObjec
 
     def filter_queryset(self, queryset, filter_param):
         if filter_param == 'solve':
-            queryset = queryset.filter(is_solved=True)
+            queryset = queryset.filter(solved_by__isnull=False)
         elif filter_param == 'unsolve':
-            queryset = queryset.filter(is_solved=False)
+            queryset = queryset.filter(solved_by__isnull=True)
         elif filter_param == 'noanswer':
             queryset = queryset.filter(last_message__position=1)
         return queryset
@@ -458,19 +478,18 @@ class PostNew(CreatePostView):
 
     @method_decorator(login_required)
     @method_decorator(can_write_and_read_now)
-    @method_decorator(transaction.atomic)
     def dispatch(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        if not self.object.forum.can_read(request.user):
-            raise PermissionDenied
-        if self.object.is_locked:
-            raise PermissionDenied
-        if self.object.antispam(request.user):
-            raise PermissionDenied
-        self.posts = Post.objects.filter(topic=self.object) \
-                         .prefetch_related() \
-                         .order_by('-position')[:settings.ZDS_APP['forum']['posts_per_page']]
-        return super(PostNew, self).dispatch(request, *args, **kwargs)
+        with transaction.atomic():
+            self.object = self.get_object()
+            can_read = self.object.forum.can_read(request.user)
+            not_locked = not self.object.is_locked
+            not_spamming = not self.object.antispam(request.user)
+            if can_read and not_locked and not_spamming:
+                self.posts = Post.objects.filter(topic=self.object) \
+                                 .prefetch_related() \
+                                 .order_by('-position')[:settings.ZDS_APP['forum']['posts_per_page']]
+                return super(PostNew, self).dispatch(request, *args, **kwargs)
+        raise PermissionDenied
 
     def create_forum(self, form_class, **kwargs):
         form = form_class(self.object, self.request.user, initial=kwargs)
@@ -501,16 +520,15 @@ class PostEdit(UpdateView, SinglePostObjectMixin, PostEditMixin):
 
     @method_decorator(login_required)
     @method_decorator(can_write_and_read_now)
-    @method_decorator(transaction.atomic)
     def dispatch(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        if not self.object.topic.forum.can_read(request.user):
-            raise PermissionDenied
-        if self.object.author != request.user and not request.user.has_perm('forum.change_post'):
-            raise PermissionDenied
-        if not self.object.is_visible and not request.user.has_perm('forum.change_post'):
-            raise PermissionDenied
-        return super(PostEdit, self).dispatch(request, *args, **kwargs)
+        with transaction.atomic():
+            self.object = self.get_object()
+            is_author = self.object.author == request.user
+            can_read = self.object.topic.forum.can_read(request.user)
+            is_visible = self.object.is_visible
+            if can_read and ((is_author and is_visible) or request.user.has_perm('forum.change_post')):
+                return super(PostEdit, self).dispatch(request, *args, **kwargs)
+        raise PermissionDenied
 
     def get(self, request, *args, **kwargs):
         if self.object.author != request.user and request.user.has_perm('forum.change_post'):
@@ -534,7 +552,7 @@ class PostEdit(UpdateView, SinglePostObjectMixin, PostEditMixin):
 
             if 'preview' in request.POST:
                 if request.is_ajax():
-                    content = render_to_response('misc/previsualization.part.html', {'text': request.POST.get('text')})
+                    content = render_to_response('misc/preview.part.html', {'text': request.POST.get('text')})
                     return StreamingHttpResponse(content)
                 else:
                     form = self.create_form(self.form_class, **{
@@ -580,16 +598,15 @@ class PostSignal(UpdateView, SinglePostObjectMixin, PostEditMixin):
 
     @method_decorator(login_required)
     @method_decorator(can_write_and_read_now)
-    @method_decorator(transaction.atomic)
     def dispatch(self, request, *args, **kwargs):
-        self.object = self.get_object()
-
-        if not self.object.topic.forum.can_read(request.user):
-            raise PermissionDenied
-        if not self.object.is_visible and not request.user.has_perm('forum.change_post'):
-            raise PermissionDenied
-
-        return super(PostSignal, self).dispatch(request, *args, **kwargs)
+        with transaction.atomic():
+            self.object = self.get_object()
+            can_read = self.object.topic.forum.can_read(request.user)
+            is_visible = self.object.is_visible
+            can_edit = request.user.has_perm('forum.change_post')
+            if can_read and (is_visible or can_edit):
+                return super(PostSignal, self).dispatch(request, *args, **kwargs)
+        raise PermissionDenied
 
     def post(self, request, *args, **kwargs):
         if 'signal_message' in request.POST:

@@ -1,12 +1,15 @@
-# coding: utf-8
+from datetime import datetime, date
 from django.core.urlresolvers import reverse
-
 from django.test import TestCase
+from django.utils.translation import ugettext as _
 
 from zds.member.factories import StaffProfileFactory, ProfileFactory
 from zds.featured.factories import FeaturedResourceFactory
 from zds.featured.models import FeaturedResource, FeaturedMessage
-from datetime import datetime, date
+from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory
+from zds.gallery.factories import GalleryFactory, ImageFactory
+from zds.tutorialv2.factories import PublishedContentFactory
+from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 
 
 stringof2001chars = 'http://url.com/'
@@ -46,7 +49,9 @@ class FeaturedResourceListViewTest(TestCase):
         self.assertEqual(403, response.status_code)
 
 
-class FeaturedResourceCreateViewTest(TestCase):
+@override_for_contents()
+class FeaturedResourceCreateViewTest(TutorialTestMixin, TestCase):
+
     def test_success_create_featured(self):
         staff = StaffProfileFactory()
         login_check = self.client.login(
@@ -146,6 +151,59 @@ class FeaturedResourceCreateViewTest(TestCase):
 
         self.assertEqual(200, response.status_code)
         self.assertEqual(0, FeaturedResource.objects.all().count())
+
+    def test_success_initial_content(self):
+        author = ProfileFactory().user
+        author2 = ProfileFactory().user
+        tutorial = PublishedContentFactory(author_list=[author, author2])
+        gallery = GalleryFactory()
+        image = ImageFactory(gallery=gallery)
+        tutorial.image = image
+        tutorial.save()
+        staff = StaffProfileFactory()
+        login_check = self.client.login(
+            username=staff.user.username,
+            password='hostel77'
+        )
+        self.assertTrue(login_check)
+        response = self.client.get('{}{}'.format(reverse('featured-resource-create'),
+                                                 '?content_type=published_content&content_id={}'.format(tutorial.pk)))
+        initial_dict = response.context['form'].initial
+        self.assertEqual(initial_dict['title'], tutorial.title)
+        self.assertEqual(initial_dict['authors'], '{}, {}'.format(author, author2))
+        self.assertEqual(initial_dict['type'], _('Un tutoriel'))
+        self.assertEqual(initial_dict['url'], 'http://testserver{}'.format(tutorial.get_absolute_url_online()))
+        self.assertEqual(initial_dict['image_url'], image.physical.url)
+
+    def test_success_initial_content_topic(self):
+        author = ProfileFactory().user
+        category = CategoryFactory(position=1)
+        forum = ForumFactory(category=category, position_in_category=1)
+        topic = TopicFactory(forum=forum, author=author)
+        staff = StaffProfileFactory()
+        login_check = self.client.login(
+            username=staff.user.username,
+            password='hostel77')
+        self.assertTrue(login_check)
+        response = self.client.get('{}?content_type=topic&content_id={}'
+                                   .format(reverse('featured-resource-create'), topic.id))
+        initial_dict = response.context['form'].initial
+        self.assertEqual(initial_dict['title'], topic.title)
+        self.assertEqual(initial_dict['authors'], str(author))
+        self.assertEqual(initial_dict['type'], _('Un sujet'))
+        self.assertEqual(initial_dict['url'], 'http://testserver{}'.format(topic.get_absolute_url()))
+
+    def test_failure_initial_content_not_found(self):
+        staff = StaffProfileFactory()
+        login_check = self.client.login(
+            username=staff.user.username,
+            password='hostel77'
+        )
+        self.assertTrue(login_check)
+
+        response = self.client.get('{}?content_type=published_content&content_id=42'
+                                   .format(reverse('featured-resource-create')))
+        self.assertContains(response, _('Le contenu est introuvable'))
 
 
 class FeaturedResourceUpdateViewTest(TestCase):

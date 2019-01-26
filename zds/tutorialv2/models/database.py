@@ -1,18 +1,11 @@
-# coding: utf-8
-
+from pathlib import Path
 
 from django.db.models import CASCADE
 from datetime import datetime
+import contextlib
 
 from zds.tutorialv2.models.mixins import TemplatableContentModelMixin, OnlineLinkableContentMixin
-
-try:
-    import ujson as json_reader
-except ImportError:
-    try:
-        import simplejson as json_reader
-    except:
-        import json as json_reader
+from zds import json_handler
 
 from math import ceil
 import shutil
@@ -43,13 +36,13 @@ from zds.tutorialv2.models import TYPE_CHOICES, STATUS_CHOICES, CONTENT_TYPES_RE
 from zds.tutorialv2.utils import get_content_from_json, BadManifestError
 from zds.utils import get_current_user
 from zds.utils.models import SubCategory, Licence, HelpWriting, Comment, Tag
-from zds.utils.misc import ignore
 from zds.searchv2.models import AbstractESDjangoIndexable, AbstractESIndexable, delete_document_in_elasticsearch, \
     ESIndexManager
 from zds.utils.tutorials import get_blob
 import logging
 
-ALLOWED_TYPES = ['pdf', 'md', 'html', 'epub', 'zip']
+
+ALLOWED_TYPES = ['pdf', 'md', 'html', 'epub', 'zip', 'tex']
 logger = logging.getLogger(__name__)
 
 
@@ -358,7 +351,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
                 raise NotAPublicVersion
 
             with open(os.path.join(path, 'manifest.json'), 'r', encoding='utf-8') as manifest:
-                json = json_reader.loads(manifest.read())
+                json = json_handler.loads(manifest.read())
                 versioned = get_content_from_json(
                     json,
                     public.sha_public,
@@ -377,7 +370,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
             repo = Repo(path)
             data = get_blob(repo.commit(sha).tree, 'manifest.json')
             try:
-                json = json_reader.loads(data)
+                json = json_handler.loads(data)
             except ValueError:
                 raise BadManifestError(
                     _('Une erreur est survenue lors de la lecture du manifest.json, est-ce du JSON ?'))
@@ -621,6 +614,10 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
     # sizes contain a python dict (as a string in database) with all information about file sizes
     sizes = models.CharField('Tailles des fichiers téléchargeables', max_length=512, default='{}')
 
+    @staticmethod
+    def get_slug_from_file_path(file_path):
+        return os.path.splitext(os.path.split(file_path)[1])[0]
+
     def __str__(self):
         return _('Version publique de "{}"').format(self.content.title)
 
@@ -638,7 +635,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
 
     def get_prod_path(self, relative=False):
         if not relative:
-            return os.path.join(settings.ZDS_APP['content']['repo_public_path'], self.content_public_slug)
+            return str(Path(settings.ZDS_APP['content']['repo_public_path'], self.content_public_slug).absolute())
         else:
             return ''
 
@@ -648,7 +645,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         :rtype: zds.tutorialv2.models.database.PublicContent
         :raise Http404: if the version is not available
         """
-        with ignore(AttributeError):
+        with contextlib.suppress(AttributeError):
             self.content.count_note = self.count_note
 
         self.versioned_model = self.content.load_version_or_404(sha=self.sha_public, public=self)
@@ -659,7 +656,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         :rtype: zds.tutorialv2.models.database.PublicContent
         :return: the public content
         """
-        with ignore(AttributeError):
+        with contextlib.suppress(AttributeError):
             self.content.count_note = self.count_note
 
         self.versioned_model = self.content.load_version(sha=self.sha_public, public=self)
@@ -672,7 +669,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         """
         return os.path.join(self.get_prod_path(), settings.ZDS_APP['content']['extra_contents_dirname'])
 
-    def have_type(self, type_):
+    def has_type(self, type_):
         """check if a given extra content exists
 
         :return: ``True`` if the file exists, ``False`` otherwhise
@@ -680,50 +677,63 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         """
 
         if type_ in ALLOWED_TYPES:
-            return os.path.isfile(
-                os.path.join(self.get_extra_contents_directory(), self.content_public_slug + '.' + type_))
+            return Path(self.get_extra_contents_directory(), self.content_public_slug + '.' + type_).is_file()
 
         return False
 
-    def have_md(self):
-        """Check if the markdown version of the content is available
+    def is_exported(self):
+        """
+        If the content has at least one export, it returns ``True``
+        """
+        return any(self.has_type(t) for t in ALLOWED_TYPES)
+
+    def has_md(self):
+        """Check if the flat markdown version of the content is available
 
         :return: ``True`` if available, ``False`` otherwise
         :rtype: bool
         """
-        return self.have_type('md')
+        return self.has_type('md')
 
-    def have_html(self):
+    def has_html(self):
         """Check if the html version of the content is available
 
         :return: ``True`` if available, ``False`` otherwise
         :rtype: bool
         """
-        return self.have_type('html')
+        return self.has_type('html')
 
-    def have_pdf(self):
+    def has_pdf(self):
         """Check if the pdf version of the content is available
 
         :return: ``True`` if available, ``False`` otherwise
         :rtype: bool
         """
-        return self.have_type('pdf')
+        return self.has_type('pdf')
 
-    def have_epub(self):
+    def has_epub(self):
         """Check if the standard epub version of the content is available
 
         :return: ``True`` if available, ``False`` otherwise
         :rtype: bool
         """
-        return self.have_type('epub')
+        return self.has_type('epub')
 
-    def have_zip(self):
+    def has_zip(self):
         """Check if the standard zip version of the content is available
 
         :return: ``True`` if available, ``False`` otherwise
         :rtype: bool
         """
-        return self.have_type('zip')
+        return self.has_type('zip')
+
+    def has_tex(self):
+        """Check if the latex version of the content is available
+
+        :return: ``True`` if available, ``False`` otherwise
+        :rtype: bool
+        """
+        return self.has_type('tex')
 
     def get_size_file_type(self, type_):
         """
@@ -770,6 +780,14 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         :rtype: int
         """
         return self.get_size_file_type('pdf')
+
+    def get_size_tex(self):
+        """Get the size of LaTeX file
+
+        :return: size of file
+        :rtype: int
+        """
+        return self.get_size_file_type('tex')
 
     def get_size_epub(self):
         """Get the size of epub
@@ -828,6 +846,15 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         """
 
         return self.get_absolute_url_to_extra_content('pdf')
+
+    def get_absolute_url_tex(self):
+        """wrapper around ``self.get_absolute_url_to_extra_content('tex')``
+
+        :return: URL to the tex version of the published content
+        :rtype: str
+        """
+
+        return self.get_absolute_url_to_extra_content('tex')
 
     def get_absolute_url_epub(self):
         """wrapper around ``self.get_absolute_url_to_extra_content('epub')``

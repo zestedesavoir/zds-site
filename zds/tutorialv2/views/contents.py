@@ -1,6 +1,5 @@
-# coding: utf-8
 import logging
-import json as json_reader
+from zds import json_handler
 import os
 import re
 import shutil
@@ -8,6 +7,7 @@ import tempfile
 import time
 import zipfile
 from datetime import datetime
+from collections import OrderedDict
 
 from PIL import Image as ImagePIL
 
@@ -535,7 +535,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
 
         # is the manifest ok ?
         try:
-            json_ = json_reader.loads(manifest)
+            json_ = json_handler.loads(manifest)
         except ValueError:
             raise BadArchiveError(
                 _('Une erreur est survenue durant la lecture du manifest, '
@@ -664,7 +664,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
             pic.pubdate = datetime.now()
             pic.save()
 
-            translation_dic[image_path] = settings.ZDS_APP['site']['secure_url'] + pic.physical.url
+            translation_dic[image_path] = settings.ZDS_APP['site']['url'] + pic.physical.url
 
             # finally, remove image
             if os.path.exists(temp_image_path):
@@ -731,7 +731,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
             else:
 
                 # warn user if licence have changed:
-                manifest = json_reader.loads(str(zfile.read('manifest.json'), 'utf-8'))
+                manifest = json_handler.loads(str(zfile.read('manifest.json'), 'utf-8'))
                 if 'licence' not in manifest or manifest['licence'] != new_version.licence.code:
                     messages.info(
                         self.request, _('la licence « {} » a été appliquée.').format(new_version.licence.code))
@@ -842,7 +842,7 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
             else:
 
                 # warn user if licence have changed:
-                manifest = json_reader.loads(str(zfile.read('manifest.json'), 'utf-8'))
+                manifest = json_handler.loads(str(zfile.read('manifest.json'), 'utf-8'))
                 if 'licence' not in manifest or manifest['licence'] != new_content.licence.code:
                     messages.info(
                         self.request, _('la licence « {} » a été appliquée.'.format(new_content.licence.code)))
@@ -1737,7 +1737,6 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
     must_be_author = True
     form_class = AuthorForm
     authorized_for_staff = True
-    already_finished = False
 
     def get(self, request, *args, **kwargs):
         content = self.get_object()
@@ -1778,8 +1777,7 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
                 )
                 UserGallery(gallery=self.object.gallery, user=user, mode=GALLERY_WRITE).save()
         self.object.save()
-        if not self.already_finished:
-            self.success_url = self.object.get_absolute_url()
+        self.success_url = self.object.get_absolute_url()
 
         return super(AddAuthorToContent, self).form_valid(form)
 
@@ -1789,9 +1787,12 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
         return super(AddAuthorToContent, self).form_valid(form)
 
 
-class RemoveAuthorFromContent(AddAuthorToContent):
+class RemoveAuthorFromContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
 
     form_class = RemoveAuthorForm
+    only_draft_version = True
+    must_be_author = True
+    authorized_for_staff = True
 
     @staticmethod
     def remove_author(content, user):
@@ -1855,9 +1856,11 @@ class RemoveAuthorFromContent(AddAuthorToContent):
         else:  # if current user is leaving the content's redaction, redirect him to a more suitable page
             messages.success(self.request, _('Vous avez bien quitté la rédaction de {}.').format(_type))
             self.success_url = reverse('content:find-' + self.object.type.lower(), args=[self.request.user.pk])
-        self.already_finished = True  # this one is kind of tricky : because of inheritance we used to force redirection
-        # to the content itself. This does not please me but I think it is better to do that like that instead of
-        # super(FormView, self).form_valid(form). I find it so hard to understand.
+        return super(RemoveAuthorFromContent, self).form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, _("Les auteurs sélectionnés n'existent pas."))
+        self.success_url = self.object.get_absolute_url()
         return super(RemoveAuthorFromContent, self).form_valid(form)
 
 
@@ -1868,19 +1871,19 @@ class ContentOfAuthor(ZdSPagingListView):
     template_name = 'tutorialv2/index.html'
     model = PublishableContent
 
-    authorized_filters = {
-        'public': [lambda q: q.filter(sha_public__isnull=False), _('Publiés'), True, 'tick green'],
-        'validation': [lambda q: q.filter(sha_validation__isnull=False), _('En validation'), False, 'tick'],
-        'beta': [lambda q: q.filter(sha_beta__isnull=False), _('En bêta'), True, 'beta'],
-        'redaction': [
+    authorized_filters = OrderedDict([
+        ('public', [lambda q: q.filter(sha_public__isnull=False), _('Publiés'), True, 'tick green']),
+        ('validation', [lambda q: q.filter(sha_validation__isnull=False), _('En validation'), False, 'tick']),
+        ('beta', [lambda q: q.filter(sha_beta__isnull=False), _('En bêta'), True, 'beta']),
+        ('redaction', [
             lambda q: q.filter(sha_validation__isnull=True, sha_public__isnull=True, sha_beta__isnull=True),
-            _('Brouillons'), False, 'edit'],
-    }
-    sorts = {
-        'creation': [lambda q: q.order_by('creation_date'), _('Par date de création')],
-        'abc': [lambda q: q.order_by('title'), _('Par ordre alphabétique')],
-        'modification': [lambda q: q.order_by('-update_date'), _('Par date de dernière modification')]
-    }
+            _('Brouillons'), False, 'edit']),
+    ])
+    sorts = OrderedDict([
+        ('creation', [lambda q: q.order_by('creation_date'), _('Par date de création')]),
+        ('abc', [lambda q: q.order_by('title'), _('Par ordre alphabétique')]),
+        ('modification', [lambda q: q.order_by('-update_date'), _('Par date de dernière modification')])
+    ])
     sort = ''
     filter = ''
     user = None

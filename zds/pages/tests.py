@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.test import TestCase
@@ -7,11 +5,10 @@ from django.test.utils import override_settings
 from django.utils.translation import ugettext_lazy as _
 
 from zds.forum.models import Post
-from zds.forum.factories import CategoryFactory, ForumFactory
+from zds.forum.factories import create_category_and_forum, create_topic_in_forum
 from zds.member.factories import ProfileFactory, StaffProfileFactory
-from zds.forum.tests.tests_views import create_category, add_topic_in_a_forum
 from zds.utils.models import CommentEdit
-from zds.utils.templatetags.emarkdown import get_markdown_instance, render_markdown
+from zds.utils.templatetags.emarkdown import render_markdown
 
 
 @override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
@@ -73,8 +70,7 @@ class PagesMemberTests(TestCase):
         """
         To test the "subscription to the association" form.
         """
-        forum_category = CategoryFactory(position=1)
-        forum = ForumFactory(category=forum_category, position_in_category=1)
+        _, forum = create_category_and_forum()
 
         # overrides the settings to avoid 404 if forum does not exist
         settings.ZDS_APP['site']['association']['forum_ca_pk'] = forum.pk
@@ -228,13 +224,13 @@ class PagesGuestTests(TestCase):
         self.assertEqual(result.status_code, 200)
 
     def test_render_template(self):
-        """Test: render_template() works and git_version is in template."""
+        """Test: render_template() works and version is in template."""
 
         result = self.client.get(
             reverse('homepage'),
         )
 
-        self.assertTrue('git_version' in result.context)
+        self.assertTrue('zds_version' in result.context)
 
 
 class CommentEditsHistoryTests(TestCase):
@@ -243,8 +239,8 @@ class CommentEditsHistoryTests(TestCase):
         self.user = ProfileFactory().user
         self.staff = StaffProfileFactory().user
 
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, self.user.profile)
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, self.user.profile)
 
         self.assertTrue(self.client.login(username=self.user.username, password='hostel77'))
         data = {
@@ -316,8 +312,7 @@ class CommentEditsHistoryTests(TestCase):
 
         # Check that the original content is displayed
         response = self.client.get(reverse('edit-detail', args=[self.edit.pk]))
-        md_instance = get_markdown_instance(ping_url=None)
-        original_text_html = render_markdown(md_instance, self.edit.original_text)
+        original_text_html, *_ = render_markdown(self.edit.original_text, disable_ping=True)
         self.assertContains(response, original_text_html)
 
     def test_restore_original_content(self):

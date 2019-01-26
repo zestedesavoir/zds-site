@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from django.conf.urls import url
 
 from zds.member.api.views import MemberListAPI, MemberDetailAPI, MemberDetailReadingOnly, MemberDetailBan, \

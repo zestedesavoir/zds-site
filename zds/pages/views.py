@@ -1,5 +1,3 @@
-# coding: utf-8
-
 import os.path
 import random
 from datetime import datetime
@@ -29,18 +27,20 @@ from zds.utils.forums import create_topic
 from zds.utils.models import Alert, CommentEdit, Comment
 
 
+try:
+    with open(os.path.join(settings.BASE_DIR, 'quotes.txt'), 'r', encoding='utf-8') as quotes_file:
+            QUOTES = quotes_file.readlines()
+except OSError:
+    QUOTES = [settings.ZDS_APP['site']['slogan']]
+
+
 def home(request):
     """Display the home page with last topics added."""
 
     tutos = PublishableContent.objects.get_last_tutorials()
     articles = PublishableContent.objects.get_last_articles()
     opinions = PublishableContent.objects.get_last_opinions()
-
-    try:
-        with open(os.path.join(settings.BASE_DIR, 'quotes.txt'), 'r', encoding='utf-8') as quotes_file:
-            quote = random.choice(quotes_file.readlines())
-    except OSError:
-        quote = settings.ZDS_APP['site']['slogan']
+    quote = random.choice(QUOTES)
 
     return render(request, 'home.html', {
         'featured_message': FeaturedMessage.objects.get_last_message(),
@@ -101,8 +101,8 @@ class AssocSubscribeView(FormView):
 
     @method_decorator(login_required)
     @method_decorator(can_write_and_read_now)
-    def dispatch(self, *args, **kwargs):
-        return super(AssocSubscribeView, self).dispatch(*args, **kwargs)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
 
     def get_success_url(self):
         return reverse('pages-assoc-subscribe')
@@ -229,7 +229,10 @@ def restore_edit(request, edit_pk):
 
     comment.update = datetime.now()
     comment.editor = request.user
-    comment.update_content(edit.original_text)
+    comment.update_content(edit.original_text, lambda m: messages.error(request,
+                                                                        _('Erreurs dans le markdown: {}').format(
+                                                                            '\n- '.join(m)
+                                                                        )))
     # remove hat if the author doesn't have it anymore
     if comment.hat and comment.hat not in comment.author.profile.get_hats():
         comment.hat = None

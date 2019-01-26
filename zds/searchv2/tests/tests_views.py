@@ -1,8 +1,4 @@
-# coding: utf-8
-
-import os
-import json
-import shutil
+from zds import json_handler
 import datetime
 
 from elasticsearch_dsl import Search
@@ -10,37 +6,30 @@ from elasticsearch_dsl.query import MatchAll
 
 from django.conf import settings
 from django.test import TestCase
-from django.test.utils import override_settings
 from django.core.urlresolvers import reverse
 
+from django.contrib.auth.models import Group
 from zds.forum.factories import TopicFactory, PostFactory, Topic, Post, TagFactory
-from zds.forum.tests.tests_views import create_category, Group
+from zds.forum.factories import create_category_and_forum
+
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.searchv2.models import ESIndexManager
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, publish_content, \
     PublishedContentFactory, SubCategoryFactory
 from zds.tutorialv2.models.database import PublishedContent, FakeChapter, PublishableContent
-from copy import deepcopy
-
-overridden_zds_app = deepcopy(settings.ZDS_APP)
-overridden_zds_app['content']['repo_private_path'] = os.path.join(settings.BASE_DIR, 'contents-private-test')
-overridden_zds_app['content']['repo_public_path'] = os.path.join(settings.BASE_DIR, 'contents-public-test')
+from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 
 
-@override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'media-test'))
-@override_settings(ZDS_APP=overridden_zds_app)
-# 1 shard is not a recommended setting, but since document on different shards may have different scores, it is ok here
-@override_settings(ES_SEARCH_INDEX={'name': 'zds_search_test', 'shards': 1, 'replicas': 0})
-class ViewsTests(TestCase):
+@override_for_contents(
+    ES_ENABLED=True, ES_SEARCH_INDEX={'name': 'zds_search_test', 'shards': 1, 'replicas': 0})
+class ViewsTests(TutorialTestMixin, TestCase):
     def setUp(self):
-        # don't build PDF to speed up the tests
-        settings.ZDS_APP['content']['build_pdf_when_published'] = False
 
         settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
         self.mas = ProfileFactory().user
         settings.ZDS_APP['member']['bot_account'] = self.mas.username
 
-        self.category, self.forum = create_category()
+        self.category, self.forum = create_category_and_forum()
 
         self.user = ProfileFactory().user
         self.staff = StaffProfileFactory().user
@@ -152,7 +141,7 @@ class ViewsTests(TestCase):
         # 1. Should not get any result
         result = self.client.get(reverse('search:similar') + '?q=est', follow=False)
         self.assertEqual(result.status_code, 200)
-        content = json.loads(result.content.decode('utf-8'))
+        content = json_handler.loads(result.content.decode('utf-8'))
         self.assertEqual(len(content['results']), 0)
 
         # index
@@ -165,13 +154,13 @@ class ViewsTests(TestCase):
         # 2. Should get exactly one result
         result = self.client.get(reverse('search:similar') + '?q=mange', follow=False)
         self.assertEqual(result.status_code, 200)
-        content = json.loads(result.content.decode('utf-8'))
+        content = json_handler.loads(result.content.decode('utf-8'))
         self.assertEqual(len(content['results']), 1)
 
         # 2. Should get exactly two results
         result = self.client.get(reverse('search:similar') + '?q=Clem', follow=False)
         self.assertEqual(result.status_code, 200)
-        content = json.loads(result.content.decode('utf-8'))
+        content = json_handler.loads(result.content.decode('utf-8'))
         self.assertEqual(len(content['results']), 2)
 
     def test_hidden_post_are_not_result(self):
@@ -227,7 +216,7 @@ class ViewsTests(TestCase):
         text = 'test'
 
         group = Group.objects.create(name='Les illuminatis anonymes de ZdS')
-        _, hidden_forum = create_category(group)
+        _, hidden_forum = create_category_and_forum(group)
 
         self.staff.groups.add(group)
         self.staff.save()
@@ -281,7 +270,7 @@ class ViewsTests(TestCase):
         topic_1_solved_sticky = TopicFactory(forum=self.forum, author=self.user)
         topic_1_solved_sticky.title = text
         topic_1_solved_sticky.subtitle = ''
-        topic_1_solved_sticky.is_solved = True
+        topic_1_solved_sticky.solved_by = self.user
         topic_1_solved_sticky.is_sticky = True
         topic_1_solved_sticky.save()
 
@@ -569,7 +558,7 @@ class ViewsTests(TestCase):
         text = 'test'
 
         group = Group.objects.create(name='Les illuminatis anonymes de ZdS')
-        _, hidden_forum = create_category(group)
+        _, hidden_forum = create_category_and_forum(group)
 
         self.staff.groups.add(group)
         self.staff.save()
@@ -962,15 +951,7 @@ class ViewsTests(TestCase):
             tuto_2.slug + '__' + chapter_2.slug)
 
     def tearDown(self):
-        if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
-            shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
-        if os.path.isdir(settings.ZDS_APP['content']['repo_public_path']):
-            shutil.rmtree(settings.ZDS_APP['content']['repo_public_path'])
-        if os.path.isdir(settings.MEDIA_ROOT):
-            shutil.rmtree(settings.MEDIA_ROOT)
-
-        # re-active PDF build
-        settings.ZDS_APP['content']['build_pdf_when_published'] = True
+        super().tearDown()
 
         # delete index:
         self.manager.clear_es_index()

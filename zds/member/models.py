@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from datetime import datetime
 from hashlib import md5
 import os
@@ -17,6 +15,8 @@ from zds.member import NEW_PROVIDER_USES
 from zds.member.managers import ProfileManager
 from zds.tutorialv2.models.database import PublishableContent, PublishedContent
 from zds.utils.models import Alert, Licence, Hat
+
+from zds.forum.models import Forum
 
 
 class Profile(models.Model):
@@ -61,6 +61,7 @@ class Profile(models.Model):
     allow_temp_visual_changes = models.BooleanField('Activer les changements visuels temporaires', default=True)
     show_markdown_help = models.BooleanField("Afficher l'aide Markdown dans l'éditeur", default=True)
     email_for_answer = models.BooleanField('Envoyer pour les réponse MP', default=False)
+    email_for_new_mp = models.BooleanField('Envoyer pour les nouveaux MP', default=False)
     hats = models.ManyToManyField(Hat, verbose_name='Casquettes', db_index=True, blank=True)
     can_read = models.BooleanField('Possibilité de lire', default=True)
     end_ban_read = models.DateTimeField("Fin d'interdiction de lecture", null=True, blank=True)
@@ -77,7 +78,7 @@ class Profile(models.Model):
         return self.user.username
 
     def is_private(self):
-        """can the user can display their stats"""
+        """Can the user display their stats?"""
         user_groups = self.user.groups.all()
         user_group_names = [g.name for g in user_groups]
         return settings.ZDS_APP['member']['bot_group'] in user_group_names
@@ -89,7 +90,7 @@ class Profile(models.Model):
     def get_city(self):
         """
         Uses geo-localization to get physical localization of a profile through its last IP address.
-        This works relatively good with IPv4 addresses (~city level), but is very imprecise with IPv6 or exotic internet
+        This works relatively well with IPv4 addresses (~city level), but is very imprecise with IPv6 or exotic internet
         providers.
         :return: The city and the country name of this profile.
         """
@@ -108,9 +109,12 @@ class Profile(models.Model):
 
         geo = gic.record_by_addr(self.last_ip_address)
 
-        if geo is not None:
-            return '{0}, {1}'.format(geo['city'], geo['country_name'])
-        return ''
+        if geo is None:
+            return ''
+
+        city = geo['city']
+        country = geo['country_name']
+        return ', '.join(i for i in [city, country] if i)
 
     def get_avatar_url(self):
         """Get the avatar URL for this profile.
@@ -537,6 +541,11 @@ def save_profile(backend, user, response, *args, **kwargs):
         profile = Profile(user=user)
         profile.last_ip_address = '0.0.0.0'
         profile.save()
+
+
+def user_readable_forums(user):
+    """Returns a set of forums to which a user can access."""
+    return set([f for f in Forum.objects.all() if f.can_read(user)])
 
 
 class NewEmailProvider(models.Model):

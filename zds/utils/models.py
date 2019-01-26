@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from datetime import datetime
 import os
 import string
@@ -25,8 +23,8 @@ from zds.mp.models import PrivateTopic
 from zds.tutorialv2.models import TYPE_CHOICES, TYPE_CHOICES_DICT
 from zds.utils.mps import send_mp
 from zds.utils import slugify
-from zds.utils.templatetags.emarkdown import get_markdown_instance, render_markdown
 from zds.utils.misc import contains_utf8mb4
+from zds.utils.templatetags.emarkdown import render_markdown
 
 from model_utils.managers import InheritanceManager
 
@@ -81,6 +79,7 @@ class SubCategory(models.Model):
 
     title = models.CharField('Titre', max_length=80, unique=True)
     subtitle = models.CharField('Sous-titre', max_length=200)
+    position = models.IntegerField('Position', db_index=True, default=0)
 
     image = models.ImageField(upload_to=image_path_category, blank=True, null=True)
 
@@ -387,15 +386,25 @@ class Comment(models.Model):
     hat = models.ForeignKey(Hat, verbose_name='Casquette', on_delete=models.SET_NULL,
                             related_name='comments', blank=True, null=True)
 
-    def update_content(self, text):
-        from zds.notification.models import ping_url
-
+    def update_content(self, text, on_error=None):
+        _, old_metadata, _ = render_markdown(self.text)
+        html, metadata, messages = render_markdown(text, on_error=on_error)
         self.text = text
-        md_instance = get_markdown_instance(ping_url=ping_url)
-        self.text_html = render_markdown(md_instance, self.text)
+        self.text_html = html
         self.save()
-        for username in list(md_instance.metadata.get('ping', []))[:settings.ZDS_APP['comment']['max_pings']]:
-            signals.new_content.send(sender=self.__class__, instance=self, user=User.objects.get(username=username))
+        all_the_pings = list(filter(lambda user_name: user_name != self.author.username, metadata.get('ping', [])))
+        all_the_pings = list(set(all_the_pings) - set(old_metadata.get('ping', [])))
+        max_ping_count = settings.ZDS_APP['comment']['max_pings']
+        first_pings = all_the_pings[:max_ping_count]
+        for username in first_pings:
+            pinged_user = User.objects.filter(username=username).first()
+            if not pinged_user:
+                continue
+            signals.new_content.send(sender=self.__class__, instance=self, user=pinged_user)
+        unpinged_usernames = set(old_metadata.get('ping', [])) - set(all_the_pings)
+        unpinged_users = User.objects.filter(username__in=list(unpinged_usernames))
+        for unpinged_user in unpinged_users:
+            signals.unsubscribe.send(self.author, instance=self, user=unpinged_user)
 
     def hide_comment_by_user(self, user, text_hidden):
         """Hide a comment and save it
@@ -615,7 +624,7 @@ class Tag(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        return reverse('topic-tag-find', kwargs={'tag_pk': self.pk, 'tag_slug': self.slug})
+        return reverse('topic-tag-find', kwargs={'tag_slug': self.slug})
 
     def save(self, *args, **kwargs):
         self.title = self.title.strip()

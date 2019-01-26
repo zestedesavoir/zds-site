@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from datetime import datetime
 
 from django.contrib import messages
@@ -37,7 +36,7 @@ class TopicEditMixin(object):
     @staticmethod
     def perform_solve_or_unsolve(user, topic):
         if user == topic.author or user.has_perm('forum.change_topic'):
-            topic.is_solved = not topic.is_solved
+            topic.solved_by = None if topic.solved_by else user
             return topic.is_solved
         else:
             raise PermissionDenied
@@ -171,7 +170,11 @@ class PostEditMixin(object):
         edit.original_text = post.text
         edit.save()
 
-        post.update_content(text)
+        post.update_content(
+            text,
+            on_error=lambda m: messages.error(
+                request,
+                _('Erreur du serveur Markdown:\n{}').format('\n- '.join(m))))
         post.hat = get_hat_from_request(request, post.author)
         post.update = datetime.now()
         post.editor = user

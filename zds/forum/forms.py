@@ -1,4 +1,3 @@
-# coding: utf-8
 from django import forms
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -8,10 +7,10 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Hidden, HTML
 from crispy_forms.bootstrap import StrictButton
 from zds.forum.models import Forum, Topic
-from zds.utils.forms import CommonLayoutEditor, TagValidator
+from zds.utils.forms import CommonLayoutEditor, TagValidator, FieldValidatorMixin
 
 
-class TopicForm(forms.Form):
+class TopicForm(forms.Form, FieldValidatorMixin):
     title = forms.CharField(
         label=_('Titre'),
         max_length=Topic._meta.get_field('title').max_length,
@@ -78,34 +77,24 @@ class TopicForm(forms.Form):
     def clean(self):
         cleaned_data = super(TopicForm, self).clean()
 
-        title = cleaned_data.get('title')
-        text = cleaned_data.get('text')
+        self.get_non_empty_field_or_error(cleaned_data, 'title',
+                                          lambda: _('Le champ titre ne peut être vide'))
+        text = self.get_non_empty_field_or_error(cleaned_data, 'text',
+                                                 lambda: _('Le champ text ne peut être vide'))
+
+        if text:
+            self.check_text_length_limit(text, settings.ZDS_APP['forum']['max_post_length'],
+                                         lambda: _('Ce message est trop long, '
+                                                   'il ne doit pas dépasser {0} caractères'))
+
         tags = cleaned_data.get('tags')
-
-        if title is not None:
-            if not title.strip():
-                self._errors['title'] = self.error_class(
-                    [_('Le champ titre ne peut être vide')])
-                if 'title' in cleaned_data:
-                    del cleaned_data['title']
-        if text is not None and not text.strip():
-            self._errors['text'] = self.error_class(
-                [_('Le champ text ne peut être vide')])
-            if 'text' in cleaned_data:
-                del cleaned_data['text']
-
-        if text is not None and len(text) > settings.ZDS_APP['forum']['max_post_length']:
-            self._errors['text'] = self.error_class(
-                [_('Ce message est trop long, il ne doit pas dépasser {0} '
-                   'caractères').format(settings.ZDS_APP['forum']['max_post_length'])])
-
         validator = TagValidator()
         if not validator.validate_raw_string(tags):
             self._errors['tags'] = self.error_class(validator.errors)
         return cleaned_data
 
 
-class PostForm(forms.Form):
+class PostForm(forms.Form, FieldValidatorMixin):
     text = forms.CharField(
         label='',
         widget=forms.Textarea(
@@ -150,17 +139,13 @@ class PostForm(forms.Form):
     def clean(self):
         cleaned_data = super(PostForm, self).clean()
 
-        text = cleaned_data.get('text')
+        text = self.get_non_empty_field_or_error(cleaned_data, 'text',
+                                                 lambda: _('Vous devez écrire une réponse !'))
 
-        if text is None or not text.strip():
-            self._errors['text'] = self.error_class(
-                [_('Vous devez écrire une réponse !')])
-
-        elif len(text) > settings.ZDS_APP['forum']['max_post_length']:
-            self._errors['text'] = self.error_class(
-                [_('Ce message est trop long, il ne doit pas dépasser {0} '
-                   'caractères').format(settings.ZDS_APP['forum']['max_post_length'])])
-
+        if text:
+            self.check_text_length_limit(text, settings.ZDS_APP['forum']['max_post_length'],
+                                         lambda: _('Ce message est trop long, '
+                                                   'il ne doit pas dépasser {0} caractères'))
         return cleaned_data
 
 

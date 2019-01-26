@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from django.conf.urls import url
 from django.views.generic.base import RedirectView
 
@@ -21,6 +19,8 @@ urlpatterns = [
         name='download-html'),
     url(r'^pdf/(?P<pk>\d+)/(?P<slug>.+)\.pdf$', DownloadOnlineArticle.as_view(requested_file='pdf'),
         name='download-pdf'),
+    url(r'^tex/(?P<pk>\d+)/(?P<slug>.+)\.tex$', DownloadOnlineArticle.as_view(requested_file='tex'),
+        name='download-tex'),
     url(r'^epub/(?P<pk>\d+)/(?P<slug>.+)\.epub$', DownloadOnlineArticle.as_view(requested_file='epub'),
         name='download-epub'),
     url(r'^zip/(?P<pk>\d+)/(?P<slug>.+)\.zip$', DownloadOnlineArticle.as_view(requested_file='zip'),

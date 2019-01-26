@@ -1,4 +1,3 @@
-# coding: utf-8
 import logging
 
 from crispy_forms.bootstrap import StrictButton
@@ -144,3 +143,19 @@ class TagValidator(object):
     @property
     def errors(self):
         return self.__errors
+
+
+class FieldValidatorMixin:
+    def get_non_empty_field_or_error(self, cleaned_data, key, error_message):
+        value = cleaned_data.get(key)
+        if value is not None and value.strip():
+            return value
+        else:
+            self._errors[key] = self.error_class([error_message()])
+            if key in cleaned_data:
+                del cleaned_data[key]
+            return None
+
+    def check_text_length_limit(self, text, max_length, message_format):
+        if len(text) > max_length:
+            self._errors['text'] = [message_format().format(max_length)]

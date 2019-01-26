@@ -1,35 +1,24 @@
-# coding: utf-8
-import shutil
-import os
-
 import datetime
-from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.test import TestCase
-from django.test.utils import override_settings
 from django.utils.translation import ugettext_lazy as _
 
 from zds.gallery.factories import UserGalleryFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory
-from zds.tutorialv2.factories import PublishableContentFactory, ExtractFactory, LicenceFactory, PublishedContentFactory
+from zds.tutorialv2.factories import (PublishableContentFactory, ExtractFactory, LicenceFactory,
+                                      PublishedContentFactory, SubCategoryFactory)
 from zds.tutorialv2.models.database import PublishableContent, PublishedContent, PickListOperation
+from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.utils.models import Alert
-from copy import deepcopy
-
-overridden_zds_app = deepcopy(settings.ZDS_APP)
-overridden_zds_app['content']['repo_private_path'] = os.path.join(settings.BASE_DIR, 'contents-private-test')
-overridden_zds_app['content']['repo_public_path'] = os.path.join(settings.BASE_DIR, 'contents-public-test')
-overridden_zds_app['content']['extra_content_generation_policy'] = 'NONE'
 
 
-@override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'media-test'))
-@override_settings(ZDS_APP=overridden_zds_app)
-@override_settings(ES_ENABLED=False)
-class PublishedContentTests(TestCase):
+@override_for_contents()
+class PublishedContentTests(TutorialTestMixin, TestCase):
     def setUp(self):
-        overridden_zds_app['member']['bot_account'] = ProfileFactory().user.username
+
+        self.overridden_zds_app['member']['bot_account'] = ProfileFactory().user.username
         self.licence = LicenceFactory()
-        overridden_zds_app['content']['default_licence_pk'] = LicenceFactory().pk
+
         self.user_author = ProfileFactory().user
         self.user_staff = StaffProfileFactory().user
         self.user_guest = ProfileFactory().user
@@ -76,13 +65,16 @@ class PublishedContentTests(TestCase):
 
     def test_accessible_ui_for_author(self):
         opinion = PublishedContentFactory(author_list=[self.user_author], type='OPINION')
+        subcategory = SubCategoryFactory()
+        opinion.subcategory.add(subcategory)
+        opinion.save()
         self.assertEqual(
-            self.client.login(
-                username=self.user_author.username,
-                password='hostel77'),
+            self.client.login(username=self.user_author.username, password='hostel77'),
             True)
         resp = self.client.get(reverse('opinion:view', kwargs={'pk': opinion.pk, 'slug': opinion.slug}))
         self.assertContains(resp, 'Version brouillon', msg_prefix='Author must access their draft directly')
+        self.assertNotContains(resp, '{}?subcategory='.format(reverse('publication:list')))
+        self.assertContains(resp, '{}?category='.format(reverse('opinion:list')))
 
     def test_no_help_for_tribune(self):
         self.assertEqual(
@@ -944,12 +936,3 @@ class PublishedContentTests(TestCase):
 
         alert = Alert.objects.get(pk=alert.pk)
         self.assertTrue(alert.solved)
-
-    def tearDown(self):
-
-        if os.path.isdir(overridden_zds_app['content']['repo_private_path']):
-            shutil.rmtree(overridden_zds_app['content']['repo_private_path'])
-        if os.path.isdir(overridden_zds_app['content']['repo_public_path']):
-            shutil.rmtree(overridden_zds_app['content']['repo_public_path'])
-        if os.path.isdir(settings.MEDIA_ROOT):
-            shutil.rmtree(settings.MEDIA_ROOT)

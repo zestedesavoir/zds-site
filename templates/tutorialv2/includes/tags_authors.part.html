@@ -17,7 +17,7 @@
 {% if publishablecontent.tags.all|length > 0 %}
     <ul class="taglist" itemprop="keywords">
         {% for tag in publishablecontent.tags.all %}
-            <li><a href="{{ taglist }}?tag={% if content.is_opinion %}{{ tag.title|urlencode }}{% else %}{{ tag.slug }}{% endif %}">{{ tag.title }}</a></li>
+            <li><a href="{{ taglist }}?tag={% if content.is_opinion %}{{ tag.title|urlencode }}{% else %}{{ tag.slug }}{% endif %}" rel="tag">{{ tag.title }}</a></li>
         {% endfor %}
     </ul>
 {% endif %}
@@ -71,13 +71,18 @@
     </span>
     <ul>
         {% for category in content.subcategory.all %}
-            {% if forloop.first %}{% elif forloop.last %} {% trans "et" %}{% else %},{% endif %} <a href="{% url 'publication:list' %}?subcategory={{ category.slug }}">{{ category.title }}</a>
+            {% if forloop.first %}{% elif forloop.last %} {% trans "et" %}{% else %},{% endif %}
+            {% if content.is_opinion %}
+                <a href="{% url 'opinion:list' %}?category={{ category.slug }}">{{ category.title }}</a>
+            {% else %}
+                <a href="{% url 'publication:list' %}?subcategory={{ category.slug }}">{{ category.title }}</a>
+            {% endif %}
         {% endfor %}
     </ul>
     <br/>
     <span>
         {% if online and reading_time and not is_part_or_chapter %}
-            {% trans "Temps de lecture estimé : " %}{{ reading_time | minute_to_duration:"long"}}
+            {% trans "Temps de lecture estimé : " %}{{ reading_time|minute_to_duration }}
         {% elif online and not is_part_or_chapter %}
             {% trans "Temps de lecture estimé à moins d’une minute." %}
         {% endif %}

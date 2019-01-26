@@ -1,5 +1,3 @@
-# coding: utf-8
-
 import json
 import logging
 from datetime import datetime
@@ -19,15 +17,14 @@ from django.views.generic import ListView, FormView
 
 from zds.member.decorator import LoginRequiredMixin, PermissionRequiredMixin, LoggedWithReadWriteHability
 from zds.gallery.models import Gallery
-from zds.notification import signals
 from zds.tutorialv2.forms import AskValidationForm, RejectValidationForm, AcceptValidationForm, RevokeValidationForm, \
     CancelValidationForm, PublicationForm, PickOpinionForm, PromoteOpinionToArticleForm, UnpickOpinionForm, \
     DoNotPickOpinionForm
 from zds.tutorialv2.mixins import SingleContentFormViewMixin, ModalFormView, \
     SingleOnlineContentFormViewMixin, RequiresValidationViewMixin, DoesNotRequireValidationFormViewMixin
 from zds.tutorialv2.models.database import Validation, PublishableContent, PickListOperation
-from zds.tutorialv2.publication_utils import publish_content, FailureDuringPublication, unpublish_content
-from zds.tutorialv2.utils import clone_repo
+from zds.tutorialv2.publication_utils import publish_content, unpublish_content, notify_update
+from zds.tutorialv2.utils import clone_repo, FailureDuringPublication
 from zds.utils.forums import send_post, lock_topic
 from zds.utils.models import SubCategory, get_hat_from_settings
 from zds.utils.mps import send_mp
@@ -453,44 +450,40 @@ class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
         except FailureDuringPublication as e:
             messages.error(self.request, e.message)
         else:
-            # save in database
-
-            db_object.sha_public = validation.version
-            db_object.source = form.cleaned_data['source']
-            db_object.sha_validation = None
-
-            db_object.public_version = published
-
-            if form.cleaned_data['is_major'] or not is_update or db_object.pubdate is None:
-                db_object.pubdate = datetime.now()
-                db_object.is_obsolete = False
-
-            # close beta if is an article
-            if db_object.type == 'ARTICLE':
-                db_object.sha_beta = None
-                topic = db_object.beta_topic
-                if topic is not None and not topic.is_locked:
-                    msg_post = render_to_string(
-                        'tutorialv2/messages/beta_desactivate.md', {'content': versioned}
-                    )
-                    send_post(self.request, topic, self.request.user, msg_post)
-                    lock_topic(topic)
-
-            db_object.save()
-
-            # save validation object
-            validation.comment_validator = form.cleaned_data['text']
-            validation.status = 'ACCEPT'
-            validation.date_validation = datetime.now()
-            validation.save()
-
-            # Follow
-            signals.new_content.send(sender=db_object.__class__, instance=db_object, by_email=False)
+            self.save_validation_state(db_object, form, is_update, published, validation, versioned)
+            notify_update(db_object, is_update, form.cleaned_data['is_major'])
 
             messages.success(self.request, _('Le contenu a bien été validé.'))
             self.success_url = published.get_absolute_url_online()
 
         return super(AcceptValidation, self).form_valid(form)
+
+    def save_validation_state(self, db_object, form, is_update, published, validation, versioned):
+        # save in database
+        db_object.sha_public = validation.version
+        db_object.source = form.cleaned_data['source']
+        db_object.sha_validation = None
+        db_object.public_version = published
+        if form.cleaned_data['is_major'] or not is_update or db_object.pubdate is None:
+            db_object.pubdate = datetime.now()
+            db_object.is_obsolete = False
+
+        # close beta if is an article
+        if db_object.type == 'ARTICLE':
+            db_object.sha_beta = None
+            topic = db_object.beta_topic
+            if topic is not None and not topic.is_locked:
+                msg_post = render_to_string(
+                    'tutorialv2/messages/beta_desactivate.md', {'content': versioned}
+                )
+                send_post(self.request, topic, self.request.user, msg_post)
+                lock_topic(topic)
+        db_object.save()
+        # save validation object
+        validation.comment_validator = form.cleaned_data['text']
+        validation.status = 'ACCEPT'
+        validation.date_validation = datetime.now()
+        validation.save()
 
 
 class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleOnlineContentFormViewMixin):
@@ -583,6 +576,7 @@ class PublishOpinion(LoggedWithReadWriteHability, DoesNotRequireValidationFormVi
     def form_valid(self, form):
         # get database representation
         db_object = self.object
+        is_update = bool(db_object.sha_public)
         if self.object.is_permanently_unpublished():
             raise PermissionDenied
         versioned = self.versioned_object
@@ -602,8 +596,7 @@ class PublishOpinion(LoggedWithReadWriteHability, DoesNotRequireValidationFormVi
             # if only ignore, we remove it from history
             PickListOperation.objects.filter(content=db_object,
                                              operation__in=['NO_PICK', 'PICK']).update(is_effective=False)
-            # Follow
-            signals.new_content.send(sender=db_object.__class__, instance=db_object, by_email=False)
+            notify_update(db_object, is_update, form.cleaned_data.get('is_major', False))
 
             messages.success(self.request, _('Le contenu a bien été publié.'))
             self.success_url = published.get_absolute_url_online()
@@ -637,27 +630,29 @@ class UnpublishOpinion(LoginRequiredMixin, SingleOnlineContentFormViewMixin, Doe
 
         unpublish_content(self.object, moderator=self.request.user)
 
-        # send PM
-        msg = render_to_string(
-            'tutorialv2/messages/validation_revoke.md',
-            {
-                'content': versioned,
-                'url': versioned.get_absolute_url(),
-                'admin': user,
-                'message_reject': '\n'.join(['> ' + a for a in form.cleaned_data['text'].split('\n')])
-            })
+        if [self.request.user] != list(self.object.authors.all()):
+            # Sends PM if the deleter is not the author
+            # (or is not the only one) of the opinion.
+            msg = render_to_string(
+                'tutorialv2/messages/validation_revoke.md',
+                {
+                    'content': versioned,
+                    'url': versioned.get_absolute_url(),
+                    'admin': user,
+                    'message_reject': '\n'.join(['> ' + a for a in form.cleaned_data['text'].split('\n')])
+                })
 
-        bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
-        send_mp(
-            bot,
-            versioned.authors.all(),
-            _('Dépublication'),
-            versioned.title,
-            msg,
-            True,
-            direct=False,
-            hat=get_hat_from_settings('moderation'),
-        )
+            bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+            send_mp(
+                bot,
+                versioned.authors.all(),
+                _('Dépublication'),
+                versioned.title,
+                msg,
+                True,
+                direct=False,
+                hat=get_hat_from_settings('moderation'),
+            )
 
         messages.success(self.request, _('Le contenu a bien été dépublié.'))
         self.success_url = self.versioned_object.get_absolute_url()
@@ -697,9 +692,12 @@ class DoNotPickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormView
         self.success_url = versioned.get_absolute_url_online()
         if not db_object.in_public():
             raise Http404('This opinion is not published.')
-        elif PickListOperation.objects.filter(content=self.object, is_effective=True).exists():
+        elif PickListOperation.objects.filter(content=self.object, is_effective=True).exists() \
+                and form.cleaned_data['operation'] != 'REMOVE_PUB':
             raise PermissionDenied('There is already an effective operation for this content.')
         try:
+            PickListOperation.objects.filter(content=self.object).update(is_effective=False,
+                                                                         canceler_user=self.request.user)
             PickListOperation.objects.create(content=self.object, operation=form.cleaned_data['operation'],
                                              staff_user=self.request.user, operation_date=datetime.now(),
                                              version=db_object.sha_public)
@@ -719,7 +717,7 @@ class DoNotPickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormView
                 send_mp(
                     bot,
                     versioned.authors.all(),
-                    _('Dépublication'),
+                    _('Billet modéré'),
                     versioned.title,
                     msg,
                     True,
@@ -729,8 +727,13 @@ class DoNotPickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormView
         except ValueError:
             logger.exception('Could not %s the opinion %s', form.cleaned_data['operation'], str(self.object))
             return HttpResponse(json.dumps({'result': 'FAIL', 'reason': str(_('Mauvaise opération'))}), status=400)
-        self.success_url = self.object.get_absolute_url_online()
-        return HttpResponse(json.dumps({'result': 'OK'}))
+
+        if not form.cleaned_data['redirect']:
+            return HttpResponse(json.dumps({'result': 'OK'}))
+        else:
+            self.success_url = reverse('opinion:list')
+            messages.success(self.request, _('Le billet a bien été modéré.'))
+            return super().form_valid(form)
 
 
 class RevokePickOperation(PermissionRequiredMixin, FormView):
@@ -791,7 +794,7 @@ class PickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormViewMixin
         self.public_content_object.save()
         PickListOperation.objects.create(content=self.object, operation='PICK',
                                          staff_user=self.request.user, operation_date=datetime.now(),
-                                         version=db_object.sha_public)
+                                         version=db_object.sha_picked)
         msg = render_to_string(
             'tutorialv2/messages/validation_opinion.md',
             {
@@ -811,7 +814,7 @@ class PickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormViewMixin
             hat=get_hat_from_settings('moderation'),
         )
 
-        messages.success(self.request, _('Le contenu a bien été validé.'))
+        messages.success(self.request, _('Le billet a bien été choisi.'))
 
         return super(PickOpinion, self).form_valid(form)
 
@@ -834,16 +837,15 @@ class UnpickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormViewMix
         return kwargs
 
     def form_valid(self, form):
-
         db_object = self.object
         versioned = self.versioned_object
         self.success_url = versioned.get_absolute_url_online()
 
         if not db_object.sha_picked:
-            raise PermissionDenied("Retirer des billets choisis quelque chose qui n'y est pas")
+            raise PermissionDenied('Impossible de retirer des billets choisis un billet pas choisi.')
 
         if db_object.sha_picked != form.cleaned_data['version']:
-            raise PermissionDenied("Retirer des billets choisis quelque chose qui n'y est pas")
+            raise PermissionDenied('Impossible de retirer des billets choisis un billet pas choisi.')
 
         db_object.sha_picked = None
         db_object.save()

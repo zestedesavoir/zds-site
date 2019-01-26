@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from django import forms
 from django.conf import settings
 
@@ -7,6 +5,7 @@ from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import HTML, Layout, Submit, Field, ButtonHolder, Hidden
 from django.core.urlresolvers import reverse
+from django.core.validators import MinLengthValidator
 
 from zds.utils.forms import CommonLayoutModalText, CommonLayoutEditor, CommonLayoutVersionEditor
 from zds.utils.models import SubCategory, Licence
@@ -156,12 +155,12 @@ class ContainerForm(FormWithTitle):
             Field('introduction', css_class='md-editor preview-source'),
             ButtonHolder(StrictButton(_('Aperçu'), type='preview', name='preview',
                                       css_class='btn btn-grey preview-btn'),),
-            HTML('{% if form.introduction.value %}{% include "misc/previsualization.part.html" \
+            HTML('{% if form.introduction.value %}{% include "misc/preview.part.html" \
             with text=form.introduction.value %}{% endif %}'),
             Field('conclusion', css_class='md-editor preview-source'),
             ButtonHolder(StrictButton(_('Aperçu'), type='preview', name='preview',
                                       css_class='btn btn-grey preview-btn'),),
-            HTML('{% if form.conclusion.value %}{% include "misc/previsualization.part.html" \
+            HTML('{% if form.conclusion.value %}{% include "misc/preview.part.html" \
             with text=form.conclusion.value %}{% endif %}'),
             Field('msg_commit'),
             Field('last_hash'),
@@ -204,8 +203,7 @@ class ContentForm(ContainerForm):
     )
 
     subcategory = forms.ModelMultipleChoiceField(
-        label=_('Sous catégories de votre contenu. Si aucune catégorie ne convient '
-                "n'hésitez pas à en demander une nouvelle lors de la validation !"),
+        label=_('Sélectionnez les catégories qui correspondent à votre contenu.'),
         queryset=SubCategory.objects.order_by('title').all(),
         required=True,
         widget=forms.CheckboxSelectMultiple()
@@ -249,12 +247,12 @@ class ContentForm(ContainerForm):
             Field('introduction', css_class='md-editor preview-source'),
             ButtonHolder(StrictButton(_('Aperçu'), type='preview', name='preview',
                                       css_class='btn btn-grey preview-btn'),),
-            HTML('{% if form.introduction.value %}{% include "misc/previsualization.part.html" \
+            HTML('{% if form.introduction.value %}{% include "misc/preview.part.html" \
             with text=form.introduction.value %}{% endif %}'),
             Field('conclusion', css_class='md-editor preview-source'),
             ButtonHolder(StrictButton(_('Aperçu'), type='preview', name='preview',
                                       css_class='btn btn-grey preview-btn'),),
-            HTML('{% if form.conclusion.value %}{% include "misc/previsualization.part.html" \
+            HTML('{% if form.conclusion.value %}{% include "misc/preview.part.html" \
             with text=form.conclusion.value %}{% endif %}'),
             Field('last_hash'),
             Field('licence'),
@@ -456,7 +454,7 @@ class ImportNewContentForm(ImportContentForm):
     )
 
     def __init__(self, *args, **kwargs):
-        super(ImportContentForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.helper = FormHelper()
         self.helper.form_class = 'content-wrapper'
@@ -662,12 +660,19 @@ class AcceptValidationForm(forms.Form):
     text = forms.CharField(
         label='',
         required=True,
+        error_messages={
+            'required': _('Vous devez fournir un commentaire aux validateurs.')
+        },
         widget=forms.Textarea(
             attrs={
                 'placeholder': _('Commentaire de publication.'),
-                'rows': '2'
+                'rows': '2',
+                'minlength': '3'
             }
-        )
+        ),
+        validators=[
+            MinLengthValidator(3, _('Votre commentaire doit faire au moins 3 caractères.'))
+        ]
     )
 
     is_major = forms.BooleanField(
@@ -721,25 +726,6 @@ class AcceptValidationForm(forms.Form):
             Field('is_major'),
             StrictButton(_('Publier'), type='submit')
         )
-
-    def clean(self):
-        cleaned_data = super(AcceptValidationForm, self).clean()
-
-        text = cleaned_data.get('text')
-
-        if text is None or not text.strip():
-            self._errors['text'] = self.error_class(
-                [_('Vous devez fournir un commentaire aux validateurs.')])
-            if 'text' in cleaned_data:
-                del cleaned_data['text']
-
-        elif len(text) < 3:
-            self._errors['text'] = self.error_class(
-                [_('Votre commentaire doit faire au moins 3 caractères.')])
-            if 'text' in cleaned_data:
-                del cleaned_data['text']
-
-        return cleaned_data
 
 
 class CancelValidationForm(forms.Form):
@@ -1172,6 +1158,7 @@ class PickOpinionForm(forms.Form):
 
 class DoNotPickOpinionForm(forms.Form):
     operation = forms.CharField(widget=forms.HiddenInput())
+    redirect = forms.CharField(widget=forms.HiddenInput(), required=False)
 
     def __init__(self, content, *args, **kwargs):
         super(DoNotPickOpinionForm, self).__init__(*args, **kwargs)
@@ -1198,6 +1185,7 @@ class DoNotPickOpinionForm(forms.Form):
         cleaned = super(DoNotPickOpinionForm, self).clean()
         cleaned['operation'] = self.data['operation'] \
             if self.data['operation'] in ['NO_PICK', 'REJECT', 'REMOVE_PUB'] else None
+        cleaned['redirect'] = self.data['redirect'] == 'true' if 'redirect' in self.data else False
         return cleaned
 
     def is_valid(self):
@@ -1268,3 +1256,25 @@ class PromoteOpinionToArticleForm(forms.Form):
                 _('Valider'),
                 type='submit')
         )
+
+
+class ContentCompareStatsURLForm(forms.Form):
+    urls = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple(), required=True)
+
+    def __init__(self, urls, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['urls'].choices = urls
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Field('urls'),
+            StrictButton(_('Comparer'), type='submit')
+        )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        urls = cleaned_data.get('urls')
+        if not urls:
+            raise forms.ValidationError(_('Vous devez choisir des URL a comparer'))
+        if len(urls) < 2:
+            raise forms.ValidationError(_('Il faut au minimum 2 urls à comparer'))

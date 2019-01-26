@@ -1,5 +1,4 @@
-# coding: utf-8
-import json
+from zds import json_handler
 import operator
 
 from elasticsearch_dsl import Search
@@ -22,7 +21,7 @@ from zds.utils.templatetags.authorized_forums import get_authorized_forums
 from functools import reduce
 
 
-class SimilarSubjectsView(CreateView, SingleObjectMixin):
+class SimilarTopicsView(CreateView, SingleObjectMixin):
     search_query = None
     authorized_forums = ''
     index_manager = None
@@ -30,7 +29,7 @@ class SimilarSubjectsView(CreateView, SingleObjectMixin):
     def __init__(self, **kwargs):
         """Overridden because the index manager must NOT be initialized elsewhere."""
 
-        super(SimilarSubjectsView, self).__init__(**kwargs)
+        super(SimilarTopicsView, self).__init__(**kwargs)
         self.index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
 
     def get(self, request, *args, **kwargs):
@@ -68,7 +67,7 @@ class SimilarSubjectsView(CreateView, SingleObjectMixin):
                 results.append(result)
 
         data = {'results': results}
-        return HttpResponse(json.dumps(data), content_type='application/json')
+        return HttpResponse(json_handler.dumps(data), content_type='application/json')
 
 
 class SearchView(ZdSPagingListView):

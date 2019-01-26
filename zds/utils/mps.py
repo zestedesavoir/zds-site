@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from datetime import datetime
 
 from django.conf import settings
@@ -42,8 +40,8 @@ def send_mp(
     n_topic.save()
 
     # Add all participants on the MP.
-    for part in users:
-        n_topic.participants.add(part)
+    for participants in users:
+        n_topic.participants.add(participants)
 
     topic = send_message_mp(author, n_topic, text, send_by_mail, direct, hat)
     if mark_as_read:

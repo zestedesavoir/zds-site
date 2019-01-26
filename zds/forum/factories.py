@@ -1,5 +1,3 @@
-# coding: utf-8
-
 import factory
 from zds.forum.models import Category, Forum, Topic, Post
 from zds.utils.models import Tag
@@ -55,3 +53,23 @@ class PostFactory(factory.DjangoModelFactory):
             topic.last_message = post
             topic.save()
         return post
+
+
+def create_category_and_forum(group=None):
+    category = CategoryFactory(position=1)
+    forum = ForumFactory(category=category, position_in_category=1)
+    if group is not None:
+        forum.groups.add(group)
+        forum.save()
+    return category, forum
+
+
+def create_topic_in_forum(forum, profile, is_sticky=False, is_solved=False, is_locked=False):
+    topic = TopicFactory(forum=forum, author=profile.user)
+    topic.is_sticky = is_sticky
+    if is_solved:
+        topic.solved_by = profile.user
+    topic.is_locked = is_locked
+    topic.save()
+    PostFactory(topic=topic, author=profile.user, position=1)
+    return topic

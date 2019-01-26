@@ -1,17 +1,12 @@
-# coding: utf-8
-
-from datetime import datetime
 import os
-import shutil
-
+from datetime import datetime
 from oauth2_provider.models import AccessToken, Application
 
 from django.conf import settings
 from django.contrib.auth.models import User, Group
 from django.core import mail
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.test import TestCase
-from django.test.utils import override_settings
 from django.utils.translation import ugettext_lazy as _
 
 from zds.notification.models import TopicAnswerSubscription
@@ -23,23 +18,17 @@ from zds.mp.models import PrivatePost, PrivateTopic
 from zds.member.models import TokenRegister, Ban, NewEmailProvider, BannedEmailProvider
 from zds.tutorialv2.factories import PublishableContentFactory, PublishedContentFactory, BetaContentFactory
 from zds.tutorialv2.models.database import PublishableContent, PublishedContent
+from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory, PostFactory
 from zds.forum.models import Topic, Post
 from zds.gallery.factories import GalleryFactory, UserGalleryFactory
 from zds.gallery.models import Gallery, UserGallery
+from zds.pages.models import GroupContact
 from zds.utils.models import CommentVote, Hat, HatRequest
-from copy import deepcopy
-
-overridden_zds_app = deepcopy(settings.ZDS_APP)
-overridden_zds_app['content']['repo_private_path'] = os.path.join(settings.BASE_DIR, 'contents-private-test')
-overridden_zds_app['content']['repo_public_path'] = os.path.join(settings.BASE_DIR, 'contents-public-test')
-overridden_zds_app['content']['extra_content_generation_policy'] = 'SYNC'
-overridden_zds_app['content']['build_pdf_when_published'] = False
 
 
-@override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'media-test'))
-@override_settings(ZDS_APP=overridden_zds_app)
-class MemberTests(TestCase):
+@override_for_contents()
+class MemberTests(TutorialTestMixin, TestCase):
 
     def setUp(self):
         settings.EMAIL_BACKEND = \
@@ -343,6 +332,30 @@ class MemberTests(TestCase):
              'remember': 'remember'},
             follow=False)
         self.assertEqual(result.status_code, 200)
+        self.assertContains(
+            result, _(
+                'Le mot de passe saisi est incorrect. '
+                'Cliquez sur le lien « Mot de passe oublié ? » '
+                'si vous ne vous en souvenez plus.'
+            )
+        )
+
+        # login failed with bad username then no redirection
+        # (status_code equals 200 and not 302).
+        result = self.client.post(
+            reverse('member-login'),
+            {'username': 'clem',
+             'password': 'hostel77',
+             'remember': 'remember'},
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+        self.assertContains(
+            result, _(
+                'Ce nom d’utilisateur est inconnu. '
+                'Si vous ne possédez pas de compte, '
+                'vous pouvez vous inscrire.'
+            )
+        )
 
         # login a user. Good password and next parameter then
         # redirection to the "next" page.
@@ -354,6 +367,17 @@ class MemberTests(TestCase):
              'remember': 'remember'},
             follow=False)
         self.assertRedirects(result, reverse('gallery-list'))
+
+        # check the user is redirected to the home page if
+        # the "next" parameter points to a non-existing page.
+        result = self.client.post(
+            reverse('member-login') +
+            '?next=/foobar',
+            {'username': user.user.username,
+             'password': 'hostel77',
+             'remember': 'remember'},
+            follow=False)
+        self.assertRedirects(result, reverse('homepage'))
 
         # check if the login form will redirect if there is
         # a next parameter.
@@ -476,7 +500,7 @@ class MemberTests(TestCase):
         beta_content = BetaContentFactory(author_list=[user.user], forum=beta_forum)
         beta_content_2 = BetaContentFactory(author_list=[user.user, user2.user], forum=beta_forum)
         # about posts and topics
-        authored_topic = TopicFactory(author=user.user, forum=self.forum11)
+        authored_topic = TopicFactory(author=user.user, forum=self.forum11, solved_by=user.user)
         answered_topic = TopicFactory(author=user2.user, forum=self.forum11)
         PostFactory(topic=answered_topic, author=user.user, position=2)
         edited_answer = PostFactory(topic=answered_topic, author=user.user, position=3)
@@ -597,6 +621,8 @@ class MemberTests(TestCase):
 
         # topics, gallery and PMs:
         self.assertEqual(Topic.objects.filter(author__username=user.user.username).count(), 0)
+        self.assertEqual(Topic.objects.filter(solved_by=user.user).count(), 0)
+        self.assertEqual(Topic.objects.filter(solved_by=self.anonymous).count(), 1)
         self.assertEqual(Post.objects.filter(author__username=user.user.username).count(), 0)
         self.assertEqual(Post.objects.filter(editor__username=user.user.username).count(), 0)
         self.assertEqual(PrivatePost.objects.filter(author__username=user.user.username).count(), 0)
@@ -1697,11 +1723,9 @@ class MemberTests(TestCase):
         result = self.client.get(hat.get_absolute_url())
         self.assertEqual(result.status_code, 200)
         self.assertContains(result, self.staff.username)
-
-    def tearDown(self):
-        if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
-            shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
-        if os.path.isdir(settings.ZDS_APP['content']['repo_public_path']):
-            shutil.rmtree(settings.ZDS_APP['content']['repo_public_path'])
-        if os.path.isdir(settings.MEDIA_ROOT):
-            shutil.rmtree(settings.MEDIA_ROOT)
+        # if we display this group on the contact page...
+        GroupContact.objects.create(group=Group.objects.get(name='staff'), description='group description', position=1)
+        # the description should be shown on this page too
+        result = self.client.get(hat.get_absolute_url())
+        self.assertEqual(result.status_code, 200)
+        self.assertContains(result, 'group description')

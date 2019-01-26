@@ -23,10 +23,10 @@
 
 {% block content %}
     <ul>
-        <li><a href="{% url "pages-eula" %}"><abbr title="{% trans "Conditions générales d'utilisation" %}">{% trans "CGU" %}</abbr></a></li>
+        <li><a href="{% url "pages-eula" %}"><abbr title="{% trans "Conditions générales d’utilisation" %}">{% trans "CGU" %}</abbr></a></li>
         <li><a href="{% url "pages-about" %}">{% trans "À propos" %}</a></li>
         {% if app.site.association %}
-            <li><a href="{% url "pages-association" %}">{% trans "L'association" %}</a></li>
+            <li><a href="{% url "pages-association" %}">{% trans "L’association" %}</a></li>
             {% if user.is_authenticated %}
                 <li><a href="{% url "pages-assoc-subscribe" %}">{% trans "Adhérer" %}</a></li>
             {% endif %}

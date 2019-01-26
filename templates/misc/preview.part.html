@@ -1,0 +1,11 @@
+{% load emarkdown %}
+{% load i18n %}
+
+
+<div class="previsualisation content-wrapper">
+    <h3 class="reactions-title">{% trans "Prévisualisation de votre message" %}</h3>
+
+    <div class="message-content">
+        {{ text|emarkdown_preview }}
+    </div>
+</div>

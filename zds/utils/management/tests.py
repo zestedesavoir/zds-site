@@ -1,11 +1,5 @@
-from copy import deepcopy
-import os
-import shutil
-
 from django.core.management import call_command
 from django.test import TestCase
-from django.test.utils import override_settings
-from django.conf import settings
 
 from django.contrib.auth.models import User, Permission
 from zds.member.models import Profile
@@ -15,22 +9,13 @@ from zds.utils.models import Tag, Category as TCategory, CategorySubCategory, Su
 from zds.member.factories import ProfileFactory
 from zds.tutorialv2.models.database import PublishableContent, PublishedContent, ContentReaction, \
     Validation as CValidation
+from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.gallery.models import Gallery, UserGallery
 from zds.utils.management.commands.load_fixtures import Command as FixtureCommand
 
-BASE_DIR = settings.BASE_DIR
 
-overridden_zds_app = deepcopy(settings.ZDS_APP)
-overridden_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
-overridden_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
-overridden_zds_app['content']['extra_content_generation_policy'] = 'SYNC'
-overridden_zds_app['content']['build_pdf_when_published'] = False
-
-
-@override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
-@override_settings(ZDS_APP=overridden_zds_app)
-@override_settings(ES_ENABLED=False)
-class CommandsTestCase(TestCase):
+@override_for_contents()
+class CommandsTestCase(TutorialTestMixin, TestCase):
     def test_load_fixtures(self):
 
         args = []
@@ -75,12 +60,3 @@ class CommandsTestCase(TestCase):
 
         result = self.client.get('/?prof', follow=True)
         self.assertEqual(result.status_code, 200)
-
-    def tearDown(self):
-
-        if os.path.isdir(overridden_zds_app['content']['repo_private_path']):
-            shutil.rmtree(overridden_zds_app['content']['repo_private_path'])
-        if os.path.isdir(overridden_zds_app['content']['repo_public_path']):
-            shutil.rmtree(overridden_zds_app['content']['repo_public_path'])
-        if os.path.isdir(settings.MEDIA_ROOT):
-            shutil.rmtree(settings.MEDIA_ROOT)

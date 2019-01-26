@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from django import forms
 from django.conf import settings
 from django.contrib.auth import authenticate
@@ -56,7 +54,7 @@ class LoginForm(forms.Form):
         required=False,
     )
 
-    def __init__(self, next=None, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super(LoginForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_action = reverse('member-login')
@@ -225,6 +223,7 @@ class ProfileForm(MiniProfileForm):
         ('allow_temp_visual_changes', _('Activer les changements visuels temporaires')),
         ('show_markdown_help', _("Afficher l'aide Markdown dans l'éditeur")),
         ('email_for_answer', _("Recevoir un courriel lors d'une réponse à un message privé")),
+        ('email_for_new_mp', _("Recevoir un courriel lors de la réception d'un nouveau message privé")),
     ]
 
     options = forms.MultipleChoiceField(
@@ -280,13 +279,16 @@ class ProfileForm(MiniProfileForm):
         if 'email_for_answer' in initial and initial['email_for_answer']:
             self.fields['options'].initial += 'email_for_answer'
 
+        if 'email_for_new_mp' in initial and initial['email_for_new_mp']:
+            self.fields['options'].initial += 'email_for_new_mp'
+
         layout = Layout(
             Field('biography'),
             ButtonHolder(StrictButton(_('Aperçu'), type='preview', name='preview',
                                       css_class='btn btn-grey preview-btn'),),
             HTML("""
                 {% if form.biographie.value %}
-                    {% include "misc/previsualization.part.html" with text=form.biographie.value %}
+                    {% include "misc/preview.part.html" with text=form.biographie.value %}
                 {% endif %}
             """),
             Field('site'),

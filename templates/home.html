@@ -84,7 +84,7 @@
                 </section>
             {% endif %}
             {% if app.display_search_bar %}
-                 <section class="search-box">
+                <section class="search-box">
                     {% crispy search_form %}
                 </section>
             {% endif %}
@@ -170,17 +170,17 @@
             <section itemscope itemtype="http://schema.org/ItemList">
                 <h2 class="home-heading ico-after ico-forum" itemprop="name">
                     {% trans "Derniers sujets" %}
-                    <a href="{% url 'cats-forums-list' %}" class="btn btn-grey">{% trans "Tous les sujets" %}</a>
+                    <a href="{% url 'last-subjects' %}" class="btn btn-grey">{% trans "En voir plus" %}</a>
                 </h2>
 
                 <meta itemprop="itemListOrder" content="Descending">
 
                 <div class="content-item-list">
-                  {% for topic in last_topics %}
-                      {% include 'forum/includes/topic_item.part.html' %}
-                  {% empty %}
-                      <p>{% trans "Aucun sujet disponible." %}</p>
-                  {% endfor %}
+                    {% for topic in last_topics %}
+                        {% include 'forum/includes/topic_item.part.html' %}
+                    {% empty %}
+                        <p>{% trans "Aucun sujet disponible." %}</p>
+                    {% endfor %}
                 </div>
             </section>
         </div>

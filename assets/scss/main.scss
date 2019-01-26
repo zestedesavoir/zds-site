@@ -8,9 +8,10 @@
 @import "sprite";
 
 /*------------------------
-1. Normalize
+1. External dependencies
 ------------------------*/
 @import "normalize.css/normalize";
+@import "highlight.js/styles/idea";
 
 /*------------------------
 2. Base
@@ -85,6 +86,7 @@
 @import "pages/gallery";
 @import "pages/api";
 @import "pages/search";
+@import "pages/stats";
 @import "pages/tutorial-help";
 @import "pages/tutorial-history";
 

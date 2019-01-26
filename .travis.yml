@@ -8,7 +8,7 @@ python:
 
 
 addons:
-  firefox: "56.0"
+  firefox: "latest"
   apt:
     packages:
       - mysql-server-5.6
@@ -17,7 +17,7 @@ addons:
       - libmysqlclient-dev
       - language-pack-fr
       - unzip
-      - oracle-java8-set-default
+      - oracle-java9-set-default
 
 
 git:
@@ -56,16 +56,15 @@ cache:
   pip: true
   yarn: true
   directories:
-    - $HOME/.cabal
-    - $HOME/.fonts
-    - $HOME/.pandoc
+    - $HOME/.local/share/fonts
     - $HOME/.texlive
-    - $HOME/bin
     - node_modules
 
 
 before_install:
   - . ./scripts/ci_turbo.sh # This script exports environment variables, it must be sourced
+
+  - source ./scripts/define_variable.sh
 
   - travis_retry pip install -q coveralls
 
@@ -73,8 +72,8 @@ before_install:
     # install elasticsearch
     if [[ "$ZDS_TEST_JOB" == *"zds.searchv2"* ]]; then
       # see https://docs.travis-ci.com/user/database-setup/#Installing-specific-versions-of-ElasticSearch
-      curl -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.5.2.deb \
-      && sudo dpkg -i --force-confnew elasticsearch-5.5.2.deb \
+      curl -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-$ZDS_ELASTIC_VERSION.deb \
+      && sudo dpkg -i --force-confnew elasticsearch-$ZDS_ELASTIC_VERSION.deb \
       && sudo service elasticsearch start
     fi
 
@@ -89,33 +88,38 @@ install:
   - |
     # install webdriver for selenium.
     if [[ "$ZDS_TEST_JOB" == *"selenium"* ]]; then
-      wget https://github.com/mozilla/geckodriver/releases/download/v0.19.0/geckodriver-v0.19.0-linux64.tar.gz \
+      wget https://github.com/mozilla/geckodriver/releases/download/v0.23.0/geckodriver-v0.23.0-linux64.tar.gz \
       && mkdir geckodriver \
-      && tar -xzf geckodriver-v0.19.0-linux64.tar.gz -C geckodriver \
+      && tar -xzf geckodriver-v0.23.0-linux64.tar.gz -C geckodriver \
       && export PATH=$PATH:$PWD/geckodriver \
-      && export DISPLAY=:99.0 \
-      && sh -e /etc/init.d/xvfb start \
-      && sleep 3 # give xvfb some time to start
+      && export DISPLAY=:99.0
     fi
+
+  - |
+    if [[ "$ZDS_TEST_JOB" == *"zds.tutorialv2"* ]]; then
+      # install latex
+      git clone $ZDS_LATEX_REPO
+      TEMPLATEDIR=$HOME/.texlive/texmf-local/tex/latex/
+      ./latex-template/scripts/install_font.sh \
+      && ./latex-template/scripts/install_texlive.sh \
+      && export PATH=$HOME/.texlive/bin/x86_64-linux:$PATH \
+      && rm -rf $TEMPLATEDIR/latex-template \
+      && mkdir -p $TEMPLATEDIR  && cp -r ./latex-template $TEMPLATEDIR && texhash
+    fi
+
+  - |
+    # install and run zmarkdown
+    nvm install $ZDS_NODE_VERSION \
+    && nvm use $ZDS_NODE_VERSION \
+    && npm i -g pm2 zmarkdown \
+    && cd "$(nvm which current | sed s/bin/lib/)_modules/zmarkdown/" \
+    && npm run server \
+    && cd $TRAVIS_BUILD_DIR
 
   - |
     # install frontend dependencies
-    if [[ "$ZDS_TEST_JOB" == *"front"* ]] || [[ "$ZDS_TEST_JOB" == *"selenium"* ]]; then
-      nvm install 8 \
-      && nvm use 8 \
-      && npm i -g yarn \
-      && yarn --silent
-    fi
-
-  - |
-    # install latex
-    if [[ "$ZDS_TEST_JOB" == *"zds.tutorialv2"* ]]; then
-      mkdir -p $HOME/bin \
-      && ./scripts/install_texlive.sh \
-      && ./scripts/install_resources.sh \
-      && export PATH=$HOME/.texlive/bin/x86_64-linux:$PATH \
-      && export PATH=$PATH:$HOME/bin
-    fi
+    npm i -g yarn \
+    && yarn --silent
 
   - |
     # install backend dependencies
@@ -129,40 +133,46 @@ script:
     # lint backend
     if [[ "$ZDS_TEST_JOB" == *"zds.gallery"* ]]; then
       ./scripts/no_import_zds_settings.sh \
-      && flake8
+      && flake8 \
+      && flake8 --config=zds/settings/.flake8 zds/settings
     fi
 
   - |
     # test and build frontend
     if [[ "$ZDS_TEST_JOB" == *"front"* ]]; then
-      yarn test \
-      && yarn build # we need to upload the assets later
+      yarn run lint && yarn run build # we need to upload the assets later
     fi
-
   - |
     # test backend
     if [[ "$ZDS_TEST_JOB" == *"zds."* ]]; then
-      coverage run --source='.' manage.py \
-        test \
+      python manage.py makemigrations --dry-run --check \
+      && coverage run --source='.' manage.py \
+        test -v=2\
         --keepdb \
-        --settings zds.settings_test_travis \
+        --settings zds.settings.ci_test \
         --exclude-tag=front \
         ${ZDS_TEST_JOB/front/}
     fi
 
   - |
-    # selenium tests
-    if [[ "$ZDS_TEST_JOB" == *"selenium"* ]]; then
-      yarn build
-      python manage.py \
-        test \
-        --keepdb \
-        --settings zds.settings_test_travis \
-        --tag=front
+    # show zmarkdown logs
+    if [[ "$ZDS_TEST_JOB" == *"zds."* ]]; then
+      pm2 logs --nostream --raw --lines 1000
     fi
 
   - |
-    # test and build frontend
+    # selenium tests
+    if [[ "$ZDS_TEST_JOB" == *"selenium"* ]]; then
+      yarn run build
+      xvfb-run --server-args="-screen 0 1280x720x8" python manage.py \
+        test -v=2\
+        --settings zds.settings.ci_test \
+        --tag=front \
+        --keepdb
+    fi
+
+  - |
+    # build documentation
     if [[ "$ZDS_TEST_JOB" == *"doc"* ]]; then
       make --directory doc html
     fi

@@ -1,6 +1,5 @@
-# coding: utf-8
-
 import collections
+import contextlib
 import logging
 import random
 import sys
@@ -22,7 +21,7 @@ from zds.forum.models import Forum, Topic, Category as FCategory
 from zds.utils.models import Tag, Category as TCategory, CategorySubCategory, SubCategory, Licence
 from zds.utils import slugify
 from django.conf import settings
-from django.db import transaction
+from django.db import transaction, IntegrityError
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, \
     Validation as CValidation, ContentReactionFactory
 from zds.tutorialv2.models.database import PublishableContent
@@ -51,11 +50,12 @@ def load_member(cli, size, fake, root, *_):
             if default_user == 'admin':
                 profile.user.is_superuser = True
                 profile.user.is_staff = True
-            profile.user.save()
-            profile.site = fake.url()
-            profile.biography = fake.text(max_nb_chars=200)
-            profile.last_ip_address = fake.ipv4()
-            profile.save()
+            with contextlib.suppress(IntegrityError):
+                profile.user.save()
+                profile.site = fake.url()
+                profile.biography = fake.text(max_nb_chars=200)
+                profile.last_ip_address = fake.ipv4()
+                profile.save()
 
     for i in range(0, nb_users):
         while Profile.objects.filter(user__username='{}{}'.format(root, cpt)).count() > 0:
@@ -168,11 +168,12 @@ def load_forums(cli, size, fake, *_, **__):
     else:
         categories = list(FCategory.objects.all())
         for i in range(0, nb_forums):
-            forum = ForumFactory(category=categories[i % nb_categories],
-                                 position_in_category=(i / nb_categories) + 1)
-            forum.title = fake.word()
-            forum.subtitle = fake.sentence(nb_words=15, variable_nb_words=True)
-            forum.save()
+            with contextlib.suppress(IntegrityError):
+                forum = ForumFactory(category=categories[i % nb_categories],
+                                     position_in_category=(i / nb_categories) + 1)
+                forum.title = fake.word()
+                forum.subtitle = fake.sentence(nb_words=15, variable_nb_words=True)
+                forum.save()
             sys.stdout.write(' Forum {}/{}  \r'.format(i + 1, nb_forums))
             sys.stdout.flush()
         tps2 = time.time()
@@ -188,8 +189,9 @@ def load_tags(cli, size, fake, *_, **__):
     tps1 = time.time()
     for i in range(0, nb_tags):
         title = fake.word()
-        tag, created = Tag.objects.get_or_create(title=title.lower())
-        logging.getLogger(cli.__class__.__name__).debug('tag=%s is_new=%s', tag, created)
+        with contextlib.suppress(IntegrityError):
+            tag, created = Tag.objects.get_or_create(title=title.lower())
+            logging.getLogger(cli.__class__.__name__).debug('tag=%s is_new=%s', tag, created)
         sys.stdout.write(' Tag {}/{}  \r'.format(i + 1, nb_tags))
         sys.stdout.flush()
     tps2 = time.time()
@@ -221,16 +223,17 @@ def load_topics(cli, size, fake, *_, **__):
                          'Vous devez rajouter les tags dans vos fixtures (tag)')
         return
     for i in range(0, nb_topics):
-        topic = TopicFactory(forum=forums[i % nb_forums], author=profiles[i % nb_users].user)
-        topic.is_solved = i % 5 == 0
-        topic.is_locked = i % 10 == 0
-        topic.is_sticky = i % 15 == 0
-        nb_rand_tags = random.randint(0, 5)
-        add_generated_tags_to_topic(nb_rand_tags, nb_tags, topic)
-        topic.title = fake.text(max_nb_chars=80)
-        topic.subtitle = fake.text(max_nb_chars=200)
-        topic.save()
-        PostFactory(topic=topic, author=topic.author, position=1)
+        with contextlib.suppress(IntegrityError):
+            topic = TopicFactory(forum=forums[i % nb_forums], author=profiles[i % nb_users].user)
+            topic.solved_by = profiles[i % nb_users].user if i % 5 else None
+            topic.is_locked = i % 10 == 0
+            topic.is_sticky = i % 15 == 0
+            nb_rand_tags = random.randint(0, 5)
+            add_generated_tags_to_topic(nb_rand_tags, nb_tags, topic)
+            topic.title = fake.text(max_nb_chars=80)
+            topic.subtitle = fake.text(max_nb_chars=200)
+            topic.save()
+            PostFactory(topic=topic, author=topic.author, position=1)
         sys.stdout.write(' Topic {}/{}  \r'.format(i + 1, nb_topics))
         sys.stdout.flush()
     tps2 = time.time()
@@ -313,20 +316,22 @@ def load_categories_content(cli, size, fake, *_, **__):
         sys.stdout.flush()
 
     for i in range(0, nb_sub_categories):
-        ttl = str(i * 10) + str(i) + ' ' + fake.word()
-        subcat = SubCategory(title=ttl,
-                             subtitle=fake.sentence(nb_words=5, variable_nb_words=True),
-                             slug=slugify(ttl))
-        subcat.save()
-        sub_categories.append(subcat)
+        with contextlib.suppress(IntegrityError):
+            ttl = str(i * 10) + str(i) + ' ' + fake.word()
+            subcat = SubCategory(title=ttl,
+                                 subtitle=fake.sentence(nb_words=5, variable_nb_words=True),
+                                 slug=slugify(ttl))
+            subcat.save()
+            sub_categories.append(subcat)
         sys.stdout.write(' SubCat. {}/{}  \r'.format(i + 1, nb_sub_categories))
         sys.stdout.flush()
 
     for i in range(0, nb_sub_categories):
-        catsubcat = CategorySubCategory(category=categories[i % nb_categories],
-                                        subcategory=sub_categories[i],
-                                        is_main=True)
-        catsubcat.save()
+        with contextlib.suppress(IntegrityError):
+            catsubcat = CategorySubCategory(category=categories[i % nb_categories],
+                                            subcategory=sub_categories[i],
+                                            is_main=True)
+            catsubcat.save()
         sys.stdout.write(' CatSubCat. {}/{}  \r'.format(i + 1, nb_sub_categories))
         sys.stdout.flush()
 

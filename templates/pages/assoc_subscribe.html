@@ -5,19 +5,19 @@
 
 
 {% block title %}
-    {% blocktrans with asso_name=app.site.association.name %}Adhérer à l'association {{ asso_name }}{% endblocktrans %}
+    {% blocktrans with asso_name=app.site.association.name %}Adhérer à l’association {{ asso_name }}{% endblocktrans %}
 {% endblock %}
 
 
 
 {% block breadcrumb %}
-    <li>{% blocktrans with asso_name=app.site.association.name %}Adhérer à l'association {{ asso_name }}{% endblocktrans %}</li>
+    <li>{% blocktrans with asso_name=app.site.association.name %}Adhérer à l’association {{ asso_name }}{% endblocktrans %}</li>
 {% endblock %}
 
 
 
 {% block headline %}
-    <h1>{% blocktrans with asso_name=app.site.association.name %}Adhérer à l'association {{ asso_name }}{% endblocktrans %}</h1>
+    <h1>{% blocktrans with asso_name=app.site.association.name %}Adhérer à l’association {{ asso_name }}{% endblocktrans %}</h1>
 {% endblock %}
 
 
@@ -26,34 +26,34 @@
     <h3>{% trans "Pourquoi adhérer ?" %}</h3>
     <p>
         {% blocktrans with asso_name=app.site.association.name %}
-            Adhérer à l'association {{ asso_name }} permet de nous soutenir de manière concrète et d'officialiser votre engagement.
+            Adhérer à l’association {{ asso_name }} permet de nous soutenir de manière concrète et d’officialiser votre engagement.
         {% endblocktrans %}
     </p>
     <p>
         {% blocktrans with asso_fee=app.site.association.fee %}
-            D'autre part, le financement des activités de l'association, dont bien sûr le site, est intégralement assuré par
-            les cotisations des membres : adhérer vous permet ainsi d'assurer la pérennité du site.
+            D’autre part, le financement des activités de l’association, dont bien sûr le site, est intégralement assuré par
+            les cotisations des membres : adhérer vous permet ainsi d’assurer la pérennité du site.
             La cotisation est de <strong>{{ asso_fee }}</strong> (le montant est révisé tous les ans durant les assemblées générales).
             Si pour une raison quelconque vous ne pouvez pas payer cette cotisation, faites-en nous part, nous pouvons accorder des dérogations exceptionnelles.
         {% endblocktrans %}
     </p>
     <p>
-        {% trans "Notez que l'adhésion est subordonnée au paiement de cette cotisation." %}
+        {% trans "Notez que l’adhésion est subordonnée au paiement de cette cotisation." %}
     </p>
     <p>
-        {% trans "Adhérer permet bien entendu de participer à l'Assemblée Générale annuelle de l'association, qui élit le Conseil d'Administration. Si vous avez des idées pour faire avancer l'association et donc le site, c'est le moment !" %}
+        {% trans "Adhérer permet bien entendu de participer à l’Assemblée Générale annuelle de l’association, qui élit le Conseil d’Administration. Si vous avez des idées pour faire avancer l’association et donc le site, c’est le moment !" %}
     </p>
     <p>
         {% blocktrans %}
-            Une précision importante : <strong>adhérer à l'association ne vous apporte rien sur le site</strong>. L'adhésion
-            n'est là que pour soutenir le projet, et ne donne droit à aucun pouvoir ou badge supplémentaires. Elle ne donne
-            même pas accès à un forum secret, puisque le forum de l'association est public !
+            Une précision importante : <strong>adhérer à l’association ne vous apporte rien sur le site</strong>. L’adhésion
+            n’est là que pour soutenir le projet, et ne donne droit à aucun pouvoir ou badge supplémentaires. Elle ne donne
+            même pas accès à un forum secret, puisque le forum de l’association est public !
         {% endblocktrans %}
     </p>
     <p>
-        {% trans "Enfin, toutes les fonctionnalités du site sont disponibles à tous : aucune n'est conditionnée à l'adhésion à l'association." %}
+        {% trans "Enfin, toutes les fonctionnalités du site sont disponibles à tous : aucune n’est conditionnée à l’adhésion à l’association." %}
     </p>
 
-    <h3>{% trans "Formulaire d'adhésion" %}</h3>
+    <h3>{% trans "Formulaire d’adhésion" %}</h3>
     {% crispy form %}
 {% endblock %}

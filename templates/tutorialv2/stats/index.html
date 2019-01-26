@@ -1,0 +1,213 @@
+{% extends "tutorialv2/base.html" %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+{% load append_query_params %}
+{% load datedelta_from_day %}
+{% load seconds_to_duration %}
+
+{% block title %}
+    {% trans "Statistiques du contenu" %}
+{% endblock %}
+
+{% block breadcrumb %}
+    <li><a href="{% url "content:stats-content" content.pk content.slug %}">{% trans "Statistiques" %}</a></li>
+    <li>{{ content.title }}</li>
+{% endblock %}
+
+{% block content_out %}
+    <section class="full-content-wrapper">
+        <h2 class="ico-after ico-tutorials">
+            {% if display == 'global' %}
+                    {% blocktrans with content_title=content.title %}
+                            Statistiques du contenu : {{content_title}}
+                    {% endblocktrans %}
+            {% elif display == 'details' %}
+                    {% blocktrans with content_title=content.title %}
+                        Détails des statistiques du contenu : {{content_title}}
+                    {% endblocktrans %}
+            {% elif display == 'comparison' %}
+                    {% blocktrans with content_title=content.title %}
+                            Comparaison de plusieurs urls du contenu : {{content_title}}
+                    {% endblocktrans %}
+            {% endif %}
+        </h2>
+
+        <!-- Tab links -->
+        <div class="tab">
+            <span class="tablinks" tabindex="0" id="tab-view-graph">{% trans "Pages vues" %}</span>
+            <span class="tablinks" tabindex="0" id="tab-visit-time-graph">{% trans "Temps de lecture" %}</span>
+            <span class="tablinks" tabindex="0" id="tab-users-graph">{% trans "Nombre de visiteurs" %}</span>
+            <span class="tablinks" tabindex="0" id="tab-new-users-graph">{% trans "Nombre de nouveaux visiteurs" %}</span>
+            <span class="tablinks" tabindex="0" id="tab-sessions-graph">{% trans "Nombre de sessions" %}</span>
+        </div>
+        <!-- Tab content -->
+        {% include "misc/graph.part.html" with tab_name="tab-view-graph-content" graph_title="Évolution des pages vues sur le contenu" canvas_id="view-graph" metric="pageviews" %}
+        {% include "misc/graph.part.html" with tab_name="tab-visit-time-graph-content" graph_title="Évolution du temps de lecture (en secondes)" canvas_id="visit-time-graph" metric="avgTimeOnPage" %}
+        {% include "misc/graph.part.html" with tab_name="tab-users-graph-content" graph_title="Évolution du nombre de visiteurs" canvas_id="users-graph" metric="users" %}
+        {% include "misc/graph.part.html" with tab_name="tab-new-users-graph-content" graph_title="Évolution du nombre de nouveaux visiteurs" canvas_id="new-users-graph" metric="newUsers" %}
+        {% include "misc/graph.part.html" with tab_name="tab-sessions-graph-content" graph_title="Évolution du nombre de sessions" canvas_id="sessions-graph" metric="sessions" %}
+
+
+        {% if cumulative_stats_by_url %}
+            {% if display == 'global' %}
+                {% if form.non_field_errors %}
+                    <p class="content-wrapper alert-box warning">
+                        {{ form.non_field_errors.as_text }}
+                    </p>
+                {% endif %}
+                <form method="post">
+                    {% csrf_token %}
+            {% endif %}
+            <table class="stat-table fullwidth">
+                <thead>
+                    <th>{% trans "Partie" %}</th>
+                    <th>{% trans "Vues" %}</th>
+                    <th>{% trans "Temps moyen sur la page" %}</th>
+                    <th>{% trans "Visiteurs (Nouveaux)" %}</th>
+                    <th>{% trans "Sessions" %}</th>
+                    {% if display == 'global' %}<th></th>{% endif %}
+                </thead>
+                <tbody>
+                    {% for view in cumulative_stats_by_url %}
+                        <tr>
+                            <td class="level-{{view.url.level}}">
+                                <a href="{{ view.url.url }}">{{ view.url.name }}</a>
+                                {% if display != 'details' %}
+                                - <a href="?urls={{ view.url.url }}{% if request.GET.start_date %}&start_date={{request.GET.start_date}}{% endif %}{% if request.GET.end_date %}&end_date={{request.GET.end_date}}{% endif %}" >{% trans "(détails)" %}</a>
+                                {% endif %}
+                            </td>
+                            <td>{{ view.pageviews }}</td>
+                            <td>{{ view.avgTimeOnPage|seconds_to_duration }}</td>
+                            <td>{{ view.users }} ({{ view.newUsers }})</td>
+                            <td>{{ view.sessions }}</td>
+                            {% if display == 'global' %}
+                                <td><input name="urls" id="id_urls_{{forloop.counter1}}" value="{{ view.url.url }}" type="checkbox"></td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% if display == 'global' %}
+                <button type="submit" class="btn">{% trans "Comparer" %}</button>
+                </form>
+            {% elif not content.has_extracts %}
+                <a href="{% url "content:stats-content" content.pk content.slug %}" class="btn btn-submit">{% trans "Revenir à la vue globale" %}</a>
+            {% endif %}
+        {% else %}
+            {% trans "Aucune statistique à afficher" %}
+        {% endif %}
+
+        <hr class="clearfix">
+        <div>
+            <section class="content-col-2">
+                <h2>{% trans "Liens entrants vers ces pages" %}</h2>
+                <table class="stat-table fullwidth">
+                    <thead>
+                        <th>{% trans "Liens" %}</th>
+                        <th>{% trans "Visites" %}</th>
+                    </thead>
+                    <tbody>
+                    {% for referrer, visits in referrers.items %}
+                        <tr>
+                            <td>{{ referrer }}</td>
+                            <td>{{ visits }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+            <section class="content-col-2">
+                <h2>{% trans "Mots-clés des moteurs de recherche vers ces pages" %}</h2>
+                <table class="stat-table fullwidth">
+                        <thead>
+                            <th>{% trans "Mot-clés" %}</th>
+                            <th>{% trans "Visites" %}</th>
+                        </thead>
+                        <tbody>
+                        {% for keyword, visits in keywords.items %}
+                            <tr>
+                                <td>{{ keyword }}</td>
+                                <td>{{ visits }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+            </section>
+        </div>
+        <hr class="clearfix">
+        <div>
+            <h2>{% trans "Lexique" %}</h2>
+            <h3>{% trans "Visiteurs" %}</h3>
+            <p>
+                {% trans "Les Visiteurs, parfois appelé VU ou Visiteurs Uniques, correspondent au nombre d’utilisateurs uniques ayant consulté votre site. Un visiteur est considéré comme nouveau si c’est son premier passage sur la page. La mesure de Google est plutôt fiable sur le dédoublonnage grâce à ses outils de tracking poussés. Cependant elle ne doit pas être prise pour valeur exacte (l’outil n’étant par exemple pas considéré comme outil de mesure d’audience parfait par certains organismes officiels)." %}
+            </p>
+            <h3>{% trans "Sessions" %}</h3>
+            <p>
+                {% trans "Les sessions sont une mesure similaire au nombre de visites. Elles symbolisent le passage d’un visiteur. Tant que le visiteur est sur le site et actif, une seule session est comptée. Si l’utilisateur ne fait rien ou quitte le site pendant plus de 5 minutes, alors une nouvelle session démarre." %}
+            </p>
+            <h3>{% trans "Vues" %}</h3>
+            <p>
+                {% trans "C’est simplement le nombre de fois qu’une page a été chargée." %}
+            </p>
+        </div>
+    </section>
+{% endblock %}
+
+{% block sidebar %}
+    <aside class="sidebar summary mobile-menu-hide">
+        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">
+            <h3>{% trans "Échelle de temps" %}</h3>
+            <ul>
+                <li>
+                    {% with start_date=-7|datedelta_from_day end_date=0|datedelta_from_day %}
+                    <a class="{% if request.GET.start_date == start_date|date:'Y-m-d' or request.GET.start_date is none %}selected{% endif %}"
+                       href="{% append_query_params start_date=start_date,end_date=end_date %}{% if display == 'comparison' %}{% for url in urls %}&urls={{url.url}}{% endfor %}{% endif %}">
+                        {% trans "7 derniers jours" %}
+                    </a>
+                    {% endwith %}
+                </li>
+                <li>
+                    {% with start_date=-30|datedelta_from_day end_date=0|datedelta_from_day %}
+                    <a class="{% if request.GET.start_date == start_date|date:'Y-m-d' %}selected{% endif %}"
+                       href="{% append_query_params start_date=start_date,end_date=end_date %}{% if display == 'comparison' %}{% for url in urls %}&urls={{url.url}}{% endfor %}{% endif %}">
+                        {% trans "30 derniers jours" %}
+                    </a>
+                    {% endwith %}
+                </li>
+                <li>
+                    {% with start_date=-365|datedelta_from_day end_date=0|datedelta_from_day %}
+                    <a class="{% if request.GET.start_date == start_date|date:'Y-m-d' %}selected{% endif %}"
+                       href="{% append_query_params start_date=start_date,end_date=end_date %}{% if display == 'comparison' %}{% for url in urls %}&urls={{url.url}}{% endfor %}{% endif %}">
+                        {% trans "La dernière année" %}
+                    </a>
+                    {% endwith %}
+                </li>
+                <li>
+                    <a href="#custom-dates" class="open-modal">{% trans "Échelle personnalisée" %}</a>
+                    <form method="GET" class="modal modal-flex" id="custom-dates">
+                        {% if request.GET.end_date %}
+                            <label for="start_date">{% trans "Du" %}</label>
+                            <input type="date" value="{% if request.GET.start_date %}{{request.GET.start_date}}{% else %}{{ -7|datedelta_from_day:request.GET.end_date|date:'Y-m-d' }}{% endif %}" name="start_date" id="start_date" max="{% now 'Y-m-d' %}">
+                            <label for="end_date">{% trans "au" %}</label>
+                            <input type="date" value="{{request.GET.end_date}}" name="end_date" id="end_date" max="{% now 'Y-m-d' %}">
+                        {% else %}
+                            <label for="start_date">{% trans "Du" %}</label>
+                            <input type="date" value="{% if request.GET.start_date %}{{request.GET.start_date}}{% else %}{{ -7|datedelta_from_day|date:'Y-m-d' }}{% endif %}" name="start_date" id="start_date" max="{% now 'Y-m-d' %}">
+                            <label for="end_date">{% trans "au" %}</label>
+                            <input type="date" value="{% now 'Y-m-d' %}" name="end_date" id="end_date" max="{% now 'Y-m-d' %}">
+                        {% endif %}
+                        <button type="submit">
+                            {% trans "Actualiser" %}
+                        </button>
+                    </form>
+                </li>
+            </ul>
+            <h3>Type de graphe</h3>
+            <ul>
+                <li>
+                    <button id="graph_type_toogle">-</button>
+                </li>
+            </ul>
+        </div>
+    </aside>
+{% endblock sidebar %}

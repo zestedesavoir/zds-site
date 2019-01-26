@@ -3,7 +3,7 @@
 
 
 {% block breadcrumb %}
-    <li>{% trans "Supression de compte" %}</li>
+    <li>{% trans "Désinscription" %}</li>
 {% endblock %}
 
 
@@ -23,7 +23,7 @@
 {% block content %}
     <p>
         {% blocktrans with username=user.username %}
-         Attention {{ username }}, vous êtes sur le point de vous désinscrire de Zeste de Savoir. Voici ce qu’implique cette action <strong>qui ne peut être annulée</strong>.
+            Attention {{ username }}, vous êtes sur le point de vous désinscrire de Zeste de Savoir. Voici ce qu’implique cette action <strong>qui ne peut être annulée</strong>.
         {% endblocktrans %}
     </p>
 

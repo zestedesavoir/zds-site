@@ -56,7 +56,7 @@
                     line-height: 25px;
                     color: #95d7f5;
                     overflow: hidden;
-                    transition: all $transition-duration ease;
+                    transition: padding-left $transition-duration ease, background-color $transition-duration ease;
 
                     &:hover,
                     &:focus {
@@ -121,7 +121,7 @@
                 &::-webkit-scrollbar-thumb {
                     background-color: #396a81;
                     border: 1px solid #06354a;
-                    transition: all $transition-duration ease;
+                    transition: background-color $transition-duration ease;
 
                     &:hover {
                         background-color: #5196b6;
