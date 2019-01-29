@@ -97,8 +97,8 @@
             </li>
             {% endfor %}
             {% if can_add_something and child.can_add_extract %}
-                <li style="list-style-type:'+'">
-                    <a href="{% url "content:create-extract" content.pk child.parent.slug child.slug %}">
+                <li class="simple-create-button">
+                    <a class="btn btn-blue" href="{% url "content:create-extract" content.pk child.parent.slug child.slug %}">
                         {% trans "Ajouter une nouvelle section" %}
                     </a>
                 </li>
@@ -132,15 +132,15 @@
                         </li>
                     {% endfor %}
                     {% if can_add_something %}
-                        <li>
+                        <li class="simple-create-button">
                             <h4>
-                                <a
+                                <a class="btn btn-blue"
                                     {% if content.is_beta %}
                                         href="{{ extract.get_absolute_url_beta }}"
                                     {% else %}
                                         href="{% url "content:create-extract" content.pk child.parent.slug child.slug subchild.slug %}"
                                     {% endif %}
-                                >+ {% trans "Ajouter une section" %}</a>
+                                >{% trans "Ajouter une section" %}</a>
                             </h4>
                         </li>
                     {% endif %}
@@ -169,8 +169,8 @@
         </div>
         {% elif can_add_something and child.can_add_extract and child.is_chapter %}
             <ol>
-                <li style="list-style-type:'+'">
-                    <a href="{% url "content:create-extract" content.pk content.slug child.parent.slug child.slug %}">
+                <li class="simple-create-button">
+                    <a class="btn btn-blue" href="{% url "content:create-extract" content.pk content.slug child.parent.slug child.slug %}">
                         {% trans "Ajouter une nouvelle section" %}
                     </a>
                 </li>
