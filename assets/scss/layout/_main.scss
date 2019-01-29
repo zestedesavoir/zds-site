@@ -85,6 +85,14 @@
             line-height: 32px;
             height: 32px;
             border-radius: 2px;
+            vertical-align: middle;
+
+            &::before {
+                content: '+ ';
+                font-size: 28px;
+                vertical-align: middle;
+                padding-bottom: 3px; /* hack font vertical-align between + and ABC (letters) */
+            }
         }
     }
 
