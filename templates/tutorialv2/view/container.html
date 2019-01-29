@@ -173,8 +173,8 @@
     {% endfor %}
     {% if can_add_something %}
         {% if container.can_add_container and not container.can_add_extract %}
-            <h2 class="blue">
-                <a href="{% if container.parent == content %}
+            <h2>
+                <a class="force-blue" href="{% if container.parent == content %}
                             {% url "content:create-container" content.pk content.slug container.slug %}
                         {%  else %}
                             {% url "content:create-container" content.pk content.slug container.parent.slug %}
@@ -196,7 +196,7 @@
             </div>
         {% endif %}
         {% if not container.can_add_container and container.can_add_extract %}
-            <h2 class="blue">
+            <h2 class="force-blue">
                 <a href="{% if container.parent == content %}
                             {% url "content:create-extract" content.pk content.slug container.slug %}
                         {%  else %}

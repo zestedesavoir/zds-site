@@ -199,8 +199,8 @@
     {% endfor %}
     {% if can_add_something %}
         {% if content.can_add_container and not content.can_add_extract %}
-            <h2 class="blue">
-                <a href="{% url "content:create-container" content.pk content.slug %}">
+            <h2>
+                <a class="force-blue" href="{% url "content:create-container" content.pk content.slug %}">
                     {% trans "Ajouter une nouvelle partie" %}
                 </a>
             </h2>
@@ -210,12 +210,12 @@
                 </a>
             </div>
             <div class="ico-after information">
-                <p>{% trans "Cliquer sur ajouter pour créer une nouvelle partie." %}</p>
+                <p>{% trans "Cette partie n'est pas encore créée. Vous devez la créer avant de pouvoir y ajouter un élément." %}</p>
             </div>
         {% endif %}
         {% if not content.can_add_container and content.can_add_extract %}
-            <h2 class="blue">
-                <a href="{% url "content:create-extract" content.pk content.slug %}">
+            <h2>
+                <a class="force-blue" href="{% url "content:create-extract" content.pk content.slug %}">
                     {% trans "Ajouter une nouvelle section" %}
                 </a>
             </h2>
