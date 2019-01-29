@@ -77,6 +77,17 @@
         }
     }
 
+    li.simple-create-button {
+        list-style-type: '';
+        .btn {
+            float:none;
+            display:inline-block;
+            line-height: 32px;
+            height: 32px;
+            border-radius: 2px;
+        }
+    }
+
     .license {
         float: right;
         margin: 0;
