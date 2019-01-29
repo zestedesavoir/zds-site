@@ -163,7 +163,7 @@
             {% if not content.can_add_container and content.can_add_extract and can_add_something %}
                 <li class="simple-create-button">
                     <a class="btn btn-blue" href="{% url "content:create-extract" content.pk content.slug %}">
-                        {% trans "Ajouter une nouvelle section" %}
+                        {% trans "Ajouter une section" %}
                     </a>
                 </li>
             {% endif %}
@@ -216,7 +216,7 @@
         {% if not content.can_add_container and content.can_add_extract %}
             <h2>
                 <a class="force-blue" href="{% url "content:create-extract" content.pk content.slug %}">
-                    {% trans "Ajouter une nouvelle section" %}
+                    {% trans "Ajouter une section" %}
                 </a>
             </h2>
             <div class="actions-title">

@@ -99,7 +99,7 @@
             {% if can_add_something and child.can_add_extract %}
                 <li class="simple-create-button">
                     <a class="btn btn-blue" href="{% url "content:create-extract" content.pk child.parent.slug child.slug %}">
-                        {% trans "Ajouter une nouvelle section" %}
+                        {% trans "Ajouter une section" %}
                     </a>
                 </li>
             {% endif %}
@@ -180,7 +180,7 @@
             <ol>
                 <li class="simple-create-button">
                     <a class="btn btn-blue" href="{% url "content:create-extract" content.pk content.slug child.parent.slug child.slug %}">
-                        {% trans "Ajouter une nouvelle section" %}
+                        {% trans "Ajouter une section" %}
                     </a>
                 </li>
             </ol>
