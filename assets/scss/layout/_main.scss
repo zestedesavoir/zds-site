@@ -18,11 +18,6 @@
         border-bottom: 1px solid $color-secondary;
         margin: 1px 0 15px;
 
-        &.blue, 
-        &.blue a {
-            color:#1088bf !important;
-        }
-
         &.illu {
             padding-left: 60px;
 
@@ -72,6 +67,10 @@
             line-height: 38px;
             height: 38px;
         }
+    }
+
+    .force-blue {
+        color:#1088bf !important;
     }
 
     li.simple-create-button {
@@ -153,6 +152,10 @@
 
     .new-btn-container {
         display: none;
+    }
+
+    .summary-part h4 > a.disabled {
+        background: none !important;
     }
 }
 

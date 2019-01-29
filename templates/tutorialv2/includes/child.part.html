@@ -104,49 +104,58 @@
                 </li>
             {% endif %}
         </ol>
-    {%  elif child.has_sub_containers %}
+    {% elif child.has_sub_containers %}
         <ol class="summary-part">
             {% for subchild in child.children %}
-            <li>
-                <h3>
-                    <a
-                    {% if content.is_beta %}
-                        href="{{ subchild.get_absolute_url_beta }}"
-                    {% else %}
-                        href="{{ subchild.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}"
-                    {% endif %}
-                    >{{ subchild.title }}</a>
-                </h3>
-                <ol class="summary-part">
-                    {% for extract in subchild.children %}
-                        <li>
-                            <h4>
-                                <a
-                                    {% if content.is_beta %}
-                                        href="{{ extract.get_absolute_url_beta }}"
-                                    {% else %}
-                                        href="{{ extract.container.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}#{{ extract.position_in_parent }}-{{ extract.slug }}"
-                                    {% endif %}
-                                >{{ extract.title }}</a>
-                            </h4>
-                        </li>
-                    {% endfor %}
-                    {% if can_add_something %}
-                        <li class="simple-create-button">
-                            <h4>
-                                <a class="btn btn-blue"
-                                    {% if content.is_beta %}
-                                        href="{{ extract.get_absolute_url_beta }}"
-                                    {% else %}
+                <li>
+                    <h3>
+                        <a
+                        {% if content.is_beta %}
+                            href="{{ subchild.get_absolute_url_beta }}"
+                        {% else %}
+                            href="{{ subchild.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}"
+                        {% endif %}
+                        >{{ subchild.title }}</a>
+                    </h3>
+                    <ol class="summary-part">
+                        {% for extract in subchild.children %}
+                            <li>
+                                <h4>
+                                    <a
+                                        {% if content.is_beta %}
+                                            href="{{ extract.get_absolute_url_beta }}"
+                                        {% else %}
+                                            href="{{ extract.container.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}#{{ extract.position_in_parent }}-{{ extract.slug }}"
+                                        {% endif %}
+                                    >{{ extract.title }}</a>
+                                </h4>
+                            </li>
+                        {% endfor %}
+                        {% if can_add_something %}
+                            <li class="simple-create-button">
+                                <h4>
+                                    <a class="btn btn-blue"
                                         href="{% url "content:create-extract" content.pk child.parent.slug child.slug subchild.slug %}"
-                                    {% endif %}
-                                >{% trans "Ajouter une section" %}</a>
-                            </h4>
-                        </li>
-                    {% endif %}
-                </ol>
-            </li>
+                                    >{% trans "Ajouter une section" %}</a>
+                                </h4>
+                            </li>
+                        {% endif %}
+                    </ol>
+                </li>
             {% endfor %}
+            {% if can_add_something and child.can_add_container %}
+                <li>
+                    <h3>
+                        <a class="force-blue"
+                            href="{% url "content:create-container" content.pk child.parent.slug child.slug %}"
+                        >{% trans "Ajouter un chapitre" %}</a>
+                    </h3>
+                    <ol class="summary-part">
+                        <li><h4><a class="disabled">{% trans "Section A" %}</a></h4></li>
+                        <li><h4><a class="disabled">{% trans "Section B" %}</a></h4></li>
+                    </ol>
+                </li>
+            {% endif %}
         </ol>
     {% else %}
         {% if not can_add_something or not child.is_chapter %}
