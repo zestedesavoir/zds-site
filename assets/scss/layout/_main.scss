@@ -85,6 +85,7 @@
             height: 32px;
             border-radius: 2px;
             vertical-align: middle;
+            padding:0 12px 0 8px;
 
             &::before {
                 content: '+ ';
@@ -92,6 +93,7 @@
                 vertical-align: middle;
                 padding-bottom: 3px; /* hack font vertical-align between + and ABC (letters) */
             }
+            margin-left:-18px;
         }
     }
 

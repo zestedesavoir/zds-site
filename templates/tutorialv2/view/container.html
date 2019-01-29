@@ -133,7 +133,7 @@
                             {%  else %}
                                 {% url "content:create-extract" content.pk content.slug container.parent.slug container.slug %}
                             {%  endif %}">
-                        {% trans "Ajouter une nouvelle section" %}
+                        {% trans "Ajouter une section" %}
                     </a>
                 </li>
             {% endif %}
@@ -179,7 +179,7 @@
                         {%  else %}
                             {% url "content:create-container" content.pk content.slug container.parent.slug %}
                         {%  endif %}">
-                    {% trans "Ajouter un nouveau chapitre" %}
+                    {% trans "Ajouter un chapitre" %}
                 </a>
             </h2>
             <div class="actions-title">
@@ -202,7 +202,7 @@
                         {%  else %}
                             {% url "content:create-extract" content.pk content.slug container.parent.slug container.slug %}
                         {%  endif %}">
-                    {% trans "Ajouter une nouvelle section" %}
+                    {% trans "Ajouter une section" %}
                 </a>
             </h2>
             <div class="actions-title">
