@@ -128,7 +128,7 @@
             {% endfor %}
             {% if not container.can_add_container and container.can_add_extract and can_add_something %}
                 <li class="simple-create-button">
-                    <a class="btn btn-blue" href="{% if container.parent == content %}
+                    <a class="btn btn-grey" href="{% if container.parent == content %}
                                 {% url "content:create-extract" content.pk content.slug container.slug %}
                             {%  else %}
                                 {% url "content:create-extract" content.pk content.slug container.parent.slug container.slug %}

@@ -211,9 +211,6 @@
     .btn-grey {
         @include addBtnColorProperties(#EEE, #555, #CCC, #333, #999);
     }
-    .btn-blue {
-        @include addBtnColorProperties(#1088bf, white, #d68807, white, #999);
-    }
     [disabled],
     .disabled {
         cursor: default !important;
