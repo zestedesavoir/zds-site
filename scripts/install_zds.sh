@@ -28,7 +28,7 @@ function error {
 }
 
 # variables
-source define_variable.sh
+source ./scripts/define_variable.sh
 
 # os-specific package install
 if  ! $(_in "-packages" $@) && ( $(_in "+packages" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
