@@ -28,7 +28,9 @@ function error {
 }
 
 # variables
-source define_variable.sh
+LOCAL_DIR="$(cd "$(dirname "$0")" && pwd)"
+source $LOCAL_DIR/define_variable.sh
+
 
 # os-specific package install
 if  ! $(_in "-packages" $@) && ( $(_in "+packages" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
