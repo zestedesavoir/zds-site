@@ -331,7 +331,7 @@
                 {% with profile=user.profile %}
                     <a href="{% url "member-detail" user.username %}"
                        id="my-account"
-                       class="my-account mobile-menu-link mobile-menu-bloc dont-click-if-sidebar"
+                       class="dont-click-if-sidebar"
                        title="{% trans 'Mon profil' %}"
                        data-title="{% trans 'Mon profil' %}"
 
@@ -344,7 +344,7 @@
                     </a>
                 {% endwith %}
 
-                <div class="dropdown my-account-dropdown mobile-menu-bloc mobile-all-links" data-title="{% trans 'Mon compte' %}">
+                <div class="dropdown my-account-dropdown mobile-all-links" data-title="{% trans 'Mon compte' %}">
                     <span class="dropdown-title">{{ user.username|truncatechars:25 }}</span>
 
                     <ul class="dropdown-list">
