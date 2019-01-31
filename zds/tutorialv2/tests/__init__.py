@@ -65,7 +65,7 @@ class TutorialFrontMixin:
         # Wait until the user is logged in (this raises if the element
         # is not found).
 
-        find_element('.header-container .logbox .my-account .username')
+        find_element('.header-container .logbox #my-account .username')
 
     def login_author(self):
         self.login(self.user_author.profile)
