@@ -76,7 +76,7 @@ zmd-stop: ## Stop the zmarkdown server
 ## ~ Elastic Search
 
 run-elasticsearch: ## Run the Elastic Search server
-	elasticsearch || echo 'No Elastic Search installed (you can add it locally with `./scripts/install_zds.sh +elasticsearch`)'
+	elasticsearch || echo 'No Elastic Search installed (you can add it locally with `./scripts/install_zds.sh +elastic-local`)'
 
 index-all: ## Index the database in a new Elastic Search index
 	python manage.py es_manager index_all
