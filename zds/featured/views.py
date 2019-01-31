@@ -66,7 +66,7 @@ class FeaturedResourceCreate(CreateView):
 
     def get_initial_content_data(self, content_id):
         try:
-            content = PublishedContent.objects.get(content__pk=int(content_id))
+            content = PublishedContent.objects.filter(must_redirect=False, content__pk=int(content_id)).first()
         except (PublishedContent.DoesNotExist, ValueError):
             messages.error(self.request, self.initial_error_message)
             return {}
@@ -79,7 +79,7 @@ class FeaturedResourceCreate(CreateView):
                 'type': self.displayed_content_type[content.content_type],
                 'authors': displayed_authors,
                 'url': self.request.build_absolute_uri(content.content.get_absolute_url_online()),
-                'image_url': image_url}
+                'image_url': self.request.build_absolute_uri(image_url)}
 
     def get_initial(self):
         initial = super(FeaturedResourceCreate, self).get_initial()
