@@ -72,7 +72,7 @@ class FeaturedResourceCreate(CreateView):
             return {}
         displayed_authors = ', '.join([str(x) for x in content.authors.all()])
         if content.content.image:
-            image_url = content.content.image.physical.url
+            image_url = content.content.image.physical['featured'].url
         else:
             image_url = None
         return {'title': content.title(),
