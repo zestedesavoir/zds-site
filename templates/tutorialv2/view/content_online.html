@@ -49,12 +49,13 @@
     {% if content.image %}
         {{ content.image.physical.social_network.url }}
     {% else %}
+        {% load static %}
         {% if content.type == 'TUTORIAL' %}
-            /static/images/tutorial-illu.png
+            {% static "images/tutorial-illu.png" %}
         {% elif content.type == 'ARTICLE' %}
-            /static/images/article-illu.png
+            {% static "images/article-illu.png" %}
         {% elif content.type == 'OPINION' %}
-            /static/images/opinion-illu.png
+            {% static "images/opinion-illu.png" %}
         {% endif %}
     {% endif %}
 {% endspaceless %}{% endblock %}
