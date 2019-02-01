@@ -21,4 +21,4 @@ def seconds_to_duration(value):
         return ''
 
     duration = datetime.timedelta(seconds=value)
-    return strfdelta(duration, "{hours}h{minutes}m{seconds}s)
+    return strfdelta(duration, "{hours}h{minutes}m{seconds}s")
