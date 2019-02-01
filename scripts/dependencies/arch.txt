@@ -1,0 +1,15 @@
+#title=Arch
+#desc=Utilisation de pacman
+#installcmd=pacman -Syu
+git
+wget
+curl
+python
+python3-pip
+libxslt
+zlib
+libffi
+libjpeg-turbo
+freetype2
+base-devel
+unzip
