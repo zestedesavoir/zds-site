@@ -53,7 +53,7 @@
     <ul class="content-tags" itemprop="keywords">
         {% for tag in search_result.tags|slice:":3" %}
             <li>
-                {% if search_result.is_opinion %}
+                {% if search_result.content_type == 'OPINION' %}
                     <a href="{% url 'opinion:list' %}?tag={{ tag|urlencode }}">{{ tag }}</a>
                 {% else %}
                     <a href="{% url 'publication:list' %}?tag={{ tag|urlencode }}">{{ tag }}</a>
