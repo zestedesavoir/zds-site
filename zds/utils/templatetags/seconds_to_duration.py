@@ -3,12 +3,14 @@ import datetime
 
 register = template.Library()
 
+
 # https://stackoverflow.com/a/8907269/2226755
 def strfdelta(tdelta, fmt):
-    d = {"days": tdelta.days}
-    d["hours"], rem = divmod(tdelta.seconds, 3600)
-    d["minutes"], d["seconds"] = divmod(rem, 60)
+    d = {'days': tdelta.days}
+    d['hours'], rem = divmod(tdelta.seconds, 3600)
+    d['minutes'], d['seconds'] = divmod(rem, 60)
     return fmt.format(**d)
+
 
 # TODO add unit test
 @register.filter('seconds_to_duration')
@@ -21,4 +23,4 @@ def seconds_to_duration(value):
         return ''
 
     duration = datetime.timedelta(seconds=value)
-    return strfdelta(duration, "{hours}h{minutes}m{seconds}s")
+    return strfdelta(duration, '{hours}h{minutes}m{seconds}s')
