@@ -3,6 +3,7 @@ python-social-auth==0.2.21
 elasticsearch==5.5.2
 elasticsearch-dsl==5.4.0
 sqlparse==0.2.4
+setuptools==4.6.3
 
 # Explicit dependencies (references in code)
 Django==1.11.15
@@ -11,6 +12,7 @@ django-model-utils==3.1.2
 django-munin==0.2.1
 python-memcached==1.59
 lxml==4.2.5
+libxml2-python3==2.9.5
 factory-boy==2.8.1
 pygeoip==0.3.2
 pillow==5.0.0
