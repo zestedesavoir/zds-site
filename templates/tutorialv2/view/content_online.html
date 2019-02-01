@@ -47,7 +47,7 @@
 
 {% block meta_image %}{% spaceless %}
     {% if content.image %}
-        {{ content.image.physical.social_network.url }}
+        {{ content.image.physical|thumbnail_url:'social_network' }}
     {% else %}
         {% load static %}
         {% if content.type == 'TUTORIAL' %}
