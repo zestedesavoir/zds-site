@@ -19,3 +19,10 @@ fi
 if [[ $ZDS_LATEX_REPO == "" ]]; then
     ZDS_LATEX_REPO="https://github.com/zestedesavoir/latex-template.git"
 fi
+
+if [[ $ZDS_JDK_HASH == "" ]]; then
+    ZDS_JDK_HASH="f51449fcd52f4d52b93a989c5c56ed3c"
+    # shellcheck disable=SC2034
+    ZDS_JDK_VERSION="11.0.2"
+    ZDS_JDK_REV="+9"
+fi
