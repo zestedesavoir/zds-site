@@ -682,12 +682,15 @@ function uploadImage (e, dataTransferAttr, csrf){
         return false;
     }
     var galleryUrl = '/api/galeries/'+ document.body.getAttribute('data-gallery') + '/images/';
+    var printErr =  (message) => {
+        return $("<div>", {
+            text: message,
+            class: "alert-box error",
+        }).insertAfter(editor).append('<a href="#hidealert" class="close-alert-box close-alert-box-text">Cacher</a>');
+    }
     Object.values(files).forEach(function (f) {
         if (f.type.indexOf("image") !== 0) {
-            return $("<div>", {
-                text: "Format d'image invalide",
-                class: "alert-box error",
-            }).insertAfter(editor).delay(3000).hide(1000);
+            return printErr("Le format d'image est invalide !");
         }
 
         var mdWaitingCode = '![' + f.name + ' en cours de téléchargement]()';
@@ -722,10 +725,7 @@ function uploadImage (e, dataTransferAttr, csrf){
                 error = "Oups ! Impossible de se connecter au serveur.";
             }
 
-            $("<div>", {
-                text: error,
-                class: "alert-box error",
-            }).insertAfter(editor).delay(3000).hide(1000);
+            printErr(error);
 
             editor.val(editor.val().replace(new RegExp(mdWaitingRegexp), ''));
         });
