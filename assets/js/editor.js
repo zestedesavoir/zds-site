@@ -683,17 +683,36 @@ function uploadImage (e, dataTransferAttr, csrf){
     }
     var galleryUrl = '/api/galeries/'+ document.body.getAttribute('data-gallery') + '/images/';
     var printErr =  (message) => {
-        return $("<div>", {
+        var $div = $("<div>", {
             text: message,
             class: "alert-box error",
         }).insertAfter(editor).append('<a href="#hidealert" class="close-alert-box close-alert-box-text">Cacher</a>');
+
+        var borderTop = document.documentElement.scrollTop,
+            borderBot = borderTop + $(window).height(),
+            posTop = $div.offset().top,
+            posBot = posTop + $div.outerHeight();
+
+        var scrollAnimTo = (pos) => {
+            console.log("ok");
+            $('body, html').animate({ scrollTop: pos }, 1000);
+        };
+
+        if (posTop < borderTop) {
+            scrollAnimTo(posTop);
+        }
+        else if (borderBot < posBot) {
+            scrollAnimTo(posBot - $(window).height());
+        }
+
+        return $div;
     }
     Object.values(files).forEach(function (f) {
-        if (f.type.indexOf("image") !== 0) {
+        /*if (f.type.indexOf("image") !== 0) {
             return printErr("Le format d'image est invalide !");
         } else if (f.size/1024 > 1024) {
             return printErr("Votre image est trop lourde (" + (f.size/1024) + " Kio). La taille maximum est de 1024.0 Kio !");
-        }
+        }*/
 
         var mdWaitingCode = '![' + f.name + ' en cours de téléchargement]()';
         var mdWaitingRegexp = mdWaitingCode.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
