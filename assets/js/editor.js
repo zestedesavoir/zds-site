@@ -665,7 +665,7 @@
 })(window, document);
 
 function uploadImage (e, dataTransferAttr, csrf){
-    var editor = $(e.target);
+    var $editor = $(e.target);
     // need to use window[dataTransferAttr for IE-11
     var dataTransfert = e.originalEvent[dataTransferAttr] || window[dataTransferAttr];
     var files = [];
@@ -682,40 +682,42 @@ function uploadImage (e, dataTransferAttr, csrf){
         return false;
     }
     var galleryUrl = '/api/galeries/'+ document.body.getAttribute('data-gallery') + '/images/';
-    var printErr =  (message) => {
+    var printErr =  function (message) {
         var $div = $("<div>", {
             text: message,
             class: "alert-box error",
-        }).insertAfter(editor).append('<a href="#hidealert" class="close-alert-box close-alert-box-text">Cacher</a>');
+        });
+
+        $div.append('<a href="#hidealert" class="close-alert-box close-alert-box-text">Cacher</a>');
 
         var borderTop = document.documentElement.scrollTop,
             borderBot = borderTop + $(window).height(),
             posTop = $div.offset().top,
             posBot = posTop + $div.outerHeight();
 
-        var scrollAnimTo = (pos) => {
+        var scrollAnimTo = function (pos) {
             $('body, html').animate({ scrollTop: pos }, 1000);
         };
 
         if (posTop < borderTop) {
             scrollAnimTo(posTop);
-        }
-        else if (borderBot < posBot) {
+        } else if (borderBot < posBot) {
             scrollAnimTo(posBot - $(window).height());
         }
 
-        return $div;
+        return $div.insertAfter($editor);
     }
     Object.values(files).forEach(function (f) {
+        var filesize = (f.size / 1024);
         if (f.type.indexOf("image") !== 0) {
             return printErr("Le format d'image est invalide !");
-        } else if (f.size/1024 > 1024) {
-            return printErr("Votre image est trop lourde (" + (f.size/1024) + " Kio). La taille maximum est de 1024.0 Kio !");
+        } else if (filesize > 1024) {
+            return printErr("Votre image est trop lourde (" + filesize + " Kio). La taille maximum est de 1024.0 Kio !");
         }
 
         var mdWaitingCode = '![' + f.name + ' en cours de téléchargement]()';
         var mdWaitingRegexp = mdWaitingCode.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-        editor.val(editor.val() + '\n' + mdWaitingCode );
+        $editor.val($editor.val() + '\n' + mdWaitingCode );
         var formData = new FormData();
         formData.append('physical', f);
         formData.append('title', f.name);
@@ -732,7 +734,7 @@ function uploadImage (e, dataTransferAttr, csrf){
         }).done(function (result) {
             var mdFinalCode = '![' + result.legend + '](' + result.url +')';
 
-            editor.val(editor.val().replace(new RegExp(mdWaitingRegexp), mdFinalCode));
+            $editor.val($editor.val().replace(new RegExp(mdWaitingRegexp), mdFinalCode));
         }).fail(function (resp) {
             var error = "Erreur inconnue";
             if(resp.responseText !== undefined && resp.responseText.indexOf("RequestDataTooBig") !== -1) {
@@ -747,7 +749,7 @@ function uploadImage (e, dataTransferAttr, csrf){
 
             printErr(error);
 
-            editor.val(editor.val().replace(new RegExp(mdWaitingRegexp), ''));
+            $editor.val($editor.val().replace(new RegExp(mdWaitingRegexp), ''));
         });
     });
     return true;
