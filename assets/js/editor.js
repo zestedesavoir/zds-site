@@ -691,6 +691,8 @@ function uploadImage (e, dataTransferAttr, csrf){
     Object.values(files).forEach(function (f) {
         if (f.type.indexOf("image") !== 0) {
             return printErr("Le format d'image est invalide !");
+        } else if (f.size/1024 > 1024) {
+            return printErr("Votre image est trop lourde (" + (f.size/1024) + " Kio). La taille maximum est de 1024.0 Kio !");
         }
 
         var mdWaitingCode = '![' + f.name + ' en cours de téléchargement]()';
