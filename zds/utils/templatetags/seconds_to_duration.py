@@ -23,4 +23,7 @@ def seconds_to_duration(value):
         return ''
 
     duration = datetime.timedelta(seconds=value)
-    return strfdelta(duration, '{hours}h{minutes}m{seconds}s')
+    if duration < 3600
+        return strfdelta(duration, '{minutes}m{seconds}s')
+    else
+        return strfdelta(duration, '{hours}h{minutes}m{seconds}s') 
