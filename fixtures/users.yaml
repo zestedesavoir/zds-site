@@ -63,26 +63,6 @@
         password: pbkdf2_sha256$12000$FssznaRHkjFK$8GvNM2oqOIHRNNr4G+8s+cbk6LIYXaxGOsI1Hh6cswI=
         is_superuser: False
 -   model: auth.user
-    pk: 5
-    fields:
-        first_name: Anonymous
-        last_name: User
-        username: anonymous
-        password: pbkdf2_sha256$12000$DWHNLpO3jXIv$MrnMZblGu1Q+xemP4XK2keLtbyfkRXxczPTLhSJ0AAM=
-        is_superuser: False
-        groups:
-            - 2
--   model: auth.user
-    pk: 6
-    fields:
-        first_name: External
-        last_name: User
-        username: external
-        password: pbkdf2_sha256$12000$DWHNLpO3jXIv$MrnMZblGu1Q+xemP4XK2keLtbyfkRXxczPTLhSJ0AAM=
-        is_superuser: False
-        groups:
-            - 2
--   model: auth.user
     pk: 7
     fields:
         first_name: decalage
