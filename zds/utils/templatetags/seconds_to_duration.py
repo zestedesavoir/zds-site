@@ -23,7 +23,7 @@ def seconds_to_duration(value):
         return ''
 
     duration = datetime.timedelta(seconds=value)
-    if timedelta(hours=1) > duration:
+    if datetime.timedelta(hours=1) > duration:
         return strfdelta(duration, '{minutes}m{seconds}s')
     else:
         return strfdelta(duration, '{hours}h{minutes}m{seconds}s') 
