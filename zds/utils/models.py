@@ -392,17 +392,26 @@ class Comment(models.Model):
         self.text = text
         self.text_html = html
         self.save()
-        all_the_pings = list(filter(lambda user_name: user_name != self.author.username, metadata.get('ping', [])))
-        all_the_pings = list(set(all_the_pings) - set(old_metadata.get('ping', [])))
-        max_ping_count = settings.ZDS_APP['comment']['max_pings']
-        first_pings = all_the_pings[:max_ping_count]
-        for username in first_pings:
-            pinged_user = User.objects.filter(username=username).first()
-            if not pinged_user:
-                continue
+
+        def filter_usernames(original_list):
+            # removes duplicates and the message's author
+            filtered_list = []
+            for username in original_list:
+                if username != self.author.username and username not in filtered_list:
+                    filtered_list.append(username)
+            return filtered_list
+
+        max_pings_allowed = settings.ZDS_APP['comment']['max_pings']
+        pinged_usernames_from_new_text = filter_usernames(metadata.get('ping', []))[:max_pings_allowed]
+        pinged_usernames_from_old_text = filter_usernames(old_metadata.get('ping', []))[:max_pings_allowed]
+
+        pinged_usernames = set(pinged_usernames_from_new_text) - set(pinged_usernames_from_old_text)
+        pinged_users = User.objects.filter(username__in=pinged_usernames)
+        for pinged_user in pinged_users:
             signals.new_content.send(sender=self.__class__, instance=self, user=pinged_user)
-        unpinged_usernames = set(old_metadata.get('ping', [])) - set(all_the_pings)
-        unpinged_users = User.objects.filter(username__in=list(unpinged_usernames))
+
+        unpinged_usernames = set(pinged_usernames_from_old_text) - set(pinged_usernames_from_new_text)
+        unpinged_users = User.objects.filter(username__in=unpinged_usernames)
         for unpinged_user in unpinged_users:
             signals.unsubscribe.send(self.author, instance=self, user=unpinged_user)
 
