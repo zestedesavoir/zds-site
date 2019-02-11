@@ -7,15 +7,8 @@ python:
   - 3.5
 
 
-addons:
-  firefox: "latest"
-  apt:
-    packages:
-      - mysql-server-5.6
-      - mysql-client-core-5.6
-      - mysql-client-5.6
-      - libmysqlclient-dev
-- language-pack-fr
+virtualenv:
+  system_site_packages: true
 
 
 git:
@@ -68,16 +61,10 @@ cache:
 
 
 before_install:
-  - source ./scripts/ci_turbo.sh # This script exports environment variables, it must be sourced
-
-  - source ./scripts/define_variable.sh 
-
-  - source ./scripts/travis_header.sh
-
-  - zds_register_module_for_installation
+  - source ./scripts/define_variable.sh
 
 install:
-  - ./scripts/install_zds.sh --travis-output $zds_install_argument
+  - ./scripts/install_zds.sh --travis-output +packages +virtualenv +back
 
   #- make install-back-with-prod
 
@@ -92,7 +79,7 @@ after_success:
   - |
     # upload coverage
     if [[ "$ZDS_TEST_JOB" != "none" ]]; then
-      coveralls
+      #coveralls
     fi
 
   - |
