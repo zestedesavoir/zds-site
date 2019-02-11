@@ -188,7 +188,9 @@
                                                 {% trans "Tags les plus utilisés" %}
                                             </li>
                                             {% for tag in top.tags %}
-                                                <li><a href="{{ tag.get_absolute_url }}">{{ tag.title }}</a></li>
+                                                {% if tag.slug %}
+                                                    <li><a href="{{ tag.get_absolute_url }}">{{ tag.title }}</a></li>
+                                                {% endif %}
                                             {% endfor %}
                                         </ul>
                                     </li>
