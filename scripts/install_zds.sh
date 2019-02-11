@@ -107,7 +107,8 @@ if  ! $(_in "-packages" $@) && ( $(_in "+packages" $@) || $(_in "+base" $@) || $
     echo "$version"
     if [[ "$version" =~ "ubuntu" ]]; then
         #Linux version 4.4.0-101-generic (buildd@lgw01-amd64-031) (gcc version 4.8.4 (Ubuntu 4.8.4-2ubuntu1~14.04.3) ) #124~14.04.1-Ubuntu SMP Fri Nov 10 19:05:36 UTC 2017
-        sudo apt-get -y install git wget python3-venv python3-dev libxml2-dev python3-lxml libxslt1-dev zlib1g-dev python3-sqlparse libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev libffi-dev python3-pip build-essential curl imagemagick
+        sudo apt-get update
+        sudo apt-get -y install git wget python3-venv python3-dev libxml2-dev python3-lxml libxslt1-dev zlib1g-dev python3-sqlparse libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev libffi-dev build-essential curl imagemagick
         pip install virtualenv
         export LC_ALL="en_US.UTF-8"
         export LC_CTYPE="en_US.UTF-8"
