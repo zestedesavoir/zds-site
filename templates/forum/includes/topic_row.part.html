@@ -30,11 +30,13 @@
             {% if topic.tags.all %}
                 <ul class="topic-tags">
                     {% for tag in topic.tags.all %}
-                        <li>
-                            <a href="{% url 'topic-tag-find' tag.slug %}" class="topic-tag" title="Tag {{ tag.title }}">
-                                {{ tag.title }}
-                            </a>
-                        </li>
+                        {% if tag.slug %}
+                            <li>
+                                <a href="{% url 'topic-tag-find' tag.slug %}" class="topic-tag" title="Tag {{ tag.title }}">
+                                    {{ tag.title }}
+                                </a>
+                            </li>
+                        {% endif %}
                     {% endfor %}
                 </ul>
             {% endif %}

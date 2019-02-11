@@ -51,11 +51,13 @@
     {% if topic.tags.all %}
         <ul class="taglist" itemprop="keywords">
             {% for tag in topic.tags.all %}
+                {% if tag.slug %}
                 <li>
                     <a href="{% url 'topic-tag-find' tag.slug %}" rel="tag">
                         {{ tag.title }}
                     </a>
                 </li>
+                {% endif %}
             {% endfor %}
         </ul>
     {% endif %}
