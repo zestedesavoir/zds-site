@@ -71,6 +71,24 @@ install:
 script:
   - source ./$ZDS_VENV/bin/activate
 
+  - echo -en "\n\n---------\n\n"
+
+  - pwd
+
+  - echo -en "\n\n---------\n\n"
+
+  - which sphinx-build
+
+  - echo -en "\n\n---------\n\n"
+
+  - printenv
+
+  - echo -en "\n\n---------\n\n"
+
+  - set -o posix; set; set +o posix
+
+  - echo -en "\n\n---------\n\n"
+
   - ./scripts/travis_script.sh "build_documentation"
 
 after_success:
