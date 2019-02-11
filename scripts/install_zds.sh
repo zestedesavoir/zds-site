@@ -107,6 +107,7 @@ if  ! $(_in "-packages" $@) && ( $(_in "+packages" $@) || $(_in "+base" $@) || $
     echo "$version"
     if [[ "$version" =~ "ubuntu" ]]; then
         #Linux version 4.4.0-101-generic (buildd@lgw01-amd64-031) (gcc version 4.8.4 (Ubuntu 4.8.4-2ubuntu1~14.04.3) ) #124~14.04.1-Ubuntu SMP Fri Nov 10 19:05:36 UTC 2017
+        sudo apt-get update
         sudo apt-get -y install git wget python3-dev python3-setuptools python3-pip python3-venv libxml2-dev python3-lxml libxslt1-dev zlib1g-dev python3-sqlparse libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev libffi-dev build-essential curl imagemagick librsvg2-bin xzdec
         pip install virtualenv
         #https://stackoverflow.com/a/39539571/2226755
@@ -131,7 +132,11 @@ if  ! $(_in "-virtualenv" $@) && ( $(_in "+virtualenv" $@) || $(_in "+base" $@) 
 
     if [ ! -d $ZDS_VENV ]; then
         print_info "* [+virtualenv] creating virtualenv"
-        python3 -m venv $ZDS_VENV --without-pip
+        if [[ $? != "0" ]]; then
+            print_error "!! Try --without-pip"
+            python3 -m venv $ZDS_VENV --without-pip
+            exit 1
+        fi
     fi
 fi
 
