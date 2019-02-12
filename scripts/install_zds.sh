@@ -132,7 +132,7 @@ if  ! $(_in "-virtualenv" $@) && ( $(_in "+virtualenv" $@) || $(_in "+base" $@) 
 
     if [ ! -d $ZDS_VENV ]; then
         print_info "* [+virtualenv] creating virtualenv"
-        if [[ $? != "0" ]]; then
+        if [[ $? == *"ensurepip"* ]]; then
             print_error "!! Try --without-pip"
             python3 -m venv $ZDS_VENV --without-pip
             exit 1
