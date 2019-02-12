@@ -91,6 +91,21 @@ script:
 
   - echo -en "\n\n---------\n\n"
 
+  - |
+    echo "------------"
+    echo "------------"
+    echo "------------"
+    ls -R "$(pwd)/zdsenv/" | awk '
+    /:$/&&f{s=$0;f=0}
+    /:$/&&!f{sub(/:$/,"");s=$0;f=1;next}
+    NF&&f{ print s"/"$0 }'
+    echo "------------"
+    echo "------------"
+    echo "------------"
+    PATH=$PATH:/usr/local/lib/
+    echo "------------"
+    echo "------------"
+
   - ./scripts/travis_script.sh "build_documentation"
 
 after_success:
