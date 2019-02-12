@@ -71,36 +71,9 @@ install:
 script:
   - source ./$ZDS_VENV/bin/activate
 
-  - echo -en "\n\n---------\n\n"
-
-  - pwd
-
-  - echo -en "\n\n---------\n\n"
-
-  - source ./virtualenv/bin/activate
+  - source ~/virtualenv/python3.4_with_system_site_packages/bin/activate
 
   - which sphinx-build
-
-  - echo -en "\n\n---------\n\n"
-
-  - printenv
-
-  - echo -en "\n\n---------\n\n"
-
-  - set -o posix; set; set +o posix
-
-  - echo -en "\n\n---------\n\n"
-
-  - |
-    echo "------------"
-    echo "------------"
-    echo "------------"
-    ls -R "$(pwd)/zdsenv/" | awk '
-    /:$/&&f{s=$0;f=0}
-    /:$/&&!f{sub(/:$/,"");s=$0;f=1;next}
-    NF&&f{ print s"/"$0 }'
-    echo "------------"
-    echo "------------"
 
   - ./scripts/travis_script.sh "build_documentation"
 
