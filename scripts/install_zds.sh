@@ -92,6 +92,11 @@ function wget_nv {
 }
 # <<<<<
 
+lastSTDERR=""
+function lookafter {
+    lastSTDERR=$(apt-get $1 3>&1 1>&2 2>&3 | sudo tee /dev/stderr)
+}
+
 
 
 # variables
@@ -108,11 +113,14 @@ if  ! $(_in "-packages" $@) && ( $(_in "+packages" $@) || $(_in "+base" $@) || $
     if [[ "$version" =~ "ubuntu" ]]; then
         #Linux version 4.4.0-101-generic (buildd@lgw01-amd64-031) (gcc version 4.8.4 (Ubuntu 4.8.4-2ubuntu1~14.04.3) ) #124~14.04.1-Ubuntu SMP Fri Nov 10 19:05:36 UTC 2017
         sudo apt-get update
-        sudo apt-get -y install git wget python3-dev python3-setuptools python3-pip python3-venv libxml2-dev python3-lxml libxslt1-dev zlib1g-dev python3-sqlparse libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev libffi-dev build-essential curl imagemagick librsvg2-bin xzdec
-        pip install virtualenv
+        lookafter "sudo apt-get -y install git wget python3-dev python3-setuptools python3-pip python3-venv libxml2-dev python3-lxml libxslt1-dev zlib1g-dev python3-sqlparse libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev libffi-dev build-essential curl imagemagick librsvg2-bin xzdec"
+        if [[ $lastSTDERR == *"E: Unable to locate package python3-venv"* ]]; then
+            print_info "!! Unable to install virtualenv with apt-get. Try to install virtualenv with pip."
+            pip install virtualenv
+        fi
         #https://stackoverflow.com/a/39539571/2226755
     elif [[ "$version" =~ "debian" ]]; then
-        sudo apt-get -y install git wget python3-dev python3-venv python3-setuptools libxml2-dev python3-lxml libxslt-dev libz-dev python3-sqlparse libjpeg62-turbo libjpeg62-turbo-dev libfreetype6 libfreetype6-dev libffi-dev python3-pip virtualenv build-essential curl librsvg2-bin imagemagick xzdec
+        sudo apt-get -y install git wget python3-dev python3-venv python3-setuptools libxml2-dev python3-lxml libxslt-dev libz-dev python3-sqlparse libjpeg62-turbo libjpeg62-turbo-dev libfreetype6 libfreetype6-dev libffi-dev python3-pip virtualenv build-essential curl imagemagick librsvg2-bin xzdec
     elif [[ "$version" =~ "fedora" ]]; then
         sudo dnf -y install git wget python3-devel python3-setuptools libxml2-devel python3-lxml libxslt-devel zlib-devel python3-sqlparse libjpeg-turbo-devel libjpeg-turbo-devel freetype freetype-devel libffi-devel python3-pip python-virtualenv gcc redhat-rpm-config
     elif [[ "$version" =~ "arch" ]]; then
@@ -134,7 +142,7 @@ if  ! $(_in "-virtualenv" $@) && ( $(_in "+virtualenv" $@) || $(_in "+base" $@) 
         print_info "* [+virtualenv] creating virtualenv"
         msg=$(python3 -m venv $ZDS_VENV)
         if [[ $? != "0" && $msg == *"ensurepip"* ]]; then
-            print_error "!! Try --without-pip"
+            print_info "!! Try --without-pip"
             python3 -m venv $ZDS_VENV --without-pip
         fi
         echo $msg
