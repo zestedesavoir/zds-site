@@ -94,7 +94,7 @@ function wget_nv {
 
 lastSTDERR=""
 function lookafter {
-    lastSTDERR=$($1 3>&1 1>&2 2>&3 | sudo tee /dev/stderr)
+    lastSTDERR=$(${1} 3>&1 1>&2 2>&3 | sudo tee /dev/stderr)
 }
 
 
