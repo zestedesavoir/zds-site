@@ -205,26 +205,6 @@
                 display: none;
             }
 
-            .with-hat {
-                color: #FFF;
-                background-color: $color-hat;
-                display: inline-block;
-                padding: 0;
-                margin-top: 5px;
-                margin-bottom: 5px;
-
-                & > a {
-                    color: #FFF;
-                    text-decoration: none;
-                    display: inline-block;
-                    padding: 0 6px;
-                }
-            }
-
-            .staff-hat {
-                background-color: $color-staff-hat;
-            }
-
             .message-edited,
             .message-hidden,
             .message-helpful,
