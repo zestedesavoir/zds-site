@@ -107,6 +107,33 @@
         </section>
 
         <div class="flexpage-wrapper">
+            <ul class="hatlist">
+                {% for hat in profile.get_hats %}
+                    <li class="hat {% if hat.is_staff %}staff-hat{% endif %}">
+                        <a href="{{ hat.get_absolute_url }}" rel="casquette">
+                            {{ hat.name }}
+                            {% if hat.is_staff %}
+                                <em>({{ app.site.literal_name }})</em>
+                            {% endif %}
+                        </a>
+                        {% if perms.utils.change_hat and not hat.group %}
+                            – <a href="#remove-hat-{{ hat.pk }}" class="open-modal">{% trans "Retirer" %}</a>
+                            <form action="{% url 'remove-hat' usr.pk hat.pk %}" method="post" id="remove-hat-{{ hat.pk }}" class="modal modal-flex">
+                                {% csrf_token %}
+                                <p>
+                                    {% blocktrans with hat=hat.name username=usr.username %}
+                                        Voulez-vous vraiment retirer la casquette « {{ hat }} » à {{ username }} ?
+                                    {% endblocktrans %}
+                                </p>
+                                <button type="submit">{% trans 'Confirmer' %}</button>
+                            </form>
+                        {% endif %}
+                    </li>
+                {% empty %}
+                    <li>{% trans "Aucune casquette" %}</li>
+                {% endfor %}
+            </ul>
+
             <div class="flexpage-column">
                 <section>
                     <h2 itemprop="name">{% trans 'Informations' %}</h2>

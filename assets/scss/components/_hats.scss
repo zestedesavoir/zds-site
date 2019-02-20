@@ -1,0 +1,55 @@
+.hat {
+    display: inline-block;
+    padding: 0;
+    margin-top: 5px;
+    margin-bottom: 5px;
+
+    & > a {
+        color: #FFF;
+        background-color: $color-hat;
+
+        transition-property: color, background, border;
+        transition-timing-function: ease;
+        transition-duration: $transition-duration;
+
+        text-decoration: none;
+        display: inline-block;
+        padding: 0 6px;
+        border: 1px solid transparent;
+    }
+
+    &:hover > a,
+    &:focus > a {
+        background-color: transparent;
+        color: $color-hat;
+        border: 1px solid $color-hat;
+    }
+
+    &.staff-hat {
+        & > a {
+            background-color: $color-staff-hat;
+        }
+        &:hover > a,
+        &:focus > a {
+            background-color: transparent;
+            color: $color-staff-hat;
+            border: 1px solid $color-staff-hat;
+        }
+    }
+}
+
+.hatlist {
+    list-style: none;
+    padding: 0;
+    margin: -14px 0 15px;
+    height: 30px;
+    line-height: 30px;
+
+    li {
+        float: right;
+
+        & {
+            margin-left: 1px;
+        }
+    }
+}
