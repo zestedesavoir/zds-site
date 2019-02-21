@@ -112,7 +112,7 @@ $content-width: 1145px;
 
         .member-follow {
             position: absolute;
-            right: 50px;
+            right: 0px;
             top: 50px;
             width: 230px;
 
@@ -275,6 +275,12 @@ $content-width: 1145px;
             margin-right: 150px;
             @include block-center;
         }
+    }
+}
+
+body.userprofilepage {
+    .flexpage-title-tool {
+        padding-right:0;
     }
 }
 
