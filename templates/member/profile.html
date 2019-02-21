@@ -18,16 +18,18 @@
 {% endblock %}
 
 
-
 {% block title %}
     {{ usr.username }}
 {% endblock %}
 
-{% block body_class %}flexpage{% endblock %}
+
+{% block body_class %}flexpage userprofilepage{% endblock %}
+
 
 {% block sidebar_actions %}
     {% include "member/sidebar.html" %}
 {% endblock %}
+
 
 {% block content_out %}
     {% with public_tutos_count=profile.get_public_tutos.count articles_public_count=profile.get_public_articles.count opinions_public_count=profile.get_public_opinions.count opinions_draft_count=profile.get_draft_opinions.count draft_content_count=profile.get_draft_tutos.count|add:profile.get_draft_articles.count %}
@@ -41,8 +43,8 @@
                     {% if not profile.is_private %}
                         <div class="member-follow">
                             {% if profile.user == user %}
-                                <a href="{% url "update-member" %}"  title="{% trans "Paramètres de mon compte" %}" class="btn-ico btn ico-after gear light">
-                                    <span>{% trans "Paramètres de mon compte" %}</span>
+                                <a href="{% url "update-member" %}"  title="{% trans "Modifier mon profil" %}" class="btn-ico btn ico-after gear light">
+                                    <span>{% trans "Modifier mon profil" %}</span>
                                 </a>
                             {% elif perms.member.change_profile %}
                                 <a href="{% url "member-settings-mini-profile" profile.user.username %}"  title="{% trans "Modifier le profil" %}" class="btn-ico btn ico-after gear light">
@@ -133,6 +135,12 @@
                     <li>{% trans "Aucune casquette" %}</li>
                 {% endfor %}
             </ul>
+            <span class="pubdate">
+                {% trans "Inscrit" %} :
+                <time datetime="{{ usr.date_joined|date:"c" }}" pubdate="pubdate" itemprop="dateModified">
+                    {{ usr.date_joined|format_date }}
+                </time>
+            </span>
 
             <div class="flexpage-column">
                 <section>
