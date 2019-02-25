@@ -4,7 +4,7 @@
     background-color: #FFF;
 }
 
-.badge {
+.badge-sanction {
     position: absolute;
     display: block;
     width: 145px;
@@ -14,7 +14,7 @@
     text-transform: uppercase;
     color: #EEE;
     text-shadow: rgba(0, 0, 0, .25) 0 0 3px;
-    background-color: #b71c1c;
+    background-color: $color-badge-sanction;
     top: 145px;
 
 }
