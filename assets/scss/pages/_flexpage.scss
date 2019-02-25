@@ -57,7 +57,7 @@ $content-width: 1145px;
             top: 50px;
             width: 104px;
             height: 60.04px;
-            margin: 30.02px 50px 30.02px 0;
+            margin: 30.02px 25px 30.02px 25px;
             background: rgba(0, 0, 0, 0.2);
 
             &:before, &:after {
@@ -215,6 +215,7 @@ $content-width: 1145px;
                 }
             }
         }
+
         @mixin block-center {
             display: flex;
             margin-top: 10px;
@@ -261,10 +262,6 @@ $content-width: 1145px;
                 }
             }
         }
-        .aside-center {
-            margin-right: 250px;
-            @include block-center;
-        }
 
         .title-center {
             margin-right: 250px;
@@ -273,6 +270,11 @@ $content-width: 1145px;
 
         .aside {
             margin-right: 150px;
+            @include block-center;
+        }
+
+        .aside-center {
+            margin-right: 250px;
             @include block-center;
         }
     }
@@ -301,28 +303,20 @@ body.userprofilepage {
         }
 
         .flexpage-title-tool {
-            padding: 15px 25px;
+            padding: 15px 0;
 
             .picto, .member-avatar, .member-follow {
                 display: none;
             }
 
-            .aside {
+            .aside,
+            .title-center,
+            .aside-center {
                 max-width: 100%;
-            }
-        }
-    }
-}
-
-@media only screen and #{$media-mobile} {
-    .flexpage {
-        .flexpage-title-tool {
-            padding: 15px 0;
-
-            .aside {
                 margin-right: 0;
+            }
 
-                .search label {
+            .aside-center { .search label {
                     padding-right: 5px;
                 }
             }

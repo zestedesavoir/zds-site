@@ -59,6 +59,10 @@
         font-size: 1.6rem;
         text-shadow: rgba(0, 0, 0, 0.75) 0 0 3px;
 
+        &.btn {
+            margin-left: 0px;
+        }
+
         &.ico-after {
             text-indent: 40px;
 
