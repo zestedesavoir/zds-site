@@ -1,7 +1,49 @@
-.avatar {
-    height: 60px;
-    width: 60px;
-    background-color: #FFF;
+body.userprofilepage section.flexpage-header {
+    margin-bottom:0;
+}
+
+body.userprofilepage div.flexpage-wrapper {
+    padding-top:0;
+}
+
+#profileHeadInfo {
+    /* flex */
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap-reverse;
+    /* --- */
+    margin-bottom:15px;
+    line-height: 30px;
+    color: #999;
+
+    ul.info {
+        /* reset ul css */
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        /* flex */
+        display: flex;
+        align-content: flex-start;
+        flex-wrap: wrap;
+        flex:1;
+        /* --- */
+        li {
+            line-height: 1.7em;
+            height: 1.7em;
+        }
+        li::before {
+            content: " •";
+            white-space: pre;
+        }
+    }
+    ul.hatlist {
+        /* flex */
+        justify-content: flex-end;
+        flex:1;
+        /* --- */
+    }
 }
 
 .badge-sanction {
@@ -17,6 +59,12 @@
     background-color: $color-badge-sanction;
     top: 145px;
 
+}
+
+.avatar {
+    height: 60px;
+    width: 60px;
+    background-color: #FFF;
 }
 
 .member-card {

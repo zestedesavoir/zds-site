@@ -1,10 +1,41 @@
-.hat {
-    display: inline-block;
-    padding: 0;
-    margin-top: 5px;
-    margin-bottom: 5px;
 
-    & > a {
+.hat,
+.hatlist a.btn {
+    /* Set height & lh of .hat to be sure to keep
+       the same size with .btn */
+    line-height: 30px;
+    box-sizing: border-box;
+    height: 32px;
+    /* --- */
+    margin: 0 0 1px 0; // bottom:1px
+    word-wrap: nowrap;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+/* hat in a message */
+.message .hat {
+    /* undo `line-height: 30px;` with `inherit` */
+    line-height: inherit;
+    margin: 5px 0;
+}
+
+.hat > a.name,
+.hatlist a.btn {
+    padding: 0 6px;
+    border: 1px solid transparent;
+}
+
+.hatlist a.btn.ico-after::after {
+    /* original : margin: 12px 0 0 7px; */
+    margin-top: 7px; /*   ^^ 12 - 10 / 2 = 7px */
+    color: #999;
+}
+
+.hat {
+    position: relative;
+
+    & > a.name {
         color: #FFF;
         background-color: $color-hat;
 
@@ -14,23 +45,35 @@
 
         text-decoration: none;
         display: inline-block;
-        padding: 0 6px;
-        border: 1px solid transparent;
     }
 
-    &:hover > a,
-    &:focus > a {
+    a.open-modal {
+        display: none;
+    }
+
+    &:hover a.open-modal {
+        position: absolute;
+        display: block;
+        width: 100%;
+        bottom: -16px;
+        text-align: center;
+        line-height: 16px;
+        font-size: 14px;
+    }
+
+    a.name:hover,
+    a.name:focus {
         background-color: transparent;
         color: $color-hat;
         border: 1px solid $color-hat;
     }
 
     &.staff-hat {
-        & > a {
+        & > a.name {
             background-color: $color-staff-hat;
         }
-        &:hover > a,
-        &:focus > a {
+        a.name:hover,
+        a.name:focus {
             background-color: transparent;
             color: $color-staff-hat;
             border: 1px solid $color-staff-hat;
@@ -39,15 +82,16 @@
 }
 
 .hatlist {
+    /* reset ul css */
     list-style: none;
     padding: 0;
-    margin: -14px 0 15px;
-    height: 30px;
-    line-height: 30px;
+    margin: 0;
+    /* --- */
+    
+    display: flex;
+    flex-wrap: wrap;
 
     li {
-        float: right;
-
         & {
             margin-left: 1px;
         }

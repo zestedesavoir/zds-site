@@ -13,7 +13,6 @@ MIDDLEWARE = (
     'debug_toolbar.middleware.DebugToolbarMiddleware',
 ) + MIDDLEWARE
 
-
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
