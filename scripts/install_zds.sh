@@ -113,9 +113,8 @@ if  ! $(_in "-packages" $@) && ( $(_in "+packages" $@) || $(_in "+base" $@) || $
     if [[ "$version" =~ "ubuntu" ]]; then
         #Linux version 4.4.0-101-generic (buildd@lgw01-amd64-031) (gcc version 4.8.4 (Ubuntu 4.8.4-2ubuntu1~14.04.3) ) #124~14.04.1-Ubuntu SMP Fri Nov 10 19:05:36 UTC 2017
         sudo apt-get update
-        lookafter "sudo apt-get -y install git wget python3-dev python3-setuptools python3-pip python3-venv libxml2-dev python3-lxml libxslt1-dev zlib1g-dev python3-sqlparse libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev libffi-dev build-essential curl imagemagick librsvg2-bin xzdec"
-        echo "llllllllllllll"
-        echo $lastSTDERR
+        lookafter "sudo apt-get -y install git wget python3-dev python3-setuptools python3-pip libxml2-dev python3-lxml libxslt1-dev zlib1g-dev python3-sqlparse libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev libffi-dev build-essential curl imagemagick librsvg2-bin xzdec"
+        pip install virtualenv
         if [[ $lastSTDERR == *"E: Unable to locate package python3-venv"* ]]; then
             print_info "!! Unable to install virtualenv with apt-get. Try to install virtualenv with pip."
             pip install virtualenv
