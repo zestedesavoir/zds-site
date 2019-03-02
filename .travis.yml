@@ -67,8 +67,6 @@ install:
 script:
   - source ./$ZDS_VENV/bin/activate
 
-  - source ~/virtualenv/python3.4_with_system_site_packages/bin/activate
-
   - which sphinx-build
 
   - ./scripts/travis_script.sh "build_documentation"
