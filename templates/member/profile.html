@@ -144,7 +144,7 @@
                                 <a class="name" href="{{ hat.get_absolute_url }}" rel="casquette">
                                     {{ hat.name }}
                                     {% if hat.is_staff %}
-                                        <em>({{ app.site.literal_name }})</em>
+                                        ({{ app.site.literal_name }})
                                     {% endif %}
                                 </a>
                                 {% if perms.utils.change_hat and not hat.group %}
