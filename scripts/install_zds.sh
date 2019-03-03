@@ -116,7 +116,7 @@ if  ! $(_in "-packages" $@) && ( $(_in "+packages" $@) || $(_in "+base" $@) || $
         lookafter "sudo apt-get -y install git wget python3-dev python3-setuptools python3-pip python3-venv libxml2-dev python3-lxml libxslt1-dev zlib1g-dev python3-sqlparse libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev libffi-dev build-essential curl imagemagick librsvg2-bin xzdec"
         if [[ $lastSTDERR == *"E: Unable to locate package python3-venv"* ]]; then
             print_info "!! Unable to install virtualenv with apt-get. Try to install virtualenv with pip."
-            pip install virtualenv
+            pip3 install virtualenv
         fi
         #https://stackoverflow.com/a/39539571/2226755
     elif [[ "$version" =~ "debian" ]]; then
