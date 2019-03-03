@@ -136,6 +136,7 @@ fi
 
 # virtualenv
 if  ! $(_in "-virtualenv" $@) && ( $(_in "+virtualenv" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
+    deactivate
     zds_fold_start "virtualenv" "* Load virtualenv"
 
     if [ ! -d $ZDS_VENV ]; then
