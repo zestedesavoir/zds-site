@@ -58,6 +58,7 @@ cache:
 
 before_install:
   - HACK_SphinxBuild=$VIRTUAL_ENV
+
   - source ./scripts/define_variable.sh
 
 install:
@@ -67,8 +68,6 @@ install:
 
 script:
   - source ./$ZDS_VENV/bin/activate
-
-  - which sphinx-build
 
   - source $HACK_SphinxBuild/bin/activate
 
