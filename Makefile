@@ -25,7 +25,6 @@ install-back: ## Install the Python packages for the backend
 
 install-back-with-prod:
 	pip install --upgrade -q -r requirements-dev.txt -r requirements-prod.txt
-	#pip3 install --upgrade -q -r requirements-dev.txt -r requirements-prod.txt
 
 run-back: zmd-check ## Run the backend server
 	python manage.py runserver
