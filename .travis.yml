@@ -47,13 +47,13 @@ services:
 
 
 cache:
-  apt: true
-  pip: true
-  yarn: true
-  directories:
-    - $HOME/.local/share/fonts
-    - $HOME/.texlive
-    - node_modules
+  apt: false
+  pip: false
+  yarn: false
+  #directories:
+  # - $HOME/.local/share/fonts
+  # - $HOME/.texlive
+  # - node_modules
 
 
 before_install:
