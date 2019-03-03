@@ -62,7 +62,7 @@ before_install:
   - source ./scripts/define_variable.sh
 
 install:
-  - ./scripts/install_zds.sh --travis-output +packages +virtualenv +back
+  - ./scripts/install_zds.sh --answer-yes --travis-output +packages +virtualenv +back
 
   #- make install-back-with-prod
 
@@ -79,7 +79,7 @@ after_success:
   - |
     # upload coverage
     if [[ "$ZDS_TEST_JOB" != "none" ]]; then
-      #coveralls
+      coveralls
     fi
 
   - |

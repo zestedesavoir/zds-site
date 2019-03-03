@@ -93,11 +93,10 @@ function wget_nv {
 # <<<<<
 
 lastSTDERR=""
+# Store error of an command, example : `lookafter "sudo apt-get -qq -y install aaaaaaaa"`
 function lookafter {
     lastSTDERR=$($@ 3>&1 1>&2 2>&3 | sudo tee /dev/stderr)
 }
-
-
 
 # variables
 LOCAL_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -108,35 +107,58 @@ source $LOCAL_DIR/define_variable.sh
 if  ! $(_in "-packages" $@) && ( $(_in "+packages" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
     zds_fold_start "packages" "* [+packages] installing packages (this subcommand will be run as super-user)"
 
-    version=$(cat /proc/version)
-    echo "$version"
-    if [[ "$version" =~ "ubuntu" ]]; then
-        #Linux version 4.4.0-101-generic (buildd@lgw01-amd64-031) (gcc version 4.8.4 (Ubuntu 4.8.4-2ubuntu1~14.04.3) ) #124~14.04.1-Ubuntu SMP Fri Nov 10 19:05:36 UTC 2017
-        sudo apt-get update -qq
-        lookafter "sudo apt-get -qq -y install git wget python3-dev python3-setuptools python3-pip python3-venv libxml2-dev python3-lxml libxslt1-dev zlib1g-dev python3-sqlparse libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev libffi-dev build-essential curl imagemagick librsvg2-bin xzdec"
-        if [[ $lastSTDERR == *"E: Unable to locate package python3-venv"* ]]; then
-            print_info "!! We were unable to install virtualenv with apt-get. We try to install virtualenv with pip."
-            pip install virtualenv
-        fi
-        #https://stackoverflow.com/a/39539571/2226755
-    elif [[ "$version" =~ "debian" ]]; then
-        sudo apt-get -qq -y install git wget python3-dev python3-venv python3-setuptools libxml2-dev python3-lxml libxslt-dev libz-dev python3-sqlparse libjpeg62-turbo libjpeg62-turbo-dev libfreetype6 libfreetype6-dev libffi-dev python3-pip virtualenv build-essential curl imagemagick librsvg2-bin xzdec
-    elif [[ "$version" =~ "fedora" ]]; then
-        sudo dnf -q -y install git wget python3-devel python3-setuptools libxml2-devel python3-lxml libxslt-devel zlib-devel python3-sqlparse libjpeg-turbo-devel libjpeg-turbo-devel freetype freetype-devel libffi-devel python3-pip python-virtualenv gcc redhat-rpm-config
-    elif [[ "$version" =~ "arch" ]]; then
-        sudo pacman -q -Syu git wget python python-setuptools python3-pip libxml2 python-lxml libxslt zlib python-sqlparse libffi libjpeg-turbo freetype2 base-devel unzip
-    else
-        print_error "!! I did not detect your linux version"
-        print_error "!! Please manually install the packages and run again with \`-packages\`"
+    echo -en "\033[33;1m";
+    n=1
+    arr=()
+
+    for filepath in $LOCAL_DIR/dependencies/*.txt; do
+        echo "$n. $filepath"
+        arr[n]=$filepath
+        ((n++))
+    done
+    echo -en "\033[00m"
+    echo -n "Choix : "
+    read -n 1
+    echo ""
+
+    filepath=${arr[$REPLY]}
+    if [[ $filepath == "" ]]; then
+        print_error "!! You don't pick the right choice."
         exit 1
     fi
+
+    packagingTool_install="apt-get -qq -y install"
+    echo "$filepath"
+    for dep in $(cat $filepath); do
+        echo "$packagingTool_install $dep"
+        sudo $packagingTool_install $dep
+        if [[ $? != "0" && ! $(_in "--answer-yes" $@) ]]; then
+            print_error "\`$dep\` not found, press \`y\` to follow the script."
+            read -n 1
+            echo ""
+            if [ "$REPLY" == "y" ]; then
+                print_info "Poursuite de l'installation"
+            else
+                print_error "Arrêt de l'installation"
+                exit 1
+            fi
+        elif [[ $? != "0" && $(_in "--answer-yes" $@) ]]; then
+            print_info "Poursuite de l'installation"
+        fi
+    done
+
     zds_fold_end
 fi
 
 
+exit 1
+
 # virtualenv
 if  ! $(_in "-virtualenv" $@) && ( $(_in "+virtualenv" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
     zds_fold_start "virtualenv" "* Load virtualenv"
+
+    print_info "* [+virtualenv] installing \`virtualenv 16.2.0\` with pip"
+    pip install virtualenv==16.2.0
 
     if [ ! -d $ZDS_VENV ]; then
         print_info "* [+virtualenv] creating virtualenv"
