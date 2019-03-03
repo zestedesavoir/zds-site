@@ -58,10 +58,6 @@ fi
 if [[ "$1" == "build_documentation" ]] && [[ "$ZDS_TEST_JOB" == *"doc"* ]]; then
     print_info "* Build documentation"
     if [[ "$ZDS_TEST_JOB" == *"doc"* ]]; then
-        cd doc
-        echo "-------1"
-        sphinx-build
-        echo "-------2"
         make html
     fi
 fi
