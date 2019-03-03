@@ -145,7 +145,7 @@ if  ! $(_in "-virtualenv" $@) && ( $(_in "+virtualenv" $@) || $(_in "+base" $@) 
             echo $msg
             print_info "!! Try --without-pip"
             python3 -m venv $ZDS_VENV --without-pip
-        else
+        elif [[ $msg =~ "" ]]; then
             echo $msg
         fi
     fi
