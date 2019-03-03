@@ -115,8 +115,8 @@ if  ! $(_in "-packages" $@) && ( $(_in "+packages" $@) || $(_in "+base" $@) || $
         sudo apt-get update -qq
         lookafter "sudo apt-get -qq -y install git wget python3-dev python3-setuptools python3-pip python3-venv libxml2-dev python3-lxml libxslt1-dev zlib1g-dev python3-sqlparse libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev libffi-dev build-essential curl imagemagick librsvg2-bin xzdec"
         if [[ $lastSTDERR == *"E: Unable to locate package python3-venv"* ]]; then
-            print_info "!! Unable to install virtualenv with apt-get. Try to install virtualenv with pip."
-            ./usr/local/bin/pip install virtualenv
+            print_info "!! We were unable to install virtualenv with apt-get. We try to install virtualenv with pip."
+            pip install virtualenv
         fi
         #https://stackoverflow.com/a/39539571/2226755
     elif [[ "$version" =~ "debian" ]]; then
@@ -136,16 +136,17 @@ fi
 
 # virtualenv
 if  ! $(_in "-virtualenv" $@) && ( $(_in "+virtualenv" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
-    deactivate
     zds_fold_start "virtualenv" "* Load virtualenv"
 
     if [ ! -d $ZDS_VENV ]; then
         print_info "* [+virtualenv] creating virtualenv"
         msg=$(python3 -m venv $ZDS_VENV)
-        echo $msg
         if [[ $? != "0" && $msg == *"ensurepip"* ]]; then
+            echo $msg
             print_info "!! Try --without-pip"
             python3 -m venv $ZDS_VENV --without-pip
+        else
+            echo $msg
         fi
     fi
 fi
