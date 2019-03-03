@@ -98,7 +98,7 @@ generate-pdf: ## Generate PDFs of published contents
 ## ~ Database
 
 migrate-db: ## Create or update database schema
-	python manage.py migrate
+	python manage.py migrate -v 1
 
 generate-fixtures: ## Generate fixtures (users, tutorials, articles, opinions, topics...)
 	python manage.py loaddata fixtures/*.yaml
