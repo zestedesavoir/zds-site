@@ -57,6 +57,8 @@ cache:
 
 
 before_install:
+  - deactivate
+
   - source ./scripts/define_variable.sh
 
 install:
