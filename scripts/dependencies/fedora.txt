@@ -1,0 +1,15 @@
+git
+wget
+curl
+python3-devel
+libxslt-devel
+zlib-devel
+libjpeg-turbo-devel
+libjpeg-turbo-devel
+freetype
+freetype-devel
+libffi-devel
+python3-pip
+python-virtualenv
+gcc
+redhat-rpm-config
