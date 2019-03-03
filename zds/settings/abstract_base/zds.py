@@ -48,6 +48,7 @@ THUMBNAIL_ALIASES = {
         'social_network': {'size': (144, 144), 'crop': True},
         #                           ^^^  ^^^ -> minimum dimensions of 144x144
         # https://developer.twitter.com/en/docs/tweets/optimize-with-cards/overview/summary
+        'social_network_large': {'size': (600, 314), 'crop': True}
     },
 }
 

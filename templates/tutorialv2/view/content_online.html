@@ -47,7 +47,11 @@
 
 {% block meta_image %}{% spaceless %}
     {% if content.image %}
-        {{ content.image.physical|thumbnail_url:'social_network' }}
+        {% if request.GET.twittercard == "large"  %}
+            {{ content.image.physical|thumbnail_url:'social_network_large' }}
+        {% else %}}
+            {{ content.image.physical|thumbnail_url:'social_network' }}
+        {% endif %}
     {% else %}
         {% load static %}
         {% if content.type == 'TUTORIAL' %}
