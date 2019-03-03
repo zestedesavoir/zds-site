@@ -58,6 +58,6 @@ fi
 if [[ "$1" == "build_documentation" ]] && [[ "$ZDS_TEST_JOB" == *"doc"* ]]; then
     print_info "* Build documentation"
     if [[ "$ZDS_TEST_JOB" == *"doc"* ]]; then
-        make html
+        generate-doc
     fi
 fi
