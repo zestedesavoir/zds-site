@@ -41,7 +41,7 @@
     {% endif %}
 
     {% if can_edit %}
-        {% include 'tutorialv2/includes/tags_authors.part.html' with content=content add_author=True online=False %}
+        {% include 'tutorialv2/includes/tags_authors.part.html' with content=content add_author=True add_tester=True online=False %}
     {% else %}
         {% include 'tutorialv2/includes/tags_authors.part.html' with content=content online=False %}
     {% endif %}
@@ -276,7 +276,7 @@
             {% trans "Importer une nouvelle version" %}
         </a>
 
-    {% else %}
+    {% elif can_edit or is_staff  %}
         <a href="{{ object.get_absolute_url }}" class="ico-after arrow-right blue new-btn">
             {% trans "Version brouillon" %}
         </a>
@@ -334,6 +334,49 @@
         </li>
     {% endif %}
     {# END AUTHORS #}
+    {# TESTERS #}
+    {% if can_add_something %}
+        <li>
+            <a href="#add-tester" class="open-modal ico-after more blue">
+                {% trans "Ajouter un testeur" %}
+            </a>
+            <form action="{% url "content:add-tester" content.pk %}" method="post" class="modal modal-flex" id="add-tester">
+                {% csrf_token %}
+                <input type="text" name="username" placeholder="Pseudo de l’utilisateur à ajouter" data-autocomplete="{ 'type': 'single' }">
+                <button type="submit" name="add_tester">
+                    {% trans "Confirmer" %}
+                </button>
+            </form>
+        </li>
+        <li>
+            <a href="#manage-testers" class="open-modal ico-after gear blue">
+                {% trans "Gérer les testeurs" %}
+            </a>
+            <form action="{% url "content:remove-tester" content.pk  %}" method="post" class="modal modal-flex" id="manage-testers" data-modal-close="Fermer">
+                <table class="fullwidth">
+                    <thead>
+                        <th>{% trans "Testeur" %}</th>
+                        <th width="100px">{% trans "Actions" %}</th>
+                    </thead>
+                    <tbody>
+                        {% for member in content.testers.all %}
+                            <tr>
+                                <td>{% include "misc/member_item.part.html" %}</td>
+                                <td>
+                                    <button type="submit" data-value="{{ member.username }}" name="username" value="{{ member.username }}" class="modal-inner">
+                                        {% trans "Supprimer" %}
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                {% csrf_token %}
+            </form>
+        </li>
+    {% endif %}
+    {# END TESTERS #}
     {% if can_edit or is_staff %}
         {# BETA #}
         {% if content.can_be_in_beta %}

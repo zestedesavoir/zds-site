@@ -1156,6 +1156,7 @@ class VersionedContent(Container, TemplatableContentModelMixin):
     in_public = False
 
     authors = None
+    testers = None
     subcategory = None
     image = None
     creation_date = None

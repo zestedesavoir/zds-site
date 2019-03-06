@@ -4,6 +4,8 @@
 {% load i18n %}
 {% load set %}
 {% load displayable_authors %}
+{% load is_testing %}
+
 {% if public_content %}
     {% set public_content.content as content %}
     {% set True as online %}
@@ -32,6 +34,8 @@
 {% captureas content_title %}
     {% if public_content and online %}
         {{ public_content.title }}
+    {% elif content|is_testing:user %}
+        <b>[À tester]</b> {{ content.title }}
     {% else %}
         {{ content.title }}
     {% endif %}

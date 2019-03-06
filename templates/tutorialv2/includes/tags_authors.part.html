@@ -3,6 +3,7 @@
 {% load category_url %}
 {% load set %}
 {% load displayable_authors %}
+{% load displayable_testers %}
 {% load minute_to_duration %}
 {% load captureas %}
 
@@ -61,6 +62,25 @@
             <li>
                 <a href="#add-author" class="open-modal ico-after more blue">
                     {% trans "Ajouter un auteur" %}
+                </a>
+            </li>
+        {% endif %}
+    </ul>
+    <br/>
+     <span class="authors-label">
+        {% trans "Testeur" %}{{ publishablecontent|displayable_testers|pluralize }} :
+    </span>
+    <ul>
+        {% for member in publishablecontent|displayable_testers %}
+            <li>
+                {% include "misc/member_item.part.html" with avatar=True tester=True %}
+            </li>
+        {% endfor %}
+
+        {% if add_tester == True %}
+            <li>
+                <a href="#add-tester" class="open-modal ico-after more blue">
+                    {% trans "Ajouter un testeur" %}
                 </a>
             </li>
         {% endif %}

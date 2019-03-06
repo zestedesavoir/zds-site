@@ -107,6 +107,63 @@ class RemoveAuthorForm(AuthorForm):
             cleaned_data['users'] = users
         return cleaned_data
 
+class TesterForm(forms.Form):
+
+    username = forms.CharField(
+        label=_("Testeurs à ajouter séparés d'une virgule."),
+        required=True
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(TesterForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = 'content-wrapper'
+        self.helper.form_method = 'post'
+        self.helper.layout = Layout(
+            Field('username'),
+            ButtonHolder(
+                StrictButton(_('Ajouter'), type='submit'),
+            )
+        )
+
+    def clean_username(self):
+        """Check every username and send it to the cleaned_data['user'] list
+
+        :return: a dictionary of all treated data with the users key added
+        """
+        cleaned_data = super(TesterForm, self).clean()
+        users = []
+        if cleaned_data.get('username'):
+            for username in cleaned_data.get('username').split(','):
+                user = Profile.objects.contactable_members().filter(user__username__iexact=username.strip().lower())\
+                    .first()
+                if user is not None:
+                    users.append(user.user)
+            if len(users) > 0:
+                cleaned_data['users'] = users
+        return cleaned_data
+
+    def is_valid(self):
+        return super(TesterForm, self).is_valid() and 'users' in self.clean()
+
+
+class RemoveTesterForm(TesterForm):
+
+    def clean_username(self):
+        """Check every username and send it to the cleaned_data['user'] list
+
+        :return: a dictionary of all treated data with the users key added
+        """
+        cleaned_data = super(TesterForm, self).clean()
+        users = []
+        for username in cleaned_data.get('username').split(','):
+            # we can remove all users (bots inclued)
+            user = Profile.objects.filter(user__username__iexact=username.strip().lower()).first()
+            if user is not None:
+                users.append(user.user)
+        if len(users) > 0:
+            cleaned_data['users'] = users
+        return cleaned_data
 
 class ContainerForm(FormWithTitle):
 

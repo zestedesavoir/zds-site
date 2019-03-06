@@ -45,10 +45,12 @@ class SingleContentViewMixin(object):
 
     prefetch_all = True
     sha = None
-    must_be_author = True
+    must_be_author = False
+    must_be_author_or_tester = True
     authorized_for_staff = True
     is_staff = False
     is_author = False
+    is_tester = False
     only_draft_version = True
     must_redirect = False
     public_is_prioritary = True
@@ -76,6 +78,7 @@ class SingleContentViewMixin(object):
             queryset = queryset.\
                 select_related('licence') \
                 .prefetch_related('authors') \
+                .prefetch_related('testers') \
                 .prefetch_related('subcategory') \
 
         obj = queryset.filter(pk=pk).first()
@@ -86,8 +89,13 @@ class SingleContentViewMixin(object):
         # check permissions:
         self.is_staff = self.request.user.has_perm('tutorialv2.change_publishablecontent')
         self.is_author = self.request.user in obj.authors.all()
+        self.is_tester = self.request.user in obj.testers.all()
 
         if self.must_be_author and not self.is_author:
+            if not self.authorized_for_staff or (self.authorized_for_staff and not self.is_staff):
+                raise PermissionDenied
+
+        if self.must_be_author_or_tester and not self.is_author and not self.is_tester:
             if not self.authorized_for_staff or (self.authorized_for_staff and not self.is_staff):
                 raise PermissionDenied
 
@@ -116,8 +124,11 @@ class SingleContentViewMixin(object):
         is_public = self.object.is_public(self.sha) and self.public_is_prioritary
 
         if not is_beta and not is_public and not self.is_author:
-            if not self.is_staff or (not self.authorized_for_staff and self.must_be_author):
-                raise PermissionDenied
+            if not (self.is_staff and self.authorized_for_staff):
+                if self.must_be_author:
+                    raise PermissionDenied
+                if not self.is_tester and self.must_be_author_or_tester:
+                    raise PermissionDenied
 
         # load versioned file
         versioned = self.object.load_version_or_404(self.sha)
@@ -266,9 +277,9 @@ class SingleContentDetailViewMixin(SingleContentViewMixin, DetailView):
         if self.sha != self.object.sha_draft:
             context['version'] = self.sha
 
-        is_allowed = (self.is_author or self.is_staff)
         is_same_version = (not self.sha or self.sha == self.object.sha_draft)
-        context['can_add_something'] = is_allowed and is_same_version
+
+        context['can_add_something'] = (self.is_author or self.is_staff) and is_same_version
 
         if self.object.beta_topic:
             beta_topic = Topic.objects.get(pk=self.object.beta_topic.pk)

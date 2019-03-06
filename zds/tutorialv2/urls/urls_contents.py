@@ -5,7 +5,8 @@ from zds.tutorialv2.views.contents import DisplayContent, CreateContent, EditCon
     DeleteContent, CreateContainer, DisplayContainer, EditContainer, CreateExtract, EditExtract, \
     DeleteContainerOrExtract, ManageBetaContent, DisplayHistory, DisplayDiff, ActivateJSFiddleInContent, MoveChild, \
     DownloadContent, UpdateContentWithArchive, CreateContentFromArchive, ContentsWithHelps, AddAuthorToContent, \
-    RemoveAuthorFromContent, WarnTypo, DisplayBetaContent, DisplayBetaContainer, ContentOfAuthor
+    RemoveAuthorFromContent, AddTesterToContent, RemoveTesterFromContent, WarnTypo, DisplayBetaContent, \
+    DisplayBetaContainer, ContentOfAuthor
 
 from zds.tutorialv2.views.published import SendNoteFormView, UpdateNoteView, \
     HideReaction, ShowReaction, SendNoteAlert, SolveNoteAlert, TagsListView, \
@@ -119,6 +120,8 @@ urlpatterns = [
     url(r'^comparaison/(?P<pk>\d+)/(?P<slug>.+)/$', DisplayDiff.as_view(), name='diff'),
     url(r'^ajouter-auteur/(?P<pk>\d+)/$', AddAuthorToContent.as_view(), name='add-author'),
     url(r'^enlever-auteur/(?P<pk>\d+)/$', RemoveAuthorFromContent.as_view(), name='remove-author'),
+    url(r'^ajouter-testeur/(?P<pk>\d+)/$', AddTesterToContent.as_view(), name='add-tester'),
+    url(r'^enlever-testeur/(?P<pk>\d+)/$', RemoveTesterFromContent.as_view(), name='remove-tester'),
     # beta:
     url(r'^activer-beta/(?P<pk>\d+)/(?P<slug>.+)/$', ManageBetaContent.as_view(action='set'),
         name='set-beta'),

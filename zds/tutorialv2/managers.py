@@ -203,6 +203,7 @@ class PublishableContentManager(models.Manager):
         all_contents = self.filter(type='TUTORIAL') \
                            .filter(public_version__isnull=False) \
                            .prefetch_related('authors') \
+                           .prefetch_related('testers') \
                            .prefetch_related('authors__profile') \
                            .select_related('last_note') \
                            .select_related('public_version') \
@@ -233,6 +234,7 @@ class PublishableContentManager(models.Manager):
         all_contents = self.filter(type='ARTICLE') \
                            .filter(public_version__isnull=False) \
                            .prefetch_related('authors') \
+                           .prefetch_related('testers') \
                            .prefetch_related('authors__profile') \
                            .select_related('last_note') \
                            .select_related('public_version') \

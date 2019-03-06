@@ -51,7 +51,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
 
     A PublishableContent retains metadata about a content in database, such as
 
-    - authors, description, source (if the content comes from another website), subcategory, tags and licence ;
+    - authors, testers, description, source (if the content comes from another website), subcategory, tags and licence ;
     - Thumbnail and gallery ;
     - Creation, publication and update date ;
     - Public, beta, validation and draft sha, for versioning ;
@@ -67,7 +67,8 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
     slug = models.CharField('Slug', max_length=80)
     description = models.CharField('Description', max_length=200)
     source = models.CharField('Source', max_length=200, blank=True, null=True)
-    authors = models.ManyToManyField(User, verbose_name='Auteurs', db_index=True)
+    authors = models.ManyToManyField(User, related_name='authors', verbose_name='Auteurs', db_index=True)
+    testers = models.ManyToManyField(User, related_name='testers', verbose_name='Testeurs', db_index=True)
     old_pk = models.IntegerField(db_index=True, default=0)
     subcategory = models.ManyToManyField(SubCategory,
                                          verbose_name='Sous-Catégorie',
@@ -387,7 +388,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         """
 
         attrs = [
-            'pk', 'authors', 'subcategory', 'image', 'creation_date', 'pubdate', 'update_date', 'source',
+            'pk', 'authors', 'testers', 'subcategory', 'image', 'creation_date', 'pubdate', 'update_date', 'source',
             'sha_draft', 'sha_beta', 'sha_validation', 'sha_public', 'tags', 'sha_picked', 'converted_to',
             'type'
         ]
