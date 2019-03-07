@@ -49,121 +49,82 @@ class FormWithTitle(forms.Form):
         return cleaned_data
 
 
-class AuthorForm(forms.Form):
+class PublishableContentContributorForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super(PublishableContentContributorForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = 'content-wrapper'
+        self.helper.form_method = 'post'
+        self.helper.layout = Layout(
+            Field('username'),
+            ButtonHolder(
+                StrictButton(_('Ajouter'), type='submit'),
+            )
+        )
+
+    def clean_username(self):
+        """Check every username and send it to the cleaned_data['user'] list
+
+        :return: a dictionary of all treated data with the users key added
+        """
+        cleaned_data = super(PublishableContentContributorForm, self).clean()
+        users = []
+        if cleaned_data.get('username'):
+            for username in cleaned_data.get('username').split(','):
+                user = Profile.objects.contactable_members().filter(user__username__iexact=username.strip().lower())\
+                    .first()
+                if user is not None:
+                    users.append(user.user)
+            if len(users) > 0:
+                cleaned_data['users'] = users
+        return cleaned_data
+
+    def is_valid(self):
+        return super(PublishableContentContributorForm, self).is_valid() and 'users' in self.clean()
+
+
+class RemovePublishableContentContributorForm(PublishableContentContributorForm):
+
+    def clean_username(self):
+        """Check every username and send it to the cleaned_data['user'] list
+
+        :return: a dictionary of all treated data with the users key added
+        """
+        cleaned_data = super(RemovePublishableContentContributorForm, self).clean()
+        users = []
+        for username in cleaned_data.get('username').split(','):
+            # we can remove all users (bots inclued)
+            user = Profile.objects.filter(user__username__iexact=username.strip().lower()).first()
+            if user is not None:
+                users.append(user.user)
+        if len(users) > 0:
+            cleaned_data['users'] = users
+        return cleaned_data
+
+
+class AuthorForm(PublishableContentContributorForm):
 
     username = forms.CharField(
         label=_("Auteurs à ajouter séparés d'une virgule."),
         required=True
     )
 
-    def __init__(self, *args, **kwargs):
-        super(AuthorForm, self).__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.form_class = 'content-wrapper'
-        self.helper.form_method = 'post'
-        self.helper.layout = Layout(
-            Field('username'),
-            ButtonHolder(
-                StrictButton(_('Ajouter'), type='submit'),
-            )
-        )
 
-    def clean_username(self):
-        """Check every username and send it to the cleaned_data['user'] list
-
-        :return: a dictionary of all treated data with the users key added
-        """
-        cleaned_data = super(AuthorForm, self).clean()
-        users = []
-        if cleaned_data.get('username'):
-            for username in cleaned_data.get('username').split(','):
-                user = Profile.objects.contactable_members().filter(user__username__iexact=username.strip().lower())\
-                    .first()
-                if user is not None:
-                    users.append(user.user)
-            if len(users) > 0:
-                cleaned_data['users'] = users
-        return cleaned_data
-
-    def is_valid(self):
-        return super(AuthorForm, self).is_valid() and 'users' in self.clean()
+class RemoveAuthorForm(AuthorForm, RemovePublishableContentContributorForm):
+    pass
 
 
-class RemoveAuthorForm(AuthorForm):
-
-    def clean_username(self):
-        """Check every username and send it to the cleaned_data['user'] list
-
-        :return: a dictionary of all treated data with the users key added
-        """
-        cleaned_data = super(AuthorForm, self).clean()
-        users = []
-        for username in cleaned_data.get('username').split(','):
-            # we can remove all users (bots inclued)
-            user = Profile.objects.filter(user__username__iexact=username.strip().lower()).first()
-            if user is not None:
-                users.append(user.user)
-        if len(users) > 0:
-            cleaned_data['users'] = users
-        return cleaned_data
-
-class ProofreaderForm(forms.Form):
+class ProofreaderForm(PublishableContentContributorForm):
 
     username = forms.CharField(
         label=_("Relecteurs à ajouter séparés d'une virgule."),
         required=True
     )
 
-    def __init__(self, *args, **kwargs):
-        super(ProofreaderForm, self).__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.form_class = 'content-wrapper'
-        self.helper.form_method = 'post'
-        self.helper.layout = Layout(
-            Field('username'),
-            ButtonHolder(
-                StrictButton(_('Ajouter'), type='submit'),
-            )
-        )
 
-    def clean_username(self):
-        """Check every username and send it to the cleaned_data['user'] list
+class RemoveProofreaderForm(ProofreaderForm, RemovePublishableContentContributorForm):
+    pass
 
-        :return: a dictionary of all treated data with the users key added
-        """
-        cleaned_data = super(ProofreaderForm, self).clean()
-        users = []
-        if cleaned_data.get('username'):
-            for username in cleaned_data.get('username').split(','):
-                user = Profile.objects.contactable_members().filter(user__username__iexact=username.strip().lower())\
-                    .first()
-                if user is not None:
-                    users.append(user.user)
-            if len(users) > 0:
-                cleaned_data['users'] = users
-        return cleaned_data
-
-    def is_valid(self):
-        return super(ProofreaderForm, self).is_valid() and 'users' in self.clean()
-
-
-class RemoveProofreaderForm(ProofreaderForm):
-
-    def clean_username(self):
-        """Check every username and send it to the cleaned_data['user'] list
-
-        :return: a dictionary of all treated data with the users key added
-        """
-        cleaned_data = super(ProofreaderForm, self).clean()
-        users = []
-        for username in cleaned_data.get('username').split(','):
-            # we can remove all users (bots inclued)
-            user = Profile.objects.filter(user__username__iexact=username.strip().lower()).first()
-            if user is not None:
-                users.append(user.user)
-        if len(users) > 0:
-            cleaned_data['users'] = users
-        return cleaned_data
 
 class ContainerForm(FormWithTitle):
 
