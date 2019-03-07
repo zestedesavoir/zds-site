@@ -2013,8 +2013,8 @@ class ContentOfAuthor(ZdSPagingListView):
     ])
 
     authorized_filters_rights = OrderedDict([
-        ('author', [lambda q, u: q.filter(authors__pk=u), _('Auteur'), True, 'search-submit']),
-        ('proofreading', [lambda q, u: q.filter(proofreaders__pk=u), _('Relecteur'), True, 'search-submit'])
+        ('author', [lambda q, u: q.filter(authors__pk=u), _('Auteur'), True, 'edit']),
+        ('proofreading', [lambda q, u: q.filter(proofreaders__pk=u), _('Relecteur'), True, 'online'])
     ])
 
     sorts = OrderedDict([
