@@ -107,15 +107,15 @@ class RemoveAuthorForm(AuthorForm):
             cleaned_data['users'] = users
         return cleaned_data
 
-class TesterForm(forms.Form):
+class ProofreaderForm(forms.Form):
 
     username = forms.CharField(
-        label=_("Testeurs à ajouter séparés d'une virgule."),
+        label=_("Relecteurs à ajouter séparés d'une virgule."),
         required=True
     )
 
     def __init__(self, *args, **kwargs):
-        super(TesterForm, self).__init__(*args, **kwargs)
+        super(ProofreaderForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
@@ -131,7 +131,7 @@ class TesterForm(forms.Form):
 
         :return: a dictionary of all treated data with the users key added
         """
-        cleaned_data = super(TesterForm, self).clean()
+        cleaned_data = super(ProofreaderForm, self).clean()
         users = []
         if cleaned_data.get('username'):
             for username in cleaned_data.get('username').split(','):
@@ -144,17 +144,17 @@ class TesterForm(forms.Form):
         return cleaned_data
 
     def is_valid(self):
-        return super(TesterForm, self).is_valid() and 'users' in self.clean()
+        return super(ProofreaderForm, self).is_valid() and 'users' in self.clean()
 
 
-class RemoveTesterForm(TesterForm):
+class RemoveProofreaderForm(ProofreaderForm):
 
     def clean_username(self):
         """Check every username and send it to the cleaned_data['user'] list
 
         :return: a dictionary of all treated data with the users key added
         """
-        cleaned_data = super(TesterForm, self).clean()
+        cleaned_data = super(ProofreaderForm, self).clean()
         users = []
         for username in cleaned_data.get('username').split(','):
             # we can remove all users (bots inclued)

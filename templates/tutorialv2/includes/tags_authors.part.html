@@ -3,7 +3,7 @@
 {% load category_url %}
 {% load set %}
 {% load displayable_authors %}
-{% load displayable_testers %}
+{% load displayable_proofreaders %}
 {% load minute_to_duration %}
 {% load captureas %}
 
@@ -68,19 +68,19 @@
     </ul>
     <br/>
      <span class="authors-label">
-        {% trans "Testeur" %}{{ publishablecontent|displayable_testers|pluralize }} :
+        {% trans "Relecteur" %}{{ publishablecontent|displayable_proofreaders|pluralize }} :
     </span>
     <ul>
-        {% for member in publishablecontent|displayable_testers %}
+        {% for member in publishablecontent|displayable_proofreaders %}
             <li>
-                {% include "misc/member_item.part.html" with avatar=True tester=True %}
+                {% include "misc/member_item.part.html" with avatar=True proofreader=True %}
             </li>
         {% endfor %}
 
-        {% if add_tester == True %}
+        {% if add_proofreader == True %}
             <li>
-                <a href="#add-tester" class="open-modal ico-after more blue">
-                    {% trans "Ajouter un testeur" %}
+                <a href="#add-proofreader" class="open-modal ico-after more blue">
+                    {% trans "Ajouter un relecteur" %}
                 </a>
             </li>
         {% endif %}

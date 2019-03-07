@@ -4,7 +4,7 @@
 {% load i18n %}
 {% load set %}
 {% load displayable_authors %}
-{% load is_testing %}
+{% load is_proofreading %}
 
 {% if public_content %}
     {% set public_content.content as content %}
@@ -34,8 +34,8 @@
 {% captureas content_title %}
     {% if public_content and online %}
         {{ public_content.title }}
-    {% elif content|is_testing:user %}
-        <b>[À tester]</b> {{ content.title }}
+    {% elif content|is_proofreading:user %}
+        <b>[À relire]</b> {{ content.title }}
     {% else %}
         {{ content.title }}
     {% endif %}

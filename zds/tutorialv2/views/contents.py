@@ -36,7 +36,7 @@ from zds.member.models import Profile
 from zds.notification.models import TopicAnswerSubscription, NewPublicationSubscription
 from zds.tutorialv2.forms import ContentForm, JsFiddleActivationForm, AskValidationForm, AcceptValidationForm, \
     RejectValidationForm, RevokeValidationForm, WarnTypoForm, ImportContentForm, ImportNewContentForm, ContainerForm, \
-    ExtractForm, BetaForm, MoveElementForm, AuthorForm, RemoveAuthorForm, TesterForm, RemoveTesterForm, CancelValidationForm, PublicationForm, \
+    ExtractForm, BetaForm, MoveElementForm, AuthorForm, RemoveAuthorForm, ProofreaderForm, RemoveProofreaderForm, CancelValidationForm, PublicationForm, \
     UnpublicationForm
 from zds.tutorialv2.mixins import SingleContentDetailViewMixin, SingleContentFormViewMixin, SingleContentViewMixin, \
     SingleContentDownloadViewMixin, SingleContentPostMixin, FormWithPreview
@@ -167,7 +167,7 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
     model = PublishableContent
     template_name = 'tutorialv2/view/content.html'
     must_be_author = False  # as in beta state anyone that is logged can access to it
-    must_be_author_or_tester = False
+    must_be_author_or_proofreader = False
     only_draft_version = False
 
     def get_forms(self, context):
@@ -439,7 +439,7 @@ class DownloadContent(LoggedWithReadWriteHability, SingleContentDownloadViewMixi
     mimetype = 'application/zip'
     only_draft_version = False  # beta version can also be downloaded
     must_be_author = False  # other user can download archive
-    must_be_author_or_tester = False
+    must_be_author_or_proofreader = False
 
     @staticmethod
     def insert_into_zip(zip_file, git_tree):
@@ -983,7 +983,7 @@ class DisplayContainer(LoginRequiredMixin, SingleContentDetailViewMixin):
     template_name = 'tutorialv2/view/container.html'
     sha = None
     must_be_author = False  # beta state does not need the author
-    must_be_author_or_tester = False
+    must_be_author_or_proofreader = False
     only_draft_version = False
 
     def get_context_data(self, **kwargs):
@@ -1483,7 +1483,7 @@ class WarnTypo(SingleContentFormViewMixin):
     modal_form = True
     form_class = WarnTypoForm
     must_be_author = False
-    must_be_author_or_tester = False
+    must_be_author_or_proofreader = False
     only_draft_version = False
 
     object = None
@@ -1736,10 +1736,10 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
             return redirect(child.get_absolute_url())
 
 
-class AddTesterToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
+class AddProofreaderToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     only_draft_version = True
     must_be_author = True
-    form_class = TesterForm
+    form_class = ProofreaderForm
     authorized_for_staff = True
 
     def get(self, request, *args, **kwargs):
@@ -1757,23 +1757,23 @@ class AddTesterToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
             _type = _('du billet')
 
         bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
-        all_testers_pk = [tester.pk for tester in self.object.testers.all()]
+        all_proofreaders_pk = [proofreader.pk for proofreader in self.object.proofreaders.all()]
         all_authors_pk = [author.pk for author in self.object.authors.all()]
         for user in form.cleaned_data['users']:
-            if user.pk not in all_testers_pk and user != self.request.user:
+            if user.pk not in all_proofreaders_pk and user != self.request.user:
                 if user.pk in all_authors_pk:
                     messages.error(self.request, _('Le membre sélectionné fait partie des auteurs.').format(_type))
                     return redirect(self.object.get_absolute_url())
                 else:
-                    self.object.testers.add(user)
-                    all_testers_pk.append(user.pk)
+                    self.object.proofreaders.add(user)
+                    all_proofreaders_pk.append(user.pk)
                     url_index = reverse('content:find-' + self.object.type.lower(), args=[user.pk])
                     send_mp(
                         bot,
                         [user],
                         string_concat(_('Ajout au test '), _type),
                         self.versioned_object.title,
-                        render_to_string('tutorialv2/messages/add_tester_pm.md', {
+                        render_to_string('tutorialv2/messages/add_proofreader_pm.md', {
                             'content': self.object,
                             'type': _type,
                             'url': self.object.get_absolute_url(),
@@ -1787,12 +1787,12 @@ class AddTesterToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
         self.object.save()
         self.success_url = self.object.get_absolute_url()
 
-        return super(AddTesterToContent, self).form_valid(form)
+        return super(AddProofreaderToContent, self).form_valid(form)
 
     def form_invalid(self, form):
-        messages.error(self.request, _("Les testeurs sélectionnés n'existent pas."))
+        messages.error(self.request, _("Les relecteurs sélectionnés n'existent pas."))
         self.success_url = self.object.get_absolute_url()
-        return super(AddTesterToContent, self).form_valid(form)
+        return super(AddProofreaderToContent, self).form_valid(form)
 
 
 class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
@@ -1817,7 +1817,7 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
 
         bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
         all_authors_pk = [author.pk for author in self.object.authors.all()]
-        all_testers_pk = [tester.pk for tester in self.object.testers.all()]
+        all_proofreaders_pk = [proofreader.pk for proofreader in self.object.proofreaders.all()]
         for user in form.cleaned_data['users']:
             if user.pk not in all_authors_pk and user != self.request.user:
                 self.object.authors.add(user)
@@ -1840,9 +1840,9 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
                     hat=get_hat_from_settings('validation'),
                 )
                 UserGallery(gallery=self.object.gallery, user=user, mode=GALLERY_WRITE).save()
-                if user.pk in all_testers_pk:
-                    self.object.testers.remove(user)
-                    all_testers_pk.remove(user.pk)
+                if user.pk in all_proofreaders_pk:
+                    self.object.proofreaders.remove(user)
+                    all_proofreaders_pk.remove(user.pk)
 
         self.object.save()
         self.success_url = self.object.get_absolute_url()
@@ -1855,26 +1855,26 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
         return super(AddAuthorToContent, self).form_valid(form)
 
 
-class RemoveTesterFromContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
+class RemoveProofreaderFromContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
 
-    form_class = RemoveTesterForm
+    form_class = RemoveProofreaderForm
     only_draft_version = True
     must_be_author = True
     authorized_for_staff = True
 
     @staticmethod
-    def remove_tester(content, user):
-        """Remove a user from the testers.
+    def remove_proofreader(content, user):
+        """Remove a user from the proofreaders.
 
         :param content: the content
         :type content: zds.tutorialv2.models.database.PublishableContent
-        :param user: the tester
+        :param user: the proofreader
         :type user: User
-        :return: ``True`` if the tester was removed, ``False`` otherwise
+        :return: ``True`` if the proofreader was removed, ``False`` otherwise
         """
-        if user in content.testers.all():
+        if user in content.proofreaders.all():
 
-            content.testers.remove(user)
+            content.proofreaders.remove(user)
             return True
 
         return False
@@ -1890,32 +1890,32 @@ class RemoveTesterFromContent(LoggedWithReadWriteHability, SingleContentFormView
             _type = _('ce billet')
 
         for user in users:
-            if not RemoveTesterFromContent.remove_tester(self.object, user):
+            if not RemoveProofreaderFromContent.remove_proofreader(self.object, user):
                 messages.error(self.request, _('Le membre sélectionné a déjà quitté le test.').format(_type))
                 return redirect(self.object.get_absolute_url())
 
         self.object.save(force_slug_update=False)
 
-        testers_list = ''
+        proofreaders_list = ''
 
         for index, user in enumerate(form.cleaned_data['users']):
             if index > 0:
                 if index == len(users) - 1:
-                    testers_list += _(' et ')
+                    proofreaders_list += _(' et ')
                 else:
-                    testers_list += _(', ')
-            testers_list += user.username
+                    proofreaders_list += _(', ')
+            proofreaders_list += user.username
 
         messages.success(
-            self.request, _('Vous avez enlevé {} de la liste des testeurs de {}.').format(testers_list, _type))
+            self.request, _('Vous avez enlevé {} de la liste des relecteurs de {}.').format(proofreaders_list, _type))
         self.success_url = self.object.get_absolute_url()
 
-        return super(RemoveTesterFromContent, self).form_valid(form)
+        return super(RemoveProofreaderFromContent, self).form_valid(form)
 
     def form_invalid(self, form):
-        messages.error(self.request, _("Les testeurs sélectionnés n'existent pas."))
+        messages.error(self.request, _("Les relecteurs sélectionnés n'existent pas."))
         self.success_url = self.object.get_absolute_url()
-        return super(RemoveTesterFromContent, self).form_valid(form)
+        return super(RemoveProofreaderFromContent, self).form_valid(form)
 
 class RemoveAuthorFromContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
 
@@ -2009,7 +2009,7 @@ class ContentOfAuthor(ZdSPagingListView):
         ('redaction', [
             lambda q, u: q.filter(sha_validation__isnull=True, sha_public__isnull=True, sha_beta__isnull=True, authors__pk=u),
             _('Brouillons'), False, 'edit']),
-        ('testing', [lambda q, u: q.filter(testers__pk=u), _('À tester'), True, 'search-submit'])
+        ('proofreading', [lambda q, u: q.filter(proofreaders__pk=u), _('À relire'), True, 'search-submit'])
     ])
     sorts = OrderedDict([
         ('creation', [lambda q: q.order_by('creation_date'), _('Par date de création')]),
@@ -2033,14 +2033,14 @@ class ContentOfAuthor(ZdSPagingListView):
 
     def get_queryset(self):
         if self.type in list(TYPE_CHOICES_DICT.keys()):
-            queryset = PublishableContent.objects.filter(Q(authors__pk=self.user.pk)|Q(testers__pk=self.user.pk), type=self.type)
+            queryset = PublishableContent.objects.filter(Q(authors__pk=self.user.pk)|Q(proofreaders__pk=self.user.pk), type=self.type)
         else:
             raise Http404('Ce type de contenu est inconnu dans le système.')
 
         # prefetch:
         queryset = queryset\
             .prefetch_related('authors')\
-            .prefetch_related('testers')\
+            .prefetch_related('proofreaders')\
             .prefetch_related('subcategory')\
             .select_related('licence')\
             .select_related('image')

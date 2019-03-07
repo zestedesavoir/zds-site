@@ -46,11 +46,11 @@ class SingleContentViewMixin(object):
     prefetch_all = True
     sha = None
     must_be_author = False
-    must_be_author_or_tester = True
+    must_be_author_or_proofreader = True
     authorized_for_staff = True
     is_staff = False
     is_author = False
-    is_tester = False
+    is_proofreader = False
     only_draft_version = True
     must_redirect = False
     public_is_prioritary = True
@@ -78,7 +78,7 @@ class SingleContentViewMixin(object):
             queryset = queryset.\
                 select_related('licence') \
                 .prefetch_related('authors') \
-                .prefetch_related('testers') \
+                .prefetch_related('proofreaders') \
                 .prefetch_related('subcategory') \
 
         obj = queryset.filter(pk=pk).first()
@@ -89,13 +89,13 @@ class SingleContentViewMixin(object):
         # check permissions:
         self.is_staff = self.request.user.has_perm('tutorialv2.change_publishablecontent')
         self.is_author = self.request.user in obj.authors.all()
-        self.is_tester = self.request.user in obj.testers.all()
+        self.is_proofreader = self.request.user in obj.proofreaders.all()
 
         if self.must_be_author and not self.is_author:
             if not self.authorized_for_staff or (self.authorized_for_staff and not self.is_staff):
                 raise PermissionDenied
 
-        if self.must_be_author_or_tester and not self.is_author and not self.is_tester:
+        if self.must_be_author_or_proofreader and not self.is_author and not self.is_proofreader:
             if not self.authorized_for_staff or (self.authorized_for_staff and not self.is_staff):
                 raise PermissionDenied
 
@@ -127,7 +127,7 @@ class SingleContentViewMixin(object):
             if not (self.is_staff and self.authorized_for_staff):
                 if self.must_be_author:
                     raise PermissionDenied
-                if not self.is_tester and self.must_be_author_or_tester:
+                if not self.is_proofreader and self.must_be_author_or_proofreader:
                     raise PermissionDenied
 
         # load versioned file

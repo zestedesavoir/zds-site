@@ -16,8 +16,8 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='publishablecontent',
-            name='testers',
-            field=models.ManyToManyField(db_index=True, related_name='testers', to=settings.AUTH_USER_MODEL, verbose_name='Testeurs'),
+            name='proofreaders',
+            field=models.ManyToManyField(db_index=True, related_name='proofreaders', to=settings.AUTH_USER_MODEL, verbose_name='Relecteurs'),
         ),
         migrations.AlterField(
             model_name='publishablecontent',
