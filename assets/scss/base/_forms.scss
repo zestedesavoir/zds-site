@@ -186,25 +186,30 @@
             }
         }
     }
-    .btn-grey:not(.link) {
-        background: #EEE;
-        color: #555;
+    @mixin addBtnColorProperties($bg, $color, $bg_hover, $color_hover, $bg_loading) {  
+        &:not(.link) {
+            background: $bg;
+            color: $color;
 
-        &:not([disabled]):hover,
-        &:not([disabled]):focus,
-        &:not(.disabled):hover,
-        &:not(.disabled):focus {
-            background: #CCC;
-            color: #333;
-        }
+            &:not([disabled]):hover,
+            &:not([disabled]):focus,
+            &:not(.disabled):hover,
+            &:not(.disabled):focus {
+            background: $bg_hover;
+            color: $color_hover;
+            }
 
-        &.disabled.submitted {
-            color: #555;
+            &.disabled.submitted {
+                color: $color;
 
-            .line-loading {
-                background: #999;
+                .line-loading {
+                    background: $bg_loading;
+                }
             }
         }
+    }
+    .btn-grey {
+        @include addBtnColorProperties(#EEE, #555, #CCC, #333, #999);
     }
     [disabled],
     .disabled {

@@ -29,7 +29,7 @@ Sous Linux
 Installer java 8
 ++++++++++++++++
 
-Il est nécessaire d'utiliser **la version 8** de Java pour faire tourner Elasticsearch, mais ce n'est probablement pas la version par défaut de votre système d'exploitation.
+Il est nécessaire d'utiliser au moins **la version 8** de Java pour faire tourner Elasticsearch, mais ce n'est probablement pas la version par défaut de votre système d'exploitation.
 
 **Sous Debian et dérivés**, le package à installer est ``openjdk-8-jdk`` :
 

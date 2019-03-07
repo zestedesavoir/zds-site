@@ -70,6 +70,40 @@ class ForumNotification(TestCase):
         self.assertEqual(1, PingSubscription.objects.count(),
                          'As one user is pinged, only one subscription is created.')
 
+    def test_edit_with_more_than_max_ping(self):
+        overridden_zds_app['comment']['max_pings'] = 2
+        overridden_zds_app['comment']['enable_pings'] = True
+        pinged_users = [ProfileFactory(), ProfileFactory(), ProfileFactory(), ProfileFactory()]
+        self.assertTrue(self.client.login(username=self.user2.username, password='hostel77'))
+        self.client.post(
+            reverse('topic-new') + '?forum={0}'.format(self.forum11.pk),
+            {
+                'title': 'Super sujet',
+                'subtitle': 'Pour tester les notifs',
+                'text': '@{} @{} are pinged, not @{} @{}'.format(*[a.user.username for a in pinged_users]),
+                'tags': ''
+            },
+            follow=False)
+        topic = Topic.objects.last()
+        post = topic.last_message
+        self.assertEqual(2, PingSubscription.objects.count())
+        self.assertTrue(PingSubscription.objects.get_existing(pinged_users[0].user, post, True))
+        self.assertTrue(PingSubscription.objects.get_existing(pinged_users[1].user, post, True))
+        self.assertFalse(PingSubscription.objects.get_existing(pinged_users[2].user, post, True))
+        self.assertFalse(PingSubscription.objects.get_existing(pinged_users[3].user, post, True))
+        self.client.post(
+            reverse('topic-edit') + '?topic={}'.format(topic.pk),
+            {
+                'title': 'Super sujet',
+                'subtitle': 'Pour tester les notifs',
+                'text': '@{} @{} are pinged'.format(pinged_users[1].user.username, pinged_users[3].user.username),
+                'tags': ''
+            },
+            follow=False)
+        self.assertTrue(PingSubscription.objects.get_existing(pinged_users[3].user, post, True))
+        self.assertTrue(PingSubscription.objects.get_existing(pinged_users[1].user, post, True))
+        self.assertFalse(PingSubscription.objects.get_existing(pinged_users[0].user, post, True))
+
     def test_no_reping_on_edition(self):
         """
         to be more accurate : on edition, only ping **new** members
