@@ -1772,7 +1772,7 @@ class AddProofreaderToContent(LoggedWithReadWriteHability, SingleContentFormView
                 send_mp(
                     bot,
                     [user],
-                    string_concat(_('Ajout au test '), _type),
+                    format_lazy('{}{}', _('Ajout au test '), _type),
                     self.versioned_object.title,
                     render_to_string('tutorialv2/messages/add_proofreader_pm.md', {
                         'content': self.object,
