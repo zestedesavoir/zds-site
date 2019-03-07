@@ -1843,7 +1843,6 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
                 UserGallery(gallery=self.object.gallery, user=user, mode=GALLERY_WRITE).save()
                 if user.pk in all_proofreaders_pk:
                     self.object.proofreaders.remove(user)
-                    all_proofreaders_pk.remove(user.pk)
 
         self.object.save()
         self.success_url = self.object.get_absolute_url()
