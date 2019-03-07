@@ -2003,13 +2003,13 @@ class ContentOfAuthor(ZdSPagingListView):
 
     # list: func filter, Title, Permission, Icon
     authorized_filters = OrderedDict([
-        ('public', [lambda q, u: q.filter(sha_public__isnull=False, authors__pk__in=[u]), _('Publiés'), True, 'tick green']),
-        ('validation', [lambda q, u: q.filter(sha_validation__isnull=False, authors__pk__in=[u]), _('En validation'), False, 'tick']),
-        ('beta', [lambda q, u: q.filter(sha_beta__isnull=False, authors__pk__in=[u]), _('En bêta'), True, 'beta']),
+        ('public', [lambda q, u: q.filter(sha_public__isnull=False, authors__pk=u), _('Publiés'), True, 'tick green']),
+        ('validation', [lambda q, u: q.filter(sha_validation__isnull=False, authors__pk=u), _('En validation'), False, 'tick']),
+        ('beta', [lambda q, u: q.filter(sha_beta__isnull=False, authors__pk=u), _('En bêta'), True, 'beta']),
         ('redaction', [
-            lambda q, u: q.filter(sha_validation__isnull=True, sha_public__isnull=True, sha_beta__isnull=True, authors__pk__in=[u]),
+            lambda q, u: q.filter(sha_validation__isnull=True, sha_public__isnull=True, sha_beta__isnull=True, authors__pk=u),
             _('Brouillons'), False, 'edit']),
-        ('testing', [lambda q, u: q.filter(testers__pk__in=[u]), _('À tester'), True, 'search-submit'])
+        ('testing', [lambda q, u: q.filter(testers__pk=u), _('À tester'), True, 'search-submit'])
     ])
     sorts = OrderedDict([
         ('creation', [lambda q: q.order_by('creation_date'), _('Par date de création')]),
@@ -2033,7 +2033,7 @@ class ContentOfAuthor(ZdSPagingListView):
 
     def get_queryset(self):
         if self.type in list(TYPE_CHOICES_DICT.keys()):
-            queryset = PublishableContent.objects.filter(Q(authors__pk__in=[self.user.pk])|Q(testers__pk__in=[self.user.pk]), type=self.type)
+            queryset = PublishableContent.objects.filter(Q(authors__pk=self.user.pk)|Q(testers__pk=self.user.pk), type=self.type)
         else:
             raise Http404('Ce type de contenu est inconnu dans le système.')
 
