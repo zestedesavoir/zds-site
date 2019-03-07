@@ -1897,15 +1897,8 @@ class RemoveProofreaderFromContent(LoggedWithReadWriteHability, SingleContentFor
 
         self.object.save(force_slug_update=False)
 
-        proofreaders_list = ''
-
-        for index, user in enumerate(form.cleaned_data['users']):
-            if index > 0:
-                if index == len(users) - 1:
-                    proofreaders_list += _(' et ')
-                else:
-                    proofreaders_list += _(', ')
-            proofreaders_list += user.username
+        proofreaders_list = [u.username for u in users]
+        proofreaders_list = proofreaders_list[0] if len(proofreaders_list) == 1 else ', '.join(proofreaders_list[:-1]) + ' et ' + proofreaders_list[-1]
 
         messages.success(
             self.request, _('Vous avez enlevé {} de la liste des relecteurs de {}.').format(proofreaders_list, _type))
@@ -1970,15 +1963,8 @@ class RemoveAuthorFromContent(LoggedWithReadWriteHability, SingleContentFormView
 
         self.object.save(force_slug_update=False)
 
-        authors_list = ''
-
-        for index, user in enumerate(form.cleaned_data['users']):
-            if index > 0:
-                if index == len(users) - 1:
-                    authors_list += _(' et ')
-                else:
-                    authors_list += _(', ')
-            authors_list += user.username
+        authors_list = [u.username for u in users]
+        authors_list = authors_list[0] if len(authors_list) == 1 else ', '.join(authors_list[:-1]) + ' et ' + authors_list[-1]
 
         if not current_user:  # if the removed author is not current user
             messages.success(
