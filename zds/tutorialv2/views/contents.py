@@ -1764,26 +1764,26 @@ class AddProofreaderToContent(LoggedWithReadWriteHability, SingleContentFormView
                 if user.pk in all_authors_pk:
                     messages.error(self.request, _('Le membre sélectionné fait partie des auteurs.').format(_type))
                     return redirect(self.object.get_absolute_url())
-                else:
-                    self.object.proofreaders.add(user)
-                    all_proofreaders_pk.append(user.pk)
-                    url_index = reverse('content:find-' + self.object.type.lower(), args=[user.pk])
-                    send_mp(
-                        bot,
-                        [user],
-                        string_concat(_('Ajout au test '), _type),
-                        self.versioned_object.title,
-                        render_to_string('tutorialv2/messages/add_proofreader_pm.md', {
-                            'content': self.object,
-                            'type': _type,
-                            'url': self.object.get_absolute_url(),
-                            'index': url_index,
-                            'user': user.username
-                        }),
-                        True,
-                        direct=False,
-                        hat=get_hat_from_settings('validation'),
-                    )
+
+                self.object.proofreaders.add(user)
+                all_proofreaders_pk.append(user.pk)
+                url_index = reverse('content:find-' + self.object.type.lower(), args=[user.pk])
+                send_mp(
+                    bot,
+                    [user],
+                    string_concat(_('Ajout au test '), _type),
+                    self.versioned_object.title,
+                    render_to_string('tutorialv2/messages/add_proofreader_pm.md', {
+                        'content': self.object,
+                        'type': _type,
+                        'url': self.object.get_absolute_url(),
+                        'index': url_index,
+                        'user': user.username
+                    }),
+                    True,
+                    direct=False,
+                    hat=get_hat_from_settings('validation'),
+                )
         self.object.save()
         self.success_url = self.object.get_absolute_url()
 
