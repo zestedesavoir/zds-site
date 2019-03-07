@@ -172,16 +172,29 @@
     <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">
         <div class="mobile-menu-bloc mobile-all-links" data-title="Filtrer">
             <h3>Filtrer</h3>
+            <h4>Par Status</h4>
             <ul>
-                {% for current_filter in filters %}
+                {% for current_filter_status in filters_status %}
                     {% if tutorials != None %}
-                        <li><a href="{% url 'content:find-tutorial' usr.pk %}?filter={{ current_filter.key }}" class="ico-after {{ current_filter.icon }} {% if filter == current_filter.key %}selected{% endif %}">{{ current_filter.text }}</a> </li>
+                        <li><a href="{% url 'content:find-tutorial' usr.pk %}?filter_status={{ current_filter_status.key }}{% if filter_rights != '' %}&filter_rights={{filter_rights}}{% endif %}" class="ico-after {{ current_filter_status.icon }} {% if filter_status == current_filter_status.key %}selected{% endif %}">{{ current_filter_status.text }}</a> </li>
                     {% elif articles != None %}
-                        <li><a href="{% url 'content:find-article' usr.pk %}?filter={{ current_filter.key }}" class="ico-after {{ current_filter.icon }} {% if filter == current_filter.key %}selected{% endif %}">{{ current_filter.text }}</a> </li>
+                        <li><a href="{% url 'content:find-article' usr.pk %}?filter_status={{ current_filter_status.key }}{% if filter_rights != '' %}&filter_rights={{filter_rights}}{% endif %}" class="ico-after {{ current_filter_status.icon }} {% if filter_status == current_filter_status.key %}selected{% endif %}">{{ current_filter_status.text }}</a> </li>
                     {% elif opinions != None %}
-                        {% if current_filter.key != 'validation' and current_filter.key != 'beta' %}
-                            <li><a href="{% url 'content:find-opinion' usr.pk %}?filter={{ current_filter.key }}" class="ico-after {{ current_filter.icon }} {% if filter == current_filter.key %}selected{% endif %}">{{ current_filter.text }}</a> </li>
+                        {% if current_filter_status.key != 'validation' and current_filter_status.key != 'beta' %}
+                            <li><a href="{% url 'content:find-opinion' usr.pk %}?filter={{ current_filter_status.key }}{% if filter_rights != '' %}&filter_rights={{filter_rights}}{% endif %}" class="ico-after {{ current_filter_status.icon }} {% if filter_status == current_filter_status.key %}selected{% endif %}">{{ current_filter_status.text }}</a> </li>
                         {% endif %}
+                    {% endif %}
+                {% endfor %}
+            </ul>
+            <h4>Par ..</h4>
+            <ul>
+                {% for current_filter_rights in filters_rights %}
+                    {% if tutorials != None %}
+                        <li><a href="{% url 'content:find-tutorial' usr.pk %}?filter_rights={{ current_filter_rights.key }}{% if filter_status != '' %}&filter_status={{filter_status}}{% endif %}" class="ico-after {{ current_filter_rights.icon }} {% if filter_rights == current_filter_rights.key %}selected{% endif %}">{{ current_filter_rights.text }}</a> </li>
+                    {% elif articles != None %}
+                        <li><a href="{% url 'content:find-article' usr.pk %}?filter_rights={{ current_filter_rights.key }}{% if filter_status != '' %}&filter_status={{filter_status}}{% endif %}" class="ico-after {{ current_filter_rights.icon }} {% if filter_rights == current_filter_rights.key %}selected{% endif %}">{{ current_filter_rights.text }}</a> </li>
+                    {% elif opinions != None %}
+                         <li><a href="{% url 'content:find-opinion' usr.pk %}?filter_rights={{ current_filter_rights.key }}{% if filter_status != '' %}&filter_status={{filter_status}}{% endif %}" class="ico-after {{ current_filter_rights.icon }} {% if filter_rights == current_filter_rights.key %}selected{% endif %}">{{ current_filter_rights.text }}</a> </li>
                     {% endif %}
                 {% endfor %}
             </ul>

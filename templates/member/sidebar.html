@@ -181,7 +181,7 @@
             <ul>
                 {% if public_tutos_count > 0 %}
                     <li>
-                        <a href="{% url "content:find-tutorial" usr.pk %}?filter=public"
+                        <a href="{% url "content:find-tutorial" usr.pk %}?filter_status=public"
                            class="mobile-menu-link mobile-menu-sublink"
                         >
                             <span class="count">{{ public_tutos_count }}</span>
@@ -191,7 +191,7 @@
                 {% endif %}
                 {% if beta_tutos_count > 0 %}
                     <li>
-                        <a href="{% url "content:find-tutorial" usr.pk %}?filter=beta"
+                        <a href="{% url "content:find-tutorial" usr.pk %}?filter_status=beta"
                            class="mobile-menu-link mobile-menu-sublink"
                         >
                             <span class="count">{{ beta_tutos_count }}</span>
@@ -202,7 +202,7 @@
                 {% if profile.user == user %}
                     {% if validate_tutos_count > 0 %}
                         <li>
-                            <a href="{% url "content:find-tutorial" usr.pk %}?filter=validation"
+                            <a href="{% url "content:find-tutorial" usr.pk %}?filter_status=validation"
                                class="mobile-menu-link mobile-menu-sublink"
                             >
                                 <span class="count">{{ validate_tutos_count }}</span>
@@ -212,7 +212,7 @@
                     {% endif %}
                     {% if draft_tutos_count > 0 %}
                         <li>
-                            <a href="{% url "content:find-tutorial" usr.pk %}?filter=redaction"
+                            <a href="{% url "content:find-tutorial" usr.pk %}?filter_status=redaction"
                                class="mobile-menu-link mobile-menu-sublink"
                             >
                                 <span class="count">{{ draft_tutos_count }}</span>
@@ -260,7 +260,7 @@
             <ul>
                 {% if articles_public_count > 0 %}
                     <li>
-                        <a href="{% url "content:find-article" usr.pk %}?filter=public"
+                        <a href="{% url "content:find-article" usr.pk %}?filter_status=public"
                            class="mobile-menu-link mobile-menu-sublink"
                         >
                             <span class="count">{{ articles_public_count }}</span>
@@ -270,7 +270,7 @@
                 {% endif %}
                 {% if articles_beta_count > 0 %}
                     <li>
-                        <a href="{% url "content:find-article" usr.pk %}?filter=beta"
+                        <a href="{% url "content:find-article" usr.pk %}?filter_status=beta"
                            class="mobile-menu-link mobile-menu-sublink"
                         >
                             <span class="count">{{ articles_beta_count }}</span>
@@ -281,7 +281,7 @@
                 {% if profile.user == user %}
                     {% if articles_validation_count > 0 %}
                         <li>
-                            <a href="{% url "content:find-article" usr.pk %}?filter=validation"
+                            <a href="{% url "content:find-article" usr.pk %}?filter_status=validation"
                                class="mobile-menu-link mobile-menu-sublink"
                             >
                                 <span class="count">{{ articles_validation_count }}</span>
@@ -291,7 +291,7 @@
                     {% endif %}
                     {% if articles_draft_count > 0 %}
                         <li>
-                            <a href="{% url "content:find-article" usr.pk %}?filter=redaction"
+                            <a href="{% url "content:find-article" usr.pk %}?filter_status=redaction"
                                class="mobile-menu-link mobile-menu-sublink"
                             >
                                 <span class="count">{{ articles_draft_count }}</span>
@@ -336,7 +336,7 @@
             <ul>
                 {% if opinions_public_count > 0 %}
                     <li>
-                        <a href="{% url "content:find-opinion" usr.pk %}?filter=public"
+                        <a href="{% url "content:find-opinion" usr.pk %}?filter_status=public"
                            class="mobile-menu-link mobile-menu-sublink"
                         >
                             <span class="count">{{ opinions_public_count }}</span>
@@ -347,7 +347,7 @@
                 {% if opinions_draft_count > 0 %}
                     {% if profile.user == user %}
                         <li>
-                            <a href="{% url "content:find-opinion" usr.pk %}?filter=redaction"
+                            <a href="{% url "content:find-opinion" usr.pk %}?filter_status=redaction"
                                class="mobile-menu-link mobile-menu-sublink"
                             >
                                 <span class="count">{{ opinions_draft_count }}</span>

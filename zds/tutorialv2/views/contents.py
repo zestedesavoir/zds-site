@@ -2002,33 +2002,51 @@ class ContentOfAuthor(ZdSPagingListView):
     model = PublishableContent
 
     # list: func filter, Title, Permission, Icon
-    authorized_filters = OrderedDict([
-        ('public', [lambda q, u: q.filter(sha_public__isnull=False, authors__pk=u), _('Publiés'), True, 'tick green']),
-        ('validation', [lambda q, u: q.filter(sha_validation__isnull=False, authors__pk=u), _('En validation'), False, 'tick']),
-        ('beta', [lambda q, u: q.filter(sha_beta__isnull=False, authors__pk=u), _('En bêta'), True, 'beta']),
+    authorized_filters_status = OrderedDict([
+        ('public', [lambda q: q.filter(sha_public__isnull=False,), _('Publiés'), True, 'tick green']),
+        ('validation', [lambda q: q.filter(sha_validation__isnull=False), _('En validation'), False, 'tick']),
+        ('beta', [lambda q: q.filter(sha_beta__isnull=False), _('En bêta'), True, 'beta']),
         ('redaction', [
-            lambda q, u: q.filter(sha_validation__isnull=True, sha_public__isnull=True, sha_beta__isnull=True, authors__pk=u),
+            lambda q: q.filter(sha_validation__isnull=True, sha_public__isnull=True, sha_beta__isnull=True),
             _('Brouillons'), False, 'edit']),
-        ('proofreading', [lambda q, u: q.filter(proofreaders__pk=u), _('À relire'), True, 'search-submit'])
     ])
+
+    authorized_filters_rights = OrderedDict([
+        ('author', [lambda q, u: q.filter(authors__pk=u), _('Auteur'), True, 'search-submit']),
+        ('proofreading', [lambda q, u: q.filter(proofreaders__pk=u), _('Relecteur'), True, 'search-submit'])
+    ])
+
     sorts = OrderedDict([
         ('creation', [lambda q: q.order_by('creation_date'), _('Par date de création')]),
         ('abc', [lambda q: q.order_by('title'), _('Par ordre alphabétique')]),
         ('modification', [lambda q: q.order_by('-update_date'), _('Par date de dernière modification')])
     ])
     sort = ''
-    filter = ''
+    filter_status = ''
+    filter_rights = ''
     user = None
 
     def dispatch(self, request, *args, **kwargs):
         self.user = get_object_or_404(User, pk=int(self.kwargs['pk']))
-        if self.user != self.request.user and 'filter' in self.request.GET:
-            filter_ = self.request.GET.get('filter').lower()
-            if filter_ in self.authorized_filters:
-                if not self.authorized_filters[filter_][2]:
-                    raise PermissionDenied
-            else:
-                raise Http404("Le filtre n'est pas autorisé.")
+
+        if self.user != self.request.user:
+
+            if 'filter_status' in self.request.GET:
+                filter_status_ = self.request.GET.get('filter_status').lower()
+                if filter_status_ in self.authorized_filters_status:
+                    if not self.authorized_filters_status[filter_status_][2]:
+                        raise PermissionDenied
+                else:
+                    raise Http404("Le filtre n'est pas autorisé.")
+
+            if 'filter_rights' in self.request.GET:
+                filter_rights_ = self.request.GET.get('filter_rights').lower()
+                if filter_rights_ in self.authorized_filters_rights:
+                    if not self.authorized_filters_rights[filter_rights_][2]:
+                        raise PermissionDenied
+                else:
+                    raise Http404("Le filtre n'est pas autorisé.")
+
         return super(ContentOfAuthor, self).dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
@@ -2046,14 +2064,25 @@ class ContentOfAuthor(ZdSPagingListView):
             .select_related('image')
 
         # Filter.
-        if 'filter' in self.request.GET:
-            self.filter = self.request.GET['filter'].lower()
-            if self.filter not in self.authorized_filters:
+        if 'filter_status' in self.request.GET:
+            self.filter_status = self.request.GET['filter_status'].lower()
+            if self.filter_status not in self.authorized_filters_status:
                 raise Http404("Le filtre n'est pas autorisé.")
         elif self.user != self.request.user:
-            self.filter = 'public'
-        if self.filter != '':
-            queryset = self.authorized_filters[self.filter][0](queryset, self.user.pk)
+            self.filter_status = 'public'
+
+        if self.filter_status != '':
+            queryset = self.authorized_filters_status[self.filter_status][0](queryset)
+
+        if 'filter_rights' in self.request.GET:
+            self.filter_rights = self.request.GET['filter_rights'].lower()
+            if self.filter_rights not in self.authorized_filters_rights:
+                raise Http404("Le filtre n'est pas autorisé.")
+        elif self.user != self.request.user:
+            self.filter_rights = ''
+
+        if self.filter_rights != '':
+            queryset = self.authorized_filters_rights[self.filter_rights][0](queryset, self.user.pk)
 
         # Sort.
         if 'sort' in self.request.GET and self.request.GET['sort'].lower() in self.sorts:
@@ -2066,17 +2095,28 @@ class ContentOfAuthor(ZdSPagingListView):
     def get_context_data(self, **kwargs):
         context = super(ContentOfAuthor, self).get_context_data(**kwargs)
         context['sorts'] = []
-        context['filters'] = []
+        context['filters_status'] = []
+        context['filters_rights'] = []
         context['sort'] = self.sort.lower()
-        context['filter'] = self.filter.lower()
+        context['filter_status'] = self.filter_status.lower()
+        context['filter_rights'] = self.filter_rights.lower()
         context['subscriber_count'] = NewPublicationSubscription.objects.get_subscriptions(self.user).count()
 
         context['usr'] = self.user
+
         for sort in list(self.sorts.keys()):
             context['sorts'].append({'key': sort, 'text': self.sorts[sort][1]})
-        for filter_ in list(self.authorized_filters.keys()):
-            authorized_filter = self.authorized_filters[filter_]
-            if self.user != self.request.user and not authorized_filter[2]:
+
+        for filter_status_ in list(self.authorized_filters_status.keys()):
+            authorized_filter_status = self.authorized_filters_status[filter_status_]
+            if self.user != self.request.user and not authorized_filter_status[2]:
                 continue
-            context['filters'].append({'key': filter_, 'text': authorized_filter[1], 'icon': authorized_filter[3]})
+            context['filters_status'].append({'key': filter_status_, 'text': authorized_filter_status[1], 'icon': authorized_filter_status[3]})
+
+        for filter_rights_ in list(self.authorized_filters_rights.keys()):
+            authorized_filter_rights = self.authorized_filters_rights[filter_rights_]
+            if self.user != self.request.user and not authorized_filter_rights[2]:
+                continue
+            context['filters_rights'].append({'key': filter_rights_, 'text': authorized_filter_rights[1], 'icon': authorized_filter_rights[3]})
+
         return context
