@@ -15,14 +15,14 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import transaction
 from django.db.models import Count, Q
 from django.http import Http404
 from django.shortcuts import redirect, get_object_or_404
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
-from django.utils.translation import string_concat
+from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import FormView, DeleteView, RedirectView
 from easy_thumbnails.files import get_thumbnailer
@@ -135,7 +135,7 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
         # We need to save the content before changing its author list since it's a many-to-many relationship
         self.content.authors.add(self.request.user)
         self.content.ensure_author_gallery()
-        self.content.save()
+        self.content.save(force_slug_update=False)
         # Add subcategories on tutorial
         for subcat in form.cleaned_data['subcategory']:
             self.content.subcategory.add(subcat)
@@ -147,7 +147,7 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
         # Add tags
         self.content.add_tags(form.cleaned_data['tags'].split(','))
 
-        self.content.save()
+        self.content.save(force_slug_update=False)
 
         # create a new repo :
         init_new_repo(self.content,
@@ -301,6 +301,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
             return self.form_invalid(form)
 
         # first, update DB (in order to get a new slug if needed)
+        title_is_changed = publishable.title != form.cleaned_data['title']
         publishable.title = form.cleaned_data['title']
         publishable.description = form.cleaned_data['description']
         publishable.licence = form.cleaned_data['licence']
@@ -323,7 +324,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
             img.save()
             publishable.image = img
 
-        publishable.save()
+        publishable.save(force_slug_update=title_is_changed)
 
         # now, update the versioned information
         versioned.description = form.cleaned_data['description']
@@ -351,7 +352,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
             for help_ in form.cleaned_data['helps']:
                 publishable.helps.add(help_)
 
-        publishable.save()
+        publishable.save(force_slug_update=False)
 
         self.success_url = reverse('content:view', args=[publishable.pk, publishable.slug])
         return super(EditContent, self).form_valid(form)
@@ -1826,7 +1827,7 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
                 send_mp(
                     bot,
                     [user],
-                    string_concat(_('Ajout à la rédaction '), _type),
+                    format_lazy('{}{}', _('Ajout à la rédaction '), _type),
                     self.versioned_object.title,
                     render_to_string('tutorialv2/messages/add_author_pm.md', {
                         'content': self.object,

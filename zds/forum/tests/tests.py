@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.core import mail
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.test import TestCase
 
 from zds.forum.commons import PostEditMixin
@@ -1255,7 +1255,7 @@ class ManagerTests(TestCase):
             staff_group = Group.objects.filter(name='staff').first()
 
             self.forum3 = ForumFactory(category=self.cat1)
-            self.forum3.groups = [staff_group]
+            self.forum3.groups.add(staff_group)
             self.forum3.save()
 
             TopicFactory(forum=self.forum1, author=self.staff.user)

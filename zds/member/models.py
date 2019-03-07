@@ -5,7 +5,7 @@ import pygeoip
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import models
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
@@ -37,7 +37,7 @@ class Profile(models.Model):
     user = models.OneToOneField(
         User,
         verbose_name='Utilisateur',
-        related_name='profile')
+        related_name='profile', on_delete=models.CASCADE)
 
     last_ip_address = models.CharField(
         'Adresse IP',
@@ -53,7 +53,7 @@ class Profile(models.Model):
     sign = models.TextField('Signature', max_length=500, blank=True)
     licence = models.ForeignKey(Licence,
                                 verbose_name='Licence préférée',
-                                blank=True, null=True)
+                                blank=True, null=True, on_delete=models.SET_NULL)
     github_token = models.TextField('GitHub', blank=True)
     show_sign = models.BooleanField('Voir les signatures', default=True)
     # do UI components open by hovering them, or is clicking on them required?
@@ -409,7 +409,7 @@ class Profile(models.Model):
         return self.has_object_update_permission(request) or request.user.has_perm('member.change_profile')
 
     def has_object_update_permission(self, request):
-        return request.user.is_authenticated() and request.user == self.user
+        return request.user.is_authenticated and request.user == self.user
 
     @staticmethod
     def has_ban_permission(request):
@@ -496,7 +496,7 @@ class TokenForgotPassword(models.Model):
         verbose_name = 'Token de mot de passe oublié'
         verbose_name_plural = 'Tokens de mots de passe oubliés'
 
-    user = models.ForeignKey(User, verbose_name='Utilisateur', db_index=True)
+    user = models.ForeignKey(User, verbose_name='Utilisateur', db_index=True, on_delete=models.CASCADE)
     token = models.CharField(max_length=100, db_index=True)
     date_end = models.DateTimeField('Date de fin')
 
@@ -520,7 +520,7 @@ class TokenRegister(models.Model):
         verbose_name = 'Token d\'inscription'
         verbose_name_plural = 'Tokens  d\'inscription'
 
-    user = models.ForeignKey(User, verbose_name='Utilisateur', db_index=True)
+    user = models.ForeignKey(User, verbose_name='Utilisateur', db_index=True, on_delete=models.CASCADE)
     token = models.CharField(max_length=100, db_index=True)
     date_end = models.DateTimeField('Date de fin')
 
@@ -597,8 +597,9 @@ class Ban(models.Model):
         verbose_name = 'Sanction'
         verbose_name_plural = 'Sanctions'
 
-    user = models.ForeignKey(User, verbose_name='Sanctionné', db_index=True)
-    moderator = models.ForeignKey(User, verbose_name='Moderateur', related_name='bans', db_index=True)
+    user = models.ForeignKey(User, verbose_name='Sanctionné', db_index=True, on_delete=models.CASCADE)
+    moderator = models.ForeignKey(User, verbose_name='Moderateur', related_name='bans', db_index=True,
+                                  on_delete=models.SET_NULL, null=True)  # use default user?
     type = models.CharField('Type', max_length=80, db_index=True)
     note = models.TextField('Explication de la sanction')
     pubdate = models.DateTimeField('Date de publication', blank=True, null=True, db_index=True)
@@ -621,8 +622,9 @@ class KarmaNote(models.Model):
         verbose_name = 'Note de karma'
         verbose_name_plural = 'Notes de karma'
 
-    user = models.ForeignKey(User, related_name='karmanote_user', db_index=True)
-    moderator = models.ForeignKey(User, related_name='karmanote_staff', db_index=True)
+    user = models.ForeignKey(User, related_name='karmanote_user', db_index=True, on_delete=models.CASCADE)
+    moderator = models.ForeignKey(User, related_name='karmanote_staff', db_index=True, on_delete=models.SET_NULL,
+                                  null=True)
     note = models.CharField('Commentaire', max_length=150)
     karma = models.IntegerField('Valeur')
     pubdate = models.DateTimeField('Date d\'ajout', auto_now_add=True)

@@ -1,9 +1,8 @@
-from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.sitemaps import GenericSitemap, Sitemap
 from django.contrib.sitemaps.views import index as index_view, sitemap as sitemap_view
-from django.core.urlresolvers import get_resolver, reverse
+from django.urls import include, re_path, path, get_resolver, reverse
 
 from zds.forum.models import Category, Forum, Topic, Tag
 from zds.pages.views import home as home_view
@@ -65,14 +64,15 @@ sitemaps = {
         priority=0.7
     ),
     'forums': GenericSitemap(
-        {'queryset': Forum.objects.filter(groups__isnull=True).exclude(pk=settings.ZDS_APP['forum']['beta_forum_id'])},
+        {'queryset': Forum.objects.filter(groups__isnull=True).exclude(
+            pk=settings.ZDS_APP['forum']['beta_forum_id'])},
         changefreq='yearly',
         priority=0.7
     ),
     'topics': GenericSitemap(
         {'queryset': Topic.objects.filter(is_locked=False,
                                           forum__groups__isnull=True)
-                                  .exclude(forum__pk=settings.ZDS_APP['forum']['beta_forum_id']),
+         .exclude(forum__pk=settings.ZDS_APP['forum']['beta_forum_id']),
          'date_field': 'pubdate'},
         changefreq='hourly',
         priority=0.7
@@ -88,46 +88,51 @@ admin.autodiscover()
 
 
 urlpatterns = [
-    url(r'^', include('zds.tutorialv2.urls')),
-    url(r'^forums/', include('zds.forum.urls')),
-    url(r'^mp/', include('zds.mp.urls')),
-    url(r'^membres/', include('zds.member.urls')),
-    url(r'^admin/', include(admin.site.urls)),
-    url(r'^pages/', include('zds.pages.urls')),
-    url(r'^galerie/', include('zds.gallery.urls')),
-    url(r'^rechercher/', include('zds.searchv2.urls', namespace='search')),
-    url(r'^munin/', include('zds.munin.urls')),
-    url(r'^mise-en-avant/', include('zds.featured.urls')),
-    url(r'^notifications/', include('zds.notification.urls')),
-    url('', include('social.apps.django_app.urls', namespace='social')),
+    re_path(r'^', include(('zds.tutorialv2.urls', ''))),
+    re_path(r'^forums/', include(('zds.forum.urls', ''))),
+    re_path(r'^mp/', include(('zds.mp.urls', ''))),
+    re_path(r'^membres/', include(('zds.member.urls', ''))),
+    re_path(r'^admin/', admin.site.urls),
+    re_path(r'^pages/', include(('zds.pages.urls', ''))),
+    re_path(r'^galerie/', include(('zds.gallery.urls', ''))),
+    re_path(r'^rechercher/', include(('zds.searchv2.urls',
+                                      'zds.searchv2'), namespace='search')),
+    re_path(r'^munin/', include(('zds.munin.urls', ''))),
+    re_path(r'^mise-en-avant/', include(('zds.featured.urls', ''))),
+    re_path(r'^notifications/',
+            include(('zds.notification.urls', ''))),
+    path('', include(('social_django.urls', 'social_django'), namespace='social')),
 
-    url(r'^munin/', include('munin.urls')),
+    re_path(r'^munin/', include(('munin.urls', 'munin'))),
 
-    url(r'^$', home_view, name='homepage'),
+    re_path(r'^$', home_view, name='homepage'),
 
-    url(r'^api/', include('zds.api.urls', namespace='api')),
-    url(r'^oauth2/', include('oauth2_provider.urls', namespace='oauth2_provider')),
+    re_path(r'^api/', include(('zds.api.urls', 'zds.api'), namespace='api')),
+    re_path(r'^oauth2/', include(('oauth2_provider.urls',
+                                  'oauth2_provider'), namespace='oauth2_provider')),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # SiteMap URLs
 urlpatterns += [
-    url(r'^sitemap\.xml$', index_view, {'sitemaps': sitemaps}),
-    url(r'^sitemap-(?P<section>.+)\.xml$', sitemap_view, {'sitemaps': sitemaps},
-        name='django.contrib.sitemaps.views.sitemap'),
+    re_path(r'^sitemap\.xml$', index_view, {'sitemaps': sitemaps}),
+    re_path(r'^sitemap-(?P<section>.+)\.xml$', sitemap_view, {'sitemaps': sitemaps},
+            name='django.contrib.sitemaps.views.sitemap'),
 ]
 
 if settings.SERVE:
     from django.views.static import serve
     urlpatterns += [
-        url(r'^static/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT}),
-        url(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+        re_path(r'^static/(?P<path>.*)$', serve,
+                {'document_root': settings.STATIC_ROOT}),
+        re_path(r'^media/(?P<path>.*)$', serve,
+                {'document_root': settings.MEDIA_ROOT}),
     ]
 
 if settings.DEBUG:
     import debug_toolbar
     urlpatterns += [
-        url(r'^__debug__/', include(debug_toolbar.urls)),
+        re_path(r'^__debug__/', include(debug_toolbar.urls)),
     ]
 
 # custom view for 500 errors

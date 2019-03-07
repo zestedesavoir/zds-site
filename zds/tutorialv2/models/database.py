@@ -12,7 +12,7 @@ import shutil
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import models
 from django.http import Http404
 from django.utils.http import urlencode
@@ -84,7 +84,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
     # every publishable content has its own gallery to manage images
     gallery = models.ForeignKey(Gallery,
                                 verbose_name="Galerie d'images",
-                                blank=True, null=True, db_index=True)
+                                blank=True, null=True, db_index=True, on_delete=models.SET_NULL)
 
     creation_date = models.DateTimeField('Date de création')
     pubdate = models.DateTimeField('Date de publication',
@@ -104,10 +104,11 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
                                  blank=True, null=True, max_length=80, db_index=True)
     sha_picked = models.CharField('Sha1 de la version choisie (contenus publiés sans validation)',
                                   blank=True, null=True, max_length=80, db_index=True)
-    beta_topic = models.ForeignKey(Topic, verbose_name='Sujet beta associé', default=None, blank=True, null=True)
+    beta_topic = models.ForeignKey(Topic, verbose_name='Sujet beta associé', default=None, blank=True, null=True,
+                                   on_delete=models.SET_NULL)
     licence = models.ForeignKey(Licence,
                                 verbose_name='Licence',
-                                blank=True, null=True, db_index=True)
+                                blank=True, null=True, db_index=True, on_delete=models.SET_NULL)
     # as of ZEP 12 this field is no longer the size but the type of content (article/tutorial/opinion)
     type = models.CharField(max_length=10, choices=TYPE_CHOICES, db_index=True)
     # zep03 field
@@ -121,7 +122,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
 
     last_note = models.ForeignKey('ContentReaction', blank=True, null=True,
                                   related_name='last_note',
-                                  verbose_name='Derniere note')
+                                  verbose_name='Derniere note', on_delete=models.SET_NULL)
     is_locked = models.BooleanField('Est verrouillé', default=False)
     js_support = models.BooleanField('Support du Javascript', default=False)
 
@@ -158,11 +159,12 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         self.refresh_from_db(fields=list(fields.keys()))
         return self
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, force_slug_update=True, **kwargs):
         """
         Rewrite the `save()` function to handle slug uniqueness
+        :param force_slug_update: if set to ``False``do not try to update the slug
         """
-        if kwargs.pop('force_slug_update', True):
+        if force_slug_update:
             self.slug = uuslug(self.title, instance=self, max_length=80)
         update_date = kwargs.pop('update_date', True)
         if update_date:
@@ -453,7 +455,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         """
         user = get_current_user()
 
-        if user and user.is_authenticated():
+        if user and user.is_authenticated:
             try:
                 read = ContentRead.objects\
                     .select_related('note')\
@@ -478,7 +480,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         if user is None:
             user = get_current_user()
 
-        if user and user.is_authenticated():
+        if user and user.is_authenticated:
             try:
                 read = ContentRead.objects\
                     .filter(content=self, user__pk=user.pk)\
@@ -515,7 +517,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         if user is None:
             user = get_current_user()
 
-        if user and user.is_authenticated():
+        if user and user.is_authenticated:
             last_user_notes = ContentReaction.objects\
                 .filter(related_content=self)\
                 .filter(author=user.pk)\
@@ -593,7 +595,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         verbose_name = 'Contenu publié'
         verbose_name_plural = 'Contenus publiés'
 
-    content = models.ForeignKey(PublishableContent, verbose_name='Contenu')
+    content = models.ForeignKey(PublishableContent, verbose_name='Contenu', on_delete=models.CASCADE)
 
     content_type = models.CharField(max_length=10, choices=TYPE_CHOICES, db_index=True, verbose_name='Type de contenu')
     content_public_slug = models.CharField('Slug du contenu publié', max_length=80)
@@ -1140,6 +1142,7 @@ class ContentReaction(Comment):
         verbose_name_plural = 'notes sur un contenu'
 
     related_content = models.ForeignKey(PublishableContent, verbose_name='Contenu',
+                                        on_delete=models.CASCADE,
                                         related_name='related_content_note', db_index=True)
 
     def __str__(self):
@@ -1168,9 +1171,9 @@ class ContentRead(models.Model):
         verbose_name = 'Contenu lu'
         verbose_name_plural = 'Contenu lus'
 
-    content = models.ForeignKey(PublishableContent, db_index=True)
-    note = models.ForeignKey(ContentReaction, db_index=True, null=True)
-    user = models.ForeignKey(User, related_name='content_notes_read', db_index=True)
+    content = models.ForeignKey(PublishableContent, db_index=True, on_delete=models.CASCADE)
+    note = models.ForeignKey(ContentReaction, db_index=True, null=True, on_delete=models.SET_NULL)
+    user = models.ForeignKey(User, related_name='content_notes_read', db_index=True, on_delete=models.CASCADE)
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         """
@@ -1194,7 +1197,7 @@ class Validation(models.Model):
         verbose_name_plural = 'Validations'
 
     content = models.ForeignKey(PublishableContent, null=True, blank=True,
-                                verbose_name='Contenu proposé', db_index=True)
+                                verbose_name='Contenu proposé', db_index=True, on_delete=models.CASCADE)
     version = models.CharField('Sha1 de la version',
                                blank=True, null=True, max_length=80, db_index=True)
     date_proposition = models.DateTimeField('Date de proposition', db_index=True, null=True, blank=True)
@@ -1202,7 +1205,7 @@ class Validation(models.Model):
     validator = models.ForeignKey(User,
                                   verbose_name='Validateur',
                                   related_name='author_content_validations',
-                                  blank=True, null=True, db_index=True)
+                                  blank=True, null=True, db_index=True, on_delete=models.SET_NULL)
     date_reserve = models.DateTimeField('Date de réservation',
                                         blank=True, null=True)
     date_validation = models.DateTimeField('Date de validation',
@@ -1264,7 +1267,7 @@ class PickListOperation(models.Model):
         verbose_name_plural = 'Choix des billets'
 
     content = models.ForeignKey(PublishableContent, null=False, blank=False,
-                                verbose_name='Contenu proposé', db_index=True)
+                                verbose_name='Contenu proposé', db_index=True, on_delete=models.CASCADE)
     operation = models.CharField(null=False, blank=False, db_index=True, max_length=len('REMOVE_PUB'),
                                  choices=PICK_OPERATIONS)
     operation_date = models.DateTimeField(null=False, db_index=True, verbose_name="Date de l'opération")

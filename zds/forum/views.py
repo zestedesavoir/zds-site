@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import transaction
 from django.http import Http404, HttpResponse, StreamingHttpResponse
 from django.shortcuts import redirect, get_object_or_404, render, render_to_response
@@ -200,7 +200,7 @@ class TopicPostsListView(ZdSPagingListView, SingleObjectMixin):
         else:
             context['user_can_modify'] = [post.pk for post in context['posts'] if post.author == self.request.user]
 
-        if self.request.user.is_authenticated():
+        if self.request.user.is_authenticated:
             for post in posts:
                 signals.content_read.send(sender=post.__class__, instance=post, user=self.request.user)
             if not is_read(self.object):

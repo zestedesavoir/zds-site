@@ -241,7 +241,7 @@ class MemberDetailAPI(RetrieveUpdateAPIView):
         profile = self.get_object()
         serializer = self.get_serializer(profile,
                                          show_email=profile.show_email,
-                                         is_authenticated=self.request.user.is_authenticated())
+                                         is_authenticated=self.request.user.is_authenticated)
         return Response(serializer.data)
 
     @etag(obj_key_func, rebuild_after_method_evaluation=True)

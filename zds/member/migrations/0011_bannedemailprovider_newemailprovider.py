@@ -839,7 +839,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('provider', models.CharField(unique=True, max_length=253, verbose_name='Fournisseur', db_index=True)),
                 ('date', models.DateTimeField(db_column='ban_date', auto_now_add=True, verbose_name='Date du bannissement', db_index=True)),
-                ('moderator', models.ForeignKey(related_name='banned_providers', verbose_name='Mod\xe9rateur', to=settings.AUTH_USER_MODEL)),
+                ('moderator', models.ForeignKey(related_name='banned_providers', verbose_name='Mod\xe9rateur', to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'Fournisseur banni',
@@ -853,7 +853,7 @@ class Migration(migrations.Migration):
                 ('provider', models.CharField(unique=True, max_length=253, verbose_name='Fournisseur', db_index=True)),
                 ('use', models.CharField(max_length=11, verbose_name='Utilisation', choices=[('NEW_ACCOUNT', 'Nouveau compte'), ('EMAIL_EDIT', "\xc9dition de l'adresse e-mail")])),
                 ('date', models.DateTimeField(db_column='alert_date', auto_now_add=True, verbose_name="Date de l'alerte", db_index=True)),
-                ('user', models.ForeignKey(related_name='new_providers', verbose_name='Utilisateur concern\xe9', to=settings.AUTH_USER_MODEL)),
+                ('user', models.ForeignKey(related_name='new_providers', verbose_name='Utilisateur concern\xe9', to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'Nouveau fournisseur',

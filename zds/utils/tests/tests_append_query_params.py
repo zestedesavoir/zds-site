@@ -1,5 +1,5 @@
 from django.test import TestCase, RequestFactory
-from django.template.base import TemplateSyntaxError, Token, TOKEN_TEXT, Context, VariableDoesNotExist, Template
+from django.template.base import TemplateSyntaxError, Token, TokenType, Context, VariableDoesNotExist, Template
 
 from zds.utils.templatetags.append_query_params import easy_tag, AppendGetNode
 
@@ -16,7 +16,7 @@ class EasyTagTest(TestCase):
     def test_valid_call(self):
 
         # Call tag without parser and three elements
-        ret = self.wrapped_function(None, Token(TOKEN_TEXT, 'elem1 elem2 elem3'))
+        ret = self.wrapped_function(None, Token(TokenType.TEXT, 'elem1 elem2 elem3'))
 
         # Check arguments have been split
         self.assertEqual(3, len(ret))
@@ -32,10 +32,10 @@ class EasyTagTest(TestCase):
 
         wf = self.wrapped_function
         # Check raising TemplateSyntaxError if call with too few arguments
-        self.assertRaises(TemplateSyntaxError, wf, None, Token(TOKEN_TEXT, 'elem1 elem2'))
+        self.assertRaises(TemplateSyntaxError, wf, None, Token(TokenType.TEXT, 'elem1 elem2'))
 
         # Check raising TemplateSyntaxError if call with too many arguments
-        self.assertRaises(TemplateSyntaxError, wf, None, Token(TOKEN_TEXT, 'elem1 elem2 elem3 elem4'))
+        self.assertRaises(TemplateSyntaxError, wf, None, Token(TokenType.TEXT, 'elem1 elem2 elem3 elem4'))
 
 
 class AppendGetNodeTest(TestCase):

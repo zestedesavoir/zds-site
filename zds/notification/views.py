@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.views.decorators.http import require_POST
 from django.utils.translation import ugettext_lazy as _
 from django.shortcuts import redirect
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from django.conf import settings
 from zds.mp.models import PrivateTopic

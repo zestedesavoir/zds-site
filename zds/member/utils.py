@@ -1,7 +1,7 @@
-from social.apps.django_app.middleware import SocialAuthExceptionMiddleware
+from social_django.middleware import SocialAuthExceptionMiddleware
 from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 import logging
 logger = logging.getLogger(__name__)
 

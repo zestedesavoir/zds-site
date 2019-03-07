@@ -12,12 +12,14 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='alert',
             name='content',
-            field=models.ForeignKey(related_name='alerts_on_this_content', verbose_name='Contenu', blank=True, to='tutorialv2.PublishableContent', null=True),
+            field=models.ForeignKey(related_name='alerts_on_this_content', verbose_name='Contenu', blank=True, to='tutorialv2.PublishableContent', null=True,
+                                    on_delete=models.CASCADE),
         ),
         migrations.AlterField(
             model_name='alert',
             name='comment',
-            field=models.ForeignKey(related_name='alerts_on_this_comment', verbose_name='Commentaire', blank=True, to='utils.Comment', null=True),
+            field=models.ForeignKey(related_name='alerts_on_this_comment', verbose_name='Commentaire', blank=True, to='utils.Comment', null=True,
+                                    on_delete=models.CASCADE),
         ),
         migrations.AlterField(
             model_name='alert',

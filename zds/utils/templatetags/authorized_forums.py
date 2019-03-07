@@ -9,7 +9,7 @@ def get_authorized_forums(user):
     :return: authorized_forums
     """
     forums_pub = Forum.objects.filter(groups__isnull=True).all()
-    if user and user.is_authenticated():
+    if user and user.is_authenticated:
         forums_private = Forum \
             .objects \
             .filter(groups__isnull=False, groups__in=user.groups.all()) \

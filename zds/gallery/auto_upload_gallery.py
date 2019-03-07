@@ -19,7 +19,7 @@ def _get_content_gallery(content_pk, user):
 
 
 def _get_default_gallery(user):
-    if not user or not user.is_authenticated():
+    if not user or not user.is_authenticated:
         return {}
 
     user_default_gallery = UserGallery.objects.filter(user=user, is_default=True).first()
@@ -41,6 +41,6 @@ def get_auto_upload_gallery(request: HttpRequest):
     :return: a dictionary with ``auto_update_gallery`` key
     """
     is_url_of_content = request.resolver_match and request.resolver_match.namespace == 'content'
-    if request.user.is_authenticated() and is_url_of_content and 'pk' in request.resolver_match.kwargs:
+    if request.user.is_authenticated and is_url_of_content and 'pk' in request.resolver_match.kwargs:
         return _get_content_gallery(request.resolver_match.kwargs['pk'], request.user)
     return _get_default_gallery(request.user)

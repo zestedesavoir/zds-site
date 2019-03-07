@@ -19,8 +19,8 @@ class Migration(migrations.Migration):
                 ('is_read', models.BooleanField(default=False, db_index=True, verbose_name='Lue')),
                 ('url', models.CharField(max_length=255, verbose_name=b'URL')),
                 ('title', models.CharField(max_length=200, verbose_name=b'Titre')),
-                ('content_type', models.ForeignKey(to='contenttypes.ContentType')),
-                ('sender', models.ForeignKey(related_name='sender', to='member.Profile')),
+                ('content_type', models.ForeignKey(to='contenttypes.ContentType', on_delete=models.CASCADE)),
+                ('sender', models.ForeignKey(related_name='sender', to='member.Profile', on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'Notification',
@@ -46,7 +46,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='AnswerSubscription',
             fields=[
-                ('subscription_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='notification.Subscription')),
+                ('subscription_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='notification.Subscription', on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -55,25 +55,25 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='subscription',
             name='content_type',
-            field=models.ForeignKey(to='contenttypes.ContentType'),
+            field=models.ForeignKey(to='contenttypes.ContentType', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='subscription',
             name='last_notification',
-            field=models.ForeignKey(related_name='last_notification', default=None, to='notification.Notification', null=True),
+            field=models.ForeignKey(related_name='last_notification', default=None, to='notification.Notification', null=True, on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='subscription',
             name='profile',
-            field=models.ForeignKey(related_name='subscriber', to='member.Profile'),
+            field=models.ForeignKey(related_name='subscriber', to='member.Profile', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='notification',
             name='subscription',
-            field=models.ForeignKey(related_name='subscription', to='notification.Subscription'),
+            field=models.ForeignKey(related_name='subscription', to='notification.Subscription', on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]

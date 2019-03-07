@@ -50,28 +50,28 @@ def is_email_followed_for_new_topic(forum_or_tag):
 @register.filter('is_content_followed')
 def is_content_followed(content):
     user = get_current_user()
-    return user.is_authenticated() and ContentReactionAnswerSubscription.objects.does_exist(
+    return user.is_authenticated and ContentReactionAnswerSubscription.objects.does_exist(
         user, content, is_active=True)
 
 
 @register.filter('is_content_email_followed')
 def is_content_email_followed(content):
     user = get_current_user()
-    return user.is_authenticated() and ContentReactionAnswerSubscription.objects.does_exist(
+    return user.is_authenticated and ContentReactionAnswerSubscription.objects.does_exist(
         user, content, is_active=True, by_email=True)
 
 
 @register.filter('is_new_publication_followed')
 def is_new_publication_followed(user_to_follow):
     user = get_current_user()
-    return user.is_authenticated() and NewPublicationSubscription.objects.does_exist(
+    return user.is_authenticated and NewPublicationSubscription.objects.does_exist(
         user, user_to_follow, is_active=True)
 
 
 @register.filter('is_new_publication_email_followed')
 def is_new_publication_email_followed(user_to_follow):
     user = get_current_user()
-    return user.is_authenticated() and NewPublicationSubscription.objects.does_exist(
+    return user.is_authenticated and NewPublicationSubscription.objects.does_exist(
         user, user_to_follow, is_active=True, by_email=True)
 
 
