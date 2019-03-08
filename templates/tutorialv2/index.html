@@ -196,7 +196,7 @@
                         <li><a href="{% url 'content:find-article' usr.pk %}?filter_status={{ current_filter_status.key }}{% if filter_rights != '' %}&filter_rights={{filter_rights}}{% endif %}" class="ico-after {{ current_filter_status.icon }} {% if filter_status == current_filter_status.key %}selected{% endif %}">{{ current_filter_status.text }}</a> </li>
                     {% elif opinions != None %}
                         {% if current_filter_status.key != 'validation' and current_filter_status.key != 'beta' %}
-                            <li><a href="{% url 'content:find-opinion' usr.pk %}?filter={{ current_filter_status.key }}{% if filter_rights != '' %}&filter_rights={{filter_rights}}{% endif %}" class="ico-after {{ current_filter_status.icon }} {% if filter_status == current_filter_status.key %}selected{% endif %}">{{ current_filter_status.text }}</a> </li>
+                            <li><a href="{% url 'content:find-opinion' usr.pk %}?filter_status={{ current_filter_status.key }}{% if filter_rights != '' %}&filter_rights={{filter_rights}}{% endif %}" class="ico-after {{ current_filter_status.icon }} {% if filter_status == current_filter_status.key %}selected{% endif %}">{{ current_filter_status.text }}</a> </li>
                         {% endif %}
                     {% endif %}
                 {% endfor %}
