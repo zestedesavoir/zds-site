@@ -226,6 +226,8 @@ class DisplayBetaContent(DisplayContent):
     """View to get the beta version of a content"""
 
     sha = None
+    must_be_author = False
+    must_be_author_or_proofreader = False
 
     def get_object(self, queryset=None):
         """rewritten to ensure that the version is set to beta, raise Http404 if there is no such version"""
