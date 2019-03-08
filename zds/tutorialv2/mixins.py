@@ -98,7 +98,7 @@ class SingleContentViewMixin(object):
             read_authorization = read_authorization and self.is_author
 
         if self.must_be_author_or_proofreader:
-            read_authorization = read_authorization and self.is_proofreader
+            read_authorization = read_authorization and (self.is_author or self.is_proofreader)
 
         if self.authorized_for_staff:
             read_authorization = read_authorization or self.is_staff
@@ -135,6 +135,9 @@ class SingleContentViewMixin(object):
 
         if self.must_be_author:
             read_authorization = read_authorization and self.is_author
+
+        if self.must_be_author_or_proofreader:
+            read_authorization = read_authorization and (self.is_author or self.is_proofreader)
 
         if self.authorized_for_staff:
             read_authorization = read_authorization or self.is_staff
