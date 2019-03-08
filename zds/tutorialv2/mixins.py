@@ -91,13 +91,20 @@ class SingleContentViewMixin(object):
         self.is_author = self.request.user in obj.authors.all()
         self.is_proofreader = self.request.user in obj.proofreaders.all()
 
-        if self.must_be_author and not self.is_author:
-            if not self.authorized_for_staff or (self.authorized_for_staff and not self.is_staff):
-                raise PermissionDenied
 
-        if self.must_be_author_or_proofreader and not self.is_author and not self.is_proofreader:
-            if not self.authorized_for_staff or (self.authorized_for_staff and not self.is_staff):
-                raise PermissionDenied
+        read_authorization = True
+
+        if self.must_be_author:
+            read_authorization = read_authorization and self.is_author
+
+        if self.must_be_author_or_proofreader:
+            read_authorization = read_authorization and self.is_proofreader
+
+        if self.authorized_for_staff:
+            read_authorization = read_authorization or self.is_staff
+
+        if not read_authorization:
+            raise PermissionDenied
 
         return obj
 
@@ -122,13 +129,21 @@ class SingleContentViewMixin(object):
         # if beta or public version, user can also access to it
         is_beta = self.object.is_beta(self.sha)
         is_public = self.object.is_public(self.sha) and self.public_is_prioritary
+        authorized_for_public = is_beta or is_public
 
-        if not is_beta and not is_public and not self.is_author:
-            if not (self.is_staff and self.authorized_for_staff):
-                if self.must_be_author:
-                    raise PermissionDenied
-                if not self.is_proofreader and self.must_be_author_or_proofreader:
-                    raise PermissionDenied
+        read_authorization = True
+
+        if self.must_be_author:
+            read_authorization = read_authorization and self.is_author
+
+        if self.authorized_for_staff:
+            read_authorization = read_authorization or self.is_staff
+
+        if authorized_for_public:
+            read_authorization = True
+
+        if not read_authorization:
+            raise PermissionDenied
 
         # load versioned file
         versioned = self.object.load_version_or_404(self.sha)

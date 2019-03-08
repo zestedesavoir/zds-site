@@ -166,8 +166,8 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
 
     model = PublishableContent
     template_name = 'tutorialv2/view/content.html'
-    must_be_author = False  # as in beta state anyone that is logged can access to it
-    must_be_author_or_proofreader = False
+    must_be_author = False
+    must_be_author_or_proofreader = True
     only_draft_version = False
 
     def get_forms(self, context):
@@ -438,8 +438,8 @@ class DownloadContent(LoggedWithReadWriteHability, SingleContentDownloadViewMixi
     """
 
     mimetype = 'application/zip'
-    only_draft_version = False  # beta version can also be downloaded
-    must_be_author = False  # other user can download archive
+    only_draft_version = False
+    must_be_author = False
     must_be_author_or_proofreader = False
 
     @staticmethod
@@ -983,8 +983,8 @@ class DisplayContainer(LoginRequiredMixin, SingleContentDetailViewMixin):
     model = PublishableContent
     template_name = 'tutorialv2/view/container.html'
     sha = None
-    must_be_author = False  # beta state does not need the author
-    must_be_author_or_proofreader = False
+    must_be_author = False
+    must_be_author_or_proofreader = True
     only_draft_version = False
 
     def get_context_data(self, **kwargs):
