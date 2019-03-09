@@ -173,7 +173,7 @@ class FeaturedResourceCreateViewTest(TutorialTestMixin, TestCase):
         self.assertEqual(initial_dict['authors'], '{}, {}'.format(author, author2))
         self.assertEqual(initial_dict['type'], _('Un tutoriel'))
         self.assertEqual(initial_dict['url'], 'http://testserver{}'.format(tutorial.get_absolute_url_online()))
-        self.assertEqual(initial_dict['image_url'], 'http://testserver{}'.format(image.physical.social_network.url))
+        self.assertEqual(initial_dict['image_url'], 'http://testserver{}'.format(image.physical['featured'].url))
 
     def test_success_initial_content_topic(self):
         author = ProfileFactory().user
