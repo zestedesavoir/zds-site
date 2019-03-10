@@ -83,8 +83,7 @@ class Container:
         """Note: This function relies on the fact that every child has the
         same type.
 
-        :return: ``True`` if the container contains extracts, ``False``
-        otherwise.
+        :return: ``True`` if the container contains extracts, ``False`` otherwise.
         :rtype: bool
         """
         if len(self.children) == 0:

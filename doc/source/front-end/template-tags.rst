@@ -9,7 +9,7 @@ La majorité de ces modules proposent aussi des fonctions proposant les même fo
 Python.
 
 append_query_params
-=============
+===================
 
 L'élément ``append_query_params`` permet de rajouter des paramètres à la requête ``GET`` courante. Par exemple, sur une page
 ``module/toto``, le code de template suivant :
@@ -175,7 +175,7 @@ génération des fichiers PDF et EPUB des tutos :
 - ``shift_heading_3`` : Décale les titres de 3 niveaux (un titre de niveau 1 devient un titre de niveau 4, etc.)
 
 Le module ``htmldiff``
-=========================
+======================
 
 Ce module définit le tag ``htmldiff`` qui affiche la différence entre deux chaînes de caractères, en utilisant `difflib (en) <https://docs.python.org/2/library/difflib.html>`__. Le code généré est un tableau HTML à l'intérieur d'une div. Il est employé pour afficher le *diff* des tutoriels et des articles.
 
@@ -435,7 +435,7 @@ Le module ``topbar``
 Ce module est utilisé pour récupéré les catégories dans le but de les afficher dans `le menu <structure-du-site.html#le-menu>`__ et dans la liste des tutoriels et articles.
 
 ``topbar_forum_categories``
-------------------
+---------------------------
 
 Ce filtre récupère les forums, classés par catégorie.
 
@@ -457,7 +457,7 @@ où,
 
 
 ``topbar_publication_categories``
---------------------------
+---------------------------------
 
 Ce filtres renvoit une liste des catégories utilisées dans les articles/tutoriels publiés.
 
@@ -516,7 +516,7 @@ des déplacements possibles d'un élément. Il s'agit d'un wrapper autour de ``z
 
 Exemple :
 
-.. sourcecode:: html
+.. sourcecode:: guess
 
     {% load target_tree %}
     {% for element in child|target_tree %}
@@ -533,7 +533,7 @@ Ce module défini un *templatetag* permetant d'accéder à l'url des listes de t
 
 Exemple :
 
-.. sourcecode:: html
+.. sourcecode:: guess
 
     {% if content.subcategory.all|length > 0 %}
         <ul class="taglist" itemprop="keywords">
@@ -551,7 +551,7 @@ Par exemple, l'auteur principal du tuto peut avoir demandé de l'aide pour écri
 
 Exemple :
 
-.. sourcecode:: html
+.. sourcecode:: guess
 
     {% load displayable_authors %}
     {% for authors in content|displayable_authors:True %}
@@ -570,20 +570,20 @@ Permet de mettre en surbrillance les résultats d'une recherche.
 
 Exemple :
 
-.. sourcecode:: html
+.. sourcecode:: guess
 
     {% if search_result.text %}
         {% highlight search_result "text" %}
     {% endif %}
 
 Le module ``joinby``
-===========================
+====================
 
 Ce module permet de lister le contenu d'un itérable en une seule ligne. C'est un équivalent un peu plus flexible de la fonction ``str.join`` en Python. Le séparateur peut être modifié et une option permet d'utiliser le même séparateur pour le dernier élément. Par défaut, le mot "et" est utilisé pour précéder le dernier élément.
 
 Exemple :
 
-.. sourcecode:: html
+.. sourcecode:: guess
 
     {% joinby fruits %}
     {% joinby fruits ';' final_separator=';' %}
