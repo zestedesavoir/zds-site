@@ -92,11 +92,11 @@ function wget_nv {
 }
 # <<<<<
 
-lastSTDERR=""
+# lastSTDERR=""
 # Store error of an command, example : `lookafter "sudo apt-get -qq -y install aaaaaaaa"`
-function lookafter {
-    lastSTDERR=$($@ 3>&1 1>&2 2>&3 | sudo tee /dev/stderr)
-}
+# function lookafter {
+#     lastSTDERR=$($@ 3>&1 1>&2 2>&3 | sudo tee /dev/stderr)
+# }
 
 # variables
 LOCAL_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -107,51 +107,75 @@ source $LOCAL_DIR/define_variable.sh
 if  ! $(_in "-packages" $@) && ( $(_in "+packages" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
     zds_fold_start "packages" "* [+packages] installing packages (this subcommand will be run as super-user)"
 
-    echo -en "\033[33;1m";
-    n=1
-    arr=()
+    if $(_in "--detect-os-version" $@); then
+        version=$(cat /proc/version)
 
-    for filepath in $LOCAL_DIR/dependencies/*.txt; do
-        echo "$n. $filepath"
-        arr[n]=$filepath
-        ((n++))
-    done
-    echo -en "\033[00m"
-    echo -n "Choix : "
-    read -n 1
-    echo ""
+        if [[ "$version" =~ "ubuntu" ]]; then
+            filepath="$LOCAL_DIR/dependencies/ubuntu.txt"
+        elif [[ "$version" =~ "debian" ]]; then
+            filepath="$LOCAL_DIR/dependencies/debian.txt"
+        elif [[ "$version" =~ "fedora" ]]; then
+            filepath="$LOCAL_DIR/dependencies/fedora.txt"
+        elif [[ "$version" =~ "arch" ]]; then
+            filepath="$LOCAL_DIR/dependencies/arch.txt"
+        else
+            print_error "!! I did not detect your linux version"
+            print_error "!! Please manually install the packages and run again without `--detect-os-version`"
+            exit 1
+        fi
+    else
+        echo -en "\033[33;1m";
+        n=1
+        arr=()
 
-    filepath=${arr[$REPLY]}
-    if [[ $filepath == "" ]]; then
-        print_error "!! You don't pick the right choice."
-        exit 1
-    fi
+        for filepath in $LOCAL_DIR/dependencies/*.txt; do
+            title=$(grep -oP '#title=\K(.*)' $filepath)
+            desc=$(grep -oP '#desc=\K(.*)' $filepath)
+            echo "$n. $title - $desc"
+            arr[n]=$filepath
+            ((n++))
+        done
 
-    packagingTool_install="apt-get -qq -y install"
-    echo "$filepath"
+        echo -en "\033[00m"
+        echo -n "Choix : "
+        read -n 1
+        echo ""
+
+        filepath=${arr[$REPLY]}
+        if [[ $filepath == "" ]]; then
+            print_error "!! You don't pick the right choice."
+            exit 1
+        fi
+    fi;
+
+    packagingTool_install=$(grep -oP '#installcmd=\K(.*)' $filepath)
+    print_info "$filepath"
+    IFS=$'\n'
+
     for dep in $(cat $filepath); do
-        echo "$packagingTool_install $dep"
-        sudo $packagingTool_install $dep
+        if [[ $dep == "#"* ]]; then
+            continue;
+        fi
+
+        echo "sudo $packagingTool_install $dep"
+        sudo -c "$packagingTool_install $dep"
         if [[ $? != "0" && ! $(_in "--answer-yes" $@) ]]; then
-            print_error "\`$dep\` not found, press \`y\` to follow the script."
+            print_error "\`$dep\` not found, press \`y\` to continue the script."
             read -n 1
             echo ""
             if [ "$REPLY" == "y" ]; then
-                print_info "Poursuite de l'installation"
+                print_info "Continue installation"
             else
-                print_error "Arrêt de l'installation"
+                print_error "Abort installation"
                 exit 1
             fi
         elif [[ $? != "0" && $(_in "--answer-yes" $@) ]]; then
-            print_info "Poursuite de l'installation"
+            print_info "Continue installation (auto answer yes)."
         fi
     done
 
     zds_fold_end
 fi
-
-
-exit 1
 
 # virtualenv
 if  ! $(_in "-virtualenv" $@) && ( $(_in "+virtualenv" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then

@@ -62,9 +62,9 @@ before_install:
   - source ./scripts/define_variable.sh
 
 install:
-  - ./scripts/install_zds.sh --answer-yes --travis-output +packages +virtualenv +back
+  - sudo apt-get update -qq
 
-  #- make install-back-with-prod
+  - ./scripts/install_zds.sh --answer-yes --travis-output --detect-os-version +packages +virtualenv +back
 
 script:
   - source ./$ZDS_VENV/bin/activate

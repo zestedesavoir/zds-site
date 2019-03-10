@@ -1,3 +1,6 @@
+#title=Debian
+#desc=Utilisation de apt-get / Testé sur : Debian Jessie
+#installcmd=apt-get -qq -y
 git
 wget
 curl

@@ -1,3 +1,6 @@
+#title=Arch
+#desc=Utilisation de pacman
+#installcmd=pacman -q -Syu
 git
 wget
 curl
