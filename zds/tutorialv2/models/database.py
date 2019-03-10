@@ -56,7 +56,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
     - Creation, publication and update date ;
     - Public, beta, validation and draft sha, for versioning ;
     - Comment support ;
-    - Type, which is either "ARTICLE" "TUTORIAL" or "OPINION"
+    - Type, which is either ``'ARTICLE'``, ``'TUTORIAL'`` or ``'OPINION'``
     """
     class Meta:
         verbose_name = 'Contenu'
@@ -160,8 +160,9 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
 
     def save(self, *args, force_slug_update=True, **kwargs):
         """
-        Rewrite the `save()` function to handle slug uniqueness
-        :param force_slug_update: if set to ``False``do not try to update the slug
+        Rewrite the ``save()`` function to handle slug uniqueness
+
+        :param force_slug_update: if set to ``False`` do not try to update the slug
         """
         if force_slug_update:
             self.slug = uuslug(self.title, instance=self, max_length=80)
