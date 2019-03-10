@@ -62,7 +62,7 @@ function print_info {
 function print_error {
     echo -en "\033[31;1m";
     echo "$1";
-    echo -en "\033[0m";
+    echo -en "\033[00m";
 }
 
 
@@ -162,9 +162,9 @@ if  ! $(_in "-packages" $@) && ( $(_in "+packages" $@) || $(_in "+base" $@) || $
         echo ""
 
         exVal=$?
-        if [[ $exVal > 0 && $dep == "python3-venv" ]]; then
+        if [[ $exVal != 0 && $dep == "python3-venv" ]]; then
             print_error "!! We were unable to install virtualenv. Don't panic, we will try with pip."
-        elif [[ $exVal > 0 && ! $(_in "--answer-yes" $@) ]]; then
+        elif [[ $exVal != 0 && ! $(_in "--answer-yes" $@) ]]; then
             print_error "Unable to install \`$dep\`, press \`y\` to continue the script."
             read -n 1
             echo ""
@@ -174,7 +174,7 @@ if  ! $(_in "-packages" $@) && ( $(_in "+packages" $@) || $(_in "+base" $@) || $
                 print_error "!! Installation aborted"
                 exit 1
             fi
-        elif [[ $exVal > 0 && $(_in "--answer-yes" $@) ]]; then
+        elif [[ $exVal != 0 && $(_in "--answer-yes" $@) ]]; then
             print_info "Installation continued (auto answer: \`yes\`)."
         else
             print_info "$dep: success."
