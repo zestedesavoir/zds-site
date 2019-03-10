@@ -157,8 +157,9 @@ if  ! $(_in "-packages" $@) && ( $(_in "+packages" $@) || $(_in "+base" $@) || $
         fi
 
         print_info "sudo $packagingTool_install $dep"
-        echo " "
+        echo ""
         eval "sudo $packagingTool_install $dep"
+        echo ""
 
         exVal=$?
         if [[ $exVal > 0 && $dep == "python3-venv" ]]; then
@@ -176,10 +177,9 @@ if  ! $(_in "-packages" $@) && ( $(_in "+packages" $@) || $(_in "+base" $@) || $
         elif [[ $exVal > 0 && $(_in "--answer-yes" $@) ]]; then
             print_info "Installation continued (auto answer: \`yes\`)."
         else
-            echo " "
             print_info "$dep: success."
-            echo " "
         fi
+        echo ""
     done
 
     zds_fold_end
