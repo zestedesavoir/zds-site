@@ -1,6 +1,6 @@
 #title=Fedora
 #desc=Utilisation de dnf
-#installcmd=dnf -q -y install
+#installcmd=dnf -y install
 git
 wget
 curl

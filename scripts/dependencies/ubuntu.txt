@@ -1,6 +1,6 @@
 #title=Ubuntu
 #desc=Utilisation de apt-get / Testé sur : Ubuntu 14.04
-#installcmd=apt-get -qq -y install
+#installcmd=apt-get -y install
 git
 wget
 curl

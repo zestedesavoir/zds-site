@@ -52,7 +52,7 @@ function print_info {
     if [[ "$2" == "--bold" ]]; then
         echo -en "\033[36;1m";
     else
-        echo -en "\033[36;0m";
+        echo -en "\033[0;36m";
     fi
     echo "$1";
     echo -en "\033[00m";
@@ -102,6 +102,7 @@ function wget_nv {
 LOCAL_DIR="$(cd "$(dirname "$0")" && pwd)"
 source $LOCAL_DIR/define_variable.sh
 
+print_info "ok"
 
 # Install packages
 if  ! $(_in "-packages" $@) && ( $(_in "+packages" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
@@ -157,9 +158,15 @@ if  ! $(_in "-packages" $@) && ( $(_in "+packages" $@) || $(_in "+base" $@) || $
             continue;
         fi
 
-        echo "sudo $packagingTool_install $dep"
-        sudo $packagingTool_install $dep
-        if [[ $? != "0" && ! $(_in "--answer-yes" $@) ]]; then
+        print_info "sudo $packagingTool_install $dep"
+        echo " "
+        eval "sudo $packagingTool_install $dep"
+
+        exVal=$?
+        if [[ $exVal > 0 && $dep == "python3-venv" ]]; then
+            print_info "!! We were unable to install virtualenv with apt-get. We try to install virtualenv with pip."
+            pip install virtualenv
+        elif [[ $exVal > 0 && ! $(_in "--answer-yes" $@) ]]; then
             print_error "\`$dep\` not found, press \`y\` to continue the script."
             read -n 1
             echo ""
@@ -169,8 +176,12 @@ if  ! $(_in "-packages" $@) && ( $(_in "+packages" $@) || $(_in "+base" $@) || $
                 print_error "Abort installation"
                 exit 1
             fi
-        elif [[ $? != "0" && $(_in "--answer-yes" $@) ]]; then
+        elif [[ $exVal > 0 && $(_in "--answer-yes" $@) ]]; then
             print_info "Continue installation (auto answer yes)."
+        else
+            echo " "
+            print_info "$dep: success."
+            echo " "
         fi
     done
 
