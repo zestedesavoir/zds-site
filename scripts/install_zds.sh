@@ -161,18 +161,20 @@ if  ! $(_in "-packages" $@) && ( $(_in "+packages" $@) || $(_in "+base" $@) || $
         eval "sudo $packagingTool_install $dep"
 
         exVal=$?
-        if [[ $exVal > 0 && ! $(_in "--answer-yes" $@) ]]; then
-            print_error "\`$dep\` not found, press \`y\` to continue the script."
+        if [[ $dep == "python3-venv" ]]; then
+            print_error "!! We were unable to install virtualenv. Don't panic, we will try with pip."
+        elif [[ $exVal > 0 && ! $(_in "--answer-yes" $@) ]]; then
+            print_error "Unable to install \`$dep\`, press \`y\` to continue the script."
             read -n 1
             echo ""
             if [ "$REPLY" == "y" ]; then
-                print_info "Continue installation"
+                print_info "Installation continued"
             else
-                print_error "Abort installation"
+                print_error "Installation aborted"
                 exit 1
             fi
         elif [[ $exVal > 0 && $(_in "--answer-yes" $@) ]]; then
-            print_info "Continue installation (auto answer yes)."
+            print_info "Installation continued (auto answer: \`yes\`)."
         else
             echo " "
             print_info "$dep: success."
