@@ -28,7 +28,7 @@ Contribuer à Zeste De Savoir
 Quelques bonnes pratiques
 -------------------------
 
-* Respectez `les conventions de code de Django <https://docs.djangoproject.com/en/1.11/internals/contributing/writing-code/coding-style/>`_, ce qui inclut la `PEP 8 de Python <http://legacy.python.org/dev/peps/pep-0008/>`_.
+* Respectez `les conventions de code de Django <https://docs.djangoproject.com/en/2.1/internals/contributing/writing-code/coding-style/>`_, ce qui inclut la `PEP 8 de Python <http://legacy.python.org/dev/peps/pep-0008/>`_.
 * Le code et les commentaires sont en anglais.
 * Le *workflow* Git utilisé est le `Git flow <http://nvie.com/posts/a-successful-git-branching-model/>`_, qui est `détaillé ici <./workflow.html>`_. En résumé :
     * Les arrivées fonctionnalités et corrections de gros bugs hors release se font via des PR.
