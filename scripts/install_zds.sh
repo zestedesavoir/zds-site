@@ -502,11 +502,24 @@ fi
 if  ! $(_in "-data" $@) && ( $(_in "+data" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
     zds_fold_start "fixtures" "* [+data] fixtures"
 
+    make zmd-start
+
+    if [[ $? != 0 ]]; then
+        print_error "!! Cannot start zmd to generate-fixtures (use \`-data\` to skip)"
+        exit 1
+    fi
+
     make generate-fixtures
 
     if [[ $? != 0 ]]; then
         print_error "!! Cannot generate-fixtures (use \`-data\` to skip)"
         exit 1
+    fi
+
+    make zmd-stop
+
+    if [[ $? != 0 ]]; then
+        print_error "Warning: Cannot stop zmd"
     fi
 
     zds_fold_end
