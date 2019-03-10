@@ -158,7 +158,7 @@ if  ! $(_in "-packages" $@) && ( $(_in "+packages" $@) || $(_in "+base" $@) || $
         fi
 
         echo "sudo $packagingTool_install $dep"
-        sudo -c "$packagingTool_install $dep"
+        sudo $packagingTool_install $dep
         if [[ $? != "0" && ! $(_in "--answer-yes" $@) ]]; then
             print_error "\`$dep\` not found, press \`y\` to continue the script."
             read -n 1
