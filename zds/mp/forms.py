@@ -3,7 +3,7 @@ from crispy_forms.layout import Layout, Field, Hidden, ButtonHolder, HTML
 from crispy_forms.bootstrap import StrictButton
 
 from django import forms
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from zds.mp.models import PrivateTopic

@@ -46,11 +46,13 @@
     {% if topic.tags.all %}
         <ul class="content-tags" itemprop="keywords">
             {% for tag in topic.tags.all|slice:":3" %}
-                <li>
-                    <a href="{% url 'topic-tag-find' tag.slug %}" title="Tag {{ tag.title }}">
-                        {{ tag.title }}
-                    </a>
-                </li>
+                {% if tag.slug %}
+                    <li>
+                        <a href="{% url 'topic-tag-find' tag.slug %}" title="Tag {{ tag.title }}">
+                            {{ tag.title }}
+                        </a>
+                    </li>
+                {% endif %}
             {% endfor %}
         </ul>
     {% endif %}

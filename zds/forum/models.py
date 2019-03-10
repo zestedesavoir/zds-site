@@ -4,7 +4,7 @@ from math import ceil
 
 from django.conf import settings
 from django.contrib.auth.models import Group, User, AnonymousUser
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import models
 from django.dispatch import receiver
 from django.db.models.signals import pre_delete
@@ -63,7 +63,7 @@ class Category(models.Model):
         :rtype: list[Forum]
         """
         forums_pub = Forum.objects.get_public_forums_of_category(self, with_count=with_count)
-        if user is not None and user.is_authenticated():
+        if user is not None and user.is_authenticated:
             forums_private = Forum.objects.get_private_forums_of_category(self, user)
             return list(forums_pub | forums_private)
         return forums_pub
@@ -87,7 +87,8 @@ class Forum(models.Model):
         verbose_name='Groupes autorisés (aucun = public)',
         blank=True)
 
-    category = models.ForeignKey(Category, db_index=True, verbose_name='Catégorie')
+    # better handling of on_delete with SET(value)?
+    category = models.ForeignKey(Category, db_index=True, verbose_name='Catégorie', on_delete=models.CASCADE)
     position_in_category = models.IntegerField('Position dans la catégorie',
                                                null=True, blank=True, db_index=True)
 
@@ -185,19 +186,21 @@ class Topic(AbstractESDjangoIndexable):
     subtitle = models.CharField('Sous-titre', max_length=200, null=True,
                                 blank=True)
 
-    forum = models.ForeignKey(Forum, verbose_name='Forum', db_index=True)
+    # on_delete default forum?
+    forum = models.ForeignKey(Forum, verbose_name='Forum', db_index=True, on_delete=models.CASCADE)
+    # on_delete anonymous?
     author = models.ForeignKey(User, verbose_name='Auteur',
-                               related_name='topics', db_index=True)
+                               related_name='topics', db_index=True, on_delete=models.CASCADE)
     last_message = models.ForeignKey('Post', null=True,
                                      related_name='last_message',
-                                     verbose_name='Dernier message')
+                                     verbose_name='Dernier message', on_delete=models.SET_NULL)
     pubdate = models.DateTimeField('Date de création', auto_now_add=True)
     update_index_date = models.DateTimeField(
         'Date de dernière modification pour la réindexation partielle',
         auto_now=True,
         db_index=True)
     solved_by = models.ForeignKey(User, verbose_name='Utilisateur ayant noté le sujet comme résolu',
-                                  db_index=True, default=None, null=True)
+                                  db_index=True, default=None, null=True, on_delete=models.SET_NULL)
     is_locked = models.BooleanField('Est verrouillé', default=False, db_index=True)
     is_sticky = models.BooleanField('Est en post-it', default=False, db_index=True)
     github_issue = models.PositiveIntegerField('Ticket GitHub', null=True, blank=True)
@@ -301,7 +304,7 @@ class Topic(AbstractESDjangoIndexable):
         :rtype: str
         """
         user = get_current_user()
-        if user is None or not user.is_authenticated():
+        if user is None or not user.is_authenticated:
             return self.first_unread_post().get_absolute_url()
         else:
             try:
@@ -473,7 +476,7 @@ class Post(Comment, AbstractESDjangoIndexable):
     """
     objects_per_batch = 2000
 
-    topic = models.ForeignKey(Topic, verbose_name='Sujet', db_index=True)
+    topic = models.ForeignKey(Topic, verbose_name='Sujet', db_index=True, on_delete=models.CASCADE)
 
     is_useful = models.BooleanField('Est utile', default=False)
     objects = PostManager()
@@ -575,9 +578,9 @@ class TopicRead(models.Model):
         verbose_name_plural = 'Sujets lus'
         unique_together = ('topic', 'user')
 
-    topic = models.ForeignKey(Topic, db_index=True)
-    post = models.ForeignKey(Post, db_index=True)
-    user = models.ForeignKey(User, related_name='topics_read', db_index=True)
+    topic = models.ForeignKey(Topic, db_index=True, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, db_index=True, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, related_name='topics_read', db_index=True, on_delete=models.CASCADE)
     objects = TopicReadManager()
 
     def __str__(self):
@@ -610,7 +613,7 @@ def mark_read(topic, user=None):
     if not user:
         user = get_current_user()
 
-    if user and user.is_authenticated():
+    if user and user.is_authenticated:
         current_topic_read = TopicRead.objects.filter(topic=topic, user=user).first()
         if current_topic_read is None:
             current_topic_read = TopicRead(post=topic.last_message, topic=topic, user=user)

@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import Http404, HttpResponse, HttpResponsePermanentRedirect, StreamingHttpResponse
 from django.template.loader import render_to_string
 from django.shortcuts import redirect
@@ -265,6 +265,10 @@ class SingleContentDetailViewMixin(SingleContentViewMixin, DetailView):
             context['can_publish'] = not self.object.is_permanently_unpublished()
         if self.sha != self.object.sha_draft:
             context['version'] = self.sha
+
+        is_allowed = (self.is_author or self.is_staff)
+        is_same_version = (not self.sha or self.sha == self.object.sha_draft)
+        context['can_add_something'] = is_allowed and is_same_version
 
         if self.object.beta_topic:
             beta_topic = Topic.objects.get(pk=self.object.beta_topic.pk)

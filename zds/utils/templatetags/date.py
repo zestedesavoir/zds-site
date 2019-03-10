@@ -47,7 +47,7 @@ def date_formatter(value, tooltip, small):
         if (delta.days == 0) != tooltip:
             return naturaltime(value)
         else:
-            return date(value, __ABS_DATE_FMT_SMALL if small else __ABS_DATE_FMT_NORMAL)
+            return date(value, str(__ABS_DATE_FMT_SMALL if small else __ABS_DATE_FMT_NORMAL))
 
 
 @register.filter

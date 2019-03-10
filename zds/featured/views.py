@@ -2,7 +2,7 @@ from datetime import datetime
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import transaction
 from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
@@ -72,7 +72,7 @@ class FeaturedResourceCreate(CreateView):
             return {}
         displayed_authors = ', '.join([str(x) for x in content.authors.all()])
         if content.content.image:
-            image_url = content.content.image.physical.url
+            image_url = self.request.build_absolute_uri(content.content.image.physical['featured'].url)
         else:
             image_url = None
         return {'title': content.title(),

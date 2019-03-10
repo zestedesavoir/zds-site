@@ -16,8 +16,8 @@ class Migration(migrations.Migration):
                 ('type', models.CharField(max_length=80, verbose_name=b'Type', db_index=True)),
                 ('text', models.TextField(verbose_name=b'Explication de la sanction')),
                 ('pubdate', models.DateTimeField(db_index=True, null=True, verbose_name=b'Date de publication', blank=True)),
-                ('moderator', models.ForeignKey(related_name='bans', verbose_name=b'Moderateur', to=settings.AUTH_USER_MODEL)),
-                ('user', models.ForeignKey(verbose_name=b'Sanctionn\xc3\xa9', to=settings.AUTH_USER_MODEL)),
+                ('moderator', models.ForeignKey(related_name='bans', verbose_name=b'Moderateur', to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
+                ('user', models.ForeignKey(verbose_name=b'Sanctionn\xc3\xa9', to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'Sanction',
@@ -32,8 +32,8 @@ class Migration(migrations.Migration):
                 ('comment', models.CharField(max_length=150, verbose_name=b'Commentaire')),
                 ('value', models.IntegerField(verbose_name=b'Valeur')),
                 ('create_at', models.DateTimeField(auto_now_add=True, verbose_name=b"Date d'ajout")),
-                ('staff', models.ForeignKey(related_name='karmanote_staff', to=settings.AUTH_USER_MODEL)),
-                ('user', models.ForeignKey(related_name='karmanote_user', to=settings.AUTH_USER_MODEL)),
+                ('staff', models.ForeignKey(related_name='karmanote_staff', to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
+                ('user', models.ForeignKey(related_name='karmanote_user', to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'Note de karma',
@@ -61,7 +61,7 @@ class Migration(migrations.Migration):
                 ('can_write', models.BooleanField(default=True, verbose_name=b"Possibilit\xc3\xa9 d'\xc3\xa9crire")),
                 ('end_ban_write', models.DateTimeField(null=True, verbose_name=b"Fin d'interdiction d'ecrire", blank=True)),
                 ('last_visit', models.DateTimeField(null=True, verbose_name=b'Date de derni\xc3\xa8re visite', blank=True)),
-                ('user', models.OneToOneField(related_name='profile', verbose_name=b'Utilisateur', to=settings.AUTH_USER_MODEL)),
+                ('user', models.OneToOneField(related_name='profile', verbose_name=b'Utilisateur', to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'Profil',
@@ -76,7 +76,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('token', models.CharField(max_length=100, db_index=True)),
                 ('date_end', models.DateTimeField(verbose_name=b'Date de fin')),
-                ('user', models.ForeignKey(verbose_name=b'Utilisateur', to=settings.AUTH_USER_MODEL)),
+                ('user', models.ForeignKey(verbose_name=b'Utilisateur', to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'Token de mot de passe oubli\xe9',
@@ -90,7 +90,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('token', models.CharField(max_length=100, db_index=True)),
                 ('date_end', models.DateTimeField(verbose_name=b'Date de fin')),
-                ('user', models.ForeignKey(verbose_name=b'Utilisateur', to=settings.AUTH_USER_MODEL)),
+                ('user', models.ForeignKey(verbose_name=b'Utilisateur', to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': "Token d'inscription",

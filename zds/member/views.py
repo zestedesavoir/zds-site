@@ -19,7 +19,7 @@ from django.shortcuts import redirect, render, get_object_or_404, render_to_resp
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
 from django.utils.http import urlunquote
-from django.utils.translation import string_concat
+from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST
 from django.views.generic import DetailView, UpdateView, CreateView, FormView
@@ -1262,11 +1262,11 @@ def settings_promote(request, user_pk):
                 'Un administrateur vient de modifier les groupes '
                 'auxquels vous appartenez.  \n').format(user.username)
         if len(usergroups) > 0:
-            msg = string_concat(msg, _('Voici la liste des groupes dont vous faites dorénavant partie :\n\n'))
+            msg = format_lazy('{}{}', msg, _('Voici la liste des groupes dont vous faites dorénavant partie :\n\n'))
             for group in usergroups:
                 msg += '* {0}\n'.format(group.name)
         else:
-            msg = string_concat(msg, _('* Vous ne faites partie d\'aucun groupe'))
+            msg = format_lazy('{}{}', msg, _('* Vous ne faites partie d\'aucun groupe'))
         send_mp(
             bot,
             [user],

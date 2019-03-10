@@ -1,12 +1,12 @@
 # Implicit dependencies (optional dependencies of dependencies)
-python-social-auth==0.2.21
+social-auth-app-django==3.1.0
 elasticsearch==5.5.2
 elasticsearch-dsl==5.4.0
 sqlparse==0.2.4
 setuptools==40.6.3
 
 # Explicit dependencies (references in code)
-Django==1.11.15
+Django==2.1.7
 django-crispy-forms==1.7.2
 django-model-utils==3.1.2
 django-munin==0.2.1
@@ -22,15 +22,15 @@ beautifulsoup4==4.6.0
 django-recaptcha==1.3.1
 google-api-python-client==1.7.4
 toml==0.10.0
-requests==2.19.1
+requests==2.21.0
 
 # Api dependencies
-djangorestframework==3.6.4
-djangorestframework-xml==1.3.0
-django-filter==1.1.0
+djangorestframework==3.9.0
+djangorestframework-xml==1.4.0
+django-filter==2.0.0
 django-oauth-toolkit==1.0.0
-drf-extensions==0.3.1
-django-rest-swagger==2.1.2
+drf-extensions==0.4.0
+django-rest-swagger==2.2.0
 django-cors-middleware==1.3.1
 dry-rest-permissions==0.1.10
 oauth2client==4.1.3

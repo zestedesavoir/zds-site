@@ -11,7 +11,7 @@ from uuslug import slugify
 
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.template.loader import render_to_string
 
@@ -83,8 +83,7 @@ class Container:
         """Note: This function relies on the fact that every child has the
         same type.
 
-        :return: ``True`` if the container contains extracts, ``False``
-        otherwise.
+        :return: ``True`` if the container contains extracts, ``False`` otherwise.
         :rtype: bool
         """
         if len(self.children) == 0:
@@ -774,6 +773,27 @@ class Container:
             return _('Chapitre')
         else:
             return _('Section')
+
+    def is_chapter(self):
+        """
+        Check if the container level is Chapter
+
+        :return: True if the container level is Chapter
+        :rtype: bool
+        """
+        if self.get_tree_depth() == 2:
+                return True
+        return False
+
+    def next_level_is_chapter(self):
+        """Same as ``self.is_chapter()`` but check the container's children
+
+        :return: True if the container next level is Chapter
+        :rtype: bool
+        """
+        if self.get_tree_depth() == 1 and self.can_add_container():
+                return True
+        return False
 
     def can_be_in_beta(self):
         """

@@ -34,20 +34,20 @@ Vues (``views/``)
 Contenus (``views/views_contents.py``)
 --------------------------------------
 
-.. automodule:: zds.tutorialv2.views.views_contents
+.. automodule:: zds.tutorialv2.views.contents
     :members:
 
 
 Validations (``views/views_validations.py``)
 --------------------------------------------
 
-.. automodule:: zds.tutorialv2.views.views_validations
+.. automodule:: zds.tutorialv2.views.validations
     :members:
 
 Contenus publiés (``views/views_published.py``)
 -----------------------------------------------
 
-.. automodule:: zds.tutorialv2.views.views_published
+.. automodule:: zds.tutorialv2.views.published
     :members:
 
 Mixins (``mixins.py``)

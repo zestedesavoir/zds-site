@@ -65,7 +65,8 @@ class StaffFactory(factory.DjangoModelFactory):
             hat.save()
 
         perms = Permission.objects.filter(codename__startswith='change_').all()
-        group_staff.permissions = perms
+        for perm in perms:
+            group_staff.permissions.add(perm)
         user.groups.add(group_staff)
 
         user.save()

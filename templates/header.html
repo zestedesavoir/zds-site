@@ -55,10 +55,12 @@
                                     <li>
                                         <ul>
                                             <li class="dropdown-title">
-                                                {{ title }}
+                                                <a href="{% url "publication:category" subcats.0.2 %}">
+                                                    {{ title }}
+                                                </a>
                                             </li>
                                             {% for subcat, slug, parent_slug in subcats %}
-                                                <li>
+                                                <li class="dropdown-list-element">
                                                     <a href="{% url 'publication:subcategory' slug_category=parent_slug slug=slug %}">
                                                         {{ subcat }}
                                                     </a>
@@ -113,7 +115,7 @@
                                                 {{ title }}
                                             </li>
                                             {% for subcat, slug, parent_slug in subcats %}
-                                                <li>
+                                                <li class="dropdown-list-element">
                                                     <a href="{% url "opinion:list" %}?category={{ slug }}">
                                                         {{ subcat }}
                                                     </a>
@@ -161,14 +163,18 @@
 
                         <ul class="dropdown-list">
                             {% with top=user|topbar_forum_categories %}
-                                {% for title, forums in top.categories %}
+                                {% for title, slug, forums in top.categories %}
                                     <li>
                                         <ul>
                                             <li class="dropdown-title">
-                                                {{ title }}
+                                                <a href="{% url "cat-forums-list" slug %}">
+                                                    {{ title }}
+                                                </a>
                                             </li>
                                             {% for forum in forums %}
-                                                <li {% if forum.has_group %}class="staff-only"{% endif %}><a href="{{ forum.get_absolute_url }}">{{ forum.title }}</a></li>
+                                                <li class="dropdown-list-element{% if forum.has_group %} staff-only{% endif %}">
+                                                    <a href="{{ forum.get_absolute_url }}">{{ forum.title }}</a>
+                                                </li>
                                             {% endfor %}
                                         </ul>
                                     </li>
@@ -188,7 +194,11 @@
                                                 {% trans "Tags les plus utilisés" %}
                                             </li>
                                             {% for tag in top.tags %}
-                                                <li><a href="{{ tag.get_absolute_url }}">{{ tag.title }}</a></li>
+                                                {% if tag.slug %}
+                                                    <li class="dropdown-list-element">
+                                                        <a href="{{ tag.get_absolute_url }}">{{ tag.title }}</a>
+                                                    </li>
+                                                {% endif %}
                                             {% endfor %}
                                         </ul>
                                     </li>

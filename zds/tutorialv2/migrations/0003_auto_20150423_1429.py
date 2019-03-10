@@ -11,7 +11,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='contentread',
             name='note',
-            field=models.ForeignKey(to='tutorialv2.ContentReaction', null=True),
+            field=models.ForeignKey(to='tutorialv2.ContentReaction', null=True, on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AlterField(
