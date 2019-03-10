@@ -73,6 +73,8 @@ before_install:
 
   - source ./scripts/ci_turbo.sh # This script exports environment variables, it must be sourced
 
+  - travis_retry pip install -q coveralls
+
   - source ./scripts/define_variable.sh 
 
   - source ./scripts/travis_header.sh # Some function for this script
