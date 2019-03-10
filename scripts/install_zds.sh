@@ -102,8 +102,6 @@ function wget_nv {
 LOCAL_DIR="$(cd "$(dirname "$0")" && pwd)"
 source $LOCAL_DIR/define_variable.sh
 
-print_info "ok"
-
 # Install packages
 if  ! $(_in "-packages" $@) && ( $(_in "+packages" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
     zds_fold_start "packages" "* [+packages] installing packages (this subcommand will be run as super-user)"

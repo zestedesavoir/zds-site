@@ -21,10 +21,10 @@ clean: clean-back clean-front ## Clean everything (`clean-back` & `clean-front`)
 ## ~ Backend
 
 install-back: ## Install the Python packages for the backend
-	pip install --upgrade -q -r requirements-dev.txt
+	pip install --upgrade -r requirements-dev.txt
 
 install-back-with-prod:
-	pip install --upgrade -q -r requirements-dev.txt -r requirements-prod.txt
+	pip install --upgrade -r requirements-dev.txt -r requirements-prod.txt
 
 run-back: zmd-check ## Run the backend server
 	python manage.py runserver
@@ -97,7 +97,7 @@ generate-pdf: ## Generate PDFs of published contents
 ## ~ Database
 
 migrate-db: ## Create or update database schema
-	python manage.py migrate -v 0
+	python manage.py migrate
 
 generate-fixtures: ## Generate fixtures (users, tutorials, articles, opinions, topics...)
 	python manage.py loaddata fixtures/*.yaml
