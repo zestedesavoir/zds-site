@@ -161,10 +161,7 @@ if  ! $(_in "-packages" $@) && ( $(_in "+packages" $@) || $(_in "+base" $@) || $
         eval "sudo $packagingTool_install $dep"
 
         exVal=$?
-        if [[ $exVal > 0 && $dep == "python3-venv" ]]; then
-            print_info "!! We were unable to install virtualenv with apt-get. We try to install virtualenv with pip."
-            pip install virtualenv
-        elif [[ $exVal > 0 && ! $(_in "--answer-yes" $@) ]]; then
+        if [[ $exVal > 0 && ! $(_in "--answer-yes" $@) ]]; then
             print_error "\`$dep\` not found, press \`y\` to continue the script."
             read -n 1
             echo ""
