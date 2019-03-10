@@ -171,7 +171,7 @@ if  ! $(_in "-packages" $@) && ( $(_in "+packages" $@) || $(_in "+base" $@) || $
             if [ "$REPLY" == "y" ]; then
                 print_info "Installation continued"
             else
-                print_error "Installation aborted"
+                print_error "!! Installation aborted"
                 exit 1
             fi
         elif [[ $exVal > 0 && $(_in "--answer-yes" $@) ]]; then
@@ -195,11 +195,11 @@ if  ! $(_in "-virtualenv" $@) && ( $(_in "+virtualenv" $@) || $(_in "+base" $@) 
     if [ ! -d $ZDS_VENV ]; then
         print_info "* [+virtualenv] creating virtualenv"
         msg=$(python3 -m venv $ZDS_VENV)
-        if [[ $? != "0" && $msg == *"ensurepip"* ]]; then
+        if [[ $? != 0 && $msg == *"ensurepip"* ]]; then
             echo $msg
             print_info "!! Try --without-pip"
             python3 -m venv $ZDS_VENV --without-pip
-        elif [[ $? != "0" ]]; then
+        elif [[ $? != 0 ]]; then
             echo $msg
         fi
     fi
@@ -216,8 +216,8 @@ if [[ $VIRTUAL_ENV == "" || $(basename $VIRTUAL_ENV) != $ZDS_VENV ]]; then
 
     source ./$ZDS_VENV/bin/activate
 
-    if [[ $? != "0" ]]; then
-        print_error "!! no virtualenv, cannot continue"
+    if [[ $? != 0 ]]; then
+        print_error "!! No virtualenv, cannot continue"
         exit 1
     fi
 
@@ -385,7 +385,7 @@ if  ! $(_in "-tex-local" $@) && ( $(_in "+tex-local" $@) || $(_in "+full" $@) );
             exit 1
         fi
     else
-        print_error "!! cannot clone repository $ZDS_LATEX_REPO"
+        print_error "!! Cannot clone repository $ZDS_LATEX_REPO"
         exit 1
     fi
 
@@ -419,7 +419,7 @@ if  ! $(_in "-latex-template" $@) && ( $(_in "+latex-template" $@) || $(_in "+fu
 
     git clone $ZDS_LATEX_REPO
     if [[ $? != 0 ]]; then
-        print_error "!! cannot clone repository $ZDS_LATEX_REPO"
+        print_error "!! Cannot clone repository $ZDS_LATEX_REPO"
         exit 1
     fi
 
@@ -435,10 +435,23 @@ if  ! $(_in "-back" $@) && ( $(_in "+back" $@) || $(_in "+base" $@) || $(_in "+f
 
     if $(_in "+prod" $@); then
         make install-back-with-prod
+        exVal=$?
     else
         make install-back
+        exVal=$?
     fi
+
+    if [[ $exVal != 0 ]]; then
+        print_error "!! Cannot install back dependencies (use \`-back\` to skip)"
+        exit 1
+    fi
+
     make migrate-db # migration are required for the instance to run properly anyway
+
+    if [[ $? != 0 ]]; then
+        print_error "!! Cannot migrate database after the back installation (use \`-back\` to skip)"
+        exit 1
+    fi
 
     zds_fold_end
 fi
@@ -453,7 +466,18 @@ if  ! $(_in "-front" $@) && ( $(_in "+front" $@) || $(_in "+base" $@) || $(_in "
     fi;
 
     make install-front
+
+    if [[ $? != 0 ]]; then
+        print_error "!! Cannot install-front (use \`-front\` to skip)"
+        exit 1
+    fi
+
     make build-front
+
+    if [[ $? != 0 ]]; then
+        print_error "!! Cannot build-front (use \`-front\` to skip)"
+        exit 1
+    fi
 
     zds_fold_end
 fi
@@ -465,6 +489,11 @@ if  ! $(_in "-zmd" $@) && ( $(_in "+zmd" $@) || $(_in "+base" $@) || $(_in "+ful
 
     make zmd-install
 
+    if [[ $? != 0 ]]; then
+        print_error "!! Cannot install zmd (use \`-zmd\` to skip)"
+        exit 1
+    fi
+
     zds_fold_end
 fi
 
@@ -474,6 +503,11 @@ if  ! $(_in "-data" $@) && ( $(_in "+data" $@) || $(_in "+base" $@) || $(_in "+f
     zds_fold_start "fixtures" "* [+data] fixtures"
 
     make generate-fixtures
+
+    if [[ $? != 0 ]]; then
+        print_error "!! Cannot generate-fixtures (use \`-data\` to skip)"
+        exit 1
+    fi
 
     zds_fold_end
 fi
