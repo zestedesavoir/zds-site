@@ -105,7 +105,7 @@ script:
 
   - ./scripts/travis_script.sh "selenium_test"
 
-  - source $HACK_SphinxBuild/bin/activate
+  - #source $HACK_SphinxBuild/bin/activate
 
   - ./scripts/travis_script.sh "build_documentation"
 
