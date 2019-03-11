@@ -186,7 +186,7 @@ fi
 
 # virtualenv
 if  ! $(_in "-virtualenv" $@) && ( $(_in "+virtualenv" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
-    zds_fold_start "virtualenv" "* Load virtualenv"
+    zds_fold_start "virtualenv" "* Install virtualenv"
 
     print_info "* [+virtualenv] installing \`virtualenv 16.2.0\` with pip"
     pip install virtualenv==16.2.0
