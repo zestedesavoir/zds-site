@@ -158,10 +158,9 @@ if  ! $(_in "-packages" $@) && ( $(_in "+packages" $@) || $(_in "+base" $@) || $
 
         print_info "sudo $packagingTool_install $dep"
         echo ""
-        eval "sudo $packagingTool_install $dep"
+        eval "sudo $packagingTool_install $dep"; exVal=$?
         echo ""
 
-        exVal=$?
         if [[ $exVal != 0 && $dep == "python3-venv" ]]; then
             print_error "!! We were unable to install virtualenv. Don't panic, we will try with pip."
         elif [[ $exVal != 0 && ! $(_in "--answer-yes" $@) ]]; then
