@@ -514,7 +514,7 @@ if  ! $(_in "-data" $@) && ( $(_in "+data" $@) || $(_in "+base" $@) || $(_in "+f
     exVal=($exVal + $?)
 
     if $(_in "--travis-output" $@); then
-        python manage.py load_fixtures --size=low --all --settings zds.settings.ci_test
+        python manage.py load_fixtures --size=low --all --settings zds.settings.travis_fixture
     else
         python manage.py load_fixtures --size=low --all
     fi
