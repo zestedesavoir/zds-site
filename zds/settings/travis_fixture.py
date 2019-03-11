@@ -1,5 +1,10 @@
 from .dev import *
 
 LOGGING['loggers']['zds.utils.templatetags.emarkdown'] = {
-    'handlers': []
+    'loggers': {
+        'zds': {
+            'level': 'INFO',
+            'handlers': ['console'],
+        },
+    },
 }
