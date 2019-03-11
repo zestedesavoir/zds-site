@@ -191,7 +191,7 @@ def load_tags(cli, size, fake, *_, **__):
         title = fake.word()
         with contextlib.suppress(IntegrityError):
             tag, created = Tag.objects.get_or_create(title=title.lower())
-            logging.getLogger(cli.__class__.__name__).debug('tag=%s is_new=%s', tag, created)
+            #logging.getLogger(cli.__class__.__name__).debug('tag=%s is_new=%s', tag, created)
         sys.stdout.write(' Tag {}/{}  \r'.format(i + 1, nb_tags))
         sys.stdout.flush()
     tps2 = time.time()
