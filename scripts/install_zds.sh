@@ -162,7 +162,7 @@ if  ! $(_in "-packages" $@) && ( $(_in "+packages" $@) || $(_in "+base" $@) || $
         echo ""
 
         if [[ $exVal != 0 && $dep == "python3-venv" ]]; then
-            print_error "!! We were unable to install virtualenv. Don't panic, we will try with pip."
+            print_error "!! We were unable to install virtualenv. Don't panic, we will try with pip3."
         elif [[ $exVal != 0 && ! $(_in "--answer-yes" $@) ]]; then
             print_error "Unable to install \`$dep\`, press \`y\` to continue the script."
             read -n 1
@@ -189,7 +189,7 @@ if  ! $(_in "-virtualenv" $@) && ( $(_in "+virtualenv" $@) || $(_in "+base" $@) 
     zds_fold_start "virtualenv" "* Install virtualenv"
 
     print_info "* [+virtualenv] installing \`virtualenv 16.2.0\` with pip"
-    pip install virtualenv==16.2.0
+    pip3 install virtualenv==16.2.0
 
     if [ ! -d $ZDS_VENV ]; then
         print_info "* [+virtualenv] creating virtualenv"
