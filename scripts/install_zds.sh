@@ -508,9 +508,19 @@ if  ! $(_in "-data" $@) && ( $(_in "+data" $@) || $(_in "+base" $@) || $(_in "+f
         exit 1
     fi
 
-    make generate-fixtures
+    python manage.py loaddata fixtures/*.yaml
+    exVal=$?
+    python manage.py load_factory_data fixtures/advanced/aide_tuto_media.yaml
+    exVal=($exVal + $?)
 
-    if [[ $? != 0 ]]; then
+    if $(_in "--travis-output" $@); then
+        python manage.py load_fixtures --size=low --all --settings zds.settings.ci_test
+    else
+        python manage.py load_fixtures --size=low --all
+    fi
+    exVal=($exVal + $?)
+
+    if [[ $exVal != 0 ]]; then
         print_error "!! Cannot generate-fixtures (use \`-data\` to skip)"
         exit 1
     fi
