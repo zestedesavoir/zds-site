@@ -19,3 +19,7 @@ DATABASES = {
 
 for logger in LOGGING['loggers'].values():
     logger['level'] = 'ERROR'
+
+LOGGING['loggers']['zds.utils.templatetags.emarkdown'] = {
+    'handlers': []
+}
