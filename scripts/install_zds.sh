@@ -104,6 +104,47 @@ source $LOCAL_DIR/define_variable.sh
 # zds-site root folder
 ZDSSITE_DIR="$(realpath $LOCAL_DIR/../)"
 
+
+## Fix for Shared folder on VirtualMachine with Windows host
+isSharedFolderWithWindowsHost=0
+
+function symlink_isdisabled {
+    fold="."
+    if [[ $1 != "" ]]; then
+        fold=$1
+    fi
+    rm -rf "$fold/test_symlink" "$fold/test_symlink2"
+
+    if [[ $exVal != 0 ]]; then
+        print_error "!!Cannot continue because $ZDSSITE_DIR is read-only."
+        exit 1
+    fi
+
+    ln -s "$fold/test_symlink" "$fold/test_symlink2" 2> /dev/null; local exVal=$?
+    $(mountpoint -q "$fold" 2> /dev/null); local ismounted=$?
+ 
+    rm -rf "$fold/test_symlink" "$fold/test_symlink2"
+    echo "ok"
+    echo $exVal
+    echo $ismounted
+
+    if [[ $exVal != 0 && ( $ismounted == 0 || $ismounted == 127 ) ]]; then
+        return 1
+    else
+        return 0
+    fi
+}
+
+if [[ $(symlink_isdisabled "$ZDSSITE_DIR") ]]; then
+    echo ""
+    print_info "The symbolic link are disabled in $ZDSSITE_DIR:"
+    print_info "Enabled: Support for shared folder on VirtualMachine with Windows host"
+    isSharedFolderWithWindowsHost=1
+    echo ""
+fi
+## end
+
+
 # Install packages
 if  ! $(_in "-packages" $@) && ( $(_in "+packages" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
     zds_fold_start "packages" "* [+packages] installing packages (this subcommand will be run as super-user)"
@@ -198,7 +239,7 @@ if  ! $(_in "-virtualenv" $@) && ( $(_in "+virtualenv" $@) || $(_in "+base" $@) 
             print_info "!! Find corrupted virtualenv folder without bin/activate"
 
             if $(_in "--answer-yes" $@); then
-                print_info "remove $ZDS_VENV"
+                print_info "remove $(realpath $ZDS_VENV)"
                 rm -r $ZDS_VENV
             else
                 print_error "We recommanded to delete this folder, press \`y\` to delete this folder"
@@ -206,7 +247,7 @@ if  ! $(_in "-virtualenv" $@) && ( $(_in "+virtualenv" $@) || $(_in "+base" $@) 
                 read -n 1
                 echo ""
                 if [[ $REPLY == "y" ]]; then
-                    print_info "remove $ZDS_VENV"
+                    print_info "remove $(realpath $ZDS_VENV)"
                     rm -r $ZDS_VENV
                 else
                     print_error "!! Cannot continue. Move, rename or delete this folder before retry"
@@ -226,6 +267,11 @@ if  ! $(_in "-virtualenv" $@) && ( $(_in "+virtualenv" $@) || $(_in "+base" $@) 
                 print_info "!! Trying to create the virtualenv without pip"
                 python3 -m venv $ZDS_VENV --without-pip; exVal=$?
             fi
+
+            if [[ $exVal != 0 && $isSharedFolderWithWindowsHost && $(symlink_isdisabled "$ZDS_VENV") ]]; then
+                print_error "!! Symlink are disabled"
+                print_info "!! \$ZDS_VENV should be move in another folder because the symbolic link are disabled in this folder"
+                echo ""
             fi
 
             if [[ $exVal != 0 ]]; then
@@ -512,7 +558,11 @@ if  ! $(_in "-front" $@) && ( $(_in "+front" $@) || $(_in "+base" $@) || $(_in "
         rm -r node_modules
     fi
 
-    make install-front; exVal=$?
+    if  [[ isSharedFolderWithWindowsHost ]]; then
+        make install-front-without-symlink; exVal=$?
+    else
+        make install-front; exVal=$?
+    fi
 
     if [[ $exVal != 0 ]]; then
         print_error "!! Cannot install-front (use \`-front\` to skip)"

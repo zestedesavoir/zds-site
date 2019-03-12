@@ -48,6 +48,10 @@ clean-back: ## Remove Python bytecode files (*.pyc)
 install-front: ## Install the Node.js packages for the frontend
 	yarn install
 
+## Fix for Shared folder on VirtualMachine with Windows host
+install-front-without-symlink: ## Install the Node.js packages for the frontend
+	yarn install --no-bin-links
+
 build-front: ## Build the frontend assets (CSS, JS, images)
 	yarn run build
 
