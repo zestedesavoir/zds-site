@@ -4,6 +4,7 @@
 git
 wget
 curl
+unzip
 python3-devel
 libxslt-devel
 zlib-devel
