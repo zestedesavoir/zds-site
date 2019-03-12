@@ -4,6 +4,7 @@ elasticsearch==5.5.2
 elasticsearch-dsl==5.4.0
 sqlparse==0.2.4
 setuptools==40.6.3
+wheel==0.33.1
 
 # Explicit dependencies (references in code)
 Django==2.1.7
