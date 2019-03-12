@@ -224,14 +224,13 @@ if  ! $(_in "-virtualenv" $@) && ( $(_in "+virtualenv" $@) || $(_in "+base" $@) 
             exVal=1
             if [[ $err == *"ensurepip"* ]]; then # possible issue on python 3.6
                 print_info "!! Trying to create the virtualenv without pip"
-                python3 -m venv $ZDS_VENV --without-pip
-                exVal=$?
+                python3 -m venv $ZDS_VENV --without-pip; exVal=$?
+            fi
             fi
 
             if [[ $exVal != 0 ]]; then
                 print_error "!! Cannot create (use \`-virtualenv\` to skip)"
-                print_info "You can try to change the path of zdsenv folder before retrying this command"
-                print_info "with : \`export $ZDS_VENV=../zdsenv\`"
+                print_info "You can try to change the path of zdsenv folder before retrying this command with \`export ZDS_VENV=../zdsenv\`"
                 exit 1
             fi
         fi
@@ -248,14 +247,20 @@ if ! $(_in "--force-skip-activating" $@) && [[ ( $VIRTUAL_ENV == "" || $(realpat
     fi
 
     if [ ! -f $ZDS_VENV/bin/activate ]; then
-        print_error "!! No virtualenv, cannot continue (use \`--force-skip-activating\` to skip -> NOT RECOMMANDED)"
+        echo ""
+        print_error "!! No virtualenv, cannot continue"
+        print_info "   - Install virtualenv with \`+virtualenv\` (recommanded) ;"
+        echo "   - If you don't have other choice, use \`--force-skip-activating\`."
         exit 1
     fi
 
-    source $ZDS_VENV/bin/activate
+    source $ZDS_VENV/bin/activate; exVal=$?
 
-    if [[ $? != 0 ]]; then
-        print_error "!! Cannot load virtualenv (use \`--force-skip-activating\` to skip -> NOT RECOMMANDED)"
+    if [[ $exVal != 0 ]]; then
+        echo ""
+        print_error "!! Cannot load virtualenv"
+        print_info "   - Reinstall virtualenv with \`+virtualenv\` (recommanded) ;"
+        echo "   - If you don't have other choice, use \`--force-skip-activating\`."
         exit 1
     fi
 
@@ -488,9 +493,9 @@ if  ! $(_in "-back" $@) && ( $(_in "+back" $@) || $(_in "+base" $@) || $(_in "+f
         exit 1
     fi
 
-    make migrate-db # migration are required for the instance to run properly anyway
+    make migrate-db; exVal=$? # migration are required for the instance to run properly anyway
 
-    if [[ $? != 0 ]]; then
+    if [[ $exVal != 0 ]]; then
         print_error "!! Cannot migrate database after the back installation (use \`-back\` to skip)"
         exit 1
     fi
@@ -507,16 +512,16 @@ if  ! $(_in "-front" $@) && ( $(_in "+front" $@) || $(_in "+base" $@) || $(_in "
         rm -r node_modules
     fi
 
-    make install-front
+    make install-front; exVal=$?
 
-    if [[ $? != 0 ]]; then
+    if [[ $exVal != 0 ]]; then
         print_error "!! Cannot install-front (use \`-front\` to skip)"
         exit 1
     fi
 
-    make build-front
+    make build-front; exVal=$?
 
-    if [[ $? != 0 ]]; then
+    if [[ $exVal != 0 ]]; then
         print_error "!! Cannot build-front (use \`-front\` to skip)"
         exit 1
     fi
@@ -529,9 +534,9 @@ fi
 if  ! $(_in "-zmd" $@) && ( $(_in "+zmd" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
     zds_fold_start "zmd" "* [+zmd] install zmarkdown dependencies"
 
-    make zmd-install
+    make zmd-install; exVal=$?
 
-    if [[ $? != 0 ]]; then
+    if [[ $exVal != 0 ]]; then
         print_error "!! Cannot install zmd (use \`-zmd\` to skip)"
         exit 1
     fi
@@ -544,33 +549,31 @@ fi
 if  ! $(_in "-data" $@) && ( $(_in "+data" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
     zds_fold_start "fixtures" "* [+data] fixtures"
 
-    npm run server --prefix zmd/node_modules/zmarkdown -- --silent
+    npm run server --prefix zmd/node_modules/zmarkdown -- --silent; exVal=$?
 
-    if [[ $? != 0 ]]; then
+    if [[ $exVal != 0 ]]; then
         print_error "!! Cannot start zmd to generate-fixtures (use \`-data\` to skip)"
         exit 1
     fi
 
-    python manage.py loaddata fixtures/*.yaml
-    exVal=$?
-    python manage.py load_factory_data fixtures/advanced/aide_tuto_media.yaml
-    exVal=($exVal + $?)
+    python manage.py loaddata fixtures/*.yaml; exVal=$?
+
+    python manage.py load_factory_data fixtures/advanced/aide_tuto_media.yaml; exVal=($exVal + $?)
 
     if $(_in "--travis-output" $@); then
-        python manage.py load_fixtures --size=low --all --settings zds.settings.travis_fixture
+        python manage.py load_fixtures --size=low --all --settings zds.settings.travis_fixture; exVal=($exVal + $?)
     else
-        python manage.py load_fixtures --size=low --all
+        python manage.py load_fixtures --size=low --all; exVal=($exVal + $?)
     fi
-    exVal=($exVal + $?)
 
     if [[ $exVal != 0 ]]; then
         print_error "!! Cannot generate-fixtures (use \`-data\` to skip)"
         exit 1
     fi
 
-    make zmd-stop
+    make zmd-stop; exVal=$?
 
-    if [[ $? != 0 ]]; then
+    if [[ $exVal != 0 ]]; then
         print_error "Warning: Cannot stop zmd"
     fi
 
