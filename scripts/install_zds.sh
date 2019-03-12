@@ -17,11 +17,13 @@ function _nvm {
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 }
 
-# >>>>>
+
+## start fold for travis
 ZDS_SHOW_TRAVIS_FOLD=0
 if $(_in "--travis-output" $@); then
     ZDS_SHOW_TRAVIS_FOLD=1
 fi
+
 
 zds_fold_current=""
 function zds_fold_start {
@@ -32,41 +34,42 @@ function zds_fold_start {
 
         zds_fold_current="$1"
         echo "travis_fold:start:install_${zds_fold_current}"
-        echo -en "\033[0K"; 
+        echo -en "\033[0K"
     fi
 
     print_info "$2" --bold
 }
 
+
 function zds_fold_end {
     if [[ $ZDS_SHOW_TRAVIS_FOLD == 1 ]] && [[ $zds_fold_current =~ "" ]]; then
         echo "travis_fold:end:install_${zds_fold_current}"
-        echo -en "\033[0K"; 
+        echo -en "\033[0K"
         zds_fold_current=""
     fi
 }
-# <<<<<
+## end
 
 
 function print_info {
     if [[ "$2" == "--bold" ]]; then
-        echo -en "\033[36;1m";
+        echo -en "\033[36;1m"
     else
-        echo -en "\033[0;36m";
+        echo -en "\033[0;36m"
     fi
-    echo "$1";
-    echo -en "\033[00m";
+    echo "$1"
+    echo -en "\033[00m"
 }
 
 
 function print_error {
-    echo -en "\033[31;1m";
-    echo "$1";
-    echo -en "\033[00m";
+    echo -en "\033[31;1m"
+    echo "$1"
+    echo -en "\033[00m"
 }
 
 
-# >>>>>
+## start quiet mode
 function progressfilt {
     local flag=false c count cr=$'\r' nl=$'\n'
     while IFS='' read -d '' -rn 1 c
@@ -86,11 +89,13 @@ function progressfilt {
     done
 }
 
+
 # Hack for "-q --show-progress" (at least v1.16) and travis uses (travis uses wget 1.15)
 function wget_nv {
     wget "$@" --progress=bar:force 2>&1 | progressfilt
 }
-# <<<<<
+## end
+
 
 # variables
 LOCAL_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -307,7 +312,7 @@ if  ! $(_in "-jdk-local" $@) && ( $(_in "+jdk-local" $@) || $(_in "+full" $@) );
     cd $ZDS_VENV/lib/
 
     if [ -d jdk ]; then # remove previous install
-        rm -Rf jdk
+        rm -rf jdk
     fi
 
     baseURL="https://download.oracle.com/otn-pub/java/jdk/"
@@ -345,7 +350,7 @@ if  ! $(_in "-elastic-local" $@) && ( $(_in "+elastic-local" $@) || $(_in "+full
     cd .local
 
     if [ -d elasticsearch ]; then # remove previous install
-        rm -R elasticsearch
+        rm -r elasticsearch
     fi
 
     wget_nv https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${ZDS_ELASTIC_VERSION}.zip
@@ -363,8 +368,8 @@ if  ! $(_in "-elastic-local" $@) && ( $(_in "+elastic-local" $@) || $(_in "+full
         ln -s elasticsearch/bin/elasticsearch $ZDS_ENV/bin/
     else
         print_error "!! Cannot get elasticsearch ${ZDS_ELASTIC_VERSION}"
-        exit 1;
-    fi;
+        exit 1
+    fi
     cd $ZDSSITE_DIR
 
     zds_fold_end
@@ -388,7 +393,7 @@ if  ! $(_in "-tex-local" $@) && ( $(_in "+tex-local" $@) || $(_in "+full" $@) );
     cd $BASE_REPO
 
     if [ -d $REPO ]; then # remove previous version of the template
-        rm -Rf $REPO
+        rm -rf $REPO
     fi
 
     git clone $ZDS_LATEX_REPO
@@ -418,7 +423,7 @@ if  ! $(_in "-tex-local" $@) && ( $(_in "+tex-local" $@) || $(_in "+full" $@) );
 
             ./bin/x86_64-linux/tlmgr install $(cat packages)  # extra packages
             ./bin/x86_64-linux/tlmgr update --self
-            rm -Rf $REPO
+            rm -rf $REPO
         else
             print_error "!! Cannot download texlive"
             exit 1
@@ -448,7 +453,7 @@ if  ! $(_in "-latex-template" $@) && ( $(_in "+latex-template" $@) || $(_in "+fu
     REPO=$BASE_REPO/latex-template
 
     if [ -d $REPO ]; then # remove previous version of the template
-        rm -Rf $REPO
+        rm -rf $REPO
     fi
 
     mkdir -p $BASE_REPO
@@ -499,8 +504,8 @@ if  ! $(_in "-front" $@) && ( $(_in "+front" $@) || $(_in "+base" $@) || $(_in "
     zds_fold_start "front" "* [+front] install front dependencies & build front"
 
     if [ -d node_modules ]; then # delete previous modules
-        rm -R node_modules
-    fi;
+        rm -r node_modules
+    fi
 
     make install-front
 
