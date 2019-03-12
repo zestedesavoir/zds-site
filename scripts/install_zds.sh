@@ -96,6 +96,9 @@ function wget_nv {
 LOCAL_DIR="$(cd "$(dirname "$0")" && pwd)"
 source $LOCAL_DIR/define_variable.sh
 
+# zds-site root folder
+ZDSSITE_DIR="$(realpath $LOCAL_DIR/../)"
+
 # Install packages
 if  ! $(_in "-packages" $@) && ( $(_in "+packages" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
     zds_fold_start "packages" "* [+packages] installing packages (this subcommand will be run as super-user)"
@@ -183,25 +186,54 @@ fi
 
 # virtualenv
 if  ! $(_in "-virtualenv" $@) && ( $(_in "+virtualenv" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
-    zds_fold_start "virtualenv" "* Install virtualenv"
+    zds_fold_start "virtualenv" "* Create virtualenv"
 
-    print_info "* [+virtualenv] installing \`virtualenv 16.2.0\` with pip"
-    pip3 install virtualenv==16.2.0
+    if [ ! -f $ZDS_VENV/bin/activate ]; then
+        if [ -d $ZDS_VENV ]; then
+            print_info "!! Find corrupted virtualenv folder without bin/activate"
 
-    if [ ! -d $ZDS_VENV ]; then
+            if $(_in "--answer-yes" $@); then
+                print_info "remove $ZDS_VENV"
+                rm -r $ZDS_VENV
+            else
+                print_error "We recommanded to delete this folder, press \`y\` to delete this folder"
+                echo -n "Choice : "
+                read -n 1
+                echo ""
+                if [[ $REPLY == "y" ]]; then
+                    print_info "remove $ZDS_VENV"
+                    rm -r $ZDS_VENV
+                else
+                    print_error "!! Cannot continue. Move, rename or delete this folder before retry"
+                    exit 1
+                fi
+            fi
+        fi
+
+        print_info "* [+virtualenv] installing \`virtualenv 16.2.0\` with pip"
+        pip3 install virtualenv==16.2.0
+
         print_info "* [+virtualenv] creating virtualenv"
-        msg=$(python3 -m venv $ZDS_VENV)
-        if [[ $? != 0 && $msg == *"ensurepip"* ]]; then
-            echo $msg
-            print_info "!! Try --without-pip"
-            python3 -m venv $ZDS_VENV --without-pip
-        elif [[ $? != 0 ]]; then
-            echo $msg
+        err=$(python3 -m venv $ZDS_VENV 3>&1 1>&2 2>&3 | sudo tee /dev/stderr)
+        if [[ $err != "" ]]; then
+            exVal=1
+            if [[ $err == *"ensurepip"* ]]; then # possible issue on python 3.6
+                print_info "!! Trying to create the virtualenv without pip"
+                python3 -m venv $ZDS_VENV --without-pip
+                exVal=$?
+            fi
+
+            if [[ $exVal != 0 ]]; then
+                print_error "!! Cannot create (use \`-virtualenv\` to skip)"
+                print_info "You can try to change the path of zdsenv folder before retrying this command"
+                print_info "with : \`export $ZDS_VENV=../zdsenv\`"
+                exit 1
+            fi
         fi
     fi
 fi
 
-if [[ $VIRTUAL_ENV == "" || $(basename $VIRTUAL_ENV) != $ZDS_VENV ]]; then
+if ! $(_in "--force-skip-activating" $@) && [[ ( $VIRTUAL_ENV == "" || $(realpath $VIRTUAL_ENV) != $(realpath $ZDS_VENV) ) ]]; then
     zds_fold_start "virtualenv" "* Load virtualenv"
 
     print_info "* activating venv \`$ZDS_VENV\`"
@@ -210,18 +242,30 @@ if [[ $VIRTUAL_ENV == "" || $(basename $VIRTUAL_ENV) != $ZDS_VENV ]]; then
         _nvm
     fi
 
-    source ./$ZDS_VENV/bin/activate
+    if [ ! -f $ZDS_VENV/bin/activate ]; then
+        print_error "!! No virtualenv, cannot continue (use \`--force-skip-activating\` to skip -> NOT RECOMMANDED)"
+        exit 1
+    fi
+
+    source $ZDS_VENV/bin/activate
 
     if [[ $? != 0 ]]; then
-        print_error "!! No virtualenv, cannot continue"
+        print_error "!! Cannot load virtualenv (use \`--force-skip-activating\` to skip -> NOT RECOMMANDED)"
         exit 1
     fi
 
     zds_fold_end
 else 
+    print_info "!! Add \`$(realpath $ZDS_VENV)\` in your PATH."
+
+    if [ ! -d $ZDS_VENV ]; then
+        mkdir $ZDS_VENV
+    fi
+
     zds_fold_end
 fi
 
+ZDS_ENV=$(realpath $ZDS_VENV)
 
 # nvm node & yarn
 if  ! $(_in "-node" $@) && ( $(_in "+node" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
@@ -239,12 +283,12 @@ if  ! $(_in "-node" $@) && ( $(_in "+node" $@) || $(_in "+base" $@) || $(_in "+f
 
         npm -g add yarn
 
-        if [[ $(grep -c -i "nvm use" $VIRTUAL_ENV/bin/activate) == "0" ]]; then # add nvm activation to venv activate's
-            ACTIVATE_NVM="nvm use  # activate nvm (from install_zds.sh)"
+        if [[ $(grep -c -i "nvm use" $ZDS_ENV/bin/activate) == "0" ]]; then # add nvm activation to venv activate's
+            ACTIVATE_NVM="nvm use > /dev/null # activate nvm (from install_zds.sh)"
 
-            echo $ACTIVATE_NVM >> $VIRTUAL_ENV/bin/activate
-            echo $ACTIVATE_NVM >> $VIRTUAL_ENV/bin/activate.csh
-            echo $ACTIVATE_NVM >> $VIRTUAL_ENV/bin/activate.fish
+            echo $ACTIVATE_NVM >> $ZDS_ENV/bin/activate
+            echo $ACTIVATE_NVM >> $ZDS_ENV/bin/activate.csh
+            echo $ACTIVATE_NVM >> $ZDS_ENV/bin/activate.fish
         fi
     else
         print_error "!! Cannot obtain nvm v${ZDS_NVM_VERSION}"
@@ -259,8 +303,8 @@ fi
 if  ! $(_in "-jdk-local" $@) && ( $(_in "+jdk-local" $@) || $(_in "+full" $@) ); then
     zds_fold_start "jdk" "* [+jdk-local] installing a local version of JDK (v$ZDS_JDK_VERSION)"
 
-    mkdir -p zdsenv/lib/
-    cd zdsenv/lib/
+    mkdir -p $ZDS_VENV/lib/
+    cd $ZDS_VENV/lib/
 
     if [ -d jdk ]; then # remove previous install
         rm -R jdk
@@ -287,7 +331,7 @@ if  ! $(_in "-jdk-local" $@) && ( $(_in "+jdk-local" $@) || $(_in "+full" $@) );
         print_error "!! Cannot get jdk ${JDK_VERSION}"
         exit 1
     fi
-    cd ../../
+    cd $ZDSSITE_DIR
 
     zds_fold_end
 fi
@@ -316,12 +360,12 @@ if  ! $(_in "-elastic-local" $@) && ( $(_in "+elastic-local" $@) || $(_in "+full
         print_info "-Xmx512m" >> elasticsearch/config/jvm.options
 
         # symbolic link to elastic start script
-        ln -s elasticsearch/bin/elasticsearch $VIRTUAL_ENV/bin/
+        ln -s elasticsearch/bin/elasticsearch $ZDS_ENV/bin/
     else
         print_error "!! Cannot get elasticsearch ${ZDS_ELASTIC_VERSION}"
         exit 1;
     fi;
-    cd ..
+    cd $ZDSSITE_DIR
 
     zds_fold_end
 fi
@@ -331,10 +375,9 @@ fi
 if  ! $(_in "-tex-local" $@) && ( $(_in "+tex-local" $@) || $(_in "+full" $@) ); then
     zds_fold_start "texlive" "* [+tex-local] install texlive"
 
-    CURRENT=$(pwd)
     mkdir -p .local
     cd .local
-    LOCAL=$CURRENT/.local
+    LOCAL=$ZDSSITE_DIR/.local
 
     # clone
     BASE_TEXLIVE=$LOCAL/texlive
@@ -369,7 +412,7 @@ if  ! $(_in "-tex-local" $@) && ( $(_in "+tex-local" $@) || $(_in "+full" $@) );
 
                 # Symlink the binaries to bin of venv
                 for i in $BASE_TEXLIVE/bin/x86_64-linux/*; do
-                  ln -sf $i $VIRTUAL_ENV/bin/
+                  ln -sf $i $ZDS_ENV/bin/
                 done
             fi
 
@@ -385,7 +428,7 @@ if  ! $(_in "-tex-local" $@) && ( $(_in "+tex-local" $@) || $(_in "+full" $@) );
         exit 1
     fi
 
-    cd $CURRENT
+    cd $ZDSSITE_DIR
 
     zds_fold_end
 fi
@@ -394,8 +437,6 @@ fi
 # latex-template in TEXMFHOME.
 if  ! $(_in "-latex-template" $@) && ( $(_in "+latex-template" $@) || $(_in "+full" $@) ); then
     zds_fold_start "latex-template" "* [+latex-template] install latex-template (from $ZDS_LATEX_REPO)"
-
-    CURRENT=$(pwd)
 
     if [[ $(which kpsewhich) == "" ]]; then # no texlive ?
         print_error "!! Cannot find kpsewhich, do you have texlive?"
@@ -419,7 +460,7 @@ if  ! $(_in "-latex-template" $@) && ( $(_in "+latex-template" $@) || $(_in "+fu
         exit 1
     fi
 
-    cd $CURRENT
+    cd $ZDSSITE_DIR
 
     zds_fold_end
 fi
@@ -531,5 +572,8 @@ if  ! $(_in "-data" $@) && ( $(_in "+data" $@) || $(_in "+base" $@) || $(_in "+f
     zds_fold_end
 fi
 
-
-print_info "Done. You can now run instance with \`source $ZDS_VENV/bin/activate\`, and then, \`make zmd-start && make run-back\`"
+if  ! $(_in "--force-skip-activating" $@); then
+    print_info "Done. You can now run instance with \`source $ZDS_VENV/bin/activate\`, and then, \`make zmd-start && make run-back\`"
+else
+    print_info "Done. You can now run instance with \`make zmd-start && make run-back\`"
+fi
