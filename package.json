@@ -9,11 +9,11 @@
     "node": ">=8.0.0"
   },
   "scripts": {
-    "gulp": "gulp",
-    "build": "gulp build",
-    "watch": "gulp watch",
-    "lint": "gulp js:lint",
-    "clean": "gulp clean"
+    "gulp": "node_modules/gulp/bin/gulp.js",
+    "build": "node_modules/gulp/bin/gulp.js build",
+    "watch": "node_modules/gulp/bin/gulp.js watch",
+    "lint": "node_modules/gulp/bin/gulp.js js:lint",
+    "clean": "node_modules/gulp/bin/gulp.js clean"
   },
   "repository": {
     "type": "git",
