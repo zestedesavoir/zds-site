@@ -92,12 +92,6 @@ function wget_nv {
 }
 # <<<<<
 
-# lastSTDERR=""
-# Store error of an command, example : `lookafter "sudo apt-get -qq -y install aaaaaaaa"`
-# function lookafter {
-#     lastSTDERR=$($@ 3>&1 1>&2 2>&3 | sudo tee /dev/stderr)
-# }
-
 # variables
 LOCAL_DIR="$(cd "$(dirname "$0")" && pwd)"
 source $LOCAL_DIR/define_variable.sh
@@ -119,7 +113,7 @@ if  ! $(_in "-packages" $@) && ( $(_in "+packages" $@) || $(_in "+base" $@) || $
             filepath="$LOCAL_DIR/dependencies/arch.txt"
         else
             print_error "!! I did not detect your linux version"
-            print_error "!! Please manually install the packages and run again without `--detect-os-version`"
+            print_error "!! Please manually install the packages and run again without \`--detect-os-version\`"
             exit 1
         fi
     else
@@ -128,30 +122,32 @@ if  ! $(_in "-packages" $@) && ( $(_in "+packages" $@) || $(_in "+base" $@) || $
         arr=()
 
         for filepath in $LOCAL_DIR/dependencies/*.txt; do
-            title=$(grep -oP '#title=\K(.*)' $filepath)
-            desc=$(grep -oP '#desc=\K(.*)' $filepath)
+            title=$(grep -oP '#title=\K(.*)' "$filepath")
+            desc=$(grep -oP '#desc=\K(.*)' "$filepath")
             echo "$n. $title - $desc"
             arr[n]=$filepath
             ((n++))
         done
 
         echo -en "\033[00m"
-        echo -n "Choix : "
+
+        echo -n "Choice : "
         read -n 1
         echo ""
 
-        filepath=${arr[$REPLY]}
+        filepath="${arr[$REPLY]}"
         if [[ $filepath == "" ]]; then
             print_error "!! You don't pick the right choice."
             exit 1
         fi
-    fi;
+    fi
+    echo ""
 
-    packagingTool_install=$(grep -oP '#installcmd=\K(.*)' $filepath)
+    packagingTool_install=$(grep -oP '#installcmd=\K(.*)' "$filepath")
     print_info "$filepath"
     IFS=$'\n'
 
-    for dep in $(cat $filepath); do
+    for dep in $(cat "$filepath"); do
         if [[ $dep == "#"* ]]; then
             continue;
         fi
@@ -165,9 +161,10 @@ if  ! $(_in "-packages" $@) && ( $(_in "+packages" $@) || $(_in "+base" $@) || $
             print_error "!! We were unable to install virtualenv. Don't panic, we will try with pip3."
         elif [[ $exVal != 0 && ! $(_in "--answer-yes" $@) ]]; then
             print_error "Unable to install \`$dep\`, press \`y\` to continue the script."
+            echo -n "Choice : "
             read -n 1
             echo ""
-            if [ "$REPLY" == "y" ]; then
+            if [[ $REPLY == "y" ]]; then
                 print_info "Installation continued"
             else
                 print_error "!! Installation aborted"
