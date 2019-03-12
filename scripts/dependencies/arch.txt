@@ -5,6 +5,7 @@ git
 wget
 curl
 unzip
+realpath
 python
 python3-pip
 libxslt
