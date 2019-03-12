@@ -191,46 +191,6 @@ if  ! $(_in "-packages" $@) && ( $(_in "+packages" $@) || $(_in "+base" $@) || $
 fi
 
 
-## Fix for Shared folder on VirtualMachine with Windows host
-isSharedFolderWithWindowsHost=0
-
-function symlink_isdisabled {
-    fold="."
-    if [[ $1 != "" ]]; then
-        fold=$1
-    fi
-    rm -rf "$fold/test_symlink" "$fold/test_symlink2"
-
-    if [[ $exVal != 0 ]]; then
-        print_error "!!Cannot continue because $ZDSSITE_DIR is read-only."
-        exit 1
-    fi
-
-    ln -s "$fold/test_symlink" "$fold/test_symlink2" 2> /dev/null; local exVal=$?
-    $(mountpoint -q "$fold" 2> /dev/null); local ismounted=$?
- 
-    rm -rf "$fold/test_symlink" "$fold/test_symlink2"
-    echo "ok"
-    echo $exVal
-    echo $ismounted
-
-    if [[ $exVal != 0 && ( $ismounted == 0 || $ismounted == 127 ) ]]; then
-        return 1
-    else
-        return 0
-    fi
-}
-
-if [[ $(symlink_isdisabled "$ZDSSITE_DIR") ]]; then
-    echo ""
-    print_info "The symbolic link are disabled in $ZDSSITE_DIR:"
-    print_info "Enabled: Support for shared folder on VirtualMachine with Windows host"
-    isSharedFolderWithWindowsHost=1
-    echo ""
-fi
-## end
-
-
 # virtualenv
 if  ! $(_in "-virtualenv" $@) && ( $(_in "+virtualenv" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
     zds_fold_start "virtualenv" "* Create virtualenv"
@@ -267,12 +227,6 @@ if  ! $(_in "-virtualenv" $@) && ( $(_in "+virtualenv" $@) || $(_in "+base" $@) 
             if [[ $err == *"ensurepip"* ]]; then # possible issue on python 3.6
                 print_info "!! Trying to create the virtualenv without pip"
                 python3 -m venv $ZDS_VENV --without-pip; exVal=$?
-            fi
-
-            if [[ $exVal != 0 && $isSharedFolderWithWindowsHost && $(symlink_isdisabled "$ZDS_VENV") ]]; then
-                print_error "!! Symlink are disabled"
-                print_info "!! \$ZDS_VENV should be move in another folder because the symbolic link are disabled in this folder"
-                echo ""
             fi
 
             if [[ $exVal != 0 ]]; then
@@ -559,11 +513,7 @@ if  ! $(_in "-front" $@) && ( $(_in "+front" $@) || $(_in "+base" $@) || $(_in "
         rm -r node_modules
     fi
 
-    if  [[ isSharedFolderWithWindowsHost ]]; then
-        make install-front-without-symlink; exVal=$?
-    else
-        make install-front; exVal=$?
-    fi
+    make install-front; exVal=$?
 
     if [[ $exVal != 0 ]]; then
         print_error "!! Cannot install-front (use \`-front\` to skip)"
@@ -600,7 +550,7 @@ fi
 if  ! $(_in "-data" $@) && ( $(_in "+data" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
     zds_fold_start "fixtures" "* [+data] fixtures"
 
-    npm run server --prefix zmd/node_modules/zmarkdown -- --silent; exVal=$?
+    npm run server --prefix ../zmd/node_modules/zmarkdown -- --silent; exVal=$?
 
     if [[ $exVal != 0 ]]; then
         print_error "!! Cannot start zmd to generate-fixtures (use \`-data\` to skip)"
