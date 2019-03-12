@@ -724,28 +724,28 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         # get 200 everywhere :)
         result = self.client.get(
-            reverse('content:view', args=[tuto.pk, tuto.slug]) + '?version=' + current_sha_beta,
+            reverse('content:beta-view', args=[tuto.pk, tuto.slug]),
             follow=False)
         self.assertEqual(result.status_code, 200)
 
         result = self.client.get(
-            reverse('content:view-container',
+            reverse('content:beta-view-container',
                     kwargs={
                         'pk': tuto.pk,
                         'slug': tuto.slug,
                         'container_slug': self.part1.slug
-                    }) + '?version=' + current_sha_beta,
+                    }),
             follow=False)
         self.assertEqual(result.status_code, 200)
 
         result = self.client.get(
-            reverse('content:view-container',
+            reverse('content:beta-view-container',
                     kwargs={
                         'pk': tuto.pk,
                         'slug': tuto.slug,
                         'parent_container_slug': self.part1.slug,
                         'container_slug': self.chapter1.slug
-                    }) + '?version=' + current_sha_beta,
+                    }),
             follow=False)
         self.assertEqual(result.status_code, 200)
 
@@ -818,7 +818,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 403)  # no access using the old version
 
         result = self.client.get(
-            reverse('content:view', args=[tuto.pk, tuto.slug]) + '?version=' + current_sha_beta,
+            reverse('content:beta-view', args=[tuto.pk, tuto.slug]),
             follow=False)
         self.assertEqual(result.status_code, 200)  # ok for the new version
 
@@ -890,7 +890,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 403)  # no access on the non-beta version (of course)
 
         result = self.client.get(
-            reverse('content:view', args=[tuto.pk, tuto.slug]) + '?version=' + old_sha_beta,
+            reverse('content:beta-view', args=[tuto.pk, tuto.slug]),
             follow=False)
         self.assertEqual(result.status_code, 200)  # access granted
 

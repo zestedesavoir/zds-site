@@ -91,7 +91,6 @@ class SingleContentViewMixin(object):
         self.is_author = self.request.user in obj.authors.all()
         self.is_proofreader = self.request.user in obj.proofreaders.all()
 
-
         read_authorization = True
 
         if self.must_be_author:

@@ -69,14 +69,17 @@ class ContentTests(TutorialTestMixin, TestCase):
         resp = self.client.get(reverse('content:find-tutorial', args=[self.user_author.pk]) + '?filter_status=public')
         self.assertContains(resp, tutorial.title)
         self.assertNotContains(resp, tutorial_unpublished.title)
-        resp = self.client.get(reverse('content:find-tutorial', args=[self.user_author.pk]) + '?filter_status=redaction')
+        resp = self.client.get(reverse('content:find-tutorial',
+                                       args=[self.user_author.pk]) + '?filter_status=redaction')
         self.assertEqual(resp.status_code, 403)
-        resp = self.client.get(reverse('content:find-article', args=[self.user_author.pk]) + '?filter_status=public')
+        resp = self.client.get(reverse('content:find-article',
+                                       args=[self.user_author.pk]) + '?filter_status=public')
         self.assertContains(resp, article.title)
         self.assertNotContains(resp, article_unpublished.title)
         resp = self.client.get(reverse('content:find-article', args=[self.user_author.pk]) + '?filter_status=redaction')
         self.assertEqual(resp.status_code, 403)
-        resp = self.client.get(reverse('content:find-article', args=[self.user_author.pk]) + '?filter_status=chuck-norris')
+        resp = self.client.get(reverse('content:find-article',
+                                       args=[self.user_author.pk]) + '?filter_status=chuck-norris')
         self.assertEqual(resp.status_code, 404)
 
     def _create_and_publish_type_in_subcategory(self, content_type, subcategory):

@@ -51,7 +51,8 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
 
     A PublishableContent retains metadata about a content in database, such as
 
-    - authors, proofreaders, description, source (if the content comes from another website), subcategory, tags and licence ;
+    - authors, proofreaders, description, source (if the content comes from another website), subcategory,
+    tags and licence ;
     - Thumbnail and gallery ;
     - Creation, publication and update date ;
     - Public, beta, validation and draft sha, for versioning ;
@@ -390,8 +391,8 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         """
 
         attrs = [
-            'pk', 'authors', 'proofreaders', 'subcategory', 'image', 'creation_date', 'pubdate', 'update_date', 'source',
-            'sha_draft', 'sha_beta', 'sha_validation', 'sha_public', 'tags', 'sha_picked', 'converted_to',
+            'pk', 'authors', 'proofreaders', 'subcategory', 'image', 'creation_date', 'pubdate', 'update_date',
+            'source', 'sha_draft', 'sha_beta', 'sha_validation', 'sha_public', 'tags', 'sha_picked', 'converted_to',
             'type'
         ]
 

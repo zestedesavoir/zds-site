@@ -43,9 +43,9 @@ def search_container_or_404(base_content, kwargs_array):
 
     if isinstance(kwargs_array, str):
         dic = {}
-        dic['parent_container_slug'] = kwargs_array.split('/')[0]
-        if len(kwargs_array.split('/')) >= 2:
-            dic['container_slug'] = kwargs_array.split('/')[1]
+        dic['parent_container_slug'] = kwargs_array.split(os.path.sep)[0]
+        if len(kwargs_array.split(os.path.sep)) >= 2:
+            dic['container_slug'] = kwargs_array.split(os.path.sep)[1]
         kwargs_array = dic
 
     if 'parent_container_slug' in kwargs_array:

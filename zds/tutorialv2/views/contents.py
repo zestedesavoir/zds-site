@@ -36,8 +36,8 @@ from zds.member.models import Profile
 from zds.notification.models import TopicAnswerSubscription, NewPublicationSubscription
 from zds.tutorialv2.forms import ContentForm, JsFiddleActivationForm, AskValidationForm, AcceptValidationForm, \
     RejectValidationForm, RevokeValidationForm, WarnTypoForm, ImportContentForm, ImportNewContentForm, ContainerForm, \
-    ExtractForm, BetaForm, MoveElementForm, AuthorForm, RemoveAuthorForm, ProofreaderForm, RemoveProofreaderForm, CancelValidationForm, PublicationForm, \
-    UnpublicationForm
+    ExtractForm, BetaForm, MoveElementForm, AuthorForm, RemoveAuthorForm, ProofreaderForm, RemoveProofreaderForm,\
+    CancelValidationForm, PublicationForm, UnpublicationForm
 from zds.tutorialv2.mixins import SingleContentDetailViewMixin, SingleContentFormViewMixin, SingleContentViewMixin, \
     SingleContentDownloadViewMixin, SingleContentPostMixin, FormWithPreview
 from zds.tutorialv2.models import TYPE_CHOICES_DICT
@@ -1044,6 +1044,7 @@ class DisplayBetaContainer(DisplayContainer):
     """View to get the beta version of a container"""
 
     sha = None
+    must_be_author_or_proofreader = False
 
     def get_object(self, queryset=None):
         """rewritten to ensure that the version is set to beta, raise Http404 if there is no such version"""
@@ -1899,7 +1900,10 @@ class RemoveProofreaderFromContent(LoggedWithReadWriteHability, SingleContentFor
         self.object.save(force_slug_update=False)
 
         proofreaders_list = [u.username for u in users]
-        proofreaders_list = proofreaders_list[0] if len(proofreaders_list) == 1 else ', '.join(proofreaders_list[:-1]) + ' et ' + proofreaders_list[-1]
+        if len(proofreaders_list) == 1:
+            proofreaders_list = proofreaders_list[0]
+        else:
+            proofreaders_list = ', '.join(proofreaders_list[:-1]) + ' et ' + proofreaders_list[-1]
 
         messages.success(
             self.request, _('Vous avez enlevé {} de la liste des relecteurs de {}.').format(proofreaders_list, _type))
@@ -1911,6 +1915,7 @@ class RemoveProofreaderFromContent(LoggedWithReadWriteHability, SingleContentFor
         messages.error(self.request, _("Les relecteurs sélectionnés n'existent pas."))
         self.success_url = self.object.get_absolute_url()
         return super(RemoveProofreaderFromContent, self).form_valid(form)
+
 
 class RemoveAuthorFromContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
 
@@ -1965,7 +1970,10 @@ class RemoveAuthorFromContent(LoggedWithReadWriteHability, SingleContentFormView
         self.object.save(force_slug_update=False)
 
         authors_list = [u.username for u in users]
-        authors_list = authors_list[0] if len(authors_list) == 1 else ', '.join(authors_list[:-1]) + ' et ' + authors_list[-1]
+        if len(authors_list) == 1:
+            authors_list = authors_list[0]
+        else:
+            authors_list =', '.join(authors_list[:-1]) + ' et ' + authors_list[-1]
 
         if not current_user:  # if the removed author is not current user
             messages.success(
@@ -2039,7 +2047,8 @@ class ContentOfAuthor(ZdSPagingListView):
 
     def get_queryset(self):
         if self.type in list(TYPE_CHOICES_DICT.keys()):
-            queryset = PublishableContent.objects.filter(Q(authors__pk=self.user.pk)|Q(proofreaders__pk=self.user.pk), type=self.type)
+            queryset = PublishableContent.objects.filter(Q(authors__pk=self.user.pk) | Q(proofreaders__pk=self.user.pk),
+                                                         type=self.type)
         else:
             raise Http404('Ce type de contenu est inconnu dans le système.')
 
@@ -2099,12 +2108,14 @@ class ContentOfAuthor(ZdSPagingListView):
             authorized_filter_status = self.authorized_filters_status[filter_status_]
             if self.user != self.request.user and not authorized_filter_status[2]:
                 continue
-            context['filters_status'].append({'key': filter_status_, 'text': authorized_filter_status[1], 'icon': authorized_filter_status[3]})
+            context['filters_status'].append({'key': filter_status_, 'text': authorized_filter_status[1],
+                                              'icon': authorized_filter_status[3]})
 
         for filter_rights_ in list(self.authorized_filters_rights.keys()):
             authorized_filter_rights = self.authorized_filters_rights[filter_rights_]
             if self.user != self.request.user and not authorized_filter_rights[2]:
                 continue
-            context['filters_rights'].append({'key': filter_rights_, 'text': authorized_filter_rights[1], 'icon': authorized_filter_rights[3]})
+            context['filters_rights'].append({'key': filter_rights_, 'text': authorized_filter_rights[1],
+                                              'icon': authorized_filter_rights[3]})
 
         return context
