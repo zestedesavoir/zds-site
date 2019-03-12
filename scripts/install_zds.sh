@@ -307,7 +307,7 @@ if  ! $(_in "-jdk-local" $@) && ( $(_in "+jdk-local" $@) || $(_in "+full" $@) );
     cd $ZDS_VENV/lib/
 
     if [ -d jdk ]; then # remove previous install
-        rm -R jdk
+        rm -Rf jdk
     fi
 
     baseURL="https://download.oracle.com/otn-pub/java/jdk/"
