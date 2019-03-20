@@ -51,7 +51,7 @@ Version 2.0
 
 
 
-.. sourcecode:: json
+.. sourcecode:: js
 
     {
         "object": "container",
@@ -119,7 +119,7 @@ La version 1.0 définit trois types de manifeste selon que nous faisons face à 
 MINI TUTO
 +++++++++
 
-.. sourcecode:: json
+.. sourcecode:: js
 
     {
         "title": "Mon Tutoriel No10",
@@ -132,7 +132,7 @@ MINI TUTO
 BIG TUTO
 ++++++++
 
-.. sourcecode:: json
+.. sourcecode:: js
 
     {
         "title": "3D temps réel avec Irrlicht",

@@ -56,7 +56,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
     - Creation, publication and update date ;
     - Public, beta, validation and draft sha, for versioning ;
     - Comment support ;
-    - Type, which is either "ARTICLE" "TUTORIAL" or "OPINION"
+    - Type, which is either ``'ARTICLE'``, ``'TUTORIAL'`` or ``'OPINION'``
     """
     class Meta:
         verbose_name = 'Contenu'
@@ -160,8 +160,9 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
 
     def save(self, *args, force_slug_update=True, **kwargs):
         """
-        Rewrite the `save()` function to handle slug uniqueness
-        :param force_slug_update: if set to ``False``do not try to update the slug
+        Rewrite the ``save()`` function to handle slug uniqueness
+
+        :param force_slug_update: if set to ``False`` do not try to update the slug
         """
         if force_slug_update:
             self.slug = uuslug(self.title, instance=self, max_length=80)
@@ -316,6 +317,16 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
             raise Http404(
                 'Le code sha existe mais la version demandée ne peut pas être trouvée à cause de {}:{}'.format(
                     type(error), str(error)))
+
+    @property
+    def first_publication_date(self):
+        """
+        traverse PublishedContent instances to find the first ever published and get its date
+        :return: the first publication date
+        :rtype: datetime
+        """
+        return Validation.objects.filter(content=self, status='ACCEPT').order_by('date_validation')\
+            .values_list('date_validation', flat=True)[0]
 
     def load_version(self, sha=None, public=None):
         """Using git, load a specific version of the content. if ``sha`` is ``None``,
@@ -899,6 +910,10 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
                 return len(content)
         except OSError as e:
             logger.warning('could not get file %s to compute nb letters (error=%s)', md_file_path, e)
+
+    @property
+    def last_publication_date(self):
+        return max(self.publication_date, self.update_date or datetime.min)
 
     @classmethod
     def get_es_mapping(cls):

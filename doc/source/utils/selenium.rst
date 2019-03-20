@@ -32,7 +32,7 @@ Pour Mac OS ou Windows, il suffit de lire les instructions à l'adresse suivante
 Écriture des tests
 ~~~~~~~~~~~~~~~~~~
 
-Il est donc possible d'écrire des tests pour Django directement en utilisant la document de Selenium ici : <http://selenium-python.readthedocs.io/> et le `StaticLiveServerTestCase` de Django (<https://docs.djangoproject.com/fr/1.11/ref/contrib/staticfiles/#django.contrib.staticfiles.testing.StaticLiveServerTestCase>).
+Il est donc possible d'écrire des tests pour Django directement en utilisant la document de Selenium ici : <http://selenium-python.readthedocs.io/> et le `StaticLiveServerTestCase` de Django (<https://docs.djangoproject.com/fr/2.1/ref/contrib/staticfiles/#django.contrib.staticfiles.testing.StaticLiveServerTestCase>).
 
 Il est aussi possible d'utiliser l'extension Firefox (<https://addons.mozilla.org/en-US/firefox/addon/selenium-ide/>) et d'exporter le test généré, cependant, il est nécessaire de le réécrire pour prendre en compte Django et Python 3. De plus, il est nécessaire d'ajouter un tag à la classe afin de pouvoir lancer les tests Selenium séparément.
 

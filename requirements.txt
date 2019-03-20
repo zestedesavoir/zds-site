@@ -5,7 +5,7 @@ elasticsearch-dsl==5.4.0
 sqlparse==0.2.4
 
 # Explicit dependencies (references in code)
-Django==2.1.5
+Django==2.1.7
 django-crispy-forms==1.7.2
 django-model-utils==3.1.2
 django-munin==0.2.1
