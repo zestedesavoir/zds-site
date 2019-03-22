@@ -89,6 +89,8 @@ before_install:
 install:
   - sudo apt-get update -qq
 
+  - echo $zds_install_argument
+
   - ./scripts/install_zds.sh --answer-yes --detect-os-version --travis-output $zds_install_argument
 
 
