@@ -134,6 +134,10 @@ $content-width: 1145px;
                 #subscriber_count {
                     margin-left: 10px;
                 }
+                
+                &:hover {
+                    background: $color-header-hover !important;
+                }
             }
 
             a.btn-ico {
@@ -142,6 +146,10 @@ $content-width: 1145px;
                 span {
                     text-align: center;
                     display: block;
+                }
+                
+                &:hover {
+                    background: $color-header-hover;
                 }
             }
         }
