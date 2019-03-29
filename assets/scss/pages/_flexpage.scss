@@ -94,15 +94,6 @@ $content-width: 1145px;
             left: 50px;
             top: 50px;
 
-            &:before, &:after {
-                z-index: 0;
-                content: '';
-                position: absolute;
-                width: 0;
-                border-left: 52px solid transparent;
-                border-right: 52px solid transparent;
-            }
-
             img {
                 position: absolute;
                 width: 145px;
@@ -116,14 +107,6 @@ $content-width: 1145px;
             top: 50px;
             width: 230px;
 
-            &:before, &:after {
-                z-index: 0;
-                content: '';
-                position: absolute;
-                width: 0;
-                border-left: 52px solid transparent;
-                border-right: 52px solid transparent;
-            }
             button, .btn-ico {
                 text-transform: uppercase;
                 background-color: saturate($color-primary, 5%);
