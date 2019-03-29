@@ -85,7 +85,7 @@
                             {{ usr.username }}
                         </h1>
                         <div class="line">
-                            {{summary}}
+                            {{ summary }}
                         </div>
                     </div>
                     <div class="aside-center">
@@ -273,7 +273,7 @@
                             <p>{% trans "Articles publiés" %} ({{ articles_public_count }})</p>
                         </a>
                         <span class="tail">
-                            <p>{% trans "En rédaction" %} ({{draft_content_count}})</p>
+                            <p>{% trans "En rédaction" %} ({{ draft_content_count }})</p>
                         </span>
                     </div>
 
@@ -283,7 +283,7 @@
                         </div>
 
                         <a href="{% url "content:find-opinion" usr.pk %}?filter=public" class="tail">
-                            <p>{% trans "Billets publiés" %} ({{opinions_public_count}})</p>
+                            <p>{% trans "Billets publiés" %} ({{ opinions_public_count }})</p>
                         </a>
                         {% if profile.user == user %}
                             <a href="{% url "content:find-opinion" usr.pk %}?filter=redaction" class="tail">
@@ -303,7 +303,7 @@
                         </div>
 
                         <a href="{% url 'topic-find' usr.pk %}" class="tail">
-                            <p>{% trans "Sujet crées" %} ({{profile.get_topic_count}})</p>
+                            <p>{% trans "Sujet créés" %} ({{ profile.get_topic_count }})</p>
                         </a>
                         <a href="{% url 'post-find' usr.pk %}" class="tail">
                             <p>{% trans "Messages postés" %} ({% if perms.member.change_post %}{{ profile.get_post_count_as_staff }}{% else %}{{ profile.get_post_count }}{% endif %})</p>
