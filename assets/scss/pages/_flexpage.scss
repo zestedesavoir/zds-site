@@ -251,9 +251,9 @@ $content-width: 1145px;
 
                     &:after {
                         margin: 16px !important;
-                        background-position: -256px -232px;
-                        width: 16px;
-                        height: 40px;
+                        @include sprite-position($search);
+                        @include sprite-width($search);
+                        @include sprite-height($search);
                     }
 
                     &:hover, &:focus {
