@@ -1,3 +1,12 @@
+function _in {
+  # credits: https://stackoverflow.com/a/8574392
+  local e match="$1"
+  shift
+  for e; do [[ "$e" == "$match" ]] && return 0; done
+  return 1
+}
+
+
 ## start fold for travis
 ZDS_SHOW_TRAVIS_FOLD=0
 if $(_in "--travis-output" $@); then

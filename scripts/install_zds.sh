@@ -3,15 +3,6 @@
 # Install script for the zds-site repository
 
 
-function _in {
-  # credits: https://stackoverflow.com/a/8574392
-  local e match="$1"
-  shift
-  for e; do [[ "$e" == "$match" ]] && return 0; done
-  return 1
-}
-
-
 function _nvm {
     export NVM_DIR="$HOME/.nvm"
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
@@ -50,6 +41,14 @@ function wget_nv {
 LOCAL_DIR="$(cd "$(dirname "$0")" && pwd)"
 source $LOCAL_DIR/define_variable.sh
 source $LOCAL_DIR/define_function.sh
+
+
+# enable travis fold
+ZDS_SHOW_TRAVIS_FOLD=0
+if $(_in "--travis-output" $@); then
+    ZDS_SHOW_TRAVIS_FOLD=1
+fi
+
 
 # zds-site root folder
 ZDSSITE_DIR=$(pwd)

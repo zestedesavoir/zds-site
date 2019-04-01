@@ -44,7 +44,7 @@ function install_geckodriver {
 }
 
 source ./scripts/define_variable.sh
-source ./scripts/define_function.sh
+source ./scripts/define_function.sh --travis-output
 
 zds_fold_category "before_install"
 
