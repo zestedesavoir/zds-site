@@ -8,26 +8,47 @@ function print_info {
 }
 
 
-print_info "source ./\$ZDS_VENV/bin/activate"
-source ./$ZDS_VENV/bin/activate
+function error_handler {
+    if [[ $exVal != 0 ]]; then
+        print_error $1
+        exit 1
+    fi
+}
 
-./scripts/travis_script.sh "start_elasticsearch"
 
-./scripts/travis_script.sh "start_latex"
+function run_script {
+	./scripts/travis_script.sh $1; exVal=$?
+	error_handler "!! Some error on the last task ($1)."
+}
 
-./scripts/travis_script.sh "lint_backend"
 
-./scripts/travis_script.sh "test_backend"
+function activate_env {
+	print_info "source $1/bin/activate"
+	source $1/bin/activate; exVal=$?
+	error_handler "!! Error: environnement not load.\n - Value = $1"
+}
 
-./scripts/travis_script.sh "print_zmarkdown_log"
 
-./scripts/travis_script.sh "selenium_test"
+activate_env "./$ZDS_VENV"
+
+	run_script "start_elasticsearch"
+
+	run_script "start_latex"
+
+	run_script "lint_backend"
+
+	run_script "test_backend"
+
+	run_script "print_zmarkdown_log"
+
+	run_script "selenium_test"
+
 
 # Use hack for virtualenv (fix some task with "command not found")
 
-print_info "source \$HACK_VIRTUALENV/bin/activate"
-source $HACK_VIRTUALENV/bin/activate
+activate_env "$HACK_VIRTUALENV"
 
-./scripts/travis_script.sh "coverage_backend"
+	run_script "coverage_backend"
 
-./scripts/travis_script.sh "build_documentation"
+	run_script "build_documentation"
+
