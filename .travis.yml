@@ -79,7 +79,7 @@ install:
 
 
 script:
-  - ./scripts/travis_script.sh
+  - ./scripts/travis_run.sh
 
 
 after_success:

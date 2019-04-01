@@ -1,3 +1,6 @@
+#!/bin/bash
+
+
 function _in {
   # credits: https://stackoverflow.com/a/8574392
   local e match="$1"

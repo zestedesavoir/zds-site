@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 zds_install_argument=""
 function zds_register_for_install {
     if [[ "$zds_install_argument" == "" ]]; then
@@ -8,6 +9,7 @@ function zds_register_for_install {
         zds_install_argument="$zds_install_argument $1"
     fi
 }
+
 
 function zds_register_module_for_installation {
     zds_register_for_install "+base +prod"
@@ -33,6 +35,7 @@ function zds_register_module_for_installation {
     print_info "* Argument for installation : $zds_install_argument"
 }
 
+
 function install_geckodriver {
     if [[ "$ZDS_TEST_JOB" == *"selenium"* ]]; then
         wget "https://github.com/mozilla/geckodriver/releases/download/v0.23.0/geckodriver-v0.23.0-linux64.tar.gz" \
@@ -43,22 +46,28 @@ function install_geckodriver {
     fi
 }
 
+
 source ./scripts/define_variable.sh
 source ./scripts/define_function.sh --travis-output
 
+
 zds_fold_category "before_install"
+
 
 zds_fold_start "packages" "* update apt-get (for newest dependencies version)"
     sudo apt-get update -qq
 zds_fold_end
 
+
 zds_fold_start "coveralls" "* update apt-get"
     pip install -q coveralls
 zds_fold_end
 
+
 zds_fold_start "ci_turbo" "* Skip task depending on directory changes (task will run only if needed)"
     source ./scripts/ci_turbo.sh # This script exports environment variables, it must be sourced
 zds_fold_end
+
 
 if [[ "$ZDS_TEST_JOB" == *"zds."* ]] || [[ "$ZDS_TEST_JOB" == *"selenium"* ]]; then
     #display print_info
@@ -78,11 +87,13 @@ if [[ "$ZDS_TEST_JOB" == *"zds."* ]] || [[ "$ZDS_TEST_JOB" == *"selenium"* ]]; t
     zds_fold_end
 fi
 
+
 if [[ "$ZDS_TEST_JOB" == *"selenium"* ]]; then
     zds_fold_start "webdriver" "* Install webdriver for selenium"
         install_geckodriver
     zds_fold_end
 fi
+
 
 zds_fold_start "register_module" "* Register module for installation"
     zds_register_module_for_installation
