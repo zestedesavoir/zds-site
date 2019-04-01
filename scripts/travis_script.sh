@@ -67,8 +67,8 @@ if [[ "$1" == "coverage_backend" ]] && [[ "$ZDS_TEST_JOB" == *"zds."* ]]; then
             --exclude-tag=front \
             ${ZDS_TEST_JOB/front/}
 
-
-        make zmd-stop; exVal=$?
+        #pm2 kill :
+        ./zmd/node_modules/pm2/bin/pm2.js kill; exVal=$?
 
         if [[ $exVal != 0 ]]; then
             print_error "Warning: Cannot stop zmd"
