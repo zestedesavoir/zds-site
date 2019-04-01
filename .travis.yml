@@ -69,7 +69,7 @@ cache:
 
 
 before_install:
-  - $HACK_VIRTUALENV=$VIRTUAL_ENV
+  - HACK_VIRTUALENV=$VIRTUAL_ENV
 
   - source ./scripts/travis_header.sh # Need to be sourced
 
