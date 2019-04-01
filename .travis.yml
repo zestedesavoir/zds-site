@@ -73,7 +73,7 @@ before_install:
 
   - source ./scripts/ci_turbo.sh # This script exports environment variables, it must be sourced
 
-  - travis_retry pip install -q coveralls
+  - pip install -q coveralls
 
   - source ./scripts/define_variable.sh 
 
@@ -89,8 +89,6 @@ before_install:
 install:
   - sudo apt-get update -qq
 
-  - echo $zds_install_argument
-
   - ./scripts/install_zds.sh --answer-yes --detect-os-version --travis-output $zds_install_argument
 
 
@@ -105,13 +103,11 @@ script:
 
   - ./scripts/travis_script.sh "test_backend"
 
+  - ./scripts/travis_script.sh "coverage_backend"
+
   - ./scripts/travis_script.sh "print_zmarkdown_log"
 
   - ./scripts/travis_script.sh "selenium_test"
-
-  - source $HACK_SphinxBuild/bin/activate
-
-  - ./scripts/travis_script.sh "coverage_backend"
 
   - ./scripts/travis_script.sh "build_documentation"
 
