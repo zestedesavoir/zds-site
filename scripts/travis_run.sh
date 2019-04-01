@@ -25,7 +25,7 @@ source ./$ZDS_VENV/bin/activate
 
 # Use hack for virtualenv (fix some task with "command not found")
 
-print_info "source ./\$HACK_VIRTUALENV/bin/activate"
+print_info "source \$HACK_VIRTUALENV/bin/activate"
 source $HACK_VIRTUALENV/bin/activate
 
 ./scripts/travis_script.sh "coverage_backend"
