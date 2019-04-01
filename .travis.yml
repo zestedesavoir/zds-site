@@ -33,14 +33,6 @@ env:
 
 jobs:
   include:
-    - name: tuto
-      env: ZDS_TEST_JOB="zds.tutorialv2"
-    - name: "test1 : member utils forum"
-      env: ZDS_TEST_JOB="zds.member zds.utils zds.forum"
-    - name: "test2 : front mp gallery pages featured notification searchv2"
-      env: ZDS_TEST_JOB="front zds.mp zds.gallery zds.pages zds.featured zds.notification zds.searchv2"
-    - name: selenium
-      env: ZDS_TEST_JOB="selenium"
     - name: doc
       env: ZDS_TEST_JOB="doc"
 
@@ -73,9 +65,11 @@ before_install:
 
   - source ./scripts/travis_header.sh # Need to be sourced
 
+  - echo $ZDS_VENV
+
 
 install:
-  - ./scripts/install_zds.sh --answer-yes --detect-os-version --travis-output $zds_install_argument
+  - #./scripts/install_zds.sh --answer-yes --detect-os-version --travis-output $zds_install_argument
 
 
 script:
