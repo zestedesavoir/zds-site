@@ -1,71 +1,27 @@
 #!/bin/bash
 
-function print_info {
-    echo -n -e "\033[0;36m";
-    echo "$1";
-    echo -n -e "\033[00m";
-}
+zds_fold_category "script"
 
-# start elastic
-if [[ "$1" == "start_elasticsearch" ]] && [[ "$ZDS_TEST_JOB" == *"zds.searchv2"* ]]; then
-    print_info "* Start elasticsearch as service"
-    sudo service elasticsearch start
-fi
+print_info "source ./\$ZDS_VENV/bin/activate"
 
-# start latex
-if [[ "$1" == "start_elasticsearch" ]] && [[ "$ZDS_TEST_JOB" == *"zds.tutorialv2"* ]]; then
-    print_info "* Start texhash"
-    texhash
-fi
+source ./$ZDS_VENV/bin/activate
 
-# lint backend
-if [[ "$1" == "lint_backend" ]] && [[ "$ZDS_TEST_JOB" == *"zds.gallery"* ]]; then
-    print_info "* Run lint for backend"
-    ./scripts/no_import_zds_settings.sh \
-    && flake8 \
-    && flake8 --config=zds/settings/.flake8 zds/settings
-fi
+./scripts/travis_script.sh "start_elasticsearch"
 
-# test backend
-if [[ "$1" == "test_backend" ]] && [[ "$ZDS_TEST_JOB" == *"zds."* ]]; then
-    print_info "* Run test for backend"
-    python manage.py makemigrations --dry-run --check
-fi
+./scripts/travis_script.sh "start_latex"
 
-# coverage backend
-if [[ "$1" == "coverage_backend" ]] && [[ "$ZDS_TEST_JOB" == *"zds."* ]]; then
-    source $HACK_SphinxBuild/bin/activate
-    coverage run --source='.' manage.py \
-        test -v=2\
-        --keepdb \
-        --settings zds.settings.ci_test \
-        --exclude-tag=front \
-        ${ZDS_TEST_JOB/front/}
-    source ./$ZDS_VENV/bin/activate
-fi
+./scripts/travis_script.sh "lint_backend"
 
-# print zmarkdown log
-if [[ "$1" == "print_zmarkdown_log" ]] && [[ "$ZDS_TEST_JOB" == *"zds."* ]]; then
-    print_info "* Print zmarkdown log"
-    pm2 logs --nostream --raw --lines 1000
-fi
+./scripts/travis_script.sh "test_backend"
 
-# selenium test
-if [[ "$1" == "selenium_test" ]]  && [[ "$ZDS_TEST_JOB" == *"selenium"* ]]; then
-    print_info "* Run selenium test for frontend"
-    xvfb-run --server-args="-screen 0 1280x720x8" python manage.py \
-        test -v=2\
-        --settings zds.settings.ci_test \
-        --tag=front \
-        --keepdb
-fi
+./scripts/travis_script.sh "print_zmarkdown_log"
 
-# build documentation
-if [[ "$1" == "build_documentation" ]] && [[ "$ZDS_TEST_JOB" == *"doc"* ]]; then
-    print_info "* Build documentation"
-    if [[ "$ZDS_TEST_JOB" == *"doc"* ]]; then
-        source $HACK_SphinxBuild/bin/activate
-        make generate-doc
-        source ./$ZDS_VENV/bin/activate
-    fi
-fi
+./scripts/travis_script.sh "selenium_test"
+
+print_info "source ./\$HACK_VIRTUALENV/bin/activate"
+
+source $HACK_VIRTUALENV/bin/activate # Fix task with "command not found"
+
+./scripts/travis_script.sh "coverage_backend"
+
+./scripts/travis_script.sh "build_documentation"
