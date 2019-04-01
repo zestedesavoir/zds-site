@@ -225,7 +225,7 @@ else
     zds_fold_end
 fi
 
-ZDS_ENV=$(realpath $ZDS_VENV)
+export ZDS_ENV=$(realpath $ZDS_VENV)
 
 # nvm node & yarn
 if  ! $(_in "-node" $@) && ( $(_in "+node" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
