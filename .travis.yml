@@ -79,6 +79,8 @@ install:
 
 
 script:
+  - export ZDS_ENV=$ZDS_ENV
+
   - ./scripts/travis_run.sh
 
 
