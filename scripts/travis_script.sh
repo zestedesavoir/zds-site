@@ -51,12 +51,29 @@ fi
 # coverage backend
 if [[ "$1" == "coverage_backend" ]] && [[ "$ZDS_TEST_JOB" == *"zds."* ]]; then
     zds_fold_start "coverage_backend" "* Run coverage for backend"
+
+        npm run server --prefix zmd/node_modules/zmarkdown -- --silent; exVal=$?
+
+        if [[ $exVal != 0 ]]; then
+            zds_fold_end
+            print_error "!! Cannot start zmd to coverage"
+            exit 1
+        fi
+
         coverage run --source='.' manage.py \
             test -v=2\
             --keepdb \
             --settings zds.settings.ci_test \
             --exclude-tag=front \
             ${ZDS_TEST_JOB/front/}
+
+
+        make zmd-stop; exVal=$?
+
+        if [[ $exVal != 0 ]]; then
+            print_error "Warning: Cannot stop zmd"
+        fi
+
     zds_fold_end
 fi
 
