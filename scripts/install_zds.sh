@@ -49,6 +49,8 @@ if $(_in "--travis-output" $@); then
     ZDS_SHOW_TRAVIS_FOLD=1
 fi
 
+zds_fold_category "install"
+
 
 # zds-site root folder
 ZDSSITE_DIR=$(pwd)
