@@ -29,8 +29,12 @@ fi
 # test backend
 if [[ "$1" == "test_backend" ]] && [[ "$ZDS_TEST_JOB" == *"zds."* ]]; then
     print_info "* Run test for backend"
-    python manage.py makemigrations --dry-run --check \
-    && coverage run --source='.' manage.py \
+    python manage.py makemigrations --dry-run --check
+fi
+
+# coverage backend
+if [[ "$1" == "coverage_backend" ]] && [[ "$ZDS_TEST_JOB" == *"zds."* ]]; then
+    coverage run --source='.' manage.py \
         test -v=2\
         --keepdb \
         --settings zds.settings.ci_test \
