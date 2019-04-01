@@ -10,7 +10,7 @@ exVal=0
 # start elastic
 if [[ "$1" == "start_elasticsearch" ]] && [[ "$ZDS_TEST_JOB" == *"zds.searchv2"* ]]; then
     zds_fold_start "elasticsearch" "* Start elasticsearch as service"
-        sudo service elasticsearch start; exVal=$?
+        sudo service elasticsearch start
     zds_fold_end
 fi
 
@@ -18,7 +18,7 @@ fi
 # start latex
 if [[ "$1" == "start_latex" ]] && [[ "$ZDS_TEST_JOB" == *"zds.tutorialv2"* ]]; then
     zds_fold_start "latex" "* Start texhash -> latex"
-        texhash; exVal=$?
+        texhash
     zds_fold_end
 fi
 
@@ -26,16 +26,16 @@ fi
 # lint backend
 if [[ "$1" == "lint_backend" ]] && [[ "$ZDS_TEST_JOB" == *"zds.gallery"* ]]; then
     zds_fold_start "lint_backend" "* Run lint for backend"
-        ./scripts/no_import_zds_settings.sh
-        flake8; exVal=$?
-        flake8 --config=zds/settings/.flake8 zds/settings; exVal=$? + $exVal
+        ./scripts/no_import_zds_settings.sh \
+            && flake8 \
+            && flake8 --config=zds/settings/.flake8 zds/settings
     zds_fold_end
 fi
 
 # test backend
 if [[ "$1" == "test_backend" ]] && [[ "$ZDS_TEST_JOB" == *"zds."* ]]; then
     zds_fold_start "test_backend" "* Run test for backend"
-        python manage.py makemigrations --dry-run --check; exVal=$?
+        python manage.py makemigrations --dry-run --check
     zds_fold_end
 fi
 
@@ -48,7 +48,7 @@ if [[ "$1" == "coverage_backend" ]] && [[ "$ZDS_TEST_JOB" == *"zds."* ]]; then
             --keepdb \
             --settings zds.settings.ci_test \
             --exclude-tag=front \
-            ${ZDS_TEST_JOB/front/}; exVal=$?
+            ${ZDS_TEST_JOB/front/}
     zds_fold_end
 fi
 
@@ -56,7 +56,7 @@ fi
 # print zmarkdown log
 if [[ "$1" == "print_zmarkdown_log" ]] && [[ "$ZDS_TEST_JOB" == *"zds."* ]]; then
     zds_fold_start "zmarkdown_log" "* Print zmarkdown log"
-        pm2 logs --nostream --raw --lines 1000; exVal=$?
+        pm2 logs --nostream --raw --lines 1000
     zds_fold_end
 fi
 
@@ -68,7 +68,7 @@ if [[ "$1" == "selenium_test" ]]  && [[ "$ZDS_TEST_JOB" == *"selenium"* ]]; then
             test -v=2\
             --settings zds.settings.ci_test \
             --tag=front \
-            --keepdb; exVal=$?
+            --keepdb
     zds_fold_end
 fi
 
@@ -78,13 +78,7 @@ if [[ "$1" == "build_documentation" ]] && [[ "$ZDS_TEST_JOB" == *"doc"* ]]; then
     zds_fold_start "doc" "* Run SphinxBuild to build documentation"
         print_info "* Build documentation"
         if [[ "$ZDS_TEST_JOB" == *"doc"* ]]; then
-            make generate-doc; exVal=$?
+            make generate-doc
         fi
     zds_fold_end
-fi
-
-
-if [[ $exVal != 0 ]]; then
-    print_error "!! Some error on the last task ($1)."
-    exit 1
 fi
