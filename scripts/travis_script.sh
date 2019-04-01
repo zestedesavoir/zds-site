@@ -34,12 +34,14 @@ fi
 
 # coverage backend
 if [[ "$1" == "coverage_backend" ]] && [[ "$ZDS_TEST_JOB" == *"zds."* ]]; then
+    source $HACK_SphinxBuild/bin/activate
     coverage run --source='.' manage.py \
         test -v=2\
         --keepdb \
         --settings zds.settings.ci_test \
         --exclude-tag=front \
-        ${1/front/}
+        ${ZDS_TEST_JOB/front/}
+    source ./$ZDS_VENV/bin/activate
 fi
 
 # print zmarkdown log
@@ -62,6 +64,8 @@ fi
 if [[ "$1" == "build_documentation" ]] && [[ "$ZDS_TEST_JOB" == *"doc"* ]]; then
     print_info "* Build documentation"
     if [[ "$ZDS_TEST_JOB" == *"doc"* ]]; then
+        source $HACK_SphinxBuild/bin/activate
         make generate-doc
+        source ./$ZDS_VENV/bin/activate
     fi
 fi
