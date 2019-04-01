@@ -86,4 +86,5 @@ fi
 
 if [[ $exVal != 0 ]]; then
     print_error "!! Some error on the last task ($1)."
+    exit 1
 fi
