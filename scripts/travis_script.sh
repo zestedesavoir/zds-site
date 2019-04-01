@@ -1,5 +1,8 @@
 #!/bin/bash
 
+source ./scripts/define_function.sh --travis-output
+
+zds_fold_category "script"
 
 exVal=0
 
