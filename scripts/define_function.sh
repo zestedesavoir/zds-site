@@ -7,7 +7,7 @@ fi
 
 zds_fold_current_cat="default"
 function zds_fold_category {
-    zds_fold_category=$1
+    zds_fold_category="$1"
 }
 
 
