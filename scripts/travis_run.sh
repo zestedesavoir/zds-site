@@ -1,9 +1,14 @@
 #!/bin/bash
 
-zds_fold_category "script"
+
+function print_info {
+    echo -en "\033[0;36m"
+    echo "$1"
+    echo -en "\033[00m"
+}
+
 
 print_info "source ./\$ZDS_VENV/bin/activate"
-
 source ./$ZDS_VENV/bin/activate
 
 ./scripts/travis_script.sh "start_elasticsearch"
@@ -18,9 +23,10 @@ source ./$ZDS_VENV/bin/activate
 
 ./scripts/travis_script.sh "selenium_test"
 
-print_info "source ./\$HACK_VIRTUALENV/bin/activate"
+# Use hack for virtualenv (fix some task with "command not found")
 
-source $HACK_VIRTUALENV/bin/activate # Fix task with "command not found"
+print_info "source ./\$HACK_VIRTUALENV/bin/activate"
+source $HACK_VIRTUALENV/bin/activate
 
 ./scripts/travis_script.sh "coverage_backend"
 
