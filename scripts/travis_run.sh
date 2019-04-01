@@ -39,6 +39,8 @@ activate_env "./$ZDS_VENV"
 
 	run_script "test_backend"
 
+	run_script "lint_frontend"
+
 	run_script "print_zmarkdown_log"
 
 	run_script "selenium_test"

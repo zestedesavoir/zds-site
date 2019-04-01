@@ -40,6 +40,14 @@ if [[ "$1" == "test_backend" ]] && [[ "$ZDS_TEST_JOB" == *"zds."* ]]; then
 fi
 
 
+# lint frontend
+if [[ "$1" == "lint_frontend" ]] && [[ "$ZDS_TEST_JOB" == *"front"* ]]; then
+    zds_fold_start "lint_frontend" "* Run lint for frontend"
+        npm run lint
+    zds_fold_end
+fi
+
+
 # coverage backend
 if [[ "$1" == "coverage_backend" ]] && [[ "$ZDS_TEST_JOB" == *"zds."* ]]; then
     zds_fold_start "coverage_backend" "* Run coverage for backend"
