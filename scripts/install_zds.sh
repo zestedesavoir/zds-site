@@ -18,57 +18,6 @@ function _nvm {
 }
 
 
-## start fold for travis
-ZDS_SHOW_TRAVIS_FOLD=0
-if $(_in "--travis-output" $@); then
-    ZDS_SHOW_TRAVIS_FOLD=1
-fi
-
-
-zds_fold_current=""
-function zds_fold_start {
-    if [[ $ZDS_SHOW_TRAVIS_FOLD == 1 ]]; then
-        if [[ $zds_fold_current == $1 ]]; then # for virtualenv fold
-            return
-        fi
-
-        zds_fold_current="$1"
-        echo "travis_fold:start:install_${zds_fold_current}"
-        echo -en "\033[0K"
-    fi
-
-    print_info "$2" --bold
-}
-
-
-function zds_fold_end {
-    if [[ $ZDS_SHOW_TRAVIS_FOLD == 1 ]] && [[ $zds_fold_current =~ "" ]]; then
-        echo "travis_fold:end:install_${zds_fold_current}"
-        echo -en "\033[0K"
-        zds_fold_current=""
-    fi
-}
-## end
-
-
-function print_info {
-    if [[ "$2" == "--bold" ]]; then
-        echo -en "\033[36;1m"
-    else
-        echo -en "\033[0;36m"
-    fi
-    echo "$1"
-    echo -en "\033[00m"
-}
-
-
-function print_error {
-    echo -en "\033[31;1m"
-    echo "$1"
-    echo -en "\033[00m"
-}
-
-
 ## start quiet mode
 function progressfilt {
     local flag=false c count cr=$'\r' nl=$'\n'
@@ -100,6 +49,7 @@ function wget_nv {
 # variables
 LOCAL_DIR="$(cd "$(dirname "$0")" && pwd)"
 source $LOCAL_DIR/define_variable.sh
+source $LOCAL_DIR/define_function.sh
 
 # zds-site root folder
 ZDSSITE_DIR=$(pwd)
