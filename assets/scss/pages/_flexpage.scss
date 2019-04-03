@@ -94,15 +94,6 @@ $content-width: 1145px;
             left: 50px;
             top: 50px;
 
-            &:before, &:after {
-                z-index: 0;
-                content: '';
-                position: absolute;
-                width: 0;
-                border-left: 52px solid transparent;
-                border-right: 52px solid transparent;
-            }
-
             img {
                 position: absolute;
                 width: 145px;
@@ -116,14 +107,6 @@ $content-width: 1145px;
             top: 50px;
             width: 230px;
 
-            &:before, &:after {
-                z-index: 0;
-                content: '';
-                position: absolute;
-                width: 0;
-                border-left: 52px solid transparent;
-                border-right: 52px solid transparent;
-            }
             button, .btn-ico {
                 text-transform: uppercase;
                 background-color: saturate($color-primary, 5%);
@@ -134,6 +117,10 @@ $content-width: 1145px;
                 #subscriber_count {
                     margin-left: 10px;
                 }
+                
+                &:hover {
+                    background: $color-header-hover !important;
+                }
             }
 
             a.btn-ico {
@@ -142,6 +129,10 @@ $content-width: 1145px;
                 span {
                     text-align: center;
                     display: block;
+                }
+                
+                &:hover {
+                    background: $color-header-hover;
                 }
             }
         }
@@ -251,9 +242,9 @@ $content-width: 1145px;
 
                     &:after {
                         margin: 16px !important;
-                        background-position: -256px -232px;
-                        width: 16px;
-                        height: 40px;
+                        @include sprite-position($search);
+                        @include sprite-width($search);
+                        @include sprite-height($search);
                     }
 
                     &:hover, &:focus {
