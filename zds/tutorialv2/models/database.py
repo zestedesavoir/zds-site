@@ -1313,6 +1313,26 @@ class PickListOperation(models.Model):
         raise ValueError('Content cannot be null or something else than opinion.', self.content)
 
 
+STATE_CHOICES = [
+    ('REQUESTED', 'Export demandé'),
+    ('RUNNING', 'Export en cours'),
+    ('SUCCESS', 'Export réalisé'),
+    ('FAILURE', 'Export échoué'),
+]
+
+
+class PublicationEvent(models.Model):
+    class Meta:
+        verbose_name = 'Événement de publication'
+        verbose_name_plural = 'Événements de publication'
+
+    published_object = models.ForeignKey(PublishedContent, null=False, on_delete=models.CASCADE,
+                                         verbose_name='contenu publié')
+    state_of_processing = models.CharField(choices=STATE_CHOICES, null=False, blank=False, max_length=20)
+    # 25 for formats such as "printable.pdf", if tomorrow we want other "long" formats this will be ready
+    format_requested = models.CharField(blank=False, null=False, max_length=25)
+
+
 @receiver(models.signals.pre_delete, sender=User)
 def transfer_paternity_receiver(sender, instance, **kwargs):
     """
@@ -1321,5 +1341,6 @@ def transfer_paternity_receiver(sender, instance, **kwargs):
     external = sender.objects.get(username=settings.ZDS_APP['member']['external_account'])
     PublishableContent.objects.transfer_paternity(instance, external, UserGallery)
     PublishedContent.objects.transfer_paternity(instance, external)
+
 
 import zds.tutorialv2.receivers  # noqa

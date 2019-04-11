@@ -164,9 +164,9 @@ ZDS_APP = {
         'repo_private_path': join(BASE_DIR, 'contents-private'),
         'repo_public_path': join(BASE_DIR, 'contents-public'),
         'extra_contents_dirname': 'extra_contents',
-        # can also be 'extra_content_generation_policy': 'WATCHDOG'
+        # can also be 'extra_content_generation_policy': 'SYNC'
         # or 'extra_content_generation_policy': 'NOTHING'
-        'extra_content_generation_policy': 'SYNC',
+        'extra_content_generation_policy': 'WATCHDOG',
         'extra_content_watchdog_dir': join(BASE_DIR, 'watchdog-build'),
         'max_tree_depth': 3,
         'default_licence_pk': 7,

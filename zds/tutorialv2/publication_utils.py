@@ -17,7 +17,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 from zds.notification import signals
 from zds.tutorialv2.epub_utils import build_ebook
-from zds.tutorialv2.models.database import ContentReaction, PublishedContent
+from zds.tutorialv2.models.database import ContentReaction, PublishedContent, PublicationEvent
 from zds.tutorialv2.publish_container import publish_container
 from zds.tutorialv2.signals import content_unpublished
 from zds.utils.templatetags.emarkdown import render_markdown, MD_PARSING_ERROR
@@ -173,16 +173,14 @@ def generate_external_content(base_name, extra_contents_path, md_file_path, over
     :param base_name: base nae of file (without extension)
     :param extra_contents_path: internal directory where all files will be pushed
     :param md_file_path: bundled markdown file path
-    :param pandoc_debug_str: *specific to pandoc publication : avoid subprocess to be errored*
     :param overload_settings: this option force the function to generate all registered formats even when settings \
     ask for PDF not to be published
-    :return:
+    :param excluded: list of excluded format, None if no exclusion
     """
-    excluded = excluded or []
+    excluded = excluded or ['watchdog']
     excluded.append('md')
     if not settings.ZDS_APP['content']['build_pdf_when_published'] and not overload_settings:
         excluded.append('pdf')
-    # TODO: exclude watchdog
     for publicator_name, publicator in PublicatorRegistry.get_all_registered(excluded):
         try:
             publicator.publish(md_file_path, base_name, change_dir=extra_contents_path)
@@ -443,7 +441,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
         command_process = subprocess.Popen(command,
                                            shell=True, cwd=path.dirname(texfile),
                                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        command_process.communicate()
+        command_process.communicate(timeout=120)
 
         with contextlib.suppress(ImportError):
             from raven import breadcrumbs
@@ -519,6 +517,8 @@ class ZMarkdownEpubPublicator(Publicator):
                 os.remove(str(epub_path))
             if not epub_path.parent.exists():
                 epub_path.parent.mkdir(parents=True)
+            logger.info('created %s. moving it to %s', epub_file_path,
+                        published_content_entity.get_extra_contents_directory())
             shutil.move(str(epub_file_path), published_content_entity.get_extra_contents_directory())
 
 
@@ -536,10 +536,10 @@ class WatchdogFilePublicator(Publicator):
     def publish(self, md_file_path, base_name, silently_pass=True, **kwargs):
         if silently_pass:
             return
-        filename = base_name.replace(path.dirname(base_name), self.watched_directory)
-        with open(filename, 'w', encoding='utf-8') as w_file:
-            w_file.write(';'.join([base_name, md_file_path]))
-        self.__logger.debug('Registered {} for generation'.format(md_file_path))
+        published_content = self.get_published_content_entity(md_file_path)
+        for requested_format in PublicatorRegistry.get_all_registered(['md', 'watchdog']):
+            PublicationEvent.objects.create(state_of_processing='REQUESTED', published_object=published_content,
+                                            format_requested=requested_format[0])
 
 
 class FailureDuringPublication(Exception):
