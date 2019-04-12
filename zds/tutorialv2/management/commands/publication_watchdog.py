@@ -18,7 +18,7 @@ class Command(BaseCommand):
         with ProcessPoolExecutor(5) as executor:
             try:
                 while True:
-                    self.__launch_publicators(executor, logger)
+                    Command.launch_publicators(executor, logger)
                     time.sleep(10)
             except KeyboardInterrupt:
                 executor.shutdown(wait=False)
@@ -33,7 +33,8 @@ class Command(BaseCommand):
             publication_event.save()
         return callback
 
-    def __launch_publicators(self, executor, logger):
+    @staticmethod
+    def launch_publicators(executor, logger):
         for publication_event in PublicationEvent.objects.filter(state_of_processing=STATE_CHOICES[0][0]):
             logger.info('Export %s -- format=%s', publication_event.published_object.title(),
                         publication_event.format_requested)
