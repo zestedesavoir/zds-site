@@ -452,6 +452,7 @@ class SingleOnlineContentDetailViewMixin(SingleOnlineContentViewMixin, DetailVie
         * context['can_edit'] is set
         * context['public_object'] is set
         * context['is_antispam'] is set
+        * context['db_content'] is set with the PublishableContent instance
     """
 
     def get(self, request, *args, **kwargs):
@@ -484,6 +485,7 @@ class SingleOnlineContentDetailViewMixin(SingleOnlineContentViewMixin, DetailVie
         context['is_antispam'] = self.object.antispam(self.request.user)
         context['is_staff'] = self.is_staff
         context['is_author'] = self.is_author
+        context['db_content'] = self.object
         return context
 
 
