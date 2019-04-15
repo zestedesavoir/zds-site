@@ -435,6 +435,11 @@
                     {% trans "Voir les statistiques" %}
                 </a>
             </li>
+            <li>
+                <a href="{% url "api:content:generate_export" content.pk %}" class="ico-after pdf blue export-button">
+                    {% trans "Exporter le tutoriel (epub, pdf, latex...)" %}
+                </a>
+            </li>
         {% endif %}
         {# END ONLINE VERSION #}
 

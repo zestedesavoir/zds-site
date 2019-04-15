@@ -1,10 +1,14 @@
 from django.http import Http404
 from django.utils.translation import gettext as _
+from rest_framework import status
 from rest_framework.fields import empty
-from rest_framework.generics import UpdateAPIView
+from rest_framework.generics import UpdateAPIView, CreateAPIView, get_object_or_404
+from rest_framework.response import Response
 from rest_framework.serializers import Serializer, CharField, BooleanField
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
+
 from zds.member.api.permissions import CanReadAndWriteNowOrReadOnly, IsNotOwnerOrReadOnly, IsAuthorOrStaff
+from zds.tutorialv2.publication_utils import PublicatorRegistry
 from zds.tutorialv2.utils import search_container_or_404
 from zds.utils.api.views import KarmaView
 from zds.tutorialv2.models.database import ContentReaction, PublishableContent
@@ -56,3 +60,18 @@ class ContainerPublicationReadinessView(UpdateAPIView):
             raise Http404()
         self.check_object_permissions(self.request, object)
         return content
+
+
+class ExportView(CreateAPIView):
+    permission_classes = (IsAuthorOrStaff,)
+
+    def create(self, request, *args, **kwargs):
+        try:
+            publishable_content = get_object_or_404(PublishableContent.objects, pk=int(kwargs.get('pk')))
+            if not publishable_content.public_version:
+                raise Http404('Not public content')
+            PublicatorRegistry.get('watchdog').publish_from_published_content(publishable_content.public_version)
+        except ValueError:
+            return Response({}, status=status.HTTP_400_BAD_REQUEST, headers={})
+        else:
+            return Response({}, status=status.HTTP_201_CREATED, headers={})
