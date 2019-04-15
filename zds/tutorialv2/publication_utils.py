@@ -537,6 +537,9 @@ class WatchdogFilePublicator(Publicator):
         if silently_pass:
             return
         published_content = self.get_published_content_entity(md_file_path)
+        self.publish_from_published_content(published_content)
+
+    def publish_from_published_content(self, published_content):
         for requested_format in PublicatorRegistry.get_all_registered(['md', 'watchdog']):
             PublicationEvent.objects.create(state_of_processing='REQUESTED', published_object=published_content,
                                             format_requested=requested_format[0])

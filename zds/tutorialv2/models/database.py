@@ -1183,7 +1183,7 @@ class ContentRead(models.Model):
     """
     class Meta:
         verbose_name = 'Contenu lu'
-        verbose_name_plural = 'Contenu lus'
+        verbose_name_plural = 'Contenus lus'
 
     content = models.ForeignKey(PublishableContent, db_index=True, on_delete=models.CASCADE)
     note = models.ForeignKey(ContentReaction, db_index=True, null=True, on_delete=models.SET_NULL)
@@ -1331,6 +1331,9 @@ class PublicationEvent(models.Model):
     state_of_processing = models.CharField(choices=STATE_CHOICES, null=False, blank=False, max_length=20)
     # 25 for formats such as "printable.pdf", if tomorrow we want other "long" formats this will be ready
     format_requested = models.CharField(blank=False, null=False, max_length=25)
+
+    def __str__(self):
+        return '{}: {} - {}'.format(self.published_object.title(), self.format_requested, self.state_of_processing)
 
 
 @receiver(models.signals.pre_delete, sender=User)
