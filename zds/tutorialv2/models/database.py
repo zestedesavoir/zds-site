@@ -1314,23 +1314,24 @@ class PickListOperation(models.Model):
 
 
 STATE_CHOICES = [
-    ('REQUESTED', 'Export demandé'),
-    ('RUNNING', 'Export en cours'),
-    ('SUCCESS', 'Export réalisé'),
-    ('FAILURE', 'Export échoué'),
+    ('REQUESTED', _('Export demandé')),
+    ('RUNNING', _('Export en cours')),
+    ('SUCCESS', _('Export réalisé')),
+    ('FAILURE', _('Export échoué')),
 ]
 
 
 class PublicationEvent(models.Model):
     class Meta:
-        verbose_name = 'Événement de publication'
-        verbose_name_plural = 'Événements de publication'
+        verbose_name = _('Événement de publication')
+        verbose_name_plural = _('Événements de publication')
 
     published_object = models.ForeignKey(PublishedContent, null=False, on_delete=models.CASCADE,
                                          verbose_name='contenu publié')
     state_of_processing = models.CharField(choices=STATE_CHOICES, null=False, blank=False, max_length=20)
     # 25 for formats such as "printable.pdf", if tomorrow we want other "long" formats this will be ready
     format_requested = models.CharField(blank=False, null=False, max_length=25)
+    created = models.DateTimeField(verbose_name='date de création', name='date', auto_now_add=True)
 
     def __str__(self):
         return '{}: {} - {}'.format(self.published_object.title(), self.format_requested, self.state_of_processing)
