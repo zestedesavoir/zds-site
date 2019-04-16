@@ -58,9 +58,9 @@ class ContentReadAdmin(admin.ModelAdmin):
 
 
 class PublicationEventAdmin(admin.ModelAdmin):
-    list_display = ('published_object', 'state_of_processing', 'format_requested')
-    ordering = ('published_object', 'state_of_processing')
-    search_fields = ('state_of_processing', 'published_object__title')
+    list_display = ('published_object', 'date', 'state_of_processing', 'format_requested')
+    ordering = ('published_object', 'date', 'state_of_processing')
+    search_fields = ('state_of_processing', 'published_object__title', 'date')
 
 
 admin.site.register(PublishableContent, PublishableContentAdmin)
