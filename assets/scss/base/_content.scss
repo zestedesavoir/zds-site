@@ -30,7 +30,7 @@ h2 {
     padding-left: 1%;
     font-weight: 400;
 
-    &.not-ready {
+    &.not-ready a {
         color: $color-not-ready-content;
     }
 }
@@ -39,6 +39,9 @@ h3 {
     font-size: 20px;
     font-size: 2.0rem;
     margin-bottom: 14px;
+    &.not-ready a {
+        color: $color-not-ready-content;
+    }
 }
 
 h4 {
