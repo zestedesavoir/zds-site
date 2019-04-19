@@ -7,7 +7,11 @@ curl
 unzip
 realpath
 python
+python-setuptools
+python-sqlparse
 python3-pip
+libxml2
+python-lxml
 libxslt
 zlib
 libffi

@@ -7,9 +7,12 @@ curl
 unzip
 realpath
 python3-devel
+python3-setuptools
+python3-lxml
+libxml2-devel
 libxslt-devel
 zlib-devel
-libjpeg-turbo-devel
+python3-sqlparse
 libjpeg-turbo-devel
 freetype
 freetype-devel
