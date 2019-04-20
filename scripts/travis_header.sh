@@ -26,6 +26,11 @@ function zds_register_module_for_installation {
         zds_register_for_install "-back"
     fi
 
+    # fastify : no fixture
+    if [[ "$ZDS_TEST_JOB" == *"zds.tutorialv2"* ]]; then
+        zds_register_for_install "-data"
+    fi
+
     print_info "* Argument for installation : $zds_install_argument"
 }
 
