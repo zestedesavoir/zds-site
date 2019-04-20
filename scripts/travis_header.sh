@@ -20,12 +20,6 @@ function zds_register_module_for_installation {
         zds_register_for_install "+jdk-local +elastic-local"
     fi
 
-    # install latex
-    if [[ "$ZDS_TEST_JOB" == *"zds.tutorialv2"* ]]; then
-        print_info "* Register latex for zds.tutorialv2."
-        zds_register_for_install "+latex-template"
-    fi
-
     # install backend dependencies
     if ! ( [[ "$ZDS_TEST_JOB" == *"zds."* ]] || [[ "$ZDS_TEST_JOB" == *"selenium"* ]] || [[ "$ZDS_TEST_JOB" == *"doc"* ]] ); then
         print_info "* Don't register back because zds.* task, selenium and doc are not installed."
@@ -94,6 +88,19 @@ if [[ "$ZDS_TEST_JOB" == *"selenium"* ]]; then
     zds_fold_end
 fi
 
+if [[ "$ZDS_TEST_JOB" == *"zds.tutorialv2"* ]]; then
+    # install latex
+    zds_fold_start "register_module" "* Install latex (texlive + latex-template)"
+        # this script is faster than zds_install.sh +tex-local +latex-template
+        git clone $ZDS_LATEX_REPO
+        TEMPLATEDIR=$HOME/.texlive/texmf-local/tex/latex/
+        ./latex-template/scripts/install_font.sh \
+        && ./latex-template/scripts/install_texlive.sh \
+        && export PATH=$HOME/.texlive/bin/x86_64-linux:$PATH \
+        && rm -rf $TEMPLATEDIR/latex-template \
+        && mkdir -p $TEMPLATEDIR  && cp -r ./latex-template $TEMPLATEDIR && texhash
+    zds_fold_end
+fi
 
 zds_fold_start "register_module" "* Register module for installation"
     zds_register_module_for_installation
