@@ -23,7 +23,7 @@ function zds_register_module_for_installation {
     # install latex
     if [[ "$ZDS_TEST_JOB" == *"zds.tutorialv2"* ]]; then
         print_info "* Register latex for zds.tutorialv2."
-        zds_register_for_install "+tex-local +latex-template"
+        zds_register_for_install "+latex-template"
     fi
 
     # install backend dependencies
