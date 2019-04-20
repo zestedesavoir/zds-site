@@ -48,8 +48,6 @@ activate_env "./$ZDS_VENV"
 
 activate_env "$HACK_VIRTUALENV"
 
-	run_script "start_latex"
-
 	run_script "coverage_backend"
 
 	run_script "build_documentation"
