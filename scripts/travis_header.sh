@@ -95,7 +95,7 @@ fi
 
 if [[ "$ZDS_TEST_JOB" == *"zds.tutorialv2"* ]]; then
     # install latex
-    zds_fold_start "register_module" "* Install latex (texlive + latex-template)"
+    zds_fold_start "register_module" "* Install latex & Run texhash (install: texlive + latex-template)"
         # this script is faster than zds_install.sh +tex-local +latex-template
         git clone $ZDS_LATEX_REPO
         TEMPLATEDIR=$HOME/.texlive/texmf-local/tex/latex/
