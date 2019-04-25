@@ -22,6 +22,9 @@ google-api-python-client==1.7.4
 toml==0.10.0
 requests==2.21.0
 
+# custom rss depts
+django-hashid-field==2.1.6
+
 # Api dependencies
 djangorestframework==3.9.0
 djangorestframework-xml==1.4.0

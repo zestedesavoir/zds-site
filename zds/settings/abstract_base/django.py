@@ -337,3 +337,6 @@ TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
 # Properly handle HTTPS vs HTTP
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# Hash Salt for personal rss
+HASHID_FIELD_SALT = 'Personnal RSS clearly needs secured key, please use get_random_secret_key() to get it'

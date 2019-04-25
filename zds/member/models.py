@@ -1,3 +1,4 @@
+import time
 from datetime import datetime
 from hashlib import md5
 import os
@@ -9,6 +10,7 @@ from django.urls import reverse
 from django.db import models
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
+from hashid_field import HashidField, HashidAutoField, Hashid
 
 from zds.forum.models import Post, Topic
 from zds.member import NEW_PROVIDER_USES
@@ -69,6 +71,8 @@ class Profile(models.Model):
     end_ban_write = models.DateTimeField("Fin d'interdiction d'écrire", null=True, blank=True)
     last_visit = models.DateTimeField('Date de dernière visite', null=True, blank=True)
     use_old_smileys = models.BooleanField('Utilise les anciens smileys ?', default=False)
+    rss_token = HashidField(editable=False, name='Jeton RSS', verbose_name='Jeton pour les flux personnels CSS',
+                            unique=False, null=False)
     _permissions = {}
     _groups = None
 
@@ -76,6 +80,11 @@ class Profile(models.Model):
 
     def __str__(self):
         return self.user.username
+
+    def save(self, **kwargs):
+        if not self.rss_token:
+            self.rss_token = Hashid(int(time.time() * 1000))
+        super().save(**kwargs)
 
     def is_private(self):
         """Can the user display their stats?"""
