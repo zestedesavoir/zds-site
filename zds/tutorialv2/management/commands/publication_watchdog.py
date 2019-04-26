@@ -26,7 +26,7 @@ class Command(BaseCommand):
     @staticmethod
     def get_callback_of(publication_event: PublicationEvent):
         def callback(future: Future):
-            if future.done():
+            if future.done() and not future.exception():
                 publication_event.state_of_processing = 'SUCCESS'
             elif future.cancelled():
                 publication_event.state_of_processing = 'FAILURE'
