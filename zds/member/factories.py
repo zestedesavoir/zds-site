@@ -1,7 +1,10 @@
+from time import time
+
 import factory
 
 from django.contrib.auth.models import User, Permission, Group
 from django.conf import settings
+from hashid_field import Hashid
 
 from zds.member.models import Profile
 from zds.utils.models import Hat
@@ -118,6 +121,10 @@ class ProfileFactory(factory.DjangoModelFactory):
 
     last_ip_address = '192.168.2.1'
     site = 'www.zestedesavoir.com'
+
+    @factory.lazy_attribute
+    def rss_token(self):
+        return Hashid(int(time() * 1000))
 
     @factory.lazy_attribute
     def biography(self):
