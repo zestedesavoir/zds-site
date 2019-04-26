@@ -902,7 +902,7 @@ class NotificationTest(TestCase):
         self.assertFalse(is_read(topic, self.user1))
 
         result = self.client.post(
-            reverse('mark-notifications-as-read'),
+            reverse('notifications:mark-notifications-as-read'),
             follow=False)
         self.assertEqual(result.status_code, 302)
 

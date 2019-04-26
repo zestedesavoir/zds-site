@@ -258,7 +258,7 @@
 
                 {# NOTIFICATIONS #}
                 <div>
-                    <a href="{% url 'notification-list' %}" class="ico-link" title="{% trans 'Notifications' %}">
+                    <a href="{% url 'notifications:notification-list' %}" class="ico-link" title="{% trans 'Notifications' %}">
                         {% if header_general_notifications.total > 0 %}
                             <span class="notif-count">{{ header_general_notifications.total }}</span>
                         {% endif %}
@@ -286,7 +286,7 @@
                                 </li>
                             {% endif %}
                         </ul>
-                        <a href="{% url 'notification-list' %}" class="dropdown-link-all">
+                        <a href="{% url 'notifications:notification-list' %}" class="dropdown-link-all">
                             {% trans "Toutes les notifications" %}
                         </a>
                     </div>

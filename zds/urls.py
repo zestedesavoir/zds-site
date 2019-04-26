@@ -100,7 +100,7 @@ urlpatterns = [
     re_path(r'^munin/', include(('zds.munin.urls', ''))),
     re_path(r'^mise-en-avant/', include(('zds.featured.urls', ''))),
     re_path(r'^notifications/',
-            include(('zds.notification.urls', ''))),
+            include(('zds.notification.urls', 'notifications'))),
     path('', include(('social_django.urls', 'social_django'), namespace='social')),
 
     re_path(r'^munin/', include(('munin.urls', 'munin'))),
