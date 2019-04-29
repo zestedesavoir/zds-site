@@ -10,7 +10,7 @@ from django.urls import reverse
 from django.db import models
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
-from hashid_field import HashidField, HashidAutoField, Hashid
+from hashid_field import HashidField, Hashid
 
 from zds.forum.models import Post, Topic
 from zds.member import NEW_PROVIDER_USES
@@ -71,8 +71,8 @@ class Profile(models.Model):
     end_ban_write = models.DateTimeField("Fin d'interdiction d'écrire", null=True, blank=True)
     last_visit = models.DateTimeField('Date de dernière visite', null=True, blank=True)
     use_old_smileys = models.BooleanField('Utilise les anciens smileys ?', default=False)
-    rss_token = HashidField(editable=False, name='Jeton RSS', verbose_name='Jeton pour les flux personnels RSS',
-                            unique=False, null=False)
+    rss_token = HashidField(editable=False, name='rss_token',
+                            verbose_name='Jeton pour les flux personnels RSS', unique=False, null=False)
     _permissions = {}
     _groups = None
 

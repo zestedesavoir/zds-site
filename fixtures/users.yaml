@@ -105,42 +105,50 @@
     pk: 1
     fields:
         user: 1
+        rss_token: 1
         last_ip_address: 192.168.0.1
 -   model: member.Profile
     pk: 2
     fields:
         user: 2
+        rss_token: 2
         last_ip_address: 192.168.0.1
 -   model: member.Profile
     pk: 3
     fields:
         user: 3
         last_ip_address: 192.168.0.1
+        rss_token: 3
 -   model: member.Profile
     pk: 4
     fields:
         user: 4
         last_ip_address: 192.168.0.1
+        rss_token: 4
 -   model: member.Profile
     pk: 5
     fields:
         user: 5
         last_ip_address: 192.168.0.1
+        rss_token: 5
 -   model: member.Profile
     pk: 6
     fields:
         user: 6
         last_ip_address: 192.168.0.1
+        rss_token: 6
 -   model: member.Profile
     pk: 20
     fields:
         user: 7
         last_ip_address: 192.168.0.1
+        rss_token: 7
 -   model: member.Profile
     pk: 8
     fields:
         user: 8
         last_ip_address: 192.168.0.1
+        rss_token: 8
 
 -   model: utils.Hat
     pk: 1

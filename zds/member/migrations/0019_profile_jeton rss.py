@@ -5,11 +5,12 @@ import hashid_field.field
 from hashid_field import Hashid
 
 from zds.member.models import Profile
+from time import time
 
 
 def update_ids(*args, **kwargs):
     for profile in Profile.objects.all():
-        profile.rss_token = Hashid(profile.pk)
+        profile.rss_token = Hashid(int(1000 * time()))
         profile.save()
 
 
@@ -22,7 +23,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='profile',
-            name='Jeton RSS',
+            name='rss_token',
             field=hashid_field.field.HashidField(
                 alphabet='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890', default=Hashid(1),
                 editable=False, min_length=7, unique=False, verbose_name='Jeton pour les flux personnels CSS'),
