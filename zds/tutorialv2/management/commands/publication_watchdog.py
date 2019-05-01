@@ -28,7 +28,7 @@ class Command(BaseCommand):
         def callback(future: Future):
             if future.done() and not future.exception():
                 publication_event.state_of_processing = 'SUCCESS'
-            elif future.cancelled():
+            elif future.cancelled() or future.exception():
                 publication_event.state_of_processing = 'FAILURE'
             publication_event.save()
         return callback
