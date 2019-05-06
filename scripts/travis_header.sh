@@ -12,6 +12,11 @@ function zds_register_for_install {
 
 
 function zds_register_module_for_installation {
+    echo "----------------------"
+    echo "----------------------"
+    echo "$ZDS_TEST_JOB"
+    echo "----------------------"
+    echo "----------------------"
     zds_register_for_install "+base +prod"
 
     # install elastic-local
