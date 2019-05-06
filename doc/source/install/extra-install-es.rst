@@ -21,7 +21,7 @@ Installation
         -Xms512m
         -Xmx512m
 
-    Plus d'informations sont disponibles `dans la documentation <https://www.elastic.co/guide/en/elasticsearch/reference/current/setting-system-settings.html#jvm-options>`_.
+    Plus d'informations sont disponibles `dans la documentation officielle <https://www.elastic.co/guide/en/elasticsearch/reference/current/setting-system-settings.html#jvm-options>`_.
 
 Sous Linux
 ----------
