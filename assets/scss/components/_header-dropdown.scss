@@ -15,20 +15,20 @@
 
     .dropdown-title {
         color: #FFF;
+    }
+        
+    .dropdown-list .dropdown-title a {
+        display: block;
+        width: 95%;
+        min-height: 25px;
+        line-height: 25px;
+        overflow: hidden;
+        transition: padding-left $transition-duration ease, background-color $transition-duration ease;
 
-        a {
-            display: block;
-            width: 95%;
-            min-height: 25px;
-            line-height: 25px;
-            overflow: hidden;
-            transition: padding-left $transition-duration ease, background-color $transition-duration ease;
-
-            &:hover,
-            &:focus {
-                padding-left: 3%;
-                background-color: rgba(0, 0, 0, .3)
-            }
+        &:hover,
+        &:focus {
+            padding-left: 3%;
+            background-color: rgba(0, 0, 0, .3)
         }
     }
 
