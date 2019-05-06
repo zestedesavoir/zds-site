@@ -21,7 +21,10 @@ function zds_register_module_for_installation {
     fi
 
     # install backend dependencies
-    if ! ( [[ "$ZDS_TEST_JOB" == *"zds."* ]] || [[ "$ZDS_TEST_JOB" == *"selenium"* ]] || [[ "$ZDS_TEST_JOB" == *"doc"* ]] ); then
+    if ! ( [[ "$ZDS_TEST_JOB" == *"zds."* ]] || \
+           [[ "$ZDS_TEST_JOB" == *"selenium"* ]] || \
+           [[ "$ZDS_TEST_JOB" == *"doc"* ]] || \
+           [[ "$ZDS_TEST_JOB" == *"front"* ]] ); then
         print_info "* Don't register back because zds.* task, selenium and doc are not installed."
         zds_register_for_install "-back"
     fi
