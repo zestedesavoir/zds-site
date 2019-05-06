@@ -788,12 +788,4 @@ class BadArchiveError(Exception):
         self.message = reason
 
 
-class FailureDuringPublication(Exception):
-    """Exception raised if something goes wrong during the publication process
-    """
-
-    def __init__(self, *args, **kwargs):
-        super(FailureDuringPublication, self).__init__(*args, **kwargs)
-
-
 NamedUrl = namedtuple('NamedUrl', ['name', 'url', 'level'])
