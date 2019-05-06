@@ -1448,7 +1448,11 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertIsNotNone(old_published)  # still exists
         self.assertTrue(old_published.must_redirect)  # do redirection if any
         self.assertIsNone(old_published.update_date)
-
+        result = self.client.get(old_published.get_absolute_url_online(), follow=False)
+        self.assertEqual(result.status_code, 301)
+        # extra contents are also redirected
+        result = self.client.get(old_published.get_absolute_url_md(), follow=False)
+        self.assertEqual(result.status_code, 301)
         new_published = PublishedContent.objects.filter(content__pk=self.tuto.pk).last()
         self.assertIsNotNone(new_published)  # new version exists
         self.assertNotEqual(old_published.pk, new_published.pk)  # not the old one
