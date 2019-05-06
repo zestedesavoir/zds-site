@@ -211,7 +211,7 @@ class DownloadOnlineContent(SingleOnlineContentViewMixin, DownloadViewMixin):
         try:
             self.public_content_object = self.get_public_object()
         except MustRedirect as redirect_url:
-            return HttpResponsePermanentRedirect(redirect_url)
+            return HttpResponsePermanentRedirect(redirect_url.url)
 
         self.object = self.get_object()
         self.versioned_object = self.get_versioned_object()
