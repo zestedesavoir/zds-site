@@ -312,8 +312,16 @@ class ContentTypeMixin(object):
 class MustRedirect(Exception):
     """Exception raised when this is not the last version of the content which is called"""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, url, *args, **kwargs):
+        """
+        initialize the exception
+
+        :param url: the targetted url
+        :param args: exception *args
+        :param kwargs: exception **kwargs
+        """
         super(MustRedirect, self).__init__(*args, **kwargs)
+        self.url = url
 
 
 class SingleOnlineContentViewMixin(ContentTypeMixin):
@@ -432,7 +440,7 @@ class SingleOnlineContentDetailViewMixin(SingleOnlineContentViewMixin, DetailVie
         try:
             self.public_content_object = self.get_public_object()
         except MustRedirect as redirection_url:
-            return HttpResponsePermanentRedirect(redirection_url)
+            return HttpResponsePermanentRedirect(redirection_url.url)
 
         self.object = self.get_object()
         self.versioned_object = self.get_versioned_object()
