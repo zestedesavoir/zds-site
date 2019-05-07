@@ -56,17 +56,17 @@ source ./scripts/define_function.sh --travis-output
 zds_fold_category "before_install"
 
 
-zds_fold_start "packages" "* update apt-get (for newest dependencies version)"
+zds_fold_start "packages" "* [packages] apt-get update : make sure our source list is up-to-date (for newest dependencies version)"
     sudo apt-get update -qq
 zds_fold_end
 
 
-zds_fold_start "coveralls" "* update apt-get"
+zds_fold_start "coveralls" "* [coveralls] Install with pip"
     pip install -q coveralls
 zds_fold_end
 
 
-zds_fold_start "ci_turbo" "* Skip task depending on directory changes (task will run only if needed)"
+zds_fold_start "ci_turbo" "* [ci_turbo] Skip task depending on directory changes (task will run only if needed)"
     source ./scripts/ci_turbo.sh # This script exports environment variables, it must be sourced
 zds_fold_end
 
@@ -84,21 +84,21 @@ if [[ "$ZDS_TEST_JOB" == *"zds."* ]] || [[ "$ZDS_TEST_JOB" == *"selenium"* ]]; t
         forwho="selenium"
     fi
 
-    zds_fold_start "mysql" "* Install mysql for $forwho."
+    zds_fold_start "mysql" "* [mysql] Install mysql for $forwho."
         ./scripts/ci_mysql_setup.sh
     zds_fold_end
 fi
 
 
 if [[ "$ZDS_TEST_JOB" == *"selenium"* ]]; then
-    zds_fold_start "webdriver" "* Install webdriver for selenium"
+    zds_fold_start "webdriver" "* [webdriver] Install webdriver for selenium"
         install_geckodriver
     zds_fold_end
 fi
 
 if [[ "$ZDS_TEST_JOB" == *"zds.tutorialv2"* ]]; then
     # install latex
-    zds_fold_start "register_module" "* Install latex & Run texhash (install: texlive + latex-template)"
+    zds_fold_start "latex" "* [latex] Install latex & Run texhash (install: texlive + latex-template)"
         # this script is faster than zds_install.sh +tex-local +latex-template
         git clone $ZDS_LATEX_REPO
         TEMPLATEDIR=$HOME/.texlive/texmf-local/tex/latex/
@@ -110,6 +110,6 @@ if [[ "$ZDS_TEST_JOB" == *"zds.tutorialv2"* ]]; then
     zds_fold_end
 fi
 
-zds_fold_start "register_module" "* Register module for installation"
+zds_fold_start "register_module" "* [packages] Register module for installation"
     zds_register_module_for_installation
 zds_fold_end
