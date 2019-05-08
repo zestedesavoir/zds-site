@@ -47,23 +47,10 @@
         return Array.prototype.slice.call(arrayish);
     }
 
-    function getFormSubmit(element) {
-        if (!element) {
-            return null;
-        }
-
-        if (element.tagName === "FORM") {
-            return element.querySelector(
-                "button[type=submit], input[type=submit]"
-            );
-        }
-
-        return getFormSubmit(element.parentElement);
-    }
-
     function setupPersistenceOnEditor(editor) {
         var name = editor.getAttribute("name") || "";
         var uniqueId = window.location.pathname + "@" + name;
+        var form = editor.closest("form");
 
         var savedText = get(uniqueId);
         if (savedText && !editor.value) {
@@ -77,12 +64,9 @@
             save(uniqueId, editor.value); // TODO: Throttle?
         });
 
-        var submit = getFormSubmit(editor);
-        if (submit) {
-            submit.addEventListener("click", function () {
-                remove(uniqueId);
-            });
-        }
+        form.addEventListener("submit", function (e) {
+            remove(uniqueId);
+        });
     }
 
     toArray(document.querySelectorAll(".md-editor"))
