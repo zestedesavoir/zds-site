@@ -33,8 +33,6 @@ activate_env "./$ZDS_VENV"
 
 	run_script "start_elasticsearch"
 
-	run_script "lint_backend"
-
 	run_script "test_backend"
 
 	run_script "lint_frontend"
@@ -47,6 +45,8 @@ activate_env "./$ZDS_VENV"
 # Use hack for virtualenv (fix some task with "command not found")
 
 activate_env "$HACK_VIRTUALENV"
+
+	run_script "lint_backend"
 
 	run_script "coverage_backend"
 
