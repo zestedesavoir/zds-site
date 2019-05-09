@@ -33,15 +33,15 @@ env:
 
 jobs:
   include:
-    - name: tuto
+    - name: "Job 1 : tuto (zds.tutorialv2)"
       env: ZDS_TEST_JOB="zds.tutorialv2"
-    - name: "test1 : member utils forum"
+    - name: "Job 2 : test1 (zds.member zds.utils zds.forum)"
       env: ZDS_TEST_JOB="zds.member zds.utils zds.forum"
-    - name: "test2 : front mp gallery pages featured notification searchv2"
+    - name: "Job 3 : front & test2 (zds.mp zds.gallery zds.pages zds.featured zds.notification zds.searchv2)"
       env: ZDS_TEST_JOB="front zds.mp zds.gallery zds.pages zds.featured zds.notification zds.searchv2"
-    - name: selenium
+    - name: "Job 4 : selenium"
       env: ZDS_TEST_JOB="selenium"
-    - name: doc
+    - name: "Job 5 : doc"
       env: ZDS_TEST_JOB="doc"
 
 
