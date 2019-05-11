@@ -4,7 +4,7 @@
 (function(document){
     "use strict";
 
-    var MAX_SAVED_ENTRIES = 32;
+    var MAX_SAVED_ENTRIES = 64;
 
     function getSavedEntries() {
         var source = localStorage.getItem("savedEditorText");
@@ -61,7 +61,13 @@
         editor.addEventListener("input", function() {
             // It’s not a big deal, but this event is not fired when
             // editor buttons are clicked.
-            save(uniqueId, editor.value); // TODO: Throttle?
+
+            // Do not save anything if the editor is empty
+            if(editor.value === "") {
+                remove(uniqueId);
+            } else {
+                save(uniqueId, editor.value); // TODO: Throttle?
+            }
         });
 
         form.addEventListener("submit", function (e) {
