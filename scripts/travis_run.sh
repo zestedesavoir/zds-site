@@ -1,6 +1,11 @@
 #!/bin/bash
 
 
+if [[ "$ZDS_TEST_JOB" == "none" ]]; then
+    exit 0
+fi
+
+
 function print_info {
     echo -en "\033[0;36m"
     echo "$1"
