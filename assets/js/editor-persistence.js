@@ -4,7 +4,7 @@
 (function(document){
     "use strict";
 
-    var MAX_SAVED_ENTRIES = 32;
+    var MAX_SAVED_ENTRIES = 64;
 
     function getSavedEntries() {
         var source = localStorage.getItem("savedEditorText");
@@ -47,23 +47,10 @@
         return Array.prototype.slice.call(arrayish);
     }
 
-    function getFormSubmit(element) {
-        if (!element) {
-            return null;
-        }
-
-        if (element.tagName === "FORM") {
-            return element.querySelector(
-                "button[type=submit], input[type=submit]"
-            );
-        }
-
-        return getFormSubmit(element.parentElement);
-    }
-
     function setupPersistenceOnEditor(editor) {
         var name = editor.getAttribute("name") || "";
         var uniqueId = window.location.pathname + "@" + name;
+        var form = editor.closest("form");
 
         var savedText = get(uniqueId);
         if (savedText && !editor.value) {
@@ -74,15 +61,18 @@
         editor.addEventListener("input", function() {
             // It’s not a big deal, but this event is not fired when
             // editor buttons are clicked.
-            save(uniqueId, editor.value); // TODO: Throttle?
+
+            // Do not save anything if the editor is empty
+            if(editor.value === "") {
+                remove(uniqueId);
+            } else {
+                save(uniqueId, editor.value); // TODO: Throttle?
+            }
         });
 
-        var submit = getFormSubmit(editor);
-        if (submit) {
-            submit.addEventListener("click", function () {
-                remove(uniqueId);
-            });
-        }
+        form.addEventListener("submit", function (e) {
+            remove(uniqueId);
+        });
     }
 
     toArray(document.querySelectorAll(".md-editor"))

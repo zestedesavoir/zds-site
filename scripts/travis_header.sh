@@ -110,6 +110,8 @@ if [[ "$ZDS_TEST_JOB" == *"zds.tutorialv2"* ]]; then
     zds_fold_end
 fi
 
-zds_fold_start "register_module" "* [packages] Register module for installation"
-    zds_register_module_for_installation
-zds_fold_end
+if [[ "$ZDS_TEST_JOB" != "none" ]]; then
+    zds_fold_start "register_module" "* [packages] Register module for installation"
+        zds_register_module_for_installation
+    zds_fold_end
+fi

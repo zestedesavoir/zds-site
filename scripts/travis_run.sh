@@ -1,6 +1,11 @@
 #!/bin/bash
 
 
+if [[ "$ZDS_TEST_JOB" == "none" ]]; then
+    exit 0
+fi
+
+
 function print_info {
     echo -en "\033[0;36m"
     echo "$1"
@@ -33,8 +38,6 @@ activate_env "./$ZDS_VENV"
 
 	run_script "start_elasticsearch"
 
-	run_script "lint_backend"
-
 	run_script "test_backend"
 
 	run_script "lint_frontend"
@@ -47,6 +50,8 @@ activate_env "./$ZDS_VENV"
 # Use hack for virtualenv (fix some task with "command not found")
 
 activate_env "$HACK_VIRTUALENV"
+
+	run_script "lint_backend"
 
 	run_script "coverage_backend"
 

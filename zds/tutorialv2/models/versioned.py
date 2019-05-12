@@ -16,8 +16,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.template.loader import render_to_string
 
 from zds.tutorialv2.models.mixins import TemplatableContentModelMixin
-from zds.tutorialv2.utils import default_slug_pool, export_content, get_commit_author, InvalidOperationError,\
-    FailureDuringPublication
+from zds.tutorialv2.utils import default_slug_pool, export_content, get_commit_author, InvalidOperationError
 from zds.utils.misc import compute_hash
 from zds.tutorialv2.models import SINGLE_CONTAINER_CONTENT_TYPES, CONTENT_TYPES_BETA, CONTENT_TYPES_REQUIRING_VALIDATION
 from zds.tutorialv2.utils import get_blob, InvalidSlugError, check_slug
@@ -321,8 +320,8 @@ class Container:
 
         :param relative: if ``True``, the path will be relative, absolute otherwise.
         :type relative: bool
-        :param os_sensitive: if ```True`` will use os.path.join to ensure compatibility with all OS, otherwise \\
-        will build with ``/``, mainly for urls.
+        :param os_sensitive: if ``True`` will use os.path.join to ensure compatibility with all OS, otherwise \\
+                             will build with ``/``, mainly for urls.
         :return: physical path
         :rtype: str
         """
@@ -829,6 +828,7 @@ class Container:
             with file_path.open('w', encoding='utf-8') as f:
                 f.write(emarkdown(content, db_object.js_support))
         except (UnicodeError, UnicodeEncodeError):
+            from zds.tutorialv2.publication_utils import FailureDuringPublication
             raise FailureDuringPublication(
                 _("Une erreur est survenue durant la publication de l'introduction de « {} »,"
                   ' vérifiez le code markdown').format(self.title))
