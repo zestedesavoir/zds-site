@@ -49,7 +49,7 @@
     {% if content.image %}
         {% if request.GET.twittercard == "large"  %}
             {{ content.image.physical|thumbnail_url:'social_network_large' }}
-        {% else %}}
+        {% else %}
             {{ content.image.physical|thumbnail_url:'social_network' }}
         {% endif %}
     {% else %}
