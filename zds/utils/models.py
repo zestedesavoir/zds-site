@@ -527,7 +527,7 @@ class Alert(models.Model):
                                 related_name='alerts_on_this_profile',
                                 db_index=True,
                                 null=True,
-                                blank=True)
+                                blank=True, on_delete=models.CASCADE)
     content = models.ForeignKey('tutorialv2.PublishableContent',
                                 verbose_name='Contenu',
                                 related_name='alerts_on_this_content',
