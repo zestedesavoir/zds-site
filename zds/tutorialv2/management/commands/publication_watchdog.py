@@ -24,12 +24,15 @@ class Command(BaseCommand):
                 executor.shutdown(wait=False)
 
     @staticmethod
-    def get_callback_of(publication_event: PublicationEvent):
+    def get_callback_of(publication_event: PublicationEvent, logger: logging.Logger):
         def callback(future: Future):
             if future.done() and not future.exception():
                 publication_event.state_of_processing = 'SUCCESS'
             elif future.cancelled() or future.exception():
                 publication_event.state_of_processing = 'FAILURE'
+                if future.exception():
+                    logger.exception('error while producing %s of %s', publication_event.format_requested,
+                                     publication_event.published_object.title(), exc_info=future.exception())
             publication_event.save()
         return callback
 
@@ -46,10 +49,10 @@ class Command(BaseCommand):
                                                'extra_contents', content.content_public_slug)
             if not building_extra_content_path.exists():
                 building_extra_content_path.mkdir(parents=True)
-            base_name = str(Path(str(building_extra_content_path), content.content_public_slug))
+            base_name = str(building_extra_content_path)
             md_file_path = base_name + '.md'
 
             future = executor.submit(publicator.publish, md_file_path, base_name)
             publication_event.state_of_processing = STATE_CHOICES[1][0]
             publication_event.save()
-            future.add_done_callback(Command.get_callback_of(publication_event))
+            future.add_done_callback(Command.get_callback_of(publication_event, logger))
