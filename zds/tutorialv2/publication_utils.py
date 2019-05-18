@@ -325,7 +325,9 @@ class ZmarkdownHtmlPublicator(Publicator):
 
         with open(html_file_path, mode='w', encoding='utf-8') as final_file:
             final_file.write(html_flat_content)
-        shutil.move(html_file_path, published_content_entity.get_extra_contents_directory())
+        shutil.move(html_file_path, str(
+            Path(published_content_entity.get_extra_contents_directory(),
+                 published_content_entity.content_public_slug + '.html')))
 
 
 @PublicatorRegistry.register('pdf')
