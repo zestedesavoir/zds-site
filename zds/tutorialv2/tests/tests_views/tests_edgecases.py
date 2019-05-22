@@ -19,14 +19,16 @@ class ContentTests(TutorialTestMixin, TestCase):
     def no_bad_slug_renaming_on_rename(self):
         """
         this test embodies the #5320 issue (first case simple workflow):
+
         - create an opinion with title "title"
         - create an article with the same title => it gets "-1" slug
         - rename opinion
+        - make any update to article
         - try to access article
         """
-        opinion: PublishableContent = PublishedContentFactory(type='OPINION', title='title',
+        opinion = PublishedContentFactory(type='OPINION', title='title',
                                                               author_list=[self.author.user], licence=self.licence)
-        article: PublishableContent = PublishedContentFactory(type='ARTICLE', title='title',
+        article = PublishedContentFactory(type='ARTICLE', title='title',
                                                               author_list=[self.author.user], licence=self.licence)
         # login with author
         self.assertEqual(

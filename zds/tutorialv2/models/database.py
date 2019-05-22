@@ -384,6 +384,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
             data = get_blob(repo.commit(sha).tree, 'manifest.json')
             try:
                 json = json_handler.loads(data)
+                logger.debug('loaded json')
             except ValueError:
                 raise BadManifestError(
                     _('Une erreur est survenue lors de la lecture du manifest.json, est-ce du JSON ?'))
@@ -565,7 +566,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
             except ValueError as e:
                 logger.warning(e)
 
-        self.save()
+        self.save(force_slug_update=False)
 
     def requires_validation(self):
         """

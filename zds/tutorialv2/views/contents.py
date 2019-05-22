@@ -324,7 +324,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
             publishable.image = img
 
         publishable.save(force_slug_update=title_is_changed)
-
+        logger.debug('is changed %s %s', publishable.pk, publishable.slug)
         # now, update the versioned information
         versioned.description = form.cleaned_data['description']
         versioned.licence = form.cleaned_data['licence']
@@ -334,7 +334,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
                                                   form.cleaned_data['introduction'],
                                                   form.cleaned_data['conclusion'],
                                                   form.cleaned_data['msg_commit'])
-
+        logger.debug('after repo update %s %s', publishable.pk, publishable.slug)
         # update relationships :
         publishable.sha_draft = sha
 
@@ -343,7 +343,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
             publishable.subcategory.add(subcat)
 
         publishable.tags.clear()
-        publishable.add_tags(form.cleaned_data['tags'].split(','))
+        publishable.add_tags(list(filter(None, form.cleaned_data['tags'].split(','))))
 
         # help can only be obtained on contents requiring validation before publication
         if versioned.requires_validation():
@@ -354,7 +354,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
         publishable.save(force_slug_update=False)
 
         self.success_url = reverse('content:view', args=[publishable.pk, publishable.slug])
-        return super(EditContent, self).form_valid(form)
+        return super().form_valid(form)
 
 
 class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteView):
@@ -809,7 +809,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                 # of course, need to update sha
                 self.object.sha_draft = sha
                 self.object.update_date = datetime.now()
-                self.object.save()
+                self.object.save(force_update_slug=False)
 
                 self.success_url = reverse('content:view', args=[versioned.pk, versioned.slug])
 
@@ -869,7 +869,7 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
 
                 # Attach user to gallery
                 self.object.gallery = gal
-                self.object.save()
+                self.object.save(force_slug_update=False)
 
                 # Add subcategories on tutorial
                 for subcat in form.cleaned_data['subcategory']:
@@ -877,7 +877,7 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
 
                 # We need to save the tutorial before changing its author list since it's a many-to-many relationship
                 self.object.authors.add(self.request.user)
-                self.object.save()
+                self.object.save(force_slug_update=False)
                 self.object.ensure_author_gallery()
                 # ok, now we can import
                 introduction = ''
@@ -929,7 +929,7 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
                 # of course, need to update sha
                 self.object.sha_draft = sha
                 self.object.update_date = datetime.now()
-                self.object.save()
+                self.object.save(force_slug_update=False)
 
                 self.success_url = reverse('content:view', args=[versioned.pk, versioned.slug])
 
@@ -968,7 +968,7 @@ class CreateContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin, F
         # then save:
         self.object.sha_draft = sha
         self.object.update_date = datetime.now()
-        self.object.save()
+        self.object.save(force_slug_update=False)
 
         self.success_url = parent.children[-1].get_absolute_url()
 
@@ -1114,7 +1114,7 @@ class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin, For
         # then save
         self.object.sha_draft = sha
         self.object.update_date = datetime.now()
-        self.object.save()
+        self.object.save(force_slug_update=True)
 
         self.success_url = container.get_absolute_url()
 
@@ -1152,7 +1152,7 @@ class CreateExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin, For
         # then save
         self.object.sha_draft = sha
         self.object.update_date = datetime.now()
-        self.object.save()
+        self.object.save(force_slug_update=False)
 
         self.success_url = parent.children[-1].get_absolute_url()
 
@@ -1777,7 +1777,7 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
                     hat=get_hat_from_settings('validation'),
                 )
                 UserGallery(gallery=self.object.gallery, user=user, mode=GALLERY_WRITE).save()
-        self.object.save()
+        self.object.save(force_slug_update=False)
         self.success_url = self.object.get_absolute_url()
 
         return super(AddAuthorToContent, self).form_valid(form)
