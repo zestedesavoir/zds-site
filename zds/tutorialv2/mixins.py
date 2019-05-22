@@ -70,7 +70,7 @@ class SingleContentViewMixin(object):
         except ValueError as badvalue:
             raise Http404("La valeur du paramètre pk '{}' n'est pas un entier valide.".format(badvalue))
 
-        queryset = PublishableContent.objects
+        queryset = queryset or PublishableContent.objects
 
         if self.prefetch_all:
             queryset = queryset.\
@@ -195,7 +195,7 @@ class FormWithPreview(FormView):
                 content = render_to_string('misc/preview.part.html', {'text': request.POST.get('text')})
                 return StreamingHttpResponse(content)
 
-        return super(FormWithPreview, self).post(request, *args, **kwargs)
+        return super().post(request, *args, **kwargs)
 
 
 class SingleContentFormViewMixin(SingleContentViewMixin, ModalFormView):
