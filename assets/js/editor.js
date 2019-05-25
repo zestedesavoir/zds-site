@@ -159,6 +159,14 @@
         },
 
         init: function() {
+            for(var category in this.smilies)
+            {
+                for(var name in this.smilies[category])
+                {
+                    var smiley = this.smilies[category][name];
+                    smiley.start = " " + smiley.start + " ";
+                }
+            }
             var self = this,
                 listTexta = document.getElementsByTagName("textarea");
 
