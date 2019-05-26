@@ -266,8 +266,8 @@
              " class="ico-after more blue new-btn">
                 {% trans "Ajouter une section" %}
             </a>
-        {%  endif %}
-    {% elif version or version != content.sha_draf %}
+        {% endif %}
+
         <a href="{{ object.get_absolute_url }}" class="ico-after arrow-right blue new-btn">
             {% trans "Version brouillon" %}
         </a>
