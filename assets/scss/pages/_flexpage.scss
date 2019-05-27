@@ -54,10 +54,9 @@ $content-width: 1145px;
         .picto {
             position: absolute;
             left: 50px;
-            top: 50px;
             width: 104px;
             height: 60.04px;
-            margin: 30.02px 25px 30.02px 25px;
+            margin: 30.02px 50px;
             background: rgba(0, 0, 0, 0.2);
 
             &:before, &:after {
@@ -88,11 +87,10 @@ $content-width: 1145px;
                 left: 2px;
             }
         }
-
-        .member-avatar {
+        
+        .avatar {
             position: absolute;
             left: 50px;
-            top: 50px;
 
             img {
                 position: absolute;
@@ -100,39 +98,32 @@ $content-width: 1145px;
                 height: 145px;
             }
         }
-
-        .member-follow {
+        
+        .actions {
             position: absolute;
             right: 0px;
-            top: 50px;
             width: 230px;
 
             button, .btn-ico {
-                text-transform: uppercase;
-                background-color: saturate($color-primary, 5%);
                 width: 100%;
-                font-size: 0.7em;
-                margin-bottom: 5px;
+                padding: 0;
                 margin-top: 5px;
+                margin-bottom: 5px;
+                background: saturate($color-primary, 5%);
+
+                color: white;
+                text-align: center;
+                text-transform: uppercase;
+                font-size: 0.7em;
+                font-weight: 400;
+                
                 #subscriber_count {
                     margin-left: 10px;
                 }
                 
-                &:hover {
+                &:hover,
+                &:focus {
                     background: $color-header-hover !important;
-                }
-            }
-
-            a.btn-ico {
-                @extend .btn;
-                padding: 0px;
-                span {
-                    text-align: center;
-                    display: block;
-                }
-                
-                &:hover {
-                    background: $color-header-hover;
                 }
             }
         }
@@ -207,9 +198,10 @@ $content-width: 1145px;
             }
         }
 
-        @mixin block-center {
+        .aside {
             display: flex;
             margin-top: 10px;
+            margin-right: 150px;
             height: 50px;
 
             .search {
@@ -253,27 +245,15 @@ $content-width: 1145px;
                 }
             }
         }
-
-        .title-center {
-            margin-right: 250px;
-            @extend .title;
-        }
-
-        .aside {
-            margin-right: 150px;
-            @include block-center;
-        }
-
-        .aside-center {
-            margin-right: 250px;
-            @include block-center;
-        }
     }
 }
 
-body.userprofilepage {
-    .flexpage-title-tool {
-        padding-right:0;
+@media only screen and #{$media-wide} {
+    .flexpage-title-tool .actions {
+        & ~ .title,
+        & ~ .aside {
+            margin-right: 200px;
+        }
     }
 }
 
@@ -294,20 +274,30 @@ body.userprofilepage {
         }
 
         .flexpage-title-tool {
-            padding: 15px 0;
+            padding: 15px 25px;
 
-            .picto, .member-avatar, .member-follow {
+            .picto,
+            .avatar,
+            .actions {
                 display: none;
             }
 
-            .aside,
-            .title-center,
-            .aside-center {
+            .aside {
                 max-width: 100%;
-                margin-right: 0;
             }
+        }
+    }
+}
 
-            .aside-center { .search label {
+@media only screen and #{$media-mobile} {
+    .flexpage {
+        .flexpage-title-tool {
+            padding: 15px 0;
+
+            .aside {
+                margin-right: 0;
+
+                .search label {
                     padding-right: 5px;
                 }
             }
