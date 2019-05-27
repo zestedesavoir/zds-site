@@ -73,6 +73,7 @@ function zds_stop_zmd {
 
 function gateway {
     if [[ $2 != 0 ]]; then
+        zds_fold_end
         print_error "$1"
         exit $2
     fi
