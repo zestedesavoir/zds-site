@@ -46,14 +46,14 @@ activate_env "./$ZDS_VENV"
 
 	run_script "selenium_test"
 
+	run_script "coverage_backend"
+
 
 # Use hack for virtualenv (fix some task with "command not found")
 
 activate_env "$HACK_VIRTUALENV"
 
 	run_script "lint_backend"
-
-	run_script "coverage_backend"
 
 	run_script "build_documentation"
 

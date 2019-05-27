@@ -14,7 +14,7 @@ from django.conf import settings
 from zds.featured.forms import FeaturedResourceForm, FeaturedMessageForm
 from zds.featured.models import FeaturedResource, FeaturedMessage
 from zds.forum.models import Topic
-from zds.tutorialv2.models.database import PublishedContent
+from zds.tutorialv2.models.database import PublishableContent
 from zds.utils.paginator import ZdSPagingListView
 
 
@@ -66,8 +66,10 @@ class FeaturedResourceCreate(CreateView):
 
     def get_initial_content_data(self, content_id):
         try:
-            content = PublishedContent.objects.filter(must_redirect=False, content__pk=int(content_id)).first()
-        except (PublishedContent.DoesNotExist, ValueError):
+            content = PublishableContent.objects.get(pk=int(content_id)).public_version
+            if not content:
+                raise ValueError('Not a public content')
+        except (PublishableContent.DoesNotExist, ValueError):
             messages.error(self.request, self.initial_error_message)
             return {}
         displayed_authors = ', '.join([str(x) for x in content.authors.all()])

@@ -60,6 +60,9 @@ if [[ "$1" == "coverage_backend" ]] && [[ "$ZDS_TEST_JOB" == *"zds."* ]]; then
             exit 1
         fi
 
+        export PATH="$PATH:/home/travis/build/zestedesavoir/zds-site/geckodriver"
+        export DISPLAY=":99.0"
+
         coverage run --source='.' manage.py \
             test -v=2\
             --keepdb \
@@ -68,7 +71,7 @@ if [[ "$1" == "coverage_backend" ]] && [[ "$ZDS_TEST_JOB" == *"zds."* ]]; then
             ${ZDS_TEST_JOB/front/}
 
         #pm2 kill :
-        ./zmd/node_modules/pm2/bin/pm2.js kill; exVal=$?
+        pm2 kill; exVal=$?
 
         if [[ $exVal != 0 ]]; then
             print_error "Warning: Cannot stop zmd"

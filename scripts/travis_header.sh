@@ -39,13 +39,9 @@ function zds_register_module_for_installation {
 
 
 function install_geckodriver {
-    if [[ "$ZDS_TEST_JOB" == *"selenium"* ]]; then
-        wget "https://github.com/mozilla/geckodriver/releases/download/v0.23.0/geckodriver-v0.23.0-linux64.tar.gz" \
-            && mkdir "geckodriver" \
-            && tar -xzf "geckodriver-v0.23.0-linux64.tar.gz" -C "geckodriver" \
-            && export PATH="$PATH:$PWD/geckodriver" \
-            && export DISPLAY=":99.0"
-    fi
+    wget "https://github.com/mozilla/geckodriver/releases/download/v0.23.0/geckodriver-v0.23.0-linux64.tar.gz"
+    mkdir "geckodriver"
+    tar -xzf "geckodriver-v0.23.0-linux64.tar.gz" -C "geckodriver"
 }
 
 
@@ -102,11 +98,13 @@ if [[ "$ZDS_TEST_JOB" == *"zds.tutorialv2"* ]]; then
         # this script is faster than zds_install.sh +tex-local +latex-template
         git clone $ZDS_LATEX_REPO
         TEMPLATEDIR=$HOME/.texlive/texmf-local/tex/latex/
-        ./latex-template/scripts/install_font.sh \
-        && ./latex-template/scripts/install_texlive.sh \
-        && export PATH=$HOME/.texlive/bin/x86_64-linux:$PATH \
-        && rm -rf $TEMPLATEDIR/latex-template \
-        && mkdir -p $TEMPLATEDIR  && cp -r ./latex-template $TEMPLATEDIR && texhash
+        ./latex-template/scripts/install_font.sh
+        ./latex-template/scripts/install_texlive.sh
+        export PATH=$HOME/.texlive/bin/x86_64-linux:$PATH
+        rm -rf $TEMPLATEDIR/latex-template
+        mkdir -p $TEMPLATEDIR
+        cp -r ./latex-template $TEMPLATEDIR
+        texhash
     zds_fold_end
 fi
 
