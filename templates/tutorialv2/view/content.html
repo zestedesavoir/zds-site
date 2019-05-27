@@ -181,7 +181,7 @@
                 <ul>
                     <li>
                         <a href="{% url "content:create-container" content.pk content.slug %}">{% trans "Ajouter une partie" %}</a>
-                        {% trans " pour adopter le format big-tuto ou moyen-tuto. Vous pourrez y ajouter des chapitres ou des sections ;" %} 
+                        {% trans " pour adopter le format big-tuto ou moyen-tuto. Vous pourrez y ajouter des chapitres ou des sections ;" %}
                     </li>
                     <li>
                         <a href="{% url "content:create-extract" content.pk content.slug %}">{% trans "Ajouter une section" %}</a>
@@ -276,7 +276,6 @@
             {% trans "Importer une nouvelle version" %}
         </a>
 
-    {% else %}
         <a href="{{ object.get_absolute_url }}" class="ico-after arrow-right blue new-btn">
             {% trans "Version brouillon" %}
         </a>
