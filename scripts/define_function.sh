@@ -60,6 +60,7 @@ function zds_start_zmd {
     fi
 }
 
+
 function zds_stop_zmd {
     pm2 kill; exVal=$?
 
@@ -68,6 +69,14 @@ function zds_stop_zmd {
     fi
 }
 ## end
+
+
+function gateway {
+    if [[ $2 != 0 ]]; then
+        print_error "$1"
+        exit $2
+    fi
+}
 
 
 ## start print function
