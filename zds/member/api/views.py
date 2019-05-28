@@ -163,7 +163,7 @@ class MemberExistsAPI(ListAPIView):
               user doesn't exists.
         """
         r = self.list(request, *args, **kwargs)
-        if r.data['count'] is 0:
+        if r.data['count'] == 0:
             return Response(r.data, status=status.HTTP_404_NOT_FOUND)
         return r
 

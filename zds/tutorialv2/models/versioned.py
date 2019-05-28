@@ -783,7 +783,7 @@ class Container:
         :rtype: bool
         """
         if self.get_tree_depth() == 2:
-                return True
+            return True
         return False
 
     def next_level_is_chapter(self):
@@ -793,7 +793,7 @@ class Container:
         :rtype: bool
         """
         if self.get_tree_depth() == 1 and self.can_add_container():
-                return True
+            return True
         return False
 
     def can_be_in_beta(self):
