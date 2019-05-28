@@ -75,32 +75,45 @@ class MemberDetail(DetailView):
         # sent through emarkdown parser).
         return get_object_or_404(User, username=urlunquote(self.kwargs['user_name']))
 
-    def get_summary(self, profile):
-        summary = []
+    def get_summaries(self, profile):
+        summaries = []
+
         if self.request.user.has_perm('member.change_post'):
             count_post = profile.get_post_count_as_staff()
         else:
             count_post = profile.get_post_count()
+
+        count_topic = profile.get_topic_count()
         count_tutorials = profile.get_public_tutos().count()
         count_articles = profile.get_public_articles().count()
         count_opinions = profile.get_public_opinions().count()
-        count_draft = profile.get_draft_articles().count() + profile.get_draft_tutos().count()
+        #count_not_published_contents = profile.get_draft_contents().count() + profile.get_beta_contents().count() + profile.get_validate_contents().count()
 
+        summary = []
         if count_post > 0:
             summary.append(__('{} message{}').format(count_post, pluralize_fr(count_post)))
         else:
             summary.append(__('Aucun message'))
+        if count_topic > 0:
+            summary.append(__('{} sujet{}').format(count_topic, pluralize_fr(count_topic)))
+        summaries.append(__(' et ').join([', '.join(summary[:-1]), summary[-1]] if len(summary) > 2 else summary))
 
+        summary = []
+        if count_tutorials + count_articles + count_opinions == 0:
+            summary.append(__('Aucun contenu publié'))
         if count_tutorials > 0:
             summary.append(__('{} tutoriel{}').format(count_tutorials, pluralize_fr(count_tutorials)))
         if count_articles > 0:
             summary.append(__('{} article{}').format(count_articles, pluralize_fr(count_articles)))
         if count_opinions > 0:
             summary.append(__('{} billet{}').format(count_opinions, pluralize_fr(count_opinions)))
-        if count_draft > 0:
-            summary.append(__('{} contenu{} en rédaction').format(count_draft, pluralize_fr(count_draft)))
+        summaries.append(__(' et ').join([', '.join(summary[:-1]), summary[-1]] if len(summary) > 2 else summary))
 
-        return __(' et ').join([', '.join(summary[:-1]), summary[-1]] if len(summary) > 2 else summary)
+        #if count_not_published_contents > 0:
+        #    summaries.append(__('{} contenu{} en rédaction, en bêta ou en validation') \
+        #                     .format(count_not_published_contents, pluralize_fr(count_not_published_contents)))
+
+        return summaries
 
     def get_context_data(self, **kwargs):
         context = super(MemberDetail, self).get_context_data(**kwargs)
@@ -128,7 +141,7 @@ class MemberDetail(DetailView):
             context['karmaform'] = KarmaForm(profile)
             context['alerts'] = profile.alerts_on_this_profile.all()
 
-        context['summary'] = self.get_summary(profile)
+        context['summaries'] = self.get_summaries(profile)
         return context
 
 

@@ -123,6 +123,7 @@ $content-width: 1145px;
                 
                 &:hover,
                 &:focus {
+                    color: white !important;
                     background: $color-header-hover !important;
                 }
             }
