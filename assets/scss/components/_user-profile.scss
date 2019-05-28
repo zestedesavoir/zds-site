@@ -1,10 +1,8 @@
 body.userprofilepage {
-    .flexpage-header {
-        margin-bottom: 0;
-    }
     .subheader {
         display: flex;
         flex-wrap: wrap-reverse;
+        margin-top: -20px;
 
         .hatlist {
             flex: 1;
