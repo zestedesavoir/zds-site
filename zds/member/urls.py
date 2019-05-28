@@ -7,7 +7,7 @@ from zds.member.views import MemberList, MemberDetail, UpdateMember, UpdateGitHu
     generate_token_account, unregister, warning_unregister, BannedEmailProvidersList, NewEmailProvidersList, \
     AddBannedEmailProvider, remove_banned_email_provider, check_new_email_provider, MembersWithProviderList, \
     HatsSettings, RequestedHatsList, HatRequestDetail, add_hat, remove_hat, solve_hat_request, HatsList, HatDetail, \
-    SolvedHatRequestsList
+    SolvedHatRequestsList, CreateProfileReportView, SolveProfileReportView
 
 urlpatterns = [
     # list
@@ -32,6 +32,8 @@ urlpatterns = [
             name='update-username-email-member'),
 
     # moderation
+    re_path(r'^profil/signaler/(?P<profile_pk>\d+)/$', CreateProfileReportView.as_view(), name='report-profile'),
+    re_path(r'^profil/resoudre/(?P<alert_pk>\d+)/$', SolveProfileReportView.as_view(), name='solve-profile-alert'),
     re_path(r'^profil/karmatiser/$', modify_karma, name='member-modify-karma'),
     re_path(r'^profil/modifier/(?P<user_pk>\d+)/$',
             modify_profile, name='member-modify-profile'),
