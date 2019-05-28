@@ -6,10 +6,10 @@ django-debug-toolbar==1.11
 flake8==3.7.7
 flake8_quotes==2.0.1
 autopep8==1.4.4
-sphinx==1.8.2
+sphinx==2.0.1
 selenium==3.14.1
 sphinx_rtd_theme==0.4.3
 faker==0.8.12
-mock==3.0.4
+mock==3.0.5
 colorlog==3.1.2
 django-extensions==2.1.6

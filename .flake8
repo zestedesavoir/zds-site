@@ -12,4 +12,4 @@ exclude =
     zds/settings
 
 # Ignore N802 (functions in lowercase) because the setUp() function in tests
-ignore = N802,E722
+ignore = N802,E722,W504,Q003,W605
