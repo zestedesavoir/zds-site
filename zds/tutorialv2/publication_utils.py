@@ -428,7 +428,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
             logging.info('published latex=%s, pdf=%s', published_content_entity.has_type('tex'),
                          published_content_entity.has_type(self.doc_type))
 
-    def full_tex_compiler_call(self, latex_file, draftmode: str=''):
+    def full_tex_compiler_call(self, latex_file, draftmode: str = ''):
         success_flag = self.tex_compiler(latex_file, draftmode)
         if not success_flag:
             handle_tex_compiler_error(latex_file, self.extension)
@@ -438,7 +438,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
             errors = '\n'.join(filter(line for line in latex_log if 'fatal' in line.lower() or 'error' in line.lower()))
         raise FailureDuringPublication(errors)
 
-    def tex_compiler(self, texfile, draftmode: str=''):
+    def tex_compiler(self, texfile, draftmode: str = ''):
         command = 'lualatex -shell-escape -interaction=nonstopmode {} {}'.format(draftmode, texfile)
         command_process = subprocess.Popen(command,
                                            shell=True, cwd=path.dirname(texfile),

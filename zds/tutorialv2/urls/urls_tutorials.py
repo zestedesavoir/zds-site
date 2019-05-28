@@ -40,7 +40,7 @@ urlpatterns = [
             name='download-tex'),
 
     #  Old beta url compatibility
-    re_path('^beta/(?P<pk>\d+)/(?P<slug>.+)',
+    re_path(r'^beta/(?P<pk>\d+)/(?P<slug>.+)',
             RedirectOldBetaTuto.as_view(), name='old-beta-url'),
 
     # Listing

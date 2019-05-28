@@ -294,7 +294,7 @@ def load_categories_content(cli, size, fake, *_, **__):
     lics = ['CB-BY', 'CC-BY-ND', 'CC-BY-ND-SA', 'CC-BY-SA', 'CC', 'CC-BY-IO', 'Tout-Droits']
     for lic in lics:
         ex = Licence.objects.filter(code=lic).all()
-        if len(ex) is 0:
+        if len(ex) == 0:
             licence = Licence(code=lic, title=lic, description='')
             licence.save()
             cli.stdout.write('Note: ajout de la licence {}'.format(lic))
