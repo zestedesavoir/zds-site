@@ -1,10 +1,10 @@
 (function ($) {
-    $(".export-button").click(function (e) {
+    $("[data-export-button]").click(function (e) {
         e.preventDefault();
-        var $link = $(e.target);
-        var url = $link.attr("href");
+        var $button = $(e.target);
+        var url = $button.data("export-button");
         var csrf = $("input[name=csrfmiddlewaretoken]").val();
-        $link.prop("disabled", true);
+        $button.prop("disabled", true);
         $.ajax(url, {
             method: "POST",
             headers: {
