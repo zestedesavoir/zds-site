@@ -278,9 +278,9 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{% url "api:content:generate_export" content.pk %}" class="ico-after pdf blue export-button">
-                        {% trans "Exporter le tutoriel (epub, pdf, latex...)" %}
-                    </a>
+                    <button data-export-button="{% url "api:content:generate_export" content.pk %}" class="ico-after gear blue">
+                        {% trans "Exporter le contenu (epub, pdf, latex...)" %}
+                    </button>
                 </li>
                 {% if is_staff %}
                     {% if content.requires_validation %}

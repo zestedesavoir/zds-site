@@ -73,7 +73,7 @@ gulp.task('js', () =>
         'assets/js/charts.js',
         'assets/js/close-alert-box.js',
         'assets/js/compare-commits.js',
-        'assets/js/content_export.js',
+        'assets/js/content-export.js',
         'assets/js/content-publication-readiness.js',
         'assets/js/dropdown-menu.js',
         'assets/js/editor.js',
