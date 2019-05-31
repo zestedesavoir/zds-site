@@ -70,7 +70,7 @@
             }
         });
 
-        form.addEventListener("submit", function (e) {
+        form.addEventListener("submit", function () {
             remove(uniqueId);
         });
     }
