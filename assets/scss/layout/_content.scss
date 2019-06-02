@@ -74,8 +74,13 @@
 
     .article-content,
     .message-content {
-        margin-top: 20px;
-        margin-bottom: 20px;
+        .lev-1,
+        .lev-2
+        .lev-3
+        .lev-4 {
+            margin-top: 14px;
+            margin-bottom: 14px;
+        }
         color: #424242;
 
         @import "base/content";
