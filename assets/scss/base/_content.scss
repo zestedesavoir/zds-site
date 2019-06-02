@@ -10,7 +10,7 @@ h3 {
     &,
     a {
         color: darken($color-secondary, 11%);
-        margin-top: 40px;
+        // margin-top: 40px;
         text-decoration: none;
     }
 
@@ -249,7 +249,7 @@ h6 {
     background: #EEE;
 }
 
- 
+
 
 img {
     max-width: 100%;
@@ -431,7 +431,7 @@ td {
     margin: 0 auto;
     max-width: 560px;
     max-height: 315px;
-    
+
     // Needed in case .video-container is wrapped with <div class="align-center"> or with <figure>
     text-align: left;
 
