@@ -12,21 +12,23 @@
 <head>
     <meta charset="utf-8">
 
-    <title>
-        {% captureas title %}
-            {% captureas title_blocks %}
-                {% block title %}{% endblock %}
-                {% block title_base %}{% endblock %}
+    {% spaceless %}
+        <title>
+            {% captureas title %}
+                {% captureas title_blocks %}
+                    {% block title %}{% endblock %}
+                    {% block title_base %}{% endblock %}
+                {% endcaptureas %}
+                {% if title_blocks %}
+                    {{ title_blocks|safe }}
+                    &bull;
+                {% endif %}
+                {{app.site.literal_name}}
             {% endcaptureas %}
-            {% if title_blocks %}
-                {{ title_blocks|safe }}
-                &bull;
-            {% endif %}
-            {{app.site.literal_name}}
-        {% endcaptureas %}
-        {{ title|safe }}
-    </title>
-
+            {{ title|safe }}
+        </title>
+    {% endspaceless %}
+g
     <meta name="language" content="fr">
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0">
 
