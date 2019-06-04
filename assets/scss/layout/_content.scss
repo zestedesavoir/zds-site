@@ -74,13 +74,12 @@
 
     .article-content,
     .message-content {
-        .lev-1,
-        .lev-2
-        .lev-3
-        .lev-4 {
-            margin-top: 14px;
-            margin-bottom: 14px;
+        h3, h4, h5, h6 {
+            &:first-child {
+                margin-top: 14px;
+            }
         }
+        margin-bottom: 20px;
         color: #424242;
 
         @import "base/content";
