@@ -2,12 +2,20 @@
 {% load i18n %}
 
 
-{% with status=member|state %}
-    {% if status == 'DOWN'%}
-        <span class="badge-sanction {% if push_badge %}push-badge{% endif %}" title={% blocktrans %}"Compte inactif"{% endblocktrans %}>{% trans "Dead" %}</span>
-    {% elif status == 'BAN'%}
-        <span class="badge-sanction {% if push_badge %}push-badge{% endif %}">{% trans "Banni" %}</span>
-    {% elif status == 'LS'%}
-        <span class="badge-sanction {% if push_badge %}push-badge{% endif %}" title={% blocktrans %}"Lecture seule"{% endblocktrans %}>{% trans "LS" %}</span>
-    {% endif %}
-{% endwith %}
+{% spaceless %}
+    {% with status=member|state %}
+        {% if status == 'DOWN'%}
+            <span class="badge-sanction {% if push_badge %}push-badge{% endif %}" title="{% trans "Ce compte est inactif et désactivé." %}">
+                {% if long_badge|default:False %}{% trans "Compte inactif" %}{% else %}{% trans "Dead" %}{% endif %}
+            </span>
+        {% elif status == 'BAN'%}
+            <span class="badge-sanction {% if push_badge %}push-badge{% endif %}" title="{% trans "Cet utilisateur est banni : il ne peut se connecter ou interagir." %}">
+                {% trans "Banni" %}
+            </span>
+        {% elif status == 'LS'%}
+            <span class="badge-sanction {% if push_badge %}push-badge{% endif %}" title="{% trans "Cet utilisateur est en lecture seule : il peut se connecter, mais toute interaction est prohibée." %}">
+                {% if long_badge|default:False %}{% trans "Lecture seule" %}{% else %}{% trans "LS" %}{% endif %}
+            </span>
+        {% endif %}
+    {% endwith %}
+{% endspaceless %}

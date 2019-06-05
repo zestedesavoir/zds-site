@@ -90,15 +90,6 @@ class MemberDetail(DetailView):
         #count_not_published_contents = profile.get_draft_contents().count() + profile.get_beta_contents().count() + profile.get_validate_contents().count()
 
         summary = []
-        if count_post > 0:
-            summary.append(__('{} message{}').format(count_post, pluralize_fr(count_post)))
-        else:
-            summary.append(__('Aucun message'))
-        if count_topic > 0:
-            summary.append(__('{} sujet{}').format(count_topic, pluralize_fr(count_topic)))
-        summaries.append(__(' et ').join([', '.join(summary[:-1]), summary[-1]] if len(summary) > 2 else summary))
-
-        summary = []
         if count_tutorials + count_articles + count_opinions == 0:
             summary.append(__('Aucun contenu publié'))
         if count_tutorials > 0:
@@ -107,6 +98,15 @@ class MemberDetail(DetailView):
             summary.append(__('{} article{}').format(count_articles, pluralize_fr(count_articles)))
         if count_opinions > 0:
             summary.append(__('{} billet{}').format(count_opinions, pluralize_fr(count_opinions)))
+        summaries.append(__(' et ').join([', '.join(summary[:-1]), summary[-1]] if len(summary) > 2 else summary))
+
+        summary = []
+        if count_post > 0:
+            summary.append(__('{} message{}').format(count_post, pluralize_fr(count_post)))
+        else:
+            summary.append(__('Aucun message'))
+        if count_topic > 0:
+            summary.append(__('{} sujet{}').format(count_topic, pluralize_fr(count_topic)))
         summaries.append(__(' et ').join([', '.join(summary[:-1]), summary[-1]] if len(summary) > 2 else summary))
 
         #if count_not_published_contents > 0:

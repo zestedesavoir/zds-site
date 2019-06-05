@@ -93,7 +93,10 @@
 
     li {
         & {
-            margin-left: 1px;
+            margin-left: 4px;
+            > a.name {
+                padding: 0 1rem;
+            }
         }
     }
 }
