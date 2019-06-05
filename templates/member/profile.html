@@ -254,32 +254,6 @@
         </section>
     {% endif %}
 
-    {% if perms.member.change_profile and alerts %}
-        <hr class="clearfix" />
-        <section id="alerts" class="full-content-wrapper without-margin article-content opinion-alerts">
-            {% for alert in alerts %}
-                <div class="alert-box{% if not alert.solved %} error{% endif %}">
-                    {{ alert.pubdate|format_date|capfirst }} {% trans "par" %}
-                    {% include "misc/member_item.part.html" with member=alert.author %} :
-                    <em class="alert-box-text">{{ alert.text }}</em>
-                    {% if alert.solved %}
-                        <span class="close-alert-box close-alert-box-text">
-                            {% trans "Résolu par" %}
-                            {% include "misc/member_item.part.html" with member=alert.moderator %}
-                        </span>
-                    {% else %}
-                        <a href="#solve-alert-{{ alert.pk }}" class="open-modal close-alert-box close-alert-box-text">{% trans "Résoudre" %}</a>
-                        <form id="solve-alert-{{ alert.pk }}" method="post" action="{% url 'solve-profile-alert' alert.pk %}" class="modal modal-flex">
-                            <textarea name="text" class="input" placeholder="{% trans "Message à envoyer au membre ayant lancé l’alerte" %}"></textarea>
-                            {% csrf_token %}
-                            <button type="submit" class="button expand alert tiny">{% trans "Résoudre l’alerte" %}</button>
-                        </form>
-                    {% endif %}
-                </div>
-            {% endfor %}
-        </section>
-    {% endif %}
-
     {% if stats_filename and perms.member.change_profile %}
         <hr class="clearfix" />
         <section class="full-content-wrapper without-margin">
