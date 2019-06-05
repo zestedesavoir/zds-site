@@ -217,195 +217,212 @@
                     </div>
                 </div>
 
-                <div class="activity">
-                    <div class="content-linkbox-list">
-                        {% if profile.end_ban_read or profile.can_read %}
-                            {% if profile.site or profile.show_email %}
-                                <div class="linkbox-item primary">
-                                    {% if profile.site %}
-                                        <a href="{{ profile.site }}" class="tail" rel="me nofollow">
-                                            {% trans "Voir son site web" %}
-                                        </a>
+                {% captureas messages_count %}{% if perms.member.change_post %}{{ profile.get_post_count_as_staff }}{% else %}{{ profile.get_post_count }}{% endif %}{% endcaptureas %}
+
+
+
+                {% with topics_count=profile.get_topic_count messages_count=messages_count|add:"0" %}
+                    {% if profile.site or profile.show_email or public_tutos_count > 0 or articles_public_count > 0 or opinions_public_count > 0 or beta_tutos_count > 0 or beta_articles_count > 0 or topics_count > 0 or messages_count > 0 %}
+                        <div class="activity">
+                            <div class="content-linkbox-list">
+                                {% if profile.end_ban_read or profile.can_read %}
+                                    {% if profile.site or profile.show_email %}
+                                        <div class="linkbox-item primary">
+                                            {% if profile.site %}
+                                                <a href="{{ profile.site }}" class="tail" rel="me nofollow">
+                                                    {% trans "Voir son site web" %}
+                                                </a>
+                                            {% endif %}
+                                            {% if profile.show_email and user.is_authenticated %}
+                                                <a href="mailto:{{ usr.email|obfuscate }}" class="tail">
+                                                    {% trans "Envoyer un courriel" %}
+                                                </a>
+                                            {% endif %}
+                                        </div>
                                     {% endif %}
-                                    {% if profile.show_email and user.is_authenticated %}
-                                        <a href="mailto:{{ usr.email|obfuscate }}" class="tail">
-                                            {% trans "Envoyer un courriel" %}
-                                        </a>
-                                    {% endif %}
-                                </div>
-                            {% endif %}
-                        {% else %}
-                            <div class="linkbox-item secondary">
-                                <span class="tail">{% trans "Ce membre a été banni définitivement." %}</span>
-                            </div>
-                        {% endif %}
-
-                        {% if public_tutos_count > 0 or articles_public_count > 0 or opinions_public_count > 0 %}
-                            <div class="linkbox-item primary">
-                                <div class="head">
-                                    <h3>{% trans 'Contenus' %}</h3>
-                                </div>
-
-                                {% if public_tutos_count > 0 %}
-                                    <a href="{% url "content:find-tutorial" usr.pk %}?filter=public" class="tail">
-                                        <p>
-                                            {% blocktrans count public_tutos_count=public_tutos_count %}
-                                                {{ public_tutos_count }} tutoriel publié
-                                            {% plural %}
-                                                {{ public_tutos_count }} tutoriaux publiés
-                                            {% endblocktrans %}
-                                        </p>
-                                    </a>
-                                {% endif %}
-
-                                {% if articles_public_count > 0 %}
-                                    <a href="{% url "content:find-article" usr.pk %}?filter=public" class="tail">
-                                        <p>
-                                            {% blocktrans count articles_public_count=articles_public_count %}
-                                                {{ articles_public_count }} article publié
-                                            {% plural %}
-                                                {{ articles_public_count }} articles publiés
-                                            {% endblocktrans %}
-                                        </p>
-                                    </a>
-                                {% endif %}
-
-                                {% if opinions_public_count > 0 %}
-                                    <a href="{% url "content:find-opinion" usr.pk %}?filter=public" class="tail">
-                                        <p>
-                                            {% blocktrans count opinions_public_count=opinions_public_count %}
-                                                {{ opinions_public_count }} billet publié
-                                            {% plural %}
-                                                {{ opinions_public_count }} billets publiés
-                                            {% endblocktrans %}
-                                        </p>
-                                    </a>
-                                {% endif %}
-                            </div>
-                        {% endif %}
-
-                        {% if profile.end_ban_read or profile.can_read %}
-                            {% if beta_tutos_count > 0 or beta_articles_count > 0 %}
-                                <div class="linkbox-item secondary">
-                                    <div class="head">
-                                        <h3>{% trans 'En bêta' %}</h3>
+                                {% else %}
+                                    <div class="linkbox-item secondary">
+                                        <span class="tail">{% trans "Ce membre a été banni définitivement." %}</span>
                                     </div>
+                                {% endif %}
 
-                                    <div class="body">
-                                        <p>
-                                            {% trans "Aidez à peaufiner le fond et la forme de ces contenus en cours de rédaction" %}
-                                        </p>
-                                    </div>
+                                {% if public_tutos_count > 0 or articles_public_count > 0 or opinions_public_count > 0 %}
+                                    <div class="linkbox-item primary">
+                                        <div class="head">
+                                            <h3>{% trans 'Contenus' %}</h3>
+                                        </div>
 
-                                    {% if beta_tutos_count > 0 %}
-                                        <a href="{% url "content:find-tutorial" usr.pk %}?filter=beta" class="tail">
+                                        {% if public_tutos_count > 0 %}
+                                            <a href="{% url "content:find-tutorial" usr.pk %}?filter=public" class="tail">
                                                 <p>
-                                                    {% blocktrans count beta_tutos_count=beta_tutos_count %}
-                                                        {{ beta_tutos_count }} tutoriel en bêta
+                                                    {% blocktrans count public_tutos_count=public_tutos_count %}
+                                                        {{ public_tutos_count }} tutoriel publié
                                                     {% plural %}
-                                                        {{ beta_tutos_count }} tutoriaux en bêta
+                                                        {{ public_tutos_count }} tutoriaux publiés
                                                     {% endblocktrans %}
                                                 </p>
                                             </a>
-                                    {% endif %}
+                                        {% endif %}
 
-                                    {% if beta_articles_count > 0 %}
-                                        <a href="{% url "content:find-article" usr.pk %}?filter=beta" class="tail">
-                                            <p>
-                                                {% blocktrans count beta_articles_count=beta_articles_count %}
-                                                    {{ beta_articles_count }} article en bêta
-                                                {% plural %}
-                                                    {{ beta_articles_count }} articles en bêta
-                                                {% endblocktrans %}
-                                            </p>
-                                        </a>
-                                    {% endif %}
-                                </div>
-                            {% endif %}
-                        {% endif %}
+                                        {% if articles_public_count > 0 %}
+                                            <a href="{% url "content:find-article" usr.pk %}?filter=public" class="tail">
+                                                <p>
+                                                    {% blocktrans count articles_public_count=articles_public_count %}
+                                                        {{ articles_public_count }} article publié
+                                                    {% plural %}
+                                                        {{ articles_public_count }} articles publiés
+                                                    {% endblocktrans %}
+                                                </p>
+                                            </a>
+                                        {% endif %}
 
-                        <div class="linkbox-item primary">
-                            <div class="head">
-                                <h3>{% trans 'Forum' %}</h3>
+                                        {% if opinions_public_count > 0 %}
+                                            <a href="{% url "content:find-opinion" usr.pk %}?filter=public" class="tail">
+                                                <p>
+                                                    {% blocktrans count opinions_public_count=opinions_public_count %}
+                                                        {{ opinions_public_count }} billet publié
+                                                    {% plural %}
+                                                        {{ opinions_public_count }} billets publiés
+                                                    {% endblocktrans %}
+                                                </p>
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+
+                                {% if profile.end_ban_read or profile.can_read %}
+                                    {% if beta_tutos_count > 0 or beta_articles_count > 0 %}
+                                        <div class="linkbox-item secondary">
+                                            <div class="head">
+                                                <h3>{% trans 'En bêta' %}</h3>
+                                            </div>
+
+                                            <div class="body">
+                                                <p>
+                                                    {% trans "Aidez à peaufiner le fond et la forme de ces contenus en cours de rédaction" %}
+                                                </p>
+                                            </div>
+
+                                            {% if beta_tutos_count > 0 %}
+                                                <a href="{% url "content:find-tutorial" usr.pk %}?filter=beta" class="tail">
+                                                        <p>
+                                                            {% blocktrans count beta_tutos_count=beta_tutos_count %}
+                                                                {{ beta_tutos_count }} tutoriel en bêta
+                                                            {% plural %}
+                                                                {{ beta_tutos_count }} tutoriaux en bêta
+                                                            {% endblocktrans %}
+                                                        </p>
+                                                    </a>
+                                            {% endif %}
+
+                                            {% if beta_articles_count > 0 %}
+                                                <a href="{% url "content:find-article" usr.pk %}?filter=beta" class="tail">
+                                                    <p>
+                                                        {% blocktrans count beta_articles_count=beta_articles_count %}
+                                                            {{ beta_articles_count }} article en bêta
+                                                        {% plural %}
+                                                            {{ beta_articles_count }} articles en bêta
+                                                        {% endblocktrans %}
+                                                    </p>
+                                                </a>
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                {% endif %}
+
+                                {% if topics_count > 0 or messages_count > 0 %}
+                                    <div class="linkbox-item primary">
+                                        <div class="head">
+                                            <h3>{% trans 'Forum' %}</h3>
+                                        </div>
+
+                                        {% if topics_count > 0 %}
+                                            <a href="{% url 'topic-find' usr.pk %}" class="tail">
+                                                <p>
+                                                    {% blocktrans count topics_count=topics_count %}
+                                                        {{ topics_count }} sujet créé
+                                                    {% plural %}
+                                                        {{ topics_count }} sujets créés
+                                                    {% endblocktrans %}
+                                                </p>
+                                            </a>
+                                        {% endif %}
+
+                                        {% if messages_count > 0 %}
+                                            <a href="{% url 'post-find' usr.pk %}" class="tail">
+                                                <p>
+                                                    {% blocktrans count messages_count=messages_count %}
+                                                        {{ messages_count }} message posté
+                                                    {% plural %}
+                                                        {{ messages_count }} messages postés
+                                                    {% endblocktrans %}
+                                                </p>
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
                             </div>
-
-                            <a href="{% url 'topic-find' usr.pk %}" class="tail">
-                                <p>
-                                    {% blocktrans count topics_count=profile.get_topic_count %}
-                                        {{ topics_count }} sujet créé
-                                    {% plural %}
-                                        {{ topics_count }} sujets créés
-                                    {% endblocktrans %}
-                                </p>
-                            </a>
-
-                            <a href="{% url 'post-find' usr.pk %}" class="tail">
-                                {% captureas messages_count %}{% if perms.member.change_post %}{{ profile.get_post_count_as_staff }}{% else %}{{ profile.get_post_count }}{% endif %}{% endcaptureas %}
-                                <p>
-                                    {% blocktrans count messages_count=messages_count|add:"0" %}
-                                        {{ messages_count }} message posté
-                                    {% plural %}
-                                        {{ messages_count }} messages postés
-                                    {% endblocktrans %}
-                                </p>
-                            </a>
                         </div>
-                    </div>
+                    {% endif %}
+                {% endwith %}
+            </section>
+
+            {% if articles_and_tutorials or opinions %}
+                <div class="flexpage-column">
+                    <section>
+                        <h2 itemprop="name">
+                            {% trans 'Dernières publications' %}
+                        </h2>
+                        {% if articles_and_tutorials %}
+                            <div class="content-item-list">
+                                {% for public_content in articles_and_tutorials %}
+                                    {% include 'tutorialv2/includes/content_item.part.html' with show_description=True public_content=public_content %}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p>{% trans "Aucune publication." %}</p>
+                        {% endif %}
+                    </section>
+                    <section>
+                        <h2 itemprop="name">
+                          {% trans 'Derniers billets publiés' %}
+                            <a href="{% url "content:find-opinion" usr.pk %}?filter=public" class="btn btn-grey">{% trans 'Voir tout' %}</a>
+                        </h2>
+
+                        {% if opinions %}
+                            <div class="content-item-list">
+                                {% for public_opinion in opinions %}
+                                    {% include 'tutorialv2/includes/content_item.part.html' with show_description=True public_content=public_opinion show_reactions=True %}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p>{% trans "Aucun billet publié." %}</p>
+                        {% endif %}
+                    </section>
                 </div>
-            </section>
+            {% endif %}
 
-            <div class="flexpage-column">
+            {% if topics %}
                 <section>
                     <h2 itemprop="name">
-                        {% trans 'Dernières publications' %}
+                        {% trans 'Derniers sujets crées' %}
+                        <a href="{% url 'topic-find' usr.pk %}" class="btn btn-grey">{% trans 'Voir tout' %}</a>
                     </h2>
-                    {% if articles_and_tutorials %}
+
+                    {% if topics %}
                         <div class="content-item-list">
-                            {% for public_content in articles_and_tutorials %}
-                                {% include 'tutorialv2/includes/content_item.part.html' with show_description=True public_content=public_content %}
+                            {% for topic in topics %}
+                                {% include 'forum/includes/topic_item.part.html' %}
+                                {% if forloop.last %}
+                                    <span class="fill">
+                                {% endif %}
                             {% endfor %}
                         </div>
                     {% else %}
-                        <p>{% trans "Aucune publication." %}</p>
+                        <p>{% trans "Aucun sujet créé." %}</p>
                     {% endif %}
                 </section>
-                <section>
-                    <h2 itemprop="name">
-                      {% trans 'Derniers billets publiés' %}
-                        <a href="{% url "content:find-opinion" usr.pk %}?filter=public" class="btn btn-grey">{% trans 'Voir tout' %}</a>
-                    </h2>
-
-                    {% if opinions %}
-                        <div class="content-item-list">
-                            {% for public_opinion in opinions %}
-                                {% include 'tutorialv2/includes/content_item.part.html' with show_description=True public_content=public_opinion show_reactions=True %}
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        <p>{% trans "Aucun billet publié." %}</p>
-                    {% endif %}
-                </section>
-            </div>
-
-            <section>
-                <h2 itemprop="name">
-                    {% trans 'Derniers sujets crées' %}
-                    <a href="{% url 'topic-find' usr.pk %}" class="btn btn-grey">{% trans 'Voir tout' %}</a>
-                </h2>
-
-                {% if topics %}
-                    <div class="content-item-list">
-                        {% for topic in topics %}
-                            {% include 'forum/includes/topic_item.part.html' %}
-                            {% if forloop.last %}
-                                <span class="fill">
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <p>{% trans "Aucun sujet créé." %}</p>
-                {% endif %}
-            </section>
+            {% endif %}
 
             {% if perms.member.change_profile and profile.user.is_active %}
                 <section>
