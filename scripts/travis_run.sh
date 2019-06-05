@@ -35,6 +35,11 @@ function activate_env {
 
 
 activate_env "./$ZDS_VENV"
+	# Add geckodriver in the PATH of zdsenv
+        export PATH="$PATH:/home/travis/build/zestedesavoir/zds-site/geckodriver"
+        export DISPLAY=":99.0"
+	# Use hack for virtualenv (fix some task with "command not found")
+	export PATH="$PATH:/home/travis/virtualenv/python3.5.6/bin"
 
 	run_script "start_elasticsearch"
 
@@ -47,11 +52,6 @@ activate_env "./$ZDS_VENV"
 	run_script "selenium_test"
 
 	run_script "coverage_backend"
-
-
-# Use hack for virtualenv (fix some task with "command not found")
-
-activate_env "$HACK_VIRTUALENV"
 
 	run_script "lint_backend"
 

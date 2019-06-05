@@ -60,9 +60,6 @@ if [[ "$1" == "coverage_backend" ]] && [[ "$ZDS_TEST_JOB" == *"zds."* ]]; then
             exit 1
         fi
 
-        export PATH="$PATH:/home/travis/build/zestedesavoir/zds-site/geckodriver"
-        export DISPLAY=":99.0"
-
         coverage run --source='.' manage.py \
             test -v=2\
             --keepdb \
