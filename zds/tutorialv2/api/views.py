@@ -77,7 +77,7 @@ class ExportView(CreateAPIView):
         with contextlib.suppress(FileExistsError):
             building_directory.mkdir(parents=True)
         return building_directory, final_directory
-        
+
     def create(self, request, *args, **kwargs):
         try:
             publishable_content = get_object_or_404(PublishableContent.objects, pk=int(kwargs.get('pk')))

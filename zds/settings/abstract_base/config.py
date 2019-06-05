@@ -12,8 +12,8 @@ try:
 except OSError:
     config = {}
 
-if ('ensure_settings_module' in config and
-        config['ensure_settings_module'] != os.environ.get('DJANGO_SETTINGS_MODULE')):
+if ('ensure_settings_module' in config
+        and config['ensure_settings_module'] != os.environ.get('DJANGO_SETTINGS_MODULE')):
 
     raise Exception((
         'The DJANGO_SETTINGS_MODULE environment variable is different than '
