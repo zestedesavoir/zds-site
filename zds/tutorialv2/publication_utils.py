@@ -6,7 +6,7 @@ import shutil
 import subprocess
 import zipfile
 from datetime import datetime
-from os import makedirs, mkdir, path
+from os import makedirs, path
 from pathlib import Path
 
 import requests

@@ -11,6 +11,7 @@ from zds.tutorialv2.publication_utils import PublicatorRegistry
 
 logger = logging.getLogger(__name__)
 
+
 class Command(BaseCommand):
     help = 'Launch a watchdog that generate all exported formats (epub, pdf...) files without blocking request handling'
 

@@ -113,7 +113,7 @@ ZDS_APP = {
             },
             'licence_info_title': 'http://zestedesavoir.com/tutoriels/281/le-droit-dauteur-creative-commons-et-les-lic'
                                   'ences-sur-zeste-de-savoir/',
-            'licence_info_link': 'Le droit d\'auteur, Creative Commons et les licences sur Zeste de Savoir'
+            'licence_info_link': "Le droit d'auteur, Creative Commons et les licences sur Zeste de Savoir"
         },
         'hosting': {
             'name': 'GANDI SAS',
