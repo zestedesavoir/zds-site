@@ -111,7 +111,7 @@
             padding-left: 30px;
 
             &:after {
-                margin: 12px 0 0 7px;
+                margin: 12px 0 0 10px;
             }
         }
     }
@@ -195,8 +195,8 @@
             &:not([disabled]):focus,
             &:not(.disabled):hover,
             &:not(.disabled):focus {
-            background: $bg_hover;
-            color: $color_hover;
+                background: $bg_hover;
+                color: $color_hover;
             }
 
             &.disabled.submitted {
