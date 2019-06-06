@@ -50,7 +50,7 @@ body.userprofilepage {
 
         margin: 2.2rem -1.2rem 2.2rem 0;
 
-        > .bio {
+        & > .bio {
             flex: 12;
 
             padding-right: 1.2rem;
@@ -69,9 +69,11 @@ body.userprofilepage {
                     padding: 1rem;
                     margin: 0;
 
+
                     > p:first-child {
                         margin-top: 0;
                     }
+
                     > p:last-child {
                         margin-bottom: 0;
                     }
@@ -88,6 +90,10 @@ body.userprofilepage {
                             text-decoration: none;
                         }
                     }
+                }
+
+                .biography-overflow {
+                    display: none;
                 }
 
                 .message-bottom {
@@ -115,13 +121,13 @@ body.userprofilepage {
                                 text-decoration: none;
                                 color: #555;
                             }
-                }
+                        }
                     }
                 }
             }
         }
 
-        > .activity {
+        & > .activity {
             flex: 4;
             padding-right: 3.2rem;
 
@@ -138,6 +144,80 @@ body.userprofilepage {
     .report-profile {
         margin: 4rem 0;
         text-align: center;
+    }
+}
+
+// Too-long-biographies styles, only applicable with JS (else, the whole
+// biography is always shown).
+html.js body.userprofilepage .user-bio-and-activity .bio-container {
+    .message-content {
+        max-height: 64rem;
+        overflow-y: hidden;
+    }
+
+    &.too-long-biography {
+        .biography-overflow {
+            $biography-overflow-link-height: 16rem;
+
+            display: block;
+
+            position: relative;
+            bottom: $biography-overflow-link-height;
+
+            margin-bottom: -$biography-overflow-link-height;
+            height: $biography-overflow-link-height;
+
+            cursor: pointer;
+
+            background: linear-gradient(
+                            to bottom,
+                            rgba(#FDFDFD, 0) 0%,
+                            rgba(#FDFDFD, 0.4) 20%,
+                            rgba(#FDFDFD, 0.6) 40%,
+                            rgba(#FDFDFD, 0.9) 80%,
+                            rgba(#FDFDFD, 1) 100%
+            );
+
+            p {
+                padding-top: $biography-overflow-link-height * (3/4);
+                text-align: center;
+
+                font-size: 1.2em;
+                letter-spacing: .06em;
+            }
+        }
+
+        &.full-biography {
+            .message-content {
+                max-height: unset;
+
+                // For even spacing alongside the “reduce biography”
+                // label at the bottom of the content.
+                padding-bottom: 0;
+
+                // Same
+                .footnotes {
+                    margin-bottom: -1em;
+                }
+            }
+
+            .biography-overflow {
+                display: flex;
+                align-items: center;
+
+                position: initial;
+                height: 8rem;
+
+                margin-bottom: 0;
+
+                background: transparent;
+
+                p {
+                    flex: 2;
+                    padding-top: 0;
+                }
+            }
+        }
     }
 }
 
@@ -158,6 +238,7 @@ body.userprofilepage {
         float: left;
         width: 60px;
     }
+
     .member-infos {
         float: left;
         list-style: none;
