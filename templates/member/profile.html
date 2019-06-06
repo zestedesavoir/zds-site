@@ -101,22 +101,6 @@
 
                                 {% include 'notification/follow_button_combined_template.html' with link=link_follow is_followed=content_is_followed data_onclick=data_onclick button_text=button_text is_followed_email=content_is_followed_email email_data_onclick=email_data_onclick email_button_text=email_button_text followed_user=usr user=user %}
                             {% endwith %}
-                            {% comment %}
-                                <a href="#report-profile" class="btn-ico btn ico-after alert light open-modal">
-                                    {% trans "Signaler ce profil" %}
-                                </a>
-                                <form action="{% url 'report-profile' profile.pk %}" method="post" id="report-profile" class="modal modal-flex">
-                                    {% csrf_token %}
-                                    <label for="report-reason">
-                                        {% trans "Pour quelle raison signalez-vous ce profil ?" %}
-                                    </label>
-                                    <textarea type="text" name="reason" id="report-reason" placeholder='{% trans "Spam, Contenu illégal, …" %}' pattern=".{3,}" required title='{% trans "Minimum 3 caractères pour signaler" %}' rows="4"></textarea>
-
-                                    <button type="submit">
-                                        {% trans "Signaler" %}
-                                    </button>
-                                </form>
-                            {% endcomment %}
                         </div>
                     {% endif %}
                 </div>
@@ -202,6 +186,9 @@
                                 {% endif %}
                                 </div>
                             {% endif %}
+                        </div>
+                        <div class="biography-overflow" aria-hidden="true">
+                            <p data-other-label="{% trans "Réduire la biographie" %}">{% trans "Afficher toute la biographie" %}</p>
                         </div>
                         {% if profile.sign %}
                             <div class="message-bottom">
