@@ -1,10 +1,11 @@
 /* ===== Zeste de Savoir ====================================================
-   Truncates too long biographies on profile pages, with a link to see the whole bio.
+   Truncates too long biographies on profile pages, with a link to see the
+   whole bio.
    ---------------------------------
    Author: Amaury Carrade
    ========================================================================== */
 
-(function($, undefined){
+(function($, undefined) {
     "use strict";
 
     let $bioContainer = $("body.userprofilepage .user-bio-and-activity .bio-container");
@@ -13,6 +14,8 @@
     let $bioTextContainer = $bioContainer.find(".message-content");
     let $bioOverflowToggleHandle = $bioContainer.find(".biography-overflow");
     let $bioOverflowToggleLabel = $bioOverflowToggleHandle.find("p");
+
+    console.log($bioTextContainer[0].scrollHeight, $bioTextContainer.innerHeight(), $bioTextContainer[0].scrollHeight - $bioTextContainer.innerHeight());
 
     // We detect overflow by comparing the scroll height (equal to the whole
     // size, without max-width) to the inner height (equal to the visible size).
