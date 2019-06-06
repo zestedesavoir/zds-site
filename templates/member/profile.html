@@ -109,18 +109,18 @@
 
         <div class="flexpage-wrapper">
             <div class="subheader">
-                <p class="presence-statistics">
+                <ul class="presence-statistics">
                     {% if profile.is_private %}
-                        {% trans "Ce membre est un compte d'administration" %}
+                        <li>{% trans "Ce membre est un compte d'administration" %}</li>
                     {% else %}
-                        {% trans "Inscription le" %} <time datetime="{{ usr.date_joined|date:"c" }}">{{ usr.date_joined|format_date:True }}</time> —
+                        <li>{% trans "Inscription le" %} <time datetime="{{ usr.date_joined|date:"c" }}">{{ usr.date_joined|format_date:True }}</time></li>
                         {% if profile.last_visit %}
-                            {% trans "Dernière visite" %} <time datetime="{{ profile.last_visit|date:"c" }}">{{ profile.last_visit|format_date:True }}</time>
+                            <li>{% trans "Dernière visite" %} <time datetime="{{ profile.last_visit|date:"c" }}">{{ profile.last_visit|format_date:True }}</time></li>
                         {% else %}
-                            {% trans "Ne s’est jamais connecté(e)" %}
+                            <li>{% trans "Ne s’est jamais connecté(e)" %}</li>
                         {% endif %}
                     {% endif %}
-                </p>
+                </ul>
 
                 {% if profile.has_hat or perms.utils.change_hat %}
                     <ul class="hatlist">
@@ -205,8 +205,6 @@
                 </div>
 
                 {% captureas messages_count %}{% if perms.member.change_post %}{{ profile.get_post_count_as_staff }}{% else %}{{ profile.get_post_count }}{% endif %}{% endcaptureas %}
-
-
 
                 {% with topics_count=profile.get_topic_count messages_count=messages_count|add:"0" %}
                     {% if profile.site or profile.show_email or public_tutos_count > 0 or articles_public_count > 0 or opinions_public_count > 0 or beta_tutos_count > 0 or beta_articles_count > 0 or topics_count > 0 or messages_count > 0 %}

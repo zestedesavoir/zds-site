@@ -15,14 +15,54 @@ body.userprofilepage {
 
         margin-top: -1.6rem;
 
-        p.presence-statistics {
+        .presence-statistics {
             margin: 0;
-            padding-left: 1rem;
+            padding-left: .8rem;
+
+            li {
+                display: inline-block;
+                list-style-type: none;
+
+                &:not(:first-child) {
+                    margin-left: 1.2rem;
+
+                    &:before {
+                        content: "—";
+                        position: relative;
+                        left: -.65rem;
+                    }
+                }
+            }
         }
 
         .hatlist {
             flex: 1;
             justify-content: flex-end;
+        }
+
+        @media only screen and #{$media-mobile} {
+            flex-direction: column-reverse;
+
+            .presence-statistics {
+                margin: 1rem 0 -.5rem 0;
+
+                li {
+                    display: block;
+                    text-align: center;
+
+                    &:not(:first-child) {
+                        margin-left: 0;
+
+                        &:before {
+                            display: none;
+                        }
+                    }
+                }
+            }
+
+            .hatlist {
+                margin-top: -2rem;
+            }
         }
     }
 
@@ -49,6 +89,11 @@ body.userprofilepage {
         flex-direction: row;
 
         margin: 2.2rem -1.2rem 2.2rem 0;
+
+        @media only screen and #{$media-mobile} {
+            flex-direction: column;
+            margin-top: 1.8rem;
+        }
 
         & > .bio {
             flex: 12;
@@ -131,6 +176,10 @@ body.userprofilepage {
             flex: 4;
             padding-right: 3.2rem;
 
+            @media only screen and #{$media-mobile} {
+                margin-top: 20px;
+            }
+
             .content-linkbox-list {
                 flex-direction: column;
 
@@ -152,7 +201,11 @@ body.userprofilepage {
 html.js body.userprofilepage .user-bio-and-activity .bio-container {
     .message-content {
         max-height: 64rem;
-        overflow-y: hidden;
+        overflow: hidden;
+
+        @media only screen and #{$media-mobile} {
+            max-height: 12rem;
+        }
     }
 
     &.too-long-biography {
