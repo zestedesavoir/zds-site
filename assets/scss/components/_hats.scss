@@ -71,12 +71,21 @@
     &.staff-hat {
         & > a.name {
             background-color: $color-staff-hat;
+
+            span {
+                color: desaturate(lighten($color-staff-hat, 60%), 8%);
+                font-size: .96em;
+            }
         }
+
         a.name:hover,
         a.name:focus {
             background-color: transparent;
-            color: $color-staff-hat;
             border: 1px solid $color-staff-hat;
+
+            &, & span {
+                color: $color-staff-hat;
+            }
         }
     }
 }
