@@ -8,12 +8,12 @@
 (function($, undefined) {
     "use strict";
 
-    let $bioContainer = $("body.userprofilepage .user-bio-and-activity .bio-container");
+    var $bioContainer = $("body.userprofilepage .user-bio-and-activity .bio-container");
     if (!$bioContainer) return; // We are not on a profile page
 
-    let $bioTextContainer = $bioContainer.find(".message-content");
-    let $bioOverflowToggleHandle = $bioContainer.find(".biography-overflow");
-    let $bioOverflowToggleLabel = $bioOverflowToggleHandle.find("p");
+    var $bioTextContainer = $bioContainer.find(".message-content");
+    var $bioOverflowToggleHandle = $bioContainer.find(".biography-overflow");
+    var $bioOverflowToggleLabel = $bioOverflowToggleHandle.find("p");
 
     console.log($bioTextContainer[0].scrollHeight, $bioTextContainer.innerHeight(), $bioTextContainer[0].scrollHeight - $bioTextContainer.innerHeight());
 
@@ -38,7 +38,7 @@
     {
         $bioContainer.toggleClass("full-biography");
 
-        let oldLabel = $bioOverflowToggleLabel.text();
+        var oldLabel = $bioOverflowToggleLabel.text();
 
         $bioOverflowToggleLabel.text($bioOverflowToggleLabel.attr("data-other-label"));
         $bioOverflowToggleLabel.attr("data-other-label", oldLabel);
