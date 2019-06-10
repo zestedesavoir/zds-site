@@ -108,13 +108,8 @@ gulp.task('js', () =>
         .pipe(sourcemaps.write('.', { includeContent: true, sourceRoot: '../../' }))
         .pipe(gulp.dest('dist/js/')));
 
-katexFolder = 'zmd'
-if(fs.existsSync('/opt/zmd')) {
-    katexFolder = '/opt/zmd'
-}
-
 gulp.task('prepare-zmd', () =>
-    gulp.src([katexFolder + '/node_modules/katex/dist/{katex.min.css,fonts/*}'])
+    gulp.src(['node_modules/katex/dist/{katex.min.css,fonts/*}'])
         .pipe(gulp.dest('dist/css/')));
 
 // Compiles the SCSS files to CSS
