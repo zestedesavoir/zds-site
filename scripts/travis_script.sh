@@ -52,13 +52,7 @@ fi
 if [[ "$1" == "coverage_backend" ]] && [[ "$ZDS_TEST_JOB" == *"zds."* ]]; then
     zds_fold_start "coverage_backend" "* Run coverage for backend"
 
-        npm run server --prefix zmd/node_modules/zmarkdown -- --silent; exVal=$?
-
-        if [[ $exVal != 0 ]]; then
-            zds_fold_end
-            print_error "!! Cannot start zmd to coverage"
-            exit 1
-        fi
+        zds_start_zmd
 
         coverage run --source='.' manage.py \
             test -v=2\
@@ -67,12 +61,7 @@ if [[ "$1" == "coverage_backend" ]] && [[ "$ZDS_TEST_JOB" == *"zds."* ]]; then
             --exclude-tag=front \
             ${ZDS_TEST_JOB/front/}
 
-        #pm2 kill :
-        pm2 kill; exVal=$?
-
-        if [[ $exVal != 0 ]]; then
-            print_error "Warning: Cannot stop zmd"
-        fi
+        zds_stop_zmd
 
     zds_fold_end
 fi
@@ -89,11 +78,17 @@ fi
 # selenium test
 if [[ "$1" == "selenium_test" ]]  && [[ "$ZDS_TEST_JOB" == *"selenium"* ]]; then
     zds_fold_start "selenium_test" "* Run selenium test for frontend"
+
+        zds_start_zmd
+
         xvfb-run --server-args="-screen 0 1280x720x8" python manage.py \
             test -v=2\
             --settings zds.settings.ci_test \
             --tag=front \
             --keepdb
+
+        zds_stop_zmd
+
     zds_fold_end
 fi
 

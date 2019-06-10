@@ -49,6 +49,28 @@ function zds_fold_end {
 ## end
 
 
+## start zmd start & stop function
+function zds_start_zmd {
+    npm run server --prefix zmd/node_modules/zmarkdown -- --silent; exVal=$?
+
+    if [[ $exVal != 0 ]]; then
+        zds_fold_end
+        print_error "!! Cannot start zmd"
+        exit 1
+    fi
+}
+
+function zds_stop_zmd {
+    pm2 kill; exVal=$?
+
+    if [[ $exVal != 0 ]]; then
+        print_error "Warning: Cannot stop zmd"
+    fi
+}
+## end
+
+
+## start print function
 function print_info {
     if [[ "$2" == "--bold" ]]; then
         echo -en "\033[36;1m"
@@ -65,3 +87,4 @@ function print_error {
     echo "$1"
     echo -en "\033[00m"
 }
+## end
