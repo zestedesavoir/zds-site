@@ -55,7 +55,7 @@ function zds_start_zmd {
 
     if [[ $exVal != 0 ]]; then
         zds_fold_end
-        print_error "!! Cannot start zmd"
+        gateway "!! Cannot start zmd" $exVal
         exit 1
     fi
 }
@@ -73,7 +73,6 @@ function zds_stop_zmd {
 
 function gateway {
     if [[ $2 != 0 ]]; then
-        zds_fold_end
         print_error "$1"
         exit $2
     fi
