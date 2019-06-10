@@ -2,4 +2,5 @@
 
 max-line-length = 120
 
-ignore = F401,F403,F405
+# Ignore N802 (functions in lowercase) because the setUp() function in tests
+ignore = F401,F403,F405,N802,E722,W504,Q003,W605
