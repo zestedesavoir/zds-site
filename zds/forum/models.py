@@ -270,12 +270,12 @@ class Topic(AbstractESDjangoIndexable):
         If a tag is unknown, it is added to the system.
         :param tag_collection: A collection of tags.
         """
-        for tag in tag_collection:
+        for tag in filter(None, tag_collection):
             try:
                 current_tag, created = Tag.objects.get_or_create(title=tag.lower().strip())
                 self.tags.add(current_tag)
             except ValueError as e:
-                logging.getLogger(__name__).warn(e)
+                logging.getLogger(__name__).warning(e)
 
         self.save()
         signals.edit_content.send(sender=self.__class__, instance=self, action='edit_tags_and_title')

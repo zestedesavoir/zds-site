@@ -324,7 +324,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
             publishable.image = img
 
         publishable.save(force_slug_update=title_is_changed)
-        logger.debug('is changed %s %s', publishable.pk, publishable.slug)
+        logger.debug('content %s updated, slug is %s', publishable.pk, publishable.slug)
         # now, update the versioned information
         versioned.description = form.cleaned_data['description']
         versioned.licence = form.cleaned_data['licence']
@@ -334,7 +334,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
                                                   form.cleaned_data['introduction'],
                                                   form.cleaned_data['conclusion'],
                                                   form.cleaned_data['msg_commit'])
-        logger.debug('after repo update %s %s', publishable.pk, publishable.slug)
+        logger.debug('slug consistency after repo update repo=%s db=%s', versioned.slug, publishable.slug)
         # update relationships :
         publishable.sha_draft = sha
 
@@ -343,7 +343,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
             publishable.subcategory.add(subcat)
 
         publishable.tags.clear()
-        publishable.add_tags(list(filter(None, form.cleaned_data['tags'].split(','))))
+        publishable.add_tags(form.cleaned_data['tags'].split(','))
 
         # help can only be obtained on contents requiring validation before publication
         if versioned.requires_validation():
