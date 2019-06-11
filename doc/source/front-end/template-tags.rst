@@ -27,6 +27,27 @@ produira le code suivant :
 
 si le contenu de ``var1`` est ``1`` et le contenu de ``var2`` est ``2``.
 
+Le module ``trail``
+===================
+
+Ce module défini l'élément ``trail`` qui permet de retirer tous les sauts de ligne et les espaces dans le bloc de gabarit entre les balises HTML ainsi qu'à la fin et au début des lignes. Le code suivant :
+
+.. sourcecode:: html
+
+    {% load trail %}
+    {% trail %}
+    <h3>
+        Hello        world!
+        <a href="example.com">   Un exemple</a>
+    </h3>
+    {% endtrail %}
+
+Produira le code suivant :
+
+.. sourcecode:: html
+
+    <h3>Hello        world!<a href="example.com">   Un exemple</a></h3>
+
 Le module ``captureas``
 =======================
 
