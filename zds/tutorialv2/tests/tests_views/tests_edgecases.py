@@ -16,7 +16,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.licence = LicenceFactory()
         self.subcategory = SubCategoryFactory()
 
-    def no_bad_slug_renaming_on_rename(self):
+    def test_no_bad_slug_renaming_on_rename(self):
         """
         this test embodies the #5320 issue (first case simple workflow):
 
@@ -27,9 +27,9 @@ class ContentTests(TutorialTestMixin, TestCase):
         - try to access article
         """
         opinion = PublishedContentFactory(type='OPINION', title='title',
-                                                              author_list=[self.author.user], licence=self.licence)
+                                          author_list=[self.author.user], licence=self.licence)
         article = PublishedContentFactory(type='ARTICLE', title='title',
-                                                              author_list=[self.author.user], licence=self.licence)
+                                          author_list=[self.author.user], licence=self.licence)
         # login with author
         self.assertEqual(
             self.client.login(

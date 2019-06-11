@@ -809,7 +809,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                 # of course, need to update sha
                 self.object.sha_draft = sha
                 self.object.update_date = datetime.now()
-                self.object.save(force_update_slug=False)
+                self.object.save(force_slug_update=False)
 
                 self.success_url = reverse('content:view', args=[versioned.pk, versioned.slug])
 

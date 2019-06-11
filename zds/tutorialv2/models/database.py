@@ -565,7 +565,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
                 self.tags.add(current_tag)
             except ValueError as e:
                 logger.warning(e)
-        logger.debug("Initial number of tags=%s, after filtering=%s", len(tag_collection), len(self.tags.all()))
+        logger.debug('Initial number of tags=%s, after filtering=%s', len(tag_collection), len(self.tags.all()))
         self.save(force_slug_update=False)
 
     def requires_validation(self):
