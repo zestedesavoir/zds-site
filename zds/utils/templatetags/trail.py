@@ -12,6 +12,7 @@ spaces_line_end_regexp = re.compile(r'[ \t]+$', flags=re.MULTILINE)
 Define a tag to remove trailing whitespaces
 """
 
+
 @register.tag(name='trail')
 def do_trail(parser, token):
     """
@@ -26,9 +27,10 @@ def do_trail(parser, token):
     parser.delete_first_token()
     return TrailNode(nodelist)
 
+
 class TrailNode(template.Node):
     """
-    Removes all spaces between tags, removes newlines and replaces large spaces and tabs by a single space or tab respectively
+    Remove spaces between tags, before and after newlines and newlines
     """
     def __init__(self, nodelist):
         self.nodelist = nodelist
