@@ -13,23 +13,23 @@
 <head>
     <meta charset="utf-8">
 
+    {% captureas title %}
+        {% trail %}
+            {% captureas title_blocks %}
+                {% trail %}
+                    {% block title %}{% endblock %}
+                    {% block title_base %}{% endblock %}
+                {% endtrail %}
+            {% endcaptureas %}
+            {% if title_blocks %}
+                {{title_blocks|safe}} &bull; {{app.site.literal_name}}
+            {% else %}
+                {{app.site.literal_name}}
+            {% endif %}
+        {% endtrail %}
+    {% endcaptureas %}
 
     <title>
-        {% captureas title %}
-            {% trail %}
-                {% captureas title_blocks %}
-                    {% trail %}
-                        {% block title %}{% endblock %}
-                        {% block title_base %}{% endblock %}
-                    {% endtrail %}
-                {% endcaptureas %}
-                {% if title_blocks %}
-                    {{ title_blocks|safe }}
-                    &bull;
-                {% endif %}
-                {{app.site.literal_name}}
-            {% endtrail %}
-        {% endcaptureas %}
         {{ title|safe }}
     </title>
 

@@ -3,6 +3,11 @@ from django import template
 
 register = template.Library()
 
+tag_regexp = re.compile(r'>\s+<')
+breaks_regexp = re.compile(r'[\n\r\f\v]+')
+spaces_line_begin_regexp = re.compile(r'^[ \t]+', flags=re.MULTILINE)
+spaces_line_end_regexp = re.compile(r'[ \t]+$', flags=re.MULTILINE)
+
 """
 Define a tag to remove trailing whitespaces
 """
@@ -29,8 +34,8 @@ class TrailNode(template.Node):
         self.nodelist = nodelist
 
     def render(self, context):
-        str = re.sub(r'>\s+<', '><', self.nodelist.render(context))
-        str = re.sub(r'[\n\r\f\v]+', '', str)
-        str = re.sub(r' +', ' ', str)
-        str = re.sub(r'\t+', '\t', str)
-        return str
+        new_text = tag_regexp.sub('><', self.nodelist.render(context))
+        new_text = spaces_line_begin_regexp.sub('', new_text)
+        new_text = spaces_line_end_regexp.sub('', new_text)
+        new_text = breaks_regexp.sub('', new_text)
+        return new_text
