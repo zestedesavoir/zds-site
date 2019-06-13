@@ -1,12 +1,16 @@
 import os
 from datetime import datetime
+from smtplib import SMTPException
+
+from django.core.mail.backends.base import BaseEmailBackend
+from mock import Mock
 from oauth2_provider.models import AccessToken, Application
 
 from django.conf import settings
 from django.contrib.auth.models import User, Group
 from django.core import mail
 from django.urls import reverse
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.utils.translation import ugettext_lazy as _
 
 from zds.notification.models import TopicAnswerSubscription
@@ -1755,3 +1759,31 @@ class MemberTests(TutorialTestMixin, TestCase):
         alert = Alert.objects.get(pk=alert.pk)  # refresh
         self.assertTrue(alert.solved)
         self.assertEqual(pm_count + 1, PrivateTopic.objects.count())
+
+
+mail_backend = Mock()
+
+
+class FakeBackend(BaseEmailBackend):
+    def send_messages(self, email_messages):
+        return mail_backend.send_messages(email_messages)
+
+
+@override_settings(EMAIL_BACKEND='zds.member.tests.tests_views.FakeBackend')
+class RegisterTest(TestCase):
+    def test_exception_on_mail(self):
+        def message(l):
+            print('message sent')
+            raise SMTPException(l)
+        mail_backend.send_messages = message
+
+        result = self.client.post(
+            reverse('register-member'),
+            {
+                'username': 'firm1',
+                'password': 'flavour',
+                'password_confirm': 'flavour',
+                'email': 'firm1@zestedesavoir.com'},
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+        self.assertIn('Impossible d&#39;envoyer l&#39;email.', result.content.decode('utf-8'))
