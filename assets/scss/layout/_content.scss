@@ -75,9 +75,7 @@
     .article-content,
     .message-content {
         h3, h4, h5, h6 {
-            &:first-child {
-                margin-top: 14px;
-            }
+            margin-top: 14px;
         }
         margin-bottom: 20px;
         color: #424242;
