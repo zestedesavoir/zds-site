@@ -27,10 +27,31 @@ produira le code suivant :
 
 si le contenu de ``var1`` est ``1`` et le contenu de ``var2`` est ``2``.
 
+Le module ``trail``
+===================
+
+Ce module définit l'élément ``trail`` qui permet de retirer tous les sauts de ligne et les espaces dans le bloc de gabarit entre les balises HTML ainsi qu'à la fin et au début des lignes. Le code suivant :
+
+.. sourcecode:: html
+
+    {% load trail %}
+    {% trail %}
+    <h3>
+        Hello        world!
+        <a href="example.com">   Un exemple</a>
+    </h3>
+    {% endtrail %}
+
+Produira le code suivant :
+
+.. sourcecode:: html
+
+    <h3>Hello        world!<a href="example.com">   Un exemple</a></h3>
+
 Le module ``captureas``
 =======================
 
-Ce module défini l'élément ``captureas``, qui permet de demander d'effectuer le rendu d'un bloc de gabarit et de stocker son contenu dans
+Ce module définit l'élément ``captureas``, qui permet de demander d'effectuer le rendu d'un bloc de gabarit et de stocker son contenu dans
 une variable. Ainsi le code suivant :
 
 .. sourcecode:: html
@@ -152,7 +173,7 @@ On conviendra du fait que c'est parfaitement illisible ;)
 Le module ``emarkdown``
 =======================
 
-Ce module défini des filtres utilisés dans la transformation du markdown en HTML ou le traitement du markdown.
+Ce module définit des filtres utilisés dans la transformation du markdown en HTML ou le traitement du markdown.
 
 Markdown vers HTML
 ------------------
@@ -385,7 +406,7 @@ Ce *templatetag* est employé pour l'affichage des badges. Vous trouverez plus d
 Le module ``roman``
 ===================
 
-Défini le filtre ``roman``, qui transforme un nombre entier en chiffre romain, utilisé pour l'affichage du sommaire des tutoriels. Par exemple, le code suivant :
+définit le filtre ``roman``, qui transforme un nombre entier en chiffre romain, utilisé pour l'affichage du sommaire des tutoriels. Par exemple, le code suivant :
 
 .. sourcecode:: html
 
@@ -397,7 +418,7 @@ affichera ``CDLIII``, qui est bien la façon d'écrire 453 en chiffres romain.
 Le module ``set``
 =================
 
-Ce module défini l'élément ``set``, permetant de définir de nouvelles variables, il est donc complémentaire au module ``captureas``.
+Ce module définit l'élément ``set``, permetant de définir de nouvelles variables, il est donc complémentaire au module ``captureas``.
 
 Le code suivant permet de définir la variable ``var`` comme valant ``True`` :
 
@@ -511,7 +532,7 @@ Exemple :
 Le module ``target_tree``
 =========================
 
-Ce module défini un *templatetag* utilisé dans le module de tutoriel (v2) dans le but de générer la hiérarchie des tutos et l'arbre
+Ce module définit un *templatetag* utilisé dans le module de tutoriel (v2) dans le but de générer la hiérarchie des tutos et l'arbre
 des déplacements possibles d'un élément. Il s'agit d'un wrapper autour de ``zds.tutorialv2.utils.get_target_tagged_tree``.
 
 Exemple :
@@ -529,7 +550,7 @@ Exemple :
 Le module ``url_category``
 ==========================
 
-Ce module défini un *templatetag* permetant d'accéder à l'url des listes de tutoriels et articles filtrés par tag. Il est employé pour l'affichage des *tags* des tutoriels et articles.
+Ce module définit un *templatetag* permetant d'accéder à l'url des listes de tutoriels et articles filtrés par tag. Il est employé pour l'affichage des *tags* des tutoriels et articles.
 
 Exemple :
 
