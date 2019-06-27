@@ -220,6 +220,25 @@ class Topic(AbstractESDjangoIndexable):
     def is_solved(self):
         return self.solved_by is not None
 
+    @property
+    def meta_description(self):
+        first_post = self.first_post()
+        if len(first_post.text) < 120:
+            return first_post
+        return Topic.__remove_greetings(first_post)[:120]
+
+    @staticmethod
+    def __remove_greetings(post):
+        greetings = settings.ZDS_APP['forum']['greetings']
+        text = post.text
+        for greeting in greetings:
+            if text.strip().lower().startswith(greeting):
+                index_of_dot = max(text.index('\n') if '\n' in text else -1, 0)
+                index_of_dot = min(index_of_dot, text.index('.') if '.' in text else 121)
+                index_of_dot = min(index_of_dot, text.index('!') if '!' in text else 121)
+                return text[index_of_dot + 1:].strip()
+        return text
+
     def get_absolute_url(self):
         return reverse('topic-posts-list', args=[self.pk, self.slug()])
 
