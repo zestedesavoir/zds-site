@@ -1114,7 +1114,7 @@ class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin, For
         # then save
         self.object.sha_draft = sha
         self.object.update_date = datetime.now()
-        self.object.save(force_slug_update=True)
+        self.object.save(force_slug_update=False)
 
         self.success_url = container.get_absolute_url()
 
