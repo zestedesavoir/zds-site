@@ -66,7 +66,7 @@ class UpdateChildrenListViewModel(ChildrenListViewModel):
 
     def __init__(self, extracts=None, containers=None, introduction=None, conclusion=None, authors=None,
                  remove_deleted_children=False, message='', **__):
-        super(UpdateChildrenListViewModel, self).__init__(extracts, containers, introduction, conclusion, authors)
+        super().__init__(extracts, containers, introduction, conclusion, authors)
         self.remove_deleted_children = remove_deleted_children
         self.message = message
 
