@@ -225,17 +225,18 @@ class Topic(AbstractESDjangoIndexable):
         first_post = self.first_post()
         if len(first_post.text) < 120:
             return first_post
-        return Topic.__remove_greetings(first_post)[:120]
+        return Topic.__remove_greetings(first_post)[:settings.ZDS_APP['forum']['description_size']]
 
     @staticmethod
     def __remove_greetings(post):
         greetings = settings.ZDS_APP['forum']['greetings']
+        max_size = settings.ZDS_APP['forum']['description_size'] + 1
         text = post.text
         for greeting in greetings:
             if text.strip().lower().startswith(greeting):
                 index_of_dot = max(text.index('\n') if '\n' in text else -1, 0)
-                index_of_dot = min(index_of_dot, text.index('.') if '.' in text else 121)
-                index_of_dot = min(index_of_dot, text.index('!') if '!' in text else 121)
+                index_of_dot = min(index_of_dot, text.index('.') if '.' in text else max_size)
+                index_of_dot = min(index_of_dot, text.index('!') if '!' in text else max_size)
                 return text[index_of_dot + 1:].strip()
         return text
 
