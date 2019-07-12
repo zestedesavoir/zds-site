@@ -340,6 +340,12 @@ class ChangeUserForm(forms.Form):
     """
     Update username and email
     """
+    password = forms.CharField(
+        label=_('Mot de passe'),
+        widget=forms.PasswordInput,
+    )
+
+
     username = forms.CharField(
         label=_('Mon pseudo'),
         max_length=User._meta.get_field('username').max_length,
@@ -381,10 +387,13 @@ class ChangeUserForm(forms.Form):
         self.previous_username = user.username
         self.fields['options'].initial = ''
 
+        self.user = user
+
         if user.profile and user.profile.show_email:
             self.fields['options'].initial += 'show_email'
 
         self.helper.layout = Layout(
+            Field('password'),
             Field('username', value=user.username),
             Field('email', value=user.email),
             Field('options'),
@@ -399,12 +408,21 @@ class ChangeUserForm(forms.Form):
         cleaned_data['previous_email'] = self.previous_email
         username = cleaned_data.get('username')
         email = cleaned_data.get('email')
-        if username != self.previous_username:
-            validate_not_empty(username)
-            validate_zds_username(username)
-        if email != self.previous_email:
-            validate_not_empty(email)
-            validate_zds_email(email)
+        password = cleaned_data.get('password')
+        if password:
+            user_exist = authenticate(username=self.user.username, password=password)
+            # Check if the user exist.
+            if not user_exist and password != '':
+                self._errors['password'] = self.error_class([_('Mot de passe incorrect.')])
+                if 'password' in cleaned_data:
+                    del cleaned_data['password']
+            else: # the provided password is correct
+                if username != self.previous_username:
+                    validate_not_empty(username)
+                    validate_zds_username(username)
+                if email != self.previous_email:
+                    validate_not_empty(email)
+                    validate_zds_email(email)
         return cleaned_data
 
 
