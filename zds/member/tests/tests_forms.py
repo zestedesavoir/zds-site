@@ -283,6 +283,7 @@ class ChangeUserFormTest(TestCase):
     def test_valid_change_username_user_form(self):
         data = {
             'username': 'MyNewPseudo',
+            'password': 'hostel77',
             'email': self.user1.user.email
         }
         form = ChangeUserForm(data=data, user=self.user1.user)
@@ -291,6 +292,7 @@ class ChangeUserFormTest(TestCase):
     def test_valid_change_email_user_form(self):
         data = {
             'username': self.user1.user.username,
+            'password': 'hostel77',
             'email': 'test@gmail.com'
         }
         form = ChangeUserForm(data=data, user=self.user1.user)
@@ -364,6 +366,7 @@ class ChangeUserFormTest(TestCase):
         ProfileFactory()
         data = {
             'username': '  ZeTester  ',
+            'password': 'hostel77',
             'email': self.user1.user.email,
         }
         form = ChangeUserForm(data=data, user=self.user1.user)
@@ -373,6 +376,7 @@ class ChangeUserFormTest(TestCase):
         ProfileFactory()
         data = {
             'username': 'Ze,Tester',
+            'password': 'hostel77',
             'email': self.user1.user.email,
         }
         form = ChangeUserForm(data=data, user=self.user1.user)
@@ -458,6 +462,7 @@ class UsernameAndEmailFormTest(TestCase):
     def test_valid_forgot_password_form(self):
         data = {
             'username': self.user1.user.username,
+            'password': 'hostel77',
             'email': ''
         }
         form = UsernameAndEmailForm(data=data)
@@ -466,6 +471,7 @@ class UsernameAndEmailFormTest(TestCase):
     def test_non_valid_non_ascii_forgot_password_form(self):
         data = {
             'username': self.userNonAscii.user.username,
+            'password': 'hostel77',
             'email': ''
         }
         form = UsernameAndEmailForm(data=data)
@@ -474,6 +480,7 @@ class UsernameAndEmailFormTest(TestCase):
     def test_non_valid_non_ascii_email_forgot_password_form(self):
         data = {
             'username': '',
+            'password': 'hostel77',
             'email': self.userNonAscii.user.email
         }
         form = UsernameAndEmailForm(data=data)

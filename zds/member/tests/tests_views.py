@@ -447,6 +447,7 @@ class MemberTests(TutorialTestMixin, TestCase):
         self.assertEqual(login_check, True)
         result = self.client.post(
             reverse('member-unregister'),
+            { 'password': 'hostel77', },
             follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertEqual(User.objects.filter(username=user.user.username).count(), 0)
@@ -549,6 +550,7 @@ class MemberTests(TutorialTestMixin, TestCase):
         self.assertEqual(login_check, True)
         result = self.client.post(
             reverse('member-unregister'),
+            {'password': 'hostel77'},
             follow=False)
         self.assertEqual(result.status_code, 302)
 
@@ -1146,6 +1148,7 @@ class MemberTests(TutorialTestMixin, TestCase):
         self.client.login(username=tester.user.username, password='hostel77')
         data = {
             'username': 'dummy',
+            'password': 'hostel77',
             'email': tester.user.email
         }
         result = self.client.post(reverse('update-username-email-member'), data, follow=False)
@@ -1261,6 +1264,7 @@ class MemberTests(TutorialTestMixin, TestCase):
         # Edit the email with an unknown provider
         self.client.post(reverse('update-username-email-member'), {
             'username': user.username,
+            'password': 'hostel77',
             'email': 'test@unknown-provider-edit.com'
         }, follow=False)
         # A new provider object should have been created
