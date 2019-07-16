@@ -34,7 +34,7 @@ from zds.member.decorator import can_write_and_read_now, LoginRequiredMixin, Per
 from zds.member.forms import LoginForm, MiniProfileForm, ProfileForm, RegisterForm, \
     ChangePasswordForm, ChangeUserForm, NewPasswordForm, \
     PromoteMemberForm, KarmaForm, UsernameAndEmailForm, GitHubTokenForm, \
-    BannedEmailProviderForm, HatRequestForm
+    BannedEmailProviderForm, HatRequestForm, UnregisterForm
 from zds.member.models import Profile, TokenForgotPassword, TokenRegister, KarmaNote, Ban, \
     BannedEmailProvider, NewEmailProvider, set_old_smileys_cookie, remove_old_smileys_cookie
 from zds.mp.models import PrivatePost, PrivateTopic
@@ -438,7 +438,11 @@ def warning_unregister(request):
     Display a warning page showing what will happen when the user
     unregisters.
     """
-    return render(request, 'member/settings/unregister.html', {'user': request.user})
+
+    form = UnregisterForm(request.user)
+    return render(request, 'member/settings/unregister.html',
+            {'user': request.user, 'form': form})
+
 
 
 @login_required
@@ -446,81 +450,86 @@ def warning_unregister(request):
 @transaction.atomic
 def unregister(request):
     """Allow members to unregister."""
+    form = UnregisterForm(request.user, data=request.POST)
 
-    anonymous = get_object_or_404(User, username=settings.ZDS_APP['member']['anonymous_account'])
-    external = get_object_or_404(User, username=settings.ZDS_APP['member']['external_account'])
-    current = request.user
-    # Nota : as of v21 all about content paternity is held by a proper receiver in zds.tutorialv2.models.database
-    PickListOperation.objects.filter(staff_user=current).update(staff_user=anonymous)
-    PickListOperation.objects.filter(canceler_user=current).update(canceler_user=anonymous)
-    # Comments likes / dislikes
-    votes = CommentVote.objects.filter(user=current)
-    for vote in votes:
-        if vote.positive:
-            vote.comment.like -= 1
-        else:
-            vote.comment.dislike -= 1
-        vote.comment.save()
-    votes.delete()
-    # All contents anonymization
-    Comment.objects.filter(author=current).update(author=anonymous)
-    PrivatePost.objects.filter(author=current).update(author=anonymous)
-    CommentEdit.objects.filter(editor=current).update(editor=anonymous)
-    CommentEdit.objects.filter(deleted_by=current).update(deleted_by=anonymous)
-    # Karma notes, alerts and sanctions anonymization (to keep them)
-    KarmaNote.objects.filter(moderator=current).update(moderator=anonymous)
-    Ban.objects.filter(moderator=current).update(moderator=anonymous)
-    Alert.objects.filter(author=current).update(author=anonymous)
-    Alert.objects.filter(moderator=current).update(moderator=anonymous)
-    BannedEmailProvider.objects.filter(moderator=current).update(moderator=anonymous)
-    # Solved hat requests anonymization
-    HatRequest.objects.filter(moderator=current).update(moderator=anonymous)
-    # In case current user has been moderator in the past
-    Comment.objects.filter(editor=current).update(editor=anonymous)
-    for topic in PrivateTopic.objects.filter(author=current):
-        topic.participants.remove(current)
-        if topic.participants.count() > 0:
-            topic.author = topic.participants.first()
-            topic.participants.remove(topic.author)
+    if form.is_valid():
+        anonymous = get_object_or_404(User, username=settings.ZDS_APP['member']['anonymous_account'])
+        external = get_object_or_404(User, username=settings.ZDS_APP['member']['external_account'])
+        current = request.user
+        # Nota : as of v21 all about content paternity is held by a proper receiver in zds.tutorialv2.models.database
+        PickListOperation.objects.filter(staff_user=current).update(staff_user=anonymous)
+        PickListOperation.objects.filter(canceler_user=current).update(canceler_user=anonymous)
+        # Comments likes / dislikes
+        votes = CommentVote.objects.filter(user=current)
+        for vote in votes:
+            if vote.positive:
+                vote.comment.like -= 1
+            else:
+                vote.comment.dislike -= 1
+            vote.comment.save()
+        votes.delete()
+        # All contents anonymization
+        Comment.objects.filter(author=current).update(author=anonymous)
+        PrivatePost.objects.filter(author=current).update(author=anonymous)
+        CommentEdit.objects.filter(editor=current).update(editor=anonymous)
+        CommentEdit.objects.filter(deleted_by=current).update(deleted_by=anonymous)
+        # Karma notes, alerts and sanctions anonymization (to keep them)
+        KarmaNote.objects.filter(moderator=current).update(moderator=anonymous)
+        Ban.objects.filter(moderator=current).update(moderator=anonymous)
+        Alert.objects.filter(author=current).update(author=anonymous)
+        Alert.objects.filter(moderator=current).update(moderator=anonymous)
+        BannedEmailProvider.objects.filter(moderator=current).update(moderator=anonymous)
+        # Solved hat requests anonymization
+        HatRequest.objects.filter(moderator=current).update(moderator=anonymous)
+        # In case current user has been moderator in the past
+        Comment.objects.filter(editor=current).update(editor=anonymous)
+        for topic in PrivateTopic.objects.filter(author=current):
+            topic.participants.remove(current)
+            if topic.participants.count() > 0:
+                topic.author = topic.participants.first()
+                topic.participants.remove(topic.author)
+                topic.save()
+            else:
+                topic.delete()
+        for topic in PrivateTopic.objects.filter(participants__in=[current]):
+            topic.participants.remove(current)
             topic.save()
-        else:
-            topic.delete()
-    for topic in PrivateTopic.objects.filter(participants__in=[current]):
-        topic.participants.remove(current)
-        topic.save()
-    Topic.objects.filter(solved_by=current).update(solved_by=anonymous)
-    Topic.objects.filter(author=current).update(author=anonymous)
+        Topic.objects.filter(solved_by=current).update(solved_by=anonymous)
+        Topic.objects.filter(author=current).update(author=anonymous)
 
-    # Any content exclusively owned by the unregistering member will
-    # be deleted just before the User object (using a pre_delete
-    # receiver).
-    #
-    # Regarding galleries, there are two cases:
-    #
-    # - "personal galleries" with one owner (the unregistering
-    #   user). The user's ownership is removed and replaced by an
-    #   anonymous user in order not to lost the gallery.
-    #
-    # - "personal galleries" with many other owners. It is safe to
-    #   remove the user's ownership, the gallery won't be lost.
+        # Any content exclusively owned by the unregistering member will
+        # be deleted just before the User object (using a pre_delete
+        # receiver).
+        #
+        # Regarding galleries, there are two cases:
+        #
+        # - "personal galleries" with one owner (the unregistering
+        #   user). The user's ownership is removed and replaced by an
+        #   anonymous user in order not to lost the gallery.
+        #
+        # - "personal galleries" with many other owners. It is safe to
+        #   remove the user's ownership, the gallery won't be lost.
 
-    galleries = UserGallery.objects.filter(user=current)
-    for gallery in galleries:
-        if gallery.gallery.get_linked_users().count() == 1:
-            anonymous_gallery = UserGallery()
-            anonymous_gallery.user = external
-            anonymous_gallery.mode = 'w'
-            anonymous_gallery.gallery = gallery.gallery
-            anonymous_gallery.save()
-    galleries.delete()
+        galleries = UserGallery.objects.filter(user=current)
+        for gallery in galleries:
+            if gallery.gallery.get_linked_users().count() == 1:
+                anonymous_gallery = UserGallery()
+                anonymous_gallery.user = external
+                anonymous_gallery.mode = 'w'
+                anonymous_gallery.gallery = gallery.gallery
+                anonymous_gallery.save()
+        galleries.delete()
 
-    # Remove API access (tokens + applications)
-    for token in AccessToken.objects.filter(user=current):
-        token.revoke()
+        # Remove API access (tokens + applications)
+        for token in AccessToken.objects.filter(user=current):
+            token.revoke()
 
-    logout(request)
-    User.objects.filter(pk=current.pk).delete()
-    return redirect(reverse('homepage'))
+        logout(request)
+        User.objects.filter(pk=current.pk).delete()
+        return redirect(reverse('homepage'))
+    else:
+        return render(request, 'member/settings/unregister.html',
+                {'user': request.user, 'form': form})
 
 
 @require_POST

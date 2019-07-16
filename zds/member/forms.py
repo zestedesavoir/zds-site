@@ -335,6 +335,43 @@ class GitHubTokenForm(forms.Form):
                 StrictButton(_('Enregistrer'), type='submit'),
             ))
 
+class UnregisterForm(forms.Form):
+    """
+    Unregister form
+    """
+    password = forms.CharField(
+        label=_('Mot de passe'),
+        widget=forms.PasswordInput,
+    )
+
+    def __init__(self, user, *args, **kwargs):
+        super(UnregisterForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = 'content-wrapper'
+        self.helper.form_method = 'post'
+
+        self.user = user
+
+        self.helper.layout = Layout(
+            Field('password'),
+        )
+
+    def clean(self):
+        cleaned_data = super(UnregisterForm, self).clean()
+
+        password = cleaned_data.get('password')
+
+        if password:
+            user_exist = authenticate(username=self.user.username, password=password)
+            # Check if the user exist.
+            if not user_exist and password != '':
+                self._errors['password'] = self.error_class([_('Mot de passe incorrect.')])
+                if 'password' in cleaned_data:
+                    del cleaned_data['password']
+        return cleaned_data
+
+
+
 
 class ChangeUserForm(forms.Form):
     """
