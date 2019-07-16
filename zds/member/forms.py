@@ -335,6 +335,7 @@ class GitHubTokenForm(forms.Form):
                 StrictButton(_('Enregistrer'), type='submit'),
             ))
 
+
 class UnregisterForm(forms.Form):
     """
     Unregister form
@@ -371,8 +372,6 @@ class UnregisterForm(forms.Form):
         return cleaned_data
 
 
-
-
 class ChangeUserForm(forms.Form):
     """
     Update username and email
@@ -381,7 +380,6 @@ class ChangeUserForm(forms.Form):
         label=_('Mot de passe'),
         widget=forms.PasswordInput,
     )
-
 
     username = forms.CharField(
         label=_('Mon pseudo'),
@@ -453,7 +451,7 @@ class ChangeUserForm(forms.Form):
                 self._errors['password'] = self.error_class([_('Mot de passe incorrect.')])
                 if 'password' in cleaned_data:
                     del cleaned_data['password']
-            else: # the provided password is correct
+            else:  # the provided password is correct
                 if username != self.previous_username:
                     validate_not_empty(username)
                     validate_zds_username(username)

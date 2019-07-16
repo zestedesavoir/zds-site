@@ -441,8 +441,7 @@ def warning_unregister(request):
 
     form = UnregisterForm(request.user)
     return render(request, 'member/settings/unregister.html',
-            {'user': request.user, 'form': form})
-
+                  {'user': request.user, 'form': form})
 
 
 @login_required
@@ -529,7 +528,7 @@ def unregister(request):
         return redirect(reverse('homepage'))
     else:
         return render(request, 'member/settings/unregister.html',
-                {'user': request.user, 'form': form})
+                      {'user': request.user, 'form': form})
 
 
 @require_POST

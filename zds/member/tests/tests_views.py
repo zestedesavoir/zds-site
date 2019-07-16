@@ -436,6 +436,7 @@ class MemberTests(TutorialTestMixin, TestCase):
         self.client.logout()
         result = self.client.post(
             reverse('member-unregister'),
+            {'password': 'hostel77'},
             follow=False)
         self.assertEqual(result.status_code, 302)
 
@@ -447,7 +448,7 @@ class MemberTests(TutorialTestMixin, TestCase):
         self.assertEqual(login_check, True)
         result = self.client.post(
             reverse('member-unregister'),
-            { 'password': 'hostel77', },
+            {'password': 'hostel77'},
             follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertEqual(User.objects.filter(username=user.user.username).count(), 0)
