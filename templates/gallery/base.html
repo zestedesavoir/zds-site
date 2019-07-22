@@ -69,6 +69,10 @@
                                         {% trans "à l’article" %}
                                     {% elif content_linked.type == "TUTORIAL" %}
                                         {% trans "au tutoriel" %}
+                                    {% elif content_linked.type == "OPINION" %}
+                                        {% trans "au billet" %}
+                                    {% else %}
+                                        {% trans "au contenu" %}
                                     {% endif %}
                                     {% trans "lié à cette galerie" %}
                                 </a>
