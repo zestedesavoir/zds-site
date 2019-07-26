@@ -12,11 +12,20 @@ Zeste de Savoir est basé sur un fork de [Progdupeupl](https://pdp.microjoe.org)
 Jetez donc un coup d’œil à notre [feuille de route](https://github.com/zestedesavoir/zds-site/wiki/Feuille-de-route).
 
 ## Contribuer à Zeste de Savoir
+
 ### Conseils de développement
 
 Pour bien démarrer, rendez vous sur [la page dédiée](http://docs.zestedesavoir.com/contributing.html). Les détails du *workflow* [sont détaillés ici](http://docs.zestedesavoir.com/workflow.html) (ou [sur ce sujet](http://zestedesavoir.com/forums/sujet/324/comment-contribuer-comprendre-comment-suivre-le-workflow/)).
 
 En contribuant, vous vous engagez à respecter le [Code de Conduite Contributeurs](CODE_OF_CONDUCT.md).
+
+### Demander de l'aide pour contribuer
+
+Les développeurs et contributeurs se réunissent sur [Discord][12] cependant vous pouvez aussi passer par [le forum Dev Zone de Zeste de Savoir](https://zestedesavoir.com/forums/communaute/dev-zone/).
+
+[12]:https://zestedesavoir.com/forums/sujet/12123/discord-zeste-de-savoir/#p199236
+
+[![Discord pour zds-site](https://img.shields.io/discord/547038592892010516)][12]
 
 ### Installation
 
