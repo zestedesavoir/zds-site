@@ -175,7 +175,6 @@
     {% if content.has_extracts %}
         {{ content.get_content_online|safe }}
     {% else %}
-
         {% if content.introduction %}
             {{ content.get_introduction_online|default:""|safe }}
         {% endif %}
