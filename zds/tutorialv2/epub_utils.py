@@ -69,7 +69,7 @@ def build_html_chapter_file(published_object, versioned_object, working_dir, roo
                                            file_ext='xhtml', image_callback=handle_images,
                                            image_directory=DirTuple(str(img_dir.absolute()),
                                                                     str(img_dir.relative_to(root_dir))),
-                                           relative='.')
+                                           relative='.', intro_ccl_template='tutorialv2/export/ebook/introduction.html')
     for container_path, title in path_to_title_dict.items():
         # TODO: check if a function exists in the std lib to get rid of `root_dir + '/'`
         yield container_path.replace(str(root_dir.absolute()) + '/', ''), 'chapter-' + slugify(title), title
@@ -179,32 +179,47 @@ def copy_or_create_empty(src_path, dst_path, default_name):
             f.write('')
 
 
-def handle_images(relative_path):
-    def _(html_code):
-        soup_parser = BeautifulSoup(html_code, 'lxml')
-        for image in soup_parser.find_all('img'):
-            if not image.get('src', ''):
-                continue
-            image_url = image['src']
-            if image_url.startswith('http://') or image_url.startswith('https://'):
-                splitted = parse.urlsplit(image_url)
-                final_path = splitted.path
-            elif image_url.startswith(settings.MEDIA_URL):
-                final_path = Path(image_url).name
-            elif Path(image_url).is_absolute() and 'images' in image_url:
-                root = Path(image_url)
-                while root.name != 'images':
-                    root = root.parent
-                final_path = str(Path(image_url).relative_to(root))
-            else:
-                final_path = Path(image_url).name
-            image_path_in_ebook = relative_path + '/images/' + str(final_path).replace('%20', '_')
-            image['src'] = str(image_path_in_ebook)
-        ids = {}
-        for element in soup_parser.find_all(name=None, attrs={'id': (lambda s: True)}):
-            while element.get('id', None) and element['id'] in ids:
-                element['id'] += '-1'
-            if element.get('id', None):
-                ids[element['id']] = True
-        return soup_parser.prettify('utf-8').decode('utf-8')
-    return _
+class ImageHandling:
+    def __init__(self):
+        self.names = set()
+
+    def handle_images(self, relative_path):
+        def _(html_code):
+            soup_parser = BeautifulSoup(html_code, 'lxml')
+            for image in soup_parser.find_all('img'):
+                if not image.get('src', ''):
+                    continue
+                image_url = image['src']
+                if image_url.startswith('http://') or image_url.startswith('https://'):
+                    splitted = parse.urlsplit(image_url)
+                    final_path = splitted.path
+                elif image_url.startswith(settings.MEDIA_URL):
+                    final_path = Path(image_url).name
+                    print('media')
+                elif Path(image_url).is_absolute() and 'images' in image_url:
+                    root = Path(image_url)
+                    while root.name != 'images':
+                        root = root.parent
+                    final_path = str(Path(image_url).relative_to(root))
+                    print('relative to root')
+                else:
+                    print('path.name')
+                    final_path = Path(image_url).name
+                image_path_in_ebook = relative_path + '/images/' + str(final_path).replace('%20', '_')
+                image['src'] = str(image_path_in_ebook)
+                self.names.add(Path(image_path_in_ebook).name)
+            ids = {}
+            for element in soup_parser.find_all(name=None, attrs={'id': (lambda s: True)}):
+                while element.get('id', None) and element['id'] in ids:
+                    element['id'] += '-1'
+                if element.get('id', None):
+                    ids[element['id']] = True
+            return soup_parser.prettify('utf-8').decode('utf-8')
+        return _
+
+    def remove_unused_image(self, image_path:Path, imglist):
+        for image in image_path.iterdir():
+            if image.name not in self.names and not image.is_dir():
+                os.remove(str(image))
+                imglist = [i for i in imglist if i[0].name != image.name]
+        return imglist
