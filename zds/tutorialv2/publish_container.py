@@ -101,7 +101,8 @@ def publish_container(db_object, base_dir, container, template='tutorialv2/expor
             else:
                 parsed = emarkdown(container.get_conclusion(), db_object.js_support)
             container.conclusion = str(part_path)
-            write_chapter_file(base_dir, container, part_path, parsed, path_to_title_dict, wrapped_image_callback_intro_ccl)
+            write_chapter_file(base_dir, container, part_path, parsed,
+                               path_to_title_dict, wrapped_image_callback_intro_ccl)
 
     return path_to_title_dict
 
