@@ -81,7 +81,9 @@
             </p>
         </div>
     {% else %}
-        {{ child.get_text|emarkdown:is_js }}
+        <div class="extract-wrapper">
+            {{ child.get_text|emarkdown:is_js }}
+        </div>
     {% endif %}
 {% else %}
     {# child is a container #}
