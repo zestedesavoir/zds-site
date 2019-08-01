@@ -48,9 +48,6 @@
     </manifest>
 
     <spine toc="ncx">
-        {% for image_path, guid in images %}
-            <itemref idref="{{ guid }}"/>
-        {% endfor %}
         {% for path, identifier, _ in chapters %}
             <itemref idref="{{ identifier }}"/>
         {% endfor %}
