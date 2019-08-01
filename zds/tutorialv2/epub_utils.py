@@ -1,5 +1,6 @@
 import contextlib
 import logging
+import os
 import shutil
 from collections import namedtuple
 from urllib import parse
@@ -47,7 +48,7 @@ def __traverse_and_identify_images(image_dir):
         yield ebook_image_path, identifier, media_type_map.get(ext.lower(), 'image/png')
 
 
-def build_html_chapter_file(published_object, versioned_object, working_dir, root_dir):
+def build_html_chapter_file(published_object, versioned_object, working_dir, root_dir, image_handler):
     """
     Parses the full html file, extracts the ``<hX>`` tags and splits their content into new files.
     Yields all the produced files.
@@ -60,13 +61,14 @@ def build_html_chapter_file(published_object, versioned_object, working_dir, roo
     :type versioned_object: zds.tutorialv2.models.models_versioned.VersionedContent
     :param published_object: the published content as saved in database
     :type published_object: zds.tutorialv2.models.models_database.PublishedContent
+    :type image_handler: ImageHandling
     :return: a generator of tuples composed as ``[splitted_html_file_relative_path, chapter-identifier, chapter-title]``
     """
     DirTuple = namedtuple('DirTuple', ['absolute', 'relative'])
     img_dir = working_dir.parent / 'images'
     path_to_title_dict = publish_container(published_object, str(working_dir), versioned_object,
                                            template='tutorialv2/export/ebook/chapter.html',
-                                           file_ext='xhtml', image_callback=handle_images,
+                                           file_ext='xhtml', image_callback=image_handler.handle_images,
                                            image_directory=DirTuple(str(img_dir.absolute()),
                                                                     str(img_dir.relative_to(root_dir))),
                                            relative='.', intro_ccl_template='tutorialv2/export/ebook/introduction.html')
@@ -135,12 +137,12 @@ def build_ebook(published_content_entity, working_dir, final_file_path):
 
     with mime_path.open(mode='w', encoding='utf-8') as mimefile:
         mimefile.write(mimetype_conf['content'])
-
+    image_handler = ImageHandling()
     chapters = list(
         build_html_chapter_file(published_content_entity.content,
                                 published_content_entity.content.load_version(sha=published_content_entity.sha_public),
                                 working_dir=text_dir_path,
-                                root_dir=Path(working_dir, 'ebook')))
+                                root_dir=Path(working_dir, 'ebook'), image_handler=image_handler))
     build_toc_ncx(chapters, published_content_entity, ops_dir)
     copy_or_create_empty(settings.ZDS_APP['content']['epub_stylesheets']['toc'], style_dir_path, 'toc.css')
     copy_or_create_empty(settings.ZDS_APP['content']['epub_stylesheets']['full'], style_dir_path, 'zmd.css')
@@ -151,7 +153,8 @@ def build_ebook(published_content_entity, working_dir, final_file_path):
         import_asset(style_images_path, target_image_dir)
     if smiley_images_path.exists():
         import_asset(smiley_images_path, target_image_dir)
-    images = __traverse_and_identify_images(target_image_dir)
+    images = list(__traverse_and_identify_images(target_image_dir))
+    images = image_handler.remove_unused_image(target_image_dir, images)
     build_content_opf(published_content_entity, chapters, images, ops_dir)
     build_container_xml(meta_inf_dir_path)
     build_nav_xhtml(ops_dir, published_content_entity, chapters)
@@ -217,7 +220,7 @@ class ImageHandling:
             return soup_parser.prettify('utf-8').decode('utf-8')
         return _
 
-    def remove_unused_image(self, image_path:Path, imglist):
+    def remove_unused_image(self, image_path: Path, imglist):
         for image in image_path.iterdir():
             if image.name not in self.names and not image.is_dir():
                 os.remove(str(image))
