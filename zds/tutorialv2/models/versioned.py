@@ -427,7 +427,7 @@ class Container:
         """
         if self.introduction:
             return get_blob(self.top_container().repository.commit(self.top_container().current_version).tree,
-                            self.introduction)
+                            self.introduction.replace('\\', '/'))
 
     def get_conclusion(self):
         """
@@ -436,7 +436,7 @@ class Container:
         """
         if self.conclusion:
             return get_blob(self.top_container().repository.commit(self.top_container().current_version).tree,
-                            self.conclusion)
+                            self.conclusion.replace('\\', '/'))
 
     def get_introduction_online(self):
         """The introduction content for online version.
@@ -1006,9 +1006,11 @@ class Extract:
         :rtype: str
         """
         if self.text:
+            print(self.container.top_container().current_version, self.text.replace('\\', '/'))
             return get_blob(
                 self.container.top_container().repository.commit(self.container.top_container().current_version).tree,
-                self.text)
+                self.text.replace('\\', '/'))
+        return ''
 
     def compute_hash(self):
         """Compute an MD5 hash from the text, for comparison purpose
