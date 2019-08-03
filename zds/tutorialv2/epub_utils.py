@@ -146,6 +146,10 @@ def build_ebook(published_content_entity, working_dir, final_file_path):
     build_toc_ncx(chapters, published_content_entity, ops_dir)
     copy_or_create_empty(settings.ZDS_APP['content']['epub_stylesheets']['toc'], style_dir_path, 'toc.css')
     copy_or_create_empty(settings.ZDS_APP['content']['epub_stylesheets']['full'], style_dir_path, 'zmd.css')
+    with (style_dir_path / 'zmd.css').open('r') as f:
+        new_css = f.read().replace('../images/sprite.png', '../../images/sprite.png')
+    with (style_dir_path / 'zmd.css').open('w') as f:
+        f.write(new_css)
     copy_or_create_empty(settings.ZDS_APP['content']['epub_stylesheets']['katex'], style_dir_path, 'katex.css')
     style_images_path = Path(settings.BASE_DIR, 'dist', 'images')
     smiley_images_path = Path(settings.BASE_DIR, 'dist', 'smileys')
@@ -154,6 +158,7 @@ def build_ebook(published_content_entity, working_dir, final_file_path):
     if smiley_images_path.exists():
         import_asset(smiley_images_path, target_image_dir)
     images = list(__traverse_and_identify_images(target_image_dir))
+    image_handler.names.add('sprite.png')
     images = image_handler.remove_unused_image(target_image_dir, images)
     build_content_opf(published_content_entity, chapters, images, ops_dir)
     build_container_xml(meta_inf_dir_path)
@@ -198,15 +203,12 @@ class ImageHandling:
                     final_path = splitted.path
                 elif image_url.startswith(settings.MEDIA_URL):
                     final_path = Path(image_url).name
-                    print('media')
                 elif Path(image_url).is_absolute() and 'images' in image_url:
                     root = Path(image_url)
                     while root.name != 'images':
                         root = root.parent
                     final_path = str(Path(image_url).relative_to(root))
-                    print('relative to root')
                 else:
-                    print('path.name')
                     final_path = Path(image_url).name
                 image_path_in_ebook = relative_path + '/images/' + str(final_path).replace('%20', '_')
                 image['src'] = str(image_path_in_ebook)
@@ -224,5 +226,5 @@ class ImageHandling:
         for image in image_path.iterdir():
             if image.name not in self.names and not image.is_dir():
                 os.remove(str(image))
-                imglist = [i for i in imglist if i[0].name != image.name]
+                imglist = [i for i in imglist if i[0].name.replace('%20', '_') != image.name]
         return imglist
