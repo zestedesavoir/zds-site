@@ -7,25 +7,29 @@
         <link rel="stylesheet" href="{{ relative }}/styles/katex.min.css" media="all" type="text/css"/>
     </head>
     <body class="zmarkdown">
-        {% if container.introduction %}
-            {{ container.get_introduction|epub_markdown:image_directory }}
-        {% endif %}
+        <div class="content-wrapper">
+            <div class="article-content">
+                {% if container.introduction %}
+                    {{ container.get_introduction|epub_markdown:image_directory }}
+                {% endif %}
 
-        {% for extract in container.children %}
-            <h2 id="{{ extract.position_in_parent }}-{{ extract.slug }}">
-                <a href="#{{ extract.position_in_parent }}-{{ extract.slug }}">
-                    {{ extract.title }}
-                </a>
-            </h2>
-            {% if extract.text %}
-                {{ extract.get_text|epub_markdown:image_directory }}
-            {% endif %}
-        {% endfor %}
+                {% for extract in container.children %}
+                    <h2 id="{{ extract.position_in_parent }}-{{ extract.slug }}">
+                        <a href="#{{ extract.position_in_parent }}-{{ extract.slug }}">
+                            {{ extract.title }}
+                        </a>
+                    </h2>
+                    {% if extract.text %}
+                        {{ extract.get_text|epub_markdown:image_directory }}
+                    {% endif %}
+                {% endfor %}
 
-        <hr />
+                <hr />
 
-        {% if container.conclusion %}
-            {{ container.get_conclusion|epub_markdown:image_directory }}
-        {% endif %}
+                {% if container.conclusion %}
+                    {{ container.get_conclusion|epub_markdown:image_directory }}
+                {% endif %}
+            </div>
+        </div>
     </body>
 </html>
