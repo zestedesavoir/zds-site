@@ -10,11 +10,11 @@ Numéro du ticket concerné (optionnel) :
 
 ### Contrôle qualité
 
-<!-- Écrivez éventuellement ici quelques instructions pour nous aider à vérifier vos changement.
+<!-- Écrivez éventuellement ici quelques instructions pour nous aider à vérifier vos changement. -->
 
 Par exemple :
 
-  - Lancez `python manage.py migrate` et `yarn test` ;
+  - Lancez `python manage.py migrate` et `npm test` ;
   - Créez un nouveau compte nommé `toto` ;
   - Envoyez un message privé à quelqu’un d’autre, le titre du message doit apparaître en rose. -->
 
