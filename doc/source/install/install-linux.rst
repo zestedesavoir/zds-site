@@ -93,7 +93,7 @@ Le nom du *virtualenv* est donc controlé par la variable d'environement ``ZDS_V
 Composant ``node``
 ==================
 
-Installe ``nvm`` et l'utilise pour installer ``node``, puis ``yarn``.
+Installe ``nvm`` et l'utilise pour installer ``node``, puis ``npm``.
 Ajoute ensuite un ``.nvmrc`` dans le dossier et ajoute ``node use`` au script d'activation du *virtualenv* (pour qu'il soit automatiquement utilisé au chargement).
 La version de node installée est controlée par la variable d'environement ``ZDS_NODE_VERSION`` (dont la valeur est par défaut ``10.8.0``).
 
@@ -113,7 +113,7 @@ Strictement équivalent au commande suivantes:
 Composant ``front``
 ===================
 
-Installe les dépendances du front-end en utilisant ``yarn``, puis *build* le front-end.
+Installe les dépendances du front-end en utilisant ``npm``, puis *build* le front-end.
 Strictement équivalent au commande suivantes:
 
 .. sourcecode:: bash

@@ -1058,16 +1058,14 @@ Actions à faire pour mettre en prod la version : v25
 Avant le déploiement:
 ---------------------
 
-Node.js, yarn et npm
+Node.js et npm
 --------------------
 
-En root: Installer node 8 et Yarn:
+En root: Installer node 10 (npm est inclus):
 
 ```
-curl -sL https://deb.nodesource.com/setup_8.x | bash -
-curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
-echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
-apt-get update && apt-get install build-essential nodejs yarn
+curl -sL https://deb.nodesource.com/setup_10.x | bash -
+apt-get update && apt-get install build-essential nodejs
 ```
 
 Mise à jour d'ElasticSearch (#420)

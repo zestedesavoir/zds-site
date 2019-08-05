@@ -229,21 +229,19 @@ fi
 
 export ZDS_ENV=$(realpath $ZDS_VENV)
 
-# nvm node & yarn
+# nvm node
 if  ! $(_in "-node" $@) && ( $(_in "+node" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
-    zds_fold_start "node" "* [+node] installing nvm (v$ZDS_NVM_VERSION) & node (v$ZDS_NODE_VERSION) & yarn"
+    zds_fold_start "node" "* [+node] installing nvm (v$ZDS_NVM_VERSION) & node (v$ZDS_NODE_VERSION)"
 
     wget -qO- https://raw.githubusercontent.com/creationix/nvm/v${ZDS_NVM_VERSION}/install.sh | bash
     if [[ $? == 0 ]]; then
 
         _nvm
 
-        # install node & yarn
+        # install node
         nvm install ${ZDS_NODE_VERSION}
         echo ${ZDS_NODE_VERSION} > .nvmrc
         nvm use
-
-        npm -g add yarn
 
         if [[ $(grep -c -i "nvm use" $ZDS_ENV/bin/activate) == "0" ]]; then # add nvm activation to venv activate's
             ACTIVATE_NVM="nvm use > /dev/null # activate nvm (from install_zds.sh)"

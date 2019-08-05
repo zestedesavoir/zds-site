@@ -46,19 +46,19 @@ clean-back: ## Remove Python bytecode files (*.pyc)
 ## ~ Frontend
 
 install-front: ## Install the Node.js packages for the frontend
-	yarn install
+	npm install
 
 build-front: ## Build the frontend assets (CSS, JS, images)
-	yarn run build
+	npm run build
 
 watch-front: ## Build the frontend assets when they are modified
-	yarn run watch --speed
+	npm run watch --speed
 
 lint-front: ## Lint the frontend's Javascript
-	yarn run lint
+	npm run lint
 
 clean-front: ## Clean the frontend builds
-	yarn run clean
+	npm run clean
 
 ##
 ## ~ zmarkdown

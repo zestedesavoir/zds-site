@@ -61,7 +61,6 @@ services:
 cache:
   apt: true
   pip: true
-  yarn: true
   directories:
     - $HOME/.local/share/fonts
     - $HOME/.texlive

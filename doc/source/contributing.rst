@@ -20,7 +20,7 @@ Contribuer à Zeste De Savoir
 3. Ajoutez un test pour votre modification. Seules les modifications de documentation et les réusinages n'ont pas besoin de nouveaux tests.
 4. Assurez-vous que vos tests passent en utilisant la commande ``python manage.py test`` (`voir la documentation <https://docs.djangoproject.com/fr/1.10/topics/testing/overview/#running-tests>`_). Lancer la commande sur tous les tests du site risque de prendre un certain temps et n'est pas nécessaire : les tests seront de toute manière lancés de manière automatisée sur votre *pull request*.
 5. Assurez-vous que le code suit la `PEP-8 <http://legacy.python.org/dev/peps/pep-0008/>`_ : ``flake8``.
-6. Si vous avez fait des modifications du _frontend_, jouez les tests associés : ``yarn test``.
+6. Si vous avez fait des modifications du _frontend_, jouez les tests associés : ``npm test``.
 7. Si vous modifiez les modèles (les fichiers ``models.py``), n'oubliez pas de créer les fichiers de migration : ``python manage.py makemigrations``.
 8. Poussez votre travail et faites une *pull request*.
 9. Si votre travail nécessite des actions spécifiques lors du déploiement, précisez-les dans le corps de votre *pull request*. Elles seront ajoutées au *changelog* par le mainteneur qui effectuera le *merge*.
@@ -47,7 +47,7 @@ Les pull requests
 =================
 
 * Lors de l'ouverture d'une PR, la zone de texte sera pré-complété avec les informations essentielles à apporter à votre PR. Utilisez ce gabarit pour rédiger votre message.
-* Ajoutez des notes de QA (Quality Assurance). Ces notes doivent permettent à un testeur de comprendre ce que vous avez modifié, ce qu'il faut tester en priorité et les pièges auxquels il doit s'attendre et donc sur lesquels porter une attention particulière. Précisez tout particulièrement s'il est nécessaire d'effectuer une action de gestion préalable, comme `python manage.py migrate --fake-initial`, `python manage.py loaddata fixture/*.yaml` ou `yarn run build`.
+* Ajoutez des notes de QA (Quality Assurance). Ces notes doivent permettent à un testeur de comprendre ce que vous avez modifié, ce qu'il faut tester en priorité et les pièges auxquels il doit s'attendre et donc sur lesquels porter une attention particulière. Précisez tout particulièrement s'il est nécessaire d'effectuer une action de gestion préalable, comme `python manage.py migrate --fake-initial`, `python manage.py loaddata fixture/*.yaml` ou `npm run build`.
 
 Les commits
 ===========

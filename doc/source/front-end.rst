@@ -10,7 +10,7 @@ Il s'agit donc de la partie du code définissant le design et l'affichage, mais 
 + `SASS (en) <http://sass-lang.com/>`__ pour les feuilles de style ;
 + JavaScript pour les interactions.
 
-`Node.js (en) <https://nodejs.org/>`__, `yarn (en) <https://yarnpkg.com/en/>`__ (gestionnaire de paquet pour Node.js) et `Gulp (en) <http://gulpjs.com/>`__ sont utilisés pour générer le code final minifié et cohérent. Le développement du *front-end* requiert donc des outils spécifiques dont l'installation `est expliquée ici <install/frontend-install.html>`__.
+`Node.js (en) <https://nodejs.org/>`__, `npm (en) <https://www.npmjs.com/>`__ (gestionnaire de paquet pour Node.js) et `Gulp (en) <http://gulpjs.com/>`__ sont utilisés pour générer le code final minifié et cohérent. Le développement du *front-end* requiert donc des outils spécifiques dont l'installation `est expliquée ici <install/frontend-install.html>`__.
 
 .. toctree::
    :maxdepth: 2
