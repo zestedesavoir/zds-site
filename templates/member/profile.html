@@ -102,6 +102,20 @@
                                 {% include 'notification/follow_button_combined_template.html' with link=link_follow is_followed=content_is_followed data_onclick=data_onclick button_text=button_text is_followed_email=content_is_followed_email email_data_onclick=email_data_onclick email_button_text=email_button_text followed_user=usr user=user %}
                             {% endwith %}
                         </div>
+                    {% elif not user.is_authenticated %}
+                        <div class="actions">
+                            <div class="btn btn-ico ico-after star light" disabled>
+                                {% if subscriber_count == 0 %}
+                                    {% trans "Aucun abonné" %}
+                                {% else %}
+                                    {% blocktrans count subscriber_count=subscriber_count %}
+                                        {{ subscriber_count }} abonné
+                                    {% plural %}
+                                        {{ subscriber_count }} abonnés
+                                    {% endblocktrans %}
+                                {% endif %}
+                            </div>
+                        </div>
                     {% endif %}
                 </div>
             </div>
