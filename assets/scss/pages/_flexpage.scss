@@ -214,6 +214,14 @@ $content-width: 1145px;
 
                 .line-item {
                     display: inline-block;
+
+                    a {
+                        text-decoration: none;
+
+                        &:hover {
+                            text-decoration: underline;
+                        }
+                    }
                 }
             }
 
@@ -260,7 +268,7 @@ $content-width: 1145px;
                 &:after {
                     content: '';
                     position: absolute;
-                    top: 12px;
+                    top: 10px;
                     left: 0;
                     width: 10px;
                     height: 10px;

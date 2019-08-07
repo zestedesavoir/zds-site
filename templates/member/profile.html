@@ -49,7 +49,23 @@
                         {% for summary in summaries %}
                             <div class="line">
                                 <div class="line-item">
-                                    <span class="has-separator">{{ summary }}</span>
+                                    {% spaceless %}
+                                        <span class="has-separator">
+                                            {% for link, text in summary %}
+                                                {% captureas summary_link_html %}
+                                                {% if link %}<a href="{{ link }}">{% endif %}
+                                                {{ text }}{% if link %}</a>{% endif %}{% endcaptureas %}
+
+                                                {% if forloop.last and not forloop.first %}
+                                                    et {{ summary_link_html }}
+                                                {% elif not forloop.last and forloop.revcounter != 2 %}
+                                                    {{ summary_link_html }},
+                                                {% else %}
+                                                    {{ summary_link_html }}
+                                                {% endif %}
+                                            {% endfor %}
+                                        </span>
+                                    {% endspaceless %}
                                 </div>
                             </div>
                         {% endfor %}
