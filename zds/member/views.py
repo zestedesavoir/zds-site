@@ -76,6 +76,15 @@ class MemberDetail(DetailView):
         return get_object_or_404(User, username=urlunquote(self.kwargs['user_name']))
 
     def get_summaries(self, profile):
+        """
+        Returns a summary of this profile's activity, as a list of list of tuples.
+        Each first-level list item is an activity category (e.g. contents, forums, etc.)
+        Each second-level list item is a stat in this activity category.
+        Each tuple is (link url, displayed text), where the link url can be None if it's not a link.
+
+        :param profile: The profile.
+        :return: The summary data.
+        """
         summaries = []
 
         if self.request.user.has_perm('member.change_post'):
@@ -87,31 +96,53 @@ class MemberDetail(DetailView):
         count_tutorials = profile.get_public_tutos().count()
         count_articles = profile.get_public_articles().count()
         count_opinions = profile.get_public_opinions().count()
-        #count_not_published_contents = profile.get_draft_contents().count() + profile.get_beta_contents().count() + profile.get_validate_contents().count()
 
         summary = []
         if count_tutorials + count_articles + count_opinions == 0:
-            summary.append(__('Aucun contenu publié'))
+            summary.append((None, __('Aucun contenu publié')))
+
         if count_tutorials > 0:
-            summary.append(__('{} tutoriel{}').format(count_tutorials, pluralize_fr(count_tutorials)))
+            summary.append(
+                (
+                    reverse_lazy("content:find-tutorial", args=(profile.user.pk,)),
+                    __('{} tutoriel{}').format(count_tutorials, pluralize_fr(count_tutorials))
+                )
+            )
         if count_articles > 0:
-            summary.append(__('{} article{}').format(count_articles, pluralize_fr(count_articles)))
+            summary.append(
+                (
+                    reverse_lazy("content:find-article", args=(profile.user.pk,)),
+                    __('{} article{}').format(count_articles, pluralize_fr(count_articles))
+                )
+            )
         if count_opinions > 0:
-            summary.append(__('{} billet{}').format(count_opinions, pluralize_fr(count_opinions)))
-        summaries.append(__(' et ').join([', '.join(summary[:-1]), summary[-1]] if len(summary) > 2 else summary))
+            summary.append(
+                (
+                    reverse_lazy("content:find-opinion", args=(profile.user.pk,)),
+                    __('{} billet{}').format(count_opinions, pluralize_fr(count_opinions))
+                )
+            )
+        summaries.append(summary)
 
         summary = []
         if count_post > 0:
-            summary.append(__('{} message{}').format(count_post, pluralize_fr(count_post)))
+            summary.append(
+                (
+                    reverse_lazy("post-find", args=(profile.user.pk,)),
+                    __('{} message{}').format(count_post, pluralize_fr(count_post))
+                )
+            )
         else:
-            summary.append(__('Aucun message'))
+            summary.append((None, __('Aucun message')))
         if count_topic > 0:
-            summary.append(__('{} sujet{}').format(count_topic, pluralize_fr(count_topic)))
-        summaries.append(__(' et ').join([', '.join(summary[:-1]), summary[-1]] if len(summary) > 2 else summary))
+            summary.append(
+                (
+                    reverse_lazy("topic-find", args=(profile.user.pk,)),
+                    __('{} sujet{}').format(count_topic, pluralize_fr(count_topic))
+                )
+            )
 
-        #if count_not_published_contents > 0:
-        #    summaries.append(__('{} contenu{} en rédaction, en bêta ou en validation') \
-        #                     .format(count_not_published_contents, pluralize_fr(count_not_published_contents)))
+        summaries.append(summary)
 
         return summaries
 
