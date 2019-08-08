@@ -15,26 +15,6 @@ body.userprofilepage {
 
         margin-top: -1.6rem;
 
-        .presence-statistics {
-            margin: 0;
-            padding-left: .8rem;
-
-            li {
-                display: inline-block;
-                list-style-type: none;
-
-                &:not(:first-child) {
-                    margin-left: 1.2rem;
-
-                    &:before {
-                        content: "—";
-                        position: relative;
-                        left: -.65rem;
-                    }
-                }
-            }
-        }
-
         .hatlist {
             flex: 1;
             justify-content: flex-end;
@@ -42,23 +22,6 @@ body.userprofilepage {
 
         @media only screen and #{$media-mobile} {
             flex-direction: column-reverse;
-
-            .presence-statistics {
-                margin: 1rem 0 -.5rem 0;
-
-                li {
-                    display: block;
-                    text-align: center;
-
-                    &:not(:first-child) {
-                        margin-left: 0;
-
-                        &:before {
-                            display: none;
-                        }
-                    }
-                }
-            }
 
             .hatlist {
                 margin-top: -2rem;

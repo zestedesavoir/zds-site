@@ -138,7 +138,7 @@
                 position: absolute;
                 left: 0;
                 bottom: 0;
-                width: 0%;
+                width: 0;
                 height: 1px;
                 background: #555;
                 animation: lineLoading linear 1s infinite;
@@ -210,6 +210,9 @@
     }
     .btn-grey {
         @include addBtnColorProperties(#EEE, #555, #CCC, #333, #999);
+    }
+    .btn-inline {
+        display: inline-block;
     }
     [disabled],
     .disabled {
