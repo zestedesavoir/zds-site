@@ -233,9 +233,6 @@ $content-width: 1145px;
                 font-size: 5rem;
                 line-height: 50px;
                 border: none;
-                overflow: hidden;
-                white-space: nowrap;
-                text-overflow: ellipsis;
             }
 
             h2 {
@@ -283,6 +280,7 @@ $content-width: 1145px;
 
         .aside {
             display: flex;
+            flex-direction: column;
             margin-top: 10px;
             margin-right: 20px;
             height: 50px;
@@ -324,6 +322,36 @@ $content-width: 1145px;
 
                     &:hover, &:focus {
                         background: #ccc !important;
+                    }
+                }
+            }
+
+            .under-search {
+                font-size: .7em;
+
+                p {
+                    margin: 0;
+                    padding: .4rem 0;
+                }
+
+                ul {
+                    margin: 0;
+                    padding: .4rem 0;
+
+                    li {
+                        display: inline-block;
+                        list-style-type: none;
+
+                        &:not(:first-child) {
+                            margin-left: 1.2rem;
+
+                            &:before {
+                                content: "—";
+                                position: relative;
+                                left: -.65rem;
+                                top: -.1rem;
+                            }
+                        }
                     }
                 }
             }
