@@ -78,6 +78,21 @@
                                 <input type="hidden" name="models" value="content">
                                 <button class="btn ico-after ico-search" type="submit" title="{% trans 'Rechercher' %}"></button>
                             </form>
+
+                            <aside class="under-search">
+                                <ul>
+                                    {% if profile.is_private %}
+                                        <li>{% trans "Ce membre est un compte d'administration" %}</li>
+                                    {% else %}
+                                        <li>{% trans "Inscription le" %} <time datetime="{{ usr.date_joined|date:"c" }}">{{ usr.date_joined|format_date:True }}</time></li>
+                                        {% if profile.last_visit %}
+                                            <li>{% trans "Dernière visite" %} <time datetime="{{ profile.last_visit|date:"c" }}">{{ profile.last_visit|format_date:True }}</time></li>
+                                        {% else %}
+                                            <li>{% trans "Ne s’est jamais connecté(e)" %}</li>
+                                        {% endif %}
+                                    {% endif %}
+                                </ul>
+                            </aside>
                         </div>
                     </div>
 
@@ -139,19 +154,6 @@
 
         <div class="flexpage-wrapper">
             <div class="subheader">
-                <ul class="presence-statistics">
-                    {% if profile.is_private %}
-                        <li>{% trans "Ce membre est un compte d'administration" %}</li>
-                    {% else %}
-                        <li>{% trans "Inscription le" %} <time datetime="{{ usr.date_joined|date:"c" }}">{{ usr.date_joined|format_date:True }}</time></li>
-                        {% if profile.last_visit %}
-                            <li>{% trans "Dernière visite" %} <time datetime="{{ profile.last_visit|date:"c" }}">{{ profile.last_visit|format_date:True }}</time></li>
-                        {% else %}
-                            <li>{% trans "Ne s’est jamais connecté(e)" %}</li>
-                        {% endif %}
-                    {% endif %}
-                </ul>
-
                 {% if profile.has_hat or perms.utils.change_hat %}
                     <ul class="hatlist">
                         {% for hat in profile.get_hats %}
