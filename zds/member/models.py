@@ -71,6 +71,7 @@ class Profile(models.Model):
     use_old_smileys = models.BooleanField('Utilise les anciens smileys ?', default=False)
     _permissions = {}
     _groups = None
+    _cached_city = None
 
     objects = ProfileManager()
 
@@ -92,8 +93,12 @@ class Profile(models.Model):
         Uses geo-localization to get physical localization of a profile through its last IP address.
         This works relatively well with IPv4 addresses (~city level), but is very imprecise with IPv6 or exotic internet
         providers.
+        The result is cached on an instance level because this method is called a lot in the profile.
         :return: The city and the country name of this profile.
         """
+        if self._cached_city is not None and self._cached_city[0] == self.last_ip_address:
+            return self._cached_city[1]
+
         # FIXME: this test to differentiate IPv4 and IPv6 addresses doesn't work, as IPv6 addresses may have length < 16
         # Example: localhost ("::1"). Real test: IPv4 addresses contains dots, IPv6 addresses contains columns.
         if len(self.last_ip_address) <= 16:
@@ -110,11 +115,15 @@ class Profile(models.Model):
         geo = gic.record_by_addr(self.last_ip_address)
 
         if geo is None:
+            self._cached_city = (self.last_ip_address, '')
             return ''
 
         city = geo['city']
         country = geo['country_name']
-        return ', '.join(i for i in [city, country] if i)
+        geo_location = ', '.join(i for i in [city, country] if i)
+
+        self._cached_city = (self.last_ip_address, geo_location)
+        return geo_location
 
     def get_avatar_url(self):
         """Get the avatar URL for this profile.

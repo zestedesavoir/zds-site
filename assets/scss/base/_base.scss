@@ -124,6 +124,35 @@ nav {
     }
 }
 
+.help-question-mark {
+    position: relative;
+    top: -1px;
+
+    display: inline-block;
+
+    width: 18px;
+    height: 18px;
+
+    background-color: $color-question-marks;
+    border-radius: 426921px;
+
+    font-weight: bold;
+    font-size: .7em;
+    line-height: 17px;
+
+    color: white;
+    text-decoration: none;
+
+    text-align: center;
+
+    user-select: none;
+
+    &:hover {
+        color: white;
+        background-color: darken($color-question-marks, 10%);
+    }
+}
+
 @media only screen and #{$media-wide} {
     html,
     body {

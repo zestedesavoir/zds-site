@@ -33,6 +33,22 @@
 
 
 {% block content_out %}
+    {% captureas presence_statistics %}
+        {% if profile.is_private %}
+            <li>{% trans "Ce membre est un compte d'administration" %}</li>
+        {% else %}
+            <li>{% trans "Inscription le" %} <time datetime="{{ usr.date_joined|date:"c" }}">{{ usr.date_joined|format_date:True }}</time></li>
+            {% if profile.last_visit %}
+                <li>{% trans "Dernière visite le" %} <time datetime="{{ profile.last_visit|date:"c" }}">{{ profile.last_visit|format_date:True }}</time></li>
+            {% else %}
+                <li>{% trans "Ne s’est jamais connecté(e)" %}</li>
+            {% endif %}
+            {% if perms.member.show_ip %}
+                <li><a href="{% url "member-from-ip" profile.last_ip_address %}">{{ profile.last_ip_address }}</a>{% if profile.get_city %} ({{ profile.get_city }}){% endif %}</li>
+            {% endif %}
+        {% endif %}
+    {% endcaptureas %}
+
     {% with public_tutos_count=profile.get_public_tutos.count articles_public_count=profile.get_public_articles.count opinions_public_count=profile.get_public_opinions.count opinions_draft_count=profile.get_draft_opinions.count draft_content_count=profile.get_draft_tutos.count|add:profile.get_draft_articles.count beta_tutos_count=profile.get_beta_tutos.count beta_articles_count=profile.get_beta_articles.count %}
         <section class="flexpage-header">
             <div class="flexpage-wrapper">
@@ -80,17 +96,8 @@
                             </form>
 
                             <aside class="under-search">
-                                <ul>
-                                    {% if profile.is_private %}
-                                        <li>{% trans "Ce membre est un compte d'administration" %}</li>
-                                    {% else %}
-                                        <li>{% trans "Inscription le" %} <time datetime="{{ usr.date_joined|date:"c" }}">{{ usr.date_joined|format_date:True }}</time></li>
-                                        {% if profile.last_visit %}
-                                            <li>{% trans "Dernière visite" %} <time datetime="{{ profile.last_visit|date:"c" }}">{{ profile.last_visit|format_date:True }}</time></li>
-                                        {% else %}
-                                            <li>{% trans "Ne s’est jamais connecté(e)" %}</li>
-                                        {% endif %}
-                                    {% endif %}
+                                <ul class="presence-statistics-in-banner" aria-hidden="true">
+                                    {{ presence_statistics }}
                                 </ul>
                             </aside>
                         </div>
@@ -130,7 +137,15 @@
                                     {% trans "Abonné par courriel" as email_data_onclick %}
                                 {% endif %}
 
-                                {% include 'notification/follow_button_combined_template.html' with link=link_follow is_followed=content_is_followed data_onclick=data_onclick button_text=button_text is_followed_email=content_is_followed_email email_data_onclick=email_data_onclick email_button_text=email_button_text followed_user=usr user=user %}
+                                {% captureas subscriber_count_aria_label %}
+                                    {% blocktrans count subscriber_count=subscriber_count  %}
+                                        {{ subscriber_count }} abonné
+                                    {% plural %}
+                                        {{ subscriber_count }} abonnés
+                                    {% endblocktrans %}
+                                {% endcaptureas %}
+
+                                {% include 'notification/follow_button_combined_template.html' with link=link_follow is_followed=content_is_followed data_onclick=data_onclick button_text=button_text is_followed_email=content_is_followed_email email_data_onclick=email_data_onclick email_button_text=email_button_text subscriber_count=subscriber_count subscriber_count_aria_label=subscriber_count_aria_label followed_user=usr user=user %}
                             {% endwith %}
                         </div>
                     {% elif not user.is_authenticated %}
@@ -153,56 +168,66 @@
         </section>
 
         <div class="flexpage-wrapper">
-            <div class="subheader">
-                {% if profile.has_hat or perms.utils.change_hat %}
-                    <ul class="hatlist">
-                        {% for hat in profile.get_hats %}
-                            <li class="hat {% if hat.is_staff %}staff-hat{% endif %}">
-                                <a class="name" href="{{ hat.get_absolute_url }}" rel="casquette">
-                                    {{ hat.name }}
-                                    {% if hat.is_staff %}
-                                        <span>({{ app.site.literal_name }})</span>
-                                    {% endif %}
-                                </a>
-                                {% if perms.utils.change_hat and not hat.group %}
-                                    <a href="#remove-hat-{{ hat.pk }}" class="open-modal">{% trans "Retirer" %}</a>
-                                    <form action="{% url 'remove-hat' usr.pk hat.pk %}" method="post" id="remove-hat-{{ hat.pk }}" class="modal modal-flex">
-                                        {% csrf_token %}
-                                        <p>
-                                            {% blocktrans with hat=hat.name username=usr.username %}
-                                                Voulez-vous vraiment retirer la casquette « {{ hat }} » à {{ username }} ?
-                                            {% endblocktrans %}
-                                        </p>
-                                        <button type="submit">{% trans 'Confirmer' %}</button>
-                                    </form>
-                                {% endif %}
-                            </li>
-                        {% endfor %}
-                        {% if perms.utils.change_hat %}
-                            <li>
-                                <a href="#add-hat" class="open-modal btn btn-grey ico-after more"><span class="{% if profile.has_hat %}a11y{% endif %}">{% trans "Ajouter une casquette" %}</span></a>
-                                <form action="{% url 'add-hat' usr.pk %}" method="post" id="add-hat" class="modal modal-flex">
-                                    {% csrf_token %}
-                                    <p>
-                                        {% blocktrans with username=usr.username %}Vous allez ajouter une casquette à {{ username }} :{% endblocktrans %}
-                                    </p>
-                                    <ul>
-                                        <li>{% trans "Le membre aura la possibilité pour chaque message de poster avec ou sans sa casquette." %}</li>
-                                        <li>{% trans "Il sera possible de retirer la casquette au membre par la suite. Les messages ayant été postés avec le resteront." %}</li>
-                                    </ul>
-                                    <p>{% trans "La casquette sera créée si elle n’existe pas." %}</p>
-                                    <input type="text" name="hat" maxlength="40" placeholder="{% trans 'Casquette à attribuer.' %}" required>
-                                    <button type="submit">{% trans 'Valider' %}</button>
-                                </form>
-                            </li>
-                        {% endif %}
-                    </ul>
-                {% endif %}
-            </div>
-
             <section class="user-bio-and-activity">
                 <div class="bio">
-                    <div class="bio-container">
+                    {% if profile.has_hat %}
+                        <aside class="profile-card hats-container">
+                            <h3>
+                                <a href="#what-is-a-hat" class="open-modal title-link">Casquettes</a>
+                                <a href="#what-is-a-hat" class="help-question-mark open-modal" title="{% trans "Qu'est-ce qu'une casquette ?" %}" aria-haspopup="dialog">?</a>
+                            </h3>
+
+                            <div id="what-is-a-hat" class="modal modal-flex" data-modal-title="{% trans "Qu'est-ce qu'une casquette ?" %}" data-modal-close="{% trans "Fermer" %}">
+                                {% blocktrans %}
+                                    <p>
+                                        Une casquette est un moyen <strong>d’identifier formellement les responsabilités
+                                        d'un membre</strong> lorsque qu'il s'exprime au nom d’un projet particulier, d’une
+                                        organisation, d’une entreprise, ou autre. Ces responsabilités peuvent être au sein
+                                        de Zeste de Savoir comme au sein d’une entité externe.
+                                    </p>
+                                    <p>
+                                        Chaque utilisateur peut posséder plusieurs casquettes, parmi lesquelles une peut
+                                        être choisie pour chaque message.
+                                    </p>
+                                {% endblocktrans %}
+                                <a href="{% url "hats-list" %}" class="btn btn-submit">{% trans 'Voir toutes les casquettes' %}</a>
+                            </div>
+
+                            <ul class="hatlist">
+                                {% for hat in profile.get_hats %}
+                                    <li class="hat {% if hat.is_staff %}staff-hat{% endif %}">
+                                        <a class="name" href="{{ hat.get_absolute_url }}" rel="casquette">
+                                            {{ hat.name }}
+                                            {% if hat.is_staff %}
+                                                <span>({{ app.site.literal_name }})</span>
+                                            {% endif %}
+                                        </a>
+                                        {% if perms.utils.change_hat and not hat.group %}
+                                            <a href="#remove-hat-{{ hat.pk }}" class="open-modal" title="{% trans "Retirer la casquette" %}" aria-haspopup="dialog">×</a>
+                                            <form action="{% url 'remove-hat' usr.pk hat.pk %}" method="post" id="remove-hat-{{ hat.pk }}" class="modal modal-flex" data-modal-title="{% trans "Retirer la casquette" %}">
+                                                {% csrf_token %}
+                                                <p>
+                                                    {% blocktrans with hat=hat.name username=usr.username %}
+                                                        Voulez-vous vraiment retirer la casquette « {{ hat }} » à {{ username }} ?
+                                                    {% endblocktrans %}
+                                                </p>
+                                                <button type="submit">{% trans 'Confirmer' %}</button>
+                                            </form>
+                                        {% endif %}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </aside>
+                    {% endif %}
+
+                    <aside class="profile-card stats-container presence-statistics-under-banner">
+                        <h3>{% trans "Présence" %}</h3>
+                        <ul>
+                            {{ presence_statistics }}
+                        </ul>
+                    </aside>
+
+                    <div class="profile-card bio-container">
                         <div class="message-content">
                             {% if not profile.end_ban_read and not profile.can_read %}
                                 <div class="no-bio">{% trans "La biographie de ce membre est masquée car il a été banni définitivement." %}</div>
@@ -443,21 +468,41 @@
 
             {% if perms.member.change_profile and profile.user.is_active %}
                 <section>
-                    <h2 itemprop="name">{% trans 'Administration et Modération' %}</h2>
+                    <h2 itemprop="name">{% trans 'Administration et modération' %}</h2>
                     <div class="content-linkbox-list">
-                        {% if user.is_superuser %}
+                        {% if user.is_superuser or user.is_staff or perms.utils.change_hat %}
                             <div class="linkbox-item">
-
                                 <div class="head">
-                                    <h3>{% trans 'Actions super-utilisateur' %}</h3>
+                                    <h3>{% trans 'Administration' %}</h3>
                                 </div>
-                                <a href="{% url "member-settings-promote" profile.user.pk %}" class="tail">
-                                    <p>{% trans "Gestion des groupes" %}</p>
-                                </a>
+
+                                {% if perms.utils.change_hat %}
+                                    <a href="#add-hat" class="tail open-modal">{% trans "Ajouter une casquette" %}</a>
+                                    <form action="{% url 'add-hat' usr.pk %}" method="post" id="add-hat" class="modal modal-flex">
+                                        {% csrf_token %}
+                                        <p>
+                                            {% blocktrans with username=usr.username %}Vous allez ajouter une casquette à {{ username }}.{% endblocktrans %}
+                                        </p>
+                                        <ul>
+                                            <li>{% trans "Le membre aura la possibilité pour chaque message de poster avec ou sans sa casquette." %}</li>
+                                            <li>{% trans "Il sera possible de retirer la casquette au membre par la suite. Les messages ayant été postés avec le resteront." %}</li>
+                                        </ul>
+                                        <p>{% trans "La casquette sera créée si elle n’existe pas." %}</p>
+                                        <input type="text" name="hat" maxlength="40" placeholder="{% trans 'Casquette à attribuer.' %}" required />
+                                        <button type="submit">{% trans 'Valider' %}</button>
+                                    </form>
+                                {% endif %}
+
+                                {% if user.is_superuser %}
+                                    <a href="{% url "member-settings-promote" profile.user.pk %}" class="tail">
+                                        <p>{% trans "Gérer les groupes" %}</p>
+                                    </a>
+                                {% endif %}
+
                                 {% if user.is_staff %}
-                                <a href="{% url 'admin:auth_user_change' profile.user.pk %}" class="tail">
-                                    <p>{% trans "Administration de Django" %}</p>
-                                </a>
+                                    <a href="{% url 'admin:auth_user_change' profile.user.pk %}" class="tail">
+                                        <p>{% trans "Administration de Django" %}</p>
+                                    </a>
                                 {% endif %}
                             </div>
                         {% endif %}
@@ -466,12 +511,36 @@
                                 <h3>{% trans 'Statistiques' %}</h3>
                             </div>
 
-                            <span class="tail">
-                                <p>{% trans "Messages modérés" %} : {{ profile.get_hidden_by_staff_posts_count }}</p>
-                            </span>
-                            <span class="tail">
-                                <p>{% trans "Alertes actives" %} : {{ profile.get_active_alerts_count }}</p>
-                            </span>
+                            <div class="tail">
+                                <p>
+                                    {% with messages=profile.get_hidden_by_staff_posts_count %}
+                                        {% if messages == 0 %}
+                                            {% trans "Aucun message modéré" %}
+                                        {% else %}
+                                            {% blocktrans count messages=messages %}
+                                                Un message modéré
+                                            {% plural %}
+                                                {{ messages }} messages modérés
+                                            {% endblocktrans %}
+                                        {% endif %}
+                                    {% endwith %}
+                                </p>
+                            </div>
+                            <div class="tail">
+                                <p>
+                                    {% with alertes=profile.get_active_alerts_count %}
+                                        {% if alertes == 0 %}
+                                            {% trans "Aucune alerte active" %}
+                                        {% else %}
+                                            {% blocktrans count alertes=alertes %}
+                                                Une alerte active
+                                            {% plural %}
+                                                {{ alertes }} alertes actives
+                                            {% endblocktrans %}
+                                        {% endif %}
+                                    {% endwith %}
+                                </p>
+                            </div>
                         </div>
                         {% if perms.member.show_ip %}
                         <div class="linkbox-item">
@@ -479,14 +548,16 @@
                                 <h3>{% trans 'Adresse IP' %}</h3>
                             </div>
                             
-                            <span class="tail">
+                            <div class="tail">
                                 <p>{% trans "Dernière adresse IP" %} : {{ profile.last_ip_address }}</p>
-                            </span>
+                            </div>
+
                             {% if profile.get_city %}
-                            <span class="tail">
-                                <p>{% trans "Ville associée" %} : {{ profile.get_city }}</p>
-                            </span>
+                                <div class="tail">
+                                    <p>{% trans "Ville associée" %} : {{ profile.get_city }}</p>
+                                </div>
                             {% endif %}
+
                             <a href="{% url "member-from-ip" profile.last_ip_address %}" class="tail">
                                 <p>{% trans "Voir tous les membres avec cette IP" %}</p>
                             </a>

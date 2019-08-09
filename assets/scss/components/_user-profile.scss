@@ -8,24 +8,30 @@ body.userprofilepage {
         }
     }
 
-    .subheader {
-        display: flex;
-        flex-wrap: wrap-reverse;
-        align-items: center;
+    .presence-statistics-under-banner {
+        display: none;
 
-        margin-top: -1.6rem;
+        ul {
+            padding: 0;
+            margin: 0;
 
-        .hatlist {
-            flex: 1;
-            justify-content: flex-end;
+            li {
+                display: block;
+                text-align: left;
+            }
+        }
+    }
+
+    @media only screen and #{$media-mobile} {
+        .flexpage-wrapper {
+            padding-top: 0;
         }
 
-        @media only screen and #{$media-mobile} {
-            flex-direction: column-reverse;
-
-            .hatlist {
-                margin-top: -2rem;
-            }
+        .presence-statistics-in-banner {
+            display: none;
+        }
+        .presence-statistics-under-banner {
+            display: block;
         }
     }
 
@@ -63,9 +69,71 @@ body.userprofilepage {
 
             padding-right: 1.2rem;
 
+            .profile-card {
+                padding: 1rem;
+
+                border: 1px solid #D2D5D6;
+                border-right-width: 2px;
+                border-bottom-width: 3px;
+
+                background-color: #FDFDFD;
+
+                &:not(:last-child) {
+                    margin-bottom: 20px;
+                }
+
+                h3 {
+                    margin: 0 .4rem 0 0;
+                    font-size: 2rem;
+                    font-weight: 300;
+
+                    @media only screen and #{$media-mobile} {
+                        margin-bottom: 1rem;
+                    }
+
+                    .help-question-mark {
+                        margin-left: .6rem;
+                    }
+                }
+            }
+
+            .hats-container {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+
+                @media only screen and #{$media-mobile} {
+                    flex-direction: column;
+                    align-items: baseline;
+                }
+
+                h3 {
+                    flex: 2;
+
+                    a.title-link {
+                        cursor: help;
+
+                        &, &:hover {
+                            text-decoration: none;
+                            color: #222;
+                        }
+                    }
+                }
+
+                .hatlist {
+                    justify-content: flex-end;
+
+                    li:first-child {
+                        margin-left: 0;
+                    }
+                }
+            }
+
             // Partial duplicate of _topic_message.scss -> .message
             .bio-container {
                 min-height: 75px;
+
+                padding: 0;
 
                 border: 1px solid #D2D5D6;
                 border-right-width: 2px;

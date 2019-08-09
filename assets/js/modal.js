@@ -201,7 +201,7 @@
             }
 
             new Modal({
-                title: $link.text(),
+                title: $(this).is("[data-modal-title]") ? $(this).attr("data-modal-title") : $link.text(),
                 footer: $(this).find(".btn, [type=submit]").filter(":not(.modal-inner)").detach(),
                 body: $(this).children(),
                 modal: $(this),

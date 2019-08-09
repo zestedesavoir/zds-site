@@ -54,11 +54,40 @@
     &:hover a.open-modal {
         position: absolute;
         display: block;
-        width: 100%;
-        bottom: -16px;
+
+        top: -9px;
+        right: -9px;
+
+        width: 18px;
+        height: 18px;
+
         text-align: center;
         line-height: 16px;
-        font-size: 14px;
+        font-size: 18px;
+
+        color: $color-hat;
+        text-decoration: none;
+
+        background: white;
+        border: solid 1px $color-hat;
+        border-radius: 426921px;
+
+        transition: background-color .2s ease-in-out, color .2s ease-in-out;
+
+        &:hover {
+            color: white;
+            text-decoration: none;
+            background: darken($color-hat, 10%);
+        }
+    }
+
+    &.is-staff a.open-modal {
+        color: $color-staff-hat;
+        border: solid 1px $color-staff-hat;
+
+        &:hover {
+            background: darken($color-staff-hat, 10%);
+        }
     }
 
     a.name:hover,
@@ -73,7 +102,7 @@
             background-color: $color-staff-hat;
 
             span {
-                color: desaturate(lighten($color-staff-hat, 60%), 8%);
+                color: desaturate(lighten($color-staff-hat, 68%), 21%);
                 font-size: .96em;
             }
         }
@@ -102,7 +131,7 @@
 
     li {
         & {
-            margin-left: 4px;
+            margin-left: 10px;
             > a.name {
                 padding: 0 1rem;
             }
