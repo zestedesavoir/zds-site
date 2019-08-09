@@ -1006,7 +1006,6 @@ class Extract:
         :rtype: str
         """
         if self.text:
-            print(self.container.top_container().current_version, self.text.replace('\\', '/'))
             return get_blob(
                 self.container.top_container().repository.commit(self.container.top_container().current_version).tree,
                 self.text.replace('\\', '/'))

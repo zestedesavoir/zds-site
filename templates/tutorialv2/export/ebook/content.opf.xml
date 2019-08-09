@@ -25,9 +25,9 @@
         <meta name="cover" content="cover.png"/>
     </metadata>
     <manifest>
-        <item id="stylesheet-global" href="Text/styles/zmd.css" media-type="text/css"/>
-        <item id="stylesheet-nav" href="Text/styles/toc.css" media-type="text/css"/>
-        <item id="stylesheet-katex" href="Text/styles/katex.min.css" media-type="text/css"/>
+        <item id="stylesheet-global" href="styles/zmd.css" media-type="text/css"/>
+        <item id="stylesheet-nav" href="styles/toc.css" media-type="text/css"/>
+        <item id="stylesheet-katex" href="styles/katex.min.css" media-type="text/css"/>
         {% for path, identifier, _ in chapters %}
             <item id="{{ identifier }}"
                   href="Text/{{ path }}"
