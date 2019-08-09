@@ -1,62 +1,95 @@
-const path = require('path');
-const livereload = require('gulp-livereload');
+const autoprefixer = require('autoprefixer');
 const concat = require('gulp-concat');
+const cssnano = require('cssnano');
 const del = require('del');
 const gulp = require('gulp');
 const gulpif = require('gulp-if');
 const imagemin = require('gulp-imagemin');
+const jshint = require('gulp-jshint');
+const options = require('gulp-options');
+const path = require('path');
 const postcss = require('gulp-postcss');
 const sass = require('gulp-sass');
 const sourcemaps = require('gulp-sourcemaps');
 const spritesmith = require('gulp.spritesmith');
 const uglify = require('gulp-uglify');
-const jshint = require('gulp-jshint');
-const options = require('gulp-options');
-const autoprefixer = require('autoprefixer');
-const cssnano = require('cssnano');
-const fs = require('fs');
 
+
+//// Speed mode
+
+// You can use '--speed' to speed the tasks, it disables some optimisations like minification
 const fast = options.has("speed");
-
-//>> PostCSS plugins used
-const postcssPlugins = [
-    autoprefixer({ browsers: ['last 2 versions', '> 1%', 'ie >= 9'] })
-];
-
 if (!fast) {
-    postcssPlugins.push(cssnano());
     console.log("The speed mode is not enabled.");
 } else {
     console.log("The speed mode is enabled.");
 }
-//<<
 
+
+//// SCSS tasks
+
+// Generates a sprite with the website icons
+function sprite() {
+    return gulp.src('assets/images/sprite/*.png')
+        .pipe(spritesmith({
+            cssTemplate: 'assets/scss/_sprite.scss.hbs',
+            cssName: 'scss/_sprite.scss',
+            imgName: 'images/sprite.png',
+            retinaImgName: 'images/sprite@2x.png',
+            retinaSrcFilter: 'assets/images/sprite/*@2x.png',
+        }))
+        .pipe(gulp.dest('dist/'));
+}
+
+// PostCSS settings
+const postcssPlugins = [cssnano(), autoprefixer()];
+
+// Node SASS settings
 const customSass = () => sass({
     sourceMapContents: true,
     includePaths: [
         path.join(__dirname, 'node_modules'),
         path.join(__dirname, 'dist', 'scss'),
     ],
-});
+}).on('error', sass.logError);
 
-// Deletes the generated files
-gulp.task('clean', () => del([
-    'dist/',
-]));
+// Generates CSS for the website and the ebooks
+function css() {
+    return gulp.src(['assets/scss/main.scss', 'assets/scss/zmd.scss'])
+        .pipe(sourcemaps.init())
+        .pipe(customSass()) // SCSS to CSS
+        .pipe(gulpif(!fast, postcss(postcssPlugins))) // Adds browsers prefixs and minifies
+        .pipe(sourcemaps.write('.', { includeContent: true, sourceRoot: '../../assets/scss/' }))
+        .pipe(gulp.dest('dist/css/'));
+}
 
-// Lint the js source files
-gulp.task('js:lint', () =>
-    gulp.src([
+// Generates CSS for the static error pages in the folder `errors/`
+function errors() {
+    return gulp.src('errors/scss/main.scss')
+        .pipe(sourcemaps.init())
+        .pipe(customSass())
+        .pipe(gulpif(!fast, postcss(postcssPlugins)))
+        .pipe(sourcemaps.write('.', { includeContent: true, sourceRoot: '../scss/' }))
+        .pipe(gulp.dest('errors/css/'));
+}
+
+
+//// JS tasks
+
+// Lints the JS source files
+function js_lint() {
+    return gulp.src([
         'assets/js/*.js',
         '!assets/js/editor.js', // We'll fix that later
     ])
         .pipe(jshint())
         .pipe(jshint.reporter('jshint-stylish'))
-        .pipe(jshint.reporter('fail')));
+        .pipe(jshint.reporter('fail'));
+}
 
-// Concat and minify all the js files
-gulp.task('js', () =>
-    gulp.src([
+// Generates JS for the website
+function js() {
+    return gulp.src([
         require.resolve('jquery'),
         require.resolve('cookies-eu-banner'),
         require.resolve('moment/moment.js'),
@@ -65,130 +98,59 @@ gulp.task('js', () =>
         // Used by other scripts, must be first
         'assets/js/modal.js',
         'assets/js/tooltips.js',
-
-        'assets/js/accessibility-links.js',
-        'assets/js/accordeon.js',
-        'assets/js/ajax-actions.js',
-        'assets/js/autocompletion.js',
-        'assets/js/charts.js',
-        'assets/js/close-alert-box.js',
-        'assets/js/compare-commits.js',
-        'assets/js/content-export.js',
-        'assets/js/content-publication-readiness.js',
-        'assets/js/dropdown-menu.js',
-        'assets/js/editor.js',
-        'assets/js/editor-persistence.js',
-        'assets/js/featured-resource-preview.js',
-        'assets/js/form-email-username.js',
-        'assets/js/gallery.js',
-        'assets/js/index.js',
-        'assets/js/jquery-tabbable.js',
-        'assets/js/karma.js',
-        'assets/js/keyboard-navigation.js',
-        'assets/js/markdown-help.js',
-        'assets/js/message-hidden.js',
-        'assets/js/message-signature.js',
-        'assets/js/mobile-menu.js',
-        'assets/js/select-autosubmit.js',
-        'assets/js/snow.js',
-        'assets/js/spoiler.js',
-        'assets/js/submit-dbclick.js',
-        'assets/js/tab-modalize.js',
-        'assets/js/topic-suggest.js',
-        'assets/js/tribune-pick.js',
-        'assets/js/zen-mode.js',
+        // All the scripts
+        'assets/js/*.js',
     ], { base: '.' })
         .pipe(sourcemaps.init({ loadMaps: true }))
-        .pipe(concat('script.js', { newline: ';\r\n' }))
-        .pipe(gulpif(!fast, uglify()))
+        .pipe(concat('script.js', { newline: ';\r\n' })) // One JS file to rule them all
+        .pipe(gulpif(!fast, uglify())) // Minifies the JS
         .on('error', function (err) {
             // gulp-uglify sucks
             console.log(err.toString());
         })
         .pipe(sourcemaps.write('.', { includeContent: true, sourceRoot: '../../' }))
-        .pipe(gulp.dest('dist/js/')));
+        .pipe(gulp.dest('dist/js/'));
+}
 
-gulp.task('prepare-zmd', () =>
-    gulp.src(['node_modules/katex/dist/{katex.min.css,fonts/*}'])
-        .pipe(gulp.dest('dist/css/')));
 
-// Compiles the SCSS files to CSS
-gulp.task('css', ['css:sprite'], () =>
-    gulp.src(['assets/scss/main.scss', 'assets/scss/zmd.scss'])
-        .pipe(sourcemaps.init())
-        .pipe(customSass())
-        .pipe(gulpif(!fast, postcss(postcssPlugins)))
-        .pipe(sourcemaps.write('.', { includeContent: true, sourceRoot: '../../assets/scss/' }))
-        .pipe(gulp.dest('dist/css/')));
-
-// Generates a sprite
-gulp.task('css:sprite', () =>
-    gulp.src('assets/images/sprite/*.png')
-        .pipe(spritesmith({
-            cssTemplate: 'assets/scss/_sprite.scss.hbs',
-            cssName: 'scss/_sprite.scss',
-            imgName: 'images/sprite.png',
-            retinaImgName: 'images/sprite@2x.png',
-            retinaSrcFilter: 'assets/images/sprite/*@2x.png',
-        }))
-        .pipe(gulp.dest('dist/')));
+//// Other tasks
 
 // Optimizes the images
-gulp.task('images', ['css:sprite'], () =>
-    gulp.src('assets/{images,smileys,licenses}/**/*')
-        .pipe(gulpif(!fast, imagemin()))
-        .pipe(gulp.dest('dist/'))
-);
+function images() {
+    return gulp.src('assets/{images,smileys,licenses}/**/*')
+        .pipe(gulpif(!fast, imagemin())) // Minify the images
+        .pipe(gulp.dest('dist/'));
+}
+
+// Prepares files for zmarkdown
+function prepare_zmd() {
+    return gulp.src(['node_modules/katex/dist/{katex.min.css,fonts/*}'])
+        .pipe(gulp.dest('dist/css/'));
+}
+
+// Deletes the generated files
+function clean() {
+    return del(['dist/',]);
+}
+
+
+//// Commands
 
 // Watch for file changes
-gulp.task('watch-runner', () => {
-    gulp.watch('assets/js/*.js', ['js']);
-    gulp.watch(['assets/{images,smileys}/**/*', '!assets/images/sprite*.png'], ['images']);
-    gulp.watch(['assets/scss/**/*.scss', '!assets/scss/_sprite.scss'], ['css']);
+function watch() {
+    gulp.watch('assets/js/*.js', js);
+    gulp.watch(['assets/{images,smileys}/**/*', '!assets/images/sprite*.png'], images);
+    gulp.watch(['assets/scss/**/*.scss', '!assets/scss/_sprite.scss'], css);
+}
 
-    gulp.watch('dist/**/*', file =>
-         livereload.changed(
-            path.join('static/', path.relative(path.join(__dirname, 'dist/'), file.path))
-        )
-    );
+// Build the front
+var build = gulp.parallel(prepare_zmd, js, gulp.series(sprite, gulp.parallel(css, images)));
 
-    livereload.listen();
-});
+exports.build = build;
+exports.watch = gulp.series(build, watch);
+exports.lint = js_lint;
+exports.clean = clean;
+exports.errors = errors;
+exports.prepare_zmd = prepare_zmd;
+exports.default = gulp.parallel(watch, js_lint);
 
-// https://github.com/gulpjs/gulp/issues/259#issuecomment-152177973
-gulp.task('watch', cb => {
-    function spawnGulp(args) {
-        if (fast)
-            args.push("--speed");
-        return require('child_process')
-            .spawn(
-                'node_modules/.bin/gulp',
-                args,
-                {stdio: 'inherit'}
-            )
-    }
-
-    function spawnBuild() {
-        return spawnGulp(['build'])
-            .on('close', spawnWatch)
-    }
-
-    function spawnWatch() {
-        return spawnGulp(['watch-runner'])
-            .on('close', spawnWatch)
-    }
-
-    spawnBuild();
-});
-
-// Compiles errors' CSS
-gulp.task('errors', () =>
-    gulp.src('errors/scss/main.scss')
-        .pipe(sourcemaps.init())
-        .pipe(customSass())
-        .pipe(gulpif(!fast, postcss(postcssPlugins)))
-        .pipe(sourcemaps.write('.', { includeContent: true, sourceRoot: '../scss/' }))
-        .pipe(gulp.dest('errors/css/')));
-
-gulp.task('build', ['prepare-zmd', 'css', 'js', 'images']);
-gulp.task('default', ['watch', 'js:lint']);
