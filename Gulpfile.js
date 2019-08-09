@@ -10,7 +10,6 @@ const options = require('gulp-options');
 const path = require('path');
 const postcss = require('gulp-postcss');
 const sass = require('gulp-sass');
-const sourcemaps = require('gulp-sourcemaps');
 const spritesmith = require('gulp.spritesmith');
 const terser = require('gulp-terser-js');
 
@@ -55,22 +54,18 @@ const customSass = () => sass({
 
 // Generates CSS for the website and the ebooks
 function css() {
-    return gulp.src(['assets/scss/main.scss', 'assets/scss/zmd.scss'])
-        .pipe(sourcemaps.init())
+    return gulp.src(['assets/scss/main.scss', 'assets/scss/zmd.scss'], { sourcemaps: true })
         .pipe(customSass()) // SCSS to CSS
         .pipe(gulpif(!fast, postcss(postcssPlugins))) // Adds browsers prefixs and minifies
-        .pipe(sourcemaps.write('.', { includeContent: true, sourceRoot: '../../assets/scss/' }))
-        .pipe(gulp.dest('dist/css/'));
+        .pipe(gulp.dest('dist/css/', { sourcemaps: '.' }));
 }
 
 // Generates CSS for the static error pages in the folder `errors/`
 function errors() {
-    return gulp.src('errors/scss/main.scss')
-        .pipe(sourcemaps.init())
+    return gulp.src('errors/scss/main.scss', { sourcemaps: true })
         .pipe(customSass())
         .pipe(gulpif(!fast, postcss(postcssPlugins)))
-        .pipe(sourcemaps.write('.', { includeContent: true, sourceRoot: '../scss/' }))
-        .pipe(gulp.dest('errors/css/'));
+        .pipe(gulp.dest('errors/css/', { sourcemaps: '.' }));
 }
 
 
@@ -100,12 +95,10 @@ function js() {
         'assets/js/tooltips.js',
         // All the scripts
         'assets/js/*.js',
-    ], { base: '.' })
-        .pipe(sourcemaps.init({ loadMaps: true }))
-        .pipe(concat('script.js', { newline: ';\r\n' })) // One JS file to rule them all
+    ], { base: '.', sourcemaps: true })
         .pipe(gulpif(!fast, terser())) // Minifies the JS
-        .pipe(sourcemaps.write('.', { includeContent: true, sourceRoot: '../../' }))
-        .pipe(gulp.dest('dist/js/'));
+        .pipe(concat('script.js', { newline: ';\r\n' })) // One JS file to rule them all
+        .pipe(gulp.dest('dist/js/', { sourcemaps: '.' }));
 }
 
 
