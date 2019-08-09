@@ -49,8 +49,9 @@ def publish_container(db_object, base_dir, container, template='tutorialv2/expor
     img_relative_path = '..' if ctx['relative'] == '.' else '../' + ctx['relative']
     if container.has_extracts():  # the container can be rendered in one template
         wrapped_image_callback = image_callback(img_relative_path) if image_callback else image_callback
-        args = {'container': container, 'is_js': is_js, 'relative': ctx['relative']}
+        args = {'container': container, 'is_js': is_js}
         args.update(ctx)
+        args['relative'] = img_relative_path
         parsed = render_to_string(template, args)
         write_chapter_file(base_dir, container, Path(container.get_prod_path(True, file_ext)),
                            parsed, path_to_title_dict, wrapped_image_callback)

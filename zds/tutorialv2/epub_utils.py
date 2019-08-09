@@ -1,6 +1,7 @@
 import contextlib
 import logging
 import os
+import re
 import shutil
 from collections import namedtuple
 from urllib import parse
@@ -113,7 +114,7 @@ def build_nav_xhtml(working_dir, content, chapters):
 def build_ebook(published_content_entity, working_dir, final_file_path):
     ops_dir = Path(working_dir, 'ebook', 'OPS')
     text_dir_path = Path(ops_dir, 'Text')
-    style_dir_path = Path(ops_dir, 'Text', 'styles')
+    style_dir_path = Path(ops_dir, 'styles')
     font_dir_path = Path(ops_dir, 'Fonts')
     meta_inf_dir_path = Path(working_dir, 'ebook', 'META-INF')
     target_image_dir = Path(ops_dir, 'images')
@@ -146,10 +147,6 @@ def build_ebook(published_content_entity, working_dir, final_file_path):
     build_toc_ncx(chapters, published_content_entity, ops_dir)
     copy_or_create_empty(settings.ZDS_APP['content']['epub_stylesheets']['toc'], style_dir_path, 'toc.css')
     copy_or_create_empty(settings.ZDS_APP['content']['epub_stylesheets']['full'], style_dir_path, 'zmd.css')
-    with (style_dir_path / 'zmd.css').open('r') as f:
-        new_css = f.read().replace('../images/sprite.png', '../../images/sprite.png')
-    with (style_dir_path / 'zmd.css').open('w') as f:
-        f.write(new_css)
     copy_or_create_empty(settings.ZDS_APP['content']['epub_stylesheets']['katex'], style_dir_path, 'katex.css')
     style_images_path = Path(settings.BASE_DIR, 'dist', 'images')
     smiley_images_path = Path(settings.BASE_DIR, 'dist', 'smileys')
@@ -190,15 +187,16 @@ def copy_or_create_empty(src_path, dst_path, default_name):
 class ImageHandling:
     def __init__(self):
         self.names = set()
+        self.url_scheme_matcher = re.compile(r'^https?://')
 
     def handle_images(self, relative_path):
-        def _(html_code):
+        def handle_image_path_with_good_img_dir_path(html_code):
             soup_parser = BeautifulSoup(html_code, 'lxml')
             for image in soup_parser.find_all('img'):
                 if not image.get('src', ''):
                     continue
                 image_url = image['src']
-                if image_url.startswith('http://') or image_url.startswith('https://'):
+                if self.url_scheme_matcher.search(image_url):
                     splitted = parse.urlsplit(image_url)
                     final_path = splitted.path
                 elif image_url.startswith(settings.MEDIA_URL):
@@ -220,7 +218,7 @@ class ImageHandling:
                 if element.get('id', None):
                     ids[element['id']] = True
             return soup_parser.prettify('utf-8').decode('utf-8')
-        return _
+        return handle_image_path_with_good_img_dir_path
 
     def remove_unused_image(self, image_path: Path, imglist):
         for image in image_path.iterdir():
