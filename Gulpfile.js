@@ -1,5 +1,4 @@
 const autoprefixer = require('autoprefixer');
-const concat = require('gulp-concat');
 const cssnano = require('cssnano');
 const del = require('del');
 const gulp = require('gulp');
@@ -12,7 +11,7 @@ const postcss = require('gulp-postcss');
 const sass = require('gulp-sass');
 const sourcemaps = require('gulp-sourcemaps');
 const spritesmith = require('gulp.spritesmith');
-const uglify = require('gulp-uglify');
+const terser = require('gulp-terser-js');
 
 
 //// Speed mode
@@ -102,12 +101,7 @@ function js() {
         'assets/js/*.js',
     ], { base: '.' })
         .pipe(sourcemaps.init({ loadMaps: true }))
-        .pipe(concat('script.js', { newline: ';\r\n' })) // One JS file to rule them all
-        .pipe(gulpif(!fast, uglify())) // Minifies the JS
-        .on('error', function (err) {
-            // gulp-uglify sucks
-            console.log(err.toString());
-        })
+        .pipe(gulpif(!fast, terser())) // Minifies the JS
         .pipe(sourcemaps.write('.', { includeContent: true, sourceRoot: '../../' }))
         .pipe(gulp.dest('dist/js/'));
 }
