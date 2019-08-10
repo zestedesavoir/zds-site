@@ -106,7 +106,7 @@ function js() {
 
 // Optimizes the images
 function images() {
-    return gulp.src('assets/{images,smileys,licenses}/**/*')
+    return gulp.src(['assets/{images,smileys,licenses}/**/*', '!assets/images/sprite/*.png'])
         .pipe(gulpif(!fast, imagemin())) // Minify the images
         .pipe(gulp.dest('dist/'));
 }
@@ -128,8 +128,9 @@ function clean() {
 // Watch for file changes
 function watch() {
     gulp.watch('assets/js/*.js', js);
-    gulp.watch(['assets/{images,smileys}/**/*', '!assets/images/sprite*.png'], images);
-    gulp.watch(['assets/scss/**/*.scss', '!assets/scss/_sprite.scss'], css);
+    gulp.watch(['assets/{images,smileys}/**/*', '!assets/images/sprite/*.png'], images);
+    gulp.watch(['assets/scss/**/*.scss', 'dist/scss/_sprite.scss'], css);
+    gulp.watch(['assets/images/sprite/*.png', 'assets/scss/_sprite.scss.hbs'], sprite);
 }
 
 // Build the front
