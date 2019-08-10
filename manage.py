@@ -31,6 +31,19 @@ if __name__ == '__main__':
     # http://blog.lotech.org/fix-djangos-runserver-when-run-under-docker-or-pycharm.html
     signal.signal(signal.SIGTERM, sighandler)
 
+    try:
+        import django
+    except ImportError:
+        if os.environ.get('virtual_env') is None:
+            print('\033[36;1mINFO: No virtual_env detected,',
+            'usually contributors use virtual environment `zdsenv`\033[00;0m')
+        elif os.path.normpath(os.environ.get('virtual_env')) != os.path.normpath('./zdsenv'):
+            print('\033[36;1mINFO: The current virtual_env is `%s`,',
+            'usually contributors use `./zdsenv`\033[00;0m' % os.environ.get('virtual_env'))
+
+        print("\033[31;1mModuleNotFoundError: No module named 'django' found\033[00;0m")
+        sys.exit(1)
+
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'zds.settings.dev')
 
     if len(sys.argv) > 1 and sys.argv[1] in ['migrate', 'test']:
