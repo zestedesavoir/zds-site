@@ -1,6 +1,10 @@
 .table-wrapper {
     max-width: 100%;
     overflow: auto;
+
+    +figcaption {
+        margin-top: -15px;
+    }
 }
 
 table {
