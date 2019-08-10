@@ -1,4 +1,7 @@
 .taglist {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
     list-style: none;
     padding: 0;
     margin: -14px 0 15px;
@@ -6,8 +9,6 @@
     line-height: 30px;
 
     li {
-        float: right;
-
         a {
             display: block;
             text-decoration: none;
