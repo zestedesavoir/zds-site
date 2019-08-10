@@ -2,7 +2,7 @@
     max-width: 100%;
     overflow: auto;
 
-    +figcaption {
+    & + figcaption {
         margin-top: -15px;
     }
 }
