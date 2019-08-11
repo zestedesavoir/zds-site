@@ -30,7 +30,7 @@ function zds_register_module_for_installation {
     fi
 
     # fastify : no fixture
-    if [[ "$ZDS_TEST_JOB" == *"zds.tutorialv2"* ]]; then
+    if [[ "$ZDS_TEST_JOB" != *"doc"* ]]; then
         zds_register_for_install "-data"
     fi
 
