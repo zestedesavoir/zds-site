@@ -45,6 +45,10 @@ THUMBNAIL_ALIASES = {
         'featured': {'size': (228, 228), 'crop': True},
         'gallery_illu': {'size': (480, 270), 'crop': True},
         'content': {'size': (960, 960), 'crop': False},
+        'social_network': {'size': (144, 144), 'crop': True},
+        #                           ^^^  ^^^ -> minimum dimensions of 144x144
+        # https://developer.twitter.com/en/docs/tweets/optimize-with-cards/overview/summary
+        'social_network_large': {'size': (600, 314), 'crop': True}
     },
 }
 
@@ -109,16 +113,16 @@ ZDS_APP = {
             },
             'licence_info_title': 'http://zestedesavoir.com/tutoriels/281/le-droit-dauteur-creative-commons-et-les-lic'
                                   'ences-sur-zeste-de-savoir/',
-            'licence_info_link': 'Le droit d\'auteur, Creative Commons et les licences sur Zeste de Savoir'
+            'licence_info_link': "Le droit d'auteur, Creative Commons et les licences sur Zeste de Savoir"
         },
         'hosting': {
             'name': 'GANDI SAS',
             'address': '63-65 boulevard Massena - 75013 Paris - France'
         },
         'social': {
+            'mastodon': 'https://framapiaf.org/@ZesteDeSavoir',
             'facebook': 'https://www.facebook.com/ZesteDeSavoir',
-            'twitter': 'https://twitter.com/ZesteDeSavoir',
-            'googleplus': 'https://plus.google.com/u/0/107033688356682807298'
+            'twitter': 'https://twitter.com/ZesteDeSavoir'
         },
         'cnil': '1771020',
     },
@@ -160,9 +164,9 @@ ZDS_APP = {
         'repo_private_path': join(BASE_DIR, 'contents-private'),
         'repo_public_path': join(BASE_DIR, 'contents-public'),
         'extra_contents_dirname': 'extra_contents',
-        # can also be 'extra_content_generation_policy': 'WATCHDOG'
+        # can also be 'extra_content_generation_policy': 'SYNC'
         # or 'extra_content_generation_policy': 'NOTHING'
-        'extra_content_generation_policy': 'SYNC',
+        'extra_content_generation_policy': 'WATCHDOG',
         'extra_content_watchdog_dir': join(BASE_DIR, 'watchdog-build'),
         'max_tree_depth': 3,
         'default_licence_pk': 7,

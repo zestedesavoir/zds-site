@@ -9,12 +9,11 @@
     "node": ">=8.0.0"
   },
   "scripts": {
-    "gulp": "gulp",
-    "lint": "gulp js:lint",
-    "travis": "gulp test && gulp build",
-    "test": "gulp test",
-    "build": "gulp build",
-    "clean": "gulp clean"
+    "gulp": "node ./node_modules/gulp/bin/gulp.js",
+    "build": "node ./node_modules/gulp/bin/gulp.js build",
+    "watch": "node ./node_modules/gulp/bin/gulp.js watch",
+    "lint": "node ./node_modules/gulp/bin/gulp.js js:lint",
+    "clean": "node ./node_modules/gulp/bin/gulp.js clean"
   },
   "repository": {
     "type": "git",
@@ -44,8 +43,8 @@
     "gulp-uglify": "3.0.0",
     "gulp.spritesmith": "6.5.1",
     "highlight.js": "^9.12.0",
-    "jquery": "3.2.1",
-    "katex": "^0.10.0",
+    "jquery": "3.4.0",
+    "katex": "0.10.1",
     "moment": "^2.20.1",
     "normalize.css": "7.0.0"
   },

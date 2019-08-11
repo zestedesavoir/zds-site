@@ -121,13 +121,17 @@ que vous devez corriger.
 .. note::
    L'outil d'intégration continue que nous utilisons, Travis CI, fait cette vérification à la création de chaque *pull
    request* et sortira la liste des erreurs et des avertissements. Pour éviter d'attendre qu'il ait fini, il est plus
-   pratique pour vous (et nous) que vous lanciez cette commande en amont avec ``make lint-front`` ou ``yarn run test`` (ou
-   ``yarn test``).
+   pratique pour vous (et nous) que vous lanciez cette commande en amont avec ``make lint-front`` ou ``yarn run lint`` (ou
+   ``yarn lint``).
 
 Coder plus simplement avec ``watch``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ``watch`` surveille les fichiers SCSS et Javascript lance la tâche ``build`` dès qu'ils sont modifiés. C'est très utile pour le développement car ça permet de ne pas avoir à relancer ``build`` manuellement. Pour lancer cette commande, faites ``make watch-front`` ou ``yarn run watch``. Pour arrêter cette commande, il suffit de presser ``Ctrl+C``.
+
+Si votre ordinateur n'est pas très puissant ou la commande ``watch`` est lente. Vous aurez besoin de l'option ``--speed``. Cette option permet de désactiver les fonctions de parsing pour la prod. Ainsi ``watch`` a besoin de moins de CPU.
+
+``npm run gulp -- --speed``
 
 -----
 

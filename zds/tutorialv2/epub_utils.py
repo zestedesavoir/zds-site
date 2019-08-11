@@ -156,8 +156,10 @@ def build_ebook(published_content_entity, working_dir, final_file_path):
     build_container_xml(meta_inf_dir_path)
     build_nav_xhtml(ops_dir, published_content_entity, chapters)
 
+    zip_logger = logging.getLogger(__name__ + '.zip')
+    zip_logger.setLevel(logging.WARN)
     shutil.make_archive(str(final_file_path), format='zip', root_dir=str(Path(working_dir, 'ebook')),
-                        logger=logging.getLogger(__name__))
+                        logger=zip_logger)
     shutil.move(str(final_file_path) + '.zip', str(final_file_path))
 
 

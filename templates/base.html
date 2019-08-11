@@ -5,6 +5,7 @@
 {% load thumbnail %}
 {% load interventions %}
 {% load messages %}
+{% load trail %}
 
 
 <!DOCTYPE html>
@@ -12,18 +13,23 @@
 <head>
     <meta charset="utf-8">
 
-    <title>
-        {% captureas title %}
+    {% captureas title %}
+        {% trail %}
             {% captureas title_blocks %}
-                {% block title %}{% endblock %}
-                {% block title_base %}{% endblock %}
+                {% trail %}
+                    {% block title %}{% endblock %}
+                    {% block title_base %}{% endblock %}
+                {% endtrail %}
             {% endcaptureas %}
             {% if title_blocks %}
-                {{ title_blocks|safe }}
-                &bull;
+                {{title_blocks|safe}} &bull; {{app.site.literal_name}}
+            {% else %}
+                {{app.site.literal_name}}
             {% endif %}
-            {{app.site.literal_name}}
-        {% endcaptureas %}
+        {% endtrail %}
+    {% endcaptureas %}
+
+    <title>
         {{ title|safe }}
     </title>
 
@@ -67,7 +73,11 @@
 
     {# Twitter cards #}
     <meta property="twitter:domain" content="{{app.site.url}}/">
-    <meta property="twitter:card" content="summary">
+    {% if request.GET.twittercard == 'large' %}
+        <meta property="twitter:card" content="summary_large_image">
+    {% else %}
+        <meta property="twitter:card" content="summary">
+    {% endif %}
     <meta property="twitter:url" content="{{app.site.url}}{{ request.path }}">
     <meta property="twitter:title" content="{{ title|safe }}">
     <meta property="twitter:description" content="{{ description|safe }}">

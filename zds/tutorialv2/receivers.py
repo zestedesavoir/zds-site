@@ -47,12 +47,13 @@ def log_content_deletion(sender, instance, **__):
     current_user = get_current_user()
 
     if current_user is None:
-        logger.info('%(instance_model)s #%(instance_pk)d (%(instance_slug)s) has been deleted. User not found.',
+        logger.info('%(instance_model)s #%(instance_pk)s (%(instance_slug)s) has been deleted. User not found.',
                     {'instance_model': type(instance).__name__, 'instance_pk': instance.pk,
                      'instance_slug': instance.slug})
     else:
-        logger.info('%(instance_model)s #%(instance_pk)d (%(instance_slug)s) has been deleted '
-                    'by user #%(user_pk)d (%(username)s).', {'instance_model': type(instance).__name__,
-                                                             'instance_pk': instance.pk, 'instance_slug': instance.slug,
+        logger.info('%(instance_model)s #%(instance_pk)s (%(instance_slug)s) has been deleted '
+                    'by user #%(user_pk)s (%(username)s).', {'instance_model': type(instance).__name__,
+                                                             'instance_pk': instance.pk,
+                                                             'instance_slug': instance.slug,
                                                              'user_pk': current_user.pk,
                                                              'username': current_user.username})

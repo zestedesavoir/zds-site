@@ -10,7 +10,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import Group
 from django.core import mail
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.test import TestCase
 from django.utils.translation import ugettext_lazy as _
 
@@ -3738,9 +3738,8 @@ class ContentTests(TutorialTestMixin, TestCase):
             True)
 
         for extra in avail_extra:
-
-                result = self.client.get(published.get_absolute_url_to_extra_content(extra))
-                self.assertEqual(result.status_code, 200)
+            result = self.client.get(published.get_absolute_url_to_extra_content(extra))
+            self.assertEqual(result.status_code, 200)
         # test for visitor:
         self.client.logout()
 

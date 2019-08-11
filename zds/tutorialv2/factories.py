@@ -44,13 +44,9 @@ class PublishableContentFactory(factory.DjangoModelFactory):
     pubdate = datetime.now()
 
     @classmethod
-    def _prepare(cls, create, *, light=True, **kwargs):
-        auths = []
-        if 'author_list' in kwargs:
-            auths = kwargs.pop('author_list')
-        given_licence = None
-        if 'licence' in kwargs:
-            given_licence = kwargs.pop('licence', None) or Licence.objects.first()
+    def _prepare(cls, create, *, light=True, author_list=None, licence: Licence = None, **kwargs):
+        auths = author_list or []
+        given_licence = licence or Licence.objects.first()
         if isinstance(given_licence, str) and given_licence:
             given_licence = Licence.objects.filter(title=given_licence).first() or Licence.objects.first()
         licence = given_licence or LicenceFactory()
@@ -159,13 +155,14 @@ class BetaContentFactory(PublishableContentFactory):
 class PublishedContentFactory(PublishableContentFactory):
 
     @classmethod
-    def _prepare(cls, create, **kwargs):
+    def _prepare(cls, create, *, light=True, author_list=None, licence: Licence = None, **kwargs):
         """create a new PublishableContent and then publish it.
         """
 
         is_major_update = kwargs.pop('is_major_update', True)
 
-        content = super(PublishedContentFactory, cls)._prepare(create, **kwargs)
+        content = super(PublishedContentFactory, cls)._prepare(create, light=light, author_list=author_list,
+                                                               licence=licence, **kwargs)
         published = publish_content(content, content.load_version(), is_major_update)
         content.sha_public = content.sha_draft
         content.public_version = published

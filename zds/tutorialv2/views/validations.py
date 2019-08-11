@@ -6,7 +6,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db.models import F, Q
 from django.http import Http404
 from django.http.response import HttpResponse
@@ -23,8 +23,8 @@ from zds.tutorialv2.forms import AskValidationForm, RejectValidationForm, Accept
 from zds.tutorialv2.mixins import SingleContentFormViewMixin, ModalFormView, \
     SingleOnlineContentFormViewMixin, RequiresValidationViewMixin, DoesNotRequireValidationFormViewMixin
 from zds.tutorialv2.models.database import Validation, PublishableContent, PickListOperation
-from zds.tutorialv2.publication_utils import publish_content, unpublish_content, notify_update
-from zds.tutorialv2.utils import clone_repo, FailureDuringPublication
+from zds.tutorialv2.publication_utils import publish_content, unpublish_content, notify_update, FailureDuringPublication
+from zds.tutorialv2.utils import clone_repo
 from zds.utils.forums import send_post, lock_topic
 from zds.utils.models import SubCategory, get_hat_from_settings
 from zds.utils.mps import send_mp

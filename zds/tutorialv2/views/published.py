@@ -159,7 +159,7 @@ class DisplayOnlineContent(FeatureableMixin, SingleOnlineContentDetailViewMixin)
         except ZeroDivisionError as e:
             logger.warning('could not compute reading time: setting characters_per_minute is set to zero (error=%s)', e)
 
-        if self.request.user.is_authenticated():
+        if self.request.user.is_authenticated:
             for reaction in context['reactions']:
                 signals.content_read.send(sender=reaction.__class__, instance=reaction, user=self.request.user)
             signals.content_read.send(
@@ -217,7 +217,7 @@ class DownloadOnlineContent(SingleOnlineContentViewMixin, DownloadViewMixin):
         try:
             self.public_content_object = self.get_public_object()
         except MustRedirect as redirect_url:
-            return HttpResponsePermanentRedirect(redirect_url)
+            return HttpResponsePermanentRedirect(redirect_url.url)
 
         self.object = self.get_object()
         self.versioned_object = self.get_versioned_object()
@@ -490,7 +490,7 @@ class ViewPublications(TemplateView):
         self.template_name = self.templates[self.level]
         recent_kwargs = {}
 
-        if self.level is 1:
+        if self.level == 1:
             # get categories and subcategories
             categories = ViewPublications.categories_with_contents_count(self.handle_types)
 
@@ -499,13 +499,13 @@ class ViewPublications(TemplateView):
                 .last_contents(content_type=self.handle_types, with_comments_count=False) \
                 .count()
 
-        elif self.level is 2:
+        elif self.level == 2:
             context['category'] = get_object_or_404(Category, slug=self.kwargs.get('slug'))
             context['subcategories'] = ViewPublications.subcategories_with_contents_count(
                 context['category'], self.handle_types)
             recent_kwargs['subcategories'] = context['subcategories']
 
-        elif self.level is 3:
+        elif self.level == 3:
             subcategory = get_object_or_404(SubCategory, slug=self.kwargs.get('slug'))
             context['category'] = subcategory.get_parent_category()
 
@@ -516,7 +516,7 @@ class ViewPublications(TemplateView):
             context['subcategory'] = subcategory
             recent_kwargs['subcategories'] = [subcategory]
 
-        elif self.level is 4:
+        elif self.level == 4:
             category = self.request.GET.get('category', None)
             subcategory = self.request.GET.get('subcategory', None)
             subcategories = None

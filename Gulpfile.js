@@ -14,6 +14,7 @@ const jshint = require('gulp-jshint');
 const options = require('gulp-options');
 const autoprefixer = require('autoprefixer');
 const cssnano = require('cssnano');
+const fs = require('fs');
 
 const fast = options.has("speed");
 
@@ -72,6 +73,7 @@ gulp.task('js', () =>
         'assets/js/charts.js',
         'assets/js/close-alert-box.js',
         'assets/js/compare-commits.js',
+        'assets/js/content-export.js',
         'assets/js/content-publication-readiness.js',
         'assets/js/dropdown-menu.js',
         'assets/js/editor.js',
@@ -189,6 +191,5 @@ gulp.task('errors', () =>
         .pipe(sourcemaps.write('.', { includeContent: true, sourceRoot: '../scss/' }))
         .pipe(gulp.dest('errors/css/')));
 
-gulp.task('test', ['js:lint']);
 gulp.task('build', ['prepare-zmd', 'css', 'js', 'images']);
-gulp.task('default', ['watch', 'test']);
+gulp.task('default', ['watch', 'js:lint']);

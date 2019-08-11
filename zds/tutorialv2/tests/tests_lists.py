@@ -3,7 +3,7 @@ from django.contrib.auth.models import Group
 import datetime
 from django.conf import settings
 from django.test import TestCase
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory, \
@@ -84,7 +84,8 @@ class ContentTests(TutorialTestMixin, TestCase):
         tuto_1.subcategory.add(subcategory)
         tuto_1.save()
         tuto_1_draft = tuto_1.load_version()
-        publish_content(tuto_1, tuto_1_draft, is_major_update=True)
+        tuto_1.public_version = publish_content(tuto_1, tuto_1_draft, is_major_update=True)
+        tuto_1.save(force_slug_update=False)
 
     def test_list_categories(self):
         category_1 = ContentCategoryFactory()

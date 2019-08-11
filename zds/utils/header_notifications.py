@@ -1,5 +1,6 @@
 
 from django.contrib.contenttypes.models import ContentType
+from django.utils.translation import ugettext_lazy as _
 
 from zds.forum.models import Post
 from zds.mp.models import PrivateTopic
@@ -27,11 +28,13 @@ def _get_alert_info(alert):
     if alert.scope == 'FORUM':
         post = Post.objects.select_related('topic').get(pk=alert.comment.pk)
         return post.topic.title, post.get_absolute_url()
-    if alert.scope == 'CONTENT':
+    elif alert.scope == 'CONTENT':
         published = PublishableContent.objects.select_related('public_version').get(pk=alert.content.pk)
         title = published.public_version.title if published.public_version else published.title,
         url = published.get_absolute_url_online() if published.public_version else ''
         return title, url
+    elif alert.scope == 'PROFILE':
+        return _('Profil de {}').format(alert.profile.user.username), alert.profile.get_absolute_url() + '#alerts'
     else:
         comment = ContentReaction.objects.select_related('related_content').get(pk=alert.comment.pk)
         return comment.related_content.title, comment.get_absolute_url(),
@@ -57,7 +60,7 @@ def _alerts_to_list(alerts_query):
 
 
 def get_header_notifications(user):
-    if not user.is_authenticated():
+    if not user.is_authenticated:
         return None
 
     private_topic = ContentType.objects.get_for_model(PrivateTopic)

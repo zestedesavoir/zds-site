@@ -5,7 +5,7 @@ import datetime
 
 from django.conf import settings
 from django.test import TestCase
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, LicenceFactory, ExtractFactory, \
@@ -19,10 +19,7 @@ from zds.tutorialv2.publication_utils import publish_content, unpublish_content
 from zds.tutorialv2.models.database import PublishableContent, PublishedContent, ContentReaction, ContentRead
 from django.core.management import call_command
 from zds.tutorialv2.publication_utils import Publicator, PublicatorRegistry
-from watchdog.events import FileCreatedEvent
-from zds.tutorialv2.management.commands.publication_watchdog import TutorialIsPublished
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
-from mock import Mock
 from zds import json_handler
 from zds.utils.models import Alert
 from zds.utils.header_notifications import get_header_notifications
@@ -497,33 +494,6 @@ class UtilsTests(TutorialTestMixin, TestCase):
         # too long slugs are forbidden :
         too_damn_long_slug = 'a' * (self.overridden_zds_app['content']['maximum_slug_size'] + 1)
         self.assertFalse(check_slug(too_damn_long_slug))
-
-    def test_watchdog(self):
-
-        PublicatorRegistry.unregister('pdf')
-        PublicatorRegistry.unregister('printable-pdf')
-        PublicatorRegistry.unregister('epub')
-        PublicatorRegistry.unregister('html')
-
-        with open('path', 'w') as f:
-            f.write('my_content;/path/to/markdown.md')
-
-        @PublicatorRegistry.register('test', '', '')
-        class TestPublicator(Publicator):
-            def __init__(self, *__):
-                pass
-
-        PublicatorRegistry.get('test').publish = Mock()
-        event = FileCreatedEvent('path')
-        handler = TutorialIsPublished()
-        handler.prepare_generation = Mock()
-        handler.finish_generation = Mock()
-        handler.on_created(event)
-
-        self.assertTrue(PublicatorRegistry.get('test').publish.called)
-        handler.finish_generation.assert_called_with('/path/to', 'path')
-        handler.prepare_generation.assert_called_with('/path/to')
-        os.remove('path')
 
     def test_adjust_char_count(self):
         """Test the `adjust_char_count` command"""

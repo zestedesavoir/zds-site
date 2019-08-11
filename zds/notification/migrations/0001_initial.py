@@ -14,8 +14,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('email', models.BooleanField(default=False, db_index=True, verbose_name=b'Notification par courriel')),
-                ('topic', models.ForeignKey(to='forum.Topic')),
-                ('user', models.ForeignKey(related_name='topics_followed', to=settings.AUTH_USER_MODEL)),
+                ('topic', models.ForeignKey(to='forum.Topic', on_delete=models.CASCADE)),
+                ('user', models.ForeignKey(related_name='topics_followed', to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'Sujet suivi',

@@ -84,7 +84,7 @@ class AppendGetNode(template.Node):
 
         if len(get) > 0:
             list_arg = [
-                '{0}={1}'.format(key, urlquote(value))
+                '{0}={1}'.format(key, urlquote(str(value)))
                 for key in list(get.keys())
                 for value in get.getlist(key)
             ]

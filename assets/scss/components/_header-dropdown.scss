@@ -17,6 +17,21 @@
         color: #FFF;
     }
 
+    .dropdown-list .dropdown-title a {
+        display: block;
+        width: 95%;
+        min-height: 25px;
+        line-height: 25px;
+        overflow: hidden;
+        transition: padding-left $transition-duration ease, background-color $transition-duration ease;
+
+        &:hover,
+        &:focus {
+            padding-left: 3%;
+            background-color: rgba(0, 0, 0, .3)
+        }
+    }
+
     &.header-menu-dropdown .dropdown-list > li {
         @for $i from 1 through 4 {
             &:first-child:nth-last-child(#{$i}),
@@ -49,19 +64,25 @@
             li {
                 position: relative;
 
-                a {
-                    display: block;
-                    width: 95%;
-                    min-height: 25px;
-                    line-height: 25px;
-                    color: #95d7f5;
-                    overflow: hidden;
-                    transition: padding-left $transition-duration ease, background-color $transition-duration ease;
+                &.dropdown-list-element {
+                    a {
+                        color: #95d7f5;
+                        display: block;
+                        width: 95%;
+                        min-height: 25px;
+                        line-height: 25px;
+                        overflow: hidden;
+                        transition: padding-left $transition-duration ease, background-color $transition-duration ease;
 
-                    &:hover,
-                    &:focus {
-                        padding-left: 3%;
-                        background-color: rgba(0, 0, 0, .3)
+                        &:hover,
+                        &:focus {
+                            padding-left: 3%;
+                            background-color: rgba(0, 0, 0, .3)
+                        }
+                    }
+
+                    &.staff-only a {
+                        color: $color-staff-link;;
                     }
                 }
             }

@@ -19,10 +19,10 @@ from django.shortcuts import redirect, render, get_object_or_404, render_to_resp
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
 from django.utils.http import urlunquote
-from django.utils.translation import string_concat
+from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST
-from django.views.generic import DetailView, UpdateView, CreateView, FormView
+from django.views.generic import DetailView, UpdateView, CreateView, FormView, View
 
 from zds.forum.models import Topic, TopicRead
 from zds.gallery.forms import ImageAsAvatarForm
@@ -96,6 +96,7 @@ class MemberDetail(DetailView):
             actions.reverse()
             context['actions'] = actions
             context['karmaform'] = KarmaForm(profile)
+            context['alerts'] = profile.alerts_on_this_profile.all()
         return context
 
 
@@ -1262,11 +1263,11 @@ def settings_promote(request, user_pk):
                 'Un administrateur vient de modifier les groupes '
                 'auxquels vous appartenez.  \n').format(user.username)
         if len(usergroups) > 0:
-            msg = string_concat(msg, _('Voici la liste des groupes dont vous faites dorénavant partie :\n\n'))
+            msg = format_lazy('{}{}', msg, _('Voici la liste des groupes dont vous faites dorénavant partie :\n\n'))
             for group in usergroups:
                 msg += '* {0}\n'.format(group.name)
         else:
-            msg = string_concat(msg, _('* Vous ne faites partie d\'aucun groupe'))
+            msg = format_lazy('{}{}', msg, _('* Vous ne faites partie d\'aucun groupe'))
         send_mp(
             bot,
             [user],
@@ -1341,3 +1342,43 @@ def modify_karma(request):
         logging.getLogger(__name__).warn('ValueError: modifying karma failed because {}'.format(e))
 
     return redirect(reverse('member-detail', args=[profile.user.username]))
+
+
+class CreateProfileReportView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        profile = get_object_or_404(Profile, pk=kwargs['profile_pk'])
+        reason = request.POST.get('reason', '')
+        if reason == '':
+            messages.warning(request, _('Veuillez saisir une raison.'))
+        else:
+            alert = Alert(
+                author=request.user,
+                profile=profile,
+                scope='PROFILE',
+                text=reason,
+                pubdate=datetime.now())
+            alert.save()
+            messages.success(request, _('Votre signalement a été transmis à l\'équipe de modération. '
+                                        'Merci de votre aide !'))
+        return redirect(profile.get_absolute_url())
+
+
+class SolveProfileReportView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    permissions = ['member.change_profile']
+
+    def post(self, request, *args, **kwargs):
+        alert = get_object_or_404(Alert, pk=kwargs['alert_pk'], solved=False, scope='PROFILE')
+        text = request.POST.get('text', '')
+        if text:
+            msg_title = _('Signalement traité : profil de {}').format(alert.profile.user.username)
+            msg_content = render_to_string('member/messages/alert_solved.md', {
+                'alert_author': alert.author.username,
+                'reported_user': alert.profile.user.username,
+                'moderator': request.user.username,
+                'staff_message': text,
+            })
+            alert.solve(request.user, text, msg_title, msg_content)
+        else:
+            alert.solve(request.user)
+        messages.success(request, _("Merci, l'alerte a bien été résolue."))
+        return redirect(alert.profile.get_absolute_url())

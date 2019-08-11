@@ -16,7 +16,6 @@ fi
 changed_files=$(git --no-pager diff --name-only $TRAVIS_COMMIT $(git merge-base $TRAVIS_COMMIT origin/$default_branch))
 echo "changed files:"
 echo $changed_files
-echo
 
 if ! echo "$changed_files" | egrep -v "^assets"
 then

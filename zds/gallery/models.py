@@ -8,7 +8,7 @@ from easy_thumbnails.files import get_thumbnailer
 
 from django.conf import settings
 from django.core.cache import cache
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.contrib.auth.models import User
 from django.db import models
 from django.dispatch import receiver
@@ -50,8 +50,8 @@ class UserGallery(models.Model):
         (GALLERY_WRITE, _('Affichage et modification'))
     )
 
-    user = models.ForeignKey(User, verbose_name=_('Membre'), db_index=True)
-    gallery = models.ForeignKey('Gallery', verbose_name=_('Galerie'), db_index=True)
+    user = models.ForeignKey(User, verbose_name=_('Membre'), db_index=True, on_delete=models.CASCADE)
+    gallery = models.ForeignKey('Gallery', verbose_name=_('Galerie'), db_index=True, on_delete=models.CASCADE)
     mode = models.CharField(max_length=1, choices=MODE_CHOICES, default=GALLERY_READ)
     is_default = models.BooleanField(_("Galerie par défaut de l'utilisateur"), default=False, null=False)
 
@@ -103,7 +103,7 @@ class Image(models.Model):
         verbose_name = _('Image')
         verbose_name_plural = _('Images')
 
-    gallery = models.ForeignKey('Gallery', verbose_name=_('Galerie'), db_index=True)
+    gallery = models.ForeignKey('Gallery', verbose_name=_('Galerie'), db_index=True, on_delete=models.CASCADE)
     title = models.CharField(_('Titre'), max_length=80)
     slug = models.SlugField(max_length=80)
     physical = ThumbnailerImageField(upload_to=image_path, max_length=200)
@@ -143,14 +143,14 @@ class Image(models.Model):
 
     @staticmethod
     def has_read_permission(request):
-        return request.user.is_authenticated()
+        return request.user.is_authenticated
 
     def has_object_read_permission(self, request):
         return UserGallery.objects.filter(gallery=self.gallery, user=request.user).count() == 1
 
     @staticmethod
     def has_write_permission(request):
-        return request.user.is_authenticated()
+        return request.user.is_authenticated
 
     def has_object_write_permission(self, request):
         return UserGallery.objects.filter(gallery=self.gallery, user=request.user, mode='W').count() == 1
@@ -268,7 +268,7 @@ class Gallery(models.Model):
 
     @staticmethod
     def has_read_permission(request):
-        return request.user.is_authenticated()
+        return request.user.is_authenticated
 
     def has_object_read_permission(self, request):
         if self.user_mode is not None:
@@ -278,7 +278,7 @@ class Gallery(models.Model):
 
     @staticmethod
     def has_write_permission(request):
-        return request.user.is_authenticated()
+        return request.user.is_authenticated
 
     def has_object_write_permission(self, request):
         if self.user_mode is not None:

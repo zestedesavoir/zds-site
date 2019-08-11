@@ -36,16 +36,31 @@
 {% endblock %}
 
 {% block description %}
-    {{ content.description }}
+    {% if content.description %}
+        {{ content.description }}
+    {% else %}
+        Site et association de partage de connaissances animé par sa communauté. Vous y trouverez des tutoriels et des articles de tous niveaux et des forums.
+    {% endif %}
 {% endblock %}
 
 
 
 {% block meta_image %}{% spaceless %}
     {% if content.image %}
-        {{ content.image.physical.tutorial_illu.url }}
+        {% if request.GET.twittercard == "large"  %}
+            {{ content.image.physical|thumbnail_url:'social_network_large' }}
+        {% else %}
+            {{ content.image.physical|thumbnail_url:'social_network' }}
+        {% endif %}
     {% else %}
-        {{ block.super }}
+        {% load static %}
+        {% if content.type == 'TUTORIAL' %}
+            {% static "images/tutorial-illu.png" %}
+        {% elif content.type == 'ARTICLE' %}
+            {% static "images/article-illu.png" %}
+        {% elif content.type == 'OPINION' %}
+            {% static "images/opinion-illu.png" %}
+        {% endif %}
     {% endif %}
 {% endspaceless %}{% endblock %}
 
@@ -160,7 +175,6 @@
     {% if content.has_extracts %}
         {{ content.get_content_online|safe }}
     {% else %}
-
         {% if content.introduction %}
             {{ content.get_introduction_online|default:""|safe }}
         {% endif %}
@@ -273,6 +287,11 @@
                     <a href="{% url "content:stats-content" content.pk content.slug %}" class="ico-after stats blue">
                         {% trans "Voir les statistiques" %}
                     </a>
+                </li>
+                <li>
+                    <button data-export-button="{% url "api:content:generate_export" content.pk %}" class="ico-after gear blue">
+                        {% trans "Exporter le contenu (epub, pdf, latex...)" %}
+                    </button>
                 </li>
                 {% if is_staff %}
                     {% if content.requires_validation %}

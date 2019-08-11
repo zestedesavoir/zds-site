@@ -14,12 +14,14 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='alert',
             name='moderator',
-            field=models.ForeignKey(related_name='solved_alerts', verbose_name=b'Mod\xc3\xa9rateur', blank=True, to=settings.AUTH_USER_MODEL, null=True),
+            field=models.ForeignKey(related_name='solved_alerts', verbose_name=b'Mod\xc3\xa9rateur', blank=True,
+                                    to=settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='alert',
             name='privatetopic',
-            field=models.ForeignKey(verbose_name='Message priv\xe9', blank=True, to='mp.PrivateTopic', null=True),
+            field=models.ForeignKey(verbose_name='Message priv\xe9', blank=True, to='mp.PrivateTopic', null=True,
+                                    on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='alert',

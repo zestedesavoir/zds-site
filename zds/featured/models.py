@@ -9,12 +9,14 @@ from zds.member.models import User
 
 class FeaturedResource(models.Model):
     """
-        A FeaturedResource is a link to a resource that is featured by the Staff
-        It displays 3 main information:
-            - A background picture
-            - A title
-            - The author(s) of the resource
-        Currently, the five newer FeaturedResource are displayed on the front page.
+    A FeaturedResource is a link to a resource that is featured by the Staff
+    It displays 3 main informations:
+
+    - A background picture
+    - A title
+    - The author(s) of the resource
+
+    Currently, the five newer FeaturedResource are displayed on the front page.
     """
 
     class Meta:
@@ -58,7 +60,7 @@ class FeaturedRequested(models.Model):
         verbose_name = _('Mise en avant souhaitée')
         verbose_name_plural = _('Mises en avant souhaitées')
 
-    content_type = models.ForeignKey(ContentType, verbose_name=_('Type de l\'objet'))
+    content_type = models.ForeignKey(ContentType, verbose_name=_('Type de l\'objet'), on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField(db_index=True, verbose_name=_('Id de l\'objet'))
     content_object = GenericForeignKey('content_type', 'object_id')
 
@@ -107,12 +109,14 @@ class FeaturedRequested(models.Model):
 
 class FeaturedMessage(models.Model):
     """
-        The Featured Message is a simple one-line information on the home page.
-        This message is divided in three parts:
-            - The hook : displayed in bold, it shows the topic of the message (i.e.: "New", "Warning", "Info", ...)
-            - The message : the info message itself (i.e.: "The site will be down for maintenance tomorrow")
-            - The "tell me more" url : A tell me more button linking to a page giving more details
-        All those elements are facultative.
+    The Featured Message is a simple one-line information on the home page.
+    This message is divided in three parts:
+
+    - The hook : displayed in bold, it shows the topic of the message (i.e.: "New", "Warning", "Info", ...)
+    - The message : the info message itself (i.e.: "The site will be down for maintenance tomorrow")
+    - The "tell me more" url : A tell me more button linking to a page giving more details
+
+    All those elements are facultative.
     """
 
     class Meta:

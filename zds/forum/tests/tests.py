@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.core import mail
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.test import TestCase
 
 from zds.forum.commons import PostEditMixin
@@ -1245,52 +1245,52 @@ def get_topics(forum_pk, is_sticky, filter=None):
 
 class ManagerTests(TestCase):
 
-        def setUp(self):
+    def setUp(self):
 
-            self.cat1 = CategoryFactory()
-            self.forum1 = ForumFactory(category=self.cat1)
-            self.forum2 = ForumFactory(category=self.cat1)
+        self.cat1 = CategoryFactory()
+        self.forum1 = ForumFactory(category=self.cat1)
+        self.forum2 = ForumFactory(category=self.cat1)
 
-            self.staff = StaffProfileFactory()
-            staff_group = Group.objects.filter(name='staff').first()
+        self.staff = StaffProfileFactory()
+        staff_group = Group.objects.filter(name='staff').first()
 
-            self.forum3 = ForumFactory(category=self.cat1)
-            self.forum3.groups = [staff_group]
-            self.forum3.save()
+        self.forum3 = ForumFactory(category=self.cat1)
+        self.forum3.groups.add(staff_group)
+        self.forum3.save()
 
-            TopicFactory(forum=self.forum1, author=self.staff.user)
-            TopicFactory(forum=self.forum2, author=self.staff.user)
-            TopicFactory(forum=self.forum3, author=self.staff.user)
+        TopicFactory(forum=self.forum1, author=self.staff.user)
+        TopicFactory(forum=self.forum2, author=self.staff.user)
+        TopicFactory(forum=self.forum3, author=self.staff.user)
 
-        def test_get_last_topics(self):
+    def test_get_last_topics(self):
 
-            topics = Topic.objects.get_last_topics()
-            self.assertEqual(2, len(topics))
+        topics = Topic.objects.get_last_topics()
+        self.assertEqual(2, len(topics))
 
-        def test_get_unread_post(self):
-            author = ProfileFactory()
-            topic = TopicFactory(author=author.user, forum=self.forum1)
-            post = PostFactory(topic=topic, position=1, author=author.user)
-            topic.last_post = post
-            topic.save()
-            TopicRead(user=author.user, post=post, topic=topic).save()
-            topic.last_post = PostFactory(author=self.staff.user, topic=topic, position=2)
-            topic.save()
-            TopicRead(post=topic.last_post, user=self.staff.user, topic=topic).save()
-            self.assertEqual(1, len(TopicRead.objects.list_read_topic_pk(self.staff.user)))
-            self.assertEqual(0, len(TopicRead.objects.list_read_topic_pk(author.user)))
+    def test_get_unread_post(self):
+        author = ProfileFactory()
+        topic = TopicFactory(author=author.user, forum=self.forum1)
+        post = PostFactory(topic=topic, position=1, author=author.user)
+        topic.last_post = post
+        topic.save()
+        TopicRead(user=author.user, post=post, topic=topic).save()
+        topic.last_post = PostFactory(author=self.staff.user, topic=topic, position=2)
+        topic.save()
+        TopicRead(post=topic.last_post, user=self.staff.user, topic=topic).save()
+        self.assertEqual(1, len(TopicRead.objects.list_read_topic_pk(self.staff.user)))
+        self.assertEqual(0, len(TopicRead.objects.list_read_topic_pk(author.user)))
 
-        def test_is_read(self):
-            author = ProfileFactory()
-            reader = ProfileFactory()
-            topic = TopicFactory(author=author.user, forum=self.forum1)
-            post = PostFactory(topic=topic, position=1, author=author.user)
-            topic.last_post = post
-            topic.save()
-            TopicRead(post=topic.last_post, user=self.staff.user, topic=topic).save()
-            self.assertFalse(is_read(topic, author.user))
-            self.assertTrue(is_read(topic, self.staff.user))
-            self.assertFalse(is_read(topic, reader.user))
+    def test_is_read(self):
+        author = ProfileFactory()
+        reader = ProfileFactory()
+        topic = TopicFactory(author=author.user, forum=self.forum1)
+        post = PostFactory(topic=topic, position=1, author=author.user)
+        topic.last_post = post
+        topic.save()
+        TopicRead(post=topic.last_post, user=self.staff.user, topic=topic).save()
+        self.assertFalse(is_read(topic, author.user))
+        self.assertTrue(is_read(topic, self.staff.user))
+        self.assertFalse(is_read(topic, reader.user))
 
 
 class TestMixins(TestCase):

@@ -21,7 +21,7 @@ Installation
         -Xms512m
         -Xmx512m
 
-    Plus d'informations sont disponibles `dans la documentation <https://www.elastic.co/guide/en/elasticsearch/reference/current/setting-system-settings.html#jvm-options>`_.
+    Plus d'informations sont disponibles `dans la documentation officielle <https://www.elastic.co/guide/en/elasticsearch/reference/current/setting-system-settings.html#jvm-options>`_.
 
 Sous Linux
 ----------
@@ -29,7 +29,7 @@ Sous Linux
 Installer java 8
 ++++++++++++++++
 
-Il est nécessaire d'utiliser **la version 8** de Java pour faire tourner Elasticsearch, mais ce n'est probablement pas la version par défaut de votre système d'exploitation.
+Il est nécessaire d'utiliser au moins **la version 8** de Java pour faire tourner Elasticsearch, mais ce n'est probablement pas la version par défaut de votre système d'exploitation.
 
 **Sous Debian et dérivés**, le package à installer est ``openjdk-8-jdk`` :
 

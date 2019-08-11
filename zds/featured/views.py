@@ -1,8 +1,8 @@
 from datetime import datetime
 
 from django.contrib import messages
-from django.core.urlresolvers import reverse
 from django.db.models import Count
+from django.urls import reverse
 from django.shortcuts import redirect
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.utils.translation import ugettext as _
@@ -15,7 +15,7 @@ from zds import json_handler
 from zds.featured.forms import FeaturedResourceForm, FeaturedMessageForm
 from zds.featured.models import FeaturedResource, FeaturedMessage, FeaturedRequested, FEATUREABLES
 from zds.forum.models import Topic
-from zds.tutorialv2.models.database import PublishedContent
+from zds.tutorialv2.models.database import PublishableContent
 from zds.utils.paginator import ZdSPagingListView
 
 
@@ -76,28 +76,23 @@ class FeaturedResourceCreate(FeaturedViewMixin, CreateView):
 
     def get_initial_content_data(self, content_id):
         try:
-            content = PublishedContent.objects.get(content__pk=int(content_id))
-        except (PublishedContent.DoesNotExist, ValueError):
+            content = PublishableContent.objects.get(pk=int(content_id)).public_version
+            if not content:
+                raise ValueError('Not a public content')
+        except (PublishableContent.DoesNotExist, ValueError):
             messages.error(self.request, self.initial_error_message)
             return {}
         displayed_authors = ', '.join([str(x) for x in content.authors.all()])
         if content.content.image:
-            image_url = content.content.image.physical.url
+            image_url = self.request.build_absolute_uri(content.content.image.physical['featured'].url)
         else:
             image_url = None
-        initial = {
-            'title': content.title(),
-            'type': self.displayed_content_type[content.content_type],
-            'authors': displayed_authors,
-            'url': self.request.build_absolute_uri(content.content.get_absolute_url_online()),
-            'image_url': image_url
-        }
 
-        featured_request = FeaturedRequested.objects.get_existing(content.content)
-        if featured_request is not None:
-            initial.update({'request': featured_request.pk})
-
-        return initial
+        return {'title': content.title(),
+                'type': self.displayed_content_type[content.content_type],
+                'authors': displayed_authors,
+                'url': self.request.build_absolute_uri(content.content.get_absolute_url_online()),
+                'image_url': self.request.build_absolute_uri(image_url)}
 
     def get_initial(self):
         initial = super(FeaturedResourceCreate, self).get_initial()

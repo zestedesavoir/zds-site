@@ -6,7 +6,7 @@ from elasticsearch_dsl.query import MatchAll
 
 from django.conf import settings
 from django.test import TestCase
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from django.contrib.auth.models import Group
 from zds.forum.factories import TopicFactory, PostFactory, Topic, Post, TagFactory

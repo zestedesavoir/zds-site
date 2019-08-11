@@ -39,8 +39,18 @@ def remove_group_subscription_on_quitting_groups(*, sender, instance, action, pk
         return
 
     for forum in Forum.objects.filter(groups__pk__in=list(pk_set)):
-        subscription = NewTopicSubscription.objects.get_existing(instance, forum, True)
-        if subscription:
+        subscriptions = []
+
+        forum_subscription = NewTopicSubscription.objects.get_existing(instance, forum, True)
+        if forum_subscription:
+            subscriptions.append(forum_subscription)
+
+        for topic in Topic.objects.filter(forum=forum):
+            topic_subscription = TopicAnswerSubscription.objects.get_existing(instance, topic, True)
+            if topic_subscription:
+                subscriptions.append(topic_subscription)
+
+        for subscription in subscriptions:
             subscription.is_active = False
             if subscription.last_notification:
                 subscription.last_notification.is_read = True

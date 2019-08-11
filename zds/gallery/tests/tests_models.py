@@ -1,7 +1,7 @@
 import os
 
 from django.test import TestCase
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from zds.gallery.factories import GalleryFactory, UserGalleryFactory, ImageFactory
 from zds.member.factories import ProfileFactory

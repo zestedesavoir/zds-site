@@ -12,7 +12,7 @@ import shutil
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import models
 from django.http import Http404
 from django.utils.http import urlencode
@@ -56,7 +56,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
     - Creation, publication and update date ;
     - Public, beta, validation and draft sha, for versioning ;
     - Comment support ;
-    - Type, which is either "ARTICLE" "TUTORIAL" or "OPINION"
+    - Type, which is either ``'ARTICLE'``, ``'TUTORIAL'`` or ``'OPINION'``
     """
     class Meta:
         verbose_name = 'Contenu'
@@ -83,7 +83,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
     # every publishable content has its own gallery to manage images
     gallery = models.ForeignKey(Gallery,
                                 verbose_name="Galerie d'images",
-                                blank=True, null=True, db_index=True)
+                                blank=True, null=True, db_index=True, on_delete=models.SET_NULL)
 
     creation_date = models.DateTimeField('Date de création')
     pubdate = models.DateTimeField('Date de publication',
@@ -103,10 +103,11 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
                                  blank=True, null=True, max_length=80, db_index=True)
     sha_picked = models.CharField('Sha1 de la version choisie (contenus publiés sans validation)',
                                   blank=True, null=True, max_length=80, db_index=True)
-    beta_topic = models.ForeignKey(Topic, verbose_name='Sujet beta associé', default=None, blank=True, null=True)
+    beta_topic = models.ForeignKey(Topic, verbose_name='Sujet beta associé', default=None, blank=True, null=True,
+                                   on_delete=models.SET_NULL)
     licence = models.ForeignKey(Licence,
                                 verbose_name='Licence',
-                                blank=True, null=True, db_index=True)
+                                blank=True, null=True, db_index=True, on_delete=models.SET_NULL)
     # as of ZEP 12 this field is no longer the size but the type of content (article/tutorial/opinion)
     type = models.CharField(max_length=10, choices=TYPE_CHOICES, db_index=True)
     # zep03 field
@@ -120,7 +121,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
 
     last_note = models.ForeignKey('ContentReaction', blank=True, null=True,
                                   related_name='last_note',
-                                  verbose_name='Derniere note')
+                                  verbose_name='Derniere note', on_delete=models.SET_NULL)
     is_locked = models.BooleanField('Est verrouillé', default=False)
     js_support = models.BooleanField('Support du Javascript', default=False)
 
@@ -157,11 +158,13 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         self.refresh_from_db(fields=list(fields.keys()))
         return self
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, force_slug_update=True, **kwargs):
         """
-        Rewrite the `save()` function to handle slug uniqueness
+        Rewrite the ``save()`` function to handle slug uniqueness
+
+        :param force_slug_update: if set to ``False`` do not try to update the slug
         """
-        if kwargs.pop('force_slug_update', True):
+        if force_slug_update:
             self.slug = uuslug(self.title, instance=self, max_length=80)
         update_date = kwargs.pop('update_date', True)
         if update_date:
@@ -315,6 +318,16 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
                 'Le code sha existe mais la version demandée ne peut pas être trouvée à cause de {}:{}'.format(
                     type(error), str(error)))
 
+    @property
+    def first_publication_date(self):
+        """
+        traverse PublishedContent instances to find the first ever published and get its date
+        :return: the first publication date
+        :rtype: datetime
+        """
+        return Validation.objects.filter(content=self, status='ACCEPT').order_by('date_validation')\
+            .values_list('date_validation', flat=True)[0]
+
     def load_version(self, sha=None, public=None):
         """Using git, load a specific version of the content. if ``sha`` is ``None``,
         the draft/public version is used (if ``public`` is ``True``).
@@ -371,6 +384,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
             data = get_blob(repo.commit(sha).tree, 'manifest.json')
             try:
                 json = json_handler.loads(data)
+                logger.debug('loaded json')
             except ValueError:
                 raise BadManifestError(
                     _('Une erreur est survenue lors de la lecture du manifest.json, est-ce du JSON ?'))
@@ -452,7 +466,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         """
         user = get_current_user()
 
-        if user and user.is_authenticated():
+        if user and user.is_authenticated:
             try:
                 read = ContentRead.objects\
                     .select_related('note')\
@@ -477,7 +491,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         if user is None:
             user = get_current_user()
 
-        if user and user.is_authenticated():
+        if user and user.is_authenticated:
             try:
                 read = ContentRead.objects\
                     .filter(content=self, user__pk=user.pk)\
@@ -514,7 +528,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         if user is None:
             user = get_current_user()
 
-        if user and user.is_authenticated():
+        if user and user.is_authenticated:
             last_user_notes = ContentReaction.objects\
                 .filter(related_content=self)\
                 .filter(author=user.pk)\
@@ -545,14 +559,14 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         :param tag_collection: A collection of tags.
         :type tag_collection: list
         """
-        for tag in tag_collection:
+        for tag in filter(None, tag_collection):
             try:
                 current_tag, created = Tag.objects.get_or_create(title=tag.lower().strip())
                 self.tags.add(current_tag)
             except ValueError as e:
                 logger.warning(e)
-
-        self.save()
+        logger.debug('Initial number of tags=%s, after filtering=%s', len(tag_collection), len(self.tags.all()))
+        self.save(force_slug_update=False)
 
     def requires_validation(self):
         """
@@ -592,7 +606,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         verbose_name = 'Contenu publié'
         verbose_name_plural = 'Contenus publiés'
 
-    content = models.ForeignKey(PublishableContent, verbose_name='Contenu')
+    content = models.ForeignKey(PublishableContent, verbose_name='Contenu', on_delete=models.CASCADE)
 
     content_type = models.CharField(max_length=10, choices=TYPE_CHOICES, db_index=True, verbose_name='Type de contenu')
     content_public_slug = models.CharField('Slug du contenu publié', max_length=80)
@@ -898,6 +912,10 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         except OSError as e:
             logger.warning('could not get file %s to compute nb letters (error=%s)', md_file_path, e)
 
+    @property
+    def last_publication_date(self):
+        return max(self.publication_date, self.update_date or datetime.min)
+
     @classmethod
     def get_es_mapping(cls):
         mapping = Mapping(cls.get_es_document_type())
@@ -1139,6 +1157,7 @@ class ContentReaction(Comment):
         verbose_name_plural = 'notes sur un contenu'
 
     related_content = models.ForeignKey(PublishableContent, verbose_name='Contenu',
+                                        on_delete=models.CASCADE,
                                         related_name='related_content_note', db_index=True)
 
     def __str__(self):
@@ -1165,11 +1184,11 @@ class ContentRead(models.Model):
     """
     class Meta:
         verbose_name = 'Contenu lu'
-        verbose_name_plural = 'Contenu lus'
+        verbose_name_plural = 'Contenus lus'
 
-    content = models.ForeignKey(PublishableContent, db_index=True)
-    note = models.ForeignKey(ContentReaction, db_index=True, null=True)
-    user = models.ForeignKey(User, related_name='content_notes_read', db_index=True)
+    content = models.ForeignKey(PublishableContent, db_index=True, on_delete=models.CASCADE)
+    note = models.ForeignKey(ContentReaction, db_index=True, null=True, on_delete=models.SET_NULL)
+    user = models.ForeignKey(User, related_name='content_notes_read', db_index=True, on_delete=models.CASCADE)
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         """
@@ -1193,7 +1212,7 @@ class Validation(models.Model):
         verbose_name_plural = 'Validations'
 
     content = models.ForeignKey(PublishableContent, null=True, blank=True,
-                                verbose_name='Contenu proposé', db_index=True)
+                                verbose_name='Contenu proposé', db_index=True, on_delete=models.CASCADE)
     version = models.CharField('Sha1 de la version',
                                blank=True, null=True, max_length=80, db_index=True)
     date_proposition = models.DateTimeField('Date de proposition', db_index=True, null=True, blank=True)
@@ -1201,7 +1220,7 @@ class Validation(models.Model):
     validator = models.ForeignKey(User,
                                   verbose_name='Validateur',
                                   related_name='author_content_validations',
-                                  blank=True, null=True, db_index=True)
+                                  blank=True, null=True, db_index=True, on_delete=models.SET_NULL)
     date_reserve = models.DateTimeField('Date de réservation',
                                         blank=True, null=True)
     date_validation = models.DateTimeField('Date de validation',
@@ -1263,7 +1282,7 @@ class PickListOperation(models.Model):
         verbose_name_plural = 'Choix des billets'
 
     content = models.ForeignKey(PublishableContent, null=False, blank=False,
-                                verbose_name='Contenu proposé', db_index=True)
+                                verbose_name='Contenu proposé', db_index=True, on_delete=models.CASCADE)
     operation = models.CharField(null=False, blank=False, db_index=True, max_length=len('REMOVE_PUB'),
                                  choices=PICK_OPERATIONS)
     operation_date = models.DateTimeField(null=False, db_index=True, verbose_name="Date de l'opération")
@@ -1295,6 +1314,30 @@ class PickListOperation(models.Model):
         raise ValueError('Content cannot be null or something else than opinion.', self.content)
 
 
+STATE_CHOICES = [
+    ('REQUESTED', _('Export demandé')),
+    ('RUNNING', _('Export en cours')),
+    ('SUCCESS', _('Export réalisé')),
+    ('FAILURE', _('Export échoué')),
+]
+
+
+class PublicationEvent(models.Model):
+    class Meta:
+        verbose_name = _('Événement de publication')
+        verbose_name_plural = _('Événements de publication')
+
+    published_object = models.ForeignKey(PublishedContent, null=False, on_delete=models.CASCADE,
+                                         verbose_name='contenu publié')
+    state_of_processing = models.CharField(choices=STATE_CHOICES, null=False, blank=False, max_length=20)
+    # 25 for formats such as "printable.pdf", if tomorrow we want other "long" formats this will be ready
+    format_requested = models.CharField(blank=False, null=False, max_length=25)
+    created = models.DateTimeField(verbose_name='date de création', name='date', auto_now_add=True)
+
+    def __str__(self):
+        return '{}: {} - {}'.format(self.published_object.title(), self.format_requested, self.state_of_processing)
+
+
 @receiver(models.signals.pre_delete, sender=User)
 def transfer_paternity_receiver(sender, instance, **kwargs):
     """
@@ -1303,5 +1346,6 @@ def transfer_paternity_receiver(sender, instance, **kwargs):
     external = sender.objects.get(username=settings.ZDS_APP['member']['external_account'])
     PublishableContent.objects.transfer_paternity(instance, external, UserGallery)
     PublishedContent.objects.transfer_paternity(instance, external)
+
 
 import zds.tutorialv2.receivers  # noqa

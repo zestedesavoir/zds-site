@@ -306,6 +306,7 @@
 
                 span,
                 button.ico-after {
+                    box-sizing: border-box;
                     border-bottom-width: 3px;
                     border-bottom-color: transparent;
                     background: none !important;
@@ -409,8 +410,7 @@
         }
 
         .message-submit {
-            margin-left: auto;
-            margin-right: 10px;
+            margin: 0 10px 5px auto;
         }
 
         .message-actions,

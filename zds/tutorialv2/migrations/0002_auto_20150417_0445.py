@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
                 ('content_pk', models.IntegerField(verbose_name=b'Pk du contenu publi\xc3\xa9', db_index=True)),
                 ('publication_date', models.DateTimeField(db_index=True, null=True, verbose_name=b'Date de publication', blank=True)),
                 ('sha_public', models.CharField(db_index=True, max_length=80, null=True, verbose_name=b'Sha1 de la version publique', blank=True)),
-                ('content', models.ForeignKey(verbose_name=b'Contenu', to='tutorialv2.PublishableContent')),
+                ('content', models.ForeignKey(verbose_name=b'Contenu', to='tutorialv2.PublishableContent', on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'Contenu publi\xe9',

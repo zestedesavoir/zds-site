@@ -1,6 +1,6 @@
 from datetime import datetime, date
-from django.core.urlresolvers import reverse
 from django.contrib.contenttypes.models import ContentType
+from django.urls import reverse
 from django.test import TestCase
 from django.utils.translation import ugettext as _
 
@@ -174,7 +174,7 @@ class FeaturedResourceCreateViewTest(TutorialTestMixin, TestCase):
         self.assertEqual(initial_dict['authors'], '{}, {}'.format(author, author2))
         self.assertEqual(initial_dict['type'], _('Un tutoriel'))
         self.assertEqual(initial_dict['url'], 'http://testserver{}'.format(tutorial.get_absolute_url_online()))
-        self.assertEqual(initial_dict['image_url'], image.physical.url)
+        self.assertEqual(initial_dict['image_url'], 'http://testserver{}'.format(image.physical['featured'].url))
 
     def test_success_initial_content_topic(self):
         author = ProfileFactory().user

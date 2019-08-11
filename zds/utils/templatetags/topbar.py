@@ -24,7 +24,7 @@ def topbar_forum_categories(user):
         cats[forum.category.position].append(forum)
 
     sorted_cats = sorted(cats)
-    topbar_cats = [(cats[cat][0].category.title, cats[cat]) for cat in sorted_cats]
+    topbar_cats = [(cats[cat][0].category.title, cats[cat][0].category.slug, cats[cat]) for cat in sorted_cats]
 
     excluded_tags = settings.ZDS_APP['forum']['top_tag_exclu']
     tags_by_popularity = (

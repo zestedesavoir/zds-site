@@ -1,0 +1,23 @@
+#title=Fedora
+#desc=Utilisation de dnf
+#installcmd=dnf -y install
+git
+wget
+curl
+unzip
+realpath
+python3-devel
+python3-setuptools
+python3-lxml
+libxml2-devel
+libxslt-devel
+zlib-devel
+python3-sqlparse
+libjpeg-turbo-devel
+freetype
+freetype-devel
+libffi-devel
+python3-pip
+python-virtualenv
+gcc
+redhat-rpm-config

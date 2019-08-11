@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import Http404, HttpResponse, HttpResponsePermanentRedirect, StreamingHttpResponse
 from django.template.loader import render_to_string
 from django.shortcuts import redirect
@@ -70,7 +70,7 @@ class SingleContentViewMixin(object):
         except ValueError as badvalue:
             raise Http404("La valeur du paramètre pk '{}' n'est pas un entier valide.".format(badvalue))
 
-        queryset = PublishableContent.objects
+        queryset = queryset or PublishableContent.objects
 
         if self.prefetch_all:
             queryset = queryset.\
@@ -195,7 +195,7 @@ class FormWithPreview(FormView):
                 content = render_to_string('misc/preview.part.html', {'text': request.POST.get('text')})
                 return StreamingHttpResponse(content)
 
-        return super(FormWithPreview, self).post(request, *args, **kwargs)
+        return super().post(request, *args, **kwargs)
 
 
 class SingleContentFormViewMixin(SingleContentViewMixin, ModalFormView):
@@ -266,6 +266,10 @@ class SingleContentDetailViewMixin(SingleContentViewMixin, DetailView):
         if self.sha != self.object.sha_draft:
             context['version'] = self.sha
 
+        is_allowed = (self.is_author or self.is_staff)
+        is_same_version = (not self.sha or self.sha == self.object.sha_draft)
+        context['can_add_something'] = is_allowed and is_same_version
+
         if self.object.beta_topic:
             beta_topic = Topic.objects.get(pk=self.object.beta_topic.pk)
 
@@ -308,8 +312,16 @@ class ContentTypeMixin(object):
 class MustRedirect(Exception):
     """Exception raised when this is not the last version of the content which is called"""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, url, *args, **kwargs):
+        """
+        initialize the exception
+
+        :param url: the targetted url
+        :param args: exception *args
+        :param kwargs: exception **kwargs
+        """
         super(MustRedirect, self).__init__(*args, **kwargs)
+        self.url = url
 
 
 class SingleOnlineContentViewMixin(ContentTypeMixin):
@@ -420,6 +432,7 @@ class SingleOnlineContentDetailViewMixin(SingleOnlineContentViewMixin, DetailVie
         * context['can_edit'] is set
         * context['public_object'] is set
         * context['is_antispam'] is set
+        * context['db_content'] is set with the PublishableContent instance
     """
 
     def get(self, request, *args, **kwargs):
@@ -427,7 +440,7 @@ class SingleOnlineContentDetailViewMixin(SingleOnlineContentViewMixin, DetailVie
         try:
             self.public_content_object = self.get_public_object()
         except MustRedirect as redirection_url:
-            return HttpResponsePermanentRedirect(redirection_url)
+            return HttpResponsePermanentRedirect(redirection_url.url)
 
         self.object = self.get_object()
         self.versioned_object = self.get_versioned_object()
@@ -452,6 +465,7 @@ class SingleOnlineContentDetailViewMixin(SingleOnlineContentViewMixin, DetailVie
         context['is_antispam'] = self.object.antispam(self.request.user)
         context['is_staff'] = self.is_staff
         context['is_author'] = self.is_author
+        context['db_content'] = self.object
         return context
 
 

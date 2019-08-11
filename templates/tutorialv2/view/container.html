@@ -107,12 +107,17 @@
     {% if container.introduction and container.get_introduction %}
         {{ container.get_introduction|emarkdown:is_js }}
     {% elif not content.is_beta %}
-        <p class="ico-after warning">
-            {% trans "Il n’y a pas d’introduction." %}
-        </p>
+        <div class="ico-after warning">
+            <p>
+                {% trans "Il n’y a pas d’introduction." %}
+                {% if can_add_something %}
+                    {% trans "Vous pouvez " %}<a href="{{ container.get_edit_url }}">{% trans "en ajouter une" %}</a>.
+                {% endif %}
+            </p>
+        </div>
     {% endif %}
 
-     {% if container.has_extracts %}
+     {% if container.has_extracts or container.can_add_extract %}
         <ul>
             {% for extract in container.children %}
                 <li>
@@ -121,25 +126,112 @@
                     </a>
                 </li>
             {% endfor %}
+            {% if not container.can_add_container and container.can_add_extract and can_add_something %}
+                <li class="simple-create-button">
+                    <a class="btn btn-grey" href="{% if container.parent == content %}
+                                {% url "content:create-extract" content.pk content.slug container.slug %}
+                            {%  else %}
+                                {% url "content:create-extract" content.pk content.slug container.parent.slug container.slug %}
+                            {%  endif %}">
+                        {% trans "Ajouter une section" %}
+                    </a>
+                </li>
+            {% endif %}
         </ul>
     {% endif %}
 
     {% for child in container.children %}
         {%  include "tutorialv2/includes/child.part.html" with child=child %}
     {% empty %}
-        <p class="ico-after warning">
-            {{ "Ce"|feminize:container.get_level_as_string }} {{ container.get_level_as_string|lower }}  {% trans " est actuellement vide." %}
-        </p>
+        {% if not can_add_something or not container.is_chapter %}
+            <div class="ico-after warning">
+                <p>
+                    {{ "Ce"|feminize:container.get_level_as_string }} {{ container.get_level_as_string|lower }}  {% trans " est actuellement vide." %}
+                </p>
+                {% if container.can_add_extract and container.can_add_container and can_add_something %}
+                    <ul>
+                        <li>
+                            <a href="{% if container.parent == content %}
+                                        {% url "content:create-container" content.pk content.slug container.slug %}
+                                    {%  else %}
+                                        {% url "content:create-container" content.pk content.slug container.parent.slug %}
+                                    {%  endif %}">{% trans "Ajouter un chapitre" %}</a>
+                            {% trans " pour adopter le format big-tuto et ajouter des sections ;" %}
+                        </li>
+                        <li>
+                            <a href="{% if container.parent == content %}
+                                        {% url "content:create-extract" content.pk content.slug container.slug %}
+                                    {%  else %}
+                                        {% url "content:create-extract" content.pk content.slug container.parent.slug %}
+                                    {%  endif %}">{% trans "Ajouter une section" %}</a>
+                        </li>
+                    </ul>
+                {% endif %}
+            </div>
+        {% endif %}
     {% endfor %}
+    {% if can_add_something %}
+        {% if container.can_add_container and not container.can_add_extract %}
+            <h2>
+                <a class="force-blue" href="{% if container.parent == content %}
+                            {% url "content:create-container" content.pk content.slug container.slug %}
+                        {%  else %}
+                            {% url "content:create-container" content.pk content.slug container.parent.slug %}
+                        {%  endif %}">
+                    {% trans "Ajouter un chapitre" %}
+                </a>
+            </h2>
+            <div class="actions-title">
+                <a href="{% if container.parent == content %}
+                            {% url "content:create-container" content.pk content.slug container.slug %}
+                        {%  else %}
+                            {% url "content:create-container" content.pk content.slug container.parent.slug %}
+                        {%  endif %}" class="ico-after more btn btn-grey">
+                    {% trans "Ajouter" %}
+                </a>
+            </div>
+            <div class="ico-after information">
+                <p>{% trans "Cliquer sur ajouter pour ajouter un nouveau chapitre." %}</p>
+            </div>
+        {% endif %}
+        {% if not container.can_add_container and container.can_add_extract %}
+            <h2 class="force-blue">
+                <a href="{% if container.parent == content %}
+                            {% url "content:create-extract" content.pk content.slug container.slug %}
+                        {%  else %}
+                            {% url "content:create-extract" content.pk content.slug container.parent.slug container.slug %}
+                        {%  endif %}">
+                    {% trans "Ajouter une section" %}
+                </a>
+            </h2>
+            <div class="actions-title">
+                <a href="{% if container.parent == content %}
+                            {% url "content:create-extract" content.pk content.slug container.slug %}
+                        {%  else %}
+                            {% url "content:create-extract" content.pk content.slug container.parent.slug container.slug %}
+                        {%  endif %}" class="ico-after more btn btn-grey">
+                    {% trans "Ajouter" %}
+                </a>
+            </div>
+            <div class="ico-after information">
+                <p>{% trans "Cliquer sur ajouter pour rédiger une nouvelle section." %}</p>
+            </div>
+        {% endif %}
+    {% endif %}
 
     <hr />
 
     {% if container.conclusion and container.get_conclusion %}
         {{ container.get_conclusion|emarkdown:is_js }}
     {% elif not content.is_beta %}
-        <p class="ico-after warning">
-            {% trans "Il n’y a pas de conclusion." %}
-        </p>
+        <div class="ico-after warning">
+            <p>
+                {% trans "Il n’y a pas de conclusion." %}
+                {% if can_add_something %}
+                    {% trans "Vous pouvez " %}<a href="{{ container.get_edit_url }}">{% trans "en ajouter une" %}</a>.
+                {% endif %}
+            </p>
+        </div>
     {% endif %}
 
     {% include "tutorialv2/includes/chapter_pager.part.html" with position="bottom" %}
@@ -152,108 +244,107 @@
 
 
 {% block sidebar_new %}
-    {% if can_edit or is_staff %}
-        {% if not version or version == content.sha_draf %}
-            <a href="{{ container.get_edit_url }}" class="ico-after edit blue new-btn">
-                {% trans "Éditer" %}
-            </a>
+    {% if can_add_something %}
+        <a href="{{ container.get_edit_url }}" class="ico-after edit blue new-btn">
+            {% trans "Éditer" %}
+        </a>
 
 
-            {%  if container.can_add_container %}
-                <a href="{% url "content:create-container" content.pk content.slug container.slug %}" class="ico-after more blue new-btn">
-                    {% trans "Ajouter " %} {{ "un"|feminize:container.get_next_level_as_string }} {{ container.get_next_level_as_string|lower }}
-                </a>
-            {% endif %}
-
-            {%  if container.can_add_extract %}
-                <a href="
-                    {%  if container.parent == content %}
-                        {% url "content:create-extract" content.pk content.slug container.slug %}
-                    {%  else %}
-                        {% url "content:create-extract" content.pk content.slug container.parent.slug container.slug %}
-                    {%  endif %}
-                 " class="ico-after more blue new-btn">
-                    {% trans "Ajouter une section" %}
-                </a>
-            {%  endif %}
-        {% else %}
-            <a href="{{ object.get_absolute_url }}" class="ico-after arrow-right blue new-btn">
-                {% trans "Version brouillon" %}
+        {%  if container.can_add_container %}
+            <a href="{% url "content:create-container" content.pk content.slug container.slug %}" class="ico-after more blue new-btn">
+                {% trans "Ajouter " %} {{ "un"|feminize:container.get_next_level_as_string }} {{ container.get_next_level_as_string|lower }}
             </a>
         {% endif %}
+
+        {%  if container.can_add_extract %}
+            <a href="
+                {%  if container.parent == content %}
+                    {% url "content:create-extract" content.pk content.slug container.slug %}
+                {%  else %}
+                    {% url "content:create-extract" content.pk content.slug container.parent.slug container.slug %}
+                {%  endif %}
+             " class="ico-after more blue new-btn">
+                {% trans "Ajouter une section" %}
+            </a>
+        {% elif not version or version != content.sha_draft %}
+            <a href="{{ object.get_absolute_url }}" class="ico-after arrow-right blue new-btn">
+                {% trans "Version brouillon" %}
+            </a> -->
+        {%  endif %}
     {% endif %}
 {% endblock %}
 
 
 
 {% block sidebar_actions %}
-    {% if can_edit or is_staff %}
-        {% if not version or content.sha_draft == version %}
-            <li>
-                <a href="#move-chapter" class="open-modal ico-after move blue">
-                    {% blocktrans with prev="le"|feminize:container.get_level_as_string name=container.get_level_as_string|lower %}
-                        Déplacer <span class="wide">{{ prev }} {{ name }}</span>
-                    {% endblocktrans %}
-                </a>
-                <form action="{% url "content:move-element" %}" method="POST" class="modal modal-flex" id="move-chapter">
-                    <input type="hidden" name="pk" value="{{ content.pk }}"/>
+    {% if can_add_something %}
+        <li>
+            <a href="#move-chapter" class="open-modal ico-after move blue">
+                {% blocktrans with prev="le"|feminize:container.get_level_as_string name=container.get_level_as_string|lower %}
+                    Déplacer <span class="wide">{{ prev }} {{ name }}</span>
+                {% endblocktrans %}
+            </a>
+            <form action="{% url "content:move-element" %}" method="POST" class="modal modal-flex" id="move-chapter">
+                <input type="hidden" name="pk" value="{{ content.pk }}"/>
 
-                    <select name="moving_method" class="select-autosubmit">
+                <select name="moving_method" class="select-autosubmit">
 
-                        <option disabled="disabled">
-                            {% trans "Déplacer" %}
+                    <option disabled="disabled">
+                        {% trans "Déplacer" %}
+                    </option>
+
+                    {% if container.position_in_parent > 1 %}
+                        <option value="up">
+                            {% trans "Monter" %}
                         </option>
-
-                        {% if container.position_in_parent > 1 %}
-                            <option value="up">
-                                {% trans "Monter" %}
-                            </option>
-                        {% endif %}
-
-                        {% if container.position_in_parent < container.parent.children|length %}
-                            <option value="down">
-                                {% trans "Descendre" %}
-                            </option>
-                        {% endif %}
-                            <option disabled="disabled">&mdash; {% trans "Déplacer avant" %}</option>
-                            {% for element in containers_target %}
-                                    <option value="before:{{element.0}}"
-                                    {% if not element.3 %} disabled {% endif %}>
-                                         &mdash;&mdash;{% for _ in element.2|times %}&mdash;{% endfor %}{{ element.1 }}
-                                    </option>
-                            {% endfor %}
-                            <option disabled="disabled">&mdash; {% trans "Déplacer après" %}</option>
-                            {% for element in containers_target %}
-                                    <option value="after:{{element.0}}"
-                                    {% if not element.3 %} disabled {% endif %}>
-                                         &mdash;&mdash;{% for _ in element.2|times %}&mdash;{% endfor %}{{ element.1 }}
-                                    </option>
-                            {% endfor %}
-                    </select>
-                    {% if container.get_tree_depth > 2 %}
-                        <input type="hidden" name="first_level_slug" value="{{ parent.parent.slug }}">
-                    {% else %}
-                        <input type="hidden" name="first_level_slug" value="">
                     {% endif %}
-                    <input type="hidden" name="child_slug" value="{{ container.slug }}">
-                    <input type="hidden" name="container_slug" value="{{ container.parent.slug}}">
-                    {% csrf_token %}
 
-                    <button type="submit">{% trans "Déplacer" %}</button>
-                </form>
-            </li>
-        {% endif %}
-            <li>
-                <a data-url="{% url 'api:content:readiness' content.pk %}" class="readiness" data-is-ready="{{ container.ready_to_publish|yesno:"true,false" }}"
-                   data-container-slug="{{ container.slug }}"
-                    {% if container.parent.parent %}data-parent-container-slug="{{ container.parent.slug }}"{% endif %}
-                    data-is-ready-false="{% trans "Marquer comme prêt à valider." %}" data-is-ready-true="{% trans "Marquer comme à ne pas valider." %}">
-                    {% if container.ready_to_publish %}
-                        {% trans "Marquer comme à ne pas valider." %}
-                    {% else %}
-                        {% trans "Marquer comme prêt à valider." %}
+                    {% if container.position_in_parent < container.parent.children|length %}
+                        <option value="down">
+                            {% trans "Descendre" %}
+                        </option>
                     {% endif %}
-                </a></li>
+                        <option disabled="disabled">&mdash; {% trans "Déplacer avant" %}</option>
+                        {% for element in containers_target %}
+                                <option value="before:{{element.0}}"
+                                {% if not element.3 %} disabled {% endif %}>
+                                     &mdash;&mdash;{% for _ in element.2|times %}&mdash;{% endfor %}{{ element.1 }}
+                                </option>
+                        {% endfor %}
+                        <option disabled="disabled">&mdash; {% trans "Déplacer après" %}</option>
+                        {% for element in containers_target %}
+                                <option value="after:{{element.0}}"
+                                {% if not element.3 %} disabled {% endif %}>
+                                     &mdash;&mdash;{% for _ in element.2|times %}&mdash;{% endfor %}{{ element.1 }}
+                                </option>
+                        {% endfor %}
+                </select>
+                {% if container.get_tree_depth > 2 %}
+                    <input type="hidden" name="first_level_slug" value="{{ parent.parent.slug }}">
+                {% else %}
+                    <input type="hidden" name="first_level_slug" value="">
+                {% endif %}
+                <input type="hidden" name="child_slug" value="{{ container.slug }}">
+                <input type="hidden" name="container_slug" value="{{ container.parent.slug}}">
+                {% csrf_token %}
+
+                <button type="submit">{% trans "Déplacer" %}</button>
+            </form>
+        </li>
+    {% endif %}
+    {% if can_edit or is_staff %}
+        <li>
+            <a data-url="{% url 'api:content:readiness' content.pk %}" class="readiness" data-is-ready="{{ container.ready_to_publish|yesno:"true,false" }}"
+               data-container-slug="{{ container.slug }}"
+                {% if container.parent.parent %}data-parent-container-slug="{{ container.parent.slug }}"{% endif %}
+                data-is-ready-false="{% trans "Marquer comme prêt à valider." %}" data-is-ready-true="{% trans "Marquer comme à ne pas valider." %}">
+                {% if container.ready_to_publish %}
+                    {% trans "Marquer comme à ne pas valider." %}
+                {% else %}
+                    {% trans "Marquer comme prêt à valider." %}
+                {% endif %}
+            </a>
+        </li>
     {% endif %}
 {% endblock %}
 
@@ -262,16 +353,14 @@
 {% block sidebar_blocks %}
     {%   include "tutorialv2/includes/summary.part.html" with current_container=container %}
 
-    {% if can_edit or is_staff %}
-        {% if not version or content.sha_draft == version %}
-             <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Suppression">
-                <h3>{% trans "Suppression" %}</h3>
-                <ul>
-                    <li>
-                        {%  include "tutorialv2/includes/delete.part.html" with object=container additional_classes="ico-after cross red" %}
-                    </li>
-                </ul>
-            </div>
-        {% endif %}
+    {% if can_add_something %}
+         <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Suppression">
+            <h3>{% trans "Suppression" %}</h3>
+            <ul>
+                <li>
+                    {%  include "tutorialv2/includes/delete.part.html" with object=container additional_classes="ico-after cross red" %}
+                </li>
+            </ul>
+        </div>
     {% endif %}
 {% endblock %}

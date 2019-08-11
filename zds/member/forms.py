@@ -2,7 +2,7 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User, Group
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from captcha.fields import ReCaptchaField
@@ -278,6 +278,9 @@ class ProfileForm(MiniProfileForm):
 
         if 'email_for_answer' in initial and initial['email_for_answer']:
             self.fields['options'].initial += 'email_for_answer'
+
+        if 'email_for_new_mp' in initial and initial['email_for_new_mp']:
+            self.fields['options'].initial += 'email_for_new_mp'
 
         layout = Layout(
             Field('biography'),
@@ -614,7 +617,8 @@ class KarmaForm(forms.Form):
         self.helper.form_class = 'modal modal-flex'
         self.helper.form_id = 'karmatiser-modal'
         self.helper.form_method = 'post'
-
+        # TODO : see how to fix the "commonlayoutmodaltext" issue that generates some
+        # useless exceptions. (field 'text' does not exists the choices are 'note' and 'karma')
         self.helper.layout = Layout(
             CommonLayoutModalText(),
             Field('note'),

@@ -342,6 +342,16 @@
                     margin-top: 5px;
                 }
             }
+            
+            &.not-ready {
+                background: $color-not-ready-content;
+            }
+        }
+        
+        li {
+            &.not-ready {
+                background: $color-not-ready-content;
+            }   
         }
 
         ol li.current {

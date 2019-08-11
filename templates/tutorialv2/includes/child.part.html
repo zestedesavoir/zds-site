@@ -4,7 +4,10 @@
 {% load target_tree %}
 {% load feminize %}
 
-<h2 id="{{ child.position_in_parent }}-{{ child.slug }}">
+<h2 id="{{ child.position_in_parent }}-{{ child.slug }}"
+{% if not child.is_validable %}
+    class="not-ready"
+{% endif %}>
     <a
     {% if content.is_beta %}
         href="{{ child.get_absolute_url_beta }}"
@@ -20,65 +23,67 @@
     </a>
 </h2>
 
-{% if can_edit or is_staff %}
-    {%  if not version or version == content.sha_draft %}
-        <div class="actions-title">
-            <a href="{{ child.get_edit_url }}" class="ico-after edit btn btn-grey">
-                {% trans "Éditer" %}
-            </a>
-            <a href="#move-{{ child.slug }}" class="open-modal ico-after move btn btn-grey">{% trans "Déplacer" %}</a>
-                <form action="{% url "content:move-element" %}" method="post" class="modal modal-flex" id="move-{{ child.slug }}">
-                    <select name="moving_method">
-                        <option disabled="disabled">{% trans "Déplacer" %}</option>
-                        {% if child.position_in_parent > 1 %}
-                            <option value="up">{% trans "Monter" %}</option>
-                        {% endif %}
+{% if can_add_something %}
+    <div class="actions-title">
+        <a href="{{ child.get_edit_url }}" class="ico-after edit btn btn-grey">
+            {% trans "Éditer" %}
+        </a>
+        <a href="#move-{{ child.slug }}" class="open-modal ico-after move btn btn-grey">{% trans "Déplacer" %}</a>
+        <form action="{% url "content:move-element" %}" method="post" class="modal modal-flex" id="move-{{ child.slug }}">
+            <select name="moving_method">
+                <option disabled="disabled">{% trans "Déplacer" %}</option>
+                {% if child.position_in_parent > 1 %}
+                    <option value="up">{% trans "Monter" %}</option>
+                {% endif %}
 
-                        {% if child.position_in_parent < child.parent.children|length %}
-                            <option value="down">{% trans "Descendre" %}</option>
-                        {% endif %}
-                        <option disabled="disabled">&mdash; {% trans "Déplacer avant" %}</option>
-                        {% for element in child|target_tree %}
-                                <option value="before:{{element.0}}"
-                                {% if not element.3 %} disabled {% endif %}>
-                                     &mdash;&mdash;{% for _ in element.2|times %}&mdash;{% endfor %}{{ element.1|truncatechars:50 }}
-                                </option>
-                        {% endfor %}
-                        <option disabled="disabled">&mdash; {% trans "Déplacer après" %}</option>
-                        {% for element in child|target_tree %}
-                                <option value="after:{{element.0}}"
-                                {% if not element.3 %} disabled {% endif %}>
-                                     &mdash;&mdash;{% for _ in element.2|times %}&mdash;{% endfor %}{{ element.1|truncatechars:50 }}
-                                </option>
-                        {% endfor %}
-                    </select>
-                    <input type="hidden" name="child_slug" value="{{ child.slug }}">
-                    {% if child.text %}
-                        <input type="hidden" name="container_slug" value="{{ child.container.slug }}">
-                        <input type="hidden" name="first_level_slug" value="{{ child.get_first_level_slug }}">
-                    {%  else %}
-                        <input type="hidden" name="container_slug" value="{{ child.parent.slug }}">
-                    {% endif %}
+                {% if child.position_in_parent < child.parent.children|length %}
+                    <option value="down">{% trans "Descendre" %}</option>
+                {% endif %}
+                <option disabled="disabled">&mdash; {% trans "Déplacer avant" %}</option>
+                {% for element in child|target_tree %}
+                        <option value="before:{{element.0}}"
+                        {% if not element.3 %} disabled {% endif %}>
+                             &mdash;&mdash;{% for _ in element.2|times %}&mdash;{% endfor %}{{ element.1|truncatechars:50 }}
+                        </option>
+                {% endfor %}
+                <option disabled="disabled">&mdash; {% trans "Déplacer après" %}</option>
+                {% for element in child|target_tree %}
+                        <option value="after:{{element.0}}"
+                        {% if not element.3 %} disabled {% endif %}>
+                             &mdash;&mdash;{% for _ in element.2|times %}&mdash;{% endfor %}{{ element.1|truncatechars:50 }}
+                        </option>
+                {% endfor %}
+            </select>
+            <input type="hidden" name="child_slug" value="{{ child.slug }}">
+            {% if child.text %}
+                <input type="hidden" name="container_slug" value="{{ child.container.slug }}">
+                <input type="hidden" name="first_level_slug" value="{{ child.get_first_level_slug }}">
+            {%  else %}
+                <input type="hidden" name="container_slug" value="{{ child.parent.slug }}">
+            {% endif %}
 
-                    <input type="hidden" name="pk" value="{{ content.pk }}">
-                    {% csrf_token %}
-                    <button type="submit">
-                        {% trans "Déplacer" %}
-                    </button>
-                </form>
-            {% include "tutorialv2/includes/delete.part.html" with object=child additional_classes="ico-after cross btn btn-grey" %}
+            <input type="hidden" name="pk" value="{{ content.pk }}">
+            {% csrf_token %}
+            <button type="submit">
+                {% trans "Déplacer" %}
+            </button>
+        </form>
+        {% include "tutorialv2/includes/delete.part.html" with object=child additional_classes="ico-after cross btn btn-grey" %}
     </div>
-    {% endif %}
 {% endif %}
 
 {% if child.text %}
     {# child is an extract #}
     {% if child.get_text.strip|length == 0 %}
-        <p class="ico-after warning">
-            {% trans "Cette section est actuellement vide." %}
-        </p>
+        <div class="ico-after warning">
+            <p>
+                {% trans "Cette section est actuellement vide." %}
+            </p>
+        </div>
     {% else %}
-        {{ child.get_text|emarkdown:is_js }}
+        <div class="extract-wrapper">
+            {{ child.get_text|emarkdown:is_js }}
+        </div>
     {% endif %}
 {% else %}
     {# child is a container #}
@@ -96,41 +101,94 @@
                 >{{ extract.title }}</a>
             </li>
             {% endfor %}
+            {% if can_add_something and child.can_add_extract %}
+                <li class="simple-create-button">
+                    <a class="btn btn-grey" href="{% url "content:create-extract" content.pk child.parent.slug child.slug %}">
+                        {% trans "Ajouter une section" %}
+                    </a>
+                </li>
+            {% endif %}
         </ol>
-    {%  elif child.has_sub_containers %}
+    {% elif child.has_sub_containers %}
         <ol class="summary-part">
             {% for subchild in child.children %}
-            <li>
-                <h3>
-                    <a
-                    {% if content.is_beta %}
-                        href="{{ subchild.get_absolute_url_beta }}"
-                    {% else %}
-                        href="{{ subchild.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}"
-                    {% endif %}
-                    >{{ subchild.title }}</a>
-                </h3>
-                <ol class="summary-part">
-                    {% for extract in subchild.children %}
-                        <li>
-                            <h4>
-                                <a
-                                    {% if content.is_beta %}
-                                        href="{{ extract.get_absolute_url_beta }}"
-                                    {% else %}
-                                        href="{{ extract.container.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}#{{ extract.position_in_parent }}-{{ extract.slug }}"
-                                    {% endif %}
-                                >{{ extract.title }}</a>
-                            </h4>
-                        </li>
-                    {% endfor %}
-                </ol>
-            </li>
+                <li>
+                    <h3 class="{% if not subchild.ready_to_publish %}not-ready{% endif %}">
+                        <a
+                        {% if content.is_beta %}
+                            href="{{ subchild.get_absolute_url_beta }}"
+                        {% else %}
+                            href="{{ subchild.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}"
+                        {% endif %}
+                        >{{ subchild.title }}</a>
+                    </h3>
+                    <ol class="summary-part">
+                        {% for extract in subchild.children %}
+                            <li>
+                                <h4>
+                                    <a
+                                        {% if content.is_beta %}
+                                            href="{{ extract.get_absolute_url_beta }}"
+                                        {% else %}
+                                            href="{{ extract.container.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}#{{ extract.position_in_parent }}-{{ extract.slug }}"
+                                        {% endif %}
+                                    >{{ extract.title }}</a>
+                                </h4>
+                            </li>
+                        {% endfor %}
+                        {% if can_add_something %}
+                            <li class="simple-create-button">
+                                <h4>
+                                    <a class="btn btn-grey"
+                                        href="{% url "content:create-extract" content.pk child.parent.slug child.slug subchild.slug %}"
+                                    >{% trans "Ajouter une section" %}</a>
+                                </h4>
+                            </li>
+                        {% endif %}
+                    </ol>
+                </li>
             {% endfor %}
+            {% if can_add_something and child.can_add_container %}
+                <li>
+                    <h3>
+                        <a class="force-blue"
+                            href="{% url "content:create-container" content.pk child.parent.slug child.slug %}"
+                        >{% trans "Ajouter un chapitre" %}</a>
+                    </h3>
+                    <ol class="summary-part">
+                        <li><h4><a class="disabled">{% trans "Section A" %}</a></h4></li>
+                        <li><h4><a class="disabled">{% trans "Section B" %}</a></h4></li>
+                    </ol>
+                </li>
+            {% endif %}
         </ol>
     {% else %}
-        <p class="ico-after warning">
-          {{ "Ce"|feminize:child.get_level_as_string }} {{ child.get_level_as_string|lower }}  {% trans " est actuellement vide." %}
-        </p>
+        {% if not can_add_something or not child.is_chapter %}
+        <div class="ico-after warning">
+            <p>
+                {{ "Ce"|feminize:child.get_level_as_string }} {{ child.get_level_as_string|lower }} {% trans "est actuellement vide." %}
+            </p>
+            {% if can_add_something and not child.is_chapter %}
+                <ul>
+                    <li>
+                        <a href="{% url "content:create-container" content.pk content.slug child.slug %}">{% trans "Ajouter un chapitre" %}</a>
+                        {% trans " pour adopter le format big-tuto et ajouter des sections ;" %}
+                    </li>
+                    <li>
+                        <a href="{% url "content:create-extract" content.pk content.slug child.slug %}">{% trans "Ajouter une section" %}</a>
+                        {% trans " pour adopter le format mini-tuto, composé uniquement de sections." %}
+                    </li>
+                </ul>
+            {% endif %}
+        </div>
+        {% elif can_add_something and child.can_add_extract and child.is_chapter %}
+            <ol>
+                <li class="simple-create-button">
+                    <a class="btn btn-grey" href="{% url "content:create-extract" content.pk content.slug child.parent.slug child.slug %}">
+                        {% trans "Ajouter une section" %}
+                    </a>
+                </li>
+            </ol>
+        {% endif %}
     {% endif %}
 {% endif %}

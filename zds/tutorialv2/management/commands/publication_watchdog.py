@@ -1,79 +1,60 @@
-from os.path import dirname, join
-import os
+import logging
 import time
 
-import shutil
+from pathlib import Path
+
 from django.core.management import BaseCommand
-from pathtools.path import listdir
-from watchdog.observers import Observer
-from watchdog.events import FileCreatedEvent, FileSystemEventHandler, LoggingEventHandler
-from django.conf import settings
-from zds.tutorialv2.publication_utils import generate_external_content
-from codecs import open
+from concurrent.futures import Future, ProcessPoolExecutor
 
+from zds.tutorialv2.models.database import PublicationEvent
+from zds.tutorialv2.publication_utils import PublicatorRegistry
 
-class TutorialIsPublished(FileSystemEventHandler):
-    prepare_callbacks = []  # because we can imagine we will create far more than test directory existence
-    finish_callbacks = []  # because we can imagine we will send a PM on success or failure one day
-
-    @staticmethod
-    def __create_dir(extra_contents_path):
-        if not os.path.exists(extra_contents_path):
-                os.makedirs(extra_contents_path)
-
-    @staticmethod
-    def __cleanup_build_and_watchdog(extra_contents_path, watchdog_file_path):
-        for listed in listdir(extra_contents_path, recursive=False):
-            try:
-                shutil.copy(join(extra_contents_path, listed), extra_contents_path.replace('__building', ''))
-            except Exception:
-                pass
-        shutil.rmtree(extra_contents_path)
-        os.remove(watchdog_file_path)
-
-    def __init__(self):
-        self.prepare_callbacks = [TutorialIsPublished.__create_dir]
-        self.finish_callbacks = [TutorialIsPublished.__cleanup_build_and_watchdog]
-
-    def on_created(self, event):
-        super(TutorialIsPublished, self).on_created(event)
-
-        if isinstance(event, FileCreatedEvent):
-            with open(event.src_path, encoding='utf-8') as f:
-                infos = f.read().strip().split(';')
-            md_file_path = infos[1]
-            base_name = infos[0]
-            extra_contents_path = dirname(md_file_path)
-            self.prepare_generation(extra_contents_path)
-            try:
-                generate_external_content(base_name, extra_contents_path, md_file_path, overload_settings=True,
-                                          excluded=['watchdog'])
-            finally:
-                self.finish_generation(extra_contents_path, event.src_path)
-
-    def prepare_generation(self, extra_contents_path):
-
-        for callback in self.prepare_callbacks:
-            callback(extra_contents_path)
-
-    def finish_generation(self, extra_contents_path, watchdog_file_path):
-        for callback in self.finish_callbacks:
-            callback(extra_contents_path, watchdog_file_path)
+logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
     help = 'Launch a watchdog that generate all exported formats (epub, pdf...) files without blocking request handling'
 
     def handle(self, *args, **options):
-        path = settings.ZDS_APP['content']['extra_content_watchdog_dir']
-        event_handler = TutorialIsPublished()
-        observer = Observer()
-        observer.schedule(event_handler, path, recursive=True)
-        observer.schedule(LoggingEventHandler(), path)
-        observer.start()
-        try:
-            while True:
-                time.sleep(1)
-        except KeyboardInterrupt:
-            observer.stop()
-        observer.join()
+        with ProcessPoolExecutor(5) as executor:
+            try:
+                while True:
+                    Command.launch_publicators(executor)
+                    time.sleep(10)
+            except KeyboardInterrupt:
+                executor.shutdown(wait=False)
+
+    @staticmethod
+    def get_callback_of(publication_event: PublicationEvent):
+        def callback(future: Future):
+            if future.cancelled() or future.exception():
+                publication_event.state_of_processing = 'FAILURE'
+                if future.exception():
+                    logger.error('error while producing %s of %s', publication_event.format_requested,
+                                 publication_event.published_object.title(), exc_info=future.exception())
+            elif future.done():
+                publication_event.state_of_processing = 'SUCCESS'
+
+            publication_event.save()
+        return callback
+
+    @staticmethod
+    def launch_publicators(executor):
+        for publication_event in PublicationEvent.objects.filter(state_of_processing='REQUESTED'):
+            logger.info('Export %s -- format=%s', publication_event.published_object.title(),
+                        publication_event.format_requested)
+            content = publication_event.published_object
+            publicator = PublicatorRegistry.get(publication_event.format_requested)
+
+            extra_content_dir = content.get_extra_contents_directory()
+            building_extra_content_path = Path(str(Path(extra_content_dir).parent) + '__building',
+                                               'extra_contents', content.content_public_slug)
+            if not building_extra_content_path.exists():
+                building_extra_content_path.mkdir(parents=True)
+            base_name = str(building_extra_content_path)
+            md_file_path = base_name + '.md'
+
+            future = executor.submit(publicator.publish, md_file_path, base_name)
+            publication_event.state_of_processing = 'RUNNING'
+            publication_event.save()
+            future.add_done_callback(Command.get_callback_of(publication_event))

@@ -49,13 +49,13 @@ def search_container_or_404(base_content, kwargs_array):
         kwargs_array = dic
 
     if 'parent_container_slug' in kwargs_array:
-            try:
-                container = base_content.children_dict[kwargs_array['parent_container_slug']]
-            except KeyError:
+        try:
+            container = base_content.children_dict[kwargs_array['parent_container_slug']]
+        except KeyError:
+            raise Http404('Aucun conteneur trouvé.')
+        else:
+            if not isinstance(container, Container):
                 raise Http404('Aucun conteneur trouvé.')
-            else:
-                if not isinstance(container, Container):
-                    raise Http404('Aucun conteneur trouvé.')
     else:
         container = base_content
 
@@ -119,7 +119,7 @@ def never_read(content, user=None):
     if not user:
         user = get_current_user()
 
-    if user and user.is_authenticated() and content.last_note:
+    if user and user.is_authenticated and content.last_note:
         return ContentRead.objects.filter(
             note__pk=content.last_note.pk, content__pk=content.pk, user__pk=user.pk).count() == 0
     elif not content.last_note:
@@ -130,7 +130,7 @@ def never_read(content, user=None):
 
 def last_participation_is_old(content, user):
     from zds.tutorialv2.models.database import ContentRead, ContentReaction
-    if user is None or not user.is_authenticated():
+    if user is None or not user.is_authenticated:
         return False
     if ContentReaction.objects.filter(author__pk=user.pk, related_content__pk=content.pk).count() == 0:
         return False
@@ -152,7 +152,7 @@ def mark_read(content, user=None):
     if not user:
         user = get_current_user()
 
-    if user and user.is_authenticated():
+    if user and user.is_authenticated:
         if content.last_note is not None:
             ContentRead.objects.filter(
                 content__pk=content.pk,
@@ -648,7 +648,7 @@ def get_commit_author():
     """
     user = get_current_user()
 
-    if user and user.is_authenticated():
+    if user and user.is_authenticated:
         aut_user = str(user.pk)
         aut_email = None
 
@@ -786,14 +786,6 @@ class BadArchiveError(Exception):
 
     def __init__(self, reason):
         self.message = reason
-
-
-class FailureDuringPublication(Exception):
-    """Exception raised if something goes wrong during the publication process
-    """
-
-    def __init__(self, *args, **kwargs):
-        super(FailureDuringPublication, self).__init__(*args, **kwargs)
 
 
 NamedUrl = namedtuple('NamedUrl', ['name', 'url', 'level'])
