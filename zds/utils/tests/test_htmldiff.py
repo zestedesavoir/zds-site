@@ -13,4 +13,4 @@ class HtmlDiffTests(TestCase):
 
     def test_encoding(self):
         # Regression test for issue #4824
-        self.assertIn('Étrange&nbsp;caractère', htmldiff('Étrange caractère'.encode(), ''.encode()))
+        self.assertIn('Étrange caractère', htmldiff('Étrange caractère'.encode(), ''.encode()))

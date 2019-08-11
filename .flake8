@@ -9,7 +9,8 @@ exclude =
     dist,
     doc,
     migrations,
-    zds/settings
+    zds/settings,
+    manage.py
 
 # Ignore N802 (functions in lowercase) because the setUp() function in tests
 ignore = N802,E722,W504,Q003,W605
