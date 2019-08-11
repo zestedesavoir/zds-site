@@ -5,7 +5,7 @@ if [[ $ZDS_VENV == "" ]]; then
 fi
 
 if [[ $ZDS_NODE_VERSION == "" ]]; then
-    ZDS_NODE_VERSION="10.8.0"
+    ZDS_NODE_VERSION="10.18.0"
 fi
 
 if [[ $ZDS_NVM_VERSION == "" ]]; then
