@@ -29,7 +29,7 @@ if (!fast) {
 //// SCSS tasks
 
 // Generates a sprite with the website icons
-function sprite() {
+function sprite_css() {
     return gulp.src('assets/images/sprite/*.png')
         .pipe(spritesmith({
             cssTemplate: 'assets/scss/_sprite.scss.hbs',
@@ -131,7 +131,8 @@ function js() {
         .pipe(gulp.dest('dist/js/', { sourcemaps: '.' }));
 }
 
-//// Other tasks
+
+//// Images tasks
 
 // Optimizes the images
 function images() {
@@ -139,6 +140,15 @@ function images() {
         .pipe(gulpif(!fast, imagemin())) // Minify the images
         .pipe(gulp.dest('dist/'));
 }
+
+function sprite_images() {
+    return gulp.src(['dist/images/sprite*.png'])
+        .pipe(gulpif(!fast, imagemin())) // Minify the images
+        .pipe(gulp.dest('dist/images/'));
+}
+
+
+//// Other tasks
 
 // Prepares files for zmarkdown
 function prepare_zmd() {
@@ -164,12 +174,12 @@ function clean() {
 function watch() {
     gulp.watch('assets/js/*.js', js);
     gulp.watch(['assets/{images,smileys}/**/*', '!assets/images/sprite/*.png'], images);
-    gulp.watch(['assets/scss/**/*.scss', 'dist/scss/_sprite.scss'], css);
-    gulp.watch(['assets/images/sprite/*.png', 'assets/scss/_sprite.scss.hbs'], sprite);
+    gulp.watch(['assets/scss/**/*.scss'], css);
+    gulp.watch(['assets/images/sprite/*.png', 'assets/scss/_sprite.scss.hbs'], gulp.series(sprite_css, gulp.parallel(css, sprite_images)));
 }
 
 // Build the front
-var build = gulp.parallel(prepare_zmd, prepare_easy_mde, js, gulp.series(sprite, gulp.parallel(css, images)));
+var build = gulp.parallel(prepare_zmd, prepare_easy_mde, js, images, gulp.series(sprite_css, gulp.parallel(css, sprite_images)));
 
 exports.build = build;
 exports.watch = gulp.series(build, watch);
