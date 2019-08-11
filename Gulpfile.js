@@ -2,10 +2,10 @@ const autoprefixer = require('autoprefixer');
 const concat = require('gulp-concat');
 const cssnano = require('cssnano');
 const del = require('del');
+const eslint = require('gulp-eslint');
 const gulp = require('gulp');
 const gulpif = require('gulp-if');
 const imagemin = require('gulp-imagemin');
-const jshint = require('gulp-jshint');
 const options = require('gulp-options');
 const path = require('path');
 const postcss = require('gulp-postcss');
@@ -93,15 +93,21 @@ function errors() {
 
 //// JS tasks
 
+// ESLint options
+var eslintOptions = {};
+const fix = options.has("fix");
+if (fix) {
+    eslintOptions = { fix: true };
+}
+
 // Lints the JS source files
+
 function js_lint() {
-    return gulp.src([
-        'assets/js/*.js',
-        '!assets/js/editor.js', // We'll fix that later
-    ])
-        .pipe(jshint())
-        .pipe(jshint.reporter('jshint-stylish'))
-        .pipe(jshint.reporter('fail'));
+    return gulp.src(['assets/js/*.js', '!assets/js/editor.js', 'Gulpfile.js'], { base: '.' })
+        .pipe(eslint(eslintOptions))
+        .pipe(eslint.format())
+        .pipe(gulp.dest('.'))
+        .pipe(eslint.failAfterError());
 }
 
 // Generates JS for the website
