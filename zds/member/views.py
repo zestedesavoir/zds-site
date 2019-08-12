@@ -104,21 +104,21 @@ class MemberDetail(DetailView):
         if count_tutorials > 0:
             summary.append(
                 (
-                    reverse_lazy("content:find-tutorial", args=(profile.user.pk,)),
+                    reverse_lazy('content:find-tutorial', args=(profile.user.pk,)),
                     __('{} tutoriel{}').format(count_tutorials, pluralize_fr(count_tutorials))
                 )
             )
         if count_articles > 0:
             summary.append(
                 (
-                    reverse_lazy("content:find-article", args=(profile.user.pk,)),
+                    reverse_lazy('content:find-article', args=(profile.user.pk,)),
                     __('{} article{}').format(count_articles, pluralize_fr(count_articles))
                 )
             )
         if count_opinions > 0:
             summary.append(
                 (
-                    reverse_lazy("content:find-opinion", args=(profile.user.pk,)),
+                    reverse_lazy('content:find-opinion', args=(profile.user.pk,)),
                     __('{} billet{}').format(count_opinions, pluralize_fr(count_opinions))
                 )
             )
@@ -128,7 +128,7 @@ class MemberDetail(DetailView):
         if count_post > 0:
             summary.append(
                 (
-                    reverse_lazy("post-find", args=(profile.user.pk,)),
+                    reverse_lazy('post-find', args=(profile.user.pk,)),
                     __('{} message{}').format(count_post, pluralize_fr(count_post))
                 )
             )
@@ -137,7 +137,7 @@ class MemberDetail(DetailView):
         if count_topic > 0:
             summary.append(
                 (
-                    reverse_lazy("topic-find", args=(profile.user.pk,)),
+                    reverse_lazy('topic-find', args=(profile.user.pk,)),
                     __('{} sujet{}').format(count_topic, pluralize_fr(count_topic))
                 )
             )

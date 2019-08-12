@@ -40,7 +40,7 @@ from zds.tutorialv2.forms import ContentForm, JsFiddleActivationForm, AskValidat
     UnpublicationForm
 from zds.tutorialv2.mixins import SingleContentDetailViewMixin, SingleContentFormViewMixin, SingleContentViewMixin, \
     SingleContentDownloadViewMixin, SingleContentPostMixin, FormWithPreview
-from zds.tutorialv2.models import TYPE_CHOICES_DICT, CONTENT_TYPES
+from zds.tutorialv2.models import TYPE_CHOICES_DICT
 from zds.tutorialv2.models.database import PublishableContent, Validation
 from zds.tutorialv2.models.versioned import Container, Extract
 from zds.tutorialv2.utils import search_container_or_404, get_target_tagged_tree, search_extract_or_404, \
