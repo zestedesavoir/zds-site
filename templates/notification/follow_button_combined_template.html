@@ -2,23 +2,27 @@
 {% load pluralize_fr %}
 
 <div class="buttons-combined">
-    <div class="sub-button primary-button">
-        <form action="{{ link }}" method="post">
-            <input type="hidden" name="follow" value="1">
-            {% csrf_token %}
+    {% if followed_user != user %}
+        <div class="sub-button primary-button">
+            <form action="{{ link }}" method="post">
+                <input type="hidden" name="follow" value="1">
+                {% csrf_token %}
 
-            <button
-                    class="follow ico-after star light {% if is_followed %}is-following{% endif %}"
-                    type="submit" data-ajax-input="follow-topic" {% if followed_user == user %}disabled{% endif %}>
-                <span id="follow_text" data-content-on-click="{{ data_onclick }}">{{ button_text }}</span>
+                <button class="follow ico-after star light {% if is_followed %}is-following{% endif %}"
+                        type="submit" data-ajax-input="follow-topic" {% if followed_user == user %}disabled{% endif %}>
+                    <span id="follow_text" data-content-on-click="{{ data_onclick }}">{{ button_text }}</span>
+                </button>
+            </form>
+        </div>
 
-            </button>
-        </form>
-    </div>
-
-    <div class="sub-button static-button statistic" id="subscriber_count" aria-label="{{ subscriber_count_aria_label }}">
-        {{ subscriber_count }}
-    </div>
+        <div class="sub-button static-button statistic" id="subscriber_count" aria-label="{{ subscriber_count_aria_label }}">
+            {{ subscriber_count }}
+        </div>
+    {% else %}
+        <span class="btn-ico btn ico-after star light">
+            {{ subscriber_count_aria_label }}
+        </span>
+    {% endif %}
 
     {% if followed_user != user %}
         <div class="sub-button">

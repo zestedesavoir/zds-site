@@ -121,7 +121,9 @@
                             {% endif %}
                             {% with content_is_followed=usr|is_new_publication_followed content_is_followed_email=usr|is_new_publication_email_followed %}
                                 {% url 'content:follow' usr.pk as link_follow %}
-                                {% if content_is_followed %}
+                                {% if followed_user == user %}
+                                    
+                                {% elif content_is_followed %}
                                     {% trans "S'abonner" as data_onclick %}
                                     {% trans "Abonné" as button_text %}
                                 {% else %}
