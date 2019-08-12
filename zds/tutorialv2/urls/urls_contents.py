@@ -19,6 +19,10 @@ urlpatterns = [
     re_path(r'^flux/atom/$', RedirectView.as_view(pattern_name='publication:feed-atom',
                                                   permanent=True), name='feed-atom'),
 
+    re_path(r'^(?P<pk>\d+)/$',
+            ContentOfAuthor.as_view(
+                type='ALL', context_object_name='contents'),
+            name='find-all'),
     re_path(r'^tutoriels/(?P<pk>\d+)/$',
             ContentOfAuthor.as_view(
                 type='TUTORIAL', context_object_name='tutorials'),

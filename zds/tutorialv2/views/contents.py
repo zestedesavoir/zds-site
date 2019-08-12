@@ -40,7 +40,7 @@ from zds.tutorialv2.forms import ContentForm, JsFiddleActivationForm, AskValidat
     UnpublicationForm
 from zds.tutorialv2.mixins import SingleContentDetailViewMixin, SingleContentFormViewMixin, SingleContentViewMixin, \
     SingleContentDownloadViewMixin, SingleContentPostMixin, FormWithPreview
-from zds.tutorialv2.models import TYPE_CHOICES_DICT
+from zds.tutorialv2.models import TYPE_CHOICES_DICT, CONTENT_TYPES
 from zds.tutorialv2.models.database import PublishableContent, Validation
 from zds.tutorialv2.models.versioned import Container, Extract
 from zds.tutorialv2.utils import search_container_or_404, get_target_tagged_tree, search_extract_or_404, \
@@ -1901,7 +1901,9 @@ class ContentOfAuthor(ZdSPagingListView):
         return super(ContentOfAuthor, self).dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
-        if self.type in list(TYPE_CHOICES_DICT.keys()):
+        if self.type == 'ALL':
+            queryset = PublishableContent.objects.filter(authors__pk__in=[self.user.pk])
+        elif self.type in list(TYPE_CHOICES_DICT.keys()):
             queryset = PublishableContent.objects.filter(authors__pk__in=[self.user.pk], type=self.type)
         else:
             raise Http404('Ce type de contenu est inconnu dans le système.')
@@ -1929,6 +1931,7 @@ class ContentOfAuthor(ZdSPagingListView):
         elif not self.sort:
             self.sort = 'abc'
         queryset = self.sorts[self.sort.lower()][0](queryset)
+
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -1938,6 +1941,13 @@ class ContentOfAuthor(ZdSPagingListView):
         context['sort'] = self.sort.lower()
         context['filter'] = self.filter.lower()
         context['subscriber_count'] = NewPublicationSubscription.objects.get_subscriptions(self.user).count()
+        context['type'] = self.type.lower()
+
+        if self.type == 'ALL':
+            contents = list(context['contents'])
+            context['tutorials'] = [content for content in contents if content.type == 'TUTORIAL']
+            context['articles'] = [content for content in contents if content.type == 'ARTICLE']
+            context['opinions'] = [content for content in contents if content.type == 'OPINION']
 
         context['usr'] = self.user
         for sort in list(self.sorts.keys()):
