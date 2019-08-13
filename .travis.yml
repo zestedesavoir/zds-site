@@ -42,7 +42,7 @@ jobs:
     - name: "Job 4 : selenium"
       env: ZDS_TEST_JOB="selenium"
     - name: "Job 5 : doc"
-      env: ZDS_TEST_JOB="doc"
+      env: ZDS_TEST_JOB="doc fixture"
 
 
 notifications:

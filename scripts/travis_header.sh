@@ -29,8 +29,8 @@ function zds_register_module_for_installation {
         zds_register_for_install "-back"
     fi
 
-    # fastify : no fixture
-    if [[ "$ZDS_TEST_JOB" != *"doc"* ]]; then
+    # fastify : Don't run fixture for others jobs
+    if [[ "$ZDS_TEST_JOB" != *"fixture"* ]]; then
         zds_register_for_install "-data"
     fi
 
