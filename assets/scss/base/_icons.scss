@@ -352,6 +352,30 @@
         }
     }
 
+    &.tutorial {
+        &:after {
+            @include sprite-position($tutorial);
+        }
+    }
+
+    &.article {
+        &:after {
+            @include sprite-position($article);
+        }
+    }
+
+    &.opinion {
+        &:after {
+            @include sprite-position($opinion);
+        }
+    }
+
+    &.content {
+        &:after {
+            @include sprite-position($content);
+        }
+    }
+
     &.tick {
         &:after {
             @include sprite-position($tick);
