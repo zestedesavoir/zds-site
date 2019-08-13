@@ -114,7 +114,7 @@
                                     {% trans "Modifier le profil" %}
                                 </a>
                             {% endif %}
-                            {% if usr != user %}
+                            {% if usr != user and not profile.is_private and profile.can_read_now %}
                                 <a href="{% url 'mp-new' %}?username={{ usr.username }}" class="btn-ico btn ico-after cite light">
                                     {% trans "Envoyer un message" %}
                                 </a>
@@ -175,7 +175,7 @@
                     {% if profile.has_hat %}
                         <aside class="profile-card hats-container">
                             <h3>
-                                <a href="#what-is-a-hat" class="open-modal title-link">Casquettes</a>
+                                <a href="#what-is-a-hat" class="open-modal title-link">{% trans "Casquettes" %}</a>
                                 <a href="#what-is-a-hat" class="help-question-mark open-modal" title="{% trans "Qu'est-ce qu'une casquette ?" %}" aria-haspopup="dialog">?</a>
                             </h3>
 
