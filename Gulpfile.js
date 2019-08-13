@@ -101,7 +101,6 @@ function js() {
         .pipe(gulp.dest('dist/js/', { sourcemaps: '.' }));
 }
 
-
 //// Other tasks
 
 // Optimizes the images

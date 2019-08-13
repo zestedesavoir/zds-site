@@ -295,7 +295,8 @@
                 width: 100%;
                 line-height: 28px;
 
-                &.follow span {
+                &.follow span,
+                &.requesting span {
                     vertical-align: inherit;
                 }
             }

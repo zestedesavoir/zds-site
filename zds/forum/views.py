@@ -24,6 +24,7 @@ from zds.member.decorator import can_write_and_read_now
 from zds.member.models import user_readable_forums
 from zds.notification import signals
 from zds.notification.models import NewTopicSubscription, TopicAnswerSubscription
+from zds.featured.mixins import FeatureableMixin
 from zds.utils import slugify
 from zds.utils.forums import create_topic, send_post, CreatePostView
 from zds.utils.mixins import FilterMixin
@@ -155,7 +156,7 @@ class ForumTopicsListView(FilterMixin, ForumEditMixin, ZdSPagingListView, Update
         return queryset
 
 
-class TopicPostsListView(ZdSPagingListView, SingleObjectMixin):
+class TopicPostsListView(ZdSPagingListView, FeatureableMixin, SingleObjectMixin):
 
     context_object_name = 'posts'
     paginate_by = settings.ZDS_APP['forum']['posts_per_page']
@@ -169,6 +170,9 @@ class TopicPostsListView(ZdSPagingListView, SingleObjectMixin):
         if not self.kwargs.get('topic_slug') == slugify(self.object.title):
             return redirect(self.object.get_absolute_url())
         return super(TopicPostsListView, self).get(request, *args, **kwargs)
+
+    def featured_request_allowed(self):
+        return not self.object.is_locked
 
     def get_context_data(self, **kwargs):
         context = super(TopicPostsListView, self).get_context_data(**kwargs)
@@ -273,7 +277,7 @@ class TopicNew(CreateView, SingleObjectMixin):
         return redirect(topic.get_absolute_url())
 
 
-class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
+class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin, FeatureableMixin):
 
     template_name = 'forum/topic/edit.html'
     form_class = TopicForm
@@ -314,6 +318,9 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
         })
         return render(request, self.template_name, {'topic': self.object, 'form': form, 'is_staff': is_staff})
 
+    def featured_request_allowed(self):
+        return not self.object.is_locked
+
     def post(self, request, *args, **kwargs):
         if 'text' in request.POST:
             form = self.get_form(self.form_class)
@@ -347,6 +354,8 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
             self.perform_sticky(request, self.object)
         elif 'move' in request.POST:
             self.perform_move()
+        elif 'request_featured' in request.POST:
+            response['requesting'], response['newCount'] = self.toogle_featured_request(request.user)
 
         self.object.save()
         if request.is_ajax():

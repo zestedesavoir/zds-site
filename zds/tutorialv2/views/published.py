@@ -26,6 +26,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 import googleapiclient
 
 from zds.forum.models import Forum
+from zds.featured.mixins import FeatureableMixin
 from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin, PermissionRequiredMixin
 from zds.member.views import get_client_ip
 from zds.notification import signals
@@ -60,7 +61,7 @@ class RedirectContentSEO(RedirectView):
         return obj.get_absolute_url_online()
 
 
-class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
+class DisplayOnlineContent(FeatureableMixin, SingleOnlineContentDetailViewMixin):
     """Base class that can show any online content"""
 
     model = PublishedContent
@@ -69,6 +70,11 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
     current_content_type = ''
     verbose_type_name = _('contenu')
     verbose_type_name_plural = _('contenus')
+
+    def featured_request_allowed(self):
+        """Featured request is not allowed on obsolete content and opinions
+        """
+        return self.object.type != 'OPINION' and not self.object.is_obsolete
 
     def get_context_data(self, **kwargs):
         """Show the given tutorial if exists."""
@@ -978,6 +984,25 @@ class FollowContentReaction(LoggedWithReadWriteHability, SingleOnlineContentView
         if self.request.is_ajax():
             return HttpResponse(json_handler.dumps(response), content_type='application/json')
         return redirect(self.get_object().get_absolute_url())
+
+
+class RequestFeaturedContent(LoggedWithReadWriteHability, FeatureableMixin, SingleOnlineContentViewMixin, FormView):
+    redirection_is_needed = False
+
+    def featured_request_allowed(self):
+        """Featured request is not allowed on obsolete content and opinions
+        """
+        return self.object.type != 'OPINION' and not self.object.is_obsolete
+
+    def post(self, request, *args, **kwargs):
+        self.public_content_object = self.get_public_object()
+        self.object = self.get_object()
+
+        response = dict()
+        response['requesting'], response['newCount'] = self.toogle_featured_request(request.user)
+        if self.request.is_ajax():
+            return HttpResponse(json_handler.dumps(response), content_type='application/json')
+        return redirect(self.public_content_object.get_absolute_url_online())
 
 
 class FollowNewContent(LoggedWithReadWriteHability, FormView):

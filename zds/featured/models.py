@@ -1,7 +1,10 @@
 from django.db import models
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.utils.translation import ugettext_lazy as _
 
-from zds.featured.managers import FeaturedResourceManager, FeaturedMessageManager
+from zds.featured.managers import FeaturedResourceManager, FeaturedMessageManager, FeaturedRequestedManager
+from zds.member.models import User
 
 
 class FeaturedResource(models.Model):
@@ -36,6 +39,72 @@ class FeaturedResource(models.Model):
     def __str__(self):
         """Textual form of a featured resource."""
         return self.title
+
+
+FEATUREABLES_TYPES = ['content', 'topic']  # keep order!
+
+FEATUREABLES = {
+    'content': {'name': 'CONTENT', 'verbose_name': _('Contenu')},
+    'topic': {'name': 'TOPIC', 'verbose_name': _('Sujet')},
+}
+
+FEATUREABLE_TYPE_CHOICES = [(FEATUREABLES[a]['name'], FEATUREABLES[a]['verbose_name']) for a in FEATUREABLES_TYPES]
+
+
+class FeaturedRequested(models.Model):
+    """
+    This class hold votes for a topic or content to be featured.
+    """
+
+    class Meta:
+        verbose_name = _('Mise en avant souhaitée')
+        verbose_name_plural = _('Mises en avant souhaitées')
+
+    content_type = models.ForeignKey(ContentType, verbose_name=_('Type de l\'objet'), on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField(db_index=True, verbose_name=_('Id de l\'objet'))
+    content_object = GenericForeignKey('content_type', 'object_id')
+
+    users_voted = models.ManyToManyField(
+        User, verbose_name=_('Auteur(s)'), db_index=True, blank=True)
+
+    type = models.CharField(
+        max_length=10, choices=FEATUREABLE_TYPE_CHOICES, verbose_name=_('Type de l\'objet'), db_index=True)
+
+    rejected = models.BooleanField(default=False, verbose_name=_('Est rejeté'))
+    rejected_for_good = models.BooleanField(default=False, verbose_name=_('Est rejeté pour de bon'))
+
+    featured = models.ForeignKey(
+        FeaturedResource, verbose_name=_('Une'), blank=True, null=True, on_delete=models.SET_NULL)
+
+    objects = FeaturedRequestedManager()
+
+    def toggle(self, user):
+        """Toogle featured request for user. Do not reject the vote anymore.
+
+        :param user: the user
+        :type user: User
+        :return: tuple of the form (user has voted, number of votes)
+        :rtype: (bool, int)
+        """
+        new_value = False
+        new_count = self.users_voted.count()
+
+        if self.users_voted.filter(pk=user.pk).exists():
+            self.users_voted.remove(user)
+            new_count -= 1
+        else:
+            self.users_voted.add(user)
+            new_count += 1
+            new_value = True
+
+        if self.rejected:
+            self.rejected = False
+            self.save()
+
+        return new_value, new_count
+
+    def __str__(self):
+        return '<RequestFeatured for "{}">'.format(self.content_object.title)
 
 
 class FeaturedMessage(models.Model):

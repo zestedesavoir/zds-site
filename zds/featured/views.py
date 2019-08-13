@@ -1,24 +1,30 @@
 from datetime import datetime
 
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required, permission_required
+from django.db.models import Count
 from django.urls import reverse
-from django.db import transaction
 from django.shortcuts import redirect
-from django.utils.decorators import method_decorator
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.utils.translation import ugettext as _
 from django.views.generic import CreateView, RedirectView, UpdateView, FormView, DeleteView
 from django.views.generic.list import MultipleObjectMixin
+from django.http import HttpResponse
 
 from django.conf import settings
+from zds import json_handler
 from zds.featured.forms import FeaturedResourceForm, FeaturedMessageForm
-from zds.featured.models import FeaturedResource, FeaturedMessage
+from zds.featured.models import FeaturedResource, FeaturedMessage, FeaturedRequested, FEATUREABLES
 from zds.forum.models import Topic
 from zds.tutorialv2.models.database import PublishableContent
 from zds.utils.paginator import ZdSPagingListView
 
 
-class FeaturedResourceList(ZdSPagingListView):
+class FeaturedViewMixin(LoginRequiredMixin, PermissionRequiredMixin):
+    permission_required = 'featured.change_featuredresource'
+    raise_exception = True
+
+
+class FeaturedResourceList(FeaturedViewMixin, ZdSPagingListView):
     """
     Displays the list of featured resources.
     """
@@ -28,13 +34,11 @@ class FeaturedResourceList(ZdSPagingListView):
     queryset = FeaturedResource.objects.all().order_by('-pubdate')
     template_name = 'featured/index.html'
 
-    @method_decorator(login_required)
-    @method_decorator(permission_required('featured.change_featuredresource', raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(FeaturedResourceList, self).dispatch(request, *args, **kwargs)
 
 
-class FeaturedResourceCreate(CreateView):
+class FeaturedResourceCreate(FeaturedViewMixin, CreateView):
     """
     Creates a new featured resource.
     """
@@ -48,8 +52,6 @@ class FeaturedResourceCreate(CreateView):
                               'OPINION': _('Un billet'),
                               'TOPIC': _('Un sujet')}
 
-    @method_decorator(login_required)
-    @method_decorator(permission_required('featured.change_featuredresource', raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(FeaturedResourceCreate, self).dispatch(request, *args, **kwargs)
 
@@ -59,10 +61,18 @@ class FeaturedResourceCreate(CreateView):
         except (Topic.DoesNotExist, ValueError):
             messages.error(self.request, self.initial_error_message)
             return {}
-        return {'title': content.title,
-                'type': self.displayed_content_type['TOPIC'],
-                'authors': str(content.author),
-                'url': self.request.build_absolute_uri(content.get_absolute_url())}
+        initial = {
+            'title': content.title,
+            'type': self.displayed_content_type['TOPIC'],
+            'authors': str(content.author),
+            'url': self.request.build_absolute_uri(content.get_absolute_url())
+        }
+
+        featured_request = FeaturedRequested.objects.get_existing(content)
+        if featured_request is not None:
+            initial.update({'request': featured_request.pk})
+
+        return initial
 
     def get_initial_content_data(self, content_id):
         try:
@@ -77,6 +87,7 @@ class FeaturedResourceCreate(CreateView):
             image_url = self.request.build_absolute_uri(content.content.image.physical['featured'].url)
         else:
             image_url = None
+
         return {'title': content.title(),
                 'type': self.displayed_content_type[content.content_type],
                 'authors': displayed_authors,
@@ -113,11 +124,19 @@ class FeaturedResourceCreate(CreateView):
 
         featured_resource.save()
 
+        if form.cleaned_data.get('request') is not None:
+            try:
+                featured_request = FeaturedRequested.objects.get(pk=form.cleaned_data['request'])
+                featured_request.featured = featured_resource
+                featured_request.save()
+            except FeaturedRequested.DoesNotExist:
+                pass
+
         messages.success(self.request, _('La une a été créée.'))
         return redirect(reverse('featured-resource-list'))
 
 
-class FeaturedResourceUpdate(UpdateView):
+class FeaturedResourceUpdate(FeaturedViewMixin, UpdateView):
     """
     Updates a featured resource.
     """
@@ -127,8 +146,6 @@ class FeaturedResourceUpdate(UpdateView):
     queryset = FeaturedResource.objects.all()
     context_object_name = 'featured_resource'
 
-    @method_decorator(login_required)
-    @method_decorator(permission_required('featured.change_featuredresource', raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(FeaturedResourceUpdate, self).dispatch(request, *args, **kwargs)
 
@@ -167,16 +184,13 @@ class FeaturedResourceUpdate(UpdateView):
         return form
 
 
-class FeaturedResourceDeleteDetail(DeleteView):
+class FeaturedResourceDeleteDetail(FeaturedViewMixin, DeleteView):
     """
     Deletes a featured resource.
     """
 
     model = FeaturedResource
 
-    @method_decorator(login_required)
-    @method_decorator(transaction.atomic)
-    @method_decorator(permission_required('featured.change_featuredresource', raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         self.success_url = reverse('featured-resource-list')
         return super(FeaturedResourceDeleteDetail, self).dispatch(request, *args, **kwargs)
@@ -187,14 +201,12 @@ class FeaturedResourceDeleteDetail(DeleteView):
         return r
 
 
-class FeaturedResourceDeleteList(MultipleObjectMixin, RedirectView):
+class FeaturedResourceDeleteList(FeaturedViewMixin, MultipleObjectMixin, RedirectView):
     """
     Deletes a list of featured resources.
     """
     permanent = False
 
-    @method_decorator(login_required)
-    @method_decorator(permission_required('featured.change_featuredresource', raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(FeaturedResourceDeleteList, self).dispatch(request, *args, **kwargs)
 
@@ -211,7 +223,66 @@ class FeaturedResourceDeleteList(MultipleObjectMixin, RedirectView):
         return redirect(reverse('featured-resource-list'))
 
 
-class FeaturedMessageCreateUpdate(FormView):
+class FeaturedRequestedList(FeaturedViewMixin, ZdSPagingListView):
+    """
+    Displays the list of featured resources.
+    """
+
+    context_object_name = 'featured_request_list'
+    paginate_by = settings.ZDS_APP['featured_resource']['request_per_page']
+    template_name = 'featured/list_requests.html'
+
+    def get_queryset(self):
+        type_featured_request = self.request.GET.get('type')
+
+        queryset = FeaturedRequested.objects\
+            .prefetch_related('content_object')\
+            .filter(rejected_for_good=False)\
+            .annotate(num_vote=Count('users_voted'))\
+            .filter(num_vote__gt=0)\
+            .order_by('-num_vote')\
+            .filter(rejected=type_featured_request == 'ignored')\
+            .filter(featured__isnull=type_featured_request != 'accepted')
+
+        if type_featured_request in FEATUREABLES.keys():
+            queryset = queryset.filter(type=FEATUREABLES[type_featured_request]['name'])
+
+        return [q for q in queryset.all() if isinstance(q.content_object, Topic) or not q.content_object.is_obsolete]
+
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+
+class FeaturedRequestedUpdate(UpdateView):
+    model = FeaturedRequested
+    http_method_names = ['post']
+
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        obj = self.get_object()
+        result = {'result': 'FAIL'}
+
+        if 'operation' in request.POST:
+            if 'REJECT' in request.POST['operation']:
+                obj.rejected = True
+                obj.save()
+                result = {'result': 'OK'}
+            if 'REJECT_FOR_GOOD' in request.POST['operation']:
+                obj.rejected = True
+                obj.rejected_for_good = True
+                obj.save()
+                result = {'result': 'OK'}
+            elif 'CONSIDER' in request.POST['operation']:
+                obj.rejected = False
+                obj.save()
+                result = {'result': 'OK'}
+
+        return HttpResponse(json_handler.dumps(result), content_type='application/json')
+
+
+class FeaturedMessageCreateUpdate(FeaturedViewMixin, FormView):
     """
     Creates or updates the featured message.
     """
@@ -220,8 +291,6 @@ class FeaturedMessageCreateUpdate(FormView):
     template_name = 'featured/message/create.html'
     last_message = None
 
-    @method_decorator(login_required)
-    @method_decorator(permission_required('featured.change_featuredmessage', raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         self.last_message = FeaturedMessage.objects.get_last_message()
         return super(FeaturedMessageCreateUpdate, self).dispatch(request, *args, **kwargs)
