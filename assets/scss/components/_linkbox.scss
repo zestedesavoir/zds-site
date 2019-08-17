@@ -7,11 +7,34 @@ $color-linkbox-default: #777;
 
     margin: 0 0 0 -20px;
 
+    &.is-vertical {
+        flex-direction: column;
+
+        .linkbox-item {
+            width: 100%;
+        }
+    }
+
     .linkbox-item {
         flex: 0 0 auto;
 
         width: 33.33%;
         width: calc(33.33% - 20px);
+
+        @media only screen and #{$media-extra-wide} {
+            width: 25%;
+            width: calc(25% - 20px);
+        }
+
+        @media only screen and #{$media-mobile-tablet} {
+            width: 50%;
+            width: calc(50% - 20px);
+        }
+
+        @media only screen and #{$media-mobile} {
+            width: 100%;
+            width: calc(100% - 20px);
+        }
 
         margin: 0 0 20px 20px;
 
@@ -160,26 +183,5 @@ $color-linkbox-default: #777;
                 &.tail { background: darken($color-secondary, 5%); }
             }
         }
-    }
-}
-
-@media only screen and #{$media-extra-wide} {
-    .content-linkbox-list .linkbox-item {
-        width: 25%;
-        width: calc(25% - 20px);
-    }
-}
-
-@media only screen and #{$media-mobile-tablet} {
-    .content-linkbox-list .linkbox-item {
-        width: 50%;
-        width: calc(50% - 20px);
-    }
-}
-
-@media only screen and #{$media-mobile} {
-    .content-linkbox-list .linkbox-item {
-        width: 100%;
-        width: calc(100% - 20px);
     }
 }
