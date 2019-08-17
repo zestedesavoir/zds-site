@@ -53,6 +53,11 @@ body.userprofilepage {
         background-color: darken($color-primary, 12%);
     }
 
+    .flexpage-title-tool a.badge-sanction {
+        display: inline-block;
+        color: #EEE;
+    }
+
     .user-bio-and-activity {
         display: flex;
         flex-direction: row;
@@ -224,6 +229,10 @@ body.userprofilepage {
                 }
             }
         }
+    }
+
+    .profile-administration {
+        margin-top: 4rem;
     }
 
     .report-profile {

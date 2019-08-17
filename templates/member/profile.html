@@ -427,39 +427,41 @@
             </section>
 
             {% if articles_and_tutorials or opinions %}
-                <div class="flexpage-column">
-                    <section>
-                        <h2 itemprop="name">
-                            {% trans 'Dernières publications' %}
-                            <a href="{% url "content:find-all" usr.pk %}?filter=public" class="btn btn-grey">{% trans 'Voir tout' %}</a>
-                        </h2>
-                        {% if articles_and_tutorials %}
+                {% if articles_and_tutorials and opinions %}<div class="flexpage-column">{% endif %}
+                    {% if articles_and_tutorials %}
+                        <section>
+                            <h2 itemprop="name">
+                                {% trans 'Dernières publications' %}
+                                <a href="{% url "content:find-all" usr.pk %}?filter=public" class="btn btn-grey">{% trans 'Voir tout' %}</a>
+                            </h2>
                             <div class="content-item-list">
                                 {% for public_content in articles_and_tutorials %}
                                     {% include 'tutorialv2/includes/content_item.part.html' with show_description=True public_content=public_content %}
+                                    {% if forloop.last %}
+                                        <span class="fill"></span>
+                                    {% endif %}
                                 {% endfor %}
                             </div>
-                        {% else %}
-                            <p>{% trans "Aucune publication." %}</p>
-                        {% endif %}
-                    </section>
-                    <section>
-                        <h2 itemprop="name">
-                          {% trans 'Derniers billets publiés' %}
-                            <a href="{% url "content:find-opinion" usr.pk %}?filter=public" class="btn btn-grey">{% trans 'Voir tout' %}</a>
-                        </h2>
+                        </section>
+                    {% endif %}
 
-                        {% if opinions %}
+                    {% if opinions %}
+                        <section>
+                            <h2 itemprop="name">
+                              {% trans 'Derniers billets' %}
+                                <a href="{% url "content:find-opinion" usr.pk %}?filter=public" class="btn btn-grey">{% trans 'Voir tout' %}</a>
+                            </h2>
                             <div class="content-item-list">
                                 {% for public_opinion in opinions %}
                                     {% include 'tutorialv2/includes/content_item.part.html' with show_description=True public_content=public_opinion show_reactions=True %}
+                                    {% if forloop.last %}
+                                        <span class="fill"></span>
+                                    {% endif %}
                                 {% endfor %}
                             </div>
-                        {% else %}
-                            <p>{% trans "Aucun billet publié." %}</p>
-                        {% endif %}
-                    </section>
-                </div>
+                        </section>
+                    {% endif %}
+                {% if articles_and_tutorials and opinions %}</div>{% endif %}
             {% endif %}
 
             {% if topics %}
@@ -474,7 +476,7 @@
                             {% for topic in topics %}
                                 {% include 'forum/includes/topic_item.part.html' %}
                                 {% if forloop.last %}
-                                    <span class="fill">
+                                    <span class="fill"></span>
                                 {% endif %}
                             {% endfor %}
                         </div>
@@ -485,7 +487,7 @@
             {% endif %}
 
             {% if perms.member.change_profile and profile.user.is_active %}
-                <section>
+                <section class="profile-administration">
                     <h2 itemprop="name">{% trans 'Administration et modération' %}</h2>
                     <div class="content-linkbox-list">
                         {% if user.is_superuser or user.is_staff or perms.utils.change_hat %}
