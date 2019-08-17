@@ -60,7 +60,7 @@
                 <div class="flexpage-title-tool">
                     <div class="avatar">
                         <figure>
-                            <img src="{{ profile.get_avatar_url|remove_url_scheme }}" />
+                            <img src="{{ profile.get_avatar_url|remove_url_scheme }}" alt="{% trans "Avatar" %}" />
                         </figure>
                     </div>
 
@@ -185,7 +185,7 @@
         <div class="flexpage-wrapper">
             {% messages messages %}
 
-            <section class="user-bio-and-activity">
+            <section class="user-bio-and-activity {% if not profile.biography and not profile.sign and profile.user != user %}is-vertical{% endif %}">
                 <div class="bio">
                     {% if profile.has_hat %}
                         <aside class="profile-card hats-container">
@@ -244,38 +244,40 @@
                         </ul>
                     </aside>
 
-                    <div class="profile-card bio-container">
-                        <div class="message-content">
-                            {% if not profile.end_ban_read and not profile.can_read %}
-                                <div class="no-bio">{% trans "La biographie de ce membre est masquée car il a été banni définitivement." %}</div>
-                            {% elif profile.biography %}
-                                {{ profile.biography|emarkdown }}
-                            {% else %}
-                                <div class="no-bio">
-                                {% if usr != user %}
-                                    {% trans "Cet utilisateur n'a pas rédigé de biographie." %}
+                    {% if profile.biography or profile.sign or profile.user == user %}
+                        <div class="profile-card bio-container">
+                            <div class="message-content">
+                                {% if not profile.end_ban_read and not profile.can_read %}
+                                    <div class="no-bio">{% trans "La biographie de ce membre est masquée car il a été banni définitivement." %}</div>
+                                {% elif profile.biography %}
+                                    {{ profile.biography|emarkdown }}
                                 {% else %}
-                                    {% trans "Vous n'avez pas encore rédigé de biographie." %}<br />
-                                    <a href="{% url "update-member" %}">{% trans "Voulez-vous en écrire une pour vous présenter à la communauté ?" %}</a>
+                                    <div class="no-bio">
+                                    {% if profile.user != user %}
+                                        {% trans "Cet utilisateur n'a pas rédigé de biographie." %}
+                                    {% else %}
+                                        {% trans "Vous n'avez pas encore rédigé de biographie." %}<br />
+                                        <a href="{% url "update-member" %}">{% trans "Voulez-vous en écrire une pour vous présenter à la communauté ?" %}</a>
+                                    {% endif %}
+                                    </div>
                                 {% endif %}
+                            </div>
+                            <div class="biography-overflow" aria-hidden="true">
+                                <p data-other-label="{% trans "Réduire la biographie" %}">{% trans "Afficher toute la biographie" %}</p>
+                            </div>
+                            {% if profile.sign %}
+                                <div class="message-bottom">
+                                    <div class="signature">
+                                        {% if not profile.end_ban_read and not profile.can_read %}
+                                            <em>{% trans "La signature de ce membre est masquée car il a été banni définitivement." %}</em>
+                                        {% else %}
+                                            {{ profile.sign|emarkdown_inline }}
+                                        {% endif %}
+                                    </div>
                                 </div>
                             {% endif %}
                         </div>
-                        <div class="biography-overflow" aria-hidden="true">
-                            <p data-other-label="{% trans "Réduire la biographie" %}">{% trans "Afficher toute la biographie" %}</p>
-                        </div>
-                        {% if profile.sign %}
-                            <div class="message-bottom">
-                                <div class="signature">
-                                    {% if not profile.end_ban_read and not profile.can_read %}
-                                        <em>{% trans "La signature de ce membre est masquée car il a été banni définitivement." %}</em>
-                                    {% else %}
-                                        {{ profile.sign|emarkdown_inline }}
-                                    {% endif %}
-                                </div>
-                            </div>
-                        {% endif %}
-                    </div>
+                    {% endif %}
                 </div>
 
                 {% captureas messages_count %}{% if perms.member.change_post %}{{ profile.get_post_count_as_staff }}{% else %}{{ profile.get_post_count }}{% endif %}{% endcaptureas %}
@@ -283,10 +285,15 @@
                 {% with topics_count=profile.get_topic_count messages_count=messages_count|add:"0" %}
                     {% if profile.site or profile.show_email or public_tutos_count > 0 or articles_public_count > 0 or opinions_public_count > 0 or beta_tutos_count > 0 or beta_articles_count > 0 or topics_count > 0 or messages_count > 0 %}
                         <div class="activity">
-                            <div class="content-linkbox-list">
+                            <div class="content-linkbox-list {% if profile.biography or profile.sign or profile.user == user %}is-vertical{% endif %}">
                                 {% if profile.end_ban_read or profile.can_read %}
                                     {% if profile.site or profile.show_email %}
                                         <div class="linkbox-item primary">
+                                            {% if not profile.biography and not profile.sign %}
+                                                <div class="head">
+                                                    <h3>{% trans 'Liens' %}</h3>
+                                                </div>
+                                            {% endif %}
                                             {% if profile.site %}
                                                 <a href="{{ profile.site }}" class="tail" rel="me nofollow">
                                                     {% trans "Voir son site web" %}

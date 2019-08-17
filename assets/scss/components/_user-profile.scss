@@ -69,6 +69,11 @@ body.userprofilepage {
             margin-top: 1.8rem;
         }
 
+        &.is-vertical {
+            flex-direction: column;
+            margin-top: 1.8rem;
+        }
+
         & > .bio {
             flex: 12;
 
@@ -219,14 +224,6 @@ body.userprofilepage {
 
             @media only screen and #{$media-mobile} {
                 margin-top: 20px;
-            }
-
-            .content-linkbox-list {
-                flex-direction: column;
-
-                .linkbox-item {
-                    width: 100%;
-                }
             }
         }
     }
