@@ -171,6 +171,7 @@ class MemberDetail(DetailView):
             context['actions'] = actions
             context['karmaform'] = KarmaForm(profile)
             context['alerts'] = profile.alerts_on_this_profile.all()
+            context['has_unsolved_alerts'] = profile.alerts_on_this_profile.filter(solved=False).exists()
 
         context['summaries'] = self.get_summaries(profile)
         return context
