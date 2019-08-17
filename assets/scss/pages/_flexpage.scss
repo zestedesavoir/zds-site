@@ -233,6 +233,15 @@ $content-width: 1145px;
                 font-size: 5rem;
                 line-height: 50px;
                 border: none;
+
+                @media only screen and #{$media-mobile} {
+                    display: flex;
+                    align-items: baseline;
+
+                    :first-child {
+                        flex: 12;
+                    }
+                }
             }
 
             h2 {
@@ -356,6 +365,10 @@ $content-width: 1145px;
                 }
             }
         }
+    }
+
+    .alert-box {
+        margin-left: 0;
     }
 }
 

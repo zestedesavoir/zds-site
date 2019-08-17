@@ -211,7 +211,9 @@
             {% block doc_api %}
                 <div class="main wrapper clearfix">
                     <main class="content-container" role="main" id="content">
-                        {% messages messages %}
+                        {% block flash_messages %}
+                            {% messages messages %}
+                        {% endblock %}
 
                         {% block content_out %}
                             {% captureas schema %}

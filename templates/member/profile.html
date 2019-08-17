@@ -1,15 +1,16 @@
 {% extends "member/base.html" %}
 
 {% load captureas %}
+{% load crispy_forms_tags %}
+{% load date %}
 {% load emarkdown %}
 {% load email_obfuscator %}
-{% load date %}
-{% load profile %}
-{% load i18n %}
 {% load interventions %}
-{% load remove_url_scheme %}
+{% load i18n %}
+{% load messages %}
 {% load pluralize_fr %}
-{% load crispy_forms_tags %}
+{% load profile %}
+{% load remove_url_scheme %}
 
 
 
@@ -30,6 +31,10 @@
 {% block sidebar_actions %}
     {% include "member/sidebar.html" %}
 {% endblock %}
+
+
+{# Removes flash messages from the top of the page to place them under the header #}
+{% block flash_messages %}{% endblock %}
 
 
 {% block content_out %}
@@ -60,7 +65,15 @@
                     </div>
 
                     <div class="title">
-                        <h1>{{ usr.username }}{% include 'misc/badge.part.html' with member=usr long_badge=True %}</h1>
+                        <h1>
+                            <span>{{ usr.username }}</span>
+                            {% include 'misc/badge.part.html' with member=usr long_badge=True %}
+                            {% if perms.member.change_profile and has_unsolved_alerts %}
+                                <a href="#alerts" class="badge-sanction" title="{% trans "Ce compte a reçu un ou plusieurs signalements." %}">
+                                    {% trans "Signalé" %}
+                                </a>
+                            {% endif %}
+                        </h1>
 
                         {% for summary in summaries %}
                             <div class="line">
@@ -170,6 +183,8 @@
         </section>
 
         <div class="flexpage-wrapper">
+            {% messages messages %}
+
             <section class="user-bio-and-activity">
                 <div class="bio">
                     {% if profile.has_hat %}
@@ -774,15 +789,17 @@
                     </table>
                 </section>
             {% endif %}
-            
+
             {% if perms.member.change_profile and alerts %}
                 <section id="alerts">
                     <h2 itemprop="name">{% trans "Signalements du profil" %}</h2>
                     {% for alert in alerts %}
                         <div class="alert-box{% if not alert.solved %} error{% endif %}">
-                            {{ alert.pubdate|format_date|capfirst }} {% trans "par" %}
-                            {% include "misc/member_item.part.html" with member=alert.author %} :
-                            <em class="alert-box-text">{{ alert.text }}</em>
+                            <span>
+                                {{ alert.pubdate|format_date|capfirst }} {% trans "par" %}
+                                {% include "misc/member_item.part.html" with member=alert.author %} :
+                                <em>{{ alert.text }}</em>
+                            </span>
                             {% if alert.solved %}
                                 <span class="close-alert-box close-alert-box-text">
                                     {% trans "Résolu par" %}
