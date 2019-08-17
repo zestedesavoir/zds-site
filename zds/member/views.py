@@ -170,7 +170,7 @@ class MemberDetail(DetailView):
             actions.reverse()
             context['actions'] = actions
             context['karmaform'] = KarmaForm(profile)
-            context['alerts'] = profile.alerts_on_this_profile.all()
+            context['alerts'] = profile.alerts_on_this_profile.all().order_by('-pubdate')
             context['has_unsolved_alerts'] = profile.alerts_on_this_profile.filter(solved=False).exists()
 
         context['summaries'] = self.get_summaries(profile)
