@@ -1,9 +1,10 @@
 body.userprofilepage {
-    .flexpage-title-tool .actions button.is-following {
-        background-color: darken($color-primary, 6%);
+    .flexpage-title-tool .actions button.is-following,
+    .flexpage-title-tool .actions button.is-following[disabled] {
+        background-color: darken($color-primary, 6%) !important;
         color: #FFF;
 
-        &:hover {
+        &:not([disabled]):hover {
             background-color: lighten($color-primary, 20%);
         }
     }
