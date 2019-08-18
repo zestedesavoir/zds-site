@@ -68,7 +68,7 @@ contenant la boîte un lien avec les classes ``btn`` et ``btn-success`` ; il se
 
    <div id="une-ancre" class="modal" data-modal-close="Fermez-moi !">
        Une super boîte modale !
-        <a class="btn btn-success" href="#">Cliquez moi !</a>
+        <a class="btn btn-submit" href="#">Cliquez moi !</a>
    </div>
 
 Créer le lien
@@ -93,7 +93,7 @@ Quand le texte du lien n'est pas le titre
 -----------------------------------------
 
 Si vous voulez un autre titre que le texte du lien pour votre modale, vous pouvez ajouter
-l'attribut ``data-modal-title="Le titre de ma boîte"`` à le boîte modale. Le texte
+l'attribut ``data-modal-title="Le titre de ma boîte"`` à la boîte modale. Le texte
 de l'attribut (ici ``Le titre de ma boîte``) deviendra le titre de la boîte modale.
 
 .. sourcecode:: html

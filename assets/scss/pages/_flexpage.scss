@@ -100,9 +100,6 @@ $content-width: 1145px;
             flex: 4;
             align-self: start;
 
-            // position: relative;
-            // bottom: -80px;
-
             text-align: center;
 
             figure {
@@ -338,28 +335,23 @@ $content-width: 1145px;
             .under-search {
                 font-size: .7em;
 
-                p {
+                p, ul {
                     margin: 0;
                     padding: .4rem 0;
                 }
 
-                ul {
-                    margin: 0;
-                    padding: .4rem 0;
+                ul li {
+                    display: inline-block;
+                    list-style-type: none;
 
-                    li {
-                        display: inline-block;
-                        list-style-type: none;
+                    &:not(:first-child) {
+                        margin-left: 1.2rem;
 
-                        &:not(:first-child) {
-                            margin-left: 1.2rem;
-
-                            &:before {
-                                content: "—";
-                                position: relative;
-                                left: -.65rem;
-                                top: -.1rem;
-                            }
+                        &:before {
+                            content: "—";
+                            position: relative;
+                            left: -.65rem;
+                            top: -.1rem;
                         }
                     }
                 }
