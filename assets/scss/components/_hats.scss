@@ -92,7 +92,7 @@
 
     a.name:hover,
     a.name:focus {
-        background-color: transparent;
+        background-color: lighten($color-hat, 52%);
         color: $color-hat;
         border: 1px solid $color-hat;
     }
@@ -109,7 +109,7 @@
 
         a.name:hover,
         a.name:focus {
-            background-color: transparent;
+            background-color: desaturate(lighten($color-staff-hat, 74%), 40%);
             border: 1px solid $color-staff-hat;
 
             &, & span {
