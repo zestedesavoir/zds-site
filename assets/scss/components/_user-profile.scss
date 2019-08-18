@@ -73,6 +73,10 @@ body.userprofilepage {
         &.is-vertical {
             flex-direction: column;
             margin-top: 1.8rem;
+
+            & > .activity {
+                padding-right: 1.2rem;
+            }
         }
 
         & > .bio {
@@ -165,7 +169,7 @@ body.userprofilepage {
                     }
 
                     .no-bio {
-                        margin: 4rem 0;
+                        margin: 6rem 0;
                         text-align: center;
 
                         font-size: 1.1em;
@@ -225,6 +229,10 @@ body.userprofilepage {
 
             @media only screen and #{$media-mobile} {
                 margin-top: 20px;
+
+                .head-profile-links {
+                    display: none;
+                }
             }
         }
     }
