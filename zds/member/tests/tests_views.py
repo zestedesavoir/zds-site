@@ -1177,23 +1177,24 @@ class MemberTests(TutorialTestMixin, TestCase):
         result = self.client.get(reverse('member-detail', args=[user_ban.user.username]), follow=False)
         self.assertNotContains(result, phrase)
 
-        # If an user is logged in, the PM button is shown for other normal users
         self.assertTrue(self.client.login(username=user_2.user.username, password='hostel77'))
+
+        # If an user is logged in, the PM button is shown for other normal users
         result = self.client.get(reverse('member-detail', args=[user_1.user.username]), follow=False)
-        self.client.logout()
         self.assertContains(result, phrase)
 
         # But not for banned users
-        self.assertTrue(self.client.login(username=user_2.user.username, password='hostel77'))
         result = self.client.get(reverse('member-detail', args=[user_ban.user.username]), follow=False)
-        self.client.logout()
         self.assertNotContains(result, phrase)
 
-        # Neither for his own profile
-        self.assertTrue(self.client.login(username=user_1.user.username, password='hostel77'))
-        result = self.client.get(reverse('member-detail', args=[user_1.user.username]), follow=False)
         self.client.logout()
+        self.assertTrue(self.client.login(username=user_1.user.username, password='hostel77'))
+
+        # Neither for his own profile
+        result = self.client.get(reverse('member-detail', args=[user_1.user.username]), follow=False)
         self.assertNotContains(result, phrase)
+
+        self.client.logout()
 
     def test_github_token(self):
         user = ProfileFactory()
@@ -1400,11 +1401,11 @@ class MemberTests(TutorialTestMixin, TestCase):
 
         profile = ProfileFactory()
         user = profile.user
-        # Test that hats doesn't appear if there are not hats
+        # Test that hats don't appear if there are no hats
         self.client.login(username=user.username, password='hostel77')
         result = self.client.get(profile.get_absolute_url())
         self.assertNotContains(result, _('Casquettes'))
-        # Test that they doesn't appear with a staff member but that the link to add one does appear
+        # Test that they don't appear with a staff member but that the link to add one does appear
         self.client.login(username=self.staff.username, password='hostel77')
         result = self.client.get(profile.get_absolute_url())
         self.assertNotContains(result, _('Casquettes'))

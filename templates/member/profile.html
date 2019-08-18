@@ -96,12 +96,12 @@
                                                 {% if link %}<a href="{{ link }}">{% endif %}
                                                 {{ text }}{% if link %}</a>{% endif %}{% endcaptureas %}
 
-                                                {% if forloop.last and not forloop.first %}
-                                                    et {{ summary_link_html }}
-                                                {% elif not forloop.last and forloop.revcounter != 2 %}
-                                                    {{ summary_link_html }},
-                                                {% else %}
+                                                {% if forloop.last %}
                                                     {{ summary_link_html }}
+                                                {% elif forloop.revcounter == 2 %}
+                                                    {{ summary_link_html }} et
+                                                {% else %}
+                                                    {{ summary_link_html }},
                                                 {% endif %}
                                             {% endfor %}
                                         </span>
@@ -126,6 +126,18 @@
                             </aside>
                         </div>
                     </div>
+
+                    {% captureas subscriber_count_full_text %}
+                        {% if subscriber_count == 0 %}
+                            {% trans "Aucun abonné" %}
+                        {% else %}
+                            {% blocktrans count subscriber_count=subscriber_count %}
+                                {{ subscriber_count }} abonné
+                            {% plural %}
+                                {{ subscriber_count }} abonnés
+                            {% endblocktrans %}
+                        {% endif %}
+                    {% endcaptureas %}
 
                     {% if not profile.is_private and user.is_authenticated %}
                         <div class="actions">
@@ -163,34 +175,12 @@
                                     {% trans "Abonné par courriel" as email_data_onclick %}
                                 {% endif %}
 
-                                {% captureas subscriber_count_aria_label %}
-                                    {% if subscriber_count == 0 %}
-                                        {% trans "Aucun abonné" %}
-                                    {% else %}
-                                        {% blocktrans count subscriber_count=subscriber_count %}
-                                            {{ subscriber_count }} abonné
-                                        {% plural %}
-                                            {{ subscriber_count }} abonnés
-                                        {% endblocktrans %}
-                                    {% endif %}
-                                {% endcaptureas %}
-
-                                {% include 'notification/follow_button_combined_template.html' with link=link_follow is_followed=content_is_followed data_onclick=data_onclick button_text=button_text is_followed_email=content_is_followed_email email_data_onclick=email_data_onclick email_button_text=email_button_text subscriber_count=subscriber_count subscriber_count_aria_label=subscriber_count_aria_label followed_user=usr user=user %}
+                                {% include 'notification/follow_button_combined_template.html' with link=link_follow is_followed=content_is_followed data_onclick=data_onclick button_text=button_text is_followed_email=content_is_followed_email email_data_onclick=email_data_onclick email_button_text=email_button_text subscriber_count=subscriber_count subscriber_count_aria_label=subscriber_count_full_text followed_user=usr user=user %}
                             {% endwith %}
                         </div>
                     {% elif not user.is_authenticated %}
                         <div class="actions">
-                            <div class="btn btn-ico ico-after star light" disabled>
-                                {% if subscriber_count == 0 %}
-                                    {% trans "Aucun abonné" %}
-                                {% else %}
-                                    {% blocktrans count subscriber_count=subscriber_count %}
-                                        {{ subscriber_count }} abonné
-                                    {% plural %}
-                                        {{ subscriber_count }} abonnés
-                                    {% endblocktrans %}
-                                {% endif %}
-                            </div>
+                            <div class="btn btn-ico ico-after star light" disabled>{{ subscriber_count_full_text }}</div>
                         </div>
                     {% endif %}
                 </div>
@@ -489,7 +479,7 @@
             {% if topics %}
                 <section>
                     <h2 itemprop="name">
-                        {% trans 'Derniers sujets crées' %}
+                        {% trans 'Derniers sujets créés' %}
                         <a href="{% url 'topic-find' usr.pk %}" class="btn btn-grey">{% trans 'Voir tout' %}</a>
                     </h2>
 
