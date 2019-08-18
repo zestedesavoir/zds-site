@@ -1155,9 +1155,10 @@ class MemberTests(TutorialTestMixin, TestCase):
         self.assertEqual(len(notes), 1)
         self.assertTrue(old_pseudo in notes[0].note and 'dummy' in notes[0].note)
 
-    def test_ban_member_is_not_contactable(self):
+    def test_members_are_contactable(self):
         """
-        When a member is ban, we hide the button to send a PM.
+        The PM button is displayed to logged in users, except if it's the profile
+        of a banned user.
         """
         user_ban = ProfileFactory()
         user_ban.can_read = False
@@ -1168,22 +1169,27 @@ class MemberTests(TutorialTestMixin, TestCase):
 
         phrase = 'Envoyer un message'
 
+        # The PM button is hidden for anonymous users
         result = self.client.get(reverse('member-detail', args=[user_1.user.username]), follow=False)
         self.assertNotContains(result, phrase)
 
+        # Also for anonymous users viewing banned members profiles
         result = self.client.get(reverse('member-detail', args=[user_ban.user.username]), follow=False)
         self.assertNotContains(result, phrase)
 
+        # If an user is logged in, the PM button is shown for other normal users
         self.assertTrue(self.client.login(username=user_2.user.username, password='hostel77'))
         result = self.client.get(reverse('member-detail', args=[user_1.user.username]), follow=False)
         self.client.logout()
         self.assertContains(result, phrase)
 
+        # But not for banned users
         self.assertTrue(self.client.login(username=user_2.user.username, password='hostel77'))
         result = self.client.get(reverse('member-detail', args=[user_ban.user.username]), follow=False)
         self.client.logout()
         self.assertNotContains(result, phrase)
 
+        # Neither for his own profile
         self.assertTrue(self.client.login(username=user_1.user.username, password='hostel77'))
         result = self.client.get(reverse('member-detail', args=[user_1.user.username]), follow=False)
         self.client.logout()
@@ -1394,38 +1400,36 @@ class MemberTests(TutorialTestMixin, TestCase):
 
         profile = ProfileFactory()
         user = profile.user
-        # Test that hats doesn't appear if there are not hats and if the current user is not staff member
+        # Test that hats doesn't appear if there are not hats
         self.client.login(username=user.username, password='hostel77')
         result = self.client.get(profile.get_absolute_url())
-        self.assertEqual(result.status_code, 200)
         self.assertNotContains(result, _('Casquettes'))
-        # Test that they appear with a staff member
+        # Test that they doesn't appear with a staff member but that the link to add one does appear
         self.client.login(username=self.staff.username, password='hostel77')
         result = self.client.get(profile.get_absolute_url())
-        self.assertEqual(result.status_code, 200)
-        self.assertContains(result, _('Casquettes'))
+        self.assertNotContains(result, _('Casquettes'))
+        self.assertContains(result, _('Ajouter une casquette'))
         # Add a hat and check that it appears
         self.client.post(reverse('add-hat', args=[user.pk]),
                          {'hat': hat_name}, follow=False)
         self.assertIn(hat_name, profile.hats.values_list('name', flat=True))
         result = self.client.get(profile.get_absolute_url())
-        self.assertEqual(result.status_code, 200)
+        self.assertContains(result, _('Casquettes'))
         self.assertContains(result, hat_name)
         # And also for a member that is not staff
         self.client.login(username=user.username, password='hostel77')
         result = self.client.get(profile.get_absolute_url())
-        self.assertEqual(result.status_code, 200)
         self.assertContains(result, _('Casquettes'))
         self.assertContains(result, hat_name)
         # Test that a hat linked to a group appears
         result = self.client.get(self.staff.profile.get_absolute_url())
-        self.assertEqual(result.status_code, 200)
         self.assertContains(result, _('Casquettes'))
         self.assertContains(result, 'Staff')
 
     def test_add_hat(self):
         short_hat = 'A new hat'
         long_hat = 'A very long hat' * 3
+        utf8mb4_hat = '🍊'
 
         profile = ProfileFactory()
         user = profile.user
@@ -1443,7 +1447,9 @@ class MemberTests(TutorialTestMixin, TestCase):
         self.assertNotIn(long_hat, profile.hats.values_list('name', flat=True))
         # test that it doesn't work with a hat using utf8mb4 characters
         result = self.client.post(reverse('add-hat', args=[user.pk]),
-                                  {'hat': '🍊'}, follow=False)
+                                  {'hat': utf8mb4_hat}, follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertNotIn(utf8mb4_hat, profile.hats.values_list('name', flat=True))
         # test that it doesn't work with a hat linked to a group
         result = self.client.post(reverse('add-hat', args=[user.pk]),
                                   {'hat': 'Staff'}, follow=False)
