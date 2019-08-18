@@ -1,6 +1,6 @@
-from django.urls import re_path
+from django.urls import path, re_path
 from django.views.generic.base import RedirectView
-from zds.tutorialv2.views.contents import RedirectOldBetaTuto
+from zds.tutorialv2.views.contents import RedirectOldBetaTuto, ContentOfAuthor
 
 from zds.tutorialv2.views.published import DisplayOnlineTutorial, DisplayOnlineContainer, \
     DownloadOnlineTutorial, RedirectContentSEO, TagsListView
@@ -47,5 +47,10 @@ urlpatterns = [
     re_path(r'^$', RedirectView.as_view(
             pattern_name='publication:list', permanent=True)),
     re_path(r'tags/$',
-            TagsListView.as_view(displayed_types=['TUTORIAL']), name='tags')
+            TagsListView.as_view(displayed_types=['TUTORIAL']), name='tags'),
+
+    path('voir/<str:username>/',
+         ContentOfAuthor.as_view(
+             type='TUTORIAL', context_object_name='tutorials'),
+         name='find-tutorial'),
 ]
