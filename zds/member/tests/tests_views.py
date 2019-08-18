@@ -1398,30 +1398,30 @@ class MemberTests(TutorialTestMixin, TestCase):
         self.client.login(username=user.username, password='hostel77')
         result = self.client.get(profile.get_absolute_url())
         self.assertEqual(result.status_code, 200)
-        self.assertNotContains(result.content.decode('utf-8'), _('Casquettes'))
+        self.assertNotContains(result, _('Casquettes'))
         # Test that they appear with a staff member
         self.client.login(username=self.staff.username, password='hostel77')
         result = self.client.get(profile.get_absolute_url())
         self.assertEqual(result.status_code, 200)
-        self.assertContains(result.content.decode('utf-8'), _('Casquettes'))
+        self.assertContains(result, _('Casquettes'))
         # Add a hat and check that it appears
         self.client.post(reverse('add-hat', args=[user.pk]),
                          {'hat': hat_name}, follow=False)
         self.assertIn(hat_name, profile.hats.values_list('name', flat=True))
         result = self.client.get(profile.get_absolute_url())
         self.assertEqual(result.status_code, 200)
-        self.assertContains(result.content.decode('utf-8'), hat_name)
+        self.assertContains(result, hat_name)
         # And also for a member that is not staff
         self.client.login(username=user.username, password='hostel77')
         result = self.client.get(profile.get_absolute_url())
         self.assertEqual(result.status_code, 200)
-        self.assertContains(result.content.decode('utf-8'), _('Casquettes'))
-        self.assertContains(result.content.decode('utf-8'), hat_name)
+        self.assertContains(result, _('Casquettes'))
+        self.assertContains(result, hat_name)
         # Test that a hat linked to a group appears
         result = self.client.get(self.staff.profile.get_absolute_url())
         self.assertEqual(result.status_code, 200)
-        self.assertContains(result.content.decode('utf-8'), _('Casquettes'))
-        self.assertContains(result.content.decode('utf-8'), 'Staff')
+        self.assertContains(result, _('Casquettes'))
+        self.assertContains(result, 'Staff')
 
     def test_add_hat(self):
         short_hat = 'A new hat'
