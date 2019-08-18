@@ -1166,7 +1166,7 @@ class MemberTests(TutorialTestMixin, TestCase):
         user_1 = ProfileFactory()
         user_2 = ProfileFactory()
 
-        phrase = 'Envoyer un message privé'
+        phrase = 'Envoyer un message'
 
         result = self.client.get(reverse('member-detail', args=[user_1.user.username]), follow=False)
         self.assertNotContains(result, phrase)
