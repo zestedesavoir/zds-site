@@ -381,6 +381,12 @@ $content-width: 1145px;
     }
 }
 
+@media only screen and #{$media-under-extra-wide} {
+   .flexpage .flexpage-wrapper {
+        padding: 20px 10px;
+    }
+}
+
 @media only screen and #{$media-mobile-tablet} {
     .flexpage {
         .flexpage-wrapper {
