@@ -159,8 +159,9 @@ class MiniProfileForm(forms.Form):
         )
     )
 
-    site = forms.CharField(
+    site = forms.URLField(
         label='Site web',
+        initial='http://',
         required=False,
         max_length=Profile._meta.get_field('site').max_length,
         widget=forms.TextInput(
