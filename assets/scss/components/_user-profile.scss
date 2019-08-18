@@ -136,10 +136,16 @@ body.userprofilepage {
                 }
 
                 .hatlist {
-                    justify-content: flex-end;
+                    justify-content: flex-start;
 
-                    li:first-child {
+                    li {
                         margin-left: 0;
+                        margin-right: 10px;
+
+                        @media only screen and #{$media-mobile} {
+                            margin-right: 4px;
+                            margin-bottom: 4px;
+                        }
                     }
                 }
             }
