@@ -65,7 +65,7 @@
                 </li>
             {% else %}
                 <li>
-                    {% blocktrans with datetime=usr.date_joined|date:"c" date=usr.date_joined|format_date:True %}
+                    {% blocktrans with datetime=usr.date_joined|date:"c" date=usr.date_joined|format_date:True ip=ip %}
                         Inscription le <time datetime="{{ datetime }}">{{ date }}</time> {{ ip }}
                     {% endblocktrans %}
                 </li>
@@ -332,7 +332,7 @@
                                         </div>
 
                                         {% if public_tutos_count > 0 %}
-                                            <a href="{% url "content:find-tutorial" usr.pk %}?filter=public" class="tail">
+                                            <a href="{% url "tutorial:find-tutorial" usr.username %}?filter=public" class="tail">
                                                 <p>
                                                     {% blocktrans count public_tutos_count=public_tutos_count %}
                                                         {{ public_tutos_count }} tutoriel publié
@@ -344,7 +344,7 @@
                                         {% endif %}
 
                                         {% if articles_public_count > 0 %}
-                                            <a href="{% url "content:find-article" usr.pk %}?filter=public" class="tail">
+                                            <a href="{% url "article:find-article" usr.username %}?filter=public" class="tail">
                                                 <p>
                                                     {% blocktrans count articles_public_count=articles_public_count %}
                                                         {{ articles_public_count }} article publié
@@ -356,7 +356,7 @@
                                         {% endif %}
 
                                         {% if opinions_public_count > 0 %}
-                                            <a href="{% url "content:find-opinion" usr.pk %}?filter=public" class="tail">
+                                            <a href="{% url "opinion:find-opinion" usr.username %}?filter=public" class="tail">
                                                 <p>
                                                     {% blocktrans count opinions_public_count=opinions_public_count %}
                                                         {{ opinions_public_count }} billet publié
@@ -383,7 +383,7 @@
                                             </div>
 
                                             {% if beta_tutos_count > 0 %}
-                                                <a href="{% url "content:find-tutorial" usr.pk %}?filter=beta" class="tail">
+                                                <a href="{% url "tutorial:find-tutorial" usr.username %}?filter=beta" class="tail">
                                                         <p>
                                                             {% blocktrans count beta_tutos_count=beta_tutos_count %}
                                                                 {{ beta_tutos_count }} tutoriel en bêta
@@ -395,7 +395,7 @@
                                             {% endif %}
 
                                             {% if beta_articles_count > 0 %}
-                                                <a href="{% url "content:find-article" usr.pk %}?filter=beta" class="tail">
+                                                <a href="{% url "article:find-article" usr.username %}?filter=beta" class="tail">
                                                     <p>
                                                         {% blocktrans count beta_articles_count=beta_articles_count %}
                                                             {{ beta_articles_count }} article en bêta
@@ -469,7 +469,7 @@
                         <section>
                             <h2 itemprop="name">
                               {% trans 'Derniers billets' %}
-                                <a href="{% url "content:find-opinion" usr.pk %}?filter=public" class="btn btn-grey">{% trans 'Voir tout' %}</a>
+                                <a href="{% url "opinion:find-opinion" usr.username %}?filter=public" class="btn btn-grey">{% trans 'Voir tout' %}</a>
                             </h2>
                             <div class="content-item-list">
                                 {% for public_opinion in opinions %}

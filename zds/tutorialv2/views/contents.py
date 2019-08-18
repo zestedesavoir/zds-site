@@ -428,7 +428,7 @@ class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteV
 
             messages.success(self.request, _('Vous avez bien supprimé {}.').format(_type))
 
-        return redirect(reverse('content:find-' + object_type, args=[request.user.pk]))
+        return redirect(reverse(self.object.type.lower() + ':find-' + object_type, args=[request.user.username]))
 
 
 class DownloadContent(LoggedWithReadWriteHability, SingleContentDownloadViewMixin):
@@ -1759,7 +1759,7 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
             if user.pk not in all_authors_pk and user != self.request.user:
                 self.object.authors.add(user)
                 all_authors_pk.append(user.pk)
-                url_index = reverse('content:find-' + self.object.type.lower(), args=[user.pk])
+                url_index = reverse(self.object.type.lower() + ':find-' + self.object.type.lower(), args=[user.pk])
                 send_mp(
                     bot,
                     [user],
@@ -1856,7 +1856,7 @@ class RemoveAuthorFromContent(LoggedWithReadWriteHability, SingleContentFormView
             self.success_url = self.object.get_absolute_url()
         else:  # if current user is leaving the content's redaction, redirect him to a more suitable page
             messages.success(self.request, _('Vous avez bien quitté la rédaction de {}.').format(_type))
-            self.success_url = reverse('content:find-' + self.object.type.lower(), args=[self.request.user.pk])
+            self.success_url = reverse(self.object.type.lower() + ':find-' + self.object.type.lower(), args=[self.request.user.username])
         return super(RemoveAuthorFromContent, self).form_valid(form)
 
     def form_invalid(self, form):
@@ -1890,7 +1890,7 @@ class ContentOfAuthor(ZdSPagingListView):
     user = None
 
     def dispatch(self, request, *args, **kwargs):
-        self.user = get_object_or_404(User, pk=int(self.kwargs['pk']))
+        self.user = get_object_or_404(User, username=self.kwargs['username'])
         if self.user != self.request.user and 'filter' in self.request.GET:
             filter_ = self.request.GET.get('filter').lower()
             if filter_ in self.authorized_filters:
@@ -1958,3 +1958,27 @@ class ContentOfAuthor(ZdSPagingListView):
                 continue
             context['filters'].append({'key': filter_, 'text': authorized_filter[1], 'icon': authorized_filter[3]})
         return context
+
+
+class RedirectOldContentOfAuthor(RedirectView):
+    """
+    allows to redirect /tutoriels/beta/old_pk/slug to /contenus/beta/new_pk/slug
+    """
+    permanent = True
+    type = 'TUTORIAL'
+
+    def get_redirect_url(self, **kwargs):
+        user = User.objects.filter(pk=int(kwargs['pk'])).first()
+        route = None
+
+        if self.type == 'TUTORIAL':
+            route = 'tutorial:find-tutorial'
+        elif self.type == 'ARTICLE':
+            route = 'article:find-article'
+        elif self.type == 'OPINION':
+            route = 'opinion:find-opinion'
+
+        if not route:
+            raise Http404('Ce type de contenu est inconnu dans le système')
+
+        return reverse(route, args=[user.username])

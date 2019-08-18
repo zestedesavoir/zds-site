@@ -104,21 +104,21 @@ class MemberDetail(DetailView):
         if count_tutorials > 0:
             summary.append(
                 (
-                    reverse_lazy('content:find-tutorial', args=(profile.user.pk,)),
+                    reverse_lazy('tutorial:find-tutorial', args=(profile.user.username,)),
                     __('{} tutoriel{}').format(count_tutorials, pluralize_fr(count_tutorials))
                 )
             )
         if count_articles > 0:
             summary.append(
                 (
-                    reverse_lazy('content:find-article', args=(profile.user.pk,)),
+                    reverse_lazy('article:find-article', args=(profile.user.username,)),
                     __('{} article{}').format(count_articles, pluralize_fr(count_articles))
                 )
             )
         if count_opinions > 0:
             summary.append(
                 (
-                    reverse_lazy('content:find-opinion', args=(profile.user.pk,)),
+                    reverse_lazy('opinion:find-opinion', args=(profile.user.username,)),
                     __('{} billet{}').format(count_opinions, pluralize_fr(count_opinions))
                 )
             )
