@@ -452,7 +452,7 @@
                         <section>
                             <h2 itemprop="name">
                                 {% trans 'Dernières publications' %}
-                                <a href="{% url "content:find-all" usr.pk %}?filter=public" class="btn btn-grey">{% trans 'Voir tout' %}</a>
+                                <a href="{% url "content:find-all" usr.username %}?filter=public" class="btn btn-grey">{% trans 'Voir tout' %}</a>
                             </h2>
                             <div class="content-item-list">
                                 {% for public_content in articles_and_tutorials %}
