@@ -272,15 +272,15 @@ if  ! $(_in "-jdk-local" $@) && ( $(_in "+jdk-local" $@) || $(_in "+full" $@) );
         rm -rf jdk
     fi
 
-    baseURL="https://download.oracle.com/otn-pub/java/jdk/"
-    foldername="jdk-${ZDS_JDK_VERSION}"
-    folderPATH="${ZDS_JDK_VERSION}${ZDS_JDK_REV}/${ZDS_JDK_HASH}/${foldername}_linux-x64_bin.tar.gz"
+    baseURL="https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/"
+    foldername="jdk-${ZDS_JDK_VERSION}+${ZDS_JDK_REV}"
+    folderPATH="${foldername}/OpenJDK11U-jdk_x64_linux_hotspot_${ZDS_JDK_VERSION}_${ZDS_JDK_REV}.tar.gz"
 
     echo "GET ${baseURL}${folderPATH}"
-    wget_nv -O ${foldername}.tar.gz --header "Cookie: oraclelicense=accept-securebackup-cookie" ${baseURL}${folderPATH}
+    wget_nv -O ${foldername}.tar.gz ${baseURL}${folderPATH}
+    tar xf ${foldername}.tar.gz
 
     if [[ $? == 0 ]]; then
-        tar xf ${foldername}.tar.gz
         rm ${foldername}.tar.gz
         mv ${foldername} jdk
 
@@ -290,7 +290,7 @@ if  ! $(_in "-jdk-local" $@) && ( $(_in "+jdk-local" $@) || $(_in "+full" $@) );
         export JAVA_HOME="$(pwd)/jdk"
         export ES_JAVA_OPTS="-Xms512m -Xmx512m"
     else
-        print_error "!! Cannot get jdk ${JDK_VERSION}"
+        print_error "!! Cannot get or extract jdk ${ZDS_JDK_VERSION}"
         exit 1
     fi
     cd $ZDSSITE_DIR
