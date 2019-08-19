@@ -1964,7 +1964,8 @@ class ContentOfAuthor(ZdSPagingListView):
 
 class RedirectOldContentOfAuthor(RedirectView):
     """
-    allows to redirect /tutoriels/beta/old_pk/slug to /contenus/beta/new_pk/slug
+    allows to redirect the old lists of users' tutorials/articles/opinions (with
+    pks) to the new ones (with usernames and different root).
     """
     permanent = True
     type = 'TUTORIAL'
