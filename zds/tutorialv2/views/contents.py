@@ -1968,7 +1968,7 @@ class RedirectOldContentOfAuthor(RedirectView):
     pks) to the new ones (with usernames and different root).
     """
     permanent = True
-    type = 'TUTORIAL'
+    type = None
 
     def get_redirect_url(self, **kwargs):
         user = User.objects.filter(pk=int(kwargs['pk'])).first()
