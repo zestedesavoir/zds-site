@@ -23,9 +23,9 @@ from zds.tutorialv2.forms import AskValidationForm, RejectValidationForm, Accept
 from zds.tutorialv2.mixins import SingleContentFormViewMixin, ModalFormView, \
     SingleOnlineContentFormViewMixin, RequiresValidationViewMixin, DoesNotRequireValidationFormViewMixin
 from zds.tutorialv2.models.database import Validation, PublishableContent, PickListOperation
-from zds.tutorialv2.publication_utils import publish_content, unpublish_content, notify_update, FailureDuringPublication
+from zds.tutorialv2.publication_utils import publish_content, unpublish_content, notify_update, \
+    FailureDuringPublication, save_validation_state
 from zds.tutorialv2.utils import clone_repo
-from zds.utils.forums import send_post, lock_topic
 from zds.utils.models import SubCategory, get_hat_from_settings
 from zds.utils.mps import send_mp
 
@@ -450,40 +450,15 @@ class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
         except FailureDuringPublication as e:
             messages.error(self.request, e.message)
         else:
-            self.save_validation_state(db_object, form, is_update, published, validation, versioned)
+            save_validation_state(db_object, is_update, published, validation, versioned,
+                                  source=form.cleaned_data['source'], is_major=form.cleaned_data['is_major'],
+                                  user=self.request.user, request=self.request, comment=form.cleaned_data['text'])
             notify_update(db_object, is_update, form.cleaned_data['is_major'])
 
             messages.success(self.request, _('Le contenu a bien été validé.'))
             self.success_url = published.get_absolute_url_online()
 
         return super(AcceptValidation, self).form_valid(form)
-
-    def save_validation_state(self, db_object, form, is_update, published, validation, versioned):
-        # save in database
-        db_object.sha_public = validation.version
-        db_object.source = form.cleaned_data['source']
-        db_object.sha_validation = None
-        db_object.public_version = published
-        if form.cleaned_data['is_major'] or not is_update or db_object.pubdate is None:
-            db_object.pubdate = datetime.now()
-            db_object.is_obsolete = False
-
-        # close beta if is an article
-        if db_object.type == 'ARTICLE':
-            db_object.sha_beta = None
-            topic = db_object.beta_topic
-            if topic is not None and not topic.is_locked:
-                msg_post = render_to_string(
-                    'tutorialv2/messages/beta_desactivate.md', {'content': versioned}
-                )
-                send_post(self.request, topic, self.request.user, msg_post)
-                lock_topic(topic)
-        db_object.save()
-        # save validation object
-        validation.comment_validator = form.cleaned_data['text']
-        validation.status = 'ACCEPT'
-        validation.date_validation = datetime.now()
-        validation.save()
 
 
 class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleOnlineContentFormViewMixin):
