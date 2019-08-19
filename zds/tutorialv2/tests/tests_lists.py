@@ -60,23 +60,34 @@ class ContentTests(TutorialTestMixin, TestCase):
         article = PublishedContentFactory(author_list=[self.user_author], type='ARTICLE')
         article_unpublished = PublishableContentFactory(author_list=[self.user_author], type='ARTICLE')
         self.client.logout()
+
         resp = self.client.get(reverse('publication:list') + '?type=tutorial')
         self.assertContains(resp, tutorial.title)
         self.assertNotContains(resp, tutorial_unpublished.title)
+
         resp = self.client.get(reverse('publication:list') + '?type=article')
         self.assertContains(resp, article.title)
         self.assertNotContains(resp, article_unpublished.title)
+
         resp = self.client.get(reverse('tutorial:find-tutorial', args=[self.user_author.username]) + '?filter=public')
         self.assertContains(resp, tutorial.title)
         self.assertNotContains(resp, tutorial_unpublished.title)
-        resp = self.client.get(reverse('tutorial:find-tutorial', args=[self.user_author.username]) + '?filter=redaction')
+
+        resp = self.client.get(
+            reverse('tutorial:find-tutorial', args=[self.user_author.username]) + '?filter=redaction'
+        )
         self.assertEqual(resp.status_code, 403)
+
         resp = self.client.get(reverse('article:find-article', args=[self.user_author.username]) + '?filter=public')
         self.assertContains(resp, article.title)
         self.assertNotContains(resp, article_unpublished.title)
+
         resp = self.client.get(reverse('article:find-article', args=[self.user_author.username]) + '?filter=redaction')
         self.assertEqual(resp.status_code, 403)
-        resp = self.client.get(reverse('article:find-article', args=[self.user_author.username]) + '?filter=chuck-norris')
+
+        resp = self.client.get(
+            reverse('article:find-article', args=[self.user_author.username]) + '?filter=chuck-norris'
+        )
         self.assertEqual(resp.status_code, 404)
 
     def _create_and_publish_type_in_subcategory(self, content_type, subcategory):

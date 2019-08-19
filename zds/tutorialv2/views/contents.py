@@ -428,7 +428,7 @@ class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteV
 
             messages.success(self.request, _('Vous avez bien supprimé {}.').format(_type))
 
-        return redirect(reverse(self.object.type.lower() + ':find-' + object_type, args=[request.user.username]))
+        return redirect(reverse(object_type + ':find-' + object_type, args=[request.user.username]))
 
 
 class DownloadContent(LoggedWithReadWriteHability, SingleContentDownloadViewMixin):
@@ -1856,7 +1856,9 @@ class RemoveAuthorFromContent(LoggedWithReadWriteHability, SingleContentFormView
             self.success_url = self.object.get_absolute_url()
         else:  # if current user is leaving the content's redaction, redirect him to a more suitable page
             messages.success(self.request, _('Vous avez bien quitté la rédaction de {}.').format(_type))
-            self.success_url = reverse(self.object.type.lower() + ':find-' + self.object.type.lower(), args=[self.request.user.username])
+            self.success_url = reverse(
+                self.object.type.lower() + ':find-' + self.object.type.lower(), args=[self.request.user.username]
+            )
         return super(RemoveAuthorFromContent, self).form_valid(form)
 
     def form_invalid(self, form):
