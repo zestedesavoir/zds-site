@@ -433,11 +433,9 @@ if  ! $(_in "-back" $@) && ( $(_in "+back" $@) || $(_in "+base" $@) || $(_in "+f
     zds_fold_start "back" "* [+back] install back dependencies & migration"
 
     if $(_in "+prod" $@); then
-        make install-back-with-prod
-        exVal=$?
+        make install-back-with-prod; exVal=$?
     else
-        make install-back
-        exVal=$?
+        make install-back; exVal=$?
     fi
 
     if [[ $exVal != 0 ]]; then
@@ -445,11 +443,13 @@ if  ! $(_in "-back" $@) && ( $(_in "+back" $@) || $(_in "+base" $@) || $(_in "+f
         exit 1
     fi
 
-    make migrate-db; exVal=$? # migration are required for the instance to run properly anyway
+    if ! $(_in "-back-migrate-db" $@); then
+        make migrate-db; exVal=$? # migration are required for the instance to run properly anyway
 
-    if [[ $exVal != 0 ]]; then
-        print_error "!! Cannot migrate database after the back installation (use \`-back\` to skip)"
-        exit 1
+        if [[ $exVal != 0 ]]; then
+            print_error "!! Cannot migrate database after the back installation (use \`-back\` to skip)"
+            exit 1
+        fi
     fi
 
     zds_fold_end
