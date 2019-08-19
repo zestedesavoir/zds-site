@@ -1,0 +1,23 @@
+# ~/.circleci/config.yml
+version: 2
+jobs:
+  job1:
+    docker:
+      - image: circleci/python:3.6.8
+    parallelism: 4
+  steps:
+    - run:
+      name: Dep packages
+      command: apt-get install mysql-server-5.6 mysql-client-core-5.6 mysql-client-5.6 libmysqlclient-dev language-pack-fr
+    - run:
+      name: Setup Environment Variables
+      command: echo "export ZDS_TEST_JOB=zds.tutorialv2" >> $BASH_ENV
+    - run:
+      name: before_install
+      command: source ./scripts/travis_header.sh # Need to be sourced
+    - install:
+      name: install
+      command: ./scripts/install_zds.sh --answer-yes --detect-os-version --travis-output $zds_install_argument
+    - run:
+      name: script
+      command: source ./scripts/travis_run.sh
