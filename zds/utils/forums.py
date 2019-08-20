@@ -1,4 +1,5 @@
 import json
+import logging
 from datetime import datetime
 
 from django.contrib import messages
@@ -105,15 +106,18 @@ def send_post(request, topic, author, text,):
         post.position = topic.last_message.position + 1
     else:
         post.position = 1
-
-    post.update_content(
-        text,
-        on_error=lambda m: messages.error(
-            request,
-            _('Erreur du serveur Markdown:\n{}').format('\n- '.join(m))))
-
-    post.ip_address = get_client_ip(request)
-    post.hat = get_hat_from_request(request)
+    if request:
+        post.update_content(
+            text,
+            on_error=lambda m: messages.error(
+                request,
+                _('Erreur du serveur Markdown:\n{}').format('\n- '.join(m))))
+        post.ip_address = get_client_ip(request)
+        post.hat = get_hat_from_request(request)
+    else:
+        post.update_content(
+            text,
+            on_error=lambda m: logging.getLogger(__name__).error('--'.join(m)))
     post.save()
 
     topic.last_message = post
