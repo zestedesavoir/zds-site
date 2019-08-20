@@ -41,7 +41,7 @@ class Command(BaseCommand):
             self.stdout.write('Publication failed')
             logging.getLogger(__name__).exception('Failure during publication', exc_info=e)
         else:
-            save_validation_state(content, is_update, published, content.current_validaton, versioned,
+            save_validation_state(content, is_update, published, content.current_validation, versioned,
                                   options.get('source', ''), is_major, user=content.current_validation.validator,
                                   comment=_("Géré depuis la commande d'administration"))
             notify_update(content, is_update, is_major)
