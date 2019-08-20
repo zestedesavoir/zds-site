@@ -32,7 +32,7 @@ class Command(BaseCommand):
         return content
 
     def handle(self, *args, content: PublishableContent, is_major=False, **options):
-        content.current_validation =  Validation.objects.filter(content=content, status='PENDING_V').first()
+        content.current_validation = Validation.objects.filter(content=content, status='PENDING_V').first()
         versioned = content.load_version(sha=content.current_validation.version)
         is_update = content.sha_public
         try:
