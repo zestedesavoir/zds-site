@@ -1,10 +1,335 @@
-.avatar {
-    height: 60px;
-    width: 60px;
-    background-color: #FFF;
+body.userprofilepage {
+    .flexpage-title-tool .actions button.is-following,
+    .flexpage-title-tool .actions button.is-following[disabled] {
+        background-color: darken($color-primary, 6%) !important;
+        color: #FFF;
+
+        &:not([disabled]):hover {
+            background-color: lighten($color-primary, 20%);
+        }
+    }
+
+    .presence-statistics-under-banner {
+        display: none;
+
+        ul {
+            padding: 0;
+            margin: 0;
+
+            li {
+                display: block;
+                text-align: left;
+            }
+        }
+    }
+
+    @media only screen and #{$media-mobile} {
+        .flexpage-wrapper {
+            padding-top: 0;
+        }
+
+        .presence-statistics-in-banner {
+            display: none;
+        }
+        .presence-statistics-under-banner {
+            display: block;
+        }
+    }
+
+    .badge-sanction {
+        display: inline-block;
+
+        position: relative;
+        top: -6px;
+
+        width: auto;
+
+        margin-left: 2rem;
+        padding: .4rem 1.6rem;
+
+        font-size: 2rem;
+        text-align: center;
+        text-transform: none;
+
+        background-color: darken($color-primary, 12%);
+    }
+
+    .flexpage-title-tool a.badge-sanction {
+        display: inline-block;
+        color: #EEE;
+    }
+
+    .user-bio-and-activity {
+        display: flex;
+        flex-direction: row;
+
+        margin: 2.2rem -1.2rem 2.2rem 0;
+
+        @media only screen and #{$media-mobile} {
+            flex-direction: column;
+            margin-top: 1.8rem;
+        }
+
+        &.is-vertical {
+            flex-direction: column;
+            margin-top: 1.8rem;
+
+            & > .activity {
+                padding-right: 1.2rem;
+            }
+        }
+
+        & > .bio {
+            flex: 12;
+
+            padding-right: 1.2rem;
+
+            .profile-card {
+                padding: 1rem;
+
+                border: 1px solid #D2D5D6;
+                border-right-width: 2px;
+                border-bottom-width: 3px;
+
+                background-color: #FDFDFD;
+
+                &:not(:last-child) {
+                    margin-bottom: 20px;
+                }
+
+                h3 {
+                    margin: 0 .4rem 0 0;
+                    font-size: 2rem;
+                    font-weight: 300;
+
+                    @media only screen and #{$media-mobile} {
+                        margin-bottom: 1rem;
+                    }
+
+                    .help-question-mark {
+                        margin-left: .6rem;
+                    }
+                }
+            }
+
+            .hats-container {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+
+                @media only screen and #{$media-mobile} {
+                    flex-direction: column;
+                    align-items: baseline;
+                }
+
+                h3 {
+                    flex: 2;
+
+                    a.title-link {
+                        cursor: help;
+
+                        &, &:hover {
+                            text-decoration: none;
+                            color: #222;
+                        }
+                    }
+                }
+
+                .hatlist {
+                    justify-content: flex-start;
+
+                    li {
+                        margin-left: 0;
+                        margin-right: 10px;
+
+                        @media only screen and #{$media-mobile} {
+                            margin-right: 4px;
+                            margin-bottom: 4px;
+                        }
+                    }
+                }
+            }
+
+            // Partial duplicate of _topic_message.scss -> .message
+            .bio-container {
+                min-height: 75px;
+
+                padding: 0;
+
+                border: 1px solid #D2D5D6;
+                border-right-width: 2px;
+                border-bottom-width: 3px;
+
+                background-color: #FDFDFD;
+
+                .message-content {
+                    padding: 1rem;
+                    margin: 0;
+
+                    & > :first-child {
+                        margin-top: 0;
+                    }
+
+                    & > :last-child {
+                        margin-bottom: 0;
+                    }
+
+                    .no-bio {
+                        margin: 6rem 0;
+                        text-align: center;
+
+                        font-size: 1.1em;
+                        color: #888;
+
+                        a:not(:hover) {
+                            color: desaturate(lighten($color-primary, 20%), 16%);
+                            text-decoration: none;
+                        }
+                    }
+                }
+
+                &.full-biography {
+                    .message-content {
+                        max-height: unset;
+                    }
+                }
+
+                .biography-overflow {
+                    display: none;
+                }
+
+                .message-bottom {
+                    border-top: solid 1px #D2D5D6;
+
+                    .signature {
+                        padding: 3px 0 3px 10px;
+                        margin: 0 10px 0 0;
+                        font-size: 12px;
+                        font-size: 1.2rem;
+                        color: #999;
+
+                        // FIXME duplicated from _topic_message.scss
+                        p {
+                            margin: 0;
+                            padding: 0;
+                        }
+
+                        a {
+                            color: #999;
+                            transition: color $transition-duration ease, text-decoration $transition-duration ease;
+
+                            &:hover,
+                            &:focus {
+                                text-decoration: none;
+                                color: #555;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        & > .activity {
+            flex: 4;
+            padding-right: 3.2rem;
+
+            @media only screen and #{$media-mobile} {
+                margin-top: 20px;
+
+                .head-profile-links {
+                    display: none;
+                }
+            }
+        }
+    }
+
+    .profile-administration {
+        margin-top: 4rem;
+    }
+
+    .report-profile {
+        margin: 4rem 0;
+        text-align: center;
+    }
 }
 
-.badge {
+// Too-long-biographies styles, only applicable with JS (else, the whole
+// biography is always shown).
+html.js body.userprofilepage .user-bio-and-activity .bio-container {
+    .message-content {
+        max-height: 64rem;
+        overflow: hidden;
+
+        @media only screen and #{$media-mobile} {
+            max-height: 16rem;
+        }
+    }
+
+    &.too-long-biography {
+        .biography-overflow {
+            $biography-overflow-link-height: 16rem;
+
+            display: block;
+
+            position: relative;
+            bottom: $biography-overflow-link-height;
+
+            margin-bottom: -$biography-overflow-link-height;
+            height: $biography-overflow-link-height;
+
+            cursor: pointer;
+
+            background: linear-gradient(
+                to bottom,
+                rgba(#FDFDFD, 0) 0%,
+                rgba(#FDFDFD, 0.4) 20%,
+                rgba(#FDFDFD, 0.6) 40%,
+                rgba(#FDFDFD, 0.9) 80%,
+                rgba(#FDFDFD, 1) 100%
+            );
+
+            p {
+                padding-top: $biography-overflow-link-height * (3/4);
+                text-align: center;
+
+                font-size: 1.2em;
+                letter-spacing: .06em;
+            }
+        }
+
+        &.full-biography {
+            .message-content {
+                // For even spacing alongside the “reduce biography”
+                // label at the bottom of the content.
+                padding-bottom: 0;
+
+                // Same
+                .footnotes {
+                    margin-bottom: -1em;
+                }
+            }
+
+            .biography-overflow {
+                display: flex;
+                align-items: center;
+
+                position: initial;
+                height: 8rem;
+
+                margin-bottom: 0;
+
+                background: transparent;
+
+                p {
+                    flex: 2;
+                    padding-top: 0;
+                }
+            }
+        }
+    }
+}
+
+.badge-sanction {
     display: block;
     width: 60px;
     height: 25px;
@@ -13,7 +338,7 @@
     text-transform: uppercase;
     color: #EEE;
     text-shadow: rgba(0, 0, 0, .25) 0 0 3px;
-    background: #777;
+    background-color: $color-badge-sanction;
 }
 
 .member-card {
@@ -21,6 +346,7 @@
         float: left;
         width: 60px;
     }
+
     .member-infos {
         float: left;
         list-style: none;

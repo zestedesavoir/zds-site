@@ -20,6 +20,7 @@ from zds.tutorialv2.epub_utils import build_ebook
 from zds.tutorialv2.models.database import ContentReaction, PublishedContent, PublicationEvent
 from zds.tutorialv2.publish_container import publish_container
 from zds.tutorialv2.signals import content_unpublished
+from zds.utils.forums import send_post, lock_topic
 from zds.utils.templatetags.emarkdown import render_markdown, MD_PARSING_ERROR
 from zds.utils.templatetags.smileys_def import SMILEYS_BASE_PATH, LICENSES_BASE_PATH
 
@@ -611,3 +612,57 @@ def unpublish_content(db_object, moderator=None):
         return True
 
     return False
+
+
+def close_article_beta(db_object, versioned, user, request=None):
+    """
+    Close forum topic of an article if the artcle was in beta.
+    :param db_object: the article
+    :type db_object: zds.tutorialv2.models.database.PublishableContent
+    :param versioned: the public version of article, used to pupulate closing post
+    :type versioned: zds.tutorialv2.models.versioned.VersionedContent
+    :param user: the current user
+    :param request: the current request
+    """
+    if db_object.type == 'ARTICLE':
+        db_object.sha_beta = None
+        topic = db_object.beta_topic
+        if topic is not None and not topic.is_locked:
+            msg_post = render_to_string(
+                'tutorialv2/messages/beta_desactivate.md', {'content': versioned}
+            )
+            send_post(request, topic, user, msg_post)
+            lock_topic(topic)
+
+
+def save_validation_state(db_object, is_update, published: PublishedContent, validation, versioned, source='',
+                          is_major=False, user=None, request=None, comment=''):
+    """
+    Save validation after publication, changes its status to ACCEPT
+    :param db_object:  the content
+    :type db_object: zds.tutorialv2.models.database.PublishableContent
+    :param is_update: marks if the publication is an update or a new/major publication
+    :param published: the PublishedContent instance
+    :param validation: the related validation
+    :param versioned:  the VersionedContent related to the public sha
+    :param source: the optional cannonical link
+    :param is_major: marks a major publication (first one, or new parts for example)
+    :param user: validating user
+    :param request: current request to get hats, and send error messages if needed
+    """
+    db_object.sha_public = validation.version
+    db_object.source = source
+    db_object.sha_validation = None
+    db_object.public_version = published
+    if is_major or not is_update or db_object.pubdate is None:
+        db_object.pubdate = datetime.now()
+        db_object.is_obsolete = False
+
+    # close beta if is an article
+    close_article_beta(db_object, versioned, user=user, request=request)
+    db_object.save()
+    # save validation object
+    validation.comment_validator = comment
+    validation.status = 'ACCEPT'
+    validation.date_validation = datetime.now()
+    validation.save()

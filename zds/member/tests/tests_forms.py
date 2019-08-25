@@ -227,6 +227,46 @@ class MiniProfileFormTest(TestCase):
         form = MiniProfileForm(data=data)
         self.assertTrue(form.is_valid())
 
+    def test_site_url_without_protocol_miniprofile_form(self):
+        data = {
+            'biography': '',
+            'site': 'www.airbus.com',
+            'avatar_url': '',
+            'sign': ''
+        }
+        form = MiniProfileForm(data=data)
+        self.assertTrue(form.is_valid())
+
+    def test_site_url_with_bad_protocol_miniprofile_form(self):
+        data = {
+            'biography': '',
+            'site': 'avion://www.airbus.com',
+            'avatar_url': '',
+            'sign': ''
+        }
+        form = MiniProfileForm(data=data)
+        self.assertFalse(form.is_valid())
+
+    def test_site_url_with_http_protocol_miniprofile_form(self):
+        data = {
+            'biography': '',
+            'site': 'https://www.airbus.com',
+            'avatar_url': '',
+            'sign': ''
+        }
+        form = MiniProfileForm(data=data)
+        self.assertTrue(form.is_valid())
+
+    def test_site_url_with_https_protocol_miniprofile_form(self):
+        data = {
+            'biography': '',
+            'site': 'https://www.airbus.com',
+            'avatar_url': '',
+            'sign': ''
+        }
+        form = MiniProfileForm(data=data)
+        self.assertTrue(form.is_valid())
+
     def test_too_long_site_url_miniprofile_form(self):
 
         # url is one char too long

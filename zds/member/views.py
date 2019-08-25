@@ -21,6 +21,7 @@ from django.utils.decorators import method_decorator
 from django.utils.http import urlunquote
 from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext as __
 from django.views.decorators.http import require_POST
 from django.views.generic import DetailView, UpdateView, CreateView, FormView, View
 
@@ -45,6 +46,7 @@ from zds.utils.models import Comment, CommentVote, Alert, CommentEdit, Hat, HatR
     get_hat_to_add
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView
+from zds.utils.templatetags.pluralize_fr import pluralize_fr
 from zds.utils.tokens import generate_token
 import logging
 
@@ -73,6 +75,77 @@ class MemberDetail(DetailView):
         # sent through emarkdown parser).
         return get_object_or_404(User, username=urlunquote(self.kwargs['user_name']))
 
+    def get_summaries(self, profile):
+        """
+        Returns a summary of this profile's activity, as a list of list of tuples.
+        Each first-level list item is an activity category (e.g. contents, forums, etc.)
+        Each second-level list item is a stat in this activity category.
+        Each tuple is (link url, displayed text), where the link url can be None if it's not a link.
+
+        :param profile: The profile.
+        :return: The summary data.
+        """
+        summaries = []
+
+        if self.request.user.has_perm('member.change_post'):
+            count_post = profile.get_post_count_as_staff()
+        else:
+            count_post = profile.get_post_count()
+
+        count_topic = profile.get_topic_count()
+        count_tutorials = profile.get_public_tutos().count()
+        count_articles = profile.get_public_articles().count()
+        count_opinions = profile.get_public_opinions().count()
+
+        summary = []
+        if count_tutorials + count_articles + count_opinions == 0:
+            summary.append((None, __('Aucun contenu publié')))
+
+        if count_tutorials > 0:
+            summary.append(
+                (
+                    reverse_lazy('tutorial:find-tutorial', args=(profile.user.username,)),
+                    __('{} tutoriel{}').format(count_tutorials, pluralize_fr(count_tutorials))
+                )
+            )
+        if count_articles > 0:
+            summary.append(
+                (
+                    reverse_lazy('article:find-article', args=(profile.user.username,)),
+                    __('{} article{}').format(count_articles, pluralize_fr(count_articles))
+                )
+            )
+        if count_opinions > 0:
+            summary.append(
+                (
+                    reverse_lazy('opinion:find-opinion', args=(profile.user.username,)),
+                    __('{} billet{}').format(count_opinions, pluralize_fr(count_opinions))
+                )
+            )
+        summaries.append(summary)
+
+        summary = []
+        if count_post > 0:
+            summary.append(
+                (
+                    reverse_lazy('post-find', args=(profile.user.pk,)),
+                    __('{} message{}').format(count_post, pluralize_fr(count_post))
+                )
+            )
+        else:
+            summary.append((None, __('Aucun message')))
+        if count_topic > 0:
+            summary.append(
+                (
+                    reverse_lazy('topic-find', args=(profile.user.pk,)),
+                    __('{} sujet{}').format(count_topic, pluralize_fr(count_topic))
+                )
+            )
+
+        summaries.append(summary)
+
+        return summaries
+
     def get_context_data(self, **kwargs):
         context = super(MemberDetail, self).get_context_data(**kwargs)
         usr = context['usr']
@@ -86,6 +159,7 @@ class MemberDetail(DetailView):
         context['articles'] = PublishedContent.objects.last_articles_of_a_member_loaded(usr)
         context['opinions'] = PublishedContent.objects.last_opinions_of_a_member_loaded(usr)
         context['tutorials'] = PublishedContent.objects.last_tutorials_of_a_member_loaded(usr)
+        context['articles_and_tutorials'] = PublishedContent.objects.last_tutorials_and_articles_of_a_member_loaded(usr)
         context['topic_read'] = TopicRead.objects.list_read_topic_pk(self.request.user, context['topics'])
         context['subscriber_count'] = NewPublicationSubscription.objects.get_subscriptions(self.object).count()
         if self.request.user.has_perm('member.change_profile'):
@@ -96,7 +170,10 @@ class MemberDetail(DetailView):
             actions.reverse()
             context['actions'] = actions
             context['karmaform'] = KarmaForm(profile)
-            context['alerts'] = profile.alerts_on_this_profile.all()
+            context['alerts'] = profile.alerts_on_this_profile.all().order_by('-pubdate')
+            context['has_unsolved_alerts'] = profile.alerts_on_this_profile.filter(solved=False).exists()
+
+        context['summaries'] = self.get_summaries(profile)
         return context
 
 

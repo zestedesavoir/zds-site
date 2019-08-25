@@ -44,11 +44,11 @@
 {% block breadcrumb_base %}
     {% if user in content.authors.all %}
         {% if content.type == 'TUTORIAL' %}
-            <li><a href="{% url 'content:find-tutorial' user.pk %}">{% trans "Tutoriels de" %} {{ user.username }}</a></li>
+            <li><a href="{% url 'tutorial:find-tutorial' user.username %}">{% trans "Tutoriels de" %} {{ user.username }}</a></li>
         {% elif content.type == 'ARTICLE' %}
-            <li><a href="{% url 'content:find-article' user.pk %}">{% trans "Articles de" %} {{ user.username }}</a></li>
+            <li><a href="{% url 'article:find-article' user.username %}">{% trans "Articles de" %} {{ user.username }}</a></li>
         {% elif content.type == 'OPINION' %}
-            <li><a href="{% url 'content:find-opinion' user.pk %}">{% trans "Tribune de" %} {{ user.username }}</a></li>
+            <li><a href="{% url 'opinion:find-opinion' user.username %}">{% trans "Tribune de" %} {{ user.username }}</a></li>
         {% endif %}
     {% elif content %}
         <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">

@@ -324,7 +324,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
             publishable.image = img
 
         publishable.save(force_slug_update=title_is_changed)
-
+        logger.debug('content %s updated, slug is %s', publishable.pk, publishable.slug)
         # now, update the versioned information
         versioned.description = form.cleaned_data['description']
         versioned.licence = form.cleaned_data['licence']
@@ -334,7 +334,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
                                                   form.cleaned_data['introduction'],
                                                   form.cleaned_data['conclusion'],
                                                   form.cleaned_data['msg_commit'])
-
+        logger.debug('slug consistency after repo update repo=%s db=%s', versioned.slug, publishable.slug)
         # update relationships :
         publishable.sha_draft = sha
 
@@ -354,7 +354,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
         publishable.save(force_slug_update=False)
 
         self.success_url = reverse('content:view', args=[publishable.pk, publishable.slug])
-        return super(EditContent, self).form_valid(form)
+        return super().form_valid(form)
 
 
 class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteView):
@@ -428,7 +428,7 @@ class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteV
 
             messages.success(self.request, _('Vous avez bien supprimé {}.').format(_type))
 
-        return redirect(reverse('content:find-' + object_type, args=[request.user.pk]))
+        return redirect(reverse(object_type + ':find-' + object_type, args=[request.user.username]))
 
 
 class DownloadContent(LoggedWithReadWriteHability, SingleContentDownloadViewMixin):
@@ -809,7 +809,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                 # of course, need to update sha
                 self.object.sha_draft = sha
                 self.object.update_date = datetime.now()
-                self.object.save()
+                self.object.save(force_slug_update=False)
 
                 self.success_url = reverse('content:view', args=[versioned.pk, versioned.slug])
 
@@ -869,7 +869,7 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
 
                 # Attach user to gallery
                 self.object.gallery = gal
-                self.object.save()
+                self.object.save(force_slug_update=False)
 
                 # Add subcategories on tutorial
                 for subcat in form.cleaned_data['subcategory']:
@@ -877,7 +877,7 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
 
                 # We need to save the tutorial before changing its author list since it's a many-to-many relationship
                 self.object.authors.add(self.request.user)
-                self.object.save()
+                self.object.save(force_slug_update=False)
                 self.object.ensure_author_gallery()
                 # ok, now we can import
                 introduction = ''
@@ -929,7 +929,7 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
                 # of course, need to update sha
                 self.object.sha_draft = sha
                 self.object.update_date = datetime.now()
-                self.object.save()
+                self.object.save(force_slug_update=False)
 
                 self.success_url = reverse('content:view', args=[versioned.pk, versioned.slug])
 
@@ -968,7 +968,7 @@ class CreateContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin, F
         # then save:
         self.object.sha_draft = sha
         self.object.update_date = datetime.now()
-        self.object.save()
+        self.object.save(force_slug_update=False)
 
         self.success_url = parent.children[-1].get_absolute_url()
 
@@ -1114,7 +1114,7 @@ class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin, For
         # then save
         self.object.sha_draft = sha
         self.object.update_date = datetime.now()
-        self.object.save()
+        self.object.save(force_slug_update=False)
 
         self.success_url = container.get_absolute_url()
 
@@ -1152,7 +1152,7 @@ class CreateExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin, For
         # then save
         self.object.sha_draft = sha
         self.object.update_date = datetime.now()
-        self.object.save()
+        self.object.save(force_slug_update=False)
 
         self.success_url = parent.children[-1].get_absolute_url()
 
@@ -1759,7 +1759,7 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
             if user.pk not in all_authors_pk and user != self.request.user:
                 self.object.authors.add(user)
                 all_authors_pk.append(user.pk)
-                url_index = reverse('content:find-' + self.object.type.lower(), args=[user.pk])
+                url_index = reverse(self.object.type.lower() + ':find-' + self.object.type.lower(), args=[user.pk])
                 send_mp(
                     bot,
                     [user],
@@ -1777,7 +1777,7 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
                     hat=get_hat_from_settings('validation'),
                 )
                 UserGallery(gallery=self.object.gallery, user=user, mode=GALLERY_WRITE).save()
-        self.object.save()
+        self.object.save(force_slug_update=False)
         self.success_url = self.object.get_absolute_url()
 
         return super(AddAuthorToContent, self).form_valid(form)
@@ -1856,7 +1856,9 @@ class RemoveAuthorFromContent(LoggedWithReadWriteHability, SingleContentFormView
             self.success_url = self.object.get_absolute_url()
         else:  # if current user is leaving the content's redaction, redirect him to a more suitable page
             messages.success(self.request, _('Vous avez bien quitté la rédaction de {}.').format(_type))
-            self.success_url = reverse('content:find-' + self.object.type.lower(), args=[self.request.user.pk])
+            self.success_url = reverse(
+                self.object.type.lower() + ':find-' + self.object.type.lower(), args=[self.request.user.username]
+            )
         return super(RemoveAuthorFromContent, self).form_valid(form)
 
     def form_invalid(self, form):
@@ -1890,7 +1892,7 @@ class ContentOfAuthor(ZdSPagingListView):
     user = None
 
     def dispatch(self, request, *args, **kwargs):
-        self.user = get_object_or_404(User, pk=int(self.kwargs['pk']))
+        self.user = get_object_or_404(User, username=self.kwargs['username'])
         if self.user != self.request.user and 'filter' in self.request.GET:
             filter_ = self.request.GET.get('filter').lower()
             if filter_ in self.authorized_filters:
@@ -1901,7 +1903,9 @@ class ContentOfAuthor(ZdSPagingListView):
         return super(ContentOfAuthor, self).dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
-        if self.type in list(TYPE_CHOICES_DICT.keys()):
+        if self.type == 'ALL':
+            queryset = PublishableContent.objects.filter(authors__pk__in=[self.user.pk])
+        elif self.type in list(TYPE_CHOICES_DICT.keys()):
             queryset = PublishableContent.objects.filter(authors__pk__in=[self.user.pk], type=self.type)
         else:
             raise Http404('Ce type de contenu est inconnu dans le système.')
@@ -1929,6 +1933,7 @@ class ContentOfAuthor(ZdSPagingListView):
         elif not self.sort:
             self.sort = 'abc'
         queryset = self.sorts[self.sort.lower()][0](queryset)
+
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -1938,6 +1943,13 @@ class ContentOfAuthor(ZdSPagingListView):
         context['sort'] = self.sort.lower()
         context['filter'] = self.filter.lower()
         context['subscriber_count'] = NewPublicationSubscription.objects.get_subscriptions(self.user).count()
+        context['type'] = self.type.lower()
+
+        if self.type == 'ALL':
+            contents = list(context['contents'])
+            context['tutorials'] = [content for content in contents if content.type == 'TUTORIAL']
+            context['articles'] = [content for content in contents if content.type == 'ARTICLE']
+            context['opinions'] = [content for content in contents if content.type == 'OPINION']
 
         context['usr'] = self.user
         for sort in list(self.sorts.keys()):
@@ -1948,3 +1960,28 @@ class ContentOfAuthor(ZdSPagingListView):
                 continue
             context['filters'].append({'key': filter_, 'text': authorized_filter[1], 'icon': authorized_filter[3]})
         return context
+
+
+class RedirectOldContentOfAuthor(RedirectView):
+    """
+    allows to redirect the old lists of users' tutorials/articles/opinions (with
+    pks) to the new ones (with usernames and different root).
+    """
+    permanent = True
+    type = None
+
+    def get_redirect_url(self, **kwargs):
+        user = User.objects.filter(pk=int(kwargs['pk'])).first()
+        route = None
+
+        if self.type == 'TUTORIAL':
+            route = 'tutorial:find-tutorial'
+        elif self.type == 'ARTICLE':
+            route = 'article:find-article'
+        elif self.type == 'OPINION':
+            route = 'opinion:find-opinion'
+
+        if not route:
+            raise Http404('Ce type de contenu est inconnu dans le système')
+
+        return reverse(route, args=[user.username])

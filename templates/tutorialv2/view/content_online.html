@@ -175,7 +175,6 @@
     {% if content.has_extracts %}
         {{ content.get_content_online|safe }}
     {% else %}
-
         {% if content.introduction %}
             {{ content.get_introduction_online|default:""|safe }}
         {% endif %}
@@ -235,6 +234,18 @@
         {% include 'notification/follow_by_email_template.html' with link=link_follow is_followed=content_is_followed data_onclick=data_onclick button_text=button_text %}
     {% endwith %}
     </li>
+    <li>
+        {% url 'content:request-featured' object.pk as link_request %}
+        {% if is_requesting %}
+            {% trans "Proposer la mise en une" as data_onclick %}
+            {% trans "Ne plus proposer la mise en une" as button_text %}
+        {% else %}
+            {% trans "Proposer la mise en une" as button_text %}
+            {% trans "Ne plus proposer la mise en une" as data_onclick %}
+        {% endif %}
+        {% include 'featured/includes/featured_request.part.html' with link=link_request is_requesting=is_requesting data_onclick=data_onclick button_text=button_text featured_request_count=featured_request_count %}
+
+    </li>
     {% if not user in content.authors.all %}
     <li>
         <a href="{{ pm_link }}" class="ico-after cite blue">
@@ -250,7 +261,7 @@
     {% if public_object.is_opinion %}
         {% for author in public_object.authors.all %}
             <li>
-                <a href="{% url 'content:find-opinion' author.pk %}" class="ico-after offline blue">
+                <a href="{% url 'opinion:find-opinion' author.username %}" class="ico-after offline blue">
                     {% blocktrans %}
                         Voir la tribune de {{ author }}
                     {% endblocktrans %}

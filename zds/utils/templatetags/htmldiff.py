@@ -22,10 +22,12 @@ def htmldiff(string1, string2):
     except AttributeError:
         txt2 = string2.splitlines()
 
-    diff = HtmlDiff(tabsize=4, wrapcolumn=80)
+    diff = HtmlDiff(tabsize=4)
     result = diff.make_table(txt1, txt2, context=True, numlines=2)
 
     if 'No Differences Found' in result:
         return format_html('<p>{}</p>', _('Pas de changements.'))
     else:
-        return format_html('<div class="diff_delta">{}</div>', mark_safe(result))
+        # the diff.make_table() replaces all spaces by non-breakable ones, which prevent line breaks:
+        r = mark_safe(result.replace('<td nowrap="nowrap">', '<td>').replace('&nbsp;', ' '))
+        return format_html('<div class="diff_delta">{}</div>', r)

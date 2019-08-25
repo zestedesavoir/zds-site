@@ -72,6 +72,21 @@ Ajoutez une icône sur un bouton comme sur n'importe quel autre élément :
 
 Le style général du site se veut épuré, on évitera les icônes sur les boutons de soumission de formulaire. On les utilisera pour illustrer les boutons d'action : déplacer, supprimer, renommer, éditer, etc.
 
+Icône d'aide
+-------------
+
+Il existe une classe, ``help-question-mark``, à appliquer sur un lien, affichant
+un petit cercle coloré autour du texte du lien. Avec ``?`` comme texte de lien,
+cela permet d'afficher un petit point d'interrogation cerclé, idéal pour une
+petite icône ouvrant une aide.
+
+N'oubliez pas d'ajouter un attribut ``title`` (ou si l'infobulle gêne,
+``aria-label``), pour l'accessibilité du lien.
+
+.. sourcecode:: html
+
+  <a href="#" class="help-question-mark" title="Titre du lien">?</a>
+
 
 Formulaires
 ===========

@@ -384,6 +384,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
             data = get_blob(repo.commit(sha).tree, 'manifest.json')
             try:
                 json = json_handler.loads(data)
+                logger.debug('loaded json')
             except ValueError:
                 raise BadManifestError(
                     _('Une erreur est survenue lors de la lecture du manifest.json, est-ce du JSON ?'))
@@ -558,14 +559,14 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         :param tag_collection: A collection of tags.
         :type tag_collection: list
         """
-        for tag in tag_collection:
+        for tag in filter(None, tag_collection):
             try:
                 current_tag, created = Tag.objects.get_or_create(title=tag.lower().strip())
                 self.tags.add(current_tag)
             except ValueError as e:
                 logger.warning(e)
-
-        self.save()
+        logger.debug('Initial number of tags=%s, after filtering=%s', len(tag_collection), len(self.tags.all()))
+        self.save(force_slug_update=False)
 
     def requires_validation(self):
         """
@@ -626,6 +627,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
 
     # sizes contain a python dict (as a string in database) with all information about file sizes
     sizes = models.CharField('Tailles des fichiers téléchargeables', max_length=512, default='{}')
+    _description = None
 
     @staticmethod
     def get_slug_from_file_path(file_path):
@@ -641,10 +643,14 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
             return self.load_public_version().title
 
     def description(self):
-        if self.versioned_model:
-            return self.versioned_model.description
-        else:
-            return self.load_public_version().description
+        if self._description:
+            return self._description
+        if not self.versioned_model:
+            self.load_public_version()
+        self._description = self.versioned_model.description or self.versioned_model.get_introduction()
+        if self._description:
+            self._description = self._description[:settings.ZDS_APP['forum']['description_size']]
+        return self._description
 
     def get_prod_path(self, relative=False):
         if not relative:
