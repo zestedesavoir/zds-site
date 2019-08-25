@@ -111,6 +111,13 @@ local.properties
 build/
 
 #############
+## SublimeText
+#############
+
+*.sublime-project
+*.sublime-workspace
+
+#############
 ## OS detritus
 #############
 
