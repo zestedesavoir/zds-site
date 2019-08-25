@@ -1,4 +1,7 @@
 import datetime
+import logging
+
+from django.utils.translation import ugettext_lazy as _
 from django.core.cache import cache
 from django.db.models.signals import post_save, post_delete
 from dry_rest_permissions.generics import DRYPermissions
@@ -108,7 +111,11 @@ class MemberListAPI(ListCreateAPIView, ProfileCreate, TokenGenerator):
         serializer.is_valid(raise_exception=True)
         profile = serializer.save()
         token = self.generate_token(profile.user)
-        self.send_email(token, profile.user)
+        try:
+            self.send_email(token, profile.user)
+        except Exception as e:
+            logging.getLogger(__name__).warning('Mail not sent', exc_info=e)
+            return Response({'error': _("Impossible d'envoyer l'email")}, status=status.HTTP_400_BAD_REQUEST)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 

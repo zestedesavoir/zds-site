@@ -88,10 +88,7 @@ class TokenGenerator(object):
 
         msg = EmailMultiAlternatives(subject, message_txt, from_email, [user.email])
         msg.attach_alternative(message_html, 'text/html')
-        try:
-            msg.send()
-        except Exception:
-            pass
+        msg.send()
 
 
 class MemberSanctionState(object):
