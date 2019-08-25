@@ -41,7 +41,7 @@ if __name__ == '__main__':
             print('\033[36;1mINFO: The current virtual_env is `%s`,',
             'usually contributors use `./zdsenv`\033[00;0m' % os.environ.get('virtual_env'))
 
-        print("\033[31;1mModuleNotFoundError: No module named 'django' found\033[00;0m")
+        print("\033[31;1mModuleNotFoundError: Your environment does not have django, please run pip install -r requirements-dev.txt\033[00;0m")
         sys.exit(1)
 
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'zds.settings.dev')
