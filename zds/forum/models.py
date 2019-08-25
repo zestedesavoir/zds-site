@@ -234,7 +234,7 @@ class Topic(AbstractESDjangoIndexable):
         text = post.text
         for greeting in greetings:
             if text.strip().lower().startswith(greeting):
-                index_of_dot = max(text.index('\n') if '\n' in text else -1, 0)
+                index_of_dot = max(text.index('\n') if '\n' in text else -1, -1)
                 index_of_dot = min(index_of_dot, text.index('.') if '.' in text else max_size)
                 index_of_dot = min(index_of_dot, text.index('!') if '!' in text else max_size)
                 return text[index_of_dot + 1:].strip()
