@@ -224,7 +224,7 @@ class Topic(AbstractESDjangoIndexable):
     def meta_description(self):
         first_post = self.first_post()
         if len(first_post.text) < 120:
-            return first_post
+            return first_post.text
         return Topic.__remove_greetings(first_post)[:settings.ZDS_APP['forum']['description_size']]
 
     @staticmethod
