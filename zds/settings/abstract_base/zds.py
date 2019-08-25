@@ -205,7 +205,9 @@ ZDS_APP = {
         'old_post_limit_days': 90,
         # Exclude tags from top tags list. Tags listed here should not be relevant for most of users.
         # Be warned exclude too much tags can restrict performance
-        'top_tag_exclu': ['bug', 'suggestion', 'tutoriel', 'beta', 'article']
+        'top_tag_exclu': ['bug', 'suggestion', 'tutoriel', 'beta', 'article'],
+        'greetings': ['salut', 'bonjour', 'yo ', 'hello', 'bon matin', 'tout le monde se secoue'],
+        'description_size': 120,
     },
     'topic': {
         'home_number': 5,

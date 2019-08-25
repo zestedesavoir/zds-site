@@ -445,8 +445,13 @@ class RegisterView(CreateView, ProfileCreate, TokenGenerator):
         profile.last_ip_address = get_client_ip(self.request)
         self.save_profile(profile)
         token = self.generate_token(profile.user)
-        self.send_email(token, profile.user)
-
+        try:
+            self.send_email(token, profile.user)
+        except Exception as e:
+            logging.getLogger(__name__).warning('Mail not sent', exc_info=e)
+            messages.warning(self.request, _("Impossible d'envoyer l'email."))
+            self.object = None
+            return self.form_invalid(form)
         return render(self.request, self.get_success_template())
 
     def get_success_template(self):
@@ -498,7 +503,12 @@ class SendValidationEmailView(FormView, TokenGenerator):
 
         # Generate new token and send email
         token = self.generate_token(self.usr)
-        self.send_email(token, self.usr)
+        try:
+            self.send_email(token, self.usr)
+        except Exception as e:
+            logging.getLogger(__name__).warning('Mail not sent', exc_info=e)
+            messages.warning(_("Impossible d'envoyer l'email."))
+            return self.form_invalid(form)
 
         return render(self.request, self.get_success_template())
 

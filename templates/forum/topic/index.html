@@ -6,6 +6,7 @@
 {% load crispy_forms_tags %}
 {% load i18n %}
 {% load interventions %}
+{% load cache %}
 
 {% block title %}
     {% if topic.is_solved %}[{% trans "Résolu" %}]{% endif %} {{ topic.title }}
@@ -27,7 +28,11 @@
     </li>
 {% endblock %}
 
-
+{% block description %}
+    {% cache 180 "topic-description" topic.pk %}
+        {{ topic.meta_description }}
+    {% endcache %}
+{% endblock %}
 
 {% block schema %}
     itemscope itemtype="http://schema.org/Question"
