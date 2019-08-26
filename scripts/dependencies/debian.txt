@@ -1,11 +1,11 @@
 #title=Debian
-#desc=Utilisation de apt-get / Testé sur : Debian Jessie (8), Debian Stretch (9.8).
+#desc=Utilisation de apt-get / Testé sur : Debian Jessie (8), Debian Stretch (9) et Debian Buster (10).
 #installcmd=apt-get -y install
 git
 wget
 curl
 unzip
-realpath
+coreutils
 python3-dev
 python3-pip
 python3-venv
