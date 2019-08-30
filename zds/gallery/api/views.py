@@ -1,5 +1,6 @@
 from rest_framework import filters, exceptions
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.mixins import CreateModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_extensions.cache.decorators import cache_response
 from rest_framework_extensions.etag.decorators import etag
@@ -11,8 +12,10 @@ from django.utils.translation import ugettext_lazy as _
 from zds.api.bits import UpdatedAtKeyBit
 from zds.api.key_constructor import PagingListKeyConstructor, DetailKeyConstructor
 from zds.api.views import NoPatchView
-from zds.gallery.models import Gallery, Image, UserGallery
-from zds.gallery.mixins import GalleryUpdateOrDeleteMixin, ImageUpdateOrDeleteMixin, NoMoreUserWithWriteIfLeave
+from zds.gallery.api.serializers import DrawingSerializer
+from zds.gallery.models import Gallery, Image, UserGallery, Drawing
+from zds.gallery.mixins import GalleryUpdateOrDeleteMixin, ImageUpdateOrDeleteMixin, NoMoreUserWithWriteIfLeave, \
+    DrawingUpdateOrDeleteMixin
 
 from .serializers import GallerySerializer, ImageSerializer, ParticipantSerializer
 from .permissions import AccessToGallery, WriteAccessToGallery, NotLinkedToContent
@@ -306,9 +309,8 @@ class ImageDetailKeyConstructor(DetailKeyConstructor):
     updated_at = UpdatedAtKeyBit('api_updated_image')
 
 
-class ImageDetailView(RetrieveUpdateDestroyAPIView, NoPatchView, ImageUpdateOrDeleteMixin):
+class ImageAPIMixin:
 
-    queryset = Image.objects
     list_key_func = ImageDetailKeyConstructor()
 
     @etag(list_key_func)
@@ -391,6 +393,9 @@ class ImageDetailView(RetrieveUpdateDestroyAPIView, NoPatchView, ImageUpdateOrDe
         """
         return self.destroy(request, *args, **kwargs)
 
+    def get_serializer_class(self):
+        return ImageSerializer
+
     def get_current_user(self):
         return self.request.user
 
@@ -398,12 +403,55 @@ class ImageDetailView(RetrieveUpdateDestroyAPIView, NoPatchView, ImageUpdateOrDe
         self.image = instance
         self.perform_delete()
 
-    def get_serializer_class(self):
-        return ImageSerializer
-
     def get_permissions(self):
         permission_classes = [IsAuthenticated, DRYPermissions]
         return [permission() for permission in permission_classes]
+
+
+class ImageDetailView(RetrieveUpdateDestroyAPIView, NoPatchView, ImageUpdateOrDeleteMixin, ImageAPIMixin):
+    queryset = Image.objects
+
+
+class DrawingDetailView(RetrieveUpdateDestroyAPIView, NoPatchView, DrawingUpdateOrDeleteMixin, ImageAPIMixin,
+                        CreateModelMixin):
+    queryset = Drawing.objects
+
+    def get_serializer_class(self):
+        return DrawingSerializer
+
+    def post(self, request, *args, **kwargs):
+        """
+        Upload a new image
+        ---
+
+        parameters:
+            - name: Authorization
+              description: Bearer token to make an authenticated request.
+              required: true
+              paramType: header
+            - name: title
+              description: Image title
+              required: true
+              paramType: form
+            - name: legend
+              description: Image small legend (one line)
+              required: false
+              paramType: form
+            - name: physical
+              description: Image data
+              required: true
+              consumes: multipart/form-data
+              paramType: form
+        responseMessages:
+            - code: 401
+              message: Not Authenticated
+            - code: 403
+              message: Permission Denied
+            - code: 404
+              message: Not Found
+        """
+
+        return self.create(request, *args, **kwargs)
 
 
 class PagingParticipantListKeyConstructor(PagingListKeyConstructor):

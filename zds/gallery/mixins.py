@@ -10,7 +10,7 @@ from easy_thumbnails.files import get_thumbnailer
 
 from django.conf import settings
 
-from zds.gallery.models import Gallery, UserGallery, GALLERY_WRITE, GALLERY_READ, Image
+from zds.gallery.models import Gallery, UserGallery, GALLERY_WRITE, GALLERY_READ, Image, Drawing, SvgValidator
 from zds.tutorialv2.models.database import PublishableContent
 
 
@@ -208,7 +208,7 @@ class ImageMixin(GalleryMixin):
         :type pk: int
         :rtype: zds.gallery.models.Image
         """
-        self.image = Image.objects.filter(pk=pk, gallery=self.gallery).get()
+        self.image = self.model.objects.filter(pk=pk, gallery=self.gallery).get()
         return self.image
 
 
@@ -220,6 +220,86 @@ class ImageTooLarge(Exception):
 
 class NotAnImage(Exception):
     pass
+
+
+class DrawingCreateMixin(ImageMixin):
+    def perform_create(self, title, physical, legend=''):
+        """Create a new image
+
+        :param title: title
+        :type title: str
+        :param physical:
+        :type physical: file
+        :param legend: legend (optional)
+        :type legend: str
+        """
+        if physical.size > settings.ZDS_APP['gallery']['image_max_size']:
+            raise ImageTooLarge(title, physical.size)
+
+        image = Drawing()
+        image.gallery = self.gallery
+        image.title = title
+
+        if legend:
+            image.legend = legend
+        else:
+            image.legend = image.title
+
+        image.physical = physical
+        image.slug = slugify(title)
+        image.pubdate = datetime.datetime.now()
+        image.save()
+
+        self.image = image
+
+        return self.image
+
+    def perform_create_multi(self, archive):
+        """Create multiple image out of an archive
+
+        :param archive: path to the archive
+        :type archive: str
+        """
+        temp = tempfile.mkdtemp()
+        zfile = zipfile.ZipFile(archive, 'r')
+
+        error_files = []
+
+        for i in zfile.namelist():
+            info = zfile.getinfo(i)
+
+            if info.filename[-1] == '/':  # .is_dir() in python 3.6
+                continue
+
+            basename = os.path.basename(i)
+            (name, ext) = os.path.splitext(basename)
+
+            if info.file_size > settings.ZDS_APP['gallery']['image_max_size']:
+                error_files.append(i)
+                continue
+
+            # create file for image
+            ph_temp = os.path.abspath(os.path.join(temp, basename))
+
+            f_im = open(ph_temp, 'wb')
+            f_im.write(zfile.read(i))
+            f_im.close()
+
+            # create picture:
+            f_im = get_thumbnailer(open(ph_temp, 'rb'), relative_name=ph_temp)
+            f_im.name = basename
+            self.perform_create(name, f_im)
+            f_im.close()
+
+            if os.path.exists(ph_temp):
+                os.remove(ph_temp)
+
+        zfile.close()
+
+        if os.path.exists(temp):
+            shutil.rmtree(temp)
+
+        return error_files
 
 
 class ImageCreateMixin(ImageMixin):
@@ -312,6 +392,37 @@ class ImageCreateMixin(ImageMixin):
             shutil.rmtree(temp)
 
         return error_files
+
+
+class DrawingUpdateOrDeleteMixin(ImageMixin):
+    def perform_update(self, data):
+        """Update drawing information
+
+        :param data: things to update
+        :type data: dict
+        """
+
+        if 'physical' in data:
+            physical = data.get('physical')
+            if physical.size > settings.ZDS_APP['gallery']['image_max_size']:
+                raise ImageTooLarge(self.image.title, physical.size)
+
+            self.image.physical = physical
+
+        if 'title' in data:
+            self.image.title = data.get('title')
+            self.image.slug = slugify(self.image.title)
+
+        if 'legend' in data:
+            self.image.legend = data.get('legend')
+
+        self.image.save()
+
+        return self.image
+
+    def perform_delete(self):
+        """Delete image"""
+        self.image.delete()
 
 
 class ImageUpdateOrDeleteMixin(ImageMixin):

@@ -689,7 +689,9 @@ function uploadImage (e, dataTransferAttr, csrf){
     if (!files.length) {
         return false;
     }
-    var galleryUrl = '/api/galeries/'+ document.body.getAttribute('data-gallery') + '/images/';
+    const defaultEndpointType = 'images';
+    const svgEndpointType = 'dessins';
+    var galleryUrl = '/api/galeries/'+ document.body.getAttribute('data-gallery');
     var printErr =  function (message) {
         var $div = $("<div>", {
             text: message,
@@ -729,9 +731,12 @@ function uploadImage (e, dataTransferAttr, csrf){
         var formData = new FormData();
         formData.append('physical', f);
         formData.append('title', f.name);
+        let extension = f.name.split('\.');
+        extension = extension[extension.length - 1]
+        const postUrl = `${galleryUrl}/${extension.toLowerCase() === "svg" ? svgEndpointType : defaultEndpointType}/`;
         // WARN: if you test zds with sqlite, you can't upload multiple files at a time
         $.ajax({
-            url: galleryUrl,
+            url: postUrl,
             data: formData, type: 'POST',
             processData: false,
             contentType: false,

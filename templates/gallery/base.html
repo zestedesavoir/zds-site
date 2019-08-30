@@ -35,6 +35,11 @@
                                     {% trans "Ajouter une image" %}
                                 </a>
                             </li>
+                            <li>
+                                <a href="{% url "gallery-drawing-new" gallery.pk %}" class="ico-after more blue">
+                                    {% trans "Ajouter un dessin (SVG)" %}
+                                </a>
+                            </li>
                             {% if not content_linked %}
                                 <li>
                                     <a href="{% url "gallery-edit" gallery.pk gallery.slug %}" class="ico-after edit blue">

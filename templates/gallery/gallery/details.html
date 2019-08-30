@@ -147,21 +147,36 @@
                         {% endif %}
                     </div>
                     <div class="topic-description">
-                        <a href="{% url "gallery-image-edit" gallery.pk img.pk %}" class="topic-title-link navigable-link">
-                            <img src="{{ img.physical.gallery.url }}"
-                                 data-caption="{{ img.title }}"
-                                 alt="{{ img.title }}"
-                                 class="topic-image"
-                            >
-                            <span class="topic-title">{{ img.title }}</span>
-                            <span class="topic-subtitle">{{ img.legend|default:"" }}</span>
-                        </a>
+                        {% if img.has_thumbnail %}
+                            <a href="{% url "gallery-image-edit" gallery.pk img.pk %}" class="topic-title-link navigable-link">
+                                <img src="{{ img.physical.gallery.url }}"
+                                     data-caption="{{ img.title }}"
+                                     alt="{{ img.title }}"
+                                     class="topic-image"
+                                >
+                                <span class="topic-title">{{ img.title }}</span>
+                                <span class="topic-subtitle">{{ img.legend|default:"" }}</span>
+                            </a>
+                        {% else %}
+                            <a href="{% url "gallery-drawing-edit" gallery.pk img.pk %}" class="topic-title-link navigable-link">
+                                <img src="{{ img.physical.url }}"
+                                     data-caption="{{ img.title }}"
+                                     alt="{{ img.title }}"
+                                     class="topic-image"
+                                     width="120px"
+                                     style="max-height: 120px;"
+                                >
+                                <span class="topic-title">{{ img.title }}</span>
+                                <span class="topic-subtitle">{{ img.legend|default:"" }}</span>
+                            </a>
+                        {% endif %}
                     </div>
                 </div>
             {% endfor %}
 
             <a href="{% url "gallery-image-new" gallery.pk %}" title="Ajouter une image" class="gallery-item add-image">+</a>
         </div>
+
     {% else %}
         <p>
             {% trans "Aucune image." %}

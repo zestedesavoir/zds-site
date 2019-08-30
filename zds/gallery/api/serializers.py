@@ -6,8 +6,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from zds.api.serializers import ZdSModelSerializer
 from zds.gallery.models import Gallery, Image, UserGallery
-from zds.gallery.mixins import GalleryCreateMixin, GalleryUpdateOrDeleteMixin, ImageCreateMixin, ImageTooLarge,\
-    ImageUpdateOrDeleteMixin, UserNotInGallery, NotAnImage
+from zds.gallery.mixins import GalleryCreateMixin, GalleryUpdateOrDeleteMixin, ImageCreateMixin, ImageTooLarge, \
+    ImageUpdateOrDeleteMixin, UserNotInGallery, NotAnImage, DrawingCreateMixin
 from zds.member.models import User
 
 
@@ -61,6 +61,51 @@ class GallerySerializer(ZdSModelSerializer, GalleryCreateMixin, GalleryUpdateOrD
     def update(self, instance, validated_data):
         self.gallery = instance
         return self.perform_update(validated_data)
+
+
+class DrawingSerializer(ZdSModelSerializer, DrawingCreateMixin, ImageUpdateOrDeleteMixin):
+    """
+    Serializer of an image
+    """
+
+    permissions = DRYPermissionsField()
+    thumbnail = serializers.CharField(source='get_thumbnail_url', read_only=True)
+    url = serializers.CharField(source='get_absolute_url', read_only=True)
+    physical = serializers.FileField(write_only=True, required=False)
+
+    class Meta:
+        model = Image
+        read_only_fields = ('id', 'slug', 'permissions', 'gallery', 'pubdate', 'update', 'url', 'thumbnail')
+        fields = read_only_fields + ('title', 'legend', 'physical')
+
+    def create(self, validated_data):
+        if 'physical' not in validated_data:
+            raise exceptions.ValidationError(detail=_('Le champ `physical` est requis pour ajouter une image'))
+
+        try:
+            self.gallery = Gallery.objects.get(pk=self.context['view'].kwargs.get('pk_gallery'))
+        except Gallery.DoesNotExist:
+            raise exceptions.NotFound(detail=_('Galerie introuvable'))
+
+        try:
+            return self.perform_create(
+                title=validated_data.get('title'),
+                physical=validated_data.get('physical'),
+                legend=validated_data.get('legend', '')
+            )
+        except ImageTooLarge as e:
+            raise ImageTooLargeError(e)
+        except NotAnImage:
+            raise NotAnImageError()
+
+    def update(self, instance, validated_data):
+        self.image = instance
+        try:
+            return self.perform_update(validated_data)
+        except ImageTooLarge as e:
+            raise ImageTooLargeError(e)
+        except NotAnImage:
+            raise NotAnImageError()
 
 
 class ImageSerializer(ZdSModelSerializer, ImageCreateMixin, ImageUpdateOrDeleteMixin):

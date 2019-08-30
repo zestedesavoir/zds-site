@@ -3,6 +3,7 @@ import os
 from uuid import uuid4
 from shutil import rmtree
 
+from django.core.validators import EMPTY_VALUES
 from easy_thumbnails.fields import ThumbnailerImageField
 from easy_thumbnails.files import get_thumbnailer
 
@@ -96,23 +97,24 @@ models.signals.post_save.connect(receiver=change_api_updated_user_gallery_at, se
 models.signals.post_delete.connect(receiver=change_api_updated_user_gallery_at, sender=UserGallery)
 
 
-class Image(models.Model):
-    """Represent an image in database"""
+class SvgValidator:
+    def __call__(self, value: str):
 
+        return True
+
+    def deconstruct(self):
+        return __name__ + '.SvgValidator', [], {}
+
+
+class ImageMixin(models.Model):
     class Meta:
-        verbose_name = _('Image')
-        verbose_name_plural = _('Images')
-
+        abstract = True
+    pubdate = models.DateTimeField(_('Date de création'), auto_now_add=True, db_index=True)
     gallery = models.ForeignKey('Gallery', verbose_name=_('Galerie'), db_index=True, on_delete=models.CASCADE)
     title = models.CharField(_('Titre'), max_length=80)
     slug = models.SlugField(max_length=80)
-    physical = ThumbnailerImageField(upload_to=image_path, max_length=200)
     legend = models.CharField(_('Légende'), max_length=80, null=True, blank=True)
-    pubdate = models.DateTimeField(_('Date de création'), auto_now_add=True, db_index=True)
     update = models.DateTimeField(_('Date de modification'), null=True, blank=True)
-
-    def __init__(self, *args, **kwargs):
-        super(Image, self).__init__(*args, **kwargs)
 
     def __str__(self):
         """Human-readable representation of the Image model.
@@ -130,8 +132,6 @@ class Image(models.Model):
         """
         return '{0}/{1}'.format(settings.MEDIA_URL, self.physical).replace('//', '/')
 
-    def get_thumbnail_url(self):
-        return self.physical['gallery'].url
 
     def get_extension(self):
         """Get the extension of an image (used in tests).
@@ -158,6 +158,31 @@ class Image(models.Model):
     def save(self, *args, **kwargs):
         self.update = datetime.datetime.now()
         super().save(*args, **kwargs)
+
+
+class Image(ImageMixin):
+    """Represent an image in database"""
+
+    class Meta:
+        verbose_name = _('Image')
+        verbose_name_plural = _('Images')
+    physical = ThumbnailerImageField(upload_to=image_path, max_length=200)
+    has_thumbnail = True
+
+    def get_thumbnail_url(self):
+        return self.physical['gallery'].url
+
+
+class Drawing(ImageMixin):
+    """Represent vectorial drawing, svg format"""
+    class Meta:
+        verbose_name = _('Dessin')
+        verbose_name_plural = _('Dessins')
+    physical = models.FileField(upload_to=image_path, max_length=200, validators=(SvgValidator(),))
+    has_thumbnail = False
+
+    def get_thumbnail_url(self):
+        return self.physical.url
 
 
 @receiver(models.signals.post_delete, sender=Image)
@@ -256,7 +281,9 @@ class Gallery(models.Model):
         :return: all images in the gallery
         :rtype: QuerySet
         """
-        return Image.objects.filter(gallery=self).order_by('pubdate').all()
+        return Image.objects.filter(gallery=self).extra(select={'has_thumbnail': "1"})\
+            .union(Drawing.objects.filter(gallery=self)
+                   .extra(select={'has_thumbnail': "0"})).order_by('pubdate').all()
 
     def get_last_image(self):
         """Get the last image added in the gallery.

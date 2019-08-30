@@ -12,8 +12,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from zds.gallery.forms import ArchiveImageForm, ImageForm, UpdateImageForm, \
     GalleryForm, UpdateGalleryForm, UserGalleryForm, ImageAsAvatarForm
 from zds.gallery.models import UserGallery, Image, Gallery, GALLERY_WRITE
-from zds.gallery.mixins import GalleryCreateMixin, GalleryMixin, GalleryUpdateOrDeleteMixin,\
-    NoMoreUserWithWriteIfLeave, ImageUpdateOrDeleteMixin, ImageCreateMixin, UserAlreadyInGallery, UserNotInGallery
+from zds.gallery.mixins import GalleryCreateMixin, GalleryMixin, GalleryUpdateOrDeleteMixin, \
+    NoMoreUserWithWriteIfLeave, ImageUpdateOrDeleteMixin, ImageCreateMixin, UserAlreadyInGallery, UserNotInGallery, \
+    DrawingCreateMixin
 from zds.member.decorator import LoggedWithReadWriteHability
 from zds.utils.paginator import ZdSPagingListView
 from zds.tutorialv2.models.database import PublishableContent
@@ -90,7 +91,6 @@ class GalleryDetails(LoginRequiredMixin, GalleryMixin, ZdSPagingListView):
         context['content_linked'] = self.linked_content()
         context['current_user'] = self.request.user
         context['mode_choices'] = UserGallery.MODE_CHOICES
-
         return context
 
 
@@ -301,6 +301,28 @@ class ImageFromGalleryContextViewMixin(ImageFromGalleryViewMixin):
         return context
 
 
+class NewDrawing(ImageFromGalleryContextViewMixin, DrawingCreateMixin, LoggedWithReadWriteHability, FormView):
+    template_name = 'gallery/image/new.html'
+    must_write = True  # only allowed users can insert images
+
+    def form_valid(self, form):
+
+        self.perform_create(
+            form.cleaned_data.get('title'),
+            self.request.FILES.get('physical'),
+            form.cleaned_data.get('legend'))
+        if self.form_class == ImageForm:
+            self.success_url = reverse(
+                'gallery-image-edit',
+                kwargs={'pk_gallery': self.gallery.pk, 'pk': self.image.pk})
+        else:
+            self.success_url = reverse(
+                'gallery-drawing-edit',
+                kwargs={'pk_gallery': self.gallery.pk, 'pk': self.image.pk})
+
+        return super().form_valid(form)
+
+
 class NewImage(ImageFromGalleryContextViewMixin, ImageCreateMixin, LoggedWithReadWriteHability, FormView):
     """Creates a new image."""
 
@@ -314,10 +336,14 @@ class NewImage(ImageFromGalleryContextViewMixin, ImageCreateMixin, LoggedWithRea
             form.cleaned_data.get('title'),
             self.request.FILES.get('physical'),
             form.cleaned_data.get('legend'))
-
-        self.success_url = reverse(
-            'gallery-image-edit',
-            kwargs={'pk_gallery': self.gallery.pk, 'pk': self.image.pk})
+        if self.form_class == ImageForm:
+            self.success_url = reverse(
+                'gallery-image-edit',
+                kwargs={'pk_gallery': self.gallery.pk, 'pk': self.image.pk})
+        else:
+            self.success_url = reverse(
+                'gallery-drawing-edit',
+                kwargs={'pk_gallery': self.gallery.pk, 'pk': self.image.pk})
 
         return super().form_valid(form)
 
@@ -327,6 +353,8 @@ class EditImage(ImageFromGalleryContextViewMixin, ImageUpdateOrDeleteMixin, Logg
 
     form_class = UpdateImageForm
     template_name = 'gallery/image/edit.html'
+    model = Image
+    url_flag = 'image'
 
     def get(self, request, *args, **kwargs):
         try:
@@ -342,7 +370,7 @@ class EditImage(ImageFromGalleryContextViewMixin, ImageUpdateOrDeleteMixin, Logg
 
         try:
             self.get_image(self.kwargs.get('pk'))
-        except Image.DoesNotExist:
+        except self.model.DoesNotExist:
             raise Http404
 
         return super().post(request, *args, **kwargs)
@@ -371,7 +399,7 @@ class EditImage(ImageFromGalleryContextViewMixin, ImageUpdateOrDeleteMixin, Logg
         self.perform_update(data)
 
         self.success_url = reverse(
-            'gallery-image-edit',
+            'gallery-{}-edit'.format(self.url_flag),
             kwargs={'pk_gallery': self.gallery.pk, 'pk': self.image.pk})
 
         return super().form_valid(form)

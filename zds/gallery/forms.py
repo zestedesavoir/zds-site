@@ -9,7 +9,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.urls import reverse
 
-from zds.gallery.models import Gallery, Image, UserGallery
+from zds.gallery.models import Gallery, Image, UserGallery, Drawing
 
 
 class GalleryForm(forms.ModelForm):
@@ -118,21 +118,9 @@ class UserGalleryForm(forms.Form):
         return cleaned_data
 
 
-class ImageForm(forms.ModelForm):
-
-    class Meta:
-        model = Image
-
-        fields = ['title', 'legend']
-
-    physical = forms.ImageField(
-        label=_('Sélectionnez votre image'),
-        required=True,
-        help_text=_('Taille maximum : {0} Ko').format(settings.ZDS_APP['gallery']['image_max_size'] / 1024)
-    )
-
+class ImageFormMixin(forms.ModelForm):
     def __init__(self, *args, **kwargs):
-        super(ImageForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = 'clearfix'
         self.helper.form_method = 'post'
@@ -147,7 +135,7 @@ class ImageForm(forms.ModelForm):
         )
 
     def clean(self):
-        cleaned_data = super(ImageForm, self).clean()
+        cleaned_data = super().clean()
 
         physical = cleaned_data.get('physical')
 
@@ -156,6 +144,32 @@ class ImageForm(forms.ModelForm):
                 [_('Votre image est trop lourde, la limite autorisée '
                  'est de {0} Ko').format(settings.ZDS_APP['gallery']['image_max_size'] / 1024)])
         return cleaned_data
+
+
+class ImageForm(ImageFormMixin):
+
+    class Meta:
+        model = Image
+
+        fields = ['title', 'legend']
+
+    physical = forms.ImageField(
+        label=_('Sélectionnez votre image'),
+        required=True,
+        help_text=_('Taille maximum : {0} Ko').format(settings.ZDS_APP['gallery']['image_max_size'] / 1024)
+    )
+
+
+class DrawingForm(ImageFormMixin):
+    class Meta:
+        model = Drawing
+        fields = ['title', 'legend']
+
+    physical = forms.FileField(
+        label=_('Sélectionnez votre image'),
+        required=True,
+        help_text=_('Taille maximum : {0} Ko').format(settings.ZDS_APP['gallery']['image_max_size'] / 1024)
+    )
 
 
 class UpdateImageForm(ImageForm):

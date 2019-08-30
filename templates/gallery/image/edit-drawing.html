@@ -1,0 +1,89 @@
+{% extends "gallery/base.html" %}
+{% load crispy_forms_tags %}
+{% load thumbnail %}
+{% load remove_url_scheme %}
+{% load i18n %}
+
+
+
+{% block title %}
+    {% trans "Éditer une image" %}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li><a href="{{ gallery.get_absolute_url }}">{{ gallery.title }}</a></li>
+    <li>{% trans "Éditer une image" %}</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    {% trans "Éditer une image" %}
+
+    {% if permissions.write %}
+        <a href="#form-delete-image" class="btn btn-cancel open-modal">
+            {% trans "Supprimer" %}
+        </a>
+    {% endif %}
+{% endblock %}
+
+
+
+
+{% block content %}
+    <div class="gallery-col-image">
+        <p>
+            {% trans "Image :" %}
+        </p>
+        <a href="{{ image.physical.url|remove_url_scheme }}">
+            <img src="{{ image.physical.url|remove_url_scheme }}" alt="{{ image.legend|default:image.title }}">
+        </a>
+
+
+
+        {% if perms.featured.change_featuredresource %}
+            <p>
+                {% trans "Lien pour utiliser cette image en une :" %}
+                <br>
+                <input type="text"
+                       value="{{ app.site.url }}{{ image.physical.url }}"
+                       readonly
+                       onclick="this.select()">
+            </p>
+        {% endif %}
+    </div>
+    <div class="gallery-col-edit">
+        {% if permissions.write %}
+            {% crispy form %}
+            <hr class="clearfix">
+        {% endif %}
+
+        <p>
+            {% trans "Code markdown pour insérer cette image :" %}
+            <br>
+
+            {% trans "Taille normale : " %}
+            <input type="text"
+                   value="![{{ image.legend|default:image.title }}]({{ image.physical.url|remove_url_scheme }})"
+                   readonly
+                   onclick="this.select()">
+            <br>
+
+
+        </p>
+
+        {% crispy as_avatar_form %}
+
+        {% if permissions.write %}
+            {# Confirmation modal for deleting image #}
+            <form id="form-delete-image" name="form" method="post" action="{% url "gallery-image-delete" gallery.pk %}" class="modal modal-flex">
+                {% csrf_token %}
+                <input type="hidden" name="image" value="{{ image.pk }}">
+                <p>{% trans "Attention, vous vous apprêtez à supprimer cette image." %}</p>
+                <button type="submit" name="delete" class="btn">{% trans "Confirmer" %}</button>
+            </form>
+        {% endif %}
+    </div>
+{% endblock %}
