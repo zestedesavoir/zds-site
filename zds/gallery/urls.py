@@ -27,6 +27,8 @@ urlpatterns = [
             NewDrawing.as_view(form_class=DrawingForm), name='gallery-drawing-new'),
     re_path(r'^image/supprimer/(?P<pk_gallery>\d+)/$',
             DeleteImages.as_view(), name='gallery-image-delete'),
+    re_path(r'^drawing/supprimer/(?P<pk_gallery>\d+)/$',
+            DeleteImages.as_view(model=Drawing), name='gallery-drawing-delete'),
     re_path(r'^image/editer/(?P<pk_gallery>\d+)/(?P<pk>\d+)/$',
             EditImage.as_view(), name='gallery-image-edit'),
     re_path(r'^dessin/editer/(?P<pk_gallery>\d+)/(?P<pk>\d+)/$',

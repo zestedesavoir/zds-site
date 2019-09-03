@@ -10,7 +10,7 @@ from easy_thumbnails.files import get_thumbnailer
 
 from django.conf import settings
 
-from zds.gallery.models import Gallery, UserGallery, GALLERY_WRITE, GALLERY_READ, Image, Drawing, SvgValidator
+from zds.gallery.models import Gallery, UserGallery, GALLERY_WRITE, GALLERY_READ, Image, Drawing
 from zds.tutorialv2.models.database import PublishableContent
 
 
@@ -281,15 +281,9 @@ class DrawingCreateMixin(ImageMixin):
             # create file for image
             ph_temp = os.path.abspath(os.path.join(temp, basename))
 
-            f_im = open(ph_temp, 'wb')
-            f_im.write(zfile.read(i))
-            f_im.close()
-
-            # create picture:
-            f_im = get_thumbnailer(open(ph_temp, 'rb'), relative_name=ph_temp)
-            f_im.name = basename
-            self.perform_create(name, f_im)
-            f_im.close()
+            with open(ph_temp, 'wb') as f_im:
+                f_im.write(zfile.read(i))
+                self.perform_create(name, f_im)
 
             if os.path.exists(ph_temp):
                 os.remove(ph_temp)

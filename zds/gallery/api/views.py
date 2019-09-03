@@ -403,16 +403,16 @@ class ImageAPIMixin:
         self.image = instance
         self.perform_delete()
 
-    def get_permissions(self):
-        permission_classes = [IsAuthenticated, DRYPermissions]
-        return [permission() for permission in permission_classes]
-
 
 class ImageDetailView(RetrieveUpdateDestroyAPIView, NoPatchView, ImageUpdateOrDeleteMixin, ImageAPIMixin):
     queryset = Image.objects
 
     def get_serializer_class(self):
         return ImageSerializer
+
+    def get_permissions(self):
+        permission_classes = [IsAuthenticated, DRYPermissions]
+        return [permission() for permission in permission_classes]
 
 
 class DrawingDetailView(RetrieveUpdateDestroyAPIView, NoPatchView, DrawingUpdateOrDeleteMixin, ImageAPIMixin,
@@ -421,6 +421,10 @@ class DrawingDetailView(RetrieveUpdateDestroyAPIView, NoPatchView, DrawingUpdate
 
     def get_serializer_class(self):
         return DrawingSerializer
+
+    def get_permissions(self):
+        permission_classes = [IsAuthenticated, DRYPermissions]
+        return [permission() for permission in permission_classes]
 
     def post(self, request, *args, **kwargs):
         """

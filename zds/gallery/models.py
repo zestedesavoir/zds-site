@@ -3,7 +3,6 @@ import os
 from uuid import uuid4
 from shutil import rmtree
 
-from django.core.validators import EMPTY_VALUES
 from easy_thumbnails.fields import ThumbnailerImageField
 from easy_thumbnails.files import get_thumbnailer
 
@@ -132,7 +131,6 @@ class ImageMixin(models.Model):
         """
         return '{0}/{1}'.format(settings.MEDIA_URL, self.physical).replace('//', '/')
 
-
     def get_extension(self):
         """Get the extension of an image (used in tests).
 
@@ -141,16 +139,8 @@ class ImageMixin(models.Model):
         """
         return os.path.splitext(self.physical.name)[1][1:]
 
-    @staticmethod
-    def has_read_permission(request):
-        return request.user.is_authenticated
-
     def has_object_read_permission(self, request):
         return UserGallery.objects.filter(gallery=self.gallery, user=request.user).count() == 1
-
-    @staticmethod
-    def has_write_permission(request):
-        return request.user.is_authenticated
 
     def has_object_write_permission(self, request):
         return UserGallery.objects.filter(gallery=self.gallery, user=request.user, mode='W').count() == 1
@@ -169,6 +159,14 @@ class Image(ImageMixin):
     physical = ThumbnailerImageField(upload_to=image_path, max_length=200)
     has_thumbnail = True
 
+    @staticmethod
+    def has_read_permission(request):
+        return request.user.is_authenticated
+
+    @staticmethod
+    def has_write_permission(request):
+        return request.user.is_authenticated
+
     def get_thumbnail_url(self):
         return self.physical['gallery'].url
 
@@ -180,6 +178,14 @@ class Drawing(ImageMixin):
         verbose_name_plural = _('Dessins')
     physical = models.FileField(upload_to=image_path, max_length=200, validators=(SvgValidator(),))
     has_thumbnail = False
+
+    @staticmethod
+    def has_read_permission(request):
+        return request.user.is_authenticated
+
+    @staticmethod
+    def has_write_permission(request):
+        return request.user.is_authenticated
 
     def get_thumbnail_url(self):
         return self.physical.url
@@ -281,9 +287,9 @@ class Gallery(models.Model):
         :return: all images in the gallery
         :rtype: QuerySet
         """
-        return Image.objects.filter(gallery=self).extra(select={'has_thumbnail': "1"})\
+        return Image.objects.filter(gallery=self).extra(select={'has_thumbnail': '1'})\
             .union(Drawing.objects.filter(gallery=self)
-                   .extra(select={'has_thumbnail': "0"})).order_by('pubdate').all()
+                   .extra(select={'has_thumbnail': '0'})).order_by('pubdate').all()
 
     def get_last_image(self):
         """Get the last image added in the gallery.

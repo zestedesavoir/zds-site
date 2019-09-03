@@ -11,7 +11,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 
 from zds.gallery.forms import ArchiveImageForm, ImageForm, UpdateImageForm, \
     GalleryForm, UpdateGalleryForm, UserGalleryForm, ImageAsAvatarForm
-from zds.gallery.models import UserGallery, Image, Gallery, GALLERY_WRITE
+from zds.gallery.models import UserGallery, Image, Gallery, GALLERY_WRITE, Drawing
 from zds.gallery.mixins import GalleryCreateMixin, GalleryMixin, GalleryUpdateOrDeleteMixin, \
     NoMoreUserWithWriteIfLeave, ImageUpdateOrDeleteMixin, ImageCreateMixin, UserAlreadyInGallery, UserNotInGallery, \
     DrawingCreateMixin
@@ -415,14 +415,16 @@ class DeleteImages(ImageFromGalleryViewMixin, ImageUpdateOrDeleteMixin, LoggedWi
     def delete(self, request, *args, **kwargs):
 
         if 'delete_multi' in request.POST:
-            list_items = request.POST.getlist('g_items')
-            Image.objects.filter(pk__in=list_items, gallery=self.gallery).delete()
+            list_images = request.POST.getlist('g_items')
+            list_drawing = request.POST.getlist('d_items')
+            Image.objects.filter(pk__in=list_images, gallery=self.gallery).delete()
+            Drawing.objects.filter(pk__in=list_drawing, gallery=self.gallery).delete()
         elif 'delete' in request.POST:
             try:
                 self.get_image(self.request.POST.get('image'))
                 self.perform_delete()
-            except Image.DoesNotExist:
-                raise Http404()
+            except self.model.DoesNotExist:
+                raise Http404(self.model.__name__ + ' does not exist')
 
         return redirect(self.gallery.get_absolute_url())
 

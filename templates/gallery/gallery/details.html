@@ -140,7 +140,7 @@
                     <div class="topic-infos">
                         {% if permissions.write %}
                             <input
-                                name="g_items"
+                                name="{% if img.has_thumbnail %}g_items{% else %}d_items{% endif %}"
                                 type="checkbox"
                                 value="{{ img.pk }}"
                                 form="form-delete-images">
