@@ -411,6 +411,9 @@ class ImageAPIMixin:
 class ImageDetailView(RetrieveUpdateDestroyAPIView, NoPatchView, ImageUpdateOrDeleteMixin, ImageAPIMixin):
     queryset = Image.objects
 
+    def get_serializer_class(self):
+        return ImageSerializer
+
 
 class DrawingDetailView(RetrieveUpdateDestroyAPIView, NoPatchView, DrawingUpdateOrDeleteMixin, ImageAPIMixin,
                         CreateModelMixin):
