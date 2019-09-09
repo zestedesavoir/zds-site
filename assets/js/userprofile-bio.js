@@ -9,7 +9,7 @@
     "use strict";
 
     var $bioContainer = $("body.userprofilepage .user-bio-and-activity .bio-container");
-    if (!$bioContainer) return; // We are not on a profile page
+    if (!$bioContainer[0]) return; // We are not on a profile page
 
     var $bioTextContainer = $bioContainer.find(".message-content");
     var $bioOverflowToggleHandle = $bioContainer.find(".biography-overflow");
