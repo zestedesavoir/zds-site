@@ -16,16 +16,13 @@
     {% captureas title %}
         {% trail %}
             {% captureas title_blocks %}
-                {% trail %}
-                    {% block title %}{% endblock %}
-                    {% block title_base %}{% endblock %}
-                {% endtrail %}
+                {% block title %}{% endblock %}
+                {% block title_base %}{% endblock %}
             {% endcaptureas %}
             {% if title_blocks %}
-                {{title_blocks|safe}} &bull; {{app.site.literal_name}}
-            {% else %}
-                {{app.site.literal_name}}
+                {{ title_blocks|safe }} &bull;
             {% endif %}
+            {{ app.site.literal_name }}
         {% endtrail %}
     {% endcaptureas %}
 
