@@ -39,5 +39,5 @@ class TrailNode(template.Node):
         new_text = tag_regexp.sub('><', self.nodelist.render(context))
         new_text = spaces_line_begin_regexp.sub('', new_text)
         new_text = spaces_line_end_regexp.sub('', new_text)
-        new_text = breaks_regexp.sub('', new_text)
+        new_text = breaks_regexp.sub(' ', new_text)
         return new_text
