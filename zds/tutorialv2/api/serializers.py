@@ -70,7 +70,7 @@ def transform(exception1, exception2, message):
 
 
 class ChildrenSerializer(serializers.Serializer):
-    text = serializers.CharField(source='text', allow_blank=True, allow_null=False, required=False, default='')
+    text = serializers.CharField(allow_blank=True, allow_null=False, required=False, default='')
 
     class Meta:
         model = ChildrenViewModel
@@ -82,12 +82,12 @@ class ChildrenListSerializer(serializers.Serializer):
     Serialize children list so that api can handle them
     """
 
-    extracts = serializers.ListField(child=ChildrenSerializer(), source='extracts')
-    containers = serializers.ListField(child=ChildrenSerializer(), source='containers')
+    extracts = serializers.ListField(child=ChildrenSerializer())
+    containers = serializers.ListField(child=ChildrenSerializer())
     extract_number = serializers.IntegerField(source='extracts.__len__')
     container_number = serializers.IntegerField(source='containers.__len__')
-    introduction = serializers.CharField(source='introduction', required=False, default='', allow_null=False)
-    conclusion = serializers.CharField(source='conclusion', required=False, default='', allow_null=False)
+    introduction = serializers.CharField(required=False, default='', allow_null=False)
+    conclusion = serializers.CharField(required=False, default='', allow_null=False)
 
     class Meta:
         fields = ('extracts', 'containers', 'extract_number', 'container_number',
@@ -179,9 +179,9 @@ class ChildrenListModifySerializer(ChildrenListSerializer):
     add the `remove_deleted_children` to the base serializer so that we can tell the api we want to delete every \
     element that exist in git repo but not in the request
     """
-    remove_deleted_children = serializers.BooleanField(source='remove_deleted_children')
-    message = serializers.CharField(source='message', required=False)
-    original_sha = serializers.CharField(source='original_sha', required=False, default='', allow_null=False)
+    remove_deleted_children = serializers.BooleanField()
+    message = serializers.CharField(required=False)
+    original_sha = serializers.CharField(required=False, default='', allow_null=False)
 
     class Meta:
         model = UpdateChildrenListViewModel

@@ -207,5 +207,8 @@ class InRedactionContentRetrieveUpdateDeleteAPIView(RetrieveUpdateDestroyAPIView
     permission_classes = (CanModerateOrIsOwner,)
     serializer_class = PublishableMetaDataSerializer
 
+    def get_queryset(self):
+        return PublishableContent.objects.filter(pk=self.kwargs.get('pk'))
+
     def get_object(self):
         return get_object_or_404(PublishableContent, pk=self.kwargs.get('pk'))
