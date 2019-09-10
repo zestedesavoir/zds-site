@@ -14,7 +14,6 @@ from crispy_forms.layout import HTML, Layout, \
 from zds.member.models import Profile, KarmaNote, BannedEmailProvider
 from zds.member.validators import validate_not_empty, validate_zds_email, validate_zds_username, validate_passwords, \
     validate_zds_password
-from zds.utils.forms import CommonLayoutModalText
 from zds.utils.misc import contains_utf8mb4
 from zds.utils.models import Licence, HatRequest, Hat
 from zds.utils import get_current_user
@@ -618,10 +617,8 @@ class KarmaForm(forms.Form):
         self.helper.form_class = 'modal modal-flex'
         self.helper.form_id = 'karmatiser-modal'
         self.helper.form_method = 'post'
-        # TODO : see how to fix the "commonlayoutmodaltext" issue that generates some
-        # useless exceptions. (field 'text' does not exists the choices are 'note' and 'karma')
+
         self.helper.layout = Layout(
-            CommonLayoutModalText(),
             Field('note'),
             Field('karma'),
             Hidden('profile_pk', '{{ profile.pk }}'),
