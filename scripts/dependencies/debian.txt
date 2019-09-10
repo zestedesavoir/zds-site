@@ -1,5 +1,6 @@
 #title=Debian
-#desc=Utilisation de apt-get / Testé sur : Debian Stretch (9) et Debian Buster (10).
+#desc=Utilisation de apt-get / Testé sur Debian Stretch (9), Buster (10)
+#updatecmd=apt-get -y update
 #installcmd=apt-get -y install
 git
 wget

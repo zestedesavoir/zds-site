@@ -1,15 +1,16 @@
 #title=Arch
-#desc=Utilisation de pacman
-#installcmd=pacman -Syu
+#desc=Utilisation de pacman / Testé sur Arch
+#updatecmd=pacman -Syu --noconfirm
+#installcmd=pacman -S --noconfirm
 git
 wget
 curl
 unzip
-realpath
+coreutils
 python
 python-setuptools
 python-sqlparse
-python3-pip
+python-pip
 libxml2
 python-lxml
 libxslt
