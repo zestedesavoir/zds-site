@@ -46,7 +46,7 @@ Produira le code suivant :
 
 .. sourcecode:: html
 
-    <h3>Hello        world!<a href="example.com">   Un exemple</a></h3>
+    <h3> Hello        world! <a href="example.com">   Un exemple</a></h3>
 
 Le module ``captureas``
 =======================
