@@ -22,3 +22,4 @@ Sommaire
    front-end
    api
    utils
+   delay-issue.rst
