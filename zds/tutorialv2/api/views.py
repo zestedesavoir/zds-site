@@ -68,6 +68,7 @@ class ContainerPublicationReadinessView(UpdateAPIView):
 
 class ExportView(CreateAPIView):
     permission_classes = (IsAuthorOrStaff,)
+    serializer_class = Serializer
 
     def ensure_directories(self, content: PublishableContent):
         final_directory = Path(content.public_version.get_extra_contents_directory())
