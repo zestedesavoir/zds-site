@@ -6,7 +6,7 @@ from django.utils import translation
 from django.utils.translation import gettext as _
 from rest_framework import status
 from rest_framework.fields import empty
-from rest_framework.generics import UpdateAPIView, CreateAPIView, get_object_or_404
+from rest_framework.generics import UpdateAPIView, ListCreateAPIView, get_object_or_404
 from rest_framework.response import Response
 from rest_framework.serializers import Serializer, CharField, BooleanField
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
@@ -15,7 +15,7 @@ from zds.member.api.permissions import CanReadAndWriteNowOrReadOnly, IsNotOwnerO
 from zds.tutorialv2.publication_utils import PublicatorRegistry
 from zds.tutorialv2.utils import search_container_or_404
 from zds.utils.api.views import KarmaView
-from zds.tutorialv2.models.database import ContentReaction, PublishableContent
+from zds.tutorialv2.models.database import ContentReaction, PublishableContent, PublicationEvent
 
 
 class ContainerReadinessSerializer(Serializer):
@@ -66,9 +66,12 @@ class ContainerPublicationReadinessView(UpdateAPIView):
         return content
 
 
-class ExportView(CreateAPIView):
+class ExportView(ListCreateAPIView):
     permission_classes = (IsAuthorOrStaff,)
     serializer_class = Serializer
+
+    def get_queryset(self):
+        return PublicationEvent.objects.filter(published_object__content__pk=self.kwargs.get('pk', 0))
 
     def ensure_directories(self, content: PublishableContent):
         final_directory = Path(content.public_version.get_extra_contents_directory())
