@@ -40,7 +40,10 @@ class Command(BaseCommand):
 
     @staticmethod
     def launch_publicators(executor):
-        for publication_event in PublicationEvent.objects.filter(state_of_processing='REQUESTED'):
+        query_set = PublicationEvent.objects.prefetch_related('published_object', 'published_object__content',
+                                                              'published_object__authors')\
+            .filter(state_of_processing='REQUESTED')
+        for publication_event in list(query_set.all()):
             logger.info('Export %s -- format=%s', publication_event.published_object.title(),
                         publication_event.format_requested)
             content = publication_event.published_object
