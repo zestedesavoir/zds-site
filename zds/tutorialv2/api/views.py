@@ -5,27 +5,26 @@ from django.http import Http404
 from django.utils import translation
 from django.utils.translation import gettext as _
 from rest_framework import status
+from rest_framework.exceptions import ValidationError
 from rest_framework.fields import empty
-from rest_framework.generics import UpdateAPIView, ListCreateAPIView, get_object_or_404
+from rest_framework.generics import UpdateAPIView, ListCreateAPIView, get_object_or_404, \
+    RetrieveUpdateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.serializers import Serializer, CharField, BooleanField
-from rest_framework.generics import RetrieveUpdateAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
-from rest_framework.exceptions import ValidationError
 
-from zds.tutorialv2.publication_utils import PublicatorRegistry
-from zds.member.api.permissions import IsAuthorOrStaff
+from zds.member.api.permissions import CanReadAndWriteNowOrReadOnly, IsNotOwnerOrReadOnly, IsAuthorOrStaff
 from zds.member.models import User
-from zds.member.api.permissions import CanReadAndWriteNowOrReadOnly, IsNotOwnerOrReadOnly
 from zds.tutorialv2.api.permissions import CanModerateOrIsOwner
 from zds.tutorialv2.api.serializers import ChildrenListSerializer, ChildrenListModifySerializer, \
     PublishableMetaDataSerializer
 from zds.tutorialv2.api.view_models import ChildrenListViewModel, ChildrenViewModel
 from zds.tutorialv2.mixins import SingleContentDetailViewMixin
+from zds.tutorialv2.models.database import ContentReaction, PublishableContent, PublicationEvent
 from zds.tutorialv2.models.versioned import Extract, Container
+from zds.tutorialv2.publication_utils import PublicatorRegistry
 from zds.tutorialv2.utils import search_container_or_404
 from zds.utils.api.views import KarmaView
-from zds.tutorialv2.models.database import ContentReaction, PublishableContent, PublicationEvent
 
 
 class ContainerReadinessSerializer(Serializer):
