@@ -4,7 +4,7 @@ import time
 from pathlib import Path
 
 from django.core.management import BaseCommand
-from concurrent.futures import Future, ProcessPoolExecutor
+from concurrent.futures import Future, ThreadPoolExecutor
 
 from zds.tutorialv2.models.database import PublicationEvent
 from zds.tutorialv2.publication_utils import PublicatorRegistry
@@ -16,7 +16,7 @@ class Command(BaseCommand):
     help = 'Launch a watchdog that generate all exported formats (epub, pdf...) files without blocking request handling'
 
     def handle(self, *args, **options):
-        with ProcessPoolExecutor(5) as executor:
+        with ThreadPoolExecutor(5) as executor:
             try:
                 while True:
                     Command.launch_publicators(executor)
@@ -40,10 +40,11 @@ class Command(BaseCommand):
 
     @staticmethod
     def launch_publicators(executor):
-        query_set = PublicationEvent.objects.prefetch_related('published_object', 'published_object__content',
-                                                              'published_object__authors')\
+        query_set = PublicationEvent.objects \
+            .select_related('published_object', 'published_object__content', 'published_object__content__image')
             .filter(state_of_processing='REQUESTED')
-        for publication_event in list(query_set.all()):
+
+        for publication_event in query_set.iterator():
             logger.info('Export %s -- format=%s', publication_event.published_object.title(),
                         publication_event.format_requested)
             content = publication_event.published_object
@@ -57,7 +58,7 @@ class Command(BaseCommand):
             base_name = str(building_extra_content_path)
             md_file_path = base_name + '.md'
 
-            future = executor.submit(publicator.publish, md_file_path, base_name)
             publication_event.state_of_processing = 'RUNNING'
             publication_event.save()
+            future = executor.submit(publicator.publish, md_file_path, base_name)
             future.add_done_callback(Command.get_callback_of(publication_event))
