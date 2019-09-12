@@ -40,9 +40,9 @@ class Command(BaseCommand):
 
     @staticmethod
     def launch_publicators(executor):
-        query_set = PublicationEvent.objects \
-            .select_related('published_object', 'published_object__content', 'published_object__content__image')
-            .filter(state_of_processing='REQUESTED')
+        query_set = PublicationEvent.objects.select_related('published_object', 'published_object__content',
+                                                            'published_object__content__image') \
+                                            .filter(state_of_processing='REQUESTED')
 
         for publication_event in query_set.iterator():
             logger.info('Export %s -- format=%s', publication_event.published_object.title(),
