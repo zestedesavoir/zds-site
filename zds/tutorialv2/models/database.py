@@ -1334,7 +1334,7 @@ class PublicationEvent(models.Model):
 
     published_object = models.ForeignKey(PublishedContent, null=False, on_delete=models.CASCADE,
                                          verbose_name='contenu publié')
-    state_of_processing = models.CharField(choices=STATE_CHOICES, null=False, blank=False, max_length=20)
+    state_of_processing = models.CharField(choices=STATE_CHOICES, null=False, blank=False, max_length=20, db_index=True)
     # 25 for formats such as "printable.pdf", if tomorrow we want other "long" formats this will be ready
     format_requested = models.CharField(blank=False, null=False, max_length=25)
     created = models.DateTimeField(verbose_name='date de création', name='date', auto_now_add=True)
