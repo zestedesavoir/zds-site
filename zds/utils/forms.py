@@ -54,15 +54,6 @@ class CommonLayoutVersionEditor(Layout):
         )
 
 
-class CommonLayoutModalText(Layout):
-
-    def __init__(self, *args, **kwargs):
-        super(CommonLayoutModalText, self).__init__(
-            Field('text'),
-            *args, **kwargs
-        )
-
-
 class TagValidator(object):
     """
     validate tags
