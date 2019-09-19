@@ -7,7 +7,7 @@ from crispy_forms.layout import HTML, Layout, Submit, Field, ButtonHolder, Hidde
 from django.urls import reverse
 from django.core.validators import MinLengthValidator
 
-from zds.utils.forms import CommonLayoutModalText, CommonLayoutEditor, CommonLayoutVersionEditor
+from zds.utils.forms import CommonLayoutEditor, CommonLayoutVersionEditor
 from zds.utils.models import SubCategory, Licence
 from zds.tutorialv2.models import TYPE_CHOICES
 from zds.utils.models import HelpWriting
@@ -625,7 +625,7 @@ class AskValidationForm(forms.Form):
         self.helper.form_id = 'ask-validation'
 
         self.helper.layout = Layout(
-            CommonLayoutModalText(),
+            Field('text'),
             Field('source'),
             Field('version'),
             StrictButton(
@@ -721,7 +721,7 @@ class AcceptValidationForm(forms.Form):
         self.helper.form_id = 'valid-publish'
 
         self.helper.layout = Layout(
-            CommonLayoutModalText(),
+            Field('text'),
             Field('source'),
             Field('is_major'),
             StrictButton(_('Publier'), type='submit')
@@ -760,7 +760,7 @@ class CancelValidationForm(forms.Form):
 
         self.helper.layout = Layout(
             HTML('<p>Êtes-vous certain de vouloir annuler la validation de ce contenu ?</p>'),
-            CommonLayoutModalText(),
+            Field('text'),
             ButtonHolder(
                 StrictButton(
                     _('Confirmer'),
@@ -826,7 +826,7 @@ class RejectValidationForm(forms.Form):
         self.helper.form_id = 'reject'
 
         self.helper.layout = Layout(
-            CommonLayoutModalText(),
+            Field('text'),
             ButtonHolder(
                 StrictButton(
                     _('Rejeter'),
@@ -881,7 +881,7 @@ class RevokeValidationForm(forms.Form):
         self.helper.form_id = 'unpublish'
 
         self.helper.layout = Layout(
-            CommonLayoutModalText(),
+            Field('text'),
             Field('version'),
             StrictButton(
                 _('Dépublier'),
@@ -1120,7 +1120,7 @@ class UnpublicationForm(forms.Form):
         self.helper.form_id = 'unpublish'
 
         self.helper.layout = Layout(
-            CommonLayoutModalText(),
+            Field('text'),
             Field('version'),
             StrictButton(
                 _('Dépublier'),
