@@ -1084,7 +1084,6 @@ class PublicationForm(forms.Form):
         self.helper.form_id = 'valid-publication'
 
         self.helper.layout = Layout(
-            CommonLayoutModalText(),
             Field('source'),
             HTML("<p>Ce billet sera publié directement et n'engage que vous.</p>"),
             StrictButton(_('Publier'), type='submit')
@@ -1148,7 +1147,6 @@ class PickOpinionForm(forms.Form):
         self.helper.layout = Layout(
             HTML('<p>Êtes-vous certain(e) de vouloir valider ce billet ? '
                  'Il pourra maintenant être présent sur la page d’accueil.</p>'),
-            CommonLayoutModalText(),
             Field('version'),
             StrictButton(
                 _('Valider'),
@@ -1174,7 +1172,6 @@ class DoNotPickOpinionForm(forms.Form):
 
         self.helper.layout = Layout(
             HTML(_("<p>Ce billet n'apparaîtra plus dans la liste des billets à choisir.</p>")),
-            CommonLayoutModalText(),
             Field('operation'),
             StrictButton(
                 _('Valider'),
@@ -1250,7 +1247,6 @@ class PromoteOpinionToArticleForm(forms.Form):
 
         self.helper.layout = Layout(
             HTML('<p>Êtes-vous certain(e) de vouloir promouvoir ce billet en article ?</p>'),
-            CommonLayoutModalText(),
             Field('version'),
             StrictButton(
                 _('Valider'),
