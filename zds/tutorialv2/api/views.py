@@ -88,7 +88,7 @@ class ExportView(ListCreateAPIView):
             if not publishable_content.public_version:
                 raise Http404('Not public content')
             tmp_dir, _ = self.ensure_directories(publishable_content)
-            versioned = publishable_content.public_version.load_public_version()
+            versioned = publishable_content.load_version(public=True)
             base_name = str(Path(tmp_dir, versioned.slug))
             md_file_path = str(Path(tmp_dir, versioned.slug + '.md'))
 
