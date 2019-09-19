@@ -647,7 +647,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
             return self._description
         if not self.versioned_model:
             self.load_public_version()
-        self._description = self.versioned_model.description or self.versioned_model.get_introduction()
+        self._description = self.versioned_model.description or self.versioned_model.get_introduction() or ''
         if self._description:
             self._description = self._description[:settings.ZDS_APP['forum']['description_size']]
         return self._description
