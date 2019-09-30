@@ -34,12 +34,12 @@ if __name__ == '__main__':
     try:
         import django
     except ImportError:
-        if os.environ.get('virtual_env') is None:
-            print('\033[36;1mINFO: No virtual_env detected, '
+        if os.environ.get('VIRTUAL_ENV') is None:
+            print('\033[36;1mINFO: No VIRTUAL_ENV detected, '
             'usually contributors use virtual environment `zdsenv`\033[00;0m')
-        elif os.path.normpath(os.environ.get('virtual_env')) != os.path.normpath('./zdsenv'):
-            print('\033[36;1mINFO: The current virtual_env is `%s`, '
-            'usually contributors use `./zdsenv`\033[00;0m' % os.environ.get('virtual_env'))
+        elif os.path.normpath(os.environ.get('VIRTUAL_ENV')) != os.path.normpath('./zdsenv'):
+            print('\033[36;1mINFO: The current VIRTUAL_ENV is `%s`, '
+            'usually contributors use `./zdsenv`\033[00;0m' % os.environ.get('VIRTUAL_ENV'))
 
         print("\033[31;1mYour environment does not have django, please run pip install -r requirements-dev.txt\033[00;0m")
         sys.exit(1)
