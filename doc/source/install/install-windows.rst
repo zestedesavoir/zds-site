@@ -41,7 +41,7 @@ Cas numéro 2 : fonctionnement sur windows lui-même
 - Installez setuptools : Démarrez Powershell en mode administrateur et lancez la commande suivante : ``Set-ExecutionPolicy RemoteSigned``
 - Installez Virtualenv avec les commandes suivante :
     - ``pip install virtualenv``
-- Clonez le dépot git *via la console git** (ou bien avec powershell qui ne doit pas exécuté en tant qu'administrateur): ``git clone https://github.com/zestedesavoir/zds-site.git``
+- Clonez le dépot git *via la console git** (ou bien avec powershell qui ne doit pas être exécuté en tant qu'administrateur): ``git clone https://github.com/zestedesavoir/zds-site.git``
 - Créez votre workspace dédié à ZdS (mode administrateur obligatoire).
     - se placer dans le dossier du dépôt cloné (``zds-site``)
     - tapez ``virtualenv zdsenv`` (il va alors créer l'environnement virtuel ``zdenv``)
