@@ -1,4 +1,4 @@
-{% extends "tutorialv2/base.html" %}
+{% extends "tutorialv2/base_content.html" %}
 {% load set %}
 {% load thumbnail %}
 {%  load emarkdown %}
@@ -96,7 +96,7 @@
 
 
 
-{% block content %}
+{% block content_intro %}
     {% if not container.ready_to_publish %}
         <div class="alert-box ico-alerts">
             {% trans "Cette partie n'est pas prête à la publication. En cas de validation, elle ne sera pas publiée." %}
@@ -116,8 +116,7 @@
             </p>
         </div>
     {% endif %}
-
-     {% if container.has_extracts or container.can_add_extract %}
+    {% if container.has_extracts or container.can_add_extract %}
         <ul>
             {% for extract in container.children %}
                 <li>
@@ -139,88 +138,94 @@
             {% endif %}
         </ul>
     {% endif %}
+{% endblock %}
 
+{% block content_parts %}
     {% for child in container.children %}
         {%  include "tutorialv2/includes/child.part.html" with child=child %}
     {% empty %}
-        {% if not can_add_something or not container.is_chapter %}
-            <div class="ico-after warning">
-                <p>
-                    {{ "Ce"|feminize:container.get_level_as_string }} {{ container.get_level_as_string|lower }}  {% trans " est actuellement vide." %}
-                </p>
-                {% if container.can_add_extract and container.can_add_container and can_add_something %}
-                    <ul>
-                        <li>
-                            <a href="{% if container.parent == content %}
-                                        {% url "content:create-container" content.pk content.slug container.slug %}
-                                    {%  else %}
-                                        {% url "content:create-container" content.pk content.slug container.parent.slug %}
-                                    {%  endif %}">{% trans "Ajouter un chapitre" %}</a>
-                            {% trans " pour adopter le format big-tuto et ajouter des sections ;" %}
-                        </li>
-                        <li>
-                            <a href="{% if container.parent == content %}
-                                        {% url "content:create-extract" content.pk content.slug container.slug %}
-                                    {%  else %}
-                                        {% url "content:create-extract" content.pk content.slug container.parent.slug %}
-                                    {%  endif %}">{% trans "Ajouter une section" %}</a>
-                        </li>
-                    </ul>
-                {% endif %}
-            </div>
-        {% endif %}
+        <div class="part">
+            {% if not can_add_something or not container.is_chapter %}
+                <div class="ico-after warning">
+                    <p>
+                        {{ "Ce"|feminize:container.get_level_as_string }} {{ container.get_level_as_string|lower }}  {% trans " est actuellement vide." %}
+                    </p>
+                    {% if container.can_add_extract and container.can_add_container and can_add_something %}
+                        <ul>
+                            <li>
+                                <a href="{% if container.parent == content %}
+                                            {% url "content:create-container" content.pk content.slug container.slug %}
+                                        {%  else %}
+                                            {% url "content:create-container" content.pk content.slug container.parent.slug %}
+                                        {%  endif %}">{% trans "Ajouter un chapitre" %}</a>
+                                {% trans " pour adopter le format big-tuto et ajouter des sections ;" %}
+                            </li>
+                            <li>
+                                <a href="{% if container.parent == content %}
+                                            {% url "content:create-extract" content.pk content.slug container.slug %}
+                                        {%  else %}
+                                            {% url "content:create-extract" content.pk content.slug container.parent.slug %}
+                                        {%  endif %}">{% trans "Ajouter une section" %}</a>
+                            </li>
+                        </ul>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
     {% endfor %}
     {% if can_add_something %}
-        {% if container.can_add_container and not container.can_add_extract %}
-            <h2>
-                <a class="force-blue" href="{% if container.parent == content %}
-                            {% url "content:create-container" content.pk content.slug container.slug %}
-                        {%  else %}
-                            {% url "content:create-container" content.pk content.slug container.parent.slug %}
-                        {%  endif %}">
-                    {% trans "Ajouter un chapitre" %}
-                </a>
-            </h2>
-            <div class="actions-title">
-                <a href="{% if container.parent == content %}
-                            {% url "content:create-container" content.pk content.slug container.slug %}
-                        {%  else %}
-                            {% url "content:create-container" content.pk content.slug container.parent.slug %}
-                        {%  endif %}" class="ico-after more btn btn-grey">
-                    {% trans "Ajouter" %}
-                </a>
-            </div>
-            <div class="ico-after information">
-                <p>{% trans "Cliquer sur ajouter pour ajouter un nouveau chapitre." %}</p>
-            </div>
-        {% endif %}
-        {% if not container.can_add_container and container.can_add_extract %}
-            <h2 class="force-blue">
-                <a href="{% if container.parent == content %}
-                            {% url "content:create-extract" content.pk content.slug container.slug %}
-                        {%  else %}
-                            {% url "content:create-extract" content.pk content.slug container.parent.slug container.slug %}
-                        {%  endif %}">
-                    {% trans "Ajouter une section" %}
-                </a>
-            </h2>
-            <div class="actions-title">
-                <a href="{% if container.parent == content %}
-                            {% url "content:create-extract" content.pk content.slug container.slug %}
-                        {%  else %}
-                            {% url "content:create-extract" content.pk content.slug container.parent.slug container.slug %}
-                        {%  endif %}" class="ico-after more btn btn-grey">
-                    {% trans "Ajouter" %}
-                </a>
-            </div>
-            <div class="ico-after information">
-                <p>{% trans "Cliquer sur ajouter pour rédiger une nouvelle section." %}</p>
-            </div>
-        {% endif %}
+        <div class="part">
+            {% if container.can_add_container and not container.can_add_extract %}
+                <h2>
+                    <a class="force-blue" href="{% if container.parent == content %}
+                                {% url "content:create-container" content.pk content.slug container.slug %}
+                            {%  else %}
+                                {% url "content:create-container" content.pk content.slug container.parent.slug %}
+                            {%  endif %}">
+                        {% trans "Ajouter un chapitre" %}
+                    </a>
+                </h2>
+                <div class="actions-title">
+                    <a href="{% if container.parent == content %}
+                                {% url "content:create-container" content.pk content.slug container.slug %}
+                            {%  else %}
+                                {% url "content:create-container" content.pk content.slug container.parent.slug %}
+                            {%  endif %}" class="ico-after more btn btn-grey">
+                        {% trans "Ajouter" %}
+                    </a>
+                </div>
+                <div class="ico-after information">
+                    <p>{% trans "Cliquer sur ajouter pour ajouter un nouveau chapitre." %}</p>
+                </div>
+            {% endif %}
+            {% if not container.can_add_container and container.can_add_extract %}
+                <h2 class="force-blue">
+                    <a href="{% if container.parent == content %}
+                                {% url "content:create-extract" content.pk content.slug container.slug %}
+                            {%  else %}
+                                {% url "content:create-extract" content.pk content.slug container.parent.slug container.slug %}
+                            {%  endif %}">
+                        {% trans "Ajouter une section" %}
+                    </a>
+                </h2>
+                <div class="actions-title">
+                    <a href="{% if container.parent == content %}
+                                {% url "content:create-extract" content.pk content.slug container.slug %}
+                            {%  else %}
+                                {% url "content:create-extract" content.pk content.slug container.parent.slug container.slug %}
+                            {%  endif %}" class="ico-after more btn btn-grey">
+                        {% trans "Ajouter" %}
+                    </a>
+                </div>
+                <div class="ico-after information">
+                    <p>{% trans "Cliquer sur ajouter pour rédiger une nouvelle section." %}</p>
+                </div>
+            {% endif %}
+        </div>
     {% endif %}
+{% endblock %}
 
-    <hr />
-
+{% block content_conclu %}
     {% if container.conclusion and container.get_conclusion %}
         {{ container.get_conclusion|emarkdown:is_js }}
     {% elif not content.is_beta %}
@@ -269,7 +274,7 @@
         {% elif not version or version != content.sha_draft %}
             <a href="{{ object.get_absolute_url }}" class="ico-after arrow-right blue new-btn">
                 {% trans "Version brouillon" %}
-            </a> -->
+            </a>
         {%  endif %}
     {% endif %}
 {% endblock %}

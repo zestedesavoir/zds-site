@@ -90,6 +90,8 @@ function js() {
         require.resolve('moment/moment.js'),
         require.resolve('moment/locale/fr.js'),
         require.resolve('chart.js/dist/Chart.js'),
+        require.resolve('sortablejs'),
+        require.resolve('jquery-sortablejs'),
         // Used by other scripts, must be first
         'assets/js/modal.js',
         'assets/js/tooltips.js',

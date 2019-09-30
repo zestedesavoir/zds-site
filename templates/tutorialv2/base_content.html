@@ -1,0 +1,14 @@
+{% extends "tutorialv2/base.html" %}
+
+
+{% block content_page %}
+    <section class="article-content">
+        {% block content_intro %}{% endblock %}
+    </section>
+    <section class="article-content parts">
+        {% block content_parts %}{% endblock %}
+    </section>
+    <section class="article-content hr-btop clearfix">
+        {% block content_conclu %}{% endblock %}
+    </section>
+{% endblock %}

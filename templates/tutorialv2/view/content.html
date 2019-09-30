@@ -1,4 +1,4 @@
-{% extends "tutorialv2/base.html" %}
+{% extends "tutorialv2/base_content.html" %}
 {% load emarkdown %}
 {% load crispy_forms_tags %}
 {% load thumbnail %}
@@ -137,7 +137,7 @@
 {% endblock %}
 
 
-{% block content %}
+{% block content_intro %}
     {% if content.introduction and content.get_introduction != "" %}
         {{ content.get_introduction|emarkdown:is_js }}
     {% elif not content.is_beta %}
@@ -150,7 +150,6 @@
             </p>
         </div>
     {% endif %}
-
     {% if content.has_extracts or content.can_add_extract %}
         <ul>
             {% for extract in content.children %}
@@ -169,25 +168,29 @@
             {% endif %}
         </ul>
     {% endif %}
+{% endblock %}
 
+{% block content_parts %}
     {% for child in content.children %}
         {% include "tutorialv2/includes/child.part.html" with child=child %}
     {% empty %}
         {% if content.can_add_extract and content.can_add_container and can_add_something %}
-            <div class="ico-after warning">
-                <p>
-                    {% trans "Ce contenu est actuellement vide." %}{% trans "Vous pouvez :" %}
-                </p>
-                <ul>
-                    <li>
-                        <a href="{% url "content:create-container" content.pk content.slug %}">{% trans "Ajouter une partie" %}</a>
-                        {% trans " pour adopter le format big-tuto ou moyen-tuto. Vous pourrez y ajouter des chapitres ou des sections ;" %}
-                    </li>
-                    <li>
-                        <a href="{% url "content:create-extract" content.pk content.slug %}">{% trans "Ajouter une section" %}</a>
-                        {% trans " pour adopter le format mini-tuto composé uniquement de section." %}
-                    </li>
-                </ul>
+            <div class="part">
+                <div class="ico-after warning">
+                    <p>
+                        {% trans "Ce contenu est actuellement vide." %}{% trans "Vous pouvez :" %}
+                    </p>
+                    <ul>
+                        <li>
+                            <a href="{% url "content:create-container" content.pk content.slug %}">{% trans "Ajouter une partie" %}</a>
+                            {% trans " pour adopter le format big-tuto ou moyen-tuto. Vous pourrez y ajouter des chapitres ou des sections ;" %}
+                        </li>
+                        <li>
+                            <a href="{% url "content:create-extract" content.pk content.slug %}">{% trans "Ajouter une section" %}</a>
+                            {% trans " pour adopter le format mini-tuto composé uniquement de section." %}
+                        </li>
+                    </ul>
+                </div>
             </div>
         {% elif not can_add_something or not content.can_add_extract and not content.can_add_container %}
             <div class="ico-after warning">
@@ -199,41 +202,43 @@
     {% endfor %}
     {% if can_add_something %}
         {% if content.can_add_container and not content.can_add_extract %}
-            <h2>
-                <a class="force-blue" href="{% url "content:create-container" content.pk content.slug %}">
-                    {% trans "Ajouter une nouvelle partie" %}
-                </a>
-            </h2>
-            <div class="actions-title">
-                <a href="{% url "content:create-container" content.pk content.slug %}" class="ico-after more btn btn-grey">
-                    {% trans "Ajouter" %}
-                </a>
-            </div>
-            <div class="ico-after information">
-                <p>{% trans "Cette partie n'est pas encore créée. Vous devez la créer avant de pouvoir y ajouter un élément." %}</p>
+            <div class="part">
+                <h2>
+                    <a class="force-blue" href="{% url "content:create-container" content.pk content.slug %}">
+                        {% trans "Ajouter une nouvelle partie" %}
+                    </a>
+                </h2>
+                <div class="actions-title">
+                    <a href="{% url "content:create-container" content.pk content.slug %}" class="ico-after more btn btn-grey">
+                        {% trans "Ajouter" %}
+                    </a>
+                </div>
+                <div class="ico-after information">
+                    <p>{% trans "Cette partie n'est pas encore créée. Vous devez la créer avant de pouvoir y ajouter un élément." %}</p>
+                </div>
             </div>
         {% endif %}
         {% if not content.can_add_container and content.can_add_extract %}
-            <h2>
-                <a class="force-blue" href="{% url "content:create-extract" content.pk content.slug %}">
-                    {% trans "Ajouter une section" %}
-                </a>
-            </h2>
-            <div class="actions-title">
-                <a href="{% url "content:create-extract" content.pk content.slug %}" class="ico-after more btn btn-grey">
-                    {% trans "Ajouter" %}
-                </a>
-            </div>
-            <div class="ico-after information">
-                <p>{% trans "Cliquer sur ajouter pour rédiger une nouvelle section." %}</p>
+            <div class="part">
+                <h2>
+                    <a class="force-blue" href="{% url "content:create-extract" content.pk content.slug %}">
+                        {% trans "Ajouter une section" %}
+                    </a>
+                </h2>
+                <div class="actions-title">
+                    <a href="{% url "content:create-extract" content.pk content.slug %}" class="ico-after more btn btn-grey">
+                        {% trans "Ajouter" %}
+                    </a>
+                </div>
+                <div class="ico-after information">
+                    <p>{% trans "Cliquer sur ajouter pour rédiger une nouvelle section." %}</p>
+                </div>
             </div>
         {% endif %}
     {% endif %}
+{% endblock %}
 
-
-    <hr class="clearfix" />
-    <hr />
-
+{% block content_conclu %}
     {% if content.conclusion and content.get_conclusion != "" %}
         {{ content.get_conclusion|emarkdown:is_js }}
     {% elif not content.is_beta %}
@@ -250,6 +255,7 @@
     {% if content.is_beta %}
         {% include "tutorialv2/includes/warn_typo.part.html" with content=content %}
     {% endif %}
+</section>
 {% endblock %}
 
 
