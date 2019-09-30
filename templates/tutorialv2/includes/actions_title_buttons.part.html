@@ -9,8 +9,9 @@
     <li>
         <a href="#move-{{ child.slug }}" class="open-modal ico-after move btn btn-grey simple-move-button">{% trans "Déplacer" %}</a>
         <form action="{% url "content:move-element" %}" method="post" class="modal modal-flex" id="move-{{ child.slug }}">
+            <label>{% blocktrans with title=child.title %}Déplacer {{ title }} :{% endblocktrans %}</label>
+
             <select name="moving_method">
-                <option disabled="disabled">{% trans "Déplacer" %}</option>
                 {% if child.position_in_parent > 1 %}
                     <option value="up">{% trans "Monter" %}</option>
                 {% endif %}
@@ -18,20 +19,24 @@
                 {% if child.position_in_parent < child.parent.children|length %}
                     <option value="down">{% trans "Descendre" %}</option>
                 {% endif %}
-                <option disabled="disabled">&mdash; {% trans "Déplacer avant" %}</option>
-                {% for element in child|target_tree %}
-                        <option value="before:{{element.0}}"
-                        {% if not element.3 %} disabled {% endif %}>
-                             &mdash;&mdash;{% for _ in element.2|times %}&mdash;{% endfor %}{{ element.1|truncatechars:50 }}
-                        </option>
-                {% endfor %}
-                <option disabled="disabled">&mdash; {% trans "Déplacer après" %}</option>
-                {% for element in child|target_tree %}
+
+                <optgroup label="{% trans "Déplacer après" %}">
+                    {% for element in child|target_tree %}
+
+                        {% if not prevElement.3 and element.3  %}
+                            <option value="before:{{element.0}}">
+                                 {% for _ in element.2|times %}&mdash;{% endfor %}Intro {{ prevElement.1|truncatechars:50 }}
+                            </option>
+                        {% endif %}
+
                         <option value="after:{{element.0}}"
                         {% if not element.3 %} disabled {% endif %}>
-                             &mdash;&mdash;{% for _ in element.2|times %}&mdash;{% endfor %}{{ element.1|truncatechars:50 }}
+                             {% for _ in element.2|times %}&mdash;{% endfor %}{{ element.1|truncatechars:50 }}
                         </option>
-                {% endfor %}
+
+                        {% set element as prevElement %}
+                    {% endfor %}
+                </optgroup>
             </select>
             <input type="hidden" name="child_slug" value="{{ child.slug }}">
             {% if child.text %}

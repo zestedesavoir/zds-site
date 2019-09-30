@@ -86,6 +86,10 @@
         textarea {
             margin: 0 0 15px;
         }
+
+        & > select {
+            width:100%;
+        }
     }
 
     .modal-footer {
