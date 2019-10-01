@@ -25,7 +25,7 @@
     </h2>
 
     {% if can_add_something %}
-        {% include "tutorialv2/includes/action_title_buttons.part.html" %}
+        {% include "tutorialv2/includes/actions_title_buttons.part.html" %}
     {% endif %}
 
     {% if child.text %}
@@ -81,7 +81,7 @@
                             >{{ subchild.title }}</a>
                         </h3>
                         {% if can_add_something %}
-                            {% include "tutorialv2/includes/action_title_buttons.part.html" with child=subchild %}
+                            {% include "tutorialv2/includes/actions_title_buttons.part.html" with child=subchild %}
                         {% endif %}
                         <ol class="summary-part" data-children-type="section">
                             {% for extract in subchild.children %}
