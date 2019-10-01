@@ -80,17 +80,18 @@
         list-style-type: '';
         .btn {
             float:none;
+            font-size: 14px;
             display:inline-block;
             line-height: 32px;
             height: 32px;
             border-radius: 2px;
-            vertical-align: middle;
+            vertical-align: bottom;
             padding:0 12px 0 8px;
 
             &::before {
                 content: '+ ';
                 font-size: 28px;
-                vertical-align: middle;
+                vertical-align: bottom;
                 padding-bottom: 3px; /* hack font vertical-align between + and ABC (letters) */
             }
             margin-left:-18px;
@@ -157,10 +158,6 @@
 
     .new-btn-container {
         display: none;
-    }
-
-    .summary-part h4 > a.disabled {
-        background: none !important;
     }
 }
 
@@ -259,15 +256,6 @@
                     margin: 0;
                 }
             }
-
-            /*.article-content > .summary-part > li {
-                float: left;
-                width: 50%;
-
-                &:nth-child(2n+1) {
-                    clear: both;
-                }
-            }*/
         }
 
         .sidebar {

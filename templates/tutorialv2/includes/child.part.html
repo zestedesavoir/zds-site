@@ -113,9 +113,9 @@
                 {% endif %}
             </ol>
         {% elif child.has_sub_containers %}
-            <ol class="summary-part" data-children-type="container">
+            <div class="containers" data-children-type="container">
                 {% for subchild in child.children %}
-                    <li>
+                    <div class="article-part">
                         <h3 class="{% if not subchild.ready_to_publish %}not-ready{% endif %}">
                             <a
                             {% if content.is_beta %}
@@ -141,18 +141,16 @@
                             {% endfor %}
                             {% if can_add_something %}
                                 <li class="simple-create-button">
-                                    <h4>
-                                        <a class="btn btn-grey"
-                                            href="{% url "content:create-extract" content.pk child.parent.slug child.slug subchild.slug %}"
-                                        >{% trans "Ajouter une section" %}</a>
-                                    </h4>
+                                    <a class="btn btn-grey"
+                                        href="{% url "content:create-extract" content.pk child.parent.slug child.slug subchild.slug %}"
+                                    >{% trans "Ajouter une section" %}</a>
                                 </li>
                             {% endif %}
                         </ol>
-                    </li>
+                    </div>
                 {% endfor %}
                 {% if can_add_something and child.can_add_container %}
-                    <li>
+                    <div>
                         <h3>
                             <a class="force-blue"
                                 href="{% url "content:create-container" content.pk child.parent.slug child.slug %}"
@@ -162,9 +160,9 @@
                             <li><h4><a class="disabled">{% trans "Section A" %}</a></h4></li>
                             <li><h4><a class="disabled">{% trans "Section B" %}</a></h4></li>
                         </ol>
-                    </li>
+                    </div>
                 {% endif %}
-            </ol>
+            </div>
         {% else %}
             {% if not can_add_something or not child.is_chapter %}
             <div class="ico-after warning">
