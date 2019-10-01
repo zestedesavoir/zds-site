@@ -15,7 +15,7 @@
         const $from = $(evt.dragged).parent()
         if (!$to.is($from)) {
           // Element is dragged into the list from another list
-          if ($from.parent().is(".containers > .article-part")) { // is: chapter > section
+          if ($from.parent().is(".article-containers > .article-part")) { // is: chapter > section
             $(evt.dragged).find("> h4 > a").unwrap().wrap("<h3></h3>")
           } else { // is: part > chapter > section 
             $(evt.dragged).find("> h3 > a").unwrap().wrap("<h4></h4>")

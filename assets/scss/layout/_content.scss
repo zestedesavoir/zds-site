@@ -43,6 +43,17 @@
         }
     }
 
+    .article-containers {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .article-containers > .article-part {
+        flex: 0 50%;
+        box-sizing: border-box;
+        padding-left:1em;
+    }
+
     .article-content .article-part {
         h3, h4 {
             font-weight: normal;
