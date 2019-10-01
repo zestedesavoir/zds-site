@@ -4,6 +4,13 @@
 (function(document, $, undefined){
   "use strict"
 
+  function hideMoveButton() {
+    /* TODO : REMOVE this and update the selectlist with js */
+    /* because the list is not updated */
+    console.log("ok")
+    $(".simple-move-button").hide();
+  }
+
   $(document).ready(function(){
     $("ol[data-children-type=section]").sortable({
       group: 'section',
@@ -24,7 +31,8 @@
 
         if ($(evt.related).is(".simple-create-button"))
           return false
-      }
+      },
+      onEnd: hideMoveButton
     })
     $("*[data-children-type=container]").sortable({
       group: 'container',
@@ -47,7 +55,8 @@
 
         if ($(evt.related).is(".simple-create-part"))
           return false
-      }
+      },
+      onEnd: hideMoveButton
     });
   })
 })(document, jQuery)
