@@ -30,37 +30,41 @@
 {% else %}
     {# child is a container #}
 
-    {% if child.has_extracts %}
-        <ol>
-            {% for extract in child.children %}
-                <li>
-                    <a href="{{ extract.container.get_absolute_url_online }}#{{ extract.position_in_parent }}-{{ extract.slug }}">{{ extract.title }}</a>
-                </li>
-            {% endfor %}
-        </ol>
-    {%  elif child.has_sub_containers %}
-        <ol class="summary-part">
-            {% for subchild in child.children %}
-            <li>
-                <h3>
-                    <a
-                        href="{{ subchild.get_absolute_url_online }}"
+    <div class="article-part">
+        {% if child.has_extracts %}
+            <ol class="summary-part">
+                {% for extract in child.children %}
+                    <li>
+                        <h3>
+                            <a href="{{ extract.container.get_absolute_url_online }}#{{ extract.position_in_parent }}-{{ extract.slug }}">{{ extract.title }}</a>
+                        </h3>
+                    </li>
+                {% endfor %}
+            </ol>
+        {%  elif child.has_sub_containers %}
+            <div class="containers">
+                {% for subchild in child.children %}
+                <div class="article-part">
+                    <h3>
+                        <a
+                            href="{{ subchild.get_absolute_url_online }}"
 
-                    >{{ subchild.title }}</a>
-                </h3>
-                <ol class="summary-part">
-                    {% for extract in subchild.children %}
-                        <li>
-                            <h4>
-                                <a href="{{ extract.container.get_absolute_url_online }}#{{ extract.position_in_parent }}-{{ extract.slug }}">{{ extract.title }}</a>
-                            </h4>
-                        </li>
-                    {% endfor %}
-                </ol>
-            </li>
-            {% endfor %}
-        </ol>
-    {% endif %}
+                        >{{ subchild.title }}</a>
+                    </h3>
+                    <ol class="summary-part">
+                        {% for extract in subchild.children %}
+                            <li>
+                                <h4>
+                                    <a href="{{ extract.container.get_absolute_url_online }}#{{ extract.position_in_parent }}-{{ extract.slug }}">{{ extract.title }}</a>
+                                </h4>
+                            </li>
+                        {% endfor %}
+                    </ol>
+                </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
 {% endif %}
 
 
