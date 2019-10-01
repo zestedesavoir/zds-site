@@ -193,10 +193,12 @@
                 </div>
             </div>
         {% elif not can_add_something or not content.can_add_extract and not content.can_add_container %}
-            <div class="ico-after warning">
-                <p>
-                    {% trans "Ce contenu est actuellement vide." %}
-                </p>
+            <div class="extract-wrapper">
+                <div class="ico-after warning">
+                    <p>
+                        {% trans "Ce contenu est actuellement vide." %}
+                    </p>
+                </div>
             </div>
         {% endif %}
     {% endfor %}

@@ -30,17 +30,18 @@
 
     {% if child.text %}
         {# child is an extract #}
-        {% if child.get_text.strip|length == 0 %}
-            <div class="ico-after warning">
-                <p>
-                    {% trans "Cette section est actuellement vide." %}
-                </p>
-            </div>
-        {% else %}
-            <div class="extract-wrapper">
+
+        <div class="extract-wrapper">
+            {% if child.get_text.strip|length == 0 %}
+                <div class="ico-after warning">
+                    <p>
+                        {% trans "Cette section est actuellement vide." %}
+                    </p>
+                </div>
+            {% else %}
                 {{ child.get_text|emarkdown:is_js }}
-            </div>
-        {% endif %}
+            {% endif %}
+        </div>
     {% else %}
         {# child is a container #}
 
