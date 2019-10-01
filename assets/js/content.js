@@ -17,10 +17,6 @@
         return $(dragged).is('.simple-create-button');
       },
       onMove: (evt) => {
-        if ($(evt.related).is('.simple-create-button')) {
-          return false;
-        }
-
         const $to = $(evt.related).parent();
         const $from = $(evt.dragged).parent();
 
@@ -31,6 +27,10 @@
           } else { // is: part > chapter > section 
             $(evt.dragged).find('> h3 > a').unwrap().wrap('<h4></h4>');
           }
+        }
+
+        if ($(evt.related).is('.simple-create-button')) {
+          return -1;
         }
       },
       onEnd: hideMoveButton
