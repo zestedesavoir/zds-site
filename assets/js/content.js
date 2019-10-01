@@ -17,8 +17,12 @@
         return $(dragged).is('.simple-create-button')
       },
       onMove: (evt) => {
+        if ($(evt.related).is('.simple-create-button'))
+          return false
+
         const $to = $(evt.related).parent()
         const $from = $(evt.dragged).parent()
+
         if (!$to.is($from)) {
           // Element is dragged into the list from another list
           if ($from.parent().is('.article-containers > .article-part')) { // is: chapter > section
@@ -27,9 +31,6 @@
             $(evt.dragged).find('> h3 > a').unwrap().wrap('<h4></h4>')
           }
         }
-
-        if ($(evt.related).is('.simple-create-button'))
-          return false
       },
       onEnd: hideMoveButton
     })
@@ -39,8 +40,12 @@
         return $(dragged).is('.simple-create-part')
       },
       onMove: (evt) => {
+        if ($(evt.related).is('.simple-create-part'))
+          return false
+
         const $to = $(evt.related).parent()
         const $from = $(evt.dragged).parent()
+
         if (!$to.is($from)) {
           // Element is dragged into the list from another list
           if ($to.is('section')) { // is: chapter > section
@@ -51,9 +56,6 @@
             $(evt.dragged).find('ol h3 > a').unwrap().wrap('<h4></h4>')
           }
         }
-
-        if ($(evt.related).is('.simple-create-part'))
-          return false
       },
       onEnd: hideMoveButton
     });
