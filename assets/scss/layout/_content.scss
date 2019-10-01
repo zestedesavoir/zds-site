@@ -54,7 +54,54 @@
         padding-left: 1em;
     }
 
+
+    .article-content.parts {
+        /* >> The drag'n'drop will be not capricious if we replace margin by padding */
+        /* .. 1 .. */
+        /* Convert h2 margin-bottom to padding-top */
+        .article-part h2 {
+            margin-bottom: 0px;
+        }
+
+        /* Canceled by [.. 3 ..]
+        .article-containers {
+            padding-top: 20px;
+        } */
+
+        /* .. 2 .. */
+        /* Convert h2 margin-top to padding-bottom */
+        .article-part h2 {
+            margin-top: 0px;
+        }
+
+
+        .article-containers,
+        & > .article-part > ol {
+            padding-bottom: 20px;
+        }
+
+        margin-top: 20px;
+
+        /* .. 3 .. */
+        /* Stay in when we are on h2 */
+        .article-part h2 {
+            margin-bottom: -52px;
+        }
+
+        .article-part.simple-create-part h2 {
+            margin-bottom: 0;
+        }
+
+        & > .article-part > ol,
+        & > .article-part > .article-containers {
+            /* [.. 3 ..] + [.. 1 ..] = 52 + 20 = 72 */
+            padding-top: 72px;
+        }
+        /* << */
+    }
+
     .article-content .article-part {
+        overflow:hidden;
         h3, h4 {
             font-weight: normal;
             margin: 0 0 5px;
@@ -99,7 +146,6 @@
 
     .article-content,
     .message-content {
-        margin-bottom: 20px;
         color: #424242;
 
         @import "base/content";
