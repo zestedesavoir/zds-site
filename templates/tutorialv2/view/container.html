@@ -144,7 +144,7 @@
     {% for child in container.children %}
         {%  include "tutorialv2/includes/child.part.html" with child=child %}
     {% empty %}
-        <div class="part">
+        <div class="article-part simple-create-part">
             {% if not can_add_something or not container.is_chapter %}
                 <div class="ico-after warning">
                     <p>
@@ -174,7 +174,7 @@
         </div>
     {% endfor %}
     {% if can_add_something %}
-        <div class="part">
+        <div class="article-part simple-create-part">
             {% if container.can_add_container and not container.can_add_extract %}
                 <h2>
                     <a class="force-blue" href="{% if container.parent == content %}

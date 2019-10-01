@@ -28,6 +28,9 @@
     })
     $("*[data-children-type=container]").sortable({
       group: 'container',
+      filter: function (pointer, dragged) {
+        return $(dragged).is(".simple-create-part")
+      },
       onMove: (evt) => {
         const $to = $(evt.related).parent()
         const $from = $(evt.dragged).parent()
@@ -42,7 +45,7 @@
           }
         }
 
-        if ($(evt.related).is(".simple-create-button"))
+        if ($(evt.related).is(".simple-create-part"))
           return false
       }
     });

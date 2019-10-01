@@ -51,7 +51,7 @@
     .article-containers > .article-part {
         flex: 0 50%;
         box-sizing: border-box;
-        padding-left:1em;
+        padding-left: 1em;
     }
 
     .article-content .article-part {
@@ -81,9 +81,13 @@
             font-size: 16px;
         }
 
+        & > .article-part .actions-title {
+            display: none;
+        }
+
         & > .article-part h3 {
             font-size: 20px;
-            padding-left:15px;
+            padding-left: 15px;
         }
 
         & > .article-part ol {}

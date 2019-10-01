@@ -150,7 +150,7 @@
                     </div>
                 {% endfor %}
                 {% if can_add_something and child.can_add_container %}
-                    <div>
+                    <div class="article-part simple-create-part">
                         <h3>
                             <a class="force-blue"
                                 href="{% url "content:create-container" content.pk child.parent.slug child.slug %}"
