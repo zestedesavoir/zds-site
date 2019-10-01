@@ -62,28 +62,6 @@ h6 {
     margin-bottom: 10px;
 }
 
-.actions-title {
-    float: right;
-    margin: -40px 10px 0 0;
-
-    .btn {
-        height: 30px;
-        line-height: 30px;
-        margin-left: 3px;
-        opacity: .7;
-        z-index: 1;
-
-        &.ico-after:after {
-            margin-top: 7px;
-        }
-
-        &:hover,
-        &:focus {
-            opacity: 1;
-        }
-    }
-}
-
 
 
 .custom-block {

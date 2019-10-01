@@ -24,7 +24,7 @@
         p,
         > a,
         p a,
-        ul:not(.pagination),
+        ul:not(.pagination):not(.actions-title),
         ol:not(.summary-part) {
             font-family: $font-serif;
         }
@@ -50,6 +50,7 @@
 
     .article-containers > .article-part {
         flex: 0 50%;
+        width: 100%;
         box-sizing: border-box;
         padding-left: 1em;
     }
@@ -101,7 +102,9 @@
     }
 
     .article-content .article-part {
-        overflow:hidden;
+        overflow: hidden;
+        position: relative;
+
         h3, h4 {
             font-weight: normal;
             margin: 0 0 5px;
@@ -141,6 +144,61 @@
 
         h4 > a.disabled {
             background: none !important;
+        }
+
+        li.simple-create-button {
+            list-style-type: '';
+            .btn {
+                float:none;
+                font-size: 14px;
+                display:inline-block;
+                line-height: 32px;
+                height: 32px;
+                border-radius: 2px;
+                vertical-align: bottom;
+                padding:0 12px 0 8px;
+                white-space: nowrap;
+                min-width: 152px;
+
+                &::before {
+                    content: '+ ';
+                    font-size: 28px;
+                    vertical-align: bottom;
+                    padding-bottom: 3px; /* hack font vertical-align between + and ABC (letters) */
+                }
+                margin-left:-18px;
+            }
+        }
+    }
+
+    .article-content .article-part .actions-title {
+        position: absolute;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        top: 11px;
+        right: 10px;
+
+        li {
+            display: inline-block;
+        }
+
+        li .btn {
+            float: none !important;
+            height: 30px;
+            line-height: 30px;
+            margin-left: 3px;
+            opacity: .7;
+            z-index: 1;
+
+            &.ico-after:after {
+                margin-top: 7px;
+            }
+
+            &:hover,
+            &:focus {
+                opacity: 1;
+            }
         }
     }
 

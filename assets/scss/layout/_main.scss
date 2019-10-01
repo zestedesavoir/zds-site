@@ -76,28 +76,6 @@
         color:#1088bf !important;
     }
 
-    li.simple-create-button {
-        list-style-type: '';
-        .btn {
-            float:none;
-            font-size: 14px;
-            display:inline-block;
-            line-height: 32px;
-            height: 32px;
-            border-radius: 2px;
-            vertical-align: bottom;
-            padding:0 12px 0 8px;
-
-            &::before {
-                content: '+ ';
-                font-size: 28px;
-                vertical-align: bottom;
-                padding-bottom: 3px; /* hack font vertical-align between + and ABC (letters) */
-            }
-            margin-left:-18px;
-        }
-    }
-
     .license {
         float: right;
         margin: 0;
