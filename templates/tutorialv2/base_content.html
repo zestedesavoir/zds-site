@@ -5,7 +5,7 @@
     <section class="article-content">
         {% block content_intro %}{% endblock %}
     </section>
-    <section class="article-content parts" data-children-type="container">
+    <section class="article-content parts" data-children-type="container" data-slug="{{ content.slug }}" data-pk="{{ content.pk }}">
         {% block content_parts %}{% endblock %}
     </section>
     <section class="article-content hr-btop clearfix">
