@@ -13,6 +13,7 @@
   $(document).ready(function(){
     $('ol[data-children-type=section]').sortable({
       group: 'section',
+      handle: 'a',
       filter: function (pointer, dragged) {
         return $(dragged).is('.simple-create-button');
       },
@@ -37,6 +38,7 @@
     })
     $('*[data-children-type=container]').sortable({
       group: 'container',
+      handle: ["h2", "h3 a"],
       filter: function (pointer, dragged) {
         return $(dragged).is('.simple-create-part');
       },
