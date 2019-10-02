@@ -46,7 +46,7 @@
         {# child is a container #}
 
         {% if child.has_extracts %}
-            <ol class="summary-part" data-children-type="section" data-slug="{{ child.slug }}">
+            <ol class="summary-part" data-children-type="extract" data-slug="{{ child.slug }}">
                 {% for extract in child.children %}
                 <li data-slug="{{ extract.slug }}">
                     <h3>
@@ -84,7 +84,7 @@
                         {% if can_add_something %}
                             {% include "tutorialv2/includes/actions_title_buttons.part.html" with child=subchild %}
                         {% endif %}
-                        <ol class="summary-part" data-children-type="section" data-slug="{{ subchild.slug }}">
+                        <ol class="summary-part" data-children-type="extract" data-slug="{{ subchild.slug }}">
                             {% for extract in subchild.children %}
                                 <li data-slug="{{ extract.slug }}">
                                     <h4>

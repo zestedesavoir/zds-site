@@ -71,8 +71,8 @@
   }
 
   $(document).ready(function() {
-    $("ol[data-children-type=section]").sortable({
-      group: "section",
+    $("ol[data-children-type=extract]").sortable({
+      group: "extract",
       handle: "a",
       filter: function (pointer, dragged) {
         return $(dragged).is(".simple-create-button");
@@ -88,9 +88,9 @@
 
         if (!$to.is($from)) {
           // Element is dragged into the list from another list
-          if ($from.parent().is(".article-containers > .article-part")) { // is: chapter > section
+          if ($from.parent().is(".article-containers > .article-part")) { // is: chapter > extract
             $item.find("> h4 > a").unwrap().wrap("<h3></h3>");
-          } else { // is: part > chapter > section 
+          } else { // is: part > chapter > extract 
             $item.find("> h3 > a").unwrap().wrap("<h4></h4>");
           }
         }
@@ -119,10 +119,10 @@
 
         if (!$to.is($from)) {
           // Element is dragged into the list from another list
-          if ($to.is("section")) { // is: chapter > section
+          if ($to.is("section")) { // is: chapter > extract
             $item.find("> h3 > a").unwrap().wrap("<h2></h2>");
             $item.find("ol h4 > a").unwrap().wrap("<h3></h3>");
-          } else { // is: part > chapter > section 
+          } else { // is: part > chapter > extract 
             $item.find("> h2 > a").unwrap().wrap("<h3></h3>");
             $item.find("ol h3 > a").unwrap().wrap("<h4></h4>");
           }
