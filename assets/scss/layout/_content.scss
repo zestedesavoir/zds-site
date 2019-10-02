@@ -112,30 +112,32 @@
         overflow: hidden;
         position: relative;
 
-        h3, h4 {
-            font-weight: normal;
-            margin: 0 0 5px;
-            a {
-                text-decoration: none;
-                &:hover,
-                &:focus {
-                    text-decoration: underline;
+        &:not(.is-chapter) {
+            h3, h4 {
+                font-weight: normal;
+                margin: 0 0 5px;
+                a {
+                    text-decoration: none;
+                    &:hover,
+                    &:focus {
+                        text-decoration: underline;
+                    }
                 }
             }
-        }
 
-        li h3 a,
-        li h4 a {
-            color: lighten($color-primary, 20%);
-            transition: color $transition-duration ease, text-decoration $transition-duration ease;
+            li h3 a,
+            li h4 a {
+                color: lighten($color-primary, 20%);
+                transition: color $transition-duration ease, text-decoration $transition-duration ease;
 
-            &:hover {
-                color: darken($color-secondary, 15%);
+                &:hover {
+                    color: darken($color-secondary, 15%);
+                }
             }
-        }
 
-        h3, h4 {
-            font-size: 16px;
+            h3, h4 {
+                font-size: 16px;
+            }
         }
 
         & > .article-containers .actions-title {
