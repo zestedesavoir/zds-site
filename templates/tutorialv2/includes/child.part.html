@@ -124,23 +124,27 @@
             </div>
         {% else %}
             {% if not can_add_something or not child.is_chapter %}
-            <div class="ico-after warning">
-                <p>
-                    {{ "Ce"|feminize:child.get_level_as_string }} {{ child.get_level_as_string|lower }} {% trans "est actuellement vide." %}
-                </p>
-                {% if can_add_something and not child.is_chapter %}
-                    <ul>
-                        <li>
-                            <a href="{% url "content:create-container" content.pk content.slug child.slug %}">{% trans "Ajouter un chapitre" %}</a>
-                            {% trans " pour adopter le format big-tuto et ajouter des sections ;" %}
-                        </li>
-                        <li>
-                            <a href="{% url "content:create-extract" content.pk content.slug child.slug %}">{% trans "Ajouter une section" %}</a>
-                            {% trans " pour adopter le format mini-tuto, composé uniquement de sections." %}
-                        </li>
-                    </ul>
-                {% endif %}
-            </div>
+                <div class="article-containers" data-children-type="container" data-slug="{{ child.slug }}">
+                    <div class="article-part simple-create-part">
+                        <div class="ico-after warning">
+                            <p>
+                                {{ "Ce"|feminize:child.get_level_as_string }} {{ child.get_level_as_string|lower }} {% trans "est actuellement vide." %}
+                            </p>
+                            {% if can_add_something and not child.is_chapter %}
+                                <ul>
+                                    <li>
+                                        <a href="{% url "content:create-container" content.pk content.slug child.slug %}">{% trans "Ajouter un chapitre" %}</a>
+                                        {% trans " pour adopter le format big-tuto et ajouter des sections ;" %}
+                                    </li>
+                                    <li>
+                                        <a href="{% url "content:create-extract" content.pk content.slug child.slug %}">{% trans "Ajouter une section" %}</a>
+                                        {% trans " pour adopter le format mini-tuto, composé uniquement de sections." %}
+                                    </li>
+                                </ul>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
             {% elif can_add_something and child.can_add_extract and child.is_chapter %}
                 <ol>
                     <li class="simple-create-button">

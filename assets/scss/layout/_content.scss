@@ -53,6 +53,10 @@
         width: 100%;
         box-sizing: border-box;
         padding-left: 1em;
+
+        &.simple-create-part {
+            flex: 0 100%;
+        }
     }
 
 
