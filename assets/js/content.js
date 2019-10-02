@@ -8,10 +8,6 @@
     /* TODO : REMOVE this and update the selectlist with js */
     /* because the list is not updated */
     $(".simple-move-button").hide();
-
-    /* TODO : REMOVE this and update URL/form of delete and edit button */
-    /* because the list is not updated */
-    $(evt.item).find(".actions-title").hide();
   }
 
   function sendMoveAction(evt) {
@@ -43,19 +39,34 @@
 
     const isExtract = ($from.attr("data-children-type") === "extract");
 
+    const pk = $item.parents("[data-pk]").attr("data-pk");
+    const slug = $item.attr("data-slug");
+
     const form = {
       // new 
       "moving_method": movingMethod,
       // old
       "container_slug": $from.attr("data-slug"),
       "first_level_slug": (isExtract) ? $from.parents("[data-children-type]").attr("data-slug") : undefined,
-
-      "child_slug": $item.attr("data-slug"),
-      "pk": $item.parents("[data-pk]").attr("data-pk"),
+      // current
+      "child_slug": slug,
+      "pk": pk,
+      // csrf
       "csrfmiddlewaretoken": $("input[name=csrfmiddlewaretoken]").val()
     };
 
     $.post("/contenus/deplacer/", form);
+
+    const path = ((tree) => {
+      $item.parents("[data-children-type]").each((n, parent) => {
+        tree.push($(parent).attr("data-slug"));
+      });
+      tree = tree.reverse();
+      tree.push(slug);
+      return tree.join("/");
+    })([]);
+    $item.find("> .actions-title a.edit").attr("href", `/contenus/editer-conteneur/${pk}/${path}/`)
+    $("form#delete-" + slug).attr("action", `/contenus/supprimer/${pk}/${path}/`)
   }
 
   function canDrop($item, $to, $from) {
