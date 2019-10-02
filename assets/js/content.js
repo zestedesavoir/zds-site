@@ -109,10 +109,6 @@
         return $(dragged).is(".simple-create-part");
       },
       onMove: (evt) => {
-        if ($(evt.related).is(".simple-create-part")) {
-          return false;
-        }
-
         const $item = $(evt.dragged);
         const $to = $(evt.related).parent();
         const $from = $(evt.dragged).parent();
@@ -130,6 +126,10 @@
             $item.find("> h2 > a").unwrap().wrap("<h3></h3>");
             $item.find("ol h3 > a").unwrap().wrap("<h4></h4>");
           }
+        }
+
+        if ($(evt.related).is(".simple-create-part")) {
+          return -1;
         }
       },
       onEnd: sendMoveAction
