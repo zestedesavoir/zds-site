@@ -4,14 +4,18 @@
 (function(document, $, undefined){
   "use strict";
 
-  function hideMoveButton() {
+  function hideMoveButton(evt) {
     /* TODO : REMOVE this and update the selectlist with js */
     /* because the list is not updated */
     $(".simple-move-button").hide();
+
+    /* TODO : REMOVE this and update URL/form of delete and edit button */
+    /* because the list is not updated */
+    $(evt.item).find(".actions-title").hide();
   }
 
   function sendMoveAction(evt) {
-    hideMoveButton();
+    hideMoveButton(evt);
 
     // sending
     const $item = $(evt.item);
