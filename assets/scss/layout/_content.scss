@@ -112,6 +112,18 @@
         overflow: hidden;
         position: relative;
 
+        /* full width draggable area */
+        h2 {
+            padding-left:0;
+
+            a {
+                margin: 0;
+                display: inline-block;
+                width: 100%;
+                padding-left: 1%;
+            }
+        }
+
         &:not(.is-chapter) {
             h3, h4 {
                 font-weight: normal;
