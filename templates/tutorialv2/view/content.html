@@ -170,8 +170,6 @@
     {% endif %}
 {% endblock %}
 
-{% block dnd_child_slug %}data-slug="{{ container.slug }}"{% endblock %}
-
 {% block content_parts %}
     {% for child in content.children %}
         {% include "tutorialv2/includes/child.part.html" with child=child %}
