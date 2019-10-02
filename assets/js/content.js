@@ -4,14 +4,14 @@
 (function(document, $, undefined){
   "use strict";
 
-  function hideMoveButton(evt) {
+  function hideMoveButton() {
     /* TODO : REMOVE this and update the selectlist with js */
     /* because the list is not updated */
     $(".simple-move-button").hide();
   }
 
   function sendMoveAction(evt) {
-    hideMoveButton(evt);
+    hideMoveButton();
 
     // sending
     const $item = $(evt.item);
@@ -57,6 +57,7 @@
 
     $.post("/contenus/deplacer/", form);
 
+    // modifie les URLs
     const path = ((tree) => {
       $item.parents("[data-children-type]").each((n, parent) => {
         tree.push($(parent).attr("data-slug"));
@@ -65,8 +66,20 @@
       tree.push(slug);
       return tree.join("/");
     })([]);
-    $item.find("> .actions-title a.edit").attr("href", `/contenus/editer-conteneur/${pk}/${path}/`)
-    $("form#delete-" + slug).attr("action", `/contenus/supprimer/${pk}/${path}/`)
+
+    $item.find("> .actions-title a.edit").attr("href", `/contenus/editer-conteneur/${pk}/${path}/`);
+    $("form#delete-" + slug).attr("action", `/contenus/supprimer/${pk}/${path}/`);
+    $item.find("[data-children-type] > [data-slug] a").each(function () {
+      const $parent = $(this).parents("[data-slug]").eq(0);
+      const mySlug = $parent.attr("data-slug");
+      if (slug !== $(this).attr("data-slug")) {
+        $(this).attr("href", `/contenus/${pk}/${path}/#${$parent.index()+1}-${mySlug}`);
+      } else {
+        $(this).attr("href", `/contenus/${pk}/${path}/`);
+      }
+    });
+    $item.find(".simple-create-button")
+      .attr("href", `/contenus/nouvelle-section/${pk}/${path}/`);
   }
 
   function canDrop($item, $to, $from) {
