@@ -152,28 +152,28 @@
         h4 > a.disabled {
             background: none !important;
         }
+    }
 
-        li.simple-create-button {
-            list-style-type: '';
-            .btn {
-                float:none;
-                font-size: 14px;
-                display:inline-block;
-                line-height: 32px;
-                height: 32px;
-                border-radius: 2px;
+    .article-content li.simple-create-button {
+        list-style-type: '';
+        .btn {
+            float:none;
+            font-size: 14px;
+            display:inline-block;
+            line-height: 32px;
+            height: 32px;
+            border-radius: 2px;
+            vertical-align: bottom;
+            padding:0 12px 0 8px;
+            white-space: nowrap;
+
+            &::before {
+                content: '+ ';
+                font-size: 28px;
                 vertical-align: bottom;
-                padding:0 12px 0 8px;
-                white-space: nowrap;
-
-                &::before {
-                    content: '+ ';
-                    font-size: 28px;
-                    vertical-align: bottom;
-                    padding-bottom: 3px; /* hack font vertical-align between + and ABC (letters) */
-                }
-                margin-left:-18px;
+                padding-bottom: 3px; /* hack font vertical-align between + and ABC (letters) */
             }
+            margin-left:-18px;
         }
     }
 
