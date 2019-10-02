@@ -10,11 +10,55 @@
     $(".simple-move-button").hide();
   }
 
+  function sendMoveAction(evt) {
+    hideMoveButton();
+
+    // sending
+    const $item = $(evt.item);
+    const $to = $(evt.to);
+    const $from = $(evt.from);
+    const moving_method = (($prev) => {
+      const path = ((tree) => {
+        $item.parents("[data-children-type]:not([data-pk])").each((n, parent) => {
+          tree.push($(parent).attr("data-slug"));
+        });
+        tree = tree.reverse();
+        if (tree.length > 0) {
+          tree.push("")
+        }
+        return tree.join("/");
+      })([]);
+
+      if ($prev[0]) {
+        return "after:" + path + $prev.attr("data-slug");
+      } else {
+        return "before:" + path + $item.next().attr("data-slug");
+        // TODO : [BACK] Add support of beginning
+        // return "beginning:" + path;
+      }
+    })($item.prev());
+
+    const is_extract = ($from.attr("data-children-type") === "extract")
+
+    const form = {
+      // new 
+      moving_method: moving_method,
+      // old
+      container_slug: $from.attr("data-slug"),
+      first_level_slug: (is_extract) ? $from.parents("[data-children-type]").attr("data-slug") : undefined,
+
+      child_slug: $item.attr("data-slug"),
+      pk: $item.parents("[data-pk]").attr("data-pk"),
+      csrfmiddlewaretoken: $("input[name=csrfmiddlewaretoken]").val()
+    };
+
+    $.post("/contenus/deplacer/", form);
+  }
+
   function canDrop($item, $to, $from) {
     // TODO : [BACK] Change slug if we have the same.
     const filter = "[data-slug=" + $item.attr("data-slug") + "]";
     if ($to.children(filter).length >= (1 + $to.is($from))) {
-      console.log("ooo")
       return false;
     }
 
@@ -55,8 +99,9 @@
           return -1;
         }
       },
-      onEnd: hideMoveButton
-    })
+      onEnd: sendMoveAction
+    });
+
     $("*[data-children-type=container]").sortable({
       group: "container",
       handle: ["h2", "h3 a"],
@@ -87,7 +132,7 @@
           }
         }
       },
-      onEnd: hideMoveButton
+      onEnd: sendMoveAction
     });
   })
 })(document, jQuery);
