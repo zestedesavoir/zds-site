@@ -149,9 +149,25 @@
           if ($to.is("section")) { // is: chapter > extract
             $item.find("> h3 > a").unwrap().wrap("<h2></h2>");
             $item.find("ol h4 > a").unwrap().wrap("<h3></h3>");
+
+            if ($item.find(".simple-create-part")[0]) {
+              $item.children(".article-containers").show();
+              $item.children("ol.summary-part").hide();
+            }
           } else { // is: part > chapter > extract 
             $item.find("> h2 > a").unwrap().wrap("<h3></h3>");
             $item.find("ol h3 > a").unwrap().wrap("<h4></h4>");
+
+            if ($item.find(".simple-create-part")[0]) {
+              $item.children(".article-containers").hide();
+              $item.append(
+                `<ol class="summary-part" data-children-type="extract">
+                  <li class="simple-create-button">
+                    <a class="btn btn-grey">Ajouter une section</a>
+                  </li>
+                </ol>`
+              );
+            }
           }
         }
 
