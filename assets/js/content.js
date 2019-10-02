@@ -19,16 +19,15 @@
 
     // sending
     const $item = $(evt.item);
-    const $to = $(evt.to);
     const $from = $(evt.from);
-    const moving_method = (($prev) => {
+    const movingMethod = (($prev) => {
       const path = ((tree) => {
         $item.parents("[data-children-type]:not([data-pk])").each((n, parent) => {
           tree.push($(parent).attr("data-slug"));
         });
         tree = tree.reverse();
         if (tree.length > 0) {
-          tree.push("")
+          tree.push("");
         }
         return tree.join("/");
       })([]);
@@ -42,18 +41,18 @@
       }
     })($item.prev());
 
-    const is_extract = ($from.attr("data-children-type") === "extract")
+    const isExtract = ($from.attr("data-children-type") === "extract");
 
     const form = {
       // new 
-      moving_method: moving_method,
+      "moving_method": movingMethod,
       // old
-      container_slug: $from.attr("data-slug"),
-      first_level_slug: (is_extract) ? $from.parents("[data-children-type]").attr("data-slug") : undefined,
+      "container_slug": $from.attr("data-slug"),
+      "first_level_slug": (isExtract) ? $from.parents("[data-children-type]").attr("data-slug") : undefined,
 
-      child_slug: $item.attr("data-slug"),
-      pk: $item.parents("[data-pk]").attr("data-pk"),
-      csrfmiddlewaretoken: $("input[name=csrfmiddlewaretoken]").val()
+      "child_slug": $item.attr("data-slug"),
+      "pk": $item.parents("[data-pk]").attr("data-pk"),
+      "csrfmiddlewaretoken": $("input[name=csrfmiddlewaretoken]").val()
     };
 
     $.post("/contenus/deplacer/", form);
@@ -138,5 +137,5 @@
       },
       onEnd: sendMoveAction
     });
-  })
+  });
 })(document, jQuery);
