@@ -129,7 +129,7 @@ class Profile(models.Model):
             else:
                 return self.avatar_url
         else:
-            return 'https://secure.gravatar.com/avatar/{0}?d=identicon'.format(
+            return 'https://secure.gravatar.com/avatar/{0}?s=200&d=identicon'.format(
                 md5(self.user.email.lower().encode('utf-8')).hexdigest())
 
     def get_post_count(self):
