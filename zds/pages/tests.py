@@ -66,33 +66,6 @@ class PagesMemberTests(TestCase):
 
         self.assertEqual(result.status_code, 200)
 
-    def test_subscribe_association(self):
-        """
-        To test the "subscription to the association" form.
-        """
-        _, forum = create_category_and_forum()
-
-        # overrides the settings to avoid 404 if forum does not exist
-        settings.ZDS_APP['site']['association']['forum_ca_pk'] = forum.pk
-
-        # send form
-        long_str = ''
-        for i in range(3100):
-            long_str += 'A'
-
-        result = self.client.post(
-            reverse('pages-assoc-subscribe'),
-            {
-                'full_name': 'Anne Onyme',
-                'email': 'anneonyme@test.com',
-                'naissance': '01 janvier 1970',
-                'adresse': '42 rue du savoir, appartement 42, 75000 Paris, France',
-                'justification': long_str
-            },
-            follow=False)
-
-        self.assertEqual(result.status_code, 200)
-
     def test_url_cookies(self):
         """Test: check that cookies page is alive."""
 
