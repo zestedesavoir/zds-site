@@ -78,7 +78,7 @@ ZDS_APP = {
             'email': 'zestedesavoir@gmail.com',
             'email_ca': 'ca-zeste-de-savoir@googlegroups.com',
             'forum_ca_pk': 25,
-            'suscribe_link': 'https://www.helloasso.com/associations/zeste-de-savoir/adhesions/zeste-de-savoir-cotisations-2018'
+            'subscribe_link': zds_config.get('association_subscribe_link', 'https://www.helloasso.com/associations/zeste-de-savoir/adhesions/zeste-de-savoir-cotisations-2018')
         },
         'repository': {
             'url': 'https://github.com/zestedesavoir/zds-site',
