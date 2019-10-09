@@ -6,12 +6,9 @@ from django.utils.translation import gettext_lazy as _
 from .config import config
 from .base_dir import BASE_DIR
 
-
 zds_config = config.get('zds', {})
 
-
 GEOIP_PATH = join(BASE_DIR, 'geodata')
-
 
 ES_ENABLED = True
 
@@ -27,10 +24,8 @@ ES_SEARCH_INDEX = {
     'replicas': 0,
 }
 
-
 # Anonymous [Dis]Likes. Authors of [dis]likes before those pk will never be shown
 VOTES_ID_LIMIT = zds_config.get('VOTES_ID_LIMIT', 0)
-
 
 THUMBNAIL_ALIASES = {
     '': {
@@ -52,6 +47,7 @@ THUMBNAIL_ALIASES = {
     },
 }
 
+DEFAULT_ASSO_LINK = 'https://www.helloasso.com/associations/zeste-de-savoir/adhesions/zeste-de-savoir-cotisations-2018'
 
 ZDS_APP = {
     'site': {
@@ -77,7 +73,8 @@ ZDS_APP = {
             'fee': zds_config.get('association_fee', '20 €'),
             'email': 'zestedesavoir@gmail.com',
             'email_ca': 'ca-zeste-de-savoir@googlegroups.com',
-            'forum_ca_pk': 25
+            'forum_ca_pk': 25,
+            'subscribe_link': zds_config.get('association_subscribe_link', DEFAULT_ASSO_LINK)
         },
         'repository': {
             'url': 'https://github.com/zestedesavoir/zds-site',
@@ -185,7 +182,7 @@ ZDS_APP = {
         'maximum_slug_size': 150,
         'characters_per_minute': 1500,
         'editorial_line_link':
-        'https://zestedesavoir.com/articles/222/la-ligne-editoriale-officielle-de-zeste-de-savoir/',
+            'https://zestedesavoir.com/articles/222/la-ligne-editoriale-officielle-de-zeste-de-savoir/',
         'epub_stylesheets': {
             'toc': Path('toc.css'),
             'full': Path(BASE_DIR) / 'dist' / 'css' / 'zmd.css',
