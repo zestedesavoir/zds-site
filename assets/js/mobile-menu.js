@@ -67,13 +67,15 @@
                 });
 
 
-
                 /**
                  * Build sidebar menu from page
                  */
 
                 appendToSidebar($("#search"), true);
-                appendToSidebar($(".logbox .my-account"), true);
+
+                var $myaccount = appendToSidebar($("#my-account"), true);
+                $myaccount.addClass("mobile-menu-link mobile-menu-bloc");
+
                 appendToSidebar($(".header-menu"));
 
                 $(".page-container .mobile-menu-bloc .mobile-menu-bloc").each(function(){
@@ -162,14 +164,14 @@
 
 
 
-    function appendToSidebar($elem, force){
+    function appendToSidebar($elem, onlyCloneThisElement){
         if($elem.hasClass("mobile-menu-imported"))
-            return;
+            return false;
 
-        if(force){
+        if(onlyCloneThisElement){
             $elem.addClass("mobile-menu-imported");
-            $elem.clone().removeAttr("id").appendTo("#mobile-menu");
-            return;
+            $elem = $elem.clone().removeAttr("id").appendTo("#mobile-menu");
+            return $elem;
         }
 
         var $div = $("<div/>");
@@ -179,7 +181,12 @@
         if($elem.hasClass("mobile-show-ico"))
             $div.addClass("mobile-show-ico");
 
-        var $links = ($elem.hasClass("mobile-all-links")) ? $("a, button, span.disabled", $elem).not(".action-hover").addClass("mobile-menu-link") : $(".mobile-menu-link", $elem);
+        var addAllLinks = $elem.hasClass("mobile-all-links");
+
+        var $links = $elem.find((addAllLinks) ? "a, button, span.disabled" : ".mobile-menu-link");
+
+        if (addAllLinks)
+            $links = $links.not(".action-hover");
 
         $links.each(function(){
             if($(this).parents(".mobile-menu-imported, .modal").length === 0){
@@ -201,9 +208,14 @@
             }
         });
 
+        if (addAllLinks)
+            $div.find("a, button, span.disabled").addClass("mobile-menu-link");
+
         $elem.addClass("mobile-menu-imported");
 
         $div.appendTo($("#mobile-menu"));
+
+        return $div;
     }
 
 

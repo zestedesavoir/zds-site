@@ -627,7 +627,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
 
     # sizes contain a python dict (as a string in database) with all information about file sizes
     sizes = models.CharField('Tailles des fichiers téléchargeables', max_length=512, default='{}')
-    _description = None
+    _meta_description = None
 
     @staticmethod
     def get_slug_from_file_path(file_path):
@@ -643,14 +643,21 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
             return self.load_public_version().title
 
     def description(self):
-        if self._description:
-            return self._description
+        if self.versioned_model:
+            return self.versioned_model.description
+        else:
+            return self.load_public_version().description
+
+    def meta_description(self):
+        """Generate a description for the HTML tag <meta name='description'>"""
+        if self._meta_description:
+            return self._meta_description
         if not self.versioned_model:
             self.load_public_version()
-        self._description = self.versioned_model.description or self.versioned_model.get_introduction()
-        if self._description:
-            self._description = self._description[:settings.ZDS_APP['forum']['description_size']]
-        return self._description
+        self._meta_description = self.versioned_model.description or self.versioned_model.get_introduction() or ''
+        if self._meta_description:
+            self._meta_description = self._meta_description[:settings.ZDS_APP['forum']['description_size']]
+        return self._meta_description
 
     def get_prod_path(self, relative=False):
         if not relative:
