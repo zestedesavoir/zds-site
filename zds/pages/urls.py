@@ -1,6 +1,6 @@
 from django.urls import re_path
 
-from zds.pages.views import about, association, eula, alerts, cookies, index, AssocSubscribeView, \
+from zds.pages.views import about, association, eula, alerts, cookies, index, \
     ContactView, CommentEditsHistory, EditDetail, restore_edit, delete_edit_content
 
 urlpatterns = [
@@ -11,8 +11,6 @@ urlpatterns = [
     re_path(r'^cgu/$', eula, name='pages-eula'),
     re_path(r'^alertes/$', alerts, name='pages-alerts'),
     re_path(r'^cookies/$', cookies, name='pages-cookies'),
-    re_path(r'^association/inscription/$',
-            AssocSubscribeView.as_view(), name='pages-assoc-subscribe'),
     re_path(r'^historique-editions/(?P<comment_pk>\d+)/$',
             CommentEditsHistory.as_view(), name='comment-edits-history'),
     re_path(r'^contenu-original/(?P<pk>\d+)/$',
