@@ -5,10 +5,7 @@ from datetime import datetime
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
-from django.contrib.auth.models import User
-from django.urls import reverse
 from django.shortcuts import render, get_object_or_404, redirect
-from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import ListView, DetailView
@@ -16,7 +13,7 @@ from django.core.exceptions import PermissionDenied
 from django.views.decorators.http import require_POST
 
 from zds.featured.models import FeaturedResource, FeaturedMessage
-from zds.forum.models import Forum, Topic
+from zds.forum.models import Topic
 from zds.member.decorator import can_write_and_read_now
 from zds.pages.models import GroupContact
 from zds.searchv2.forms import SearchForm
