@@ -63,6 +63,8 @@ clean-front: ## Clean the frontend builds
 ##
 ## ~ zmarkdown
 
+ZMD_URL="http://localhost:27272"
+
 zmd-install: ## Install the Node.js packages for zmarkdown
 	cd zmd && npm -g install pm2 && npm install --production
 
@@ -70,7 +72,7 @@ zmd-start: ## Start the zmarkdown server
 	cd zmd/node_modules/zmarkdown && npm run server
 
 zmd-check: ## Check if the zmarkdown server is running
-	@curl -s http://localhost:27272 || echo 'Use `make zmd-start` to start zmarkdown server'
+	@curl -s $(ZMD_URL) || echo 'Use `make zmd-start` to start zmarkdown server'
 
 zmd-stop: ## Stop the zmarkdown server
 	pm2 kill
@@ -100,12 +102,16 @@ migrate-db: ## Create or update database schema
 	python manage.py migrate
 
 generate-fixtures: ## Generate fixtures (users, tutorials, articles, opinions, topics...)
-	python manage.py loaddata fixtures/*.yaml
-	python manage.py load_factory_data fixtures/advanced/aide_tuto_media.yaml
-	python manage.py load_fixtures --size=low --all
+	@if curl -s $(ZMD_URL) > /dev/null; then \
+		python manage.py loaddata fixtures/*.yaml; \
+		python manage.py load_factory_data fixtures/advanced/aide_tuto_media.yaml; \
+		python manage.py load_fixtures --size=low --all; \
+	else \
+		echo 'Start zmarkdown first with `make zmd-start`'; \
+	fi
 
 wipe-db: ## Remove the database and the contents directories
-	rm base.db
+	rm -f base.db
 	rm -rf contents-private/*
 	rm -rf contents-public/*
 
