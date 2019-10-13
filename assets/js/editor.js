@@ -37,6 +37,7 @@
             question:   { title: "Bloc Question"                                                        },
             attention:  { title: "Bloc Attention"                                                       },
             error:      { title: "Bloc Erreur"                                                          },
+            neutre:     { title: "Bloc Neutre"                                                          },
             secret:     { title: "Bloc masqué"                                                          },
 
             monospace:  { title: "Code inline",                 start: "`",                 end: "`"    },
@@ -399,9 +400,9 @@
         },
 
         buildInfoblocks: function(elemPopup, currentButton, textareaId, elemItem) {
-            var ids = ["information", "question", "attention", "error", "secret"];
+            var ids = ["information", "question", "attention", "error", "neutre", "secret"];
 
-            for (var i=0; i<5; i++) {
+            for (var i=0; i<6; i++) {
                 elemItem = elemPopup.appendChild(document.createElement("a"));
                 elemItem.className = "ico-after zform-button zform-subbutton zform-button-" + ids[i];
                 elemItem.title = this.tags[ids[i]].title;
@@ -598,6 +599,10 @@
 
                 case "error":
                     selection.current = "[[erreur]]\n" + iterateRows(selection.current, "|");
+                    break;
+
+                case "neutre":
+                    selection.current = "[[" + type + "|Titre]]\n" + iterateRows(selection.current, "|");
                     break;
 
                 case "ul":
