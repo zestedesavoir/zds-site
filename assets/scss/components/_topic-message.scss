@@ -485,19 +485,11 @@ form.topic-message {
                 float: left;
                 display: none;
             }
-            .badge {
-                float: left;
-                height: 20px;
-                line-height: 20px;
-                font-size: 12px;
-                width: 50px;
-                margin-top: -2px;
-                margin-left: 10px;
 
-                &.push-badge {
-                    margin-left: 105px;
-                }
+            .push-badge {
+                margin-left: 105px;
             }
+
             .user-metadata {
                 float: right;
                 width: 140px;
