@@ -89,6 +89,7 @@
 .zform-button-attention:after { @include sprite-position($zform-attention); }
 .zform-button-error:after { @include sprite-position($zform-error); }
 .zform-button-question:after { @include sprite-position($zform-question); }
+.zform-button-neutre:after { @include sprite-position($zform-neutre); }
 .zform-button-information:after, .zform-button-infoblocks:after { @include sprite-position($zform-information); }
 .zform-button-secret:after { @include sprite-position($zform-secret); }
 .zform-button-blockcode:after, .zform-button-monospace:after { @include sprite-position($zform-blockcode); }
