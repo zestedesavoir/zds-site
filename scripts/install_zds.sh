@@ -501,7 +501,7 @@ fi
 if  ! $(_in "-data" $@) && ( $(_in "+data" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
     zds_fold_start "fixtures" "* [+data] fixtures"
 
-    npm run server --prefix zmd/node_modules/zmarkdown -- --silent; exVal=$?
+    # npm run server --prefix zmd/node_modules/zmarkdown -- --silent; exVal=$?
 
     if [[ $exVal != 0 ]]; then
         print_error "!! Cannot start zmd to generate-fixtures (use \`-data\` to skip)"
