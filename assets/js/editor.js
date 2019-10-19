@@ -670,7 +670,7 @@
         }
     };
 
-    zForm.addEvent(window, "load", (function(_this) {
+    zForm.addEvent(document, "DOMContentLoaded", (function(_this) {
         return function() {
             _this.init();
         };
