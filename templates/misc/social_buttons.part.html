@@ -26,15 +26,15 @@
             >
                 Mastodon
             </a>
-            <div id="share-to-mastodon" class="modal modal-flex">
+            <form id="share-to-mastodon" class="modal modal-flex" target="_blank" method="GET">
                 <p>
-                    {% trans "Entrez l'adresse de votre instance Mastodon (ex: https://framapiaf.org)" %}.
+                    {% trans "Entrez l'adresse de votre instance Mastodon (ex: https://mamot.fr)" %}.
                 </p>
                 <input type="text" class="input" name="instance" placeholder="https://" required>
-                <input type="hidden" class="input" name="text" value="{{ app.site.url }}{{ link }}&amp;t={{ text }}">
+                <input type="hidden" class="input" name="text" value="{{ text }} {{ app.site.url }}{{ link }}">
 
                 <button type="submit" disabled>{% trans "Partager" %}</button>
-            </div>
+            </form>
         </li>
         <li>
             <a href="http://sharetodiaspora.github.io/?url={{ app.site.url }}{{ link }}&amp;title={{ text }}"
