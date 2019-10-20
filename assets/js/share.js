@@ -2,6 +2,7 @@
 (function($, undefined) {
     "use strict";
     let shareModal = $("#share-to-mastodon");
+    let shareButton = shareModal.find("button");
 
     shareModal.find("input[name='instance']").on("change paste keyup", function() {
         // start by chars (https://)
@@ -12,7 +13,7 @@
         }
     });
 
-    $form.on("submit", function() {
-        $form.attr("action", shareModal.find("input[name='instance']").val() + "/share");
+    shareModal.on("submit", function() {
+        shareModal.attr("action", shareModal.find("input[name='instance']").val() + "/share");
     });
 })(jQuery);
