@@ -37,11 +37,11 @@ from zds.notification.models import TopicAnswerSubscription, NewPublicationSubsc
 from zds.tutorialv2.forms import ContentForm, JsFiddleActivationForm, AskValidationForm, AcceptValidationForm, \
     RejectValidationForm, RevokeValidationForm, WarnTypoForm, ImportContentForm, ImportNewContentForm, ContainerForm, \
     ExtractForm, BetaForm, MoveElementForm, AuthorForm, RemoveAuthorForm, CancelValidationForm, PublicationForm, \
-    UnpublicationForm
+    UnpublicationForm, ReviewerForm, RemoveReviewerForm
 from zds.tutorialv2.mixins import SingleContentDetailViewMixin, SingleContentFormViewMixin, SingleContentViewMixin, \
     SingleContentDownloadViewMixin, SingleContentPostMixin, FormWithPreview
 from zds.tutorialv2.models import TYPE_CHOICES_DICT
-from zds.tutorialv2.models.database import PublishableContent, Validation
+from zds.tutorialv2.models.database import PublishableContent, Validation, ContentContributionRole, ContentContribution
 from zds.tutorialv2.models.versioned import Container, Extract
 from zds.tutorialv2.utils import search_container_or_404, get_target_tagged_tree, search_extract_or_404, \
     try_adopt_new_child, TooDeepContainerError, BadManifestError, get_content_from_json, init_new_repo, \
@@ -218,6 +218,9 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
 
         context['gallery'] = self.object.gallery
         context['public_content_object'] = self.public_content_object
+        if self.object.type.lower() != "opinion":
+            context['formAddReviewer'] = ReviewerForm(content=self.object)
+            context['contributions'] = ContentContribution.objects.filter(content=self.object).order_by('contribution_role__position')
 
         return context
 
@@ -1751,6 +1754,99 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
             return redirect(child.get_absolute_url())
 
 
+class AddReviewerToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
+    only_draft_version = True
+    must_be_author = True
+    form_class = ReviewerForm
+    authorized_for_staff = True
+
+    def get_form_kwargs(self):
+        kwargs = super(AddReviewerToContent, self).get_form_kwargs()
+        kwargs.update({'content': self.object})
+        return kwargs
+
+    def get(self, request, *args, **kwargs):
+        content = self.get_object()
+        url = 'content:find-{}'.format('tutorial' if content.is_tutorial() else content.type.lower())
+        return redirect(url, self.request.user)
+
+    def form_valid(self, form):
+
+        _type = _("de l'article")
+
+        if self.object.is_tutorial:
+            _type = _('du tutoriel')
+        elif self.object.is_opinion:
+            raise PermissionDenied
+
+        bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+        all_authors_pk = [author.pk for author in self.object.authors.all()]
+        user = form.cleaned_data['user']
+        if user.pk in all_authors_pk:
+            messages.error(self.request,
+                           _('Un auteur ne peut pas être désigné comme contributeur'))
+            return redirect(self.object.get_absolute_url())
+        else:
+            contribution_role = form.cleaned_data.get('contribution_role')
+
+            contribution = ContentContribution(user=user, contribution_role=contribution_role, content=self.object)
+            contribution.save()
+            url_index = reverse(self.object.type.lower() + ':find-' + self.object.type.lower(), args=[user.pk])
+            send_mp(
+                bot,
+                [user],
+                format_lazy('{}{}', _('Aide à la relecture '), _type),
+                self.versioned_object.title,
+                render_to_string('tutorialv2/messages/add_contribution_pm.md', {
+                    'content': self.object,
+                    'type': _type,
+                    'url': self.object.get_absolute_url(),
+                    'index': url_index,
+                    'user': user.username
+                }),
+                True,
+                direct=False,
+            )
+            self.success_url = self.object.get_absolute_url()
+
+            return super(AddReviewerToContent, self).form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, form.errors)
+        self.success_url = self.object.get_absolute_url()
+        return super(AddReviewerToContent, self).form_valid(form)
+
+
+class RemoveReviewerFromContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
+
+    form_class = RemoveReviewerForm
+    only_draft_version = True
+    must_be_author = True
+    authorized_for_staff = True
+
+    def form_valid(self, form):
+        _type = _('cet article')
+        if self.object.is_tutorial:
+            _type = _('ce tutoriel')
+        elif self.object.is_opinion:
+            raise PermissionDenied
+
+        contribution = get_object_or_404(ContentContribution, pk=form.cleaned_data['pk_contribution'])
+        user = contribution.user
+        contribution.delete()
+
+        messages.success(
+            self.request, _('Vous avez enlevé {} de la liste des relecteurs de {}.').format(user.username, _type))
+        self.success_url = self.object.get_absolute_url()
+
+        return super(RemoveReviewerFromContent, self).form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, _("Les relecteurs sélectionnés n'existent pas."))
+        self.success_url = self.object.get_absolute_url()
+        return super(RemoveReviewerFromContent, self).form_valid(form)
+
+
 class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     only_draft_version = True
     must_be_author = True
@@ -1885,6 +1981,69 @@ class RemoveAuthorFromContent(LoggedWithReadWriteHability, SingleContentFormView
         messages.error(self.request, _("Les auteurs sélectionnés n'existent pas."))
         self.success_url = self.object.get_absolute_url()
         return super(RemoveAuthorFromContent, self).form_valid(form)
+
+
+class ContentOfContributors(ZdSPagingListView):
+    type = 'ALL'
+    context_object_name = 'contribution_contents'
+    paginate_by = settings.ZDS_APP['content']['content_per_page']
+    template_name = 'tutorialv2/contributions.html'
+    model = PublishableContent
+
+    sorts = OrderedDict([
+        ('creation', [lambda q: q.order_by('content__creation_date'), _('Par date de création')]),
+        ('abc', [lambda q: q.order_by('content__title'), _('Par ordre alphabétique')]),
+        ('modification', [lambda q: q.order_by('-content__update_date'), _('Par date de dernière modification')])
+    ])
+    sort = ''
+    filter = ''
+    user = None
+
+    def dispatch(self, request, *args, **kwargs):
+        self.user = get_object_or_404(User, username=self.kwargs['username'])
+        return super(ContentOfContributors, self).dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        if self.type == 'ALL':
+            queryset = ContentContribution.objects.filter(user__pk=self.user.pk, content__sha_public__isnull=False)
+        elif self.type in list(TYPE_CHOICES_DICT.keys()):
+            queryset = ContentContribution.objects.filter(user__pk=self.user.pk, content__sha_public__isnull=False, content__type=self.type)
+        else:
+            raise Http404('Ce type de contenu est inconnu dans le système.')
+
+        # Sort.
+        if 'sort' in self.request.GET and self.request.GET['sort'].lower() in self.sorts:
+            self.sort = self.request.GET['sort']
+        elif not self.sort:
+            self.sort = 'abc'
+        queryset = self.sorts[self.sort.lower()][0](queryset)
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super(ContentOfContributors, self).get_context_data(**kwargs)
+        context['sorts'] = []
+        context['sort'] = self.sort.lower()
+        context['subscriber_count'] = NewPublicationSubscription.objects.get_subscriptions(self.user).count()
+        context['type'] = self.type.lower()
+        contents = list(self.object_list.values_list('content', flat=True).distinct())
+
+        queryset = PublishableContent.objects.filter(pk__in=contents)
+        # prefetch:
+        queryset = queryset\
+            .prefetch_related('authors')\
+            .prefetch_related('subcategory')\
+            .select_related('licence')\
+            .select_related('image')
+
+        context['contribution_tutorials'] = queryset.filter(type='TUTORIAL').all()
+        context['contribution_articles'] = queryset.filter(type='ARTICLE').all()
+
+        print(context['contribution_articles'])
+
+        context['usr'] = self.user
+        for sort in list(self.sorts.keys()):
+            context['sorts'].append({'key': sort, 'text': self.sorts[sort][1]})
+        return context
 
 
 class ContentOfAuthor(ZdSPagingListView):

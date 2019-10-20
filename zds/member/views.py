@@ -41,7 +41,8 @@ from zds.member.models import Profile, TokenForgotPassword, TokenRegister, Karma
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.notification.models import TopicAnswerSubscription, NewPublicationSubscription
 from zds.pages.models import GroupContact
-from zds.tutorialv2.models.database import PublishedContent, PickListOperation
+from zds.tutorialv2.models import CONTENT_TYPES
+from zds.tutorialv2.models.database import PublishedContent, PickListOperation, ContentContribution
 from zds.utils.models import Comment, CommentVote, Alert, CommentEdit, Hat, HatRequest, get_hat_from_settings, \
     get_hat_to_add
 from zds.utils.mps import send_mp
@@ -162,6 +163,10 @@ class MemberDetail(DetailView):
         context['articles_and_tutorials'] = PublishedContent.objects.last_tutorials_and_articles_of_a_member_loaded(usr)
         context['topic_read'] = TopicRead.objects.list_read_topic_pk(self.request.user, context['topics'])
         context['subscriber_count'] = NewPublicationSubscription.objects.get_subscriptions(self.object).count()
+
+        context['contribution_articles_count'] = ContentContribution.objects.filter(user__pk=usr.pk, content__sha_public__isnull=False, content__type=CONTENT_TYPES[1]['name']).values_list('content', flat=True).distinct().count()
+        context['contribution_tutorials_count'] = ContentContribution.objects.filter(user__pk=usr.pk, content__sha_public__isnull=False, content__type=CONTENT_TYPES[0]['name']).values_list('content', flat=True).distinct().count()
+
         if self.request.user.has_perm('member.change_profile'):
             sanctions = list(Ban.objects.filter(user=usr).select_related('moderator'))
             notes = list(KarmaNote.objects.filter(user=usr).select_related('moderator'))

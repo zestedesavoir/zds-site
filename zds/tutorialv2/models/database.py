@@ -1354,6 +1354,39 @@ class PublicationEvent(models.Model):
         return '{}: {} - {}'.format(self.published_object.title(), self.format_requested, self.state_of_processing)
 
 
+class ContentContributionRole(models.Model):
+    """
+    Contribution role of content
+    """
+    class Meta:
+        verbose_name = 'Role de la contribution au contenu'
+        verbose_name_plural = 'Roles de la contribution au contenu'
+
+    title = models.CharField(null=False, blank=False, max_length=20)
+    subtitle = models.CharField(null=True, blank=True, max_length=200)
+    position = models.IntegerField(default=0)
+
+    def __str__(self):
+        return "<Role de type '{0}', #{1}>".format(self.title, self.pk)
+
+
+class ContentContribution(models.Model):
+    """
+    Content contributions
+    """
+    class Meta:
+        verbose_name = 'Contribution aux contenus'
+        verbose_name_plural = 'Contributions aux contenus'
+
+    contribution_role = models.ForeignKey(ContentContributionRole, null=False, verbose_name='role de la contribution', db_index=True, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, null=False, verbose_name='Contributeur', db_index=True, on_delete=models.CASCADE)
+    content = models.ForeignKey(PublishableContent, null=False, verbose_name='Contenu', db_index=True, on_delete=models.CASCADE)
+    comment = models.CharField(verbose_name='Commentaire', null=True, blank=True, max_length=200)
+
+    def __str__(self):
+        return "<Contribution a '{0}' par {1} de type {2}, #{3}>".format(self.content.title, self.user.username, self.contribution_role.title, self.pk)
+
+
 @receiver(models.signals.pre_delete, sender=User)
 def transfer_paternity_receiver(sender, instance, **kwargs):
     """
