@@ -519,6 +519,21 @@ if  ! $(_in "-data" $@) && ( $(_in "+data" $@) || $(_in "+base" $@) || $(_in "+f
         exit 1
     fi
 
+    # We check if ZMD is really up:
+    nb_zmd_try=0
+
+    while ! curl -s $ZMD_URL > /dev/null && [ $nb_zmd_try -lt 40 ]
+    do
+        sleep 0.2
+        nb_zmd_try=$(($nb_zmd_try+1))
+    done
+
+    if [ $nb_zmd_try -eq 40 ]
+    then
+        print_error "!! Cannot connect to zmd to generate-fixtures (use \`-data\` to skip)"
+        exit 1
+    fi
+
     python manage.py loaddata fixtures/*.yaml; exVal=$?
 
     python manage.py load_factory_data fixtures/advanced/aide_tuto_media.yaml; exVal=($exVal + $?)

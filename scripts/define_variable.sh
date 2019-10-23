@@ -26,3 +26,7 @@ if [[ $ZDS_JDK_VERSION == "" ]]; then
     ZDS_JDK_REV="11"
 fi
 
+if [[ $ZMD_URL == "" ]]; then
+    ZMD_URL="http://localhost:27272"
+fi
+
