@@ -167,7 +167,10 @@ class DisplayOnlineContent(FeatureableMixin, SingleOnlineContentDetailViewMixin)
         if last_participation_is_old(self.object, self.request.user):
             mark_read(self.object, self.request.user)
 
-        context['contributions'] = ContentContribution.objects.filter(content=self.object).order_by('contribution_role__position')
+        context['contributions'] = ContentContribution\
+            .objects\
+            .filter(content=self.object)\
+            .order_by('contribution_role__position')
 
         return context
 

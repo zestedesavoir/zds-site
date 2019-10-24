@@ -1,26 +1,24 @@
+import time
+from collections import OrderedDict
+
 import logging
-from zds import json_handler
 import os
 import re
 import shutil
 import tempfile
-import time
 import zipfile
-from datetime import datetime
-from collections import OrderedDict
-
 from PIL import Image as ImagePIL
-
+from datetime import datetime
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
-from django.urls import reverse
 from django.db import transaction
 from django.db.models import Count, Q
 from django.http import Http404
 from django.shortcuts import redirect, get_object_or_404
 from django.template.loader import render_to_string
+from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
@@ -29,6 +27,7 @@ from easy_thumbnails.files import get_thumbnailer
 from git import BadName, BadObject, GitCommandError, objects
 from uuslug import slugify
 
+from zds import json_handler
 from zds.forum.models import Forum, mark_read, Topic
 from zds.gallery.models import Gallery, UserGallery, Image, GALLERY_WRITE
 from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin, PermissionRequiredMixin
@@ -37,21 +36,19 @@ from zds.notification.models import TopicAnswerSubscription, NewPublicationSubsc
 from zds.tutorialv2.forms import ContentForm, JsFiddleActivationForm, AskValidationForm, AcceptValidationForm, \
     RejectValidationForm, RevokeValidationForm, WarnTypoForm, ImportContentForm, ImportNewContentForm, ContainerForm, \
     ExtractForm, BetaForm, MoveElementForm, AuthorForm, RemoveAuthorForm, CancelValidationForm, PublicationForm, \
-    UnpublicationForm, ReviewerForm, RemoveReviewerForm
+    UnpublicationForm, ContributionForm, RemoveContributionForm
 from zds.tutorialv2.mixins import SingleContentDetailViewMixin, SingleContentFormViewMixin, SingleContentViewMixin, \
     SingleContentDownloadViewMixin, SingleContentPostMixin, FormWithPreview
 from zds.tutorialv2.models import TYPE_CHOICES_DICT
-from zds.tutorialv2.models.database import PublishableContent, Validation, ContentContributionRole, ContentContribution
+from zds.tutorialv2.models.database import PublishableContent, Validation, ContentContribution
 from zds.tutorialv2.models.versioned import Container, Extract
 from zds.tutorialv2.utils import search_container_or_404, get_target_tagged_tree, search_extract_or_404, \
     try_adopt_new_child, TooDeepContainerError, BadManifestError, get_content_from_json, init_new_repo, \
     default_slug_pool, BadArchiveError, InvalidSlugError
 from zds.utils.forums import send_post, lock_topic, create_topic, unlock_topic
-
 from zds.utils.models import HelpWriting, get_hat_from_settings
 from zds.utils.mps import send_mp, send_message_mp
 from zds.utils.paginator import ZdSPagingListView, make_pagination
-
 
 logger = logging.getLogger(__name__)
 
@@ -218,9 +215,12 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
 
         context['gallery'] = self.object.gallery
         context['public_content_object'] = self.public_content_object
-        if self.object.type.lower() != "opinion":
-            context['formAddReviewer'] = ReviewerForm(content=self.object)
-            context['contributions'] = ContentContribution.objects.filter(content=self.object).order_by('contribution_role__position')
+        if self.object.type.lower() != 'opinion':
+            context['formAddReviewer'] = ContributionForm(content=self.object)
+            context['contributions'] = ContentContribution\
+                .objects\
+                .filter(content=self.object)\
+                .order_by('contribution_role__position')
 
         return context
 
@@ -1757,7 +1757,7 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
 class AddReviewerToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     only_draft_version = True
     must_be_author = True
-    form_class = ReviewerForm
+    form_class = ContributionForm
     authorized_for_staff = True
 
     def get_form_kwargs(self):
@@ -1819,7 +1819,7 @@ class AddReviewerToContent(LoggedWithReadWriteHability, SingleContentFormViewMix
 
 class RemoveReviewerFromContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
 
-    form_class = RemoveReviewerForm
+    form_class = RemoveContributionForm
     only_draft_version = True
     must_be_author = True
     authorized_for_staff = True
@@ -2007,7 +2007,9 @@ class ContentOfContributors(ZdSPagingListView):
         if self.type == 'ALL':
             queryset = ContentContribution.objects.filter(user__pk=self.user.pk, content__sha_public__isnull=False)
         elif self.type in list(TYPE_CHOICES_DICT.keys()):
-            queryset = ContentContribution.objects.filter(user__pk=self.user.pk, content__sha_public__isnull=False, content__type=self.type)
+            queryset = ContentContribution.objects.filter(user__pk=self.user.pk,
+                                                          content__sha_public__isnull=False,
+                                                          content__type=self.type)
         else:
             raise Http404('Ce type de contenu est inconnu dans le système.')
 

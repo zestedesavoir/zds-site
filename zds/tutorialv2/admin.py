@@ -77,4 +77,3 @@ admin.site.register(PickListOperation, PickListOperationAdmin)
 admin.site.register(ContentRead, ContentReadAdmin)
 admin.site.register(PublicationEvent, PublicationEventAdmin)
 admin.site.register(ContentContributionRole, ContentReviewTypeAdmin)
-

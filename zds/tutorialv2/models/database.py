@@ -1378,13 +1378,31 @@ class ContentContribution(models.Model):
         verbose_name = 'Contribution aux contenus'
         verbose_name_plural = 'Contributions aux contenus'
 
-    contribution_role = models.ForeignKey(ContentContributionRole, null=False, verbose_name='role de la contribution', db_index=True, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, null=False, verbose_name='Contributeur', db_index=True, on_delete=models.CASCADE)
-    content = models.ForeignKey(PublishableContent, null=False, verbose_name='Contenu', db_index=True, on_delete=models.CASCADE)
-    comment = models.CharField(verbose_name='Commentaire', null=True, blank=True, max_length=200)
+    contribution_role = models.ForeignKey(ContentContributionRole,
+                                          null=False,
+                                          verbose_name='role de la contribution',
+                                          db_index=True,
+                                          on_delete=models.CASCADE)
+    user = models.ForeignKey(User,
+                             null=False,
+                             verbose_name='Contributeur',
+                             db_index=True,
+                             on_delete=models.CASCADE)
+    content = models.ForeignKey(PublishableContent,
+                                null=False,
+                                verbose_name='Contenu',
+                                db_index=True,
+                                on_delete=models.CASCADE)
+    comment = models.CharField(verbose_name='Commentaire',
+                               null=True,
+                               blank=True,
+                               max_length=200)
 
     def __str__(self):
-        return "<Contribution a '{0}' par {1} de type {2}, #{3}>".format(self.content.title, self.user.username, self.contribution_role.title, self.pk)
+        return "<Contribution a '{0}' par {1} de type {2}, #{3}>".format(self.content.title,
+                                                                         self.user.username,
+                                                                         self.contribution_role.title,
+                                                                         self.pk)
 
 
 @receiver(models.signals.pre_delete, sender=User)

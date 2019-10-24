@@ -48,20 +48,23 @@ class FormWithTitle(forms.Form):
 
         return cleaned_data
 
-class ReviewerTypeModelChoiceField(forms.ModelChoiceField):
-    def label_from_instance(self, obj):
-         return obj.title
 
-class ReviewerForm(forms.Form):
+class ReviewerTypeModelChoiceField(forms.ModelChoiceField):
+
+    def label_from_instance(self, obj):
+        return obj.title
+
+
+class ContributionForm(forms.Form):
 
     contribution_role = ReviewerTypeModelChoiceField(
-        label=_("Role"),
+        label=_('Role'),
         required=True,
         queryset=ContentContributionRole.objects.order_by('title').all(),
     )
 
     username = forms.CharField(
-        label=_("Contributeur"),
+        label=_('Contributeur'),
         required=True,
         widget=forms.TextInput(
             attrs={
@@ -72,7 +75,7 @@ class ReviewerForm(forms.Form):
     )
 
     comment = forms.CharField(
-        label=_("Commentaire"),
+        label=_('Commentaire'),
         required=False,
         widget=forms.Textarea(
             attrs={
@@ -96,10 +99,10 @@ class ReviewerForm(forms.Form):
                 StrictButton(_('Ajouter'), type='submit'),
             )
         )
-        super(ReviewerForm, self).__init__(*args, **kwargs)
+        super(ContributionForm, self).__init__(*args, **kwargs)
 
     def clean_username(self):
-        cleaned_data = super(ReviewerForm, self).clean()
+        cleaned_data = super(ContributionForm, self).clean()
         if cleaned_data.get('username'):
             username = cleaned_data.get('username')
             user = Profile.objects.contactable_members().filter(user__username__iexact=username.strip().lower())\
@@ -115,9 +118,10 @@ class ReviewerForm(forms.Form):
         return cleaned_data
 
 
-class RemoveReviewerForm(forms.Form):
+class RemoveContributionForm(forms.Form):
+
     pk_contribution = forms.CharField(
-        label=_("Contributeur"),
+        label=_('Contributeur'),
         required=True,
     )
 
@@ -125,7 +129,7 @@ class RemoveReviewerForm(forms.Form):
 class AuthorForm(forms.Form):
 
     username = forms.CharField(
-        label=_("Auteurs à ajouter séparés d'une virgule."),
+        label=_('Auteurs à ajouter séparés d\'une virgule.'),
         required=True
     )
 
@@ -147,7 +151,6 @@ class AuthorForm(forms.Form):
         :return: a dictionary of all treated data with the users key added
         """
         cleaned_data = super(AuthorForm, self).clean()
-        print("===========> " + str(cleaned_data))
         users = []
         if cleaned_data.get('username'):
             for username in cleaned_data.get('username').split(','):
