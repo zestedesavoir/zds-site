@@ -122,4 +122,8 @@ def send_message_mp(
             no_notification_for = [no_notification_for]
         for not_notified_user in no_notification_for:
             mark_read(n_topic, not_notified_user)
+    if author.pk not in [p.pk for p in n_topic.participants.all()] and author.pk != n_topic.author.pk:
+        n_topic.participants.add(author)
+        n_topic.save()
+
     return n_topic

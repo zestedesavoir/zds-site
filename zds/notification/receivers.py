@@ -420,6 +420,7 @@ def add_participant_topic_event(sender, *, instance, action, reverse, **__):
     if private_topic.last_message:
         if action == 'post_add' and not reverse:
             for participant in private_topic.participants.all():
+
                 subscription = PrivateTopicAnswerSubscription.objects.get_or_create_active(participant, private_topic)
                 subscription.send_notification(
                     content=private_topic.last_message,

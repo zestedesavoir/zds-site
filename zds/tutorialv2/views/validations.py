@@ -17,6 +17,7 @@ from django.views.generic import ListView, FormView
 
 from zds.member.decorator import LoginRequiredMixin, PermissionRequiredMixin, LoggedWithReadWriteHability
 from zds.gallery.models import Gallery
+from zds.mp.models import mark_read
 from zds.tutorialv2.forms import AskValidationForm, RejectValidationForm, AcceptValidationForm, RevokeValidationForm, \
     CancelValidationForm, PublicationForm, PickOpinionForm, PromoteOpinionToArticleForm, UnpickOpinionForm, \
     DoNotPickOpinionForm
@@ -332,6 +333,7 @@ class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
                     send_message_mp(validation.validator,
                                     validation.content.validation_private_message,
                                     msg)
+                mark_read(validation.content.validation_private_message, validation.validator)
 
             messages.info(request, _('Ce contenu a bien été réservé par {0}.').format(request.user.username))
 

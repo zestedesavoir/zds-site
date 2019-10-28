@@ -1776,7 +1776,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
-
+        self.client.logout()
         # login with staff
         self.assertEqual(
             self.client.login(
