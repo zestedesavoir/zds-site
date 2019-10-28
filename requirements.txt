@@ -13,7 +13,7 @@ python-memcached==1.59
 lxml==4.3.3
 factory-boy==2.8.1
 pygeoip==0.3.2
-pillow==5.0.0
+pillow==6.2.1
 gitpython==2.1.9
 easy-thumbnails==2.6.0
 beautifulsoup4==4.7.1
