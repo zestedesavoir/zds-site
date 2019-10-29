@@ -6,16 +6,17 @@ from django.utils import translation
 from django.utils.translation import gettext as _
 from rest_framework import status
 from rest_framework.fields import empty
-from rest_framework.generics import UpdateAPIView, ListCreateAPIView, get_object_or_404
+from rest_framework.generics import UpdateAPIView, get_object_or_404
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.serializers import Serializer, CharField, BooleanField
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.views import APIView
 
 from zds.member.api.permissions import CanReadAndWriteNowOrReadOnly, IsNotOwnerOrReadOnly, IsAuthorOrStaff
 from zds.tutorialv2.publication_utils import PublicatorRegistry
 from zds.tutorialv2.utils import search_container_or_404
 from zds.utils.api.views import KarmaView
-from zds.tutorialv2.models.database import ContentReaction, PublishableContent, PublicationEvent
+from zds.tutorialv2.models.database import ContentReaction, PublishableContent
 
 
 class ContainerReadinessSerializer(Serializer):
@@ -66,12 +67,14 @@ class ContainerPublicationReadinessView(UpdateAPIView):
         return content
 
 
-class ExportView(ListCreateAPIView):
+class ExportView(APIView):
     permission_classes = (IsAuthorOrStaff,)
-    serializer_class = Serializer
+    _object = None
 
-    def get_queryset(self):
-        return PublicationEvent.objects.filter(published_object__content__pk=self.kwargs.get('pk', 0))
+    def get_object(self):  # required by IsAuthorOrStaff
+        if not self._object:
+            self._object = get_object_or_404(PublishableContent.objects, pk=int(self.kwargs.get('pk', 0)))
+        return self._object
 
     def ensure_directories(self, content: PublishableContent):
         final_directory = Path(content.public_version.get_extra_contents_directory())
@@ -82,11 +85,12 @@ class ExportView(ListCreateAPIView):
             building_directory.mkdir(parents=True)
         return building_directory, final_directory
 
-    def create(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         try:
-            publishable_content = get_object_or_404(PublishableContent.objects, pk=int(kwargs.get('pk')))
+            publishable_content = self.get_object()
             if not publishable_content.public_version:
                 raise Http404('Not public content')
+
             tmp_dir, _ = self.ensure_directories(publishable_content)
             versioned = publishable_content.load_version(public=True)
             base_name = str(Path(tmp_dir, versioned.slug))

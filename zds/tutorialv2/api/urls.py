@@ -7,5 +7,5 @@ urlpatterns = [
             ContentReactionKarmaView.as_view(), name='reaction-karma'),
     re_path(r'^publication/preparation/(?P<pk>[0-9]+)/',
             ContainerPublicationReadinessView.as_view(), name='readiness'),
-    re_path('export/(?P<pk>[0-9]+)/', ExportView.as_view(), name='generate_export')
+    re_path(r'^export/(?P<pk>[0-9]+)/', ExportView.as_view(), name='generate_export')
 ]
