@@ -134,6 +134,7 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
 
         # We need to save the content before changing its author list since it's a many-to-many relationship
         self.content.authors.add(self.request.user)
+
         self.content.ensure_author_gallery()
         self.content.save(force_slug_update=False)
         # Add subcategories on tutorial
@@ -1776,6 +1777,8 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
         for user in form.cleaned_data['users']:
             if user.pk not in all_authors_pk and user != self.request.user:
                 self.object.authors.add(user)
+                if self.object.validation_private_message:
+                    self.object.validation_private_message.participants.add(user)
                 all_authors_pk.append(user.pk)
                 url_index = reverse(self.object.type.lower() + ':find-' + self.object.type.lower(), args=[user.pk])
                 send_mp(
