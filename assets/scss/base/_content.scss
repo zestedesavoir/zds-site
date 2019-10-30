@@ -479,3 +479,24 @@ div.align-left, figure pre code.hljs {
     padding: .5em;
 
 }
+
+// checkbox menu
+
+ul li p {
+    margin: 0;
+}
+
+li.task-list-item {
+    list-style-type: none;
+    position: relative;
+
+    p {
+
+    }
+
+    input[type=checkbox] {
+        top: 4px;
+        position: absolute;
+        left: -20px;
+    }
+}
