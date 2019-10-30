@@ -194,7 +194,7 @@
                 <h3>{% trans "Filtrer" %}</h3>
                 <ul>
                     {% for current_filter in filters %}
-                        {% if contents != None or tutorials != None or opinions != None %}
+                        {% if contents != None or tutorials != None or opinions != None or articles != None %}
                             {% captureas namespace %}{% if type == 'all' %}content{% else %}{{ type }}{% endif %}{% endcaptureas %}
                             <li><a href="{% url namespace|add:':find-'|add:type usr.username %}?filter={{ current_filter.key }}" class="ico-after {{ current_filter.icon }} {% if filter == current_filter.key %}selected{% endif %}">{{ current_filter.text }}</a> </li>
                         {% elif opinions != None %}
