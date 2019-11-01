@@ -373,6 +373,9 @@ class ZMarkdownRebberLatexPublicator(Publicator):
         licence_logo = licences.get(licence_short, False)
         if licence_logo:
             licence_url = 'https://creativecommons.org/licenses/{}/4.0/legalcode'.format(licence_short)
+            # we need a specific case for CC-0 as it is "public-domain"
+            if licence_logo == licences['0']:
+                licence_url = 'https://creativecommons.org/publicdomain/zero/1.0/legalcode.fr'
         else:
             licence = str(_('Tous droits réservés'))
             licence_logo = licences['copyright']
