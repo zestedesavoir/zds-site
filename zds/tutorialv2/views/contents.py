@@ -1438,8 +1438,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                     if not self.object.validation_private_message:
                         self.object.validation_private_message = send_mp(bot,
                                                                          self.object.authors.all(),
-                                                                         _(_type[0].upper() + _type[1:].lower() +
-                                                                           ' en bêta'),
+                                                                         self.object.validation_message_title,
                                                                          beta_version.title,
                                                                          msg_pm,
                                                                          False,

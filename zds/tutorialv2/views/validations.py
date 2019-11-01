@@ -178,7 +178,7 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
                 self.object.validation_private_message = send_mp(
                     bot,
                     [old_validator],
-                    _('Une nouvelle version a été envoyée en validation.'),
+                    self.object.validation_message_title,
                     self.versioned_object.title,
                     msg,
                     False,
@@ -540,7 +540,7 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleOnline
             validation.content.validation_private_message = send_mp(
                 bot,
                 validation.content.authors.all(),
-                _('Dépublication'),
+                self.object.validation_message_title,
                 validation.content.title,
                 msg,
                 True,
@@ -654,7 +654,7 @@ class UnpublishOpinion(LoginRequiredMixin, SingleOnlineContentFormViewMixin, Doe
                 self.object.validation_private_message = send_mp(
                     bot,
                     versioned.authors.all(),
-                    _('Dépublication'),
+                    self.object.validation_message_title,
                     versioned.title,
                     msg,
                     True,
@@ -734,7 +734,7 @@ class DoNotPickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormView
                     self.object.validation_private_message = send_mp(
                         bot,
                         versioned.authors.all(),
-                        _('Billet modéré'),
+                        self.object.validation_message_title,
                         versioned.title,
                         msg,
                         True,
@@ -831,7 +831,7 @@ class PickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormViewMixin
             self.object.validation_private_message = send_mp(
                 bot,
                 versioned.authors.all(),
-                _('Billet approuvé'),
+                self.object.validation_message_title,
                 versioned.title,
                 msg,
                 True,
@@ -902,7 +902,7 @@ class UnpickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormViewMix
             self.object.validation_private_message = send_mp(
                 bot,
                 versioned.authors.all(),
-                _('Billet retiré de la liste des billets choisis'),
+                self.object.validation_message_title,
                 versioned.title,
                 msg,
                 True,
