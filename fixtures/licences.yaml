@@ -16,3 +16,9 @@
         code : Tous droits réservés
         title : Tous droits réservés
         description :  Droit d'auteur pur et dur.
+-   model: utils.Licence
+    pk: 42
+    fields:
+        code: CC 0
+        title: Licence CC 0
+        description: Domaine public - Licence CC 0
