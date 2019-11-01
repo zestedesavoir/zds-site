@@ -241,7 +241,7 @@ Dans l'interface d'administration de Django, se rendre dans la section "OAuth2_p
 
 .. note::
 
-    Si vous `chargez les fixtures <./utils/fixture_loaders.html>`_, un tel client est déjà créé, avec les identifiants suivants:
+    Si vous `chargez les fixtures <./utils/fixture_loaders.html>`_, un tel client, lié à l'utilisateur ``admin``, est déjà créé, avec les identifiants suivants:
 
     - ``client_id``: ``w14aIFqE7z90ti1rXE8hCRMRUOPBP4rXpfLZIKmT`` ;
     - ``client_secret``: ``0q4ee800NWs8cSHa0FIbkTLwEncMqYHOCAxNkt9zRmd10bRk1J18TkbviO5QHy2b66ggzyLADm79tJw5BQf2XfApPnk0nogcFaYhtNO33uNlzzT8sXfxu3zzBFu5Wejv``.
