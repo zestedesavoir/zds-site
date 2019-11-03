@@ -78,27 +78,6 @@
         color:#1088bf !important;
     }
 
-    li.simple-create-button {
-        list-style-type: '';
-        .btn {
-            float:none;
-            display:inline-block;
-            line-height: 32px;
-            height: 32px;
-            border-radius: 2px;
-            vertical-align: middle;
-            padding:0 12px 0 8px;
-
-            &::before {
-                content: '+ ';
-                font-size: 28px;
-                vertical-align: middle;
-                padding-bottom: 3px; /* hack font vertical-align between + and ABC (letters) */
-            }
-            margin-left:-18px;
-        }
-    }
-
     .license {
         float: right;
         margin: 0;
@@ -159,10 +138,6 @@
 
     .new-btn-container {
         display: none;
-    }
-
-    .summary-part h4 > a.disabled {
-        background: none !important;
     }
 }
 
@@ -259,15 +234,6 @@
 
                 &:first-child {
                     margin: 0;
-                }
-            }
-
-            .article-content > .summary-part > li {
-                float: left;
-                width: 50%;
-
-                &:nth-child(2n+1) {
-                    clear: both;
                 }
             }
         }
