@@ -49,7 +49,7 @@ from zds.tutorialv2.utils import search_container_or_404, get_target_tagged_tree
 from zds.utils.forums import send_post, lock_topic, create_topic, unlock_topic
 
 from zds.utils.models import HelpWriting, get_hat_from_settings
-from zds.utils.mps import send_mp
+from zds.utils.mps import send_mp, send_message_mp
 from zds.utils.paginator import ZdSPagingListView, make_pagination
 
 
@@ -134,6 +134,7 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
 
         # We need to save the content before changing its author list since it's a many-to-many relationship
         self.content.authors.add(self.request.user)
+
         self.content.ensure_author_gallery()
         self.content.save(force_slug_update=False)
         # Add subcategories on tutorial
@@ -401,16 +402,26 @@ class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteV
                             'user': self.request.user,
                             'message': '\n'.join(['> ' + line for line in self.request.POST['text'].split('\n')])
                         })
-
-                    send_mp(
-                        bot,
-                        [validation.validator],
-                        _('Demande de validation annulée').format(),
-                        self.object.title,
-                        msg,
-                        False,
-                        hat=get_hat_from_settings('validation'),
-                    )
+                    if not validation.content.validation_private_message:
+                        validation.content.validation_private_message = send_mp(
+                            bot,
+                            [validation.validator],
+                            _('Demande de validation annulée').format(),
+                            self.object.title,
+                            msg,
+                            False,
+                            hat=get_hat_from_settings('validation'),
+                            automaticaly_read=[validation.validator]
+                        )
+                        validation.content.save(force_slug_update=False)
+                    else:
+                        send_message_mp(
+                            bot,
+                            validation.content.validation_private_message,
+                            msg,
+                            hat=get_hat_from_settings('validation'),
+                            no_notification_for=self.request.user
+                        )
             if self.object.beta_topic is not None:
                 beta_topic = self.object.beta_topic
                 beta_topic.is_locked = True
@@ -1424,13 +1435,20 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                             'user': self.request.user
                         }
                     )
-                    send_mp(bot,
-                            self.object.authors.all(),
-                            _(_type[0].upper() + _type[1:].lower() + ' en bêta'),
-                            beta_version.title,
-                            msg_pm,
-                            False,
-                            hat=get_hat_from_settings('validation'))
+                    if not self.object.validation_private_message:
+                        self.object.validation_private_message = send_mp(bot,
+                                                                         self.object.authors.all(),
+                                                                         self.object.validation_message_title,
+                                                                         beta_version.title,
+                                                                         msg_pm,
+                                                                         False,
+                                                                         hat=get_hat_from_settings('validation'))
+                        self.object.save(force_slug_update=False)
+                    else:
+                        send_message_mp(bot,
+                                        self.object.validation_private_message,
+                                        msg,
+                                        hat=get_hat_from_settings('validation'))
                 else:
                     all_tags = self._get_all_tags()
                     if not already_in_beta:
@@ -1758,6 +1776,8 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
         for user in form.cleaned_data['users']:
             if user.pk not in all_authors_pk and user != self.request.user:
                 self.object.authors.add(user)
+                if self.object.validation_private_message:
+                    self.object.validation_private_message.participants.add(user)
                 all_authors_pk.append(user.pk)
                 url_index = reverse(self.object.type.lower() + ':find-' + self.object.type.lower(), args=[user.pk])
                 send_mp(

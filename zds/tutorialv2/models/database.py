@@ -4,6 +4,7 @@ from django.db.models import CASCADE
 from datetime import datetime
 import contextlib
 
+from zds.mp.models import PrivateTopic
 from zds.tutorialv2.models.mixins import TemplatableContentModelMixin, OnlineLinkableContentMixin
 from zds import json_handler
 
@@ -105,6 +106,9 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
                                   blank=True, null=True, max_length=80, db_index=True)
     beta_topic = models.ForeignKey(Topic, verbose_name='Sujet beta associé', default=None, blank=True, null=True,
                                    on_delete=models.SET_NULL)
+    validation_private_message = models.ForeignKey(PrivateTopic, verbose_name='Message de suivi staff',
+                                                   default=None, blank=True, null=True,
+                                                   on_delete=models.SET_NULL)
     licence = models.ForeignKey(Licence,
                                 verbose_name='Licence',
                                 blank=True, null=True, db_index=True, on_delete=models.SET_NULL)
@@ -158,15 +162,15 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         self.refresh_from_db(fields=list(fields.keys()))
         return self
 
-    def save(self, *args, force_slug_update=True, **kwargs):
+    def save(self, *args, force_slug_update=True, update_date=True, **kwargs):
         """
-        Rewrite the ``save()`` function to handle slug uniqueness
+        Rewrite the ``save()``  function to handle slug uniqueness
 
+        :param update_date: if ``True`` will assign "update_date" property to now
         :param force_slug_update: if set to ``False`` do not try to update the slug
         """
         if force_slug_update:
             self.slug = uuslug(self.title, instance=self, max_length=80)
-        update_date = kwargs.pop('update_date', True)
         if update_date:
             self.update_date = datetime.now()
         super(PublishableContent, self).save(*args, **kwargs)

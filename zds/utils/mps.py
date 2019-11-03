@@ -22,12 +22,16 @@ def send_mp(
         leave=True,
         direct=False,
         mark_as_read=False,
-        hat=None):
+        hat=None,
+        automaticaly_read=None):
     """
     Send MP at members.
     Most of the param are obvious, excepted :
-    * direct : send a mail directly without mp (ex : ban members who wont connect again)
-    * leave : the author leave the conversation (usefull for the bot : it wont read the response a member could send)
+
+    :param direct: send a mail directly without mp (ex : ban members who wont connect again)
+    :param leave: the author leave the conversation (usefull for the bot : it wont read the response a member could
+    send)
+    :param automaticaly_read: a user or a list of users that will automatically be marked as reader of the mp
     """
 
     # Creating the thread
@@ -46,7 +50,11 @@ def send_mp(
     topic = send_message_mp(author, n_topic, text, send_by_mail, direct, hat)
     if mark_as_read:
         mark_read(topic, author)
-
+    if automaticaly_read:
+        if not isinstance(automaticaly_read, list):
+            automaticaly_read = [automaticaly_read]
+        for not_notified_user in automaticaly_read:
+            mark_read(n_topic, not_notified_user)
     if leave:
         move = topic.participants.first()
         topic.author = move
@@ -62,7 +70,8 @@ def send_message_mp(
         text,
         send_by_mail=True,
         direct=False,
-        hat=None):
+        hat=None,
+        no_notification_for=None):
     """
     Send a post in an MP.
     Most of the param are obvious, excepted :
@@ -91,7 +100,8 @@ def send_message_mp(
     n_topic.save()
 
     if not direct:
-        signals.new_content.send(sender=post.__class__, instance=post, by_email=send_by_mail)
+        signals.new_content.send(sender=post.__class__, instance=post, by_email=send_by_mail,
+                                 no_notification_for=no_notification_for)
 
     if send_by_mail and direct:
         subject = '{} : {}'.format(settings.ZDS_APP['site']['literal_name'], n_topic.title)
@@ -107,5 +117,13 @@ def send_message_mp(
                 msg.send()
             except Exception as e:
                 logger.exception('Message was not sent to %s due to %s', recipient, e)
+    if no_notification_for:
+        if not isinstance(no_notification_for, list):
+            no_notification_for = [no_notification_for]
+        for not_notified_user in no_notification_for:
+            mark_read(n_topic, not_notified_user)
+    if author.pk not in [p.pk for p in n_topic.participants.all()] and author.pk != n_topic.author.pk:
+        n_topic.participants.add(author)
+        n_topic.save()
 
     return n_topic
