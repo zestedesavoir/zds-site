@@ -24,7 +24,7 @@
         p,
         > a,
         p a,
-        ul:not(.pagination),
+        ul:not(.pagination):not(.actions-title),
         ol:not(.summary-part) {
             font-family: $font-serif;
         }
@@ -43,45 +43,191 @@
         }
     }
 
-    .article-content .summary-part {
-        font-size: 20px;
-        color: darken($color-secondary, 11%);
+    .article-containers {
+        display: flex;
+        flex-wrap: wrap;
+    }
 
-        h3,
-        h4 {
-            font-weight: normal;
-            width: 90%;
+    .article-containers > .article-part {
+        flex: 0 50%;
+        width: 100%;
+        box-sizing: border-box;
+        padding-left: 1em;
+
+        &.simple-create-part {
+            flex: 0 100%;
+        }
+    }
+
+
+    .article-content.parts {
+        /* >> The drag'n'drop will be not capricious if we replace margin by padding */
+        /* .. 1 .. */
+        /* Convert h2 margin-bottom to padding-top */
+        .article-part h2 {
+            margin-bottom: 0px;
+        }
+
+        /* Canceled by [.. 3 ..]
+        .article-containers {
+            padding-top: 20px;
+        } */
+
+        /* .. 2 .. */
+        /* Convert h2 margin-top to padding-bottom */
+        .article-part h2 {
+            margin-top: 0px;
+        }
+
+
+        .article-containers,
+        & > .article-part > ol {
+            padding-bottom: 20px;
+        }
+
+        margin-top: 20px;
+
+        /* .. 3 .. */
+        /* Stay in when we are on h2 */
+        .article-part h2 {
+            margin-bottom: -52px;
+        }
+
+        .article-part.simple-create-part h2 {
+            margin-bottom: 0;
+        }
+
+        & > .article-part > ol,
+        & > .article-part > .article-containers {
+            /* [.. 3 ..] + [.. 1 ..] = 52 + 20 = 72 */
+            padding-top: 72px;
+        }
+
+        & > .article-part > .extract-wrapper {
+            padding-top: 52px;
+        }
+
+        /* .. 4 .. */
+        padding: 20px 0;
+        /* << */
+    }
+
+    .article-content .article-part {
+        overflow: hidden;
+        position: relative;
+
+        /* full width draggable area */
+        h2 {
+            padding-left:0;
 
             a {
-                text-decoration: none;
-
-                &:hover,
-                &:focus {
-                    text-decoration: underline;
-                }
+                margin: 0;
+                display: inline-block;
+                width: 100%;
+                padding-left: 1%;
             }
         }
 
-        h3 {
-            font-size: 20px;
-            margin: 0 0 5px;
+        &:not(.is-chapter) {
+            h3, h4 {
+                font-weight: normal;
+                margin: 0 0 5px;
+                a {
+                    text-decoration: none;
+                    &:hover,
+                    &:focus {
+                        text-decoration: underline;
+                    }
+                }
+            }
+
+            li h3 a,
+            li h4 a {
+                color: lighten($color-primary, 20%);
+                transition: color $transition-duration ease, text-decoration $transition-duration ease;
+
+                &:hover {
+                    color: darken($color-secondary, 15%);
+                }
+            }
+
+            h3, h4 {
+                font-size: 16px;
+            }
         }
 
-        .summary-part {
-            list-style: none;
-            padding-left: 0;
-            margin-bottom: 15px;
+        & > .article-containers .actions-title {
+            display: none;
+        }
 
-            h4 {
-                font-size: 14px;
-                margin: 2px 0;
+        & > .article-part h3 {
+            font-size: 20px;
+            padding-left: 15px;
+        }
+
+        & > .article-part ol {}
+
+        h4 > a.disabled {
+            background: none !important;
+        }
+    }
+
+    .article-content li.simple-create-button {
+        list-style-type: '';
+        .btn {
+            float:none;
+            font-size: 14px;
+            display:inline-block;
+            line-height: 32px;
+            height: 32px;
+            border-radius: 2px;
+            vertical-align: bottom;
+            padding:0 12px 0 8px;
+            white-space: nowrap;
+
+            &::before {
+                content: '+ ';
+                font-size: 28px;
+                vertical-align: bottom;
+                padding-bottom: 3px; /* hack font vertical-align between + and ABC (letters) */
+            }
+            margin-left:-18px;
+        }
+    }
+
+    .article-content .article-part .actions-title {
+        position: absolute;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        top: 11px;
+        right: 10px;
+
+        li {
+            display: inline-block;
+        }
+
+        li .btn {
+            float: none !important;
+            height: 30px;
+            line-height: 30px;
+            margin-left: 3px;
+            opacity: .7;
+            z-index: 1;
+
+            &.ico-after:after {
+                margin-top: 7px;
+            }
+
+            &:hover,
+            &:focus {
+                opacity: 1;
             }
         }
     }
 
     .article-content,
     .message-content {
-        margin-bottom: 20px;
         color: #424242;
 
         @import "base/content";

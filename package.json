@@ -41,10 +41,12 @@
     "gulp.spritesmith": "6.11.0",
     "highlight.js": "^9.16.2",
     "jquery": "3.4.1",
+    "jquery-sortablejs": "1.0.1",
     "katex": "0.10.1",
     "moment": "^2.24.0",
     "normalize.css": "8.0.1",
-    "easymde": "^2.8.0"
+    "easymde": "^2.8.0",
+    "sortablejs": "1.10.0"
   },
   "devDependencies": {
     "gulp-jshint": "2.1.0",

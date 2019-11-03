@@ -17,6 +17,10 @@ hr {
     padding: 0;
 }
 
+.hr-btop {
+    border-top: 1px solid #ccc;
+}
+
 a,
 .link {
     color: lighten($color-primary, 20%);
