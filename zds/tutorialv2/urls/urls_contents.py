@@ -9,8 +9,8 @@ from zds.tutorialv2.views.contents import (DisplayContent, CreateContent, EditCo
                                            DownloadContent, UpdateContentWithArchive, CreateContentFromArchive,
                                            ContentsWithHelps, AddAuthorToContent,
                                            RemoveAuthorFromContent, WarnTypo, DisplayBetaContent, DisplayBetaContainer,
-                                           ContentOfAuthor, RedirectOldContentOfAuthor, AddReviewerToContent,
-                                           RemoveReviewerFromContent, ContentOfContributors)
+                                           ContentOfAuthor, RedirectOldContentOfAuthor, AddContributorToContent,
+                                           RemoveContributorFromContent, ContentOfContributors)
 
 from zds.tutorialv2.views.published import (SendNoteFormView, UpdateNoteView,
                                             HideReaction, ShowReaction, SendNoteAlert, SolveNoteAlert, TagsListView,
@@ -148,9 +148,9 @@ urlpatterns = [
     re_path(r'^comparaison/(?P<pk>\d+)/(?P<slug>.+)/$',
             DisplayDiff.as_view(), name='diff'),
     re_path(r'^ajouter-contributeur/(?P<pk>\d+)/$',
-            AddReviewerToContent.as_view(), name='add-contributor'),
+            AddContributorToContent.as_view(), name='add-contributor'),
     re_path(r'^enlever-contributeur/(?P<pk>\d+)/$',
-            RemoveReviewerFromContent.as_view(), name='remove-contributor'),
+            RemoveContributorFromContent.as_view(), name='remove-contributor'),
     re_path(r'^ajouter-auteur/(?P<pk>\d+)/$',
             AddAuthorToContent.as_view(), name='add-author'),
     re_path(r'^enlever-auteur/(?P<pk>\d+)/$',

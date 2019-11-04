@@ -1754,14 +1754,14 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
             return redirect(child.get_absolute_url())
 
 
-class AddReviewerToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
+class AddContributorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     only_draft_version = True
     must_be_author = True
     form_class = ContributionForm
     authorized_for_staff = True
 
     def get_form_kwargs(self):
-        kwargs = super(AddReviewerToContent, self).get_form_kwargs()
+        kwargs = super(AddContributorToContent, self).get_form_kwargs()
         kwargs.update({'content': self.object})
         return kwargs
 
@@ -1772,10 +1772,10 @@ class AddReviewerToContent(LoggedWithReadWriteHability, SingleContentFormViewMix
 
     def form_valid(self, form):
 
-        _type = _("de l'article")
+        _type = _("à l'article")
 
         if self.object.is_tutorial:
-            _type = _('du tutoriel')
+            _type = _('au tutoriel')
         elif self.object.is_opinion:
             raise PermissionDenied
 
@@ -1795,29 +1795,30 @@ class AddReviewerToContent(LoggedWithReadWriteHability, SingleContentFormViewMix
             send_mp(
                 bot,
                 [user],
-                format_lazy('{}{}', _('Aide à la relecture '), _type),
+                format_lazy('{} {}', _('Contribution'), _type),
                 self.versioned_object.title,
                 render_to_string('tutorialv2/messages/add_contribution_pm.md', {
                     'content': self.object,
                     'type': _type,
                     'url': self.object.get_absolute_url(),
                     'index': url_index,
-                    'user': user.username
+                    'user': user.username,
+                    'role': contribution.contribution_role.title
                 }),
                 True,
                 direct=False,
             )
             self.success_url = self.object.get_absolute_url()
 
-            return super(AddReviewerToContent, self).form_valid(form)
+            return super(AddContributorToContent, self).form_valid(form)
 
     def form_invalid(self, form):
         messages.error(self.request, form.errors)
         self.success_url = self.object.get_absolute_url()
-        return super(AddReviewerToContent, self).form_valid(form)
+        return super(AddContributorToContent, self).form_valid(form)
 
 
-class RemoveReviewerFromContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
+class RemoveContributorFromContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
 
     form_class = RemoveContributionForm
     only_draft_version = True
@@ -1836,15 +1837,15 @@ class RemoveReviewerFromContent(LoggedWithReadWriteHability, SingleContentFormVi
         contribution.delete()
 
         messages.success(
-            self.request, _('Vous avez enlevé {} de la liste des relecteurs de {}.').format(user.username, _type))
+            self.request, _('Vous avez enlevé {} de la liste des contributeurs de {}.').format(user.username, _type))
         self.success_url = self.object.get_absolute_url()
 
-        return super(RemoveReviewerFromContent, self).form_valid(form)
+        return super(RemoveContributorFromContent, self).form_valid(form)
 
     def form_invalid(self, form):
         messages.error(self.request, _("Les relecteurs sélectionnés n'existent pas."))
         self.success_url = self.object.get_absolute_url()
-        return super(RemoveReviewerFromContent, self).form_valid(form)
+        return super(RemoveContributorFromContent, self).form_valid(form)
 
 
 class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):

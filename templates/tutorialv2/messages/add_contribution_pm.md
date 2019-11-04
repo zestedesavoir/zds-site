@@ -3,7 +3,7 @@
 {% blocktrans with title=content.title|safe type=type|safe user=user|safe %}
 Bonjour {{ user }},
 
-Vous avez été désigné comme relecteur du contenu « [{{ title }}]({{ url }}) ».
+Vous avez été ajouté à la liste des contributeurs {{type}} « {{ title }} », en tant que {{role}}.
 
-Merci pour votre temps accordé à ce contenu !
+Merci pour votre participation !
 {%  endblocktrans %}
