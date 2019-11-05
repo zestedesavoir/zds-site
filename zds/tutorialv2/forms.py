@@ -1035,6 +1035,7 @@ class MoveElementForm(forms.Form):
     MOVE_DOWN = 'down'
     MOVE_AFTER = 'after'
     MOVE_BEFORE = 'before'
+    MOVE_FIRST = 'first'
 
     def __init__(self, *args, **kwargs):
         super(MoveElementForm, self).__init__(*args, **kwargs)
