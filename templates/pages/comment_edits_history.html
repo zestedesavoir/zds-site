@@ -1,7 +1,6 @@
 {% extends "pages/base.html" %}
 {% load date %}
 {% load i18n %}
-{% load sibling %}
 
 
 
@@ -34,27 +33,29 @@
                 <th>{% trans "Contenu" %}</th>
             </thead>
             <tbody>
-                {% sibling edits 0 as current %}
                 <tr>
                     <td>
                         {% blocktrans with num=edits|length %}
-                            Édition {{ num }}
+                            Version {{ num }}
                         {% endblocktrans %}
                     </td>
-                    <td class="wide">{{ current.date|format_date|capfirst }}</td>
-                    <td>{% include 'misc/member_item.part.html' with member=current.editor avatar=True %}</td>
-                    <td>{% trans "(Version actuelle)" %}</td>
+                    <td class="wide">{{ edits.0.date|format_date|capfirst }}</td>
+                    <td>{% include 'misc/member_item.part.html' with member=edits.0.editor avatar=True %}</td>
+                    <td>
+                        {% trans "(Version actuelle)" %}
+                    </td>
                 </tr>
-
                 {% for edit in edits %}
-                    {% sibling edits next as nextEdit %}
+                    {% with str_counter=forloop.counter|stringformat:"i" %}
+                    {% with slicing=str_counter|add:":"  %}
+                    {% with next_edit=edits|slice:slicing|first  %}
                     <tr>
                         <td>
-                            {% if forloop.revcounter0 == 0 %}
-                                {% trans "État original" %}
+                            {% if forloop.last %}
+                                {% trans "Version originale" %}
                             {% else %}
                                 {% blocktrans with num=forloop.revcounter0 %}
-                                    Édition {{ num }}
+                                    Version {{ num }}
                                 {% endblocktrans %}
                             {% endif %}
                         </td>
@@ -62,8 +63,8 @@
                             <td class="wide">{{ comment.pubdate|format_date|capfirst }}</td>
                             <td>{% include 'misc/member_item.part.html' with member=comment.author avatar=True %}</td>
                         {% else %}
-                            <td class="wide">{{ nextEdit.date|format_date|capfirst }}</td>
-                            <td>{% include 'misc/member_item.part.html' with member=nextEdit.editor avatar=True %}</td>
+                            <td class="wide">{{ next_edit.date|format_date|capfirst }}</td>
+                            <td>{% include 'misc/member_item.part.html' with member=next_edit.editor avatar=True %}</td>
                         {% endif %}
                         <td>
                             {% if edit.deleted_by %}
@@ -85,6 +86,9 @@
                             {% endif %}
                         </td>
                     </tr>
+                    {% endwith %}
+                    {% endwith %}
+                    {% endwith %}
                 {% endfor %}
             </tbody>
         </table>
