@@ -126,6 +126,13 @@ generate-doc: ## Generate the project's documentation
 generate-release-summary: ## Generate a release summary from Github's issues and PRs
 	@python scripts/generate_release_summary.py
 
+start-publication-watchdog: ## Start the publication watchdog
+	@if curl -s $(ZMD_URL) > /dev/null; then \
+		python manage.py publication_watchdog; \
+	else \
+		echo 'Start zmarkdown first with `make zmd-start`'; \
+	fi
+
 # inspired from https://gist.github.com/sjparkinson/f0413d429b12877ecb087c6fc30c1f0a
 
 .DEFAULT_GOAL := help
