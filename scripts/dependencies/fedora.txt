@@ -1,11 +1,11 @@
 #title=Fedora
-#desc=Utilisation de dnf
+#desc=Utilisation de dnf / Testé sur Fedora 29, 30
 #installcmd=dnf -y install
 git
 wget
 curl
 unzip
-realpath
+coreutils
 python3-devel
 python3-setuptools
 python3-lxml
