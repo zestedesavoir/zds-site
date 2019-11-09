@@ -94,7 +94,8 @@ after_success:
   - |
     # upload coverage
     if [[ "$ZDS_TEST_JOB" != "none" ]]; then
-      COVERALLS_PARALLEL=true coveralls
+      COVERALLS_PARALLEL=true
+      coveralls
     fi
 
   - |
