@@ -43,7 +43,8 @@
     "jquery": "3.4.1",
     "katex": "0.10.1",
     "moment": "^2.20.1",
-    "normalize.css": "8.0.1"
+    "normalize.css": "8.0.1",
+    "easymde": "^2.8.0"
   },
   "devDependencies": {
     "gulp-jshint": "2.1.0",
