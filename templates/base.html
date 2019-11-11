@@ -88,6 +88,8 @@
 
 
     {# Stylesheets #}
+    <link rel="stylesheet" href="{% static "css/easymde.min.css" %}">
+    <link rel="stylesheet" href="{% static "css/idea.css" %}">
     <link rel="stylesheet" href="{% static "css/katex.min.css" %}">
     <link rel="stylesheet" href="{% static "css/main.css" %}">
     {% if not debug %}
@@ -272,7 +274,6 @@
         }, true);
     </script>
     {% endif %}
-
 
 
     {% include "mathjax_config.html" %}

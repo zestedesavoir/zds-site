@@ -305,13 +305,12 @@
         e.preventDefault();
         var $btn = $(this);
         var $form = $btn.parents("form:first");
-        var text = "";
-        if ( $form.find(".preview-source").length ) {
-            var $textSource = $btn.parent().prev().find(".preview-source");
-            text = $textSource.val();
+        if ($form.find(".preview-source").length) {
+            var id_instance = $btn.closest("div").prev().find(".md-editor").prop("id");
         } else {
-            text = $form.find("textarea[name=text]").val();
+            var id_instance = $form.find(".md-editor").prop("id");
         }
+        var text = instances_mde[id_instance].value();
 
         var csrfmiddlewaretoken = $form.find("input[name=csrfmiddlewaretoken]").val(),
             lastPost = $form.find("input[name=last_post]").val();
@@ -328,10 +327,10 @@
             success: function(data){
                 $(".previsualisation").remove();
 
-                if (typeof $textSource === "undefined")
-                    $(data).insertAfter($form);
-                else
+                if ($form.find(".preview-source").length)
                     $(data).insertAfter($btn);
+                else
+                    $(data).insertAfter($form);
             }
         });
     });
@@ -364,4 +363,565 @@
         e.stopPropagation();
         e.preventDefault();
     });
+
+
+    /* Editor */
+    let csrf = $("input[name=csrfmiddlewaretoken]").val();
+    let instances_mde = {};
+    let elements = document.getElementsByClassName('md-editor');
+
+    function checkMatch(str, reg) {
+        var found = String(str).match(reg);
+        if(found) {
+            if (typeof found != 'undefined') {
+                return found.length > 0;
+            }
+        }
+
+    }
+    function getStateZmd(cm) {
+        var pos = cm.getCursor('start');
+        var posStart = cm.getCursor('start');
+        var posEnd = cm.getCursor('end');
+        var line = cm.getLine(posStart.line);
+
+        var beforeChars = line.slice(0, posStart.ch).match(/^(\S)+/g);
+        var afterChars = line.slice(posEnd.ch).match(/(\S)+$/g);
+        var ret = {};
+
+        if (typeof beforeChars === 'undefined' || typeof afterChars === 'undefined' || (! beforeChars) || (! afterChars) ) {
+
+        } else {
+            if(checkMatch(beforeChars, /(.*)*\|\|$/) && checkMatch(afterChars, /^\|\|(.*)*/)) {
+                ret.keyboard = true;
+            }
+            if(checkMatch(beforeChars, /(.*)`|$/) && checkMatch(afterChars, /^`(.*)/)) {
+                ret.code_inline = true;
+            }
+            else if(checkMatch(beforeChars, /(.*)~$/) && checkMatch(afterChars, /^~(.*)/)) {
+                ret.subscript = true;
+            }
+            else if(checkMatch(beforeChars, /(.*)\^$/) && checkMatch(afterChars, /^\^(.*)/)) {
+                ret.superscript = true;
+            }
+            else if(checkMatch(beforeChars, /^->($|\s)+/) && checkMatch(afterChars, /(^|\s)+->$/)) {
+                ret.align_right = true;
+            }
+            else if(checkMatch(beforeChars, /^->($|\s)+/) && checkMatch(afterChars, /(^|\s)+<-$/)) {
+                ret.align_center = true;
+            }
+            else if(checkMatch(beforeChars, /^\$\$($|\s)+/) && checkMatch(afterChars, /(^|\s)+\$\$$/)) {
+                ret.math = true;
+            }
+        }
+
+        if(checkMatch(line, /^\[\[(.+)\]\]$/)) { // it's a bloc
+            var isBlock = true;
+            for (var i = (posStart.line) + 1; i <= posEnd.line; i++) {
+                if((! cm.getLine(i).startsWith("| ")) && (cm.getLine(i) != "")) {
+                    isBlock = false;
+                    break;
+                }
+            }
+            if (isBlock) {
+                var reg = /^\[\[(.+)\]\]$/;
+                var m = reg.exec(line);
+                var _titleContents = m[1].split("|");
+                if(_titleContents[0].trim() === "i" || _titleContents[0].trim() === "information") {
+                    ret.bloc_information = true;
+                } else if(_titleContents[0].trim() === "q" || _titleContents[0].trim() === "question") {
+                    ret.bloc_question = true;
+                } else if(_titleContents[0].trim() === "e" || _titleContents[0].trim() === "erreur") {
+                    ret.bloc_error = true;
+                } else if(_titleContents[0].trim() === "s" || _titleContents[0].trim() === "secret") {
+                    ret.bloc_secret = true;
+                } else {
+                    ret.bloc_neutral = true;
+                }
+            }
+        } else {
+            // find checklist
+            var isCheckList = true;
+            for (var i = (posStart.line) + 1; i <= posEnd.line; i++) {
+                if((! cm.getLine(i).match(/^- \[(.{1})\](\s*)/)) && (cm.getLine(i) != "")) {
+                    isCheckList = false;
+                    break;
+                }
+            }
+            if(isCheckList) {
+                ret.checklist = true;
+            }
+        }
+
+        return ret;
+    }
+
+    function shiftLines(cm, lineNumber, replText) {
+        var nextText;
+        var currentText;
+        var lastLine = cm.lastLine();
+        for(var i=lineNumber; i<=lastLine+1; i++) {
+            currentText=cm.getLine(i);
+            if(i == lineNumber) {
+                cm.replaceRange(replText, {line: i, ch:0} , {line:i, ch:999999999});
+            } else {
+                cm.replaceRange(nextText, {line: i, ch:0} , {line:i, ch:999999999});
+            }
+            nextText=currentText;
+            if(i == lastLine) {
+                nextText = cm.lineSeparator()+nextText;
+            }
+        }
+    }
+
+    function unShiftLines(cm, lineStart, lineEnd) {
+        for(var i=lineStart+1; i<=lineEnd; i++) {
+            cm.replaceRange(cm.getLine(i).slice(2), {line: i, ch:0} , {line: i, ch:999999999});
+        }
+        cm.replaceRange("", {line: lineStart, ch:0} , {line: lineStart+1, ch: 0});
+    }
+
+    function _toggleBlockZmd(editor, type, start_chars, end_chars) {
+        if (/editor-preview-active/.test(editor.codemirror.getWrapperElement().lastChild.className))
+            return;
+        end_chars = (typeof end_chars === 'undefined') ? start_chars : end_chars;
+        var cm = editor.codemirror;
+        var stat = getStateZmd(cm);
+
+        var text;
+        var start = start_chars;
+        var end = end_chars;
+
+        var startPoint = cm.getCursor('start');
+        var endPoint = cm.getCursor('end');
+
+        if (stat[type]) {
+            text = cm.getLine(startPoint.line);
+            start = text.slice(0, startPoint.ch);
+            end = text.slice(startPoint.ch);
+            var offset = 0;
+            if(type == 'bloc_information' || type == 'bloc_question' || type == 'bloc_error' || type == 'bloc_secret' || type == 'bloc_neutral') {
+                unShiftLines(cm, startPoint.line, endPoint.line);
+                startPoint.ch = 0;
+            } else if (type == 'checklist') {
+                for(var i=startPoint.line; i<=endPoint.line; i++) {
+                    cm.replaceRange(cm.getLine(i).slice(start_chars.length), {line: i, ch: 0}, {line: i, ch: 999999999});
+                }
+                endPoint.ch -= start_chars.length;
+            } else {
+                if (type == 'keyboard') {
+                    start = start.replace(/(\|\|)(?![\s\S]*(\|\|))/, '');
+                    end = end.replace(/(\|\|)/, '');
+                    offset = 2
+                } else if (type == 'code_inline') {
+                    start = start.replace(/(\`)(?![\s\S]*(\`))/, '');
+                    end = end.replace(/(\`)/, '');
+                    offset = 1
+                } else if (type == 'subscript') {
+                    start = start.replace(/(~)(?![\s\S]*(~))/, '');
+                    end = end.replace(/(~)/, '');
+                    offset = 1
+                } else if (type == 'superscript') {
+                    start = start.replace(/(\^)(?![\s\S]*(\^))/, '');
+                    end = end.replace(/(\^)/, '');
+                    offset = 1
+                } else if (type == 'align_right') {
+                    var reg = /(->)(\s*)/;
+                    var m = reg.exec(start);
+                    start = start.replace(/(->)(\s*)/, '');
+                    end = end.replace(/(\s*)(->)/, '');
+                    offset = m[0].length;
+                } else if (type == 'align_center') {
+                    var reg = /(->)(\s*)/;
+                    var m = reg.exec(start);
+                    start = start.replace(/(->)(\s*)/, '');
+                    end = end.replace(/(\s*)(<-)/, '');
+                    offset = m[0].length;
+                } else if (type == 'math') {
+                    start = start.replace(/(\$\$)(?![\s\S]*(\$\$))/, '');
+                    end = end.replace(/(\$\$)/, '');
+                    offset = 2
+                }
+
+                cm.replaceRange(start + end, {
+                    line: startPoint.line,
+                    ch: 0,
+                }, {
+                    line: startPoint.line,
+                    ch: 99999999999999,
+                });
+
+                startPoint.ch -= offset;
+                if (startPoint !== endPoint) {
+                    endPoint.ch -= offset;
+                }
+            }
+
+        } else {
+            if(type == 'bloc_information' || type == 'bloc_question' || type == 'bloc_error' || type == 'bloc_secret' || type == 'bloc_neutral' ) {
+                // blocs
+                for(var i = startPoint.line; i <= endPoint.line; i++) {
+                    var text = start_chars+cm.getLine(i);
+                    cm.replaceRange(text, {line: i, ch: 0}, {line: i, ch: 999999999});
+                }
+                if(type == 'bloc_information') {
+                    shiftLines(cm, startPoint.line, "[[information]]");
+                } else if(type == 'bloc_question') {
+                    shiftLines(cm, startPoint.line, "[[question]]");
+                } else if(type == 'bloc_error') {
+                    shiftLines(cm, startPoint.line, "[[erreur]]");
+                } else if(type == 'bloc_secret') {
+                    shiftLines(cm, startPoint.line, "[[secret]]");
+                } else if(type == 'bloc_neutral') {
+                    shiftLines(cm, startPoint.line, "[[n|titre]]");
+                }
+                startPoint.ch = 0;
+                endPoint.line += 1;
+                endPoint.ch = endPoint.line.length;
+            } else if(type == 'checklist') {
+                // checklists
+                for(var i=startPoint.line; i<=endPoint.line; i++) {
+                    var text = start_chars+cm.getLine(i);
+                    cm.replaceRange(text, {line: i, ch: 0}, {line: i, ch: 999999999});
+                }
+                endPoint.ch += start_chars.length;
+            } else {
+                // inline codes
+                text = cm.getSelection();
+                if (type == 'keyboard') {
+                    text = text.split('||').join('');
+                } else if (type == 'code_inline') {
+                    text = text.split('`').join('');
+                } else if (type == 'subscript') {
+                    text = text.split('~').join('');
+                } else if (type == 'superscript') {
+                    text = text.split('^').join('');
+                } else if (type == 'align_right') {
+                    text = text.split('-> ').join('');
+                } else if (type == 'align_center') {
+                    text = text.split('-> ').join('').split(' <-').join('');
+                } else if (type == 'math') {
+                    text = text.split('$$').join('');
+                }
+                cm.replaceSelection(start + text + end);
+
+                startPoint.ch += start_chars.length;
+                endPoint.ch = startPoint.ch + text.length;
+            }
+        }
+
+        cm.setSelection(startPoint, endPoint);
+        cm.focus();
+    }
+
+    var uploadImage = function(file, onSuccess, onError) {
+        var galleryUrl = '/api/galeries/'+ document.body.getAttribute('data-gallery') + '/images/';
+
+        var formData = new FormData();
+        formData.append('physical', file);
+        formData.append('title', file.name);
+        // WARN: if you test zds with sqlite, you can't upload multiple files at a time
+        $.ajax({
+            url: galleryUrl,
+            data: formData, type: 'POST',
+            processData: false,
+            contentType: false,
+            headers: {
+                "X-CSRFToken": csrf
+            },
+            dataType: 'json'
+        }).done(function (result) {
+            onSuccess(result.url)
+        }).fail(function (resp) {
+            var error = "Erreur inconnue";
+            if(resp.responseText !== undefined && resp.responseText.indexOf("RequestDataTooBig") !== -1) {
+                error = "L'image est trop lourde.";
+            } else if(resp.responseJSON !== undefined) {
+                error = resp.responseJSON[0];
+            } else if(resp.responseText !== undefined) {
+                error = "Erreur " + resp.status + " " + resp.statusText + " : " + '"' + resp.responseText.split("\n")[0] + '"';
+            } else if(resp.readyState === 0 && resp.statusText === "error") {
+                error = "Oups ! Impossible de se connecter au serveur.";
+            }
+            onError(error);
+        });
+    };
+
+    var customMarkdownParser = function(plainText) {
+        var result;
+        $.ajax({
+            url: form_editor.attr("action"),
+            type: "POST",
+            data: {
+                "csrfmiddlewaretoken": csrf,
+                "text": plainText,
+                "last_post": "",
+                "preview": "preview"
+            },
+            success: function(data){
+                result = data;
+            },
+            async: false
+        });
+        return result;
+    }
+
+    for (var i = 0; i < elements.length; i++) {
+        var form_editor = $(elements[i]).closest("form");
+        var easyMDE = new EasyMDE({
+                element: elements[i],
+                autosave: {
+                    enabled: true,
+                    uniqueId: elements[i].id,
+                    delay: 1000,
+                },
+                indentWithTabs: false,
+                minHeight: "500px",
+                placeholder: "Votre message au format Markdown",
+                promptURLs: true,
+                promptTexts: {
+                    image: "Url de votre image",
+                    link: "Url de votre lien"
+                },
+                uploadImage: true,
+                imageUploadFunction: uploadImage,
+                imageTexts: {
+                    sbInit: "Joindre des images par glisser-déposer ou coller depuis le presse-papiers.",
+                    sbOnDragEnter: "Déposer l'image pour l'envoyer dans votre galérie",
+                    sbOnDrop: "Téléchargement d'images #images_names#",
+                    sbProgress: "Téléchargement #file_name#: #progress#%",
+                    sbOnUploaded: "Image téléchargée #image_name#"
+                },
+                spellChecker: false,
+                promptAbbrv: true,
+                theme: "idea",
+                previewRender: function(plainText) {
+                    return customMarkdownParser(plainText); // Returns HTML from a custom parser
+                },
+                syncSideBySidePreviewScroll: false,
+                toolbar: [
+                    {
+                        name: "bold",
+                        action: EasyMDE.toggleBold,
+                        className: "fa fa-bold",
+                        title: "Gras",
+                    },
+                    {
+                        name: "italic",
+                        action: EasyMDE.toggleItalic,
+                        className: "fa fa-italic",
+                        title: "Italique",
+                    },
+                    {
+                        name: "strikethrough",
+                        action: EasyMDE.toggleStrikethrough,
+                        className: "fa fa-strikethrough",
+                        title: "Barré",
+                    },
+                    {
+                        name: "abbr",
+                        action: (e) => {
+                            var abbr = e.codemirror.getSelection();
+                            var options = e.options;
+                            var description = ""
+                            if (options.promptAbbrv) {
+                                if (abbr.length == 0) {
+                                    abbr = prompt('Mot abrégé', '');
+                                    if (abbr.length == 0) {
+                                        return false;
+                                    }
+                                }
+                                description = prompt("Description de l'abbréviation", '');
+                            }
+                            e.codemirror.setCursor(e.codemirror.lastLine())
+                            e.codemirror.replaceSelection('*['+abbr+']: '+description)
+                            e.codemirror.focus();
+                        },
+                        className: "fa fa-text-width",
+                        title: "Abbréviation",
+                    },
+                    {
+                        name: "keyboard",
+                        action: (e) => {
+                            _toggleBlockZmd(e, 'keyboard', '||');
+                        },
+                        className: "fa fa-keyboard-o",
+                        title: "Touche clavier",
+                    },
+                    {
+                        name: "code_inline",
+                        action: (e) => {
+                            _toggleBlockZmd(e, 'code_inline', '`');
+                        },
+                        className: "fa fa-terminal",
+                        title: "Code inline",
+                    },
+                    "|",
+                    {
+                        name: "superscript",
+                        action: (e) => {
+                            _toggleBlockZmd(e, 'superscript', '^');
+                        },
+                        className: "fa fa-superscript",
+                        title: "Exposant",
+                    },
+                    {
+                        name: "subscript",
+                        action: (e) => {
+                            _toggleBlockZmd(e, 'subscript', '~');
+                        },
+                        className: "fa fa-subscript",
+                        title: "Indice",
+                    },
+                    "|",
+                    {
+                        name: "align_center",
+                        action: (e) => {
+                            _toggleBlockZmd(e, 'align_center', '-> ', ' <-');
+                        },
+                        className: "fa fa-align-center",
+                        title: "Aligner au centre",
+                    },
+                    {
+                        name: "align_right",
+                        action: (e) => {
+                            _toggleBlockZmd(e, 'align_right', '-> ', ' ->');
+                        },
+                        className: "fa fa-align-right",
+                        title: "Aligner a droite",
+                    },
+                    "|",
+                    {
+                        name: "list-ul",
+                        action: EasyMDE.toggleItalic,
+                        className: "fa fa-list-ul",
+                        title: "Liste à puces",
+                    },
+                    {
+                        name: "ordered-list",
+                        action: EasyMDE.toggleOrderedList,
+                        className: "fa fa-list-ol",
+                        title: "Liste ordonnée",
+                    },
+                    {
+                        name: "checklist",
+                        action: (e) => {
+                            _toggleBlockZmd(e, 'checklist', '- [ ] ');
+                        },
+                        className: "fa fa-check-square-o",
+                        title: "Liste de taches",
+                    },
+                    "|",
+                    {
+                        name: "heading",
+                        action: EasyMDE.toggleHeadingSmaller,
+                        className: "fa fa-header",
+                        title: "Titres",
+                    },
+                    "|",
+                    {
+                        name: "image",
+                        action: EasyMDE.drawImage,
+                        className: "fa fa-picture-o",
+                        title: "Image",
+                    },
+                    {
+                        name: "link",
+                        action: EasyMDE.drawLink,
+                        className: "fa fa-link",
+                        title: "Lien",
+                    },
+                    "|",
+                    {
+                        name: "quote",
+                        action: EasyMDE.toggleBlockquote,
+                        className: "fa fa-quote-left",
+                        title: "Citation",
+                    },
+                    {
+                        name: "code",
+                        action: EasyMDE.toggleCodeBlock,
+                        className: "fa fa-code",
+                        title: "Bloc de code coloré",
+                    },
+                    {
+                        name: "math",
+                        action: (e) => {
+                            _toggleBlockZmd(e, 'math', '$$');
+                        },
+                        className: "fa fa-percent",
+                        title: "Formule mathématique",
+                    },
+                    {
+                        name: "table",
+                        action: EasyMDE.drawTable,
+                        className: "fa fa-table",
+                        title: "Table",
+                    },
+                    "|",
+                    {
+                        name: "bloc_info",
+                        action: (e) => {
+                            _toggleBlockZmd(e, 'bloc_information', '| ');
+                        },
+                        className: "fa fa-info",
+                        title: "Bloc information",
+                    },
+                    {
+                        name: "bloc_question",
+                        action: (e) => {
+                            _toggleBlockZmd(e, 'bloc_question', '| ');
+                        },
+                        className: "fa fa-question",
+                        title: "Bloc question",
+                    },
+                    {
+                        name: "bloc_error",
+                        action: (e) => {
+                            _toggleBlockZmd(e, 'bloc_error', '| ');
+                        },
+                        className: "fa fa-times",
+                        title: "Bloc erreur",
+                    },
+                    {
+                        name: "bloc_secret",
+                        action: (e) => {
+                            _toggleBlockZmd(e, 'bloc_secret', '| ');
+                        },
+                        className: "fa fa-eye-slash",
+                        title: "Bloc secret",
+                    },
+                    {
+                        name: "bloc_neutral",
+                        action: (e) => {
+                            _toggleBlockZmd(e, 'bloc_neutral', '| ');
+                        },
+                        className: "fa fa-square",
+                        title: "Bloc neutre",
+                    },
+                    "|",
+                    {
+                        name: "preview",
+                        action: EasyMDE.togglePreview,
+                        className: "fa fa-eye no-disable",
+                        title: "Aperçu",
+                    },
+                    {
+                        name: "side-by-side",
+                        action: EasyMDE.toggleSideBySide,
+                        className: "fa fa-columns no-disable no-mobile",
+                        title: "Aperçu sur le coté",
+                    },
+                    {
+                        name: "fullscreen",
+                        action: EasyMDE.toggleFullScreen,
+                        className: "fa fa-arrows-alt no-disable no-mobile",
+                        title: "Plein écran",
+                    },
+                ]
+            }
+        );
+        instances_mde[elements[i].id]=easyMDE;
+    }
+
 })(jQuery);

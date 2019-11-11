@@ -90,6 +90,7 @@ function js() {
         require.resolve('moment/moment.js'),
         require.resolve('moment/locale/fr.js'),
         require.resolve('chart.js/dist/Chart.js'),
+        require.resolve('easymde/dist/easymde.min.js'),
         // Used by other scripts, must be first
         'assets/js/modal.js',
         'assets/js/tooltips.js',
@@ -116,6 +117,12 @@ function prepare_zmd() {
         .pipe(gulp.dest('dist/css/'));
 }
 
+// Prepares files for easy mde
+function prepare_easy_mde() {
+    return gulp.src(['node_modules/easymde/dist/easymde.min.css', 'node_modules/codemirror/theme/idea.css'])
+        .pipe(gulp.dest('dist/css/'));
+}
+
 // Deletes the generated files
 function clean() {
     return del('dist/');
@@ -133,7 +140,7 @@ function watch() {
 }
 
 // Build the front
-var build = gulp.parallel(prepare_zmd, js, gulp.series(sprite, gulp.parallel(css, images)));
+var build = gulp.parallel(prepare_zmd, prepare_easy_mde, js, gulp.series(sprite, gulp.parallel(css, images)));
 
 exports.build = build;
 exports.watch = gulp.series(build, watch);
@@ -141,5 +148,6 @@ exports.lint = js_lint;
 exports.clean = clean;
 exports.errors = errors;
 exports.prepare_zmd = prepare_zmd;
+exports.prepare_easy_mde = prepare_easy_mde;
 exports.default = gulp.parallel(watch, js_lint);
 
