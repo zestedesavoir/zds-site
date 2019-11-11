@@ -99,9 +99,9 @@
                                 <div class="line-item">
                                     {% spaceless %}
                                         <span class="has-separator">
-                                            {% for link, text in summary %}
+                                            {% for link, count, text in summary %}
                                                 {% captureas summary_link_html %}
-                                                {% if link %}<a href="{{ link }}">{% endif %}
+                                                {% if link %}<a href="{{ link }}"><span class="bold">{{ count }}</span> {% endif %}
                                                 {{ text }}{% if link %}</a>{% endif %}{% endcaptureas %}
 
                                                 {% if forloop.last %}
@@ -140,9 +140,9 @@
                             {% trans "Aucun abonné" %}
                         {% else %}
                             {% blocktrans count subscriber_count=subscriber_count %}
-                                {{ subscriber_count }} abonné
+                                <span class="bold">{{ subscriber_count }}</span> abonné
                             {% plural %}
-                                {{ subscriber_count }} abonnés
+                                <span class="bold">{{ subscriber_count }}</span> abonnés
                             {% endblocktrans %}
                         {% endif %}
                     {% endcaptureas %}
@@ -335,9 +335,9 @@
                                             <a href="{% url "tutorial:find-tutorial" usr.username %}?filter=public" class="tail">
                                                 <p>
                                                     {% blocktrans count public_tutos_count=public_tutos_count %}
-                                                        {{ public_tutos_count }} tutoriel publié
+                                                        <span class="bold">{{ public_tutos_count }}</span> tutoriel publié
                                                     {% plural %}
-                                                        {{ public_tutos_count }} tutoriels publiés
+                                                        <span class="bold">{{ public_tutos_count }}</span> tutoriels publiés
                                                     {% endblocktrans %}
                                                 </p>
                                             </a>
@@ -347,9 +347,9 @@
                                             <a href="{% url "article:find-article" usr.username %}?filter=public" class="tail">
                                                 <p>
                                                     {% blocktrans count articles_public_count=articles_public_count %}
-                                                        {{ articles_public_count }} article publié
+                                                        <span class="bold">{{ articles_public_count }}</span> article publié
                                                     {% plural %}
-                                                        {{ articles_public_count }} articles publiés
+                                                        <span class="bold">{{ articles_public_count }}</span> articles publiés
                                                     {% endblocktrans %}
                                                 </p>
                                             </a>
@@ -359,9 +359,9 @@
                                             <a href="{% url "opinion:find-opinion" usr.username %}?filter=public" class="tail">
                                                 <p>
                                                     {% blocktrans count opinions_public_count=opinions_public_count %}
-                                                        {{ opinions_public_count }} billet publié
+                                                        <span class="bold">{{ opinions_public_count }}</span> billet publié
                                                     {% plural %}
-                                                        {{ opinions_public_count }} billets publiés
+                                                        <span class="bold">{{ opinions_public_count }}</span> billets publiés
                                                     {% endblocktrans %}
                                                 </p>
                                             </a>
@@ -386,9 +386,9 @@
                                                 <a href="{% url "tutorial:find-tutorial" usr.username %}?filter=beta" class="tail">
                                                         <p>
                                                             {% blocktrans count beta_tutos_count=beta_tutos_count %}
-                                                                {{ beta_tutos_count }} tutoriel en bêta
+                                                                <span class="bold">{{ beta_tutos_count }}</span> tutoriel en bêta
                                                             {% plural %}
-                                                                {{ beta_tutos_count }} tutoriels en bêta
+                                                                <span class="bold">{{ beta_tutos_count }}</span> tutoriels en bêta
                                                             {% endblocktrans %}
                                                         </p>
                                                     </a>
@@ -398,9 +398,9 @@
                                                 <a href="{% url "article:find-article" usr.username %}?filter=beta" class="tail">
                                                     <p>
                                                         {% blocktrans count beta_articles_count=beta_articles_count %}
-                                                            {{ beta_articles_count }} article en bêta
+                                                            <span class="bold">{{ beta_articles_count }}</span> article en bêta
                                                         {% plural %}
-                                                            {{ beta_articles_count }} articles en bêta
+                                                            <span class="bold">{{ beta_articles_count }}</span> articles en bêta
                                                         {% endblocktrans %}
                                                     </p>
                                                 </a>
@@ -419,9 +419,9 @@
                                             <a href="{% url 'topic-find' usr.pk %}" class="tail">
                                                 <p>
                                                     {% blocktrans count topics_count=topics_count %}
-                                                        {{ topics_count }} sujet créé
+                                                        <span class="bold">{{ topics_count }}</span> sujet créé
                                                     {% plural %}
-                                                        {{ topics_count }} sujets créés
+                                                        <span class="bold">{{ topics_count }}</span> sujets créés
                                                     {% endblocktrans %}
                                                 </p>
                                             </a>
@@ -431,9 +431,9 @@
                                             <a href="{% url 'post-find' usr.pk %}" class="tail">
                                                 <p>
                                                     {% blocktrans count messages_count=messages_count %}
-                                                        {{ messages_count }} message posté
+                                                        <span class="bold">{{ messages_count }}</span> message posté
                                                     {% plural %}
-                                                        {{ messages_count }} messages postés
+                                                        <span class="bold">{{ messages_count }}</span> messages postés
                                                     {% endblocktrans %}
                                                 </p>
                                             </a>
