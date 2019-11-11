@@ -80,7 +80,7 @@ class MemberDetail(DetailView):
         Returns a summary of this profile's activity, as a list of list of tuples.
         Each first-level list item is an activity category (e.g. contents, forums, etc.)
         Each second-level list item is a stat in this activity category.
-        Each tuple is (link url, displayed text), where the link url can be None if it's not a link.
+        Each tuple is (link url, count, displayed name of the item), where the link url can be None if it's not a link.
 
         :param profile: The profile.
         :return: The summary data.
@@ -99,27 +99,30 @@ class MemberDetail(DetailView):
 
         summary = []
         if count_tutorials + count_articles + count_opinions == 0:
-            summary.append((None, __('Aucun contenu publié')))
+            summary.append((None, 0, __('Aucun contenu publié')))
 
         if count_tutorials > 0:
             summary.append(
                 (
                     reverse_lazy('tutorial:find-tutorial', args=(profile.user.username,)),
-                    __('{} tutoriel{}').format(count_tutorials, pluralize_fr(count_tutorials))
+                    count_tutorials,
+                    __('tutoriel{}').format(pluralize_fr(count_tutorials))
                 )
             )
         if count_articles > 0:
             summary.append(
                 (
                     reverse_lazy('article:find-article', args=(profile.user.username,)),
-                    __('{} article{}').format(count_articles, pluralize_fr(count_articles))
+                    count_articles,
+                    __('article{}').format(pluralize_fr(count_articles))
                 )
             )
         if count_opinions > 0:
             summary.append(
                 (
                     reverse_lazy('opinion:find-opinion', args=(profile.user.username,)),
-                    __('{} billet{}').format(count_opinions, pluralize_fr(count_opinions))
+                    count_opinions,
+                    __('billet{}').format(pluralize_fr(count_opinions))
                 )
             )
         summaries.append(summary)
@@ -129,16 +132,18 @@ class MemberDetail(DetailView):
             summary.append(
                 (
                     reverse_lazy('post-find', args=(profile.user.pk,)),
-                    __('{} message{}').format(count_post, pluralize_fr(count_post))
+                    count_post,
+                    __('message{}').format(pluralize_fr(count_post))
                 )
             )
         else:
-            summary.append((None, __('Aucun message')))
+            summary.append((None, 0, __('Aucun message')))
         if count_topic > 0:
             summary.append(
                 (
                     reverse_lazy('topic-find', args=(profile.user.pk,)),
-                    __('{} sujet{}').format(count_topic, pluralize_fr(count_topic))
+                    count_topic,
+                    __('sujet{}').format(pluralize_fr(count_topic))
                 )
             )
 
