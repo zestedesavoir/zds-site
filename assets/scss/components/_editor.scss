@@ -1,19 +1,13 @@
 .content-container {
     form {
         .editor-toolbar {
-            border-top: 0px;
-            border-left: 0px;
-            border-right: 0px;
-            border-bottom: 0px;
+            border: 0;
 
             button:not(.link) {
                 height: auto;
                 line-height: 0px;
                 color: #000;
-                padding-left: 0px;
-                padding-right: 0px;
-                padding-bottom: 0px;
-                padding-top: 0px;
+                padding: 0;
                 display: inline;
                 float: unset;
             }
