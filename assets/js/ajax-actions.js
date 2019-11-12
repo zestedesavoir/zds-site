@@ -305,12 +305,13 @@
         e.preventDefault();
         var $btn = $(this);
         var $form = $btn.parents("form:first");
+        var idInstance;
         if ($form.find(".preview-source").length) {
-            var id_instance = $btn.closest("div").prev().find(".md-editor").prop("id");
+            idInstance = $btn.closest("div").prev().find(".md-editor").prop("id");
         } else {
-            var id_instance = $form.find(".md-editor").prop("id");
+            idInstance = $form.find(".md-editor").prop("id");
         }
-        var text = instances_mde[id_instance].value();
+        var text = instancesMde[idInstance].value();
 
         var csrfmiddlewaretoken = $form.find("input[name=csrfmiddlewaretoken]").val(),
             lastPost = $form.find("input[name=last_post]").val();
@@ -366,37 +367,37 @@
 
 
     /* Editor */
+    const maxRange = 99999999999;
     let csrf = $("input[name=csrfmiddlewaretoken]").val();
-    let instances_mde = {};
-    let elements = document.getElementsByClassName('md-editor');
+    let instancesMde = {};
+    let elements = document.getElementsByClassName("md-editor");
 
     function checkMatch(str, reg) {
         var found = String(str).match(reg);
         if(found) {
-            if (typeof found != 'undefined') {
+            if (typeof found !== "undefined") {
                 return found.length > 0;
             }
         }
 
     }
     function getStateZmd(cm) {
-        var pos = cm.getCursor('start');
-        var posStart = cm.getCursor('start');
-        var posEnd = cm.getCursor('end');
+        var posStart = cm.getCursor("start");
+        var posEnd = cm.getCursor("end");
         var line = cm.getLine(posStart.line);
 
         var beforeChars = line.slice(0, posStart.ch).match(/^(\S)+/g);
         var afterChars = line.slice(posEnd.ch).match(/(\S)+$/g);
         var ret = {};
 
-        if (typeof beforeChars === 'undefined' || typeof afterChars === 'undefined' || (! beforeChars) || (! afterChars) ) {
+        if (typeof beforeChars === "undefined" || typeof afterChars === "undefined" || (! beforeChars) || (! afterChars) ) {
 
         } else {
             if(checkMatch(beforeChars, /(.*)*\|\|$/) && checkMatch(afterChars, /^\|\|(.*)*/)) {
                 ret.keyboard = true;
             }
             if(checkMatch(beforeChars, /(.*)`|$/) && checkMatch(afterChars, /^`(.*)/)) {
-                ret.code_inline = true;
+                ret.codeInline = true;
             }
             else if(checkMatch(beforeChars, /(.*)~$/) && checkMatch(afterChars, /^~(.*)/)) {
                 ret.subscript = true;
@@ -405,10 +406,10 @@
                 ret.superscript = true;
             }
             else if(checkMatch(beforeChars, /^->($|\s)+/) && checkMatch(afterChars, /(^|\s)+->$/)) {
-                ret.align_right = true;
+                ret.alignRight = true;
             }
             else if(checkMatch(beforeChars, /^->($|\s)+/) && checkMatch(afterChars, /(^|\s)+<-$/)) {
-                ret.align_center = true;
+                ret.alignCenter = true;
             }
             else if(checkMatch(beforeChars, /^\$\$($|\s)+/) && checkMatch(afterChars, /(^|\s)+\$\$$/)) {
                 ret.math = true;
@@ -418,7 +419,7 @@
         if(checkMatch(line, /^\[\[(.+)\]\]$/)) { // it's a bloc
             var isBlock = true;
             for (var i = (posStart.line) + 1; i <= posEnd.line; i++) {
-                if((! cm.getLine(i).startsWith("| ")) && (cm.getLine(i) != "")) {
+                if((! cm.getLine(i).startsWith("| ")) && (cm.getLine(i) !== "")) {
                     isBlock = false;
                     break;
                 }
@@ -428,22 +429,22 @@
                 var m = reg.exec(line);
                 var _titleContents = m[1].split("|");
                 if(_titleContents[0].trim() === "i" || _titleContents[0].trim() === "information") {
-                    ret.bloc_information = true;
+                    ret.blocInformation = true;
                 } else if(_titleContents[0].trim() === "q" || _titleContents[0].trim() === "question") {
-                    ret.bloc_question = true;
+                    ret.blocQuestion = true;
                 } else if(_titleContents[0].trim() === "e" || _titleContents[0].trim() === "erreur") {
-                    ret.bloc_error = true;
+                    ret.blocError = true;
                 } else if(_titleContents[0].trim() === "s" || _titleContents[0].trim() === "secret") {
-                    ret.bloc_secret = true;
+                    ret.blocSecret = true;
                 } else {
-                    ret.bloc_neutral = true;
+                    ret.blocNeutral = true;
                 }
             }
         } else {
             // find checklist
             var isCheckList = true;
-            for (var i = (posStart.line) + 1; i <= posEnd.line; i++) {
-                if((! cm.getLine(i).match(/^- \[(.{1})\](\s*)/)) && (cm.getLine(i) != "")) {
+            for (var j = (posStart.line) + 1; j <= posEnd.line; j++) {
+                if((! cm.getLine(j).match(/^- \[(.{1})\](\s*)/)) && (cm.getLine(j) !== "")) {
                     isCheckList = false;
                     break;
                 }
@@ -462,13 +463,13 @@
         var lastLine = cm.lastLine();
         for(var i=lineNumber; i<=lastLine+1; i++) {
             currentText=cm.getLine(i);
-            if(i == lineNumber) {
-                cm.replaceRange(replText, {line: i, ch:0} , {line:i, ch:999999999});
+            if(i === lineNumber) {
+                cm.replaceRange(replText, {line: i, ch:0} , {line:i, ch:maxRange});
             } else {
-                cm.replaceRange(nextText, {line: i, ch:0} , {line:i, ch:999999999});
+                cm.replaceRange(nextText, {line: i, ch:0} , {line:i, ch:maxRange});
             }
             nextText=currentText;
-            if(i == lastLine) {
+            if(i === lastLine) {
                 nextText = cm.lineSeparator()+nextText;
             }
         }
@@ -476,71 +477,71 @@
 
     function unShiftLines(cm, lineStart, lineEnd) {
         for(var i=lineStart+1; i<=lineEnd; i++) {
-            cm.replaceRange(cm.getLine(i).slice(2), {line: i, ch:0} , {line: i, ch:999999999});
+            cm.replaceRange(cm.getLine(i).slice(2), {line: i, ch:0} , {line: i, ch:maxRange});
         }
         cm.replaceRange("", {line: lineStart, ch:0} , {line: lineStart+1, ch: 0});
     }
 
-    function _toggleBlockZmd(editor, type, start_chars, end_chars) {
+    function _toggleBlockZmd(editor, type, startChars, endChars) {
         if (/editor-preview-active/.test(editor.codemirror.getWrapperElement().lastChild.className))
             return;
-        end_chars = (typeof end_chars === 'undefined') ? start_chars : end_chars;
+        endChars = (typeof endChars === "undefined") ? startChars : endChars;
         var cm = editor.codemirror;
         var stat = getStateZmd(cm);
 
         var text;
-        var start = start_chars;
-        var end = end_chars;
+        var i,j;
+        var start = startChars;
+        var end = endChars;
 
-        var startPoint = cm.getCursor('start');
-        var endPoint = cm.getCursor('end');
+        var startPoint = cm.getCursor("start");
+        var endPoint = cm.getCursor("end");
 
         if (stat[type]) {
             text = cm.getLine(startPoint.line);
             start = text.slice(0, startPoint.ch);
             end = text.slice(startPoint.ch);
             var offset = 0;
-            if(type == 'bloc_information' || type == 'bloc_question' || type == 'bloc_error' || type == 'bloc_secret' || type == 'bloc_neutral') {
+            if(type === "bloc_information" || type === "bloc_question" || type === "bloc_error" || type === "bloc_secret" || type === "bloc_neutral") {
                 unShiftLines(cm, startPoint.line, endPoint.line);
                 startPoint.ch = 0;
-            } else if (type == 'checklist') {
-                for(var i=startPoint.line; i<=endPoint.line; i++) {
-                    cm.replaceRange(cm.getLine(i).slice(start_chars.length), {line: i, ch: 0}, {line: i, ch: 999999999});
+            } else if (type === "checklist") {
+                for(i=startPoint.line; i<=endPoint.line; i++) {
+                    cm.replaceRange(cm.getLine(i).slice(startChars.length), {line: i, ch: 0}, {line: i, ch: maxRange});
                 }
-                endPoint.ch -= start_chars.length;
+                endPoint.ch -= startChars.length;
             } else {
-                if (type == 'keyboard') {
-                    start = start.replace(/(\|\|)(?![\s\S]*(\|\|))/, '');
-                    end = end.replace(/(\|\|)/, '');
-                    offset = 2
-                } else if (type == 'code_inline') {
-                    start = start.replace(/(\`)(?![\s\S]*(\`))/, '');
-                    end = end.replace(/(\`)/, '');
-                    offset = 1
-                } else if (type == 'subscript') {
-                    start = start.replace(/(~)(?![\s\S]*(~))/, '');
-                    end = end.replace(/(~)/, '');
-                    offset = 1
-                } else if (type == 'superscript') {
-                    start = start.replace(/(\^)(?![\s\S]*(\^))/, '');
-                    end = end.replace(/(\^)/, '');
-                    offset = 1
-                } else if (type == 'align_right') {
-                    var reg = /(->)(\s*)/;
-                    var m = reg.exec(start);
-                    start = start.replace(/(->)(\s*)/, '');
-                    end = end.replace(/(\s*)(->)/, '');
+                const regAlign = /(->)(\s*)/;
+                if (type === "keyboard") {
+                    start = start.replace(/(\|\|)(?![\s\S]*(\|\|))/, "");
+                    end = end.replace(/(\|\|)/, "");
+                    offset = 2;
+                } else if (type === "code_inline") {
+                    start = start.replace(/(\`)(?![\s\S]*(\`))/, "");
+                    end = end.replace(/(\`)/, "");
+                    offset = 1;
+                } else if (type === "subscript") {
+                    start = start.replace(/(~)(?![\s\S]*(~))/, "");
+                    end = end.replace(/(~)/, "");
+                    offset = 1;
+                } else if (type === "superscript") {
+                    start = start.replace(/(\^)(?![\s\S]*(\^))/, "");
+                    end = end.replace(/(\^)/, "");
+                    offset = 1;
+                } else if (type === "align_right") {
+                    var m = regAlign.exec(start);
+                    start = start.replace(/(->)(\s*)/, "");
+                    end = end.replace(/(\s*)(->)/, "");
                     offset = m[0].length;
-                } else if (type == 'align_center') {
-                    var reg = /(->)(\s*)/;
-                    var m = reg.exec(start);
-                    start = start.replace(/(->)(\s*)/, '');
-                    end = end.replace(/(\s*)(<-)/, '');
+                } else if (type === "align_center") {
+                    var m = regAlign.exec(start);
+                    start = start.replace(/(->)(\s*)/, "");
+                    end = end.replace(/(\s*)(<-)/, "");
                     offset = m[0].length;
-                } else if (type == 'math') {
-                    start = start.replace(/(\$\$)(?![\s\S]*(\$\$))/, '');
-                    end = end.replace(/(\$\$)/, '');
-                    offset = 2
+                } else if (type === "math") {
+                    start = start.replace(/(\$\$)(?![\s\S]*(\$\$))/, "");
+                    end = end.replace(/(\$\$)/, "");
+                    offset = 2;
                 }
 
                 cm.replaceRange(start + end, {
@@ -548,7 +549,7 @@
                     ch: 0,
                 }, {
                     line: startPoint.line,
-                    ch: 99999999999999,
+                    ch: maxRange,
                 });
 
                 startPoint.ch -= offset;
@@ -558,54 +559,54 @@
             }
 
         } else {
-            if(type == 'bloc_information' || type == 'bloc_question' || type == 'bloc_error' || type == 'bloc_secret' || type == 'bloc_neutral' ) {
+            if(type === "bloc_information" || type === "bloc_question" || type === "bloc_error" || type === "bloc_secret" || type === "bloc_neutral" ) {
                 // blocs
-                for(var i = startPoint.line; i <= endPoint.line; i++) {
-                    var text = start_chars+cm.getLine(i);
-                    cm.replaceRange(text, {line: i, ch: 0}, {line: i, ch: 999999999});
+                for(j = startPoint.line; j <= endPoint.line; j++) {
+                    let text = startChars+cm.getLine(j);
+                    cm.replaceRange(text, {line: j, ch: 0}, {line: j, ch: maxRange});
                 }
-                if(type == 'bloc_information') {
+                if(type === "bloc_information") {
                     shiftLines(cm, startPoint.line, "[[information]]");
-                } else if(type == 'bloc_question') {
+                } else if(type === "bloc_question") {
                     shiftLines(cm, startPoint.line, "[[question]]");
-                } else if(type == 'bloc_error') {
+                } else if(type === "bloc_error") {
                     shiftLines(cm, startPoint.line, "[[erreur]]");
-                } else if(type == 'bloc_secret') {
+                } else if(type === "bloc_secret") {
                     shiftLines(cm, startPoint.line, "[[secret]]");
-                } else if(type == 'bloc_neutral') {
+                } else if(type === "bloc_neutral") {
                     shiftLines(cm, startPoint.line, "[[n|titre]]");
                 }
                 startPoint.ch = 0;
                 endPoint.line += 1;
                 endPoint.ch = endPoint.line.length;
-            } else if(type == 'checklist') {
+            } else if(type === "checklist") {
                 // checklists
-                for(var i=startPoint.line; i<=endPoint.line; i++) {
-                    var text = start_chars+cm.getLine(i);
-                    cm.replaceRange(text, {line: i, ch: 0}, {line: i, ch: 999999999});
+                for(j=startPoint.line; j<=endPoint.line; j++) {
+                    let text = startChars+cm.getLine(j);
+                    cm.replaceRange(text, {line: j, ch: 0}, {line: j, ch: maxRange});
                 }
-                endPoint.ch += start_chars.length;
+                endPoint.ch += startChars.length;
             } else {
                 // inline codes
                 text = cm.getSelection();
-                if (type == 'keyboard') {
-                    text = text.split('||').join('');
-                } else if (type == 'code_inline') {
-                    text = text.split('`').join('');
-                } else if (type == 'subscript') {
-                    text = text.split('~').join('');
-                } else if (type == 'superscript') {
-                    text = text.split('^').join('');
-                } else if (type == 'align_right') {
-                    text = text.split('-> ').join('');
-                } else if (type == 'align_center') {
-                    text = text.split('-> ').join('').split(' <-').join('');
-                } else if (type == 'math') {
-                    text = text.split('$$').join('');
+                if (type === "keyboard") {
+                    text = text.split("||").join("");
+                } else if (type === "code_inline") {
+                    text = text.split("`").join("");
+                } else if (type === "subscript") {
+                    text = text.split("~").join("");
+                } else if (type === "superscript") {
+                    text = text.split("^").join("");
+                } else if (type === "align_right") {
+                    text = text.split("-> ").join("");
+                } else if (type === "align_center") {
+                    text = text.split("-> ").join("").split(" <-").join("");
+                } else if (type === "math") {
+                    text = text.split("$$").join("");
                 }
                 cm.replaceSelection(start + text + end);
 
-                startPoint.ch += start_chars.length;
+                startPoint.ch += startChars.length;
                 endPoint.ch = startPoint.ch + text.length;
             }
         }
@@ -615,31 +616,31 @@
     }
 
     var uploadImage = function(file, onSuccess, onError) {
-        var galleryUrl = '/api/galeries/'+ document.body.getAttribute('data-gallery') + '/images/';
+        var galleryUrl = "/api/galeries/"+ document.body.getAttribute("data-gallery") + "/images/";
 
         var formData = new FormData();
-        formData.append('physical', file);
-        formData.append('title', file.name);
-        // WARN: if you test zds with sqlite, you can't upload multiple files at a time
+        formData.append("physical", file);
+        formData.append("title", file.name);
+        // WARN: if you test zds with sqlite, you can"t upload multiple files at a time
         $.ajax({
             url: galleryUrl,
-            data: formData, type: 'POST',
+            data: formData, type: "POST",
             processData: false,
             contentType: false,
             headers: {
                 "X-CSRFToken": csrf
             },
-            dataType: 'json'
+            dataType: "json"
         }).done(function (result) {
-            onSuccess(result.url)
+            onSuccess(result.url);
         }).fail(function (resp) {
             var error = "Erreur inconnue";
             if(resp.responseText !== undefined && resp.responseText.indexOf("RequestDataTooBig") !== -1) {
-                error = "L'image est trop lourde.";
+                error = "L\"image est trop lourde.";
             } else if(resp.responseJSON !== undefined) {
                 error = resp.responseJSON[0];
             } else if(resp.responseText !== undefined) {
-                error = "Erreur " + resp.status + " " + resp.statusText + " : " + '"' + resp.responseText.split("\n")[0] + '"';
+                error = "Erreur " + resp.status + " " + resp.statusText + " : " + "'" + resp.responseText.split("\n")[0] + "'";
             } else if(resp.readyState === 0 && resp.statusText === "error") {
                 error = "Oups ! Impossible de se connecter au serveur.";
             }
@@ -650,7 +651,7 @@
     var customMarkdownParser = function(plainText) {
         var result;
         $.ajax({
-            url: form_editor.attr("action"),
+            url: formEditor.attr("action"),
             type: "POST",
             data: {
                 "csrfmiddlewaretoken": csrf,
@@ -664,10 +665,10 @@
             async: false
         });
         return result;
-    }
+    };
 
     for (var i = 0; i < elements.length; i++) {
-        var form_editor = $(elements[i]).closest("form");
+        var formEditor = $(elements[i]).closest("form");
         var easyMDE = new EasyMDE({
                 element: elements[i],
                 autosave: {
@@ -687,8 +688,8 @@
                 imageUploadFunction: uploadImage,
                 imageTexts: {
                     sbInit: "Joindre des images par glisser-déposer ou coller depuis le presse-papiers.",
-                    sbOnDragEnter: "Déposer l'image pour l'envoyer dans votre galérie",
-                    sbOnDrop: "Téléchargement d'images #images_names#",
+                    sbOnDragEnter: "Déposer l\"image pour l\"envoyer dans votre galérie",
+                    sbOnDrop: "Téléchargement d\"images #images_names#",
                     sbProgress: "Téléchargement #file_name#: #progress#%",
                     sbOnUploaded: "Image téléchargée #image_name#"
                 },
@@ -723,18 +724,18 @@
                         action: (e) => {
                             var abbr = e.codemirror.getSelection();
                             var options = e.options;
-                            var description = ""
+                            var description = "";
                             if (options.promptAbbrv) {
-                                if (abbr.length == 0) {
-                                    abbr = prompt('Mot abrégé', '');
-                                    if (abbr.length == 0) {
+                                if (abbr.length === 0) {
+                                    abbr = prompt("Mot abrégé", "");
+                                    if (abbr.length === 0) {
                                         return false;
                                     }
                                 }
-                                description = prompt("Description de l'abbréviation", '');
+                                description = prompt("Description de l\"abbréviation", "");
                             }
-                            e.codemirror.setCursor(e.codemirror.lastLine())
-                            e.codemirror.replaceSelection('*['+abbr+']: '+description)
+                            e.codemirror.setCursor(e.codemirror.lastLine());
+                            e.codemirror.replaceSelection("*["+abbr+"]: "+description);
                             e.codemirror.focus();
                         },
                         className: "fa fa-text-width",
@@ -743,7 +744,7 @@
                     {
                         name: "keyboard",
                         action: (e) => {
-                            _toggleBlockZmd(e, 'keyboard', '||');
+                            _toggleBlockZmd(e, "keyboard", "||");
                         },
                         className: "fa fa-keyboard-o",
                         title: "Touche clavier",
@@ -751,7 +752,7 @@
                     {
                         name: "code_inline",
                         action: (e) => {
-                            _toggleBlockZmd(e, 'code_inline', '`');
+                            _toggleBlockZmd(e, "code_inline", "`");
                         },
                         className: "fa fa-terminal",
                         title: "Code inline",
@@ -760,7 +761,7 @@
                     {
                         name: "superscript",
                         action: (e) => {
-                            _toggleBlockZmd(e, 'superscript', '^');
+                            _toggleBlockZmd(e, "superscript", "^");
                         },
                         className: "fa fa-superscript",
                         title: "Exposant",
@@ -768,7 +769,7 @@
                     {
                         name: "subscript",
                         action: (e) => {
-                            _toggleBlockZmd(e, 'subscript', '~');
+                            _toggleBlockZmd(e, "subscript", "~");
                         },
                         className: "fa fa-subscript",
                         title: "Indice",
@@ -777,7 +778,7 @@
                     {
                         name: "align_center",
                         action: (e) => {
-                            _toggleBlockZmd(e, 'align_center', '-> ', ' <-');
+                            _toggleBlockZmd(e, "align_center", "-> ", " <-");
                         },
                         className: "fa fa-align-center",
                         title: "Aligner au centre",
@@ -785,7 +786,7 @@
                     {
                         name: "align_right",
                         action: (e) => {
-                            _toggleBlockZmd(e, 'align_right', '-> ', ' ->');
+                            _toggleBlockZmd(e, "align_right", "-> ", " ->");
                         },
                         className: "fa fa-align-right",
                         title: "Aligner a droite",
@@ -806,7 +807,7 @@
                     {
                         name: "checklist",
                         action: (e) => {
-                            _toggleBlockZmd(e, 'checklist', '- [ ] ');
+                            _toggleBlockZmd(e, "checklist", "- [ ] ");
                         },
                         className: "fa fa-check-square-o",
                         title: "Liste de taches",
@@ -847,7 +848,7 @@
                     {
                         name: "math",
                         action: (e) => {
-                            _toggleBlockZmd(e, 'math', '$$');
+                            _toggleBlockZmd(e, "math", "$$");
                         },
                         className: "fa fa-percent",
                         title: "Formule mathématique",
@@ -862,7 +863,7 @@
                     {
                         name: "bloc_info",
                         action: (e) => {
-                            _toggleBlockZmd(e, 'bloc_information', '| ');
+                            _toggleBlockZmd(e, "bloc_information", "| ");
                         },
                         className: "fa fa-info",
                         title: "Bloc information",
@@ -870,7 +871,7 @@
                     {
                         name: "bloc_question",
                         action: (e) => {
-                            _toggleBlockZmd(e, 'bloc_question', '| ');
+                            _toggleBlockZmd(e, "bloc_question", "| ");
                         },
                         className: "fa fa-question",
                         title: "Bloc question",
@@ -878,7 +879,7 @@
                     {
                         name: "bloc_error",
                         action: (e) => {
-                            _toggleBlockZmd(e, 'bloc_error', '| ');
+                            _toggleBlockZmd(e, "bloc_error", "| ");
                         },
                         className: "fa fa-times",
                         title: "Bloc erreur",
@@ -886,7 +887,7 @@
                     {
                         name: "bloc_secret",
                         action: (e) => {
-                            _toggleBlockZmd(e, 'bloc_secret', '| ');
+                            _toggleBlockZmd(e, "bloc_secret", "| ");
                         },
                         className: "fa fa-eye-slash",
                         title: "Bloc secret",
@@ -894,7 +895,7 @@
                     {
                         name: "bloc_neutral",
                         action: (e) => {
-                            _toggleBlockZmd(e, 'bloc_neutral', '| ');
+                            _toggleBlockZmd(e, "bloc_neutral", "| ");
                         },
                         className: "fa fa-square",
                         title: "Bloc neutre",
@@ -921,7 +922,7 @@
                 ]
             }
         );
-        instances_mde[elements[i].id]=easyMDE;
+        instancesMde[elements[i].id]=easyMDE;
     }
 
 })(jQuery);
