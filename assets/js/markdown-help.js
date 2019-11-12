@@ -40,7 +40,7 @@
 
     $(document).ready(function(){
         if ($("body").data("show-markdown-help")) {
-            addDocMD($(".md-editor"));
+            addDocMD($(".editor-statusbar"));
             $("#content").on("DOMNodeInserted", ".md-editor", function(e){
                 var $editor = $(e.target);
                 if($editor.next().hasClass("markdown-help") === false) {
