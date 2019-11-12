@@ -44,7 +44,6 @@
     const maxRange = 99999999999;
     let csrf = $("input[name=csrfmiddlewaretoken]").val();
     let instancesMde = {};
-    let elements = document.getElementsByClassName("md-editor");
 
     function checkMatch(str, reg) {
         var found = String(str).match(reg);
@@ -124,7 +123,6 @@
                 ret.checklist = true;
             }
         }
-        console.log(ret);
         return ret;
     }
 
@@ -234,7 +232,7 @@
             } else if(type === "blocSecret") {
                 shiftLines(cm, startPoint.line, "[[secret]]");
             } else if(type === "blocNeutral") {
-                shiftLines(cm, startPoint.line, "[[n|titre]]");
+                shiftLines(cm, startPoint.line, "[[neutre|titre]]");
             }
             startPoint.ch = 0;
             endPoint.line += 1;
@@ -283,10 +281,8 @@
         let endPoint = cm.getCursor("end");
 
         if (stat[type]) {
-            console.log("disable");
             disableBlockZmd(cm, type, start, end, startPoint, endPoint);
         } else {
-            console.log("enable");
             enableBlockZmd(cm, type, start, end, startPoint, endPoint);
         }
 
@@ -327,32 +323,35 @@
         });
     };
 
-    var customMarkdownParser = function(plainText) {
-        var result;
-        $.ajax({
-            url: formEditor.attr("action"),
-            type: "POST",
-            data: {
-                "csrfmiddlewaretoken": csrf,
-                "text": plainText,
-                "last_post": "",
-                "preview": "preview"
-            },
-            success: function(data){
-                result = data;
-            },
-            async: false
-        });
-        return result;
-    };
+    $(".md-editor").each(function(){
+        var formEditor = $(this).closest("form");
 
-    for (var i = 0; i < elements.length; i++) {
-        var formEditor = $(elements[i]).closest("form");
+        var customMarkdownParser = function(plainText) {
+            var result;
+            $.ajax({
+                url: formEditor.attr("action"),
+                type: "POST",
+                data: {
+                    "csrfmiddlewaretoken": csrf,
+                    "text": plainText,
+                    "last_post": "",
+                    "preview": "preview"
+                },
+                success: function(data){
+                    result = data;
+                },
+                async: false
+            });
+            return result;
+        };
+
+        var currentLocation = document.location.href.split("/");
+
         var easyMDE = new EasyMDE({
-                element: elements[i],
+                element: this,
                 autosave: {
                     enabled: true,
-                    uniqueId: elements[i].id,
+                    uniqueId: this.id+currentLocation[currentLocation.length - 1],
                     delay: 1000,
                 },
                 indentWithTabs: false,
@@ -414,7 +413,7 @@
                                 description = prompt("Description de l\"abbréviation", "");
                             }
                             e.codemirror.setCursor(e.codemirror.lastLine());
-                            e.codemirror.replaceSelection("*["+abbr+"]: "+description);
+                            e.codemirror.replaceSelection("\n*["+abbr+"]: "+description);
                             e.codemirror.focus();
                         },
                         className: "fa fa-text-width",
@@ -506,7 +505,7 @@
                         title: "Image",
                     },
                     {
-                        name: "link",
+                        name: "link_btn",
                         action: EasyMDE.drawLink,
                         className: "fa fa-link",
                         title: "Lien",
@@ -601,6 +600,6 @@
                 ]
             }
         );
-        instancesMde[elements[i].id]=easyMDE;
-    }
+        instancesMde[this.id]=easyMDE;
+    });
 })(jQuery);

@@ -325,8 +325,4 @@
         e.preventDefault();
     });
 
-
-    /* Editor */
-
-
 })(jQuery);
