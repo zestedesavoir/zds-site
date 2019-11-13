@@ -400,9 +400,16 @@
                     {
                         name: "abbr",
                         action: (e) => {
-                            var abbr = e.codemirror.getSelection();
                             var options = e.options;
+                            var cm = e.codemirror;
+                            var abbr = cm.getSelection();
                             var description = "";
+                            var lastLine = cm.lastLine();
+                            var lastCh = cm.getLine(lastLine).length;
+
+                            var startPoint = cm.getCursor("start");
+                            var endPoint = cm.getCursor("end");
+
                             if (options.promptAbbrv) {
                                 if (abbr.length === 0) {
                                     abbr = prompt("Mot abrégé", "");
@@ -412,9 +419,10 @@
                                 }
                                 description = prompt("Description de l\"abbréviation", "");
                             }
-                            e.codemirror.setCursor(e.codemirror.lastLine());
-                            e.codemirror.replaceSelection("\n*["+abbr+"]: "+description);
-                            e.codemirror.focus();
+
+                            cm.replaceRange(cm.lineSeparator()+cm.lineSeparator()+"*["+abbr+"]: "+description, {line: lastLine, ch: lastCh}, {line: lastLine, ch: maxRange});
+                            cm.setSelection(startPoint, endPoint);
+                            cm.focus();
                         },
                         className: "fa fa-text-width",
                         title: "Abbréviation",
