@@ -11,6 +11,9 @@
         $(this).parents(".alert-box:first").slideUp(150, function(){
             $(this).remove();
         });
+        $(this).parents(".markdown-help:first").slideUp(150, function(){
+            $(this).remove();
+        });
         e.preventDefault();
     });
 })(jQuery);

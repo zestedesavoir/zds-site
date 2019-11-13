@@ -31,7 +31,7 @@
         $elem.each(function(){
             var $help = $("<div/>", {
                 "class": "markdown-help",
-                "html": "<strong>Astuce :</strong> " + tips[Math.floor(Math.random() * tips.length)] + " <a href=\"" + linkToMarkdownHelp + "\">Envie d'en savoir plus ?</a>"
+                "html": "<strong>Astuce :</strong> " + tips[Math.floor(Math.random() * tips.length)] + " <a href=\"" + linkToMarkdownHelp + "\">Envie d'en savoir plus ?</a><a href='#close-alert-box' class='close-alert-box ico-after cross'>Masquer</a>"
             });
             $(this).after($help);
         });
