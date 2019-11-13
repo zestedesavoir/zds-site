@@ -1788,8 +1788,19 @@ class AddContributorToContent(LoggedWithReadWriteHability, SingleContentFormView
             return redirect(self.object.get_absolute_url())
         else:
             contribution_role = form.cleaned_data.get('contribution_role')
+            comment = form.cleaned_data.get('comment')
+            if ContentContribution.objects.filter(user=user,
+                                                  contribution_role=contribution_role,
+                                                  content=self.object).exists():
+                messages.error(self.request,
+                               _('Ce membre fait déjà partie des '
+                                 'contributeurs {} avec pour rôle "{}"'.format(_type, contribution_role.title)))
+                return redirect(self.object.get_absolute_url())
 
-            contribution = ContentContribution(user=user, contribution_role=contribution_role, content=self.object)
+            contribution = ContentContribution(user=user,
+                                               contribution_role=contribution_role,
+                                               comment=comment,
+                                               content=self.object)
             contribution.save()
             url_index = reverse(self.object.type.lower() + ':find-' + self.object.type.lower(), args=[user.pk])
             send_mp(

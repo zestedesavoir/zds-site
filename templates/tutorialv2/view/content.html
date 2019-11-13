@@ -345,13 +345,13 @@
             <a href="#manage-contributions" class="open-modal ico-after gear blue">
                 {% trans "Gérer les contributeurs" %}
             </a>
-            <form action="{% url "content:remove-contributor" content.pk  %}" method="post" class="modal modal-flex" id="manage-contributions" data-modal-close="Fermer">
+            <form action="{% url "content:remove-contributor" content.pk  %}" method="post" class="modal modal-large" id="manage-contributions" data-modal-close="Fermer">
                 <table class="fullwidth">
                     <thead>
-                        <th>{% trans "Membre" %}</th>
-                        <th>{% trans "Rôle" %}</th>
+                        <th width="15%">{% trans "Membre" %}</th>
+                        <th width="15%">{% trans "Rôle" %}</th>
                         <th>{% trans "Commentaire" %}</th>
-                        <th>{% trans "Actions" %}</th>
+                        <th width="15%">{% trans "Actions" %}</th>
                     </thead>
                     <tbody>
                         {% for contribution in contributions %}
