@@ -131,6 +131,9 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
 
     must_reindex = models.BooleanField('Si le contenu doit-être ré-indexé', default=True)
 
+    beta_update_message_allowed = models.BooleanField(
+        'Si un message automatique doit être écrit à chaque mise à jour de la bêta', default=True)
+
     is_obsolete = models.BooleanField('Est obsolète', default=False)
 
     public_version = models.ForeignKey(
@@ -298,6 +301,15 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         :rtype: bool
         """
         return self.in_public() and sha == self.sha_public
+
+    def is_beta_update_message_allowed(self):
+        """Is the option 'Allow beta update message' allowed?
+
+        :return: ``True``, always (for now)
+        :rtype: bool
+        """
+
+        return self.beta_update_message_allowed
 
     def is_permanently_unpublished(self):
         """Is this content permanently unpublished by a moderator ?"""

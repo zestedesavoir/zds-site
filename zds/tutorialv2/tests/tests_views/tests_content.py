@@ -822,6 +822,69 @@ class ContentTests(TutorialTestMixin, TestCase):
             follow=False)
         self.assertEqual(result.status_code, 200)  # ok for the new version
 
+        # let's check the "allow beta update message" option
+
+        self.client.logout()
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        part1 = tuto.load_version().children[0]
+        result = self.client.post(
+            reverse('content:edit-container', kwargs={
+                'pk': tuto.pk,
+                'slug': tuto.slug,
+                'container_slug': part1.slug
+            }),
+            {
+                'title': 'Encore un autre titre',
+                'introduction': 'Introduire la chose',
+                'conclusion': 'Et terminer sur un truc bien',
+                'last_hash': part1.compute_hash()
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        tuto = PublishableContent.objects.get(pk=tuto.pk)
+        self.assertNotEqual(current_sha_beta, tuto.sha_draft)
+
+        tuto.beta_update_message_allowed = False
+        tuto.save()
+
+        # change beta:
+        old_sha_beta = current_sha_beta
+        current_sha_beta = tuto.sha_draft
+        result = self.client.post(
+            reverse('content:set-beta', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
+            {
+                'version': current_sha_beta
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        tuto = PublishableContent.objects.get(pk=tuto.pk)
+        self.assertEqual(tuto.sha_beta, current_sha_beta)
+
+        self.assertEqual(Post.objects.filter(topic=beta_topic).count(), 2)  # no new message has been added
+
+        # then test for guest (again)
+        self.client.logout()
+        self.assertEqual(
+            self.client.login(
+                username=self.user_guest.username,
+                password='hostel77'),
+            True)
+        result = self.client.get(
+            reverse('content:view', args=[tuto.pk, tuto.slug]) + '?version=' + old_sha_beta,
+            follow=False)
+        self.assertEqual(result.status_code, 403)  # no access using the old version
+        result = self.client.get(
+            reverse('content:view', args=[tuto.pk, tuto.slug]) + '?version=' + current_sha_beta,
+            follow=False)
+        self.assertEqual(result.status_code, 200)  # ok for the new version
+
         # inactive beta
         self.client.logout()
         self.assertEqual(

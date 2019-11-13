@@ -108,6 +108,7 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
         self.content.description = form.cleaned_data['description']
         self.content.type = form.cleaned_data['type']
         self.content.licence = form.cleaned_data['licence']
+        self.content.beta_update_message_allowed = form.cleaned_data['allow_beta_update_message']
         self.content.creation_date = datetime.now()
 
         # Creating the gallery
@@ -273,6 +274,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
         initial['subcategory'] = self.object.subcategory.all()
         initial['tags'] = ', '.join([tag['title'] for tag in self.object.tags.values('title')]) or ''
         initial['helps'] = self.object.helps.all()
+        initial['allow_beta_update_message'] = self.object.is_beta_update_message_allowed()
 
         initial['last_hash'] = versioned.compute_hash()
 
@@ -305,6 +307,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
         publishable.title = form.cleaned_data['title']
         publishable.description = form.cleaned_data['description']
         publishable.licence = form.cleaned_data['licence']
+        publishable.beta_update_message_allowed = form.cleaned_data['allow_beta_update_message']
 
         publishable.update_date = datetime.now()
 
@@ -1401,6 +1404,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
             lock_topic(topic)
 
         elif self.action == 'set':
+            update_message_allowed = self.object.is_beta_update_message_allowed()
             already_in_beta = self.object.in_beta()
             all_tags = []
 
@@ -1451,26 +1455,32 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                                         hat=get_hat_from_settings('validation'))
                 else:
                     all_tags = self._get_all_tags()
-                    if not already_in_beta:
-                        unlock_topic(topic)
-                        msg_post = render_to_string(
-                            'tutorialv2/messages/beta_reactivate.md',
-                            {
-                                'content': beta_version,
-                                'type': _type,
-                                'url': settings.ZDS_APP['site']['url'] + self.versioned_object.get_absolute_url_beta()
-                            }
-                        )
-                    else:
-                        msg_post = render_to_string(
-                            'tutorialv2/messages/beta_update.md',
-                            {
-                                'content': beta_version,
-                                'type': _type,
-                                'url': settings.ZDS_APP['site']['url'] + self.versioned_object.get_absolute_url_beta()
-                            }
-                        )
-                    topic = send_post(self.request, topic, self.request.user, msg_post)
+
+                    if not already_in_beta or update_message_allowed:
+
+                        absolute_url_beta = self.versioned_object.get_absolute_url_beta()
+
+                        if not already_in_beta:
+                            unlock_topic(topic)
+                            msg_post = render_to_string(
+                                'tutorialv2/messages/beta_reactivate.md',
+                                {
+                                    'content': beta_version,
+                                    'type': _type,
+                                    'url': settings.ZDS_APP['site']['url'] + absolute_url_beta
+                                }
+                            )
+                        elif update_message_allowed:
+                            msg_post = render_to_string(
+                                'tutorialv2/messages/beta_update.md',
+                                {
+                                    'content': beta_version,
+                                    'type': _type,
+                                    'url': settings.ZDS_APP['site']['url'] + absolute_url_beta
+                                }
+                            )
+
+                        topic = send_post(self.request, topic, self.request.user, msg_post)
 
                     # make sure that all authors follow the topic:
                     for author in self.object.authors.all():

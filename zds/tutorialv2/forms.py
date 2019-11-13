@@ -230,6 +230,11 @@ class ContentForm(ContainerForm):
         widget=forms.CheckboxSelectMultiple()
     )
 
+    allow_beta_update_message = forms.BooleanField(
+        label=_('Prévenir sur le forum que la bêta a été mise à jour'),
+        required=False
+    )
+
     def _create_layout(self, hide_help):
         html_part = HTML(_("<p>Demander de l'aide à la communauté !<br>"
                            "Si vous avez besoin d'un coup de main, "
@@ -263,6 +268,7 @@ class ContentForm(ContainerForm):
             self.helper.layout.append(html_part)
             self.helper.layout.append(Field('helps'))
 
+        self.helper.layout.append(Field('allow_beta_update_message'))
         self.helper.layout.append(Field('msg_commit'))
         self.helper.layout.append(ButtonHolder(StrictButton('Valider', type='submit')))
 
