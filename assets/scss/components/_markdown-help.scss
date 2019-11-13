@@ -1,8 +1,26 @@
 .markdown-help {
+    position: relative;
     min-height: 25px;
-    overflow: hidden;
     background: #EEE;
     padding: 15px;
     margin-bottom: 5px;
     border-bottom: 1px solid #CCC;
+
+    .close-alert-box {
+        display: block;
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        height: 20px;
+        width: 20px;
+        text-indent: -9999px;
+        text-decoration: none;
+        background-color: transparent;
+        line-height: 22px;
+        color: #FFF;
+
+        &.ico-after:after {
+            margin-top: 4px;
+        }
+    }
 }
