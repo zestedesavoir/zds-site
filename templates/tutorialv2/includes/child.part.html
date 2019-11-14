@@ -103,8 +103,12 @@
             {% endfor %}
             {% if can_add_something and child.can_add_extract %}
                 <li class="simple-create-button">
-                    <a class="btn btn-grey" href="{% url "content:create-extract" content.pk child.parent.slug child.slug %}">
-                        {% trans "Ajouter une section" %}
+                    <a class="btn btn-grey" href="{% if child.parent == content %}
+                                {% url "content:create-extract" content.pk content.slug child.slug %}
+                            {%  else %}
+                                {% url "content:create-extract" content.pk content.slug child.parent.slug child.slug %}
+                            {%  endif %}">
+                        {% trans "Ajouter une section a" %}
                     </a>
                 </li>
             {% endif %}
