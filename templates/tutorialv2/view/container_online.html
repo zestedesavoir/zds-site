@@ -17,7 +17,9 @@
     {% include "tutorialv2/includes/opengraph.part.html" %}
 {% endblock %}
 
-
+{% block meta_image %}{% spaceless %}
+    {% include "tutorialv2/includes/image_illu.part.html" with content=content %}
+{% endspaceless %}{% endblock %}
 
 {% block breadcrumb %}
     {%  if container.parent.parent %}

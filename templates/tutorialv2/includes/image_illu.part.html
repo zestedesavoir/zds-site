@@ -1,0 +1,18 @@
+{% load thumbnail %}{% spaceless %}
+    {% if content.image %}
+        {% if request.GET.twittercard == "large"  %}
+            {{ content.image.physical|thumbnail_url:'social_network_large' }}
+        {% else %}
+            {{ content.image.physical|thumbnail_url:'social_network' }}
+        {% endif %}
+    {% else %}
+        {% load static %}
+        {% if content.type == 'TUTORIAL' %}
+            {% static "images/tutorial-illu.png" %}
+        {% elif content.type == 'ARTICLE' %}
+            {% static "images/article-illu.png" %}
+        {% elif content.type == 'OPINION' %}
+            {% static "images/opinion-illu.png" %}
+        {% endif %}
+    {% endif %}
+{% endspaceless %}
