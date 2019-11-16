@@ -2238,20 +2238,21 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
 
         self.assertEqual(tutorial.public_version.authors.count(), 1)
 
-
     def check_images_socials(self, result, pattern_link_image, title, description):
-        for meta in ["twitter:image", "og:image:url"]:
-            self.assertRegex(result.content.decode("utf-8"),
-                             r"<meta(\s+)(\S+)" + meta +"(\S+)(\s+)content=\"http://(\S+)/" + pattern_link_image + "(\S+)\"")
-        for meta in ["og:image:secure_url"]:
-            self.assertRegex(result.content.decode("utf-8"),
-                             r"<meta(\s+)(\S+)" + meta +"(\S+)(\s+)content=\"https://(\S+)/" + pattern_link_image + "(\S+)\"")
-        for meta in ["twitter:description"]:
-            self.assertRegex(result.content.decode("utf-8"),
-                             r"<meta(\s+)(\S+)"+meta+"(\S+)(\s+)content=\""+description)
-        for meta in ["twitter:title", "og:title"]:
-            self.assertRegex(result.content.decode("utf-8"),
-                             r"<meta(\s+)(\S+)"+meta+"(\S+)(\s+)content=\""+title)
+        start_reg = r'<meta(\s+)(\S+)'
+
+        for meta in ['twitter:image', 'og:image:url']:
+            self.assertRegex(result.content.decode('utf-8'),
+                             start_reg + meta + '(\S+)(\s+)content=\"http://(\S+)/' + pattern_link_image + '(\S+)\"')
+        for meta in ['og:image:secure_url']:
+            self.assertRegex(result.content.decode('utf-8'),
+                             start_reg + meta + '(\S+)(\s+)content=\"https://(\S+)/' + pattern_link_image + '(\S+)\"')
+        for meta in ['twitter:description']:
+            self.assertRegex(result.content.decode('utf-8'),
+                             start_reg + meta + '(\S+)(\s+)content=\"' + description)
+        for meta in ['twitter:title', 'og:title']:
+            self.assertRegex(result.content.decode('utf-8'),
+                             start_reg + meta + '(\S+)(\s+)content=\"' + title)
 
     def test_social_cards_without_image(self):
         """
@@ -2264,19 +2265,24 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         result = self.client.get(reverse('tutorial:view', kwargs={'pk': self.tuto.pk, 'slug': self.tuto.slug}))
         self.assertEqual(result.status_code, 200)
 
-        self.check_images_socials(result, "static/images/tutorial-illu", self.tuto.title, self.tuto.description)
+        self.check_images_socials(result, 'static/images/tutorial-illu', self.tuto.title, self.tuto.description)
 
         # check part cards
-        result = self.client.get(reverse('tutorial:view-container', kwargs={'pk': self.tuto.pk, 'slug': self.tuto.slug, 'container_slug': self.part1.slug}))
+        result = self.client.get(reverse('tutorial:view-container', kwargs={'pk': self.tuto.pk,
+                                                                            'slug': self.tuto.slug,
+                                                                            'container_slug': self.part1.slug}))
         self.assertEqual(result.status_code, 200)
 
-        self.check_images_socials(result, "static/images/tutorial-illu", self.part1.title, self.tuto.description)
+        self.check_images_socials(result, 'static/images/tutorial-illu', self.part1.title, self.tuto.description)
 
         # check chapter cards
-        result = self.client.get(reverse('tutorial:view-container', kwargs={'pk': self.tuto.pk, 'slug': self.tuto.slug, 'parent_container_slug': self.part1.slug, 'container_slug': self.chapter1.slug}))
+        result = self.client.get(reverse('tutorial:view-container', kwargs={'pk': self.tuto.pk,
+                                                                            'slug': self.tuto.slug,
+                                                                            'parent_container_slug': self.part1.slug,
+                                                                            'container_slug': self.chapter1.slug}))
         self.assertEqual(result.status_code, 200)
 
-        self.check_images_socials(result, "static/images/tutorial-illu", self.chapter1.title, self.tuto.description)
+        self.check_images_socials(result, 'static/images/tutorial-illu', self.chapter1.title, self.tuto.description)
 
     def test_social_cards_with_image(self):
         """
@@ -2294,8 +2300,8 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
             {
                 'title': self.tuto.title,
                 'description': self.tuto.description,
-                'introduction': "",
-                'conclusion': "",
+                'introduction': '',
+                'conclusion': '',
                 'type': 'TUTORIAL',
                 'licence': self.tuto.licence.pk,
                 'subcategory': self.subcategory.pk,
@@ -2308,18 +2314,24 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.client.logout()
 
         # check tutorial cards
-        result = self.client.get(reverse('tutorial:view', kwargs={'pk': self.tuto.pk, 'slug': self.tuto.slug}))
+        result = self.client.get(reverse('tutorial:view', kwargs={'pk': self.tuto.pk,
+                                                                  'slug': self.tuto.slug}))
         self.assertEqual(result.status_code, 200)
 
-        self.check_images_socials(result, "media/galleries/", self.tuto.title, self.tuto.description)
+        self.check_images_socials(result, 'media/galleries/', self.tuto.title, self.tuto.description)
         # check part cards
-        result = self.client.get(reverse('tutorial:view-container', kwargs={'pk': self.tuto.pk, 'slug': self.tuto.slug, 'container_slug': self.part1.slug}))
+        result = self.client.get(reverse('tutorial:view-container', kwargs={'pk': self.tuto.pk,
+                                                                            'slug': self.tuto.slug,
+                                                                            'container_slug': self.part1.slug}))
         self.assertEqual(result.status_code, 200)
 
-        self.check_images_socials(result, "media/galleries/", self.part1.title, self.tuto.description)
+        self.check_images_socials(result, 'media/galleries/', self.part1.title, self.tuto.description)
 
         # check chapter cards
-        result = self.client.get(reverse('tutorial:view-container', kwargs={'pk': self.tuto.pk, 'slug': self.tuto.slug, 'parent_container_slug': self.part1.slug, 'container_slug': self.chapter1.slug}))
+        result = self.client.get(reverse('tutorial:view-container', kwargs={'pk': self.tuto.pk,
+                                                                            'slug': self.tuto.slug,
+                                                                            'parent_container_slug': self.part1.slug,
+                                                                            'container_slug': self.chapter1.slug}))
         self.assertEqual(result.status_code, 200)
 
-        self.check_images_socials(result, "media/galleries/", self.chapter1.title, self.tuto.description)
+        self.check_images_socials(result, 'media/galleries/', self.chapter1.title, self.tuto.description)
