@@ -76,3 +76,4 @@ LOGGING = {
 }
 
 ZDS_APP['site']['url'] = 'http://127.0.0.1:8000'
+ZDS_APP['site']['dns'] = '127.0.0.1:8000'
