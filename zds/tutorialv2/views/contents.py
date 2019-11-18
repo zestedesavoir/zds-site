@@ -1854,7 +1854,7 @@ class RemoveContributorFromContent(LoggedWithReadWriteHability, SingleContentFor
         return super(RemoveContributorFromContent, self).form_valid(form)
 
     def form_invalid(self, form):
-        messages.error(self.request, _("Les relecteurs sélectionnés n'existent pas."))
+        messages.error(self.request, _("Les contributeurs sélectionnés n'existent pas."))
         self.success_url = self.object.get_absolute_url()
         return super(RemoveContributorFromContent, self).form_valid(form)
 
@@ -2028,7 +2028,7 @@ class ContentOfContributors(ZdSPagingListView):
         # Sort.
         if 'sort' in self.request.GET and self.request.GET['sort'].lower() in self.sorts:
             self.sort = self.request.GET['sort']
-        elif not self.sort:
+        else not self.sort:
             self.sort = 'abc'
         queryset = self.sorts[self.sort.lower()][0](queryset)
         return queryset

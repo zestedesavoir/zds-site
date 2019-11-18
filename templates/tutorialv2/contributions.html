@@ -8,11 +8,11 @@
 
 {% block title %}
     {% if contribution_contents != None %}
-        {% trans "Contenus de" %} {{ usr.username }}
+        {% trans "Contenus ayant reçus la contribution de" %} {{ usr.username }}
     {% elif contribution_tutorials != None %}
-        {% trans "Tutoriels de" %} {{ usr.username }}
+        {% trans "Tutoriels ayant reçus la contribution  de" %} {{ usr.username }}
     {% elif contribution_articles != None %}
-        {% trans "contribution_articles de" %} {{ usr.username }}
+        {% trans "Articles ayant reçus la contribution de" %} {{ usr.username }}
     {% endif %}
 {% endblock %}
 
