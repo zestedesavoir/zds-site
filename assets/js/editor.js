@@ -345,13 +345,11 @@
             return result;
         };
 
-        var currentLocation = document.location.href.split("/");
-
         var easyMDE = new EasyMDE({
                 element: this,
                 autosave: {
                     enabled: true,
-                    uniqueId: this.id+currentLocation[currentLocation.length - 1],
+                    uniqueId: window.location.pathname + "@" + this.getAttribute("name"),
                     delay: 1000,
                 },
                 indentWithTabs: false,
