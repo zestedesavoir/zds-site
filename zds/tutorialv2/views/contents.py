@@ -2028,7 +2028,7 @@ class ContentOfContributors(ZdSPagingListView):
         # Sort.
         if 'sort' in self.request.GET and self.request.GET['sort'].lower() in self.sorts:
             self.sort = self.request.GET['sort']
-        else not self.sort:
+        elif not self.sort:
             self.sort = 'abc'
         queryset = self.sorts[self.sort.lower()][0](queryset)
         return queryset
@@ -2051,8 +2051,6 @@ class ContentOfContributors(ZdSPagingListView):
 
         context['contribution_tutorials'] = queryset.filter(type='TUTORIAL').all()
         context['contribution_articles'] = queryset.filter(type='ARTICLE').all()
-
-        print(context['contribution_articles'])
 
         context['usr'] = self.user
         for sort in list(self.sorts.keys()):
