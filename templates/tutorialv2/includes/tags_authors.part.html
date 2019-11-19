@@ -65,6 +65,32 @@
             </li>
         {% endif %}
     </ul>
+    {% with count_contributions=contributions|length %}
+        {% if count_contributions > 0 %}
+        <br/>
+        <span class="authors-label">
+            {% trans "La publication de ce contenu a necessité l'intervention de" %} <a href="#view-contributions" class="open-modal">{{ count_contributions }} {% trans "contributeur" %}{{ count_contributions|pluralize }}</a>
+        </span>
+        <div class="modal modal-flex" id="view-contributions">
+            <table>
+                <thead>
+                    <tr>
+                        <th width="50%">{% trans "Membre" %}</th>
+                        <th width="50%">{% trans "Role" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for contribution in contributions %}
+                    <tr>
+                        <td>{% include "misc/member_item.part.html" with member=contribution.user %}</td>
+                        <td>{{contribution.contribution_role.title}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    {% endwith %}
     <br/>
     <span class="authors-label">
         {% trans "Catégorie" %}{{ content.subcategory.all|pluralize }} :

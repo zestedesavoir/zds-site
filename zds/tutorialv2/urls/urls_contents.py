@@ -9,7 +9,8 @@ from zds.tutorialv2.views.contents import (DisplayContent, CreateContent, EditCo
                                            DownloadContent, UpdateContentWithArchive, CreateContentFromArchive,
                                            ContentsWithHelps, AddAuthorToContent,
                                            RemoveAuthorFromContent, WarnTypo, DisplayBetaContent, DisplayBetaContainer,
-                                           ContentOfAuthor, RedirectOldContentOfAuthor)
+                                           ContentOfAuthor, RedirectOldContentOfAuthor, AddContributorToContent,
+                                           RemoveContributorFromContent, ContentOfContributors)
 
 from zds.tutorialv2.views.published import (SendNoteFormView, UpdateNoteView,
                                             HideReaction, ShowReaction, SendNoteAlert, SolveNoteAlert, TagsListView,
@@ -28,6 +29,10 @@ urlpatterns = [
          ContentOfAuthor.as_view(
              type='ALL', context_object_name='contents'),
          name='find-all'),
+    path('contributions/<str:username>/',
+         ContentOfContributors.as_view(
+             type='ALL', context_object_name='contribution_contents'),
+         name='find-contribution-all'),
 
     path('tutoriels/<int:pk>/', RedirectOldContentOfAuthor.as_view(type='TUTORIAL')),
     path('articles/<int:pk>/', RedirectOldContentOfAuthor.as_view(type='ARTICLE')),
@@ -142,6 +147,10 @@ urlpatterns = [
             DisplayHistory.as_view(), name='history'),
     re_path(r'^comparaison/(?P<pk>\d+)/(?P<slug>.+)/$',
             DisplayDiff.as_view(), name='diff'),
+    re_path(r'^ajouter-contributeur/(?P<pk>\d+)/$',
+            AddContributorToContent.as_view(), name='add-contributor'),
+    re_path(r'^enlever-contributeur/(?P<pk>\d+)/$',
+            RemoveContributorFromContent.as_view(), name='remove-contributor'),
     re_path(r'^ajouter-auteur/(?P<pk>\d+)/$',
             AddAuthorToContent.as_view(), name='add-author'),
     re_path(r'^enlever-auteur/(?P<pk>\d+)/$',

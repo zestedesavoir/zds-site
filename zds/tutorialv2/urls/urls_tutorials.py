@@ -1,6 +1,6 @@
 from django.urls import path, re_path
 from django.views.generic.base import RedirectView
-from zds.tutorialv2.views.contents import RedirectOldBetaTuto, ContentOfAuthor
+from zds.tutorialv2.views.contents import RedirectOldBetaTuto, ContentOfAuthor, ContentOfContributors
 
 from zds.tutorialv2.views.published import DisplayOnlineTutorial, DisplayOnlineContainer, \
     DownloadOnlineTutorial, RedirectContentSEO, TagsListView
@@ -53,4 +53,8 @@ urlpatterns = [
          ContentOfAuthor.as_view(
              type='TUTORIAL', context_object_name='tutorials'),
          name='find-tutorial'),
+    path('contributions/<str:username>/',
+         ContentOfContributors.as_view(
+             type='TUTORIAL', context_object_name='contribution_tutorials'),
+         name='find-contributions-tutorial'),
 ]

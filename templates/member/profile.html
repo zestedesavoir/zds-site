@@ -368,6 +368,37 @@
                                         {% endif %}
                                     </div>
                                 {% endif %}
+                                {% if contribution_tutorials_count > 0 or contribution_articles_count > 0 %}
+                                    <div class="linkbox-item primary">
+                                        <div class="head">
+                                            <h3>{% trans 'Contributions' %}</h3>
+                                        </div>
+
+                                        {% if contribution_tutorials_count > 0 %}
+                                            <a href="{% url "tutorial:find-contributions-tutorial" usr.username %}" class="tail">
+                                                <p>
+                                                    {% blocktrans count contribution_tutorials_count=contribution_tutorials_count %}
+                                                        {{ contribution_tutorials_count }} tutoriel
+                                                    {% plural %}
+                                                        {{ contribution_tutorials_count }} tutoriels
+                                                    {% endblocktrans %}
+                                                </p>
+                                            </a>
+                                        {% endif %}
+
+                                        {% if contribution_articles_count > 0 %}
+                                            <a href="{% url "article:find-contributions-article" usr.username %}" class="tail">
+                                                <p>
+                                                    {% blocktrans count contribution_articles_count=contribution_articles_count %}
+                                                        {{ contribution_articles_count }} article
+                                                    {% plural %}
+                                                        {{ contribution_articles_count }} articles
+                                                    {% endblocktrans %}
+                                                </p>
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
 
                                 {% if profile.end_ban_read or profile.can_read %}
                                     {% if beta_tutos_count > 0 or beta_articles_count > 0 %}

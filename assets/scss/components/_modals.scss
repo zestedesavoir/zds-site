@@ -131,6 +131,10 @@
     &.modal-flex {
         width: 400px;
     }
+
+    &.modal-large {
+        width: 800px;
+    }
 }
 
 @media only screen and #{$media-wide} {
