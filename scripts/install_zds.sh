@@ -103,9 +103,20 @@ if  ! $(_in "-packages" $@) && ( $(_in "+packages" $@) || $(_in "+base" $@) || $
     fi
     echo ""
 
+    packagingTool_update=$(grep -oP '#updatecmd=\K(.*)' "$filepath")
     packagingTool_install=$(grep -oP '#installcmd=\K(.*)' "$filepath")
     print_info "$filepath"
     IFS=$'\n'
+
+    if [[ $packagingTool_update ]]; then
+        print_info "sudo $packagingTool_update"
+        echo ""
+        eval "sudo $packagingTool_update"; exVal=$?
+        echo ""
+        if [[ $exVal != 0 ]]; then
+            print_error "!! We were unable to update packages list."
+        fi
+    fi
 
     for dep in $(cat "$filepath"); do
         if [[ $dep == "#"* ]]; then
@@ -154,7 +165,7 @@ if  ! $(_in "-virtualenv" $@) && ( $(_in "+virtualenv" $@) || $(_in "+base" $@) 
                 print_info "remove $(realpath $ZDS_VENV)"
                 rm -r $ZDS_VENV
             else
-                print_error "We recommanded to delete this folder, press \`y\` to delete this folder"
+                print_error "We recommend to delete this folder, press \`y\` to delete this folder"
                 echo -n "Choice : "
                 read -n 1
                 echo ""
@@ -169,7 +180,7 @@ if  ! $(_in "-virtualenv" $@) && ( $(_in "+virtualenv" $@) || $(_in "+base" $@) 
         fi
 
         print_info "* [+virtualenv] installing \`virtualenv 16.2.0\` with pip"
-        pip3 install virtualenv==16.2.0
+        pip3 install --user virtualenv==16.2.0
 
         print_info "* [+virtualenv] creating virtualenv"
         err=$(python3 -m venv $ZDS_VENV 3>&1 1>&2 2>&3 | sudo tee /dev/stderr)
@@ -505,6 +516,21 @@ if  ! $(_in "-data" $@) && ( $(_in "+data" $@) || $(_in "+base" $@) || $(_in "+f
 
     if [[ $exVal != 0 ]]; then
         print_error "!! Cannot start zmd to generate-fixtures (use \`-data\` to skip)"
+        exit 1
+    fi
+
+    # We check if ZMD is really up:
+    nb_zmd_try=0
+
+    while ! curl -s $ZMD_URL > /dev/null && [ $nb_zmd_try -lt 40 ]
+    do
+        sleep 0.2
+        nb_zmd_try=$(($nb_zmd_try+1))
+    done
+
+    if [ $nb_zmd_try -eq 40 ]
+    then
+        print_error "!! Cannot connect to zmd to generate-fixtures (use \`-data\` to skip)"
         exit 1
     fi
 

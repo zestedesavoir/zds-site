@@ -1,0 +1,24 @@
+-   model: tutorialv2.ContentContributionRole
+    pk: 1
+    fields:
+        title: Validateur
+        subtitle: Validateur officiel du contenu pour la publication sur le site.
+        position: 1
+-   model: tutorialv2.ContentContributionRole
+    pk: 2
+    fields:
+        title: Relecteur de bêta (fond)
+        subtitle: Relire le contenu en bêta sur le fond.
+        position: 2
+-   model: tutorialv2.ContentContributionRole
+    pk: 3
+    fields:
+        title: Relecteur de bêta (forme)
+        subtitle: Relire le contenu en bêta sur la forme (pédagogie, style, orthographe, etc.).
+        position: 2
+-   model: tutorialv2.ContentContributionRole
+    pk: 4
+    fields:
+        title: Illustrateur
+        subtitle: Produire des illustrations pour le contenu.
+        position: 3

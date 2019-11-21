@@ -41,7 +41,8 @@ from zds.member.models import Profile, TokenForgotPassword, TokenRegister, Karma
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.notification.models import TopicAnswerSubscription, NewPublicationSubscription
 from zds.pages.models import GroupContact
-from zds.tutorialv2.models.database import PublishedContent, PickListOperation
+from zds.tutorialv2.models import CONTENT_TYPES
+from zds.tutorialv2.models.database import PublishedContent, PickListOperation, ContentContribution
 from zds.utils.models import Comment, CommentVote, Alert, CommentEdit, Hat, HatRequest, get_hat_from_settings, \
     get_hat_to_add
 from zds.utils.mps import send_mp
@@ -80,7 +81,7 @@ class MemberDetail(DetailView):
         Returns a summary of this profile's activity, as a list of list of tuples.
         Each first-level list item is an activity category (e.g. contents, forums, etc.)
         Each second-level list item is a stat in this activity category.
-        Each tuple is (link url, displayed text), where the link url can be None if it's not a link.
+        Each tuple is (link url, count, displayed name of the item), where the link url can be None if it's not a link.
 
         :param profile: The profile.
         :return: The summary data.
@@ -99,27 +100,30 @@ class MemberDetail(DetailView):
 
         summary = []
         if count_tutorials + count_articles + count_opinions == 0:
-            summary.append((None, __('Aucun contenu publié')))
+            summary.append((None, 0, __('Aucun contenu publié')))
 
         if count_tutorials > 0:
             summary.append(
                 (
                     reverse_lazy('tutorial:find-tutorial', args=(profile.user.username,)),
-                    __('{} tutoriel{}').format(count_tutorials, pluralize_fr(count_tutorials))
+                    count_tutorials,
+                    __('tutoriel{}').format(pluralize_fr(count_tutorials))
                 )
             )
         if count_articles > 0:
             summary.append(
                 (
                     reverse_lazy('article:find-article', args=(profile.user.username,)),
-                    __('{} article{}').format(count_articles, pluralize_fr(count_articles))
+                    count_articles,
+                    __('article{}').format(pluralize_fr(count_articles))
                 )
             )
         if count_opinions > 0:
             summary.append(
                 (
                     reverse_lazy('opinion:find-opinion', args=(profile.user.username,)),
-                    __('{} billet{}').format(count_opinions, pluralize_fr(count_opinions))
+                    count_opinions,
+                    __('billet{}').format(pluralize_fr(count_opinions))
                 )
             )
         summaries.append(summary)
@@ -129,16 +133,18 @@ class MemberDetail(DetailView):
             summary.append(
                 (
                     reverse_lazy('post-find', args=(profile.user.pk,)),
-                    __('{} message{}').format(count_post, pluralize_fr(count_post))
+                    count_post,
+                    __('message{}').format(pluralize_fr(count_post))
                 )
             )
         else:
-            summary.append((None, __('Aucun message')))
+            summary.append((None, 0, __('Aucun message')))
         if count_topic > 0:
             summary.append(
                 (
                     reverse_lazy('topic-find', args=(profile.user.pk,)),
-                    __('{} sujet{}').format(count_topic, pluralize_fr(count_topic))
+                    count_topic,
+                    __('sujet{}').format(pluralize_fr(count_topic))
                 )
             )
 
@@ -162,6 +168,19 @@ class MemberDetail(DetailView):
         context['articles_and_tutorials'] = PublishedContent.objects.last_tutorials_and_articles_of_a_member_loaded(usr)
         context['topic_read'] = TopicRead.objects.list_read_topic_pk(self.request.user, context['topics'])
         context['subscriber_count'] = NewPublicationSubscription.objects.get_subscriptions(self.object).count()
+        context['contribution_articles_count'] = ContentContribution\
+            .objects\
+            .filter(user__pk=usr.pk, content__sha_public__isnull=False, content__type=CONTENT_TYPES[1]['name'])\
+            .values_list('content', flat=True)\
+            .distinct()\
+            .count()
+        context['contribution_tutorials_count'] = ContentContribution\
+            .objects\
+            .filter(user__pk=usr.pk, content__sha_public__isnull=False, content__type=CONTENT_TYPES[0]['name'])\
+            .values_list('content', flat=True)\
+            .distinct()\
+            .count()
+
         if self.request.user.has_perm('member.change_profile'):
             sanctions = list(Ban.objects.filter(user=usr).select_related('moderator'))
             notes = list(KarmaNote.objects.filter(user=usr).select_related('moderator'))

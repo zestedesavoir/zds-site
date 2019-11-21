@@ -1,7 +1,7 @@
 from django.urls import path, re_path
 from django.views.generic.base import RedirectView
 
-from zds.tutorialv2.views.contents import ContentOfAuthor
+from zds.tutorialv2.views.contents import ContentOfAuthor, ContentOfContributors
 from zds.tutorialv2.views.published import DisplayOnlineArticle, DownloadOnlineArticle, \
     TagsListView
 from zds.tutorialv2.feeds import LastArticlesFeedRSS, LastArticlesFeedATOM
@@ -39,4 +39,8 @@ urlpatterns = [
          ContentOfAuthor.as_view(
              type='ARTICLE', context_object_name='articles'),
          name='find-article'),
+    path('contributions/<str:username>/',
+         ContentOfContributors.as_view(
+             type='ARTICLE', context_object_name='contribution_articles'),
+         name='find-contributions-article'),
 ]

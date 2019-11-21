@@ -36,7 +36,7 @@ from zds.tutorialv2.forms import RevokeValidationForm, WarnTypoForm, NoteForm, N
 from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin, SingleOnlineContentViewMixin, DownloadViewMixin, \
     ContentTypeMixin, SingleOnlineContentFormViewMixin, MustRedirect
 from zds.tutorialv2.models import TYPE_CHOICES_DICT, CONTENT_TYPE_LIST
-from zds.tutorialv2.models.database import PublishableContent, PublishedContent, ContentReaction
+from zds.tutorialv2.models.database import PublishableContent, PublishedContent, ContentReaction, ContentContribution
 from zds.tutorialv2.utils import search_container_or_404, last_participation_is_old, mark_read, NamedUrl
 from zds.utils.models import Alert, CommentVote, Tag, Category, CommentEdit, SubCategory, get_hat_from_request, \
     CategorySubCategory
@@ -166,6 +166,11 @@ class DisplayOnlineContent(FeatureableMixin, SingleOnlineContentDetailViewMixin)
                 sender=self.object.__class__, instance=self.object, user=self.request.user, target=PublishableContent)
         if last_participation_is_old(self.object, self.request.user):
             mark_read(self.object, self.request.user)
+
+        context['contributions'] = ContentContribution\
+            .objects\
+            .filter(content=self.object)\
+            .order_by('contribution_role__position')
 
         return context
 

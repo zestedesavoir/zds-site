@@ -36,8 +36,8 @@
 {% endblock %}
 
 {% block description %}
-    {% if content.meta_description %}
-        {{ content.meta_description }}
+    {% if content.description %}
+        {{ content.description }}
     {% else %}
         Site et association de partage de connaissances animé par sa communauté. Vous y trouverez des tutoriels et des articles de tous niveaux et des forums.
     {% endif %}
@@ -46,22 +46,7 @@
 
 
 {% block meta_image %}{% spaceless %}
-    {% if content.image %}
-        {% if request.GET.twittercard == "large"  %}
-            {{ content.image.physical|thumbnail_url:'social_network_large' }}
-        {% else %}
-            {{ content.image.physical|thumbnail_url:'social_network' }}
-        {% endif %}
-    {% else %}
-        {% load static %}
-        {% if content.type == 'TUTORIAL' %}
-            {% static "images/tutorial-illu.png" %}
-        {% elif content.type == 'ARTICLE' %}
-            {% static "images/article-illu.png" %}
-        {% elif content.type == 'OPINION' %}
-            {% static "images/opinion-illu.png" %}
-        {% endif %}
-    {% endif %}
+    {% include "tutorialv2/includes/image_illu.part.html" with content=content %}
 {% endspaceless %}{% endblock %}
 
 

@@ -309,8 +309,8 @@ Si le token n'est plus valide ou que vous avez perdu l'``access_token`` de l'uti
 
 A la suite de cela, de nouveaux tokens seront renvoyés et devront être sauvegardés pour une prochaine utilisation si nécessaire.
 
-Django REST Swagger
-===================
+Documentation (utilisation)
+============================
 
 Django REST Swagger est une bibliothèque qui génère automatiquement la documentation d'une API Django basée sur la bibliothèque Django REST framework.
 

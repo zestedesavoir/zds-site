@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from zds.tutorialv2.models.database import PublishableContent, Validation, ContentReaction, PublishedContent, \
-    PickListOperation, ContentRead, PublicationEvent
+    PickListOperation, ContentRead, PublicationEvent, ContentContributionRole
 
 
 class PublishableContentAdmin(admin.ModelAdmin):
@@ -63,6 +63,12 @@ class PublicationEventAdmin(admin.ModelAdmin):
     search_fields = ('state_of_processing', 'published_object__title', 'date')
 
 
+class ContentReviewTypeAdmin(admin.ModelAdmin):
+    list_display = ['title']
+    search_fields = ['title']
+    ordering = ['position']
+
+
 admin.site.register(PublishableContent, PublishableContentAdmin)
 admin.site.register(PublishedContent, PublishedContentAdmin)
 admin.site.register(Validation, ValidationAdmin)
@@ -70,3 +76,4 @@ admin.site.register(ContentReaction, ContentReactionAdmin)
 admin.site.register(PickListOperation, PickListOperationAdmin)
 admin.site.register(ContentRead, ContentReadAdmin)
 admin.site.register(PublicationEvent, PublicationEventAdmin)
+admin.site.register(ContentContributionRole, ContentReviewTypeAdmin)
