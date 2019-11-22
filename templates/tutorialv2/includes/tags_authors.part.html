@@ -59,9 +59,16 @@
 
         {% if add_author == True %}
             <li>
-                <a href="#add-author" class="open-modal ico-after more blue">
+                <a href="#add-author-content" class="open-modal ico-after more blue">
                     {% trans "Ajouter un auteur" %}
                 </a>
+                <form action="{% url "content:add-author" content.pk %}" method="post" class="modal modal-flex" id="add-author-content">
+                    {% csrf_token %}
+                    <input type="text" name="username" placeholder="Pseudo de l’utilisateur à ajouter" data-autocomplete="{ 'type': 'single' }">
+                    <button type="submit" name="add_author">
+                        {% trans "Confirmer" %}
+                    </button>
+                </form>
             </li>
         {% endif %}
     </ul>
