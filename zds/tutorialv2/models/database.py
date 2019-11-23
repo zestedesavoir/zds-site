@@ -1362,7 +1362,7 @@ class ContentContributionRole(models.Model):
         verbose_name = 'Role de la contribution au contenu'
         verbose_name_plural = 'Roles de la contribution au contenu'
 
-    title = models.CharField(null=False, blank=False, max_length=20)
+    title = models.CharField(null=False, blank=False, max_length=80)
     subtitle = models.CharField(null=True, blank=True, max_length=200)
     position = models.IntegerField(default=0)
 
