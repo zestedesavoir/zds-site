@@ -94,6 +94,14 @@
       return false;
     }
 
+    const $itemContainer = $item.children("[data-children-type=container]");
+    const haveChildChapter = (!!$itemContainer.children("div.article-part[data-slug]")[0]);
+
+    // move part in part is forbidden
+    if (haveChildChapter && $to.parents("[data-children-type=container]")[0]) {
+      return false;
+    }
+
     return true;
   }
 
