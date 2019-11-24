@@ -333,7 +333,7 @@ class ContentForm(ContainerForm):
             with text=form.conclusion.value %}{% endif %}'),
             Field('last_hash'),
             Field('licence'),
-            Field('subcategory', template='crispy/checkboxselectmultiple.html'),
+            Field('subcategory', template='crispy/twolevelselectmultiple.html'),
         )
 
         if not hide_help:

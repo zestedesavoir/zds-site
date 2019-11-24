@@ -1,0 +1,58 @@
+{# This tempate is used by Django Crispy Form #}
+{# We only add a templatetag (order_categories line 24) to sort categories in the "new content" page #}
+
+{% load crispy_forms_filters %}
+{% load form_categories %}
+{% load l10n %}
+
+{% load crispy_forms_field %}
+
+{% if field.is_hidden %}
+    {{ field }}
+{% else %}
+    <{% if tag %}{{ tag }}{% else %}div{% endif %}
+        id="div_{{ field.auto_id }}"
+        class="control-group
+               {% if wrapper_class %}
+                   {{ wrapper_class }}
+               {% endif %}
+
+               {% if form_show_errors and field.errors%}
+                   error
+               {% endif %}
+
+               {% if field.css_classes %}
+                   {{ field.css_classes }}
+               {% endif %}">
+
+        {% if field.label and not field|is_checkbox and form_show_labels %}
+            <label for="{{ field.id_for_label }}"
+                   class="control-label {% if field.field.required %}requiredField{% endif %}">
+                {{ field.label|safe }}{% if field.field.required %}<span class="asteriskField">*</span>{% endif %}
+            </label>
+        {% endif %}
+
+        <div class="controls"{% if flat_attrs %} {{ flat_attrs|safe }}{% endif %}>
+            {% include 'bootstrap/layout/field_errors_block.html' %}
+
+            {% regroup field.field.choices|order_categories|dictsort:"order" by parent as categories_list %}
+
+            <select id="twolevelselect" multiple>
+                {% for category in categories_list %}
+                <optgroup label="{{ category.grouper }}">
+                {% for option in category.list %}
+                    <option
+                        id="id_{{ field.html_name }}_{{ option.choice.0|unlocalize }}"
+                        name="{{ field.html_name }}"
+                        {% if option.choice.0 in field.value or option.choice.0|stringformat:"s" in field.value or option.choice.0|stringformat:"s" == field.value|stringformat:"s" %} Selected {% endif %}
+                        value="{{ option.choice.0|unlocalize }}"
+                        {{ field.field.widget.attrs|flatatt }}>{{ option.choice.1|unlocalize }}</option>
+                {% endfor %}
+                </optgroup>
+                {% endfor %}
+            </select>
+
+            {% include 'bootstrap/layout/help_text.html' %}
+        </div>
+    </{% if tag %}{{ tag }}{% else %}div{% endif %}>
+{% endif %}
