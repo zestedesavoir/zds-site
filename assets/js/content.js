@@ -148,7 +148,7 @@
           // Element is dragged into the list from another list
           if ($to.is("section")) { // is: chapter > extract
             $item.find("> h3 > a").unwrap().wrap("<h2></h2>");
-            $item.find("ol h4 > a").unwrap().wrap("<h3></h3>");
+            $item.find("> ol h4 > a").unwrap().wrap("<h3></h3>");
 
             if ($item.find(".simple-create-part")[0]) {
               $item.children(".article-containers").show();
@@ -156,7 +156,7 @@
             }
           } else { // is: part > chapter > extract 
             $item.find("> h2 > a").unwrap().wrap("<h3></h3>");
-            $item.find("ol h3 > a").unwrap().wrap("<h4></h4>");
+            $item.find("> ol h3 > a").unwrap().wrap("<h4></h4>");
 
             if ($item.find(".simple-create-part")[0]) {
               $item.children(".article-containers").hide();
