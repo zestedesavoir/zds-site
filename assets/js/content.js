@@ -131,7 +131,7 @@
         }
 
         if ($(evt.related).is(".simple-create-button")) {
-          return false;
+          return -1;
         }
       },
       onEnd: sendMoveAction
@@ -180,7 +180,7 @@
         }
 
         if ($(evt.related).is(".simple-create-part")) {
-          return false;
+          return -1;
         }
       },
       onEnd: sendMoveAction
