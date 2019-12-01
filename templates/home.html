@@ -51,7 +51,7 @@
                 </section>
                 <section class="home-description">
                     <div class="column">
-                        <h2>{% trans "La connaissance pour tous" %}</h2>
+                        <h1>{% trans "La connaissance pour tous" %}</h1>
                         {% blocktrans with site_name=app.site.literal_name %}
                             <p>
                                 {{ site_name }} : un site de <strong>partage de connaissances</strong> où vous trouverez,
@@ -66,12 +66,12 @@
                         {% endblocktrans %}
                     </div>
                     <div class="column">
-                        <h2>{% trans "Partagez vos savoirs…" %}</h2>
+                        <h1>{% trans "Partagez vos savoirs…" %}</h1>
                         {% blocktrans %}
                             <p><strong>Tous les membres</strong> peuvent écrire et <strong>publier des contenus</strong>.</p>
                             <p>Pour assurer la qualité, l’équipe du site valide chaque tutoriel et article.</p>
                         {% endblocktrans %}
-                        <h2>{% trans "… sur une plate-forme libre" %}</h2>
+                        <h1>{% trans "… sur une plate-forme libre" %}</h1>
                         {% blocktrans %}
                             <p>Le site est géré et financé par une <a href="{{ url_association }}">association</a> à but non lucratif.</p>
                         {% endblocktrans %}
@@ -93,13 +93,13 @@
 
     <div class="flexpage-wrapper">
         <section class="home-pinned-content">
-            <h2 class="home-heading heading-white ico-after ico-news" itemprop="name">
+            <h1 class="home-heading heading-white ico-after ico-news" itemprop="name">
                 {% trans "À la une" %}
 
                 {% if perms.featured.change_featuredresource %}
                     <a href="{% url "featured-resource-list" %}" class="btn btn-grey">{% trans "Gérer les unes" %}</a>
                 {% endif %}
-            </h2>
+            </h1>
 
             <div class="featured-resource-row">
                 {% for featured_resource in last_featured_resources %}
