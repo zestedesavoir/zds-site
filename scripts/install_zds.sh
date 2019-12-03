@@ -317,8 +317,10 @@ if  ! $(_in "-elastic-local" $@) && ( $(_in "+elastic-local" $@) || $(_in "+full
     mkdir -p .local
     cd .local
 
-    if [ -d elasticsearch ]; then # remove previous install
-        rm -r elasticsearch
+    es_path=$(realpath elasticsearch)
+
+    if [ -d "$es_path" ]; then # remove previous install
+        rm -r "$es_path"
     fi
 
     wget_nv https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${ZDS_ELASTIC_VERSION}.zip
@@ -328,12 +330,12 @@ if  ! $(_in "-elastic-local" $@) && ( $(_in "+elastic-local" $@) || $(_in "+full
         mv elasticsearch-${ZDS_ELASTIC_VERSION} elasticsearch
 
         # add options to reduce memory consumption
-        print_info "#Options added by install_zds.sh" >> elasticsearch/config/jvm.options
-        print_info "-Xms512m" >> elasticsearch/config/jvm.options
-        print_info "-Xmx512m" >> elasticsearch/config/jvm.options
+        print_info "#Options added by install_zds.sh" >> "$es_path/config/jvm.options"
+        print_info "-Xms512m" >> "$es_path/config/jvm.options"
+        print_info "-Xmx512m" >> "$es_path/config/jvm.options"
 
         # symbolic link to elastic start script
-        ln -s elasticsearch/bin/elasticsearch $ZDS_ENV/bin/
+        ln -s "$es_path/bin/elasticsearch" $ZDS_ENV/bin/
     else
         print_error "!! Cannot get elasticsearch ${ZDS_ELASTIC_VERSION}"
         exit 1

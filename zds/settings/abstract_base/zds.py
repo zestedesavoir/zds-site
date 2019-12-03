@@ -174,6 +174,7 @@ ZDS_APP = {
         'notes_per_page': 25,
         'helps_per_page': 20,
         'commits_per_page': 20,
+        'suggestions_per_page': 2,
         'feed_length': 5,
         'user_page_number': 5,
         'default_image': join(BASE_DIR, 'fixtures', 'noir_black.png'),

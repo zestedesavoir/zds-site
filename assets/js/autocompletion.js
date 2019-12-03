@@ -146,8 +146,11 @@
                 } else {
                     this.$input.val(completion[this.options.fieldname] + ", ");
                 }
-            } else {
+            } else if(this.options.type === "single") {
                 this.$input.val(completion[this.options.fieldname]);
+            } else if(this.options.type === "multiple_checkbox") {
+                this.$input.before("<label class='checkbox' for='id_options_"+completion.id+"'> <input type='checkbox' checked='checked' name='options' id='id_options_"+completion.id+"' value='"+completion.id+"'>"+completion[this.options.fieldname]+"</label>");
+                this.$input.val("");
             }
 
             this._lastAutocomplete = completion[this.options.fieldname];

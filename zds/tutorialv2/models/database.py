@@ -1405,6 +1405,30 @@ class ContentContribution(models.Model):
                                                                          self.pk)
 
 
+class ContentSuggestion(models.Model):
+    """
+    Content suggestion
+    """
+
+    publication = models.ForeignKey(PublishableContent,
+                                    null=False,
+                                    verbose_name='Contenu',
+                                    db_index=True,
+                                    on_delete=models.CASCADE,
+                                    related_name='publication')
+    suggestion = models.ForeignKey(PublishableContent,
+                                   null=False,
+                                   verbose_name='Suggestion',
+                                   db_index=True,
+                                   on_delete=models.CASCADE,
+                                   related_name='suggestion')
+
+    def __str__(self):
+        return "<Suggest '{0}' for content {1}, #{2}>".format(self.suggestion.title,
+                                                              self.publication.title,
+                                                              self.pk)
+
+
 @receiver(models.signals.pre_delete, sender=User)
 def transfer_paternity_receiver(sender, instance, **kwargs):
     """

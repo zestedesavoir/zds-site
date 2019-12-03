@@ -184,7 +184,6 @@
         {% endif %}
 
     {% endif %}
-
     {{ content_pager }}
     {% include "tutorialv2/includes/alert.html" with content=content current_content_type=current_content_type %}
     {% include "tutorialv2/includes/warn_typo.part.html" with content=content %}
@@ -379,6 +378,7 @@
 {% endblock %}
 
 {% block content_after %}
+    {% include "tutorialv2/includes/content_suggestion.part.html" with content=content %}
     <h3 class="comments-title" id="comments">
         {% if content.get_note_count > 0 %}
             <span itemprop="commentCount">
