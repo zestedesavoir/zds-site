@@ -1,0 +1,14 @@
+{% load times %}
+{% with col_number=1 %}
+{% if content_suggestions %}
+    <h2> <i class="fa fa-hand-o-right"></i> Ces contenus pourraient vous intéresser</h2>
+    <div class="content-item-list">
+        {% for content_suggestion in content_suggestions %}
+            {% include "tutorialv2/includes/content_item.part.html" with content=content_suggestion.suggestion show_description=True show_reactions=True %}
+        {% endfor %}
+        {% for i in col_number|times %}
+            <div class="fill"></div>
+        {% endfor %}
+    </div>
+{% endif %}
+{% endwith %}

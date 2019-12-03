@@ -1351,3 +1351,42 @@ class ContentCompareStatsURLForm(forms.Form):
             raise forms.ValidationError(_('Vous devez choisir des URL a comparer'))
         if len(urls) < 2:
             raise forms.ValidationError(_('Il faut au minimum 2 urls à comparer'))
+
+
+class SearchSuggestionForm(forms.Form):
+    suggestion_pk = forms.CharField(label='Contenu à suggerer',
+                                    required=False,
+                                    widget=forms.TextInput(
+                                        attrs={
+                                            'data-autocomplete': '{"type": "multiple_checkbox",'
+                                                                 '"limit": 10,'
+                                                                 '"fieldname": "title",'
+                                                                 '"url": "/rechercher/suggestion-contenu/?q=%s"}',
+                                            'placeholder': 'Rechercher un contenu',
+                                        })
+                                    )
+
+    def __init__(self, content, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.form_action = reverse('content:add-suggestion', kwargs={'pk': content.pk})
+        self.helper.form_class = 'modal modal-large'
+        self.helper.form_id = 'add-suggestion'
+        self.helper.form_method = 'post'
+
+        self.helper.layout = Layout(
+            Field('suggestion_pk'),
+            StrictButton(
+                _('Ajouter'),
+                type='submit')
+        )
+        super(SearchSuggestionForm, self).__init__(*args, **kwargs)
+
+
+class RemoveSuggestionForm(forms.Form):
+
+    pk_suggestion = forms.CharField(
+        label=_('Suggestion'),
+        required=True,
+    )

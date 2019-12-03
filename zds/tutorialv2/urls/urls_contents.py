@@ -10,7 +10,8 @@ from zds.tutorialv2.views.contents import (DisplayContent, CreateContent, EditCo
                                            ContentsWithHelps, AddAuthorToContent,
                                            RemoveAuthorFromContent, WarnTypo, DisplayBetaContent, DisplayBetaContainer,
                                            ContentOfAuthor, RedirectOldContentOfAuthor, AddContributorToContent,
-                                           RemoveContributorFromContent, ContentOfContributors)
+                                           RemoveContributorFromContent, ContentOfContributors,
+                                           AddSuggestion, RemoveSuggestion)
 
 from zds.tutorialv2.views.published import (SendNoteFormView, UpdateNoteView,
                                             HideReaction, ShowReaction, SendNoteAlert, SolveNoteAlert, TagsListView,
@@ -162,6 +163,11 @@ urlpatterns = [
             name='inactive-beta'),
     re_path(r'^stats/(?P<pk>\d+)/(?P<slug>.+)/$', ContentStatisticsView.as_view(),
             name='stats-content'),
+    re_path(r'^ajouter-suggestion/(?P<pk>\d+)/$', AddSuggestion.as_view(),
+            name='add-suggestion'),
+    re_path(r'^enlever-suggestion/(?P<pk>\d+)/$',
+            RemoveSuggestion.as_view(), name='remove-suggestion'),
+
 
     # jsfiddle support:
     re_path(r'activer-js/', ActivateJSFiddleInContent.as_view(),
