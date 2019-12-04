@@ -9,6 +9,16 @@
     /* because the list is not updated */
     $(".simple-move-button").hide();
   }
+  function getFirstLevelSlug(isExtract, $element) {
+    if (!isExtract) {
+        return undefined;
+    }
+    console.log($element.attr("data-depth"));
+    if (Number.parseInt($element.attr("data-depth"), 10) >= 2) {
+        return $element.parents("[data-slug]").parents("[data-slug]").attr("data-slug");
+    }
+    return undefined;
+  }
 
   function sendMoveAction(evt) {
     hideMoveButton();
@@ -18,34 +28,40 @@
     const $from = $(evt.from);
     const movingMethod = (($prev) => {
       const path = ((tree) => {
-        $item.parents("[data-children-type]:not([data-pk])").each((n, parent) => {
+        $item.parents("[data-accept-container]:not([data-pk])").each((n, parent) => {
+          tree.push($(parent).attr("data-slug"));
+        });
+        $item.parents("[data-accept-extracts]:not([data-pk]):not([data-accept-container])").each((n, parent) => {
           tree.push($(parent).attr("data-slug"));
         });
         tree = tree.reverse();
         if (tree.length > 0) {
           tree.push("");
         }
+        if (!tree[0]) {
+            tree = tree.splice(1);
+        }
         return tree.join("/");
       })([]);
 
-      if ($prev[0]) {
+      if ($prev[0] && $prev.attr("data-slug")) {
         return "after:" + path + $prev.attr("data-slug");
       } else {
         return "first:" + path;
       }
     })($item.prev());
 
-    const isExtract = ($from.attr("data-children-type") === "extract");
+
+    const isExtract = ($from.attr("data-accept-extracts")) && $from.attr("data-accept-container") !== "true";
 
     const pk = $item.parents("[data-pk]").attr("data-pk");
     const slug = $item.attr("data-slug");
-
     const form = {
       // new 
       "moving_method": movingMethod,
       // old
       "container_slug": $from.attr("data-slug"),
-      "first_level_slug": (isExtract) ? $from.parents("[data-children-type]").attr("data-slug") : undefined,
+      "first_level_slug":  getFirstLevelSlug(isExtract, $from),
       // current
       "child_slug": slug,
       "pk": pk,
@@ -86,18 +102,18 @@
     if ($to.children(filter).length >= (1 + $to.is($from))) {
       return false;
     }
-    const $itemContainer = $item.children("[data-children-type=container]");
+    const $itemContainer = $item.children("[data-accept-container]");
     const haveChildChapter = (!!$itemContainer.children("div.article-part[data-slug]")[0]);
 
     // move part in part is forbidden
-    if (haveChildChapter && $to.parents("[data-children-type=container]")[0]) {
+    if (haveChildChapter && $to.parents("[data-accept-container]")[0]) {
       return false;
     }
     return true;
   }
 
   $(document).ready(function() {
-    $("ol[data-children-type=extract]").sortable({
+    $("ol[data-accept-extracts]").sortable({
       group: "extract",
       handle: "a",
       filter: function (pointer, dragged) {
@@ -122,13 +138,14 @@
         }
 
         if ($(evt.related).is(".simple-create-button")) {
-          return false;
+          let $element = $(evt.related);
+          $element.appendTo($element.parent());
         }
       },
       onEnd: sendMoveAction
     });
 
-    $("*[data-children-type=container]").sortable({
+    $("*[data-accept-container=true]").sortable({
       group: "container",
       handle: ["h2", "h3 a"],
       filter: function (pointer, dragged) {
@@ -160,7 +177,7 @@
             if ($item.find(".simple-create-part")[0]) {
               $item.children(".article-containers").hide();
               $item.append(
-                `<ol class="summary-part" data-children-type="extract">
+                `<ol class="summary-part" data-accept-extracts="true" data-parent-slug="{% if child.parent and not child.parent.type %}{{child.parent.slug}}{% endif%}">
                   <li class="simple-create-button">
                     <a class="btn btn-grey">Ajouter une section</a>
                   </li>
@@ -171,7 +188,8 @@
         }
 
         if ($(evt.related).is(".simple-create-part")) {
-          return false;
+          let $element = $(evt.related);
+          $element.appendTo($element.parent());
         }
       },
       onEnd: sendMoveAction

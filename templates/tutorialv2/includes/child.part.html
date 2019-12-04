@@ -4,7 +4,8 @@
 {% load target_tree %}
 {% load feminize %}
 
-<div class="article-part {% if child.text %}is-chapter{% endif %}" data-slug="{{ child.slug }}">
+<div class="article-part {% if child.text %}is-chapter{% endif %}" data-slug="{{ child.slug }}"
+     data-depth="{{ child.get_tree_depth }}">
     <h2 id="{{ child.position_in_parent }}-{{ child.slug }}"
     {% if not child.is_validable %}
         class="not-ready"
@@ -46,9 +47,10 @@
         {# child is a container #}
 
         {% if child.has_extracts %}
-            <ol class="summary-part" data-children-type="extract" data-slug="{{ child.slug }}">
+            <ol class="summary-part" data-accept-extracts="true" data-slug="{{ child.slug }}"
+            data-depth="{{ child.get_tree_depth }}">
                 {% for extract in child.children %}
-                <li data-slug="{{ extract.slug }}">
+                <li data-slug="{{ extract.slug }}" data-depth="{{ child.get_tree_depth }}">
                     <h3>
                         <a
                             {% if content.is_beta %}
@@ -73,9 +75,10 @@
                 {% endif %}
             </ol>
         {% elif child.has_sub_containers %}
-            <div class="article-containers" data-children-type="container" data-slug="{{ child.slug }}">
+            <div class="article-containers" data-accept-container="true" data-slug="{{ child.slug }}"
+            data-depth="{{ child.get_tree_depth }}">
                 {% for subchild in child.children %}
-                    <div class="article-part" data-slug="{{ subchild.slug }}">
+                    <div class="article-part" data-slug="{{ subchild.slug }}" data-depth="{{ subchild.get_tree_depth }}">
                         <h3 class="{% if not subchild.ready_to_publish %}not-ready{% endif %}">
                             <a
                             {% if content.is_beta %}
@@ -88,9 +91,10 @@
                         {% if can_add_something %}
                             {% include "tutorialv2/includes/actions_title_buttons.part.html" with child=subchild %}
                         {% endif %}
-                        <ol class="summary-part" data-children-type="extract" data-slug="{{ subchild.slug }}">
+                        <ol class="summary-part" data-accept-extracts="true" data-slug="{{ subchild.slug }}"
+                        data-depth="{{ subchild.get_tree_depth }}">
                             {% for extract in subchild.children %}
-                                <li data-slug="{{ extract.slug }}">
+                                <li data-slug="{{ extract.slug }}" data-depth="{{ child.get_tree_depth }}">
                                     <h4>
                                         <a
                                             {% if content.is_beta %}
@@ -130,7 +134,12 @@
             </div>
         {% else %}
             {% if not can_add_something or not child.is_chapter %}
-                <div class="article-containers" data-children-type="container" data-slug="{{ child.slug }}">
+                <div class="article-containers" data-accept-container="true"
+                     {% if not child.has_containers %}data-accept-extracts="true"{% endif %} data-slug="{{ child.slug }}"
+                data-depth="{{ child.get_tree_depth }}">
+                     {% if not child.has_containers %}
+                         <ol data-accept-extracts="true" style="border:1px solid black; width: 50px; height: 20px"></ol>
+                     {% endif %}
                     <div class="article-part simple-create-part">
                         <div class="ico-after warning">
                             <p>
