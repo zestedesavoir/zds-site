@@ -96,11 +96,15 @@
       .attr("href", `/contenus/nouvelle-section/${pk}/${path}/`);
   }
 
-  function canDrop($item, $to, $from) {
+  function canDrop($item, $to, $from, $related) {
     // TODO : [BACK] Change slug if we have the same.
     const filter = "[data-slug=" + $item.attr("data-slug") + "]";
+
     if ($to.children(filter).length >= (1 + $to.is($from))) {
       return false;
+    }
+    if ($from.is($to) && $related && $related.is("simple-create-button")) {
+        return false;
     }
     const $itemContainer = $item.children("[data-accept-container]");
     const haveChildChapter = (!!$itemContainer.children("div.article-part[data-slug]")[0]);
@@ -124,9 +128,10 @@
         const $to = $(evt.related).parent();
         const $from = $(evt.dragged).parent();
 
-        if (!canDrop($item, $to, $from)) {
+        if (!canDrop($item, $to, $from, $(evt.related))) {
           return false;
         }
+
 
         if (!$to.is($from)) {
           // Element is dragged into the list from another list
@@ -137,10 +142,7 @@
           }
         }
 
-        if ($(evt.related).is(".simple-create-button")) {
-          let $element = $(evt.related);
-          $element.appendTo($element.parent());
-        }
+
       },
       onEnd: sendMoveAction
     });
@@ -156,7 +158,7 @@
         const $to = $(evt.related).parent();
         const $from = $(evt.dragged).parent();
 
-        if (!canDrop($item, $to, $from)) {
+        if (!canDrop($item, $to, $from, $(evt.related))) {
           return false;
         }
 
@@ -177,7 +179,7 @@
             if ($item.find(".simple-create-part")[0]) {
               $item.children(".article-containers").hide();
               $item.append(
-                `<ol class="summary-part" data-accept-extracts="true" data-parent-slug="{% if child.parent and not child.parent.type %}{{child.parent.slug}}{% endif%}">
+                `<ol class="summary-part" data-accept-extracts="true" data-parent-slug="${$item.attr("data-parent-slug")}">
                   <li class="simple-create-button">
                     <a class="btn btn-grey">Ajouter une section</a>
                   </li>

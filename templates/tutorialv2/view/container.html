@@ -125,18 +125,21 @@
                     </a>
                 </li>
             {% endfor %}
-            {% if not container.can_add_container and container.can_add_extract and can_add_something %}
-                <li class="simple-create-button">
-                    <a class="btn btn-grey" href="{% if container.parent == content %}
+        </ul>
+        {% if not container.can_add_container and container.can_add_extract and can_add_something %}
+            <form class="simple-create-button" method="post" action="{% if container.parent == content %}
                                 {% url "content:create-extract" content.pk content.slug container.slug %}
                             {%  else %}
                                 {% url "content:create-extract" content.pk content.slug container.parent.slug container.slug %}
                             {%  endif %}">
-                        {% trans "Ajouter une section" %}
-                    </a>
-                </li>
-            {% endif %}
-        </ul>
+                <input name="title" required placeholder="{% trans 'titre de la section' %}">
+                <input type="hidden" name="text">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-grey">
+                    {% trans "Ajouter une section" %}
+                </button>
+            </form>
+        {% endif %}
     {% endif %}
 {% endblock %}
 

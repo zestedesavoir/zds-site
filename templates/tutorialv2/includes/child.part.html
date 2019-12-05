@@ -62,18 +62,21 @@
                     </h3>
                 </li>
                 {% endfor %}
-                {% if can_add_something and child.can_add_extract %}
-                    <li class="simple-create-button">
-                        <a class="btn btn-grey" href="{% if child.parent == content %}
-                                {% url "content:create-extract" content.pk content.slug child.slug %}
-                            {%  else %}
-                                {% url "content:create-extract" content.pk content.slug child.parent.slug child.slug %}
-                            {%  endif %}">
-                            {% trans "Ajouter une section a" %}
-                        </a>
-                    </li>
-                {% endif %}
             </ol>
+            {% if can_add_something and child.can_add_extract %}
+                <form method="post=" class="simple-create-button" action="{% if child.parent == content %}
+                                    {% url "content:create-extract" content.pk content.slug child.slug %}
+                                {%  else %}
+                                    {% url "content:create-extract" content.pk content.slug child.parent.slug child.slug %}
+                                {%  endif %}">
+                    <input name="title" required placeholder="{% trans 'titre de la section' %}">
+                    <input type="hidden" name="text">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-grey">
+                        {% trans "Ajouter une section" %}
+                    </button>
+                </form>
+            {% endif %}
         {% elif child.has_sub_containers %}
             <div class="article-containers" data-accept-container="true" data-slug="{{ child.slug }}"
             data-depth="{{ child.get_tree_depth }}">
@@ -106,16 +109,21 @@
                                     </h4>
                                 </li>
                             {% endfor %}
-                            {% if can_add_something %}
-                                <li class="simple-create-button">
-                                    <h4>
-                                        <a class="btn btn-grey"
-                                            href="{% url "content:create-extract" content.pk child.parent.slug child.slug subchild.slug %}"
-                                        >{% trans "Ajouter une section" %}</a>
-                                    </h4>
-                                </li>
-                            {% endif %}
                         </ol>
+                        {% if can_add_something %}
+                            <form class="simple-create-button" method="post" action="{% if subchild.parent == content %}
+                                                {% url "content:create-extract" content.pk content.slug subchild.slug %}
+                                            {%  else %}
+                                                {% url "content:create-extract" content.pk content.slug subchild.parent.slug subchild.slug %}
+                                            {%  endif %}">
+                                <input name="title" required placeholder="{% trans 'titre de la section' %}">
+                                <input type="hidden" name="text">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-grey">
+                                    {% trans "Ajouter une section" %}
+                                </button>
+                            </form>
+                        {% endif %}
                     </div>
                 {% endfor %}
                 {% if can_add_something and child.can_add_container %}
