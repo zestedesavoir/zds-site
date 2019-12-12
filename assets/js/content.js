@@ -1,14 +1,9 @@
 /*
  * Allow the user to compare two commits
  */
-(function(document, $, undefined){
+(function(document, $){
   "use strict";
 
-  function hideMoveButton() {
-    /* TODO : REMOVE this and update the selectlist with js */
-    /* because the list is not updated */
-    $(".simple-move-button").hide();
-  }
   function getFirstLevelSlug(isExtract, $element) {
     if (!isExtract) {
         return undefined;
@@ -21,7 +16,7 @@
   }
 
   function sendMoveAction(evt) {
-    hideMoveButton();
+
 
     // sending
     const $item = $(evt.item);
@@ -69,7 +64,27 @@
       "csrfmiddlewaretoken": $("input[name=csrfmiddlewaretoken]").val()
     };
 
-    $.post("/contenus/deplacer/", form);
+    $.post("/contenus/deplacer/", form, () => {
+        $(".actions-title li a.simple-move-button").each((i, element) => {
+            const $element = $(element);
+            const slug = $element.attr("href").substring("#move-".length);
+            const method = form["moving_method"].split(":", 2)[0];
+            let path = "";
+            if (method === "first") {
+                path = `${form["moving_method"].split(":", 2)[1]}/${slug}`;
+            } else {
+                const neighbour = form["moving_method"].split(":", 2)[1];
+
+                path = `${neighbour.substring(0, neighbour.lastIndexOf("/"))}/${slug}`;
+            }
+            if (path[0] === "/") {
+                path = path.substring(1);
+            }
+            $.get(`/contenus/deplacement/liste/${pk}/`, {"path": path}, (($button) =>(data) => {
+                $($button.attr("href") + " select").html(data);
+            })($element), "html");
+        });
+    });
 
     // modifie les URLs
     const path = ((tree) => {
@@ -196,5 +211,25 @@
       },
       onEnd: sendMoveAction
     });
+  });
+
+  $("form.simple-create-button").submit((e) => {
+     e.preventDefault();
+     $.post($(e.target).attr("action").trim(), {
+         "text": "",
+         "title": $(e.target).children("input[name=title]").val(),
+         "csrfmiddlewaretoken": $(e.target).children("input[name=csrfmiddlewaretoken]").val()
+     }, (d) => {
+         const $link = $("<a>").attr("href", d.url).text(d.title);
+         const newOlElement = $("<li>").attr("data-slug", d.slug).attr("data-depth", 1)
+                     .append($("<h4>").append($link));
+         const newUlElement = $("<li>").attr("data-slug", d.slug).attr("data-depth", 1)
+                     .append($link);
+         // in case we are in tutorial summary part
+         $(e.target).parent().children("ol.summary-part").append(newOlElement);
+         // in case we are on article or chapter summary
+         $(e.target).parent().children("ul").append(newUlElement);
+
+     }, "json");
   });
 })(document, jQuery);

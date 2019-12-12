@@ -10,14 +10,13 @@ from zds.tutorialv2.views.contents import (DisplayContent, CreateContent, EditCo
                                            ContentsWithHelps, AddAuthorToContent,
                                            RemoveAuthorFromContent, WarnTypo, DisplayBetaContent, DisplayBetaContainer,
                                            ContentOfAuthor, RedirectOldContentOfAuthor, AddContributorToContent,
-                                           RemoveContributorFromContent, ContentOfContributors)
+                                           RemoveContributorFromContent, ContentOfContributors, MovingList)
 
 from zds.tutorialv2.views.published import (SendNoteFormView, UpdateNoteView,
                                             HideReaction, ShowReaction, SendNoteAlert, SolveNoteAlert, TagsListView,
                                             FollowContentReaction, FollowNewContent, SendContentAlert,
                                             SolveContentAlert,
                                             RequestFeaturedContent, ContentStatisticsView)
-
 urlpatterns = [
     # Flux
     re_path(r'^flux/rss/$', RedirectView.as_view(pattern_name='publication:feed-rss',
@@ -142,6 +141,7 @@ urlpatterns = [
     re_path(r'^editer/(?P<pk>\d+)/(?P<slug>.+)/$',
             EditContent.as_view(), name='edit'),
     re_path(r'^deplacer/$', MoveChild.as_view(), name='move-element'),
+    path('deplacement/liste/<int:pk>/', MovingList.as_view(), name='moving_list'),
 
     re_path(r'^historique/(?P<pk>\d+)/(?P<slug>.+)/$',
             DisplayHistory.as_view(), name='history'),
@@ -193,4 +193,6 @@ urlpatterns = [
 
     re_path(r'^$', RedirectView.as_view(
         pattern_name='publication:list', permanent=True), name='list'),
+
 ]
+

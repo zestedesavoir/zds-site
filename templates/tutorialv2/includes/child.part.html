@@ -91,9 +91,9 @@
                             {% endif %}
                             >{{ subchild.title }}</a>
                         </h3>
-                        {% if can_add_something %}
+{% comment %}                        {% if can_add_something %}
                             {% include "tutorialv2/includes/actions_title_buttons.part.html" with child=subchild %}
-                        {% endif %}
+                        {% endif %}{% endcomment %}
                         <ol class="summary-part" data-accept-extracts="true" data-slug="{{ subchild.slug }}"
                         data-depth="{{ subchild.get_tree_depth }}">
                             {% for extract in subchild.children %}

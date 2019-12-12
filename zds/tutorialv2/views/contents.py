@@ -1,3 +1,4 @@
+import json
 import time
 from collections import OrderedDict
 
@@ -15,14 +16,14 @@ from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.db.models import Count, Q
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
-from django.views.generic import FormView, DeleteView, RedirectView
+from django.views.generic import FormView, DeleteView, RedirectView, DetailView
 from easy_thumbnails.files import get_thumbnailer
 from git import BadName, BadObject, GitCommandError, objects
 from uuslug import slugify
@@ -1169,6 +1170,12 @@ class CreateExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin, For
         self.object.save(force_slug_update=False)
 
         self.success_url = parent.children[-1].get_absolute_url()
+        if self.request.is_ajax():
+            return HttpResponse(json.dumps({
+                'url': parent.children[-1].get_absolute_url(),
+                'slug': parent.children[-1].slug,
+                'title': form.cleaned_data['title']
+            }), content_type='application/json')
 
         return super(CreateExtract, self).form_valid(form)
 
@@ -1646,6 +1653,18 @@ class ActivateJSFiddleInContent(LoginRequiredMixin, PermissionRequiredMixin, For
         content.update(js_support=form.cleaned_data['js_support'])
         return redirect(content.load_version().get_absolute_url())
 
+
+class MovingList(LoginRequiredMixin, SingleContentDetailViewMixin):
+    model = PublishableContent
+    template_name = 'tutorialv2/includes/moving_list.html'
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        try:
+            child = search_container_or_404(self.versioned_object, self.request.GET['path'])
+        except Http404:
+            child = search_extract_or_404(self.versioned_object, self.request.GET['path'])
+        context['child'] = child
+        return context
 
 class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
 
