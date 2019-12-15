@@ -262,6 +262,18 @@ if  ! $(_in "-node" $@) && ( $(_in "+node" $@) || $(_in "+base" $@) || $(_in "+f
             echo $ACTIVATE_NVM >> $ZDS_ENV/bin/activate
             echo $ACTIVATE_NVM >> $ZDS_ENV/bin/activate.csh
             echo $ACTIVATE_NVM >> $ZDS_ENV/bin/activate.fish
+
+            # bash compatibility for nvm with fish
+            # see https://eshlox.net/2019/01/27/how-to-use-nvm-with-fish-shell
+            if [[ $SHELL =~ "fish" ]]; then
+                curl https://git.io/fisher --create-dirs -sLo ~/.config/fish/functions/fisher.fish
+                fish -c "fisher add edc/bass"
+                cat <<EOF > ~/.config/fish/functions/nvm.fish
+function nvm
+    bass source ~/.nvm/nvm.sh --no-use ';' nvm $argv
+end
+EOF
+            fi
         fi
     else
         print_error "!! Cannot obtain nvm v${ZDS_NVM_VERSION}"
@@ -559,7 +571,13 @@ if  ! $(_in "-data" $@) && ( $(_in "+data" $@) || $(_in "+base" $@) || $(_in "+f
 fi
 
 if  ! $(_in "--force-skip-activating" $@); then
-    print_info "Done. You can now run instance with \`source $ZDS_VENV/bin/activate\`, and then, \`make zmd-start && make run-back\`"
+    if [[ $SHELL =~ "csh" ]]; then
+        print_info "Done. You can now run instance with \`source $ZDS_VENV/bin/activate.csh\`, and then, \`make zmd-start && make run-back\`"
+    elif [[ $SHELL =~ "fish" ]]; then
+        print_info "Done. You can now run instance with \`source $ZDS_VENV/bin/activate.fish\`, and then, \`make zmd-start && make run-back\`"
+    else
+        print_info "Done. You can now run instance with \`source $ZDS_VENV/bin/activate\`, and then, \`make zmd-start && make run-back\`"
+    fi
 else
     print_info "Done. You can now run instance with \`make zmd-start && make run-back\`"
 fi
