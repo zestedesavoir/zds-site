@@ -1174,7 +1174,8 @@ class CreateExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin, For
             return HttpResponse(json.dumps({
                 'url': parent.children[-1].get_absolute_url(),
                 'slug': parent.children[-1].slug,
-                'title': form.cleaned_data['title']
+                'title': form.cleaned_data['title'],
+                'edit-url': parent.children[-1].get_edit_url()
             }), content_type='application/json')
 
         return super(CreateExtract, self).form_valid(form)
@@ -1187,6 +1188,7 @@ class EditExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
 
     def get_context_data(self, **kwargs):
         context = super(EditExtract, self).get_context_data(**kwargs)
+        context['gallery'] = self.object.gallery
         context['gallery'] = self.object.gallery
 
         extract = search_extract_or_404(self.versioned_object, self.kwargs)

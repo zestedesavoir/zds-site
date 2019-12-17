@@ -151,13 +151,24 @@
         if (!$to.is($from)) {
           // Element is dragged into the list from another list
           if ($from.parent().is(".article-containers > .article-part")) { // is: chapter > extract
-            $item.find("> h4 > a").unwrap().wrap("<h3></h3>");
+            $item.find("h4 > a").unwrap().wrap("<h3></h3>");
           } else { // is: part > chapter > extract 
-            $item.find("> h3 > a").unwrap().wrap("<h4></h4>");
+            $item.find("h3 > a").unwrap().wrap("<h4></h4>");
           }
         }
-
-
+        if ($item.attr("data-type") === "extract") {
+            $item().parent().data("data-accept-extracts", "true");
+            $item().parent().data("data-accept-container", "false");
+        } else {
+            $item().parent().data("data-accept-extracts", "false");
+            $item().parent().data("data-accept-container", "true");
+            $to.children("ol[data-accept-extract=true]").remove();
+        }
+        if (!$from.children("li") && !($from.children(".article-part"))) {
+            $item.parent().data("data-accept-extracts", "true");
+            $item.parent().data("data-accept-container", "true");
+            $item.parent().prepend("<ol data-accept-extracts=\"true\" style=\"border:1px solid black; width: 50px; height: 20px\"></ol>");
+        }
       },
       onEnd: sendMoveAction
     });
@@ -229,7 +240,15 @@
          $(e.target).parent().children("ol.summary-part").append(newOlElement);
          // in case we are on article or chapter summary
          $(e.target).parent().children("ul").append(newUlElement);
-
+         // reset form
+         $(e.target).children("input[name=title]").val("");
+         const $newEditor = $("#template_new_section").clone();
+         $newEditor.insertBefore($("div.simple-create-part"));
+         $newEditor.attr("id", "");
+         $newEditor.attr("style", "");
+         $newEditor.find(".append-slug").each((index, link) => $(link).attr("href", $(link).attr("href") + d.slug));
+         $newEditor.find(".view-url").attr("href", d.url).text(d.title);
+         $newEditor.find(".edit-url").attr("href", d["edit-url"]);
      }, "json");
   });
 })(document, jQuery);

@@ -28,6 +28,19 @@
         ol:not(.summary-part) {
             font-family: $font-serif;
         }
+        ul:not(.pagination):not(.actions-title) {
+            width: 45%;
+        }
+        form.simple-create-button {
+            display: flex;
+            input[name=title] {
+                width: 160px;
+                max-width: 160px;
+            }
+            button[type=submit] {
+                display: none;
+            }
+        }
     }
 
     .content-wrapper.comment-author,

@@ -132,11 +132,11 @@
                             {%  else %}
                                 {% url "content:create-extract" content.pk content.slug container.parent.slug container.slug %}
                             {%  endif %}">
-                <input name="title" required placeholder="{% trans 'titre de la section' %}">
+                <input name="title" placeholder="{% trans 'Créer une nouvelle section' %}">
                 <input type="hidden" name="text">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-grey">
-                    {% trans "Ajouter une section" %}
+                    {% trans "OK" %}
                 </button>
             </form>
         {% endif %}
@@ -178,6 +178,31 @@
             {% endif %}
         </div>
     {% endfor %}
+
+    <div aria-hidden="true" class="article-part" style="display: none;" id="template_new_section">
+        <h2><a href="" class="view-url"></a></h2>
+        <ul class="actions-title summary-part">
+            <li>
+                <a href="#delete-" class="open-modal ico-after cross btn btn-grey append-slug" draggable="false">Supprimer</a>
+            </li>
+            <li>
+                <a href="#move-" class="open-modal ico-after move btn btn-grey simple-move-button append-slug" draggable="false">Déplacer</a>
+            </li>
+            <li>
+                <a href="" class="ico-after edit btn btn-grey edit-url" draggable="false">
+                    Éditer
+                </a>
+            </li>
+        </ul>
+        <div class="extract-wrapper">
+            <div class="ico-after warning">
+                <p>
+                    {% trans "Cette section est actuellement vide." %}
+                </p>
+            </div>
+        </div>
+    </div>
+
     {% if can_add_something %}
         <div class="article-part simple-create-part">
             {% if container.can_add_container and not container.can_add_extract %}

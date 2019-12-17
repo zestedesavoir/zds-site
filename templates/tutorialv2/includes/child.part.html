@@ -50,7 +50,7 @@
             <ol class="summary-part" data-accept-extracts="true" data-slug="{{ child.slug }}"
             data-depth="{{ child.get_tree_depth }}">
                 {% for extract in child.children %}
-                <li data-slug="{{ extract.slug }}" data-depth="{{ child.get_tree_depth }}">
+                <li data-slug="{{ extract.slug }}" data-depth="{{ child.get_tree_depth }}" data-type="extract">
                     <h3>
                         <a
                             {% if content.is_beta %}
@@ -91,13 +91,10 @@
                             {% endif %}
                             >{{ subchild.title }}</a>
                         </h3>
-{% comment %}                        {% if can_add_something %}
-                            {% include "tutorialv2/includes/actions_title_buttons.part.html" with child=subchild %}
-                        {% endif %}{% endcomment %}
                         <ol class="summary-part" data-accept-extracts="true" data-slug="{{ subchild.slug }}"
                         data-depth="{{ subchild.get_tree_depth }}">
                             {% for extract in subchild.children %}
-                                <li data-slug="{{ extract.slug }}" data-depth="{{ child.get_tree_depth }}">
+                                <li data-slug="{{ extract.slug }}" data-depth="{{ child.get_tree_depth }}" data-type="extract">
                                     <h4>
                                         <a
                                             {% if content.is_beta %}
@@ -116,11 +113,11 @@
                                             {%  else %}
                                                 {% url "content:create-extract" content.pk content.slug subchild.parent.slug subchild.slug %}
                                             {%  endif %}">
-                                <input name="title" required placeholder="{% trans 'titre de la section' %}">
+                                <input name="title" placeholder="{% trans 'Créer une nouvelle section' %}">
                                 <input type="hidden" name="text">
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-grey">
-                                    {% trans "Ajouter une section" %}
+                                    {% trans "OK" %}
                                 </button>
                             </form>
                         {% endif %}
