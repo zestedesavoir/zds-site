@@ -1700,7 +1700,7 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
             else:
                 search_params['container_slug'] = base_container_slug
             parent = search_container_or_404(versioned, search_params)
-
+        child = None
         try:
             child = parent.children_dict[child_slug]
             if form.data['moving_method'] == MoveElementForm.MOVE_UP:
@@ -1771,9 +1771,12 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
         except TooDeepContainerError:
             messages.error(self.request, _("Ce conteneur contient déjà trop d'enfants pour être"
                                            ' inclus dans un autre conteneur.'))
+
         except KeyError:
             messages.warning(self.request, _("Vous n'avez pas complètement rempli le formulaire,"
                                              'ou bien il est impossible de déplacer cet élément.'))
+            if not child:
+                raise Http404
         except ValueError as e:
             raise Http404("L'arbre spécifié n'est pas valide." + str(e))
         except IndexError:

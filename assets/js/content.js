@@ -244,8 +244,9 @@
          $(e.target).children("input[name=title]").val("");
          const $newEditor = $("#template_new_section").clone();
          $newEditor.insertBefore($("div.simple-create-part"));
-         $newEditor.attr("id", "");
-         $newEditor.attr("style", "");
+         $newEditor.removeAttr("id");
+         $newEditor.removeAttr("style");
+         $newEditor.removeAttr("aria-hidden");
          $newEditor.find(".append-slug").each((index, link) => $(link).attr("href", $(link).attr("href") + d.slug));
          $newEditor.find(".view-url").attr("href", d.url).text(d.title);
          $newEditor.find(".edit-url").attr("href", d["edit-url"]);
