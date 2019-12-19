@@ -1,6 +1,5 @@
 from django import forms
 from django.conf import settings
-from django.contrib.auth import authenticate
 from django.contrib.auth.models import User, Group
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
@@ -14,7 +13,7 @@ from crispy_forms.layout import HTML, Layout, \
 from zds.member.models import Profile, KarmaNote, BannedEmailProvider
 from zds.member.validators import validate_not_empty, validate_zds_email, validate_zds_username, validate_passwords, \
     validate_zds_password
-from zds.utils.forms import CommonLayoutModalText
+from zds.utils.forms import CommonLayoutModalText, FieldPasswordMixin
 from zds.utils.misc import contains_utf8mb4
 from zds.utils.models import Licence, HatRequest, Hat
 from zds.utils import get_current_user
@@ -336,7 +335,7 @@ class GitHubTokenForm(forms.Form):
             ))
 
 
-class UnregisterForm(forms.Form):
+class UnregisterForm(forms.Form, FieldPasswordMixin):
     """
     Unregister form
     """
@@ -348,31 +347,33 @@ class UnregisterForm(forms.Form):
     def __init__(self, user, *args, **kwargs):
         super(UnregisterForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_class = 'content-wrapper'
+        self.helper.form_id = 'unregister'
+        self.helper.form_class = 'modal modal-flex'
         self.helper.form_method = 'post'
+        self.helper.form_action = reverse('member-unregister')
 
         self.user = user
 
         self.helper.layout = Layout(
             Field('password'),
+            HTML(_("""
+                <p>
+                    C’est votre dernière chance de rester parmi nous ...
+                </p>
+            """)),
+            ButtonHolder(
+                StrictButton(_('Me désinscrire'), type='submit'),
+            )
         )
 
     def clean(self):
         cleaned_data = super(UnregisterForm, self).clean()
+        cleaned_data = self.check_correct_password(cleaned_data)
 
-        password = cleaned_data.get('password')
-
-        if password:
-            user_exist = authenticate(username=self.user.username, password=password)
-            # Check if the user exist.
-            if not user_exist and password != '':
-                self._errors['password'] = self.error_class([_('Mot de passe incorrect.')])
-                if 'password' in cleaned_data:
-                    del cleaned_data['password']
         return cleaned_data
 
 
-class ChangeUserForm(forms.Form):
+class ChangeUserForm(forms.Form, FieldPasswordMixin):
     """
     Update username and email
     """
@@ -439,32 +440,26 @@ class ChangeUserForm(forms.Form):
 
     def clean(self):
         cleaned_data = super(ChangeUserForm, self).clean()
+        cleaned_data = self.check_correct_password(cleaned_data)
         cleaned_data['previous_username'] = self.previous_username
         cleaned_data['previous_email'] = self.previous_email
         username = cleaned_data.get('username')
         email = cleaned_data.get('email')
-        password = cleaned_data.get('password')
-        if password:
-            user_exist = authenticate(username=self.user.username, password=password)
-            # Check if the user exist.
-            if not user_exist and password != '':
-                self._errors['password'] = self.error_class([_('Mot de passe incorrect.')])
-                if 'password' in cleaned_data:
-                    del cleaned_data['password']
-            else:  # the provided password is correct
-                if username != self.previous_username:
-                    validate_not_empty(username)
-                    validate_zds_username(username)
-                if email != self.previous_email:
-                    validate_not_empty(email)
-                    validate_zds_email(email)
+
+        if username != self.previous_username:
+            validate_not_empty(username)
+            validate_zds_username(username)
+        if email != self.previous_email:
+            validate_not_empty(email)
+            validate_zds_email(email)
+
         return cleaned_data
 
 
 # TODO: Updates the password --> requires a better name
-class ChangePasswordForm(forms.Form):
+class ChangePasswordForm(forms.Form, FieldPasswordMixin):
 
-    password_old = forms.CharField(
+    password = forms.CharField(
         label=_('Mot de passe actuel'),
         widget=forms.PasswordInput,
     )
@@ -494,7 +489,7 @@ class ChangePasswordForm(forms.Form):
         self.user = user
 
         self.helper.layout = Layout(
-            Field('password_old'),
+            Field('password'),
             Field('password_new'),
             Field('password_confirm'),
             ButtonHolder(
@@ -504,17 +499,7 @@ class ChangePasswordForm(forms.Form):
 
     def clean(self):
         cleaned_data = super(ChangePasswordForm, self).clean()
-
-        password_old = cleaned_data.get('password_old')
-
-        # Check if the actual password is not empty
-        if password_old:
-            user_exist = authenticate(username=self.user.username, password=password_old)
-            # Check if the user exist with old informations.
-            if not user_exist and password_old != '':
-                self._errors['password_old'] = self.error_class([_('Mot de passe incorrect.')])
-                if 'password_old' in cleaned_data:
-                    del cleaned_data['password_old']
+        cleaned_data = self.check_correct_password(cleaned_data)
 
         return validate_passwords(cleaned_data, password_label='password_new', username=self.user.username)
 

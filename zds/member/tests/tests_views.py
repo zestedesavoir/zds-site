@@ -427,6 +427,28 @@ class MemberTests(TutorialTestMixin, TestCase):
         # check if the new user is active.
         self.assertTrue(User.objects.get(username='firm1').is_active)
 
+    def test_user_need_password_for_unregister(self):
+        self.client.logout()
+        # create user and login
+        user = ProfileFactory()
+        login_check = self.client.login(
+            username=user.user.username,
+            password='hostel77')
+        self.assertEqual(login_check, True)
+        # try to unregister user without password
+        result = self.client.post(
+            reverse('member-unregister'),
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        # it's possible to login again with user
+        self.client.logout()
+        login_check = self.client.login(
+            username=user.user.username,
+            password='hostel77')
+        self.assertEqual(login_check, True)
+
+
     def test_unregister(self):
         """
         To test that unregistering user is working.

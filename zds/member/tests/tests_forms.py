@@ -395,7 +395,7 @@ class ChangePasswordFormTest(TestCase):
 
     def test_valid_change_password_form(self):
         data = {
-            'password_old': self.old_password,
+            'password': self.old_password,
             'password_new': self.new_password,
             'password_confirm': self.new_password
         }
@@ -404,7 +404,7 @@ class ChangePasswordFormTest(TestCase):
 
     def test_old_wrong_change_password_form(self):
         data = {
-            'password_old': 'Wronnnng',
+            'password': 'Wronnnng',
             'password_new': self.new_password,
             'password_confirm': self.new_password
         }
@@ -413,7 +413,7 @@ class ChangePasswordFormTest(TestCase):
 
     def test_not_matching_change_password_form(self):
         data = {
-            'password_old': self.old_password,
+            'password': self.old_password,
             'password_new': self.new_password,
             'password_confirm': 'Wronnnng'
         }
@@ -423,7 +423,7 @@ class ChangePasswordFormTest(TestCase):
     def test_too_short_change_password_form(self):
         too_short = 'short'
         data = {
-            'password_old': self.old_password,
+            'password': self.old_password,
             'password_new': too_short,
             'password_confirm': too_short
         }
@@ -432,7 +432,7 @@ class ChangePasswordFormTest(TestCase):
 
     def test_too_long_change_password_form(self):
         data = {
-            'password_old': self.old_password,
+            'password': self.old_password,
             'password_new': stringof77chars,
             'password_confirm': stringof77chars
         }
@@ -442,7 +442,7 @@ class ChangePasswordFormTest(TestCase):
     def test_match_username_change_password_form(self):
         self.user1.user.username = 'LongName'
         data = {
-            'password_old': self.old_password,
+            'password': self.old_password,
             'password_new': self.user1.user.username,
             'password_confirm': self.user1.user.username
         }
