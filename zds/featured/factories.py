@@ -5,7 +5,7 @@ import factory
 from zds.featured.models import FeaturedResource, FeaturedMessage
 
 
-class FeaturedResourceFactory(factory.DjangoModelFactory):
+class FeaturedResourceFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = FeaturedResource
 
@@ -13,7 +13,7 @@ class FeaturedResourceFactory(factory.DjangoModelFactory):
     pubdate = datetime.now()
 
 
-class FeaturedMessageFactory(factory.DjangoModelFactory):
+class FeaturedMessageFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = FeaturedMessage
 
