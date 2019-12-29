@@ -1,14 +1,14 @@
 from datetime import datetime
 
 import factory
-from zds.forum.factories import PostFactory, TopicFactory
 
+from zds.forum.factories import PostFactory, TopicFactory
+from zds.gallery.factories import GalleryFactory, UserGalleryFactory
+from zds.utils.models import SubCategory, Licence, CategorySubCategory
 from zds.tutorialv2.models.database import PublishableContent, Validation, ContentReaction
 from zds.tutorialv2.models.versioned import Container, Extract
-from zds.utils.models import SubCategory, Licence, CategorySubCategory
-from zds.gallery.factories import GalleryFactory, UserGalleryFactory
-from zds.tutorialv2.utils import init_new_repo
 from zds.tutorialv2.publication_utils import publish_content
+from zds.tutorialv2.utils import init_new_repo
 
 text_content = "Ceci est un texte bidon, **avec markown**"
 
@@ -34,7 +34,11 @@ tricky_text_content = (
 )
 
 
-class PublishableContentFactory(factory.DjangoModelFactory):
+class PublishableContentFactory(factory.django.DjangoModelFactory):
+    """
+    Factory that creates a PublishableContent.
+    """
+
     class Meta:
         model = PublishableContent
 
@@ -45,17 +49,18 @@ class PublishableContentFactory(factory.DjangoModelFactory):
     pubdate = datetime.now()
 
     @classmethod
-    def _prepare(
-        cls,
-        create,
-        *,
-        light=True,
-        author_list=None,
-        licence: Licence = None,
-        add_license=True,
-        add_category=True,
-        **kwargs,
-    ):
+    def _generate(cls, create, attrs):
+        # These parameters are only used inside _generate() and won't be saved in the database,
+        # which is why we use attrs.pop() (they are removed from attrs).
+        light = attrs.pop("light", True)
+        author_list = attrs.pop("author_list", None)
+        add_license = attrs.pop("add_license", True)
+        add_category = attrs.pop("add_category", True)
+
+        # This parameter will be saved in the database,
+        # which is why we use attrs.get() (it stays in attrs).
+        licence = attrs.get("licence", None)
+
         auths = author_list or []
         if add_license:
             given_licence = licence or Licence.objects.first()
@@ -67,7 +72,7 @@ class PublishableContentFactory(factory.DjangoModelFactory):
         if not light:
             text = tricky_text_content
 
-        publishable_content = super()._prepare(create, **kwargs)
+        publishable_content = super()._generate(create, attrs)
         publishable_content.gallery = GalleryFactory()
         publishable_content.licence = licence
         for auth in auths:
@@ -87,20 +92,34 @@ class PublishableContentFactory(factory.DjangoModelFactory):
 
 
 class ContainerFactory(factory.Factory):
+    """
+    Factory that creates a Container.
+    """
+
     class Meta:
         model = Container
 
     title = factory.Sequence(lambda n: "Mon container No{}".format(n + 1))
 
     @classmethod
-    def _prepare(cls, create, *, db_object=None, light=True, **kwargs):
-        parent = kwargs.pop("parent", None)
+    def _generate(cls, create, attrs):
+        # These parameters are only used inside _generate() and won't be saved in the database,
+        # which is why we use attrs.pop() (they are removed from attrs).
+        db_object = attrs.pop("db_object", None)
+        light = attrs.pop("light", True)
+
+        # This parameter will be saved in the database,
+        # which is why we use attrs.get() (it stays in attrs).
+        parent = attrs.get("parent", None)
+
+        # Needed because we use container.title later
+        container = super()._generate(create, attrs)
 
         text = text_content
         if not light:
             text = tricky_text_content
 
-        sha = parent.repo_add_container(kwargs["title"], text, text)
+        sha = parent.repo_add_container(container.title, text, text)
         container = parent.children[-1]
 
         if db_object:
@@ -111,19 +130,35 @@ class ContainerFactory(factory.Factory):
 
 
 class ExtractFactory(factory.Factory):
+    """
+    Factory that creates a Extract.
+    """
+
     class Meta:
         model = Extract
 
     title = factory.Sequence(lambda n: "Mon extrait No{}".format(n + 1))
 
     @classmethod
-    def _prepare(cls, create, *, light=True, container=None, db_object=None, **kwargs):
+    def _generate(cls, create, attrs):
+        # These parameters are only used inside _generate() and won't be saved in the database,
+        # which is why we use attrs.pop() (they are removed from attrs).
+        light = attrs.pop("light", True)
+        db_object = attrs.pop("db_object", None)
+
+        # This parameter will be saved in the database,
+        # which is why we use attrs.get() (it stays in attrs).
+        container = attrs.get("container", None)
+
+        # Needed because we use extract.title later
+        extract = super()._generate(create, attrs)
+
         parent = container
         text = text_content
         if not light:
             text = tricky_text_content
 
-        sha = parent.repo_add_extract(kwargs["title"], text)
+        sha = parent.repo_add_extract(extract.title, text)
         extract = parent.children[-1]
 
         if db_object:
@@ -133,7 +168,11 @@ class ExtractFactory(factory.Factory):
         return extract
 
 
-class ContentReactionFactory(factory.DjangoModelFactory):
+class ContentReactionFactory(factory.django.DjangoModelFactory):
+    """
+    Factory that creates a ContentReaction.
+    """
+
     class Meta:
         model = ContentReaction
 
@@ -141,8 +180,8 @@ class ContentReactionFactory(factory.DjangoModelFactory):
     text = "Bonjour, je me présente, je m'appelle l'homme au texte bidonné"
 
     @classmethod
-    def _prepare(cls, create, **kwargs):
-        note = super()._prepare(create, **kwargs)
+    def _generate(cls, create, attrs):
+        note = super()._generate(create, attrs)
         note.pubdate = datetime.now()
         note.save()
         note.related_content.last_note = note
@@ -151,10 +190,19 @@ class ContentReactionFactory(factory.DjangoModelFactory):
 
 
 class BetaContentFactory(PublishableContentFactory):
+    """
+    Factory that creates a PublishableContent with a beta version and a beta topic.
+    """
+
     @classmethod
-    def _prepare(cls, create, **kwargs):
-        beta_forum = kwargs.pop("forum", None)
-        publishable_content = super()._prepare(create, **kwargs)
+    def _generate(cls, create, attrs):
+        # This parameter is only used inside _generate() and won't be saved in the database,
+        # which is why we use attrs.pop() (it is removed from attrs).
+        beta_forum = attrs.pop("forum", None)
+
+        # Creates the PublishableContent (see PublishableContentFactory._generate() for more info)
+        publishable_content = super()._generate(create, attrs)
+
         if publishable_content.authors.count() > 0 and beta_forum is not None:
             beta_topic = TopicFactory(
                 title="[beta]" + publishable_content.title, author=publishable_content.authors.first(), forum=beta_forum
@@ -168,13 +216,19 @@ class BetaContentFactory(PublishableContentFactory):
 
 
 class PublishedContentFactory(PublishableContentFactory):
+    """
+    Factory that creates a PublishableContent and the publish it.
+    """
+
     @classmethod
-    def _prepare(cls, create, *, light=True, author_list=None, licence: Licence = None, **kwargs):
-        """create a new PublishableContent and then publish it."""
+    def _generate(cls, create, attrs):
+        # This parameter is only used inside _generate() and won't be saved in the database,
+        # which is why we use attrs.pop() (it is removed from attrs).
+        is_major_update = attrs.pop("is_major_update", True)
 
-        is_major_update = kwargs.pop("is_major_update", True)
+        # Creates the PublishableContent (see PublishableContentFactory._generate() for more info)
+        content = super()._generate(create, attrs)
 
-        content = super()._prepare(create, light=light, author_list=author_list, licence=licence, **kwargs)
         published = publish_content(content, content.load_version(), is_major_update)
         content.sha_public = content.sha_draft
         content.public_version = published
@@ -184,7 +238,11 @@ class PublishedContentFactory(PublishableContentFactory):
         return content
 
 
-class SubCategoryFactory(factory.DjangoModelFactory):
+class SubCategoryFactory(factory.django.DjangoModelFactory):
+    """
+    Factory that creates a SubCategory.
+    """
+
     class Meta:
         model = SubCategory
 
@@ -193,11 +251,12 @@ class SubCategoryFactory(factory.DjangoModelFactory):
     slug = factory.Sequence(lambda n: f"sous-categorie-{n}")
 
     @classmethod
-    def _prepare(cls, create, **kwargs):
+    def _generate(cls, create, attrs):
+        # This parameter is only used inside _generate() and won't be saved in the database,
+        # which is why we use attrs.pop() (it is removed from attrs).
+        category = attrs.pop("category", None)
 
-        category = kwargs.pop("category", None)
-
-        subcategory = super()._prepare(create, **kwargs)
+        subcategory = super()._generate(create, attrs)
 
         if category is not None:
             relation = CategorySubCategory(category=category, subcategory=subcategory)
@@ -206,19 +265,22 @@ class SubCategoryFactory(factory.DjangoModelFactory):
         return subcategory
 
 
-class ValidationFactory(factory.DjangoModelFactory):
+class ValidationFactory(factory.django.DjangoModelFactory):
+    """
+    Factory that creates a Validation.
+    """
+
     class Meta:
         model = Validation
 
 
-class LicenceFactory(factory.DjangoModelFactory):
+class LicenceFactory(factory.django.DjangoModelFactory):
+    """
+    Factory that creates a License.
+    """
+
     class Meta:
         model = Licence
 
     code = factory.Sequence(lambda n: "bidon-no{}".format(n + 1))
     title = factory.Sequence(lambda n: "Licence bidon no{}".format(n + 1))
-
-    @classmethod
-    def _prepare(cls, create, **kwargs):
-        licence = super()._prepare(create, **kwargs)
-        return licence

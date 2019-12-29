@@ -12,7 +12,7 @@ django-munin==0.2.1
 django-recaptcha==2.0.6
 Django==2.2.19
 easy-thumbnails==2.7.1
-factory-boy==2.8.1
+factory-boy==3.2.0
 geoip2==4.1.0
 GitPython==3.1.13
 google-api-python-client==1.12.8
