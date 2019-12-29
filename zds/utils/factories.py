@@ -1,14 +1,19 @@
+from os.path import basename, join
+from shutil import copyfile
+
+import factory
+
 from django.conf import settings
 
 from zds.utils.models import HelpWriting, Category
 from zds.utils import old_slugify
-from shutil import copyfile
-from os.path import basename, join
-
-import factory
 
 
-class HelpWritingFactory(factory.DjangoModelFactory):
+class HelpWritingFactory(factory.django.DjangoModelFactory):
+    """
+    Factory that creates a HelpWriting.
+    """
+
     class Meta:
         model = HelpWriting
 
@@ -17,10 +22,13 @@ class HelpWritingFactory(factory.DjangoModelFactory):
     tablelabel = factory.LazyAttribute(lambda n: "Besoin de " + n.title)
 
     @classmethod
-    def _prepare(cls, create, **kwargs):
-        help_writing = super()._prepare(create, **kwargs)
-        image_path = kwargs.pop("image_path", None)
-        fixture_image_path = kwargs.pop("fixture_image_path", None)
+    def _generate(cls, create, attrs):
+        # These parameters are only used inside _generate() and won't be saved in the database,
+        # which is why we use attrs.pop() (they are removed from attrs).
+        image_path = attrs.pop("image_path", None)
+        fixture_image_path = attrs.pop("fixture_image_path", None)
+
+        help_writing = super()._generate(create, attrs)
 
         if fixture_image_path is not None:
             image_path = join(settings.BASE_DIR, "fixtures", fixture_image_path)
@@ -40,7 +48,11 @@ class HelpWritingFactory(factory.DjangoModelFactory):
         return super()._create(target_class, *args, **kwargs)
 
 
-class CategoryFactory(factory.DjangoModelFactory):
+class CategoryFactory(factory.django.DjangoModelFactory):
+    """
+    Factory that creates a Category.
+    """
+
     class Meta:
         model = Category
 
