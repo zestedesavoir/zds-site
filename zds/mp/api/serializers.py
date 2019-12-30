@@ -56,7 +56,7 @@ class PrivateTopicCreateSerializer(serializers.ModelSerializer, TitleValidator, 
 
     def create(self, validated_data):
         # This hack is necessary because `text` isn't a field of PrivateTopic.
-        self._fields.pop('text')
+        self.fields.pop('text')
         return send_mp(self.context.get('request').user,
                        validated_data.get('participants'),
                        validated_data.get('title'),
