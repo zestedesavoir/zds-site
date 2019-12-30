@@ -1,15 +1,15 @@
 -r requirements.txt
 
-coverage==4.5.3
-PyYAML==5.1
-django-debug-toolbar==1.11
-flake8==3.7.7
-flake8_quotes==2.0.1
+coverage==4.5.4
+PyYAML==5.2
+django-debug-toolbar==2.1
+flake8==3.7.9
+flake8-quotes==2.1.1
 autopep8==1.4.4
-sphinx==2.0.1
-selenium==3.14.1
+Sphinx==2.3.1
+selenium==3.141.0
 sphinx_rtd_theme==0.4.3
-faker==0.8.12
+Faker==3.0.0
 mock==3.0.5
-colorlog==3.1.2
-django-extensions==2.1.6
+colorlog==4.0.2
+django-extensions==2.2.5
