@@ -29,7 +29,6 @@ api_analytics_secrets.json
 
 /scripts/release_summary.md
 
-.nvmrc
 venv
 zdsenv/
 
