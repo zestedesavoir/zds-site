@@ -15,7 +15,7 @@ const terser = require('gulp-terser-js');
 const fs = require('fs');
 
 
-//// Speed mode
+/* Speed mode */
 
 // You can use '--speed' to speed the tasks, it disables some optimisations like minification
 const fast = options.has("speed");
@@ -26,10 +26,10 @@ if (!fast) {
 }
 
 
-//// SCSS tasks
+/* SCSS tasks */
 
 // Generates a sprite with the website icons
-function sprite_css() {
+function spriteCss() {
     return gulp.src('assets/images/sprite/*.png')
         .pipe(spritesmith({
             cssTemplate: 'assets/scss/_sprite.scss.hbs',
@@ -91,7 +91,7 @@ function errors() {
 }
 
 
-//// JS tasks
+/* JS tasks */
 
 // ESLint options
 var eslintOptions = {};
@@ -102,7 +102,7 @@ if (fix) {
 
 // Lints the JS source files
 
-function js_lint() {
+function jsLint() {
     return gulp.src(['assets/js/*.js', '!assets/js/editor.js', 'Gulpfile.js'], { base: '.' })
         .pipe(eslint(eslintOptions))
         .pipe(eslint.format())
@@ -138,7 +138,7 @@ function js() {
 }
 
 
-//// Images tasks
+/* Images tasks */
 
 // Optimizes the images
 function images() {
@@ -147,23 +147,23 @@ function images() {
         .pipe(gulp.dest('dist/'));
 }
 
-function sprite_images() {
+function spriteImages() {
     return gulp.src(['dist/images/sprite*.png'])
         .pipe(gulpif(!fast, imagemin())) // Minify the images
         .pipe(gulp.dest('dist/images/'));
 }
 
 
-//// Other tasks
+/* Other tasks */
 
 // Prepares files for zmarkdown
-function prepare_zmd() {
+function prepareZmd() {
     return gulp.src(['node_modules/katex/dist/{katex.min.css,fonts/*}'])
         .pipe(gulp.dest('dist/css/'));
 }
 
 // Prepares files for easy mde
-function prepare_easy_mde() {
+function prepareEasyMde() {
     return gulp.src(['node_modules/easymde/dist/easymde.min.css', 'node_modules/codemirror/theme/idea.css'])
         .pipe(gulp.dest('dist/css/'));
 }
@@ -174,25 +174,25 @@ function clean() {
 }
 
 
-//// Commands
+/* Commands */
 
 // Watch for file changes
 function watch() {
     gulp.watch('assets/js/*.js', js);
     gulp.watch(['assets/{images,smileys}/**/*', '!assets/images/sprite/*.png'], images);
     gulp.watch(['assets/scss/**/*.scss'], css);
-    gulp.watch(['assets/images/sprite/*.png', 'assets/scss/_sprite.scss.hbs'], gulp.series(sprite_css, gulp.parallel(css, sprite_images)));
+    gulp.watch(['assets/images/sprite/*.png', 'assets/scss/_sprite.scss.hbs'], gulp.series(spriteCss, gulp.parallel(css, spriteImages)));
 }
 
 // Build the front
-var build = gulp.parallel(prepare_zmd, prepare_easy_mde, js, images, gulp.series(sprite_css, gulp.parallel(css, sprite_images)));
+var build = gulp.parallel(prepareZmd, prepareEasyMde, js, images, gulp.series(spriteCss, gulp.parallel(css, spriteImages)));
 
 exports.build = build;
 exports.watch = gulp.series(build, watch);
-exports.lint = js_lint;
+exports.lint = jsLint;
 exports.clean = clean;
 exports.errors = errors;
-exports.prepare_zmd = prepare_zmd;
-exports.prepare_easy_mde = prepare_easy_mde;
-exports.default = gulp.parallel(watch, js_lint);
+exports.prepareZmd = prepareZmd;
+exports.prepareEasyMde = prepareEasyMde;
+exports.default = gulp.parallel(watch, jsLint);
 

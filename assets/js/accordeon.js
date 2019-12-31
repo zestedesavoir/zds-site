@@ -4,7 +4,7 @@
    Author: Alex-D
    ========================================================================== */
 
-(function($, undefined){
+(function($){
     "use strict";
 
     function accordeon($elem){

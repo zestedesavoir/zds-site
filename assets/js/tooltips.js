@@ -1,4 +1,4 @@
-(function($, undefined) {
+(function($) {
     "use strict";
 
     /**
@@ -203,7 +203,7 @@
          * @access private
          */
         setOrientation: function(orientation) {
-            if (orientation !== "top" && orientation !== "bottom" || orientation === this.orientation) return;
+            if ((orientation !== "top" && orientation !== "bottom") || orientation === this.orientation) return;
 
             this.wrapper.addClass(orientation);
             this.wrapper.removeClass(this.orientation);
@@ -217,7 +217,7 @@
      *
      * @example
      * $(".topic-message .message-karma .upvote").tooltip("42 votes");
-     * @param {string} content
+     * @param {string} content
      * @return {Tooltip}
      */
     $.fn.tooltip = function(content) {

@@ -4,7 +4,7 @@
    Author: A-312, AmarOk
    ========================================================================== */
 
-(function($, undefined) {
+(function($) {
   "use strict";
 
   if (!$("#topic-suggest")[0])
@@ -36,7 +36,7 @@
           var $forumLink = $("<a></a>").text(topic.forumTitle).attr("href", topic.forumUrl).attr("target", "_blank");
           $("<li></li>").text(" dans le forum ").append($forumLink).append(" le " + $topicDate).prepend($title).appendTo($ul);
           count++;
-          if (count === 5) return;
+          if (count === 5) return; // eslint-disable-line no-useless-return
         });
 
         if (!count) {

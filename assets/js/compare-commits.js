@@ -2,7 +2,7 @@
  * Allow the user to compare two commits
  */
 
-(function(document, $, undefined){
+(function($){
     "use strict";
 
     function toogleRadioInput($radioInput){
@@ -40,4 +40,4 @@
         $fromInput.val(compareFrom);
         $toInput.val(compareTo);
     });
-})(document, jQuery);
+})(jQuery);

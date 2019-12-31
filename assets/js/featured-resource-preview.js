@@ -2,7 +2,7 @@
    Preview when editing news
    ========================================================================== */
 
-(function($, undefined) {
+(function($) {
     function updatePreview(data, element) {
         var $el = $(element);
         if(data.image) {

@@ -2,7 +2,7 @@
    Manage modals boxes
    ========================================================================== */
 
-(function(document, $, undefined) {
+(function($) {
     "use strict";
 
     /**
@@ -200,6 +200,7 @@
                 }).join(" ");
             }
 
+            // eslint-disable-next-line no-new
             new Modal({
                 title: $(this).is("[data-modal-title]") ? $(this).attr("data-modal-title") : $link.text(),
                 footer: $(this).find(".btn, [type=submit]").filter(":not(.modal-inner)").detach(),
@@ -219,4 +220,4 @@
             buildModals($(e.target));
         });
     });
-})(document, jQuery);
+})(jQuery);
