@@ -2,7 +2,7 @@
    Single line/Multi lines signatures
    ========================================================================== */
 
-(function($, undefined){
+(function($){
     "use strict";
 
     $(".message-bottom .signature").on("click", function(){

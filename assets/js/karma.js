@@ -2,7 +2,7 @@
    Manage Karma buttons
    ========================================================================== */
 
-(function($, undefined) {
+(function($) {
     "use strict";
 
     /**
@@ -195,7 +195,7 @@
             this[sign].button.text((sign === "like" ? "+" : "-") + data[sign].count);
 
             // Updating the tooltip
-            if(data[sign].hasOwnProperty("users")) {
+            if(Object.hasOwnProperty.call(data[sign], 'users')) { 
                 var likers = data[sign].users.slice(0, 9);
                 var otherLikeCount = data[sign].count - likers.length;
 

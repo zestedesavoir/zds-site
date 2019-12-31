@@ -1,5 +1,5 @@
 
-(function($, undefined) {
+(function($) {
     "use strict";
     let shareModal = $("#share-to-mastodon");
     let shareButton = shareModal.find("button");

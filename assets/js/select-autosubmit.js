@@ -4,7 +4,7 @@
    Author: Alex-D / Alexandre Demode
    ========================================================================== */
 
-(function($, undefined){
+(function($){
     "use strict";
     
     $("body").on("change", ".select-autosubmit", function() {

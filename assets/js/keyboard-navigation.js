@@ -4,7 +4,7 @@
    Author: Alex-D / Alexandre Demode
    ========================================================================== */
 
-(function(document, $, undefined){
+(function($){
     "use strict";
     
     $(document).ready(function(){
@@ -61,4 +61,4 @@
             $lists = $("#content .navigable-list");
         });
     });
-})(document, jQuery);
+})(jQuery);

@@ -4,7 +4,7 @@
    Author: Alex-D / Alexandre Demode
    ========================================================================== */
 
-(function($, undefined){
+(function($){
     "use strict";
     
     $(".main").on("click", ".close-alert-box:not(.open-modal)", function(e) {
