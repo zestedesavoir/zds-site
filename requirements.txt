@@ -2,10 +2,9 @@
 social-auth-app-django==3.1.0
 elasticsearch==5.5.3
 elasticsearch-dsl==5.4.0
-sqlparse==0.3.0
 
 # Explicit dependencies (references in code)
-Django==2.1.15
+Django==2.2.9
 django-crispy-forms==1.8.1
 django-model-utils==4.0.0
 django-munin==0.2.1

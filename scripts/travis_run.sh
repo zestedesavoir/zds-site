@@ -39,7 +39,7 @@ activate_env "./$ZDS_VENV"
         export PATH="$PATH:/home/travis/build/zestedesavoir/zds-site/geckodriver"
         export DISPLAY=":99.0"
 	# Use hack for virtualenv (fix some task with "command not found")
-	export PATH="$PATH:/home/travis/virtualenv/python3.5.6/bin"
+	export PATH="$PATH:/home/travis/virtualenv/python${TRAVIS_PYTHON_VERSION}/bin"
 
 	run_script "start_elasticsearch"
 

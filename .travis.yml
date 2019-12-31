@@ -1,19 +1,19 @@
-dist: trusty
+dist: bionic
 language: python
 sudo: required
 
 
 python:
-  - 3.5
+  - 3.7
 
 
 addons:
   firefox: "latest"
   apt:
     packages:
-      - mysql-server-5.6
-      - mysql-client-core-5.6
-      - mysql-client-5.6
+      - mysql-server-5.7
+      - mysql-client-core-5.7
+      - mysql-client-5.7
       - libmysqlclient-dev
       - language-pack-fr
 
@@ -67,7 +67,7 @@ cache:
     - $HOME/.local/share/fonts
     - $HOME/.texlive
     - $HOME/.cache/pip
-    - $HOME/virtualenv/python3.5.6/bin
+    - $HOME/virtualenv/python$TRAVIS_PYTHON_VERSION/bin
     - $HOME/build/zestedesavoir/zds-site/zdsenv
     - $HOME/.nvm
     - $HOME/node_modules

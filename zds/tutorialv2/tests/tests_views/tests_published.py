@@ -1724,7 +1724,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
                 'licence': self.licence.pk,
                 'subcategory': self.subcategory.pk,
                 'last_hash': content_draft.compute_hash(),
-                'image': content_draft.image
+                'image': content_draft.image or 'None'
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
