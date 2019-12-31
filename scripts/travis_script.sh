@@ -98,6 +98,8 @@ if [[ "$1" == "selenium_test" ]]  && [[ "$ZDS_TEST_JOB" == *"selenium"* ]]; then
             --settings zds.settings.ci_test \
             --tag=front \
             --keepdb; exVal=$?
+            
+        gateway "!! Test failed" $exVal
 
         zds_stop_zmd
 
