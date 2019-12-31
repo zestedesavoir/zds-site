@@ -3,7 +3,8 @@
 # Install script for the zds-site repository
 
 
-function _nvm {
+# load nvm
+function load_nvm {
     export NVM_DIR="$HOME/.nvm"
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 }
@@ -37,6 +38,10 @@ function wget_nv {
 ## end
 
 
+# zds-site root folder
+ZDSSITE_DIR=$(pwd)
+
+
 # variables
 LOCAL_DIR="$(cd "$(dirname "$0")" && pwd)"
 source $LOCAL_DIR/define_variable.sh
@@ -50,10 +55,6 @@ if $(_in "--travis-output" $@); then
 fi
 
 zds_fold_category "install"
-
-
-# zds-site root folder
-ZDSSITE_DIR=$(pwd)
 
 
 # Install packages
@@ -200,13 +201,43 @@ if  ! $(_in "-virtualenv" $@) && ( $(_in "+virtualenv" $@) || $(_in "+base" $@) 
     fi
 fi
 
+# nvm node & yarn
+if  ! $(_in "-node" $@) && ( $(_in "+node" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
+    zds_fold_start "node" "* [+node] installing nvm (v$ZDS_NVM_VERSION) & node (v$ZDS_NODE_VERSION) & yarn"
+
+    wget -qO- https://raw.githubusercontent.com/creationix/nvm/v${ZDS_NVM_VERSION}/install.sh | bash
+    if [[ $? == 0 ]]; then
+
+        # load nvm
+        load_nvm
+
+        # install node (using .nvmrc implicitly) & yarn
+        nvm install
+        npm -g add yarn
+
+        if [[ $(grep -c -i "nvm use" $ZDS_ENV/bin/activate) == "0" ]]; then # add nvm activation to venv activate's
+            ACTIVATE_NVM="nvm use > /dev/null # activate nvm (from install_zds.sh)"
+
+            echo $ACTIVATE_NVM >> $ZDS_ENV/bin/activate
+            echo $ACTIVATE_NVM >> $ZDS_ENV/bin/activate.csh
+            echo $ACTIVATE_NVM >> $ZDS_ENV/bin/activate.fish
+        fi
+    else
+        print_error "!! Cannot obtain nvm v${ZDS_NVM_VERSION}"
+        exit 1
+    fi
+
+    zds_fold_end
+fi
+
+# virtualenv activation
 if ! $(_in "--force-skip-activating" $@) && [[ ( $VIRTUAL_ENV == "" || $(realpath $VIRTUAL_ENV) != $(realpath $ZDS_VENV) ) ]]; then
     zds_fold_start "virtualenv" "* Load virtualenv"
 
     print_info "* activating venv \`$ZDS_VENV\`"
 
-    if [ -d $HOME/.nvm ]; then # force nvm activation, in case of
-        _nvm
+    if [ -d $HOME/.nvm ]; then # load nvm, in case of
+        load_nvm
     fi
 
     if [ ! -f $ZDS_VENV/bin/activate ]; then
@@ -239,37 +270,6 @@ else
 fi
 
 export ZDS_ENV=$(realpath $ZDS_VENV)
-
-# nvm node & yarn
-if  ! $(_in "-node" $@) && ( $(_in "+node" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
-    zds_fold_start "node" "* [+node] installing nvm (v$ZDS_NVM_VERSION) & node (v$ZDS_NODE_VERSION) & yarn"
-
-    wget -qO- https://raw.githubusercontent.com/creationix/nvm/v${ZDS_NVM_VERSION}/install.sh | bash
-    if [[ $? == 0 ]]; then
-
-        _nvm
-
-        # install node & yarn
-        nvm install ${ZDS_NODE_VERSION}
-        echo ${ZDS_NODE_VERSION} > .nvmrc
-        nvm use
-
-        npm -g add yarn
-
-        if [[ $(grep -c -i "nvm use" $ZDS_ENV/bin/activate) == "0" ]]; then # add nvm activation to venv activate's
-            ACTIVATE_NVM="nvm use > /dev/null # activate nvm (from install_zds.sh)"
-
-            echo $ACTIVATE_NVM >> $ZDS_ENV/bin/activate
-            echo $ACTIVATE_NVM >> $ZDS_ENV/bin/activate.csh
-            echo $ACTIVATE_NVM >> $ZDS_ENV/bin/activate.fish
-        fi
-    else
-        print_error "!! Cannot obtain nvm v${ZDS_NVM_VERSION}"
-        exit 1
-    fi
-
-    zds_fold_end
-fi
 
 
 # local jdk 

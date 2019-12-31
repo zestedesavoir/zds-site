@@ -78,11 +78,6 @@ zds_fold_start "packages" "* [packages] apt-get update : make sure our source li
 zds_fold_end
 
 
-zds_fold_start ".nvmrc" "* [.nvmrc] Make .nvmrc (to prevent issue with Travis cache)"
-    echo ${ZDS_NODE_VERSION} > .nvmrc
-zds_fold_end
-
-
 zds_fold_start "coveralls" "* [coveralls] Install with pip"
     pip install -q coveralls
 zds_fold_end
