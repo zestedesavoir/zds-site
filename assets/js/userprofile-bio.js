@@ -5,7 +5,7 @@
    Author: Amaury Carrade
    ========================================================================== */
 
-(function($, undefined) {
+(function($) {
     "use strict";
 
     var $bioContainer = $("body.userprofilepage .bio-container");
@@ -15,21 +15,20 @@
     var $bioOverflowToggleHandle = $bioContainer.find(".biography-overflow");
     var $bioOverflowToggleLabel = $bioOverflowToggleHandle.find("p");
 
-    // We detect overflow by comparing the scroll height (equal to the whole
-    // size, without max-width) to the inner height (equal to the visible size).
-    // But we must accept a margin as non-overflowing blocks may have a slightly
-    // bigger scroll height (e.g. 148 vs 147.6).
     if ($bioTextContainer[0].scrollHeight - $bioTextContainer.innerHeight() > 10)
     {
+        // We detect overflow by comparing the scroll height (equal to the whole
+        // size, without max-width) to the inner height (equal to the visible size).
+        // But we must accept a margin as non-overflowing blocks may have a slightly
+        // bigger scroll height (e.g. 148 vs 147.6).
         $bioContainer.addClass("too-long-biography");
     }
-
-    // If overflow was not detected, we ensure that the whole biography is
-    // shown, as for edge cases, the end of the biography may be slightly
-    // cut without link to show it full. Also, if there are spoilers in the
-    // biography, we don't want them to be cut by the max-width while open.
     else
     {
+        // If overflow was not detected, we ensure that the whole biography is
+        // shown, as for edge cases, the end of the biography may be slightly
+        // cut without link to show it full. Also, if there are spoilers in the
+        // biography, we don't want them to be cut by the max-width while open.
         $bioContainer.addClass("full-biography");
     }
 

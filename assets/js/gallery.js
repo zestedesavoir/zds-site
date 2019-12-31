@@ -4,7 +4,7 @@
    Author: Sandhose / Quentin Gliech
    ========================================================================== */
 
-(function($, undefined){
+(function($){
     "use strict";
 
     var $btn = $(".toggle-gallery-view"),

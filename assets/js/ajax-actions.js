@@ -2,7 +2,7 @@
    Manage action button AJAX requests
    ========================================================================== */
 
-(function($, undefined){
+(function($){
     "use strict";
 
     /**

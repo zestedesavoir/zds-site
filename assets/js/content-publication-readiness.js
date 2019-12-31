@@ -17,4 +17,4 @@
            "X-CSRFToken": csrf
        }});
    });
-})($);
+})(jQuery);

@@ -1,4 +1,4 @@
-(function ($, undefined) {
+(function ($) {
     var $opinions = $(".opinion");
     var $opinionCount = $("#opinion-count");
     $opinions.on("click", ".unpick-action", function () {
