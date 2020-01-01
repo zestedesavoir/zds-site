@@ -45,7 +45,8 @@ def _render_markdown_once(md_input, *, output_format='html', **kwargs):
     try:
         timeout = 10
         if output_format.startswith('tex'):
-            timeout = 30
+            # latex may be really long to generate but it is also restrained by server configuration
+            timeout = 120
         response = post('{}{}'.format(settings.ZDS_APP['zmd']['server'], endpoint), json={
             'opts': kwargs,
             'md': str(md_input),
