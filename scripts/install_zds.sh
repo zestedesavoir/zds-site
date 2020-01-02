@@ -279,8 +279,10 @@ if  ! $(_in "-jdk-local" $@) && ( $(_in "+jdk-local" $@) || $(_in "+full" $@) );
     mkdir -p $ZDS_VENV/lib/
     cd $ZDS_VENV/lib/
 
-    if [ -d jdk ]; then # remove previous install
-        rm -rf jdk
+    jdk_path=$(realpath jdk)
+
+    if [ -d "$jdk_path" ]; then # remove previous install
+        rm -rf "$jdk_path"
     fi
 
     baseURL="https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/"
@@ -293,13 +295,21 @@ if  ! $(_in "-jdk-local" $@) && ( $(_in "+jdk-local" $@) || $(_in "+full" $@) );
 
     if [[ $? == 0 ]]; then
         rm ${foldername}.tar.gz
-        mv ${foldername} jdk
+        mv ${foldername} "$jdk_path"
 
-        echo $(./jdk/bin/java --version)
+        echo $($jdk_path/bin/java -version)
 
-        export PATH="$PATH:$(pwd)/jdk/bin"
-        export JAVA_HOME="$(pwd)/jdk"
+        export PATH="$PATH:$jdk_path/bin"
+        export JAVA_HOME="$jdk_path"
         export ES_JAVA_OPTS="-Xms512m -Xmx512m"
+
+        if [[ $(grep -c -i "export JAVA_HOME" $ZDS_ENV/bin/activate) == "0" ]]; then # add java to venv activate's
+            ACTIVATE_JAVA="export PATH=\"$PATH:$jdk_path/bin\"\nexport JAVA_HOME=\"$jdk_path\"\nexport ES_JAVA_OPTS=\"-Xms512m -Xmx512m\""
+
+            echo -e $ACTIVATE_JAVA >> $ZDS_ENV/bin/activate
+            echo -e $ACTIVATE_JAVA >> $ZDS_ENV/bin/activate.csh
+            echo -e $ACTIVATE_JAVA >> $ZDS_ENV/bin/activate.fish
+        fi
     else
         print_error "!! Cannot get or extract jdk ${ZDS_JDK_VERSION}"
         exit 1
