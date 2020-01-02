@@ -1354,22 +1354,20 @@ class ContentCompareStatsURLForm(forms.Form):
 
 
 class SearchSuggestionForm(forms.Form):
-    suggestion_pk = forms.CharField(label='Contenu à suggerer',
-                                    required=False,
-                                    widget=forms.TextInput(
-                                        attrs={
-                                            'data-autocomplete': '{"type": "multiple_checkbox",'
-                                                                 '"limit": 10,'
-                                                                 '"fieldname": "title",'
-                                                                 '"url": "/rechercher/suggestion-contenu/?q=%s&excluded=%e"}',
-                                            'placeholder': 'Rechercher un contenu',
-                                        })
-                                    )
+    suggestion_pk = forms.CharField(
+        label='Contenu à suggerer',
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                'data-autocomplete': '{"type": "multiple_checkbox",'
+                                     '"limit": 10,'
+                                     '"fieldname": "title",'
+                                     '"url": "/rechercher/suggestion-contenu/?q=%s&excluded=%e"}',
+                'placeholder': 'Rechercher un contenu',
+            })
+    )
     excluded_pk = forms.CharField(required=False,
-                                  widget=forms.HiddenInput(
-                                        attrs={
-                                            'class': 'excluded_field'
-                                        })
+                                  widget=forms.HiddenInput(attrs={'class': 'excluded_field'})
                                   )
 
     def __init__(self, content, *args, **kwargs):
