@@ -373,7 +373,11 @@
             </ul>
         </div>
     {% endif %}
-
+    {% if is_staff %}
+        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Editorialisation">
+        {%  include "tutorialv2/includes/editorialization.part.html"  %}
+        </div>
+    {% endif %}
     {% include "misc/social_buttons.part.html" with link=content.get_absolute_url_online text=content.title %}
 {% endblock %}
 

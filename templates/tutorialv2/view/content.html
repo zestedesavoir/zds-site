@@ -693,48 +693,9 @@
                 {% endif %}
             </ul>
         </div>
-        {% if not content.is_opinion %}
         <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Editorialisation">
-            <h3>Editorialisation</h3>
-            <ul>
-                <li>
-                    <a href="#add-suggestion" class="open-modal ico-after more blue">
-                        {% trans "Ajouter une suggestion" %}
-                    </a>
-                    {% crispy formAddSuggestion %}
-                </li>
-                <li>
-                    <a href="#manage-suggestion" class="open-modal ico-after gear blue">
-                        {% trans "Gérer les suggestions" %}
-                    </a>
-                    <form action="{% url "content:remove-suggestion" content.pk  %}" method="post" class="modal modal-large" id="manage-suggestion" data-modal-close="Fermer">
-                        <table class="fullwidth">
-                            <thead>
-                                <th>{% trans "Contenus suggérés" %}</th>
-                                <th width="15%">{% trans "Actions" %}</th>
-                            </thead>
-                            <tbody>
-                                {% for content_suggestion in content_suggestions %}
-                                    <tr>
-                                        <td>{{content_suggestion.suggestion.title}}</td>
-                                        <td>
-                                            <button type="submit" data-value="{{ content_suggestion.pk }}" name="pk_suggestion" value="{{ content_suggestion.pk }}" class="modal-inner">
-                                                {% trans "Supprimer" %}
-                                            </button>
-                                        </td>
-                                    </tr>
-                                {% empty %}
-                                    <tr><td colspan="2">Aucune suggestion de contenu.</td></tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-
-                        {% csrf_token %}
-                    </form>
-                </li>
-            </ul>
+        {%  include "tutorialv2/includes/editorialization.part.html"  %}
         </div>
-        {% endif %}
     {% endif %}
 
     {%  include "tutorialv2/includes/summary.part.html"  %}
