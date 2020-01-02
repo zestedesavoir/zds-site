@@ -227,7 +227,7 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
             excluded_for_search = [str(x.suggestion.pk) for x in context['content_suggestions']]
             excluded_for_search.append(str(self.object.pk))
             context['formAddSuggestion'] = SearchSuggestionForm(content=self.object,
-                                                                initial={"excluded_pk": ",".join(excluded_for_search)})
+                                                                initial={'excluded_pk': ','.join(excluded_for_search)})
 
         return context
 

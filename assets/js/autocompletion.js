@@ -108,7 +108,7 @@
                     self.updateCache(data.results);
                     self.updateDropdown(self.sortList(data.results, search));
                   })
-                  .fail(function(error) {
+                  .fail(function() {
                     console.error("[Autocompletition] Something went wrong...");
                   });
                   this.updateDropdown(this.sortList(this.searchCache(search), search));
@@ -163,7 +163,7 @@
                 this.$input.val(completion[this.options.fieldname]);
             } else if(this.options.type === "multiple_checkbox") {
                 this.$input.before("<label class='checkbox' for='id_options_"+completion.id+"'> <input type='checkbox' checked='checked' name='options' id='id_options_"+completion.id+"' value='"+completion.id+"'>"+completion[this.options.fieldname]+"</label>");
-                this.$excluded.val(this.$excluded.val()+","+completion.id)
+                this.$excluded.val(this.$excluded.val()+","+completion.id);
                 this.$input.val("");
             }
 
@@ -300,9 +300,9 @@
             return bestMatches.concat(otherMatches);
         },
 
-        fetchData: function(input, exclude_terms) {
+        fetchData: function(input, excludeTerms) {
             var data = this.options.url.replace("%s", input);
-            data = data.replace("%e", exclude_terms);
+            data = data.replace("%e", excludeTerms);
             return $.getJSON(data);
         }
     };
