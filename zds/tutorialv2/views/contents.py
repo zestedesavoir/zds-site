@@ -2217,7 +2217,10 @@ class AddSuggestion(LoggedWithReadWriteHability, SingleContentFormViewMixin):
                     messages.info(self.request, _(
                         'Le contenu "{}" a été ajouté dans les suggestions de {}'.format(suggestion.title, _type)))
 
-        return redirect(self.object.get_absolute_url())
+        if self.object.public_version:
+            return redirect(self.object.get_absolute_url_online())
+        else:
+            return redirect(self.object.get_absolute_url())
 
 
 class RemoveSuggestion(LoggedWithReadWriteHability, SingleContentFormViewMixin):
@@ -2240,11 +2243,18 @@ class RemoveSuggestion(LoggedWithReadWriteHability, SingleContentFormViewMixin):
             self.request,
             _('Vous avez enlevé "{}" de la liste des suggestions de {}.').format(content_suggestion.suggestion.title,
                                                                                  _type))
-        self.success_url = self.object.get_absolute_url()
+
+        if self.object.public_version:
+            self.success_url = self.object.get_absolute_url_online()
+        else:
+            self.success_url = self.object.get_absolute_url()
 
         return super(RemoveSuggestion, self).form_valid(form)
 
     def form_invalid(self, form):
         messages.error(self.request, _("Les suggestions sélectionnées n'existent pas."))
-        self.success_url = self.object.get_absolute_url()
+        if self.object.public_version:
+            self.success_url = self.object.get_absolute_url_online()
+        else:
+            self.success_url = self.object.get_absolute_url()
         return super(RemoveSuggestion, self).form_valid(form)

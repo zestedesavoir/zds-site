@@ -32,7 +32,7 @@ from zds.member.views import get_client_ip
 from zds.notification import signals
 from zds.notification.models import ContentReactionAnswerSubscription, NewPublicationSubscription
 from zds.tutorialv2.forms import RevokeValidationForm, WarnTypoForm, NoteForm, NoteEditForm, UnpublicationForm, \
-    PickOpinionForm, PromoteOpinionToArticleForm, UnpickOpinionForm, ContentCompareStatsURLForm
+    PickOpinionForm, PromoteOpinionToArticleForm, UnpickOpinionForm, ContentCompareStatsURLForm, SearchSuggestionForm
 from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin, SingleOnlineContentViewMixin, DownloadViewMixin, \
     ContentTypeMixin, SingleOnlineContentFormViewMixin, MustRedirect
 from zds.tutorialv2.models import TYPE_CHOICES_DICT, CONTENT_TYPE_LIST
@@ -123,6 +123,8 @@ class DisplayOnlineContent(FeatureableMixin, SingleOnlineContentDetailViewMixin)
                 self.versioned_object, initial={'version': self.versioned_object.sha_public})
             context['formConvertOpinion'] = PromoteOpinionToArticleForm(
                 self.versioned_object, initial={'version': self.versioned_object.sha_public})
+        else:
+            context['formAddSuggestion'] = SearchSuggestionForm(content=self.object)
 
         # pagination of comments
         make_pagination(context,
