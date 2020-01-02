@@ -124,7 +124,13 @@ class DisplayOnlineContent(FeatureableMixin, SingleOnlineContentDetailViewMixin)
             context['formConvertOpinion'] = PromoteOpinionToArticleForm(
                 self.versioned_object, initial={'version': self.versioned_object.sha_public})
         else:
-            context['formAddSuggestion'] = SearchSuggestionForm(content=self.object)
+            context['content_suggestions'] = ContentSuggestion \
+                .objects \
+                .filter(publication=self.object)
+            excluded_for_search = [str(x.suggestion.pk) for x in context['content_suggestions']]
+            excluded_for_search.append(str(self.object.pk))
+            context['formAddSuggestion'] = SearchSuggestionForm(content=self.object,
+                                                                initial={"excluded_pk": ",".join(excluded_for_search)})
 
         # pagination of comments
         make_pagination(context,
@@ -174,7 +180,7 @@ class DisplayOnlineContent(FeatureableMixin, SingleOnlineContentDetailViewMixin)
             .objects\
             .filter(content=self.object)\
             .order_by('contribution_role__position')
-        context['content_suggestions'] = ContentSuggestion \
+        context['content_suggestions_random'] = ContentSuggestion \
             .objects \
             .filter(publication=self.object) \
             .order_by('?')[:settings.ZDS_APP['content']['suggestions_per_page']]

@@ -19,10 +19,16 @@
 
         this.options = options;
 
-        if(this.options.type === "multiple") {
+        if(this.options.type === "multiple" || this.options.type === "multiple_checkbox") {
             this.$form = this.$wrapper.parents("form:first");
             this.$form.on("submit", this.handleSubmit.bind(this));
+            if(this.options.type === "multiple_checkbox") {
+
+                this.$excluded = this.$form.find(".excluded_field");
+            }
         }
+
+
 
         if(this.options.clickable) {
           this.$dropdown.css("font-weight","bold");
@@ -90,12 +96,19 @@
                 this.hideDropdown();
             } else {
                 if (!this.options.minLength || search.length >= this.options.minLength) {
-                  this.fetchData(search)
+                  let jsonData;
+                  if(this.options.type === "multiple_checkbox") {
+                     jsonData = this.fetchData(search, this.$excluded.val());
+                     //jsonData = this.fetchData(search, "");
+                  } else {
+                     jsonData = this.fetchData(search, "");
+                  }
+                  jsonData
                   .done(function(data) {
                     self.updateCache(data.results);
                     self.updateDropdown(self.sortList(data.results, search));
                   })
-                  .fail(function() {
+                  .fail(function(error) {
                     console.error("[Autocompletition] Something went wrong...");
                   });
                   this.updateDropdown(this.sortList(this.searchCache(search), search));
@@ -150,6 +163,7 @@
                 this.$input.val(completion[this.options.fieldname]);
             } else if(this.options.type === "multiple_checkbox") {
                 this.$input.before("<label class='checkbox' for='id_options_"+completion.id+"'> <input type='checkbox' checked='checked' name='options' id='id_options_"+completion.id+"' value='"+completion.id+"'>"+completion[this.options.fieldname]+"</label>");
+                this.$excluded.val(this.$excluded.val()+","+completion.id)
                 this.$input.val("");
             }
 
@@ -286,8 +300,10 @@
             return bestMatches.concat(otherMatches);
         },
 
-        fetchData: function(input) {
-            return $.getJSON(this.options.url.replace("%s", input));
+        fetchData: function(input, exclude_terms) {
+            var data = this.options.url.replace("%s", input);
+            data = data.replace("%e", exclude_terms);
+            return $.getJSON(data);
         }
     };
 

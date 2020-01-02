@@ -382,7 +382,7 @@
 {% endblock %}
 
 {% block content_after %}
-    {% include "tutorialv2/includes/content_suggestion.part.html" with content=content %}
+    {% include "tutorialv2/includes/content_suggestion.part.html" with content=content content_suggestions=content_suggestions_random %}
     <h3 class="comments-title" id="comments">
         {% if content.get_note_count > 0 %}
             <span itemprop="commentCount">
