@@ -427,7 +427,8 @@ class Container:
         """
         if self.introduction:
             return get_blob(self.top_container().repository.commit(self.top_container().current_version).tree,
-                            self.introduction.replace('\\', '/'))
+                            self.introduction.replace('\\', '/')) or ''
+        return ''
 
     def get_conclusion(self):
         """
@@ -436,29 +437,36 @@ class Container:
         """
         if self.conclusion:
             return get_blob(self.top_container().repository.commit(self.top_container().current_version).tree,
-                            self.conclusion.replace('\\', '/'))
+                            self.conclusion.replace('\\', '/')) or ''
+        return ''
 
     def get_introduction_online(self):
         """The introduction content for online version.
 
-        :return: the full text if introduction exists ``None`` otherwise
+        This method should be only used in templates
+
+        :return: the full text if introduction exists, empty string otherwise
         :rtype: str
         """
         if self.introduction:
             path = os.path.join(self.top_container().get_prod_path(), self.introduction)
             if os.path.isfile(path):
                 return codecs.open(path, 'r', encoding='utf-8').read()
+        return ''
 
     def get_conclusion_online(self):
         """The conclusion content for online version.
 
-        :return: the full text if introduction exists ``None`` otherwise
+        This method should be only used in templates
+
+        :return: the full text if introduction exists, empty string otherwise
         :rtype: str
         """
         if self.conclusion:
             path = os.path.join(self.top_container().get_prod_path(), self.conclusion)
             if os.path.isfile(path):
                 return codecs.open(path, 'r', encoding='utf-8').read()
+        return ''
 
     def get_content_online(self):
         if os.path.isfile(self.get_prod_path()):
