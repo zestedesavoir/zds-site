@@ -217,7 +217,6 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
         context['public_content_object'] = self.public_content_object
         if self.object.type.lower() != 'opinion':
             context['formAddReviewer'] = ContributionForm(content=self.object)
-            context['formAddSuggestion'] = SearchSuggestionForm(content=self.object)
             context['contributions'] = ContentContribution\
                 .objects\
                 .filter(content=self.object)\
@@ -225,6 +224,10 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
             context['content_suggestions'] = ContentSuggestion \
                 .objects \
                 .filter(publication=self.object)
+            excluded_for_search = [str(x.suggestion.pk) for x in context['content_suggestions']]
+            excluded_for_search.append(str(self.object.pk))
+            context['formAddSuggestion'] = SearchSuggestionForm(content=self.object,
+                                                                initial={"excluded_pk": ",".join(excluded_for_search)})
 
         return context
 

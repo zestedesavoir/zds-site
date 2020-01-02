@@ -84,14 +84,16 @@ class SuggestionContentView(CreateView, SingleObjectMixin):
     def get(self, request, *args, **kwargs):
         if 'q' in request.GET:
             self.search_query = ''.join(request.GET['q'])
-
+        excluded_content_ids = request.GET.get('excluded', "").split(",")
         results = []
         if self.index_manager.connected_to_es and self.search_query:
             self.authorized_forums = get_authorized_forums(self.request.user)
 
             search_queryset = Search()
-            query = Match(_type='publishedcontent') & MultiMatch(query=self.search_query,
-                                                                 fields=['title', 'description'])
+            if len(excluded_content_ids) > 0 and excluded_content_ids != ['']:
+                search_queryset = search_queryset.exclude('terms', content_pk=excluded_content_ids)
+            query = Match(_type='publishedcontent')\
+                    & MultiMatch(query=self.search_query, fields=['title', 'description'])
 
             functions_score = [
                 {

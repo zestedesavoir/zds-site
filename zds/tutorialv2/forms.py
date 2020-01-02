@@ -1361,10 +1361,16 @@ class SearchSuggestionForm(forms.Form):
                                             'data-autocomplete': '{"type": "multiple_checkbox",'
                                                                  '"limit": 10,'
                                                                  '"fieldname": "title",'
-                                                                 '"url": "/rechercher/suggestion-contenu/?q=%s"}',
+                                                                 '"url": "/rechercher/suggestion-contenu/?q=%s&excluded=%e"}',
                                             'placeholder': 'Rechercher un contenu',
                                         })
                                     )
+    excluded_pk = forms.CharField(required=False,
+                                  widget=forms.HiddenInput(
+                                        attrs={
+                                            'class': 'excluded_field'
+                                        })
+                                  )
 
     def __init__(self, content, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -1377,6 +1383,7 @@ class SearchSuggestionForm(forms.Form):
 
         self.helper.layout = Layout(
             Field('suggestion_pk'),
+            Field('excluded_pk'),
             StrictButton(
                 _('Ajouter'),
                 type='submit')
