@@ -99,7 +99,6 @@
                   let jsonData;
                   if(this.options.type === "multiple_checkbox") {
                      jsonData = this.fetchData(search, this.$excluded.val());
-                     //jsonData = this.fetchData(search, "");
                   } else {
                      jsonData = this.fetchData(search, "");
                   }
