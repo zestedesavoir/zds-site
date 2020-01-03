@@ -6,7 +6,7 @@
 
 # [Zeste de Savoir](https://zestedesavoir.com)
 
-Site internet communautaire propulsé par le framework [Django](https://www.djangoproject.com/) 2.1 et [Python](https://www.python.org/) 3.
+Site internet communautaire propulsé par le framework [Django](https://www.djangoproject.com/) 2.2 et [Python](https://www.python.org/) 3.
 Zeste de Savoir est basé sur un fork de [Progdupeupl](https://pdp.microjoe.org) ([voir le dépôt Git](https://github.com/progdupeupl/pdp_website)).
 
 Jetez donc un coup d’œil à notre [feuille de route](https://github.com/zestedesavoir/zds-site/wiki/Feuille-de-route).
