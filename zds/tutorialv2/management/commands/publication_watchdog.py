@@ -16,7 +16,7 @@ class Command(BaseCommand):
     help = 'Launch a watchdog that generate all exported formats (epub, pdf...) files without blocking request handling'
 
     def handle(self, *args, **options):
-        with ThreadPoolExecutor(5) as executor:
+        with ThreadPoolExecutor(1) as executor:
             try:
                 while True:
                     Command.launch_publicators(executor)
