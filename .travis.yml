@@ -35,8 +35,8 @@ jobs:
   include:
     - name: "Job 1 : tuto (zds.tutorialv2)"
       env: ZDS_TEST_JOB="zds.tutorialv2"
-    - name: "Job 2 : backend test1 (zds.member zds.utils zds.forum)"
-      env: ZDS_TEST_JOB="zds.member zds.utils zds.forum"
+    - name: "Job 2 : backend test1 (zds.member zds.utils zds.forum zds.middlewares)"
+      env: ZDS_TEST_JOB="zds.member zds.utils zds.forum zds.middlewares"
     - name: "Job 3 : backend test2 (zds.mp zds.gallery zds.pages zds.featured zds.notification zds.searchv2)"
       env: ZDS_TEST_JOB="zds.mp zds.gallery zds.pages zds.featured zds.notification zds.searchv2"
     - name: "Job 4 : frontend test"
