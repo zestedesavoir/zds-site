@@ -43,7 +43,7 @@ activate_env "./$ZDS_VENV"
 
 	run_script "start_elasticsearch"
 
-	run_script "test_backend"
+	run_script "make_migrations"
 
 	run_script "lint_frontend"
 
