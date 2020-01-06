@@ -5,8 +5,10 @@ branch = True
 [report]
 
 omit =
+    manage.py
+    zds/settings/*
     */tests/*
-    tests.py
+    */tests.py
     */factories.py
     */wsgi.py
     */migrations/*
