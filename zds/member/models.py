@@ -437,7 +437,7 @@ class Profile(models.Model):
 
     @staticmethod
     def find_username_skeleton(username):
-        skeleton = ""
+        skeleton = ''
         for ch in username:
             homoglyph = hg.Homoglyphs().get_combinations(ch)
             if len(homoglyph) > 0:
