@@ -395,6 +395,7 @@ class ChangeUserForm(forms.Form):
         )
 
     def clean(self):
+        validate_raw_zds_username(self.data)
         cleaned_data = super(ChangeUserForm, self).clean()
         cleaned_data['previous_username'] = self.previous_username
         cleaned_data['previous_email'] = self.previous_email
