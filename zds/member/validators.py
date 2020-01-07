@@ -95,7 +95,7 @@ def validate_raw_zds_username(data):
     Check if raw username hasn't space on left or right
     """
     msg = None
-    username = data.get("username", None)
+    username = data.get('username', None)
     if username is None:
         msg = _('Le nom d\'utilisateur n\'est pas fourni')
     elif username != username.strip():

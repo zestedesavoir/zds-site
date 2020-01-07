@@ -716,8 +716,7 @@ class MemberTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 200)
 
         # check email has been sent
-        self.assertEqual(len(mail.outbox), 1, msg="{} mail send for username {}".format(str(len(mail.outbox)),
-                                                                                        self.mas.user.username))
+        self.assertEqual(len(mail.outbox), 1)
 
         # clic on the link which has been sent in mail
         user = User.objects.get(username=self.mas.user.username)
