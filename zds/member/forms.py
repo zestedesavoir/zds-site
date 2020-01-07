@@ -13,7 +13,7 @@ from crispy_forms.layout import HTML, Layout, \
 
 from zds.member.models import Profile, KarmaNote, BannedEmailProvider
 from zds.member.validators import validate_not_empty, validate_zds_email, validate_zds_username, validate_passwords, \
-    validate_zds_password
+    validate_zds_password, validate_raw_zds_username
 from zds.utils.misc import contains_utf8mb4
 from zds.utils.models import Licence, HatRequest, Hat
 from zds.utils import get_current_user
@@ -136,6 +136,7 @@ class RegisterForm(forms.Form):
         self.helper.layout = layout
 
     def clean(self):
+        validate_raw_zds_username(self.data)
         cleaned_data = super(RegisterForm, self).clean()
         return validate_passwords(cleaned_data)
 
