@@ -394,6 +394,50 @@ class MemberTests(TutorialTestMixin, TestCase):
                             '?next=' + reverse('gallery-list'),
                             count=1)
 
+    def test_register_with_not_allowed_chars(self):
+        """
+        Test register account with not allowed chars
+        :return:
+        """
+        users = [
+            # empty username
+            {
+                'username': '',
+                'password': 'flavour',
+                'password_confirm': 'flavour',
+                'email': 'firm1@zestedesavoir.com'
+            },
+            # space after username
+            {
+                'username': 'firm1 ',
+                'password': 'flavour',
+                'password_confirm': 'flavour',
+                'email': 'firm1@zestedesavoir.com'
+            },
+            # space before username
+            {
+                'username': ' firm1',
+                'password': 'flavour',
+                'password_confirm': 'flavour',
+                'email': 'firm1@zestedesavoir.com'
+            },
+            # username with utf8mb4 chars
+            {
+                'username': ' firm1',
+                'password': 'flavour',
+                'password_confirm': 'flavour',
+                'email': 'firm1@zestedesavoir.com'
+            }
+        ]
+
+        for user in users:
+            result = self.client.post(reverse('register-member'), user, follow=False)
+            self.assertEqual(result.status_code, 200)
+            # check any email has been sent.
+            self.assertEqual(len(mail.outbox), 0)
+            # user doesn't exist
+            self.assertEqual(User.objects.filter(username=user['username']).count(), 0)
+
     def test_register(self):
         """
         To test user registration.
@@ -672,7 +716,8 @@ class MemberTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 200)
 
         # check email has been sent
-        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(len(mail.outbox), 1, msg="{} mail send for username {}".format(str(len(mail.outbox)),
+                                                                                        self.mas.user.username))
 
         # clic on the link which has been sent in mail
         user = User.objects.get(username=self.mas.user.username)
