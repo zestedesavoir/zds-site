@@ -1,10 +1,8 @@
 import logging
 import time
-
 from pathlib import Path
 
 from django.core.management import BaseCommand
-from concurrent.futures import Future, ThreadPoolExecutor
 
 from zds.tutorialv2.models.database import PublicationEvent
 from zds.tutorialv2.publication_utils import PublicatorRegistry
@@ -16,30 +14,12 @@ class Command(BaseCommand):
     help = 'Launch a watchdog that generate all exported formats (epub, pdf...) files without blocking request handling'
 
     def handle(self, *args, **options):
-        with ThreadPoolExecutor(1) as executor:
-            try:
-                while True:
-                    Command.launch_publicators(executor)
-                    time.sleep(10)
-            except KeyboardInterrupt:
-                executor.shutdown(wait=False)
+        while True:
+            Command.launch_publicators()
+            time.sleep(10)
 
     @staticmethod
-    def get_callback_of(publication_event: PublicationEvent):
-        def callback(future: Future):
-            if future.cancelled() or future.exception():
-                publication_event.state_of_processing = 'FAILURE'
-                if future.exception():
-                    logger.error('error while producing %s of %s', publication_event.format_requested,
-                                 publication_event.published_object.title(), exc_info=future.exception())
-            elif future.done():
-                publication_event.state_of_processing = 'SUCCESS'
-
-            publication_event.save()
-        return callback
-
-    @staticmethod
-    def launch_publicators(executor):
+    def launch_publicators():
         query_set = PublicationEvent.objects.select_related('published_object', 'published_object__content',
                                                             'published_object__content__image') \
                                             .filter(state_of_processing='REQUESTED')
@@ -60,5 +40,11 @@ class Command(BaseCommand):
 
             publication_event.state_of_processing = 'RUNNING'
             publication_event.save()
-            future = executor.submit(publicator.publish, md_file_path, base_name)
-            future.add_done_callback(Command.get_callback_of(publication_event))
+            try:
+                publicator.publish(md_file_path, base_name)
+                publication_event.state_of_processing = 'SUCCESS'
+            except Exception as e:
+                publication_event.state_of_processing = 'FAILURE'
+                logger.error('error while producing %s of %s', publication_event.format_requested,
+                             publication_event.published_object.title(), exc_info=e)
+            publication_event.save()
