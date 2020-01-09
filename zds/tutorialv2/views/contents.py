@@ -1459,8 +1459,16 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                                         self.object.validation_private_message,
                                         msg,
                                         hat=get_hat_from_settings('validation'))
+
+                # When the anti-spam triggers (because the author of the
+                # message posted themselves within the last 15 minutes),
+                # it is likely that we want to avoid to generate a duplicated
+                # post that couldn't be deleted. We hence avoid to add another
+                # message to the topic.
+
                 else:
                     all_tags = self._get_all_tags()
+
                     if not already_in_beta:
                         unlock_topic(topic)
                         msg_post = render_to_string(
@@ -1471,7 +1479,8 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                                 'url': settings.ZDS_APP['site']['url'] + self.versioned_object.get_absolute_url_beta()
                             }
                         )
-                    else:
+                        topic = send_post(self.request, topic, self.request.user, msg_post)
+                    elif not topic.antispam():
                         msg_post = render_to_string(
                             'tutorialv2/messages/beta_update.md',
                             {
@@ -1480,12 +1489,12 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                                 'url': settings.ZDS_APP['site']['url'] + self.versioned_object.get_absolute_url_beta()
                             }
                         )
-                    topic = send_post(self.request, topic, self.request.user, msg_post)
+                        topic = send_post(self.request, topic, self.request.user, msg_post)
 
-                    # make sure that all authors follow the topic:
-                    for author in self.object.authors.all():
-                        TopicAnswerSubscription.objects.get_or_create_active(author, topic)
-                        mark_read(topic, author)
+                # make sure that all authors follow the topic:
+                for author in self.object.authors.all():
+                    TopicAnswerSubscription.objects.get_or_create_active(author, topic)
+                    mark_read(topic, author)
 
             # finally set the tags on the topic
             if topic:
