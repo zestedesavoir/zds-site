@@ -798,7 +798,10 @@ class ContentTests(TutorialTestMixin, TestCase):
         tuto = PublishableContent.objects.get(pk=tuto.pk)
         self.assertEqual(tuto.sha_beta, current_sha_beta)
 
-        self.assertEqual(Post.objects.filter(topic=beta_topic).count(), 2)  # a new message was added !
+        # No new message added since the last time, because the last message
+        # was posted since less than 15 minutes ago.
+
+        self.assertEqual(Post.objects.filter(topic=beta_topic).count(), 1)
 
         # test if third author follow the topic
         self.assertIsNotNone(TopicAnswerSubscription.objects.get_existing(third_author, beta_topic, is_active=True))
@@ -838,7 +841,7 @@ class ContentTests(TutorialTestMixin, TestCase):
             follow=False)
         self.assertEqual(result.status_code, 302)
 
-        self.assertEqual(Post.objects.filter(topic=beta_topic).count(), 3)  # a new message was added !
+        self.assertEqual(Post.objects.filter(topic=beta_topic).count(), 2)  # a new message was added !
         self.assertTrue(Topic.objects.get(pk=beta_topic.pk).is_locked)  # beta was inactived, so topic is locked !
 
         # then test for guest
@@ -873,7 +876,10 @@ class ContentTests(TutorialTestMixin, TestCase):
         tuto = PublishableContent.objects.get(pk=tuto.pk)
         self.assertEqual(tuto.sha_beta, old_sha_beta)
 
-        self.assertEqual(Post.objects.filter(topic=beta_topic).count(), 4)  # a new message was added !
+        # No new message added since the last time, because the last message
+        # was posted since less than 15 minutes ago.
+
+        self.assertEqual(Post.objects.filter(topic=beta_topic).count(), 3)  # a new message was added !
         self.assertFalse(Topic.objects.get(pk=beta_topic.pk).is_locked)  # not locked anymore
 
         # then test for guest
