@@ -337,6 +337,10 @@
 
     $(".md-editor").each(function(){
         var formEditor = $(this).closest("form");
+        let minHeight = "500px";
+        if ($(this).hasClass("mini-editor")) {
+            minHeight = "200px";
+        }
 
         var customMarkdownParser = function(plainText) {
             var result;
@@ -365,7 +369,7 @@
                     delay: 1000,
                 },
                 indentWithTabs: false,
-                minHeight: "500px",
+                minHeight: minHeight,
                 placeholder: "Votre message au format Markdown",
                 promptURLs: true,
                 promptTexts: {
