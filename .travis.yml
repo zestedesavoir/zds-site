@@ -29,7 +29,6 @@ matrix:
 env:
   global:
     - secure: "azmDZZQZzf88zpbkYpLpxI66vpEVyv+kniW0QdWAt4qlys8P5OcO3VJBR5YT85vlvnjN9b6raWQAL1ymee0WmVdTmzXed8XjZv7t9QXVw7pfezxMKlEftVp/4Cu4wtvbew0ViZXNWV2hNXHzEqlhgnoIOq94i0UzZ7grMrI0xm0="
-    - COVERALLS_PARALLEL: true
 
 
 jobs:
@@ -47,7 +46,6 @@ jobs:
 
 
 notifications:
-  webhooks: https://coveralls.io/webhook
 
 
 services:
@@ -85,6 +83,12 @@ script:
 
 after_success:
   - du -sh $HOME/.texlive 2>/dev/null | true
+
+  - |
+    # upload coverage
+    if [[ "$ZDS_TEST_JOB" != "none" ]]; then
+      coveralls
+    fi
 
   - |
     # upload compiled assets
