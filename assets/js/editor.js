@@ -125,14 +125,16 @@
         } else {
             // find checklist
             var isCheckList = true;
-            for (i = posStart.line; i <= posEnd.line; i++) {
-                if((! cm.getLine(i).match(/^- \[(.{1})\](\s*)/)) && (cm.getLine(i) !== "")) {
-                    isCheckList = false;
-                    break;
+            if (!(posStart.line == posEnd.line && posStart.ch == posEnd.ch)) {
+                for (i = posStart.line; i <= posEnd.line; i++) {
+                    if((! cm.getLine(i).match(/^- \[(.{1})\](\s*)/)) && (cm.getLine(i) !== "")) {
+                        isCheckList = false;
+                        break;
+                    }
                 }
-            }
-            if(isCheckList) {
-                ret.checklist = true;
+                if(isCheckList) {
+                    ret.checklist = true;
+                }
             }
         }
         return ret;
