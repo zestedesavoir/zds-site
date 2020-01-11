@@ -93,7 +93,7 @@ if [[ "$1" == "selenium_test" ]]  && [[ "$ZDS_TEST_JOB" == *"selenium"* ]]; then
 
         zds_start_zmd
 
-        xvfb-run --server-args="-screen 0 1280x720x8" python manage.py \
+        xvfb-run --server-args="-screen 0 1280x720x8" coverage run --source='.' manage.py \
             test -v=2\
             --settings zds.settings.ci_test \
             --tag=front \
