@@ -666,7 +666,7 @@ class HatRequestForm(forms.ModelForm):
             }),
             'reason': forms.Textarea(attrs={
                 'placeholder': _('Expliquez pourquoi vous devriez porter cette casquette (3000 caractères maximum).'),
-                'class': 'md-editor preview-source'
+                'class': 'md-editor mini-editor preview-source'
             }),
         }
 
