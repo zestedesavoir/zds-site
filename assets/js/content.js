@@ -129,11 +129,22 @@
     $("section.article-content.parts .summary-part")
       .attr("data-children-type", "extract");
 
-    $("*[data-children-type]").sortable({
+    const makeSortable = ($elements) => $elements.sortable({
       group: "element",
       handle: ["h2", "h3 a", "h4 a"],
       filter: function(pointer, dragged) {
         return $(dragged).is(".simple-create-button") || $(dragged).is(".simple-create-part");
+      },
+      onStart: function (evt) {
+        $("*[data-children-type=both]").each(function() {
+          $(this).html(`<ol class="summary-part" data-slug="chapitre-b" data-children-type="extract">
+            <li class="simple-create-button">
+              <a class="btn btn-grey" href="#">Ajouter une section</a>
+            </li>
+           </ol>`);
+          makeSortable($(this).find("> *[data-children-type]"))
+          $(this).attr("data-children-type", "extract");
+        });
       },
       onMove: function(evt) {
         const childrenType = $(evt.dragged).parents("[data-children-type]").attr("data-children-type");
@@ -191,5 +202,7 @@
       },
       onEnd: sendMoveAction
     });
+
+    makeSortable($("*[data-children-type]"));
   });
 })(document, jQuery);
