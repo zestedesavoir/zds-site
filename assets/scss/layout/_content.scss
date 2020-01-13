@@ -174,9 +174,11 @@
         }
     }
 
-    .article-content li.simple-create-button {
+    .article-content .article-part li.simple-create-button {
         list-style-type: '';
-        .btn {
+        a.btn {
+            background: #EEE;
+            color: #555;
             float:none;
             font-size: 14px;
             display:inline-block;
@@ -186,6 +188,12 @@
             vertical-align: bottom;
             padding:0 12px 0 8px;
             white-space: nowrap;
+            text-decoration: none;
+
+            &:hover {
+                background: #CCC;
+                color: #333;
+            }
 
             &::before {
                 content: '+ ';
