@@ -37,10 +37,11 @@
       }
     })($item.prev());
 
+    // const isExtract = ($from.attr("data-children-type") === "extract");
+    const isPart = (!!$item.children("[data-children-type=container]")[0]);
+
     const pk = $item.parents("[data-pk]").attr("data-pk");
     const slug = $item.attr("data-slug");
-
-    console.log($from.parents("[data-children-type]").length);
 
     const form = {
       // new 
@@ -63,23 +64,29 @@
         tree.push($(parent).attr("data-slug"));
       });
       tree = tree.reverse();
-      tree.push(slug);
       return tree.join("/");
     })([]);
 
-    $item.find("> .actions-title a.edit").attr("href", `/contenus/editer-conteneur/${pk}/${path}/`);
-    $("form#delete-" + slug).attr("action", `/contenus/supprimer/${pk}/${path}/`);
-    $item.find("[data-children-type] > [data-slug] a").each(function () {
-      const $parent = $(this).parents("[data-slug]").eq(0);
-      const mySlug = $parent.attr("data-slug");
-      if (slug !== $(this).attr("data-slug")) {
-        $(this).attr("href", `/contenus/${pk}/${path}/#${$parent.index()+1}-${mySlug}`);
+    $item.find("> .actions-title a.edit").attr("href", `/contenus/editer-conteneur/${pk}/${path}/${slug}/`);
+    $("form#delete-" + slug).attr("action", `/contenus/supprimer/${pk}/${path}/${slug}/`);
+    $item.find("> *:first-child > a, [data-children-type] > [data-slug] a").each(function () {
+      const $parents = $(this).parents("[data-slug]");
+      const type = $(this).parents("[data-children-type]").attr("data-children-type");
+      const mySlug = $parents.attr("data-slug");
+
+      let fullpath = (slug !== mySlug) ? `${path}/${slug}` : path; 
+
+      if (type === "extract") {
+        fullpath += (isPart) ? "/" + $parents.eq(1).attr("data-slug") : "";
+        $(this).attr("href", `/contenus/${pk}/${fullpath}/#${$parents.eq(0).index()+1}-${mySlug}`);
+      } else if (type === "container") {
+        $(this).attr("href", `/contenus/${pk}/${fullpath}/${mySlug}`);
       } else {
-        $(this).attr("href", `/contenus/${pk}/${path}/`);
+        console.warn("type inattendu.", type);
       }
     });
     $item.find(".simple-create-button")
-      .attr("href", `/contenus/nouvelle-section/${pk}/${path}/`);
+      .attr("href", `/contenus/nouvelle-section/${pk}/${path}/${slug}/`);
   }
 
   function canDrop($item, $to, $from) {
