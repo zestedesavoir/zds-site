@@ -97,13 +97,15 @@
   }
 
   $(document).ready(function() {
-    $("ol[data-children-type=extract]").sortable({
-      group: "extract",
-      handle: "a",
+    $("*[data-children-type]").sortable({
+      group: "element",
+      handle: ["h2", "h3 a", "h4 a"],
       filter: function (pointer, dragged) {
-        return $(dragged).is(".simple-create-button");
+        return $(dragged).is(".simple-create-button") || $(dragged).is(".simple-create-part");
       },
       onMove: (evt) => {
+        const childrenType = $(evt.dragged).parents("[data-children-type]").attr("data-children-type");
+
         const $item = $(evt.dragged);
         const $to = $(evt.related).parent();
         const $from = $(evt.dragged).parent();
@@ -113,64 +115,42 @@
         }
 
         if (!$to.is($from)) {
-          // Element is dragged into the list from another list
-          if ($from.parent().is(".article-containers > .article-part")) { // is: chapter > extract
-            $item.find("> h4 > a").unwrap().wrap("<h3></h3>");
-          } else { // is: part > chapter > extract 
-            $item.find("> h3 > a").unwrap().wrap("<h4></h4>");
-          }
-        }
-
-        if ($(evt.related).is(".simple-create-button")) {
-          return -1;
-        }
-      },
-      onEnd: sendMoveAction
-    });
-
-    $("*[data-children-type=container]").sortable({
-      group: "container",
-      handle: ["h2", "h3 a"],
-      filter: function (pointer, dragged) {
-        return $(dragged).is(".simple-create-part");
-      },
-      onMove: (evt) => {
-        const $item = $(evt.dragged);
-        const $to = $(evt.related).parent();
-        const $from = $(evt.dragged).parent();
-
-        if (!canDrop($item, $to, $from)) {
-          return false;
-        }
-
-        if (!$to.is($from)) {
-          // Element is dragged into the list from another list
-          if ($to.is("section")) { // is: chapter > extract
-            $item.find("> h3 > a").unwrap().wrap("<h2></h2>");
-            $item.find("> ol h4 > a").unwrap().wrap("<h3></h3>");
-
-            if ($item.find(".simple-create-part")[0]) {
-              $item.children(".article-containers").show();
-              $item.children("ol.summary-part").hide();
+          if (childrenType === "extract") {
+            // Element is dragged into the list from another list
+            if ($from.parent().is(".article-containers > .article-part")) { // is: chapter > extract
+              $item.find("> h4 > a").unwrap().wrap("<h3></h3>");
+            } else { // is: part > chapter > extract 
+              $item.find("> h3 > a").unwrap().wrap("<h4></h4>");
             }
-          } else { // is: part > chapter > extract 
-            $item.find("> h2 > a").unwrap().wrap("<h3></h3>");
-            $item.find("> ol h3 > a").unwrap().wrap("<h4></h4>");
+          } else {
+            // Element is dragged into the list from another list
+            if ($to.is("section")) { // is: chapter > extract
+              $item.find("> h3 > a").unwrap().wrap("<h2></h2>");
+              $item.find("> ol h4 > a").unwrap().wrap("<h3></h3>");
 
-            if ($item.find(".simple-create-part")[0]) {
-              $item.children(".article-containers").hide();
-              $item.append(
-                `<ol class="summary-part" data-children-type="extract">
-                  <li class="simple-create-button">
-                    <a class="btn btn-grey">Ajouter une section</a>
-                  </li>
-                </ol>`
-              );
+              if ($item.find(".simple-create-part")[0]) {
+                $item.children(".article-containers").show();
+                $item.children("ol.summary-part").hide();
+              }
+            } else { // is: part > chapter > extract 
+              $item.find("> h2 > a").unwrap().wrap("<h3></h3>");
+              $item.find("> ol h3 > a").unwrap().wrap("<h4></h4>");
+
+              if ($item.find(".simple-create-part")[0]) {
+                $item.children(".article-containers").hide();
+                $item.append(
+                  `<ol class="summary-part" data-children-type="extract">
+                    <li class="simple-create-button">
+                      <a class="btn btn-grey">Ajouter une section</a>
+                    </li>
+                  </ol>`
+                );
+              }
             }
           }
         }
 
-        if ($(evt.related).is(".simple-create-part")) {
+        if ($(evt.related).is(".simple-create-button") || $(evt.related).is(".simple-create-part")) {
           return -1;
         }
       },
