@@ -96,7 +96,7 @@
       return false;
     }
     const $itemContainer = $item.children("[data-children-type=container]");
-    const haveChildChapter = (!!$itemContainer.children("div.article-part[data-slug]")[0]);
+    const haveChildChapter = (!!$itemContainer.children(".article-part[data-slug]")[0]);
     const childrenType = $item.parents("[data-children-type]").attr("data-children-type");
 
     // move part in part is forbidden
@@ -110,7 +110,7 @@
     }
 
     // move extract in tuto (root) or chapter in (part) is forbidden
-    if (childrenType === "extract" && $to.children("div.article-part[data-slug]")[0]) {
+    if (childrenType === "extract" && $to.children(".article-part[data-slug]")[0]) {
       return false;
     }
 
@@ -122,7 +122,7 @@
       .attr("data-children-type", "container");
 
     $("section.article-content.parts .article-containers").each(function() {
-      const hasChildren = $(this).children("div.article-part[data-slug]")[0];
+      const hasChildren = $(this).children(".article-part[data-slug]")[0];
       $(this).attr("data-children-type", hasChildren ? "container" : "both");
     });
 
