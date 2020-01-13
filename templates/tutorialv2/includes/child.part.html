@@ -46,7 +46,7 @@
         {# child is a container #}
 
         {% if child.has_extracts %}
-            <ol class="summary-part" data-children-type="extract" data-slug="{{ child.slug }}">
+            <ol class="summary-part" data-slug="{{ child.slug }}">
                 {% for extract in child.children %}
                 <li data-slug="{{ extract.slug }}">
                     <h3>
@@ -73,7 +73,7 @@
                 {% endif %}
             </ol>
         {% elif child.has_sub_containers %}
-            <div class="article-containers" data-children-type="container" data-slug="{{ child.slug }}">
+            <div class="article-containers" data-slug="{{ child.slug }}">
                 {% for subchild in child.children %}
                     <div class="article-part" data-slug="{{ subchild.slug }}">
                         <h3 class="{% if not subchild.ready_to_publish %}not-ready{% endif %}">
@@ -88,7 +88,7 @@
                         {% if can_add_something %}
                             {% include "tutorialv2/includes/actions_title_buttons.part.html" with child=subchild %}
                         {% endif %}
-                        <ol class="summary-part" data-children-type="extract" data-slug="{{ subchild.slug }}">
+                        <ol class="summary-part" data-slug="{{ subchild.slug }}">
                             {% for extract in subchild.children %}
                                 <li data-slug="{{ extract.slug }}">
                                     <h4>
@@ -130,7 +130,7 @@
             </div>
         {% else %}
             {% if not can_add_something or not child.is_chapter %}
-                <div class="article-containers" data-children-type="container" data-slug="{{ child.slug }}">
+                <div class="article-containers" data-slug="{{ child.slug }}">
                     <div class="article-part simple-create-part">
                         <div class="ico-after warning">
                             <p>
