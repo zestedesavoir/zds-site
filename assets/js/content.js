@@ -30,22 +30,24 @@
 
       if ($prev[0]) {
         return "after:" + path + $prev.attr("data-slug");
+      } else if ($item.next()[0] && !$item.is(".simple-create-button .simple-create-part")) {
+        return "before:" + path + $item.next().attr("data-slug");
       } else {
         return "first:" + path;
       }
     })($item.prev());
 
-    const isExtract = ($from.attr("data-children-type") === "extract");
-
     const pk = $item.parents("[data-pk]").attr("data-pk");
     const slug = $item.attr("data-slug");
+
+    console.log($from.parents("[data-children-type]").length);
 
     const form = {
       // new 
       "moving_method": movingMethod,
       // old
       "container_slug": $from.attr("data-slug"),
-      "first_level_slug": (isExtract) ? $from.parents("[data-children-type]").attr("data-slug") : undefined,
+      "first_level_slug": ($from.parents("[data-children-type]").length > 1) ? $from.parents("[data-children-type]").attr("data-slug") : '',
       // current
       "child_slug": slug,
       "pk": pk,
@@ -88,22 +90,45 @@
     }
     const $itemContainer = $item.children("[data-children-type=container]");
     const haveChildChapter = (!!$itemContainer.children("div.article-part[data-slug]")[0]);
+    const childrenType = $item.parents("[data-children-type]").attr("data-children-type");
 
     // move part in part is forbidden
     if (haveChildChapter && $to.parents("[data-children-type=container]")[0]) {
       return false;
     }
+
+    // move container in extract is forbidden
+    if (childrenType === "container" && $to.attr("data-children-type") === "extract") {
+      return false;
+    }
+
+    // move extract in tuto (root) or chapter in (part) is forbidden
+    if (childrenType === "extract" && $to.children("div.article-part[data-slug]")[0]) {
+      return false;
+    }
+
     return true;
   }
 
   $(document).ready(function() {
+    $("section.article-content.parts")
+      .attr("data-children-type", "container");
+
+    $("section.article-content.parts .article-containers").each(function() {
+      const hasChildren = $(this).children("div.article-part[data-slug]")[0];
+      $(this).attr("data-children-type", hasChildren ? "container" : "both");
+    });
+
+    $("section.article-content.parts .summary-part")
+      .attr("data-children-type", "extract");
+
     $("*[data-children-type]").sortable({
       group: "element",
       handle: ["h2", "h3 a", "h4 a"],
-      filter: function (pointer, dragged) {
+      filter: function(pointer, dragged) {
         return $(dragged).is(".simple-create-button") || $(dragged).is(".simple-create-part");
       },
-      onMove: (evt) => {
+      onMove: function(evt) {
         const childrenType = $(evt.dragged).parents("[data-children-type]").attr("data-children-type");
 
         const $item = $(evt.dragged);
@@ -125,7 +150,7 @@
               $item.find("> h3 > a").unwrap().wrap("<h4></h4>");
             }
           // Parent is: Tuto (root) or Part
-          } else { // => (childrenType === "container")
+          } else if (childrenType === "container") {
             // Element is dragged into the list from another list
             if ($to.is("section")) { // is: chapter > extract
               $item.find("> h3 > a").unwrap().wrap("<h2></h2>");
