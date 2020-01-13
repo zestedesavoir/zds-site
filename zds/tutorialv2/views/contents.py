@@ -1182,6 +1182,13 @@ class CreateExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin, For
         self.object.save(force_slug_update=False)
 
         self.success_url = parent.children[-1].get_absolute_url()
+        if self.request.is_ajax():
+            return HttpResponse(json.dumps({
+                'url': parent.children[-1].get_absolute_url(),
+                'slug': parent.children[-1].slug,
+                'title': form.cleaned_data['title'],
+                'edit-url': parent.children[-1].get_edit_url()
+            }), content_type='application/json')
 
         return super(CreateExtract, self).form_valid(form)
 
@@ -1698,7 +1705,7 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
             else:
                 search_params['container_slug'] = base_container_slug
             parent = search_container_or_404(versioned, search_params)
-
+        child = None
         try:
             child = parent.children_dict[child_slug]
             if form.data['moving_method'] == MoveElementForm.MOVE_UP:
@@ -1714,16 +1721,10 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
                         target_parent = versioned
                     else:
                         target_parent = search_container_or_404(versioned, '/'.join(target.split('/')[:-1]))
-
-                        if target.split('/')[-1] not in target_parent.children_dict:
-                            raise Http404("La cible n'est pas un enfant du parent.")
-                    child = target_parent.children_dict[target.split('/')[-1]]
-                    try_adopt_new_child(target_parent, parent.children_dict[child_slug])
-                    # now, I will fix a bug that happens when the slug changes
-                    # this one cost me so much of my hair
-                    # and makes me think copy/past are killing kitty cat.
+                    try_adopt_new_child(target_parent, child)
                     child_slug = target_parent.children[-1].slug
                     parent = target_parent
+                    child.parent = parent
                 logger.debug('{} was inserted in {} in tutorial id:{}'.format(child_slug, target, content.pk))
             elif form.data['moving_method'][0:len(MoveElementForm.MOVE_AFTER)] == MoveElementForm.MOVE_AFTER:
                 target = form.data['moving_method'][len(MoveElementForm.MOVE_AFTER) + 1:]
@@ -1775,9 +1776,12 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
         except TooDeepContainerError:
             messages.error(self.request, _("Ce conteneur contient déjà trop d'enfants pour être"
                                            ' inclus dans un autre conteneur.'))
+
         except KeyError:
             messages.warning(self.request, _("Vous n'avez pas complètement rempli le formulaire,"
                                              'ou bien il est impossible de déplacer cet élément.'))
+            if not child:
+                raise Http404
         except ValueError as e:
             raise Http404("L'arbre spécifié n'est pas valide." + str(e))
         except IndexError:
