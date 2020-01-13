@@ -30,7 +30,7 @@
 
       if ($prev[0]) {
         return "after:" + path + $prev.attr("data-slug");
-      } else if ($item.next()[0] && !$item.is(".simple-create-button .simple-create-part")) {
+      } else if ($item.next()[0] && !$item.next().is(".simple-create-button, .simple-create-part")) {
         return "before:" + path + $item.next().attr("data-slug");
       } else {
         return "first:" + path;
@@ -126,7 +126,7 @@
       $(this).attr("data-children-type", hasChildren ? "container" : "both");
     });
 
-    $("section.article-content.parts .summary-part")
+    $("section.article-content.parts ol.summary-part")
       .attr("data-children-type", "extract");
 
     const makeSortable = ($elements) => $elements.sortable({
@@ -137,13 +137,12 @@
       },
       onStart: function (evt) {
         $("*[data-children-type=both]").each(function() {
-          $(this).html(`<ol class="summary-part" data-slug="chapitre-b" data-children-type="extract">
-            <li class="simple-create-button">
-              <a class="btn btn-grey" href="#">Ajouter une section</a>
-            </li>
-           </ol>`);
-          makeSortable($(this).find("> *[data-children-type]"))
+          $(this).html(`<li class="simple-create-button">
+                          <a class="btn btn-grey" href="#">Ajouter une section</a>
+                        </li>`);
+          $(this).attr("class", "summary-part");
           $(this).attr("data-children-type", "extract");
+          makeSortable($(this).find("> *[data-children-type]"));
         });
       },
       onMove: function(evt) {
