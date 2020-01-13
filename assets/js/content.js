@@ -114,7 +114,9 @@
           return false;
         }
 
+        // Parent changed
         if (!$to.is($from)) {
+          // Parent is: Chapter
           if (childrenType === "extract") {
             // Element is dragged into the list from another list
             if ($from.parent().is(".article-containers > .article-part")) { // is: chapter > extract
@@ -122,7 +124,8 @@
             } else { // is: part > chapter > extract 
               $item.find("> h3 > a").unwrap().wrap("<h4></h4>");
             }
-          } else {
+          // Parent is: Tuto (root) or Part
+          } else { // => (childrenType === "container")
             // Element is dragged into the list from another list
             if ($to.is("section")) { // is: chapter > extract
               $item.find("> h3 > a").unwrap().wrap("<h2></h2>");
