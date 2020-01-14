@@ -20,23 +20,23 @@ clean: clean-back clean-front ## Clean everything (`clean-back` & `clean-front`)
 ##
 ## ~ Backend
 
-install-back: ## Install the Python packages for the backend
+install-back: activate-venv ## Install the Python packages for the backend
 	pip install --upgrade -r requirements-dev.txt
 
-install-back-with-prod:
+install-back-with-prod: activate-venv
 	pip install --upgrade -r requirements-dev.txt -r requirements-prod.txt
 
-run-back: zmd-check ## Run the backend server
+run-back: activate-venv zmd-check ## Run the backend server
 	python manage.py runserver
 
-lint-back: ## Lint Python code
+lint-back: activate-venv ## Lint Python code
 	flake8 zds
 
-test-back: clean-back zmd-start ## Run backend unit tests
+test-back: activate-venv clean-back zmd-start ## Run backend unit tests
 	python manage.py test --settings zds.settings.test --exclude-tag=front
 	make zmd-stop
 
-test-back-selenium: ## Run backend Selenium tests
+test-back-selenium: activate-venv ## Run backend Selenium tests
 	xvfb-run --server-args="-screen 0 1280x720x8" python manage.py test --settings zds.settings.test --tag=front
 
 clean-back: ## Remove Python bytecode files (*.pyc)
@@ -45,19 +45,19 @@ clean-back: ## Remove Python bytecode files (*.pyc)
 ##
 ## ~ Frontend
 
-install-front: ## Install the Node.js packages for the frontend
+install-front: activate-venv ## Install the Node.js packages for the frontend
 	yarn install
 
-build-front: ## Build the frontend assets (CSS, JS, images)
+build-front: activate-venv ## Build the frontend assets (CSS, JS, images)
 	yarn run build
 
-watch-front: ## Build the frontend assets when they are modified
+watch-front: activate-venv ## Build the frontend assets when they are modified
 	yarn run watch --speed
 
-lint-front: ## Lint the frontend's Javascript
+lint-front: activate-venv ## Lint the frontend's Javascript
 	yarn run lint
 
-clean-front: ## Clean the frontend builds
+clean-front: activate-venv ## Clean the frontend builds
 	yarn run clean
 
 ##
@@ -65,43 +65,43 @@ clean-front: ## Clean the frontend builds
 
 ZMD_URL="http://localhost:27272"
 
-zmd-install: ## Install the Node.js packages for zmarkdown
+zmd-install: activate-venv ## Install the Node.js packages for zmarkdown
 	cd zmd && npm -g install pm2 && npm install --production
 
-zmd-start: ## Start the zmarkdown server
+zmd-start: activate-venv ## Start the zmarkdown server
 	cd zmd/node_modules/zmarkdown && npm run server
 
 zmd-check: ## Check if the zmarkdown server is running
 	@curl -s $(ZMD_URL) || echo 'Use `make zmd-start` to start zmarkdown server'
 
-zmd-stop: ## Stop the zmarkdown server
+zmd-stop: activate-venv ## Stop the zmarkdown server
 	pm2 kill
 
 ##
 ## ~ Elastic Search
 
-run-elasticsearch: ## Run the Elastic Search server
+run-elasticsearch: activate-venv ## Run the Elastic Search server
 	elasticsearch || echo 'No Elastic Search installed (you can add it locally with `./scripts/install_zds.sh +elastic-local`)'
 
-index-all: ## Index the database in a new Elastic Search index
+index-all: activate-venv ## Index the database in a new Elastic Search index
 	python manage.py es_manager index_all
 
-index-flagged: ## Index the database in the current Elastic Search index
+index-flagged: activate-venv ## Index the database in the current Elastic Search index
 	python manage.py es_manager index_flagged
 
 ##
 ## ~ PDF
 
-generate-pdf: ## Generate PDFs of published contents
+generate-pdf: activate-venv ## Generate PDFs of published contents
 	python manage.py generate_pdf
 
 ##
 ## ~ Database
 
-migrate-db: ## Create or update database schema
+migrate-db: activate-venv ## Create or update database schema
 	python manage.py migrate
 
-generate-fixtures: ## Generate fixtures (users, tutorials, articles, opinions, topics...)
+generate-fixtures: activate-venv ## Generate fixtures (users, tutorials, articles, opinions, topics...)
 	@if curl -s $(ZMD_URL) > /dev/null; then \
 		python manage.py loaddata fixtures/*.yaml; \
 		python manage.py load_factory_data fixtures/advanced/aide_tuto_media.yaml; \
@@ -118,7 +118,10 @@ wipe-db: ## Remove the database and the contents directories
 ##
 ## ~ Tools
 
-generate-doc: ## Generate the project's documentation
+activate-venv:
+    source zdsenv/bin/activate;
+
+generate-doc: activate-venv ## Generate the project's documentation
 	cd doc && make html
 	@echo ""
 	@echo "Open 'doc/build/html/index.html' to read the documentation'"
@@ -126,7 +129,7 @@ generate-doc: ## Generate the project's documentation
 generate-release-summary: ## Generate a release summary from Github's issues and PRs
 	@python scripts/generate_release_summary.py
 
-start-publication-watchdog: ## Start the publication watchdog
+start-publication-watchdog: activate-venv ## Start the publication watchdog
 	@if curl -s $(ZMD_URL) > /dev/null; then \
 		python manage.py publication_watchdog; \
 	else \
