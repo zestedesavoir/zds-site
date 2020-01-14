@@ -26,8 +26,9 @@ install-back: activate-venv ## Install the Python packages for the backend
 install-back-with-prod: activate-venv
 	pip install --upgrade -r requirements-dev.txt -r requirements-prod.txt
 
-run-back: activate-venv zmd-check ## Run the backend server
+run-back: activate-venv zmd-start ## Run the backend server
 	python manage.py runserver
+	make zmd-stop
 
 lint-back: activate-venv ## Lint Python code
 	flake8 zds
@@ -63,16 +64,11 @@ clean-front: activate-venv ## Clean the frontend builds
 ##
 ## ~ zmarkdown
 
-ZMD_URL="http://localhost:27272"
-
 zmd-install: activate-venv ## Install the Node.js packages for zmarkdown
 	cd zmd && npm -g install pm2 && npm install --production
 
-zmd-start: activate-venv ## Start the zmarkdown server
-	cd zmd/node_modules/zmarkdown && npm run server
-
-zmd-check: ## Check if the zmarkdown server is running
-	@curl -s $(ZMD_URL) || echo 'Use `make zmd-start` to start zmarkdown server'
+zmd-start: activate-venv ## Start the zmarkdown server if needed
+    @curl -s http://localhost:27272 || (cd zmd/node_modules/zmarkdown && npm run server)
 
 zmd-stop: activate-venv ## Stop the zmarkdown server
 	pm2 kill
@@ -101,14 +97,11 @@ generate-pdf: activate-venv ## Generate PDFs of published contents
 migrate-db: activate-venv ## Create or update database schema
 	python manage.py migrate
 
-generate-fixtures: activate-venv ## Generate fixtures (users, tutorials, articles, opinions, topics...)
-	@if curl -s $(ZMD_URL) > /dev/null; then \
-		python manage.py loaddata fixtures/*.yaml; \
-		python manage.py load_factory_data fixtures/advanced/aide_tuto_media.yaml; \
-		python manage.py load_fixtures --size=low --all; \
-	else \
-		echo 'Start zmarkdown first with `make zmd-start`'; \
-	fi
+generate-fixtures: activate-venv zmd-start ## Generate fixtures (users, tutorials, articles, opinions, topics...)
+	python manage.py loaddata fixtures/*.yaml
+	python manage.py load_factory_data fixtures/advanced/aide_tuto_media.yaml
+	python manage.py load_fixtures --size=low --all
+	make zmd-stop
 
 wipe-db: ## Remove the database and the contents directories
 	rm -f base.db
@@ -119,7 +112,7 @@ wipe-db: ## Remove the database and the contents directories
 ## ~ Tools
 
 activate-venv:
-    source zdsenv/bin/activate;
+    source zdsenv/bin/activate
 
 generate-doc: activate-venv ## Generate the project's documentation
 	cd doc && make html
@@ -129,12 +122,9 @@ generate-doc: activate-venv ## Generate the project's documentation
 generate-release-summary: ## Generate a release summary from Github's issues and PRs
 	@python scripts/generate_release_summary.py
 
-start-publication-watchdog: activate-venv ## Start the publication watchdog
-	@if curl -s $(ZMD_URL) > /dev/null; then \
-		python manage.py publication_watchdog; \
-	else \
-		echo 'Start zmarkdown first with `make zmd-start`'; \
-	fi
+start-publication-watchdog: activate-venv zmd-start ## Start the publication watchdog
+	python manage.py publication_watchdog
+	make zmd-stop
 
 # inspired from https://gist.github.com/sjparkinson/f0413d429b12877ecb087c6fc30c1f0a
 
