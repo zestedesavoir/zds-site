@@ -338,6 +338,7 @@
     };
 
     $(".md-editor").each(function(){
+        var textarea = this;
         var formEditor = $(this).closest("form");
         let minHeight = "500px";
         if ($(this).hasClass("mini-editor")) {
@@ -345,22 +346,32 @@
         }
 
         var customMarkdownParser = function(plainText) {
-            var result;
-            $.ajax({
-                url: formEditor.attr("action"),
-                type: "POST",
-                data: {
-                    "csrfmiddlewaretoken": csrf,
-                    "text": plainText,
-                    "last_post": "",
-                    "preview": "preview"
-                },
-                success: function(data){
-                    result = data;
-                },
-                async: false
-            });
-            return result;
+            var editor = instancesMde[textarea.id];
+            var preview = editor.codemirror.getWrapperElement().nextSibling;
+            var request = function () {
+                $.ajax({
+                    url: formEditor.attr("action"),
+                    type: "POST",
+                    data: {
+                        "csrfmiddlewaretoken": csrf,
+                        "text": plainText,
+                        "last_post": "",
+                        "preview": "preview"
+                    },
+                    success: function(data){
+                        preview.innerHTML = data;
+                    },
+                    async: true
+                });
+            }
+
+            if (editor.previous_value !== plainText) {
+                clearTimeout(editor.timeout);
+                editor.timeout = setTimeout(request, 600);
+            }
+            editor.previous_value = plainText;
+
+            return null;
         };
 
         var easyMDE = new EasyMDE({
@@ -390,9 +401,7 @@
                 spellChecker: false,
                 promptAbbrv: true,
                 theme: "idea",
-                previewRender: function(plainText) {
-                    return customMarkdownParser(plainText); // Returns HTML from a custom parser
-                },
+                previewRender: customMarkdownParser,
                 syncSideBySidePreviewScroll: false,
                 toolbar: [
                     {
@@ -625,5 +634,7 @@
             }
         );
         instancesMde[this.id]=easyMDE;
+        instancesMde[this.id].timeout = 0;
+        instancesMde[this.id].previous_value = "";
     });
 })(jQuery);
