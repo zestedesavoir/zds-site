@@ -142,7 +142,7 @@
                         </li>`);
           $(this).attr("class", "summary-part");
           $(this).attr("data-children-type", "extract");
-          makeSortable($(this).find("> *[data-children-type]"));
+          //makeSortable($(this).find("> *[data-children-type]"));
         });
       },
       onMove: function(evt) {
