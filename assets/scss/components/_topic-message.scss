@@ -257,8 +257,7 @@
                 border-top: 1px solid #D2D5D6;
                 padding: 3px 0 3px 10px;
                 margin: 0 10px 0 0;
-                font-size: 12px;
-                font-size: 1.2rem;
+                font-size: 1.15rem;
                 color: #999;
                 flex: 1;
                 overflow: hidden;
@@ -266,6 +265,9 @@
                 p {
                     margin: 0;
                     padding: 0;
+                    img.smiley {
+                        max-height: 1.6rem;
+                    }
                 }
 
                 a {
@@ -630,8 +632,10 @@ form.topic-message {
                     white-space: nowrap;
                     overflow: hidden;
                     text-overflow: ellipsis;
+                    img.smiley {
+                        max-height: 1.6rem;
+                    }
                 }
-
                 &.full p {
                     white-space: normal;
                 }
