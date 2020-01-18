@@ -80,14 +80,27 @@ def validate_zds_username(value, check_username_available=True):
     user_count = User.objects.filter(username=value).count()
     if ',' in value:
         msg = _('Le nom d\'utilisateur ne peut contenir de virgules')
-    elif value != value.strip():
-        msg = _('Le nom d\'utilisateur ne peut commencer ou finir par des espaces')
     elif contains_utf8mb4(value):
         msg = _('Le nom d\'utilisateur ne peut pas contenir des caractères utf8mb4')
     elif check_username_available and user_count > 0:
         msg = _('Ce nom d\'utilisateur est déjà utilisé')
     elif not check_username_available and user_count == 0:
         msg = _('Ce nom d\'utilisateur n\'existe pas')
+    if msg is not None:
+        raise ValidationError(msg)
+
+
+def validate_raw_zds_username(data):
+    """
+    Check if raw username hasn't space on left or right
+    """
+    msg = None
+    username = data.get('username', None)
+    if username is None:
+        msg = _('Le nom d\'utilisateur n\'est pas fourni')
+    elif username != username.strip():
+        msg = _('Le nom d\'utilisateur ne peut commencer ou finir par des espaces')
+
     if msg is not None:
         raise ValidationError(msg)
 
