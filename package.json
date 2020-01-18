@@ -37,7 +37,7 @@
     "gulp-options": "^1.1.1",
     "gulp-postcss": "8.0.0",
     "gulp-sass": "4.0.2",
-    "gulp-terser-js": "^5.0.1",
+    "gulp-terser-js": "^5.1.0",
     "gulp.spritesmith": "6.11.0",
     "highlight.js": "^9.16.2",
     "jquery": "3.4.1",
