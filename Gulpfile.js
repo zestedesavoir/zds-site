@@ -66,6 +66,8 @@ function customSassError(error) {
         })
         console.log('Original message:', error.messageFormatted)
         this.emit('end')
+    } else {
+        console.log(error.message)
     }
     // TODO: https://github.com/A-312/gulp-terser-js#can-i-use-terser-to-format-error-of-an-other-gulp-module-
 }
@@ -120,7 +122,9 @@ function js() {
         .pipe(gulpif(!fast, terser())) // Minifies the JS
         .on('error', function (error) {
           if (error.plugin.startsWith('gulp-terser')) {
-            this.emit('end')
+              this.emit('end')
+          } else {
+              console.log(error.message)
           }
         })
         .pipe(concat('script.js', { newline: ';\r\n' })) // One JS file to rule them all
