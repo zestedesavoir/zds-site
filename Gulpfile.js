@@ -98,6 +98,11 @@ function js() {
         'assets/js/*.js',
     ], { base: '.', sourcemaps: true })
         .pipe(gulpif(!fast, terser())) // Minifies the JS
+        .on('error', function (error) {
+          if (error.plugin.startsWith('gulp-terser')) {
+            this.emit('end')
+          }
+        })
         .pipe(concat('script.js', { newline: ';\r\n' })) // One JS file to rule them all
         .pipe(gulp.dest('dist/js/', { sourcemaps: '.' }));
 }
