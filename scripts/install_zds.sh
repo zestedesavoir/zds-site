@@ -558,7 +558,7 @@ if  ! $(_in "-data" $@) && ( $(_in "+data" $@) || $(_in "+base" $@) || $(_in "+f
 
     if [[ $exVal != 0 ]]; then
         print_error "!! Cannot generate-fixtures (use \`-data\` to skip)"
-        exit 1
+        # don't exit here, because we have to stop zmd !
     fi
 
     make zmd-stop; exVal=$?
