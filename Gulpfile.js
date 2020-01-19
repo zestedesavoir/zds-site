@@ -12,6 +12,7 @@ const postcss = require('gulp-postcss');
 const sass = require('gulp-sass');
 const spritesmith = require('gulp.spritesmith');
 const terser = require('gulp-terser-js');
+const fs = require('fs');
 
 
 //// Speed mode
@@ -52,10 +53,28 @@ const customSass = () => sass({
     ],
 }).on('error', sass.logError);
 
+function customSassError(error) {
+    if (error.plugin === 'gulp-sass') {
+        terser.printError.call(this, {
+            name: error.name,
+            line: error.line,
+            col: error.column,
+            filePath: error.file,
+            fileContent: '' + fs.readFileSync(error.file),
+            message: (error.messageOriginal || '').replace(error.file, path.basename(error.file)).split(' in file')[0],
+            plugin: error.plugin
+        })
+        console.log('Original message:', error.messageFormatted)
+        this.emit('end')
+    }
+    // TODO: https://github.com/A-312/gulp-terser-js#can-i-use-terser-to-format-error-of-an-other-gulp-module-
+}
+
 // Generates CSS for the website and the ebooks
 function css() {
     return gulp.src(['assets/scss/main.scss', 'assets/scss/zmd.scss'], { sourcemaps: true })
         .pipe(customSass()) // SCSS to CSS
+        .on('error', customSassError)
         .pipe(gulpif(!fast, postcss(postcssPlugins))) // Adds browsers prefixs and minifies
         .pipe(gulp.dest('dist/css/', { sourcemaps: '.' }));
 }
@@ -64,6 +83,7 @@ function css() {
 function errors() {
     return gulp.src('errors/scss/main.scss', { sourcemaps: true })
         .pipe(customSass())
+        .on('error', customSassError)
         .pipe(gulpif(!fast, postcss(postcssPlugins)))
         .pipe(gulp.dest('errors/css/', { sourcemaps: '.' }));
 }
