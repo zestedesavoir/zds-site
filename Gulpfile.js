@@ -133,7 +133,7 @@ function js() {
               console.log(error.message)
           }
         })
-        .pipe(concat('script.js', { newline: ';\r\n' })) // One JS file to rule them all
+        .pipe(concat('script.js', { newLine: ';\r\n' })) // One JS file to rule them all
         .pipe(gulp.dest('dist/js/', { sourcemaps: '.' }));
 }
 
