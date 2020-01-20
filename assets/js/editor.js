@@ -648,5 +648,7 @@
         easyMDE.codemirror.addKeyMap({
             "Cmd-Enter": submit
         })
+
+        this.removeAttribute("required");
     });
 })(jQuery);
