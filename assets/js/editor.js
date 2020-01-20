@@ -27,7 +27,7 @@
         } else {
             idInstance = $form.find(".md-editor").prop("id");
         }
-        var text = instancesMde[idInstance].value();
+        var text = window.editors[idInstance].value();
 
         var csrfmiddlewaretoken = $form.find("input[name=csrfmiddlewaretoken]").val(),
             lastPost = $form.find("input[name=last_post]").val();
@@ -55,7 +55,7 @@
 
     const maxRange = 99999999999;
     let csrf = $("input[name=csrfmiddlewaretoken]").val();
-    let instancesMde = {};
+    window.editors = {};
 
     function checkMatch(str, reg) {
         var found = String(str).match(reg);
@@ -346,7 +346,7 @@
         }
 
         var customMarkdownParser = function(plainText) {
-            var editor = instancesMde[textarea.id];
+            var editor = window.editors[textarea.id];
             var preview = editor.codemirror.getWrapperElement().nextSibling;
             var request = function () {
                 $.ajax({
@@ -633,8 +633,8 @@
                 ]
             }
         );
-        instancesMde[this.id]=easyMDE;
-        instancesMde[this.id].timeout = 0;
-        instancesMde[this.id].previous_value = "";
+        window.editors[this.id]=easyMDE;
+        window.editors[this.id].timeout = 0;
+        window.editors[this.id].previous_value = "";
     });
 })(jQuery);
