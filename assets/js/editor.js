@@ -633,8 +633,20 @@
                 ]
             }
         );
+
         window.editors[this.id]=easyMDE;
         window.editors[this.id].timeout = 0;
         window.editors[this.id].previous_value = "";
+
+        function submit(cm) {
+            if (cm.getValue() !== "") formEditor.submit();
+        }
+
+        easyMDE.codemirror.addKeyMap({
+            "Ctrl-Enter": submit
+        })
+        easyMDE.codemirror.addKeyMap({
+            "Cmd-Enter": submit
+        })
     });
 })(jQuery);
