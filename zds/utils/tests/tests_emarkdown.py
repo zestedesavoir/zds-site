@@ -40,7 +40,13 @@ class EMarkdownTest(TestCase):
 
         self.assertEqual(tr, expected)
 
-        # Todo: Find a way to force parsing crash or simulate it.
+    def test_emarkdown_inline_with_link(self):
+        # The goal is not to test zmarkdown but test that template tag correctly call it
+        self.context['content'] = '[zds](zestedesavoir.com)'
+        tr = Template('{% load emarkdown %}{{ content | emarkdown_inline}}').render(self.context)
+
+        expected = '<p><a rel="nofollow" href="zestedesavoir.com">zds</a></p>'
+        self.assertEqual(tr, expected)
 
     def test_shift_heading(self):
         tr = Template('{% load emarkdown %}{{ content | shift_heading_1}}').render(self.context)
