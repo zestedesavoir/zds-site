@@ -178,7 +178,7 @@ def emarkdown_inline(text):
     :rtype: str
     """
     rendered = emarkdown(text, inline=True)
-    return rendered
+    return mark_safe(rendered.replace('<a href=', '<a rel="nofollow" href='))
 
 
 def sub_hd(match, count):
