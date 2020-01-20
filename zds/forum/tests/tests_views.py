@@ -274,6 +274,7 @@ class TopicPostsListViewTest(TestCase):
 
 
 class TopicNewTest(TestCase):
+
     def test_failure_create_topic_with_a_post_with_client_unauthenticated(self):
         _, forum = create_category_and_forum()
 
@@ -386,7 +387,7 @@ class TopicNewTest(TestCase):
             'preview': '',
             'title': 'Title of the topic',
             'subtitle': 'Subtitle of the topic',
-            'text': 'A new post!'
+            'text': 'A new post!\n\n```python\nprint("hello")\n```'
         }
         response = self.client.post(reverse('topic-new') + '?forum={}'.format(forum.pk), data, follow=False)
 
@@ -400,12 +401,14 @@ class TopicNewTest(TestCase):
         data = {
             'title': 'Title of the topic',
             'subtitle': 'Subtitle of the topic',
-            'text': 'A new post!',
+            'text': 'A new post!\n\n```python\nprint("hello")\n```',
             'tags': ''
         }
         response = self.client.post(reverse('topic-new') + '?forum={}'.format(forum.pk), data, follow=False)
 
         self.assertEqual(302, response.status_code)
+        topic = Topic.objects.last()
+        self.assertEquals(1, topic.tags.count())
 
     def test_create_topic_with_hat(self):
         profile = ProfileFactory()

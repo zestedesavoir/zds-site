@@ -90,14 +90,24 @@ def create_topic(
     if tags:
         n_topic.add_tags(tags.split(','))
     n_topic.save()
-
+    metadata = {}
     # Add the first message
-    send_post(request, n_topic, n_topic.author, text)
-
+    send_post(request, n_topic, n_topic.author, text, metadata)
+    if metadata.get('languages', None):
+        n_topic.add_tags(metadata.get('languages'))
     return n_topic
 
 
-def send_post(request, topic, author, text,):
+def send_post(request, topic, author, text, metadata=None):
+    """
+    send a post to a topic
+    :param request: current http request
+    :param topic: current topic
+    :param author: post author
+    :param text: post text
+    :param metadata: if not None will be populated with post metadata (ping, languages...)
+    :return: the topic
+    """
     post = Post()
     post.topic = topic
     post.author = author
@@ -107,7 +117,7 @@ def send_post(request, topic, author, text,):
     else:
         post.position = 1
     if request:
-        post.update_content(
+        post_metadata = post.update_content(
             text,
             on_error=lambda m: messages.error(
                 request,
@@ -115,9 +125,11 @@ def send_post(request, topic, author, text,):
         post.ip_address = get_client_ip(request)
         post.hat = get_hat_from_request(request)
     else:
-        post.update_content(
+        post_metadata = post.update_content(
             text,
             on_error=lambda m: logging.getLogger(__name__).error('--'.join(m)))
+    if metadata is not None:
+        metadata.update(post_metadata)
     post.save()
 
     topic.last_message = post

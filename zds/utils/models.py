@@ -389,6 +389,12 @@ class Comment(models.Model):
                             related_name='comments', blank=True, null=True)
 
     def update_content(self, text, on_error=None):
+        """
+        update content and process the text
+        :param text: the text to process
+        :param on_error: if zmarkdown fails this callback is processed
+        :return: zmarkdown metadata
+        """
         _, old_metadata, _ = render_markdown(self.text)
         html, metadata, messages = render_markdown(text, on_error=on_error)
         self.text = text
@@ -416,6 +422,7 @@ class Comment(models.Model):
         unpinged_users = User.objects.filter(username__in=unpinged_usernames)
         for unpinged_user in unpinged_users:
             signals.unsubscribe.send(self.author, instance=self, user=unpinged_user)
+        return metadata
 
     def hide_comment_by_user(self, user, text_hidden):
         """Hide a comment and save it
