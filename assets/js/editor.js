@@ -379,7 +379,7 @@
                 autosave: {
                     enabled: true,
                     uniqueId: window.location.pathname + "@" + this.getAttribute("name"),
-                    delay: 1000,
+                    delay: 5000, // FIXME: Temporary fix #5589
                 },
                 indentWithTabs: false,
                 minHeight: minHeight,
