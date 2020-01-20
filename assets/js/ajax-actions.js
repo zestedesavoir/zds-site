@@ -252,26 +252,21 @@
         }
     });
 
-    function getLineAt(string, index) {
-        var before = string.slice(0, index).split("\n").slice(-1)[0] || "";
-        var after = string.slice(index).split("\n")[0] || "";
-        return before + after;
-    }
-
     function insertCitation(editor, citation) {
-        if (editor.value === "") {
-            editor.value = citation + "\n\n";
-            return;
-        }
-        if (editor.selectionStart !== editor.selectionEnd ||
-            getLineAt(editor.value, editor.selectionStart).trim()) {
-            editor.value = editor.value + "\n\n" + citation;
-            return;
+        let cm = window.editors[editor.id].codemirror;
+        let doc = cm.getDoc();
+        let cursor = doc.getCursor();
+
+        if (cm.getValue() === "") {
+            cm.setValue(citation + "\n\n");
+            cm.setCursor(cm.lineCount(), 0);
+        } else if (cm.somethingSelected()) {
+            doc.replaceSelection("\n\n" + citation + "\n\n");
+        } else {
+            doc.replaceRange("\n\n" + citation + "\n\n", cursor);
         }
 
-        var before = editor.value.slice(0, editor.selectionStart);
-        var after = editor.value.slice(editor.selectionEnd);
-        editor.value = before + "\n" + citation + "\n" + after;
+        cm.focus();
     }
 
     /**
@@ -292,9 +287,8 @@
             }
         });
 
-        // scroll to the textarea and focus the textarea
-        $("html, body").animate({ scrollTop: $(editor).offset().top }, 500);
-        editor.focus();
+        // scroll to the textarea
+        $("html, body").animate({ scrollTop: $(editor).siblings(".CodeMirror").offset().top }, 500);
     });
 
     /*
