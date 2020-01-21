@@ -91,22 +91,6 @@ after_success:
     fi
 
   - |
-    # upload compiled assets
-    COMMIT_MSG=`git rev-list --format=%B --max-count=1 $TRAVIS_COMMIT`
-    if [[ "$ZDS_TEST_JOB" == *"front"* ]] && [[ "$TRAVIS_PULL_REQUEST" == false ]] && [[ ! -z "$TRAVIS_TAG" ]] && [[ ! "$TRAVIS_TAG" == *"-build" ]]
-    then
-      # Adding GitHub OAuth token to login
-      echo -e "machine github.com login $BOT_LOGIN\n password $BOT_PASSWORD" > $HOME/.netrc
-      git config --global url."https://".insteadOf git://
-      git config --global user.name "Build bot"
-      git config --global user.email "zestedesavoir@gmail.com"
-      git config --global push.default simple
-
-      # Run script
-      ./scripts/push_front.sh $TRAVIS_TAG
-    fi
-
-  - |
     # upload built documentation to GitHub Pages
     if [[ "$ZDS_TEST_JOB" == *"doc"* ]] && [[ "$TRAVIS_BRANCH" == "dev" ]]; then
       # Adding GitHub OAuth token to login
