@@ -4,7 +4,7 @@
     <h2> <i class="fa fa-hand-o-right"></i> Ces contenus pourraient vous intéresser</h2>
     <div class="content-item-list">
         {% for content_suggestion in content_suggestions %}
-            {% include "tutorialv2/includes/content_item.part.html" with content=content_suggestion.suggestion show_description=True show_reactions=True %}
+            {% include "tutorialv2/includes/content_item.part.html" with public_content=content_suggestion.suggestion.public_version show_description=True show_reactions=True %}
         {% endfor %}
         {% for i in col_number|times %}
             <div class="fill"></div>
