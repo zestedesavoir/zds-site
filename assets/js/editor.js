@@ -345,9 +345,8 @@
             minHeight = "200px";
         }
 
-        var customMarkdownParser = function(plainText) {
+        var customMarkdownParser = function(plainText, preview) {
             var editor = window.editors[textarea.id];
-            var preview = editor.codemirror.getWrapperElement().nextSibling;
             var request = function () {
                 $.ajax({
                     url: formEditor.attr("action"),
@@ -365,10 +364,8 @@
                 });
             }
 
-            if (editor.previous_value !== plainText) {
-                clearTimeout(editor.timeout);
-                editor.timeout = setTimeout(request, 600);
-            }
+            clearTimeout(editor.timeout);
+            editor.timeout = setTimeout(request, 600);
             editor.previous_value = plainText;
 
             return null;
