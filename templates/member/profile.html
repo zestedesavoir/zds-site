@@ -140,9 +140,9 @@
                             {% trans "Aucun abonné" %}
                         {% else %}
                             {% blocktrans count subscriber_count=subscriber_count %}
-                                <span class="bold">{{ subscriber_count }}</span> abonné
+                                {{ subscriber_count }} abonné
                             {% plural %}
-                                <span class="bold">{{ subscriber_count }}</span> abonnés
+                                {{ subscriber_count }} abonnés
                             {% endblocktrans %}
                         {% endif %}
                     {% endcaptureas %}
