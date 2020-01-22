@@ -8,7 +8,7 @@
 (function($, undefined) {
     "use strict";
 
-    var $bioContainer = $("body.userprofilepage .user-bio-and-activity .bio-container");
+    var $bioContainer = $("body.userprofilepage .bio-container");
     if (!$bioContainer[0]) return; // We are not on a profile page
 
     var $bioTextContainer = $bioContainer.find(".message-content");
