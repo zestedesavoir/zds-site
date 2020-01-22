@@ -77,7 +77,7 @@
                 {{ content_title }}
             </h3>
 
-            <p class="content-description">
+            <p class="content-description" {% if not show_description or not content_subtitle %}aria-hidden="true"{% endif %}>
                 {% if content_subtitle and show_description %}
                     {{ content_subtitle }}
                 {% endif %}
