@@ -439,11 +439,11 @@ class Profile(models.Model):
     def find_username_skeleton(username):
         skeleton = ''
         for ch in username:
-            homoglyph = hg.Homoglyphs().get_combinations(ch)
+            homoglyph = hg.Homoglyphs(languages={'fr'}, strategy=hg.STRATEGY_LOAD).to_ascii(ch)
             if len(homoglyph) > 0:
                 if homoglyph[0].strip() != '':
                     skeleton += homoglyph[0]
-        return skeleton
+        return skeleton.lower()
 
 
 @receiver(models.signals.post_delete, sender=User)
