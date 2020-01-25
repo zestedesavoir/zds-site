@@ -17,6 +17,7 @@ from zds.tutorialv2.models.database import PublishableContent, PublishedContent
 from zds.utils.models import Alert, Licence, Hat
 
 from zds.forum.models import Forum
+import homoglyphs as hg
 
 
 class Profile(models.Model):
@@ -38,6 +39,7 @@ class Profile(models.Model):
         User,
         verbose_name='Utilisateur',
         related_name='profile', on_delete=models.CASCADE)
+    username_skeleton = models.CharField('Squelette du username', max_length=150, null=True, blank=True, db_index=True)
 
     last_ip_address = models.CharField(
         'Adresse IP',
@@ -432,6 +434,16 @@ class Profile(models.Model):
         if self._groups is None:
             self._groups = list(self.user.groups.all())
         return [g.pk for g in self._groups]
+
+    @staticmethod
+    def find_username_skeleton(username):
+        skeleton = ''
+        for ch in username:
+            homoglyph = hg.Homoglyphs(languages={'fr'}, strategy=hg.STRATEGY_LOAD).to_ascii(ch)
+            if len(homoglyph) > 0:
+                if homoglyph[0].strip() != '':
+                    skeleton += homoglyph[0]
+        return skeleton.lower()
 
 
 @receiver(models.signals.post_delete, sender=User)
