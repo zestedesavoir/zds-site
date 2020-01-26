@@ -163,8 +163,10 @@
             $(this).html(`<li class="simple-create-button">
                             <a class="btn btn-grey" href="#">Ajouter une section</a>
                           </li>`);
-            $(this).attr("class", "summary-part both");
-            $(this).attr("data-children-type", "extract");
+            $(this).attr({
+              "class": "summary-part both",
+              "data-children-type": "extract"
+            });
             //makeSortable($(this).find("> *[data-children-type]"));
           });
         } else {
@@ -178,8 +180,10 @@
                               <li><h4><a class="disabled">Section B</a></h4></li>
                             </ol>
                           </li>`);
-            $(this).attr("class", "article-containers both");
-            $(this).attr("data-children-type", "container");
+            $(this).attr({
+              "class": "article-containers both",
+              "data-children-type": "container"
+            });
             makeSortable($(this));
           });
         }
