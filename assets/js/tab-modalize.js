@@ -4,33 +4,31 @@
    Author: Alex-D / Alexandre Demode
    ========================================================================== */
 
-(function($){
-    "use strict";
-    
-    $("body").on("keydown", function(e){
-        var $modal = $(".tab-modalize:visible");
-        if($modal.length > 0){
-            // Tab do not go out modal
-            if(e.which === 9){
-                var $current = $modal.find(":focus"),
-                    $tabbables = $modal.find(":tabbable"),
-                    nextIndex = e.shiftKey ? $tabbables.length - 1 : 0;
+(function($) {
+  'use strict'
 
-                if($current.length === 1){
-                    var currentIndex = $tabbables.index($current);
-                    if(e.shiftKey){
-                        if(currentIndex > 0)
-                            nextIndex = currentIndex - 1;
-                    } else {
-                        if(currentIndex + 1 < $tabbables.length)
-                            nextIndex = currentIndex + 1;
-                    }
-                }
+  $('body').on('keydown', function(e) {
+    var $modal = $('.tab-modalize:visible')
+    if ($modal.length > 0) {
+      // Tab do not go out modal
+      if (e.which === 9) {
+        var $current = $modal.find(':focus')
+        var $tabbables = $modal.find(':tabbable')
+        var nextIndex = e.shiftKey ? $tabbables.length - 1 : 0
 
-                $tabbables.eq(nextIndex).focus();
-                e.stopPropagation();
-                e.preventDefault();
-            }
+        if ($current.length === 1) {
+          var currentIndex = $tabbables.index($current)
+          if (e.shiftKey) {
+            if (currentIndex > 0) { nextIndex = currentIndex - 1 }
+          } else {
+            if (currentIndex + 1 < $tabbables.length) { nextIndex = currentIndex + 1 }
+          }
         }
-    });
-})(jQuery);
+
+        $tabbables.eq(nextIndex).focus()
+        e.stopPropagation()
+        e.preventDefault()
+      }
+    }
+  })
+})(jQuery)
