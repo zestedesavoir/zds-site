@@ -112,6 +112,15 @@
         /* .. 4 .. */
         padding: 20px 0;
         /* << */
+
+        /* remove the list point during the dragging */
+        & > li {
+            list-style: none;
+        }
+
+        .both[data-children-type=container] {
+            padding-top:172px;
+        }
     }
 
     .article-content .article-part {
