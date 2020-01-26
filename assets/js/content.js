@@ -58,6 +58,20 @@
 
     $.post("/contenus/deplacer/", form);
 
+    if ($item.is("div") && $item.parent().is("ol, ul")) {
+      const newWrapper = $("<li></li>").attr({
+        "class": $item.attr("class"),
+        "data-slug": $item.attr("data-slug")
+      })
+      $item.wrap(newWrapper).children().unwrap();
+    } else if ($item.is("li") && $item.parent().is(":not(ol, ul)")) {
+      const newWrapper = $("<div></div>").attr({
+        "class": $item.attr("class"),
+        "data-slug": $item.attr("data-slug")
+      })
+      $item.wrap(newWrapper).children().unwrap();
+    }
+
     // modifie les URLs
     const path = ((tree) => {
       $item.parents("[data-children-type]").each((n, parent) => {
@@ -126,31 +140,56 @@
       $(this).attr("data-children-type", hasChildren ? "container" : "both");
     });
 
-    $("section.article-content.parts ol.summary-part")
+    const filter = function () {
+      // forbid drop into button
+      return !($(this).parents(".simple-create-button, .simple-create-part")[0]);
+    };
+
+    $("section.article-content.parts ol.summary-part").filter(filter)
       .attr("data-children-type", "extract");
 
     const makeSortable = ($elements) => $elements.sortable({
       group: "element",
       handle: ["h2", "h3 a", "h4 a"],
       filter: function(pointer, dragged) {
-        return $(dragged).is(".simple-create-button") || $(dragged).is(".simple-create-part");
+        // forbid button dragging
+        return $(dragged).is(".simple-create-button, .simple-create-part");
       },
       onStart: function (evt) {
-        $("*[data-children-type=both]").each(function() {
-          $(this).html(`<li class="simple-create-button">
-                          <a class="btn btn-grey" href="#">Ajouter une section</a>
-                        </li>`);
-          $(this).attr("class", "summary-part");
-          $(this).attr("data-children-type", "extract");
-          //makeSortable($(this).find("> *[data-children-type]"));
-        });
+        console.log(evt);
+        console.log($(evt.from).is("[data-children-type=extract]"));
+        if ($(evt.from).is("[data-children-type=extract]")) {
+          $("*[data-children-type=both]").each(function() {
+            $(this).html(`<li class="simple-create-button">
+                            <a class="btn btn-grey" href="#">Ajouter une section</a>
+                          </li>`);
+            $(this).attr("class", "summary-part both");
+            $(this).attr("data-children-type", "extract");
+            //makeSortable($(this).find("> *[data-children-type]"));
+          });
+        } else {
+          $("*[data-children-type=both]").each(function() {
+            $(this).html(`<li class="article-part simple-create-part">
+                            <h3>
+                              <a class="force-blue" href=#>Ajouter un chapitre</a>
+                            </h3>
+                            <ol class="summary-part">
+                              <li><h4><a class="disabled">Section A</a></h4></li>
+                              <li><h4><a class="disabled">Section B</a></h4></li>
+                            </ol>
+                          </li>`);
+            $(this).attr("class", "article-containers both");
+            $(this).attr("data-children-type", "container");
+            makeSortable($(this));
+          });
+        }
       },
       onMove: function(evt) {
-        const childrenType = $(evt.dragged).parents("[data-children-type]").attr("data-children-type");
-
         const $item = $(evt.dragged);
         const $to = $(evt.related).parent();
-        const $from = $(evt.dragged).parent();
+        const $from = $item.parent();
+
+        const childrenType = $item.parents("[data-children-type]").attr("data-children-type");
 
         if (!canDrop($item, $to, $from)) {
           return false;
@@ -160,16 +199,25 @@
         if (!$to.is($from)) {
           // Parent is: Chapter
           if (childrenType === "extract") {
-            // Element is dragged into the list from another list
-            if ($from.parent().is(".article-containers > .article-part")) { // is: chapter > extract
+            const path_chap = ($obj) => $obj.is(".article-containers > .article-part");
+            const path_partchap = ($obj) => $obj.is(".article-content > .article-part");
+            // 1) path_chap: from: [chapter] > extract
+            // 2) path_partchap: from: part > [chapter] > extract 
+
+            // Element is dragged into the list from another list (with different level)
+            if (path_chap($from.parent()) && path_partchap($to)) {
+              console.log("B2");
               $item.find("> h4 > a").unwrap().wrap("<h3></h3>");
-            } else { // is: part > chapter > extract 
+            } else if (path_partchap($from.parent()) && path_chap($to)) { 
+              console.log("B2", $from.parent(), $to);
               $item.find("> h3 > a").unwrap().wrap("<h4></h4>");
             }
+            console.log("end")
           // Parent is: Tuto (root) or Part
           } else if (childrenType === "container") {
             // Element is dragged into the list from another list
-            if ($to.is("section")) { // is: chapter > extract
+            if ($from.is(".article-containers")) { // to: [chapter] > extract
+              console.log("A1");
               $item.find("> h3 > a").unwrap().wrap("<h2></h2>");
               $item.find("> ol h4 > a").unwrap().wrap("<h3></h3>");
 
@@ -177,7 +225,8 @@
                 $item.children(".article-containers").show();
                 $item.children("ol.summary-part").hide();
               }
-            } else { // is: part > chapter > extract 
+            } else if ($from.is(".article-content")) { // to: part > [chapter] > extract
+              console.log("A2");
               $item.find("> h2 > a").unwrap().wrap("<h3></h3>");
               $item.find("> ol h3 > a").unwrap().wrap("<h4></h4>");
 
