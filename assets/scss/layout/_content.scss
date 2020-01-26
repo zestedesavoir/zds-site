@@ -119,6 +119,15 @@
         position: relative;
         padding-bottom: 20px;
 
+        h3 {
+            background-color: chartreuse !important;
+        }
+
+        h4 {
+            background-color: cyan !important;
+        }
+
+
         &.simple-create-part {
             padding-bottom: 0;
         }
