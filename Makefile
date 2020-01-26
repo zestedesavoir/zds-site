@@ -66,7 +66,7 @@ clean-front: ## Clean the frontend builds
 ZMD_URL="http://localhost:27272"
 
 zmd-install: ## Install the Node.js packages for zmarkdown
-	cd zmd && npm -g install pm2 && npm install --production
+	cd zmd && npm install --production
 
 zmd-start: ## Start the zmarkdown server
 	cd zmd/node_modules/zmarkdown && npm run server
@@ -75,7 +75,7 @@ zmd-check: ## Check if the zmarkdown server is running
 	@curl -s $(ZMD_URL) || echo 'Use `make zmd-start` to start zmarkdown server'
 
 zmd-stop: ## Stop the zmarkdown server
-	pm2 kill
+	node ./zmd/node_modules/pm2/bin/pm2 kill
 
 ##
 ## ~ Elastic Search

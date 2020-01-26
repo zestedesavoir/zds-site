@@ -82,7 +82,7 @@ fi
 # print zmarkdown log
 if [[ "$1" == "print_zmarkdown_log" ]] && [[ "$ZDS_TEST_JOB" == *"zds."* ]]; then
     zds_fold_start "zmarkdown_log" "* Print zmarkdown log"
-        pm2 logs --nostream --raw --lines 1000
+        node ./zmd/node_modules/pm2/bin/pm2 logs --nostream --raw --lines 1000
     zds_fold_end
 fi
 
