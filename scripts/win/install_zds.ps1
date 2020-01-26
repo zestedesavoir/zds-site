@@ -18,6 +18,8 @@ function _in {
 $ZDS_SITE = Get-Location
 Set-Location -Path "$ZDS_SITE"
 
+$APP_PATH="$ZDS_SITE\zdsenv\App"
+
 if (Test-Path "temp_download") {
   rm -r temp_download
 }
@@ -71,6 +73,12 @@ if (-not (_in "-virtualenv") -and ((_in "+virtualenv") -or (_in "+base") -or (_i
   if ($exVal -ne 0) {
     Error "Error: Cannot create virtualenv."
   }
+
+  PrintInfo " | -> Create .\zdsenv\App folder for nodejs, yarn and other apps."
+
+  if (-not (Test-Path "$APP_PATH")) {
+    mkdir "$APP_PATH" | Out-Null
+  }
 }
 
 PrintInfo "* Load virtualenv."
@@ -96,22 +104,15 @@ if (-not (_in "-node") -and ((_in "+node") -or (_in "+base") -or (_in "+full")))
   PrintInfo " | -> Downloading NodeJS..."
   (new-object System.Net.WebClient).DownloadFile($node_url, "temp_download/node.zip")
 
-
-  PrintInfo " | -> Init .\zdsenv\App for nodejs."
-
-  $node_path="$ZDS_SITE\zdsenv\App"
-  if (-not (Test-Path "$node_path")) {
-    mkdir "$node_path" | Out-Null
-  }
-  if (Test-Path "$node_path\node") {
+  if (Test-Path "$APP_PATH\node") {
     PrintInfo " | -> RM old folder"
-    rm -r "$node_path\node"
+    rm -r "$APP_PATH\node"
   }
 
   PrintInfo " | -> Unzip node."
   
-  unzip -q temp_download\node.zip -d "$node_path"; $exVal=$LASTEXITCODE + 0
-  ren "$node_path\node-v10.8.0-win-x64" node; $exVal=($LASTEXITCODE + $exVal)
+  unzip -q temp_download\node.zip -d "$APP_PATH"; $exVal=$LASTEXITCODE + 0
+  ren "$APP_PATH\node-v10.8.0-win-x64" node; $exVal=($LASTEXITCODE + $exVal)
   if ($exVal -ne 0) {
     Error "Error: Cannot install nodejs." 11
   }
@@ -122,27 +123,41 @@ if (-not (_in "-node") -and ((_in "+node") -or (_in "+base") -or (_in "+full")))
     Add-Content zdsenv\Scripts\activate.bat $text
     $text = "PATH=%VIRTUAL_ENV%\App\node;%PATH%"
     Add-Content zdsenv\Scripts\activate $text
-    $text = "`$env:PATH = `"`$env:VIRTUAL_ENV/App/node;`" + `$env:PATH"
+    $text = "`$env:PATH = `"`$env:VIRTUAL_ENV\App\node;`" + `$env:PATH"
     Add-Content zdsenv\Scripts\activate.ps1 $text
     $text = "`$PATH.add(`$VIRTUAL_ENV + _get_sep() + `"App`" + _get_sep() + `"node`", front=True, replace=True)"
     Add-Content zdsenv\Scripts\activate.xsh $text
   } 
 
-  rm -r temp_download
-
   PrintInfo "* Install yarn"
+  PrintInfo " | -> Downloading yarn..."
 
-  npm install yarn --no-save
+  $yarn_url="https://legacy.yarnpkg.com/latest.msi"
+  (new-object System.Net.WebClient).DownloadFile($yarn_url, "temp_download\yarn.msi")
+  if (Test-Path "$APP_PATH\yarn") {
+    PrintInfo " | -> RM old folder"
+    rm -r "$APP_PATH\yarn"
+  }
+  PrintInfo " | -> Launch yarn installer..."
+  Start-Process .\temp_download\yarn.msi -ArgumentList "/passive INSTALLDIR=`"$ZDS_SITE\zdsenv\App\yarn\`" ADDLOCAL=ALL" -Wait; $exVal=$LASTEXITCODE + 0
+
+  function global:yarn {
+    node $ZDS_SITE\zdsenv\App\yarn\bin\yarn.js $args
+  }
 
   if (!((Get-Content zdsenv\Scripts\activate.bat) -match "yarn")) {
-    PrintInfo " | -> Add yarn alias in virtualenv."
-    $text = "yarn () {`r`n    node ./node_modules/yarn/bin/yarn.js `"$@`"`r`n}"
+    PrintInfo " | -> Add yarn in %PATH% of virtualenv."
+    $text = "set `"PATH=%VIRTUAL_ENV%\App\yarn\bin;%PATH%`""
+    Add-Content zdsenv\Scripts\activate.bat $text
+    $text = "PATH=%VIRTUAL_ENV%\App\yarn\bin;%PATH%"
     Add-Content zdsenv\Scripts\activate $text
-    $text = "function global:yarn {`r`n    node ./node_modules/yarn/bin/yarn.js `$args`r`n}"
+    $text = "`$env:PATH = `"`$env:VIRTUAL_ENV\App\yarn\bin;`" + `$env:PATH"
     Add-Content zdsenv\Scripts\activate.ps1 $text
-    $text = "aliases[`"yarn`"] = [`"node`", `"./node_modules/yarn/bin/yarn.js`"]"
+    $text = "`$PATH.add(`$VIRTUAL_ENV + _get_sep() + `"App`" + _get_sep() + `"yarn`" + _get_sep() + `"bin`", front=True, replace=True)"
     Add-Content zdsenv\Scripts\activate.xsh $text
   }
+
+  rm -r temp_download
 }
 
 
@@ -169,18 +184,19 @@ if (-not (_in "-front") -and ((_in "+front") -or (_in "+base") -or (_in "+full")
   # TODO: Force parameter `rm -r node_modules`
 
   PrintInfo " | -> Installing front dependencies..."
-  node ./node_modules/yarn/bin/yarn.js install; $exVal=$LASTEXITCODE
+  yarn install; $exVal=$LASTEXITCODE
+
   if ($exVal -ne 0) {
     Error "Error: Cannot install-front." 11
   }
 
   if (!((Get-Content zdsenv\Scripts\activate.bat) -match "gulp")) {
     PrintInfo " | -> Add gulp alias in virtualenv."
-    $text = "gulp () {`r`n    node ./node_modules/gulp/bin/gulp.js `"$@`"`r`n}"
+    $text = "gulp () {`r`n    node .\node_modules\gulp\bin\gulp.js `"$@`"`r`n}"
     Add-Content zdsenv\Scripts\activate $text
-    $text = "function global:gulp {`r`n    node ./node_modules/gulp/bin/gulp.js `$args`r`n}"
+    $text = "function global:gulp {`r`n    node .\node_modules\gulp\bin\gulp.js `$args`r`n}"
     Add-Content zdsenv\Scripts\activate.ps1 $text
-    $text = "aliases[`"gulp`"] = [`"node`", `"./node_modules/gulp/bin/gulp.js`"]"
+    $text = "aliases[`"gulp`"] = [`"node`", `".\node_modules\gulp\bin\gulp.js`"]"
     Add-Content zdsenv\Scripts\activate.xsh $text
   }
 
@@ -199,15 +215,22 @@ if (-not (_in "-zmd") -and ((_in "+zmd") -or (_in "+base") -or (_in "+full"))) {
   # TODO: Add force parameter to `rm -r node_modules`
 
   PrintInfo " | -> Installing pm2..."
-  npm install pm2 --no-save
+
+  yarn add pm2
+
+  function global:pm2 {
+    node .\node_modules\pm2\bin\pm2 $args
+  }
 
   if (!((Get-Content zdsenv\Scripts\activate.bat) -match "pm2")) {
-    PrintInfo " | -> Add pm2 alias in virtualenv."
-    $text = "pm2 () {`r`n    node ./node_modules/pm2/bin/pm2 `"$@`"`r`n}"
+    PrintInfo " | -> Add pm2 in %PATH% of virtualenv."
+    $text = "set `"PATH=%VIRTUAL_ENV%\..\zmd\node_modules\pm2\bin;%PATH%`""
+    Add-Content zdsenv\Scripts\activate.bat $text
+    $text = "PATH=%VIRTUAL_ENV%\..\zmd\node_modules\pm2\bin;%PATH%"
     Add-Content zdsenv\Scripts\activate $text
-    $text = "function global:pm2 {`r`n    node ./node_modules/pm2/bin/pm2 `$args`r`n}"
+    $text = "`$env:PATH = `"`$env:VIRTUAL_ENV\..\zmd\node_modules\pm2\bin;`" + `$env:PATH"
     Add-Content zdsenv\Scripts\activate.ps1 $text
-    $text = "aliases[`"pm2`"] = [`"node`", `"./node_modules/pm2/bin/pm2`"]"
+    $text = "`$PATH.add(`$VIRTUAL_ENV + _get_sep() + `"..`" + _get_sep() + `"zmd`" + _get_sep() + `"node_modules`" + _get_sep() + `"pm2`" + _get_sep() + `"bin`", front=True, replace=True)"
     Add-Content zdsenv\Scripts\activate.xsh $text
   }
 
@@ -223,7 +246,6 @@ if (-not (_in "-zmd") -and ((_in "+zmd") -or (_in "+base") -or (_in "+full"))) {
   Set-Location -Path "$ZDS_SITE"
 }
 
-
 # fixtures
 if (-not (_in "-data") -and ((_in "+data") -or (_in "+base") -or (_in "+full"))) {
   PrintInfo "* Generate fixtures"
@@ -231,7 +253,7 @@ if (-not (_in "-data") -and ((_in "+data") -or (_in "+base") -or (_in "+full")))
   # TODO: Force parameter `rm -r node_modules`
 
   PrintInfo " | -> Start zmd."
-  node ./node_modules/pm2/bin/pm2 start --name=zmarkdown -f zmd/node_modules/zmarkdown/server/index.js -i 1; $exVal=$LASTEXITCODE
+  pm2 start --name=zmarkdown -f zmd\node_modules\zmarkdown\server\index.js -i 1; $exVal=$LASTEXITCODE
 
   if ($exVal -ne 0) {
     Error "Error: Cannot start zmd to generate-fixtures." 11
@@ -254,7 +276,7 @@ if (-not (_in "-data") -and ((_in "+data") -or (_in "+base") -or (_in "+full")))
   }
 
   PrintInfo " | -> Stop zmd."
-  node ./node_modules/pm2/bin/pm2 kill; $exVal=$LASTEXITCODE
+  pm2 kill; $exVal=$LASTEXITCODE
   if ($exVal -ne 0) {
     Write-Output "Warning: Cannot stop zmd." | red
   }
@@ -264,5 +286,5 @@ PrintInfo "Done. "
 
 Write-Output "You can now run instance, start powershell console and run :" | green
 Write-Output "1) Load virtualenv: '. .\zdsenv\Scripts\activate.ps1'" | green
-Write-Output "2) Start zmd: 'pm2 start --name=zmarkdown -f zmd/node_modules/zmarkdown/server/index.js -i 1'" | green
+Write-Output "2) Start zmd: 'pm2 start --name=zmarkdown -f zmd\node_modules\zmarkdown\server\index.js -i 1'" | green
 Write-Output "3) Start django: 'python manage.py runserver'" | green
