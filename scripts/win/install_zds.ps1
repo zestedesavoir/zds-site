@@ -138,7 +138,7 @@ if (-not (_in "-node") -and ((_in "+node") -or (_in "+base") -or (_in "+full")))
     PrintInfo " | -> Add yarn alias in virtualenv."
     $text = "yarn () {`r`n    node ./node_modules/yarn/bin/yarn.js `"$@`"`r`n}"
     Add-Content zdsenv\Scripts\activate $text
-    $text = "function global:yarn {`r`n    node ./node_modules/yarn/bin/yarn.js $args`r`n}"
+    $text = "function global:yarn {`r`n    node ./node_modules/yarn/bin/yarn.js `$args`r`n}"
     Add-Content zdsenv\Scripts\activate.ps1 $text
     $text = "aliases[`"yarn`"] = [`"node`", `"./node_modules/yarn/bin/yarn.js`"]"
     Add-Content zdsenv\Scripts\activate.xsh $text
@@ -178,7 +178,7 @@ if (-not (_in "-front") -and ((_in "+front") -or (_in "+base") -or (_in "+full")
     PrintInfo " | -> Add gulp alias in virtualenv."
     $text = "gulp () {`r`n    node ./node_modules/gulp/bin/gulp.js `"$@`"`r`n}"
     Add-Content zdsenv\Scripts\activate $text
-    $text = "function global:gulp {`r`n    node ./node_modules/gulp/bin/gulp.js $args`r`n}"
+    $text = "function global:gulp {`r`n    node ./node_modules/gulp/bin/gulp.js `$args`r`n}"
     Add-Content zdsenv\Scripts\activate.ps1 $text
     $text = "aliases[`"gulp`"] = [`"node`", `"./node_modules/gulp/bin/gulp.js`"]"
     Add-Content zdsenv\Scripts\activate.xsh $text
@@ -205,7 +205,7 @@ if (-not (_in "-zmd") -and ((_in "+zmd") -or (_in "+base") -or (_in "+full"))) {
     PrintInfo " | -> Add pm2 alias in virtualenv."
     $text = "pm2 () {`r`n    node ./node_modules/pm2/bin/pm2 `"$@`"`r`n}"
     Add-Content zdsenv\Scripts\activate $text
-    $text = "function global:pm2 {`r`n    node ./node_modules/pm2/bin/pm2 $args`r`n}"
+    $text = "function global:pm2 {`r`n    node ./node_modules/pm2/bin/pm2 `$args`r`n}"
     Add-Content zdsenv\Scripts\activate.ps1 $text
     $text = "aliases[`"pm2`"] = [`"node`", `"./node_modules/pm2/bin/pm2`"]"
     Add-Content zdsenv\Scripts\activate.xsh $text
