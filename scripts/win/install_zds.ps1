@@ -138,8 +138,13 @@ if (-not (_in "-node") -and ((_in "+node") -or (_in "+base") -or (_in "+full")))
     PrintInfo " | -> RM old folder"
     rm -r "$APP_PATH\yarn"
   }
+
   PrintInfo " | -> Launch yarn installer..."
-  Start-Process .\temp_download\yarn.msi -ArgumentList "/passive INSTALLDIR=`"$ZDS_SITE\zdsenv\App\yarn\`" ADDLOCAL=ALL" -Wait; $exVal=$LASTEXITCODE + 0
+
+  Start-Process .\temp_download\yarn.msi -ArgumentList "/passive INSTALLDIR=`"$ZDS_SITE\zdsenv\App\yarn\`" ADDLOCAL=ALL" -Wait; $exVal=$LASTEXITCODE
+  if ($exVal -ne 0) {
+    Error "Error: Cannot install yarn." 11
+  }
 
   function global:yarn {
     node $ZDS_SITE\zdsenv\App\yarn\bin\yarn.js $args
