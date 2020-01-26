@@ -104,11 +104,9 @@
                             {% endfor %}
                             {% if can_add_something %}
                                 <li class="simple-create-button">
-                                    <h4>
-                                        <a class="btn btn-grey"
-                                            href="{% url "content:create-extract" content.pk child.parent.slug child.slug subchild.slug %}"
-                                        >{% trans "Ajouter une section" %}</a>
-                                    </h4>
+                                    <a class="btn btn-grey"
+                                        href="{% url "content:create-extract" content.pk child.parent.slug child.slug subchild.slug %}"
+                                    >{% trans "Ajouter une section" %}</a>
                                 </li>
                             {% endif %}
                         </ol>
