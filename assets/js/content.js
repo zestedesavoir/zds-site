@@ -101,6 +101,38 @@
     });
     $item.find(".simple-create-button")
       .attr("href", `/contenus/nouvelle-section/${pk}/${path}/${slug}/`);
+
+    $("*[data-children-type]").each(function() {
+      if ($(this).children(":not(.simple-create-button, .simple-create-part)")[0])
+        return;
+
+      if (!$(this).parent().is(".article-content > .article-part"))
+        return;
+
+      $(this).html(`<li class="article-part simple-create-part">
+                      <div class="ico-after warning">
+                        <p>
+                          Cette partie est actuellement vide.
+                        </p>
+                        <ul>
+                            <li>
+                              <a>Ajouter un chapitre</a>
+                              pour adopter le format big-tuto et ajouter des sections ;
+                            </li>
+                          <li>
+                            <a>Ajouter une section</a>
+                            pour adopter le format moyen-tuto, composé uniquement de sections.
+                          </li>
+                        </ul>
+                      </div>
+                    </li>`);
+
+      $(this).attr({
+        "class": "article-containers",
+        "data-children-type": "both"
+      });
+      //makeSortable($(this).find("> *[data-children-type]"));
+    });
   }
 
   function canDrop($item, $to, $from) {
