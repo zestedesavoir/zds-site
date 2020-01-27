@@ -9,6 +9,7 @@ from .base_dir import BASE_DIR
 zds_config = config.get('zds', {})
 
 GEOIP_PATH = join(BASE_DIR, 'geodata')
+GEOIP_CITY = 'GeoLite2-City.mmdb'
 
 ES_ENABLED = True
 
