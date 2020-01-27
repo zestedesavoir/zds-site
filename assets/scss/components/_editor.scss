@@ -1,24 +1,16 @@
-.content-container {
-    form {
-        .editor-toolbar {
-            border: 0;
+.editor-toolbar {
+    border: 0;
 
-            button:not(.link) {
-                height: auto;
-                line-height: 0px;
-                color: #000;
-                padding: 0;
-                display: inline;
-                float: unset;
-            }
-        }
-
-        .CodeMirror {
-            width: 100%;
-        }
-
-        .editor-preview {
-            background-color: #FDFDFD;
-        }
+    button {
+        display: inline;
+        font-size: 16px;
     }
+}
+
+.CodeMirror {
+    width: 100%;
+}
+
+.editor-preview {
+    background-color: #FDFDFD;
 }

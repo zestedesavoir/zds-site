@@ -121,7 +121,7 @@
         }
     }
     [type=submit],
-    button:not(.link),
+    :not(.editor-toolbar) > button:not(.link),
     .btn {
         position: relative;
         height: 40px;
