@@ -365,6 +365,7 @@
     /* global EasyMDE */
     var easyMDE = new EasyMDE({
       element: this,
+      autoDownloadFontAwesome: false,
       autosave: {
         enabled: true,
         uniqueId: window.location.pathname + '@' + this.getAttribute('name'),

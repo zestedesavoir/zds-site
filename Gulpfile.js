@@ -119,6 +119,8 @@ function js() {
     require.resolve('moment/locale/fr.js'),
     require.resolve('chart.js/dist/Chart.js'),
     require.resolve('easymde/dist/easymde.min.js'),
+    require.resolve('@fortawesome/fontawesome-free/js/all.js'),
+    require.resolve('@fortawesome/fontawesome-free/js/v4-shims.js'),
     // Used by other scripts, must be first
     'assets/js/modal.js',
     'assets/js/tooltips.js',
