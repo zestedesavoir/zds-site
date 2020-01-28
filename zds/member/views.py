@@ -422,6 +422,8 @@ class UpdateUsernameEmailMember(UpdateMember):
                       karma=0).save()
             # Change the username
             profile.user.username = new_username
+            # update skeleton
+            profile.username_skeleton = Profile.find_username_skeleton(new_username)
         if new_email and new_email != previous_email:
             profile.user.email = new_email
             # Create an alert for the staff if it's a new provider
@@ -462,6 +464,7 @@ class RegisterView(CreateView, ProfileCreate, TokenGenerator):
     def form_valid(self, form):
         profile = self.create_profile(form.data)
         profile.last_ip_address = get_client_ip(self.request)
+        profile.username_skeleton = Profile.find_username_skeleton(profile.user.username)
         self.save_profile(profile)
         token = self.generate_token(profile.user)
         try:

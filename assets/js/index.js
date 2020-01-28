@@ -1,3 +1,3 @@
-(function () {
-    document.documentElement.classList.add("js");
-})();
+(function() {
+  document.documentElement.classList.add('js')
+})()

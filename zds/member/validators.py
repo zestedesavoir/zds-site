@@ -5,7 +5,7 @@ from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
 
 from zds.utils.misc import contains_utf8mb4
-from zds.member.models import BannedEmailProvider
+from zds.member.models import BannedEmailProvider, Profile
 
 
 def validate_not_empty(value):
@@ -78,12 +78,15 @@ def validate_zds_username(value, check_username_available=True):
     """
     msg = None
     user_count = User.objects.filter(username=value).count()
+    skeleton_user_count = Profile.objects.filter(username_skeleton=Profile.find_username_skeleton(value)).count()
     if ',' in value:
         msg = _('Le nom d\'utilisateur ne peut contenir de virgules')
     elif contains_utf8mb4(value):
         msg = _('Le nom d\'utilisateur ne peut pas contenir des caractères utf8mb4')
     elif check_username_available and user_count > 0:
         msg = _('Ce nom d\'utilisateur est déjà utilisé')
+    elif check_username_available and skeleton_user_count > 0:
+        msg = _('Un nom d\'utilisateur visuellement proche du votre existe déjà')
     elif not check_username_available and user_count == 0:
         msg = _('Ce nom d\'utilisateur n\'existe pas')
     if msg is not None:

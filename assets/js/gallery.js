@@ -4,37 +4,33 @@
    Author: Sandhose / Quentin Gliech
    ========================================================================== */
 
-(function($, undefined){
-    "use strict";
+(function($) {
+  'use strict'
 
-    var $btn = $(".toggle-gallery-view"),
-        $galleryView = $(".gallery");
+  var $btn = $('.toggle-gallery-view')
+  var $galleryView = $('.gallery')
 
-    var updateBtn = function(){
-        $btn.text($galleryView.hasClass("list-view") ? "Vue grille" : "Vue liste");
-    };
+  var updateBtn = function() {
+    $btn.text($galleryView.hasClass('list-view') ? 'Vue grille' : 'Vue liste')
+  }
 
-    if($btn.length > 0){
-        $btn.on("click", function(){
-            if($galleryView.hasClass("list-view")) 
-                $galleryView.removeClass("list-view").addClass("grid-view");
-            else 
-                $galleryView.removeClass("grid-view").addClass("list-view");
-            updateBtn();
-        });
+  if ($btn.length > 0) {
+    $btn.on('click', function() {
+      if ($galleryView.hasClass('list-view')) { $galleryView.removeClass('list-view').addClass('grid-view') } else { $galleryView.removeClass('grid-view').addClass('list-view') }
+      updateBtn()
+    })
 
-        updateBtn();
-    }
+    updateBtn()
+  }
 
-    var updateCheckbox = function(){
-        if(this.checked) $(this).parents(".gallery-item").addClass("selected");
-        else $(this).parents(".gallery-item").removeClass("selected");
-    };
+  var updateCheckbox = function() {
+    if (this.checked) $(this).parents('.gallery-item').addClass('selected')
+    else $(this).parents('.gallery-item').removeClass('selected')
+  }
 
-    if($galleryView.length > 0){
-        $(".gallery-item input[type=checkbox]")
-            .on("change", updateCheckbox)
-            .each(updateCheckbox)
-        ;
-    }
-})(jQuery);
+  if ($galleryView.length > 0) {
+    $('.gallery-item input[type=checkbox]')
+      .on('change', updateCheckbox)
+      .each(updateCheckbox)
+  }
+})(jQuery)

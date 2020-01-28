@@ -205,15 +205,17 @@ body.userprofilepage {
                         padding: 3px 0 3px 10px;
                         margin: 0 10px 0 0;
                         font-size: 12px;
-                        font-size: 1.2rem;
+                        font-size: 1.15rem;
                         color: #999;
 
                         // FIXME duplicated from _topic_message.scss
                         p {
                             margin: 0;
                             padding: 0;
+                            img.smiley {
+                                max-height: 1.6rem;
+                            }
                         }
-
                         a {
                             color: #999;
                             transition: color $transition-duration ease, text-decoration $transition-duration ease;
