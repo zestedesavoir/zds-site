@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -ex
-
 sudo sed -i'' 's/\[mysqld\]/\[mysqld\]\ninnodb_file_per_table=on\ninnodb_file_format=barracuda\ninnodb_large_prefix=on\ncharacter-set-client-handshake=false\ncharacter-set-server=utf8mb4\ncollation-server=utf8mb4_unicode_ci/' /etc/mysql/mysql.conf.d/mysqld.cnf
 sudo systemctl restart mysql
 
