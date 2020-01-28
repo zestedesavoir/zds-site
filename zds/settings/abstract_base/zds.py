@@ -199,7 +199,7 @@ ZDS_APP = {
         'beta_forum_id': zds_config.get('publications_being_written_forum_id', 1),
         'max_post_length': 1000000,
         'top_tag_max': 5,
-        'home_number': 5,
+        'home_number': 6,
         'old_post_limit_days': 90,
         # Exclude tags from top tags list. Tags listed here should not be relevant for most of users.
         # Be warned exclude too much tags can restrict performance
