@@ -7,14 +7,15 @@ python:
   - 3.7
 
 
+services:
+  - memcached
+  - mysql
+
+
 addons:
   firefox: "latest"
   apt:
     packages:
-      - mysql-server-5.7
-      - mysql-client-core-5.7
-      - mysql-client-5.7
-      - libmysqlclient-dev
       - language-pack-fr
 
 
@@ -43,13 +44,6 @@ jobs:
       env: ZDS_TEST_JOB="front fixture selenium"
     - name: "Job 5 : doc"
       env: ZDS_TEST_JOB="doc"
-
-
-notifications:
-
-
-services:
-  - memcached
 
 
 cache:
