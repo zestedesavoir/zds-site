@@ -61,7 +61,7 @@ class FeaturedResourceForm(forms.ModelForm):
             '%Y-%m-%d', '%d/%m/%Y'  # day only
         ],
         widget=forms.DateTimeInput(
-            attrs={'placeholder': _('Exemple : 25/12/2016 10:00'), 'type': 'datetime-local'},
+            attrs={'placeholder': _('Exemple : 25/12/2016 10:00'), 'type': 'text'},
             format='%d/%m/%Y %H:%M'  # datetime field format
         )
     )
