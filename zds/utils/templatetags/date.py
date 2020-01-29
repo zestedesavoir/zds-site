@@ -20,7 +20,7 @@ __ABS_DATE_FMT_NORMAL = _(r'l d F Y à H\hi')    # Normal format
 __ABS_HUMAN_TIME_FMT = _('%d %b %Y, %H:%M:%S')
 
 
-def date_formatter(value, tooltip, small):
+def date_formatter(value, tooltip, small, ignore_future=False):
     """
     Format a date to an human readable string.
 
@@ -38,7 +38,7 @@ def date_formatter(value, tooltip, small):
         now = datetime.now()
     now = now - timedelta(microseconds=now.microsecond)
 
-    if value > now:
+    if value > now and not ignore_future:
         return __DATE_FMT_FUTUR
     else:
         delta = now - value
@@ -52,8 +52,20 @@ def date_formatter(value, tooltip, small):
 
 @register.filter
 def format_date(value, small=False):
-    """Format a date to an human readable string."""
+    """
+    Format a date to an human readable string.
+    If ``value`` is in future it is replaced by "In the future".
+    """
     return date_formatter(value, tooltip=False, small=small)
+
+
+@register.filter
+def format_date_no_future(value):
+    """
+    Format a date to an human readable string.
+    If ``value`` is in future it is formatted as a normal date.
+    """
+    return date_formatter(value, tooltip=False, small=True, ignore_future=True)
 
 
 @register.filter
