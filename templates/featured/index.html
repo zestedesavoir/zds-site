@@ -46,7 +46,8 @@
                                  class="topic-image"
                             >
                             <span class="topic-title">{{ featured_resource.title }}</span>
-                            <span class="topic-subtitle">{% trans 'Publiée' %} {{ featured_resource.pubdate|format_date:True|lower }}</span>
+                            <span class="topic-subtitle">{% trans 'Publiée le' %} <time datetime="{{ featured_resource.pubdate|date:'Y-m-d H:i:s'}}">
+                                {{ featured_resource.pubdate|format_date_no_future|lower }}</time></span>
                         </a>
                     </div>
                 </div>
