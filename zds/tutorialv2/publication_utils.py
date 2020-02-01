@@ -413,7 +413,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
         true_latex_extension = '.'.join(self.extension.split('.')[:-1]) + '.tex'
         latex_file_path = base_name + true_latex_extension
         pdf_file_path = base_name + self.extension
-        default_logo_original_path = Path(__file__).parent / '..' / '..' / 'assets' / 'images' / 'logo.png'
+        default_logo_original_path = Path(__file__).parent / '..' / '..' / 'assets' / 'images' / 'logo@2x.png'
         with contextlib.suppress(FileExistsError):
             shutil.copy(str(default_logo_original_path), str(base_directory / 'default_logo.png'))
         with open(latex_file_path, mode='w', encoding='utf-8') as latex_file:
