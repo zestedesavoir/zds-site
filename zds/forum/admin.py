@@ -18,11 +18,11 @@ class TopicReadAdmin(admin.ModelAdmin):
 
 
 class PostAdmin(admin.ModelAdmin):
-    list_display = ('topic', 'author', 'ip_address', 'pubdate', 'is_visible')
+    list_display = ('topic', 'author', 'pubdate', 'is_visible')
     list_filter = ('is_visible',)
     raw_id_fields = ('author', 'editor')
     ordering = ('-pubdate',)
-    search_fields = ('author__username', 'text', 'text_hidden', 'ip_address')
+    search_fields = ('author__username', 'text', 'text_hidden')
 
 
 admin.site.register(Category)

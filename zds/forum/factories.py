@@ -40,7 +40,6 @@ class PostFactory(factory.DjangoModelFactory):
     class Meta:
         model = Post
 
-    ip_address = '192.168.3.1'
     text = "Bonjour, je me présente, je m'appelle l'homme au texte bidonné"
     text_html = text
 

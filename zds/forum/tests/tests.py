@@ -120,7 +120,6 @@ class ForumMemberTests(TestCase):
 
         self.assertEqual(post.author, self.user)
         self.assertEqual(post.editor, None)
-        self.assertNotEqual(post.ip_address, None)
         self.assertNotEqual(post.text_html, None)
         self.assertEqual(post.like, 0)
         self.assertEqual(post.dislike, 0)

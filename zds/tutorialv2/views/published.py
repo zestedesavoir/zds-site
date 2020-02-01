@@ -28,7 +28,6 @@ import googleapiclient
 from zds.forum.models import Forum
 from zds.featured.mixins import FeatureableMixin
 from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin, PermissionRequiredMixin
-from zds.member.views import get_client_ip
 from zds.notification import signals
 from zds.notification.models import ContentReactionAnswerSubscription, NewPublicationSubscription
 from zds.tutorialv2.forms import RevokeValidationForm, WarnTypoForm, NoteForm, NoteEditForm, UnpublicationForm, \
@@ -733,7 +732,6 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
                 self.request,
                 _('Erreur du serveur Markdown: {}').format(
                     '\n- '.join(m))))
-        self.reaction.ip_address = get_client_ip(self.request)
         self.reaction.save()
 
         if is_new:  # we first need to save the reaction

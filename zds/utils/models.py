@@ -362,7 +362,6 @@ class Comment(models.Model):
     editor = models.ForeignKey(User, verbose_name='Editeur',
                                related_name='comments-editor+',
                                null=True, blank=True, on_delete=models.SET_NULL)
-    ip_address = models.CharField('Adresse IP de l\'auteur ', max_length=39)
 
     position = models.IntegerField('Position', db_index=True)
 

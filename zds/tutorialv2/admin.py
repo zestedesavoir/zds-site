@@ -25,11 +25,11 @@ class PublishedContentAdmin(admin.ModelAdmin):
 
 
 class ContentReactionAdmin(admin.ModelAdmin):
-    list_display = ('related_content', 'author', 'ip_address', 'pubdate', 'is_visible')
+    list_display = ('related_content', 'author', 'pubdate', 'is_visible')
     list_filter = ('related_content__type', 'is_visible')
     ordering = ('-pubdate',)
     raw_id_fields = ('author', 'editor')
-    search_fields = ('author__username', 'text', 'text_hidden', 'ip_address')
+    search_fields = ('author__username', 'text', 'text_hidden')
 
 
 class ValidationAdmin(admin.ModelAdmin):
