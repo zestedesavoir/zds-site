@@ -95,11 +95,12 @@ if ($env:virtual_env -ne "$ZDS_SITE\zdsenv") {
 
 # node
 if (-not (_in "-node") -and ((_in "+node") -or (_in "+base") -or (_in "+full"))) {
-  PrintInfo "* Install node v10.8.0"
+  PrintInfo "* Install node v10.18.0"
 
   mkdir temp_download | Out-Null
 
-  $node_url="https://nodejs.org/dist/v10.8.0/node-v10.8.0-win-x64.zip"
+  $node_filename = "node-v10.18.0-win-x64"
+  $node_url="https://nodejs.org/dist/v10.18.0/$node_filename.zip"
 
   PrintInfo " | -> Downloading NodeJS..."
   (new-object System.Net.WebClient).DownloadFile($node_url, "temp_download/node.zip")
@@ -108,12 +109,17 @@ if (-not (_in "-node") -and ((_in "+node") -or (_in "+base") -or (_in "+full")))
     PrintInfo " | -> RM old folder"
     rm -r "$APP_PATH\node"
   }
+  if (Test-Path "$APP_PATH\$node_filename") {
+    PrintInfo " | -> RM old cache folder"
+    rm -r "$APP_PATH\$node_filename"
+  }
 
   PrintInfo " | -> Unzip node."
   
   unzip -q temp_download\node.zip -d "$APP_PATH"; $exVal=$LASTEXITCODE + 0
-  ren "$APP_PATH\node-v10.8.0-win-x64" node; $exVal=($LASTEXITCODE + $exVal)
+  ren "$APP_PATH\$node_filename" node; $exVal=($LASTEXITCODE + $exVal)
   if ($exVal -ne 0) {
+    rm -r "$APP_PATH\$node_filename"
     Error "Error: Cannot install nodejs." 11
   }
 
