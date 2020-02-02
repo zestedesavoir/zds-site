@@ -117,7 +117,7 @@ if (-not (_in "-node") -and ((_in "+node") -or (_in "+base") -or (_in "+full")))
     Error "Error: Cannot install nodejs." 11
   }
 
-  if (!((Get-Content zdsenv\Scripts\activate.bat) -match "node")) {
+  if (!((Get-Content zdsenv\Scripts\activate.ps1) -match "node")) {
     PrintInfo " | -> Add node in %PATH% of virtualenv."
     $text = "set `"PATH=%VIRTUAL_ENV%\App\node;%PATH%`""
     Add-Content zdsenv\Scripts\activate.bat $text
@@ -150,7 +150,7 @@ if (-not (_in "-node") -and ((_in "+node") -or (_in "+base") -or (_in "+full")))
     node $ZDS_SITE\zdsenv\App\yarn\bin\yarn.js $args
   }
 
-  if (!((Get-Content zdsenv\Scripts\activate.bat) -match "yarn")) {
+  if (!((Get-Content zdsenv\Scripts\activate.ps1) -match "yarn")) {
     PrintInfo " | -> Add yarn in %PATH% of virtualenv."
     $text = "set `"PATH=%VIRTUAL_ENV%\App\yarn\bin;%PATH%`""
     Add-Content zdsenv\Scripts\activate.bat $text
@@ -195,13 +195,15 @@ if (-not (_in "-front") -and ((_in "+front") -or (_in "+base") -or (_in "+full")
     Error "Error: Cannot install-front." 11
   }
 
-  if (!((Get-Content zdsenv\Scripts\activate.bat) -match "gulp")) {
+  if (!((Get-Content zdsenv\Scripts\activate.ps1) -match "gulp")) {
     PrintInfo " | -> Add gulp alias in virtualenv."
-    $text = "gulp () {`r`n    node .\node_modules\gulp\bin\gulp.js `"$@`"`r`n}"
+    $text = "doskey gulp=node `"%VIRTUAL_ENV%\..\node_modules\gulp\bin\gulp.js`" $*"
+    Add-Content zdsenv\Scripts\activate.bat $text
+    $text = "gulp () {`r`n    node `"%VIRTUAL_ENV%\..\node_modules\gulp\bin\gulp.js`" `"$@`"`r`n}"
     Add-Content zdsenv\Scripts\activate $text
-    $text = "function global:gulp {`r`n    node .\node_modules\gulp\bin\gulp.js `$args`r`n}"
+    $text = "function global:gulp {`r`n    node `"`$env:VIRTUAL_ENV\..\node_modules\gulp\bin\gulp.js`" `$args`r`n}"
     Add-Content zdsenv\Scripts\activate.ps1 $text
-    $text = "aliases[`"gulp`"] = [`"node`", `".\node_modules\gulp\bin\gulp.js`"]"
+    $text = "aliases[`"gulp`"] = [`"node`", `$VIRTUAL_ENV + _get_sep() + `"..`" + _get_sep() + `"node_modules`" + _get_sep() + `"gulp`" + _get_sep() + `"bin`" + _get_sep() + `"gulp.js`"]"
     Add-Content zdsenv\Scripts\activate.xsh $text
   }
 
@@ -219,36 +221,33 @@ if (-not (_in "-zmd") -and ((_in "+zmd") -or (_in "+base") -or (_in "+full"))) {
 
   # TODO: Add force parameter to `rm -r node_modules`
 
-  PrintInfo " | -> Installing pm2..."
-
-  yarn add pm2
-
-  function global:pm2 {
-    node .\node_modules\pm2\bin\pm2 $args
-  }
-
-  if (!((Get-Content zdsenv\Scripts\activate.bat) -match "pm2")) {
-    PrintInfo " | -> Add pm2 in %PATH% of virtualenv."
-    $text = "set `"PATH=%VIRTUAL_ENV%\..\zmd\node_modules\pm2\bin;%PATH%`""
-    Add-Content zdsenv\Scripts\activate.bat $text
-    $text = "PATH=%VIRTUAL_ENV%\..\zmd\node_modules\pm2\bin;%PATH%"
-    Add-Content zdsenv\Scripts\activate $text
-    $text = "`$env:PATH = `"`$env:VIRTUAL_ENV\..\zmd\node_modules\pm2\bin;`" + `$env:PATH"
-    Add-Content zdsenv\Scripts\activate.ps1 $text
-    $text = "`$PATH.add(`$VIRTUAL_ENV + _get_sep() + `"..`" + _get_sep() + `"zmd`" + _get_sep() + `"node_modules`" + _get_sep() + `"pm2`" + _get_sep() + `"bin`", front=True, replace=True)"
-    Add-Content zdsenv\Scripts\activate.xsh $text
-  }
+  PrintInfo " | -> Installing zmd & dependencies..."
 
   Set-Location -Path "$ZDS_SITE\zmd"
-
-  PrintInfo " | -> Installing zmd & dependencies..."
-  npm install --production; $exVal=($exVal + $LASTEXITCODE)
+  npm install --production; $exVal=$LASTEXITCODE
+  Set-Location -Path "$ZDS_SITE"
 
   if ($exVal -ne 0) {
     Error "Error: Cannot install zmd." 11
   }
 
-  Set-Location -Path "$ZDS_SITE"
+  PrintInfo " | -> Configuring pm2..."
+
+  function global:pm2 {
+    node .\zmd\node_modules\pm2\bin\pm2 $args
+  }
+
+  if (!((Get-Content zdsenv\Scripts\activate.ps1) -match "pm2")) {
+    PrintInfo " | -> Add pm2 alias in virtualenv."
+    $text = "doskey pm2=node `"%VIRTUAL_ENV%\..\zmd\node_modules\pm2\bin\pm2`" $*"
+    Add-Content zdsenv\Scripts\activate.bat $text
+    $text = "pm2 () {`r`n    node `"%VIRTUAL_ENV%\..\zmd\node_modules\pm2\bin\pm2`" `"$@`"`r`n}"
+    Add-Content zdsenv\Scripts\activate $text
+    $text = "function global:pm2 {`r`n    node `"`$env:VIRTUAL_ENV\..\zmd\node_modules\pm2\bin\pm2`" `$args`r`n}"
+    Add-Content zdsenv\Scripts\activate.ps1 $text
+    $text = "aliases[`"pm2`"] = [`"node`", `$VIRTUAL_ENV + _get_sep() + `"..`" + _get_sep() + `"zmd`" + _get_sep() + `"node_modules`" + _get_sep() + `"pm2`" + _get_sep() + `"bin`" + _get_sep() + `"pm2`"]"
+    Add-Content zdsenv\Scripts\activate.xsh $text
+  }
 }
 
 # fixtures
