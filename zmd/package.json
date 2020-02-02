@@ -1,6 +1,6 @@
 {
   "name": "zmd-server",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "",
   "main": "",
   "scripts": {
@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "zmarkdown": "^8.0.0",
+    "zmarkdown": "^8.2.0",
     "pm2": "^4.2.3"
   },
   "engines": {
