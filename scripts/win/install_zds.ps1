@@ -140,10 +140,14 @@ if (-not (_in "-node") -and ((_in "+node") -or (_in "+base") -or (_in "+full")))
 
   $yarn_url="https://legacy.yarnpkg.com/latest.msi"
   (new-object System.Net.WebClient).DownloadFile($yarn_url, "temp_download\yarn.msi")
+  if (Test-Path "$APP_PATH\yarn") {
+    PrintInfo " | -> RM old folder"
+    rm -r "$APP_PATH\yarn"
+  }
 
   PrintInfo " | -> Launch yarn installer..."
 
-  Start-Process .\temp_download\yarn.msi -ArgumentList "INSTALLDIR=`"$ZDS_SITE\zdsenv\App\yarn\`"" -Wait; $exVal=$LASTEXITCODE
+  Start-Process msiexec -ArgumentList "/a `"$ZDS_SITE\temp_download\yarn.msi`" /passive TARGETDIR=`"$ZDS_SITE\zdsenv\App\`"" -Wait; $exVal=$LASTEXITCODE
   if ($exVal -ne 0) {
     Error "Error: Cannot install yarn." 11
   }
