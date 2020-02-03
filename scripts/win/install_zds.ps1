@@ -69,7 +69,7 @@ if (-not (_in "-virtualenv") -and ((_in "+virtualenv") -or (_in "+base") -or (_i
   }
 
   PrintInfo " | -> Create virtualenv."
-  virtualenv zdsenv; $exVal=$LASTEXITCODE
+  python -m virtualenv zdsenv; $exVal=$LASTEXITCODE
   if ($exVal -ne 0) {
     Error "Error: Cannot create virtualenv."
   }
