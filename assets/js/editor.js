@@ -388,6 +388,8 @@
         sbOnUploaded: 'Image téléchargée #image_name#'
       },
       spellChecker: false,
+      inputStyle: "contenteditable",
+      nativeSpellcheck: "true",
       promptAbbrv: true,
       theme: 'idea',
       previewRender: customMarkdownParser,
