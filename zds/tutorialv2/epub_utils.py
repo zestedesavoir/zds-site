@@ -149,7 +149,7 @@ def build_ebook(published_content_entity, working_dir, final_file_path):
     copy_or_create_empty(settings.ZDS_APP['content']['epub_stylesheets']['full'], style_dir_path, 'zmd.css')
     copy_or_create_empty(settings.ZDS_APP['content']['epub_stylesheets']['katex'], style_dir_path, 'katex.css')
     style_images_path = Path(settings.BASE_DIR, 'dist', 'images')
-    smiley_images_path = Path(settings.BASE_DIR, 'dist', 'smileys')
+    smiley_images_path = Path(settings.BASE_DIR, 'dist', 'svg', 'smileys')
     if style_images_path.exists():
         import_asset(style_images_path, target_image_dir)
     if smiley_images_path.exists():
