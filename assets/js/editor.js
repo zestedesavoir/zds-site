@@ -331,7 +331,7 @@
   $('.md-editor').each(function() {
     var textarea = this
     var formEditor = $(this).closest('form')
-    const mdeUniqueKey = (window.location.pathname + window.location.search + '@' + this.getAttribute('name')).replace(/[\?|\&]page=(\d+)/g, '')
+    const mdeUniqueKey = (window.location.pathname + window.location.search + '@' + this.getAttribute('name')).replace(/[?|&]page=(\d+)/g, '')
 
     const smdeUniqueContent = localStorage.getItem('smde_' + mdeUniqueKey)
     let minHeight = '500px'
@@ -339,7 +339,7 @@
       minHeight = '200px'
     }
     if (smdeUniqueContent != null) {
-        $('<div class="alert-box"><span>Ce message provient d\'une sauvegarde automatique du contenu. <a onclick="localStorage.removeItem(\''+'smde_' + mdeUniqueKey+'\'); window.location.reload(true)" href="javascript:void(0);">Cliquez-ici</a> pour revenir à la version originale.</span><a href="#close-alert-box" class="close-alert-box ico-after cross white">Masquer l\'alerte</a></div>').insertAfter(this)
+      $('<div class="alert-box"><span>Ce message provient d\'une sauvegarde automatique du contenu. <a onclick="localStorage.removeItem(\'' + 'smde_' + mdeUniqueKey + '\'); window.location.reload(true)" href="javascript:void(0);">Cliquez-ici</a> pour revenir à la version originale.</span><a href="#close-alert-box" class="close-alert-box ico-after cross white">Masquer l\'alerte</a></div>').insertAfter(this)
     }
 
     var customMarkdownParser = function(plainText, preview) {
@@ -394,8 +394,8 @@
         sbOnUploaded: 'Image téléchargée #image_name#'
       },
       spellChecker: false,
-      inputStyle: "contenteditable",
-      nativeSpellcheck: "true",
+      inputStyle: 'contenteditable',
+      nativeSpellcheck: 'true',
       promptAbbrv: true,
       theme: 'idea',
       previewRender: customMarkdownParser,
