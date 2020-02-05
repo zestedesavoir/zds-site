@@ -6,10 +6,21 @@
             button:not(.link) {
                 height: auto;
                 line-height: 0px;
-                color: #000;
+                color: #084561;
                 padding: 0;
                 display: inline;
                 float: unset;
+
+                height: 30px;
+                border: 1px solid transparent;
+                border-radius: 3px;
+                cursor: pointer;
+            }
+            button.active,
+            button:hover {
+                border: 1px solid transparent;
+                background: #fcfcfc;
+                border-color: #95a5a6;
             }
         }
 
