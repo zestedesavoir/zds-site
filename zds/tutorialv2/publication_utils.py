@@ -366,7 +366,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
             content_type += ', ' + self.latex_classes
         title = published_content_entity.title()
         authors = [a.username for a in published_content_entity.authors.all()]
-        smileys_directory = SMILEYS_BASE_PATH
+        smileys_directory = SMILEYS_BASE_PATH + '/svg'
 
         licence = published_content_entity.content.licence.code
         licence_short = licence.replace('CC', '').strip().lower()
