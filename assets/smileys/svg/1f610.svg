@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Clemoji 3.0: 1f610.svg - licence GPLv3 or later - Author A-312 - https://zestedesavoir.com/ -->
+<!-- Clemoji is based on Twemoji (CC BY 4.0 - https://github.com/twitter/twemoji) -->
+<svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 42.5 63" style="enable-background: new 0 0 42.5 63" xml:space="preserve" version="1.1" id="clemoji3_1f610" width="19px" height="27.8333px">
+  <g transform="matrix(1.25,0,0,-1.25,-2.5,62.5)" id="g10">
+    <g id="gfeuille" transform="translate(0,1)">
+      <path id="path4138-2" fill="#479F00" d="M35.842,42.028c-7.072,2.898-15.156-0.481-18.056-7.555c-0.056-0.147-0.112-0.295-0.166-0.445c0.273-0.141,0.552-0.27,0.833-0.391c7.072-2.902,15.156,0.48,18.056,7.552c0.002,0,0.002,0,0.002,0.002c0.058,0.147,0.112,0.295,0.164,0.444C36.402,41.775,36.123,41.906,35.842,42.028L35.842,42.028z"></path>
+      <path id="path4138-2-5" fill="#479F00" d="M5.883,38.317c5.113,2.886,11.597,1.081,14.484-4.03c0.058-0.106,0.112-0.214,0.167-0.325c-0.195-0.131-0.394-0.258-0.597-0.377c-5.111-2.888-11.596-1.084-14.482,4.03c-0.002,0-0.002,0-0.002,0c-0.058,0.106-0.112,0.214-0.166,0.322C5.482,38.07,5.68,38.197,5.883,38.317z"></path>
+    </g>
+    <g transform="translate(36,19)" id="g20">
+      <path id="path22" style="fill: rgb(250, 172, 44); fill-opacity: 1; fill-rule: nonzero; stroke: none;" d="m 0,0 c 0,-9.389 -7.611,-17 -17,-17 -9.388,0 -17,7.611 -17,17 0,9.388 7.612,17 17,17 C -7.611,17 0,9.388 0,0"></path>
+    </g>
+    <g transform="translate(15,20.5)" id="g24">
+      <path id="path26" style="fill: rgb(153, 37, 0); fill-opacity: 1; fill-rule: nonzero; stroke: none;" d="M 0,0 C 0,-1.934 -1.119,-3.5 -2.5,-3.5 -3.881,-3.5 -5,-1.934 -5,0 -5,1.933 -3.881,3.5 -2.5,3.5 -1.119,3.5 0,1.933 0,0"></path>
+    </g>
+    <g transform="translate(28,20.5)" id="g28">
+      <path id="path30" style="fill: rgb(153, 37, 0); fill-opacity: 1; fill-rule: nonzero; stroke: none;" d="M 0,0 C 0,-1.934 -1.119,-3.5 -2.5,-3.5 -3.881,-3.5 -5,-1.934 -5,0 -5,1.933 -3.881,3.5 -2.5,3.5 -1.119,3.5 0,1.933 0,0"></path>
+    </g>
+    <g transform="translate(26,11)" id="g32">
+      <path id="path34" style="fill: rgb(153, 37, 0); fill-opacity: 1; fill-rule: nonzero; stroke: none;" d="m 0,0 -14,0 c -0.552,0 -1,0.447 -1,1 0,0.553 0.448,1 1,1 L 0,2 C 0.553,2 1,1.553 1,1 1,0.447 0.553,0 0,0"></path>
+    </g>
+  </g>
+</svg>
