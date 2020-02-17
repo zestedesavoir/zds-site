@@ -335,11 +335,9 @@
 
     const smdeUniqueContent = localStorage.getItem('smde_' + mdeUniqueKey)
     let minHeight = '500px'
+
     if ($(this).hasClass('mini-editor')) {
       minHeight = '200px'
-    }
-    if (smdeUniqueContent != null) {
-      $('<div class="alert-box"><span>Ce message provient d\'une sauvegarde automatique du contenu. <a onclick="localStorage.removeItem(\'' + 'smde_' + mdeUniqueKey + '\'); window.location.reload(true)" href="javascript:void(0);">Cliquez-ici</a> pour revenir à la version originale.</span><a href="#close-alert-box" class="close-alert-box ico-after cross white">Masquer l\'alerte</a></div>').insertAfter(this)
     }
 
     var customMarkdownParser = function(plainText, preview) {
@@ -630,6 +628,54 @@
         }
       ]
     })
+
+    if (smdeUniqueContent != null && localStorage['smde_' + mdeUniqueKey] !== textarea.value) {
+      const $alertbox = $('<div class="alert-box info"></div>')
+
+      const $hide = $("<a>Masquer l'alerte</a>")
+
+      $hide.attr({
+        href: 'javascript:void(0)',
+        class: 'close-alert-box ico-after cross white',
+        title: "Masqer l'alerte (Echap: Ferme l'alerte)"
+      })
+
+      const $undo = $('<a href="javascript:void(0)">cliquant ici</a>.').click(function() {
+        window.editors[textarea.id].value(textarea.value)
+        easyMDE.codemirror.off('keyHandled', onKeyHandled)
+        localStorage.removeItem('smde_' + mdeUniqueKey)
+        $alertbox.hide(() => $(this).remove())
+      })
+
+      $undo.attr({
+        href: 'javascript:void(0)',
+        title: 'Revenir à la version originale (non sauvegardée)'
+      })
+
+      const onKeyHandled = (cm, name) => {
+        if (name === 'Ctrl-Z' || name === 'Esc') {
+          easyMDE.codemirror.off('keyHandled', onKeyHandled)
+          $alertbox.hide(() => $(this).remove())
+        }
+
+        return true
+      }
+
+      easyMDE.codemirror.on('keyHandled', onKeyHandled)
+
+      const spanContent = [
+        "La version actuelle du contenu provient d'une sauvegarde de votre navigateur. ",
+        'Vous pouvez revenir à la version originale (du serveur) avec CTRL+Z ou en ',
+        $undo,
+        '.'
+      ]
+
+      $('<span></span>')
+        .append(spanContent)
+        .appendTo($alertbox)
+        .after($hide)
+
+      $alertbox.insertAfter($(this).parent().children('.editor-toolbar'))
     }
 
     window.editors[this.id] = easyMDE
