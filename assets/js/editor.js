@@ -637,7 +637,7 @@
       $hide.attr({
         href: 'javascript:void(0)',
         class: 'close-alert-box ico-after cross white',
-        title: "Masqer l'alerte (Echap: Ferme l'alerte)"
+        title: "Masquer l'alerte (raccourci clavier: Echap)"
       })
 
       const $undo = $('<a href="javascript:void(0)">cliquant ici</a>.').click(function() {
