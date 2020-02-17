@@ -1,5 +1,10 @@
 .content-container {
     form {
+        .alert-box {
+            margin: 0;
+            padding: 2px inherit;
+            padding-right: 40px;
+        }
         .editor-toolbar {
             border: 0;
 
