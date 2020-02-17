@@ -1595,10 +1595,10 @@ each-props@^1.3.0:
     is-plain-object "^2.0.1"
     object.defaults "^1.1.0"
 
-easymde@^2.9.0:
-  version "2.9.0"
-  resolved "https://registry.yarnpkg.com/easymde/-/easymde-2.9.0.tgz#1b02dc330596d75c9e40b09c52250759f9543dc2"
-  integrity sha512-Gii/wv7ZmDTgBmD9QBKbU9uiyzspWYNUH/+hH+jlQmBiNM73ShGWX6DtrL/ARzD5sYqPY6yX/6U9M3RayAgDdA==
+easymde@2.9.1-246.0:
+  version "2.9.1-246.0"
+  resolved "https://registry.yarnpkg.com/easymde/-/easymde-2.9.1-246.0.tgz#265bc2ad4f589858d89d965cef1ca1a1de065dd1"
+  integrity sha512-Pss3qGAjJb0k1tqCCDMZRKP0W17k0DzslD4dXWFMkcziVDYizndWsO7cObWBlDw85S6nGnNUqZDm9jbICEUaqQ==
   dependencies:
     codemirror "^5.50.2"
     codemirror-spell-checker "1.1.2"

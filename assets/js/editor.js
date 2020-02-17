@@ -374,7 +374,8 @@
       autosave: {
         enabled: true,
         uniqueId: mdeUniqueKey,
-        delay: 5000
+        submit_delay: 10000,
+        delay: 1000
       },
       indentWithTabs: false,
       minHeight: minHeight,
@@ -395,7 +396,7 @@
       },
       spellChecker: false,
       inputStyle: 'contenteditable',
-      nativeSpellcheck: 'true',
+      nativeSpellcheck: true,
       promptAbbrv: true,
       theme: 'idea',
       previewRender: customMarkdownParser,
@@ -628,8 +629,8 @@
           title: 'Plein écran'
         }
       ]
+    })
     }
-    )
 
     window.editors[this.id] = easyMDE
     window.editors[this.id].timeout = 0
