@@ -23,6 +23,9 @@ toml==0.10.0
 requests==2.22.0
 homoglyphs==1.3.5
 
+# Unknown but missing during installation
+gitdb==0.6.4
+
 # Api dependencies
 djangorestframework==3.11.0
 djangorestframework-xml==1.4.0
