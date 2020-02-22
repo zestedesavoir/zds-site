@@ -116,8 +116,9 @@ if (-not (_in "-node") -and ((_in "+node") -or (_in "+base") -or (_in "+full")))
 
   PrintInfo " | -> Unzip node."
   
-  unzip -q temp_download\node.zip -d "$APP_PATH"; $exVal=$LASTEXITCODE + 0
-  ren "$APP_PATH\$node_filename" node; $exVal=($LASTEXITCODE + $exVal)
+  # unzip
+  Expand-Archive "temp_download\node.zip" -DestinationPath "$APP_PATH"; $exVal=$LASTEXITCODE + 0
+  ren "$APP_PATH\$node_filename" "node"; $exVal=($LASTEXITCODE + $exVal)
   if ($exVal -ne 0) {
     rm -r "$APP_PATH\$node_filename"
     Error "Error: Cannot install nodejs." 11
