@@ -112,7 +112,7 @@ function zds_start_zmd {
 
 
 function zds_stop_zmd {
-    pm2 kill; exVal=$?
+    node ./zmd/node_modules/pm2/bin/pm2 kill; exVal=$?
 
     if [[ $exVal != 0 ]]; then
         print_error "Warning: Cannot stop zmd"

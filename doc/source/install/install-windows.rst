@@ -32,6 +32,40 @@ Cas numéro 1 : windows 10 et sous-système linux
 Cas numéro 2 : fonctionnement sur windows lui-même
 ==================================================
 
+Installation automatique
+---------------------
+
+Commencez par télécharger et installer Python <https://www.python.org/>`.
+
+Ensuite, ouvrez la console de Windows et faites :
+
+.. sourcecode:: batch
+
+    cd /ton/path/zds-site/
+    powershell .\scripts\win\install_zds.ps1 +full
+
+
+Une fois l'installation fini, utilisez la **console PowerShell** et chargez l'environnement virtuel de votre espace de développement avec :
+
+.. sourcecode:: powershell
+
+    . .\zdsenv\Scripts\activate.ps1
+
+Vous devriez obtenir :
+
+.. sourcecode:: bat
+
+    (zdsenv)PS C:\dev\zestedesavoir\
+
+Vous pouvez finalement lancer ZdS:
+
+- Démarrer ZMD : `pm2 start --name=zmarkdown -f zmd/node_modules/zmarkdown/server/index.js -i 1`
+- Démarrer Django : `python manage.py runserver`
+
+
+Installation manuelle
+---------------------
+
 - Téléchargez `zlib <http://gnuwin32.sourceforge.net/downlinks/zlib.php>`_ (prérequis pour la bibliothèque ``Pillow``)
 - Téléchargez et installez les outils suivants :
     - `PowerShell 3.0+ <http://www.microsoft.com/fr-fr/download/details.aspx?id=40855>`_. Uniquement pour les PC tournant sous Windows 7 ou antérieur (installé par défaut avec Windows depuis).
