@@ -1895,29 +1895,30 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
         bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
         all_authors_pk = [author.pk for author in self.object.authors.all()]
         for user in form.cleaned_data['users']:
-            if user.pk not in all_authors_pk and user != self.request.user:
+            if user.pk not in all_authors_pk:
                 self.object.authors.add(user)
                 if self.object.validation_private_message\
                    and not self.object.validation_private_message.is_participant(user):
                     self.object.validation_private_message.participants.add(user)
                 all_authors_pk.append(user.pk)
-                url_index = reverse(self.object.type.lower() + ':find-' + self.object.type.lower(), args=[user.pk])
-                send_mp(
-                    bot,
-                    [user],
-                    format_lazy('{}{}', _('Ajout à la rédaction '), _type),
-                    self.versioned_object.title,
-                    render_to_string('tutorialv2/messages/add_author_pm.md', {
-                        'content': self.object,
-                        'type': _type,
-                        'url': self.object.get_absolute_url(),
-                        'index': url_index,
-                        'user': user.username
-                    }),
-                    True,
-                    direct=False,
-                    hat=get_hat_from_settings('validation'),
-                )
+                if user != self.request.user:
+                    url_index = reverse(self.object.type.lower() + ':find-' + self.object.type.lower(), args=[user.pk])
+                    send_mp(
+                        bot,
+                        [user],
+                        format_lazy('{}{}', _('Ajout à la rédaction '), _type),
+                        self.versioned_object.title,
+                        render_to_string('tutorialv2/messages/add_author_pm.md', {
+                            'content': self.object,
+                            'type': _type,
+                            'url': self.object.get_absolute_url(),
+                            'index': url_index,
+                            'user': user.username
+                        }),
+                        True,
+                        direct=False,
+                        hat=get_hat_from_settings('validation'),
+                    )
                 UserGallery(gallery=self.object.gallery, user=user, mode=GALLERY_WRITE).save()
         self.object.save(force_slug_update=False)
         self.success_url = self.object.get_absolute_url()
