@@ -1900,7 +1900,8 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
         for user in form.cleaned_data['users']:
             if user.pk not in all_authors_pk and user != self.request.user:
                 self.object.authors.add(user)
-                if self.object.validation_private_message:
+                if self.object.validation_private_message\
+                   and not self.object.validation_private_message.is_participant(user):
                     self.object.validation_private_message.participants.add(user)
                 all_authors_pk.append(user.pk)
                 url_index = reverse(self.object.type.lower() + ':find-' + self.object.type.lower(), args=[user.pk])
