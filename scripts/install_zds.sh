@@ -365,8 +365,7 @@ if  ! $(_in "-tex-local" $@) && ( $(_in "+tex-local" $@) || $(_in "+full" $@) );
     LOCAL=$ZDSSITE_DIR/.local
 
     # clone
-    BASE_TEXLIVE=$LOCAL/texlive
-    BASE_REPO=$BASE_TEXLIVE
+    BASE_REPO=$LOCAL/texlive
     REPO=$BASE_REPO/latex-template
 
     mkdir -p $BASE_REPO
@@ -379,7 +378,7 @@ if  ! $(_in "-tex-local" $@) && ( $(_in "+tex-local" $@) || $(_in "+full" $@) );
     git clone $ZDS_LATEX_REPO
     if [[ $? == 0 ]]; then
         # copy scripts
-        cd $BASE_TEXLIVE
+        cd $BASE_REPO
         cp $REPO/scripts/texlive.profile $REPO/scripts/packages $REPO/scripts/install_font.sh .
 
         # install fonts
@@ -396,13 +395,18 @@ if  ! $(_in "-tex-local" $@) && ( $(_in "+tex-local" $@) || $(_in "+full" $@) );
                 ./install-tl*/install-tl -profile texlive.profile
 
                 # Symlink the binaries to bin of venv
-                for i in $BASE_TEXLIVE/bin/x86_64-linux/*; do
+                for i in $BASE_REPO/bin/x86_64-linux/*; do
                   ln -sf $i $ZDS_ENV/bin/
                 done
             fi
 
             ./bin/x86_64-linux/tlmgr install $(cat packages)  # extra packages
             ./bin/x86_64-linux/tlmgr update --self
+
+            # Install tabu-fixed packages
+            mkdir -p $BASE_REPO/texmf-local/tex/latex/tabu
+            wget -P $BASE_REPO/texmf-local/tex/latex/tabu https://raw.githubusercontent.com/tabu-issues-for-future-maintainer/tabu/master/tabu.sty
+
             rm -rf $REPO
         else
             print_error "!! Cannot download texlive"
