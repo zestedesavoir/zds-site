@@ -685,7 +685,7 @@
                                     </button>
                                 </form>
                                 <a href="#ls-{{ profile.pk }}" class="open-modal tail">
-                                    <p>{% trans "Lecture seule" %}</p>
+                                    <p>{% trans "Lecture seule définitive" %}</p>
                                 </a>
                                 <form action="{% url "member-modify-profile" profile.user.pk %}"
                                       method="post"
@@ -706,7 +706,16 @@
                                 </form>
                             {% else %}
                                 <a href="#ls-temp-{{ profile.pk }}" class="open-modal tail">
-                                    <p>{% trans "Ôter la lecture seule" %}</p>
+                                    <p>
+                                        {% trans "Ôter la lecture seule" %}<br/>
+                                        {% if profile.end_ban_write %}
+                                            {% blocktrans with time_until_end_ban_write=profile.end_ban_write|timeuntil %}
+                                                (il reste {{ time_until_end_ban_write }})
+                                            {% endblocktrans %}
+                                        {% else %}
+                                            {% trans "(illimitée)" %}
+                                        {% endif %}
+                                    </p>
                                 </a>
                                 <form action="{% url "member-modify-profile" profile.user.pk %}"
                                       method="post"
@@ -779,7 +788,16 @@
                                 </form>
                             {% else %}
                             <a href="#unban-{{ profile.pk }}" class="open-modal tail">
-                                <p>{% trans "Ôter le bannissement" %}</p>
+                                <p>
+                                    {% trans "Ôter le bannissement" %}<br/>
+                                    {% if profile.end_ban_read %}
+                                        {% blocktrans with time_until_end_ban_read=profile.end_ban_read|timeuntil %}
+                                             (il reste {{ time_until_end_ban_read }})
+                                        {% endblocktrans %}
+                                    {% else %}
+                                        {% trans "(illimité)" %}
+                                    {% endif %}
+                                </p>
                             </a>
                             <form action="{% url "member-modify-profile" profile.user.pk %}"
                                   method="post"
