@@ -207,8 +207,8 @@ class MemberSanctionState(object):
             ban.type,
             '',
             msg,
-            True,
-            direct=True,
+            send_by_mail=True,
+            direct=False,
             hat=get_hat_from_settings('moderation'),
         )
 
