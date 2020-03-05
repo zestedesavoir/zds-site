@@ -517,6 +517,7 @@
             }
 
             field.scrollTop = scroll;
+            field.dispatchEvent(new Event('update'));
         },
 
         tagType: function(selection, type, options, isFromPopup) {
@@ -751,6 +752,7 @@ function uploadImage (e, dataTransferAttr, csrf){
             var mdFinalCode = '![' + result.legend + '](' + result.url +')';
 
             $editor.val($editor.val().replace(new RegExp(mdWaitingRegexp), mdFinalCode));
+            $editor[0].dispatchEvent(new Event('update'));
         }).fail(function (resp) {
             var error = "Erreur inconnue";
             if(resp.responseText !== undefined && resp.responseText.indexOf("RequestDataTooBig") !== -1) {
@@ -841,17 +843,17 @@ function uploadImage (e, dataTransferAttr, csrf){
             editor.value = savedText;
         }
 
-        editor.addEventListener("input", function() {
-            // It’s not a big deal, but this event is not fired when
-            // editor buttons are clicked.
-
+        function update() {
             // Do not save anything if the editor is empty
             if(editor.value === "") {
                 localStorage.removeItem('smde_' + mdeUniqueKey)
             } else {
                 localStorage.setItem('smde_' + mdeUniqueKey, editor.value)
             }
-        });
+        }
+
+        editor.addEventListener("input", update);
+        editor.addEventListener("update", update);
 
         form.addEventListener("submit", function () {
             localStorage.removeItem('smde_' + mdeUniqueKey)
