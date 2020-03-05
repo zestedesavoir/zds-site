@@ -40,7 +40,11 @@
 
   $(document).ready(function() {
     if ($('body').data('show-markdown-help')) {
-      addDocMD($('.editor-statusbar'))
+      if (localStorage.getItem('editor_choice') === 'new') {
+        addDocMD($('.editor-statusbar'))
+      } else {
+        addDocMD($('.md-editor'))
+      }
       $('#content').on('DOMNodeInserted', '.md-editor', function(e) {
         var $editor = $(e.target)
         if ($editor.next().hasClass('markdown-help') === false) {
