@@ -23,7 +23,7 @@
     }
 
     const link = "javascript:localStorage.setItem('editor_choice', '" + alternativeChoice + "');document.location.reload(true);"
-    const box = $('<div class="alert-box">' + message + ' <a href="' + link + '">' + linkMessage + '</a></div>')
+    const box = $('<div class="markdown-help">' + message + ' <a href="' + link + '">' + linkMessage + '</a></div>')
     box.insertBefore(this)
   })
 })(jQuery)
