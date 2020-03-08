@@ -83,7 +83,7 @@ On retrouve également des validateurs dans le fichier ``commons.py`` (voir à c
 Tests unitaires
 ---------------
 
-Une partie importante du développement est basée sur les tests unitaires : afin d'éviter qu'un dévellopement futur ne brise une fonctionnalité, une série de test associé à chaque module est écrite dans des fichiers situés dans le dossier ``tests/`` de chaque module. Cette série de test peut être lancée en utilisant la commande suivante :
+Une partie importante du développement est basée sur les tests unitaires : afin d'éviter qu'un développement futur ne brise une fonctionnalité, une série de test associé à chaque module est écrite dans des fichiers situés dans le dossier ``tests/`` de chaque module. Cette série de test peut être lancée en utilisant la commande suivante :
 
 .. sourcecode:: bash
 

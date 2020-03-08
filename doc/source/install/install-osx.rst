@@ -93,7 +93,7 @@ Lancer ZdS
 ==========
 
 Une fois dans votre environnement python et toutes les dépendances installées, lançons ZdS.
-On crée d'abord la base de donnée, puis le `jeu de données utile au dévellopement <../utils/fixture_loaders.html>`_:
+On crée d'abord la base de donnée, puis le `jeu de données utile au développement <../utils/fixture_loaders.html>`_:
 
 .. sourcecode:: bash
 
