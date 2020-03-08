@@ -32,6 +32,15 @@
             }
         }
 
+        textarea.textarea-multivers {
+            margin: 0 !important;
+            padding: 14px;
+            line-height: 23px;
+            box-sizing: border-box;
+            display: block;
+            width: 100%;
+        }
+
         .CodeMirror {
             width: 100%;
         }

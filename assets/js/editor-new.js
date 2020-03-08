@@ -338,10 +338,10 @@
     const mdeUniqueKey = (window.location.pathname + window.location.search + '@' + this.getAttribute('name')).replace(/[?|&]page=(\d+)/g, '')
 
     const smdeUniqueContent = localStorage.getItem('smde_' + mdeUniqueKey)
-    let minHeight = '500px'
+    let minHeight = 500
 
     if ($(this).hasClass('mini-editor')) {
-      minHeight = '200px'
+      minHeight = 200
     }
 
     var customMarkdownParser = function(plainText, preview) {
@@ -381,7 +381,7 @@
         delay: 1000
       },
       indentWithTabs: false,
-      minHeight: minHeight,
+      minHeight: minHeight + 'px',
       placeholder: 'Votre message au format Markdown',
       promptURLs: true,
       promptTexts: {
@@ -738,9 +738,13 @@
     $twin.attr({
       'data-antidoteapi_jsconnect_groupe_id': '01',
       'placeholder': textarea.placeholder,
-      'style': 'display:none;',
       'class': 'textarea-multivers'
     })
+
+    $twin.css({
+      'display': 'none',
+      'minHeight': minHeight + 22 + 'px'
+    });
     
     $twin.val(easyMDE.codemirror.getValue())
 
