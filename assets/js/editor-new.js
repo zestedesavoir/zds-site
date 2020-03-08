@@ -635,6 +635,7 @@
             const wrapper = easyMDE.codemirror.getWrapperElement()
             $(wrapper.parentElement).children('.textarea-multivers').toggle()
             $(wrapper).toggle()
+            easyMDE.codemirror.refresh()
           },
           className: 'fas fa-broom',
           title: 'Passe au mode compatibilité'
