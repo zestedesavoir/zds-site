@@ -632,7 +632,7 @@
         {
           name: 'switch-contentAreaStyle',
           action: (evt) => {
-            const wrapper = editors["text"].codemirror.getWrapperElement()
+            const wrapper = easyMDE.codemirror.getWrapperElement()
             $(wrapper.parentElement).children('.textarea-multivers').toggle()
             $(wrapper).toggle()
           },
@@ -727,7 +727,7 @@
 
     this.removeAttribute('required')
 
-    $('button.abc-spellchecker').attr({
+    $(window.editors.text.toolbarElements['abc-spellchecker']).attr({
       'data-antidoteapi_jsconnect_groupe_id': '01',
       'data-antidoteapi_jsconnect_lanceoutil': 'C'
     })
@@ -752,11 +752,25 @@
       
     $(easyMDE.element.parentElement).children('.CodeMirror').before($twin)
 
-    // Antidote
     if (typeof estPresentAntidoteAPI_JSConnect === "function" && estPresentAntidoteAPI_JSConnect()) {
       activeAntidoteAPI_JSConnect()
     } else {
-      $('.abc-spellchecker').hide();
+      $(easyMDE.toolbarElements['abc-spellchecker']).hide()
+    }
+
+    if (!window.thereIsAlreadyOnStalkerOnThisPage) {
+      window.thereIsAlreadyOnStalkerOnThisPage = true
+      const stalker = new MutationObserver(function(events) {
+        events.forEach((ev) => {
+          if (ev.type === "attributes" && ev.attributeName === "data-antidoteapi_jsconnect_initlistener") {
+          console.log('ok')
+            $('button.abc-spellchecker').show()
+            stalker.disconnect()
+          }
+        });
+      })
+      setTimeout(() => stalker.disconnect(), 30000)
+      stalker.observe(easyMDE.toolbarElements['abc-spellchecker'], { attributes: true })
     }
   })
 })(jQuery)
