@@ -103,7 +103,7 @@ if (fix) {
 // Lints the JS source files
 
 function jsLint() {
-  return gulp.src(['assets/js/*.js', 'Gulpfile.js'], { base: '.' })
+  return gulp.src(['assets/js/*.js', 'Gulpfile.js', '!assets/js/editor-old.js'], { base: '.' })
     .pipe(eslint(eslintOptions))
     .pipe(eslint.format())
     .pipe(gulp.dest('.'))

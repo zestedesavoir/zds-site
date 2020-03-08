@@ -1,5 +1,9 @@
 (function($) {
-  'use strict';
+  'use strict'
+
+  if (localStorage.getItem('editor_choice') !== 'new') {
+    return
+  }
 
   (function() {
     /**
