@@ -613,6 +613,23 @@
         },
         '|',
         {
+          name: 'abc-spellchecker',
+          action: (evt) => {},
+          className: 'fas fa-spell-check',
+          title: 'Correcteur orthographique externe'
+        },
+        {
+          name: 'switch-contentAreaStyle',
+          action: (evt) => {
+            const wrapper = editors["text"].codemirror.getWrapperElement()
+            $(wrapper.parentElement).children('.textarea-multivers').toggle()
+            $(wrapper).toggle()
+          },
+          className: 'fas fa-broom',
+          title: 'Passe au mode compatibilité'
+        },
+        '|',
+        {
           name: 'preview',
           action: EasyMDE.togglePreview,
           className: 'fa fa-eye no-disable',
@@ -698,5 +715,37 @@
     })
 
     this.removeAttribute('required')
+
+    $('button.abc-spellchecker').attr({
+      'data-antidoteapi_jsconnect_groupe_id': '01',
+      'data-antidoteapi_jsconnect_lanceoutil': 'C'
+    })
+
+    const $twin = $('<textarea></textarea>');
+
+    $twin.attr({
+      'data-antidoteapi_jsconnect_groupe_id': '01',
+      'placeholder': textarea.placeholder,
+      'style': 'display:none;',
+      'class': 'textarea-multivers'
+    })
+    
+    $twin.val(easyMDE.codemirror.getValue())
+
+    $twin.on('change input', function () {
+      easyMDE.codemirror.setValue($twin.val())
+    })
+    easyMDE.codemirror.on('change', function (cm) {
+      $twin.val(cm.getValue())
+    })
+      
+    $(easyMDE.element.parentElement).children('.CodeMirror').before($twin)
+
+    // Antidote
+    if (typeof estPresentAntidoteAPI_JSConnect === "function" && estPresentAntidoteAPI_JSConnect()) {
+      activeAntidoteAPI_JSConnect()
+    } else {
+      $('.abc-spellchecker').hide();
+    }
   })
 })(jQuery)
