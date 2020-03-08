@@ -372,6 +372,7 @@
 
     /* global EasyMDE */
     var easyMDE = new EasyMDE({
+      autoDownloadFontAwesome: false,
       element: this,
       autosave: {
         enabled: true,
@@ -457,7 +458,7 @@
           action: (e) => {
             _toggleBlockZmd(e, 'keyboard', '||')
           },
-          className: 'fa fa-keyboard-o',
+          className: 'far fa-keyboard',
           title: 'Touche clavier'
         },
         {
@@ -520,21 +521,21 @@
           action: (e) => {
             _toggleBlockZmd(e, 'checklist', '- [ ] ')
           },
-          className: 'fa fa-check-square-o',
+          className: 'far fa-check-square',
           title: 'Liste de taches'
         },
         '|',
         {
           name: 'heading',
           action: EasyMDE.toggleHeadingSmaller,
-          className: 'fa fa-header',
+          className: 'fas fa-heading',
           title: 'Titres'
         },
         '|',
         {
           name: 'image',
           action: EasyMDE.drawImage,
-          className: 'fa fa-picture-o',
+          className: 'far fa-image',
           title: 'Image'
         },
         {
