@@ -64,7 +64,7 @@ De même que pour `base <#composants-base>`_, vous pouvez agrémenter de ``-comp
 Composant ``packages``
 ======================
 
-Installe les packages nécessaire à l'utilisation et au dévellopement de Zeste de Savoir à l'aide du gestionnaire de paquet de votre distribution (détecte et fonctionne pour Ubuntu, Debian, Fedora et Archlinux).
+Installe les packages nécessaire à l'utilisation et au développement de Zeste de Savoir à l'aide du gestionnaire de paquet de votre distribution (détecte et fonctionne pour Ubuntu, Debian, Fedora et Archlinux).
 
 La liste des packages vous est donnée ci-dessous (pour Debian), si vous utilisez une distribution différente, le nom des paquets à installer devrait être fort semblable, n'hésitez dès lors pas à employer la fonction "recherche" de votre gestionnaire de paquet préféré.
 
@@ -102,7 +102,7 @@ Si vous ne souhaitez pas utiliser ce composant, il vous faut tout de même insta
 Composant ``back``
 ==================
 
-Installe les packages python nécessaire au bon fonctionnement et au dévelopement de ZdS, puis installe les migrations.
+Installe les packages python nécessaire au bon fonctionnement et au développement de ZdS, puis installe les migrations.
 Strictement équivalent au commande suivantes:
 
 .. sourcecode:: bash
@@ -140,7 +140,7 @@ Pour cela, rendez-vous sur `la documentation dédiée <extra-zmd.html>`_.
 Composant ``data``
 ==================
 
-Installe le jeu de données de test de ZdS, pour le dévelopement.
+Installe le jeu de données de test de ZdS, pour le développement.
 Strictement équivalent à la commande suivantes:
 
 .. sourcecode:: bash

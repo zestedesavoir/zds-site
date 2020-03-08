@@ -128,7 +128,7 @@ Dans la console PowerShell via l'environnement zdsenv installez les dépendances
 
 - ``pip install --upgrade -r requirements-dev.txt``
 - ``python .\manage.py migrate`` ;
-- ``python .\manage.py loaddata (dir .\fixtures\*.yaml)``, puis ``python .\manage.py load_factory_data .\fixtures\advanced\aide_tuto_media.yaml``, afin de créer `le jeu de données utile au dévellopement <../utils/fixture_loaders.html>`_.
+- ``python .\manage.py loaddata (dir .\fixtures\*.yaml)``, puis ``python .\manage.py load_factory_data .\fixtures\advanced\aide_tuto_media.yaml``, afin de créer `le jeu de données utile au développement <../utils/fixture_loaders.html>`_.
 
 On peut finalement lancer ZdS:
 
