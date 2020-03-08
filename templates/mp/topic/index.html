@@ -66,6 +66,10 @@
                 {% url "private-posts-new" topic.pk topic.slug %}?cite={{ message.pk }}
             {% endcaptureas %}
 
+            {% captureas unread_link %}
+                {% url "private-post-unread" %}?message={{ message.pk }}
+            {% endcaptureas %}
+
             {% if forloop.first and page_obj.number > 1 %}
                 {% set True as is_repeated_message %}
             {% else %}
