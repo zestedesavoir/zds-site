@@ -572,44 +572,54 @@
         },
         '|',
         {
-          name: 'blocInformation',
+          name: 'blocMenu',
           action: (e) => {
             _toggleBlockZmd(e, 'blocInformation', '| ')
           },
           className: 'fa fa-info',
-          title: 'Bloc information'
-        },
-        {
-          name: 'blocQuestion',
-          action: (e) => {
-            _toggleBlockZmd(e, 'blocQuestion', '| ')
-          },
-          className: 'fa fa-question',
-          title: 'Bloc question'
-        },
-        {
-          name: 'blocError',
-          action: (e) => {
-            _toggleBlockZmd(e, 'blocError', '| ')
-          },
-          className: 'fa fa-times',
-          title: 'Bloc erreur'
-        },
-        {
-          name: 'blocSecret',
-          action: (e) => {
-            _toggleBlockZmd(e, 'blocSecret', '| ')
-          },
-          className: 'fa fa-eye-slash',
-          title: 'Bloc secret'
-        },
-        {
-          name: 'blocNeutral',
-          action: (e) => {
-            _toggleBlockZmd(e, 'blocNeutral', '| ')
-          },
-          className: 'fa fa-square',
-          title: 'Bloc neutre'
+          title: 'Bloc information',
+          children: [
+            {
+              name: 'blocInformation',
+              action: (e) => {
+                _toggleBlockZmd(e, 'blocInformation', '| ')
+              },
+              className: 'fa fa-info',
+              title: 'Bloc information'
+            },
+            {
+              name: 'blocQuestion',
+              action: (e) => {
+                _toggleBlockZmd(e, 'blocQuestion', '| ')
+              },
+              className: 'fa fa-question',
+              title: 'Bloc question'
+            },
+            {
+              name: 'blocError',
+              action: (e) => {
+                _toggleBlockZmd(e, 'blocError', '| ')
+              },
+              className: 'fas fa-times-circle',
+              title: 'Bloc erreur'
+            },
+            {
+              name: 'blocSecret',
+              action: (e) => {
+                _toggleBlockZmd(e, 'blocSecret', '| ')
+              },
+              className: 'fa fa-eye-slash',
+              title: 'Bloc secret'
+            },
+            {
+              name: 'blocNeutral',
+              action: (e) => {
+                _toggleBlockZmd(e, 'blocNeutral', '| ')
+              },
+              className: 'fa fa-sticky-note',
+              title: 'Bloc neutre'
+            },
+          ]
         },
         '|',
         {
