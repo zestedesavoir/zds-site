@@ -251,7 +251,29 @@
     }
   })
 
-  function insertCitation(editor, citation) {
+  function getLineAt(string, index) {
+    var before = string.slice(0, index).split('\n').slice(-1)[0] || ''
+    var after = string.slice(index).split('\n')[0] || ''
+    return before + after
+  }
+
+  function insertCitationOld(editor, citation) {
+    if (editor.value === '') {
+      editor.value = citation + '\n\n'
+      return
+    }
+    if (editor.selectionStart !== editor.selectionEnd ||
+            getLineAt(editor.value, editor.selectionStart).trim()) {
+      editor.value = editor.value + '\n\n' + citation
+      return
+    }
+
+    var before = editor.value.slice(0, editor.selectionStart)
+    var after = editor.value.slice(editor.selectionEnd)
+    editor.value = before + '\n' + citation + '\n' + after
+  }
+
+  function insertCitationNew(editor, citation) {
     const cm = window.editors[editor.id].codemirror
     const doc = cm.getDoc()
     const cursor = doc.getCursor()
@@ -282,12 +304,21 @@
       url: $act.attr('href'),
       dataType: 'json',
       success: function(data) {
-        insertCitation(editor, data.text)
+        if (localStorage.getItem('editor_choice') === 'new') {
+          insertCitationNew(editor, data.text)
+        } else {
+          insertCitationOld(editor, data.text)
+        }
       }
     })
 
     // scroll to the textarea
-    $('html, body').animate({ scrollTop: $(editor).siblings('.CodeMirror').offset().top }, 500)
+    if (localStorage.getItem('editor_choice') === 'new') {
+      $('html, body').animate({ scrollTop: $(editor).siblings('.CodeMirror').offset().top }, 500)
+    } else {
+      $('html, body').animate({ scrollTop: $(editor).offset().top }, 500)
+      editor.focus()
+    }
   })
 
   /*
