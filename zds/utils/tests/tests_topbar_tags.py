@@ -2,7 +2,7 @@ from django.contrib.auth.models import Group
 
 from django.test import TestCase
 
-from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory
+from zds.forum.factories import ForumCategoryFactory, ForumFactory, TopicFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.factories import PublishedContentFactory, PublishableContentFactory, SubCategoryFactory
 from zds.tutorialv2.publication_utils import publish_content
@@ -16,8 +16,8 @@ class TopBarTests(TutorialTestMixin, TestCase):
 
     def setUp(self):
         # Create some forum's category
-        self.category1 = CategoryFactory(position=1)
-        self.category2 = CategoryFactory(position=2)
+        self.category1 = ForumCategoryFactory(position=1)
+        self.category2 = ForumCategoryFactory(position=2)
 
         # Create forum
         self.forum11 = ForumFactory(category=self.category1, position_in_category=1)

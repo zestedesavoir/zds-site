@@ -12,12 +12,12 @@ from random import randint
 from faker import Factory
 from zds.utils.templatetags.emarkdown import emarkdown
 
-from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory, PostFactory
+from zds.forum.factories import ForumCategoryFactory, ForumFactory, TopicFactory, PostFactory
 from zds.gallery.factories import GalleryFactory, UserGalleryFactory, ImageFactory
 from zds.member.factories import StaffProfileFactory, ProfileFactory
 from django.contrib.auth.models import User, Permission
 from zds.member.models import Profile
-from zds.forum.models import Forum, Topic, Category as FCategory
+from zds.forum.models import Forum, Topic, ForumCategory
 from zds.utils.models import Tag, Category as TCategory, CategorySubCategory, SubCategory, Licence
 from zds.utils import slugify
 from django.conf import settings
@@ -145,7 +145,7 @@ def load_categories_forum(cli, size, fake, *_, **__):
     cli.stdout.write('Nombres de catégories de forum à créer : {}'.format(nb_categories))
     tps1 = time.time()
     for i in range(0, nb_categories):
-        cat = CategoryFactory(position=i + 1)
+        cat = ForumCategoryFactory(position=i + 1)
         cat.title = fake.word()
         cat.save()
         sys.stdout.write(' Cat. {}/{}  \r'.format(i + 1, nb_categories))
@@ -161,12 +161,12 @@ def load_forums(cli, size, fake, *_, **__):
     nb_forums = size * 8
     cli.stdout.write('Nombres de Forums à créer : {}'.format(nb_forums))
     tps1 = time.time()
-    nb_categories = FCategory.objects.count()
+    nb_categories = ForumCategory.objects.count()
     if nb_categories == 0:
         cli.stdout.write("Il n'y a aucune catgorie actuellement. "
                          'Vous devez rajouter les categories de forum dans vos fixtures (category_forum)')
     else:
-        categories = list(FCategory.objects.all())
+        categories = list(ForumCategory.objects.all())
         for i in range(0, nb_forums):
             with contextlib.suppress(IntegrityError):
                 forum = ForumFactory(category=categories[i % nb_categories],

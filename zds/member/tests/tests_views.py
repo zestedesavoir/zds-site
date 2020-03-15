@@ -23,7 +23,7 @@ from zds.member.models import TokenRegister, Ban, NewEmailProvider, BannedEmailP
 from zds.tutorialv2.factories import PublishableContentFactory, PublishedContentFactory, BetaContentFactory
 from zds.tutorialv2.models.database import PublishableContent, PublishedContent
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
-from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory, PostFactory
+from zds.forum.factories import ForumCategoryFactory, ForumFactory, TopicFactory, PostFactory
 from zds.forum.models import Topic, Post
 from zds.gallery.factories import GalleryFactory, UserGalleryFactory
 from zds.gallery.models import Gallery, UserGallery
@@ -45,7 +45,7 @@ class MemberTests(TutorialTestMixin, TestCase):
         self.external = UserFactory(
             username=settings.ZDS_APP['member']['external_account'],
             password='anything')
-        self.category1 = CategoryFactory(position=1)
+        self.category1 = ForumCategoryFactory(position=1)
         self.forum11 = ForumFactory(
             category=self.category1,
             position_in_category=1)
@@ -544,7 +544,7 @@ class MemberTests(TutorialTestMixin, TestCase):
         writing_article_2.authors.add(user2.user)
         writing_article_2.save()
         # beta content
-        beta_forum = ForumFactory(category=CategoryFactory())
+        beta_forum = ForumFactory(category=ForumCategoryFactory())
         beta_content = BetaContentFactory(author_list=[user.user], forum=beta_forum)
         beta_content_2 = BetaContentFactory(author_list=[user.user, user2.user], forum=beta_forum)
         # about posts and topics
@@ -957,7 +957,7 @@ class MemberTests(TutorialTestMixin, TestCase):
         groupbis = Group.objects.create(name='DummyGroup_2')
 
         # create Forums, Posts and subscribe member to them.
-        category1 = CategoryFactory(position=1)
+        category1 = ForumCategoryFactory(position=1)
         forum1 = ForumFactory(
             category=category1,
             position_in_category=1)

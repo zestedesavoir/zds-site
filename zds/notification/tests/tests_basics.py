@@ -8,7 +8,7 @@ from django.test import TestCase
 from django.db import IntegrityError
 
 from django.conf import settings
-from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory, PostFactory, TagFactory
+from zds.forum.factories import ForumCategoryFactory, ForumFactory, TopicFactory, PostFactory, TagFactory
 from zds.forum.models import Topic, is_read
 from zds.gallery.factories import UserGalleryFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
@@ -29,7 +29,7 @@ class NotificationForumTest(TestCase):
         self.user1 = ProfileFactory().user
         self.user2 = ProfileFactory().user
 
-        self.category1 = CategoryFactory(position=1)
+        self.category1 = ForumCategoryFactory(position=1)
         self.forum11 = ForumFactory(category=self.category1, position_in_category=1)
         self.forum12 = ForumFactory(category=self.category1, position_in_category=2)
 
@@ -848,7 +848,7 @@ class NotificationTest(TestCase):
         When a user unsubscribes from a content, we mark all notifications for
         this content as read.
         """
-        category = CategoryFactory(position=1)
+        category = ForumCategoryFactory(position=1)
         forum = ForumFactory(category=category, position_in_category=1)
         topic = TopicFactory(forum=forum, author=self.user1)
         PostFactory(topic=topic, author=self.user1, position=1)
@@ -867,7 +867,7 @@ class NotificationTest(TestCase):
         """
         Creating two same subscriptions is rejected by the database.
         """
-        category = CategoryFactory(position=1)
+        category = ForumCategoryFactory(position=1)
         forum = ForumFactory(category=category, position_in_category=1)
         topic = TopicFactory(forum=forum, author=self.user1)
         TopicAnswerSubscription.objects.toggle_follow(topic, self.user1, True)
@@ -888,7 +888,7 @@ class NotificationTest(TestCase):
         self.assertEqual(1, len(notifs))
 
     def test_mark_notifications_as_read(self):
-        category = CategoryFactory(position=1)
+        category = ForumCategoryFactory(position=1)
         forum = ForumFactory(category=category, position_in_category=1)
         topic = TopicFactory(forum=forum, author=self.user1)
         PostFactory(topic=topic, author=self.user1, position=1)

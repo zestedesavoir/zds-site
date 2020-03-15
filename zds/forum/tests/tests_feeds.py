@@ -3,7 +3,7 @@ from django.urls import reverse
 from django.test import TestCase
 from django.test.client import RequestFactory
 
-from zds.forum.factories import CategoryFactory, ForumFactory, \
+from zds.forum.factories import ForumCategoryFactory, ForumFactory, \
     TopicFactory, PostFactory, TagFactory
 from zds.forum.feeds import LastPostsFeedRSS, LastPostsFeedATOM, \
     LastTopicsFeedRSS, LastTopicsFeedATOM
@@ -18,7 +18,7 @@ class LastTopicsFeedRSSTest(TestCase):
         settings.EMAIL_BACKEND = \
             'django.core.mail.backends.locmem.EmailBackend'
 
-        self.category1 = CategoryFactory(position=1)
+        self.category1 = ForumCategoryFactory(position=1)
         self.forum = ForumFactory(
             category=self.category1,
             position_in_category=1)
@@ -158,7 +158,7 @@ class LastPostFeedTest(TestCase):
         settings.EMAIL_BACKEND = \
             'django.core.mail.backends.locmem.EmailBackend'
 
-        self.category1 = CategoryFactory(position=1)
+        self.category1 = ForumCategoryFactory(position=1)
         self.forum = ForumFactory(
             category=self.category1,
             position_in_category=1)

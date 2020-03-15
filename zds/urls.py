@@ -4,7 +4,7 @@ from django.contrib.sitemaps import GenericSitemap, Sitemap
 from django.contrib.sitemaps.views import index as index_view, sitemap as sitemap_view
 from django.urls import include, re_path, path, get_resolver, reverse
 
-from zds.forum.models import Category, Forum, Topic, Tag
+from zds.forum.models import ForumCategory, Forum, Topic, Tag
 from zds.pages.views import home as home_view
 from zds.tutorialv2.models.database import PublishedContent
 
@@ -59,7 +59,7 @@ sitemaps = {
     'articles': ArticleSitemap,
     'opinions': OpinionSitemap,
     'categories': GenericSitemap(
-        {'queryset': Category.objects.all()},
+        {'queryset': ForumCategory.objects.all()},
         changefreq='yearly',
         priority=0.7
     ),

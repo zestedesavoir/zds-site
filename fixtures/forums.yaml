@@ -1,22 +1,22 @@
--   model: forum.Category
+-   model: forum.ForumCategory
     pk: 1
     fields:
         title: Site web
         slug: site-web
         position: 1
--   model: forum.Category
+-   model: forum.ForumCategory
     pk: 2
     fields:
         title: Programmation
         slug: programmation
         position: 2
--   model: forum.Category
+-   model: forum.ForumCategory
     pk: 3
     fields:
         title: Développement Mobile
         slug: developpement-mobile
         position: 3
--   model: forum.Category
+-   model: forum.ForumCategory
     pk: 4
     fields:
         title: Communauté
