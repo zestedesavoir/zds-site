@@ -20,6 +20,8 @@
                 border: 1px solid transparent;
                 border-radius: 3px;
                 cursor: pointer;
+
+                vertical-align: middle;
             }
             button.blocMenu {
                 border-color: #fcfcfc;
@@ -39,6 +41,19 @@
             box-sizing: border-box;
             display: block;
             width: 100%;
+        }
+
+        .zdsicon {
+            & > i {
+                display: inline-block;
+                height: 17px;
+                width: 17px;
+                background-size: 100%;
+            }
+
+            &.zi-grammalecte > i {
+                background-image: url(../images/editor/svg/grammalecte_H084561.svg);
+            }
         }
 
         .CodeMirror {

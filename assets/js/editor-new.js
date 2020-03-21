@@ -1,3 +1,5 @@
+/* globals oGrammalecteAPI, estPresentAntidoteAPI_JSConnect, activeAntidoteAPI_JSConnect */ // eslint-disable-line camelcase
+
 (function($) {
   'use strict'
 
@@ -619,7 +621,7 @@
               },
               className: 'fa fa-sticky-note',
               title: 'Bloc neutre'
-            },
+            }
           ]
         },
         '|',
@@ -627,6 +629,16 @@
           name: 'abc-spellchecker',
           action: (evt) => {},
           className: 'fas fa-spell-check',
+          title: 'Correcteur orthographique externe'
+        },
+        {
+          name: 'abc-grammalecte',
+          action: (evt) => {
+            // TODO: Préférer l'utilisation de :
+            // oGrammalecteAPI.openPanelForText(easyMDE.codemirror.getValue())
+            oGrammalecteAPI.openPanelForNode(easyMDE.codemirror.display.lineDiv)
+          },
+          className: 'zdsicon zi-grammalecte',
           title: 'Correcteur orthographique externe'
         },
         {
@@ -728,54 +740,88 @@
 
     this.removeAttribute('required')
 
-    $(window.editors.text.toolbarElements['abc-spellchecker']).attr({
-      'data-antidoteapi_jsconnect_groupe_id': '01',
-      'data-antidoteapi_jsconnect_lanceoutil': 'C'
-    })
+    const $twin = mirroringEasyMDE(easyMDE, textarea)
 
-    const $twin = $('<textarea></textarea>');
+    $twin.css('minHeight', minHeight + 22 + 'px')
 
-    $twin.attr({
-      'data-antidoteapi_jsconnect_groupe_id': '01',
-      'placeholder': textarea.placeholder,
-      'class': 'textarea-multivers'
-    })
-
-    $twin.css({
-      'display': 'none',
-      'minHeight': minHeight + 22 + 'px'
-    });
-    
-    $twin.val(easyMDE.codemirror.getValue())
-
-    $twin.on('change input', function () {
-      easyMDE.codemirror.setValue($twin.val())
-    })
-    easyMDE.codemirror.on('change', function (cm) {
-      $twin.val(cm.getValue())
-    })
-      
-    $(easyMDE.element.parentElement).children('.CodeMirror').before($twin)
-
-    if (typeof estPresentAntidoteAPI_JSConnect === "function" && estPresentAntidoteAPI_JSConnect()) {
-      activeAntidoteAPI_JSConnect()
-    } else {
-      $(easyMDE.toolbarElements['abc-spellchecker']).hide()
-    }
-
-    if (!window.thereIsAlreadyOnStalkerOnThisPage) {
-      window.thereIsAlreadyOnStalkerOnThisPage = true
-      const stalker = new MutationObserver(function(events) {
-        events.forEach((ev) => {
-          if (ev.type === "attributes" && ev.attributeName === "data-antidoteapi_jsconnect_initlistener") {
-          console.log('ok')
-            $('button.abc-spellchecker').show()
-            stalker.disconnect()
-          }
-        });
-      })
-      setTimeout(() => stalker.disconnect(), 30000)
-      stalker.observe(easyMDE.toolbarElements['abc-spellchecker'], { attributes: true })
-    }
+    spellcheckerEasyMDE(easyMDE)
   })
 })(jQuery)
+
+
+function mirroringEasyMDE(easyMDE, textarea) {
+  const $twin = $('<textarea></textarea>')
+
+  $twin.attr({
+    'data-antidoteapi_jsconnect_groupe_id': '01',
+    placeholder: textarea.placeholder,
+    class: 'textarea-multivers',
+    style: 'display: none;'
+  })
+
+  $twin.val(easyMDE.codemirror.getValue())
+
+  $twin.on('change input', function() {
+    easyMDE.codemirror.setValue($twin.val())
+  })
+  easyMDE.codemirror.on('change', function(cm) {
+    $twin.val(cm.getValue())
+  })
+
+  $(easyMDE.element.parentElement).children('.CodeMirror').before($twin)
+
+  return $twin
+}
+
+
+function spellcheckerEasyMDE(easyMDE) {
+  $(easyMDE.toolbarElements['abc-spellchecker']).attr({
+    'data-antidoteapi_jsconnect_groupe_id': '01',
+    'data-antidoteapi_jsconnect_lanceoutil': 'C'
+  })
+
+  const contenteditable = easyMDE.codemirror.display.lineDiv
+  $(contenteditable).attr({
+    'data-grammalecte_button': false,
+    'data-grammalecte_result_via_event': true
+  })
+
+  contenteditable.addEventListener('GrammalecteResult', function(event) {
+    const detail = (typeof event.detail === 'string') && JSON.parse(event.detail)
+
+    if (detail.sType === 'text') {
+      easyMDE.codemirror.setValue(detail.sText)
+    }
+  })
+
+  if (typeof oGrammalecteAPI !== 'object' || oGrammalecteAPI === null) {
+    $(easyMDE.toolbarElements['abc-grammalecte']).hide()
+
+    const pushy = setInterval(() => {
+      if (typeof oGrammalecteAPI === 'object' && oGrammalecteAPI !== null) {
+        $(easyMDE.toolbarElements['abc-grammalecte']).show()
+      }
+    }, 500)
+    setTimeout(() => clearInterval(pushy), 30000)
+  }
+
+  if (typeof estPresentAntidoteAPI_JSConnect === 'function' && estPresentAntidoteAPI_JSConnect()) { // eslint-disable-line camelcase
+    activeAntidoteAPI_JSConnect()
+  } else {
+    $(easyMDE.toolbarElements['abc-spellchecker']).hide()
+  }
+
+  if (!window.thereIsAlreadyAStalkerOnThisPage) {
+    window.thereIsAlreadyAStalkerOnThisPage = true
+    const stalker = new MutationObserver(function(events) {
+      events.forEach((ev) => {
+        if (ev.type === 'attributes' && ev.attributeName === 'data-antidoteapi_jsconnect_initlistener') {
+          $(easyMDE.toolbarElements['abc-spellchecker']).show()
+          stalker.disconnect()
+        }
+      })
+    })
+    setTimeout(() => stalker.disconnect(), 30000)
+    stalker.observe(easyMDE.toolbarElements['abc-spellchecker'], { attributes: true })
+  }
+}
