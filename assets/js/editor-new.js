@@ -634,9 +634,7 @@
         {
           name: 'abc-grammalecte',
           action: (evt) => {
-            // TODO: Préférer l'utilisation de :
-            // oGrammalecteAPI.openPanelForText(easyMDE.codemirror.getValue())
-            oGrammalecteAPI.openPanelForNode(easyMDE.codemirror.display.lineDiv)
+            oGrammalecteAPI.openPanelForText(easyMDE.codemirror.getValue(), easyMDE.codemirror.display.lineDiv)
           },
           className: 'zdsicon zi-grammalecte',
           title: 'Correcteur orthographique externe'
@@ -797,12 +795,9 @@ function spellcheckerEasyMDE(easyMDE) {
   if (typeof oGrammalecteAPI !== 'object' || oGrammalecteAPI === null) {
     $(easyMDE.toolbarElements['abc-grammalecte']).hide()
 
-    const pushy = setInterval(() => {
-      if (typeof oGrammalecteAPI === 'object' && oGrammalecteAPI !== null) {
-        $(easyMDE.toolbarElements['abc-grammalecte']).show()
-      }
-    }, 500)
-    setTimeout(() => clearInterval(pushy), 30000)
+    document.addEventListener("GrammalecteLoaded", function (event) {
+      $(easyMDE.toolbarElements['abc-grammalecte']).show()
+    });
   }
 
   if (typeof estPresentAntidoteAPI_JSConnect === 'function' && estPresentAntidoteAPI_JSConnect()) { // eslint-disable-line camelcase
