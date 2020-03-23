@@ -765,12 +765,51 @@ function mirroringEasyMDE(easyMDE, textarea) {
   easyMDE.codemirror.on('change', function(cm) {
     $twin.val(cm.getValue())
   })
+  $twin.on('mousedown select keyup blur', function() {
+    setTimeout(() => {
+      const cm = easyMDE.codemirror
+      const start = convertAbsolute2CmPosition(cm, $twin[0].selectionStart)
+      const end = convertAbsolute2CmPosition(cm, $twin[0].selectionEnd)
+      cm.setSelection(start, end)
+    }, 12) // <-- after default trigger (I mean after browser trigger)
+  })
 
   $(easyMDE.element.parentElement).children('.CodeMirror').before($twin)
 
   return $twin
 }
 
+function getPositionConverterArray(text) {
+  const lines = text.split('\n')
+  const linesLength = lines.map((line, i) => line.length)
+
+  return ((arr) => {
+    for (let i = 0, length = 0; i < lines.length; i++, length += linesLength[i - 1] + 1) {
+      arr.push(length)
+    }
+    return arr
+  })([])
+}
+
+function convertCm2AbsolutePosition(cm, pos) { // eslint-disable-line no-unused-vars
+  const text = cm.getValue()
+  const sumLinesLength = getPositionConverterArray(text)
+
+  return sumLinesLength[pos.line] + pos.ch
+}
+
+function convertAbsolute2CmPosition(cm, pos) {
+  const text = cm.getValue()
+  const sumLinesLength = getPositionConverterArray(text)
+
+  const index = sumLinesLength.findIndex((num) => num > pos)
+  const line = ((index > -1) ? index : sumLinesLength.length) - 1
+
+  return {
+    line: line,
+    ch: pos - sumLinesLength[line]
+  }
+}
 
 function spellcheckerEasyMDE(easyMDE) {
   $(easyMDE.toolbarElements['abc-spellchecker']).attr({
@@ -787,7 +826,7 @@ function spellcheckerEasyMDE(easyMDE) {
   contenteditable.addEventListener('GrammalecteResult', function(event) {
     const detail = (typeof event.detail === 'string') && JSON.parse(event.detail)
 
-    if (detail.sType === 'text') {
+    if (detail && detail.sType === 'text') {
       easyMDE.codemirror.setValue(detail.sText)
     }
   })
@@ -795,9 +834,9 @@ function spellcheckerEasyMDE(easyMDE) {
   if (typeof oGrammalecteAPI !== 'object' || oGrammalecteAPI === null) {
     $(easyMDE.toolbarElements['abc-grammalecte']).hide()
 
-    document.addEventListener("GrammalecteLoaded", function (event) {
+    document.addEventListener('GrammalecteLoaded', function(event) {
       $(easyMDE.toolbarElements['abc-grammalecte']).show()
-    });
+    })
   }
 
   if (typeof estPresentAntidoteAPI_JSConnect === 'function' && estPresentAntidoteAPI_JSConnect()) { // eslint-disable-line camelcase
