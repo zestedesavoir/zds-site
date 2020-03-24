@@ -267,7 +267,7 @@ class DeleteReadingOnlySanction(MemberSanctionState):
     """
 
     def get_type(self):
-        return _("Levée de la lecture seule")
+        return _('Levée de la lecture seule')
 
     def get_text(self):
         return self.array_infos.get('unls-text', '')
