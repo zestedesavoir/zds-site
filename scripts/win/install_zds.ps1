@@ -90,6 +90,8 @@ if (-not (Test-Path "$ZDS_SITE\zdsenv")) {
 . "$ZDS_SITE\zdsenv\Scripts\activate.ps1"
 if ($env:virtual_env -ne "$ZDS_SITE\zdsenv") {
   Error "Error: Cannot load virtualenv."
+} else {
+  PrintInfo " | -> Virtualenv loaded: $VIRTUAL_ENV"
 }
 
 
