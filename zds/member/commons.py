@@ -208,7 +208,7 @@ class MemberSanctionState(object):
             '',
             msg,
             send_by_mail=True,
-            direct=False,
+            direct=True,
             hat=get_hat_from_settings('moderation'),
         )
 
