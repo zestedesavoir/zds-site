@@ -410,19 +410,19 @@
         {
           name: 'bold',
           action: EasyMDE.toggleBold,
-          className: 'fa fa-bold',
+          className: 'zdsicon zi-bold',
           title: 'Gras'
         },
         {
           name: 'italic',
           action: EasyMDE.toggleItalic,
-          className: 'fa fa-italic',
+          className: 'zdsicon zi-italic',
           title: 'Italique'
         },
         {
           name: 'strikethrough',
           action: EasyMDE.toggleStrikethrough,
-          className: 'fa fa-strikethrough',
+          className: 'zdsicon zi-strikethrough',
           title: 'Barré'
         },
         {
@@ -550,7 +550,7 @@
         {
           name: 'quote',
           action: EasyMDE.toggleBlockquote,
-          className: 'fa fa-quote-left',
+          className: 'zdsicon zi-quote',
           title: 'Citation'
         },
         {

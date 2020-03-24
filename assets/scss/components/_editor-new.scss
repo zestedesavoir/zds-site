@@ -65,3 +65,32 @@
         }
     }
 }
+
+.zdsicon {
+    & > i {
+        display: inline-block;
+        height: 17px;
+        width: 17px;
+        background-size: 100%;
+    }
+
+    &.zi-bold > i {
+        background-image: url(../images/editor/svg/bold.svg);
+    }
+
+    &.zi-italic > i {
+        background-image: url(../images/editor/svg/italic.svg);
+    }
+
+    &.zi-strikethrough > i {
+        background-image: url(../images/editor/svg/strikethrough.svg);
+    }
+
+    &.zi-quote > i {
+        background-image: url(../images/editor/svg/quote.svg);
+    }
+
+    &.zi-grammalecte > i {
+        background-image: url(../images/editor/svg/grammalecte_H084561.svg);
+    }
+}
