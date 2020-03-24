@@ -127,7 +127,7 @@ class PublicationFronttest(StaticLiveServerTestCase, TutorialTestMixin, Tutorial
         article_edit_url = reverse('content:edit', args=[article.pk, article.slug])
 
         self.login(author)
-
+        selenium.execute_script('localStorage.setItem("editor_choice", "new")')  # we want the new editor
         selenium.get(self.live_server_url + article_edit_url)
 
         intro = find_element('div#div_id_introduction div.CodeMirror')
@@ -154,6 +154,7 @@ class PublicationFronttest(StaticLiveServerTestCase, TutorialTestMixin, Tutorial
         author = ProfileFactory()
 
         self.login(author)
+        selenium.execute_script('localStorage.setItem("editor_choice", "new")')  # we want the new editor
         new_article_url = self.live_server_url + reverse('content:create-article')
         selenium.get(new_article_url)
         WebDriverWait(self.selenium, 10).until(ec.element_to_be_clickable(
