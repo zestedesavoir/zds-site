@@ -8,12 +8,11 @@ search() {
     grep -rn zds | grep settings | grep import | grep -v '^settings' | grep -v 'get_hat_from_settings'
 }
 
-if ! search >/dev/null
-then
-   exit 0
+if ! search >/dev/null; then
+    exit 0
 fi
 
->&2 cat <<'EOF'
+cat >&2 <<'EOF'
 
 GOTCHA!
 
@@ -24,6 +23,6 @@ Fix these lines:
 
 EOF
 
->&2 search
+search >&2
 
 exit 1

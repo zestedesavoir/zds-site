@@ -4,7 +4,7 @@
 #
 # Deploys specified version of Zeste de Savoir
 #
-# DON'T RUN THIS SCRIPT DIRECTLY
+# DON’T RUN THIS SCRIPT DIRECTLY
 # Running update_and_deploy.sh <tag> instead will first get the
 # appropriate version of this script and run it instead.
 
@@ -19,7 +19,7 @@ if [ "$1" != "ok" ]; then
   exit 1
 fi
 
-# Shift the first arg "ok"
+# Shift the first arg “ok”
 shift
 
 if [ "$(whoami)" != "zds" ]; then
@@ -34,7 +34,7 @@ if ! git diff-index --quiet HEAD -- . ':!scripts/'; then
 fi
 
 read -p "Did you run specific tasks for this version as described in update.md? [y/N] " -r
-echo  # move to a new line
+echo # move to a new line
 
 if [[ ! $REPLY =~ ^[Yy]$ ]]; then
   echo "Do it, now!"
@@ -49,7 +49,7 @@ sudo ln -sf errors/maintenance.html $ENV_PATH/webroot/
 # Delete old branch if exists
 git checkout refs/heads/prod
 
-if git rev-parse --verify "refs/heads/$1" > /dev/null; then
+if git rev-parse --verify "refs/heads/$1" >/dev/null; then
   git branch -D "$1"
 fi
 
@@ -57,15 +57,14 @@ fi
 rm -rf ./dist/
 # Switch to new tag
 git fetch --tags
-# Server has git < 1.9, git fetch --tags doesn't retrieve commits...
+# Server has git < 1.9, git fetch --tags doesn’t retrieve commits…
 git fetch
 
-if git rev-parse "$1" >/dev/null 2>&1
-then
+if git rev-parse "$1" >/dev/null 2>&1; then
   echo "Tag $1 found!"
 else
   echo "Tag $1 doesn't exist."
-  exit 1;
+  exit 1
 fi
 
 # Checkout the tag

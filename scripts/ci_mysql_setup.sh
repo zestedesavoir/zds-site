@@ -5,7 +5,7 @@ sudo systemctl restart mysql
 
 # Travis should fail as soon as possible
 mysql -u root -e "SET GLOBAL sql_mode = 'NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES';"
-# Avoid "mysql has gone away" errors
+# Avoid “mysql has gone away” errors
 mysql -u root -e "SET GLOBAL wait_timeout = 36000;"
 mysql -u root -e "SET GLOBAL max_allowed_packet = 134209536;"
 # Create database with the correct charset and collation

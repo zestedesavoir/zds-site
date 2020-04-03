@@ -28,4 +28,3 @@ chmod +x deploy.sh
 
 echo "Runing the deployment script…"
 ./deploy.sh ok "$@"
-
