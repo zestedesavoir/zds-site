@@ -1,8 +1,8 @@
-#!/bin/sh -e
+#!/bin/bash
 
-cd "$(dirname "$0")"
+cd "$(dirname "$0")" || exit
 
-cd ../zds
+cd ../zds || exit
 
 search() {
     grep -rn zds | grep settings | grep import | grep -v '^settings' | grep -v 'get_hat_from_settings'
