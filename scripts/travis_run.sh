@@ -15,21 +15,21 @@ function print_info {
 
 function error_handler {
     if [[ $exVal != 0 ]]; then
-        print_error $1
+        print_error "$1"
         exit 1
     fi
 }
 
 
 function run_script {
-	./scripts/travis_script.sh $1; exVal=$?
+	./scripts/travis_script.sh "$1"; exVal=$?
 	error_handler "!! Some error on the last task ($1)."
 }
 
 
 function activate_env {
 	print_info "source $1/bin/activate"
-	source $1/bin/activate; exVal=$?
+	source "$1/bin/activate"; exVal=$?
 	error_handler "!! Error: environnement not load.\n - Value = $1"
 }
 

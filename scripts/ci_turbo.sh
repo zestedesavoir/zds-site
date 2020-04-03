@@ -13,11 +13,11 @@ then
     return
 fi
 
-changed_files=$(git --no-pager diff --name-only $TRAVIS_COMMIT $(git merge-base $TRAVIS_COMMIT origin/$default_branch))
+changed_files=$(git --no-pager diff --name-only "$TRAVIS_COMMIT" "$(git merge-base "$TRAVIS_COMMIT" origin/$default_branch)")
 echo "changed files:"
-echo $changed_files
+echo "$changed_files"
 
-if ! echo "$changed_files" | egrep -v "^assets"
+if ! echo "$changed_files" | grep -E -v "^assets"
 then
     # Don't test the backend if only the `/assets/` directory changed
     if [[ "$ZDS_TEST_JOB" == *"front"* ]]

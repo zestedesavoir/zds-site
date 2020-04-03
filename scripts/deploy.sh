@@ -36,7 +36,7 @@ fi
 read -p "Did you run specific tasks for this version as described in update.md? [y/N] " -r
 echo  # move to a new line
 
-if [[ ! $REPLY =~ ^[Yy]$ ]] then
+if [[ ! $REPLY =~ ^[Yy]$ ]]; then
   echo "Do it, now!"
   exit 1
 fi
@@ -50,7 +50,7 @@ sudo ln -sf errors/maintenance.html $ENV_PATH/webroot/
 git checkout refs/heads/prod
 
 if git rev-parse --verify "refs/heads/$1" > /dev/null; then
-  git branch -D $1
+  git branch -D "$1"
 fi
 
 # Removes dist/ folder to avoid conflicts
@@ -60,7 +60,7 @@ git fetch --tags
 # Server has git < 1.9, git fetch --tags doesn't retrieve commits...
 git fetch
 
-if git rev-parse $1 >/dev/null 2>&1
+if git rev-parse "$1" >/dev/null 2>&1
 then
   echo "Tag $1 found!"
 else
@@ -69,9 +69,9 @@ else
 fi
 
 # Checkout the tag
-git checkout refs/heads/$1-build
+git checkout refs/heads/"$1"-build
 # Create a branch with the same name - required to have version data in footer
-git checkout -b $1
+git checkout -b "$1"
 
 # Update application data
 source $ENV_PATH/bin/activate
@@ -94,11 +94,11 @@ sudo service memcached restart
 sudo rm $ENV_PATH/webroot/maintenance.html
 
 # update latex
-mkdir -p $HOME/texmf/tex/latex/
+mkdir -p "$HOME"/texmf/tex/latex/
 wget "https://raw.githubusercontent.com/zestedesavoir/latex-template/${1-build}/zmdocument.cls"
-mv zmdocument.cls $HOME/texmf/tex/latex/
+mv zmdocument.cls "$HOME"/texmf/tex/latex/
 sudo texhash
 # Display current branch and commit
 git status
-echo "Deployed commit: `git rev-parse HEAD`"
+echo "Deployed commit: $(git rev-parse HEAD)"
 echo "Dont forget to run specific tasks for this version as described in update.md"

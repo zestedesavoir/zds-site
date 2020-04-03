@@ -23,9 +23,9 @@ echo "Backing up the previous deployment script"
 mv -f deploy.sh deploy.sh.bak
 
 echo "Fetching the appropriate version of the deployment script"
-wget https://raw.githubusercontent.com/zestedesavoir/zds-site/$1/scripts/deploy.sh
+wget "https://raw.githubusercontent.com/zestedesavoir/zds-site/$1/scripts/deploy.sh"
 chmod +x deploy.sh
 
 echo "Runing the deployment script…"
-./deploy.sh ok $@
+./deploy.sh ok "$@"
 

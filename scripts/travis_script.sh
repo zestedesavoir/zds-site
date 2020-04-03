@@ -69,7 +69,7 @@ if [[ "$1" == "coverage_backend" ]] && [[ "$ZDS_TEST_JOB" == *"zds."* ]]; then
             --keepdb \
             --settings zds.settings.ci_test \
             --exclude-tag=front \
-            ${ZDS_TEST_JOB/front/}; exVal=$?
+            "${ZDS_TEST_JOB/front/}"; exVal=$?
 
         gateway "!! Test failed" $exVal
 

@@ -60,7 +60,8 @@ zds_travis_time_finish() {
 
 ## start fold for travis
 ZDS_SHOW_TRAVIS_FOLD=0
-if $(_in "--travis-output" $@); then
+readonly travis_output="$(_in "--travis-output" "$@")"
+if $travis_output; then
     ZDS_SHOW_TRAVIS_FOLD=1
 fi
 
@@ -74,7 +75,7 @@ function zds_fold_category {
 zds_fold_current=""
 function zds_fold_start {
     if [[ $ZDS_SHOW_TRAVIS_FOLD == 1 ]]; then
-        if [[ $zds_fold_current == $1 ]]; then # for virtualenv fold
+        if [[ $zds_fold_current == "$1" ]]; then # for virtualenv fold
             return
         fi
 
@@ -124,7 +125,7 @@ function zds_stop_zmd {
 function gateway {
     if [[ $2 != 0 ]]; then
         print_error "$1"
-        exit $2
+        exit "$2"
     fi
 }
 
