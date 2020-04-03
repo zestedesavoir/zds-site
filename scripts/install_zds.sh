@@ -2,19 +2,16 @@
 
 # Install script for the zds-site repository
 
-
 # load nvm
-function load_nvm {
+function load_nvm() {
     export NVM_DIR="$HOME/.nvm"
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
 }
 
-
 ## start quiet mode
-function progressfilt {
+function progressfilt() {
     local flag=false c count cr=$'\r' nl=$'\n'
-    while IFS='' read -d '' -rn 1 c
-    do
+    while IFS='' read -d '' -rn 1 c; do
         if $flag; then
             printf '%s' "$c"
         else
@@ -30,23 +27,19 @@ function progressfilt {
     done
 }
 
-
-# Hack for "-q --show-progress" (at least v1.16) and travis uses (travis uses wget 1.15)
-function wget_nv {
+# Hack for “-q --show-progress” (at least v1.16) and travis uses (travis uses wget 1.15)
+function wget_nv() {
     wget "$@" --progress=bar:force 2>&1 | progressfilt
 }
 ## end
 
-
 # zds-site root folder
 ZDSSITE_DIR=$(pwd)
-
 
 # variables
 LOCAL_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$LOCAL_DIR/define_variable.sh"
 source "$LOCAL_DIR/define_function.sh"
-
 
 # enable travis fold
 ZDS_SHOW_TRAVIS_FOLD=0
@@ -58,14 +51,13 @@ fi
 
 zds_fold_category "install"
 
-
 # Install packages
 readonly in_minus_packages=$(_in "-packages" "$@")
 readonly in_plus_packages=$(_in "+packages" "$@")
 readonly in_plus_base=$(_in "+base" "$@")
 readonly in_plus_full=$(_in "+full" "$@")
 
-if  ! $in_minus_packages && ( $in_plus_packages || $in_plus_base || $in_plus_full ); then
+if ! $in_minus_packages && ($in_plus_packages || $in_plus_base || $in_plus_full); then
     zds_fold_start "packages" "* [+packages] installing packages (this subcommand will be run as super-user)"
     readonly dash_detect_os_version=$(_in "--detect-os-version" "$@")
 
@@ -86,7 +78,7 @@ if  ! $in_minus_packages && ( $in_plus_packages || $in_plus_base || $in_plus_ful
             exit 1
         fi
     else
-        echo -en "\033[33;1m";
+        echo -en "\033[33;1m"
         n=1
         arr=()
 
@@ -120,7 +112,8 @@ if  ! $in_minus_packages && ( $in_plus_packages || $in_plus_base || $in_plus_ful
     if [[ $packagingTool_update ]]; then
         print_info "sudo $packagingTool_update"
         echo ""
-        eval "sudo $packagingTool_update"; exVal=$?
+        eval "sudo $packagingTool_update"
+        exVal=$?
         echo ""
         if [[ $exVal != 0 ]]; then
             print_error "!! We were unable to update packages list."
@@ -129,12 +122,13 @@ if  ! $in_minus_packages && ( $in_plus_packages || $in_plus_base || $in_plus_ful
 
     while IFS= read -r dep; do
         if [[ $dep == "#"* ]]; then
-            continue;
+            continue
         fi
 
         print_info "sudo $packagingTool_install $dep"
         echo ""
-        eval "sudo $packagingTool_install $dep"; exVal=$?
+        eval "sudo $packagingTool_install $dep"
+        exVal=$?
         echo ""
 
         if [[ $exVal != 0 && $dep == "python3-venv" ]]; then
@@ -156,11 +150,10 @@ if  ! $in_minus_packages && ( $in_plus_packages || $in_plus_base || $in_plus_ful
             print_info "$dep: success."
         fi
         echo ""
-    done < "$filepath"
+    done <"$filepath"
 
     zds_fold_end
 fi
-
 
 # virtualenv
 readonly in_minus_virtualenv=$(_in "-virtualenv" "$@")
@@ -168,7 +161,7 @@ readonly in_plus_virtualenv=$(_in "+virtualenv" "$@")
 readonly in_plus_base=$(_in "+base" "$@")
 readonly in_plus_full=$(_in "+full" "$@")
 
-if  ! $in_minus_virtualenv && ( $in_plus_virtualenv || $in_plus_base || $in_plus_full ); then
+if ! $in_minus_virtualenv && ($in_plus_virtualenv || $in_plus_base || $in_plus_full); then
     zds_fold_start "virtualenv" "* Create virtualenv"
 
     if [ ! -f "$ZDS_VENV/bin/activate" ]; then
@@ -203,7 +196,8 @@ if  ! $in_minus_virtualenv && ( $in_plus_virtualenv || $in_plus_base || $in_plus
             exVal=1
             if [[ $err == *"ensurepip"* ]]; then # possible issue on python 3.6
                 print_info "!! Trying to create the virtualenv without pip"
-                python3 -m venv "$ZDS_VENV" --without-pip; exVal=$?
+                python3 -m venv "$ZDS_VENV" --without-pip
+                exVal=$?
             fi
 
             if [[ $exVal != 0 ]]; then
@@ -221,7 +215,7 @@ readonly in_plus_node=$(_in "+node" "$@")
 readonly in_plus_base=$(_in "+base" "$@")
 readonly in_plus_full=$(_in "+full" "$@")
 
-if  ! $in_minus_node && ( $in_plus_node || $in_plus_base || $in_plus_full ); then
+if ! $in_minus_node && ($in_plus_node || $in_plus_base || $in_plus_full); then
     zds_fold_start "node" "* [+node] installing nvm (v$ZDS_NVM_VERSION) & node (v$ZDS_NODE_VERSION) & yarn"
 
     if wget -qO- "https://raw.githubusercontent.com/creationix/nvm/v${ZDS_NVM_VERSION}/install.sh" | bash; then
@@ -232,12 +226,12 @@ if  ! $in_minus_node && ( $in_plus_node || $in_plus_base || $in_plus_full ); the
         nvm install
         npm -g add yarn
 
-        if [[ $(grep -c -i "nvm use" "$ZDS_ENV/bin/activate") == "0" ]]; then # add nvm activation to venv activate's
+        if [[ $(grep -c -i "nvm use" "$ZDS_ENV/bin/activate") == "0" ]]; then # add nvm activation to venv activate’s
             ACTIVATE_NVM="nvm use > /dev/null # activate nvm (from install_zds.sh)"
 
-            echo "$ACTIVATE_NVM" >> "$ZDS_ENV/bin/activate"
-            echo "$ACTIVATE_NVM" >> "$ZDS_ENV/bin/activate.csh"
-            echo "$ACTIVATE_NVM" >> "$ZDS_ENV/bin/activate.fish"
+            echo "$ACTIVATE_NVM" >>"$ZDS_ENV/bin/activate"
+            echo "$ACTIVATE_NVM" >>"$ZDS_ENV/bin/activate.csh"
+            echo "$ACTIVATE_NVM" >>"$ZDS_ENV/bin/activate.fish"
         fi
     else
         print_error "!! Cannot obtain nvm v${ZDS_NVM_VERSION}"
@@ -249,7 +243,7 @@ fi
 
 # virtualenv activation
 readonly in_dash_force_skip_activating=$(_in "--force-skip-activating" "$@")
-if ! $in_dash_force_skip_activating && [[ ( $VIRTUAL_ENV == "" || $(realpath "$VIRTUAL_ENV") != $(realpath "$ZDS_VENV") ) ]]; then
+if ! $in_dash_force_skip_activating && [[ ($VIRTUAL_ENV == "" || $(realpath "$VIRTUAL_ENV") != $(realpath "$ZDS_VENV")) ]]; then
     zds_fold_start "virtualenv" "* Load virtualenv"
 
     print_info "* activating venv \`$ZDS_VENV\`"
@@ -266,7 +260,8 @@ if ! $in_dash_force_skip_activating && [[ ( $VIRTUAL_ENV == "" || $(realpath "$V
         exit 1
     fi
 
-    source "$ZDS_VENV/bin/activate"; exVal=$?
+    source "$ZDS_VENV/bin/activate"
+    exVal=$?
 
     if [[ $exVal != 0 ]]; then
         echo ""
@@ -277,7 +272,7 @@ if ! $in_dash_force_skip_activating && [[ ( $VIRTUAL_ENV == "" || $(realpath "$V
     fi
 
     zds_fold_end
-else 
+else
     print_info "!! Add \`$(realpath "$ZDS_VENV")\` in your PATH."
 
     if [ ! -d "$ZDS_VENV" ]; then
@@ -290,13 +285,12 @@ fi
 export ZDS_ENV
 ZDS_ENV=$(realpath "$ZDS_VENV")
 
-
-# local jdk 
+# local jdk
 readonly in_minus_jdk_local=$(_in "-jdk-local" "$@")
 readonly in_plus_jdk_local=$(_in "+jdk-local" "$@")
 readonly in_plus_full=$(_in "+full" "$@")
 
-if  ! $in_minus_jdk_local && ( $in_plus_jdk_local || $in_plus_full ); then
+if ! $in_minus_jdk_local && ($in_plus_jdk_local || $in_plus_full); then
     zds_fold_start "jdk" "* [+jdk-local] installing a local version of JDK (v$ZDS_JDK_VERSION)"
 
     mkdir -p "$ZDS_VENV/lib/"
@@ -325,12 +319,12 @@ if  ! $in_minus_jdk_local && ( $in_plus_jdk_local || $in_plus_full ); then
         export JAVA_HOME="$jdk_path"
         export ES_JAVA_OPTS="-Xms512m -Xmx512m"
 
-        if [[ $(grep -c -i "export JAVA_HOME" "$ZDS_ENV/bin/activate") == "0" ]]; then # add java to venv activate's
-            ACTIVATE_JAVA=( "export PATH=\"$PATH:$jdk_path/bin\"\nexport JAVA_HOME=\"$jdk_path\"\nexport ES_JAVA_OPTS=\"-Xms512m -Xmx512m\"" )
+        if [[ $(grep -c -i "export JAVA_HOME" "$ZDS_ENV/bin/activate") == "0" ]]; then # add java to venv activate’s
+            ACTIVATE_JAVA=("export PATH=\"$PATH:$jdk_path/bin\"\nexport JAVA_HOME=\"$jdk_path\"\nexport ES_JAVA_OPTS=\"-Xms512m -Xmx512m\"")
 
-            echo -e "${ACTIVATE_JAVA[*]}" >> "$ZDS_ENV/bin/activate"
-            echo -e "${ACTIVATE_JAVA[*]}" >> "$ZDS_ENV/bin/activate.csh"
-            echo -e "${ACTIVATE_JAVA[*]}" >> "$ZDS_ENV/bin/activate.fish"
+            echo -e "${ACTIVATE_JAVA[*]}" >>"$ZDS_ENV/bin/activate"
+            echo -e "${ACTIVATE_JAVA[*]}" >>"$ZDS_ENV/bin/activate.csh"
+            echo -e "${ACTIVATE_JAVA[*]}" >>"$ZDS_ENV/bin/activate.fish"
         fi
     else
         print_error "!! Cannot get or extract jdk ${ZDS_JDK_VERSION}"
@@ -341,13 +335,12 @@ if  ! $in_minus_jdk_local && ( $in_plus_jdk_local || $in_plus_full ); then
     zds_fold_end
 fi
 
-
 # local elasticsearch
 readonly in_minus_elastic_local=$(_in "-elastic-local" "$@")
 readonly in_plus_elastic_local=$(_in "+elastic-local" "$@")
 readonly in_plus_full=$(_in "+full" "$@")
 
-if  ! $in_minus_elastic_local && ( $in_plus_elastic_local || $in_plus_full ); then
+if ! $in_minus_elastic_local && ($in_plus_elastic_local || $in_plus_full); then
     zds_fold_start "elasticsearch" "* [+elastic-local] installing a local version of elasticsearch (v$ZDS_ELASTIC_VERSION)"
 
     mkdir -p .local
@@ -360,7 +353,7 @@ if  ! $in_minus_elastic_local && ( $in_plus_elastic_local || $in_plus_full ); th
     fi
 
     if wget_nv "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${ZDS_ELASTIC_VERSION}.zip"; then
-        unzip -q "elasticsearch-${ZDS_ELASTIC_VERSION}.zip" 
+        unzip -q "elasticsearch-${ZDS_ELASTIC_VERSION}.zip"
         rm "elasticsearch-${ZDS_ELASTIC_VERSION}.zip"
         mv "elasticsearch-${ZDS_ELASTIC_VERSION}" elasticsearch
 
@@ -369,7 +362,7 @@ if  ! $in_minus_elastic_local && ( $in_plus_elastic_local || $in_plus_full ); th
             print_info "#Options added by install_zds.sh"
             print_info "-Xms512m"
             print_info "-Xmx512m"
-        } >> "$es_path/config/jvm.options"
+        } >>"$es_path/config/jvm.options"
 
         # symbolic link to elastic start script
         ln -s "$es_path/bin/elasticsearch" "$ZDS_ENV/bin/"
@@ -382,13 +375,12 @@ if  ! $in_minus_elastic_local && ( $in_plus_elastic_local || $in_plus_full ); th
     zds_fold_end
 fi
 
-
 # local texlive
 readonly in_minus_tex_local=$(_in "-tex-local" "$@")
 readonly in_plus_tex_local=$(_in "+tex-local" "$@")
 readonly in_plus_full=$(_in "+full" "$@")
 
-if  ! $in_minus_tex_local && ( $in_plus_tex_local || $in_plus_full ); then
+if ! $in_minus_tex_local && ($in_plus_tex_local || $in_plus_full); then
     zds_fold_start "texlive" "* [+tex-local] install texlive"
 
     mkdir -p .local
@@ -415,8 +407,8 @@ if  ! $in_minus_tex_local && ( $in_plus_tex_local || $in_plus_full ); then
         ./install_font.sh
 
         # install texlive
-        sed -i 's@.texlive@texlive@' texlive.profile  # change directory
-        sed -i "s@\$HOME@$LOCAL@" texlive.profile  # change destination
+        sed -i 's@.texlive@texlive@' texlive.profile # change directory
+        sed -i "s@\$HOME@$LOCAL@" texlive.profile    # change destination
 
         if wget_nv -O install-tl.tar.gz http://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz; then
             if [[ ! -f ./bin/x86_64-linux/tlmgr ]]; then # install texlive
@@ -425,11 +417,11 @@ if  ! $in_minus_tex_local && ( $in_plus_tex_local || $in_plus_full ); then
 
                 # Symlink the binaries to bin of venv
                 for i in $BASE_REPO/bin/x86_64-linux/*; do
-                  ln -sf "$i" "$ZDS_ENV/bin/"
+                    ln -sf "$i" "$ZDS_ENV/bin/"
                 done
             fi
 
-            ./bin/x86_64-linux/tlmgr install "$(cat packages)"  # extra packages
+            ./bin/x86_64-linux/tlmgr install "$(cat packages)" # extra packages
             ./bin/x86_64-linux/tlmgr update --self
 
             # Install tabu-fixed packages
@@ -451,18 +443,17 @@ if  ! $in_minus_tex_local && ( $in_plus_tex_local || $in_plus_full ); then
     zds_fold_end
 fi
 
-
-# latex-template in TEXMFHOME.
+# latex-template in TEXMFHOME
 readonly in_minus_latex_template=$(_in "-latex-template" "$@")
 readonly in_plus_latex_template=$(_in "+latex-template" "$@")
 readonly in_plus_full=$(_in "+full" "$@")
 
-if  ! $in_minus_latex_template && ( $in_plus_latex_template || $in_plus_full ); then
+if ! $in_minus_latex_template && ($in_plus_latex_template || $in_plus_full); then
     zds_fold_start "latex-template" "* [+latex-template] install latex-template (from $ZDS_LATEX_REPO)"
 
-    if [[ $(which kpsewhich) == "" ]]; then # no texlive ?
+    if [[ $(which kpsewhich) == "" ]]; then # no texlive?
         print_error "!! Cannot find kpsewhich, do you have texlive?"
-        exit 1;
+        exit 1
     fi
 
     # clone
@@ -486,21 +477,22 @@ if  ! $in_minus_latex_template && ( $in_plus_latex_template || $in_plus_full ); 
     zds_fold_end
 fi
 
-
 # install back
 readonly in_minus_back=$(_in "-back" "$@")
 readonly in_plus_back=$(_in "+back" "$@")
 readonly in_plus_base=$(_in "+base" "$@")
 readonly in_plus_full=$(_in "+full" "$@")
 
-if  ! $in_minus_back && ( $in_plus_back || $in_plus_base || $in_plus_full ); then
+if ! $in_minus_back && ($in_plus_back || $in_plus_base || $in_plus_full); then
     zds_fold_start "back" "* [+back] install back dependencies & migration"
 
     readonly in_plus_prod=$(_in "+prod" "$@")
     if $in_plus_prod; then
-        make install-back-with-prod; exVal=$?
+        make install-back-with-prod
+        exVal=$?
     else
-        make install-back; exVal=$?
+        make install-back
+        exVal=$?
     fi
 
     if [[ $exVal != 0 ]]; then
@@ -510,7 +502,8 @@ if  ! $in_minus_back && ( $in_plus_back || $in_plus_base || $in_plus_full ); the
 
     readonly in_minus_back_migrate_db=$(_in "-back-migrate-db" "$@")
     if ! $in_minus_back_migrate_db; then
-        make migrate-db; exVal=$? # migration are required for the instance to run properly anyway
+        make migrate-db
+        exVal=$? # migration are required for the instance to run properly anyway
 
         if [[ $exVal != 0 ]]; then
             print_error "!! Cannot migrate database after the back installation (use \`-back\` to skip)"
@@ -521,28 +514,29 @@ if  ! $in_minus_back && ( $in_plus_back || $in_plus_base || $in_plus_full ); the
     zds_fold_end
 fi
 
-
 # install front
 readonly in_minus_front=$(_in "-front" "$@")
 readonly in_plus_front=$(_in "+front" "$@")
 readonly in_plus_base=$(_in "+base" "$@")
 readonly in_plus_full=$(_in "+full" "$@")
 
-if  ! $in_minus_front && ( $in_plus_front || $in_plus_base || $in_plus_full ); then
+if ! $in_minus_front && ($in_plus_front || $in_plus_base || $in_plus_full); then
     zds_fold_start "front" "* [+front] install front dependencies & build front"
 
     if [ -d node_modules ]; then # delete previous modules
         rm -r node_modules
     fi
 
-    make install-front; exVal=$?
+    make install-front
+    exVal=$?
 
     if [[ $exVal != 0 ]]; then
         print_error "!! Cannot install-front (use \`-front\` to skip)"
         exit 1
     fi
 
-    make build-front; exVal=$?
+    make build-front
+    exVal=$?
 
     if [[ $exVal != 0 ]]; then
         print_error "!! Cannot build-front (use \`-front\` to skip)"
@@ -552,17 +546,17 @@ if  ! $in_minus_front && ( $in_plus_front || $in_plus_base || $in_plus_full ); t
     zds_fold_end
 fi
 
-
 # zmd
 readonly in_minus_zmd=$(_in "-zmd" "$@")
 readonly in_plus_zmd=$(_in "+zmd" "$@")
 readonly in_plus_base=$(_in "+base" "$@")
 readonly in_plus_full=$(_in "+full" "$@")
 
-if  ! $in_minus_zmd && ( $in_plus_zmd || $in_plus_base|| $in_plus_full ); then
+if ! $in_minus_zmd && ($in_plus_zmd || $in_plus_base || $in_plus_full); then
     zds_fold_start "zmd" "* [+zmd] install zmarkdown dependencies"
 
-    make zmd-install; exVal=$?
+    make zmd-install
+    exVal=$?
 
     if [[ $exVal != 0 ]]; then
         print_error "!! Cannot install zmd (use \`-zmd\` to skip)"
@@ -572,17 +566,17 @@ if  ! $in_minus_zmd && ( $in_plus_zmd || $in_plus_base|| $in_plus_full ); then
     zds_fold_end
 fi
 
-
 # fixtures
 readonly in_minus_data=$(_in "-data" "$@")
 readonly in_plus_data=$(_in "+data" "$@")
 readonly in_plus_base=$(_in "+base" "$@")
 readonly in_plus_full=$(_in "+full" "$@")
 
-if  ! $in_minus_data && ( $in_plus_data || $in_plus_base || $in_plus_full ); then
+if ! $in_minus_data && ($in_plus_data || $in_plus_base || $in_plus_full); then
     zds_fold_start "fixtures" "* [+data] fixtures"
 
-    npm run server --prefix zmd/node_modules/zmarkdown -- --silent; exVal=$?
+    npm run server --prefix zmd/node_modules/zmarkdown -- --silent
+    exVal=$?
 
     if [[ $exVal != 0 ]]; then
         print_error "!! Cannot start zmd to generate-fixtures (use \`-data\` to skip)"
@@ -592,21 +586,27 @@ if  ! $in_minus_data && ( $in_plus_data || $in_plus_base || $in_plus_full ); the
     # We check if ZMD is really up:
     nb_zmd_try=0
 
-    while ! curl -s "$ZMD_URL" > /dev/null && [ $nb_zmd_try -lt 40 ]
-    do
+    while ! curl -s "$ZMD_URL" >/dev/null && [ $nb_zmd_try -lt 40 ]; do
         sleep 0.2
-        nb_zmd_try=$((nb_zmd_try+1))
+        nb_zmd_try=$((nb_zmd_try + 1))
     done
 
-    if [ $nb_zmd_try -eq 40 ]
-    then
+    if [ $nb_zmd_try -eq 40 ]; then
         print_error "!! Cannot connect to zmd to generate-fixtures (use \`-data\` to skip)"
         exit 1
     fi
 
+<<<<<<< HEAD
     python manage.py loaddata fixtures/*.yaml; exVal=$?
     python manage.py load_factory_data fixtures/advanced/aide_tuto_media.yaml; exVal=($exVal + $?)
     python manage.py load_fixtures --size=low --all; exVal=($exVal + $?)
+=======
+    python manage.py loaddata fixtures/*.yaml
+    exVal=$?
+
+    python manage.py load_factory_data fixtures/advanced/aide_tuto_media.yaml
+    exVal=($exVal + $?)
+>>>>>>> Format with vs-shell-format
 
 <<<<<<< HEAD
     futureExit=false
@@ -614,19 +614,26 @@ if  ! $in_minus_data && ( $in_plus_data || $in_plus_base || $in_plus_full ); the
 =======
     readonly in_dash_travis_output=$(_in "--travis-output" "$@")
     if $in_dash_travis_output; then
-        python manage.py load_fixtures --size=low --all --settings zds.settings.travis_fixture; exVal=(${exVal[@]} + $?)
+        python manage.py load_fixtures --size=low --all --settings zds.settings.travis_fixture
+        exVal=(${exVal[@]} + $?)
     else
-        python manage.py load_fixtures --size=low --all; exVal=(${exVal[@]} + $?)
+        python manage.py load_fixtures --size=low --all
+        exVal=(${exVal[@]} + $?)
     fi
 
     if [[ ${exVal[*]} != 0 ]]; then
 >>>>>>> Fix warnings displayed by ShellCheck
         print_error "!! Cannot generate-fixtures (use \`-data\` to skip)"
+<<<<<<< HEAD
         futureExit=true
         # don't exit here, because we have to stop zmd !
+=======
+        # don’t exit here, because we have to stop zmd!
+>>>>>>> Format with vs-shell-format
     fi
 
-    make zmd-stop; exVal=( $? )
+    make zmd-stop
+    exVal=($?)
 
     if [[ ${exVal[*]} != 0 ]]; then
         print_error "Warning: Cannot stop zmd"
@@ -641,7 +648,7 @@ if  ! $in_minus_data && ( $in_plus_data || $in_plus_base || $in_plus_full ); the
 fi
 
 readonly in_dash_force_skip_activating=$(_in "--force-skip-activating" "$@")
-if  ! $in_dash_force_skip_activating; then
+if ! $in_dash_force_skip_activating; then
     print_info "Done. You can now run instance with \`source $ZDS_VENV/bin/activate\`, and then, \`make zmd-start && make run-back\`"
 else
     print_info "Done. You can now run instance with \`make zmd-start && make run-back\`"
