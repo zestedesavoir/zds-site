@@ -27,7 +27,7 @@ function progressfilt() {
     done
 }
 
-# Hack for “-q --show-progress” (at least v1.16) and travis uses (travis uses wget 1.15)
+# Hack for "-q --show-progress" (at least v1.16) and travis uses (travis uses wget 1.15)
 function wget_nv() {
     wget "$@" --progress=bar:force 2>&1 | progressfilt
 }
@@ -226,7 +226,7 @@ if ! $in_minus_node && ($in_plus_node || $in_plus_base || $in_plus_full); then
         nvm install
         npm -g add yarn
 
-        if [[ $(grep -c -i "nvm use" "$ZDS_ENV/bin/activate") == "0" ]]; then # add nvm activation to venv activate’s
+        if [[ $(grep -c -i "nvm use" "$ZDS_ENV/bin/activate") == "0" ]]; then # add nvm activation to venv activate's
             ACTIVATE_NVM="nvm use > /dev/null # activate nvm (from install_zds.sh)"
 
             echo "$ACTIVATE_NVM" >>"$ZDS_ENV/bin/activate"
@@ -319,7 +319,7 @@ if ! $in_minus_jdk_local && ($in_plus_jdk_local || $in_plus_full); then
         export JAVA_HOME="$jdk_path"
         export ES_JAVA_OPTS="-Xms512m -Xmx512m"
 
-        if [[ $(grep -c -i "export JAVA_HOME" "$ZDS_ENV/bin/activate") == "0" ]]; then # add java to venv activate’s
+        if [[ $(grep -c -i "export JAVA_HOME" "$ZDS_ENV/bin/activate") == "0" ]]; then # add java to venv activate's
             ACTIVATE_JAVA=("export PATH=\"$PATH:$jdk_path/bin\"\nexport JAVA_HOME=\"$jdk_path\"\nexport ES_JAVA_OPTS=\"-Xms512m -Xmx512m\"")
 
             echo -e "${ACTIVATE_JAVA[*]}" >>"$ZDS_ENV/bin/activate"
@@ -596,22 +596,12 @@ if ! $in_minus_data && ($in_plus_data || $in_plus_base || $in_plus_full); then
         exit 1
     fi
 
-<<<<<<< HEAD
-    python manage.py loaddata fixtures/*.yaml; exVal=$?
-    python manage.py load_factory_data fixtures/advanced/aide_tuto_media.yaml; exVal=($exVal + $?)
-    python manage.py load_fixtures --size=low --all; exVal=($exVal + $?)
-=======
     python manage.py loaddata fixtures/*.yaml
     exVal=$?
 
     python manage.py load_factory_data fixtures/advanced/aide_tuto_media.yaml
     exVal=($exVal + $?)
->>>>>>> Format with vs-shell-format
 
-<<<<<<< HEAD
-    futureExit=false
-    if [[ $exVal != 0 ]]; then
-=======
     readonly in_dash_travis_output=$(_in "--travis-output" "$@")
     if $in_dash_travis_output; then
         python manage.py load_fixtures --size=low --all --settings zds.settings.travis_fixture
@@ -622,14 +612,8 @@ if ! $in_minus_data && ($in_plus_data || $in_plus_base || $in_plus_full); then
     fi
 
     if [[ ${exVal[*]} != 0 ]]; then
->>>>>>> Fix warnings displayed by ShellCheck
         print_error "!! Cannot generate-fixtures (use \`-data\` to skip)"
-<<<<<<< HEAD
-        futureExit=true
-        # don't exit here, because we have to stop zmd !
-=======
-        # don’t exit here, because we have to stop zmd!
->>>>>>> Format with vs-shell-format
+        # don't exit here, because we have to stop zmd!
     fi
 
     make zmd-stop

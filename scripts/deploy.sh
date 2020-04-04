@@ -19,7 +19,7 @@ if [ "$1" != "ok" ]; then
   exit 1
 fi
 
-# Shift the first arg “ok”
+# Shift the first arg "ok"
 shift
 
 if [ "$(whoami)" != "zds" ]; then
@@ -57,7 +57,7 @@ fi
 rm -rf ./dist/
 # Switch to new tag
 git fetch --tags
-# Server has git < 1.9, git fetch --tags doesn’t retrieve commits…
+# Server has git < 1.9, git fetch --tags doesn't retrieve commits
 git fetch
 
 if git rev-parse "$1" >/dev/null 2>&1; then

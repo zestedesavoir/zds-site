@@ -78,7 +78,7 @@ source ./scripts/ci_turbo.sh # This script exports environment variables, it mus
 zds_fold_end
 
 if [[ "$ZDS_TEST_JOB" == *"zds."* ]] || [[ "$ZDS_TEST_JOB" == *"selenium"* ]]; then
-    #display print_info
+    # display print_info
     forwho=""
     if [[ "$ZDS_TEST_JOB" == *"zds."* ]]; then
         forwho="'zds.*' tasks (-> needed for tests)"
