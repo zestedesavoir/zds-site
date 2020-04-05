@@ -1045,7 +1045,7 @@ class PromoteOpinionToArticle(PermissionRequiredMixin, DoesNotRequireValidationF
         article.validation_private_message = send_mp(
             bot,
             article.authors.all(),
-            _('Billet promu en article'),
+            _('Billet proposé comme article'),
             versionned_article.title,
             msg,
             True,
@@ -1056,6 +1056,7 @@ class PromoteOpinionToArticle(PermissionRequiredMixin, DoesNotRequireValidationF
 
         self.success_url = db_object.get_absolute_url()
 
-        messages.success(self.request, _('Le billet a bien été promu en article et est en attente de validation.'))
+        messages.success(self.request, _("""Le billet a bien été copié sous forme d’article
+                                            et est en attente de validation."""))
 
         return super(PromoteOpinionToArticle, self).form_valid(form)
