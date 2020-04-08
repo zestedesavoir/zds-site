@@ -1,5 +1,6 @@
 from collections import defaultdict, OrderedDict
 from datetime import timedelta, datetime, date
+from math import ceil
 
 from django.conf import settings
 from django.contrib import messages
@@ -53,6 +54,11 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
     def get_content_urls(self):
         content = self.versioned_object
         urls = [NamedUrl(content.title, content.get_absolute_url_online(), 0)]
+        nb_of_pages = ceil(self.object.get_note_count() / settings.ZDS_APP['content']['notes_per_page'])
+        if nb_of_pages > 1:
+            base_url = content.get_absolute_url_online()
+            urls += [NamedUrl('{} - page {}'.format(content.title, i), base_url + '?page={}'.format(i + 1), 0)
+                     for i in range(nb_of_pages)]
         if content.has_extracts():
             return urls
         for child in content.children:
