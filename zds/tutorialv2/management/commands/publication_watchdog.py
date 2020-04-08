@@ -18,6 +18,12 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         with ThreadPoolExecutor(1) as executor:
             try:
+                discarded_set = PublicationEvent.objects.select_related('published_object', 'published_object__content',
+                                                                        'published_object__content__image') \
+                    .filter(state_of_processing='RUNNING')
+                for publication_event in discarded_set.iterator():
+                    publication_event.state_of_processing = "FAILURE"
+                    publication_event.save()
                 while True:
                     Command.launch_publicators(executor)
                     time.sleep(10)
@@ -32,6 +38,8 @@ class Command(BaseCommand):
                 if future.exception():
                     logger.error('error while producing %s of %s', publication_event.format_requested,
                                  publication_event.published_object.title(), exc_info=future.exception())
+                # systemctl will restart it
+                exit(1)
             elif future.done():
                 publication_event.state_of_processing = 'SUCCESS'
 
