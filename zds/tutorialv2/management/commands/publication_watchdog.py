@@ -22,7 +22,7 @@ class Command(BaseCommand):
                                                                         'published_object__content__image') \
                     .filter(state_of_processing='RUNNING')
                 for publication_event in discarded_set.iterator():
-                    publication_event.state_of_processing = "FAILURE"
+                    publication_event.state_of_processing = 'FAILURE'
                     publication_event.save()
                 while True:
                     Command.launch_publicators(executor)
