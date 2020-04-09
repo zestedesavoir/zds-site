@@ -52,6 +52,7 @@ source $LOCAL_DIR/define_function.sh
 ZDS_SHOW_TRAVIS_FOLD=0
 if $(_in "--travis-output" $@); then
     ZDS_SHOW_TRAVIS_FOLD=1
+    export DJANGO_SETTINGS_MODULE="zds.settings.travis_fixture"
 fi
 
 zds_fold_category "install"
@@ -550,21 +551,9 @@ if  ! $(_in "-data" $@) && ( $(_in "+data" $@) || $(_in "+base" $@) || $(_in "+f
         exit 1
     fi
 
-    settingsParams=""
-    if $(_in "--travis-output" $@); then
-        settingsParams="--settings=zds.settings.ci_test"
-        python manage.py migrate ${settingsParams}; exVal=$?
-
-        if [[ $exVal != 0 ]]; then
-            print_error "Warning: Cannot make migration for travis script"
-        fi
-    fi
-
-    print_info "run fixtures on '${settingsParams}' params"
-
-    python manage.py loaddata fixtures/*.yaml ${settingsParams}; exVal=$?
-    python manage.py load_factory_data fixtures/advanced/aide_tuto_media.yaml ${settingsParams}; exVal=($exVal + $?)
-    python manage.py load_fixtures --size=low --all ${settingsParams}; exVal=($exVal + $?)
+    python manage.py loaddata fixtures/*.yaml; exVal=$?
+    python manage.py load_factory_data fixtures/advanced/aide_tuto_media.yaml; exVal=($exVal + $?)
+    python manage.py load_fixtures --size=low --all; exVal=($exVal + $?)
 
     futureExit=false
     if [[ $exVal != 0 ]]; then
