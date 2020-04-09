@@ -81,12 +81,6 @@ after_success:
   - du -sh $HOME/.texlive 2>/dev/null | true
 
   - |
-    # upload coverage
-    if [[ "$ZDS_TEST_JOB" != "none" ]]; then
-      coveralls
-    fi
-
-  - |
     # upload built documentation to GitHub Pages
     if [[ "$ZDS_TEST_JOB" == *"doc"* ]] && [[ "$TRAVIS_BRANCH" == "dev" ]]; then
       # Adding GitHub OAuth token to login
