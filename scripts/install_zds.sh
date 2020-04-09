@@ -52,6 +52,7 @@ source $LOCAL_DIR/define_function.sh
 ZDS_SHOW_TRAVIS_FOLD=0
 if $(_in "--travis-output" $@); then
     ZDS_SHOW_TRAVIS_FOLD=1
+    export DJANGO_SETTINGS_MODULE="zds.settings.travis_fixture"
 fi
 
 zds_fold_category "install"
@@ -551,17 +552,13 @@ if  ! $(_in "-data" $@) && ( $(_in "+data" $@) || $(_in "+base" $@) || $(_in "+f
     fi
 
     python manage.py loaddata fixtures/*.yaml; exVal=$?
-
     python manage.py load_factory_data fixtures/advanced/aide_tuto_media.yaml; exVal=($exVal + $?)
+    python manage.py load_fixtures --size=low --all; exVal=($exVal + $?)
 
-    if $(_in "--travis-output" $@); then
-        python manage.py load_fixtures --size=low --all --settings zds.settings.travis_fixture; exVal=($exVal + $?)
-    else
-        python manage.py load_fixtures --size=low --all; exVal=($exVal + $?)
-    fi
-
+    futureExit=false
     if [[ $exVal != 0 ]]; then
         print_error "!! Cannot generate-fixtures (use \`-data\` to skip)"
+        futureExit=true
         # don't exit here, because we have to stop zmd !
     fi
 
@@ -569,6 +566,11 @@ if  ! $(_in "-data" $@) && ( $(_in "+data" $@) || $(_in "+base" $@) || $(_in "+f
 
     if [[ $exVal != 0 ]]; then
         print_error "Warning: Cannot stop zmd"
+
+    fi
+
+    if $futureExit; then
+        exit 1
     fi
 
     zds_fold_end

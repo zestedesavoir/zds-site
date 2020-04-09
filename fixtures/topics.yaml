@@ -5,8 +5,8 @@
         subtitle: Quelle est la meilleure plateforme ?
         forum: 10
         author: 3
-        pubdate: 2013-12-21T13:20:30+00:00
-        update_index_date: 2013-12-21T13:20:30+00:00
+        pubdate: 2013-12-21 13:20:30
+        update_index_date: 2013-12-21 13:20:30
         last_message: 1
 -   model: forum.Topic
     pk: 2
@@ -15,8 +15,8 @@
         subtitle: Questions sur les choix technologiques
         forum: 3
         author: 3
-        pubdate: 2013-12-21T13:20:30+00:00
-        update_index_date: 2013-12-21T13:20:30+00:00
+        pubdate: 2013-12-21 13:20:30
+        update_index_date: 2013-12-21 13:20:30
         last_message: 2
 -   model: forum.Topic
     pk: 3
@@ -24,8 +24,8 @@
         title: JS vs jQuery
         forum: 2
         author: 3
-        pubdate: 2013-12-21T13:20:30+00:00
-        update_index_date: 2013-12-21T13:20:30+00:00
+        pubdate: 2013-12-21 13:20:30
+        update_index_date: 2013-12-21 13:20:30
         last_message: 4
 -   model: forum.Topic
     pk: 4
@@ -33,8 +33,8 @@
         title: Rédiger sur ZesteDeSavoir
         forum: 12
         author: 3
-        pubdate: 2014-01-05T18:20:30+00:00
-        update_index_date: 2013-12-21T13:20:30+00:00
+        pubdate: 2014-01-05 18:20:30
+        update_index_date: 2013-12-21 13:20:30
         last_message: 5
 -   model: forum.Post
     pk: 1
@@ -48,8 +48,8 @@
         text_html: "<div class='markdown'><p>Bonjour<br />Je ne comprends pas pourquoi il y a une guerre entre Android et iOS alors que Android est supérieur.<br />Merci pour vos réponses.</p></div>"
         like: 42
         dislike: 0
-        pubdate: 2013-12-21T13:20:30+00:00
-        update_index_date: 2013-12-21T13:20:30+00:00
+        pubdate: 2013-12-21 13:20:30
+        update_index_date: 2013-12-21 13:20:30
         position: 1
 -   model: forum.Post
     pk: 2
@@ -63,8 +63,8 @@
         text_html: "<div class='markdown'><p>Bonjour<br />Je ne comprends pas les choix technologiques faits pour ZdS.<br />Pourquoi ne pas avoir développé le site avec Symfony comme OpenClassrooms ?<br />Merci pour vos réponses.<p></div>"
         like: 3
         dislike: 12
-        pubdate: 2013-12-21T13:20:30+00:00
-        update_index_date: 2013-12-21T13:20:30+00:00
+        pubdate: 2013-12-21 13:20:30
+        update_index_date: 2013-12-21 13:20:30
         position: 1
 -   model: forum.Post
     pk: 3
@@ -78,8 +78,8 @@
         text_html: "<div class='markdown'><p>Haha, allez ! Prend cette balle et va jouer !<p></div>"
         like: 42
         dislike: 0
-        pubdate: 2013-12-21T13:22:30+00:00
-        update_index_date: 2013-12-21T13:20:30+00:00
+        pubdate: 2013-12-21 13:22:30
+        update_index_date: 2013-12-21 13:20:30
         position: 2
 -   model: forum.Post
     pk: 4
@@ -93,8 +93,8 @@
         text_html: "<div class='markdown'><p>Bonjour<br />Je ne comprends pas pourquoi il y a encore des développeurs JS alors qu'il existe jQuery...<br />Des éclaircissements ?<p></div>"
         like: 0
         dislike: 0
-        pubdate: 2013-12-21T13:20:30+00:00
-        update_index_date: 2013-12-21T13:20:30+00:00
+        pubdate: 2013-12-21 13:20:30
+        update_index_date: 2013-12-21 13:20:30
         position: 1
 -   model: forum.Post
     pk: 5
@@ -274,6 +274,6 @@
    \ vous pouvez le faire en le pr\xE9c\xE9dent d'un antislash : `\\*`\n\n"
         like: 1337
         dislike: 0
-        pubdate: 2014-01-05T18:20:30+00:00
-        update_index_date: 2013-12-21T13:20:30+00:00
+        pubdate: 2014-01-05 18:20:30
+        update_index_date: 2013-12-21 13:20:30
         position: 1

@@ -6,7 +6,7 @@
         authors: Machin
         image_url: https://placehold.it/228/00618a/FFFFFF&text=One
         url: https://zestedesavoir.com
-        pubdate: 2013-12-21T13:20:30+00:00
+        pubdate: 2013-12-21 13:20:30
 -   model: featured.FeaturedResource
     pk: 2
     fields:
@@ -15,7 +15,7 @@
         authors: Bidule
         image_url: https://placehold.it/228/00618a/FFFFFF&text=Two
         url: https://zestedesavoir.com
-        pubdate: 2013-12-21T13:20:30+00:00
+        pubdate: 2013-12-21 13:20:30
 -   model: featured.FeaturedResource
     pk: 3
     fields:
@@ -23,7 +23,7 @@
         type: article
         image_url: https://placehold.it/228/00618a/FFFFFF&text=Three
         url: https://zestedesavoir.com
-        pubdate: 2013-12-21T13:20:30+00:00
+        pubdate: 2013-12-21 13:20:30
 -   model: featured.FeaturedResource
     pk: 4
     fields:
@@ -32,7 +32,7 @@
         authors: Truc
         image_url: https://placehold.it/228/00618a/FFFFFF&text=Four
         url: https://zestedesavoir.com
-        pubdate: 2013-12-21T13:20:30+00:00
+        pubdate: 2013-12-21 13:20:30
 -   model: featured.FeaturedResource
     pk: 5
     fields:
@@ -41,4 +41,4 @@
         authors: L'idiot du village
         image_url: https://placehold.it/228/00618a/FFFFFF&text=Five
         url: https://zestedesavoir.com
-        pubdate: 2013-12-21T13:20:30+00:00
+        pubdate: 2013-12-21 13:20:30
