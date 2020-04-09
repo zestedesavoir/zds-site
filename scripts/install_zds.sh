@@ -580,7 +580,7 @@ if  ! $(_in "-data" $@) && ( $(_in "+data" $@) || $(_in "+base" $@) || $(_in "+f
 
     fi
 
-    if [[ futureExit ]]; then
+    if $futureExit; then
         exit 1
     fi
 
