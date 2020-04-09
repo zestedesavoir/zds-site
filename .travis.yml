@@ -76,6 +76,8 @@ install:
 script:
   - source ./scripts/travis_run.sh
 
+  - ./scripts/travis_overview/travis_overview.sh --travis-output
+
 
 after_success:
   - du -sh $HOME/.texlive 2>/dev/null | true
