@@ -12,7 +12,7 @@ django-munin==0.2.1
 python-memcached==1.59
 lxml==4.5.0
 factory-boy==2.8.1
-pygeoip==0.3.2
+geoip2==3.0.0
 Pillow==7.0.0
 GitPython==3.1.0
 easy-thumbnails==2.7
