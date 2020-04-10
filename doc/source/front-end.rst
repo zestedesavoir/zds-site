@@ -12,6 +12,8 @@ Il s'agit donc de la partie du code définissant le design et l'affichage, mais 
 
 `Node.js (en) <https://nodejs.org/>`__, `yarn (en) <https://yarnpkg.com/en/>`__ (gestionnaire de paquet pour Node.js) et `Gulp (en) <http://gulpjs.com/>`__ sont utilisés pour générer le code final minifié et cohérent. Le développement du *front-end* requiert donc des outils spécifiques dont l'installation `est expliquée ici <install/extra-install-frontend.html>`__.
 
+**Navigateurs supportés** : Les dernières versions de Mozilla Firefox, Google Chrome, Safari et Microsoft Edge.
+
 .. toctree::
    :maxdepth: 2
    :glob:
