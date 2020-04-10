@@ -1574,10 +1574,7 @@ class WarnTypo(SingleContentFormViewMixin):
             if form.content.is_opinion:
                 _type = _('le billet')
 
-            if form.content.get_tree_depth() == 0:
-                pm_title = _('J\'ai trouvé une faute dans {} « {} ».').format(_type, form.content.title)
-            else:
-                pm_title = _('J\'ai trouvé une faute dans le chapitre « {} ».').format(form.content.title)
+            pm_title = _('J\'ai trouvé une faute dans {} « {} ».').format(_type, form.content.title)
 
             msg = render_to_string(
                 'tutorialv2/messages/warn_typo.md',
