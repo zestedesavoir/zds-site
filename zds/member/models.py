@@ -1,10 +1,10 @@
 from datetime import datetime
+from geoip2.errors import AddressNotFoundError
 from hashlib import md5
-import os
-import pygeoip
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.contrib.gis.geoip2 import GeoIP2
 from django.urls import reverse
 from django.db import models
 from django.dispatch import receiver
@@ -101,22 +101,9 @@ class Profile(models.Model):
         if self._cached_city is not None and self._cached_city[0] == self.last_ip_address:
             return self._cached_city[1]
 
-        # FIXME: this test to differentiate IPv4 and IPv6 addresses doesn't work, as IPv6 addresses may have length < 16
-        # Example: localhost ("::1"). Real test: IPv4 addresses contains dots, IPv6 addresses contains columns.
-        if len(self.last_ip_address) <= 16:
-            gic = pygeoip.GeoIP(
-                os.path.join(
-                    settings.GEOIP_PATH,
-                    'GeoLiteCity.dat'))
-        else:
-            gic = pygeoip.GeoIP(
-                os.path.join(
-                    settings.GEOIP_PATH,
-                    'GeoLiteCityv6.dat'))
-
-        geo = gic.record_by_addr(self.last_ip_address)
-
-        if geo is None:
+        try:
+            geo = GeoIP2().city(self.last_ip_address)
+        except AddressNotFoundError:
             self._cached_city = (self.last_ip_address, '')
             return ''
 
