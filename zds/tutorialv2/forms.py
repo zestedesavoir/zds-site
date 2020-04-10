@@ -1323,7 +1323,9 @@ class PromoteOpinionToArticleForm(forms.Form):
         self.helper.form_id = 'convert-opinion'
 
         self.helper.layout = Layout(
-            HTML('<p>Êtes-vous certain(e) de vouloir promouvoir ce billet en article ?</p>'),
+            HTML("""<p>Avez-vous la certitude de vouloir proposer ce billet comme article ?
+                    Cela copiera le billet pour en faire un article,
+                    puis créera une demande de validation pour ce dernier.</p>"""),
             Field('version'),
             StrictButton(
                 _('Valider'),
