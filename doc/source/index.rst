@@ -8,6 +8,10 @@ Zeste de Savoir est un site internet communautaire codé à l'aide du framework 
 
 `Voir notre dépôt Github <https://github.com/zestedesavoir/zds-site>`_
 
+`Voir le dépôt dédié à zmarkdown <https://github.com/zestedesavoir/zmarkdown>`_, notre moteur Markdown.
+
+`Voir le dépôt dédié à ansible-zestedesavoir <https://github.com/zestedesavoir/ansible-zestedesavoir>`_, qui contient tout ce qu'il faut pour déployer Zeste de Savoir sur un serveur de production.
+
 Sommaire
 ========
 
