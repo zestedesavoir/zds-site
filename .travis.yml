@@ -82,7 +82,7 @@ after_success:
 
   - |
     # upload coverage
-    if [[ "$ZDS_TEST_JOB" != "none" ]]; then
+    if [[ "$ZDS_TEST_JOB" != "none" && "$ZDS_TEST_JOB" != *"ci_turbo"* ]]; then
       coveralls
     fi
 
