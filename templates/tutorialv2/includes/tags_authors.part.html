@@ -23,7 +23,7 @@
 {% endif %}
 
 {% if online %}
-    {% set public_object.get_last_action_date as update_date %}
+    {% set public_object.last_publication_date as update_date %}
 {% else %}
     {% set  content.update_date as update_date %}
 {% endif %}
