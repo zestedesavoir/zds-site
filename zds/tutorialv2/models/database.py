@@ -904,9 +904,6 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
 
         return self.get_absolute_url_to_extra_content('zip')
 
-    def get_last_action_date(self):
-        return self.update_date or self.publication_date
-
     def get_char_count(self, md_file_path=None):
         """ Compute the number of letters for a given content
 
