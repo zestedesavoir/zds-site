@@ -139,7 +139,7 @@
             {% set False as can_view_history %}
         {% endif %}
 
-        {% include "misc/message.part.html" with answer_schema=answer_schema can_unread=True unread_link=unread_link perms_change=is_staff%}
+        {% include "misc/message.part.html" with answer_schema=answer_schema can_unread=True unread_link=unread_link perms_change=is_staff %}
     {% endfor %}
 
     {% include "misc/paginator.html" with position="bottom" %}
