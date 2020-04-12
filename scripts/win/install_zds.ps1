@@ -124,6 +124,8 @@ if (-not (_in "-node") -and ((_in "+node") -or (_in "+base") -or (_in "+full")))
     Error "Error: Cannot install nodejs." 11
   }
 
+  $env:PATH = "$env:VIRTUAL_ENV\App\node;" + $env:PATH
+
   if (!((Get-Content zdsenv\Scripts\activate.ps1) -match "node")) {
     PrintInfo " | -> Add node in %PATH% of virtualenv."
     $text = "set `"PATH=%VIRTUAL_ENV%\App\node;%PATH%`""
