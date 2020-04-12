@@ -14,13 +14,19 @@
     {% set False as is_author %}
 {% endif %}
 
-
+{% ifchanged %}
+{% if not message.is_visible %}
+    <div class="msg-are-hidden hidden" aria-hidden="true"><a class="link" href="#show">{% trans "Un ou plusieurs messages ont été masqués" %}</a></div>
+{% endif %}
+{% endifchanged %}
 
 <article
     class="topic-message
-
            {% if message.is_useful and message.is_visible %}helpful{% endif %}
-           {% if is_repeated_message %}repeated{% endif %}"
+           {% if is_repeated_message %}repeated{% endif %}
+           {% if not message.is_visible %}hidden-by-someone{% endif %}"
+
+    {% if not message.is_visible %}aria-hidden="true"{% endif %}
 
     {% if comment_schema %}
         itemscope
