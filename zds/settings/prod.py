@@ -213,3 +213,5 @@ ZDS_APP['content']['extra_content_generation_policy'] = 'WATCHDOG'
 ZDS_APP['comment']['enable_pings'] = False
 
 ZDS_APP['visual_changes'] = zds_config.get('visual_changes', [])
+
+ZDS_APP['very_top_banner'] = config.get('very_top_banner', False)
