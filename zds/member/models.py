@@ -13,7 +13,7 @@ from django.utils.translation import ugettext_lazy as _
 from zds.forum.models import Post, Topic
 from zds.member import NEW_PROVIDER_USES
 from zds.member.managers import ProfileManager
-from zds.tutorialv2.models.database import PublishableContent, PublishedContent
+from zds.tutorialv2.models.database import PublishableContent
 from zds.utils.models import Alert, Licence, Hat
 
 from zds.forum.models import Forum
@@ -188,7 +188,6 @@ class Profile(models.Model):
         :param _type: if provided, request a specific type of content
         :return: Queryset of contents in validation with this user as author.
         """
-        print("\n\n\n\n\nEn validation\n\n\n\n\n\n\n")
         return self.get_user_contents_queryset(_type).filter(sha_validation__isnull=False)
 
     def get_user_beta_contents_queryset(self, _type=None):

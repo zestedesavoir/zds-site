@@ -2132,7 +2132,6 @@ class ContentOfAuthor(ZdSPagingListView):
             .select_related('licence')\
             .select_related('image')
 
-
         # Sort.
         if 'sort' in self.request.GET and self.request.GET['sort'].lower() in self.sorts:
             self.sort = self.request.GET['sort']
