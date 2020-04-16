@@ -2080,12 +2080,10 @@ class ContentOfAuthor(ZdSPagingListView):
     model = PublishableContent
 
     authorized_filters = OrderedDict([
-        ('public', [lambda q: q.filter(sha_public__isnull=False), _('Publiés'), True, 'tick green']),
-        ('validation', [lambda q: q.filter(sha_validation__isnull=False), _('En validation'), False, 'tick']),
-        ('beta', [lambda q: q.filter(sha_beta__isnull=False), _('En bêta'), True, 'beta']),
-        ('redaction', [
-            lambda q: q.filter(sha_validation__isnull=True, sha_public__isnull=True, sha_beta__isnull=True),
-            _('Brouillons'), False, 'edit']),
+        ('public', [lambda p, t: p.get_user_public_contents_queryset(t), _('Publiés'), True, 'tick green']),
+        ('validation', [lambda p, t: p.get_user_validate_contents_queryset(t), _('En validation'), False, 'tick']),
+        ('beta', [lambda p, t: p.get_user_beta_contents_queryset(t), _('En bêta'), True, 'beta']),
+        ('redaction', [lambda p, t: p.get_user_draft_contents_queryset(t), _('Brouillons'), False, 'edit']),
     ])
     sorts = OrderedDict([
         ('creation', [lambda q: q.order_by('creation_date'), _('Par date de création')]),
@@ -2108,19 +2106,12 @@ class ContentOfAuthor(ZdSPagingListView):
         return super(ContentOfAuthor, self).dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
-        if self.type == 'ALL':
-            queryset = PublishableContent.objects.filter(authors__pk__in=[self.user.pk])
-        elif self.type in list(TYPE_CHOICES_DICT.keys()):
-            queryset = PublishableContent.objects.filter(authors__pk__in=[self.user.pk], type=self.type)
-        else:
+        profile = self.user.profile
+        if self.type not in list(TYPE_CHOICES_DICT.keys()):
             raise Http404('Ce type de contenu est inconnu dans le système.')
-
-        # prefetch:
-        queryset = queryset\
-            .prefetch_related('authors')\
-            .prefetch_related('subcategory')\
-            .select_related('licence')\
-            .select_related('image')
+        _type = self.type
+        if self.type == 'ALL':
+            _type = None
 
         # Filter.
         if 'filter' in self.request.GET:
@@ -2129,8 +2120,17 @@ class ContentOfAuthor(ZdSPagingListView):
                 raise Http404("Le filtre n'est pas autorisé.")
         elif self.user != self.request.user:
             self.filter = 'public'
-        if self.filter != '':
-            queryset = self.authorized_filters[self.filter][0](queryset)
+
+        if self.filter == '':
+            queryset = profile.get_user_contents_queryset(_type=_type)
+        else:
+            queryset = self.authorized_filters[self.filter][0](profile, _type)
+        # prefetch:
+        queryset = queryset\
+            .prefetch_related('authors')\
+            .prefetch_related('subcategory')\
+            .select_related('licence')\
+            .select_related('image')
 
         # Sort.
         if 'sort' in self.request.GET and self.request.GET['sort'].lower() in self.sorts:
