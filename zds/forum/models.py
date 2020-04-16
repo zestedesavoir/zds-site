@@ -24,10 +24,10 @@ def sub_tag(tag):
     return '{0}'.format(start + end)
 
 
-class Category(models.Model):
+class ForumCategory(models.Model):
     """
-    A Category is a simple container for Forums.
-    There is no kind of logic in a Category. It simply here for Forum presentation in a predefined order.
+    A ForumCategory is a simple container for Forums.
+    There is no kind of logic in a ForumCategory. It simply here for Forum presentation in a predefined order.
     """
     class Meta:
         verbose_name = 'Catégorie'
@@ -36,9 +36,10 @@ class Category(models.Model):
 
     title = models.CharField('Titre', max_length=80)
     position = models.IntegerField('Position', default=0)
-    # Some category slugs are forbidden due to path collisions: Category path is `/forums/<slug>` but some actions on
-    # forums have path like `/forums/<action_name>`. Forbidden slugs are all top-level path in forum's `url.py` module.
-    # As Categories can only be managed by superadmin, this is purely declarative and there is no control on slug.
+    # Some category slugs are forbidden due to path collisions: ForumCategory path is `/forums/<slug>` but some actions
+    # on forums have path like `/forums/<action_name>`. Forbidden slugs are all top-level path in forum's `url.py`
+    # module. As Categories can only be managed by superadmin, this is purely declarative and there is no control on
+    # slug.
     slug = models.SlugField(max_length=80,
                             unique=True,
                             help_text='Ces slugs vont provoquer des conflits '
@@ -88,7 +89,7 @@ class Forum(models.Model):
         blank=True)
 
     # better handling of on_delete with SET(value)?
-    category = models.ForeignKey(Category, db_index=True, verbose_name='Catégorie', on_delete=models.CASCADE)
+    category = models.ForeignKey(ForumCategory, db_index=True, verbose_name='Catégorie', on_delete=models.CASCADE)
     position_in_category = models.IntegerField('Position dans la catégorie',
                                                null=True, blank=True, db_index=True)
 

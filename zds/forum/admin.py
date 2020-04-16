@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from zds.forum.models import Category, Forum, Post, Topic, TopicRead
+from zds.forum.models import ForumCategory, Forum, Post, Topic, TopicRead
 
 
 class TopicAdmin(admin.ModelAdmin):
@@ -25,7 +25,7 @@ class PostAdmin(admin.ModelAdmin):
     search_fields = ('author__username', 'text', 'text_hidden', 'ip_address')
 
 
-admin.site.register(Category)
+admin.site.register(ForumCategory)
 admin.site.register(Forum)
 admin.site.register(Post, PostAdmin)
 admin.site.register(Topic, TopicAdmin)

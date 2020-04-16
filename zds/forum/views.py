@@ -19,7 +19,7 @@ from django.views.generic.detail import SingleObjectMixin
 
 from zds.forum.commons import TopicEditMixin, PostEditMixin, SinglePostObjectMixin, ForumEditMixin
 from zds.forum.forms import TopicForm, PostForm, MoveTopicForm
-from zds.forum.models import Category, Forum, Topic, Post, is_read, mark_read, TopicRead
+from zds.forum.models import ForumCategory, Forum, Topic, Post, is_read, mark_read, TopicRead
 from zds.member.decorator import can_write_and_read_now
 from zds.member.models import user_readable_forums
 from zds.notification import signals
@@ -36,7 +36,7 @@ class CategoriesForumsListView(ListView):
 
     context_object_name = 'categories'
     template_name = 'forum/index.html'
-    queryset = Category.objects.all()
+    queryset = ForumCategory.objects.all()
 
     def get_context_data(self, **kwargs):
         context = super(CategoriesForumsListView, self).get_context_data(**kwargs)
@@ -45,14 +45,14 @@ class CategoriesForumsListView(ListView):
         return context
 
 
-class CategoryForumsDetailView(DetailView):
+class ForumCategoryForumsDetailView(DetailView):
 
     context_object_name = 'category'
     template_name = 'forum/category/index.html'
-    queryset = Category.objects.all()
+    queryset = ForumCategory.objects.all()
 
     def get_context_data(self, **kwargs):
-        context = super(CategoryForumsDetailView, self).get_context_data(**kwargs)
+        context = super(ForumCategoryForumsDetailView, self).get_context_data(**kwargs)
         context['forums'] = context.get('category').get_forums(self.request.user)
         return context
 

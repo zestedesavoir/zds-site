@@ -13,7 +13,7 @@ class ForumManager(models.Manager):
         """load all public forums for a category
 
         :param category: the related category
-        :type category: zds.forum.models.Category
+        :type category: zds.forum.models.ForumCategory
         :param with_count: optional parameter: if true, will preload thread and post number for each forum inside \
         category
         :type with_count: bool

@@ -1,7 +1,7 @@
 from django.urls import re_path
 
 from zds.forum import feeds
-from zds.forum.views import CategoriesForumsListView, CategoryForumsDetailView, ForumTopicsListView, \
+from zds.forum.views import CategoriesForumsListView, ForumCategoryForumsDetailView, ForumTopicsListView, \
     TopicPostsListView, TopicNew, TopicEdit, FindTopic, FindTopicByTag, PostNew, PostEdit, \
     PostSignal, PostUseful, PostUnread, FindPost, solve_alert, ManageGitHubIssue, LastTopicsViewTests
 
@@ -19,7 +19,7 @@ urlpatterns = [
             name='topic-feed-atom'),
 
     # Developers warning: if you update something here, check and update help_text
-    # on Category slug field
+    # on ForumCategory slug field
 
     # Moderation
     re_path(r'^resolution_alerte/$', solve_alert, name='forum-solve-alert'),
@@ -61,6 +61,6 @@ urlpatterns = [
             ForumTopicsListView.as_view(), name='forum-topics-list'),
 
     # Forums belonging to one category
-    re_path(r'^(?P<slug>.+)/$', CategoryForumsDetailView.as_view(),
+    re_path(r'^(?P<slug>.+)/$', ForumCategoryForumsDetailView.as_view(),
             name='cat-forums-list'),
 ]
