@@ -1,47 +1,42 @@
-from pathlib import Path
-
-from django.db.models import CASCADE
-from datetime import datetime
 import contextlib
-
-from zds.mp.models import PrivateTopic
-from zds.tutorialv2.models.mixins import TemplatableContentModelMixin, OnlineLinkableContentMixin
-from zds import json_handler
-
-from math import ceil
+import logging
+import os
 import shutil
+from datetime import datetime
+from math import ceil
+from pathlib import Path
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.urls import reverse
 from django.db import models
-from django.http import Http404
-from django.utils.http import urlencode
-from django.utils.translation import ugettext_lazy as _
+from django.db.models import CASCADE
 from django.db.models.signals import pre_delete, post_delete, pre_save
 from django.dispatch import receiver
-
-from git import Repo, BadObject
-from gitdb.exc import BadName
-import os
-from uuslug import uuslug
-
+from django.http import Http404
+from django.urls import reverse
+from django.utils.http import urlencode
+from django.utils.translation import ugettext_lazy as _
 from elasticsearch_dsl import Mapping, Q as ES_Q
 from elasticsearch_dsl.field import Text, Keyword, Date, Boolean
+from git import Repo, BadObject
+from gitdb.exc import BadName
+from uuslug import uuslug
 
+from zds import json_handler
 from zds.forum.models import Topic
 from zds.gallery.models import Image, Gallery, UserGallery, GALLERY_WRITE
+from zds.mp.models import PrivateTopic
+from zds.searchv2.models import AbstractESDjangoIndexable, AbstractESIndexable, delete_document_in_elasticsearch, \
+    ESIndexManager
 from zds.tutorialv2.managers import PublishedContentManager, PublishableContentManager
-from zds.tutorialv2.models.versioned import NotAPublicVersion
 from zds.tutorialv2.models import TYPE_CHOICES, STATUS_CHOICES, CONTENT_TYPES_REQUIRING_VALIDATION, PICK_OPERATIONS
+from zds.tutorialv2.models.mixins import TemplatableContentModelMixin, OnlineLinkableContentMixin
+from zds.tutorialv2.models.versioned import NotAPublicVersion
 from zds.tutorialv2.utils import get_content_from_json, BadManifestError
 from zds.utils import get_current_user
 from zds.utils.models import SubCategory, Licence, HelpWriting, Comment, Tag
-from zds.searchv2.models import AbstractESDjangoIndexable, AbstractESIndexable, delete_document_in_elasticsearch, \
-    ESIndexManager
+from zds.utils.templatetags.emarkdown import render_markdown_stats
 from zds.utils.tutorials import get_blob
-import logging
-
 
 ALLOWED_TYPES = ['pdf', 'md', 'html', 'epub', 'zip', 'tex']
 logger = logging.getLogger(__name__)
@@ -912,16 +907,15 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         :return: Number of letters in the md file
         :rtype: int
         """
-
         if not md_file_path:
             md_file_path = os.path.join(self.get_extra_contents_directory(), self.content_public_slug + '.md')
 
         try:
-            with open(md_file_path, 'rb') as md_file:
-                content = md_file.read().decode('utf-8')
+            with open(md_file_path, encoding='utf-8') as md_file_handler:
+                content = md_file_handler.read()
             current_content = PublishedContent.objects.filter(content_pk=self.content_pk, must_redirect=False).first()
             if current_content:
-                return len(content)
+                return render_markdown_stats(content)
         except OSError as e:
             logger.warning('could not get file %s to compute nb letters (error=%s)', md_file_path, e)
 
