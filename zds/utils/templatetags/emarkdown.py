@@ -118,6 +118,17 @@ def render_markdown(md_input, *, on_error=None, **kwargs):
         return mark_safe('<div class="error ico-after"><p>{}</p></div>'.format(json.dumps(messages))), metadata, []
 
 
+def render_markdown_stats(md_input, **kwargs):
+    """
+    Returns contents statistics (words and chars)
+    """
+    kwargs['stats'] = True
+    content, metadata, messages = _render_markdown_once(md_input, **kwargs)
+    if metadata:
+        return metadata.get('stats', {}).get('signs', {})
+    return None
+
+
 @register.filter(name='epub_markdown', needs_autoescape=False)
 def epub_markdown(md_input, image_directory):
     return emarkdown(md_input, output_format='epub', images_download_dir=image_directory.absolute,
