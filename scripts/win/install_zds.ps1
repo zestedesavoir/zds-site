@@ -55,13 +55,6 @@ if (-not (_in "-packages") -and ((_in "+packages") -or (_in "+base") -or (_in "+
 if (-not (_in "-virtualenv") -and ((_in "+virtualenv") -or (_in "+base") -or (_in "+full"))) {
   PrintInfo "* Create virtual environment"
 
-  PrintInfo " | -> Installation will ask permission for PowerShell."
-  Start-Process powershell -Verb RunAs -ArgumentList "Set-ExecutionPolicy RemoteSigned" -WindowStyle Hidden -Wait
-  $OutputVariable = Get-ExecutionPolicy
-  if ($OutputVariable -ne "RemoteSigned") {
-    Error "Error: Cannot change ExecutionPolicy property to 'RemoteSigned'." 11
-  }
-
   PrintInfo " | -> Install virtualenv."
   pip install virtualenv; $exVal=$LASTEXITCODE
   if ($exVal -ne 0) {
@@ -90,6 +83,8 @@ if (-not (Test-Path "$ZDS_SITE\zdsenv")) {
 . "$ZDS_SITE\zdsenv\Scripts\activate.ps1"
 if ($env:virtual_env -ne "$ZDS_SITE\zdsenv") {
   Error "Error: Cannot load virtualenv."
+} else {
+  PrintInfo " | -> Virtualenv loaded: $VIRTUAL_ENV"
 }
 
 

@@ -35,7 +35,7 @@ Cas numéro 2 : fonctionnement sur windows lui-même
 Installation automatique
 ---------------------
 
-Commencez par télécharger et installer Python <https://www.python.org/>`.
+Commencez par télécharger et installer Python <https://www.python.org/>`. Installez PowerShell et autorisez l'exécution des scripts powershell en copîant cette ligne de code dans votre console : `powershell -Verb RunAs -ArgumentList "Set-ExecutionPolicy RemoteSigned" -WindowStyle Hidden -Wait`.
 
 Ensuite, ouvrez la console de Windows et faites :
 
