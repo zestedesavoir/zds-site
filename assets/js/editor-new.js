@@ -718,7 +718,7 @@
         .appendTo($alertbox)
         .after($hide)
 
-      $alertbox.insertAfter($(this).parent().children('.editor-toolbar'))
+      $(easyMDE.element.parentElement).children('.editor-toolbar').before($alertbox)
     }
 
     window.editors[this.id] = easyMDE
@@ -774,7 +774,7 @@ function mirroringEasyMDE(easyMDE, textarea) {
     }, 12) // <-- after default trigger (I mean after browser trigger)
   })
 
-  $(easyMDE.element.parentElement).children('.CodeMirror').before($twin)
+  $(easyMDE.element.parentElement).children('.editor-toolbar').before($twin)
 
   return $twin
 }
