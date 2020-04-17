@@ -193,16 +193,15 @@
             <div class="mobile-menu-bloc mobile-all-links" data-title="Filtrer">
                 <h3>{% trans "Filtrer" %}</h3>
                 <ul>
+                    {% captureas namespace %}{% if type == 'all' %}content{% else %}{{ type }}{% endif %}{% endcaptureas %}
                     {% for current_filter in filters %}
-                        {% if contents != None or tutorials != None or opinions != None or articles != None %}
-                            {% captureas namespace %}{% if type == 'all' %}content{% else %}{{ type }}{% endif %}{% endcaptureas %}
+                        {% if opinions == None or current_filter.key != 'validation' and current_filter.key != 'beta' %}
                             <li><a href="{% url namespace|add:':find-'|add:type usr.username %}?filter={{ current_filter.key }}" class="ico-after {{ current_filter.icon }} {% if filter == current_filter.key %}selected{% endif %}">{{ current_filter.text }}</a> </li>
-                        {% elif opinions != None %}
-                            {% if current_filter.key != 'validation' and current_filter.key != 'beta' %}
-                                <li><a href="{% url 'opinion:find-opinion' usr.username %}?filter={{ current_filter.key }}" class="ico-after {{ current_filter.icon }} {% if filter == current_filter.key %}selected{% endif %}">{{ current_filter.text }}</a> </li>
-                            {% endif %}
                         {% endif %}
                     {% endfor %}
+                    {% if user == usr %}
+                        <li><a href="{% url namespace|add:':find-'|add:type usr.username %}" class="ico-after cross red {% if filter == '' %}selected{% endif %}">Aucun filtre</a></li>
+                    {% endif %}
                 </ul>
             </div>
         {% endif %}
