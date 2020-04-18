@@ -5,74 +5,101 @@ def login(self, user, password):
     self.assertEqual(success, True)
 
 @override_for_contents()
-class ContentDisplayTests(TutorialTestMixin, TestCase):
+class DisplayContentTests(TutorialTestMixin, TestCase):
+    """
+    Test access to draft contents.
+    """
 
     def setUp(self):
+        # TOWRITE
+        #
+        # args_contents = [[tuto.pk, tuto.slug, [article.pk, article.slug], [opinion.pk, opinion.slug]]
 
-    def access_content(self):
+    def access_content(self, args):
         return self.client.get(
-            reverse('content:view', args=[self.tuto.pk, self.tuto.slug]),
+            reverse('content:view', args=args),
             follow=False)
+
+    def test_public_cant_access_to_content(self):
+        """Anonymous user are redirect to login page."""
+        for args in args_contents:
+            result = self.access_content(agrs)
+            self.assertEqual(result.status_code, 302)
+
+    def test_guest_cant_access_to_content(self):
+        """Non author gets a 403 error."""
+        self.login(self.user_guest.username, 'hostel77')
+        for args in args_contents:
+            result = self.access_content(args)
+            self.assertEqual(result.status_code, 403)
+        self.logout()
 
     def test_author_can_access_to_content(self):
         self.login(self.user_author.username, 'hostel77')
-        result = access_content()
-        self.assertEqual(result.status_code, 200)
-        self.logout()
-
-    def test_public_cant_access_to_content(self):
-        result = access_content()
-        self.assertEqual(result.status_code, 302)
-
-    def test_guest_can_access_to_content(self):
-        self.login(self.user_guest.username, 'hostel77')
-        result = access_content()
-        self.assertEqual(result.status_code, 403)
+        for args in args_contents:
+            result = self.access_content(args)
+            self.assertEqual(result.status_code, 200)
         self.logout()
 
     def test_staff_can_access_to_content(self):
         self.login(self.user_staff.username, 'hostel77')
-        result = access_content()
-        self.assertEqual(result.status_code, 200)
+        for args in args_contents:
+            result = self.access_content(args)
+            self.assertEqual(result.status_code, 200)
         self.logout()
-
 
 @override_for_contents()
-class ParentContainerDisplayTests(TutorialTestMixin, TestCase):
+class DisplayContainerTests(TutorialTestMixin, TestCase):
 
     def setUp(self):
+        # TODO
+        # Only one content (a tutorial), opinions and articles
+        # does not have container
+        #
+        self.part_dic = {
+            'pk': self.tuto.pk,
+            'slug': self.tuto.slug
+            'container_slug': self.tuto.part1.slug
+        }
+        self.chapter_dic = {
+            'pk': self.tuto.pk,
+            'slug': self.tuto.slug,
+            'parent_container_slug': self.tuto.part1.slug,
+            'container_slug': self.tuto.part1.chapter.slug
+        }
+        self.kwargs_container = [part_dic, chapter_dic]
 
-    def access_part(self):
+    def access_container(self, kwargs):
         return self.client.get(
-            reverse('content:view-container',
-                    kwargs={
-                        'pk': self.tuto.pk,
-                        'slug': self.tuto.slug
-                        'container_slug': self.tuto.part1.slug
-                    }),
+            reverse('content:view-container', kwargs=kwargs),
             follow=False)
-
-    def test_author_can_access_to_part(self):
-        self.login(self.user_author.username, 'hostel77')
-        result = access_part()
-        self.assertEqual(result.status_code, 200)
-        self.logout()
 
     def test_public_cant_access_to_part(self):
         "Redirect to connexion page."
-        result = access_part()
-        self.assertEqual(result.status_code, 302)
+        result = access_container(self.part_dic)
+        for kwargs in self.kwargs_container
+            result = access_container(kwargs)
+            self.assertEqual(result.status_code, 302)
 
-    def test_guest_can_access_to_part(self):
+    def test_guest_cant_access_to_part(self):
         self.login(self.user_guest.username, 'hostel77')
-        result = access_part()
-        self.assertEqual(result.status_code, 403)
+        for kwargs in self.kwargs_container
+            result = access_container(kwargs)
+            self.assertEqual(result.status_code, 403)
+        self.logout()
+
+    def test_author_can_access_to_container(self):
+        self.login(self.user_author.username, 'hostel77')
+        for kwargs in self.kwargs_container
+            result = access_container(kwargs)
+            self.assertEqual(result.status_code, 200)
         self.logout()
 
     def test_staff_can_access_to_part(self):
         self.login(self.user_staff.username, 'hostel77')
-        result = access_part()
-        self.assertEqual(result.status_code, 200)
+        for kwargs in self.kwargs_container
+            result = access_container(kwargs)
+            self.assertEqual(result.status_code, 200)
         self.logout()
 
 
@@ -81,7 +108,7 @@ class ContainerDisplayTests(TutorialTestMixin, TestCase):
 
     def setUp(self):
 
-    def access_chapter(self):
+    def access_container(self):
         return self.client.get(
             reverse('content:view-container',
                     kwargs={
@@ -94,29 +121,29 @@ class ContainerDisplayTests(TutorialTestMixin, TestCase):
 
     def test_author_can_access_to_chapter(self):
         self.login(self.user_author.username, 'hostel77')
-        result = access_chapter()
+        result = access_container()
         self.assertEqual(result.status_code, 200)
         self.logout()
 
     def test_public_cant_access_to_chapter(self):
         "Redirect to connexion page."
-        result = access_chapter()
+        result = access_container()
         self.assertEqual(result.status_code, 302)
 
     def test_guest_can_access_to_chapter(self):
         self.login(self.user_guest.username, 'hostel77')
-        result = access_chapter()
+        result = access_container()
         self.assertEqual(result.status_code, 403)
         self.logout()
 
     def test_staff_can_access_to_chapter(self):
         self.login(self.user_staff.username, 'hostel77')
-        result = access_chapter()
+        result = access_container()
         self.assertEqual(result.status_code, 200)
         self.logout()
 
 
-
+@override_for_contents()
 class CreationContentTest(TutorialTestMixin, TestCase):
     def setUp():
         self.dic = {
@@ -130,7 +157,7 @@ class CreationContentTest(TutorialTestMixin, TestCase):
             'image': open('{}/fixtures/noir_black.png'.format(settings.BASE_DIR), 'rb')
         }
 
-    def test_access_content_creation_page(self):
+    def access_content_creation_page(self):
         return self.client.post(
             reverse('content:create-tutorial'),
             follow=False)
@@ -142,7 +169,7 @@ class CreationContentTest(TutorialTestMixin, TestCase):
         self.logout()
 
     def test_staff_user_can_access_to_creation_page(self):
-        self.login(self.user_author.username, 'hostel77')
+        self.login(self.user_staff.username, 'hostel77')
         result = access_content_creation_page()
         self.assertEqual(result.status_code, 200)
         self.logout()
@@ -169,12 +196,12 @@ class CreationContentTest(TutorialTestMixin, TestCase):
 
     def test_registered_user_can_create_content(self):
         self.login(self.user_author.username, 'hostel77')
-        self.assertEqual(create_content().status_code, 200)
+        self.assertEqual(create_content().status_code, 302)
         self.logout()
 
     def test_staff_user_can_create_content(self):
-        self.login(self.user_author.username, 'hostel77')
-        self.assertEqual(create_content().status_code, 200)
+        self.login(self.user_staff.username, 'hostel77')
+        self.assertEqual(create_content().status_code, 302)
         self.logout()
 
     def test_user_ls_cant_create_content(self):
@@ -184,9 +211,10 @@ class CreationContentTest(TutorialTestMixin, TestCase):
 
     def test_public_cant_create_content(self):
         "Redirect to connexion page."
-        self.login(self.user_author.username, 'hostel77')
+        old_content_number = PublishableContent.objects.all().count()
         self.assertEqual(create_content().status_code, 302)
-        self.logout()
+        content_number = PublishableContent.objects.all().count()
+        self.assertEqual(content_number, old_content_number)
 
     def test_creation_add_content_to_db(self):
         old_content_number = PublishableContent.objects.all().count()
@@ -239,3 +267,58 @@ class CreationContentTest(TutorialTestMixin, TestCase):
         result_string = ''.join(str(a, 'utf-8') for a in response.streaming_content)
         self.assertIn('<strong>markdown</strong>', result_string, 'We need the text to be properly formatted')
         self.logout()
+
+
+@override_for_contents()
+class CreationContainerTest(TutorialTestMixin, TestCase):
+    def setUp():
+
+    # Test access to creation page for some types of user
+    def access_container_creation_page(self):
+        return self.client.post(
+            reverse('content:create-container', args=[self.content.pk, self.content.slug]),
+            follow=False)
+
+    def test_author_can_access_to_container_creation_page(self):
+        self.login(self.user_author.username, 'hostel77')
+        result = access_container_creation_page()
+        self.assertEqual(result.status_code, 200)
+        self.logout()
+
+    def test_staff_user_can_access_to_container_creation_page(self):
+        self.login(self.user_staff.username, 'hostel77')
+        result = access_container_creation_page()
+        self.assertEqual(result.status_code, 200)
+        self.logout()
+
+    def test_guest_cant_access_to_container_creation_page(self):
+        self.login(self.user_guest.username, 'hostel77')
+        result = access_container_creation_page()
+        self.assertEqual(result.status_code, 200)
+        self.logout()
+
+    def test_user_ls_cant_access_to_container_creation_page(self):
+        self.login(self.user_ls.username, 'hostel77')
+        result = access_container_creation_page()
+        self.assertEqual(result.status_code, 403)
+        self.logout()
+
+    def test_public_cant_access_to_container_creation_page(self):
+        "Redirect to connexion page."
+        self.login(self.user_author.username, 'hostel77')
+        result = access_container_creation_page()
+        self.assertEqual(result.status_code, 302)
+        self.logout()
+
+    # Test creation of container
+    def create_first_level_container(self):
+        self.client.post(
+            reverse('content:create-container', args=[self.content.pk, self.content.slug]),
+            {
+                'title': title,
+                'introduction': intro,
+                'conclusion': conclusion
+            },
+            follow=False)
+
+    def
