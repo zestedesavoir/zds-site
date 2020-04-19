@@ -47,8 +47,25 @@
 
                 line-height: 0;
                 color: $primary-600;
-
                 cursor: pointer;
+                vertical-align: middle;
+
+                &.emoji {
+                    color: #fb8c00;
+                    font-size: 1.3em;
+                }
+                &.bloc_information {
+                    color: #03a9f4;
+                }
+                &.bloc_question {
+                    color: #7e57c2;
+                }
+                &.bloc_warning {
+                    color: #ffcc80;
+                }
+                &.bloc_error {
+                    color: #ef9a9a;
+                }
             }
 
             button.blocMenu {
