@@ -43,11 +43,6 @@ class DisplayContentTests(TutorialTestMixin, TestCase):
         self.create_contents_set()
         self.create_kwargs_to_display_contents()
 
-    def access_content_display_page(self, kwargs):
-        return self.client.get(
-            reverse('content:view', kwargs=kwargs),
-            follow=False)
-
     def test_public_cant_access_content_display_page(self):
         for content in self.contents.values():
             result = self.access_content_display_page(self.kwargs_to_display_contents[content])
@@ -113,14 +108,9 @@ class CreateContentAccessTests(TutorialTestMixin, TestCase):
         self.content_types = ['TUTORIAL', 'ARTICLE', 'OPINION']
         self.create_users()
 
-    def access_content_creation_page(self, _type):
-        return self.client.get(
-            reverse(f'content:create-{_type}'),
-            follow=False)
-
     def test_public_cant_access_content_creation_page(self):
         for _type in self.content_types:
-            result = self.access_content_creation_page(_type.lower())
+            result = self.access_content_creation_page(_type)
             self.assertEqual(
                 result.status_code,
                 302,
@@ -194,14 +184,6 @@ class CreateContentTests(TutorialTestMixin, TestCase):
         self.licence = LicenceFactory()
         self.subcategory = SubCategoryFactory()
         self.create_kwargs_to_create_contents()
-
-    def create_content(self, content_informations):
-        _type = content_informations['type'].lower()
-        return self.client.post(
-            reverse(f'content:create-{_type}'),
-            content_informations,
-            follow=False
-        )
 
     def test_public_cant_create_content(self):
         for _type in self.content_types:
@@ -352,11 +334,6 @@ class EditContentAccessTests(TutorialTestMixin, TestCase):
         self.create_contents_set()
         self.create_kwargs_to_edit_contents()
 
-    def access_content_edition_page(self, kwargs):
-        return self.client.get(
-            reverse('content:edit', kwargs=kwargs),
-            follow=False)
-
     def test_public_cant_access_content_edition_page(self):
         for content in self.contents.values():
             result = self.access_content_edition_page(self.kwargs_to_edit_contents[content])
@@ -387,7 +364,6 @@ class EditContentAccessTests(TutorialTestMixin, TestCase):
                 f'Read-only user should obtain an error if he tries to access {content.type} content edition page even if he is author.'
             )
         self.logout()
-
 
     def test_author_can_access_content_edition_page(self):
         self.login(self.user_author, 'hostel77')
@@ -451,12 +427,6 @@ class EditContentAccessTests(TutorialTestMixin, TestCase):
         self.new_subcategory = SubCategoryFactory()
         self.create_contents_set()
         self.create_kwargs_to_edit_contents()
-
-    def edit_content(self, kwargs, content_informations):
-        return self.client.post(
-            reverse('content:edit', kwargs=kwargs),
-            content_informations,
-            follow=False)
 
     def assert_content_has_been_updated(self, content_pk, content_informations):
         content = PublishableContent.objects.get(pk=content_pk)
@@ -564,6 +534,16 @@ class EditContentAccessTests(TutorialTestMixin, TestCase):
                 content.slug,
                 f'The #{content.type} content slug should have changed since its title has been modified.'
             )
+            self.assertEqual(
+                self.access_content_display_page({'pk': content.pk, 'slug': content.slug}).status_code,
+                404,
+                f'Author should not be able to access its {content.type} content using old slug.'
+            )
+            self.assertEqual(
+                self.access_content_display_page({'pk': content.pk, 'slug': versioned.slug}).status_code,
+                200,
+                f'Author should be able to access its {content.type} content using the new slug.'
+            )
         self.logout()
 
     def test_edition_with_new_icon(self):
@@ -580,7 +560,23 @@ class EditContentAccessTests(TutorialTestMixin, TestCase):
                 f'Author should be able to edit his {content.type} content and change its icon.'
             )
             self.assert_content_has_been_updated(content.pk, content_informations)
+            # TO WRITE CHECK GALLERY
+        self.logout()
 
+    def test_edition_without_hash_fails(self):
+        self.login(self.user_staff, 'hostel77')
+        for content in self.contents.values():
+            kwargs = {'pk': content.pk, 'slug': content.slug}
+            content_informations = self.kwargs_to_edit_contents[content]
+            content_informations['title'] = content.title
+            content_informations['last_hash'] = ''
+            result = self.edit_content(kwargs, content_informations)
+            self.assertEqual(
+                result.status_code,
+                200,
+                f'Edition should fails if it does not provides a correct hash.'
+            )
+            self.assert_content_has_not_been_updated(content.pk, content_informations)
         self.logout()
 
 
