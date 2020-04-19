@@ -493,6 +493,16 @@ class EditContentAccessTests(TutorialTestMixin, TestCase):
             )
         self.logout()
 
+    def assert_content_has_been_updated(self, content_pk, content_informations):
+        content = PublishableContent.objects.get(pk=content_pk)
+        self.assertEqual(content.title, content_informations['title'])
+        self.assertEqual(content.description, content_informations['description'])
+        self.assertEqual(content.licence.pk, content_informations['licence'])
+        versioned = content.load_version()
+        self.assertEqual(versioned.get_introduction(), content_informations['introduction'])
+        self.assertEqual(versioned.get_conclusion(), content_informations['conclusion'])
+        self.assertEqual(versioned.description, content_informations['description'])
+        self.assertEqual(versioned.licence.pk, content_informations['licence'])
 
     def test_author_can_edit_content(self):
         self.login(self.user_author, 'hostel77')
@@ -504,6 +514,7 @@ class EditContentAccessTests(TutorialTestMixin, TestCase):
                 302,
                 f'Author should be able to edit his {content.type} content.'
             )
+            self.assert_content_has_been_updated(content.pk, self.kwargs_to_edit_contents[content])
         self.logout()
 
     def test_staff_can_edit_content(self):
@@ -516,6 +527,7 @@ class EditContentAccessTests(TutorialTestMixin, TestCase):
                 302,
                 f'Staff should be able to edit {content.type} content even if he is not author.'
             )
+            self.assert_content_has_been_updated(content.pk, self.kwargs_to_edit_contents[content])
         self.logout()
 
 
