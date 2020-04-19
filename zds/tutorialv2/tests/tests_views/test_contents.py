@@ -434,7 +434,6 @@ class EditContentAccessTests(TutorialTestMixin, TestCase):
         self.kwargs_to_edit_contents = {}
         for content in self.contents.values():
             kwargs = {
-                'title': 'new title',
                 'description': 'new description',
                 'introduction': 'new intro',
                 'conclusion': 'new conclusion',
@@ -459,40 +458,6 @@ class EditContentAccessTests(TutorialTestMixin, TestCase):
             content_informations,
             follow=False)
 
-    def test_public_cant_edit_content(self):
-        for content in self.contents.values():
-            kwargs = {'pk': content.pk, 'slug': content.slug}
-            result = self.edit_content(kwargs, self.kwargs_to_edit_contents[content])
-            self.assertEqual(
-                result.status_code,
-                302,
-                f'Public should be redirected to login page if it tries to edit {content.type} content.'
-            )
-
-    def test_guest_cant_edit_content(self):
-        self.login(self.user_guest, 'hostel77')
-        for content in self.contents.values():
-            kwargs = {'pk': content.pk, 'slug': content.slug}
-            result = self.edit_content(kwargs, self.kwargs_to_edit_contents[content])
-            self.assertEqual(
-                result.status_code,
-                403,
-                f'Guest user should obtain an error if he tries to edit {content.type} content.'
-            )
-        self.logout()
-
-    def test_read_only_author_cant_edit_content(self):
-        self.login(self.user_read_only_author, 'hostel77')
-        for content in self.contents.values():
-            kwargs = {'pk': content.pk, 'slug': content.slug}
-            result = self.edit_content(kwargs, self.kwargs_to_edit_contents[content])
-            self.assertEqual(
-                result.status_code,
-                403,
-                f'Read-only user should obtain an error if he tries to edit {content.type} content even if he is author.'
-            )
-        self.logout()
-
     def assert_content_has_been_updated(self, content_pk, content_informations):
         content = PublishableContent.objects.get(pk=content_pk)
         self.assertEqual(content.title, content_informations['title'])
@@ -504,33 +469,119 @@ class EditContentAccessTests(TutorialTestMixin, TestCase):
         self.assertEqual(versioned.description, content_informations['description'])
         self.assertEqual(versioned.licence.pk, content_informations['licence'])
 
+    def assert_content_has_not_been_updated(self, content_pk, content_informations):
+        pass
+
+    def test_public_cant_edit_content(self):
+        for content in self.contents.values():
+            kwargs = {'pk': content.pk, 'slug': content.slug}
+            content_informations = self.kwargs_to_edit_contents[content]
+            content_informations['title'] = content.title
+            result = self.edit_content(kwargs, content_informations)
+            self.assertEqual(
+                result.status_code,
+                302,
+                f'Public should be redirected to login page if it tries to edit {content.type} content.'
+            )
+            self.assert_content_has_not_been_updated(content.pk, content_informations)
+
+    def test_guest_cant_edit_content(self):
+        self.login(self.user_guest, 'hostel77')
+        for content in self.contents.values():
+            kwargs = {'pk': content.pk, 'slug': content.slug}
+            content_informations = self.kwargs_to_edit_contents[content]
+            content_informations['title'] = content.title
+            result = self.edit_content(kwargs, content_informations)
+            self.assertEqual(
+                result.status_code,
+                403,
+                f'Guest user should obtain an error if he tries to edit {content.type} content.'
+            )
+            self.assert_content_has_not_been_updated(content.pk, content_informations)
+        self.logout()
+
+    def test_read_only_author_cant_edit_content(self):
+        self.login(self.user_read_only_author, 'hostel77')
+        for content in self.contents.values():
+            kwargs = {'pk': content.pk, 'slug': content.slug}
+            content_informations = self.kwargs_to_edit_contents[content]
+            content_informations['title'] = content.title
+            result = self.edit_content(kwargs, content_informations)
+            self.assertEqual(
+                result.status_code,
+                403,
+                f'Read-only user should obtain an error if he tries to edit {content.type} content even if he is author.'
+            )
+            self.assert_content_has_not_been_updated(content.pk, content_informations)
+        self.logout()
+
     def test_author_can_edit_content(self):
         self.login(self.user_author, 'hostel77')
         for content in self.contents.values():
             kwargs = {'pk': content.pk, 'slug': content.slug}
-            result = self.edit_content(kwargs, self.kwargs_to_edit_contents[content])
+            content_informations = self.kwargs_to_edit_contents[content]
+            content_informations['title'] = content.title
+            result = self.edit_content(kwargs, content_informations)
             self.assertEqual(
                 result.status_code,
                 302,
                 f'Author should be able to edit his {content.type} content.'
             )
-            self.assert_content_has_been_updated(content.pk, self.kwargs_to_edit_contents[content])
+            self.assert_content_has_been_updated(content.pk, content_informations)
         self.logout()
 
     def test_staff_can_edit_content(self):
         self.login(self.user_staff, 'hostel77')
         for content in self.contents.values():
             kwargs = {'pk': content.pk, 'slug': content.slug}
-            result = self.edit_content(kwargs, self.kwargs_to_edit_contents[content])
+            content_informations = self.kwargs_to_edit_contents[content]
+            content_informations['title'] = content.title
+            result = self.edit_content(kwargs, content_informations)
             self.assertEqual(
                 result.status_code,
                 302,
                 f'Staff should be able to edit {content.type} content even if he is not author.'
             )
-            self.assert_content_has_been_updated(content.pk, self.kwargs_to_edit_contents[content])
+            self.assert_content_has_been_updated(content.pk, content_informations)
         self.logout()
 
+    def test_edition_with_new_title(self):
+        self.login(self.user_staff, 'hostel77')
+        for content in self.contents.values():
+            kwargs = {'pk': content.pk, 'slug': content.slug}
+            content_informations = self.kwargs_to_edit_contents[content]
+            content_informations['title'] = 'new_title'
+            result = self.edit_content(kwargs, content_informations)
+            self.assertEqual(
+                result.status_code,
+                302,
+                f'Author should be able to edit his {content.type} content and edit the title.'
+            )
+            self.assert_content_has_been_updated(content.pk, content_informations)
+            versioned = PublishableContent.objects.get(pk=content.pk)
+            self.assertNotEqual(
+                versioned.slug,
+                content.slug,
+                f'The #{content.type} content slug should have changed since its title has been modified.'
+            )
+        self.logout()
 
+    def test_edition_with_new_icon(self):
+        self.login(self.user_staff, 'hostel77')
+        for content in self.contents.values():
+            kwargs = {'pk': content.pk, 'slug': content.slug}
+            content_informations = self.kwargs_to_edit_contents[content]
+            content_informations['title'] = content.title
+            content_informations['image'] = open('{}/fixtures/noir_black.png'.format(settings.BASE_DIR), 'rb')
+            result = self.edit_content(kwargs, content_informations)
+            self.assertEqual(
+                result.status_code,
+                302,
+                f'Author should be able to edit his {content.type} content and change its icon.'
+            )
+            self.assert_content_has_been_updated(content.pk, content_informations)
+
+        self.logout()
 
 
 
