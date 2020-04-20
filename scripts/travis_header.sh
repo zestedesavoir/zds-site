@@ -66,15 +66,15 @@ source ./scripts/define_function.sh --travis-output
 zds_fold_category "before_install"
 
 zds_fold_start "packages" "* [packages] apt-get update : make sure our source list is up-to-date (for newest dependencies version)"
-sudo apt-get update -qq
+    sudo apt-get update -qq
 zds_fold_end
 
 zds_fold_start "coveralls" "* [coveralls] Install with pip"
-pip install -q coveralls
+    pip install -q coveralls
 zds_fold_end
 
 zds_fold_start "ci_turbo" "* [ci_turbo] Skip task depending on directory changes (task will run only if needed)"
-source ./scripts/ci_turbo.sh # This script exports environment variables, it must be sourced
+    source ./scripts/ci_turbo.sh # This script exports environment variables, it must be sourced
 zds_fold_end
 
 if [[ "$ZDS_TEST_JOB" == *"zds."* ]] || [[ "$ZDS_TEST_JOB" == *"selenium"* ]]; then
@@ -91,34 +91,34 @@ if [[ "$ZDS_TEST_JOB" == *"zds."* ]] || [[ "$ZDS_TEST_JOB" == *"selenium"* ]]; t
     fi
 
     zds_fold_start "mysql" "* [mysql] Install mysql for $forwho."
-    ./scripts/ci_mysql_setup.sh
+        ./scripts/ci_mysql_setup.sh
     zds_fold_end
 fi
 
 if [[ "$ZDS_TEST_JOB" == *"selenium"* ]]; then
     zds_fold_start "webdriver" "* [webdriver] Install webdriver for selenium"
-    install_geckodriver
+        install_geckodriver
     zds_fold_end
 fi
 
 if [[ "$ZDS_TEST_JOB" == *"zds.tutorialv2"* ]]; then
     # install latex
     zds_fold_start "latex" "* [latex] Install latex & Run texhash (install: texlive + latex-template)"
-    # this script is faster than zds_install.sh +tex-local +latex-template
-    git clone "$ZDS_LATEX_REPO"
-    TEMPLATEDIR=$HOME/.texlive/texmf-local/tex/latex/
-    ./latex-template/scripts/install_font.sh
-    ./latex-template/scripts/install_texlive.sh
-    export PATH=$HOME/.texlive/bin/x86_64-linux:$PATH
-    rm -rf "$TEMPLATEDIR/latex-template"
-    mkdir -p "$TEMPLATEDIR"
-    cp -r ./latex-template "$TEMPLATEDIR"
-    texhash
+        # this script is faster than zds_install.sh +tex-local +latex-template
+        git clone "$ZDS_LATEX_REPO"
+        TEMPLATEDIR=$HOME/.texlive/texmf-local/tex/latex/
+        ./latex-template/scripts/install_font.sh
+        ./latex-template/scripts/install_texlive.sh
+        export PATH=$HOME/.texlive/bin/x86_64-linux:$PATH
+        rm -rf "$TEMPLATEDIR/latex-template"
+        mkdir -p "$TEMPLATEDIR"
+        cp -r ./latex-template "$TEMPLATEDIR"
+        texhash
     zds_fold_end
 fi
 
 if [[ "$ZDS_TEST_JOB" != "none" ]]; then
     zds_fold_start "register_module" "* [packages] Register module for installation"
-    zds_register_module_for_installation
+        zds_register_module_for_installation
     zds_fold_end
 fi

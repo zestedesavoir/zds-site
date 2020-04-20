@@ -50,12 +50,10 @@ zds_travis_time_finish() {
     echo -en "travis_time:end:${ZDS_TRAVIS_TIMER_ID}:start=${ZDS_TRAVIS_TIMER_START_TIME},finish=${travis_timer_end_time},duration=${duration}\\r${ANSI_CLEAR}"
     return "${result}"
 }
-##
 
 ## start fold for travis
 ZDS_SHOW_TRAVIS_FOLD=0
-readonly travis_output="$(_in "--travis-output" "$@")"
-if $travis_output; then
+if _in "--travis-output" "$@"; then
     ZDS_SHOW_TRAVIS_FOLD=1
 fi
 
@@ -92,8 +90,7 @@ function zds_fold_end() {
 
 ## start zmd start & stop function
 function zds_start_zmd() {
-    npm run server --prefix zmd/node_modules/zmarkdown -- --silent
-    exVal=$?
+    npm run server --prefix zmd/node_modules/zmarkdown -- --silent; exVal=$?
 
     if [[ $exVal != 0 ]]; then
         zds_fold_end
@@ -103,8 +100,7 @@ function zds_start_zmd() {
 }
 
 function zds_stop_zmd() {
-    node ./zmd/node_modules/pm2/bin/pm2 kill
-    exVal=$?
+    node ./zmd/node_modules/pm2/bin/pm2 kill; exVal=$?
 
     if [[ $exVal != 0 ]]; then
         print_error "Warning: Cannot stop zmd"

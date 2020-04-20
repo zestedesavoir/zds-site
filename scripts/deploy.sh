@@ -4,7 +4,7 @@
 #
 # Deploys specified version of Zeste de Savoir
 #
-# DON’T RUN THIS SCRIPT DIRECTLY
+# DON'T RUN THIS SCRIPT DIRECTLY
 # Running update_and_deploy.sh <tag> instead will first get the
 # appropriate version of this script and run it instead.
 
