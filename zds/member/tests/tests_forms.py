@@ -143,16 +143,6 @@ class RegisterFormTest(TestCase):
         form = RegisterForm(data=data)
         self.assertFalse(form.is_valid())
 
-    def test_too_long_password_register_form(self):
-        data = {
-            'email': 'test@gmail.com',
-            'username': 'ZeTester',
-            'password': stringof77chars,
-            'password_confirm': stringof77chars
-        }
-        form = RegisterForm(data=data)
-        self.assertFalse(form.is_valid())
-
     def test_password_match_username_password_register_form(self):
         data = {
             'email': 'test@gmail.com',
@@ -464,15 +454,6 @@ class ChangePasswordFormTest(TestCase):
         form = ChangePasswordForm(data=data, user=self.user1.user)
         self.assertFalse(form.is_valid())
 
-    def test_too_long_change_password_form(self):
-        data = {
-            'password_old': self.old_password,
-            'password_new': stringof77chars,
-            'password_confirm': stringof77chars
-        }
-        form = ChangePasswordForm(data=data, user=self.user1.user)
-        self.assertFalse(form.is_valid())
-
     def test_match_username_change_password_form(self):
         self.user1.user.username = 'LongName'
         data = {
@@ -596,15 +577,6 @@ class NewPasswordFormTest(TestCase):
         data = {
             'password': too_short,
             'password_confirm': too_short
-        }
-        form = NewPasswordForm(data=data, identifier=self.user1.user.username)
-        self.assertFalse(form.is_valid())
-
-    def test_password_too_long_new_password_form(self):
-        toolong = 'abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789-----'
-        data = {
-            'password': toolong,
-            'password_confirm': toolong
         }
         form = NewPasswordForm(data=data, identifier=self.user1.user.username)
         self.assertFalse(form.is_valid())
