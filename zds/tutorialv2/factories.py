@@ -44,16 +44,16 @@ class PublishableContentFactory(factory.DjangoModelFactory):
     pubdate = datetime.now()
 
     @classmethod
-    def _prepare(cls, create, *, light=True, author_list=None, licence: Licence = None, text=text_content, **kwargs):
+    def _prepare(cls, create, *, light=True, author_list=None, licence: Licence = None, introduction=text_content, conclusion=text_content, **kwargs):
         auths = author_list or []
         given_licence = licence or Licence.objects.first()
         if isinstance(given_licence, str) and given_licence:
             given_licence = Licence.objects.filter(title=given_licence).first() or Licence.objects.first()
         licence = given_licence or LicenceFactory()
 
-        #text = text_content
         if not light:
-            text = tricky_text_content
+            introduction = tricky_text_content
+            conclusion = tricky_text_content
 
         publishable_content = super(PublishableContentFactory, cls)._prepare(create, **kwargs)
         publishable_content.gallery = GalleryFactory()
@@ -66,7 +66,7 @@ class PublishableContentFactory(factory.DjangoModelFactory):
         for author in publishable_content.authors.all():
             UserGalleryFactory(user=author, gallery=publishable_content.gallery, mode='W')
 
-        init_new_repo(publishable_content, text, text)
+        init_new_repo(publishable_content, introduction, conclusion)
 
         return publishable_content
 

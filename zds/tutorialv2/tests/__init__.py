@@ -69,6 +69,24 @@ class TutorialTestMixin:
             follow=False
         )
 
+    def check_content_informations(self, content, informations):
+        # comparison_functions instead of functions.
+        # with comparison_functions['title'] = lambda v, kw : self.assertEqual(v.title, kw['title'])
+        #
+        functions = {}
+        functions['title']        = lambda versioned : versioned.title
+        functions['introduction'] = lambda versioned : versioned.get_introduction()
+        functions['conclusion']   = lambda versioned : versioned.get_conclusion()
+        functions['description']  = lambda versioned : versioned.description
+        functions['licence']      = lambda versioned : versioned.licence
+        functions['subcategory']  = lambda versioned : set(versioned.subcategory.all())
+        functions['type']         = lambda versioned : versioned.type
+        functions['authors']      = lambda versioned : set(versioned.authors.all())
+
+        versioned = content.load_version()
+        for key in informations:
+            self.assertEqual(functions[key](versioned), informations[key])
+
     def access_content_edition_page(self, kwargs):
         return self.client.get(
             reverse('content:edit', kwargs=kwargs),

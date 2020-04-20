@@ -9,6 +9,7 @@ from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactor
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory, SubCategoryFactory
 from zds.tutorialv2.models.database import PublishableContent
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
+from zds.utils.models import Licence, SubCategory
 
 
 # Front tests to write : check content is correct and properly formatted.
@@ -25,7 +26,7 @@ class DisplayContentTests(TutorialTestMixin, TestCase):
     def create_contents_set(self):
         self.contents = {}
         for _type in self.content_types:
-            content = PublishableContentFactory(type=_type, description = 'Bobo')
+            content = PublishableContentFactory(type=_type, introduction = f'{_type} introduction.', conclusion = f'{_type} conclusion.')
             content.authors.add(self.user_author)
             content.authors.add(self.user_read_only_author)
             content.save()
@@ -85,9 +86,6 @@ class DisplayContentTests(TutorialTestMixin, TestCase):
                 200,
                 f'Author should be able to display his {content.type} content.'
             )
-            if a:
-                print(result.content.decode('utf-8'))
-                a = False
         self.logout()
 
     def test_staff_can_access_content_display_page(self):
@@ -172,10 +170,10 @@ class CreateContentTests(TutorialTestMixin, TestCase):
         self.kwargs_to_create_contents = {}
         for _type in self.content_types:
             kwargs = {
-                'title': 'un titre',
-                'description': 'une description',
-                'introduction': 'une intro',
-                'conclusion': 'une conclusion',
+                'title': f'{_type} title',
+                'description': f'{_type} description',
+                'introduction': f'{_type} introduction',
+                'conclusion': f'{_type} conclusion',
                 'type': _type,
                 'licence': self.licence.pk,
                 'subcategory': self.subcategory.pk
@@ -244,17 +242,11 @@ class CreateContentTests(TutorialTestMixin, TestCase):
             )
 
             content = PublishableContent.objects.last()
-            self.assertIn(
-                self.user,
-                content.authors.all(),
-                f'User should be author of the new {_type}.'
-            )
-            self.assertEqual(
-                content.authors.count(),
-                1,
-                f'User should be the only author of the new {_type}.'
-            )
-
+            content_informations = kwargs.copy()
+            kwargs['authors'] = set([self.user])
+            kwargs['licence'] = Licence.objects.get(pk=kwargs['licence'])
+            kwargs['subcategory'] = set([SubCategory.objects.get(pk=kwargs['subcategory'])])
+            self.check_content_informations(content, kwargs)
         self.logout()
 
     def test_user_can_create_content_with_image(self):
@@ -277,18 +269,10 @@ class CreateContentTests(TutorialTestMixin, TestCase):
             )
 
             content = PublishableContent.objects.last()
-            self.assertIn(
-                self.user,
-                content.authors.all(),
-                f'User should be author of the new {_type}.'
-            )
-            self.assertEqual(
-                content.authors.count(),
-                1,
-                f'User should be the only author of the new {_type}.'
-            )
-
-            content = PublishableContent.objects.last()
+            kwargs['authors'] = set([self.user])
+            kwargs['licence'] = Licence.objects.get(pk=kwargs['licence'])
+            kwargs['subcategory'] = set([SubCategory.objects.get(pk=kwargs['subcategory'])])
+            self.check_content_informations(content, kwargs)
             self.assertEqual(
                 Gallery.objects.filter(pk=content.gallery.pk).count(),
                 1,
