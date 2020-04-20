@@ -243,10 +243,9 @@ class CreateContentTests(TutorialTestMixin, TestCase):
 
             content = PublishableContent.objects.last()
             content_informations = kwargs.copy()
-            kwargs['authors'] = set([self.user])
-            kwargs['licence'] = Licence.objects.get(pk=kwargs['licence'])
-            kwargs['subcategory'] = set([SubCategory.objects.get(pk=kwargs['subcategory'])])
-            self.check_content_informations(content, kwargs)
+            content_informations['authors'] = set([self.user])
+            content_informations['subcategory'] = set([kwargs['subcategory']])
+            self.check_content_informations(content, content_informations)
         self.logout()
 
     def test_user_can_create_content_with_image(self):
@@ -269,10 +268,10 @@ class CreateContentTests(TutorialTestMixin, TestCase):
             )
 
             content = PublishableContent.objects.last()
-            kwargs['authors'] = set([self.user])
-            kwargs['licence'] = Licence.objects.get(pk=kwargs['licence'])
-            kwargs['subcategory'] = set([SubCategory.objects.get(pk=kwargs['subcategory'])])
-            self.check_content_informations(content, kwargs)
+            content_informations = kwargs.copy()
+            content_informations['authors'] = set([self.user])
+            content_informations['subcategory'] = set([kwargs['subcategory']])
+            self.check_content_informations(content, content_informations)
             self.assertEqual(
                 Gallery.objects.filter(pk=content.gallery.pk).count(),
                 1,
@@ -387,20 +386,22 @@ class EditContentTests(TutorialTestMixin, TestCase):
 
     def create_contents_set(self):
         self.contents = {}
+        self.contents_old_informations = {}
         for _type in self.content_types:
-            content = PublishableContentFactory(type=_type)
+            content = PublishableContentFactory(type=_type, introduction = f'{_type} introduction.', conclusion = f'{_type} conclusion.')
             content.authors.add(self.user_author)
             content.authors.add(self.user_read_only_author)
             content.save()
             self.contents[_type] = content
+            self.contents_old_informations[content] = self.get_content_informations(content)
 
     def create_kwargs_to_edit_contents(self):
         self.kwargs_to_edit_contents = {}
         for content in self.contents.values():
             kwargs = {
-                'description': 'new description',
-                'introduction': 'new intro',
-                'conclusion': 'new conclusion',
+                'description': f'{content.type} new description',
+                'introduction': f'{content.type} new intro',
+                'conclusion': f'{content.type} new conclusion',
                 'type': content.type,
                 'licence': self.new_licence.pk,
                 'subcategory': self.new_subcategory.pk,
@@ -416,20 +417,6 @@ class EditContentTests(TutorialTestMixin, TestCase):
         self.create_contents_set()
         self.create_kwargs_to_edit_contents()
 
-    def assert_content_has_been_updated(self, content_pk, content_informations):
-        content = PublishableContent.objects.get(pk=content_pk)
-        self.assertEqual(content.title, content_informations['title'])
-        self.assertEqual(content.description, content_informations['description'])
-        self.assertEqual(content.licence.pk, content_informations['licence'])
-        versioned = content.load_version()
-        self.assertEqual(versioned.get_introduction(), content_informations['introduction'])
-        self.assertEqual(versioned.get_conclusion(), content_informations['conclusion'])
-        self.assertEqual(versioned.description, content_informations['description'])
-        self.assertEqual(versioned.licence.pk, content_informations['licence'])
-
-    def assert_content_has_not_been_updated(self, content_pk, content_informations):
-        pass
-
     def test_public_cant_edit_content(self):
         for content in self.contents.values():
             kwargs = {'pk': content.pk, 'slug': content.slug}
@@ -441,7 +428,9 @@ class EditContentTests(TutorialTestMixin, TestCase):
                 302,
                 f'Public should be redirected to login page if it tries to edit {content.type} content.'
             )
-            self.assert_content_has_not_been_updated(content.pk, content_informations)
+            # Reload content
+            content = PublishableContent.objects.get(pk=content.pk)
+            self.check_content_informations(content, self.contents_old_informations[content])
 
     def test_guest_cant_edit_content(self):
         self.login(self.user_guest, 'hostel77')
@@ -455,7 +444,9 @@ class EditContentTests(TutorialTestMixin, TestCase):
                 403,
                 f'Guest user should obtain an error if he tries to edit {content.type} content.'
             )
-            self.assert_content_has_not_been_updated(content.pk, content_informations)
+            # Reload content
+            content = PublishableContent.objects.get(pk=content.pk)
+            self.check_content_informations(content, self.contents_old_informations[content])
         self.logout()
 
     def test_read_only_author_cant_edit_content(self):
@@ -470,7 +461,9 @@ class EditContentTests(TutorialTestMixin, TestCase):
                 403,
                 f'Read-only user should obtain an error if he tries to edit {content.type} content even if he is author.'
             )
-            self.assert_content_has_not_been_updated(content.pk, content_informations)
+            # Reload content
+            content = PublishableContent.objects.get(pk=content.pk)
+            self.check_content_informations(content, self.contents_old_informations[content])
         self.logout()
 
     def test_author_can_edit_content(self):
@@ -485,7 +478,12 @@ class EditContentTests(TutorialTestMixin, TestCase):
                 302,
                 f'Author should be able to edit his {content.type} content.'
             )
-            self.assert_content_has_been_updated(content.pk, content_informations)
+
+            content_informations['authors'] = set([self.user_author, self.user_read_only_author])
+            content_informations['subcategory'] = set([content_informations['subcategory']])
+            # Reload content
+            content = PublishableContent.objects.get(pk=content.pk)
+            self.check_content_informations(content, content_informations)
         self.logout()
 
     def test_staff_can_edit_content(self):
@@ -500,7 +498,11 @@ class EditContentTests(TutorialTestMixin, TestCase):
                 302,
                 f'Staff should be able to edit {content.type} content even if he is not author.'
             )
-            self.assert_content_has_been_updated(content.pk, content_informations)
+            content_informations['authors'] = set([self.user_author, self.user_read_only_author])
+            content_informations['subcategory'] = set([content_informations['subcategory']])
+            # Reload content
+            content = PublishableContent.objects.get(pk=content.pk)
+            self.check_content_informations(content, content_informations)
         self.logout()
 
     def test_edition_with_new_title(self):
@@ -515,10 +517,13 @@ class EditContentTests(TutorialTestMixin, TestCase):
                 302,
                 f'Author should be able to edit his {content.type} content and edit the title.'
             )
-            self.assert_content_has_been_updated(content.pk, content_informations)
-            versioned = PublishableContent.objects.get(pk=content.pk)
+            # Reload content
+            new_version = PublishableContent.objects.get(pk=content.pk)
+            content_informations['authors'] = set([self.user_author, self.user_read_only_author])
+            content_informations['subcategory'] = set([content_informations['subcategory']])
+            self.check_content_informations(new_version, content_informations)
             self.assertNotEqual(
-                versioned.slug,
+                new_version.slug,
                 content.slug,
                 f'The #{content.type} content slug should have changed since its title has been modified.'
             )
@@ -528,7 +533,7 @@ class EditContentTests(TutorialTestMixin, TestCase):
                 f'Author should not be able to access its {content.type} content using old slug.'
             )
             self.assertEqual(
-                self.access_content_display_page({'pk': content.pk, 'slug': versioned.slug}).status_code,
+                self.access_content_display_page({'pk': content.pk, 'slug': new_version.slug}).status_code,
                 200,
                 f'Author should be able to access its {content.type} content using the new slug.'
             )
@@ -547,7 +552,11 @@ class EditContentTests(TutorialTestMixin, TestCase):
                 302,
                 f'Author should be able to edit his {content.type} content and change its icon.'
             )
-            self.assert_content_has_been_updated(content.pk, content_informations)
+            content_informations['authors'] = set([self.user_author, self.user_read_only_author])
+            content_informations['subcategory'] = set([content_informations['subcategory']])
+            # Reload content
+            content = PublishableContent.objects.get(pk=content.pk)
+            self.check_content_informations(content, content_informations)
             # TO WRITE CHECK GALLERY
         self.logout()
 
@@ -564,20 +573,10 @@ class EditContentTests(TutorialTestMixin, TestCase):
                 200,
                 f'Edition should fails if it does not provides a correct hash.'
             )
-            self.assert_content_has_not_been_updated(content.pk, content_informations)
+            # Reload content
+            content = PublishableContent.objects.get(pk=content.pk)
+            self.check_content_informations(content, self.contents_old_informations[content])
         self.logout()
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 @override_for_contents()
@@ -592,7 +591,6 @@ class DeleteContentTests(TutorialTestMixin, TestCase):
         self.contents = {}
         for _type in self.content_types:
             content = PublishableContentFactory(type=_type)
-            content.introduction = "Une jolie introduction."
             content.save()
             self.contents[_type] = content
 
@@ -616,6 +614,11 @@ class DeleteContentTests(TutorialTestMixin, TestCase):
                 302,
                 f'Public should be redirected to login page if it tries to delete {content.type} content.'
             )
+            self.assertEqual(
+                PublishableContent.objects.filter(pk=content.pk).count(),
+                1,
+                f'Content should not have been deleted.'
+            )
 
     def test_guest_cant_delete_content(self):
         self.login(self.user_guest, 'hostel77')
@@ -625,6 +628,11 @@ class DeleteContentTests(TutorialTestMixin, TestCase):
                 result.status_code,
                 403,
                 f'Guest user should obtain an error if he tries to delete {content.type} content.'
+            )
+            self.assertEqual(
+                PublishableContent.objects.filter(pk=content.pk).count(),
+                1,
+                f'Content should not have been deleted.'
             )
         self.logout()
 
@@ -639,6 +647,11 @@ class DeleteContentTests(TutorialTestMixin, TestCase):
                 403,
                 f'Read-only author should obtain an error if he tries to delete a {content.type} content even if he is author.'
             )
+            self.assertEqual(
+                PublishableContent.objects.filter(pk=content.pk).count(),
+                1,
+                f'Content should not have been deleted.'
+            )
         self.logout()
 
     def test_author_can_delete_content(self):
@@ -651,6 +664,11 @@ class DeleteContentTests(TutorialTestMixin, TestCase):
                 302,
                 f'Author should be able to delete his {content.type} content.'
             )
+            self.assertEqual(
+                PublishableContent.objects.filter(pk=content.pk).count(),
+                0,
+                f'Content should have been deleted.'
+            )
         self.logout()
 
     def test_staff_cant_delete_content(self):
@@ -661,6 +679,11 @@ class DeleteContentTests(TutorialTestMixin, TestCase):
                 result.status_code,
                 403,
                 f'Staff should not be able to delete {content.type} content if he is not author.'
+            )
+            self.assertEqual(
+                PublishableContent.objects.filter(pk=content.pk).count(),
+                1,
+                f'Content should not have been deleted.'
             )
         self.logout()
 
@@ -678,13 +701,15 @@ class DeleteContentTests(TutorialTestMixin, TestCase):
             self.assertEqual(
                 PublishableContent.objects.filter(pk=content.pk).count(),
                 1,
-                f'Content should not has been deleted since there were multiple authors.'
+                f'Content should not have been deleted since there were multiple authors.'
             )
             content = PublishableContent.objects.get(pk=content.pk)
             self.assertEqual(content.authors.count(), 1)
             self.assertIn(self.user_guest, content.authors.all())
         self.logout()
 
+    def test_deletion_deletes_gallery(self):
+        pass
 
 
 
