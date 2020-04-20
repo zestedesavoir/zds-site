@@ -80,6 +80,11 @@ class TutorialTestMixin:
             content_informations,
             follow=False)
 
+    def delete_content(self, kwargs):
+        return self.client.post(
+            reverse('content:delete', kwargs=kwargs),
+            follow=False)
+
 class TutorialFrontMixin:
     def login(self, profile):
         """

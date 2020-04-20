@@ -25,7 +25,7 @@ class DisplayContentTests(TutorialTestMixin, TestCase):
     def create_contents_set(self):
         self.contents = {}
         for _type in self.content_types:
-            content = PublishableContentFactory(type=_type)
+            content = PublishableContentFactory(type=_type, description = 'Bobo')
             content.authors.add(self.user_author)
             content.authors.add(self.user_read_only_author)
             content.save()
@@ -77,6 +77,7 @@ class DisplayContentTests(TutorialTestMixin, TestCase):
 
     def test_author_can_access_content_display_page(self):
         self.login(self.user_author, 'hostel77')
+        a = True
         for content in self.contents.values():
             result = self.access_content_display_page(self.kwargs_to_display_contents[content])
             self.assertEqual(
@@ -84,6 +85,9 @@ class DisplayContentTests(TutorialTestMixin, TestCase):
                 200,
                 f'Author should be able to display his {content.type} content.'
             )
+            if a:
+                print(result.content.decode('utf-8'))
+                a = False
         self.logout()
 
     def test_staff_can_access_content_display_page(self):
@@ -389,7 +393,7 @@ class EditContentAccessTests(TutorialTestMixin, TestCase):
 
 
 @override_for_contents()
-class EditContentAccessTests(TutorialTestMixin, TestCase):
+class EditContentTests(TutorialTestMixin, TestCase):
 
     def create_users(self):
         self.user_staff = StaffProfileFactory().user
@@ -578,6 +582,127 @@ class EditContentAccessTests(TutorialTestMixin, TestCase):
             )
             self.assert_content_has_not_been_updated(content.pk, content_informations)
         self.logout()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@override_for_contents()
+class DeleteContentTests(TutorialTestMixin, TestCase):
+    def create_users(self):
+        self.user_author = ProfileFactory().user
+        self.user_read_only_author = ProfileFactory(can_write=False).user
+        self.user_guest = ProfileFactory().user
+        self.user_staff = StaffProfileFactory().user
+
+    def create_contents_set(self):
+        self.contents = {}
+        for _type in self.content_types:
+            content = PublishableContentFactory(type=_type)
+            content.introduction = "Une jolie introduction."
+            content.save()
+            self.contents[_type] = content
+
+    def create_kwargs_to_delete_contents(self):
+        self.kwargs_to_delete_contents = {}
+        for content in self.contents.values():
+            kwargs = {'pk': content.pk, 'slug': content.slug}
+            self.kwargs_to_delete_contents[content] = kwargs
+
+    def setUp(self):
+        self.content_types = ['TUTORIAL', 'ARTICLE', 'OPINION']
+        self.create_users()
+        self.create_contents_set()
+        self.create_kwargs_to_delete_contents()
+
+    def test_public_cant_delete_content(self):
+        for content in self.contents.values():
+            result = self.delete_content(self.kwargs_to_delete_contents[content])
+            self.assertEqual(
+                result.status_code,
+                302,
+                f'Public should be redirected to login page if it tries to delete {content.type} content.'
+            )
+
+    def test_guest_cant_delete_content(self):
+        self.login(self.user_guest, 'hostel77')
+        for content in self.contents.values():
+            result = self.delete_content(self.kwargs_to_delete_contents[content])
+            self.assertEqual(
+                result.status_code,
+                403,
+                f'Guest user should obtain an error if he tries to delete {content.type} content.'
+            )
+        self.logout()
+
+    def test_read_only_author_can_delete_content(self):
+        self.login(self.user_read_only_author, 'hostel77')
+        for content in self.contents.values():
+            content.authors.add(self.user_read_only_author)
+            content.save()
+            result = self.delete_content(self.kwargs_to_delete_contents[content])
+            self.assertEqual(
+                result.status_code,
+                403,
+                f'Read-only author should obtain an error if he tries to delete a {content.type} content even if he is author.'
+            )
+        self.logout()
+
+    def test_author_can_delete_content(self):
+        self.login(self.user_author, 'hostel77')
+        for content in self.contents.values():
+            content.authors.add(self.user_author)
+            result = self.delete_content(self.kwargs_to_delete_contents[content])
+            self.assertEqual(
+                result.status_code,
+                302,
+                f'Author should be able to delete his {content.type} content.'
+            )
+        self.logout()
+
+    def test_staff_cant_delete_content(self):
+        self.login(self.user_staff, 'hostel77')
+        for content in self.contents.values():
+            result = self.delete_content(self.kwargs_to_delete_contents[content])
+            self.assertEqual(
+                result.status_code,
+                403,
+                f'Staff should not be able to delete {content.type} content if he is not author.'
+            )
+        self.logout()
+
+    def test_deletion_when_other_authors_just_remove_author_from_list(self):
+        self.login(self.user_author, 'hostel77')
+        for content in self.contents.values():
+            content.authors.add(self.user_author)
+            content.authors.add(self.user_guest)
+            result = self.delete_content(self.kwargs_to_delete_contents[content])
+            self.assertEqual(
+                result.status_code,
+                302,
+                f'MESSAGE TO CHANGE : Author should be able to delete his {content.type} content.'
+            )
+            self.assertEqual(
+                PublishableContent.objects.filter(pk=content.pk).count(),
+                1,
+                f'Content should not has been deleted since there were multiple authors.'
+            )
+            content = PublishableContent.objects.get(pk=content.pk)
+            self.assertEqual(content.authors.count(), 1)
+            self.assertIn(self.user_guest, content.authors.all())
+        self.logout()
+
+
+
 
 
 

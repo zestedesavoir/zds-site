@@ -44,14 +44,14 @@ class PublishableContentFactory(factory.DjangoModelFactory):
     pubdate = datetime.now()
 
     @classmethod
-    def _prepare(cls, create, *, light=True, author_list=None, licence: Licence = None, **kwargs):
+    def _prepare(cls, create, *, light=True, author_list=None, licence: Licence = None, text=text_content, **kwargs):
         auths = author_list or []
         given_licence = licence or Licence.objects.first()
         if isinstance(given_licence, str) and given_licence:
             given_licence = Licence.objects.filter(title=given_licence).first() or Licence.objects.first()
         licence = given_licence or LicenceFactory()
 
-        text = text_content
+        #text = text_content
         if not light:
             text = tricky_text_content
 
