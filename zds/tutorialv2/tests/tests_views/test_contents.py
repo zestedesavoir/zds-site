@@ -1,8 +1,9 @@
+import os
+
 from django.conf import settings
 from django.urls import reverse
 from django.test import TestCase
 
-from zds.gallery.factories import UserGalleryFactory
 from zds.gallery.models import UserGallery, Gallery
 from zds.gallery.models import Image
 from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
@@ -187,6 +188,25 @@ class CreateContentTests(TutorialTestMixin, TestCase):
         self.subcategory = SubCategoryFactory()
         self.create_kwargs_to_create_contents()
 
+    def check_content_gallery(self, content, authors, size=0):
+        self.assertEqual(
+            Gallery.objects.filter(pk=content.gallery.pk).count(),
+            1
+        )
+        self.assertEqual(
+            Image.objects.filter(gallery__pk=content.gallery.pk).count(),
+            size,
+        )
+        self.assertEqual(
+            UserGallery.objects.filter(gallery__pk=content.gallery.pk).count(),
+            content.authors.count(),
+        )
+        for author in authors:
+            self.assertEqual(
+                UserGallery.objects.filter(gallery__pk=content.gallery.pk, user=author).count(),
+                1,
+            )
+
     def test_public_cant_create_content(self):
         for _type in self.content_types:
             old_content_number = PublishableContent.objects.all().count()
@@ -240,12 +260,12 @@ class CreateContentTests(TutorialTestMixin, TestCase):
                 old_content_number + 1,
                 f'Its attempt should add a new {_type} to the database.'
             )
-
             content = PublishableContent.objects.last()
             content_informations = kwargs.copy()
             content_informations['authors'] = set([self.user])
             content_informations['subcategory'] = set([kwargs['subcategory']])
             self.check_content_informations(content, content_informations)
+            self.check_content_gallery(content, set([self.user]))
         self.logout()
 
     def test_user_can_create_content_with_image(self):
@@ -266,27 +286,12 @@ class CreateContentTests(TutorialTestMixin, TestCase):
                 old_content_number + 1,
                 f'Its attempt should add a new {_type} to the database.'
             )
-
             content = PublishableContent.objects.last()
             content_informations = kwargs.copy()
             content_informations['authors'] = set([self.user])
             content_informations['subcategory'] = set([kwargs['subcategory']])
             self.check_content_informations(content, content_informations)
-            self.assertEqual(
-                Gallery.objects.filter(pk=content.gallery.pk).count(),
-                1,
-                f'A gallery linked to the new {_type} should have been created.'
-            )
-            self.assertEqual(
-                UserGallery.objects.filter(gallery__pk=content.gallery.pk).count(),
-                1,
-                f'User should have access the gallery of the new {_type}.'
-            )
-            self.assertEqual(
-                Image.objects.filter(gallery__pk=content.gallery.pk).count(),
-                1,
-                f'Gallery of the new {_type} should contains one image.'
-            )
+            self.check_content_gallery(content, set([self.user]), size=1)
         self.logout()
 
 
@@ -654,23 +659,6 @@ class DeleteContentTests(TutorialTestMixin, TestCase):
             )
         self.logout()
 
-    def test_author_can_delete_content(self):
-        self.login(self.user_author, 'hostel77')
-        for content in self.contents.values():
-            content.authors.add(self.user_author)
-            result = self.delete_content(self.kwargs_to_delete_contents[content])
-            self.assertEqual(
-                result.status_code,
-                302,
-                f'Author should be able to delete his {content.type} content.'
-            )
-            self.assertEqual(
-                PublishableContent.objects.filter(pk=content.pk).count(),
-                0,
-                f'Content should have been deleted.'
-            )
-        self.logout()
-
     def test_staff_cant_delete_content(self):
         self.login(self.user_staff, 'hostel77')
         for content in self.contents.values():
@@ -687,8 +675,33 @@ class DeleteContentTests(TutorialTestMixin, TestCase):
             )
         self.logout()
 
-    def test_deletion_when_other_authors_just_remove_author_from_list(self):
+    def test_author_can_delete_content(self):
         self.login(self.user_author, 'hostel77')
+        for content in self.contents.values():
+            content.authors.add(self.user_author)
+            versioned = content.load_version()
+            gallery = content.galley
+            result = self.delete_content(self.kwargs_to_delete_contents[content])
+            self.assertEqual(
+                result.status_code,
+                302,
+                f'Author should be able to delete his {content.type} content.'
+            )
+            self.assertEqual(
+                PublishableContent.objects.filter(pk=content.pk).count(),
+                0,
+                f'{content.type} content should have been deleted.'
+            )
+            self.assertFalse(os.path.isfile(versioned.get_path()), 'MESSAGE TO WRITE')
+            self.assertEqual(
+                Gallery.objects.filter(pk=gallery.pk).count(),
+                0,
+                f'{content.type} gallery should have been deleted.'
+            )
+        self.logout()
+
+    def test_deletion_when_other_authors_just_remove_author_from_list(self):
+        self.login(self.user_guest, 'hostel77')
         for content in self.contents.values():
             content.authors.add(self.user_author)
             content.authors.add(self.user_guest)
@@ -705,12 +718,27 @@ class DeleteContentTests(TutorialTestMixin, TestCase):
             )
             content = PublishableContent.objects.get(pk=content.pk)
             self.assertEqual(content.authors.count(), 1)
-            self.assertIn(self.user_guest, content.authors.all())
+            self.assertIn(self.user_author, content.authors.all())
+            # Only user_author should be able to access the content gallery since user_guest is no more author.
+            check_content_gallery(content, set(self.user_author))
         self.logout()
 
-    def test_deletion_deletes_gallery(self):
-        pass
-
+    def test_cant_delete_with_get(self):
+        self.login(self.user_author, 'hostel77')
+        for content in self.contents.values():
+            content.authors.add(self.user_author)
+            result = self.client.get(reverse('content:delete', kwargs=self.kwargs_to_delete_contents[content]), follow=False)
+            self.assertEqual(
+                result.status_code,
+                405,
+                f'Author should not be able to delete his {content.type} content using GET request.'
+            )
+            self.assertEqual(
+                PublishableContent.objects.filter(pk=content.pk).count(),
+                1,
+                f'Content should not have been deleted.'
+            )
+        self.logout()
 
 
 
