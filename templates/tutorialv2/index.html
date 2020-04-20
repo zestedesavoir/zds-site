@@ -200,7 +200,7 @@
                         {% endif %}
                     {% endfor %}
                     {% if user == usr %}
-                        <li><a href="{% url namespace|add:':find-'|add:type usr.username %}" class="ico-after cross red {% if filter == '' %}selected{% endif %}">Aucun filtre</a></li>
+                        <li><a href="{% url namespace|add:':find-'|add:type usr.username %}" class="ico-after cross red {% if filter == '' %}selected{% endif %}">{% trans 'Aucun filtre' %}</a></li>
                     {% endif %}
                 </ul>
             </div>
