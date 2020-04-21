@@ -4,8 +4,8 @@ from django.conf import settings
 from django.urls import reverse
 from django.test import TestCase
 
-from zds.gallery.models import UserGallery, Gallery
-from zds.gallery.models import Image
+from zds.gallery.models import Gallery, Image
+from zds.gallery.factories import UserGalleryFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory, SubCategoryFactory
 from zds.tutorialv2.models.database import PublishableContent
@@ -187,25 +187,6 @@ class CreateContentTests(TutorialTestMixin, TestCase):
         self.licence = LicenceFactory()
         self.subcategory = SubCategoryFactory()
         self.create_kwargs_to_create_contents()
-
-    def check_content_gallery(self, content, authors, size=0):
-        self.assertEqual(
-            Gallery.objects.filter(pk=content.gallery.pk).count(),
-            1
-        )
-        self.assertEqual(
-            Image.objects.filter(gallery__pk=content.gallery.pk).count(),
-            size,
-        )
-        self.assertEqual(
-            UserGallery.objects.filter(gallery__pk=content.gallery.pk).count(),
-            content.authors.count(),
-        )
-        for author in authors:
-            self.assertEqual(
-                UserGallery.objects.filter(gallery__pk=content.gallery.pk, user=author).count(),
-                1,
-            )
 
     def test_public_cant_create_content(self):
         for _type in self.content_types:
@@ -396,6 +377,8 @@ class EditContentTests(TutorialTestMixin, TestCase):
             content = PublishableContentFactory(type=_type, introduction = f'{_type} introduction.', conclusion = f'{_type} conclusion.')
             content.authors.add(self.user_author)
             content.authors.add(self.user_read_only_author)
+            UserGalleryFactory(gallery=content.gallery, user=self.user_author, mode='W')
+            UserGalleryFactory(gallery=content.gallery, user=self.user_read_only_author, mode='W')
             content.save()
             self.contents[_type] = content
             self.contents_old_informations[content] = self.get_content_informations(content)
@@ -511,7 +494,7 @@ class EditContentTests(TutorialTestMixin, TestCase):
         self.logout()
 
     def test_edition_with_new_title(self):
-        self.login(self.user_staff, 'hostel77')
+        self.login(self.user_author, 'hostel77')
         for content in self.contents.values():
             kwargs = {'pk': content.pk, 'slug': content.slug}
             content_informations = self.kwargs_to_edit_contents[content]
@@ -545,12 +528,13 @@ class EditContentTests(TutorialTestMixin, TestCase):
         self.logout()
 
     def test_edition_with_new_icon(self):
-        self.login(self.user_staff, 'hostel77')
+        self.login(self.user_author, 'hostel77')
         for content in self.contents.values():
             kwargs = {'pk': content.pk, 'slug': content.slug}
             content_informations = self.kwargs_to_edit_contents[content]
             content_informations['title'] = content.title
             content_informations['image'] = open('{}/fixtures/noir_black.png'.format(settings.BASE_DIR), 'rb')
+            images_number = Image.objects.filter(gallery__pk=content.gallery.pk).count()
             result = self.edit_content(kwargs, content_informations)
             self.assertEqual(
                 result.status_code,
@@ -560,13 +544,14 @@ class EditContentTests(TutorialTestMixin, TestCase):
             content_informations['authors'] = set([self.user_author, self.user_read_only_author])
             content_informations['subcategory'] = set([content_informations['subcategory']])
             # Reload content
+            old_content = content
             content = PublishableContent.objects.get(pk=content.pk)
             self.check_content_informations(content, content_informations)
-            # TO WRITE CHECK GALLERY
+            self.check_content_gallery(content, set(content.authors.all()), images_number + 1)
         self.logout()
 
     def test_edition_without_hash_fails(self):
-        self.login(self.user_staff, 'hostel77')
+        self.login(self.user_author, 'hostel77')
         for content in self.contents.values():
             kwargs = {'pk': content.pk, 'slug': content.slug}
             content_informations = self.kwargs_to_edit_contents[content]
@@ -679,8 +664,10 @@ class DeleteContentTests(TutorialTestMixin, TestCase):
         self.login(self.user_author, 'hostel77')
         for content in self.contents.values():
             content.authors.add(self.user_author)
+            UserGalleryFactory(gallery=content.gallery, user=self.user_author, mode='W')
+            content.save()
             versioned = content.load_version()
-            gallery = content.galley
+            gallery = content.gallery
             result = self.delete_content(self.kwargs_to_delete_contents[content])
             self.assertEqual(
                 result.status_code,
@@ -705,6 +692,9 @@ class DeleteContentTests(TutorialTestMixin, TestCase):
         for content in self.contents.values():
             content.authors.add(self.user_author)
             content.authors.add(self.user_guest)
+            UserGalleryFactory(gallery=content.gallery, user=self.user_author, mode='W')
+            UserGalleryFactory(gallery=content.gallery, user=self.user_guest, mode='W')
+            content.save()
             result = self.delete_content(self.kwargs_to_delete_contents[content])
             self.assertEqual(
                 result.status_code,
@@ -716,17 +706,19 @@ class DeleteContentTests(TutorialTestMixin, TestCase):
                 1,
                 f'Content should not have been deleted since there were multiple authors.'
             )
+            old_content = content
             content = PublishableContent.objects.get(pk=content.pk)
             self.assertEqual(content.authors.count(), 1)
             self.assertIn(self.user_author, content.authors.all())
             # Only user_author should be able to access the content gallery since user_guest is no more author.
-            check_content_gallery(content, set(self.user_author))
+            self.check_content_gallery(old_content, set(old_content.authors.all()))
         self.logout()
 
     def test_cant_delete_with_get(self):
         self.login(self.user_author, 'hostel77')
         for content in self.contents.values():
             content.authors.add(self.user_author)
+            content.save()
             result = self.client.get(reverse('content:delete', kwargs=self.kwargs_to_delete_contents[content]), follow=False)
             self.assertEqual(
                 result.status_code,
@@ -739,6 +731,25 @@ class DeleteContentTests(TutorialTestMixin, TestCase):
                 f'Content should not have been deleted.'
             )
         self.logout()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

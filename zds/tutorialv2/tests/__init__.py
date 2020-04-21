@@ -9,6 +9,8 @@ from django.test.utils import override_settings
 from selenium.webdriver.support.wait import WebDriverWait
 
 from zds.tutorialv2.models.database import Validation
+from zds.gallery.models import UserGallery, Gallery
+from zds.gallery.models import Image
 
 BASE_DIR = settings.BASE_DIR
 
@@ -92,6 +94,25 @@ class TutorialTestMixin:
             if key in content_informations:
                 self.assertEqual(content_informations[key], informations_to_check[key])
 
+    def check_content_gallery(self, content, authors, size=0):
+        self.assertEqual(
+            Gallery.objects.filter(pk=content.gallery.pk).count(),
+            1
+        )
+        self.assertEqual(
+            Image.objects.filter(gallery__pk=content.gallery.pk).count(),
+            size,
+        )
+        self.assertEqual(
+            UserGallery.objects.filter(gallery__pk=content.gallery.pk).count(),
+            content.authors.count(),
+        )
+        for author in authors:
+            self.assertEqual(
+                UserGallery.objects.filter(gallery__pk=content.gallery.pk, user=author).count(),
+                1,
+            )
+
     def access_content_edition_page(self, kwargs):
         return self.client.get(
             reverse('content:edit', kwargs=kwargs),
@@ -107,6 +128,7 @@ class TutorialTestMixin:
         return self.client.post(
             reverse('content:delete', kwargs=kwargs),
             follow=False)
+
 
 class TutorialFrontMixin:
     def login(self, profile):
